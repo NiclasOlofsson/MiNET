@@ -1,0 +1,190 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Xml"#>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#
+string path = this.Host.ResolvePath("");
+XmlDocument doc = new XmlDocument();
+doc.Load(path + @"\protocol.xml");
+
+
+#>
+//
+// WARNING: T4 GENERATED CODE - DO NOT EDIT
+// 
+
+using System;
+//using System.IO;
+using little = MiNET.Int24; // friendly name
+
+namespace MiNET
+{
+
+	public class PackageFactory
+	{
+		public static Package CreatePackage(byte messageId)
+		{
+			switch (messageId)
+			{
+<#	
+
+foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
+{
+#>
+				case <#= pdu.Attributes["id"].Value #>:
+					return new <#= CodeTypeName(pdu.Attributes["name"].Value) #>();
+<#	
+} // foreach
+#>
+			}
+
+			return null;
+		}
+	}
+
+<#
+
+
+Dictionary<string, Tuple<string, string>> constantsLoopup = new Dictionary<string, Tuple<string, string>>();
+foreach (XmlNode constant in doc.SelectNodes("//constant"))
+{
+	var attributes = constant.Attributes;
+	constantsLoopup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
+}
+
+
+foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
+{
+	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
+#>
+	public partial class <#= CodeName(pdu.Attributes["name"].Value, true) #> : <#= baseType #>
+	{
+<#	
+
+	foreach (XmlNode field in pdu.ChildNodes)
+	{
+		if(field.NodeType != XmlNodeType.Element) continue;
+
+		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
+		{
+			string type = constantsLoopup[field.Attributes["type"].Value].Item1;
+			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
+			WriteLine(string.Format("\t\tpublic readonly {0} {1} = new {0}{2}; // = {2};", type, CodeName(field.Attributes["name"].Value), value));
+		} 
+		else 
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", field.Attributes["type"].Value, CodeName(field.Attributes["name"].Value), "null"));
+		} 
+
+	} // foreach
+
+#>
+
+		public <#= CodeName(pdu.Attributes["name"].Value, true) #>()
+		{
+			Id = <#= CodeName(pdu.Attributes["id"].Value, true) #>;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+<#	
+	foreach (XmlNode field in pdu.ChildNodes)
+	{
+		if(field.NodeType != XmlNodeType.Element) continue;
+
+		WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
+
+			
+	} // foreach
+#>
+		}
+
+		public override void Decode()
+		{
+			base.Decode();
+
+<#	
+	foreach (XmlNode field in pdu.ChildNodes)
+	{
+		if(field.NodeType != XmlNodeType.Element) continue;
+
+		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
+		{
+			string type = constantsLoopup[field.Attributes["type"].Value].Item1;
+			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
+			WriteLine(string.Format("\t\t\tRead{1}({0}.Length);", CodeFieldName(field.Attributes["name"].Value), CodeTypeName(type)));
+		} 
+		else 
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), CodeTypeName(field.Attributes["type"].Value), SafeToString(field.Attributes["size"])));
+		} 
+
+
+	} // foreach
+#>
+		}
+	}
+
+<#
+} // foreach
+#>
+}
+
+<#+
+private string UpperInitial(string name)
+{ 
+	return name[0].ToString().ToUpperInvariant() + name.Substring(1); 
+}
+
+private string CodeTypeName(string name) 
+{
+	return CodeName(name, true);
+}
+
+private string CodeFieldName(string name) 
+{
+	return CodeName(name, false);
+}
+
+private string CodeName(string name, bool firstUpper = false)
+{
+    name = name.ToLowerInvariant();
+
+    string result = name;
+    bool upperCase = firstUpper;
+
+    result = string.Empty;
+    for (int i = 0; i < name.Length; i++)
+    {
+        if (name[i] == ' ' || name[i] == '_')
+        {
+            upperCase = true;
+        }
+        else
+        {
+            if ((i == 0 && firstUpper) || upperCase)
+            {
+                result += name[i].ToString().ToUpperInvariant();
+                upperCase = false;
+            }
+            else
+            {
+                result += name[i];
+            }
+        }
+    }
+
+	result = result.Replace(@"[]", "s");
+    return result;
+}
+
+public string SafeToString(XmlNode node)
+{
+	if(node == null) return "";
+
+	return node.Value;
+}
+#>

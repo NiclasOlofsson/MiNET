@@ -28,6 +28,7 @@ namespace MiNET.Network.Test
 		[TestMethod]
 		public void LabTest()
 		{
+
 			uint id = UInt32.Parse("0300", NumberStyles.AllowHexSpecifier);
 			DefaultMessageIdTypes denum = (DefaultMessageIdTypes) Enum.Parse(typeof (DefaultMessageIdTypes), id.ToString());
 			Console.WriteLine("Message: 0x{0:x} {0} {1}", id/8, denum.ToString());

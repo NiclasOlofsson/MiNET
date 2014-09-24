@@ -4,6 +4,7 @@
 <#@ assembly name="System.Xml"#>
 <#@ import namespace="System.Xml" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Globalization" #>
 <#
 string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
@@ -15,13 +16,13 @@ doc.Load(path + @"\protocol.xml");
 
 ##ALL PACKAGES
 
-ID|ID(hex)|Type
---|-----|----
+| ID  | ID(hex) | ID(dec) | Type |
+|:--- |:--------|--------:|:-----|
 <#	
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
 #>
-<#= pdu.Attributes["name"].Value #>|<#= pdu.Attributes["id"].Value #>|<#= CodeTypeName(pdu.Attributes["name"].Value) #> 
+| <#= pdu.Attributes["name"].Value #> | <#= pdu.Attributes["id"].Value #> | <#= Int32.Parse(pdu.Attributes["id"].Value.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |<#= CodeTypeName(pdu.Attributes["name"].Value) #> |  
 <#	
 } // foreach
 #>
@@ -37,85 +38,66 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 	constantsLoopup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
 }
 
+#>
+##Constants
+<#	
+
+#>
+##Packages
+<#	
 
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
+	string typeName = CodeTypeName(pdu.Attributes["name"].Value);
+	string typeId = pdu.Attributes["id"].Value;
 	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
 #>
-	public partial class <#= CodeName(pdu.Attributes["name"].Value, true) #> : <#= baseType #>
-	{
+##Package: <#= typeName #> (<#= typeId #>)
 <#	
 
+#>
+###Fields
+<#
 	foreach (XmlNode field in pdu.ChildNodes)
 	{
-		if(field.NodeType != XmlNodeType.Element) continue;
+		if(field.NodeType != XmlNodeType.Element) 
+		{
+#>
+###Comments
+<#= field.Value #>
+<#
+			continue;
+		}
+
+		string name = CodeName(field.Attributes["name"].Value);
+		string type = field.Attributes["type"].Value;
+
+#>
+<#
 
 		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
 		{
-			string type = constantsLoopup[field.Attributes["type"].Value].Item1;
+			type = constantsLoopup[field.Attributes["type"].Value].Item1;
 			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
-			WriteLine(string.Format("\t\tpublic readonly {0} {1} = new {0}{2}; // = {2};", type, CodeName(field.Attributes["name"].Value), value));
+#>
+<#
 		} 
 		else 
 		{
-			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", field.Attributes["type"].Value, CodeName(field.Attributes["name"].Value), "null"));
-		} 
-
-	} // foreach
-
 #>
-
-		public <#= CodeName(pdu.Attributes["name"].Value, true) #>()
-		{
-			Id = <#= CodeName(pdu.Attributes["id"].Value, true) #>;
-		}
-
-		public override void Encode()
-		{
-			base.Encode();
-
-<#	
-	foreach (XmlNode field in pdu.ChildNodes)
-	{
-		if(field.NodeType != XmlNodeType.Element) continue;
-
-		WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
-
-			
-	} // foreach
+<#
+		} 
 #>
-		}
-
-		public override void Decode()
-		{
-			base.Decode();
-
-<#	
-	foreach (XmlNode field in pdu.ChildNodes)
-	{
-		if(field.NodeType != XmlNodeType.Element) continue;
-
-		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
-		{
-			string type = constantsLoopup[field.Attributes["type"].Value].Item1;
-			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
-			WriteLine(string.Format("\t\t\tRead{1}({0}.Length);", CodeFieldName(field.Attributes["name"].Value), CodeTypeName(type)));
-		} 
-		else 
-		{
-			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), CodeTypeName(field.Attributes["type"].Value), SafeToString(field.Attributes["size"])));
-		} 
-
+	<#= name #>	<#= type #>
+<#
 
 	} // foreach
 #>
-		}
-	}
 
 <#
 } // foreach
 #>
-}
+
 
 <#+
 private string UpperInitial(string name)

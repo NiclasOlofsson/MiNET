@@ -28,10 +28,9 @@ namespace MiNET.Network.Test
 		[TestMethod]
 		public void LabTest()
 		{
-
-			uint id = UInt32.Parse("0300", NumberStyles.AllowHexSpecifier);
+			uint id = UInt32.Parse("13", NumberStyles.AllowHexSpecifier);
 			DefaultMessageIdTypes denum = (DefaultMessageIdTypes) Enum.Parse(typeof (DefaultMessageIdTypes), id.ToString());
-			Console.WriteLine("Message: 0x{0:x} {0} {1}", id/8, denum.ToString());
+			Console.WriteLine("Message: 0x{0:x} {0} {1}", id, denum.ToString());
 
 			//Assert.AreEqual(DefaultMessageIdTypes.ID_CONNECTION_REQUEST_ACCEPTED, (DefaultMessageIdTypes)denum);
 			Assert.AreEqual(15.ToString("x2"), ((int) DefaultMessageIdTypes.ID_CONNECTION_REQUEST_ACCEPTED).ToString("x2"));
@@ -78,10 +77,12 @@ namespace MiNET.Network.Test
 
 			if (msgId >= (int) DefaultMessageIdTypes.ID_CONNECTED_PING && msgId <= (int) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
-				Debug.Print("Receive standard packet: 0x{0:x2} {0}", msgId);
+				Debug.Print("> Receive standard packet: 0x{0:x2} {0}", msgId);
 				Debug.Print("\tPacket data: {0}", ByteArrayToString(receiveBytes));
 
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
+				Debug.Print("\t\tReceive Data Type: {0}", msgIdType);
+
 				switch (msgIdType)
 				{
 					case DefaultMessageIdTypes.ID_CONNECTED_PING:
@@ -100,7 +101,7 @@ namespace MiNET.Network.Test
 						packet.Write(Encoding.UTF8.GetBytes("HO"));
 
 						var data = packet._buffer.ToArray();
-						SendData(listener, data, senderEndpoint);
+						SendData(listener, data, senderEndpoint, packet.Id);
 					}
 						break;
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
@@ -114,18 +115,20 @@ namespace MiNET.Network.Test
 						if (_state == ConnectionState.Connecting) break;
 						_state = ConnectionState.Connecting;
 
+						var incoming = new IdOpenConnectionRequest1();
+						incoming._buffer.Write(receiveBytes, 0, receiveBytes.Length);
+						incoming.Decode();
+
 						var packet = new IdOpenConnectionReply1();
 						packet.serverGuid = 1;
-						packet.mtuSize = 1500;
+						packet.mtuSize = incoming.mtuSize;
 						packet.serverHasSecurity = 0;
 						packet.Encode();
 
 						var data = packet._buffer.ToArray();
-						SendData(listener, data, senderEndpoint);
+						SendData(listener, data, senderEndpoint, packet.Id);
+						break;
 					}
-						break;
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
-						break;
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
 					{
 						if (_state == ConnectionState.Connecting2) break;
@@ -138,304 +141,107 @@ namespace MiNET.Network.Test
 						packet.Encode();
 
 						var data = packet._buffer.ToArray();
-						SendData(listener, data, senderEndpoint);
+						SendData(listener, data, senderEndpoint, packet.Id);
+						break;
 					}
-
-						break;
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_2:
-						break;
-					case DefaultMessageIdTypes.ID_CONNECTION_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_REMOTE_SYSTEM_REQUIRES_PUBLIC_KEY:
-						break;
-					case DefaultMessageIdTypes.ID_OUR_SYSTEM_REQUIRES_SECURITY:
-						break;
-					case DefaultMessageIdTypes.ID_PUBLIC_KEY_MISMATCH:
-						break;
-					case DefaultMessageIdTypes.ID_OUT_OF_BAND_INTERNAL:
-						break;
-					case DefaultMessageIdTypes.ID_SND_RECEIPT_ACKED:
-						break;
-					case DefaultMessageIdTypes.ID_SND_RECEIPT_LOSS:
-						break;
-					case DefaultMessageIdTypes.ID_CONNECTION_REQUEST_ACCEPTED:
-						break;
-					case DefaultMessageIdTypes.ID_CONNECTION_ATTEMPT_FAILED:
-						break;
-					case DefaultMessageIdTypes.ID_ALREADY_CONNECTED:
-						break;
-					case DefaultMessageIdTypes.ID_NEW_INCOMING_CONNECTION:
-						break;
-					case DefaultMessageIdTypes.ID_NO_FREE_INCOMING_CONNECTIONS:
-						break;
-					case DefaultMessageIdTypes.ID_DISCONNECTION_NOTIFICATION:
-						break;
-					case DefaultMessageIdTypes.ID_CONNECTION_LOST:
-						break;
-					case DefaultMessageIdTypes.ID_CONNECTION_BANNED:
-						break;
-					case DefaultMessageIdTypes.ID_INVALID_PASSWORD:
-						break;
-					case DefaultMessageIdTypes.ID_INCOMPATIBLE_PROTOCOL_VERSION:
-						break;
-					case DefaultMessageIdTypes.ID_IP_RECENTLY_CONNECTED:
-						break;
-					case DefaultMessageIdTypes.ID_TIMESTAMP:
-						break;
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
-						break;
-					case DefaultMessageIdTypes.ID_ADVERTISE_SYSTEM:
-						break;
-					case DefaultMessageIdTypes.ID_DOWNLOAD_PROGRESS:
-						break;
-					case DefaultMessageIdTypes.ID_REMOTE_DISCONNECTION_NOTIFICATION:
-						break;
-					case DefaultMessageIdTypes.ID_REMOTE_CONNECTION_LOST:
-						break;
-					case DefaultMessageIdTypes.ID_REMOTE_NEW_INCOMING_CONNECTION:
-						break;
-					case DefaultMessageIdTypes.ID_FILE_LIST_TRANSFER_HEADER:
-						break;
-					case DefaultMessageIdTypes.ID_FILE_LIST_TRANSFER_FILE:
-						break;
-					case DefaultMessageIdTypes.ID_FILE_LIST_REFERENCE_PUSH_ACK:
-						break;
-					case DefaultMessageIdTypes.ID_DDT_DOWNLOAD_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_TRANSPORT_STRING:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_CONSTRUCTION:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_SCOPE_CHANGE:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_SERIALIZE:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_DOWNLOAD_STARTED:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_DOWNLOAD_COMPLETE:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_3_SERIALIZE_CONSTRUCTION_EXISTING:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_3_LOCAL_CONSTRUCTION_REJECTED:
-						break;
-					case DefaultMessageIdTypes.ID_REPLICA_MANAGER_3_LOCAL_CONSTRUCTION_ACCEPTED:
-						break;
-					case DefaultMessageIdTypes.ID_RAKVOICE_OPEN_CHANNEL_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_RAKVOICE_OPEN_CHANNEL_REPLY:
-						break;
-					case DefaultMessageIdTypes.ID_RAKVOICE_CLOSE_CHANNEL:
-						break;
-					case DefaultMessageIdTypes.ID_RAKVOICE_DATA:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_GET_CHANGELIST_SINCE_DATE:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_CREATION_LIST:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_DELETION_LIST:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_GET_PATCH:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_PATCH_LIST:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_REPOSITORY_FATAL_ERROR:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_FINISHED_INTERNAL:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_FINISHED:
-						break;
-					case DefaultMessageIdTypes.ID_AUTOPATCHER_RESTART_APPLICATION:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_PUNCHTHROUGH_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_CONNECT_AT_TIME:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_GET_MOST_RECENT_PORT:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_CLIENT_READY:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_TARGET_NOT_CONNECTED:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_TARGET_UNRESPONSIVE:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_CONNECTION_TO_TARGET_LOST:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_ALREADY_IN_PROGRESS:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_PUNCHTHROUGH_FAILED:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_PUNCHTHROUGH_SUCCEEDED:
-						break;
-					case DefaultMessageIdTypes.ID_READY_EVENT_SET:
-						break;
-					case DefaultMessageIdTypes.ID_READY_EVENT_UNSET:
-						break;
-					case DefaultMessageIdTypes.ID_READY_EVENT_ALL_SET:
-						break;
-					case DefaultMessageIdTypes.ID_READY_EVENT_QUERY:
-						break;
-					case DefaultMessageIdTypes.ID_LOBBY_GENERAL:
-						break;
-					case DefaultMessageIdTypes.ID_RPC_REMOTE_ERROR:
-						break;
-					case DefaultMessageIdTypes.ID_RPC_PLUGIN:
-						break;
-					case DefaultMessageIdTypes.ID_FILE_LIST_REFERENCE_PUSH:
-						break;
-					case DefaultMessageIdTypes.ID_READY_EVENT_FORCE_ALL_SET:
-						break;
-					case DefaultMessageIdTypes.ID_ROOMS_EXECUTE_FUNC:
-						break;
-					case DefaultMessageIdTypes.ID_ROOMS_LOGON_STATUS:
-						break;
-					case DefaultMessageIdTypes.ID_ROOMS_HANDLE_CHANGE:
-						break;
-					case DefaultMessageIdTypes.ID_LOBBY2_SEND_MESSAGE:
-						break;
-					case DefaultMessageIdTypes.ID_LOBBY2_SERVER_ERROR:
-						break;
-					case DefaultMessageIdTypes.ID_FCM2_NEW_HOST:
-						break;
-					case DefaultMessageIdTypes.ID_FCM2_REQUEST_FCMGUID:
-						break;
-					case DefaultMessageIdTypes.ID_FCM2_RESPOND_CONNECTION_COUNT:
-						break;
-					case DefaultMessageIdTypes.ID_FCM2_INFORM_FCMGUID:
-						break;
-					case DefaultMessageIdTypes.ID_UDP_PROXY_GENERAL:
-						break;
-					case DefaultMessageIdTypes.ID_SQLite3_EXEC:
-						break;
-					case DefaultMessageIdTypes.ID_SQLite3_UNKNOWN_DB:
-						break;
-					case DefaultMessageIdTypes.ID_SQLLITE_LOGGER:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_TYPE_DETECTION_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_NAT_TYPE_DETECTION_RESULT:
-						break;
-					case DefaultMessageIdTypes.ID_ROUTER_2_INTERNAL:
-						break;
-					case DefaultMessageIdTypes.ID_ROUTER_2_FORWARDING_NO_PATH:
-						break;
-					case DefaultMessageIdTypes.ID_ROUTER_2_FORWARDING_ESTABLISHED:
-						break;
-					case DefaultMessageIdTypes.ID_ROUTER_2_REROUTED:
-						break;
-					case DefaultMessageIdTypes.ID_TEAM_BALANCER_INTERNAL:
-						break;
-					case DefaultMessageIdTypes.ID_TEAM_BALANCER_REQUESTED_TEAM_CHANGE_PENDING:
-						break;
-					case DefaultMessageIdTypes.ID_TEAM_BALANCER_TEAMS_LOCKED:
-						break;
-					case DefaultMessageIdTypes.ID_TEAM_BALANCER_TEAM_ASSIGNED:
-						break;
-					case DefaultMessageIdTypes.ID_LIGHTSPEED_INTEGRATION:
-						break;
-					case DefaultMessageIdTypes.ID_XBOX_LOBBY:
-						break;
-					case DefaultMessageIdTypes.ID_TWO_WAY_AUTHENTICATION_INCOMING_CHALLENGE_SUCCESS:
-						break;
-					case DefaultMessageIdTypes.ID_TWO_WAY_AUTHENTICATION_OUTGOING_CHALLENGE_SUCCESS:
-						break;
-					case DefaultMessageIdTypes.ID_TWO_WAY_AUTHENTICATION_INCOMING_CHALLENGE_FAILURE:
-						break;
-					case DefaultMessageIdTypes.ID_TWO_WAY_AUTHENTICATION_OUTGOING_CHALLENGE_FAILURE:
-						break;
-					case DefaultMessageIdTypes.ID_TWO_WAY_AUTHENTICATION_OUTGOING_CHALLENGE_TIMEOUT:
-						break;
-					case DefaultMessageIdTypes.ID_TWO_WAY_AUTHENTICATION_NEGOTIATION:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_POST_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_RELEASE_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_GET_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_GET_RESPONSE:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_UNSUBSCRIBE_REQUEST:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_SERVER_TO_SERVER_COMMAND:
-						break;
-					case DefaultMessageIdTypes.ID_CLOUD_SUBSCRIPTION_NOTIFICATION:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_1:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_2:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_3:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_4:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_5:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_6:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_7:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_8:
-						break;
-					case DefaultMessageIdTypes.ID_RESERVED_9:
-						break;
-					case DefaultMessageIdTypes.ID_USER_PACKET_ENUM:
-						break;
 				}
 			}
 			else
 			{
-				Debug.Print("Receive custom packet: 0x{0:x2} {0}", msgId);
-				Debug.Print("\tPacket data: {0}", ByteArrayToString(receiveBytes));
 				DatagramHeader header = new DatagramHeader(receiveBytes[0]);
 				if (!header.isACK && !header.isNAK && header.isValid)
 				{
-					//if (_state != ConnectionState.Connected)
+					Debug.Print("> Receive custom packet: 0x{0:x2} {0}", msgId);
+					Debug.Print("\tPacket data: {0}", ByteArrayToString(receiveBytes));
+
 					{
 						_state = ConnectionState.Connected;
 
 						if (receiveBytes[0] != 0xa0)
 						{
-							var connectedPackage = new ConnectedPackage();
-							connectedPackage._buffer.Write(receiveBytes, 0, receiveBytes.Length);
-							connectedPackage.Decode();
-							// Send ACK
+							var package = new ConnectedPackage();
+							package._buffer.Write(receiveBytes, 0, receiveBytes.Length);
+							package.Decode();
 
-							var internalPackage = PackageFactory.CreatePackage(connectedPackage.receiveBuffer[0]);
-							if (internalPackage != null)
+							Debug.Print("\t\t\tReceive Data Type: {0}({1})", (DefaultMessageIdTypes) package._receiveBuffer[0], package._receiveBuffer[0]);
+
+							var message = PackageFactory.CreatePackage(package._receiveBuffer[0]);
+							if (message != null)
 							{
-								internalPackage.Write(connectedPackage.receiveBuffer);
-								internalPackage.Decode();
+								message.Write(package._receiveBuffer);
+								message.Decode();
 
 								// Ok, we got it no problem, send ACK back
-								var ack = new Ack();
-								ack.sequenceNumber = connectedPackage.sequenceNumber;
-								ack.count = IPAddress.HostToNetworkOrder((short) 1);
-								ack.onlyOneSequence = 1;
-								ack.Encode();
-								SendData(listener, ack._buffer.ToArray(), senderEndpoint);
+								SendAck(listener, senderEndpoint, package._sequenceNumber);
 							}
-							else
+							if (message != null)
 							{
-								// Send NAK
-								var nak = new Nak();
-								nak.sequenceNumber = connectedPackage.sequenceNumber;
-								nak.count = IPAddress.HostToNetworkOrder((short) 1);
-								nak.onlyOneSequence = 1;
-								nak.Encode();
-								SendData(listener, nak._buffer.ToArray(), senderEndpoint);
-							}
+								if (typeof(IdConnectedPing) == message.GetType())
+								{
+									var msg = (IdConnectedPing) message;
 
-							if (internalPackage != null && typeof (IdConnectionRequest) == internalPackage.GetType())
-							{
-								var connectionRequest = (IdConnectionRequest) internalPackage;
-								var intern = new IdConnectionRequestAcceptedManual();
-								byte[] result = intern.Encode((short) senderEndpoint.Port, connectionRequest.timestamp);
+									var response = new IdConnectedPong();
+									response.sendpingtime = msg.sendpingtime;
+									response.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+									response.Encode();
 
-								connectedPackage.sendBuffer = result;
-								connectedPackage.sequenceNumber = _sequenceNumber++;
-								connectedPackage.Encode();
-								var data = connectedPackage._buffer.ToArray();
-								SendData(listener, data, senderEndpoint);
+									var packageOut = new ConnectedPackage();
+									packageOut._sendBuffer = response._buffer.ToArray();
+									packageOut._header = 0;
+									packageOut._sequenceNumber = _sequenceNumber++;
+									packageOut.Encode();
+									var data = packageOut._buffer.ToArray();
+									SendData(listener, data, senderEndpoint, response.Id);
+								}
+								if (typeof(IdConnectionRequest) == message.GetType())
+								{
+									var msg = (IdConnectionRequest) message;
+									var response = new IdConnectionRequestAcceptedManual();
+									byte[] result = response.Encode((short) senderEndpoint.Port, msg.timestamp);
+
+									package._sendBuffer = result;
+									package._sequenceNumber = _sequenceNumber++;
+									package.Encode();
+									var data = package._buffer.ToArray();
+									SendData(listener, data, senderEndpoint, response.Id);
+								}
+								else if (typeof (IdMcpeLogin) == message.GetType())
+								{
+									{
+										var response = new IdMcpeLoginStatus();
+										response.Encode();
+
+										var packageOut = new ConnectedPackage();
+										packageOut._sendBuffer = response._buffer.ToArray();
+										packageOut._header = 0;
+										packageOut._sequenceNumber = _sequenceNumber++;
+										packageOut.Encode();
+										var data = packageOut._buffer.ToArray();
+										SendData(listener, data, senderEndpoint, response.Id);
+									}
+
+									// Start game
+									{
+										var response = new IdMcpeStartGame();
+										response.seed = 1406827239;
+										response.generator = 0;
+										response.gamemode = 0;
+										response.eid = 0;
+										response.spawnX = 128;
+										response.spawnY = 4;
+										response.spawnZ = 128;
+										response.Encode();
+
+										var packageOut = new ConnectedPackage();
+										packageOut._sendBuffer = response._buffer.ToArray();
+										packageOut._header = 0;
+										packageOut._sequenceNumber = _sequenceNumber++;
+										packageOut.Encode();
+										var data = packageOut._buffer.ToArray();
+										SendData(listener, data, senderEndpoint, response.Id);
+									}
+								}
+
 							}
 						}
 					}
@@ -459,10 +265,26 @@ namespace MiNET.Network.Test
 			}
 		}
 
-		private static void SendData(UdpClient listener, byte[] data, IPEndPoint senderEndpoint)
+		private static void SendAck(UdpClient listener, IPEndPoint senderEndpoint, Int24 sequenceNumber)
 		{
-			Debug.Print("Send packet: 0x{0:x2} {0}", data[0]);
-			Debug.Print("\tPacket data: {0}", ByteArrayToString(data));
+			ConnectedPackage connectedPackage;
+			var ack = new Ack();
+			ack.sequenceNumber = sequenceNumber;
+			ack.count = 1;
+			ack.onlyOneSequence = 1;
+			ack.Encode();
+			SendData(listener, ack._buffer.ToArray(), senderEndpoint, ack.Id);
+		}
+
+		private static void SendData(UdpClient listener, byte[] data, IPEndPoint senderEndpoint, int sendType)
+		{
+			if (sendType != new Ack().Id)
+			{
+				Debug.Print("< Send packet: 0x{0:x2} {0}", data[0]);
+				Debug.Print("\tPacket data: {0}", ByteArrayToString(data));
+				Debug.Print("\t\t\tSend Data Type: {0} (0x{1:x2})", (DefaultMessageIdTypes) sendType, sendType);
+			}
+
 			listener.Send(data, data.Length, senderEndpoint);
 		}
 

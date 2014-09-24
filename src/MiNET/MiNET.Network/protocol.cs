@@ -15,8 +15,16 @@ namespace MiNET
 		{
 			switch (messageId)
 			{
+				case 0x00:
+					return new IdConnectedPing();
 				case 0x01:
 					return new IdUnconnectedPing();
+				case 0x03:
+					return new IdConnectedPong();
+				case 0xc0:
+					return new Ack();
+				case 0xa0:
+					return new Nak();
 				case 0x1c:
 					return new IdUnconnectedPong();
 				case 0x05:
@@ -31,14 +39,59 @@ namespace MiNET
 					return new IdConnectionRequest();
 				case 0x10:
 					return new IdConnectionRequestAccepted();
-				case 0xc0:
-					return new Ack();
-				case 0xa0:
-					return new Nak();
+				case 0x13:
+					return new IdNewIncomingConnection();
+				case 0x82:
+					return new IdMcpeLogin();
+				case 0x83:
+					return new IdMcpeLoginStatus();
+				case 0x84:
+					return new IdMcpeReady();
+				case 0x87:
+					return new IdMcpeStartGame();
 			}
 
 			return null;
 		}
+	}
+
+	public partial class IdConnectedPing : ConnectedPackage
+	{
+		public long sendpingtime; // = null;
+
+		public IdConnectedPing()
+		{
+			Id = 0x00;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(sendpingtime);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			sendpingtime = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdUnconnectedPing : Package
@@ -55,17 +108,164 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(pingId);
 			Write(offlineMessageDataId);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			pingId = ReadLong();
 			ReadBytes(offlineMessageDataId.Length);
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdConnectedPong : Package
+	{
+		public long sendpingtime; // = null;
+		public long sendpongtime; // = null;
+
+		public IdConnectedPong()
+		{
+			Id = 0x03;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(sendpingtime);
+			Write(sendpongtime);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			sendpingtime = ReadLong();
+			sendpongtime = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class Ack : Package
+	{
+		public short count; // = null;
+		public byte onlyOneSequence; // = null;
+		public little sequenceNumber; // = null;
+
+		public Ack()
+		{
+			Id = 0xc0;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(count);
+			Write(onlyOneSequence);
+			Write(sequenceNumber);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			count = ReadShort();
+			onlyOneSequence = ReadByte();
+			sequenceNumber = ReadLittle();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class Nak : Package
+	{
+		public short count; // = null;
+		public byte onlyOneSequence; // = null;
+		public little sequenceNumber; // = null;
+
+		public Nak()
+		{
+			Id = 0xa0;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(count);
+			Write(onlyOneSequence);
+			Write(sequenceNumber);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			count = ReadShort();
+			onlyOneSequence = ReadByte();
+			sequenceNumber = ReadLittle();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdUnconnectedPong : Package
@@ -83,26 +283,40 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(pingId);
 			Write(serverId);
 			Write(offlineMessageDataId);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			pingId = ReadLong();
 			serverId = ReadLong();
 			ReadBytes(offlineMessageDataId.Length);
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdOpenConnectionRequest1 : Package
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte raknetProtocolVersion; // = null;
-		public byte[] padToMtuSize; // = null;
 
 		public IdOpenConnectionRequest1()
 		{
@@ -113,19 +327,32 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(offlineMessageDataId);
 			Write(raknetProtocolVersion);
-			Write(padToMtuSize);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			ReadBytes(offlineMessageDataId.Length);
 			raknetProtocolVersion = ReadByte();
-			padToMtuSize = ReadBytes(0);
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdOpenConnectionReply1 : Package
@@ -144,21 +371,36 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(offlineMessageDataId);
 			Write(serverGuid);
 			Write(serverHasSecurity);
 			Write(mtuSize);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
 			serverHasSecurity = ReadByte();
 			mtuSize = ReadShort();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdOpenConnectionRequest2 : Package
@@ -177,21 +419,36 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(offlineMessageDataId);
 			Write(clientUdpPort);
 			Write(mtuSize);
 			Write(clientGuid);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			ReadBytes(offlineMessageDataId.Length);
 			clientUdpPort = ReadBytes(6);
 			mtuSize = ReadShort();
 			clientGuid = ReadLong();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdOpenConnectionReply2 : Package
@@ -210,21 +467,36 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(offlineMessageDataId);
 			Write(serverGuid);
 			Write(mtuSize);
 			Write(doSecurity);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
 			mtuSize = ReadShort();
 			doSecurity = ReadByte();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdConnectionRequest : Package
@@ -242,19 +514,34 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(clientGuid);
 			Write(timestamp);
 			Write(doSecurity);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
+			BeforeDecode();
+
 			clientGuid = ReadLong();
 			timestamp = ReadLong();
 			doSecurity = ReadByte();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 	public partial class IdConnectionRequestAccepted : Package
@@ -273,81 +560,279 @@ namespace MiNET
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 			Write(clientSystemAddress);
 			Write(systemIndex);
 			Write(incomingTimestamp);
 			Write(serverTimestamp);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
+
+			BeforeDecode();
 
 			clientSystemAddress = ReadLong();
 			systemIndex = ReadLong();
 			incomingTimestamp = ReadLong();
 			serverTimestamp = ReadLong();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
-	public partial class Ack : Package
+	public partial class IdNewIncomingConnection : Package
 	{
-		public short count; // = null;
-		public byte onlyOneSequence; // = null;
-		public little sequenceNumber; // = null;
+		public int cookie; // = null;
+		public byte doSecurity; // = null;
+		public short port; // = null;
+		public long session; // = null;
+		public long session2; // = null;
 
-		public Ack()
+		public IdNewIncomingConnection()
 		{
-			Id = 0xc0;
+			Id = 0x13;
 		}
 
 		public override void Encode()
 		{
 			base.Encode();
 
-			Write(count);
-			Write(onlyOneSequence);
-			Write(sequenceNumber);
+			BeforeEncode();
+
+			Write(cookie);
+			Write(doSecurity);
+			Write(port);
+			Write(session);
+			Write(session2);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
-			count = ReadShort();
-			onlyOneSequence = ReadByte();
-			sequenceNumber = ReadLittle();
+			BeforeDecode();
+
+			cookie = ReadInt();
+			doSecurity = ReadByte();
+			port = ReadShort();
+			session = ReadLong();
+			session2 = ReadLong();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
-	public partial class Nak : Package
+	public partial class IdMcpeLogin : Package
 	{
-		public short count; // = null;
-		public byte onlyOneSequence; // = null;
-		public little sequenceNumber; // = null;
+		public string login; // = null;
+		public int protocol; // = null;
+		public int protocol2; // = null;
+		public int clientId; // = null;
+		public string logindata; // = null;
 
-		public Nak()
+		public IdMcpeLogin()
 		{
-			Id = 0xa0;
+			Id = 0x82;
 		}
 
 		public override void Encode()
 		{
 			base.Encode();
 
-			Write(count);
-			Write(onlyOneSequence);
-			Write(sequenceNumber);
+			BeforeEncode();
+
+			Write(login);
+			Write(protocol);
+			Write(protocol2);
+			Write(clientId);
+			Write(logindata);
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
 
-			count = ReadShort();
-			onlyOneSequence = ReadByte();
-			sequenceNumber = ReadLittle();
+			BeforeDecode();
+
+			login = ReadString();
+			protocol = ReadInt();
+			protocol2 = ReadInt();
+			clientId = ReadInt();
+			logindata = ReadString();
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeLoginStatus : Package
+	{
+		public int status; // = null;
+
+		public IdMcpeLoginStatus()
+		{
+			Id = 0x83;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(status);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			status = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeReady : Package
+	{
+
+		public IdMcpeReady()
+		{
+			Id = 0x84;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeStartGame : Package
+	{
+		public int seed; // = null;
+		public int generator; // = null;
+		public int gamemode; // = null;
+		public int eid; // = null;
+		public float spawnX; // = null;
+		public float spawnY; // = null;
+		public float spawnZ; // = null;
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
+
+		public IdMcpeStartGame()
+		{
+			Id = 0x87;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(seed);
+			Write(generator);
+			Write(gamemode);
+			Write(eid);
+			Write(spawnX);
+			Write(spawnY);
+			Write(spawnZ);
+			Write(x);
+			Write(y);
+			Write(z);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			seed = ReadInt();
+			generator = ReadInt();
+			gamemode = ReadInt();
+			eid = ReadInt();
+			spawnX = ReadFloat();
+			spawnY = ReadFloat();
+			spawnZ = ReadFloat();
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 }

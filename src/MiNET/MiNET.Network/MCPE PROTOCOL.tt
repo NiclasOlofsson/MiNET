@@ -16,8 +16,8 @@ doc.Load(path + @"\protocol.xml");
 
 ##ALL PACKAGES
 
-| ID  | ID(hex) | ID(dec) | Type |
-|:--- |:--------|--------:|:-----|
+| ID  | ID (hex) | ID (dec) | Type |
+|:--- |:---------|---------:|:-----|
 <#	
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
@@ -44,19 +44,27 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 
 #>
 ##Packages
+
 <#	
 
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
+	string pduComment = (pdu.PreviousSibling == null? null: pdu.PreviousSibling.Value)??"";
+	string typeIdName = pdu.Attributes["name"].Value;
 	string typeName = CodeTypeName(pdu.Attributes["name"].Value);
 	string typeId = pdu.Attributes["id"].Value;
 	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
 #>
-##Package: <#= typeName #> (<#= typeId #>)
-<#	
+##Package: <#= typeIdName #> (<#= typeId #>)
 
+<#= pduComment.Replace("\t","") #>
+
+<#	
 #>
 ###Fields
+
+| Name | Type |
+|:-----|:-----|
 <#
 	foreach (XmlNode field in pdu.ChildNodes)
 	{
@@ -69,7 +77,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			continue;
 		}
 
-		string name = CodeName(field.Attributes["name"].Value);
+		string name = field.Attributes["name"].Value;
 		string type = field.Attributes["type"].Value;
 
 #>
@@ -88,7 +96,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 <#
 		} 
 #>
-	<#= name #>	<#= type #>
+|<#= name #> | <#= type #> |
 <#
 
 	} // foreach

@@ -90,6 +90,8 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		{
 			base.Encode();
 
+			BeforeEncode();
+
 <#	
 	foreach (XmlNode field in pdu.ChildNodes)
 	{
@@ -100,11 +102,18 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			
 	} // foreach
 #>
+
+			AfterEncode();
 		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
 
 		public override void Decode()
 		{
 			base.Decode();
+
+			BeforeDecode();
 
 <#	
 	foreach (XmlNode field in pdu.ChildNodes)
@@ -125,7 +134,13 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 
 	} // foreach
 #>
+
+			AfterDecode();
 		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
 	}
 
 <#

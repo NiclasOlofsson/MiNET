@@ -87,22 +87,8 @@ namespace MiNET
 	}
 
 	/// Base package class
-	public class Package
+	public partial class Package
 	{
-
-		public static Package PackageFactory(byte messageId)
-		{
-			switch (messageId)
-			{
-				case 0:
-					return new Package();
-					break;
-			}
-
-			return null;
-		}
-
-
 		public const int MtuSize = 1500;
 
 		public byte Id;
@@ -128,7 +114,7 @@ namespace MiNET
 			return _reader.ReadByte();
 		}
 
-		public void Write(short value)
+		public void Write(byte[] value)
 		{
 			_writer.Write(value);
 		}
@@ -138,14 +124,14 @@ namespace MiNET
 			return _reader.ReadBytes(count);
 		}
 
-		public void Write(byte[] value)
+		public void Write(short value)
 		{
-			_writer.Write(value);
+			_writer.Write(IPAddress.HostToNetworkOrder(value));
 		}
 
 		public short ReadShort()
 		{
-			return _reader.ReadInt16();
+			return IPAddress.NetworkToHostOrder(_reader.ReadInt16());
 		}
 
 		public void Write(ushort value)
@@ -208,6 +194,26 @@ namespace MiNET
 			return _reader.ReadUInt64();
 		}
 
+		public void Write(float value)
+		{
+			_writer.Write(value);
+		}
+
+		public float ReadFloat()
+		{
+			return _reader.ReadSingle();
+		}
+
+		public void Write(string value)
+		{
+			_writer.Write(value);
+		}
+
+		public string ReadString()
+		{
+			return _reader.ReadString();
+		}
+
 		public virtual void Encode()
 		{
 			_buffer.Position = 0;
@@ -223,32 +229,38 @@ namespace MiNET
 
 	public class ConnectedPackage : Package
 	{
-		public byte header;
-		public little sequenceNumber; // uint 24
-		public little reliableMessageNumber;
+		public byte _header;
+		public little _sequenceNumber; // uint 24
+		public little _reliableMessageNumber;
 
-		public byte[] sendBuffer;
-		public byte[] receiveBuffer;
+		public byte[] _sendBuffer;
+		public byte[] _receiveBuffer;
+		public Int24 _sequencingIndex;
+		public Int24 _orderingIndex;
+		public byte _orderingChannel;
+		public int _splitPacketCount;
+		public short _splitPacketId;
+		public int _splitPacketIndex;
 
-		public virtual void Encode()
+		public override void Encode()
 		{
 			_buffer.Position = 0;
-			Write(header);
-			Write(sequenceNumber);
+			Write(_header);
+			Write(_sequenceNumber);
 
 			//flags & reliability
 			Write((byte) 0x40);
-			short dataBitLenght = IPAddress.HostToNetworkOrder((short) (sendBuffer.Length*8));
+			short dataBitLenght = (short) (_sendBuffer.Length*8);
 			Write(dataBitLenght); // length
-			Write(reliableMessageNumber); // message number
-			Write(sendBuffer);
+			Write(_reliableMessageNumber); // message number
+			Write(_sendBuffer);
 		}
 
-		public virtual void Decode()
+		public override void Decode()
 		{
 			_buffer.Position = 0;
-			header = ReadByte();
-			sequenceNumber = ReadLittle();
+			_header = ReadByte();
+			_sequenceNumber = ReadLittle();
 
 			byte flags = ReadByte();
 			Reliability reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
@@ -261,18 +273,18 @@ namespace MiNET
 				|| reliability == Reliability.RELIABLE_ORDERED
 				)
 			{
-				reliableMessageNumber = ReadLittle();
+				_reliableMessageNumber = ReadLittle();
 			}
 			else
 			{
-				reliableMessageNumber = new Int24(-1);
+				_reliableMessageNumber = new Int24(-1);
 			}
 
 			if (reliability == Reliability.UNRELIABLE_SEQUENCED
 				|| reliability == Reliability.RELIABLE_SEQUENCED
 				)
 			{
-				little sequencingIndex = ReadLittle();
+				_sequencingIndex = ReadLittle();
 			}
 
 			if (reliability == Reliability.UNRELIABLE_SEQUENCED
@@ -281,28 +293,28 @@ namespace MiNET
 				|| reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
 				)
 			{
-				little orderingIndex = ReadLittle();
-				byte orderingChannel = ReadByte(); // flags
+				_orderingIndex = ReadLittle();
+				_orderingChannel = ReadByte(); // flags
 			}
 			else
 			{
-				byte orderingChannel = 0;
+				_orderingChannel = 0;
 			}
 
 			if (hasSplitPacket != 0)
 			{
-				int splitPacketCount = ReadInt();
-				short splitPacketId = ReadShort();
-				int splitPacketIndex = ReadInt();
+				_splitPacketCount = ReadInt();
+				_splitPacketId = ReadShort();
+				_splitPacketIndex = ReadInt();
 			}
 			else
 			{
-				int splitPacketCount = 0;
+				_splitPacketCount = 0;
 			}
 
 			// Slurp the payload
 			int count = dataBitLength/8;
-			receiveBuffer = ReadBytes(count);
+			_receiveBuffer = ReadBytes(count);
 		}
 
 		private enum Reliability

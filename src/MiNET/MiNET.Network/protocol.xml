@@ -3,24 +3,50 @@
 <protocol name="">
 
 	<constants>
-		<constant id="OFFLINE_MESSAGE_DATA_ID" type ="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }"/>
+		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
 	</constants>
 
+	<pdu id="0x00" online="true" client="true" server="true" name="ID_CONNECTED_PING">
+		<field name="SendPingTime" type="long" />
+	</pdu>
+
+	<!--
+	Send a ping to the specified unconnected system.
+	The remote system, if it is Initialized, will respond with ID_UNCONNECTED_PONG.
+	The final ping time will be encoded in the following sizeof(RakNet::TimeMS) bytes.  (Default is 4 bytes - See __GET_TIME_64BIT in RakNetTypes.h
+	-->
 	<pdu id="0x01" client="true" server="false" name="ID_UNCONNECTED_PING" size="">
 		<field name="Ping Id" type="long" exampleData="" />
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 	</pdu>
 
+	<pdu id="0x03" online="false" client="true" server="true" name="ID_CONNECTED_PONG">
+		<field name="SendPingTime" type="long" />
+		<field name="SendPongTime" type="long" />
+	</pdu>
+
+	<pdu id="0xc0" online="false" client="true" server="true" name="ACK">
+		<field name="Count" type="short" />
+		<field name="Only One Sequence" type="byte" />
+		<field name="Sequence Number" type="little" />
+	</pdu>
+
+	<pdu id="0xa0" online="false" client="true" server="true" name="NAK">
+		<field name="Count" type="short" />
+		<field name="Only One Sequence" type="byte" />
+		<field name="Sequence Number" type="little" />
+	</pdu>
+
 	<pdu id="0x1c" client="true" server="false" name="ID_UNCONNECTED_PONG" size="">
 		<field name="Ping Id" type="long" exampleData="" />
-		<field name="Server ID" type="long"  />
+		<field name="Server ID" type="long" />
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 	</pdu>
 
 	<pdu id="0x05" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_1" size="">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 		<field name="RakNet Protocol Version" type="byte" exampleData="0x05" />
-		<field name="Pad to MTU size" type="byte[]" size="0" />
+		<!--<field name="Pad to MTU size" type="byte[]" size="0" />-->
 	</pdu>
 
 	<pdu id="0x06" client="false" server="true" name="ID_OPEN_CONNECTION_REPLY_1" size="28">
@@ -56,23 +82,48 @@
 		<!--<field name="Proof" type="byte[]" size="32" />-->
 	</pdu>
 
-	<pdu id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED" size="33">
+	<pdu id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
 		<field name="Client System Address" type="long" />
 		<field name="System Index" type="long" />
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>
 
-	<pdu id="0xc0" online="false" client="true" server="true" name="ACK" size="33">
-		<field name="Count" type="short" />
-		<field name="Only One Sequence" type="byte" />
-		<field name="Sequence Number" type="little"/>
+	<pdu id="0x13" online="false" client="true" server="false" name="ID_NEW_INCOMING_CONNECTION">
+		<field name="cookie" type="int" />
+		<field name="Do Security" type="byte" />
+		<field name="Port" type="short" />
+		<field name="Session" type="long" />
+		<field name="Session2" type="long" />
 	</pdu>
 
-	<pdu id="0xa0" online="false" client="true" server="true" name="NAK" size="33">
-		<field name="Count" type="short" />
-		<field name="Only One Sequence" type="byte" />
-		<field name="Sequence Number" type="little"/>
+	<pdu id="0x82" online="false" client="true" server="false" name="ID_MCPE_LOGIN">
+		<field name="login" type="string" />
+		<field name="protocol" type="int" />
+		<field name="protocol2" type="int" />
+		<field name="Client ID" type="int" />
+		<field name="logindata" type="string" />
 	</pdu>
+
+	<pdu id="0x83" online="false" client="false" server="true" name="ID_MCPE_LOGIN_STATUS">
+		<field name="Status" type="int" />
+	</pdu>
+
+	<pdu id="0x84" online="false" client="true" server="false" name="ID_MCPE_READY">
+	</pdu>
+
+	<pdu id="0x87" online="false" client="false" server="true" name="ID_MCPE_START_GAME">
+		<field name="Seed" type="int" />
+		<field name="Generator" type="int" />
+		<field name="Gamemode" type="int" />
+		<field name="EID" type="int" />
+		<field name="Spawn X" type="float" />
+		<field name="Spawn Y" type="float" />
+		<field name="Spawn Z" type="float" />
+		<field name="X" type="float" />
+		<field name="Y" type="float" />
+		<field name="Z" type="float" />
+	</pdu>
+
 
 </protocol>

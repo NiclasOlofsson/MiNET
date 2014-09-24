@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IdOpenConnectionReply1.cs" />
     <Compile Include="ProtocolBase.cs" />
     <Compile Include="protocol.cs">
       <AutoGen>True</AutoGen>

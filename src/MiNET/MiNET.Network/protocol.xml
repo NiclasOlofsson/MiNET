@@ -7,7 +7,7 @@
 	</constants>
 
 	<pdu id="0x00" online="false" client="true" server="true" name="ID_CONNECTED_PING">
-		<field name="SendPingTime" type="int" />
+		<field name="SendPingTime" type="long" />
 	</pdu>
 
 	<!--
@@ -41,6 +41,7 @@
 		<field name="Ping Id" type="long" exampleData="" />
 		<field name="Server ID" type="long" />
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
+		<field name="Server Name" type="string" />
 	</pdu>
 
 	<pdu id="0x05" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_1" size="">
@@ -69,7 +70,7 @@
 	<pdu id="0x08" client="false" server="true" name="ID_OPEN_CONNECTION_REPLY_2" size="30">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
-		<!--<field name="Client UDP Port" type="short" />-->
+		<field name="Client UDP Port" type="short" />
 		<field name="MTU Size" type="short" />
 		<field name="Do Security" type="byte" />
 		<!--<field name="handshakeAnswer" type="byte" />-->
@@ -98,11 +99,11 @@
 	</pdu>
 
 	<pdu id="0x82" online="false" client="true" server="false" name="ID_MCPE_LOGIN">
-		<field name="login" type="string" />
+		<field name="username" type="string" />
 		<field name="protocol" type="int" />
 		<field name="protocol2" type="int" />
 		<field name="Client ID" type="int" />
-		<field name="logindata" type="string" />
+		<field name="Logindata" type="string" />
 	</pdu>
 
 	<pdu id="0x83" online="false" client="false" server="true" name="ID_MCPE_LOGIN_STATUS">
@@ -133,17 +134,17 @@
 		<field name="Generator" type="int" />
 		<field name="Gamemode" type="int" />
 		<field name="Entity ID" type="int" />
-		<field name="Spawn X" type="int" />
+		<!--<field name="Spawn X" type="int" />
 		<field name="Spawn Y" type="int" />
-		<field name="Spawn Z" type="int" />
+		<field name="Spawn Z" type="int" />-->
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
 	</pdu>
 
-	<pdu id="0xab" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA_PACKET">
+	<pdu id="0xba" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA_PACKET">
 		<field name="Chunk X" type="int" />
 		<field name="Chunk Z" type="byte" />
+		<field name="Chunk Data" type="byte[]" size="0"/>
 	</pdu>
-
 </protocol>

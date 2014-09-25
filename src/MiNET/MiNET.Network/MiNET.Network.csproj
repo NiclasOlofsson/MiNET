@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ChunkHelper.cs" />
     <Compile Include="ConnectedPackage.cs" />
     <Compile Include="IdOpenConnectionReply1.cs" />
     <Compile Include="Int24.cs" />
@@ -50,7 +51,9 @@
       <DependentUpon>protocol.tt</DependentUpon>
     </Compile>
     <Compile Include="RakNetIdentifiers.cs" />
-    <Content Include="protocol.xml" />
+    <Content Include="protocol.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +73,16 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Craft.Net\externals\fNbt\fNbt\fNbt.csproj">
+      <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
+      <Name>fNbt</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
+      <Project>{02031C5C-5007-48D5-A253-F7C8BDF0C0B2}</Project>
+      <Name>Craft.Net.Anvil</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

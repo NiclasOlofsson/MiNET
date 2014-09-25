@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace MiNET
 {
@@ -125,12 +126,16 @@ namespace MiNET
 
 		public void Write(string value)
 		{
-			_writer.Write(value);
+			byte[] bytes = Encoding.UTF8.GetBytes(value);
+
+			Write((short) bytes.Length);
+			Write(bytes);
 		}
 
 		public string ReadString()
 		{
-			return _reader.ReadString();
+			short len = ReadShort();
+			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
 		public virtual void Encode()

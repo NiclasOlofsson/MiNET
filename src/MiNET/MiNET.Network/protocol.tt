@@ -3,11 +3,11 @@
 <#@ assembly name="System.Xml"#>
 <#@ import namespace="System.Xml" #>
 <#@ import namespace="System.Collections.Generic" #>
+
 <#
 string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
 doc.Load(path + @"\protocol.xml");
-
 
 #>
 //

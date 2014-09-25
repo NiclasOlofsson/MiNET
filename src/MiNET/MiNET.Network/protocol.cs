@@ -1,4 +1,5 @@
-﻿//
+﻿
+//
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
@@ -55,6 +56,8 @@ namespace MiNET
 					return new IdMcpeSetSpawnPosition();
 				case 0x87:
 					return new IdMcpeStartGame();
+				case 0xba:
+					return new IdMcpeFullChunkDataPacket();
 			}
 
 			return null;
@@ -63,7 +66,7 @@ namespace MiNET
 
 	public partial class IdConnectedPing : Package
 	{
-		public int sendpingtime; // = null;
+		public long sendpingtime; // = null;
 
 		public IdConnectedPing()
 		{
@@ -90,7 +93,7 @@ namespace MiNET
 
 			BeforeDecode();
 
-			sendpingtime = ReadInt();
+			sendpingtime = ReadLong();
 
 			AfterDecode();
 		}
@@ -279,6 +282,7 @@ namespace MiNET
 		public long pingId; // = null;
 		public long serverId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public string serverName; // = null;
 
 		public IdUnconnectedPong()
 		{
@@ -294,6 +298,7 @@ namespace MiNET
 			Write(pingId);
 			Write(serverId);
 			Write(offlineMessageDataId);
+			Write(serverName);
 
 			AfterEncode();
 		}
@@ -310,6 +315,7 @@ namespace MiNET
 			pingId = ReadLong();
 			serverId = ReadLong();
 			ReadBytes(offlineMessageDataId.Length);
+			serverName = ReadString();
 
 			AfterDecode();
 		}
@@ -461,6 +467,7 @@ namespace MiNET
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
+		public short clientUdpPort; // = null;
 		public short mtuSize; // = null;
 		public byte doSecurity; // = null;
 
@@ -477,6 +484,7 @@ namespace MiNET
 
 			Write(offlineMessageDataId);
 			Write(serverGuid);
+			Write(clientUdpPort);
 			Write(mtuSize);
 			Write(doSecurity);
 
@@ -494,6 +502,7 @@ namespace MiNET
 
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
+			clientUdpPort = ReadShort();
 			mtuSize = ReadShort();
 			doSecurity = ReadByte();
 
@@ -651,7 +660,7 @@ namespace MiNET
 
 	public partial class IdMcpeLogin : Package
 	{
-		public string login; // = null;
+		public string username; // = null;
 		public int protocol; // = null;
 		public int protocol2; // = null;
 		public int clientId; // = null;
@@ -668,7 +677,7 @@ namespace MiNET
 
 			BeforeEncode();
 
-			Write(login);
+			Write(username);
 			Write(protocol);
 			Write(protocol2);
 			Write(clientId);
@@ -686,7 +695,7 @@ namespace MiNET
 
 			BeforeDecode();
 
-			login = ReadString();
+			username = ReadString();
 			protocol = ReadInt();
 			protocol2 = ReadInt();
 			clientId = ReadInt();
@@ -907,9 +916,6 @@ namespace MiNET
 		public int generator; // = null;
 		public int gamemode; // = null;
 		public int entityId; // = null;
-		public int spawnX; // = null;
-		public int spawnY; // = null;
-		public int spawnZ; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -929,9 +935,6 @@ namespace MiNET
 			Write(generator);
 			Write(gamemode);
 			Write(entityId);
-			Write(spawnX);
-			Write(spawnY);
-			Write(spawnZ);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -952,12 +955,54 @@ namespace MiNET
 			generator = ReadInt();
 			gamemode = ReadInt();
 			entityId = ReadInt();
-			spawnX = ReadInt();
-			spawnY = ReadInt();
-			spawnZ = ReadInt();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeFullChunkDataPacket : Package
+	{
+		public int chunkX; // = null;
+		public byte chunkZ; // = null;
+		public byte[] chunkData; // = null;
+
+		public IdMcpeFullChunkDataPacket()
+		{
+			Id = 0xba;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(chunkX);
+			Write(chunkZ);
+			Write(chunkData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			chunkX = ReadInt();
+			chunkZ = ReadByte();
+			chunkData = ReadBytes(0);
 
 			AfterDecode();
 		}

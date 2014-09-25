@@ -71,6 +71,7 @@ namespace MiNET.Network.Test
 
 		private ConnectionState _state = ConnectionState.Waiting;
 		private int _sequenceNumber;
+		private char _reliableMessageNumber;
 
 		private void ReceiveCallback(IAsyncResult ar)
 		{
@@ -91,26 +92,26 @@ namespace MiNET.Network.Test
 					case DefaultMessageIdTypes.ID_CONNECTED_PING:
 						break;
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
+					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
 					{
 						var incoming = new IdUnconnectedPing();
-						incoming._buffer.Write(receiveBytes, 0, receiveBytes.Length);
+						incoming.SetBuffer(receiveBytes);
 						incoming.Decode();
 
 						var packet = new IdUnconnectedPong();
-						packet.serverId = 1;
-						packet.pingId = incoming.pingId;
+						packet.serverId = 12345;
+						packet.pingId = 100;
+						packet.serverName = "MCCPP;Demo;MiNET - Another MC server"; // Magic!!!!
 						packet.Encode();
-						//packet._buffer.WriteByte(2);
-						packet.Write(Encoding.UTF8.GetBytes("HO"));
 
-						var data = packet._buffer.ToArray();
-						SendRaw(listener, data, senderEndpoint, packet.Id);
+						var data = packet.GetBytes();
+
+						Debug.Print("< Send: {1} (0x{0:x2})", packet.Id, (DefaultMessageIdTypes) packet.Id);
+						Debug.Print("\tData: {0}", ByteArrayToString2(data));
+
+						SendRaw(listener, data, senderEndpoint);
+						break;
 					}
-						break;
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
-						break;
-					case DefaultMessageIdTypes.ID_CONNECTED_PONG:
-						break;
 					case DefaultMessageIdTypes.ID_DETECT_LOST_CONNECTIONS:
 						break;
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
@@ -119,17 +120,17 @@ namespace MiNET.Network.Test
 						_state = ConnectionState.Connecting;
 
 						var incoming = new IdOpenConnectionRequest1();
-						incoming._buffer.Write(receiveBytes, 0, receiveBytes.Length);
+						incoming.SetBuffer(receiveBytes);
 						incoming.Decode();
 
 						var packet = new IdOpenConnectionReply1();
-						packet.serverGuid = 1;
+						packet.serverGuid = 12345;
 						packet.mtuSize = incoming.mtuSize;
 						packet.serverHasSecurity = 0;
 						packet.Encode();
 
-						var data = packet._buffer.ToArray();
-						SendRaw(listener, data, senderEndpoint, packet.Id);
+						var data = packet.GetBytes();
+						SendRaw(listener, data, senderEndpoint);
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
@@ -137,14 +138,19 @@ namespace MiNET.Network.Test
 						if (_state == ConnectionState.Connecting2) break;
 						_state = ConnectionState.Connecting2;
 
+						var incoming = new IdOpenConnectionRequest2();
+						incoming.SetBuffer(receiveBytes);
+						incoming.Decode();
+
 						IdOpenConnectionReply2 packet = new IdOpenConnectionReply2();
-						packet.serverGuid = 0;
-						packet.mtuSize = 1500;
+						packet.serverGuid = 12345;
+						packet.clientUdpPort = (short) senderEndpoint.Port;
+						packet.mtuSize = incoming.mtuSize;
 						packet.doSecurity = 0;
 						packet.Encode();
 
-						var data = packet._buffer.ToArray();
-						SendRaw(listener, data, senderEndpoint, packet.Id);
+						var data = packet.GetBytes();
+						SendRaw(listener, data, senderEndpoint);
 						break;
 					}
 				}
@@ -154,10 +160,11 @@ namespace MiNET.Network.Test
 				DatagramHeader header = new DatagramHeader(receiveBytes[0]);
 				if (!header.isACK && !header.isNAK && header.isValid)
 				{
-					{
-						_state = ConnectionState.Connected;
+					_state = ConnectionState.Connected;
 
-						if (receiveBytes[0] != 0xa0)
+					if (receiveBytes[0] != 0xa0)
+					{
+						byte[] buffer;
 						{
 							var package = new ConnectedPackage();
 							package.SetBuffer(receiveBytes);
@@ -165,85 +172,103 @@ namespace MiNET.Network.Test
 
 							Debug.Print("> Receive: {0} (0x{1:x2}) ", (DefaultMessageIdTypes) package.internalBuffer[0], package.internalBuffer[0]);
 							Debug.Print("\tData: {0}", ByteArrayToString(receiveBytes));
+							buffer = package.internalBuffer;
 
-							var message = PackageFactory.CreatePackage(package.internalBuffer[0]);
-							if (message != null)
+							SendAck(listener, senderEndpoint, package._sequenceNumber);
+						}
+						var message = PackageFactory.CreatePackage(buffer[0]);
+						if (message != null)
+						{
+							message.SetBuffer(buffer);
+							message.Decode();
+
+							if (typeof (IdConnectedPing) == message.GetType())
 							{
-								message.SetBuffer(package.internalBuffer);
-								message.Decode();
+								var msg = (IdConnectedPing) message;
 
-								SendAck(listener, senderEndpoint, package._sequenceNumber);
+								var response = new IdConnectedPong();
+								response.sendpingtime = msg.sendpingtime;
+								response.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+								response.Encode();
+
+								SendPackage(listener, senderEndpoint, response);
 							}
-							if (message != null)
+							else if (typeof (IdConnectionRequest) == message.GetType())
 							{
-								if (typeof (IdConnectedPing) == message.GetType())
-								{
-									var msg = (IdConnectedPing) message;
+								var msg = (IdConnectionRequest) message;
+								var response = new IdConnectionRequestAcceptedManual((short) senderEndpoint.Port, msg.timestamp);
+								response.Encode();
 
-									var response = new IdConnectedPong();
-									response.sendpingtime = msg.sendpingtime;
-									response.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+								SendPackage(listener, senderEndpoint, response);
+							}
+							else if (typeof (IdMcpeLogin) == message.GetType())
+							{
+								{
+									var msg = (IdMcpeLogin) message;
+									msg.Decode();
+
+									var response = new IdMcpeLoginStatus();
+									response.status = 0;
 									response.Encode();
 
 									SendPackage(listener, senderEndpoint, response);
 								}
-								if (typeof (IdConnectionRequest) == message.GetType())
+
+								// Start game
 								{
-									var msg = (IdConnectionRequest) message;
-									var response = new IdConnectionRequestAcceptedManual((short) senderEndpoint.Port, msg.timestamp);
+									var response = new IdMcpeStartGame();
+									response.seed = 100;
+									response.generator = 0;
+									response.gamemode = 1;
+									response.entityId = 1;
+									//response.spawnX = 128;
+									//response.spawnY = 4;
+									//response.spawnZ = 128;
+									response.x = 100;
+									response.y = 2;
+									response.z = 100;
 									response.Encode();
 
 									SendPackage(listener, senderEndpoint, response);
 								}
-								else if (typeof (IdMcpeLogin) == message.GetType())
-								{
-									{
-										var response = new IdMcpeLoginStatus();
-										response.Encode();
 
-										SendPackage(listener, senderEndpoint, response);
-									}
+								//{
+								//	var response = new IdMcpeSetTime();
+								//	response.time = 2154;
+								//	response.started = 1;
+								//	response.Encode();
+								//	SendPackage(listener, senderEndpoint, response);
+								//}
+								//{
+								//	var response = new IdMcpeSetSpawnPosition();
+								//	response.x = 128;
+								//	response.y = 128;
+								//	response.z = 4;
+								//	response.Encode();
+								//	SendPackage(listener, senderEndpoint, response);
+								//}
+								//{
+								//	var response = new IdMcpeSetHealth();
+								//	response.health = 20;
+								//	response.Encode();
+								//	SendPackage(listener, senderEndpoint, response);
+								//}
+								//{
+								//	// CHUNK!
 
-									// Start game
-									{
-										var response = new IdMcpeStartGame();
-										response.seed = 1406827239;
-										response.generator = 1;
-										response.gamemode = 0;
-										response.entityId = 0;
-										response.spawnX = 128;
-										response.spawnY = 4;
-										response.spawnZ = 128;
-										response.x = 128;
-										response.y = 4;
-										response.z = 128;
-										response.Encode();
+								//	FlatlandGenerator generator = new FlatlandGenerator();
+								//	Level level = new Level(generator, "world");
+								//	Chunk chunk = generator.GenerateChunk(new Coordinates2D());
+								//	byte[] data = ChunkHelper.CreatePacket(chunk);
 
-										SendPackage(listener, senderEndpoint, response);
-									}
+								//	var response = new IdMcpeFullChunkDataPacket();
+								//	response.chunkX = 0;
+								//	response.chunkZ = 0;
+								//	response.chunkData = data;
+								//	response.Encode();
+								//	SendPackage(listener, senderEndpoint, response);
 
-									{
-										var response = new IdMcpeSetTime();
-										response.time = 2154;
-										response.started = 1;
-										response.Encode();
-										SendPackage(listener, senderEndpoint, response);
-									}
-									{
-										var response = new IdMcpeSetSpawnPosition();
-										response.x = 128;
-										response.y = 128;
-										response.z = 4;
-										response.Encode();
-										SendPackage(listener, senderEndpoint, response);
-									}
-									{
-										var response = new IdMcpeSetHealth();
-										response.health = 20;
-										response.Encode();
-										SendPackage(listener, senderEndpoint, response);
-									}
-								}
+								//}
 							}
 						}
 					}
@@ -265,6 +290,7 @@ namespace MiNET.Network.Test
 			ConnectedPackage package = new ConnectedPackage();
 			package.internalBuffer = message.GetBytes();
 			package._reliability = reliability;
+			package._reliableMessageNumber = _reliableMessageNumber++;
 			package._sequenceNumber = _sequenceNumber++;
 			package.Encode();
 			byte[] data = package.GetBytes();
@@ -272,7 +298,7 @@ namespace MiNET.Network.Test
 			Debug.Print("< Send: {1} (0x{0:x2})", data[0], (DefaultMessageIdTypes) message.Id);
 			Debug.Print("\tData: {0}", ByteArrayToString(data));
 
-			SendRaw(listener, data, senderEndpoint, message.Id);
+			SendRaw(listener, data, senderEndpoint);
 		}
 
 		private void SendAck(UdpClient listener, IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -283,11 +309,11 @@ namespace MiNET.Network.Test
 			ack.count = 1;
 			ack.onlyOneSequence = 1;
 			ack.Encode();
-			SendRaw(listener, ack._buffer.ToArray(), senderEndpoint, ack.Id);
+			SendRaw(listener, ack._buffer.ToArray(), senderEndpoint);
 		}
 
 
-		private void SendRaw(UdpClient listener, byte[] data, IPEndPoint senderEndpoint, int sendType)
+		private void SendRaw(UdpClient listener, byte[] data, IPEndPoint senderEndpoint)
 		{
 			listener.Send(data, data.Length, senderEndpoint);
 			listener.BeginSend(data, data.Length, senderEndpoint, SendRequestCallback, listener);
@@ -297,6 +323,16 @@ namespace MiNET.Network.Test
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
 			listener.EndSend(ar);
+		}
+
+		public static string ByteArrayToString2(byte[] ba)
+		{
+			StringBuilder hex = new StringBuilder((ba.Length*2) + 100);
+			hex.Append("{");
+			foreach (byte b in ba)
+				hex.AppendFormat("{0},", b);
+			hex.Append("}");
+			return hex.ToString();
 		}
 
 		public static string ByteArrayToString(byte[] ba)
@@ -326,7 +362,7 @@ namespace MiNET.Network.Test
 			Write((byte) 0x10);
 			Write(new byte[] { 0x04, 0x3f, 0x57, 0xfe }); //Cookie
 			Write((byte) 0xcd); //Security flags
-			Write(IPAddress.HostToNetworkOrder(_port));
+			Write(_port);
 			PutDataArray();
 			Write(new byte[] { 0x00, 0x00 });
 			Write(_sessionId);
@@ -335,15 +371,15 @@ namespace MiNET.Network.Test
 
 		private void PutDataArray()
 		{
-			byte[] unknown1 = new byte[] { (byte) 0xf5, (byte) 0xff, (byte) 0xff, (byte) 0xf5 };
-			byte[] unknown2 = new byte[] { (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff };
+			byte[] unknown1 = { 0xf5, 0xff, 0xff, 0xf5 };
+			byte[] unknown2 = { 0xff, 0xff, 0xff, 0xff };
 
-			Write((Int24) unknown1.Length);
+			Write(new Int24(unknown1.Length));
 			Write(unknown1);
 
 			for (int i = 0; i < 9; i++)
 			{
-				Write((Int24) unknown2.Length);
+				Write(new Int24(unknown2.Length));
 				Write(unknown2);
 			}
 		}

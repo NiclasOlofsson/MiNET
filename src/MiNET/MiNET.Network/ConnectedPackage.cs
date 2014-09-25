@@ -28,20 +28,24 @@ namespace MiNET
 			Write((byte) 0x84);
 			Write(_sequenceNumber);
 
-			Write((byte) (((byte) _reliability << 5) ^ (_hasSplit ? Convert.ToByte("0001", 2) : 0x00)));
-			ushort dataBitLenght = (ushort) (internalBuffer.Length*8);
-			Write(dataBitLenght); // length
+			byte rely = (byte) _reliability;
+			Write((byte) ((rely << 5) ^ (_hasSplit ? Convert.ToByte("0001", 2) : 0x00)));
+			Write((short) (internalBuffer.Length << 3)); // length
 
 			if (_reliability == Reliability.RELIABLE
-				|| _reliability == Reliability.RELIABLE_SEQUENCED
 				|| _reliability == Reliability.RELIABLE_ORDERED
+				|| _reliability == Reliability.RELIABLE_SEQUENCED
+				|| _reliability == Reliability.RELIABLE_WITH_ACK_RECEIPT
+				|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
 				)
 			{
 				Write(_reliableMessageNumber);
 			}
 
 			if (_reliability == Reliability.UNRELIABLE_SEQUENCED
+				|| _reliability == Reliability.RELIABLE_ORDERED
 				|| _reliability == Reliability.RELIABLE_SEQUENCED
+				|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
 				)
 			{
 				Write(_orderingIndex);
@@ -123,13 +127,14 @@ namespace MiNET
 
 	public enum Reliability
 	{
-		UNRELIABLE,
-		UNRELIABLE_SEQUENCED,
-		RELIABLE,
-		RELIABLE_ORDERED,
-		RELIABLE_SEQUENCED,
-		UNRELIABLE_WITH_ACK_RECEIPT,
-		RELIABLE_WITH_ACK_RECEIPT,
-		RELIABLE_ORDERED_WITH_ACK_RECEIPT
+		UNRELIABLE = 0,
+		UNRELIABLE_SEQUENCED = 1,
+		RELIABLE = 2,
+		RELIABLE_ORDERED = 3,
+		RELIABLE_SEQUENCED = 4,
+		UNRELIABLE_WITH_ACK_RECEIPT = 5,
+
+		RELIABLE_WITH_ACK_RECEIPT = 6,
+		RELIABLE_ORDERED_WITH_ACK_RECEIPT = 7
 	}
 }

@@ -21,7 +21,11 @@
 | ID_MCPE_LOGIN | 0x82 | 130 |IdMcpeLogin |  
 | ID_MCPE_LOGIN_STATUS | 0x83 | 131 |IdMcpeLoginStatus |  
 | ID_MCPE_READY | 0x84 | 132 |IdMcpeReady |  
+| ID_MCPE_SET_TIME | 0x86 | 134 |IdMcpeSetTime |  
+| ID_MCPE_SET_HEALTH | 0xaa | 170 |IdMcpeSetHealth |  
+| ID_MCPE_SET_SPAWN_POSITION | 0xab | 171 |IdMcpeSetSpawnPosition |  
 | ID_MCPE_START_GAME | 0x87 | 135 |IdMcpeStartGame |  
+| ID_MCPE_FULL_CHUNK_DATA_PACKET | 0xba | 186 |IdMcpeFullChunkDataPacket |  
 
 
 ##Constants
@@ -35,7 +39,7 @@
 
 | Name | Type |
 |:-----|:-----|
-|SendPingTime | int |
+|SendPingTime | long |
 
 ##Package: ID_UNCONNECTED_PING (0x01)
 
@@ -98,6 +102,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Ping Id | long |
 |Server ID | long |
 |Offline Message Data ID | byte[] |
+|Server Name | string |
 
 ##Package: ID_OPEN_CONNECTION_REQUEST_1 (0x05)
 
@@ -154,8 +159,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|
 |Offline Message Data ID | byte[] |
 |Server GUID | long |
-###Comments
-<field name="Client UDP Port" type="short" />
+|Client UDP Port | short |
 |MTU Size | short |
 |Do Security | byte |
 ###Comments
@@ -210,11 +214,11 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type |
 |:-----|:-----|
-|login | string |
+|username | string |
 |protocol | int |
 |protocol2 | int |
 |Client ID | int |
-|logindata | string |
+|Logindata | string |
 
 ##Package: ID_MCPE_LOGIN_STATUS (0x83)
 
@@ -224,6 +228,13 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type |
 |:-----|:-----|
+###Comments
+
+		The three type of status are:
+		0: Everything is good.
+		1: If the server is outdated.
+		2. If the game is outdated.
+		
 |Status | int |
 
 ##Package: ID_MCPE_READY (0x84)
@@ -234,6 +245,39 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type |
 |:-----|:-----|
+
+##Package: ID_MCPE_SET_TIME (0x86)
+
+
+
+###Fields
+
+| Name | Type |
+|:-----|:-----|
+|Time | int |
+|Started | byte |
+
+##Package: ID_MCPE_SET_HEALTH (0xaa)
+
+
+
+###Fields
+
+| Name | Type |
+|:-----|:-----|
+|Health | byte |
+
+##Package: ID_MCPE_SET_SPAWN_POSITION (0xab)
+
+FULL_CHUNK_DATA_PACKET
+
+###Fields
+
+| Name | Type |
+|:-----|:-----|
+|X | int |
+|Y | int |
+|Z | byte |
 
 ##Package: ID_MCPE_START_GAME (0x87)
 
@@ -247,12 +291,25 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Generator | int |
 |Gamemode | int |
 |Entity ID | int |
-|Spawn X | float |
-|Spawn Y | float |
-|Spawn Z | float |
+###Comments
+<field name="Spawn X" type="int" />
+		<field name="Spawn Y" type="int" />
+		<field name="Spawn Z" type="int" />
 |X | float |
 |Y | float |
 |Z | float |
+
+##Package: ID_MCPE_FULL_CHUNK_DATA_PACKET (0xba)
+
+
+
+###Fields
+
+| Name | Type |
+|:-----|:-----|
+|Chunk X | int |
+|Chunk Z | byte |
+|Chunk Data | byte[] |
 
 
 

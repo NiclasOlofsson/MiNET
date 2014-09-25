@@ -3,11 +3,11 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using System;
 //using System.IO;
-using little = MiNET.Int24; // friendly name
 
-namespace MiNET
+// friendly name
+
+namespace MiNET.Network
 {
 
 	public class PackageFactory
@@ -191,7 +191,7 @@ namespace MiNET
 	{
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;
-		public little sequenceNumber; // = null;
+		public Int24 sequenceNumber; // = null;
 
 		public Ack()
 		{
@@ -236,7 +236,7 @@ namespace MiNET
 	{
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;
-		public little sequenceNumber; // = null;
+		public Int24 sequenceNumber; // = null;
 
 		public Nak()
 		{

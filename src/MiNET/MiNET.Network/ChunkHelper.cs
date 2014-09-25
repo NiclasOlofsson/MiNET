@@ -1,16 +1,15 @@
 ﻿using System;
-using Craft.Net.Anvil;
 
-namespace Craft.Net.Server
+namespace MiNET.Network
 {
 	public static class ChunkHelper
 	{
 		public static byte[] ChunkRemovalSequence = new byte[] { 0x78, 0x9C, 0x63, 0x64, 0x1C, 0xD9, 0x00, 0x00, 0x81, 0x80, 0x01, 0x01 };
 
-		private const int BlockDataLength = Section.Width*Section.Depth*Section.Height;
+		private const int BlockDataLength = Craft.Net.Anvil.Section.Width*Craft.Net.Anvil.Section.Depth*Craft.Net.Anvil.Section.Height;
 		private const int NibbleDataLength = BlockDataLength/2;
 
-		public static byte[] CreatePacket(Chunk chunk)
+		public static byte[] CreatePacket(Craft.Net.Anvil.Chunk chunk)
 		{
 			var X = chunk.X;
 			var Z = chunk.Z;
@@ -27,7 +26,7 @@ namespace Craft.Net.Server
 			int totalSections = 0;
 			for (int i = 15; i >= 0; i--)
 			{
-				Section s = chunk.Sections[chunkY++];
+				Craft.Net.Anvil.Section s = chunk.Sections[chunkY++];
 
 				if (s.IsAir)
 					nonAir = false;
@@ -48,7 +47,7 @@ namespace Craft.Net.Server
 			// Second pass produces the arrays
 			for (int i = 15; i >= 0; i--)
 			{
-				Section s = chunk.Sections[chunkY++];
+				Craft.Net.Anvil.Section s = chunk.Sections[chunkY++];
 
 				if (s.IsAir)
 					nonAir = false;

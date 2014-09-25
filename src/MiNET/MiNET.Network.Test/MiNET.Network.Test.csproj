@@ -6,7 +6,7 @@
     <ProjectGuid>{672C13DD-9823-4DF2-9D1B-4895CC6B3CAC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiNET.Network.Test</RootNamespace>
+    <RootNamespace>MiNET.Network</RootNamespace>
     <AssemblyName>MiNET.Network.Test</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

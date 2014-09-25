@@ -1,6 +1,6 @@
 using System;
 
-namespace MiNET
+namespace MiNET.Network
 {
 	public class ConnectedPackage : Package
 	{

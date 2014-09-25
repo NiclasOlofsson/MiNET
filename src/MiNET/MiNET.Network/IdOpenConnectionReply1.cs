@@ -1,4 +1,4 @@
-namespace MiNET
+namespace MiNET.Network
 {
 	public partial class IdOpenConnectionRequest1 : Package
 	{

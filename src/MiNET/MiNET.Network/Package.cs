@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 
-namespace MiNET
+namespace MiNET.Network
 {
 	/// Base package class
 	public partial class Package

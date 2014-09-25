@@ -107,6 +107,12 @@
 	</pdu>
 
 	<pdu id="0x83" online="false" client="false" server="true" name="ID_MCPE_LOGIN_STATUS">
+		<!--
+		The three type of status are:
+		0: Everything is good.
+		1: If the server is outdated.
+		2. If the game is outdated.
+		-->
 		<field name="Status" type="int" />
 	</pdu>
 
@@ -122,7 +128,8 @@
 		<field name="Health" type="byte" />
 	</pdu>
 
-	FULL_CHUNK_DATA_PACKET
+	<!--FULL_CHUNK_DATA_PACKET-->
+
 	<pdu id="0xab" online="false" client="false" server="true" name="ID_MCPE_SET_SPAWN_POSITION">
 		<field name="X" type="int" />
 		<field name="Y" type="int" />
@@ -145,6 +152,6 @@
 	<pdu id="0xba" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA_PACKET">
 		<field name="Chunk X" type="int" />
 		<field name="Chunk Z" type="byte" />
-		<field name="Chunk Data" type="byte[]" size="0"/>
+		<field name="Chunk Data" type="byte[]" size="0" />
 	</pdu>
 </protocol>

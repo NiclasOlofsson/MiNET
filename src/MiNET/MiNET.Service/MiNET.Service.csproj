@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B7049BF1-2DB0-435D-9791-09AB61018685}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{1B017586-D2EA-4879-8CAE-961A0FA19FF1}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiNET.Network</RootNamespace>
-    <AssemblyName>MiNET.Network</AssemblyName>
+    <RootNamespace>MiNET.Service</RootNamespace>
+    <AssemblyName>MiNET.Service</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -37,54 +39,22 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Topshelf">
+      <HintPath>..\packages\Topshelf.3.1.4\lib\net40-full\Topshelf.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChunkHelper.cs" />
-    <Compile Include="ConnectedPackage.cs" />
-    <Compile Include="ConnectionRequestAcceptedManual.cs" />
-    <Compile Include="IdOpenConnectionReply1.cs" />
-    <Compile Include="Int24.cs" />
-    <Compile Include="Chunk.cs" />
-    <Compile Include="MiNetServer.cs" />
-    <Compile Include="Package.cs" />
-    <Compile Include="DatagramHeader.cs" />
-    <Compile Include="protocol.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>protocol.tt</DependentUpon>
-    </Compile>
-    <Compile Include="RakNetIdentifiers.cs" />
-    <Content Include="protocol.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Compile Include="MiNetService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MCPE PROTOCOL.md">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>MCPE PROTOCOL.tt</DependentUpon>
-    </None>
-    <None Include="MCPE PROTOCOL.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MCPE PROTOCOL.md</LastGenOutput>
-    </None>
-    <None Include="protocol.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>protocol.cs</LastGenOutput>
-    </None>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Craft.Net\externals\fNbt\fNbt\fNbt.csproj">
-      <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
-      <Name>fNbt</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
-      <Project>{02031C5C-5007-48D5-A253-F7C8BDF0C0B2}</Project>
-      <Name>Craft.Net.Anvil</Name>
+    <ProjectReference Include="..\MiNET.Network\MiNET.Network.csproj">
+      <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>
+      <Name>MiNET.Network</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

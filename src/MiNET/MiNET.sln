@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft.Net.Common", "..\..\.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fNbt", "..\..\..\Craft.Net\externals\fNbt\fNbt\fNbt.csproj", "{4488498D-976D-4DA3-BF72-109531AF0488}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.Service", "MiNET.Service\MiNET.Service.csproj", "{1B017586-D2EA-4879-8CAE-961A0FA19FF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{4488498D-976D-4DA3-BF72-109531AF0488}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4488498D-976D-4DA3-BF72-109531AF0488}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4488498D-976D-4DA3-BF72-109531AF0488}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B017586-D2EA-4879-8CAE-961A0FA19FF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B017586-D2EA-4879-8CAE-961A0FA19FF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B017586-D2EA-4879-8CAE-961A0FA19FF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B017586-D2EA-4879-8CAE-961A0FA19FF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

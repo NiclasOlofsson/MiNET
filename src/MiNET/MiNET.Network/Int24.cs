@@ -1,6 +1,6 @@
 using System;
 
-namespace MiNET
+namespace MiNET.Network
 {
 	public struct Int24 : IComparable // later , IConvertible
 	{

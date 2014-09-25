@@ -1,4 +1,4 @@
-﻿namespace MiNET
+﻿namespace MiNET.Network
 {
 
 	///// \sa NetworkIDObject.h

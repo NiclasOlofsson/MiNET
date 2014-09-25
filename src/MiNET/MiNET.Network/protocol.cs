@@ -47,6 +47,12 @@ namespace MiNET
 					return new IdMcpeLoginStatus();
 				case 0x84:
 					return new IdMcpeReady();
+				case 0x86:
+					return new IdMcpeSetTime();
+				case 0xaa:
+					return new IdMcpeSetHealth();
+				case 0xab:
+					return new IdMcpeSetSpawnPosition();
 				case 0x87:
 					return new IdMcpeStartGame();
 			}
@@ -55,9 +61,9 @@ namespace MiNET
 		}
 	}
 
-	public partial class IdConnectedPing : ConnectedPackage
+	public partial class IdConnectedPing : Package
 	{
-		public long sendpingtime; // = null;
+		public int sendpingtime; // = null;
 
 		public IdConnectedPing()
 		{
@@ -84,7 +90,7 @@ namespace MiNET
 
 			BeforeDecode();
 
-			sendpingtime = ReadLong();
+			sendpingtime = ReadInt();
 
 			AfterDecode();
 		}
@@ -769,15 +775,141 @@ namespace MiNET
 
 	}
 
+	public partial class IdMcpeSetTime : Package
+	{
+		public int time; // = null;
+		public byte started; // = null;
+
+		public IdMcpeSetTime()
+		{
+			Id = 0x86;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(time);
+			Write(started);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			time = ReadInt();
+			started = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeSetHealth : Package
+	{
+		public byte health; // = null;
+
+		public IdMcpeSetHealth()
+		{
+			Id = 0xaa;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(health);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			health = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeSetSpawnPosition : Package
+	{
+		public int x; // = null;
+		public int y; // = null;
+		public byte z; // = null;
+
+		public IdMcpeSetSpawnPosition()
+		{
+			Id = 0xab;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(x);
+			Write(y);
+			Write(z);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class IdMcpeStartGame : Package
 	{
 		public int seed; // = null;
 		public int generator; // = null;
 		public int gamemode; // = null;
-		public int eid; // = null;
-		public float spawnX; // = null;
-		public float spawnY; // = null;
-		public float spawnZ; // = null;
+		public int entityId; // = null;
+		public int spawnX; // = null;
+		public int spawnY; // = null;
+		public int spawnZ; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -796,7 +928,7 @@ namespace MiNET
 			Write(seed);
 			Write(generator);
 			Write(gamemode);
-			Write(eid);
+			Write(entityId);
 			Write(spawnX);
 			Write(spawnY);
 			Write(spawnZ);
@@ -819,10 +951,10 @@ namespace MiNET
 			seed = ReadInt();
 			generator = ReadInt();
 			gamemode = ReadInt();
-			eid = ReadInt();
-			spawnX = ReadFloat();
-			spawnY = ReadFloat();
-			spawnZ = ReadFloat();
+			entityId = ReadInt();
+			spawnX = ReadInt();
+			spawnY = ReadInt();
+			spawnZ = ReadInt();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();

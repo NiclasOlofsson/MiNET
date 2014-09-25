@@ -35,7 +35,7 @@
 
 | Name | Type |
 |:-----|:-----|
-|SendPingTime | long |
+|SendPingTime | int |
 
 ##Package: ID_UNCONNECTED_PING (0x01)
 
@@ -246,7 +246,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Seed | int |
 |Generator | int |
 |Gamemode | int |
-|EID | int |
+|Entity ID | int |
 |Spawn X | float |
 |Spawn Y | float |
 |Spawn Z | float |

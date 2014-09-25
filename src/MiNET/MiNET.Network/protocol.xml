@@ -6,8 +6,8 @@
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
 	</constants>
 
-	<pdu id="0x00" online="true" client="true" server="true" name="ID_CONNECTED_PING">
-		<field name="SendPingTime" type="long" />
+	<pdu id="0x00" online="false" client="true" server="true" name="ID_CONNECTED_PING">
+		<field name="SendPingTime" type="int" />
 	</pdu>
 
 	<!--
@@ -15,7 +15,7 @@
 	The remote system, if it is Initialized, will respond with ID_UNCONNECTED_PONG.
 	The final ping time will be encoded in the following sizeof(RakNet::TimeMS) bytes.  (Default is 4 bytes - See __GET_TIME_64BIT in RakNetTypes.h
 	-->
-	<pdu id="0x01" client="true" server="false" name="ID_UNCONNECTED_PING" size="">
+	<pdu id="0x01" online="false" client="true" server="false" name="ID_UNCONNECTED_PING" size="">
 		<field name="Ping Id" type="long" exampleData="" />
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 	</pdu>
@@ -112,18 +112,38 @@
 	<pdu id="0x84" online="false" client="true" server="false" name="ID_MCPE_READY">
 	</pdu>
 
+	<pdu id="0x86" online="false" client="false" server="true" name="ID_MCPE_SET_TIME">
+		<field name="Time" type="int" />
+		<field name="Started" type="byte" />
+	</pdu>
+
+	<pdu id="0xaa" online="false" client="false" server="true" name="ID_MCPE_SET_HEALTH">
+		<field name="Health" type="byte" />
+	</pdu>
+
+	FULL_CHUNK_DATA_PACKET
+	<pdu id="0xab" online="false" client="false" server="true" name="ID_MCPE_SET_SPAWN_POSITION">
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="byte" />
+	</pdu>
+
 	<pdu id="0x87" online="false" client="false" server="true" name="ID_MCPE_START_GAME">
 		<field name="Seed" type="int" />
 		<field name="Generator" type="int" />
 		<field name="Gamemode" type="int" />
-		<field name="EID" type="int" />
-		<field name="Spawn X" type="float" />
-		<field name="Spawn Y" type="float" />
-		<field name="Spawn Z" type="float" />
+		<field name="Entity ID" type="int" />
+		<field name="Spawn X" type="int" />
+		<field name="Spawn Y" type="int" />
+		<field name="Spawn Z" type="int" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
 	</pdu>
 
+	<pdu id="0xab" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA_PACKET">
+		<field name="Chunk X" type="int" />
+		<field name="Chunk Z" type="byte" />
+	</pdu>
 
 </protocol>

@@ -32,6 +32,13 @@ namespace MiNET.Network
 			return _value;
 		}
 
+		public void ReverseIndian()
+		{
+			var b = GetBytes();
+			Array.Reverse(b);
+			_value = new Int24(b).IntValue();
+		}
+
 		public static byte[] FromInt(int value)
 		{
 			byte[] buffer = new byte[3];

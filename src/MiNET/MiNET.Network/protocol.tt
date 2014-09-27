@@ -14,11 +14,9 @@ doc.Load(path + @"\protocol.xml");
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using System;
-//using System.IO;
-using little = MiNET.Int24; // friendly name
+using little = MiNET.Network.Int24; // friendly name
 
-namespace MiNET
+namespace MiNET.Network
 {
 
 	public class PackageFactory

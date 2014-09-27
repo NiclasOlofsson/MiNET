@@ -41,7 +41,9 @@ namespace MiNET.Network
 
 		public byte[] ReadBytes(int count)
 		{
-			return _reader.ReadBytes(count);
+			var readBytes = _reader.ReadBytes(count);
+			if(readBytes.Length != count) throw new ArgumentOutOfRangeException();
+			return readBytes;
 		}
 
 		public void Write(short value)

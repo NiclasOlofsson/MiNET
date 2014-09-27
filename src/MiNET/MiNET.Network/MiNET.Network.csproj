@@ -42,10 +42,14 @@
     <Compile Include="ChunkHelper.cs" />
     <Compile Include="ConnectedPackage.cs" />
     <Compile Include="ConnectionRequestAcceptedManual.cs" />
+    <Compile Include="FlatGenerator.cs" />
     <Compile Include="IdOpenConnectionReply1.cs" />
     <Compile Include="Int24.cs" />
-    <Compile Include="Chunk.cs" />
+    <Compile Include="Chunk2.cs" />
     <Compile Include="MiNetServer.cs" />
+    <Compile Include="NbtBinaryReader.cs" />
+    <Compile Include="NbtBinaryWriter.cs" />
+    <Compile Include="NbtFormatException.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="DatagramHeader.cs" />
     <Compile Include="protocol.cs">
@@ -85,6 +89,14 @@
     <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
       <Project>{02031C5C-5007-48D5-A253-F7C8BDF0C0B2}</Project>
       <Name>Craft.Net.Anvil</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Common\Craft.Net.Common.csproj">
+      <Project>{50462849-2223-4E39-B5D9-A928A9A58A33}</Project>
+      <Name>Craft.Net.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
+      <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>
+      <Name>Craft.Net.TerrainGeneration</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

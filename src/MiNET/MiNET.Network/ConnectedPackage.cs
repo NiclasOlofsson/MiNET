@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace MiNET.Network
 {
@@ -122,6 +123,7 @@ namespace MiNET.Network
 			// Slurp the payload
 			int count = dataBitLength/8;
 			internalBuffer = ReadBytes(count);
+			if (count != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 		}
 	}
 

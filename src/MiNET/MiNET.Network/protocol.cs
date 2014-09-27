@@ -3,9 +3,8 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-//using System.IO;
-
-// friendly name
+using System;
+using little = MiNET.Network.Int24; // friendly name
 
 namespace MiNET.Network
 {
@@ -57,7 +56,15 @@ namespace MiNET.Network
 				case 0x87:
 					return new IdMcpeStartGame();
 				case 0xba:
-					return new IdMcpeFullChunkDataPacket();
+					return new IdMcpeFullChunkData();
+				case 0x95:
+					return new IdMcpeMovePlayer();
+				case 0xb7:
+					return new IdMcpeAdventureSettings();
+				case 0xb4:
+					return new IdMcpeContainerSetContent();
+				case 0x85:
+					return new IdMcpeMessage();
 			}
 
 			return null;
@@ -191,7 +198,7 @@ namespace MiNET.Network
 	{
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;
-		public Int24 sequenceNumber; // = null;
+		public little sequenceNumber; // = null;
 
 		public Ack()
 		{
@@ -236,7 +243,7 @@ namespace MiNET.Network
 	{
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;
-		public Int24 sequenceNumber; // = null;
+		public little sequenceNumber; // = null;
 
 		public Nak()
 		{
@@ -868,8 +875,8 @@ namespace MiNET.Network
 	public partial class IdMcpeSetSpawnPosition : Package
 	{
 		public int x; // = null;
-		public int y; // = null;
-		public byte z; // = null;
+		public int z; // = null;
+		public byte y; // = null;
 
 		public IdMcpeSetSpawnPosition()
 		{
@@ -883,8 +890,8 @@ namespace MiNET.Network
 			BeforeEncode();
 
 			Write(x);
-			Write(y);
 			Write(z);
+			Write(y);
 
 			AfterEncode();
 		}
@@ -899,8 +906,8 @@ namespace MiNET.Network
 			BeforeDecode();
 
 			x = ReadInt();
-			y = ReadInt();
-			z = ReadByte();
+			z = ReadInt();
+			y = ReadByte();
 
 			AfterDecode();
 		}
@@ -916,6 +923,9 @@ namespace MiNET.Network
 		public int generator; // = null;
 		public int gamemode; // = null;
 		public int entityId; // = null;
+		public int spawnX; // = null;
+		public int spawnZ; // = null;
+		public int spawnY; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -935,6 +945,9 @@ namespace MiNET.Network
 			Write(generator);
 			Write(gamemode);
 			Write(entityId);
+			Write(spawnX);
+			Write(spawnZ);
+			Write(spawnY);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -955,6 +968,9 @@ namespace MiNET.Network
 			generator = ReadInt();
 			gamemode = ReadInt();
 			entityId = ReadInt();
+			spawnX = ReadInt();
+			spawnZ = ReadInt();
+			spawnY = ReadInt();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -967,13 +983,11 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeFullChunkDataPacket : Package
+	public partial class IdMcpeFullChunkData : Package
 	{
-		public int chunkX; // = null;
-		public byte chunkZ; // = null;
 		public byte[] chunkData; // = null;
 
-		public IdMcpeFullChunkDataPacket()
+		public IdMcpeFullChunkData()
 		{
 			Id = 0xba;
 		}
@@ -984,8 +998,6 @@ namespace MiNET.Network
 
 			BeforeEncode();
 
-			Write(chunkX);
-			Write(chunkZ);
 			Write(chunkData);
 
 			AfterEncode();
@@ -1000,9 +1012,205 @@ namespace MiNET.Network
 
 			BeforeDecode();
 
-			chunkX = ReadInt();
-			chunkZ = ReadByte();
 			chunkData = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeMovePlayer : Package
+	{
+		public int entityId; // = null;
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
+		public float yaw; // = null;
+		public float pitch; // = null;
+		public float bodyYaw; // = null;
+		public byte teleport; // = null;
+
+		public IdMcpeMovePlayer()
+		{
+			Id = 0x95;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(yaw);
+			Write(pitch);
+			Write(bodyYaw);
+			Write(teleport);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
+			yaw = ReadFloat();
+			pitch = ReadFloat();
+			bodyYaw = ReadFloat();
+			try
+			{
+				teleport = ReadByte();
+			}
+			catch (Exception e)
+			{
+				
+			}
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeAdventureSettings : Package
+	{
+		public int flags; // = null;
+
+		public IdMcpeAdventureSettings()
+		{
+			Id = 0xb7;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(flags);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			flags = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeContainerSetContent : Package
+	{
+		public byte windowId; // = null;
+		public short slotCount; // = null;
+		public byte[] slotData; // = null;
+		public short hotbarCount; // = null;
+		public byte[] hotbarData; // = null;
+
+		public IdMcpeContainerSetContent()
+		{
+			Id = 0xb4;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(windowId);
+			Write(slotCount);
+			Write(slotData);
+			Write(hotbarCount);
+			Write(hotbarData);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			windowId = ReadByte();
+			slotCount = ReadShort();
+			slotData = ReadBytes(0);
+			hotbarCount = ReadShort();
+			hotbarData = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeMessage : Package
+	{
+		public string source; // = null;
+		public string message; // = null;
+
+		public IdMcpeMessage()
+		{
+			Id = 0x85;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(source);
+			Write(message);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			source = ReadString();
+			message = ReadString();
 
 			AfterDecode();
 		}

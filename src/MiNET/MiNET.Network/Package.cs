@@ -9,8 +9,6 @@ namespace MiNET.Network
 	/// Base package class
 	public partial class Package
 	{
-		public const int MtuSize = 1500;
-
 		public byte Id;
 
 		public MemoryStream _buffer;
@@ -42,7 +40,7 @@ namespace MiNET.Network
 		public byte[] ReadBytes(int count)
 		{
 			var readBytes = _reader.ReadBytes(count);
-			if(readBytes.Length != count) throw new ArgumentOutOfRangeException();
+			if (readBytes.Length != count) throw new ArgumentOutOfRangeException();
 			return readBytes;
 		}
 
@@ -156,8 +154,7 @@ namespace MiNET.Network
 		{
 			_buffer.Position = 0;
 			_buffer.SetLength(buffer.Length);
-			_writer.Write(buffer);
-			_writer.Flush();
+			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
 		}
 

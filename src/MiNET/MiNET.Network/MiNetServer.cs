@@ -1,15 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using Craft.Net.Anvil;
-using Craft.Net.Common;
+using System.Timers;
 using Craft.Net.TerrainGeneration;
-using Timer = System.Timers.Timer;
 
 namespace MiNET.Network
 {
@@ -43,10 +39,6 @@ namespace MiNET.Network
 		public const int DefaultPort = 19132;
 		private StandardGenerator _generator;
 
-		private MiNetServer()
-		{
-		}
-
 		public MiNetServer(int port)
 			: this(new IPEndPoint(IPAddress.Any, port))
 		{
@@ -57,21 +49,25 @@ namespace MiNET.Network
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
 		}
 
+		public List<Chunk2> ChunkCache
+		{
+			get { return _chunkCache; }
+			set { _chunkCache = value; }
+		}
+
 		public bool StartServer()
 		{
 			if (_listener != null) return false; // Already started
 
 			try
 			{
+				_players = new Dictionary<IPEndPoint, Player>();
+
 				int playerX = 50;
 				int playerZ = 50;
 
-				_generator = new StandardGenerator();
-				_generator.Seed = 1000;
-				_generator.Initialize(null);
-
-				_chunkCache = new List<Chunk2>();
-				_chunkCache.AddRange(GenerateChunks(playerX, playerZ));
+				ChunkCache = new List<Chunk2>();
+				ChunkCache.AddRange(new Player(this, null).GenerateChunks(playerX, playerZ));
 
 				_listener = new UdpClient(_endpoint);
 
@@ -171,7 +167,7 @@ namespace MiNET.Network
 							//Debug.Print("< Send: {1} (0x{0:x2})", packet.Id, (DefaultMessageIdTypes) packet.Id);
 							//Debug.Print("\tData: {0}", ByteArrayToString2(data));
 
-							SendRaw(listener, data, senderEndpoint);
+							SendRaw(data, senderEndpoint);
 							break;
 						}
 						case DefaultMessageIdTypes.ID_DETECT_LOST_CONNECTIONS:
@@ -192,7 +188,7 @@ namespace MiNET.Network
 							packet.Encode();
 
 							var data = packet.GetBytes();
-							SendRaw(listener, data, senderEndpoint);
+							SendRaw(data, senderEndpoint);
 							break;
 						}
 						case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
@@ -212,7 +208,7 @@ namespace MiNET.Network
 							packet.Encode();
 
 							var data = packet.GetBytes();
-							SendRaw(listener, data, senderEndpoint);
+							SendRaw(data, senderEndpoint);
 							break;
 						}
 					}
@@ -236,6 +232,7 @@ namespace MiNET.Network
 
 								SendAck(listener, senderEndpoint, package._sequenceNumber);
 							}
+
 							var message = PackageFactory.CreatePackage(buffer[0]);
 							if (message == null)
 							{
@@ -253,189 +250,7 @@ namespace MiNET.Network
 								message.SetBuffer(buffer);
 								message.Decode();
 
-								if (typeof (IdConnectedPing) == message.GetType())
-								{
-									var msg = (IdConnectedPing) message;
-
-									var response = new IdConnectedPong();
-									response.sendpingtime = msg.sendpingtime;
-									response.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-									response.Encode();
-
-									SendPackage(listener, senderEndpoint, response);
-								}
-								else if (typeof (IdConnectionRequest) == message.GetType())
-								{
-									var msg = (IdConnectionRequest) message;
-									var response = new ConnectionRequestAcceptedManual((short) senderEndpoint.Port, msg.timestamp);
-									response.Encode();
-
-									SendPackage(listener, senderEndpoint, response);
-								}
-								else if (typeof (IdMcpeLogin) == message.GetType())
-								{
-									{
-										var msg = (IdMcpeLogin) message;
-										msg.Decode();
-
-										var response = new IdMcpeLoginStatus();
-										response.status = 0;
-										response.Encode();
-
-										SendPackage(listener, senderEndpoint, response);
-									}
-
-									int playerX = 50;
-									int playerZ = 50;
-									int playerY = 5;
-									int playerSpawnY = 120;
-
-									// Start game
-									{
-										//const SURVIVAL = 0;
-										//const CREATIVE = 1;
-										//const ADVENTURE = 2;
-										//const SPECTATOR = 3;
-
-										var response = new IdMcpeStartGame();
-										response.seed = 1406827239;
-										response.generator = 1; //0 old, 1 infinite, 2 flat
-										response.gamemode = 1;
-										response.entityId = 0; // Always 0 for player
-										response.spawnX = playerX;
-										response.spawnY = playerSpawnY;
-										response.spawnZ = playerZ;
-										response.x = playerX;
-										response.y = playerY;
-										response.z = playerZ;
-										response.Encode();
-
-										SendPackage(listener, senderEndpoint, response);
-									}
-
-									{
-										// started == true ? 0x80 : 0x00);
-										var response = new IdMcpeSetTime();
-										response.time = 6000;
-										response.started = 0x80;
-										response.Encode();
-										SendPackage(listener, senderEndpoint, response);
-									}
-									{
-										var response = new IdMcpeSetSpawnPosition();
-										response.x = playerX;
-										response.z = playerZ;
-										response.y = (byte) playerSpawnY;
-										response.Encode();
-										SendPackage(listener, senderEndpoint, response);
-									}
-									{
-										var response = new IdMcpeSetHealth();
-										response.health = 20;
-										response.Encode();
-										SendPackage(listener, senderEndpoint, response);
-									}
-									{
-										//	// CHUNK!
-
-										//var generator = new FlatGenerator();
-										//var chunks = generator.GenerateFlatWorld(16, 16);
-										var chunks = GenerateChunks(playerX, playerZ);
-										int count = 0;
-										foreach (var chunk in chunks)
-										{
-											//if (count >= 96) break; // too big for the client to deal with
-
-											{
-												byte[] data = chunk.GetBytes();
-
-												var response = new IdMcpeFullChunkData();
-												response.chunkData = data;
-												response.Encode();
-												SendPackage(listener, senderEndpoint, response);
-												Thread.Yield();
-											}
-											if (count == 56)
-											{
-												{
-													//send time again
-													var response = new IdMcpeSetTime();
-													response.time = 6000;
-													response.started = 0x80;
-													response.Encode();
-													SendPackage(listener, senderEndpoint, response);
-												}
-
-												{
-													// Teleport user (MovePlayerPacket) teleport=1
-													//yaw: 91
-													//pitch: 28
-													//bodyYaw: 91
-
-													var response = new IdMcpeMovePlayer();
-													response.x = playerX;
-													response.y = playerY;
-													response.z = playerZ;
-													response.yaw = 91;
-													response.pitch = 28;
-													response.bodyYaw = 91;
-													response.teleport = 0x80; // true
-													response.Encode();
-													SendPackage(listener, senderEndpoint, response);
-												}
-												{
-													//$flags = 0;
-													//if($this->isAdventure())
-													//	$flags |= 0x01; //Do not allow placing/breaking blocks, adventure mode
-													//if($nametags !== false){
-													//	$flags |= 0x20; //Show Nametags
-													//}
-
-													// Adventure settings (AdventureSettingsPacket)
-													var response = new IdMcpeAdventureSettings();
-													response.flags = 0x20;
-													response.Encode();
-													SendPackage(listener, senderEndpoint, response);
-												}
-
-												// Settings (ContainerSetContentPacket)
-												{
-													//$this->inventory->sendContents($this);
-													var response = new IdMcpeContainerSetContent();
-													response.windowId = 0;
-													response.slotCount = 0;
-													response.slotData = new byte[0];
-													response.hotbarCount = 0;
-													response.hotbarData = new byte[0];
-													response.Encode();
-													SendPackage(listener, senderEndpoint, response);
-												}
-
-												{
-													//$this->inventory->sendArmorContents($this);
-													var response = new IdMcpeContainerSetContent();
-													response.windowId = 0x78; // Armor window id constant
-													response.slotCount = 0;
-													response.slotData = new byte[0];
-													response.hotbarCount = 0;
-													response.hotbarData = new byte[0];
-													response.Encode();
-													SendPackage(listener, senderEndpoint, response);
-												}
-												{
-													// Player joined!
-													var response = new IdMcpeMessage();
-													response.source = "";
-													response.message = "Player joined the game!";
-													response.Encode();
-													SendPackage(listener, senderEndpoint, response);
-												}
-											}
-
-											count++;
-										}
-									}
-								}
+								DoPlayerStuff(message, listener, senderEndpoint);
 							}
 						}
 					}
@@ -461,130 +276,44 @@ namespace MiNET.Network
 			}
 		}
 
-		private List<Chunk2> GenerateChunks(int playerX, int playerZ)
+		private void DoPlayerStuff(Package message, UdpClient listener, IPEndPoint senderEndpoint)
 		{
-			Dictionary<string, double> newOrder = new Dictionary<string, double>();
-			int viewDistanace = 90;
-			double radiusSquared = viewDistanace/Math.PI;
-			double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
-			var centerX = playerX >> 4;
-			var centerZ = playerZ >> 4;
-			Queue<Chunk> chunkQueue = new Queue<Chunk>();
-			for (double x = -radius; x <= radius; ++x)
+			if (typeof (IdConnectedPing) == message.GetType())
 			{
-				for (double z = -radius; z <= radius; ++z)
-				{
-					var distance = (x*x) + (z*z);
-					if (distance > radiusSquared)
-					{
-						continue;
-					}
-					var chunkX = x + centerX;
-					var chunkZ = z + centerZ;
-					string index = GetChunkHash(chunkX, chunkZ);
+				var msg = (IdConnectedPing) message;
 
-					newOrder[index] = distance;
-				}
+				var response = new IdConnectedPong();
+				response.sendpingtime = msg.sendpingtime;
+				response.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+				response.Encode();
+
+				SendPackage(senderEndpoint, response);
+
+				return;
 			}
 
-
-			// Should be member..
-			Dictionary<string, double> loadQueue = new Dictionary<string, double>();
-
-			var sortedKeys = newOrder.Keys.ToList();
-			sortedKeys.Sort();
-			if (newOrder.Count > viewDistanace)
+			if (typeof (IdConnectionRequest) == message.GetType())
 			{
-				int count = 0;
-				loadQueue = new Dictionary<string, double>();
-				foreach (var key in sortedKeys)
-				{
-					loadQueue[key] = newOrder[key];
-					if (++count > viewDistanace) break;
-				}
-			}
-			else
-			{
-				loadQueue = newOrder;
+				var msg = (IdConnectionRequest) message;
+				var response = new ConnectionRequestAcceptedManual((short) senderEndpoint.Port, msg.timestamp);
+				response.Encode();
+
+				SendPackage(senderEndpoint, response);
+
+				_players.Remove(senderEndpoint);
+				_players.Add(senderEndpoint, new Player(this, senderEndpoint));
+
+				return;
 			}
 
-			List<Chunk2> chunks = new List<Chunk2>();
-			foreach (var pair in loadQueue)
+			if (_players.ContainsKey(senderEndpoint))
 			{
-//				Chunk2 chunk = CraftNetGenerateChunkForIndex(pair.Key);
-				Chunk2 chunk = FlatlandGenerateChunkForIndex(pair.Key);
-				if (chunk != null) chunks.Add(chunk);
+				_players[senderEndpoint].HandlePackage(message);
 			}
-
-			return chunks;
 		}
 
 
-		private Chunk2 FlatlandGenerateChunkForIndex(string index)
-		{
-			int x = Int32.Parse(index.Split(new[] { ':' })[0]);
-			int z = Int32.Parse(index.Split(new[] { ':' })[1]);
-
-			FlatGenerator generator = new FlatGenerator();
-			Chunk2 chunk = new Chunk2();
-			chunk.x = x;
-			chunk.z = z;
-			generator.PopulateChunk(chunk);
-			return chunk;
-		}
-
-		private Chunk2 CraftNetGenerateChunkForIndex(string index)
-		{
-			int x = Int32.Parse(index.Split(new[] { ':' })[0]);
-			int z = Int32.Parse(index.Split(new[] { ':' })[1]);
-
-			var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == x && chunk2.z == z);
-			if (firstOrDefault != null)
-			{
-				return firstOrDefault;
-			}
-
-			Chunk2 chunk;
-			chunk = new Chunk2 { x = x, z = z };
-
-			Chunk anvilChunk = _generator.GenerateChunk(new Coordinates2D(x, z));
-
-			chunk.biomeId = anvilChunk.Biomes;
-			for (int i = 0; i < chunk.biomeId.Length; i++)
-			{
-				if (chunk.biomeId[i] > 22) chunk.biomeId[i] = 0;
-			}
-			if (chunk.biomeId.Length > 256) throw new Exception();
-
-			for (int xi = 0; xi < 16; xi++)
-			{
-				for (int zi = 0; zi < 16; zi++)
-				{
-					for (int yi = 0; yi < 128; yi++)
-					{
-						chunk.SetBlock(xi, yi, zi, (byte) anvilChunk.GetBlockId(new Coordinates3D(xi, yi + 45, zi)));
-						chunk.SetBlocklight(xi, yi, zi, anvilChunk.GetBlockLight(new Coordinates3D(xi, yi + 45, zi)));
-						chunk.SetMetadata(xi, yi, zi, anvilChunk.GetMetadata(new Coordinates3D(xi, yi + 45, zi)));
-						chunk.SetSkylight(xi, yi, zi, anvilChunk.GetSkyLight(new Coordinates3D(xi, yi + 45, zi)));
-					}
-				}
-			}
-
-			for (int i = 0; i < chunk.skylight.Length; i++)
-				chunk.skylight[i] = 0xff;
-
-			for (int i = 0; i < chunk.biomeColor.Length; i++)
-				chunk.biomeColor[i] = 8761930;
-
-			return chunk;
-		}
-
-		private string GetChunkHash(double chunkX, double chunkZ)
-		{
-			return string.Format("{0}:{1}", chunkX, chunkZ);
-		}
-
-		private void SendPackage(UdpClient listener, IPEndPoint senderEndpoint, Package message, Reliability reliability = Reliability.RELIABLE)
+		public void SendPackage(IPEndPoint senderEndpoint, Package message, Reliability reliability = Reliability.RELIABLE)
 		{
 			ConnectedPackage package = new ConnectedPackage();
 			var messageData = package.internalBuffer = message.GetBytes();
@@ -599,7 +328,8 @@ namespace MiNET.Network
 				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
 				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), messageData.Length);
 			}
-			SendRaw(listener, data, senderEndpoint);
+
+			SendRaw(data, senderEndpoint);
 		}
 
 		private void SendAck(UdpClient listener, IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -615,6 +345,7 @@ namespace MiNET.Network
 
 		private Queue<Tuple<IPEndPoint, byte[]>> sendQueue = new Queue<Tuple<IPEndPoint, byte[]>>();
 		private List<Chunk2> _chunkCache;
+		private Dictionary<IPEndPoint, Player> _players;
 
 		private void sendTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
@@ -627,7 +358,7 @@ namespace MiNET.Network
 			}
 		}
 
-		private void SendRaw(UdpClient listener, byte[] data, IPEndPoint senderEndpoint)
+		private void SendRaw(byte[] data, IPEndPoint senderEndpoint)
 		{
 			lock (sendQueue)
 			{

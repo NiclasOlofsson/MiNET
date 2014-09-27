@@ -31,7 +31,7 @@ namespace MiNET.Network
 
 			byte rely = (byte) _reliability;
 			Write((byte) ((rely << 5) ^ (_hasSplit ? Convert.ToByte("0001", 2) : 0x00)));
-			Write((short) (internalBuffer.Length << 3)); // length
+			Write((short) (internalBuffer.Length*8)); // length
 
 			if (_reliability == Reliability.RELIABLE
 				|| _reliability == Reliability.RELIABLE_ORDERED
@@ -74,7 +74,7 @@ namespace MiNET.Network
 			_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
 			int hasSplitPacket = ((flags & Convert.ToByte("00010000", 2)) >> 0);
 
-			ushort dataBitLength = ReadUShort();
+			short dataBitLength = ReadShort();
 
 			if (_reliability == Reliability.RELIABLE
 				|| _reliability == Reliability.RELIABLE_SEQUENCED
@@ -121,7 +121,8 @@ namespace MiNET.Network
 			}
 
 			// Slurp the payload
-			int count = dataBitLength/8;
+			int count = (int) Math.Ceiling((((double) dataBitLength)/8));
+
 			internalBuffer = ReadBytes(count);
 			if (count != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 		}

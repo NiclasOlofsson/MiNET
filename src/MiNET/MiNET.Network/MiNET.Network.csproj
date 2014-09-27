@@ -42,6 +42,7 @@
     <Compile Include="ChunkHelper.cs" />
     <Compile Include="ConnectedPackage.cs" />
     <Compile Include="ConnectionRequestAcceptedManual.cs" />
+    <Compile Include="CryptoRandom.cs" />
     <Compile Include="FlatGenerator.cs" />
     <Compile Include="IdOpenConnectionReply1.cs" />
     <Compile Include="Int24.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="NbtFormatException.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="DatagramHeader.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="protocol.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

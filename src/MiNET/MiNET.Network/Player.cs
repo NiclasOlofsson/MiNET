@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 
@@ -9,8 +10,13 @@ namespace MiNET.Network
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<string, ChunkColumn> _chunksUsed;
-		private string _username;
 		private Level _level;
+		private List<Player> _entities;
+
+		public DateTime LastUpdatedTime { get; private set; }
+		public PlayerPosition3D KnownPosition { get; private set; }
+		public bool IsSpawned { get; private set; }
+		public string Username { get; private set; }
 
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level)
 		{
@@ -18,195 +24,104 @@ namespace MiNET.Network
 			_endpoint = endpoint;
 			_level = level;
 			_chunksUsed = new Dictionary<string, ChunkColumn>();
+			_entities = new List<Player>();
+			AddEntity(this); // Make sure we are entity with ID == 0;
+			IsSpawned = false;
+			KnownPosition = new PlayerPosition3D
+			{
+				X = _level.SpawnPoint.X,
+				Y = _level.SpawnPoint.Y,
+				Z = _level.SpawnPoint.Z,
+				Yaw = 91,
+				Pitch = 28,
+				BodyYaw = 91
+			};
 		}
 
-		public void HandlePackage(Package message)
+
+		public bool HandlePackage(Package message)
 		{
-			if (typeof (IdMcpeLogin) == message.GetType())
+			if (typeof (McpeLogin) == message.GetType())
 			{
 				{
-					var msg = (IdMcpeLogin) message;
-					msg.Decode();
+					var msg = (McpeLogin) message;
 
-					_username = msg.username;
+					Username = msg.username;
 
-					var response = new IdMcpeLoginStatus();
-					response.status = 0;
-					response.Encode();
-
+					var response = new McpeLoginStatus { status = 0 };
 					SendPackage(response);
 				}
-
-				int playerX = 50;
-				int playerZ = 50;
-				int playerY = 5;
-				int playerSpawnY = 120;
 
 				// Start game
-				{
-					//const SURVIVAL = 0;
-					//const CREATIVE = 1;
-					//const ADVENTURE = 2;
-					//const SPECTATOR = 3;
+				SendStartGame();
+				SendSetTime();
+				SendSetSpawnPosition();
+				SendSetHealth();
+				SendChunksForKnownPosition();
+				LastUpdatedTime = DateTime.Now;
 
-					var response = new IdMcpeStartGame();
-					response.seed = 1406827239;
-					response.generator = 1; //0 old, 1 infinite, 2 flat
-					response.gamemode = 1;
-					response.entityId = 0; // Always 0 for player
-					response.spawnX = playerX;
-					response.spawnY = playerSpawnY;
-					response.spawnZ = playerZ;
-					response.x = playerX;
-					response.y = playerY;
-					response.z = playerZ;
-					response.Encode();
+				return true;
+			}
 
-					SendPackage(response);
-				}
+			if (typeof (McpeMovePlayer) == message.GetType())
+			{
+				var moveMessage = (McpeMovePlayer) message;
 
-				{
-					// started == true ? 0x80 : 0x00);
-					var response = new IdMcpeSetTime();
-					response.time = 6000;
-					response.started = 0x80;
-					response.Encode();
-					SendPackage(response);
-				}
-				{
-					var response = new IdMcpeSetSpawnPosition();
-					response.x = playerX;
-					response.z = playerZ;
-					response.y = (byte) playerSpawnY;
-					response.Encode();
-					SendPackage(response);
-				}
-				{
-					var response = new IdMcpeSetHealth();
-					response.health = 20;
-					response.Encode();
-					SendPackage(response);
-				}
-				{
-					//	// CHUNK!
+				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) { Pitch = moveMessage.pitch, Yaw = moveMessage.yaw };
+				LastUpdatedTime = DateTime.Now;
 
-					//var generator = new FlatGenerator();
-					//var chunks = generator.GenerateFlatWorld(16, 16);
-					var chunks = _level.GenerateChunks(playerX, playerZ, _chunksUsed);
+				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
 
-					int count = 0;
-					foreach (var chunk in chunks)
+				foreach (var chunk in chunks)
+				{
 					{
-						//if (count >= 96) break; // too big for the client to deal with
+						byte[] data = chunk.GetBytes();
 
-						{
-							byte[] data = chunk.GetBytes();
-
-							var response = new IdMcpeFullChunkData();
-							response.chunkData = data;
-							response.Encode();
-							SendPackage(response);
-							Thread.Yield();
-						}
-						if (count == 56)
-						{
-							{
-								//send time again
-								var response = new IdMcpeSetTime();
-								response.time = 6000;
-								response.started = 0x80;
-								response.Encode();
-								SendPackage(response);
-							}
-
-							{
-								// Teleport user (MovePlayerPacket) teleport=1
-								//yaw: 91
-								//pitch: 28
-								//bodyYaw: 91
-
-								var response = new IdMcpeMovePlayer();
-								response.x = playerX;
-								response.y = playerY;
-								response.z = playerZ;
-								response.yaw = 91;
-								response.pitch = 28;
-								response.bodyYaw = 91;
-								response.teleport = 0x80; // true
-								response.Encode();
-								SendPackage(response);
-							}
-							{
-								//$flags = 0;
-								//if($this->isAdventure())
-								//	$flags |= 0x01; //Do not allow placing/breaking blocks, adventure mode
-								//if($nametags !== false){
-								//	$flags |= 0x20; //Show Nametags
-								//}
-
-								// Adventure settings (AdventureSettingsPacket)
-								var response = new IdMcpeAdventureSettings();
-								response.flags = 0x20;
-								response.Encode();
-								SendPackage(response);
-							}
-
-							// Settings (ContainerSetContentPacket)
-							{
-								//$this->inventory->sendContents($this);
-								var response = new IdMcpeContainerSetContent();
-								response.windowId = 0;
-								response.slotCount = 0;
-								response.slotData = new byte[0];
-								response.hotbarCount = 0;
-								response.hotbarData = new byte[0];
-								response.Encode();
-								SendPackage(response);
-							}
-
-							{
-								//$this->inventory->sendArmorContents($this);
-								var response = new IdMcpeContainerSetContent();
-								response.windowId = 0x78; // Armor window id constant
-								response.slotCount = 0;
-								response.slotData = new byte[0];
-								response.hotbarCount = 0;
-								response.hotbarData = new byte[0];
-								response.Encode();
-								SendPackage(response);
-							}
-							{
-								var response = new IdMcpeAddPlayer();
-								response.clientId = 0;
-								response.username = _username;
-								response.entityId = 0;
-								response.x = playerX;
-								response.y = playerY;
-								response.z = playerZ;
-								response.yaw = 91;
-								response.pitch = 28;
-								response.metadata = new byte[0];
-								response.Encode();
-								BroadcastPackage(response);
-							}
-							{
-								// Player joined!
-								var response = new IdMcpeMessage();
-								response.source = "";
-								response.message = string.Format("Player {0} joined the game!", _username);
-								response.Encode();
-								BroadcastPackage(response, true);
-							}
-						}
-
-						count++;
+						var response = new McpeFullChunkData { chunkData = data };
+						SendPackage(response);
 					}
 				}
+
+				return true;
 			}
-			else if (typeof (IdMcpeMovePlayer) == message.GetType())
+
+			return false;
+		}
+
+		private void SendStartGame()
+		{
+			var response = new McpeStartGame();
+			response.seed = 1406827239;
+			response.generator = 1; //0 old, 1 infinite, 2 flat
+			response.gamemode = 1;
+			response.entityId = GetEntityId(this); // Always 0 for player
+			response.spawnX = (int) KnownPosition.X;
+			response.spawnY = (int) KnownPosition.Y;
+			response.spawnZ = (int) KnownPosition.Z;
+			response.x = KnownPosition.X;
+			response.y = KnownPosition.Y;
+			response.z = KnownPosition.Z;
+
+			SendPackage(response);
+		}
+
+		private void SendSetSpawnPosition()
+		{
 			{
-				var moveMessage = (IdMcpeMovePlayer) message;
-				var chunks = _level.GenerateChunks((int) moveMessage.x, (int) moveMessage.z, _chunksUsed);
+				var response = new McpeSetSpawnPosition();
+				response.x = (int) KnownPosition.X;
+				response.y = (byte) KnownPosition.Y;
+				response.z = (int) KnownPosition.Z;
+
+				SendPackage(response);
+			}
+		}
+
+		private void SendChunksForKnownPosition()
+		{
+			{
+				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
+
 				int count = 0;
 				foreach (var chunk in chunks)
 				{
@@ -215,24 +130,189 @@ namespace MiNET.Network
 					{
 						byte[] data = chunk.GetBytes();
 
-						var response = new IdMcpeFullChunkData();
+						var response = new McpeFullChunkData();
 						response.chunkData = data;
-						response.Encode();
+
 						SendPackage(response);
 						Thread.Yield();
 					}
+					if (count == 56)
+					{
+						InitializePlayer();
+
+						IsSpawned = true;
+						_level.AddPlayer(this);
+					}
+
+					count++;
 				}
 			}
 		}
 
-		private void BroadcastPackage(Package package, bool toSelf = false)
+		private void SendSetHealth()
 		{
-			_server.BroadcastPackage(this, package, toSelf: toSelf);
+			{
+				var response = new McpeSetHealth();
+				response.health = 20;
+
+				SendPackage(response);
+			}
 		}
 
-		private void SendPackage(Package package)
+		private void SendSetTime()
+		{
+			{
+				// started == true ? 0x80 : 0x00);
+				var response = new McpeSetTime();
+				response.time = 6000;
+				response.started = 0x80;
+
+				SendPackage(response);
+			}
+		}
+
+		private void InitializePlayer()
+		{
+			{
+				//send time again
+				var response = new McpeSetTime();
+				response.time = 6000;
+				response.started = 0x80;
+
+				SendPackage(response);
+			}
+
+			{
+				// Teleport user (MovePlayerPacket) teleport=1
+				//yaw: 91
+				//pitch: 28
+				//bodyYaw: 91
+
+				var response = new McpeMovePlayer();
+				response.entityId = GetEntityId(this);
+				response.x = KnownPosition.X;
+				response.y = KnownPosition.Y;
+				response.z = KnownPosition.Z;
+				response.yaw = KnownPosition.Yaw;
+				response.pitch = KnownPosition.Pitch;
+				response.bodyYaw = KnownPosition.BodyYaw;
+				response.teleport = 0x80; // true
+
+				SendPackage(response);
+			}
+			{
+				//$flags = 0;
+				//if($this->isAdventure())
+				//	$flags |= 0x01; //Do not allow placing/breaking blocks, adventure mode
+				//if($nametags !== false){
+				//	$flags |= 0x20; //Show Nametags
+				//}
+
+				// Adventure settings (AdventureSettingsPacket)
+				var response = new McpeAdventureSettings();
+				response.flags = 0x20;
+
+				SendPackage(response);
+			}
+
+			// Settings (ContainerSetContentPacket)
+			{
+				//$this->inventory->sendContents($this);
+				var response = new McpeContainerSetContent();
+				response.windowId = 0;
+				response.slotCount = 0;
+				response.slotData = new byte[0];
+				response.hotbarCount = 0;
+				response.hotbarData = new byte[0];
+
+				SendPackage(response);
+			}
+
+			{
+				//$this->inventory->sendArmorContents($this);
+				var response = new McpeContainerSetContent();
+				response.windowId = 0x78; // Armor window id constant
+				response.slotCount = 0;
+				response.slotData = new byte[0];
+				response.hotbarCount = 0;
+				response.hotbarData = new byte[0];
+
+				SendPackage(response);
+			}
+		}
+
+		public void SendPackage(Package package)
 		{
 			_server.SendPackage(_endpoint, package);
+		}
+
+		public void SendAddPlayer(Player player)
+		{
+			if (player == this) return;
+
+			var response = new McpeAddPlayer();
+			response.clientId = 0;
+			response.username = player.Username;
+			response.entityId = GetEntityId(player);
+			response.x = player.KnownPosition.X;
+			response.y = player.KnownPosition.Y;
+			response.z = player.KnownPosition.Z;
+			response.yaw = (byte) player.KnownPosition.Yaw;
+			response.pitch = (byte) player.KnownPosition.Pitch;
+			response.metadata = new byte[0];
+
+			SendPackage(response);
+		}
+
+		public void SendMovementForPlayer(Player player)
+		{
+			if (player == this) return;
+
+			var knownPosition = player.KnownPosition;
+			var package = new McpeMovePlayer
+			{
+				entityId = GetEntityId(player),
+				x = knownPosition.X,
+				y = knownPosition.Y,
+				z = knownPosition.Z,
+				yaw = knownPosition.Yaw,
+				pitch = knownPosition.Pitch,
+				bodyYaw = knownPosition.BodyYaw,
+				teleport = 0
+			};
+
+			SendPackage(package);
+		}
+
+		private void AddEntity(Player player)
+		{
+			int entityId = _entities.IndexOf(player);
+			if (entityId != -1)
+			{
+				// Allready exist				
+				if (entityId != 0 && player == this)
+				{
+					// If this is the actual player, it should always be a 0
+					_entities.Remove(player);
+					_entities.Insert(0, player);
+				}
+			}
+			else
+			{
+				_entities.Add(player);
+			}
+		}
+
+		private int GetEntityId(Player player)
+		{
+			int entityId = _entities.IndexOf(player);
+			if (entityId == -1)
+			{
+				AddEntity(player);
+				entityId = _entities.IndexOf(player);
+			}
+
+			return entityId;
 		}
 	}
 }

@@ -38,7 +38,7 @@
 	//typedef double MicrosecondsPerByte;
 
 
-	public enum DefaultMessageIdTypes: int
+	public enum DefaultMessageIdTypes: byte
 	{
 		//
 		// RESERVED TYPES - DO NOT CHANGE THESE

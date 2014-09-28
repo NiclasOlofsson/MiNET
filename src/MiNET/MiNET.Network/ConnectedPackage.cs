@@ -19,11 +19,15 @@ namespace MiNET.Network
 		public Reliability _reliability;
 		public bool _hasSplit;
 
-		public byte[] internalBuffer;
+		public int MessageLength { get; set; }
+		public Package Message { get; set; }
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
 			_buffer.Position = 0;
+
+			byte[] encodedMessage = Message.Encode();
+			MessageLength = encodedMessage.Length;
 
 			if (_header == null) _header = new DatagramHeader(0x84);
 			Write((byte) 0x84);
@@ -31,7 +35,7 @@ namespace MiNET.Network
 
 			byte rely = (byte) _reliability;
 			Write((byte) ((rely << 5) ^ (_hasSplit ? Convert.ToByte("0001", 2) : 0x00)));
-			Write((short) (internalBuffer.Length*8)); // length
+			Write((short) (MessageLength*8)); // length
 
 			if (_reliability == Reliability.RELIABLE
 				|| _reliability == Reliability.RELIABLE_ORDERED
@@ -60,10 +64,10 @@ namespace MiNET.Network
 				Write(_splitPacketIndex);
 			}
 
-			Write(internalBuffer);
+			Write(encodedMessage);
 		}
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
 			_buffer.Position = 0;
 
@@ -121,11 +125,23 @@ namespace MiNET.Network
 			}
 
 			// Slurp the payload
-			int count = (int) Math.Ceiling((((double) dataBitLength)/8));
+			MessageLength = (int) Math.Ceiling((((double) dataBitLength)/8));
 
-			internalBuffer = ReadBytes(count);
-			if (count != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
+			byte[] internalBuffer = ReadBytes(MessageLength);
+			Message = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
+			if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 		}
+	}
+
+	public class UnknownPackage : Package
+	{
+		public UnknownPackage(byte id, byte[] message)
+		{
+			Message = message;
+			Id = id;
+		}
+
+		public byte[] Message { get; private set; }
 	}
 
 	public enum Reliability

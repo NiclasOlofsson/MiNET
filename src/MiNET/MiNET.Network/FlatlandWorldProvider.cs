@@ -38,6 +38,11 @@ namespace MiNET.Network
 			return chunk;
 		}
 
+		public Coordinates3D GetSpawnPoint()
+		{
+			return new Coordinates3D(50, 10, 50);
+		}
+
 		public void PopulateChunk(ChunkColumn chunk)
 		{
 			var random = new CryptoRandom();
@@ -81,11 +86,6 @@ namespace MiNET.Network
 			}
 
 			chunk.blocks = stones;
-
-			//chunk.SetBlock(0, 0, 0, 9); // water
-			//chunk.SetBlock(1, 1, 1, 10); // lava
-			//chunk.SetBlock(2, 2, 2, 9); // lava
-			//chunk.SetBlock(15, 127, 15, 9); // lava
 		}
 	}
 }

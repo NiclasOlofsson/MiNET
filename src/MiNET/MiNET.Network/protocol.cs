@@ -10,82 +10,137 @@ namespace MiNET.Network
 
 	public class PackageFactory
 	{
-		public static Package CreatePackage(byte messageId)
+		public static Package CreatePackage(byte messageId, byte[] buffer)
 		{
+			Package package = null; 
 			switch (messageId)
 			{
 				case 0x00:
-					return new IdConnectedPing();
+					package = new ConnectedPing();
+					package.Decode(buffer);
+					return package;
 				case 0x01:
-					return new IdUnconnectedPing();
+					package = new UnconnectedPing();
+					package.Decode(buffer);
+					return package;
 				case 0x03:
-					return new IdConnectedPong();
+					package = new ConnectedPong();
+					package.Decode(buffer);
+					return package;
 				case 0xc0:
-					return new Ack();
+					package = new Ack();
+					package.Decode(buffer);
+					return package;
 				case 0xa0:
-					return new Nak();
+					package = new Nak();
+					package.Decode(buffer);
+					return package;
 				case 0x1c:
-					return new IdUnconnectedPong();
+					package = new UnconnectedPong();
+					package.Decode(buffer);
+					return package;
 				case 0x05:
-					return new IdOpenConnectionRequest1();
+					package = new OpenConnectionRequest1();
+					package.Decode(buffer);
+					return package;
 				case 0x06:
-					return new IdOpenConnectionReply1();
+					package = new OpenConnectionReply1();
+					package.Decode(buffer);
+					return package;
 				case 0x07:
-					return new IdOpenConnectionRequest2();
+					package = new OpenConnectionRequest2();
+					package.Decode(buffer);
+					return package;
 				case 0x08:
-					return new IdOpenConnectionReply2();
+					package = new OpenConnectionReply2();
+					package.Decode(buffer);
+					return package;
 				case 0x09:
-					return new IdConnectionRequest();
+					package = new ConnectionRequest();
+					package.Decode(buffer);
+					return package;
 				case 0x10:
-					return new IdConnectionRequestAccepted();
+					package = new ConnectionRequestAccepted();
+					package.Decode(buffer);
+					return package;
 				case 0x13:
-					return new IdNewIncomingConnection();
+					package = new NewIncomingConnection();
+					package.Decode(buffer);
+					return package;
 				case 0x82:
-					return new IdMcpeLogin();
+					package = new McpeLogin();
+					package.Decode(buffer);
+					return package;
 				case 0x83:
-					return new IdMcpeLoginStatus();
+					package = new McpeLoginStatus();
+					package.Decode(buffer);
+					return package;
 				case 0x84:
-					return new IdMcpeReady();
+					package = new McpeReady();
+					package.Decode(buffer);
+					return package;
 				case 0x86:
-					return new IdMcpeSetTime();
+					package = new McpeSetTime();
+					package.Decode(buffer);
+					return package;
 				case 0xaa:
-					return new IdMcpeSetHealth();
+					package = new McpeSetHealth();
+					package.Decode(buffer);
+					return package;
 				case 0xab:
-					return new IdMcpeSetSpawnPosition();
+					package = new McpeSetSpawnPosition();
+					package.Decode(buffer);
+					return package;
 				case 0x87:
-					return new IdMcpeStartGame();
+					package = new McpeStartGame();
+					package.Decode(buffer);
+					return package;
 				case 0xba:
-					return new IdMcpeFullChunkData();
+					package = new McpeFullChunkData();
+					package.Decode(buffer);
+					return package;
 				case 0x95:
-					return new IdMcpeMovePlayer();
+					package = new McpeMovePlayer();
+					package.Decode(buffer);
+					return package;
 				case 0xb7:
-					return new IdMcpeAdventureSettings();
+					package = new McpeAdventureSettings();
+					package.Decode(buffer);
+					return package;
 				case 0xb4:
-					return new IdMcpeContainerSetContent();
+					package = new McpeContainerSetContent();
+					package.Decode(buffer);
+					return package;
 				case 0x85:
-					return new IdMcpeMessage();
+					package = new McpeMessage();
+					package.Decode(buffer);
+					return package;
 				case 0xa7:
-					return new IdMcpeEntityData();
+					package = new McpeEntityData();
+					package.Decode(buffer);
+					return package;
 				case 0x89:
-					return new IdMcpeAddPlayer();
+					package = new McpeAddPlayer();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
 		}
 	}
 
-	public partial class IdConnectedPing : Package
+	public partial class ConnectedPing : Package
 	{
 		public long sendpingtime; // = null;
 
-		public IdConnectedPing()
+		public ConnectedPing()
 		{
 			Id = 0x00;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -97,9 +152,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -113,19 +168,19 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdUnconnectedPing : Package
+	public partial class UnconnectedPing : Package
 	{
 		public long pingId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 
-		public IdUnconnectedPing()
+		public UnconnectedPing()
 		{
 			Id = 0x01;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -138,9 +193,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -155,19 +210,19 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdConnectedPong : Package
+	public partial class ConnectedPong : Package
 	{
 		public long sendpingtime; // = null;
 		public long sendpongtime; // = null;
 
-		public IdConnectedPong()
+		public ConnectedPong()
 		{
 			Id = 0x03;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -180,9 +235,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -208,9 +263,9 @@ namespace MiNET.Network
 			Id = 0xc0;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -224,9 +279,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -253,9 +308,9 @@ namespace MiNET.Network
 			Id = 0xa0;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -269,9 +324,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -287,21 +342,21 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdUnconnectedPong : Package
+	public partial class UnconnectedPong : Package
 	{
 		public long pingId; // = null;
 		public long serverId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public string serverName; // = null;
 
-		public IdUnconnectedPong()
+		public UnconnectedPong()
 		{
 			Id = 0x1c;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -316,9 +371,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -335,19 +390,19 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdOpenConnectionRequest1 : Package
+	public partial class OpenConnectionRequest1 : Package
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte raknetProtocolVersion; // = null;
 
-		public IdOpenConnectionRequest1()
+		public OpenConnectionRequest1()
 		{
 			Id = 0x05;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -360,9 +415,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -377,21 +432,21 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdOpenConnectionReply1 : Package
+	public partial class OpenConnectionReply1 : Package
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 		public byte serverHasSecurity; // = null;
 		public short mtuSize; // = null;
 
-		public IdOpenConnectionReply1()
+		public OpenConnectionReply1()
 		{
 			Id = 0x06;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -406,9 +461,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -425,21 +480,21 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdOpenConnectionRequest2 : Package
+	public partial class OpenConnectionRequest2 : Package
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte[] clientUdpPort; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
 
-		public IdOpenConnectionRequest2()
+		public OpenConnectionRequest2()
 		{
 			Id = 0x07;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -454,9 +509,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -473,7 +528,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdOpenConnectionReply2 : Package
+	public partial class OpenConnectionReply2 : Package
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
@@ -481,14 +536,14 @@ namespace MiNET.Network
 		public short mtuSize; // = null;
 		public byte doSecurity; // = null;
 
-		public IdOpenConnectionReply2()
+		public OpenConnectionReply2()
 		{
 			Id = 0x08;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -504,9 +559,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -524,20 +579,20 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdConnectionRequest : Package
+	public partial class ConnectionRequest : Package
 	{
 		public long clientGuid; // = null;
 		public long timestamp; // = null;
 		public byte doSecurity; // = null;
 
-		public IdConnectionRequest()
+		public ConnectionRequest()
 		{
 			Id = 0x09;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -551,9 +606,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -569,21 +624,21 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdConnectionRequestAccepted : Package
+	public partial class ConnectionRequestAccepted : Package
 	{
 		public long clientSystemAddress; // = null;
 		public long systemIndex; // = null;
 		public long incomingTimestamp; // = null;
 		public long serverTimestamp; // = null;
 
-		public IdConnectionRequestAccepted()
+		public ConnectionRequestAccepted()
 		{
 			Id = 0x10;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -598,9 +653,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -617,7 +672,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdNewIncomingConnection : Package
+	public partial class NewIncomingConnection : Package
 	{
 		public int cookie; // = null;
 		public byte doSecurity; // = null;
@@ -625,14 +680,14 @@ namespace MiNET.Network
 		public long session; // = null;
 		public long session2; // = null;
 
-		public IdNewIncomingConnection()
+		public NewIncomingConnection()
 		{
 			Id = 0x13;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -648,9 +703,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -668,7 +723,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeLogin : Package
+	public partial class McpeLogin : Package
 	{
 		public string username; // = null;
 		public int protocol; // = null;
@@ -676,14 +731,14 @@ namespace MiNET.Network
 		public int clientId; // = null;
 		public string logindata; // = null;
 
-		public IdMcpeLogin()
+		public McpeLogin()
 		{
 			Id = 0x82;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -699,9 +754,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -719,18 +774,18 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeLoginStatus : Package
+	public partial class McpeLoginStatus : Package
 	{
 		public int status; // = null;
 
-		public IdMcpeLoginStatus()
+		public McpeLoginStatus()
 		{
 			Id = 0x83;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -742,9 +797,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -758,17 +813,17 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeReady : Package
+	public partial class McpeReady : Package
 	{
 
-		public IdMcpeReady()
+		public McpeReady()
 		{
 			Id = 0x84;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -779,9 +834,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -794,19 +849,19 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeSetTime : Package
+	public partial class McpeSetTime : Package
 	{
 		public int time; // = null;
 		public byte started; // = null;
 
-		public IdMcpeSetTime()
+		public McpeSetTime()
 		{
 			Id = 0x86;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -819,9 +874,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -836,18 +891,18 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeSetHealth : Package
+	public partial class McpeSetHealth : Package
 	{
 		public byte health; // = null;
 
-		public IdMcpeSetHealth()
+		public McpeSetHealth()
 		{
 			Id = 0xaa;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -859,9 +914,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -875,20 +930,20 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeSetSpawnPosition : Package
+	public partial class McpeSetSpawnPosition : Package
 	{
 		public int x; // = null;
 		public int z; // = null;
 		public byte y; // = null;
 
-		public IdMcpeSetSpawnPosition()
+		public McpeSetSpawnPosition()
 		{
 			Id = 0xab;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -902,9 +957,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -920,7 +975,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeStartGame : Package
+	public partial class McpeStartGame : Package
 	{
 		public int seed; // = null;
 		public int generator; // = null;
@@ -933,14 +988,14 @@ namespace MiNET.Network
 		public float y; // = null;
 		public float z; // = null;
 
-		public IdMcpeStartGame()
+		public McpeStartGame()
 		{
 			Id = 0x87;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -961,9 +1016,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -986,18 +1041,18 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeFullChunkData : Package
+	public partial class McpeFullChunkData : Package
 	{
 		public byte[] chunkData; // = null;
 
-		public IdMcpeFullChunkData()
+		public McpeFullChunkData()
 		{
 			Id = 0xba;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1009,9 +1064,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -1025,7 +1080,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeMovePlayer : Package
+	public partial class McpeMovePlayer : Package
 	{
 		public int entityId; // = null;
 		public float x; // = null;
@@ -1036,14 +1091,14 @@ namespace MiNET.Network
 		public float bodyYaw; // = null;
 		public byte teleport; // = null;
 
-		public IdMcpeMovePlayer()
+		public McpeMovePlayer()
 		{
 			Id = 0x95;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1062,9 +1117,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -1085,18 +1140,18 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeAdventureSettings : Package
+	public partial class McpeAdventureSettings : Package
 	{
 		public int flags; // = null;
 
-		public IdMcpeAdventureSettings()
+		public McpeAdventureSettings()
 		{
 			Id = 0xb7;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1108,9 +1163,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -1124,7 +1179,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeContainerSetContent : Package
+	public partial class McpeContainerSetContent : Package
 	{
 		public byte windowId; // = null;
 		public short slotCount; // = null;
@@ -1132,14 +1187,14 @@ namespace MiNET.Network
 		public short hotbarCount; // = null;
 		public byte[] hotbarData; // = null;
 
-		public IdMcpeContainerSetContent()
+		public McpeContainerSetContent()
 		{
 			Id = 0xb4;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1155,9 +1210,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -1175,19 +1230,19 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeMessage : Package
+	public partial class McpeMessage : Package
 	{
 		public string source; // = null;
 		public string message; // = null;
 
-		public IdMcpeMessage()
+		public McpeMessage()
 		{
 			Id = 0x85;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1200,9 +1255,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -1217,21 +1272,21 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeEntityData : Package
+	public partial class McpeEntityData : Package
 	{
 		public int x; // = null;
 		public byte y; // = null;
 		public int z; // = null;
 		public byte[] namedtag; // = null;
 
-		public IdMcpeEntityData()
+		public McpeEntityData()
 		{
 			Id = 0xa7;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1246,9 +1301,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -1265,7 +1320,7 @@ namespace MiNET.Network
 
 	}
 
-	public partial class IdMcpeAddPlayer : Package
+	public partial class McpeAddPlayer : Package
 	{
 		public long clientId; // = null;
 		public string username; // = null;
@@ -1279,14 +1334,14 @@ namespace MiNET.Network
 		public short unknown2; // = null;
 		public byte[] metadata; // = null;
 
-		public IdMcpeAddPlayer()
+		public McpeAddPlayer()
 		{
 			Id = 0x89;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -1308,9 +1363,9 @@ namespace MiNET.Network
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 

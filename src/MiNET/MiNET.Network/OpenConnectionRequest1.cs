@@ -1,6 +1,6 @@
 namespace MiNET.Network
 {
-	public partial class IdOpenConnectionRequest1 : Package
+	public partial class OpenConnectionRequest1 : Package
 	{
 		public short mtuSize;
 

@@ -7,5 +7,6 @@ namespace MiNET.Network
 		bool IsCaching { get; }
 		void Initialize();
 		ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates);
+		Coordinates3D GetSpawnPoint();
 	}
 }

@@ -7,13 +7,13 @@ using System.Text;
 namespace MiNET.Network
 {
 	/// Base package class
-	public partial class Package
+	public partial class Package : ICloneable
 	{
 		public byte Id;
 
-		public MemoryStream _buffer;
-		public BinaryWriter _writer;
-		public BinaryReader _reader;
+		protected MemoryStream _buffer;
+		private BinaryWriter _writer;
+		private BinaryReader _reader;
 
 		public Package()
 		{
@@ -138,31 +138,39 @@ namespace MiNET.Network
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
-		public virtual void Encode()
+		protected virtual void EncodePackage()
 		{
 			_buffer.Position = 0;
 			Write(Id);
 		}
 
-		public virtual void Decode()
+		public virtual byte[] Encode()
+		{
+			EncodePackage();
+			_writer.Flush();
+			_buffer.Position = 0;
+			return _buffer.ToArray();
+		}
+
+		protected virtual void DecodePackage()
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
 		}
 
-		public virtual void SetBuffer(byte[] buffer)
+		public virtual void Decode(byte[] buffer)
 		{
 			_buffer.Position = 0;
 			_buffer.SetLength(buffer.Length);
 			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
+			DecodePackage();
 		}
 
-		public virtual byte[] GetBytes()
+
+		public virtual object Clone()
 		{
-			_writer.Flush();
-			_buffer.Position = 0;
-			return _buffer.ToArray();
+			return MemberwiseClone();
 		}
 	}
 }

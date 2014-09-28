@@ -21,8 +21,9 @@ namespace MiNET.Network
 
 	public class PackageFactory
 	{
-		public static Package CreatePackage(byte messageId)
+		public static Package CreatePackage(byte messageId, byte[] buffer)
 		{
+			Package package = null; 
 			switch (messageId)
 			{
 <#	
@@ -31,7 +32,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
 #>
 				case <#= pdu.Attributes["id"].Value #>:
-					return new <#= CodeTypeName(pdu.Attributes["name"].Value) #>();
+					package = new <#= CodeTypeName(pdu.Attributes["name"].Value) #>();
+					package.Decode(buffer);
+					return package;
 <#	
 } // foreach
 #>
@@ -56,7 +59,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
 	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
 #>
-	public partial class <#= CodeName(pdu.Attributes["name"].Value, true) #> : <#= baseType #>
+	public partial class <#= CodeTypeName(pdu.Attributes["name"].Value) #> : <#= baseType #>
 	{
 <#	
 
@@ -79,14 +82,14 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 
 #>
 
-		public <#= CodeName(pdu.Attributes["name"].Value, true) #>()
+		public <#= CodeTypeName(pdu.Attributes["name"].Value) #>()
 		{
 			Id = <#= CodeName(pdu.Attributes["id"].Value, true) #>;
 		}
 
-		public override void Encode()
+		protected override void EncodePackage()
 		{
-			base.Encode();
+			base.EncodePackage();
 
 			BeforeEncode();
 
@@ -107,9 +110,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		public override void Decode()
+		protected override void DecodePackage()
 		{
-			base.Decode();
+			base.DecodePackage();
 
 			BeforeDecode();
 
@@ -154,6 +157,10 @@ private string UpperInitial(string name)
 
 private string CodeTypeName(string name) 
 {
+	if (name.StartsWith("ID_"))
+	{
+		name = name.Substring(3);
+	}
 	return CodeName(name, true);
 }
 

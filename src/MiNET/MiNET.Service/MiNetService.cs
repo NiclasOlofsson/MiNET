@@ -29,8 +29,8 @@ namespace MiNET.Service
 					s.WhenStopped(service => service.Stop());
 				});
 
-				host.RunAsLocalService();
-				host.SetDisplayName("MiNET");
+				host.RunAsNetworkService();
+				host.SetDisplayName("MiNET Service");
 				host.SetDescription("MiNET MineCraft Pocket Edition server.");
 				host.SetServiceName("MiNET");
 			});

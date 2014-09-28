@@ -11,7 +11,7 @@ namespace MiNET.Network
 			_sessionId = sessionId;
 		}
 
-		public void Encode()
+		protected override void EncodePackage()
 		{
 			Write((byte) 0x10);
 			Write(new byte[] { 0x04, 0x3f, 0x57, 0xfe }); //Cookie

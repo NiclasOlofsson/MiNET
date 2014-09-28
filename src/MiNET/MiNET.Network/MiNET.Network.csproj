@@ -45,7 +45,7 @@
     <Compile Include="CraftNetWorldProvider.cs" />
     <Compile Include="CryptoRandom.cs" />
     <Compile Include="FlatlandWorldProvider.cs" />
-    <Compile Include="IdOpenConnectionReply1.cs" />
+    <Compile Include="OpenConnectionRequest1.cs" />
     <Compile Include="Int24.cs" />
     <Compile Include="ChunkColumn.cs" />
     <Compile Include="IWorldProvider.cs" />
@@ -57,6 +57,7 @@
     <Compile Include="Package.cs" />
     <Compile Include="DatagramHeader.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="PlayerPosition3D.cs" />
     <Compile Include="protocol.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

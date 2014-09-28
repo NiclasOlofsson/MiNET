@@ -67,6 +67,10 @@ namespace MiNET.Network
 					package = new NewIncomingConnection();
 					package.Decode(buffer);
 					return package;
+				case 0x15:
+					package = new DisconnectionNotification();
+					package.Decode(buffer);
+					return package;
 				case 0x82:
 					package = new McpeLogin();
 					package.Decode(buffer);
@@ -121,6 +125,10 @@ namespace MiNET.Network
 					return package;
 				case 0x89:
 					package = new McpeAddPlayer();
+					package.Decode(buffer);
+					return package;
+				case 0x8a:
+					package = new McpeRemovePlayer();
 					package.Decode(buffer);
 					return package;
 			}
@@ -714,6 +722,42 @@ namespace MiNET.Network
 			port = ReadShort();
 			session = ReadLong();
 			session2 = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class DisconnectionNotification : Package
+	{
+
+		public DisconnectionNotification()
+		{
+			Id = 0x15;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
 
 			AfterDecode();
 		}
@@ -1380,6 +1424,48 @@ namespace MiNET.Network
 			unknown1 = ReadShort();
 			unknown2 = ReadShort();
 			metadata = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeRemovePlayer : Package
+	{
+		public int entityId; // = null;
+		public long clientId; // = null;
+
+		public McpeRemovePlayer()
+		{
+			Id = 0x8a;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(clientId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			clientId = ReadLong();
 
 			AfterDecode();
 		}

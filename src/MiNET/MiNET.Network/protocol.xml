@@ -98,6 +98,9 @@
 		<field name="Session2" type="long" />
 	</pdu>
 
+	<pdu id="0x15" online="false" client="true" server="true" name="ID_DISCONNECTION_NOTIFICATION">
+	</pdu>
+
 	<pdu id="0x82" online="false" client="true" server="false" name="ID_MCPE_LOGIN">
 		<field name="username" type="string" />
 		<field name="protocol" type="int" />
@@ -203,5 +206,11 @@
 		<field name="Unknown2" type="short" />
 		<field name="Metadata" type="byte[]" size="0" />
 	</pdu>
+
+	<pdu id="0x8a" online="false" client="false" server="true" name="ID_MCPE_REMOVE_PLAYER">
+		<field name="Entity ID" type="int" />
+		<field name="Client ID" type="long" />
+	</pdu>
+
 
 </protocol>

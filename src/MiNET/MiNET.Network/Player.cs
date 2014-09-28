@@ -41,6 +41,11 @@ namespace MiNET.Network
 
 		public bool HandlePackage(Package message)
 		{
+			if (typeof (McpeRemovePlayer) == message.GetType())
+			{
+				_level.RemovePlayer(this);
+			}
+
 			if (typeof (McpeLogin) == message.GetType())
 			{
 				{
@@ -90,155 +95,111 @@ namespace MiNET.Network
 
 		private void SendStartGame()
 		{
-			var response = new McpeStartGame();
-			response.seed = 1406827239;
-			response.generator = 1; //0 old, 1 infinite, 2 flat
-			response.gamemode = 1;
-			response.entityId = GetEntityId(this); // Always 0 for player
-			response.spawnX = (int) KnownPosition.X;
-			response.spawnY = (int) KnownPosition.Y;
-			response.spawnZ = (int) KnownPosition.Z;
-			response.x = KnownPosition.X;
-			response.y = KnownPosition.Y;
-			response.z = KnownPosition.Z;
-
-			SendPackage(response);
+			SendPackage(new McpeStartGame
+			{
+				seed = 1406827239,
+				generator = 1,
+				gamemode = 1,
+				entityId = GetEntityId(this),
+				spawnX = (int) KnownPosition.X,
+				spawnY = (int) KnownPosition.Y,
+				spawnZ = (int) KnownPosition.Z,
+				x = KnownPosition.X,
+				y = KnownPosition.Y,
+				z = KnownPosition.Z
+			});
 		}
 
 		private void SendSetSpawnPosition()
 		{
+			SendPackage(new McpeSetSpawnPosition
 			{
-				var response = new McpeSetSpawnPosition();
-				response.x = (int) KnownPosition.X;
-				response.y = (byte) KnownPosition.Y;
-				response.z = (int) KnownPosition.Z;
-
-				SendPackage(response);
-			}
+				x = (int) KnownPosition.X,
+				y = (byte) KnownPosition.Y,
+				z = (int) KnownPosition.Z
+			});
 		}
 
 		private void SendChunksForKnownPosition()
 		{
+			List<ChunkColumn> chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
+
+			int count = 0;
+			foreach (var chunk in chunks)
 			{
-				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
+				SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
+				Thread.Yield();
 
-				int count = 0;
-				foreach (var chunk in chunks)
+				if (count == 56 & !IsSpawned)
 				{
-					//if (count >= 96) break; // too big for the client to deal with
+					InitializePlayer();
 
-					{
-						byte[] data = chunk.GetBytes();
-
-						var response = new McpeFullChunkData();
-						response.chunkData = data;
-
-						SendPackage(response);
-						Thread.Yield();
-					}
-					if (count == 56)
-					{
-						InitializePlayer();
-
-						IsSpawned = true;
-						_level.AddPlayer(this);
-					}
-
-					count++;
+					IsSpawned = true;
+					_level.AddPlayer(this);
 				}
+
+				count++;
 			}
 		}
 
 		private void SendSetHealth()
 		{
-			{
-				var response = new McpeSetHealth();
-				response.health = 20;
-
-				SendPackage(response);
-			}
+			SendPackage(new McpeSetHealth { health = 20 });
 		}
 
 		private void SendSetTime()
 		{
-			{
-				// started == true ? 0x80 : 0x00);
-				var response = new McpeSetTime();
-				response.time = 6000;
-				response.started = 0x80;
-
-				SendPackage(response);
-			}
+			// started == true ? 0x80 : 0x00);
+			SendPackage(new McpeSetTime { time = 6000, started = 0x80 });
 		}
 
 		private void InitializePlayer()
 		{
+			//send time again
+			SendPackage(new McpeSetTime { time = 6000, started = 0x80 });
+
+			// Teleport user (MovePlayerPacket) teleport=1
+			SendPackage(new McpeMovePlayer
 			{
-				//send time again
-				var response = new McpeSetTime();
-				response.time = 6000;
-				response.started = 0x80;
+				entityId = GetEntityId(this),
+				x = KnownPosition.X,
+				y = KnownPosition.Y,
+				z = KnownPosition.Z,
+				yaw = KnownPosition.Yaw,
+				pitch = KnownPosition.Pitch,
+				bodyYaw = KnownPosition.BodyYaw,
+				teleport = 0x80
+			});
 
-				SendPackage(response);
-			}
-
-			{
-				// Teleport user (MovePlayerPacket) teleport=1
-				//yaw: 91
-				//pitch: 28
-				//bodyYaw: 91
-
-				var response = new McpeMovePlayer();
-				response.entityId = GetEntityId(this);
-				response.x = KnownPosition.X;
-				response.y = KnownPosition.Y;
-				response.z = KnownPosition.Z;
-				response.yaw = KnownPosition.Yaw;
-				response.pitch = KnownPosition.Pitch;
-				response.bodyYaw = KnownPosition.BodyYaw;
-				response.teleport = 0x80; // true
-
-				SendPackage(response);
-			}
-			{
-				//$flags = 0;
-				//if($this->isAdventure())
-				//	$flags |= 0x01; //Do not allow placing/breaking blocks, adventure mode
-				//if($nametags !== false){
-				//	$flags |= 0x20; //Show Nametags
-				//}
-
-				// Adventure settings (AdventureSettingsPacket)
-				var response = new McpeAdventureSettings();
-				response.flags = 0x20;
-
-				SendPackage(response);
-			}
+			// Adventure settings (AdventureSettingsPacket)
+			//$flags = 0;
+			//if($this->isAdventure())
+			//	$flags |= 0x01; //Do not allow placing/breaking blocks, adventure mode
+			//if($nametags !== false){
+			//	$flags |= 0x20; //Show Nametags
+			//}
+			SendPackage(new McpeAdventureSettings { flags = 0x20 });
 
 			// Settings (ContainerSetContentPacket)
+			//$this->inventory->sendContents($this);
+			SendPackage(new McpeContainerSetContent
 			{
-				//$this->inventory->sendContents($this);
-				var response = new McpeContainerSetContent();
-				response.windowId = 0;
-				response.slotCount = 0;
-				response.slotData = new byte[0];
-				response.hotbarCount = 0;
-				response.hotbarData = new byte[0];
+				windowId = 0,
+				slotCount = 0,
+				slotData = new byte[0],
+				hotbarCount = 0,
+				hotbarData = new byte[0]
+			});
 
-				SendPackage(response);
-			}
-
+			//$this->inventory->sendArmorContents($this);
+			SendPackage(new McpeContainerSetContent
 			{
-				//$this->inventory->sendArmorContents($this);
-				var response = new McpeContainerSetContent();
-				response.windowId = 0x78; // Armor window id constant
-				response.slotCount = 0;
-				response.slotData = new byte[0];
-				response.hotbarCount = 0;
-				response.hotbarData = new byte[0];
-
-				SendPackage(response);
-			}
+				windowId = 0x78,
+				slotCount = 0,
+				slotData = new byte[0],
+				hotbarCount = 0,
+				hotbarData = new byte[0]
+			});
 		}
 
 		public void SendPackage(Package package)
@@ -250,18 +211,29 @@ namespace MiNET.Network
 		{
 			if (player == this) return;
 
-			var response = new McpeAddPlayer();
-			response.clientId = 0;
-			response.username = player.Username;
-			response.entityId = GetEntityId(player);
-			response.x = player.KnownPosition.X;
-			response.y = player.KnownPosition.Y;
-			response.z = player.KnownPosition.Z;
-			response.yaw = (byte) player.KnownPosition.Yaw;
-			response.pitch = (byte) player.KnownPosition.Pitch;
-			response.metadata = new byte[0];
+			SendPackage(new McpeAddPlayer
+			{
+				clientId = 0,
+				username = player.Username,
+				entityId = GetEntityId(player),
+				x = player.KnownPosition.X,
+				y = player.KnownPosition.Y,
+				z = player.KnownPosition.Z,
+				yaw = (byte) player.KnownPosition.Yaw,
+				pitch = (byte) player.KnownPosition.Pitch,
+				metadata = new byte[0]
+			});
+		}
 
-			SendPackage(response);
+		public void SendRemovePlayer(Player player)
+		{
+			if (player == this) return;
+
+			SendPackage(new McpeRemovePlayer
+			{
+				clientId = 0,
+				entityId = GetEntityId(player)
+			});
 		}
 
 		public void SendMovementForPlayer(Player player)
@@ -269,7 +241,8 @@ namespace MiNET.Network
 			if (player == this) return;
 
 			var knownPosition = player.KnownPosition;
-			var package = new McpeMovePlayer
+
+			SendPackage(new McpeMovePlayer
 			{
 				entityId = GetEntityId(player),
 				x = knownPosition.X,
@@ -279,9 +252,7 @@ namespace MiNET.Network
 				pitch = knownPosition.Pitch,
 				bodyYaw = knownPosition.BodyYaw,
 				teleport = 0
-			};
-
-			SendPackage(package);
+			});
 		}
 
 		private void AddEntity(Player player)

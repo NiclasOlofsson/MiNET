@@ -188,5 +188,17 @@ namespace MiNET.Network
 		{
 			return string.Format("{0}:{1}", chunkX, chunkZ);
 		}
+
+		public void RemovePlayer(Player player)
+		{
+			Players.Remove(player);
+			foreach (var targetPlayer in Players)
+			{
+				if (targetPlayer.IsSpawned)
+					targetPlayer.SendRemovePlayer(player);
+			}
+
+			BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username));
+		}
 	}
 }

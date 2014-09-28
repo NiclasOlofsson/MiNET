@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using Craft.Net.Anvil;
-using Craft.Net.Common;
-using Craft.Net.TerrainGeneration;
 
 namespace MiNET.Network
 {
@@ -15,11 +10,13 @@ namespace MiNET.Network
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<string, ChunkColumn> _chunksUsed;
 		private string _username;
+		private Level _level;
 
-		public Player(MiNetServer server, IPEndPoint endpoint)
+		public Player(MiNetServer server, IPEndPoint endpoint, Level level)
 		{
 			_server = server;
 			_endpoint = endpoint;
+			_level = level;
 			_chunksUsed = new Dictionary<string, ChunkColumn>();
 		}
 
@@ -95,7 +92,7 @@ namespace MiNET.Network
 
 					//var generator = new FlatGenerator();
 					//var chunks = generator.GenerateFlatWorld(16, 16);
-					var chunks = GenerateChunks(playerX, playerZ);
+					var chunks = _level.GenerateChunks(playerX, playerZ, _chunksUsed);
 
 					int count = 0;
 					foreach (var chunk in chunks)
@@ -196,7 +193,7 @@ namespace MiNET.Network
 								// Player joined!
 								var response = new IdMcpeMessage();
 								response.source = "";
-								response.message = _username + " joined the game!";
+								response.message = string.Format("Player {0} joined the game!", _username);
 								response.Encode();
 								BroadcastPackage(response, true);
 							}
@@ -209,7 +206,7 @@ namespace MiNET.Network
 			else if (typeof (IdMcpeMovePlayer) == message.GetType())
 			{
 				var moveMessage = (IdMcpeMovePlayer) message;
-				var chunks = GenerateChunks((int) moveMessage.x, (int) moveMessage.z);
+				var chunks = _level.GenerateChunks((int) moveMessage.x, (int) moveMessage.z, _chunksUsed);
 				int count = 0;
 				foreach (var chunk in chunks)
 				{
@@ -236,135 +233,6 @@ namespace MiNET.Network
 		private void SendPackage(Package package)
 		{
 			_server.SendPackage(_endpoint, package);
-		}
-
-		public List<ChunkColumn> GenerateChunks(int playerX, int playerZ)
-		{
-			Dictionary<string, double> newOrder = new Dictionary<string, double>();
-			int viewDistanace = 90;
-			double radiusSquared = viewDistanace/Math.PI;
-			double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
-			var centerX = playerX >> 4;
-			var centerZ = playerZ >> 4;
-			Queue<Chunk> chunkQueue = new Queue<Chunk>();
-			for (double x = -radius; x <= radius; ++x)
-			{
-				for (double z = -radius; z <= radius; ++z)
-				{
-					var distance = (x*x) + (z*z);
-					if (distance > radiusSquared)
-					{
-						continue;
-					}
-					var chunkX = x + centerX;
-					var chunkZ = z + centerZ;
-					string index = GetChunkHash(chunkX, chunkZ);
-
-					newOrder[index] = distance;
-				}
-			}
-
-
-			// Should be member..
-			Dictionary<string, double> loadQueue = new Dictionary<string, double>();
-
-			var sortedKeys = newOrder.Keys.ToList();
-			sortedKeys.Sort();
-			if (newOrder.Count > viewDistanace)
-			{
-				int count = 0;
-				loadQueue = new Dictionary<string, double>();
-				foreach (var key in sortedKeys)
-				{
-					loadQueue[key] = newOrder[key];
-					if (++count > viewDistanace) break;
-				}
-			}
-			else
-			{
-				loadQueue = newOrder;
-			}
-
-			List<ChunkColumn> chunks = new List<ChunkColumn>();
-			foreach (var pair in loadQueue)
-			{
-				if (_chunksUsed.ContainsKey(pair.Key)) continue;
-
-//				ChunkColumn chunk = CraftNetGenerateChunkForIndex(pair.Key);
-				ChunkColumn chunk = FlatlandGenerateChunkForIndex(pair.Key);
-				chunks.Add(chunk);
-				_chunksUsed.Add(pair.Key, chunk);
-			}
-
-			return chunks;
-		}
-
-		private ChunkColumn FlatlandGenerateChunkForIndex(string index)
-		{
-			int x = Int32.Parse(index.Split(new[] { ':' })[0]);
-			int z = Int32.Parse(index.Split(new[] { ':' })[1]);
-
-			FlatGenerator generator = new FlatGenerator();
-			ChunkColumn chunk = new ChunkColumn();
-			chunk.x = x;
-			chunk.z = z;
-			generator.PopulateChunk(chunk);
-			return chunk;
-		}
-
-		private ChunkColumn CraftNetGenerateChunkForIndex(string index)
-		{
-			var generator = new StandardGenerator();
-			generator.Seed = 1000;
-			generator.Initialize(null);
-
-			int x = Int32.Parse(index.Split(new[] { ':' })[0]);
-			int z = Int32.Parse(index.Split(new[] { ':' })[1]);
-
-			var firstOrDefault = _server.ChunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == x && chunk2.z == z);
-			if (firstOrDefault != null)
-			{
-				return firstOrDefault;
-			}
-
-			ChunkColumn chunk;
-			chunk = new ChunkColumn { x = x, z = z };
-
-			Chunk anvilChunk = generator.GenerateChunk(new Coordinates2D(x, z));
-
-			chunk.biomeId = anvilChunk.Biomes;
-			for (int i = 0; i < chunk.biomeId.Length; i++)
-			{
-				if (chunk.biomeId[i] > 22) chunk.biomeId[i] = 0;
-			}
-			if (chunk.biomeId.Length > 256) throw new Exception();
-
-			for (int xi = 0; xi < 16; xi++)
-			{
-				for (int zi = 0; zi < 16; zi++)
-				{
-					for (int yi = 0; yi < 128; yi++)
-					{
-						chunk.SetBlock(xi, yi, zi, (byte) anvilChunk.GetBlockId(new Coordinates3D(xi, yi + 45, zi)));
-						chunk.SetBlocklight(xi, yi, zi, anvilChunk.GetBlockLight(new Coordinates3D(xi, yi + 45, zi)));
-						chunk.SetMetadata(xi, yi, zi, anvilChunk.GetMetadata(new Coordinates3D(xi, yi + 45, zi)));
-						chunk.SetSkylight(xi, yi, zi, anvilChunk.GetSkyLight(new Coordinates3D(xi, yi + 45, zi)));
-					}
-				}
-			}
-
-			for (int i = 0; i < chunk.skylight.Length; i++)
-				chunk.skylight[i] = 0xff;
-
-			for (int i = 0; i < chunk.biomeColor.Length; i++)
-				chunk.biomeColor[i] = 8761930;
-
-			return chunk;
-		}
-
-		private string GetChunkHash(double chunkX, double chunkZ)
-		{
-			return string.Format("{0}:{1}", chunkX, chunkZ);
 		}
 	}
 }

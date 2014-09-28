@@ -93,30 +93,5 @@ namespace MiNET.Network
 			hex.Append("}");
 			return hex.ToString();
 		}
-
-		[TestMethod]
-		public void FlatGeneratorTest()
-		{
-			var generator = new FlatGenerator();
-			var chunks = generator.GenerateFlatWorld(4, 4);
-			byte[] prev = null;
-			bool isFirst = true;
-			foreach (var chunk in chunks)
-			{
-				byte[] data = chunk.GetBytes();
-				Debug.WriteLine(ByteArrayToString(data));
-				if (isFirst)
-				{
-					prev = data;
-					isFirst = false;
-					continue;
-				}
-
-				Assert.IsFalse(data.SequenceEqual(prev));
-
-				prev = data;
-			}
-			//Assert.AreEqual("", new SoapHexBinary(prev).ToString());
-		}
 	}
 }

@@ -1,23 +1,41 @@
 using System.Collections.Generic;
+using System.Linq;
+using Craft.Net.Common;
 
 namespace MiNET.Network
 {
-	public class FlatGenerator
+	public class FlatlandWorldProvider : IWorldProvider
 	{
-		public List<ChunkColumn> GenerateFlatWorld(int xDimension, int zDimension)
+		private List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
+
+		public bool IsCaching { get; private set; }
+
+		public FlatlandWorldProvider()
 		{
-			List<ChunkColumn> chunks = new List<ChunkColumn>();
-			for (int x = 0; x < xDimension; x++)
+			IsCaching = true;
+		}
+
+		public void Initialize()
+		{
+		}
+
+		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
+		{
+			var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+			if (firstOrDefault != null)
 			{
-				for (int z = 0; z < zDimension; z++)
-				{
-					ChunkColumn chunk = new ChunkColumn { x = x, z = z };
-					PopulateChunk(chunk);
-					chunks.Add(chunk);
-				}
+				return firstOrDefault;
 			}
 
-			return chunks;
+			FlatlandWorldProvider generator = new FlatlandWorldProvider();
+			ChunkColumn chunk = new ChunkColumn();
+			chunk.x = chunkCoordinates.X;
+			chunk.z = chunkCoordinates.Z;
+			generator.PopulateChunk(chunk);
+
+			_chunkCache.Add(chunk);
+
+			return chunk;
 		}
 
 		public void PopulateChunk(ChunkColumn chunk)

@@ -39,8 +39,8 @@ namespace MiNET.Network
 		public const int DefaultPort = 19132;
 		private StandardGenerator _generator;
 		private Queue<Tuple<IPEndPoint, byte[]>> sendQueue = new Queue<Tuple<IPEndPoint, byte[]>>();
-		private List<ChunkColumn> _chunkCache;
 		private Dictionary<IPEndPoint, Player> _players;
+		private Level _level;
 
 		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
@@ -51,12 +51,6 @@ namespace MiNET.Network
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
 		}
 
-		public List<ChunkColumn> ChunkCache
-		{
-			get { return _chunkCache; }
-			set { _chunkCache = value; }
-		}
-
 		public bool StartServer()
 		{
 			if (_listener != null) return false; // Already started
@@ -65,11 +59,8 @@ namespace MiNET.Network
 			{
 				_players = new Dictionary<IPEndPoint, Player>();
 
-				int playerX = 50;
-				int playerZ = 50;
-
-				ChunkCache = new List<ChunkColumn>();
-				ChunkCache.AddRange(new Player(this, null).GenerateChunks(playerX, playerZ));
+				_level = new Level("Default");
+				_level.Initialize();
 
 				_listener = new UdpClient(_endpoint);
 
@@ -300,7 +291,7 @@ namespace MiNET.Network
 				SendPackage(senderEndpoint, response);
 
 				_players.Remove(senderEndpoint);
-				_players.Add(senderEndpoint, new Player(this, senderEndpoint));
+				_players.Add(senderEndpoint, new Player(this, senderEndpoint, _level));
 
 				return;
 			}

@@ -42,11 +42,14 @@
     <Compile Include="ChunkHelper.cs" />
     <Compile Include="ConnectedPackage.cs" />
     <Compile Include="ConnectionRequestAcceptedManual.cs" />
+    <Compile Include="CraftNetWorldProvider.cs" />
     <Compile Include="CryptoRandom.cs" />
-    <Compile Include="FlatGenerator.cs" />
+    <Compile Include="FlatlandWorldProvider.cs" />
     <Compile Include="IdOpenConnectionReply1.cs" />
     <Compile Include="Int24.cs" />
     <Compile Include="ChunkColumn.cs" />
+    <Compile Include="IWorldProvider.cs" />
+    <Compile Include="Level.cs" />
     <Compile Include="MiNetServer.cs" />
     <Compile Include="NbtBinaryReader.cs" />
     <Compile Include="NbtBinaryWriter.cs" />

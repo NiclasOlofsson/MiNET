@@ -6,61 +6,7 @@ using Craft.Net.Anvil;
 
 namespace MiNET.Network
 {
-	// https://gist.github.com/Intyre/f5e169c8b15b85fbb479 // model
-	// https://gist.github.com/Intyre/442c113fb0fe01776ba8 // code
-
-	/*
-		Chunk
-			8 Sections
-			biomeid 		256 x biomeid (bytes)
-			biomecolor		256 x color (int)
- 
-		Sections 			4096 to make it easy to get blocks and data
-			blocks			4096 x block id (byte)
-			meta			4096 x block id (byte)
-			blocklight		4096 x block id (byte)	
-			skylight		4096 x block id (byte)
- 
- 
- 
-		Chunk file
-		----------
-			x			chunk location (int)
-			z			chunk location (int)
-			Sections 		8 * section data
-				blocks		4096 x block id (byte)
-				meta		2048 x block id (byte)
-				blocklight	2048 x block id (byte)	
-				skylight	2048 x block id (byte)
-			biomeid			256 x bytes
-			biomecolor		256 x int
-
-	 class Section(object):
-		"""Section for chunk"""
- 
-		def __init__(self):
-			"""4096 bytes for blocks, meta, blocklight and skylight"""
-			self.blocks = array("B", [0] * 4096)
-			self.meta = array("B", [0] * 4096)
-			self.blocklight = array("B", [0] * 4096)
-			self.skylight = array("B", [0] * 4096)
-        
-        
-	class Chunk(object):
- 
-		def __init__(self, x, z):
-			self.x = x
-			self.z = z
- 
-			self.heightmap = {}
-			self.sections = [Section() for i in range(8)]
- 
-			self.biomeid = array("B", [1] * 256)
-			self.biomecolor = array("i", [1253213440] * 256)
-
-	*/
-
-	public class Chunk2
+	public class ChunkColumn
 	{
 		public int x;
 		public int z;
@@ -73,7 +19,7 @@ namespace MiNET.Network
 		public NibbleArray skylight = new NibbleArray(16*16*128);
 
 
-		public Chunk2()
+		public ChunkColumn()
 		{
 			for (int i = 0; i < skylight.Length; i++)
 				skylight[i] = 0xff;

@@ -46,7 +46,7 @@ namespace MiNET.Network
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				NbtBinaryReader defStream = new NbtBinaryReader(defStream2, true);
-				Chunk2 chunk = new Chunk2();
+				ChunkColumn chunk = new ChunkColumn();
 
 				chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
 				chunk.z = IPAddress.NetworkToHostOrder(defStream.ReadInt32());

@@ -4,14 +4,14 @@ namespace MiNET.Network
 {
 	public class FlatGenerator
 	{
-		public List<Chunk2> GenerateFlatWorld(int xDimension, int zDimension)
+		public List<ChunkColumn> GenerateFlatWorld(int xDimension, int zDimension)
 		{
-			List<Chunk2> chunks = new List<Chunk2>();
+			List<ChunkColumn> chunks = new List<ChunkColumn>();
 			for (int x = 0; x < xDimension; x++)
 			{
 				for (int z = 0; z < zDimension; z++)
 				{
-					Chunk2 chunk = new Chunk2 { x = x, z = z };
+					ChunkColumn chunk = new ChunkColumn { x = x, z = z };
 					PopulateChunk(chunk);
 					chunks.Add(chunk);
 				}
@@ -20,7 +20,7 @@ namespace MiNET.Network
 			return chunks;
 		}
 
-		public void PopulateChunk(Chunk2 chunk)
+		public void PopulateChunk(ChunkColumn chunk)
 		{
 			var random = new CryptoRandom();
 			var stones = new byte[16*16*128];

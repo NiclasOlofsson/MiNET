@@ -38,9 +38,11 @@ namespace MiNET.Network
 		private UdpClient _listener;
 		public const int DefaultPort = 19132;
 		private StandardGenerator _generator;
+		private Queue<Tuple<IPEndPoint, byte[]>> sendQueue = new Queue<Tuple<IPEndPoint, byte[]>>();
+		private List<ChunkColumn> _chunkCache;
+		private Dictionary<IPEndPoint, Player> _players;
 
-		public MiNetServer(int port)
-			: this(new IPEndPoint(IPAddress.Any, port))
+		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
@@ -49,7 +51,7 @@ namespace MiNET.Network
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
 		}
 
-		public List<Chunk2> ChunkCache
+		public List<ChunkColumn> ChunkCache
 		{
 			get { return _chunkCache; }
 			set { _chunkCache = value; }
@@ -66,7 +68,7 @@ namespace MiNET.Network
 				int playerX = 50;
 				int playerZ = 50;
 
-				ChunkCache = new List<Chunk2>();
+				ChunkCache = new List<ChunkColumn>();
 				ChunkCache.AddRange(new Player(this, null).GenerateChunks(playerX, playerZ));
 
 				_listener = new UdpClient(_endpoint);
@@ -90,6 +92,7 @@ namespace MiNET.Network
 				sendTimer.Start();
 
 				Console.WriteLine("Server open for business...");
+
 				return true;
 			}
 			catch (Exception e)
@@ -163,11 +166,7 @@ namespace MiNET.Network
 							packet.Encode();
 
 							var data = packet.GetBytes();
-
-							//Debug.Print("< Send: {1} (0x{0:x2})", packet.Id, (DefaultMessageIdTypes) packet.Id);
-							//Debug.Print("\tData: {0}", ByteArrayToString2(data));
-
-							SendRaw(data, senderEndpoint);
+							SendToQueue(data, senderEndpoint);
 							break;
 						}
 						case DefaultMessageIdTypes.ID_DETECT_LOST_CONNECTIONS:
@@ -188,7 +187,7 @@ namespace MiNET.Network
 							packet.Encode();
 
 							var data = packet.GetBytes();
-							SendRaw(data, senderEndpoint);
+							SendToQueue(data, senderEndpoint);
 							break;
 						}
 						case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
@@ -208,7 +207,7 @@ namespace MiNET.Network
 							packet.Encode();
 
 							var data = packet.GetBytes();
-							SendRaw(data, senderEndpoint);
+							SendToQueue(data, senderEndpoint);
 							break;
 						}
 					}
@@ -312,6 +311,15 @@ namespace MiNET.Network
 			}
 		}
 
+		public void BroadcastPackage(Player sendingPlayer, Package message, Reliability reliability = Reliability.RELIABLE, bool toSelf = false)
+		{
+			foreach (var player in _players)
+			{
+				if (!toSelf && player.Value == sendingPlayer) continue;
+
+				SendPackage(player.Key, message, reliability);
+			}
+		}
 
 		public void SendPackage(IPEndPoint senderEndpoint, Package message, Reliability reliability = Reliability.RELIABLE)
 		{
@@ -329,7 +337,7 @@ namespace MiNET.Network
 				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), messageData.Length);
 			}
 
-			SendRaw(data, senderEndpoint);
+			SendToQueue(data, senderEndpoint);
 		}
 
 		private void SendAck(UdpClient listener, IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -340,12 +348,9 @@ namespace MiNET.Network
 			ack.count = 1;
 			ack.onlyOneSequence = 1;
 			ack.Encode();
-			RealRaw(listener, ack._buffer.ToArray(), senderEndpoint);
+			SendToNetwork(listener, ack._buffer.ToArray(), senderEndpoint);
 		}
 
-		private Queue<Tuple<IPEndPoint, byte[]>> sendQueue = new Queue<Tuple<IPEndPoint, byte[]>>();
-		private List<Chunk2> _chunkCache;
-		private Dictionary<IPEndPoint, Player> _players;
 
 		private void sendTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
 		{
@@ -354,11 +359,11 @@ namespace MiNET.Network
 				if (sendQueue.Count == 0) return;
 
 				var item = sendQueue.Dequeue();
-				RealRaw(_listener, item.Item2, item.Item1);
+				SendToNetwork(_listener, item.Item2, item.Item1);
 			}
 		}
 
-		private void SendRaw(byte[] data, IPEndPoint senderEndpoint)
+		private void SendToQueue(byte[] data, IPEndPoint senderEndpoint)
 		{
 			lock (sendQueue)
 			{
@@ -366,13 +371,13 @@ namespace MiNET.Network
 			}
 		}
 
-		private void RealRaw(UdpClient listener, byte[] data, IPEndPoint senderEndpoint)
+		private void SendToNetwork(UdpClient listener, byte[] data, IPEndPoint senderEndpoint)
 		{
 			listener.Send(data, data.Length, senderEndpoint);
-			listener.BeginSend(data, data.Length, senderEndpoint, SendRequestCallback, listener);
+			listener.BeginSend(data, data.Length, senderEndpoint, SendToNetworkEnd, listener);
 		}
 
-		private void SendRequestCallback(IAsyncResult ar)
+		private void SendToNetworkEnd(IAsyncResult ar)
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
 			listener.EndSend(ar);

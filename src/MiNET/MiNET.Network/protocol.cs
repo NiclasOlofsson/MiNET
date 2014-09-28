@@ -3,7 +3,6 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using System;
 using little = MiNET.Network.Int24; // friendly name
 
 namespace MiNET.Network
@@ -65,6 +64,10 @@ namespace MiNET.Network
 					return new IdMcpeContainerSetContent();
 				case 0x85:
 					return new IdMcpeMessage();
+				case 0xa7:
+					return new IdMcpeEntityData();
+				case 0x89:
+					return new IdMcpeAddPlayer();
 			}
 
 			return null;
@@ -1072,14 +1075,8 @@ namespace MiNET.Network
 			yaw = ReadFloat();
 			pitch = ReadFloat();
 			bodyYaw = ReadFloat();
-			try
-			{
-				teleport = ReadByte();
-			}
-			catch (Exception e)
-			{
-				
-			}
+			teleport = ReadByte();
+
 			AfterDecode();
 		}
 
@@ -1211,6 +1208,123 @@ namespace MiNET.Network
 
 			source = ReadString();
 			message = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeEntityData : Package
+	{
+		public int x; // = null;
+		public byte y; // = null;
+		public int z; // = null;
+		public byte[] namedtag; // = null;
+
+		public IdMcpeEntityData()
+		{
+			Id = 0xa7;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(namedtag);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			x = ReadInt();
+			y = ReadByte();
+			z = ReadInt();
+			namedtag = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IdMcpeAddPlayer : Package
+	{
+		public long clientId; // = null;
+		public string username; // = null;
+		public int entityId; // = null;
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
+		public byte yaw; // = null;
+		public byte pitch; // = null;
+		public short unknown1; // = null;
+		public short unknown2; // = null;
+		public byte[] metadata; // = null;
+
+		public IdMcpeAddPlayer()
+		{
+			Id = 0x89;
+		}
+
+		public override void Encode()
+		{
+			base.Encode();
+
+			BeforeEncode();
+
+			Write(clientId);
+			Write(username);
+			Write(entityId);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(yaw);
+			Write(pitch);
+			Write(unknown1);
+			Write(unknown2);
+			Write(metadata);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		public override void Decode()
+		{
+			base.Decode();
+
+			BeforeDecode();
+
+			clientId = ReadLong();
+			username = ReadString();
+			entityId = ReadInt();
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
+			yaw = ReadByte();
+			pitch = ReadByte();
+			unknown1 = ReadShort();
+			unknown2 = ReadShort();
+			metadata = ReadBytes(0);
 
 			AfterDecode();
 		}

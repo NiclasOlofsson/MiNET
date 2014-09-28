@@ -46,7 +46,7 @@
     <Compile Include="FlatGenerator.cs" />
     <Compile Include="IdOpenConnectionReply1.cs" />
     <Compile Include="Int24.cs" />
-    <Compile Include="Chunk2.cs" />
+    <Compile Include="ChunkColumn.cs" />
     <Compile Include="MiNetServer.cs" />
     <Compile Include="NbtBinaryReader.cs" />
     <Compile Include="NbtBinaryWriter.cs" />

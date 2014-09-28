@@ -13,13 +13,14 @@ namespace MiNET.Network
 	{
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
-		private Dictionary<string, Chunk2> _chunksUsed;
+		private Dictionary<string, ChunkColumn> _chunksUsed;
+		private string _username;
 
 		public Player(MiNetServer server, IPEndPoint endpoint)
 		{
 			_server = server;
 			_endpoint = endpoint;
-			_chunksUsed = new Dictionary<string, Chunk2>();
+			_chunksUsed = new Dictionary<string, ChunkColumn>();
 		}
 
 		public void HandlePackage(Package message)
@@ -29,6 +30,8 @@ namespace MiNET.Network
 				{
 					var msg = (IdMcpeLogin) message;
 					msg.Decode();
+
+					_username = msg.username;
 
 					var response = new IdMcpeLoginStatus();
 					response.status = 0;
@@ -176,12 +179,26 @@ namespace MiNET.Network
 								SendPackage(response);
 							}
 							{
+								var response = new IdMcpeAddPlayer();
+								response.clientId = 0;
+								response.username = _username;
+								response.entityId = 0;
+								response.x = playerX;
+								response.y = playerY;
+								response.z = playerZ;
+								response.yaw = 91;
+								response.pitch = 28;
+								response.metadata = new byte[0];
+								response.Encode();
+								BroadcastPackage(response);
+							}
+							{
 								// Player joined!
 								var response = new IdMcpeMessage();
 								response.source = "";
-								response.message = "Player joined the game!";
+								response.message = _username + " joined the game!";
 								response.Encode();
-								SendPackage(response);
+								BroadcastPackage(response, true);
 							}
 						}
 
@@ -211,12 +228,17 @@ namespace MiNET.Network
 			}
 		}
 
+		private void BroadcastPackage(Package package, bool toSelf = false)
+		{
+			_server.BroadcastPackage(this, package, toSelf: toSelf);
+		}
+
 		private void SendPackage(Package package)
 		{
 			_server.SendPackage(_endpoint, package);
 		}
 
-		public List<Chunk2> GenerateChunks(int playerX, int playerZ)
+		public List<ChunkColumn> GenerateChunks(int playerX, int playerZ)
 		{
 			Dictionary<string, double> newOrder = new Dictionary<string, double>();
 			int viewDistanace = 90;
@@ -263,13 +285,13 @@ namespace MiNET.Network
 				loadQueue = newOrder;
 			}
 
-			List<Chunk2> chunks = new List<Chunk2>();
+			List<ChunkColumn> chunks = new List<ChunkColumn>();
 			foreach (var pair in loadQueue)
 			{
 				if (_chunksUsed.ContainsKey(pair.Key)) continue;
 
-				Chunk2 chunk = CraftNetGenerateChunkForIndex(pair.Key);
-//				Chunk2 chunk = FlatlandGenerateChunkForIndex(pair.Key);
+//				ChunkColumn chunk = CraftNetGenerateChunkForIndex(pair.Key);
+				ChunkColumn chunk = FlatlandGenerateChunkForIndex(pair.Key);
 				chunks.Add(chunk);
 				_chunksUsed.Add(pair.Key, chunk);
 			}
@@ -277,20 +299,20 @@ namespace MiNET.Network
 			return chunks;
 		}
 
-		private Chunk2 FlatlandGenerateChunkForIndex(string index)
+		private ChunkColumn FlatlandGenerateChunkForIndex(string index)
 		{
 			int x = Int32.Parse(index.Split(new[] { ':' })[0]);
 			int z = Int32.Parse(index.Split(new[] { ':' })[1]);
 
 			FlatGenerator generator = new FlatGenerator();
-			Chunk2 chunk = new Chunk2();
+			ChunkColumn chunk = new ChunkColumn();
 			chunk.x = x;
 			chunk.z = z;
 			generator.PopulateChunk(chunk);
 			return chunk;
 		}
 
-		private Chunk2 CraftNetGenerateChunkForIndex(string index)
+		private ChunkColumn CraftNetGenerateChunkForIndex(string index)
 		{
 			var generator = new StandardGenerator();
 			generator.Seed = 1000;
@@ -305,8 +327,8 @@ namespace MiNET.Network
 				return firstOrDefault;
 			}
 
-			Chunk2 chunk;
-			chunk = new Chunk2 { x = x, z = z };
+			ChunkColumn chunk;
+			chunk = new ChunkColumn { x = x, z = z };
 
 			Chunk anvilChunk = generator.GenerateChunk(new Coordinates2D(x, z));
 

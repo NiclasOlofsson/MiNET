@@ -41,21 +41,23 @@ namespace MiNET.Network
 
 		public bool HandlePackage(Package message)
 		{
-			if (typeof (McpeRemovePlayer) == message.GetType())
+			if (typeof (DisconnectionNotification) == message.GetType())
 			{
 				_level.RemovePlayer(this);
+				return true;
+			}
+
+			if (typeof (McpeRemovePlayer) == message.GetType())
+			{
+				// Do nothing right now, but should clear out the entities and stuff
+				// from this players internal structure.
 			}
 
 			if (typeof (McpeLogin) == message.GetType())
 			{
-				{
-					var msg = (McpeLogin) message;
-
-					Username = msg.username;
-
-					var response = new McpeLoginStatus { status = 0 };
-					SendPackage(response);
-				}
+				var msg = (McpeLogin) message;
+				Username = msg.username;
+				SendPackage(new McpeLoginStatus { status = 0 });
 
 				// Start game
 				SendStartGame();
@@ -147,16 +149,16 @@ namespace MiNET.Network
 			SendPackage(new McpeSetHealth { health = 20 });
 		}
 
-		private void SendSetTime()
+		public void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
-			SendPackage(new McpeSetTime { time = 6000, started = 0x80 });
+			SendPackage(new McpeSetTime { time = _level.CurrentWorldTime, started = (byte) (_level.WorldTimeStarted ? 0x80 : 0x00) });
 		}
 
 		private void InitializePlayer()
 		{
 			//send time again
-			SendPackage(new McpeSetTime { time = 6000, started = 0x80 });
+			SendSetTime();
 
 			// Teleport user (MovePlayerPacket) teleport=1
 			SendPackage(new McpeMovePlayer

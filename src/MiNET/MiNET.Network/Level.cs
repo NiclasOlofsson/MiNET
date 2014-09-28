@@ -22,6 +22,8 @@ namespace MiNET.Network
 		//const ADVENTURE = 2;
 		//const SPECTATOR = 3;
 		public int GameMode { get; private set; }
+		public int CurrentWorldTime { get; private set; }
+		public bool WorldTimeStarted { get; private set; }
 
 		public Level(string levelId, IWorldProvider worldProvider = null)
 		{
@@ -34,6 +36,9 @@ namespace MiNET.Network
 
 		public void Initialize()
 		{
+			CurrentWorldTime = 6000;
+			WorldTimeStarted = true;
+
 			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
 
 			if (_worldProvider.IsCaching)
@@ -42,7 +47,6 @@ namespace MiNET.Network
 				GenerateChunks(SpawnPoint.X, SpawnPoint.Y, new Dictionary<string, ChunkColumn>());
 			}
 			SpawnPoint = _worldProvider.GetSpawnPoint();
-
 
 			if (_levelTicker != null)
 			{
@@ -111,6 +115,17 @@ namespace MiNET.Network
 			// - etc..
 
 			// Entity updates
+
+			// Set time
+			foreach (var player in Players)
+			{
+				if (player.IsSpawned)
+				{
+					player.SendSetTime();
+				}
+			}
+
+
 		}
 
 		private void BroadCastMovement(Player player)

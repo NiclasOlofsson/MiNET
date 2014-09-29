@@ -2,9 +2,20 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using Craft.Net.Common;
 
 namespace MiNET.Network
 {
+	public enum BlockFace
+	{
+		NegativeY = 0,
+		PositiveY = 1,
+		NegativeZ = 2,
+		PositiveZ = 3,
+		NegativeX = 4,
+		PositiveX = 5
+	}
+
 	public class Player
 	{
 		private readonly MiNetServer _server;
@@ -45,10 +56,12 @@ namespace MiNET.Network
 		{
 			if (typeof (McpePlaceBlock) == message.GetType())
 			{
+				// Not used
 			}
 
 			if (typeof (McpeRemoveBlock) == message.GetType())
 			{
+				// Not used?
 			}
 
 			if (typeof (McpeUpdateBlock) == message.GetType())
@@ -73,23 +86,25 @@ namespace MiNET.Network
 					//	entityId = 0
 					//});
 
+					var newBlockCoordinates = GetNewCoordinatesFromFace(new Coordinates3D(msg.x, msg.y, msg.z), (BlockFace) msg.face);
+
 					_level.RelayBroadcast(new McpeUpdateBlock
 					{
-						x = msg.x,
-						y = (byte) (msg.y + 1),
-						z = msg.z,
+						x = newBlockCoordinates.X,
+						y = (byte) newBlockCoordinates.Y,
+						z = newBlockCoordinates.Z,
 						block = (byte) msg.item,
 						meta = (byte) msg.meta
 					});
 
-					_level.RelayBroadcast(new McpeUpdateBlock
-					{
-						x = 0,
-						y = 0,
-						z = 0,
-						block = 0,
-						meta = 0
-					});
+					//_level.RelayBroadcast(new McpeUpdateBlock
+					//{
+					//	x = 0,
+					//	y = 0,
+					//	z = 0,
+					//	block = 0,
+					//	meta = 0
+					//});
 				}
 			}
 
@@ -200,6 +215,40 @@ namespace MiNET.Network
 			}
 
 			return;
+		}
+
+		public static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
+		public static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
+		public static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
+		public static readonly Coordinates3D West = new Coordinates3D(0, 0, 1);
+		public static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
+		public static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
+
+		private Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
+		{
+			switch (face)
+			{
+				case BlockFace.NegativeY:
+					return target + Down;
+					break;
+				case BlockFace.PositiveY:
+					return target + Up;
+					break;
+				case BlockFace.NegativeZ:
+					return target + East;
+					break;
+				case BlockFace.PositiveZ:
+					return target + West;
+					break;
+				case BlockFace.NegativeX:
+					return target + South;
+					break;
+				case BlockFace.PositiveX:
+					return target + North;
+					break;
+				default:
+					return target;
+			}
 		}
 
 		private void SendStartGame()

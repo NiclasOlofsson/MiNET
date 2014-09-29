@@ -95,7 +95,7 @@
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |SendPingTime | long |  |
-
+-----------------------------------------------------------------------
 ###Package: Unconnected Ping (0x01)
 
 **Sent from server:** true
@@ -114,7 +114,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Ping Id | long |  |
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-
+-----------------------------------------------------------------------
 ###Package: Connected Pong (0x03)
 
 **Sent from server:** true
@@ -129,7 +129,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |SendPingTime | long |  |
 |SendPongTime | long |  |
-
+-----------------------------------------------------------------------
 ###Package: Ack (0xc0)
 
 **Sent from server:** true
@@ -145,7 +145,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Count | short |  |
 |Only One Sequence | byte |  |
 |Sequence Number | little |  |
-
+-----------------------------------------------------------------------
 ###Package: Nak (0xa0)
 
 **Sent from server:** true
@@ -161,7 +161,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Count | short |  |
 |Only One Sequence | byte |  |
 |Sequence Number | little |  |
-
+-----------------------------------------------------------------------
 ###Package: Unconnected Pong (0x1c)
 
 **Sent from server:** true
@@ -178,7 +178,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Server ID | long |  |
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 |Server Name | string |  |
-
+-----------------------------------------------------------------------
 ###Package: Open Connection Request 1 (0x05)
 
 **Sent from server:** true
@@ -193,7 +193,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 |RakNet Protocol Version | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Open Connection Reply 1 (0x06)
 
 **Sent from server:** false
@@ -210,7 +210,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Server GUID | long |  |
 |Server Has Security | byte |  |
 |MTU Size | short |  |
-
+-----------------------------------------------------------------------
 ###Package: Open Connection Request 2 (0x07)
 
 **Sent from server:** true
@@ -227,7 +227,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Client UDP Port | byte[] | 6 |
 |MTU Size | short |  |
 |Client GUID | long |  |
-
+-----------------------------------------------------------------------
 ###Package: Open Connection Reply 2 (0x08)
 
 **Sent from server:** false
@@ -245,7 +245,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Client UDP Port | short |  |
 |MTU Size | short |  |
 |Do Security | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Connection Request (0x09)
 
 **Sent from server:** false
@@ -261,7 +261,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Client GUID | long |  |
 |Timestamp | long |  |
 |Do Security | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Connection Request Accepted (0x10)
 
 **Sent from server:** false
@@ -278,7 +278,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |System Index | long |  |
 |Incoming Timestamp | long |  |
 |Server Timestamp | long |  |
-
+-----------------------------------------------------------------------
 ###Package: New Incoming Connection (0x13)
 
 **Sent from server:** true
@@ -296,7 +296,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Port | short |  |
 |Session | long |  |
 |Session2 | long |  |
-
+-----------------------------------------------------------------------
 ###Package: Disconnection Notification (0x15)
 
 **Sent from server:** true
@@ -309,7 +309,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Login (0x82)
 
 **Sent from server:** true
@@ -327,7 +327,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |protocol2 | int |  |
 |Client ID | int |  |
 |Logindata | string |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Login Status (0x83)
 
 **Sent from server:** false
@@ -341,7 +341,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Status | int |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Ready (0x84)
 
 **Sent from server:** true
@@ -354,7 +354,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Set Time (0x86)
 
 **Sent from server:** false
@@ -369,7 +369,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Time | int |  |
 |Started | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Set Health (0xaa)
 
 **Sent from server:** false
@@ -383,7 +383,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Health | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Set Spawn Position (0xab)
 
 **Sent from server:** false
@@ -399,7 +399,7 @@ FULL_CHUNK_DATA_PACKET
 |X | int |  |
 |Z | int |  |
 |Y | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Start Game (0x87)
 
 **Sent from server:** false
@@ -422,7 +422,7 @@ FULL_CHUNK_DATA_PACKET
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0xba)
 
 **Sent from server:** false
@@ -436,7 +436,7 @@ FULL_CHUNK_DATA_PACKET
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Chunk Data | byte[] | 0 |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Move Player (0x95)
 
 **Sent from server:** true
@@ -457,7 +457,7 @@ FULL_CHUNK_DATA_PACKET
 |Pitch | float |  |
 |Body Yaw | float |  |
 |Teleport | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Adventure Settings (0xb7)
 
 **Sent from server:** false
@@ -471,7 +471,7 @@ FULL_CHUNK_DATA_PACKET
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Flags | int |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Container Set Content (0xb4)
 
 **Sent from server:** false
@@ -489,7 +489,7 @@ FULL_CHUNK_DATA_PACKET
 |Slot Data | byte[] | 0 |
 |Hotbar Count | short |  |
 |Hotbar Data | byte[] | 0 |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Message (0x85)
 
 **Sent from server:** false
@@ -504,7 +504,7 @@ FULL_CHUNK_DATA_PACKET
 |:-----|:-----|:-----|
 |Source | string |  |
 |Message | string |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Entity Data (0xa7)
 
 **Sent from server:** false
@@ -521,7 +521,7 @@ FULL_CHUNK_DATA_PACKET
 |Y | byte |  |
 |Z | int |  |
 |NamedTag | byte[] | 0 |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x89)
 
 **Sent from server:** true
@@ -545,7 +545,7 @@ FULL_CHUNK_DATA_PACKET
 |Unknown1 | short |  |
 |Unknown2 | short |  |
 |Metadata | byte[] | 0 |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x8a)
 
 **Sent from server:** false
@@ -560,7 +560,7 @@ FULL_CHUNK_DATA_PACKET
 |:-----|:-----|:-----|
 |Entity ID | int |  |
 |Client ID | long |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Place Block (0x96)
 
 **Sent from server:** true
@@ -580,7 +580,7 @@ FULL_CHUNK_DATA_PACKET
 |Block | byte |  |
 |Meta | byte |  |
 |Face | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Remove Block (0x97)
 
 **Sent from server:** true
@@ -597,7 +597,7 @@ FULL_CHUNK_DATA_PACKET
 |X | int |  |
 |Z | int |  |
 |Y | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Update Block (0x98)
 
 **Sent from server:** true
@@ -615,7 +615,7 @@ FULL_CHUNK_DATA_PACKET
 |Y | byte |  |
 |Block | byte |  |
 |Meta | byte |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Animate (0xac)
 
 **Sent from server:** true
@@ -630,7 +630,7 @@ FULL_CHUNK_DATA_PACKET
 |:-----|:-----|:-----|
 |Action ID | byte |  |
 |Entity ID | int |  |
-
+-----------------------------------------------------------------------
 ###Package: Mcpe Use Item (0xa3)
 
 **Sent from server:** true
@@ -656,6 +656,6 @@ FULL_CHUNK_DATA_PACKET
 |Position X | float |  |
 |Position Y | float |  |
 |Position Z | float |  |
-
+-----------------------------------------------------------------------
 
 

@@ -39,40 +39,6 @@
 | Mcpe Adventure Settings | 0xb7 | 183 |   
 | Mcpe Full Chunk Data | 0xba | 186 |   
 | Ack | 0xc0 | 192 |   
-| Connected Ping | 0x00 | 0 |   
-| Unconnected Ping | 0x01 | 1 |   
-| Connected Pong | 0x03 | 3 |   
-| Ack | 0xc0 | 192 |   
-| Nak | 0xa0 | 160 |   
-| Unconnected Pong | 0x1c | 28 |   
-| Open Connection Request 1 | 0x05 | 5 |   
-| Open Connection Reply 1 | 0x06 | 6 |   
-| Open Connection Request 2 | 0x07 | 7 |   
-| Open Connection Reply 2 | 0x08 | 8 |   
-| Connection Request | 0x09 | 9 |   
-| Connection Request Accepted | 0x10 | 16 |   
-| New Incoming Connection | 0x13 | 19 |   
-| Disconnection Notification | 0x15 | 21 |   
-| Mcpe Login | 0x82 | 130 |   
-| Mcpe Login Status | 0x83 | 131 |   
-| Mcpe Ready | 0x84 | 132 |   
-| Mcpe Set Time | 0x86 | 134 |   
-| Mcpe Set Health | 0xaa | 170 |   
-| Mcpe Set Spawn Position | 0xab | 171 |   
-| Mcpe Start Game | 0x87 | 135 |   
-| Mcpe Full Chunk Data | 0xba | 186 |   
-| Mcpe Move Player | 0x95 | 149 |   
-| Mcpe Adventure Settings | 0xb7 | 183 |   
-| Mcpe Container Set Content | 0xb4 | 180 |   
-| Mcpe Message | 0x85 | 133 |   
-| Mcpe Entity Data | 0xa7 | 167 |   
-| Mcpe Add Player | 0x89 | 137 |   
-| Mcpe Remove Player | 0x8a | 138 |   
-| Mcpe Place Block | 0x96 | 150 |   
-| Mcpe Remove Block | 0x97 | 151 |   
-| Mcpe Update Block | 0x98 | 152 |   
-| Mcpe Animate | 0xac | 172 |   
-| Mcpe Use Item | 0xa3 | 163 |   
 
 
 ##Constants
@@ -98,7 +64,7 @@
 -----------------------------------------------------------------------
 ###Package: Unconnected Ping (0x01)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
@@ -164,7 +130,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Unconnected Pong (0x1c)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
@@ -181,7 +147,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Open Connection Request 1 (0x05)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
@@ -196,7 +162,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Open Connection Reply 1 (0x06)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 28
 
@@ -213,7 +179,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Open Connection Request 2 (0x07)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 34
 
@@ -232,7 +198,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Open Connection Reply 2 (0x08)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 30
 
@@ -249,7 +215,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Connection Request (0x09)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 33
 
@@ -265,7 +231,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Connection Request Accepted (0x10)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -282,7 +248,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: New Incoming Connection (0x13)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
@@ -313,7 +279,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Mcpe Login (0x82)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
@@ -331,7 +297,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Mcpe Login Status (0x83)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -345,7 +311,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Mcpe Ready (0x84)
 
-**Sent from server:** true
+**Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
@@ -358,7 +324,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Time (0x86)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -373,7 +339,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Health (0xaa)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -387,7 +353,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Spawn Position (0xab)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -403,7 +369,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Start Game (0x87)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -426,7 +392,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0xba)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -461,7 +427,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Adventure Settings (0xb7)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -475,7 +441,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Content (0xb4)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -493,7 +459,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Message (0x85)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -508,7 +474,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Entity Data (0xa7)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
@@ -549,7 +515,7 @@ FULL_CHUNK_DATA_PACKET
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x8a)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 

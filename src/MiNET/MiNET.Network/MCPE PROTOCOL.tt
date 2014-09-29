@@ -37,13 +37,6 @@ foreach (XPathNavigator pdu in nav.Select(exp))
 | <#= typeIdName #> | <#= typeId #> | <#= Int32.Parse(typeId.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |   
 <#	
 }
-	
-foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
-{
-#>
-| <#= CodeName(pdu.Attributes["name"].Value, true) #> | <#= pdu.Attributes["id"].Value #> | <#= Int32.Parse(pdu.Attributes["id"].Value.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |   
-<#	
-} // foreach
 #>
 
 
@@ -85,7 +78,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	string typeId = pdu.Attributes["id"].Value;
 	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
 	string isClient = pdu.Attributes["client"].Value;
-	string isServer = pdu.Attributes["client"].Value;
+	string isServer = pdu.Attributes["server"].Value;
 	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;
 #>
 ###Package: <#= typeIdName #> (<#= typeId #>)

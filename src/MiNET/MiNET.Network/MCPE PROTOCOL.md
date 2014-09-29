@@ -3,53 +3,104 @@
 
 ##ALL PACKAGES
 
-| ID  | ID (hex) | ID (dec) | Type |
-|:--- |:---------|---------:|:-----|
-| ID_CONNECTED_PING | 0x00 | 0 |IdConnectedPing |  
-| ID_UNCONNECTED_PING | 0x01 | 1 |IdUnconnectedPing |  
-| ID_CONNECTED_PONG | 0x03 | 3 |IdConnectedPong |  
-| ACK | 0xc0 | 192 |Ack |  
-| NAK | 0xa0 | 160 |Nak |  
-| ID_UNCONNECTED_PONG | 0x1c | 28 |IdUnconnectedPong |  
-| ID_OPEN_CONNECTION_REQUEST_1 | 0x05 | 5 |IdOpenConnectionRequest1 |  
-| ID_OPEN_CONNECTION_REPLY_1 | 0x06 | 6 |IdOpenConnectionReply1 |  
-| ID_OPEN_CONNECTION_REQUEST_2 | 0x07 | 7 |IdOpenConnectionRequest2 |  
-| ID_OPEN_CONNECTION_REPLY_2 | 0x08 | 8 |IdOpenConnectionReply2 |  
-| ID_CONNECTION_REQUEST | 0x09 | 9 |IdConnectionRequest |  
-| ID_CONNECTION_REQUEST_ACCEPTED | 0x10 | 16 |IdConnectionRequestAccepted |  
-| ID_NEW_INCOMING_CONNECTION | 0x13 | 19 |IdNewIncomingConnection |  
-| ID_DISCONNECTION_NOTIFICATION | 0x15 | 21 |IdDisconnectionNotification |  
-| ID_MCPE_LOGIN | 0x82 | 130 |IdMcpeLogin |  
-| ID_MCPE_LOGIN_STATUS | 0x83 | 131 |IdMcpeLoginStatus |  
-| ID_MCPE_READY | 0x84 | 132 |IdMcpeReady |  
-| ID_MCPE_SET_TIME | 0x86 | 134 |IdMcpeSetTime |  
-| ID_MCPE_SET_HEALTH | 0xaa | 170 |IdMcpeSetHealth |  
-| ID_MCPE_SET_SPAWN_POSITION | 0xab | 171 |IdMcpeSetSpawnPosition |  
-| ID_MCPE_START_GAME | 0x87 | 135 |IdMcpeStartGame |  
-| ID_MCPE_FULL_CHUNK_DATA | 0xba | 186 |IdMcpeFullChunkData |  
-| ID_MCPE_MOVE_PLAYER | 0x95 | 149 |IdMcpeMovePlayer |  
-| ID_MCPE_ADVENTURE_SETTINGS | 0xb7 | 183 |IdMcpeAdventureSettings |  
-| ID_MCPE_CONTAINER_SET_CONTENT | 0xb4 | 180 |IdMcpeContainerSetContent |  
-| ID_MCPE_MESSAGE | 0x85 | 133 |IdMcpeMessage |  
-| ID_MCPE_ENTITY_DATA | 0xa7 | 167 |IdMcpeEntityData |  
-| ID_MCPE_ADD_PLAYER | 0x89 | 137 |IdMcpeAddPlayer |  
-| ID_MCPE_REMOVE_PLAYER | 0x8a | 138 |IdMcpeRemovePlayer |  
+| ID  | ID (hex) | ID (dec) | 
+|:--- |:---------|---------:| 
+| Connected Ping | 0x00 | 0 |   
+| Unconnected Ping | 0x01 | 1 |   
+| Connected Pong | 0x03 | 3 |   
+| Open Connection Request 1 | 0x05 | 5 |   
+| Open Connection Reply 1 | 0x06 | 6 |   
+| Open Connection Request 2 | 0x07 | 7 |   
+| Open Connection Reply 2 | 0x08 | 8 |   
+| Connection Request | 0x09 | 9 |   
+| Connection Request Accepted | 0x10 | 16 |   
+| New Incoming Connection | 0x13 | 19 |   
+| Disconnection Notification | 0x15 | 21 |   
+| Unconnected Pong | 0x1c | 28 |   
+| Mcpe Login | 0x82 | 130 |   
+| Mcpe Login Status | 0x83 | 131 |   
+| Mcpe Ready | 0x84 | 132 |   
+| Mcpe Message | 0x85 | 133 |   
+| Mcpe Set Time | 0x86 | 134 |   
+| Mcpe Start Game | 0x87 | 135 |   
+| Mcpe Add Player | 0x89 | 137 |   
+| Mcpe Remove Player | 0x8a | 138 |   
+| Mcpe Move Player | 0x95 | 149 |   
+| Mcpe Place Block | 0x96 | 150 |   
+| Mcpe Remove Block | 0x97 | 151 |   
+| Mcpe Update Block | 0x98 | 152 |   
+| Nak | 0xa0 | 160 |   
+| Mcpe Use Item | 0xa3 | 163 |   
+| Mcpe Entity Data | 0xa7 | 167 |   
+| Mcpe Set Health | 0xaa | 170 |   
+| Mcpe Set Spawn Position | 0xab | 171 |   
+| Mcpe Animate | 0xac | 172 |   
+| Mcpe Container Set Content | 0xb4 | 180 |   
+| Mcpe Adventure Settings | 0xb7 | 183 |   
+| Mcpe Full Chunk Data | 0xba | 186 |   
+| Ack | 0xc0 | 192 |   
+| Connected Ping | 0x00 | 0 |   
+| Unconnected Ping | 0x01 | 1 |   
+| Connected Pong | 0x03 | 3 |   
+| Ack | 0xc0 | 192 |   
+| Nak | 0xa0 | 160 |   
+| Unconnected Pong | 0x1c | 28 |   
+| Open Connection Request 1 | 0x05 | 5 |   
+| Open Connection Reply 1 | 0x06 | 6 |   
+| Open Connection Request 2 | 0x07 | 7 |   
+| Open Connection Reply 2 | 0x08 | 8 |   
+| Connection Request | 0x09 | 9 |   
+| Connection Request Accepted | 0x10 | 16 |   
+| New Incoming Connection | 0x13 | 19 |   
+| Disconnection Notification | 0x15 | 21 |   
+| Mcpe Login | 0x82 | 130 |   
+| Mcpe Login Status | 0x83 | 131 |   
+| Mcpe Ready | 0x84 | 132 |   
+| Mcpe Set Time | 0x86 | 134 |   
+| Mcpe Set Health | 0xaa | 170 |   
+| Mcpe Set Spawn Position | 0xab | 171 |   
+| Mcpe Start Game | 0x87 | 135 |   
+| Mcpe Full Chunk Data | 0xba | 186 |   
+| Mcpe Move Player | 0x95 | 149 |   
+| Mcpe Adventure Settings | 0xb7 | 183 |   
+| Mcpe Container Set Content | 0xb4 | 180 |   
+| Mcpe Message | 0x85 | 133 |   
+| Mcpe Entity Data | 0xa7 | 167 |   
+| Mcpe Add Player | 0x89 | 137 |   
+| Mcpe Remove Player | 0x8a | 138 |   
+| Mcpe Place Block | 0x96 | 150 |   
+| Mcpe Remove Block | 0x97 | 151 |   
+| Mcpe Update Block | 0x98 | 152 |   
+| Mcpe Animate | 0xac | 172 |   
+| Mcpe Use Item | 0xa3 | 163 |   
 
 
 ##Constants
+	OFFLINE_MESSAGE_DATA_ID
+	byte[]
+	{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }
+
 ##Packages
 
-##Package: ID_CONNECTED_PING (0x00)
+###Package: Connected Ping (0x00)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|SendPingTime | long |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|SendPingTime | long |  |
 
-##Package: ID_UNCONNECTED_PING (0x01)
+###Package: Unconnected Ping (0x01)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
 
 Send a ping to the specified unconnected system.
@@ -57,372 +108,554 @@ The remote system, if it is Initialized, will respond with ID_UNCONNECTED_PONG.
 The final ping time will be encoded in the following sizeof(RakNet::TimeMS) bytes.  (Default is 4 bytes - See __GET_TIME_64BIT in RakNetTypes.h
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|Ping Id | long |
-|Offline Message Data ID | byte[] |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Ping Id | long |  |
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 
-##Package: ID_CONNECTED_PONG (0x03)
+###Package: Connected Pong (0x03)
 
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
-|SendPingTime | long |
-|SendPongTime | long |
+####Fields
 
-##Package: ACK (0xc0)
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|SendPingTime | long |  |
+|SendPongTime | long |  |
 
+###Package: Ack (0xc0)
 
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
-|Count | short |
-|Only One Sequence | byte |
-|Sequence Number | little |
 
-##Package: NAK (0xa0)
+####Fields
 
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Count | short |  |
+|Only One Sequence | byte |  |
+|Sequence Number | little |  |
 
+###Package: Nak (0xa0)
 
-###Fields
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
-| Name | Type |
-|:-----|:-----|
-|Count | short |
-|Only One Sequence | byte |
-|Sequence Number | little |
 
-##Package: ID_UNCONNECTED_PONG (0x1c)
 
+####Fields
 
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Count | short |  |
+|Only One Sequence | byte |  |
+|Sequence Number | little |  |
 
-###Fields
+###Package: Unconnected Pong (0x1c)
 
-| Name | Type |
-|:-----|:-----|
-|Ping Id | long |
-|Server ID | long |
-|Offline Message Data ID | byte[] |
-|Server Name | string |
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
-##Package: ID_OPEN_CONNECTION_REQUEST_1 (0x05)
 
 
+####Fields
 
-###Fields
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Ping Id | long |  |
+|Server ID | long |  |
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Server Name | string |  |
 
-| Name | Type |
-|:-----|:-----|
-|Offline Message Data ID | byte[] |
-|RakNet Protocol Version | byte |
-###Comments
-<field name="Pad to MTU size" type="byte[]" size="0" />
+###Package: Open Connection Request 1 (0x05)
 
-##Package: ID_OPEN_CONNECTION_REPLY_1 (0x06)
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|Offline Message Data ID | byte[] |
-|Server GUID | long |
-|Server Has Security | byte |
-###Comments
-<field name="Cookie" type="Int32" />
-|MTU Size | short |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|RakNet Protocol Version | byte |  |
 
-##Package: ID_OPEN_CONNECTION_REQUEST_2 (0x07)
+###Package: Open Connection Reply 1 (0x06)
 
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 28
 
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
-|Offline Message Data ID | byte[] |
-###Comments
-<field name="Server Security" type="byte" />
-###Comments
-<field name="Cookie" type="Int32" />
-|Client UDP Port | byte[] |
-|MTU Size | short |
-|Client GUID | long |
+####Fields
 
-##Package: ID_OPEN_CONNECTION_REPLY_2 (0x08)
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Server GUID | long |  |
+|Server Has Security | byte |  |
+|MTU Size | short |  |
 
+###Package: Open Connection Request 2 (0x07)
 
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 34
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
-|Offline Message Data ID | byte[] |
-|Server GUID | long |
-|Client UDP Port | short |
-|MTU Size | short |
-|Do Security | byte |
-###Comments
-<field name="handshakeAnswer" type="byte" />
 
-##Package: ID_CONNECTION_REQUEST (0x09)
+####Fields
 
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Client UDP Port | byte[] | 6 |
+|MTU Size | short |  |
+|Client GUID | long |  |
 
+###Package: Open Connection Reply 2 (0x08)
 
-###Fields
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 30
 
-| Name | Type |
-|:-----|:-----|
-|Client GUID | long |
-|Timestamp | long |
-|Do Security | byte |
-###Comments
-<field name="Proof" type="byte[]" size="32" />
 
-##Package: ID_CONNECTION_REQUEST_ACCEPTED (0x10)
 
+####Fields
 
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Server GUID | long |  |
+|Client UDP Port | short |  |
+|MTU Size | short |  |
+|Do Security | byte |  |
 
-###Fields
+###Package: Connection Request (0x09)
 
-| Name | Type |
-|:-----|:-----|
-|Client System Address | long |
-|System Index | long |
-|Incoming Timestamp | long |
-|Server Timestamp | long |
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 33
 
-##Package: ID_NEW_INCOMING_CONNECTION (0x13)
 
 
+####Fields
 
-###Fields
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Client GUID | long |  |
+|Timestamp | long |  |
+|Do Security | byte |  |
 
-| Name | Type |
-|:-----|:-----|
-|cookie | int |
-|Do Security | byte |
-|Port | short |
-|Session | long |
-|Session2 | long |
+###Package: Connection Request Accepted (0x10)
 
-##Package: ID_DISCONNECTION_NOTIFICATION (0x15)
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Client System Address | long |  |
+|System Index | long |  |
+|Incoming Timestamp | long |  |
+|Server Timestamp | long |  |
 
-##Package: ID_MCPE_LOGIN (0x82)
+###Package: New Incoming Connection (0x13)
 
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
-|username | string |
-|protocol | int |
-|protocol2 | int |
-|Client ID | int |
-|Logindata | string |
+####Fields
 
-##Package: ID_MCPE_LOGIN_STATUS (0x83)
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|cookie | int |  |
+|Do Security | byte |  |
+|Port | short |  |
+|Session | long |  |
+|Session2 | long |  |
 
+###Package: Disconnection Notification (0x15)
 
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
-###Comments
 
-		The three type of status are:
-		0: Everything is good.
-		1: If the server is outdated.
-		2. If the game is outdated.
-		
-|Status | int |
+####Fields
 
-##Package: ID_MCPE_READY (0x84)
+| Name | Type | Size |
+|:-----|:-----|:-----|
 
+###Package: Mcpe Login (0x82)
 
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
-###Fields
 
-| Name | Type |
-|:-----|:-----|
 
-##Package: ID_MCPE_SET_TIME (0x86)
+####Fields
 
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|username | string |  |
+|protocol | int |  |
+|protocol2 | int |  |
+|Client ID | int |  |
+|Logindata | string |  |
 
+###Package: Mcpe Login Status (0x83)
 
-###Fields
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
-| Name | Type |
-|:-----|:-----|
-|Time | int |
-|Started | byte |
 
-##Package: ID_MCPE_SET_HEALTH (0xaa)
 
+####Fields
 
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Status | int |  |
 
-###Fields
+###Package: Mcpe Ready (0x84)
 
-| Name | Type |
-|:-----|:-----|
-|Health | byte |
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
-##Package: ID_MCPE_SET_SPAWN_POSITION (0xab)
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+###Package: Mcpe Set Time (0x86)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Time | int |  |
+|Started | byte |  |
+
+###Package: Mcpe Set Health (0xaa)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Health | byte |  |
+
+###Package: Mcpe Set Spawn Position (0xab)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
 FULL_CHUNK_DATA_PACKET
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|X | int |
-|Z | int |
-|Y | byte |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | int |  |
+|Z | int |  |
+|Y | byte |  |
 
-##Package: ID_MCPE_START_GAME (0x87)
+###Package: Mcpe Start Game (0x87)
 
-
-
-###Fields
-
-| Name | Type |
-|:-----|:-----|
-|Seed | int |
-|Generator | int |
-|Gamemode | int |
-|Entity ID | int |
-|Spawn X | int |
-|Spawn Z | int |
-|Spawn Y | int |
-|X | float |
-|Y | float |
-|Z | float |
-
-##Package: ID_MCPE_FULL_CHUNK_DATA (0xba)
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-###Comments
-<field name="Chunk X" type="int" />
-		<field name="Chunk Z" type="byte" />
-|Chunk Data | byte[] |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Seed | int |  |
+|Generator | int |  |
+|Gamemode | int |  |
+|Entity ID | int |  |
+|Spawn X | int |  |
+|Spawn Z | int |  |
+|Spawn Y | int |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
 
-##Package: ID_MCPE_MOVE_PLAYER (0x95)
+###Package: Mcpe Full Chunk Data (0xba)
 
-
-
-###Fields
-
-| Name | Type |
-|:-----|:-----|
-|Entity ID | int |
-|X | float |
-|Y | float |
-|Z | float |
-|Yaw | float |
-|Pitch | float |
-|Body Yaw | float |
-|Teleport | byte |
-
-##Package: ID_MCPE_ADVENTURE_SETTINGS (0xb7)
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|Flags | int |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Chunk Data | byte[] | 0 |
 
-##Package: ID_MCPE_CONTAINER_SET_CONTENT (0xb4)
+###Package: Mcpe Move Player (0x95)
 
-
-
-###Fields
-
-| Name | Type |
-|:-----|:-----|
-|Window ID | byte |
-|Slot Count | short |
-|Slot Data | byte[] |
-|Hotbar Count | short |
-|Hotbar Data | byte[] |
-
-##Package: ID_MCPE_MESSAGE (0x85)
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|Source | string |
-|Message | string |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|Yaw | float |  |
+|Pitch | float |  |
+|Body Yaw | float |  |
+|Teleport | byte |  |
 
-##Package: ID_MCPE_ENTITY_DATA (0xa7)
+###Package: Mcpe Adventure Settings (0xb7)
 
-
-
-###Fields
-
-| Name | Type |
-|:-----|:-----|
-|X | int |
-|Y | byte |
-|Z | int |
-|NamedTag | byte[] |
-
-##Package: ID_MCPE_ADD_PLAYER (0x89)
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|Client ID | long |
-|Username | string |
-|Entity ID | int |
-|X | float |
-|Y | float |
-|Z | float |
-|Yaw | byte |
-|Pitch | byte |
-|Unknown1 | short |
-|Unknown2 | short |
-|Metadata | byte[] |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Flags | int |  |
 
-##Package: ID_MCPE_REMOVE_PLAYER (0x8a)
+###Package: Mcpe Container Set Content (0xb4)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
 
 
 
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
-|Entity ID | int |
-|Client ID | long |
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
+|Slot Count | short |  |
+|Slot Data | byte[] | 0 |
+|Hotbar Count | short |  |
+|Hotbar Data | byte[] | 0 |
+
+###Package: Mcpe Message (0x85)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Source | string |  |
+|Message | string |  |
+
+###Package: Mcpe Entity Data (0xa7)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | int |  |
+|Y | byte |  |
+|Z | int |  |
+|NamedTag | byte[] | 0 |
+
+###Package: Mcpe Add Player (0x89)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Client ID | long |  |
+|Username | string |  |
+|Entity ID | int |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|Yaw | byte |  |
+|Pitch | byte |  |
+|Unknown1 | short |  |
+|Unknown2 | short |  |
+|Metadata | byte[] | 0 |
+
+###Package: Mcpe Remove Player (0x8a)
+
+**Sent from server:** false
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|Client ID | long |  |
+
+###Package: Mcpe Place Block (0x96)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|X | int |  |
+|Z | int |  |
+|Y | byte |  |
+|Block | byte |  |
+|Meta | byte |  |
+|Face | byte |  |
+
+###Package: Mcpe Remove Block (0x97)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|X | int |  |
+|Z | int |  |
+|Y | byte |  |
+
+###Package: Mcpe Update Block (0x98)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | int |  |
+|Z | int |  |
+|Y | byte |  |
+|Block | byte |  |
+|Meta | byte |  |
+
+###Package: Mcpe Animate (0xac)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Action ID | byte |  |
+|Entity ID | int |  |
+
+###Package: Mcpe Use Item (0xa3)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Face | int |  |
+|Item | short |  |
+|Meta | short |  |
+|Entity ID | int |  |
+|Fx | float |  |
+|Fy | float |  |
+|Fz | float |  |
+|Position X | float |  |
+|Position Y | float |  |
+|Position Z | float |  |
 
 
 

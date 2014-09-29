@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using System.Xml;
+using System.Xml.XPath;
 using Craft.Net.Common;
 
 namespace MiNET.Network
@@ -73,6 +75,21 @@ namespace MiNET.Network
 			{
 				_level.RelayBroadcast(this, (McpeAnimate) message);
 			}
+
+			//XmlDocument doc = null;
+			//XmlNodeList pdus = doc.SelectNodes("//pdu");
+			//XPathNavigator nav = pdus.Item(0).OwnerDocument.CreateNavigator();
+			//XPathExpression exp = nav.Compile("//pdu");
+			//exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Number);
+
+			//foreach (XPathNavigator pdu in nav.Select(exp))
+			//{
+			//	//string pduComment = (pdu.PreviousSibling == null ? null : pdu.PreviousSibling.Value) ?? "";
+			//	string typeIdName = CodeName(pdu.GetAttribute("name", ""), true);
+			//	string typeName = CodeTypeName(pdu.GetAttribute("name", ""));
+			//	string typeId = pdu.GetAttribute("id", "");
+			//	string baseType = "Package";
+			//}
 
 			if (typeof (McpeUseItem) == message.GetType())
 			{

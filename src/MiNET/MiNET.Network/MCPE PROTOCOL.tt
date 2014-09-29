@@ -3,6 +3,7 @@
 
 <#@ assembly name="System.Xml"#>
 <#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Xml.XPath" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Globalization" #>
 <#
@@ -11,18 +12,36 @@ XmlDocument doc = new XmlDocument();
 doc.Load(path + @"\protocol.xml");
 
 
+XmlNodeList pdus = doc.SelectNodes("//pdu");
+XPathNavigator nav = pdus.Item(0).OwnerDocument.CreateNavigator();
+XPathExpression exp = nav.Compile("//pdu");
+exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Text);
+
 #>
 **WARNING: T4 GENERATED MARKUP - DO NOT EDIT**
 
 ##ALL PACKAGES
 
-| ID  | ID (hex) | ID (dec) | Type |
-|:--- |:---------|---------:|:-----|
+| ID  | ID (hex) | ID (dec) | 
+|:--- |:---------|---------:| 
+<#
+
+foreach (XPathNavigator pdu in nav.Select(exp))
+{
+	//string pduComment = (pdu.PreviousSibling == null ? null : pdu.PreviousSibling.Value) ?? "";
+	string typeIdName = CodeName(pdu.GetAttribute("name", ""), true);
+	string typeName = CodeTypeName(pdu.GetAttribute("name", ""));
+	string typeId = pdu.GetAttribute("id", "");
+	string baseType = "Package";
+#>
+| <#= typeIdName #> | <#= typeId #> | <#= Int32.Parse(typeId.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |   
 <#	
+}
+	
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
 #>
-| <#= pdu.Attributes["name"].Value #> | <#= pdu.Attributes["id"].Value #> | <#= Int32.Parse(pdu.Attributes["id"].Value.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |<#= CodeTypeName(pdu.Attributes["name"].Value) #> |  
+| <#= CodeName(pdu.Attributes["name"].Value, true) #> | <#= pdu.Attributes["id"].Value #> | <#= Int32.Parse(pdu.Attributes["id"].Value.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |   
 <#	
 } // foreach
 #>
@@ -42,51 +61,67 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 ##Constants
 <#	
 
+foreach (XmlNode constant in doc.SelectNodes("//constant"))
+{
+	var attributes = constant.Attributes;
 #>
+	<#= attributes["id"].Value #>
+	<#= attributes["type"].Value #>
+	<#= attributes["value"].Value #>
+<#	
+}
+#>
+
 ##Packages
 
 <#	
 
+
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
 	string pduComment = (pdu.PreviousSibling == null? null: pdu.PreviousSibling.Value)??"";
-	string typeIdName = pdu.Attributes["name"].Value;
+	string typeIdName = CodeName(pdu.Attributes["name"].Value, true);
 	string typeName = CodeTypeName(pdu.Attributes["name"].Value);
 	string typeId = pdu.Attributes["id"].Value;
 	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
+	string isClient = pdu.Attributes["client"].Value;
+	string isServer = pdu.Attributes["client"].Value;
+	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;
 #>
-##Package: <#= typeIdName #> (<#= typeId #>)
+###Package: <#= typeIdName #> (<#= typeId #>)
+
+**Sent from server:** <#= isServer #>
+**Sent from client:** <#= isClient #>
+**Packet size:** <#= pduSize #>
 
 <#= pduComment.Replace("\t","") #>
 
 <#	
 #>
-###Fields
+####Fields
 
-| Name | Type |
-|:-----|:-----|
+| Name | Type | Size |
+|:-----|:-----|:-----|
 <#
 	foreach (XmlNode field in pdu.ChildNodes)
 	{
 		if(field.NodeType != XmlNodeType.Element) 
 		{
 #>
-###Comments
-<#= field.Value #>
 <#
 			continue;
 		}
 
 		string name = field.Attributes["name"].Value;
 		string type = field.Attributes["type"].Value;
-
+		string size = field.Attributes["size"] == null? "": field.Attributes["size"].Value;
 #>
 <#
 
 		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
 		{
-			type = constantsLoopup[field.Attributes["type"].Value].Item1;
-			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
+			//type = constantsLoopup[field.Attributes["type"].Value].Item1;
+			//string value = constantsLoopup[field.Attributes["type"].Value].Item2;
 #>
 <#
 		} 
@@ -96,7 +131,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 <#
 		} 
 #>
-|<#= name #> | <#= type #> |
+|<#= name #> | <#= type #> | <#= size #> |
 <#
 
 	} // foreach
@@ -125,6 +160,7 @@ private string CodeFieldName(string name)
 
 private string CodeName(string name, bool firstUpper = false)
 {
+	if(name.StartsWith("ID_")) name = name.Replace("ID_", "");
     name = name.ToLowerInvariant();
 
     string result = name;
@@ -135,6 +171,7 @@ private string CodeName(string name, bool firstUpper = false)
     {
         if (name[i] == ' ' || name[i] == '_')
         {
+            result += " ";
             upperCase = true;
         }
         else

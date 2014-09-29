@@ -171,9 +171,8 @@ namespace MiNET.Network
 						var packet = new OpenConnectionReply2
 						{
 							serverGuid = 12345,
-							clientUdpPort = (short) senderEndpoint.Port,
 							mtuSize = incoming.mtuSize,
-							doSecurity = 0
+							doSecurityAndHandshake = new byte[0]
 						};
 
 						_playerEndpoints.Remove(senderEndpoint);

@@ -511,7 +511,9 @@ namespace MiNET.Network
 	public partial class OpenConnectionRequest2 : Package
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
-		public byte[] clientUdpPort; // = null;
+		public byte serverSecurity; // = null;
+		public byte[] cookie; // = null;
+		public short clientUdpPort; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
 
@@ -527,6 +529,8 @@ namespace MiNET.Network
 			BeforeEncode();
 
 			Write(offlineMessageDataId);
+			Write(serverSecurity);
+			Write(cookie);
 			Write(clientUdpPort);
 			Write(mtuSize);
 			Write(clientGuid);
@@ -544,7 +548,9 @@ namespace MiNET.Network
 			BeforeDecode();
 
 			ReadBytes(offlineMessageDataId.Length);
-			clientUdpPort = ReadBytes(6);
+			serverSecurity = ReadByte();
+			cookie = ReadBytes(4);
+			clientUdpPort = ReadShort();
 			mtuSize = ReadShort();
 			clientGuid = ReadLong();
 
@@ -560,9 +566,8 @@ namespace MiNET.Network
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
-		public short clientUdpPort; // = null;
 		public short mtuSize; // = null;
-		public byte doSecurity; // = null;
+		public byte[] doSecurityAndHandshake; // = null;
 
 		public OpenConnectionReply2()
 		{
@@ -577,9 +582,8 @@ namespace MiNET.Network
 
 			Write(offlineMessageDataId);
 			Write(serverGuid);
-			Write(clientUdpPort);
 			Write(mtuSize);
-			Write(doSecurity);
+			Write(doSecurityAndHandshake);
 
 			AfterEncode();
 		}
@@ -595,9 +599,8 @@ namespace MiNET.Network
 
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
-			clientUdpPort = ReadShort();
 			mtuSize = ReadShort();
-			doSecurity = ReadByte();
+			doSecurityAndHandshake = ReadBytes(0);
 
 			AfterDecode();
 		}

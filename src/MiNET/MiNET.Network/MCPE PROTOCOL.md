@@ -224,7 +224,9 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Client UDP Port | byte[] | 6 |
+|Server Security | byte |  |
+|Cookie | byte[] | 4 |
+|Client UDP Port | short |  |
 |MTU Size | short |  |
 |Client GUID | long |  |
 -----------------------------------------------------------------------
@@ -242,9 +244,8 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 |Server GUID | long |  |
-|Client UDP Port | short |  |
 |MTU Size | short |  |
-|Do Security | byte |  |
+|Do security and handshake | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Connection Request (0x09)
 

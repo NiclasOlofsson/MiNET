@@ -213,11 +213,22 @@ namespace MiNET.Network
 			return string.Format("{0}:{1}", chunkX, chunkZ);
 		}
 
+
+		public void RelayBroadcast(Player source, McpeAnimate message)
+		{
+			foreach (var player in Players)
+			{
+				McpeAnimate send = message.Clone<McpeAnimate>();
+				send.entityId = player.GetEntityId(source);
+				player.SendPackage(send);
+			}
+		}
+
 		public void RelayBroadcast(Package message)
 		{
 			foreach (var player in Players)
 			{
-				player.SendPackage(message);
+				player.SendPackage((Package) message.Clone());
 			}
 		}
 	}

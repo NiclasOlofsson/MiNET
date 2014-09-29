@@ -167,10 +167,14 @@ namespace MiNET.Network
 			DecodePackage();
 		}
 
-
 		public virtual object Clone()
 		{
 			return MemberwiseClone();
+		}
+
+		public virtual T Clone<T>() where T : Package
+		{
+			return (T) Clone();
 		}
 	}
 }

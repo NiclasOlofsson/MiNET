@@ -71,7 +71,7 @@ namespace MiNET.Network
 
 			if (typeof (McpeAnimate) == message.GetType())
 			{
-				_level.RelayBroadcast(message);
+				_level.RelayBroadcast(this, (McpeAnimate) message);
 			}
 
 			if (typeof (McpeUseItem) == message.GetType())
@@ -79,12 +79,11 @@ namespace MiNET.Network
 				var msg = (McpeUseItem) message;
 				if (msg.face <= 5)
 				{
-					//Use Block, place
-					//_level.RelayBroadcast(new McpeAnimate()
-					//{
-					//	actionId = 1,
-					//	entityId = 0
-					//});
+					_level.RelayBroadcast(this, new McpeAnimate()
+					{
+						actionId = 1,
+						entityId = 0
+					});
 
 					var newBlockCoordinates = GetNewCoordinatesFromFace(new Coordinates3D(msg.x, msg.y, msg.z), (BlockFace) msg.face);
 
@@ -118,12 +117,6 @@ namespace MiNET.Network
 					sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
 				});
 
-				return;
-			}
-
-			if (typeof (UnknownPackage) == message.GetType())
-			{
-				var msg = (UnknownPackage) message;
 				return;
 			}
 
@@ -198,7 +191,7 @@ namespace MiNET.Network
 			{
 				var moveMessage = (McpeMovePlayer) message;
 
-				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) { Pitch = moveMessage.pitch, Yaw = moveMessage.yaw };
+				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) { Pitch = moveMessage.pitch, Yaw = moveMessage.yaw, BodyYaw = moveMessage.bodyYaw };
 				LastUpdatedTime = DateTime.Now;
 
 				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
@@ -211,6 +204,11 @@ namespace MiNET.Network
 					SendPackage(response);
 				}
 
+				return;
+			}
+
+			if (typeof (UnknownPackage) == message.GetType())
+			{
 				return;
 			}
 
@@ -438,7 +436,7 @@ namespace MiNET.Network
 			}
 		}
 
-		private int GetEntityId(Player player)
+		public int GetEntityId(Player player)
 		{
 			int entityId = _entities.IndexOf(player);
 			if (entityId == -1)

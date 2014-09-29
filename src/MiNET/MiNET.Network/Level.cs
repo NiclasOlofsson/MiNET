@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using Craft.Net.Anvil;
 using Craft.Net.Common;
 
 namespace MiNET.Network
@@ -14,7 +13,7 @@ namespace MiNET.Network
 		private Timer _levelTicker;
 
 		public Coordinates3D SpawnPoint { get; private set; }
-		public List<Player> Players { get; private set; }
+		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 
 		//const SURVIVAL = 0;
@@ -74,15 +73,27 @@ namespace MiNET.Network
 					player.SendAddPlayer(targetPlayer);
 			}
 
-			BroadcastTextMessage(string.Format("Player {0} joined the game!", player.Username));
+			BroadcastTextMessage(string.Format("Player {0} joined the game!", player.Username), true);
 		}
 
-		private void BroadcastTextMessage(string text)
+		public void RemovePlayer(Player player)
+		{
+			Players.Remove(player);
+			foreach (var targetPlayer in Players)
+			{
+				if (targetPlayer.IsSpawned)
+					targetPlayer.SendRemovePlayer(player);
+			}
+
+			BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username), true);
+		}
+
+		public void BroadcastTextMessage(string text, bool isSystemMessage = false)
 		{
 			var response = new McpeMessage
 			{
 				source = "",
-				message = text
+				message = (isSystemMessage ? "MiNET says - " : "") + text
 			};
 
 			foreach (var player in Players)
@@ -107,6 +118,7 @@ namespace MiNET.Network
 				}
 			}
 
+
 			// New players
 
 			// Player stuff
@@ -124,8 +136,6 @@ namespace MiNET.Network
 					player.SendSetTime();
 				}
 			}
-
-
 		}
 
 		private void BroadCastMovement(Player player)
@@ -139,12 +149,11 @@ namespace MiNET.Network
 		public List<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
 		{
 			Dictionary<string, double> newOrder = new Dictionary<string, double>();
-			_viewDistanace = 90;
 			double radiusSquared = _viewDistanace/Math.PI;
 			double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
 			var centerX = playerX >> 4;
 			var centerZ = playerZ >> 4;
-			Queue<Chunk> chunkQueue = new Queue<Chunk>();
+
 			for (double x = -radius; x <= radius; ++x)
 			{
 				for (double z = -radius; z <= radius; ++z)
@@ -204,16 +213,12 @@ namespace MiNET.Network
 			return string.Format("{0}:{1}", chunkX, chunkZ);
 		}
 
-		public void RemovePlayer(Player player)
+		public void RelayBroadcast(Package message)
 		{
-			Players.Remove(player);
-			foreach (var targetPlayer in Players)
+			foreach (var player in Players)
 			{
-				if (targetPlayer.IsSpawned)
-					targetPlayer.SendRemovePlayer(player);
+				player.SendPackage(message);
 			}
-
-			BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username));
 		}
 	}
 }

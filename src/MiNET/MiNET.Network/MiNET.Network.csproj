@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ack.cs" />
     <Compile Include="ChunkHelper.cs" />
     <Compile Include="ConnectedPackage.cs" />
     <Compile Include="ConnectionRequestAcceptedManual.cs" />

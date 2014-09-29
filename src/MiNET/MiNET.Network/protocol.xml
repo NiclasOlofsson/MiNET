@@ -212,5 +212,50 @@
 		<field name="Client ID" type="long" />
 	</pdu>
 
+	<pdu id="0x96" online="false" client="true" server="true" name="ID_MCPE_PLACE_BLOCK">
+		<field name="Entity ID" type="int" />
+		<field name="X" type="int" />
+		<field name="Z" type="int" />
+		<field name="Y" type="byte" />
+		<field name="Block" type="byte" />
+		<field name="Meta" type="byte" />
+		<field name="Face" type="byte" />
+	</pdu>
+
+	<pdu id="0x97" online="false" client="true" server="true" name="ID_MCPE_REMOVE_BLOCK">
+		<field name="Entity ID" type="int" />
+		<field name="X" type="int" />
+		<field name="Z" type="int" />
+		<field name="Y" type="byte" />
+	</pdu>
+
+	<pdu id="0x98" online="false" client="true" server="true" name="ID_MCPE_UPDATE_BLOCK">
+		<field name="X" type="int" />
+		<field name="Z" type="int" />
+		<field name="Y" type="byte" />
+		<field name="Block" type="byte" />
+		<field name="Meta" type="byte" />
+	</pdu>
+
+	<pdu id="0xac" online="false" client="true" server="true" name="ID_MCPE_ANIMATE">
+		<field name="Action ID" type="byte" />
+		<field name="Entity ID" type="int" />
+	</pdu>
+
+	<pdu id="0xa3" online="false" client="true" server="true" name="ID_MCPE_USE_ITEM">
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="int" />
+		<field name="Face" type="int" />
+		<field name="Item" type="short" />
+		<field name="Meta" type="short" />
+		<field name="Entity ID" type="int" />
+		<field name="Fx" type="float" />
+		<field name="Fy" type="float" />
+		<field name="Fz" type="float" />
+		<field name="Position X" type="float" />
+		<field name="Position Y" type="float" />
+		<field name="Position Z" type="float" />
+	</pdu>
 
 </protocol>

@@ -131,6 +131,26 @@ namespace MiNET.Network
 					package = new McpeRemovePlayer();
 					package.Decode(buffer);
 					return package;
+				case 0x96:
+					package = new McpePlaceBlock();
+					package.Decode(buffer);
+					return package;
+				case 0x97:
+					package = new McpeRemoveBlock();
+					package.Decode(buffer);
+					return package;
+				case 0x98:
+					package = new McpeUpdateBlock();
+					package.Decode(buffer);
+					return package;
+				case 0xac:
+					package = new McpeAnimate();
+					package.Decode(buffer);
+					return package;
+				case 0xa3:
+					package = new McpeUseItem();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
@@ -1466,6 +1486,279 @@ namespace MiNET.Network
 
 			entityId = ReadInt();
 			clientId = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpePlaceBlock : Package
+	{
+		public int entityId; // = null;
+		public int x; // = null;
+		public int z; // = null;
+		public byte y; // = null;
+		public byte block; // = null;
+		public byte meta; // = null;
+		public byte face; // = null;
+
+		public McpePlaceBlock()
+		{
+			Id = 0x96;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(x);
+			Write(z);
+			Write(y);
+			Write(block);
+			Write(meta);
+			Write(face);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			x = ReadInt();
+			z = ReadInt();
+			y = ReadByte();
+			block = ReadByte();
+			meta = ReadByte();
+			face = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeRemoveBlock : Package
+	{
+		public int entityId; // = null;
+		public int x; // = null;
+		public int z; // = null;
+		public byte y; // = null;
+
+		public McpeRemoveBlock()
+		{
+			Id = 0x97;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(x);
+			Write(z);
+			Write(y);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			x = ReadInt();
+			z = ReadInt();
+			y = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeUpdateBlock : Package
+	{
+		public int x; // = null;
+		public int z; // = null;
+		public byte y; // = null;
+		public byte block; // = null;
+		public byte meta; // = null;
+
+		public McpeUpdateBlock()
+		{
+			Id = 0x98;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(x);
+			Write(z);
+			Write(y);
+			Write(block);
+			Write(meta);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			x = ReadInt();
+			z = ReadInt();
+			y = ReadByte();
+			block = ReadByte();
+			meta = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeAnimate : Package
+	{
+		public byte actionId; // = null;
+		public int entityId; // = null;
+
+		public McpeAnimate()
+		{
+			Id = 0xac;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(actionId);
+			Write(entityId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			actionId = ReadByte();
+			entityId = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeUseItem : Package
+	{
+		public int x; // = null;
+		public int y; // = null;
+		public int z; // = null;
+		public int face; // = null;
+		public short item; // = null;
+		public short meta; // = null;
+		public int entityId; // = null;
+		public float fx; // = null;
+		public float fy; // = null;
+		public float fz; // = null;
+		public float positionX; // = null;
+		public float positionY; // = null;
+		public float positionZ; // = null;
+
+		public McpeUseItem()
+		{
+			Id = 0xa3;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(face);
+			Write(item);
+			Write(meta);
+			Write(entityId);
+			Write(fx);
+			Write(fy);
+			Write(fz);
+			Write(positionX);
+			Write(positionY);
+			Write(positionZ);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadInt();
+			face = ReadInt();
+			item = ReadShort();
+			meta = ReadShort();
+			entityId = ReadInt();
+			fx = ReadFloat();
+			fy = ReadFloat();
+			fz = ReadFloat();
+			positionX = ReadFloat();
+			positionY = ReadFloat();
+			positionZ = ReadFloat();
 
 			AfterDecode();
 		}

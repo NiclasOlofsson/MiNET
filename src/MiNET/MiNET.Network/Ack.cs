@@ -1,0 +1,80 @@
+﻿using System.Collections.Generic;
+
+namespace MiNET.Network
+{
+	//public partial class Ack : Package
+	//{
+	//	public List<int> nakSequencePackets = new List<int>();
+	//	public Int24 sequenceNumber;
+
+	//	partial void AfterEncode()
+	//	{
+	//		if (onlyOneSequence == 1)
+	//		{
+	//			Write(sequenceNumber);
+	//		}
+	//	}
+
+	//	partial void AfterDecode()
+	//	{
+	//		if (onlyOneSequence != 0)
+	//		{
+	//			nakSequencePackets.Add(ReadLittle());
+	//		}
+	//		else
+	//		{
+	//			for (int i = 0; i < count; i++)
+	//			{
+	//				int start = ReadLittle();
+	//				int end = ReadLittle();
+	//				if (start - end > 4096)
+	//				{
+	//					end = start + 4096;
+	//				}
+	//				for (int j = start; j <= end; j++)
+	//				{
+	//					nakSequencePackets.Add(j);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+
+	//public partial class Nak : Package
+	//{
+	//	public List<int> nakSequencePackets = new List<int>();
+	//	private Int24 sequenceNumber;
+
+	//	partial void AfterEncode()
+	//	{
+	//		if (onlyOneSequence != 0)
+	//		{
+	//			Write(sequenceNumber);
+	//		}
+	//	}
+
+	//	partial void AfterDecode()
+	//	{
+	//		if (onlyOneSequence != 0)
+	//		{
+	//			nakSequencePackets.Add(ReadLittle());
+	//		}
+	//		else
+	//		{
+	//			for (int i = 0; i < count; i++)
+	//			{
+	//				int start = ReadLittle();
+	//				int end = ReadLittle();
+	//				if (start - end > 4096)
+	//				{
+	//					end = start + 4096;
+	//				}
+	//				for (int j = start; j <= end; j++)
+	//				{
+	//					nakSequencePackets.Add(j);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+}

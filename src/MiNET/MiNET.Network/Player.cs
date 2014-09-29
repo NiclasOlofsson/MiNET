@@ -12,6 +12,8 @@ namespace MiNET.Network
 		private Dictionary<string, ChunkColumn> _chunksUsed;
 		private Level _level;
 		private List<Player> _entities;
+		private int _reliableMessageNumber;
+		private int _sequenceNumber;
 
 		public DateTime LastUpdatedTime { get; private set; }
 		public PlayerPosition3D KnownPosition { get; private set; }
@@ -39,18 +41,125 @@ namespace MiNET.Network
 		}
 
 
-		public bool HandlePackage(Package message)
+		public void HandlePackage(Package message)
 		{
+			if (typeof (McpePlaceBlock) == message.GetType())
+			{
+			}
+
+			if (typeof (McpeRemoveBlock) == message.GetType())
+			{
+			}
+
+			if (typeof (McpeUpdateBlock) == message.GetType())
+			{
+				_level.RelayBroadcast(message);
+			}
+
+			if (typeof (McpeAnimate) == message.GetType())
+			{
+				_level.RelayBroadcast(message);
+			}
+
+			if (typeof (McpeUseItem) == message.GetType())
+			{
+				var msg = (McpeUseItem) message;
+				if (msg.face <= 5)
+				{
+					//Use Block, place
+					//_level.RelayBroadcast(new McpeAnimate()
+					//{
+					//	actionId = 1,
+					//	entityId = 0
+					//});
+
+					_level.RelayBroadcast(new McpeUpdateBlock
+					{
+						x = msg.x,
+						y = (byte) (msg.y + 1),
+						z = msg.z,
+						block = (byte) msg.item,
+						meta = (byte) msg.meta
+					});
+
+					_level.RelayBroadcast(new McpeUpdateBlock
+					{
+						x = 0,
+						y = 0,
+						z = 0,
+						block = 0,
+						meta = 0
+					});
+				}
+			}
+
+			if (typeof (ConnectedPing) == message.GetType())
+			{
+				var msg = (ConnectedPing) message;
+
+				SendPackage(new ConnectedPong
+				{
+					sendpingtime = msg.sendpingtime,
+					sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
+				});
+
+				return;
+			}
+
+			if (typeof (UnknownPackage) == message.GetType())
+			{
+				var msg = (UnknownPackage) message;
+				return;
+			}
+
+			if (typeof (ConnectedPing) == message.GetType())
+			{
+				var msg = (ConnectedPing) message;
+
+				SendPackage(new ConnectedPong
+				{
+					sendpingtime = msg.sendpingtime,
+					sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
+				});
+
+				return;
+			}
+
+			if (typeof (ConnectionRequest) == message.GetType())
+			{
+				var msg = (ConnectionRequest) message;
+				var response = new ConnectionRequestAcceptedManual((short) this._endpoint.Port, msg.timestamp);
+				response.Encode();
+
+				SendPackage(response);
+
+				return;
+			}
+
+			//if (typeof(NewIncomingConnection) == message.GetType())
+			//{
+			//	return;
+			//}
+
 			if (typeof (DisconnectionNotification) == message.GetType())
 			{
 				_level.RemovePlayer(this);
-				return true;
+				return;
+			}
+
+			if (typeof (McpeMessage) == message.GetType())
+			{
+				var msg = (McpeMessage) message;
+				string text = msg.message;
+				_level.BroadcastTextMessage(text);
+				return;
 			}
 
 			if (typeof (McpeRemovePlayer) == message.GetType())
 			{
 				// Do nothing right now, but should clear out the entities and stuff
 				// from this players internal structure.
+				return;
 			}
 
 			if (typeof (McpeLogin) == message.GetType())
@@ -67,7 +176,7 @@ namespace MiNET.Network
 				SendChunksForKnownPosition();
 				LastUpdatedTime = DateTime.Now;
 
-				return true;
+				return;
 			}
 
 			if (typeof (McpeMovePlayer) == message.GetType())
@@ -81,18 +190,16 @@ namespace MiNET.Network
 
 				foreach (var chunk in chunks)
 				{
-					{
-						byte[] data = chunk.GetBytes();
+					byte[] data = chunk.GetBytes();
 
-						var response = new McpeFullChunkData { chunkData = data };
-						SendPackage(response);
-					}
+					var response = new McpeFullChunkData { chunkData = data };
+					SendPackage(response);
 				}
 
-				return true;
+				return;
 			}
 
-			return false;
+			return;
 		}
 
 		private void SendStartGame()
@@ -204,11 +311,6 @@ namespace MiNET.Network
 			});
 		}
 
-		public void SendPackage(Package package)
-		{
-			_server.SendPackage(_endpoint, package);
-		}
-
 		public void SendAddPlayer(Player player)
 		{
 			if (player == this) return;
@@ -255,6 +357,17 @@ namespace MiNET.Network
 				bodyYaw = knownPosition.BodyYaw,
 				teleport = 0
 			});
+		}
+
+
+		/// <summary>
+		///     Very imporatnt litle method. This does all the sending of packages for
+		///     the player class. Treat with respect!
+		/// </summary>
+		/// <param name="package"></param>
+		public void SendPackage(Package package)
+		{
+			_server.SendPackage(_endpoint, package, _sequenceNumber++, _reliableMessageNumber++);
 		}
 
 		private void AddEntity(Player player)

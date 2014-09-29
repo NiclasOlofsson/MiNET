@@ -7,6 +7,7 @@ namespace MiNET.Network
 
 		public ConnectionRequestAcceptedManual(short port, long sessionId)
 		{
+			Id = 0x10;
 			_port = port;
 			_sessionId = sessionId;
 		}

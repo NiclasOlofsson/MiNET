@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
+using Craft.Net.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace MiNET.Network
@@ -92,6 +91,45 @@ namespace MiNET.Network
 				hex.AppendFormat("0x{0:x2},", b);
 			hex.Append("}");
 			return hex.ToString();
+		}
+
+		[TestMethod]
+		public void TestMetadata()
+		{
+			MemoryStream stream = new MemoryStream();
+			BinaryReader reader = new BinaryReader(stream);
+			object[] metadata = new object[1024];
+
+			do
+			{
+				byte item = reader.ReadByte();
+				if (item == 0x7F) break;
+				var index = item & 0x1F;
+				var type = item >> 5;
+
+				if (type == 0) metadata[index] = reader.ReadByte();
+				if (type == 1) metadata[index] = reader.ReadInt16();
+				if (type == 2) metadata[index] = reader.ReadInt32();
+				if (type == 3) metadata[index] = reader.ReadSingle();
+				if (type == 4) metadata[index] = reader.ReadString();
+				//if (type == 5) metadata[index] = reader.ReadSlot();
+				if (type == 6)
+				{
+					var vector = new Vector3();
+					vector.X = reader.ReadInt32();
+					vector.Y = reader.ReadInt32();
+					vector.Z = reader.ReadInt32();
+					metadata[index] = vector;
+				}
+				//if (type == 7)
+				//{
+				//	var rotation = new Vector3();
+				//	rotation.pitch = readFloat();
+				//	rotation.yaw = readFloat();
+				//	rotation.roll = readFloat();
+				//	metadata[index] = rotation;
+				//}
+			} while (true);
 		}
 	}
 }

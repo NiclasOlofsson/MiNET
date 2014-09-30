@@ -29,12 +29,14 @@
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
 | Mcpe Update Block | 0x98 | 152 |   
-| Nak | 0xa0 | 160 |   
+| Mcpe Player Equipment | 0xa0 | 160 |   
+| Mcpe Player Armor Equipment | 0xa1 | 161 |   
 | Mcpe Use Item | 0xa3 | 163 |   
 | Mcpe Entity Data | 0xa7 | 167 |   
 | Mcpe Set Health | 0xaa | 170 |   
 | Mcpe Set Spawn Position | 0xab | 171 |   
 | Mcpe Animate | 0xac | 172 |   
+| Mcpe Container Set Slot | 0xb2 | 178 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
 | Mcpe Full Chunk Data | 0xba | 186 |   
@@ -112,29 +114,17 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Only One Sequence | byte |  |
 |Sequence Number | little |  |
 -----------------------------------------------------------------------
-###Package: Nak (0xa0)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Count | short |  |
-|Only One Sequence | byte |  |
-|Sequence Number | little |  |
------------------------------------------------------------------------
 ###Package: Unconnected Pong (0x1c)
 
 **Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
 
-
+<pdu id="0xa0" online="false" client="true" server="true" name="NAK">
+<field name="Count" type="short" />
+<field name="Only One Sequence" type="byte" />
+<field name="Sequence Number" type="little" />
+</pdu>
 
 ####Fields
 
@@ -302,6 +292,11 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 **Packet size:** 
 
 
+The three type of status are:
+0: Everything is good.
+1: If the server is outdated.
+2. If the game is outdated.
+
 
 ####Fields
 
@@ -357,7 +352,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 **Sent from client:** false
 **Packet size:** 
 
-FULL_CHUNK_DATA_PACKET
+
 
 ####Fields
 
@@ -452,10 +447,8 @@ FULL_CHUNK_DATA_PACKET
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Window ID | byte |  |
-|Slot Count | short |  |
-|Slot Data | byte[] | 0 |
-|Hotbar Count | short |  |
-|Hotbar Data | byte[] | 0 |
+|Slot Data | MetadataSlots |  |
+|Hotbar Data | MetadataInts |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Message (0x85)
 
@@ -583,6 +576,41 @@ FULL_CHUNK_DATA_PACKET
 |Block | byte |  |
 |Meta | byte |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Player Equipment (0xa0)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|Item | short |  |
+|Meta | short |  |
+|Slot | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Player Armor Equipment (0xa1)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|Helmet | byte |  |
+|Chestplate | byte |  |
+|Leggings | byte |  |
+|Boots | byte |  |
+-----------------------------------------------------------------------
 ###Package: Mcpe Animate (0xac)
 
 **Sent from server:** true
@@ -623,6 +651,24 @@ FULL_CHUNK_DATA_PACKET
 |Position X | float |  |
 |Position Y | float |  |
 |Position Z | float |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Container Set Slot (0xb2)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
+|Slot | short |  |
+|Item ID | short |  |
+|Item Count | byte |  |
+|Item Damage | short |  |
 -----------------------------------------------------------------------
 
 

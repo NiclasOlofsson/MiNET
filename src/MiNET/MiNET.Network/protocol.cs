@@ -31,10 +31,6 @@ namespace MiNET.Network
 					package = new Ack();
 					package.Decode(buffer);
 					return package;
-				case 0xa0:
-					package = new Nak();
-					package.Decode(buffer);
-					return package;
 				case 0x1c:
 					package = new UnconnectedPong();
 					package.Decode(buffer);
@@ -143,12 +139,24 @@ namespace MiNET.Network
 					package = new McpeUpdateBlock();
 					package.Decode(buffer);
 					return package;
+				case 0xa0:
+					package = new McpePlayerEquipment();
+					package.Decode(buffer);
+					return package;
+				case 0xa1:
+					package = new McpePlayerArmorEquipment();
+					package.Decode(buffer);
+					return package;
 				case 0xac:
 					package = new McpeAnimate();
 					package.Decode(buffer);
 					return package;
 				case 0xa3:
 					package = new McpeUseItem();
+					package.Decode(buffer);
+					return package;
+				case 0xb2:
+					package = new McpeContainerSetSlot();
 					package.Decode(buffer);
 					return package;
 			}
@@ -289,51 +297,6 @@ namespace MiNET.Network
 		public Ack()
 		{
 			Id = 0xc0;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(count);
-			Write(onlyOneSequence);
-			Write(sequenceNumber);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			count = ReadShort();
-			onlyOneSequence = ReadByte();
-			sequenceNumber = ReadLittle();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class Nak : Package
-	{
-		public short count; // = null;
-		public byte onlyOneSequence; // = null;
-		public little sequenceNumber; // = null;
-
-		public Nak()
-		{
-			Id = 0xa0;
 		}
 
 		protected override void EncodePackage()
@@ -1249,10 +1212,8 @@ namespace MiNET.Network
 	public partial class McpeContainerSetContent : Package
 	{
 		public byte windowId; // = null;
-		public short slotCount; // = null;
-		public byte[] slotData; // = null;
-		public short hotbarCount; // = null;
-		public byte[] hotbarData; // = null;
+		public MetadataSlots slotData; // = null;
+		public MetadataInts hotbarData; // = null;
 
 		public McpeContainerSetContent()
 		{
@@ -1266,9 +1227,7 @@ namespace MiNET.Network
 			BeforeEncode();
 
 			Write(windowId);
-			Write(slotCount);
 			Write(slotData);
-			Write(hotbarCount);
 			Write(hotbarData);
 
 			AfterEncode();
@@ -1284,10 +1243,8 @@ namespace MiNET.Network
 			BeforeDecode();
 
 			windowId = ReadByte();
-			slotCount = ReadShort();
-			slotData = ReadBytes(0);
-			hotbarCount = ReadShort();
-			hotbarData = ReadBytes(0);
+			slotData = ReadMetadataSlots();
+			hotbarData = ReadMetadataInts();
 
 			AfterDecode();
 		}
@@ -1654,6 +1611,105 @@ namespace MiNET.Network
 
 	}
 
+	public partial class McpePlayerEquipment : Package
+	{
+		public int entityId; // = null;
+		public short item; // = null;
+		public short meta; // = null;
+		public byte slot; // = null;
+
+		public McpePlayerEquipment()
+		{
+			Id = 0xa0;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(item);
+			Write(meta);
+			Write(slot);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			item = ReadShort();
+			meta = ReadShort();
+			slot = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpePlayerArmorEquipment : Package
+	{
+		public int entityId; // = null;
+		public byte helmet; // = null;
+		public byte chestplate; // = null;
+		public byte leggings; // = null;
+		public byte boots; // = null;
+
+		public McpePlayerArmorEquipment()
+		{
+			Id = 0xa1;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(helmet);
+			Write(chestplate);
+			Write(leggings);
+			Write(boots);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			helmet = ReadByte();
+			chestplate = ReadByte();
+			leggings = ReadByte();
+			boots = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeAnimate : Package
 	{
 		public byte actionId; // = null;
@@ -1762,6 +1818,57 @@ namespace MiNET.Network
 			positionX = ReadFloat();
 			positionY = ReadFloat();
 			positionZ = ReadFloat();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeContainerSetSlot : Package
+	{
+		public byte windowId; // = null;
+		public short slot; // = null;
+		public short itemId; // = null;
+		public byte itemCount; // = null;
+		public short itemDamage; // = null;
+
+		public McpeContainerSetSlot()
+		{
+			Id = 0xb2;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(windowId);
+			Write(slot);
+			Write(itemId);
+			Write(itemCount);
+			Write(itemDamage);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			windowId = ReadByte();
+			slot = ReadShort();
+			itemId = ReadShort();
+			itemCount = ReadByte();
+			itemDamage = ReadShort();
 
 			AfterDecode();
 		}

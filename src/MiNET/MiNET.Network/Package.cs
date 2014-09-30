@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Craft.Net.Common;
 
 namespace MiNET.Network
 {
@@ -32,8 +33,20 @@ namespace MiNET.Network
 			return _reader.ReadByte();
 		}
 
+		public sbyte ReadSByte()
+		{
+			return _reader.ReadSByte();
+		}
+
+		public void Write(sbyte value)
+		{
+			_writer.Write(value);
+		}
+
 		public void Write(byte[] value)
 		{
+			if (value == null) return;
+
 			_writer.Write(value);
 		}
 
@@ -137,6 +150,69 @@ namespace MiNET.Network
 			short len = ReadShort();
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
+
+		public MetadataInts ReadMetadataInts()
+		{
+			MetadataInts metadata = new MetadataInts();
+			short count = ReadShort();
+
+			for (byte i = 0; i < count; i++)
+			{
+				metadata[i] = new MetadataInt(ReadInt());
+			}
+
+			return metadata;
+		}
+
+		public MetadataSlots ReadMetadataSlots()
+		{
+			short count = ReadShort();
+
+			MetadataSlots metadata = new MetadataSlots();
+
+			for (byte i = 0; i < count; i++)
+			{
+				MetadataSlot slot = new MetadataSlot(new ItemStack(ReadShort(), ReadSByte(), ReadShort()));
+			}
+
+			return metadata;
+		}
+
+		public void Write(MetadataDictionary metadata)
+		{
+			if (metadata == null)
+			{
+				Write((short) 0);
+				return;
+			}
+
+			Write((short) metadata.Count);
+
+			for (byte i = 0; i < metadata.Count; i++)
+			{
+				{
+					MetadataSlot slot = metadata[i] as MetadataSlot;
+					if (slot != null)
+					{
+						Write(slot.Value.Id);
+						Write(slot.Value.Count);
+						Write(slot.Value.Metadata);
+
+						continue;
+					}
+				}
+
+				{
+					MetadataInt slot = metadata[i] as MetadataInt;
+					if (slot != null)
+					{
+						Write(slot.Value);
+						continue;
+					}
+				}
+			}
+		}
+
 
 		protected virtual void EncodePackage()
 		{

@@ -46,6 +46,8 @@
     <Compile Include="CraftNetWorldProvider.cs" />
     <Compile Include="CryptoRandom.cs" />
     <Compile Include="FlatlandWorldProvider.cs" />
+    <Compile Include="MetadataInt.cs" />
+    <Compile Include="MinecraftLittleEndianStream.cs" />
     <Compile Include="OpenConnectionRequest1.cs" />
     <Compile Include="Int24.cs" />
     <Compile Include="ChunkColumn.cs" />
@@ -100,6 +102,10 @@
     <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Common\Craft.Net.Common.csproj">
       <Project>{50462849-2223-4E39-B5D9-A928A9A58A33}</Project>
       <Name>Craft.Net.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Logic\Craft.Net.Logic.csproj">
+      <Project>{E001ADA1-6BCB-420E-B187-07FF361D60B8}</Project>
+      <Name>Craft.Net.Logic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
       <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>

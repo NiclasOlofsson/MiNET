@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
-using System.Xml;
-using System.Xml.XPath;
 using Craft.Net.Common;
+using Craft.Net.Logic.Windows;
 
 namespace MiNET.Network
 {
@@ -20,6 +19,13 @@ namespace MiNET.Network
 
 	public class Player
 	{
+		private static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
+		private static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
+		private static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
+		private static readonly Coordinates3D West = new Coordinates3D(0, 0, 1);
+		private static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
+		private static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
+
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<string, ChunkColumn> _chunksUsed;
@@ -28,10 +34,17 @@ namespace MiNET.Network
 		private int _reliableMessageNumber;
 		private int _sequenceNumber;
 
+		public MetadataSlots Armor { get; private set; }
+		public MetadataSlots Items { get; private set; }
+		public MetadataInts ItemHotbar { get; private set; }
+		public MetadataSlot ItemInHand { get; private set; }
+
 		public DateTime LastUpdatedTime { get; private set; }
 		public PlayerPosition3D KnownPosition { get; private set; }
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
+
+		public InventoryWindow Inventory { get; set; }
 
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level)
 		{
@@ -40,6 +53,7 @@ namespace MiNET.Network
 			_level = level;
 			_chunksUsed = new Dictionary<string, ChunkColumn>();
 			_entities = new List<Player>();
+			Inventory = new InventoryWindow();
 			AddEntity(this); // Make sure we are entity with ID == 0;
 			IsSpawned = false;
 			KnownPosition = new PlayerPosition3D
@@ -51,11 +65,81 @@ namespace MiNET.Network
 				Pitch = 28,
 				BodyYaw = 91
 			};
+
+			Armor = new MetadataSlots();
+			Armor[0] = new MetadataSlot(new ItemStack(302, 3));
+			Armor[1] = new MetadataSlot(new ItemStack(303, 3));
+			Armor[2] = new MetadataSlot(new ItemStack(304, 3));
+			Armor[3] = new MetadataSlot(new ItemStack(305, 3));
+
+			Items = new MetadataSlots();
+			for (byte i = 0; i < 35; i++)
+			{
+				Items[i] = new MetadataSlot(new ItemStack(i, 1));
+			}
+			Items[0] = new MetadataSlot(new ItemStack(41, 1));
+			Items[1] = new MetadataSlot(new ItemStack(42, 1));
+			Items[2] = new MetadataSlot(new ItemStack(57, 1));
+			Items[3] = new MetadataSlot(new ItemStack(305, 3));
+
+			ItemHotbar = new MetadataInts();
+			for (byte i = 0; i < 6; i++)
+			{
+				ItemHotbar[i] = new MetadataInt(-1);
+			}
+			ItemHotbar[0] = new MetadataInt(9);
+			ItemHotbar[1] = new MetadataInt(10);
+			ItemHotbar[2] = new MetadataInt(11);
+			ItemHotbar[3] = new MetadataInt(12);
+			ItemHotbar[4] = new MetadataInt(13);
+			ItemHotbar[5] = new MetadataInt(14);
+
+			ItemInHand = new MetadataSlot(new ItemStack(-1));
 		}
 
 
 		public void HandlePackage(Package message)
 		{
+			if (typeof (McpeContainerSetSlot) == message.GetType())
+			{
+				var msg = (McpeContainerSetSlot) message;
+				switch (msg.windowId)
+				{
+					case 0:
+						Items[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
+						break;
+					case 0x78:
+						Armor[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
+						break;
+				}
+				_level.RelayBroadcast(this, new McpePlayerArmorEquipment()
+				{
+					entityId = 0,
+					helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
+					chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256),
+					leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256),
+					boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256)
+				});
+
+				_level.RelayBroadcast(this, new McpePlayerEquipment()
+				{
+					entityId = 0,
+					item = ItemInHand.Value.Id,
+					meta = ItemInHand.Value.Metadata,
+					slot = 0
+				});
+			}
+
+			if (typeof (McpePlayerEquipment) == message.GetType())
+			{
+				_level.RelayBroadcast(this, (McpePlayerEquipment) message);
+			}
+
+			if (typeof (McpePlayerArmorEquipment) == message.GetType())
+			{
+				_level.RelayBroadcast(this, (McpePlayerArmorEquipment) message);
+			}
+
 			if (typeof (McpePlaceBlock) == message.GetType())
 			{
 				// Not used
@@ -75,21 +159,6 @@ namespace MiNET.Network
 			{
 				_level.RelayBroadcast(this, (McpeAnimate) message);
 			}
-
-			//XmlDocument doc = null;
-			//XmlNodeList pdus = doc.SelectNodes("//pdu");
-			//XPathNavigator nav = pdus.Item(0).OwnerDocument.CreateNavigator();
-			//XPathExpression exp = nav.Compile("//pdu");
-			//exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Number);
-
-			//foreach (XPathNavigator pdu in nav.Select(exp))
-			//{
-			//	//string pduComment = (pdu.PreviousSibling == null ? null : pdu.PreviousSibling.Value) ?? "";
-			//	string typeIdName = CodeName(pdu.GetAttribute("name", ""), true);
-			//	string typeName = CodeTypeName(pdu.GetAttribute("name", ""));
-			//	string typeId = pdu.GetAttribute("id", "");
-			//	string baseType = "Package";
-			//}
 
 			if (typeof (McpeUseItem) == message.GetType())
 			{
@@ -112,15 +181,6 @@ namespace MiNET.Network
 						block = (byte) msg.item,
 						meta = (byte) msg.meta
 					});
-
-					//_level.RelayBroadcast(new McpeUpdateBlock
-					//{
-					//	x = 0,
-					//	y = 0,
-					//	z = 0,
-					//	block = 0,
-					//	meta = 0
-					//});
 				}
 			}
 
@@ -160,11 +220,6 @@ namespace MiNET.Network
 
 				return;
 			}
-
-			//if (typeof(NewIncomingConnection) == message.GetType())
-			//{
-			//	return;
-			//}
 
 			if (typeof (DisconnectionNotification) == message.GetType())
 			{
@@ -228,16 +283,7 @@ namespace MiNET.Network
 			{
 				return;
 			}
-
-			return;
 		}
-
-		public static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
-		public static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
-		public static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
-		public static readonly Coordinates3D West = new Coordinates3D(0, 0, 1);
-		public static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
-		public static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
 
 		private Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
 		{
@@ -272,7 +318,7 @@ namespace MiNET.Network
 			{
 				seed = 1406827239,
 				generator = 1,
-				gamemode = 1,
+				gamemode = (int) GameMode.Survival,
 				entityId = GetEntityId(this),
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
@@ -344,38 +390,24 @@ namespace MiNET.Network
 				teleport = 0x80
 			});
 
-			// Adventure settings (AdventureSettingsPacket)
-			//$flags = 0;
-			//if($this->isAdventure())
-			//	$flags |= 0x01; //Do not allow placing/breaking blocks, adventure mode
-			//if($nametags !== false){
-			//	$flags |= 0x20; //Show Nametags
-			//}
 			SendPackage(new McpeAdventureSettings { flags = 0x20 });
 
-			// Settings (ContainerSetContentPacket)
-			//$this->inventory->sendContents($this);
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0,
-				slotCount = 0,
-				slotData = new byte[0],
-				hotbarCount = 0,
-				hotbarData = new byte[0]
+				slotData = Items,
+				hotbarData = ItemHotbar
 			});
 
-			//$this->inventory->sendArmorContents($this);
 			SendPackage(new McpeContainerSetContent
 			{
-				windowId = 0x78,
-				slotCount = 0,
-				slotData = new byte[0],
-				hotbarCount = 0,
-				hotbarData = new byte[0]
+				windowId = 0x78, // Armor windows ID
+				slotData = Armor,
+				hotbarData = null
 			});
 		}
 
-		public void SendAddPlayer(Player player)
+		public void SendAddForPlayer(Player player)
 		{
 			if (player == this) return;
 
@@ -390,6 +422,33 @@ namespace MiNET.Network
 				yaw = (byte) player.KnownPosition.Yaw,
 				pitch = (byte) player.KnownPosition.Pitch,
 				metadata = new byte[0]
+			});
+
+			SendEquipmentForPlayer(player);
+
+			SendArmorForPlayer(player);
+		}
+
+		private void SendEquipmentForPlayer(Player player)
+		{
+			SendPackage(new McpePlayerEquipment()
+			{
+				entityId = GetEntityId(player),
+				item = player.ItemInHand.Value.Id,
+				meta = player.ItemInHand.Value.Metadata,
+				slot = 0
+			});
+		}
+
+		private void SendArmorForPlayer(Player player)
+		{
+			SendPackage(new McpePlayerArmorEquipment()
+			{
+				entityId = GetEntityId(player),
+				helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256)
 			});
 		}
 

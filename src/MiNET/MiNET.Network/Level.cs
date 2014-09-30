@@ -63,14 +63,14 @@ namespace MiNET.Network
 			foreach (var targetPlayer in Players)
 			{
 				if (targetPlayer.IsSpawned)
-					targetPlayer.SendAddPlayer(player);
+					targetPlayer.SendAddForPlayer(player);
 			}
 
 			foreach (var targetPlayer in Players)
 			{
 				// Add all existing users to new player
 				if (targetPlayer.IsSpawned)
-					player.SendAddPlayer(targetPlayer);
+					player.SendAddForPlayer(targetPlayer);
 			}
 
 			BroadcastTextMessage(string.Format("Player {0} joined the game!", player.Username), true);
@@ -214,21 +214,41 @@ namespace MiNET.Network
 		}
 
 
-		public void RelayBroadcast(Player source, McpeAnimate message)
-		{
-			foreach (var player in Players)
-			{
-				McpeAnimate send = message.Clone<McpeAnimate>();
-				send.entityId = player.GetEntityId(source);
-				player.SendPackage(send);
-			}
-		}
-
 		public void RelayBroadcast(Package message)
 		{
 			foreach (var player in Players)
 			{
 				player.SendPackage((Package) message.Clone());
+			}
+		}
+
+		public void RelayBroadcast(Player source, McpeAnimate message)
+		{
+			foreach (var player in Players)
+			{
+				var send = message.Clone<McpeAnimate>();
+				send.entityId = player.GetEntityId(source);
+				player.SendPackage(send);
+			}
+		}
+
+		public void RelayBroadcast(Player source, McpePlayerArmorEquipment message)
+		{
+			foreach (var player in Players)
+			{
+				var send = message.Clone<McpePlayerArmorEquipment>();
+				send.entityId = player.GetEntityId(source);
+				player.SendPackage(send);
+			}
+		}
+
+		public void RelayBroadcast(Player source, McpePlayerEquipment message)
+		{
+			foreach (var player in Players)
+			{
+				var send = message.Clone<McpePlayerEquipment>();
+				send.entityId = player.GetEntityId(source);
+				player.SendPackage(send);
 			}
 		}
 	}

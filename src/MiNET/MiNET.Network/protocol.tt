@@ -129,7 +129,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		} 
 		else 
 		{
-			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), CodeTypeName(field.Attributes["type"].Value), SafeToString(field.Attributes["size"])));
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), UpperInitial(field.Attributes["type"].Value), SafeToString(field.Attributes["size"])));
 		} 
 
 
@@ -152,7 +152,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 <#+
 private string UpperInitial(string name)
 { 
-	return name[0].ToString().ToUpperInvariant() + name.Substring(1); 
+	return name[0].ToString().ToUpperInvariant() + name.Substring(1).Replace(@"[]", "s"); 
 }
 
 private string CodeTypeName(string name) 

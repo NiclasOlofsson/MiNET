@@ -47,7 +47,6 @@
     <Compile Include="CryptoRandom.cs" />
     <Compile Include="FlatlandWorldProvider.cs" />
     <Compile Include="MetadataInt.cs" />
-    <Compile Include="MinecraftLittleEndianStream.cs" />
     <Compile Include="OpenConnectionRequest1.cs" />
     <Compile Include="Int24.cs" />
     <Compile Include="ChunkColumn.cs" />

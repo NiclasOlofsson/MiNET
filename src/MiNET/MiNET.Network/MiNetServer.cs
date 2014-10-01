@@ -197,13 +197,14 @@ namespace MiNET.Network
 
 					var package = new ConnectedPackage();
 					package.Decode(receiveBytes);
-					var message = package.Message;
+					var messages = package.Messages;
 
-					TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message is UnknownPackage);
-
-					SendAck(senderEndpoint, package._sequenceNumber);
-
-					DoPlayerStuff(message, senderEndpoint);
+					foreach (var message in messages)
+					{
+						TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message is UnknownPackage);
+						SendAck(senderEndpoint, package._sequenceNumber);
+						DoPlayerStuff(message, senderEndpoint);
+					}
 				}
 				else if (header.isACK && header.isValid)
 				{
@@ -257,11 +258,12 @@ namespace MiNET.Network
 		{
 			ConnectedPackage package = new ConnectedPackage
 			{
-				Message = message,
+				Messages = new List<Package>(),
 				_reliability = reliability,
 				_reliableMessageNumber = reliableMessageNumber++,
 				_sequenceNumber = sequenceNumber++
 			};
+			package.Messages.Add(message);
 
 			byte[] data = package.Encode();
 

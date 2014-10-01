@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace MiNET.Network
 {
@@ -20,13 +22,18 @@ namespace MiNET.Network
 		public bool _hasSplit;
 
 		public int MessageLength { get; set; }
-		public Package Message { get; set; }
+		public List<Package> Messages { get; set; }
+
+		public ConnectedPackage()
+		{
+			Messages = new List<Package>();
+		}
 
 		protected override void EncodePackage()
 		{
 			_buffer.Position = 0;
 
-			byte[] encodedMessage = Message.Encode();
+			byte[] encodedMessage = Messages.First().Encode();
 			MessageLength = encodedMessage.Length;
 
 			if (_header == null) _header = new DatagramHeader(0x84);
@@ -69,67 +76,74 @@ namespace MiNET.Network
 
 		protected override void DecodePackage()
 		{
+			Messages = new List<Package>();
+
 			_buffer.Position = 0;
 
 			_header = new DatagramHeader(ReadByte());
 			_sequenceNumber = ReadLittle();
 
-			byte flags = ReadByte();
-			_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
-			int hasSplitPacket = ((flags & Convert.ToByte("00010000", 2)) >> 0);
-
-			short dataBitLength = ReadShort();
-
-			if (_reliability == Reliability.RELIABLE
-				|| _reliability == Reliability.RELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_ORDERED
-				)
+			while (_buffer.Position != _buffer.Length)
 			{
-				_reliableMessageNumber = ReadLittle();
-			}
-			else
-			{
-				_reliableMessageNumber = new Int24(-1);
-			}
+				byte flags = ReadByte();
 
-			if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_SEQUENCED
-				)
-			{
-				_sequencingIndex = ReadLittle();
-			}
 
-			if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_ORDERED
-				|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
-				)
-			{
-				_orderingIndex = ReadLittle();
-				_orderingChannel = ReadByte(); // flags
-			}
-			else
-			{
-				_orderingChannel = 0;
-			}
+				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
+				int hasSplitPacket = ((flags & Convert.ToByte("00010000", 2)) >> 0);
 
-			if (hasSplitPacket != 0)
-			{
-				_splitPacketCount = ReadInt();
-				_splitPacketId = ReadShort();
-				_splitPacketIndex = ReadInt();
-			}
-			else
-			{
-				_splitPacketCount = 0;
-			}
+				short dataBitLength = ReadShort();
 
-			// Slurp the payload
-			MessageLength = (int) Math.Ceiling((((double) dataBitLength)/8));
+				if (_reliability == Reliability.RELIABLE
+					|| _reliability == Reliability.RELIABLE_SEQUENCED
+					|| _reliability == Reliability.RELIABLE_ORDERED
+					)
+				{
+					_reliableMessageNumber = ReadLittle();
+				}
+				else
+				{
+					_reliableMessageNumber = new Int24(-1);
+				}
 
-			byte[] internalBuffer = ReadBytes(MessageLength);
-			Message = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
-			if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
+				if (_reliability == Reliability.UNRELIABLE_SEQUENCED
+					|| _reliability == Reliability.RELIABLE_SEQUENCED
+					)
+				{
+					_sequencingIndex = ReadLittle();
+				}
+
+				if (_reliability == Reliability.UNRELIABLE_SEQUENCED
+					|| _reliability == Reliability.RELIABLE_SEQUENCED
+					|| _reliability == Reliability.RELIABLE_ORDERED
+					|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+					)
+				{
+					_orderingIndex = ReadLittle();
+					_orderingChannel = ReadByte(); // flags
+				}
+				else
+				{
+					_orderingChannel = 0;
+				}
+
+				if (hasSplitPacket != 0)
+				{
+					_splitPacketCount = ReadInt();
+					_splitPacketId = ReadShort();
+					_splitPacketIndex = ReadInt();
+				}
+				else
+				{
+					_splitPacketCount = 0;
+				}
+
+				// Slurp the payload
+				MessageLength = (int) Math.Ceiling((((double) dataBitLength)/8));
+
+				byte[] internalBuffer = ReadBytes(MessageLength);
+				Messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
+			}
 		}
 	}
 

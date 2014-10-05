@@ -35,6 +35,12 @@ namespace MiNET.Network
 		private List<Player> _entities;
 		private int _reliableMessageNumber;
 		private int _sequenceNumber;
+		private object _sequenceNumberSync = new object();
+
+		private BackgroundWorker _worker;
+		private Coordinates2D _currentChunkPosition;
+
+		public bool IsConnected { get; set; }
 
 		public MetadataSlots Armor { get; private set; }
 		public MetadataSlots Items { get; private set; }
@@ -98,6 +104,7 @@ namespace MiNET.Network
 			ItemHotbar[5] = new MetadataInt(14);
 
 			ItemInHand = new MetadataSlot(new ItemStack(-1));
+			IsConnected = true;
 		}
 
 
@@ -141,16 +148,6 @@ namespace MiNET.Network
 			if (typeof (McpePlayerArmorEquipment) == message.GetType())
 			{
 				_level.RelayBroadcast(this, (McpePlayerArmorEquipment) message);
-			}
-
-			if (typeof (McpePlaceBlock) == message.GetType())
-			{
-				// Not used
-			}
-
-			if (typeof (McpeRemoveBlock) == message.GetType())
-			{
-				// Not used?
 			}
 
 			if (typeof (McpeUpdateBlock) == message.GetType())
@@ -226,6 +223,7 @@ namespace MiNET.Network
 
 			if (typeof (DisconnectionNotification) == message.GetType())
 			{
+				IsConnected = false;
 				_level.RemovePlayer(this);
 				return;
 			}
@@ -338,20 +336,37 @@ namespace MiNET.Network
 		{
 			SendPackage(new McpeSetSpawnPosition
 			{
-				x = (int) KnownPosition.X,
-				y = (byte) KnownPosition.Y,
-				z = (int) KnownPosition.Z
+				x = _level.SpawnPoint.X,
+				y = (byte) _level.SpawnPoint.Y,
+				z = _level.SpawnPoint.Z
 			});
 		}
 
 		private void SendChunksForKnownPosition()
 		{
-			BackgroundWorker worker = new BackgroundWorker();
-			worker.DoWork += delegate(object sender, DoWorkEventArgs args)
+//			if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); // Cancel what we are running ...
+
+			int centerX = (int) ((int) KnownPosition.X/16);
+			int centerZ = (int) ((int) KnownPosition.Z/16);
+
+			if (IsSpawned && _currentChunkPosition == new Coordinates2D(centerX, centerZ)) return;
+
+			_currentChunkPosition.X = centerX;
+			_currentChunkPosition.Z = centerZ;
+
+			_worker = new BackgroundWorker();
+			_worker.WorkerSupportsCancellation = true;
+			_worker.DoWork += delegate(object sender, DoWorkEventArgs args)
 			{
+				BackgroundWorker worker = sender as BackgroundWorker;
 				int count = 0;
 				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed))
 				{
+					if (worker.CancellationPending)
+					{
+						args.Cancel = true;
+						break;
+					}
 					SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
 					Thread.Yield();
 
@@ -367,7 +382,7 @@ namespace MiNET.Network
 				}
 			};
 
-			worker.RunWorkerAsync();
+			_worker.RunWorkerAsync();
 		}
 
 		private void SendSetHealth()
@@ -491,8 +506,6 @@ namespace MiNET.Network
 			});
 		}
 
-		private object _sequenceNumberSync = new object();
-
 		/// <summary>
 		///     Very imporatnt litle method. This does all the sending of packages for
 		///     the player class. Treat with respect!
@@ -500,6 +513,8 @@ namespace MiNET.Network
 		/// <param name="package"></param>
 		public void SendPackage(Package package)
 		{
+			if (!IsConnected) return;
+
 			lock (_sequenceNumberSync)
 			{
 				int numberOfMessages = _server.SendPackage(_endpoint, package, _mtuSize, _sequenceNumber, _reliableMessageNumber);

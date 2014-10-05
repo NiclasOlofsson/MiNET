@@ -398,7 +398,6 @@ namespace MiNET.Network
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, bool isUnknown = false)
 		{
-			return;
 			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 			{
 				if (isUnknown)
@@ -407,9 +406,9 @@ namespace MiNET.Network
 				}
 				else
 				{
-					Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
+//					Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
 				}
-				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(receiveBytes), length);
+//				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(receiveBytes), length);
 			}
 		}
 

@@ -13,7 +13,7 @@ namespace MiNET.Network
 		private Craft.Net.Anvil.Level _level;
 		private List<int> _gaps;
 		private List<int> _ignore;
-		private int _offsetY;
+		private byte _offsetY;
 
 		public bool IsCaching { get; private set; }
 
@@ -27,9 +27,11 @@ namespace MiNET.Network
 		{
 //			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\");
 //			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Mountain Sky Village\Mountain Sky Village\");
-			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world28\King's Landing");
+//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world28\King's Landing");
+//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis");
+			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy");
 
-			_offsetY = 30;
+			_offsetY = 0; //30
 
 			Debug.WriteLine("Water level: " + _level.DefaultWorld);
 
@@ -139,15 +141,13 @@ namespace MiNET.Network
 
 		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
 		{
-			var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
-			if (firstOrDefault != null)
+			var cachedChunk = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+			if (cachedChunk != null)
 			{
-				return firstOrDefault;
+				return cachedChunk;
 			}
 
-
 			Chunk anvilChunk = _level.DefaultWorld.GetChunk(chunkCoordinates);
-
 			ChunkColumn chunk = new ChunkColumn { x = chunkCoordinates.X, z = chunkCoordinates.Z };
 
 			chunk.biomeId = anvilChunk.Biomes;
@@ -157,14 +157,19 @@ namespace MiNET.Network
 			}
 			if (chunk.biomeId.Length > 256) throw new Exception();
 
-			for (int xi = 0; xi < 16; xi++)
+			Stopwatch stopwatch = new Stopwatch();
+			stopwatch.Restart();
+			for (byte xi = 0; xi < 16; xi++)
 			{
-				for (int zi = 0; zi < 16; zi++)
+				for (byte zi = 0; zi < 16; zi++)
 				{
-					for (int yi = 0; yi < 128; yi++)
+					for (byte yi = 0; yi < 128; yi++)
 					{
+						int yoffsetted = yi + _offsetY;
+
+						byte blockId = (byte) anvilChunk.GetBlockId(new Coordinates3D(xi, yoffsetted, zi));
+
 						// Anvil to PE friendly converstion
-						byte blockId = (byte) anvilChunk.GetBlockId(new Coordinates3D(xi, yi + _offsetY, zi));
 						if (blockId == 125) blockId = 5;
 						else if (blockId == 126) blockId = 158;
 						else if (blockId == 75) blockId = 50;
@@ -184,12 +189,13 @@ namespace MiNET.Network
 						if (yi == 0 && (blockId == 8 || blockId == 9 || blockId == 0)) blockId = 7;
 
 						chunk.SetBlock(xi, yi, zi, blockId);
-						chunk.SetBlocklight(xi, yi, zi, anvilChunk.GetBlockLight(new Coordinates3D(xi, yi + _offsetY, zi)));
-						chunk.SetMetadata(xi, yi, zi, anvilChunk.GetMetadata(new Coordinates3D(xi, yi + _offsetY, zi)));
-						chunk.SetSkylight(xi, yi, zi, anvilChunk.GetSkyLight(new Coordinates3D(xi, yi + _offsetY, zi)));
+						chunk.SetBlocklight(xi, yi, zi, anvilChunk.GetBlockLight(new Coordinates3D(xi, yoffsetted, zi)));
+						chunk.SetMetadata(xi, yi, zi, anvilChunk.GetMetadata(new Coordinates3D(xi, yoffsetted, zi)));
+						chunk.SetSkylight(xi, yi, zi, anvilChunk.GetSkyLight(new Coordinates3D(xi, yoffsetted, zi)));
 					}
 				}
 			}
+			Debug.WriteLine("Chunk from region in: {0} ms", stopwatch.ElapsedMilliseconds);
 
 			for (int i = 0; i < chunk.skylight.Length; i++)
 				chunk.skylight[i] = 0xff;

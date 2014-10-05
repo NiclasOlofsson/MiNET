@@ -12,7 +12,7 @@ namespace MiNET.Network
 	public class Level
 	{
 		private IWorldProvider _worldProvider;
-		private int _viewDistanace = 96;
+		private int _viewDistance = 96;
 		private Timer _levelTicker;
 
 		public Coordinates3D SpawnPoint { get; private set; }
@@ -43,24 +43,24 @@ namespace MiNET.Network
 
 			var loadIt = new FlatlandGenerator();
 
-			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-//			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+//			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();
 
 			if (_worldProvider.IsCaching)
 			{
-//				BackgroundWorker worker = new BackgroundWorker();
-//				worker.RunWorkerCompleted += (sender, args) => Debug.WriteLine("Cache completed");
-//				worker.DoWork += delegate(object sender, DoWorkEventArgs args)
-//				{
-//					// Pre-cache chunks for spawn coordinates
-//					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Y, new Dictionary<string, ChunkColumn>()))
-//					{
-//					}
-//				};
-//				worker.RunWorkerAsync();
+				BackgroundWorker worker = new BackgroundWorker();
+				worker.RunWorkerCompleted += (sender, args) => Debug.WriteLine("Chunk-caching completed");
+				worker.DoWork += delegate
+				{
+					// Pre-cache chunks for spawn coordinates
+					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Z, new Dictionary<string, ChunkColumn>(), 200))
+					{
+					}
+				};
+				worker.RunWorkerAsync();
 			}
 
 
@@ -167,13 +167,18 @@ namespace MiNET.Network
 
 		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
 		{
-			lock (syncObject)
+			return GenerateChunks(playerX, playerZ, chunksUsed, _viewDistance);
+		}
+
+		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed, int viewDistance)
+		{
+			lock (chunksUsed)
 			{
-				Dictionary<string, double> newOrder = new Dictionary<string, double>();
-				double radiusSquared = _viewDistanace/Math.PI;
+				Dictionary<string, double> newOrders = new Dictionary<string, double>();
+				double radiusSquared = viewDistance/Math.PI;
 				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
-				var centerX = playerX >> 4;
-				var centerZ = playerZ >> 4;
+				var centerX = playerX/16;
+				var centerZ = playerZ/16;
 
 				for (double x = -radius; x <= radius; ++x)
 				{
@@ -187,53 +192,52 @@ namespace MiNET.Network
 						var chunkX = x + centerX;
 						var chunkZ = z + centerZ;
 						string index = GetChunkHash(chunkX, chunkZ);
-
-						newOrder[index] = distance;
+						newOrders[index] = distance;
 					}
 				}
 
-				// Should be member..
-				Dictionary<string, double> loadQueue = new Dictionary<string, double>();
-
-				var sortedKeys = newOrder.Keys.ToList();
-				sortedKeys.Sort();
-				if (newOrder.Count > _viewDistanace)
+				if (newOrders.Count > viewDistance)
 				{
-					int count = 0;
-					loadQueue = new Dictionary<string, double>();
-					foreach (var key in sortedKeys)
+					foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
 					{
-						loadQueue[key] = newOrder[key];
-						if (++count > _viewDistanace) break;
+						if (newOrders.Count <= viewDistance) break;
+						newOrders.Remove(pair.Key);
 					}
 				}
-				else
-				{
-					loadQueue = newOrder;
-				}
+
 
 				foreach (var chunkKey in chunksUsed.Keys.ToArray())
 				{
-					if (!loadQueue.ContainsKey(chunkKey))
+					if (!newOrders.ContainsKey(chunkKey))
 					{
 						chunksUsed.Remove(chunkKey);
 					}
 				}
 
-				List<ChunkColumn> chunks = new List<ChunkColumn>();
-				foreach (var pair in loadQueue)
+				Stopwatch stopwatch = new Stopwatch();
+				long avarageLoadTime = -1;
+				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
+
+					stopwatch.Restart();
 
 					int x = Int32.Parse(pair.Key.Split(new[] { ':' })[0]);
 					int z = Int32.Parse(pair.Key.Split(new[] { ':' })[1]);
 
-					//ChunkColumn chunk = CraftNetGenerateChunkForIndex(x, z);
 					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(x, z));
 					chunksUsed.Add(pair.Key, chunk);
 
+					long elapsed = stopwatch.ElapsedMilliseconds;
+					if (avarageLoadTime == -1) avarageLoadTime = elapsed;
+					else avarageLoadTime = (avarageLoadTime + elapsed)/2;
+					Debug.WriteLine("Chunk generated in: {0} ms (Avarage: {1} ms)", elapsed, avarageLoadTime);
+
 					yield return chunk;
 				}
+
+				if(chunksUsed.Count != 96) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
+	
 			}
 		}
 

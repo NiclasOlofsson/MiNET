@@ -71,10 +71,6 @@ namespace MiNET.Network
 					package = new McpeLoginStatus();
 					package.Decode(buffer);
 					return package;
-				case 0x84:
-					package = new McpeReady();
-					package.Decode(buffer);
-					return package;
 				case 0x86:
 					package = new McpeSetTime();
 					package.Decode(buffer);
@@ -785,42 +781,6 @@ namespace MiNET.Network
 			BeforeDecode();
 
 			status = ReadInt();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeReady : Package
-	{
-
-		public McpeReady()
-		{
-			Id = 0x84;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
 
 			AfterDecode();
 		}

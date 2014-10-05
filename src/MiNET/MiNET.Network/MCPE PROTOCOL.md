@@ -19,7 +19,6 @@
 | Unconnected Pong | 0x1c | 28 |   
 | Mcpe Login | 0x82 | 130 |   
 | Mcpe Login Status | 0x83 | 131 |   
-| Mcpe Ready | 0x84 | 132 |   
 | Mcpe Message | 0x85 | 133 |   
 | Mcpe Set Time | 0x86 | 134 |   
 | Mcpe Start Game | 0x87 | 135 |   
@@ -40,7 +39,6 @@
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
 | Mcpe Full Chunk Data | 0xba | 186 |   
-| Ack | 0xc0 | 192 |   
 
 
 ##Constants
@@ -98,27 +96,17 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |SendPingTime | long |  |
 |SendPongTime | long |  |
 -----------------------------------------------------------------------
-###Package: Ack (0xc0)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Count | short |  |
-|Only One Sequence | byte |  |
-|Sequence Number | little |  |
------------------------------------------------------------------------
 ###Package: Unconnected Pong (0x1c)
 
 **Sent from server:** false
 **Sent from client:** true
 **Packet size:** 
+
+<pdu id="0xc0" online="false" client="true" server="true" name="ACK">
+<field name="Count" type="short" />
+<field name="Only One Sequence" type="byte" />
+<field name="Sequence Number" type="little" />
+</pdu>
 
 <pdu id="0xa0" online="false" client="true" server="true" name="NAK">
 <field name="Count" type="short" />
@@ -303,19 +291,6 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Status | int |  |
------------------------------------------------------------------------
-###Package: Mcpe Ready (0x84)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Time (0x86)
 

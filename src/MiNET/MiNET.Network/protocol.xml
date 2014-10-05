@@ -117,9 +117,6 @@
 		<field name="Status" type="int" />
 	</pdu>
 
-	<pdu id="0x84" online="false" client="true" server="false" name="ID_MCPE_READY">
-	</pdu>
-
 	<pdu id="0x86" online="false" client="false" server="true" name="ID_MCPE_SET_TIME">
 		<field name="Time" type="int" />
 		<field name="Started" type="byte" />

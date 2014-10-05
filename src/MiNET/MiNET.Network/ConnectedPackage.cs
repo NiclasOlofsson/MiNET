@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+// friendly name
+
 namespace MiNET.Network
 {
 	public class ConnectedPackage : Package
@@ -23,6 +25,7 @@ namespace MiNET.Network
 
 		public int MessageLength { get; set; }
 		public List<Package> Messages { get; set; }
+		public byte[] Buffer { get; set; }
 
 		public ConnectedPackage()
 		{
@@ -33,15 +36,28 @@ namespace MiNET.Network
 		{
 			_buffer.Position = 0;
 
-			byte[] encodedMessage = Messages.First().Encode();
+			byte[] encodedMessage = Buffer;
+			if (Buffer == null)
+			{
+				encodedMessage = Messages.First().Encode();
+			}
+
 			MessageLength = encodedMessage.Length;
 
-			if (_header == null) _header = new DatagramHeader(0x84);
-			Write((byte) 0x84);
+			if (_header == null) _header = new DatagramHeader(0x8c);
+			if (_splitPacketCount > 1 && _splitPacketIndex > 0)
+			{
+				Write((byte) 0x8c);
+			}
+			else
+			{
+				Write((byte)0x84);
+			}
+
 			Write(_sequenceNumber);
 
 			byte rely = (byte) _reliability;
-			Write((byte) ((rely << 5) ^ (_hasSplit ? Convert.ToByte("0001", 2) : 0x00)));
+			Write((byte)((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
 			Write((short) (MessageLength*8)); // length
 
 			if (_reliability == Reliability.RELIABLE
@@ -145,17 +161,6 @@ namespace MiNET.Network
 				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 			}
 		}
-	}
-
-	public class UnknownPackage : Package
-	{
-		public UnknownPackage(byte id, byte[] message)
-		{
-			Message = message;
-			Id = id;
-		}
-
-		public byte[] Message { get; private set; }
 	}
 
 	public enum Reliability

@@ -2,6 +2,51 @@
 
 namespace MiNET.Network
 {
+	public partial class Ack : Package
+	{
+		public short count; // = null;
+		public byte onlyOneSequence; // = null;
+		public Int24 sequenceNumber; // = null;
+
+		public Ack()
+		{
+			Id = 0xc0;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(count);
+			Write(onlyOneSequence);
+			Write(sequenceNumber);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			count = ReadShort();
+			onlyOneSequence = ReadByte();
+			sequenceNumber = ReadLittle();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	//public partial class Ack : Package
 	//{
 	//	public List<int> nakSequencePackets = new List<int>();

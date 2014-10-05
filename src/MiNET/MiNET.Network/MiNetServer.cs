@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Timers;
 using Craft.Net.TerrainGeneration;
 
 namespace MiNET.Network
@@ -56,7 +58,7 @@ namespace MiNET.Network
 				// We need to catch errors here to remove the code above.
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
-				//Timer sendTimer = new Timer(50);
+				//Timer sendTimer = new Timer(250);
 				//sendTimer.AutoReset = false;
 				//sendTimer.Elapsed += SendTimerElapsed;
 				//sendTimer.Start();
@@ -176,7 +178,7 @@ namespace MiNET.Network
 						};
 
 						_playerEndpoints.Remove(senderEndpoint);
-						_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level));
+						_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
 
 						var data = packet.Encode();
 						TraceSend(packet, data);
@@ -215,9 +217,9 @@ namespace MiNET.Network
 				else if (header.isNAK && header.isValid)
 				{
 					Debug.WriteLine("!!!!!! NAK !!!!!!!!");
-					//Nak nak = new Nak();
-					//nak.Decode(receiveBytes);
-					//Debug.WriteLine("NAK #{0} {1}", nak.nakSequencePackets.FirstOrDefault(), ByteArrayToString(receiveBytes));
+					Nak nak = new Nak();
+					nak.Decode(receiveBytes);
+					Debug.WriteLine("NAK #{0} {1}", nak.sequenceNumber.IntValue(), ByteArrayToString(receiveBytes));
 				}
 				else if (!header.isValid)
 				{
@@ -254,22 +256,78 @@ namespace MiNET.Network
 			}
 		}
 
-		public void SendPackage(IPEndPoint senderEndpoint, Package message, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		public int SendPackage(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
-			ConnectedPackage package = new ConnectedPackage
+			return CreatePacket(senderEndpoint, message, mtuSize, sequenceNumber, reliableMessageNumber, reliability);
+
+
+			//ConnectedPackage package = new ConnectedPackage
+			//{
+			//	Messages = new List<Package>(),
+			//	_reliability = reliability,
+			//	_reliableMessageNumber = reliableMessageNumber++,
+			//	_sequenceNumber = sequenceNumber++
+			//};
+			//package.Messages.Add(message);
+
+			//byte[] data = package.Encode();
+
+			//TraceSend(message, data, package);
+
+			//SendThroughQueue(data, senderEndpoint);
+		}
+
+		public int CreatePacket(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability)
+		{
+			//mtuSize = 400;
+			byte[] encodedMessage = message.Encode();
+			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
+			int index = 0;
+			short splitId = (short) (sequenceNumber%65536);
+			foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
 			{
-				Messages = new List<Package>(),
-				_reliability = reliability,
-				_reliableMessageNumber = reliableMessageNumber++,
-				_sequenceNumber = sequenceNumber++
-			};
-			package.Messages.Add(message);
+				ConnectedPackage package = new ConnectedPackage
+				{
+					Buffer = bytes,
+					_reliability = reliability,
+					_reliableMessageNumber = reliableMessageNumber++,
+					_sequenceNumber = sequenceNumber++,
+					_hasSplit = count > 1,
+					_splitPacketCount = count,
+					_splitPacketId = splitId,
+					_splitPacketIndex = index++
+				};
 
-			byte[] data = package.Encode();
+				byte[] data = package.Encode();
 
-			TraceSend(message, data, package);
+				TraceSend(message, data, package);
 
-			SendThroughQueue(data, senderEndpoint);
+				SendThroughQueue(data, senderEndpoint);
+			}
+
+			return count;
+		}
+
+		public IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufforLengt)
+		{
+			int bArrayLenght = bArray.Length;
+			byte[] bReturn = null;
+
+			int i = 0;
+			for (; bArrayLenght > (i + 1)*intBufforLengt; i++)
+			{
+				bReturn = new byte[intBufforLengt];
+				Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
+				yield return bReturn;
+			}
+
+			int intBufforLeft = bArrayLenght - i*intBufforLengt;
+			if (intBufforLeft > 0)
+			{
+				bReturn = new byte[intBufforLeft];
+				Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
+				yield return bReturn;
+			}
 		}
 
 		private void SendAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -296,27 +354,29 @@ namespace MiNET.Network
 		}
 
 
-		//private void SendTimerElapsed(object sender, ElapsedEventArgs e)
-		//{
-		//	lock (sendQueue)
-		//	{
-		//		if (sendQueue.Count != 0)
-		//		{
-		//			Tuple<IPEndPoint, byte[]> item = sendQueue.Dequeue();
-		//			SendDirect(_listener, item.Item2, item.Item1);
-		//		}
+		private void SendTimerElapsed(object sender, ElapsedEventArgs e)
+		{
+			lock (sendQueue)
+			{
+				if (sendQueue.Count != 0)
+				{
+					Tuple<IPEndPoint, byte[]> item = sendQueue.Dequeue();
+					SendDirect(item.Item2, item.Item1);
+				}
 
-		//		Timer sendTimer = new Timer(10);
-		//		sendTimer.AutoReset = false;
-		//		sendTimer.Elapsed += SendTimerElapsed;
-		//		sendTimer.Start();
-		//	}
-		//}
+				System.Timers.Timer sendTimer = new System.Timers.Timer(10);
+				sendTimer.AutoReset = false;
+				sendTimer.Elapsed += SendTimerElapsed;
+				sendTimer.Start();
+			}
+		}
 
 		private void SendDirect(byte[] data, IPEndPoint senderEndpoint)
 		{
 			_listener.Send(data, data.Length, senderEndpoint);
-			_listener.BeginSend(data, data.Length, senderEndpoint, SendDirectDone, _listener);
+			Thread.Yield();
+//			_listener.BeginSend(data, data.Length, senderEndpoint, SendDirectDone, _listener);
+//			Thread.Yield();
 		}
 
 		private void SendDirectDone(IAsyncResult ar)
@@ -338,6 +398,7 @@ namespace MiNET.Network
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, bool isUnknown = false)
 		{
+			return;
 			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 			{
 				if (isUnknown)
@@ -354,25 +415,29 @@ namespace MiNET.Network
 
 		private static void TraceSend(Package message, byte[] data)
 		{
-			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG
+			Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes)message.Id, message.Id);
+			return;
+			if (message.Id != (decimal)DefaultMessageIdTypes.ID_CONNECTED_PONG
 				&& message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG
 				&& message.Id != 0x86
 				)
 			{
 				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
-				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
+//				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
 			}
 		}
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
-			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG
+			Debug.Print("< Send: {0:x2} {1} (0x{2:x2}) SeqNo: {3}", data[0], (DefaultMessageIdTypes)message.Id, message.Id, package._sequenceNumber.IntValue());
+			return;
+			if (message.Id != (decimal)DefaultMessageIdTypes.ID_CONNECTED_PONG
 				&& message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG
 				&& message.Id != 0x86
 				)
 			{
 				Debug.Print("< Send: {0:x2} {1} (0x{2:x2}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue());
-				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
+//				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
 			}
 		}
 	}

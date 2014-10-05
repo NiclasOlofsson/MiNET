@@ -183,8 +183,8 @@ namespace MiNET.Network
 		}
 
 
-		public ZLibStream(Stream stream, CompressionMode mode, bool leaveOpen)
-			: base(stream, mode, leaveOpen)
+		public ZLibStream(Stream stream, CompressionLevel level, bool leaveOpen)
+			: base(stream, level, leaveOpen)
 		{
 		}
 

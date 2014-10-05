@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
@@ -30,6 +31,7 @@ namespace MiNET.Network
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<string, ChunkColumn> _chunksUsed;
 		private Level _level;
+		private short _mtuSize;
 		private List<Player> _entities;
 		private int _reliableMessageNumber;
 		private int _sequenceNumber;
@@ -46,11 +48,12 @@ namespace MiNET.Network
 
 		public InventoryWindow Inventory { get; set; }
 
-		public Player(MiNetServer server, IPEndPoint endpoint, Level level)
+		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
 		{
 			_server = server;
 			_endpoint = endpoint;
 			_level = level;
+			_mtuSize = mtuSize;
 			_chunksUsed = new Dictionary<string, ChunkColumn>();
 			_entities = new List<Player>();
 			Inventory = new InventoryWindow();
@@ -266,15 +269,17 @@ namespace MiNET.Network
 				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) { Pitch = moveMessage.pitch, Yaw = moveMessage.yaw, BodyYaw = moveMessage.bodyYaw };
 				LastUpdatedTime = DateTime.Now;
 
-				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
+				SendChunksForKnownPosition();
 
-				foreach (var chunk in chunks)
-				{
-					byte[] data = chunk.GetBytes();
-
-					var response = new McpeFullChunkData { chunkData = data };
-					SendPackage(response);
-				}
+//				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
+//
+//				foreach (var chunk in chunks)
+//				{
+//					byte[] data = chunk.GetBytes();
+//
+//					var response = new McpeFullChunkData { chunkData = data };
+//					SendPackage(response);
+//				}
 
 				return;
 			}
@@ -318,7 +323,7 @@ namespace MiNET.Network
 			{
 				seed = 1406827239,
 				generator = 1,
-				gamemode = (int) GameMode.Survival,
+				gamemode = (int) GameMode.Creative,
 				entityId = GetEntityId(this),
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
@@ -341,24 +346,28 @@ namespace MiNET.Network
 
 		private void SendChunksForKnownPosition()
 		{
-			List<ChunkColumn> chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
-
-			int count = 0;
-			foreach (var chunk in chunks)
+			BackgroundWorker worker = new BackgroundWorker();
+			worker.DoWork += delegate(object sender, DoWorkEventArgs args)
 			{
-				SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
-				Thread.Yield();
-
-				if (count == 56 & !IsSpawned)
+				int count = 0;
+				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed))
 				{
-					InitializePlayer();
+					SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
+					Thread.Yield();
 
-					IsSpawned = true;
-					_level.AddPlayer(this);
+					if (count == 56 & !IsSpawned)
+					{
+						InitializePlayer();
+
+						IsSpawned = true;
+						_level.AddPlayer(this);
+					}
+
+					count++;
 				}
+			};
 
-				count++;
-			}
+			worker.RunWorkerAsync();
 		}
 
 		private void SendSetHealth()
@@ -482,6 +491,7 @@ namespace MiNET.Network
 			});
 		}
 
+		private object _sequenceNumberSync = new object();
 
 		/// <summary>
 		///     Very imporatnt litle method. This does all the sending of packages for
@@ -490,7 +500,12 @@ namespace MiNET.Network
 		/// <param name="package"></param>
 		public void SendPackage(Package package)
 		{
-			_server.SendPackage(_endpoint, package, _sequenceNumber++, _reliableMessageNumber++);
+			lock (_sequenceNumberSync)
+			{
+				int numberOfMessages = _server.SendPackage(_endpoint, package, _mtuSize, _sequenceNumber, _reliableMessageNumber);
+				_sequenceNumber += numberOfMessages;
+				_reliableMessageNumber += numberOfMessages;
+			}
 		}
 
 		private void AddEntity(Player player)

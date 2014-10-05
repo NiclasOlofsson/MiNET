@@ -25,13 +25,13 @@
 		<field name="SendPongTime" type="long" />
 	</pdu>
 
-	<pdu id="0xc0" online="false" client="true" server="true" name="ACK">
+	<!--<pdu id="0xc0" online="false" client="true" server="true" name="ACK">
 		<field name="Count" type="short" />
 		<field name="Only One Sequence" type="byte" />
 		<field name="Sequence Number" type="little" />
 	</pdu>
 
-	<!--<pdu id="0xa0" online="false" client="true" server="true" name="NAK">
+	<pdu id="0xa0" online="false" client="true" server="true" name="NAK">
 		<field name="Count" type="short" />
 		<field name="Only One Sequence" type="byte" />
 		<field name="Sequence Number" type="little" />

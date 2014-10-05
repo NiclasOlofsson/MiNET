@@ -64,7 +64,7 @@ namespace MiNET.Network
 			stream.WriteByte(0x78);
 			stream.WriteByte(0x01);
 			int checksum;
-			using (var compressStream = new ZLibStream(stream, CompressionMode.Compress, true))
+			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
 

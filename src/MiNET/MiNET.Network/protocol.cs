@@ -27,10 +27,6 @@ namespace MiNET.Network
 					package = new ConnectedPong();
 					package.Decode(buffer);
 					return package;
-				case 0xc0:
-					package = new Ack();
-					package.Decode(buffer);
-					return package;
 				case 0x1c:
 					package = new UnconnectedPong();
 					package.Decode(buffer);
@@ -279,51 +275,6 @@ namespace MiNET.Network
 
 			sendpingtime = ReadLong();
 			sendpongtime = ReadLong();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class Ack : Package
-	{
-		public short count; // = null;
-		public byte onlyOneSequence; // = null;
-		public little sequenceNumber; // = null;
-
-		public Ack()
-		{
-			Id = 0xc0;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(count);
-			Write(onlyOneSequence);
-			Write(sequenceNumber);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			count = ReadShort();
-			onlyOneSequence = ReadByte();
-			sequenceNumber = ReadLittle();
 
 			AfterDecode();
 		}

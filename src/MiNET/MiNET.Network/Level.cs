@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Timers;
 using Craft.Net.Common;
+using Craft.Net.TerrainGeneration;
 
 namespace MiNET.Network
 {
@@ -38,14 +41,28 @@ namespace MiNET.Network
 			CurrentWorldTime = 6000;
 			WorldTimeStarted = true;
 
+			var loadIt = new FlatlandGenerator();
+
 			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+//			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+			_worldProvider.Initialize();
+
+			SpawnPoint = _worldProvider.GetSpawnPoint();
 
 			if (_worldProvider.IsCaching)
 			{
-				// Pre-cache chunks for spawn coordinates
-				GenerateChunks(SpawnPoint.X, SpawnPoint.Y, new Dictionary<string, ChunkColumn>());
+//				BackgroundWorker worker = new BackgroundWorker();
+//				worker.RunWorkerCompleted += (sender, args) => Debug.WriteLine("Cache completed");
+//				worker.DoWork += delegate(object sender, DoWorkEventArgs args)
+//				{
+//					// Pre-cache chunks for spawn coordinates
+//					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Y, new Dictionary<string, ChunkColumn>()))
+//					{
+//					}
+//				};
+//				worker.RunWorkerAsync();
 			}
-			SpawnPoint = _worldProvider.GetSpawnPoint();
+
 
 			if (_levelTicker != null)
 			{
@@ -146,66 +163,78 @@ namespace MiNET.Network
 			}
 		}
 
-		public List<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
+		private object syncObject = new object();
+
+		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
 		{
-			Dictionary<string, double> newOrder = new Dictionary<string, double>();
-			double radiusSquared = _viewDistanace/Math.PI;
-			double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
-			var centerX = playerX >> 4;
-			var centerZ = playerZ >> 4;
-
-			for (double x = -radius; x <= radius; ++x)
+			lock (syncObject)
 			{
-				for (double z = -radius; z <= radius; ++z)
+				Dictionary<string, double> newOrder = new Dictionary<string, double>();
+				double radiusSquared = _viewDistanace/Math.PI;
+				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
+				var centerX = playerX >> 4;
+				var centerZ = playerZ >> 4;
+
+				for (double x = -radius; x <= radius; ++x)
 				{
-					var distance = (x*x) + (z*z);
-					if (distance > radiusSquared)
+					for (double z = -radius; z <= radius; ++z)
 					{
-						continue;
+						var distance = (x*x) + (z*z);
+						if (distance > radiusSquared)
+						{
+							continue;
+						}
+						var chunkX = x + centerX;
+						var chunkZ = z + centerZ;
+						string index = GetChunkHash(chunkX, chunkZ);
+
+						newOrder[index] = distance;
 					}
-					var chunkX = x + centerX;
-					var chunkZ = z + centerZ;
-					string index = GetChunkHash(chunkX, chunkZ);
-
-					newOrder[index] = distance;
 				}
-			}
 
-			// Should be member..
-			Dictionary<string, double> loadQueue = new Dictionary<string, double>();
+				// Should be member..
+				Dictionary<string, double> loadQueue = new Dictionary<string, double>();
 
-			var sortedKeys = newOrder.Keys.ToList();
-			sortedKeys.Sort();
-			if (newOrder.Count > _viewDistanace)
-			{
-				int count = 0;
-				loadQueue = new Dictionary<string, double>();
-				foreach (var key in sortedKeys)
+				var sortedKeys = newOrder.Keys.ToList();
+				sortedKeys.Sort();
+				if (newOrder.Count > _viewDistanace)
 				{
-					loadQueue[key] = newOrder[key];
-					if (++count > _viewDistanace) break;
+					int count = 0;
+					loadQueue = new Dictionary<string, double>();
+					foreach (var key in sortedKeys)
+					{
+						loadQueue[key] = newOrder[key];
+						if (++count > _viewDistanace) break;
+					}
+				}
+				else
+				{
+					loadQueue = newOrder;
+				}
+
+				foreach (var chunkKey in chunksUsed.Keys.ToArray())
+				{
+					if (!loadQueue.ContainsKey(chunkKey))
+					{
+						chunksUsed.Remove(chunkKey);
+					}
+				}
+
+				List<ChunkColumn> chunks = new List<ChunkColumn>();
+				foreach (var pair in loadQueue)
+				{
+					if (chunksUsed.ContainsKey(pair.Key)) continue;
+
+					int x = Int32.Parse(pair.Key.Split(new[] { ':' })[0]);
+					int z = Int32.Parse(pair.Key.Split(new[] { ':' })[1]);
+
+					//ChunkColumn chunk = CraftNetGenerateChunkForIndex(x, z);
+					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(x, z));
+					chunksUsed.Add(pair.Key, chunk);
+
+					yield return chunk;
 				}
 			}
-			else
-			{
-				loadQueue = newOrder;
-			}
-
-			List<ChunkColumn> chunks = new List<ChunkColumn>();
-			foreach (var pair in loadQueue)
-			{
-				if (chunksUsed.ContainsKey(pair.Key)) continue;
-
-				int x = Int32.Parse(pair.Key.Split(new[] { ':' })[0]);
-				int z = Int32.Parse(pair.Key.Split(new[] { ':' })[1]);
-
-				//ChunkColumn chunk = CraftNetGenerateChunkForIndex(x, z);
-				ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(x, z));
-				chunks.Add(chunk);
-				chunksUsed.Add(pair.Key, chunk);
-			}
-
-			return chunks;
 		}
 
 		private string GetChunkHash(double chunkX, double chunkZ)

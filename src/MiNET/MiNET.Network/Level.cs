@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Timers;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
+using Timer = System.Timers.Timer;
 
 namespace MiNET.Network
 {
@@ -56,7 +58,7 @@ namespace MiNET.Network
 				worker.DoWork += delegate
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Z, new Dictionary<string, ChunkColumn>(), 200))
+					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Z, new Dictionary<string, ChunkColumn>()))
 					{
 					}
 				};
@@ -69,7 +71,7 @@ namespace MiNET.Network
 				_levelTicker.Stop();
 			}
 
-			_levelTicker = new Timer(200); // MC worlds tick-time
+			_levelTicker = new Timer(50); // MC worlds tick-time
 			_levelTicker.Elapsed += LevelTickerTicked;
 			_levelTicker.Start();
 		}
@@ -121,37 +123,59 @@ namespace MiNET.Network
 		}
 
 
+		private object _tickSync = new object();
+
 		private void LevelTickerTicked(object sender, ElapsedEventArgs e)
 		{
-			// broadcast events to all players
-
-			// Movement
-			foreach (var player in Players)
+			if (!Monitor.TryEnter(_tickSync))
 			{
-				if (player.IsSpawned && (DateTime.Now.Ticks - player.LastUpdatedTime.Ticks) <= 200*TimeSpan.TicksPerMillisecond)
-				{
-					// Has been updated since last world-tick
-					BroadCastMovement(player);
-				}
+				_levelTicker.Interval += 5;
+				Debug.WriteLine("Increased tick-time to {0}", _levelTicker.Interval);
+				return;
 			}
-
-
-			// New players
-
-			// Player stuff
-			// - armor
-			// - held things
-			// - etc..
-
-			// Entity updates
-
-			// Set time
-			foreach (var player in Players)
+			else
 			{
-				if (player.IsSpawned)
+				CurrentWorldTime += 1;
+				if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
+
+				// broadcast events to all players
+
+				// Movement
+				foreach (var player in Players)
 				{
-					player.SendSetTime();
+					// Check if player has been updated since last world-tick
+					if (player.IsSpawned && (DateTime.Now.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
+					{
+						BroadCastMovement(player);
+					}
 				}
+
+
+				// New players
+
+				// Player stuff
+				// - armor
+				// - held things
+				// - etc..
+
+				// Entity updates
+
+				// Set time
+				foreach (var player in Players)
+				{
+					if (player.IsSpawned)
+					{
+						player.SendSetTime();
+					}
+				}
+
+				if (Math.Abs(_levelTicker.Interval - 50) >= 5)
+				{
+					_levelTicker.Interval -= 5;
+					Debug.WriteLine("Decreased tick-time to {0}", _levelTicker.Interval);
+				}
+
+				Monitor.Exit(_tickSync);
 			}
 		}
 
@@ -163,19 +187,12 @@ namespace MiNET.Network
 			}
 		}
 
-		private object syncObject = new object();
-
 		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
-		{
-			return GenerateChunks(playerX, playerZ, chunksUsed, _viewDistance);
-		}
-
-		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed, int viewDistance)
 		{
 			lock (chunksUsed)
 			{
 				Dictionary<string, double> newOrders = new Dictionary<string, double>();
-				double radiusSquared = viewDistance/Math.PI;
+				double radiusSquared = _viewDistance/Math.PI;
 				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
 				var centerX = playerX/16;
 				var centerZ = playerZ/16;
@@ -196,11 +213,11 @@ namespace MiNET.Network
 					}
 				}
 
-				if (newOrders.Count > viewDistance)
+				if (newOrders.Count > _viewDistance)
 				{
 					foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
 					{
-						if (newOrders.Count <= viewDistance) break;
+						if (newOrders.Count <= _viewDistance) break;
 						newOrders.Remove(pair.Key);
 					}
 				}
@@ -236,8 +253,7 @@ namespace MiNET.Network
 					yield return chunk;
 				}
 
-				if(chunksUsed.Count != 96) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
-	
+				if (chunksUsed.Count != 96) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
 			}
 		}
 

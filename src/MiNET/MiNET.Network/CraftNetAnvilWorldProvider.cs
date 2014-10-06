@@ -25,14 +25,12 @@ namespace MiNET.Network
 
 		public void Initialize()
 		{
-//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\");
-//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Mountain Sky Village\Mountain Sky Village\");
-//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world28\King's Landing");
-//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis");
-//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy");
-			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\FunLand+3_1\FunLand 3.1");
-
-			_offsetY = 0; //30
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\"); _offsetY = 0;
+			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Mountain Sky Village\Mountain Sky Village\"); _offsetY = 0;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world28\King's Landing"); _offsetY = 30;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis"); _offsetY = 0;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy"); _offsetY = 0;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\FunLand+3_1\FunLand 3.1"); _offsetY = 0;
 
 			Debug.WriteLine("Water level: " + _level.DefaultWorld);
 

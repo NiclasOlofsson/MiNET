@@ -269,21 +269,6 @@ namespace MiNET.Network
 
 				SendChunksForKnownPosition();
 
-//				var chunks = _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed);
-//
-//				foreach (var chunk in chunks)
-//				{
-//					byte[] data = chunk.GetBytes();
-//
-//					var response = new McpeFullChunkData { chunkData = data };
-//					SendPackage(response);
-//				}
-
-				return;
-			}
-
-			if (typeof (UnknownPackage) == message.GetType())
-			{
 				return;
 			}
 		}

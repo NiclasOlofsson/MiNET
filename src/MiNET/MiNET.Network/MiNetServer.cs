@@ -5,8 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Timers;
-using Craft.Net.TerrainGeneration;
 
 namespace MiNET.Network
 {
@@ -16,8 +14,6 @@ namespace MiNET.Network
 
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
-		private StandardGenerator _generator;
-		private Queue<Tuple<IPEndPoint, byte[]>> sendQueue = new Queue<Tuple<IPEndPoint, byte[]>>();
 		private Dictionary<IPEndPoint, Player> _playerEndpoints;
 		private Level _level;
 
@@ -57,11 +53,6 @@ namespace MiNET.Network
 
 				// We need to catch errors here to remove the code above.
 				_listener.BeginReceive(ReceiveCallback, _listener);
-
-				//Timer sendTimer = new Timer(250);
-				//sendTimer.AutoReset = false;
-				//sendTimer.Elapsed += SendTimerElapsed;
-				//sendTimer.Start();
 
 				Console.WriteLine("Server open for business...");
 
@@ -147,7 +138,7 @@ namespace MiNET.Network
 							serverName = "MCCPP;Demo;MiNET - Another MC server"
 						};
 						var data = packet.Encode();
-						SendThroughQueue(data, senderEndpoint);
+						SendData(data, senderEndpoint);
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
@@ -163,7 +154,7 @@ namespace MiNET.Network
 
 						var data = packet.Encode();
 						TraceSend(packet, data);
-						SendThroughQueue(data, senderEndpoint);
+						SendData(data, senderEndpoint);
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
@@ -182,7 +173,7 @@ namespace MiNET.Network
 
 						var data = packet.Encode();
 						TraceSend(packet, data);
-						SendThroughQueue(data, senderEndpoint);
+						SendData(data, senderEndpoint);
 						break;
 					}
 				}
@@ -205,21 +196,20 @@ namespace MiNET.Network
 					{
 						TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message is UnknownPackage);
 						SendAck(senderEndpoint, package._sequenceNumber);
-						DoPlayerStuff(message, senderEndpoint);
+						HandlePackage(message, senderEndpoint);
 					}
 				}
 				else if (header.isACK && header.isValid)
 				{
-//						Ack ack = new Ack();
+					//Ack ack = new Ack();
 					//ack.Decode(receiveBytes);
 					//Debug.WriteLine("ACK #{0}", ack.nakSequencePackets.FirstOrDefault());
 				}
 				else if (header.isNAK && header.isValid)
 				{
-					Debug.WriteLine("!!!!!! NAK !!!!!!!!");
 					Nak nak = new Nak();
 					nak.Decode(receiveBytes);
-					Debug.WriteLine("NAK #{0} {1}", nak.sequenceNumber.IntValue(), ByteArrayToString(receiveBytes));
+					Debug.WriteLine("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
 				}
 				else if (!header.isValid)
 				{
@@ -238,7 +228,7 @@ namespace MiNET.Network
 			}
 		}
 
-		private void DoPlayerStuff(Package message, IPEndPoint senderEndpoint)
+		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
 			if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -257,27 +247,6 @@ namespace MiNET.Network
 		}
 
 		public int SendPackage(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
-		{
-			return CreatePacket(senderEndpoint, message, mtuSize, sequenceNumber, reliableMessageNumber, reliability);
-
-
-			//ConnectedPackage package = new ConnectedPackage
-			//{
-			//	Messages = new List<Package>(),
-			//	_reliability = reliability,
-			//	_reliableMessageNumber = reliableMessageNumber++,
-			//	_sequenceNumber = sequenceNumber++
-			//};
-			//package.Messages.Add(message);
-
-			//byte[] data = package.Encode();
-
-			//TraceSend(message, data, package);
-
-			//SendThroughQueue(data, senderEndpoint);
-		}
-
-		public int CreatePacket(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability)
 		{
 			//mtuSize = 400;
 			byte[] encodedMessage = message.Encode();
@@ -302,7 +271,7 @@ namespace MiNET.Network
 
 				TraceSend(message, data, package);
 
-				SendThroughQueue(data, senderEndpoint);
+				SendData(data, senderEndpoint);
 			}
 
 			return count;
@@ -341,50 +310,14 @@ namespace MiNET.Network
 
 			var data = ack.Encode();
 
-			SendThroughQueue(data, senderEndpoint);
+			SendData(data, senderEndpoint);
 		}
 
-		private void SendThroughQueue(byte[] data, IPEndPoint senderEndpoint)
-		{
-			SendDirect(data, senderEndpoint);
-			//lock (sendQueue)
-			//{
-			//	sendQueue.Enqueue(new Tuple<IPEndPoint, byte[]>(senderEndpoint, data));
-			//}
-		}
-
-
-		private void SendTimerElapsed(object sender, ElapsedEventArgs e)
-		{
-			lock (sendQueue)
-			{
-				if (sendQueue.Count != 0)
-				{
-					Tuple<IPEndPoint, byte[]> item = sendQueue.Dequeue();
-					SendDirect(item.Item2, item.Item1);
-				}
-
-				System.Timers.Timer sendTimer = new System.Timers.Timer(10);
-				sendTimer.AutoReset = false;
-				sendTimer.Elapsed += SendTimerElapsed;
-				sendTimer.Start();
-			}
-		}
-
-		private void SendDirect(byte[] data, IPEndPoint senderEndpoint)
+		private void SendData(byte[] data, IPEndPoint senderEndpoint)
 		{
 			_listener.Send(data, data.Length, senderEndpoint);
 			Thread.Yield();
-//			_listener.BeginSend(data, data.Length, senderEndpoint, SendDirectDone, _listener);
-//			Thread.Yield();
 		}
-
-		private void SendDirectDone(IAsyncResult ar)
-		{
-			UdpClient listener = (UdpClient) ar.AsyncState;
-			listener.EndSend(ar);
-		}
-
 
 		public static string ByteArrayToString(byte[] ba)
 		{
@@ -398,46 +331,30 @@ namespace MiNET.Network
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, bool isUnknown = false)
 		{
-			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
-			{
-				if (isUnknown)
-				{
-					Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
-				}
-				else
-				{
-//					Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
-				}
-//				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(receiveBytes), length);
-			}
+			Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
+//			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+//			{
+//				if (isUnknown)
+//				{
+//				}
+//				else
+//				{
+////					Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
+//				}
+////				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(receiveBytes), length);
+//			}
 		}
 
 		private static void TraceSend(Package message, byte[] data)
 		{
-			Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes)message.Id, message.Id);
-			return;
-			if (message.Id != (decimal)DefaultMessageIdTypes.ID_CONNECTED_PONG
-				&& message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG
-				&& message.Id != 0x86
-				)
-			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
-//				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
-			}
+			Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
+			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
 		}
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
-			Debug.Print("< Send: {0:x2} {1} (0x{2:x2}) SeqNo: {3}", data[0], (DefaultMessageIdTypes)message.Id, message.Id, package._sequenceNumber.IntValue());
-			return;
-			if (message.Id != (decimal)DefaultMessageIdTypes.ID_CONNECTED_PONG
-				&& message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG
-				&& message.Id != 0x86
-				)
-			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue());
-//				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
-			}
+			Debug.Print("< Send: {0:x2} {1} (0x{2:x2}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue());
+			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
 		}
 	}
 }

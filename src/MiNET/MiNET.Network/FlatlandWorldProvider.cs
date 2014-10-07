@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Craft.Net.Common;
 
 namespace MiNET.Network
@@ -21,11 +20,11 @@ namespace MiNET.Network
 
 		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
 		{
-			var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
-			if (firstOrDefault != null)
-			{
-				return firstOrDefault;
-			}
+			//var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+			//if (firstOrDefault != null)
+			//{
+			//	return firstOrDefault;
+			//}
 
 			FlatlandWorldProvider generator = new FlatlandWorldProvider();
 			ChunkColumn chunk = new ChunkColumn();
@@ -33,7 +32,7 @@ namespace MiNET.Network
 			chunk.z = chunkCoordinates.Z;
 			generator.PopulateChunk(chunk);
 
-			_chunkCache.Add(chunk);
+			//_chunkCache.Add(chunk);
 
 			return chunk;
 		}
@@ -83,9 +82,15 @@ namespace MiNET.Network
 						break;
 				}
 				stones[i + 3] = 2; // Grass
+				//int rand = random.Next(0, 10);
+				//for (int j = 0; j < rand; j++)
+				//{
+				//	stones[i + 3 + j] = 41; // Gold
+				//}
 			}
 
 			chunk.blocks = stones;
+			chunk.biomeColor = ArrayOf<int>.Create(256, random.Next(6761930, 8761930));
 		}
 	}
 }

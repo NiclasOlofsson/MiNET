@@ -30,7 +30,7 @@ namespace MiNET.Network
 
 		public byte GetBlock(int x, int y, int z)
 		{
-			return 0;
+			return blocks[(x*2048) + (z*128) + y];
 		}
 
 		public void SetBlock(int x, int y, int z, byte bid)

@@ -11,6 +11,34 @@ using Timer = System.Timers.Timer;
 
 namespace MiNET.Network
 {
+	public enum GameMode
+	{
+		/// <summary>
+		///     Players fight against the enviornment, mobs, and players
+		///     with limited resources.
+		/// </summary>
+		Survival = 0,
+
+		/// <summary>
+		///     Players are given unlimited resources, flying, and
+		///     invulnerability.
+		/// </summary>
+		Creative = 1,
+
+		/// <summary>
+		///     Similar to survival, with the exception that players may
+		///     not place or remove blocks.
+		/// </summary>
+		Adventure = 2,
+
+		/// <summary>
+		///     Similar to creative, with the exception that players may
+		///     not place or remove blocks.
+		/// </summary>
+		Spectator = 3
+	}
+
+
 	public class Level
 	{
 		private IWorldProvider _worldProvider;
@@ -25,7 +53,7 @@ namespace MiNET.Network
 		//const CREATIVE = 1;
 		//const ADVENTURE = 2;
 		//const SPECTATOR = 3;
-		public int GameMode { get; private set; }
+		public GameMode GameMode { get; private set; }
 		public int CurrentWorldTime { get; private set; }
 		public bool WorldTimeStarted { get; private set; }
 
@@ -34,7 +62,7 @@ namespace MiNET.Network
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			LevelId = levelId;
-			GameMode = 1; // Creative for now
+			GameMode = GameMode.Creative;
 			_worldProvider = worldProvider;
 		}
 
@@ -45,8 +73,8 @@ namespace MiNET.Network
 
 			var loadIt = new FlatlandGenerator();
 
-//			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+//			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();
@@ -79,13 +107,13 @@ namespace MiNET.Network
 		public void AddPlayer(Player player)
 		{
 			Players.Add(player);
-			foreach (var targetPlayer in Players)
+			foreach (var targetPlayer in Players.ToArray())
 			{
 				if (targetPlayer.IsSpawned)
 					targetPlayer.SendAddForPlayer(player);
 			}
 
-			foreach (var targetPlayer in Players)
+			foreach (var targetPlayer in Players.ToArray())
 			{
 				// Add all existing users to new player
 				if (targetPlayer.IsSpawned)
@@ -98,7 +126,7 @@ namespace MiNET.Network
 		public void RemovePlayer(Player player)
 		{
 			Players.Remove(player);
-			foreach (var targetPlayer in Players)
+			foreach (var targetPlayer in Players.ToArray())
 			{
 				if (targetPlayer.IsSpawned)
 					targetPlayer.SendRemovePlayer(player);
@@ -115,7 +143,7 @@ namespace MiNET.Network
 				message = (isSystemMessage ? "MiNET says - " : "") + text
 			};
 
-			foreach (var player in Players)
+			foreach (var player in Players.ToArray())
 			{
 				// Should probaby encode first...
 				player.SendPackage((Package) response.Clone());
@@ -135,53 +163,97 @@ namespace MiNET.Network
 			}
 			else
 			{
-				CurrentWorldTime += 1;
-				if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
-
-				// broadcast events to all players
-
-				// Movement
-				foreach (var player in Players)
+				try
 				{
-					// Check if player has been updated since last world-tick
-					if (player.IsSpawned && (DateTime.Now.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
+					CurrentWorldTime += 1;
+					if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
+
+					// broadcast events to all players
+
+					// Movement
+					foreach (var player in Players.ToArray())
 					{
-						BroadCastMovement(player);
+						// Check if player has been updated since last world-tick
+						if (player.IsSpawned && (DateTime.Now.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
+						{
+							BroadCastMovement(player);
+						}
+					}
+
+
+					// New players
+
+					// Player stuff
+					// - armor
+					// - held things
+					// - etc..
+
+					// Entity updates
+
+					// Set time
+					if (CurrentWorldTime%20 == 0)
+					{
+						foreach (var player in Players.ToArray())
+						{
+							if (player.IsSpawned)
+							{
+								player.SendSetTime();
+							}
+						}
+					}
+
+
+//					if (CurrentWorldTime%2 == 0)
+//					{
+//						foreach (var player in Players.ToArray())
+//						{
+//							if (player.IsSpawned)
+//							{
+//								int centerX = (int) player.KnownPosition.X/16;
+//								int centerZ = (int) player.KnownPosition.Z/16;
+
+//								ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(centerX, centerZ));
+//								player.SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
+////								player.SendChunksForKnownPosition(true);
+//							}
+//						}
+//					}
+
+//					if (CurrentWorldTime%1 == 0)
+//					{
+//						foreach (var player in Players.ToArray())
+//						{
+//							if (player.IsSpawned)
+//							{
+//								player.SendPackage(new McpeUpdateBlock
+//								{
+//									x = (int) player.KnownPosition.X,
+//									y = (byte) 127,
+//									z = (int) player.KnownPosition.Z,
+//									block = 7,
+//									meta = 0
+//								});
+//							}
+//						}
+//					}
+
+
+					if (Math.Abs(_levelTicker.Interval - 50) >= 5)
+					{
+						_levelTicker.Interval -= 5;
+						Debug.WriteLine("Decreased tick-time to {0}", _levelTicker.Interval);
 					}
 				}
-
-
-				// New players
-
-				// Player stuff
-				// - armor
-				// - held things
-				// - etc..
-
-				// Entity updates
-
-				// Set time
-				foreach (var player in Players)
+				finally
 				{
-					if (player.IsSpawned)
-					{
-						player.SendSetTime();
-					}
+					Monitor.Exit(_tickSync);
 				}
-
-				if (Math.Abs(_levelTicker.Interval - 50) >= 5)
-				{
-					_levelTicker.Interval -= 5;
-					Debug.WriteLine("Decreased tick-time to {0}", _levelTicker.Interval);
-				}
-
-				Monitor.Exit(_tickSync);
 			}
 		}
 
 		private void BroadCastMovement(Player player)
 		{
-			foreach (var targetPlayer in Players)
+			foreach (var targetPlayer in Players.ToArray())
 			{
 				targetPlayer.SendMovementForPlayer(player);
 			}
@@ -263,18 +335,22 @@ namespace MiNET.Network
 		}
 
 
-		public void RelayBroadcast(Package message)
+		public void RelayBroadcast(Player source, Package message)
 		{
-			foreach (var player in Players)
+			foreach (var player in Players.ToArray())
 			{
+				if (player == source) continue;
+
 				player.SendPackage((Package) message.Clone());
 			}
 		}
 
 		public void RelayBroadcast(Player source, McpeAnimate message)
 		{
-			foreach (var player in Players)
+			foreach (var player in Players.ToArray())
 			{
+				if (player == source) continue;
+
 				var send = message.Clone<McpeAnimate>();
 				send.entityId = player.GetEntityId(source);
 				player.SendPackage(send);
@@ -283,8 +359,10 @@ namespace MiNET.Network
 
 		public void RelayBroadcast(Player source, McpePlayerArmorEquipment message)
 		{
-			foreach (var player in Players)
+			foreach (var player in Players.ToArray())
 			{
+				if (player == source) continue;
+
 				var send = message.Clone<McpePlayerArmorEquipment>();
 				send.entityId = player.GetEntityId(source);
 				player.SendPackage(send);
@@ -293,12 +371,26 @@ namespace MiNET.Network
 
 		public void RelayBroadcast(Player source, McpePlayerEquipment message)
 		{
-			foreach (var player in Players)
+			foreach (var player in Players.ToArray())
 			{
+				if (player == source) continue;
+
 				var send = message.Clone<McpePlayerEquipment>();
 				send.entityId = player.GetEntityId(source);
 				player.SendPackage(send);
 			}
+		}
+
+		public int GetBlockId(Coordinates3D blockCoordinates)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			return chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+		}
+
+		public void SetBlockId(Coordinates3D blockCoordinates, byte bid)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			chunk.SetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f, bid);
 		}
 	}
 }

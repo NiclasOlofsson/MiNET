@@ -77,5 +77,10 @@ namespace MiNET.Network
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 			return spawnPoint;
 		}
+
+		public int GetBlockId(Coordinates3D blockCoordinates)
+		{
+			return 0;
+		}
 	}
 }

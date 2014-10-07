@@ -152,7 +152,9 @@ namespace MiNET.Network
 
 			if (typeof (McpeUpdateBlock) == message.GetType())
 			{
-				_level.RelayBroadcast(message);
+				var msg = (McpeUpdateBlock) message;
+				_level.RelayBroadcast(this, msg);
+				_level.SetBlockId(new Coordinates3D(msg.x, msg.y, msg.z), msg.block);
 			}
 
 			if (typeof (McpeAnimate) == message.GetType())
@@ -165,22 +167,32 @@ namespace MiNET.Network
 				var msg = (McpeUseItem) message;
 				if (msg.face <= 5)
 				{
-					_level.RelayBroadcast(this, new McpeAnimate()
-					{
-						actionId = 1,
-						entityId = 0
-					});
+					//_level.RelayBroadcast(this, new McpeAnimate()
+					//{
+					//	actionId = 1,
+					//	entityId = 0
+					//});
 
-					var newBlockCoordinates = GetNewCoordinatesFromFace(new Coordinates3D(msg.x, msg.y, msg.z), (BlockFace) msg.face);
+					//	Debug.WriteLine("Use item: {0}", msg.item);
+					//	if (msg.item > 255) return; // Not a block
 
-					_level.RelayBroadcast(new McpeUpdateBlock
-					{
-						x = newBlockCoordinates.X,
-						y = (byte) newBlockCoordinates.Y,
-						z = newBlockCoordinates.Z,
-						block = (byte) msg.item,
-						meta = (byte) msg.meta
-					});
+					//	int targetBlockId = _level.GetBlockId(new Coordinates3D(msg.x, msg.y, msg.z));
+					//	if (targetBlockId == 64) return; // Door block
+
+					//	var newBlockCoordinates = GetNewCoordinatesFromFace(new Coordinates3D(msg.x, msg.y, msg.z), (BlockFace) msg.face);
+
+					//	_level.RelayBroadcast(new McpeUpdateBlock
+					//	{
+					//		x = newBlockCoordinates.X,
+					//		y = (byte) newBlockCoordinates.Y,
+					//		z = newBlockCoordinates.Z,
+					//		block = (byte) msg.item,
+					//		meta = (byte) msg.meta
+					//	});
+
+					//	_level.SetBlockId(new Coordinates3D(newBlockCoordinates.X, newBlockCoordinates.Y, newBlockCoordinates.Z), (byte) msg.item);
+					//	int nid = _level.GetBlockId(new Coordinates3D(newBlockCoordinates.X, newBlockCoordinates.Y, newBlockCoordinates.Z));
+					//	if (nid != msg.item) Debug.WriteLine("Not set");
 				}
 			}
 
@@ -306,7 +318,7 @@ namespace MiNET.Network
 			{
 				seed = 1406827239,
 				generator = 1,
-				gamemode = (int) GameMode.Creative,
+				gamemode = (int) _level.GameMode,
 				entityId = GetEntityId(this),
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
@@ -327,14 +339,12 @@ namespace MiNET.Network
 			});
 		}
 
-		private void SendChunksForKnownPosition()
+		public void SendChunksForKnownPosition(bool force = false)
 		{
-//			if (_worker != null && _worker.IsBusy) _worker.CancelAsync(); // Cancel what we are running ...
+			int centerX = (int) KnownPosition.X/16;
+			int centerZ = (int) KnownPosition.Z/16;
 
-			int centerX = (int) ((int) KnownPosition.X/16);
-			int centerZ = (int) ((int) KnownPosition.Z/16);
-
-			if (IsSpawned && _currentChunkPosition == new Coordinates2D(centerX, centerZ)) return;
+			if (!force && IsSpawned && _currentChunkPosition == new Coordinates2D(centerX, centerZ)) return;
 
 			_currentChunkPosition.X = centerX;
 			_currentChunkPosition.Z = centerZ;
@@ -345,7 +355,7 @@ namespace MiNET.Network
 			{
 				BackgroundWorker worker = sender as BackgroundWorker;
 				int count = 0;
-				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, _chunksUsed))
+				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force? new Dictionary<string, ChunkColumn>() : _chunksUsed))
 				{
 					if (worker.CancellationPending)
 					{

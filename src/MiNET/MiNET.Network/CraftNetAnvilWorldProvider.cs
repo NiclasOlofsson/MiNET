@@ -30,7 +30,7 @@ namespace MiNET.Network
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world28\King's Landing"); _offsetY = 30;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy"); _offsetY = 0;
-			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\FunLand+3_1\FunLand 3.1"); _offsetY = 0;
+//			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\FunLand+3_1\FunLand 3.1"); _offsetY = 0;
 
 			Debug.WriteLine("Water level: " + _level.DefaultWorld);
 
@@ -215,6 +215,11 @@ namespace MiNET.Network
 			Vector3 spawnPoint = _level.Spawn;
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 			return spawnPoint;
+		}
+
+		public int GetBlockId(Coordinates3D blockCoordinates)
+		{
+			return 0;
 		}
 	}
 }

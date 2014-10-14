@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Linq;
 using Craft.Net.Common;
+using MiNET.Network.Utils;
 
-namespace MiNET.Network
+namespace MiNET.Network.Worlds
 {
 	public class FlatlandWorldProvider : IWorldProvider
 	{
@@ -20,11 +22,11 @@ namespace MiNET.Network
 
 		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
 		{
-			//var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
-			//if (firstOrDefault != null)
-			//{
-			//	return firstOrDefault;
-			//}
+			var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+			if (firstOrDefault != null)
+			{
+				return firstOrDefault;
+			}
 
 			FlatlandWorldProvider generator = new FlatlandWorldProvider();
 			ChunkColumn chunk = new ChunkColumn();
@@ -32,7 +34,13 @@ namespace MiNET.Network
 			chunk.z = chunkCoordinates.Z;
 			generator.PopulateChunk(chunk);
 
-			//_chunkCache.Add(chunk);
+			chunk.SetBlock(0, 5, 0, 7);
+			chunk.SetBlock(1, 5, 0, 41);
+			chunk.SetBlock(2, 5, 0, 41);
+			chunk.SetBlock(3, 5, 0, 41);
+			chunk.SetBlock(3, 5, 0, 41);
+
+			_chunkCache.Add(chunk);
 
 			return chunk;
 		}
@@ -90,7 +98,7 @@ namespace MiNET.Network
 			}
 
 			chunk.blocks = stones;
-			chunk.biomeColor = ArrayOf<int>.Create(256, random.Next(6761930, 8761930));
+			//chunk.biomeColor = ArrayOf<int>.Create(256, random.Next(6761930, 8761930));
 		}
 	}
 }

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
 using Craft.Net.Logic.Windows;
+using MiNET.Network.Utils;
+using MiNET.Network.Worlds;
 
 namespace MiNET.Network
 {
@@ -20,13 +23,6 @@ namespace MiNET.Network
 
 	public class Player
 	{
-		private static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
-		private static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
-		private static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
-		private static readonly Coordinates3D West = new Coordinates3D(0, 0, 1);
-		private static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
-		private static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
-
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<string, ChunkColumn> _chunksUsed;
@@ -142,7 +138,11 @@ namespace MiNET.Network
 
 			if (typeof (McpePlayerEquipment) == message.GetType())
 			{
-				_level.RelayBroadcast(this, (McpePlayerEquipment) message);
+				var msg = (McpePlayerEquipment) message;
+				ItemInHand.Value.Id = msg.item;
+				ItemInHand.Value.Metadata = msg.meta;
+
+				_level.RelayBroadcast(this, msg);
 			}
 
 			if (typeof (McpePlayerArmorEquipment) == message.GetType())
@@ -152,9 +152,13 @@ namespace MiNET.Network
 
 			if (typeof (McpeUpdateBlock) == message.GetType())
 			{
-				var msg = (McpeUpdateBlock) message;
-				_level.RelayBroadcast(this, msg);
-				_level.SetBlockId(new Coordinates3D(msg.x, msg.y, msg.z), msg.block);
+				// Don't use
+			}
+
+			if (typeof (McpeRemoveBlock) == message.GetType())
+			{
+				var msg = (McpeRemoveBlock) message;
+				_level.BreakBlock(_level, this, new Coordinates3D(msg.x, msg.y, msg.z));
 			}
 
 			if (typeof (McpeAnimate) == message.GetType())
@@ -164,36 +168,7 @@ namespace MiNET.Network
 
 			if (typeof (McpeUseItem) == message.GetType())
 			{
-				var msg = (McpeUseItem) message;
-				if (msg.face <= 5)
-				{
-					//_level.RelayBroadcast(this, new McpeAnimate()
-					//{
-					//	actionId = 1,
-					//	entityId = 0
-					//});
-
-					//	Debug.WriteLine("Use item: {0}", msg.item);
-					//	if (msg.item > 255) return; // Not a block
-
-					//	int targetBlockId = _level.GetBlockId(new Coordinates3D(msg.x, msg.y, msg.z));
-					//	if (targetBlockId == 64) return; // Door block
-
-					//	var newBlockCoordinates = GetNewCoordinatesFromFace(new Coordinates3D(msg.x, msg.y, msg.z), (BlockFace) msg.face);
-
-					//	_level.RelayBroadcast(new McpeUpdateBlock
-					//	{
-					//		x = newBlockCoordinates.X,
-					//		y = (byte) newBlockCoordinates.Y,
-					//		z = newBlockCoordinates.Z,
-					//		block = (byte) msg.item,
-					//		meta = (byte) msg.meta
-					//	});
-
-					//	_level.SetBlockId(new Coordinates3D(newBlockCoordinates.X, newBlockCoordinates.Y, newBlockCoordinates.Z), (byte) msg.item);
-					//	int nid = _level.GetBlockId(new Coordinates3D(newBlockCoordinates.X, newBlockCoordinates.Y, newBlockCoordinates.Z));
-					//	if (nid != msg.item) Debug.WriteLine("Not set");
-				}
+				HandleUseItem((McpeUseItem) message);
 			}
 
 			if (typeof (ConnectedPing) == message.GetType())
@@ -259,7 +234,7 @@ namespace MiNET.Network
 			{
 				var msg = (McpeLogin) message;
 				Username = msg.username;
-				SendPackage(new McpeLoginStatus { status = 0 });
+				SendPackage(new McpeLoginStatus {status = 0});
 
 				// Start game
 				SendStartGame();
@@ -276,7 +251,7 @@ namespace MiNET.Network
 			{
 				var moveMessage = (McpeMovePlayer) message;
 
-				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) { Pitch = moveMessage.pitch, Yaw = moveMessage.yaw, BodyYaw = moveMessage.bodyYaw };
+				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) {Pitch = moveMessage.pitch, Yaw = moveMessage.yaw, BodyYaw = moveMessage.bodyYaw};
 				LastUpdatedTime = DateTime.Now;
 
 				SendChunksForKnownPosition();
@@ -285,31 +260,45 @@ namespace MiNET.Network
 			}
 		}
 
-		private Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
+		private void HandleUseItem(McpeUseItem message)
 		{
-			switch (face)
+			if (message.face <= 5)
 			{
-				case BlockFace.NegativeY:
-					return target + Down;
-					break;
-				case BlockFace.PositiveY:
-					return target + Up;
-					break;
-				case BlockFace.NegativeZ:
-					return target + East;
-					break;
-				case BlockFace.PositiveZ:
-					return target + West;
-					break;
-				case BlockFace.NegativeX:
-					return target + South;
-					break;
-				case BlockFace.PositiveX:
-					return target + North;
-					break;
-				default:
-					return target;
+				_level.RelayBroadcast(this, new McpeAnimate()
+				{
+					actionId = 1,
+					entityId = 0
+				});
+
+				Debug.WriteLine("Use item: {0}", message.item);
+				_level.Interact(_level, this, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
 			}
+			else
+			{
+				Debug.WriteLine("No face - Use item: {0}", message.item);
+			}
+		}
+
+		public byte GetDirection()
+		{
+			return DirectionByRotationFlat(KnownPosition.Yaw);
+		}
+
+		public static byte DirectionByRotationFlat(float yaw)
+		{
+			byte direction = (byte) ((int) Math.Floor((yaw*4F)/360F + 0.5D) & 0x03);
+			switch (direction)
+			{
+				case 0:
+					return 1; // West
+				case 1:
+					return 2; // North
+				case 2:
+					return 3; // East
+				case 3:
+					return 0; // South 
+			}
+			return 0;
 		}
 
 		private void SendStartGame()
@@ -355,14 +344,14 @@ namespace MiNET.Network
 			{
 				BackgroundWorker worker = sender as BackgroundWorker;
 				int count = 0;
-				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force? new Dictionary<string, ChunkColumn>() : _chunksUsed))
+				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<string, ChunkColumn>() : _chunksUsed))
 				{
 					if (worker.CancellationPending)
 					{
 						args.Cancel = true;
 						break;
 					}
-					SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
+					SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
 					Thread.Yield();
 
 					if (count == 56 & !IsSpawned)
@@ -382,13 +371,13 @@ namespace MiNET.Network
 
 		private void SendSetHealth()
 		{
-			SendPackage(new McpeSetHealth { health = 20 });
+			SendPackage(new McpeSetHealth {health = 20});
 		}
 
 		public void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
-			SendPackage(new McpeSetTime { time = _level.CurrentWorldTime, started = (byte) (_level.WorldTimeStarted ? 0x80 : 0x00) });
+			SendPackage(new McpeSetTime {time = _level.CurrentWorldTime, started = (byte) (_level.WorldTimeStarted ? 0x80 : 0x00)});
 		}
 
 		private void InitializePlayer()
@@ -409,7 +398,7 @@ namespace MiNET.Network
 				teleport = 0x80
 			});
 
-			SendPackage(new McpeAdventureSettings { flags = 0x20 });
+			SendPackage(new McpeAdventureSettings {flags = 0x20});
 
 			SendPackage(new McpeContainerSetContent
 			{

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 
 // friendly name
+using MiNET.Network.Utils;
 
 namespace MiNET.Network
 {
@@ -51,29 +52,29 @@ namespace MiNET.Network
 			}
 			else
 			{
-				Write((byte)0x84);
+				Write((byte) 0x84);
 			}
 
 			Write(_sequenceNumber);
 
 			byte rely = (byte) _reliability;
-			Write((byte)((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
+			Write((byte) ((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
 			Write((short) (MessageLength*8)); // length
 
 			if (_reliability == Reliability.RELIABLE
-				|| _reliability == Reliability.RELIABLE_ORDERED
-				|| _reliability == Reliability.RELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_WITH_ACK_RECEIPT
-				|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+			    || _reliability == Reliability.RELIABLE_ORDERED
+			    || _reliability == Reliability.RELIABLE_SEQUENCED
+			    || _reliability == Reliability.RELIABLE_WITH_ACK_RECEIPT
+			    || _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
 				)
 			{
 				Write(_reliableMessageNumber);
 			}
 
 			if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_ORDERED
-				|| _reliability == Reliability.RELIABLE_SEQUENCED
-				|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+			    || _reliability == Reliability.RELIABLE_ORDERED
+			    || _reliability == Reliability.RELIABLE_SEQUENCED
+			    || _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
 				)
 			{
 				Write(_orderingIndex);
@@ -110,8 +111,8 @@ namespace MiNET.Network
 				short dataBitLength = ReadShort();
 
 				if (_reliability == Reliability.RELIABLE
-					|| _reliability == Reliability.RELIABLE_SEQUENCED
-					|| _reliability == Reliability.RELIABLE_ORDERED
+				    || _reliability == Reliability.RELIABLE_SEQUENCED
+				    || _reliability == Reliability.RELIABLE_ORDERED
 					)
 				{
 					_reliableMessageNumber = ReadLittle();
@@ -122,16 +123,16 @@ namespace MiNET.Network
 				}
 
 				if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-					|| _reliability == Reliability.RELIABLE_SEQUENCED
+				    || _reliability == Reliability.RELIABLE_SEQUENCED
 					)
 				{
 					_sequencingIndex = ReadLittle();
 				}
 
 				if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-					|| _reliability == Reliability.RELIABLE_SEQUENCED
-					|| _reliability == Reliability.RELIABLE_ORDERED
-					|| _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+				    || _reliability == Reliability.RELIABLE_SEQUENCED
+				    || _reliability == Reliability.RELIABLE_ORDERED
+				    || _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
 					)
 				{
 					_orderingIndex = ReadLittle();

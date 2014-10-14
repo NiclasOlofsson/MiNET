@@ -8,6 +8,8 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using Craft.Net.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MiNET.Network.Utils;
+using MiNET.Network.Worlds;
 
 namespace MiNET.Network
 {

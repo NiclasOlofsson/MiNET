@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MiNET.Network.Utils;
 
 namespace MiNET.Network
 {

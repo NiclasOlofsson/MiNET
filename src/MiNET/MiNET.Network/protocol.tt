@@ -14,7 +14,7 @@ doc.Load(path + @"\protocol.xml");
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using little = MiNET.Network.Int24; // friendly name
+using little = MiNET.Network.Utils.Int24; // friendly name
 
 namespace MiNET.Network
 {

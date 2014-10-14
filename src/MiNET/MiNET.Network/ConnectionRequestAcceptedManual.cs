@@ -1,3 +1,5 @@
+using MiNET.Network.Utils;
+
 namespace MiNET.Network
 {
 	public class ConnectionRequestAcceptedManual : Package

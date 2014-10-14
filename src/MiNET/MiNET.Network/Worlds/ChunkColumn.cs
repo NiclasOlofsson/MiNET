@@ -3,8 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using Craft.Net.Anvil;
+using MiNET.Network.Utils;
 
-namespace MiNET.Network
+namespace MiNET.Network.Worlds
 {
 	public class ChunkColumn
 	{
@@ -45,7 +46,7 @@ namespace MiNET.Network
 
 		public byte GetMetadata(int x, int y, int z)
 		{
-			return 0;
+			return metadata[(x * 2048) + (z * 128) + y];
 		}
 
 		public void SetMetadata(int x, int y, int z, byte data)

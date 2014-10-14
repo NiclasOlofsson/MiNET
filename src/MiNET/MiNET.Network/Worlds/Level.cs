@@ -7,9 +7,11 @@ using System.Threading;
 using System.Timers;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
+using MiNET.Network.Blocks;
+using MiNET.Network.Items;
 using Timer = System.Timers.Timer;
 
-namespace MiNET.Network
+namespace MiNET.Network.Worlds
 {
 	public enum GameMode
 	{
@@ -41,6 +43,13 @@ namespace MiNET.Network
 
 	public class Level
 	{
+		public static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
+		public static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
+		public static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
+		public static readonly Coordinates3D West = new Coordinates3D(0, 0, 1);
+		public static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
+		public static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
+
 		private IWorldProvider _worldProvider;
 		private int _viewDistance = 96;
 		private Timer _levelTicker;
@@ -180,7 +189,6 @@ namespace MiNET.Network
 						}
 					}
 
-
 					// New players
 
 					// Player stuff
@@ -201,42 +209,6 @@ namespace MiNET.Network
 							}
 						}
 					}
-
-
-//					if (CurrentWorldTime%2 == 0)
-//					{
-//						foreach (var player in Players.ToArray())
-//						{
-//							if (player.IsSpawned)
-//							{
-//								int centerX = (int) player.KnownPosition.X/16;
-//								int centerZ = (int) player.KnownPosition.Z/16;
-
-//								ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(centerX, centerZ));
-//								player.SendPackage(new McpeFullChunkData { chunkData = chunk.GetBytes() });
-////								player.SendChunksForKnownPosition(true);
-//							}
-//						}
-//					}
-
-//					if (CurrentWorldTime%1 == 0)
-//					{
-//						foreach (var player in Players.ToArray())
-//						{
-//							if (player.IsSpawned)
-//							{
-//								player.SendPackage(new McpeUpdateBlock
-//								{
-//									x = (int) player.KnownPosition.X,
-//									y = (byte) 127,
-//									z = (int) player.KnownPosition.Z,
-//									block = 7,
-//									meta = 0
-//								});
-//							}
-//						}
-//					}
-
 
 					if (Math.Abs(_levelTicker.Interval - 50) >= 5)
 					{
@@ -311,8 +283,8 @@ namespace MiNET.Network
 
 					stopwatch.Restart();
 
-					int x = Int32.Parse(pair.Key.Split(new[] { ':' })[0]);
-					int z = Int32.Parse(pair.Key.Split(new[] { ':' })[1]);
+					int x = Int32.Parse(pair.Key.Split(new[] {':'})[0]);
+					int z = Int32.Parse(pair.Key.Split(new[] {':'})[1]);
 
 					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(x, z));
 					chunksUsed.Add(pair.Key, chunk);
@@ -381,16 +353,66 @@ namespace MiNET.Network
 			}
 		}
 
-		public int GetBlockId(Coordinates3D blockCoordinates)
+		public Block GetBlock(int x, int y, int z)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
-			return chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+			return GetBlock(new Coordinates3D(x, y, z));
 		}
 
-		public void SetBlockId(Coordinates3D blockCoordinates, byte bid)
+		public Block GetBlock(Coordinates3D blockCoordinates)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
-			chunk.SetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f, bid);
+			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+
+			Block block = BlockFactory.GetBlockById(bid);
+			block.Coordinates = blockCoordinates;
+			block.Metadata = metadata;
+
+			return block;
+		}
+
+		public void SetBlock(Block block)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(block.Coordinates.X/16, block.Coordinates.Z/16));
+			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
+			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
+
+			RelayBroadcast(null, new McpeUpdateBlock
+			{
+				x = block.Coordinates.X,
+				y = (byte) block.Coordinates.Y,
+				z = block.Coordinates.Z,
+				block = block.Id,
+				meta = block.Metadata
+			});
+		}
+
+		public void Interact(Level world, Player player, Coordinates3D blockCoordinates, short metadata, BlockFace face)
+		{
+			MetadataSlot itemSlot = player.ItemInHand;
+			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+
+			if (itemInHand == null) return;
+
+			Block target = GetBlock(blockCoordinates);
+			if (target.Interact(world, player, blockCoordinates, face)) return;
+
+			itemInHand.Metadata = metadata;
+			itemInHand.UseItem(world, player, blockCoordinates, face);
+		}
+
+		public void BreakBlock(Level world, Player player, Coordinates3D blockCoordinates)
+		{
+			Block block = GetBlock(blockCoordinates);
+
+			//MetadataSlot itemSlot = player.ItemInHand;
+			//Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+			//if (itemInHand == null) return;
+
+			//itemInHand.Metadata = metadata;
+			//itemInHand.UseItem(world, player, blockCoordinates, face);
+
+			block.BreakBlock(world);
 		}
 	}
 }

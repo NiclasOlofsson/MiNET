@@ -1,6 +1,6 @@
 using System;
 
-namespace MiNET.Network
+namespace MiNET.Network.Utils
 {
 	/// <summary>
 	///     Exception thrown when a format violation is detected while

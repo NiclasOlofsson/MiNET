@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace MiNET.Network
+namespace MiNET.Network.Utils
 {
 	public class CryptoRandom : RandomNumberGenerator
 	{

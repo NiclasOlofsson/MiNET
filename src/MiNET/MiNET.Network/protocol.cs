@@ -3,7 +3,8 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using little = MiNET.Network.Int24; // friendly name
+using MiNET.Network.Utils;
+using little = MiNET.Network.Utils.Int24; // friendly name
 
 namespace MiNET.Network
 {

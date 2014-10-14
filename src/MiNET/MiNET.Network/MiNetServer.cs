@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using MiNET.Network.Utils;
+using MiNET.Network.Worlds;
 
 namespace MiNET.Network
 {
@@ -49,7 +52,7 @@ namespace MiNET.Network
 				uint IOC_IN = 0x80000000;
 				uint IOC_VENDOR = 0x18000000;
 				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-				_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] { Convert.ToByte(false) }, null);
+				_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
 				// We need to catch errors here to remove the code above.
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -116,9 +119,9 @@ namespace MiNET.Network
 			{
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
 
-				TraceReceive(msgIdType, msgId, receiveBytes, receiveBytes.Length);
-
 				Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
+
+				TraceReceive(msgIdType, msgId, receiveBytes, receiveBytes.Length, message);
 
 				switch (msgIdType)
 				{
@@ -194,7 +197,7 @@ namespace MiNET.Network
 
 					foreach (var message in messages)
 					{
-						TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message is UnknownPackage);
+						TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message, message is UnknownPackage);
 						SendAck(senderEndpoint, package._sequenceNumber);
 						HandlePackage(message, senderEndpoint);
 					}
@@ -329,9 +332,9 @@ namespace MiNET.Network
 			return hex.ToString();
 		}
 
-		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, bool isUnknown = false)
+		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, Package package, bool isUnknown = false)
 		{
-			Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
+			Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
 //			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 //			{
 //				if (isUnknown)
@@ -353,7 +356,7 @@ namespace MiNET.Network
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
-			Debug.Print("< Send: {0:x2} {1} (0x{2:x2}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue());
+			Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue(), package.GetType().Name);
 			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
 		}
 	}

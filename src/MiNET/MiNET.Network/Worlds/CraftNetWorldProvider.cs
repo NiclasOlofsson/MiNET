@@ -5,7 +5,7 @@ using Craft.Net.Anvil;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
 
-namespace MiNET.Network
+namespace MiNET.Network.Worlds
 {
 	public class CraftNetWorldProvider : IWorldProvider
 	{

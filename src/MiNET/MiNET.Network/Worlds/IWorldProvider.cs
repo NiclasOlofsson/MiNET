@@ -1,6 +1,6 @@
 ﻿using Craft.Net.Common;
 
-namespace MiNET.Network.Worlds
+namespace MiNET.Worlds
 {
 	public interface IWorldProvider
 	{

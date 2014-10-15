@@ -1,11 +1,12 @@
 // friendly name
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using MiNET.Network.Utils;
+using MiNET.Utils;
 
-namespace MiNET.Network.Net
+namespace MiNET.Net
 {
 	public class ConnectedPackage : Package
 	{

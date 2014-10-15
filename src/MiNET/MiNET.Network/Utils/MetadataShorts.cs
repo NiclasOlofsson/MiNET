@@ -1,6 +1,6 @@
 ﻿using Craft.Net.Common;
 
-namespace MiNET.Network.Utils
+namespace MiNET.Utils
 {
 	public class MetadataShorts : MetadataDictionary
 	{

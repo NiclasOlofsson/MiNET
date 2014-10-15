@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using MiNET.Network.Net;
-using MiNET.Network.Utils;
-using MiNET.Network.Worlds;
+using MiNET.Net;
+using MiNET.Utils;
+using MiNET.Worlds;
 
-namespace MiNET.Network
+namespace MiNET
 {
 	public class MiNetServer
 	{
@@ -335,30 +334,28 @@ namespace MiNET.Network
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, Package package, bool isUnknown = false)
 		{
-			Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
-//			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
-//			{
-//				if (isUnknown)
-//				{
-//				}
-//				else
-//				{
-////					Debug.Print("> Receive {2}: {1} (0x{0:x2})", msgId, msgIdType, isUnknown ? "Unknown" : "");
-//				}
-////				Debug.Print("\tData: Length={1} {0}", ByteArrayToString(receiveBytes), length);
-//			}
+			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+			{
+				Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
+			}
 		}
 
 		private static void TraceSend(Package message, byte[] data)
 		{
-			Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
-			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
+			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+			{
+				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
+				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
+			}
 		}
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
-			Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue(), package.GetType().Name);
-			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
+			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG && message.Id != 0x86)
+			{
+				Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue(), package.GetType().Name);
+				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
+			}
 		}
 	}
 }

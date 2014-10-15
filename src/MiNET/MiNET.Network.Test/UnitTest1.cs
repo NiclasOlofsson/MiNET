@@ -8,11 +8,11 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using Craft.Net.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MiNET.Network.Net;
-using MiNET.Network.Utils;
-using MiNET.Network.Worlds;
+using MiNET.Net;
+using MiNET.Utils;
+using MiNET.Worlds;
 
-namespace MiNET.Network
+namespace MiNET
 {
 	[TestClass]
 	public class MinetServerTest

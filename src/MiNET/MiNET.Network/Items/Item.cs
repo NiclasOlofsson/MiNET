@@ -1,7 +1,7 @@
 ﻿using Craft.Net.Common;
-using MiNET.Network.Worlds;
+using MiNET.Worlds;
 
-namespace MiNET.Network.Items
+namespace MiNET.Items
 {
 	public class Item
 	{

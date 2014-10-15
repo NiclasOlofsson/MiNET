@@ -1,9 +1,8 @@
-﻿using System.Diagnostics;
-using Craft.Net.Common;
-using MiNET.Network.Blocks;
-using MiNET.Network.Worlds;
+﻿using Craft.Net.Common;
+using MiNET.Blocks;
+using MiNET.Worlds;
 
-namespace MiNET.Network.Items
+namespace MiNET.Items
 {
 	public class ItemDoor : Item
 	{

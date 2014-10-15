@@ -1,7 +1,7 @@
 ﻿using Craft.Net.Common;
-using MiNET.Network.Worlds;
+using MiNET.Worlds;
 
-namespace MiNET.Network.Blocks
+namespace MiNET.Blocks
 {
 	public class BlockWoodenDoor : Block
 	{

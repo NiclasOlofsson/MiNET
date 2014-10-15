@@ -6,11 +6,11 @@ using System.Net;
 using System.Threading;
 using Craft.Net.Common;
 using Craft.Net.Logic.Windows;
-using MiNET.Network.Net;
-using MiNET.Network.Utils;
-using MiNET.Network.Worlds;
+using MiNET.Net;
+using MiNET.Utils;
+using MiNET.Worlds;
 
-namespace MiNET.Network
+namespace MiNET
 {
 	public enum BlockFace
 	{
@@ -250,15 +250,32 @@ namespace MiNET.Network
 
 			if (typeof (McpeMovePlayer) == message.GetType())
 			{
-				var moveMessage = (McpeMovePlayer) message;
+				var msg = (McpeMovePlayer) message;
 
-				KnownPosition = new PlayerPosition3D(moveMessage.x, moveMessage.y, moveMessage.z) {Pitch = moveMessage.pitch, Yaw = moveMessage.yaw, BodyYaw = moveMessage.bodyYaw};
+				KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 				LastUpdatedTime = DateTime.Now;
 
 				SendChunksForKnownPosition();
 
 				return;
 			}
+
+			if (typeof (McpeInteractPacket) == message.GetType())
+			{
+				HandleInteract((McpeInteractPacket) message);
+				return;
+			}
+		}
+
+		private void HandleInteract(McpeInteractPacket msg)
+		{
+			Player target = _entities[msg.targetEntityId];
+
+			_level.RelayBroadcast(target, new McpeEntityEventPacket()
+			{
+				entityId = 0,
+				eventId = 2
+			});
 		}
 
 		private void HandleUseItem(McpeUseItem message)

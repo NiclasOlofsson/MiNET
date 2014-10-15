@@ -7,8 +7,8 @@
     <ProjectGuid>{B7049BF1-2DB0-435D-9791-09AB61018685}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiNET.Network</RootNamespace>
-    <AssemblyName>MiNET.Network</AssemblyName>
+    <RootNamespace>MiNET</RootNamespace>
+    <AssemblyName>MiNET</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

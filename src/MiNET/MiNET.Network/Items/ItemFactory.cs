@@ -1,6 +1,6 @@
-using MiNET.Network.Blocks;
+using MiNET.Blocks;
 
-namespace MiNET.Network.Items
+namespace MiNET.Items
 {
 	public class ItemFactory
 	{

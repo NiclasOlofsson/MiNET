@@ -1,4 +1,4 @@
-namespace MiNET.Network.Blocks
+namespace MiNET.Blocks
 {
 	public static class BlockFactory
 	{

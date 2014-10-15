@@ -3,9 +3,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using Craft.Net.Anvil;
-using MiNET.Network.Utils;
+using MiNET.Utils;
 
-namespace MiNET.Network.Worlds
+namespace MiNET.Worlds
 {
 	public class ChunkColumn
 	{

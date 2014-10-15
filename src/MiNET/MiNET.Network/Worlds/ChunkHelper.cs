@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MiNET.Network.Worlds
+namespace MiNET.Worlds
 {
 	public static class ChunkHelper
 	{

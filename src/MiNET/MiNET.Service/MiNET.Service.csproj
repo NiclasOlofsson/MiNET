@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>MiNET.Service.MiNetService</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,9 +55,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MiNET.Network\MiNET.Network.csproj">
+    <ProjectReference Include="..\MiNET.Network\MiNET.csproj">
       <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>
-      <Name>MiNET.Network</Name>
+      <Name>MiNET</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

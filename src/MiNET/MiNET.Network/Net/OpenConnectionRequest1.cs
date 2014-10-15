@@ -1,4 +1,4 @@
-namespace MiNET.Network.Net
+namespace MiNET.Net
 {
 	public partial class OpenConnectionRequest1 : Package
 	{

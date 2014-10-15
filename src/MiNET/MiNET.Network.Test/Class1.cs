@@ -1,4 +1,4 @@
-﻿namespace MiNET.Network
+﻿namespace MiNET
 {
 	public class Class1
 	{

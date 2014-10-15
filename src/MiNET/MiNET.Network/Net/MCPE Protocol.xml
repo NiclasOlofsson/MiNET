@@ -228,6 +228,11 @@
 		<field name="Meta" type="byte" />
 	</pdu>
 
+	<pdu id="0x9d" online="false" client="true" server="true" name="ID_MCPE_ENTITY_EVENT_PACKET">
+		<field name="Entity ID" type="int" />
+		<field name="Event ID" type="byte" />
+	</pdu>
+
 	<pdu id="0xa0" online="false" client="true" server="true" name="ID_MCPE_PLAYER_EQUIPMENT">
 		<field name="Entity ID" type="int" />
 		<field name="Item" type="short" />
@@ -241,6 +246,12 @@
 		<field name="Chestplate" type="byte" />
 		<field name="Leggings" type="byte" />
 		<field name="Boots" type="byte" />
+	</pdu>
+
+	<pdu id="0xa2" online="false" client="true" server="true" name="ID_MCPE_INTERACT_PACKET">
+		<field name="Action ID" type="byte" />
+		<field name="Entity ID" type="int" />
+		<field name="Target Entity ID" type="int" />
 	</pdu>
 
 	<pdu id="0xac" online="false" client="true" server="true" name="ID_MCPE_ANIMATE">

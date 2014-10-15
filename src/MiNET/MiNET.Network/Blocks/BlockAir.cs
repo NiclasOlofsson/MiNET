@@ -1,6 +1,4 @@
-﻿using System.Security.Permissions;
-
-namespace MiNET.Network.Blocks
+﻿namespace MiNET.Blocks
 {
 	public class BlockAir : Block
 	{

@@ -1,4 +1,4 @@
-﻿namespace MiNET.Network
+﻿namespace MiNET
 {
 	public class PlayerPosition3D
 	{

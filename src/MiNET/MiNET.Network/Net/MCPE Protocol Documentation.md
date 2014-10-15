@@ -30,6 +30,7 @@
 | Mcpe Update Block | 0x98 | 152 |   
 | Mcpe Player Equipment | 0xa0 | 160 |   
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
+| Mcpe Interact Packet | 0xa2 | 162 |   
 | Mcpe Use Item | 0xa3 | 163 |   
 | Mcpe Entity Data | 0xa7 | 167 |   
 | Mcpe Set Health | 0xaa | 170 |   
@@ -585,6 +586,22 @@ The three type of status are:
 |Chestplate | byte |  |
 |Leggings | byte |  |
 |Boots | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Interact Packet (0xa2)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Action ID | byte |  |
+|Entity ID | int |  |
+|Target Entity ID | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Animate (0xac)
 

@@ -3,10 +3,10 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using MiNET.Network.Utils; 
-using little = MiNET.Network.Utils.Int24; // friendly name
+using MiNET.Utils; 
+using little = MiNET.Utils.Int24; // friendly name
 
-namespace MiNET.Network.Net
+namespace MiNET.Net
 {
 
 	public class PackageFactory
@@ -132,12 +132,20 @@ namespace MiNET.Network.Net
 					package = new McpeUpdateBlock();
 					package.Decode(buffer);
 					return package;
+				case 0x9d:
+					package = new McpeEntityEventPacket();
+					package.Decode(buffer);
+					return package;
 				case 0xa0:
 					package = new McpePlayerEquipment();
 					package.Decode(buffer);
 					return package;
 				case 0xa1:
 					package = new McpePlayerArmorEquipment();
+					package.Decode(buffer);
+					return package;
+				case 0xa2:
+					package = new McpeInteractPacket();
 					package.Decode(buffer);
 					return package;
 				case 0xac:
@@ -1523,6 +1531,48 @@ namespace MiNET.Network.Net
 
 	}
 
+	public partial class McpeEntityEventPacket : Package
+	{
+		public int entityId; // = null;
+		public byte eventId; // = null;
+
+		public McpeEntityEventPacket()
+		{
+			Id = 0x9d;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(eventId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			eventId = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpePlayerEquipment : Package
 	{
 		public int entityId; // = null;
@@ -1613,6 +1663,51 @@ namespace MiNET.Network.Net
 			chestplate = ReadByte();
 			leggings = ReadByte();
 			boots = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeInteractPacket : Package
+	{
+		public byte actionId; // = null;
+		public int entityId; // = null;
+		public int targetEntityId; // = null;
+
+		public McpeInteractPacket()
+		{
+			Id = 0xa2;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(actionId);
+			Write(entityId);
+			Write(targetEntityId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			actionId = ReadByte();
+			entityId = ReadInt();
+			targetEntityId = ReadInt();
 
 			AfterDecode();
 		}

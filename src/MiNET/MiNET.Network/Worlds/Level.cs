@@ -7,12 +7,12 @@ using System.Threading;
 using System.Timers;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
-using MiNET.Network.Blocks;
-using MiNET.Network.Items;
-using MiNET.Network.Net;
+using MiNET.Blocks;
+using MiNET.Items;
+using MiNET.Net;
 using Timer = System.Timers.Timer;
 
-namespace MiNET.Network.Worlds
+namespace MiNET.Worlds
 {
 	public enum GameMode
 	{
@@ -83,8 +83,8 @@ namespace MiNET.Network.Worlds
 
 			var loadIt = new FlatlandGenerator();
 
-			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-//			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+//			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();
@@ -102,7 +102,6 @@ namespace MiNET.Network.Worlds
 				};
 				worker.RunWorkerAsync();
 			}
-
 
 			if (_levelTicker != null)
 			{
@@ -178,6 +177,18 @@ namespace MiNET.Network.Worlds
 					CurrentWorldTime += 1;
 					if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
 
+					// Set time (Fix this so it doesn't jump)
+					if (CurrentWorldTime%10 == 0)
+					{
+						foreach (var player in Players.ToArray())
+						{
+							if (player.IsSpawned)
+							{
+								player.SendSetTime();
+							}
+						}
+					}
+
 					// broadcast events to all players
 
 					// Movement
@@ -198,18 +209,6 @@ namespace MiNET.Network.Worlds
 					// - etc..
 
 					// Entity updates
-
-					// Set time
-					if (CurrentWorldTime%20 == 0)
-					{
-						foreach (var player in Players.ToArray())
-						{
-							if (player.IsSpawned)
-							{
-								player.SendSetTime();
-							}
-						}
-					}
 
 					if (Math.Abs(_levelTicker.Interval - 50) >= 5)
 					{
@@ -293,7 +292,7 @@ namespace MiNET.Network.Worlds
 					long elapsed = stopwatch.ElapsedMilliseconds;
 					if (avarageLoadTime == -1) avarageLoadTime = elapsed;
 					else avarageLoadTime = (avarageLoadTime + elapsed)/2;
-					Debug.WriteLine("Chunk generated in: {0} ms (Avarage: {1} ms)", elapsed, avarageLoadTime);
+					Debug.WriteLine("Chunk {2} generated in: {0} ms (Avarage: {1} ms)", elapsed, avarageLoadTime, pair.Key);
 
 					yield return chunk;
 				}
@@ -315,6 +314,16 @@ namespace MiNET.Network.Worlds
 				if (player == source) continue;
 
 				player.SendPackage((Package) message.Clone());
+			}
+		}
+
+		public void RelayBroadcast(Player source, McpeEntityEventPacket message)
+		{
+			foreach (var player in Players.ToArray())
+			{
+				var send = message.Clone<McpeEntityEventPacket>();
+				send.entityId = player.GetEntityId(source);
+				player.SendPackage(send);
 			}
 		}
 

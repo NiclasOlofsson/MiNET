@@ -1,8 +1,8 @@
 using Craft.Net.Common;
-using MiNET.Network.Blocks;
-using MiNET.Network.Worlds;
+using MiNET.Blocks;
+using MiNET.Worlds;
 
-namespace MiNET.Network.Items
+namespace MiNET.Items
 {
 	public class ItemBlock : Item
 	{

@@ -1,6 +1,6 @@
-﻿using MiNET.Network.Utils;
+﻿using MiNET.Utils;
 
-namespace MiNET.Network.Net
+namespace MiNET.Net
 {
 	public partial class Ack : Package
 	{

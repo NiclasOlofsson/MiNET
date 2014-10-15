@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Craft.Net.Common;
-using MiNET.Network.Utils;
+using MiNET.Utils;
 
-namespace MiNET.Network.Worlds
+namespace MiNET.Worlds
 {
 	public class FlatlandWorldProvider : IWorldProvider
 	{
@@ -29,6 +29,7 @@ namespace MiNET.Network.Worlds
 			}
 
 			FlatlandWorldProvider generator = new FlatlandWorldProvider();
+
 			ChunkColumn chunk = new ChunkColumn();
 			chunk.x = chunkCoordinates.X;
 			chunk.z = chunkCoordinates.Z;

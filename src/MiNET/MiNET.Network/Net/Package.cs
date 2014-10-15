@@ -4,9 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using Craft.Net.Common;
-using MiNET.Network.Utils;
+using MiNET.Utils;
 
-namespace MiNET.Network.Net
+namespace MiNET.Net
 {
 	/// Base package class
 	public partial class Package : ICloneable

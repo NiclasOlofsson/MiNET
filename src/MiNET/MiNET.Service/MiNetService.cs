@@ -1,5 +1,4 @@
-﻿using MiNET.Network;
-using Topshelf;
+﻿using Topshelf;
 
 namespace MiNET.Service
 {

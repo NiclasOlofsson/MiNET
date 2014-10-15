@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using fNbt;
 
-namespace MiNET.Network.Utils
+namespace MiNET.Utils
 {
 	/// <summary>
 	///     BinaryWriter wrapper that takes care of writing primitives to an NBT stream,

@@ -11,7 +11,7 @@ namespace MiNET.Network.Blocks
 		public bool IsReplacible { get; set; }
 		public bool IsSolid { get; set; }
 
-		public Block(byte id)
+		internal Block(byte id)
 		{
 			Id = id;
 			IsSolid = true;
@@ -22,15 +22,15 @@ namespace MiNET.Network.Blocks
 			return CanPlace(world, Coordinates);
 		}
 
-		public virtual bool CanPlace(Level world, Coordinates3D blockCoordinates)
+		protected virtual bool CanPlace(Level world, Coordinates3D blockCoordinates)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
 
 
-		public virtual void BreakBlock(Level level)
+		public virtual void BreakBlock(Level world)
 		{
-			level.SetBlock(new BlockAir {Coordinates = Coordinates});
+			world.SetBlock(new BlockAir {Coordinates = Coordinates});
 		}
 
 		public virtual bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
@@ -58,6 +58,5 @@ namespace MiNET.Network.Blocks
 					return target;
 			}
 		}
-
 	}
 }

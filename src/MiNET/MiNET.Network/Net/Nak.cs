@@ -1,6 +1,6 @@
 using MiNET.Network.Utils;
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 	public partial class Nak : Package
 	{

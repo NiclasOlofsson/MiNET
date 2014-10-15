@@ -3,10 +3,10 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using MiNET.Network.Utils;
+using MiNET.Network.Utils; 
 using little = MiNET.Network.Utils.Int24; // friendly name
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 
 	public class PackageFactory

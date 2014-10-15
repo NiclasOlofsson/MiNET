@@ -1,12 +1,11 @@
+// friendly name
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
-// friendly name
 using MiNET.Network.Utils;
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 	public class ConnectedPackage : Package
 	{

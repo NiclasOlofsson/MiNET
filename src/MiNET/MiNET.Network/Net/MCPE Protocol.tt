@@ -7,16 +7,17 @@
 <#
 string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
-doc.Load(path + @"\protocol.xml");
+doc.Load(path + @"\MCPE Protocol.xml");
 
 #>
 //
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
+using MiNET.Network.Utils; 
 using little = MiNET.Network.Utils.Int24; // friendly name
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 
 	public class PackageFactory

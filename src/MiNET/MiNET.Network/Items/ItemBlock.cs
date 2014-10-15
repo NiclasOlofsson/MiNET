@@ -8,7 +8,7 @@ namespace MiNET.Network.Items
 	{
 		private readonly Block _block;
 
-		public ItemBlock(Block block)
+		public ItemBlock(Block block) : base(block.Id)
 		{
 			_block = block;
 		}

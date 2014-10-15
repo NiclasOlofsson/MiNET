@@ -1,4 +1,4 @@
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 	public class UnknownPackage : Package
 	{

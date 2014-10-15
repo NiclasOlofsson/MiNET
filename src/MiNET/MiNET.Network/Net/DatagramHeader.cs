@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Text;
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 	public class DatagramHeader
 	{

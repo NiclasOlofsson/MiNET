@@ -3,11 +3,20 @@ using MiNET.Network.Worlds;
 
 namespace MiNET.Network.Items
 {
-	public abstract class Item
+	public class Item
 	{
+		public int Id { get; set; }
+
+		internal Item(int id)
+		{
+			Id = id;
+		}
+
 		public short Metadata { get; set; }
 
-		public abstract void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face);
+		public virtual void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		{
+		}
 
 		protected Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
 		{

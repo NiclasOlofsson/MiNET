@@ -9,7 +9,7 @@
 <#
 string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
-doc.Load(path + @"\protocol.xml");
+doc.Load(path + @"\MCPE Protocol.xml");
 
 
 XmlNodeList pdus = doc.SelectNodes("//pdu");

@@ -1,4 +1,5 @@
-﻿using Craft.Net.Common;
+﻿using System.Diagnostics;
+using Craft.Net.Common;
 using MiNET.Network.Blocks;
 using MiNET.Network.Worlds;
 
@@ -6,6 +7,10 @@ namespace MiNET.Network.Items
 {
 	public class ItemDoor : Item
 	{
+		internal ItemDoor() : base(324)
+		{
+		}
+
 		public override void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
 		{
 			byte direction = player.GetDirection();
@@ -29,7 +34,6 @@ namespace MiNET.Network.Items
 			if (direction == 2) zd = -1;
 			if (direction == 3) xd = 1;
 
-
 			int i1 = (world.GetBlock(x - xd, y, z - zd).IsSolid ? 1 : 0) + (world.GetBlock(x - xd, y + 1, z - zd).IsSolid ? 1 : 0);
 			int j1 = (world.GetBlock(x + xd, y, z + zd).IsSolid ? 1 : 0) + (world.GetBlock(x + xd, y + 1, z + zd).IsSolid ? 1 : 0);
 			bool flag = world.GetBlock(x - xd, y, z - zd).Id == block.Id || world.GetBlock(x - xd, y + 1, z - zd).Id == block.Id;
@@ -45,7 +49,7 @@ namespace MiNET.Network.Items
 				flag2 = true;
 			}
 
-//			if (!block.CanPlace(world)) return;
+			if (!block.CanPlace(world)) return;
 
 			// The upper doore block, meta marks upper and
 			// sets orientation based on ajecent blocks

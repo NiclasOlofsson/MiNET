@@ -6,7 +6,7 @@ namespace MiNET.Network.Items
 	{
 		public static Item GetItem(int id)
 		{
-			Item item = null;
+			Item item = new Item(id);
 
 			if (id <= 255)
 			{

@@ -2,7 +2,7 @@
 
 namespace MiNET.Network.Utils
 {
-	public class MetadataSlots : MetadataDictionary
+	public class MetadataShorts : MetadataDictionary
 	{
 	}
 }

@@ -9,6 +9,7 @@ using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
 using MiNET.Network.Blocks;
 using MiNET.Network.Items;
+using MiNET.Network.Net;
 using Timer = System.Timers.Timer;
 
 namespace MiNET.Network.Worlds

@@ -39,34 +39,36 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ack.cs" />
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\BlockAir.cs" />
     <Compile Include="Blocks\BlockFactory.cs" />
     <Compile Include="Blocks\BlockWoodenDoor.cs" />
-    <Compile Include="ConnectedPackage.cs" />
-    <Compile Include="ConnectionRequestAcceptedManual.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Items\ItemBlock.cs" />
     <Compile Include="Items\ItemDoor.cs" />
     <Compile Include="Items\ItemFactory.cs" />
-    <Compile Include="Nak.cs" />
-    <Compile Include="OpenConnectionRequest1.cs" />
-    <Compile Include="MiNetServer.cs" />
-    <Compile Include="Package.cs" />
-    <Compile Include="DatagramHeader.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="PlayerPosition3D.cs" />
-    <Compile Include="protocol.cs">
+    <Compile Include="Net\Ack.cs" />
+    <Compile Include="Net\ConnectedPackage.cs" />
+    <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />
+    <Compile Include="Net\DatagramHeader.cs" />
+    <Compile Include="Net\Nak.cs" />
+    <Compile Include="Net\OpenConnectionRequest1.cs" />
+    <Compile Include="Net\Package.cs" />
+    <Compile Include="Net\MCPE Protocol.cs">
+      <DependentUpon>MCPE Protocol.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>protocol.tt</DependentUpon>
     </Compile>
-    <Compile Include="RakNetIdentifiers.cs" />
-    <Compile Include="UnknownPackage.cs" />
+    <Compile Include="Net\RakNetIdentifiers.cs" />
+    <Compile Include="Net\UnknownPackage.cs" />
+    <Compile Include="MiNetServer.cs" />
+    <Compile Include="Player.cs" />
+    <Compile Include="PlayerPosition3D.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
     <Compile Include="Utils\Int24.cs" />
     <Compile Include="Utils\MetadataInt.cs" />
+    <Compile Include="Utils\MetadataInts.cs" />
+    <Compile Include="Utils\MetadataShorts.cs" />
     <Compile Include="Utils\NbtBinaryReader.cs" />
     <Compile Include="Utils\NbtBinaryWriter.cs" />
     <Compile Include="Utils\NbtFormatException.cs" />
@@ -77,24 +79,24 @@
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
-    <Content Include="protocol.xml">
+    <Content Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
     </Content>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MCPE PROTOCOL.md">
+    <None Include="Net\MCPE Protocol Documentation.md">
+      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>MCPE PROTOCOL.tt</DependentUpon>
     </None>
-    <None Include="MCPE PROTOCOL.tt">
+    <None Include="Net\MCPE Protocol Documentation.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MCPE PROTOCOL.md</LastGenOutput>
+      <LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
     </None>
-    <None Include="protocol.tt">
+    <None Include="Net\MCPE Protocol.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>protocol.cs</LastGenOutput>
+      <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
     </None>
   </ItemGroup>
   <ItemGroup>

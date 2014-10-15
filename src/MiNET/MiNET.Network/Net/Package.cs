@@ -6,7 +6,7 @@ using System.Text;
 using Craft.Net.Common;
 using MiNET.Network.Utils;
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 	/// Base package class
 	public partial class Package : ICloneable

@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading;
 using Craft.Net.Common;
 using Craft.Net.Logic.Windows;
+using MiNET.Network.Net;
 using MiNET.Network.Utils;
 using MiNET.Network.Worlds;
 

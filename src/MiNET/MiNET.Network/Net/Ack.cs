@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using MiNET.Network.Utils;
+﻿using MiNET.Network.Utils;
 
-namespace MiNET.Network
+namespace MiNET.Network.Net
 {
 	public partial class Ack : Package
 	{

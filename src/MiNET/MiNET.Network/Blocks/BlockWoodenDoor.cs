@@ -9,7 +9,7 @@ namespace MiNET.Network.Blocks
 		{
 		}
 
-		public override bool CanPlace(Level world, Coordinates3D blockCoordinates)
+		protected override bool CanPlace(Level world, Coordinates3D blockCoordinates)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;
 		}

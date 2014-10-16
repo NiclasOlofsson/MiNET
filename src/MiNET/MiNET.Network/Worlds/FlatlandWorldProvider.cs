@@ -100,6 +100,10 @@ namespace MiNET.Worlds
 
 			chunk.blocks = stones;
 			//chunk.biomeColor = ArrayOf<int>.Create(256, random.Next(6761930, 8761930));
+//			for (int i = 0; i < chunk.biomeColor.Length; i++)
+//			{
+//				chunk.biomeColor[i] = random.Next(6761930, 8761930);
+//			}
 		}
 	}
 }

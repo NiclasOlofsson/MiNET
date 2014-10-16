@@ -19,6 +19,7 @@ namespace MiNET.Worlds
 		public NibbleArray blocklight = new NibbleArray(16*16*128);
 		public NibbleArray skylight = new NibbleArray(16*16*128);
 
+		private byte[] _cache = null;
 
 		public ChunkColumn()
 		{
@@ -36,31 +37,37 @@ namespace MiNET.Worlds
 
 		public void SetBlock(int x, int y, int z, byte bid)
 		{
+			_cache = null;
 			blocks[(x*2048) + (z*128) + y] = bid;
 		}
 
 		public void SetBlocklight(int x, int y, int z, byte data)
 		{
+			_cache = null;
 			blocklight[(x*2048) + (z*128) + y] = data;
 		}
 
 		public byte GetMetadata(int x, int y, int z)
 		{
-			return metadata[(x * 2048) + (z * 128) + y];
+			return metadata[(x*2048) + (z*128) + y];
 		}
 
 		public void SetMetadata(int x, int y, int z, byte data)
 		{
+			_cache = null;
 			metadata[(x*2048) + (z*128) + y] = data;
 		}
 
 		public void SetSkylight(int x, int y, int z, byte data)
 		{
+			_cache = null;
 			skylight[(x*2048) + (z*128) + y] = data;
 		}
 
 		public byte[] GetBytes()
 		{
+			if (_cache != null) return _cache;
+
 			MemoryStream stream = new MemoryStream();
 			stream.WriteByte(0x78);
 			stream.WriteByte(0x01);
@@ -99,6 +106,8 @@ namespace MiNET.Worlds
 
 			var bytes = stream.ToArray();
 			stream.Close();
+
+			_cache = bytes;
 
 			return bytes;
 		}

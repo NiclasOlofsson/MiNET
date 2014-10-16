@@ -109,167 +109,185 @@ namespace MiNET
 		{
 			if (typeof (McpeContainerSetSlot) == message.GetType())
 			{
-				var msg = (McpeContainerSetSlot) message;
-				switch (msg.windowId)
-				{
-					case 0:
-						Items[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
-						break;
-					case 0x78:
-						Armor[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
-						break;
-				}
-				_level.RelayBroadcast(this, new McpePlayerArmorEquipment()
-				{
-					entityId = 0,
-					helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
-					chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256),
-					leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256),
-					boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256)
-				});
-
-				_level.RelayBroadcast(this, new McpePlayerEquipment()
-				{
-					entityId = 0,
-					item = ItemInHand.Value.Id,
-					meta = ItemInHand.Value.Metadata,
-					slot = 0
-				});
+				HandleContainerSetSlot((McpeContainerSetSlot) message);
 			}
 
-			if (typeof (McpePlayerEquipment) == message.GetType())
+			else if (typeof (McpePlayerEquipment) == message.GetType())
 			{
-				var msg = (McpePlayerEquipment) message;
-				ItemInHand.Value.Id = msg.item;
-				ItemInHand.Value.Metadata = msg.meta;
-
-				_level.RelayBroadcast(this, msg);
+				HandlePlayerEquipment((McpePlayerEquipment) message);
 			}
 
-			if (typeof (McpePlayerArmorEquipment) == message.GetType())
+			else if (typeof (McpePlayerArmorEquipment) == message.GetType())
 			{
-				_level.RelayBroadcast(this, (McpePlayerArmorEquipment) message);
+				HandlePlayerArmorEquipment((McpePlayerArmorEquipment) message);
 			}
 
-			if (typeof (McpeUpdateBlock) == message.GetType())
+			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
 				// Don't use
 			}
 
-			if (typeof (McpeRemoveBlock) == message.GetType())
+			else if (typeof (McpeRemoveBlock) == message.GetType())
 			{
-				var msg = (McpeRemoveBlock) message;
-				_level.BreakBlock(_level, this, new Coordinates3D(msg.x, msg.y, msg.z));
+				HandleRemoveBlock((McpeRemoveBlock) message);
 			}
 
-			if (typeof (McpeAnimate) == message.GetType())
+			else if (typeof (McpeAnimate) == message.GetType())
 			{
 				_level.RelayBroadcast(this, (McpeAnimate) message);
 			}
 
-			if (typeof (McpeUseItem) == message.GetType())
+			else if (typeof (McpeUseItem) == message.GetType())
 			{
 				HandleUseItem((McpeUseItem) message);
 			}
 
-			if (typeof (ConnectedPing) == message.GetType())
+			else if (typeof (ConnectedPing) == message.GetType())
 			{
-				var msg = (ConnectedPing) message;
-
-				SendPackage(new ConnectedPong
-				{
-					sendpingtime = msg.sendpingtime,
-					sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
-				});
-
-				return;
+				HandleConnectedPing((ConnectedPing) message);
 			}
 
-			if (typeof (ConnectedPing) == message.GetType())
+			else if (typeof (ConnectionRequest) == message.GetType())
 			{
-				var msg = (ConnectedPing) message;
-
-				SendPackage(new ConnectedPong
-				{
-					sendpingtime = msg.sendpingtime,
-					sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
-				});
-
-				return;
+				HandleConnectionRequest((ConnectionRequest) message);
 			}
 
-			if (typeof (ConnectionRequest) == message.GetType())
+			else if (typeof (DisconnectionNotification) == message.GetType())
 			{
-				var msg = (ConnectionRequest) message;
-				var response = new ConnectionRequestAcceptedManual((short) this._endpoint.Port, msg.timestamp);
-				response.Encode();
-
-				SendPackage(response);
-
-				return;
+				HandleDisconnectionNotification();
 			}
 
-			if (typeof (DisconnectionNotification) == message.GetType())
+			else if (typeof (McpeMessage) == message.GetType())
 			{
-				IsConnected = false;
-				_level.RemovePlayer(this);
-				return;
+				HandleMessage((McpeMessage) message);
 			}
 
-			if (typeof (McpeMessage) == message.GetType())
-			{
-				var msg = (McpeMessage) message;
-				string text = msg.message;
-				_level.BroadcastTextMessage(text);
-				return;
-			}
-
-			if (typeof (McpeRemovePlayer) == message.GetType())
+			else if (typeof (McpeRemovePlayer) == message.GetType())
 			{
 				// Do nothing right now, but should clear out the entities and stuff
 				// from this players internal structure.
-				return;
 			}
 
-			if (typeof (McpeLogin) == message.GetType())
+			else if (typeof (McpeLogin) == message.GetType())
 			{
-				var msg = (McpeLogin) message;
-				Username = msg.username;
-				SendPackage(new McpeLoginStatus {status = 0});
-
-				// Start game
-				SendStartGame();
-				SendSetTime();
-				SendSetSpawnPosition();
-				SendSetHealth();
-				SendChunksForKnownPosition();
-				LastUpdatedTime = DateTime.Now;
-
-				return;
+				HandleLogin((McpeLogin) message);
 			}
 
-			if (typeof (McpeMovePlayer) == message.GetType())
+			else if (typeof (McpeMovePlayer) == message.GetType())
 			{
-				var msg = (McpeMovePlayer) message;
-
-				KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
-				LastUpdatedTime = DateTime.Now;
-
-				SendChunksForKnownPosition();
-
-				return;
+				HandleMovePlayer((McpeMovePlayer) message);
 			}
 
-			if (typeof (McpeInteractPacket) == message.GetType())
+			else if (typeof (McpeInteractPacket) == message.GetType())
 			{
 				HandleInteract((McpeInteractPacket) message);
-				return;
 			}
+		}
+
+		private void HandleDisconnectionNotification()
+		{
+			IsConnected = false;
+			_level.RemovePlayer(this);
+		}
+
+		private void HandleConnectionRequest(ConnectionRequest msg)
+		{
+			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, msg.timestamp);
+			response.Encode();
+
+			SendPackage(response);
+		}
+
+		private void HandleConnectedPing(ConnectedPing msg)
+		{
+			SendPackage(new ConnectedPong
+			{
+				sendpingtime = msg.sendpingtime,
+				sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
+			});
+		}
+
+		private void HandleLogin(McpeLogin msg)
+		{
+			Username = msg.username;
+			SendPackage(new McpeLoginStatus {status = 0});
+
+			// Start game
+			SendStartGame();
+			SendSetTime();
+			SendSetSpawnPosition();
+			SendSetHealth();
+			SendChunksForKnownPosition();
+			LastUpdatedTime = DateTime.UtcNow;
+		}
+
+		private void HandleMessage(McpeMessage msg)
+		{
+			string text = msg.message;
+			_level.BroadcastTextMessage(text);
+		}
+
+		private void HandleMovePlayer(McpeMovePlayer msg)
+		{
+			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
+			LastUpdatedTime = DateTime.UtcNow;
+
+//			if (Username.StartsWith("Player")) return;
+			SendChunksForKnownPosition();
+		}
+
+		private void HandleRemoveBlock(McpeRemoveBlock msg)
+		{
+			_level.BreakBlock(_level, this, new Coordinates3D(msg.x, msg.y, msg.z));
+		}
+
+		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment msg)
+		{
+			_level.RelayBroadcast(this, msg);
+		}
+
+		private void HandlePlayerEquipment(McpePlayerEquipment msg)
+		{
+			ItemInHand.Value.Id = msg.item;
+			ItemInHand.Value.Metadata = msg.meta;
+
+			_level.RelayBroadcast(this, msg);
+		}
+
+		private void HandleContainerSetSlot(McpeContainerSetSlot msg)
+		{
+			switch (msg.windowId)
+			{
+				case 0:
+					Items[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
+					break;
+				case 0x78:
+					Armor[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
+					break;
+			}
+			_level.RelayBroadcast(this, new McpePlayerArmorEquipment()
+			{
+				entityId = 0,
+				helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256)
+			});
+
+			_level.RelayBroadcast(this, new McpePlayerEquipment()
+			{
+				entityId = 0,
+				item = ItemInHand.Value.Id,
+				meta = ItemInHand.Value.Metadata,
+				slot = 0
+			});
 		}
 
 		private void HandleInteract(McpeInteractPacket msg)
 		{
 			Player target = _entities[msg.targetEntityId];
+
+			if (target == null) return;
 
 			_level.RelayBroadcast(target, new McpeEntityEventPacket()
 			{
@@ -369,6 +387,7 @@ namespace MiNET
 						args.Cancel = true;
 						break;
 					}
+
 					SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
 					Thread.Yield();
 

@@ -26,7 +26,8 @@ namespace MiNET.Worlds
 		public void Initialize()
 		{
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\"); _offsetY = 0;
-			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\Mountain Sky Village\§4§kd§  Mountain Sky Village §4§kd§"); _offsetY = 0;
+			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\Mountain Sky Village\§4§kd§  Mountain Sky Village §4§kd§");
+			_offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world28\King's Landing"); _offsetY = 30;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy"); _offsetY = 0;
@@ -149,7 +150,7 @@ namespace MiNET.Worlds
 				}
 
 				Chunk anvilChunk = _level.DefaultWorld.GetChunk(chunkCoordinates);
-				ChunkColumn chunk = new ChunkColumn { x = chunkCoordinates.X, z = chunkCoordinates.Z };
+				ChunkColumn chunk = new ChunkColumn {x = chunkCoordinates.X, z = chunkCoordinates.Z};
 
 				chunk.biomeId = anvilChunk.Biomes;
 				for (int i = 0; i < chunk.biomeId.Length; i++)
@@ -177,7 +178,7 @@ namespace MiNET.Worlds
 							else if (blockId == 76) blockId = 50;
 							else if (blockId == 123) blockId = 89;
 							else if (blockId == 124) blockId = 89;
-							else if (_ignore.BinarySearch(blockId) >= 0 ) blockId = 0;
+							else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
 							else if (_gaps.BinarySearch(blockId) >= 0)
 							{
 								Debug.WriteLine("Missing material: " + blockId);
@@ -213,6 +214,7 @@ namespace MiNET.Worlds
 		public Coordinates3D GetSpawnPoint()
 		{
 			Vector3 spawnPoint = _level.Spawn;
+			spawnPoint.Y += 2; // Compensate for point being at head
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 			return spawnPoint;
 		}

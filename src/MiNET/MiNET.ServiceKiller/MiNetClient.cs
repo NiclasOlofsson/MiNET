@@ -9,42 +9,36 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET
+namespace MiNET.ServiceKiller
 {
-	public class MiNetServer
+	public class MiNetClient
 	{
-		private const int DefaultPort = 19132;
-
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
-		private Dictionary<IPEndPoint, Player> _playerEndpoints;
 		private Level _level;
 
-		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
+		private IPEndPoint _serverEndpoint;
+		private short _mtuSize = 1500;
+
+		public MiNetClient(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
-		public MiNetServer(IPEndPoint endpoint = null)
+		public MiNetClient(IPEndPoint endpoint = null)
 		{
-			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
+			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, 0);
+			_serverEndpoint = new IPEndPoint(IPAddress.Loopback, 19132);
 		}
 
-		public bool StartServer()
+		public bool StartClient()
 		{
 			if (_listener != null) return false; // Already started
 
 			try
 			{
-				_playerEndpoints = new Dictionary<IPEndPoint, Player>();
-
-				_level = new Level("Default");
-				_level.Initialize();
-
 				_listener = new UdpClient(_endpoint);
-				_listener.Client.ReceiveBufferSize = 1024*1024*8;
-//				_listener.Client.SendBufferSize = 1024*1024;
-				_listener.Client.SendBufferSize = 1500;
-//				_listener.Client.SendBufferSize = 4096;
+				_listener.Client.ReceiveBufferSize = 1024*1024;
+				_listener.Client.SendBufferSize = 1024*1024;
 
 				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -59,21 +53,21 @@ namespace MiNET
 				// We need to catch errors here to remove the code above.
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
-				Console.WriteLine("Server open for business...");
+				Console.WriteLine("Client open for business...");
 
 				return true;
 			}
 			catch (Exception e)
 			{
 				Debug.Write(e);
-				StopServer();
+				StopClient();
 			}
 
 			return false;
 		}
 
 
-		public bool StopServer()
+		public bool StopClient()
 		{
 			try
 			{
@@ -95,6 +89,8 @@ namespace MiNET
 		private void ReceiveCallback(IAsyncResult ar)
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
+
+			if (!listener.Client.IsBound || !listener.Client.Connected) return;
 
 			// WSAECONNRESET:
 			// The virtual circuit was reset by the remote side executing a hard or abortive close. 
@@ -129,59 +125,9 @@ namespace MiNET
 				{
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
-					{
-						UnconnectedPing incoming = (UnconnectedPing) message;
-
-						//TODO: This needs to be verified with RakNet first
-						//response.sendpingtime = msg.sendpingtime;
-						//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
-
-						var packet = new UnconnectedPong
-						{
-							serverId = 12345,
-							pingId = 100 /*incoming.pingId*/,
-							serverName = "MCCPP;Demo;MiNET - Another MC server"
-						};
-						var data = packet.Encode();
-						TraceSend(packet, data);
-						SendData(data, senderEndpoint);
-						break;
-					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
-					{
-						OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
-
-						var packet = new OpenConnectionReply1
-						{
-							serverGuid = 12345,
-							mtuSize = incoming.mtuSize,
-							serverHasSecurity = 0
-						};
-
-						var data = packet.Encode();
-						TraceSend(packet, data);
-						SendData(data, senderEndpoint);
-						break;
-					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
-					{
-						OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
-
-						var packet = new OpenConnectionReply2
-						{
-							serverGuid = 12345,
-							mtuSize = incoming.mtuSize,
-							doSecurityAndHandshake = new byte[0]
-						};
-
-						_playerEndpoints.Remove(senderEndpoint);
-						_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
-
-						var data = packet.Encode();
-						TraceSend(packet, data);
-						SendData(data, senderEndpoint);
 						break;
-					}
 				}
 			}
 			else
@@ -241,20 +187,19 @@ namespace MiNET
 				return;
 			}
 
-			if (_playerEndpoints.ContainsKey(senderEndpoint))
-			{
-				_playerEndpoints[senderEndpoint].HandlePackage(message);
-			}
+			//if (_serverEndpoint.ContainsKey(senderEndpoint))
+			//{
+			//	_serverEndpoint[senderEndpoint].HandlePackage(message);
+			//}
 
-			if (typeof (DisconnectionNotification) == message.GetType())
-			{
-				_playerEndpoints.Remove(senderEndpoint);
-			}
+			//if (typeof (DisconnectionNotification) == message.GetType())
+			//{
+			//	_serverEndpoint.Remove(senderEndpoint);
+			//}
 		}
 
-		public int SendPackage(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		public int SendPackage(Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
-			//mtuSize = 400;
 			byte[] encodedMessage = message.Encode();
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
 			int index = 0;
@@ -277,7 +222,7 @@ namespace MiNET
 
 				TraceSend(message, data, package);
 
-				SendData(data, senderEndpoint);
+				SendData(data);
 			}
 
 			return count;
@@ -316,12 +261,12 @@ namespace MiNET
 
 			var data = ack.Encode();
 
-			SendData(data, senderEndpoint);
+			SendData(data);
 		}
 
-		private void SendData(byte[] data, IPEndPoint senderEndpoint)
+		public void SendData(byte[] data)
 		{
-			_listener.Send(data, data.Length, senderEndpoint);
+			_listener.Send(data, data.Length, _serverEndpoint);
 			Thread.Yield();
 		}
 
@@ -337,28 +282,112 @@ namespace MiNET
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, Package package, bool isUnknown = false)
 		{
-			if (true || msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
-			{
-				Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
-			}
+			Debug.Print("C<S Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
 		}
 
 		private static void TraceSend(Package message, byte[] data)
 		{
-			if (true || message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
-			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
-				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
-			}
+			Debug.Print("C>S Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
+			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
 		}
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
-			if (true || message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG && message.Id != 0x86)
+			Debug.Print("C>S Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue(), package.GetType().Name);
+			//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
+		}
+
+		public void SendUnconnectedPing()
+		{
+			var packet = new UnconnectedPing
 			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue(), package.GetType().Name);
-				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
-			}
+				pingId = 100 /*incoming.pingId*/,
+			};
+
+			var data = packet.Encode();
+			TraceSend(packet, data);
+			SendData(data);
+		}
+
+		public void SendOpenConnectionRequest1()
+		{
+			var packet = new OpenConnectionRequest1()
+			{
+				mtuSize = _mtuSize
+			};
+
+			var data = packet.Encode();
+			TraceSend(packet, data);
+			SendData(data);
+		}
+
+		public void SendOpenConnectionRequest2()
+		{
+			var packet = new OpenConnectionRequest2()
+			{
+				cookie = new byte[4],
+				mtuSize = _mtuSize
+			};
+
+			var data = packet.Encode();
+			TraceSend(packet, data);
+			SendData(data);
+		}
+
+		public void SendConnectionRequest()
+		{
+			var packet = new ConnectionRequest()
+			{
+			};
+
+			SendPackage(packet, _mtuSize, 0, 0);
+		}
+
+		public void SendMcpeLogin(string username)
+		{
+			var packet = new McpeLogin()
+			{
+				username = username,
+				logindata = "nothing"
+			};
+
+			SendPackage(packet, _mtuSize, 0, 0);
+		}
+
+
+		public void SendDisconnectionNotification()
+		{
+			var packet = new DisconnectionNotification()
+			{
+			};
+
+			SendPackage(packet, _mtuSize, 0, 0);
+		}
+
+		public void SendMcpeMovePlayer(int x, int y, int z)
+		{
+			var position = new PlayerPosition3D
+			{
+				X = x,
+				Y = y,
+				Z = z,
+				Yaw = 91,
+				Pitch = 28,
+				BodyYaw = 91
+			};
+
+			var packet = new McpeMovePlayer()
+			{
+				entityId = 0,
+				x = position.X,
+				y = position.Y,
+				z = position.Z,
+				yaw = position.Yaw,
+				pitch = position.Pitch,
+				bodyYaw = position.BodyYaw,
+			};
+
+			SendPackage(packet, _mtuSize, 0, 0);
 		}
 	}
 }

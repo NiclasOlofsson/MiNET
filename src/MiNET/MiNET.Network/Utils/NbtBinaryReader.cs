@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
@@ -162,20 +161,24 @@ namespace MiNET.Utils
 	/// </summary>
 	internal sealed class ZLibStream : DeflateStream
 	{
-		private int adler32A = 1,
-			adler32B;
+		private int adler32A = 1, adler32B;
+		private MemoryStream _buffer = new MemoryStream();
 
 		private const int ChecksumModulus = 65521;
 
 		public int Checksum
 		{
-			get { return ((adler32B*65536) + adler32A); }
+			get
+			{
+				UpdateChecksum(_buffer.ToArray(), 0, _buffer.Length);
+				return ((adler32B*65536) + adler32A);
+			}
 		}
 
 
-		private void UpdateChecksum(IList<byte> data, int offset, int length)
+		private void UpdateChecksum(byte[] data, int offset, long length)
 		{
-			for (int counter = 0; counter < length; ++counter)
+			for (long counter = 0; counter < length; ++counter)
 			{
 				adler32A = (adler32A + (data[offset + counter]))%ChecksumModulus;
 				adler32B = (adler32B + adler32A)%ChecksumModulus;
@@ -191,7 +194,8 @@ namespace MiNET.Utils
 
 		public override void Write(byte[] array, int offset, int count)
 		{
-			UpdateChecksum(array, offset, count);
+//			UpdateChecksum(array, offset, count);
+			_buffer.Write(array, offset, count);
 			base.Write(array, offset, count);
 		}
 	}

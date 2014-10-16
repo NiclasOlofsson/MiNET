@@ -79,12 +79,12 @@ namespace MiNET.Worlds
 		public void Initialize()
 		{
 			CurrentWorldTime = 6000;
-			WorldTimeStarted = true;
+			WorldTimeStarted = false;
 
 			var loadIt = new FlatlandGenerator();
 
-//			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+//			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();
@@ -161,13 +161,15 @@ namespace MiNET.Worlds
 
 
 		private object _tickSync = new object();
+		private int tickTimeCount = 0;
 
 		private void LevelTickerTicked(object sender, ElapsedEventArgs e)
 		{
 			if (!Monitor.TryEnter(_tickSync))
 			{
-				_levelTicker.Interval += 5;
-				Debug.WriteLine("Increased tick-time to {0}", _levelTicker.Interval);
+				//_levelTicker.Interval += _levelTicker.Interval * 0.10;
+				//tickTimeCount = 20*5; // Wait 5s to decrease
+				//Console.WriteLine("Increased tick-time to {0}", _levelTicker.Interval);
 				return;
 			}
 			else
@@ -178,16 +180,16 @@ namespace MiNET.Worlds
 					if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
 
 					// Set time (Fix this so it doesn't jump)
-					if (CurrentWorldTime%10 == 0)
-					{
-						foreach (var player in Players.ToArray())
-						{
-							if (player.IsSpawned)
-							{
-								player.SendSetTime();
-							}
-						}
-					}
+					//if (CurrentWorldTime%10 == 0)
+					//{
+					//	foreach (var player in Players.ToArray())
+					//	{
+					//		if (player.IsSpawned)
+					//		{
+					//			player.SendSetTime();
+					//		}
+					//	}
+					//}
 
 					// broadcast events to all players
 
@@ -195,7 +197,7 @@ namespace MiNET.Worlds
 					foreach (var player in Players.ToArray())
 					{
 						// Check if player has been updated since last world-tick
-						if (player.IsSpawned && (DateTime.Now.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
+						if (player.IsSpawned && (DateTime.UtcNow.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
 						{
 							BroadCastMovement(player);
 						}
@@ -210,11 +212,49 @@ namespace MiNET.Worlds
 
 					// Entity updates
 
-					if (Math.Abs(_levelTicker.Interval - 50) >= 5)
-					{
-						_levelTicker.Interval -= 5;
-						Debug.WriteLine("Decreased tick-time to {0}", _levelTicker.Interval);
-					}
+					//if (CurrentWorldTime%2 == 0)
+					//{
+					//	foreach (var player in Players.ToArray())
+					//	{
+					//		if (player.IsSpawned)
+					//		{
+					//			int centerX = (int) player.KnownPosition.X/16;
+					//			int centerZ = (int) player.KnownPosition.Z/16;
+
+					//			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(centerX, centerZ));
+					//			player.SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
+					//			//player.SendChunksForKnownPosition(true);
+					//		}
+					//	}
+					//}
+					//if (CurrentWorldTime%1 == 0)
+					//{
+					//	foreach (var player in Players.ToArray())
+					//	{
+					//		if (player.IsSpawned)
+					//		{
+					//			player.SendPackage(new McpeUpdateBlock
+					//			{
+					//				x = (int) player.KnownPosition.X,
+					//				y = (byte) 127,
+					//				z = (int) player.KnownPosition.Z,
+					//				block = 7,
+					//				meta = 0
+					//			});
+					//		}
+					//	}
+					//}
+
+
+					//if (Math.Abs(_levelTicker.Interval - 50) >= 5)
+					//{
+					//	if (tickTimeCount-- == 0)
+					//	{
+					//		_levelTicker.Interval -= 5;
+					//		tickTimeCount = 20*2; // Wait little less for next decrease
+					//		Console.WriteLine("Decreased tick-time to {0}", _levelTicker.Interval);
+					//	}
+					//}
 				}
 				finally
 				{
@@ -317,12 +357,12 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void RelayBroadcast(Player source, McpeEntityEventPacket message)
+		public void RelayBroadcast(Player target, McpeEntityEventPacket message)
 		{
 			foreach (var player in Players.ToArray())
 			{
 				var send = message.Clone<McpeEntityEventPacket>();
-				send.entityId = player.GetEntityId(source);
+				send.entityId = player.GetEntityId(target);
 				player.SendPackage(send);
 			}
 		}

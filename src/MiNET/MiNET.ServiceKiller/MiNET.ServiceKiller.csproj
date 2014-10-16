@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{1B017586-D2EA-4879-8CAE-961A0FA19FF1}</ProjectGuid>
+    <ProjectGuid>{64C3E226-CBBB-4A8E-BC10-09BA6BC307C9}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MiNET.Service</RootNamespace>
-    <AssemblyName>MiNET.Service</AssemblyName>
+    <RootNamespace>MiNET.ServiceKiller</RootNamespace>
+    <AssemblyName>MiNET.ServiceKiller</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>MiNET.Service.MiNetService</StartupObject>
+    <StartupObject>MiNET.ServiceKiller.Emulator</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -43,17 +43,14 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="Topshelf">
-      <HintPath>..\packages\Topshelf.3.1.4\lib\net40-full\Topshelf.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MiNetService.cs" />
+    <Compile Include="MiNetClient.cs" />
+    <Compile Include="Emulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiNET.Network\MiNET.csproj">

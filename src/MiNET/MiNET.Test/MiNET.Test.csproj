@@ -71,7 +71,7 @@
       <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>
       <Name>Craft.Net.TerrainGeneration</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MiNET.Network\MiNET.csproj">
+    <ProjectReference Include="..\MiNET\MiNET.csproj">
       <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>
       <Name>MiNET</Name>
     </ProjectReference>

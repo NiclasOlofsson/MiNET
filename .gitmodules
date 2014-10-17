@@ -1,3 +1,5 @@
 [submodule "external/craft.net"]
+
 	path = external/craft.net
+
 	url = https://github.com/SirCmpwn/Craft.Net.git

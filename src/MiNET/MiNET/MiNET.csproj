@@ -73,7 +73,6 @@
     <Compile Include="Utils\NbtBinaryWriter.cs" />
     <Compile Include="Utils\NbtFormatException.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
-    <Compile Include="Worlds\ChunkHelper.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
@@ -103,23 +102,23 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Craft.Net\externals\fNbt\fNbt\fNbt.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\externals\fNbt\fNbt\fNbt.csproj">
       <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
       <Name>fNbt</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
       <Project>{02031C5C-5007-48D5-A253-F7C8BDF0C0B2}</Project>
       <Name>Craft.Net.Anvil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Common\Craft.Net.Common.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Common\Craft.Net.Common.csproj">
       <Project>{50462849-2223-4E39-B5D9-A928A9A58A33}</Project>
       <Name>Craft.Net.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Logic\Craft.Net.Logic.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Logic\Craft.Net.Logic.csproj">
       <Project>{E001ADA1-6BCB-420E-B187-07FF361D60B8}</Project>
       <Name>Craft.Net.Logic</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
       <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>
       <Name>Craft.Net.TerrainGeneration</Name>
     </ProjectReference>

@@ -55,21 +55,17 @@
     <Compile Include="UnitTest1.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Craft.Net\externals\fNbt\fNbt\fNbt.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\externals\fNbt\fNbt\fNbt.csproj">
       <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
       <Name>fNbt</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
       <Project>{02031C5C-5007-48D5-A253-F7C8BDF0C0B2}</Project>
       <Name>Craft.Net.Anvil</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.Common\Craft.Net.Common.csproj">
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Common\Craft.Net.Common.csproj">
       <Project>{50462849-2223-4E39-B5D9-A928A9A58A33}</Project>
       <Name>Craft.Net.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Craft.Net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
-      <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>
-      <Name>Craft.Net.TerrainGeneration</Name>
     </ProjectReference>
     <ProjectReference Include="..\MiNET\MiNET.csproj">
       <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>

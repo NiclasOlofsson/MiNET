@@ -83,8 +83,8 @@ namespace MiNET.Worlds
 
 			var loadIt = new FlatlandGenerator();
 
-			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-//			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+//			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();

@@ -15,3 +15,6 @@ And as he really likes to tell his mother these days "Mom, don't disturb daddy. 
 
 Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-button" data-show-count="false" data-size="large" data-dnt="true">Twitter @NiclasOlofsson</a> for news about the project, or simply track the checkins which i tend to comment heavily.
  
+MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...
+
+[![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)

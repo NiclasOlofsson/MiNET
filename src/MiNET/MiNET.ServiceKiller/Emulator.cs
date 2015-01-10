@@ -15,7 +15,7 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 60*4; i++)
+			for (int i = 0; i < 1*2; i++)
 			{
 				counter[0]++;
 				var worker = new BackgroundWorker();

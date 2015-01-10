@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
+using System.Timers;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -29,6 +29,9 @@ namespace MiNET
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
 		}
 
+		private Queue<UdpClient> _clients = new Queue<UdpClient>();
+		private UdpClient _sender = null;
+
 		public bool StartServer()
 		{
 			if (_listener != null) return false; // Already started
@@ -42,9 +45,7 @@ namespace MiNET
 
 				_listener = new UdpClient(_endpoint);
 				_listener.Client.ReceiveBufferSize = 1024*1024*8;
-//				_listener.Client.SendBufferSize = 1024*1024;
-				_listener.Client.SendBufferSize = 1500;
-//				_listener.Client.SendBufferSize = 4096;
+				_listener.Client.SendBufferSize = 4096;
 
 				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -254,7 +255,6 @@ namespace MiNET
 
 		public int SendPackage(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
-			//mtuSize = 400;
 			byte[] encodedMessage = message.Encode();
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
 			int index = 0;
@@ -319,10 +319,40 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
+		private int _avaragePacketSize = 0;
+		private long _numberOfPacketsSent = 0;
+		private long _totalPacketSize = 0;
+		private Timer _throughPut = null;
+
 		private void SendData(byte[] data, IPEndPoint senderEndpoint)
 		{
-			_listener.Send(data, data.Length, senderEndpoint);
-			Thread.Yield();
+			if (_throughPut == null)
+			{
+				_throughPut = new Timer(1000);
+				_throughPut.Elapsed += delegate(object sender, ElapsedEventArgs args)
+				{
+					//long kbytesPerSecond = (_avaragePacketSize * 8 * _numberOfPacketsSent) / 1000;
+					long kbytesPerSecond = _totalPacketSize*8/1000;
+					Console.WriteLine("\t\t#Packets {0}, Avarage Size: {1}byte, Thoughput: {2}kbit/s", _numberOfPacketsSent, _avaragePacketSize,
+						kbytesPerSecond);
+					Console.WriteLine("Tick time {0} with {1} player(s)", _level.lastTickProcessingTime, _level.Players.Count);
+
+					//_avaragePacketSize = 0;
+					//_numberOfPacketsSent = 0;
+					_totalPacketSize = 0;
+				};
+				_throughPut.Start();
+			}
+
+			_avaragePacketSize = (_avaragePacketSize + data.Length)/2;
+			_numberOfPacketsSent++;
+			_totalPacketSize += data.Length;
+
+			_listener.SendAsync(data, data.Length, senderEndpoint);
+
+//			BackgroundWorker worker = new BackgroundWorker();
+//			worker.DoWork += (sender, args) => client.Send(data, data.Length, senderEndpoint);
+//			worker.RunWorkerAsync();
 		}
 
 		public static string ByteArrayToString(byte[] ba)

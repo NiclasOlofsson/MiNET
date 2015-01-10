@@ -90,11 +90,13 @@
       <DesignTime>True</DesignTime>
     </None>
     <None Include="Net\MCPE Protocol Documentation.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+		<DependentUpon>MCPE Protocol.xml</DependentUpon>
+		<Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
     </None>
     <None Include="Net\MCPE Protocol.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+		<DependentUpon>MCPE Protocol.xml</DependentUpon>
+		<Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
     </None>
   </ItemGroup>

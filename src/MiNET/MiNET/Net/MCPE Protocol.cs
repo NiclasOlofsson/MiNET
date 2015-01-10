@@ -1274,8 +1274,8 @@ namespace MiNET.Net
 		public float z; // = null;
 		public byte yaw; // = null;
 		public byte pitch; // = null;
-		public short unknown1; // = null;
-		public short unknown2; // = null;
+		public short item; // = null;
+		public short meta; // = null;
 		public byte[] metadata; // = null;
 
 		public McpeAddPlayer()
@@ -1297,8 +1297,8 @@ namespace MiNET.Net
 			Write(z);
 			Write(yaw);
 			Write(pitch);
-			Write(unknown1);
-			Write(unknown2);
+			Write(item);
+			Write(meta);
 			Write(metadata);
 
 			AfterEncode();
@@ -1321,8 +1321,8 @@ namespace MiNET.Net
 			z = ReadFloat();
 			yaw = ReadByte();
 			pitch = ReadByte();
-			unknown1 = ReadShort();
-			unknown2 = ReadShort();
+			item = ReadShort();
+			meta = ReadShort();
 			metadata = ReadBytes(0);
 
 			AfterDecode();
@@ -1764,7 +1764,7 @@ namespace MiNET.Net
 		public int x; // = null;
 		public int y; // = null;
 		public int z; // = null;
-		public int face; // = null;
+		public byte face; // = null;
 		public short item; // = null;
 		public short meta; // = null;
 		public int entityId; // = null;
@@ -1815,7 +1815,7 @@ namespace MiNET.Net
 			x = ReadInt();
 			y = ReadInt();
 			z = ReadInt();
-			face = ReadInt();
+			face = ReadByte();
 			item = ReadShort();
 			meta = ReadShort();
 			entityId = ReadInt();

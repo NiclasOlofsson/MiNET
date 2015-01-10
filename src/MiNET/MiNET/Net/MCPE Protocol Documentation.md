@@ -28,6 +28,7 @@
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
 | Mcpe Update Block | 0x98 | 152 |   
+| Mcpe Entity Event Packet | 0x9d | 157 |   
 | Mcpe Player Equipment | 0xa0 | 160 |   
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
 | Mcpe Interact Packet | 0xa2 | 162 |   
@@ -478,8 +479,8 @@ The three type of status are:
 |Z | float |  |
 |Yaw | byte |  |
 |Pitch | byte |  |
-|Unknown1 | short |  |
-|Unknown2 | short |  |
+|Item | short |  |
+|Meta | short |  |
 |Metadata | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x8a)
@@ -551,6 +552,21 @@ The three type of status are:
 |Y | byte |  |
 |Block | byte |  |
 |Meta | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Entity Event Packet (0x9d)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|Event ID | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Equipment (0xa0)
 
@@ -633,7 +649,7 @@ The three type of status are:
 |X | int |  |
 |Y | int |  |
 |Z | int |  |
-|Face | int |  |
+|Face | byte |  |
 |Item | short |  |
 |Meta | short |  |
 |Entity ID | int |  |

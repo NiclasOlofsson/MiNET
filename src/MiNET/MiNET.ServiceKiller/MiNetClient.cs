@@ -38,7 +38,7 @@ namespace MiNET.ServiceKiller
 			{
 				_listener = new UdpClient(_endpoint);
 				_listener.Client.ReceiveBufferSize = 1024*1024;
-				_listener.Client.SendBufferSize = 1024*1024;
+				_listener.Client.SendBufferSize = 4096;
 
 				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -51,7 +51,7 @@ namespace MiNET.ServiceKiller
 				_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
 				// We need to catch errors here to remove the code above.
-				_listener.BeginReceive(ReceiveCallback, _listener);
+//				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				Console.WriteLine("Client open for business...");
 

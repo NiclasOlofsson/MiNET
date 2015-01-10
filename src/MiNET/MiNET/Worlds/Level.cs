@@ -65,6 +65,7 @@ namespace MiNET.Worlds
 		//const SPECTATOR = 3;
 		public GameMode GameMode { get; private set; }
 		public int CurrentWorldTime { get; private set; }
+		public long StartTimeInTicks { get; private set; }
 		public bool WorldTimeStarted { get; private set; }
 
 		public Level(string levelId, IWorldProvider worldProvider = null)
@@ -79,12 +80,12 @@ namespace MiNET.Worlds
 		public void Initialize()
 		{
 			CurrentWorldTime = 6000;
-			WorldTimeStarted = false;
+			WorldTimeStarted = true;
 
 			var loadIt = new FlatlandGenerator();
 
-//			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-			if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
+			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
+			//if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();
@@ -107,6 +108,8 @@ namespace MiNET.Worlds
 			{
 				_levelTicker.Stop();
 			}
+
+			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
 			_levelTicker = new Timer(50); // MC worlds tick-time
 			_levelTicker.Elapsed += LevelTickerTicked;
@@ -163,33 +166,33 @@ namespace MiNET.Worlds
 		private object _tickSync = new object();
 		private int tickTimeCount = 0;
 
+		private Stopwatch _tickTimer = new Stopwatch();
+
 		private void LevelTickerTicked(object sender, ElapsedEventArgs e)
 		{
 			if (!Monitor.TryEnter(_tickSync))
 			{
-				//_levelTicker.Interval += _levelTicker.Interval * 0.10;
-				//tickTimeCount = 20*5; // Wait 5s to decrease
-				//Console.WriteLine("Increased tick-time to {0}", _levelTicker.Interval);
 				return;
 			}
 			else
 			{
+				_tickTimer.Restart();
 				try
 				{
 					CurrentWorldTime += 1;
 					if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
 
 					// Set time (Fix this so it doesn't jump)
-					//if (CurrentWorldTime%10 == 0)
-					//{
-					//	foreach (var player in Players.ToArray())
-					//	{
-					//		if (player.IsSpawned)
-					//		{
-					//			player.SendSetTime();
-					//		}
-					//	}
-					//}
+					if (CurrentWorldTime % 10 == 0)
+					{
+						foreach (var player in Players.ToArray())
+						{
+							if (player.IsSpawned)
+							{
+								player.SendSetTime();
+							}
+						}
+					}
 
 					// broadcast events to all players
 
@@ -241,27 +244,20 @@ namespace MiNET.Worlds
 					//				block = 7,
 					//				meta = 0
 					//			});
-					//		}
-					//	}
-					//}
-
-
-					//if (Math.Abs(_levelTicker.Interval - 50) >= 5)
-					//{
-					//	if (tickTimeCount-- == 0)
-					//	{
-					//		_levelTicker.Interval -= 5;
-					//		tickTimeCount = 20*2; // Wait little less for next decrease
-					//		Console.WriteLine("Decreased tick-time to {0}", _levelTicker.Interval);
+					//		}	
 					//	}
 					//}
 				}
 				finally
 				{
+					lastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
+//					Console.WriteLine("Tick time {0} with {1} player(s)", lastTickProcessingTime, Players.Count);
 					Monitor.Exit(_tickSync);
 				}
 			}
 		}
+
+		public long lastTickProcessingTime = 0;
 
 		private void BroadCastMovement(Player player)
 		{

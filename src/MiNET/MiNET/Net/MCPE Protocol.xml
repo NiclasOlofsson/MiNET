@@ -193,8 +193,8 @@
 		<field name="Z" type="float" />
 		<field name="Yaw" type="byte" />
 		<field name="Pitch" type="byte" />
-		<field name="Unknown1" type="short" />
-		<field name="Unknown2" type="short" />
+		<field name="Item" type="short" />
+		<field name="Meta" type="short" />
 		<field name="Metadata" type="byte[]" size="0" />
 	</pdu>
 
@@ -263,7 +263,7 @@
 		<field name="X" type="int" />
 		<field name="Y" type="int" />
 		<field name="Z" type="int" />
-		<field name="Face" type="int" />
+		<field name="Face" type="byte" />
 		<field name="Item" type="short" />
 		<field name="Meta" type="short" />
 		<field name="Entity ID" type="int" />

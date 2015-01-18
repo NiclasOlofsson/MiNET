@@ -1,4 +1,5 @@
-﻿using Topshelf;
+﻿using System;
+using Topshelf;
 
 namespace MiNET.Service
 {
@@ -19,6 +20,15 @@ namespace MiNET.Service
 
 		private static void Main(string[] args)
 		{
+			if (IsRunningOnMono())
+			{
+				var service = new MiNetService();
+				service.Start();
+				Console.WriteLine("MiNET runing. Press <enter> to stop service..");
+				Console.ReadLine();
+				service.Stop();
+			}
+
 			HostFactory.Run(host =>
 			{
 				host.Service<MiNetService>(s =>
@@ -33,6 +43,11 @@ namespace MiNET.Service
 				host.SetDescription("MiNET MineCraft Pocket Edition server.");
 				host.SetServiceName("MiNET");
 			});
+		}
+
+		public static bool IsRunningOnMono()
+		{
+			return Type.GetType("Mono.Runtime") != null;
 		}
 	}
 }

@@ -27,10 +27,14 @@ namespace MiNET.Worlds
 		{
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\Mountain Sky Village\§4§kd§  Mountain Sky Village §4§kd§"); _offsetY = 0;
-			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\KingsLanding1\KingsLanding1"); _offsetY = 30;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\KingsLanding1\KingsLanding1"); _offsetY = 30;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy"); _offsetY = 0;
 //			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\FunLand+3_1\FunLand 3.1"); _offsetY = 0;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\[CREATIVE]_Eldaria_V3.1_by_Aurelien_Sama\[CREATIVE]_Eldaria_V3.1_by_Aurelien_Sama"); _offsetY = 60;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\parrotkingdom\parrotkingdom"); _offsetY = 60;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\BlugoughTown\Blugough"); _offsetY = 30;
+			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\spawn IceSebos\spawn IceSebos"); _offsetY = 30;
 
 			Debug.WriteLine("Water level: " + _level.DefaultWorld);
 

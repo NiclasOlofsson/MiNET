@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
@@ -31,10 +30,9 @@ namespace MiNET
 		private short _mtuSize;
 		private List<Player> _entities;
 		private int _reliableMessageNumber;
-		private int _sequenceNumber;
+		private int _datagramSequenceNumber;
 		private object _sequenceNumberSync = new object();
 
-		private BackgroundWorker _worker;
 		private Coordinates2D _currentChunkPosition;
 
 		public bool IsConnected { get; set; }
@@ -103,7 +101,6 @@ namespace MiNET
 			ItemInHand = new MetadataSlot(new ItemStack(-1));
 			IsConnected = true;
 		}
-
 
 		public void HandlePackage(Package message)
 		{
@@ -182,6 +179,13 @@ namespace MiNET
 			{
 				HandleInteract((McpeInteractPacket) message);
 			}
+
+			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
+			message.Timer.Stop();
+			if (elapsedMilliseconds > 100)
+			{
+				Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
+			}
 		}
 
 		private void HandleDisconnectionNotification()
@@ -193,7 +197,7 @@ namespace MiNET
 		private void HandleConnectionRequest(ConnectionRequest msg)
 		{
 			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, msg.timestamp);
-			response.Encode();
+			//response.Encode();
 
 			SendPackage(response);
 		}
@@ -210,6 +214,8 @@ namespace MiNET
 		private void HandleLogin(McpeLogin msg)
 		{
 			Username = msg.username;
+			if (Username == null) throw new Exception("No username on login");
+
 			SendPackage(new McpeLoginStatus {status = 0});
 
 			// Start game
@@ -232,7 +238,9 @@ namespace MiNET
 			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
-//			if (Username.StartsWith("Player")) return;
+			if (Username == null) return;
+
+			//if (Username.StartsWith("Player")) return;
 			SendChunksForKnownPosition();
 		}
 
@@ -374,20 +382,12 @@ namespace MiNET
 			_currentChunkPosition.X = centerX;
 			_currentChunkPosition.Z = centerZ;
 
-			_worker = new BackgroundWorker();
-			_worker.WorkerSupportsCancellation = true;
-			_worker.DoWork += delegate(object sender, DoWorkEventArgs args)
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				BackgroundWorker worker = sender as BackgroundWorker;
 				int count = 0;
 				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<string, ChunkColumn>() : _chunksUsed))
 				{
-					if (worker.CancellationPending)
-					{
-						args.Cancel = true;
-						break;
-					}
-
 					SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
 					Thread.Yield();
 
@@ -401,9 +401,7 @@ namespace MiNET
 
 					count++;
 				}
-			};
-
-			_worker.RunWorkerAsync();
+			});
 		}
 
 		private void SendSetHealth()
@@ -455,6 +453,8 @@ namespace MiNET
 		public void SendAddForPlayer(Player player)
 		{
 			if (player == this) return;
+
+			if (player.Username == null) throw new Exception("No username");
 
 			SendPackage(new McpeAddPlayer
 			{
@@ -508,39 +508,78 @@ namespace MiNET
 			});
 		}
 
+		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
+
 		public void SendMovementForPlayer(Player player)
 		{
 			if (player == this) return;
 
 			var knownPosition = player.KnownPosition;
 
-			SendPackage(new McpeMovePlayer
-			{
-				entityId = GetEntityId(player),
-				x = knownPosition.X,
-				y = knownPosition.Y,
-				z = knownPosition.Z,
-				yaw = knownPosition.Yaw,
-				pitch = knownPosition.Pitch,
-				bodyYaw = knownPosition.BodyYaw,
-				teleport = 0
-			});
+			var move = _movePool.GetObject();
+			move.MovePool = _movePool;
+			move.entityId = GetEntityId(player);
+			move.x = knownPosition.X;
+			move.y = knownPosition.Y;
+			move.z = knownPosition.Z;
+			move.yaw = knownPosition.Yaw;
+			move.pitch = knownPosition.Pitch;
+			move.bodyYaw = knownPosition.BodyYaw;
+			move.teleport = 0;
+
+			SendPackage(move);
 		}
 
 		/// <summary>
-		///     Very imporatnt litle method. This does all the sending of packages for
+		///     Very important litle method. This does all the sending of packages for
 		///     the player class. Treat with respect!
 		/// </summary>
 		/// <param name="package"></param>
+		private Queue<Package> _sendQueue = new Queue<Package>();
+
+		private Timer _playerTicker;
+		private int _messageNumber;
+
 		public void SendPackage(Package package)
 		{
 			if (!IsConnected) return;
 
+			if (IsSpawned && package is McpeMovePlayer)
+			{
+				lock (_sendQueue)
+				{
+					_sendQueue.Enqueue(package);
+
+					if (_playerTicker == null)
+					{
+						_playerTicker = new Timer(SendQueue, null, 10, 10); // MC worlds tick-time
+					}
+				}
+			}
+			else
+			{
+				lock (_sequenceNumberSync)
+				{
+					_server.SendPackage(_endpoint, new List<Package>(new[] {package}), _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
+				}
+			}
+		}
+
+		private void SendQueue(object sender)
+		{
+			if (!IsConnected) return;
+
+			List<Package> messages = new List<Package>();
+			lock (_sendQueue)
+			{
+				while (_sendQueue.Count > 0)
+				{
+					messages.Add(_sendQueue.Dequeue());
+				}
+			}
 			lock (_sequenceNumberSync)
 			{
-				int numberOfMessages = _server.SendPackage(_endpoint, package, _mtuSize, _sequenceNumber, _reliableMessageNumber);
-				_sequenceNumber += numberOfMessages;
-				_reliableMessageNumber += numberOfMessages;
+				_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 			}
 		}
 

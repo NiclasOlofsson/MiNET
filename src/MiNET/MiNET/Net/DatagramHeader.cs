@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Text;
+using MiNET.Utils;
 
 namespace MiNET.Net
 {
@@ -12,21 +13,25 @@ namespace MiNET.Net
 		public bool isContinuousSend = false;
 		public bool needsBAndAs = false;
 		public bool isValid = false; // To differentiate between what I serialized, and offline data
+		public Int24 datagramSequenceNumber; // uint 24
+
+		public DatagramHeader() : this(0)
+		{
+		}
 
 		public DatagramHeader(byte header)
 		{
-			var bits = new BitArray(new[] { header });
+			var bits = new BitArray(new[] {header});
 
 			//Debug.Print("\t\tPacket data header: {0}", BitsToString(bits));
 
-			if (bits[7])
+			isValid = bits[7];
+			isACK = bits[6];
+			if (isValid)
 			{
-				// IsValid
-				isValid = true;
-				if (bits[6])
+				if (isACK)
 				{
-					// IsAck
-					isACK = true;
+					isNAK = false;
 					isPacketPair = false;
 					hasBAndAS = bits[5];
 					if (hasBAndAS)
@@ -34,20 +39,21 @@ namespace MiNET.Net
 						// Read AS
 					}
 				}
-				else if (bits[5])
-				{
-					// IsNack
-					isNAK = true;
-					isPacketPair = false;
-				}
 				else
 				{
-					// Other
-					isACK = false;
-					isNAK = false;
-					isPacketPair = bits[4];
-					isContinuousSend = bits[3];
-					needsBAndAs = bits[2];
+					isNAK = bits[5];
+					if (isNAK)
+					{
+						// IsNack
+						isPacketPair = false;
+					}
+					else
+					{
+						// Other
+						isPacketPair = bits[4];
+						isContinuousSend = bits[3];
+						needsBAndAs = bits[2];
+					}
 				}
 			}
 		}
@@ -58,7 +64,7 @@ namespace MiNET.Net
 			hex.Append("{");
 			for (int i = 7; 0 <= i; i--)
 			{
-				hex.AppendFormat("{0},", ba[i]);
+				hex.AppendFormat("{0}:{1},", i, ba[i]);
 			}
 			hex.Append("}");
 			return hex.ToString();

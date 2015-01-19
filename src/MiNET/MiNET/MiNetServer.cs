@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Timers;
+using System.Threading;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -27,6 +27,7 @@ namespace MiNET
 		public MiNetServer(IPEndPoint endpoint = null)
 		{
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
+			//ThreadPool.SetMinThreads(10000, 10000);
 		}
 
 		private Queue<UdpClient> _clients = new Queue<UdpClient>();
@@ -44,8 +45,13 @@ namespace MiNET
 				_level.Initialize();
 
 				_listener = new UdpClient(_endpoint);
+
 				_listener.Client.ReceiveBufferSize = 1024*1024*8;
+
+				//_listener.Client.SendBufferSize = 1600;
 				_listener.Client.SendBufferSize = 4096;
+				//_listener.Client.SendBufferSize = 65536;
+				//_listener.Client.SendBufferSize = 1024 * 1024;
 
 				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -116,114 +122,120 @@ namespace MiNET
 				return;
 			}
 
-			byte msgId = receiveBytes[0];
-
-			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
+			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
+				byte msgId = receiveBytes[0];
 
-				Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
-
-				TraceReceive(msgIdType, msgId, receiveBytes, receiveBytes.Length, message);
-
-				switch (msgIdType)
+				if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 				{
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
+					DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
+
+					Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
+
+					TraceReceive(msgIdType, msgId, receiveBytes, receiveBytes.Length, message);
+
+					switch (msgIdType)
 					{
-						UnconnectedPing incoming = (UnconnectedPing) message;
-
-						//TODO: This needs to be verified with RakNet first
-						//response.sendpingtime = msg.sendpingtime;
-						//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
-
-						var packet = new UnconnectedPong
+						case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
+						case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
 						{
-							serverId = 12345,
-							pingId = 100 /*incoming.pingId*/,
-							serverName = "MCCPP;Demo;MiNET - Another MC server"
-						};
-						var data = packet.Encode();
-						TraceSend(packet, data);
-						SendData(data, senderEndpoint);
-						break;
-					}
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
-					{
-						OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
+							UnconnectedPing incoming = (UnconnectedPing) message;
 
-						var packet = new OpenConnectionReply1
+							//TODO: This needs to be verified with RakNet first
+							//response.sendpingtime = msg.sendpingtime;
+							//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+
+							var packet = new UnconnectedPong
+							{
+								serverId = 12345,
+								pingId = 100 /*incoming.pingId*/,
+								serverName = "MCCPP;Demo;MiNET - Another MC server"
+							};
+							var data = packet.Encode();
+							TraceSend(packet, data);
+							SendData(data, senderEndpoint);
+							break;
+						}
+						case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
 						{
-							serverGuid = 12345,
-							mtuSize = incoming.mtuSize,
-							serverHasSecurity = 0
-						};
+							OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
 
-						var data = packet.Encode();
-						TraceSend(packet, data);
-						SendData(data, senderEndpoint);
-						break;
-					}
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
-					{
-						OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
+							var packet = new OpenConnectionReply1
+							{
+								serverGuid = 12345,
+								mtuSize = incoming.mtuSize,
+								serverHasSecurity = 0
+							};
 
-						var packet = new OpenConnectionReply2
+							var data = packet.Encode();
+							TraceSend(packet, data);
+							SendData(data, senderEndpoint);
+							break;
+						}
+						case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
 						{
-							serverGuid = 12345,
-							mtuSize = incoming.mtuSize,
-							doSecurityAndHandshake = new byte[0]
-						};
+							OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
 
-						_playerEndpoints.Remove(senderEndpoint);
-						_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
+							var packet = new OpenConnectionReply2
+							{
+								serverGuid = 12345,
+								mtuSize = incoming.mtuSize,
+								doSecurityAndHandshake = new byte[0]
+							};
 
-						var data = packet.Encode();
-						TraceSend(packet, data);
-						SendData(data, senderEndpoint);
-						break;
+							lock (_playerEndpoints)
+							{
+								_playerEndpoints.Remove(senderEndpoint);
+								_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
+							}
+							var data = packet.Encode();
+							TraceSend(packet, data);
+							SendData(data, senderEndpoint);
+							break;
+						}
 					}
 				}
-			}
-			else
-			{
-				DatagramHeader header = new DatagramHeader(receiveBytes[0]);
-				if (!header.isACK && !header.isNAK && header.isValid)
+				else
 				{
-					if (receiveBytes[0] == 0xa0)
+					DatagramHeader header = new DatagramHeader(receiveBytes[0]);
+					if (!header.isACK && !header.isNAK && header.isValid)
 					{
-						throw new Exception("Receive ERROR, NAK in wrong place");
+						if (receiveBytes[0] == 0xa0)
+						{
+							throw new Exception("Receive ERROR, NAK in wrong place");
+						}
+
+						ConnectedPackage package = new ConnectedPackage();
+						package.Decode(receiveBytes);
+						var messages = package.Messages;
+
+						foreach (var message in messages)
+						{
+							TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message, message is UnknownPackage);
+							SendAck(senderEndpoint, package._datagramSequenceNumber);
+							HandlePackage(message, senderEndpoint);
+						}
 					}
-
-					var package = new ConnectedPackage();
-					package.Decode(receiveBytes);
-					var messages = package.Messages;
-
-					foreach (var message in messages)
+					else if (header.isACK && header.isValid)
 					{
-						TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message, message is UnknownPackage);
-						SendAck(senderEndpoint, package._sequenceNumber);
-						HandlePackage(message, senderEndpoint);
+						Ack ack = new Ack();
+						ack.Decode(receiveBytes);
+						Debug.WriteLine("ACK #{0}", ack.sequenceNumber.IntValue());
+					}
+					else if (header.isNAK && header.isValid)
+					{
+						Nak nak = new Nak();
+						nak.Decode(receiveBytes);
+						Console.WriteLine("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
+						Debug.WriteLine("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
+					}
+					else if (!header.isValid)
+					{
+						Console.WriteLine("!!!! ERROR, Invalid header !!!!!");
+						Debug.WriteLine("!!!! ERROR, Invalid header !!!!!");
 					}
 				}
-				else if (header.isACK && header.isValid)
-				{
-					//Ack ack = new Ack();
-					//ack.Decode(receiveBytes);
-					//Debug.WriteLine("ACK #{0}", ack.nakSequencePackets.FirstOrDefault());
-				}
-				else if (header.isNAK && header.isValid)
-				{
-					Nak nak = new Nak();
-					nak.Decode(receiveBytes);
-					Debug.WriteLine("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
-				}
-				else if (!header.isValid)
-				{
-					Debug.WriteLine("!!!! ERROR, Invalid header !!!!!");
-				}
-			}
-
+			});
 
 			if (receiveBytes.Length != 0)
 			{
@@ -253,7 +265,31 @@ namespace MiNET
 			}
 		}
 
-		public int SendPackage(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		public int SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		{
+			if (messages.Count == 0) return 0;
+
+			var datagrams = Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber);
+			foreach (var datagram in datagrams)
+			{
+				byte[] data = datagram.Encode();
+				//TraceSend(datagram, data);
+				SendData(data, senderEndpoint);
+			}
+
+			foreach (var message in messages)
+			{
+				if (message.MovePool != null && message is McpeMovePlayer)
+				{
+					McpeMovePlayer move = (McpeMovePlayer) message;
+					move.Reset();
+					move.MovePool.PutObject(move);
+				}
+			}
+			return datagrams.Count;
+		}
+
+		public int SendPackage2(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
 			byte[] encodedMessage = message.Encode();
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
@@ -266,7 +302,7 @@ namespace MiNET
 					Buffer = bytes,
 					_reliability = reliability,
 					_reliableMessageNumber = reliableMessageNumber++,
-					_sequenceNumber = sequenceNumber++,
+					_datagramSequenceNumber = sequenceNumber++,
 					_hasSplit = count > 1,
 					_splitPacketCount = count,
 					_splitPacketId = splitId,
@@ -316,43 +352,38 @@ namespace MiNET
 
 			var data = ack.Encode();
 
+			_numberOfAckSent++;
 			SendData(data, senderEndpoint);
 		}
 
-		private int _avaragePacketSize = 0;
-		private long _numberOfPacketsSent = 0;
+		private long _numberOfAckSent = 0;
+		private long _numberOfPacketsSentPerSecond = 0;
 		private long _totalPacketSize = 0;
 		private Timer _throughPut = null;
 
-		private void SendData(byte[] data, IPEndPoint senderEndpoint)
+		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
 			if (_throughPut == null)
 			{
-				_throughPut = new Timer(1000);
-				_throughPut.Elapsed += delegate(object sender, ElapsedEventArgs args)
+				_throughPut = new Timer(delegate(object state)
 				{
-					//long kbytesPerSecond = (_avaragePacketSize * 8 * _numberOfPacketsSent) / 1000;
-					long kbytesPerSecond = _totalPacketSize*8/1000;
-					Console.WriteLine("\t\t#Packets {0}, Avarage Size: {1}byte, Thoughput: {2}kbit/s", _numberOfPacketsSent, _avaragePacketSize,
-						kbytesPerSecond);
-					Console.WriteLine("Tick time {0} with {1} player(s)", _level.lastTickProcessingTime, _level.Players.Count);
+					double kbytesPerSecond = _totalPacketSize*8/1000000D;
+					Console.WriteLine("Tick time {0}ms with {1} player(s)", _level.lastTickProcessingTime, _level.Players.Count);
+					long avaragePacketSize = _totalPacketSize/(_numberOfPacketsSentPerSecond + 1);
+					Console.WriteLine("\tPackets {0}/s, ACKs {1}/s, Ava. Size: {2}byte, Thoughput: {3:F}MBit/s", _numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond);
 
-					//_avaragePacketSize = 0;
-					//_numberOfPacketsSent = 0;
+					_numberOfAckSent = 0;
 					_totalPacketSize = 0;
-				};
-				_throughPut.Start();
+					_numberOfPacketsSentPerSecond = 0;
+				}, null, 1000, 1000);
 			}
 
-			_avaragePacketSize = (_avaragePacketSize + data.Length)/2;
-			_numberOfPacketsSent++;
+			_numberOfPacketsSentPerSecond++;
 			_totalPacketSize += data.Length;
 
-			_listener.SendAsync(data, data.Length, senderEndpoint);
-
-//			BackgroundWorker worker = new BackgroundWorker();
-//			worker.DoWork += (sender, args) => client.Send(data, data.Length, senderEndpoint);
-//			worker.RunWorkerAsync();
+			//_listener.SendAsync(data, data.Length, targetEndpoint);
+			_listener.Send(data, data.Length, targetEndpoint);
+			//_listener.BeginSend(data, data.Length, targetEndpoint, null, null);
 		}
 
 		public static string ByteArrayToString(byte[] ba)
@@ -367,6 +398,7 @@ namespace MiNET
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, Package package, bool isUnknown = false)
 		{
+			return;
 			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 			{
 				Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
@@ -375,6 +407,7 @@ namespace MiNET
 
 		private static void TraceSend(Package message, byte[] data)
 		{
+			return;
 			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
 			{
 				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
@@ -384,11 +417,17 @@ namespace MiNET
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
+			return;
 			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG && message.Id != 0x86)
 			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._sequenceNumber.IntValue(), package.GetType().Name);
+				Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._datagramSequenceNumber.IntValue(), message.GetType().Name);
 				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
 			}
+		}
+
+		private static void TraceSend(Datagram datagram, byte[] data)
+		{
+			//Debug.Print("< Send: Data: Length={1} {0}", ByteArrayToString(data), data.Length);
 		}
 	}
 }

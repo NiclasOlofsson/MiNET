@@ -7,7 +7,8 @@ namespace MiNET.Worlds
 {
 	public class FlatlandWorldProvider : IWorldProvider
 	{
-		private List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
+		private readonly List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
+		private object _sync = new object();
 
 		public bool IsCaching { get; private set; }
 
@@ -22,28 +23,32 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
 		{
-			var firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
-			if (firstOrDefault != null)
+			lock (_chunkCache)
 			{
-				return firstOrDefault;
+				ChunkColumn firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+
+				if (firstOrDefault != null)
+				{
+					return firstOrDefault;
+				}
+
+				FlatlandWorldProvider generator = new FlatlandWorldProvider();
+
+				ChunkColumn chunk = new ChunkColumn();
+				chunk.x = chunkCoordinates.X;
+				chunk.z = chunkCoordinates.Z;
+				generator.PopulateChunk(chunk);
+
+				chunk.SetBlock(0, 5, 0, 7);
+				chunk.SetBlock(1, 5, 0, 41);
+				chunk.SetBlock(2, 5, 0, 41);
+				chunk.SetBlock(3, 5, 0, 41);
+				chunk.SetBlock(3, 5, 0, 41);
+
+				_chunkCache.Add(chunk);
+
+				return chunk;
 			}
-
-			FlatlandWorldProvider generator = new FlatlandWorldProvider();
-
-			ChunkColumn chunk = new ChunkColumn();
-			chunk.x = chunkCoordinates.X;
-			chunk.z = chunkCoordinates.Z;
-			generator.PopulateChunk(chunk);
-
-			chunk.SetBlock(0, 5, 0, 7);
-			chunk.SetBlock(1, 5, 0, 41);
-			chunk.SetBlock(2, 5, 0, 41);
-			chunk.SetBlock(3, 5, 0, 41);
-			chunk.SetBlock(3, 5, 0, 41);
-
-			_chunkCache.Add(chunk);
-
-			return chunk;
 		}
 
 		public Coordinates3D GetSpawnPoint()

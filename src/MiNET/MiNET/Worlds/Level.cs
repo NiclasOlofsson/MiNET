@@ -52,7 +52,7 @@ namespace MiNET.Worlds
 		public static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
 
 		private IWorldProvider _worldProvider;
-		private int _viewDistance = 96;
+		private int _viewDistance = 256;
 		private Timer _levelTicker;
 
 		public Coordinates3D SpawnPoint { get; private set; }
@@ -118,27 +118,29 @@ namespace MiNET.Worlds
 
 		public void AddPlayer(Player player)
 		{
-			Players.Add(player);
-			foreach (var targetPlayer in Players.ToArray())
+			lock (Players) Players.Add(player);
+
+			Player[] targetPlayers = GetPlayers();
+
+			foreach (var targetPlayer in targetPlayers)
 			{
 				if (targetPlayer.IsSpawned)
 					targetPlayer.SendAddForPlayer(player);
 			}
 
-			foreach (var targetPlayer in Players.ToArray())
+			foreach (var targetPlayer in targetPlayers)
 			{
 				// Add all existing users to new player
 				if (targetPlayer.IsSpawned)
 					player.SendAddForPlayer(targetPlayer);
 			}
-
 			BroadcastTextMessage(string.Format("Player {0} joined the game!", player.Username), true);
 		}
 
 		public void RemovePlayer(Player player)
 		{
-			Players.Remove(player);
-			foreach (var targetPlayer in Players.ToArray())
+			lock (Players) Players.Remove(player);
+			foreach (var targetPlayer in GetPlayers())
 			{
 				if (targetPlayer.IsSpawned)
 					targetPlayer.SendRemovePlayer(player);
@@ -155,7 +157,7 @@ namespace MiNET.Worlds
 				message = (isSystemMessage ? "MiNET says - " : "") + text
 			};
 
-			foreach (var player in Players.ToArray())
+			foreach (var player in GetPlayers())
 			{
 				// Should probaby encode first...
 				player.SendPackage((Package) response.Clone());
@@ -183,28 +185,32 @@ namespace MiNET.Worlds
 					if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
 
 					// Set time (Fix this so it doesn't jump)
-					if (CurrentWorldTime % 10 == 0)
-					{
-						foreach (var player in Players.ToArray())
-						{
-							if (player.IsSpawned)
-							{
-								player.SendSetTime();
-							}
-						}
-					}
+					//if (CurrentWorldTime%10 == 0)
+					//{
+					//	foreach (var player in Players.ToArray())
+					//	{
+					//		if (player.IsSpawned)
+					//		{
+					//			player.SendSetTime();
+					//		}
+					//	}
+					//}
 
 					// broadcast events to all players
 
 					// Movement
-					foreach (var player in Players.ToArray())
+					Player[] players = GetSpawnedPlayers();
+					ThreadPool.UnsafeQueueUserWorkItem(delegate(object state)
 					{
-						// Check if player has been updated since last world-tick
-						if (player.IsSpawned && (DateTime.UtcNow.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
+						foreach (var player in players)
 						{
-							BroadCastMovement(player);
+							// Check if player has been updated since last world-tick
+							if ((DateTime.UtcNow.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
+							{
+								BroadCastMovement(player, players);
+							}
 						}
-					}
+					}, null);
 
 					// New players
 
@@ -259,11 +265,24 @@ namespace MiNET.Worlds
 
 		public long lastTickProcessingTime = 0;
 
-		private void BroadCastMovement(Player player)
+		private Player[] GetPlayers()
 		{
-			foreach (var targetPlayer in Players.ToArray())
+			lock (Players)
+				return Players.ToArray();
+		}
+
+		private Player[] GetSpawnedPlayers()
+		{
+			lock (Players)
+				return Players.Where(player => player.IsSpawned && player.IsConnected).ToArray();
+		}
+
+		private void BroadCastMovement(Player player, Player[] players)
+		{
+			foreach (var targetPlayer in players)
 			{
-				targetPlayer.SendMovementForPlayer(player);
+				//ThreadPool.QueueUserWorkItem(delegate { if (targetPlayer != null) targetPlayer.SendMovementForPlayer(player); });
+				if (targetPlayer != null) targetPlayer.SendMovementForPlayer(player);
 			}
 		}
 
@@ -328,12 +347,12 @@ namespace MiNET.Worlds
 					long elapsed = stopwatch.ElapsedMilliseconds;
 					if (avarageLoadTime == -1) avarageLoadTime = elapsed;
 					else avarageLoadTime = (avarageLoadTime + elapsed)/2;
-					Debug.WriteLine("Chunk {2} generated in: {0} ms (Avarage: {1} ms)", elapsed, avarageLoadTime, pair.Key);
+					//Debug.WriteLine("Chunk {2} generated in: {0} ms (Avarage: {1} ms)", elapsed, avarageLoadTime, pair.Key);
 
 					yield return chunk;
 				}
 
-				if (chunksUsed.Count != 96) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
+				if (chunksUsed.Count > _viewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
 			}
 		}
 
@@ -345,7 +364,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, Package message)
 		{
-			foreach (var player in Players.ToArray())
+			foreach (var player in GetPlayers())
 			{
 				if (player == source) continue;
 
@@ -355,7 +374,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player target, McpeEntityEventPacket message)
 		{
-			foreach (var player in Players.ToArray())
+			foreach (var player in GetPlayers())
 			{
 				var send = message.Clone<McpeEntityEventPacket>();
 				send.entityId = player.GetEntityId(target);
@@ -365,7 +384,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, McpeAnimate message)
 		{
-			foreach (var player in Players.ToArray())
+			foreach (var player in GetPlayers())
 			{
 				if (player == source) continue;
 
@@ -377,7 +396,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, McpePlayerArmorEquipment message)
 		{
-			foreach (var player in Players.ToArray())
+			foreach (var player in GetPlayers())
 			{
 				if (player == source) continue;
 
@@ -389,7 +408,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, McpePlayerEquipment message)
 		{
-			foreach (var player in Players.ToArray())
+			foreach (var player in GetPlayers())
 			{
 				if (player == source) continue;
 

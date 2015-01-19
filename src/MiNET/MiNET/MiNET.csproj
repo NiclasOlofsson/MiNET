@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -90,13 +91,13 @@
       <DesignTime>True</DesignTime>
     </None>
     <None Include="Net\MCPE Protocol Documentation.tt">
-		<DependentUpon>MCPE Protocol.xml</DependentUpon>
-		<Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MCPE Protocol.xml</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
     </None>
     <None Include="Net\MCPE Protocol.tt">
-		<DependentUpon>MCPE Protocol.xml</DependentUpon>
-		<Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>MCPE Protocol.xml</DependentUpon>
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
     </None>
   </ItemGroup>

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
 
 namespace MiNET.ServiceKiller
@@ -11,23 +10,19 @@ namespace MiNET.ServiceKiller
 			Console.WriteLine("Clients sleeping...");
 			Thread.Sleep(1000); // Let the server start first
 
+			Console.ReadLine();
+
 			var emulator = new Emulator();
+			ThreadPool.SetMinThreads(320, 320);
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 1*2; i++)
+			for (int i = 0; i < 60; i++)
 			{
 				counter[0]++;
-				var worker = new BackgroundWorker();
-				worker.DoWork += (sender, eventArgs) => emulator.EmulateClient("Player " + i);
-				worker.RunWorkerCompleted += (sender, eventArgs) => counter[0]--;
-				worker.RunWorkerAsync();
-				Thread.Sleep(random.Next(200, 1000));
-			}
-
-			while (counter[0] > 0)
-			{
-				Thread.Yield();
+				string playerName = "Player " + (i + 1);
+				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
+				Thread.Sleep(random.Next(100, 500));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");
@@ -35,63 +30,71 @@ namespace MiNET.ServiceKiller
 			Console.ReadLine();
 		}
 
-		private void EmulateClient(string username)
+		private void EmulateClient(object state)
 		{
-			Console.WriteLine("Clients {0} connecting...", username);
-
-			var client = new MiNetClient();
-			client.StartClient();
-
-			client.SendUnconnectedPing();
-			Thread.Sleep(100); // Let the server process
-			Thread.Yield();
-
-			client.SendOpenConnectionRequest1();
-			Thread.Sleep(100); // Let the server process
-			Thread.Yield();
-
-			client.SendOpenConnectionRequest2();
-			Thread.Sleep(100); // Let the server process
-			Thread.Yield();
-
-			client.SendConnectionRequest();
-			Thread.Sleep(100); // Let the server process
-			Thread.Yield();
-
-			client.SendMcpeLogin(username);
-			Thread.Sleep(100); // Let the server process
-			Thread.Yield();
-
-
-			Random random = new Random();
-			for (int i = 0; i < 60; i++)
+			try
 			{
-				int y = random.Next(4, 8);
-				int x, z;
-				int length = random.Next(5, 20);
-				double angle = 0.0;
-				double angleStepsize = 0.05;
+				string username = (string) state;
+				Console.WriteLine("Client {0} connecting...", username);
 
-				while (angle < 2*Math.PI)
+				var client = new MiNetClient();
+
+				client.StartClient();
+
+				client.SendUnconnectedPing();
+				Thread.Sleep(100); // Let the server process
+				//Thread.Yield();
+
+				client.SendOpenConnectionRequest1();
+				Thread.Sleep(100); // Let the server process
+				//Thread.Yield();
+
+				client.SendOpenConnectionRequest2();
+				Thread.Sleep(100); // Let the server process
+				//Thread.Yield();
+
+				client.SendConnectionRequest();
+				Thread.Sleep(100); // Let the server process
+				//Thread.Yield();
+
+				client.SendMcpeLogin(username);
+				Thread.Sleep(100); // Let the server process
+				//Thread.Yield();
+
+				Console.WriteLine("Client {0} sent login, moving...", username);
+
+				Random random = new Random();
+				for (int i = 0; i < 100; i++)
 				{
-					x = (int) (length*Math.Cos(angle));
-					z = (int) (length*Math.Sin(angle));
+					int y = random.Next(4, 8);
+					int x, z;
+					int length = random.Next(5, 20);
+					double angle = 0.0;
+					double angleStepsize = 0.05;
 
-					client.SendMcpeMovePlayer(x + 50, y, z + 50);
-					Thread.Yield();
-					Thread.Sleep(50);
-					angle += angleStepsize;
+					while (angle < 2*Math.PI)
+					{
+						x = (int) (length*Math.Cos(angle));
+						z = (int) (length*Math.Sin(angle));
+
+						client.SendMcpeMovePlayer(x + 50, y, z + 50);
+						Thread.Sleep(20);
+						angle += angleStepsize;
+					}
 				}
+
+				client.SendDisconnectionNotification();
+				Thread.Sleep(100); // Let the server process
+				//Thread.Yield();
+
+				client.StopClient();
+
+				Console.WriteLine("Clients {0} disconnected.", username);
 			}
-
-
-			client.SendDisconnectionNotification();
-			Thread.Sleep(100); // Let the server process
-			Thread.Yield();
-
-			client.StopClient();
-
-			Console.WriteLine("Clients {0} disconnected.", username);
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
 		}
 	}
 }

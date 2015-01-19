@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -8,20 +10,54 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
+	public class ObjectPool<T>
+	{
+		private ConcurrentBag<T> _objects;
+		private Func<T> _objectGenerator;
+
+		public ObjectPool(Func<T> objectGenerator)
+		{
+			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
+			_objects = new ConcurrentBag<T>();
+			_objectGenerator = objectGenerator;
+		}
+
+		public T GetObject()
+		{
+			T item;
+			if (_objects.TryTake(out item)) return item;
+			return _objectGenerator();
+		}
+
+		public void PutObject(T item)
+		{
+			_objects.Add(item);
+		}
+	}
+
 	/// Base package class
 	public partial class Package : ICloneable
 	{
+		public  ObjectPool<McpeMovePlayer> MovePool = null;
+
 		public byte Id;
 
 		protected MemoryStream _buffer;
 		private BinaryWriter _writer;
 		private BinaryReader _reader;
+		private Stopwatch _timer = new Stopwatch();
 
 		public Package()
 		{
 			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
 			_writer = new BinaryWriter(_buffer);
+			Timer.Start();
+		}
+
+		public Stopwatch Timer
+		{
+			get { return _timer; }
 		}
 
 		public void Write(byte value)
@@ -60,7 +96,7 @@ namespace MiNET.Net
 
 		public void Write(short value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
 		}
 
 		public short ReadShort()
@@ -70,7 +106,7 @@ namespace MiNET.Net
 
 		public void Write(ushort value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
 		}
 
 		public ushort ReadUShort()
@@ -90,7 +126,7 @@ namespace MiNET.Net
 
 		public void Write(int value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
 		}
 
 		public int ReadInt()
@@ -100,7 +136,7 @@ namespace MiNET.Net
 
 		public void Write(uint value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
 		}
 
 		public uint ReadUInt()
@@ -110,7 +146,13 @@ namespace MiNET.Net
 
 		public void Write(long value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+		}
+
+		private byte[] Reverse(byte[] bytes)
+		{
+			Array.Reverse(bytes);
+			return bytes;
 		}
 
 		public long ReadLong()
@@ -120,7 +162,7 @@ namespace MiNET.Net
 
 		public void Write(ulong value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
 		}
 
 		public ulong ReadULong()
@@ -130,7 +172,7 @@ namespace MiNET.Net
 
 		public void Write(float value)
 		{
-			_writer.Write(BitConverter.GetBytes(value).Reverse().ToArray());
+			_writer.Write(Reverse(BitConverter.GetBytes(value)));
 		}
 
 		public float ReadFloat()
@@ -221,12 +263,30 @@ namespace MiNET.Net
 			Write(Id);
 		}
 
+		private object _bufferSync = new object();
+
+		private bool _isEncoded = false;
+		private byte[] _encodedMessage;
+
+		public void Reset()
+		{
+			_isEncoded = false;
+			_encodedMessage = null;
+		}
+
 		public virtual byte[] Encode()
 		{
-			EncodePackage();
-			_writer.Flush();
-			_buffer.Position = 0;
-			return _buffer.ToArray();
+			if (_isEncoded) return _encodedMessage;
+
+			lock (_bufferSync)
+			{
+				EncodePackage();
+				_writer.Flush();
+				_buffer.Position = 0;
+				_encodedMessage = _buffer.ToArray();
+			}
+			_isEncoded = true;
+			return _encodedMessage;
 		}
 
 		protected virtual void DecodePackage()

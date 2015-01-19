@@ -16,6 +16,19 @@ namespace MiNET
 	public class MinetServerTest
 	{
 		[TestMethod]
+		public void EncapsulatedHeaderTest()
+		{
+			DatagramHeader header = new DatagramHeader(0x8c);
+			Assert.AreEqual(true, header.isValid);
+			Assert.AreEqual(false, header.isACK);
+			Assert.AreEqual(false, header.isNAK);
+			Assert.AreEqual(false, header.isPacketPair);
+			Assert.AreEqual(false, header.hasBAndAS);
+			Assert.AreEqual(true, header.isContinuousSend);
+			Assert.AreEqual(true, header.needsBAndAs);
+		}
+
+		[TestMethod, Ignore]
 		public void LabTest()
 		{
 			// x = 8, z = 9
@@ -111,7 +124,7 @@ namespace MiNET
 					Buffer = bytes,
 					_reliability = reliability,
 					_reliableMessageNumber = reliableMessageNumber++,
-					_sequenceNumber = sequenceNumber++,
+					_datagramSequenceNumber = sequenceNumber++,
 					_hasSplit = true,
 					_splitPacketCount = count,
 					_splitPacketId = 0,

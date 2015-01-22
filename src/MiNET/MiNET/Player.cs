@@ -223,6 +223,7 @@ namespace MiNET
 			SendSetTime();
 			SendSetSpawnPosition();
 			SendSetHealth();
+			SendPackage(new McpeSetDifficulty {difficulty = (int) _level.Difficulty});
 			SendChunksForKnownPosition();
 			LastUpdatedTime = DateTime.UtcNow;
 		}
@@ -552,7 +553,7 @@ namespace MiNET
 		{
 			if (!IsConnected) return;
 
-			if (IsSpawned/* && package is McpeMovePlayer*/)
+			if (IsSpawned /* && package is McpeMovePlayer*/)
 			{
 				lock (_sendQueue)
 				{

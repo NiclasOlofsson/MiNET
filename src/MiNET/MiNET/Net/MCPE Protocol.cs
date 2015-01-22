@@ -104,6 +104,10 @@ namespace MiNET.Net
 					package = new McpeContainerSetContent();
 					package.Decode(buffer);
 					return package;
+				case 0xbc:
+					package = new McpeSetDifficulty();
+					package.Decode(buffer);
+					return package;
 				case 0x85:
 					package = new McpeMessage();
 					package.Decode(buffer);
@@ -1165,6 +1169,45 @@ namespace MiNET.Net
 			windowId = ReadByte();
 			slotData = ReadMetadataSlots();
 			hotbarData = ReadMetadataInts();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeSetDifficulty : Package
+	{
+		public int difficulty; // = null;
+
+		public McpeSetDifficulty()
+		{
+			Id = 0xbc;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(difficulty);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			difficulty = ReadInt();
 
 			AfterDecode();
 		}

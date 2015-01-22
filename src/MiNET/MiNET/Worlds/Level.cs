@@ -40,6 +40,13 @@ namespace MiNET.Worlds
 		Spectator = 3
 	}
 
+	public enum Difficulty
+	{
+		Peaceful,
+		Easy,
+		Normal,
+		Hard
+	}
 
 	public class Level
 	{
@@ -60,11 +67,8 @@ namespace MiNET.Worlds
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 
-		//const SURVIVAL = 0;
-		//const CREATIVE = 1;
-		//const ADVENTURE = 2;
-		//const SPECTATOR = 3;
 		public GameMode GameMode { get; private set; }
+		public Difficulty Difficulty { get; private set; }
 		public int CurrentWorldTime { get; private set; }
 		public long StartTimeInTicks { get; private set; }
 		public bool WorldTimeStarted { get; private set; }
@@ -74,7 +78,8 @@ namespace MiNET.Worlds
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			LevelId = levelId;
-			GameMode = GameMode.Creative;
+			GameMode = GameMode.Survival;
+			Difficulty = Difficulty.Peaceful;
 			_worldProvider = worldProvider;
 		}
 

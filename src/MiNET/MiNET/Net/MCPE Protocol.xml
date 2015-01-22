@@ -172,6 +172,10 @@
 		<field name="Hotbar Data" type="MetadataInts" />
 	</pdu>
 
+	<pdu id="0xbc" online="false" client="false" server="true" name="ID_MCPE_SET_DIFFICULTY">
+		<field name="Difficulty" type="int" />
+	</pdu>
+
 	<pdu id="0x85" online="false" client="false" server="true" name="ID_MCPE_MESSAGE">
 		<field name="Source" type="string" />
 		<field name="Message" type="string" />

@@ -41,6 +41,7 @@
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
 | Mcpe Full Chunk Data | 0xba | 186 |   
+| Mcpe Set Difficulty | 0xbc | 188 |   
 
 
 ##Constants
@@ -426,6 +427,20 @@ The three type of status are:
 |Window ID | byte |  |
 |Slot Data | MetadataSlots |  |
 |Hotbar Data | MetadataInts |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Difficulty (0xbc)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Difficulty | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Message (0x85)
 

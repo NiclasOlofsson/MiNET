@@ -30,9 +30,9 @@ namespace MiNET.Net
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
 		{
 			var bytes = messagePart.Encode();
-			if (bytes.Length + _currentSize > mtuSize - 60) return false;
+			if (bytes.Length + _currentSize > mtuSize) return false;
 			if (messagePart.Header.HasSplit && MessageParts.Count > 0) return false;
-			if (Header.isContinuousSend) return false;
+			//if (Header.isContinuousSend) return false;
 
 			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) Header.isContinuousSend = true;
 
@@ -89,7 +89,7 @@ namespace MiNET.Net
 
 						if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 						{
-							throw new Exception("Message part too big for a single datagram");
+							throw new Exception(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
 						}
 					}
 				}
@@ -103,10 +103,10 @@ namespace MiNET.Net
 			var messageParts = new List<MessagePart>();
 
 			byte[] encodedMessage = message.Encode();
-			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
+			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 34));
 			int index = 0;
 			short splitId = (short) (sequenceNumber%short.MaxValue);
-			if (encodedMessage.Length <= mtuSize - 60)
+			if (encodedMessage.Length <= mtuSize - 34)
 			{
 				MessagePart messagePart = messagePartPool.GetObject();
 				messagePart.MessagePartPool = messagePartPool;
@@ -122,7 +122,7 @@ namespace MiNET.Net
 			}
 			else
 			{
-				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
+				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 34))
 				{
 					MessagePart messagePart = messagePartPool.GetObject();
 					messagePart.MessagePartPool = messagePartPool;

@@ -13,8 +13,19 @@ namespace MiNET.Net
 {
 	public class Datagram
 	{
-		private List<MessagePart> _messageParts = new List<MessagePart>();
+		private List<MessagePart> _messageParts = new List<MessagePart>(50);
 		private int _currentSize = 4; // header
+		private MemoryStream _buf;
+
+		public ObjectPool<Datagram> Pool { get; set; }
+		public DatagramHeader DatagramHeader { get; private set; }
+
+		public List<MessagePart> MessageParts
+		{
+			get { return _messageParts; }
+			set { _messageParts = value; }
+		}
+
 
 		public Datagram(int sequenceNumber)
 		{
@@ -24,57 +35,67 @@ namespace MiNET.Net
 				needsBAndAs = true,
 				datagramSequenceNumber = sequenceNumber
 			};
+			_buf = new MemoryStream();
 		}
-
-		public DatagramHeader DatagramHeader { get; private set; }
 
 		public bool AddMessagePart(MessagePart messagePart, int mtuSize)
 		{
-			if (messagePart.GetPayloadSize() + _currentSize > mtuSize - 60) return false;
-			if (messagePart.Header.HasSplit && _messageParts.Count > 0) return false;
+			var bytes = messagePart.Encode();
+			if (bytes.Length + _currentSize > mtuSize - 60) return false;
+			if (messagePart.Header.HasSplit && MessageParts.Count > 0) return false;
 			if (DatagramHeader.isContinuousSend) return false;
 
 			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) DatagramHeader.isContinuousSend = true;
 
-			_messageParts.Add(messagePart);
-			_currentSize = _currentSize + messagePart.GetPayloadSize() + 100;
+			MessageParts.Add(messagePart);
+			_currentSize = _currentSize + bytes.Length;
 
 			return true;
 		}
 
-		public byte[] Encode()
+		public void Reset()
 		{
-			MemoryStream buf = new MemoryStream();
-
-			// Header
-			buf.WriteByte((byte) (DatagramHeader.isContinuousSend ? 0x8c : 0x84));
-			buf.Write(DatagramHeader.datagramSequenceNumber.GetBytes(), 0, 3);
-
-			// Message (Payload)
-			foreach (var messagePart in _messageParts)
-			{
-				byte[] bytes = messagePart.Encode();
-				buf.Write(bytes, 0, bytes.Length);
-			}
-
-			return buf.ToArray();
+			DatagramHeader.datagramSequenceNumber = 0;
+			_currentSize = 4;
+			MessageParts.Clear();
+			MessageParts.Capacity = 50;
+			_buf.SetLength(0);
 		}
 
-		public static List<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber)
+		public byte[] Encode()
 		{
-			var datagrams = new List<Datagram>();
+			// Header
+			_buf.WriteByte((byte) (DatagramHeader.isContinuousSend ? 0x8c : 0x84));
+			_buf.Write(DatagramHeader.datagramSequenceNumber.GetBytes(), 0, 3);
 
-			Datagram datagram = new Datagram(datagramSequenceNumber++);
+			// Message (Payload)
+			foreach (MessagePart messagePart in MessageParts)
+			{
+				byte[] bytes = messagePart.Encode();
+				_buf.Write(bytes, 0, bytes.Length);
+			}
+
+			return _buf.ToArray();
+		}
+
+		public static List<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, ObjectPool<MessagePart> messagePartPool, ObjectPool<Datagram> datagramPool)
+		{
+			var datagrams = new List<Datagram>(4500);
+
+			Datagram datagram = datagramPool.GetObject();
+			datagram.Pool = datagramPool;
+			datagram.DatagramHeader.datagramSequenceNumber = datagramSequenceNumber++;
 			datagrams.Add(datagram);
 			foreach (var message in messages)
 			{
-				var messageParts = GetMessageParts(message, mtuSize, ref datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber);
+				var messageParts = GetMessageParts(message, mtuSize, ref datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber, messagePartPool);
 				foreach (var messagePart in messageParts)
 				{
 					if (!datagram.AddMessagePart(messagePart, mtuSize))
 					{
-						datagrams.Add(datagram);
-						datagram = new Datagram(datagramSequenceNumber++);
+						datagram = datagramPool.GetObject();
+						datagram.Pool = datagramPool;
+						datagram.DatagramHeader.datagramSequenceNumber = datagramSequenceNumber++;
 						datagrams.Add(datagram);
 
 						if (!datagram.AddMessagePart(messagePart, mtuSize))
@@ -88,7 +109,7 @@ namespace MiNET.Net
 			return datagrams;
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, ref int sequenceNumber, Reliability reliability, ref int reliableMessageNumber)
+		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, ref int sequenceNumber, Reliability reliability, ref int reliableMessageNumber, ObjectPool<MessagePart> messagePartPool)
 		{
 			var messageParts = new List<MessagePart>();
 
@@ -96,23 +117,38 @@ namespace MiNET.Net
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
 			int index = 0;
 			short splitId = (short) (sequenceNumber%short.MaxValue);
-			foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
+			if (encodedMessage.Length <= mtuSize - 60)
 			{
-				MessagePart messagePart = new MessagePart
-				{
-					Header =
-					{
-						Reliability = reliability,
-						ReliableMessageNumber = reliableMessageNumber++,
-						HasSplit = count > 1,
-						PartCount = count,
-						PartId = splitId,
-						PartIndex = index++
-					},
-					Buffer = bytes
-				};
+				MessagePart messagePart = messagePartPool.GetObject();
+				messagePart.MessagePartPool = messagePartPool;
+				messagePart.Header.Reliability = reliability;
+				messagePart.Header.ReliableMessageNumber = reliableMessageNumber++;
+				messagePart.Header.HasSplit = count > 1;
+				messagePart.Header.PartCount = count;
+				messagePart.Header.PartId = splitId;
+				messagePart.Header.PartIndex = index++;
+				messagePart.Buffer = encodedMessage;
 
 				messageParts.Add(messagePart);
+			}
+			else
+			{
+				throw new Exception("Split");
+				Console.WriteLine("Splitting");
+				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
+				{
+					MessagePart messagePart = messagePartPool.GetObject();
+					//messagePart.MessagePartPool = _messagePartPool;
+					messagePart.Header.Reliability = reliability;
+					messagePart.Header.ReliableMessageNumber = reliableMessageNumber++;
+					messagePart.Header.HasSplit = count > 1;
+					messagePart.Header.PartCount = count;
+					messagePart.Header.PartId = splitId;
+					messagePart.Header.PartIndex = index++;
+					messagePart.Buffer = bytes;
+
+					messageParts.Add(messagePart);
+				}
 			}
 
 			return messageParts;
@@ -148,6 +184,8 @@ namespace MiNET.Net
 
 	public class MessagePart : Package
 	{
+		public ObjectPool<MessagePart> MessagePartPool = null;
+
 		public MessagePartHeader Header { get; private set; }
 		public byte[] Buffer { get; set; }
 
@@ -169,7 +207,7 @@ namespace MiNET.Net
 
 			byte flags = (byte) Header.Reliability;
 			Write((byte) ((flags << 5) | (Header.HasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
-			Write((short) (Buffer.Length*8)); // length
+			Write((short) (encodedMessage.Length*8)); // length
 
 			if (Header.Reliability == Reliability.RELIABLE
 			    || Header.Reliability == Reliability.RELIABLE_ORDERED
@@ -270,11 +308,11 @@ namespace MiNET.Net
 			if (_datagramHeader == null) _datagramHeader = new DatagramHeader(0x8c);
 			if (_splitPacketCount > 1 && _splitPacketIndex > 0)
 			{
-				Write((byte)0x8c);
+				Write((byte) 0x8c);
 			}
 			else
 			{
-				Write((byte)0x84);
+				Write((byte) 0x84);
 			}
 
 			Write(_datagramSequenceNumber);

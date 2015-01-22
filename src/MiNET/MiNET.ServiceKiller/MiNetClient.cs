@@ -16,7 +16,8 @@ namespace MiNET.ServiceKiller
 		private Level _level;
 
 		private IPEndPoint _serverEndpoint;
-		private short _mtuSize = 1400;
+		private short _mtuSize = 1447;
+		//private short _mtuSize = short.MaxValue;
 		private decimal _lastSequenceNumber;
 		private McpeMovePlayer _movePlayerPacket;
 
@@ -32,6 +33,7 @@ namespace MiNET.ServiceKiller
 			try
 			{
 				_listener = new UdpClient(_endpoint);
+				_listener.Client.DontFragment = false;
 				//_listener.Client.ReceiveBufferSize = 1024*1024;
 				//_listener.Client.SendBufferSize = 4096;
 
@@ -47,8 +49,6 @@ namespace MiNET.ServiceKiller
 
 				// We need to catch errors here to remove the code above.
 				//_listener.BeginReceive(ReceiveCallback, _listener);
-
-				Console.WriteLine("Client open for business...");
 
 				return true;
 			}

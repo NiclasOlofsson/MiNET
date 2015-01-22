@@ -13,16 +13,16 @@ namespace MiNET.ServiceKiller
 			Console.ReadLine();
 
 			var emulator = new Emulator();
-			ThreadPool.SetMinThreads(320, 320);
+			ThreadPool.SetMinThreads(1000, 1000);
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 60; i++)
+			for (int i = 0; i < 160; i++)
 			{
 				counter[0]++;
 				string playerName = "Player " + (i + 1);
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(random.Next(100, 500));
+				Thread.Sleep(random.Next(50, 200));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");
@@ -61,7 +61,11 @@ namespace MiNET.ServiceKiller
 				Thread.Sleep(100); // Let the server process
 				//Thread.Yield();
 
-				Console.WriteLine("Client {0} sent login, moving...", username);
+				Console.WriteLine("Client {0} connected, sleeping 10s...", username);
+
+				Thread.Sleep(10000);
+
+				Console.WriteLine("Client {0} moving...", username);
 
 				Random random = new Random();
 				for (int i = 0; i < 100; i++)
@@ -78,7 +82,7 @@ namespace MiNET.ServiceKiller
 						z = (int) (length*Math.Sin(angle));
 
 						client.SendMcpeMovePlayer(x + 50, y, z + 50);
-						Thread.Sleep(20);
+						Thread.Sleep(50);
 						angle += angleStepsize;
 					}
 				}

@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Craft.Net.Common;
 using MiNET.Utils;
@@ -38,7 +37,7 @@ namespace MiNET.Net
 	/// Base package class
 	public partial class Package : ICloneable
 	{
-		public  ObjectPool<McpeMovePlayer> MovePool = null;
+		public ObjectPool<McpeMovePlayer> MovePool = null;
 
 		public byte Id;
 
@@ -70,14 +69,14 @@ namespace MiNET.Net
 			return _reader.ReadByte();
 		}
 
-		public sbyte ReadSByte()
-		{
-			return _reader.ReadSByte();
-		}
-
 		public void Write(sbyte value)
 		{
 			_writer.Write(value);
+		}
+
+		public sbyte ReadSByte()
+		{
+			return _reader.ReadSByte();
 		}
 
 		public void Write(byte[] value)
@@ -96,22 +95,22 @@ namespace MiNET.Net
 
 		public void Write(short value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+			_writer.Write(Endian.SwapInt16(value));
 		}
 
 		public short ReadShort()
 		{
-			return IPAddress.NetworkToHostOrder(_reader.ReadInt16());
+			return Endian.SwapInt16(_reader.ReadInt16());
 		}
 
 		public void Write(ushort value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+			_writer.Write(Endian.SwapUInt16(value));
 		}
 
 		public ushort ReadUShort()
 		{
-			return (ushort) IPAddress.NetworkToHostOrder(_reader.ReadInt16());
+			return Endian.SwapUInt16(_reader.ReadUInt16());
 		}
 
 		public void Write(Int24 value)
@@ -126,53 +125,52 @@ namespace MiNET.Net
 
 		public void Write(int value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+			_writer.Write(Endian.SwapInt32(value));
 		}
 
 		public int ReadInt()
 		{
-			return IPAddress.NetworkToHostOrder(_reader.ReadInt32());
+			return Endian.SwapInt32(_reader.ReadInt32());
 		}
 
 		public void Write(uint value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+			_writer.Write(Endian.SwapUInt32(value));
 		}
 
 		public uint ReadUInt()
 		{
-			return (uint) IPAddress.NetworkToHostOrder(_reader.ReadUInt32());
+			return Endian.SwapUInt32(_reader.ReadUInt32());
 		}
 
 		public void Write(long value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
-		}
-
-		private byte[] Reverse(byte[] bytes)
-		{
-			Array.Reverse(bytes);
-			return bytes;
+			_writer.Write(Endian.SwapInt64(value));
 		}
 
 		public long ReadLong()
 		{
-			return IPAddress.NetworkToHostOrder(_reader.ReadInt64());
+			return Endian.SwapInt64(_reader.ReadInt64());
 		}
 
 		public void Write(ulong value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+			_writer.Write(Endian.SwapUInt64(value));
 		}
 
 		public ulong ReadULong()
 		{
-			return (ulong) IPAddress.NetworkToHostOrder(_reader.ReadInt64());
+			return Endian.SwapUInt64(_reader.ReadUInt64());
 		}
 
 		public void Write(float value)
 		{
-			_writer.Write(Reverse(BitConverter.GetBytes(value)));
+			byte[] bytes = BitConverter.GetBytes(value);
+
+			_writer.Write(bytes[3]);
+			_writer.Write(bytes[2]);
+			_writer.Write(bytes[1]);
+			_writer.Write(bytes[0]);
 		}
 
 		public float ReadFloat()
@@ -270,21 +268,22 @@ namespace MiNET.Net
 
 		public void Reset()
 		{
-			_isEncoded = false;
 			_encodedMessage = null;
+			_writer.Flush();
+			_buffer.SetLength(0);
+			_buffer.Position = 0;
+			_timer.Reset();
+			_isEncoded = false;
 		}
 
 		public virtual byte[] Encode()
 		{
 			if (_isEncoded) return _encodedMessage;
 
-			lock (_bufferSync)
-			{
-				EncodePackage();
-				_writer.Flush();
-				_buffer.Position = 0;
-				_encodedMessage = _buffer.ToArray();
-			}
+			EncodePackage();
+			_writer.Flush();
+			_buffer.Position = 0;
+			_encodedMessage = _buffer.ToArray();
 			_isEncoded = true;
 			return _encodedMessage;
 		}
@@ -304,9 +303,19 @@ namespace MiNET.Net
 			DecodePackage();
 		}
 
+		public void CloneReset()
+		{
+			_buffer = new MemoryStream();
+			_reader = new BinaryReader(_buffer);
+			_writer = new BinaryWriter(_buffer);
+			Timer.Start();
+		}
+
 		public virtual object Clone()
 		{
-			return MemberwiseClone();
+			Package clone = (Package) MemberwiseClone();
+			clone.CloneReset();
+			return clone;
 		}
 
 		public virtual T Clone<T>() where T : Package

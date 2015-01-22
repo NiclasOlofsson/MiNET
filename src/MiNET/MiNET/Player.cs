@@ -238,9 +238,7 @@ namespace MiNET
 			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
-			if (Username == null) return;
-
-			//if (Username.StartsWith("Player")) return;
+			if (Username.StartsWith("Player")) return;
 			SendChunksForKnownPosition();
 		}
 
@@ -510,6 +508,14 @@ namespace MiNET
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
 
+		public void SendMovementForPlayer(Player[] players)
+		{
+			foreach (var player in players)
+			{
+				SendMovementForPlayer(player);
+			}
+		}
+
 		public void SendMovementForPlayer(Player player)
 		{
 			if (player == this) return;
@@ -517,6 +523,7 @@ namespace MiNET
 			var knownPosition = player.KnownPosition;
 
 			var move = _movePool.GetObject();
+			move.Timer.Start();
 			move.MovePool = _movePool;
 			move.entityId = GetEntityId(player);
 			move.x = knownPosition.X;
@@ -526,6 +533,7 @@ namespace MiNET
 			move.pitch = knownPosition.Pitch;
 			move.bodyYaw = knownPosition.BodyYaw;
 			move.teleport = 0;
+			move.Encode(); // Optmized
 
 			SendPackage(move);
 		}
@@ -544,7 +552,7 @@ namespace MiNET
 		{
 			if (!IsConnected) return;
 
-			if (IsSpawned && package is McpeMovePlayer)
+			if (IsSpawned/* && package is McpeMovePlayer*/)
 			{
 				lock (_sendQueue)
 				{
@@ -552,7 +560,7 @@ namespace MiNET
 
 					if (_playerTicker == null)
 					{
-						_playerTicker = new Timer(SendQueue, null, 10, 10); // MC worlds tick-time
+						_playerTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 					}
 				}
 			}
@@ -574,9 +582,14 @@ namespace MiNET
 			{
 				while (_sendQueue.Count > 0)
 				{
-					messages.Add(_sendQueue.Dequeue());
+					Package package = _sendQueue.Dequeue();
+					//if (package.Timer.ElapsedMilliseconds > 100) continue;
+					messages.Add(package);
 				}
 			}
+
+			if (messages.Count == 0) return;
+
 			lock (_sequenceNumberSync)
 			{
 				_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
@@ -585,33 +598,31 @@ namespace MiNET
 
 		private void AddEntity(Player player)
 		{
-			int entityId = _entities.IndexOf(player);
-			if (entityId != -1)
+			lock (_entities)
 			{
-				// Allready exist				
-				if (entityId != 0 && player == this)
+				if (_entities.Count == 0 && player != this)
 				{
-					// If this is the actual player, it should always be a 0
-					_entities.Remove(player);
-					_entities.Insert(0, player);
+					_entities.Add(this);
 				}
-			}
-			else
-			{
 				_entities.Add(player);
 			}
 		}
 
 		public int GetEntityId(Player player)
 		{
-			int entityId = _entities.IndexOf(player);
-			if (entityId == -1)
+			lock (_entities)
 			{
-				AddEntity(player);
-				entityId = _entities.IndexOf(player);
-			}
+				int entityId = _entities.IndexOf(player);
+				if (entityId == -1)
+				{
+					AddEntity(player);
+					entityId = _entities.IndexOf(player);
+				}
 
-			return entityId;
+				if (entityId == 0 && player != this) throw new Exception("Entity ID == 0 is reserved for player.");
+
+				return entityId;
+			}
 		}
 	}
 }

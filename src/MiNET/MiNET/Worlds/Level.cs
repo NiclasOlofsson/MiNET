@@ -4,13 +4,12 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using System.Timers;
+using System.Threading.Tasks;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
-using Timer = System.Timers.Timer;
 
 namespace MiNET.Worlds
 {
@@ -54,6 +53,8 @@ namespace MiNET.Worlds
 		private IWorldProvider _worldProvider;
 		private int _viewDistance = 256;
 		private Timer _levelTicker;
+		private int _worldTickTime = 50;
+		private int _worldDayCycleTime = 14400;
 
 		public Coordinates3D SpawnPoint { get; private set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
@@ -104,43 +105,35 @@ namespace MiNET.Worlds
 				worker.RunWorkerAsync();
 			}
 
-			if (_levelTicker != null)
-			{
-				_levelTicker.Stop();
-			}
-
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
-			_levelTicker = new Timer(50); // MC worlds tick-time
-			_levelTicker.Elapsed += LevelTickerTicked;
-			_levelTicker.Start();
+			_levelTicker = new Timer(LevelTickerTicked, null, 0, _worldTickTime); // MC worlds tick-time
 		}
 
-		public void AddPlayer(Player player)
+		public void AddPlayer(Player newPlayer)
 		{
-			lock (Players) Players.Add(player);
-
-			Player[] targetPlayers = GetPlayers();
+			Player[] targetPlayers = GetSpawnedPlayers();
 
 			foreach (var targetPlayer in targetPlayers)
 			{
-				if (targetPlayer.IsSpawned)
-					targetPlayer.SendAddForPlayer(player);
+				targetPlayer.SendAddForPlayer(newPlayer);
 			}
 
 			foreach (var targetPlayer in targetPlayers)
 			{
-				// Add all existing users to new player
-				if (targetPlayer.IsSpawned)
-					player.SendAddForPlayer(targetPlayer);
+				// Add all existing users to new newPlayer
+				newPlayer.SendAddForPlayer(targetPlayer);
 			}
-			BroadcastTextMessage(string.Format("Player {0} joined the game!", player.Username), true);
+
+			BroadcastTextMessage(string.Format("Player {0} joined the game!", newPlayer.Username), true);
+
+			lock (Players) Players.Add(newPlayer);
 		}
 
 		public void RemovePlayer(Player player)
 		{
 			lock (Players) Players.Remove(player);
-			foreach (var targetPlayer in GetPlayers())
+			foreach (var targetPlayer in GetSpawnedPlayers())
 			{
 				if (targetPlayer.IsSpawned)
 					targetPlayer.SendRemovePlayer(player);
@@ -157,7 +150,7 @@ namespace MiNET.Worlds
 				message = (isSystemMessage ? "MiNET says - " : "") + text
 			};
 
-			foreach (var player in GetPlayers())
+			foreach (var player in GetSpawnedPlayers())
 			{
 				// Should probaby encode first...
 				player.SendPackage((Package) response.Clone());
@@ -170,7 +163,7 @@ namespace MiNET.Worlds
 
 		private Stopwatch _tickTimer = new Stopwatch();
 
-		private void LevelTickerTicked(object sender, ElapsedEventArgs e)
+		private void LevelTickerTicked(object sender)
 		{
 			if (!Monitor.TryEnter(_tickSync))
 			{
@@ -182,16 +175,16 @@ namespace MiNET.Worlds
 				try
 				{
 					CurrentWorldTime += 1;
-					if (CurrentWorldTime > 24000) CurrentWorldTime = 0;
+					if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
 
 					// Set time (Fix this so it doesn't jump)
 					//if (CurrentWorldTime%10 == 0)
 					//{
-					//	foreach (var player in Players.ToArray())
+					//	foreach (var newPlayer in Players.ToArray())
 					//	{
-					//		if (player.IsSpawned)
+					//		if (newPlayer.IsSpawned)
 					//		{
-					//			player.SendSetTime();
+					//			newPlayer.SendSetTime();
 					//		}
 					//	}
 					//}
@@ -200,17 +193,11 @@ namespace MiNET.Worlds
 
 					// Movement
 					Player[] players = GetSpawnedPlayers();
-					ThreadPool.UnsafeQueueUserWorkItem(delegate(object state)
-					{
-						foreach (var player in players)
-						{
-							// Check if player has been updated since last world-tick
-							if ((DateTime.UtcNow.Ticks - player.LastUpdatedTime.Ticks) <= _levelTicker.Interval*TimeSpan.TicksPerMillisecond)
-							{
-								BroadCastMovement(player, players);
-							}
-						}
-					}, null);
+					Player[] updatedPlayers = GetUpdatedPlayers(players);
+					//ThreadPool.UnsafeQueueUserWorkItem(delegate(object state)
+					//{
+					BroadCastMovement(players, updatedPlayers);
+					//}, null);
 
 					// New players
 
@@ -223,30 +210,30 @@ namespace MiNET.Worlds
 
 					//if (CurrentWorldTime%2 == 0)
 					//{
-					//	foreach (var player in Players.ToArray())
+					//	foreach (var newPlayer in Players.ToArray())
 					//	{
-					//		if (player.IsSpawned)
+					//		if (newPlayer.IsSpawned)
 					//		{
-					//			int centerX = (int) player.KnownPosition.X/16;
-					//			int centerZ = (int) player.KnownPosition.Z/16;
+					//			int centerX = (int) newPlayer.KnownPosition.X/16;
+					//			int centerZ = (int) newPlayer.KnownPosition.Z/16;
 
 					//			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(centerX, centerZ));
-					//			player.SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
-					//			//player.SendChunksForKnownPosition(true);
+					//			newPlayer.SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
+					//			//newPlayer.SendChunksForKnownPosition(true);
 					//		}
 					//	}
 					//}
 					//if (CurrentWorldTime%1 == 0)
 					//{
-					//	foreach (var player in Players.ToArray())
+					//	foreach (var newPlayer in Players.ToArray())
 					//	{
-					//		if (player.IsSpawned)
+					//		if (newPlayer.IsSpawned)
 					//		{
-					//			player.SendPackage(new McpeUpdateBlock
+					//			newPlayer.SendPackage(new McpeUpdateBlock
 					//			{
-					//				x = (int) player.KnownPosition.X,
+					//				x = (int) newPlayer.KnownPosition.X,
 					//				y = (byte) 127,
-					//				z = (int) player.KnownPosition.Z,
+					//				z = (int) newPlayer.KnownPosition.Z,
 					//				block = 7,
 					//				meta = 0
 					//			});
@@ -257,7 +244,7 @@ namespace MiNET.Worlds
 				finally
 				{
 					lastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
-//					Console.WriteLine("Tick time {0} with {1} player(s)", lastTickProcessingTime, Players.Count);
+//					Console.WriteLine("Tick time {0} with {1} newPlayer(s)", lastTickProcessingTime, Players.Count);
 					Monitor.Exit(_tickSync);
 				}
 			}
@@ -265,25 +252,32 @@ namespace MiNET.Worlds
 
 		public long lastTickProcessingTime = 0;
 
-		private Player[] GetPlayers()
-		{
-			lock (Players)
-				return Players.ToArray();
-		}
-
 		private Player[] GetSpawnedPlayers()
 		{
 			lock (Players)
-				return Players.Where(player => player.IsSpawned && player.IsConnected).ToArray();
+				return Players.Where(player => player.IsSpawned).ToArray();
 		}
 
-		private void BroadCastMovement(Player player, Player[] players)
+		private Player[] GetUpdatedPlayers(Player[] players)
 		{
+			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
+			long now = DateTime.UtcNow.Ticks;
+			return players.Where(player => ((now - player.LastUpdatedTime.Ticks) <= tickTime)).ToArray();
+		}
+
+		private void BroadCastMovement(Player[] players, Player[] updatedPlayers)
+		{
+			List<Task> tasks = new List<Task>();
 			foreach (var targetPlayer in players)
 			{
-				//ThreadPool.QueueUserWorkItem(delegate { if (targetPlayer != null) targetPlayer.SendMovementForPlayer(player); });
-				if (targetPlayer != null) targetPlayer.SendMovementForPlayer(player);
+				var task = new Task(() => targetPlayer.SendMovementForPlayer(updatedPlayers));
+				tasks.Add(task);
+				task.Start();
 			}
+
+			Task.WaitAll(tasks.ToArray());
+
+			Task.WaitAll(tasks.ToArray());
 		}
 
 		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
@@ -330,24 +324,16 @@ namespace MiNET.Worlds
 					}
 				}
 
-				Stopwatch stopwatch = new Stopwatch();
 				long avarageLoadTime = -1;
 				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
-
-					stopwatch.Restart();
 
 					int x = Int32.Parse(pair.Key.Split(new[] {':'})[0]);
 					int z = Int32.Parse(pair.Key.Split(new[] {':'})[1]);
 
 					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(x, z));
 					chunksUsed.Add(pair.Key, chunk);
-
-					long elapsed = stopwatch.ElapsedMilliseconds;
-					if (avarageLoadTime == -1) avarageLoadTime = elapsed;
-					else avarageLoadTime = (avarageLoadTime + elapsed)/2;
-					//Debug.WriteLine("Chunk {2} generated in: {0} ms (Avarage: {1} ms)", elapsed, avarageLoadTime, pair.Key);
 
 					yield return chunk;
 				}
@@ -364,7 +350,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, Package message)
 		{
-			foreach (var player in GetPlayers())
+			foreach (var player in GetSpawnedPlayers())
 			{
 				if (player == source) continue;
 
@@ -374,7 +360,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player target, McpeEntityEventPacket message)
 		{
-			foreach (var player in GetPlayers())
+			foreach (var player in GetSpawnedPlayers())
 			{
 				var send = message.Clone<McpeEntityEventPacket>();
 				send.entityId = player.GetEntityId(target);
@@ -384,7 +370,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, McpeAnimate message)
 		{
-			foreach (var player in GetPlayers())
+			foreach (var player in GetSpawnedPlayers())
 			{
 				if (player == source) continue;
 
@@ -396,7 +382,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, McpePlayerArmorEquipment message)
 		{
-			foreach (var player in GetPlayers())
+			foreach (var player in GetSpawnedPlayers())
 			{
 				if (player == source) continue;
 
@@ -408,7 +394,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast(Player source, McpePlayerEquipment message)
 		{
-			foreach (var player in GetPlayers())
+			foreach (var player in GetSpawnedPlayers())
 			{
 				if (player == source) continue;
 
@@ -470,12 +456,12 @@ namespace MiNET.Worlds
 		{
 			Block block = GetBlock(blockCoordinates);
 
-			//MetadataSlot itemSlot = player.ItemInHand;
+			//MetadataSlot itemSlot = newPlayer.ItemInHand;
 			//Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 			//if (itemInHand == null) return;
 
 			//itemInHand.Metadata = metadata;
-			//itemInHand.UseItem(world, player, blockCoordinates, face);
+			//itemInHand.UseItem(world, newPlayer, blockCoordinates, face);
 
 			block.BreakBlock(world);
 		}

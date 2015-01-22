@@ -27,7 +27,8 @@ namespace MiNET
 		public MiNetServer(IPEndPoint endpoint = null)
 		{
 			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
-			//ThreadPool.SetMinThreads(10000, 10000);
+			//ThreadPool.SetMinThreads(8, 8);
+			//ThreadPool.SetMaxThreads(120000, 10000);
 		}
 
 		private Queue<UdpClient> _clients = new Queue<UdpClient>();
@@ -62,7 +63,7 @@ namespace MiNET
 				uint IOC_VENDOR = 0x18000000;
 				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
 				_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
-
+				_listener.Client.DontFragment = false;
 				// We need to catch errors here to remove the code above.
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
@@ -72,6 +73,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
+				Console.WriteLine(e);
 				Debug.Write(e);
 				StopServer();
 			}
@@ -122,7 +124,21 @@ namespace MiNET
 				return;
 			}
 
-			ThreadPool.QueueUserWorkItem(delegate(object state)
+			ThreadPool.QueueUserWorkItem(CallBack(receiveBytes, senderEndpoint));
+
+			if (receiveBytes.Length != 0)
+			{
+				listener.BeginReceive(ReceiveCallback, listener);
+			}
+			else
+			{
+				Debug.Write("Unexpected end of transmission?");
+			}
+		}
+
+		private WaitCallback CallBack(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		{
+			return delegate(object state)
 			{
 				byte msgId = receiveBytes[0];
 
@@ -185,6 +201,7 @@ namespace MiNET
 
 							lock (_playerEndpoints)
 							{
+								Console.WriteLine("Settled on MTU: {0}", incoming.mtuSize);
 								_playerEndpoints.Remove(senderEndpoint);
 								_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
 							}
@@ -235,16 +252,7 @@ namespace MiNET
 						Debug.WriteLine("!!!! ERROR, Invalid header !!!!!");
 					}
 				}
-			});
-
-			if (receiveBytes.Length != 0)
-			{
-				listener.BeginReceive(ReceiveCallback, listener);
-			}
-			else
-			{
-				Debug.Write("Unexpected end of transmission?");
-			}
+			};
 		}
 
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
@@ -265,16 +273,55 @@ namespace MiNET
 			}
 		}
 
-		public int SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
-		{
-			if (messages.Count == 0) return 0;
+		private int _dropCountPerSecond = 0;
 
-			var datagrams = Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber);
+		public ObjectPool<MessagePart> _messagePartPool = new ObjectPool<MessagePart>(() => new MessagePart());
+		public ObjectPool<Datagram> _datagramPool = new ObjectPool<Datagram>(() => new Datagram(0));
+
+		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		{
+			//List<Package> messagesToRemove = new List<Package>();
+			//foreach (var message in messages)
+			//{
+			//	if (message is McpeMovePlayer && message.Timer.ElapsedMilliseconds > 100)
+			//	{
+			//		messagesToRemove.Add(message);
+			//		_dropCountPerSecond++;
+			//	}
+			//}
+			//foreach (var message in messagesToRemove)
+			//{
+			//	if (message.MovePool != null)
+			//	{
+			//		message.Reset();
+			//		message.MovePool.PutObject((McpeMovePlayer)message);
+			//	}
+			//}
+
+			if (messages.Count == 0) return;
+
+			var datagrams = Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, _messagePartPool, _datagramPool);
 			foreach (var datagram in datagrams)
 			{
 				byte[] data = datagram.Encode();
-				//TraceSend(datagram, data);
+
 				SendData(data, senderEndpoint);
+
+				foreach (var part in datagram.MessageParts)
+				{
+					if (part.MessagePartPool != null)
+					{
+						part.Buffer = null;
+						part.Reset();
+						part.MessagePartPool.PutObject(part);
+					}
+				}
+
+				if (datagram.Pool != null)
+				{
+					datagram.Reset();
+					datagram.Pool.PutObject(datagram);
+				}
 			}
 
 			foreach (var message in messages)
@@ -286,37 +333,6 @@ namespace MiNET
 					move.MovePool.PutObject(move);
 				}
 			}
-			return datagrams.Count;
-		}
-
-		public int SendPackage2(IPEndPoint senderEndpoint, Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
-		{
-			byte[] encodedMessage = message.Encode();
-			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
-			int index = 0;
-			short splitId = (short) (sequenceNumber%65536);
-			foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
-			{
-				ConnectedPackage package = new ConnectedPackage
-				{
-					Buffer = bytes,
-					_reliability = reliability,
-					_reliableMessageNumber = reliableMessageNumber++,
-					_datagramSequenceNumber = sequenceNumber++,
-					_hasSplit = count > 1,
-					_splitPacketCount = count,
-					_splitPacketId = splitId,
-					_splitPacketIndex = index++
-				};
-
-				byte[] data = package.Encode();
-
-				TraceSend(message, data, package);
-
-				SendData(data, senderEndpoint);
-			}
-
-			return count;
 		}
 
 		public IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufforLengt)
@@ -353,7 +369,9 @@ namespace MiNET
 			var data = ack.Encode();
 
 			_numberOfAckSent++;
-			SendData(data, senderEndpoint);
+			_listener.Send(data, data.Length, senderEndpoint);
+
+			//SendData(data, senderEndpoint);
 		}
 
 		private long _numberOfAckSent = 0;
@@ -370,20 +388,21 @@ namespace MiNET
 					double kbytesPerSecond = _totalPacketSize*8/1000000D;
 					Console.WriteLine("Tick time {0}ms with {1} player(s)", _level.lastTickProcessingTime, _level.Players.Count);
 					long avaragePacketSize = _totalPacketSize/(_numberOfPacketsSentPerSecond + 1);
-					Console.WriteLine("\tPackets {0}/s, ACKs {1}/s, Ava. Size: {2}byte, Thoughput: {3:F}MBit/s", _numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond);
+					Console.WriteLine("Pkt {0}/s, ACKs {1}/s, Drops {4}/s, AvSize: {2}b, Thoughput: {3:F}Mbit/s", _numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond, _dropCountPerSecond);
 
+					_dropCountPerSecond = 0;
 					_numberOfAckSent = 0;
 					_totalPacketSize = 0;
 					_numberOfPacketsSentPerSecond = 0;
 				}, null, 1000, 1000);
 			}
 
-			_numberOfPacketsSentPerSecond++;
-			_totalPacketSize += data.Length;
-
 			//_listener.SendAsync(data, data.Length, targetEndpoint);
 			_listener.Send(data, data.Length, targetEndpoint);
 			//_listener.BeginSend(data, data.Length, targetEndpoint, null, null);
+
+			_numberOfPacketsSentPerSecond++;
+			_totalPacketSize += data.Length;
 		}
 
 		public static string ByteArrayToString(byte[] ba)

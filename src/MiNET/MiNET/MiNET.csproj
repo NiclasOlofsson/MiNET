@@ -65,6 +65,7 @@
     <Compile Include="MiNetServer.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerPosition3D.cs" />
+    <Compile Include="Utils\Class1.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
     <Compile Include="Utils\Int24.cs" />
     <Compile Include="Utils\MetadataInt.cs" />

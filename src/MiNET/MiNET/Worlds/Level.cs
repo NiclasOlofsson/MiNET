@@ -177,6 +177,8 @@ namespace MiNET.Worlds
 					CurrentWorldTime += 1;
 					if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
 
+					Player[] players = GetSpawnedPlayers();
+
 					// Set time (Fix this so it doesn't jump)
 					//if (CurrentWorldTime%10 == 0)
 					//{
@@ -192,59 +194,14 @@ namespace MiNET.Worlds
 					// broadcast events to all players
 
 					// Movement
-					Player[] players = GetSpawnedPlayers();
 					Player[] updatedPlayers = GetUpdatedPlayers(players);
-					//ThreadPool.UnsafeQueueUserWorkItem(delegate(object state)
-					//{
 					BroadCastMovement(players, updatedPlayers);
-					//}, null);
-
-					// New players
-
-					// Player stuff
-					// - armor
-					// - held things
-					// - etc..
 
 					// Entity updates
-
-					//if (CurrentWorldTime%2 == 0)
-					//{
-					//	foreach (var newPlayer in Players.ToArray())
-					//	{
-					//		if (newPlayer.IsSpawned)
-					//		{
-					//			int centerX = (int) newPlayer.KnownPosition.X/16;
-					//			int centerZ = (int) newPlayer.KnownPosition.Z/16;
-
-					//			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(centerX, centerZ));
-					//			newPlayer.SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
-					//			//newPlayer.SendChunksForKnownPosition(true);
-					//		}
-					//	}
-					//}
-					//if (CurrentWorldTime%1 == 0)
-					//{
-					//	foreach (var newPlayer in Players.ToArray())
-					//	{
-					//		if (newPlayer.IsSpawned)
-					//		{
-					//			newPlayer.SendPackage(new McpeUpdateBlock
-					//			{
-					//				x = (int) newPlayer.KnownPosition.X,
-					//				y = (byte) 127,
-					//				z = (int) newPlayer.KnownPosition.Z,
-					//				block = 7,
-					//				meta = 0
-					//			});
-					//		}	
-					//	}
-					//}
 				}
 				finally
 				{
 					lastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
-//					Console.WriteLine("Tick time {0} with {1} newPlayer(s)", lastTickProcessingTime, Players.Count);
 					Monitor.Exit(_tickSync);
 				}
 			}

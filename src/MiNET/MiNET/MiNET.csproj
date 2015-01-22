@@ -51,7 +51,10 @@
     <Compile Include="Net\Ack.cs" />
     <Compile Include="Net\ConnectedPackage.cs" />
     <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />
+    <Compile Include="Net\Datagram.cs" />
     <Compile Include="Net\DatagramHeader.cs" />
+    <Compile Include="Net\MessagePart.cs" />
+    <Compile Include="Net\MessagePartHeader.cs" />
     <Compile Include="Net\Nak.cs" />
     <Compile Include="Net\OpenConnectionRequest1.cs" />
     <Compile Include="Net\Package.cs" />
@@ -61,6 +64,7 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Net\RakNetIdentifiers.cs" />
+    <Compile Include="Net\Reliability.cs" />
     <Compile Include="Net\UnknownPackage.cs" />
     <Compile Include="MiNetServer.cs" />
     <Compile Include="Player.cs" />

@@ -14,22 +14,18 @@
 
 		public void TakeHit(Player sourcePlayer)
 		{
+			Player.SendSetHealth(--Health);
+
 			//TODO: damage and armour
-			Health--;
-			if (Health == 0)
+			if (Health <= 0)
 			{
 				Die();
-			}
-			else
-			{
-				Player.SendSetHealth(Health);
 			}
 		}
 
 		public void Die()
 		{
 			Health = 0;
-			Player.SendSetHealth(Health);
 			Player.Die();
 		}
 

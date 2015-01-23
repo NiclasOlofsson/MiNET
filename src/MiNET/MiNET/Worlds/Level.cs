@@ -117,6 +117,7 @@ namespace MiNET.Worlds
 			lock (Players)
 			{
 				Player[] targetPlayers = GetSpawnedPlayers();
+				if(targetPlayers.Count() > 1) throw new Exception("Expected only one player");
 
 				foreach (var targetPlayer in targetPlayers)
 				{
@@ -141,6 +142,7 @@ namespace MiNET.Worlds
 			lock (Players)
 			{
 				Players.Remove(player);
+				if (Players.Count() > 1) throw new Exception("Expected only one player");
 				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
 					if (targetPlayer.IsSpawned)
@@ -220,7 +222,9 @@ namespace MiNET.Worlds
 		private Player[] GetSpawnedPlayers()
 		{
 			lock (Players)
+			{
 				return Players.Where(player => player.IsSpawned).ToArray();
+			}
 		}
 
 		private Player[] GetUpdatedPlayers(Player[] players)

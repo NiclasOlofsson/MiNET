@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
+using Craft.Net.Logic;
 using Craft.Net.Logic.Windows;
 using MiNET.Net;
 using MiNET.Utils;
@@ -212,7 +213,7 @@ namespace MiNET
 				BodyYaw = 91
 			};
 
-			// send health
+			SendMovePlayer();
 
 			SendSetHealth();
 
@@ -344,13 +345,13 @@ namespace MiNET
 
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this);
-
 			_level.RelayBroadcast(target, new McpeEntityEvent()
 			{
 				entityId = 0,
 				eventId = 2
 			});
+
+			target.HealthManager.TakeHit(this);
 		}
 
 		private void HandleUseItem(McpeUseItem message)
@@ -462,12 +463,8 @@ namespace MiNET
 			SendPackage(new McpeSetTime {time = _level.CurrentWorldTime, started = (byte) (_level.WorldTimeStarted ? 0x80 : 0x00)});
 		}
 
-		private void InitializePlayer()
+		public void SendMovePlayer()
 		{
-			//send time again
-			SendSetTime();
-
-			// Teleport user (MovePlayerPacket) teleport=1
 			SendPackage(new McpeMovePlayer
 			{
 				entityId = GetEntityId(this),
@@ -479,6 +476,16 @@ namespace MiNET
 				bodyYaw = KnownPosition.BodyYaw,
 				teleport = 0x80
 			});
+		}
+
+
+		private void InitializePlayer()
+		{
+			//send time again
+			SendSetTime();
+
+			// Teleport user (MovePlayerPacket) teleport=1
+			SendMovePlayer();
 
 			SendPackage(new McpeAdventureSettings {flags = 0x20});
 
@@ -502,6 +509,8 @@ namespace MiNET
 			if (player == this) return;
 
 			if (player.Username == null) throw new Exception("No username");
+
+			if (EntityExists(player)) return;
 
 			SendPackage(new McpeAddPlayer
 			{
@@ -553,6 +562,8 @@ namespace MiNET
 				clientId = 0,
 				entityId = GetEntityId(player)
 			});
+
+			RemoveEntity(player);
 		}
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
@@ -654,6 +665,22 @@ namespace MiNET
 					_entities.Add(this);
 				}
 				_entities.Add(player);
+			}
+		}
+
+		private void RemoveEntity(Player player)
+		{
+			lock (_entities)
+			{
+				_entities.Remove(player);
+			}
+		}
+
+		private bool EntityExists(Player player)
+		{
+			lock (_entities)
+			{
+				return _entities.Contains(player);
 			}
 		}
 

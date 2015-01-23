@@ -237,7 +237,7 @@ namespace MiNET
 					{
 						Ack ack = new Ack();
 						ack.Decode(receiveBytes);
-						Debug.WriteLine("ACK #{0}", ack.sequenceNumber.IntValue());
+						//Debug.WriteLine("ACK #{0}", ack.sequenceNumber.IntValue());
 					}
 					else if (header.isNAK && header.isValid)
 					{
@@ -417,7 +417,6 @@ namespace MiNET
 
 		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, Package package, bool isUnknown = false)
 		{
-			return;
 			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 			{
 				Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);

@@ -25,7 +25,7 @@ namespace MiNET
 	{
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
-		private Dictionary<string, ChunkColumn> _chunksUsed;
+		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
 		private Level _level;
 		private short _mtuSize;
 		private List<Player> _entities;
@@ -36,7 +36,7 @@ namespace MiNET
 		private Coordinates2D _currentChunkPosition;
 
 		public bool IsConnected { get; set; }
-
+		public HealthManager HealthManager { get; private set; }
 		public MetadataSlots Armor { get; private set; }
 		public MetadataSlots Items { get; private set; }
 		public MetadataInts ItemHotbar { get; private set; }
@@ -55,7 +55,8 @@ namespace MiNET
 			_endpoint = endpoint;
 			_level = level;
 			_mtuSize = mtuSize;
-			_chunksUsed = new Dictionary<string, ChunkColumn>();
+			HealthManager = new HealthManager(this);
+			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
 			_entities = new List<Player>();
 			Inventory = new InventoryWindow();
 			AddEntity(this); // Make sure we are entity with ID == 0;
@@ -71,17 +72,18 @@ namespace MiNET
 			};
 
 			Armor = new MetadataSlots();
-			Armor[0] = new MetadataSlot(new ItemStack(302, 3));
-			Armor[1] = new MetadataSlot(new ItemStack(303, 3));
-			Armor[2] = new MetadataSlot(new ItemStack(304, 3));
-			Armor[3] = new MetadataSlot(new ItemStack(305, 3));
+			Armor[0] = new MetadataSlot(new ItemStack(310, 3));
+			Armor[1] = new MetadataSlot(new ItemStack(311, 3));
+			Armor[2] = new MetadataSlot(new ItemStack(312, 3));
+			Armor[3] = new MetadataSlot(new ItemStack(313, 3));
 
 			Items = new MetadataSlots();
 			for (byte i = 0; i < 35; i++)
 			{
 				Items[i] = new MetadataSlot(new ItemStack(i, 1));
 			}
-			Items[0] = new MetadataSlot(new ItemStack(41, 1));
+			//Items[0] = new MetadataSlot(new ItemStack(41, 1));
+			Items[0] = new MetadataSlot(new ItemStack(267, 1));
 			Items[1] = new MetadataSlot(new ItemStack(42, 1));
 			Items[2] = new MetadataSlot(new ItemStack(57, 1));
 			Items[3] = new MetadataSlot(new ItemStack(305, 3));
@@ -91,12 +93,13 @@ namespace MiNET
 			{
 				ItemHotbar[i] = new MetadataInt(-1);
 			}
+			// Hotbar starts at max size = 9 to set the slots. Don't understand why.
 			ItemHotbar[0] = new MetadataInt(9);
 			ItemHotbar[1] = new MetadataInt(10);
 			ItemHotbar[2] = new MetadataInt(11);
 			ItemHotbar[3] = new MetadataInt(12);
 			ItemHotbar[4] = new MetadataInt(13);
-			ItemHotbar[5] = new MetadataInt(14);
+			ItemHotbar[5] = new MetadataInt(15);
 
 			ItemInHand = new MetadataSlot(new ItemStack(-1));
 			IsConnected = true;
@@ -175,9 +178,14 @@ namespace MiNET
 				HandleMovePlayer((McpeMovePlayer) message);
 			}
 
-			else if (typeof (McpeInteractPacket) == message.GetType())
+			else if (typeof (McpeInteract) == message.GetType())
 			{
-				HandleInteract((McpeInteractPacket) message);
+				HandleInteract((McpeInteract) message);
+			}
+
+			else if (typeof (McpeRespawn) == message.GetType())
+			{
+				HandleRespawn((McpeRespawn) message);
 			}
 
 			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
@@ -186,6 +194,46 @@ namespace MiNET
 			{
 				Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
 			}
+		}
+
+		private void HandleRespawn(McpeRespawn msg)
+		{
+			// reset all health states
+			HealthManager.Reset();
+
+			// send teleport to spawn
+			KnownPosition = new PlayerPosition3D
+			{
+				X = _level.SpawnPoint.X,
+				Y = _level.SpawnPoint.Y,
+				Z = _level.SpawnPoint.Z,
+				Yaw = 91,
+				Pitch = 28,
+				BodyYaw = 91
+			};
+
+			// send health
+
+			SendSetHealth();
+
+			SendPackage(new McpeAdventureSettings {flags = 0x20});
+
+			SendPackage(new McpeContainerSetContent
+			{
+				windowId = 0,
+				slotData = Items,
+				hotbarData = ItemHotbar
+			});
+
+			SendPackage(new McpeContainerSetContent
+			{
+				windowId = 0x78, // Armor windows ID
+				slotData = Armor,
+				hotbarData = null
+			});
+
+			// Broadcast spawn to all
+			_level.AddPlayer(this);
 		}
 
 		private void HandleDisconnectionNotification()
@@ -239,7 +287,7 @@ namespace MiNET
 			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
-			if (Username.StartsWith("Player")) return;
+			//if (Username.StartsWith("Player")) return;
 			SendChunksForKnownPosition();
 		}
 
@@ -290,13 +338,15 @@ namespace MiNET
 			});
 		}
 
-		private void HandleInteract(McpeInteractPacket msg)
+		private void HandleInteract(McpeInteract msg)
 		{
 			Player target = _entities[msg.targetEntityId];
 
 			if (target == null) return;
 
-			_level.RelayBroadcast(target, new McpeEntityEventPacket()
+			target.HealthManager.TakeHit(this);
+
+			_level.RelayBroadcast(target, new McpeEntityEvent()
 			{
 				entityId = 0,
 				eventId = 2
@@ -381,16 +431,14 @@ namespace MiNET
 			_currentChunkPosition.X = centerX;
 			_currentChunkPosition.Z = centerZ;
 
-
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				int count = 0;
-				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<string, ChunkColumn>() : _chunksUsed))
+				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<Tuple<int, int>, ChunkColumn>() : _chunksUsed))
 				{
 					SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
-					Thread.Yield();
 
-					if (count == 56 & !IsSpawned)
+					if (count == 56 && !IsSpawned)
 					{
 						InitializePlayer();
 
@@ -403,9 +451,9 @@ namespace MiNET
 			});
 		}
 
-		private void SendSetHealth()
+		internal void SendSetHealth(int health = 20)
 		{
-			SendPackage(new McpeSetHealth {health = 20});
+			SendPackage(new McpeSetHealth {health = (byte) health});
 		}
 
 		public void SendSetTime()
@@ -624,6 +672,11 @@ namespace MiNET
 
 				return entityId;
 			}
+		}
+
+		public void Die()
+		{
+			_level.RemovePlayer(this);
 		}
 	}
 }

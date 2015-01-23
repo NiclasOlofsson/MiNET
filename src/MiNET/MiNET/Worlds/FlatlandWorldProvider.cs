@@ -25,25 +25,37 @@ namespace MiNET.Worlds
 		{
 			lock (_chunkCache)
 			{
-				ChunkColumn firstOrDefault = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+				ChunkColumn cachedChunk = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
 
-				if (firstOrDefault != null)
+				if (cachedChunk != null)
 				{
-					return firstOrDefault;
+					return cachedChunk;
 				}
-
-				FlatlandWorldProvider generator = new FlatlandWorldProvider();
 
 				ChunkColumn chunk = new ChunkColumn();
 				chunk.x = chunkCoordinates.X;
 				chunk.z = chunkCoordinates.Z;
-				generator.PopulateChunk(chunk);
+				PopulateChunk(chunk);
 
 				chunk.SetBlock(0, 5, 0, 7);
 				chunk.SetBlock(1, 5, 0, 41);
 				chunk.SetBlock(2, 5, 0, 41);
 				chunk.SetBlock(3, 5, 0, 41);
 				chunk.SetBlock(3, 5, 0, 41);
+
+				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
+				{
+					for (int x = 0; x < 16; x++)
+					{
+						for (int z = 0; z < 16; z++)
+						{
+							for (int y = 2; y < 4; y++)
+							{
+								chunk.SetBlock(x, y, z, 8);
+							}
+						}
+					}
+				}
 
 				_chunkCache.Add(chunk);
 

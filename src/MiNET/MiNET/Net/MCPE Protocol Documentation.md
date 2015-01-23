@@ -28,15 +28,16 @@
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
 | Mcpe Update Block | 0x98 | 152 |   
-| Mcpe Entity Event Packet | 0x9d | 157 |   
+| Mcpe Entity Event | 0x9d | 157 |   
 | Mcpe Player Equipment | 0xa0 | 160 |   
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
-| Mcpe Interact Packet | 0xa2 | 162 |   
+| Mcpe Interact | 0xa2 | 162 |   
 | Mcpe Use Item | 0xa3 | 163 |   
 | Mcpe Entity Data | 0xa7 | 167 |   
 | Mcpe Set Health | 0xaa | 170 |   
 | Mcpe Set Spawn Position | 0xab | 171 |   
 | Mcpe Animate | 0xac | 172 |   
+| Mcpe Respawn | 0xad | 173 |   
 | Mcpe Container Set Slot | 0xb2 | 178 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
@@ -340,6 +341,23 @@ The three type of status are:
 |Z | int |  |
 |Y | byte |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Respawn (0xad)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|X | float |  |
+|Z | float |  |
+|Y | float |  |
+-----------------------------------------------------------------------
 ###Package: Mcpe Start Game (0x87)
 
 **Sent from server:** true
@@ -568,7 +586,7 @@ The three type of status are:
 |Block | byte |  |
 |Meta | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Entity Event Packet (0x9d)
+###Package: Mcpe Entity Event (0x9d)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -618,7 +636,7 @@ The three type of status are:
 |Leggings | byte |  |
 |Boots | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Interact Packet (0xa2)
+###Package: Mcpe Interact (0xa2)
 
 **Sent from server:** true
 **Sent from client:** true

@@ -84,6 +84,10 @@ namespace MiNET.Net
 					package = new McpeSetSpawnPosition();
 					package.Decode(buffer);
 					return package;
+				case 0xad:
+					package = new McpeRespawn();
+					package.Decode(buffer);
+					return package;
 				case 0x87:
 					package = new McpeStartGame();
 					package.Decode(buffer);
@@ -137,7 +141,7 @@ namespace MiNET.Net
 					package.Decode(buffer);
 					return package;
 				case 0x9d:
-					package = new McpeEntityEventPacket();
+					package = new McpeEntityEvent();
 					package.Decode(buffer);
 					return package;
 				case 0xa0:
@@ -149,7 +153,7 @@ namespace MiNET.Net
 					package.Decode(buffer);
 					return package;
 				case 0xa2:
-					package = new McpeInteractPacket();
+					package = new McpeInteract();
 					package.Decode(buffer);
 					return package;
 				case 0xac:
@@ -929,6 +933,54 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeRespawn : Package
+	{
+		public int entityId; // = null;
+		public float x; // = null;
+		public float z; // = null;
+		public float y; // = null;
+
+		public McpeRespawn()
+		{
+			Id = 0xad;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(x);
+			Write(z);
+			Write(y);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			x = ReadFloat();
+			z = ReadFloat();
+			y = ReadFloat();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeStartGame : Package
 	{
 		public int seed; // = null;
@@ -1574,12 +1626,12 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeEntityEventPacket : Package
+	public partial class McpeEntityEvent : Package
 	{
 		public int entityId; // = null;
 		public byte eventId; // = null;
 
-		public McpeEntityEventPacket()
+		public McpeEntityEvent()
 		{
 			Id = 0x9d;
 		}
@@ -1715,13 +1767,13 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeInteractPacket : Package
+	public partial class McpeInteract : Package
 	{
 		public byte actionId; // = null;
 		public int entityId; // = null;
 		public int targetEntityId; // = null;
 
-		public McpeInteractPacket()
+		public McpeInteract()
 		{
 			Id = 0xa2;
 		}

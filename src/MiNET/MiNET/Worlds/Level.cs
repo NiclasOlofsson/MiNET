@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -98,16 +97,14 @@ namespace MiNET.Worlds
 
 			if (_worldProvider.IsCaching)
 			{
-				BackgroundWorker worker = new BackgroundWorker();
-				worker.RunWorkerCompleted += (sender, args) => Debug.WriteLine("Chunk-caching completed");
-				worker.DoWork += delegate
+				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Z, new Dictionary<string, ChunkColumn>()))
+					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Z, new Dictionary<Tuple<int, int>, ChunkColumn>()))
 					{
+						chunk.GetBytes();
 					}
-				};
-				worker.RunWorkerAsync();
+				});
 			}
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
@@ -117,34 +114,41 @@ namespace MiNET.Worlds
 
 		public void AddPlayer(Player newPlayer)
 		{
-			Player[] targetPlayers = GetSpawnedPlayers();
-
-			foreach (var targetPlayer in targetPlayers)
+			lock (Players)
 			{
-				targetPlayer.SendAddForPlayer(newPlayer);
+				Player[] targetPlayers = GetSpawnedPlayers();
+
+				foreach (var targetPlayer in targetPlayers)
+				{
+					targetPlayer.SendAddForPlayer(newPlayer);
+				}
+
+				foreach (var targetPlayer in targetPlayers)
+				{
+					// Add all existing users to new newPlayer
+					newPlayer.SendAddForPlayer(targetPlayer);
+				}
+
+				BroadcastTextMessage(string.Format("Player {0} joined the game!", newPlayer.Username), true);
+
+				if (!Players.Contains(newPlayer))
+					Players.Add(newPlayer);
 			}
-
-			foreach (var targetPlayer in targetPlayers)
-			{
-				// Add all existing users to new newPlayer
-				newPlayer.SendAddForPlayer(targetPlayer);
-			}
-
-			BroadcastTextMessage(string.Format("Player {0} joined the game!", newPlayer.Username), true);
-
-			lock (Players) Players.Add(newPlayer);
 		}
 
 		public void RemovePlayer(Player player)
 		{
-			lock (Players) Players.Remove(player);
-			foreach (var targetPlayer in GetSpawnedPlayers())
+			lock (Players)
 			{
-				if (targetPlayer.IsSpawned)
-					targetPlayer.SendRemovePlayer(player);
-			}
+				Players.Remove(player);
+				foreach (var targetPlayer in GetSpawnedPlayers())
+				{
+					if (targetPlayer.IsSpawned)
+						targetPlayer.SendRemovePlayer(player);
+				}
 
-			BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username), true);
+				BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username), true);
+			}
 		}
 
 		public void BroadcastTextMessage(string text, bool isSystemMessage = false)
@@ -184,17 +188,16 @@ namespace MiNET.Worlds
 
 					Player[] players = GetSpawnedPlayers();
 
-					// Set time (Fix this so it doesn't jump)
-					//if (CurrentWorldTime%10 == 0)
-					//{
-					//	foreach (var newPlayer in Players.ToArray())
-					//	{
-					//		if (newPlayer.IsSpawned)
-					//		{
-					//			newPlayer.SendSetTime();
-					//		}
-					//	}
-					//}
+					if (CurrentWorldTime%10 == 0)
+					{
+						foreach (var newPlayer in Players.ToArray())
+						{
+							if (newPlayer.IsSpawned)
+							{
+								newPlayer.SendSetTime();
+							}
+						}
+					}
 
 					// broadcast events to all players
 
@@ -242,15 +245,15 @@ namespace MiNET.Worlds
 			Task.WaitAll(tasks.ToArray());
 		}
 
-		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<string, ChunkColumn> chunksUsed)
+		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
 		{
 			lock (chunksUsed)
 			{
-				Dictionary<string, double> newOrders = new Dictionary<string, double>();
+				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
 				double radiusSquared = _viewDistance/Math.PI;
 				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
-				var centerX = playerX/16;
-				var centerZ = playerZ/16;
+				int centerX = playerX/16;
+				int centerZ = playerZ/16;
 
 				for (double x = -radius; x <= radius; ++x)
 				{
@@ -261,9 +264,9 @@ namespace MiNET.Worlds
 						{
 							continue;
 						}
-						var chunkX = x + centerX;
-						var chunkZ = z + centerZ;
-						string index = GetChunkHash(chunkX, chunkZ);
+						int chunkX = (int) (x + centerX);
+						int chunkZ = (int) (z + centerZ);
+						Tuple<int, int> index = GetChunkHash(chunkX, chunkZ);
 						newOrders[index] = distance;
 					}
 				}
@@ -286,15 +289,11 @@ namespace MiNET.Worlds
 					}
 				}
 
-				long avarageLoadTime = -1;
 				foreach (var pair in newOrders.OrderBy(pair => pair.Value))
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					int x = Int32.Parse(pair.Key.Split(new[] {':'})[0]);
-					int z = Int32.Parse(pair.Key.Split(new[] {':'})[1]);
-
-					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(x, z));
+					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(pair.Key.Item1, pair.Key.Item2));
 					chunksUsed.Add(pair.Key, chunk);
 
 					yield return chunk;
@@ -304,9 +303,9 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private string GetChunkHash(double chunkX, double chunkZ)
+		private Tuple<int, int> GetChunkHash(int chunkX, int chunkZ)
 		{
-			return string.Format("{0}:{1}", chunkX, chunkZ);
+			return new Tuple<int, int>(chunkX, chunkZ);
 		}
 
 
@@ -320,11 +319,11 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void RelayBroadcast(Player target, McpeEntityEventPacket message)
+		public void RelayBroadcast(Player target, McpeEntityEvent message)
 		{
 			foreach (var player in GetSpawnedPlayers())
 			{
-				var send = message.Clone<McpeEntityEventPacket>();
+				var send = message.Clone<McpeEntityEvent>();
 				send.entityId = player.GetEntityId(target);
 				player.SendPackage(send);
 			}

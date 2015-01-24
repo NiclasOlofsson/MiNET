@@ -30,6 +30,7 @@ namespace MiNET
 		public void KillPlayer()
 		{
 			Health = 0;
+			Player.SendSetHealth(Health);
 			Player.Kill();
 		}
 
@@ -39,15 +40,22 @@ namespace MiNET
 			Air = 300;
 		}
 
+
+		public bool IsDead()
+		{
+			return Health <= 0;
+		}
+
 		public void OnTick()
 		{
+			if (IsDead()) return;
+
 			if (IsInWater(Player.KnownPosition))
 			{
 				Air--;
 				Debug.WriteLine("Air: {0}", Air);
 				if (Air <= 0)
 				{
-					Player.SendSetHealth(0);
 					KillPlayer();
 				}
 			}

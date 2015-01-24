@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
-using Craft.Net.Logic;
 using Craft.Net.Logic.Windows;
 using MiNET.Net;
 using MiNET.Utils;
@@ -27,12 +26,15 @@ namespace MiNET
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
-		private Level _level;
 		private short _mtuSize;
 		private List<Player> _entities;
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber;
 		private object _sequenceNumberSync = new object();
+		private Queue<Package> _sendQueue = new Queue<Package>();
+		private Timer _sendTicker;
+		private Timer _playerTimer;
+		private int _messageNumber;
 
 		private Coordinates2D _currentChunkPosition;
 
@@ -42,6 +44,7 @@ namespace MiNET
 		public MetadataSlots Items { get; private set; }
 		public MetadataInts ItemHotbar { get; private set; }
 		public MetadataSlot ItemInHand { get; private set; }
+		public Level Level { get; private set; }
 
 		public DateTime LastUpdatedTime { get; private set; }
 		public PlayerPosition3D KnownPosition { get; private set; }
@@ -54,7 +57,7 @@ namespace MiNET
 		{
 			_server = server;
 			_endpoint = endpoint;
-			_level = level;
+			Level = level;
 			_mtuSize = mtuSize;
 			HealthManager = new HealthManager(this);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
@@ -64,9 +67,9 @@ namespace MiNET
 			IsSpawned = false;
 			KnownPosition = new PlayerPosition3D
 			{
-				X = _level.SpawnPoint.X,
-				Y = _level.SpawnPoint.Y,
-				Z = _level.SpawnPoint.Z,
+				X = Level.SpawnPoint.X,
+				Y = Level.SpawnPoint.Y,
+				Z = Level.SpawnPoint.Z,
 				Yaw = 91,
 				Pitch = 28,
 				BodyYaw = 91
@@ -135,7 +138,7 @@ namespace MiNET
 
 			else if (typeof (McpeAnimate) == message.GetType())
 			{
-				_level.RelayBroadcast(this, (McpeAnimate) message);
+				Level.RelayBroadcast(this, (McpeAnimate) message);
 			}
 
 			else if (typeof (McpeUseItem) == message.GetType())
@@ -200,14 +203,14 @@ namespace MiNET
 		private void HandleRespawn(McpeRespawn msg)
 		{
 			// reset all health states
-			HealthManager.Reset();
+			HealthManager.ResetHealth();
 
 			// send teleport to spawn
 			KnownPosition = new PlayerPosition3D
 			{
-				X = _level.SpawnPoint.X,
-				Y = _level.SpawnPoint.Y,
-				Z = _level.SpawnPoint.Z,
+				X = Level.SpawnPoint.X,
+				Y = Level.SpawnPoint.Y,
+				Z = Level.SpawnPoint.Z,
 				Yaw = 91,
 				Pitch = 28,
 				BodyYaw = 91
@@ -234,13 +237,13 @@ namespace MiNET
 			});
 
 			// Broadcast spawn to all
-			_level.AddPlayer(this);
+			Level.AddPlayer(this);
 		}
 
 		private void HandleDisconnectionNotification()
 		{
 			IsConnected = false;
-			_level.RemovePlayer(this);
+			Level.RemovePlayer(this);
 		}
 
 		private void HandleConnectionRequest(ConnectionRequest msg)
@@ -272,7 +275,7 @@ namespace MiNET
 			SendSetTime();
 			SendSetSpawnPosition();
 			SendSetHealth();
-			SendPackage(new McpeSetDifficulty {difficulty = (int) _level.Difficulty});
+			SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
 			SendChunksForKnownPosition();
 			LastUpdatedTime = DateTime.UtcNow;
 		}
@@ -280,7 +283,7 @@ namespace MiNET
 		private void HandleMessage(McpeMessage msg)
 		{
 			string text = msg.message;
-			_level.BroadcastTextMessage(text);
+			Level.BroadcastTextMessage(text);
 		}
 
 		private void HandleMovePlayer(McpeMovePlayer msg)
@@ -294,12 +297,12 @@ namespace MiNET
 
 		private void HandleRemoveBlock(McpeRemoveBlock msg)
 		{
-			_level.BreakBlock(_level, this, new Coordinates3D(msg.x, msg.y, msg.z));
+			Level.BreakBlock(Level, this, new Coordinates3D(msg.x, msg.y, msg.z));
 		}
 
 		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment msg)
 		{
-			_level.RelayBroadcast(this, msg);
+			Level.RelayBroadcast(this, msg);
 		}
 
 		private void HandlePlayerEquipment(McpePlayerEquipment msg)
@@ -307,7 +310,7 @@ namespace MiNET
 			ItemInHand.Value.Id = msg.item;
 			ItemInHand.Value.Metadata = msg.meta;
 
-			_level.RelayBroadcast(this, msg);
+			Level.RelayBroadcast(this, msg);
 		}
 
 		private void HandleContainerSetSlot(McpeContainerSetSlot msg)
@@ -321,7 +324,7 @@ namespace MiNET
 					Armor[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
 					break;
 			}
-			_level.RelayBroadcast(this, new McpePlayerArmorEquipment()
+			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
 			{
 				entityId = 0,
 				helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
@@ -330,7 +333,7 @@ namespace MiNET
 				boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256)
 			});
 
-			_level.RelayBroadcast(this, new McpePlayerEquipment()
+			Level.RelayBroadcast(this, new McpePlayerEquipment()
 			{
 				entityId = 0,
 				item = ItemInHand.Value.Id,
@@ -345,7 +348,7 @@ namespace MiNET
 
 			if (target == null) return;
 
-			_level.RelayBroadcast(target, new McpeEntityEvent()
+			Level.RelayBroadcast(target, new McpeEntityEvent()
 			{
 				entityId = 0,
 				eventId = 2
@@ -358,14 +361,14 @@ namespace MiNET
 		{
 			if (message.face <= 5)
 			{
-				_level.RelayBroadcast(this, new McpeAnimate()
+				Level.RelayBroadcast(this, new McpeAnimate()
 				{
 					actionId = 1,
 					entityId = 0
 				});
 
 				Debug.WriteLine("Use item: {0}", message.item);
-				_level.Interact(_level, this, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
+				Level.Interact(Level, this, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
 			}
 			else
 			{
@@ -401,7 +404,7 @@ namespace MiNET
 			{
 				seed = 1406827239,
 				generator = 1,
-				gamemode = (int) _level.GameMode,
+				gamemode = (int) Level.GameMode,
 				entityId = GetEntityId(this),
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
@@ -416,9 +419,9 @@ namespace MiNET
 		{
 			SendPackage(new McpeSetSpawnPosition
 			{
-				x = _level.SpawnPoint.X,
-				y = (byte) _level.SpawnPoint.Y,
-				z = _level.SpawnPoint.Z
+				x = Level.SpawnPoint.X,
+				y = (byte) Level.SpawnPoint.Y,
+				z = Level.SpawnPoint.Z
 			});
 		}
 
@@ -435,7 +438,7 @@ namespace MiNET
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				int count = 0;
-				foreach (var chunk in _level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<Tuple<int, int>, ChunkColumn>() : _chunksUsed))
+				foreach (var chunk in Level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<Tuple<int, int>, ChunkColumn>() : _chunksUsed))
 				{
 					SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
 
@@ -444,7 +447,7 @@ namespace MiNET
 						InitializePlayer();
 
 						IsSpawned = true;
-						_level.AddPlayer(this);
+						Level.AddPlayer(this);
 					}
 
 					count++;
@@ -460,7 +463,7 @@ namespace MiNET
 		public void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
-			SendPackage(new McpeSetTime {time = _level.CurrentWorldTime, started = (byte) (_level.WorldTimeStarted ? 0x80 : 0x00)});
+			SendPackage(new McpeSetTime {time = Level.CurrentWorldTime, started = (byte) (Level.WorldTimeStarted ? 0x80 : 0x00)});
 		}
 
 		public void SendMovePlayer()
@@ -502,6 +505,12 @@ namespace MiNET
 				slotData = Armor,
 				hotbarData = null
 			});
+			_playerTimer = new Timer(OnPlayerTick, null, 50, 50);
+		}
+
+		private void OnPlayerTick(object state)
+		{
+			HealthManager.OnTick();
 		}
 
 		public void SendAddForPlayer(Player player)
@@ -603,11 +612,6 @@ namespace MiNET
 		///     the player class. Treat with respect!
 		/// </summary>
 		/// <param name="package"></param>
-		private Queue<Package> _sendQueue = new Queue<Package>();
-
-		private Timer _playerTicker;
-		private int _messageNumber;
-
 		public void SendPackage(Package package)
 		{
 			if (!IsConnected) return;
@@ -618,9 +622,9 @@ namespace MiNET
 				{
 					_sendQueue.Enqueue(package);
 
-					if (_playerTicker == null)
+					if (_sendTicker == null)
 					{
-						_playerTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+						_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 					}
 				}
 			}
@@ -701,9 +705,9 @@ namespace MiNET
 			}
 		}
 
-		public void Die()
+		public void Kill()
 		{
-			_level.RemovePlayer(this);
+			Level.RemovePlayer(this);
 		}
 	}
 }

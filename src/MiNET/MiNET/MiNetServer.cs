@@ -125,7 +125,6 @@ namespace MiNET
 			}
 
 			ThreadPool.QueueUserWorkItem(CallBack(receiveBytes, senderEndpoint));
-
 			if (receiveBytes.Length != 0)
 			{
 				listener.BeginReceive(ReceiveCallback, listener);
@@ -138,6 +137,7 @@ namespace MiNET
 
 		private WaitCallback CallBack(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			//TODO: Uggly. Looks like a refactoring accident that needs to change.
 			return delegate(object state)
 			{
 				byte msgId = receiveBytes[0];
@@ -293,7 +293,7 @@ namespace MiNET
 			//{
 			//	if (message.MovePool != null)
 			//	{
-			//		message.Reset();
+			//		message.ResetHealth();
 			//		message.MovePool.PutObject((McpeMovePlayer)message);
 			//	}
 			//}

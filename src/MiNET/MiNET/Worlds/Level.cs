@@ -117,7 +117,6 @@ namespace MiNET.Worlds
 			lock (Players)
 			{
 				Player[] targetPlayers = GetSpawnedPlayers();
-				if(targetPlayers.Count() > 1) throw new Exception("Expected only one player");
 
 				foreach (var targetPlayer in targetPlayers)
 				{
@@ -142,7 +141,6 @@ namespace MiNET.Worlds
 			lock (Players)
 			{
 				Players.Remove(player);
-				if (Players.Count() > 1) throw new Exception("Expected only one player");
 				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
 					if (targetPlayer.IsSpawned)
@@ -243,8 +241,6 @@ namespace MiNET.Worlds
 				tasks.Add(task);
 				task.Start();
 			}
-
-			Task.WaitAll(tasks.ToArray());
 
 			Task.WaitAll(tasks.ToArray());
 		}
@@ -367,6 +363,11 @@ namespace MiNET.Worlds
 				send.entityId = player.GetEntityId(source);
 				player.SendPackage(send);
 			}
+		}
+
+		public Block GetBlock(PlayerPosition3D blockCoordinates)
+		{
+			return GetBlock(new Coordinates3D((int) Math.Floor(blockCoordinates.X), (int) Math.Floor(blockCoordinates.Y), (int) Math.Floor(blockCoordinates.Z)));
 		}
 
 		public Block GetBlock(int x, int y, int z)

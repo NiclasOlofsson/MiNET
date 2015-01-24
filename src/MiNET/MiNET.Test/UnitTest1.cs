@@ -17,6 +17,35 @@ namespace MiNET
 	public class MinetServerTest
 	{
 		[TestMethod]
+		public void NetworkToAsciiTest()
+		{
+			IPAddress ip;
+
+			var systemAddress = new byte[] { 0x00, 0x00, 0xf5, 0xff };
+			ip = new IPAddress(systemAddress);
+			Console.WriteLine("ip is " + ByteArrayToString(ip.GetAddressBytes()));
+			Console.WriteLine("ip is " + ip.ToString());
+			Console.WriteLine("port is " + BitConverter.ToUInt16(new byte[] { 0xff, 0xf5, }, 0));
+			Console.WriteLine("");
+
+			var ipEndpoint = new IPEndPoint(IPAddress.Loopback, 19132);
+
+			Console.WriteLine("ip is " + ByteArrayToString(ipEndpoint.Address.GetAddressBytes()));
+
+			//long netorder_ip = IPAddress.HostToNetworkOrder(hostorder_ip);
+
+			byte[] unknown1 = { 0xf5, 0xff, 0xff, 0xf5 };
+			long netorder_ip = BitConverter.ToInt32(unknown1, 0);
+			ip = new IPAddress(unknown1);
+			Console.WriteLine("ip is " + ByteArrayToString(ip.GetAddressBytes()));
+
+			byte[] unknown2 = { 0xff, 0xff, 0xff, 0xff };
+			ip = new IPAddress(unknown2);
+			Console.WriteLine("ip is " + ip.ToString());
+
+		}
+
+		[TestMethod]
 		public void PerformanceTest()
 		{
 			var messages = new List<Package>();
@@ -77,7 +106,6 @@ namespace MiNET
 			//Console.WriteLine("Size: {0}", datagrams.First().Encode().Length);
 			//Console.WriteLine("Count: {0}", datagrams.Count);
 			Console.WriteLine("Time: {0}", stopwatch.ElapsedMilliseconds);
-
 		}
 
 		[TestMethod, Ignore]

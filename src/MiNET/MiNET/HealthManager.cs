@@ -8,6 +8,7 @@ namespace MiNET
 		public Player Player { get; set; }
 		public int Health { get; set; }
 		public int Air { get; set; }
+		public bool IsDead { get; set; }
 
 		public HealthManager(Player player)
 		{
@@ -19,16 +20,11 @@ namespace MiNET
 		public void TakeHit(Player sourcePlayer)
 		{
 			Player.SendSetHealth(--Health);
-
-			//TODO: damage and armour
-			if (Health <= 0)
-			{
-				KillPlayer();
-			}
 		}
 
 		public void KillPlayer()
 		{
+			IsDead = true;
 			Health = 0;
 			Player.SendSetHealth(Health);
 			Player.Kill();
@@ -38,17 +34,17 @@ namespace MiNET
 		{
 			Health = 20;
 			Air = 300;
-		}
-
-
-		public bool IsDead()
-		{
-			return Health <= 0;
+			IsDead = false;
 		}
 
 		public void OnTick()
 		{
-			if (IsDead()) return;
+			if (IsDead) return;
+
+			if (Health <= 0)
+			{
+				KillPlayer();
+			}
 
 			if (IsInWater(Player.KnownPosition))
 			{
@@ -56,7 +52,11 @@ namespace MiNET
 				Debug.WriteLine("Air: {0}", Air);
 				if (Air <= 0)
 				{
-					KillPlayer();
+					if (Math.Abs(Air)%10 == 0)
+					{
+						Player.SendSetHealth(--Health);
+						Player.SendEntityEvent();
+					}
 				}
 			}
 			else

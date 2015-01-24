@@ -575,6 +575,20 @@ namespace MiNET
 			RemoveEntity(player);
 		}
 
+		public void SendEntityEvent()
+		{
+			Level.RelayBroadcast(this, new McpeEntityEvent()
+			{
+				entityId = 0,
+				eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2)
+			});
+
+			if (HealthManager.IsDead)
+			{
+				Level.BroadcastTextMessage("You died and lost all stuff, newbie!");
+			}
+		}
+
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
 
 		public void SendMovementForPlayer(Player[] players)

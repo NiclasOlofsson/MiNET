@@ -129,7 +129,7 @@ namespace MiNET.Worlds
 					newPlayer.SendAddForPlayer(targetPlayer);
 				}
 
-				BroadcastTextMessage(string.Format("Player {0} joined the game!", newPlayer.Username), true);
+				BroadcastTextMessage(string.Format("Player {0} joined the game!", newPlayer.Username));
 
 				if (!Players.Contains(newPlayer))
 					Players.Add(newPlayer);
@@ -147,16 +147,16 @@ namespace MiNET.Worlds
 						targetPlayer.SendRemovePlayer(player);
 				}
 
-				BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username), true);
+				BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username));
 			}
 		}
 
-		public void BroadcastTextMessage(string text, bool isSystemMessage = false)
+		public void BroadcastTextMessage(string text, Player sender = null)
 		{
 			var response = new McpeMessage
 			{
 				source = "",
-				message = (isSystemMessage ? "MiNET says - " : "") + text
+				message = (sender == null ? "MiNET says - " : sender.Username + "says - ") + text
 			};
 
 			foreach (var player in GetSpawnedPlayers())

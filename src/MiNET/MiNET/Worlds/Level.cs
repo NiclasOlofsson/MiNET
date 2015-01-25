@@ -78,8 +78,8 @@ namespace MiNET.Worlds
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			LevelId = levelId;
-			GameMode = GameMode.Survival;
-			Difficulty = Difficulty.Peaceful;
+			GameMode = ConfigParser.ReadGamemode("DefaultGamemode");
+			Difficulty = ConfigParser.ReadDifficulty ("Difficulty");
             if (ConfigParser.ReadBoolean ("UsePCWorld"))
             {
                 _worldProvider = new CraftNetAnvilWorldProvider ();

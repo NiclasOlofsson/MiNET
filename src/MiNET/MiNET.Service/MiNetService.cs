@@ -27,7 +27,9 @@ namespace MiNET.Service
             ConfigParser.InitialValue = new string[] {
                 "#DO NOT REMOVE THIS LINE - MiNET Config",
                 "UsePCWorld=false",
-                "WorldFolder=PathToWorld"
+                "WorldFolder=PathToWorld",
+				"DefaultGamemode=Creative",
+				"Difficulty=Peaceful",
             };
 
             ConfigParser.Check ();

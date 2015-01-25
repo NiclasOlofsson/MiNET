@@ -1,4 +1,5 @@
 ﻿using System;
+using MiNET.Worlds;
 
 namespace MiNET.Utils
 {
@@ -22,8 +23,8 @@ namespace MiNET.Utils
             } 
             else
             {
-                FileContents = System.IO.File.ReadAllText (ConfigFile);
-                if (!FileContents.Contains ("#DO NOT REMOVE THIS LINE - MiNET Config"))
+				FileContents = System.IO.File.ReadAllText (ConfigFile);
+				if (!FileContents.Contains ("#DO NOT REMOVE THIS LINE - MiNET Config"))
                 {
                     System.IO.File.Delete (ConfigFile);
                     return Check ();
@@ -39,10 +40,10 @@ namespace MiNET.Utils
         {
             foreach (string Line in FileContents.Split(new string[] { "\r\n", "\n", Environment.NewLine }, StringSplitOptions.None))
             {
-                if (Line.StartsWith(Rule + "="))
+				if (Line.ToLower().StartsWith(Rule.ToLower() + "="))
                 {
                     string Value = Line.Split ('=') [1];
-                    return Value;
+					return Value.ToLower();
                 }
             }
             return "";
@@ -52,7 +53,7 @@ namespace MiNET.Utils
         {
             foreach (string Line in FileContents.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None))
             {
-                if (Line.StartsWith(Rule + "="))
+				if (Line.ToLower().StartsWith(Rule.ToLower() + "="))
                 {
                     string Value = Line.Split ('=') [1];
                     return Convert.ToInt32(Value);
@@ -73,5 +74,45 @@ namespace MiNET.Utils
                 return false;
             }
         }
+
+        public static GameMode ReadGamemode(string Rule)
+        {
+            string gm = ReadString (Rule).ToLower();
+            switch (gm)
+            {
+                case "1":
+                case "creative":
+                    return GameMode.Creative;
+                case "0":
+                case "survival":
+                    return GameMode.Survival;
+                case "2":
+                case "adventure":
+                    return GameMode.Adventure;
+                case "3":
+                case "spectator":
+                    return GameMode.Spectator;
+				default:
+					return GameMode.Survival;
+            }
+        }
+
+		public static Difficulty ReadDifficulty(string Rule)
+		{
+			string df = ReadString (Rule).ToLower ();
+			switch (df)
+			{
+				case "easy":
+					return Difficulty.Easy;
+				case "normal":
+					return Difficulty.Normal;
+				case "hard":
+					return Difficulty.Hard;
+				case "peaceful":
+					return Difficulty.Peaceful;
+				default:
+					return Difficulty.Normal;
+			}
+		}
     }
 }

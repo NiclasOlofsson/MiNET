@@ -9,6 +9,8 @@ namespace MiNET
 		public int Health { get; set; }
 		public int Air { get; set; }
 		public bool IsDead { get; set; }
+        public int FireTick { get; set; }
+        public bool IsOnFire { get; set; }
 
 		public HealthManager(Player player)
 		{
@@ -60,11 +62,44 @@ namespace MiNET
 						Player.SendEntityEvent();
 					}
 				}
+
+                if (IsOnFire)
+                {
+                    IsOnFire = false;
+                    FireTick = 0;
+                }
 			}
 			else
 			{
 				Air = 300;
 			}
+
+            if (IsInLava (Player.KnownPosition))
+            {
+                if (FireTick == 0)
+                {
+                    FireTick = 300;
+                    IsOnFire = true;
+                }
+            }
+
+            if (IsOnFire)
+            {
+                FireTick--;
+                Debug.WriteLine ("Fire: {0}", FireTick);
+
+                if (Math.Abs (FireTick) % 25 == 0)
+                {
+                    Player.SendSetHealth(--Health);
+                    Player.SendEntityEvent();
+                }
+
+                if (FireTick <= 0)
+                {
+                    IsOnFire = false;
+                    FireTick = 0;
+                }
+            }
 		}
 
 		private bool IsInWater(PlayerPosition3D playerPosition)
@@ -77,12 +112,24 @@ namespace MiNET
 			waterPos.Z = playerPosition.Z;
 			var block = Player.Level.GetBlock(waterPos);
 
-			if (block != null && block.Id == 8)
+            if (block != null && block.Id == 8 || block != null && block.Id == 9)
 			{
 				return y < Math.Floor(y) + 1 - ((1/9) - 0.1111111);
 			}
 
 			return false;
 		}
+
+        private bool IsInLava(PlayerPosition3D playerPosition)
+        {
+            var block = Player.Level.GetBlock(playerPosition);
+
+            if (block != null && block.Id == 10 || block != null && block.Id == 11)
+            {
+                return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1/9) - 0.1111111);
+            }
+
+            return false;
+        }
 	}
 }

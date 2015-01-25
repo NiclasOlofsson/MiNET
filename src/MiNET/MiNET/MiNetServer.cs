@@ -67,6 +67,12 @@ namespace MiNET
               //  _listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
              //   _listener.Client.DontFragment = false;
                  // We need to catch errors here to remove the code above.
+
+
+                /*
+                 * We need to do something about this above. Has to be both compatible for Mono and Windows
+                 */
+
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				Console.WriteLine("Server open for business...");

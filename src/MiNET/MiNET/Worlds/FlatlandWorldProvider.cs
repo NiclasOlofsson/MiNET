@@ -57,6 +57,20 @@ namespace MiNET.Worlds
 					}
 				}
 
+                if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+                {
+                    for (int x = 0; x < 16; x++)
+                    {
+                        for (int z = 0; z < 16; z++)
+                        {
+                            for (int y = 3; y < 4; y++)
+                            {
+                                chunk.SetBlock(x, y, z, 10);
+                            }
+                        }
+                    }
+                }
+
 				_chunkCache.Add(chunk);
 
 				return chunk;

@@ -1,6 +1,11 @@
 MiNET
 =====
 
+## Can i test this before i download it?
+Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
+IP: 94.23.50.5<br>
+Port: 19132<Br>
+
 ## What is this?
 
 A basic Minecraft Pocket Edition (MCPE) server written in C#. Current goal is to create a server that has enterprise performance for large Minecraft multi-user gaming providers. Current servers handle 10-100 users per instance, the aim with MiNET is to deal with thousands. Priority is also to create interfaces, and to some extend, ready-made implementations of the most basic enterprise game-management features (users, worlds, etc.). With all likelyhood, MiNET will emerge into a Microsoft Cloud ready product.

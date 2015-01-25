@@ -1,5 +1,6 @@
 ﻿using System;
 using Topshelf;
+using MiNET.Utils;
 
 namespace MiNET.Service
 {
@@ -20,29 +21,40 @@ namespace MiNET.Service
 
 		private static void Main(string[] args)
 		{
-			if (IsRunningOnMono())
-			{
-				var service = new MiNetService();
-				service.Start();
-				Console.WriteLine("MiNET runing. Press <enter> to stop service..");
-				Console.ReadLine();
-				service.Stop();
-			}
 
-			HostFactory.Run(host =>
-			{
-				host.Service<MiNetService>(s =>
-				{
-					s.ConstructUsing(construct => new MiNetService());
-					s.WhenStarted(service => service.Start());
-					s.WhenStopped(service => service.Stop());
-				});
+            ConfigParser.ConfigFile = "server.config";
 
-				host.RunAsLocalService();
-				host.SetDisplayName("MiNET Service");
-				host.SetDescription("MiNET MineCraft Pocket Edition server.");
-				host.SetServiceName("MiNET");
-			});
+            ConfigParser.InitialValue = new string[] {
+                "#DO NOT REMOVE THIS LINE - MiNET Config",
+                "UsePCWorld=false",
+                "WorldFolder=PathToWorld"
+            };
+
+            ConfigParser.Check ();
+
+            if (IsRunningOnMono ())
+            {
+                var service = new MiNetService ();
+                service.Start ();
+                Console.WriteLine ("MiNET runing. Press <enter> to stop service..");
+                Console.ReadLine ();
+                service.Stop ();
+            } 
+
+                HostFactory.Run (host =>
+                {
+                    host.Service<MiNetService> (s =>
+                    {
+                        s.ConstructUsing (construct => new MiNetService ());
+                        s.WhenStarted (service => service.Start ());
+                        s.WhenStopped (service => service.Stop ());
+                    });
+
+                    host.RunAsLocalService ();
+                    host.SetDisplayName ("MiNET Service");
+                    host.SetDescription ("MiNET MineCraft Pocket Edition server.");
+                    host.SetServiceName ("MiNET");
+                });
 		}
 
 		public static bool IsRunningOnMono()

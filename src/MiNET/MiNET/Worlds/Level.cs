@@ -9,6 +9,7 @@ using Craft.Net.TerrainGeneration;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
@@ -79,7 +80,14 @@ namespace MiNET.Worlds
 			LevelId = levelId;
 			GameMode = GameMode.Creative;
 			Difficulty = Difficulty.Peaceful;
-			_worldProvider = worldProvider;
+            if (ConfigParser.ReadBoolean ("UsePCWorld"))
+            {
+                _worldProvider = new CraftNetAnvilWorldProvider ();
+            } 
+            else
+            {
+                _worldProvider = worldProvider;
+            }
 		}
 
 		public void Initialize()

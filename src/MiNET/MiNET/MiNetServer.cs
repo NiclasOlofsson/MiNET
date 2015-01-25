@@ -49,24 +49,24 @@ namespace MiNET
 
 				_listener = new UdpClient(_endpoint);
 
-				_listener.Client.ReceiveBufferSize = 1024*1024*8;
+                _listener.Client.ReceiveBufferSize = 1024*1024*3;
 
-				//_listener.Client.SendBufferSize = 1600;
-				_listener.Client.SendBufferSize = 4096;
-				//_listener.Client.SendBufferSize = 65536;
-				//_listener.Client.SendBufferSize = 1024 * 1024;
+                //_listener.Client.SendBufferSize = 1600;
+                _listener.Client.SendBufferSize = 4096;
+                //_listener.Client.SendBufferSize = 65536;
+                //_listener.Client.SendBufferSize = 1024 * 1024;
 
-				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-				// - Set to TRUE to enable reporting.
-				// - Set to FALSE to disable reporting.
+                // SIO_UDP_CONNRESET (opcode setting: I, T==3)
+                // Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+                // - Set to TRUE to enable reporting.
+                // - Set to FALSE to disable reporting.
 
-				uint IOC_IN = 0x80000000;
-				uint IOC_VENDOR = 0x18000000;
-				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-				_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
-				_listener.Client.DontFragment = false;
-				// We need to catch errors here to remove the code above.
+                uint IOC_IN = 0x80000000;
+                uint IOC_VENDOR = 0x18000000;
+                uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+              //  _listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+             //   _listener.Client.DontFragment = false;
+                 // We need to catch errors here to remove the code above.
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				Console.WriteLine("Server open for business...");

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using Craft.Net.Anvil;
 using Craft.Net.Common;
+using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
@@ -25,9 +26,10 @@ namespace MiNET.Worlds
 
 		public void Initialize()
 		{
+            _level = Craft.Net.Anvil.Level.LoadFrom(ConfigParser.ReadString ("WorldFolder"));
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\Mountain Sky Village\§4§kd§  Mountain Sky Village §4§kd§"); _offsetY = 0;
-			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\KingsLanding1\KingsLanding1"); _offsetY = 30;
+			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\KingsLanding1\KingsLanding1"); _offsetY = 30;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\CruiseShipV2.0\whatsthis"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\Royal Navy"); _offsetY = 0;
 //			_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\FunLand+3_1\FunLand 3.1"); _offsetY = 0;

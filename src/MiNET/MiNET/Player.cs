@@ -123,6 +123,8 @@ namespace MiNET
 
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
+				// DO NOT USE. Will dissapear from MCPE any release. 
+				// It is a bug that it leaks these messages.
 			}
 
 			else if (typeof (McpeRemoveBlock) == message.GetType())

@@ -213,7 +213,7 @@ namespace MiNET.Net
 
 			for (byte i = 0; i < count; i++)
 			{
-				MetadataSlot slot = new MetadataSlot(new ItemStack(ReadShort(), ReadSByte(), ReadShort()));
+				metadata[i] = new MetadataSlot(new ItemStack(ReadShort(), ReadSByte(), ReadShort()));
 			}
 
 			return metadata;

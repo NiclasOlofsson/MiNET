@@ -3,6 +3,8 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
+	//A door specifies its hinge side in the block data of its upper block, 
+	// and its facing and opened status in the block data of its lower block
 	public class BlockWoodenDoor : Block
 	{
 		public BlockWoodenDoor() : base(64)

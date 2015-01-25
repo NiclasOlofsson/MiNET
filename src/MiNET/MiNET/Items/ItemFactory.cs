@@ -10,7 +10,7 @@ namespace MiNET.Items
 
 			if (id <= 255)
 			{
-				item = new ItemBlock(BlockFactory.GetBlockById((byte) id));
+				item = new ItemBlock(BlockFactory.GetBlockById((byte)id));
 			}
 			else if (id == 324)
 			{

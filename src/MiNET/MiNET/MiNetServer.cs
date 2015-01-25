@@ -20,15 +20,17 @@ namespace MiNET
 		private Dictionary<IPEndPoint, Player> _playerEndpoints;
 		private Level _level;
 
+		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
+		{
+		}
+
 		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
-		public MiNetServer(IPEndPoint endpoint = null)
+		public MiNetServer(IPEndPoint endpoint)
 		{
-			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, DefaultPort);
-			//ThreadPool.SetMinThreads(8, 8);
-			//ThreadPool.SetMaxThreads(120000, 10000);
+			_endpoint = new IPEndPoint(IPAddress.Any, DefaultPort);
 		}
 
 		private Queue<UdpClient> _clients = new Queue<UdpClient>();
@@ -435,7 +437,6 @@ namespace MiNET
 
 		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
 		{
-			return;
 			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG && message.Id != 0x86)
 			{
 				Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._datagramSequenceNumber.IntValue(), message.GetType().Name);

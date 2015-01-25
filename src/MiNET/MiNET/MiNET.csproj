@@ -42,9 +42,11 @@
   <ItemGroup>
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\BlockAir.cs" />
+    <Compile Include="Blocks\BlockChest.cs" />
     <Compile Include="Blocks\BlockFactory.cs" />
     <Compile Include="Blocks\BlockWoodenDoor.cs" />
     <Compile Include="HealthManager.cs" />
+    <Compile Include="InventoryManger.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Items\ItemBlock.cs" />
     <Compile Include="Items\ItemDoor.cs" />

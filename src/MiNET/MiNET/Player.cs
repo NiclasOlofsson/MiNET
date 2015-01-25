@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
-using Craft.Net.Logic.Windows;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -51,8 +50,6 @@ namespace MiNET
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 
-		public InventoryWindow Inventory { get; set; }
-
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
 		{
 			_server = server;
@@ -62,7 +59,6 @@ namespace MiNET
 			HealthManager = new HealthManager(this);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
 			_entities = new List<Player>();
-			Inventory = new InventoryWindow();
 			AddEntity(this); // Make sure we are entity with ID == 0;
 			IsSpawned = false;
 			KnownPosition = new PlayerPosition3D
@@ -86,9 +82,8 @@ namespace MiNET
 			{
 				Items[i] = new MetadataSlot(new ItemStack(i, 1));
 			}
-			//Items[0] = new MetadataSlot(new ItemStack(41, 1));
 			Items[0] = new MetadataSlot(new ItemStack(267, 1));
-			Items[1] = new MetadataSlot(new ItemStack(42, 1));
+			Items[1] = new MetadataSlot(new ItemStack(54, 1));
 			Items[2] = new MetadataSlot(new ItemStack(57, 1));
 			Items[3] = new MetadataSlot(new ItemStack(305, 3));
 
@@ -128,7 +123,6 @@ namespace MiNET
 
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
-				// Don't use
 			}
 
 			else if (typeof (McpeRemoveBlock) == message.GetType())
@@ -288,6 +282,8 @@ namespace MiNET
 
 		private void HandleMovePlayer(McpeMovePlayer msg)
 		{
+			if (HealthManager.IsDead) return;
+
 			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -302,11 +298,15 @@ namespace MiNET
 
 		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment msg)
 		{
+			if (HealthManager.IsDead) return;
+
 			Level.RelayBroadcast(this, msg);
 		}
 
 		private void HandlePlayerEquipment(McpePlayerEquipment msg)
 		{
+			if (HealthManager.IsDead) return;
+
 			ItemInHand.Value.Id = msg.item;
 			ItemInHand.Value.Metadata = msg.meta;
 
@@ -315,6 +315,8 @@ namespace MiNET
 
 		private void HandleContainerSetSlot(McpeContainerSetSlot msg)
 		{
+			if (HealthManager.IsDead) return;
+
 			switch (msg.windowId)
 			{
 				case 0:
@@ -517,15 +519,13 @@ namespace MiNET
 		{
 			if (player == this) return;
 
-			if (player.Username == null) throw new Exception("No username");
-
-			if (EntityExists(player)) return;
+			int entityId = AddEntity(player);
 
 			SendPackage(new McpeAddPlayer
 			{
 				clientId = 0,
 				username = player.Username,
-				entityId = GetEntityId(player),
+				entityId = entityId,
 				x = player.KnownPosition.X,
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z,
@@ -593,6 +593,8 @@ namespace MiNET
 
 		public void SendMovementForPlayer(Player[] players)
 		{
+			if (HealthManager.IsDead) return;
+
 			foreach (var player in players)
 			{
 				SendMovementForPlayer(player);
@@ -601,6 +603,8 @@ namespace MiNET
 
 		public void SendMovementForPlayer(Player player)
 		{
+			if (HealthManager.IsDead) return;
+
 			if (player == this) return;
 
 			var knownPosition = player.KnownPosition;
@@ -674,15 +678,18 @@ namespace MiNET
 			}
 		}
 
-		private void AddEntity(Player player)
+		private int AddEntity(Player player)
 		{
 			lock (_entities)
 			{
 				if (_entities.Count == 0 && player != this)
-				{
-					_entities.Add(this);
-				}
+					throw new Exception("Tried to add external entity before player exists. Player must be entity ID=0.");
+				if (_entities.Contains(player))
+					throw new Exception("Tried to add entity that already existed.");
+
 				_entities.Add(player);
+
+				return _entities.IndexOf(player);
 			}
 		}
 
@@ -708,10 +715,7 @@ namespace MiNET
 			{
 				int entityId = _entities.IndexOf(player);
 				if (entityId == -1)
-				{
-					AddEntity(player);
-					entityId = _entities.IndexOf(player);
-				}
+					throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
 
 				if (entityId == 0 && player != this) throw new Exception("Entity ID == 0 is reserved for player.");
 

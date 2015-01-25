@@ -117,6 +117,10 @@ namespace MiNET.Net
 					package.Decode(buffer);
 					return package;
 				case 0xa7:
+					package = new McpeSetEntityData();
+					package.Decode(buffer);
+					return package;
+				case 0xb8:
 					package = new McpeEntityData();
 					package.Decode(buffer);
 					return package;
@@ -1311,6 +1315,48 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeSetEntityData : Package
+	{
+		public int entityId; // = null;
+		public byte[] namedtag; // = null;
+
+		public McpeSetEntityData()
+		{
+			Id = 0xa7;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(namedtag);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			namedtag = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeEntityData : Package
 	{
 		public int x; // = null;
@@ -1320,7 +1366,7 @@ namespace MiNET.Net
 
 		public McpeEntityData()
 		{
-			Id = 0xa7;
+			Id = 0xb8;
 		}
 
 		protected override void EncodePackage()

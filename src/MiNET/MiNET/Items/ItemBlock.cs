@@ -4,6 +4,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
+	/// <summary>
+	///     Generic Item that will simply place the block on use. No interaction or other use supported by the block.
+	/// </summary>
 	public class ItemBlock : Item
 	{
 		private readonly Block _block;
@@ -19,6 +22,8 @@ namespace MiNET.Items
 			_block.Metadata = (byte) Metadata;
 
 			if (!_block.CanPlace(world)) return;
+
+			if (_block.PlaceBlock(world, player, targetCoordinates, face)) return; // Handled
 
 			world.SetBlock(_block);
 		}

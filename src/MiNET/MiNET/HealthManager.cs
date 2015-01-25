@@ -24,6 +24,7 @@ namespace MiNET
 
 		public void KillPlayer()
 		{
+			Debug.WriteLine("Killing player: " + Player.Username + " IsDead: " + IsDead);
 			IsDead = true;
 			Health = 0;
 			Player.SendSetHealth(Health);
@@ -44,6 +45,7 @@ namespace MiNET
 			if (Health <= 0)
 			{
 				KillPlayer();
+				return;
 			}
 
 			if (IsInWater(Player.KnownPosition))

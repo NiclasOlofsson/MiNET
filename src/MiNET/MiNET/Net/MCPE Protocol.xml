@@ -188,7 +188,12 @@
 		<field name="Message" type="string" />
 	</pdu>
 
-	<pdu id="0xa7" online="false" client="false" server="true" name="ID_MCPE_ENTITY_DATA">
+	<pdu id="0xa7" online="false" client="false" server="true" name="ID_MCPE_SET_ENTITY_DATA">
+		<field name="Entity ID" type="int" />
+		<field name="NamedTag" type="byte[]" size="0" />
+	</pdu>
+
+	<pdu id="0xb8" online="false" client="true" server="true" name="ID_MCPE_ENTITY_DATA">
 		<field name="X" type="int" />
 		<field name="Y" type="byte" />
 		<field name="Z" type="int" />

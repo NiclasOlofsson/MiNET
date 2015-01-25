@@ -77,7 +77,7 @@ namespace MiNET.Worlds
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			LevelId = levelId;
-			GameMode = GameMode.Survival;
+			GameMode = GameMode.Creative;
 			Difficulty = Difficulty.Peaceful;
 			_worldProvider = worldProvider;
 		}
@@ -121,18 +121,19 @@ namespace MiNET.Worlds
 				foreach (var targetPlayer in targetPlayers)
 				{
 					targetPlayer.SendAddForPlayer(newPlayer);
-				}
-
-				foreach (var targetPlayer in targetPlayers)
-				{
-					// Add all existing users to new newPlayer
 					newPlayer.SendAddForPlayer(targetPlayer);
 				}
 
 				BroadcastTextMessage(string.Format("Player {0} joined the game!", newPlayer.Username));
 
 				if (!Players.Contains(newPlayer))
+				{
 					Players.Add(newPlayer);
+				}
+				else
+				{
+					throw new Exception("Player existed in the players list when it should not");
+				}
 			}
 		}
 
@@ -140,11 +141,12 @@ namespace MiNET.Worlds
 		{
 			lock (Players)
 			{
-				Players.Remove(player);
+				if (!Players.Remove(player)) throw new Exception("Expected player to exist on remove.");
+
 				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
-					if (targetPlayer.IsSpawned)
-						targetPlayer.SendRemovePlayer(player);
+					targetPlayer.SendRemovePlayer(player);
+					player.SendRemovePlayer(targetPlayer);
 				}
 
 				BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username));

@@ -3,6 +3,10 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
+	/// <summary>
+	///     Blocks are the basic units of structure in Minecraft. Together, they build up the in-game environment and can be
+	///     mined and utilized in various fashions.
+	/// </summary>
 	public class Block
 	{
 		public Coordinates3D Coordinates { get; set; }
@@ -33,8 +37,15 @@ namespace MiNET.Blocks
 			world.SetBlock(new BlockAir {Coordinates = Coordinates});
 		}
 
+		public virtual bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		{
+			// No default placement. Return unhandled.
+			return false;
+		}
+
 		public virtual bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
 		{
+			// No default interaction. Return unhandled.
 			return false;
 		}
 

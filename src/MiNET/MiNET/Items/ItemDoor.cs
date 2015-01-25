@@ -4,6 +4,8 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
+	//A door specifies its hinge side in the block data of its upper block, 
+	// and its facing and opened status in the block data of its lower block
 	public class ItemDoor : Item
 	{
 		internal ItemDoor() : base(324)

@@ -33,7 +33,7 @@
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
 | Mcpe Interact | 0xa2 | 162 |   
 | Mcpe Use Item | 0xa3 | 163 |   
-| Mcpe Entity Data | 0xa7 | 167 |   
+| Mcpe Set Entity Data | 0xa7 | 167 |   
 | Mcpe Set Health | 0xaa | 170 |   
 | Mcpe Set Spawn Position | 0xab | 171 |   
 | Mcpe Animate | 0xac | 172 |   
@@ -41,6 +41,7 @@
 | Mcpe Container Set Slot | 0xb2 | 178 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
+| Mcpe Entity Data | 0xb8 | 184 |   
 | Mcpe Full Chunk Data | 0xba | 186 |   
 | Mcpe Set Difficulty | 0xbc | 188 |   
 
@@ -475,10 +476,25 @@ The three type of status are:
 |Source | string |  |
 |Message | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Entity Data (0xa7)
+###Package: Mcpe Set Entity Data (0xa7)
 
 **Sent from server:** true
 **Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|NamedTag | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Entity Data (0xb8)
+
+**Sent from server:** true
+**Sent from client:** true
 **Packet size:** 
 
 

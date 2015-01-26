@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
@@ -268,6 +269,18 @@ namespace MiNET
 		private void HandleLogin(McpeLogin msg)
 		{
 			Username = msg.username;
+
+			// Check if the user already exist, that case bumpt the old one
+			var existingPlayers = Level.Players.Where(player => player.Username == Username).ToList();
+			if (existingPlayers.Count > 0)
+			{
+				foreach (var existingPlayer in existingPlayers)
+				{
+					Debug.WriteLine(string.Format("Removing staled players on login {0}", Username));
+					Level.RemovePlayer(existingPlayer);
+				}
+			}
+
 			if (Username == null) throw new Exception("No username on login");
 
 			SendPackage(new McpeLoginStatus {status = 0});
@@ -516,7 +529,6 @@ namespace MiNET
 				hotbarData = null
 			});
 			_playerTimer = new Timer(OnPlayerTick, null, 50, 50);
-
 		}
 
 		private void OnPlayerTick(object state)

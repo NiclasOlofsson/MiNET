@@ -154,8 +154,8 @@ namespace MiNET.Worlds
 
 				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
-					targetPlayer.SendRemovePlayer(player);
-					player.SendRemovePlayer(targetPlayer);
+					targetPlayer.SendRemoveForPlayer(player);
+					player.SendRemoveForPlayer(targetPlayer);
 				}
 
 				BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username));

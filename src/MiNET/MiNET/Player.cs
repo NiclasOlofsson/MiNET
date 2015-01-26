@@ -239,10 +239,10 @@ namespace MiNET
 				hotbarData = null
 			});
 
-			SendEntityData(this);
-
 			// Broadcast spawn to all
 			Level.AddPlayer(this);
+
+			BroadcastEntityData();
 		}
 
 		private void HandleDisconnectionNotification()
@@ -470,9 +470,6 @@ namespace MiNET
 					if (count == 56 && !IsSpawned)
 					{
 						InitializePlayer();
-
-						IsSpawned = true;
-						Level.AddPlayer(this);
 					}
 
 					count++;
@@ -495,7 +492,7 @@ namespace MiNET
 		{
 			SendPackage(new McpeMovePlayer
 			{
-				entityId = GetEntityId(this),
+				entityId = 0,
 				x = KnownPosition.X,
 				y = KnownPosition.Y,
 				z = KnownPosition.Z,
@@ -530,7 +527,13 @@ namespace MiNET
 				slotData = Armor,
 				hotbarData = null
 			});
+
 			_playerTimer = new Timer(OnPlayerTick, null, 50, 50);
+
+			IsSpawned = true;
+			Level.AddPlayer(this);
+
+			BroadcastEntityData();
 		}
 
 		private void OnPlayerTick(object state)
@@ -560,8 +563,6 @@ namespace MiNET
 			SendEquipmentForPlayer(player);
 
 			SendArmorForPlayer(player);
-
-			SendEntityData();
 		}
 
 		private void SendEquipmentForPlayer(Player player)
@@ -580,14 +581,14 @@ namespace MiNET
 			SendPackage(new McpePlayerArmorEquipment()
 			{
 				entityId = GetEntityId(player),
-				helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) player.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player.Armor[3]).Value.Id - 256)
 			});
 		}
 
-		public void SendRemovePlayer(Player player)
+		public void SendRemoveForPlayer(Player player)
 		{
 			if (player == this) return;
 
@@ -600,7 +601,7 @@ namespace MiNET
 			RemoveEntity(player);
 		}
 
-		public void SendEntityEvent()
+		public void BroadcastEntityEvent()
 		{
 			Level.RelayBroadcast(this, new McpeEntityEvent()
 			{
@@ -614,33 +615,32 @@ namespace MiNET
 			}
 		}
 
-		public void SendEntityData(Player player = null)
+		public void SendEntityData()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[16] = new MetadataByte(0);
 
-			//	$d = [
-			//		0 => ["type" => 0, "value" => $flags],
-			//		1 => ["type" => 1, "value" => $this->airTicks],
-			//		16 => ["type" => 0, "value" => 0],
-			//		17 => ["type" => 6, "value" => [0, 0, 0]],
-			//];
-
-			var mcpeSetEntityData = new McpeSetEntityData()
+			SendPackage(new McpeSetEntityData()
 			{
 				entityId = 0,
 				namedtag = metadata.GetBytes()
-			};
-			if (player != null)
+			});
+		}
+
+		public void BroadcastEntityData()
+		{
+			MetadataDictionary metadata = new MetadataDictionary();
+			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
+			metadata[1] = new MetadataShort(HealthManager.Air);
+			metadata[16] = new MetadataByte(0);
+
+			Level.RelayBroadcast(this, new McpeSetEntityData()
 			{
-				SendPackage(mcpeSetEntityData);
-			}
-			else
-			{
-				Level.RelayBroadcast(this, mcpeSetEntityData);
-			}
+				entityId = 0,
+				namedtag = metadata.GetBytes()
+			});
 		}
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
@@ -663,7 +663,7 @@ namespace MiNET
 
 			var knownPosition = player.KnownPosition;
 
-			var move = _movePool.GetObject();
+			McpeMovePlayer move = _movePool.GetObject();
 			move.Timer.Start();
 			move.MovePool = _movePool;
 			move.entityId = GetEntityId(player);

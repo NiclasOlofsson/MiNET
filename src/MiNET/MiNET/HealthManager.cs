@@ -27,11 +27,13 @@ namespace MiNET
 		public void KillPlayer()
 		{
 			Debug.WriteLine("Killing player: " + Player.Username + " IsDead: " + IsDead);
+			if (IsDead) return;
+
 			IsDead = true;
 			Health = 0;
 			Player.SendSetHealth(Health);
-			Player.SendEntityEvent();
-			Player.SendEntityData();
+			Player.BroadcastEntityEvent();
+			Player.BroadcastEntityData();
 			Player.Kill();
 		}
 
@@ -63,8 +65,8 @@ namespace MiNET
 					if (Math.Abs(Air)%10 == 0)
 					{
 						Player.SendSetHealth(--Health);
-						Player.SendEntityEvent();
-						Player.SendEntityData();
+						Player.BroadcastEntityEvent();
+						Player.BroadcastEntityData();
 					}
 				}
 
@@ -72,7 +74,7 @@ namespace MiNET
 				{
 					IsOnFire = false;
 					FireTick = 0;
-					Player.SendEntityData();
+					Player.BroadcastEntityData();
 				}
 			}
 			else
@@ -84,7 +86,7 @@ namespace MiNET
 			{
 				FireTick = 300;
 				IsOnFire = true;
-				Player.SendEntityData();
+				Player.BroadcastEntityData();
 			}
 
 			if (IsOnFire)
@@ -95,8 +97,8 @@ namespace MiNET
 				if (Math.Abs(FireTick)%25 == 0)
 				{
 					Player.SendSetHealth(--Health);
-					Player.SendEntityEvent();
-					Player.SendEntityData();
+					Player.BroadcastEntityEvent();
+					Player.BroadcastEntityData();
 				}
 			}
 		}

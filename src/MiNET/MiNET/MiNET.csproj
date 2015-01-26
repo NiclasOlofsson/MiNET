@@ -89,7 +89,6 @@
     <Compile Include="Utils\NbtFormatException.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
-    <Compile Include="Worlds\CraftNetWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />

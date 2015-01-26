@@ -239,6 +239,8 @@ namespace MiNET
 				hotbarData = null
 			});
 
+			SendEntityData(this);
+
 			// Broadcast spawn to all
 			Level.AddPlayer(this);
 		}
@@ -612,7 +614,7 @@ namespace MiNET
 			}
 		}
 
-		public void SendEntityData()
+		public void SendEntityData(Player player = null)
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
@@ -626,11 +628,19 @@ namespace MiNET
 			//		17 => ["type" => 6, "value" => [0, 0, 0]],
 			//];
 
-			Level.RelayBroadcast(this, new McpeSetEntityData()
+			var mcpeSetEntityData = new McpeSetEntityData()
 			{
 				entityId = 0,
 				namedtag = metadata.GetBytes()
-			});
+			};
+			if (player != null)
+			{
+				SendPackage(mcpeSetEntityData);
+			}
+			else
+			{
+				Level.RelayBroadcast(this, mcpeSetEntityData);
+			}
 		}
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());

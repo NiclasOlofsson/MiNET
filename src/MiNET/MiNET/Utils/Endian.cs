@@ -1,14 +1,7 @@
-﻿using System;
-
-namespace MiNET.Utils
+﻿namespace MiNET.Utils
 {
 	public class Endian
 	{
-		static Endian()
-		{
-			_LittleEndian = BitConverter.IsLittleEndian;
-		}
-
 		public static short SwapInt16(short v)
 		{
 			return (short) (((v & 0xff) << 8) | ((v >> 8) & 0xff));
@@ -42,17 +35,5 @@ namespace MiNET.Utils
 			return (ulong) (((SwapUInt32((uint) v) & 0xffffffffL) << 0x20) |
 			                (SwapUInt32((uint) (v >> 0x20)) & 0xffffffffL));
 		}
-
-		public static bool IsBigEndian
-		{
-			get { return !_LittleEndian; }
-		}
-
-		public static bool IsLittleEndian
-		{
-			get { return _LittleEndian; }
-		}
-
-		private static readonly bool _LittleEndian;
 	}
 }

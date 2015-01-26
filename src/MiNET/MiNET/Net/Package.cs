@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Craft.Net.Common;
 using MiNET.Utils;
 
 namespace MiNET.Net
@@ -192,6 +191,26 @@ namespace MiNET.Net
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
+		public void Write(MetadataInts metadata)
+		{
+			if (metadata == null)
+			{
+				Write((short) 0);
+				return;
+			}
+
+			Write((short) metadata.Count);
+
+			for (byte i = 0; i < metadata.Count; i++)
+			{
+				MetadataInt slot = metadata[i] as MetadataInt;
+				if (slot != null)
+				{
+					Write(slot.Value);
+				}
+			}
+		}
+
 		public MetadataInts ReadMetadataInts()
 		{
 			MetadataInts metadata = new MetadataInts();
@@ -203,6 +222,28 @@ namespace MiNET.Net
 			}
 
 			return metadata;
+		}
+
+		public void Write(MetadataSlots metadata)
+		{
+			if (metadata == null)
+			{
+				Write((short) 0);
+				return;
+			}
+
+			Write((short) metadata.Count);
+
+			for (byte i = 0; i < metadata.Count; i++)
+			{
+				MetadataSlot slot = metadata[i] as MetadataSlot;
+				if (slot != null)
+				{
+					Write(slot.Value.Id);
+					Write(slot.Value.Count);
+					Write(slot.Value.Metadata);
+				}
+			}
 		}
 
 		public MetadataSlots ReadMetadataSlots()
@@ -218,42 +259,6 @@ namespace MiNET.Net
 
 			return metadata;
 		}
-
-		public void Write(MetadataDictionary metadata)
-		{
-			if (metadata == null)
-			{
-				Write((short) 0);
-				return;
-			}
-
-			Write((short) metadata.Count);
-
-			for (byte i = 0; i < metadata.Count; i++)
-			{
-				{
-					MetadataSlot slot = metadata[i] as MetadataSlot;
-					if (slot != null)
-					{
-						Write(slot.Value.Id);
-						Write(slot.Value.Count);
-						Write(slot.Value.Metadata);
-
-						continue;
-					}
-				}
-
-				{
-					MetadataInt slot = metadata[i] as MetadataInt;
-					if (slot != null)
-					{
-						Write(slot.Value);
-						continue;
-					}
-				}
-			}
-		}
-
 
 		protected virtual void EncodePackage()
 		{

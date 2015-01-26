@@ -10,6 +10,7 @@ using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Worlds
 {
@@ -79,15 +80,15 @@ namespace MiNET.Worlds
 			Players = new List<Player>();
 			LevelId = levelId;
 			GameMode = ConfigParser.ReadGamemode("DefaultGamemode");
-			Difficulty = ConfigParser.ReadDifficulty ("Difficulty");
-            if (ConfigParser.ReadBoolean ("UsePCWorld"))
-            {
-                _worldProvider = new CraftNetAnvilWorldProvider ();
-            } 
-            else
-            {
-                _worldProvider = worldProvider;
-            }
+			Difficulty = ConfigParser.ReadDifficulty("Difficulty");
+			if (ConfigParser.ReadBoolean("UsePCWorld"))
+			{
+				_worldProvider = new CraftNetAnvilWorldProvider();
+			}
+			else
+			{
+				_worldProvider = worldProvider;
+			}
 		}
 
 		public void Initialize()
@@ -334,6 +335,16 @@ namespace MiNET.Worlds
 			foreach (var player in GetSpawnedPlayers())
 			{
 				var send = message.Clone<McpeEntityEvent>();
+				send.entityId = player.GetEntityId(target);
+				player.SendPackage(send);
+			}
+		}
+
+		public void RelayBroadcast(Player target, McpeSetEntityData message)
+		{
+			foreach (var player in GetSpawnedPlayers())
+			{
+				var send = message.Clone<McpeSetEntityData>();
 				send.entityId = player.GetEntityId(target);
 				player.SendPackage(send);
 			}

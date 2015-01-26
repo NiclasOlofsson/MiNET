@@ -7,7 +7,7 @@ namespace MiNET
 	{
 		public Player Player { get; set; }
 		public int Health { get; set; }
-		public int Air { get; set; }
+		public short Air { get; set; }
 		public bool IsDead { get; set; }
 		public int FireTick { get; set; }
 		public bool IsOnFire { get; set; }
@@ -30,6 +30,8 @@ namespace MiNET
 			IsDead = true;
 			Health = 0;
 			Player.SendSetHealth(Health);
+			Player.SendEntityEvent();
+			Player.SendEntityData();
 			Player.Kill();
 		}
 
@@ -62,6 +64,7 @@ namespace MiNET
 					{
 						Player.SendSetHealth(--Health);
 						Player.SendEntityEvent();
+						Player.SendEntityData();
 					}
 				}
 
@@ -69,6 +72,7 @@ namespace MiNET
 				{
 					IsOnFire = false;
 					FireTick = 0;
+					Player.SendEntityData();
 				}
 			}
 			else
@@ -80,6 +84,7 @@ namespace MiNET
 			{
 				FireTick = 300;
 				IsOnFire = true;
+				Player.SendEntityData();
 			}
 
 			if (IsOnFire)
@@ -91,6 +96,7 @@ namespace MiNET
 				{
 					Player.SendSetHealth(--Health);
 					Player.SendEntityEvent();
+					Player.SendEntityData();
 				}
 			}
 		}

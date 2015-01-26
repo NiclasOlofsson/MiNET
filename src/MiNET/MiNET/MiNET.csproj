@@ -71,12 +71,19 @@
     <Compile Include="MiNetServer.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerPosition3D.cs" />
-    <Compile Include="Utils\Class1.cs" />
+    <Compile Include="Utils\Endian.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
     <Compile Include="Utils\Int24.cs" />
+    <Compile Include="Utils\ItemStack.cs" />
+    <Compile Include="Utils\MetadataByte.cs" />
+    <Compile Include="Utils\MetadataDictionary.cs" />
+    <Compile Include="Utils\MetadataEntry.cs" />
+    <Compile Include="Utils\MetadataFloat.cs" />
     <Compile Include="Utils\MetadataInt.cs" />
     <Compile Include="Utils\MetadataInts.cs" />
-    <Compile Include="Utils\MetadataShorts.cs" />
+    <Compile Include="Utils\MetadataShort.cs" />
+    <Compile Include="Utils\MetadataSlot.cs" />
+    <Compile Include="Utils\MetadataString.cs" />
     <Compile Include="Utils\NbtBinaryReader.cs" />
     <Compile Include="Utils\NbtBinaryWriter.cs" />
     <Compile Include="Utils\NbtFormatException.cs" />
@@ -133,6 +140,9 @@
       <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>
       <Name>Craft.Net.TerrainGeneration</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Inventory\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

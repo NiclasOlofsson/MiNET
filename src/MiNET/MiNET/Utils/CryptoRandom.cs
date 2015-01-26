@@ -8,11 +8,12 @@ namespace MiNET.Utils
 		private static RandomNumberGenerator r;
 
 		/// <summary>
-		///     Creates an instance of the default implementation of a cryptographic random number generator that can be used to generate random data.
+		///     Creates an instance of the default implementation of a cryptographic random number generator that can be used to
+		///     generate random data.
 		/// </summary>
 		public CryptoRandom()
 		{
-			r = RandomNumberGenerator.Create();
+			r = Create();
 		}
 
 		/// <summary>
@@ -38,7 +39,10 @@ namespace MiNET.Utils
 		///     Returns a random number within the specified range.
 		/// </summary>
 		/// <param name=” minValue”>The inclusive lower bound of the random number returned.</param>
-		/// <param name=” maxValue”>The exclusive upper bound of the random number returned. maxValue must be greater than or equal to minValue.</param>
+		/// <param name=” maxValue”>
+		///     The exclusive upper bound of the random number returned. maxValue must be greater than or equal
+		///     to minValue.
+		/// </param>
 		public int Next(int minValue, int maxValue)
 		{
 			return (int) Math.Round(NextDouble()*(maxValue - minValue - 1)) + minValue;
@@ -55,7 +59,10 @@ namespace MiNET.Utils
 		/// <summary>
 		///     Returns a nonnegative random number less than the specified maximum
 		/// </summary>
-		/// <param name=” maxValue”>The inclusive upper bound of the random number returned. maxValue must be greater than or equal 0</param>
+		/// <param name=” maxValue”>
+		///     The inclusive upper bound of the random number returned. maxValue must be greater than or equal
+		///     0
+		/// </param>
 		public int Next(int maxValue)
 		{
 			return Next(0, maxValue);

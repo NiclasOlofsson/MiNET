@@ -7,6 +7,12 @@ using Craft.Net.Common;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using ItemStack = MiNET.Utils.ItemStack;
+using MetadataByte = MiNET.Utils.MetadataByte;
+using MetadataDictionary = MiNET.Utils.MetadataDictionary;
+using MetadataInt = MiNET.Utils.MetadataInt;
+using MetadataShort = MiNET.Utils.MetadataShort;
+using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET
 {
@@ -510,6 +516,7 @@ namespace MiNET
 				hotbarData = null
 			});
 			_playerTimer = new Timer(OnPlayerTick, null, 50, 50);
+
 		}
 
 		private void OnPlayerTick(object state)
@@ -539,6 +546,8 @@ namespace MiNET
 			SendEquipmentForPlayer(player);
 
 			SendArmorForPlayer(player);
+
+			SendEntityData();
 		}
 
 		private void SendEquipmentForPlayer(Player player)
@@ -589,6 +598,27 @@ namespace MiNET
 			{
 				Level.BroadcastTextMessage("You died and lost all stuff, newbie!");
 			}
+		}
+
+		public void SendEntityData()
+		{
+			MetadataDictionary metadata = new MetadataDictionary();
+			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
+			metadata[1] = new MetadataShort(HealthManager.Air);
+			metadata[16] = new MetadataByte(0);
+
+			//	$d = [
+			//		0 => ["type" => 0, "value" => $flags],
+			//		1 => ["type" => 1, "value" => $this->airTicks],
+			//		16 => ["type" => 0, "value" => 0],
+			//		17 => ["type" => 6, "value" => [0, 0, 0]],
+			//];
+
+			Level.RelayBroadcast(this, new McpeSetEntityData()
+			{
+				entityId = 0,
+				namedtag = metadata.GetBytes()
+			});
 		}
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());

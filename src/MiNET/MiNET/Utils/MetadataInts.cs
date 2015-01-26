@@ -1,6 +1,4 @@
-﻿using Craft.Net.Common;
-
-namespace MiNET.Utils
+﻿namespace MiNET.Utils
 {
 	public class MetadataInts : MetadataDictionary
 	{

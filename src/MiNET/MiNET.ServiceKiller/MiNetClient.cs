@@ -218,15 +218,16 @@ namespace MiNET.ServiceKiller
 
 		public void SendMcpeMovePlayer(int x, int y, int z)
 		{
-			var movePlayerPacket = McpeMovePlayer.CreateObject();
-			movePlayerPacket.x = x;
-			movePlayerPacket.y = y;
-			movePlayerPacket.z = z;
-			movePlayerPacket.yaw = 91;
-			movePlayerPacket.pitch = 28;
-			movePlayerPacket.bodyYaw = 91;
+			//var movePlayerPacket = McpeMovePlayer.CreateObject();
+			_movePlayerPacket.Reset();
+			_movePlayerPacket.x = x;
+			_movePlayerPacket.y = y;
+			_movePlayerPacket.z = z;
+			_movePlayerPacket.yaw = 91;
+			_movePlayerPacket.pitch = 28;
+			_movePlayerPacket.bodyYaw = 91;
 
-			SendPackage(movePlayerPacket, _mtuSize, 0, 0);
+			SendPackage(_movePlayerPacket, _mtuSize, 0, 0);
 		}
 	}
 }

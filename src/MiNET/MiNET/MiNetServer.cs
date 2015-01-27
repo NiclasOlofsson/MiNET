@@ -64,6 +64,10 @@ namespace MiNET
 				// - Set to FALSE to disable reporting.
 				if (!IsRunningOnMono())
 				{
+					_listener.Client.ReceiveBufferSize = 1024 * 1024 * 8;
+					_listener.Client.SendBufferSize = 1024 * 1024 * 8;
+					_listener.DontFragment = true;
+
 					uint IOC_IN = 0x80000000;
 					uint IOC_VENDOR = 0x18000000;
 					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
@@ -223,6 +227,8 @@ namespace MiNET
 							break;
 						}
 					}
+
+					message.PutPool();
 				}
 				else
 				{
@@ -243,6 +249,7 @@ namespace MiNET
 							TraceReceive(message);
 							SendAck(senderEndpoint, package._datagramSequenceNumber);
 							HandlePackage(message, senderEndpoint);
+							message.PutPool();
 						}
 					}
 					else if (header.isACK && header.isValid)
@@ -322,7 +329,7 @@ namespace MiNET
 			{
 				//TraceSend(message);
 
-				message.PutPool();
+				//message.PutPool();
 			}
 		}
 

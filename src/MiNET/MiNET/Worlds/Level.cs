@@ -170,6 +170,19 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public void RemoveDuplicatePlayers(string username)
+		{
+			lock (Players)
+			{
+				var existingPlayers = Players.Where(player => player.Username == username);
+				foreach (var existingPlayer in existingPlayers)
+				{
+					Debug.WriteLine(string.Format("Removing staled players on login {0}", username));
+					RemovePlayer(existingPlayer);
+				}
+			}
+		}
+
 		public void BroadcastTextMessage(string text, Player sender = null)
 		{
 			var response = new McpeMessage
@@ -207,16 +220,16 @@ namespace MiNET.Worlds
 
 					Player[] players = GetSpawnedPlayers();
 
-					if (CurrentWorldTime%10 == 0)
-					{
-						foreach (var newPlayer in Players.ToArray())
-						{
-							if (newPlayer.IsSpawned)
-							{
-								newPlayer.SendSetTime();
-							}
-						}
-					}
+					//if (CurrentWorldTime%10 == 0)
+					//{
+					//	foreach (var newPlayer in players)
+					//	{
+					//		if (newPlayer.IsSpawned)
+					//		{
+					//			newPlayer.SendSetTime();
+					//		}
+					//	}
+					//}
 
 					// broadcast events to all players
 
@@ -251,8 +264,6 @@ namespace MiNET.Worlds
 			return players.Where(player => ((now - player.LastUpdatedTime.Ticks) <= tickTime)).ToArray();
 		}
 
-		//private static ObjectPool<McpeMovePlayer> movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer(true));
-
 		private void BroadCastMovement(Player[] players, Player[] updatedPlayers)
 		{
 			List<Task> tasks = new List<Task>();
@@ -264,20 +275,62 @@ namespace MiNET.Worlds
 				int entityId = EntityManager.GetEntityId(null, player);
 				if (entityId == 0) throw new Exception("Souldn't have 0 entity IDs here.");
 
+				McpeMovePlayer move = McpeMovePlayer.CreateObject();
+				move.entityId = entityId;
+				move.x = knownPosition.X;
+				move.y = knownPosition.Y;
+				move.z = knownPosition.Z;
+				move.yaw = knownPosition.Yaw;
+				move.pitch = knownPosition.Pitch;
+				move.bodyYaw = knownPosition.BodyYaw;
+				move.teleport = 0;
+				var bytes = move.Encode(); // Optmized
+
 				Player updatedPlayer = player;
 				var task = new Task(delegate
 				{
-					McpeMovePlayer move = McpeMovePlayer.CreateObject();
-					move.entityId = entityId;
-					move.x = knownPosition.X;
-					move.y = knownPosition.Y;
-					move.z = knownPosition.Z;
-					move.yaw = knownPosition.Yaw;
-					move.pitch = knownPosition.Pitch;
-					move.bodyYaw = knownPosition.BodyYaw;
-					move.teleport = 0;
-					var bytes = move.Encode(); // Optmized
+					foreach (var p in players)
+					{
+						//McpeMovePlayer m = McpeMovePlayer.CreateObject();
+						//m.SetEncodedMessage(bytes);
+						p.SendMovementForPlayer(updatedPlayer, move);
+					}
 
+					//move.PutPool();
+				});
+
+				tasks.Add(task);
+				task.Start();
+			}
+
+			Task.WaitAll(tasks.ToArray());
+		}
+
+		private void BroadCastMovementOld(Player[] players, Player[] updatedPlayers)
+		{
+			List<Task> tasks = new List<Task>();
+
+			foreach (var player in updatedPlayers)
+			{
+				var knownPosition = player.KnownPosition;
+
+				int entityId = EntityManager.GetEntityId(null, player);
+				if (entityId == 0) throw new Exception("Souldn't have 0 entity IDs here.");
+
+				McpeMovePlayer move = McpeMovePlayer.CreateObject();
+				move.entityId = entityId;
+				move.x = knownPosition.X;
+				move.y = knownPosition.Y;
+				move.z = knownPosition.Z;
+				move.yaw = knownPosition.Yaw;
+				move.pitch = knownPosition.Pitch;
+				move.bodyYaw = knownPosition.BodyYaw;
+				move.teleport = 0;
+				var bytes = move.Encode(); // Optmized
+
+				Player updatedPlayer = player;
+				var task = new Task(delegate
+				{
 					foreach (var p in players)
 					{
 						McpeMovePlayer m = McpeMovePlayer.CreateObject();
@@ -294,6 +347,7 @@ namespace MiNET.Worlds
 
 			Task.WaitAll(tasks.ToArray());
 		}
+
 
 		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
 		{

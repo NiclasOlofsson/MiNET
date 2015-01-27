@@ -18,159 +18,198 @@ namespace MiNET.Net
 			switch (messageId)
 			{
 				case 0x00:
-					package = new ConnectedPing();
+					package = ConnectedPing.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x01:
-					package = new UnconnectedPing();
+					package = UnconnectedPing.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x03:
-					package = new ConnectedPong();
+					package = ConnectedPong.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x1c:
-					package = new UnconnectedPong();
+					package = UnconnectedPong.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x05:
-					package = new OpenConnectionRequest1();
+					package = OpenConnectionRequest1.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x06:
-					package = new OpenConnectionReply1();
+					package = OpenConnectionReply1.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x07:
-					package = new OpenConnectionRequest2();
+					package = OpenConnectionRequest2.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x08:
-					package = new OpenConnectionReply2();
+					package = OpenConnectionReply2.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x09:
-					package = new ConnectionRequest();
+					package = ConnectionRequest.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x10:
-					package = new ConnectionRequestAccepted();
+					package = ConnectionRequestAccepted.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x13:
-					package = new NewIncomingConnection();
+					package = NewIncomingConnection.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x15:
-					package = new DisconnectionNotification();
+					package = DisconnectionNotification.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x82:
-					package = new McpeLogin();
+					package = McpeLogin.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x83:
-					package = new McpeLoginStatus();
+					package = McpeLoginStatus.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x86:
-					package = new McpeSetTime();
+					package = McpeSetTime.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xaa:
-					package = new McpeSetHealth();
+					package = McpeSetHealth.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xab:
-					package = new McpeSetSpawnPosition();
+					package = McpeSetSpawnPosition.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xad:
-					package = new McpeRespawn();
+					package = McpeRespawn.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x87:
-					package = new McpeStartGame();
+					package = McpeStartGame.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xba:
-					package = new McpeFullChunkData();
+					package = McpeFullChunkData.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x95:
-					package = new McpeMovePlayer();
+					package = McpeMovePlayer.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb7:
-					package = new McpeAdventureSettings();
+					package = McpeAdventureSettings.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb4:
-					package = new McpeContainerSetContent();
+					package = McpeContainerSetContent.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xbc:
-					package = new McpeSetDifficulty();
+					package = McpeSetDifficulty.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x85:
-					package = new McpeMessage();
+					package = McpeMessage.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa7:
-					package = new McpeSetEntityData();
+					package = McpeSetEntityData.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb8:
-					package = new McpeEntityData();
+					package = McpeEntityData.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x89:
-					package = new McpeAddPlayer();
+					package = McpeAddPlayer.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x8a:
-					package = new McpeRemovePlayer();
+					package = McpeRemovePlayer.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x96:
-					package = new McpePlaceBlock();
+					package = McpePlaceBlock.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x97:
-					package = new McpeRemoveBlock();
+					package = McpeRemoveBlock.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x98:
-					package = new McpeUpdateBlock();
+					package = McpeUpdateBlock.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x9d:
-					package = new McpeEntityEvent();
+					package = McpeEntityEvent.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa0:
-					package = new McpePlayerEquipment();
+					package = McpePlayerEquipment.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa1:
-					package = new McpePlayerArmorEquipment();
+					package = McpePlayerArmorEquipment.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa2:
-					package = new McpeInteract();
+					package = McpeInteract.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xac:
-					package = new McpeAnimate();
+					package = McpeAnimate.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa3:
-					package = new McpeUseItem();
+					package = McpeUseItem.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb2:
-					package = new McpeContainerSetSlot();
+					package = McpeContainerSetSlot.CreateObject();
+					package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 			}

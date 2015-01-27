@@ -17,7 +17,7 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 160; i++)
+			for (int i = 0; i < 500; i++)
 			{
 				counter[0]++;
 				string playerName = "Player " + (i + 1);

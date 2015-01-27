@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
@@ -204,7 +203,7 @@ namespace MiNET
 			message.Timer.Stop();
 			if (elapsedMilliseconds > 100)
 			{
-				//Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
+				Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
 			}
 		}
 
@@ -277,21 +276,14 @@ namespace MiNET
 		{
 			Username = msg.username;
 
-			// Check if the user already exist, that case bumpt the old one
-			var existingPlayers = Level.Players.Where(player => player.Username == Username).ToList();
-			if (existingPlayers.Count > 0)
-			{
-				foreach (var existingPlayer in existingPlayers)
-				{
-					Debug.WriteLine(string.Format("Removing staled players on login {0}", Username));
-					Level.RemovePlayer(existingPlayer);
-				}
-			}
-
 			if (Username == null) throw new Exception("No username on login");
+
+			// Check if the user already exist, that case bumpt the old one
+			Level.RemoveDuplicatePlayers(Username);
 
 			if (Username.StartsWith("Player")) IsBot = true;
 
+			if (Username == null) throw new Exception("No username on login");
 			SendPackage(new McpeLoginStatus {status = 0});
 
 			// Start game
@@ -317,7 +309,7 @@ namespace MiNET
 			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
-			//if (IsBot) return;
+			if (IsBot) return;
 
 			SendChunksForKnownPosition();
 		}

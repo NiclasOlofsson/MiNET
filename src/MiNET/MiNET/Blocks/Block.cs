@@ -11,17 +11,17 @@ namespace MiNET.Blocks
 	public class Block
 	{
 		public Coordinates3D Coordinates { get; set; }
-        public byte Id { get; set; }
-        public byte Metadata { get; set; }
-        public bool IsReplacible { get; set; }
-        public bool IsSolid { get; set; }
-        public double Hardness { get; set; }
+		public byte Id { get; set; }
+		public byte Metadata { get; set; }
+		public bool IsReplacible { get; set; }
+		public bool IsSolid { get; set; }
+		public float Durability { get; set; }
 
 		internal Block(byte id)
 		{
 			Id = id;
 			IsSolid = true;
-		    Hardness = 1;
+			Durability = 0.5f;
 		}
 
 		public bool CanPlace(Level world)
@@ -52,11 +52,16 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-        public double GetMineTime(Item miningTool)
-        {
-            int multiplier = (int)miningTool.ItemMaterial;
-            return Hardness * (1.5 * multiplier);
-        }
+		public float GetHardness()
+		{
+			return Durability/5.0F;
+		}
+
+		public double GetMineTime(Item miningTool)
+		{
+			int multiplier = (int) miningTool.ItemMaterial;
+			return Durability*(1.5*multiplier);
+		}
 
 		protected Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
 		{

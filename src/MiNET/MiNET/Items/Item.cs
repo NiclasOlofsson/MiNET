@@ -13,10 +13,13 @@ namespace MiNET.Items
 	public class Item
 	{
 		public int Id { get; set; }
+        public bool IsTool { get; set; }
+        public ItemMaterial ItemMaterial { get; set; }
 
 		internal Item(int id)
 		{
 			Id = id;
+            ItemMaterial = ItemMaterial.None;
 		}
 
 		public short Metadata { get; set; }
@@ -46,4 +49,13 @@ namespace MiNET.Items
 			}
 		}
 	}
+    public enum ItemMaterial
+    {
+        None = 1,
+        Wood = 2,
+        Stone = 4,
+        Iron = 6,
+        Diamond = 8,
+        Gold = 12
+    }
 }

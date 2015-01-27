@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\BlockAir.cs" />
+    <Compile Include="Blocks\BlockBedrock.cs" />
     <Compile Include="Blocks\BlockChest.cs" />
     <Compile Include="Blocks\BlockFactory.cs" />
     <Compile Include="Blocks\BlockWoodenDoor.cs" />

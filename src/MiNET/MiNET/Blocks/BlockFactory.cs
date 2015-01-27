@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 
 			if (blockId == 54) block = new BlockChest();
 			if (blockId == 64) block = new BlockWoodenDoor();
-
+            if (blockId == 7) block = new BlockBedrock();
 			return block;
 		}
 	}

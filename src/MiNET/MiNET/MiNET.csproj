@@ -44,12 +44,14 @@
     <Compile Include="Blocks\BlockChest.cs" />
     <Compile Include="Blocks\BlockFactory.cs" />
     <Compile Include="Blocks\BlockWoodenDoor.cs" />
+    <Compile Include="Explosion.cs" />
     <Compile Include="HealthManager.cs" />
     <Compile Include="InventoryManger.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Items\ItemBlock.cs" />
     <Compile Include="Items\ItemDoor.cs" />
     <Compile Include="Items\ItemFactory.cs" />
+    <Compile Include="Items\ItemFlintAndSteel.cs" />
     <Compile Include="Net\Ack.cs" />
     <Compile Include="Net\ConnectedPackage.cs" />
     <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />

@@ -639,8 +639,6 @@ namespace MiNET
 			if (HealthManager.IsDead) return;
 			if (player == this) return;
 
-			//move.Timer.Start();
-
 			SendPackage(move);
 		}
 

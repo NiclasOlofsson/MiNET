@@ -4,7 +4,7 @@ using System.IO;
 
 namespace MiNET.Net
 {
-	public class Datagram
+	public class Datagram: Package
 	{
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;

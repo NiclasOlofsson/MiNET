@@ -3,11 +3,20 @@ using System.Collections.Concurrent;
 
 namespace MiNET.Net
 {
-	public class ObjectPool<T>
+	public class ObjectPool<T> where T : Package
 	{
 		private ConcurrentBag<T> _objects;
 		private Func<T> _objectGenerator;
-		public bool IsInitialized = false;
+
+		public void FillPool(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				var item = _objectGenerator();
+				//GC.SuppressFinalize(item);
+				_objects.Add(item);
+			}
+		}
 
 		public ObjectPool(Func<T> objectGenerator)
 		{
@@ -25,13 +34,8 @@ namespace MiNET.Net
 
 		public void PutObject(T item)
 		{
-			//if (IsInitialized && _objects.Count < 10000) Console.WriteLine("Pool for " + item.GetType().Name + " is running low.");
+			//GC.SuppressFinalize(item);
 			_objects.Add(item);
-		}
-
-		public int Count()
-		{
-			return _objects.Count;
 		}
 	}
 }

@@ -93,6 +93,8 @@ namespace MiNET.Worlds
 			{
 				_worldProvider = worldProvider;
 			}
+
+			//McpeMovePlayer._pool.FillPool(100);
 		}
 
 		public void Initialize()
@@ -100,7 +102,7 @@ namespace MiNET.Worlds
 			CurrentWorldTime = 6000;
 			WorldTimeStarted = true;
 
-			var loadIt = new FlatlandGenerator();
+			var loadIt = new FlatlandGenerator(); // Don't remove
 
 			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
 			//if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
@@ -270,35 +272,35 @@ namespace MiNET.Worlds
 
 			foreach (var player in updatedPlayers)
 			{
-				var knownPosition = player.KnownPosition;
+
+				Player updatedPlayer = player;
+				var knownPosition = updatedPlayer.KnownPosition;
 
 				int entityId = EntityManager.GetEntityId(null, player);
 				if (entityId == 0) throw new Exception("Souldn't have 0 entity IDs here.");
 
-				McpeMovePlayer move = McpeMovePlayer.CreateObject();
-				move.entityId = entityId;
-				move.x = knownPosition.X;
-				move.y = knownPosition.Y;
-				move.z = knownPosition.Z;
-				move.yaw = knownPosition.Yaw;
-				move.pitch = knownPosition.Pitch;
-				move.bodyYaw = knownPosition.BodyYaw;
-				move.teleport = 0;
-				var bytes = move.Encode(); // Optmized
-
-				Player updatedPlayer = player;
 				var task = new Task(delegate
 				{
+					McpeMovePlayer move = McpeMovePlayer.CreateObject();
+					move.entityId = entityId;
+					move.x = knownPosition.X;
+					move.y = knownPosition.Y;
+					move.z = knownPosition.Z;
+					move.yaw = knownPosition.Yaw;
+					move.pitch = knownPosition.Pitch;
+					move.bodyYaw = knownPosition.BodyYaw;
+					move.teleport = 0;
+					var bytes = move.Encode(); // Optmized
+
 					foreach (var p in players)
 					{
-						//McpeMovePlayer m = McpeMovePlayer.CreateObject();
-						//m.SetEncodedMessage(bytes);
+						if (p == updatedPlayer) continue;
+
+						move.ReferenceCounter = move.ReferenceCounter + 1;
 						p.SendMovementForPlayer(updatedPlayer, move);
 					}
-
-					//move.PutPool();
+					move.PutPool();
 				});
-
 				tasks.Add(task);
 				task.Start();
 			}

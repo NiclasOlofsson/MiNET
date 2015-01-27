@@ -327,9 +327,7 @@ namespace MiNET
 
 			foreach (var message in messages)
 			{
-				//TraceSend(message);
-
-				//message.PutPool();
+				message.PutPool();
 			}
 		}
 

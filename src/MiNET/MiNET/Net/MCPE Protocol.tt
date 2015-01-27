@@ -15,6 +15,7 @@ doc.Load(path + @"\MCPE Protocol.xml");
 // 
 
 using System;
+using System.Threading;
 using MiNET.Utils; 
 using little = MiNET.Utils.Int24; // friendly name
 
@@ -35,7 +36,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 #>
 				case <#= pdu.Attributes["id"].Value #>:
 					package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 <#	
@@ -150,15 +151,20 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			new ObjectPool<<#= CodeTypeName(pdu.Attributes["name"].Value) #>>(() => new <#= CodeTypeName(pdu.Attributes["name"].Value) #>(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static <#= CodeTypeName(pdu.Attributes["name"].Value) #> CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -168,11 +174,8 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}

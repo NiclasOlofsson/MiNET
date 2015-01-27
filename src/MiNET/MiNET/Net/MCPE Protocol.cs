@@ -4,6 +4,7 @@
 // 
 
 using System;
+using System.Threading;
 using MiNET.Utils; 
 using little = MiNET.Utils.Int24; // friendly name
 
@@ -19,197 +20,197 @@ namespace MiNET.Net
 			{
 				case 0x00:
 					package = ConnectedPing.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x01:
 					package = UnconnectedPing.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x03:
 					package = ConnectedPong.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x1c:
 					package = UnconnectedPong.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x05:
 					package = OpenConnectionRequest1.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x06:
 					package = OpenConnectionReply1.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x07:
 					package = OpenConnectionRequest2.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x08:
 					package = OpenConnectionReply2.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x09:
 					package = ConnectionRequest.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x10:
 					package = ConnectionRequestAccepted.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x13:
 					package = NewIncomingConnection.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x15:
 					package = DisconnectionNotification.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x82:
 					package = McpeLogin.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x83:
 					package = McpeLoginStatus.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x86:
 					package = McpeSetTime.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xaa:
 					package = McpeSetHealth.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xab:
 					package = McpeSetSpawnPosition.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xad:
 					package = McpeRespawn.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x87:
 					package = McpeStartGame.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xba:
 					package = McpeFullChunkData.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x95:
 					package = McpeMovePlayer.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb7:
 					package = McpeAdventureSettings.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb4:
 					package = McpeContainerSetContent.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xbc:
 					package = McpeSetDifficulty.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x85:
 					package = McpeMessage.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa7:
 					package = McpeSetEntityData.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb8:
 					package = McpeEntityData.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x89:
 					package = McpeAddPlayer.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x8a:
 					package = McpeRemovePlayer.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x96:
 					package = McpePlaceBlock.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x97:
 					package = McpeRemoveBlock.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x98:
 					package = McpeUpdateBlock.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0x9d:
 					package = McpeEntityEvent.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa0:
 					package = McpePlayerEquipment.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa1:
 					package = McpePlayerArmorEquipment.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa2:
 					package = McpeInteract.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xac:
 					package = McpeAnimate.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xa3:
 					package = McpeUseItem.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 				case 0xb2:
 					package = McpeContainerSetSlot.CreateObject();
-					package.Timer.Start();
+					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
 			}
@@ -260,15 +261,20 @@ namespace MiNET.Net
 			new ObjectPool<ConnectedPing>(() => new ConnectedPing(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static ConnectedPing CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -278,11 +284,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -332,15 +335,20 @@ namespace MiNET.Net
 			new ObjectPool<UnconnectedPing>(() => new UnconnectedPing(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static UnconnectedPing CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -350,11 +358,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -404,15 +409,20 @@ namespace MiNET.Net
 			new ObjectPool<ConnectedPong>(() => new ConnectedPong(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static ConnectedPong CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -422,11 +432,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -482,15 +489,20 @@ namespace MiNET.Net
 			new ObjectPool<UnconnectedPong>(() => new UnconnectedPong(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static UnconnectedPong CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -500,11 +512,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -554,15 +563,20 @@ namespace MiNET.Net
 			new ObjectPool<OpenConnectionRequest1>(() => new OpenConnectionRequest1(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static OpenConnectionRequest1 CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -572,11 +586,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -632,15 +643,20 @@ namespace MiNET.Net
 			new ObjectPool<OpenConnectionReply1>(() => new OpenConnectionReply1(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static OpenConnectionReply1 CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -650,11 +666,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -716,15 +729,20 @@ namespace MiNET.Net
 			new ObjectPool<OpenConnectionRequest2>(() => new OpenConnectionRequest2(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static OpenConnectionRequest2 CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -734,11 +752,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -794,15 +809,20 @@ namespace MiNET.Net
 			new ObjectPool<OpenConnectionReply2>(() => new OpenConnectionReply2(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static OpenConnectionReply2 CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -812,11 +832,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -869,15 +886,20 @@ namespace MiNET.Net
 			new ObjectPool<ConnectionRequest>(() => new ConnectionRequest(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static ConnectionRequest CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -887,11 +909,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -947,15 +966,20 @@ namespace MiNET.Net
 			new ObjectPool<ConnectionRequestAccepted>(() => new ConnectionRequestAccepted(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static ConnectionRequestAccepted CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -965,11 +989,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1028,15 +1049,20 @@ namespace MiNET.Net
 			new ObjectPool<NewIncomingConnection>(() => new NewIncomingConnection(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static NewIncomingConnection CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1046,11 +1072,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1094,15 +1117,20 @@ namespace MiNET.Net
 			new ObjectPool<DisconnectionNotification>(() => new DisconnectionNotification(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static DisconnectionNotification CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1112,11 +1140,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1175,15 +1200,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeLogin>(() => new McpeLogin(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeLogin CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1193,11 +1223,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1244,15 +1271,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeLoginStatus>(() => new McpeLoginStatus(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeLoginStatus CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1262,11 +1294,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1316,15 +1345,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeSetTime>(() => new McpeSetTime(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeSetTime CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1334,11 +1368,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1385,15 +1416,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeSetHealth>(() => new McpeSetHealth(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeSetHealth CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1403,11 +1439,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1460,15 +1493,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeSetSpawnPosition>(() => new McpeSetSpawnPosition(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeSetSpawnPosition CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1478,11 +1516,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1538,15 +1573,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeRespawn>(() => new McpeRespawn(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeRespawn CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1556,11 +1596,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1634,15 +1671,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeStartGame>(() => new McpeStartGame(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeStartGame CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1652,11 +1694,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1703,15 +1742,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeFullChunkData>(() => new McpeFullChunkData(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeFullChunkData CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1721,11 +1765,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1793,15 +1834,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeMovePlayer CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1811,11 +1857,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1862,15 +1905,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeAdventureSettings>(() => new McpeAdventureSettings(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeAdventureSettings CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1880,11 +1928,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -1937,15 +1982,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeContainerSetContent>(() => new McpeContainerSetContent(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeContainerSetContent CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -1955,11 +2005,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2006,15 +2053,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeSetDifficulty>(() => new McpeSetDifficulty(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeSetDifficulty CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2024,11 +2076,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2078,15 +2127,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeMessage>(() => new McpeMessage(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeMessage CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2096,11 +2150,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2150,15 +2201,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeSetEntityData>(() => new McpeSetEntityData(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeSetEntityData CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2168,11 +2224,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2228,15 +2281,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeEntityData>(() => new McpeEntityData(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeEntityData CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2246,11 +2304,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2327,15 +2382,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeAddPlayer>(() => new McpeAddPlayer(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeAddPlayer CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2345,11 +2405,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2399,15 +2456,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeRemovePlayer>(() => new McpeRemovePlayer(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeRemovePlayer CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2417,11 +2479,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2486,15 +2545,20 @@ namespace MiNET.Net
 			new ObjectPool<McpePlaceBlock>(() => new McpePlaceBlock(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpePlaceBlock CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2504,11 +2568,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2564,15 +2625,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeRemoveBlock>(() => new McpeRemoveBlock(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeRemoveBlock CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2582,11 +2648,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2645,15 +2708,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeUpdateBlock>(() => new McpeUpdateBlock(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeUpdateBlock CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2663,11 +2731,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2717,15 +2782,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeEntityEvent>(() => new McpeEntityEvent(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeEntityEvent CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2735,11 +2805,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2795,15 +2862,20 @@ namespace MiNET.Net
 			new ObjectPool<McpePlayerEquipment>(() => new McpePlayerEquipment(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpePlayerEquipment CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2813,11 +2885,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2876,15 +2945,20 @@ namespace MiNET.Net
 			new ObjectPool<McpePlayerArmorEquipment>(() => new McpePlayerArmorEquipment(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpePlayerArmorEquipment CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2894,11 +2968,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -2951,15 +3022,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeInteract>(() => new McpeInteract(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeInteract CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -2969,11 +3045,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -3023,15 +3096,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeAnimate>(() => new McpeAnimate(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeAnimate CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -3041,11 +3119,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -3128,15 +3203,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeUseItem>(() => new McpeUseItem(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeUseItem CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -3146,11 +3226,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}
@@ -3209,15 +3286,20 @@ namespace MiNET.Net
 			new ObjectPool<McpeContainerSetSlot>(() => new McpeContainerSetSlot(true));
 
 		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
 
 		public static McpeContainerSetSlot CreateObject()
 		{
-			return _pool.GetObject();
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
 		}
 
 		public override void PutPool()
 		{
 			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
 
 			Reset();
 			_pool.PutObject(this);
@@ -3227,11 +3309,8 @@ namespace MiNET.Net
 		{
 			for (int i = 0; i < 1000; i++)
 			{
-				var obj = _pool.GetObject();
-				obj.Reset();
-				_pool.PutObject(obj);
+				_pool.PutObject(_pool.GetObject());
 			}
-			_pool.IsInitialized = true;
 		}
 
 	}

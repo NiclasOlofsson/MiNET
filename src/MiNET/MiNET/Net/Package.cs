@@ -12,8 +12,12 @@ namespace MiNET.Net
 	{
 		public virtual void PutPool()
 		{
-			Debug.WriteLine("Put pool for object wrong: " + this.GetType().Name);
+			//Console.WriteLine("Put pool for object wrong: " + this.GetType().Name);
 		}
+
+		protected object _bufferSync = new object();
+		private bool _isEncoded = false;
+		private byte[] _encodedMessage;
 
 		public byte Id;
 
@@ -242,11 +246,6 @@ namespace MiNET.Net
 			_buffer.Position = 0;
 			Write(Id);
 		}
-
-		private object _bufferSync = new object();
-
-		private bool _isEncoded = false;
-		private byte[] _encodedMessage;
 
 		public void Reset()
 		{

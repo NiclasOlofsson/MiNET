@@ -129,6 +129,8 @@ namespace MiNET.Worlds
 		{
 			lock (Players)
 			{
+				EntityManager.AddEntity(null, newPlayer);
+
 				Player[] targetPlayers = GetSpawnedPlayers();
 
 				foreach (var targetPlayer in targetPlayers)
@@ -163,6 +165,8 @@ namespace MiNET.Worlds
 				}
 
 				BroadcastTextMessage(string.Format("Player {0} left the game!", player.Username));
+
+				EntityManager.RemoveEntity(null, player);
 			}
 		}
 
@@ -245,19 +249,6 @@ namespace MiNET.Worlds
 			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
 			long now = DateTime.UtcNow.Ticks;
 			return players.Where(player => ((now - player.LastUpdatedTime.Ticks) <= tickTime)).ToArray();
-		}
-
-		private void BroadCastMovement2(Player[] players, Player[] updatedPlayers)
-		{
-			List<Task> tasks = new List<Task>();
-			foreach (var targetPlayer in players)
-			{
-				var task = new Task(() => targetPlayer.SendMovementForPlayer(updatedPlayers));
-				tasks.Add(task);
-				task.Start();
-			}
-
-			Task.WaitAll(tasks.ToArray());
 		}
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());

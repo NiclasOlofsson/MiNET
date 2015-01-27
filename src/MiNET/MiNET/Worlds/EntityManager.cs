@@ -14,7 +14,7 @@ namespace MiNET.Worlds
 
 		public int AddEntity(Player caller, Player player)
 		{
-			if (player != caller) throw new Exception("Tried to ADD entity for someone else. Should be the player himself adding");
+			if (caller != null && player != caller) throw new Exception("Tried to ADD entity for someone else. Should be the player himself adding");
 
 			lock (_entities)
 			{
@@ -51,6 +51,18 @@ namespace MiNET.Worlds
 				throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
 
 			return entityId;
+			//}
+		}
+
+		public Player GetPlayer(int entityId)
+		{
+			//lock (_entities)
+			//{
+			Player player = _entities[entityId];
+			if (player == null)
+				throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
+
+			return player;
 			//}
 		}
 	}

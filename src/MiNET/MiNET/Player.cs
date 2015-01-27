@@ -33,7 +33,6 @@ namespace MiNET
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
 		private short _mtuSize;
-		private List<Player> _entities;
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber;
 		private object _sequenceNumberSync = new object();
@@ -69,8 +68,8 @@ namespace MiNET
 			_mtuSize = mtuSize;
 			HealthManager = new HealthManager(this);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
-			_entities = new List<Player>();
-			AddEntity(this); // Make sure we are entity with ID == 0;
+			new List<Player>();
+			//Level.EntityManager.AddEntity(this, this); // Make sure we are entity with ID == 0;
 			IsSpawned = false;
 			KnownPosition = new PlayerPosition3D
 			{
@@ -373,7 +372,7 @@ namespace MiNET
 
 		private void HandleInteract(McpeInteract msg)
 		{
-			Player target = _entities[msg.targetEntityId];
+			Player target = Level.EntityManager.GetPlayer(msg.targetEntityId);
 
 			if (target == null) return;
 
@@ -599,8 +598,6 @@ namespace MiNET
 				clientId = 0,
 				entityId = GetEntityId(player)
 			});
-
-			RemoveEntity(player);
 		}
 
 		public void BroadcastEntityEvent()
@@ -632,40 +629,6 @@ namespace MiNET
 		}
 
 		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
-
-		public void SendMovementForPlayer(Player[] players)
-		{
-			if (HealthManager.IsDead) return;
-
-			foreach (var player in players)
-			{
-				SendMovementForPlayer(player);
-			}
-		}
-
-		public void SendMovementForPlayer(Player player)
-		{
-			if (HealthManager.IsDead) return;
-
-			if (player == this) return;
-
-			var knownPosition = player.KnownPosition;
-
-			McpeMovePlayer move = _movePool.GetObject();
-			move.Timer.Start();
-			move.MovePool = _movePool;
-			move.entityId = GetEntityId(player);
-			move.x = knownPosition.X;
-			move.y = knownPosition.Y;
-			move.z = knownPosition.Z;
-			move.yaw = knownPosition.Yaw;
-			move.pitch = knownPosition.Pitch;
-			move.bodyYaw = knownPosition.BodyYaw;
-			move.teleport = 0;
-			move.Encode(); // Optmized
-
-			SendPackage(move);
-		}
 
 		public void SendMovementForPlayer(Player player, McpeMovePlayer move)
 		{
@@ -728,16 +691,6 @@ namespace MiNET
 			{
 				_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 			}
-		}
-
-		private int AddEntity(Player player)
-		{
-			return Level.EntityManager.AddEntity(this, player);
-		}
-
-		private void RemoveEntity(Player player)
-		{
-			Level.EntityManager.RemoveEntity(this, player);
 		}
 
 		public int GetEntityId(Player player)

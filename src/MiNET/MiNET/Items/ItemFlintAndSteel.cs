@@ -25,7 +25,7 @@ namespace MiNET.Items
             }
             else
             {
-                new Explosion(world, blockCoordinates, 8).Explode();
+                new Explosion(world, blockCoordinates, 4).Explode();
             }
         }
     }

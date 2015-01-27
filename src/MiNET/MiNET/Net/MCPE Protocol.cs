@@ -3,6 +3,7 @@
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
+using System;
 using MiNET.Utils; 
 using little = MiNET.Utils.Int24; // friendly name
 
@@ -182,9 +183,10 @@ namespace MiNET.Net
 	{
 		public long sendpingtime; // = null;
 
-		public ConnectedPing()
+		public ConnectedPing(bool pooled = false)
 		{
 			Id = 0x00;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -215,6 +217,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<ConnectedPing> _pool = 
+			new ObjectPool<ConnectedPing>(() => new ConnectedPing(true));
+
+		private bool _isPooled = false;
+
+		public static ConnectedPing CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static ConnectedPing()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class UnconnectedPing : Package
@@ -222,9 +253,10 @@ namespace MiNET.Net
 		public long pingId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 
-		public UnconnectedPing()
+		public UnconnectedPing(bool pooled = false)
 		{
 			Id = 0x01;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -257,6 +289,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<UnconnectedPing> _pool = 
+			new ObjectPool<UnconnectedPing>(() => new UnconnectedPing(true));
+
+		private bool _isPooled = false;
+
+		public static UnconnectedPing CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static UnconnectedPing()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class ConnectedPong : Package
@@ -264,9 +325,10 @@ namespace MiNET.Net
 		public long sendpingtime; // = null;
 		public long sendpongtime; // = null;
 
-		public ConnectedPong()
+		public ConnectedPong(bool pooled = false)
 		{
 			Id = 0x03;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -299,6 +361,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<ConnectedPong> _pool = 
+			new ObjectPool<ConnectedPong>(() => new ConnectedPong(true));
+
+		private bool _isPooled = false;
+
+		public static ConnectedPong CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static ConnectedPong()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class UnconnectedPong : Package
@@ -308,9 +399,10 @@ namespace MiNET.Net
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public string serverName; // = null;
 
-		public UnconnectedPong()
+		public UnconnectedPong(bool pooled = false)
 		{
 			Id = 0x1c;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -347,6 +439,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<UnconnectedPong> _pool = 
+			new ObjectPool<UnconnectedPong>(() => new UnconnectedPong(true));
+
+		private bool _isPooled = false;
+
+		public static UnconnectedPong CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static UnconnectedPong()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class OpenConnectionRequest1 : Package
@@ -354,9 +475,10 @@ namespace MiNET.Net
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte raknetProtocolVersion; // = null;
 
-		public OpenConnectionRequest1()
+		public OpenConnectionRequest1(bool pooled = false)
 		{
 			Id = 0x05;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -389,6 +511,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<OpenConnectionRequest1> _pool = 
+			new ObjectPool<OpenConnectionRequest1>(() => new OpenConnectionRequest1(true));
+
+		private bool _isPooled = false;
+
+		public static OpenConnectionRequest1 CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static OpenConnectionRequest1()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class OpenConnectionReply1 : Package
@@ -398,9 +549,10 @@ namespace MiNET.Net
 		public byte serverHasSecurity; // = null;
 		public short mtuSize; // = null;
 
-		public OpenConnectionReply1()
+		public OpenConnectionReply1(bool pooled = false)
 		{
 			Id = 0x06;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -437,6 +589,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<OpenConnectionReply1> _pool = 
+			new ObjectPool<OpenConnectionReply1>(() => new OpenConnectionReply1(true));
+
+		private bool _isPooled = false;
+
+		public static OpenConnectionReply1 CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static OpenConnectionReply1()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class OpenConnectionRequest2 : Package
@@ -448,9 +629,10 @@ namespace MiNET.Net
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
 
-		public OpenConnectionRequest2()
+		public OpenConnectionRequest2(bool pooled = false)
 		{
 			Id = 0x07;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -491,6 +673,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<OpenConnectionRequest2> _pool = 
+			new ObjectPool<OpenConnectionRequest2>(() => new OpenConnectionRequest2(true));
+
+		private bool _isPooled = false;
+
+		public static OpenConnectionRequest2 CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static OpenConnectionRequest2()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class OpenConnectionReply2 : Package
@@ -500,9 +711,10 @@ namespace MiNET.Net
 		public short mtuSize; // = null;
 		public byte[] doSecurityAndHandshake; // = null;
 
-		public OpenConnectionReply2()
+		public OpenConnectionReply2(bool pooled = false)
 		{
 			Id = 0x08;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -539,6 +751,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<OpenConnectionReply2> _pool = 
+			new ObjectPool<OpenConnectionReply2>(() => new OpenConnectionReply2(true));
+
+		private bool _isPooled = false;
+
+		public static OpenConnectionReply2 CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static OpenConnectionReply2()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class ConnectionRequest : Package
@@ -547,9 +788,10 @@ namespace MiNET.Net
 		public long timestamp; // = null;
 		public byte doSecurity; // = null;
 
-		public ConnectionRequest()
+		public ConnectionRequest(bool pooled = false)
 		{
 			Id = 0x09;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -584,6 +826,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<ConnectionRequest> _pool = 
+			new ObjectPool<ConnectionRequest>(() => new ConnectionRequest(true));
+
+		private bool _isPooled = false;
+
+		public static ConnectionRequest CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static ConnectionRequest()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class ConnectionRequestAccepted : Package
@@ -593,9 +864,10 @@ namespace MiNET.Net
 		public long incomingTimestamp; // = null;
 		public long serverTimestamp; // = null;
 
-		public ConnectionRequestAccepted()
+		public ConnectionRequestAccepted(bool pooled = false)
 		{
 			Id = 0x10;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -632,6 +904,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<ConnectionRequestAccepted> _pool = 
+			new ObjectPool<ConnectionRequestAccepted>(() => new ConnectionRequestAccepted(true));
+
+		private bool _isPooled = false;
+
+		public static ConnectionRequestAccepted CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static ConnectionRequestAccepted()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class NewIncomingConnection : Package
@@ -642,9 +943,10 @@ namespace MiNET.Net
 		public long session; // = null;
 		public long session2; // = null;
 
-		public NewIncomingConnection()
+		public NewIncomingConnection(bool pooled = false)
 		{
 			Id = 0x13;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -683,14 +985,44 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<NewIncomingConnection> _pool = 
+			new ObjectPool<NewIncomingConnection>(() => new NewIncomingConnection(true));
+
+		private bool _isPooled = false;
+
+		public static NewIncomingConnection CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static NewIncomingConnection()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class DisconnectionNotification : Package
 	{
 
-		public DisconnectionNotification()
+		public DisconnectionNotification(bool pooled = false)
 		{
 			Id = 0x15;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -719,6 +1051,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<DisconnectionNotification> _pool = 
+			new ObjectPool<DisconnectionNotification>(() => new DisconnectionNotification(true));
+
+		private bool _isPooled = false;
+
+		public static DisconnectionNotification CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static DisconnectionNotification()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeLogin : Package
@@ -729,9 +1090,10 @@ namespace MiNET.Net
 		public int clientId; // = null;
 		public string logindata; // = null;
 
-		public McpeLogin()
+		public McpeLogin(bool pooled = false)
 		{
 			Id = 0x82;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -770,15 +1132,45 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeLogin> _pool = 
+			new ObjectPool<McpeLogin>(() => new McpeLogin(true));
+
+		private bool _isPooled = false;
+
+		public static McpeLogin CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeLogin()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeLoginStatus : Package
 	{
 		public int status; // = null;
 
-		public McpeLoginStatus()
+		public McpeLoginStatus(bool pooled = false)
 		{
 			Id = 0x83;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -809,6 +1201,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeLoginStatus> _pool = 
+			new ObjectPool<McpeLoginStatus>(() => new McpeLoginStatus(true));
+
+		private bool _isPooled = false;
+
+		public static McpeLoginStatus CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeLoginStatus()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeSetTime : Package
@@ -816,9 +1237,10 @@ namespace MiNET.Net
 		public int time; // = null;
 		public byte started; // = null;
 
-		public McpeSetTime()
+		public McpeSetTime(bool pooled = false)
 		{
 			Id = 0x86;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -851,15 +1273,45 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeSetTime> _pool = 
+			new ObjectPool<McpeSetTime>(() => new McpeSetTime(true));
+
+		private bool _isPooled = false;
+
+		public static McpeSetTime CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeSetTime()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeSetHealth : Package
 	{
 		public byte health; // = null;
 
-		public McpeSetHealth()
+		public McpeSetHealth(bool pooled = false)
 		{
 			Id = 0xaa;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -890,6 +1342,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeSetHealth> _pool = 
+			new ObjectPool<McpeSetHealth>(() => new McpeSetHealth(true));
+
+		private bool _isPooled = false;
+
+		public static McpeSetHealth CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeSetHealth()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeSetSpawnPosition : Package
@@ -898,9 +1379,10 @@ namespace MiNET.Net
 		public int z; // = null;
 		public byte y; // = null;
 
-		public McpeSetSpawnPosition()
+		public McpeSetSpawnPosition(bool pooled = false)
 		{
 			Id = 0xab;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -935,6 +1417,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeSetSpawnPosition> _pool = 
+			new ObjectPool<McpeSetSpawnPosition>(() => new McpeSetSpawnPosition(true));
+
+		private bool _isPooled = false;
+
+		public static McpeSetSpawnPosition CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeSetSpawnPosition()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeRespawn : Package
@@ -944,9 +1455,10 @@ namespace MiNET.Net
 		public float z; // = null;
 		public float y; // = null;
 
-		public McpeRespawn()
+		public McpeRespawn(bool pooled = false)
 		{
 			Id = 0xad;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -983,6 +1495,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeRespawn> _pool = 
+			new ObjectPool<McpeRespawn>(() => new McpeRespawn(true));
+
+		private bool _isPooled = false;
+
+		public static McpeRespawn CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeRespawn()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeStartGame : Package
@@ -998,9 +1539,10 @@ namespace MiNET.Net
 		public float y; // = null;
 		public float z; // = null;
 
-		public McpeStartGame()
+		public McpeStartGame(bool pooled = false)
 		{
 			Id = 0x87;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1049,15 +1591,45 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeStartGame> _pool = 
+			new ObjectPool<McpeStartGame>(() => new McpeStartGame(true));
+
+		private bool _isPooled = false;
+
+		public static McpeStartGame CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeStartGame()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeFullChunkData : Package
 	{
 		public byte[] chunkData; // = null;
 
-		public McpeFullChunkData()
+		public McpeFullChunkData(bool pooled = false)
 		{
 			Id = 0xba;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1088,6 +1660,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeFullChunkData> _pool = 
+			new ObjectPool<McpeFullChunkData>(() => new McpeFullChunkData(true));
+
+		private bool _isPooled = false;
+
+		public static McpeFullChunkData CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeFullChunkData()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeMovePlayer : Package
@@ -1101,9 +1702,10 @@ namespace MiNET.Net
 		public float bodyYaw; // = null;
 		public byte teleport; // = null;
 
-		public McpeMovePlayer()
+		public McpeMovePlayer(bool pooled = false)
 		{
 			Id = 0x95;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1148,15 +1750,45 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeMovePlayer> _pool = 
+			new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer(true));
+
+		private bool _isPooled = false;
+
+		public static McpeMovePlayer CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeMovePlayer()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeAdventureSettings : Package
 	{
 		public int flags; // = null;
 
-		public McpeAdventureSettings()
+		public McpeAdventureSettings(bool pooled = false)
 		{
 			Id = 0xb7;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1187,6 +1819,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeAdventureSettings> _pool = 
+			new ObjectPool<McpeAdventureSettings>(() => new McpeAdventureSettings(true));
+
+		private bool _isPooled = false;
+
+		public static McpeAdventureSettings CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeAdventureSettings()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeContainerSetContent : Package
@@ -1195,9 +1856,10 @@ namespace MiNET.Net
 		public MetadataSlots slotData; // = null;
 		public MetadataInts hotbarData; // = null;
 
-		public McpeContainerSetContent()
+		public McpeContainerSetContent(bool pooled = false)
 		{
 			Id = 0xb4;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1232,15 +1894,45 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeContainerSetContent> _pool = 
+			new ObjectPool<McpeContainerSetContent>(() => new McpeContainerSetContent(true));
+
+		private bool _isPooled = false;
+
+		public static McpeContainerSetContent CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeContainerSetContent()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeSetDifficulty : Package
 	{
 		public int difficulty; // = null;
 
-		public McpeSetDifficulty()
+		public McpeSetDifficulty(bool pooled = false)
 		{
 			Id = 0xbc;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1271,6 +1963,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeSetDifficulty> _pool = 
+			new ObjectPool<McpeSetDifficulty>(() => new McpeSetDifficulty(true));
+
+		private bool _isPooled = false;
+
+		public static McpeSetDifficulty CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeSetDifficulty()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeMessage : Package
@@ -1278,9 +1999,10 @@ namespace MiNET.Net
 		public string source; // = null;
 		public string message; // = null;
 
-		public McpeMessage()
+		public McpeMessage(bool pooled = false)
 		{
 			Id = 0x85;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1313,6 +2035,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeMessage> _pool = 
+			new ObjectPool<McpeMessage>(() => new McpeMessage(true));
+
+		private bool _isPooled = false;
+
+		public static McpeMessage CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeMessage()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeSetEntityData : Package
@@ -1320,9 +2071,10 @@ namespace MiNET.Net
 		public int entityId; // = null;
 		public byte[] namedtag; // = null;
 
-		public McpeSetEntityData()
+		public McpeSetEntityData(bool pooled = false)
 		{
 			Id = 0xa7;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1355,6 +2107,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeSetEntityData> _pool = 
+			new ObjectPool<McpeSetEntityData>(() => new McpeSetEntityData(true));
+
+		private bool _isPooled = false;
+
+		public static McpeSetEntityData CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeSetEntityData()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeEntityData : Package
@@ -1364,9 +2145,10 @@ namespace MiNET.Net
 		public int z; // = null;
 		public byte[] namedtag; // = null;
 
-		public McpeEntityData()
+		public McpeEntityData(bool pooled = false)
 		{
 			Id = 0xb8;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1403,6 +2185,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeEntityData> _pool = 
+			new ObjectPool<McpeEntityData>(() => new McpeEntityData(true));
+
+		private bool _isPooled = false;
+
+		public static McpeEntityData CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeEntityData()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeAddPlayer : Package
@@ -1419,9 +2230,10 @@ namespace MiNET.Net
 		public short meta; // = null;
 		public byte[] metadata; // = null;
 
-		public McpeAddPlayer()
+		public McpeAddPlayer(bool pooled = false)
 		{
 			Id = 0x89;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1472,6 +2284,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeAddPlayer> _pool = 
+			new ObjectPool<McpeAddPlayer>(() => new McpeAddPlayer(true));
+
+		private bool _isPooled = false;
+
+		public static McpeAddPlayer CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeAddPlayer()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeRemovePlayer : Package
@@ -1479,9 +2320,10 @@ namespace MiNET.Net
 		public int entityId; // = null;
 		public long clientId; // = null;
 
-		public McpeRemovePlayer()
+		public McpeRemovePlayer(bool pooled = false)
 		{
 			Id = 0x8a;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1514,6 +2356,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeRemovePlayer> _pool = 
+			new ObjectPool<McpeRemovePlayer>(() => new McpeRemovePlayer(true));
+
+		private bool _isPooled = false;
+
+		public static McpeRemovePlayer CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeRemovePlayer()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpePlaceBlock : Package
@@ -1526,9 +2397,10 @@ namespace MiNET.Net
 		public byte meta; // = null;
 		public byte face; // = null;
 
-		public McpePlaceBlock()
+		public McpePlaceBlock(bool pooled = false)
 		{
 			Id = 0x96;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1571,6 +2443,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpePlaceBlock> _pool = 
+			new ObjectPool<McpePlaceBlock>(() => new McpePlaceBlock(true));
+
+		private bool _isPooled = false;
+
+		public static McpePlaceBlock CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpePlaceBlock()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeRemoveBlock : Package
@@ -1580,9 +2481,10 @@ namespace MiNET.Net
 		public int z; // = null;
 		public byte y; // = null;
 
-		public McpeRemoveBlock()
+		public McpeRemoveBlock(bool pooled = false)
 		{
 			Id = 0x97;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1619,6 +2521,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeRemoveBlock> _pool = 
+			new ObjectPool<McpeRemoveBlock>(() => new McpeRemoveBlock(true));
+
+		private bool _isPooled = false;
+
+		public static McpeRemoveBlock CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeRemoveBlock()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeUpdateBlock : Package
@@ -1629,9 +2560,10 @@ namespace MiNET.Net
 		public byte block; // = null;
 		public byte meta; // = null;
 
-		public McpeUpdateBlock()
+		public McpeUpdateBlock(bool pooled = false)
 		{
 			Id = 0x98;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1670,6 +2602,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeUpdateBlock> _pool = 
+			new ObjectPool<McpeUpdateBlock>(() => new McpeUpdateBlock(true));
+
+		private bool _isPooled = false;
+
+		public static McpeUpdateBlock CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeUpdateBlock()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeEntityEvent : Package
@@ -1677,9 +2638,10 @@ namespace MiNET.Net
 		public int entityId; // = null;
 		public byte eventId; // = null;
 
-		public McpeEntityEvent()
+		public McpeEntityEvent(bool pooled = false)
 		{
 			Id = 0x9d;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1712,6 +2674,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeEntityEvent> _pool = 
+			new ObjectPool<McpeEntityEvent>(() => new McpeEntityEvent(true));
+
+		private bool _isPooled = false;
+
+		public static McpeEntityEvent CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeEntityEvent()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpePlayerEquipment : Package
@@ -1721,9 +2712,10 @@ namespace MiNET.Net
 		public short meta; // = null;
 		public byte slot; // = null;
 
-		public McpePlayerEquipment()
+		public McpePlayerEquipment(bool pooled = false)
 		{
 			Id = 0xa0;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1760,6 +2752,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpePlayerEquipment> _pool = 
+			new ObjectPool<McpePlayerEquipment>(() => new McpePlayerEquipment(true));
+
+		private bool _isPooled = false;
+
+		public static McpePlayerEquipment CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpePlayerEquipment()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpePlayerArmorEquipment : Package
@@ -1770,9 +2791,10 @@ namespace MiNET.Net
 		public byte leggings; // = null;
 		public byte boots; // = null;
 
-		public McpePlayerArmorEquipment()
+		public McpePlayerArmorEquipment(bool pooled = false)
 		{
 			Id = 0xa1;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1811,6 +2833,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpePlayerArmorEquipment> _pool = 
+			new ObjectPool<McpePlayerArmorEquipment>(() => new McpePlayerArmorEquipment(true));
+
+		private bool _isPooled = false;
+
+		public static McpePlayerArmorEquipment CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpePlayerArmorEquipment()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeInteract : Package
@@ -1819,9 +2870,10 @@ namespace MiNET.Net
 		public int entityId; // = null;
 		public int targetEntityId; // = null;
 
-		public McpeInteract()
+		public McpeInteract(bool pooled = false)
 		{
 			Id = 0xa2;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1856,6 +2908,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeInteract> _pool = 
+			new ObjectPool<McpeInteract>(() => new McpeInteract(true));
+
+		private bool _isPooled = false;
+
+		public static McpeInteract CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeInteract()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeAnimate : Package
@@ -1863,9 +2944,10 @@ namespace MiNET.Net
 		public byte actionId; // = null;
 		public int entityId; // = null;
 
-		public McpeAnimate()
+		public McpeAnimate(bool pooled = false)
 		{
 			Id = 0xac;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1898,6 +2980,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeAnimate> _pool = 
+			new ObjectPool<McpeAnimate>(() => new McpeAnimate(true));
+
+		private bool _isPooled = false;
+
+		public static McpeAnimate CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeAnimate()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeUseItem : Package
@@ -1916,9 +3027,10 @@ namespace MiNET.Net
 		public float positionY; // = null;
 		public float positionZ; // = null;
 
-		public McpeUseItem()
+		public McpeUseItem(bool pooled = false)
 		{
 			Id = 0xa3;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -1973,6 +3085,35 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		private static readonly ObjectPool<McpeUseItem> _pool = 
+			new ObjectPool<McpeUseItem>(() => new McpeUseItem(true));
+
+		private bool _isPooled = false;
+
+		public static McpeUseItem CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeUseItem()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
+
 	}
 
 	public partial class McpeContainerSetSlot : Package
@@ -1983,9 +3124,10 @@ namespace MiNET.Net
 		public byte itemCount; // = null;
 		public short itemDamage; // = null;
 
-		public McpeContainerSetSlot()
+		public McpeContainerSetSlot(bool pooled = false)
 		{
 			Id = 0xb2;
+			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -2023,6 +3165,35 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		private static readonly ObjectPool<McpeContainerSetSlot> _pool = 
+			new ObjectPool<McpeContainerSetSlot>(() => new McpeContainerSetSlot(true));
+
+		private bool _isPooled = false;
+
+		public static McpeContainerSetSlot CreateObject()
+		{
+			return _pool.GetObject();
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeContainerSetSlot()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				var obj = _pool.GetObject();
+				obj.Reset();
+				_pool.PutObject(obj);
+			}
+			_pool.IsInitialized = true;
+		}
 
 	}
 

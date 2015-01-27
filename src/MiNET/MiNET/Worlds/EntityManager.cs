@@ -12,18 +12,19 @@ namespace MiNET.Worlds
 			_entities.Add(new Player());
 		}
 
-		public int AddEntity(Player caller, Player player)
+		public void AddEntity(Player caller, Player player)
 		{
 			if (caller != null && player != caller) throw new Exception("Tried to ADD entity for someone else. Should be the player himself adding");
 
 			lock (_entities)
 			{
-				if (_entities.Contains(player))
-					throw new Exception("Tried to add entity that already existed.");
-
-				_entities.Add(player);
-
-				return _entities.IndexOf(player);
+				if (player.EntityId == -1)
+				{
+					if (_entities.Contains(player))
+						throw new Exception("Tried to add entity that already existed.");
+					_entities.Add(player);
+					player.EntityId = _entities.IndexOf(player);
+				}
 			}
 		}
 
@@ -37,6 +38,7 @@ namespace MiNET.Worlds
 				if (entityId == -1)
 					throw new Exception("Expected to find entity on remove. A missed ADD perhaps?");
 				_entities.Remove(player);
+				player.EntityId = -1;
 			}
 		}
 
@@ -46,7 +48,7 @@ namespace MiNET.Worlds
 
 			//lock (_entities)
 			//{
-			int entityId = _entities.IndexOf(player);
+			int entityId = player.EntityId;
 			if (entityId == -1)
 				throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
 

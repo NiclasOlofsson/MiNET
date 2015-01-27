@@ -200,33 +200,5 @@ namespace MiNET
 			hex.Append("}");
 			return hex.ToString();
 		}
-
-
-		public List<byte[]> CreatePacket(IPEndPoint senderEndpoint, Package message, int sequenceNumber, int reliableMessageNumber, Reliability reliability)
-		{
-			List<byte[]> val = new List<byte[]>();
-			byte[] encodedMessage = message.Encode();
-			int mtu = 1432;
-			int count = (int) Math.Ceiling(encodedMessage.Length/(double) mtu);
-			int index = 0;
-			foreach (var bytes in new MiNetServer().ArraySplit(encodedMessage, mtu))
-			{
-				ConnectedPackage package = new ConnectedPackage
-				{
-					Buffer = bytes,
-					_reliability = reliability,
-					_reliableMessageNumber = reliableMessageNumber++,
-					_datagramSequenceNumber = sequenceNumber++,
-					_hasSplit = true,
-					_splitPacketCount = count,
-					_splitPacketId = 0,
-					_splitPacketIndex = index++
-				};
-
-				byte[] data = package.Encode();
-				val.Add(data);
-			}
-			return val;
-		}
 	}
 }

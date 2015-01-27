@@ -160,7 +160,7 @@ namespace MiNET
 
 					Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
 
-					TraceReceive(msgIdType, msgId, receiveBytes, receiveBytes.Length, message);
+					TraceReceive(message);
 
 					switch (msgIdType)
 					{
@@ -180,7 +180,7 @@ namespace MiNET
 								serverName = "MCCPP;Demo;MiNET - Another MC server"
 							};
 							var data = packet.Encode();
-							TraceSend(packet, data);
+							TraceSend(packet);
 							SendData(data, senderEndpoint);
 							break;
 						}
@@ -196,7 +196,7 @@ namespace MiNET
 							};
 
 							var data = packet.Encode();
-							TraceSend(packet, data);
+							TraceSend(packet);
 							SendData(data, senderEndpoint);
 							break;
 						}
@@ -213,12 +213,12 @@ namespace MiNET
 
 							lock (_playerEndpoints)
 							{
-								Console.WriteLine("Settled on MTU: {0}", incoming.mtuSize);
+								Debug.WriteLine("Settled on MTU: {0}", incoming.mtuSize);
 								_playerEndpoints.Remove(senderEndpoint);
 								_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
 							}
 							var data = packet.Encode();
-							TraceSend(packet, data);
+							TraceSend(packet);
 							SendData(data, senderEndpoint);
 							break;
 						}
@@ -240,7 +240,7 @@ namespace MiNET
 
 						foreach (var message in messages)
 						{
-							TraceReceive((DefaultMessageIdTypes) message.Id, message.Id, receiveBytes, package.MessageLength, message, message is UnknownPackage);
+							TraceReceive(message);
 							SendAck(senderEndpoint, package._datagramSequenceNumber);
 							HandlePackage(message, senderEndpoint);
 						}
@@ -292,24 +292,6 @@ namespace MiNET
 
 		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
-			//List<Package> messagesToRemove = new List<Package>();
-			//foreach (var message in messages)
-			//{
-			//	if (message is McpeMovePlayer && message.Timer.ElapsedMilliseconds > 100)
-			//	{
-			//		messagesToRemove.Add(message);
-			//		_dropCountPerSecond++;
-			//	}
-			//}
-			//foreach (var message in messagesToRemove)
-			//{
-			//	if (message.MovePool != null)
-			//	{
-			//		message.ResetHealth();
-			//		message.MovePool.PutObject((McpeMovePlayer)message);
-			//	}
-			//}
-
 			if (messages.Count == 0) return;
 
 			var datagrams = Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, _messagePartPool, _datagramPool);
@@ -338,34 +320,9 @@ namespace MiNET
 
 			foreach (var message in messages)
 			{
-				if (message.MovePool != null && message is McpeMovePlayer)
-				{
-					McpeMovePlayer move = (McpeMovePlayer) message;
-					move.Reset();
-					move.MovePool.PutObject(move);
-				}
-			}
-		}
+				//TraceSend(message);
 
-		public IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufforLengt)
-		{
-			int bArrayLenght = bArray.Length;
-			byte[] bReturn = null;
-
-			int i = 0;
-			for (; bArrayLenght > (i + 1)*intBufforLengt; i++)
-			{
-				bReturn = new byte[intBufforLengt];
-				Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
-				yield return bReturn;
-			}
-
-			int intBufforLeft = bArrayLenght - i*intBufforLengt;
-			if (intBufforLeft > 0)
-			{
-				bReturn = new byte[intBufforLeft];
-				Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
-				yield return bReturn;
+				message.PutPool();
 			}
 		}
 
@@ -381,9 +338,8 @@ namespace MiNET
 			var data = ack.Encode();
 
 			_numberOfAckSent++;
-			_listener.Send(data, data.Length, senderEndpoint);
 
-			//SendData(data, senderEndpoint);
+			_listener.Send(data, data.Length, senderEndpoint);
 		}
 
 		private long _numberOfAckSent = 0;
@@ -398,9 +354,10 @@ namespace MiNET
 				_throughPut = new Timer(delegate(object state)
 				{
 					double kbytesPerSecond = _totalPacketSize*8/1000000D;
-					Console.WriteLine("Tick time {0}ms with {1} player(s)", _level.lastTickProcessingTime, _level.Players.Count);
 					long avaragePacketSize = _totalPacketSize/(_numberOfPacketsSentPerSecond + 1);
-					Console.WriteLine("Pkt {0}/s, ACKs {1}/s, Drops {4}/s, AvSize: {2}b, Thoughput: {3:F}Mbit/s", _numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond, _dropCountPerSecond);
+					Console.WriteLine("TT {5}ms {6} player(s) Pkt {0}/s ACKs {1}/s AvSize: {2}b Thoughput: {3:F}Mbit/s",
+						_numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond,
+						_dropCountPerSecond, _level.lastTickProcessingTime, _level.Players.Count);
 
 					_dropCountPerSecond = 0;
 					_numberOfAckSent = 0;
@@ -427,30 +384,20 @@ namespace MiNET
 			return hex.ToString();
 		}
 
-		private static void TraceReceive(DefaultMessageIdTypes msgIdType, int msgId, byte[] receiveBytes, int length, Package package, bool isUnknown = false)
+		private static void TraceReceive(Package message)
 		{
-			if (msgIdType != DefaultMessageIdTypes.ID_CONNECTED_PING && msgIdType != DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 			{
-				Debug.Print("> Receive {2}: {1} (0x{0:x2} {3})", msgId, msgIdType, isUnknown ? "Unknown" : "", package.GetType().Name);
+				Debug.Print("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 			}
 		}
 
-		private static void TraceSend(Package message, byte[] data)
+		private static void TraceSend(Package message)
 		{
-			return;
-			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
 			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2})", data[0], (DefaultMessageIdTypes) message.Id, message.Id);
+				Debug.Print("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
-			}
-		}
-
-		private static void TraceSend(Package message, byte[] data, ConnectedPackage package)
-		{
-			if (message.Id != (decimal) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (decimal) DefaultMessageIdTypes.ID_UNCONNECTED_PONG && message.Id != 0x86)
-			{
-				Debug.Print("< Send: {0:x2} {1} (0x{2:x2} {4}) SeqNo: {3}", data[0], (DefaultMessageIdTypes) message.Id, message.Id, package._datagramSequenceNumber.IntValue(), message.GetType().Name);
-				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), package.MessageLength);
 			}
 		}
 

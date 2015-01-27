@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,35 +7,13 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class ObjectPool<T>
-	{
-		private ConcurrentBag<T> _objects;
-		private Func<T> _objectGenerator;
-
-		public ObjectPool(Func<T> objectGenerator)
-		{
-			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
-			_objects = new ConcurrentBag<T>();
-			_objectGenerator = objectGenerator;
-		}
-
-		public T GetObject()
-		{
-			T item;
-			if (_objects.TryTake(out item)) return item;
-			return _objectGenerator();
-		}
-
-		public void PutObject(T item)
-		{
-			_objects.Add(item);
-		}
-	}
-
 	/// Base package class
-	public partial class Package : ICloneable
+	public abstract partial class Package : ICloneable
 	{
-		public ObjectPool<McpeMovePlayer> MovePool = null;
+		public virtual void PutPool()
+		{
+			Debug.WriteLine("Put pool for object wrong: " + this.GetType().Name);
+		}
 
 		public byte Id;
 
@@ -333,5 +310,6 @@ namespace MiNET.Net
 		{
 			return (T) Clone();
 		}
+
 	}
 }

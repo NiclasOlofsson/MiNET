@@ -51,10 +51,13 @@ namespace MiNET
 		public MetadataSlot ItemInHand { get; private set; }
 		public Level Level { get; private set; }
 
+		public bool IsBot { get; set; }
+
 		public DateTime LastUpdatedTime { get; private set; }
 		public PlayerPosition3D KnownPosition { get; private set; }
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
+		public int EntityId { get; set; }
 
 		internal Player()
 		{
@@ -68,8 +71,7 @@ namespace MiNET
 			_mtuSize = mtuSize;
 			HealthManager = new HealthManager(this);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
-			new List<Player>();
-			//Level.EntityManager.AddEntity(this, this); // Make sure we are entity with ID == 0;
+			EntityId = -1;
 			IsSpawned = false;
 			KnownPosition = new PlayerPosition3D
 			{
@@ -288,6 +290,8 @@ namespace MiNET
 
 			if (Username == null) throw new Exception("No username on login");
 
+			if (Username.StartsWith("Player")) IsBot = true;
+
 			SendPackage(new McpeLoginStatus {status = 0});
 
 			// Start game
@@ -313,7 +317,8 @@ namespace MiNET
 			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
-			//if (Username.StartsWith("Player")) return;
+			//if (IsBot) return;
+
 			SendChunksForKnownPosition();
 		}
 
@@ -468,7 +473,13 @@ namespace MiNET
 				int count = 0;
 				foreach (var chunk in Level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<Tuple<int, int>, ChunkColumn>() : _chunksUsed))
 				{
-					SendPackage(new McpeFullChunkData {chunkData = chunk.GetBytes()});
+					if (true)
+					{
+						McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+						fullChunkData.chunkData = chunk.GetBytes();
+
+						SendPackage(fullChunkData);
+					}
 
 					if (count == 56 && !IsSpawned)
 					{
@@ -488,22 +499,25 @@ namespace MiNET
 		public void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
-			SendPackage(new McpeSetTime {time = Level.CurrentWorldTime, started = (byte) (Level.WorldTimeStarted ? 0x80 : 0x00)});
+			McpeSetTime message = McpeSetTime.CreateObject();
+			message.time = Level.CurrentWorldTime;
+			message.started = (byte) (Level.WorldTimeStarted ? 0x80 : 0x00);
+			SendPackage(message);
 		}
 
 		public void SendMovePlayer()
 		{
-			SendPackage(new McpeMovePlayer
-			{
-				entityId = 0,
-				x = KnownPosition.X,
-				y = KnownPosition.Y,
-				z = KnownPosition.Z,
-				yaw = KnownPosition.Yaw,
-				pitch = KnownPosition.Pitch,
-				bodyYaw = KnownPosition.BodyYaw,
-				teleport = 0x80
-			});
+			var package = McpeMovePlayer.CreateObject();
+			package.entityId = 0;
+			package.x = KnownPosition.X;
+			package.y = KnownPosition.Y;
+			package.z = KnownPosition.Z;
+			package.yaw = KnownPosition.Yaw;
+			package.pitch = KnownPosition.Pitch;
+			package.bodyYaw = KnownPosition.BodyYaw;
+			package.teleport = 0x80;
+
+			SendPackage(package);
 		}
 
 
@@ -627,8 +641,6 @@ namespace MiNET
 				namedtag = metadata.GetBytes()
 			});
 		}
-
-		private ObjectPool<McpeMovePlayer> _movePool = new ObjectPool<McpeMovePlayer>(() => new McpeMovePlayer());
 
 		public void SendMovementForPlayer(Player player, McpeMovePlayer move)
 		{

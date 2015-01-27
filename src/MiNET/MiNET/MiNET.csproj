@@ -58,6 +58,7 @@
     <Compile Include="Net\MessagePart.cs" />
     <Compile Include="Net\MessagePartHeader.cs" />
     <Compile Include="Net\Nak.cs" />
+    <Compile Include="Net\ObjectPool.cs" />
     <Compile Include="Net\OpenConnectionRequest1.cs" />
     <Compile Include="Net\Package.cs" />
     <Compile Include="Net\MCPE Protocol.cs">

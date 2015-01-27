@@ -36,7 +36,39 @@ namespace MiNET.Utils
 			}
 		}
 
-		public static string ReadString(string Rule)
+        public static GameMode GetProperty(string Property, GameMode DefaultValue)
+        {
+            return ReadGamemode(Property, DefaultValue);
+        }
+
+        public static Boolean GetProperty(string Property, Boolean DefaultValue)
+        {
+            return ReadBoolean(Property, DefaultValue);
+        }
+
+        public static int GetProperty(string Property, int DefaultValue)
+        {
+            return ReadInt(Property, DefaultValue);
+        }
+
+        public static Difficulty GetProperty(string Property, Difficulty DefaultValue)
+        {
+            return ReadDifficulty(Property, DefaultValue);
+        }
+
+        public static string GetProperty(string Property, string DefaultValue)
+        {
+            try
+            {
+                return ReadString(Property);
+            }
+            catch
+            {
+                return DefaultValue;
+            }
+        }
+
+        private static string ReadString(string Rule)
 		{
 			foreach (string Line in FileContents.Split(new string[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.None))
 			{
@@ -46,73 +78,86 @@ namespace MiNET.Utils
 					return Value.ToLower();
 				}
 			}
-			return "";
+            throw new EntryPointNotFoundException("The specified property was not found.");
 		}
 
-		public static int ReadInt(string Rule)
+        private static int ReadInt(string Rule, int Default)
 		{
-			foreach (string Line in FileContents.Split(new string[] {"\r\n", "\n"}, StringSplitOptions.None))
-			{
-				if (Line.ToLower().StartsWith(Rule.ToLower() + "="))
-				{
-					string Value = Line.Split('=')[1];
-					return Convert.ToInt32(Value);
-				}
-			}
-			return 0;
+            try
+            {
+                return Convert.ToInt32(ReadString(Rule));
+            }
+            catch
+            {
+                return Default;
+            }
 		}
 
-		public static bool ReadBoolean(string Rule)
+		private static bool ReadBoolean(string Rule, Boolean Default)
 		{
-			string D = ReadString(Rule);
-			if (D == "true")
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+            try
+            {
+			    string D = ReadString(Rule);
+                return Convert.ToBoolean(D);
+            }
+            catch
+            {
+                return Default;
+            }
 		}
 
-		public static GameMode ReadGamemode(string Rule)
+		private static GameMode ReadGamemode(string Rule, GameMode Default)
 		{
-			string gm = ReadString(Rule).ToLower();
-			switch (gm)
-			{
-				case "1":
-				case "creative":
-					return GameMode.Creative;
-				case "0":
-				case "survival":
-					return GameMode.Survival;
-				case "2":
-				case "adventure":
-					return GameMode.Adventure;
-				case "3":
-				case "spectator":
-					return GameMode.Spectator;
-				default:
-					return GameMode.Survival;
-			}
+            try
+            {
+                string gm = ReadString(Rule);
+    			switch (gm)
+    			{
+    				case "1":
+    				case "creative":
+    					return GameMode.Creative;
+    				case "0":
+    				case "survival":
+    					return GameMode.Survival;
+    				case "2":
+    				case "adventure":
+    					return GameMode.Adventure;
+    				case "3":
+    				case "spectator":
+    					return GameMode.Spectator;
+    				default:
+    					return Default;
+    			}
+            }
+            catch
+            {
+                return Default;
+            }
 		}
 
-		public static Difficulty ReadDifficulty(string Rule)
+		private static Difficulty ReadDifficulty(string Rule, Difficulty Default)
 		{
-			string df = ReadString(Rule).ToLower();
-			switch (df)
-			{
-				case "easy":
-					return Difficulty.Easy;
-				case "normal":
-					return Difficulty.Normal;
-				case "hard":
-					return Difficulty.Hard;
-				case "peaceful":
-					return Difficulty.Peaceful;
-				default:
-					return Difficulty.Normal;
-			}
+            try
+            {
+    			string df = ReadString(Rule).ToLower();
+    			switch (df)
+    			{
+    				case "easy":
+    					return Difficulty.Easy;
+    				case "normal":
+    					return Difficulty.Normal;
+    				case "hard":
+    					return Difficulty.Hard;
+    				case "peaceful":
+    					return Difficulty.Peaceful;
+                    default:
+                        return Default;
+    			}
+            }
+            catch
+            {
+                return Default;
+            }
 		}
 	}
 }

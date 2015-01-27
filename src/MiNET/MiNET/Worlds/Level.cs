@@ -83,9 +83,9 @@ namespace MiNET.Worlds
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			LevelId = levelId;
-			GameMode = ConfigParser.ReadGamemode("DefaultGamemode");
-			Difficulty = ConfigParser.ReadDifficulty("Difficulty");
-			if (ConfigParser.ReadBoolean("UsePCWorld"))
+			GameMode = ConfigParser.GetProperty("DefaultGamemode", GameMode.Creative);
+			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
+			if (ConfigParser.GetProperty("UsePCWorld", false))
 			{
 				_worldProvider = new CraftNetAnvilWorldProvider();
 			}
@@ -175,7 +175,7 @@ namespace MiNET.Worlds
 			var response = new McpeMessage
 			{
 				source = "",
-				message = (sender == null ? "MiNET says - " : sender.Username + ": ") + text
+				message = (sender == null ? "MiNET says - " : "<" + sender.Username + "> ") + text
 			};
 
 			foreach (var player in GetSpawnedPlayers())

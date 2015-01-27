@@ -92,7 +92,10 @@ namespace MiNET
 			if (IsOnFire)
 			{
 				FireTick--;
-				Debug.WriteLine("Fire: {0}", FireTick);
+                if (FireTick <= 0)
+                {
+                    IsOnFire = false;
+                }
 
 				if (Math.Abs(FireTick)%25 == 0)
 				{

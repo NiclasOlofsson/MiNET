@@ -33,7 +33,7 @@ namespace MiNET
 			Health = 0;
 			Player.SendSetHealth(Health);
 			Player.BroadcastEntityEvent();
-			Player.BroadcastEntityData();
+			Player.BroadcastSetEntityData();
 			Player.Kill();
 		}
 
@@ -66,7 +66,7 @@ namespace MiNET
 					{
 						Player.SendSetHealth(--Health);
 						Player.BroadcastEntityEvent();
-						Player.BroadcastEntityData();
+						Player.BroadcastSetEntityData();
 					}
 				}
 
@@ -74,7 +74,7 @@ namespace MiNET
 				{
 					IsOnFire = false;
 					FireTick = 0;
-					Player.BroadcastEntityData();
+					Player.BroadcastSetEntityData();
 				}
 			}
 			else
@@ -86,7 +86,7 @@ namespace MiNET
 			{
 				FireTick = 300;
 				IsOnFire = true;
-				Player.BroadcastEntityData();
+				Player.BroadcastSetEntityData();
 			}
 
 			if (IsOnFire)
@@ -98,7 +98,7 @@ namespace MiNET
 				{
 					Player.SendSetHealth(--Health);
 					Player.BroadcastEntityEvent();
-					Player.BroadcastEntityData();
+					Player.BroadcastSetEntityData();
 				}
 			}
 		}

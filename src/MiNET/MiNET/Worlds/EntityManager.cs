@@ -1,0 +1,57 @@
+using System;
+using System.Collections.Generic;
+
+namespace MiNET.Worlds
+{
+	public class EntityManager
+	{
+		private List<Player> _entities = new List<Player>();
+
+		public EntityManager()
+		{
+			_entities.Add(new Player());
+		}
+
+		public int AddEntity(Player caller, Player player)
+		{
+			if (player != caller) throw new Exception("Tried to ADD entity for someone else. Should be the player himself adding");
+
+			lock (_entities)
+			{
+				if (_entities.Contains(player))
+					throw new Exception("Tried to add entity that already existed.");
+
+				_entities.Add(player);
+
+				return _entities.IndexOf(player);
+			}
+		}
+
+		public void RemoveEntity(Player caller, Player player)
+		{
+			if (player == caller) throw new Exception("Tried to REMOVE entity for self");
+
+			lock (_entities)
+			{
+				int entityId = _entities.IndexOf(player);
+				if (entityId == -1)
+					throw new Exception("Expected to find entity on remove. A missed ADD perhaps?");
+				_entities.Remove(player);
+			}
+		}
+
+		public int GetEntityId(Player caller, Player player)
+		{
+			if (player == caller) return 0;
+
+			//lock (_entities)
+			//{
+			int entityId = _entities.IndexOf(player);
+			if (entityId == -1)
+				throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
+
+			return entityId;
+			//}
+		}
+	}
+}

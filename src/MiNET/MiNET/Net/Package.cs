@@ -281,6 +281,12 @@ namespace MiNET.Net
 			_isEncoded = false;
 		}
 
+		public void SetEncodedMessage(byte[] encodedMessage)
+		{
+			_encodedMessage = encodedMessage;
+			_isEncoded = true;
+		}
+
 		public virtual byte[] Encode()
 		{
 			if (_isEncoded) return _encodedMessage;

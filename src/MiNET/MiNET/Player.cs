@@ -57,6 +57,10 @@ namespace MiNET
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 
+		internal Player()
+		{
+		}
+
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
 		{
 			_server = server;
@@ -199,7 +203,7 @@ namespace MiNET
 			message.Timer.Stop();
 			if (elapsedMilliseconds > 100)
 			{
-				Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
+				//Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
 			}
 		}
 
@@ -242,7 +246,7 @@ namespace MiNET
 			// Broadcast spawn to all
 			Level.AddPlayer(this);
 
-			BroadcastEntityData();
+			BroadcastSetEntityData();
 		}
 
 		private void HandleDisconnectionNotification()
@@ -300,7 +304,7 @@ namespace MiNET
 		private void HandleMessage(McpeMessage msg)
 		{
 			string text = msg.message;
-			Level.BroadcastTextMessage(text);
+			Level.BroadcastTextMessage(text, this);
 		}
 
 		private void HandleMovePlayer(McpeMovePlayer msg)
@@ -430,7 +434,7 @@ namespace MiNET
 				seed = 1406827239,
 				generator = 1,
 				gamemode = (int) Level.GameMode,
-				entityId = GetEntityId(this),
+				entityId = 0,
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
 				spawnZ = (int) KnownPosition.Z,
@@ -533,7 +537,7 @@ namespace MiNET
 			IsSpawned = true;
 			Level.AddPlayer(this);
 
-			BroadcastEntityData();
+			BroadcastSetEntityData();
 		}
 
 		private void OnPlayerTick(object state)
@@ -545,13 +549,11 @@ namespace MiNET
 		{
 			if (player == this) return;
 
-			int entityId = AddEntity(player);
-
 			SendPackage(new McpeAddPlayer
 			{
 				clientId = 0,
 				username = player.Username,
-				entityId = entityId,
+				entityId = GetEntityId(player),
 				x = player.KnownPosition.X,
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z,
@@ -615,21 +617,7 @@ namespace MiNET
 			}
 		}
 
-		public void SendEntityData()
-		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
-			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[16] = new MetadataByte(0);
-
-			SendPackage(new McpeSetEntityData()
-			{
-				entityId = 0,
-				namedtag = metadata.GetBytes()
-			});
-		}
-
-		public void BroadcastEntityData()
+		public void BroadcastSetEntityData()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
@@ -675,6 +663,16 @@ namespace MiNET
 			move.bodyYaw = knownPosition.BodyYaw;
 			move.teleport = 0;
 			move.Encode(); // Optmized
+
+			SendPackage(move);
+		}
+
+		public void SendMovementForPlayer(Player player, McpeMovePlayer move)
+		{
+			if (HealthManager.IsDead) return;
+			if (player == this) return;
+
+			//move.Timer.Start();
 
 			SendPackage(move);
 		}
@@ -734,47 +732,17 @@ namespace MiNET
 
 		private int AddEntity(Player player)
 		{
-			lock (_entities)
-			{
-				if (_entities.Count == 0 && player != this)
-					throw new Exception("Tried to add external entity before player exists. Player must be entity ID=0.");
-				if (_entities.Contains(player))
-					throw new Exception("Tried to add entity that already existed.");
-
-				_entities.Add(player);
-
-				return _entities.IndexOf(player);
-			}
+			return Level.EntityManager.AddEntity(this, player);
 		}
 
 		private void RemoveEntity(Player player)
 		{
-			lock (_entities)
-			{
-				_entities.Remove(player);
-			}
-		}
-
-		private bool EntityExists(Player player)
-		{
-			lock (_entities)
-			{
-				return _entities.Contains(player);
-			}
+			Level.EntityManager.RemoveEntity(this, player);
 		}
 
 		public int GetEntityId(Player player)
 		{
-			lock (_entities)
-			{
-				int entityId = _entities.IndexOf(player);
-				if (entityId == -1)
-					throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
-
-				if (entityId == 0 && player != this) throw new Exception("Entity ID == 0 is reserved for player.");
-
-				return entityId;
-			}
+			return Level.EntityManager.GetEntityId(this, player);
 		}
 
 		public void Kill()

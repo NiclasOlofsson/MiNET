@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Craft.Net.Common;
 using MiNET.Blocks;
 
 namespace MiNET.Items
@@ -12,18 +15,17 @@ namespace MiNET.Items
         public override void UseItem(MiNET.Worlds.Level world, Player player, Craft.Net.Common.Coordinates3D blockCoordinates, BlockFace face)
         {
             player.Level.BroadcastTextMessage("Face: " + face);
-            if (face == BlockFace.PositiveY)
+            if (world.GetBlock(blockCoordinates).Id != 46)
             {
-                Block fire = new Block(51);
-                fire.Coordinates = GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY);
+                var fire = new Block(51)
+                {
+                    Coordinates = GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY)
+                };
                 world.SetBlock(fire);
             }
             else
             {
-                if (world.GetBlock(blockCoordinates).Id == 46)
-                {
-                    //We need to handle activating TNT here
-                }
+                new Explosion(world, blockCoordinates, 4).Explode();
             }
         }
     }

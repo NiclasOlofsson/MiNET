@@ -44,6 +44,7 @@
     <Compile Include="Blocks\BlockChest.cs" />
     <Compile Include="Blocks\BlockFactory.cs" />
     <Compile Include="Blocks\BlockWoodenDoor.cs" />
+    <Compile Include="Explosion.cs" />
     <Compile Include="HealthManager.cs" />
     <Compile Include="InventoryManger.cs" />
     <Compile Include="Items\Item.cs" />

@@ -10,11 +10,15 @@ namespace MiNET.Items
 
 			if (id <= 255)
 			{
-				item = new ItemBlock(BlockFactory.GetBlockById((byte)id));
-			}
+				item = new ItemBlock (BlockFactory.GetBlockById ((byte)id));
+			} 
 			else if (id == 324)
 			{
-				item = new ItemDoor();
+				item = new ItemDoor ();
+			} 
+			else if (id == 325)
+			{
+				item = new ItemBucket ();
 			}
 
 			return item;

@@ -616,7 +616,7 @@ namespace MiNET
 
 			if (HealthManager.IsDead)
 			{
-				Level.BroadcastTextMessage("You died and lost all stuff, newbie!");
+				Level.BroadcastTextMessage("Player " + this.Username + " " + HealthManager.LastDamageCause.ToString().Replace('_', ' '));
 			}
 		}
 

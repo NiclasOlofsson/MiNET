@@ -11,6 +11,7 @@ namespace MiNET
 		public bool IsDead { get; set; }
 		public int FireTick { get; set; }
 		public bool IsOnFire { get; set; }
+		public DamageCause LastDamageCause { get; set; }
 
 		public HealthManager(Player player)
 		{
@@ -44,6 +45,7 @@ namespace MiNET
 			IsOnFire = false;
 			FireTick = 0;
 			IsDead = false;
+			LastDamageCause = DamageCause.died_from_an_unkown_death;
 		}
 
 		public void OnTick()
@@ -59,7 +61,6 @@ namespace MiNET
 			if (IsInWater(Player.KnownPosition))
 			{
 				Air--;
-				Debug.WriteLine("Air: {0}", Air);
 				if (Air <= 0)
 				{
 					if (Math.Abs(Air)%10 == 0)
@@ -67,6 +68,7 @@ namespace MiNET
 						Player.SendSetHealth(--Health);
 						Player.BroadcastEntityEvent();
 						Player.BroadcastSetEntityData();
+						LastDamageCause = DamageCause.Drowned;
 					}
 				}
 
@@ -102,6 +104,7 @@ namespace MiNET
 					Player.SendSetHealth(--Health);
 					Player.BroadcastEntityEvent();
 					Player.BroadcastSetEntityData();
+					LastDamageCause = DamageCause.Burned_to_death;
 				}
 			}
 		}
@@ -135,5 +138,14 @@ namespace MiNET
 
 			return false;
 		}
+	}
+
+	public enum DamageCause
+	{
+		Got_killed_by_other_player,
+		Drowned_in_lava,
+		Drowned,
+		Burned_to_death,
+		died_from_an_unkown_death
 	}
 }

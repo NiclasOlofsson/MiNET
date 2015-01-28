@@ -190,7 +190,7 @@ namespace MiNET.Worlds
 			var response = new McpeMessage
 			{
 				source = "",
-				message = (sender == null ? "MiNET says - " : "<" + sender.Username + "> ") + text
+				message = (sender == null ? "" : "<" + sender.Username + "> ") + text
 			};
 
 			foreach (var player in GetSpawnedPlayers())

@@ -39,6 +39,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Blocks\AcaciaWoodStairs.cs" />
+    <Compile Include="Blocks\BirchWoodStairs.cs" />
+    <Compile Include="Blocks\BrickStairs.cs" />
+    <Compile Include="Blocks\CobbleStoneStairs.cs" />
+    <Compile Include="Blocks\DarkOakWoodStairs.cs" />
+    <Compile Include="Blocks\JungleWoodStairs.cs" />
+    <Compile Include="Blocks\NetherBrickStairs.cs" />
+    <Compile Include="Blocks\OakWoodStairs.cs" />
+    <Compile Include="Blocks\QuartzStairs.cs" />
+    <Compile Include="Blocks\SandStoneStairs.cs" />
+    <Compile Include="Blocks\SpruceWoodStairs.cs" />
+    <Compile Include="Blocks\StoneBrickStairs.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
     <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />

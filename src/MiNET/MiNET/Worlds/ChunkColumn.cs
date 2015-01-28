@@ -145,7 +145,7 @@ namespace MiNET.Worlds
 		{
 			if (WorldDir == "")
 			{
-				WorldDir = ConfigParser.GetProperty("WorldFolder", "world");
+				WorldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
 				if (!Directory.Exists(WorldDir))
 					Directory.CreateDirectory(WorldDir);
 			}
@@ -179,7 +179,7 @@ namespace MiNET.Worlds
 		{
 			if (WorldDir == "")
 			{
-				WorldDir = ConfigParser.GetProperty("WorldFolder", "world");
+				WorldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
 				if (!Directory.Exists(WorldDir))
 					Directory.CreateDirectory(WorldDir);
 			}

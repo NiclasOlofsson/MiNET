@@ -14,14 +14,16 @@ namespace MiNET.Items
 
         public override void UseItem(MiNET.Worlds.Level world, Player player, Craft.Net.Common.Coordinates3D blockCoordinates, BlockFace face)
         {
-            player.Level.BroadcastTextMessage("Face: " + face);
             if (world.GetBlock(blockCoordinates).Id != 46)
             {
-                var fire = new Block(51)
+                if (world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY)).Id == 0)
                 {
-                    Coordinates = GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY)
-                };
-                world.SetBlock(fire);
+                    var fire = new Block(51)
+                    {
+                        Coordinates = GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY)
+                    };
+                    world.SetBlock(fire);
+                }
             }
             else
             {

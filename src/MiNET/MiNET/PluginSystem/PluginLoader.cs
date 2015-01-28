@@ -24,13 +24,12 @@ namespace MiNET.PluginSystem
                 Type[] types = newAssembly.GetExportedTypes();
                 foreach (var type in types)
                 {
-                    //If Type is a class and implements IPlugin interface  
-                    if (type.IsClass && (type.GetInterface(typeof(IMiNETPlugin).FullName) != null))
+                    if (type.IsDefined(typeof (PluginAttribute), true))
                     {
-                        var ctor = type.GetConstructor(new Type[] { });
+                        var ctor = type.GetConstructor(new Type[] {});
                         if (ctor != null)
                         {
-                            var plugin = ctor.Invoke(new object[] { }) as IMiNETPlugin;
+                            var plugin = ctor.Invoke(new object[] {}) as IMiNETPlugin;
                             Plugins.Add(plugin);
                         }
                     }
@@ -52,6 +51,36 @@ namespace MiNET.PluginSystem
             {
                 miNetPlugin.OnDisable();
             }
+        }
+
+        private static string GetAttribute(Type t, PluginAttributes atribute)
+        {
+            PluginAttribute data =
+                (PluginAttribute)Attribute.GetCustomAttribute(t, typeof(PluginAttribute));
+
+            if (data != null)
+            {
+                switch (atribute)
+                {
+                    case PluginAttributes.Author:
+						return data.Author;
+                    case PluginAttributes.Description:
+		                return data.Description;
+					case PluginAttributes.Name:
+		                return data.PluginName;
+					case PluginAttributes.Version:
+		                return data.PluginVersion;
+                }
+            }
+	        return "N/A";
+        }
+
+        private enum PluginAttributes
+        {
+            Author,
+            Description,
+            Version,
+            Name
         }
     }
 }

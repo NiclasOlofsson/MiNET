@@ -8,11 +8,6 @@ namespace MiNET.API
 {
     public interface IMiNETPlugin
     {
-        string PluginName { get; }
-        string PluginDescription { get; }
-        string PluginVersion { get; }
-        string Author { get; }
-
         /// <summary>
         /// This function will be called on plugin initialization.
         /// </summary>

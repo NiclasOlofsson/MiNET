@@ -39,8 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\AbstractPlugin.cs" />
-    <Compile Include="API\IMiNETPlugin.cs" />
+    <Compile Include="PluginSystem\AbstractPlugin.cs" />
+    <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\BlockAir.cs" />
     <Compile Include="Blocks\BlockBedrock.cs" />
@@ -55,7 +55,7 @@
     <Compile Include="Items\ItemDoor.cs" />
     <Compile Include="Items\ItemFactory.cs" />
     <Compile Include="Items\ItemFlintAndSteel.cs" />
-    <Compile Include="Logger\Logger.cs" />
+    <Compile Include="ConsoleFunctions.cs" />
     <Compile Include="Net\Ack.cs" />
     <Compile Include="Net\ConnectedPackage.cs" />
     <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />
@@ -152,6 +152,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="API\" />
     <Folder Include="Inventory\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

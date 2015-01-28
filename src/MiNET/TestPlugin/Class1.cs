@@ -1,25 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MiNET.API;
 
 namespace TestPlugin
 {
+    [Plugin(PluginName = "Test plugin", Description = "Nice plugin for MiNET", Author = "The MiNET Team", PluginVersion = "1.0 Alpha")]
     public class Main : MiNETPlugin
     {
-        public override string PluginName { get { return "Test Plugin"; } }
-        public override string PluginDescription { get { return "A test plugin for MiNET"; } }
-        public override string Author { get { return "The MiNET team"; } }
-        public override string PluginVersion { get { return "1.0"; } }
         public override void OnEnable()
         {
-            Console.WriteLine("MiNET Test plugin is enabled with lots of happyness.");
+            Console.WriteLine("Succesfully enabled test plugin :-)");
         }
         public override void OnDisable()
         {
-            Console.WriteLine("MiNET Test plugin was disabled with lots of crying.");
+            Console.WriteLine("Succesfully disabled test plugin :-)");
         }
     }
 }

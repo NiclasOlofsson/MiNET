@@ -49,12 +49,11 @@ namespace MiNET
 
 			try
 			{
-                Logger.Initialize();
-                Logger.WriteServerLine("Loading plugins...");
+                ConsoleFunctions.WriteServerLine("Loading plugins...");
                 _pluginLoader = new PluginLoader();
 			    _pluginLoader.LoadPlugins();
                 _pluginLoader.EnablePlugins();
-                Logger.WriteServerLine("Plugins loaded!");
+                ConsoleFunctions.WriteServerLine("Plugins loaded!");
 				_playerEndpoints = new Dictionary<IPEndPoint, Player>();
 
 				_level = new Level("Default");
@@ -91,7 +90,7 @@ namespace MiNET
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
-				Logger.WriteServerLine("Server open for business...");
+				ConsoleFunctions.WriteServerLine("Server open for business...");
 
 				return true;
 			}

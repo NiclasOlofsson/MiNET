@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using MiNET.Net;
+using MiNET.PluginSystem;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -19,6 +20,7 @@ namespace MiNET
 		private UdpClient _listener;
 		private Dictionary<IPEndPoint, Player> _playerEndpoints;
 		private Level _level;
+	    private PluginLoader _pluginLoader;
 
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
@@ -47,6 +49,12 @@ namespace MiNET
 
 			try
 			{
+                Logger.Initialize();
+                Logger.WriteServerLine("Loading plugins...");
+                _pluginLoader = new PluginLoader();
+			    _pluginLoader.LoadPlugins();
+                _pluginLoader.EnablePlugins();
+                Logger.WriteServerLine("Plugins loaded!");
 				_playerEndpoints = new Dictionary<IPEndPoint, Player>();
 
 				_level = new Level("Default");
@@ -83,7 +91,7 @@ namespace MiNET
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
-				Console.WriteLine("Server open for business...");
+				Logger.WriteServerLine("Server open for business...");
 
 				return true;
 			}

@@ -39,6 +39,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\AbstractPlugin.cs" />
+    <Compile Include="API\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\BlockAir.cs" />
     <Compile Include="Blocks\BlockBedrock.cs" />
@@ -53,6 +55,7 @@
     <Compile Include="Items\ItemDoor.cs" />
     <Compile Include="Items\ItemFactory.cs" />
     <Compile Include="Items\ItemFlintAndSteel.cs" />
+    <Compile Include="Logger\Logger.cs" />
     <Compile Include="Net\Ack.cs" />
     <Compile Include="Net\ConnectedPackage.cs" />
     <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />
@@ -76,6 +79,7 @@
     <Compile Include="MiNetServer.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PlayerPosition3D.cs" />
+    <Compile Include="PluginSystem\PluginLoader.cs" />
     <Compile Include="Utils\Endian.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
     <Compile Include="Utils\Int24.cs" />

@@ -14,7 +14,7 @@ namespace MiNET.PluginSystem
         private List<IMiNETPlugin> Plugins = new List<IMiNETPlugin>(); 
         public void LoadPlugins()
         {
-            if (Directory.Exists("Plugins"))
+            if (!Directory.Exists("Plugins"))
                 Directory.CreateDirectory("Plugins");
 
             string pluginsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Plugins");

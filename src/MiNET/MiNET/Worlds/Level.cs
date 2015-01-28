@@ -59,7 +59,7 @@ namespace MiNET.Worlds
 		public static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
 		public static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
 
-		private IWorldProvider _worldProvider;
+		public IWorldProvider _worldProvider;
 		private int _viewDistance = 256;
 		private Timer _levelTicker;
 		private int _worldTickTime = 50;

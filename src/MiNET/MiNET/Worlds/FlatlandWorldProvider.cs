@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Craft.Net.Common;
 using fNbt;
-using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -37,49 +36,50 @@ namespace MiNET.Worlds
 				ChunkColumn chunk = new ChunkColumn();
 				chunk.x = chunkCoordinates.X;
 				chunk.z = chunkCoordinates.Z;
-				PopulateChunk(chunk);
-
-				chunk.SetBlock(0, 5, 0, 7);
-				chunk.SetBlock(1, 5, 0, 41);
-				chunk.SetBlock(2, 5, 0, 41);
-				chunk.SetBlock(3, 5, 0, 41);
-				chunk.SetBlock(3, 5, 0, 41);
-
-				//chunk.SetBlock(6, 5, 6, 57);
-
-				chunk.SetBlock(6, 4, 9, 63);
-				chunk.SetMetadata(6, 4, 9, 12);
-
-				chunk.BlockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, 4, (chunkCoordinates.Z*16) + 9);
-
-				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
+				if (!chunk.TryLoadFromFile(chunkCoordinates.X, chunkCoordinates.Z))
 				{
-					for (int x = 0; x < 16; x++)
+					PopulateChunk(chunk);
+
+					chunk.SetBlock(0, 5, 0, 7);
+					chunk.SetBlock(1, 5, 0, 41);
+					chunk.SetBlock(2, 5, 0, 41);
+					chunk.SetBlock(3, 5, 0, 41);
+					chunk.SetBlock(3, 5, 0, 41);
+
+					//chunk.SetBlock(6, 5, 6, 57);
+
+					chunk.SetBlock(6, 4, 9, 63);
+					chunk.SetMetadata(6, 4, 9, 12);
+					chunk.BlockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, 4, (chunkCoordinates.Z*16) + 9);
+
+					if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
 					{
-						for (int z = 0; z < 16; z++)
+						for (int x = 0; x < 16; x++)
 						{
-							for (int y = 2; y < 4; y++)
+							for (int z = 0; z < 16; z++)
 							{
-								chunk.SetBlock(x, y, z, 8);
+								for (int y = 2; y < 4; y++)
+								{
+									chunk.SetBlock(x, y, z, 8);
+								}
+							}
+						}
+					}
+
+					if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+					{
+						for (int x = 0; x < 16; x++)
+						{
+							for (int z = 0; z < 16; z++)
+							{
+								for (int y = 3; y < 4; y++)
+								{
+									chunk.SetBlock(x, y, z, 10);
+								}
 							}
 						}
 					}
 				}
-
-				if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
-				{
-					for (int x = 0; x < 16; x++)
-					{
-						for (int z = 0; z < 16; z++)
-						{
-							for (int y = 3; y < 4; y++)
-							{
-								chunk.SetBlock(x, y, z, 10);
-							}
-						}
-					}
-				}
-
 				_chunkCache.Add(chunk);
 
 				return chunk;
@@ -146,19 +146,12 @@ namespace MiNET.Worlds
 //			}
 		}
 
-		public McpeEntityData GenerateBlockEntityTest(int x, int y, int z)
+		public void SaveChunks()
 		{
-			var data = GetBlockEntity(x, y, z);
-
-			McpeEntityData message = new McpeEntityData
+			foreach (ChunkColumn chunkColumn in _chunkCache)
 			{
-				x = 6,
-				y = 6,
-				z = 6,
-//				namedtag = data
-			};
-
-			return message;
+				chunkColumn.SaveChunk();
+			}
 		}
 
 		private NbtFile GetBlockEntity(int x, int y, int z)

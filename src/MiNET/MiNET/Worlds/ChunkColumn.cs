@@ -143,11 +143,115 @@ namespace MiNET.Worlds
 			}
 
 
-
 			writer.Flush();
 
 			writer.Close();
 			return stream.ToArray();
+		}
+
+		private string _worldDir = "";
+
+		public void SaveChunk()
+		{
+			if (_worldDir == "")
+			{
+				_worldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
+				if (!Directory.Exists(_worldDir))
+					Directory.CreateDirectory(_worldDir);
+			}
+
+			byte[] strm;
+			using (MemoryStream stream = new MemoryStream())
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
+				writer.Write(blocks.Length);
+				writer.Write(blocks);
+
+				writer.Write(metadata.Data.Length);
+				writer.Write(metadata.Data);
+
+				writer.Write(skylight.Data.Length);
+				writer.Write(skylight.Data);
+
+				writer.Write(blocklight.Data.Length);
+				writer.Write(blocklight.Data);
+
+				writer.Write(biomeId.Length);
+				writer.Write(biomeId);
+				writer.Flush();
+				strm = stream.ToArray();
+			}
+
+			File.WriteAllBytes(_worldDir + "/" + x + "." + z + ".cfile", Compress(strm));
+		}
+
+		public bool TryLoadFromFile(int chunkX, int chunkZ)
+		{
+			if (_worldDir == "")
+			{
+				_worldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
+				if (!Directory.Exists(_worldDir))
+					Directory.CreateDirectory(_worldDir);
+			}
+
+			if (!File.Exists(_worldDir + "/" + chunkX + "." + chunkZ + ".cfile")) return false;
+
+			byte[] ToRead = Decompress(File.ReadAllBytes(_worldDir + "/" + chunkX + "." + chunkZ + ".cfile"));
+			using (MemoryStream stream = new MemoryStream(ToRead))
+			{
+				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
+
+				int blockLength = reader.ReadInt32();
+				blocks = reader.ReadBytes(blockLength);
+
+				int metaLength = reader.ReadInt32();
+				metadata.Data = reader.ReadBytes(metaLength);
+
+				int skyLength = reader.ReadInt32();
+				skylight.Data = reader.ReadBytes(skyLength);
+
+				int blockLightLength = reader.ReadInt32();
+				blocklight.Data = reader.ReadBytes(blockLightLength);
+
+				int Biomeidlength = reader.ReadInt32();
+				biomeId = reader.ReadBytes(Biomeidlength);
+			}
+
+			return true;
+		}
+
+		public static byte[] Compress(byte[] inputData)
+		{
+			if (inputData == null)
+				throw new ArgumentNullException("inputData must be non-null");
+
+			using (var compressIntoMs = new MemoryStream())
+			{
+				using (var gzs = new BufferedStream(new GZipStream(compressIntoMs,
+					CompressionMode.Compress), 2*4096))
+				{
+					gzs.Write(inputData, 0, inputData.Length);
+				}
+				return compressIntoMs.ToArray();
+			}
+		}
+
+		public static byte[] Decompress(byte[] inputData)
+		{
+			if (inputData == null)
+				throw new ArgumentNullException("inputData must be non-null");
+
+			using (var compressedMs = new MemoryStream(inputData))
+			{
+				using (var decompressedMs = new MemoryStream())
+				{
+					using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), 2*4096))
+					{
+						gzs.CopyTo(decompressedMs);
+					}
+					return decompressedMs.ToArray();
+				}
+			}
 		}
 	}
 

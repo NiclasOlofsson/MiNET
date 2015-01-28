@@ -8,5 +8,7 @@ namespace MiNET.Worlds
 		void Initialize();
 		ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates);
 		Coordinates3D GetSpawnPoint();
+
+		void SaveChunks();
 	}
 }

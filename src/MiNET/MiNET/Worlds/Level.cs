@@ -272,7 +272,6 @@ namespace MiNET.Worlds
 
 			foreach (var player in updatedPlayers)
 			{
-
 				Player updatedPlayer = player;
 				var knownPosition = updatedPlayer.KnownPosition;
 
@@ -430,7 +429,7 @@ namespace MiNET.Worlds
 			foreach (var player in GetSpawnedPlayers())
 			{
 				var send = message.Clone<McpeEntityEvent>();
-				send.entityId = player.GetEntityId(target);
+				send.entityId = EntityManager.GetEntityId(null, target);
 				player.SendPackage(send);
 			}
 		}
@@ -440,7 +439,7 @@ namespace MiNET.Worlds
 			foreach (var player in GetSpawnedPlayers())
 			{
 				var send = message.Clone<McpeSetEntityData>();
-				send.entityId = player.GetEntityId(target);
+				send.entityId = EntityManager.GetEntityId(null, target);
 				player.SendPackage(send);
 			}
 		}
@@ -452,7 +451,7 @@ namespace MiNET.Worlds
 				if (player == source) continue;
 
 				var send = message.Clone<McpeAnimate>();
-				send.entityId = player.GetEntityId(source);
+				send.entityId = EntityManager.GetEntityId(null, source);
 				player.SendPackage(send);
 			}
 		}
@@ -464,7 +463,7 @@ namespace MiNET.Worlds
 				if (player == source) continue;
 
 				var send = message.Clone<McpePlayerArmorEquipment>();
-				send.entityId = player.GetEntityId(source);
+				send.entityId = EntityManager.GetEntityId(null, source);
 				player.SendPackage(send);
 			}
 		}
@@ -476,7 +475,7 @@ namespace MiNET.Worlds
 				if (player == source) continue;
 
 				var send = message.Clone<McpePlayerEquipment>();
-				send.entityId = player.GetEntityId(source);
+				send.entityId = EntityManager.GetEntityId(null, source);
 				player.SendPackage(send);
 			}
 		}
@@ -504,11 +503,13 @@ namespace MiNET.Worlds
 			return block;
 		}
 
-		public void SetBlock(Block block)
+		public void SetBlock(Block block, bool broadcast = true)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(block.Coordinates.X/16, block.Coordinates.Z/16));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
+
+			if (!broadcast) return;
 
 			RelayBroadcast(null, new McpeUpdateBlock
 			{

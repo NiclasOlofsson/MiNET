@@ -3,7 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Craft.Net.Common;
 using MiNET.Utils;
+using ItemStack = MiNET.Utils.ItemStack;
+using MetadataInt = MiNET.Utils.MetadataInt;
+using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Net
 {
@@ -170,6 +174,22 @@ namespace MiNET.Net
 		{
 			short len = ReadShort();
 			return Encoding.UTF8.GetString(ReadBytes(len));
+		}
+
+		public void Write(Records records)
+		{
+			Write(records.Count);
+			foreach (Coordinates3D coord in records)
+			{
+				Write((byte)coord.X);				
+				Write((byte)coord.Y);				
+				Write((byte)coord.Z);				
+			}
+		}
+
+		public Records ReadRecords()
+		{
+			return new Records();
 		}
 
 		public void Write(MetadataInts metadata)

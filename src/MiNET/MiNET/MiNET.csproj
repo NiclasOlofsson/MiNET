@@ -108,6 +108,7 @@
     <Compile Include="Utils\NbtBinaryReader.cs" />
     <Compile Include="Utils\NbtBinaryWriter.cs" />
     <Compile Include="Utils\NbtFormatException.cs" />
+    <Compile Include="Utils\Records.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
     <Compile Include="Worlds\EntityManager.cs" />

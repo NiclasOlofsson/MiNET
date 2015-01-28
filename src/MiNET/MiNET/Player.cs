@@ -103,6 +103,7 @@ namespace MiNET
 			{
 				ItemHotbar[i] = new MetadataInt(-1);
 			}
+
 			// Hotbar starts at max size = 9 to set the slots. Don't understand why.
 			ItemHotbar[0] = new MetadataInt(9);
 			ItemHotbar[1] = new MetadataInt(10);
@@ -375,7 +376,7 @@ namespace MiNET
 
 			Level.RelayBroadcast(target, new McpeEntityEvent()
 			{
-				entityId = 0,
+				entityId = target.EntityId,
 				eventId = 2
 			});
 
@@ -558,7 +559,7 @@ namespace MiNET
 			{
 				clientId = 0,
 				username = player.Username,
-				entityId = GetEntityId(player),
+				entityId = player.EntityId,
 				x = player.KnownPosition.X,
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z,
@@ -576,7 +577,7 @@ namespace MiNET
 		{
 			SendPackage(new McpePlayerEquipment()
 			{
-				entityId = GetEntityId(player),
+				entityId = player.EntityId,
 				item = player.ItemInHand.Value.Id,
 				meta = player.ItemInHand.Value.Metadata,
 				slot = 0
@@ -587,7 +588,7 @@ namespace MiNET
 		{
 			SendPackage(new McpePlayerArmorEquipment()
 			{
-				entityId = GetEntityId(player),
+				entityId = player.EntityId,
 				helmet = (byte) (((MetadataSlot) player.Armor[0]).Value.Id - 256),
 				chestplate = (byte) (((MetadataSlot) player.Armor[1]).Value.Id - 256),
 				leggings = (byte) (((MetadataSlot) player.Armor[2]).Value.Id - 256),
@@ -602,7 +603,7 @@ namespace MiNET
 			SendPackage(new McpeRemovePlayer
 			{
 				clientId = 0,
-				entityId = GetEntityId(player)
+				entityId = player.EntityId
 			});
 		}
 

@@ -178,6 +178,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x9a:
+					package = McpeExplode.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x9d:
 					package = McpeEntityEvent.CreateObject();
 					//package.Timer.Start();
@@ -2728,6 +2733,89 @@ namespace MiNET.Net
 		}
 
 		static McpeUpdateBlock()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				_pool.PutObject(_pool.GetObject());
+			}
+		}
+
+	}
+
+	public partial class McpeExplode : Package
+	{
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
+		public float radius; // = null;
+		public Records records; // = null;
+
+		public McpeExplode(bool pooled = false)
+		{
+			Id = 0x9a;
+			_isPooled = pooled;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(radius);
+			Write(records);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
+			radius = ReadFloat();
+			records = ReadRecords();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		private static readonly ObjectPool<McpeExplode> _pool = 
+			new ObjectPool<McpeExplode>(() => new McpeExplode(true));
+
+		private bool _isPooled = false;
+		public int ReferenceCounter = 0;
+
+		public static McpeExplode CreateObject()
+		{
+			var obj = _pool.GetObject();
+			obj.ReferenceCounter = 1;
+			return obj;
+		}
+
+		public override void PutPool()
+		{
+			if(!_isPooled) return;
+
+			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
+
+			Reset();
+			_pool.PutObject(this);
+		}
+
+		static McpeExplode()
 		{
 			for (int i = 0; i < 1000; i++)
 			{

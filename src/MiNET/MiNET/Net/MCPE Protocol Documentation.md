@@ -28,6 +28,7 @@
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
 | Mcpe Update Block | 0x98 | 152 |   
+| Mcpe Explode | 0x9a | 154 |   
 | Mcpe Entity Event | 0x9d | 157 |   
 | Mcpe Player Equipment | 0xa0 | 160 |   
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
@@ -601,6 +602,24 @@ The three type of status are:
 |Y | byte |  |
 |Block | byte |  |
 |Meta | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Explode (0x9a)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|Radius | float |  |
+|Records | Records |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Entity Event (0x9d)
 

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Craft.Net.Common;
 using MiNET.Blocks;
+using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET
@@ -11,11 +14,11 @@ namespace MiNET
 		private List<Block> _afectedBlocks = new List<Block>();
 		private const double StepLen = 0.3;
 		private const int Ray = 16;
-		private double _size = 0;
+		private float _size = 0;
 		private readonly Level _world;
 		private Coordinates3D _centerCoordinates;
 
-		public Explosion(Level world, Coordinates3D centerCoordinates, double size)
+		public Explosion(Level world, Coordinates3D centerCoordinates, float size)
 		{
 			_size = size;
 			_centerCoordinates = centerCoordinates;
@@ -104,12 +107,27 @@ namespace MiNET
 			var minZ = Math.Floor(_centerCoordinates.Z - explosionSize - 1);
 			var maxZ = Math.Floor(_centerCoordinates.Z + explosionSize + 1);
 			var explosionBB = new BoundingBox(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
-			var Air = new BlockAir();
+
+			var records = new Records();
+			foreach (var block in _afectedBlocks)
+			{
+				records.Add(block.Coordinates);
+			}
+
+			_world.RelayBroadcast(null, new McpeExplode()
+			{
+				x = _centerCoordinates.X,
+				y = _centerCoordinates.Y,
+				z = _centerCoordinates.Z,
+				radius = _size,
+				records = records
+			});
 
 			foreach (var block in _afectedBlocks)
 			{
-				_world.SetBlock(new BlockAir() {Coordinates = block.Coordinates});
+				new Task(() => _world.SetBlock(new BlockAir() { Coordinates = block.Coordinates })).Start();
 			}
+
 			return true;
 		}
 

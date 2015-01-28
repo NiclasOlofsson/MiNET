@@ -109,6 +109,7 @@ namespace MiNET
 		{
 			try
 			{
+				_level._worldProvider.SaveChunks();
 				if (_listener == null) return true; // Already stopped. It's ok.
 
 				_listener.Close();

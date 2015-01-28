@@ -223,5 +223,10 @@ namespace MiNET.Worlds
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 			return spawnPoint;
 		}
+
+		public void SaveChunks()
+		{
+			throw new NotImplementedException("Nope.");
+		}
 	}
 }

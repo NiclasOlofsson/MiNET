@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using Craft.Net.Anvil;
+using fNbt;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -18,6 +19,7 @@ namespace MiNET.Worlds
 		public NibbleArray metadata = new NibbleArray(16*16*128);
 		public NibbleArray blocklight = new NibbleArray(16*16*128);
 		public NibbleArray skylight = new NibbleArray(16*16*128);
+		public NbtFile BlockEntity = null;
 
 		private byte[] _cache = null;
 
@@ -90,6 +92,12 @@ namespace MiNET.Worlds
 				{
 					writer.Write(biomeColor[i]);
 				}
+
+				if (BlockEntity != null)
+				{
+					writer.Write(BlockEntity.SaveToBuffer(NbtCompression.None));
+				}
+
 				writer.Flush();
 
 				checksum = compressStream.Checksum;
@@ -133,6 +141,9 @@ namespace MiNET.Worlds
 			{
 				writer.Write(biomeColor[i]);
 			}
+
+
+
 			writer.Flush();
 
 			writer.Close();

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Craft.Net.Common;
+using fNbt;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -43,6 +45,13 @@ namespace MiNET.Worlds
 				chunk.SetBlock(3, 5, 0, 41);
 				chunk.SetBlock(3, 5, 0, 41);
 
+				//chunk.SetBlock(6, 5, 6, 57);
+
+				chunk.SetBlock(6, 4, 9, 63);
+				chunk.SetMetadata(6, 4, 9, 12);
+
+				chunk.BlockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, 4, (chunkCoordinates.Z*16) + 9);
+
 				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
 				{
 					for (int x = 0; x < 16; x++)
@@ -57,19 +66,19 @@ namespace MiNET.Worlds
 					}
 				}
 
-                if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
-                {
-                    for (int x = 0; x < 16; x++)
-                    {
-                        for (int z = 0; z < 16; z++)
-                        {
-                            for (int y = 3; y < 4; y++)
-                            {
-                                chunk.SetBlock(x, y, z, 10);
-                            }
-                        }
-                    }
-                }
+				if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+				{
+					for (int x = 0; x < 16; x++)
+					{
+						for (int z = 0; z < 16; z++)
+						{
+							for (int y = 3; y < 4; y++)
+							{
+								chunk.SetBlock(x, y, z, 10);
+							}
+						}
+					}
+				}
 
 				_chunkCache.Add(chunk);
 
@@ -135,6 +144,39 @@ namespace MiNET.Worlds
 //			{
 //				chunk.biomeColor[i] = random.Next(6761930, 8761930);
 //			}
+		}
+
+		public McpeEntityData GenerateBlockEntityTest(int x, int y, int z)
+		{
+			var data = GetBlockEntity(x, y, z);
+
+			McpeEntityData message = new McpeEntityData
+			{
+				x = 6,
+				y = 6,
+				z = 6,
+//				namedtag = data
+			};
+
+			return message;
+		}
+
+		private NbtFile GetBlockEntity(int x, int y, int z)
+		{
+			NbtFile file = new NbtFile();
+			file.BigEndian = false;
+			var compound = new NbtCompound(string.Empty);
+			compound.Add(new NbtString("id", "Sign"));
+			compound.Add(new NbtString("Text1", "first"));
+			compound.Add(new NbtString("Text2", "second"));
+			compound.Add(new NbtString("Text3", "third"));
+			compound.Add(new NbtString("Text4", "forth"));
+			compound.Add(new NbtInt("x", x));
+			compound.Add(new NbtInt("y", y));
+			compound.Add(new NbtInt("z", z));
+			file.RootTag = compound;
+
+			return file;
 		}
 	}
 }

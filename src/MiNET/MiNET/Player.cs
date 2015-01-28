@@ -137,6 +137,12 @@ namespace MiNET
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 
 				// It is a bug that it leaks these messages.
+				var block = ((McpeUpdateBlock) message);
+				Debug.WriteLine("block:" + block.block);
+				Debug.WriteLine("meta:" + block.meta);
+				Debug.WriteLine("x:" + block.x);
+				Debug.WriteLine("y:" + block.y);
+				Debug.WriteLine("z:" + block.z);
 			}
 
 			else if (typeof (McpeRemoveBlock) == message.GetType())
@@ -200,12 +206,22 @@ namespace MiNET
 				HandleRespawn((McpeRespawn) message);
 			}
 
+			else if (typeof (McpeEntityData) == message.GetType())
+			{
+				HandleEntityData((McpeEntityData) message);
+			}
+
 			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 			message.Timer.Stop();
 			if (elapsedMilliseconds > 100)
 			{
 				Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
 			}
+		}
+
+		private void HandleEntityData(McpeEntityData message)
+		{
+			Debug.WriteLine("NBT " + message.namedtag.NbtFile);
 		}
 
 		private void HandleRespawn(McpeRespawn msg)

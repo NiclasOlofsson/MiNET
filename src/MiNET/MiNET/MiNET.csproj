@@ -105,6 +105,7 @@
     <Compile Include="Utils\MetadataShort.cs" />
     <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataString.cs" />
+    <Compile Include="Utils\Nbt.cs" />
     <Compile Include="Utils\NbtBinaryReader.cs" />
     <Compile Include="Utils\NbtBinaryWriter.cs" />
     <Compile Include="Utils\NbtFormatException.cs" />

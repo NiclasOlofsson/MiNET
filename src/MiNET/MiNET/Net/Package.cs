@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Craft.Net.Common;
+using fNbt;
 using MiNET.Utils;
 using ItemStack = MiNET.Utils.ItemStack;
 using MetadataInt = MiNET.Utils.MetadataInt;
@@ -181,15 +182,34 @@ namespace MiNET.Net
 			Write(records.Count);
 			foreach (Coordinates3D coord in records)
 			{
-				Write((byte)coord.X);				
-				Write((byte)coord.Y);				
-				Write((byte)coord.Z);				
+				Write((byte) coord.X);
+				Write((byte) coord.Y);
+				Write((byte) coord.Z);
 			}
 		}
 
 		public Records ReadRecords()
 		{
 			return new Records();
+		}
+
+		public void Write(Nbt nbt)
+		{
+			var file = nbt.NbtFile;
+			file.BigEndian = false;
+
+			Write(file.SaveToBuffer(NbtCompression.None));
+		}
+
+		public Nbt ReadNbt()
+		{
+			Nbt nbt = new Nbt();
+			NbtFile file = new NbtFile();
+			file.BigEndian = false;
+			nbt.NbtFile = file;
+			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
+	
+			return nbt;
 		}
 
 		public void Write(MetadataInts metadata)
@@ -329,6 +349,5 @@ namespace MiNET.Net
 		{
 			return (T) Clone();
 		}
-
 	}
 }

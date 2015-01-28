@@ -507,7 +507,7 @@ The three type of status are:
 |X | int |  |
 |Y | byte |  |
 |Z | int |  |
-|NamedTag | byte[] | 0 |
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x89)
 

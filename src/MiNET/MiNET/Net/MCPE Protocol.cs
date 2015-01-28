@@ -2240,7 +2240,7 @@ namespace MiNET.Net
 		public int x; // = null;
 		public byte y; // = null;
 		public int z; // = null;
-		public byte[] namedtag; // = null;
+		public Nbt namedtag; // = null;
 
 		public McpeEntityData(bool pooled = false)
 		{
@@ -2274,7 +2274,7 @@ namespace MiNET.Net
 			x = ReadInt();
 			y = ReadByte();
 			z = ReadInt();
-			namedtag = ReadBytes(0);
+			namedtag = ReadNbt();
 
 			AfterDecode();
 		}

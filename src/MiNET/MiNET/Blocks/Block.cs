@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 
 		public virtual void BreakBlock(Level world)
 		{
-			world.SetBlock(new BlockAir {Coordinates = Coordinates});
+			world.SetBlock(new Air {Coordinates = Coordinates});
 		}
 
 		public virtual bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)

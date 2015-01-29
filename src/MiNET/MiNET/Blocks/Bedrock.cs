@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MiNET.Blocks
 {
-    class BlockBedrock : Block
+    class Bedrock : Block
     {
-        public BlockBedrock() : base(7)
+        public Bedrock() : base(7)
         {
             Durability = 60000;
         }

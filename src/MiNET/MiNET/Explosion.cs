@@ -125,7 +125,7 @@ namespace MiNET
 
 			foreach (var block in _afectedBlocks)
 			{
-				new Task(() => _world.SetBlock(new BlockAir() { Coordinates = block.Coordinates })).Start();
+				new Task(() => _world.SetBlock(new Air() { Coordinates = block.Coordinates })).Start();
 			}
 
 			return true;

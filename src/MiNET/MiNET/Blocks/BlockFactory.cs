@@ -6,11 +6,11 @@ namespace MiNET.Blocks
 		{
 			Block block = new Block(blockId);
 
-			if (blockId == 0) block = new BlockAir();
+			if (blockId == 0) block = new Air();
 
-			if (blockId == 54) block = new BlockChest();
-			if (blockId == 64) block = new BlockWoodenDoor();
-            if (blockId == 7) block = new BlockBedrock();
+			if (blockId == 54) block = new Chest();
+			if (blockId == 64) block = new WoodenDoor();
+            if (blockId == 7) block = new Bedrock();
 			if (blockId == 53) block = new OakWoodStairs();
 			if (blockId == 67) block = new CobbleStoneStairs();
 			if (blockId == 108) block = new BrickStairs();

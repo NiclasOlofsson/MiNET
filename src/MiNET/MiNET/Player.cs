@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using Craft.Net.Anvil;
 using Craft.Net.Common;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using ItemStack = MiNET.Utils.ItemStack;
+using Level = MiNET.Worlds.Level;
 using MetadataByte = MiNET.Utils.MetadataByte;
 using MetadataDictionary = MiNET.Utils.MetadataDictionary;
 using MetadataInt = MiNET.Utils.MetadataInt;
@@ -470,28 +472,22 @@ namespace MiNET
 			});
 		}
 
-		public void SendChunksForKnownPosition(bool force = false)
+		public void SendChunksForKnownPosition()
 		{
-			int centerX = (int) KnownPosition.X/16;
-			int centerZ = (int) KnownPosition.Z/16;
+			var chunkPosition = new Coordinates2D((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
+			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-			if (!force && IsSpawned && _currentChunkPosition == new Coordinates2D(centerX, centerZ)) return;
-
-			_currentChunkPosition.X = centerX;
-			_currentChunkPosition.Z = centerZ;
+			_currentChunkPosition= chunkPosition;
 
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				int count = 0;
-				foreach (var chunk in Level.GenerateChunks((int) KnownPosition.X, (int) KnownPosition.Z, force ? new Dictionary<Tuple<int, int>, ChunkColumn>() : _chunksUsed))
+				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-					if (true)
-					{
-						McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
-						fullChunkData.chunkData = chunk.GetBytes();
+					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+					fullChunkData.chunkData = chunk.GetBytes();
 
-						SendPackage(fullChunkData);
-					}
+					SendPackage(fullChunkData);
 
 					if (count == 56 && !IsSpawned)
 					{
@@ -503,9 +499,9 @@ namespace MiNET
 			});
 		}
 
-		internal void SendSetHealth(int health = 20)
+		internal void SendSetHealth()
 		{
-			SendPackage(new McpeSetHealth {health = (byte) health});
+			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Health});
 		}
 
 		public void SendSetTime()

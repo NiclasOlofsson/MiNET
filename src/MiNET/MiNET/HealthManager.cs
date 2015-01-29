@@ -22,7 +22,8 @@ namespace MiNET
 
 		public void TakeHit(Player sourcePlayer)
 		{
-			Player.SendSetHealth(--Health);
+			Health--;
+			Player.SendSetHealth();
 		}
 
 		public void KillPlayer()
@@ -32,7 +33,7 @@ namespace MiNET
 
 			IsDead = true;
 			Health = 0;
-			Player.SendSetHealth(Health);
+			Player.SendSetHealth();
 			Player.BroadcastEntityEvent();
 			Player.BroadcastSetEntityData();
 			Player.Kill();
@@ -65,7 +66,8 @@ namespace MiNET
 				{
 					if (Math.Abs(Air)%10 == 0)
 					{
-						Player.SendSetHealth(--Health);
+						Health--;
+						Player.SendSetHealth();
 						Player.BroadcastEntityEvent();
 						Player.BroadcastSetEntityData();
 						LastDamageCause = DamageCause.Drowned;
@@ -99,9 +101,10 @@ namespace MiNET
                     IsOnFire = false;
                 }
 
-				if (Math.Abs(FireTick)%25 == 0)
+				if (Math.Abs(FireTick)%20 == 0)
 				{
-					Player.SendSetHealth(--Health);
+					Health--;
+					Player.SendSetHealth();
 					Player.BroadcastEntityEvent();
 					Player.BroadcastSetEntityData();
 					LastDamageCause = DamageCause.Burned_to_death;

@@ -115,7 +115,7 @@ namespace MiNET.Worlds
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(SpawnPoint.X, SpawnPoint.Z, new Dictionary<Tuple<int, int>, ChunkColumn>()))
+					foreach (var chunk in GenerateChunks(new Coordinates2D(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>()))
 					{
 						chunk.GetBytes();
 					}
@@ -307,58 +307,16 @@ namespace MiNET.Worlds
 			Task.WaitAll(tasks.ToArray());
 		}
 
-		private void BroadCastMovementOld(Player[] players, Player[] updatedPlayers)
-		{
-			List<Task> tasks = new List<Task>();
 
-			foreach (var player in updatedPlayers)
-			{
-				var knownPosition = player.KnownPosition;
-
-				int entityId = EntityManager.GetEntityId(null, player);
-				if (entityId == 0) throw new Exception("Souldn't have 0 entity IDs here.");
-
-				McpeMovePlayer move = McpeMovePlayer.CreateObject();
-				move.entityId = entityId;
-				move.x = knownPosition.X;
-				move.y = knownPosition.Y;
-				move.z = knownPosition.Z;
-				move.yaw = knownPosition.Yaw;
-				move.pitch = knownPosition.Pitch;
-				move.bodyYaw = knownPosition.BodyYaw;
-				move.teleport = 0;
-				var bytes = move.Encode(); // Optmized
-
-				Player updatedPlayer = player;
-				var task = new Task(delegate
-				{
-					foreach (var p in players)
-					{
-						McpeMovePlayer m = McpeMovePlayer.CreateObject();
-						m.SetEncodedMessage(bytes);
-						p.SendMovementForPlayer(updatedPlayer, m);
-					}
-
-					move.PutPool();
-				});
-
-				tasks.Add(task);
-				task.Start();
-			}
-
-			Task.WaitAll(tasks.ToArray());
-		}
-
-
-		public IEnumerable<ChunkColumn> GenerateChunks(int playerX, int playerZ, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
+		public IEnumerable<ChunkColumn> GenerateChunks(Coordinates2D chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
 		{
 			lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
 				double radiusSquared = _viewDistance/Math.PI;
 				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
-				int centerX = playerX/16;
-				int centerZ = playerZ/16;
+				int centerX = chunkPosition.X;
+				int centerZ = chunkPosition.Z;
 
 				for (double x = -radius; x <= radius; ++x)
 				{

@@ -30,6 +30,7 @@ namespace MiNET
 
 	public class Player
 	{
+		
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;

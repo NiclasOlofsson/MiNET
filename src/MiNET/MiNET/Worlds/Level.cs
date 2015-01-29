@@ -131,6 +131,8 @@ namespace MiNET.Worlds
 		{
 			lock (Players)
 			{
+				if (newPlayer.Username == null) return;
+
 				EntityManager.AddEntity(null, newPlayer);
 
 				Player[] targetPlayers = GetSpawnedPlayers();
@@ -203,7 +205,6 @@ namespace MiNET.Worlds
 
 		private object _tickSync = new object();
 		private int tickTimeCount = 0;
-
 		private Stopwatch _tickTimer = new Stopwatch();
 
 		private void LevelTickerTicked(object sender)

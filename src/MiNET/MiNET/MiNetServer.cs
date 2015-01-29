@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using log4net;
 using MiNET.Net;
 using MiNET.PluginSystem;
 using MiNET.Utils;
@@ -14,6 +14,8 @@ namespace MiNET
 {
 	public class MiNetServer
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
+
 		private const int DefaultPort = 19132;
 
 		private IPEndPoint _endpoint;
@@ -90,14 +92,13 @@ namespace MiNET
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
-				ConsoleFunctions.WriteServerLine("Server open for business...");
+				Log.Info("Server open for business...");
 
 				return true;
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
-				Debug.Write(e);
+				Log.Error(e);
 				StopServer();
 			}
 
@@ -119,10 +120,10 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Debug.Write(e);
+				Log.Error(e);
 			}
 
-			return true;
+			return false;
 		}
 
 		private void ReceiveCallback(IAsyncResult ar)
@@ -142,7 +143,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Console.WriteLine(e);
+				Log.Warn(e);
 				listener.BeginReceive(ReceiveCallback, listener);
 
 				return;
@@ -155,7 +156,7 @@ namespace MiNET
 			}
 			else
 			{
-				Debug.Write("Unexpected end of transmission?");
+				Log.Debug("Unexpected end of transmission?");
 			}
 		}
 
@@ -225,7 +226,6 @@ namespace MiNET
 
 							lock (_playerEndpoints)
 							{
-								Debug.WriteLine("Settled on MTU: {0}", incoming.mtuSize);
 								_playerEndpoints.Remove(senderEndpoint);
 								_playerEndpoints.Add(senderEndpoint, new Player(this, senderEndpoint, _level, incoming.mtuSize));
 							}
@@ -264,19 +264,16 @@ namespace MiNET
 					{
 						Ack ack = new Ack();
 						ack.Decode(receiveBytes);
-						//Debug.WriteLine("ACK #{0}", ack.sequenceNumber.IntValue());
 					}
 					else if (header.isNAK && header.isValid)
 					{
 						Nak nak = new Nak();
 						nak.Decode(receiveBytes);
-						Console.WriteLine("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
-						Debug.WriteLine("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
+						Log.WarnFormat("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
 					}
 					else if (!header.isValid)
 					{
-						Console.WriteLine("!!!! ERROR, Invalid header !!!!!");
-						Debug.WriteLine("!!!! ERROR, Invalid header !!!!!");
+						Log.Warn("!!!! ERROR, Invalid header !!!!!");
 					}
 				}
 			};
@@ -366,7 +363,7 @@ namespace MiNET
 				{
 					double kbytesPerSecond = _totalPacketSize*8/1000000D;
 					long avaragePacketSize = _totalPacketSize/(_numberOfPacketsSentPerSecond + 1);
-					Console.WriteLine("TT {4}ms {5} player(s) Pkt {0}/s ACKs {1}/s AvSize: {2}b Thoughput: {3:F}Mbit/s",
+					Log.InfoFormat("TT {4}ms {5} player(s) Pkt {0}/s ACKs {1}/s AvSize: {2}b Thoughput: {3:F}Mbit/s",
 						_numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond, _level.lastTickProcessingTime, _level.Players.Count);
 
 					_numberOfAckSent = 0;
@@ -398,7 +395,7 @@ namespace MiNET
 		{
 			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 			{
-				Debug.Print("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 			}
 		}
 
@@ -406,14 +403,8 @@ namespace MiNET
 		{
 			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
 			{
-				Debug.Print("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-				//Debug.Print("\tData: Length={1} {0}", ByteArrayToString(data), data.Length);
+				Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 			}
-		}
-
-		private static void TraceSend(Datagram datagram, byte[] data)
-		{
-			//Debug.Print("< Send: Data: Length={1} {0}", ByteArrayToString(data), data.Length);
 		}
 	}
 }

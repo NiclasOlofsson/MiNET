@@ -72,7 +72,6 @@
     <Compile Include="Items\ItemDoor.cs" />
     <Compile Include="Items\ItemFactory.cs" />
     <Compile Include="Items\ItemFlintAndSteel.cs" />
-    <Compile Include="ConsoleFunctions.cs" />
     <Compile Include="Net\Ack.cs" />
     <Compile Include="Net\ConnectedPackage.cs" />
     <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />

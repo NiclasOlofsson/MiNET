@@ -9,12 +9,21 @@ namespace MiNET.Worlds
 	public class FlatlandWorldProvider : IWorldProvider
 	{
 		private readonly List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
+		private bool _loadFromFile;
+		private bool _saveToFile;
 
 		public bool IsCaching { get; private set; }
 
 		public FlatlandWorldProvider()
 		{
 			IsCaching = true;
+#if DEBUG
+			_loadFromFile = ConfigParser.GetProperty("load_pe", false);
+			_saveToFile = ConfigParser.GetProperty("save_pe", false);
+#else
+			_loadFromFile = ConfigParser.GetProperty("load_pe", true);
+			_saveToFile = ConfigParser.GetProperty("save_pe", true);
+#endif
 		}
 
 		public void Initialize()
@@ -35,7 +44,14 @@ namespace MiNET.Worlds
 				ChunkColumn chunk = new ChunkColumn();
 				chunk.x = chunkCoordinates.X;
 				chunk.z = chunkCoordinates.Z;
-				if (!chunk.TryLoadFromFile(chunkCoordinates.X, chunkCoordinates.Z))
+
+				bool loaded = false;
+				if (_loadFromFile)
+				{
+					loaded = chunk.TryLoadFromFile();
+				}
+
+				if (!loaded)
 				{
 					PopulateChunk(chunk);
 
@@ -98,43 +114,44 @@ namespace MiNET.Worlds
 			for (int i = 0; i < stones.Length; i = i + 128)
 			{
 				stones[i] = 7; // Bedrock
+				int h = 1;
+
+				stones[i + h++] = 1; // Stone
+				stones[i + h++] = 1; // Stone
+
 				switch (random.Next(0, 20))
 				{
 					case 0:
-						stones[i + 1] = 3; // Dirt
-						stones[i + 2] = 3;
+						stones[i + h++] = 3; // Dirt
+						stones[i + h++] = 3;
 						break;
 					case 1:
-						stones[i + 1] = 1; // Stone
-						stones[i + 2] = 1; // Stone
+						stones[i + h++] = 1; // Stone
+						stones[i + h++] = 1; // Stone
 						break;
 					case 2:
-						stones[i + 1] = 13; // Gravel
-						stones[i + 2] = 13; // Gravel
+						stones[i + h++] = 13; // Gravel
+						stones[i + h++] = 13; // Gravel
 						break;
 					case 3:
-						stones[i + 1] = 14; // Gold
-						stones[i + 2] = 14; // Gold
+						stones[i + h++] = 14; // Gold
+						stones[i + h++] = 14; // Gold
 						break;
 					case 4:
-						stones[i + 1] = 16; // Cole
-						stones[i + 2] = 16; // Cole
+						stones[i + h++] = 16; // Cole
+						stones[i + h++] = 16; // Cole
 						break;
 					case 5:
-						stones[i + 1] = 56; // Dimond
-						stones[i + 2] = 56; // Dimond
+						stones[i + h++] = 56; // Dimond
+						stones[i + h++] = 56; // Dimond
 						break;
 					default:
-						stones[i + 1] = 1; // Stone
-						stones[i + 2] = 1; // Stone
+						stones[i + h++] = 1; // Stone
+						stones[i + h++] = 1; // Stone
 						break;
 				}
-				stones[i + 3] = 2; // Grass
-				//int rand = random.Next(0, 10);
-				//for (int j = 0; j < rand; j++)
-				//{
-				//	stones[i + 3 + j] = 41; // Gold
-				//}
+				stones[i + h++] = 3; // Dirt
+				stones[i + h++] = 2; // Grass
 			}
 
 			chunk.blocks = stones;
@@ -147,9 +164,12 @@ namespace MiNET.Worlds
 
 		public void SaveChunks()
 		{
-			foreach (ChunkColumn chunkColumn in _chunkCache)
+			if (_saveToFile)
 			{
-				chunkColumn.SaveChunk();
+				foreach (ChunkColumn chunkColumn in _chunkCache)
+				{
+					chunkColumn.SaveChunk();
+				}
 			}
 		}
 

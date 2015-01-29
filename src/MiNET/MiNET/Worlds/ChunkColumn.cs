@@ -185,18 +185,8 @@ namespace MiNET.Worlds
 			File.WriteAllBytes(_worldDir + "/" + x + "." + z + ".cfile", Compress(buffer));
 		}
 
-		private bool _loadFromFile = true;
-		private bool _checkedIt = false;
-
-		public bool TryLoadFromFile(int chunkX, int chunkZ)
+		public bool TryLoadFromFile()
 		{
-			if (!_checkedIt)
-			{
-				_loadFromFile = ConfigParser.GetProperty("save_pe", true);
-				_checkedIt = true;
-			}
-			if (!_loadFromFile) return false;
-
 			if (_worldDir == null)
 			{
 				_worldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
@@ -204,7 +194,7 @@ namespace MiNET.Worlds
 					Directory.CreateDirectory(_worldDir);
 			}
 
-			var chunkFilePath = _worldDir + "/" + chunkX + "." + chunkZ + ".cfile";
+			var chunkFilePath = _worldDir + "/" + x + "." + z + ".cfile";
 			if (!File.Exists(chunkFilePath)) return false;
 
 			byte[] buffer = Decompress(File.ReadAllBytes(chunkFilePath));

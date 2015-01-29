@@ -51,11 +51,11 @@ namespace MiNET
 
 			try
 			{
-				ConsoleFunctions.WriteServerLine("Loading plugins...");
+				Log.Info("Loading plugins...");
 				_pluginLoader = new PluginLoader();
 				_pluginLoader.LoadPlugins();
 				_pluginLoader.EnablePlugins();
-				ConsoleFunctions.WriteServerLine("Plugins loaded!");
+				Log.Info("Plugins loaded!");
 				_playerEndpoints = new Dictionary<IPEndPoint, Player>();
 
 				_level = new Level("Default");
@@ -144,7 +144,15 @@ namespace MiNET
 			catch (Exception e)
 			{
 				Log.Warn(e);
-				listener.BeginReceive(ReceiveCallback, listener);
+				try
+				{
+					listener.BeginReceive(ReceiveCallback, listener);
+				}
+				catch (ObjectDisposedException dex)
+				{
+					// Log and move on. Should probably free up the player and remove them here.
+					Log.Warn(dex);
+				}
 
 				return;
 			}
@@ -330,6 +338,7 @@ namespace MiNET
 
 			foreach (var message in messages)
 			{
+				TraceSend(message);
 				message.PutPool();
 			}
 		}

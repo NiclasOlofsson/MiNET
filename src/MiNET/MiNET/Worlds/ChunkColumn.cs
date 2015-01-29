@@ -185,8 +185,17 @@ namespace MiNET.Worlds
 			File.WriteAllBytes(_worldDir + "/" + x + "." + z + ".cfile", Compress(buffer));
 		}
 
+		private bool LoadFromFile = true;
+		private bool CheckedIt = false;
 		public bool TryLoadFromFile(int chunkX, int chunkZ)
 		{
+			if (!CheckedIt)
+			{
+				LoadFromFile = ConfigParser.GetProperty("save_pe", true);
+				CheckedIt = true;
+			}
+			if (!LoadFromFile) return false;
+
 			if (_worldDir == null)
 			{
 				_worldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");

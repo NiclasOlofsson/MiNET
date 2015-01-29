@@ -59,11 +59,11 @@
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
     <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />
-    <Compile Include="Blocks\BlockAir.cs" />
-    <Compile Include="Blocks\BlockBedrock.cs" />
-    <Compile Include="Blocks\BlockChest.cs" />
+    <Compile Include="Blocks\Air.cs" />
+    <Compile Include="Blocks\Bedrock.cs" />
+    <Compile Include="Blocks\Chest.cs" />
     <Compile Include="Blocks\BlockFactory.cs" />
-    <Compile Include="Blocks\BlockWoodenDoor.cs" />
+    <Compile Include="Blocks\WoodenDoor.cs" />
     <Compile Include="Explosion.cs" />
     <Compile Include="HealthManager.cs" />
     <Compile Include="InventoryManger.cs" />

@@ -19,7 +19,7 @@ namespace MiNET.Items
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
 			// Base block, meta sets orientation
-			Block block = new BlockWoodenDoor();
+			Block block = new WoodenDoor();
 			block.Coordinates = coordinates;
 			block.Metadata = direction;
 
@@ -54,7 +54,7 @@ namespace MiNET.Items
 
 			// The upper doore block, meta marks upper and
 			// sets orientation based on ajecent blocks
-			Block blockUpper = new BlockWoodenDoor();
+			Block blockUpper = new WoodenDoor();
 			blockUpper.Coordinates = coordinates + Level.Up;
 			blockUpper.Metadata = (byte) (0x08 | (flag2 ? 1 : 0));
 

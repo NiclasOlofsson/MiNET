@@ -5,9 +5,9 @@ namespace MiNET.Blocks
 {
 	//A door specifies its hinge side in the block data of its upper block, 
 	// and its facing and opened status in the block data of its lower block
-	public class BlockWoodenDoor : Block
+	public class WoodenDoor : Block
 	{
-		public BlockWoodenDoor() : base(64)
+		public WoodenDoor() : base(64)
 		{
 		}
 
@@ -21,14 +21,14 @@ namespace MiNET.Blocks
 			// Remove door
 			if ((Metadata & 0x08) == 0x08) // Is Upper?
 			{
-				level.SetBlock(new BlockAir {Coordinates = Coordinates + Level.Down});
+				level.SetBlock(new Air {Coordinates = Coordinates + Level.Down});
 			}
 			else
 			{
-				level.SetBlock(new BlockAir {Coordinates = Coordinates + Level.Up});
+				level.SetBlock(new Air {Coordinates = Coordinates + Level.Up});
 			}
 
-			level.SetBlock(new BlockAir {Coordinates = Coordinates});
+			level.SetBlock(new Air {Coordinates = Coordinates});
 		}
 
 		public override bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)

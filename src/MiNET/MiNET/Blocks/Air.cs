@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class BlockAir : Block
+	public class Air : Block
 	{
-		public BlockAir() : base(0)
+		public Air() : base(0)
 		{
 			IsReplacible = true;
 			IsSolid = false;

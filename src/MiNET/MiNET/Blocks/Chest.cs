@@ -3,9 +3,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class BlockChest : Block
+	public class Chest : Block
 	{
-		public BlockChest() : base(54)
+		public Chest() : base(54)
 		{
 		}
 

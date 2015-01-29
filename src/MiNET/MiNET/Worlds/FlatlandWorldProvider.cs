@@ -9,7 +9,6 @@ namespace MiNET.Worlds
 	public class FlatlandWorldProvider : IWorldProvider
 	{
 		private readonly List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
-		private object _sync = new object();
 
 		public bool IsCaching { get; private set; }
 

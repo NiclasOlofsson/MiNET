@@ -221,6 +221,9 @@ namespace MiNET
 
 		private void HandleEntityData(McpeEntityData message)
 		{
+			Debug.WriteLine("x:" + message.x);
+			Debug.WriteLine("y:" + message.y);
+			Debug.WriteLine("z:" + message.z);
 			Debug.WriteLine("NBT " + message.namedtag.NbtFile);
 		}
 

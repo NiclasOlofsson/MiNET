@@ -20,7 +20,7 @@ namespace MiNET
 		private UdpClient _listener;
 		private Dictionary<IPEndPoint, Player> _playerEndpoints;
 		private Level _level;
-	    private PluginLoader _pluginLoader;
+		private PluginLoader _pluginLoader;
 
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
@@ -49,11 +49,11 @@ namespace MiNET
 
 			try
 			{
-                ConsoleFunctions.WriteServerLine("Loading plugins...");
-                _pluginLoader = new PluginLoader();
-			    _pluginLoader.LoadPlugins();
-                _pluginLoader.EnablePlugins();
-                ConsoleFunctions.WriteServerLine("Plugins loaded!");
+				ConsoleFunctions.WriteServerLine("Loading plugins...");
+				_pluginLoader = new PluginLoader();
+				_pluginLoader.LoadPlugins();
+				_pluginLoader.EnablePlugins();
+				ConsoleFunctions.WriteServerLine("Plugins loaded!");
 				_playerEndpoints = new Dictionary<IPEndPoint, Player>();
 
 				_level = new Level("Default");
@@ -71,8 +71,8 @@ namespace MiNET
 				// - Set to FALSE to disable reporting.
 				if (!IsRunningOnMono())
 				{
-					_listener.Client.ReceiveBufferSize = 1024 * 1024 * 8;
-					_listener.Client.SendBufferSize = 1024 * 1024 * 8;
+					_listener.Client.ReceiveBufferSize = 1024*1024*8;
+					_listener.Client.SendBufferSize = 1024*1024*8;
 					_listener.DontFragment = true;
 
 					uint IOC_IN = 0x80000000;
@@ -300,8 +300,6 @@ namespace MiNET
 			}
 		}
 
-		private int _dropCountPerSecond = 0;
-
 		public ObjectPool<MessagePart> _messagePartPool = new ObjectPool<MessagePart>(() => new MessagePart());
 		public ObjectPool<Datagram> _datagramPool = new ObjectPool<Datagram>(() => new Datagram(0));
 
@@ -368,11 +366,9 @@ namespace MiNET
 				{
 					double kbytesPerSecond = _totalPacketSize*8/1000000D;
 					long avaragePacketSize = _totalPacketSize/(_numberOfPacketsSentPerSecond + 1);
-					Console.WriteLine("TT {5}ms {6} player(s) Pkt {0}/s ACKs {1}/s AvSize: {2}b Thoughput: {3:F}Mbit/s",
-						_numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond,
-						_dropCountPerSecond, _level.lastTickProcessingTime, _level.Players.Count);
+					Console.WriteLine("TT {4}ms {5} player(s) Pkt {0}/s ACKs {1}/s AvSize: {2}b Thoughput: {3:F}Mbit/s",
+						_numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond, _level.lastTickProcessingTime, _level.Players.Count);
 
-					_dropCountPerSecond = 0;
 					_numberOfAckSent = 0;
 					_totalPacketSize = 0;
 					_numberOfPacketsSentPerSecond = 0;
@@ -387,6 +383,7 @@ namespace MiNET
 			_totalPacketSize += data.Length;
 		}
 
+		// ReSharper disable once UnusedMember.Global
 		public static string ByteArrayToString(byte[] ba)
 		{
 			StringBuilder hex = new StringBuilder((ba.Length*2) + 100);

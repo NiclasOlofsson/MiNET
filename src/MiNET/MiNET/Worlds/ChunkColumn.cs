@@ -149,18 +149,18 @@ namespace MiNET.Worlds
 			return stream.ToArray();
 		}
 
-		private string _worldDir = "";
+		private string _worldDir;
 
 		public void SaveChunk()
 		{
-			if (_worldDir == "")
+			if (_worldDir == null)
 			{
 				_worldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
 				if (!Directory.Exists(_worldDir))
 					Directory.CreateDirectory(_worldDir);
 			}
 
-			byte[] strm;
+			byte[] buffer;
 			using (MemoryStream stream = new MemoryStream())
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
@@ -179,25 +179,26 @@ namespace MiNET.Worlds
 				writer.Write(biomeId.Length);
 				writer.Write(biomeId);
 				writer.Flush();
-				strm = stream.ToArray();
+				buffer = stream.ToArray();
 			}
 
-			File.WriteAllBytes(_worldDir + "/" + x + "." + z + ".cfile", Compress(strm));
+			File.WriteAllBytes(_worldDir + "/" + x + "." + z + ".cfile", Compress(buffer));
 		}
 
 		public bool TryLoadFromFile(int chunkX, int chunkZ)
 		{
-			if (_worldDir == "")
+			if (_worldDir == null)
 			{
 				_worldDir = ConfigParser.GetProperty("MiNETWorldFolder", "world");
 				if (!Directory.Exists(_worldDir))
 					Directory.CreateDirectory(_worldDir);
 			}
 
-			if (!File.Exists(_worldDir + "/" + chunkX + "." + chunkZ + ".cfile")) return false;
+			var chunkFilePath = _worldDir + "/" + chunkX + "." + chunkZ + ".cfile";
+			if (!File.Exists(chunkFilePath)) return false;
 
-			byte[] ToRead = Decompress(File.ReadAllBytes(_worldDir + "/" + chunkX + "." + chunkZ + ".cfile"));
-			using (MemoryStream stream = new MemoryStream(ToRead))
+			byte[] buffer = Decompress(File.ReadAllBytes(chunkFilePath));
+			using (MemoryStream stream = new MemoryStream(buffer))
 			{
 				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
 
@@ -213,8 +214,8 @@ namespace MiNET.Worlds
 				int blockLightLength = reader.ReadInt32();
 				blocklight.Data = reader.ReadBytes(blockLightLength);
 
-				int Biomeidlength = reader.ReadInt32();
-				biomeId = reader.ReadBytes(Biomeidlength);
+				int biomeidlength = reader.ReadInt32();
+				biomeId = reader.ReadBytes(biomeidlength);
 			}
 
 			return true;
@@ -223,12 +224,11 @@ namespace MiNET.Worlds
 		public static byte[] Compress(byte[] inputData)
 		{
 			if (inputData == null)
-				throw new ArgumentNullException("inputData must be non-null");
+				throw new ArgumentNullException("inputData");
 
 			using (var compressIntoMs = new MemoryStream())
 			{
-				using (var gzs = new BufferedStream(new GZipStream(compressIntoMs,
-					CompressionMode.Compress), 2*4096))
+				using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionMode.Compress), 2*4096))
 				{
 					gzs.Write(inputData, 0, inputData.Length);
 				}
@@ -239,7 +239,7 @@ namespace MiNET.Worlds
 		public static byte[] Decompress(byte[] inputData)
 		{
 			if (inputData == null)
-				throw new ArgumentNullException("inputData must be non-null");
+				throw new ArgumentNullException("inputData");
 
 			using (var compressedMs = new MemoryStream(inputData))
 			{

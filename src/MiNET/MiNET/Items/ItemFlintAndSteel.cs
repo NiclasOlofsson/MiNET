@@ -33,7 +33,6 @@ namespace MiNET.Items
 					Y = blockCoordinates.Y,
 					Z = blockCoordinates.Z,
 				};
-				primedTnt.EntityId = 10065;
 				primedTnt.Fuse = 80;
 
 				primedTnt.SpawnEntity();

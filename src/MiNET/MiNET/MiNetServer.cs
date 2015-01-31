@@ -115,7 +115,7 @@ namespace MiNET
 						HandlePackage(ping, playerEndpoint);
 					}
 				}, null, 1000, 1000);
-
+	
 				Log.Info("Server open for business...");
 
 				return true;

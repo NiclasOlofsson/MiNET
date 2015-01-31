@@ -20,6 +20,7 @@ namespace MiNET.Entities
 
 		public Entity(int entityTypeId, Level level)
 		{
+			EntityId = -1;
 			Level = level;
 			EntityTypeId = entityTypeId;
 		}

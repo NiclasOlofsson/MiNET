@@ -97,8 +97,8 @@ namespace MiNET
 				Items[i] = new MetadataSlot(new ItemStack(i, 1));
 			}
 			Items[0] = new MetadataSlot(new ItemStack(267, 1));
-			Items[1] = new MetadataSlot(new ItemStack(54, 1));
-			Items[2] = new MetadataSlot(new ItemStack(57, 1));
+			Items[1] = new MetadataSlot(new ItemStack(46, 1));
+			Items[2] = new MetadataSlot(new ItemStack(259, 1));
 			Items[3] = new MetadataSlot(new ItemStack(305, 3));
 
 			ItemHotbar = new MetadataInts();
@@ -113,7 +113,7 @@ namespace MiNET
 			ItemHotbar[2] = new MetadataInt(11);
 			ItemHotbar[3] = new MetadataInt(12);
 			ItemHotbar[4] = new MetadataInt(13);
-			ItemHotbar[5] = new MetadataInt(15);
+			ItemHotbar[5] = new MetadataInt(14);
 
 			ItemInHand = new MetadataSlot(new ItemStack(-1));
 			IsConnected = true;

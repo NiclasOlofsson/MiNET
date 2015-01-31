@@ -12,7 +12,7 @@ namespace MiNET
 {
 	internal class Explosion
 	{
-		private List<Block> _afectedBlocks = new List<Block>();
+		private IDictionary<Coordinates3D, Block> _afectedBlocks = new Dictionary<Coordinates3D, Block>();
 		private const double StepLen = 0.3;
 		private const int Ray = 16;
 		private float _size = 0;
@@ -48,10 +48,9 @@ namespace MiNET
 					{
 						if (i == 0 || i == Ray - 1 || j == 0 || j == Ray - 1 || k == 0 || k == Ray - 1)
 						{
-							float ray = Ray;
-							double x = i/(ray - 1.0F)*2.0F - 1.0F;
-							double y = j/(ray - 1.0F)*2.0F - 1.0F;
-							double z = k/(ray - 1.0F)*2.0F - 1.0F;
+							double x = i/(Ray - 1.0F)*2.0F - 1.0F;
+							double y = j/(Ray - 1.0F)*2.0F - 1.0F;
+							double z = k/(Ray - 1.0F)*2.0F - 1.0F;
 							double d6 = Math.Sqrt(x*x + y*y + z*z);
 
 							x /= d6;
@@ -78,7 +77,7 @@ namespace MiNET
 
 								if (blastForce1 > 0.0F)
 								{
-									_afectedBlocks.Add(block);
+									if (!_afectedBlocks.ContainsKey(block.Coordinates)) _afectedBlocks.Add(block.Coordinates, block);
 								}
 
 								cX += x*blastForce2;
@@ -90,7 +89,7 @@ namespace MiNET
 				}
 			}
 
-			_size *= 2.0F;
+			//_size *= 2.0F;
 			return true;
 		}
 
@@ -110,7 +109,7 @@ namespace MiNET
 			var explosionBB = new BoundingBox(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
 
 			var records = new Records();
-			foreach (var block in _afectedBlocks)
+			foreach (var block in _afectedBlocks.Values)
 			{
 				records.Add(block.Coordinates - _centerCoordinates);
 			}
@@ -127,15 +126,14 @@ namespace MiNET
 
 			//For some reason we need to keep this list
 			//Seems otherwise we would get duplicated. TODO: Fix!
-			List<Coordinates3D> done = new List<Coordinates3D>();
-			foreach (var block in _afectedBlocks)
+			foreach (var block in _afectedBlocks.Values)
 			{
 				Block block1 = block;
 				new Task(() => _world.SetBlock(new Air {Coordinates = block1.Coordinates})).Start();
-				if (block1.Id == 46 && !done.Contains(block1.Coordinates) && block1.Coordinates != _centerCoordinates)
+
+				if (block.Id == 46)
 				{
-					done.Add(block1.Coordinates);
-					SpawnTNT(block1.Coordinates, _world);
+					new Task(() => SpawnTNT(block1.Coordinates, _world)).Start();
 				}
 			}
 
@@ -152,7 +150,6 @@ namespace MiNET
 					Y = blockCoordinates.Y,
 					Z = blockCoordinates.Z,
 				},
-				EntityId = 10065,
 				Fuse = 80
 			}.SpawnEntity();
 		}

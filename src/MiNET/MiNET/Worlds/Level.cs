@@ -188,9 +188,9 @@ namespace MiNET.Worlds
 				{
 					entityType = entity.EntityTypeId,
 					entityId = entity.EntityId,
-					x = entity.KnownPosition.X + 0.5f,
-					y = entity.KnownPosition.Y + 0.5f,
-					z = entity.KnownPosition.Z + 0.5f
+					x = entity.KnownPosition.X,
+					y = entity.KnownPosition.Y,
+					z = entity.KnownPosition.Z
 				});
 
 				if (!Entities.Contains(entity))
@@ -474,14 +474,17 @@ namespace MiNET.Worlds
 
 			if (!broadcast) return;
 
-			RelayBroadcast(null, new McpeUpdateBlock
-			{
-				x = block.Coordinates.X,
-				y = (byte) block.Coordinates.Y,
-				z = block.Coordinates.Z,
-				block = block.Id,
-				meta = block.Metadata
-			});
+			Player[] players = GetSpawnedPlayers();
+
+			var message = McpeUpdateBlock.CreateObject(players.Length);
+			message.x = block.Coordinates.X;
+			message.y = (byte) block.Coordinates.Y;
+			message.z = block.Coordinates.Z;
+			message.block = block.Id;
+			message.meta = block.Metadata;
+			message.Encode();
+
+			RelayBroadcast(null, players, message, false);
 		}
 
 		public void Interact(Level world, Player player, Coordinates3D blockCoordinates, short metadata, BlockFace face)

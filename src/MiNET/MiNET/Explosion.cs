@@ -142,6 +142,7 @@ namespace MiNET
 
 		private void SpawnTNT(Coordinates3D blockCoordinates, Level world)
 		{
+			Random rand = new Random();
 			new PrimedTnt(world)
 			{
 				KnownPosition = new PlayerPosition3D()
@@ -150,7 +151,7 @@ namespace MiNET
 					Y = blockCoordinates.Y,
 					Z = blockCoordinates.Z,
 				},
-				Fuse = 80
+				Fuse = (byte) (rand.Next(0, 20) + 10)
 			}.SpawnEntity();
 		}
 	}

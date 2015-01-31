@@ -95,18 +95,16 @@ namespace MiNET
 
 		private bool SecondaryExplosion()
 		{
-			//TODO: Fix secondary explosions
-
-			Vector3 source = new Vector3(_centerCoordinates.X, _centerCoordinates.Y, _centerCoordinates.Z).Floor();
-			var yield = (1/_size)*100;
-			var explosionSize = _size*2;
-			var minX = Math.Floor(_centerCoordinates.X - explosionSize - 1);
-			var maxX = Math.Floor(_centerCoordinates.X + explosionSize + 1);
-			var minY = Math.Floor(_centerCoordinates.Y - explosionSize - 1);
-			var maxY = Math.Floor(_centerCoordinates.Y + explosionSize + 1);
-			var minZ = Math.Floor(_centerCoordinates.Z - explosionSize - 1);
-			var maxZ = Math.Floor(_centerCoordinates.Z + explosionSize + 1);
-			var explosionBB = new BoundingBox(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
+			//Vector3 source = new Vector3(_centerCoordinates.X, _centerCoordinates.Y, _centerCoordinates.Z).Floor();
+			//var yield = (1/_size)*100;
+			//var explosionSize = _size*2;
+			//var minX = Math.Floor(_centerCoordinates.X - explosionSize - 1);
+			//var maxX = Math.Floor(_centerCoordinates.X + explosionSize + 1);
+			//var minY = Math.Floor(_centerCoordinates.Y - explosionSize - 1);
+			//var maxY = Math.Floor(_centerCoordinates.Y + explosionSize + 1);
+			//var minZ = Math.Floor(_centerCoordinates.Z - explosionSize - 1);
+			//var maxZ = Math.Floor(_centerCoordinates.Z + explosionSize + 1);
+			//var explosionBB = new BoundingBox(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
 
 			var records = new Records();
 			foreach (var block in _afectedBlocks.Values)

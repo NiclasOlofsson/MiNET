@@ -13,19 +13,23 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
 		{
-			if (world.GetBlock(blockCoordinates).Id != 46)
+			var block = world.GetBlock(blockCoordinates);
+			if (block.Id != 46)
 			{
-				if (world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY)).Id == 0)
+				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY));
+				if (affectedBlock.Id == 0)
 				{
 					var fire = new Block(51)
 					{
-						Coordinates = GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY)
+						Coordinates = affectedBlock.Coordinates
 					};
 					world.SetBlock(fire);
 				}
 			}
 			else
 			{
+				world.SetBlock(new Air() {Coordinates = block.Coordinates});
+
 				var primedTnt = new PrimedTnt(world);
 				primedTnt.KnownPosition = new PlayerPosition3D()
 				{

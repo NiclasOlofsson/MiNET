@@ -30,16 +30,7 @@ namespace MiNET.Items
 			{
 				world.SetBlock(new Air() {Coordinates = block.Coordinates});
 
-				var primedTnt = new PrimedTnt(world);
-				primedTnt.KnownPosition = new PlayerPosition3D()
-				{
-					X = blockCoordinates.X,
-					Y = blockCoordinates.Y,
-					Z = blockCoordinates.Z,
-				};
-				primedTnt.Fuse = 80;
-
-				primedTnt.SpawnEntity();
+				new Explosion().SpawnTNT(blockCoordinates, world);
 			}
 		}
 	}

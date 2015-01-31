@@ -17,12 +17,28 @@ namespace MiNET
 		private readonly float _size;
 		private readonly Level _world;
 		private Coordinates3D _centerCoordinates;
+		private bool CoordsSet = false;
 
+		/// <summary>
+		/// Use this for Explosion an explosion only!
+		/// </summary>
+		/// <param name="world"></param>
+		/// <param name="centerCoordinates"></param>
+		/// <param name="size"></param>
 		public Explosion(Level world, Coordinates3D centerCoordinates, float size)
 		{
 			_size = size;
 			_centerCoordinates = centerCoordinates;
 			_world = world;
+			CoordsSet = true;
+		}
+
+		/// <summary>
+		/// Only use this for SpawnTNT!
+		/// </summary>
+		public Explosion()
+		{
+			CoordsSet = false;
 		}
 
 		public bool Explode()
@@ -37,6 +53,7 @@ namespace MiNET
 
 		private bool PrimaryExplosion()
 		{
+			if (!CoordsSet) throw new Exception("Please intiate using Explosion(Level, coordinates, size)");
 			if (_size < 0.1) return false;
 
 			for (int i = 0; i < Ray; i++)
@@ -137,7 +154,7 @@ namespace MiNET
 			return true;
 		}
 
-		private void SpawnTNT(Coordinates3D blockCoordinates, Level world)
+		public void SpawnTNT(Coordinates3D blockCoordinates, Level world)
 		{
 			var rand = new Random();
 			new PrimedTnt(world)

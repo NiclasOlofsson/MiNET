@@ -35,15 +35,16 @@ namespace MiNET.Service
 
 		private static void Main(string[] args)
 		{
-			ConfigParser.ConfigFile = "server.config";
+			ConfigParser.ConfigFile = "server.conf";
 
 			ConfigParser.InitialValue = new string[]
 			{
 				"#DO NOT REMOVE THIS LINE - MiNET Config",
 				"UsePCWorld=false",
-				"WorldFolder=PathToWorld",
+				"PCWorldFolder=PathToWorld",
 				"DefaultGamemode=Creative",
 				"Difficulty=Peaceful",
+				"WorldFolder=world"
 			};
 
 			ConfigParser.Check();

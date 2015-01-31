@@ -26,7 +26,7 @@ namespace MiNET.Worlds
 
 		public void Initialize()
 		{
-			_level = Craft.Net.Anvil.Level.LoadFrom(ConfigParser.GetProperty("WorldFolder", "World"));
+			_level = Craft.Net.Anvil.Level.LoadFrom(ConfigParser.GetProperty("PCWorldFolder", "World"));
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Development\Csharp\world2\Sandstone Test World\"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\Mountain Sky Village\§4§kd§  Mountain Sky Village §4§kd§"); _offsetY = 0;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\KingsLanding1\KingsLanding1"); _offsetY = 30;

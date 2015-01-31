@@ -70,16 +70,18 @@ namespace MiNET.ServiceKiller
 				Random random = new Random();
 				for (int i = 0; i < 100; i++)
 				{
-					int y = random.Next(4, 8);
-					int x, z;
-					int length = random.Next(5, 20);
+					float y = random.Next(7, 10);
+					float x, z;
+					float length = random.Next(5, 20);
 					double angle = 0.0;
-					double angleStepsize = 0.05;
+					const double angleStepsize = 0.05;
+					float heightStepsize = (float) (random.NextDouble() / 5);
 
 					while (angle < 2*Math.PI)
 					{
-						x = (int) (length*Math.Cos(angle));
-						z = (int) (length*Math.Sin(angle));
+						x = (float) (length*Math.Cos(angle));
+						z = (float) (length*Math.Sin(angle));
+						y += heightStepsize;
 
 						client.SendMcpeMovePlayer(x + 50, y, z + 50);
 						Thread.Sleep(50);

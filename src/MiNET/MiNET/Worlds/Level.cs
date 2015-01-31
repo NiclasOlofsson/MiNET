@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -63,10 +64,12 @@ namespace MiNET.Worlds
 		private int _viewDistance = 256;
 		private Timer _levelTicker;
 		private int _worldTickTime = 50;
-		private int _worldDayCycleTime = 14400;
+		private int _worldDayCycleTime = 24000;
+		//private int _worldDayCycleTime = 14400;
 
 		public Coordinates3D SpawnPoint { get; private set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
+		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 
 		public GameMode GameMode { get; private set; }
@@ -82,6 +85,7 @@ namespace MiNET.Worlds
 			EntityManager = new EntityManager();
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
+			Entities = new List<Entity>();
 			LevelId = levelId;
 			GameMode = ConfigParser.GetProperty("DefaultGamemode", GameMode.Creative);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
@@ -174,6 +178,46 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public void AddEntity(Entity entity)
+		{
+			lock (Entities)
+			{
+				EntityManager.AddEntity(null, entity);
+
+				RelayBroadcast(new McpeAddEntity
+				{
+					entityType = entity.EntityTypeId,
+					entityId = entity.EntityId,
+					x = entity.KnownPosition.X + 0.5f,
+					y = entity.KnownPosition.Y + 0.5f,
+					z = entity.KnownPosition.Z + 0.5f
+				});
+
+				if (!Entities.Contains(entity))
+				{
+					Entities.Add(entity);
+				}
+				else
+				{
+					throw new Exception("Entity existed in the players list when it should not");
+				}
+			}
+		}
+
+		public void RemoveEntity(Entity entity)
+		{
+			lock (Entities)
+			{
+				if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove.");
+
+				RelayBroadcast(new McpeRemoveEntity()
+				{
+					entityId = entity.EntityId,
+				});
+			}
+		}
+
+
 		public void RemoveDuplicatePlayers(string username)
 		{
 			lock (Players)
@@ -223,16 +267,15 @@ namespace MiNET.Worlds
 
 					Player[] players = GetSpawnedPlayers();
 
-					//if (CurrentWorldTime%10 == 0)
-					//{
-					//	foreach (var newPlayer in players)
-					//	{
-					//		if (newPlayer.IsSpawned)
-					//		{
-					//			newPlayer.SendSetTime();
-					//		}
-					//	}
-					//}
+					if (CurrentWorldTime%10 == 0)
+					{
+						McpeSetTime message = McpeSetTime.CreateObject(players.Length);
+						message.time = CurrentWorldTime;
+						message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
+						message.Encode();
+
+						RelayBroadcast(null, players, message, false);
+					}
 
 					// broadcast events to all players
 
@@ -296,7 +339,7 @@ namespace MiNET.Worlds
 					{
 						if (p == updatedPlayer) continue;
 
-						move.ReferenceCounter = move.ReferenceCounter + 1;
+						move = move.CreateObject(move);
 						p.SendMovementForPlayer(updatedPlayer, move);
 					}
 					move.PutPool();
@@ -373,69 +416,30 @@ namespace MiNET.Worlds
 		}
 
 
-		public void RelayBroadcast(Player source, Package message)
+		public void RelayBroadcast(Package message, bool clone = true)
 		{
-			foreach (var player in GetSpawnedPlayers())
-			{
-				if (player == source) continue;
-
-				player.SendPackage((Package) message.Clone());
-			}
+			RelayBroadcast(null, message, clone);
 		}
 
-		public void RelayBroadcast(Player target, McpeEntityEvent message)
+		public void RelayBroadcast(Player source, Package message, bool clone = true)
 		{
-			foreach (var player in GetSpawnedPlayers())
-			{
-				var send = message.Clone<McpeEntityEvent>();
-				send.entityId = EntityManager.GetEntityId(null, target);
-				player.SendPackage(send);
-			}
+			RelayBroadcast(source, GetSpawnedPlayers(), message, clone);
 		}
 
-		public void RelayBroadcast(Player target, McpeSetEntityData message)
+		public void RelayBroadcast(Player source, Player[] sendList, Package message, bool clone = true)
 		{
-			foreach (var player in GetSpawnedPlayers())
+			foreach (var player in sendList)
 			{
-				var send = message.Clone<McpeSetEntityData>();
-				send.entityId = EntityManager.GetEntityId(null, target);
-				player.SendPackage(send);
-			}
-		}
+				if (source != null && player == source) continue;
 
-		public void RelayBroadcast(Player source, McpeAnimate message)
-		{
-			foreach (var player in GetSpawnedPlayers())
-			{
-				if (player == source) continue;
-
-				var send = message.Clone<McpeAnimate>();
-				send.entityId = EntityManager.GetEntityId(null, source);
-				player.SendPackage(send);
-			}
-		}
-
-		public void RelayBroadcast(Player source, McpePlayerArmorEquipment message)
-		{
-			foreach (var player in GetSpawnedPlayers())
-			{
-				if (player == source) continue;
-
-				var send = message.Clone<McpePlayerArmorEquipment>();
-				send.entityId = EntityManager.GetEntityId(null, source);
-				player.SendPackage(send);
-			}
-		}
-
-		public void RelayBroadcast(Player source, McpePlayerEquipment message)
-		{
-			foreach (var player in GetSpawnedPlayers())
-			{
-				if (player == source) continue;
-
-				var send = message.Clone<McpePlayerEquipment>();
-				send.entityId = EntityManager.GetEntityId(null, source);
-				player.SendPackage(send);
+				if (clone)
+				{
+					player.SendPackage((Package) message.Clone());
+				}
+				else
+				{
+					player.SendPackage(message);
+				}
 			}
 		}
 

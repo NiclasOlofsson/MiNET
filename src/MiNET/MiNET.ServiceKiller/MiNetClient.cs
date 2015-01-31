@@ -84,14 +84,15 @@ namespace MiNET.ServiceKiller
 		public int SendPackage(Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
 			byte[] encodedMessage = message.Encode();
-			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
+			//int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));
+			int count = 1;
 			int index = 0;
 			short splitId = (short) (sequenceNumber%65536);
-			foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
-			{
+			//foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
+			//{
 				ConnectedPackage package = new ConnectedPackage
 				{
-					Buffer = bytes,
+					Buffer = encodedMessage,
 					_reliability = reliability,
 					_reliableMessageNumber = reliableMessageNumber++,
 					_datagramSequenceNumber = sequenceNumber++,
@@ -104,7 +105,7 @@ namespace MiNET.ServiceKiller
 				byte[] data = package.Encode();
 
 				SendData(data);
-			}
+			//}
 
 			message.PutPool();
 
@@ -216,7 +217,7 @@ namespace MiNET.ServiceKiller
 			SendPackage(packet, _mtuSize, 0, 0);
 		}
 
-		public void SendMcpeMovePlayer(int x, int y, int z)
+		public void SendMcpeMovePlayer(float x, float y, float z)
 		{
 			//var movePlayerPacket = McpeMovePlayer.CreateObject();
 			_movePlayerPacket.Reset();

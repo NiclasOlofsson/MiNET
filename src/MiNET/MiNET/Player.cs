@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
-using Craft.Net.Anvil;
 using Craft.Net.Common;
+using log4net;
+using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using ItemStack = MiNET.Utils.ItemStack;
-using Level = MiNET.Worlds.Level;
 using MetadataByte = MiNET.Utils.MetadataByte;
 using MetadataDictionary = MiNET.Utils.MetadataDictionary;
 using MetadataInt = MiNET.Utils.MetadataInt;
@@ -28,22 +28,24 @@ namespace MiNET
 		PositiveX = 5
 	}
 
-	public class Player
+	public class Player : Entity
 	{
-		
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
+
 		private readonly MiNetServer _server;
 		private readonly IPEndPoint _endpoint;
 		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
+
 		private short _mtuSize;
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber;
 		private object _sequenceNumberSync = new object();
+
 		private Queue<Package> _sendQueue = new Queue<Package>();
 		private Timer _sendTicker;
-		private Timer _playerTimer;
-		private int _messageNumber;
 
 		private Coordinates2D _currentChunkPosition;
+		private Timer _playerTimer;
 
 		public bool IsConnected { get; set; }
 		public HealthManager HealthManager { get; private set; }
@@ -51,21 +53,19 @@ namespace MiNET
 		public MetadataSlots Items { get; private set; }
 		public MetadataInts ItemHotbar { get; private set; }
 		public MetadataSlot ItemInHand { get; private set; }
-		public Level Level { get; private set; }
 
 		public bool IsBot { get; set; }
 
-		public DateTime LastUpdatedTime { get; private set; }
-		public PlayerPosition3D KnownPosition { get; private set; }
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
-		public int EntityId { get; set; }
 
 		internal Player()
+			: base(-1, null)
 		{
 		}
 
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
+			: base(-1, level)
 		{
 			_server = server;
 			_endpoint = endpoint;
@@ -214,12 +214,43 @@ namespace MiNET
 				HandleEntityData((McpeEntityData) message);
 			}
 
+			else if (typeof (InternalPing) == message.GetType())
+			{
+				HandlePing((InternalPing) message);
+			}
+
+			else if (typeof (McpePlayerAction) == message.GetType())
+			{
+				HandlePlayerAction((McpePlayerAction) message);
+			}
+
 			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
-			message.Timer.Stop();
 			if (elapsedMilliseconds > 100)
 			{
-				Console.WriteLine("Package handling too long {0}ms", elapsedMilliseconds);
+				Log.WarnFormat("Package ({1}) handling too long {0}ms", elapsedMilliseconds, message.Id);
 			}
+		}
+
+		private void HandlePlayerAction(McpePlayerAction message)
+		{
+			if (message.entityId != EntityId) return;
+
+			switch (message.actionId)
+			{
+				case 5: // Shoot arrow
+				{
+					//new McpeEntityEvent()
+
+					break;
+				}
+				default:
+					return;
+			}
+		}
+
+		private void HandlePing(InternalPing message)
+		{
+			SendPackage(message);
 		}
 
 		private void HandleEntityData(McpeEntityData message)
@@ -346,6 +377,8 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
+			msg.entityId = EntityId;
+
 			Level.RelayBroadcast(this, msg);
 		}
 
@@ -355,6 +388,8 @@ namespace MiNET
 
 			ItemInHand.Value.Id = msg.item;
 			ItemInHand.Value.Metadata = msg.meta;
+
+			msg.entityId = EntityId;
 
 			Level.RelayBroadcast(this, msg);
 		}
@@ -374,7 +409,7 @@ namespace MiNET
 			}
 			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
 			{
-				entityId = 0,
+				entityId = EntityId,
 				helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256),
 				chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256),
 				leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256),
@@ -383,7 +418,7 @@ namespace MiNET
 
 			Level.RelayBroadcast(this, new McpePlayerEquipment()
 			{
-				entityId = 0,
+				entityId = EntityId,
 				item = ItemInHand.Value.Id,
 				meta = ItemInHand.Value.Metadata,
 				slot = 0
@@ -392,17 +427,17 @@ namespace MiNET
 
 		private void HandleInteract(McpeInteract msg)
 		{
-			Player target = Level.EntityManager.GetPlayer(msg.targetEntityId);
+			Player target = (Player) Level.EntityManager.GetEntity(msg.targetEntityId);
 
 			if (target == null) return;
+
+			target.HealthManager.TakeHit(this);
 
 			Level.RelayBroadcast(target, new McpeEntityEvent()
 			{
 				entityId = target.EntityId,
-				eventId = 2
+				eventId = (byte) (target.HealthManager.Health <= 0 ? 3 : 2)
 			});
-
-			target.HealthManager.TakeHit(this);
 		}
 
 		private void HandleUseItem(McpeUseItem message)
@@ -412,15 +447,16 @@ namespace MiNET
 				Level.RelayBroadcast(this, new McpeAnimate()
 				{
 					actionId = 1,
-					entityId = 0
+					entityId = EntityId
 				});
 
-				Debug.WriteLine("Use item: {0}", message.item);
+				Log.DebugFormat("Use item: {0}", message.item);
 				Level.Interact(Level, this, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
 			}
 			else
 			{
-				Debug.WriteLine("No face - Use item: {0}", message.item);
+				Log.DebugFormat("No face - Use item: {0}", message.item);
+				// Probably break block
 			}
 		}
 
@@ -478,7 +514,7 @@ namespace MiNET
 			var chunkPosition = new Coordinates2D((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-			_currentChunkPosition= chunkPosition;
+			_currentChunkPosition = chunkPosition;
 
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
@@ -646,7 +682,7 @@ namespace MiNET
 
 			Level.RelayBroadcast(this, new McpeSetEntityData()
 			{
-				entityId = 0,
+				entityId = EntityId,
 				namedtag = metadata.GetBytes()
 			});
 		}

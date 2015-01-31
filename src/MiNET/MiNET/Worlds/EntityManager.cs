@@ -1,68 +1,69 @@
 using System;
 using System.Collections.Generic;
+using MiNET.Entities;
 
 namespace MiNET.Worlds
 {
 	public class EntityManager
 	{
-		private List<Player> _entities = new List<Player>();
+		private List<Entity> _entities = new List<Entity>();
 
 		public EntityManager()
 		{
-			_entities.Add(new Player());
+			_entities.Add(new Entity(-1, null));
 		}
 
-		public void AddEntity(Player caller, Player player)
+		public void AddEntity(Entity caller, Entity entity)
 		{
-			if (caller != null && player != caller) throw new Exception("Tried to ADD entity for someone else. Should be the player himself adding");
+			if (caller != null && entity != caller) throw new Exception("Tried to ADD entity for someone else. Should be the entity himself adding");
 
 			lock (_entities)
 			{
-				if (player.EntityId == -1)
+				if (entity.EntityId == -1)
 				{
-					if (_entities.Contains(player))
+					if (_entities.Contains(entity))
 						throw new Exception("Tried to add entity that already existed.");
-					_entities.Add(player);
-					player.EntityId = _entities.IndexOf(player);
+					_entities.Add(entity);
+					entity.EntityId = _entities.IndexOf(entity);
 				}
 			}
 		}
 
-		public void RemoveEntity(Player caller, Player player)
+		public void RemoveEntity(Entity caller, Entity entity)
 		{
-			if (player == caller) throw new Exception("Tried to REMOVE entity for self");
+			if (entity == caller) throw new Exception("Tried to REMOVE entity for self");
 
 			lock (_entities)
 			{
-				int entityId = _entities.IndexOf(player);
+				int entityId = _entities.IndexOf(entity);
 				if (entityId == -1)
 					throw new Exception("Expected to find entity on remove. A missed ADD perhaps?");
-				_entities.Remove(player);
-				player.EntityId = -1;
+				_entities.Remove(entity);
+				entity.EntityId = -1;
 			}
 		}
 
-		public int GetEntityId(Player caller, Player player)
+		public int GetEntityId(Entity caller, Entity entity)
 		{
-			if (player == caller) return 0;
+			if (entity == caller) return 0;
 
 			//lock (_entities)
 			//{
-			int entityId = player.EntityId;
+			int entityId = entity.EntityId;
 			if (entityId == -1)
-				throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
+				throw new Exception("Expected to find entity in entities, but didn't exist. Need to AddEntity first.");
 
 			return entityId;
 			//}
 		}
 
-		public Player GetPlayer(int entityId)
+		public Entity GetEntity(int entityId)
 		{
 			//lock (_entities)
 			//{
-			Player player = _entities[entityId];
+			Entity player = _entities[entityId];
 			if (player == null)
-				throw new Exception("Expected to find player in entities, but didn't exist. Need to AddEntity first.");
+				throw new Exception("Expected to find entity in entities, but didn't exist. Need to AddEntity first.");
 
 			return player;
 			//}

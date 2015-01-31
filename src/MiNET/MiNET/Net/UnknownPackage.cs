@@ -1,6 +1,6 @@
 namespace MiNET.Net
 {
-	public class UnknownPackage : Package
+	public class UnknownPackage : Package<UnknownPackage>
 	{
 		public UnknownPackage() : this(0, null)
 		{

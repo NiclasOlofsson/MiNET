@@ -53,27 +53,27 @@ namespace MiNET.Worlds
 
 				if (!loaded)
 				{
-					PopulateChunk(chunk);
+					int h = PopulateChunk(chunk);
 
-					chunk.SetBlock(0, 5, 0, 7);
-					chunk.SetBlock(1, 5, 0, 41);
-					chunk.SetBlock(2, 5, 0, 41);
-					chunk.SetBlock(3, 5, 0, 41);
-					chunk.SetBlock(3, 5, 0, 41);
+					chunk.SetBlock(0, h + 1, 0, 7);
+					chunk.SetBlock(1, h + 1, 0, 41);
+					chunk.SetBlock(2, h + 1, 0, 41);
+					chunk.SetBlock(3, h + 1, 0, 41);
+					chunk.SetBlock(3, h + 1, 0, 41);
 
-					//chunk.SetBlock(6, 5, 6, 57);
+					//chunk.SetBlock(6, h + 1, 6, 57);
 
-					chunk.SetBlock(6, 4, 9, 63);
-					chunk.SetMetadata(6, 4, 9, 12);
-					chunk.BlockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, 4, (chunkCoordinates.Z*16) + 9);
+					chunk.SetBlock(6, h, 9, 63);
+					chunk.SetMetadata(6, h, 9, 12);
+					chunk.BlockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
 
 					if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
 					{
-						for (int x = 0; x < 16; x++)
+						for (int x = 0; x < 10; x++)
 						{
-							for (int z = 0; z < 16; z++)
+							for (int z = 0; z < 10; z++)
 							{
-								for (int y = 2; y < 4; y++)
+								for (int y = h-2; y < h; y++)
 								{
 									chunk.SetBlock(x, y, z, 8);
 								}
@@ -83,11 +83,11 @@ namespace MiNET.Worlds
 
 					if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
 					{
-						for (int x = 0; x < 16; x++)
+						for (int x = 0; x < 10; x++)
 						{
-							for (int z = 0; z < 16; z++)
+							for (int z = 0; z < 10; z++)
 							{
-								for (int y = 3; y < 4; y++)
+								for (int y = h - 1; y < h; y++)
 								{
 									chunk.SetBlock(x, y, z, 10);
 								}
@@ -106,15 +106,18 @@ namespace MiNET.Worlds
 			return new Coordinates3D(50, 10, 50);
 		}
 
-		public void PopulateChunk(ChunkColumn chunk)
+		public int PopulateChunk(ChunkColumn chunk)
 		{
+			int h = 0;
+
 			var random = new CryptoRandom();
 			var stones = new byte[16*16*128];
 
 			for (int i = 0; i < stones.Length; i = i + 128)
 			{
+				h = 1;
+
 				stones[i] = 7; // Bedrock
-				int h = 1;
 
 				stones[i + h++] = 1; // Stone
 				stones[i + h++] = 1; // Stone
@@ -160,6 +163,7 @@ namespace MiNET.Worlds
 //			{
 //				chunk.biomeColor[i] = random.Next(6761930, 8761930);
 //			}
+			return h;
 		}
 
 		public void SaveChunks()

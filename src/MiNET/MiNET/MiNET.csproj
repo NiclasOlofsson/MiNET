@@ -56,6 +56,9 @@
     <Compile Include="Blocks\SandStoneStairs.cs" />
     <Compile Include="Blocks\SpruceWoodStairs.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
+    <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\PrimedTnt.cs" />
+    <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
     <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />
@@ -172,7 +175,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="API\" />
-    <Folder Include="Inventory\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

@@ -27,20 +27,18 @@ namespace MiNET
 
 		public bool Explode()
 		{
-			if (ExplosionA())
+			if (PrimaryExplosion())
 			{
-				return ExplosionB();
+				return SecondaryExplosion();
 			}
 
 			return false;
 		}
 
-		private bool ExplosionA()
+		private bool PrimaryExplosion()
 		{
 			if (_size < 0.1) return false;
 
-			var vector = new Vector3(0, 0, 0);
-			var bvector = new Vector3(0, 0, 0);
 			for (var i = 0; i < Ray; i++)
 			{
 				for (var j = 0; j < Ray; j++)
@@ -50,9 +48,9 @@ namespace MiNET
 						if (i == 0 || i == Ray - 1 || j == 0 || j == Ray - 1 || k == 0 || k == Ray - 1)
 						{
 							float ray = Ray;
-							double x = (double) ((float) i/((float) ray - 1.0F)*2.0F - 1.0F);
-							double y = (double) ((float) j/((float) ray - 1.0F)*2.0F - 1.0F);
-							double z = (double) ((float) k/((float) ray - 1.0F)*2.0F - 1.0F);
+							double x = i/(ray - 1.0F)*2.0F - 1.0F;
+							double y = j/(ray - 1.0F)*2.0F - 1.0F;
+							double z = k/(ray - 1.0F)*2.0F - 1.0F;
 							double d6 = Math.Sqrt(x*x + y*y + z*z);
 
 							x /= d6;
@@ -95,8 +93,10 @@ namespace MiNET
 			return true;
 		}
 
-		private bool ExplosionB()
+		private bool SecondaryExplosion()
 		{
+			//TODO: Fix secondary explosions
+
 			Vector3 source = new Vector3(_centerCoordinates.X, _centerCoordinates.Y, _centerCoordinates.Z).Floor();
 			var yield = (1/_size)*100;
 			var explosionSize = _size*2;
@@ -111,21 +111,23 @@ namespace MiNET
 			var records = new Records();
 			foreach (var block in _afectedBlocks)
 			{
-				records.Add(block.Coordinates);
+				records.Add(block.Coordinates - _centerCoordinates);
 			}
 
-			_world.RelayBroadcast(null, new McpeExplode()
-			{
-				x = _centerCoordinates.X,
-				y = _centerCoordinates.Y,
-				z = _centerCoordinates.Z,
-				radius = _size,
-				records = records
-			});
+			new Task(() =>
+				_world.RelayBroadcast(new McpeExplode()
+				{
+					x = _centerCoordinates.X,
+					y = _centerCoordinates.Y,
+					z = _centerCoordinates.Z,
+					radius = _size,
+					records = records
+				})).Start();
 
 			foreach (var block in _afectedBlocks)
 			{
-				new Task(() => _world.SetBlock(new Air() { Coordinates = block.Coordinates })).Start();
+				Block block1 = block;
+				new Task(() => _world.SetBlock(new Air {Coordinates = block1.Coordinates})).Start();
 			}
 
 			return true;

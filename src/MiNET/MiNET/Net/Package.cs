@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Craft.Net.Common;
 using fNbt;
 using MiNET.Utils;
@@ -12,14 +13,8 @@ using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Net
 {
-	/// Base package class
-	public abstract partial class Package : ICloneable
+	public abstract partial class Package
 	{
-		public virtual void PutPool()
-		{
-			//Console.WriteLine("Put pool for object wrong: " + this.GetType().Name);
-		}
-
 		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
@@ -208,7 +203,7 @@ namespace MiNET.Net
 			file.BigEndian = false;
 			nbt.NbtFile = file;
 			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
-	
+
 			return nbt;
 		}
 
@@ -348,6 +343,52 @@ namespace MiNET.Net
 		public virtual T Clone<T>() where T : Package
 		{
 			return (T) Clone();
+		}
+
+		public abstract void PutPool();
+
+	}
+
+	/// Base package class
+	public abstract partial class Package<T> : Package, ICloneable where T : Package<T>, new()
+	{
+		private bool _isPooled;
+		private long _referenceCounter;
+
+		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
+
+		public static T CreateObject(long numberOfReferences = 1)
+		{
+			var obj = Pool.GetObject();
+			obj._isPooled = true;
+			obj._referenceCounter = numberOfReferences;
+			return obj;
+		}
+
+		public T CreateObject(T item)
+		{
+			if (!item._isPooled) throw new Exception("Item template needs to come from a pool");
+
+			Interlocked.Increment(ref item._referenceCounter);
+			return item;
+		}
+
+		static Package()
+		{
+			for (int i = 0; i < 1000; i++)
+			{
+				Pool.PutObject(Pool.GetObject());
+			}
+		}
+
+		public override void PutPool()
+		{
+			if (!_isPooled) return;
+
+			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
+
+			Reset();
+			Pool.PutObject((T) this);
 		}
 	}
 }

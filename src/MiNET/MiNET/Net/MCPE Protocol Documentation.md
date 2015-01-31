@@ -24,6 +24,8 @@
 | Mcpe Start Game | 0x87 | 135 |   
 | Mcpe Add Player | 0x89 | 137 |   
 | Mcpe Remove Player | 0x8a | 138 |   
+| Mcpe Add Entity | 0x8c | 140 |   
+| Mcpe Remove Entity | 0x8d | 141 |   
 | Mcpe Move Player | 0x95 | 149 |   
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
@@ -34,6 +36,7 @@
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
 | Mcpe Interact | 0xa2 | 162 |   
 | Mcpe Use Item | 0xa3 | 163 |   
+| Mcpe Player Action | 0xa4 | 164 |   
 | Mcpe Set Entity Data | 0xa7 | 167 |   
 | Mcpe Set Health | 0xaa | 170 |   
 | Mcpe Set Spawn Position | 0xab | 171 |   
@@ -548,6 +551,42 @@ The three type of status are:
 |Entity ID | int |  |
 |Client ID | long |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Add Entity (0x8c)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|Entity Type | int |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|DID | int |  |
+|Velocity X | short |  |
+|Velocity Z | short |  |
+|Velocity Y | short |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Remove Entity (0x8d)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+-----------------------------------------------------------------------
 ###Package: Mcpe Place Block (0x96)
 
 **Sent from server:** true
@@ -686,6 +725,25 @@ The three type of status are:
 |Action ID | byte |  |
 |Entity ID | int |  |
 |Target Entity ID | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Player Action (0xa4)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Action ID | int |  |
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Face | int |  |
+|Entity ID | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Animate (0xac)
 

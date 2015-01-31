@@ -63,7 +63,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
 	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
 #>
-	public partial class <#= CodeTypeName(pdu.Attributes["name"].Value) #> : <#= baseType #>
+	public partial class <#= CodeTypeName(pdu.Attributes["name"].Value) #> : <#= baseType #><<#= CodeTypeName(pdu.Attributes["name"].Value) #>>
 	{
 <#	
 
@@ -85,11 +85,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	} // foreach
 
 #>
-
-		public <#= CodeTypeName(pdu.Attributes["name"].Value) #>(bool pooled = false)
+		public <#= CodeTypeName(pdu.Attributes["name"].Value) #>()
 		{
 			Id = <#= CodeName(pdu.Attributes["id"].Value, true) #>;
-			_isPooled = pooled;
 		}
 
 		protected override void EncodePackage()
@@ -146,37 +144,6 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
-
-		private static readonly ObjectPool<<#= CodeTypeName(pdu.Attributes["name"].Value) #>> _pool = 
-			new ObjectPool<<#= CodeTypeName(pdu.Attributes["name"].Value) #>>(() => new <#= CodeTypeName(pdu.Attributes["name"].Value) #>(true));
-
-		private bool _isPooled = false;
-		public int ReferenceCounter = 0;
-
-		public static <#= CodeTypeName(pdu.Attributes["name"].Value) #> CreateObject()
-		{
-			var obj = _pool.GetObject();
-			obj.ReferenceCounter = 1;
-			return obj;
-		}
-
-		public override void PutPool()
-		{
-			if(!_isPooled) return;
-
-			if (Interlocked.Decrement(ref ReferenceCounter) > 0) return;
-
-			Reset();
-			_pool.PutObject(this);
-		}
-
-		static <#= CodeTypeName(pdu.Attributes["name"].Value) #>()
-		{
-			for (int i = 0; i < 1000; i++)
-			{
-				_pool.PutObject(_pool.GetObject());
-			}
-		}
 
 	}
 

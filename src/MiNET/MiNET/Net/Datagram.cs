@@ -4,12 +4,12 @@ using System.IO;
 
 namespace MiNET.Net
 {
-	public class Datagram: Package
+	public class Datagram : Package<Datagram>
 	{
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
 
-		public ObjectPool<Datagram> Pool { get; set; }
+		private static readonly ObjectPool<Datagram> _pool = new ObjectPool<Datagram>(() => new Datagram(0));
 
 		public DatagramHeader Header { get; private set; }
 		public List<MessagePart> MessageParts { get; set; }
@@ -27,6 +27,10 @@ namespace MiNET.Net
 			_buf = new MemoryStream();
 		}
 
+		public Datagram()
+		{
+		}
+
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
 		{
 			var bytes = messagePart.Encode();
@@ -42,7 +46,13 @@ namespace MiNET.Net
 			return true;
 		}
 
-		public void Reset()
+		public static Datagram CreateObject()
+		{
+			var obj = _pool.GetObject();
+			return obj;
+		}
+
+		public new void Reset()
 		{
 			Header.datagramSequenceNumber = 0;
 			_currentSize = 4;
@@ -51,7 +61,7 @@ namespace MiNET.Net
 			_buf.SetLength(0);
 		}
 
-		public byte[] Encode()
+		public new byte[] Encode()
 		{
 			// Header
 			_buf.WriteByte((byte) (Header.isContinuousSend ? 0x8c : 0x84));
@@ -67,23 +77,28 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static List<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, ObjectPool<MessagePart> messagePartPool, ObjectPool<Datagram> datagramPool)
+		public static List<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber)
 		{
 			var datagrams = new List<Datagram>(4500);
 
-			Datagram datagram = datagramPool.GetObject();
-			datagram.Pool = datagramPool;
-			datagram.Header.datagramSequenceNumber = datagramSequenceNumber++;
-			datagrams.Add(datagram);
+			Datagram datagram = null;
 			foreach (var message in messages)
 			{
-				var messageParts = GetMessageParts(message, mtuSize, ref datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber, messagePartPool);
+				if (message is InternalPing) continue;
+
+				var messageParts = GetMessageParts(message, mtuSize, ref datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber);
 				foreach (var messagePart in messageParts)
 				{
+					if (datagram == null)
+					{
+						datagram = CreateObject();
+						datagram.Header.datagramSequenceNumber = datagramSequenceNumber++;
+						datagrams.Add(datagram);
+					}
+
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
-						datagram = datagramPool.GetObject();
-						datagram.Pool = datagramPool;
+						datagram = CreateObject();
 						datagram.Header.datagramSequenceNumber = datagramSequenceNumber++;
 						datagrams.Add(datagram);
 
@@ -98,7 +113,7 @@ namespace MiNET.Net
 			return datagrams;
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, ref int sequenceNumber, Reliability reliability, ref int reliableMessageNumber, ObjectPool<MessagePart> messagePartPool)
+		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, ref int sequenceNumber, Reliability reliability, ref int reliableMessageNumber)
 		{
 			var messageParts = new List<MessagePart>();
 
@@ -108,8 +123,7 @@ namespace MiNET.Net
 			short splitId = (short) (sequenceNumber%short.MaxValue);
 			if (encodedMessage.Length <= mtuSize - 34)
 			{
-				MessagePart messagePart = messagePartPool.GetObject();
-				messagePart.MessagePartPool = messagePartPool;
+				MessagePart messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;
 				messagePart.Header.ReliableMessageNumber = reliableMessageNumber++;
 				messagePart.Header.HasSplit = count > 1;
@@ -124,8 +138,7 @@ namespace MiNET.Net
 			{
 				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 34))
 				{
-					MessagePart messagePart = messagePartPool.GetObject();
-					messagePart.MessagePartPool = messagePartPool;
+					MessagePart messagePart = MessagePart.CreateObject();
 					messagePart.Header.Reliability = reliability;
 					messagePart.Header.ReliableMessageNumber = reliableMessageNumber++;
 					messagePart.Header.HasSplit = count > 1;

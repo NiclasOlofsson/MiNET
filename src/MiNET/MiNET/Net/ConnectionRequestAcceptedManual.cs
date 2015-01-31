@@ -2,7 +2,7 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class ConnectionRequestAcceptedManual : Package
+	public class ConnectionRequestAcceptedManual : Package<ConnectionRequestAcceptedManual>
 	{
 		private readonly short _port;
 		private readonly long _sessionId;
@@ -12,6 +12,11 @@ namespace MiNET.Net
 			Id = 0x10;
 			_port = port;
 			_sessionId = sessionId;
+		}
+
+		public ConnectionRequestAcceptedManual()
+		{
+			Id = 0x10;
 		}
 
 		protected override void EncodePackage()

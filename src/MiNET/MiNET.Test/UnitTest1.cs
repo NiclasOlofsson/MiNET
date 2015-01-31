@@ -90,69 +90,6 @@ namespace MiNET
 			Console.WriteLine("ip is " + ip.ToString());
 		}
 
-		[Test]
-		public void PerformanceTest()
-		{
-			var messages = new List<Package>();
-			for (int i = 0; i < (400*400); i++)
-			{
-				McpeMovePlayer move = new McpeMovePlayer();
-				move.entityId = 1;
-				move.x = 1;
-				move.y = 1;
-				move.z = 1;
-				move.yaw = 1;
-				move.pitch = 1;
-				move.bodyYaw = 1;
-				move.teleport = 1;
-
-				messages.Add(move);
-				move.Encode();
-				//var bytes = move.Encode();
-				//move.Reset();
-			}
-
-			MiNetServer server = new MiNetServer(19320);
-			server.StartServer();
-
-			for (int i = 0; i < 400*400; i++)
-			{
-				var msg = server._messagePartPool.GetObject();
-				msg.Reset();
-				server._messagePartPool.PutObject(msg);
-			}
-
-			for (int i = 0; i < 10000; i++)
-			{
-				Datagram msg = server._datagramPool.GetObject();
-				msg.Reset();
-				server._datagramPool.PutObject(msg);
-			}
-
-			int datagramSequenceNumber = 1;
-			int reliableMessageNumber = 2;
-
-
-			Stopwatch stopwatch = new Stopwatch();
-			stopwatch.Start();
-
-			//server.SendPackage(new IPEndPoint(IPAddress.Loopback, 100), messages, 1500, ref datagramSequenceNumber, ref reliableMessageNumber);
-			var datagrams = Datagram.CreateDatagrams(messages, 1500, ref datagramSequenceNumber, ref reliableMessageNumber, server._messagePartPool, server._datagramPool);
-			//foreach (var datagram in datagrams)
-			//{
-			//	var data = datagram.Encode();
-			//}
-
-			stopwatch.Stop();
-
-			server.StopServer();
-
-
-			//Console.WriteLine("Size: {0}", datagrams.First().Encode().Length);
-			//Console.WriteLine("Count: {0}", datagrams.Count);
-			Console.WriteLine("Time: {0}", stopwatch.ElapsedMilliseconds);
-		}
-
 		[Test, Ignore]
 		public void EncapsulatedHeaderTest()
 		{

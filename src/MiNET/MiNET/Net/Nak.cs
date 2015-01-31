@@ -2,7 +2,7 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public partial class Nak : Package
+	public partial class Nak : Package<Nak>
 	{
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;

@@ -2,10 +2,8 @@ using System;
 
 namespace MiNET.Net
 {
-	public class MessagePart : Package // Replace this with stream
+	public class MessagePart : Package<MessagePart> // Replace this with stream
 	{
-		public ObjectPool<MessagePart> MessagePartPool = null; // Redesign
-
 		public MessagePartHeader Header { get; private set; }
 		public byte[] Buffer { get; set; }
 

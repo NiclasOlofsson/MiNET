@@ -8,7 +8,7 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class ConnectedPackage : Package
+	public class ConnectedPackage : Package<ConnectedPackage>
 	{
 		private DatagramHeader _datagramHeader;
 		public Int24 _datagramSequenceNumber; // uint 24

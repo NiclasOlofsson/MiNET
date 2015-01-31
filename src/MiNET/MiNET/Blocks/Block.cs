@@ -38,6 +38,7 @@ namespace MiNET.Blocks
 		public virtual void BreakBlock(Level world)
 		{
 			world.SetBlock(new Air {Coordinates = Coordinates});
+			BlockUpdate(world, Coordinates);
 		}
 
 		public virtual bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
@@ -50,6 +51,23 @@ namespace MiNET.Blocks
 		{
 			// No default interaction. Return unhandled.
 			return false;
+		}
+
+		public virtual void BlockUpdate(Level world, Coordinates3D blockCoordinates)
+		{
+			Coordinates3D up = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z };
+			/*Coordinates3D down = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
+			Coordinates3D left = new Coordinates3D() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
+			Coordinates3D right = new Coordinates3D() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
+			Coordinates3D zplus = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z + 1 };
+			Coordinates3D zminus = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z - 1 };
+			*/
+			//All other directions are in here too, however currently we only use this to update fire so we only check the block above.
+
+			if (world.GetBlock(up).Id == 51)
+			{
+				world.SetBlock(new Air { Coordinates = up });
+			}
 		}
 
 		public float GetHardness()

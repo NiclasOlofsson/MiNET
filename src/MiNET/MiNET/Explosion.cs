@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Craft.Net.Common;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -124,18 +125,36 @@ namespace MiNET
 					records = records
 				})).Start();
 
+			//For some reason we need to keep this list
+			//Seems otherwise we would get duplicated. TODO: Fix!
+			List<Coordinates3D> done = new List<Coordinates3D>();
 			foreach (var block in _afectedBlocks)
 			{
 				Block block1 = block;
 				new Task(() => _world.SetBlock(new Air {Coordinates = block1.Coordinates})).Start();
+				if (block1.Id == 46 && !done.Contains(block1.Coordinates) && block1.Coordinates != _centerCoordinates)
+				{
+					done.Add(block1.Coordinates);
+					SpawnTNT(block1.Coordinates, _world);
+				}
 			}
 
 			return true;
 		}
 
-		private double VectorLength(Vector3 vector)
+		private void SpawnTNT(Coordinates3D blockCoordinates, Level world)
 		{
-			return Math.Sqrt(vector.X*vector.X + vector.Y*vector.Y + vector.Z*vector.Z);
+			new PrimedTnt(world)
+			{
+				KnownPosition = new PlayerPosition3D()
+				{
+					X = blockCoordinates.X,
+					Y = blockCoordinates.Y,
+					Z = blockCoordinates.Z,
+				},
+				EntityId = 10065,
+				Fuse = 80
+			}.SpawnEntity();
 		}
 	}
 }

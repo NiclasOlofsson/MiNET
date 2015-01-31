@@ -12,10 +12,9 @@ namespace MiNET
 {
 	internal class Explosion
 	{
-		private IDictionary<Coordinates3D, Block> _afectedBlocks = new Dictionary<Coordinates3D, Block>();
-		private const double StepLen = 0.3;
 		private const int Ray = 16;
-		private float _size = 0;
+		private readonly IDictionary<Coordinates3D, Block> _afectedBlocks = new Dictionary<Coordinates3D, Block>();
+		private readonly float _size;
 		private readonly Level _world;
 		private Coordinates3D _centerCoordinates;
 
@@ -40,11 +39,11 @@ namespace MiNET
 		{
 			if (_size < 0.1) return false;
 
-			for (var i = 0; i < Ray; i++)
+			for (int i = 0; i < Ray; i++)
 			{
-				for (var j = 0; j < Ray; j++)
+				for (int j = 0; j < Ray; j++)
 				{
-					for (var k = 0; k < Ray; k++)
+					for (int k = 0; k < Ray; k++)
 					{
 						if (i == 0 || i == Ray - 1 || j == 0 || j == Ray - 1 || k == 0 || k == Ray - 1)
 						{
@@ -56,7 +55,7 @@ namespace MiNET
 							x /= d6;
 							y /= d6;
 							z /= d6;
-							float blastForce1 = (float) (_size*(0.7F + new Random().NextDouble()*0.6F));
+							var blastForce1 = (float) (_size*(0.7F + new Random().NextDouble()*0.6F));
 
 							double cX = _centerCoordinates.X;
 							double cY = _centerCoordinates.Y;
@@ -64,9 +63,9 @@ namespace MiNET
 
 							for (float blastForce2 = 0.3F; blastForce1 > 0.0F; blastForce1 -= blastForce2*0.75F)
 							{
-								int bx = (int) Math.Floor(cX);
-								int by = (int) Math.Floor(cY);
-								int bz = (int) Math.Floor(cZ);
+								var bx = (int) Math.Floor(cX);
+								var by = (int) Math.Floor(cY);
+								var bz = (int) Math.Floor(cZ);
 								Block block = _world.GetBlock(bx, by, bz);
 
 								if (block.Id != 0)
@@ -77,7 +76,7 @@ namespace MiNET
 
 								if (blastForce1 > 0.0F)
 								{
-									if (!_afectedBlocks.ContainsKey(block.Coordinates)) _afectedBlocks.Add(block.Coordinates, block);
+									if (!_afectedBlocks.ContainsKey(block.Coordinates) && block.Id != 0) _afectedBlocks.Add(block.Coordinates, block);
 								}
 
 								cX += x*blastForce2;
@@ -107,13 +106,13 @@ namespace MiNET
 			//var explosionBB = new BoundingBox(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
 
 			var records = new Records();
-			foreach (var block in _afectedBlocks.Values)
+			foreach (Block block in _afectedBlocks.Values)
 			{
 				records.Add(block.Coordinates - _centerCoordinates);
 			}
 
 			new Task(() =>
-				_world.RelayBroadcast(new McpeExplode()
+				_world.RelayBroadcast(new McpeExplode
 				{
 					x = _centerCoordinates.X,
 					y = _centerCoordinates.Y,
@@ -124,7 +123,7 @@ namespace MiNET
 
 			//For some reason we need to keep this list
 			//Seems otherwise we would get duplicated. TODO: Fix!
-			foreach (var block in _afectedBlocks.Values)
+			foreach (Block block in _afectedBlocks.Values)
 			{
 				Block block1 = block;
 				new Task(() => _world.SetBlock(new Air {Coordinates = block1.Coordinates})).Start();
@@ -140,10 +139,10 @@ namespace MiNET
 
 		private void SpawnTNT(Coordinates3D blockCoordinates, Level world)
 		{
-			Random rand = new Random();
+			var rand = new Random();
 			new PrimedTnt(world)
 			{
-				KnownPosition = new PlayerPosition3D()
+				KnownPosition = new PlayerPosition3D
 				{
 					X = blockCoordinates.X,
 					Y = blockCoordinates.Y,

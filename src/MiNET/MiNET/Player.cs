@@ -59,6 +59,7 @@ namespace MiNET
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 		public PermissionManager Permissions { get; set; }
+
 		internal Player()
 			: base(-1, null)
 		{
@@ -156,7 +157,7 @@ namespace MiNET
 
 			else if (typeof (McpeAnimate) == message.GetType())
 			{
-				Level.RelayBroadcast(this, (McpeAnimate) message);
+				HandleAnimate((McpeAnimate) message);
 			}
 
 			else if (typeof (McpeUseItem) == message.GetType())
@@ -230,6 +231,11 @@ namespace MiNET
 			{
 				Log.WarnFormat("Package ({1}) handling too long {0}ms", elapsedMilliseconds, message.Id);
 			}
+		}
+
+		private void HandleAnimate(McpeAnimate message)
+		{
+			Level.RelayBroadcast(this, message, false);
 		}
 
 		private void HandlePlayerAction(McpePlayerAction message)
@@ -310,26 +316,26 @@ namespace MiNET
 			Level.RemovePlayer(this);
 		}
 
-		private void HandleConnectionRequest(ConnectionRequest msg)
+		private void HandleConnectionRequest(ConnectionRequest message)
 		{
-			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, msg.timestamp);
+			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, message.timestamp);
 			//response.Encode();
 
 			SendPackage(response);
 		}
 
-		private void HandleConnectedPing(ConnectedPing msg)
+		private void HandleConnectedPing(ConnectedPing message)
 		{
 			SendPackage(new ConnectedPong
 			{
-				sendpingtime = msg.sendpingtime,
+				sendpingtime = message.sendpingtime,
 				sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
 			});
 		}
 
-		private void HandleLogin(McpeLogin msg)
+		private void HandleLogin(McpeLogin message)
 		{
-			Username = msg.username;
+			Username = message.username;
 
 			if (Username == null) throw new Exception("No username on login");
 
@@ -351,9 +357,9 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 		}
 
-		private void HandleMessage(McpeMessage msg)
+		private void HandleMessage(McpeMessage message)
 		{
-			string text = msg.message;
+			string text = message.message;
 			if (text.StartsWith("/"))
 			{
 				new CommandHandler.CommandHandler().HandleCommand(text, this);
@@ -364,11 +370,11 @@ namespace MiNET
 			}
 		}
 
-		private void HandleMovePlayer(McpeMovePlayer msg)
+		private void HandleMovePlayer(McpeMovePlayer message)
 		{
 			if (HealthManager.IsDead) return;
 
-			KnownPosition = new PlayerPosition3D(msg.x, msg.y, msg.z) {Pitch = msg.pitch, Yaw = msg.yaw, BodyYaw = msg.bodyYaw};
+			KnownPosition = new PlayerPosition3D(message.x, message.y, message.z) {Pitch = message.pitch, Yaw = message.yaw, BodyYaw = message.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
 			if (IsBot) return;
@@ -376,43 +382,43 @@ namespace MiNET
 			SendChunksForKnownPosition();
 		}
 
-		private void HandleRemoveBlock(McpeRemoveBlock msg)
+		private void HandleRemoveBlock(McpeRemoveBlock message)
 		{
-			Level.BreakBlock(Level, this, new Coordinates3D(msg.x, msg.y, msg.z));
+			Level.BreakBlock(Level, this, new Coordinates3D(message.x, message.y, message.z));
 		}
 
-		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment msg)
+		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
-			msg.entityId = EntityId;
+			message.entityId = EntityId;
 
-			Level.RelayBroadcast(this, msg);
+			Level.RelayBroadcast(this, message, false);
 		}
 
-		private void HandlePlayerEquipment(McpePlayerEquipment msg)
+		private void HandlePlayerEquipment(McpePlayerEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
-			ItemInHand.Value.Id = msg.item;
-			ItemInHand.Value.Metadata = msg.meta;
+			ItemInHand.Value.Id = message.item;
+			ItemInHand.Value.Metadata = message.meta;
 
-			msg.entityId = EntityId;
+			message.entityId = EntityId;
 
-			Level.RelayBroadcast(this, msg);
+			Level.RelayBroadcast(this, message, false);
 		}
 
-		private void HandleContainerSetSlot(McpeContainerSetSlot msg)
+		private void HandleContainerSetSlot(McpeContainerSetSlot message)
 		{
 			if (HealthManager.IsDead) return;
 
-			switch (msg.windowId)
+			switch (message.windowId)
 			{
 				case 0:
-					Items[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
+					Items[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte) message.itemCount, message.itemDamage));
 					break;
 				case 0x78:
-					Armor[(byte) msg.slot] = new MetadataSlot(new ItemStack(msg.itemId, (sbyte) msg.itemCount, msg.itemDamage));
+					Armor[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte) message.itemCount, message.itemDamage));
 					break;
 			}
 			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
@@ -433,9 +439,9 @@ namespace MiNET
 			});
 		}
 
-		private void HandleInteract(McpeInteract msg)
+		private void HandleInteract(McpeInteract message)
 		{
-			Player target = (Player) Level.EntityManager.GetEntity(msg.targetEntityId);
+			Player target = (Player) Level.EntityManager.GetEntity(message.targetEntityId);
 
 			if (target == null) return;
 
@@ -773,7 +779,7 @@ namespace MiNET
 				source = "",
 				message = (sender == null ? "" : "<" + sender.Username + "> ") + message
 			};
-			SendPackage((Package)response.Clone());
+			SendPackage((Package) response.Clone());
 		}
 	}
 }

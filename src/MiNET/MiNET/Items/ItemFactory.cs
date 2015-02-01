@@ -6,24 +6,14 @@ namespace MiNET.Items
 	{
 		public static Item GetItem(int id)
 		{
-			Item item = new Item(id);
+			Item item;
 
-			if (id <= 255)
-			{
-				item = new ItemBlock (BlockFactory.GetBlockById ((byte)id));
-			}
-            else if (id == 324)
-			{
-				item = new ItemDoor ();
-			} 
-			else if (id == 325)
-			{
-				item = new ItemBucket ();
-			}
-            else if (id == 259)
-            {
-                item = new ItemFlintAndSteel();
-            }
+			if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte) id));
+			else if (id == 323) item = new ItemSign();
+			else if (id == 324) item = new ItemDoor();
+			else if (id == 325) item = new ItemBucket();
+			else if (id == 259) item = new ItemFlintAndSteel();
+			else item = new Item(id);
 
 			return item;
 		}

@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />
     <Compile Include="Blocks\BrickStairs.cs" />
@@ -57,7 +58,9 @@
     <Compile Include="Blocks\QuartzStairs.cs" />
     <Compile Include="Blocks\SandStoneStairs.cs" />
     <Compile Include="Blocks\SpruceWoodStairs.cs" />
+    <Compile Include="Blocks\StandingSign.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
+    <Compile Include="Blocks\WallSign.cs" />
     <Compile Include="CommandHandler\BoomCommand.cs" />
     <Compile Include="CommandHandler\CommandHandler.cs" />
     <Compile Include="CommandHandler\HelpCommand.cs" />
@@ -66,6 +69,7 @@
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
+    <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />

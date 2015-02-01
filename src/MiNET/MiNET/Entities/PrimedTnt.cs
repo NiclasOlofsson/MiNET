@@ -43,11 +43,10 @@ namespace MiNET.Entities
 			}
 			else
 			{
-				Level.RelayBroadcast(new McpeSetEntityData()
-				{
-					entityId = EntityId,
-					namedtag = GetMetadata().GetBytes()
-				});
+				var entityData = McpeSetEntityData.CreateObject();
+				entityData.entityId = EntityId;
+				entityData.namedtag = GetMetadata().GetBytes();
+				Level.RelayBroadcast(entityData, false);
 			}
 		}
 

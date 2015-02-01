@@ -272,9 +272,8 @@ namespace MiNET.Worlds
 						McpeSetTime message = McpeSetTime.CreateObject(players.Length);
 						message.time = CurrentWorldTime;
 						message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
-						message.Encode();
 
-						RelayBroadcast(null, players, message, false);
+						RelayBroadcast(players, message, false);
 					}
 
 					// broadcast events to all players
@@ -416,18 +415,33 @@ namespace MiNET.Worlds
 		}
 
 
-		public void RelayBroadcast(Package message, bool clone = true)
+		public void RelayBroadcast<T>(Player[] sendList, T message, bool clone = true) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, message, clone);
+			RelayBroadcast(null, sendList, message, clone);
 		}
 
-		public void RelayBroadcast(Player source, Package message, bool clone = true)
+		public void RelayBroadcast<T>(T message, bool clone = true) where T : Package<T>, new()
+		{
+			RelayBroadcast(null, GetSpawnedPlayers(), message, clone);
+		}
+
+		public void RelayBroadcast<T>(Player source, T message, bool clone = true) where T : Package<T>, new()
 		{
 			RelayBroadcast(source, GetSpawnedPlayers(), message, clone);
 		}
 
-		public void RelayBroadcast(Player source, Player[] sendList, Package message, bool clone = true)
+		public void RelayBroadcast<T>(Player source, Player[] sendList, T message, bool clone = true) where T : Package<T>, new()
 		{
+			if (message.IsPooled && clone) throw new Exception(string.Format("Can not clone a pooled message: {0}", message.GetType().Name));
+			if (!message.IsPooled && !clone) throw new Exception(string.Format("Must clone a message not on the pool: {0}", message.GetType().Name));
+
+			if (message.ReferenceCounter == 1 && sendList.Length > 1)
+			{
+				message.AddReferences(sendList.Length - 1);
+			}
+
+			if (message.IsPooled) message.Encode(); // In case forgotten during create
+
 			foreach (var player in sendList)
 			{
 				if (source != null && player == source) continue;
@@ -474,17 +488,14 @@ namespace MiNET.Worlds
 
 			if (!broadcast) return;
 
-			Player[] players = GetSpawnedPlayers();
-
-			var message = McpeUpdateBlock.CreateObject(players.Length);
+			var message = McpeUpdateBlock.CreateObject();
 			message.x = block.Coordinates.X;
 			message.y = (byte) block.Coordinates.Y;
 			message.z = block.Coordinates.Z;
 			message.block = block.Id;
 			message.meta = block.Metadata;
-			message.Encode();
 
-			RelayBroadcast(null, players, message, false);
+			RelayBroadcast(message, false);
 		}
 
 		public void Interact(Level world, Player player, Coordinates3D blockCoordinates, short metadata, BlockFace face)

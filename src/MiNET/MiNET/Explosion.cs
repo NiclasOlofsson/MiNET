@@ -129,14 +129,15 @@ namespace MiNET
 			}
 
 			new Task(() =>
-				_world.RelayBroadcast(new McpeExplode
-				{
-					x = _centerCoordinates.X,
-					y = _centerCoordinates.Y,
-					z = _centerCoordinates.Z,
-					radius = _size,
-					records = records
-				})).Start();
+			{
+				var mcpeExplode = McpeExplode.CreateObject();
+				mcpeExplode.x = _centerCoordinates.X;
+				mcpeExplode.y = _centerCoordinates.Y;
+				mcpeExplode.z = _centerCoordinates.Z;
+				mcpeExplode.radius = _size;
+				mcpeExplode.records = records;
+				_world.RelayBroadcast(mcpeExplode, false);
+			}).Start();
 
 			foreach (Block block in _afectedBlocks.Values)
 			{

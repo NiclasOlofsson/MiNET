@@ -346,7 +346,6 @@ namespace MiNET.Net
 		}
 
 		public abstract void PutPool();
-
 	}
 
 	/// Base package class
@@ -357,20 +356,36 @@ namespace MiNET.Net
 
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 
-		public static T CreateObject(long numberOfReferences = 1)
+		public bool IsPooled
 		{
-			var obj = Pool.GetObject();
-			obj._isPooled = true;
-			obj._referenceCounter = numberOfReferences;
-			return obj;
+			get { return _isPooled; }
 		}
 
-		public T CreateObject(T item)
+		public long ReferenceCounter
 		{
-			if (!item._isPooled) throw new Exception("Item template needs to come from a pool");
+			get { return _referenceCounter; }
+		}
+
+		public static T CreateObject(long numberOfReferences = 1)
+		{
+			var item = Pool.GetObject();
+			item._isPooled = true;
+			item._referenceCounter = numberOfReferences;
+			return item;
+		}
+
+		public void AddReferences(long numberOfReferences)
+		{
+			if (!_isPooled) throw new Exception("Tried to referenc count a non pooled item");
+			Interlocked.Add(ref _referenceCounter, numberOfReferences);
+		}
+
+		public T CreateObject(Package<T> item)
+		{
+			if (!item.IsPooled) throw new Exception("Item template needs to come from a pool");
 
 			Interlocked.Increment(ref item._referenceCounter);
-			return item;
+			return (T) item;
 		}
 
 		static Package()
@@ -383,7 +398,7 @@ namespace MiNET.Net
 
 		public override void PutPool()
 		{
-			if (!_isPooled) return;
+			if (!IsPooled) return;
 
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
 

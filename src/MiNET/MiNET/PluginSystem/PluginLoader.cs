@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using MiNET.API;
+using MiNET.PluginSystem.Attributes;
 
 namespace MiNET.PluginSystem
 {
@@ -22,20 +23,32 @@ namespace MiNET.PluginSystem
             {
                 Assembly newAssembly = Assembly.LoadFile(pluginPath);
                 Type[] types = newAssembly.GetExportedTypes();
-                foreach (var type in types)
+                foreach (Type type in types)
                 {
-                    if (type.IsDefined(typeof (PluginAttribute), true))
-                    {
-                        var ctor = type.GetConstructor(new Type[] {});
-                        if (ctor != null)
-                        {
-                            var plugin = ctor.Invoke(new object[] {}) as IMiNETPlugin;
-                            Plugins.Add(plugin);
-                        }
-                    }
+					new Task(() => GetCommandHandlers(type)).Start();
+	                if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
+	                var ctor = type.GetConstructor(new Type[] {});
+	                if (ctor != null)
+	                {
+		                var plugin = ctor.Invoke(new object[] {}) as IMiNETPlugin;
+		                Plugins.Add(plugin);
+	                }
                 }
             }
         }
+
+	    private void GetCommandHandlers(Type type)
+	    {
+			var methods = type.GetMethods();
+			foreach (MethodInfo method in methods)
+			{
+				var cmd = Attribute.GetCustomAttribute(method,
+					typeof(CommandAttribute), false) as CommandAttribute;
+				if (cmd == null)
+					continue;
+				CommandHandler.CommandHandler.PluginCommands.Add(cmd, method);
+			}
+	    }
 
         public void EnablePlugins()
         {

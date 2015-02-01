@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MiNET.PluginSystem.Attributes;
 
 namespace MiNET.CommandHandler
 {
@@ -48,6 +49,16 @@ namespace MiNET.CommandHandler
 					break;
 				}
 			}
+
+			foreach (var i in CommandHandler.PluginCommands)
+			{
+				CommandAttribute cmd = (CommandAttribute) i.Key;
+				if (cmd.Command == command)
+				{
+					return cmd.Command + ": " + cmd.Description + "\nUsage: " + cmd.Usage;
+				}
+			}
+
 			return "Command not found!";
 		}
 	}

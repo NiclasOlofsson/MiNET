@@ -58,7 +58,7 @@ namespace MiNET
 
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
-
+		public PermissionManager Permissions { get; set; }
 		internal Player()
 			: base(-1, null)
 		{
@@ -72,6 +72,7 @@ namespace MiNET
 			Level = level;
 			_mtuSize = mtuSize;
 			HealthManager = new HealthManager(this);
+			Permissions = new PermissionManager(UserGroup.User);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
 			EntityId = -1;
 			IsSpawned = false;
@@ -353,7 +354,14 @@ namespace MiNET
 		private void HandleMessage(McpeMessage msg)
 		{
 			string text = msg.message;
-			Level.BroadcastTextMessage(text, this);
+			if (text.StartsWith("/"))
+			{
+				new CommandHandler.CommandHandler().HandleCommand(text, this);
+			}
+			else
+			{
+				Level.BroadcastTextMessage(text, this);
+			}
 		}
 
 		private void HandleMovePlayer(McpeMovePlayer msg)
@@ -756,6 +764,16 @@ namespace MiNET
 		public void Kill()
 		{
 			Level.RemovePlayer(this);
+		}
+
+		public void SendMessage(string message, Player sender = null)
+		{
+			var response = new McpeMessage
+			{
+				source = "",
+				message = (sender == null ? "" : "<" + sender.Username + "> ") + message
+			};
+			SendPackage((Package)response.Clone());
 		}
 	}
 }

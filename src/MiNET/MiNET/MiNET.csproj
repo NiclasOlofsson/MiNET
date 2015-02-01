@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BlockEntities\BlockEntity.cs" />
+    <Compile Include="BlockEntities\BlockEntityFactory.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />

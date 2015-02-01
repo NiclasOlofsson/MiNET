@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Craft.Net.Common;
-using fNbt;
+using MiNET.BlockEntities;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -65,7 +65,8 @@ namespace MiNET.Worlds
 
 					chunk.SetBlock(6, h, 9, 63);
 					chunk.SetMetadata(6, h, 9, 12);
-					chunk.BlockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
+					var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
+					chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
 					if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
 					{
@@ -73,7 +74,7 @@ namespace MiNET.Worlds
 						{
 							for (int z = 0; z < 10; z++)
 							{
-								for (int y = h-2; y < h; y++)
+								for (int y = h - 2; y < h; y++)
 								{
 									chunk.SetBlock(x, y, z, 8);
 								}
@@ -177,22 +178,15 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private NbtFile GetBlockEntity(int x, int y, int z)
+		private Sign GetBlockEntity(int x, int y, int z)
 		{
-			NbtFile file = new NbtFile();
-			file.BigEndian = false;
-			var compound = new NbtCompound(string.Empty);
-			compound.Add(new NbtString("id", "Sign"));
-			compound.Add(new NbtString("Text1", "first"));
-			compound.Add(new NbtString("Text2", "second"));
-			compound.Add(new NbtString("Text3", "third"));
-			compound.Add(new NbtString("Text4", "forth"));
-			compound.Add(new NbtInt("x", x));
-			compound.Add(new NbtInt("y", y));
-			compound.Add(new NbtInt("z", z));
-			file.RootTag = compound;
+			var sign = new Sign
+			{
+				Text1 = "Test1",
+				Coordinates = new Coordinates3D(x, y, z)
+			};
 
-			return file;
+			return sign;
 		}
 	}
 }

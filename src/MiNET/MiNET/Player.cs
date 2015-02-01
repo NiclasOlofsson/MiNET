@@ -266,6 +266,13 @@ namespace MiNET
 			Debug.WriteLine("y:" + message.y);
 			Debug.WriteLine("z:" + message.z);
 			Debug.WriteLine("NBT " + message.namedtag.NbtFile);
+
+			var blockEntity = Level.GetBlockEntity(new Coordinates3D(message.x, message.y, message.z));
+
+			if (blockEntity == null) return;
+
+			blockEntity.SetCompound(message.namedtag.NbtFile.RootTag);
+			Level.SetBlockEntity(blockEntity);
 		}
 
 		private void HandleRespawn(McpeRespawn msg)
@@ -465,7 +472,7 @@ namespace MiNET
 				});
 
 				Log.DebugFormat("Use item: {0}", message.item);
-				Level.Interact(Level, this, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
+				Level.Interact(Level, this, message.item, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
 			}
 			else
 			{

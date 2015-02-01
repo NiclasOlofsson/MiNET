@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
+using fNbt;
+using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Items;
@@ -500,12 +502,62 @@ namespace MiNET.Worlds
 			RelayBroadcast(message, false);
 		}
 
-		public void Interact(Level world, Player player, Coordinates3D blockCoordinates, short metadata, BlockFace face)
+
+		public BlockEntity GetBlockEntity(Coordinates3D blockCoordinates)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			var nbt = chunk.GetBlockEntity(blockCoordinates);
+			if (nbt == null) return null;
+
+			string id = null;
+			var idTag = nbt.Get("id");
+			if (idTag != null)
+			{
+				id = idTag.StringValue;
+			}
+
+			if (string.IsNullOrEmpty(id)) return null;
+
+			BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(id);
+			blockEntity.Coordinates = blockCoordinates;
+			blockEntity.SetCompound(nbt);
+
+			return blockEntity;
+		}
+
+		public void SetBlockEntity(BlockEntity blockEntity, bool broadcast = true)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockEntity.Coordinates.X/16, blockEntity.Coordinates.Z/16));
+			chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
+
+			if (!broadcast) return;
+
+			Nbt nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					RootTag = blockEntity.GetCompound()
+				}
+			};
+
+			var entityData = new McpeEntityData
+			{
+				namedtag = nbt,
+				x = blockEntity.Coordinates.X,
+				y = (byte) blockEntity.Coordinates.Y,
+				z = blockEntity.Coordinates.Z
+			};
+
+			RelayBroadcast(entityData);
+		}
+
+		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
 			MetadataSlot itemSlot = player.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
-			if (itemInHand == null) return;
+			if (itemInHand == null || itemInHand.Id != itemId) return;
 
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return;

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using Craft.Net.Anvil;
+using Craft.Net.Common;
 using fNbt;
 using MiNET.Utils;
 
@@ -19,7 +21,7 @@ namespace MiNET.Worlds
 		public NibbleArray metadata = new NibbleArray(16*16*128);
 		public NibbleArray blocklight = new NibbleArray(16*16*128);
 		public NibbleArray skylight = new NibbleArray(16*16*128);
-		public NbtFile BlockEntity = null;
+		public IDictionary<Coordinates3D, NbtCompound> BlockEntities = new Dictionary<Coordinates3D, NbtCompound>();
 
 		private byte[] _cache = null;
 
@@ -66,6 +68,18 @@ namespace MiNET.Worlds
 			skylight[(x*2048) + (z*128) + y] = data;
 		}
 
+		public void SetBlockEntity(Coordinates3D coordinates, NbtCompound nbt)
+		{
+			BlockEntities[coordinates] = nbt;
+		}
+
+		public NbtCompound GetBlockEntity(Coordinates3D coordinates)
+		{
+			NbtCompound nbt;
+			BlockEntities.TryGetValue(coordinates, out nbt);
+			return nbt;
+		}
+
 		public byte[] GetBytes()
 		{
 			if (_cache != null) return _cache;
@@ -93,9 +107,11 @@ namespace MiNET.Worlds
 					writer.Write(biomeColor[i]);
 				}
 
-				if (BlockEntity != null)
+				foreach (var blockEntity in BlockEntities.Values)
 				{
-					writer.Write(BlockEntity.SaveToBuffer(NbtCompression.None));
+					NbtFile file = new NbtFile(blockEntity);
+					file.BigEndian = false;
+					writer.Write(file.SaveToBuffer(NbtCompression.None));
 				}
 
 				writer.Flush();

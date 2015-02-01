@@ -366,26 +366,36 @@ namespace MiNET.Net
 			get { return _referenceCounter; }
 		}
 
+		public T AddReferences(long numberOfReferences)
+		{
+			if (!_isPooled) throw new Exception("Tried to referenc count a non pooled item");
+			Interlocked.Add(ref _referenceCounter, numberOfReferences);
+
+			return (T) this;
+		}
+
+		public T AddReference(Package<T> item)
+		{
+			if (!item.IsPooled) throw new Exception("Item template needs to come from a pool");
+
+			Interlocked.Increment(ref item._referenceCounter);
+			return (T) item;
+		}
+
+		public T MakePoolable(long numberOfReferences = 1)
+		{
+			_isPooled = true;
+			_referenceCounter = numberOfReferences;
+			return (T) this;
+		}
+
+
 		public static T CreateObject(long numberOfReferences = 1)
 		{
 			var item = Pool.GetObject();
 			item._isPooled = true;
 			item._referenceCounter = numberOfReferences;
 			return item;
-		}
-
-		public void AddReferences(long numberOfReferences)
-		{
-			if (!_isPooled) throw new Exception("Tried to referenc count a non pooled item");
-			Interlocked.Add(ref _referenceCounter, numberOfReferences);
-		}
-
-		public T CreateObject(Package<T> item)
-		{
-			if (!item.IsPooled) throw new Exception("Item template needs to come from a pool");
-
-			Interlocked.Increment(ref item._referenceCounter);
-			return (T) item;
 		}
 
 		static Package()

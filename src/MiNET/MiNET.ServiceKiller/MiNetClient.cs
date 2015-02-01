@@ -219,7 +219,7 @@ namespace MiNET.ServiceKiller
 
 		public void SendMcpeMovePlayer(float x, float y, float z)
 		{
-			//var movePlayerPacket = McpeMovePlayer.CreateObject();
+			//var movePlayerPacket = McpeMovePlayer.AddReference();
 			_movePlayerPacket.Reset();
 			_movePlayerPacket.x = x;
 			_movePlayerPacket.y = y;

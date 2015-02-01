@@ -269,7 +269,7 @@ namespace MiNET.Worlds
 
 					if (CurrentWorldTime%10 == 0)
 					{
-						McpeSetTime message = McpeSetTime.CreateObject(players.Length);
+						McpeSetTime message = McpeSetTime.CreateObject();
 						message.time = CurrentWorldTime;
 						message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
 
@@ -338,7 +338,7 @@ namespace MiNET.Worlds
 					{
 						if (p == updatedPlayer) continue;
 
-						move = move.CreateObject(move);
+						move = move.AddReference(move);
 						p.SendMovementForPlayer(updatedPlayer, move);
 					}
 					move.PutPool();
@@ -435,6 +435,11 @@ namespace MiNET.Worlds
 			if (message.IsPooled && clone) throw new Exception(string.Format("Can not clone a pooled message: {0}", message.GetType().Name));
 			if (!message.IsPooled && !clone) throw new Exception(string.Format("Must clone a message not on the pool: {0}", message.GetType().Name));
 
+			if (clone)
+			{
+				message.MakePoolable();
+			}
+
 			if (message.ReferenceCounter == 1 && sendList.Length > 1)
 			{
 				message.AddReferences(sendList.Length - 1);
@@ -444,16 +449,13 @@ namespace MiNET.Worlds
 
 			foreach (var player in sendList)
 			{
-				if (source != null && player == source) continue;
+				if (source != null && player == source)
+				{
+					message.PutPool();
+					continue;
+				}
 
-				if (clone)
-				{
-					player.SendPackage((Package) message.Clone());
-				}
-				else
-				{
-					player.SendPackage(message);
-				}
+				player.SendPackage(message);
 			}
 		}
 

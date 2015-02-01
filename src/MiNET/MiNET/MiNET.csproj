@@ -49,6 +49,7 @@
     <Compile Include="Blocks\BrickStairs.cs" />
     <Compile Include="Blocks\CobbleStoneStairs.cs" />
     <Compile Include="Blocks\DarkOakWoodStairs.cs" />
+    <Compile Include="Blocks\Fire.cs" />
     <Compile Include="Blocks\Glass.cs" />
     <Compile Include="Blocks\JungleWoodStairs.cs" />
     <Compile Include="Blocks\NetherBrickStairs.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Blocks\SandStoneStairs.cs" />
     <Compile Include="Blocks\SpruceWoodStairs.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
+    <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
     <Compile Include="Net\InternalPing.cs" />

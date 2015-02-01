@@ -20,7 +20,7 @@ namespace MiNET
 		private bool CoordsSet = false;
 
 		/// <summary>
-		/// Use this for Explosion an explosion only!
+		///     Use this for Explosion an explosion only!
 		/// </summary>
 		/// <param name="world"></param>
 		/// <param name="centerCoordinates"></param>
@@ -34,7 +34,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Only use this for SpawnTNT!
+		///     Only use this for SpawnTNT!
 		/// </summary>
 		public Explosion()
 		{
@@ -138,16 +138,30 @@ namespace MiNET
 					records = records
 				})).Start();
 
-			//For some reason we need to keep this list
-			//Seems otherwise we would get duplicated. TODO: Fix!
 			foreach (Block block in _afectedBlocks.Values)
 			{
 				Block block1 = block;
+				_world.SetBlock(new Air {Coordinates = block1.Coordinates});
 				//new Task(() => _world.SetBlock(new Air {Coordinates = block1.Coordinates})).Start();
-				new Task(() => block1.BreakBlock(_world)).Start();
-				if (block.Id == 46)
+				//new Task(() => block1.BreakBlock(_world)).Start();
+				if (block is Tnt)
 				{
 					new Task(() => SpawnTNT(block1.Coordinates, _world)).Start();
+				}
+			}
+
+			// Set stuff on fire
+			Random random = new Random();
+			foreach (Coordinates3D coord in _afectedBlocks.Keys)
+			{
+				var block = _world.GetBlock(coord.X, coord.Y, coord.Z);
+				if (block is Air)
+				{
+					var blockDown = _world.GetBlock(coord.X, coord.Y - 1, coord.Z);
+					if (!(blockDown is Air) && random.Next(3) == 0)
+					{
+						_world.SetBlock(new Fire {Coordinates = block.Coordinates});
+					}
 				}
 			}
 

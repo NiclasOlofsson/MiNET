@@ -1,6 +1,5 @@
 ﻿using Craft.Net.Common;
 using MiNET.Blocks;
-using MiNET.Entities;
 using MiNET.Worlds;
 
 namespace MiNET.Items
@@ -19,7 +18,7 @@ namespace MiNET.Items
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY));
 				if (affectedBlock.Id == 0)
 				{
-					var fire = new Block(51)
+					var fire = new Fire
 					{
 						Coordinates = affectedBlock.Coordinates
 					};

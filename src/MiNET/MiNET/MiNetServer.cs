@@ -65,12 +65,12 @@ namespace MiNET
 				_level = new Level("Default");
 				_level.Initialize();
 				_levels.Add(_level);
-				for (int i = 1; i < 4; i++)
-				{
-					Level level = new Level("" + i);
-					level.Initialize();
-					_levels.Add(level);
-				}
+				//for (int i = 1; i < 4; i++)
+				//{
+				//	Level level = new Level("" + i);
+				//	level.Initialize();
+				//	_levels.Add(level);
+				//}
 
 
 				_listener = new UdpClient(_endpoint);

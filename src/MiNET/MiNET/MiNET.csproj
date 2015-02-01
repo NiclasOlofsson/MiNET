@@ -75,6 +75,7 @@
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
+    <Compile Include="PluginSystem\Attributes\CommandAttribute.cs" />
     <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />
     <Compile Include="Blocks\Air.cs" />

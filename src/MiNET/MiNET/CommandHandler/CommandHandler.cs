@@ -19,7 +19,7 @@ namespace MiNET.CommandHandler
 			{
 				if (command.Command == _command)
 				{
-					if (command.RequireOperator && !player.IsOperator)
+					if (!player.Permissions.HasPermission(command.Permission) && !player.Permissions.HasPermission("*"))
 					{
 						player.SendMessage("You are not permitted to use this command!");
 						break;

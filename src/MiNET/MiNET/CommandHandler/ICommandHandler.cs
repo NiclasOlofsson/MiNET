@@ -11,7 +11,7 @@ namespace MiNET.CommandHandler
 		string Command { get; }
 		string Description { get; }
 		string Usage { get; }
-		bool RequireOperator { get; }
+		string Permission { get; }
 		bool Execute(Player player, string[] arguments);
 
 	}

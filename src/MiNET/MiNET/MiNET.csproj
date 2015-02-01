@@ -65,6 +65,7 @@
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
     <Compile Include="Net\InternalPing.cs" />
+    <Compile Include="PermissionManager.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
     <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />

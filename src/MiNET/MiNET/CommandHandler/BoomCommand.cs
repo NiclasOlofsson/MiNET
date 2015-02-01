@@ -24,10 +24,7 @@ namespace MiNET.CommandHandler
 			get { return "/boom <Radius>"; }
 		}
 
-		public bool RequireOperator
-		{
-			get { return false; }
-		}
+		public string Permission { get { return "MiNET.Boom"; } }
 
 		public bool Execute(Player player, string[] arguments)
 		{

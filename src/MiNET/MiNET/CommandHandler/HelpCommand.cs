@@ -23,10 +23,7 @@ namespace MiNET.CommandHandler
 			get { return "/help <COMMAND>"; }
 		}
 
-		public bool RequireOperator
-		{
-			get { return false; }
-		}
+		public string Permission { get { return "MiNET.help"; } }
 
 		public bool Execute(Player player, string[] arguments)
 		{

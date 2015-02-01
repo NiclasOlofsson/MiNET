@@ -58,7 +58,7 @@ namespace MiNET
 
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
-		public bool IsOperator { get; set; }
+		public PermissionManager Permissions { get; set; }
 		internal Player()
 			: base(-1, null)
 		{
@@ -67,12 +67,12 @@ namespace MiNET
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
 			: base(-1, level)
 		{
-			IsOperator = true;
 			_server = server;
 			_endpoint = endpoint;
 			Level = level;
 			_mtuSize = mtuSize;
 			HealthManager = new HealthManager(this);
+			Permissions = new PermissionManager(UserGroup.User);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
 			EntityId = -1;
 			IsSpawned = false;

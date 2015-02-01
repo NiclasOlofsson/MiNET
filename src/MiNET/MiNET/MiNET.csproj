@@ -57,6 +57,11 @@
     <Compile Include="Blocks\SandStoneStairs.cs" />
     <Compile Include="Blocks\SpruceWoodStairs.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
+    <Compile Include="CommandHandler\BoomCommand.cs" />
+    <Compile Include="CommandHandler\CommandHandler.cs" />
+    <Compile Include="CommandHandler\HelpCommand.cs" />
+    <Compile Include="CommandHandler\ICommandHandler.cs" />
+    <Compile Include="CommandHandler\TestCommand.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
     <Compile Include="Net\InternalPing.cs" />

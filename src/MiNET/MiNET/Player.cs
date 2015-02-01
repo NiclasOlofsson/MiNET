@@ -58,7 +58,7 @@ namespace MiNET
 
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
-
+		public bool IsOperator { get; set; }
 		internal Player()
 			: base(-1, null)
 		{
@@ -67,6 +67,7 @@ namespace MiNET
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
 			: base(-1, level)
 		{
+			IsOperator = true;
 			_server = server;
 			_endpoint = endpoint;
 			Level = level;
@@ -353,7 +354,14 @@ namespace MiNET
 		private void HandleMessage(McpeMessage msg)
 		{
 			string text = msg.message;
-			Level.BroadcastTextMessage(text, this);
+			if (text.StartsWith("/"))
+			{
+				new CommandHandler.CommandHandler().HandleCommand(text, this);
+			}
+			else
+			{
+				Level.BroadcastTextMessage(text, this);
+			}
 		}
 
 		private void HandleMovePlayer(McpeMovePlayer msg)
@@ -756,6 +764,16 @@ namespace MiNET
 		public void Kill()
 		{
 			Level.RemovePlayer(this);
+		}
+
+		public void SendMessage(string message, Player sender = null)
+		{
+			var response = new McpeMessage
+			{
+				source = "",
+				message = (sender == null ? "" : "<" + sender.Username + "> ") + message
+			};
+			SendPackage((Package)response.Clone());
 		}
 	}
 }

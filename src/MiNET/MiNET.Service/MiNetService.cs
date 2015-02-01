@@ -40,11 +40,12 @@ namespace MiNET.Service
 			ConfigParser.InitialValue = new string[]
 			{
 				"#DO NOT REMOVE THIS LINE - MiNET Config",
+				"Gamemode=Creative",
+				"Difficulty=Peaceful",
+				"WorldFolder=world",
+				"MOTD=MiNET - Another MC server",
 				"UsePCWorld=false",
 				"PCWorldFolder=PathToWorld",
-				"DefaultGamemode=Creative",
-				"Difficulty=Peaceful",
-				"WorldFolder=world"
 			};
 
 			ConfigParser.Check();

@@ -27,8 +27,7 @@ namespace MiNET
 		private PluginLoader _pluginLoader;
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
-
-
+		private string _Motd = string.Empty;
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
@@ -55,6 +54,8 @@ namespace MiNET
 
 			try
 			{
+				Log.Info("Loading settings...");
+				_Motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
 				Log.Info("Loading plugins...");
 				_pluginLoader = new PluginLoader();
 				_pluginLoader.LoadPlugins();

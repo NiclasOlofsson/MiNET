@@ -22,7 +22,7 @@ namespace MiNET.ServiceKiller
 				counter[0]++;
 				string playerName = "Player " + (i + 1);
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(random.Next(50, 200));
+				Thread.Sleep(random.Next(20, 100));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");

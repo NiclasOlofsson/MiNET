@@ -282,7 +282,7 @@ namespace MiNET.Net
 			Write(Id);
 		}
 
-		public void Reset()
+		public virtual void Reset()
 		{
 			_encodedMessage = null;
 			_writer.Flush();

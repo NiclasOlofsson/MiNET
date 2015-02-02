@@ -262,10 +262,10 @@ namespace MiNET
 
 		private void HandleEntityData(McpeEntityData message)
 		{
-			Debug.WriteLine("x:" + message.x);
-			Debug.WriteLine("y:" + message.y);
-			Debug.WriteLine("z:" + message.z);
-			Debug.WriteLine("NBT " + message.namedtag.NbtFile);
+			Log.DebugFormat("x:  {0}", message.x);
+			Log.DebugFormat("y:  {0}", message.y);
+			Log.DebugFormat("z:  {0}", message.z);
+			Log.DebugFormat("NBT {0}", message.namedtag.NbtFile);
 
 			var blockEntity = Level.GetBlockEntity(new Coordinates3D(message.x, message.y, message.z));
 
@@ -767,11 +767,6 @@ namespace MiNET
 			{
 				_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 			}
-		}
-
-		public int GetEntityId(Player player)
-		{
-			return Level.EntityManager.GetEntityId(this, player);
 		}
 
 		public void Kill()

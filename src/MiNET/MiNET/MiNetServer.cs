@@ -28,6 +28,7 @@ namespace MiNET
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
 		private string _Motd = string.Empty;
+
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
@@ -47,7 +48,8 @@ namespace MiNET
 		}
 
 
-		List<Level> _levels = new List<Level>(); 
+		private List<Level> _levels = new List<Level>();
+
 		public bool StartServer()
 		{
 			if (_listener != null) return false; // Already started
@@ -88,7 +90,7 @@ namespace MiNET
 				{
 					_listener.Client.ReceiveBufferSize = 1024*1024*8;
 					_listener.Client.SendBufferSize = 1024*1024*8;
-					_listener.DontFragment = true;
+					//_listener.DontFragment = true;
 
 					uint IOC_IN = 0x80000000;
 					uint IOC_VENDOR = 0x18000000;
@@ -116,7 +118,7 @@ namespace MiNET
 						HandlePackage(ping, playerEndpoint);
 					}
 				}, null, 1000, 1000);
-	
+
 				Log.Info("Server open for business...");
 
 				return true;
@@ -185,7 +187,9 @@ namespace MiNET
 			if (receiveBytes.Length != 0)
 			{
 				listener.BeginReceive(ReceiveCallback, listener);
-				ProcessMessage(receiveBytes, senderEndpoint);
+				_numberOfPacketsInPerSecond++;
+				_totalPacketSizeIn += receiveBytes.Length;
+				ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, senderEndpoint));
 			}
 			else
 			{
@@ -381,8 +385,10 @@ namespace MiNET
 		}
 
 		private long _numberOfAckSent = 0;
-		private long _numberOfPacketsSentPerSecond = 0;
-		private long _totalPacketSize = 0;
+		private long _numberOfPacketsOutPerSecond = 0;
+		private long _numberOfPacketsInPerSecond = 0;
+		private long _totalPacketSizeOut = 0;
+		private long _totalPacketSizeIn = 0;
 		private Timer _throughPut = null;
 		private long _latency = -1;
 
@@ -392,15 +398,18 @@ namespace MiNET
 			{
 				_throughPut = new Timer(delegate(object state)
 				{
-					double kbytesPerSecond = _totalPacketSize*8/1000000D;
-					long avaragePacketSize = _totalPacketSize/(_numberOfPacketsSentPerSecond + 1);
-					Log.InfoFormat("TT {4}ms Ltcy={6}ms {5} player(s) Pkt {0}/s ACKs {1}/s AvSize: {2}b Tput: {3:F}Mbit/s",
-						_numberOfPacketsSentPerSecond, _numberOfAckSent, avaragePacketSize, kbytesPerSecond, _level.lastTickProcessingTime,
-						_level.Players.Count, _latency);
+					double kbytesPerSecondOut = _totalPacketSizeOut*8/1000000D;
+					double kbytesPerSecondIn = _totalPacketSizeIn*8/1000000D;
+					//long avaragePacketSize = _totalPacketSizeOut/(_numberOfPacketsOutPerSecond + 1);
+					Log.InfoFormat("TT {4}ms Ltcy={6}ms {5} player(s) Pkt: Out {0}/s In {2} ACKs {1}/s Tput: Out {3:F}Mbit/s In {7:F}Mbit/s",
+						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbytesPerSecondOut, _level.lastTickProcessingTime,
+						_level.Players.Count, _latency, kbytesPerSecondIn);
 
 					_numberOfAckSent = 0;
-					_totalPacketSize = 0;
-					_numberOfPacketsSentPerSecond = 0;
+					_totalPacketSizeOut = 0;
+					_totalPacketSizeIn = 0;
+					_numberOfPacketsOutPerSecond = 0;
+					_numberOfPacketsInPerSecond = 0;
 				}, null, 1000, 1000);
 			}
 
@@ -408,11 +417,11 @@ namespace MiNET
 			lock (_listener)
 			{
 				_listener.Send(data, data.Length, targetEndpoint);
-			}			
+			}
 			//_listener.BeginSend(data, data.Length, targetEndpoint, null, null);
 
-			_numberOfPacketsSentPerSecond++;
-			_totalPacketSize += data.Length;
+			_numberOfPacketsOutPerSecond++;
+			_totalPacketSizeOut += data.Length;
 		}
 
 		// ReSharper disable once UnusedMember.Global
@@ -438,7 +447,7 @@ namespace MiNET
 		{
 			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
 			{
-				//Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+				Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 			}
 		}
 	}

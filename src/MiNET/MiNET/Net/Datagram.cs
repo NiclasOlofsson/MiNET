@@ -9,26 +9,19 @@ namespace MiNET.Net
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
 
-		private static readonly ObjectPool<Datagram> _pool = new ObjectPool<Datagram>(() => new Datagram(0));
-
 		public DatagramHeader Header { get; private set; }
 		public List<MessagePart> MessageParts { get; set; }
 
-
-		public Datagram(int sequenceNumber)
+		public Datagram()
 		{
 			MessageParts = new List<MessagePart>(50);
 			Header = new DatagramHeader
 			{
 				isValid = true,
 				needsBAndAs = true,
-				datagramSequenceNumber = sequenceNumber
+				//datagramSequenceNumber = sequenceNumber
 			};
 			_buf = new MemoryStream();
-		}
-
-		public Datagram()
-		{
 		}
 
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
@@ -46,22 +39,15 @@ namespace MiNET.Net
 			return true;
 		}
 
-		public static Datagram CreateObject()
-		{
-			var obj = _pool.GetObject();
-			return obj;
-		}
-
-		public new void Reset()
+		public override void Reset()
 		{
 			Header.datagramSequenceNumber = 0;
 			_currentSize = 4;
 			MessageParts.Clear();
-			MessageParts.Capacity = 50;
 			_buf.SetLength(0);
 		}
 
-		public new byte[] Encode()
+		public override byte[] Encode()
 		{
 			// Header
 			_buf.WriteByte((byte) (Header.isContinuousSend ? 0x8c : 0x84));
@@ -77,9 +63,9 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static List<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber)
+		public static IEnumerable<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber)
 		{
-			var datagrams = new List<Datagram>(4500);
+			var datagrams = new List<Datagram>();
 
 			Datagram datagram = null;
 			foreach (var message in messages)
@@ -157,13 +143,14 @@ namespace MiNET.Net
 		public static IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufforLengt)
 		{
 			int bArrayLenght = bArray.Length;
-			byte[] bReturn = null;
+			byte[] bReturn;
 
 			int i = 0;
 			for (; bArrayLenght > (i + 1)*intBufforLengt; i++)
 			{
 				bReturn = new byte[intBufforLengt];
-				Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
+				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
+				Buffer.BlockCopy(bArray, i*intBufforLengt, bReturn, 0, intBufforLengt);
 				yield return bReturn;
 			}
 
@@ -171,7 +158,8 @@ namespace MiNET.Net
 			if (intBufforLeft > 0)
 			{
 				bReturn = new byte[intBufforLeft];
-				Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
+				//Array.Copy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
+				Buffer.BlockCopy(bArray, i*intBufforLengt, bReturn, 0, intBufforLeft);
 				yield return bReturn;
 			}
 		}

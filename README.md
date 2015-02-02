@@ -24,4 +24,16 @@ Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-
  
 MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...
 
+## Can i contribute?
+
+Offcourse! We just need you to promise the folowing:
+
+You will use the same coding style as the rest of the code.
+
+You are not copying code from anyone, unless you have their permissions.
+
+We can always decide not to include your code, or make changes to it.
+
+Also, make sure to join our Gitter chat for easy communication.
+
 [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)

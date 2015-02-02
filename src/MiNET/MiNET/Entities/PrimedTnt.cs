@@ -38,8 +38,6 @@ namespace MiNET.Entities
 		{
 			Fuse--;
 
-			if (CheckPosition) PositionCheck();
-
 			if (Fuse == 0)
 			{
 				DespawnEntity();
@@ -51,15 +49,16 @@ namespace MiNET.Entities
 				entityData.entityId = EntityId;
 				entityData.namedtag = GetMetadata().GetBytes();
 				Level.RelayBroadcast(entityData, false);
+				if (CheckPosition) PositionCheck();
 			}
 		}
 
 		private void PositionCheck()
 		{
 			Coordinates3D check = KnownPosition.GetCoordinates3D() - Worlds.Level.Down;
-			if (Level.GetBlock(check).Id == 0)
+			if (!Level.GetBlock(check).IsSolid)
 			{
-				KnownPosition.Y--;
+				KnownPosition.Y -= 0.8f;
 			}
 			else
 			{

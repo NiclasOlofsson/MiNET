@@ -38,7 +38,7 @@ namespace MiNET.Entities
 		{
 			Fuse--;
 
-			if (CheckPosition) new Task(() => PositionCheck()).Start();
+			if (CheckPosition) PositionCheck();
 
 			if (Fuse == 0)
 			{

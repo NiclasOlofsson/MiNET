@@ -1,6 +1,8 @@
 MiNET
 =====
 
+[![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Can i test this before i download it?
 Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
 IP: 94.23.50.5<br>

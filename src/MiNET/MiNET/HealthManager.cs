@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -19,6 +21,32 @@ namespace MiNET
 			ResetHealth();
 		}
 
+		public byte[] Export()
+		{
+			byte[] buffer;
+			using (MemoryStream stream = new MemoryStream())
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
+				writer.Write(Health);
+				writer.Write(Air);
+				writer.Write(FireTick);
+				writer.Write(IsOnFire);
+				buffer = stream.GetBuffer();
+			}
+			return buffer;
+		}
+
+		public void Import(byte[] data)
+		{
+			using (MemoryStream stream = new MemoryStream(data))
+			{
+				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
+				Health = reader.ReadInt32();
+				Air = reader.ReadInt16();
+				FireTick = reader.ReadInt32();
+				IsOnFire = reader.ReadBoolean();
+			}
+		}
 
 		public void TakeHit(Player sourcePlayer)
 		{

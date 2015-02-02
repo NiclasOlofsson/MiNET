@@ -554,7 +554,7 @@ namespace MiNET.Worlds
 
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
-			MetadataSlot itemSlot = player.ItemInHand;
+			MetadataSlot itemSlot = player._InventoryManager.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
 			if (itemInHand == null || itemInHand.Id != itemId) return;

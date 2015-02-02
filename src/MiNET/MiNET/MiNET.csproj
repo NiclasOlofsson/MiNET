@@ -86,7 +86,7 @@
     <Compile Include="Blocks\WoodenDoor.cs" />
     <Compile Include="Explosion.cs" />
     <Compile Include="HealthManager.cs" />
-    <Compile Include="InventoryManger.cs" />
+    <Compile Include="InventoryManager.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Items\ItemBlock.cs" />
     <Compile Include="Items\ItemDoor.cs" />
@@ -116,6 +116,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="PlayerPosition3D.cs" />
     <Compile Include="PluginSystem\PluginLoader.cs" />
+    <Compile Include="Utils\Compression.cs" />
     <Compile Include="Utils\Endian.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
     <Compile Include="Utils\Int24.cs" />

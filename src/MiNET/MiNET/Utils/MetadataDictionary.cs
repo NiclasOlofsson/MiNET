@@ -54,9 +54,9 @@ namespace MiNET.Utils
 			stream.Write((byte) 0x7F);
 		}
 
-		private delegate MetadataEntry CreateEntryInstance();
+		public delegate MetadataEntry CreateEntryInstance();
 
-		private static readonly CreateEntryInstance[] EntryTypes = new CreateEntryInstance[]
+		public static readonly CreateEntryInstance[] EntryTypes = new CreateEntryInstance[]
 		{
 			() => new MetadataByte(), // 0
 			() => new MetadataShort(), // 1

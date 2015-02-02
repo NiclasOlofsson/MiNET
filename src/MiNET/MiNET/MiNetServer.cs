@@ -138,6 +138,14 @@ namespace MiNET
 			try
 			{
 				if (ConfigParser.GetProperty("save_pe", true)) _level._worldProvider.SaveChunks();
+				if (ConfigParser.GetProperty("save_playerdata", true))
+				{
+					foreach (Player a in _level.Players)
+					{
+						a.SavePlayerData();
+					}
+				}
+
 				if (_listener == null) return true; // Already stopped. It's ok.
 
 				_listener.Close();

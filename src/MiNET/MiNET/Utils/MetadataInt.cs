@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace MiNET.Utils
 {
@@ -44,5 +45,30 @@ namespace MiNET.Utils
 
 	public class MetadataSlots : MetadataDictionary
 	{
+		public static MetadataSlots FromStreamOld(BinaryReader stream)
+		{
+			return (MetadataSlots) MetadataDictionary.FromStream(stream);
+		}
+
+		public static MetadataSlots FromStream(BinaryReader stream)
+		{
+			var value = new MetadataSlots();
+			while (true)
+			{
+				byte key = stream.ReadByte();
+				if (key == 127) break;
+
+				byte type = (byte)((key & 0xE0) >> 5);
+				byte index = (byte)(key & 0x1F);
+
+				var entry = EntryTypes[type]();
+				entry.FromStream(stream);
+				entry.Index = index;
+
+				value[index] = entry;
+			}
+			return value;
+		}
+
 	}
 }

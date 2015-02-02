@@ -1,4 +1,6 @@
-﻿namespace MiNET
+﻿using Craft.Net.Common;
+
+namespace MiNET
 {
 	public class PlayerPosition3D
 	{
@@ -19,6 +21,11 @@
 			X = x;
 			Y = y;
 			Z = z;
+		}
+
+		public Coordinates3D GetCoordinates3D()
+		{
+			return new Coordinates3D((int)X,(int)Y,(int)Z);
 		}
 	}
 }

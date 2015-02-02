@@ -40,9 +40,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs" />
+    <Compile Include="CommandHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Common\Craft.Net.Common.csproj">
+      <Project>{50462849-2223-4e39-b5d9-a928a9a58a33}</Project>
+      <Name>Craft.Net.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MiNET\MiNET.csproj">
       <Project>{b7049bf1-2db0-435d-9791-09ab61018685}</Project>
       <Name>MiNET</Name>

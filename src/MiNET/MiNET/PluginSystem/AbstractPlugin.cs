@@ -6,15 +6,6 @@ using System.Threading.Tasks;
 
 namespace MiNET.API
 {
-    [AttributeUsage(AttributeTargets.Class)]
-    public class PluginAttribute : Attribute
-    {
-        public string PluginName;
-        public string Description;
-        public string PluginVersion;
-        public string Author;
-    }
-
     public abstract class MiNETPlugin : IMiNETPlugin
     {
 	    public MiNETPlugin()

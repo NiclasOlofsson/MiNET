@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Craft.Net.Common;
 using MiNET.Net;
 using MiNET.Worlds;
@@ -10,6 +11,7 @@ namespace MiNET.Entities
 	public class PrimedTnt : Entity
 	{
 		public byte Fuse { get; set; }
+		private bool CheckPosition = true;
 
 		public PrimedTnt(Level level) : base(65, level)
 		{
@@ -36,6 +38,8 @@ namespace MiNET.Entities
 		{
 			Fuse--;
 
+			if (CheckPosition) new Task(() => PositionCheck()).Start();
+
 			if (Fuse == 0)
 			{
 				DespawnEntity();
@@ -47,6 +51,19 @@ namespace MiNET.Entities
 				entityData.entityId = EntityId;
 				entityData.namedtag = GetMetadata().GetBytes();
 				Level.RelayBroadcast(entityData, false);
+			}
+		}
+
+		private void PositionCheck()
+		{
+			Coordinates3D check = KnownPosition.GetCoordinates3D() - Worlds.Level.Down;
+			if (Level.GetBlock(check).Id == 0)
+			{
+				KnownPosition.Y--;
+			}
+			else
+			{
+				CheckPosition = false;
 			}
 		}
 

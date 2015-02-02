@@ -10,7 +10,7 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
-	internal class Explosion
+	public class Explosion
 	{
 		private const int Ray = 16;
 		private readonly IDictionary<Coordinates3D, Block> _afectedBlocks = new Dictionary<Coordinates3D, Block>();

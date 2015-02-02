@@ -28,11 +28,9 @@ MiNET is running CI through the fantastic service of AppVeyor. Currently the bui
 
 Offcourse! We just need you to promise the folowing:
 
-You will use the same coding style as the rest of the code.
-
-You are not copying code from anyone, unless you have their permissions.
-
-We can always decide not to include your code, or make changes to it.
+1. You will use the same coding style as the rest of the code.
+2. You are not copying code from anyone, unless you have their permissions.
+3. We can always decide not to include your code, or make changes to it.
 
 Also, make sure to join our Gitter chat for easy communication.
 

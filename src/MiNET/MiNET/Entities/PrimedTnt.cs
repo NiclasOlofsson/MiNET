@@ -55,7 +55,7 @@ namespace MiNET.Entities
 
 		private void PositionCheck()
 		{
-			Coordinates3D check = KnownPosition.GetCoordinates3D() - Worlds.Level.Down;
+			Coordinates3D check = KnownPosition.GetCoordinates3D() + Worlds.Level.Down;
 			if (!Level.GetBlock(check).IsSolid)
 			{
 				KnownPosition.Y -= 0.8f;

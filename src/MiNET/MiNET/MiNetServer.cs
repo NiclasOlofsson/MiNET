@@ -137,15 +137,23 @@ namespace MiNET
 		{
 			try
 			{
-				if (ConfigParser.GetProperty("save_pe", true)) _level._worldProvider.SaveChunks();
+				if (ConfigParser.GetProperty("save_pe", true))
+				{
+					Log.Info("Saving chunks...");
+					_level._worldProvider.SaveChunks();
+				}
 				if (ConfigParser.GetProperty("save_playerdata", true))
 				{
+					Log.Info("Saving player data...");
 					foreach (Player a in _level.Players)
 					{
 						a.SavePlayerData();
 					}
 				}
+				Log.Info("Disabling plugins...");
+				_pluginLoader.DisablePlugins();
 
+				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.
 
 				_listener.Close();

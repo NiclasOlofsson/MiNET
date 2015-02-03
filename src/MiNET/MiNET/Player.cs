@@ -58,11 +58,21 @@ namespace MiNET
 		public string Username { get; private set; }
 		public PermissionManager Permissions { get; set; }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Player"/> class.
+		/// </summary>
 		internal Player()
 			: base(-1, null)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Player"/> class.
+		/// </summary>
+		/// <param name="server">The server.</param>
+		/// <param name="endpoint">The endpoint.</param>
+		/// <param name="level">The level.</param>
+		/// <param name="mtuSize">Size of the mtu.</param>
 		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
 			: base(-1, level)
 		{
@@ -89,6 +99,10 @@ namespace MiNET
 			IsConnected = true;
 		}
 
+		/// <summary>
+		/// Handles the package.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		public void HandlePackage(Package message)
 		{
 			if (typeof (McpeContainerSetSlot) == message.GetType())
@@ -201,11 +215,19 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Handles an animate packet.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleAnimate(McpeAnimate message)
 		{
 			Level.RelayBroadcast(this, message, false);
 		}
 
+		/// <summary>
+		/// Handles the player action.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandlePlayerAction(McpePlayerAction message)
 		{
 			if (message.entityId != EntityId) return;
@@ -223,11 +245,19 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Handles the ping.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandlePing(InternalPing message)
 		{
 			SendPackage(message);
 		}
 
+		/// <summary>
+		/// Handles the entity data.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleEntityData(McpeEntityData message)
 		{
 			Log.DebugFormat("x:  {0}", message.x);
@@ -243,6 +273,10 @@ namespace MiNET
 			Level.SetBlockEntity(blockEntity);
 		}
 
+		/// <summary>
+		/// Handles the respawn.
+		/// </summary>
+		/// <param name="msg">The MSG.</param>
 		private void HandleRespawn(McpeRespawn msg)
 		{
 			// reset all health states
@@ -285,6 +319,9 @@ namespace MiNET
 			BroadcastSetEntityData();
 		}
 
+		/// <summary>
+		/// Handles the disconnection notification.
+		/// </summary>
 		private void HandleDisconnectionNotification()
 		{
 			SavePlayerData();
@@ -292,6 +329,10 @@ namespace MiNET
 			Level.RemovePlayer(this);
 		}
 
+		/// <summary>
+		/// Handles the connection request.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleConnectionRequest(ConnectionRequest message)
 		{
 			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, message.timestamp);
@@ -300,6 +341,10 @@ namespace MiNET
 			SendPackage(response);
 		}
 
+		/// <summary>
+		/// Handles the connected ping.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleConnectedPing(ConnectedPing message)
 		{
 			SendPackage(new ConnectedPong
@@ -309,6 +354,15 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Handles the login.
+		/// </summary>
+		/// <param name="message">The message.</param>
+		/// <exception cref="System.Exception">
+		/// No username on login
+		/// or
+		/// No username on login
+		/// </exception>
 		private void HandleLogin(McpeLogin message)
 		{
 			Username = message.username;
@@ -335,6 +389,10 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 		}
 
+		/// <summary>
+		/// Handles the message.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleMessage(McpeMessage message)
 		{
 			string text = message.message;
@@ -348,6 +406,10 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Handles the move player.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleMovePlayer(McpeMovePlayer message)
 		{
 			if (HealthManager.IsDead) return;
@@ -360,11 +422,19 @@ namespace MiNET
 			SendChunksForKnownPosition();
 		}
 
+		/// <summary>
+		/// Handles the remove block.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleRemoveBlock(McpeRemoveBlock message)
 		{
 			Level.BreakBlock(Level, this, new Coordinates3D(message.x, message.y, message.z));
 		}
 
+		/// <summary>
+		/// Handles the player armor equipment.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
 		{
 			if (HealthManager.IsDead) return;
@@ -374,6 +444,10 @@ namespace MiNET
 			Level.RelayBroadcast(this, message, false);
 		}
 
+		/// <summary>
+		/// Handles the player equipment.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandlePlayerEquipment(McpePlayerEquipment message)
 		{
 			if (HealthManager.IsDead) return;
@@ -386,6 +460,10 @@ namespace MiNET
 			Level.RelayBroadcast(this, message, false);
 		}
 
+		/// <summary>
+		/// Handles the container set slot.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleContainerSetSlot(McpeContainerSetSlot message)
 		{
 			if (HealthManager.IsDead) return;
@@ -417,6 +495,10 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Handles the interact.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleInteract(McpeInteract message)
 		{
 			Player target = (Player) Level.EntityManager.GetEntity(message.targetEntityId);
@@ -432,6 +514,10 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Handles the use item.
+		/// </summary>
+		/// <param name="message">The message.</param>
 		private void HandleUseItem(McpeUseItem message)
 		{
 			if (message.face <= 5)
@@ -452,11 +538,20 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Gets the direction.
+		/// </summary>
+		/// <returns></returns>
 		public byte GetDirection()
 		{
 			return DirectionByRotationFlat(KnownPosition.Yaw);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="yaw">The yaw.</param>
+		/// <returns></returns>
 		public static byte DirectionByRotationFlat(float yaw)
 		{
 			byte direction = (byte) ((int) Math.Floor((yaw*4F)/360F + 0.5D) & 0x03);
@@ -474,6 +569,9 @@ namespace MiNET
 			return 0;
 		}
 
+		/// <summary>
+		/// Sends the start game packet.
+		/// </summary>
 		private void SendStartGame()
 		{
 			SendPackage(new McpeStartGame
@@ -491,6 +589,9 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Sends the set spawn position packet.
+		/// </summary>
 		private void SendSetSpawnPosition()
 		{
 			SendPackage(new McpeSetSpawnPosition
@@ -501,6 +602,9 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Sends the chunks for known position.
+		/// </summary>
 		public void SendChunksForKnownPosition()
 		{
 			var chunkPosition = new Coordinates2D((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
@@ -528,11 +632,17 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Sends the set health packet.
+		/// </summary>
 		internal void SendSetHealth()
 		{
 			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Health});
 		}
 
+		/// <summary>
+		/// Sends the set time packet.
+		/// </summary>
 		public void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
@@ -542,6 +652,9 @@ namespace MiNET
 			SendPackage(message);
 		}
 
+		/// <summary>
+		/// Sends the move player packet.
+		/// </summary>
 		public void SendMovePlayer()
 		{
 			var package = McpeMovePlayer.CreateObject();
@@ -557,7 +670,9 @@ namespace MiNET
 			SendPackage(package);
 		}
 
-
+		/// <summary>
+		/// Initializes the player.
+		/// </summary>
 		private void InitializePlayer()
 		{
 			//send time again
@@ -590,11 +705,19 @@ namespace MiNET
 			BroadcastSetEntityData();
 		}
 
+		/// <summary>
+		/// Called when [player tick].
+		/// </summary>
+		/// <param name="state">The state.</param>
 		private void OnPlayerTick(object state)
 		{
 			HealthManager.OnTick();
 		}
 
+		/// <summary>
+		/// Sends the add for player.
+		/// </summary>
+		/// <param name="player">The player.</param>
 		public void SendAddForPlayer(Player player)
 		{
 			if (player == this) return;
@@ -617,6 +740,10 @@ namespace MiNET
 			SendArmorForPlayer(player);
 		}
 
+		/// <summary>
+		/// Sends the equipment for player.
+		/// </summary>
+		/// <param name="player">The player.</param>
 		private void SendEquipmentForPlayer(Player player)
 		{
 			SendPackage(new McpePlayerEquipment()
@@ -628,6 +755,10 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Sends the armor for player.
+		/// </summary>
+		/// <param name="player">The player.</param>
 		private void SendArmorForPlayer(Player player)
 		{
 			SendPackage(new McpePlayerArmorEquipment()
@@ -640,6 +771,10 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Sends the remove for player.
+		/// </summary>
+		/// <param name="player">The player.</param>
 		public void SendRemoveForPlayer(Player player)
 		{
 			if (player == this) return;
@@ -651,6 +786,9 @@ namespace MiNET
 			});
 		}
 
+		/// <summary>
+		/// Broadcasts the entity event.
+		/// </summary>
 		public void BroadcastEntityEvent()
 		{
 			Level.RelayBroadcast(this, new McpeEntityEvent()
@@ -665,6 +803,9 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Broadcasts the set entity data.
+		/// </summary>
 		public void BroadcastSetEntityData()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();

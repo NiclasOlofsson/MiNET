@@ -20,6 +20,9 @@ namespace MiNET.Service
 
 		private MiNetServer _server;
 
+		/// <summary>
+		/// Starts this instance.
+		/// </summary>
 		private void Start()
 		{
 			Log.Info("Starting MiNET");
@@ -27,12 +30,19 @@ namespace MiNET.Service
 			_server.StartServer();
 		}
 
+		/// <summary>
+		/// Stops this instance.
+		/// </summary>
 		private void Stop()
 		{
 			Log.Info("Stopping MiNET");
 			_server.StopServer();
 		}
 
+		/// <summary>
+		/// The programs entry point.
+		/// </summary>
+		/// <param name="args">The arguments.</param>
 		private static void Main(string[] args)
 		{
 			ConfigParser.ConfigFile = "server.conf";
@@ -75,6 +85,10 @@ namespace MiNET.Service
 			});
 		}
 
+		/// <summary>
+		/// Determines whether is running on mono.
+		/// </summary>
+		/// <returns></returns>
 		public static bool IsRunningOnMono()
 		{
 			return Type.GetType("Mono.Runtime") != null;

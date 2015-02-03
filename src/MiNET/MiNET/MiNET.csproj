@@ -71,6 +71,7 @@
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
+    <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />

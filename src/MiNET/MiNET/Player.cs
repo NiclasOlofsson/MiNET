@@ -85,7 +85,7 @@ namespace MiNET
 				BodyYaw = 91
 			};
 
-			_InventoryManager = new InventoryManager();
+			_InventoryManager = new InventoryManager(this);
 			IsConnected = true;
 		}
 

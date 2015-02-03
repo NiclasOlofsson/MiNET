@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
@@ -38,10 +39,10 @@ namespace MiNET
 
 		private short _mtuSize;
 		private int _reliableMessageNumber;
-		private int _datagramSequenceNumber;
+		private int _datagramSequenceNumber = -1; // Very important to start with -1 since Interlock.Increament doesn't offer another solution
 		private object _sequenceNumberSync = new object();
 
-		private Queue<Package> _sendQueue = new Queue<Package>();
+		private ConcurrentQueue<Package> _sendQueue = new ConcurrentQueue<Package>();
 		private Timer _sendTicker;
 
 		private Coordinates2D _currentChunkPosition;
@@ -119,6 +120,8 @@ namespace MiNET
 
 			ItemInHand = new MetadataSlot(new ItemStack(-1));
 			IsConnected = true;
+
+			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
 
 		public void HandlePackage(Package message)
@@ -621,7 +624,7 @@ namespace MiNET
 
 		private void OnPlayerTick(object state)
 		{
-			HealthManager.OnTick();
+			//HealthManager.OnTick();
 		}
 
 		public void SendAddForPlayer(Player player)
@@ -725,21 +728,13 @@ namespace MiNET
 		{
 			if (!IsConnected) return;
 
-			if (IsSpawned /* && package is McpeMovePlayer*/)
+			if (IsSpawned)
 			{
-				lock (_sendQueue)
-				{
-					_sendQueue.Enqueue(package);
-
-					if (_sendTicker == null)
-					{
-						_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
-					}
-				}
+				_sendQueue.Enqueue(package);
 			}
 			else
 			{
-				lock (_sequenceNumberSync)
+				//lock (_sequenceNumberSync)
 				{
 					_server.SendPackage(_endpoint, new List<Package>(new[] {package}), _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 				}
@@ -751,19 +746,17 @@ namespace MiNET
 			if (!IsConnected) return;
 
 			List<Package> messages = new List<Package>();
-			lock (_sendQueue)
+
+			int lenght = _sendQueue.Count;
+			for (int i = 0; i < lenght; i++)
 			{
-				while (_sendQueue.Count > 0)
-				{
-					Package package = _sendQueue.Dequeue();
-					//if (package.Timer.ElapsedMilliseconds > 100) continue;
-					messages.Add(package);
-				}
+				Package package;
+				if (_sendQueue.TryDequeue(out package)) messages.Add(package);
 			}
 
 			if (messages.Count == 0) return;
 
-			lock (_sequenceNumberSync)
+			//lock (_sequenceNumberSync)
 			{
 				_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 			}

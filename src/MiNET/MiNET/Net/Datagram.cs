@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
+using System.Threading;
 
 namespace MiNET.Net
 {
@@ -19,7 +21,7 @@ namespace MiNET.Net
 			{
 				isValid = true,
 				needsBAndAs = true,
-				//datagramSequenceNumber = sequenceNumber
+				//datagramSequenceNumber = datagramSequenceNumber
 			};
 			_buf = new MemoryStream();
 		}
@@ -63,30 +65,29 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static IEnumerable<Datagram> CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber)
+		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, IPEndPoint senderEndpoint, Action<IPEndPoint, Datagram> send)
 		{
-			var datagrams = new List<Datagram>();
-
 			Datagram datagram = null;
 			foreach (var message in messages)
 			{
 				if (message is InternalPing) continue;
 
-				var messageParts = GetMessageParts(message, mtuSize, ref datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber);
+				var messageParts = GetMessageParts(message, mtuSize, datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber);
 				foreach (var messagePart in messageParts)
 				{
 					if (datagram == null)
 					{
 						datagram = CreateObject();
-						datagram.Header.datagramSequenceNumber = datagramSequenceNumber++;
-						datagrams.Add(datagram);
+						datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref datagramSequenceNumber);
 					}
 
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
+						Datagram datagram1 = datagram;
+						send(senderEndpoint, datagram1);
+
 						datagram = CreateObject();
-						datagram.Header.datagramSequenceNumber = datagramSequenceNumber++;
-						datagrams.Add(datagram);
+						datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref datagramSequenceNumber);
 
 						if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 						{
@@ -96,22 +97,25 @@ namespace MiNET.Net
 				}
 			}
 
-			return datagrams;
+			if (datagram != null)
+			{
+				send(senderEndpoint, datagram);
+			}
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, ref int sequenceNumber, Reliability reliability, ref int reliableMessageNumber)
+		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, int datagramSequenceNumber, Reliability reliability, ref int reliableMessageNumber)
 		{
 			var messageParts = new List<MessagePart>();
 
 			byte[] encodedMessage = message.Encode();
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 34));
 			int index = 0;
-			short splitId = (short) (sequenceNumber%short.MaxValue);
+			short splitId = (short) (datagramSequenceNumber%short.MaxValue);
 			if (encodedMessage.Length <= mtuSize - 34)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;
-				messagePart.Header.ReliableMessageNumber = reliableMessageNumber++;
+				messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref reliableMessageNumber);
 				messagePart.Header.HasSplit = count > 1;
 				messagePart.Header.PartCount = count;
 				messagePart.Header.PartId = splitId;
@@ -126,7 +130,7 @@ namespace MiNET.Net
 				{
 					MessagePart messagePart = MessagePart.CreateObject();
 					messagePart.Header.Reliability = reliability;
-					messagePart.Header.ReliableMessageNumber = reliableMessageNumber++;
+					messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref reliableMessageNumber);
 					messagePart.Header.HasSplit = count > 1;
 					messagePart.Header.PartCount = count;
 					messagePart.Header.PartId = splitId;

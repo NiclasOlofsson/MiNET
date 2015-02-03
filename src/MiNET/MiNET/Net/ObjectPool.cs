@@ -38,4 +38,37 @@ namespace MiNET.Net
 			_objects.Add(item);
 		}
 	}
+
+	public class ObjectPool2<T>
+	{
+		private ConcurrentBag<T> _objects;
+		private Func<T> _objectGenerator;
+
+		public void FillPool(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				_objects.Add(_objectGenerator());
+			}
+		}
+
+		public ObjectPool2(Func<T> objectGenerator)
+		{
+			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
+			_objects = new ConcurrentBag<T>();
+			_objectGenerator = objectGenerator;
+		}
+
+		public T GetObject()
+		{
+			T item;
+			if (_objects.TryTake(out item)) return item;
+			return _objectGenerator();
+		}
+
+		public void PutObject(T item)
+		{
+			_objects.Add(item);
+		}
+	}
 }

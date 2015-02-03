@@ -17,12 +17,12 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 400; i++)
+			for (int i = 0; i < 700; i++)
 			{
 				counter[0]++;
 				string playerName = "Player " + (i + 1);
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(random.Next(20, 100));
+				Thread.Sleep(random.Next(10, 100));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");
@@ -61,11 +61,11 @@ namespace MiNET.ServiceKiller
 				Thread.Sleep(100); // Let the server process
 				//Thread.Yield();
 
-				Console.WriteLine("Client {0} connected, sleeping 10s...", username);
+				//Console.WriteLine("\t\tClient {0} connected, sleeping 10s...", username);
 
-				Thread.Sleep(10000);
+				Thread.Sleep(30000);
 
-				Console.WriteLine("Client {0} moving...", username);
+				Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", username);
 
 				Random random = new Random();
 				for (int i = 0; i < 100; i++)
@@ -75,7 +75,7 @@ namespace MiNET.ServiceKiller
 					float length = random.Next(5, 20);
 					double angle = 0.0;
 					const double angleStepsize = 0.05;
-					float heightStepsize = (float) (random.NextDouble() / 5);
+					float heightStepsize = (float) (random.NextDouble()/5);
 
 					while (angle < 2*Math.PI)
 					{

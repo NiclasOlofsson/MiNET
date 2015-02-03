@@ -351,10 +351,10 @@ namespace MiNET.Net
 	/// Base package class
 	public abstract partial class Package<T> : Package, ICloneable where T : Package<T>, new()
 	{
+		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
+
 		private bool _isPooled;
 		private long _referenceCounter;
-
-		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 
 		public bool IsPooled
 		{
@@ -364,7 +364,9 @@ namespace MiNET.Net
 		public long ReferenceCounter
 		{
 			get { return _referenceCounter; }
+			set { _referenceCounter = value; }
 		}
+
 
 		public T AddReferences(long numberOfReferences)
 		{

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -17,6 +16,82 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void AckSeriesTest()
+		{
+			{
+				var ranges = Acks.Slize(new List<int>() {1});
+				Assert.AreEqual(1, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(1, ranges[0].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {1, 2});
+				Assert.AreEqual(1, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(2, ranges[0].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {1, 4});
+				Assert.AreEqual(1, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(4, ranges[0].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {1, 2, 6});
+				Assert.AreEqual(2, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(2, ranges[0].Item2);
+				Assert.AreEqual(6, ranges[1].Item1);
+				Assert.AreEqual(6, ranges[1].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {1, 2, 4, 5, 6, 9});
+				Assert.AreEqual(3, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(2, ranges[0].Item2);
+				Assert.AreEqual(4, ranges[1].Item1);
+				Assert.AreEqual(6, ranges[1].Item2);
+				Assert.AreEqual(9, ranges[2].Item1);
+				Assert.AreEqual(9, ranges[2].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {1, 2, 4, 6, 7, 9});
+				Assert.AreEqual(4, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(2, ranges[0].Item2);
+				Assert.AreEqual(4, ranges[1].Item1);
+				Assert.AreEqual(4, ranges[1].Item2);
+				Assert.AreEqual(6, ranges[2].Item1);
+				Assert.AreEqual(7, ranges[2].Item2);
+				Assert.AreEqual(9, ranges[3].Item1);
+				Assert.AreEqual(9, ranges[3].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {1, 2, 4, 5, 6, 9, 10});
+				Assert.AreEqual(3, ranges.Count);
+				Assert.AreEqual(1, ranges[0].Item1);
+				Assert.AreEqual(2, ranges[0].Item2);
+				Assert.AreEqual(4, ranges[1].Item1);
+				Assert.AreEqual(6, ranges[1].Item2);
+				Assert.AreEqual(9, ranges[2].Item1);
+				Assert.AreEqual(10, ranges[2].Item2);
+			}
+			{
+				var ranges = Acks.Slize(new List<int>() {0, 2, 4, 5, 6, 9, 10});
+				Assert.AreEqual(4, ranges.Count);
+				Assert.AreEqual(0, ranges[0].Item1);
+				Assert.AreEqual(0, ranges[0].Item2);
+				Assert.AreEqual(2, ranges[1].Item1);
+				Assert.AreEqual(2, ranges[1].Item2);
+				Assert.AreEqual(4, ranges[2].Item1);
+				Assert.AreEqual(6, ranges[2].Item2);
+				Assert.AreEqual(9, ranges[3].Item1);
+				Assert.AreEqual(10, ranges[3].Item2);
+			}
+		}
+
+
 		[Test]
 		public void BlockEntityTest()
 		{

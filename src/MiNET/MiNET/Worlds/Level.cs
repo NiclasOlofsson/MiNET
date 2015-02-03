@@ -65,7 +65,7 @@ namespace MiNET.Worlds
 		public IWorldProvider _worldProvider;
 		private int _viewDistance = 256;
 		private Timer _levelTicker;
-		private int _worldTickTime = 50;
+		private int _worldTickTime = 10;
 		private int _worldDayCycleTime = 24000;
 		//private int _worldDayCycleTime = 14400;
 
@@ -225,7 +225,7 @@ namespace MiNET.Worlds
 			lock (Players)
 			{
 				var existingPlayers = Players.Where(player => player.Username == username);
-				foreach (var existingPlayer in existingPlayers)
+				foreach (var existingPlayer in existingPlayers.ToArray())
 				{
 					Debug.WriteLine(string.Format("Removing staled players on login {0}", username));
 					RemovePlayer(existingPlayer);
@@ -269,14 +269,14 @@ namespace MiNET.Worlds
 
 					Player[] players = GetSpawnedPlayers();
 
-					if (CurrentWorldTime%10 == 0)
-					{
-						McpeSetTime message = McpeSetTime.CreateObject();
-						message.time = CurrentWorldTime;
-						message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
+					//if (CurrentWorldTime%10 == 0)
+					//{
+					//	McpeSetTime message = McpeSetTime.CreateObject();
+					//	message.time = CurrentWorldTime;
+					//	message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
 
-						RelayBroadcast(players, message, false);
-					}
+					//	RelayBroadcast(players, message, false);
+					//}
 
 					// broadcast events to all players
 
@@ -320,13 +320,10 @@ namespace MiNET.Worlds
 				Player updatedPlayer = player;
 				var knownPosition = updatedPlayer.KnownPosition;
 
-				int entityId = EntityManager.GetEntityId(null, player);
-				if (entityId == 0) throw new Exception("Souldn't have 0 entity IDs here.");
-
 				var task = new Task(delegate
 				{
-					McpeMovePlayer move = McpeMovePlayer.CreateObject();
-					move.entityId = entityId;
+					McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
+					move.entityId = updatedPlayer.EntityId;
 					move.x = knownPosition.X;
 					move.y = knownPosition.Y;
 					move.z = knownPosition.Z;
@@ -334,16 +331,18 @@ namespace MiNET.Worlds
 					move.pitch = knownPosition.Pitch;
 					move.bodyYaw = knownPosition.BodyYaw;
 					move.teleport = 0;
-					var bytes = move.Encode(); // Optmized
+					move.Encode(); // Optmized
 
 					foreach (var p in players)
 					{
-						if (p == updatedPlayer) continue;
+						if (p == updatedPlayer)
+						{
+							move.PutPool();
+							continue;
+						}
 
-						move = move.AddReference(move);
 						p.SendMovementForPlayer(updatedPlayer, move);
 					}
-					move.PutPool();
 				});
 				tasks.Add(task);
 				task.Start();

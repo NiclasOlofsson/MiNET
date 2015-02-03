@@ -159,7 +159,7 @@ namespace MiNET
 				if (block is Air)
 				{
 					var blockDown = _world.GetBlock(coord.X, coord.Y - 1, coord.Z);
-					if (!(blockDown is Air) && random.Next(3) == 0)
+					if (!(blockDown is Air) && random.Next(6) == 0)
 					{
 						_world.SetBlock(new Fire {Coordinates = block.Coordinates});
 					}

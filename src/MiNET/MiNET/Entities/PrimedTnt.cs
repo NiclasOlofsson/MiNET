@@ -11,6 +11,7 @@ namespace MiNET.Entities
 	public class PrimedTnt : Entity
 	{
 		public byte Fuse { get; set; }
+		public bool Fire { get; set; }
 		private bool CheckPosition = true;
 
 		public PrimedTnt(Level level) : base(65, level)
@@ -30,6 +31,7 @@ namespace MiNET.Entities
 			KnownPosition.X += 0.5f;
 			KnownPosition.Y += 0.5f;
 			KnownPosition.Z += 0.5f;
+			Fire = false;
 
 			base.SpawnEntity();
 		}
@@ -70,7 +72,7 @@ namespace MiNET.Entities
 		{
 			// Litteral "fire and forget"
 			new Explosion(Level,
-				new Coordinates3D((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4)
+				new Coordinates3D((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4, Fire)
 				.Explode();
 		}
 	}

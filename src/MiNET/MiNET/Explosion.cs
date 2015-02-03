@@ -18,6 +18,7 @@ namespace MiNET
 		private readonly Level _world;
 		private Coordinates3D _centerCoordinates;
 		private bool CoordsSet = false;
+		private bool Fire = false;
 
 		/// <summary>
 		///     Use this for Explosion an explosion only!
@@ -25,12 +26,14 @@ namespace MiNET
 		/// <param name="world"></param>
 		/// <param name="centerCoordinates"></param>
 		/// <param name="size"></param>
-		public Explosion(Level world, Coordinates3D centerCoordinates, float size)
+		/// <param name="fire"></param>
+		public Explosion(Level world, Coordinates3D centerCoordinates, float size, bool fire = false)
 		{
 			_size = size;
 			_centerCoordinates = centerCoordinates;
 			_world = world;
 			CoordsSet = true;
+			Fire = fire;
 		}
 
 		/// <summary>
@@ -152,16 +155,19 @@ namespace MiNET
 			}
 
 			// Set stuff on fire
-			Random random = new Random();
-			foreach (Coordinates3D coord in _afectedBlocks.Keys)
+			if (Fire)
 			{
-				var block = _world.GetBlock(coord.X, coord.Y, coord.Z);
-				if (block is Air)
+				Random random = new Random();
+				foreach (Coordinates3D coord in _afectedBlocks.Keys)
 				{
-					var blockDown = _world.GetBlock(coord.X, coord.Y - 1, coord.Z);
-					if (!(blockDown is Air) && random.Next(6) == 0)
+					var block = _world.GetBlock(coord.X, coord.Y, coord.Z);
+					if (block is Air)
 					{
-						_world.SetBlock(new Fire {Coordinates = block.Coordinates});
+						var blockDown = _world.GetBlock(coord.X, coord.Y - 1, coord.Z);
+						if (!(blockDown is Air) && random.Next(3) == 0)
+						{
+							_world.SetBlock(new Fire {Coordinates = block.Coordinates});
+						}
 					}
 				}
 			}
@@ -169,7 +175,7 @@ namespace MiNET
 			return true;
 		}
 
-		public void SpawnTNT(Coordinates3D blockCoordinates, Level world)
+		private void SpawnTNT(Coordinates3D blockCoordinates, Level world)
 		{
 			var rand = new Random();
 			new PrimedTnt(world)

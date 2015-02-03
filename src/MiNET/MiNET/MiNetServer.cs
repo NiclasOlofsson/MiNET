@@ -55,19 +55,34 @@ namespace MiNET
 		private Random _random = new Random();
 		private string _Motd = string.Empty;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MiNetServer"/> class.
+		/// </summary>
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MiNetServer"/> class.
+		/// </summary>
+		/// <param name="port">The port.</param>
 		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="MiNetServer"/> class.
+		/// </summary>
+		/// <param name="endpoint">The endpoint.</param>
 		public MiNetServer(IPEndPoint endpoint)
 		{
 			_endpoint = new IPEndPoint(IPAddress.Any, DefaultPort);
 		}
 
+		/// <summary>
+		/// Determines whether is running on mono.
+		/// </summary>
+		/// <returns></returns>
 		public static bool IsRunningOnMono()
 		{
 			return Type.GetType("Mono.Runtime") != null;
@@ -76,6 +91,10 @@ namespace MiNET
 
 		private List<Level> _levels = new List<Level>();
 
+		/// <summary>
+		/// Starts the server.
+		/// </summary>
+		/// <returns></returns>
 		public bool StartServer()
 		{
 			if (_listener != null) return false; // Already started
@@ -157,12 +176,31 @@ namespace MiNET
 			return false;
 		}
 
-
+		/// <summary>
+		/// Stops the server.
+		/// </summary>
+		/// <returns></returns>
 		public bool StopServer()
 		{
 			try
 			{
-				if (ConfigParser.GetProperty("save_pe", true)) _level._worldProvider.SaveChunks();
+				if (ConfigParser.GetProperty("save_pe", true))
+				{
+					Log.Info("Saving chunks...");
+					_level._worldProvider.SaveChunks();
+				}
+				if (ConfigParser.GetProperty("save_playerdata", true))
+				{
+					Log.Info("Saving player data...");
+					foreach (Player a in _level.Players)
+					{
+						a.SavePlayerData();
+					}
+				}
+				Log.Info("Disabling plugins...");
+				_pluginLoader.DisablePlugins();
+
+				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.
 
 				_listener.Close();
@@ -178,6 +216,10 @@ namespace MiNET
 			return false;
 		}
 
+		/// <summary>
+		/// Handles the callback.
+		/// </summary>
+		/// <param name="ar">The results</param>
 		private void ReceiveCallback(IAsyncResult ar)
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
@@ -224,6 +266,12 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Processes a message.
+		/// </summary>
+		/// <param name="receiveBytes">The received bytes.</param>
+		/// <param name="senderEndpoint">The sender's endpoint.</param>
+		/// <exception cref="System.Exception">Receive ERROR, NAK in wrong place</exception>
 		private void ProcessMessage(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
 			//Thread.CurrentThread.IsBackground = false;
@@ -345,6 +393,11 @@ namespace MiNET
 			}
 		}
 
+		/// <summary>
+		/// Handles the specified package.
+		/// </summary>
+		/// <param name="message">The package.</param>
+		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
 			if (typeof (UnknownPackage) == message.GetType())
@@ -416,19 +469,19 @@ namespace MiNET
 				}
 
 				if (acks.acks.Count > 0)
-				{
+					{
 					byte[] data = acks.Encode();
 					SendData(data, session.EndPoint);
 				}
-			}
-		}
+					}
+				}
 
 		private static ObjectPool2<UdpClient> _udpPool = new ObjectPool2<UdpClient>(() => new UdpClient());
 
 		static MiNetServer()
 		{
 			_udpPool.FillPool(100);
-		}
+			}
 
 
 		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
@@ -459,7 +512,7 @@ namespace MiNET
 				SendData(data, senderEndpoint);
 
 				foreach (MessagePart part in datagram.MessageParts)
-				{
+			{
 					part.Buffer = null;
 					part.PutPool();
 				}
@@ -477,6 +530,11 @@ namespace MiNET
 		private long _latency = -1;
 		private int _availableBytes;
 
+		/// <summary>
+		/// Sends the data.
+		/// </summary>
+		/// <param name="data">The data.</param>
+		/// <param name="targetEndpoint">The target endpoint.</param>
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
 			if (_throughPut == null)
@@ -513,6 +571,12 @@ namespace MiNET
 		}
 
 		// ReSharper disable once UnusedMember.Global
+	
+		/// <summary>
+		/// Converts a byte[] to string.
+		/// </summary>
+		/// <param name="ba">The data to convert.</param>
+		/// <returns></returns>
 		public static string ByteArrayToString(byte[] ba)
 		{
 			StringBuilder hex = new StringBuilder((ba.Length*2) + 100);
@@ -523,22 +587,30 @@ namespace MiNET
 			return hex.ToString();
 		}
 
+		/// <summary>
+		/// Traces the received data.
+		/// </summary>
+		/// <param name="message">The data.</param>
 		private static void TraceReceive(Package message)
 		{
 			if (Log.IsDebugEnabled)
-				if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
-				{
+			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+			{
 					//Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-				}
+			}
 		}
 
+		/// <summary>
+		/// Traces a send packet.
+		/// </summary>
+		/// <param name="message">The packet.</param>
 		private static void TraceSend(Package message)
 		{
 			if (Log.IsDebugEnabled)
-				if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
-				{
+			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+			{
 					//Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-				}
+			}
 		}
 	}
 }

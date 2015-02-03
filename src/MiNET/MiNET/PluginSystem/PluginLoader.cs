@@ -65,35 +65,5 @@ namespace MiNET.PluginSystem
                 miNetPlugin.OnDisable();
             }
         }
-
-        private static string GetAttribute(Type t, PluginAttributes atribute)
-        {
-            PluginAttribute data =
-                (PluginAttribute)Attribute.GetCustomAttribute(t, typeof(PluginAttribute));
-
-            if (data != null)
-            {
-                switch (atribute)
-                {
-                    case PluginAttributes.Author:
-						return data.Author;
-                    case PluginAttributes.Description:
-		                return data.Description;
-					case PluginAttributes.Name:
-		                return data.PluginName;
-					case PluginAttributes.Version:
-		                return data.PluginVersion;
-                }
-            }
-	        return "N/A";
-        }
-
-        private enum PluginAttributes
-        {
-            Author,
-            Description,
-            Version,
-            Name
-        }
     }
 }

@@ -13,6 +13,7 @@ namespace MiNET.Items
 			else if (id == 324) item = new ItemDoor();
 			else if (id == 325) item = new ItemBucket();
 			else if (id == 259) item = new ItemFlintAndSteel();
+			else if (id == 267) item = new ItemIronSword();
 			else item = new Item(id);
 
 			return item;

@@ -34,6 +34,13 @@ namespace MiNET
 			{
 				ItemHotbar[i] = new MetadataInt(-1);
 			}
+
+			ItemHotbar[0] = new MetadataInt(9);
+			ItemHotbar[1] = new MetadataInt(10);
+			ItemHotbar[2] = new MetadataInt(11);
+			ItemHotbar[3] = new MetadataInt(12);
+			ItemHotbar[4] = new MetadataInt(13);
+			ItemHotbar[5] = new MetadataInt(14);
 		}
 
 		/// <summary>

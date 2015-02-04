@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Craft.Net.Common;
 using MiNET.BlockEntities;
 using MiNET.Utils;
@@ -8,7 +7,7 @@ namespace MiNET.Worlds
 {
 	public class FlatlandWorldProvider : IWorldProvider
 	{
-		private readonly List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
+		private readonly Dictionary<Coordinates2D, ChunkColumn> _chunkCache = new Dictionary<Coordinates2D, ChunkColumn>();
 		private bool _loadFromFile;
 		private bool _saveToFile;
 
@@ -34,7 +33,8 @@ namespace MiNET.Worlds
 		{
 			lock (_chunkCache)
 			{
-				ChunkColumn cachedChunk = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+				ChunkColumn cachedChunk;
+				_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk);
 
 				if (cachedChunk != null)
 				{
@@ -96,7 +96,7 @@ namespace MiNET.Worlds
 						}
 					}
 				}
-				_chunkCache.Add(chunk);
+				_chunkCache.Add(chunkCoordinates, chunk);
 
 				return chunk;
 			}
@@ -171,7 +171,7 @@ namespace MiNET.Worlds
 		{
 			if (_saveToFile)
 			{
-				foreach (ChunkColumn chunkColumn in _chunkCache)
+				foreach (ChunkColumn chunkColumn in _chunkCache.Values)
 				{
 					chunkColumn.SaveChunk();
 				}

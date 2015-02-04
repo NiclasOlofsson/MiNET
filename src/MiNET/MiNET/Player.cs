@@ -223,6 +223,8 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleAnimate(McpeAnimate message)
 		{
+			message.entityId = EntityId;
+
 			Level.RelayBroadcast(this, message, false);
 		}
 
@@ -714,7 +716,7 @@ namespace MiNET
 		/// <param name="state">The state.</param>
 		private void OnPlayerTick(object state)
 		{
-			//HealthManager.OnTick();
+			HealthManager.OnTick();
 		}
 
 		/// <summary>
@@ -796,7 +798,7 @@ namespace MiNET
 		{
 			Level.RelayBroadcast(this, new McpeEntityEvent()
 			{
-				entityId = 0,
+				entityId = EntityId,
 				eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2)
 			});
 

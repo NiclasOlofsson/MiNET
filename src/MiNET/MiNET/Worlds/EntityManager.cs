@@ -48,26 +48,18 @@ namespace MiNET.Worlds
 		{
 			if (entity == caller) return 0;
 
-			//lock (_entities)
-			//{
 			int entityId = entity.EntityId;
 			if (entityId == -1)
 				throw new Exception("Expected to find entity in entities, but didn't exist. Need to AddEntity first.");
 
 			return entityId;
-			//}
 		}
 
 		public Entity GetEntity(int entityId)
 		{
-			//lock (_entities)
-			//{
 			Entity player = _entities.FirstOrDefault(entity => entity.EntityId == entityId);
-			if (player == null)
-				throw new Exception("Expected to find entity in entities, but didn't exist. Need to AddEntity first.");
 
 			return player;
-			//}
 		}
 	}
 }

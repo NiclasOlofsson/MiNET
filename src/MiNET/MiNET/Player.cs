@@ -518,6 +518,12 @@ namespace MiNET
 				entityId = target.EntityId,
 				eventId = (byte) (target.HealthManager.Health <= 0 ? 3 : 2)
 			});
+
+			target.SendPackage(new McpeEntityEvent()
+			{
+				entityId = 0,
+				eventId = (byte) (target.HealthManager.Health <= 0 ? 3 : 2)
+			});
 		}
 
 		/// <summary>

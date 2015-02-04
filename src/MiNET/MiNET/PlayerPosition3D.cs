@@ -27,7 +27,7 @@ namespace MiNET
 
 		public Coordinates3D GetCoordinates3D()
 		{
-			return new Coordinates3D((int)X,(int)Y,(int)Z);
+			return new Coordinates3D((int) X, (int) Y, (int) Z);
 		}
 
 		public byte[] Export()

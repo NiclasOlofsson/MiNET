@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MiNET.Entities;
 
 namespace MiNET.Worlds
@@ -7,10 +8,11 @@ namespace MiNET.Worlds
 	public class EntityManager
 	{
 		private List<Entity> _entities = new List<Entity>();
+		private int _entityId = 1;
 
 		public EntityManager()
 		{
-			_entities.Add(new Entity(-1, null));
+			//_entities.Add(new Entity(-1, null));
 		}
 
 		public void AddEntity(Entity caller, Entity entity)
@@ -24,7 +26,7 @@ namespace MiNET.Worlds
 					if (_entities.Contains(entity))
 						throw new Exception("Tried to add entity that already existed.");
 					_entities.Add(entity);
-					entity.EntityId = _entities.IndexOf(entity);
+					entity.EntityId = _entityId++;
 				}
 			}
 		}
@@ -61,7 +63,7 @@ namespace MiNET.Worlds
 		{
 			//lock (_entities)
 			//{
-			Entity player = _entities[entityId];
+			Entity player = _entities.FirstOrDefault(entity => entity.EntityId == entityId);
 			if (player == null)
 				throw new Exception("Expected to find entity in entities, but didn't exist. Need to AddEntity first.");
 

@@ -1,7 +1,7 @@
 using System;
-using MiNET.Utils;
 using System.IO;
 using MiNET.Net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -12,6 +12,7 @@ namespace MiNET
 		public MetadataInts ItemHotbar { get; private set; }
 		public MetadataSlot ItemInHand { get; private set; }
 		private Player Player { get; set; }
+
 		public InventoryManager(Player player)
 		{
 			Player = player;
@@ -44,7 +45,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Set a players slot to the specified item.
+		///     Set a players slot to the specified item.
 		/// </summary>
 		/// <param name="slot">The slot to set</param>
 		/// <param name="itemID">The item id</param>
@@ -53,7 +54,7 @@ namespace MiNET
 		public void SetInventorySlot(byte slot, short itemID, sbyte amount = 1, short metadata = 0)
 		{
 			if (slot > 35) throw new IndexOutOfRangeException("slot");
-			Slots[slot] = new MetadataSlot(new ItemStack(itemID, amount, metadata ));
+			Slots[slot] = new MetadataSlot(new ItemStack(itemID, amount, metadata));
 
 			Player.SendPackage(new McpeContainerSetContent
 			{
@@ -64,7 +65,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Empty the specified slot
+		///     Empty the specified slot
 		/// </summary>
 		/// <param name="slot">The slot to empty.</param>
 		public void EmptyInventorySlot(byte slot)
@@ -82,7 +83,7 @@ namespace MiNET
 				Armor.WriteTo(writer);
 
 				Slots.WriteTo(writer);
-				
+
 				ItemHotbar.WriteTo(writer);
 
 				writer.Flush();

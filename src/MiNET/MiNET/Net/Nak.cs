@@ -44,6 +44,5 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
-
 	}
 }

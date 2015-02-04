@@ -21,7 +21,7 @@ namespace MiNET.Service
 		private MiNetServer _server;
 
 		/// <summary>
-		/// Starts this instance.
+		///     Starts this instance.
 		/// </summary>
 		private void Start()
 		{
@@ -31,7 +31,7 @@ namespace MiNET.Service
 		}
 
 		/// <summary>
-		/// Stops this instance.
+		///     Stops this instance.
 		/// </summary>
 		private void Stop()
 		{
@@ -40,7 +40,7 @@ namespace MiNET.Service
 		}
 
 		/// <summary>
-		/// The programs entry point.
+		///     The programs entry point.
 		/// </summary>
 		/// <param name="args">The arguments.</param>
 		private static void Main(string[] args)
@@ -86,7 +86,7 @@ namespace MiNET.Service
 		}
 
 		/// <summary>
-		/// Determines whether is running on mono.
+		///     Determines whether is running on mono.
 		/// </summary>
 		/// <returns></returns>
 		public static bool IsRunningOnMono()

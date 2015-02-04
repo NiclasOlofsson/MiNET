@@ -124,10 +124,10 @@ namespace MiNET
 			if (IsOnFire)
 			{
 				FireTick--;
-                if (FireTick <= 0)
-                {
-                    IsOnFire = false;
-                }
+				if (FireTick <= 0)
+				{
+					IsOnFire = false;
+				}
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{

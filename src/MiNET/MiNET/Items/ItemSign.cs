@@ -1,10 +1,7 @@
 using System;
 using Craft.Net.Common;
-using fNbt;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
-using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items

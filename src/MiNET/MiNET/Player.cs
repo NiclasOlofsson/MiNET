@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Threading;
 using Craft.Net.Common;
@@ -13,10 +14,8 @@ using MiNET.Worlds;
 using ItemStack = MiNET.Utils.ItemStack;
 using MetadataByte = MiNET.Utils.MetadataByte;
 using MetadataDictionary = MiNET.Utils.MetadataDictionary;
-using MetadataInt = MiNET.Utils.MetadataInt;
 using MetadataShort = MiNET.Utils.MetadataShort;
 using MetadataSlot = MiNET.Utils.MetadataSlot;
-using System.IO;
 
 namespace MiNET
 {
@@ -60,7 +59,7 @@ namespace MiNET
 		public PermissionManager Permissions { get; set; }
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Player"/> class.
+		///     Initializes a new instance of the <see cref="Player" /> class.
 		/// </summary>
 		internal Player()
 			: base(-1, null)
@@ -68,7 +67,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Player"/> class.
+		///     Initializes a new instance of the <see cref="Player" /> class.
 		/// </summary>
 		/// <param name="server">The server.</param>
 		/// <param name="endpoint">The endpoint.</param>
@@ -103,7 +102,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the package.
+		///     Handles the package.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		public void HandlePackage(Package message)
@@ -219,7 +218,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles an animate packet.
+		///     Handles an animate packet.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleAnimate(McpeAnimate message)
@@ -228,7 +227,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the player action.
+		///     Handles the player action.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandlePlayerAction(McpePlayerAction message)
@@ -249,7 +248,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the ping.
+		///     Handles the ping.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandlePing(InternalPing message)
@@ -258,7 +257,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the entity data.
+		///     Handles the entity data.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleEntityData(McpeEntityData message)
@@ -277,7 +276,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the respawn.
+		///     Handles the respawn.
 		/// </summary>
 		/// <param name="msg">The MSG.</param>
 		private void HandleRespawn(McpeRespawn msg)
@@ -323,17 +322,18 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the disconnection notification.
+		///     Handles the disconnection notification.
 		/// </summary>
-		private void HandleDisconnectionNotification()
+		public void HandleDisconnectionNotification()
 		{
 			SavePlayerData();
 			IsConnected = false;
+			IsSpawned = true;
 			Level.RemovePlayer(this);
 		}
 
 		/// <summary>
-		/// Handles the connection request.
+		///     Handles the connection request.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleConnectionRequest(ConnectionRequest message)
@@ -345,7 +345,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the connected ping.
+		///     Handles the connected ping.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleConnectedPing(ConnectedPing message)
@@ -358,16 +358,18 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the login.
+		///     Handles the login.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		/// <exception cref="System.Exception">
-		/// No username on login
-		/// or
-		/// No username on login
+		///     No username on login
+		///     or
+		///     No username on login
 		/// </exception>
 		private void HandleLogin(McpeLogin message)
 		{
+			if (Username != null) return; // Already doing login
+
 			Username = message.username;
 
 			if (Username == null) throw new Exception("No username on login");
@@ -377,7 +379,6 @@ namespace MiNET
 
 			if (Username.StartsWith("Player")) IsBot = true;
 
-			if (Username == null) throw new Exception("No username on login");
 			SendPackage(new McpeLoginStatus {status = 0});
 
 			LoadFromFile();
@@ -393,7 +394,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the message.
+		///     Handles the message.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleMessage(McpeMessage message)
@@ -410,7 +411,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the move player.
+		///     Handles the move player.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleMovePlayer(McpeMovePlayer message)
@@ -426,7 +427,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the remove block.
+		///     Handles the remove block.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleRemoveBlock(McpeRemoveBlock message)
@@ -435,7 +436,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the player armor equipment.
+		///     Handles the player armor equipment.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
@@ -448,7 +449,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the player equipment.
+		///     Handles the player equipment.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandlePlayerEquipment(McpePlayerEquipment message)
@@ -464,7 +465,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the container set slot.
+		///     Handles the container set slot.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleContainerSetSlot(McpeContainerSetSlot message)
@@ -474,19 +475,19 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					_InventoryManager.Slots[(byte)message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte)message.itemCount, message.itemDamage));
+					_InventoryManager.Slots[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte) message.itemCount, message.itemDamage));
 					break;
 				case 0x78:
-					_InventoryManager.Armor[(byte)message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte)message.itemCount, message.itemDamage));
+					_InventoryManager.Armor[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte) message.itemCount, message.itemDamage));
 					break;
 			}
 			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
 			{
 				entityId = EntityId,
-				helmet = (byte)(((MetadataSlot) _InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte)(((MetadataSlot) _InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte)(((MetadataSlot) _InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte)(((MetadataSlot) _InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) _InventoryManager.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) _InventoryManager.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) _InventoryManager.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) _InventoryManager.Armor[3]).Value.Id - 256)
 			});
 
 			Level.RelayBroadcast(this, new McpePlayerEquipment()
@@ -499,7 +500,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the interact.
+		///     Handles the interact.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleInteract(McpeInteract message)
@@ -518,7 +519,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the use item.
+		///     Handles the use item.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		private void HandleUseItem(McpeUseItem message)
@@ -542,7 +543,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Gets the direction.
+		///     Gets the direction.
 		/// </summary>
 		/// <returns></returns>
 		public byte GetDirection()
@@ -551,7 +552,6 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// 
 		/// </summary>
 		/// <param name="yaw">The yaw.</param>
 		/// <returns></returns>
@@ -573,7 +573,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the start game packet.
+		///     Sends the start game packet.
 		/// </summary>
 		private void SendStartGame()
 		{
@@ -593,7 +593,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the set spawn position packet.
+		///     Sends the set spawn position packet.
 		/// </summary>
 		private void SendSetSpawnPosition()
 		{
@@ -606,7 +606,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the chunks for known position.
+		///     Sends the chunks for known position.
 		/// </summary>
 		public void SendChunksForKnownPosition()
 		{
@@ -636,7 +636,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the set health packet.
+		///     Sends the set health packet.
 		/// </summary>
 		internal void SendSetHealth()
 		{
@@ -644,7 +644,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the set time packet.
+		///     Sends the set time packet.
 		/// </summary>
 		public void SendSetTime()
 		{
@@ -656,7 +656,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the move player packet.
+		///     Sends the move player packet.
 		/// </summary>
 		public void SendMovePlayer()
 		{
@@ -674,7 +674,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Initializes the player.
+		///     Initializes the player.
 		/// </summary>
 		private void InitializePlayer()
 		{
@@ -709,7 +709,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Called when [player tick].
+		///     Called when [player tick].
 		/// </summary>
 		/// <param name="state">The state.</param>
 		private void OnPlayerTick(object state)
@@ -718,7 +718,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the add for player.
+		///     Sends the add for player.
 		/// </summary>
 		/// <param name="player">The player.</param>
 		public void SendAddForPlayer(Player player)
@@ -744,7 +744,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the equipment for player.
+		///     Sends the equipment for player.
 		/// </summary>
 		/// <param name="player">The player.</param>
 		private void SendEquipmentForPlayer(Player player)
@@ -759,7 +759,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Sends the armor for player.
+		///     Sends the armor for player.
 		/// </summary>
 		/// <param name="player">The player.</param>
 		private void SendArmorForPlayer(Player player)
@@ -767,15 +767,15 @@ namespace MiNET
 			SendPackage(new McpePlayerArmorEquipment()
 			{
 				entityId = player.EntityId,
-				helmet = (byte)(((MetadataSlot)player._InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte)(((MetadataSlot)player._InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte)(((MetadataSlot)player._InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte)(((MetadataSlot)player._InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) player._InventoryManager.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player._InventoryManager.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player._InventoryManager.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player._InventoryManager.Armor[3]).Value.Id - 256)
 			});
 		}
 
 		/// <summary>
-		/// Sends the remove for player.
+		///     Sends the remove for player.
 		/// </summary>
 		/// <param name="player">The player.</param>
 		public void SendRemoveForPlayer(Player player)
@@ -790,7 +790,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Broadcasts the entity event.
+		///     Broadcasts the entity event.
 		/// </summary>
 		public void BroadcastEntityEvent()
 		{
@@ -807,7 +807,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Broadcasts the set entity data.
+		///     Broadcasts the set entity data.
 		/// </summary>
 		public void BroadcastSetEntityData()
 		{
@@ -903,12 +903,12 @@ namespace MiNET
 
 				writer.Write(HealthManager.Export().Length);
 				writer.Write(HealthManager.Export());
-				
+
 				writer.Write(KnownPosition.Export().Length);
 				writer.Write(KnownPosition.Export());
 
 				writer.Flush();
-				
+
 				buffer = stream.GetBuffer();
 			}
 			File.WriteAllBytes("Players/" + Username + ".data", Compression.Compress(buffer));

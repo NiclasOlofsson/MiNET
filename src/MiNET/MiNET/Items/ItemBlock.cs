@@ -24,7 +24,7 @@ namespace MiNET.Items
 			if (!_block.CanPlace(world)) return;
 
 			if (_block.PlaceBlock(world, player, targetCoordinates, face)) return; // Handled
-			
+
 			world.SetBlock(_block);
 		}
 	}

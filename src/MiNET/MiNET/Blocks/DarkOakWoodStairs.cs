@@ -3,11 +3,10 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	class DarkOakWoodStairs : Block
+	internal class DarkOakWoodStairs : Block
 	{
 		public DarkOakWoodStairs() : base(164)
 		{
-
 		}
 
 		public override bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)

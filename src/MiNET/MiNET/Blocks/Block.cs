@@ -55,7 +55,7 @@ namespace MiNET.Blocks
 
 		public virtual void BlockUpdate(Level world, Coordinates3D blockCoordinates)
 		{
-			Coordinates3D up = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z };
+			Coordinates3D up = new Coordinates3D() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
 			/*Coordinates3D down = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
 			Coordinates3D left = new Coordinates3D() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
 			Coordinates3D right = new Coordinates3D() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
@@ -66,7 +66,7 @@ namespace MiNET.Blocks
 
 			if (world.GetBlock(up).Id == 51)
 			{
-				world.SetBlock(new Air { Coordinates = up });
+				world.SetBlock(new Air {Coordinates = up});
 			}
 		}
 

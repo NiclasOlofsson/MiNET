@@ -1,18 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using log4net;
-using System.Linq.Expressions;
 using MiNET.PluginSystem.Attributes;
 
 namespace MiNET.CommandHandler
 {
-	class CommandHandler
+	internal class CommandHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
+
 		public void HandleCommand(string message, Player player)
 		{
 			string _command = message.Split(' ')[0];
@@ -71,11 +69,11 @@ namespace MiNET.CommandHandler
 			else
 			{
 				object obj = Activator.CreateInstance(method.DeclaringType);
-				new Task(() => method.Invoke(obj, new object[] { player, args })).Start();
+				new Task(() => method.Invoke(obj, new object[] {player, args})).Start();
 			}
 		}
 
-		public ICommandHandler[] Commands = new ICommandHandler[] { new TestCommand(), new HelpCommand(), new BoomCommand() };
-		public static Dictionary<Attribute, MethodInfo> PluginCommands = new Dictionary<Attribute, MethodInfo>(); 
+		public ICommandHandler[] Commands = new ICommandHandler[] {new TestCommand(), new HelpCommand(), new BoomCommand()};
+		public static Dictionary<Attribute, MethodInfo> PluginCommands = new Dictionary<Attribute, MethodInfo>();
 	}
 }

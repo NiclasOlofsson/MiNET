@@ -37,8 +37,6 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
 		{
-
-
 			return true;
 		}
 	}

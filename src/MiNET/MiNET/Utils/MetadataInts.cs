@@ -12,8 +12,8 @@ namespace MiNET.Utils
 				byte key = stream.ReadByte();
 				if (key == 127) break;
 
-				byte type = (byte)((key & 0xE0) >> 5);
-				byte index = (byte)(key & 0x1F);
+				byte type = (byte) ((key & 0xE0) >> 5);
+				byte index = (byte) (key & 0x1F);
 
 				var entry = EntryTypes[type]();
 				entry.FromStream(stream);

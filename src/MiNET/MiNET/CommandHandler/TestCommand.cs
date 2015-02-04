@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Craft.Net.Common;
-
-namespace MiNET.CommandHandler
+﻿namespace MiNET.CommandHandler
 {
-	class TestCommand : ICommandHandler
+	internal class TestCommand : ICommandHandler
 	{
-
 		public string Command
 		{
 			get { return "test"; }
@@ -20,9 +12,15 @@ namespace MiNET.CommandHandler
 			get { return "A MiNET Test command."; }
 		}
 
-		public string Usage { get { return "/test"; }}
+		public string Usage
+		{
+			get { return "/test"; }
+		}
 
-		public string Permission { get { return "MiNET.test"; } }
+		public string Permission
+		{
+			get { return "MiNET.test"; }
+		}
 
 		public bool Execute(Player player, string[] arguments)
 		{

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
 using fNbt;
+using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
@@ -55,6 +56,8 @@ namespace MiNET.Worlds
 
 	public class Level
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Level));
+
 		public static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
 		public static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
 		public static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
@@ -222,14 +225,16 @@ namespace MiNET.Worlds
 
 		public void RemoveDuplicatePlayers(string username)
 		{
+			Player[] existingPlayers;
 			lock (Players)
 			{
-				var existingPlayers = Players.Where(player => player.Username == username);
-				foreach (var existingPlayer in existingPlayers.ToArray())
-				{
-					Debug.WriteLine(string.Format("Removing staled players on login {0}", username));
-					RemovePlayer(existingPlayer);
-				}
+				existingPlayers = Players.Where(player => player.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+			}
+
+			foreach (var existingPlayer in existingPlayers)
+			{
+				Log.InfoFormat("Removing staled players on login {0}", username);
+				existingPlayer.HandleDisconnectionNotification();
 			}
 		}
 

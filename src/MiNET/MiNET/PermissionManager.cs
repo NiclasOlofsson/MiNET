@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MiNET
 {
@@ -10,6 +6,7 @@ namespace MiNET
 	{
 		private UserGroup Group { get; set; }
 		private List<string> Permissions { get; set; }
+
 		public PermissionManager(UserGroup group)
 		{
 			Permissions = new List<string>();

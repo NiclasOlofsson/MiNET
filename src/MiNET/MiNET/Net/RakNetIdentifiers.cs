@@ -1,6 +1,5 @@
 ﻿namespace MiNET.Net
 {
-
 	///// \sa NetworkIDObject.h
 	//typedef unsigned char UniqueIDType; => C# byte
 	//typedef unsigned short SystemIndex; => C# ushort
@@ -38,7 +37,7 @@
 	//typedef double MicrosecondsPerByte;
 
 
-	public enum DefaultMessageIdTypes: byte
+	public enum DefaultMessageIdTypes : byte
 	{
 		//
 		// RESERVED TYPES - DO NOT CHANGE THESE

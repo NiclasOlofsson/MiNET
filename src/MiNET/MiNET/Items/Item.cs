@@ -13,13 +13,14 @@ namespace MiNET.Items
 	public class Item
 	{
 		public int Id { get; set; }
-        public bool IsTool { get; set; }
-        public ItemMaterial ItemMaterial { get; set; }
+		public bool IsTool { get; set; }
+		public ItemMaterial ItemMaterial { get; set; }
 		public ItemType ItemType { get; set; }
+
 		internal Item(int id)
 		{
 			Id = id;
-            ItemMaterial = ItemMaterial.None;
+			ItemMaterial = ItemMaterial.None;
 			ItemType = ItemType.Item;
 		}
 
@@ -105,15 +106,15 @@ namespace MiNET.Items
 		}
 	}
 
-    public enum ItemMaterial
-    {
-        None = 1,
-        Wood = 2,
-        Stone = 4,
-        Iron = 6,
-        Diamond = 8,
-        Gold = 12
-    }
+	public enum ItemMaterial
+	{
+		None = 1,
+		Wood = 2,
+		Stone = 4,
+		Iron = 6,
+		Diamond = 8,
+		Gold = 12
+	}
 
 	public enum ItemType
 	{

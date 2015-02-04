@@ -23,8 +23,8 @@ namespace MiNET.ServiceKiller
 
 		public MiNetClient(IPEndPoint endpoint = null)
 		{
-			_endpoint = endpoint ?? new IPEndPoint(IPAddress.Any, 0);
-			_serverEndpoint = new IPEndPoint(IPAddress.Loopback, 19132);
+			_endpoint = new IPEndPoint(IPAddress.Any, 0);
+			_serverEndpoint = endpoint ?? new IPEndPoint(IPAddress.Loopback, 19132);
 			_movePlayerPacket = new McpeMovePlayer();
 		}
 
@@ -90,21 +90,21 @@ namespace MiNET.ServiceKiller
 			short splitId = (short) (sequenceNumber%65536);
 			//foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 60))
 			//{
-				ConnectedPackage package = new ConnectedPackage
-				{
-					Buffer = encodedMessage,
-					_reliability = reliability,
-					_reliableMessageNumber = reliableMessageNumber++,
-					_datagramSequenceNumber = sequenceNumber++,
-					_hasSplit = count > 1,
-					_splitPacketCount = count,
-					_splitPacketId = splitId,
-					_splitPacketIndex = index++
-				};
+			ConnectedPackage package = new ConnectedPackage
+			{
+				Buffer = encodedMessage,
+				_reliability = reliability,
+				_reliableMessageNumber = reliableMessageNumber++,
+				_datagramSequenceNumber = sequenceNumber++,
+				_hasSplit = count > 1,
+				_splitPacketCount = count,
+				_splitPacketId = splitId,
+				_splitPacketIndex = index++
+			};
 
-				byte[] data = package.Encode();
+			byte[] data = package.Encode();
 
-				SendData(data);
+			SendData(data);
 			//}
 
 			message.PutPool();

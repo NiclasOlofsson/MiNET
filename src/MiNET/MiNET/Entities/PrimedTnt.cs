@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Craft.Net.Common;
 using MiNET.Net;
 using MiNET.Worlds;
@@ -57,7 +56,7 @@ namespace MiNET.Entities
 
 		private void PositionCheck()
 		{
-			Coordinates3D check = KnownPosition.GetCoordinates3D() + Worlds.Level.Down;
+			Coordinates3D check = KnownPosition.GetCoordinates3D() + Level.Down;
 			if (!Level.GetBlock(check).IsSolid)
 			{
 				KnownPosition.Y -= 1;

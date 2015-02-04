@@ -56,14 +56,14 @@ namespace MiNET
 		private string _Motd = string.Empty;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MiNetServer"/> class.
+		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MiNetServer"/> class.
+		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
 		/// <param name="port">The port.</param>
 		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
@@ -71,7 +71,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MiNetServer"/> class.
+		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
 		/// <param name="endpoint">The endpoint.</param>
 		public MiNetServer(IPEndPoint endpoint)
@@ -80,7 +80,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Determines whether is running on mono.
+		///     Determines whether is running on mono.
 		/// </summary>
 		/// <returns></returns>
 		public static bool IsRunningOnMono()
@@ -92,7 +92,7 @@ namespace MiNET
 		private List<Level> _levels = new List<Level>();
 
 		/// <summary>
-		/// Starts the server.
+		///     Starts the server.
 		/// </summary>
 		/// <returns></returns>
 		public bool StartServer()
@@ -177,7 +177,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Stops the server.
+		///     Stops the server.
 		/// </summary>
 		/// <returns></returns>
 		public bool StopServer()
@@ -217,7 +217,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the callback.
+		///     Handles the callback.
 		/// </summary>
 		/// <param name="ar">The results</param>
 		private void ReceiveCallback(IAsyncResult ar)
@@ -267,7 +267,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Processes a message.
+		///     Processes a message.
 		/// </summary>
 		/// <param name="receiveBytes">The received bytes.</param>
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
@@ -338,10 +338,15 @@ namespace MiNET
 
 						lock (_playerSessions)
 						{
-							_playerSessions.Remove(senderEndpoint);
-							PlayerNetworkSession session = new PlayerNetworkSession(
-								new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize),
-								senderEndpoint);
+							if (_playerSessions.ContainsKey(senderEndpoint))
+							{
+								Log.Info("Removed ghost");
+								_playerSessions[senderEndpoint].Player.HandleDisconnectionNotification();
+								_playerSessions.Remove(senderEndpoint);
+							}
+
+							PlayerNetworkSession session =
+								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize), senderEndpoint);
 							_playerSessions.Add(senderEndpoint, session);
 						}
 						var data = packet.Encode();
@@ -394,7 +399,7 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Handles the specified package.
+		///     Handles the specified package.
 		/// </summary>
 		/// <param name="message">The package.</param>
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
@@ -443,7 +448,7 @@ namespace MiNET
 			}
 			if (_ackTimer == null)
 			{
-				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 100);
 			}
 		}
 
@@ -469,19 +474,19 @@ namespace MiNET
 				}
 
 				if (acks.acks.Count > 0)
-					{
+				{
 					byte[] data = acks.Encode();
 					SendData(data, session.EndPoint);
 				}
-					}
-				}
+			}
+		}
 
 		private static ObjectPool2<UdpClient> _udpPool = new ObjectPool2<UdpClient>(() => new UdpClient());
 
 		static MiNetServer()
 		{
 			_udpPool.FillPool(100);
-			}
+		}
 
 
 		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
@@ -512,7 +517,7 @@ namespace MiNET
 				SendData(data, senderEndpoint);
 
 				foreach (MessagePart part in datagram.MessageParts)
-			{
+				{
 					part.Buffer = null;
 					part.PutPool();
 				}
@@ -531,7 +536,7 @@ namespace MiNET
 		private int _availableBytes;
 
 		/// <summary>
-		/// Sends the data.
+		///     Sends the data.
 		/// </summary>
 		/// <param name="data">The data.</param>
 		/// <param name="targetEndpoint">The target endpoint.</param>
@@ -571,9 +576,9 @@ namespace MiNET
 		}
 
 		// ReSharper disable once UnusedMember.Global
-	
+
 		/// <summary>
-		/// Converts a byte[] to string.
+		///     Converts a byte[] to string.
 		/// </summary>
 		/// <param name="ba">The data to convert.</param>
 		/// <returns></returns>
@@ -588,29 +593,29 @@ namespace MiNET
 		}
 
 		/// <summary>
-		/// Traces the received data.
+		///     Traces the received data.
 		/// </summary>
 		/// <param name="message">The data.</param>
 		private static void TraceReceive(Package message)
 		{
 			if (Log.IsDebugEnabled)
-			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
-			{
+				if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+				{
 					//Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-			}
+				}
 		}
 
 		/// <summary>
-		/// Traces a send packet.
+		///     Traces a send packet.
 		/// </summary>
 		/// <param name="message">The packet.</param>
 		private static void TraceSend(Package message)
 		{
 			if (Log.IsDebugEnabled)
-			if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
-			{
+				if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+				{
 					//Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-			}
+				}
 		}
 	}
 }

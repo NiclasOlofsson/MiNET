@@ -3,11 +3,10 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	class NetherBrickStairs : Block
+	internal class NetherBrickStairs : Block
 	{
 		public NetherBrickStairs() : base(114)
 		{
-
 		}
 
 		public override bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)

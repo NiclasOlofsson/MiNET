@@ -1,6 +1,6 @@
-﻿using MiNET.Worlds;
-using Craft.Net.Common;
+﻿using Craft.Net.Common;
 using MiNET.Blocks;
+using MiNET.Worlds;
 
 namespace MiNET.Items
 {
@@ -8,20 +8,19 @@ namespace MiNET.Items
 	{
 		internal ItemBucket() : base(325)
 		{
-
 		}
 
 		public override void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
 		{
 			short Meta = this.Metadata;
-			var coordinates = GetNewCoordinatesFromFace (blockCoordinates, face);
+			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 			Block targetblock;
 			if (Meta == 8 || Meta == 10) //Prevent some kind of cheating...
 			{
-				targetblock = new Block ((byte)Meta);
+				targetblock = new Block((byte) Meta);
 				targetblock.Coordinates = coordinates;
-				player.Level.SetBlock (targetblock);
-			} 
+				player.Level.SetBlock(targetblock);
+			}
 			/*else if (Meta == 0) 
 			{
 				Block target = player.Level.GetBlock (coordinates);
@@ -37,8 +36,6 @@ namespace MiNET.Items
 
 			//Commented out above: Using the buckets to remove a liquid source. (Water / Lava)
 			//Reason: I did't see a way for me to change a players inventory.
-
 		}
 	}
 }
-

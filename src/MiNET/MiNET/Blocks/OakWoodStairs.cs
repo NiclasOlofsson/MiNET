@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Craft.Net.Common;
+﻿using Craft.Net.Common;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	class OakWoodStairs : Block
+	internal class OakWoodStairs : Block
 	{
 		public OakWoodStairs() : base(53)
 		{
-			
 		}
 
 		public override bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)

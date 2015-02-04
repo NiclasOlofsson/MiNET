@@ -13,6 +13,5 @@ namespace MiNET.Net
 		}
 
 		public byte[] Message { get; private set; }
-
 	}
 }

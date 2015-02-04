@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MiNET.PluginSystem.Attributes;
+﻿using MiNET.PluginSystem.Attributes;
 
 namespace MiNET.CommandHandler
 {
-	class HelpCommand : ICommandHandler
+	internal class HelpCommand : ICommandHandler
 	{
 		public string Command
 		{
@@ -24,7 +19,10 @@ namespace MiNET.CommandHandler
 			get { return "/help <COMMAND>"; }
 		}
 
-		public string Permission { get { return "MiNET.help"; } }
+		public string Permission
+		{
+			get { return "MiNET.help"; }
+		}
 
 		public bool Execute(Player player, string[] arguments)
 		{

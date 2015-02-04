@@ -73,6 +73,18 @@ namespace MiNET
 			SetInventorySlot(slot, -1);
 		}
 
+		public bool HasItem(MetadataSlot item)
+		{
+			for (byte i = 0; i < Slots.Count; i++)
+			{
+				if (((MetadataSlot)Slots[i]).Value.Id == item.Value.Id)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
 		public byte[] Export()
 		{
 			byte[] buffer;

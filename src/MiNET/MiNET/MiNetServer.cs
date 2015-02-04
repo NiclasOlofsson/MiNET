@@ -53,7 +53,7 @@ namespace MiNET
 		private PluginLoader _pluginLoader;
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
-		private string _Motd = string.Empty;
+		private string _motd = string.Empty;
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
@@ -102,11 +102,11 @@ namespace MiNET
 			try
 			{
 				Log.Info("Loading settings...");
-				_Motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
+				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
 				Log.Info("Loading plugins...");
-				//_pluginLoader = new PluginLoader();
-				//_pluginLoader.LoadPlugins();
-				//_pluginLoader.EnablePlugins();
+				_pluginLoader = new PluginLoader();
+				_pluginLoader.LoadPlugins();
+				_pluginLoader.EnablePlugins();
 				Log.Info("Plugins loaded!");
 
 				_level = new Level("Default");
@@ -390,6 +390,7 @@ namespace MiNET
 					Nak nak = new Nak();
 					nak.Decode(receiveBytes);
 					Log.WarnFormat("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
+					_level.BroadcastTextMessage(string.Format("NAK #{0}", nak.sequenceNumber.IntValue()));
 				}
 				else if (!header.isValid)
 				{

@@ -37,8 +37,7 @@ namespace MiNET.Worlds
 
 			lock (_entities)
 			{
-				int entityId = _entities.IndexOf(entity);
-				if (entityId == -1)
+				if (!_entities.Contains(entity))
 					throw new Exception("Expected to find entity on remove. A missed ADD perhaps?");
 				_entities.Remove(entity);
 				entity.EntityId = -1;

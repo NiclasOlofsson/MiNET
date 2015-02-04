@@ -121,33 +121,31 @@ namespace MiNET
 
 				_listener = new UdpClient(_endpoint);
 
-				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-				// - Set to TRUE to enable reporting.
-				// - Set to FALSE to disable reporting.
-				if (!IsRunningOnMono())
+				if (IsRunningOnMono())
+				{
+					_listener.Client.ReceiveBufferSize = 1024*1024*3;
+					_listener.Client.SendBufferSize = 4096;
+				}
+				else
 				{
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
 					_listener.Client.SendBufferSize = 1024*1024*8;
 					//_listener.DontFragment = true;
 
+					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
+					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+					// - Set to TRUE to enable reporting.
+					// - Set to FALSE to disable reporting.
+
 					uint IOC_IN = 0x80000000;
 					uint IOC_VENDOR = 0x18000000;
 					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
 					_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
-				}
-				else
-				{
-					_listener.Client.ReceiveBufferSize = 1024*1024*3;
-					_listener.Client.SendBufferSize = 4096;
-				}
-				//
-				//WARNING: We need to catch errors here to remove the code above.
-				//
 
-				/*
-                 * We need to do something about this above. Has to be both compatible for Mono and Windows
-                 */
+					//
+					//WARNING: We need to catch errors here to remove the code above.
+					//
+				}
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 

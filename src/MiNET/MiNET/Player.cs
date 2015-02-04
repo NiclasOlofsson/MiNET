@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +8,7 @@ using System.Threading;
 using Craft.Net.Common;
 using log4net;
 using MiNET.Entities;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -50,21 +51,13 @@ namespace MiNET
 
 		public bool IsConnected { get; set; }
 		public HealthManager HealthManager { get; private set; }
-		public InventoryManager _InventoryManager { get; private set; }
+		public InventoryManager InventoryManager { get; private set; }
 
 		public bool IsBot { get; set; }
 
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 		public PermissionManager Permissions { get; set; }
-		public MiNET.Worlds.GameMode GameMode { get; set; }
-		/// <summary>
-		///     Initializes a new instance of the <see cref="Player" /> class.
-		/// </summary>
-		internal Player()
-			: base(-1, null)
-		{
-		}
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Player" /> class.
@@ -94,8 +87,7 @@ namespace MiNET
 				Pitch = 28,
 				BodyYaw = 91
 			};
-			GameMode = level.GameMode;
-			_InventoryManager = new InventoryManager(this);
+			InventoryManager = new InventoryManager(this);
 			IsConnected = true;
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
@@ -212,7 +204,7 @@ namespace MiNET
 
 			else if (typeof (McpeDropItem) == message.GetType())
 			{
-				HandlePlayerDropItem((McpeDropItem)message);
+				HandlePlayerDropItem((McpeDropItem) message);
 			}
 
 			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
@@ -224,40 +216,42 @@ namespace MiNET
 
 		private void HandlePlayerDropItem(McpeDropItem message)
 		{
-			if (_InventoryManager.HasItem(message.item))
-			{
-				int x = 0;
-				int z = 0;
-				switch (this.GetDirection()) //Basic rotation implementation :P
-				{
-					case 1:
-						z += 3;
-						break;
-					case 2:
-						x -= 3;
-						break;
-					case 3:
-						z -= 3;
-						break;
-					case 0:
-						x += 3;
-						break; 
-				}
+			//if (!InventoryManager.HasItem(message.item)) return;
+			//int x = 0;
+			//int z = 0;
+			//switch (this.GetDirection()) //Basic rotation implementation :P
+			//{
+			//	case 1:
+			//		z += 3;
+			//		break;
+			//	case 2:
+			//		x -= 3;
+			//		break;
+			//	case 3:
+			//		z -= 3;
+			//		break;
+			//	case 0:
+			//		x += 3;
+			//		break;
+			//}
 
-				McpeItemEntity p = new McpeItemEntity()
+			ItemStack itemStack = message.item.Value;
+
+			Item item = ItemFactory.GetItem(itemStack.Id);
+			item.Metadata = itemStack.Metadata;
+
+			var itemEntity = new ItemEntity(Level, item)
+			{
+				KnownPosition =
 				{
-					entityid = Level.LastDropItemID + 1,
-					item = message.item,
-					pitch = 5,
-					roll = 6,
-					yaw = 7,
-					x = this.KnownPosition.X + x,
-					y = this.KnownPosition.Y,
-					z = this.KnownPosition.Z + z
-				};
-				Level.RelayBroadcast<McpeItemEntity>(p);
-				Level.DropedItems.Add(Level.LastDropItemID + 1, new Tuple<PlayerPosition3D, int>(new PlayerPosition3D(this.KnownPosition.X + x, this.KnownPosition.Y, this.KnownPosition.Z + z), message.item.Value.Id ));
-			}
+					X = KnownPosition.X,
+					Y = KnownPosition.Y,
+					Z = KnownPosition.Z
+				},
+				Count = itemStack.Count
+			};
+
+			Level.AddEntity(itemEntity);
 		}
 
 		/// <summary>
@@ -349,14 +343,14 @@ namespace MiNET
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0,
-				slotData = _InventoryManager.Slots,
-				hotbarData = _InventoryManager.ItemHotbar
+				slotData = InventoryManager.Slots,
+				hotbarData = InventoryManager.ItemHotbar
 			});
 
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0x78, // Armor windows ID
-				slotData = _InventoryManager.Armor,
+				slotData = InventoryManager.Armor,
 				hotbarData = null
 			});
 
@@ -501,8 +495,8 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			_InventoryManager.ItemInHand.Value.Id = message.item;
-			_InventoryManager.ItemInHand.Value.Metadata = message.meta;
+			InventoryManager.ItemInHand.Value.Id = message.item;
+			InventoryManager.ItemInHand.Value.Metadata = message.meta;
 
 			message.entityId = EntityId;
 
@@ -520,26 +514,26 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					_InventoryManager.Slots[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte) message.itemCount, message.itemDamage));
+					InventoryManager.Slots[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, message.itemCount, message.itemDamage));
 					break;
 				case 0x78:
-					_InventoryManager.Armor[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, (sbyte) message.itemCount, message.itemDamage));
+					InventoryManager.Armor[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, message.itemCount, message.itemDamage));
 					break;
 			}
 			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
 			{
 				entityId = EntityId,
-				helmet = (byte) (((MetadataSlot) _InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) _InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) _InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) _InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) InventoryManager.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) InventoryManager.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) InventoryManager.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) InventoryManager.Armor[3]).Value.Id - 256)
 			});
 
 			Level.RelayBroadcast(this, new McpePlayerEquipment()
 			{
 				entityId = EntityId,
-				item = _InventoryManager.ItemInHand.Value.Id,
-				meta = _InventoryManager.ItemInHand.Value.Metadata,
+				item = InventoryManager.ItemInHand.Value.Id,
+				meta = InventoryManager.ItemInHand.Value.Metadata,
 				slot = 0
 			});
 		}
@@ -632,7 +626,7 @@ namespace MiNET
 			{
 				seed = 1406827239,
 				generator = 1,
-				gamemode = (int) GameMode,
+				gamemode = (int) Level.GameMode,
 				entityId = 0,
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
@@ -740,14 +734,14 @@ namespace MiNET
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0,
-				slotData = _InventoryManager.Slots,
-				hotbarData = _InventoryManager.ItemHotbar
+				slotData = InventoryManager.Slots,
+				hotbarData = InventoryManager.ItemHotbar
 			});
 
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0x78, // Armor windows ID
-				slotData = _InventoryManager.Armor,
+				slotData = InventoryManager.Armor,
 				hotbarData = null
 			});
 
@@ -803,8 +797,8 @@ namespace MiNET
 			SendPackage(new McpePlayerEquipment()
 			{
 				entityId = player.EntityId,
-				item = player._InventoryManager.ItemInHand.Value.Id,
-				meta = player._InventoryManager.ItemInHand.Value.Metadata,
+				item = player.InventoryManager.ItemInHand.Value.Id,
+				meta = player.InventoryManager.ItemInHand.Value.Metadata,
 				slot = 0
 			});
 		}
@@ -818,10 +812,10 @@ namespace MiNET
 			SendPackage(new McpePlayerArmorEquipment()
 			{
 				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player._InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player._InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player._InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player._InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) player.InventoryManager.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player.InventoryManager.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player.InventoryManager.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player.InventoryManager.Armor[3]).Value.Id - 256)
 			});
 		}
 
@@ -949,8 +943,8 @@ namespace MiNET
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
 
-				writer.Write(_InventoryManager.Export().Length);
-				writer.Write(_InventoryManager.Export());
+				writer.Write(InventoryManager.Export().Length);
+				writer.Write(InventoryManager.Export());
 
 				writer.Write(HealthManager.Export().Length);
 				writer.Write(HealthManager.Export());
@@ -976,7 +970,7 @@ namespace MiNET
 						NbtBinaryReader reader = new NbtBinaryReader(stream, false);
 
 						int invLength = reader.ReadInt32();
-						_InventoryManager.Import(reader.ReadBytes(invLength));
+						InventoryManager.Import(reader.ReadBytes(invLength));
 
 						int healthLength = reader.ReadInt32();
 						HealthManager.Import(reader.ReadBytes(healthLength));

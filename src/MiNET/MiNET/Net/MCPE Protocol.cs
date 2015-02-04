@@ -2268,7 +2268,7 @@ namespace MiNET.Net
 
 	public partial class McpeItemEntity : Package<McpeItemEntity>
 	{
-		public int entityid; // = null;
+		public int entityId; // = null;
 		public MetadataSlot item; // = null;
 		public float x; // = null;
 		public float y; // = null;
@@ -2287,7 +2287,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(entityid);
+			Write(entityId);
 			Write(item);
 			Write(x);
 			Write(y);
@@ -2308,7 +2308,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityid = ReadInt();
+			entityId = ReadInt();
 			item = ReadMetadataSlot();
 			x = ReadFloat();
 			y = ReadFloat();
@@ -2328,7 +2328,7 @@ namespace MiNET.Net
 	public partial class McpeRemoveItemEntity : Package<McpeRemoveItemEntity>
 	{
 		public int target; // = null;
-		public int entityid; // = null;
+		public int entityId; // = null;
 		public McpeRemoveItemEntity()
 		{
 			Id = 0x8f;
@@ -2341,7 +2341,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(target);
-			Write(entityid);
+			Write(entityId);
 
 			AfterEncode();
 		}
@@ -2356,7 +2356,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			target = ReadInt();
-			entityid = ReadInt();
+			entityId = ReadInt();
 
 			AfterDecode();
 		}
@@ -2368,7 +2368,7 @@ namespace MiNET.Net
 
 	public partial class McpeDropItem : Package<McpeDropItem>
 	{
-		public int entityid; // = null;
+		public int entityId; // = null;
 		public byte unknown; // = null;
 		public MetadataSlot item; // = null;
 		public McpeDropItem()
@@ -2382,7 +2382,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(entityid);
+			Write(entityId);
 			Write(unknown);
 			Write(item);
 
@@ -2398,7 +2398,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityid = ReadInt();
+			entityId = ReadInt();
 			unknown = ReadByte();
 			item = ReadMetadataSlot();
 

@@ -73,6 +73,7 @@
     <Compile Include="CommandHandler\TestCommand.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\ItemEntity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />

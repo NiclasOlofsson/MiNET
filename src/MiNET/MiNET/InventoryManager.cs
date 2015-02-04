@@ -28,7 +28,7 @@ namespace MiNET
 
 			for (byte i = 0; i < 35; i++)
 			{
-				Slots[i] = new MetadataSlot(new ItemStack(-1));
+				Slots[i] = new MetadataSlot(new ItemStack((short) (i+1), 10));
 			}
 
 			for (byte i = 0; i < 6; i++)
@@ -51,7 +51,7 @@ namespace MiNET
 		/// <param name="itemID">The item id</param>
 		/// <param name="amount">Amount of items</param>
 		/// <param name="metadata">Metadata for the item</param>
-		public void SetInventorySlot(byte slot, short itemID, sbyte amount = 1, short metadata = 0)
+		public void SetInventorySlot(byte slot, short itemID, byte amount = 1, short metadata = 0)
 		{
 			if (slot > 35) throw new IndexOutOfRangeException("slot");
 			Slots[slot] = new MetadataSlot(new ItemStack(itemID, amount, metadata));

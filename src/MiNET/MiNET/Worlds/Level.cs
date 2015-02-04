@@ -71,15 +71,6 @@ namespace MiNET.Worlds
 		private int _worldTickTime = 10;
 		private int _worldDayCycleTime = 24000;
 		//private int _worldDayCycleTime = 14400;
-		public Dictionary<int, Tuple<PlayerPosition3D, int>> DropedItems = new Dictionary<int, Tuple<PlayerPosition3D, int>>();
-
-		public int LastDropItemID
-		{
-			get
-			{
-				return DropedItems.Select(item => item.Key).Concat(new[] {0}).Max();
-			}
-		}
 
 		public Coordinates3D SpawnPoint { get; private set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
@@ -101,7 +92,7 @@ namespace MiNET.Worlds
 			Players = new List<Player>();
 			Entities = new List<Entity>();
 			LevelId = levelId;
-			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Creative);
+			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Survival);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
 			if (ConfigParser.GetProperty("UsePCWorld", false))
 			{
@@ -198,15 +189,6 @@ namespace MiNET.Worlds
 			{
 				EntityManager.AddEntity(null, entity);
 
-				RelayBroadcast(new McpeAddEntity
-				{
-					entityType = entity.EntityTypeId,
-					entityId = entity.EntityId,
-					x = entity.KnownPosition.X,
-					y = entity.KnownPosition.Y,
-					z = entity.KnownPosition.Z
-				});
-
 				if (!Entities.Contains(entity))
 				{
 					Entities.Add(entity);
@@ -214,6 +196,38 @@ namespace MiNET.Worlds
 				else
 				{
 					throw new Exception("Entity existed in the players list when it should not");
+				}
+
+				if (entity is ItemEntity)
+				{
+					ItemEntity itemEntity = (ItemEntity) entity;
+
+					Random random = new Random();
+
+					float f = 0.7F;
+					float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+					float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+					float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+
+					RelayBroadcast(new McpeItemEntity()
+					{
+						entityId = itemEntity.EntityId,
+						item = itemEntity.GetMetadataSlot(),
+						x = itemEntity.KnownPosition.X + xr,
+						y = itemEntity.KnownPosition.Y + yr,
+						z = itemEntity.KnownPosition.Z + zr
+					});
+				}
+				else
+				{
+					RelayBroadcast(new McpeAddEntity
+					{
+						entityType = entity.EntityTypeId,
+						entityId = entity.EntityId,
+						x = entity.KnownPosition.X,
+						y = entity.KnownPosition.Y,
+						z = entity.KnownPosition.Z
+					});
 				}
 			}
 		}
@@ -567,7 +581,7 @@ namespace MiNET.Worlds
 
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
-			MetadataSlot itemSlot = player._InventoryManager.ItemInHand;
+			MetadataSlot itemSlot = player.InventoryManager.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
 			if (itemInHand == null || itemInHand.Id != itemId) return;
@@ -589,20 +603,6 @@ namespace MiNET.Worlds
 
 			//itemInHand.Metadata = metadata;
 			//itemInHand.UseItem(world, newPlayer, blockCoordinates, face);
-
-			McpeItemEntity p = new McpeItemEntity()
-			{
-				entityid = world.LastDropItemID + 1,
-				item = new MetadataSlot(new Utils.ItemStack(block.Id, 1, block.Metadata)),
-				pitch = 5,
-				roll = 0,
-				yaw = 7,
-				x = blockCoordinates.X,
-				y = blockCoordinates.Y,
-				z = blockCoordinates.Z
-			};
-			world.RelayBroadcast<McpeItemEntity>(p);
-			world.DropedItems.Add(world.LastDropItemID + 1, new Tuple<PlayerPosition3D, int>(new PlayerPosition3D(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z), block.Id));
 
 			block.BreakBlock(world);
 		}

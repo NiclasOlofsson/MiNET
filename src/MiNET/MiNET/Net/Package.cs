@@ -280,7 +280,7 @@ namespace MiNET.Net
 
 			for (byte i = 0; i < count; i++)
 			{
-				metadata[i] = new MetadataSlot(new ItemStack(ReadShort(), ReadSByte(), ReadShort()));
+				metadata[i] = new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
 			}
 
 			return metadata;
@@ -288,7 +288,7 @@ namespace MiNET.Net
 
 		public MetadataSlot ReadMetadataSlot()
 		{
-			return	new MetadataSlot(new ItemStack(ReadShort(), ReadSByte(), ReadShort()));
+			return new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
 		}
 
 		protected virtual void EncodePackage()

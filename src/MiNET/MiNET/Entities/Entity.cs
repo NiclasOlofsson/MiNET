@@ -20,9 +20,10 @@ namespace MiNET.Entities
 
 		public Entity(int entityTypeId, Level level)
 		{
-			EntityId = -1;
+			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
 			EntityTypeId = entityTypeId;
+			KnownPosition = new PlayerPosition3D();
 		}
 
 		public virtual MetadataDictionary GetMetadata()

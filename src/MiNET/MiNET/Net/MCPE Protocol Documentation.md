@@ -26,6 +26,8 @@
 | Mcpe Remove Player | 0x8a | 138 |   
 | Mcpe Add Entity | 0x8c | 140 |   
 | Mcpe Remove Entity | 0x8d | 141 |   
+| Mcpe Item Entity | 0x8e | 142 |   
+| Mcpe Remove Item Entity | 0x8f | 143 |   
 | Mcpe Move Player | 0x95 | 149 |   
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
@@ -42,6 +44,7 @@
 | Mcpe Set Spawn Position | 0xab | 171 |   
 | Mcpe Animate | 0xac | 172 |   
 | Mcpe Respawn | 0xad | 173 |   
+| Mcpe Drop Item | 0xaf | 175 |   
 | Mcpe Container Set Slot | 0xb2 | 178 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
@@ -803,6 +806,58 @@ The three type of status are:
 |Item ID | short |  |
 |Item Count | byte |  |
 |Item Damage | short |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Item Entity (0x8e)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity Id | int |  |
+|Item | MetadataSlot |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|Yaw | byte |  |
+|Pitch | byte |  |
+|Roll | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Remove Item Entity (0x8f)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Target | int |  |
+|Entity Id | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Drop Item (0xaf)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity Id | int |  |
+|Unknown | byte |  |
+|Item | MetadataSlot |  |
 -----------------------------------------------------------------------
 
 

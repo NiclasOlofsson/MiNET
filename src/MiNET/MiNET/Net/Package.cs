@@ -262,6 +262,16 @@ namespace MiNET.Net
 			}
 		}
 
+		public void Write(MetadataSlot slot)
+		{
+			if (slot != null)
+			{
+				Write(slot.Value.Id);
+				Write(slot.Value.Count);
+				Write(slot.Value.Metadata);
+			}
+		}
+
 		public MetadataSlots ReadMetadataSlots()
 		{
 			short count = ReadShort();
@@ -274,6 +284,11 @@ namespace MiNET.Net
 			}
 
 			return metadata;
+		}
+
+		public MetadataSlot ReadMetadataSlot()
+		{
+			return	new MetadataSlot(new ItemStack(ReadShort(), ReadSByte(), ReadShort()));
 		}
 
 		protected virtual void EncodePackage()

@@ -71,6 +71,20 @@ namespace MiNET.Worlds
 		private int _worldTickTime = 10;
 		private int _worldDayCycleTime = 24000;
 		//private int _worldDayCycleTime = 14400;
+		public Dictionary<int, Tuple<PlayerPosition3D, int>> DropedItems = new Dictionary<int, Tuple<PlayerPosition3D, int>>();
+
+		public int LastDropItemID
+		{
+			get
+			{
+				int highest = 0;
+				foreach (var item in DropedItems)
+				{
+					if (item.Key > highest) highest = item.Key;
+				}
+				return highest;
+			}
+		}
 
 		public Coordinates3D SpawnPoint { get; private set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
@@ -92,7 +106,7 @@ namespace MiNET.Worlds
 			Players = new List<Player>();
 			Entities = new List<Entity>();
 			LevelId = levelId;
-			GameMode = ConfigParser.GetProperty("DefaultGamemode", GameMode.Creative);
+			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Creative);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
 			if (ConfigParser.GetProperty("UsePCWorld", false))
 			{

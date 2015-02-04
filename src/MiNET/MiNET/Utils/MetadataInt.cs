@@ -44,11 +44,6 @@ namespace MiNET.Utils
 
 	public class MetadataSlots : MetadataDictionary
 	{
-		public static MetadataSlots FromStreamOld(BinaryReader stream)
-		{
-			return (MetadataSlots) MetadataDictionary.FromStream(stream);
-		}
-
 		public static MetadataSlots FromStream(BinaryReader stream)
 		{
 			var value = new MetadataSlots();

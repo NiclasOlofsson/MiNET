@@ -1,17 +1,21 @@
-﻿//
+﻿
+//
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
 
-using MiNET.Utils;
+using System;
+using System.Threading;
+using MiNET.Utils; 
 using little = MiNET.Utils.Int24; // friendly name
 
 namespace MiNET.Net
 {
+
 	public class PackageFactory
 	{
 		public static Package CreatePackage(byte messageId, byte[] buffer)
 		{
-			Package package = null;
+			Package package = null; 
 			switch (messageId)
 			{
 				case 0x00:
@@ -229,6 +233,16 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x8e:
+					package = McpeItemEntity.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xaf:
+					package = McpeDropItem.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
@@ -238,7 +252,6 @@ namespace MiNET.Net
 	public partial class ConnectedPing : Package<ConnectedPing>
 	{
 		public long sendpingtime; // = null;
-
 		public ConnectedPing()
 		{
 			Id = 0x00;
@@ -271,13 +284,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class UnconnectedPing : Package<UnconnectedPing>
 	{
 		public long pingId; // = null;
-		public readonly byte[] offlineMessageDataId = new byte[] {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
-
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public UnconnectedPing()
 		{
 			Id = 0x01;
@@ -312,13 +325,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class ConnectedPong : Package<ConnectedPong>
 	{
 		public long sendpingtime; // = null;
 		public long sendpongtime; // = null;
-
 		public ConnectedPong()
 		{
 			Id = 0x03;
@@ -353,15 +366,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class UnconnectedPong : Package<UnconnectedPong>
 	{
 		public long pingId; // = null;
 		public long serverId; // = null;
-		public readonly byte[] offlineMessageDataId = new byte[] {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public string serverName; // = null;
-
 		public UnconnectedPong()
 		{
 			Id = 0x1c;
@@ -400,13 +413,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class OpenConnectionRequest1 : Package<OpenConnectionRequest1>
 	{
-		public readonly byte[] offlineMessageDataId = new byte[] {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte raknetProtocolVersion; // = null;
-
 		public OpenConnectionRequest1()
 		{
 			Id = 0x05;
@@ -441,15 +454,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class OpenConnectionReply1 : Package<OpenConnectionReply1>
 	{
-		public readonly byte[] offlineMessageDataId = new byte[] {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 		public byte serverHasSecurity; // = null;
 		public short mtuSize; // = null;
-
 		public OpenConnectionReply1()
 		{
 			Id = 0x06;
@@ -488,17 +501,17 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class OpenConnectionRequest2 : Package<OpenConnectionRequest2>
 	{
-		public readonly byte[] offlineMessageDataId = new byte[] {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte serverSecurity; // = null;
 		public byte[] cookie; // = null;
 		public short clientUdpPort; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
-
 		public OpenConnectionRequest2()
 		{
 			Id = 0x07;
@@ -541,15 +554,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class OpenConnectionReply2 : Package<OpenConnectionReply2>
 	{
-		public readonly byte[] offlineMessageDataId = new byte[] {0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78}; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 		public short mtuSize; // = null;
 		public byte[] doSecurityAndHandshake; // = null;
-
 		public OpenConnectionReply2()
 		{
 			Id = 0x08;
@@ -588,6 +601,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class ConnectionRequest : Package<ConnectionRequest>
@@ -595,7 +609,6 @@ namespace MiNET.Net
 		public long clientGuid; // = null;
 		public long timestamp; // = null;
 		public byte doSecurity; // = null;
-
 		public ConnectionRequest()
 		{
 			Id = 0x09;
@@ -632,6 +645,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class ConnectionRequestAccepted : Package<ConnectionRequestAccepted>
@@ -640,7 +654,6 @@ namespace MiNET.Net
 		public long systemIndex; // = null;
 		public long incomingTimestamp; // = null;
 		public long serverTimestamp; // = null;
-
 		public ConnectionRequestAccepted()
 		{
 			Id = 0x10;
@@ -679,6 +692,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class NewIncomingConnection : Package<NewIncomingConnection>
@@ -688,7 +702,6 @@ namespace MiNET.Net
 		public short port; // = null;
 		public long session; // = null;
 		public long session2; // = null;
-
 		public NewIncomingConnection()
 		{
 			Id = 0x13;
@@ -729,6 +742,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class DisconnectionNotification : Package<DisconnectionNotification>
@@ -763,6 +777,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeLogin : Package<McpeLogin>
@@ -772,7 +787,6 @@ namespace MiNET.Net
 		public int protocol2; // = null;
 		public int clientId; // = null;
 		public string logindata; // = null;
-
 		public McpeLogin()
 		{
 			Id = 0x82;
@@ -813,12 +827,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeLoginStatus : Package<McpeLoginStatus>
 	{
 		public int status; // = null;
-
 		public McpeLoginStatus()
 		{
 			Id = 0x83;
@@ -851,13 +865,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeSetTime : Package<McpeSetTime>
 	{
 		public int time; // = null;
 		public byte started; // = null;
-
 		public McpeSetTime()
 		{
 			Id = 0x86;
@@ -892,12 +906,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeSetHealth : Package<McpeSetHealth>
 	{
 		public byte health; // = null;
-
 		public McpeSetHealth()
 		{
 			Id = 0xaa;
@@ -930,6 +944,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeSetSpawnPosition : Package<McpeSetSpawnPosition>
@@ -937,7 +952,6 @@ namespace MiNET.Net
 		public int x; // = null;
 		public int z; // = null;
 		public byte y; // = null;
-
 		public McpeSetSpawnPosition()
 		{
 			Id = 0xab;
@@ -974,6 +988,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeRespawn : Package<McpeRespawn>
@@ -982,7 +997,6 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float z; // = null;
 		public float y; // = null;
-
 		public McpeRespawn()
 		{
 			Id = 0xad;
@@ -1021,6 +1035,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeStartGame : Package<McpeStartGame>
@@ -1035,7 +1050,6 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
-
 		public McpeStartGame()
 		{
 			Id = 0x87;
@@ -1086,12 +1100,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeFullChunkData : Package<McpeFullChunkData>
 	{
 		public byte[] chunkData; // = null;
-
 		public McpeFullChunkData()
 		{
 			Id = 0xba;
@@ -1124,6 +1138,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeMovePlayer : Package<McpeMovePlayer>
@@ -1136,7 +1151,6 @@ namespace MiNET.Net
 		public float pitch; // = null;
 		public float bodyYaw; // = null;
 		public byte teleport; // = null;
-
 		public McpeMovePlayer()
 		{
 			Id = 0x95;
@@ -1183,12 +1197,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeAdventureSettings : Package<McpeAdventureSettings>
 	{
 		public int flags; // = null;
-
 		public McpeAdventureSettings()
 		{
 			Id = 0xb7;
@@ -1221,6 +1235,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeContainerSetContent : Package<McpeContainerSetContent>
@@ -1228,7 +1243,6 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public MetadataSlots slotData; // = null;
 		public MetadataInts hotbarData; // = null;
-
 		public McpeContainerSetContent()
 		{
 			Id = 0xb4;
@@ -1265,12 +1279,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeSetDifficulty : Package<McpeSetDifficulty>
 	{
 		public int difficulty; // = null;
-
 		public McpeSetDifficulty()
 		{
 			Id = 0xbc;
@@ -1303,13 +1317,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeMessage : Package<McpeMessage>
 	{
 		public string source; // = null;
 		public string message; // = null;
-
 		public McpeMessage()
 		{
 			Id = 0x85;
@@ -1344,13 +1358,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeSetEntityData : Package<McpeSetEntityData>
 	{
 		public int entityId; // = null;
 		public byte[] namedtag; // = null;
-
 		public McpeSetEntityData()
 		{
 			Id = 0xa7;
@@ -1385,6 +1399,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeEntityData : Package<McpeEntityData>
@@ -1393,7 +1408,6 @@ namespace MiNET.Net
 		public byte y; // = null;
 		public int z; // = null;
 		public Nbt namedtag; // = null;
-
 		public McpeEntityData()
 		{
 			Id = 0xb8;
@@ -1432,6 +1446,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeAddPlayer : Package<McpeAddPlayer>
@@ -1447,7 +1462,6 @@ namespace MiNET.Net
 		public short item; // = null;
 		public short meta; // = null;
 		public byte[] metadata; // = null;
-
 		public McpeAddPlayer()
 		{
 			Id = 0x89;
@@ -1500,13 +1514,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeRemovePlayer : Package<McpeRemovePlayer>
 	{
 		public int entityId; // = null;
 		public long clientId; // = null;
-
 		public McpeRemovePlayer()
 		{
 			Id = 0x8a;
@@ -1541,6 +1555,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeAddEntity : Package<McpeAddEntity>
@@ -1554,7 +1569,6 @@ namespace MiNET.Net
 		public short velocityX; // = null;
 		public short velocityZ; // = null;
 		public short velocityY; // = null;
-
 		public McpeAddEntity()
 		{
 			Id = 0x8c;
@@ -1603,12 +1617,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeRemoveEntity : Package<McpeRemoveEntity>
 	{
 		public int entityId; // = null;
-
 		public McpeRemoveEntity()
 		{
 			Id = 0x8d;
@@ -1641,6 +1655,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpePlaceBlock : Package<McpePlaceBlock>
@@ -1652,7 +1667,6 @@ namespace MiNET.Net
 		public byte block; // = null;
 		public byte meta; // = null;
 		public byte face; // = null;
-
 		public McpePlaceBlock()
 		{
 			Id = 0x96;
@@ -1697,6 +1711,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeRemoveBlock : Package<McpeRemoveBlock>
@@ -1705,7 +1720,6 @@ namespace MiNET.Net
 		public int x; // = null;
 		public int z; // = null;
 		public byte y; // = null;
-
 		public McpeRemoveBlock()
 		{
 			Id = 0x97;
@@ -1744,6 +1758,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeUpdateBlock : Package<McpeUpdateBlock>
@@ -1753,7 +1768,6 @@ namespace MiNET.Net
 		public byte y; // = null;
 		public byte block; // = null;
 		public byte meta; // = null;
-
 		public McpeUpdateBlock()
 		{
 			Id = 0x98;
@@ -1794,6 +1808,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeExplode : Package<McpeExplode>
@@ -1803,7 +1818,6 @@ namespace MiNET.Net
 		public float z; // = null;
 		public float radius; // = null;
 		public Records records; // = null;
-
 		public McpeExplode()
 		{
 			Id = 0x9a;
@@ -1844,13 +1858,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeEntityEvent : Package<McpeEntityEvent>
 	{
 		public int entityId; // = null;
 		public byte eventId; // = null;
-
 		public McpeEntityEvent()
 		{
 			Id = 0x9d;
@@ -1885,6 +1899,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpePlayerEquipment : Package<McpePlayerEquipment>
@@ -1893,7 +1908,6 @@ namespace MiNET.Net
 		public short item; // = null;
 		public short meta; // = null;
 		public byte slot; // = null;
-
 		public McpePlayerEquipment()
 		{
 			Id = 0xa0;
@@ -1932,6 +1946,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpePlayerArmorEquipment : Package<McpePlayerArmorEquipment>
@@ -1941,7 +1956,6 @@ namespace MiNET.Net
 		public byte chestplate; // = null;
 		public byte leggings; // = null;
 		public byte boots; // = null;
-
 		public McpePlayerArmorEquipment()
 		{
 			Id = 0xa1;
@@ -1982,6 +1996,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeInteract : Package<McpeInteract>
@@ -1989,7 +2004,6 @@ namespace MiNET.Net
 		public byte actionId; // = null;
 		public int entityId; // = null;
 		public int targetEntityId; // = null;
-
 		public McpeInteract()
 		{
 			Id = 0xa2;
@@ -2026,6 +2040,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpePlayerAction : Package<McpePlayerAction>
@@ -2036,7 +2051,6 @@ namespace MiNET.Net
 		public int z; // = null;
 		public int face; // = null;
 		public int entityId; // = null;
-
 		public McpePlayerAction()
 		{
 			Id = 0xa4;
@@ -2079,13 +2093,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeAnimate : Package<McpeAnimate>
 	{
 		public byte actionId; // = null;
 		public int entityId; // = null;
-
 		public McpeAnimate()
 		{
 			Id = 0xac;
@@ -2120,6 +2134,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeUseItem : Package<McpeUseItem>
@@ -2137,7 +2152,6 @@ namespace MiNET.Net
 		public float positionX; // = null;
 		public float positionY; // = null;
 		public float positionZ; // = null;
-
 		public McpeUseItem()
 		{
 			Id = 0xa3;
@@ -2194,6 +2208,7 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
 
 	public partial class McpeContainerSetSlot : Package<McpeContainerSetSlot>
@@ -2203,7 +2218,6 @@ namespace MiNET.Net
 		public short itemId; // = null;
 		public byte itemCount; // = null;
 		public short itemDamage; // = null;
-
 		public McpeContainerSetSlot()
 		{
 			Id = 0xb2;
@@ -2244,5 +2258,111 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
 	}
+
+	public partial class McpeItemEntity : Package<McpeItemEntity>
+	{
+		public int entityid; // = null;
+		public MetadataSlot item; // = null;
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
+		public byte yaw; // = null;
+		public byte pitch; // = null;
+		public byte roll; // = null;
+		public McpeItemEntity()
+		{
+			Id = 0x8e;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityid);
+			Write(item);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(yaw);
+			Write(pitch);
+			Write(roll);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityid = ReadInt();
+			item = ReadMetadataSlot();
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
+			yaw = ReadByte();
+			pitch = ReadByte();
+			roll = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeDropItem : Package<McpeDropItem>
+	{
+		public int entityid; // = null;
+		public byte unknown; // = null;
+		public MetadataSlot item; // = null;
+		public McpeDropItem()
+		{
+			Id = 0xaf;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityid);
+			Write(unknown);
+			Write(item);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityid = ReadInt();
+			unknown = ReadByte();
+			item = ReadMetadataSlot();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 }
+

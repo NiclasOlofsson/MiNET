@@ -57,7 +57,7 @@ namespace MiNET
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 		public PermissionManager Permissions { get; set; }
-
+		public MiNET.Worlds.GameMode GameMode { get; set; }
 		/// <summary>
 		///     Initializes a new instance of the <see cref="Player" /> class.
 		/// </summary>
@@ -94,7 +94,7 @@ namespace MiNET
 				Pitch = 28,
 				BodyYaw = 91
 			};
-
+			GameMode = level.GameMode;
 			_InventoryManager = new InventoryManager(this);
 			IsConnected = true;
 
@@ -210,10 +210,53 @@ namespace MiNET
 				HandlePlayerAction((McpePlayerAction) message);
 			}
 
+			else if (typeof (McpeDropItem) == message.GetType())
+			{
+				HandlePlayerDropItem((McpeDropItem)message);
+			}
+
 			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 			if (elapsedMilliseconds > 100)
 			{
 				Log.WarnFormat("Package ({1}) handling too long {0}ms", elapsedMilliseconds, message.Id);
+			}
+		}
+
+		private void HandlePlayerDropItem(McpeDropItem message)
+		{
+			if (_InventoryManager.HasItem(message.item))
+			{
+				int x = 0;
+				int z = 0;
+				switch (this.GetDirection()) //Basic rotation implementation :P
+				{
+					case 1:
+						z += 3;
+						break;
+					case 2:
+						x -= 3;
+						break;
+					case 3:
+						z -= 3;
+						break;
+					case 0:
+						x += 3;
+						break; 
+				}
+
+				McpeItemEntity p = new McpeItemEntity()
+				{
+					entityid = Level.LastDropItemID + 1,
+					item = message.item,
+					pitch = 5,
+					roll = 6,
+					yaw = 7,
+					x = this.KnownPosition.X + x,
+					y = this.KnownPosition.Y,
+					z = this.KnownPosition.Z + z
+				};
+				Level.RelayBroadcast<McpeItemEntity>(p);
+				Level.DropedItems.Add(Level.LastDropItemID + 1, new Tuple<PlayerPosition3D, int>(new PlayerPosition3D(this.KnownPosition.X + x, this.KnownPosition.Y, this.KnownPosition.Z + z), message.item.Value.Id ));
 			}
 		}
 
@@ -583,7 +626,7 @@ namespace MiNET
 			{
 				seed = 1406827239,
 				generator = 1,
-				gamemode = (int) Level.GameMode,
+				gamemode = (int) GameMode,
 				entityId = 0,
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,

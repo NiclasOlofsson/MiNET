@@ -77,12 +77,7 @@ namespace MiNET.Worlds
 		{
 			get
 			{
-				int highest = 0;
-				foreach (var item in DropedItems)
-				{
-					if (item.Key > highest) highest = item.Key;
-				}
-				return highest;
+				return DropedItems.Select(item => item.Key).Concat(new[] {0}).Max();
 			}
 		}
 
@@ -594,6 +589,20 @@ namespace MiNET.Worlds
 
 			//itemInHand.Metadata = metadata;
 			//itemInHand.UseItem(world, newPlayer, blockCoordinates, face);
+
+			McpeItemEntity p = new McpeItemEntity()
+			{
+				entityid = world.LastDropItemID + 1,
+				item = new MetadataSlot(new Utils.ItemStack(block.Id, 1, block.Metadata)),
+				pitch = 5,
+				roll = 0,
+				yaw = 7,
+				x = blockCoordinates.X,
+				y = blockCoordinates.Y,
+				z = blockCoordinates.Z
+			};
+			world.RelayBroadcast<McpeItemEntity>(p);
+			world.DropedItems.Add(world.LastDropItemID + 1, new Tuple<PlayerPosition3D, int>(new PlayerPosition3D(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z), block.Id));
 
 			block.BreakBlock(world);
 		}

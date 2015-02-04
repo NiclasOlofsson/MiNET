@@ -238,6 +238,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x8f:
+					package = McpeRemoveItemEntity.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xaf:
 					package = McpeDropItem.CreateObject();
 					//package.Timer.Start();
@@ -2311,6 +2316,47 @@ namespace MiNET.Net
 			yaw = ReadByte();
 			pitch = ReadByte();
 			roll = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeRemoveItemEntity : Package<McpeRemoveItemEntity>
+	{
+		public int target; // = null;
+		public int entityid; // = null;
+		public McpeRemoveItemEntity()
+		{
+			Id = 0x8f;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(target);
+			Write(entityid);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			target = ReadInt();
+			entityid = ReadInt();
 
 			AfterDecode();
 		}

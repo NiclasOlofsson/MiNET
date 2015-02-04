@@ -343,6 +343,11 @@
     <field name="Roll" type="byte" />
 	</pdu>
 
+  <pdu id="0x8f" online="false" client="true" server="true" name="ID_MCPE_REMOVE_ITEM_ENTITY">
+    <field name="Target" type="int" />
+    <field name="EntityId" type="int" />
+  </pdu>
+  
   <pdu id="0xaf" online="false" client="true" server="false" name="ID_MCPE_DROP_ITEM">
     <field name="EntityId" type="int" />
     <field name="Unknown" type="byte" />

@@ -23,7 +23,7 @@ namespace MiNET.Net
 
 			foreach (var range in ranges)
 			{
-				byte singleEntry = (byte) (range.Item1 == range.Item2 ? 1 : 0);
+				byte singleEntry = (byte) (range.Item1 == range.Item2 ? 0x01 : 0);
 
 				Write(singleEntry);
 				Write((Int24) range.Item1);

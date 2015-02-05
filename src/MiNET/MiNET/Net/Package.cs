@@ -417,7 +417,7 @@ namespace MiNET.Net
 
 		static Package()
 		{
-			for (int i = 0; i < 1000; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				Pool.PutObject(Pool.GetObject());
 			}

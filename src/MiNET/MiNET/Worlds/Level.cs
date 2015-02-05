@@ -297,14 +297,14 @@ namespace MiNET.Worlds
 
 					Player[] players = GetSpawnedPlayers();
 
-					//if (CurrentWorldTime%10 == 0)
-					//{
-					//	McpeSetTime message = McpeSetTime.CreateObject();
-					//	message.time = CurrentWorldTime;
-					//	message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
+					if (CurrentWorldTime % 40 == 0)
+					{
+						McpeSetTime message = McpeSetTime.CreateObject();
+						message.time = CurrentWorldTime;
+						message.started = (byte)(WorldTimeStarted ? 0x80 : 0x00);
 
-					//	RelayBroadcast(players, message, false);
-					//}
+						RelayBroadcast(players, message, false);
+					}
 
 					// broadcast events to all players
 

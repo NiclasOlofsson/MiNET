@@ -961,6 +961,7 @@ namespace MiNET
 
 		public void LoadFromFile()
 		{
+			return;
 			try
 			{
 				if (File.Exists("Players/" + Username + ".data"))

@@ -373,7 +373,7 @@ namespace MiNET
 					foreach (var message in messages)
 					{
 						TraceReceive(message);
-						EnueueAck(senderEndpoint, package._datagramSequenceNumber);
+						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
 						HandlePackage(message, senderEndpoint);
 						message.PutPool();
 					}
@@ -420,7 +420,7 @@ namespace MiNET
 			}
 		}
 
-		private void EnueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
+		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
 		{
 			var ack = Ack.CreateObject();
 			ack.sequenceNumber = sequenceNumber;
@@ -434,20 +434,10 @@ namespace MiNET
 				var session = _playerSessions[senderEndpoint];
 				session.PlayerAckQueue.Enqueue(ack);
 			}
-			else
-			{
-				// Not connected yet, send direct
-				//lock (_listener)
-				{
-					var data = ack.Encode();
-					SendData(data, senderEndpoint);
-					ack.PutPool();
-					//_listener.Send(data, data.Length, senderEndpoint);
-				}
-			}
+
 			if (_ackTimer == null)
 			{
-				_ackTimer = new Timer(SendAckQueue, null, 0, 100);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
 			}
 		}
 
@@ -455,12 +445,12 @@ namespace MiNET
 
 		private void SendAckQueue(object state)
 		{
-			foreach (PlayerNetworkSession session in _playerSessions.Values.ToArray())
+			Parallel.ForEach(_playerSessions.Values.ToList(), delegate(PlayerNetworkSession session)
 			{
 				var queue = session.PlayerAckQueue;
 				int lenght = queue.Count;
 
-				if (lenght == 0) continue;
+				if (lenght == 0) return;
 
 				Acks acks = new Acks();
 				for (int i = 0; i < lenght; i++)
@@ -468,7 +458,7 @@ namespace MiNET
 					Ack ack;
 					if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
 
-					acks.acks.Add(ack.sequenceNumber);
+					acks.acks.Add(ack.sequenceNumber.IntValue());
 					ack.PutPool();
 				}
 
@@ -477,16 +467,8 @@ namespace MiNET
 					byte[] data = acks.Encode();
 					SendData(data, session.EndPoint);
 				}
-			}
+			});
 		}
-
-		private static ObjectPool2<UdpClient> _udpPool = new ObjectPool2<UdpClient>(() => new UdpClient());
-
-		static MiNetServer()
-		{
-			_udpPool.FillPool(100);
-		}
-
 
 		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
 		{
@@ -566,9 +548,9 @@ namespace MiNET
 			//_listener.BeginSend(data, data.Length, targetEndpoint, null, null);
 
 			//lock (_listener)
-			//{
-			_listener.SendAsync(data, data.Length, targetEndpoint).Wait();
-			//}
+			{
+				_listener.SendAsync(data, data.Length, targetEndpoint).Wait();
+			}
 
 			_numberOfPacketsOutPerSecond++;
 			_totalPacketSizeOut += data.Length;
@@ -598,9 +580,9 @@ namespace MiNET
 		private static void TraceReceive(Package message)
 		{
 			if (Log.IsDebugEnabled)
-				if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+				if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
 				{
-					//Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+					Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 				}
 		}
 
@@ -611,9 +593,9 @@ namespace MiNET
 		private static void TraceSend(Package message)
 		{
 			if (Log.IsDebugEnabled)
-				if (message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+				if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
 				{
-					//Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+					Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 				}
 		}
 	}

@@ -63,7 +63,7 @@
   <ItemGroup>
     <Compile Include="InventoryManagementTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="MinetServerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\external\craft.net\externals\fNbt\fNbt\fNbt.csproj">

@@ -72,7 +72,7 @@ namespace MiNET.Worlds
 		private int _worldDayCycleTime = 24000;
 		//private int _worldDayCycleTime = 14400;
 
-		public Coordinates3D SpawnPoint { get; private set; }
+		public Coordinates3D SpawnPoint { get; set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }

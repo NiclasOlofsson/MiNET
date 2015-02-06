@@ -11,7 +11,7 @@ namespace MiNET
 		{
 			Permissions = new List<string>();
 			Group = group;
-			Permissions.Add("*"); //All players have all permissions for now.
+			//Permissions.Add("*");
 		}
 
 		public void AddPermission(string permission)

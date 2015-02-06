@@ -162,6 +162,7 @@ namespace MiNET
 				}, null, 1000, 1000);
 
 				Log.Info("Server open for business...");
+				new Task(() => new CommandHandler.CommandHandler().ConsoleCMDHandler(this, _level)).Start();
 
 				return true;
 			}

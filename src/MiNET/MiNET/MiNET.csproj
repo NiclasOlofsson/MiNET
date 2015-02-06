@@ -68,8 +68,10 @@
     <Compile Include="Blocks\WallSign.cs" />
     <Compile Include="CommandHandler\BoomCommand.cs" />
     <Compile Include="CommandHandler\CommandHandler.cs" />
+    <Compile Include="CommandHandler\DeOpCommand.cs" />
     <Compile Include="CommandHandler\HelpCommand.cs" />
     <Compile Include="CommandHandler\ICommandHandler.cs" />
+    <Compile Include="CommandHandler\OpCommand.cs" />
     <Compile Include="CommandHandler\TestCommand.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />

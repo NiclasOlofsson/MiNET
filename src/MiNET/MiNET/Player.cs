@@ -53,6 +53,7 @@ namespace MiNET
 		public HealthManager HealthManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
 
+		public bool Console { get; set; }
 		public bool IsBot { get; set; }
 
 		public bool IsSpawned { get; private set; }
@@ -983,7 +984,7 @@ namespace MiNET
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine(ex);
+				//Console.WriteLine(ex);
 			}
 		}
 	}

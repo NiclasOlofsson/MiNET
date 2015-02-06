@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.PluginSystem.Attributes;
+using MiNET.Worlds;
 
 namespace MiNET.CommandHandler
 {
@@ -11,7 +13,27 @@ namespace MiNET.CommandHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
-		public void HandleCommand(string message, Player player)
+		public void ConsoleCMDHandler(MiNetServer server, Level level)
+		{
+			Player console = new Player(server, new IPEndPoint((long) 0, 1), level, 0);
+			console.Permissions.SetGroup(UserGroup.Operator);
+			console.Console = true;
+			console.IsConnected = false;
+			while (true)
+			{
+				try
+				{
+					string cmd = Console.ReadLine();
+					HandleCommand(cmd, console, true);
+				}
+				catch (Exception ex)
+				{
+					//Ignore it, just because we are a console 'player':P
+				}
+			}
+		}
+
+		public void HandleCommand(string message, Player player, bool console = false)
 		{
 			string _command = message.Split(' ')[0];
 			message = message.Replace(_command + " ", "");
@@ -22,15 +44,15 @@ namespace MiNET.CommandHandler
 			{
 				if (command.Command == _command)
 				{
-					if (!player.Permissions.HasPermission(command.Permission) && !player.Permissions.HasPermission("*"))
+					if (!player.Permissions.HasPermission(command.Permission) && !player.Permissions.HasPermission("*") && !player.Permissions.IsInGroup(UserGroup.Operator))
 					{
-						player.SendMessage("You are not permitted to use this command!");
+						if (!console) player.SendMessage("You are not permitted to use this command!");
 						return;
 					}
 
 					if (!command.Execute(player, _splittedCommand))
 					{
-						player.SendMessage(command.Usage);
+						if (!console) player.SendMessage(command.Usage);
 					}
 					break;
 				}
@@ -43,9 +65,9 @@ namespace MiNET.CommandHandler
 					CommandAttribute atrib = (CommandAttribute) cmd.Key;
 					if (atrib.Command != _command) continue;
 
-					if (!player.Permissions.HasPermission(atrib.Permission) && !player.Permissions.HasPermission("*"))
+					if (!player.Permissions.HasPermission(atrib.Permission) && !player.Permissions.HasPermission("*") && !player.Permissions.IsInGroup(UserGroup.Operator))
 					{
-						player.SendMessage("You are not permitted to use this command!");
+						if (!console) player.SendMessage("You are not permitted to use this command!");
 						return;
 					}
 
@@ -73,7 +95,7 @@ namespace MiNET.CommandHandler
 			}
 		}
 
-		public ICommandHandler[] Commands = new ICommandHandler[] {new TestCommand(), new HelpCommand(), new BoomCommand()};
+		public ICommandHandler[] Commands = new ICommandHandler[] {new TestCommand(), new HelpCommand(), new BoomCommand(), new OpCommand(), new DeOpCommand(), };
 		public static Dictionary<Attribute, MethodInfo> PluginCommands = new Dictionary<Attribute, MethodInfo>();
 	}
 }

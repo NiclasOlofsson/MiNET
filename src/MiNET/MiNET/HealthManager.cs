@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using MiNET.Items;
 using MiNET.Utils;
 
 namespace MiNET
@@ -50,6 +51,9 @@ namespace MiNET
 
 		public void TakeHit(Player sourcePlayer)
 		{
+			//Untested code below, should work fine, however this is not sure yet.
+		//	int Damage = ItemFactory.GetItem(sourcePlayer.InventoryManager.ItemInHand.Value.Id).GetDamage();
+		//	Health -= Damage;
 			Health--;
 			Player.SendSetHealth();
 		}

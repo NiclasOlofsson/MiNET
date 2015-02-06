@@ -1,10 +1,6 @@
 ﻿using System;
 using System.IO;
-<<<<<<< HEAD
-using MiNET.Items;
-=======
 using MiNET.Entities;
->>>>>>> origin/master
 using MiNET.Utils;
 
 namespace MiNET

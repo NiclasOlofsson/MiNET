@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Threading;
+using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -7,49 +7,84 @@ namespace MiNET.Entities
 {
 	public class Entity
 	{
-		private Timer _entityTicker;
-
 		public Level Level { get; set; }
 
 		public int EntityTypeId { get; private set; }
 		public int EntityId { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
-		public PlayerPosition3D KnownPosition { get; set; }
+		public PlayerLocation KnownPosition { get; set; }
 
+		public HealthManager HealthManager { get; private set; }
 
 		public Entity(int entityTypeId, Level level)
 		{
 			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
 			EntityTypeId = entityTypeId;
-			KnownPosition = new PlayerPosition3D();
+			KnownPosition = new PlayerLocation();
+			HealthManager = new HealthManager(this);
 		}
 
 		public virtual MetadataDictionary GetMetadata()
 		{
-			return new MetadataDictionary();
+			MetadataDictionary metadata = new MetadataDictionary();
+			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
+			metadata[1] = new MetadataShort(HealthManager.Air);
+			metadata[16] = new MetadataByte(0);
+
+			return metadata;
 		}
 
-		protected virtual void OnTick()
+		public byte GetDirection()
 		{
+			return DirectionByRotationFlat(KnownPosition.Yaw);
+		}
+
+		public static byte DirectionByRotationFlat(float yaw)
+		{
+			byte direction = (byte) ((int) Math.Floor((yaw*4F)/360F + 0.5D) & 0x03);
+			switch (direction)
+			{
+				case 0:
+					return 1; // West
+				case 1:
+					return 2; // North
+				case 2:
+					return 3; // East
+				case 3:
+					return 0; // South 
+			}
+			return 0;
+		}
+
+		public virtual void OnTick()
+		{
+			HealthManager.OnTick();
 		}
 
 		public virtual void SpawnEntity()
 		{
 			Level.AddEntity(this);
-			_entityTicker = new Timer(OnUpdate, null, 0, 50);
-		}
-
-		protected virtual void OnUpdate(object state)
-		{
-			OnTick();
 		}
 
 		protected virtual void DespawnEntity()
 		{
-			_entityTicker.Dispose();
 			Level.RemoveEntity(this);
+		}
+
+		public virtual void Kill()
+		{
+			Level.RemoveEntity(this);
+		}
+
+		public virtual void BroadcastSetEntityData()
+		{
+			Level.RelayBroadcast(this, new McpeSetEntityData
+			{
+				entityId = EntityId,
+				namedtag = GetMetadata().GetBytes()
+			});
 		}
 	}
 }

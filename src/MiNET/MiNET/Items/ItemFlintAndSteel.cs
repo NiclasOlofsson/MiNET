@@ -2,6 +2,7 @@
 using Craft.Net.Common;
 using MiNET.Blocks;
 using MiNET.Entities;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items
@@ -32,7 +33,7 @@ namespace MiNET.Items
 				world.SetBlock(new Air() {Coordinates = block.Coordinates});
 				new PrimedTnt(world)
 				{
-					KnownPosition = new PlayerPosition3D(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z),
+					KnownPosition = new PlayerLocation(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z),
 					Fuse = (byte) (new Random().Next(0, 20) + 10)
 				}.SpawnEntity();
 			}

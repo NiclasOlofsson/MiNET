@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,9 +13,6 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 using ItemStack = MiNET.Utils.ItemStack;
-using MetadataByte = MiNET.Utils.MetadataByte;
-using MetadataDictionary = MiNET.Utils.MetadataDictionary;
-using MetadataShort = MiNET.Utils.MetadataShort;
 using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET
@@ -47,10 +44,8 @@ namespace MiNET
 		private Timer _sendTicker;
 
 		private Coordinates2D _currentChunkPosition;
-		private Timer _playerTimer;
 
 		public bool IsConnected { get; set; }
-		public HealthManager HealthManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
 
 		public bool IsBot { get; set; }
@@ -73,12 +68,11 @@ namespace MiNET
 			_endpoint = endpoint;
 			Level = level;
 			_mtuSize = mtuSize;
-			HealthManager = new HealthManager(this);
 			Permissions = new PermissionManager(UserGroup.User);
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
 			EntityId = -1;
 			IsSpawned = false;
-			KnownPosition = new PlayerPosition3D
+			KnownPosition = new PlayerLocation
 			{
 				X = Level.SpawnPoint.X,
 				Y = Level.SpawnPoint.Y,
@@ -216,24 +210,7 @@ namespace MiNET
 
 		private void HandlePlayerDropItem(McpeDropItem message)
 		{
-			//if (!InventoryManager.HasItem(message.item)) return;
-			//int x = 0;
-			//int z = 0;
-			//switch (this.GetDirection()) //Basic rotation implementation :P
-			//{
-			//	case 1:
-			//		z += 3;
-			//		break;
-			//	case 2:
-			//		x -= 3;
-			//		break;
-			//	case 3:
-			//		z -= 3;
-			//		break;
-			//	case 0:
-			//		x += 3;
-			//		break;
-			//}
+			if (!InventoryManager.HasItem(message.item)) return;
 
 			ItemStack itemStack = message.item.Value;
 
@@ -262,7 +239,7 @@ namespace MiNET
 		{
 			message.entityId = EntityId;
 
-			Level.RelayBroadcast(this, message, false);
+			Level.RelayBroadcast(this, message);
 		}
 
 		/// <summary>
@@ -324,7 +301,7 @@ namespace MiNET
 			HealthManager.ResetHealth();
 
 			// send teleport to spawn
-			KnownPosition = new PlayerPosition3D
+			KnownPosition = new PlayerLocation
 			{
 				X = Level.SpawnPoint.X,
 				Y = Level.SpawnPoint.Y,
@@ -416,7 +393,7 @@ namespace MiNET
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);
 
-			if (Username.StartsWith("Player")) IsBot = true;
+			if (Username.StartsWith("Entity")) IsBot = true;
 
 			SendPackage(new McpeLoginStatus {status = 0});
 
@@ -457,7 +434,7 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			KnownPosition = new PlayerPosition3D(message.x, message.y, message.z) {Pitch = message.pitch, Yaw = message.yaw, BodyYaw = message.bodyYaw};
+			KnownPosition = new PlayerLocation(message.x, message.y, message.z) {Pitch = message.pitch, Yaw = message.yaw, BodyYaw = message.bodyYaw};
 			LastUpdatedTime = DateTime.UtcNow;
 
 			if (IsBot) return;
@@ -484,7 +461,7 @@ namespace MiNET
 
 			message.entityId = EntityId;
 
-			Level.RelayBroadcast(this, message, false);
+			Level.RelayBroadcast(this, message);
 		}
 
 		/// <summary>
@@ -500,7 +477,7 @@ namespace MiNET
 
 			message.entityId = EntityId;
 
-			Level.RelayBroadcast(this, message, false);
+			Level.RelayBroadcast(this, message);
 		}
 
 		/// <summary>
@@ -544,18 +521,13 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleInteract(McpeInteract message)
 		{
-			Player target = (Player) Level.EntityManager.GetEntity(message.targetEntityId);
+			Player target = Level.EntityManager.GetEntity(message.targetEntityId) as Player;
 
 			if (target == null) return;
 
 			target.HealthManager.TakeHit(this);
 
-			Level.RelayBroadcast(target, new McpeEntityEvent()
-			{
-				entityId = target.EntityId,
-				eventId = (byte) (target.HealthManager.Health <= 0 ? 3 : 2)
-			});
-
+			BroadcastEntityEvent();
 			target.SendPackage(new McpeEntityEvent()
 			{
 				entityId = 0,
@@ -587,39 +559,6 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Gets the direction.
-		/// </summary>
-		/// <returns></returns>
-		public byte GetDirection()
-		{
-			return DirectionByRotationFlat(KnownPosition.Yaw);
-		}
-
-		/// <summary>
-		/// </summary>
-		/// <param name="yaw">The yaw.</param>
-		/// <returns></returns>
-		public static byte DirectionByRotationFlat(float yaw)
-		{
-			byte direction = (byte) ((int) Math.Floor((yaw*4F)/360F + 0.5D) & 0x03);
-			switch (direction)
-			{
-				case 0:
-					return 1; // West
-				case 1:
-					return 2; // North
-				case 2:
-					return 3; // East
-				case 3:
-					return 0; // South 
-			}
-			return 0;
-		}
-
-		/// <summary>
-		///     Sends the start game packet.
-		/// </summary>
 		private void SendStartGame()
 		{
 			SendPackage(new McpeStartGame
@@ -653,7 +592,7 @@ namespace MiNET
 		/// <summary>
 		///     Sends the chunks for known position.
 		/// </summary>
-		public void SendChunksForKnownPosition()
+		private void SendChunksForKnownPosition()
 		{
 			var chunkPosition = new Coordinates2D((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
@@ -680,9 +619,6 @@ namespace MiNET
 			});
 		}
 
-		/// <summary>
-		///     Sends the set health packet.
-		/// </summary>
 		internal void SendSetHealth()
 		{
 			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Health});
@@ -745,98 +681,32 @@ namespace MiNET
 				hotbarData = null
 			});
 
-			_playerTimer = new Timer(OnPlayerTick, null, 50, 50);
-
 			IsSpawned = true;
 			Level.AddPlayer(this);
 
 			BroadcastSetEntityData();
 		}
 
-		/// <summary>
-		///     Called when [player tick].
-		/// </summary>
-		/// <param name="state">The state.</param>
-		private void OnPlayerTick(object state)
+		public override void OnTick()
 		{
-			HealthManager.OnTick();
+			base.OnTick();
 		}
 
-		/// <summary>
-		///     Sends the add for player.
-		/// </summary>
-		/// <param name="player">The player.</param>
-		public void SendAddForPlayer(Player player)
+		public override void Kill()
 		{
-			if (player == this) return;
+			Level.RemovePlayer(this);
+		}
 
-			SendPackage(new McpeAddPlayer
+		public void SendMessage(string text, Player sender = null)
+		{
+			var response = new McpeMessage
 			{
-				clientId = 0,
-				username = player.Username,
-				entityId = player.EntityId,
-				x = player.KnownPosition.X,
-				y = player.KnownPosition.Y,
-				z = player.KnownPosition.Z,
-				yaw = (byte) player.KnownPosition.Yaw,
-				pitch = (byte) player.KnownPosition.Pitch,
-				metadata = new byte[0]
-			});
-
-			SendEquipmentForPlayer(player);
-
-			SendArmorForPlayer(player);
+				source = sender == null ? "MiNET" : sender.Username,
+				message = "₽" + text
+			};
+			SendPackage((Package) response.Clone());
 		}
 
-		/// <summary>
-		///     Sends the equipment for player.
-		/// </summary>
-		/// <param name="player">The player.</param>
-		private void SendEquipmentForPlayer(Player player)
-		{
-			SendPackage(new McpePlayerEquipment()
-			{
-				entityId = player.EntityId,
-				item = player.InventoryManager.ItemInHand.Value.Id,
-				meta = player.InventoryManager.ItemInHand.Value.Metadata,
-				slot = 0
-			});
-		}
-
-		/// <summary>
-		///     Sends the armor for player.
-		/// </summary>
-		/// <param name="player">The player.</param>
-		private void SendArmorForPlayer(Player player)
-		{
-			SendPackage(new McpePlayerArmorEquipment()
-			{
-				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player.InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player.InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player.InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player.InventoryManager.Armor[3]).Value.Id - 256)
-			});
-		}
-
-		/// <summary>
-		///     Sends the remove for player.
-		/// </summary>
-		/// <param name="player">The player.</param>
-		public void SendRemoveForPlayer(Player player)
-		{
-			if (player == this) return;
-
-			SendPackage(new McpeRemovePlayer
-			{
-				clientId = 0,
-				entityId = player.EntityId
-			});
-		}
-
-		/// <summary>
-		///     Broadcasts the entity event.
-		/// </summary>
 		public void BroadcastEntityEvent()
 		{
 			Level.RelayBroadcast(this, new McpeEntityEvent()
@@ -847,33 +717,8 @@ namespace MiNET
 
 			if (HealthManager.IsDead)
 			{
-				Level.BroadcastTextMessage("Player " + this.Username + " " + HealthManager.LastDamageCause.ToString().Replace('_', ' '));
+				Level.BroadcastTextMessage("Entity " + Username + " " + HealthManager.LastDamageCause.ToString().Replace('_', ' '));
 			}
-		}
-
-		/// <summary>
-		///     Broadcasts the set entity data.
-		/// </summary>
-		public void BroadcastSetEntityData()
-		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
-			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[16] = new MetadataByte(0);
-
-			Level.RelayBroadcast(this, new McpeSetEntityData()
-			{
-				entityId = EntityId,
-				namedtag = metadata.GetBytes()
-			});
-		}
-
-		public void SendMovementForPlayer(Player player, McpeMovePlayer move)
-		{
-			if (HealthManager.IsDead) return;
-			if (player == this) return;
-
-			SendPackage(move);
 		}
 
 		/// <summary>
@@ -891,10 +736,7 @@ namespace MiNET
 			}
 			else
 			{
-				//lock (_sequenceNumberSync)
-				{
-					_server.SendPackage(_endpoint, new List<Package>(new[] {package}), _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
-				}
+				_server.SendPackage(_endpoint, new List<Package>(new[] {package}), _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 			}
 		}
 
@@ -912,30 +754,13 @@ namespace MiNET
 			}
 
 			if (messages.Count == 0) return;
-
-			//lock (_sequenceNumberSync)
-			{
-				_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
-			}
-		}
-
-		public void Kill()
-		{
-			Level.RemovePlayer(this);
-		}
-
-		public void SendMessage(string message, Player sender = null)
-		{
-			var response = new McpeMessage
-			{
-				source = "",
-				message = (sender == null ? "" : "<" + sender.Username + "> ") + message
-			};
-			SendPackage((Package) response.Clone());
+			_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 		}
 
 		public void SavePlayerData()
 		{
+			if (!ConfigParser.GetProperty("save_pe", true)) return;
+
 			if (!Directory.Exists("Players")) Directory.CreateDirectory("Players");
 
 			byte[] buffer;
@@ -961,7 +786,8 @@ namespace MiNET
 
 		public void LoadFromFile()
 		{
-			return;
+			if (!ConfigParser.GetProperty("load_pe", true)) return;
+
 			try
 			{
 				if (File.Exists("Players/" + Username + ".data"))

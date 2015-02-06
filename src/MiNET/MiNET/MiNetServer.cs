@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -311,6 +312,8 @@ namespace MiNET
 					{
 						OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
 
+						_performanceTest = _performanceTest || incoming.raknetProtocolVersion == byte.MaxValue;
+
 						var packet = new OpenConnectionReply1
 						{
 							serverGuid = 12345,
@@ -433,7 +436,11 @@ namespace MiNET
 			{
 				var session = _playerSessions[senderEndpoint];
 				session.PlayerAckQueue.Enqueue(ack);
+				//SendAckQueue(null);
 			}
+
+			//var data = ack.Encode();
+			//SendData(data, senderEndpoint);
 
 			if (_ackTimer == null)
 			{
@@ -533,7 +540,7 @@ namespace MiNET
 					double kbitPerSecondOut = _totalPacketSizeOut*8/1000000D;
 					double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
 					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.lastTickProcessingTime,
+						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
 						_level.Players.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
 
 					_numberOfAckSent = 0;
@@ -573,30 +580,27 @@ namespace MiNET
 			return hex.ToString();
 		}
 
-		/// <summary>
-		///     Traces the received data.
-		/// </summary>
-		/// <param name="message">The data.</param>
+
+		private static bool _performanceTest = false;
+
 		private static void TraceReceive(Package message)
 		{
-			if (Log.IsDebugEnabled)
-				if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
-				{
-					Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-				}
+			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
+
+			if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+			{
+				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			}
 		}
 
-		/// <summary>
-		///     Traces a send packet.
-		/// </summary>
-		/// <param name="message">The packet.</param>
 		private static void TraceSend(Package message)
 		{
-			if (Log.IsDebugEnabled)
-				if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
-				{
-					Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-				}
+			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
+
+			if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+			{
+				Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			}
 		}
 	}
 }

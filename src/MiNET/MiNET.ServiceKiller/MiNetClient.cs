@@ -168,6 +168,7 @@ namespace MiNET.ServiceKiller
 		{
 			var packet = new OpenConnectionRequest1()
 			{
+				raknetProtocolVersion = byte.MaxValue, // Indicate to the server that this is a performance tests. Disables logging.
 				mtuSize = _mtuSize
 			};
 

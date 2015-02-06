@@ -35,7 +35,7 @@ namespace MiNET.Entities
 			base.SpawnEntity();
 		}
 
-		protected override void OnTick()
+		public override void OnTick()
 		{
 			Fuse--;
 
@@ -49,7 +49,7 @@ namespace MiNET.Entities
 				var entityData = McpeSetEntityData.CreateObject();
 				entityData.entityId = EntityId;
 				entityData.namedtag = GetMetadata().GetBytes();
-				Level.RelayBroadcast(entityData, false);
+				Level.RelayBroadcast(entityData);
 				if (CheckPosition) PositionCheck();
 			}
 		}

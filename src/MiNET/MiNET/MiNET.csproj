@@ -121,8 +121,8 @@
     <Compile Include="Net\UnknownPackage.cs" />
     <Compile Include="MiNetServer.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="PlayerPosition3D.cs" />
     <Compile Include="PluginSystem\PluginLoader.cs" />
+    <Compile Include="Utils\Class1.cs" />
     <Compile Include="Utils\Compression.cs" />
     <Compile Include="Utils\Endian.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
@@ -141,6 +141,7 @@
     <Compile Include="Utils\NbtBinaryReader.cs" />
     <Compile Include="Utils\NbtBinaryWriter.cs" />
     <Compile Include="Utils\NbtFormatException.cs" />
+    <Compile Include="Utils\PlayerLocation.cs" />
     <Compile Include="Utils\Records.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
@@ -188,10 +189,6 @@
     <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Common\Craft.Net.Common.csproj">
       <Project>{50462849-2223-4E39-B5D9-A928A9A58A33}</Project>
       <Name>Craft.Net.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Logic\Craft.Net.Logic.csproj">
-      <Project>{E001ADA1-6BCB-420E-B187-07FF361D60B8}</Project>
-      <Name>Craft.Net.Logic</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
       <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>

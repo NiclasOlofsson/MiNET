@@ -139,7 +139,7 @@ namespace MiNET
 				mcpeExplode.z = _centerCoordinates.Z;
 				mcpeExplode.radius = _size;
 				mcpeExplode.records = records;
-				_world.RelayBroadcast(mcpeExplode, false);
+				_world.RelayBroadcast(mcpeExplode);
 			}).Start();
 
 			foreach (Block block in _afectedBlocks.Values)
@@ -180,7 +180,7 @@ namespace MiNET
 			var rand = new Random();
 			new PrimedTnt(world)
 			{
-				KnownPosition = new PlayerPosition3D
+				KnownPosition = new PlayerLocation
 				{
 					X = blockCoordinates.X,
 					Y = blockCoordinates.Y,

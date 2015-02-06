@@ -1,10 +1,9 @@
 ﻿using System.IO;
 using Craft.Net.Common;
-using MiNET.Utils;
 
-namespace MiNET
+namespace MiNET.Utils
 {
-	public class PlayerPosition3D
+	public class PlayerLocation
 	{
 		public float X { get; set; }
 		public float Y { get; set; }
@@ -14,11 +13,11 @@ namespace MiNET
 		public float Pitch { get; set; }
 		public float BodyYaw { get; set; }
 
-		public PlayerPosition3D()
+		public PlayerLocation()
 		{
 		}
 
-		public PlayerPosition3D(float x, float y, float z)
+		public PlayerLocation(float x, float y, float z)
 		{
 			X = x;
 			Y = y;

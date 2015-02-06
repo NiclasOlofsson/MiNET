@@ -1,14 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
+<<<<<<< HEAD
 using MiNET.Items;
+=======
+using MiNET.Entities;
+>>>>>>> origin/master
 using MiNET.Utils;
 
 namespace MiNET
 {
 	public class HealthManager
 	{
-		public Player Player { get; set; }
+		public Entity Entity { get; set; }
 		public int Health { get; set; }
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
@@ -16,9 +19,9 @@ namespace MiNET
 		public bool IsOnFire { get; set; }
 		public DamageCause LastDamageCause { get; set; }
 
-		public HealthManager(Player player)
+		public HealthManager(Entity entity)
 		{
-			Player = player;
+			Entity = entity;
 			ResetHealth();
 		}
 
@@ -55,20 +58,25 @@ namespace MiNET
 		//	int Damage = ItemFactory.GetItem(sourcePlayer.InventoryManager.ItemInHand.Value.Id).GetDamage();
 		//	Health -= Damage;
 			Health--;
-			Player.SendSetHealth();
+			var player = Entity as Player;
+			if (player != null)
+				player.SendSetHealth();
 		}
 
 		public void KillPlayer()
 		{
-			Debug.WriteLine("Killing player: " + Player.Username + " IsDead: " + IsDead);
 			if (IsDead) return;
 
 			IsDead = true;
 			Health = 0;
-			Player.SendSetHealth();
-			Player.BroadcastEntityEvent();
-			Player.BroadcastSetEntityData();
-			Player.Kill();
+			var player = Entity as Player;
+			if (player != null)
+			{
+				player.SendSetHealth();
+				player.BroadcastEntityEvent();
+				player.BroadcastSetEntityData();
+				player.Kill();
+			}
 		}
 
 		public void ResetHealth()
@@ -83,6 +91,8 @@ namespace MiNET
 
 		public void OnTick()
 		{
+			//TODO: Rewrite to fit all entities
+
 			if (IsDead) return;
 
 			if (Health <= 0)
@@ -91,7 +101,7 @@ namespace MiNET
 				return;
 			}
 
-			if (IsInWater(Player.KnownPosition))
+			if (IsInWater(Entity.KnownPosition))
 			{
 				Air--;
 				if (Air <= 0)
@@ -99,10 +109,14 @@ namespace MiNET
 					if (Math.Abs(Air)%10 == 0)
 					{
 						Health--;
-						Player.SendSetHealth();
-						Player.BroadcastEntityEvent();
-						Player.BroadcastSetEntityData();
-						LastDamageCause = DamageCause.Drowned;
+						var player = Entity as Player;
+						if (player != null)
+						{
+							player.SendSetHealth();
+							player.BroadcastEntityEvent();
+							player.BroadcastSetEntityData();
+							LastDamageCause = DamageCause.Drowned;
+						}
 					}
 				}
 
@@ -110,7 +124,9 @@ namespace MiNET
 				{
 					IsOnFire = false;
 					FireTick = 0;
-					Player.BroadcastSetEntityData();
+					var player = Entity as Player;
+					if (player != null)
+						player.BroadcastSetEntityData();
 				}
 			}
 			else
@@ -118,11 +134,13 @@ namespace MiNET
 				Air = 300;
 			}
 
-			if (!IsOnFire && IsInLava(Player.KnownPosition))
+			if (!IsOnFire && IsInLava(Entity.KnownPosition))
 			{
 				FireTick = 300;
 				IsOnFire = true;
-				Player.BroadcastSetEntityData();
+				var player = Entity as Player;
+				if (player != null)
+					player.BroadcastSetEntityData();
 			}
 
 			if (IsOnFire)
@@ -136,23 +154,27 @@ namespace MiNET
 				if (Math.Abs(FireTick)%20 == 0)
 				{
 					Health--;
-					Player.SendSetHealth();
-					Player.BroadcastEntityEvent();
-					Player.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.Burned_to_death;
+					var player = Entity as Player;
+					if (player != null)
+					{
+						player.SendSetHealth();
+						player.BroadcastEntityEvent();
+						player.BroadcastSetEntityData();
+						LastDamageCause = DamageCause.Burned_to_death;
+					}
 				}
 			}
 		}
 
-		private bool IsInWater(PlayerPosition3D playerPosition)
+		private bool IsInWater(PlayerLocation playerPosition)
 		{
 			float y = playerPosition.Y + 1.62f;
 
-			PlayerPosition3D waterPos = new PlayerPosition3D();
+			PlayerLocation waterPos = new PlayerLocation();
 			waterPos.X = playerPosition.X;
 			waterPos.Y = y;
 			waterPos.Z = playerPosition.Z;
-			var block = Player.Level.GetBlock(waterPos);
+			var block = Entity.Level.GetBlock(waterPos);
 
 			if (block != null && block.Id == 8 || block != null && block.Id == 9)
 			{
@@ -162,9 +184,9 @@ namespace MiNET
 			return false;
 		}
 
-		private bool IsInLava(PlayerPosition3D playerPosition)
+		private bool IsInLava(PlayerLocation playerPosition)
 		{
-			var block = Player.Level.GetBlock(playerPosition);
+			var block = Entity.Level.GetBlock(playerPosition);
 
 			if (block != null && block.Id == 10 || block != null && block.Id == 11)
 			{
@@ -172,6 +194,10 @@ namespace MiNET
 			}
 
 			return false;
+		}
+
+		private void SetHealth(int health)
+		{
 		}
 	}
 

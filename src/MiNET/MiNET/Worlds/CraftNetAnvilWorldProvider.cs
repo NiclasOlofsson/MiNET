@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Craft.Net.Anvil;
 using Craft.Net.Common;
+using log4net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
 	public class CraftNetAnvilWorldProvider : IWorldProvider
 	{
-		private List<ChunkColumn> _chunkCache = new List<ChunkColumn>();
+		private static readonly ILog Log = LogManager.GetLogger(typeof (CraftNetAnvilWorldProvider));
+
+		private readonly Dictionary<Coordinates2D, ChunkColumn> _chunkCache = new Dictionary<Coordinates2D, ChunkColumn>();
 		private Craft.Net.Anvil.Level _level;
 		private List<int> _gaps;
 		private List<int> _ignore;
@@ -74,7 +76,7 @@ namespace MiNET.Worlds
 			_ignore.Add(143);
 			_ignore.Add(144);
 			_ignore.Add(145);
-
+			_ignore.Sort();
 
 			_gaps = new List<int>();
 			_gaps.Add(23);
@@ -142,13 +144,16 @@ namespace MiNET.Worlds
 			_gaps.Add(167);
 			_gaps.Add(168);
 			_gaps.Add(169);
+			_gaps.Sort();
 		}
 
 		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
 		{
 			lock (_chunkCache)
 			{
-				var cachedChunk = _chunkCache.FirstOrDefault(chunk2 => chunk2 != null && chunk2.x == chunkCoordinates.X && chunk2.z == chunkCoordinates.Z);
+				ChunkColumn cachedChunk;
+				_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk);
+
 				if (cachedChunk != null)
 				{
 					return cachedChunk;
@@ -202,7 +207,8 @@ namespace MiNET.Worlds
 						}
 					}
 				}
-				Debug.WriteLine("Chunk from region in: {0} ms", stopwatch.ElapsedMilliseconds);
+
+				Log.DebugFormat("Chunk from region in: {0} ms", stopwatch.ElapsedMilliseconds);
 
 				for (int i = 0; i < chunk.skylight.Length; i++)
 					chunk.skylight[i] = 0xff;
@@ -210,7 +216,7 @@ namespace MiNET.Worlds
 				for (int i = 0; i < chunk.biomeColor.Length; i++)
 					chunk.biomeColor[i] = 8761930;
 
-				_chunkCache.Add(chunk);
+				_chunkCache.Add(chunkCoordinates, chunk);
 
 				return chunk;
 			}

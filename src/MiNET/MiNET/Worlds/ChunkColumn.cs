@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using Craft.Net.Anvil;
 using Craft.Net.Common;
 using fNbt;
 using MiNET.Utils;

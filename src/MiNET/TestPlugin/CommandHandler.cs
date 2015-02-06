@@ -1,6 +1,7 @@
 ﻿using MiNET;
 using MiNET.Entities;
 using MiNET.PluginSystem.Attributes;
+using MiNET.Utils;
 
 namespace TestPlugin
 {
@@ -19,7 +20,7 @@ namespace TestPlugin
 			{
 				for (int z = -10; z <= 10; z += 5)
 				{
-					PlayerPosition3D tntLoc = new PlayerPosition3D(source.KnownPosition.GetCoordinates3D().X + x,
+					PlayerLocation tntLoc = new PlayerLocation(source.KnownPosition.GetCoordinates3D().X + x,
 						source.KnownPosition.GetCoordinates3D().Y + 10, source.KnownPosition.GetCoordinates3D().Z + z);
 					new PrimedTnt(source.Level) {KnownPosition = tntLoc, Fuse = 25}.SpawnEntity();
 				}

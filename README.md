@@ -7,6 +7,7 @@ MiNET
 Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
 IP: 94.23.50.5<br>
 Port: 19132<Br>
+*This server will be automatically restarted when the CPU load is above 50% for security reasons.<br>
 
 ## What is this?
 

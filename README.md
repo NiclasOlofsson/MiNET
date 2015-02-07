@@ -25,7 +25,7 @@ Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-
 MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...
 
 ## Can i find any example plugins anywhere?
-Yes you can! We try to post upload some example plugins <b><a href="https://github.com/MiNET-Plugins">HERE</a></b>
+Yes you can! We try to post upload some example plugins <b><a href="https://github.com/MiNET-Plugins">HERE</a></b>.<Br>
 Please note that the plugin system is work in progress and the example might be outdated.
 
 ## Can i contribute?

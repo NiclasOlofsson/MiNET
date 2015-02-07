@@ -1,4 +1,5 @@
 ﻿using System;
+using log4net;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -7,6 +8,9 @@ namespace MiNET.Entities
 {
 	public class Entity
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Entity));
+
+
 		public Level Level { get; set; }
 
 		public int EntityTypeId { get; private set; }
@@ -36,6 +40,42 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
+		public virtual void OnTick()
+		{
+			// If dead despawn
+
+			// Check collisions
+			CheckBlockCollisions();
+
+			// Fire ticks
+			// damage ticks
+			HealthManager.OnTick();
+		}
+
+		private void CheckBlockCollisions()
+		{
+			// Check all blocks within entity BB
+		}
+
+		public virtual void SpawnEntity()
+		{
+			Level.AddEntity(this);
+		}
+
+		public virtual void DespawnEntity()
+		{
+			Level.RemoveEntity(this);
+		}
+
+		public virtual void BroadcastSetEntityData()
+		{
+			Level.RelayBroadcast(this, new McpeSetEntityData
+			{
+				entityId = EntityId,
+				namedtag = GetMetadata().GetBytes()
+			});
+		}
+
 		public byte GetDirection()
 		{
 			return DirectionByRotationFlat(KnownPosition.Yaw);
@@ -56,35 +96,6 @@ namespace MiNET.Entities
 					return 0; // South 
 			}
 			return 0;
-		}
-
-		public virtual void OnTick()
-		{
-			HealthManager.OnTick();
-		}
-
-		public virtual void SpawnEntity()
-		{
-			Level.AddEntity(this);
-		}
-
-		protected virtual void DespawnEntity()
-		{
-			Level.RemoveEntity(this);
-		}
-
-		public virtual void Kill()
-		{
-			Level.RemoveEntity(this);
-		}
-
-		public virtual void BroadcastSetEntityData()
-		{
-			Level.RelayBroadcast(this, new McpeSetEntityData
-			{
-				entityId = EntityId,
-				namedtag = GetMetadata().GetBytes()
-			});
 		}
 	}
 }

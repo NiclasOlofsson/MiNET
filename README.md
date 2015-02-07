@@ -7,6 +7,7 @@ MiNET
 Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
 IP: 94.23.50.5<br>
 Port: 19132<Br>
+*This server will be automatically restarted when the CPU load is above 50% for security reasons.<br>
 
 ## What is this?
 
@@ -23,6 +24,10 @@ And as he really likes to tell his mother these days "Mom, don't disturb daddy. 
 Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-button" data-show-count="false" data-size="large" data-dnt="true">Twitter @NiclasOlofsson</a> for news about the project, or simply track the checkins which i tend to comment heavily.
  
 MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...
+
+## Can i find any example plugins anywhere?
+Yes you can! We try to post upload some example plugins <b><a href="https://github.com/MiNET-Plugins">HERE</a></b>.<Br>
+Please note that the plugin system is work in progress and the example might be outdated.
 
 ## Can i contribute?
 

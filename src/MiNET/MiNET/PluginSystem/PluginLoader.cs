@@ -11,7 +11,8 @@ namespace MiNET.PluginSystem
 	internal class PluginLoader
 	{
 		private List<IMiNETPlugin> Plugins = new List<IMiNETPlugin>();
-
+		public static Dictionary<Attribute, MethodInfo> PacketHandlerDictionary = new Dictionary<Attribute, MethodInfo>();
+		public static Dictionary<Attribute, MethodInfo> PacketSendHandlerDictionary = new Dictionary<Attribute, MethodInfo>(); 
 		public void LoadPlugins()
 		{
 			if (!Directory.Exists("Plugins"))
@@ -25,6 +26,7 @@ namespace MiNET.PluginSystem
 				foreach (Type type in types)
 				{
 					new Task(() => GetCommandHandlers(type)).Start();
+					new Task(() => GetPacketEvents(type)).Start();
 					if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
 					var ctor = type.GetConstructor(new Type[] {});
 					if (ctor != null)
@@ -46,6 +48,28 @@ namespace MiNET.PluginSystem
 				if (cmd == null)
 					continue;
 				CommandHandler.CommandHandler.PluginCommands.Add(cmd, method);
+			}
+		}
+
+		private void GetPacketEvents(Type type)
+		{
+			var methods = type.GetMethods();
+			foreach (MethodInfo method in methods)
+			{
+				var packetevent = Attribute.GetCustomAttribute(method,
+					typeof(HandlePacketAttribute), false) as HandlePacketAttribute;
+				if (packetevent == null)
+					continue;
+				PacketHandlerDictionary.Add(packetevent, method);
+			}
+
+			foreach (MethodInfo method in methods)
+			{
+				var packetevent = Attribute.GetCustomAttribute(method,
+					typeof(HandleSendPacketAttribute), false) as HandleSendPacketAttribute;
+				if (packetevent == null)
+					continue;
+				PacketSendHandlerDictionary.Add(packetevent, method);
 			}
 		}
 

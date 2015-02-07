@@ -32,7 +32,7 @@ namespace MiNET
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
 
 		private readonly MiNetServer _server;
-		private readonly IPEndPoint _endpoint;
+		public readonly IPEndPoint EndPoint;
 		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
 
 		private short _mtuSize;
@@ -59,14 +59,14 @@ namespace MiNET
 		///     Initializes a new instance of the <see cref="Player" /> class.
 		/// </summary>
 		/// <param name="server">The server.</param>
-		/// <param name="endpoint">The endpoint.</param>
+		/// <param name="endPoint">The endPoint.</param>
 		/// <param name="level">The level.</param>
 		/// <param name="mtuSize">Size of the mtu.</param>
-		public Player(MiNetServer server, IPEndPoint endpoint, Level level, short mtuSize)
+		public Player(MiNetServer server, IPEndPoint endPoint, Level level, short mtuSize)
 			: base(-1, level)
 		{
 			_server = server;
-			_endpoint = endpoint;
+			EndPoint = endPoint;
 			_mtuSize = mtuSize;
 			Level = level;
 
@@ -358,7 +358,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleConnectionRequest(ConnectionRequest message)
 		{
-			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, message.timestamp);
+			var response = new ConnectionRequestAcceptedManual((short) EndPoint.Port, message.timestamp);
 
 			SendPackage(response);
 		}
@@ -744,7 +744,7 @@ namespace MiNET
 			}
 			else
 			{
-				_server.SendPackage(_endpoint, new List<Package>(new[] {package}), _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
+				_server.SendPackage(EndPoint, new List<Package>(new[] {package}), _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 			}
 		}
 
@@ -762,7 +762,7 @@ namespace MiNET
 			}
 
 			if (messages.Count == 0) return;
-			_server.SendPackage(_endpoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
+			_server.SendPackage(EndPoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 		}
 
 		public void SavePlayerData()

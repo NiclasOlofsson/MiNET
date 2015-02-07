@@ -85,6 +85,8 @@
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
     <Compile Include="PluginSystem\Attributes\CommandAttribute.cs" />
+    <Compile Include="PluginSystem\Attributes\HandlePacketAttribute.cs" />
+    <Compile Include="PluginSystem\Attributes\HandleSendPacketAttribute.cs" />
     <Compile Include="PluginSystem\Attributes\PluginAttribute.cs" />
     <Compile Include="PluginSystem\IMiNETPlugin.cs" />
     <Compile Include="Blocks\Block.cs" />

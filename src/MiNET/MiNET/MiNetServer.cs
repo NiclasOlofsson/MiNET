@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
 using MiNET.PluginSystem;
+using MiNET.PluginSystem.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -408,6 +410,8 @@ namespace MiNET
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
+			new Task(() => PluginPacketHandler(message,senderEndpoint)).Start();
+
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				return;
@@ -422,6 +426,29 @@ namespace MiNET
 			{
 				_playerSessions.Remove(senderEndpoint);
 			}
+		}
+
+		private void PluginPacketHandler(Package message, IPEndPoint senderEndPoint)
+		{
+			foreach (var handler in PluginLoader.PacketHandlerDictionary)
+			{
+				HandlePacketAttribute atrib = (HandlePacketAttribute)handler.Key;
+				if (atrib.Packet == null) continue;
+				if (atrib.Packet == message.GetType())
+				{
+					var method = handler.Value;
+					if (method == null) return;
+					if (method.IsStatic)
+					{
+						new Task(() => method.Invoke(null, new object[] { message, senderEndPoint })).Start();
+					}
+					else
+					{
+						object obj = Activator.CreateInstance(method.DeclaringType);
+						new Task(() => method.Invoke(obj, new object[] { message, senderEndPoint })).Start();
+					}
+				}
+			}	
 		}
 
 		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -493,6 +520,30 @@ namespace MiNET
 
 				TraceSend(message);
 				message.PutPool();
+				new Task(() => PluginSendPacketHandler(message, senderEndpoint)).Start();
+			}
+		}
+
+		private void PluginSendPacketHandler(Package message, IPEndPoint receiveEndPoint)
+		{
+			foreach (var handler in PluginLoader.PacketSendHandlerDictionary)
+			{
+				HandleSendPacketAttribute atrib = (HandleSendPacketAttribute)handler.Key;
+				if (atrib.Packet == null) continue;
+				if (atrib.Packet == message.GetType())
+				{
+					var method = handler.Value;
+					if (method == null) return;
+					if (method.IsStatic)
+					{
+						new Task(() => method.Invoke(null, new object[] { message, receiveEndPoint })).Start();
+					}
+					else
+					{
+						object obj = Activator.CreateInstance(method.DeclaringType);
+						new Task(() => method.Invoke(obj, new object[] { message, receiveEndPoint })).Start();
+					}
+				}
 			}
 		}
 

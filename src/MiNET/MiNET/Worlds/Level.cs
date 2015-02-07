@@ -140,28 +140,23 @@ namespace MiNET.Worlds
 		{
 			lock (Players)
 			{
+				if (Players.Contains(newPlayer)) return;
+
 				if (newPlayer.Username == null) return;
 
 				EntityManager.AddEntity(null, newPlayer);
 
-				Player[] targetPlayers = GetSpawnedPlayers();
-
-				foreach (var targetPlayer in targetPlayers)
+				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
 					SendAddForPlayer(targetPlayer, newPlayer);
 					SendAddForPlayer(newPlayer, targetPlayer);
 				}
 
-				BroadcastTextMessage(string.Format("Entity {0} joined the game!", newPlayer.Username));
+				if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
 
-				if (!Players.Contains(newPlayer))
-				{
-					Players.Add(newPlayer);
-				}
-				else
-				{
-					throw new Exception("Entity existed in the players list when it should not");
-				}
+				BroadcastTextMessage(string.Format("{0} joined the game!", newPlayer.Username));
+
+				BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
 			}
 		}
 
@@ -216,7 +211,7 @@ namespace MiNET.Worlds
 		{
 			lock (Players)
 			{
-				if (!Players.Remove(player)) throw new Exception("Expected player to exist on remove.");
+				if (!Players.Remove(player)) return;
 
 				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
@@ -224,9 +219,9 @@ namespace MiNET.Worlds
 					SendRemoveForPlayer(player, targetPlayer);
 				}
 
-				BroadcastTextMessage(string.Format("Entity {0} left the game!", player.Username));
-
 				EntityManager.RemoveEntity(null, player);
+
+				BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
 			}
 		}
 
@@ -351,14 +346,16 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 
-				//if (CurrentWorldTime%(50*20*5) == 0)
-				//{
-				//	McpeSetTime message = McpeSetTime.CreateObject();
-				//	message.time = CurrentWorldTime;
-				//	message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
+				if (CurrentWorldTime%(50*20*5) == 0)
+				{
+					McpeSetTime message = McpeSetTime.CreateObject();
+					message.time = CurrentWorldTime;
+					message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
 
-				//	RelayBroadcast(players, message, false);
-				//}
+					RelayBroadcast(players, message);
+				}
+
+				// Block updates
 
 				// Entity updates
 				foreach (Entity entity in Entities.ToArray())
@@ -366,7 +363,12 @@ namespace MiNET.Worlds
 					entity.OnTick();
 				}
 
-				// Movement
+				foreach (Player player in players)
+				{
+					player.OnTick();
+				}
+
+				// Player movements
 				Player[] updatedPlayers = GetUpdatedPlayers(players);
 				BroadCastMovement(players, updatedPlayers);
 			}

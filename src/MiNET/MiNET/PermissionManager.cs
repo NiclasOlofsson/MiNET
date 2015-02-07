@@ -2,6 +2,12 @@
 
 namespace MiNET
 {
+	public enum UserGroup
+	{
+		Operator = 1,
+		User = 0
+	}
+
 	public class PermissionManager
 	{
 		private UserGroup Group { get; set; }
@@ -41,11 +47,5 @@ namespace MiNET
 		{
 			Group = group;
 		}
-	}
-
-	public enum UserGroup
-	{
-		Operator = 1,
-		User = 0
 	}
 }

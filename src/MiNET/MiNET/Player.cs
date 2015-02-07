@@ -38,18 +38,18 @@ namespace MiNET
 		private short _mtuSize;
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber = -1; // Very important to start with -1 since Interlock.Increament doesn't offer another solution
-		private object _sequenceNumberSync = new object();
-
 		private ConcurrentQueue<Package> _sendQueue = new ConcurrentQueue<Package>();
+		// ReSharper disable once NotAccessedField.Local
 		private Timer _sendTicker;
 
 		private Coordinates2D _currentChunkPosition;
+		private bool _isBot;
 
 		public bool IsConnected { get; set; }
+
 		public InventoryManager InventoryManager { get; private set; }
 
 		public bool Console { get; set; }
-		public bool IsBot { get; set; }
 
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
@@ -67,12 +67,17 @@ namespace MiNET
 		{
 			_server = server;
 			_endpoint = endpoint;
-			Level = level;
 			_mtuSize = mtuSize;
+			Level = level;
+
 			Permissions = new PermissionManager(UserGroup.User);
+			InventoryManager = new InventoryManager(this);
+
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
-			EntityId = -1;
+
 			IsSpawned = false;
+			IsConnected = true;
+
 			KnownPosition = new PlayerLocation
 			{
 				X = Level.SpawnPoint.X,
@@ -82,8 +87,6 @@ namespace MiNET
 				Pitch = 28,
 				BodyYaw = 91
 			};
-			InventoryManager = new InventoryManager(this);
-			IsConnected = true;
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
@@ -356,7 +359,6 @@ namespace MiNET
 		private void HandleConnectionRequest(ConnectionRequest message)
 		{
 			var response = new ConnectionRequestAcceptedManual((short) _endpoint.Port, message.timestamp);
-			//response.Encode();
 
 			SendPackage(response);
 		}
@@ -394,13 +396,12 @@ namespace MiNET
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);
 
-			if (Username.StartsWith("Entity")) IsBot = true;
-
-			SendPackage(new McpeLoginStatus {status = 0});
+			if (Username.StartsWith("Entity")) _isBot = true;
 
 			LoadFromFile();
 
 			// Start game
+			SendPackage(new McpeLoginStatus {status = 0});
 			SendStartGame();
 			SendSetTime();
 			SendSetSpawnPosition();
@@ -435,10 +436,19 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			KnownPosition = new PlayerLocation(message.x, message.y, message.z) {Pitch = message.pitch, Yaw = message.yaw, BodyYaw = message.bodyYaw};
+			KnownPosition = new PlayerLocation
+			{
+				X = message.x,
+				Y = message.y,
+				Z = message.z,
+				Pitch = message.pitch,
+				Yaw = message.yaw,
+				BodyYaw = message.bodyYaw
+			};
+
 			LastUpdatedTime = DateTime.UtcNow;
 
-			if (IsBot) return;
+			if (_isBot) return;
 
 			SendChunksForKnownPosition();
 		}
@@ -526,7 +536,7 @@ namespace MiNET
 
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this);
+			target.HealthManager.TakeHit(this, 1, DamageCause.EntityAttack);
 
 			BroadcastEntityEvent();
 			target.SendPackage(new McpeEntityEvent()
@@ -625,9 +635,6 @@ namespace MiNET
 			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Health});
 		}
 
-		/// <summary>
-		///     Sends the set time packet.
-		/// </summary>
 		public void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
@@ -637,9 +644,6 @@ namespace MiNET
 			SendPackage(message);
 		}
 
-		/// <summary>
-		///     Sends the move player packet.
-		/// </summary>
 		public void SendMovePlayer()
 		{
 			var package = McpeMovePlayer.CreateObject();
@@ -693,7 +697,7 @@ namespace MiNET
 			base.OnTick();
 		}
 
-		public override void Kill()
+		public override void DespawnEntity()
 		{
 			Level.RemovePlayer(this);
 		}
@@ -718,7 +722,10 @@ namespace MiNET
 
 			if (HealthManager.IsDead)
 			{
-				Level.BroadcastTextMessage("Entity " + Username + " " + HealthManager.LastDamageCause.ToString().Replace('_', ' '));
+				string source = "";
+				Player player = HealthManager.LastDamageSource as Player;
+				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
+				Level.BroadcastTextMessage(cause);
 			}
 		}
 

@@ -1,20 +1,16 @@
-﻿using fNbt;
+using fNbt;
 
 namespace MiNET.BlockEntities
 {
-	public class Sign : BlockEntity
+	public class ChestBlockEntity : BlockEntity
 	{
 		public string Text1 { get; set; }
 		public string Text2 { get; set; }
 		public string Text3 { get; set; }
 		public string Text4 { get; set; }
 
-		public Sign() : base("Sign")
+		public ChestBlockEntity() : base("Chest")
 		{
-			Text1 = string.Empty;
-			Text2 = string.Empty;
-			Text3 = string.Empty;
-			Text4 = string.Empty;
 		}
 
 		public override NbtCompound GetCompound()
@@ -27,10 +23,7 @@ namespace MiNET.BlockEntities
 			var compound = new NbtCompound(string.Empty)
 			{
 				new NbtString("id", Id),
-				new NbtString("Text1", Text1),
-				new NbtString("Text2", Text2),
-				new NbtString("Text3", Text3),
-				new NbtString("Text4", Text4),
+				new NbtList("Items", new NbtTagType()),
 				new NbtInt("x", Coordinates.X),
 				new NbtInt("y", Coordinates.Y),
 				new NbtInt("z", Coordinates.Z)

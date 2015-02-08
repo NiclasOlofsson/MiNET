@@ -13,6 +13,11 @@ namespace MiNET
 		private UserGroup Group { get; set; }
 		private List<string> Permissions { get; set; }
 
+		public List<string> GetPermissions
+		{
+			get { return Permissions; }
+		}
+
 		public PermissionManager(UserGroup group)
 		{
 			Permissions = new List<string>();

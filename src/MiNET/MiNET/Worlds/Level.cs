@@ -675,6 +675,24 @@ namespace MiNET.Worlds
 			//itemInHand.UseItem(world, newPlayer, blockCoordinates, face);
 
 			block.BreakBlock(world);
+			if (block.Id != new Air().Id)
+			{
+				Item item = ItemFactory.GetItem(block.Id);
+				item.Metadata = block.Metadata;
+
+				var itemEntity = new ItemEntity(world, item)
+				{
+					KnownPosition =
+					{
+						X = block.Coordinates.X,
+						Y = block.Coordinates.Y,
+						Z = block.Coordinates.Z
+					},
+					Count = 1
+				};
+
+				world.AddEntity(itemEntity);
+			}
 		}
 	}
 }

@@ -464,16 +464,16 @@ namespace MiNET
 			{
 				var session = _playerSessions[senderEndpoint];
 				session.PlayerAckQueue.Enqueue(ack);
-				//SendAckQueue(null);
+				SendAckQueue(null);
 			}
 
 			//var data = ack.Encode();
 			//SendData(data, senderEndpoint);
 
-			if (_ackTimer == null)
-			{
-				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
-			}
+			//if (_ackTimer == null)
+			//{
+			//	_ackTimer = new Timer(SendAckQueue, null, 0, 10);
+			//}
 		}
 
 		private Timer _ackTimer;

@@ -22,6 +22,7 @@ namespace MiNET.Blocks
 			Id = id;
 			IsSolid = true;
 			Durability = 0.5f;
+			IsReplacible = true;
 		}
 
 		public bool CanPlace(Level world)

@@ -14,8 +14,11 @@ namespace MiNET.Items
 		public override void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
 		{
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
-			Chest chest = new Chest();
-			chest.Metadata = (byte) Metadata;
+			Chest chest = new Chest
+			{
+				Coordinates = coor,
+				Metadata = (byte) Metadata
+			};
 
 			if (!chest.CanPlace(world)) return;
 
@@ -23,13 +26,12 @@ namespace MiNET.Items
 
 			// Then we create and set the sign block entity that has all the intersting data
 
-			var signBlockEntity = new Sign
+			ChestBlockEntity chestBlockEntity = new ChestBlockEntity
 			{
 				Coordinates = coor
 			};
 
-
-			world.SetBlockEntity(signBlockEntity);
+			world.SetBlockEntity(chestBlockEntity);
 		}
 	}
 }

@@ -30,7 +30,7 @@ namespace MiNET
 			{
 				Slots[i] = new MetadataSlot(new ItemStack((short) (i+1), 10));
 			}
-			Slots[0] = new MetadataSlot(new ItemStack(268, 1));
+			Slots[0] = new MetadataSlot(new ItemStack(54, 10));
 			//Slots[1] = new MetadataSlot(new ItemStack(272, 1));
 			//Slots[2] = new MetadataSlot(new ItemStack(267, 1));
 			//Slots[3] = new MetadataSlot(new ItemStack(276, 1));

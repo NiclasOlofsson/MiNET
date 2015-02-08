@@ -268,6 +268,14 @@
 		<field name="Records" type="Records" />
 	</pdu>
 
+	<pdu id="0x9c" online="false" client="true" server="true" name="ID_MCPE_TILE_EVENT">
+		<field name="X" type="int" />
+		<field name="Z" type="int" />
+		<field name="Y" type="int" />
+		<field name="Case 1" type="int" />
+		<field name="Case 2" type="int" />
+	</pdu>
+
 	<pdu id="0x9d" online="false" client="true" server="true" name="ID_MCPE_ENTITY_EVENT">
 		<field name="Entity ID" type="int" />
 		<field name="Event ID" type="byte" />
@@ -322,6 +330,15 @@
 		<field name="Position X" type="float" />
 		<field name="Position Y" type="float" />
 		<field name="Position Z" type="float" />
+	</pdu>
+
+	<pdu id="0xb0" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_OPEN">
+		<field name="Window ID" type="byte" />
+		<field name="Type" type="byte" />
+		<field name="Slot Count" type="short" />
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="int" />
 	</pdu>
 
 	<pdu id="0xb2" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_SET_SLOT">

@@ -430,25 +430,34 @@ namespace MiNET
 
 		private void PluginPacketHandler(Package message, IPEndPoint senderEndPoint)
 		{
-			foreach (var handler in PluginLoader.PacketHandlerDictionary)
+			try
 			{
-				HandlePacketAttribute atrib = (HandlePacketAttribute)handler.Key;
-				if (atrib.Packet == null) continue;
-				if (atrib.Packet == message.GetType())
+				Player target = _level.GetPlayer(senderEndPoint);
+				foreach (var handler in PluginLoader.PacketHandlerDictionary)
 				{
-					var method = handler.Value;
-					if (method == null) return;
-					if (method.IsStatic)
+					HandlePacketAttribute atrib = (HandlePacketAttribute)handler.Key;
+					if (atrib.Packet == null) continue;
+					if (atrib.Packet == message.GetType())
 					{
-						new Task(() => method.Invoke(null, new object[] { message, senderEndPoint })).Start();
-					}
-					else
-					{
-						object obj = Activator.CreateInstance(method.DeclaringType);
-						new Task(() => method.Invoke(obj, new object[] { message, senderEndPoint })).Start();
+						var method = handler.Value;
+						if (method == null) return;
+						if (method.IsStatic)
+						{
+							new Task(() => method.Invoke(null, new object[] { message, target })).Start();
+						}
+						else
+						{
+							object obj = Activator.CreateInstance(method.DeclaringType);
+							new Task(() => method.Invoke(obj, new object[] { message, target })).Start();
+						}
 					}
 				}
-			}	
+			}
+			catch (Exception ex)
+			{
+				//For now we will just ignore this, not to big of a deal.
+				//Will have to think a bit more about this later on.
+			}
 		}
 
 		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -526,24 +535,34 @@ namespace MiNET
 
 		private void PluginSendPacketHandler(Package message, IPEndPoint receiveEndPoint)
 		{
-			foreach (var handler in PluginLoader.PacketSendHandlerDictionary)
+			try
 			{
-				HandleSendPacketAttribute atrib = (HandleSendPacketAttribute)handler.Key;
-				if (atrib.Packet == null) continue;
-				if (atrib.Packet == message.GetType())
+				Player target = _level.GetPlayer(receiveEndPoint);
+
+				foreach (var handler in PluginLoader.PacketSendHandlerDictionary)
 				{
-					var method = handler.Value;
-					if (method == null) return;
-					if (method.IsStatic)
+					HandleSendPacketAttribute atrib = (HandleSendPacketAttribute)handler.Key;
+					if (atrib.Packet == null) continue;
+					if (atrib.Packet == message.GetType())
 					{
-						new Task(() => method.Invoke(null, new object[] { message, receiveEndPoint })).Start();
-					}
-					else
-					{
-						object obj = Activator.CreateInstance(method.DeclaringType);
-						new Task(() => method.Invoke(obj, new object[] { message, receiveEndPoint })).Start();
+						var method = handler.Value;
+						if (method == null) return;
+						if (method.IsStatic)
+						{
+							new Task(() => method.Invoke(null, new object[] { message, target })).Start();
+						}
+						else
+						{
+							object obj = Activator.CreateInstance(method.DeclaringType);
+							new Task(() => method.Invoke(obj, new object[] { message,  target })).Start();
+						}
 					}
 				}
+			}
+			catch (Exception ex)
+			{
+				//For now we will just ignore this, not to big of a deal.
+				//Will have to think a bit more about this later on.
 			}
 		}
 

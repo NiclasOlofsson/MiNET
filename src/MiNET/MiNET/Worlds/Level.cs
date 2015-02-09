@@ -201,8 +201,8 @@ namespace MiNET.Worlds
 			receiver.SendPackage(new McpePlayerEquipment()
 			{
 				entityId = player.EntityId,
-				item = player.InventoryManager.ItemInHand.Value.Id,
-				meta = player.InventoryManager.ItemInHand.Value.Metadata,
+				item = player.PlayerInventory.ItemInHand.Value.Id,
+				meta = player.PlayerInventory.ItemInHand.Value.Metadata,
 				slot = 0
 			});
 		}
@@ -212,10 +212,10 @@ namespace MiNET.Worlds
 			receiver.SendPackage(new McpePlayerArmorEquipment()
 			{
 				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player.InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player.InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player.InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player.InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) player.PlayerInventory.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player.PlayerInventory.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player.PlayerInventory.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player.PlayerInventory.Armor[3]).Value.Id - 256)
 			});
 		}
 
@@ -603,7 +603,7 @@ namespace MiNET.Worlds
 		public BlockEntity GetBlockEntity(Coordinates3D blockCoordinates)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
-			var nbt = chunk.GetBlockEntity(blockCoordinates);
+			NbtCompound nbt = chunk.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
 
 			string id = null;
@@ -661,7 +661,7 @@ namespace MiNET.Worlds
 
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
-			MetadataSlot itemSlot = player.InventoryManager.ItemInHand;
+			MetadataSlot itemSlot = player.PlayerInventory.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
 			if (itemInHand == null || itemInHand.Id != itemId) return;

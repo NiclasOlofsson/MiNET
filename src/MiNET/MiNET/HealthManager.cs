@@ -79,7 +79,7 @@ namespace MiNET
 			LastDamageSource = source;
 
 			//Untested code below, should work fine, however this is not sure yet.
-			//	int Damage = ItemFactory.GetItem(sourcePlayer.InventoryManager.ItemInHand.Value.Id).GetDamage();
+			//	int Damage = ItemFactory.GetItem(sourcePlayer.PlayerInventory.ItemInHand.Value.Id).GetDamage();
 			//	Health -= Damage - Entity.Armour;
 
 			Health -= damage;

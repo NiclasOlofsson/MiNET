@@ -71,7 +71,7 @@ namespace MiNET.Worlds
 		{
 			BlockEntities[coordinates] = nbt;
 		}
-
+			
 		public NbtCompound GetBlockEntity(Coordinates3D coordinates)
 		{
 			NbtCompound nbt;

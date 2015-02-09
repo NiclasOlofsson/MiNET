@@ -48,7 +48,7 @@ namespace MiNET
 
 		public bool IsConnected { get; set; }
 
-		public InventoryManager InventoryManager { get; private set; }
+		public PlayerInventory PlayerInventory { get; private set; }
 
 		public bool Console { get; set; }
 
@@ -72,7 +72,7 @@ namespace MiNET
 			Level = level;
 
 			Permissions = new PermissionManager(UserGroup.User);
-			InventoryManager = new InventoryManager(this);
+			PlayerInventory = new PlayerInventory(this);
 
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
 
@@ -220,7 +220,7 @@ namespace MiNET
 
 		private void HandlePlayerDropItem(McpeDropItem message)
 		{
-			if (!InventoryManager.HasItem(message.item)) return;
+			if (!PlayerInventory.HasItem(message.item)) return;
 
 			ItemStack itemStack = message.item.Value;
 
@@ -330,14 +330,14 @@ namespace MiNET
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0,
-				slotData = InventoryManager.Slots,
-				hotbarData = InventoryManager.ItemHotbar
+				slotData = PlayerInventory.Slots,
+				hotbarData = PlayerInventory.ItemHotbar
 			});
 
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0x78, // Armor windows ID
-				slotData = InventoryManager.Armor,
+				slotData = PlayerInventory.Armor,
 				hotbarData = null
 			});
 
@@ -489,8 +489,8 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			InventoryManager.ItemInHand.Value.Id = message.item;
-			InventoryManager.ItemInHand.Value.Metadata = message.meta;
+			PlayerInventory.ItemInHand.Value.Id = message.item;
+			PlayerInventory.ItemInHand.Value.Metadata = message.meta;
 
 			message.entityId = EntityId;
 
@@ -515,10 +515,10 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					InventoryManager.Slots[(byte) message.slot] = metadataSlot;
+					PlayerInventory.Slots[(byte) message.slot] = metadataSlot;
 					break;
 				case 0x78:
-					InventoryManager.Armor[(byte) message.slot] = metadataSlot;
+					PlayerInventory.Armor[(byte) message.slot] = metadataSlot;
 					break;
 			}
 
@@ -539,17 +539,17 @@ namespace MiNET
 			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
 			{
 				entityId = EntityId,
-				helmet = (byte) (((MetadataSlot) InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) PlayerInventory.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) PlayerInventory.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) PlayerInventory.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) PlayerInventory.Armor[3]).Value.Id - 256)
 			});
 
 			Level.RelayBroadcast(this, new McpePlayerEquipment()
 			{
 				entityId = EntityId,
-				item = InventoryManager.ItemInHand.Value.Id,
-				meta = InventoryManager.ItemInHand.Value.Metadata,
+				item = PlayerInventory.ItemInHand.Value.Id,
+				meta = PlayerInventory.ItemInHand.Value.Metadata,
 				slot = 0
 			});
 		}
@@ -571,7 +571,6 @@ namespace MiNET
 					case1 = 1,
 					case2 = 0,
 				});
-
 
 			// active inventory set to null
 			_openInventory = null;
@@ -731,14 +730,14 @@ namespace MiNET
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0,
-				slotData = InventoryManager.Slots,
-				hotbarData = InventoryManager.ItemHotbar
+				slotData = PlayerInventory.Slots,
+				hotbarData = PlayerInventory.ItemHotbar
 			});
 
 			SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0x78, // Armor windows ID
-				slotData = InventoryManager.Armor,
+				slotData = PlayerInventory.Armor,
 				hotbarData = null
 			});
 
@@ -832,8 +831,8 @@ namespace MiNET
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
 
-				writer.Write(InventoryManager.Export().Length);
-				writer.Write(InventoryManager.Export());
+				writer.Write(PlayerInventory.Export().Length);
+				writer.Write(PlayerInventory.Export());
 
 				writer.Write(HealthManager.Export().Length);
 				writer.Write(HealthManager.Export());
@@ -861,7 +860,7 @@ namespace MiNET
 						NbtBinaryReader reader = new NbtBinaryReader(stream, false);
 
 						int invLength = reader.ReadInt32();
-						InventoryManager.Import(reader.ReadBytes(invLength));
+						PlayerInventory.Import(reader.ReadBytes(invLength));
 
 						int healthLength = reader.ReadInt32();
 						HealthManager.Import(reader.ReadBytes(healthLength));
@@ -885,7 +884,7 @@ namespace MiNET
 			// - get blockentity
 			// - get inventory from block entity
 
-			InventoryMngr inventoryManager = new InventoryMngr(Level);
+			InventoryManager inventoryManager = new InventoryManager(Level);
 			Inventory inventory = inventoryManager.GetInventory(inventoryCoord);
 
 			if (inventory == null) return;

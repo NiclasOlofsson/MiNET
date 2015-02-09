@@ -5,8 +5,8 @@ MiNET
 
 ## Can i test this before i download it?
 Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
-IP: 94.23.50.5<br>
-Port: 19132<Br>
+IP: **94.23.50.5**    
+Port: **19132**    
 *This server will be automatically restarted when the CPU load is above 50% for security reasons.<br>
 
 ## What is this?
@@ -23,7 +23,7 @@ And as he really likes to tell his mother these days "Mom, don't disturb daddy. 
 
 Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-button" data-show-count="false" data-size="large" data-dnt="true">Twitter @NiclasOlofsson</a> for news about the project, or simply track the checkins which i tend to comment heavily.
  
-MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...
+MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is... [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
 
 ## Can i find any example plugins anywhere?
 Yes you can! We try to post upload some example plugins <b><a href="https://github.com/MiNET-Plugins">HERE</a></b>.<Br>
@@ -31,12 +31,11 @@ Please note that the plugin system is work in progress and the example might be 
 
 ## Can i contribute?
 
-Offcourse! We just need you to promise the folowing:
+Ofcourse you can! We just need you to accept the following:
 
 1. You will use the same coding style as the rest of the code.
-2. You are not copying code from anyone, unless you have their permissions.
-3. We can always decide not to include your code, or make changes to it.
+2. You do not copy code from anyone or anywhere, unless you have their permissions.
+3. We can always decide not to include your code, and we will make changes to it.
 
 Also, make sure to join our Gitter chat for easy communication.
-
-[![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
+[![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

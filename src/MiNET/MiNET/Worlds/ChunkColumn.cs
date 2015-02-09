@@ -79,6 +79,11 @@ namespace MiNET.Worlds
 			return nbt;
 		}
 
+		public void RemoveBlockEntity(Coordinates3D coordinates)
+		{
+			BlockEntities.Remove(coordinates);
+		}
+
 		public byte[] GetBytes()
 		{
 			if (_cache != null) return _cache;

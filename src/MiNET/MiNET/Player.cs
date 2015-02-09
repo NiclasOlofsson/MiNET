@@ -44,6 +44,7 @@ namespace MiNET
 
 		private Coordinates2D _currentChunkPosition;
 		private bool _isBot;
+		private Inventory _openInventory;
 
 		public bool IsConnected { get; set; }
 
@@ -100,6 +101,11 @@ namespace MiNET
 			if (typeof (McpeContainerSetSlot) == message.GetType())
 			{
 				HandleContainerSetSlot((McpeContainerSetSlot) message);
+			}
+
+			if (typeof (McpeContainerClose) == message.GetType())
+			{
+				HandleMcpeContainerClose((McpeContainerClose) message);
 			}
 
 			else if (typeof (McpePlayerEquipment) == message.GetType())
@@ -499,15 +505,37 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
+			// on all set container content, check if we have active inventory
+			// and update that inventory.
+			// Inventory manager makes sure other players with the same inventory open will 
+			// also get the update.
+
+			var metadataSlot = new MetadataSlot(new ItemStack(message.itemId, message.itemCount, message.itemDamage));
+
 			switch (message.windowId)
 			{
 				case 0:
-					InventoryManager.Slots[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, message.itemCount, message.itemDamage));
+					InventoryManager.Slots[(byte) message.slot] = metadataSlot;
 					break;
 				case 0x78:
-					InventoryManager.Armor[(byte) message.slot] = new MetadataSlot(new ItemStack(message.itemId, message.itemCount, message.itemDamage));
+					InventoryManager.Armor[(byte) message.slot] = metadataSlot;
 					break;
 			}
+
+			if (_openInventory != null && _openInventory.Id == message.windowId)
+			{
+				_openInventory.SetSlot((byte) message.slot, metadataSlot);
+				byte count = message.itemCount == 0 ? (byte) 1 : message.itemCount;
+				count = (byte) (message.itemId == 0 ? (short) 0 : count);
+				SendPackage(new McpeContainerSetSlot()
+				{
+					windowId = _openInventory.Id,
+					itemCount = count,
+					itemId = message.itemId,
+					slot = message.slot
+				});
+			}
+
 			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
 			{
 				entityId = EntityId,
@@ -525,6 +553,34 @@ namespace MiNET
 				slot = 0
 			});
 		}
+
+		private void HandleMcpeContainerClose(McpeContainerClose message)
+		{
+			if (_openInventory == null) return;
+
+			// unsubscribe to inventory changes
+			_openInventory.InventoryChange -= OpenInventoryOnInventoryChange;
+
+			// close container 
+			SendPackage(
+				new McpeTileEvent()
+				{
+					x = _openInventory.Coordinates.X,
+					y = _openInventory.Coordinates.Y,
+					z = _openInventory.Coordinates.Z,
+					case1 = 1,
+					case2 = 0,
+				});
+
+
+			// active inventory set to null
+			_openInventory = null;
+		}
+
+		private void OpenInventoryOnInventoryChange(Inventory inventory)
+		{
+		}
+
 
 		/// <summary>
 		///     Handles the interact.
@@ -819,6 +875,58 @@ namespace MiNET
 			{
 				//Console.WriteLine(ex);
 			}
+		}
+
+		public void OpenInventory(Coordinates3D inventoryCoord)
+		{
+			if (_openInventory != null) return;
+
+			// get inventory from coordinates
+			// - get blockentity
+			// - get inventory from block entity
+
+			InventoryMngr inventoryManager = new InventoryMngr(Level);
+			Inventory inventory = inventoryManager.GetInventory(inventoryCoord);
+
+			if (inventory == null) return;
+
+			// get inventory # from inventory manager
+			// set inventory as active on player
+
+			_openInventory = inventory;
+
+			// subscribe to inventory changes
+			inventory.InventoryChange += OpenInventoryOnInventoryChange;
+
+			// open inventory
+
+			SendPackage(
+				new McpeContainerOpen()
+				{
+					windowId = inventory.Id,
+					type = inventory.Type,
+					slotCount = inventory.Size,
+					x = inventoryCoord.X,
+					y = inventoryCoord.Y,
+					z = inventoryCoord.Z,
+				});
+
+			SendPackage(
+				new McpeContainerSetContent()
+				{
+					windowId = inventory.Id,
+					slotData = inventory.Slots,
+				});
+
+			SendPackage(
+				new McpeTileEvent()
+				{
+					x = inventoryCoord.X,
+					y = inventoryCoord.Y,
+					z = inventoryCoord.Z,
+					case1 = 1,
+					case2 = 2,
+				});
 		}
 	}
 }

@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="BlockEntities\BlockEntity.cs" />
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />
-    <Compile Include="BlockEntities\Chest.cs" />
+    <Compile Include="BlockEntities\ChestBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />
@@ -78,6 +78,8 @@
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\ItemEntity.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
+    <Compile Include="Inventory.cs" />
+    <Compile Include="InventoryMngr.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />

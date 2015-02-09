@@ -47,6 +47,7 @@
 | Mcpe Respawn | 0xad | 173 |   
 | Mcpe Drop Item | 0xaf | 175 |   
 | Mcpe Container Open | 0xb0 | 176 |   
+| Mcpe Container Close | 0xb1 | 177 |   
 | Mcpe Container Set Slot | 0xb2 | 178 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
@@ -827,6 +828,20 @@ The three type of status are:
 |X | int |  |
 |Y | int |  |
 |Z | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Container Close (0xb1)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Slot (0xb2)
 

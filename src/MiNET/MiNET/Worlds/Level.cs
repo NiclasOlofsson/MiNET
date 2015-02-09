@@ -649,6 +649,16 @@ namespace MiNET.Worlds
 			RelayBroadcast(entityData);
 		}
 
+		public void RemoveBlockEntity(Coordinates3D blockCoordinates)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			var nbt = chunk.GetBlockEntity(blockCoordinates);
+
+			if (nbt == null) return;
+
+			chunk.RemoveBlockEntity(blockCoordinates);
+		}
+
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
 			MetadataSlot itemSlot = player.InventoryManager.ItemInHand;
@@ -666,15 +676,13 @@ namespace MiNET.Worlds
 		public void BreakBlock(Level world, Player player, Coordinates3D blockCoordinates)
 		{
 			Block block = GetBlock(blockCoordinates);
-
-			//MetadataSlot itemSlot = newPlayer.ItemInHand;
-			//Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
-			//if (itemInHand == null) return;
-
-			//itemInHand.Metadata = metadata;
-			//itemInHand.UseItem(world, newPlayer, blockCoordinates, face);
-
 			block.BreakBlock(world);
+
+			BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
+			RemoveBlockEntity(blockCoordinates);
+
+			// Check block entity. That might provide the drops here.
+
 			if (block.Id != new Air().Id)
 			{
 				Item item = ItemFactory.GetItem(block.Id);

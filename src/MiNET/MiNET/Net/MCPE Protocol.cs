@@ -238,6 +238,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xb1:
+					package = McpeContainerClose.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xb2:
 					package = McpeContainerSetSlot.CreateObject();
 					//package.Timer.Start();
@@ -2320,6 +2325,44 @@ namespace MiNET.Net
 			x = ReadInt();
 			y = ReadInt();
 			z = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeContainerClose : Package<McpeContainerClose>
+	{
+		public byte windowId; // = null;
+		public McpeContainerClose()
+		{
+			Id = 0xb1;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(windowId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			windowId = ReadByte();
 
 			AfterDecode();
 		}

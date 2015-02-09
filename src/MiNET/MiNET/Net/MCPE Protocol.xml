@@ -341,6 +341,10 @@
 		<field name="Z" type="int" />
 	</pdu>
 
+	<pdu id="0xb1" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_CLOSE">
+		<field name="Window ID" type="byte" />
+	</pdu>
+
 	<pdu id="0xb2" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_SET_SLOT">
 		<field name="Window ID" type="byte" />
 		<field name="Slot" type="short" />

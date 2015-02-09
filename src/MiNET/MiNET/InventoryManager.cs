@@ -19,16 +19,16 @@ namespace MiNET
 			Armor = new MetadataSlots();
 			Slots = new MetadataSlots();
 			ItemHotbar = new MetadataInts();
-			ItemInHand = new MetadataSlot(new ItemStack(-1));
+			ItemInHand = new MetadataSlot(new ItemStack());
 
-			Armor[0] = new MetadataSlot(new ItemStack(-1));
-			Armor[1] = new MetadataSlot(new ItemStack(-1));
-			Armor[2] = new MetadataSlot(new ItemStack(-1));
-			Armor[3] = new MetadataSlot(new ItemStack(-1));
+			Armor[0] = new MetadataSlot(new ItemStack());
+			Armor[1] = new MetadataSlot(new ItemStack());
+			Armor[2] = new MetadataSlot(new ItemStack());
+			Armor[3] = new MetadataSlot(new ItemStack());
 
 			for (byte i = 0; i < 35; i++)
 			{
-				Slots[i] = new MetadataSlot(new ItemStack((short) (i+1), 10));
+				Slots[i] = new MetadataSlot(new ItemStack((short) (i + 1), 10));
 			}
 			Slots[0] = new MetadataSlot(new ItemStack(54, 10));
 			//Slots[1] = new MetadataSlot(new ItemStack(272, 1));
@@ -37,7 +37,7 @@ namespace MiNET
 
 			for (byte i = 0; i < 6; i++)
 			{
-				ItemHotbar[i] = new MetadataInt(-1);
+				ItemHotbar[i] = new MetadataInt();
 			}
 
 			ItemHotbar[0] = new MetadataInt(9);
@@ -74,14 +74,14 @@ namespace MiNET
 		/// <param name="slot">The slot to empty.</param>
 		public void EmptyInventorySlot(byte slot)
 		{
-			SetInventorySlot(slot, -1);
+			SetInventorySlot(slot, 0, 0);
 		}
 
 		public bool HasItem(MetadataSlot item)
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (((MetadataSlot)Slots[i]).Value.Id == item.Value.Id)
+				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id)
 				{
 					return true;
 				}

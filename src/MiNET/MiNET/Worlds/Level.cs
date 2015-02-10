@@ -85,10 +85,12 @@ namespace MiNET.Worlds
 		public bool WorldTimeStarted { get; private set; }
 
 		public EntityManager EntityManager { get; private set; }
+		public InventoryManager InventoryManager { get; private set; }
 
 		public Level(string levelId, IWorldProvider worldProvider = null)
 		{
 			EntityManager = new EntityManager();
+			InventoryManager = new InventoryManager(this);
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			Entities = new List<Entity>();
@@ -125,7 +127,7 @@ namespace MiNET.Worlds
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(new Coordinates2D(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>()))
+					foreach (var chunk in GenerateChunks(new Coordinates2D(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>(), -1))
 					{
 						chunk.GetBytes();
 					}
@@ -201,8 +203,8 @@ namespace MiNET.Worlds
 			receiver.SendPackage(new McpePlayerEquipment()
 			{
 				entityId = player.EntityId,
-				item = player.PlayerInventory.ItemInHand.Value.Id,
-				meta = player.PlayerInventory.ItemInHand.Value.Metadata,
+				item = player.Inventory.ItemInHand.Value.Id,
+				meta = player.Inventory.ItemInHand.Value.Metadata,
 				slot = 0
 			});
 		}
@@ -212,10 +214,10 @@ namespace MiNET.Worlds
 			receiver.SendPackage(new McpePlayerArmorEquipment()
 			{
 				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player.PlayerInventory.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player.PlayerInventory.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player.PlayerInventory.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player.PlayerInventory.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256)
 			});
 		}
 
@@ -453,9 +455,11 @@ namespace MiNET.Worlds
 		}
 
 
-		public IEnumerable<ChunkColumn> GenerateChunks(Coordinates2D chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
+		public IEnumerable<ChunkColumn> GenerateChunks(Coordinates2D chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed, int timeout = 0)
 		{
-			lock (chunksUsed)
+			if (!Monitor.TryEnter(chunksUsed, timeout)) yield break;
+
+			//lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
 				double radiusSquared = _viewDistance/Math.PI;
@@ -661,7 +665,7 @@ namespace MiNET.Worlds
 
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
-			MetadataSlot itemSlot = player.PlayerInventory.ItemInHand;
+			MetadataSlot itemSlot = player.Inventory.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
 			if (itemInHand == null || itemInHand.Id != itemId) return;

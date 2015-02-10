@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Craft.Net.Common;
 using fNbt;
+using MiNET.BlockEntities;
 using MiNET.Worlds;
 
 namespace MiNET
@@ -7,6 +9,8 @@ namespace MiNET
 	public class InventoryManager
 	{
 		private readonly Level _level;
+		private Dictionary<Coordinates3D, Inventory> _cache = new Dictionary<Coordinates3D, Inventory>();
+
 
 		public InventoryManager(Level level)
 		{
@@ -15,20 +19,30 @@ namespace MiNET
 
 		public Inventory GetInventory(Coordinates3D inventoryCoord)
 		{
-			var blockEntity = _level.GetBlockEntity(inventoryCoord);
-
-			if (blockEntity == null) return null;
-
-			NbtCompound comp = blockEntity.GetCompound();
-
-			Inventory inventory = new Inventory(blockEntity, (NbtList) comp["Items"])
+			lock (_cache)
 			{
-				Id = 10,
-				Type = 0,
-				Size = 27,
-			};
+				if (_cache.ContainsKey(inventoryCoord))
+				{
+					return _cache[inventoryCoord];
+				}
 
-			return inventory;
+				ChestBlockEntity blockEntity = _level.GetBlockEntity(inventoryCoord) as ChestBlockEntity;
+
+				if (blockEntity == null) return null;
+
+				NbtCompound comp = blockEntity.GetCompound();
+
+				Inventory inventory = new Inventory(blockEntity, (NbtList) comp["Items"])
+				{
+					Id = 10,
+					Type = 0,
+					Size = 27,
+				};
+
+				_cache[inventoryCoord] = inventory;
+
+				return inventory;
+			}
 		}
 	}
 }

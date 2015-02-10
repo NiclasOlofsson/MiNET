@@ -10,46 +10,39 @@ namespace MiNET
 {
 	public class Inventory
 	{
-		public event Action<Inventory> InventoryChange;
+		public event Action<Inventory, byte, ItemStack> InventoryChange;
 
 		public byte Id { get; set; }
 		public byte Type { get; set; }
 		public MetadataSlots Slots { get; set; }
 		public short Size { get; set; }
 		public Coordinates3D Coordinates { get; set; }
-		public BlockEntity BlockEntity { get; set; }
+		private BlockEntity Chest { get; set; }
 
-		public Inventory(BlockEntity blockEntity, NbtList slots)
+		public Inventory(ChestBlockEntity chest, NbtList slots)
 		{
-			BlockEntity = blockEntity;
-			Coordinates = BlockEntity.Coordinates;
+			Chest = chest;
+			Coordinates = Chest.Coordinates;
 
-			SetSlots(slots);
-		}
-
-		private void SetSlots(NbtList slots)
-		{
 			Slots = new MetadataSlots();
 			for (byte i = 0; i < 27; i++)
 			{
 				NbtCompound item = (NbtCompound) slots[i];
 				Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
 			}
-
-			OnInventoryChange();
 		}
 
-		public void SetSlot(byte slot, MetadataSlot metadataSlot)
+		public void SetSlot(byte slot, ItemStack itemStack)
 		{
-			Slots[slot] = metadataSlot;
+			Slots[slot] = new MetadataSlot(itemStack);
 
-			NbtCompound compound = BlockEntity.GetCompound();
+			NbtCompound compound = Chest.GetCompound();
 			compound["Items"] = GetSlots();
 
-			OnInventoryChange();
+			OnInventoryChange(slot, itemStack);
 		}
 
-		public NbtList GetSlots()
+		private NbtList GetSlots()
 		{
 			NbtList slots = new NbtList("Items");
 			for (byte i = 0; i < 27; i++)
@@ -67,10 +60,10 @@ namespace MiNET
 			return slots;
 		}
 
-		protected virtual void OnInventoryChange()
+		protected virtual void OnInventoryChange(byte slot, ItemStack itemStack)
 		{
-			Action<Inventory> handler = InventoryChange;
-			if (handler != null) handler(this);
+			Action<Inventory, byte, ItemStack> handler = InventoryChange;
+			if (handler != null) handler(this, slot, itemStack);
 		}
 	}
 }

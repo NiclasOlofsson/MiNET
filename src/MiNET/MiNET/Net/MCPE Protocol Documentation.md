@@ -33,6 +33,7 @@
 | Mcpe Remove Block | 0x97 | 151 |   
 | Mcpe Update Block | 0x98 | 152 |   
 | Mcpe Explode | 0x9a | 154 |   
+| Mcpe Tile Event | 0x9c | 156 |   
 | Mcpe Entity Event | 0x9d | 157 |   
 | Mcpe Player Equipment | 0xa0 | 160 |   
 | Mcpe Player Armor Equipment | 0xa1 | 161 |   
@@ -45,6 +46,8 @@
 | Mcpe Animate | 0xac | 172 |   
 | Mcpe Respawn | 0xad | 173 |   
 | Mcpe Drop Item | 0xaf | 175 |   
+| Mcpe Container Open | 0xb0 | 176 |   
+| Mcpe Container Close | 0xb1 | 177 |   
 | Mcpe Container Set Slot | 0xb2 | 178 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
@@ -663,6 +666,24 @@ The three type of status are:
 |Radius | float |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Tile Event (0x9c)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | int |  |
+|Z | int |  |
+|Y | int |  |
+|Case 1 | int |  |
+|Case 2 | int |  |
+-----------------------------------------------------------------------
 ###Package: Mcpe Entity Event (0x9d)
 
 **Sent from server:** true
@@ -788,6 +809,39 @@ The three type of status are:
 |Position X | float |  |
 |Position Y | float |  |
 |Position Z | float |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Container Open (0xb0)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
+|Type | byte |  |
+|Slot Count | short |  |
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Container Close (0xb1)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Slot (0xb2)
 

@@ -193,6 +193,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x9c:
+					package = McpeTileEvent.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x9d:
 					package = McpeEntityEvent.CreateObject();
 					//package.Timer.Start();
@@ -225,6 +230,16 @@ namespace MiNET.Net
 					return package;
 				case 0xa3:
 					package = McpeUseItem.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xb0:
+					package = McpeContainerOpen.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xb1:
+					package = McpeContainerClose.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -1866,6 +1881,56 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeTileEvent : Package<McpeTileEvent>
+	{
+		public int x; // = null;
+		public int z; // = null;
+		public int y; // = null;
+		public int case1; // = null;
+		public int case2; // = null;
+		public McpeTileEvent()
+		{
+			Id = 0x9c;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(x);
+			Write(z);
+			Write(y);
+			Write(case1);
+			Write(case2);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			x = ReadInt();
+			z = ReadInt();
+			y = ReadInt();
+			case1 = ReadInt();
+			case2 = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeEntityEvent : Package<McpeEntityEvent>
 	{
 		public int entityId; // = null;
@@ -2207,6 +2272,97 @@ namespace MiNET.Net
 			positionX = ReadFloat();
 			positionY = ReadFloat();
 			positionZ = ReadFloat();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeContainerOpen : Package<McpeContainerOpen>
+	{
+		public byte windowId; // = null;
+		public byte type; // = null;
+		public short slotCount; // = null;
+		public int x; // = null;
+		public int y; // = null;
+		public int z; // = null;
+		public McpeContainerOpen()
+		{
+			Id = 0xb0;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(windowId);
+			Write(type);
+			Write(slotCount);
+			Write(x);
+			Write(y);
+			Write(z);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			windowId = ReadByte();
+			type = ReadByte();
+			slotCount = ReadShort();
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeContainerClose : Package<McpeContainerClose>
+	{
+		public byte windowId; // = null;
+		public McpeContainerClose()
+		{
+			Id = 0xb1;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(windowId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			windowId = ReadByte();
 
 			AfterDecode();
 		}

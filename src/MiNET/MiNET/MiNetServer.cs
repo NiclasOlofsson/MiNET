@@ -1,5 +1,4 @@
 using System;
-using System.CodeDom;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -50,7 +49,7 @@ namespace MiNET
 
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
-		private Dictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new Dictionary<IPEndPoint, PlayerNetworkSession>();
+		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private Level _level;
 		private Level _level2;
 		private PluginLoader _pluginLoader;
@@ -346,12 +345,13 @@ namespace MiNET
 							{
 								Log.Info("Removed ghost");
 								_playerSessions[senderEndpoint].Player.HandleDisconnectionNotification();
-								_playerSessions.Remove(senderEndpoint);
+								PlayerNetworkSession value;
+								_playerSessions.TryRemove(senderEndpoint, out value);
 							}
 
 							PlayerNetworkSession session =
 								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize), senderEndpoint);
-							_playerSessions.Add(senderEndpoint, session);
+							_playerSessions.TryAdd(senderEndpoint, session);
 						}
 						var data = packet.Encode();
 						TraceSend(packet);
@@ -410,7 +410,7 @@ namespace MiNET
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
-			new Task(() => PluginPacketHandler(message,senderEndpoint)).Start();
+			//new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -424,7 +424,8 @@ namespace MiNET
 
 			if (typeof (DisconnectionNotification) == message.GetType())
 			{
-				_playerSessions.Remove(senderEndpoint);
+				PlayerNetworkSession value;
+				_playerSessions.TryRemove(senderEndpoint, out value);
 			}
 		}
 
@@ -435,7 +436,7 @@ namespace MiNET
 				Player target = _level.GetPlayer(senderEndPoint);
 				foreach (var handler in PluginLoader.PacketHandlerDictionary)
 				{
-					HandlePacketAttribute atrib = (HandlePacketAttribute)handler.Key;
+					HandlePacketAttribute atrib = (HandlePacketAttribute) handler.Key;
 					if (atrib.Packet == null) continue;
 					if (atrib.Packet == message.GetType())
 					{
@@ -443,12 +444,12 @@ namespace MiNET
 						if (method == null) return;
 						if (method.IsStatic)
 						{
-							new Task(() => method.Invoke(null, new object[] { message, target })).Start();
+							new Task(() => method.Invoke(null, new object[] {message, target})).Start();
 						}
 						else
 						{
 							object obj = Activator.CreateInstance(method.DeclaringType);
-							new Task(() => method.Invoke(obj, new object[] { message, target })).Start();
+							new Task(() => method.Invoke(obj, new object[] {message, target})).Start();
 						}
 					}
 				}
@@ -473,23 +474,23 @@ namespace MiNET
 			{
 				var session = _playerSessions[senderEndpoint];
 				session.PlayerAckQueue.Enqueue(ack);
-				//SendAckQueue(null);
+				SendAckQueue(null);
 			}
 
 			//var data = ack.Encode();
 			//SendData(data, senderEndpoint);
 
-			if (_ackTimer == null)
-			{
-				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
-			}
+			//if (_ackTimer == null)
+			//{
+			//	_ackTimer = new Timer(SendAckQueue, null, 0, 10);
+			//}
 		}
 
 		private Timer _ackTimer;
 
 		private void SendAckQueue(object state)
 		{
-			Parallel.ForEach(_playerSessions.Values.ToList(), delegate(PlayerNetworkSession session)
+			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
 				var queue = session.PlayerAckQueue;
 				int lenght = queue.Count;
@@ -529,7 +530,7 @@ namespace MiNET
 
 				TraceSend(message);
 				message.PutPool();
-				new Task(() => PluginSendPacketHandler(message, senderEndpoint)).Start();
+				//new Task(() => PluginSendPacketHandler(message, senderEndpoint)).Start();
 			}
 		}
 
@@ -541,7 +542,7 @@ namespace MiNET
 
 				foreach (var handler in PluginLoader.PacketSendHandlerDictionary)
 				{
-					HandleSendPacketAttribute atrib = (HandleSendPacketAttribute)handler.Key;
+					HandleSendPacketAttribute atrib = (HandleSendPacketAttribute) handler.Key;
 					if (atrib.Packet == null) continue;
 					if (atrib.Packet == message.GetType())
 					{
@@ -549,12 +550,12 @@ namespace MiNET
 						if (method == null) return;
 						if (method.IsStatic)
 						{
-							new Task(() => method.Invoke(null, new object[] { message, target })).Start();
+							new Task(() => method.Invoke(null, new object[] {message, target})).Start();
 						}
 						else
 						{
 							object obj = Activator.CreateInstance(method.DeclaringType);
-							new Task(() => method.Invoke(obj, new object[] { message,  target })).Start();
+							new Task(() => method.Invoke(obj, new object[] {message, target})).Start();
 						}
 					}
 				}

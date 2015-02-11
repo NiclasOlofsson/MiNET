@@ -71,12 +71,17 @@ namespace MiNET.Worlds
 		{
 			BlockEntities[coordinates] = nbt;
 		}
-
+			
 		public NbtCompound GetBlockEntity(Coordinates3D coordinates)
 		{
 			NbtCompound nbt;
 			BlockEntities.TryGetValue(coordinates, out nbt);
 			return nbt;
+		}
+
+		public void RemoveBlockEntity(Coordinates3D coordinates)
+		{
+			BlockEntities.Remove(coordinates);
 		}
 
 		public byte[] GetBytes()

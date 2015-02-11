@@ -1,4 +1,6 @@
-﻿namespace MiNET.Blocks
+﻿using MiNET.Utils;
+
+namespace MiNET.Blocks
 {
 	public class Air : Block
 	{
@@ -6,6 +8,11 @@
 		{
 			IsReplacible = true;
 			IsSolid = false;
+		}
+
+		public override ItemStack GetDrops()
+		{
+			return null;
 		}
 	}
 }

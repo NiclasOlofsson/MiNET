@@ -21,7 +21,7 @@ namespace MiNET.ServiceKiller
 			for (int i = 0; i < 500; i++)
 			{
 				counter[0]++;
-				string playerName = "Entity " + (i + 1);
+				string playerName = "Player " + (i + 1);
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
 				Thread.Sleep(random.Next(10, 100));
 			}

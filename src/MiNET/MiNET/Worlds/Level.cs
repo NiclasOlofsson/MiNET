@@ -15,6 +15,7 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using ItemStack = MiNET.Utils.ItemStack;
 using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Worlds
@@ -85,10 +86,12 @@ namespace MiNET.Worlds
 		public bool WorldTimeStarted { get; private set; }
 
 		public EntityManager EntityManager { get; private set; }
+		public InventoryManager InventoryManager { get; private set; }
 
 		public Level(string levelId, IWorldProvider worldProvider = null)
 		{
 			EntityManager = new EntityManager();
+			InventoryManager = new InventoryManager(this);
 			SpawnPoint = new Coordinates3D(50, 10, 50);
 			Players = new List<Player>();
 			Entities = new List<Entity>();
@@ -125,7 +128,7 @@ namespace MiNET.Worlds
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(new Coordinates2D(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>()))
+					foreach (var chunk in GenerateChunks(new Coordinates2D(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>(), -1))
 					{
 						chunk.GetBytes();
 					}
@@ -201,8 +204,8 @@ namespace MiNET.Worlds
 			receiver.SendPackage(new McpePlayerEquipment()
 			{
 				entityId = player.EntityId,
-				item = player.InventoryManager.ItemInHand.Value.Id,
-				meta = player.InventoryManager.ItemInHand.Value.Metadata,
+				item = player.Inventory.ItemInHand.Value.Id,
+				meta = player.Inventory.ItemInHand.Value.Metadata,
 				slot = 0
 			});
 		}
@@ -212,10 +215,10 @@ namespace MiNET.Worlds
 			receiver.SendPackage(new McpePlayerArmorEquipment()
 			{
 				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player.InventoryManager.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player.InventoryManager.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player.InventoryManager.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player.InventoryManager.Armor[3]).Value.Id - 256)
+				helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256)
 			});
 		}
 
@@ -453,9 +456,11 @@ namespace MiNET.Worlds
 		}
 
 
-		public IEnumerable<ChunkColumn> GenerateChunks(Coordinates2D chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
+		public IEnumerable<ChunkColumn> GenerateChunks(Coordinates2D chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed, int timeout = 0)
 		{
-			lock (chunksUsed)
+			if (!Monitor.TryEnter(chunksUsed, timeout)) yield break;
+
+			//lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
 				double radiusSquared = _viewDistance/Math.PI;
@@ -603,7 +608,7 @@ namespace MiNET.Worlds
 		public BlockEntity GetBlockEntity(Coordinates3D blockCoordinates)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
-			var nbt = chunk.GetBlockEntity(blockCoordinates);
+			NbtCompound nbt = chunk.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
 
 			string id = null;
@@ -649,32 +654,72 @@ namespace MiNET.Worlds
 			RelayBroadcast(entityData);
 		}
 
+		public void RemoveBlockEntity(Coordinates3D blockCoordinates)
+		{
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			var nbt = chunk.GetBlockEntity(blockCoordinates);
+
+			if (nbt == null) return;
+
+			chunk.RemoveBlockEntity(blockCoordinates);
+		}
+
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
-			MetadataSlot itemSlot = player.InventoryManager.ItemInHand;
+			// Make sure we are holding the item we claim to be using
+			MetadataSlot itemSlot = player.Inventory.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
-
-			if (itemInHand == null || itemInHand.Id != itemId) return;
+			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			Block target = GetBlock(blockCoordinates);
-			if (target.Interact(world, player, blockCoordinates, face)) return;
+			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
 			itemInHand.Metadata = metadata;
 			itemInHand.UseItem(world, player, blockCoordinates, face);
 		}
 
-		public void BreakBlock(Level world, Player player, Coordinates3D blockCoordinates)
+		public void BreakBlock(Coordinates3D blockCoordinates)
 		{
+			List<ItemStack> drops = new List<ItemStack>();
+
 			Block block = GetBlock(blockCoordinates);
+			block.BreakBlock(this);
+			drops.Add(block.GetDrops());
 
-			//MetadataSlot itemSlot = newPlayer.ItemInHand;
-			//Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
-			//if (itemInHand == null) return;
+			BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
+			if (blockEnity != null)
+			{
+				RemoveBlockEntity(blockCoordinates);
+				drops.AddRange(blockEnity.GetDrops());
+			}
 
-			//itemInHand.Metadata = metadata;
-			//itemInHand.UseItem(world, newPlayer, blockCoordinates, face);
+			foreach (ItemStack drop in drops)
+			{
+				DropItem(blockCoordinates, drop);
+			}
+		}
 
-			block.BreakBlock(world);
+		public void DropItem(Coordinates3D coordinates, ItemStack drop)
+		{
+			if (drop == null) return;
+			if (drop.Id == 0) return;
+			if (drop.Count == 0) return;
+
+			Item item = ItemFactory.GetItem(drop.Id);
+			item.Metadata = drop.Metadata;
+
+			var itemEntity = new ItemEntity(this, item)
+			{
+				Count = drop.Count,
+				KnownPosition =
+				{
+					X = coordinates.X,
+					Y = coordinates.Y,
+					Z = coordinates.Z
+				},
+			};
+
+			itemEntity.SpawnEntity();
 		}
 	}
 }

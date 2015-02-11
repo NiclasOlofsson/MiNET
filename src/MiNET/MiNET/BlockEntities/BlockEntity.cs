@@ -1,5 +1,7 @@
-﻿using Craft.Net.Common;
+﻿using System.Collections.Generic;
+using Craft.Net.Common;
 using fNbt;
+using ItemStack = MiNET.Utils.ItemStack;
 
 namespace MiNET.BlockEntities
 {
@@ -20,6 +22,11 @@ namespace MiNET.BlockEntities
 
 		public virtual void SetCompound(NbtCompound compound)
 		{
+		}
+
+		public virtual List<ItemStack> GetDrops()
+		{
+			return new List<ItemStack>();
 		}
 	}
 }

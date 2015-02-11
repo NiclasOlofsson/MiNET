@@ -248,6 +248,7 @@ namespace MiNET
 		private void HandleAnimate(McpeAnimate message)
 		{
 			message.entityId = EntityId;
+			Log.DebugFormat("Action: {0}", message.actionId);
 
 			Level.RelayBroadcast(this, message);
 		}
@@ -465,7 +466,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleRemoveBlock(McpeRemoveBlock message)
 		{
-			Level.BreakBlock(Level, this, new Coordinates3D(message.x, message.y, message.z));
+			Level.BreakBlock(new Coordinates3D(message.x, message.y, message.z));
 		}
 
 		/// <summary>
@@ -670,6 +671,21 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleUseItem(McpeUseItem message)
 		{
+			Log.DebugFormat("Use item: {0}", message.item);
+			Log.DebugFormat("Entity ID: {0}", message.entityId);
+			Log.DebugFormat("meta:  {0}", message.meta);
+			Log.DebugFormat("x:  {0}", message.x);
+			Log.DebugFormat("y:  {0}", message.y);
+			Log.DebugFormat("z:  {0}", message.z);
+			Log.DebugFormat("face:  {0}", message.face);
+			Log.DebugFormat("fx:  {0}", message.fx);
+			Log.DebugFormat("fy:  {0}", message.fy);
+			Log.DebugFormat("fz:  {0}", message.fz);
+			Log.DebugFormat("fz:  {0}", message.fz);
+			Log.DebugFormat("px:  {0}", message.positionX);
+			Log.DebugFormat("py:  {0}", message.positionY);
+			Log.DebugFormat("pz:  {0}", message.positionZ);
+
 			if (message.face <= 5)
 			{
 				Level.RelayBroadcast(this, new McpeAnimate()
@@ -678,13 +694,11 @@ namespace MiNET
 					entityId = EntityId
 				});
 
-				Log.DebugFormat("Use item: {0}", message.item);
 				Level.Interact(Level, this, message.item, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
 			}
 			else
 			{
-				Log.DebugFormat("No face - Use item: {0}", message.item);
-				// Probably break block
+				// Snowballs and shit
 			}
 		}
 

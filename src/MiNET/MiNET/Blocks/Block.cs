@@ -1,6 +1,7 @@
 ﻿using Craft.Net.Common;
 using MiNET.Items;
 using MiNET.Worlds;
+using ItemStack = MiNET.Utils.ItemStack;
 
 namespace MiNET.Blocks
 {
@@ -101,6 +102,11 @@ namespace MiNET.Blocks
 				default:
 					return target;
 			}
+		}
+
+		public virtual ItemStack GetDrops()
+		{
+			return new ItemStack(Id, 1, 0);
 		}
 	}
 }

@@ -15,6 +15,7 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using ItemStack = MiNET.Utils.ItemStack;
 using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Worlds
@@ -665,46 +666,60 @@ namespace MiNET.Worlds
 
 		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
 		{
+			// Make sure we are holding the item we claim to be using
 			MetadataSlot itemSlot = player.Inventory.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
-
-			if (itemInHand == null || itemInHand.Id != itemId) return;
+			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			Block target = GetBlock(blockCoordinates);
-			if (target.Interact(world, player, blockCoordinates, face)) return;
+			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
 			itemInHand.Metadata = metadata;
 			itemInHand.UseItem(world, player, blockCoordinates, face);
 		}
 
-		public void BreakBlock(Level world, Player player, Coordinates3D blockCoordinates)
+		public void BreakBlock(Coordinates3D blockCoordinates)
 		{
+			List<ItemStack> drops = new List<ItemStack>();
+
 			Block block = GetBlock(blockCoordinates);
-			block.BreakBlock(world);
+			block.BreakBlock(this);
+			drops.Add(block.GetDrops());
 
 			BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
-			RemoveBlockEntity(blockCoordinates);
-
-			// Check block entity. That might provide the drops here.
-
-			if (block.Id != new Air().Id)
+			if (blockEnity != null)
 			{
-				Item item = ItemFactory.GetItem(block.Id);
-				item.Metadata = block.Metadata;
-
-				var itemEntity = new ItemEntity(world, item)
-				{
-					KnownPosition =
-					{
-						X = block.Coordinates.X,
-						Y = block.Coordinates.Y,
-						Z = block.Coordinates.Z
-					},
-					Count = 1
-				};
-
-				world.AddEntity(itemEntity);
+				RemoveBlockEntity(blockCoordinates);
+				drops.AddRange(blockEnity.GetDrops());
 			}
+
+			foreach (ItemStack drop in drops)
+			{
+				DropItem(blockCoordinates, drop);
+			}
+		}
+
+		public void DropItem(Coordinates3D coordinates, ItemStack drop)
+		{
+			if (drop == null) return;
+			if (drop.Id == 0) return;
+			if (drop.Count == 0) return;
+
+			Item item = ItemFactory.GetItem(drop.Id);
+			item.Metadata = drop.Metadata;
+
+			var itemEntity = new ItemEntity(this, item)
+			{
+				Count = drop.Count,
+				KnownPosition =
+				{
+					X = coordinates.X,
+					Y = coordinates.Y,
+					Z = coordinates.Z
+				},
+			};
+
+			itemEntity.SpawnEntity();
 		}
 	}
 }

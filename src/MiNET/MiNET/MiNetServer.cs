@@ -410,7 +410,7 @@ namespace MiNET
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
-			new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
+			//new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{

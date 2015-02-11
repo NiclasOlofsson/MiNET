@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using fNbt;
+using MiNET.Utils;
 
 namespace MiNET.BlockEntities
 {
@@ -58,6 +60,18 @@ namespace MiNET.BlockEntities
 				}
 				Compound["Items"] = items;
 			}
+		}
+
+		public override List<ItemStack> GetDrops()
+		{
+			List<ItemStack> slots = new List<ItemStack>();
+			for (byte i = 0; i < 27; i++)
+			{
+				NbtCompound item = (NbtCompound) Compound["Items"][i];
+				slots.Add(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
+			}
+
+			return slots;
 		}
 	}
 }

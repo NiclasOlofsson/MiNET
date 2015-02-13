@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using Craft.Net.Common;
 using fNbt;
 using MiNET.Utils;
 
@@ -20,7 +19,7 @@ namespace MiNET.Worlds
 		public NibbleArray metadata = new NibbleArray(16*16*128);
 		public NibbleArray blocklight = new NibbleArray(16*16*128);
 		public NibbleArray skylight = new NibbleArray(16*16*128);
-		public IDictionary<Coordinates3D, NbtCompound> BlockEntities = new Dictionary<Coordinates3D, NbtCompound>();
+		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 
 		private byte[] _cache = null;
 
@@ -67,19 +66,19 @@ namespace MiNET.Worlds
 			skylight[(x*2048) + (z*128) + y] = data;
 		}
 
-		public void SetBlockEntity(Coordinates3D coordinates, NbtCompound nbt)
+		public void SetBlockEntity(BlockCoordinates coordinates, NbtCompound nbt)
 		{
 			BlockEntities[coordinates] = nbt;
 		}
-			
-		public NbtCompound GetBlockEntity(Coordinates3D coordinates)
+
+		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
 		{
 			NbtCompound nbt;
 			BlockEntities.TryGetValue(coordinates, out nbt);
 			return nbt;
 		}
 
-		public void RemoveBlockEntity(Coordinates3D coordinates)
+		public void RemoveBlockEntity(BlockCoordinates coordinates)
 		{
 			BlockEntities.Remove(coordinates);
 		}

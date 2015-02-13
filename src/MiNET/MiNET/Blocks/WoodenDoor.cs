@@ -1,4 +1,4 @@
-﻿using Craft.Net.Common;
+﻿using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		protected override bool CanPlace(Level world, Coordinates3D blockCoordinates)
+		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;
 		}
@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 			level.SetBlock(new Air {Coordinates = Coordinates});
 		}
 
-		public override bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			Block block = this;
 			// Remove door

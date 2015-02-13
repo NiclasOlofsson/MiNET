@@ -1,4 +1,4 @@
-﻿using Craft.Net.Common;
+﻿using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items
@@ -26,11 +26,11 @@ namespace MiNET.Items
 
 		public short Metadata { get; set; }
 
-		public virtual void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 		}
 
-		protected Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
+		protected BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{
 			switch (face)
 			{

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Craft.Net.Common;
 using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Net;
@@ -13,10 +12,10 @@ namespace MiNET
 	public class Explosion
 	{
 		private const int Ray = 16;
-		private readonly IDictionary<Coordinates3D, Block> _afectedBlocks = new Dictionary<Coordinates3D, Block>();
+		private readonly IDictionary<BlockCoordinates, Block> _afectedBlocks = new Dictionary<BlockCoordinates, Block>();
 		private readonly float _size;
 		private readonly Level _world;
-		private Coordinates3D _centerCoordinates;
+		private BlockCoordinates _centerCoordinates;
 		private bool CoordsSet = false;
 		private bool Fire = false;
 
@@ -27,7 +26,7 @@ namespace MiNET
 		/// <param name="centerCoordinates"></param>
 		/// <param name="size"></param>
 		/// <param name="fire"></param>
-		public Explosion(Level world, Coordinates3D centerCoordinates, float size, bool fire = false)
+		public Explosion(Level world, BlockCoordinates centerCoordinates, float size, bool fire = false)
 		{
 			_size = size;
 			_centerCoordinates = centerCoordinates;
@@ -158,7 +157,7 @@ namespace MiNET
 			if (Fire)
 			{
 				Random random = new Random();
-				foreach (Coordinates3D coord in _afectedBlocks.Keys)
+				foreach (BlockCoordinates coord in _afectedBlocks.Keys)
 				{
 					var block = _world.GetBlock(coord.X, coord.Y, coord.Z);
 					if (block is Air)
@@ -175,7 +174,7 @@ namespace MiNET
 			return true;
 		}
 
-		private void SpawnTNT(Coordinates3D blockCoordinates, Level world)
+		private void SpawnTNT(BlockCoordinates blockCoordinates, Level world)
 		{
 			var rand = new Random();
 			new PrimedTnt(world)

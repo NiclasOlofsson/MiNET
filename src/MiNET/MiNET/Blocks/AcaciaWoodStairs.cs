@@ -1,4 +1,4 @@
-﻿using Craft.Net.Common;
+﻿using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
@@ -9,7 +9,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			byte direction = player.GetDirection();
 

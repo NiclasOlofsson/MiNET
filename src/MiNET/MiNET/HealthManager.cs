@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
-using Craft.Net.Common;
 using MiNET.Entities;
 using MiNET.Utils;
 
@@ -204,7 +203,7 @@ namespace MiNET
 		{
 			float y = playerPosition.Y + 1.62f;
 
-			Coordinates3D waterPos = new Coordinates3D
+			BlockCoordinates waterPos = new BlockCoordinates
 			{
 				X = (int) Math.Floor(playerPosition.X),
 				Y = (int) Math.Floor(y),

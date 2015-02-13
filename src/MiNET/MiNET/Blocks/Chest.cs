@@ -1,9 +1,5 @@
-using Craft.Net.Common;
-using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
-using ItemStack = MiNET.Utils.ItemStack;
-using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Blocks
 {
@@ -13,7 +9,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			byte direction = player.GetDirection();
 
@@ -39,7 +35,7 @@ namespace MiNET.Blocks
 		}
 
 
-		public override bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			player.OpenInventory(blockCoordinates);
 

@@ -1,5 +1,5 @@
-using Craft.Net.Common;
 using MiNET.Blocks;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items
@@ -16,7 +16,7 @@ namespace MiNET.Items
 			_block = block;
 		}
 
-		public override void UseItem(Level world, Player player, Coordinates3D targetCoordinates, BlockFace face)
+		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;

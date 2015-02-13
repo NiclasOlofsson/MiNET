@@ -1,9 +1,7 @@
 using System;
-using Craft.Net.Common;
 using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
-using MetadataByte = MiNET.Utils.MetadataByte;
-using MetadataDictionary = MiNET.Utils.MetadataDictionary;
 
 namespace MiNET.Entities
 {
@@ -56,7 +54,7 @@ namespace MiNET.Entities
 
 		private void PositionCheck()
 		{
-			Coordinates3D check = KnownPosition.GetCoordinates3D() + Level.Down;
+			BlockCoordinates check = KnownPosition.GetCoordinates3D() + Level.Down;
 			if (!Level.GetBlock(check).IsSolid)
 			{
 				KnownPosition.Y -= 1;
@@ -71,7 +69,7 @@ namespace MiNET.Entities
 		{
 			// Litteral "fire and forget"
 			new Explosion(Level,
-				new Coordinates3D((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4, Fire)
+				new BlockCoordinates((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4, Fire)
 				.Explode();
 		}
 	}

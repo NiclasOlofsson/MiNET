@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Craft.Net.Common;
 using fNbt;
 using MiNET.BlockEntities;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET
@@ -9,7 +9,7 @@ namespace MiNET
 	public class InventoryManager
 	{
 		private readonly Level _level;
-		private Dictionary<Coordinates3D, Inventory> _cache = new Dictionary<Coordinates3D, Inventory>();
+		private Dictionary<BlockCoordinates, Inventory> _cache = new Dictionary<BlockCoordinates, Inventory>();
 
 
 		public InventoryManager(Level level)
@@ -17,7 +17,7 @@ namespace MiNET
 			_level = level;
 		}
 
-		public Inventory GetInventory(Coordinates3D inventoryCoord)
+		public Inventory GetInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_cache)
 			{

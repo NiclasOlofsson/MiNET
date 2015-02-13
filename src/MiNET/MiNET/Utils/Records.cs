@@ -3,13 +3,13 @@ using Craft.Net.Common;
 
 namespace MiNET.Utils
 {
-	public class Records : List<Coordinates3D>
+	public class Records : List<BlockCoordinates>
 	{
 		public Records()
 		{
 		}
 
-		public Records(IEnumerable<Coordinates3D> coordinates) : base(coordinates)
+		public Records(IEnumerable<BlockCoordinates> coordinates) : base(coordinates)
 		{
 		}
 	}

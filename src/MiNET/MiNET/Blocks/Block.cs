@@ -1,7 +1,6 @@
-﻿using Craft.Net.Common;
-using MiNET.Items;
+﻿using MiNET.Items;
+using MiNET.Utils;
 using MiNET.Worlds;
-using ItemStack = MiNET.Utils.ItemStack;
 
 namespace MiNET.Blocks
 {
@@ -11,7 +10,7 @@ namespace MiNET.Blocks
 	/// </summary>
 	public class Block
 	{
-		public Coordinates3D Coordinates { get; set; }
+		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; set; }
 		public byte Metadata { get; set; }
 		public bool IsReplacible { get; set; }
@@ -31,7 +30,7 @@ namespace MiNET.Blocks
 			return CanPlace(world, Coordinates);
 		}
 
-		protected virtual bool CanPlace(Level world, Coordinates3D blockCoordinates)
+		protected virtual bool CanPlace(Level world, BlockCoordinates blockCoordinates)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
@@ -43,26 +42,26 @@ namespace MiNET.Blocks
 			BlockUpdate(world, Coordinates);
 		}
 
-		public virtual bool PlaceBlock(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			// No default placement. Return unhandled.
 			return false;
 		}
 
-		public virtual bool Interact(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			// No default interaction. Return unhandled.
 			return false;
 		}
 
-		public virtual void BlockUpdate(Level world, Coordinates3D blockCoordinates)
+		public virtual void BlockUpdate(Level world, BlockCoordinates blockCoordinates)
 		{
-			Coordinates3D up = new Coordinates3D() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
-			/*Coordinates3D down = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
-			Coordinates3D left = new Coordinates3D() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
-			Coordinates3D right = new Coordinates3D() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
-			Coordinates3D zplus = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z + 1 };
-			Coordinates3D zminus = new Coordinates3D() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z - 1 };
+			BlockCoordinates up = new BlockCoordinates() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
+			/*BlockCoordinates down = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
+			BlockCoordinates left = new BlockCoordinates() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
+			BlockCoordinates right = new BlockCoordinates() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
+			BlockCoordinates zplus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z + 1 };
+			BlockCoordinates zminus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z - 1 };
 			*/
 			//All other directions are in here too, however currently we only use this to update fire so we only check the block above.
 
@@ -83,7 +82,7 @@ namespace MiNET.Blocks
 			return Durability*(1.5*multiplier);
 		}
 
-		protected Coordinates3D GetNewCoordinatesFromFace(Coordinates3D target, BlockFace face)
+		protected BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{
 			switch (face)
 			{

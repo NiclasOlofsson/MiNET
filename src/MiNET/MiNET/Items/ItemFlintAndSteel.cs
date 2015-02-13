@@ -1,5 +1,4 @@
 ﻿using System;
-using Craft.Net.Common;
 using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Utils;
@@ -13,7 +12,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, Coordinates3D blockCoordinates, BlockFace face)
+		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			var block = world.GetBlock(blockCoordinates);
 			if (block.Id != 46)

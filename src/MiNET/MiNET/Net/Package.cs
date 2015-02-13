@@ -4,12 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Craft.Net.Common;
 using fNbt;
 using MiNET.Utils;
-using ItemStack = MiNET.Utils.ItemStack;
-using MetadataInt = MiNET.Utils.MetadataInt;
-using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Net
 {
@@ -175,7 +171,7 @@ namespace MiNET.Net
 		public void Write(Records records)
 		{
 			Write(records.Count);
-			foreach (Coordinates3D coord in records)
+			foreach (BlockCoordinates coord in records)
 			{
 				Write((byte) coord.X);
 				Write((byte) coord.Y);

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
-using Craft.Net.Common;
 using log4net;
 using MiNET.Entities;
 using MiNET.Items;
@@ -42,7 +41,7 @@ namespace MiNET
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _sendTicker;
 
-		private Coordinates2D _currentChunkPosition;
+		private ChunkCoordinates _currentChunkPosition;
 		private bool _isBot;
 		private Inventory _openInventory;
 
@@ -294,7 +293,7 @@ namespace MiNET
 			Log.DebugFormat("z:  {0}", message.z);
 			Log.DebugFormat("NBT {0}", message.namedtag.NbtFile);
 
-			var blockEntity = Level.GetBlockEntity(new Coordinates3D(message.x, message.y, message.z));
+			var blockEntity = Level.GetBlockEntity(new BlockCoordinates(message.x, message.y, message.z));
 
 			if (blockEntity == null) return;
 
@@ -405,9 +404,12 @@ namespace MiNET
 
 			if (Username.StartsWith("Player")) _isBot = true;
 
-			LoadFromFile();
+			//LoadFromFile();
 
 			// Start game
+
+			Level.EntityManager.AddEntity(null, this);
+
 			SendPackage(new McpeLoginStatus {status = 0});
 			SendStartGame();
 			SendSetTime();
@@ -417,6 +419,40 @@ namespace MiNET
 			SendChunksForKnownPosition();
 			LastUpdatedTime = DateTime.UtcNow;
 		}
+
+		/// <summary>
+		///     Initializes the player.
+		/// </summary>
+		private void InitializePlayer()
+		{
+			//send time again
+			SendSetTime();
+
+			// Teleport user (MovePlayerPacket) teleport=1
+			SendMovePlayer();
+
+			SendPackage(new McpeAdventureSettings {flags = 0x20});
+
+			SendPackage(new McpeContainerSetContent
+			{
+				windowId = 0,
+				slotData = Inventory.Slots,
+				hotbarData = Inventory.ItemHotbar
+			});
+
+			SendPackage(new McpeContainerSetContent
+			{
+				windowId = 0x78, // Armor windows ID
+				slotData = Inventory.Armor,
+				hotbarData = null
+			});
+
+			IsSpawned = true;
+			Level.AddPlayer(this);
+
+			BroadcastSetEntityData();
+		}
+
 
 		/// <summary>
 		///     Handles the message.
@@ -466,7 +502,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleRemoveBlock(McpeRemoveBlock message)
 		{
-			Level.BreakBlock(new Coordinates3D(message.x, message.y, message.z));
+			Level.BreakBlock(new BlockCoordinates(message.x, message.y, message.z));
 		}
 
 		/// <summary>
@@ -499,7 +535,7 @@ namespace MiNET
 		}
 
 
-		public void OpenInventory(Coordinates3D inventoryCoord)
+		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
 			if (_openInventory != null) return;
 
@@ -657,12 +693,7 @@ namespace MiNET
 
 			target.HealthManager.TakeHit(this, 1, DamageCause.EntityAttack);
 
-			BroadcastEntityEvent();
-			target.SendPackage(new McpeEntityEvent()
-			{
-				entityId = 0,
-				eventId = (byte) (target.HealthManager.Health <= 0 ? 3 : 2)
-			});
+			target.BroadcastEntityEvent();
 		}
 
 		/// <summary>
@@ -694,7 +725,7 @@ namespace MiNET
 					entityId = EntityId
 				});
 
-				Level.Interact(Level, this, message.item, new Coordinates3D(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
+				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
 			}
 			else
 			{
@@ -709,7 +740,7 @@ namespace MiNET
 				seed = 1406827239,
 				generator = 1,
 				gamemode = (int) Level.GameMode,
-				entityId = 0,
+				entityId = EntityId,
 				spawnX = (int) KnownPosition.X,
 				spawnY = (int) KnownPosition.Y,
 				spawnZ = (int) KnownPosition.Z,
@@ -737,7 +768,7 @@ namespace MiNET
 		/// </summary>
 		private void SendChunksForKnownPosition()
 		{
-			var chunkPosition = new Coordinates2D((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
+			var chunkPosition = new ChunkCoordinates((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
 			_currentChunkPosition = chunkPosition;
@@ -779,7 +810,7 @@ namespace MiNET
 		public void SendMovePlayer()
 		{
 			var package = McpeMovePlayer.CreateObject();
-			package.entityId = 0;
+			package.entityId = EntityId;
 			package.x = KnownPosition.X;
 			package.y = KnownPosition.Y;
 			package.z = KnownPosition.Z;
@@ -789,39 +820,6 @@ namespace MiNET
 			package.teleport = 0x80;
 
 			SendPackage(package);
-		}
-
-		/// <summary>
-		///     Initializes the player.
-		/// </summary>
-		private void InitializePlayer()
-		{
-			//send time again
-			SendSetTime();
-
-			// Teleport user (MovePlayerPacket) teleport=1
-			SendMovePlayer();
-
-			SendPackage(new McpeAdventureSettings {flags = 0x20});
-
-			SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0,
-				slotData = Inventory.Slots,
-				hotbarData = Inventory.ItemHotbar
-			});
-
-			SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0x78, // Armor windows ID
-				slotData = Inventory.Armor,
-				hotbarData = null
-			});
-
-			IsSpawned = true;
-			Level.AddPlayer(this);
-
-			BroadcastSetEntityData();
 		}
 
 		public override void OnTick()
@@ -846,7 +844,7 @@ namespace MiNET
 
 		public void BroadcastEntityEvent()
 		{
-			Level.RelayBroadcast(this, new McpeEntityEvent()
+			Level.RelayBroadcast(new McpeEntityEvent()
 			{
 				entityId = EntityId,
 				eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2)
@@ -854,7 +852,6 @@ namespace MiNET
 
 			if (HealthManager.IsDead)
 			{
-				string source = "";
 				Player player = HealthManager.LastDamageSource as Player;
 				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
 				Level.BroadcastTextMessage(cause);

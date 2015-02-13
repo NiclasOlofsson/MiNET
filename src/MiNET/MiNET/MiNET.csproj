@@ -129,7 +129,10 @@
     <Compile Include="Player.cs" />
     <Compile Include="PluginSystem\PluginLoader.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
+    <Compile Include="Utils\ChunkCoordinates.cs" />
+    <Compile Include="Utils\Vector3.cs" />
     <Compile Include="Utils\Compression.cs" />
+    <Compile Include="Utils\BlockCoordinates.cs" />
     <Compile Include="Utils\Endian.cs" />
     <Compile Include="Utils\CryptoRandom.cs" />
     <Compile Include="Utils\Int24.cs" />

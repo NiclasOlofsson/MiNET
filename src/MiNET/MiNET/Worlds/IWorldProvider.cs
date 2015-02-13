@@ -1,4 +1,4 @@
-﻿using Craft.Net.Common;
+﻿using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
@@ -6,8 +6,8 @@ namespace MiNET.Worlds
 	{
 		bool IsCaching { get; }
 		void Initialize();
-		ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates);
-		Coordinates3D GetSpawnPoint();
+		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates);
+		Vector3 GetSpawnPoint();
 
 		void SaveChunks();
 	}

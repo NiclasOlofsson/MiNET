@@ -25,9 +25,9 @@ namespace MiNET.Utils
 			Z = z;
 		}
 
-		public Coordinates3D GetCoordinates3D()
+		public BlockCoordinates GetCoordinates3D()
 		{
-			return new Coordinates3D((int) X, (int) Y, (int) Z);
+			return new BlockCoordinates((int) X, (int) Y, (int) Z);
 		}
 
 		public double DistanceTo(PlayerLocation other)

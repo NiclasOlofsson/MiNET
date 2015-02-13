@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using Craft.Net.Common;
 using MiNET.BlockEntities;
 using MiNET.Utils;
 
@@ -7,7 +6,7 @@ namespace MiNET.Worlds
 {
 	public class FlatlandWorldProvider : IWorldProvider
 	{
-		private readonly ConcurrentDictionary<Coordinates2D, ChunkColumn> _chunkCache = new ConcurrentDictionary<Coordinates2D, ChunkColumn>();
+		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		private bool _loadFromFile;
 		private bool _saveToFile;
 
@@ -29,7 +28,7 @@ namespace MiNET.Worlds
 		{
 		}
 
-		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
+		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
 			//lock (_chunkCache)
 			{
@@ -98,9 +97,9 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public Coordinates3D GetSpawnPoint()
+		public Vector3 GetSpawnPoint()
 		{
-			return new Coordinates3D(50, 10, 50);
+			return new Vector3(50, 10, 50);
 		}
 
 		public int PopulateChunk(ChunkColumn chunk)
@@ -179,7 +178,7 @@ namespace MiNET.Worlds
 			var sign = new Sign
 			{
 				Text1 = "Test1",
-				Coordinates = new Coordinates3D(x, y, z)
+				Coordinates = new BlockCoordinates(x, y, z)
 			};
 
 			return sign;

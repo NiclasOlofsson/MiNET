@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Craft.Net.Anvil;
-using Craft.Net.Common;
 using log4net;
 using MiNET.Utils;
+using Coordinates3D = Craft.Net.Common.Coordinates3D;
 
 namespace MiNET.Worlds
 {
@@ -12,7 +12,7 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (CraftNetAnvilWorldProvider));
 
-		private readonly Dictionary<Coordinates2D, ChunkColumn> _chunkCache = new Dictionary<Coordinates2D, ChunkColumn>();
+		private readonly Dictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new Dictionary<ChunkCoordinates, ChunkColumn>();
 		private Craft.Net.Anvil.Level _level;
 		private List<int> _gaps;
 		private List<int> _ignore;
@@ -147,7 +147,7 @@ namespace MiNET.Worlds
 			_gaps.Sort();
 		}
 
-		public ChunkColumn GenerateChunkColumn(Coordinates2D chunkCoordinates)
+		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
 			lock (_chunkCache)
 			{
@@ -159,7 +159,9 @@ namespace MiNET.Worlds
 					return cachedChunk;
 				}
 
-				Chunk anvilChunk = _level.DefaultWorld.GetChunk(chunkCoordinates);
+				Craft.Net.Common.Coordinates2D anvilCoord = new Craft.Net.Common.Coordinates2D(chunkCoordinates.X, chunkCoordinates.Z);
+
+				Chunk anvilChunk = _level.DefaultWorld.GetChunk(anvilCoord);
 				ChunkColumn chunk = new ChunkColumn {x = chunkCoordinates.X, z = chunkCoordinates.Z};
 
 				chunk.biomeId = anvilChunk.Biomes;
@@ -222,9 +224,10 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public Coordinates3D GetSpawnPoint()
+		public Vector3 GetSpawnPoint()
 		{
-			Vector3 spawnPoint = _level.Spawn;
+			var spawnPoint = new Vector3(_level.Spawn.X, _level.Spawn.Y, _level.Spawn.Z);
+			;
 			spawnPoint.Y += 2; // Compensate for point being at head
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 			return spawnPoint;

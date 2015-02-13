@@ -1,10 +1,7 @@
 using System;
-using Craft.Net.Common;
 using fNbt;
 using MiNET.BlockEntities;
 using MiNET.Utils;
-using ItemStack = MiNET.Utils.ItemStack;
-using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET
 {
@@ -16,7 +13,7 @@ namespace MiNET
 		public byte Type { get; set; }
 		public MetadataSlots Slots { get; set; }
 		public short Size { get; set; }
-		public Coordinates3D Coordinates { get; set; }
+		public BlockCoordinates Coordinates { get; set; }
 		private BlockEntity Chest { get; set; }
 
 		public Inventory(ChestBlockEntity chest, NbtList slots)

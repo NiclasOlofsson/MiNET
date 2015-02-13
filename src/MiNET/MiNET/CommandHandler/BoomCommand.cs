@@ -1,5 +1,5 @@
 ﻿using System;
-using Craft.Net.Common;
+using MiNET.Utils;
 
 namespace MiNET.CommandHandler
 {
@@ -30,7 +30,7 @@ namespace MiNET.CommandHandler
 			if (arguments.Length > 0)
 			{
 				new Explosion(player.Level,
-					new Coordinates3D((int) player.KnownPosition.X, (int) player.KnownPosition.Y, (int) player.KnownPosition.Z),
+					new BlockCoordinates((int) player.KnownPosition.X, (int) player.KnownPosition.Y, (int) player.KnownPosition.Z),
 					(float) Convert.ToDouble(arguments[0])).Explode();
 				return true;
 			}

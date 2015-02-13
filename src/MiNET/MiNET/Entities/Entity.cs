@@ -1,13 +1,8 @@
 ﻿using System;
-using Craft.Net.Common;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
-using BoundingBox = MiNET.Utils.BoundingBox;
-using MetadataByte = MiNET.Utils.MetadataByte;
-using MetadataDictionary = MiNET.Utils.MetadataDictionary;
-using MetadataShort = MiNET.Utils.MetadataShort;
 
 namespace MiNET.Entities
 {

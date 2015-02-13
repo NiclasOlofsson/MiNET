@@ -173,6 +173,16 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x8e:
+					package = McpeAddItemEntity.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x8f:
+					package = McpeTakeItemEntity.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x96:
 					package = McpePlaceBlock.CreateObject();
 					//package.Timer.Start();
@@ -245,16 +255,6 @@ namespace MiNET.Net
 					return package;
 				case 0xb2:
 					package = McpeContainerSetSlot.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x8e:
-					package = McpeItemEntity.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x8f:
-					package = McpeRemoveItemEntity.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -1678,6 +1678,106 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeAddItemEntity : Package<McpeAddItemEntity>
+	{
+		public int entityId; // = null;
+		public MetadataSlot item; // = null;
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
+		public byte yaw; // = null;
+		public byte pitch; // = null;
+		public byte roll; // = null;
+		public McpeAddItemEntity()
+		{
+			Id = 0x8e;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(item);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(yaw);
+			Write(pitch);
+			Write(roll);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			item = ReadMetadataSlot();
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
+			yaw = ReadByte();
+			pitch = ReadByte();
+			roll = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeTakeItemEntity : Package<McpeTakeItemEntity>
+	{
+		public int target; // = null;
+		public int entityId; // = null;
+		public McpeTakeItemEntity()
+		{
+			Id = 0x8f;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(target);
+			Write(entityId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			target = ReadInt();
+			entityId = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpePlaceBlock : Package<McpePlaceBlock>
 	{
 		public int entityId; // = null;
@@ -2413,106 +2513,6 @@ namespace MiNET.Net
 			itemId = ReadShort();
 			itemCount = ReadByte();
 			itemDamage = ReadShort();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeItemEntity : Package<McpeItemEntity>
-	{
-		public int entityId; // = null;
-		public MetadataSlot item; // = null;
-		public float x; // = null;
-		public float y; // = null;
-		public float z; // = null;
-		public byte yaw; // = null;
-		public byte pitch; // = null;
-		public byte roll; // = null;
-		public McpeItemEntity()
-		{
-			Id = 0x8e;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(entityId);
-			Write(item);
-			Write(x);
-			Write(y);
-			Write(z);
-			Write(yaw);
-			Write(pitch);
-			Write(roll);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			entityId = ReadInt();
-			item = ReadMetadataSlot();
-			x = ReadFloat();
-			y = ReadFloat();
-			z = ReadFloat();
-			yaw = ReadByte();
-			pitch = ReadByte();
-			roll = ReadByte();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeRemoveItemEntity : Package<McpeRemoveItemEntity>
-	{
-		public int target; // = null;
-		public int entityId; // = null;
-		public McpeRemoveItemEntity()
-		{
-			Id = 0x8f;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(target);
-			Write(entityId);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			target = ReadInt();
-			entityId = ReadInt();
 
 			AfterDecode();
 		}

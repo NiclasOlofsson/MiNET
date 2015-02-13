@@ -1,8 +1,13 @@
 ﻿using System;
+using Craft.Net.Common;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using BoundingBox = MiNET.Utils.BoundingBox;
+using MetadataByte = MiNET.Utils.MetadataByte;
+using MetadataDictionary = MiNET.Utils.MetadataDictionary;
+using MetadataShort = MiNET.Utils.MetadataShort;
 
 namespace MiNET.Entities
 {
@@ -21,8 +26,20 @@ namespace MiNET.Entities
 
 		public HealthManager HealthManager { get; private set; }
 
+		public double Height { get; set; }
+		public double Width { get; set; }
+		public double Length { get; set; }
+		public double Drag { get; set; }
+		public double Gravity { get; set; }
+
 		public Entity(int entityTypeId, Level level)
 		{
+			Height = 1;
+			Width = 1;
+			Length = 1;
+			Drag = 0;
+			Gravity = 0;
+
 			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
 			EntityTypeId = entityTypeId;
@@ -74,6 +91,24 @@ namespace MiNET.Entities
 				entityId = EntityId,
 				namedtag = GetMetadata().GetBytes()
 			});
+		}
+
+		public BoundingBox GetBoundingBox()
+		{
+			var pos = KnownPosition;
+			double height = Height;
+			double width = Width;
+			double length = Length;
+			double yaw = pos.Yaw;
+
+			double s = Math.Sin(yaw);
+			double c = Math.Cos(yaw);
+			if (s < 0) s = -s;
+			if (c < 0) c = -c;
+			double wn = (width*s + length*c)/2; // width of AABB
+			double hn = (width*c + length*s)/2; // height of AABB
+
+			return new BoundingBox(new Vector3(pos.X - wn, pos.Y, pos.Z - hn), new Vector3(pos.X + wn, pos.Y + height, pos.Z + hn));
 		}
 
 		public byte GetDirection()

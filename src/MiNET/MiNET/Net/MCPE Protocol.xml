@@ -235,6 +235,22 @@
 		<field name="Entity ID" type="int" />
 	</pdu>
 
+	<pdu id="0x8e" online="false" client="true" server="true" name="ID_MCPE_ADD_ITEM_ENTITY">
+		<field name="Entity Id" type="int" />
+		<field name="Item" type="MetadataSlot" />
+		<field name="X" type="float" />
+		<field name="Y" type="float" />
+		<field name="Z" type="float" />
+		<field name="Yaw" type="byte" />
+		<field name="Pitch" type="byte" />
+		<field name="Roll" type="byte" />
+	</pdu>
+
+	<pdu id="0x8f" online="false" client="true" server="true" name="ID_MCPE_TAKE_ITEM_ENTITY">
+		<field name="Target" type="int" />
+		<field name="Entity Id" type="int" />
+	</pdu>
+
 	<pdu id="0x96" online="false" client="true" server="true" name="ID_MCPE_PLACE_BLOCK">
 		<field name="Entity ID" type="int" />
 		<field name="X" type="int" />
@@ -351,22 +367,6 @@
 		<field name="Item ID" type="short" />
 		<field name="Item Count" type="byte" />
 		<field name="Item Damage" type="short" />
-	</pdu>
-
-	<pdu id="0x8e" online="false" client="true" server="true" name="ID_MCPE_ITEM_ENTITY">
-		<field name="Entity Id" type="int" />
-		<field name="Item" type="MetadataSlot" />
-		<field name="X" type="float" />
-		<field name="Y" type="float" />
-		<field name="Z" type="float" />
-		<field name="Yaw" type="byte" />
-		<field name="Pitch" type="byte" />
-		<field name="Roll" type="byte" />
-	</pdu>
-
-	<pdu id="0x8f" online="false" client="true" server="true" name="ID_MCPE_REMOVE_ITEM_ENTITY">
-		<field name="Target" type="int" />
-		<field name="Entity Id" type="int" />
 	</pdu>
 
 	<pdu id="0xaf" online="false" client="true" server="false" name="ID_MCPE_DROP_ITEM">

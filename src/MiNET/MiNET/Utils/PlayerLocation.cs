@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Craft.Net.Common;
 
 namespace MiNET.Utils
@@ -27,6 +28,23 @@ namespace MiNET.Utils
 		public Coordinates3D GetCoordinates3D()
 		{
 			return new Coordinates3D((int) X, (int) Y, (int) Z);
+		}
+
+		public double DistanceTo(PlayerLocation other)
+		{
+			return Math.Sqrt(Square(other.X - X) +
+			                 Square(other.Y - Y) +
+			                 Square(other.Z - Z));
+		}
+
+		private double Square(double num)
+		{
+			return num*num;
+		}
+
+		public Vector3 ToVector3()
+		{
+			return new Vector3(X, Y, Z);
 		}
 
 		public byte[] Export()

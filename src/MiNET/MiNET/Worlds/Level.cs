@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Craft.Net.Common;
 using Craft.Net.TerrainGeneration;
 using fNbt;
 using log4net;
@@ -15,8 +14,6 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
-using ItemStack = MiNET.Utils.ItemStack;
-using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET.Worlds
 {
@@ -60,21 +57,22 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Level));
 
-		public static readonly Coordinates3D Up = new Coordinates3D(0, 1, 0);
-		public static readonly Coordinates3D Down = new Coordinates3D(0, -1, 0);
-		public static readonly Coordinates3D East = new Coordinates3D(0, 0, -1);
-		public static readonly Coordinates3D West = new Coordinates3D(0, 0, 1);
-		public static readonly Coordinates3D North = new Coordinates3D(1, 0, 0);
-		public static readonly Coordinates3D South = new Coordinates3D(-1, 0, 0);
+		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
+		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
+		public static readonly BlockCoordinates East = new BlockCoordinates(0, 0, -1);
+		public static readonly BlockCoordinates West = new BlockCoordinates(0, 0, 1);
+		public static readonly BlockCoordinates North = new BlockCoordinates(1, 0, 0);
+		public static readonly BlockCoordinates South = new BlockCoordinates(-1, 0, 0);
 
 		public IWorldProvider _worldProvider;
 		private int _viewDistance = 256;
+		// ReSharper disable once NotAccessedField.Local
 		private Timer _levelTicker;
-		private int _worldTickTime = 10;
+		private int _worldTickTime = 50;
 		private int _worldDayCycleTime = 24000;
 		//private int _worldDayCycleTime = 14400;
 
-		public Coordinates3D SpawnPoint { get; set; }
+		public BlockCoordinates SpawnPoint { get; set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
@@ -92,7 +90,7 @@ namespace MiNET.Worlds
 		{
 			EntityManager = new EntityManager();
 			InventoryManager = new InventoryManager(this);
-			SpawnPoint = new Coordinates3D(50, 10, 50);
+			SpawnPoint = new BlockCoordinates(50, 10, 50);
 			Players = new List<Player>();
 			Entities = new List<Entity>();
 			LevelId = levelId;
@@ -106,8 +104,6 @@ namespace MiNET.Worlds
 			{
 				_worldProvider = worldProvider;
 			}
-
-			//McpeMovePlayer._pool.FillPool(100);
 		}
 
 		public void Initialize()
@@ -128,7 +124,7 @@ namespace MiNET.Worlds
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(new Coordinates2D(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>(), -1))
+					foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>(), -1))
 					{
 						chunk.GetBytes();
 					}
@@ -279,7 +275,7 @@ namespace MiNET.Worlds
 					float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
 					float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
 
-					RelayBroadcast(new McpeItemEntity()
+					RelayBroadcast(new McpeAddItemEntity()
 					{
 						entityId = itemEntity.EntityId,
 						item = itemEntity.GetMetadataSlot(),
@@ -397,7 +393,7 @@ namespace MiNET.Worlds
 
 		public long LastTickProcessingTime = 0;
 
-		private Player[] GetSpawnedPlayers()
+		public Player[] GetSpawnedPlayers()
 		{
 			lock (Players)
 			{
@@ -456,7 +452,7 @@ namespace MiNET.Worlds
 		}
 
 
-		public IEnumerable<ChunkColumn> GenerateChunks(Coordinates2D chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed, int timeout = 0)
+		public IEnumerable<ChunkColumn> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed, int timeout = 0)
 		{
 			if (!Monitor.TryEnter(chunksUsed, timeout)) yield break;
 
@@ -506,7 +502,7 @@ namespace MiNET.Worlds
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(pair.Key.Item1, pair.Key.Item2));
+					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
 					chunksUsed.Add(pair.Key, chunk);
 
 					yield return chunk;
@@ -565,17 +561,17 @@ namespace MiNET.Worlds
 
 		public Block GetBlock(PlayerLocation blockCoordinates)
 		{
-			return GetBlock(new Coordinates3D((int) Math.Floor(blockCoordinates.X), (int) Math.Floor(blockCoordinates.Y), (int) Math.Floor(blockCoordinates.Z)));
+			return GetBlock(new BlockCoordinates((int) Math.Floor(blockCoordinates.X), (int) Math.Floor(blockCoordinates.Y), (int) Math.Floor(blockCoordinates.Z)));
 		}
 
 		public Block GetBlock(int x, int y, int z)
 		{
-			return GetBlock(new Coordinates3D(x, y, z));
+			return GetBlock(new BlockCoordinates(x, y, z));
 		}
 
-		public Block GetBlock(Coordinates3D blockCoordinates)
+		public Block GetBlock(BlockCoordinates blockCoordinates)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 
@@ -588,7 +584,7 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(block.Coordinates.X/16, block.Coordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X/16, block.Coordinates.Z/16));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
 
@@ -605,9 +601,9 @@ namespace MiNET.Worlds
 		}
 
 
-		public BlockEntity GetBlockEntity(Coordinates3D blockCoordinates)
+		public BlockEntity GetBlockEntity(BlockCoordinates blockCoordinates)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
 			NbtCompound nbt = chunk.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
 
@@ -629,7 +625,7 @@ namespace MiNET.Worlds
 
 		public void SetBlockEntity(BlockEntity blockEntity, bool broadcast = true)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockEntity.Coordinates.X/16, blockEntity.Coordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockEntity.Coordinates.X/16, blockEntity.Coordinates.Z/16));
 			chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
 			if (!broadcast) return;
@@ -654,9 +650,9 @@ namespace MiNET.Worlds
 			RelayBroadcast(entityData);
 		}
 
-		public void RemoveBlockEntity(Coordinates3D blockCoordinates)
+		public void RemoveBlockEntity(BlockCoordinates blockCoordinates)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new Coordinates2D(blockCoordinates.X/16, blockCoordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
 			var nbt = chunk.GetBlockEntity(blockCoordinates);
 
 			if (nbt == null) return;
@@ -664,11 +660,12 @@ namespace MiNET.Worlds
 			chunk.RemoveBlockEntity(blockCoordinates);
 		}
 
-		public void Interact(Level world, Player player, short itemId, Coordinates3D blockCoordinates, short metadata, BlockFace face)
+		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face)
 		{
 			// Make sure we are holding the item we claim to be using
 			MetadataSlot itemSlot = player.Inventory.ItemInHand;
 			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			Block target = GetBlock(blockCoordinates);
@@ -678,7 +675,7 @@ namespace MiNET.Worlds
 			itemInHand.UseItem(world, player, blockCoordinates, face);
 		}
 
-		public void BreakBlock(Coordinates3D blockCoordinates)
+		public void BreakBlock(BlockCoordinates blockCoordinates)
 		{
 			List<ItemStack> drops = new List<ItemStack>();
 
@@ -699,8 +696,10 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void DropItem(Coordinates3D coordinates, ItemStack drop)
+		public void DropItem(BlockCoordinates coordinates, ItemStack drop)
 		{
+			if (GameMode == GameMode.Creative) return;
+
 			if (drop == null) return;
 			if (drop.Id == 0) return;
 			if (drop.Count == 0) return;

@@ -7,7 +7,7 @@ namespace MiNET.Items
 {
 	public class ItemChest : Item
 	{
-		public ItemChest() : base(54)
+		public ItemChest(short metadata) : base(54, metadata)
 		{
 		}
 

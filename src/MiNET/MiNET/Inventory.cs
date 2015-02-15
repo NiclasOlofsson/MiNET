@@ -15,16 +15,16 @@ namespace MiNET
 		public short Size { get; set; }
 		public BlockCoordinates Coordinates { get; set; }
 		private BlockEntity BlockEntity { get; set; }
-		public short InventorySize { get; set; }
 
-		public Inventory(BlockEntity blockEntity, short inventorySize, NbtList slots)
+		public Inventory(byte id, BlockEntity blockEntity, short inventorySize, NbtList slots)
 		{
+			Id = id;
 			BlockEntity = blockEntity;
-			InventorySize = inventorySize;
+			Size = inventorySize;
 			Coordinates = BlockEntity.Coordinates;
 
 			Slots = new MetadataSlots();
-			for (byte i = 0; i < InventorySize; i++)
+			for (byte i = 0; i < Size; i++)
 			{
 				NbtCompound item = (NbtCompound) slots[i];
 				Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
@@ -41,7 +41,7 @@ namespace MiNET
 			OnInventoryChange(slot, itemStack);
 		}
 
-		public bool DecreasteSlot(byte slot, byte numberOfItems)
+		public bool DecreasteSlot(byte slot)
 		{
 			bool isEmpty = false;
 
@@ -53,7 +53,7 @@ namespace MiNET
 			}
 			else
 			{
-				slotData.Value.Count -= numberOfItems;
+				slotData.Value.Count--;
 			}
 
 			OnInventoryChange(slot, slotData.Value);
@@ -61,10 +61,26 @@ namespace MiNET
 			return isEmpty;
 		}
 
+		public void IncreasteSlot(byte slot, byte itemId)
+		{
+			MetadataSlot slotData = (MetadataSlot) Slots[slot];
+			if (slotData.Value.Id == 0)
+			{
+				slotData.Value = new ItemStack(itemId, 1);
+			}
+			else
+			{
+				slotData.Value.Count++;
+			}
+
+			OnInventoryChange(slot, slotData.Value);
+		}
+
+
 		private NbtList GetSlots()
 		{
 			NbtList slots = new NbtList("Items");
-			for (byte i = 0; i < InventorySize; i++)
+			for (byte i = 0; i < Size; i++)
 			{
 				MetadataSlot slot = (MetadataSlot) Slots[i];
 				slots.Add(new NbtCompound("")

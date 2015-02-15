@@ -7,6 +7,7 @@ namespace MiNET.Blocks
 	{
 		internal CraftingTable() : base(58)
 		{
+			FuelEfficiency = 15;
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)

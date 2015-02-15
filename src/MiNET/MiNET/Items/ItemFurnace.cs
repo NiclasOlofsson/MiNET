@@ -7,7 +7,7 @@ namespace MiNET.Items
 {
 	public class ItemFurnace : Item
 	{
-		internal ItemFurnace() : base(61)
+		internal ItemFurnace(short metadata) : base(61, metadata)
 		{
 		}
 

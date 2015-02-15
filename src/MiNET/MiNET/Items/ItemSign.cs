@@ -8,7 +8,7 @@ namespace MiNET.Items
 {
 	public class ItemSign : Item
 	{
-		public ItemSign() : base(323)
+		public ItemSign(short metadata) : base(323, metadata)
 		{
 		}
 

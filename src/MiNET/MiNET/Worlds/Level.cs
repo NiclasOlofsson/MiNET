@@ -686,14 +686,13 @@ namespace MiNET.Worlds
 		{
 			// Make sure we are holding the item we claim to be using
 			MetadataSlot itemSlot = player.Inventory.ItemInHand;
-			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id, metadata);
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
-			itemInHand.Metadata = metadata;
 			itemInHand.UseItem(world, player, blockCoordinates, face);
 		}
 
@@ -726,8 +725,7 @@ namespace MiNET.Worlds
 			if (drop.Id == 0) return;
 			if (drop.Count == 0) return;
 
-			Item item = ItemFactory.GetItem(drop.Id);
-			item.Metadata = drop.Metadata;
+			Item item = ItemFactory.GetItem(drop.Id, drop.Metadata);
 
 			var itemEntity = new ItemEntity(this, item)
 			{

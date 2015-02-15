@@ -7,6 +7,7 @@ namespace MiNET.Blocks
 	{
 		public Chest() : base(54)
 		{
+			FuelEfficiency = 15;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)

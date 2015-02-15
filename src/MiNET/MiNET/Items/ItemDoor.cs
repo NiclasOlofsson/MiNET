@@ -1,5 +1,5 @@
-﻿using MiNET.Utils;
-using MiNET.Blocks;
+﻿using MiNET.Blocks;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items
@@ -8,7 +8,7 @@ namespace MiNET.Items
 	// and its facing and opened status in the block data of its lower block
 	public class ItemDoor : Item
 	{
-		internal ItemDoor() : base(324)
+		internal ItemDoor(short metadata) : base(324, metadata)
 		{
 		}
 

@@ -13,18 +13,35 @@ namespace MiNET.Items
 	public class Item
 	{
 		public int Id { get; set; }
-		public bool IsTool { get; set; }
 		public ItemMaterial ItemMaterial { get; set; }
 		public ItemType ItemType { get; set; }
+		public short Metadata { get; set; }
+		private short _fuelEfficiency;
 
-		internal Item(int id)
+		protected short FuelEfficiency
+		{
+			set { _fuelEfficiency = value; }
+		}
+
+		public virtual short GetFuelEfficiency()
+		{
+			return _fuelEfficiency;
+		}
+
+
+		internal Item(int id, short metadata)
 		{
 			Id = id;
+			Metadata = metadata;
+
 			ItemMaterial = ItemMaterial.None;
 			ItemType = ItemType.Item;
 		}
 
-		public short Metadata { get; set; }
+		protected Item(int id, short metadata, short fuelEfficiency): this(id, metadata)
+		{
+			FuelEfficiency = fuelEfficiency;
+		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{

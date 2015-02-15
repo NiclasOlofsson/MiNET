@@ -221,8 +221,7 @@ namespace MiNET
 
 			ItemStack itemStack = message.item.Value;
 
-			Item item = ItemFactory.GetItem(itemStack.Id);
-			item.Metadata = itemStack.Metadata;
+			Item item = ItemFactory.GetItem(itemStack.Id, itemStack.Metadata);
 
 			var itemEntity = new ItemEntity(Level, item)
 			{
@@ -591,10 +590,11 @@ namespace MiNET
 		{
 			SendPackage(new McpeContainerSetSlot()
 			{
-				windowId = _openInventory.Id,
+				windowId = inventory.Id,
+				slot = slot,
 				itemCount = itemStack.Count,
 				itemId = itemStack.Id,
-				slot = slot
+				itemDamage = itemStack.Metadata,
 			});
 		}
 
@@ -614,23 +614,12 @@ namespace MiNET
 			var itemStack = new ItemStack(message.itemId, message.itemCount, message.itemDamage);
 			var metadataSlot = new MetadataSlot(itemStack);
 
-			if (_openInventory != null && _openInventory.Id == message.windowId)
+			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
+			if (inventory != null)
 			{
-				_openInventory.SetSlot((byte) message.slot, itemStack);
-				//byte count = message.itemCount == 0 ? (byte) 1 : message.itemCount;
-				//count = (byte) (message.itemId == 0 ? (short) 0 : count);
-
-				//SendPackage(new McpeContainerSetSlot()
-				//{
-				//	windowId = _openInventory.Id,
-				//	itemCount = count,
-				//	itemId = message.itemId,
-				//	slot = message.slot
-				//});
-
+				inventory.SetSlot((byte) message.slot, itemStack);
 				return;
 			}
-
 
 			switch (message.windowId)
 			{
@@ -668,15 +657,18 @@ namespace MiNET
 			_openInventory.InventoryChange -= OnInventoryChange;
 
 			// close container 
-			SendPackage(
-				new McpeTileEvent()
-				{
-					x = _openInventory.Coordinates.X,
-					y = _openInventory.Coordinates.Y,
-					z = _openInventory.Coordinates.Z,
-					case1 = 1,
-					case2 = 0,
-				});
+			if (_openInventory.Type == 0)
+			{
+				SendPackage(
+					new McpeTileEvent()
+					{
+						x = _openInventory.Coordinates.X,
+						y = _openInventory.Coordinates.Y,
+						z = _openInventory.Coordinates.Z,
+						case1 = 1,
+						case2 = 0,
+					});
+			}
 
 			// active inventory set to null
 			_openInventory = null;

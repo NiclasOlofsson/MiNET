@@ -11,9 +11,14 @@ namespace MiNET.Items
 	{
 		private readonly Block _block;
 
-		public ItemBlock(Block block) : base(block.Id)
+		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
 		{
 			_block = block;
+		}
+
+		public override short GetFuelEfficiency()
+		{
+			return _block.FuelEfficiency;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)

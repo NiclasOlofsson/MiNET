@@ -2,7 +2,7 @@
 {
 	internal class ItemIronSword : Item
 	{
-		public ItemIronSword() : base(267)
+		public ItemIronSword(short metadata) : base(267, metadata)
 		{
 			ItemMaterial = ItemMaterial.Iron;
 			ItemType = ItemType.Sword;

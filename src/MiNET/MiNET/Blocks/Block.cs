@@ -17,6 +17,7 @@ namespace MiNET.Blocks
 		public bool IsReplacible { get; set; }
 		public bool IsSolid { get; set; }
 		public float Durability { get; set; }
+		public short FuelEfficiency { get; set; }
 
 		internal Block(byte id)
 		{

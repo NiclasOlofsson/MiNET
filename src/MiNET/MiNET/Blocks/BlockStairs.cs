@@ -7,6 +7,7 @@ namespace MiNET.Blocks
 	{
 		protected BlockStairs(byte id) : base(id)
 		{
+			FuelEfficiency = 15;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)

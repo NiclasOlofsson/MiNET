@@ -8,7 +8,7 @@ namespace MiNET.Items
 {
 	public class ItemFlintAndSteel : Item
 	{
-		public ItemFlintAndSteel() : base(259)
+		public ItemFlintAndSteel(short metadata) : base(259, metadata)
 		{
 		}
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using fNbt;
 using MiNET.Blocks;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -13,7 +14,7 @@ namespace MiNET.BlockEntities
 		public Inventory Inventory { get; set; }
 
 		public short CookTime { get; set; }
-		public double BurnTime { get; set; }
+		public short BurnTime { get; set; }
 		public short BurnTick { get; set; }
 
 
@@ -82,7 +83,7 @@ namespace MiNET.BlockEntities
 
 			if (!(furnace is LitFurnace))
 			{
-				if (((MetadataSlot) Inventory.Slots[1]).Value.Id != 0)
+				if (GetFuel().Id != 0)
 				{
 					LitFurnace litFurnace = new LitFurnace
 					{
@@ -93,77 +94,92 @@ namespace MiNET.BlockEntities
 					level.SetBlock(litFurnace);
 					furnace = litFurnace;
 
-					BurnTime = GetBurnTime();
+					BurnTime = GetFuelEfficiency(GetFuel());
+					FuelEfficiency = BurnTime;
 					CookTime = 0;
-					Inventory.DecreasteSlot(1, 1);
+					Inventory.DecreasteSlot(1);
 				}
 			}
 
-			if (furnace is LitFurnace)
+			if (!(furnace is LitFurnace)) return;
+
+			if (BurnTime > 0)
 			{
-				if (BurnTime > 0)
-				{
-					BurnTime--;
-					BurnTick = (short) Math.Ceiling(BurnTime/GetBurnTime()*200d);
+				BurnTime--;
+				BurnTick = (short) Math.Ceiling((double) BurnTime/FuelEfficiency*200d);
 
-					if (((MetadataSlot) Inventory.Slots[0]).Value.Id != 0)
+				if (GetIngredient().Id != 0)
+				{
+					CookTime++;
+					if (CookTime >= 200)
 					{
-						CookTime++;
-						if (CookTime >= 200)
-						{
-							Inventory.SetSlot(2, new ItemStack(20, 1));
-							CookTime = 0;
-						}
-					}
-					else
-					{
+						Inventory.IncreasteSlot(2, 20);
 						CookTime = 0;
 					}
 				}
-
-				if (BurnTime <= 0)
+				else
 				{
-					if (!Inventory.DecreasteSlot(1, 1))
-					{
-						//CookTime = 0;
-						BurnTime = GetBurnTime();
-						BurnTick = (short) Math.Ceiling(BurnTime/GetBurnTime()*200d);
-					}
-					else
-					{
-						Furnace unlitFurnace = new Furnace
-						{
-							Coordinates = furnace.Coordinates,
-							Metadata = furnace.Metadata
-						};
-
-						level.SetBlock(unlitFurnace);
-						BurnTick = 0;
-						BurnTime = 0;
-						CookTime = 0;
-					}
+					CookTime = 0;
 				}
-
-				level.RelayBroadcast(new McpeContainerSetData
-				{
-					windowId = 10,
-					property = 0,
-					value = CookTime
-				});
-
-				// Burntime > 0 change block to burning furnace
-				level.RelayBroadcast(new McpeContainerSetData
-				{
-					windowId = 10,
-					property = 1,
-					value = BurnTick
-				});
 			}
+
+			if (BurnTime <= 0)
+			{
+				if (!Inventory.DecreasteSlot(1))
+				{
+					//CookTime = 0;
+					BurnTime = GetFuelEfficiency(GetFuel());
+					FuelEfficiency = BurnTime;
+					BurnTick = (short) Math.Ceiling((double) BurnTime/FuelEfficiency*200d);
+				}
+				else
+				{
+					// No more fule
+					Furnace unlitFurnace = new Furnace
+					{
+						Coordinates = furnace.Coordinates,
+						Metadata = furnace.Metadata
+					};
+
+					level.SetBlock(unlitFurnace);
+					FuelEfficiency = 0;
+					BurnTick = 0;
+					BurnTime = 0;
+					CookTime = 0;
+				}
+			}
+
+			level.RelayBroadcast(new McpeContainerSetData
+			{
+				windowId = Inventory.Id,
+				property = 0,
+				value = CookTime
+			});
+
+			level.RelayBroadcast(new McpeContainerSetData
+			{
+				windowId = Inventory.Id,
+				property = 1,
+				value = BurnTick
+			});
 		}
 
-		private static int GetBurnTime()
+		public short FuelEfficiency { get; set; }
+
+		private ItemStack GetFuel()
 		{
-			return 300;
+			return ((MetadataSlot) Inventory.Slots[1]).Value;
+		}
+
+		private ItemStack GetIngredient()
+		{
+			return ((MetadataSlot) Inventory.Slots[0]).Value;
+		}
+
+		private short GetFuelEfficiency(ItemStack itemStack)
+		{
+			Item item = ItemFactory.GetItem(itemStack.Id, itemStack.Metadata);
+			return (short) (item.GetFuelEfficiency()*20);
 		}
 	}
 }

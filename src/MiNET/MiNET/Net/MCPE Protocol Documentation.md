@@ -49,6 +49,7 @@
 | Mcpe Container Open | 0xb0 | 176 |   
 | Mcpe Container Close | 0xb1 | 177 |   
 | Mcpe Container Set Slot | 0xb2 | 178 |   
+| Mcpe Container Set Data | 0xb3 | 179 |   
 | Mcpe Container Set Content | 0xb4 | 180 |   
 | Mcpe Adventure Settings | 0xb7 | 183 |   
 | Mcpe Entity Data | 0xb8 | 184 |   
@@ -896,6 +897,22 @@ The three type of status are:
 |Item ID | short |  |
 |Item Count | byte |  |
 |Item Damage | short |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Container Set Data (0xb3)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
+|Property | short |  |
+|Value | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Drop Item (0xaf)
 

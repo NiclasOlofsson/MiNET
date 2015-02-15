@@ -50,13 +50,17 @@
     <Compile Include="BlockEntities\BlockEntity.cs" />
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
+    <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />
+    <Compile Include="Blocks\BlockStairs.cs" />
     <Compile Include="Blocks\BrickStairs.cs" />
     <Compile Include="Blocks\CobbleStoneStairs.cs" />
+    <Compile Include="Blocks\CraftingTable.cs" />
     <Compile Include="Blocks\DarkOakWoodStairs.cs" />
     <Compile Include="Blocks\Fire.cs" />
+    <Compile Include="Blocks\Furnace.cs" />
     <Compile Include="Blocks\Glass.cs" />
     <Compile Include="Blocks\JungleWoodStairs.cs" />
     <Compile Include="Blocks\NetherBrickStairs.cs" />
@@ -81,6 +85,7 @@
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Items\ItemChest.cs" />
+    <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Net\InternalPing.cs" />

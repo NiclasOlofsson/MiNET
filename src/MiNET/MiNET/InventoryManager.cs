@@ -26,18 +26,35 @@ namespace MiNET
 					return _cache[inventoryCoord];
 				}
 
-				ChestBlockEntity blockEntity = _level.GetBlockEntity(inventoryCoord) as ChestBlockEntity;
+				BlockEntity blockEntity = _level.GetBlockEntity(inventoryCoord);
 
 				if (blockEntity == null) return null;
 
 				NbtCompound comp = blockEntity.GetCompound();
 
-				Inventory inventory = new Inventory(blockEntity, (NbtList) comp["Items"])
+				Inventory inventory = null;
+				if (blockEntity is ChestBlockEntity)
 				{
-					Id = 10,
-					Type = 0,
-					Size = 27,
-				};
+					inventory = new Inventory(blockEntity, 27, (NbtList) comp["Items"])
+					{
+						Id = 10,
+						Type = 0,
+						Size = 27,
+					};
+				}
+
+				else if (blockEntity is FurnaceBlockEntity)
+				{
+					inventory = new Inventory(blockEntity, 3, (NbtList) comp["Items"])
+					{
+						Id = 10,
+						Type = 2,
+						Size = 3,
+					};
+
+					FurnaceBlockEntity furnace = (FurnaceBlockEntity) blockEntity;
+					furnace.Inventory = inventory;
+				}
 
 				_cache[inventoryCoord] = inventory;
 

@@ -11,8 +11,6 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
-using ItemStack = MiNET.Utils.ItemStack;
-using MetadataSlot = MiNET.Utils.MetadataSlot;
 
 namespace MiNET
 {
@@ -575,15 +573,18 @@ namespace MiNET
 					slotData = inventory.Slots,
 				});
 
-			SendPackage(
-				new McpeTileEvent()
-				{
-					x = inventoryCoord.X,
-					y = inventoryCoord.Y,
-					z = inventoryCoord.Z,
-					case1 = 1,
-					case2 = 2,
-				});
+			if (inventory.Type == 0) // Chest open animation
+			{
+				SendPackage(
+					new McpeTileEvent()
+					{
+						x = inventoryCoord.X,
+						y = inventoryCoord.Y,
+						z = inventoryCoord.Z,
+						case1 = 1,
+						case2 = 2,
+					});
+			}
 		}
 
 		private void OnInventoryChange(Inventory inventory, byte slot, ItemStack itemStack)

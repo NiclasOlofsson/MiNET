@@ -258,6 +258,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xb3:
+					package = McpeContainerSetData.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xaf:
 					package = McpeDropItem.CreateObject();
 					//package.Timer.Start();
@@ -2513,6 +2518,50 @@ namespace MiNET.Net
 			itemId = ReadShort();
 			itemCount = ReadByte();
 			itemDamage = ReadShort();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeContainerSetData : Package<McpeContainerSetData>
+	{
+		public byte windowId; // = null;
+		public short property; // = null;
+		public short value; // = null;
+		public McpeContainerSetData()
+		{
+			Id = 0xb3;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(windowId);
+			Write(property);
+			Write(value);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			windowId = ReadByte();
+			property = ReadShort();
+			value = ReadShort();
 
 			AfterDecode();
 		}

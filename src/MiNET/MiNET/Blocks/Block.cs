@@ -13,6 +13,7 @@ namespace MiNET.Blocks
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; set; }
 		public byte Metadata { get; set; }
+
 		public bool IsReplacible { get; set; }
 		public bool IsSolid { get; set; }
 		public float Durability { get; set; }

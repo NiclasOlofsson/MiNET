@@ -75,6 +75,7 @@ namespace MiNET.Worlds
 		public BlockCoordinates SpawnPoint { get; set; }
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
+		public List<BlockEntity> BlockEntities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 
 		public GameMode GameMode { get; private set; }
@@ -93,6 +94,7 @@ namespace MiNET.Worlds
 			SpawnPoint = new BlockCoordinates(50, 10, 50);
 			Players = new List<Player>();
 			Entities = new List<Entity>();
+			BlockEntities = new List<BlockEntity>();
 			LevelId = levelId;
 			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Survival);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
@@ -375,6 +377,11 @@ namespace MiNET.Worlds
 					entity.OnTick();
 				}
 
+				foreach (BlockEntity blockEntity in BlockEntities.ToArray())
+				{
+					blockEntity.OnTick(this);
+				}
+
 				foreach (Player player in players)
 				{
 					player.OnTick();
@@ -603,6 +610,13 @@ namespace MiNET.Worlds
 
 		public BlockEntity GetBlockEntity(BlockCoordinates blockCoordinates)
 		{
+			var blockEntity = BlockEntities.FirstOrDefault(entity => entity.Coordinates == blockCoordinates);
+			if (blockEntity != null)
+			{
+				return blockEntity;
+			}
+
+
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
 			NbtCompound nbt = chunk.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
@@ -616,7 +630,7 @@ namespace MiNET.Worlds
 
 			if (string.IsNullOrEmpty(id)) return null;
 
-			BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(id);
+			blockEntity = BlockEntityFactory.GetBlockEntityById(id);
 			blockEntity.Coordinates = blockCoordinates;
 			blockEntity.SetCompound(nbt);
 
@@ -627,6 +641,8 @@ namespace MiNET.Worlds
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockEntity.Coordinates.X/16, blockEntity.Coordinates.Z/16));
 			chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
+
+			if (blockEntity.UpdatesOnTick) BlockEntities.Add(blockEntity);
 
 			if (!broadcast) return;
 
@@ -656,6 +672,12 @@ namespace MiNET.Worlds
 			var nbt = chunk.GetBlockEntity(blockCoordinates);
 
 			if (nbt == null) return;
+
+			var blockEntity = BlockEntities.FirstOrDefault(entity => entity.Coordinates == blockCoordinates);
+			if (blockEntity != null)
+			{
+				BlockEntities.Remove(blockEntity);
+			}
 
 			chunk.RemoveBlockEntity(blockCoordinates);
 		}

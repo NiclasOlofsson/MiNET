@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using fNbt;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.BlockEntities
 {
@@ -9,7 +10,9 @@ namespace MiNET.BlockEntities
 		public string Id { get; private set; }
 		public BlockCoordinates Coordinates { get; set; }
 
-		protected BlockEntity(string id)
+		public bool UpdatesOnTick { get; set; }
+
+		public BlockEntity(string id)
 		{
 			Id = id;
 		}
@@ -22,6 +25,11 @@ namespace MiNET.BlockEntities
 		public virtual void SetCompound(NbtCompound compound)
 		{
 		}
+
+		public virtual void OnTick(Level level)
+		{
+		}
+
 
 		public virtual List<ItemStack> GetDrops()
 		{

@@ -369,6 +369,12 @@
 		<field name="Item Damage" type="short" />
 	</pdu>
 
+	<pdu id="0xb3" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_SET_DATA">
+		<field name="Window ID" type="byte" />
+		<field name="Property" type="short" />
+		<field name="Value" type="short" />
+	</pdu>
+
 	<pdu id="0xaf" online="false" client="true" server="false" name="ID_MCPE_DROP_ITEM">
 		<field name="Entity Id" type="int" />
 		<field name="Unknown" type="byte" />

@@ -21,6 +21,12 @@ namespace MiNET.Items
 			return _block.FuelEfficiency;
 		}
 
+		public override Item GetSmelt()
+		{
+			return _block.GetSmelt();
+		}
+
+
 		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);

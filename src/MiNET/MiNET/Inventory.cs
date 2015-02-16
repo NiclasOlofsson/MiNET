@@ -61,12 +61,12 @@ namespace MiNET
 			return isEmpty;
 		}
 
-		public void IncreasteSlot(byte slot, byte itemId)
+		public void IncreasteSlot(byte slot, int itemId, short metadata)
 		{
 			MetadataSlot slotData = (MetadataSlot) Slots[slot];
 			if (slotData.Value.Id == 0)
 			{
-				slotData.Value = new ItemStack(itemId, 1);
+				slotData.Value = new ItemStack((short) itemId, 1, metadata);
 			}
 			else
 			{

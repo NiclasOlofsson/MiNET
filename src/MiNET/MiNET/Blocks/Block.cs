@@ -109,5 +109,10 @@ namespace MiNET.Blocks
 		{
 			return new ItemStack(Id, 1, 0);
 		}
+
+		public virtual Item GetSmelt()
+		{
+			return null;
+		}
 	}
 }

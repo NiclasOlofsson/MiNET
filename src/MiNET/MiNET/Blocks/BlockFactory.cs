@@ -1,3 +1,5 @@
+using MiNET.Items;
+
 namespace MiNET.Blocks
 {
 	public static class BlockFactory
@@ -7,9 +9,13 @@ namespace MiNET.Blocks
 			Block block;
 
 			if (blockId == 0) block = new Air();
+			else if (blockId == 4) block = new Cobblestone();
 			else if (blockId == 5) block = new WoodenPlanks();
 			else if (blockId == 6) block = new Sapling();
 			else if (blockId == 7) block = new Bedrock();
+			else if (blockId == 12) block = new Sand();
+			else if (blockId == 14) block = new GoldOre();
+			else if (blockId == 15) block = new IronOre();
 			else if (blockId == 17) block = new Wood();
 			else if (blockId == 20) block = new Glass();
 			else if (blockId == 46) block = new Tnt();
@@ -22,9 +28,10 @@ namespace MiNET.Blocks
 			else if (blockId == 62) block = new LitFurnace();
 			else if (blockId == 63) block = new StandingSign();
 			else if (blockId == 64) block = new WoodenDoor();
-			else if (blockId == 67) block = new CobbleStoneStairs();
+			else if (blockId == 67) block = new CobblestoneStairs();
 			else if (blockId == 67) block = new WallSign();
 			else if (blockId == 85) block = new Fence();
+			else if (blockId == 98) block = new StoneBrick();
 			else if (blockId == 107) block = new FenceGate();
 			else if (blockId == 108) block = new BrickStairs();
 			else if (blockId == 109) block = new StoneBrickStairs();
@@ -40,6 +47,66 @@ namespace MiNET.Blocks
 			else block = new Block(blockId);
 
 			return block;
+		}
+	}
+
+	public class StoneBrick : Block
+	{
+		internal StoneBrick() : base(98)
+		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(1, 2);
+		}
+	}
+
+	public class Cobblestone : Block
+	{
+		internal Cobblestone() : base(4)
+		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(1, 0);
+		}
+	}
+
+	public class Sand : Block
+	{
+		internal Sand() : base(12)
+		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(20, 0);
+		}
+	}
+
+	public class GoldOre : Block
+	{
+		internal GoldOre() : base(14)
+		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(266, 0);
+		}
+	}
+
+	public class IronOre : Block
+	{
+		internal IronOre() : base(15)
+		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(265, 0);
 		}
 	}
 
@@ -80,6 +147,11 @@ namespace MiNET.Blocks
 		internal Wood() : base(17)
 		{
 			FuelEfficiency = 15;
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(263, 1);
 		}
 	}
 

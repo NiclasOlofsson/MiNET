@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	internal class CobbleStoneStairs : BlockStairs
+	internal class CobblestoneStairs : BlockStairs
 	{
-		public CobbleStoneStairs() : base(67)
+		public CobblestoneStairs() : base(67)
 		{
 		}
 	}

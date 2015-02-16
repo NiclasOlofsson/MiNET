@@ -113,7 +113,13 @@ namespace MiNET.BlockEntities
 					CookTime++;
 					if (CookTime >= 200)
 					{
-						Inventory.IncreasteSlot(2, 20);
+						Item result = GetResult(GetIngredient());
+						if (result != null)
+						{
+							Inventory.DecreasteSlot(0);
+							Inventory.IncreasteSlot(2, result.Id, result.Metadata);
+						}
+
 						CookTime = 0;
 					}
 				}
@@ -162,6 +168,12 @@ namespace MiNET.BlockEntities
 				property = 1,
 				value = BurnTick
 			});
+		}
+
+		private Item GetResult(ItemStack ingredient)
+		{
+			Item item = ItemFactory.GetItem(ingredient.Id, ingredient.Metadata);
+			return item.GetSmelt();
 		}
 
 		public short FuelEfficiency { get; set; }

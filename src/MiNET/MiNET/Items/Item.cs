@@ -23,12 +23,6 @@ namespace MiNET.Items
 			set { _fuelEfficiency = value; }
 		}
 
-		public virtual short GetFuelEfficiency()
-		{
-			return _fuelEfficiency;
-		}
-
-
 		internal Item(int id, short metadata)
 		{
 			Id = id;
@@ -120,6 +114,16 @@ namespace MiNET.Items
 		private int GetShovelDamage(ItemMaterial itemMaterial)
 		{
 			return GetSwordDamage(itemMaterial) - 3;
+		}
+
+		public virtual short GetFuelEfficiency()
+		{
+			return _fuelEfficiency;
+		}
+
+		public virtual Item GetSmelt()
+		{
+			return null;
 		}
 	}
 

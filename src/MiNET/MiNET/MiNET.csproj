@@ -135,6 +135,7 @@
     <Compile Include="PluginSystem\PluginLoader.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
+    <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\Vector3.cs" />
     <Compile Include="Utils\Compression.cs" />
     <Compile Include="Utils\BlockCoordinates.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
     <Compile Include="Worlds\EntityManager.cs" />
+    <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />

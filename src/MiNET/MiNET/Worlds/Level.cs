@@ -104,7 +104,20 @@ namespace MiNET.Worlds
 			}
 			else
 			{
-				_worldProvider = worldProvider;
+				switch (ConfigParser.GetProperty("WorldProvider", "Flatland").ToLower())
+				{
+					case "flat":
+					case "flatland":
+						_worldProvider = new FlatlandWorldProvider();
+						break;
+					case "cool":
+					case "experimental":
+						_worldProvider = new ExperimentalWorldProvider();
+						break;
+					default:
+						_worldProvider = new FlatlandWorldProvider();
+						break;
+				}
 			}
 		}
 

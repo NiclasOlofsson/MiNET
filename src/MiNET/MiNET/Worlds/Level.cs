@@ -111,6 +111,8 @@ namespace MiNET.Worlds
 						_worldProvider = new FlatlandWorldProvider();
 						break;
 					case "cool":
+						_worldProvider = new CoolWorldProvider();
+						break;
 					case "experimental":
 						_worldProvider = new ExperimentalWorldProvider();
 						break;
@@ -474,9 +476,9 @@ namespace MiNET.Worlds
 
 		public IEnumerable<ChunkColumn> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed, int timeout = 0)
 		{
-			if (!Monitor.TryEnter(chunksUsed, timeout)) yield break;
+			//if (!Monitor.TryEnter(chunksUsed, timeout)) yield break;
 
-			//lock (chunksUsed)
+			lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
 				double radiusSquared = _viewDistance/Math.PI;

@@ -35,6 +35,9 @@
     <Reference Include="Deedle">
       <HintPath>..\packages\Deedle.1.0.7\lib\net40\Deedle.dll</HintPath>
     </Reference>
+    <Reference Include="LibNoise">
+      <HintPath>..\packages\LibNoise.0.2\lib\NET45\LibNoise.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
@@ -160,6 +163,7 @@
     <Compile Include="Utils\PlayerLocation.cs" />
     <Compile Include="Utils\Records.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
+    <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
     <Compile Include="Worlds\EntityManager.cs" />
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />

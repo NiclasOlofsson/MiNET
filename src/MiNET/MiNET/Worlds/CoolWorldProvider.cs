@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using LibNoise;
 using LibNoise.Primitive;
@@ -84,15 +85,19 @@ namespace MiNET.Worlds
 
 	public class CoolWorldProvider : IWorldProvider
 	{
+		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public bool IsCaching { get; private set; }
 
 		public void Initialize()
 		{
-			IsCaching = false;
+			IsCaching = true;
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
+			ChunkColumn cachedChunk;
+			if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
+
 			ChunkColumn chunk = new ChunkColumn
 			{
 				x = chunkCoordinates.X,
@@ -100,6 +105,7 @@ namespace MiNET.Worlds
 			};
 
 			PopulateChunk(chunk);
+			_chunkCache[chunkCoordinates] = chunk;
 
 			return chunk;
 		}
@@ -191,8 +197,33 @@ namespace MiNET.Worlds
 							if (chunk.GetBlock(x, y - 2, z) != (decimal) Material.Air)
 								chunk.SetBlock(x, y - 2, z, (byte) Material.Dirt);
 						}
+					}
 
-						if (thisblock != (decimal) Material.Air && blockabove == (decimal) Material.Air && y > WaterLevel)
+					for (int y = 0; y < WaterLevel; y++)
+					{
+						//Lake generation
+						if (y < WaterLevel)
+						{
+							if (chunk.GetBlock(x, y, z) == (decimal)Material.Grass || chunk.GetBlock(x, y, z) == (decimal)Material.Dirt) //Grass or Dirt?
+							{
+								if (GetRandomNumber(1, 40) == 1 && y < WaterLevel - 4)
+									chunk.SetBlock(x, y, z, 82); //Clay
+								else
+									chunk.SetBlock(x, y, z, 12); //Sand
+							}
+							if (chunk.GetBlock(x, y + 1, z) == (decimal)Material.Air)
+							{
+								if (y < WaterLevel - 3)
+									chunk.SetBlock(x, y + 1, z, 8); //Water
+							}
+						}
+					}
+
+					for (int y = 0; y < 127; y++)
+					{
+						byte thisblock = chunk.GetBlock(x, y, z);
+						byte blockabove = chunk.GetBlock(x, y + 1, z);
+						if (thisblock == (decimal)Material.Grass && blockabove == (decimal)Material.Air && y > WaterLevel)
 						{
 							//Grass
 							if (GetRandomNumber(0, 5) == 2)
@@ -218,29 +249,9 @@ namespace MiNET.Worlds
 									if (chunk.GetBlock(treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]) == 2)
 									{
 										if (y >= bottomHeight)
-											GenerateTree(chunk, treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1]);
+											GenerateTree(chunk, treeBasePositions[pos, 0], y + 1, treeBasePositions[pos, 1], WoodType.Oak);
 									}
 								}
-							}
-						}
-					}
-
-					for (int y = 0; y < WaterLevel; y++)
-					{
-						//Lake generation
-						if (y < WaterLevel)
-						{
-							if (chunk.GetBlock(x, y, z) == (decimal)Material.Grass || chunk.GetBlock(x, y, z) == (decimal)Material.Dirt) //Grass or Dirt?
-							{
-								if (GetRandomNumber(1, 40) == 1 && y < WaterLevel - 4)
-									chunk.SetBlock(x, y, z, 82); //Clay
-								else
-									chunk.SetBlock(x, y, z, 12); //Sand
-							}
-							if (chunk.GetBlock(x, y + 1, z) == (decimal)Material.Air)
-							{
-								if (y < WaterLevel - 3)
-									chunk.SetBlock(x, y + 1, z, 8); //Water
 							}
 						}
 					}
@@ -248,40 +259,63 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z)
+		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z, WoodType woodType)
 		{
 			int treeheight = GetRandomNumber(4, 5);
 
 			chunk.SetBlock(x, treebase + treeheight + 2, z, 18);
+			chunk.SetMetadata(x, treebase + treeheight + 2, z, (byte)woodType);
 
 			chunk.SetBlock(x, treebase + treeheight + 1, z + 1, 18);
+			chunk.SetMetadata(x, treebase + treeheight + 1, z + 1, (byte)woodType);
+
 			chunk.SetBlock(x, treebase + treeheight + 1, z - 1, 18);
+			chunk.SetMetadata(x, treebase + treeheight + 1, z - 1, (byte)woodType);
+
 			chunk.SetBlock(x + 1, treebase + treeheight + 1, z, 18);
+			chunk.SetMetadata(x + 1, treebase + treeheight + 1, z, (byte)woodType);
+
 			chunk.SetBlock(x - 1, treebase + treeheight + 1, z, 18);
+			chunk.SetMetadata(x - 1, treebase + treeheight + 1, z, (byte)woodType);
 
 			chunk.SetBlock(x, treebase + treeheight, z + 1, 18);
+			chunk.SetMetadata(x, treebase + treeheight, z + 1, (byte)woodType);
+
 			chunk.SetBlock(x, treebase + treeheight, z - 1, 18);
+			chunk.SetMetadata(x, treebase + treeheight, z - 1, (byte)woodType);
+
 			chunk.SetBlock(x + 1, treebase + treeheight, z, 18);
+			chunk.SetMetadata(x + 1, treebase + treeheight, z, (byte)woodType);
+
 			chunk.SetBlock(x - 1, treebase + treeheight, z, 18);
+			chunk.SetMetadata(x - 1, treebase + treeheight, z, (byte)woodType);
 
 			chunk.SetBlock(x + 1, treebase + treeheight, z + 1, 18);
+			chunk.SetMetadata(x + 1, treebase + treeheight, z + 1, (byte)woodType);
+
 			chunk.SetBlock(x - 1, treebase + treeheight, z - 1, 18);
+			chunk.SetMetadata(x - 1, treebase + treeheight, z - 1, (byte)woodType);
+
 			chunk.SetBlock(x + 1, treebase + treeheight, z - 1, 18);
+			chunk.SetMetadata(x - 1, treebase + treeheight, z, (byte)woodType);
+
 			chunk.SetBlock(x - 1, treebase + treeheight, z + 1, 18);
+			chunk.SetMetadata(x - 1, treebase + treeheight, z + 1, (byte)woodType);
 
 			for (int i = 0; i <= treeheight; i++)
 			{
 				chunk.SetBlock(x, treebase + i, z, 17);
+				chunk.SetMetadata(x, treebase + i, z, (byte)woodType);
 			}
 		}
 
-		private static readonly Random getrandom = new Random();
-		private static readonly object syncLock = new object();
+		private static readonly Random Getrandom = new Random();
+		private static readonly object SyncLock = new object();
 		private static int GetRandomNumber(int min, int max)
 		{
-			lock (syncLock)
+			lock (SyncLock)
 			{ // synchronize
-				return getrandom.Next(min, max);
+				return Getrandom.Next(min, max);
 			}
 		}
 	}
@@ -301,5 +335,13 @@ namespace MiNET.Worlds
 		Dirt = 3,
 		Bedrock = 7,
 		Gold = 41,
+	}
+
+	internal enum WoodType : byte
+	{
+		Oak = 0,
+		Spruce = 1,
+		Birch = 2,
+		Jungle = 3
 	}
 }

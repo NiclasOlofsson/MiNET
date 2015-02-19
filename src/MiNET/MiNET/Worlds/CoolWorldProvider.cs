@@ -85,6 +85,7 @@ namespace MiNET.Worlds
 
 	public class CoolWorldProvider : IWorldProvider
 	{
+		private string _seed = ConfigParser.GetProperty("seed", "noise");
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public bool IsCaching { get; private set; }
 
@@ -134,8 +135,8 @@ namespace MiNET.Worlds
 				treeBasePositions[t, 1] = z;
 			}
 
-			var bottom = new SimplexOctaveGenerator("noise1".GetHashCode(), 8);
-			var overhang = new SimplexOctaveGenerator("noise2".GetHashCode(), 8);
+			var bottom = new SimplexOctaveGenerator(_seed.GetHashCode(), 8);
+			var overhang = new SimplexOctaveGenerator(_seed.GetHashCode(), 8);
 			overhang.SetScale(1/64.0);
 			bottom.SetScale(1/128.0);
 
@@ -169,8 +170,7 @@ namespace MiNET.Worlds
 						{
 							//part where we do the overhangs
 							double density = overhang.Noise(ox, y, oz, 0.5, 0.5);
-
-							if (density > threshold) chunk.SetBlock(x, y, z, (byte) Material.Stone);
+							if (density > threshold) chunk.SetBlock(x, y, z, (byte)Material.Stone);
 						}
 						else
 						{

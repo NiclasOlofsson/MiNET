@@ -69,6 +69,8 @@ namespace MiNET
 			Level = level;
 
 			Permissions = new PermissionManager(UserGroup.User);
+			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
+
 			Inventory = new PlayerInventory(this);
 
 			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
@@ -684,7 +686,7 @@ namespace MiNET
 
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this, 1, DamageCause.EntityAttack);
+			target.HealthManager.TakeHit(this, ItemFactory.GetItem(this.Inventory.ItemInHand.Value.Id).GetDamage(), DamageCause.EntityAttack);
 
 			target.BroadcastEntityEvent();
 		}

@@ -26,52 +26,13 @@ namespace MiNET.Items
 			else if (id == 323) item = new ItemSign(metadata);
 			else if (id == 324) item = new ItemDoor(metadata);
 			else if (id == 325) item = new ItemBucket(metadata);
+			else if (id == 363) item = new RawBeef(metadata);
+			else if (id == 365) item = new RawChicken(metadata);
+			else if (id == 319) item = new RawPorkchop(metadata);
 			else if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte) id), metadata);
 			else item = new Item(id, metadata);
 
 			return item;
-		}
-	}
-
-	public class ItemStick : Item
-	{
-		public ItemStick(short metadata) : base(280, metadata, 5)
-		{
-		}
-	}
-
-	public class ItemWoodenAxe : Item
-	{
-		public ItemWoodenAxe(short metadata) : base(271, metadata, 10)
-		{
-		}
-	}
-
-	public class ItemWoodenPickaxe : Item
-	{
-		public ItemWoodenPickaxe(short metadata) : base(270, metadata, 10)
-		{
-		}
-	}
-
-	public class ItemWoodenShovel : Item
-	{
-		public ItemWoodenShovel(short metadata) : base(269, metadata, 10)
-		{
-		}
-	}
-
-	public class ItemWoodenSword : Item
-	{
-		public ItemWoodenSword(short metadata) : base(268, metadata, 10)
-		{
-		}
-	}
-
-	public class ItemCoal : Item
-	{
-		public ItemCoal(short metadata) : base(263, metadata, 80)
-		{
 		}
 	}
 }

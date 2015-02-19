@@ -95,7 +95,7 @@ namespace MiNET.CommandHandler
 			}
 		}
 
-		public ICommandHandler[] Commands = new ICommandHandler[] {new TestCommand(), new HelpCommand(), new BoomCommand(), new OpCommand(), new DeOpCommand(), };
+		public ICommandHandler[] Commands = new ICommandHandler[] {new TestCommand(), new HelpCommand(), new BoomCommand(), new OpCommand(), new DeOpCommand(), new GiveCommand(),  };
 		public static Dictionary<Attribute, MethodInfo> PluginCommands = new Dictionary<Attribute, MethodInfo>();
 	}
 }

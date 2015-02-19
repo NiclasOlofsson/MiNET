@@ -42,7 +42,7 @@ Ofcourse you can! We just need you to accept the following:
 
 1. You will use the same coding style as the rest of the code.
 2. You do not copy code from anyone or anywhere, unless you have their permissions.
-3. We can always decide not to include your code, and we will make changes to it.
+3. We can always decide not to include your code, and we might make changes to it.
 
 Also, make sure to join our Gitter chat for easy communication.    
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

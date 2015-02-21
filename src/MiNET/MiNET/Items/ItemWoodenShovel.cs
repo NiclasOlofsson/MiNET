@@ -11,6 +11,8 @@ namespace MiNET.Items
 		public ItemWoodenShovel(short metadata)
 			: base(269, metadata, 10)
 		{
+			ItemMaterial = ItemMaterial.Wood;
+			ItemType = ItemType.Shovel;
 		}
 	}
 }

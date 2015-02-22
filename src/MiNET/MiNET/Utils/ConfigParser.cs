@@ -16,6 +16,11 @@ namespace MiNET.Utils
 
 		public static bool Check()
 		{
+			var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+			var path = new Uri(System.IO.Path.GetDirectoryName(assembly)).LocalPath;
+
+			ConfigFile = Path.Combine(path, ConfigFile);
+
 			if (!File.Exists(ConfigFile))
 			{
 				File.WriteAllLines(ConfigFile, InitialValue);

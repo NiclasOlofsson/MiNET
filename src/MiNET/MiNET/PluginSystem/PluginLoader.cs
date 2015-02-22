@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using MiNET.API;
 using MiNET.PluginSystem.Attributes;
+using MiNET.Worlds;
 
 namespace MiNET.PluginSystem
 {
@@ -73,11 +74,11 @@ namespace MiNET.PluginSystem
 			}
 		}
 
-		public void EnablePlugins()
+		public void EnablePlugins(Level level)
 		{
 			foreach (IMiNETPlugin miNetPlugin in Plugins)
 			{
-				miNetPlugin.OnEnable();
+				miNetPlugin.OnEnable(level);
 			}
 		}
 

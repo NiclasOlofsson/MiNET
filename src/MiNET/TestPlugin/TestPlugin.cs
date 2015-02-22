@@ -4,13 +4,14 @@ using MiNET;
 using MiNET.API;
 using MiNET.Net;
 using MiNET.PluginSystem.Attributes;
+using MiNET.Worlds;
 
 namespace TestPlugin
 {
 	[Plugin("Test", "A Test Plugin for MiNET", "1.0", "MiNET Team")]
 	public partial class TestPlugin : MiNETPlugin
 	{
-		public override void OnEnable()
+		public override void OnEnable(Level level)
 		{
 			Console.WriteLine("[TestPlugin] Succesfully enabled test plugin :-)");
 		}

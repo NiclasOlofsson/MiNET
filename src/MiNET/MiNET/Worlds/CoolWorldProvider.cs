@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using LibNoise;
 using LibNoise.Primitive;
 using MiNET.Utils;
-using MiNET.Worlds.Structures;
 
 namespace MiNET.Worlds
 {
@@ -192,7 +191,7 @@ namespace MiNET.Worlds
 
 						if (thisblock != (decimal) Material.Air && blockabove == (decimal) Material.Air)
 						{
-							if (chunk.GetBlock(x, y, z) == (byte)Material.Dirt || chunk.GetBlock(x, y, z) == (byte)Material.Air || chunk.GetBlock(x, y, z) == (byte)Material.Stone) chunk.SetBlock(x, y, z, (byte)Material.Grass);
+							chunk.SetBlock(x, y, z, (byte) Material.Grass);
 							if (chunk.GetBlock(x, y - 1, z) != (decimal) Material.Air)
 								chunk.SetBlock(x, y - 1, z, (byte) Material.Dirt);
 							if (chunk.GetBlock(x, y - 2, z) != (decimal) Material.Air)
@@ -262,9 +261,7 @@ namespace MiNET.Worlds
 
 		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z, WoodType woodType)
 		{
-			new OakTree().Create(chunk, x, treebase, z);
-
-		/*	int treeheight = GetRandomNumber(4, 5);
+			int treeheight = GetRandomNumber(4, 5);
 
 			chunk.SetBlock(x, treebase + treeheight + 2, z, 18);
 			chunk.SetMetadata(x, treebase + treeheight + 2, z, (byte)woodType);
@@ -309,7 +306,7 @@ namespace MiNET.Worlds
 			{
 				chunk.SetBlock(x, treebase + i, z, 17);
 				chunk.SetMetadata(x, treebase + i, z, (byte)woodType);
-			} */
+			}
 		}
 
 		private static readonly Random Getrandom = new Random();

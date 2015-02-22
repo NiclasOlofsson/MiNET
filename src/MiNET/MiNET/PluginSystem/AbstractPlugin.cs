@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MiNET.Worlds;
+using System;
 
 namespace MiNET.API
 {
@@ -8,7 +9,7 @@ namespace MiNET.API
 		{
 		}
 
-		public virtual void OnEnable()
+		public virtual void OnEnable(Level level)
 		{
 			throw new NotImplementedException();
 		}

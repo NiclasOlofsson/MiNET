@@ -17,30 +17,6 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
-	public class PlayerNetworkSession
-	{
-		public Player Player { get; set; }
-		public IPEndPoint EndPoint { get; set; }
-		private ConcurrentQueue<Ack> _playerAckQueue = new ConcurrentQueue<Ack>();
-		private ConcurrentQueue<Package> _playerWaitingForAcksQueue = new ConcurrentQueue<Package>();
-
-		public ConcurrentQueue<Ack> PlayerAckQueue
-		{
-			get { return _playerAckQueue; }
-		}
-
-		public ConcurrentQueue<Package> PlayerWaitingForAcksQueue
-		{
-			get { return _playerWaitingForAcksQueue; }
-		}
-
-		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
-		{
-			Player = player;
-			EndPoint = endPoint;
-		}
-	}
-
 	public class MiNetServer
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
@@ -428,7 +404,10 @@ namespace MiNET
 				_playerSessions.TryRemove(senderEndpoint, out value);
 			}
 
-			new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
+			if (!_performanceTest)
+			{
+				new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
+			}
 		}
 
 		private void PluginPacketHandler(Package message, IPEndPoint senderEndPoint)
@@ -531,9 +510,14 @@ namespace MiNET
 					_latency = message.Timer.ElapsedMilliseconds;
 				}
 
+				if (!_performanceTest)
+				{
+					Package message1 = message;
+					new Task(() => PluginSendPacketHandler(message1, senderEndpoint)).Start();
+				}
+
 				TraceSend(message);
 				message.PutPool();
-				new Task(() => PluginSendPacketHandler(message, senderEndpoint)).Start();
 			}
 		}
 

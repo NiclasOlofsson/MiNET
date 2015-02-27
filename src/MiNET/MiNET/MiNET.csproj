@@ -124,6 +124,7 @@
     <Compile Include="Items\RawPorkchop.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />
+    <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="PluginSystem\AbstractPlugin.cs" />
     <Compile Include="PluginSystem\Attributes\CommandAttribute.cs" />
     <Compile Include="PluginSystem\Attributes\HandlePacketAttribute.cs" />

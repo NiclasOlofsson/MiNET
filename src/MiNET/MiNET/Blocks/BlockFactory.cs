@@ -7,6 +7,7 @@ namespace MiNET.Blocks
 			Block block;
 
 			if (blockId == 0) block = new Air();
+			else if (blockId == 1) block = new Stone();
 			else if (blockId == 4) block = new Cobblestone();
 			else if (blockId == 5) block = new WoodenPlanks();
 			else if (blockId == 6) block = new Sapling();
@@ -22,6 +23,7 @@ namespace MiNET.Blocks
 			else if (blockId == 20) block = new Glass();
 			else if (blockId == 46) block = new Tnt();
 			else if (blockId == 47) block = new Bookshelf();
+			else if (blockId == 49) block = new Obsidian();
 			else if (blockId == 51) block = new Fire();
 			else if (blockId == 53) block = new OakWoodStairs();
 			else if (blockId == 54) block = new Chest();

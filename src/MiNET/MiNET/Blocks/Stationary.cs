@@ -12,6 +12,8 @@ namespace MiNET.Blocks
 
 		public override void DoPhysics(Level level)
 		{
+			base.DoPhysics(level);
+
 			if (level.GetBlock(Coordinates).Id == Id)
 			{
 				SetToFlowing(level);

@@ -76,6 +76,7 @@
     <Compile Include="Blocks\GoldOre.cs" />
     <Compile Include="Blocks\IronOre.cs" />
     <Compile Include="Blocks\JungleWoodStairs.cs" />
+    <Compile Include="Blocks\Obsidian.cs" />
     <Compile Include="Blocks\Stationary.cs" />
     <Compile Include="Blocks\StationaryLava.cs" />
     <Compile Include="Blocks\NetherBrickStairs.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Blocks\Sapling.cs" />
     <Compile Include="Blocks\SpruceWoodStairs.cs" />
     <Compile Include="Blocks\StandingSign.cs" />
+    <Compile Include="Blocks\Stone.cs" />
     <Compile Include="Blocks\StoneBrick.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
     <Compile Include="Blocks\WallSign.cs" />

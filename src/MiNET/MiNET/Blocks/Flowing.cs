@@ -18,12 +18,14 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
 		{
+			CheckForHarden(world, blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z);
 			world.ScheduleBlockTick(this, TickRate());
 			return false;
 		}
 
 		public override void DoPhysics(Level level)
 		{
+			CheckForHarden(level, Coordinates.X, Coordinates.Y, Coordinates.Z);
 			level.ScheduleBlockTick(this, TickRate());
 		}
 
@@ -70,7 +72,6 @@ namespace MiNET.Blocks
 					}
 					else
 					{
-						//newDecay = topFlowDecay | 0x08;
 						newDecay = topFlowDecay + 8;
 					}
 				}
@@ -89,8 +90,8 @@ namespace MiNET.Blocks
 
 				if (this is FlowingLava && currentDecay < 8 && newDecay < 8 && newDecay > currentDecay && random.Next(4) != 0)
 				{
-					newDecay = currentDecay;
-					flag = false;
+					//newDecay = currentDecay;
+					//flag = false;
 					tickRate *= 4;
 				}
 
@@ -121,12 +122,11 @@ namespace MiNET.Blocks
 				SetToStill(world, x, y, z);
 			}
 
-			if (CanBeFlownInto(world, x, y - 1, z) || world.GetBlock(x, y - 1, z) is Flowing)
+			if (CanBeFlownInto(world, x, y - 1, z) /* || world.GetBlock(x, y - 1, z) is Flowing*/)
 			{
-				if (this is FlowingLava && world.GetBlock(x, y - 1, z) is FlowingWater)
+				if (this is FlowingLava && (world.GetBlock(x, y - 1, z) is FlowingWater || world.GetBlock(x, y - 1, z) is StationaryWater))
 				{
-					//world.setTypeUpdate(x, y - 1, z, Blocks.STONE);
-					//this.fizz(world, x, y - 1, z);
+					world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y - 1, z)});
 					return;
 				}
 
@@ -322,15 +322,7 @@ namespace MiNET.Blocks
 		{
 			Block block = world.GetBlock(x, y, z);
 
-
-			return !IsSameMaterial(block) && !(block is FlowingLava) && !BlocksFluid(block);
-
-			//return block is Air || block.Id == 0;
-
-			//Block block = world.GetBlock(x, y, z);
-
-			//return block is Flowing || block is StationaryWater || block is StationaryLava || block is Air || block.Id == 0;
-			//return block.GetType() != GetType() && (!(block is FlowingLava) && !BlocksFluid(world, x, y, z));
+			return !IsSameMaterial(block) && (!(block is FlowingLava) && !(block is StationaryLava)) && !BlocksFluid(block);
 		}
 
 
@@ -397,6 +389,61 @@ namespace MiNET.Blocks
 		private int TickRate()
 		{
 			return this is FlowingWater ? 5 : (this is FlowingLava ? 30 : 0);
+		}
+
+		private void CheckForHarden(Level world, int x, int y, int z)
+		{
+			Block block = world.GetBlock(x, y, z);
+			{
+				bool harden = false;
+				if (block is FlowingLava || block is StationaryLava)
+				{
+					if (IsWater(world, x, y, z))
+					{
+						harden = true;
+					}
+
+					if (harden || world.GetBlock(x, y, z + 1) is FlowingWater)
+					{
+						harden = true;
+					}
+
+					if (harden || world.GetBlock(x - 1, y, z) is FlowingWater)
+					{
+						harden = true;
+					}
+
+					if (harden || world.GetBlock(x + 1, y, z) is FlowingWater)
+					{
+						harden = true;
+					}
+
+					if (harden || world.GetBlock(x, y + 1, z) is FlowingWater)
+					{
+						harden = true;
+					}
+
+					if (harden)
+					{
+						int meta = block.Metadata;
+
+						if (meta == 0)
+						{
+							world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(x, y, z)});
+						}
+						else if (meta <= 4)
+						{
+							world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)});
+						}
+					}
+				}
+			}
+		}
+
+		private bool IsWater(Level world, int x, int y, int z)
+		{
+			Block block = world.GetBlock(x, y, z - 1);
+			return block is FlowingWater || block is StationaryWater;
 		}
 	}
 }

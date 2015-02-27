@@ -68,11 +68,16 @@
     <Compile Include="Blocks\Fence.cs" />
     <Compile Include="Blocks\Fencegate.cs" />
     <Compile Include="Blocks\Fire.cs" />
+    <Compile Include="Blocks\Flowing.cs" />
+    <Compile Include="Blocks\FlowingLava.cs" />
+    <Compile Include="Blocks\FlowingWater.cs" />
     <Compile Include="Blocks\Furnace.cs" />
     <Compile Include="Blocks\Glass.cs" />
     <Compile Include="Blocks\GoldOre.cs" />
     <Compile Include="Blocks\IronOre.cs" />
     <Compile Include="Blocks\JungleWoodStairs.cs" />
+    <Compile Include="Blocks\Stationary.cs" />
+    <Compile Include="Blocks\StationaryLava.cs" />
     <Compile Include="Blocks\NetherBrickStairs.cs" />
     <Compile Include="Blocks\OakWoodStairs.cs" />
     <Compile Include="Blocks\QuartzStairs.cs" />
@@ -84,6 +89,7 @@
     <Compile Include="Blocks\StoneBrick.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
     <Compile Include="Blocks\WallSign.cs" />
+    <Compile Include="Blocks\StationaryWater.cs" />
     <Compile Include="Blocks\Wood.cs" />
     <Compile Include="Blocks\WoodenPlanks.cs" />
     <Compile Include="CommandHandler\BoomCommand.cs" />
@@ -188,9 +194,11 @@
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
+    <Compile Include="Worlds\Difficulty.cs" />
     <Compile Include="Worlds\EntityManager.cs" />
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
+    <Compile Include="Worlds\GameMode.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
     <Content Include="Net\MCPE Protocol.xml">

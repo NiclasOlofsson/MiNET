@@ -192,23 +192,20 @@ namespace MiNET.Utils
 
 		public bool Equals(ChunkCoordinates other)
 		{
-			return other.X.Equals(X) && other.Z.Equals(Z);
+			return X == other.X && Z == other.Z;
 		}
 
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
-			if (obj.GetType() != typeof (ChunkCoordinates)) return false;
-			return Equals((ChunkCoordinates) obj);
+			return obj is ChunkCoordinates && Equals((ChunkCoordinates) obj);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				int result = X.GetHashCode();
-				result = (result*397) ^ Z.GetHashCode();
-				return result;
+				return (X*397) ^ Z;
 			}
 		}
 	}

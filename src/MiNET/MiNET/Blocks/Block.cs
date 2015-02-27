@@ -16,13 +16,16 @@ namespace MiNET.Blocks
 
 		public bool IsReplacible { get; set; }
 		public bool IsSolid { get; set; }
+		public bool IsBuildable { get; set; }
 		public float Durability { get; set; }
 		public short FuelEfficiency { get; set; }
+
 
 		internal Block(byte id)
 		{
 			Id = id;
 			IsSolid = true;
+			IsBuildable = true;
 			Durability = 0.5f;
 			IsReplacible = true;
 		}
@@ -55,6 +58,11 @@ namespace MiNET.Blocks
 			// No default interaction. Return unhandled.
 			return false;
 		}
+
+		public virtual void OnTick(Level level)
+		{
+		}
+
 
 		public virtual void BlockUpdate(Level world, BlockCoordinates blockCoordinates)
 		{
@@ -113,6 +121,10 @@ namespace MiNET.Blocks
 		public virtual Item GetSmelt()
 		{
 			return null;
+		}
+
+		public virtual void DoPhysics(Level level)
+		{
 		}
 	}
 }

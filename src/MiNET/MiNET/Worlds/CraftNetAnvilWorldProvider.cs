@@ -40,7 +40,7 @@ namespace MiNET.Worlds
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\BlugoughTown\Blugough"); _offsetY = 30;
 			//_level = Craft.Net.Anvil.Level.LoadFrom(@"C:\Users\nicke_000\Downloads\spawn IceSebos\spawn IceSebos"); _offsetY = 30;
 
-			Debug.WriteLine("Water level: " + _level.DefaultWorld);
+			Debug.WriteLine("FlowingWater level: " + _level.DefaultWorld);
 
 			_ignore = new List<int>();
 			_ignore.Add(23);

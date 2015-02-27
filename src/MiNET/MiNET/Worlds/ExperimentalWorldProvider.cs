@@ -146,7 +146,7 @@ namespace MiNET.Worlds
 							}
 						}
 
-						if (y < waterLevel) //Water :)
+						if (y < waterLevel) //FlowingWater :)
 						{
 							if (chunk.GetBlock(x, y, z) == 2 || chunk.GetBlock(x, y, z) == 3) //Grass or Dirt?
 							{
@@ -156,7 +156,7 @@ namespace MiNET.Worlds
 									chunk.SetBlock(x, y, z, 12); //Sand
 							}
 							if (y < waterLevel - 3)
-								chunk.SetBlock(x, y + 1, z, 8); //Water
+								chunk.SetBlock(x, y + 1, z, 8); //FlowingWater
 						}
 
 						if (y <= dirtHeight && y >= stoneHeight)

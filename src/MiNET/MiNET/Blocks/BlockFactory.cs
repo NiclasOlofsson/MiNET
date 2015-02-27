@@ -1,5 +1,3 @@
-using MiNET.Items;
-
 namespace MiNET.Blocks
 {
 	public static class BlockFactory
@@ -13,6 +11,10 @@ namespace MiNET.Blocks
 			else if (blockId == 5) block = new WoodenPlanks();
 			else if (blockId == 6) block = new Sapling();
 			else if (blockId == 7) block = new Bedrock();
+			else if (blockId == 8) block = new FlowingWater();
+			else if (blockId == 9) block = new StationaryWater();
+			else if (blockId == 10) block = new FlowingLava();
+			else if (blockId == 11) block = new StationaryLava();
 			else if (blockId == 12) block = new Sand();
 			else if (blockId == 14) block = new GoldOre();
 			else if (blockId == 15) block = new IronOre();

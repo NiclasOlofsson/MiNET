@@ -32,38 +32,38 @@ namespace MiNET.Worlds
 				biomeColor[i] = 8761930; // Grass color?
 		}
 
-		public byte GetBlock(int x, int y, int z)
+		public byte GetBlock(int bx, int by, int bz)
 		{
-			return blocks[(x*2048) + (z*128) + y];
+			return blocks[(bx*2048) + (bz*128) + by];
 		}
 
-		public void SetBlock(int x, int y, int z, byte bid)
+		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
 			_cache = null;
-			blocks[(x*2048) + (z*128) + y] = bid;
+			blocks[(bx*2048) + (bz*128) + by] = bid;
 		}
 
-		public void SetBlocklight(int x, int y, int z, byte data)
+		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
-			blocklight[(x*2048) + (z*128) + y] = data;
+			blocklight[(bx*2048) + (bz*128) + by] = data;
 		}
 
-		public byte GetMetadata(int x, int y, int z)
+		public byte GetMetadata(int bx, int by, int bz)
 		{
-			return metadata[(x*2048) + (z*128) + y];
+			return metadata[(bx*2048) + (bz*128) + by];
 		}
 
-		public void SetMetadata(int x, int y, int z, byte data)
-		{
-			_cache = null;
-			metadata[(x*2048) + (z*128) + y] = data;
-		}
-
-		public void SetSkylight(int x, int y, int z, byte data)
+		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
-			skylight[(x*2048) + (z*128) + y] = data;
+			metadata[(bx*2048) + (bz*128) + by] = data;
+		}
+
+		public void SetSkylight(int bx, int by, int bz, byte data)
+		{
+			_cache = null;
+			skylight[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public void SetBlockEntity(BlockCoordinates coordinates, NbtCompound nbt)

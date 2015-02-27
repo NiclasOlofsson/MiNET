@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -17,42 +18,6 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public enum GameMode
-	{
-		/// <summary>
-		///     Players fight against the enviornment, mobs, and players
-		///     with limited resources.
-		/// </summary>
-		Survival = 0,
-
-		/// <summary>
-		///     Players are given unlimited resources, flying, and
-		///     invulnerability.
-		/// </summary>
-		Creative = 1,
-
-		/// <summary>
-		///     Similar to survival, with the exception that players may
-		///     not place or remove blocks.
-		/// </summary>
-		Adventure = 2,
-
-		/// <summary>
-		///     Similar to creative, with the exception that players may
-		///     not place or remove blocks.
-		/// </summary>
-		Spectator = 3
-	}
-
-	public enum Difficulty
-	{
-		Peaceful,
-		Easy,
-		Normal,
-		Hard
-	}
-
-
 	public class Level
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Level));
@@ -76,6 +41,7 @@ namespace MiNET.Worlds
 		public List<Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<BlockEntity> BlockEntities { get; private set; } //TODO: Need to protect this, not threadsafe
+		public ConcurrentDictionary<BlockCoordinates, int> BlockWithTicks { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 
 		public GameMode GameMode { get; private set; }
@@ -95,6 +61,7 @@ namespace MiNET.Worlds
 			Players = new List<Player>();
 			Entities = new List<Entity>();
 			BlockEntities = new List<BlockEntity>();
+			BlockWithTicks = new ConcurrentDictionary<BlockCoordinates, int>();
 			LevelId = levelId;
 			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Survival);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
@@ -126,7 +93,7 @@ namespace MiNET.Worlds
 		public void Initialize()
 		{
 			CurrentWorldTime = 6000;
-			WorldTimeStarted = true;
+			WorldTimeStarted = false;
 
 			var loadIt = new FlatlandGenerator(); // Don't remove
 
@@ -375,26 +342,37 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 
-				if (CurrentWorldTime%(50*20*5) == 0)
-				{
-					McpeSetTime message = McpeSetTime.CreateObject();
-					message.time = CurrentWorldTime;
-					message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
+				//if (CurrentWorldTime%(50*20*5) == 0)
+				//{
+				//	McpeSetTime message = McpeSetTime.CreateObject();
+				//	message.time = CurrentWorldTime;
+				//	message.started = (byte) (WorldTimeStarted ? 0x80 : 0x00);
 
-					RelayBroadcast(players, message);
-				}
+				//	RelayBroadcast(players, message);
+				//}
 
 				// Block updates
+				//if (CurrentWorldTime%5 == 0)
+				{
+					foreach (KeyValuePair<BlockCoordinates, int> blockEvent in BlockWithTicks.ToArray())
+					{
+						if (blockEvent.Value <= CurrentWorldTime)
+						{
+							GetBlock(blockEvent.Key).OnTick(this);
+							int value;
+							BlockWithTicks.TryRemove(blockEvent.Key, out value);
+						}
+					}
+				}
+				foreach (BlockEntity blockEntity in BlockEntities.ToArray())
+				{
+					blockEntity.OnTick(this);
+				}
 
 				// Entity updates
 				foreach (Entity entity in Entities.ToArray())
 				{
 					entity.OnTick();
-				}
-
-				foreach (BlockEntity blockEntity in BlockEntities.ToArray())
-				{
-					blockEntity.OnTick(this);
 				}
 
 				foreach (Player player in players)
@@ -593,7 +571,7 @@ namespace MiNET.Worlds
 
 		public Block GetBlock(BlockCoordinates blockCoordinates)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 
@@ -604,11 +582,13 @@ namespace MiNET.Worlds
 			return block;
 		}
 
-		public void SetBlock(Block block, bool broadcast = true)
+		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X/16, block.Coordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
+
+			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
 
 			if (!broadcast) return;
 
@@ -622,6 +602,13 @@ namespace MiNET.Worlds
 			RelayBroadcast(message);
 		}
 
+		public void SetAir(int x, int y, int z, bool broadcast = true)
+		{
+			Block air = BlockFactory.GetBlockById(0);
+			air.Metadata = 0;
+			air.Coordinates = new BlockCoordinates(x, y, z);
+			SetBlock(air, broadcast, applyPhysics: true);
+		}
 
 		public BlockEntity GetBlockEntity(BlockCoordinates blockCoordinates)
 		{
@@ -754,6 +741,35 @@ namespace MiNET.Worlds
 			};
 
 			itemEntity.SpawnEntity();
+		}
+
+		public void SetData(int x, int y, int z, byte meta)
+		{
+			Block block = GetBlock(new BlockCoordinates(x, y, z));
+			block.Metadata = meta;
+			SetBlock(block, applyPhysics: false);
+		}
+
+		public void ApplyPhysics(int x, int y, int z)
+		{
+			DoPhysics(x - 1, y, z);
+			DoPhysics(x + 1, y, z);
+			DoPhysics(x, y - 1, z);
+			DoPhysics(x, y + 1, z);
+			DoPhysics(x, y, z - 1);
+			DoPhysics(x, y, z + 1);
+		}
+
+		private void DoPhysics(int x, int y, int z)
+		{
+			Block block = GetBlock(x, y, z);
+			if (block is Air) return;
+			block.DoPhysics(this);
+		}
+
+		public void ScheduleBlockTick(Block block, int tickRate)
+		{
+			BlockWithTicks[block.Coordinates] = CurrentWorldTime + tickRate;
 		}
 	}
 }

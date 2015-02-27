@@ -21,11 +21,11 @@ namespace MiNET.Items
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 			if (Metadata == 8 || Metadata == 10) //Prevent some kind of cheating...
 			{
-				Block targetblock = new Block((byte) Metadata)
-				{
-					Coordinates = coordinates
-				};
-				player.Level.SetBlock(targetblock);
+				Block block = BlockFactory.GetBlockById((byte) Metadata);
+				block.Coordinates = coordinates;
+				if (!block.CanPlace(world)) return;
+				world.SetBlock(block);
+				block.PlaceBlock(world, player, block.Coordinates, face);
 			}
 		}
 	}

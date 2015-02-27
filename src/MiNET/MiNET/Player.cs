@@ -121,12 +121,12 @@ namespace MiNET
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 
 				// It is a bug that it leaks these messages.
-				var block = ((McpeUpdateBlock) message);
-				Debug.WriteLine("block:" + block.block);
-				Debug.WriteLine("meta:" + block.meta);
-				Debug.WriteLine("x:" + block.x);
-				Debug.WriteLine("y:" + block.y);
-				Debug.WriteLine("z:" + block.z);
+				//var block = ((McpeUpdateBlock) message);
+				//Debug.WriteLine("block:" + block.block);
+				//Debug.WriteLine("meta:" + block.meta);
+				//Debug.WriteLine("x:" + block.x);
+				//Debug.WriteLine("y:" + block.y);
+				//Debug.WriteLine("z:" + block.z);
 			}
 
 			else if (typeof (McpeRemoveBlock) == message.GetType())

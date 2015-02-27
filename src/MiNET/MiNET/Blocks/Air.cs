@@ -8,6 +8,7 @@ namespace MiNET.Blocks
 		{
 			IsReplacible = true;
 			IsSolid = false;
+			IsBuildable = false;
 		}
 
 		public override ItemStack GetDrops()

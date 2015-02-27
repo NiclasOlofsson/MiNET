@@ -214,7 +214,7 @@ namespace MiNET.Worlds
 							if (chunk.GetBlock(x, y + 1, z) == (decimal)Material.Air)
 							{
 								if (y < WaterLevel - 3)
-									chunk.SetBlock(x, y + 1, z, 8); //Water
+									chunk.SetBlock(x, y + 1, z, 8); //FlowingWater
 							}
 						}
 					}
@@ -226,19 +226,19 @@ namespace MiNET.Worlds
 						if (thisblock == (decimal)Material.Grass && blockabove == (decimal)Material.Air && y > WaterLevel)
 						{
 							//Grass
-							if (GetRandomNumber(0, 5) == 2)
-							{
-								chunk.SetBlock(x, y + 1, z, 31);
-								chunk.SetMetadata(x, y + 1, z, 1);
-							}
+							//if (GetRandomNumber(0, 5) == 2)
+							//{
+							//	chunk.SetBlock(x, y + 1, z, 31);
+							//	chunk.SetMetadata(x, y + 1, z, 1);
+							//}
 
 							//Flowers
-							if (GetRandomNumber(0, 65) == 8)
-							{
-								int meta = GetRandomNumber(0, 8);
-								chunk.SetBlock(x, y + 1, z, 38);
-								chunk.SetMetadata(x, y + 1, z, (byte)meta);
-							}
+							//if (GetRandomNumber(0, 65) == 8)
+							//{
+							//	int meta = GetRandomNumber(0, 8);
+							//	chunk.SetBlock(x, y + 1, z, 38);
+							//	chunk.SetMetadata(x, y + 1, z, (byte)meta);
+							//}
 
 							//Trees
 							for (int pos = 0; pos < trees; pos++)

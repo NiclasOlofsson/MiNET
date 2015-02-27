@@ -191,25 +191,35 @@ namespace MiNET.Utils
 
 		public bool Equals(BlockCoordinates other)
 		{
-			return other.X.Equals(X) && other.Y.Equals(Y) && other.Z.Equals(Z);
+			return X == other.X && Y == other.Y && Z == other.Z;
 		}
 
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj)) return false;
-			if (obj.GetType() != typeof (BlockCoordinates)) return false;
-			return Equals((BlockCoordinates) obj);
+			return obj is BlockCoordinates && Equals((BlockCoordinates) obj);
 		}
 
 		public override int GetHashCode()
 		{
 			unchecked
 			{
-				int result = X.GetHashCode();
-				result = (result*397) ^ Y.GetHashCode();
-				result = (result*397) ^ Z.GetHashCode();
-				return result;
+				int hashCode = X;
+				hashCode = (hashCode*397) ^ Y;
+				hashCode = (hashCode*397) ^ Z;
+				return hashCode;
 			}
 		}
+
+		//public override int GetHashCode()
+		//{
+		//	unchecked
+		//	{
+		//		int result = X.GetHashCode();
+		//		result = (result*397) ^ Y.GetHashCode();
+		//		result = (result*397) ^ Z.GetHashCode();
+		//		return result;
+		//	}
+		//}
 	}
 }

@@ -99,7 +99,7 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			return new Vector3(50, 10, 50);
+			return new Vector3(0, 10, 0);
 		}
 
 		public int PopulateChunk(ChunkColumn chunk)

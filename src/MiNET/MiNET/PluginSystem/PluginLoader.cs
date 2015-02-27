@@ -3,39 +3,49 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using log4net;
 using MiNET.API;
 using MiNET.PluginSystem.Attributes;
+using MiNET.Worlds;
 
 namespace MiNET.PluginSystem
 {
 	internal class PluginLoader
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
 		private List<IMiNETPlugin> Plugins = new List<IMiNETPlugin>();
 		public static Dictionary<Attribute, MethodInfo> PacketHandlerDictionary = new Dictionary<Attribute, MethodInfo>();
 		public static Dictionary<Attribute, MethodInfo> PacketSendHandlerDictionary = new Dictionary<Attribute, MethodInfo>(); 
 		public void LoadPlugins()
 		{
-			if (!Directory.Exists("Plugins"))
-				Directory.CreateDirectory("Plugins");
+				if (!Directory.Exists("Plugins"))
+					Directory.CreateDirectory("Plugins");
 
-			string pluginsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Plugins");
-			foreach (string pluginPath in Directory.GetFiles(pluginsFolder, "*.dll", SearchOption.TopDirectoryOnly))
-			{
-				Assembly newAssembly = Assembly.LoadFile(pluginPath);
-				Type[] types = newAssembly.GetExportedTypes();
-				foreach (Type type in types)
+				string pluginsFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Plugins");
+				foreach (string pluginPath in Directory.GetFiles(pluginsFolder, "*.dll", SearchOption.TopDirectoryOnly))
 				{
-					new Task(() => GetCommandHandlers(type)).Start();
-					new Task(() => GetPacketEvents(type)).Start();
-					if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
-					var ctor = type.GetConstructor(new Type[] {});
-					if (ctor != null)
+					Assembly newAssembly = Assembly.LoadFile(pluginPath);
+					Type[] types = newAssembly.GetExportedTypes();
+					foreach (Type type in types)
 					{
-						var plugin = ctor.Invoke(new object[] {}) as IMiNETPlugin;
-						Plugins.Add(plugin);
+						try
+						{
+							new Task(() => GetCommandHandlers(type)).Start();
+							new Task(() => GetPacketEvents(type)).Start();
+							if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
+							var ctor = type.GetConstructor(new Type[] {});
+							if (ctor != null)
+							{
+								var plugin = ctor.Invoke(new object[] {}) as IMiNETPlugin;
+								Plugins.Add(plugin);
+							}
+						}
+						catch (Exception ex)
+						{
+							Log.Warn("Plugin Error: " + ex);
+						}
 					}
 				}
-			}
 		}
 
 		private void GetCommandHandlers(Type type)
@@ -73,11 +83,18 @@ namespace MiNET.PluginSystem
 			}
 		}
 
-		public void EnablePlugins()
+		public void EnablePlugins(Level level)
 		{
 			foreach (IMiNETPlugin miNetPlugin in Plugins)
 			{
-				miNetPlugin.OnEnable();
+				try
+				{
+					miNetPlugin.OnEnable(level);
+				}
+				catch (Exception ex)
+				{
+					Log.Warn("Plugin Error: " + ex);
+				}
 			}
 		}
 
@@ -85,7 +102,14 @@ namespace MiNET.PluginSystem
 		{
 			foreach (IMiNETPlugin miNetPlugin in Plugins)
 			{
-				miNetPlugin.OnDisable();
+				try
+				{
+					miNetPlugin.OnDisable();
+				}
+				catch (Exception ex)
+				{
+					Log.Warn("Plugin Error: " + ex);
+				}
 			}
 		}
 	}

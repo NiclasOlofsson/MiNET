@@ -103,17 +103,19 @@ namespace MiNET
 
 			try
 			{
+				Log.Info("Initializing...");
+				_level = new Level("Default");
+				_level.Initialize();
+				_levels.Add(_level);
+
 				Log.Info("Loading settings...");
 				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
 				Log.Info("Loading plugins...");
 				_pluginLoader = new PluginLoader();
 				_pluginLoader.LoadPlugins();
-				_pluginLoader.EnablePlugins();
+				_pluginLoader.EnablePlugins(_level);
 				Log.Info("Plugins loaded!");
 
-				_level = new Level("Default");
-				_level.Initialize();
-				_levels.Add(_level);
 				//for (int i = 1; i < 4; i++)
 				//{
 				//	Level level = new Level("" + i);
@@ -410,8 +412,6 @@ namespace MiNET
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
-			//new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
-
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				return;
@@ -427,6 +427,8 @@ namespace MiNET
 				PlayerNetworkSession value;
 				_playerSessions.TryRemove(senderEndpoint, out value);
 			}
+
+			new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
 		}
 
 		private void PluginPacketHandler(Package message, IPEndPoint senderEndPoint)
@@ -458,6 +460,7 @@ namespace MiNET
 			{
 				//For now we will just ignore this, not to big of a deal.
 				//Will have to think a bit more about this later on.
+				Log.Warn("Plugin Error: " + ex);
 			}
 		}
 
@@ -530,7 +533,7 @@ namespace MiNET
 
 				TraceSend(message);
 				message.PutPool();
-				//new Task(() => PluginSendPacketHandler(message, senderEndpoint)).Start();
+				new Task(() => PluginSendPacketHandler(message, senderEndpoint)).Start();
 			}
 		}
 
@@ -564,6 +567,7 @@ namespace MiNET
 			{
 				//For now we will just ignore this, not to big of a deal.
 				//Will have to think a bit more about this later on.
+				Log.Warn("Plugin Error: " + ex);
 			}
 		}
 

@@ -398,27 +398,27 @@ namespace MiNET.Blocks
 				bool harden = false;
 				if (block is FlowingLava || block is StationaryLava)
 				{
-					if (IsWater(world, x, y, z))
+					if (IsWater(world, x, y, z - 1))
 					{
 						harden = true;
 					}
 
-					if (harden || world.GetBlock(x, y, z + 1) is FlowingWater)
+					if (harden || IsWater(world, x, y, z + 1))
 					{
 						harden = true;
 					}
 
-					if (harden || world.GetBlock(x - 1, y, z) is FlowingWater)
+					if (harden || IsWater(world, x - 1, y, z))
 					{
 						harden = true;
 					}
 
-					if (harden || world.GetBlock(x + 1, y, z) is FlowingWater)
+					if (harden || IsWater(world, x + 1, y, z))
 					{
 						harden = true;
 					}
 
-					if (harden || world.GetBlock(x, y + 1, z) is FlowingWater)
+					if (harden || IsWater(world, x, y + 1, z))
 					{
 						harden = true;
 					}
@@ -442,7 +442,7 @@ namespace MiNET.Blocks
 
 		private bool IsWater(Level world, int x, int y, int z)
 		{
-			Block block = world.GetBlock(x, y, z - 1);
+			Block block = world.GetBlock(x, y, z);
 			return block is FlowingWater || block is StationaryWater;
 		}
 	}

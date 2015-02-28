@@ -684,7 +684,7 @@ namespace MiNET.Worlds
 			chunk.RemoveBlockEntity(blockCoordinates);
 		}
 
-		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face)
+		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
 		{
 			// Make sure we are holding the item we claim to be using
 			MetadataSlot itemSlot = player.Inventory.ItemInHand;
@@ -695,7 +695,7 @@ namespace MiNET.Worlds
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
-			itemInHand.UseItem(world, player, blockCoordinates, face);
+			itemInHand.UseItem(world, player, blockCoordinates, face, faceCoords);
 		}
 
 		public void BreakBlock(BlockCoordinates blockCoordinates)

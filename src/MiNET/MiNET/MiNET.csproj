@@ -55,6 +55,7 @@
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
+    <Compile Include="BlockFace.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />
     <Compile Include="Blocks\BlockStairs.cs" />

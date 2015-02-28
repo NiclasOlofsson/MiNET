@@ -37,7 +37,7 @@ namespace MiNET.Items
 			FuelEfficiency = fuelEfficiency;
 		}
 
-		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 		}
 

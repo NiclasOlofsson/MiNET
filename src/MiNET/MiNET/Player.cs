@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -14,16 +13,6 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
-	public enum BlockFace
-	{
-		NegativeY = 0,
-		PositiveY = 1,
-		NegativeZ = 2,
-		PositiveZ = 3,
-		NegativeX = 4,
-		PositiveX = 5
-	}
-
 	public class Player : Entity
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
@@ -707,7 +696,6 @@ namespace MiNET
 			Log.DebugFormat("fx:  {0}", message.fx);
 			Log.DebugFormat("fy:  {0}", message.fy);
 			Log.DebugFormat("fz:  {0}", message.fz);
-			Log.DebugFormat("fz:  {0}", message.fz);
 			Log.DebugFormat("px:  {0}", message.positionX);
 			Log.DebugFormat("py:  {0}", message.positionY);
 			Log.DebugFormat("pz:  {0}", message.positionZ);
@@ -720,7 +708,9 @@ namespace MiNET
 					entityId = EntityId
 				});
 
-				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta, (BlockFace) message.face);
+				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
+
+				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta, (BlockFace) message.face, faceCoords);
 			}
 			else
 			{

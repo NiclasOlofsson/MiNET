@@ -12,7 +12,7 @@ namespace MiNET.Items
 		}
 
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
 			Furnace furnace = new Furnace
@@ -23,7 +23,7 @@ namespace MiNET.Items
 
 			if (!furnace.CanPlace(world)) return;
 
-			furnace.PlaceBlock(world, player, coor, face);
+			furnace.PlaceBlock(world, player, coor, face, faceCoords);
 
 			// Then we create and set the sign block entity that has all the intersting data
 

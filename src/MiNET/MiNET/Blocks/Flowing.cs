@@ -16,7 +16,7 @@ namespace MiNET.Blocks
 			IsBuildable = false;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			CheckForHarden(world, blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z);
 			world.ScheduleBlockTick(this, TickRate());

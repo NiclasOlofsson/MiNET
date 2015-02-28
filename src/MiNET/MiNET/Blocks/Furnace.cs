@@ -13,7 +13,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			byte direction = player.GetDirection();
 

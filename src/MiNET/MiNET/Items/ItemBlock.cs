@@ -27,14 +27,14 @@ namespace MiNET.Items
 		}
 
 
-		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
+		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;
 
 			if (!_block.CanPlace(world)) return;
 
-			if (_block.PlaceBlock(world, player, targetCoordinates, face)) return; // Handled
+			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 
 			world.SetBlock(_block);
 		}

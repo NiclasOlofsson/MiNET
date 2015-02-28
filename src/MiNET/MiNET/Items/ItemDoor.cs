@@ -12,7 +12,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			byte direction = player.GetDirection();
 

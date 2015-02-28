@@ -10,22 +10,32 @@ namespace MiNET.Blocks
 			FuelEfficiency = 15;
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		// 000 001 010 011 100
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			byte direction = player.GetDirection();
 
+			byte upper = (byte) ((faceCoords.Y > 0.5 && face != (BlockFace) 1) || face == 0 ? 0x04 : 0x00);
+
 			switch (direction)
 			{
+				case 0:
+					Metadata = (byte) (0 | upper);
+					break;
 				case 1:
-					Metadata = 2;
+					Metadata = (byte) (2 | upper);
 					break;
 				case 2:
-					Metadata = 0x03 & 5;
+					Metadata = (byte) (1 | upper);
 					break;
 				case 3:
-					Metadata = 3;
+					Metadata = (byte) (3 | upper);
 					break;
 			}
+
+			//if ((faceCoords.Y > 0.5 && face != (BlockFace) 1) || face == 0)
+			//{
+			//}
 
 			world.SetBlock(this);
 			return true;

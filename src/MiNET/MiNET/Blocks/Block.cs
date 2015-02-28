@@ -47,7 +47,7 @@ namespace MiNET.Blocks
 			BlockUpdate(world, Coordinates);
 		}
 
-		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// No default placement. Return unhandled.
 			return false;

@@ -115,6 +115,7 @@
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />
+    <Compile Include="Items\ItemSlab.cs" />
     <Compile Include="Items\ItemStick.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />
     <Compile Include="Items\ItemWoodenPickaxe.cs" />

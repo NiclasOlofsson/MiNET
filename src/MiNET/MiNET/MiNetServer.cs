@@ -412,6 +412,7 @@ namespace MiNET
 
 		private void PluginPacketHandler(Package message, IPEndPoint senderEndPoint)
 		{
+			return;
 			try
 			{
 				Player target = _level.GetPlayer(senderEndPoint);
@@ -523,6 +524,7 @@ namespace MiNET
 
 		private void PluginSendPacketHandler(Package message, IPEndPoint receiveEndPoint)
 		{
+			return;
 			try
 			{
 				Player target = _level.GetPlayer(receiveEndPoint);

@@ -37,7 +37,7 @@ namespace MiNET.Blocks
 			// Remove door
 			if ((Metadata & 0x08) == 0x08) // Is Upper?
 			{
-				block = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.NegativeY));
+				block = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.Down));
 			}
 
 			block.Metadata ^= 0x04;

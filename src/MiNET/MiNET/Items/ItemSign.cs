@@ -15,7 +15,7 @@ namespace MiNET.Items
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
-			if (face == BlockFace.PositiveY) // On top of block
+			if (face == BlockFace.Up) // On top of block
 			{
 				// Standing Sign
 				var sign = new StandingSign();
@@ -24,7 +24,7 @@ namespace MiNET.Items
 				sign.Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*16/360) + 0.5) & 0x0f);
 				world.SetBlock(sign);
 			}
-			else if (face == BlockFace.NegativeX) // At the bottom of block
+			else if (face == BlockFace.North) // At the bottom of block
 			{
 				// Doesn't work, ignore if that happen. 
 				return;

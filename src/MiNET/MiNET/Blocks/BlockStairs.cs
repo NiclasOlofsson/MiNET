@@ -15,7 +15,7 @@ namespace MiNET.Blocks
 		{
 			byte direction = player.GetDirection();
 
-			byte upper = (byte) ((faceCoords.Y > 0.5 && face != (BlockFace) 1) || face == 0 ? 0x04 : 0x00);
+			byte upper = (byte) ((faceCoords.Y > 0.5 && face != BlockFace.Up) || face == BlockFace.Down ? 0x04 : 0x00);
 
 			switch (direction)
 			{
@@ -32,10 +32,6 @@ namespace MiNET.Blocks
 					Metadata = (byte) (3 | upper);
 					break;
 			}
-
-			//if ((faceCoords.Y > 0.5 && face != (BlockFace) 1) || face == 0)
-			//{
-			//}
 
 			world.SetBlock(this);
 			return true;

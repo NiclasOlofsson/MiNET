@@ -2,11 +2,11 @@ namespace MiNET
 {
 	public enum BlockFace
 	{
-		NegativeY = 0,
-		PositiveY = 1,
-		NegativeZ = 2,
-		PositiveZ = 3,
-		NegativeX = 4,
-		PositiveX = 5
+		Down = 0,
+		Up = 1,
+		East = 2,
+		West = 3,
+		North = 4,
+		South = 5
 	}
 }

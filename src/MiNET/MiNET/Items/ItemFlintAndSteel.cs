@@ -17,7 +17,7 @@ namespace MiNET.Items
 			var block = world.GetBlock(blockCoordinates);
 			if (block.Id != 46)
 			{
-				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.PositiveY));
+				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.Up));
 				if (affectedBlock.Id == 0)
 				{
 					var fire = new Fire

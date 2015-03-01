@@ -96,17 +96,17 @@ namespace MiNET.Blocks
 		{
 			switch (face)
 			{
-				case BlockFace.NegativeY:
+				case BlockFace.Down:
 					return target + Level.Down;
-				case BlockFace.PositiveY:
+				case BlockFace.Up:
 					return target + Level.Up;
-				case BlockFace.NegativeZ:
+				case BlockFace.East:
 					return target + Level.East;
-				case BlockFace.PositiveZ:
+				case BlockFace.West:
 					return target + Level.West;
-				case BlockFace.NegativeX:
+				case BlockFace.North:
 					return target + Level.South;
-				case BlockFace.PositiveX:
+				case BlockFace.South:
 					return target + Level.North;
 				default:
 					return target;

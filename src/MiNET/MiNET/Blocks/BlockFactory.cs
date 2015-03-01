@@ -1,3 +1,6 @@
+using MiNET.Utils;
+using MiNET.Worlds;
+
 namespace MiNET.Blocks
 {
 	public static class BlockFactory
@@ -21,6 +24,8 @@ namespace MiNET.Blocks
 			else if (blockId == 15) block = new IronOre();
 			else if (blockId == 17) block = new Wood();
 			else if (blockId == 20) block = new Glass();
+			else if (blockId == 43) block = new DoubleStoneSlab();
+			else if (blockId == 44) block = new StoneSlab();
 			else if (blockId == 46) block = new Tnt();
 			else if (blockId == 47) block = new Bookshelf();
 			else if (blockId == 49) block = new Obsidian();
@@ -45,12 +50,59 @@ namespace MiNET.Blocks
 			else if (blockId == 135) block = new BirchWoodStairs();
 			else if (blockId == 136) block = new JungleWoodStairs();
 			else if (blockId == 156) block = new QuartzStairs();
+			else if (blockId == 157) block = new DoubleWoodSlab();
+			else if (blockId == 158) block = new WoodSlab();
 			else if (blockId == 163) block = new AcaciaWoodStairs();
 			else if (blockId == 164) block = new DarkOakWoodStairs();
 			else if (blockId == 173) block = new CoalBlock();
 			else block = new Block(blockId);
 
 			return block;
+		}
+	}
+
+	public class Slabs : Block
+	{
+		internal Slabs(byte id) : base(id)
+		{
+		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			if (face == BlockFace.Up)
+			{
+
+			}
+
+			return true;
+		}
+	}
+
+	public class DoubleStoneSlab : Block
+	{
+		internal DoubleStoneSlab() : base(43)
+		{
+		}
+	}
+
+	public class StoneSlab : Block
+	{
+		internal StoneSlab() : base(44)
+		{
+		}
+	}
+
+	public class DoubleWoodSlab : Block
+	{
+		internal DoubleWoodSlab() : base(157)
+		{
+		}
+	}
+
+	public class WoodSlab : Block
+	{
+		internal WoodSlab() : base(158)
+		{
 		}
 	}
 }

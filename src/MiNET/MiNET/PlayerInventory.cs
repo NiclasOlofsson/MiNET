@@ -28,7 +28,7 @@ namespace MiNET
 
 			for (byte i = 0; i < 35; i++)
 			{
-				Slots[i] = new MetadataSlot(new ItemStack((short) (i + 1), 10));
+				Slots[i] = new MetadataSlot(new ItemStack((short) -1, 0));
 			}
 
 			byte c = 0;
@@ -69,6 +69,24 @@ namespace MiNET
 			});
 		}
 
+		public void SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
+		{
+			for (byte s = 0; s < Slots.Count; s++)
+			{
+				var b = (MetadataSlot) Slots[s];
+				if (b.Value.Id == itemId && b.Value.Metadata == metadata && b.Value.Count < 64)
+				{
+					SetInventorySlot(s, itemId, (byte)(b.Value.Count + amount), metadata);
+					break;
+				}
+				else if (b.Value == null || b.Value.Id == 0 || b.Value.Id == -1)
+				{
+					SetInventorySlot(s, itemId, amount, metadata);
+					break;
+				}
+			}
+		}
+
 		/// <summary>
 		///     Empty the specified slot
 		/// </summary>
@@ -82,7 +100,7 @@ namespace MiNET
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id)
+				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id && ((MetadataSlot)Slots[i]).Value.Metadata == item.Value.Metadata)
 				{
 					return true;
 				}

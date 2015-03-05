@@ -10,6 +10,11 @@ namespace MiNET.Worlds.Structures
 			get { return "OakTree"; }
 		}
 
+		public override int MaxHeight
+		{
+			get { return 7; }
+		}
+
 		public override Block[] Blocks
 		{
 			get

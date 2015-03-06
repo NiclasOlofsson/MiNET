@@ -14,12 +14,17 @@ namespace MiNET.Worlds.Structures
 			get { return null; }
 		}
 
+		public virtual int MaxHeight { get { return 0; } }
+
 		public void Create(ChunkColumn chunk, int x, int y, int z)
 		{
-			foreach (Block b in Blocks)
+			if (chunk.GetBlock(x, y + MaxHeight, z) == (byte) Material.Air)
 			{
-				chunk.SetBlock(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Id);
-				chunk.SetMetadata(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Metadata);
+				foreach (Block b in Blocks)
+				{
+					chunk.SetBlock(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Id);
+					chunk.SetMetadata(x + b.Coordinates.X, y + b.Coordinates.Y, z + b.Coordinates.Z, b.Metadata);
+				}
 			}
 		}
 	}

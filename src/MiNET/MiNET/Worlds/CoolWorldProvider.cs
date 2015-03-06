@@ -227,19 +227,19 @@ namespace MiNET.Worlds
 						if (thisblock == (decimal)Material.Grass && blockabove == (decimal)Material.Air && y > WaterLevel)
 						{
 							//Grass
-							//if (GetRandomNumber(0, 5) == 2)
-							//{
-							//	chunk.SetBlock(x, y + 1, z, 31);
-							//	chunk.SetMetadata(x, y + 1, z, 1);
-							//}
+							if (GetRandomNumber(0, 5) == 1)
+							{
+								chunk.SetBlock(x, y + 1, z, 31);
+								chunk.SetMetadata(x, y + 1, z, 1);
+							}
 
 							//Flowers
-							//if (GetRandomNumber(0, 65) == 8)
-							//{
-							//	int meta = GetRandomNumber(0, 8);
-							//	chunk.SetBlock(x, y + 1, z, 38);
-							//	chunk.SetMetadata(x, y + 1, z, (byte)meta);
-							//}
+							if (GetRandomNumber(0, 65) == 1)
+							{
+								int meta = GetRandomNumber(0, 8);
+								chunk.SetBlock(x, y + 1, z, 38);
+								chunk.SetMetadata(x, y + 1, z, (byte)meta);
+							}
 
 							//Trees
 							for (int pos = 0; pos < trees; pos++)
@@ -263,53 +263,6 @@ namespace MiNET.Worlds
 		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z, WoodType woodType)
 		{
 			new OakTree().Create(chunk, x, treebase, z);
-
-		/*	int treeheight = GetRandomNumber(4, 5);
-
-			chunk.SetBlock(x, treebase + treeheight + 2, z, 18);
-			chunk.SetMetadata(x, treebase + treeheight + 2, z, (byte)woodType);
-
-			chunk.SetBlock(x, treebase + treeheight + 1, z + 1, 18);
-			chunk.SetMetadata(x, treebase + treeheight + 1, z + 1, (byte)woodType);
-
-			chunk.SetBlock(x, treebase + treeheight + 1, z - 1, 18);
-			chunk.SetMetadata(x, treebase + treeheight + 1, z - 1, (byte)woodType);
-
-			chunk.SetBlock(x + 1, treebase + treeheight + 1, z, 18);
-			chunk.SetMetadata(x + 1, treebase + treeheight + 1, z, (byte)woodType);
-
-			chunk.SetBlock(x - 1, treebase + treeheight + 1, z, 18);
-			chunk.SetMetadata(x - 1, treebase + treeheight + 1, z, (byte)woodType);
-
-			chunk.SetBlock(x, treebase + treeheight, z + 1, 18);
-			chunk.SetMetadata(x, treebase + treeheight, z + 1, (byte)woodType);
-
-			chunk.SetBlock(x, treebase + treeheight, z - 1, 18);
-			chunk.SetMetadata(x, treebase + treeheight, z - 1, (byte)woodType);
-
-			chunk.SetBlock(x + 1, treebase + treeheight, z, 18);
-			chunk.SetMetadata(x + 1, treebase + treeheight, z, (byte)woodType);
-
-			chunk.SetBlock(x - 1, treebase + treeheight, z, 18);
-			chunk.SetMetadata(x - 1, treebase + treeheight, z, (byte)woodType);
-
-			chunk.SetBlock(x + 1, treebase + treeheight, z + 1, 18);
-			chunk.SetMetadata(x + 1, treebase + treeheight, z + 1, (byte)woodType);
-
-			chunk.SetBlock(x - 1, treebase + treeheight, z - 1, 18);
-			chunk.SetMetadata(x - 1, treebase + treeheight, z - 1, (byte)woodType);
-
-			chunk.SetBlock(x + 1, treebase + treeheight, z - 1, 18);
-			chunk.SetMetadata(x - 1, treebase + treeheight, z, (byte)woodType);
-
-			chunk.SetBlock(x - 1, treebase + treeheight, z + 1, 18);
-			chunk.SetMetadata(x - 1, treebase + treeheight, z + 1, (byte)woodType);
-
-			for (int i = 0; i <= treeheight; i++)
-			{
-				chunk.SetBlock(x, treebase + i, z, 17);
-				chunk.SetMetadata(x, treebase + i, z, (byte)woodType);
-			} */
 		}
 
 		private static readonly Random Getrandom = new Random();

@@ -61,6 +61,7 @@ namespace MiNET.Entities
 						entityId = player.EntityId,
 						target = EntityId
 					});
+					player.Inventory.SetFirstEmptySlot((short)Item.Id, (byte)Count, Item.Metadata); //Add the items to the inventory
 
 					DespawnEntity();
 					break;

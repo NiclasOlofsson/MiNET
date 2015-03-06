@@ -5,9 +5,11 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using log4net;
+using MiNET.CommandHandler;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Plugins;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -31,6 +33,7 @@ namespace MiNET
 		private ChunkCoordinates _currentChunkPosition;
 		private bool _isBot;
 		private Inventory _openInventory;
+		private PluginManager _pluginManager;
 
 		public bool IsConnected { get; set; }
 
@@ -42,20 +45,13 @@ namespace MiNET
 		public string Username { get; private set; }
 		public PermissionManager Permissions { get; set; }
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="Player" /> class.
-		/// </summary>
-		/// <param name="server">The server.</param>
-		/// <param name="endPoint">The endPoint.</param>
-		/// <param name="level">The level.</param>
-		/// <param name="mtuSize">Size of the mtu.</param>
-		public Player(MiNetServer server, IPEndPoint endPoint, Level level, short mtuSize)
-			: base(-1, level)
+		public Player(MiNetServer server, IPEndPoint endPoint, Level level, PluginManager pluginManager, short mtuSize) : base(-1, level)
 		{
 			Server = server;
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
 			Level = level;
+			_pluginManager = pluginManager;
 
 			Permissions = new PermissionManager(UserGroup.User);
 			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
@@ -86,12 +82,18 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public void HandlePackage(Package message)
 		{
+			var result = _pluginManager.PluginPacketHandler(message);
+			if (result != message) message.PutPool();
+			message = result;
+
+			if (message == null) return;
+
 			if (typeof (McpeContainerSetSlot) == message.GetType())
 			{
 				HandleContainerSetSlot((McpeContainerSetSlot) message);
 			}
 
-			if (typeof (McpeContainerClose) == message.GetType())
+			else if (typeof (McpeContainerClose) == message.GetType())
 			{
 				HandleMcpeContainerClose((McpeContainerClose) message);
 			}
@@ -449,9 +451,9 @@ namespace MiNET
 		private void HandleMessage(McpeMessage message)
 		{
 			string text = message.message;
-			if (text.StartsWith("/"))
+			if (text.StartsWith("/") || text.StartsWith("."))
 			{
-				new CommandHandler.CommandHandler().HandleCommand(text, this);
+				new CommandManager().HandleCommand(text, this);
 			}
 			else
 			{
@@ -851,6 +853,13 @@ namespace MiNET
 		public void SendPackage(Package package)
 		{
 			if (!IsConnected) return;
+
+
+			var result = _pluginManager.PluginSendPacketHandler(package);
+			if (result != package) package.PutPool();
+			package = result;
+
+			if (package == null) return;
 
 			if (IsSpawned)
 			{

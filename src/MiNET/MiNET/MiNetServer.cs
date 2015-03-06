@@ -9,9 +9,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using MiNET.CommandHandler;
 using MiNET.Net;
-using MiNET.PluginSystem;
-using MiNET.PluginSystem.Attributes;
+using MiNET.Plugins;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -28,7 +28,7 @@ namespace MiNET
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private Level _level;
 		private Level _level2;
-		private PluginLoader _pluginLoader;
+		private PluginManager _pluginManager;
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
 		private string _motd = string.Empty;
@@ -87,9 +87,9 @@ namespace MiNET
 				Log.Info("Loading settings...");
 				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
 				Log.Info("Loading plugins...");
-				_pluginLoader = new PluginLoader();
-				_pluginLoader.LoadPlugins();
-				_pluginLoader.EnablePlugins(_level);
+				_pluginManager = new PluginManager();
+				_pluginManager.LoadPlugins();
+				_pluginManager.EnablePlugins(_level);
 				Log.Info("Plugins loaded!");
 
 				//for (int i = 1; i < 4; i++)
@@ -142,7 +142,7 @@ namespace MiNET
 				}, null, 1000, 1000);
 
 				Log.Info("Server open for business...");
-				new Task(() => new CommandHandler.CommandHandler().ConsoleCMDHandler(this, _level)).Start();
+				new Task(() => new CommandManager().ConsoleCMDHandler(this, _level)).Start();
 
 				return true;
 			}
@@ -177,7 +177,7 @@ namespace MiNET
 					}
 				}
 				Log.Info("Disabling plugins...");
-				_pluginLoader.DisablePlugins();
+				_pluginManager.DisablePlugins();
 
 				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.
@@ -328,7 +328,7 @@ namespace MiNET
 							}
 
 							PlayerNetworkSession session =
-								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize), senderEndpoint);
+								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
 							_playerSessions.TryAdd(senderEndpoint, session);
 						}
 						var data = packet.Encode();
@@ -403,45 +403,6 @@ namespace MiNET
 				PlayerNetworkSession value;
 				_playerSessions.TryRemove(senderEndpoint, out value);
 			}
-
-			if (!_performanceTest)
-			{
-				new Task(() => PluginPacketHandler(message, senderEndpoint)).Start();
-			}
-		}
-
-		private void PluginPacketHandler(Package message, IPEndPoint senderEndPoint)
-		{
-			return;
-			try
-			{
-				Player target = _level.GetPlayer(senderEndPoint);
-				foreach (var handler in PluginLoader.PacketHandlerDictionary)
-				{
-					HandlePacketAttribute atrib = (HandlePacketAttribute) handler.Key;
-					if (atrib.Packet == null) continue;
-					if (atrib.Packet == message.GetType())
-					{
-						var method = handler.Value;
-						if (method == null) return;
-						if (method.IsStatic)
-						{
-							new Task(() => method.Invoke(null, new object[] {message, target})).Start();
-						}
-						else
-						{
-							object obj = Activator.CreateInstance(method.DeclaringType);
-							new Task(() => method.Invoke(obj, new object[] {message, target})).Start();
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				//For now we will just ignore this, not to big of a deal.
-				//Will have to think a bit more about this later on.
-				Log.Warn("Plugin Error: " + ex);
-			}
 		}
 
 		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
@@ -511,49 +472,9 @@ namespace MiNET
 					_latency = message.Timer.ElapsedMilliseconds;
 				}
 
-				if (!_performanceTest)
-				{
-					Package message1 = message;
-					new Task(() => PluginSendPacketHandler(message1, senderEndpoint)).Start();
-				}
-
 				TraceSend(message);
+
 				message.PutPool();
-			}
-		}
-
-		private void PluginSendPacketHandler(Package message, IPEndPoint receiveEndPoint)
-		{
-			return;
-			try
-			{
-				Player target = _level.GetPlayer(receiveEndPoint);
-
-				foreach (var handler in PluginLoader.PacketSendHandlerDictionary)
-				{
-					HandleSendPacketAttribute atrib = (HandleSendPacketAttribute) handler.Key;
-					if (atrib.Packet == null) continue;
-					if (atrib.Packet == message.GetType())
-					{
-						var method = handler.Value;
-						if (method == null) return;
-						if (method.IsStatic)
-						{
-							new Task(() => method.Invoke(null, new object[] {message, target})).Start();
-						}
-						else
-						{
-							object obj = Activator.CreateInstance(method.DeclaringType);
-							new Task(() => method.Invoke(obj, new object[] {message, target})).Start();
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				//For now we will just ignore this, not to big of a deal.
-				//Will have to think a bit more about this later on.
-				Log.Warn("Plugin Error: " + ex);
 			}
 		}
 

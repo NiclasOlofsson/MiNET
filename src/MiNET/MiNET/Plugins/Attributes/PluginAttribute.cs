@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace MiNET.PluginSystem.Attributes
+namespace MiNET.Plugins.Attributes
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class PluginAttribute : Attribute

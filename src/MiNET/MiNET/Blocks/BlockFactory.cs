@@ -1,16 +1,19 @@
-using MiNET.Utils;
-using MiNET.Worlds;
+using log4net;
 
 namespace MiNET.Blocks
 {
 	public static class BlockFactory
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
+
 		public static Block GetBlockById(byte blockId)
 		{
 			Block block;
 
 			if (blockId == 0) block = new Air();
 			else if (blockId == 1) block = new Stone();
+			else if (blockId == 2) block = new Grass();
+			else if (blockId == 3) block = new Dirt();
 			else if (blockId == 4) block = new Cobblestone();
 			else if (blockId == 5) block = new WoodenPlanks();
 			else if (blockId == 6) block = new Sapling();
@@ -20,10 +23,15 @@ namespace MiNET.Blocks
 			else if (blockId == 10) block = new FlowingLava();
 			else if (blockId == 11) block = new StationaryLava();
 			else if (blockId == 12) block = new Sand();
+			else if (blockId == 13) block = new Gravel();
 			else if (blockId == 14) block = new GoldOre();
 			else if (blockId == 15) block = new IronOre();
+			else if (blockId == 16) block = new ColeOre();
 			else if (blockId == 17) block = new Wood();
 			else if (blockId == 20) block = new Glass();
+			else if (blockId == 21) block = new LapsisOre();
+			else if (blockId == 22) block = new LapsisBlock();
+			else if (blockId == 24) block = new Sandstone();
 			else if (blockId == 43) block = new DoubleStoneSlab();
 			else if (blockId == 44) block = new StoneSlab();
 			else if (blockId == 46) block = new Tnt();
@@ -55,26 +63,72 @@ namespace MiNET.Blocks
 			else if (blockId == 163) block = new AcaciaWoodStairs();
 			else if (blockId == 164) block = new DarkOakWoodStairs();
 			else if (blockId == 173) block = new CoalBlock();
-			else block = new Block(blockId);
+			else
+			{
+				Log.InfoFormat(@"
+	// Add this missing block to the BlockFactory
+	else if (blockId == {1}) block = new {0}();
+	
+	public class {0} : Block
+	{{
+		internal {0}() : base({1})
+		{{
+		}}
+	}}
+", "Missing", blockId);
+				block = new Block(blockId);
+			}
 
 			return block;
 		}
 	}
 
-	public class Slabs : Block
+	public class Sandstone : Block
 	{
-		internal Slabs(byte id) : base(id)
+		internal Sandstone() : base(24)
 		{
 		}
+	}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+	public class LapsisBlock : Block
+	{
+		internal LapsisBlock() : base(22)
 		{
-			if (face == BlockFace.Up)
-			{
+		}
+	}
 
-			}
+	public class LapsisOre : Block
+	{
+		internal LapsisOre() : base(21)
+		{
+		}
+	}
 
-			return true;
+	public class ColeOre : Block
+	{
+		internal ColeOre() : base(16)
+		{
+		}
+	}
+
+	public class Gravel : Block
+	{
+		internal Gravel() : base(13)
+		{
+		}
+	}
+
+	public class Grass : Block
+	{
+		internal Grass() : base(2)
+		{
+		}
+	}
+
+	public class Dirt : Block
+	{
+		internal Dirt() : base(3)
+		{
 		}
 	}
 

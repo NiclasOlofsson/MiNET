@@ -120,18 +120,6 @@ namespace MiNET.Worlds
 			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
 		}
 
-		public Player GetPlayer(IPEndPoint endPoint)
-		{
-			foreach (var player in Players)
-			{
-				if (Equals(player.EndPoint, endPoint))
-				{
-					return player;
-				}
-			}
-			throw new Exception("Player not found!");
-		}
-
 		public void AddPlayer(Player newPlayer)
 		{
 			lock (Players)

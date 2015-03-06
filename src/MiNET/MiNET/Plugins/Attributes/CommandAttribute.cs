@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MiNET.PluginSystem.Attributes
+namespace MiNET.Plugins.Attributes
 {
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 	public class CommandAttribute : Attribute
@@ -10,7 +10,7 @@ namespace MiNET.PluginSystem.Attributes
 		public string Usage;
 		public string Description;
 
-		public CommandAttribute(string command, string permission, string description = "N/A", string usage = "N/A")
+		public CommandAttribute(string command = null, string permission = null, string description = null, string usage = null)
 		{
 			Command = command;
 			Permission = permission;

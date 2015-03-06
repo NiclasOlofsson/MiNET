@@ -1,4 +1,5 @@
-﻿using MiNET.PluginSystem.Attributes;
+﻿using System;
+using MiNET.Plugins.Attributes;
 
 namespace MiNET.CommandHandler
 {
@@ -28,36 +29,36 @@ namespace MiNET.CommandHandler
 		{
 			if (arguments.Length >= 1)
 			{
-				player.SendMessage(getCommandHelp(arguments[0]));
+				player.SendMessage(GetCommandHelp(arguments[0]));
 				return true;
 			}
 			return false;
 		}
 
-		private string getCommandHelp(string command, bool usage = false)
+		private string GetCommandHelp(string command, bool usage = false)
 		{
-			foreach (ICommandHandler i in new CommandHandler().Commands)
+			foreach (ICommandHandler i in new CommandManager().Commands)
 			{
-				if (i.Command == command)
+				if (command.Equals(i.Command, StringComparison.InvariantCultureIgnoreCase))
 				{
 					if (!usage)
 					{
-						return i.Command + ": " + i.Description + "\nUsage: " + i.Usage;
+						return string.Format("{0}: {1}\nUsage: {2}", i.Command, i.Description, i.Usage);
 					}
 					break;
 				}
 			}
 
-			foreach (var i in CommandHandler.PluginCommands)
+			foreach (var i in CommandManager.PluginCommands)
 			{
-				CommandAttribute cmd = (CommandAttribute) i.Key;
-				if (cmd.Command == command)
+				CommandAttribute cmd = i.Key;
+				if (command.Equals(cmd.Command, StringComparison.InvariantCultureIgnoreCase))
 				{
-					return cmd.Command + ": " + cmd.Description + "\nUsage: " + cmd.Usage;
+					return string.Format("{0}: {1}\nUsage: {2}", cmd.Command, cmd.Description, cmd.Usage);
 				}
 			}
 
-			return "Command not found!";
+			return string.Format("No usage for command: {0}", command);
 		}
 	}
 }

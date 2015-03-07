@@ -34,9 +34,11 @@ Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-
 MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...    
 [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
 
-## Can I find any example plugins anywhere?
-Yes you can! We try to post upload some example plugins <b><a href="https://github.com/MiNET-Plugins">HERE</a></b>.<Br>
-Please note that the plugin system is work in progress and the example might be outdated.
+## Can I do my own plugins?
+
+Yes you can! See the [Plugin documention in the wiki](https://github.com/NiclasOlofsson/MiNET/wiki/Plugin-API-Documentation)
+
+We try to post upload some example plugins <b><a href="https://github.com/MiNET-Plugins">HERE</a></b>. **Please note that the plugin system is work in progress and the example might be outdated.**
 
 ## Can I contribute?
 

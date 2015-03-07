@@ -51,6 +51,63 @@ Of course you can! We just need you to accept the following:
 Also, make sure to join our Gitter chat for easy communication.    
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## How do i install with [NuGet](http://www.nuget.org/)
+
+To install MiNET, run the following command in the Package Manager Console
+
+    PM> Install-Package MiNET
+
+### If you want to update your localhost MiNET NuGet packages in Visual Studio.
+
+ 1.open MiNET.sln as Visual Studio 2013.
+ 
+ 2.open "TOOLS" Bar and Select "NuGet Package Manager"
+ 
+ 3.Select "Manage NuGet Packages for Solution"
+ 
+ 4.write "MiNET" in the Search box.
+ 
+ 5.Wait a Minute.
+ 
+ 6.View Results,and Updata.
+ 
+### If you want to develop using NuGet and debug in MiNET create a new console app
+```
+internal class Program
+{
+    private static void Main(string[] args)
+    {
+        Console.WriteLine("Starting MiNET");
+        var server = new MiNetServer();
+        server.StartServer();
+
+        Console.WriteLine("MiNET runing. Press <enter> to stop service..");
+        Console.ReadLine();
+
+        Console.WriteLine("Stopping MiNET");
+        server.StopServer();
+    }
+}
+```
+
+* and then add a "server.conf" file to the console app.
+
+* make sure it is copied on compile.
+ 
+* then add the following to that file.
+
+```
+	WorldProvider=flat
+	UsePCWorld=false
+	Gamemode=Creative
+	load_pe=false
+	save_pe=false
+	PluginDirectory=PluginDirectory
+```
+then press F5
+ 
+ **Enjoy....**
+
 ## How do I install this on Linux?
 
 On Linux, compiling and using the server is relatively straightforward but there are a few things that can catch you out in the process.

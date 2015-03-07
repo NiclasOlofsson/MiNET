@@ -28,6 +28,8 @@ namespace MiNET.Plugins
 			pluginDirectory = ConfigParser.GetProperty("PluginDirectory", pluginDirectory);
 			if (pluginDirectory != null)
 			{
+				pluginDirectory = Path.GetFullPath(pluginDirectory);
+
 				foreach (string pluginPath in Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories))
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
@@ -265,48 +267,23 @@ namespace MiNET.Plugins
 			return true;
 		}
 
-
-		internal Package PluginSendPacketHandler(Package message)
-		{
-			try
-			{
-				foreach (var handler in _packetSendHandlerDictionary)
-				{
-					PacketHandlerAttribute atrib = handler.Value;
-					if (atrib.PacketType == null) continue;
-					if (atrib.PacketType == message.GetType())
-					{
-						MethodInfo method = handler.Key;
-						if (method == null) return message;
-						if (method.IsStatic)
-						{
-							method.Invoke(null, new object[] {message, this});
-						}
-						else
-						{
-							object obj = Activator.CreateInstance(method.DeclaringType);
-							Package result = method.Invoke(obj, new object[] {message, this}) as Package;
-							return result;
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				//For now we will just ignore this, not to big of a deal.
-				//Will have to think a bit more about this later on.
-				Log.Warn("Plugin Error: " + ex);
-			}
-
-			return message;
-		}
-
-		internal Package PluginPacketHandler(Package message)
+		internal Package PluginPacketHandler(Package message, bool isReceiveHandler, Player player)
 		{
 			Package currentPackage = message;
+
 			try
 			{
-				foreach (var handler in _packetHandlerDictionary)
+				Dictionary<MethodInfo, PacketHandlerAttribute> packetHandlers;
+				if (isReceiveHandler)
+				{
+					packetHandlers = _packetHandlerDictionary;
+				}
+				else
+				{
+					packetHandlers = _packetSendHandlerDictionary;
+				}
+
+				foreach (var handler in packetHandlers)
 				{
 					PacketHandlerAttribute atrib = handler.Value;
 					if (atrib.PacketType == null) continue;
@@ -316,21 +293,36 @@ namespace MiNET.Plugins
 					if (method == null) continue;
 					if (method.IsStatic)
 					{
-						method.Invoke(null, new object[] {currentPackage, this});
+						method.Invoke(null, new object[] {currentPackage, player});
 					}
 					else
 					{
-						//object obj = Activator.CreateInstance(method.DeclaringType);
 						object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
 						if (pluginInstance == null) continue;
 
 						if (method.ReturnType == typeof (void))
 						{
-							method.Invoke(pluginInstance, new object[] {currentPackage, this});
+							ParameterInfo[] parameters = method.GetParameters();
+							if (parameters.Length == 1)
+							{
+								method.Invoke(pluginInstance, new object[] {currentPackage});
+							}
+							else if (parameters.Length == 2 && parameters[1].ParameterType == typeof (Player))
+							{
+								method.Invoke(pluginInstance, new object[] {currentPackage, player});
+							}
 						}
 						else
 						{
-							currentPackage = method.Invoke(pluginInstance, new object[] {currentPackage, this}) as Package;
+							ParameterInfo[] parameters = method.GetParameters();
+							if (parameters.Length == 1)
+							{
+								currentPackage = method.Invoke(pluginInstance, new object[] {currentPackage}) as Package;
+							}
+							else if (parameters.Length == 2 && parameters[1].ParameterType == typeof (Player))
+							{
+								currentPackage = method.Invoke(pluginInstance, new object[] {currentPackage, player}) as Package;
+							}
 						}
 					}
 				}

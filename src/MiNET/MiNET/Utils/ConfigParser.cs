@@ -35,79 +35,9 @@ namespace MiNET.Utils
 
 		public static GameMode GetProperty(string property, GameMode defaultValue)
 		{
-			return ReadGamemode(property, defaultValue);
-		}
-
-		public static Boolean GetProperty(string property, Boolean defaultValue)
-		{
-			return ReadBoolean(property, defaultValue);
-		}
-
-		public static int GetProperty(string property, int defaultValue)
-		{
-			return ReadInt(property, defaultValue);
-		}
-
-		public static Difficulty GetProperty(string property, Difficulty defaultValue)
-		{
-			return ReadDifficulty(property, defaultValue);
-		}
-
-		public static string GetProperty(string property, string defaultValue)
-		{
 			try
 			{
-				return ReadString(property);
-			}
-			catch
-			{
-				return defaultValue;
-			}
-		}
-
-		private static string ReadString(string rule)
-		{
-			foreach (string line in FileContents.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-			{
-				if (line.ToLower().StartsWith(rule.ToLower() + "="))
-				{
-					string value = line.Split('=')[1];
-					return value.ToLower();
-				}
-			}
-			throw new EntryPointNotFoundException("The specified property was not found.");
-		}
-
-		private static int ReadInt(string rule, int defaultValue)
-		{
-			try
-			{
-				return Convert.ToInt32(ReadString(rule));
-			}
-			catch
-			{
-				return defaultValue;
-			}
-		}
-
-		private static bool ReadBoolean(string rule, Boolean defaultValue)
-		{
-			try
-			{
-				string d = ReadString(rule);
-				return Convert.ToBoolean(d);
-			}
-			catch
-			{
-				return defaultValue;
-			}
-		}
-
-		private static GameMode ReadGamemode(string rule, GameMode defaultValue)
-		{
-			try
-			{
-				string gm = ReadString(rule);
+				string gm = ReadString(property);
 				switch (gm)
 				{
 					case "1":
@@ -132,11 +62,36 @@ namespace MiNET.Utils
 			}
 		}
 
-		private static Difficulty ReadDifficulty(string rule, Difficulty defaultValue)
+		public static Boolean GetProperty(string property, bool defaultValue)
 		{
 			try
 			{
-				string df = ReadString(rule).ToLower();
+				string d = ReadString(property);
+				return Convert.ToBoolean(d);
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
+		public static int GetProperty(string property, int defaultValue)
+		{
+			try
+			{
+				return Convert.ToInt32(ReadString(property));
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
+		public static Difficulty GetProperty(string property, Difficulty defaultValue)
+		{
+			try
+			{
+				string df = ReadString(property).ToLower();
 				switch (df)
 				{
 					case "easy":
@@ -155,6 +110,31 @@ namespace MiNET.Utils
 			{
 				return defaultValue;
 			}
+		}
+
+		public static string GetProperty(string property, string defaultValue)
+		{
+			try
+			{
+				return ReadString(property);
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
+		private static string ReadString(string property)
+		{
+			foreach (string line in FileContents.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+			{
+				if (line.ToLower().StartsWith(property.ToLower() + "="))
+				{
+					string value = line.Split('=')[1];
+					return value.ToLower();
+				}
+			}
+			throw new EntryPointNotFoundException("The specified property was not found.");
 		}
 	}
 }

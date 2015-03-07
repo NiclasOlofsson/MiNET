@@ -81,7 +81,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public void HandlePackage(Package message)
 		{
-			var result = _pluginManager.PluginPacketHandler(message);
+			var result = _pluginManager.PluginPacketHandler(message, true, this);
 			if (result != message) message.PutPool();
 			message = result;
 
@@ -854,7 +854,7 @@ namespace MiNET
 			if (!IsConnected) return;
 
 
-			var result = _pluginManager.PluginSendPacketHandler(package);
+			var result = _pluginManager.PluginPacketHandler(package, false, this);
 			if (result != package) package.PutPool();
 			package = result;
 

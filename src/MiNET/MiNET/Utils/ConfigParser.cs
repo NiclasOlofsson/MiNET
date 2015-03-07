@@ -16,29 +16,31 @@ namespace MiNET.Utils
 
 		public static bool Check()
 		{
-			var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
-			var path = new Uri(System.IO.Path.GetDirectoryName(assembly)).LocalPath;
+			//var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
+			//var path = new Uri(System.IO.Path.GetDirectoryName(assembly)).LocalPath;
 
-			ConfigFile = Path.Combine(path, ConfigFile);
+			//ConfigFile = Path.Combine(path, ConfigFile);
 
-			if (!File.Exists(ConfigFile))
-			{
-				File.WriteAllLines(ConfigFile, InitialValue);
-				return Check();
-			}
-			else
-			{
-				FileContents = File.ReadAllText(ConfigFile);
-				if (!FileContents.Contains("#DO NOT REMOVE THIS LINE - MiNET Config"))
-				{
-					File.Delete(ConfigFile);
-					return Check();
-				}
-				else
-				{
-					return true;
-				}
-			}
+			//if (!File.Exists(ConfigFile))
+			//{
+			//	File.WriteAllLines(ConfigFile, InitialValue);
+			//	return Check();
+			//}
+			//else
+			//{
+			//	FileContents = File.ReadAllText(ConfigFile);
+			//	if (!FileContents.Contains("#DO NOT REMOVE THIS LINE - MiNET Config"))
+			//	{
+			//		File.Delete(ConfigFile);
+			//		return Check();
+			//	}
+			//	else
+			//	{
+			//		return true;
+			//	}
+			//}
+
+			return true;
 		}
 
 		public static GameMode GetProperty(string Property, GameMode DefaultValue)

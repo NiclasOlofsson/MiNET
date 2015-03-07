@@ -51,6 +51,14 @@ Of course you can! We just need you to accept the following:
 Also, make sure to join our Gitter chat for easy communication.    
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## How do i install with [NuGet](http://www.nuget.org/)
+
+To install MiNET, run the following command in the Package Manager Console
+
+    PM> Install-Package MiNET
+
+### [MiNET NuGet Page](https://www.nuget.org/packages/MiNET/)
+
 ## How do I install this on Linux?
 
 On Linux, compiling and using the server is relatively straightforward but there are a few things that can catch you out in the process.

@@ -9,7 +9,7 @@ Even though I have to admit that I'm a bit honored by all the job offerings late
 Thanks for understanding,    
 Niclas
 
-## Can i test this before I download it?
+## Can I test this before I download it?
 Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
 IP: **94.23.50.5**    
 Port: **19132**    

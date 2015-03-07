@@ -72,24 +72,23 @@ To install MiNET, run the following command in the Package Manager Console
  6.View Results,and Updata.
  
 ### If you want to develop using NuGet and debug in MiNET create a new console app
-
-    internal class Program
-    {
+```
+internal class Program
+{
     private static void Main(string[] args)
     {
         Console.WriteLine("Starting MiNET");
         var server = new MiNetServer();
         server.StartServer();
 
-
         Console.WriteLine("MiNET runing. Press <enter> to stop service..");
         Console.ReadLine();
-
 
         Console.WriteLine("Stopping MiNET");
         server.StopServer();
     }
-    }
+}
+```
 
 * and then add a "server.conf" file to the console app.
 
@@ -97,30 +96,14 @@ To install MiNET, run the following command in the Package Manager Console
  
 * then add the following to that file.
 
-
-
+```
 	WorldProvider=flat
-	
 	UsePCWorld=false
-	
 	Gamemode=Creative
-	
 	load_pe=false
-	
-
-
-
-
-
-       WorldProvider=flat
-       UsePCWorld=false
-       Gamemode=Creative
-       load_pe=false
-       save_pe=false
-       PluginDirectory=PluginDirectory
-
-
-
+	save_pe=false
+	PluginDirectory=PluginDirectory
+```
 then press F5
  
  **Enjoy....**

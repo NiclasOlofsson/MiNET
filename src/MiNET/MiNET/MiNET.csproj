@@ -215,6 +215,7 @@
     <Compile Include="Items\ItemBucket.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="MiNET.nuspec" />
     <None Include="Net\MCPE Protocol Documentation.md">
       <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
       <AutoGen>True</AutoGen>

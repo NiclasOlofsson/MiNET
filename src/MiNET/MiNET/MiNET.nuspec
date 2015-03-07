@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://raw.githubusercontent.com/NiclasOlofsson/MiNET/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/NiclasOlofsson/MiNET</projectUrl>
+    <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Initial beta release of plugin API</releaseNotes>
+    <copyright>Copyright Niclas Olofsson 2015</copyright>
+    <tags>MiNET Plugin API MCPE Minecraft PocketEdition</tags>
+  </metadata>
+</package>

@@ -1,3 +1,5 @@
+In case you don't find the information your are looking for in the README. Do try the [wiki](https://github.com/NiclasOlofsson/MiNET/wiki)
+
 MiNET
 =====
 

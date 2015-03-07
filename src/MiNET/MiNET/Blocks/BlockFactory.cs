@@ -26,7 +26,7 @@ namespace MiNET.Blocks
 			else if (blockId == 13) block = new Gravel();
 			else if (blockId == 14) block = new GoldOre();
 			else if (blockId == 15) block = new IronOre();
-			else if (blockId == 16) block = new ColeOre();
+			else if (blockId == 16) block = new CoalOre();
 			else if (blockId == 17) block = new Wood();
 			else if (blockId == 20) block = new Glass();
 			else if (blockId == 21) block = new LapsisOre();
@@ -104,9 +104,9 @@ namespace MiNET.Blocks
 		}
 	}
 
-	public class ColeOre : Block
+	public class CoalOre : Block
 	{
-		internal ColeOre() : base(16)
+		internal CoalOre() : base(16)
 		{
 		}
 	}

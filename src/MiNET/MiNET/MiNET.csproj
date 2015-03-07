@@ -96,7 +96,6 @@
     <Compile Include="Blocks\Wood.cs" />
     <Compile Include="Blocks\WoodenPlanks.cs" />
     <Compile Include="CommandHandler\BoomCommand.cs" />
-    <Compile Include="CommandHandler\CommandManager.cs" />
     <Compile Include="CommandHandler\DeOpCommand.cs" />
     <Compile Include="CommandHandler\GiveCommand.cs" />
     <Compile Include="CommandHandler\HelpCommand.cs" />
@@ -127,7 +126,7 @@
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
-    <Compile Include="Plugins\AbstractPlugin.cs" />
+    <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />
     <Compile Include="Plugins\Attributes\PacketHandlerAttribute.cs" />
     <Compile Include="Plugins\Attributes\PluginAttribute.cs" />
@@ -168,6 +167,7 @@
     <Compile Include="Net\UnknownPackage.cs" />
     <Compile Include="MiNetServer.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="Plugins\PluginContext.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />

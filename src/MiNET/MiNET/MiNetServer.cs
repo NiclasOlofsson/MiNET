@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using MiNET.CommandHandler;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Utils;
@@ -89,7 +88,7 @@ namespace MiNET
 				Log.Info("Loading plugins...");
 				_pluginManager = new PluginManager();
 				_pluginManager.LoadPlugins();
-				_pluginManager.EnablePlugins(_level);
+				_pluginManager.EnablePlugins(_levels);
 				Log.Info("Plugins loaded!");
 
 				//for (int i = 1; i < 4; i++)
@@ -142,7 +141,6 @@ namespace MiNET
 				}, null, 1000, 1000);
 
 				Log.Info("Server open for business...");
-				new Task(() => new CommandManager().ConsoleCMDHandler(this, _level)).Start();
 
 				return true;
 			}

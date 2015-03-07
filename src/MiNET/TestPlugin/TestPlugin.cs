@@ -6,11 +6,34 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 
+// ReSharper disable UnusedMember.Global
+
 namespace TestPlugin
 {
 	[Plugin("CoreCommands", "The core commands for MiNET", "1.0", "MiNET Team")]
-	internal class CoreCommands : Plugin
+	public class CoreCommands : Plugin
 	{
+	}
+
+	[Plugin]
+	public class HelloWorld : Plugin
+	{
+	}
+
+	[Plugin]
+	public class SimplePlugin : Plugin
+	{
+		[PacketHandler, Receive]
+		public Package HandleIncoming(McpeMovePlayer packet)
+		{
+			return packet; // Process
+		}
+
+		[PacketHandler, Send]
+		public Package HandleOutgoing(McpeMovePlayer packet)
+		{
+			return packet; // Send
+		}
 	}
 
 	[Plugin("Test", "A Test Plugin for MiNET", "1.0", "MiNET Team")]
@@ -28,6 +51,11 @@ namespace TestPlugin
 			Log.Debug("Succesfully disabled test plugin.");
 		}
 
+		public Package MinimalHandler(McpeMovePlayer packet, Player source)
+		{
+			return packet; // Handled
+		}
+
 		[PacketHandler]
 		public Package HandlePacketTest(McpeMovePlayer packet, Player source)
 		{
@@ -43,7 +71,7 @@ namespace TestPlugin
 		}
 
 		[PacketHandler(typeof (McpeSetHealth))]
-		[Send]
+		[Receive]
 		public Package HandleSetHealthPacket(McpeSetHealth packet, Player source)
 		{
 			return packet; // Send
@@ -54,6 +82,13 @@ namespace TestPlugin
 		public Package HandleSetHealthPacketNoSpec(McpeSetHealth packet, Player source)
 		{
 			return packet; // Send
+		}
+
+		[PacketHandler]
+		[Send]
+		public Package HandleSendMove(McpeMovePlayer packet, Player source)
+		{
+			return packet;
 		}
 
 		[Send]

@@ -1,7 +1,4 @@
-﻿using System;
-using MiNET.Plugins.Attributes;
-
-namespace MiNET.CommandHandler
+﻿namespace MiNET.CommandHandler
 {
 	internal class HelpCommand : ICommandHandler
 	{
@@ -37,26 +34,14 @@ namespace MiNET.CommandHandler
 
 		private string GetCommandHelp(string command, bool usage = false)
 		{
-			foreach (ICommandHandler i in new CommandManager().Commands)
-			{
-				if (command.Equals(i.Command, StringComparison.InvariantCultureIgnoreCase))
-				{
-					if (!usage)
-					{
-						return string.Format("{0}: {1}\nUsage: {2}", i.Command, i.Description, i.Usage);
-					}
-					break;
-				}
-			}
-
-			foreach (var i in CommandManager.PluginCommands)
-			{
-				CommandAttribute cmd = i.Key;
-				if (command.Equals(cmd.Command, StringComparison.InvariantCultureIgnoreCase))
-				{
-					return string.Format("{0}: {1}\nUsage: {2}", cmd.Command, cmd.Description, cmd.Usage);
-				}
-			}
+			//foreach (var i in CommandManager.PluginCommands)
+			//{
+			//	CommandAttribute cmd = i.Key;
+			//	if (command.Equals(cmd.Command, StringComparison.InvariantCultureIgnoreCase))
+			//	{
+			//		return string.Format("{0}: {1}\nUsage: {2}", cmd.Command, cmd.Description, cmd.Usage);
+			//	}
+			//}
 
 			return string.Format("No usage for command: {0}", command);
 		}

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using log4net;
-using MiNET.CommandHandler;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -21,6 +20,7 @@ namespace MiNET.Plugins
 		private readonly List<IPlugin> _plugins = new List<IPlugin>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
+		private readonly Dictionary<MethodInfo, CommandAttribute> _pluginCommands = new Dictionary<MethodInfo, CommandAttribute>();
 
 		internal void LoadPlugins()
 		{
@@ -37,6 +37,7 @@ namespace MiNET.Plugins
 						try
 						{
 							if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
+
 							var ctor = type.GetConstructor(new Type[] {});
 							if (ctor != null)
 							{
@@ -82,7 +83,7 @@ namespace MiNET.Plugins
 				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof (DescriptionAttribute), false) as DescriptionAttribute;
 				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
 
-				CommandManager.PluginCommands.Add(commandAttribute, method);
+				_pluginCommands.Add(method, commandAttribute);
 			}
 		}
 
@@ -113,13 +114,13 @@ namespace MiNET.Plugins
 			}
 		}
 
-		internal void EnablePlugins(Level level)
+		internal void EnablePlugins(List<Level> levels)
 		{
-			foreach (IPlugin miNetPlugin in _plugins)
+			foreach (IPlugin plugin in _plugins)
 			{
 				try
 				{
-					miNetPlugin.OnEnable(new PluginContext(this, new List<Level>()));
+					plugin.OnEnable(new PluginContext(this, levels));
 				}
 				catch (Exception ex)
 				{
@@ -130,11 +131,11 @@ namespace MiNET.Plugins
 
 		internal void DisablePlugins()
 		{
-			foreach (IPlugin miNetPlugin in _plugins)
+			foreach (IPlugin plugin in _plugins)
 			{
 				try
 				{
-					miNetPlugin.OnDisable();
+					plugin.OnDisable();
 				}
 				catch (Exception ex)
 				{
@@ -142,6 +143,128 @@ namespace MiNET.Plugins
 				}
 			}
 		}
+
+		public void HandleCommand(string message, Player player, bool console = false)
+		{
+			try
+			{
+				string commandText = message.Split(' ')[0];
+				message = message.Replace(commandText, "").Trim();
+				commandText = commandText.Replace("/", "").Replace(".", "");
+
+				string[] arguments = message.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+
+				foreach (var handlerEntry in _pluginCommands)
+				{
+					CommandAttribute commandAttribute = handlerEntry.Value;
+					if (!commandText.Equals(commandAttribute.Command, StringComparison.InvariantCultureIgnoreCase)) continue;
+
+					if (!player.Permissions.HasPermission(commandAttribute.Permission) && !player.Permissions.HasPermission("*") && !player.Permissions.IsInGroup(UserGroup.Operator))
+					{
+						if (!console) player.SendMessage("You are not permitted to use this command!");
+						return;
+					}
+
+					MethodInfo method = handlerEntry.Key;
+					if (method == null) return;
+
+					if (ExecutePluginCommand(method, player, arguments)) return;
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Warn(ex);
+			}
+		}
+
+		private bool ExecutePluginCommand(MethodInfo method, Player player, string[] args)
+		{
+			var parameters = method.GetParameters();
+
+			int addLenght = 0;
+			if (parameters.Length > 0 && parameters[0].ParameterType == typeof (Player))
+			{
+				addLenght = 1;
+			}
+
+			if (parameters.Length != args.Length + addLenght) return false;
+
+			object[] objectArgs = new object[parameters.Length];
+
+			for (int k = 0; k < parameters.Length; k++)
+			{
+				var parameter = parameters[k];
+				int i = k - addLenght;
+				if (k == 0 && addLenght == 1)
+				{
+					if (parameter.ParameterType == typeof (Player))
+					{
+						objectArgs[k] = player;
+						continue;
+					}
+					Log.WarnFormat("Command method {0} missing Player as first argument.", method.Name);
+					return false;
+				}
+
+				if (parameter.ParameterType == typeof (string))
+				{
+					objectArgs[k] = args[i];
+					continue;
+				}
+				if (parameter.ParameterType == typeof (short))
+				{
+					short value;
+					if (!short.TryParse(args[i], out value)) return false;
+					objectArgs[k] = value;
+					continue;
+				}
+				if (parameter.ParameterType == typeof (int))
+				{
+					int value;
+					if (!int.TryParse(args[i], out value)) return false;
+					objectArgs[k] = value;
+					continue;
+				}
+				if (parameter.ParameterType == typeof (bool))
+				{
+					bool value;
+					if (!bool.TryParse(args[i], out value)) return false;
+					objectArgs[k] = value;
+					continue;
+				}
+				if (parameter.ParameterType == typeof (float))
+				{
+					float value;
+					if (!float.TryParse(args[i], out value)) return false;
+					objectArgs[k] = value;
+					continue;
+				}
+				if (parameter.ParameterType == typeof (double))
+				{
+					double value;
+					if (!double.TryParse(args[i], out value)) return false;
+					objectArgs[k] = value;
+					continue;
+				}
+
+				return false;
+			}
+
+			if (method.IsStatic)
+			{
+				method.Invoke(null, objectArgs);
+			}
+			else
+			{
+				if (method.DeclaringType == null) return false;
+
+				object obj = Activator.CreateInstance(method.DeclaringType);
+				method.Invoke(obj, objectArgs);
+			}
+
+			return true;
+		}
+
 
 		internal Package PluginSendPacketHandler(Package message)
 		{

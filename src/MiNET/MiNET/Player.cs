@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using log4net;
-using MiNET.CommandHandler;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
@@ -453,7 +452,7 @@ namespace MiNET
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))
 			{
-				new CommandManager().HandleCommand(text, this);
+				_pluginManager.HandleCommand(text, this);
 			}
 			else
 			{

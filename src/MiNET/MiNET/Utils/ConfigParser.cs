@@ -1,123 +1,113 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+using log4net;
 using MiNET.Worlds;
 
 namespace MiNET.Utils
 {
 	public class ConfigParser
 	{
-		public static string ConfigFile = string.Empty;
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ConfigParser));
+
+		public static string ConfigFileName = "server.conf";
 		private static string FileContents = string.Empty;
-		public static string[] InitialValue;
 
-		public ConfigParser()
-		{
-		}
-
-		public static bool Check()
-		{
-			//var assembly = System.Reflection.Assembly.GetExecutingAssembly().GetName().CodeBase;
-			//var path = new Uri(System.IO.Path.GetDirectoryName(assembly)).LocalPath;
-
-			//ConfigFile = Path.Combine(path, ConfigFile);
-
-			//if (!File.Exists(ConfigFile))
-			//{
-			//	File.WriteAllLines(ConfigFile, InitialValue);
-			//	return Check();
-			//}
-			//else
-			//{
-			//	FileContents = File.ReadAllText(ConfigFile);
-			//	if (!FileContents.Contains("#DO NOT REMOVE THIS LINE - MiNET Config"))
-			//	{
-			//		File.Delete(ConfigFile);
-			//		return Check();
-			//	}
-			//	else
-			//	{
-			//		return true;
-			//	}
-			//}
-
-			return true;
-		}
-
-		public static GameMode GetProperty(string Property, GameMode DefaultValue)
-		{
-			return ReadGamemode(Property, DefaultValue);
-		}
-
-		public static Boolean GetProperty(string Property, Boolean DefaultValue)
-		{
-			return ReadBoolean(Property, DefaultValue);
-		}
-
-		public static int GetProperty(string Property, int DefaultValue)
-		{
-			return ReadInt(Property, DefaultValue);
-		}
-
-		public static Difficulty GetProperty(string Property, Difficulty DefaultValue)
-		{
-			return ReadDifficulty(Property, DefaultValue);
-		}
-
-		public static string GetProperty(string Property, string DefaultValue)
+		static ConfigParser()
 		{
 			try
 			{
-				return ReadString(Property);
+				var assembly = Assembly.GetExecutingAssembly().GetName().CodeBase;
+				var path = new Uri(Path.GetDirectoryName(assembly)).LocalPath;
+
+				var configFilePath = Path.Combine(path, ConfigFileName);
+
+				if (File.Exists(configFilePath))
+				{
+					FileContents = File.ReadAllText(configFilePath);
+				}
 			}
-			catch
+			catch (Exception e)
 			{
-				return DefaultValue;
+				Log.Warn("Error configuring parser", e);
 			}
 		}
 
-		private static string ReadString(string Rule)
+		public static GameMode GetProperty(string property, GameMode defaultValue)
 		{
-			foreach (string Line in FileContents.Split(new string[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.None))
+			return ReadGamemode(property, defaultValue);
+		}
+
+		public static Boolean GetProperty(string property, Boolean defaultValue)
+		{
+			return ReadBoolean(property, defaultValue);
+		}
+
+		public static int GetProperty(string property, int defaultValue)
+		{
+			return ReadInt(property, defaultValue);
+		}
+
+		public static Difficulty GetProperty(string property, Difficulty defaultValue)
+		{
+			return ReadDifficulty(property, defaultValue);
+		}
+
+		public static string GetProperty(string property, string defaultValue)
+		{
+			try
 			{
-				if (Line.ToLower().StartsWith(Rule.ToLower() + "="))
+				return ReadString(property);
+			}
+			catch
+			{
+				return defaultValue;
+			}
+		}
+
+		private static string ReadString(string rule)
+		{
+			foreach (string line in FileContents.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+			{
+				if (line.ToLower().StartsWith(rule.ToLower() + "="))
 				{
-					string Value = Line.Split('=')[1];
-					return Value.ToLower();
+					string value = line.Split('=')[1];
+					return value.ToLower();
 				}
 			}
 			throw new EntryPointNotFoundException("The specified property was not found.");
 		}
 
-		private static int ReadInt(string Rule, int Default)
+		private static int ReadInt(string rule, int defaultValue)
 		{
 			try
 			{
-				return Convert.ToInt32(ReadString(Rule));
+				return Convert.ToInt32(ReadString(rule));
 			}
 			catch
 			{
-				return Default;
+				return defaultValue;
 			}
 		}
 
-		private static bool ReadBoolean(string Rule, Boolean Default)
+		private static bool ReadBoolean(string rule, Boolean defaultValue)
 		{
 			try
 			{
-				string D = ReadString(Rule);
-				return Convert.ToBoolean(D);
+				string d = ReadString(rule);
+				return Convert.ToBoolean(d);
 			}
 			catch
 			{
-				return Default;
+				return defaultValue;
 			}
 		}
 
-		private static GameMode ReadGamemode(string Rule, GameMode Default)
+		private static GameMode ReadGamemode(string rule, GameMode defaultValue)
 		{
 			try
 			{
-				string gm = ReadString(Rule);
+				string gm = ReadString(rule);
 				switch (gm)
 				{
 					case "1":
@@ -133,20 +123,20 @@ namespace MiNET.Utils
 					case "spectator":
 						return GameMode.Spectator;
 					default:
-						return Default;
+						return defaultValue;
 				}
 			}
 			catch
 			{
-				return Default;
+				return defaultValue;
 			}
 		}
 
-		private static Difficulty ReadDifficulty(string Rule, Difficulty Default)
+		private static Difficulty ReadDifficulty(string rule, Difficulty defaultValue)
 		{
 			try
 			{
-				string df = ReadString(Rule).ToLower();
+				string df = ReadString(rule).ToLower();
 				switch (df)
 				{
 					case "easy":
@@ -158,12 +148,12 @@ namespace MiNET.Utils
 					case "peaceful":
 						return Difficulty.Peaceful;
 					default:
-						return Default;
+						return defaultValue;
 				}
 			}
 			catch
 			{
-				return Default;
+				return defaultValue;
 			}
 		}
 	}

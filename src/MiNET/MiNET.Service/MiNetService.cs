@@ -45,21 +45,6 @@ namespace MiNET.Service
 		/// <param name="args">The arguments.</param>
 		private static void Main(string[] args)
 		{
-			ConfigParser.ConfigFile = "server.conf";
-
-			ConfigParser.InitialValue = new string[]
-			{
-				"#DO NOT REMOVE THIS LINE - MiNET Config",
-				"Gamemode=Creative",
-				"Difficulty=Peaceful",
-				"WorldFolder=world",
-				"MOTD=MiNET - Another MC server",
-				"UsePCWorld=false",
-				"PCWorldFolder=PathToWorld",
-			};
-
-			ConfigParser.Check();
-
 			if (IsRunningOnMono())
 			{
 				var service = new MiNetService();

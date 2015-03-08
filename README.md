@@ -1,5 +1,7 @@
 In case you don't find the information your are looking for in the README. Do try the [wiki](https://github.com/NiclasOlofsson/MiNET/wiki)
 
+如果你想了解更多的中文信息，可以点击这里查看[中文WIKI](https://github.com/NiclasOlofsson/MiNET/wiki/MiNET-INFO%EF%BC%88In-ZH_CN%EF%BC%89)，或是进入[MiNET中文论坛](http://minetcn.com/)
+
 MiNET
 =====
 
@@ -29,7 +31,11 @@ This is actually a pet-project - a true father-son project that I do together wi
 
 And as he really likes to tell his mother these days "Mom, don't disturb daddy. He is working for me now!". 6 years old, but I think you get the picture. I know he does.
 
-Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-button" data-show-count="false" data-size="large" data-dnt="true">Twitter @NiclasOlofsson</a> for news about the project, or simply track the checkins which i tend to comment heavily.
+Lately I have also been joined by kennyvv as a full member of the team with me and Oliver. I still considering the impact of this in respect to the father-son project concept. Might be forced to adopt kennyvv at some point, we will see. I guess for now I will be the old grumpy guy and kennyvv the wise nice young guy (smartass kid, yeah).
+
+Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-button" data-show-count="true" data-size="large" data-dnt="true">Twitter @NiclasOlofsson</a> for news about the project, or simply track the checkins which i tend to comment heavily.
+
+Also follow kennyvv on <a href="https://twitter.com/WuppDotNet" class="twitter-follow-button" data-show-count="true" data-size="large" data-dnt="true">Twitter @WuppDotNet</a> for even more news and updates.
  
 MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...    
 [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)

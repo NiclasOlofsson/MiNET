@@ -5,10 +5,12 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using log4net;
+using Microsoft.AspNet.Identity;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
+using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -387,6 +389,23 @@ namespace MiNET
 			Username = message.username;
 
 			if (Username == null) throw new Exception("No username on login");
+
+			if (ConfigParser.GetProperty("EnableSecurity", true))
+			{
+				var userManager = new UserManager<User>(new DefaultUserStore());
+				var roleManager = new RoleManager<Role>(new DefaultRoleStore());
+
+				if (userManager.FindByName(Username) == null)
+				{
+					SendPackage(new McpeLoginStatus {status = 3});
+					return;
+				}
+			}
+
+			//Success = 0;
+			//FailedClientIsOld = 1;
+			//FailedServerIsOld, FailedClientIsTooNew = 2;
+			//FailedPlayerAuthentication = 3;
 
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);

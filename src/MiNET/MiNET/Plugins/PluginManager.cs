@@ -40,10 +40,10 @@ namespace MiNET.Plugins
 						{
 							if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
 
-							var ctor = type.GetConstructor(new Type[] {});
+							var ctor = type.GetConstructor(Type.EmptyTypes);
 							if (ctor != null)
 							{
-								var plugin = ctor.Invoke(new object[] {}) as IPlugin;
+								var plugin = ctor.Invoke(null) as IPlugin;
 								_plugins.Add(plugin);
 								LoadCommands(type);
 								LoadPacketHandlers(type);
@@ -112,6 +112,24 @@ namespace MiNET.Plugins
 							_packetHandlerDictionary.Add(method, packetHandlerAttribute);
 						}
 					}
+				}
+			}
+		}
+
+		internal void ExecuteStartup(MiNetServer server)
+		{
+			foreach (IPlugin plugin in _plugins)
+			{
+				IStartup startupClass = plugin as IStartup;
+				if (startupClass == null) continue;
+
+				try
+				{
+					startupClass.Configure(server);
+				}
+				catch (Exception ex)
+				{
+					Log.Warn("Execute Startup class failed", ex);
 				}
 			}
 		}

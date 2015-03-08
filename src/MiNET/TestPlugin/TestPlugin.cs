@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel;
 using log4net;
+using Microsoft.AspNet.Identity;
 using MiNET;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Security;
 using MiNET.Utils;
 
 // ReSharper disable UnusedMember.Global
@@ -33,6 +35,24 @@ namespace TestPlugin
 		public Package HandleOutgoing(McpeMovePlayer packet)
 		{
 			return packet; // Send
+		}
+	}
+
+	[Plugin]
+	public class StartupPlugin : Plugin, IStartup
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (StartupPlugin));
+
+		/// <summary>
+		/// Startup class for MiNET. Example sets the user and role managers and stores 
+		/// for the application.
+		/// </summary>
+		/// <param name="server"></param>
+		public void Configure(MiNetServer server)
+		{
+			server.UserManager = new UserManager<User>(new DefaultUserStore());
+			server.RoleManager = new RoleManager<Role>(new DefaultRoleStore());
+			Log.Info("Executed startup successfully. Replaced identity managment.");
 		}
 	}
 

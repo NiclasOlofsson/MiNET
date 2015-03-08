@@ -9,8 +9,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
+using Microsoft.AspNet.Identity;
 using MiNET.Net;
 using MiNET.Plugins;
+using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -31,6 +33,21 @@ namespace MiNET
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
 		private string _motd = string.Empty;
+
+		private static bool _performanceTest = false;
+		public UserManager<User> UserManager { get; set; }
+		public RoleManager<Role> RoleManager { get; set; }
+
+		// Performance measures
+		private long _numberOfAckSent = 0;
+		private long _numberOfPacketsOutPerSecond = 0;
+		private long _numberOfPacketsInPerSecond = 0;
+		private long _totalPacketSizeOut = 0;
+		private long _totalPacketSizeIn = 0;
+		private Timer _throughPut = null;
+		private long _latency = -1;
+		private int _availableBytes;
+
 
 		/// <summary>
 		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
@@ -53,7 +70,7 @@ namespace MiNET
 		/// <param name="endpoint">The endpoint.</param>
 		public MiNetServer(IPEndPoint endpoint)
 		{
-			_endpoint = new IPEndPoint(IPAddress.Any, DefaultPort);
+			_endpoint = endpoint;
 		}
 
 		/// <summary>
@@ -79,24 +96,36 @@ namespace MiNET
 			try
 			{
 				Log.Info("Initializing...");
+
 				_level = new Level("Default");
 				_level.Initialize();
 				_levels.Add(_level);
-
-				Log.Info("Loading settings...");
-				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
-				Log.Info("Loading plugins...");
-				_pluginManager = new PluginManager();
-				_pluginManager.LoadPlugins();
-				_pluginManager.EnablePlugins(_levels);
-				Log.Info("Plugins loaded!");
-
 				//for (int i = 1; i < 4; i++)
 				//{
 				//	Level level = new Level("" + i);
 				//	level.Initialize();
 				//	_levels.Add(level);
 				//}
+
+				Log.Info("Loading settings...");
+				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
+
+				Log.Info("Loading plugins...");
+				_pluginManager = new PluginManager();
+				_pluginManager.LoadPlugins();
+				Log.Info("Plugins loaded!");
+
+				// Bootstrap server
+				_pluginManager.ExecuteStartup(this);
+
+				if (ConfigParser.GetProperty("EnableSecurity", false))
+				{
+					// http://www.asp.net/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity
+					UserManager = UserManager ?? new UserManager<User>(new DefaultUserStore());
+					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
+				}
+
+				_pluginManager.EnablePlugins(_levels);
 
 				_listener = new UdpClient(_endpoint);
 
@@ -329,6 +358,7 @@ namespace MiNET
 								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
 							_playerSessions.TryAdd(senderEndpoint, session);
 						}
+
 						var data = packet.Encode();
 						TraceSend(packet);
 						SendData(data, senderEndpoint);
@@ -495,14 +525,6 @@ namespace MiNET
 			datagram.PutPool();
 		}
 
-		private long _numberOfAckSent = 0;
-		private long _numberOfPacketsOutPerSecond = 0;
-		private long _numberOfPacketsInPerSecond = 0;
-		private long _totalPacketSizeOut = 0;
-		private long _totalPacketSizeIn = 0;
-		private Timer _throughPut = null;
-		private long _latency = -1;
-		private int _availableBytes;
 
 		/// <summary>
 		///     Sends the data.
@@ -561,8 +583,6 @@ namespace MiNET
 			return hex.ToString();
 		}
 
-
-		private static bool _performanceTest = false;
 
 		private static void TraceReceive(Package message)
 		{

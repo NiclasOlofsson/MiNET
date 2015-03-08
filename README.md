@@ -1,5 +1,7 @@
 In case you don't find the information your are looking for in the README. Do try the [wiki](https://github.com/NiclasOlofsson/MiNET/wiki)
 
+如果你想了解更多的中文信息，可以点击这里查看[中文WIKI](https://github.com/NiclasOlofsson/MiNET/wiki/MiNET-INFO%EF%BC%88In-ZH_CN%EF%BC%89)，或是进入[MiNET中文论坛](http://minetcn.com/)
+
 MiNET
 =====
 

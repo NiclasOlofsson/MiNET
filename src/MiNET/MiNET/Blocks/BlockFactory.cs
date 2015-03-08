@@ -32,6 +32,7 @@ namespace MiNET.Blocks
 			else if (blockId == 21) block = new LapsisOre();
 			else if (blockId == 22) block = new LapsisBlock();
 			else if (blockId == 24) block = new Sandstone();
+			else if (blockId == 41) block = new GoldBlock();
 			else if (blockId == 43) block = new DoubleStoneSlab();
 			else if (blockId == 44) block = new StoneSlab();
 			else if (blockId == 46) block = new Tnt();
@@ -156,6 +157,13 @@ namespace MiNET.Blocks
 	public class WoodSlab : Block
 	{
 		internal WoodSlab() : base(158)
+		{
+		}
+	}
+
+	public class GoldBlock : Block
+	{
+		internal GoldBlock() : base(41)
 		{
 		}
 	}

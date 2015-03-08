@@ -10,7 +10,6 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
-using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -388,24 +387,20 @@ namespace MiNET
 
 			Username = message.username;
 
-			if (Username == null) throw new Exception("No username on login");
+			//Success = 0;
+			//FailedClientIsOld = 1;
+			//FailedServerIsOld, FailedClientIsNew = 2;
+			//FailedPlayerAuthentication = 3;
 
-			if (ConfigParser.GetProperty("EnableSecurity", true))
+			if (Server.UserManager != null)
 			{
-				var userManager = new UserManager<User>(new DefaultUserStore());
-				var roleManager = new RoleManager<Role>(new DefaultRoleStore());
-
-				if (userManager.FindByName(Username) == null)
+				if (Username == null || Server.UserManager.FindByName(Username) == null)
 				{
+					//TODO: Must implement disconnect properly. This is not enough for the client to "get it".
 					SendPackage(new McpeLoginStatus {status = 3});
 					return;
 				}
 			}
-
-			//Success = 0;
-			//FailedClientIsOld = 1;
-			//FailedServerIsOld, FailedClientIsTooNew = 2;
-			//FailedPlayerAuthentication = 3;
 
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);

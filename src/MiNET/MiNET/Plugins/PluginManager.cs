@@ -24,6 +24,8 @@ namespace MiNET.Plugins
 
 		internal void LoadPlugins()
 		{
+			if (ConfigParser.GetProperty("PluginDisabled", false)) return;
+
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			pluginDirectory = ConfigParser.GetProperty("PluginDirectory", pluginDirectory);
 			if (pluginDirectory != null)

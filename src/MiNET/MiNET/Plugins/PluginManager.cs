@@ -4,10 +4,13 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Principal;
 using System.Text;
 using log4net;
+using Microsoft.AspNet.Identity;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
+using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -17,7 +20,7 @@ namespace MiNET.Plugins
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
-		private readonly List<IPlugin> _plugins = new List<IPlugin>();
+		private readonly List<object> _plugins = new List<object>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, CommandAttribute> _pluginCommands = new Dictionary<MethodInfo, CommandAttribute>();
@@ -40,12 +43,13 @@ namespace MiNET.Plugins
 					{
 						try
 						{
-							if (!type.IsDefined(typeof (PluginAttribute), true)) continue;
+							// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
+							if (!type.IsDefined(typeof (PluginAttribute), true) && !typeof (IPlugin).IsAssignableFrom(type)) continue;
 
 							var ctor = type.GetConstructor(Type.EmptyTypes);
 							if (ctor != null)
 							{
-								var plugin = ctor.Invoke(null) as IPlugin;
+								var plugin = ctor.Invoke(null);
 								_plugins.Add(plugin);
 								LoadCommands(type);
 								LoadPacketHandlers(type);
@@ -53,7 +57,8 @@ namespace MiNET.Plugins
 						}
 						catch (Exception ex)
 						{
-							Log.Warn("Plugin loader caught exception, but is moving on.", ex);
+							Log.WarnFormat("Failed loading plugin type {0} as a plugin.", type);
+							Log.Debug("Plugin loader caught exception, but is moving on.", ex);
 						}
 					}
 				}
@@ -138,11 +143,14 @@ namespace MiNET.Plugins
 
 		internal void EnablePlugins(List<Level> levels)
 		{
-			foreach (IPlugin plugin in _plugins)
+			foreach (object plugin in _plugins)
 			{
+				IPlugin enablingPlugin = plugin as IPlugin;
+				if (enablingPlugin == null) continue;
+
 				try
 				{
-					plugin.OnEnable(new PluginContext(this, levels));
+					enablingPlugin.OnEnable(new PluginContext(this, levels));
 				}
 				catch (Exception ex)
 				{
@@ -153,11 +161,14 @@ namespace MiNET.Plugins
 
 		internal void DisablePlugins()
 		{
-			foreach (IPlugin plugin in _plugins)
+			foreach (object plugin in _plugins)
 			{
+				IPlugin enablingPlugin = plugin as IPlugin;
+				if (enablingPlugin == null) continue;
+
 				try
 				{
-					plugin.OnDisable();
+					enablingPlugin.OnDisable();
 				}
 				catch (Exception ex)
 				{
@@ -166,7 +177,7 @@ namespace MiNET.Plugins
 			}
 		}
 
-		public void HandleCommand(string message, Player player, bool console = false)
+		public void HandleCommand(UserManager<User> userManager, string message, Player player)
 		{
 			try
 			{
@@ -181,16 +192,22 @@ namespace MiNET.Plugins
 					CommandAttribute commandAttribute = handlerEntry.Value;
 					if (!commandText.Equals(commandAttribute.Command, StringComparison.InvariantCultureIgnoreCase)) continue;
 
-					if (!player.Permissions.HasPermission(commandAttribute.Permission) && !player.Permissions.HasPermission("*") && !player.Permissions.IsInGroup(UserGroup.Operator))
-					{
-						if (!console) player.SendMessage("You are not permitted to use this command!");
-						return;
-					}
-
 					MethodInfo method = handlerEntry.Key;
 					if (method == null) return;
 
-					if (ExecutePluginCommand(method, player, arguments)) return;
+					var authorizationAttributes = method.GetCustomAttributes<AuthorizeAttribute>(true);
+					foreach (AuthorizeAttribute authorizationAttribute in authorizationAttributes)
+					{
+						User user = userManager.FindByName(player.Username);
+						var userIdentity = userManager.CreateIdentity(user, "none");
+						if (!authorizationAttribute.OnAuthorization(new GenericPrincipal(userIdentity, new string[0])))
+						{
+							player.SendMessage("You are not permitted to use this command!");
+							return;
+						}
+					}
+
+					if (ExecuteCommand(method, player, arguments)) return;
 				}
 			}
 			catch (Exception ex)
@@ -199,7 +216,7 @@ namespace MiNET.Plugins
 			}
 		}
 
-		private bool ExecutePluginCommand(MethodInfo method, Player player, string[] args)
+		private bool ExecuteCommand(MethodInfo method, Player player, string[] args)
 		{
 			var parameters = method.GetParameters();
 

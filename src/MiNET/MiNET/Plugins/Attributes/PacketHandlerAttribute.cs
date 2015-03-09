@@ -2,20 +2,18 @@
 
 namespace MiNET.Plugins.Attributes
 {
+	[AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = true)]
 	public class PacketHandlerAttribute : Attribute
 	{
-		public Type PacketType { get; internal set; }
-
-		public PacketHandlerAttribute(Type packetType = null)
-		{
-			PacketType = packetType;
-		}
+		public Type PacketType { get; set; }
 	}
 
+	[AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
 	public class ReceiveAttribute : Attribute
 	{
 	}
 
+	[AttributeUsage(AttributeTargets.Method, Inherited = true, AllowMultiple = false)]
 	public class SendAttribute : Attribute
 	{
 	}

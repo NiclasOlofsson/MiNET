@@ -99,12 +99,8 @@
     <Compile Include="Blocks\StationaryWater.cs" />
     <Compile Include="Blocks\Wood.cs" />
     <Compile Include="Blocks\WoodenPlanks.cs" />
-    <Compile Include="CommandHandler\DeOpCommand.cs" />
     <Compile Include="CommandHandler\GiveCommand.cs" />
     <Compile Include="CommandHandler\HelpCommand.cs" />
-    <Compile Include="CommandHandler\ICommandHandler.cs" />
-    <Compile Include="CommandHandler\OpCommand.cs" />
-    <Compile Include="CommandHandler\TestCommand.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\ItemEntity.cs" />
@@ -129,6 +125,7 @@
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
+    <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />

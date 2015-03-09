@@ -12,9 +12,31 @@ using MiNET.Utils;
 
 namespace TestPlugin
 {
-	[Plugin("CoreCommands", "The core commands for MiNET", "1.0", "MiNET Team")]
+	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class CoreCommands : Plugin
 	{
+		[Command]
+		public void Login(Player player, string password)
+		{
+			UserManager<User> userManager = player.Server.UserManager;
+			if (userManager != null)
+			{
+				if (player.Username == null) return;
+
+				User user = userManager.FindByName(player.Username);
+
+				if (user == null)
+				{
+					user = new User(player.Username);
+					if (!userManager.Create(user, password).Succeeded) return;
+				}
+
+				if (userManager.CheckPassword(user, password))
+				{
+					player.SendMessage("Login successful");
+				}
+			}
+		}
 	}
 
 	[Plugin]
@@ -52,11 +74,30 @@ namespace TestPlugin
 		{
 			server.UserManager = new UserManager<User>(new DefaultUserStore());
 			server.RoleManager = new RoleManager<Role>(new DefaultRoleStore());
+			//server.UserManager.PasswordHasher = new CustomPasswordHasher();
 			Log.Info("Executed startup successfully. Replaced identity managment.");
 		}
 	}
 
-	[Plugin("Test", "A Test Plugin for MiNET", "1.0", "MiNET Team")]
+	public class CustomPasswordHasher : IPasswordHasher
+	{
+		public string HashPassword(string password)
+		{
+			return password; //return password as is
+		}
+
+		public PasswordVerificationResult VerifyHashedPassword(string hashedPassword, string providedPassword)
+		{
+			if (hashedPassword.Equals(providedPassword))
+			{
+				return PasswordVerificationResult.Success;
+			}
+			return PasswordVerificationResult.Failed;
+		}
+	}
+
+
+	[Plugin(PluginName = "Test", Description = "A Test Plugin for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class TestPlugin : Plugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (TestPlugin));
@@ -90,7 +131,7 @@ namespace TestPlugin
 			return packet;
 		}
 
-		[PacketHandler(typeof (McpeSetHealth))]
+		[PacketHandler(PacketType = typeof (McpeSetHealth))]
 		[Receive]
 		public Package HandleSetHealthPacket(McpeSetHealth packet, Player source)
 		{
@@ -117,7 +158,7 @@ namespace TestPlugin
 			return packet; // Send
 		}
 
-		[PacketHandler(typeof (McpeSetHealth))]
+		[PacketHandler(PacketType = typeof (McpeSetHealth))]
 		[Send]
 		public void HandleSendPacketTest(Package packet, Player source)
 		{
@@ -135,6 +176,13 @@ namespace TestPlugin
 		public void Min()
 		{
 			Log.Info("Minimal command executed.");
+		}
+
+		[Command]
+		[Authorize(Roles = "ADMIN, OP")]
+		[Description("A command with autorization check. Allows user gurun, administrators and operators access")]
+		public void Secured()
+		{
 		}
 
 		[Command]

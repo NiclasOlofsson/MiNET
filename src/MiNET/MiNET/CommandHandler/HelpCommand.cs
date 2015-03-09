@@ -1,6 +1,6 @@
 ﻿namespace MiNET.CommandHandler
 {
-	internal class HelpCommand : ICommandHandler
+	internal class HelpCommand
 	{
 		public string Command
 		{

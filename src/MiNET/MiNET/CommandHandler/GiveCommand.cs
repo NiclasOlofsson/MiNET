@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using MiNET.Utils;
 
 namespace MiNET.CommandHandler
 {
-	class GiveCommand : ICommandHandler
+	internal class GiveCommand
 	{
 		public string Command
 		{
@@ -62,7 +57,7 @@ namespace MiNET.CommandHandler
 
 		private void Give(int item, int amount, Player player)
 		{
-			player.Level.DropItem(new BlockCoordinates((int)player.KnownPosition.X, (int)player.KnownPosition.Y, (int)player.KnownPosition.Z), new ItemStack((short)item, (byte)amount));	
+			player.Level.DropItem(new BlockCoordinates((int) player.KnownPosition.X, (int) player.KnownPosition.Y, (int) player.KnownPosition.Z), new ItemStack((short) item, (byte) amount));
 		}
 
 		private Player GetPlayer(string name, Player source)

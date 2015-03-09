@@ -392,15 +392,15 @@ namespace MiNET
 			//FailedServerIsOld, FailedClientIsNew = 2;
 			//FailedPlayerAuthentication = 3;
 
-			if (Server.UserManager != null)
-			{
-				if (Username == null || Server.UserManager.FindByName(Username) == null)
-				{
-					//TODO: Must implement disconnect properly. This is not enough for the client to "get it".
-					SendPackage(new McpeLoginStatus {status = 3});
-					return;
-				}
-			}
+			//if (Server.UserManager != null)
+			//{
+			//	if (Username == null || Server.UserManager.FindByName(Username) == null)
+			//	{
+			//		//TODO: Must implement disconnect properly. This is not enough for the client to "get it".
+			//		SendPackage(new McpeLoginStatus {status = 3});
+			//		return;
+			//	}
+			//}
 
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);
@@ -466,7 +466,7 @@ namespace MiNET
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))
 			{
-				_pluginManager.HandleCommand(text, this);
+				_pluginManager.HandleCommand(Server.UserManager, text, this);
 			}
 			else
 			{

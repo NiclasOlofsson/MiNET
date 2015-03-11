@@ -30,7 +30,8 @@ namespace MiNET.Worlds
 		public static readonly BlockCoordinates South = new BlockCoordinates(-1, 0, 0);
 
 		public IWorldProvider _worldProvider;
-		private int _viewDistance = 256;
+		private int _viewDistance = 250;
+		//private int _viewDistance = 96;
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _levelTicker;
 		private int _worldTickTime = 50;
@@ -112,6 +113,7 @@ namespace MiNET.Worlds
 					{
 						chunk.GetBytes();
 					}
+					Log.Info("World pre-cache of chunks complete.");
 				});
 			}
 

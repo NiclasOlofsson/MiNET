@@ -25,6 +25,16 @@ namespace MiNET.Plugins
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, CommandAttribute> _pluginCommands = new Dictionary<MethodInfo, CommandAttribute>();
 
+		public List<object> Plugins
+		{
+			get { return _plugins; }
+		}
+
+		public List<CommandAttribute> PluginCommands
+		{
+			get { return _pluginCommands.Values.ToList(); }
+		}
+
 		internal void LoadPlugins()
 		{
 			if (ConfigParser.GetProperty("PluginDisabled", false)) return;
@@ -125,7 +135,7 @@ namespace MiNET.Plugins
 
 		internal void ExecuteStartup(MiNetServer server)
 		{
-			foreach (IPlugin plugin in _plugins)
+			foreach (object plugin in _plugins)
 			{
 				IStartup startupClass = plugin as IStartup;
 				if (startupClass == null) continue;
@@ -289,6 +299,9 @@ namespace MiNET.Plugins
 				return false;
 			}
 
+			object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
+			if (pluginInstance == null) return false;
+
 			if (method.IsStatic)
 			{
 				method.Invoke(null, objectArgs);
@@ -297,8 +310,7 @@ namespace MiNET.Plugins
 			{
 				if (method.DeclaringType == null) return false;
 
-				object obj = Activator.CreateInstance(method.DeclaringType);
-				method.Invoke(obj, objectArgs);
+				method.Invoke(pluginInstance, objectArgs);
 			}
 
 			return true;

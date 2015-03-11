@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using log4net;
-using Microsoft.AspNet.Identity;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
@@ -289,6 +288,15 @@ namespace MiNET
 
 			blockEntity.SetCompound(message.namedtag.NbtFile.RootTag);
 			Level.SetBlockEntity(blockEntity);
+		}
+
+		public void SpawnLevel(Level level)
+		{
+			DespawnEntity();
+			_chunksUsed.Clear();
+			Level = level;
+			HandleRespawn(null);
+			SendChunksForKnownPosition();
 		}
 
 		/// <summary>

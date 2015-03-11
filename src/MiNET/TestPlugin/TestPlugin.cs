@@ -12,33 +12,6 @@ using MiNET.Utils;
 
 namespace TestPlugin
 {
-	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class CoreCommands : Plugin
-	{
-		[Command]
-		public void Login(Player player, string password)
-		{
-			UserManager<User> userManager = player.Server.UserManager;
-			if (userManager != null)
-			{
-				if (player.Username == null) return;
-
-				User user = userManager.FindByName(player.Username);
-
-				if (user == null)
-				{
-					user = new User(player.Username);
-					if (!userManager.Create(user, password).Succeeded) return;
-				}
-
-				if (userManager.CheckPassword(user, password))
-				{
-					player.SendMessage("Login successful");
-				}
-			}
-		}
-	}
-
 	[Plugin]
 	public class HelloWorld : Plugin
 	{

@@ -76,6 +76,7 @@ namespace TestPlugin
 			};
 
 			player.SendMovePlayer();
+			player.Level.BroadcastTextMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z));
 		}
 
 		[Command(Command = "tp")]
@@ -101,7 +102,9 @@ namespace TestPlugin
 				_worlds.Add(world, new Level(world, new FlatlandWorldProvider()));
 			}
 
-			player.SpawnLevel(_worlds[world]);
+			Level level = _worlds[world];
+			player.SpawnLevel(level);
+			level.BroadcastTextMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId));
 		}
 	}
 }

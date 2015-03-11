@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Craft.Net.TerrainGeneration;
@@ -122,7 +121,7 @@ namespace MiNET.Worlds
 			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
 		}
 
-		public void AddPlayer(Player newPlayer)
+		public void AddPlayer(Player newPlayer, string broadcastText = null)
 		{
 			lock (Players)
 			{
@@ -140,7 +139,10 @@ namespace MiNET.Worlds
 
 				if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
 
-				BroadcastTextMessage(string.Format("{0} joined the game!", newPlayer.Username));
+				if (!string.IsNullOrEmpty(broadcastText))
+				{
+					BroadcastTextMessage(broadcastText);
+				}
 
 				BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
 			}

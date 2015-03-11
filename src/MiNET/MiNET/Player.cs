@@ -459,7 +459,7 @@ namespace MiNET
 			});
 
 			IsSpawned = true;
-			Level.AddPlayer(this);
+			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
 			BroadcastSetEntityData();
 		}

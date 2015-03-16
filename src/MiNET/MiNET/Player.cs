@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
 using log4net;
 using MiNET.Entities;
@@ -698,9 +699,116 @@ namespace MiNET
 
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this, ItemFactory.GetItem(this.Inventory.ItemInHand.Value.Id).GetDamage(), DamageCause.EntityAttack);
+			target.HealthManager.TakeHit(this, CalculateDamage(this, target), DamageCause.EntityAttack);
 
 			target.BroadcastEntityEvent();
+		}
+
+		private int CalculateDamage(Player source, Player target)
+		{
+			int armorValue = 0;
+
+			for (byte i = 0; i < target.Inventory.Armor.Count; i++)
+			{
+				var d = (MetadataSlot) (target.Inventory.Armor[i]);
+				var b = ItemFactory.GetItem(d.Value.Id);
+				if (b.ItemType == ItemType.Helmet)
+				{
+					switch (b.ItemMaterial)
+					{
+						case ItemMaterial.Iron:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Gold:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Diamond:
+							armorValue += 3;
+							break;
+						case ItemMaterial.Leather:
+							armorValue += 1;
+							break;
+						case ItemMaterial.Chain:
+							armorValue += 2;
+							break;
+					}
+				}
+
+				if (b.ItemType == ItemType.Chestplate)
+				{
+					switch (b.ItemMaterial)
+					{
+						case ItemMaterial.Iron:
+							armorValue += 6;
+							break;
+						case ItemMaterial.Gold:
+							armorValue += 5;
+							break;
+						case ItemMaterial.Diamond:
+							armorValue += 8;
+							break;
+						case ItemMaterial.Leather:
+							armorValue += 3;
+							break;
+						case ItemMaterial.Chain:
+							armorValue += 5;
+							break;
+					}
+				}
+
+				if (b.ItemType == ItemType.Leggings)
+				{
+					switch (b.ItemMaterial)
+					{
+						case ItemMaterial.Iron:
+							armorValue += 5;
+							break;
+						case ItemMaterial.Gold:
+							armorValue += 3;
+							break;
+						case ItemMaterial.Diamond:
+							armorValue += 6;
+							break;
+						case ItemMaterial.Leather:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Chain:
+							armorValue += 4;
+							break;
+					}
+				}
+
+				if (b.ItemType == ItemType.Boots)
+				{
+					switch (b.ItemMaterial)
+					{
+						case ItemMaterial.Iron:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Gold:
+							armorValue += 1;
+							break;
+						case ItemMaterial.Diamond:
+							armorValue += 3;
+							break;
+						case ItemMaterial.Leather:
+							armorValue += 1;
+							break;
+						case ItemMaterial.Chain:
+							armorValue += 1;
+							break;
+					}
+				}
+			}
+
+
+
+			int iDamage = ItemFactory.GetItem(this.Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+
+			var p = (int)Math.Floor(iDamage*armorValue*0.04);
+			if (armorValue == 0) p = iDamage;
+
+			return p;
 		}
 
 		/// <summary>

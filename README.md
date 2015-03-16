@@ -7,12 +7,6 @@ MiNET
 
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
 
-## About job offers
-Even though I have to admit that I'm a bit honored by all the job offerings lately, I now feel I need to publically announce that I already have a rather well payed day-job, and this is a hobby project. I am not currently looking for other opportunities.
-
-Thanks for understanding,    
-Niclas
-
 ## Can I test this before I download it?
 Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
 IP: **94.23.50.5**    

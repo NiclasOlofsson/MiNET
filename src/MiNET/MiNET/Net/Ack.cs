@@ -4,13 +4,19 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class Acks : Package<Ack>
+	public class Acks : Package<Acks>
 	{
 		public List<int> acks = new List<int>();
 
 		public Acks()
 		{
 			Id = 0xc0;
+		}
+
+		public override void Reset()
+		{
+			base.Reset();
+			acks.Clear();
 		}
 
 		protected override void EncodePackage()

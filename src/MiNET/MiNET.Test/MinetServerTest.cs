@@ -20,6 +20,13 @@ namespace MiNET
 		public void AckSeriesTest()
 		{
 			{
+				var ranges = Acks.Slize(new List<int>() {0, 1});
+				Assert.AreEqual(1, ranges.Count);
+				Assert.AreEqual(0, ranges[0].Item1);
+				Assert.AreEqual(1, ranges[0].Item2);
+			}
+
+			{
 				var ranges = Acks.Slize(new List<int>() {1});
 				Assert.AreEqual(1, ranges.Count);
 				Assert.AreEqual(1, ranges[0].Item1);

@@ -151,7 +151,8 @@ namespace MiNET.Net
 
 		public float ReadFloat()
 		{
-			return BitConverter.ToSingle(BitConverter.GetBytes(_reader.ReadSingle()).Reverse().ToArray(), 0);
+			byte[] buffer = _reader.ReadBytes(4);
+			return BitConverter.ToSingle(new[] { buffer[3], buffer[2], buffer[1], buffer[0] }, 0);
 		}
 
 		public void Write(string value)

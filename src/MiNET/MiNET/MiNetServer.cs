@@ -137,7 +137,8 @@ namespace MiNET
 				else
 				{
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
-					_listener.Client.SendBufferSize = 1024*1024*8;
+					//_listener.Client.SendBufferSize = 1024*1024*8;
+					_listener.Client.SendBufferSize = int.MaxValue;
 					//_listener.DontFragment = true;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
@@ -154,6 +155,19 @@ namespace MiNET
 					//WARNING: We need to catch errors here to remove the code above.
 					//
 				}
+
+				//Task.Run(() =>
+				//{
+				//	while (true)
+				//	{
+				//		var result = _listener.ReceiveAsync();
+				//		byte[] receiveBytes = result.Result.Buffer;
+				//		_availableBytes = _listener.Available;
+				//		_numberOfPacketsInPerSecond++;
+				//		_totalPacketSizeIn += receiveBytes.Length;
+				//		ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, result.Result.RemoteEndPoint));
+				//	}
+				//});
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
@@ -263,8 +277,8 @@ namespace MiNET
 				_availableBytes = listener.Available;
 				_numberOfPacketsInPerSecond++;
 				_totalPacketSizeIn += receiveBytes.Length;
-				ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, senderEndpoint));
-				//ProcessMessage(receiveBytes, senderEndpoint);
+				//ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, senderEndpoint));
+				ProcessMessage(receiveBytes, senderEndpoint);
 			}
 			else
 			{
@@ -280,9 +294,6 @@ namespace MiNET
 		/// <exception cref="System.Exception">Receive ERROR, NAK in wrong place</exception>
 		private void ProcessMessage(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			//Thread.CurrentThread.IsBackground = false;
-			//Thread.CurrentThread.Priority = ThreadPriority.Highest;
-
 			byte msgId = receiveBytes[0];
 
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
@@ -378,35 +389,120 @@ namespace MiNET
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					ConnectedPackage package = new ConnectedPackage();
+					ConnectedPackage package = ConnectedPackage.CreateObject();
 					package.Decode(receiveBytes);
 					var messages = package.Messages;
+
+					Reliability reliability = package._reliability;
+					//Log.InfoFormat("Reliability: {0}", reliability);
+
+					if (reliability == Reliability.Reliable
+					    || reliability == Reliability.ReliableSequenced
+					    || reliability == Reliability.ReliableOrdered
+						)
+					{
+						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
+					}
 
 					foreach (var message in messages)
 					{
 						TraceReceive(message);
-						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
 						HandlePackage(message, senderEndpoint);
 						message.PutPool();
 					}
+
+					package.PutPool();
+
 				}
 				else if (header.isACK && header.isValid)
 				{
-					Ack ack = new Ack();
-					ack.Decode(receiveBytes);
+					HandleAck(receiveBytes, senderEndpoint);
 				}
 				else if (header.isNAK && header.isValid)
 				{
-					Nak nak = new Nak();
-					nak.Decode(receiveBytes);
-					Log.WarnFormat("!--> NAK on #{0}", nak.sequenceNumber.IntValue());
-					_level.BroadcastTextMessage(string.Format("NAK #{0}", nak.sequenceNumber.IntValue()));
+					HandleNak(receiveBytes, senderEndpoint);
 				}
 				else if (!header.isValid)
 				{
 					Log.Warn("!!!! ERROR, Invalid header !!!!!");
 				}
 			}
+		}
+
+		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		{
+			int ackSeqNo;
+			{
+				Ack ack = Ack.CreateObject();
+				ack.Decode(receiveBytes);
+				ackSeqNo = ack.sequenceNumber.IntValue();
+				ack.PutPool();
+			}
+
+			PlayerNetworkSession session = _playerSessions[senderEndpoint];
+
+			var queue = session.PlayerWaitingForAcksQueue;
+
+			int lenght = queue.Count;
+			for (int i = 0; i < lenght; i++)
+			{
+				Datagram datagram;
+				if (queue.TryPeek(out datagram))
+				{
+					int datagramSeqNo = datagram.Header.datagramSequenceNumber.IntValue();
+
+					if (datagramSeqNo <= ackSeqNo)
+					{
+						if (queue.TryDequeue(out datagram))
+						{
+							foreach (MessagePart part in datagram.MessageParts)
+							{
+								part.Buffer = null;
+								part.PutPool();
+							}
+							datagram.PutPool();
+						}
+
+						if (datagramSeqNo == ackSeqNo)
+						{
+							break;
+						}
+
+						continue;
+					}
+
+					Log.InfoFormat("Failed to remove ACK #{0}", ackSeqNo);
+					break;
+				}
+			}
+		}
+
+		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		{
+			PlayerNetworkSession session = _playerSessions[senderEndpoint];
+
+			Nak nak = Nak.CreateObject();
+			nak.Decode(receiveBytes);
+
+			int ackSeqNo = nak.sequenceNumber.IntValue();
+			Log.WarnFormat("--> NAK from Player {2} Count {0} #{1}", nak.count, ackSeqNo, session.Player.Username);
+
+			bool found = false;
+			foreach (Datagram datagram in session.PlayerWaitingForAcksQueue)
+			{
+				if (datagram.Header.datagramSequenceNumber.IntValue() == ackSeqNo)
+				{
+					found = true;
+					SendDatagram(senderEndpoint, datagram, true);
+					Log.InfoFormat("Resent #{0}", ackSeqNo);
+				}
+			}
+			if (!found)
+			{
+				Log.WarnFormat("No datagram #{0}", ackSeqNo);
+			}
+
+			nak.PutPool();
 		}
 
 		/// <summary>
@@ -435,30 +531,65 @@ namespace MiNET
 
 		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
 		{
-			var ack = Ack.CreateObject();
-			ack.sequenceNumber = sequenceNumber;
-			ack.count = 1;
-			ack.onlyOneSequence = 1;
+			if (_ackTimer == null)
+			{
+				// We just lock to make sure we don't create duplicates of this
+				// Should probably move to start server anyway...
+				lock (_playerSessions)
+				{
+					if (_ackTimer == null)
+					{
+						_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+						_cleanerTimer = new Timer(Clean, null, 0, 10);
+					}
+				}
+			}
 
 			_numberOfAckSent++;
 
 			if (_playerSessions.ContainsKey(senderEndpoint))
 			{
 				var session = _playerSessions[senderEndpoint];
-				session.PlayerAckQueue.Enqueue(ack);
-				SendAckQueue(null);
+				session.PlayerAckQueue.Enqueue(sequenceNumber.IntValue());
 			}
+		}
 
-			//var data = ack.Encode();
-			//SendData(data, senderEndpoint);
+		private void Clean(object state)
+		{
+			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
+			{
+				var queue = session.PlayerWaitingForAcksQueue;
 
-			//if (_ackTimer == null)
-			//{
-			//	_ackTimer = new Timer(SendAckQueue, null, 0, 10);
-			//}
+				int lenght = queue.Count;
+				for (int i = 0; i < lenght; i++)
+				{
+					Datagram datagram;
+					if (queue.TryPeek(out datagram))
+					{
+						if (!datagram.Timer.IsRunning)
+						{
+							Log.WarnFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+						}
+
+						if (datagram.Timer.ElapsedMilliseconds > 100)
+						{
+							if (queue.TryDequeue(out datagram))
+							{
+								//Log.InfoFormat("Cleaned #{0}", datagram.Header.datagramSequenceNumber.IntValue());
+								foreach (MessagePart part in datagram.MessageParts)
+								{
+									part.PutPool();
+								}
+								datagram.PutPool();
+							}
+						}
+					}
+				}
+			});
 		}
 
 		private Timer _ackTimer;
+		private Timer _cleanerTimer;
 
 		private void SendAckQueue(object state)
 		{
@@ -469,14 +600,13 @@ namespace MiNET
 
 				if (lenght == 0) return;
 
-				Acks acks = new Acks();
+				Acks acks = Acks.CreateObject();
 				for (int i = 0; i < lenght; i++)
 				{
-					Ack ack;
+					int ack;
 					if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
 
-					acks.acks.Add(ack.sequenceNumber.IntValue());
-					ack.PutPool();
+					acks.acks.Add(ack);
 				}
 
 				if (acks.acks.Count > 0)
@@ -484,14 +614,16 @@ namespace MiNET
 					byte[] data = acks.Encode();
 					SendData(data, session.EndPoint);
 				}
+
+				acks.PutPool();
 			});
 		}
 
-		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
 		{
 			if (messages.Count == 0) return;
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, senderEndpoint, GetValue);
+			Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, senderEndpoint, SendDatagram);
 
 			foreach (var message in messages)
 			{
@@ -506,23 +638,39 @@ namespace MiNET
 			}
 		}
 
-		private void GetValue(IPEndPoint senderEndpoint, Datagram datagram)
+		private void SendDatagram(IPEndPoint senderEndpoint, Datagram datagram)
 		{
-			Task<int> task = null;
+			SendDatagram(senderEndpoint, datagram, false);
+		}
+
+
+		private void SendDatagram(IPEndPoint senderEndpoint, Datagram datagram, bool isResend)
+		{
 			if (datagram.MessageParts.Count != 0)
 			{
 				byte[] data = datagram.Encode();
 
-				SendData(data, senderEndpoint);
-
-				foreach (MessagePart part in datagram.MessageParts)
+				//if (isResend || _random.Next(20) != 0)
 				{
-					part.Buffer = null;
-					part.PutPool();
+					SendData(data, senderEndpoint);
+				}
+
+				if (!isResend && !_performanceTest)
+				{
+					PlayerNetworkSession session = _playerSessions[senderEndpoint];
+					session.PlayerWaitingForAcksQueue.Enqueue(datagram);
 				}
 			}
 
-			datagram.PutPool();
+			if (_performanceTest)
+			{
+				foreach (MessagePart part in datagram.MessageParts)
+				{
+					part.PutPool();
+				}
+
+				datagram.PutPool();
+			}
 		}
 
 
@@ -553,14 +701,9 @@ namespace MiNET
 					_numberOfPacketsInPerSecond = 0;
 				}, null, 1000, 1000);
 			}
-
-			//_listener.SendAsync(data, data.Length, targetEndpoint);
-			//_listener.BeginSend(data, data.Length, targetEndpoint, null, null);
-
-			//lock (_listener)
-			{
-				_listener.SendAsync(data, data.Length, targetEndpoint).Wait();
-			}
+			
+			//_listener.SendAsync(data, data.Length, targetEndpoint).Wait(); // Has thread pooling issues?
+			_listener.Send(data, data.Length, targetEndpoint); // Less thread-issues it seems
 
 			_numberOfPacketsOutPerSecond++;
 			_totalPacketSizeOut += data.Length;

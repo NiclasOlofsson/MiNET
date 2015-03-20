@@ -106,5 +106,19 @@ namespace TestPlugin
 			player.SpawnLevel(level);
 			level.BroadcastTextMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId));
 		}
+
+		[Command(Command = "vd")]
+		public void ViewDistance(Player player)
+		{
+			player.Level.BroadcastTextMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance));
+		}
+
+		[Command(Command = "vd")]
+		public void ViewDistance(Player player, int viewDistance)
+		{
+			player.Level.ViewDistance = viewDistance;
+			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance));
+		}
+
 	}
 }

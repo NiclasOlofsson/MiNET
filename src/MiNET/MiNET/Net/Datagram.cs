@@ -43,7 +43,7 @@ namespace MiNET.Net
 
 		public override void Reset()
 		{
-			Header.datagramSequenceNumber = 0;
+			Header.Reset();
 			_currentSize = 4;
 			MessageParts.Clear();
 			_buf.SetLength(0);
@@ -65,14 +65,14 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, IPEndPoint senderEndpoint, Action<IPEndPoint, Datagram> send)
+		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, IPEndPoint senderEndpoint, Action<IPEndPoint, Datagram> sendDatagram)
 		{
 			Datagram datagram = null;
 			foreach (var message in messages)
 			{
 				if (message is InternalPing) continue;
 
-				var messageParts = GetMessageParts(message, mtuSize, datagramSequenceNumber, Reliability.RELIABLE, ref reliableMessageNumber);
+				var messageParts = GetMessageParts(message, mtuSize, datagramSequenceNumber, Reliability.Reliable, ref reliableMessageNumber);
 				foreach (var messagePart in messageParts)
 				{
 					if (datagram == null)
@@ -84,7 +84,7 @@ namespace MiNET.Net
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
 						Datagram datagram1 = datagram;
-						send(senderEndpoint, datagram1);
+						sendDatagram(senderEndpoint, datagram1);
 
 						datagram = CreateObject();
 						datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref datagramSequenceNumber);
@@ -99,7 +99,7 @@ namespace MiNET.Net
 
 			if (datagram != null)
 			{
-				send(senderEndpoint, datagram);
+				sendDatagram(senderEndpoint, datagram);
 			}
 		}
 

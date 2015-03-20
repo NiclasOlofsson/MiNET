@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using Craft.Net.TerrainGeneration;
@@ -29,8 +30,6 @@ namespace MiNET.Worlds
 		public static readonly BlockCoordinates South = new BlockCoordinates(-1, 0, 0);
 
 		public IWorldProvider _worldProvider;
-		private int _viewDistance = 250;
-		//private int _viewDistance = 96;
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _levelTicker;
 		private int _worldTickTime = 50;
@@ -53,6 +52,8 @@ namespace MiNET.Worlds
 		public EntityManager EntityManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
 
+		public int ViewDistance { get; set; }
+
 		public Level(string levelId, IWorldProvider worldProvider = null)
 		{
 			EntityManager = new EntityManager();
@@ -65,9 +66,11 @@ namespace MiNET.Worlds
 			LevelId = levelId;
 			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Survival);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
+			ViewDistance = ConfigParser.GetProperty("ViewDistance", 250);
 			if (ConfigParser.GetProperty("UsePCWorld", false))
 			{
 				_worldProvider = new CraftNetAnvilWorldProvider();
+				var loadIt = new FlatlandGenerator(); // Don't remove
 			}
 			else
 			{
@@ -94,11 +97,6 @@ namespace MiNET.Worlds
 		{
 			CurrentWorldTime = 6000;
 			WorldTimeStarted = false;
-
-			var loadIt = new FlatlandGenerator(); // Don't remove
-
-			if (_worldProvider == null) _worldProvider = new FlatlandWorldProvider();
-			//if (_worldProvider == null) _worldProvider = new CraftNetAnvilWorldProvider();
 			_worldProvider.Initialize();
 
 			SpawnPoint = _worldProvider.GetSpawnPoint();
@@ -108,7 +106,7 @@ namespace MiNET.Worlds
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>(), -1))
+					foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>()))
 					{
 						chunk.GetBytes();
 					}
@@ -402,17 +400,16 @@ namespace MiNET.Worlds
 
 		private void BroadCastMovement(Player[] players, Player[] updatedPlayers)
 		{
-			List<Task> tasks = new List<Task>();
+			//List<Task<McpeMovePlayer>> tasks = new List<Task<McpeMovePlayer>>();
+			//List<Task> tasks = new List<Task>();
 
-			Parallel.ForEach(updatedPlayers, delegate(Player player) { });
-
-
+			List<McpeMovePlayer> moves = new List<McpeMovePlayer>();
 			foreach (var player in updatedPlayers)
 			{
 				Player updatedPlayer = player;
 				var knownPosition = updatedPlayer.KnownPosition;
 
-				var task = new Task(delegate
+				//var task = new Task<McpeMovePlayer>(delegate
 				{
 					McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
 					move.entityId = updatedPlayer.EntityId;
@@ -425,33 +422,66 @@ namespace MiNET.Worlds
 					move.teleport = 0;
 					move.Encode(); // Optmized
 
-					foreach (var p in players)
-					{
-						if (p == updatedPlayer)
-						{
-							move.PutPool();
-							continue;
-						}
+					moves.Add(move);
 
-						p.SendPackage(move);
-					}
-				});
-				tasks.Add(task);
-				task.Start();
+					//foreach (var p in players)
+					//{
+					//	if (p == updatedPlayer)
+					//	{
+					//		move.PutPool();
+					//		continue;
+					//	}
+
+					//	p.SendPackage(move);
+					//}
+
+					//return move;
+				}
+				//);
+				//tasks.Add(task);
+				//task.Start();
 			}
 
-			Task.WaitAll(tasks.ToArray());
+			//Task.WaitAll(tasks.ToArray());
+
+			//var sendAllTask = Task.WhenAll(tasks);
+			//sendAllTask.Wait();
+			//tasks.ForEach(task => task.Dispose());
+
+			//McpeMovePlayer[] result = sendAllTask.Result;
+
+			List<Task> sendTasks = new List<Task>();
+			//McpeMovePlayer[] moves = result;
+			foreach (var p in players)
+			{
+				Player player = p;
+				Task sendTask = new Task(delegate
+				{
+					//foreach (var move in moves)
+					//{
+					//	if (player.EntityId == move.entityId)
+					//	{
+					//		move.PutPool();
+					//		continue;
+					//	}
+
+					//}
+					player.SendMoveList(moves);
+				});
+				sendTasks.Add(sendTask);
+				sendTask.Start();
+			}
+
+			//Task.WaitAll(sendTasks.ToArray());
 		}
 
 
-		public IEnumerable<ChunkColumn> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed, int timeout = 0)
+		public IEnumerable<ChunkColumn> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
 		{
-			//if (!Monitor.TryEnter(chunksUsed, timeout)) yield break;
-
 			lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
-				double radiusSquared = _viewDistance/Math.PI;
+				double radiusSquared = ViewDistance/Math.PI;
 				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
@@ -472,11 +502,11 @@ namespace MiNET.Worlds
 					}
 				}
 
-				if (newOrders.Count > _viewDistance)
+				if (newOrders.Count > ViewDistance)
 				{
 					foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
 					{
-						if (newOrders.Count <= _viewDistance) break;
+						if (newOrders.Count <= ViewDistance) break;
 						newOrders.Remove(pair.Key);
 					}
 				}
@@ -500,7 +530,7 @@ namespace MiNET.Worlds
 					yield return chunk;
 				}
 
-				if (chunksUsed.Count > _viewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
+				if (chunksUsed.Count > ViewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
 			}
 		}
 

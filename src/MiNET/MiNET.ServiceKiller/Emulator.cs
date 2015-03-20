@@ -6,6 +6,8 @@ namespace MiNET.ServiceKiller
 {
 	internal class Emulator
 	{
+		private static bool _running = true;
+
 		private static void Main(string[] args)
 		{
 			Console.WriteLine("Clients sleeping...");
@@ -15,20 +17,23 @@ namespace MiNET.ServiceKiller
 
 			var emulator = new Emulator();
 			ThreadPool.SetMinThreads(1000, 1000);
+			//ThreadPool.SetMaxThreads(2000, 2000);
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 1000; i++)
+			for (int i = 0; i < 450; i++)
 			{
 				counter[0]++;
-				//string playerName = "Player " + (i + 1);
+				//string playerName = string.Format("Player {0}", (i + 1));
 				string playerName = "Player " + Guid.NewGuid();
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(random.Next(10, 100));
+				Thread.Sleep(random.Next(33, 333));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");
 
+			Console.ReadLine();
+			_running = false;
 			Console.ReadLine();
 		}
 
@@ -66,7 +71,7 @@ namespace MiNET.ServiceKiller
 
 				//Console.WriteLine("\t\tClient {0} connected, sleeping 10s...", username);
 
-				Thread.Sleep(30000);
+				Thread.Sleep(20000);
 
 				Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", username);
 
@@ -80,7 +85,7 @@ namespace MiNET.ServiceKiller
 					const double angleStepsize = 0.05;
 					float heightStepsize = (float) (random.NextDouble()/5);
 
-					while (angle < 2*Math.PI)
+					while (angle < 2*Math.PI && _running)
 					{
 						x = (float) (length*Math.Cos(angle));
 						z = (float) (length*Math.Sin(angle));

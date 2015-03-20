@@ -17,7 +17,6 @@ namespace MiNET.ServiceKiller
 
 		private IPEndPoint _serverEndpoint;
 		private short _mtuSize = 1447;
-		//private short _mtuSize = short.MaxValue;
 		private decimal _lastSequenceNumber;
 		private McpeMovePlayer _movePlayerPacket;
 
@@ -81,7 +80,7 @@ namespace MiNET.ServiceKiller
 			return true;
 		}
 
-		public int SendPackage(Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.RELIABLE)
+		public int SendPackage(Package message, short mtuSize, int sequenceNumber, int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
 		{
 			byte[] encodedMessage = message.Encode();
 			//int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 60));

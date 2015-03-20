@@ -69,20 +69,20 @@ namespace MiNET.Net
 			Write((byte) ((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
 			Write((short) (MessageLength*8)); // length
 
-			if (_reliability == Reliability.RELIABLE
-			    || _reliability == Reliability.RELIABLE_ORDERED
-			    || _reliability == Reliability.RELIABLE_SEQUENCED
-			    || _reliability == Reliability.RELIABLE_WITH_ACK_RECEIPT
-			    || _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+			if (_reliability == Reliability.Reliable
+			    || _reliability == Reliability.ReliableOrdered
+			    || _reliability == Reliability.ReliableSequenced
+			    || _reliability == Reliability.ReliableWithAckReceipt
+			    || _reliability == Reliability.ReliableOrderedWithAckReceipt
 				)
 			{
 				Write(_reliableMessageNumber);
 			}
 
-			if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-			    || _reliability == Reliability.RELIABLE_ORDERED
-			    || _reliability == Reliability.RELIABLE_SEQUENCED
-			    || _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+			if (_reliability == Reliability.UnreliableSequenced
+			    || _reliability == Reliability.ReliableOrdered
+			    || _reliability == Reliability.ReliableSequenced
+			    || _reliability == Reliability.ReliableOrderedWithAckReceipt
 				)
 			{
 				Write(_orderingIndex);
@@ -120,9 +120,9 @@ namespace MiNET.Net
 
 				short dataBitLength = ReadShort();
 
-				if (_reliability == Reliability.RELIABLE
-				    || _reliability == Reliability.RELIABLE_SEQUENCED
-				    || _reliability == Reliability.RELIABLE_ORDERED
+				if (_reliability == Reliability.Reliable
+				    || _reliability == Reliability.ReliableSequenced
+				    || _reliability == Reliability.ReliableOrdered
 					)
 				{
 					_reliableMessageNumber = ReadLittle();
@@ -132,17 +132,17 @@ namespace MiNET.Net
 					_reliableMessageNumber = -1;
 				}
 
-				if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-				    || _reliability == Reliability.RELIABLE_SEQUENCED
+				if (_reliability == Reliability.UnreliableSequenced
+				    || _reliability == Reliability.ReliableSequenced
 					)
 				{
 					_sequencingIndex = ReadLittle();
 				}
 
-				if (_reliability == Reliability.UNRELIABLE_SEQUENCED
-				    || _reliability == Reliability.RELIABLE_SEQUENCED
-				    || _reliability == Reliability.RELIABLE_ORDERED
-				    || _reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+				if (_reliability == Reliability.UnreliableSequenced
+				    || _reliability == Reliability.ReliableSequenced
+				    || _reliability == Reliability.ReliableOrdered
+				    || _reliability == Reliability.ReliableOrderedWithAckReceipt
 					)
 				{
 					_orderingIndex = ReadLittle();

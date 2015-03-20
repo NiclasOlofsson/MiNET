@@ -8,15 +8,15 @@ namespace MiNET
 	{
 		public Player Player { get; set; }
 		public IPEndPoint EndPoint { get; set; }
-		private ConcurrentQueue<Ack> _playerAckQueue = new ConcurrentQueue<Ack>();
-		private ConcurrentQueue<Package> _playerWaitingForAcksQueue = new ConcurrentQueue<Package>();
+		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
+		private ConcurrentQueue<Datagram> _playerWaitingForAcksQueue = new ConcurrentQueue<Datagram>();
 
-		public ConcurrentQueue<Ack> PlayerAckQueue
+		public ConcurrentQueue<int> PlayerAckQueue
 		{
 			get { return _playerAckQueue; }
 		}
 
-		public ConcurrentQueue<Package> PlayerWaitingForAcksQueue
+		public ConcurrentQueue<Datagram> PlayerWaitingForAcksQueue
 		{
 			get { return _playerWaitingForAcksQueue; }
 		}

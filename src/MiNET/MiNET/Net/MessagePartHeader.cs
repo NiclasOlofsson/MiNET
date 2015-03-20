@@ -15,6 +15,20 @@ namespace MiNET.Net
 		public short PartId { get; set; }
 		public int PartIndex { get; set; }
 
+		public void Reset()
+		{
+			Reliability = Reliability.Unreliable;
+			ReliableMessageNumber = 0;
+			SequencingIndex = 0;
+			OrderingIndex = 0;
+			OrderingChannel = 0;
+
+			HasSplit = false;
+			PartCount = 0;
+			PartId = 0;
+			PartIndex = 0;
+		}
+
 		public void Decode()
 		{
 		}

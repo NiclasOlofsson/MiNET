@@ -17,6 +17,13 @@ namespace MiNET.Net
 			return Buffer.Length;
 		}
 
+		public override void Reset()
+		{
+			base.Reset();
+			Header.Reset();
+			Buffer = null;
+		}
+
 		protected override void EncodePackage()
 		{
 			// DO NOT CALL base.EncodePackage();
@@ -28,20 +35,20 @@ namespace MiNET.Net
 			Write((byte) ((flags << 5) | (Header.HasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
 			Write((short) (encodedMessage.Length*8)); // length
 
-			if (Header.Reliability == Reliability.RELIABLE
-			    || Header.Reliability == Reliability.RELIABLE_ORDERED
-			    || Header.Reliability == Reliability.RELIABLE_SEQUENCED
-			    || Header.Reliability == Reliability.RELIABLE_WITH_ACK_RECEIPT
-			    || Header.Reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+			if (Header.Reliability == Reliability.Reliable
+			    || Header.Reliability == Reliability.ReliableOrdered
+			    || Header.Reliability == Reliability.ReliableSequenced
+			    || Header.Reliability == Reliability.ReliableWithAckReceipt
+			    || Header.Reliability == Reliability.ReliableOrderedWithAckReceipt
 				)
 			{
 				Write(Header.ReliableMessageNumber);
 			}
 
-			if (Header.Reliability == Reliability.UNRELIABLE_SEQUENCED
-			    || Header.Reliability == Reliability.RELIABLE_ORDERED
-			    || Header.Reliability == Reliability.RELIABLE_SEQUENCED
-			    || Header.Reliability == Reliability.RELIABLE_ORDERED_WITH_ACK_RECEIPT
+			if (Header.Reliability == Reliability.UnreliableSequenced
+			    || Header.Reliability == Reliability.ReliableOrdered
+			    || Header.Reliability == Reliability.ReliableSequenced
+			    || Header.Reliability == Reliability.ReliableOrderedWithAckReceipt
 				)
 			{
 				Write(Header.OrderingIndex);

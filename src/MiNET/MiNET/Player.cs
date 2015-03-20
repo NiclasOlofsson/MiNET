@@ -784,7 +784,7 @@ namespace MiNET
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				int count = 0;
-				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, IsSpawned ? 0 : -1))
+				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 					fullChunkData.chunkData = chunk.GetBytes();
@@ -866,6 +866,9 @@ namespace MiNET
 			}
 		}
 
+		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
+		private object _queueSync = new object();
+
 		/// <summary>
 		///     Very important litle method. This does all the sending of packages for
 		///     the player class. Treat with respect!
@@ -875,7 +878,6 @@ namespace MiNET
 		{
 			if (!IsConnected) return;
 
-
 			var result = _pluginManager.PluginPacketHandler(package, false, this);
 			if (result != package) package.PutPool();
 			package = result;
@@ -884,7 +886,10 @@ namespace MiNET
 
 			if (IsSpawned)
 			{
-				_sendQueue.Enqueue(package);
+				lock (_queueSync)
+				{
+					_sendQueueNotConcurrent.Enqueue(package);
+				}
 			}
 			else
 			{
@@ -896,13 +901,43 @@ namespace MiNET
 		{
 			if (!IsConnected) return;
 
-			List<Package> messages = new List<Package>();
+			Queue<Package> queue = _sendQueueNotConcurrent;
 
-			int lenght = _sendQueue.Count;
+			int lenght = queue.Count;
+
+			List<Package> messages = new List<Package>(lenght);
+
 			for (int i = 0; i < lenght; i++)
 			{
 				Package package;
-				if (_sendQueue.TryDequeue(out package)) messages.Add(package);
+				lock (_queueSync)
+				{
+					if (queue.Count == 0) break;
+					package = queue.Dequeue();
+				}
+
+				messages.Add(package);
+			}
+			if (messages.Count == 0) return;
+			Server.SendPackage(EndPoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
+		}
+
+		public void SendMoveList(List<McpeMovePlayer> movePlayerPackages)
+		{
+			if (!IsConnected) return;
+
+			List<Package> messages = new List<Package>();
+			foreach (var movePlayer in movePlayerPackages)
+			{
+				if(movePlayer.entityId == EntityId) continue;
+
+				Package package = movePlayer;
+
+				var result = _pluginManager.PluginPacketHandler(package, false, this);
+				if (result != package) package.PutPool();
+				package = result;
+
+				messages.Add(package);
 			}
 
 			if (messages.Count == 0) return;

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{DFC6A100-D5F4-4E03-80A5-EEE8823E03E1}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,6 +11,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.Service", "MiNET.Service\MiNET.Service.csproj", "{1B017586-D2EA-4879-8CAE-961A0FA19FF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{49E89019-7330-4853-8458-991006786345}"
+	ProjectSection(SolutionItems) = preProject
+		Performance1.psess = Performance1.psess
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.ServiceKiller", "MiNET.ServiceKiller\MiNET.ServiceKiller.csproj", "{64C3E226-CBBB-4A8E-BC10-09BA6BC307C9}"
 EndProject
@@ -174,6 +177,9 @@ Global
 		{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5} = {F6653226-F844-4287-B966-DB9FA32A81FD}
 		{E001ADA1-6BCB-420E-B187-07FF361D60B8} = {F6653226-F844-4287-B966-DB9FA32A81FD}
 		{C04C72EF-5FD5-42DA-B1DC-F232D3E86636} = {F6653226-F844-4287-B966-DB9FA32A81FD}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = MiNET.Service\MiNET.Service.csproj

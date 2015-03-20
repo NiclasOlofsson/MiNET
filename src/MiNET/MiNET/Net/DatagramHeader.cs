@@ -58,6 +58,19 @@ namespace MiNET.Net
 			}
 		}
 
+		public void Reset()
+		{
+			isACK = false;
+			isNAK = false;
+			isPacketPair = false;
+			hasBAndAS = false;
+			isContinuousSend = false;
+			needsBAndAs = false;
+			isValid = false;
+			datagramSequenceNumber = 0;
+		}
+
+
 		public static string BitsToString(BitArray ba)
 		{
 			StringBuilder hex = new StringBuilder((ba.Length*2) + 100);

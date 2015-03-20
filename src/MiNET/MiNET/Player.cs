@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Threading;
 using log4net;
 using MiNET.Entities;
@@ -201,10 +200,17 @@ namespace MiNET
 				HandlePlayerDropItem((McpeDropItem) message);
 			}
 
-			long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
-			if (elapsedMilliseconds > 100)
+			if (message.Timer.IsRunning)
 			{
-				Log.WarnFormat("Package ({1}) handling too long {0}ms", elapsedMilliseconds, message.Id);
+				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
+				if (elapsedMilliseconds > 100)
+				{
+					Log.WarnFormat("Package ({1}) handling too long {0}ms", elapsedMilliseconds, message.Id);
+				}
+			}
+			else
+			{
+				Log.DebugFormat("Package ({0}) timer not started.", message.Id);
 			}
 		}
 
@@ -802,10 +808,9 @@ namespace MiNET
 			}
 
 
-
 			int iDamage = ItemFactory.GetItem(this.Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
 
-			var p = (int)Math.Floor(iDamage*armorValue*0.04);
+			var p = (int) Math.Floor(iDamage*armorValue*0.04);
 			if (armorValue == 0) p = iDamage;
 
 			return p;
@@ -974,6 +979,12 @@ namespace MiNET
 			}
 		}
 
+		public void DetectLostConnection()
+		{
+			DetectLostConnections ping = new DetectLostConnections();
+			SendPackage(ping);
+		}
+
 		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
 		private object _queueSync = new object();
 
@@ -1037,7 +1048,7 @@ namespace MiNET
 			List<Package> messages = new List<Package>();
 			foreach (var movePlayer in movePlayerPackages)
 			{
-				if(movePlayer.entityId == EntityId) continue;
+				if (movePlayer.entityId == EntityId) continue;
 
 				Package package = movePlayer;
 

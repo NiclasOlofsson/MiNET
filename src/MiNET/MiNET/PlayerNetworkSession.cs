@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Net;
 using MiNET.Net;
@@ -20,6 +21,8 @@ namespace MiNET
 		{
 			get { return _playerWaitingForAcksQueue; }
 		}
+
+		public DateTime LastUpdatedTime { get; set; }
 
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{

@@ -8,6 +8,7 @@
 | Connected Ping | 0x00 | 0 |   
 | Unconnected Ping | 0x01 | 1 |   
 | Connected Pong | 0x03 | 3 |   
+| Detect Lost Connections | 0x04 | 4 |   
 | Open Connection Request 1 | 0x05 | 5 |   
 | Open Connection Reply 1 | 0x06 | 6 |   
 | Open Connection Request 2 | 0x07 | 7 |   
@@ -111,6 +112,19 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |SendPingTime | long |  |
 |SendPongTime | long |  |
+-----------------------------------------------------------------------
+###Package: Detect Lost Connections (0x04)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ###Package: Unconnected Pong (0x1c)
 

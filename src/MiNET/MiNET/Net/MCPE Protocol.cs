@@ -33,6 +33,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x04:
+					package = DetectLostConnections.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x1c:
 					package = UnconnectedPong.CreateObject();
 					//package.Timer.Start();
@@ -385,6 +390,41 @@ namespace MiNET.Net
 
 			sendpingtime = ReadLong();
 			sendpongtime = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class DetectLostConnections : Package<DetectLostConnections>
+	{
+		public DetectLostConnections()
+		{
+			Id = 0x04;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
 
 			AfterDecode();
 		}

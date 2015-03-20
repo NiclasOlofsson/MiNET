@@ -169,6 +169,9 @@ namespace MiNET
 				//	}
 				//});
 
+				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_cleanerTimer = new Timer(Update, null, 0, 10);
+
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				// Measure latency through system
@@ -367,6 +370,7 @@ namespace MiNET
 
 							PlayerNetworkSession session =
 								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
+							session.LastUpdatedTime = DateTime.UtcNow;
 							_playerSessions.TryAdd(senderEndpoint, session);
 						}
 
@@ -406,13 +410,13 @@ namespace MiNET
 
 					foreach (var message in messages)
 					{
+						message.Timer.Restart();
 						TraceReceive(message);
 						HandlePackage(message, senderEndpoint);
 						message.PutPool();
 					}
 
 					package.PutPool();
-
 				}
 				else if (header.isACK && header.isValid)
 				{
@@ -440,6 +444,7 @@ namespace MiNET
 			}
 
 			PlayerNetworkSession session = _playerSessions[senderEndpoint];
+			session.LastUpdatedTime = DateTime.UtcNow;
 
 			var queue = session.PlayerWaitingForAcksQueue;
 
@@ -471,7 +476,7 @@ namespace MiNET
 						continue;
 					}
 
-					Log.InfoFormat("Failed to remove ACK #{0}", ackSeqNo);
+					Log.DebugFormat("Failed to remove ACK #{0}, ACK in queue is #{1} and queue size={2}", ackSeqNo, datagramSeqNo, queue.Count);
 					break;
 				}
 			}
@@ -494,7 +499,7 @@ namespace MiNET
 				{
 					found = true;
 					SendDatagram(senderEndpoint, datagram, true);
-					Log.InfoFormat("Resent #{0}", ackSeqNo);
+					Log.DebugFormat("Resent #{0}", ackSeqNo);
 				}
 			}
 			if (!found)
@@ -519,32 +524,20 @@ namespace MiNET
 
 			if (_playerSessions.ContainsKey(senderEndpoint))
 			{
-				_playerSessions[senderEndpoint].Player.HandlePackage(message);
-			}
+				PlayerNetworkSession playerSession = _playerSessions[senderEndpoint];
+				playerSession.Player.HandlePackage(message);
+				playerSession.LastUpdatedTime = DateTime.UtcNow;
 
-			if (typeof (DisconnectionNotification) == message.GetType())
-			{
-				PlayerNetworkSession value;
-				_playerSessions.TryRemove(senderEndpoint, out value);
+				if (typeof (DisconnectionNotification) == message.GetType())
+				{
+					PlayerNetworkSession value;
+					_playerSessions.TryRemove(senderEndpoint, out value);
+				}
 			}
 		}
 
 		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
 		{
-			if (_ackTimer == null)
-			{
-				// We just lock to make sure we don't create duplicates of this
-				// Should probably move to start server anyway...
-				lock (_playerSessions)
-				{
-					if (_ackTimer == null)
-					{
-						_ackTimer = new Timer(SendAckQueue, null, 0, 50);
-						_cleanerTimer = new Timer(Clean, null, 0, 10);
-					}
-				}
-			}
-
 			_numberOfAckSent++;
 
 			if (_playerSessions.ContainsKey(senderEndpoint))
@@ -554,10 +547,24 @@ namespace MiNET
 			}
 		}
 
-		private void Clean(object state)
+		private void Update(object state)
 		{
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
+				long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
+				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+				if (lastUpdate + 10000 < now)
+				{
+					// Disconnect user
+					HandlePackage(new DisconnectionNotification(), session.EndPoint);
+
+					return;
+				}
+				else if (lastUpdate + 1000 < now)
+				{
+					session.Player.DetectLostConnection();
+				}
+
 				var queue = session.PlayerWaitingForAcksQueue;
 
 				int lenght = queue.Count;
@@ -568,14 +575,14 @@ namespace MiNET
 					{
 						if (!datagram.Timer.IsRunning)
 						{
-							Log.WarnFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+							Log.DebugFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
 						}
 
-						if (datagram.Timer.ElapsedMilliseconds > 100)
+						if (datagram.Timer.ElapsedMilliseconds > 200)
 						{
 							if (queue.TryDequeue(out datagram))
 							{
-								//Log.InfoFormat("Cleaned #{0}", datagram.Header.datagramSequenceNumber.IntValue());
+								Log.DebugFormat("Cleaned #{0}", datagram.Header.datagramSequenceNumber.IntValue());
 								foreach (MessagePart part in datagram.MessageParts)
 								{
 									part.PutPool();
@@ -652,6 +659,7 @@ namespace MiNET
 
 				//if (isResend || _random.Next(20) != 0)
 				{
+					datagram.Timer.Restart();
 					SendData(data, senderEndpoint);
 				}
 
@@ -701,7 +709,7 @@ namespace MiNET
 					_numberOfPacketsInPerSecond = 0;
 				}, null, 1000, 1000);
 			}
-			
+
 			//_listener.SendAsync(data, data.Length, targetEndpoint).Wait(); // Has thread pooling issues?
 			_listener.Send(data, data.Length, targetEndpoint); // Less thread-issues it seems
 
@@ -731,7 +739,7 @@ namespace MiNET
 		{
 			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
-			if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING)
+			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
 			{
 				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 			}
@@ -741,7 +749,7 @@ namespace MiNET
 		{
 			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
-			if (!(message is InternalPing) && message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG)
+			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)
 			{
 				Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 			}

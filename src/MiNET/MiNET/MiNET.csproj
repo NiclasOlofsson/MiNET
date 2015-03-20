@@ -109,8 +109,16 @@
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
+    <Compile Include="Items\ItemDiamondBoots.cs" />
+    <Compile Include="Items\ItemDiamondChestplate.cs" />
+    <Compile Include="Items\ItemDiamondHelmet.cs" />
+    <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
+    <Compile Include="Items\ItemIronBoots.cs" />
+    <Compile Include="Items\ItemIronChestplate.cs" />
+    <Compile Include="Items\ItemIronHelmet.cs" />
+    <Compile Include="Items\ItemIronLeggings.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemSlab.cs" />

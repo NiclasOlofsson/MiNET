@@ -107,6 +107,18 @@ namespace TestPlugin
 			level.BroadcastTextMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId));
 		}
 
+		[Command]
+		public void Clear(Player player)
+		{
+			for (byte slot = 0; slot < 35; slot++) player.Inventory.SetInventorySlot(slot, -1); //Empty all slots.
+		}
+
+		[Command]
+		public void Clear(Player player, Player target)
+		{
+			Clear(target);
+		}
+
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player)
 		{

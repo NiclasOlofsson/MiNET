@@ -53,21 +53,23 @@ namespace MiNET.Service
 				Console.ReadLine();
 				service.Stop();
 			}
-
-			HostFactory.Run(host =>
+			else
 			{
-				host.Service<MiNetService>(s =>
+				HostFactory.Run(host =>
 				{
-					s.ConstructUsing(construct => new MiNetService());
-					s.WhenStarted(service => service.Start());
-					s.WhenStopped(service => service.Stop());
-				});
+					host.Service<MiNetService>(s =>
+					{
+						s.ConstructUsing(construct => new MiNetService());
+						s.WhenStarted(service => service.Start());
+						s.WhenStopped(service => service.Stop());
+					});
 
-				host.RunAsLocalService();
-				host.SetDisplayName("MiNET Service");
-				host.SetDescription("MiNET MineCraft Pocket Edition server.");
-				host.SetServiceName("MiNET");
-			});
+					host.RunAsLocalService();
+					host.SetDisplayName("MiNET Service");
+					host.SetDescription("MiNET MineCraft Pocket Edition server.");
+					host.SetServiceName("MiNET");
+				});
+			}
 		}
 
 		/// <summary>

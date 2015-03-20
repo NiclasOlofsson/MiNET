@@ -56,7 +56,7 @@ namespace MiNET.Worlds
 
 			foreach (var octave in _generators)
 			{
-				result += octave.GetValue((float) (x*freq), (float) (y*freq), (float) (z*freq), (float) (w*freq))*amp;
+				result += octave.GetValue((float)(x*freq), (float) (y*freq), (float) (z*freq), (float) (w*freq))*amp;
 				max += amp;
 				freq *= frequency;
 				amp *= amplitude;
@@ -152,8 +152,8 @@ namespace MiNET.Worlds
 					float oz = z + chunk.z*16;
 
 
-					int bottomHeight = (int) ((bottom.Noise(ox, oz, 0.5, 0.5)*bottomsMagnitude) + 64.0);
-					int maxHeight = (int) ((overhang.Noise(ox, oz, 0.5, 0.5)*overhangsMagnitude) + bottomHeight + 32.0);
+					int bottomHeight = (int)((bottom.Noise(ox, oz, 0.5, 0.5)*bottomsMagnitude) + 64.0);
+					int maxHeight = (int)((overhang.Noise(ox, oz, 0.5, 0.5)*overhangsMagnitude) + bottomHeight + 32.0);
 
 					double threshold = 0.0;
 
@@ -175,14 +175,14 @@ namespace MiNET.Worlds
 						}
 						else
 						{
-							chunk.SetBlock(x, y, z, (byte) Material.Stone);
+							chunk.SetBlock(x, y, z, (byte)Material.Stone);
 						}
 					}
 
 					//turn the tops into grass
-					chunk.SetBlock(x, bottomHeight, z, (byte) Material.Grass); //the top of the base hills
-					chunk.SetBlock(x, bottomHeight - 1, z, (byte) Material.Dirt);
-					chunk.SetBlock(x, bottomHeight - 2, z, (byte) Material.Dirt);
+					chunk.SetBlock(x, bottomHeight, z, (byte)Material.Grass); //the top of the base hills
+					chunk.SetBlock(x, bottomHeight - 1, z, (byte)Material.Dirt);
+					chunk.SetBlock(x, bottomHeight - 2, z, (byte)Material.Dirt);
 
 					for (int y = bottomHeight + 1; y > bottomHeight && y < maxHeight && y < 127; y++)
 					{
@@ -190,13 +190,13 @@ namespace MiNET.Worlds
 						byte thisblock = chunk.GetBlock(x, y, z);
 						byte blockabove = chunk.GetBlock(x, y + 1, z);
 
-						if (thisblock != (decimal) Material.Air && blockabove == (decimal) Material.Air)
+						if (thisblock != (decimal)Material.Air && blockabove == (decimal)Material.Air)
 						{
 							if (chunk.GetBlock(x, y, z) == (byte)Material.Dirt || chunk.GetBlock(x, y, z) == (byte)Material.Air || chunk.GetBlock(x, y, z) == (byte)Material.Stone) chunk.SetBlock(x, y, z, (byte)Material.Grass);
-							if (chunk.GetBlock(x, y - 1, z) != (decimal) Material.Air)
-								chunk.SetBlock(x, y - 1, z, (byte) Material.Dirt);
-							if (chunk.GetBlock(x, y - 2, z) != (decimal) Material.Air)
-								chunk.SetBlock(x, y - 2, z, (byte) Material.Dirt);
+							if (chunk.GetBlock(x, y - 1, z) != (decimal)Material.Air)
+								chunk.SetBlock(x, y - 1, z, (byte)Material.Dirt);
+							if (chunk.GetBlock(x, y - 2, z) != (decimal)Material.Air)
+								chunk.SetBlock(x, y - 2, z, (byte)Material.Dirt);
 						}
 					}
 

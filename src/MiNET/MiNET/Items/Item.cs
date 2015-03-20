@@ -134,15 +134,26 @@ namespace MiNET.Items
 		Stone = 4,
 		Iron = 6,
 		Diamond = 8,
-		Gold = 12
+		Gold = 12,
+
+		//Armor Only
+		Leather = -2,
+		Chain = -1,
 	}
 
 	public enum ItemType
 	{
+		//Tools
 		Sword,
 		Shovel,
 		PickAxe,
 		Axe,
-		Item
+		Item,
+
+		//Armor
+		Helmet,
+		Chestplate,
+		Leggings,
+		Boots
 	}
 }

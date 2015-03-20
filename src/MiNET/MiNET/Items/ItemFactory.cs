@@ -31,6 +31,14 @@ namespace MiNET.Items
 			else if (id == 363) item = new RawBeef(metadata);
 			else if (id == 365) item = new RawChicken(metadata);
 			else if (id == 319) item = new RawPorkchop(metadata);
+			else if (id == 309) item = new ItemIronBoots(metadata);
+			else if (id == 308) item = new ItemIronLeggings(metadata);
+			else if (id == 307) item = new ItemIronChestplate(metadata);
+			else if (id == 306) item = new ItemIronHelmet(metadata);
+			else if (id == 310) item = new ItemDiamondHelmet(metadata);
+			else if (id == 311) item = new ItemDiamondChestplate(metadata);
+			else if (id == 312) item = new ItemDiamondLeggings(metadata);
+			else if (id == 313) item = new ItemDiamondBoots(metadata);
 			else if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte) id), metadata);
 			else item = new Item(id, metadata);
 

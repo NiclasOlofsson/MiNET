@@ -9,8 +9,9 @@ namespace MiNET.Worlds
 	{
 		public const int EntityIdUndefined = -1;
 
+		private static int _entityId = 1;
+
 		private List<Entity> _entities = new List<Entity>();
-		private int _entityId = 1;
 
 		public EntityManager()
 		{
@@ -23,13 +24,9 @@ namespace MiNET.Worlds
 
 			lock (_entities)
 			{
-				if (entity.EntityId == EntityIdUndefined)
-				{
-					if (_entities.Contains(entity))
-						throw new Exception("Tried to add entity that already existed.");
-					_entities.Add(entity);
-					entity.EntityId = _entityId++;
-				}
+				if (entity.EntityId == EntityIdUndefined) entity.EntityId = _entityId++;
+
+				if (!_entities.Contains(entity)) _entities.Add(entity);
 			}
 		}
 
@@ -39,10 +36,9 @@ namespace MiNET.Worlds
 
 			lock (_entities)
 			{
-				if (!_entities.Contains(entity))
-					throw new Exception("Expected to find entity on remove. A missed ADD perhaps?");
+				if (!_entities.Contains(entity)) throw new Exception("Expected to find entity on remove. A missed ADD perhaps?");
+
 				_entities.Remove(entity);
-				entity.EntityId = EntityIdUndefined;
 			}
 		}
 

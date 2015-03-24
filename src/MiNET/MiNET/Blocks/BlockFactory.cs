@@ -2,13 +2,27 @@ using log4net;
 
 namespace MiNET.Blocks
 {
+	public interface ICustomBlockFactory
+	{
+		Block GetBlockById(byte blockId);
+	}
+
 	public static class BlockFactory
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
 
+		public static ICustomBlockFactory CustomBlockFactory { get; set; }
+
 		public static Block GetBlockById(byte blockId)
 		{
-			Block block;
+			Block block = null;
+
+			if (CustomBlockFactory != null)
+			{
+				block = CustomBlockFactory.GetBlockById(blockId);
+			}
+
+			if (block != null) return block;
 
 			if (blockId == 0) block = new Air();
 			else if (blockId == 1) block = new Stone();
@@ -47,7 +61,7 @@ namespace MiNET.Blocks
 			else if (blockId == 63) block = new StandingSign();
 			else if (blockId == 64) block = new WoodenDoor();
 			else if (blockId == 67) block = new CobblestoneStairs();
-			else if (blockId == 67) block = new WallSign();
+			else if (blockId == 68) block = new WallSign();
 			else if (blockId == 85) block = new Fence();
 			else if (blockId == 98) block = new StoneBrick();
 			else if (blockId == 107) block = new FenceGate();
@@ -163,7 +177,7 @@ namespace MiNET.Blocks
 
 	public class GoldBlock : Block
 	{
-		internal GoldBlock() : base(41)
+		protected internal GoldBlock() : base(41)
 		{
 		}
 	}

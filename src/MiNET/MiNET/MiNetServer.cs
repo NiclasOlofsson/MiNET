@@ -38,6 +38,8 @@ namespace MiNET
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
 
+		public LevelFactory LevelFactory { get; set; }
+
 		// Performance measures
 		private long _numberOfAckSent = 0;
 		private long _numberOfPacketsOutPerSecond = 0;
@@ -97,16 +99,6 @@ namespace MiNET
 			{
 				Log.Info("Initializing...");
 
-				_level = new Level("Default");
-				_level.Initialize();
-				_levels.Add(_level);
-				//for (int i = 1; i < 4; i++)
-				//{
-				//	Level level = new Level("" + i);
-				//	level.Initialize();
-				//	_levels.Add(level);
-				//}
-
 				Log.Info("Loading settings...");
 				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
 
@@ -124,6 +116,17 @@ namespace MiNET
 					UserManager = UserManager ?? new UserManager<User>(new DefaultUserStore());
 					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
 				}
+
+				LevelFactory = LevelFactory ?? new LevelFactory();
+
+				_level = LevelFactory.CreateLevel("Default");
+				_levels.Add(_level);
+
+				//for (int i = 1; i < 60; i++)
+				//{
+				//	Level level = LevelFactory.CreateLevel("" + i);
+				//	_levels.Add(level);
+				//}
 
 				_pluginManager.EnablePlugins(_levels);
 
@@ -435,6 +438,11 @@ namespace MiNET
 
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			if (!_playerSessions.ContainsKey(senderEndpoint)) return;
+
+			PlayerNetworkSession session = _playerSessions[senderEndpoint];
+			session.LastUpdatedTime = DateTime.UtcNow;
+
 			int ackSeqNo;
 			{
 				Ack ack = Ack.CreateObject();
@@ -442,9 +450,6 @@ namespace MiNET
 				ackSeqNo = ack.sequenceNumber.IntValue();
 				ack.PutPool();
 			}
-
-			PlayerNetworkSession session = _playerSessions[senderEndpoint];
-			session.LastUpdatedTime = DateTime.UtcNow;
 
 			var queue = session.PlayerWaitingForAcksQueue;
 
@@ -549,6 +554,8 @@ namespace MiNET
 
 		private void Update(object state)
 		{
+			if (_performanceTest) return;
+
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
 				long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
@@ -560,7 +567,7 @@ namespace MiNET
 
 					return;
 				}
-				else if (lastUpdate + 1000 < now)
+				else if (lastUpdate + 8500 < now)
 				{
 					session.Player.DetectLostConnection();
 				}
@@ -657,13 +664,10 @@ namespace MiNET
 			{
 				byte[] data = datagram.Encode();
 
-				//if (isResend || _random.Next(20) != 0)
-				{
-					datagram.Timer.Restart();
-					SendData(data, senderEndpoint);
-				}
+				datagram.Timer.Restart();
+				SendData(data, senderEndpoint);
 
-				if (!isResend && !_performanceTest)
+				if (_playerSessions.ContainsKey(senderEndpoint) && !isResend && !_performanceTest)
 				{
 					PlayerNetworkSession session = _playerSessions[senderEndpoint];
 					session.PlayerWaitingForAcksQueue.Enqueue(datagram);

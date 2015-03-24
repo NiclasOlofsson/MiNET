@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class StandingSign : Block
 	{
-		internal StandingSign() : base(63)
+		protected internal StandingSign() : base(63)
 		{
 		}
 	}

@@ -28,9 +28,9 @@ namespace MiNET.Items
 			else if (id == 323) item = new ItemSign(metadata);
 			else if (id == 324) item = new ItemDoor(metadata);
 			else if (id == 325) item = new ItemBucket(metadata);
-			else if (id == 363) item = new RawBeef(metadata);
-			else if (id == 365) item = new RawChicken(metadata);
-			else if (id == 319) item = new RawPorkchop(metadata);
+			else if (id == 363) item = new ItemRawBeef(metadata);
+			else if (id == 365) item = new ItemRawChicken(metadata);
+			else if (id == 319) item = new ItemRawPorkchop(metadata);
 			else if (id == 309) item = new ItemIronBoots(metadata);
 			else if (id == 308) item = new ItemIronLeggings(metadata);
 			else if (id == 307) item = new ItemIronChestplate(metadata);

@@ -50,7 +50,8 @@ namespace TestPlugin
 			// Build a sample config
 			var config = new MyPluginConfiguration
 			{
-				Message = "Hello world of configurations!", Rules = new List<string>
+				Message = "Hello world of configurations!",
+				Rules = new List<string>
 				{
 					"All rules apply",
 					"No rules apply",

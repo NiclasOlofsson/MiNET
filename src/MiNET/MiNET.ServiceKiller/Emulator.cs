@@ -21,7 +21,7 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 450; i++)
+			for (int i = 0; i < 100; i++)
 			{
 				counter[0]++;
 				//string playerName = string.Format("Player {0}", (i + 1));
@@ -44,8 +44,8 @@ namespace MiNET.ServiceKiller
 				string username = (string) state;
 				Console.WriteLine("Client {0} connecting...", username);
 
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("94.23.50.5"), 19132));
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
+				var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("94.23.50.5"), 19132));
 
 				client.StartClient();
 
@@ -92,7 +92,7 @@ namespace MiNET.ServiceKiller
 						y += heightStepsize;
 
 						client.SendMcpeMovePlayer(x + 50, y, z + 50);
-						Thread.Sleep(50);
+						Thread.Sleep(random.Next(50, 500));
 						angle += angleStepsize;
 					}
 				}

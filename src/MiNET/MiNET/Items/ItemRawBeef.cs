@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	class RawChicken : Item
+	class ItemRawBeef : Item
 	{
-		internal RawChicken(short metadata) : base(365, metadata)
+		internal ItemRawBeef(short metadata) : base(363, metadata)
 		{
 		}
 
 		public override Item GetSmelt()
 		{
-			return ItemFactory.GetItem(366);
+			return ItemFactory.GetItem(364);
 		}
 	}
 }

@@ -23,6 +23,12 @@ namespace MiNET.Utils
 			Z = v.Z;
 		}
 
+		public ChunkCoordinates(PlayerLocation location)
+		{
+			X = ((int)Math.Floor(location.X)) >> 4;
+			Z = ((int)Math.Floor(location.Z)) >> 4;
+		}
+
 		/// <summary>
 		/// Converts this ChunkCoordinates to a string in the format &lt;x, z&gt;.
 		/// </summary>

@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Text;
 using Microsoft.AspNet.Identity;
 using MiNET;
+using MiNET.Entities;
+using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Security;
@@ -132,5 +134,61 @@ namespace TestPlugin
 			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance));
 		}
 
+		[Command]
+		public void Hide(Player player)
+		{
+			player.Level.HidePlayer(player, true);
+			player.Level.BroadcastTextMessage(string.Format("Player {0} hides.", player.Username));
+		}
+
+		[Command]
+		public void Unhide(Player player)
+		{
+			player.Level.HidePlayer(player, false);
+			player.Level.BroadcastTextMessage(string.Format("Player {0} unhides.", player.Username));
+		}
+
+
+		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
+
+		[Command]
+		public void Hide(Player player, byte id)
+		{
+			Level level = player.Level;
+
+			level.HidePlayer(player, true);
+
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
+
+			player.SendPackage(new McpeRemoveEntity()
+			{
+				entityId = entity.EntityId,
+			});
+
+			_playerEntities[player] = entity;
+
+			level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username));
+		}
+
+		[PacketHandler, Receive]
+		public Package HandleIncoming(McpeMovePlayer packet, Player player)
+		{
+			if (_playerEntities.ContainsKey(player))
+			{
+				var entity = _playerEntities[player];
+				entity.KnownPosition = player.KnownPosition;
+				var message = new McpeMoveEntity();
+				message.entities = new EntityLocations();
+				message.entities.Add(entity.EntityId, entity.KnownPosition);
+				player.Level.RelayBroadcast(message);
+			}
+
+			return packet; // Process
+		}
 	}
 }

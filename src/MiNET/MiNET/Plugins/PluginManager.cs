@@ -260,7 +260,14 @@ namespace MiNET.Plugins
 					objectArgs[k] = args[i];
 					continue;
 				}
-				if (parameter.ParameterType == typeof (short))
+				if (parameter.ParameterType == typeof(byte))
+				{
+					byte value;
+					if (!byte.TryParse(args[i], out value)) return false;
+					objectArgs[k] = value;
+					continue;
+				}
+				if (parameter.ParameterType == typeof(short))
 				{
 					short value;
 					if (!short.TryParse(args[i], out value)) return false;

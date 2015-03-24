@@ -182,6 +182,7 @@ namespace MiNET.Worlds
 							int yoffsetted = yi + _offsetY;
 
 							byte blockId = (byte) anvilChunk.GetBlockId(new Coordinates3D(xi, yoffsetted, zi));
+							TileEntity blockEntity = anvilChunk.GetTileEntity(new Coordinates3D(xi, yoffsetted, zi));
 
 							// Anvil to PE friendly converstion
 							if (blockId == 125) blockId = 5;

@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Items
 {
-	class RawPorkchop : Item
+	class ItemRawPorkchop : Item
 	{
-		internal RawPorkchop(short metadata) : base(319, metadata)
+		internal ItemRawPorkchop(short metadata) : base(319, metadata)
 		{
 		}
 

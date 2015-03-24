@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using fNbt;
@@ -152,7 +151,7 @@ namespace MiNET.Net
 		public float ReadFloat()
 		{
 			byte[] buffer = _reader.ReadBytes(4);
-			return BitConverter.ToSingle(new[] { buffer[3], buffer[2], buffer[1], buffer[0] }, 0);
+			return BitConverter.ToSingle(new[] {buffer[3], buffer[2], buffer[1], buffer[0]}, 0);
 		}
 
 		public void Write(string value)
@@ -184,6 +183,41 @@ namespace MiNET.Net
 		{
 			return new Records();
 		}
+
+		public void Write(EntityLocations locations)
+		{
+			Write(locations.Count);
+			foreach (var location in locations)
+			{
+				Write(location.Key); // Entity ID
+				Write(location.Value.X);
+				Write(location.Value.Y);
+				Write(location.Value.Z);
+				Write(location.Value.Yaw);
+				Write(location.Value.Pitch);
+			}
+		}
+
+		public EntityLocations ReadEntityLocations()
+		{
+			return new EntityLocations();
+		}
+
+		public void Write(EntityHeadRotations locations)
+		{
+			Write(locations.Count);
+			foreach (var location in locations)
+			{
+				Write(location.Key); // Entity ID
+				Write((byte) (location.Value.BodyYaw*0.71)); // 256/360
+			}
+		}
+
+		public EntityHeadRotations ReadEntityHeadRotations()
+		{
+			return new EntityHeadRotations();
+		}
+
 
 		public void Write(Nbt nbt)
 		{

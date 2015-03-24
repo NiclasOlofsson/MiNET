@@ -23,12 +23,15 @@
 | Mcpe Message | 0x85 | 133 |   
 | Mcpe Set Time | 0x86 | 134 |   
 | Mcpe Start Game | 0x87 | 135 |   
+| Mcpe Add Mob | 0x88 | 136 |   
 | Mcpe Add Player | 0x89 | 137 |   
 | Mcpe Remove Player | 0x8a | 138 |   
 | Mcpe Add Entity | 0x8c | 140 |   
 | Mcpe Remove Entity | 0x8d | 141 |   
 | Mcpe Add Item Entity | 0x8e | 142 |   
 | Mcpe Take Item Entity | 0x8f | 143 |   
+| Mcpe Move Entity | 0x90 | 144 |   
+| Mcpe Rotate Head | 0x94 | 148 |   
 | Mcpe Move Player | 0x95 | 149 |   
 | Mcpe Place Block | 0x96 | 150 |   
 | Mcpe Remove Block | 0x97 | 151 |   
@@ -407,6 +410,27 @@ The three type of status are:
 |Y | float |  |
 |Z | float |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Add Mob (0x88)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|Mob Type | int |  |
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Yaw | byte |  |
+|Pitch | byte |  |
+|Metadata | byte[] | 0 |
+-----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0xba)
 
 **Sent from server:** true
@@ -643,6 +667,34 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Target | int |  |
 |Entity Id | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Move Entity (0x90)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entities | EntityLocations |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Rotate Head (0x94)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entities | EntityHeadRotations |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Place Block (0x96)
 

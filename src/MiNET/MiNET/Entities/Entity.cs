@@ -26,6 +26,7 @@ namespace MiNET.Entities
 		public double Length { get; set; }
 		public double Drag { get; set; }
 		public double Gravity { get; set; }
+		public int Data { get; set; }
 
 		public Entity(int entityTypeId, Level level)
 		{

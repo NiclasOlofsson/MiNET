@@ -21,7 +21,7 @@ namespace MiNET.Blocks
 		public short FuelEfficiency { get; set; }
 
 
-		internal Block(byte id)
+		protected internal Block(byte id)
 		{
 			Id = id;
 			IsSolid = true;

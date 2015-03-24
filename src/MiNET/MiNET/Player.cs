@@ -326,8 +326,6 @@ namespace MiNET
 				BodyYaw = 91
 			};
 
-			SendMovePlayer();
-
 			SendSetHealth();
 
 			SendPackage(new McpeAdventureSettings {flags = 0x20});
@@ -350,6 +348,8 @@ namespace MiNET
 			Level.AddPlayer(this);
 
 			BroadcastSetEntityData();
+
+			SendMovePlayer();
 		}
 
 		/// <summary>
@@ -889,7 +889,7 @@ namespace MiNET
 		/// </summary>
 		private void SendChunksForKnownPosition()
 		{
-			var chunkPosition = new ChunkCoordinates((int) KnownPosition.X/16, (int) KnownPosition.Z/16);
+			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
 			_currentChunkPosition = chunkPosition;
@@ -950,6 +950,7 @@ namespace MiNET
 
 		public override void DespawnEntity()
 		{
+			//IsSpawned = false;
 			Level.RemovePlayer(this);
 		}
 

@@ -66,16 +66,17 @@ namespace MiNET.Worlds
 			skylight[(bx*2048) + (bz*128) + by] = data;
 		}
 
-		public void SetBlockEntity(BlockCoordinates coordinates, NbtCompound nbt)
-		{
-			BlockEntities[coordinates] = nbt;
-		}
-
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
 		{
 			NbtCompound nbt;
 			BlockEntities.TryGetValue(coordinates, out nbt);
 			return nbt;
+		}
+
+		public void SetBlockEntity(BlockCoordinates coordinates, NbtCompound nbt)
+		{
+			_cache = null;
+			BlockEntities[coordinates] = nbt;
 		}
 
 		public void RemoveBlockEntity(BlockCoordinates coordinates)

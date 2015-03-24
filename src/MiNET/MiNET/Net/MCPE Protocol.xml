@@ -155,6 +155,17 @@
 		<field name="Z" type="float" />
 	</pdu>
 
+	<pdu id="0x88" online="false" client="false" server="true" name="ID_MCPE_ADD_MOB">
+		<field name="Entity ID" type="int" />
+		<field name="Mob Type" type="int" />
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="int" />
+		<field name="Yaw" type="byte" />
+		<field name="Pitch" type="byte" />
+		<field name="Metadata" type="byte[]" size="0" />
+	</pdu>
+
 	<pdu id="0xba" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA">
 		<!--<field name="Chunk X" type="int" />
 		<field name="Chunk Z" type="byte" />-->
@@ -252,6 +263,14 @@
 	<pdu id="0x8f" online="false" client="true" server="true" name="ID_MCPE_TAKE_ITEM_ENTITY">
 		<field name="Target" type="int" />
 		<field name="Entity Id" type="int" />
+	</pdu>
+
+	<pdu id="0x90" online="false" client="true" server="true" name="ID_MCPE_MOVE_ENTITY">
+		<field name="Entities" type="EntityLocations" />
+	</pdu>
+
+	<pdu id="0x94" online="false" client="true" server="true" name="ID_MCPE_ROTATE_HEAD">
+		<field name="Entities" type="EntityHeadRotations" />
 	</pdu>
 
 	<pdu id="0x96" online="false" client="true" server="true" name="ID_MCPE_PLACE_BLOCK">

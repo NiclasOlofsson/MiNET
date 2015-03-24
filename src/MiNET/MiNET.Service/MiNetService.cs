@@ -1,7 +1,6 @@
 ﻿using System;
 using log4net;
 using log4net.Config;
-using MiNET.Utils;
 using Topshelf;
 
 // Configure log4net using the .config file

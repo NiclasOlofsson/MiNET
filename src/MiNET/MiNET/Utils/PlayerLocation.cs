@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using Craft.Net.Common;
 
 namespace MiNET.Utils
 {
-	public class PlayerLocation
+	public class PlayerLocation : ICloneable
 	{
 		public float X { get; set; }
 		public float Y { get; set; }
@@ -75,6 +74,11 @@ namespace MiNET.Utils
 				Pitch = reader.ReadSingle();
 				BodyYaw = reader.ReadSingle();
 			}
+		}
+
+		public object Clone()
+		{
+			return MemberwiseClone();
 		}
 	}
 }

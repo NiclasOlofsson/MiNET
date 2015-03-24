@@ -52,6 +52,12 @@
   <ItemGroup>
     <Compile Include="ConfigSamplePlugin.cs" />
     <Compile Include="CoreCommands.cs" />
+    <Compile Include="MobHunt\CustomStandingSign.cs" />
+    <Compile Include="MobHunt\CustomWallSign.cs" />
+    <Compile Include="MobHunt\MobHunt.cs" />
+    <Compile Include="MobHunt\MobHuntLevel.cs" />
+    <Compile Include="MobHunt\MobHuntLevelFactory.cs" />
+    <Compile Include="MobHunt\PluginBlockFactory.cs" />
     <Compile Include="TestPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

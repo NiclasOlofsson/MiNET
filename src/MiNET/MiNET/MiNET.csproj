@@ -104,6 +104,7 @@
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\ItemEntity.cs" />
+    <Compile Include="Entities\Mob.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
@@ -127,9 +128,10 @@
     <Compile Include="Items\ItemWoodenPickaxe.cs" />
     <Compile Include="Items\ItemWoodenShovel.cs" />
     <Compile Include="Items\ItemWoodenSword.cs" />
-    <Compile Include="Items\RawBeef.cs" />
-    <Compile Include="Items\RawChicken.cs" />
-    <Compile Include="Items\RawPorkchop.cs" />
+    <Compile Include="Items\ItemRawBeef.cs" />
+    <Compile Include="Items\ItemRawChicken.cs" />
+    <Compile Include="Items\ItemRawPorkchop.cs" />
+    <Compile Include="LevelFactory.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
@@ -184,6 +186,7 @@
     <Compile Include="Security\User.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
+    <Compile Include="Utils\EntityLocations.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\Vector3.cs" />
     <Compile Include="Utils\Compression.cs" />

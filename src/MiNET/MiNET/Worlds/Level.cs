@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
 using Craft.Net.TerrainGeneration;
@@ -119,7 +118,7 @@ namespace MiNET.Worlds
 			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
 		}
 
-		public void AddPlayer(Player newPlayer, string broadcastText = null)
+		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
 			lock (Players)
 			{
@@ -131,8 +130,16 @@ namespace MiNET.Worlds
 
 				foreach (var targetPlayer in GetSpawnedPlayers())
 				{
-					SendAddForPlayer(targetPlayer, newPlayer);
-					SendAddForPlayer(newPlayer, targetPlayer);
+					if (spawn)
+					{
+						SendAddForPlayer(targetPlayer, newPlayer);
+						SendAddForPlayer(newPlayer, targetPlayer);
+					}
+				}
+
+				foreach (Entity entity in Entities.ToArray())
+				{
+					SendAddEntityToPlayer(entity, newPlayer);
 				}
 
 				if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
@@ -193,21 +200,32 @@ namespace MiNET.Worlds
 		}
 
 
-		public void RemovePlayer(Player player)
+		public virtual void RemovePlayer(Player player, bool despawn = true)
 		{
 			lock (Players)
 			{
 				if (!Players.Remove(player)) return;
 
-				foreach (var targetPlayer in GetSpawnedPlayers())
+				if (despawn)
 				{
-					SendRemoveForPlayer(targetPlayer, player);
-					SendRemoveForPlayer(player, targetPlayer);
+					foreach (var targetPlayer in GetSpawnedPlayers())
+					{
+						SendRemoveForPlayer(targetPlayer, player);
+						SendRemoveForPlayer(player, targetPlayer);
+					}
 				}
-
 				EntityManager.RemoveEntity(null, player);
 
 				BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
+			}
+		}
+
+		public void HidePlayer(Player player, bool hide)
+		{
+			foreach (var targetPlayer in GetSpawnedPlayers())
+			{
+				if (hide) SendRemoveForPlayer(targetPlayer, player);
+				else SendAddForPlayer(targetPlayer, player);
 			}
 		}
 
@@ -255,7 +273,19 @@ namespace MiNET.Worlds
 						item = itemEntity.GetMetadataSlot(),
 						x = itemEntity.KnownPosition.X + xr,
 						y = itemEntity.KnownPosition.Y + yr,
-						z = itemEntity.KnownPosition.Z + zr
+						z = itemEntity.KnownPosition.Z + zr,
+					});
+				}
+				else if (entity is Mob)
+				{
+					RelayBroadcast(new McpeAddMob()
+					{
+						mobType = entity.EntityTypeId,
+						entityId = entity.EntityId,
+						x = (int) entity.KnownPosition.X,
+						y = (int) entity.KnownPosition.Y,
+						z = (int) entity.KnownPosition.Z,
+						//metadata = entity.GetMetadata();
 					});
 				}
 				else
@@ -266,9 +296,50 @@ namespace MiNET.Worlds
 						entityId = entity.EntityId,
 						x = entity.KnownPosition.X,
 						y = entity.KnownPosition.Y,
-						z = entity.KnownPosition.Z
+						z = entity.KnownPosition.Z,
+						did = entity.Data
 					});
 				}
+			}
+		}
+
+		public void SendAddEntityToPlayer(Entity entity, Player player)
+		{
+			if (entity is ItemEntity)
+			{
+				ItemEntity itemEntity = (ItemEntity) entity;
+				player.SendPackage(new McpeAddItemEntity()
+				{
+					entityId = itemEntity.EntityId,
+					item = itemEntity.GetMetadataSlot(),
+					x = itemEntity.KnownPosition.X,
+					y = itemEntity.KnownPosition.Y,
+					z = itemEntity.KnownPosition.Z,
+				});
+			}
+			else if (entity is Mob)
+			{
+				player.SendPackage(new McpeAddMob()
+				{
+					mobType = entity.EntityTypeId,
+					entityId = entity.EntityId,
+					x = (int)entity.KnownPosition.X,
+					y = (int)entity.KnownPosition.Y,
+					z = (int)entity.KnownPosition.Z,
+					metadata = entity.GetMetadata().GetBytes()
+				});
+			}
+			else
+			{
+				player.SendPackage(new McpeAddEntity
+				{
+					entityType = entity.EntityTypeId,
+					entityId = entity.EntityId,
+					x = entity.KnownPosition.X,
+					y = entity.KnownPosition.Y,
+					z = entity.KnownPosition.Z,
+					did = entity.Data
+				});
 			}
 		}
 
@@ -398,10 +469,9 @@ namespace MiNET.Worlds
 			return players.Where(player => ((now - player.LastUpdatedTime.Ticks) <= tickTime)).ToArray();
 		}
 
-		private void BroadCastMovement(Player[] players, Player[] updatedPlayers)
+		protected virtual void BroadCastMovement(Player[] players, Player[] updatedPlayers)
 		{
-			//List<Task<McpeMovePlayer>> tasks = new List<Task<McpeMovePlayer>>();
-			//List<Task> tasks = new List<Task>();
+			if (updatedPlayers.Length == 0) return;
 
 			List<McpeMovePlayer> moves = new List<McpeMovePlayer>();
 			foreach (var player in updatedPlayers)
@@ -409,7 +479,6 @@ namespace MiNET.Worlds
 				Player updatedPlayer = player;
 				var knownPosition = updatedPlayer.KnownPosition;
 
-				//var task = new Task<McpeMovePlayer>(delegate
 				{
 					McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
 					move.entityId = updatedPlayer.EntityId;
@@ -423,56 +492,15 @@ namespace MiNET.Worlds
 					move.Encode(); // Optmized
 
 					moves.Add(move);
-
-					//foreach (var p in players)
-					//{
-					//	if (p == updatedPlayer)
-					//	{
-					//		move.PutPool();
-					//		continue;
-					//	}
-
-					//	p.SendPackage(move);
-					//}
-
-					//return move;
 				}
-				//);
-				//tasks.Add(task);
-				//task.Start();
 			}
 
-			//Task.WaitAll(tasks.ToArray());
-
-			//var sendAllTask = Task.WhenAll(tasks);
-			//sendAllTask.Wait();
-			//tasks.ForEach(task => task.Dispose());
-
-			//McpeMovePlayer[] result = sendAllTask.Result;
-
-			List<Task> sendTasks = new List<Task>();
-			//McpeMovePlayer[] moves = result;
 			foreach (var p in players)
 			{
 				Player player = p;
-				Task sendTask = new Task(delegate
-				{
-					//foreach (var move in moves)
-					//{
-					//	if (player.EntityId == move.entityId)
-					//	{
-					//		move.PutPool();
-					//		continue;
-					//	}
-
-					//}
-					player.SendMoveList(moves);
-				});
-				sendTasks.Add(sendTask);
+				Task sendTask = new Task(delegate { player.SendMoveList(moves); });
 				sendTask.Start();
 			}
-
-			//Task.WaitAll(sendTasks.ToArray());
 		}
 
 
@@ -641,7 +669,7 @@ namespace MiNET.Worlds
 			}
 
 
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
 			NbtCompound nbt = chunk.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
 
@@ -663,7 +691,7 @@ namespace MiNET.Worlds
 
 		public void SetBlockEntity(BlockEntity blockEntity, bool broadcast = true)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockEntity.Coordinates.X/16, blockEntity.Coordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockEntity.Coordinates.X >> 4, blockEntity.Coordinates.Z >> 4));
 			chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
 			if (blockEntity.UpdatesOnTick) BlockEntities.Add(blockEntity);
@@ -692,7 +720,7 @@ namespace MiNET.Worlds
 
 		public void RemoveBlockEntity(BlockCoordinates blockCoordinates)
 		{
-			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X/16, blockCoordinates.Z/16));
+			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
 			var nbt = chunk.GetBlockEntity(blockCoordinates);
 
 			if (nbt == null) return;

@@ -118,6 +118,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x88:
+					package = McpeAddMob.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xba:
 					package = McpeFullChunkData.CreateObject();
 					//package.Timer.Start();
@@ -185,6 +190,16 @@ namespace MiNET.Net
 					return package;
 				case 0x8f:
 					package = McpeTakeItemEntity.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x90:
+					package = McpeMoveEntity.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x94:
+					package = McpeRotateHead.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -1168,6 +1183,65 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeAddMob : Package<McpeAddMob>
+	{
+		public int entityId; // = null;
+		public int mobType; // = null;
+		public int x; // = null;
+		public int y; // = null;
+		public int z; // = null;
+		public byte yaw; // = null;
+		public byte pitch; // = null;
+		public byte[] metadata; // = null;
+		public McpeAddMob()
+		{
+			Id = 0x88;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(mobType);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(yaw);
+			Write(pitch);
+			Write(metadata);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadInt();
+			mobType = ReadInt();
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadInt();
+			yaw = ReadByte();
+			pitch = ReadByte();
+			metadata = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeFullChunkData : Package<McpeFullChunkData>
 	{
 		public byte[] chunkData; // = null;
@@ -1814,6 +1888,82 @@ namespace MiNET.Net
 
 			target = ReadInt();
 			entityId = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeMoveEntity : Package<McpeMoveEntity>
+	{
+		public EntityLocations entities; // = null;
+		public McpeMoveEntity()
+		{
+			Id = 0x90;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entities);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entities = ReadEntityLocations();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeRotateHead : Package<McpeRotateHead>
+	{
+		public EntityHeadRotations entities; // = null;
+		public McpeRotateHead()
+		{
+			Id = 0x94;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entities);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entities = ReadEntityHeadRotations();
 
 			AfterDecode();
 		}

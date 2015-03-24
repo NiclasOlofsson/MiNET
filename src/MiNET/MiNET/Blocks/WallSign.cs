@@ -6,7 +6,7 @@ namespace MiNET.Blocks
 {
 	public class WallSign : Block
 	{
-		internal WallSign() : base(68)
+		protected internal WallSign() : base(68)
 		{
 		}
 

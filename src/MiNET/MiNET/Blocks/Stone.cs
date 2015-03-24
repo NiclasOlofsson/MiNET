@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class Stone : Block
 	{
-		internal Stone() : base(1)
+		protected internal Stone() : base(1)
 		{
 		}
 	}

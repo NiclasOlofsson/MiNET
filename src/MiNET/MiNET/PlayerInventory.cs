@@ -32,7 +32,9 @@ namespace MiNET
 			}
 
 			byte c = 0;
-			Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 8));
+			Slots[c++] = new MetadataSlot(new ItemStack(0, 0));
+			Slots[c++] = new MetadataSlot(new ItemStack(323, 1));
+			//Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 8));
 			Slots[c++] = new MetadataSlot(new ItemStack(54, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(58, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(61, 10));
@@ -46,7 +48,6 @@ namespace MiNET
 			{
 				ItemHotbar[i] = new MetadataInt(i + 9);
 			}
-			//ItemHotbar[0] = new MetadataInt(9);
 		}
 
 		/// <summary>

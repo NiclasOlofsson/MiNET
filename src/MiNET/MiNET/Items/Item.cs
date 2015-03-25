@@ -129,6 +129,10 @@ namespace MiNET.Items
 		{
 			return null;
 		}
+
+		public virtual void Relese(Level world, Player player, BlockCoordinates blockCoordinates)
+		{
+		}
 	}
 
 	public enum ItemMaterial

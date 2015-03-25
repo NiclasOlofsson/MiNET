@@ -258,13 +258,26 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandlePlayerAction(McpePlayerAction message)
 		{
+			Log.DebugFormat("Player action: {0}", message.actionId);
+			Log.DebugFormat("Entity ID: {0}", message.entityId);
+			Log.DebugFormat("Action ID:  {0}", message.actionId);
+			Log.DebugFormat("x:  {0}", message.x);
+			Log.DebugFormat("y:  {0}", message.y);
+			Log.DebugFormat("z:  {0}", message.z);
+			Log.DebugFormat("face:  {0}", message.face);
+
 			if (message.entityId != EntityId) return;
 
 			switch (message.actionId)
 			{
 				case 5: // Shoot arrow
 				{
-					//new McpeEntityEvent()
+					MetadataSlot itemSlot = Inventory.ItemInHand;
+					Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+
+					if (itemInHand == null) return; // Cheat(?)
+
+					itemInHand.Relese(Level, this, new BlockCoordinates(message.x, message.y, message.z));
 
 					break;
 				}

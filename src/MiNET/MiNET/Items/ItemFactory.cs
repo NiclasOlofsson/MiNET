@@ -18,6 +18,7 @@ namespace MiNET.Items
 			else if (id == 61) item = new ItemFurnace(metadata);
 			else if (id == 158) item = new ItemSlab(id, metadata);
 			else if (id == 259) item = new ItemFlintAndSteel(metadata);
+			else if (id == 261) item = new ItemBow(metadata);
 			else if (id == 263) item = new ItemCoal(metadata);
 			else if (id == 267) item = new ItemIronSword(metadata);
 			else if (id == 268) item = new ItemWoodenSword(metadata);

@@ -12,6 +12,7 @@ namespace MiNET.Blocks
 
 			if (blockId == 0) block = new Air();
 			else if (blockId == 1) block = new Stone();
+			else if (blockId == 1:1) block = new Granite();
 			else if (blockId == 2) block = new Grass();
 			else if (blockId == 3) block = new Dirt();
 			else if (blockId == 4) block = new Cobblestone();

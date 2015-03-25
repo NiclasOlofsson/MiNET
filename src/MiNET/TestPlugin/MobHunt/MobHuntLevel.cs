@@ -10,6 +10,8 @@ using MiNET.Worlds;
 
 namespace TestPlugin.MobHunt
 {
+	// More game types with description - very good
+	// http://mineplex.com/faq
 	public class MobHuntLevel : Level
 	{
 		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();

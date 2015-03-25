@@ -106,6 +106,7 @@
     <Compile Include="Entities\ItemEntity.cs" />
     <Compile Include="Entities\Mob.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
+    <Compile Include="Entities\Snowball.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Items\ItemChest.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemSlab.cs" />
+    <Compile Include="Items\ItemSnowball.cs" />
     <Compile Include="Items\ItemStick.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />
     <Compile Include="Items\ItemWoodenPickaxe.cs" />

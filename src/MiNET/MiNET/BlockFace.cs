@@ -7,6 +7,7 @@ namespace MiNET
 		East = 2,
 		West = 3,
 		North = 4,
-		South = 5
+		South = 5,
+		None = 255
 	}
 }

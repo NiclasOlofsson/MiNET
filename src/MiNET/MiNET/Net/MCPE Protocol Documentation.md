@@ -45,6 +45,7 @@
 | Mcpe Use Item | 0xa3 | 163 |   
 | Mcpe Player Action | 0xa4 | 164 |   
 | Mcpe Set Entity Data | 0xa7 | 167 |   
+| Mcpe Set Entity Motion | 0xa8 | 168 |   
 | Mcpe Set Health | 0xaa | 170 |   
 | Mcpe Set Spawn Position | 0xab | 171 |   
 | Mcpe Animate | 0xac | 172 |   
@@ -525,38 +526,6 @@ The three type of status are:
 |Source | string |  |
 |Message | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Data (0xa7)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity ID | int |  |
-|NamedTag | byte[] | 0 |
------------------------------------------------------------------------
-###Package: Mcpe Entity Data (0xb8)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|X | int |  |
-|Y | byte |  |
-|Z | int |  |
-|NamedTag | Nbt |  |
------------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x89)
 
 **Sent from server:** true
@@ -853,40 +822,6 @@ The three type of status are:
 |Entity ID | int |  |
 |Target Entity ID | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Action (0xa4)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action ID | int |  |
-|X | int |  |
-|Y | int |  |
-|Z | int |  |
-|Face | int |  |
-|Entity ID | int |  |
------------------------------------------------------------------------
-###Package: Mcpe Animate (0xac)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action ID | byte |  |
-|Entity ID | int |  |
------------------------------------------------------------------------
 ###Package: Mcpe Use Item (0xa3)
 
 **Sent from server:** true
@@ -912,6 +847,85 @@ The three type of status are:
 |Position X | float |  |
 |Position Y | float |  |
 |Position Z | float |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Player Action (0xa4)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Action ID | int |  |
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Face | int |  |
+|Entity ID | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Entity Data (0xa7)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | int |  |
+|NamedTag | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Entity Motion (0xa8)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entities | EntityMotions |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Animate (0xac)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Action ID | byte |  |
+|Entity ID | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Drop Item (0xaf)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity Id | int |  |
+|Unknown | byte |  |
+|Item | MetadataSlot |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Open (0xb0)
 
@@ -980,9 +994,9 @@ The three type of status are:
 |Property | short |  |
 |Value | short |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Drop Item (0xaf)
+###Package: Mcpe Entity Data (0xb8)
 
-**Sent from server:** false
+**Sent from server:** true
 **Sent from client:** true
 **Packet size:** 
 
@@ -992,9 +1006,10 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Id | int |  |
-|Unknown | byte |  |
-|Item | MetadataSlot |  |
+|X | int |  |
+|Y | byte |  |
+|Z | int |  |
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 
 

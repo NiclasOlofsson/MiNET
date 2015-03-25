@@ -218,6 +218,22 @@ namespace MiNET.Net
 			return new EntityHeadRotations();
 		}
 
+		public void Write(EntityMotions motions)
+		{
+			Write(motions.Count);
+			foreach (var motion in motions)
+			{
+				Write(motion.Key); // Entity ID
+				Write((short) (motion.Value.X*8000f));
+				Write((short) (motion.Value.Y*8000f));
+				Write((short) (motion.Value.Z*8000f));
+			}
+		}
+
+		public EntityMotions ReadEntityMotions()
+		{
+			return new EntityMotions();
+		}
 
 		public void Write(Nbt nbt)
 		{

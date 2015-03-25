@@ -323,9 +323,9 @@ namespace MiNET.Worlds
 				{
 					mobType = entity.EntityTypeId,
 					entityId = entity.EntityId,
-					x = (int)entity.KnownPosition.X,
-					y = (int)entity.KnownPosition.Y,
-					z = (int)entity.KnownPosition.Z,
+					x = (int) entity.KnownPosition.X,
+					y = (int) entity.KnownPosition.Y,
+					z = (int) entity.KnownPosition.Z,
 					metadata = entity.GetMetadata().GetBytes()
 				});
 			}
@@ -338,6 +338,9 @@ namespace MiNET.Worlds
 					x = entity.KnownPosition.X,
 					y = entity.KnownPosition.Y,
 					z = entity.KnownPosition.Z,
+					velocityX = (short) entity.Velocity.X,
+					velocityY = (short) entity.Velocity.Y,
+					velocityZ = (short) entity.Velocity.Z,
 					did = entity.Data
 				});
 			}
@@ -732,6 +735,17 @@ namespace MiNET.Worlds
 			}
 
 			chunk.RemoveBlockEntity(blockCoordinates);
+		}
+
+		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata)
+		{
+			// Make sure we are holding the item we claim to be using
+			MetadataSlot itemSlot = player.Inventory.ItemInHand;
+			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id, metadata);
+
+			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
+
+			itemInHand.UseItem(world, player, blockCoordinates);
 		}
 
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)

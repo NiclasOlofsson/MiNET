@@ -46,6 +46,10 @@ namespace MiNET
 
 		public Player(MiNetServer server, IPEndPoint endPoint, Level level, PluginManager pluginManager, short mtuSize) : base(-1, level)
 		{
+			Width = 0.6;
+			Length = 0.6;
+			Height = 1.80;
+
 			Server = server;
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
@@ -851,6 +855,7 @@ namespace MiNET
 			else
 			{
 				// Snowballs and shit
+				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta);
 			}
 		}
 

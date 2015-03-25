@@ -2,6 +2,10 @@
 
 namespace MiNET.Utils
 {
+	public class EntityMotions : Dictionary<int, Vector3>
+	{
+	}
+
 	public class EntityHeadRotations : EntityLocations
 	{
 	}

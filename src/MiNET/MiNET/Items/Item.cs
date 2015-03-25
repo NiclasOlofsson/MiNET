@@ -32,9 +32,13 @@ namespace MiNET.Items
 			ItemType = ItemType.Item;
 		}
 
-		protected Item(int id, short metadata, short fuelEfficiency): this(id, metadata)
+		protected Item(int id, short metadata, short fuelEfficiency) : this(id, metadata)
 		{
 			FuelEfficiency = fuelEfficiency;
+		}
+
+		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+		{
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

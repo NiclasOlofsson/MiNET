@@ -37,9 +37,9 @@ namespace MiNET
 			//Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 8));
 			Slots[c++] = new MetadataSlot(new ItemStack(262, 64));
 			Slots[c++] = new MetadataSlot(new ItemStack(261, 1));
-			Slots[c++] = new MetadataSlot(new ItemStack(61, 10));
+			Slots[c++] = new MetadataSlot(new ItemStack(344, 64));
 			Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 10));
-			Slots[c++] = new MetadataSlot(new ItemStack(173, 10));
+			Slots[c++] = new MetadataSlot(new ItemStack(332, 64));
 			Slots[c++] = new MetadataSlot(new ItemStack(263, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(268, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(280, 10));
@@ -77,7 +77,7 @@ namespace MiNET
 				var b = (MetadataSlot) Slots[s];
 				if (b.Value.Id == itemId && b.Value.Metadata == metadata && b.Value.Count < 64)
 				{
-					SetInventorySlot(s, itemId, (byte)(b.Value.Count + amount), metadata);
+					SetInventorySlot(s, itemId, (byte) (b.Value.Count + amount), metadata);
 					break;
 				}
 				else if (b.Value == null || b.Value.Id == 0 || b.Value.Id == -1)
@@ -101,7 +101,7 @@ namespace MiNET
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id && ((MetadataSlot)Slots[i]).Value.Metadata == item.Value.Metadata)
+				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id && ((MetadataSlot) Slots[i]).Value.Metadata == item.Value.Metadata)
 				{
 					return true;
 				}

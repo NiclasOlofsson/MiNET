@@ -103,6 +103,7 @@
     <Compile Include="CommandHandler\HelpCommand.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Arrow.cs" />
+    <Compile Include="Entities\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\ItemEntity.cs" />
     <Compile Include="Entities\Mob.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Items\ItemDiamondHelmet.cs" />
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
+    <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemIronBoots.cs" />
     <Compile Include="Items\ItemIronChestplate.cs" />

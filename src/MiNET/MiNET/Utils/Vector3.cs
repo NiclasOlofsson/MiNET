@@ -35,6 +35,11 @@ namespace MiNET.Utils
 			return new Vector3(Math.Floor(X), Math.Floor(Y), Math.Floor(Z));
 		}
 
+		public Vector3 Normalize()
+		{
+			return new Vector3(X/Distance, Y/Distance, Z/Distance);
+		}
+
 		/// <summary>
 		/// Calculates the distance between two Vector3 objects.
 		/// </summary>

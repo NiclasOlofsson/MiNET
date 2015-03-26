@@ -129,5 +129,12 @@ namespace MiNET.Blocks
 		public virtual void DoPhysics(Level level)
 		{
 		}
+
+		public BoundingBox GetBoundingBox()
+		{
+			return new BoundingBox(
+				new Vector3(Coordinates.X, Coordinates.Y, Coordinates.Z),
+				new Vector3(Coordinates.X + 1, Coordinates.Y + 1, Coordinates.Z + 1));
+		}
 	}
 }

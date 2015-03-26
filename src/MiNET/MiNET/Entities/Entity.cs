@@ -93,19 +93,9 @@ namespace MiNET.Entities
 		public BoundingBox GetBoundingBox()
 		{
 			var pos = KnownPosition;
-			double height = Height;
-			double width = Width;
-			double length = Length;
-			double yaw = pos.Yaw;
+			double halfWidth = Width/2;
 
-			double s = Math.Sin(yaw);
-			double c = Math.Cos(yaw);
-			if (s < 0) s = -s;
-			if (c < 0) c = -c;
-			double wn = (width*s + length*c)/2; // width of AABB
-			double hn = (width*c + length*s)/2; // height of AABB
-
-			return new BoundingBox(new Vector3(pos.X - wn, pos.Y, pos.Z - hn), new Vector3(pos.X + wn, pos.Y + height, pos.Z + hn));
+			return new BoundingBox(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y + Height, pos.Z + halfWidth));
 		}
 
 		public byte GetDirection()

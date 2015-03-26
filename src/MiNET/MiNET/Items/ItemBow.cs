@@ -17,7 +17,7 @@ namespace MiNET.Items
 		{
 			Arrow arrow = new Arrow(world);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			arrow.KnownPosition.Y += 1.62f;
+			arrow.KnownPosition.Y += 1.61f;
 
 			float yaw = player.KnownPosition.Yaw;
 			float pitch = player.KnownPosition.Pitch;

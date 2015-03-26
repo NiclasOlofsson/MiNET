@@ -612,9 +612,9 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public Block GetBlock(PlayerLocation blockCoordinates)
+		public Block GetBlock(PlayerLocation location)
 		{
-			return GetBlock(new BlockCoordinates((int) Math.Floor(blockCoordinates.X), (int) Math.Floor(blockCoordinates.Y), (int) Math.Floor(blockCoordinates.Z)));
+			return GetBlock(new BlockCoordinates((int) Math.Floor(location.X), (int) Math.Floor(location.Y), (int) Math.Floor(location.Z)));
 		}
 
 		public Block GetBlock(int x, int y, int z)

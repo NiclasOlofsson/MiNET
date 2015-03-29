@@ -293,6 +293,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xa9:
+					package = McpeSetEntityLink.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
@@ -2839,6 +2844,50 @@ namespace MiNET.Net
 			y = ReadByte();
 			z = ReadInt();
 			namedtag = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeSetEntityLink : Package<McpeSetEntityLink>
+	{
+		public int linkType; // = null;
+		public int riderId; // = null;
+		public int riddenId; // = null;
+		public McpeSetEntityLink()
+		{
+			Id = 0xa9;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(linkType);
+			Write(riderId);
+			Write(riddenId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			linkType = ReadInt();
+			riderId = ReadInt();
+			riddenId = ReadInt();
 
 			AfterDecode();
 		}

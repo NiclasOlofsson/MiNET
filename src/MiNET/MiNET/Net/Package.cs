@@ -63,6 +63,11 @@ namespace MiNET.Net
 
 		public byte[] ReadBytes(int count)
 		{
+			if(count == 0)
+			{
+				count = (int) (_reader.BaseStream.Length - _reader.BaseStream.Position);
+			}
+
 			var readBytes = _reader.ReadBytes(count);
 			if (readBytes.Length != count) throw new ArgumentOutOfRangeException();
 			return readBytes;
@@ -75,6 +80,8 @@ namespace MiNET.Net
 
 		public short ReadShort()
 		{
+			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
+
 			return Endian.SwapInt16(_reader.ReadInt16());
 		}
 
@@ -164,6 +171,7 @@ namespace MiNET.Net
 
 		public string ReadString()
 		{
+			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return "";
 			short len = ReadShort();
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}

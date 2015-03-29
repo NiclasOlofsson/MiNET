@@ -15,7 +15,7 @@ namespace MiNET.Items
 
 		public override void Relese(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			Arrow arrow = new Arrow(world);
+			Arrow arrow = new Arrow(player, world);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.61f;
 

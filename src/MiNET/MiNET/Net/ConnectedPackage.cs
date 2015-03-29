@@ -168,6 +168,9 @@ namespace MiNET.Net
 				MessageLength = (int) Math.Ceiling((((double) dataBitLength)/8));
 
 				byte[] internalBuffer = ReadBytes(MessageLength);
+	
+				if (_splitPacketCount > 0 && _splitPacketIndex != 0) return;
+
 				Messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
 				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 			}

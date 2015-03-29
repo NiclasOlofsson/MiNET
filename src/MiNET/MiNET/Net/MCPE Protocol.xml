@@ -407,4 +407,10 @@
 		<field name="NamedTag" type="Nbt"/>
 	</pdu>
 
+	<pdu id="0xa9" online="false" client="true" server="true" name="ID_MCPE_SET_ENTITY_LINK">
+		<field name="Link Type" type="int" />
+		<field name="Rider ID" type="int" />
+		<field name="Ridden ID" type="int" />
+	</pdu>
+
 </protocol>

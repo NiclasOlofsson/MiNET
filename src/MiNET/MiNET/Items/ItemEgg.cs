@@ -15,7 +15,7 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			Egg egg = new Egg(world);
+			Egg egg = new Egg(player, world);
 			egg.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			egg.KnownPosition.Y += 1.62f;
 
@@ -31,7 +31,7 @@ namespace MiNET.Items
 			entityMotion.entities = new EntityMotions {{egg.EntityId, egg.Velocity}};
 			entityMotion.Encode();
 
-			new Task(() => world.RelayBroadcast(entityMotion)).Start();
+			//new Task(() => world.RelayBroadcast(entityMotion)).Start();
 		}
 	}
 }

@@ -11,29 +11,32 @@ namespace MiNET.Entities
 {
 	public class Arrow : Entity
 	{
-		private PlayerLocation _prevLocation;
+		public Player Player { get; set; }
 
-		public Arrow(Level level) : base(80, level)
+		public Arrow(Player player, Level level) : base(80, level)
 		{
+			Player = player;
 			Width = 0.5;
 			Length = 0.5;
 			Height = 0.0;
 
 			Gravity = 0.05;
 			Drag = 0.01;
+
+			HealthManager.IsInvulnerable = true;
 		}
 
 		public override void OnTick()
 		{
-			if (Velocity.Distance <= 0.001)
+			base.OnTick();
+
+			if (Velocity.Distance <= 0)
 			{
 				//var dropCoords = coords + BlockCoordinates.Up;
 				//Level.DropItem(dropCoords, new ItemStack(262, 1));
 				//DespawnEntity();
 				return;
 			}
-
-			_prevLocation = (PlayerLocation) KnownPosition.Clone();
 
 			Velocity *= (1.0 - Drag);
 			Velocity -= new Vector3(0, Gravity, 0);
@@ -56,7 +59,6 @@ namespace MiNET.Entities
 					player.HealthManager.TakeHit(this, 1, DamageCause.Projectile);
 					player.BroadcastEntityEvent();
 					Velocity = new Vector3();
-					//DespawnEntity();
 					break;
 				}
 			}
@@ -65,10 +67,7 @@ namespace MiNET.Entities
 			{
 				Velocity = new Vector3();
 			}
-			else
-			{
-				//BroadcastMoveAndMotion();
-			}
+
 			BroadcastMoveAndMotion();
 		}
 
@@ -96,7 +95,13 @@ namespace MiNET.Entities
 						BoundingBox blockbox = block.GetBoundingBox();
 						if (blockbox.Intersects(GetBoundingBox()))
 						{
-							//if (!blockbox.Contains(KnownPosition.ToVector3())) continue;
+							if (block is FlowingLava || block is StationaryLava)
+							{
+								HealthManager.Ignite(1200);
+								continue;
+							}
+
+							if (!block.IsSolid) continue;
 
 							var midPoint = blockbox.Min + 0.5;
 							blocks.Add((pos - Velocity).DistanceTo(midPoint), block);
@@ -134,15 +139,11 @@ namespace MiNET.Entities
 		private void BroadcastMoveAndMotion()
 		{
 			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entities = new EntityMotions();
-			motions.entities.Add(EntityId, Velocity);
+			motions.entities = new EntityMotions {{EntityId, Velocity}};
 			new Task(() => Level.RelayBroadcast(motions)).Start();
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-			moveEntity.entities = new EntityLocations();
-			moveEntity.entities.Add(EntityId, KnownPosition);
-			moveEntity.Encode();
-
+			moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
 			new Task(() => Level.RelayBroadcast(moveEntity)).Start();
 		}
 	}

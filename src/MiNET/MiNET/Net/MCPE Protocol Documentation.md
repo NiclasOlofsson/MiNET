@@ -46,6 +46,7 @@
 | Mcpe Player Action | 0xa4 | 164 |   
 | Mcpe Set Entity Data | 0xa7 | 167 |   
 | Mcpe Set Entity Motion | 0xa8 | 168 |   
+| Mcpe Set Entity Link | 0xa9 | 169 |   
 | Mcpe Set Health | 0xaa | 170 |   
 | Mcpe Set Spawn Position | 0xab | 171 |   
 | Mcpe Animate | 0xac | 172 |   
@@ -1010,6 +1011,22 @@ The three type of status are:
 |Y | byte |  |
 |Z | int |  |
 |NamedTag | Nbt |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Entity Link (0xa9)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Link Type | int |  |
+|Rider ID | int |  |
+|Ridden ID | int |  |
 -----------------------------------------------------------------------
 
 

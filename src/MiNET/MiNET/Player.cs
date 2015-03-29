@@ -115,12 +115,12 @@ namespace MiNET
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 
 				// It is a bug that it leaks these messages.
-				//var block = ((McpeUpdateBlock) message);
-				//Debug.WriteLine("block:" + block.block);
-				//Debug.WriteLine("meta:" + block.meta);
-				//Debug.WriteLine("x:" + block.x);
-				//Debug.WriteLine("y:" + block.y);
-				//Debug.WriteLine("z:" + block.z);
+				var block = ((McpeUpdateBlock) message);
+				Log.DebugFormat("block: {0}", block.block);
+				Log.DebugFormat("meta: {0}", block.meta);
+				Log.DebugFormat("x: {0}", block.x);
+				Log.DebugFormat("y: {0}", block.y);
+				Log.DebugFormat("z: {0}", block.z);
 			}
 
 			else if (typeof (McpeRemoveBlock) == message.GetType())
@@ -272,6 +272,14 @@ namespace MiNET
 			{
 				case 5: // Shoot arrow
 				{
+					MetadataDictionary metadata = new MetadataDictionary();
+					metadata[0] = new MetadataByte(0);
+					Level.RelayBroadcast(this, new McpeSetEntityData
+					{
+						entityId = EntityId,
+						namedtag = metadata.GetBytes(),
+					});
+
 					MetadataSlot itemSlot = Inventory.ItemInHand;
 					Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
@@ -869,6 +877,14 @@ namespace MiNET
 			{
 				// Snowballs and shit
 				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta);
+
+				MetadataDictionary metadata = new MetadataDictionary();
+				metadata[0] = new MetadataByte(16);
+				Level.RelayBroadcast(this, new McpeSetEntityData
+				{
+					entityId = EntityId,
+					namedtag = metadata.GetBytes(),
+				});
 			}
 		}
 

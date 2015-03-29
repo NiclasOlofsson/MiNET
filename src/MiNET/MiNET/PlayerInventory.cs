@@ -33,13 +33,13 @@ namespace MiNET
 
 			byte c = 0;
 			Slots[c++] = new MetadataSlot(new ItemStack(0, 0));
-			Slots[c++] = new MetadataSlot(new ItemStack(323, 10));
+			Slots[c++] = new MetadataSlot(new ItemStack(323, 64));
 			//Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 8));
-			Slots[c++] = new MetadataSlot(new ItemStack(262, 64));
 			Slots[c++] = new MetadataSlot(new ItemStack(261, 1));
+			Slots[c++] = new MetadataSlot(new ItemStack(262, 64));
 			Slots[c++] = new MetadataSlot(new ItemStack(344, 64));
-			Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(332, 64));
+			Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(263, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(268, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(280, 10));

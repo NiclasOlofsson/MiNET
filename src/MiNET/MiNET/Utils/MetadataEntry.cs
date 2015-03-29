@@ -47,5 +47,6 @@ namespace MiNET.Utils
 			Index = index; // Cheat to get this for ToString
 			return (byte) ((Identifier << 5) | (index & 0x1F));
 		}
+
 	}
 }

@@ -135,6 +135,21 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Spawn(Player player, byte id)
+		{
+			Level level = player.Level;
+
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
+
+			level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id));
+		}
+
+		[Command]
 		public void Hide(Player player)
 		{
 			player.Level.HidePlayer(player, true);

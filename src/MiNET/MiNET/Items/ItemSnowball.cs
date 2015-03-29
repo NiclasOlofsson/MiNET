@@ -15,7 +15,7 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			Snowball snowBall = new Snowball(world);
+			Snowball snowBall = new Snowball(player, world);
 			snowBall.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			snowBall.KnownPosition.Y += 1.62f;
 

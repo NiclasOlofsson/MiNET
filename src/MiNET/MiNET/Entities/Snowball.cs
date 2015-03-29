@@ -5,8 +5,11 @@ namespace MiNET.Entities
 {
 	public class Snowball : Entity
 	{
-		public Snowball(Level level) : base(81, level)
+		public Player Player { get; set; }
+
+		public Snowball(Player player, Level level) : base(81, level)
 		{
+			Player = player;
 			Width = 0.25;
 			Length = 0.25;
 			Height = 0.25;
@@ -36,6 +39,8 @@ namespace MiNET.Entities
 			Player[] players = Level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
+				if (player == Player) continue;
+
 				if (player.GetBoundingBox().Intersects(bbox))
 				{
 					player.HealthManager.TakeHit(this, 1, DamageCause.Projectile);

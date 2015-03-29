@@ -35,6 +35,7 @@ namespace MiNET
 		public bool IsDead { get; set; }
 		public int FireTick { get; set; }
 		public bool IsOnFire { get; set; }
+		public bool IsInvulnerable { get; set; }
 		public DamageCause LastDamageCause { get; set; }
 		public Entity LastDamageSource { get; set; }
 
@@ -88,6 +89,20 @@ namespace MiNET
 				player.SendSetHealth();
 		}
 
+		public void Ignite(int ticks = 300)
+		{
+			Ignite(Entity, ticks);
+		}
+
+		public void Ignite(Entity entity, int ticks = 300)
+		{
+			if (IsDead) return;
+
+			FireTick = ticks;
+			IsOnFire = true;
+			entity.BroadcastSetEntityData();
+		}
+
 		public void Kill()
 		{
 			if (IsDead) return;
@@ -99,14 +114,15 @@ namespace MiNET
 			{
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
-				player.BroadcastSetEntityData();
 			}
+			Entity.BroadcastSetEntityData();
 
 			Entity.DespawnEntity();
 		}
 
 		public void ResetHealth()
 		{
+			IsInvulnerable = false;
 			Health = 20;
 			Air = 300;
 			IsOnFire = false;
@@ -117,9 +133,9 @@ namespace MiNET
 
 		public void OnTick()
 		{
-			//TODO: Rewrite to fit all entities
-
 			if (IsDead) return;
+
+			if (IsInvulnerable) Health = 20;
 
 			if (Health <= 0)
 			{
@@ -147,9 +163,9 @@ namespace MiNET
 						{
 							player.SendSetHealth();
 							player.BroadcastEntityEvent();
-							player.BroadcastSetEntityData();
-							LastDamageCause = DamageCause.Drowning;
 						}
+						Entity.BroadcastSetEntityData();
+						LastDamageCause = DamageCause.Drowning;
 					}
 				}
 
@@ -157,9 +173,7 @@ namespace MiNET
 				{
 					IsOnFire = false;
 					FireTick = 0;
-					var player = Entity as Player;
-					if (player != null)
-						player.BroadcastSetEntityData();
+					Entity.BroadcastSetEntityData();
 				}
 			}
 			else
@@ -171,9 +185,7 @@ namespace MiNET
 			{
 				FireTick = 300;
 				IsOnFire = true;
-				var player = Entity as Player;
-				if (player != null)
-					player.BroadcastSetEntityData();
+				Entity.BroadcastSetEntityData();
 			}
 
 			if (IsOnFire)
@@ -192,9 +204,9 @@ namespace MiNET
 					{
 						player.SendSetHealth();
 						player.BroadcastEntityEvent();
-						player.BroadcastSetEntityData();
-						LastDamageCause = DamageCause.FireTick;
 					}
+					Entity.BroadcastSetEntityData();
+					LastDamageCause = DamageCause.FireTick;
 				}
 			}
 		}

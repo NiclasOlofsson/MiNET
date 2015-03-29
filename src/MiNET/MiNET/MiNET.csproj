@@ -194,6 +194,7 @@
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
+    <Compile Include="Utils\Ray.cs" />
     <Compile Include="Utils\Vector3.cs" />
     <Compile Include="Utils\Compression.cs" />
     <Compile Include="Utils\BlockCoordinates.cs" />

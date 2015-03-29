@@ -49,5 +49,11 @@ namespace MiNET.Utils
 			stream.Write((short) bytes.Length);
 			stream.Write(bytes);
 		}
+
+		public override string ToString()
+		{
+			return string.Format("{0} {1} {2}", FriendlyName, Identifier, Value);
+		}
+
 	}
 }

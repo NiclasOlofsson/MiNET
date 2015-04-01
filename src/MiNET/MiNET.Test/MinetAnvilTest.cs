@@ -12,7 +12,7 @@ namespace MiNET
 	[TestFixture]
 	public class MinetAnvilTest
 	{
-		[Test]
+		[Test, Ignore]
 		public void LoadAnvilLevelLoadTest()
 		{
 			NbtFile file = new NbtFile();

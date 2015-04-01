@@ -4,7 +4,7 @@
 	{
 		public Bedrock() : base(7)
 		{
-			Durability = 60000;
+			Hardness = 60000;
 		}
 	}
 }

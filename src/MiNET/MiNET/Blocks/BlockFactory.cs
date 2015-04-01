@@ -1,5 +1,4 @@
 using log4net;
-using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
@@ -47,6 +46,7 @@ namespace MiNET.Blocks
 			else if (blockId == 21) block = new LapsisOre();
 			else if (blockId == 22) block = new LapsisBlock();
 			else if (blockId == 24) block = new Sandstone();
+			else if (blockId == 31) block = new TallGrass();
 			else if (blockId == 41) block = new GoldBlock();
 			else if (blockId == 43) block = new DoubleStoneSlab();
 			else if (blockId == 44) block = new StoneSlab();
@@ -101,106 +101,20 @@ namespace MiNET.Blocks
 		}
 	}
 
-	public class Snow : Block
+	public class TallGrass : Block
 	{
-		internal Snow() : base(80)
+		public enum TallGrassTypes
 		{
+			DeadShrub = 0,
+			TallGrass = 1,
+			Fern = 2
 		}
 
-		public override ItemStack GetDrops()
+		protected internal TallGrass() : base(31)
 		{
-			return new ItemStack(332, 4); // Drop sign item
-		}
-	}
-
-	public class Ice : Block
-	{
-		internal Ice() : base(79)
-		{
-		}
-	}
-
-	public class Sandstone : Block
-	{
-		internal Sandstone() : base(24)
-		{
-		}
-	}
-
-	public class LapsisBlock : Block
-	{
-		internal LapsisBlock() : base(22)
-		{
-		}
-	}
-
-	public class LapsisOre : Block
-	{
-		internal LapsisOre() : base(21)
-		{
-		}
-	}
-
-	public class CoalOre : Block
-	{
-		internal CoalOre() : base(16)
-		{
-		}
-	}
-
-	public class Gravel : Block
-	{
-		internal Gravel() : base(13)
-		{
-		}
-	}
-
-	public class Grass : Block
-	{
-		internal Grass() : base(2)
-		{
-		}
-	}
-
-	public class Dirt : Block
-	{
-		internal Dirt() : base(3)
-		{
-		}
-	}
-
-	public class DoubleStoneSlab : Block
-	{
-		internal DoubleStoneSlab() : base(43)
-		{
-		}
-	}
-
-	public class StoneSlab : Block
-	{
-		internal StoneSlab() : base(44)
-		{
-		}
-	}
-
-	public class DoubleWoodSlab : Block
-	{
-		internal DoubleWoodSlab() : base(157)
-		{
-		}
-	}
-
-	public class WoodSlab : Block
-	{
-		internal WoodSlab() : base(158)
-		{
-		}
-	}
-
-	public class GoldBlock : Block
-	{
-		protected internal GoldBlock() : base(41)
-		{
+			IsSolid = false;
+			IsReplacible = true;
+			IsTransparent = true;
 		}
 	}
 }

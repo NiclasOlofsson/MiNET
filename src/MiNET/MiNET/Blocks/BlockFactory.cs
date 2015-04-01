@@ -1,4 +1,5 @@
 using log4net;
+using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
@@ -62,6 +63,8 @@ namespace MiNET.Blocks
 			else if (blockId == 64) block = new WoodenDoor();
 			else if (blockId == 67) block = new CobblestoneStairs();
 			else if (blockId == 68) block = new WallSign();
+			else if (blockId == 79) block = new Ice();
+			else if (blockId == 80) block = new Snow();
 			else if (blockId == 85) block = new Fence();
 			else if (blockId == 98) block = new StoneBrick();
 			else if (blockId == 107) block = new FenceGate();
@@ -95,6 +98,25 @@ namespace MiNET.Blocks
 			}
 
 			return block;
+		}
+	}
+
+	public class Snow : Block
+	{
+		internal Snow() : base(80)
+		{
+		}
+
+		public override ItemStack GetDrops()
+		{
+			return new ItemStack(332, 4); // Drop sign item
+		}
+	}
+
+	public class Ice : Block
+	{
+		internal Ice() : base(79)
+		{
 		}
 	}
 

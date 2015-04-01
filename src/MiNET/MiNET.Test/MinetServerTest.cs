@@ -172,7 +172,7 @@ namespace MiNET
 			Console.WriteLine("ip is " + ip.ToString());
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void EncapsulatedHeaderTest()
 		{
 			DatagramHeader header = new DatagramHeader(0x8c);
@@ -185,7 +185,7 @@ namespace MiNET
 			Assert.AreEqual(true, header.needsBAndAs);
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void LabTest()
 		{
 			// x = 8, z = 9

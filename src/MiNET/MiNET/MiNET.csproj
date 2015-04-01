@@ -35,6 +35,10 @@
     <Reference Include="Deedle">
       <HintPath>..\packages\Deedle.1.0.7\lib\net40\Deedle.dll</HintPath>
     </Reference>
+    <Reference Include="fNbt, Version=0.6.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\fNbt.0.6.2.0\lib\net35-Client\fNbt.dll</HintPath>
+    </Reference>
     <Reference Include="LibNoise">
       <HintPath>..\packages\LibNoise.0.2\lib\NET45\LibNoise.dll</HintPath>
     </Reference>
@@ -218,6 +222,7 @@
     <Compile Include="Utils\NibbleArray.cs" />
     <Compile Include="Utils\PlayerLocation.cs" />
     <Compile Include="Utils\Records.cs" />
+    <Compile Include="Worlds\AnvilWorldProvider.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
@@ -259,25 +264,6 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\external\craft.net\externals\fNbt\fNbt\fNbt.csproj">
-      <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
-      <Name>fNbt</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Anvil\Craft.Net.Anvil.csproj">
-      <Project>{02031C5C-5007-48D5-A253-F7C8BDF0C0B2}</Project>
-      <Name>Craft.Net.Anvil</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.Common\Craft.Net.Common.csproj">
-      <Project>{50462849-2223-4E39-B5D9-A928A9A58A33}</Project>
-      <Name>Craft.Net.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\external\craft.net\source\Craft.Net.TerrainGeneration\Craft.Net.TerrainGeneration.csproj">
-      <Project>{B415FC03-C6FB-4B20-A5A1-81F526ADFEF5}</Project>
-      <Name>Craft.Net.TerrainGeneration</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

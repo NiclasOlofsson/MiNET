@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Craft.Net.TerrainGeneration;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -68,8 +67,7 @@ namespace MiNET.Worlds
 			ViewDistance = ConfigParser.GetProperty("ViewDistance", 250);
 			if (ConfigParser.GetProperty("UsePCWorld", false))
 			{
-				_worldProvider = new CraftNetAnvilWorldProvider();
-				var loadIt = new FlatlandGenerator(); // Don't remove
+				_worldProvider = new AnvilWorldProvider();
 			}
 			else
 			{
@@ -104,12 +102,16 @@ namespace MiNET.Worlds
 			{
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
+					Stopwatch chunkLoading = new Stopwatch();
+					chunkLoading.Start();
 					// Pre-cache chunks for spawn coordinates
-					foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X, SpawnPoint.Z), new Dictionary<Tuple<int, int>, ChunkColumn>()))
+					int i = 0;
+					foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X >> 4, SpawnPoint.Z >> 4), new Dictionary<Tuple<int, int>, ChunkColumn>()))
 					{
 						chunk.GetBytes();
+						i++;
 					}
-					Log.Info("World pre-cache of chunks complete.");
+					Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
 				});
 			}
 

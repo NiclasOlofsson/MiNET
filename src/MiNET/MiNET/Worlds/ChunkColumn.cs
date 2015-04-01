@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
+using System.Threading.Tasks;
 using fNbt;
 using MiNET.Utils;
 
@@ -25,8 +26,10 @@ namespace MiNET.Worlds
 
 		public ChunkColumn()
 		{
-			for (int i = 0; i < skylight.Length; i++)
-				skylight[i] = 0xff;
+			//Parallel.For(0, skylight.Data.Length, i => skylight.Data[i] = 0xff);
+
+			for (int i = 0; i < skylight.Data.Length; i++)
+				skylight.Data[i] = 0xff;
 
 			for (int i = 0; i < biomeColor.Length; i++)
 				biomeColor[i] = 8761930; // Grass color?

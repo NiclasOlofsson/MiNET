@@ -1,7 +1,5 @@
 using System;
-using System.Threading.Tasks;
 using MiNET.Entities;
-using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -13,8 +11,11 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void Relese(Level world, Player player, BlockCoordinates blockCoordinates)
+		public override void Relese(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
 		{
+			float force = CalculateForce(timeUsed);
+			if (force <= 0) return;
+
 			Arrow arrow = new Arrow(player, world);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.61f;
@@ -26,15 +27,54 @@ namespace MiNET.Items
 			var vy = -Math.Sin(pitch/180f*Math.PI);
 			var vz = Math.Cos(yaw/180f*Math.PI)*Math.Cos(pitch/180f*Math.PI);
 
-			arrow.Velocity = new Vector3(vx, vy, vz)*1.5f;
+			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5);
+
+			arrow.Data = player.EntityId;
 
 			arrow.SpawnEntity();
+		}
 
-			var entityMotion = McpeSetEntityMotion.CreateObject();
-			entityMotion.entities = new EntityMotions {{arrow.EntityId, arrow.Velocity}};
-			entityMotion.Encode();
+		private float CalculateForce(long timeUsed)
+		{
+			long dt = timeUsed/50;
+			float force = dt/20.0F;
 
-			new Task(() => world.RelayBroadcast(entityMotion)).Start();
+			force = (force*force + force*2.0F)/3.0F;
+			if (force < 0.1D)
+			{
+				return 0;
+			}
+
+			if (force > 1.0F)
+			{
+				force = 1.0F;
+			}
+
+			return force;
+		}
+
+		public Vector3 GetShootVector(double motX, double motY, double motZ, double f, double f1)
+		{
+			double f2 = Math.Sqrt(motX*motX + motY*motY + motZ*motZ);
+
+			motX /= f2;
+			motY /= f2;
+			motZ /= f2;
+			//motX += this.random.nextGaussian() * (double)(this.random.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)f1;
+			//motY += this.random.nextGaussian() * (double)(this.random.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)f1;
+			//motZ += this.random.nextGaussian() * (double)(this.random.nextBoolean() ? -1 : 1) * 0.007499999832361937D * (double)f1;
+			motX *= f;
+			motY *= f;
+			motZ *= f;
+			return new Vector3(motX, motY, motZ);
+			//thismotX = motX;
+			//thismotY = motY;
+			//thismotZ = motZ;
+			//double f3 = Math.Sqrt(motX * motX + motZ * motZ);
+
+			//thislastYaw = this.yaw = (float)(Math.atan2(motX, motZ) * 180.0D / 3.1415927410125732D);
+			//this.lastPitch = this.pitch = (float)(Math.atan2(motY, (double)f3) * 180.0D / 3.1415927410125732D);
+			//this.ttl = 0;
 		}
 	}
 }

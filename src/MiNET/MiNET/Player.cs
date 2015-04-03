@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -285,8 +286,10 @@ namespace MiNET
 
 					if (itemInHand == null) return; // Cheat(?)
 
-					itemInHand.Relese(Level, this, new BlockCoordinates(message.x, message.y, message.z));
+					_itemUseTimer.Stop();
+					itemInHand.Relese(Level, this, new BlockCoordinates(message.x, message.y, message.z), _itemUseTimer.ElapsedMilliseconds);
 
+					_itemUseTimer = null;
 					break;
 				}
 				default:
@@ -841,10 +844,9 @@ namespace MiNET
 			return p;
 		}
 
-		/// <summary>
-		///     Handles the use item.
-		/// </summary>
-		/// <param name="message">The message.</param>
+
+		private Stopwatch _itemUseTimer;
+
 		private void HandleUseItem(McpeUseItem message)
 		{
 			Log.DebugFormat("Use item: {0}", message.item);
@@ -875,6 +877,8 @@ namespace MiNET
 			}
 			else
 			{
+				_itemUseTimer = new Stopwatch();
+				_itemUseTimer.Start();
 				// Snowballs and shit
 				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta);
 

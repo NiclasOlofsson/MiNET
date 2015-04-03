@@ -362,29 +362,45 @@ namespace MiNET.ServiceKiller
 					Log.DebugFormat("Case 2: {0}", msg.case2);
 					return;
 				}
+				if (typeof (McpeAddEntity) == message.GetType())
+				{
+					McpeAddEntity msg = (McpeAddEntity) message;
+					Log.DebugFormat("Entity ID: {0}", msg.entityId);
+					Log.DebugFormat("Entity Type: {0}", msg.entityType);
+					Log.DebugFormat("DID: {0}", msg.did);
+					Log.DebugFormat("X: {0}", msg.x);
+					Log.DebugFormat("Y: {0}", msg.y);
+					Log.DebugFormat("Z: {0}", msg.z);
+					Log.DebugFormat("Velocity X: {0}", msg.velocityX);
+					Log.DebugFormat("Velocity Y: {0}", msg.velocityY);
+					Log.DebugFormat("Velocity Z: {0}", msg.velocityZ);
+
+					return;
+				}
 				if (typeof (McpeSetEntityData) == message.GetType())
 				{
 					McpeSetEntityData msg = (McpeSetEntityData) message;
 					Log.DebugFormat("Entity ID: {0}", msg.entityId);
-					Log.DebugFormat("NameTag: {0}", GetBytes(msg.namedtag).ToString());
+					MetadataDictionary metadata = GetMetadata(msg.namedtag);
+					Log.DebugFormat("NameTag: {0}", metadata.ToString());
 
 					return;
 				}
 
-				if (typeof(McpeMovePlayer) == message.GetType())
+				if (typeof (McpeMovePlayer) == message.GetType())
 				{
-					McpeMovePlayer msg = (McpeMovePlayer)message;
+					McpeMovePlayer msg = (McpeMovePlayer) message;
 					Log.DebugFormat("Entity ID: {0}", msg.entityId);
 
 					return;
 				}
 			}
 
-			public MetadataDictionary GetBytes(byte[] buffer)
+			public MetadataDictionary GetMetadata(byte[] buffer)
 			{
-				var stream = new MemoryStream();
-				stream.Write(buffer, 0, buffer.Length);
-				stream.Position = 0;
+				var stream = new MemoryStream(buffer);
+				//stream.Write(buffer, 0, buffer.Length);
+				//stream.Position = 0;
 				var writer = new BinaryReader(stream);
 				return MetadataDictionary.FromStream(writer);
 			}

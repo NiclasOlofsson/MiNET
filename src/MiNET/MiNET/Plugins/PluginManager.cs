@@ -55,7 +55,14 @@ namespace MiNET.Plugins
 						{
 							// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
 							if (!type.IsDefined(typeof (PluginAttribute), true) && !typeof (IPlugin).IsAssignableFrom(type)) continue;
-
+							if (type.IsDefined(typeof (PluginAttribute), true))
+							{
+								PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
+								if (pluginAttribute != null)
+								{
+									if (!ConfigParser.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+								}
+							}
 							var ctor = type.GetConstructor(Type.EmptyTypes);
 							if (ctor != null)
 							{
@@ -260,14 +267,14 @@ namespace MiNET.Plugins
 					objectArgs[k] = args[i];
 					continue;
 				}
-				if (parameter.ParameterType == typeof(byte))
+				if (parameter.ParameterType == typeof (byte))
 				{
 					byte value;
 					if (!byte.TryParse(args[i], out value)) return false;
 					objectArgs[k] = value;
 					continue;
 				}
-				if (parameter.ParameterType == typeof(short))
+				if (parameter.ParameterType == typeof (short))
 				{
 					short value;
 					if (!short.TryParse(args[i], out value)) return false;

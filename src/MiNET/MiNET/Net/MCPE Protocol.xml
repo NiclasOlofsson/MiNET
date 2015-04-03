@@ -229,8 +229,8 @@
 		<field name="Z" type="float" />
 		<field name="DID" type="int" />
 		<field name="Velocity X" type="short" />
-		<field name="Velocity Z" type="short" />
 		<field name="Velocity Y" type="short" />
+		<field name="Velocity Z" type="short" />
 	</pdu>
 
 	<pdu id="0x8d" online="false" client="false" server="true" name="ID_MCPE_REMOVE_ENTITY">

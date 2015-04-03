@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -38,6 +39,11 @@ namespace MiNET.Utils
 				byte type = (byte) ((key & 0xE0) >> 5);
 				byte index = (byte) (key & 0x1F);
 
+				//if(type == 6)
+				//{
+				//	Debug.WriteLine("Got 6 in metadat");
+				//} 
+
 				var entry = EntryTypes[type]();
 				entry.FromStream(stream);
 				entry.Index = index;
@@ -64,6 +70,7 @@ namespace MiNET.Utils
 			() => new MetadataFloat(), // 3
 			() => new MetadataString(), // 4
 			() => new MetadataSlot(), // 5
+			//() => new MetadataIntCoordinates(), // 6
 		};
 
 		public override string ToString()

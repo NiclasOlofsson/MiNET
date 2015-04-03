@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -16,6 +17,90 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void TestForce()
+		{
+			int j = 10;
+			float f = (float) j/20.0F;
+
+			f = (f*f + f*2.0F)/3.0F;
+			if ((double) f < 0.1D)
+			{
+				return;
+			}
+
+			if (f > 1.0F)
+			{
+				f = 1.0F;
+			}
+
+			Assert.AreEqual(1, f);
+		}
+
+		[Test, Ignore]
+		public void ChunkLoadTest()
+		{
+			{
+				var chunkPosition = new ChunkCoordinates(0, 0);
+
+				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
+				double viewDistance = 250;
+				double radiusSquared = viewDistance/Math.PI;
+				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
+				int centerX = chunkPosition.X;
+				int centerZ = chunkPosition.Z;
+
+				Stopwatch sw = new Stopwatch();
+				sw.Start();
+
+				for (double x = -radius; x <= radius; x++)
+				{
+					for (double z = -radius; z <= radius; z++)
+					{
+						double distance = (x*x) + (z*z);
+						if (distance > radiusSquared)
+						{
+							continue;
+						}
+
+						int chunkX = (int) (x + centerX);
+						int chunkZ = (int) (z + centerZ);
+						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
+						newOrders[index] = distance;
+					}
+				}
+			}
+			{
+				var chunkPosition = new ChunkCoordinates(0, 0);
+
+				// A = pi r^2
+				// sqrt(A/pi) = r
+				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
+				double radius = 9;
+				double radiusSqr = radius*radius;
+				int centerX = chunkPosition.X;
+				int centerZ = chunkPosition.Z;
+
+				Stopwatch sw = new Stopwatch();
+				sw.Start();
+
+				for (double x = -radius; x <= radius; x++)
+				{
+					for (double z = -radius; z <= radius; z++)
+					{
+						double distanceSqr = (x*x) + (z*z);
+
+						if (distanceSqr > radiusSqr) continue;
+
+						int chunkX = (int) (x + centerX);
+						int chunkZ = (int) (z + centerZ);
+						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
+						newOrders[index] = distanceSqr;
+					}
+				}
+			}
+		}
+
 		[Test]
 		public void AckSeriesTest()
 		{

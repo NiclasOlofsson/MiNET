@@ -25,6 +25,14 @@ namespace MiNET.Utils
 			Z = v.Z;
 		}
 
+		public BlockCoordinates(PlayerLocation location)
+		{
+			X = (int) Math.Floor(location.X);
+			Y = (int)Math.Floor(location.Y);
+			Z = (int)Math.Floor(location.Z);
+		}
+
+
 		/// <summary>
 		/// Calculates the distance between two BlockCoordinates objects.
 		/// </summary>

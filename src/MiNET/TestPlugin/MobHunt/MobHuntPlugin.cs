@@ -6,10 +6,10 @@ using MiNET.Plugins.Attributes;
 
 namespace TestPlugin.MobHunt
 {
-	[Plugin(PluginName = "MobHunt", Description = "A simple game engine for MobHunt", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class MobHunt : IStartup
+	[Plugin(PluginName = "MobHuntPlugin", Description = "A simple game engine for MobHunt", PluginVersion = "1.0", Author = "MiNET Team")]
+	public class MobHuntPlugin : IStartup
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MobHunt));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MobHuntPlugin));
 
 		public void Configure(MiNetServer server)
 		{

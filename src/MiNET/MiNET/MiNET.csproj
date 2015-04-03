@@ -127,6 +127,7 @@
     <Compile Include="Entities\Mob.cs" />
     <Compile Include="Entities\PrimedTnt.cs" />
     <Compile Include="Entities\Snowball.cs" />
+    <Compile Include="Entities\Throwable.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Items\ItemBow.cs" />

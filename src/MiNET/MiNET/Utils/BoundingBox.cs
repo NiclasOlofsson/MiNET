@@ -139,7 +139,7 @@ namespace MiNET.Utils
 
 		public static BoundingBox operator +(BoundingBox a, double b)
 		{
-			return new BoundingBox(a.Min + b, a.Max + b);
+			return new BoundingBox(a.Min - b, a.Max + b);
 		}
 
 		public static bool operator ==(BoundingBox a, BoundingBox b)

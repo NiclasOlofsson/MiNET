@@ -32,9 +32,14 @@ namespace MiNET.Worlds
 			_flatland = new FlatlandWorldProvider();
 		}
 
+		public AnvilWorldProvider(string basePath) : this()
+		{
+			_basePath = basePath;
+		}
+
 		public void Initialize()
 		{
-			_basePath = ConfigParser.GetProperty("PCWorldFolder", "World").Trim();
+			_basePath = _basePath ?? ConfigParser.GetProperty("PCWorldFolder", "World").Trim();
 
 			NbtFile file = new NbtFile();
 			file.LoadFromFile(Path.Combine(_basePath, "level.dat"));
@@ -177,9 +182,20 @@ namespace MiNET.Worlds
 			byte[] buffer = new byte[8192];
 			regionFile.Read(buffer, 0, 8192);
 
-			int tableOffset = ((coordinates.X%width) + (coordinates.Z%depth)*width)*4;
+			int xi = (coordinates.X%width);
+			if (xi < 0) xi += 32;
+			int zi = (coordinates.Z%depth);
+			if (zi < 0) zi += 32;
+			int tableOffset = (xi + zi*width)*4;
 
-			regionFile.Seek(tableOffset, SeekOrigin.Begin);
+			try
+			{
+				regionFile.Seek(tableOffset, SeekOrigin.Begin);
+			}
+			catch (Exception e)
+			{
+				throw;
+			}
 			byte[] offsetBuffer = new byte[4];
 			regionFile.Read(offsetBuffer, 0, 3);
 			Array.Reverse(offsetBuffer);

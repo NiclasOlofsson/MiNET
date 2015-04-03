@@ -585,8 +585,8 @@ The three type of status are:
 |Z | float |  |
 |DID | int |  |
 |Velocity X | short |  |
-|Velocity Z | short |  |
 |Velocity Y | short |  |
+|Velocity Z | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x8d)
 

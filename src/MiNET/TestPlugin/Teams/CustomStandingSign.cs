@@ -1,0 +1,36 @@
+﻿using MiNET;
+using MiNET.BlockEntities;
+using MiNET.Blocks;
+using MiNET.Utils;
+using MiNET.Worlds;
+
+namespace TestPlugin.Teams
+{
+	public class CustomStandingSign : StandingSign
+	{
+		private GameManager _gameManager;
+		private Game _game;
+
+		public CustomStandingSign(GameManager gameManager)
+		{
+			_gameManager = gameManager;
+		}
+
+		public override bool Interact(Level currentLevel, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		{
+			Sign signEntity = currentLevel.GetBlockEntity(blockCoordinates) as Sign;
+			if (signEntity == null) return false;
+
+
+			string world = signEntity.Text1;
+
+			if (player.Level.LevelId.Equals(world)) return true;
+
+			Game game = _gameManager.Join(player, world);
+
+			_gameManager.Register(signEntity, currentLevel);
+
+			return true;
+		}
+	}
+}

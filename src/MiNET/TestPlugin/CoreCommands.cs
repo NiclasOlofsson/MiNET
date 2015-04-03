@@ -134,6 +134,18 @@ namespace TestPlugin
 			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance));
 		}
 
+		[Command(Command = "pos")]
+		public void Position(Player player)
+		{
+			BlockCoordinates position = new BlockCoordinates(player.KnownPosition);
+
+			int chunkX = position.X >> 4;
+			int chunkZ = position.Z >> 4;
+			player.SendMessage(string.Format("Current region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
+			player.SendMessage(string.Format("Current chunk X={0} Z={1}", chunkX, chunkZ));
+			player.SendMessage(string.Format("Current position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
+		}
+
 		[Command]
 		public void Spawn(Player player, byte id)
 		{

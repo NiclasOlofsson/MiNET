@@ -1628,8 +1628,8 @@ namespace MiNET.Net
 		public float z; // = null;
 		public int did; // = null;
 		public short velocityX; // = null;
-		public short velocityZ; // = null;
 		public short velocityY; // = null;
+		public short velocityZ; // = null;
 		public McpeAddEntity()
 		{
 			Id = 0x8c;
@@ -1648,8 +1648,8 @@ namespace MiNET.Net
 			Write(z);
 			Write(did);
 			Write(velocityX);
-			Write(velocityZ);
 			Write(velocityY);
+			Write(velocityZ);
 
 			AfterEncode();
 		}
@@ -1670,8 +1670,8 @@ namespace MiNET.Net
 			z = ReadFloat();
 			did = ReadInt();
 			velocityX = ReadShort();
-			velocityZ = ReadShort();
 			velocityY = ReadShort();
+			velocityZ = ReadShort();
 
 			AfterDecode();
 		}

@@ -65,27 +65,32 @@ namespace MiNET.Worlds
 			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Survival);
 			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
 			ViewDistance = ConfigParser.GetProperty("ViewDistance", 250);
-			if (ConfigParser.GetProperty("UsePCWorld", false))
+			_worldProvider = worldProvider;
+
+			if (_worldProvider == null)
 			{
-				_worldProvider = new AnvilWorldProvider();
-			}
-			else
-			{
-				switch (ConfigParser.GetProperty("WorldProvider", "Flatland").ToLower())
+				if (ConfigParser.GetProperty("UsePCWorld", false))
 				{
-					case "flat":
-					case "flatland":
-						_worldProvider = new FlatlandWorldProvider();
-						break;
-					case "cool":
-						_worldProvider = new CoolWorldProvider();
-						break;
-					case "experimental":
-						_worldProvider = new ExperimentalWorldProvider();
-						break;
-					default:
-						_worldProvider = new FlatlandWorldProvider();
-						break;
+					_worldProvider = new AnvilWorldProvider();
+				}
+				else
+				{
+					switch (ConfigParser.GetProperty("WorldProvider", "Flatland").ToLower())
+					{
+						case "flat":
+						case "flatland":
+							_worldProvider = new FlatlandWorldProvider();
+							break;
+						case "cool":
+							_worldProvider = new CoolWorldProvider();
+							break;
+						case "experimental":
+							_worldProvider = new ExperimentalWorldProvider();
+							break;
+						default:
+							_worldProvider = new FlatlandWorldProvider();
+							break;
+					}
 				}
 			}
 		}
@@ -215,6 +220,11 @@ namespace MiNET.Worlds
 						SendRemoveForPlayer(targetPlayer, player);
 						SendRemoveForPlayer(player, targetPlayer);
 					}
+
+					foreach (Entity entity in Entities.ToArray())
+					{
+						SendAddEntityToPlayer(entity, player);
+					}
 				}
 				EntityManager.RemoveEntity(null, player);
 
@@ -292,15 +302,57 @@ namespace MiNET.Worlds
 				}
 				else
 				{
-					RelayBroadcast(new McpeAddEntity
+					var addEntity = new McpeAddEntity
 					{
 						entityType = entity.EntityTypeId,
 						entityId = entity.EntityId,
 						x = entity.KnownPosition.X,
 						y = entity.KnownPosition.Y,
 						z = entity.KnownPosition.Z,
-						did = entity.Data
-					});
+						did = entity.Data,
+					};
+					if (addEntity.did > 0)
+					{
+						double dx = entity.Velocity.X;
+						double dy = entity.Velocity.Y;
+						double dz = entity.Velocity.Z;
+						double maxVelocity = 3.92d;
+
+						if (dx < -maxVelocity)
+						{
+							dx = -maxVelocity;
+						}
+
+						if (dy < -maxVelocity)
+						{
+							dy = -maxVelocity;
+						}
+
+						if (dz < -maxVelocity)
+						{
+							dz = -maxVelocity;
+						}
+
+						if (dx > maxVelocity)
+						{
+							dx = maxVelocity;
+						}
+
+						if (dy > maxVelocity)
+						{
+							dy = maxVelocity;
+						}
+
+						if (dz > maxVelocity)
+						{
+							dz = maxVelocity;
+						}
+
+						addEntity.velocityX = (short) (dx*8000.0d);
+						addEntity.velocityY = (short) (dy*8000.0d);
+						addEntity.velocityZ = (short) (dz*8000.0d);
+					}
+					RelayBroadcast(addEntity);
 				}
 			}
 		}
@@ -514,6 +566,9 @@ namespace MiNET.Worlds
 			lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
+				// ViewDistance is actually ViewArea
+				// A = pi r^2
+				// sqrt(A/pi) = r
 				double radiusSquared = ViewDistance/Math.PI;
 				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
 				int centerX = chunkPosition.X;
@@ -530,7 +585,7 @@ namespace MiNET.Worlds
 						}
 						int chunkX = (int) (x + centerX);
 						int chunkZ = (int) (z + centerZ);
-						Tuple<int, int> index = GetChunkHash(chunkX, chunkZ);
+						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
 						newOrders[index] = distance;
 					}
 				}
@@ -543,7 +598,6 @@ namespace MiNET.Worlds
 						newOrders.Remove(pair.Key);
 					}
 				}
-
 
 				foreach (var chunkKey in chunksUsed.Keys.ToArray())
 				{
@@ -565,11 +619,6 @@ namespace MiNET.Worlds
 
 				if (chunksUsed.Count > ViewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
 			}
-		}
-
-		private Tuple<int, int> GetChunkHash(int chunkX, int chunkZ)
-		{
-			return new Tuple<int, int>(chunkX, chunkZ);
 		}
 
 

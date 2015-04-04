@@ -57,7 +57,6 @@ namespace MiNET.Entities
 			if (playerHitted != null)
 			{
 				playerHitted.HealthManager.TakeHit(this, 1, DamageCause.Projectile);
-				playerHitted.BroadcastEntityEvent();
 				collided = true;
 			}
 			else

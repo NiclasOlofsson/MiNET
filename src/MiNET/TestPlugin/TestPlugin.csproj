@@ -63,6 +63,7 @@
     <Compile Include="Teams\TeamPlugin.cs" />
     <Compile Include="TestPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WorldEdit\WorldEditPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiNET\MiNET.csproj">

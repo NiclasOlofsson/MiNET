@@ -86,7 +86,7 @@ namespace MiNET.Worlds
 
 	public class CoolWorldProvider : IWorldProvider
 	{
-		private string _seed = ConfigParser.GetProperty("seed", "noise");
+		private string _seed = Config.GetProperty("seed", "noise");
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public bool IsCaching { get; private set; }
 

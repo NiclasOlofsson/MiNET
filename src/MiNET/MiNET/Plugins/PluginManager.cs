@@ -37,10 +37,10 @@ namespace MiNET.Plugins
 
 		internal void LoadPlugins()
 		{
-			if (ConfigParser.GetProperty("PluginDisabled", false)) return;
+			if (Config.GetProperty("PluginDisabled", false)) return;
 
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			pluginDirectory = ConfigParser.GetProperty("PluginDirectory", pluginDirectory);
+			pluginDirectory = Config.GetProperty("PluginDirectory", pluginDirectory);
 			if (pluginDirectory != null)
 			{
 				pluginDirectory = Path.GetFullPath(pluginDirectory);
@@ -60,7 +60,7 @@ namespace MiNET.Plugins
 								PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
 								if (pluginAttribute != null)
 								{
-									if (!ConfigParser.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+									if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
 								}
 							}
 							var ctor = type.GetConstructor(Type.EmptyTypes);

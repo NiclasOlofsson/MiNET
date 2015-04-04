@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Threading;
 using log4net;
@@ -250,7 +249,7 @@ namespace MiNET
 			message.entityId = EntityId;
 			Log.DebugFormat("Action: {0}", message.actionId);
 
-			Level.RelayBroadcast(this, message);
+			//Level.RelayBroadcast(this, message);
 		}
 
 		/// <summary>
@@ -385,7 +384,6 @@ namespace MiNET
 		/// </summary>
 		public void HandleDisconnectionNotification()
 		{
-			SavePlayerData();
 			IsConnected = false;
 			IsSpawned = true;
 			Level.RemovePlayer(this);
@@ -731,117 +729,119 @@ namespace MiNET
 		{
 			Player target = Level.EntityManager.GetEntity(message.targetEntityId) as Player;
 
+			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
+			Log.DebugFormat("Interact Entity ID: {0}", message.entityId);
+			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
+
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this, CalculateDamage(this, target), DamageCause.EntityAttack);
-
-			target.BroadcastEntityEvent();
+			target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
 		}
 
-		private int CalculateDamage(Player source, Player target)
+		private int CalculateDamage(Player target)
 		{
-			int armorValue = 0;
+			double armorValue = 0;
 
 			for (byte i = 0; i < target.Inventory.Armor.Count; i++)
 			{
-				var d = (MetadataSlot) (target.Inventory.Armor[i]);
-				var b = ItemFactory.GetItem(d.Value.Id);
-				if (b.ItemType == ItemType.Helmet)
+				MetadataSlot id = (MetadataSlot) (target.Inventory.Armor[i]);
+				var armorPiece = ItemFactory.GetItem(id.Value.Id);
+				if (armorPiece.ItemType == ItemType.Helmet)
 				{
-					switch (b.ItemMaterial)
+					switch (armorPiece.ItemMaterial)
 					{
-						case ItemMaterial.Iron:
-							armorValue += 2;
+						case ItemMaterial.Leather:
+							armorValue += 1;
 							break;
 						case ItemMaterial.Gold:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Chain:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Iron:
 							armorValue += 2;
 							break;
 						case ItemMaterial.Diamond:
 							armorValue += 3;
 							break;
-						case ItemMaterial.Leather:
-							armorValue += 1;
-							break;
-						case ItemMaterial.Chain:
-							armorValue += 2;
-							break;
 					}
 				}
 
-				if (b.ItemType == ItemType.Chestplate)
+				if (armorPiece.ItemType == ItemType.Chestplate)
 				{
-					switch (b.ItemMaterial)
+					switch (armorPiece.ItemMaterial)
 					{
-						case ItemMaterial.Iron:
-							armorValue += 6;
+						case ItemMaterial.Leather:
+							armorValue += 3;
 							break;
 						case ItemMaterial.Gold:
 							armorValue += 5;
+							break;
+						case ItemMaterial.Chain:
+							armorValue += 5;
+							break;
+						case ItemMaterial.Iron:
+							armorValue += 6;
 							break;
 						case ItemMaterial.Diamond:
 							armorValue += 8;
 							break;
-						case ItemMaterial.Leather:
-							armorValue += 3;
-							break;
-						case ItemMaterial.Chain:
-							armorValue += 5;
-							break;
 					}
 				}
 
-				if (b.ItemType == ItemType.Leggings)
+				if (armorPiece.ItemType == ItemType.Leggings)
 				{
-					switch (b.ItemMaterial)
+					switch (armorPiece.ItemMaterial)
 					{
-						case ItemMaterial.Iron:
-							armorValue += 5;
+						case ItemMaterial.Leather:
+							armorValue += 2;
 							break;
 						case ItemMaterial.Gold:
 							armorValue += 3;
-							break;
-						case ItemMaterial.Diamond:
-							armorValue += 6;
-							break;
-						case ItemMaterial.Leather:
-							armorValue += 2;
 							break;
 						case ItemMaterial.Chain:
 							armorValue += 4;
 							break;
+						case ItemMaterial.Iron:
+							armorValue += 5;
+							break;
+						case ItemMaterial.Diamond:
+							armorValue += 6;
+							break;
 					}
 				}
 
-				if (b.ItemType == ItemType.Boots)
+				if (armorPiece.ItemType == ItemType.Boots)
 				{
-					switch (b.ItemMaterial)
+					switch (armorPiece.ItemMaterial)
 					{
-						case ItemMaterial.Iron:
-							armorValue += 2;
+						case ItemMaterial.Leather:
+							armorValue += 1;
 							break;
 						case ItemMaterial.Gold:
 							armorValue += 1;
 							break;
-						case ItemMaterial.Diamond:
-							armorValue += 3;
-							break;
-						case ItemMaterial.Leather:
-							armorValue += 1;
-							break;
 						case ItemMaterial.Chain:
 							armorValue += 1;
+							break;
+						case ItemMaterial.Iron:
+							armorValue += 2;
+							break;
+						case ItemMaterial.Diamond:
+							armorValue += 3;
 							break;
 					}
 				}
 			}
 
+			armorValue *= 0.04; // Each armor point represent 4% reduction
 
-			int iDamage = ItemFactory.GetItem(this.Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
 
-			var p = (int) Math.Floor(iDamage*armorValue*0.04);
-			if (armorValue == 0) p = iDamage;
+			damage = (int) Math.Floor(damage*(1.0 - armorValue));
 
-			return p;
+			return damage;
 		}
 
 
@@ -954,7 +954,7 @@ namespace MiNET
 
 		internal void SendSetHealth()
 		{
-			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Health});
+			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Hearts});
 		}
 
 		public void SendSetTime()
@@ -1100,62 +1100,6 @@ namespace MiNET
 
 			if (messages.Count == 0) return;
 			Server.SendPackage(EndPoint, messages, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
-		}
-
-		public void SavePlayerData()
-		{
-			if (!ConfigParser.GetProperty("save_pe", true)) return;
-
-			if (!Directory.Exists("Players")) Directory.CreateDirectory("Players");
-
-			byte[] buffer;
-			using (MemoryStream stream = new MemoryStream())
-			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
-
-				writer.Write(Inventory.Export().Length);
-				writer.Write(Inventory.Export());
-
-				writer.Write(HealthManager.Export().Length);
-				writer.Write(HealthManager.Export());
-
-				writer.Write(KnownPosition.Export().Length);
-				writer.Write(KnownPosition.Export());
-
-				writer.Flush();
-
-				buffer = stream.GetBuffer();
-			}
-			File.WriteAllBytes("Players/" + Username + ".data", Compression.Compress(buffer));
-		}
-
-		public void LoadFromFile()
-		{
-			if (!ConfigParser.GetProperty("load_pe", true)) return;
-
-			try
-			{
-				if (File.Exists("Players/" + Username + ".data"))
-				{
-					using (MemoryStream stream = new MemoryStream(Compression.Decompress(File.ReadAllBytes("Players/" + Username + ".data"))))
-					{
-						NbtBinaryReader reader = new NbtBinaryReader(stream, false);
-
-						int invLength = reader.ReadInt32();
-						Inventory.Import(reader.ReadBytes(invLength));
-
-						int healthLength = reader.ReadInt32();
-						HealthManager.Import(reader.ReadBytes(healthLength));
-
-						int knownLength = reader.ReadInt32();
-						KnownPosition.Import(reader.ReadBytes(knownLength));
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				//Console.WriteLine(ex);
-			}
 		}
 	}
 }

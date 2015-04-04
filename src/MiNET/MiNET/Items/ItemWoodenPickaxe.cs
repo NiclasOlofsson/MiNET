@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MiNET.Items
+﻿namespace MiNET.Items
 {
 	public class ItemWoodenPickaxe : Item
 	{
-		public ItemWoodenPickaxe(short metadata)
-			: base(270, metadata, 10)
+		public ItemWoodenPickaxe(short metadata) : base(270, metadata)
 		{
 			ItemMaterial = ItemMaterial.Wood;
 			ItemType = ItemType.PickAxe;
+			FuelEfficiency = 10;
 		}
 	}
 }

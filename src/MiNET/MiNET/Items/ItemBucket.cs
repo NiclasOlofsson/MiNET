@@ -8,12 +8,7 @@ namespace MiNET.Items
 	{
 		internal ItemBucket(short metadata) : base(325, metadata)
 		{
-		}
-
-
-		public override short GetFuelEfficiency()
-		{
-			return (short) (Metadata == 10 ? 1000 : 0);
+			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
@@ -27,6 +22,8 @@ namespace MiNET.Items
 				world.SetBlock(block);
 				block.PlaceBlock(world, player, block.Coordinates, face, faceCoords);
 			}
+
+			FuelEfficiency = (short)(Metadata == 10 ? 1000 : 0);
 		}
 	}
 }

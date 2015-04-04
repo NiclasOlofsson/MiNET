@@ -13,6 +13,75 @@ namespace MiNET
 	public class MinetAnvilTest
 	{
 		[Test, Ignore]
+		public void SaveAnvilChunkTest()
+		{
+			int width = 32;
+			int depth = 32;
+
+			int regionX = 5;
+			int regionZ = 24;
+
+			AnvilWorldProvider anvil = new AnvilWorldProvider(@"D:\Development\Worlds\KingsLanding\");
+			anvil.Initialize();
+			for (int x = 0; x < 32; x++)
+			{
+				for (int z = 0; z < 32; z++)
+				{
+					int cx = (width*regionX) + x;
+					int cz = (depth*regionZ) + z;
+
+					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+					ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates);
+					Assert.NotNull(chunk);
+				}
+			}
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			anvil.SaveChunks();
+
+			Console.WriteLine("Saved {0} chunks in {1}ms", anvil.NumberOfCachedChunks(), sw.ElapsedMilliseconds);
+
+
+			for (int x = 0; x < 32; x++)
+			{
+				for (int z = 0; z < 32; z++)
+				{
+					int cx = (width*regionX) + x;
+					int cz = (depth*regionZ) + z;
+
+					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+					anvil.GenerateChunkColumn(coordinates);
+				}
+			}
+		}
+
+		[Test, Ignore]
+		public void SaveOneAnvilChunkTest()
+		{
+			int width = 32;
+			int depth = 32;
+
+			int cx = (width*4) + 3;
+			int cz = (depth*25) + 0;
+
+			AnvilWorldProvider anvil = new AnvilWorldProvider(@"D:\Development\Worlds\KingsLanding\");
+			anvil.Initialize();
+
+			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+			ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates);
+			Assert.NotNull(chunk);
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			anvil.SaveChunks();
+
+			Assert.Less(sw.ElapsedMilliseconds, 1);
+		}
+
+		[Test, Ignore]
 		public void LoadAnvilLevelLoadTest()
 		{
 			NbtFile file = new NbtFile();
@@ -26,12 +95,12 @@ namespace MiNET
 
 			var level = new LevelInfo();
 
-			level.SetProperty(dataTag, () => level.Version);
+			level.GetPropertyValue(dataTag, () => level.Version);
 			Assert.AreEqual(19133, level.Version);
-			Assert.AreEqual(19133, level.SetProperty(dataTag, () => level.Version));
+			Assert.AreEqual(19133, level.GetPropertyValue(dataTag, () => level.Version));
 
-			Assert.AreEqual(true, level.SetProperty(dataTag, () => level.Initialized));
-			Assert.AreEqual("WesterosCraft", level.SetProperty(dataTag, () => level.LevelName));
+			Assert.AreEqual(true, level.GetPropertyValue(dataTag, () => level.Initialized));
+			Assert.AreEqual("WesterosCraft", level.GetPropertyValue(dataTag, () => level.LevelName));
 
 			var levelFromNbt = new LevelInfo(dataTag);
 			Assert.AreEqual(19133, levelFromNbt.Version);

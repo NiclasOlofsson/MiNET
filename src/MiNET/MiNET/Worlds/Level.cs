@@ -62,35 +62,31 @@ namespace MiNET.Worlds
 			BlockEntities = new List<BlockEntity>();
 			BlockWithTicks = new ConcurrentDictionary<BlockCoordinates, int>();
 			LevelId = levelId;
-			GameMode = ConfigParser.GetProperty("Gamemode", GameMode.Survival);
-			Difficulty = ConfigParser.GetProperty("Difficulty", Difficulty.Peaceful);
-			ViewDistance = ConfigParser.GetProperty("ViewDistance", 250);
+			GameMode = Config.GetProperty("GameMode", GameMode.Survival);
+			Difficulty = Config.GetProperty("Difficulty", Difficulty.Peaceful);
+			ViewDistance = Config.GetProperty("ViewDistance", 250);
 			_worldProvider = worldProvider;
 
 			if (_worldProvider == null)
 			{
-				if (ConfigParser.GetProperty("UsePCWorld", false))
+				switch (Config.GetProperty("WorldProvider", "flat").ToLower())
 				{
-					_worldProvider = new AnvilWorldProvider();
-				}
-				else
-				{
-					switch (ConfigParser.GetProperty("WorldProvider", "Flatland").ToLower())
-					{
-						case "flat":
-						case "flatland":
-							_worldProvider = new FlatlandWorldProvider();
-							break;
-						case "cool":
-							_worldProvider = new CoolWorldProvider();
-							break;
-						case "experimental":
-							_worldProvider = new ExperimentalWorldProvider();
-							break;
-						default:
-							_worldProvider = new FlatlandWorldProvider();
-							break;
-					}
+					case "flat":
+					case "flatland":
+						_worldProvider = new FlatlandWorldProvider();
+						break;
+					case "cool":
+						_worldProvider = new CoolWorldProvider();
+						break;
+					case "experimental":
+						_worldProvider = new ExperimentalWorldProvider();
+						break;
+					case "anvil":
+						_worldProvider = new AnvilWorldProvider();
+						break;
+					default:
+						_worldProvider = new FlatlandWorldProvider();
+						break;
 				}
 			}
 		}

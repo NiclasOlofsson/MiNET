@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Reflection;
 using MiNET.Entities;
 using MiNET.Utils;
@@ -29,11 +28,13 @@ namespace MiNET
 
 	public class HealthManager
 	{
+		private int _hearts;
 		public Entity Entity { get; set; }
 		public int Health { get; set; }
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
 		public int FireTick { get; set; }
+		public int CooldownTick { get; set; }
 		public bool IsOnFire { get; set; }
 		public bool IsInvulnerable { get; set; }
 		public DamageCause LastDamageCause { get; set; }
@@ -45,48 +46,28 @@ namespace MiNET
 			ResetHealth();
 		}
 
-		public byte[] Export()
+		public byte Hearts
 		{
-			byte[] buffer;
-			using (MemoryStream stream = new MemoryStream())
-			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
-				writer.Write(Health);
-				writer.Write(Air);
-				writer.Write(FireTick);
-				writer.Write(IsOnFire);
-				buffer = stream.GetBuffer();
-			}
-			return buffer;
-		}
-
-		public void Import(byte[] data)
-		{
-			using (MemoryStream stream = new MemoryStream(data))
-			{
-				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
-				Health = reader.ReadInt32();
-				Air = reader.ReadInt16();
-				FireTick = reader.ReadInt32();
-				IsOnFire = reader.ReadBoolean();
-			}
+			get { return (byte) Math.Ceiling(Health/10d); }
 		}
 
 		public void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
-			if (LastDamageCause == DamageCause.Unknown) LastDamageCause = cause;
+			if (CooldownTick > 0) return;
 
+			if (LastDamageCause == DamageCause.Unknown) LastDamageCause = cause;
 			LastDamageSource = source;
 
-			//Untested code below, should work fine, however this is not sure yet.
-			//	int Damage = ItemFactory.GetItem(sourcePlayer.Inventory.ItemInHand.Value.Id).GetDamage();
-			//	Health -= Damage - Entity.Armour;
-
-			Health -= damage;
+			Health -= damage*10;
 
 			var player = Entity as Player;
 			if (player != null)
+			{
 				player.SendSetHealth();
+				player.BroadcastEntityEvent();
+			}
+
+			CooldownTick = 10;
 		}
 
 		public void Ignite(int ticks = 300)
@@ -123,19 +104,22 @@ namespace MiNET
 		public void ResetHealth()
 		{
 			IsInvulnerable = false;
-			Health = 20;
+			Health = 200;
 			Air = 300;
 			IsOnFire = false;
 			FireTick = 0;
 			IsDead = false;
+			CooldownTick = 0;
 			LastDamageCause = DamageCause.Unknown;
 		}
 
 		public void OnTick()
 		{
+			if (CooldownTick > 0) CooldownTick--;
+
 			if (IsDead) return;
 
-			if (IsInvulnerable) Health = 20;
+			if (IsInvulnerable) Health = 200;
 
 			if (Health <= 0)
 			{
@@ -145,7 +129,7 @@ namespace MiNET
 
 			if (Entity.KnownPosition.Y < 0 && !IsDead)
 			{
-				TakeHit(null, 10);
+				TakeHit(null, 100);
 				LastDamageCause = DamageCause.Void;
 				return;
 			}
@@ -157,7 +141,7 @@ namespace MiNET
 				{
 					if (Math.Abs(Air)%10 == 0)
 					{
-						Health--;
+						Health -= 10;
 						var player = Entity as Player;
 						if (player != null)
 						{
@@ -198,7 +182,7 @@ namespace MiNET
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					Health--;
+					Health -= 10;
 					var player = Entity as Player;
 					if (player != null)
 					{
@@ -242,10 +226,11 @@ namespace MiNET
 		{
 			FieldInfo fi = value.GetType().GetField(value.ToString());
 			DescriptionAttribute[] attributes = (DescriptionAttribute[]) fi.GetCustomAttributes(typeof (DescriptionAttribute), false);
+
 			if (attributes.Length > 0)
 				return attributes[0].Description;
-			else
-				return value.ToString();
+
+			return value.ToString();
 		}
 	}
 }

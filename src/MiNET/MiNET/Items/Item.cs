@@ -16,12 +16,8 @@ namespace MiNET.Items
 		public ItemMaterial ItemMaterial { get; set; }
 		public ItemType ItemType { get; set; }
 		public short Metadata { get; set; }
-		private short _fuelEfficiency;
-
-		protected short FuelEfficiency
-		{
-			set { _fuelEfficiency = value; }
-		}
+		public int Durability { get; set; }
+		public int FuelEfficiency { get; set; }
 
 		internal Item(int id, short metadata)
 		{
@@ -30,11 +26,6 @@ namespace MiNET.Items
 
 			ItemMaterial = ItemMaterial.None;
 			ItemType = ItemType.Item;
-		}
-
-		protected Item(int id, short metadata, short fuelEfficiency) : this(id, metadata)
-		{
-			FuelEfficiency = fuelEfficiency;
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
@@ -89,10 +80,9 @@ namespace MiNET.Items
 		{
 			switch (itemMaterial)
 			{
-				case ItemMaterial.None:
-					return 1;
-				case ItemMaterial.Gold:
 				case ItemMaterial.Wood:
+					return 5;
+				case ItemMaterial.Gold:
 					return 5;
 				case ItemMaterial.Stone:
 					return 6;
@@ -118,11 +108,6 @@ namespace MiNET.Items
 		private int GetShovelDamage(ItemMaterial itemMaterial)
 		{
 			return GetSwordDamage(itemMaterial) - 3;
-		}
-
-		public virtual short GetFuelEfficiency()
-		{
-			return _fuelEfficiency;
 		}
 
 		public virtual Item GetSmelt()

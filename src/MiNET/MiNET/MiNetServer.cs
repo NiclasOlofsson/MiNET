@@ -100,7 +100,7 @@ namespace MiNET
 				Log.Info("Initializing...");
 
 				Log.Info("Loading settings...");
-				_motd = ConfigParser.GetProperty("motd", "MiNET - Another MC server");
+				_motd = Config.GetProperty("motd", "MiNET - Another MC server");
 
 				Log.Info("Loading plugins...");
 				_pluginManager = new PluginManager();
@@ -110,7 +110,7 @@ namespace MiNET
 				// Bootstrap server
 				_pluginManager.ExecuteStartup(this);
 
-				if (ConfigParser.GetProperty("EnableSecurity", false))
+				if (Config.GetProperty("EnableSecurity", false))
 				{
 					// http://www.asp.net/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity
 					UserManager = UserManager ?? new UserManager<User>(new DefaultUserStore());
@@ -210,19 +210,12 @@ namespace MiNET
 		{
 			try
 			{
-				if (ConfigParser.GetProperty("save_pe", true))
+				if (Config.GetProperty("WorldSave", false))
 				{
 					Log.Info("Saving chunks...");
 					_level._worldProvider.SaveChunks();
 				}
-				if (ConfigParser.GetProperty("save_playerdata", true))
-				{
-					Log.Info("Saving player data...");
-					foreach (Player a in _level.Players)
-					{
-						a.SavePlayerData();
-					}
-				}
+
 				Log.Info("Disabling plugins...");
 				_pluginManager.DisablePlugins();
 
@@ -250,6 +243,9 @@ namespace MiNET
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
 
+			// Check if we already closed the server
+			if (listener.Client == null) return;
+
 			// WSAECONNRESET:
 			// The virtual circuit was reset by the remote side executing a hard or abortive close. 
 			// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
@@ -263,15 +259,18 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Log.Warn(e);
-				try
+				if (listener.Client != null)
 				{
-					listener.BeginReceive(ReceiveCallback, listener);
-				}
-				catch (ObjectDisposedException dex)
-				{
-					// Log and move on. Should probably free up the player and remove them here.
-					Log.Warn(dex);
+					Log.Warn(e);
+					try
+					{
+						listener.BeginReceive(ReceiveCallback, listener);
+					}
+					catch (ObjectDisposedException dex)
+					{
+						// Log and move on. Should probably free up the player and remove them here.
+						Log.Warn(dex);
+					}
 				}
 
 				return;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
-using System.Threading.Tasks;
 using fNbt;
 using MiNET.Utils;
 
@@ -22,10 +21,12 @@ namespace MiNET.Worlds
 		public NibbleArray skylight = new NibbleArray(16*16*128);
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 
-		private byte[] _cache = null;
+		private byte[] _cache;
+		public bool isDirty;
 
 		public ChunkColumn()
 		{
+			isDirty = false;
 			//Parallel.For(0, skylight.Data.Length, i => skylight.Data[i] = 0xff);
 
 			for (int i = 0; i < skylight.Data.Length; i++)
@@ -43,13 +44,20 @@ namespace MiNET.Worlds
 		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
 			_cache = null;
-			blocks[(bx*2048) + (bz*128) + by] = bid;
+			isDirty = true;
+			blocks[(bx * 2048) + (bz * 128) + by] = bid;
+		}
+
+		public byte GetBlocklight(int bx, int by, int bz)
+		{
+			return blocklight[(bx*2048) + (bz*128) + by];
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
-			blocklight[(bx*2048) + (bz*128) + by] = data;
+			isDirty = true;
+			blocklight[(bx * 2048) + (bz * 128) + by] = data;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -60,13 +68,20 @@ namespace MiNET.Worlds
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
-			metadata[(bx*2048) + (bz*128) + by] = data;
+			isDirty = true;
+			metadata[(bx * 2048) + (bz * 128) + by] = data;
+		}
+
+		public byte GetSkylight(int bx, int by, int bz)
+		{
+			return skylight[(bx*2048) + (bz*128) + by];
 		}
 
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
-			skylight[(bx*2048) + (bz*128) + by] = data;
+			isDirty = true;
+			skylight[(bx * 2048) + (bz * 128) + by] = data;
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
@@ -79,11 +94,14 @@ namespace MiNET.Worlds
 		public void SetBlockEntity(BlockCoordinates coordinates, NbtCompound nbt)
 		{
 			_cache = null;
+			isDirty = true;
 			BlockEntities[coordinates] = nbt;
 		}
 
 		public void RemoveBlockEntity(BlockCoordinates coordinates)
 		{
+			_cache = null;
+			isDirty = true;
 			BlockEntities.Remove(coordinates);
 		}
 
@@ -170,111 +188,6 @@ namespace MiNET.Worlds
 
 			writer.Close();
 			return stream.ToArray();
-		}
-
-		private string _worldDir;
-
-		public void SaveChunk()
-		{
-			if (_worldDir == null)
-			{
-				_worldDir = ConfigParser.GetProperty("WorldFolder", "world");
-				if (!Directory.Exists(_worldDir))
-					Directory.CreateDirectory(_worldDir);
-			}
-
-			byte[] buffer;
-			using (MemoryStream stream = new MemoryStream())
-			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
-				writer.Write(blocks.Length);
-				writer.Write(blocks);
-
-				writer.Write(metadata.Data.Length);
-				writer.Write(metadata.Data);
-
-				writer.Write(skylight.Data.Length);
-				writer.Write(skylight.Data);
-
-				writer.Write(blocklight.Data.Length);
-				writer.Write(blocklight.Data);
-
-				writer.Write(biomeId.Length);
-				writer.Write(biomeId);
-				writer.Flush();
-				buffer = stream.ToArray();
-			}
-
-			File.WriteAllBytes(_worldDir + "/" + x + "." + z + ".cfile", Compress(buffer));
-		}
-
-		public bool TryLoadFromFile()
-		{
-			if (_worldDir == null)
-			{
-				_worldDir = ConfigParser.GetProperty("WorldFolder", "world");
-				if (!Directory.Exists(_worldDir))
-					Directory.CreateDirectory(_worldDir);
-			}
-
-			var chunkFilePath = _worldDir + "/" + x + "." + z + ".cfile";
-			if (!File.Exists(chunkFilePath)) return false;
-
-			byte[] buffer = Decompress(File.ReadAllBytes(chunkFilePath));
-			using (MemoryStream stream = new MemoryStream(buffer))
-			{
-				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
-
-				int blockLength = reader.ReadInt32();
-				blocks = reader.ReadBytes(blockLength);
-
-				int metaLength = reader.ReadInt32();
-				metadata.Data = reader.ReadBytes(metaLength);
-
-				int skyLength = reader.ReadInt32();
-				skylight.Data = reader.ReadBytes(skyLength);
-
-				int blockLightLength = reader.ReadInt32();
-				blocklight.Data = reader.ReadBytes(blockLightLength);
-
-				int biomeidlength = reader.ReadInt32();
-				biomeId = reader.ReadBytes(biomeidlength);
-			}
-
-			return true;
-		}
-
-		public static byte[] Compress(byte[] inputData)
-		{
-			if (inputData == null)
-				throw new ArgumentNullException("inputData");
-
-			using (var compressIntoMs = new MemoryStream())
-			{
-				using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionMode.Compress), 2*4096))
-				{
-					gzs.Write(inputData, 0, inputData.Length);
-				}
-				return compressIntoMs.ToArray();
-			}
-		}
-
-		public static byte[] Decompress(byte[] inputData)
-		{
-			if (inputData == null)
-				throw new ArgumentNullException("inputData");
-
-			using (var compressedMs = new MemoryStream(inputData))
-			{
-				using (var decompressedMs = new MemoryStream())
-				{
-					using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), 2*4096))
-					{
-						gzs.CopyTo(decompressedMs);
-					}
-					return decompressedMs.ToArray();
-				}
-			}
 		}
 	}
 

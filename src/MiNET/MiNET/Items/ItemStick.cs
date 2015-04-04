@@ -2,8 +2,9 @@
 {
 	public class ItemStick : Item
 	{
-		public ItemStick(short metadata) : base(280, metadata, 5)
+		public ItemStick(short metadata) : base(280, metadata)
 		{
+			FuelEfficiency = 5;
 		}
 	}
 }

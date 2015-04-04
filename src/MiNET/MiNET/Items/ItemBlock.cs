@@ -14,11 +14,7 @@ namespace MiNET.Items
 		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
 		{
 			_block = block;
-		}
-
-		public override short GetFuelEfficiency()
-		{
-			return _block.FuelEfficiency;
+			FuelEfficiency = _block.FuelEfficiency;
 		}
 
 		public override Item GetSmelt()

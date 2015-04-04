@@ -20,7 +20,7 @@ namespace MiNET
 		[Test]
 		public void TestForce()
 		{
-			int j = 10;
+			int j = 20;
 			float f = (float) j/20.0F;
 
 			f = (f*f + f*2.0F)/3.0F;

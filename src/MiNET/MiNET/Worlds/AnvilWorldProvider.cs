@@ -39,14 +39,14 @@ namespace MiNET.Worlds
 
 		public void Initialize()
 		{
-			_basePath = _basePath ?? ConfigParser.GetProperty("PCWorldFolder", "World").Trim();
+			_basePath = _basePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
 
 			NbtFile file = new NbtFile();
 			file.LoadFromFile(Path.Combine(_basePath, "level.dat"));
 			NbtTag dataTag = file.RootTag["Data"];
 			_level = new LevelInfo(dataTag);
 
-			_waterOffsetY = (byte) ConfigParser.GetProperty("PCWaterOffset", 0);
+			_waterOffsetY = (byte) Config.GetProperty("PCWaterOffset", 0);
 
 			_ignore = new List<int>();
 			_ignore.Add(23);
@@ -155,14 +155,17 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-			ChunkColumn cachedChunk;
-			if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
+			lock (_chunkCache)
+			{
+				ChunkColumn cachedChunk;
+				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
 
-			ChunkColumn chunk = GetChunk(chunkCoordinates);
+				ChunkColumn chunk = GetChunk(chunkCoordinates);
 
-			_chunkCache[chunkCoordinates] = chunk;
+				_chunkCache[chunkCoordinates] = chunk;
 
-			return chunk;
+				return chunk;
+			}
 		}
 
 		public ChunkColumn GetChunk(ChunkCoordinates coordinates)
@@ -177,124 +180,133 @@ namespace MiNET.Worlds
 
 			if (!File.Exists(filePath)) return _flatland.GenerateChunkColumn(coordinates);
 
-			var regionFile = File.OpenRead(filePath);
-
-			byte[] buffer = new byte[8192];
-			regionFile.Read(buffer, 0, 8192);
-
-			int xi = (coordinates.X%width);
-			if (xi < 0) xi += 32;
-			int zi = (coordinates.Z%depth);
-			if (zi < 0) zi += 32;
-			int tableOffset = (xi + zi*width)*4;
-
-			try
+			using (var regionFile = File.OpenRead(filePath))
 			{
+				byte[] buffer = new byte[8192];
+
+				regionFile.Read(buffer, 0, 8192);
+
+				int xi = (coordinates.X%width);
+				if (xi < 0) xi += 32;
+				int zi = (coordinates.Z%depth);
+				if (zi < 0) zi += 32;
+				int tableOffset = (xi + zi*width)*4;
+
 				regionFile.Seek(tableOffset, SeekOrigin.Begin);
-			}
-			catch (Exception e)
-			{
-				throw;
-			}
-			byte[] offsetBuffer = new byte[4];
-			regionFile.Read(offsetBuffer, 0, 3);
-			Array.Reverse(offsetBuffer);
-			int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
 
-			int length = regionFile.ReadByte();
+				byte[] offsetBuffer = new byte[4];
+				regionFile.Read(offsetBuffer, 0, 3);
+				Array.Reverse(offsetBuffer);
+				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
 
-			if (offset == 0 || length == 0) return _flatland.GenerateChunkColumn(coordinates);
+				int length = regionFile.ReadByte();
 
-			regionFile.Seek(offset, SeekOrigin.Begin);
-			byte[] waste = new byte[4];
-			regionFile.Read(waste, 0, 4);
-			int compressionMode = regionFile.ReadByte();
+				if (offset == 0 || length == 0) return _flatland.GenerateChunkColumn(coordinates);
 
-			var nbt = new NbtFile();
-			nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
+				regionFile.Seek(offset, SeekOrigin.Begin);
+				byte[] waste = new byte[4];
+				regionFile.Read(waste, 0, 4);
+				int compressionMode = regionFile.ReadByte();
 
-			NbtTag dataTag = nbt.RootTag["Level"];
+				var nbt = new NbtFile();
+				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
 
-			NbtList sections = dataTag["Sections"] as NbtList;
+				NbtTag dataTag = nbt.RootTag["Level"];
 
-			ChunkColumn chunk = new ChunkColumn
-			{
-				x = coordinates.X,
-				z = coordinates.Z,
-				biomeId = dataTag["Biomes"].ByteArrayValue
-			};
+				NbtList sections = dataTag["Sections"] as NbtList;
 
-			for (int i = 0; i < chunk.biomeId.Length; i++)
-			{
-				if (chunk.biomeId[i] > 22) chunk.biomeId[i] = 0;
-			}
-			if (chunk.biomeId.Length > 256) throw new Exception();
-
-			// This will turn into a full chunk column
-			foreach (NbtTag sectionTag in sections)
-			{
-				int sy = sectionTag["Y"].ByteValue*16;
-				byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
-				byte[] data = sectionTag["Data"].ByteArrayValue;
-				NbtTag addTag = sectionTag["Add"];
-				byte[] adddata = new byte[2048];
-				if (addTag != null) adddata = addTag.ByteArrayValue;
-				byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
-				byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
-
-				for (int x = 0; x < 16; x++)
+				ChunkColumn chunk = new ChunkColumn
 				{
-					for (int z = 0; z < 16; z++)
+					x = coordinates.X,
+					z = coordinates.Z,
+					biomeId = dataTag["Biomes"].ByteArrayValue
+				};
+
+				for (int i = 0; i < chunk.biomeId.Length; i++)
+				{
+					if (chunk.biomeId[i] > 22) chunk.biomeId[i] = 0;
+				}
+				if (chunk.biomeId.Length > 256) throw new Exception();
+
+				// This will turn into a full chunk column
+				foreach (NbtTag sectionTag in sections)
+				{
+					int sy = sectionTag["Y"].ByteValue*16;
+					byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
+					byte[] data = sectionTag["Data"].ByteArrayValue;
+					NbtTag addTag = sectionTag["Add"];
+					byte[] adddata = new byte[2048];
+					if (addTag != null) adddata = addTag.ByteArrayValue;
+					byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
+					byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
+
+					for (int x = 0; x < 16; x++)
 					{
-						for (int y = 0; y < 16; y++)
+						for (int z = 0; z < 16; z++)
 						{
-							int yi = sy + y - _waterOffsetY;
-							if (yi < 0 || yi >= 128) continue;
-
-							int anvilIndex = y*16*16 + z*16 + x;
-							int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
-
-							// Anvil to PE friendly converstion
-							if (blockId == 125) blockId = 5;
-							else if (blockId == 126) blockId = 158;
-							else if (blockId == 75) blockId = 50;
-							else if (blockId == 76) blockId = 50;
-							else if (blockId == 123) blockId = 89;
-							else if (blockId == 124) blockId = 89;
-							else if (blockId == 152) blockId = 73;
-							else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
-							else if (_gaps.BinarySearch(blockId) >= 0)
+							for (int y = 0; y < 16; y++)
 							{
-								Debug.WriteLine("Missing material: " + blockId);
-								blockId = 133;
+								int yi = sy + y - _waterOffsetY;
+								if (yi < 0 || yi >= 128) continue;
+
+								int anvilIndex = y*16*16 + z*16 + x;
+								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
+
+								// Anvil to PE friendly converstion
+								if (blockId == 125) blockId = 5;
+								else if (blockId == 126) blockId = 158;
+								else if (blockId == 75) blockId = 50;
+								else if (blockId == 76) blockId = 50;
+								else if (blockId == 123) blockId = 89;
+								else if (blockId == 124) blockId = 89;
+								else if (blockId == 152) blockId = 73;
+								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
+								else if (_gaps.BinarySearch(blockId) >= 0)
+								{
+									Debug.WriteLine("Missing material: " + blockId);
+									blockId = 133;
+								}
+
+								if (blockId > 255) blockId = 41;
+
+								if (yi == 127 && blockId != 0) blockId = 30;
+								if (yi == 0 && (blockId == 8 || blockId == 9 || blockId == 0)) blockId = 7;
+
+								//if (blockId != 0) blockId = 41;
+
+								chunk.SetBlock(x, yi, z, (byte) blockId);
+								chunk.SetMetadata(x, yi, z, Nibble4(data, anvilIndex));
+								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
+								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
 							}
-
-							if (blockId > 255) blockId = 41;
-
-							if (yi == 127 && blockId != 0) blockId = 30;
-							if (yi == 0 && (blockId == 8 || blockId == 9 || blockId == 0)) blockId = 7;
-
-							//if (blockId != 0) blockId = 41;
-
-							chunk.SetBlock(x, yi, z, (byte) blockId);
-							chunk.SetMetadata(x, yi, z, Nibble4(data, anvilIndex));
-							chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-							chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
 						}
 					}
 				}
+
+				NbtList entities = dataTag["Entities"] as NbtList;
+				NbtList blockEntities = dataTag["TileEntities"] as NbtList;
+				NbtList tileTicks = dataTag["TileTicks"] as NbtList;
+
+				chunk.isDirty = false;
+				return chunk;
 			}
-
-			NbtList entities = dataTag["Entities"] as NbtList;
-			NbtList blockEntities = dataTag["TileEntities"] as NbtList;
-			NbtList tileTicks = dataTag["TileTicks"] as NbtList;
-
-			return chunk;
 		}
 
 		private byte Nibble4(byte[] arr, int index)
 		{
 			return (byte) (index%2 == 0 ? arr[index/2] & 0x0F : (arr[index/2] >> 4) & 0x0F);
+		}
+
+		private void SetNibble4(byte[] arr, int index, byte value)
+		{
+			if (index%2 == 0)
+			{
+				arr[index/2] = (byte) ((value & 0x0F) | arr[index/2]);
+			}
+			else
+			{
+				arr[index/2] = (byte) (((value << 4) & 0xF0) | arr[index/2]);
+			}
 		}
 
 		public Vector3 GetSpawnPoint()
@@ -308,6 +320,139 @@ namespace MiNET.Worlds
 
 		public void SaveChunks()
 		{
+			lock (_chunkCache)
+			{
+				foreach (var chunkColumn in _chunkCache)
+				{
+					if (chunkColumn.Value.isDirty) SaveChunks(chunkColumn.Value);
+				}
+			}
+		}
+
+		private void SaveChunks(ChunkColumn chunk)
+		{
+			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
+
+			int width = 32;
+			int depth = 32;
+
+			int rx = coordinates.X >> 5;
+			int rz = coordinates.Z >> 5;
+
+			string filePath = Path.Combine(_basePath, string.Format(@"region\r.{0}.{1}.mca", rx, rz));
+
+			if (!File.Exists(filePath)) return;
+
+			using (var regionFile = File.Open(filePath, FileMode.Open))
+
+			{
+				byte[] buffer = new byte[8192];
+				regionFile.Read(buffer, 0, 8192);
+
+				int xi = (coordinates.X%width);
+				if (xi < 0) xi += 32;
+				int zi = (coordinates.Z%depth);
+				if (zi < 0) zi += 32;
+				int tableOffset = (xi + zi*width)*4;
+
+				regionFile.Seek(tableOffset, SeekOrigin.Begin);
+
+				byte[] offsetBuffer = new byte[4];
+				regionFile.Read(offsetBuffer, 0, 3);
+				Array.Reverse(offsetBuffer);
+				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
+
+				int length = regionFile.ReadByte();
+
+				if (offset == 0 || length == 0)
+				{
+					//throw new Exception("New chunk");
+					// New chunk, will need to append, but for now ignore
+					return;
+				}
+
+				regionFile.Seek(offset, SeekOrigin.Begin);
+				byte[] waste = new byte[4];
+				regionFile.Read(waste, 0, 4);
+				int compressionMode = regionFile.ReadByte();
+
+				// Write NBT
+				NbtFile nbt = CreateNbtFromChunkColumn(chunk);
+				nbt.SaveToStream(regionFile, NbtCompression.ZLib);
+			}
+		}
+
+		private NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk)
+		{
+			var nbt = new NbtFile();
+
+			NbtCompound levelTag = new NbtCompound("Level");
+			nbt.RootTag.Add(levelTag);
+
+			levelTag.Add(new NbtInt("xPos", chunk.x));
+			levelTag.Add(new NbtInt("zPos", chunk.z));
+			levelTag.Add(new NbtByteArray("Biomes", chunk.biomeId));
+
+			NbtList sectionsTag = new NbtList("Sections");
+			levelTag.Add(sectionsTag);
+
+			for (int i = 0; i < 8; i++)
+			{
+				NbtCompound sectionTag = new NbtCompound();
+				sectionsTag.Add(sectionTag);
+				sectionTag.Add(new NbtByte("Y", (byte) i));
+				int sy = i*16;
+
+				byte[] blocks = new byte[4096];
+				byte[] data = new byte[2048];
+				byte[] blockLight = new byte[2048];
+				byte[] skyLight = new byte[2048];
+
+				for (int x = 0; x < 16; x++)
+				{
+					for (int z = 0; z < 16; z++)
+					{
+						for (int y = 0; y < 16; y++)
+						{
+							int yi = sy + y;
+							if (yi < 0 || yi >= 256) continue; // ?
+
+							int anvilIndex = (y + _waterOffsetY)*16*16 + z*16 + x;
+							byte blockId = chunk.GetBlock(x, yi, z);
+
+							// PE to Anvil friendly converstion
+							if (blockId == 5) blockId = 125;
+							else if (blockId == 158) blockId = 126;
+							else if (blockId == 50) blockId = 75;
+							else if (blockId == 50) blockId = 76;
+							else if (blockId == 89) blockId = 123;
+							else if (blockId == 89) blockId = 124;
+							else if (blockId == 73) blockId = 152;
+
+							blocks[anvilIndex] = blockId;
+							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
+							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
+							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
+						}
+					}
+				}
+
+				sectionTag.Add(new NbtByteArray("Blocks", blocks));
+				sectionTag.Add(new NbtByteArray("Data", data));
+				sectionTag.Add(new NbtByteArray("BlockLight", blockLight));
+				sectionTag.Add(new NbtByteArray("SkyLight", skyLight));
+			}
+
+			levelTag.Add(new NbtList("Entities", NbtTagType.Compound));
+			levelTag.Add(new NbtList("TileEntities", NbtTagType.Compound));
+			levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
+
+			return nbt;
+		}
+
+		public int NumberOfCachedChunks()
+		{
+			return _chunkCache.Count;
 		}
 	}
 
@@ -319,27 +464,7 @@ namespace MiNET.Worlds
 
 		public LevelInfo(NbtTag dataTag)
 		{
-			SetProperty(dataTag, () => Version);
-			SetProperty(dataTag, () => Initialized);
-			SetProperty(dataTag, () => LevelName);
-			SetProperty(dataTag, () => GeneratorName);
-			SetProperty(dataTag, () => GeneratorVersion);
-			SetProperty(dataTag, () => GeneratorOptions);
-			SetProperty(dataTag, () => RandomSeed);
-			SetProperty(dataTag, () => MapFeatures);
-			SetProperty(dataTag, () => LastPlayed);
-			SetProperty(dataTag, () => AllowCommands);
-			SetProperty(dataTag, () => Hardcore);
-			SetProperty(dataTag, () => GameType);
-			SetProperty(dataTag, () => Time);
-			SetProperty(dataTag, () => DayTime);
-			SetProperty(dataTag, () => SpawnX);
-			SetProperty(dataTag, () => SpawnY);
-			SetProperty(dataTag, () => SpawnZ);
-			SetProperty(dataTag, () => Raining);
-			SetProperty(dataTag, () => RainTime);
-			SetProperty(dataTag, () => Thundering);
-			SetProperty(dataTag, () => ThunderTime);
+			LoadFromNbt(dataTag);
 		}
 
 		public int Version { get; private set; }
@@ -364,7 +489,7 @@ namespace MiNET.Worlds
 		public bool Thundering { get; set; }
 		public int ThunderTime { get; set; }
 
-		public T SetProperty<T>(NbtTag tag, Expression<Func<T>> property)
+		public T GetPropertyValue<T>(NbtTag tag, Expression<Func<T>> property)
 		{
 			var propertyInfo = ((MemberExpression) property.Body).Member as PropertyInfo;
 			if (propertyInfo == null)
@@ -429,6 +554,76 @@ namespace MiNET.Worlds
 			return (T) propertyInfo.GetValue(target);
 		}
 
+		public T SetPropertyValue<T>(NbtTag tag, Expression<Func<T>> property, bool upperFirst = true)
+		{
+			var propertyInfo = ((MemberExpression) property.Body).Member as PropertyInfo;
+			if (propertyInfo == null)
+			{
+				throw new ArgumentException("The lambda expression 'property' should point to a valid Property");
+			}
+
+			NbtTag nbtTag = tag[propertyInfo.Name];
+			if (nbtTag == null)
+			{
+				nbtTag = tag[LowercaseFirst(propertyInfo.Name)];
+			}
+
+			if (nbtTag == null) return default(T);
+
+			var mex = property.Body as MemberExpression;
+			var target = Expression.Lambda(mex.Expression).Compile().DynamicInvoke();
+
+			switch (nbtTag.TagType)
+			{
+				case NbtTagType.Unknown:
+					break;
+				case NbtTagType.End:
+					break;
+				case NbtTagType.Byte:
+					if (propertyInfo.PropertyType == typeof (bool))
+						tag[nbtTag.Name] = new NbtByte((byte) ((bool) propertyInfo.GetValue(target) ? 1 : 0));
+					else
+						tag[nbtTag.Name] = new NbtByte((byte) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.Short:
+					tag[nbtTag.Name] = new NbtShort((short) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.Int:
+					if (propertyInfo.PropertyType == typeof (bool))
+						tag[nbtTag.Name] = new NbtInt((bool) propertyInfo.GetValue(target) ? 1 : 0);
+					else
+						tag[nbtTag.Name] = new NbtInt((int) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.Long:
+					tag[nbtTag.Name] = new NbtLong((long) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.Float:
+					tag[nbtTag.Name] = new NbtFloat((float) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.Double:
+					tag[nbtTag.Name] = new NbtDouble((double) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.ByteArray:
+					tag[nbtTag.Name] = new NbtByteArray((byte[]) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.String:
+					tag[nbtTag.Name] = new NbtString((string) propertyInfo.GetValue(target));
+					break;
+				case NbtTagType.List:
+					break;
+				case NbtTagType.Compound:
+					break;
+				case NbtTagType.IntArray:
+					tag[nbtTag.Name] = new NbtIntArray((int[]) propertyInfo.GetValue(target));
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			return (T) propertyInfo.GetValue(target);
+		}
+
+
 		private static string LowercaseFirst(string s)
 		{
 			// Check for empty string.
@@ -438,6 +633,56 @@ namespace MiNET.Worlds
 			}
 			// Return char and concat substring.
 			return char.ToLower(s[0]) + s.Substring(1);
+		}
+
+		public void LoadFromNbt(NbtTag dataTag)
+		{
+			GetPropertyValue(dataTag, () => Version);
+			GetPropertyValue(dataTag, () => Initialized);
+			GetPropertyValue(dataTag, () => LevelName);
+			GetPropertyValue(dataTag, () => GeneratorName);
+			GetPropertyValue(dataTag, () => GeneratorVersion);
+			GetPropertyValue(dataTag, () => GeneratorOptions);
+			GetPropertyValue(dataTag, () => RandomSeed);
+			GetPropertyValue(dataTag, () => MapFeatures);
+			GetPropertyValue(dataTag, () => LastPlayed);
+			GetPropertyValue(dataTag, () => AllowCommands);
+			GetPropertyValue(dataTag, () => Hardcore);
+			GetPropertyValue(dataTag, () => GameType);
+			GetPropertyValue(dataTag, () => Time);
+			GetPropertyValue(dataTag, () => DayTime);
+			GetPropertyValue(dataTag, () => SpawnX);
+			GetPropertyValue(dataTag, () => SpawnY);
+			GetPropertyValue(dataTag, () => SpawnZ);
+			GetPropertyValue(dataTag, () => Raining);
+			GetPropertyValue(dataTag, () => RainTime);
+			GetPropertyValue(dataTag, () => Thundering);
+			GetPropertyValue(dataTag, () => ThunderTime);
+		}
+
+		public void SaveToNbt(NbtTag dataTag)
+		{
+			SetPropertyValue(dataTag, () => Version);
+			SetPropertyValue(dataTag, () => Initialized);
+			SetPropertyValue(dataTag, () => LevelName);
+			SetPropertyValue(dataTag, () => GeneratorName);
+			SetPropertyValue(dataTag, () => GeneratorVersion);
+			SetPropertyValue(dataTag, () => GeneratorOptions);
+			SetPropertyValue(dataTag, () => RandomSeed);
+			SetPropertyValue(dataTag, () => MapFeatures);
+			SetPropertyValue(dataTag, () => LastPlayed);
+			SetPropertyValue(dataTag, () => AllowCommands);
+			SetPropertyValue(dataTag, () => Hardcore);
+			SetPropertyValue(dataTag, () => GameType);
+			SetPropertyValue(dataTag, () => Time);
+			SetPropertyValue(dataTag, () => DayTime);
+			SetPropertyValue(dataTag, () => SpawnX);
+			SetPropertyValue(dataTag, () => SpawnY);
+			SetPropertyValue(dataTag, () => SpawnZ);
+			SetPropertyValue(dataTag, () => Raining);
+			SetPropertyValue(dataTag, () => RainTime);
+			SetPropertyValue(dataTag, () => Thundering);
+			SetPropertyValue(dataTag, () => ThunderTime);
 		}
 	}
 }

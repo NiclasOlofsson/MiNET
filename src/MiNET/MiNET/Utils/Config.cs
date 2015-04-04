@@ -6,14 +6,14 @@ using MiNET.Worlds;
 
 namespace MiNET.Utils
 {
-	public class ConfigParser
+	public class Config
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ConfigParser));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Config));
 
 		public static string ConfigFileName = "server.conf";
 		private static string FileContents = string.Empty;
 
-		static ConfigParser()
+		static Config()
 		{
 			try
 			{

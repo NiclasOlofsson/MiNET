@@ -9,7 +9,6 @@ namespace TestPlugin.Teams
 	public class CustomStandingSign : StandingSign
 	{
 		private GameManager _gameManager;
-		private Game _game;
 
 		public CustomStandingSign(GameManager gameManager)
 		{
@@ -21,13 +20,11 @@ namespace TestPlugin.Teams
 			Sign signEntity = currentLevel.GetBlockEntity(blockCoordinates) as Sign;
 			if (signEntity == null) return false;
 
-
 			string world = signEntity.Text1;
 
 			if (player.Level.LevelId.Equals(world)) return true;
 
-			Game game = _gameManager.Join(player, world);
-
+			_gameManager.Join(player, world);
 			_gameManager.Register(signEntity, currentLevel);
 
 			return true;

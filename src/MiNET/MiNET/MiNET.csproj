@@ -254,7 +254,7 @@
       <SubType>Designer</SubType>
     </Content>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\ConfigParser.cs" />
+    <Compile Include="Utils\Config.cs" />
     <Compile Include="Items\ItemBucket.cs" />
   </ItemGroup>
   <ItemGroup>

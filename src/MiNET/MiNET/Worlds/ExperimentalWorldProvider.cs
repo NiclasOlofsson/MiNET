@@ -4,33 +4,18 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	class ExperimentalWorldProvider : IWorldProvider
+	internal class ExperimentalWorldProvider : IWorldProvider
 	{
 		public ExperimentalWorldProvider()
 		{
 			IsCaching = true;
-#if DEBUG
-			_loadFromFile = ConfigParser.GetProperty("load_pe", false);
-			_saveToFile = ConfigParser.GetProperty("save_pe", false);
-#else
-			_loadFromFile = ConfigParser.GetProperty("load_pe", true);
-			_saveToFile = ConfigParser.GetProperty("save_pe", true);
-#endif
 		}
 
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-		public bool IsCaching
-		{
-			get;
-			private set;
-		}
-		private bool _loadFromFile;
-		private bool _saveToFile;
-
+		public bool IsCaching { get; private set; }
 
 		public void Initialize()
 		{
-			
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
@@ -42,16 +27,7 @@ namespace MiNET.Worlds
 			chunk.x = chunkCoordinates.X;
 			chunk.z = chunkCoordinates.Z;
 
-			bool loaded = false;
-			if (_loadFromFile)
-			{
-				loaded = chunk.TryLoadFromFile();
-			}
-
-			if (!loaded)
-			{
-				PopulateChunk(chunk);
-			}
+			PopulateChunk(chunk);
 
 			_chunkCache[chunkCoordinates] = chunk;
 
@@ -65,27 +41,21 @@ namespace MiNET.Worlds
 
 		public void SaveChunks()
 		{
-			if (_saveToFile)
-			{
-				foreach (ChunkColumn chunkColumn in _chunkCache.Values)
-				{
-					chunkColumn.SaveChunk();
-				}
-			}
 		}
 
-		float stoneBaseHeight = 0;
-		float stoneBaseNoise = 0.05f;
-		float stoneBaseNoiseHeight = 4;
+		private float stoneBaseHeight = 0;
+		private float stoneBaseNoise = 0.05f;
+		private float stoneBaseNoiseHeight = 4;
 
-		float stoneMountainHeight = 48;
-		float stoneMountainFrequency = 0.008f;
-		float stoneMinHeight = 0;
+		private float stoneMountainHeight = 48;
+		private float stoneMountainFrequency = 0.008f;
+		private float stoneMinHeight = 0;
 
-		float dirtBaseHeight = 1;
-		float dirtNoise = 0.004f;
-		float dirtNoiseHeight = 3;
+		private float dirtBaseHeight = 1;
+		private float dirtNoise = 0.004f;
+		private float dirtNoiseHeight = 3;
 		private int waterLevel = 25;
+
 		private void PopulateChunk(ChunkColumn chunk)
 		{
 			int trees = new Random().Next(0, 10);
@@ -103,16 +73,16 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					int stoneHeight = (int)Math.Floor(stoneBaseHeight);
-					stoneHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, stoneMountainFrequency, (int)Math.Floor(stoneMountainHeight));
+					int stoneHeight = (int) Math.Floor(stoneBaseHeight);
+					stoneHeight += GetNoise(chunk.x*16 + x, chunk.z*16 + z, stoneMountainFrequency, (int) Math.Floor(stoneMountainHeight));
 
 					if (stoneHeight < stoneMinHeight)
-						stoneHeight = (int)Math.Floor(stoneMinHeight);
+						stoneHeight = (int) Math.Floor(stoneMinHeight);
 
-					stoneHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, stoneBaseNoise, (int)Math.Floor(stoneBaseNoiseHeight));
+					stoneHeight += GetNoise(chunk.x*16 + x, chunk.z*16 + z, stoneBaseNoise, (int) Math.Floor(stoneBaseNoiseHeight));
 
-					int dirtHeight = stoneHeight + (int)Math.Floor(dirtBaseHeight);
-					dirtHeight += GetNoise(chunk.x * 16 + x, chunk.z * 16 + z, dirtNoise, (int)Math.Floor(dirtNoiseHeight));
+					int dirtHeight = stoneHeight + (int) Math.Floor(dirtBaseHeight);
+					dirtHeight += GetNoise(chunk.x*16 + x, chunk.z*16 + z, dirtNoise, (int) Math.Floor(dirtNoiseHeight));
 
 					for (int y = 0; y < 256; y++)
 					{
@@ -169,7 +139,7 @@ namespace MiNET.Worlds
 								if (GetRandomNumber(0, 5) == 2)
 								{
 									chunk.SetBlock(x, y + 2, z, 31);
-									chunk.SetMetadata(x,y +2, z, 1);
+									chunk.SetMetadata(x, y + 2, z, 1);
 								}
 
 								//flower
@@ -177,13 +147,13 @@ namespace MiNET.Worlds
 								{
 									int meta = GetRandomNumber(0, 8);
 									chunk.SetBlock(x, y + 2, z, 38);
-									chunk.SetMetadata(x, y + 2, z, (byte)meta);
+									chunk.SetMetadata(x, y + 2, z, (byte) meta);
 								}
 
 								for (int pos = 0; pos < trees; pos++)
 								{
 									if (treeBasePositions[pos, 0] < 14 && treeBasePositions[pos, 0] > 4 && treeBasePositions[pos, 1] < 14 &&
-										treeBasePositions[pos, 1] > 4)
+									    treeBasePositions[pos, 1] > 4)
 									{
 										if (y < waterLevel + 2)
 											break;
@@ -201,7 +171,6 @@ namespace MiNET.Worlds
 						{
 							chunk.SetBlock(x, y, z, 7);
 						}
-
 					}
 				}
 			}
@@ -236,10 +205,12 @@ namespace MiNET.Worlds
 
 		private static readonly Random getrandom = new Random();
 		private static readonly object syncLock = new object();
+
 		private static int GetRandomNumber(int min, int max)
 		{
 			lock (syncLock)
-			{ // synchronize
+			{
+				// synchronize
 				return getrandom.Next(min, max);
 			}
 		}
@@ -248,7 +219,7 @@ namespace MiNET.Worlds
 
 		public static int GetNoise(int x, int z, float scale, int max)
 		{
-			return (int)Math.Floor((OpenNoise.Evaluate(x * scale, z * scale) + 1f) * (max / 2f));
+			return (int) Math.Floor((OpenNoise.Evaluate(x*scale, z*scale) + 1f)*(max/2f));
 		}
 	}
 }

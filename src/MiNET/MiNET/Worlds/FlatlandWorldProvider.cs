@@ -7,21 +7,12 @@ namespace MiNET.Worlds
 	public class FlatlandWorldProvider : IWorldProvider
 	{
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-		private bool _loadFromFile;
-		private bool _saveToFile;
 
 		public bool IsCaching { get; private set; }
 
 		public FlatlandWorldProvider()
 		{
 			IsCaching = true;
-#if DEBUG
-			_loadFromFile = ConfigParser.GetProperty("load_pe", false);
-			_saveToFile = ConfigParser.GetProperty("save_pe", false);
-#else
-			_loadFromFile = ConfigParser.GetProperty("load_pe", true);
-			_saveToFile = ConfigParser.GetProperty("save_pe", true);
-#endif
 		}
 
 		public void Initialize()
@@ -30,62 +21,56 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-			//lock (_chunkCache)
+			lock (_chunkCache)
 			{
 				ChunkColumn cachedChunk;
-				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
+				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk))
+				{
+					return cachedChunk;
+				}
 
 				ChunkColumn chunk = new ChunkColumn();
 				chunk.x = chunkCoordinates.X;
 				chunk.z = chunkCoordinates.Z;
 
-				bool loaded = false;
-				if (_loadFromFile)
+				int h = PopulateChunk(chunk);
+
+				chunk.SetBlock(0, h + 1, 0, 7);
+				chunk.SetBlock(1, h + 1, 0, 41);
+				chunk.SetBlock(2, h + 1, 0, 41);
+				chunk.SetBlock(3, h + 1, 0, 41);
+				chunk.SetBlock(3, h + 1, 0, 41);
+
+				//chunk.SetBlock(6, h + 1, 6, 57);
+
+				chunk.SetBlock(6, h, 9, 63);
+				chunk.SetMetadata(6, h, 9, 12);
+				var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
+				chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
+
+				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
 				{
-					loaded = chunk.TryLoadFromFile();
-				}
-
-				if (!loaded)
-				{
-					int h = PopulateChunk(chunk);
-
-					chunk.SetBlock(0, h + 1, 0, 7);
-					chunk.SetBlock(1, h + 1, 0, 41);
-					chunk.SetBlock(2, h + 1, 0, 41);
-					chunk.SetBlock(3, h + 1, 0, 41);
-					chunk.SetBlock(3, h + 1, 0, 41);
-
-					//chunk.SetBlock(6, h + 1, 6, 57);
-
-					chunk.SetBlock(6, h, 9, 63);
-					chunk.SetMetadata(6, h, 9, 12);
-					var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
-					chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
-
-					if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
+					for (int x = 0; x < 10; x++)
 					{
-						for (int x = 0; x < 10; x++)
+						for (int z = 0; z < 10; z++)
 						{
-							for (int z = 0; z < 10; z++)
+							for (int y = h - 2; y < h; y++)
 							{
-								for (int y = h - 2; y < h; y++)
-								{
-									chunk.SetBlock(x, y, z, 8);
-								}
+								chunk.SetBlock(x, y, z, 8);
 							}
 						}
 					}
+				}
 
-					if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+				if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+				{
+					for (int x = 0; x < 10; x++)
 					{
-						for (int x = 0; x < 10; x++)
+						for (int z = 0; z < 10; z++)
 						{
-							for (int z = 0; z < 10; z++)
+							for (int y = h - 1; y < h; y++)
 							{
-								for (int y = h - 1; y < h; y++)
-								{
-									chunk.SetBlock(x, y, z, 10);
-								}
+								chunk.SetBlock(x, y, z, 10);
 							}
 						}
 					}
@@ -164,13 +149,6 @@ namespace MiNET.Worlds
 
 		public void SaveChunks()
 		{
-			if (_saveToFile)
-			{
-				foreach (ChunkColumn chunkColumn in _chunkCache.Values)
-				{
-					chunkColumn.SaveChunk();
-				}
-			}
 		}
 
 		private Sign GetBlockEntity(int x, int y, int z)

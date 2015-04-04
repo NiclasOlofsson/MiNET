@@ -191,7 +191,7 @@ namespace MiNET.BlockEntities
 		private short GetFuelEfficiency(ItemStack itemStack)
 		{
 			Item item = ItemFactory.GetItem(itemStack.Id, itemStack.Metadata);
-			return (short) (item.GetFuelEfficiency()*20);
+			return (short) (item.FuelEfficiency*20);
 		}
 	}
 }

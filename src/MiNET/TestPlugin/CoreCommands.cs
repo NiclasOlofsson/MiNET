@@ -217,5 +217,99 @@ namespace TestPlugin
 
 			return packet; // Process
 		}
+
+		[Command]
+		public void Kit(Player player, int kitId)
+		{
+			var armor = player.Inventory.Armor;
+			var slots = player.Inventory.Slots;
+
+			switch (kitId)
+			{
+				case 0:
+					// Kit leather tier
+					armor[0] = new MetadataSlot(new ItemStack(298)); // Helmet
+					armor[1] = new MetadataSlot(new ItemStack(299)); // Chest
+					armor[2] = new MetadataSlot(new ItemStack(300)); // Leggings
+					armor[3] = new MetadataSlot(new ItemStack(301)); // Boots
+					break;
+				case 1:
+					// Kit gold tier
+					armor[0] = new MetadataSlot(new ItemStack(314)); // Helmet
+					armor[1] = new MetadataSlot(new ItemStack(315)); // Chest
+					armor[2] = new MetadataSlot(new ItemStack(316)); // Leggings
+					armor[3] = new MetadataSlot(new ItemStack(317)); // Boots
+					break;
+				case 2:
+					// Kit chain tier
+					armor[0] = new MetadataSlot(new ItemStack(302)); // Helmet
+					armor[1] = new MetadataSlot(new ItemStack(303)); // Chest
+					armor[2] = new MetadataSlot(new ItemStack(304)); // Leggings
+					armor[3] = new MetadataSlot(new ItemStack(305)); // Boots
+					break;
+				case 3:
+					// Kit iron tier
+					armor[0] = new MetadataSlot(new ItemStack(306)); // Helmet
+					armor[1] = new MetadataSlot(new ItemStack(307)); // Chest
+					armor[2] = new MetadataSlot(new ItemStack(308)); // Leggings
+					armor[3] = new MetadataSlot(new ItemStack(309)); // Boots
+					break;
+				case 4:
+					// Kit diamond tier
+					armor[0] = new MetadataSlot(new ItemStack(310)); // Helmet
+					armor[1] = new MetadataSlot(new ItemStack(311)); // Chest
+					armor[2] = new MetadataSlot(new ItemStack(312)); // Leggings
+					armor[3] = new MetadataSlot(new ItemStack(313)); // Boots
+					break;
+			}
+
+			slots[0] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
+			slots[1] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
+			slots[2] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
+			slots[3] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
+			slots[3] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
+
+			player.SendPackage(new McpeContainerSetContent
+			{
+				windowId = 0,
+				slotData = player.Inventory.Slots,
+				hotbarData = player.Inventory.ItemHotbar
+			});
+
+			player.SendPackage(new McpeContainerSetContent
+			{
+				windowId = 0x78, // Armor windows ID
+				slotData = player.	Inventory.Armor,
+				hotbarData = null
+			});
+
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastTextMessage(string.Format("Player {0} changed kit.", player.Username));
+		}
+
+		private void SendEquipmentForPlayer(Player player)
+		{
+			player.Level.RelayBroadcast(new McpePlayerEquipment
+			{
+				entityId = player.EntityId,
+				item = player.Inventory.ItemInHand.Value.Id,
+				meta = player.Inventory.ItemInHand.Value.Metadata,
+				slot = 0
+			});
+		}
+
+		private void SendArmorForPlayer(Player player)
+		{
+			player.Level.RelayBroadcast(new McpePlayerArmorEquipment
+			{
+				entityId = player.EntityId,
+				helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256),
+				chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256),
+				leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256),
+				boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256)
+			});
+		}
 	}
 }

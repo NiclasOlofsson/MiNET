@@ -248,6 +248,7 @@
     <Compile Include="Worlds\GameMode.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
+    <Compile Include="Worlds\LevelInfo.cs" />
     <Compile Include="Worlds\Structures\OakTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
     <Content Include="Net\MCPE Protocol.xml">

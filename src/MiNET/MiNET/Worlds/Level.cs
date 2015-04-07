@@ -69,7 +69,7 @@ namespace MiNET.Worlds
 
 			if (_worldProvider == null)
 			{
-				switch (Config.GetProperty("WorldProvider", "flat").ToLower())
+				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
 				{
 					case "flat":
 					case "flatland":

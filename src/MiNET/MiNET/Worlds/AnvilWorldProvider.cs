@@ -201,7 +201,10 @@ namespace MiNET.Worlds
 
 				int length = regionFile.ReadByte();
 
-				if (offset == 0 || length == 0) return _flatland.GenerateChunkColumn(coordinates);
+				if (offset == 0 || length == 0)
+				{
+					return _flatland.GenerateChunkColumn(coordinates);
+				}
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
 				byte[] waste = new byte[4];
@@ -324,12 +327,12 @@ namespace MiNET.Worlds
 			{
 				foreach (var chunkColumn in _chunkCache)
 				{
-					if (chunkColumn.Value.isDirty) SaveChunks(chunkColumn.Value);
+					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value);
 				}
 			}
 		}
 
-		private void SaveChunks(ChunkColumn chunk)
+		private void SaveChunk(ChunkColumn chunk)
 		{
 			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
 
@@ -341,13 +344,25 @@ namespace MiNET.Worlds
 
 			string filePath = Path.Combine(_basePath, string.Format(@"region\r.{0}.{1}.mca", rx, rz));
 
-			if (!File.Exists(filePath)) return;
+			if (!File.Exists(filePath))
+			{
+				// Make sure directory exist
+				Directory.CreateDirectory(Path.Combine(_basePath, "region"));
+
+				// Create empty region file
+				using (var regionFile = File.Open(filePath, FileMode.CreateNew))
+				{
+					byte[] buffer = new byte[8192];
+					regionFile.Write(buffer, 0, buffer.Length);
+				}
+
+				return;
+			}
 
 			using (var regionFile = File.Open(filePath, FileMode.Open))
-
 			{
 				byte[] buffer = new byte[8192];
-				regionFile.Read(buffer, 0, 8192);
+				regionFile.Read(buffer, 0, buffer.Length);
 
 				int xi = (coordinates.X%width);
 				if (xi < 0) xi += 32;
@@ -366,9 +381,15 @@ namespace MiNET.Worlds
 
 				if (offset == 0 || length == 0)
 				{
-					//throw new Exception("New chunk");
-					// New chunk, will need to append, but for now ignore
-					return;
+					regionFile.Seek(0, SeekOrigin.End);
+					offset = (int)regionFile.Position;
+
+					regionFile.Seek(tableOffset, SeekOrigin.Begin);
+
+					byte[] bytes = BitConverter.GetBytes(offset >> 4);
+					Array.Reverse(bytes);
+					regionFile.Write(bytes, 0, 3);
+					regionFile.WriteByte(1);
 				}
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
@@ -467,8 +488,8 @@ namespace MiNET.Worlds
 			LoadFromNbt(dataTag);
 		}
 
-		public int Version { get; private set; }
-		public bool Initialized { get; private set; }
+		public int Version { get; set; }
+		public bool Initialized { get; set; }
 		public string LevelName { get; set; }
 		public string GeneratorName { get; set; }
 		public int GeneratorVersion { get; set; }
@@ -478,7 +499,7 @@ namespace MiNET.Worlds
 		public long LastPlayed { get; set; }
 		public bool AllowCommands { get; set; }
 		public bool Hardcore { get; set; }
-		private int GameType { get; set; }
+		public int GameType { get; set; }
 		public long Time { get; set; }
 		public long DayTime { get; set; }
 		public int SpawnX { get; set; }

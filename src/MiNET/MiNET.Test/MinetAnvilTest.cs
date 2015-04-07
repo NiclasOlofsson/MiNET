@@ -12,7 +12,32 @@ namespace MiNET
 	[TestFixture]
 	public class MinetAnvilTest
 	{
-		[Test, Ignore]
+		[Test]
+		public void OffsetIntTest()
+		{
+			int original = (4096*2) - 10;
+
+			int reminder;
+			Math.DivRem(original, 4096, out reminder);
+			//Assert.AreEqual(10, reminder);
+
+			Assert.AreEqual((4096*2), original + (4096 - reminder));
+
+			//byte[] expected = {0x00, 0x00, 0x01, 0x00};
+
+			//byte[] offsetBuffer = {0x00, 0x00, 0x01, 0x00};
+			//Array.Reverse(offsetBuffer);
+			//int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
+			//Assert.AreEqual(4096, offset);
+
+			//byte[] bytes = BitConverter.GetBytes(offset >> 4);
+			//Array.Reverse(bytes);
+			//Assert.AreEqual(expected, bytes);
+
+//			Assert.AreEqual(offset, BitConverter.ToInt32(bytes, 0) << 4);
+		}
+
+		[Test]
 		public void SaveAnvilChunkTest()
 		{
 			int width = 32;

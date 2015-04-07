@@ -189,7 +189,9 @@ namespace MiNET.Worlds
 			writer.Close();
 			return stream.ToArray();
 		}
+
 	}
+
 
 	public static class ArrayOf<T> where T : new()
 	{

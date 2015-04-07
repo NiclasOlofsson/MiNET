@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BC1E3C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{F53DE0D1-333F-42BC-B803-E523CFF0113E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.Client", "MiNET.Client\MiNET.Client.csproj", "{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,16 @@ Global
 		{F53DE0D1-333F-42BC-B803-E523CFF0113E}.Release|ARM.ActiveCfg = Release|Any CPU
 		{F53DE0D1-333F-42BC-B803-E523CFF0113E}.Release|x64.ActiveCfg = Release|Any CPU
 		{F53DE0D1-333F-42BC-B803-E523CFF0113E}.Release|x86.ActiveCfg = Release|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Release|x64.ActiveCfg = Release|Any CPU
+		{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

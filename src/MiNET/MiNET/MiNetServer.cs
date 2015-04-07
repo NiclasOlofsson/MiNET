@@ -399,13 +399,15 @@ namespace MiNET
 					package.Decode(receiveBytes);
 					var messages = package.Messages;
 
-					Reliability reliability = package._reliability;
-					//Log.InfoFormat("Reliability: {0}", reliability);
+					// IF reliable code below is enabled, useItem start sending doubles
+					// for some unknown reason.
 
-					if (reliability == Reliability.Reliable
-					    || reliability == Reliability.ReliableSequenced
-					    || reliability == Reliability.ReliableOrdered
-						)
+					//Reliability reliability = package._reliability;
+
+					//if (reliability == Reliability.Reliable
+					//	|| reliability == Reliability.ReliableSequenced
+					//	|| reliability == Reliability.ReliableOrdered
+					//	)
 					{
 						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
 					}
@@ -413,7 +415,7 @@ namespace MiNET
 					foreach (var message in messages)
 					{
 						message.Timer.Restart();
-						TraceReceive(message);
+						TraceReceive(message /*, seqNo*/);
 						HandlePackage(message, senderEndpoint);
 						message.PutPool();
 					}
@@ -738,13 +740,13 @@ namespace MiNET
 		}
 
 
-		private static void TraceReceive(Package message)
+		private static void TraceReceive(Package message, int refNumber = 0)
 		{
 			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
 			{
-				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
 			}
 		}
 

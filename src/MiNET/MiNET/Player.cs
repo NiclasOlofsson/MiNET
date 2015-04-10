@@ -940,6 +940,8 @@ namespace MiNET
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 					fullChunkData.chunkData = chunk.GetBytes();
 
+					// This is to slow down chunk-sending not to overrun old devices.
+					// The timeout should be configurable and enable/disable.
 					Thread.Sleep(12);
 
 					SendPackage(fullChunkData);

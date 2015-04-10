@@ -28,13 +28,17 @@ namespace MiNET
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private Level _level;
-		private Level _level2;
 		private PluginManager _pluginManager;
+		// ReSharper disable once NotAccessedField.Local
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
-		private string _motd = string.Empty;
 
-		private static bool _performanceTest = false;
+		// ReSharper disable once NotAccessedField.Local
+		private Timer _ackTimer;
+		// ReSharper disable once NotAccessedField.Local
+		private Timer _cleanerTimer;
+
+		private static bool _isPerformanceTest = false;
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
 
@@ -100,7 +104,7 @@ namespace MiNET
 				Log.Info("Initializing...");
 
 				Log.Info("Loading settings...");
-				_motd = Config.GetProperty("motd", "MiNET - Another MC server");
+				Config.GetProperty("motd", "MiNET - Another MC server");
 
 				Log.Info("Loading plugins...");
 				_pluginManager = new PluginManager();
@@ -335,7 +339,7 @@ namespace MiNET
 					{
 						OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
 
-						_performanceTest = _performanceTest || incoming.raknetProtocolVersion == byte.MaxValue;
+						_isPerformanceTest = _isPerformanceTest || incoming.raknetProtocolVersion == byte.MaxValue;
 
 						var packet = new OpenConnectionReply1
 						{
@@ -439,16 +443,18 @@ namespace MiNET
 
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			if (!_playerSessions.ContainsKey(senderEndpoint)) return;
+			PlayerNetworkSession session;
+			if (!_playerSessions.TryGetValue(senderEndpoint, out session)) return;
 
-			PlayerNetworkSession session = _playerSessions[senderEndpoint];
 			session.LastUpdatedTime = DateTime.UtcNow;
 
 			Ack ack = Ack.CreateObject();
 			ack.Decode(receiveBytes);
+
 			int ackSeqNo = ack.sequenceNumber.IntValue();
 			int toAckSeqNo = ack.toSequenceNumber.IntValue();
 			if (ack.onlyOneSequence == 1) toAckSeqNo = ackSeqNo;
+
 			ack.PutPool();
 
 			var queue = session.WaitingForAcksQueue;
@@ -460,7 +466,6 @@ namespace MiNET
 				{
 					foreach (MessagePart part in datagram.MessageParts)
 					{
-						part.Buffer = null;
 						part.PutPool();
 					}
 					datagram.PutPool();
@@ -475,7 +480,8 @@ namespace MiNET
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			PlayerNetworkSession session = _playerSessions[senderEndpoint];
+			PlayerNetworkSession session;
+			if (!_playerSessions.TryGetValue(senderEndpoint, out session)) return;
 
 			Nak nak = Nak.CreateObject();
 			nak.Decode(receiveBytes);
@@ -483,6 +489,8 @@ namespace MiNET
 			int ackSeqNo = nak.sequenceNumber.IntValue();
 			int toAckSeqNo = nak.toSequenceNumber.IntValue();
 			if (nak.onlyOneSequence == 1) toAckSeqNo = ackSeqNo;
+
+			nak.PutPool();
 
 			var queue = session.WaitingForAcksQueue;
 
@@ -501,8 +509,6 @@ namespace MiNET
 					Log.WarnFormat("No datagram #{0} to resend", i);
 				}
 			}
-
-			nak.PutPool();
 		}
 
 		/// <summary>
@@ -544,7 +550,7 @@ namespace MiNET
 
 		private void Update(object state)
 		{
-			if (_performanceTest) return;
+			if (_isPerformanceTest) return;
 
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
@@ -564,7 +570,6 @@ namespace MiNET
 
 				var queue = session.WaitingForAcksQueue;
 
-				int lenght = queue.Count;
 				foreach (var datagram in queue.Values)
 				{
 					if (!datagram.Timer.IsRunning)
@@ -588,9 +593,6 @@ namespace MiNET
 				}
 			});
 		}
-
-		private Timer _ackTimer;
-		private Timer _cleanerTimer;
 
 		private void SendAckQueue(object state)
 		{
@@ -654,14 +656,14 @@ namespace MiNET
 				datagram.Timer.Restart();
 				SendData(data, senderEndpoint);
 
-				if (_playerSessions.ContainsKey(senderEndpoint) && !isResend && !_performanceTest)
+				if (_playerSessions.ContainsKey(senderEndpoint) && !isResend && !_isPerformanceTest)
 				{
 					PlayerNetworkSession session = _playerSessions[senderEndpoint];
 					session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber, datagram);
 				}
 			}
 
-			if (_performanceTest)
+			if (_isPerformanceTest)
 			{
 				foreach (MessagePart part in datagram.MessageParts)
 				{
@@ -728,7 +730,7 @@ namespace MiNET
 
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
-			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
+			if (_isPerformanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
 			{
@@ -738,7 +740,7 @@ namespace MiNET
 
 		private static void TraceSend(Package message)
 		{
-			if (_performanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
+			if (_isPerformanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)
 			{

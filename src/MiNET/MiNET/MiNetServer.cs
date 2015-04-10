@@ -444,46 +444,31 @@ namespace MiNET
 			PlayerNetworkSession session = _playerSessions[senderEndpoint];
 			session.LastUpdatedTime = DateTime.UtcNow;
 
-			int ackSeqNo;
-			{
-				Ack ack = Ack.CreateObject();
-				ack.Decode(receiveBytes);
-				ackSeqNo = ack.sequenceNumber.IntValue();
-				ack.PutPool();
-			}
+			Ack ack = Ack.CreateObject();
+			ack.Decode(receiveBytes);
+			int ackSeqNo = ack.sequenceNumber.IntValue();
+			int toAckSeqNo = ack.toSequenceNumber.IntValue();
+			if (ack.onlyOneSequence == 1) toAckSeqNo = ackSeqNo;
+			ack.PutPool();
 
-			var queue = session.PlayerWaitingForAcksQueue;
+			var queue = session.WaitingForAcksQueue;
 
-			int lenght = queue.Count;
-			for (int i = 0; i < lenght; i++)
+			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
 				Datagram datagram;
-				if (queue.TryPeek(out datagram))
+				if (queue.TryRemove(i, out datagram))
 				{
-					int datagramSeqNo = datagram.Header.datagramSequenceNumber.IntValue();
-
-					if (datagramSeqNo <= ackSeqNo)
+					foreach (MessagePart part in datagram.MessageParts)
 					{
-						if (queue.TryDequeue(out datagram))
-						{
-							foreach (MessagePart part in datagram.MessageParts)
-							{
-								part.Buffer = null;
-								part.PutPool();
-							}
-							datagram.PutPool();
-						}
-
-						if (datagramSeqNo == ackSeqNo)
-						{
-							break;
-						}
-
-						continue;
+						part.Buffer = null;
+						part.PutPool();
 					}
-
-					Log.DebugFormat("Failed to remove ACK #{0}, ACK in queue is #{1} and queue size={2}", ackSeqNo, datagramSeqNo, queue.Count);
-					break;
+					datagram.PutPool();
+					Log.DebugFormat("Remove ACK #{0}. Queue size={1}", i, queue.Count);
+				}
+				else
+				{
+					Log.DebugFormat("Failed to remove ACK #{0}. Queue size={1}", i, queue.Count);
 				}
 			}
 		}
@@ -496,21 +481,25 @@ namespace MiNET
 			nak.Decode(receiveBytes);
 
 			int ackSeqNo = nak.sequenceNumber.IntValue();
-			Log.WarnFormat("--> NAK from Player {2} Count {0} #{1}", nak.count, ackSeqNo, session.Player.Username);
+			int toAckSeqNo = nak.toSequenceNumber.IntValue();
+			if (nak.onlyOneSequence == 1) toAckSeqNo = ackSeqNo;
 
-			bool found = false;
-			foreach (Datagram datagram in session.PlayerWaitingForAcksQueue)
+			var queue = session.WaitingForAcksQueue;
+
+			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
-				if (datagram.Header.datagramSequenceNumber.IntValue() == ackSeqNo)
+				Log.DebugFormat("NAK from Player {1} #{0}", i, session.Player.Username);
+
+				Datagram datagram;
+				if (queue.TryGetValue(i, out datagram))
 				{
-					found = true;
 					SendDatagram(senderEndpoint, datagram, true);
-					Log.DebugFormat("Resent #{0}", ackSeqNo);
+					Log.DebugFormat("Resent #{0}", i);
 				}
-			}
-			if (!found)
-			{
-				Log.WarnFormat("No datagram #{0}", ackSeqNo);
+				else
+				{
+					Log.WarnFormat("No datagram #{0} to resend", i);
+				}
 			}
 
 			nak.PutPool();
@@ -573,30 +562,27 @@ namespace MiNET
 					session.Player.DetectLostConnection();
 				}
 
-				var queue = session.PlayerWaitingForAcksQueue;
+				var queue = session.WaitingForAcksQueue;
 
 				int lenght = queue.Count;
-				for (int i = 0; i < lenght; i++)
+				foreach (var datagram in queue.Values)
 				{
-					Datagram datagram;
-					if (queue.TryPeek(out datagram))
+					if (!datagram.Timer.IsRunning)
 					{
-						if (!datagram.Timer.IsRunning)
-						{
-							Log.DebugFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
-						}
+						Log.DebugFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+					}
 
-						if (datagram.Timer.ElapsedMilliseconds > 200)
+					if (datagram.Timer.ElapsedMilliseconds > 5000)
+					{
+						Datagram deleted;
+						if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
-							if (queue.TryDequeue(out datagram))
+							Log.DebugFormat("Cleaned #{0}", deleted.Header.datagramSequenceNumber.IntValue());
+							foreach (MessagePart part in deleted.MessageParts)
 							{
-								Log.DebugFormat("Cleaned #{0}", datagram.Header.datagramSequenceNumber.IntValue());
-								foreach (MessagePart part in datagram.MessageParts)
-								{
-									part.PutPool();
-								}
-								datagram.PutPool();
+								part.PutPool();
 							}
+							deleted.PutPool();
 						}
 					}
 				}
@@ -671,7 +657,7 @@ namespace MiNET
 				if (_playerSessions.ContainsKey(senderEndpoint) && !isResend && !_performanceTest)
 				{
 					PlayerNetworkSession session = _playerSessions[senderEndpoint];
-					session.PlayerWaitingForAcksQueue.Enqueue(datagram);
+					session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber, datagram);
 				}
 			}
 

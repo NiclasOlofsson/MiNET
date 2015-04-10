@@ -10,16 +10,16 @@ namespace MiNET
 		public Player Player { get; set; }
 		public IPEndPoint EndPoint { get; set; }
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
-		private ConcurrentQueue<Datagram> _playerWaitingForAcksQueue = new ConcurrentQueue<Datagram>();
+		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
 
 		public ConcurrentQueue<int> PlayerAckQueue
 		{
 			get { return _playerAckQueue; }
 		}
 
-		public ConcurrentQueue<Datagram> PlayerWaitingForAcksQueue
+		public ConcurrentDictionary<int, Datagram> WaitingForAcksQueue
 		{
-			get { return _playerWaitingForAcksQueue; }
+			get { return _waitingForAcksQueue; }
 		}
 
 		public DateTime LastUpdatedTime { get; set; }

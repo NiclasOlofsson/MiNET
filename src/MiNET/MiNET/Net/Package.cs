@@ -467,6 +467,7 @@ namespace MiNET.Net
 			var item = Pool.GetObject();
 			item._isPooled = true;
 			item._referenceCounter = numberOfReferences;
+			item.Timer.Restart();
 			return item;
 		}
 

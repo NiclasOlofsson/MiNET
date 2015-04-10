@@ -106,6 +106,7 @@ namespace MiNET.Net
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;
 		public Int24 sequenceNumber; // = null;
+		public Int24 toSequenceNumber; // = null;
 
 		public Ack()
 		{
@@ -128,6 +129,8 @@ namespace MiNET.Net
 			count = ReadShort();
 			onlyOneSequence = ReadByte();
 			sequenceNumber = ReadLittle();
+			if (onlyOneSequence == 0)
+				toSequenceNumber = ReadLittle();
 		}
 	}
 }

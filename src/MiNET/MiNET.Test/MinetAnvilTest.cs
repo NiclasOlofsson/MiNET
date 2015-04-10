@@ -49,6 +49,8 @@ namespace MiNET
 
 			AnvilWorldProvider anvil = new AnvilWorldProvider(@"D:\Development\Worlds\KingsLanding\");
 			anvil.Initialize();
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
 			for (int x = 0; x < 32; x++)
 			{
 				for (int z = 0; z < 32; z++)
@@ -61,9 +63,9 @@ namespace MiNET
 					Assert.NotNull(chunk);
 				}
 			}
+			Console.WriteLine("Read {0} chunks in {1}ms", anvil.NumberOfCachedChunks(), sw.ElapsedMilliseconds);
 
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
+			sw.Restart();
 
 			anvil.SaveChunks();
 
@@ -157,17 +159,50 @@ namespace MiNET
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 
-			int iterations = 1000000;
+			int iterations = 1024;
 			for (int i = 0; i < iterations; i++)
 			{
 				AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
 			}
 
 			long ticks = sw.ElapsedTicks;
+			long ms = sw.ElapsedMilliseconds;
 
-			Assert.Less(ticks/iterations, 100);
+			//Assert.Less(ticks/iterations, 100);
 
-			Console.WriteLine("Read {0} chunk-columns in {1}ns at a rate of {2}ns/chunk", iterations, ticks, ticks/iterations);
+			Console.WriteLine("Read {0} chunk-columns in {1}ns ({3}ms) at a rate of {2}ns/col", iterations, ticks, ticks / iterations, ms);
+		}
+
+
+		[Test, Ignore]
+		public void LoadFullAnvilRegionLoadTest()
+		{
+			int width = 32;
+			int depth = 32;
+
+			int regionX = 5;
+			int regionZ = 24;
+
+			string basePath = @"D:\Downloads\KingsLanding1";
+			var generator = new FlatlandWorldProvider();
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			int noChunksRead = 0;
+			for (int x = 0; x < 32; x++)
+			{
+				for (int z = 0; z < 32; z++)
+				{
+					noChunksRead++;
+					int cx = (width*regionX) + x;
+					int cz = (depth*regionZ) + z;
+
+					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+					ChunkColumn chunk = AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
+					Assert.NotNull(chunk);
+				}
+			}
+			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
 		}
 	}
 }

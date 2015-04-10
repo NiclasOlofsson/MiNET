@@ -1,0 +1,3 @@
+[submodule "external/fNbt"]
+	path = external/fNbt
+	url = https://github.com/NiclasOlofsson/fNbt

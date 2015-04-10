@@ -7,6 +7,7 @@ namespace MiNET.Net
 		public short count; // = null;
 		public byte onlyOneSequence; // = null;
 		public Int24 sequenceNumber; // = null;
+		public Int24 toSequenceNumber; // = null;
 
 		public Nak()
 		{
@@ -38,6 +39,8 @@ namespace MiNET.Net
 			count = ReadShort();
 			onlyOneSequence = ReadByte();
 			sequenceNumber = ReadLittle();
+			if (onlyOneSequence == 0)
+				toSequenceNumber = ReadLittle();
 
 			AfterDecode();
 		}

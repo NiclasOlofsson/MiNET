@@ -940,6 +940,8 @@ namespace MiNET
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 					fullChunkData.chunkData = chunk.GetBytes();
 
+					Thread.Sleep(12);
+
 					SendPackage(fullChunkData);
 
 					if (count == 56 && !IsSpawned)

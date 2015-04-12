@@ -7,9 +7,9 @@ namespace MiNET.Worlds
 {
 	public class EntityManager
 	{
-		public const int EntityIdUndefined = -1;
+		public const long EntityIdUndefined = -1;
 
-		private static int _entityId = 1;
+		private static long _entityId = 1;
 
 		private List<Entity> _entities = new List<Entity>();
 
@@ -42,7 +42,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public Entity GetEntity(int entityId)
+		public Entity GetEntity(long entityId)
 		{
 			Entity player = _entities.FirstOrDefault(entity => entity.EntityId == entityId);
 

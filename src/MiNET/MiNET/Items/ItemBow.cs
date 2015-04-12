@@ -29,7 +29,6 @@ namespace MiNET.Items
 
 			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5);
 
-			arrow.Data = player.EntityId;
 
 			arrow.SpawnEntity();
 		}

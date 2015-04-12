@@ -29,7 +29,7 @@ namespace MiNET.Client
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber;
 		private Vector3 _spawn;
-		private int _entityId;
+		private long _entityId;
 
 		public MiNetClient(IPEndPoint endpoint)
 		{
@@ -429,13 +429,12 @@ namespace MiNET.Client
 				McpeAddEntity msg = (McpeAddEntity) message;
 				Log.DebugFormat("Entity ID: {0}", msg.entityId);
 				Log.DebugFormat("Entity Type: {0}", msg.entityType);
-				Log.DebugFormat("DID: {0}", msg.did);
 				Log.DebugFormat("X: {0}", msg.x);
 				Log.DebugFormat("Y: {0}", msg.y);
 				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Velocity X: {0}", msg.velocityX);
-				Log.DebugFormat("Velocity Y: {0}", msg.velocityY);
-				Log.DebugFormat("Velocity Z: {0}", msg.velocityZ);
+				Log.DebugFormat("Velocity X: {0}", msg.speedX);
+				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
 
 				return;
 			}
@@ -612,7 +611,6 @@ namespace MiNET.Client
 			{
 				clientId = 12345,
 				username = username,
-				logindata = "nothing",
 				protocol = 20,
 			};
 
@@ -621,7 +619,7 @@ namespace MiNET.Client
 
 		public void SendChat(string text)
 		{
-			var packet = new McpeMessage
+			var packet = new McpeText()
 			{
 				source = "Nicke",
 				message = text

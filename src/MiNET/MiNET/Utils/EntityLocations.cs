@@ -2,7 +2,7 @@
 
 namespace MiNET.Utils
 {
-	public class EntityMotions : Dictionary<int, Vector3>
+	public class EntityMotions : Dictionary<long, Vector3>
 	{
 	}
 
@@ -10,7 +10,7 @@ namespace MiNET.Utils
 	{
 	}
 
-	public class EntityLocations : Dictionary<int, PlayerLocation>
+	public class EntityLocations : Dictionary<long, PlayerLocation>
 	{
 	}
 }

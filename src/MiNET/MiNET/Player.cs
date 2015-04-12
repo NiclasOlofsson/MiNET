@@ -153,9 +153,9 @@ namespace MiNET
 				HandleDisconnectionNotification();
 			}
 
-			else if (typeof (McpeMessage) == message.GetType())
+			else if (typeof (McpeText) == message.GetType())
 			{
-				HandleMessage((McpeMessage) message);
+				HandleMessage((McpeText) message);
 			}
 
 			else if (typeof (McpeRemovePlayer) == message.GetType())
@@ -184,9 +184,9 @@ namespace MiNET
 				HandleRespawn((McpeRespawn) message);
 			}
 
-			else if (typeof (McpeEntityData) == message.GetType())
+			else if (typeof (McpeTileEntityData) == message.GetType())
 			{
-				HandleEntityData((McpeEntityData) message);
+				HandleEntityData((McpeTileEntityData) message);
 			}
 
 			else if (typeof (InternalPing) == message.GetType())
@@ -309,7 +309,7 @@ namespace MiNET
 		///     Handles the entity data.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleEntityData(McpeEntityData message)
+		private void HandleEntityData(McpeTileEntityData message)
 		{
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
@@ -454,7 +454,7 @@ namespace MiNET
 
 			Level.EntityManager.AddEntity(null, this);
 
-			SendPackage(new McpeLoginStatus {status = 0});
+			SendPackage(new McpePlayerStatus() {status = 0});
 			SendStartGame();
 			SendSetTime();
 			SendSetSpawnPosition();
@@ -502,7 +502,7 @@ namespace MiNET
 		///     Handles the message.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleMessage(McpeMessage message)
+		private void HandleMessage(McpeText message)
 		{
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))
@@ -730,7 +730,6 @@ namespace MiNET
 			Player target = Level.EntityManager.GetEntity(message.targetEntityId) as Player;
 
 			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-			Log.DebugFormat("Interact Entity ID: {0}", message.entityId);
 			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
 
 			if (target == null) return;
@@ -998,7 +997,12 @@ namespace MiNET
 
 		public void SendMessage(string text, Player sender = null)
 		{
-			var response = new McpeMessage
+			//const TYPE_RAW = 0;
+			//const TYPE_CHAT = 1;
+			//const TYPE_TRANSLATION = 2;
+			//const TYPE_POPUP = 3;
+
+			var response = new McpeText()
 			{
 				source = sender == null ? "MiNET" : sender.Username,
 				message = "₽" + text

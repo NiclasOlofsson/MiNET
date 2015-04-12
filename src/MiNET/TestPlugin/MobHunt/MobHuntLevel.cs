@@ -54,8 +54,8 @@ namespace TestPlugin.MobHunt
 			var moveEntity = McpeMoveEntity.CreateObject(players.Count());
 			moveEntity.entities = new EntityLocations();
 
-			var rotateHead = McpeRotateHead.CreateObject(players.Count());
-			rotateHead.entities = new EntityHeadRotations();
+			//var rotateHead = McpeRotateHead.CreateObject(players.Count());
+			//rotateHead.entities = new EntityHeadRotations();
 
 			foreach (var player in updatedPlayers)
 			{
@@ -69,14 +69,14 @@ namespace TestPlugin.MobHunt
 					entity.KnownPosition.Pitch = -player.KnownPosition.Pitch;
 				}
 				moveEntity.entities.Add(entity.EntityId, entity.KnownPosition);
-				rotateHead.entities.Add(entity.EntityId, entity.KnownPosition);
+				//rotateHead.entities.Add(entity.EntityId, entity.KnownPosition);
 			}
 
 			moveEntity.Encode();
-			rotateHead.Encode();
+			//rotateHead.Encode();
 
 			new Task(() => RelayBroadcast(moveEntity)).Start();
-			new Task(() => RelayBroadcast(rotateHead)).Start();
+			//new Task(() => RelayBroadcast(rotateHead)).Start();
 		}
 	}
 }

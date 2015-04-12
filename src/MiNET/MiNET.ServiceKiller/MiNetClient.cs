@@ -201,7 +201,6 @@ namespace MiNET.ServiceKiller
 			var packet = new McpeLogin()
 			{
 				username = username,
-				logindata = "nothing"
 			};
 
 			SendPackage(packet, _mtuSize, 0, 0);

@@ -284,18 +284,6 @@ namespace MiNET.Worlds
 						z = itemEntity.KnownPosition.Z + zr,
 					});
 				}
-				else if (entity is Mob)
-				{
-					RelayBroadcast(new McpeAddMob()
-					{
-						mobType = entity.EntityTypeId,
-						entityId = entity.EntityId,
-						x = (int) entity.KnownPosition.X,
-						y = (int) entity.KnownPosition.Y,
-						z = (int) entity.KnownPosition.Z,
-						//metadata = entity.GetMetadata();
-					});
-				}
 				else
 				{
 					var addEntity = new McpeAddEntity
@@ -305,9 +293,7 @@ namespace MiNET.Worlds
 						x = entity.KnownPosition.X,
 						y = entity.KnownPosition.Y,
 						z = entity.KnownPosition.Z,
-						did = entity.Data,
 					};
-					if (addEntity.did > 0)
 					{
 						double dx = entity.Velocity.X;
 						double dy = entity.Velocity.Y;
@@ -344,9 +330,9 @@ namespace MiNET.Worlds
 							dz = maxVelocity;
 						}
 
-						addEntity.velocityX = (short) (dx*8000.0d);
-						addEntity.velocityY = (short) (dy*8000.0d);
-						addEntity.velocityZ = (short) (dz*8000.0d);
+						addEntity.speedX = (short) (dx*8000.0d);
+						addEntity.speedY = (short) (dy*8000.0d);
+						addEntity.speedZ = (short) (dz*8000.0d);
 					}
 					RelayBroadcast(addEntity);
 				}
@@ -367,18 +353,6 @@ namespace MiNET.Worlds
 					z = itemEntity.KnownPosition.Z,
 				});
 			}
-			else if (entity is Mob)
-			{
-				player.SendPackage(new McpeAddMob()
-				{
-					mobType = entity.EntityTypeId,
-					entityId = entity.EntityId,
-					x = (int) entity.KnownPosition.X,
-					y = (int) entity.KnownPosition.Y,
-					z = (int) entity.KnownPosition.Z,
-					metadata = entity.GetMetadata().GetBytes()
-				});
-			}
 			else
 			{
 				player.SendPackage(new McpeAddEntity
@@ -388,10 +362,9 @@ namespace MiNET.Worlds
 					x = entity.KnownPosition.X,
 					y = entity.KnownPosition.Y,
 					z = entity.KnownPosition.Z,
-					velocityX = (short) entity.Velocity.X,
-					velocityY = (short) entity.Velocity.Y,
-					velocityZ = (short) entity.Velocity.Z,
-					did = entity.Data
+					speedX = (short) entity.Velocity.X,
+					speedY = (short) entity.Velocity.Y,
+					speedZ = (short) entity.Velocity.Z,
 				});
 			}
 		}
@@ -427,7 +400,7 @@ namespace MiNET.Worlds
 
 		public void BroadcastTextMessage(string text, Player sender = null)
 		{
-			var response = new McpeMessage
+			var response = new McpeText
 			{
 				source = sender == null ? "MiNET" : sender.Username,
 				message = "₽" + text
@@ -757,7 +730,7 @@ namespace MiNET.Worlds
 				}
 			};
 
-			var entityData = new McpeEntityData
+			var entityData = new McpeTileEntityData
 			{
 				namedtag = nbt,
 				x = blockEntity.Coordinates.X,

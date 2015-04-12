@@ -182,16 +182,16 @@ namespace MiNET
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				// Measure latency through system
-				_internalPingTimer = new Timer(delegate(object state)
-				{
-					IPEndPoint playerEndpoint = _playerSessions.Keys.FirstOrDefault();
-					if (playerEndpoint != null)
-					{
-						var ping = new InternalPing();
-						ping.Timer.Start();
-						HandlePackage(ping, playerEndpoint);
-					}
-				}, null, 1000, 1000);
+				//_internalPingTimer = new Timer(delegate(object state)
+				//{
+				//	IPEndPoint playerEndpoint = _playerSessions.Keys.FirstOrDefault();
+				//	if (playerEndpoint != null)
+				//	{
+				//		var ping = new InternalPing();
+				//		ping.Timer.Start();
+				//		HandlePackage(ping, playerEndpoint);
+				//	}
+				//}, null, 1000, 1000);
 
 				Log.Info("Server open for business...");
 

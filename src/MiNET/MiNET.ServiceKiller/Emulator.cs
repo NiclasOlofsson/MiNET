@@ -44,8 +44,8 @@ namespace MiNET.ServiceKiller
 				string username = (string) state;
 				Console.WriteLine("Client {0} connecting...", username);
 
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("65.52.75.30"), 19132));
+				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("65.52.75.30"), 19132));
 
 				client.StartClient();
 

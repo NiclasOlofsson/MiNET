@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using MiNET;
@@ -55,6 +56,7 @@ namespace TestPlugin.Teams
 
 					Game game = Games[signEntity.Text1];
 					signEntity.Text2 = string.Format("[{0}]", GetPlayerCount(game));
+					signEntity.Text3 = string.Format("{0}", game.State);
 					level.SetBlockEntity(signEntity);
 				}
 			}, null, 1000, 1000);
@@ -80,7 +82,8 @@ namespace TestPlugin.Teams
 				Games.Add(player.Level.LevelId, new Game
 				{
 					Name = player.Level.LevelId,
-					Level = player.Level
+					Level = player.Level,
+					State = GameState.Undefined
 				});
 			}
 
@@ -110,18 +113,39 @@ namespace TestPlugin.Teams
 					Z = spawn.Z,
 				};
 
-				Games.Add(world, new Game {Name = world, Level = gameLevel});
+				Games.Add(world, new Game {Name = world, Level = gameLevel, State = GameState.WaitingToStart});
 			}
 
 			Game currentGame = Games[player.Level.LevelId];
+			Game game = Games[world];
+
+			if (game.State == GameState.Started || game.State == GameState.Finshed)
+			{
+				return currentGame;
+			}
+
 			if (currentGame.Players.Contains(player)) currentGame.Players.Remove(player);
 
-			Game game = Games[world];
+			//player.HealthManager.PlayerKilled += HealthManagerOnPlayerKilled;
+
 			game.Players.Add(player);
 			player.SpawnLevel(game.Level);
 			game.Level.BroadcastTextMessage(string.Format("{0} joined game <{1}>.", player.Username, game.Name));
 
 			return game;
+		}
+
+		private void HealthManagerOnPlayerKilled(object sender, EventArgs eventArgs)
+		{
+			HealthManager healthManager = (HealthManager) sender;
+			Player player = healthManager.Entity as Player;
+			if (player != null)
+			{
+				//Game currentGame = Games[player.Level.LevelId];
+				player.Level.BroadcastTextMessage(string.Format("Killed callback for player {0}", player.Username));
+			}
+
+			healthManager.PlayerKilled -= HealthManagerOnPlayerKilled;
 		}
 	}
 
@@ -129,11 +153,44 @@ namespace TestPlugin.Teams
 	{
 		public string Name { get; set; }
 		public List<Player> Players { get; set; }
+		public int MaxPlayers { get; set; }
+		public int MinPlayers { get; set; }
 		public Level Level { get; set; }
+		public GameState State { get; set; }
+		public Timer GameTicker { get; set; }
+		public Stopwatch Time { get; set; }
 
 		public Game()
 		{
 			Players = new List<Player>();
+			MaxPlayers = Int32.MaxValue;
+			MinPlayers = 1;
+			GameTicker = new Timer(Tick, this, 0, 1000);
+			Time = new Stopwatch();
+			Time.Start();
+		}
+
+		private void Tick(object state)
+		{
+			if (Players.Count < MinPlayers && State == GameState.WaitingToStart)
+			{
+				Time.Restart();
+			}
+			else if (Players.Count >= MinPlayers && State == GameState.WaitingToStart && (Players.Count >= MaxPlayers || Time.ElapsedMilliseconds >= 10000))
+			{
+				Time.Restart();
+				State = GameState.Started;
+			}
+			else if (State == GameState.Started && Time.ElapsedMilliseconds >= 30000)
+			{
+				Time.Restart();
+				State = GameState.Finshed;
+			}
+			else if (State == GameState.Finshed && Time.ElapsedMilliseconds >= 10000)
+			{
+				Time.Restart();
+				State = GameState.WaitingToStart;
+			}
 		}
 	}
 
@@ -143,10 +200,21 @@ namespace TestPlugin.Teams
 		Team
 	}
 
+	public enum GameState
+	{
+		Undefined,
+		WaitingToStart,
+		Started,
+		Finshed,
+	}
+
 	public class GameInfo
 	{
 		public string Name { get; set; }
 		public Type LevelType { get; set; }
 		public GameMode GameMode { get; set; }
+		public string Arena { get; set; }
+		public bool IsTimeLimited { get; set; }
+		public bool AllowRespwan { get; set; }
 	}
 }

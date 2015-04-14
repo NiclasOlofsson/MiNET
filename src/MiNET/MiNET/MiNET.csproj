@@ -35,6 +35,10 @@
     <Reference Include="Deedle">
       <HintPath>..\packages\Deedle.1.0.7\lib\net40\Deedle.dll</HintPath>
     </Reference>
+    <Reference Include="fNbt, Version=0.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\fNbt.0.6.3\lib\net35-client\fNbt.dll</HintPath>
+    </Reference>
     <Reference Include="LibNoise">
       <HintPath>..\packages\LibNoise.0.2\lib\NET45\LibNoise.dll</HintPath>
     </Reference>

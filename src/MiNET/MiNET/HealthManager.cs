@@ -88,6 +88,8 @@ namespace MiNET
 		{
 			if (IsDead) return;
 
+			OnPlayerKilled();
+
 			IsDead = true;
 			Health = 0;
 			var player = Entity as Player;
@@ -99,6 +101,14 @@ namespace MiNET
 			Entity.BroadcastSetEntityData();
 
 			Entity.DespawnEntity();
+		}
+
+		public event EventHandler<EventArgs> PlayerKilled;
+
+		protected virtual void OnPlayerKilled()
+		{
+			EventHandler<EventArgs> handler = PlayerKilled;
+			if (handler != null) handler(this, EventArgs.Empty);
 		}
 
 		public void ResetHealth()

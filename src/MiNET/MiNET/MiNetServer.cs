@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -401,7 +403,35 @@ namespace MiNET
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
 					package.Decode(receiveBytes);
-					var messages = package.Messages;
+					List<Package> messages = package.Messages;
+
+					if (messages.Count == 1)
+					{
+						McpeBatch batch = messages.First() as McpeBatch;
+						if (batch != null)
+						{
+							messages = new List<Package>();
+
+							// Get bytes
+							byte[] payload = batch.payload;
+							// Decompress bytes
+
+							MemoryStream stream = new MemoryStream(payload);
+							if (stream.ReadByte() != 0x78)
+							{
+								throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+							}
+							stream.ReadByte();
+							using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+							{
+								// Get actual package out of bytes
+								MemoryStream destination = new MemoryStream();
+								defStream2.CopyTo(destination);
+								byte[] internalBuffer = destination.ToArray();
+								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+							}
+						}
+					}
 
 					// IF reliable code below is enabled, useItem start sending doubles
 					// for some unknown reason.
@@ -412,9 +442,9 @@ namespace MiNET
 					//	|| reliability == Reliability.ReliableSequenced
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
-					{
-						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
-					}
+					//{
+					EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
+					//}
 
 					foreach (var message in messages)
 					{

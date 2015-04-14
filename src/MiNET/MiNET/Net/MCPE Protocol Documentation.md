@@ -1070,6 +1070,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Chunk X | int |  |
 |Chunk Z | int |  |
+|Chunk Data Length | int |  |
 |Chunk Data | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Difficulty (0xb0)

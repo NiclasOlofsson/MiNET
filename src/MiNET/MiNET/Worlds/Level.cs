@@ -171,6 +171,7 @@ namespace MiNET.Worlds
 					z = player.KnownPosition.Z,
 					yaw = (byte) player.KnownPosition.Yaw,
 					pitch = (byte) player.KnownPosition.Pitch,
+					skin = player.Skin,
 					metadata = new byte[0]
 				});
 

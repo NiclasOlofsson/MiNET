@@ -2937,6 +2937,7 @@ namespace MiNET.Net
 	{
 		public int chunkX; // = null;
 		public int chunkZ; // = null;
+		public int chunkDataLength; // = null;
 		public byte[] chunkData; // = null;
 		public McpeFullChunkData()
 		{
@@ -2951,6 +2952,7 @@ namespace MiNET.Net
 
 			Write(chunkX);
 			Write(chunkZ);
+			Write(chunkDataLength);
 			Write(chunkData);
 
 			AfterEncode();
@@ -2967,6 +2969,7 @@ namespace MiNET.Net
 
 			chunkX = ReadInt();
 			chunkZ = ReadInt();
+			chunkDataLength = ReadInt();
 			chunkData = ReadBytes(0);
 
 			AfterDecode();

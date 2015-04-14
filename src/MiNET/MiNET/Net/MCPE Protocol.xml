@@ -444,6 +444,7 @@
 	<pdu id="0xaf" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA">
 		<field name="Chunk X" type="int" />
 		<field name="Chunk Z" type="int" />
+		<field name="Chunk Data Length" type="int" />
 		<field name="Chunk Data" type="byte[]" size="0" />
 	</pdu>
 

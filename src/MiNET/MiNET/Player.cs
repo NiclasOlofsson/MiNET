@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Threading;
 using log4net;
@@ -43,6 +45,8 @@ namespace MiNET
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 		public PermissionManager Permissions { get; set; }
+
+		public string Skin { get; set; }
 
 		public Player(MiNetServer server, IPEndPoint endPoint, Level level, PluginManager pluginManager, short mtuSize) : base(-1, level)
 		{
@@ -427,6 +431,7 @@ namespace MiNET
 			if (Username != null) return; // Already doing login
 
 			Username = message.username;
+			Skin = message.skin;
 
 			//Success = 0;
 			//FailedClientIsOld = 1;
@@ -454,8 +459,14 @@ namespace MiNET
 
 			Level.EntityManager.AddEntity(null, this);
 
-			SendPackage(new McpePlayerStatus() {status = 0});
+			//const LOGIN_SUCCESS = 0;
+			//const LOGIN_FAILED_CLIENT = 1;
+			//const LOGIN_FAILED_SERVER = 2;
+			//const PLAYER_SPAWN = 3;
+
+			SendPackage(new McpePlayerStatus {status = 0});
 			SendStartGame();
+			SendPackage(new McpeRespawn {entityId = EntityId, x = KnownPosition.X, y = KnownPosition.Y, z = KnownPosition.Z});
 			SendSetTime();
 			SendSetSpawnPosition();
 			SendSetHealth();
@@ -469,13 +480,15 @@ namespace MiNET
 		/// </summary>
 		private void InitializePlayer()
 		{
-			//send time again
-			SendSetTime();
-
-			// Teleport user (MovePlayerPacket) teleport=1
-			SendMovePlayer();
-
 			SendPackage(new McpeAdventureSettings {flags = 0x20});
+
+			//TODO: Send MobEffects here
+
+			SendPackage(new McpeSetEntityData
+			{
+				entityId = EntityId,
+				namedtag = GetMetadata().GetBytes()
+			});
 
 			SendPackage(new McpeContainerSetContent
 			{
@@ -491,10 +504,18 @@ namespace MiNET
 				hotbarData = null
 			});
 
+			//send time again
+			SendSetTime();
+
+			// Teleport user (MovePlayerPacket) teleport=1
+			SendMovePlayer();
+
+			SendPackage(new McpePlayerStatus { status = 3 });
+
 			IsSpawned = true;
 			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
-			BroadcastSetEntityData();
+			//BroadcastSetEntityData();
 		}
 
 
@@ -937,13 +958,23 @@ namespace MiNET
 				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+					fullChunkData.chunkX = chunk.x;
+					fullChunkData.chunkZ = chunk.z;
+					fullChunkData.chunkZ = chunk.z;
 					fullChunkData.chunkData = chunk.GetBytes();
+					fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
+
+					McpeBatch batch = new McpeBatch();
+					byte[] buffer = CompressBytes(fullChunkData.Encode());
+
+					batch.payloadSize = buffer.Length;
+					batch.payload = buffer;
 
 					// This is to slow down chunk-sending not to overrun old devices.
 					// The timeout should be configurable and enable/disable.
 					Thread.Sleep(12);
 
-					SendPackage(fullChunkData);
+					SendPackage(batch);
 
 					if (count == 56 && !IsSpawned)
 					{
@@ -954,6 +985,38 @@ namespace MiNET
 				}
 			});
 		}
+
+		public byte[] CompressBytes(byte[] input)
+		{
+			MemoryStream stream = new MemoryStream();
+			stream.WriteByte(0x78);
+			stream.WriteByte(0x01);
+			int checksum;
+			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
+				writer.Write(input);
+
+				writer.Flush();
+
+				checksum = compressStream.Checksum;
+				writer.Close();
+			}
+
+			byte[] checksumBytes = BitConverter.GetBytes(checksum);
+			if (BitConverter.IsLittleEndian)
+			{
+				// Adler32 checksum is big-endian
+				Array.Reverse(checksumBytes);
+			}
+			stream.Write(checksumBytes, 0, checksumBytes.Length);
+
+			var bytes = stream.ToArray();
+			stream.Close();
+
+			return bytes;
+		}
+
 
 		internal void SendSetHealth()
 		{

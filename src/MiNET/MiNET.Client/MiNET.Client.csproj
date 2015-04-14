@@ -55,10 +55,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\external\fNbt\fNbt\fNbt.csproj">
-      <Project>{4488498D-976D-4DA3-BF72-109531AF0488}</Project>
-      <Name>fNbt</Name>
-    </ProjectReference>
     <ProjectReference Include="..\MiNET\MiNET.csproj">
       <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>
       <Name>MiNET</Name>

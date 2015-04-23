@@ -26,8 +26,15 @@ namespace MiNET
 			Slots = new MetadataSlots();
 			for (byte i = 0; i < Size; i++)
 			{
-				NbtCompound item = (NbtCompound) slots[i];
-				Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
+				if (i < slots.Count)
+				{
+					NbtCompound item = (NbtCompound)slots[i];
+					Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
+				}
+				else
+				{
+					Slots[i] = new MetadataSlot(new ItemStack());
+				}
 			}
 		}
 
@@ -83,7 +90,7 @@ namespace MiNET
 			for (byte i = 0; i < Size; i++)
 			{
 				MetadataSlot slot = (MetadataSlot) Slots[i];
-				slots.Add(new NbtCompound("")
+				slots.Add(new NbtCompound
 				{
 					new NbtByte("Count", slot.Value.Count),
 					new NbtByte("Slot", i),

@@ -34,7 +34,7 @@ namespace MiNET.BlockEntities
 			NbtList items = (NbtList) Compound["Items"];
 			for (byte i = 0; i < 3; i++)
 			{
-				items.Add(new NbtCompound("")
+				items.Add(new NbtCompound()
 				{
 					new NbtByte("Count", 0),
 					new NbtByte("Slot", i),
@@ -62,7 +62,7 @@ namespace MiNET.BlockEntities
 				NbtList items = new NbtList("Items");
 				for (byte i = 0; i < 3; i++)
 				{
-					items.Add(new NbtCompound("")
+					items.Add(new NbtCompound()
 					{
 						new NbtByte("Count", 0),
 						new NbtByte("Slot", i),

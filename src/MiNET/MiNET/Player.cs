@@ -272,6 +272,8 @@ namespace MiNET
 			{
 				case 5: // Shoot arrow
 				{
+					if (_itemUseTimer == null) return;
+
 					MetadataDictionary metadata = new MetadataDictionary();
 					metadata[0] = new MetadataByte(0);
 					Level.RelayBroadcast(this, new McpeSetEntityData
@@ -329,6 +331,7 @@ namespace MiNET
 			DespawnEntity();
 			_chunksUsed.Clear();
 			Level = level;
+			SendSetSpawnPosition();
 			HandleRespawn(null);
 			SendChunksForKnownPosition();
 		}

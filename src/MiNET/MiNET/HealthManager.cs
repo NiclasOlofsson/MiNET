@@ -68,6 +68,16 @@ namespace MiNET
 			}
 
 			CooldownTick = 10;
+
+			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
+		}
+
+		public event EventHandler<HealthEventArgs> PlayerTakeHit;
+
+		protected virtual void OnPlayerTakeHit(HealthEventArgs e)
+		{
+			EventHandler<HealthEventArgs> handler = PlayerTakeHit;
+			if (handler != null) handler(this, e);
 		}
 
 		public void Ignite(int ticks = 300)
@@ -88,7 +98,7 @@ namespace MiNET
 		{
 			if (IsDead) return;
 
-			OnPlayerKilled();
+			OnPlayerKilled(new HealthEventArgs(this, LastDamageSource, Entity));
 
 			IsDead = true;
 			Health = 0;
@@ -103,12 +113,12 @@ namespace MiNET
 			Entity.DespawnEntity();
 		}
 
-		public event EventHandler<EventArgs> PlayerKilled;
+		public event EventHandler<HealthEventArgs> PlayerKilled;
 
-		protected virtual void OnPlayerKilled()
+		protected virtual void OnPlayerKilled(HealthEventArgs e)
 		{
-			EventHandler<EventArgs> handler = PlayerKilled;
-			if (handler != null) handler(this, EventArgs.Empty);
+			EventHandler<HealthEventArgs> handler = PlayerKilled;
+			if (handler != null) handler(this, e);
 		}
 
 		public void ResetHealth()
@@ -241,6 +251,20 @@ namespace MiNET
 				return attributes[0].Description;
 
 			return value.ToString();
+		}
+	}
+
+	public class HealthEventArgs : EventArgs
+	{
+		public Entity SourceEntity { get; set; }
+		public Entity TargetEntity { get; set; }
+		public HealthManager HealthManager { get; set; }
+
+		public HealthEventArgs(HealthManager healthManager, Entity sourceEntity, Entity targetEntity)
+		{
+			SourceEntity = sourceEntity;
+			TargetEntity = targetEntity;
+			HealthManager = healthManager;
 		}
 	}
 }

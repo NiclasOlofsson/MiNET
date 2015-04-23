@@ -2,8 +2,15 @@ using MiNET.Blocks;
 
 namespace MiNET.Items
 {
+	public interface ICustomItemFactory
+	{
+		Item GetItem(int id, short metadata);
+	}
+
 	public class ItemFactory
 	{
+		public static ICustomItemFactory CustomItemFactory { get; set; }
+
 		public static Item GetItem(int id)
 		{
 			return GetItem(id, 0);
@@ -11,7 +18,14 @@ namespace MiNET.Items
 
 		public static Item GetItem(int id, short metadata)
 		{
-			Item item;
+			Item item = null;
+
+			if (CustomItemFactory != null)
+			{
+				item = CustomItemFactory.GetItem(id, metadata);
+			}
+
+			if (item != null) return item;
 
 			if (id == 54) item = new ItemChest(metadata);
 			else if (id == 44) item = new ItemSlab(id, metadata);

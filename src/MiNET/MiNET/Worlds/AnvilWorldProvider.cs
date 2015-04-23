@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using fNbt;
 using log4net;
+using MiNET.BlockEntities;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -286,6 +287,25 @@ namespace MiNET.Worlds
 
 				NbtList entities = dataTag["Entities"] as NbtList;
 				NbtList blockEntities = dataTag["TileEntities"] as NbtList;
+				if (blockEntities != null)
+				{
+					foreach (var nbtTag in blockEntities)
+					{
+						var blockEntityTag = (NbtCompound) nbtTag;
+						string entityId = blockEntityTag["id"].StringValue;
+						int x = blockEntityTag["x"].IntValue;
+						int y = blockEntityTag["y"].IntValue;
+						int z = blockEntityTag["z"].IntValue;
+
+						BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
+						if (blockEntity != null)
+						{
+							blockEntityTag.Name = string.Empty;
+							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
+						}
+					}
+				}
+
 				NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
 				chunk.isDirty = false;
@@ -312,10 +332,10 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY, _level.SpawnZ);
-			spawnPoint.Y += 2; // Compensate for point being at head
-			spawnPoint.Y += _waterOffsetY; // Compensate for offset
+			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2 + _waterOffsetY, _level.SpawnZ);
+
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
+
 			return spawnPoint;
 		}
 
@@ -472,7 +492,15 @@ namespace MiNET.Worlds
 			}
 
 			levelTag.Add(new NbtList("Entities", NbtTagType.Compound));
-			levelTag.Add(new NbtList("TileEntities", NbtTagType.Compound));
+			NbtList blockEntitiesTag = new NbtList("TileEntities", NbtTagType.Compound);
+			levelTag.Add(blockEntitiesTag);
+			foreach (NbtCompound blockEntityNbt in chunk.BlockEntities.Values)
+			{
+				NbtCompound nbtClone = (NbtCompound) blockEntityNbt.Clone();
+				nbtClone.Name = null;
+				blockEntitiesTag.Add(nbtClone);
+			}
+
 			levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
 
 			return nbt;

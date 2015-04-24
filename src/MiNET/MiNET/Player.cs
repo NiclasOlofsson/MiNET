@@ -638,6 +638,8 @@ namespace MiNET
 
 		private void OnInventoryChange(Inventory inventory, byte slot, ItemStack itemStack)
 		{
+			Level.SetBlockEntity(inventory.BlockEntity, false);
+
 			SendPackage(new McpeContainerSetSlot()
 			{
 				windowId = inventory.Id,

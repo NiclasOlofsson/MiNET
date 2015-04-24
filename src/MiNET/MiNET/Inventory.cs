@@ -14,7 +14,7 @@ namespace MiNET
 		public MetadataSlots Slots { get; set; }
 		public short Size { get; set; }
 		public BlockCoordinates Coordinates { get; set; }
-		private BlockEntity BlockEntity { get; set; }
+		public BlockEntity BlockEntity { get; set; }
 
 		public Inventory(byte id, BlockEntity blockEntity, short inventorySize, NbtList slots)
 		{

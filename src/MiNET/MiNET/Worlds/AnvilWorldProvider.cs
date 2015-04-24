@@ -410,20 +410,22 @@ namespace MiNET.Worlds
 					regionFile.WriteByte(1);
 				}
 
-				regionFile.Seek(offset, SeekOrigin.Begin);
-				byte[] waste = new byte[4];
-				regionFile.Write(waste, 0, 4); // Lenght
-				regionFile.WriteByte(0x02); // Compression mode
-
 				// Write NBT
 				NbtFile nbt = CreateNbtFromChunkColumn(chunk, yoffset);
-				//nbt.SaveToStream(regionFile, NbtCompression.ZLib);
 				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
+
+				int lenght = nbtBuf.Length;
+				byte[] lenghtBytes = BitConverter.GetBytes(lenght + 1);
+				Array.Reverse(lenghtBytes);
+
+				regionFile.Seek(offset, SeekOrigin.Begin);
+				regionFile.Write(lenghtBytes, 0, 4); // Lenght
+				regionFile.WriteByte(0x02); // Compression mode
+
 				regionFile.Write(nbtBuf, 0, nbtBuf.Length);
 
-				int lenght = nbtBuf.Length + 5;
 				int reminder;
-				Math.DivRem(lenght, 4096, out reminder);
+				Math.DivRem(lenght + 4, 4096, out reminder);
 
 				byte[] padding = new byte[4096 - reminder];
 				if (padding.Length > 0) regionFile.Write(padding, 0, padding.Length);
@@ -491,12 +493,15 @@ namespace MiNET.Worlds
 				sectionTag.Add(new NbtByteArray("SkyLight", skyLight));
 			}
 
-			levelTag.Add(new NbtList("Entities", NbtTagType.Compound));
+			// TODO: Save entities
+			NbtList entitiesTag = new NbtList("Entities", NbtTagType.Compound);
+			levelTag.Add(entitiesTag);
+
 			NbtList blockEntitiesTag = new NbtList("TileEntities", NbtTagType.Compound);
 			levelTag.Add(blockEntitiesTag);
 			foreach (NbtCompound blockEntityNbt in chunk.BlockEntities.Values)
 			{
-				NbtCompound nbtClone = (NbtCompound) blockEntityNbt.Clone();
+				NbtCompound nbtClone = (NbtCompound)blockEntityNbt.Clone();
 				nbtClone.Name = null;
 				blockEntitiesTag.Add(nbtClone);
 			}

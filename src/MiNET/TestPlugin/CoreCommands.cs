@@ -141,9 +141,16 @@ namespace TestPlugin
 
 			int chunkX = position.X >> 4;
 			int chunkZ = position.Z >> 4;
-			player.SendMessage(string.Format("Current region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
-			player.SendMessage(string.Format("Current chunk X={0} Z={1}", chunkX, chunkZ));
-			player.SendMessage(string.Format("Current position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
+
+			int xi = (chunkX%32);
+			if (xi < 0) xi += 32;
+			int zi = (chunkZ%32);
+			if (zi < 0) zi += 32;
+
+			player.SendMessage(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
+			player.SendMessage(string.Format("Local chunk X={0} Z={1}", xi, zi));
+			player.SendMessage(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ));
+			player.SendMessage(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
 		}
 
 		[Command]
@@ -279,7 +286,7 @@ namespace TestPlugin
 			player.SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0x78, // Armor windows ID
-				slotData = player.	Inventory.Armor,
+				slotData = player.Inventory.Armor,
 				hotbarData = null
 			});
 

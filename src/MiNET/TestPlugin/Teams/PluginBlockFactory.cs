@@ -16,6 +16,7 @@ namespace TestPlugin.Teams
 			Block block = null;
 
 			if (blockId == 63) block = new CustomStandingSign(_gameManager);
+			if (blockId == 68) block = new CustomWallSign(_gameManager);
 
 			return block;
 		}

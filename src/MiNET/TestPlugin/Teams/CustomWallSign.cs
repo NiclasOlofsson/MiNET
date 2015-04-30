@@ -6,11 +6,11 @@ using MiNET.Worlds;
 
 namespace TestPlugin.Teams
 {
-	public class CustomStandingSign : StandingSign
+	public class CustomWallSign : WallSign
 	{
 		private GameManager _gameManager;
 
-		public CustomStandingSign(GameManager gameManager)
+		public CustomWallSign(GameManager gameManager)
 		{
 			_gameManager = gameManager;
 		}

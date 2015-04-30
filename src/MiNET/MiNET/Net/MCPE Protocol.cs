@@ -598,7 +598,7 @@ namespace MiNET.Net
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte serverSecurity; // = null;
-		public byte[] cookie; // = null;
+		public byte[] systemadress; // = null;
 		public short clientUdpPort; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
@@ -615,7 +615,7 @@ namespace MiNET.Net
 
 			Write(offlineMessageDataId);
 			Write(serverSecurity);
-			Write(cookie);
+			Write(systemadress);
 			Write(clientUdpPort);
 			Write(mtuSize);
 			Write(clientGuid);
@@ -634,7 +634,7 @@ namespace MiNET.Net
 
 			ReadBytes(offlineMessageDataId.Length);
 			serverSecurity = ReadByte();
-			cookie = ReadBytes(4);
+			systemadress = ReadBytes(4);
 			clientUdpPort = ReadShort();
 			mtuSize = ReadShort();
 			clientGuid = ReadLong();

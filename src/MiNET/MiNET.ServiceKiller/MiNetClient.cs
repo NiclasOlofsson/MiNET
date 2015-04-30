@@ -179,7 +179,7 @@ namespace MiNET.ServiceKiller
 		{
 			var packet = new OpenConnectionRequest2()
 			{
-				cookie = new byte[4],
+				systemadress = new byte[4],
 				mtuSize = _mtuSize
 			};
 

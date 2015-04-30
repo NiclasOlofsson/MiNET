@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -305,7 +307,11 @@ namespace MiNET
 		{
 			byte msgId = receiveBytes[0];
 
-			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
+			if (msgId == 0xFE)
+			{
+				HandleQuery(receiveBytes, senderEndpoint);
+			}
+			else if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
 
@@ -377,6 +383,7 @@ namespace MiNET
 							PlayerNetworkSession session =
 								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
 							session.LastUpdatedTime = DateTime.UtcNow;
+
 							_playerSessions.TryAdd(senderEndpoint, session);
 						}
 
@@ -438,6 +445,95 @@ namespace MiNET
 				{
 					Log.Warn("!!!! ERROR, Invalid header !!!!!");
 				}
+			}
+		}
+
+		private void HandleQuery(byte[] receiveBytes, IPEndPoint senderEndpoint)
+		{
+			if (receiveBytes[0] != 0xFE || receiveBytes[1] != 0xFD) return;
+
+			byte packetId = receiveBytes[2];
+			switch (packetId)
+			{
+				case 0x09:
+				{
+					byte[] buffer = new byte[17];
+					// ID
+					buffer[0] = 0x09;
+
+					// Sequence number
+					buffer[1] = receiveBytes[3];
+					buffer[2] = receiveBytes[4];
+					buffer[3] = receiveBytes[5];
+					buffer[4] = receiveBytes[6];
+
+					// Textual representation of int32 (token) with null terminator
+					string str = new Random().Next().ToString(CultureInfo.InvariantCulture) + "\x00";
+					Buffer.BlockCopy(str.ToCharArray(), 0, buffer, 5, 11);
+
+					_listener.Send(buffer, buffer.Length, senderEndpoint);
+					break;
+				}
+				case 0x00:
+				{
+					var stream = new MemoryStream();
+
+					bool isFullStatRequest = receiveBytes.Length == 15;
+					Log.InfoFormat("Full request: {0}", isFullStatRequest);
+
+					// ID
+					stream.WriteByte(0x00);
+
+					// Sequence number
+					stream.WriteByte(receiveBytes[3]);
+					stream.WriteByte(receiveBytes[4]);
+					stream.WriteByte(receiveBytes[5]);
+					stream.WriteByte(receiveBytes[6]);
+
+					//{
+					//	string str = "splitnum\0";
+					//	byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
+					//	stream.Write(bytes, 0, bytes.Length);
+					//}
+
+					var data = new Dictionary<string, string>
+					{
+						{"splitnum", "" + (char) 128},
+						{"hostname", "Personal Minecraft Server"},
+						{"gametype", "SMP"},
+						{"game_id", "MINECRAFTPE"},
+						{"version", "0.10.5 alpha"},
+						{"server_engine", "MiNET v0.0.0"},
+						{"plugins", "MiNET v0.0.0"},
+						{"map", "world"},
+						{"numplayers", _playerSessions.Count.ToString(CultureInfo.InvariantCulture)},
+						{"maxplayers", "4000"},
+						{"whitelist", "off"},
+						//{"hostip", "192.168.0.1"},
+						//{"hostport", "19132"}
+					};
+
+					foreach (KeyValuePair<string, string> valuePair in data)
+					{
+						string key = valuePair.Key + "\x00" + valuePair.Value + "\x00";
+						byte[] bytes = Encoding.ASCII.GetBytes(key.ToCharArray());
+						stream.Write(bytes, 0, bytes.Length);
+					}
+
+					{
+						string str = "\x00\x01player_\x00\x00";
+						byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
+						stream.Write(bytes, 0, bytes.Length);
+					}
+
+					// End the stream with 0 byte
+					stream.WriteByte(0);
+					var buffer = stream.ToArray();
+					_listener.Send(buffer, buffer.Length, senderEndpoint);
+					break;
+				}
+				default:
+					return;
 			}
 		}
 

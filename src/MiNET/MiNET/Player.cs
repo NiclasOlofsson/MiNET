@@ -42,6 +42,8 @@ namespace MiNET
 
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
+		public int ClientId { get; set; }
+		public long ClientGuid { get; set; }
 		public PermissionManager Permissions { get; set; }
 
 		public Player(MiNetServer server, IPEndPoint endPoint, Level level, PluginManager pluginManager, short mtuSize) : base(-1, level)
@@ -398,6 +400,8 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleConnectionRequest(ConnectionRequest message)
 		{
+			ClientGuid = message.clientGuid;
+
 			var response = new ConnectionRequestAcceptedManual((short) EndPoint.Port, message.timestamp);
 
 			SendPackage(response);
@@ -430,6 +434,7 @@ namespace MiNET
 			if (Username != null) return; // Already doing login
 
 			Username = message.username;
+			ClientId = message.clientId;
 
 			//Success = 0;
 			//FailedClientIsOld = 1;

@@ -9,7 +9,6 @@ namespace TestPlugin.MobHunt
 			Block block = null;
 
 			if (blockId == 63) block = new CustomStandingSign();
-			else if (blockId == 68) block = new CustomWallSign();
 
 			return block;
 		}

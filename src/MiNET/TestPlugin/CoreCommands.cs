@@ -134,6 +134,14 @@ namespace TestPlugin
 			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance));
 		}
 
+		[Command(Command = "pi")]
+		public void PlayerInfo(Player player)
+		{
+			player.SendMessage(string.Format("Username={0}", player.Username));
+			player.SendMessage(string.Format("Client GUID={0}", player.ClientGuid));
+			player.SendMessage(string.Format("Client ID={0}", player.ClientId));
+		}
+
 		[Command(Command = "pos")]
 		public void Position(Player player)
 		{

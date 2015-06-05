@@ -19,48 +19,51 @@
 | Disconnection Notification | 0x15 | 21 |   
 | Unconnected Pong | 0x1c | 28 |   
 | Mcpe Login | 0x82 | 130 |   
-| Mcpe Login Status | 0x83 | 131 |   
-| Mcpe Message | 0x85 | 133 |   
+| Mcpe Player Status | 0x83 | 131 |   
+| Mcpe Disconnect | 0x84 | 132 |   
+| Mcpe Text | 0x85 | 133 |   
 | Mcpe Set Time | 0x86 | 134 |   
 | Mcpe Start Game | 0x87 | 135 |   
-| Mcpe Add Mob | 0x88 | 136 |   
-| Mcpe Add Player | 0x89 | 137 |   
-| Mcpe Remove Player | 0x8a | 138 |   
-| Mcpe Add Entity | 0x8c | 140 |   
-| Mcpe Remove Entity | 0x8d | 141 |   
-| Mcpe Add Item Entity | 0x8e | 142 |   
-| Mcpe Take Item Entity | 0x8f | 143 |   
-| Mcpe Move Entity | 0x90 | 144 |   
-| Mcpe Rotate Head | 0x94 | 148 |   
-| Mcpe Move Player | 0x95 | 149 |   
-| Mcpe Place Block | 0x96 | 150 |   
-| Mcpe Remove Block | 0x97 | 151 |   
-| Mcpe Update Block | 0x98 | 152 |   
-| Mcpe Explode | 0x9a | 154 |   
-| Mcpe Tile Event | 0x9c | 156 |   
-| Mcpe Entity Event | 0x9d | 157 |   
-| Mcpe Player Equipment | 0xa0 | 160 |   
-| Mcpe Player Armor Equipment | 0xa1 | 161 |   
-| Mcpe Interact | 0xa2 | 162 |   
-| Mcpe Use Item | 0xa3 | 163 |   
-| Mcpe Player Action | 0xa4 | 164 |   
-| Mcpe Set Entity Data | 0xa7 | 167 |   
-| Mcpe Set Entity Motion | 0xa8 | 168 |   
-| Mcpe Set Entity Link | 0xa9 | 169 |   
-| Mcpe Set Health | 0xaa | 170 |   
-| Mcpe Set Spawn Position | 0xab | 171 |   
-| Mcpe Animate | 0xac | 172 |   
-| Mcpe Respawn | 0xad | 173 |   
-| Mcpe Drop Item | 0xaf | 175 |   
-| Mcpe Container Open | 0xb0 | 176 |   
-| Mcpe Container Close | 0xb1 | 177 |   
-| Mcpe Container Set Slot | 0xb2 | 178 |   
-| Mcpe Container Set Data | 0xb3 | 179 |   
-| Mcpe Container Set Content | 0xb4 | 180 |   
-| Mcpe Adventure Settings | 0xb7 | 183 |   
-| Mcpe Entity Data | 0xb8 | 184 |   
-| Mcpe Full Chunk Data | 0xba | 186 |   
-| Mcpe Set Difficulty | 0xbc | 188 |   
+| Mcpe Add Player | 0x88 | 136 |   
+| Mcpe Remove Player | 0x89 | 137 |   
+| Mcpe Add Entity | 0x8a | 138 |   
+| Mcpe Remove Entity | 0x8b | 139 |   
+| Mcpe Add Item Entity | 0x8c | 140 |   
+| Mcpe Take Item Entity | 0x8d | 141 |   
+| Mcpe Move Entity | 0x8e | 142 |   
+| Mcpe Move Player | 0x8f | 143 |   
+| Mcpe Remove Block | 0x90 | 144 |   
+| Mcpe Update Block | 0x91 | 145 |   
+| Mcpe Add Painting | 0x92 | 146 |   
+| Mcpe Explode | 0x93 | 147 |   
+| Mcpe Level Event | 0x94 | 148 |   
+| Mcpe Tile Event | 0x95 | 149 |   
+| Mcpe Entity Event | 0x96 | 150 |   
+| Mcpe Mob Effect | 0x97 | 151 |   
+| Mcpe Player Equipment | 0x98 | 152 |   
+| Mcpe Player Armor Equipment | 0x99 | 153 |   
+| Mcpe Interact | 0x9a | 154 |   
+| Mcpe Use Item | 0x9b | 155 |   
+| Mcpe Player Action | 0x9c | 156 |   
+| Mcpe Hurt Armor | 0x9d | 157 |   
+| Mcpe Set Entity Data | 0x9e | 158 |   
+| Mcpe Set Entity Motion | 0x9f | 159 |   
+| Mcpe Set Entity Link | 0xa0 | 160 |   
+| Mcpe Set Health | 0xa1 | 161 |   
+| Mcpe Set Spawn Position | 0xa2 | 162 |   
+| Mcpe Animate | 0xa3 | 163 |   
+| Mcpe Respawn | 0xa4 | 164 |   
+| Mcpe Drop Item | 0xa5 | 165 |   
+| Mcpe Container Open | 0xa6 | 166 |   
+| Mcpe Container Close | 0xa7 | 167 |   
+| Mcpe Container Set Slot | 0xa8 | 168 |   
+| Mcpe Container Set Data | 0xa9 | 169 |   
+| Mcpe Container Set Content | 0xaa | 170 |   
+| Mcpe Adventure Settings | 0xac | 172 |   
+| Mcpe Tile Entity Data | 0xad | 173 |   
+| Mcpe Full Chunk Data | 0xaf | 175 |   
+| Mcpe Set Difficulty | 0xb0 | 176 |   
+| Mcpe Batch | 0xb1 | 177 |   
 
 
 ##Constants
@@ -306,9 +309,10 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |protocol | int |  |
 |protocol2 | int |  |
 |Client ID | int |  |
-|Logindata | string |  |
+|Slim | byte |  |
+|Skin | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Login Status (0x83)
+###Package: Mcpe Player Status (0x83)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -318,7 +322,8 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 The three type of status are:
 0: Everything is good.
 1: If the server is outdated.
-2. If the game is outdated.
+2: If the game is outdated.
+3: If the player is sapwned.
 
 
 ####Fields
@@ -326,6 +331,44 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Status | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Disconnect (0x84)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Message | string |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Text (0x85)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+ 
+The three types are:
+0: Raw
+1: Chat
+2: Translation
+3: Popup
+
+TODO: Parameters
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Type | byte |  |
+|Source | string |  |
+|Message | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Time (0x86)
 
@@ -342,53 +385,6 @@ The three type of status are:
 |Time | int |  |
 |Started | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Health (0xaa)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Health | byte |  |
------------------------------------------------------------------------
-###Package: Mcpe Set Spawn Position (0xab)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|X | int |  |
-|Z | int |  |
-|Y | byte |  |
------------------------------------------------------------------------
-###Package: Mcpe Respawn (0xad)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity ID | int |  |
-|X | float |  |
-|Z | float |  |
-|Y | float |  |
------------------------------------------------------------------------
 ###Package: Mcpe Start Game (0x87)
 
 **Sent from server:** true
@@ -404,7 +400,7 @@ The three type of status are:
 |Seed | int |  |
 |Generator | int |  |
 |Gamemode | int |  |
-|Entity ID | int |  |
+|Entity ID | long |  |
 |Spawn X | int |  |
 |Spawn Z | int |  |
 |Spawn Y | int |  |
@@ -412,122 +408,7 @@ The three type of status are:
 |Y | float |  |
 |Z | float |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Mob (0x88)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity ID | int |  |
-|Mob Type | int |  |
-|X | int |  |
-|Y | int |  |
-|Z | int |  |
-|Yaw | byte |  |
-|Pitch | byte |  |
-|Metadata | byte[] | 0 |
------------------------------------------------------------------------
-###Package: Mcpe Full Chunk Data (0xba)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Chunk Data | byte[] | 0 |
------------------------------------------------------------------------
-###Package: Mcpe Move Player (0x95)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity ID | int |  |
-|X | float |  |
-|Y | float |  |
-|Z | float |  |
-|Yaw | float |  |
-|Pitch | float |  |
-|Body Yaw | float |  |
-|Teleport | byte |  |
------------------------------------------------------------------------
-###Package: Mcpe Adventure Settings (0xb7)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Flags | int |  |
------------------------------------------------------------------------
-###Package: Mcpe Container Set Content (0xb4)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Window ID | byte |  |
-|Slot Data | MetadataSlots |  |
-|Hotbar Data | MetadataInts |  |
------------------------------------------------------------------------
-###Package: Mcpe Set Difficulty (0xbc)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Difficulty | int |  |
------------------------------------------------------------------------
-###Package: Mcpe Message (0x85)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Source | string |  |
-|Message | string |  |
------------------------------------------------------------------------
-###Package: Mcpe Add Player (0x89)
+###Package: Mcpe Add Player (0x88)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -541,17 +422,19 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Client ID | long |  |
 |Username | string |  |
-|Entity ID | int |  |
+|Entity ID | long |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|Yaw | byte |  |
-|Pitch | byte |  |
+|Yaw | float |  |
+|Pitch | float |  |
 |Item | short |  |
 |Meta | short |  |
+|Slim | byte |  |
+|Skin | string |  |
 |Metadata | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Remove Player (0x8a)
+###Package: Mcpe Remove Player (0x89)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -563,32 +446,41 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 |Client ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Entity (0x8c)
+###Package: Mcpe Add Entity (0x8a)
 
 **Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
 
+TODO: Links
+count short
+loop
+link[0] long
+link[1] long
+link[2] byte
+
 
 ####Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 |Entity Type | int |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|DID | int |  |
-|Velocity X | short |  |
-|Velocity Y | short |  |
-|Velocity Z | short |  |
+|Speed X | float |  |
+|Speed Y | float |  |
+|Speed Z | float |  |
+|Yaw | float |  |
+|Pitch | float |  |
+|Metadata | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Remove Entity (0x8d)
+###Package: Mcpe Remove Entity (0x8b)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -600,9 +492,9 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Item Entity (0x8e)
+###Package: Mcpe Add Item Entity (0x8c)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -614,16 +506,16 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Id | int |  |
+|Entity Id | long |  |
 |Item | MetadataSlot |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|Yaw | byte |  |
-|Pitch | byte |  |
-|Roll | byte |  |
+|Speed X | float |  |
+|Speed Y | float |  |
+|Speed Z | float |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Take Item Entity (0x8f)
+###Package: Mcpe Take Item Entity (0x8d)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -635,10 +527,10 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Target | int |  |
-|Entity Id | int |  |
+|Target | long |  |
+|Entity Id | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Move Entity (0x90)
+###Package: Mcpe Move Entity (0x8e)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -652,7 +544,7 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Entities | EntityLocations |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Rotate Head (0x94)
+###Package: Mcpe Move Player (0x8f)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -664,9 +556,16 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entities | EntityHeadRotations |  |
+|Entity ID | long |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|Yaw | float |  |
+|Pitch | float |  |
+|Body Yaw | float |  |
+|Teleport | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Place Block (0x96)
+###Package: Mcpe Remove Block (0x90)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -678,37 +577,19 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
-|X | int |  |
-|Z | int |  |
-|Y | byte |  |
-|Block | byte |  |
-|Meta | byte |  |
-|Face | byte |  |
------------------------------------------------------------------------
-###Package: Mcpe Remove Block (0x97)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 |X | int |  |
 |Z | int |  |
 |Y | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Update Block (0x98)
+###Package: Mcpe Update Block (0x91)
 
 **Sent from server:** true
 **Sent from client:** true
 **Packet size:** 
 
+
+TODO: can have multiple blocks.
 
 
 ####Fields
@@ -721,7 +602,26 @@ The three type of status are:
 |Block | byte |  |
 |Meta | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Explode (0x9a)
+###Package: Mcpe Add Painting (0x92)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | long |  |
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Direction | int |  |
+|Title | string |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Explode (0x93)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -739,7 +639,25 @@ The three type of status are:
 |Radius | float |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Tile Event (0x9c)
+###Package: Mcpe Level Event (0x94)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Event ID | float |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
+|Data | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Tile Event (0x95)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -757,7 +675,7 @@ The three type of status are:
 |Case 1 | int |  |
 |Case 2 | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Entity Event (0x9d)
+###Package: Mcpe Entity Event (0x96)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -769,10 +687,10 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 |Event ID | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Equipment (0xa0)
+###Package: Mcpe Mob Effect (0x97)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -784,12 +702,32 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
+|Event ID | byte |  |
+|Effect ID | byte |  |
+|Amplifier | byte |  |
+|Particles | byte |  |
+|Duration | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Player Equipment (0x98)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | long |  |
 |Item | short |  |
 |Meta | short |  |
 |Slot | byte |  |
+|Selected Slot | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Armor Equipment (0xa1)
+###Package: Mcpe Player Armor Equipment (0x99)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -801,13 +739,13 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 |Helmet | byte |  |
 |Chestplate | byte |  |
 |Leggings | byte |  |
 |Boots | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Interact (0xa2)
+###Package: Mcpe Interact (0x9a)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -820,10 +758,9 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Action ID | byte |  |
-|Entity ID | int |  |
-|Target Entity ID | int |  |
+|Target Entity ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Use Item (0xa3)
+###Package: Mcpe Use Item (0x9b)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -841,7 +778,7 @@ The three type of status are:
 |Face | byte |  |
 |Item | short |  |
 |Meta | short |  |
-|Entity ID | int |  |
+|Entity ID | long |  |
 |Fx | float |  |
 |Fy | float |  |
 |Fz | float |  |
@@ -849,7 +786,7 @@ The three type of status are:
 |Position Y | float |  |
 |Position Z | float |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Action (0xa4)
+###Package: Mcpe Player Action (0x9c)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -861,14 +798,28 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entity ID | long |  |
 |Action ID | int |  |
 |X | int |  |
 |Y | int |  |
 |Z | int |  |
 |Face | int |  |
-|Entity ID | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Data (0xa7)
+###Package: Mcpe Hurt Armor (0x9d)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Health | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Entity Data (0x9e)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -880,10 +831,10 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | int |  |
+|Entity ID | long |  |
 |NamedTag | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Motion (0xa8)
+###Package: Mcpe Set Entity Motion (0x9f)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -897,7 +848,53 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Entities | EntityMotions |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Animate (0xac)
+###Package: Mcpe Set Entity Link (0xa0)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Rider ID | long |  |
+|Ridden ID | long |  |
+|Link Type | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Health (0xa1)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Health | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Spawn Position (0xa2)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|X | int |  |
+|Z | int |  |
+|Y | byte |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Animate (0xa3)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -910,9 +907,26 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Action ID | byte |  |
-|Entity ID | int |  |
+|Entity ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Drop Item (0xaf)
+###Package: Mcpe Respawn (0xa4)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | long |  |
+|X | float |  |
+|Z | float |  |
+|Y | float |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Drop Item (0xa5)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -924,11 +938,11 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Id | int |  |
+|Entity Id | long |  |
 |Unknown | byte |  |
 |Item | MetadataSlot |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Open (0xb0)
+###Package: Mcpe Container Open (0xa6)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -947,7 +961,7 @@ The three type of status are:
 |Y | int |  |
 |Z | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Close (0xb1)
+###Package: Mcpe Container Close (0xa7)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -961,7 +975,7 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Set Slot (0xb2)
+###Package: Mcpe Container Set Slot (0xa8)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -979,7 +993,7 @@ The three type of status are:
 |Item Count | byte |  |
 |Item Damage | short |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Set Data (0xb3)
+###Package: Mcpe Container Set Data (0xa9)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -995,10 +1009,40 @@ The three type of status are:
 |Property | short |  |
 |Value | short |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Entity Data (0xb8)
+###Package: Mcpe Container Set Content (0xaa)
 
 **Sent from server:** true
-**Sent from client:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Window ID | byte |  |
+|Slot Data | MetadataSlots |  |
+|Hotbar Data | MetadataInts |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Adventure Settings (0xac)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Flags | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Tile Entity Data (0xad)
+
+**Sent from server:** true
+**Sent from client:** false
 **Packet size:** 
 
 
@@ -1012,10 +1056,10 @@ The three type of status are:
 |Z | int |  |
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Link (0xa9)
+###Package: Mcpe Full Chunk Data (0xaf)
 
 **Sent from server:** true
-**Sent from client:** true
+**Sent from client:** false
 **Packet size:** 
 
 
@@ -1024,9 +1068,39 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Link Type | int |  |
-|Rider ID | int |  |
-|Ridden ID | int |  |
+|Chunk X | int |  |
+|Chunk Z | int |  |
+|Chunk Data Length | int |  |
+|Chunk Data | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Set Difficulty (0xb0)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Difficulty | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Batch (0xb1)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Payload size | int |  |
+|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 
 

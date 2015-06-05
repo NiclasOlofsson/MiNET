@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Net;
 using fNbt;
 using MiNET.Utils;
@@ -45,7 +44,7 @@ namespace MiNET.Worlds
 		{
 			_cache = null;
 			isDirty = true;
-			blocks[(bx * 2048) + (bz * 128) + by] = bid;
+			blocks[(bx*2048) + (bz*128) + by] = bid;
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
@@ -57,7 +56,7 @@ namespace MiNET.Worlds
 		{
 			_cache = null;
 			isDirty = true;
-			blocklight[(bx * 2048) + (bz * 128) + by] = data;
+			blocklight[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -69,7 +68,7 @@ namespace MiNET.Worlds
 		{
 			_cache = null;
 			isDirty = true;
-			metadata[(bx * 2048) + (bz * 128) + by] = data;
+			metadata[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
@@ -81,7 +80,7 @@ namespace MiNET.Worlds
 		{
 			_cache = null;
 			isDirty = true;
-			skylight[(bx * 2048) + (bz * 128) + by] = data;
+			skylight[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
@@ -110,15 +109,8 @@ namespace MiNET.Worlds
 			if (_cache != null) return _cache;
 
 			MemoryStream stream = new MemoryStream();
-			stream.WriteByte(0x78);
-			stream.WriteByte(0x01);
-			int checksum;
-			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
 			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
-
-				writer.Write(IPAddress.HostToNetworkOrder(x));
-				writer.Write(IPAddress.HostToNetworkOrder(z));
+				NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
 				writer.Write(blocks);
 				writer.Write(metadata.Data);
@@ -140,18 +132,8 @@ namespace MiNET.Worlds
 				}
 
 				writer.Flush();
-
-				checksum = compressStream.Checksum;
 				writer.Close();
 			}
-
-			byte[] checksumBytes = BitConverter.GetBytes(checksum);
-			if (BitConverter.IsLittleEndian)
-			{
-				// Adler32 checksum is big-endian
-				Array.Reverse(checksumBytes);
-			}
-			stream.Write(checksumBytes, 0, checksumBytes.Length);
 
 			var bytes = stream.ToArray();
 			stream.Close();
@@ -189,7 +171,6 @@ namespace MiNET.Worlds
 			writer.Close();
 			return stream.ToArray();
 		}
-
 	}
 
 

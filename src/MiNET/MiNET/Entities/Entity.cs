@@ -14,7 +14,7 @@ namespace MiNET.Entities
 		public Level Level { get; set; }
 
 		public int EntityTypeId { get; private set; }
-		public int EntityId { get; set; }
+		public long EntityId { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
 		public PlayerLocation KnownPosition { get; set; }

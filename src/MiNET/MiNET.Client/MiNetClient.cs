@@ -29,12 +29,12 @@ namespace MiNET.Client
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber;
 		private Vector3 _spawn;
-		private int _entityId;
+		private long _entityId;
 
 		public MiNetClient(IPEndPoint endpoint)
 		{
-			_serverEndpoint = endpoint ?? new IPEndPoint(IPAddress.Loopback, 19132);
-			_endpoint = new IPEndPoint(IPAddress.Any, 0);
+			_serverEndpoint = endpoint;
+			_endpoint = new IPEndPoint(IPAddress.Any, 19132);
 		}
 
 		public static bool IsRunningOnMono()
@@ -429,13 +429,12 @@ namespace MiNET.Client
 				McpeAddEntity msg = (McpeAddEntity) message;
 				Log.DebugFormat("Entity ID: {0}", msg.entityId);
 				Log.DebugFormat("Entity Type: {0}", msg.entityType);
-				Log.DebugFormat("DID: {0}", msg.did);
 				Log.DebugFormat("X: {0}", msg.x);
 				Log.DebugFormat("Y: {0}", msg.y);
 				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Velocity X: {0}", msg.velocityX);
-				Log.DebugFormat("Velocity Y: {0}", msg.velocityY);
-				Log.DebugFormat("Velocity Z: {0}", msg.velocityZ);
+				Log.DebugFormat("Velocity X: {0}", msg.speedX);
+				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
 
 				return;
 			}
@@ -531,7 +530,7 @@ namespace MiNET.Client
 		{
 			var packet = new UnconnectedPing
 			{
-				pingId = 100 /*incoming.pingId*/,
+				pingId = DateTime.UtcNow.Ticks /*incoming.pingId*/,
 			};
 
 			var data = packet.Encode();
@@ -612,7 +611,6 @@ namespace MiNET.Client
 			{
 				clientId = 12345,
 				username = username,
-				logindata = "nothing",
 				protocol = 20,
 			};
 
@@ -621,7 +619,7 @@ namespace MiNET.Client
 
 		public void SendChat(string text)
 		{
-			var packet = new McpeMessage
+			var packet = new McpeText()
 			{
 				source = "Nicke",
 				message = text
@@ -657,13 +655,15 @@ namespace MiNET.Client
 		public static void Connect()
 		{
 			//var client = new MiNetRealClient(new IPEndPoint(IPAddress.Loopback, 19132));
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.10"), 19132));
+			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.2"), 19132));
 
 			client.StartServer();
 			Console.WriteLine("Server started.");
 
 			Thread.Sleep(2000);
 
+			client.SendUnconnectedPing();
+			client.SendUnconnectedPing();
 			client.SendUnconnectedPing();
 
 			Console.WriteLine("<Enter> to exit!");

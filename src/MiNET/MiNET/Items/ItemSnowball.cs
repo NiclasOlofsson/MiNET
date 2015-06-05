@@ -24,7 +24,6 @@ namespace MiNET.Items
 			var vz = Math.Cos(player.KnownPosition.Yaw/180f*Math.PI)*Math.Cos(player.KnownPosition.Pitch/180f*Math.PI);
 
 			snowBall.Velocity = new Vector3(vx, vy, vz)*force;
-			snowBall.Data = player.EntityId;
 
 			snowBall.SpawnEntity();
 		}

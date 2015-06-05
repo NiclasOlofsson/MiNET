@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -184,16 +186,16 @@ namespace MiNET
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				// Measure latency through system
-				_internalPingTimer = new Timer(delegate(object state)
-				{
-					IPEndPoint playerEndpoint = _playerSessions.Keys.FirstOrDefault();
-					if (playerEndpoint != null)
-					{
-						var ping = new InternalPing();
-						ping.Timer.Start();
-						HandlePackage(ping, playerEndpoint);
-					}
-				}, null, 1000, 1000);
+				//_internalPingTimer = new Timer(delegate(object state)
+				//{
+				//	IPEndPoint playerEndpoint = _playerSessions.Keys.FirstOrDefault();
+				//	if (playerEndpoint != null)
+				//	{
+				//		var ping = new InternalPing();
+				//		ping.Timer.Start();
+				//		HandlePackage(ping, playerEndpoint);
+				//	}
+				//}, null, 1000, 1000);
 
 				Log.Info("Server open for business...");
 
@@ -332,9 +334,10 @@ namespace MiNET
 
 						var packet = new UnconnectedPong
 						{
-							serverId = 12345,
-							pingId = 100 /*incoming.pingId*/,
-							serverName = "MCCPP;Demo;MiNET - Another MC server"
+							serverId = 22345,
+							pingId = incoming.pingId /*incoming.pingId*/,
+							//serverName = "MCCPP;MiNET - Another MC server"
+							serverName = "MCPE;Minecraft: PE Server;27;0.11.0;0;20"
 						};
 						var data = packet.Encode();
 						TraceSend(packet);
@@ -408,7 +411,35 @@ namespace MiNET
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
 					package.Decode(receiveBytes);
-					var messages = package.Messages;
+					List<Package> messages = package.Messages;
+
+					if (messages.Count == 1)
+					{
+						McpeBatch batch = messages.First() as McpeBatch;
+						if (batch != null)
+						{
+							messages = new List<Package>();
+
+							// Get bytes
+							byte[] payload = batch.payload;
+							// Decompress bytes
+
+							MemoryStream stream = new MemoryStream(payload);
+							if (stream.ReadByte() != 0x78)
+							{
+								throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+							}
+							stream.ReadByte();
+							using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+							{
+								// Get actual package out of bytes
+								MemoryStream destination = new MemoryStream();
+								defStream2.CopyTo(destination);
+								byte[] internalBuffer = destination.ToArray();
+								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+							}
+						}
+					}
 
 					// IF reliable code below is enabled, useItem start sending doubles
 					// for some unknown reason.
@@ -419,9 +450,9 @@ namespace MiNET
 					//	|| reliability == Reliability.ReliableSequenced
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
-					{
+					//{
 						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
-					}
+					//}
 
 					foreach (var message in messages)
 					{
@@ -455,7 +486,7 @@ namespace MiNET
 			byte packetId = receiveBytes[2];
 			switch (packetId)
 			{
-				case 0x09:
+					case 0x09:
 				{
 					byte[] buffer = new byte[17];
 					// ID

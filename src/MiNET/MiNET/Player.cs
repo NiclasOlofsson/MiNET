@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Threading;
 using log4net;
@@ -45,6 +47,8 @@ namespace MiNET
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
 		public PermissionManager Permissions { get; set; }
+
+		public string Skin { get; set; }
 
 		public Player(MiNetServer server, IPEndPoint endPoint, Level level, PluginManager pluginManager, short mtuSize) : base(-1, level)
 		{
@@ -155,9 +159,9 @@ namespace MiNET
 				HandleDisconnectionNotification();
 			}
 
-			else if (typeof (McpeMessage) == message.GetType())
+			else if (typeof (McpeText) == message.GetType())
 			{
-				HandleMessage((McpeMessage) message);
+				HandleMessage((McpeText) message);
 			}
 
 			else if (typeof (McpeRemovePlayer) == message.GetType())
@@ -186,9 +190,9 @@ namespace MiNET
 				HandleRespawn((McpeRespawn) message);
 			}
 
-			else if (typeof (McpeEntityData) == message.GetType())
+			else if (typeof (McpeTileEntityData) == message.GetType())
 			{
-				HandleEntityData((McpeEntityData) message);
+				HandleEntityData((McpeTileEntityData) message);
 			}
 
 			else if (typeof (InternalPing) == message.GetType())
@@ -313,7 +317,7 @@ namespace MiNET
 		///     Handles the entity data.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleEntityData(McpeEntityData message)
+		private void HandleEntityData(McpeTileEntityData message)
 		{
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
@@ -435,6 +439,7 @@ namespace MiNET
 
 			Username = message.username;
 			ClientId = message.clientId;
+			Skin = message.skin;
 
 			//Success = 0;
 			//FailedClientIsOld = 1;
@@ -462,8 +467,14 @@ namespace MiNET
 
 			Level.EntityManager.AddEntity(null, this);
 
-			SendPackage(new McpeLoginStatus {status = 0});
+			//const LOGIN_SUCCESS = 0;
+			//const LOGIN_FAILED_CLIENT = 1;
+			//const LOGIN_FAILED_SERVER = 2;
+			//const PLAYER_SPAWN = 3;
+
+			SendPackage(new McpePlayerStatus {status = 0});
 			SendStartGame();
+			SendPackage(new McpeRespawn {entityId = EntityId, x = KnownPosition.X, y = KnownPosition.Y, z = KnownPosition.Z});
 			SendSetTime();
 			SendSetSpawnPosition();
 			SendSetHealth();
@@ -477,13 +488,15 @@ namespace MiNET
 		/// </summary>
 		private void InitializePlayer()
 		{
-			//send time again
-			SendSetTime();
-
-			// Teleport user (MovePlayerPacket) teleport=1
-			SendMovePlayer();
-
 			SendPackage(new McpeAdventureSettings {flags = 0x20});
+
+			//TODO: Send MobEffects here
+
+			SendPackage(new McpeSetEntityData
+			{
+				entityId = EntityId,
+				namedtag = GetMetadata().GetBytes()
+			});
 
 			SendPackage(new McpeContainerSetContent
 			{
@@ -499,10 +512,18 @@ namespace MiNET
 				hotbarData = null
 			});
 
+			//send time again
+			SendSetTime();
+
+			// Teleport user (MovePlayerPacket) teleport=1
+			SendMovePlayer();
+
+			SendPackage(new McpePlayerStatus { status = 3 });
+
 			IsSpawned = true;
 			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
-			BroadcastSetEntityData();
+			//BroadcastSetEntityData();
 		}
 
 
@@ -510,7 +531,7 @@ namespace MiNET
 		///     Handles the message.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleMessage(McpeMessage message)
+		private void HandleMessage(McpeText message)
 		{
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))
@@ -740,7 +761,6 @@ namespace MiNET
 			Player target = Level.EntityManager.GetEntity(message.targetEntityId) as Player;
 
 			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-			Log.DebugFormat("Interact Entity ID: {0}", message.entityId);
 			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
 
 			if (target == null) return;
@@ -948,13 +968,23 @@ namespace MiNET
 				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+					fullChunkData.chunkX = chunk.x;
+					fullChunkData.chunkZ = chunk.z;
+					fullChunkData.chunkZ = chunk.z;
 					fullChunkData.chunkData = chunk.GetBytes();
+					fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
+
+					McpeBatch batch = new McpeBatch();
+					byte[] buffer = CompressBytes(fullChunkData.Encode());
+
+					batch.payloadSize = buffer.Length;
+					batch.payload = buffer;
 
 					// This is to slow down chunk-sending not to overrun old devices.
 					// The timeout should be configurable and enable/disable.
 					Thread.Sleep(12);
 
-					SendPackage(fullChunkData);
+					SendPackage(batch);
 
 					if (count == 56 && !IsSpawned)
 					{
@@ -965,6 +995,38 @@ namespace MiNET
 				}
 			});
 		}
+
+		public byte[] CompressBytes(byte[] input)
+		{
+			MemoryStream stream = new MemoryStream();
+			stream.WriteByte(0x78);
+			stream.WriteByte(0x01);
+			int checksum;
+			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
+				writer.Write(input);
+
+				writer.Flush();
+
+				checksum = compressStream.Checksum;
+				writer.Close();
+			}
+
+			byte[] checksumBytes = BitConverter.GetBytes(checksum);
+			if (BitConverter.IsLittleEndian)
+			{
+				// Adler32 checksum is big-endian
+				Array.Reverse(checksumBytes);
+			}
+			stream.Write(checksumBytes, 0, checksumBytes.Length);
+
+			var bytes = stream.ToArray();
+			stream.Close();
+
+			return bytes;
+		}
+
 
 		internal void SendSetHealth()
 		{
@@ -1008,7 +1070,12 @@ namespace MiNET
 
 		public void SendMessage(string text, Player sender = null)
 		{
-			var response = new McpeMessage
+			//const TYPE_RAW = 0;
+			//const TYPE_CHAT = 1;
+			//const TYPE_TRANSLATION = 2;
+			//const TYPE_POPUP = 3;
+
+			var response = new McpeText()
 			{
 				source = sender == null ? "MiNET" : sender.Username,
 				message = "₽" + text

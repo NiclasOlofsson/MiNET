@@ -203,7 +203,7 @@ namespace MiNET
 
 			Nbt nbt = new Nbt();
 			nbt.NbtFile = file;
-			McpeEntityData message = new McpeEntityData
+			McpeTileEntityData message = new McpeTileEntityData()
 			{
 				x = 6,
 				y = 6,

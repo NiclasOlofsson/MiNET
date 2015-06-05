@@ -474,8 +474,8 @@ namespace MiNET
 
 			SendPackage(new McpePlayerStatus {status = 0});
 			SendStartGame();
-			SendPackage(new McpeRespawn {entityId = EntityId, x = KnownPosition.X, y = KnownPosition.Y, z = KnownPosition.Z});
 			SendSetTime();
+			//SendPackage(new McpeRespawn { entityId = EntityId, x = KnownPosition.X, y = KnownPosition.Y, z = KnownPosition.Z });
 			SendSetSpawnPosition();
 			SendSetHealth();
 			SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
@@ -488,7 +488,7 @@ namespace MiNET
 		/// </summary>
 		private void InitializePlayer()
 		{
-			SendPackage(new McpeAdventureSettings {flags = 0x20});
+			SendPackage(new McpeAdventureSettings {flags = 0x80});
 
 			//TODO: Send MobEffects here
 
@@ -515,10 +515,17 @@ namespace MiNET
 			//send time again
 			SendSetTime();
 
-			// Teleport user (MovePlayerPacket) teleport=1
-			SendMovePlayer();
+			SendPackage(new McpeRespawn
+			{
+				x = KnownPosition.X,
+				y = KnownPosition.Y,
+				z = KnownPosition.Z
+			});
 
-			SendPackage(new McpePlayerStatus { status = 3 });
+			SendPackage(new McpePlayerStatus {status = 3});
+
+			// Teleport user (MovePlayerPacket) teleport=1
+			//SendMovePlayer();
 
 			IsSpawned = true;
 			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
@@ -926,7 +933,7 @@ namespace MiNET
 		{
 			SendPackage(new McpeStartGame
 			{
-				seed = 1406827239,
+				seed = -1,
 				generator = 1,
 				gamemode = (int) Level.GameMode,
 				entityId = EntityId,
@@ -969,7 +976,6 @@ namespace MiNET
 				{
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 					fullChunkData.chunkX = chunk.x;
-					fullChunkData.chunkZ = chunk.z;
 					fullChunkData.chunkZ = chunk.z;
 					fullChunkData.chunkData = chunk.GetBytes();
 					fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
@@ -1030,7 +1036,7 @@ namespace MiNET
 
 		internal void SendSetHealth()
 		{
-			SendPackage(new McpeSetHealth {health = (byte) HealthManager.Hearts});
+			SendPackage(new McpeSetHealth {health = HealthManager.Hearts});
 		}
 
 		public void SendSetTime()

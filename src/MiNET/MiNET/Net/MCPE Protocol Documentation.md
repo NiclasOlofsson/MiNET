@@ -402,8 +402,8 @@ TODO: Parameters
 |Gamemode | int |  |
 |Entity ID | long |  |
 |Spawn X | int |  |
-|Spawn Z | int |  |
 |Spawn Y | int |  |
+|Spawn Z | int |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -817,7 +817,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Health | byte |  |
+|Health | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Data (0x9e)
 
@@ -876,7 +876,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Health | byte |  |
+|Health | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Spawn Position (0xa2)
 
@@ -921,10 +921,9 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | long |  |
 |X | float |  |
-|Z | float |  |
 |Y | float |  |
+|Z | float |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Drop Item (0xa5)
 

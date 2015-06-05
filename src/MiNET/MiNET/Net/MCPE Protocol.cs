@@ -1106,8 +1106,8 @@ namespace MiNET.Net
 		public int gamemode; // = null;
 		public long entityId; // = null;
 		public int spawnX; // = null;
-		public int spawnZ; // = null;
 		public int spawnY; // = null;
+		public int spawnZ; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -1127,8 +1127,8 @@ namespace MiNET.Net
 			Write(gamemode);
 			Write(entityId);
 			Write(spawnX);
-			Write(spawnZ);
 			Write(spawnY);
+			Write(spawnZ);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -1150,8 +1150,8 @@ namespace MiNET.Net
 			gamemode = ReadInt();
 			entityId = ReadLong();
 			spawnX = ReadInt();
-			spawnZ = ReadInt();
 			spawnY = ReadInt();
+			spawnZ = ReadInt();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -2246,7 +2246,7 @@ namespace MiNET.Net
 
 	public partial class McpeHurtArmor : Package<McpeHurtArmor>
 	{
-		public byte health; // = null;
+		public int health; // = null;
 		public McpeHurtArmor()
 		{
 			Id = 0x9d;
@@ -2272,7 +2272,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			health = ReadByte();
+			health = ReadInt();
 
 			AfterDecode();
 		}
@@ -2407,7 +2407,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetHealth : Package<McpeSetHealth>
 	{
-		public byte health; // = null;
+		public int health; // = null;
 		public McpeSetHealth()
 		{
 			Id = 0xa1;
@@ -2433,7 +2433,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			health = ReadByte();
+			health = ReadInt();
 
 			AfterDecode();
 		}
@@ -2530,10 +2530,9 @@ namespace MiNET.Net
 
 	public partial class McpeRespawn : Package<McpeRespawn>
 	{
-		public long entityId; // = null;
 		public float x; // = null;
-		public float z; // = null;
 		public float y; // = null;
+		public float z; // = null;
 		public McpeRespawn()
 		{
 			Id = 0xa4;
@@ -2545,10 +2544,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(entityId);
 			Write(x);
-			Write(z);
 			Write(y);
+			Write(z);
 
 			AfterEncode();
 		}
@@ -2562,10 +2560,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadLong();
 			x = ReadFloat();
-			z = ReadFloat();
 			y = ReadFloat();
+			z = ReadFloat();
 
 			AfterDecode();
 		}

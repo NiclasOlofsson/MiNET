@@ -153,8 +153,8 @@
 		<field name="Gamemode" type="int" />
 		<field name="Entity ID" type="long" />
 		<field name="Spawn X" type="int" />
-		<field name="Spawn Z" type="int" />
 		<field name="Spawn Y" type="int" />
+		<field name="Spawn Z" type="int" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
@@ -351,7 +351,7 @@
 	</pdu>
 
 	<pdu id="0x9d" online="false" client="true" server="true" name="ID_MCPE_HURT_ARMOR">
-		<field name="Health" type="byte" />
+		<field name="Health" type="int" />
 	</pdu>
 
 	<pdu id="0x9e" online="false" client="false" server="true" name="ID_MCPE_SET_ENTITY_DATA">
@@ -370,7 +370,7 @@
 	</pdu>
 
 	<pdu id="0xa1" online="false" client="false" server="true" name="ID_MCPE_SET_HEALTH">
-		<field name="Health" type="byte" />
+		<field name="Health" type="int" />
 	</pdu>
 
 	<pdu id="0xa2" online="false" client="false" server="true" name="ID_MCPE_SET_SPAWN_POSITION">
@@ -385,10 +385,9 @@
 	</pdu>
 
 	<pdu id="0xa4" online="false" client="true" server="true" name="ID_MCPE_RESPAWN">
-		<field name="Entity ID" type="long" />
 		<field name="X" type="float" />
-		<field name="Z" type="float" />
 		<field name="Y" type="float" />
+		<field name="Z" type="float" />
 	</pdu>
 
 	<pdu id="0xa5" online="false" client="true" server="false" name="ID_MCPE_DROP_ITEM">

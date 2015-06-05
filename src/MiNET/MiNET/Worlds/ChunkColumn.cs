@@ -13,11 +13,12 @@ namespace MiNET.Worlds
 		public int z;
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 2);
 		public int[] biomeColor = ArrayOf<int>.Create(256, 1);
+		public byte[] height = ArrayOf<byte>.Create(256, 10);
 
-		public byte[] blocks = new byte[16*16*128];
-		public NibbleArray metadata = new NibbleArray(16*16*128);
-		public NibbleArray blocklight = new NibbleArray(16*16*128);
-		public NibbleArray skylight = new NibbleArray(16*16*128);
+		public byte[] blocks = new byte[16 * 16 * 128];
+		public NibbleArray metadata = new NibbleArray(16 * 16 * 128);
+		public NibbleArray blocklight = new NibbleArray(16 * 16 * 128);
+		public NibbleArray skylight = new NibbleArray(16 * 16 * 128);
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 
 		private byte[] _cache;
@@ -37,50 +38,50 @@ namespace MiNET.Worlds
 
 		public byte GetBlock(int bx, int by, int bz)
 		{
-			return blocks[(bx*2048) + (bz*128) + by];
+			return blocks[(bx * 2048) + (bz * 128) + by];
 		}
 
 		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
 			_cache = null;
 			isDirty = true;
-			blocks[(bx*2048) + (bz*128) + by] = bid;
+			blocks[(bx * 2048) + (bz * 128) + by] = bid;
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			return blocklight[(bx*2048) + (bz*128) + by];
+			return blocklight[(bx * 2048) + (bz * 128) + by];
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
 			isDirty = true;
-			blocklight[(bx*2048) + (bz*128) + by] = data;
+			blocklight[(bx * 2048) + (bz * 128) + by] = data;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
 		{
-			return metadata[(bx*2048) + (bz*128) + by];
+			return metadata[(bx * 2048) + (bz * 128) + by];
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
 			isDirty = true;
-			metadata[(bx*2048) + (bz*128) + by] = data;
+			metadata[(bx * 2048) + (bz * 128) + by] = data;
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
-			return skylight[(bx*2048) + (bz*128) + by];
+			return skylight[(bx * 2048) + (bz * 128) + by];
 		}
 
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
 			_cache = null;
 			isDirty = true;
-			skylight[(bx*2048) + (bz*128) + by] = data;
+			skylight[(bx * 2048) + (bz * 128) + by] = data;
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
@@ -117,7 +118,8 @@ namespace MiNET.Worlds
 				writer.Write(skylight.Data);
 				writer.Write(blocklight.Data);
 
-				writer.Write(biomeId);
+				//writer.Write(biomeId);
+				writer.Write(height);
 
 				for (int i = 0; i < biomeColor.Length; i++)
 				{
@@ -178,7 +180,7 @@ namespace MiNET.Worlds
 	{
 		public static T[] Create(int size, T initialValue)
 		{
-			T[] array = (T[]) Array.CreateInstance(typeof (T), size);
+			T[] array = (T[])Array.CreateInstance(typeof(T), size);
 			for (int i = 0; i < array.Length; i++)
 				array[i] = initialValue;
 			return array;
@@ -186,7 +188,7 @@ namespace MiNET.Worlds
 
 		public static T[] Create(int size)
 		{
-			T[] array = (T[]) Array.CreateInstance(typeof (T), size);
+			T[] array = (T[])Array.CreateInstance(typeof(T), size);
 			for (int i = 0; i < array.Length; i++)
 				array[i] = new T();
 			return array;

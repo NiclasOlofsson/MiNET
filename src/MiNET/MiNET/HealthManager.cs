@@ -46,9 +46,9 @@ namespace MiNET
 			ResetHealth();
 		}
 
-		public byte Hearts
+		public int Hearts
 		{
-			get { return (byte) Math.Ceiling(Health/10d); }
+			get { return (int) Math.Ceiling(Health/10d); }
 		}
 
 		public void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)

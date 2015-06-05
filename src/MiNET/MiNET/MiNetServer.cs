@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
@@ -299,6 +298,8 @@ namespace MiNET
 			}
 		}
 
+		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
+
 		/// <summary>
 		///     Processes a message.
 		/// </summary>
@@ -451,13 +452,54 @@ namespace MiNET
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
 					//{
-						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
+					EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
 					//}
 
 					foreach (var message in messages)
 					{
+						if (message is SplitPartPackage)
+						{
+							SplitPartPackage splitMessage = message as SplitPartPackage;
+
+							int spId = package._splitPacketId;
+							int spIdx = package._splitPacketIndex;
+							int spCount = package._splitPacketCount;
+
+							if (!_splits.ContainsKey(spId))
+							{
+								_splits[spId] = new SplitPartPackage[spCount];
+							}
+
+							SplitPartPackage[] spPackets = _splits[spId];
+							spPackets[spIdx] = splitMessage;
+
+							bool haveEmpty = false;
+							for (int i = 0; i < spPackets.Length; i++)
+							{
+								haveEmpty = haveEmpty || spPackets[i] == null;
+							}
+
+							if (!haveEmpty)
+							{
+								Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+
+								MemoryStream stream = new MemoryStream();
+								for (int i = 0; i < spPackets.Length; i++)
+								{
+									byte[] buf = spPackets[i].Message;
+									stream.Write(buf, 0, buf.Length);
+								}
+
+								byte[] buffer = stream.ToArray();
+								var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+								//TraceReceive(fullMessage);
+								HandlePackage(fullMessage, senderEndpoint);
+								continue;
+							}
+						}
+
 						message.Timer.Restart();
-						TraceReceive(message /*, seqNo*/);
+						//TraceReceive(message /*, seqNo*/);
 						HandlePackage(message, senderEndpoint);
 						message.PutPool();
 					}
@@ -486,7 +528,7 @@ namespace MiNET
 			byte packetId = receiveBytes[2];
 			switch (packetId)
 			{
-					case 0x09:
+				case 0x09:
 				{
 					byte[] buffer = new byte[17];
 					// ID
@@ -645,9 +687,43 @@ namespace MiNET
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
-			if (typeof (UnknownPackage) == message.GetType())
+			TraceReceive(message);
+
+			if (typeof(UnknownPackage) == message.GetType())
 			{
 				return;
+			}
+
+			if (typeof (McpeBatch) == message.GetType())
+			{
+				McpeBatch batch = (McpeBatch) message;
+				if (batch != null)
+				{
+					var messages = new List<Package>();
+
+					// Get bytes
+					byte[] payload = batch.payload;
+					// Decompress bytes
+
+					MemoryStream stream = new MemoryStream(payload);
+					if (stream.ReadByte() != 0x78)
+					{
+						throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+					}
+					stream.ReadByte();
+					using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+					{
+						// Get actual package out of bytes
+						MemoryStream destination = new MemoryStream();
+						defStream2.CopyTo(destination);
+						byte[] internalBuffer = destination.ToArray();
+						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+					}
+					foreach (var msg in messages)
+					{
+						HandlePackage(msg, senderEndpoint);
+					}
+				}
 			}
 
 			if (_playerSessions.ContainsKey(senderEndpoint))

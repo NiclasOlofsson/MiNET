@@ -1172,7 +1172,11 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
+		public float speedX; // = null;
+		public float speedY; // = null;
+		public float speedZ; // = null;
 		public float yaw; // = null;
+		public float headYaw; // = null;
 		public float pitch; // = null;
 		public short item; // = null;
 		public short meta; // = null;
@@ -1196,7 +1200,11 @@ namespace MiNET.Net
 			Write(x);
 			Write(y);
 			Write(z);
+			Write(speedX);
+			Write(speedY);
+			Write(speedZ);
 			Write(yaw);
+			Write(headYaw);
 			Write(pitch);
 			Write(item);
 			Write(meta);
@@ -1222,7 +1230,11 @@ namespace MiNET.Net
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
+			speedX = ReadFloat();
+			speedY = ReadFloat();
+			speedZ = ReadFloat();
 			yaw = ReadFloat();
+			headYaw = ReadFloat();
 			pitch = ReadFloat();
 			item = ReadShort();
 			meta = ReadShort();
@@ -1530,9 +1542,10 @@ namespace MiNET.Net
 		public float y; // = null;
 		public float z; // = null;
 		public float yaw; // = null;
+		public float headYaw; // = null;
 		public float pitch; // = null;
-		public float bodyYaw; // = null;
 		public byte teleport; // = null;
+		public byte onGround; // = null;
 		public McpeMovePlayer()
 		{
 			Id = 0x8f;
@@ -1549,9 +1562,10 @@ namespace MiNET.Net
 			Write(y);
 			Write(z);
 			Write(yaw);
+			Write(headYaw);
 			Write(pitch);
-			Write(bodyYaw);
 			Write(teleport);
+			Write(onGround);
 
 			AfterEncode();
 		}
@@ -1570,9 +1584,10 @@ namespace MiNET.Net
 			y = ReadFloat();
 			z = ReadFloat();
 			yaw = ReadFloat();
+			headYaw = ReadFloat();
 			pitch = ReadFloat();
-			bodyYaw = ReadFloat();
 			teleport = ReadByte();
+			onGround = ReadByte();
 
 			AfterDecode();
 		}

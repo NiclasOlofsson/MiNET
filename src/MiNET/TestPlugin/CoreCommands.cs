@@ -74,7 +74,7 @@ namespace TestPlugin
 				Z = z,
 				Yaw = 91,
 				Pitch = 28,
-				BodyYaw = 91
+				HeadYaw = 91
 			};
 
 			player.SendMovePlayer();

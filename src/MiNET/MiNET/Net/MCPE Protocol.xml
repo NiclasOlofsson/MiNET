@@ -167,7 +167,11 @@
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
+		<field name="Speed X" type="float" />
+		<field name="Speed Y" type="float" />
+		<field name="Speed Z" type="float" />
 		<field name="Yaw" type="float" />
+		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
 		<field name="Item" type="short" />
 		<field name="Meta" type="short" />
@@ -234,9 +238,10 @@
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
 		<field name="Yaw" type="float" />
+		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Body Yaw" type="float" />
 		<field name="Teleport" type="byte" note="teleport == true ? 0x80 : 0x00" />
+		<field name="On Ground" type="byte" />
 	</pdu>
 
 	<pdu id="0x90" online="false" client="true" server="true" name="ID_MCPE_REMOVE_BLOCK">

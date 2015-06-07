@@ -426,7 +426,11 @@ TODO: Parameters
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
+|Speed X | float |  |
+|Speed Y | float |  |
+|Speed Z | float |  |
 |Yaw | float |  |
+|Head Yaw | float |  |
 |Pitch | float |  |
 |Item | short |  |
 |Meta | short |  |
@@ -561,9 +565,10 @@ link[2] byte
 |Y | float |  |
 |Z | float |  |
 |Yaw | float |  |
+|Head Yaw | float |  |
 |Pitch | float |  |
-|Body Yaw | float |  |
 |Teleport | byte |  |
+|On Ground | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Block (0x90)
 

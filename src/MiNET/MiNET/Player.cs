@@ -79,7 +79,7 @@ namespace MiNET
 				Z = Level.SpawnPoint.Z,
 				Yaw = 91,
 				Pitch = 28,
-				BodyYaw = 91
+				HeadYaw = 91
 			};
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
@@ -359,7 +359,7 @@ namespace MiNET
 				Z = Level.SpawnPoint.Z,
 				Yaw = 91,
 				Pitch = 28,
-				BodyYaw = 91
+				HeadYaw = 91
 			};
 
 			SendSetHealth();
@@ -566,7 +566,7 @@ namespace MiNET
 				Z = message.z,
 				Pitch = message.pitch,
 				Yaw = message.yaw,
-				BodyYaw = message.bodyYaw
+				HeadYaw = message.headYaw
 			};
 
 			LastUpdatedTime = DateTime.UtcNow;
@@ -1057,7 +1057,7 @@ namespace MiNET
 			package.z = KnownPosition.Z;
 			package.yaw = KnownPosition.Yaw;
 			package.pitch = KnownPosition.Pitch;
-			package.bodyYaw = KnownPosition.BodyYaw;
+			package.headYaw = KnownPosition.HeadYaw;
 			package.teleport = 0x80;
 
 			SendPackage(package);

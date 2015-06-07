@@ -644,7 +644,7 @@ namespace MiNET.Client
 			movePlayerPacket.z = _currentLocation.Z;
 			movePlayerPacket.yaw = 91;
 			movePlayerPacket.pitch = 28;
-			movePlayerPacket.bodyYaw = 91;
+			movePlayerPacket.headYaw = 91;
 
 			SendPackage(movePlayerPacket);
 

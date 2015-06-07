@@ -21,10 +21,15 @@ namespace MiNET
 			ItemHotbar = new MetadataInts();
 			ItemInHand = new MetadataSlot(new ItemStack());
 
-			Armor[0] = new MetadataSlot(new ItemStack(306));
-			Armor[1] = new MetadataSlot(new ItemStack(307));
-			Armor[2] = new MetadataSlot(new ItemStack(308));
-			Armor[3] = new MetadataSlot(new ItemStack(309));
+			Armor[0] = new MetadataSlot(new ItemStack());
+			Armor[1] = new MetadataSlot(new ItemStack());
+			Armor[2] = new MetadataSlot(new ItemStack());
+			Armor[3] = new MetadataSlot(new ItemStack());
+
+			//Armor[0] = new MetadataSlot(new ItemStack(306));
+			//Armor[1] = new MetadataSlot(new ItemStack(307));
+			//Armor[2] = new MetadataSlot(new ItemStack(308));
+			//Armor[3] = new MetadataSlot(new ItemStack(309));
 
 			for (byte i = 0; i < 35; i++)
 			{

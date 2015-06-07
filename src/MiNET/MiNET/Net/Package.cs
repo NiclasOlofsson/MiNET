@@ -163,8 +163,8 @@ namespace MiNET.Net
 
 		public void Write(string value)
 		{
-			byte[] bytes = Encoding.UTF8.GetBytes(value);
-
+			byte[] bytes = Encoding.Default.GetBytes(value);
+				
 			Write((short) bytes.Length);
 			Write(bytes);
 		}
@@ -173,7 +173,7 @@ namespace MiNET.Net
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return "";
 			short len = ReadShort();
-			return Encoding.UTF8.GetString(ReadBytes(len));
+			return Encoding.Default.GetString(ReadBytes(len));
 		}
 
 		public void Write(Records records)
@@ -202,7 +202,7 @@ namespace MiNET.Net
 				Write(location.Value.Y);
 				Write(location.Value.Z);
 				Write(location.Value.Yaw);
-				Write(location.Value.BodyYaw);
+				Write(location.Value.HeadYaw);
 				Write(location.Value.Pitch);
 			}
 		}
@@ -218,7 +218,7 @@ namespace MiNET.Net
 			foreach (var location in locations)
 			{
 				Write(location.Key); // Entity ID
-				Write((byte) (location.Value.BodyYaw*0.71)); // 256/360
+				Write((byte) (location.Value.HeadYaw*0.71)); // 256/360
 			}
 		}
 

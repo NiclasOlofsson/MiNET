@@ -11,7 +11,7 @@ namespace MiNET.Utils
 
 		public float Yaw { get; set; }
 		public float Pitch { get; set; }
-		public float BodyYaw { get; set; }
+		public float HeadYaw { get; set; }
 
 		public PlayerLocation()
 		{
@@ -56,7 +56,7 @@ namespace MiNET.Utils
 				writer.Write(Z);
 				writer.Write(Yaw);
 				writer.Write(Pitch);
-				writer.Write(BodyYaw);
+				writer.Write(HeadYaw);
 				writer.Flush();
 				return stream.GetBuffer();
 			}
@@ -72,7 +72,7 @@ namespace MiNET.Utils
 				Z = reader.ReadSingle();
 				Yaw = reader.ReadSingle();
 				Pitch = reader.ReadSingle();
-				BodyYaw = reader.ReadSingle();
+				HeadYaw = reader.ReadSingle();
 			}
 		}
 

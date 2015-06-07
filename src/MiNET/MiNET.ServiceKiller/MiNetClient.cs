@@ -225,7 +225,7 @@ namespace MiNET.ServiceKiller
 			_movePlayerPacket.z = z;
 			_movePlayerPacket.yaw = 91;
 			_movePlayerPacket.pitch = 28;
-			_movePlayerPacket.bodyYaw = 91;
+			_movePlayerPacket.headYaw = 91;
 
 			SendPackage(_movePlayerPacket, _mtuSize, 0, 0);
 		}

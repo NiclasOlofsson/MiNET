@@ -169,10 +169,12 @@ namespace MiNET.Worlds
 					x = player.KnownPosition.X,
 					y = player.KnownPosition.Y,
 					z = player.KnownPosition.Z,
-					yaw = (byte) player.KnownPosition.Yaw,
-					pitch = (byte) player.KnownPosition.Pitch,
+					yaw = player.KnownPosition.Yaw,
+					headYaw = player.KnownPosition.Yaw,
+					pitch = player.KnownPosition.Pitch,
+					slim = 0,
 					skin = player.Skin,
-					metadata = new byte[0]
+					metadata = player.GetMetadata().GetBytes()
 				});
 
 			SendEquipmentForPlayer(receiver, player);
@@ -365,9 +367,10 @@ namespace MiNET.Worlds
 					x = entity.KnownPosition.X,
 					y = entity.KnownPosition.Y,
 					z = entity.KnownPosition.Z,
-					speedX = (short) entity.Velocity.X,
-					speedY = (short) entity.Velocity.Y,
-					speedZ = (short) entity.Velocity.Z,
+					metadata = entity.GetMetadata().GetBytes(),
+					speedX = (float) entity.Velocity.X,
+					speedY = (float) entity.Velocity.Y,
+					speedZ = (float) entity.Velocity.Z,
 				});
 			}
 		}
@@ -516,7 +519,7 @@ namespace MiNET.Worlds
 					move.z = knownPosition.Z;
 					move.yaw = knownPosition.Yaw;
 					move.pitch = knownPosition.Pitch;
-					move.bodyYaw = knownPosition.BodyYaw;
+					move.headYaw = knownPosition.HeadYaw;
 					move.teleport = 0;
 					move.Encode(); // Optmized
 

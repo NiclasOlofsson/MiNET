@@ -22,8 +22,19 @@ namespace MiNET.Entities
 			DespawnOnImpact = true;
 		}
 
+		public override MetadataDictionary GetMetadata()
+		{
+			var metadata = base.GetMetadata();
+
+			metadata[17] = new MetadataLong(Shooter.EntityId);
+
+			return metadata;
+		}
+
 		public override void OnTick()
 		{
+			return;
+
 			base.OnTick();
 
 			if (KnownPosition.Y <= 0

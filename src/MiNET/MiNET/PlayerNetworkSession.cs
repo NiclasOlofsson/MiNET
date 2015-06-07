@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using MiNET.Net;
 
@@ -11,6 +12,12 @@ namespace MiNET
 		public IPEndPoint EndPoint { get; set; }
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
 		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
+		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
+
+		public Dictionary<int, SplitPartPackage[]> Splits
+		{
+			get { return _splits; }
+		}
 
 		public ConcurrentQueue<int> PlayerAckQueue
 		{

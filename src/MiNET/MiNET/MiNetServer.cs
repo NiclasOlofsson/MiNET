@@ -298,8 +298,6 @@ namespace MiNET
 			}
 		}
 
-		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
-
 		/// <summary>
 		///     Processes a message.
 		/// </summary>
@@ -338,7 +336,7 @@ namespace MiNET
 							serverId = 22345,
 							pingId = incoming.pingId /*incoming.pingId*/,
 							//serverName = "MCCPP;MiNET - Another MC server"
-							serverName = "MCPE;Minecraft: PE Server;27;0.11.0;0;20"
+							serverName = "MCPE;Minecraft: PE Server;27;0.11.1;0;20"
 						};
 						var data = packet.Encode();
 						TraceSend(packet);
@@ -455,53 +453,57 @@ namespace MiNET
 					EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
 					//}
 
-					foreach (var message in messages)
+					if (_playerSessions.ContainsKey(senderEndpoint))
 					{
-						if (message is SplitPartPackage)
+						PlayerNetworkSession playerSession = _playerSessions[senderEndpoint];
+
+
+						foreach (var message in messages)
 						{
-							SplitPartPackage splitMessage = message as SplitPartPackage;
-
-							int spId = package._splitPacketId;
-							int spIdx = package._splitPacketIndex;
-							int spCount = package._splitPacketCount;
-
-							if (!_splits.ContainsKey(spId))
+							if (message is SplitPartPackage)
 							{
-								_splits[spId] = new SplitPartPackage[spCount];
-							}
+								SplitPartPackage splitMessage = message as SplitPartPackage;
 
-							SplitPartPackage[] spPackets = _splits[spId];
-							spPackets[spIdx] = splitMessage;
+								int spId = package._splitPacketId;
+								int spIdx = package._splitPacketIndex;
+								int spCount = package._splitPacketCount;
 
-							bool haveEmpty = false;
-							for (int i = 0; i < spPackets.Length; i++)
-							{
-								haveEmpty = haveEmpty || spPackets[i] == null;
-							}
-
-							if (!haveEmpty)
-							{
-								Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
-
-								MemoryStream stream = new MemoryStream();
-								for (int i = 0; i < spPackets.Length; i++)
+								if (!playerSession.Splits.ContainsKey(spId))
 								{
-									byte[] buf = spPackets[i].Message;
-									stream.Write(buf, 0, buf.Length);
+									playerSession.Splits[spId] = new SplitPartPackage[spCount];
 								}
 
-								byte[] buffer = stream.ToArray();
-								var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-								//TraceReceive(fullMessage);
-								HandlePackage(fullMessage, senderEndpoint);
-								continue;
-							}
-						}
+								SplitPartPackage[] spPackets = playerSession.Splits[spId];
+								spPackets[spIdx] = splitMessage;
 
-						message.Timer.Restart();
-						//TraceReceive(message /*, seqNo*/);
-						HandlePackage(message, senderEndpoint);
-						message.PutPool();
+								bool haveEmpty = false;
+								for (int i = 0; i < spPackets.Length; i++)
+								{
+									haveEmpty = haveEmpty || spPackets[i] == null;
+								}
+
+								if (!haveEmpty)
+								{
+									Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+
+									MemoryStream stream = new MemoryStream();
+									for (int i = 0; i < spPackets.Length; i++)
+									{
+										byte[] buf = spPackets[i].Message;
+										stream.Write(buf, 0, buf.Length);
+									}
+
+									byte[] buffer = stream.ToArray();
+									var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+									HandlePackage(fullMessage, playerSession);
+									continue;
+								}
+							}
+
+							message.Timer.Restart();
+							HandlePackage(message, playerSession);
+							message.PutPool();
+						}
 					}
 
 					package.PutPool();
@@ -685,11 +687,11 @@ namespace MiNET
 		/// </summary>
 		/// <param name="message">The package.</param>
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
-		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
+		private void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
 			TraceReceive(message);
 
-			if (typeof(UnknownPackage) == message.GetType())
+			if (typeof (UnknownPackage) == message.GetType())
 			{
 				return;
 			}
@@ -721,22 +723,18 @@ namespace MiNET
 					}
 					foreach (var msg in messages)
 					{
-						HandlePackage(msg, senderEndpoint);
+						HandlePackage(msg, playerSession);
 					}
 				}
 			}
 
-			if (_playerSessions.ContainsKey(senderEndpoint))
-			{
-				PlayerNetworkSession playerSession = _playerSessions[senderEndpoint];
-				playerSession.Player.HandlePackage(message);
-				playerSession.LastUpdatedTime = DateTime.UtcNow;
+			playerSession.Player.HandlePackage(message);
+			playerSession.LastUpdatedTime = DateTime.UtcNow;
 
-				if (typeof (DisconnectionNotification) == message.GetType())
-				{
-					PlayerNetworkSession value;
-					_playerSessions.TryRemove(senderEndpoint, out value);
-				}
+			if (typeof (DisconnectionNotification) == message.GetType())
+			{
+				PlayerNetworkSession value;
+				_playerSessions.TryRemove(playerSession.EndPoint, out value);
 			}
 		}
 
@@ -762,7 +760,7 @@ namespace MiNET
 				if (lastUpdate + 10000 < now)
 				{
 					// Disconnect user
-					HandlePackage(new DisconnectionNotification(), session.EndPoint);
+					HandlePackage(new DisconnectionNotification(), session);
 
 					return;
 				}

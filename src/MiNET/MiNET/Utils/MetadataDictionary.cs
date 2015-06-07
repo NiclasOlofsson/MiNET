@@ -70,6 +70,7 @@ namespace MiNET.Utils
 			() => new MetadataFloat(), // 3
 			() => new MetadataString(), // 4
 			() => new MetadataSlot(), // 5
+			() => new MetadataLong(), // 8
 			//() => new MetadataIntCoordinates(), // 6
 		};
 

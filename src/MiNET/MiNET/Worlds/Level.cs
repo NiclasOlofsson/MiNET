@@ -294,6 +294,7 @@ namespace MiNET.Worlds
 						x = entity.KnownPosition.X,
 						y = entity.KnownPosition.Y,
 						z = entity.KnownPosition.Z,
+						metadata = entity.GetMetadata().GetBytes()
 					};
 					{
 						double dx = entity.Velocity.X;
@@ -331,10 +332,11 @@ namespace MiNET.Worlds
 							dz = maxVelocity;
 						}
 
-						addEntity.speedX = (short) (dx*8000.0d);
-						addEntity.speedY = (short) (dy*8000.0d);
-						addEntity.speedZ = (short) (dz*8000.0d);
+						addEntity.speedX = (float) (dx);
+						addEntity.speedY = (float) (dy);
+						addEntity.speedZ = (float) (dz);
 					}
+
 					RelayBroadcast(addEntity);
 				}
 			}

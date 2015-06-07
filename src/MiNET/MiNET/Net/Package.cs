@@ -63,7 +63,7 @@ namespace MiNET.Net
 
 		public byte[] ReadBytes(int count)
 		{
-			if(count == 0)
+			if (count == 0)
 			{
 				count = (int) (_reader.BaseStream.Length - _reader.BaseStream.Position);
 			}
@@ -202,6 +202,7 @@ namespace MiNET.Net
 				Write(location.Value.Y);
 				Write(location.Value.Z);
 				Write(location.Value.Yaw);
+				Write(location.Value.BodyYaw);
 				Write(location.Value.Pitch);
 			}
 		}
@@ -232,9 +233,9 @@ namespace MiNET.Net
 			foreach (var motion in motions)
 			{
 				Write(motion.Key); // Entity ID
-				Write((short) (motion.Value.X*8000f));
-				Write((short) (motion.Value.Y*8000f));
-				Write((short) (motion.Value.Z*8000f));
+				Write((float) (motion.Value.X));
+				Write((float) (motion.Value.Y));
+				Write((float) (motion.Value.Z));
 			}
 		}
 

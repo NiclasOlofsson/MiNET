@@ -131,7 +131,7 @@ namespace MiNET.Utils
 				if (line.ToLower().StartsWith(property.ToLower() + "="))
 				{
 					string value = line.Split('=')[1];
-					return value.ToLower();
+					return value;
 				}
 			}
 			throw new EntryPointNotFoundException("The specified property was not found.");

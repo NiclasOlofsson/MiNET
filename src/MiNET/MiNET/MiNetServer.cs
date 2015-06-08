@@ -26,6 +26,7 @@ namespace MiNET
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private const int DefaultPort = 19132;
+		private static string Motd = string.Empty;
 
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
@@ -107,7 +108,7 @@ namespace MiNET
 				Log.Info("Initializing...");
 
 				Log.Info("Loading settings...");
-				Config.GetProperty("motd", "MiNET - Another MC server");
+				Motd = Config.GetProperty("motd", "Minecraft: PE Server");
 
 				Log.Info("Loading plugins...");
 				_pluginManager = new PluginManager();
@@ -336,7 +337,7 @@ namespace MiNET
 							serverId = 22345,
 							pingId = incoming.pingId /*incoming.pingId*/,
 							//serverName = "MCCPP;MiNET - Another MC server"
-							serverName = "MCPE;Minecraft: PE Server;27;0.11.1;0;20"
+							serverName = string.Format("MCPE;{0};27;0.11.1;0;20", Motd)
 						};
 						var data = packet.Encode();
 						TraceSend(packet);

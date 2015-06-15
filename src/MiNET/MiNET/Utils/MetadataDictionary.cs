@@ -39,12 +39,8 @@ namespace MiNET.Utils
 				byte type = (byte) ((key & 0xE0) >> 5);
 				byte index = (byte) (key & 0x1F);
 
-				//if(type == 6)
-				//{
-				//	Debug.WriteLine("Got 6 in metadat");
-				//} 
-
 				var entry = EntryTypes[type]();
+				if(index == 17) entry = new MetadataLong();
 				entry.FromStream(stream);
 				entry.Index = index;
 
@@ -56,7 +52,9 @@ namespace MiNET.Utils
 		public void WriteTo(BinaryWriter stream)
 		{
 			foreach (var entry in entries)
+			{
 				entry.Value.WriteTo(stream, entry.Key);
+			}
 			stream.Write((byte) 0x7F);
 		}
 
@@ -70,6 +68,8 @@ namespace MiNET.Utils
 			() => new MetadataFloat(), // 3
 			() => new MetadataString(), // 4
 			() => new MetadataSlot(), // 5
+			() => new MetadataIntCoordinates(), // 6
+			() => new MetadataByte(), // 7 Rotation Ignore
 			() => new MetadataLong(), // 8
 			//() => new MetadataIntCoordinates(), // 6
 		};

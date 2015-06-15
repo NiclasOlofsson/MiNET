@@ -6,7 +6,7 @@ namespace MiNET.Utils
 	{
 		public override byte Identifier
 		{
-			get { return 8; }
+			get { return 6; }
 		}
 
 		public override string FriendlyName

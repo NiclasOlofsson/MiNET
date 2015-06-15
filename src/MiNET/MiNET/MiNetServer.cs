@@ -180,7 +180,7 @@ namespace MiNET
 				//	}
 				//});
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 5);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -497,8 +497,8 @@ namespace MiNET
 									byte[] buffer = stream.ToArray();
 									var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
 									HandlePackage(fullMessage, playerSession);
-									continue;
 								}
+								continue;
 							}
 
 							message.Timer.Restart();
@@ -700,32 +700,30 @@ namespace MiNET
 			if (typeof (McpeBatch) == message.GetType())
 			{
 				McpeBatch batch = (McpeBatch) message;
-				if (batch != null)
+				
+				var messages = new List<Package>();
+
+				// Get bytes
+				byte[] payload = batch.payload;
+				// Decompress bytes
+
+				MemoryStream stream = new MemoryStream(payload);
+				if (stream.ReadByte() != 0x78)
 				{
-					var messages = new List<Package>();
-
-					// Get bytes
-					byte[] payload = batch.payload;
-					// Decompress bytes
-
-					MemoryStream stream = new MemoryStream(payload);
-					if (stream.ReadByte() != 0x78)
-					{
-						throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-					}
-					stream.ReadByte();
-					using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-					{
-						// Get actual package out of bytes
-						MemoryStream destination = new MemoryStream();
-						defStream2.CopyTo(destination);
-						byte[] internalBuffer = destination.ToArray();
-						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
-					}
-					foreach (var msg in messages)
-					{
-						HandlePackage(msg, playerSession);
-					}
+					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+				}
+				stream.ReadByte();
+				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+				{
+					// Get actual package out of bytes
+					MemoryStream destination = new MemoryStream();
+					defStream2.CopyTo(destination);
+					byte[] internalBuffer = destination.ToArray();
+					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				}
+				foreach (var msg in messages)
+				{
+					HandlePackage(msg, playerSession);
 				}
 			}
 
@@ -886,23 +884,23 @@ namespace MiNET
 		{
 			if (_throughPut == null)
 			{
-				_throughPut = new Timer(delegate(object state)
-				{
-					int threads;
-					int portThreads;
-					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = _totalPacketSizeOut*8/1000000D;
-					double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
-					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
-						_level.Players.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
+				//_throughPut = new Timer(delegate(object state)
+				//{
+				//	int threads;
+				//	int portThreads;
+				//	ThreadPool.GetAvailableThreads(out threads, out portThreads);
+				//	double kbitPerSecondOut = _totalPacketSizeOut*8/1000000D;
+				//	double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
+				//	Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+				//		_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
+				//		_level.Players.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
 
-					_numberOfAckSent = 0;
-					_totalPacketSizeOut = 0;
-					_totalPacketSizeIn = 0;
-					_numberOfPacketsOutPerSecond = 0;
-					_numberOfPacketsInPerSecond = 0;
-				}, null, 1000, 1000);
+				//	_numberOfAckSent = 0;
+				//	_totalPacketSizeOut = 0;
+				//	_totalPacketSizeIn = 0;
+				//	_numberOfPacketsOutPerSecond = 0;
+				//	_numberOfPacketsInPerSecond = 0;
+				//}, null, 1000, 1000);
 			}
 
 			//_listener.SendAsync(data, data.Length, targetEndpoint).Wait(); // Has thread pooling issues?

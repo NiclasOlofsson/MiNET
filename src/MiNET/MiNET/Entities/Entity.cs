@@ -49,7 +49,7 @@ namespace MiNET.Entities
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte)(HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[16] = new MetadataByte(0);
+			//metadata[16] = new MetadataByte(0);
 
 			return metadata;
 		}

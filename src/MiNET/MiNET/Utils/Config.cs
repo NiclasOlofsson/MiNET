@@ -38,7 +38,7 @@ namespace MiNET.Utils
 			try
 			{
 				string gm = ReadString(property);
-				switch (gm)
+				switch (gm.ToLower())
 				{
 					case "1":
 					case "creative":

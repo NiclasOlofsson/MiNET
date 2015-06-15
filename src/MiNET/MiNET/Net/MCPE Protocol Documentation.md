@@ -367,8 +367,6 @@ TODO: Parameters
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Type | byte |  |
-|Source | string |  |
-|Message | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Time (0x86)
 
@@ -483,6 +481,7 @@ link[2] byte
 |Yaw | float |  |
 |Pitch | float |  |
 |Metadata | byte[] | 0 |
+|Links | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x8b)
 
@@ -601,11 +600,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|X | int |  |
-|Z | int |  |
-|Y | byte |  |
-|Block | byte |  |
-|Meta | byte |  |
+|Blocks | BlockRecords |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Painting (0x92)
 
@@ -656,7 +651,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Event ID | float |  |
+|Event ID | short |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |

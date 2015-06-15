@@ -26,7 +26,10 @@ namespace MiNET.Entities
 		{
 			var metadata = base.GetMetadata();
 
-			metadata[17] = new MetadataLong(Shooter.EntityId);
+			if (Shooter != null)
+			{
+				metadata[17] = new MetadataLong(Shooter.EntityId);
+			}
 
 			return metadata;
 		}

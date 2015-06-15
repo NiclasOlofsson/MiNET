@@ -15,15 +15,10 @@ namespace MiNET.Client
 
 		public static ChunkColumn DecocedChunkColumn(byte[] buffer)
 		{
+			return null;
 			MemoryStream stream = new MemoryStream(buffer);
-			if (stream.ReadByte() != 0x78)
 			{
-				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-			}
-			stream.ReadByte();
-			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-			{
-				NbtBinaryReader defStream = new NbtBinaryReader(defStream2, true);
+				NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
 				ChunkColumn chunk = new ChunkColumn();
 
 				chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
@@ -35,7 +30,7 @@ namespace MiNET.Client
 				defStream.Read(chunk.skylight.Data, 0, chunkSize/2);
 				defStream.Read(chunk.blocklight.Data, 0, chunkSize/2);
 
-				defStream.Read(chunk.biomeId, 0, 256);
+				defStream.Read(chunk.height, 0, 256);
 
 				byte[] ints = new byte[256*4];
 				defStream.Read(ints, 0, ints.Length);
@@ -44,14 +39,6 @@ namespace MiNET.Client
 				{
 					chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {ints[i], ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
 				}
-
-				MemoryStream uncompressed = new MemoryStream();
-				int b = -1;
-				do
-				{
-					b = defStream2.ReadByte();
-					if (b != -1) uncompressed.WriteByte((byte) b);
-				} while (b != -1);
 
 				return chunk;
 			}

@@ -9,7 +9,7 @@ namespace MiNET.Utils
 	///     BinaryWriter wrapper that takes care of writing primitives to an NBT stream,
 	///     while taking care of endianness and string encoding.
 	/// </summary>
-	internal class NbtBinaryWriter : BinaryWriter
+	public class NbtBinaryWriter : BinaryWriter
 	{
 		private readonly bool bigEndian;
 

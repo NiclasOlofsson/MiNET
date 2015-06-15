@@ -38,14 +38,15 @@ namespace MiNET.Utils
 
 		public override void FromStream(BinaryReader stream)
 		{
-			Value = stream.ReadString();
+			short len = stream.ReadInt16();
+			Value = Encoding.Default.GetString(stream.ReadBytes(len));
 		}
 
 		public override void WriteTo(BinaryWriter stream, byte index)
 		{
 			stream.Write(GetKey(index));
 
-			byte[] bytes = Encoding.UTF8.GetBytes(Value);
+			byte[] bytes = Encoding.Default.GetBytes(Value);
 			stream.Write((short) bytes.Length);
 			stream.Write(bytes);
 		}
@@ -54,6 +55,5 @@ namespace MiNET.Utils
 		{
 			return string.Format("{0} {1} {2}", FriendlyName, Identifier, Value);
 		}
-
 	}
 }

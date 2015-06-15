@@ -159,7 +159,7 @@ namespace MiNET.Utils
 	///     DeflateStream wrapper that calculates Adler32 checksum of the written data,
 	///     to allow writing ZLib header (RFC-1950).
 	/// </summary>
-	internal sealed class ZLibStream : DeflateStream
+	public sealed class ZLibStream : DeflateStream
 	{
 		private int adler32A = 1, adler32B;
 		private MemoryStream _buffer = new MemoryStream();

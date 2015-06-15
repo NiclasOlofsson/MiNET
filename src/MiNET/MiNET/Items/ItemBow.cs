@@ -18,7 +18,6 @@ namespace MiNET.Items
 
 			Arrow arrow = new Arrow(player, world);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			arrow.KnownPosition.Y += 1.61f;
 
 			float yaw = player.KnownPosition.Yaw;
 			float pitch = player.KnownPosition.Pitch;
@@ -28,7 +27,6 @@ namespace MiNET.Items
 			var vz = Math.Cos(yaw/180f*Math.PI)*Math.Cos(pitch/180f*Math.PI);
 
 			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5);
-
 
 			arrow.SpawnEntity();
 		}

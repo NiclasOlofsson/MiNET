@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using fNbt;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Net
@@ -192,6 +193,24 @@ namespace MiNET.Net
 			return new Records();
 		}
 
+		public void Write(BlockRecords records)
+		{
+			Write(records.Count);
+			foreach (Block block in records)
+			{
+				Write(block.Coordinates.X);
+				Write(block.Coordinates.Z);
+				Write((byte)block.Coordinates.Y);
+				Write((byte)block.Id);
+				Write((byte)block.Metadata); //TODO: Shift in the block flags
+			}
+		}
+
+		public BlockRecords ReadBlockRecords()
+		{
+			return new BlockRecords();
+		}
+
 		public void Write(EntityLocations locations)
 		{
 			Write(locations.Count);
@@ -318,16 +337,6 @@ namespace MiNET.Net
 			}
 		}
 
-		public void Write(MetadataSlot slot)
-		{
-			if (slot != null)
-			{
-				Write(slot.Value.Id);
-				Write(slot.Value.Count);
-				Write(slot.Value.Metadata);
-			}
-		}
-
 		public MetadataSlots ReadMetadataSlots()
 		{
 			short count = ReadShort();
@@ -342,9 +351,24 @@ namespace MiNET.Net
 			return metadata;
 		}
 
+		public void Write(MetadataSlot slot)
+		{
+			if (slot != null)
+			{
+				Write(slot.Value.Id);
+				Write(slot.Value.Count);
+				Write(slot.Value.Metadata);
+			}
+		}
+
 		public MetadataSlot ReadMetadataSlot()
 		{
 			return new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
+		}
+
+		public bool CanRead()
+		{
+			return _reader.BaseStream.Position < _reader.BaseStream.Length;
 		}
 
 		protected virtual void EncodePackage()

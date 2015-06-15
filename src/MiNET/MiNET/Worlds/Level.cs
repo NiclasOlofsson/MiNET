@@ -52,8 +52,12 @@ namespace MiNET.Worlds
 
 		public int ViewDistance { get; set; }
 
+		public Random Random { get; private set; }
+
 		public Level(string levelId, IWorldProvider worldProvider = null)
 		{
+			Random = new Random();
+
 			EntityManager = new EntityManager();
 			InventoryManager = new InventoryManager(this);
 			SpawnPoint = new BlockCoordinates(50, 10, 50);
@@ -672,12 +676,7 @@ namespace MiNET.Worlds
 			if (!broadcast) return;
 
 			var message = McpeUpdateBlock.CreateObject();
-			message.x = block.Coordinates.X;
-			message.y = (byte) block.Coordinates.Y;
-			message.z = block.Coordinates.Z;
-			message.block = block.Id;
-			message.meta = block.Metadata;
-
+			message.blocks = new BlockRecords {block};
 			RelayBroadcast(message);
 		}
 

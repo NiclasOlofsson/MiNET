@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -121,12 +122,6 @@ namespace MiNET
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 
 				// It is a bug that it leaks these messages.
-				var block = ((McpeUpdateBlock) message);
-				Log.DebugFormat("block: {0}", block.block);
-				Log.DebugFormat("meta: {0}", block.meta);
-				Log.DebugFormat("x: {0}", block.x);
-				Log.DebugFormat("y: {0}", block.y);
-				Log.DebugFormat("z: {0}", block.z);
 			}
 
 			else if (typeof (McpeRemoveBlock) == message.GetType())
@@ -572,6 +567,23 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			if (_isBot) return;
+
+			//if (Level.Random.Next(0, 5) == 0)
+			//{
+			//	int data = 0;
+			//	//data = (int) uint.Parse("FFFF0000", NumberStyles.HexNumber);
+			//	data = Level.Random.Next((int) uint.Parse("FFFF0000", NumberStyles.HexNumber), (int) uint.Parse("FFFFFFFF", NumberStyles.HexNumber));
+
+			//	Level.RelayBroadcast(new McpeLevelEvent
+			//	{
+			//		eventId = 0x4000 | 22,
+			//		x = KnownPosition.X,
+			//		//y = KnownPosition.Y - 1.62f,
+			//		y = KnownPosition.Y - 1f,
+			//		z = KnownPosition.Z,
+			//		data = data
+			//	});
+			//}
 
 			SendChunksForKnownPosition();
 		}

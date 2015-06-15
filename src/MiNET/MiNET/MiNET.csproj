@@ -75,6 +75,7 @@
     <Compile Include="Blocks\CobbleStoneStairs.cs" />
     <Compile Include="Blocks\CraftingTable.cs" />
     <Compile Include="Blocks\DarkOakWoodStairs.cs" />
+    <Compile Include="Blocks\DiamondOre.cs" />
     <Compile Include="Blocks\Dirt.cs" />
     <Compile Include="Blocks\DoubleStoneSlab.cs" />
     <Compile Include="Blocks\DoubleWoodSlab.cs" />
@@ -158,6 +159,7 @@
     <Compile Include="Items\ItemRawPorkchop.cs" />
     <Compile Include="LevelFactory.cs" />
     <Compile Include="Net\InternalPing.cs" />
+    <Compile Include="Net\McpeText.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />
@@ -212,6 +214,7 @@
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
+    <Compile Include="Utils\MetadataIntCoordinates.cs" />
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\Ray.cs" />

@@ -14,11 +14,11 @@ namespace MiNET.Items
 		{
 			float force = 1.5f;
 
-			Snowball snowBall = new Snowball(player, world);
-			snowBall.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			snowBall.KnownPosition.Y += 1.62f;
-
-			snowBall.Velocity = new Vector3(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z).Normalize()*force;
+			Snowball snowBall = new Snowball(player, world)
+			{
+				KnownPosition = (PlayerLocation) player.KnownPosition.Clone(),
+				Velocity = new Vector3(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z).Normalize()*force
+			};
 
 			snowBall.SpawnEntity();
 		}

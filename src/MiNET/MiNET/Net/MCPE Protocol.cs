@@ -1017,8 +1017,6 @@ namespace MiNET.Net
 	public partial class McpeText : Package<McpeText>
 	{
 		public byte type; // = null;
-		public string source; // = null;
-		public string message; // = null;
 		public McpeText()
 		{
 			Id = 0x85;
@@ -1031,8 +1029,6 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(type);
-			Write(source);
-			Write(message);
 
 			AfterEncode();
 		}
@@ -1047,8 +1043,6 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			type = ReadByte();
-			source = ReadString();
-			message = ReadString();
 
 			AfterDecode();
 		}
@@ -1304,6 +1298,7 @@ namespace MiNET.Net
 		public float yaw; // = null;
 		public float pitch; // = null;
 		public byte[] metadata; // = null;
+		public short links; // = null;
 		public McpeAddEntity()
 		{
 			Id = 0x8a;
@@ -1326,6 +1321,7 @@ namespace MiNET.Net
 			Write(yaw);
 			Write(pitch);
 			Write(metadata);
+			Write(links);
 
 			AfterEncode();
 		}
@@ -1350,6 +1346,7 @@ namespace MiNET.Net
 			yaw = ReadFloat();
 			pitch = ReadFloat();
 			metadata = ReadBytes(0);
+			links = ReadShort();
 
 			AfterDecode();
 		}
@@ -1646,11 +1643,7 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateBlock : Package<McpeUpdateBlock>
 	{
-		public int x; // = null;
-		public int z; // = null;
-		public byte y; // = null;
-		public byte block; // = null;
-		public byte meta; // = null;
+		public BlockRecords blocks; // = null;
 		public McpeUpdateBlock()
 		{
 			Id = 0x91;
@@ -1662,11 +1655,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(x);
-			Write(z);
-			Write(y);
-			Write(block);
-			Write(meta);
+			Write(blocks);
 
 			AfterEncode();
 		}
@@ -1680,11 +1669,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			x = ReadInt();
-			z = ReadInt();
-			y = ReadByte();
-			block = ReadByte();
-			meta = ReadByte();
+			blocks = ReadBlockRecords();
 
 			AfterDecode();
 		}
@@ -1799,7 +1784,7 @@ namespace MiNET.Net
 
 	public partial class McpeLevelEvent : Package<McpeLevelEvent>
 	{
-		public float eventId; // = null;
+		public short eventId; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -1833,7 +1818,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			eventId = ReadFloat();
+			eventId = ReadShort();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();

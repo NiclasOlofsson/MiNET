@@ -37,6 +37,11 @@ namespace MiNET.Utils
 			return new MetadataString(value);
 		}
 
+		public static implicit operator MetadataEntry(long value)
+		{
+			return new MetadataLong(value);
+		}
+
 		public static implicit operator MetadataEntry(ItemStack value)
 		{
 			return new MetadataSlot(value);

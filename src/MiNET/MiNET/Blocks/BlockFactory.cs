@@ -56,6 +56,7 @@ namespace MiNET.Blocks
 			else if (blockId == 51) block = new Fire();
 			else if (blockId == 53) block = new OakWoodStairs();
 			else if (blockId == 54) block = new Chest();
+			else if (blockId == 56) block = new DiamondOre();
 			else if (blockId == 58) block = new CraftingTable();
 			else if (blockId == 61) block = new Furnace();
 			else if (blockId == 62) block = new LitFurnace();

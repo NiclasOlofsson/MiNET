@@ -14,11 +14,11 @@ namespace MiNET.Items
 		{
 			float force = 1.5f;
 
-			Egg egg = new Egg(player, world);
-			egg.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			egg.KnownPosition.Y += 1.62f;
-
-			egg.Velocity = new Vector3(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z).Normalize()*force;
+			Egg egg = new Egg(player, world)
+			{
+				KnownPosition = (PlayerLocation) player.KnownPosition.Clone(),
+				Velocity = new Vector3(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z).Normalize()*force
+			};
 
 			egg.SpawnEntity();
 		}

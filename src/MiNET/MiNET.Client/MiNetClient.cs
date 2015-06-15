@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -209,7 +210,9 @@ namespace MiNET.Client
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_2:
 					{
+						OpenConnectionReply2 incoming = (OpenConnectionReply2)message;
 						Thread.Sleep(50);
+						//_mtuSize = incoming.mtuSize;
 						SendConnectionRequest();
 						break;
 					}
@@ -236,6 +239,8 @@ namespace MiNET.Client
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
 					package.Decode(receiveBytes);
+					Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
+
 					var messages = package.Messages;
 
 					//Log.Debug("Received package: #" + package._datagramSequenceNumber.IntValue());
@@ -243,16 +248,16 @@ namespace MiNET.Client
 					Reliability reliability = package._reliability;
 					//Log.InfoFormat("Reliability: {0}", reliability);
 
-					if (reliability == Reliability.Reliable
-					    || reliability == Reliability.ReliableSequenced
-					    || reliability == Reliability.ReliableOrdered
-						)
+					//if (reliability == Reliability.Reliable
+					//	|| reliability == Reliability.ReliableSequenced
+					//	|| reliability == Reliability.ReliableOrdered
+					//	)
 					{
 						// Send ACK
 						Acks ack = new Acks();
 						ack.acks.Add(package._datagramSequenceNumber.IntValue());
 						byte[] data = ack.Encode();
-						//Log.Debug("Send ACK on #" + package._datagramSequenceNumber.IntValue());
+						//Log.Debug("<\tSend ACK on #" + package._datagramSequenceNumber.IntValue());
 						SendData(data, senderEndpoint);
 					}
 
@@ -265,6 +270,8 @@ namespace MiNET.Client
 							int spId = package._splitPacketId;
 							int spIdx = package._splitPacketIndex;
 							int spCount = package._splitPacketCount;
+
+							Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
 
 							if (!_splits.ContainsKey(spId))
 							{
@@ -291,20 +298,26 @@ namespace MiNET.Client
 									stream.Write(buf, 0, buf.Length);
 								}
 
-								byte[] buffer = stream.ToArray();
-								var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-								TraceReceive(fullMessage);
-								HandlePackage(fullMessage, senderEndpoint);
+								try
+								{
+									byte[] buffer = stream.ToArray();
+									var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+									Log.Debug("Processing split-message");
+									HandlePackage(fullMessage, senderEndpoint);
+									fullMessage.PutPool();
+								}
+								catch (Exception e)
+								{
+									Log.Warn("When processing split-message", e);
+								}
 							}
-							else
-							{
-								return;
-							}
+
+							message.PutPool();
+							return;
 						}
 
 						{
 							message.Timer.Restart();
-							TraceReceive(message);
 							HandlePackage(message, senderEndpoint);
 							//message.PutPool();
 						}
@@ -318,12 +331,6 @@ namespace MiNET.Client
 				}
 				else if (header.isACK && header.isValid)
 				{
-					Log.Debug("ACK");
-					//Acks ack = new Acks();
-					//ack.acks.Add(header.datagramSequenceNumber.IntValue());
-					//byte[] data = ack.Encode();
-					////Log.Debug("Send ACK on #" + header.datagramSequenceNumber.IntValue());
-					//SendData(data, senderEndpoint);
 					HandleAck(receiveBytes, senderEndpoint);
 				}
 				else if (header.isNAK && header.isValid)
@@ -347,6 +354,10 @@ namespace MiNET.Client
 
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			Ack ack = Ack.CreateObject();
+			ack.Decode(receiveBytes);
+			int ackSeqNo = ack.sequenceNumber.IntValue();
+			Log.Debug("ACK #" + ackSeqNo);
 		}
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
@@ -360,8 +371,56 @@ namespace MiNET.Client
 		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
 		{
-			if (typeof (UnknownPackage) == message.GetType())
+			if (typeof (McpeBatch) == message.GetType())
 			{
+				McpeBatch batch = (McpeBatch) message;
+
+				var messages = new List<Package>();
+
+				// Get bytes
+				byte[] payload = batch.payload;
+				// Decompress bytes
+
+				MemoryStream stream = new MemoryStream(payload);
+				if (stream.ReadByte() != 0x78)
+				{
+					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+				}
+				stream.ReadByte();
+				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+				{
+					// Get actual package out of bytes
+					MemoryStream destination = new MemoryStream();
+					defStream2.CopyTo(destination);
+					byte[] internalBuffer = destination.ToArray();
+					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				}
+				foreach (var msg in messages)
+				{
+					HandlePackage(msg, senderEndpoint);
+				}
+				return;
+			}
+
+			TraceReceive(message);
+
+			if (typeof(UnknownPackage) == message.GetType())
+			{
+				return;
+			}
+
+			if (typeof(McpeDisconnect) == message.GetType())
+			{
+				McpeDisconnect msg = (McpeDisconnect)message;
+				Log.Debug(msg.message);
+				StopServer();
+				return;
+			}
+
+			if (typeof(ConnectedPing) == message.GetType())
+			{
+				ConnectedPing msg = (ConnectedPing)message;
+				SendConnectedPong(msg.sendpingtime);
 				return;
 			}
 
@@ -383,7 +442,7 @@ namespace MiNET.Client
 			{
 				Thread.Sleep(50);
 				SendNewIncomingConnection();
-				var t1 = new Timer(state => SendConnectedPing(), null, 0, 5000);
+				var t1 = new Timer(state => SendConnectedPing(), null, 2000, 5000);
 				Thread.Sleep(50);
 				SendLogin("Client12");
 				return;
@@ -442,15 +501,15 @@ namespace MiNET.Client
 			{
 				McpeSetEntityData msg = (McpeSetEntityData) message;
 				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				try
+				//try
 				{
 					MetadataDictionary metadata = GetMetadata(msg.namedtag);
 					Log.DebugFormat("NameTag: {0}", metadata.ToString());
 				}
-				catch (Exception e)
-				{
-					Log.Warn(e);
-				}
+				//catch (Exception e)
+				//{
+				//	Log.Warn(e);
+				//}
 				return;
 			}
 
@@ -478,12 +537,12 @@ namespace MiNET.Client
 		{
 			if (messages.Count == 0) return;
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, senderEndpoint, SendDatagram);
-
 			foreach (var message in messages)
 			{
 				TraceSend(message);
 			}
+
+			Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, senderEndpoint, SendDatagram);
 		}
 
 		private void SendDatagram(IPEndPoint senderEndpoint, Datagram datagram)
@@ -496,6 +555,7 @@ namespace MiNET.Client
 		{
 			if (datagram.MessageParts.Count != 0)
 			{
+				Log.Debug("<\tSend Datagram #" + datagram.Header.datagramSequenceNumber.IntValue());
 				byte[] data = datagram.Encode();
 
 				datagram.Timer.Restart();
@@ -548,6 +608,17 @@ namespace MiNET.Client
 			SendPackage(packet);
 		}
 
+		public void SendConnectedPong(long sendpingtime)
+		{
+			var packet = new ConnectedPong
+			{
+				sendpingtime = sendpingtime,
+				sendpongtime = sendpingtime + 10
+			};
+
+			SendPackage(packet);
+		}
+
 		public void SendOpenConnectionRequest1()
 		{
 			var packet = new OpenConnectionRequest1()
@@ -560,6 +631,7 @@ namespace MiNET.Client
 
 			TraceSend(packet);
 
+			// 1087 1447
 			byte[] data2 = new byte[_mtuSize - data.Length];
 			Buffer.BlockCopy(data, 0, data2, 0, data.Length);
 
@@ -611,10 +683,49 @@ namespace MiNET.Client
 			{
 				clientId = 12345,
 				username = username,
-				protocol = 20,
+				protocol = 27,
+				slim = 0,
+				skin = new string('Z', 8192)
 			};
 
-			SendPackage(packet);
+			McpeBatch batch = new McpeBatch();
+			byte[] buffer = CompressBytes(packet.Encode());
+
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+
+			SendPackage(batch);
+		}
+
+		public byte[] CompressBytes(byte[] input)
+		{
+			MemoryStream stream = new MemoryStream();
+			stream.WriteByte(0x78);
+			stream.WriteByte(0x01);
+			int checksum;
+			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
+				writer.Write(input);
+
+				writer.Flush();
+
+				checksum = compressStream.Checksum;
+				writer.Close();
+			}
+
+			byte[] checksumBytes = BitConverter.GetBytes(checksum);
+			if (BitConverter.IsLittleEndian)
+			{
+				// Adler32 checksum is big-endian
+				Array.Reverse(checksumBytes);
+			}
+			stream.Write(checksumBytes, 0, checksumBytes.Length);
+
+			var bytes = stream.ToArray();
+			stream.Close();
+
+			return bytes;
 		}
 
 		public void SendChat(string text)
@@ -662,9 +773,11 @@ namespace MiNET.Client
 
 			Thread.Sleep(2000);
 
+			Console.WriteLine("Sending ping...");
+
 			client.SendUnconnectedPing();
-			client.SendUnconnectedPing();
-			client.SendUnconnectedPing();
+			//client.SendUnconnectedPing();
+			//client.SendUnconnectedPing();
 
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();

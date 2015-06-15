@@ -6,7 +6,6 @@ namespace MiNET.Entities
 	{
 		public Arrow(Player shooter, Level level) : base(shooter, 80, level)
 		{
-			Shooter = shooter;
 			Width = 0.5;
 			Length = 0.5;
 			Height = 0.0;

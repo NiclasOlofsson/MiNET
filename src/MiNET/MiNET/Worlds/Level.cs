@@ -676,8 +676,13 @@ namespace MiNET.Worlds
 
 			if (!broadcast) return;
 
+			Block sendBlock = new Block(block.Id)
+			{
+				Coordinates = block.Coordinates,
+				Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
+			};
 			var message = McpeUpdateBlock.CreateObject();
-			message.blocks = new BlockRecords {block};
+			message.blocks = new BlockRecords {sendBlock};
 			RelayBroadcast(message);
 		}
 

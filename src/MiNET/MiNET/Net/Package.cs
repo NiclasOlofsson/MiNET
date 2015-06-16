@@ -165,7 +165,7 @@ namespace MiNET.Net
 		public void Write(string value)
 		{
 			byte[] bytes = Encoding.Default.GetBytes(value);
-				
+
 			Write((short) bytes.Length);
 			Write(bytes);
 		}
@@ -195,20 +195,36 @@ namespace MiNET.Net
 
 		public void Write(BlockRecords records)
 		{
-			Write(records.Count);
+			Write((int) records.Count);
 			foreach (Block block in records)
 			{
 				Write(block.Coordinates.X);
 				Write(block.Coordinates.Z);
-				Write((byte)block.Coordinates.Y);
-				Write((byte)block.Id);
-				Write((byte)block.Metadata); //TODO: Shift in the block flags
+				Write((byte) block.Coordinates.Y);
+				Write((byte) block.Id);
+				Write((byte) block.Metadata); //TODO: Shift in the block flags
 			}
 		}
 
 		public BlockRecords ReadBlockRecords()
 		{
-			return new BlockRecords();
+			int count = ReadInt();
+			var blockRecords = new BlockRecords();
+			for (int i = 0; i < count; i++)
+			{
+				var x = ReadInt();
+				var z = ReadInt();
+				var y = ReadByte();
+				var id = ReadByte();
+				var metadata = ReadByte();
+
+				Block block = BlockFactory.GetBlockById(id);
+				block.Metadata = metadata;
+				block.Coordinates = new BlockCoordinates(x, y, z);
+				blockRecords.Add(block);
+			}
+
+			return blockRecords;
 		}
 
 		public void Write(EntityLocations locations)

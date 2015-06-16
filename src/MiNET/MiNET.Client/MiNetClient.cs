@@ -210,7 +210,7 @@ namespace MiNET.Client
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_2:
 					{
-						OpenConnectionReply2 incoming = (OpenConnectionReply2)message;
+						OpenConnectionReply2 incoming = (OpenConnectionReply2) message;
 						Thread.Sleep(50);
 						//_mtuSize = incoming.mtuSize;
 						SendConnectionRequest();
@@ -404,22 +404,22 @@ namespace MiNET.Client
 
 			TraceReceive(message);
 
-			if (typeof(UnknownPackage) == message.GetType())
+			if (typeof (UnknownPackage) == message.GetType())
 			{
 				return;
 			}
 
-			if (typeof(McpeDisconnect) == message.GetType())
+			if (typeof (McpeDisconnect) == message.GetType())
 			{
-				McpeDisconnect msg = (McpeDisconnect)message;
+				McpeDisconnect msg = (McpeDisconnect) message;
 				Log.Debug(msg.message);
 				StopServer();
 				return;
 			}
 
-			if (typeof(ConnectedPing) == message.GetType())
+			if (typeof (ConnectedPing) == message.GetType())
 			{
-				ConnectedPing msg = (ConnectedPing)message;
+				ConnectedPing msg = (ConnectedPing) message;
 				SendConnectedPong(msg.sendpingtime);
 				return;
 			}
@@ -501,15 +501,8 @@ namespace MiNET.Client
 			{
 				McpeSetEntityData msg = (McpeSetEntityData) message;
 				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				//try
-				{
-					MetadataDictionary metadata = GetMetadata(msg.namedtag);
-					Log.DebugFormat("NameTag: {0}", metadata.ToString());
-				}
-				//catch (Exception e)
-				//{
-				//	Log.Warn(e);
-				//}
+				MetadataDictionary metadata = GetMetadata(msg.namedtag);
+				Log.DebugFormat("Metadata: {0}", metadata.ToString());
 				return;
 			}
 
@@ -520,6 +513,24 @@ namespace MiNET.Client
 
 				_currentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
 				SendMcpeMovePlayer();
+				return;
+			}
+
+			if (typeof (McpeUpdateBlock) == message.GetType())
+			{
+				McpeUpdateBlock msg = (McpeUpdateBlock) message;
+				Log.DebugFormat("No of Blocks: {0}", msg.blocks.Count);
+				return;
+			}
+
+			if (typeof (McpeLevelEvent) == message.GetType())
+			{
+				McpeLevelEvent msg = (McpeLevelEvent) message;
+				Log.DebugFormat("Event ID: {0}", msg.eventId);
+				Log.DebugFormat("X: {0}", msg.x);
+				Log.DebugFormat("Y: {0}", msg.y);
+				Log.DebugFormat("Z: {0}", msg.z);
+				Log.DebugFormat("Data: {0}", msg.data);
 				return;
 			}
 		}

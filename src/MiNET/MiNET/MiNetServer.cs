@@ -180,7 +180,7 @@ namespace MiNET
 				//	}
 				//});
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 5);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 20);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);

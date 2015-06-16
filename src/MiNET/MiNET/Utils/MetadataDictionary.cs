@@ -78,14 +78,15 @@ namespace MiNET.Utils
 		{
 			StringBuilder sb = null;
 
-			foreach (var entry in entries.Values)
+			foreach (var entry in entries)
 			{
 				if (sb != null)
 					sb.Append(", ");
 				else
 					sb = new StringBuilder();
 
-				sb.Append(entry.ToString());
+				sb.Append("[" + entry.Key + "] ");
+				sb.Append(entry.Value.ToString());
 			}
 
 			if (sb != null)

@@ -13,6 +13,23 @@ namespace MiNET.Net
 
 		partial void AfterEncode()
 		{
+			switch (type)
+			{
+				case TypeChat:
+					Write(source);
+					Write(message);
+					break;
+				case TypeRaw:
+				case TypePopup:
+				case TypeTip:
+					Write(message);
+					break;
+
+				case TypeTranslation:
+					Write(message);
+					// More stuff
+					break;
+			}
 		}
 
 		partial void AfterDecode()

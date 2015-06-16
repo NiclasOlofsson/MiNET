@@ -412,8 +412,9 @@ namespace MiNET.Worlds
 		{
 			var response = new McpeText
 			{
+				type = McpeText.TypeChat,
 				source = sender == null ? "MiNET" : sender.Username,
-				message = "₽" + text
+				message = text
 			};
 
 			foreach (var player in GetSpawnedPlayers())

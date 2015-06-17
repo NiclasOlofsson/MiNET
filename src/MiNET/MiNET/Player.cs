@@ -400,7 +400,6 @@ namespace MiNET
 		private void HandleConnectionRequest(ConnectionRequest message)
 		{
 			ClientGuid = message.clientGuid;
-			EntityId = ClientGuid;
 
 			var response = new ConnectionRequestAcceptedManual((short) EndPoint.Port, message.timestamp);
 
@@ -508,7 +507,7 @@ namespace MiNET
 			SendPackage(new McpePlayerStatus {status = 3});
 
 			SendChunksForKnownPosition();
-
+	
 			IsSpawned = true;
 
 			LastUpdatedTime = DateTime.UtcNow;

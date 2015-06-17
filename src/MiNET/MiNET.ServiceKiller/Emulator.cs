@@ -21,11 +21,11 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 200; i++)
+			for (int i = 0; i < 1000; i++)
 			{
 				counter[0]++;
-				//string playerName = string.Format("Player {0}", (i + 1));
-				string playerName = "Player " + Guid.NewGuid();
+				string playerName = string.Format("Player {0}", (i + 1));
+				//string playerName = "Player " + Guid.NewGuid();
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
 				Thread.Sleep(random.Next(33, 333));
 			}

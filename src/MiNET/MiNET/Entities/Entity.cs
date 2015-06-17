@@ -49,6 +49,10 @@ namespace MiNET.Entities
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte)(HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
+			metadata[2] = new MetadataString("");
+			metadata[3] = new MetadataByte(1);
+			metadata[4] = new MetadataByte(0);
+			metadata[15] = new MetadataByte(0);
 			//metadata[16] = new MetadataByte(0);
 
 			return metadata;
@@ -86,7 +90,7 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(this, new McpeSetEntityData
 			{
 				entityId = EntityId,
-				namedtag = GetMetadata().GetBytes()
+				metadata = GetMetadata()
 			});
 		}
 

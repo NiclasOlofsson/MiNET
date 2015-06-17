@@ -201,7 +201,7 @@
 		<field name="Speed Z" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Metadata" type="byte[]" size="0" />
+		<field name="Metadata" type="MetadataDictionary"/>
 		<field name="Links" type="short" />
 	</pdu>
 
@@ -354,7 +354,7 @@
 
 	<pdu id="0x9e" online="false" client="false" server="true" name="ID_MCPE_SET_ENTITY_DATA">
 		<field name="Entity ID" type="long" />
-		<field name="Metadata" type="Metadata" size="0" />
+		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
 	<pdu id="0x9f" online="false" client="true" server="true" name="ID_MCPE_SET_ENTITY_MOTION">

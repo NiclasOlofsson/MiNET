@@ -494,6 +494,7 @@ namespace MiNET.Client
 				Log.DebugFormat("Velocity X: {0}", msg.speedX);
 				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+				Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
 
 				return;
 			}
@@ -501,7 +502,7 @@ namespace MiNET.Client
 			{
 				McpeSetEntityData msg = (McpeSetEntityData) message;
 				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				MetadataDictionary metadata = GetMetadata(msg.namedtag);
+				MetadataDictionary metadata = msg.metadata;
 				Log.DebugFormat("Metadata: {0}", metadata.ToString());
 				return;
 			}
@@ -533,15 +534,6 @@ namespace MiNET.Client
 				Log.DebugFormat("Data: {0}", msg.data);
 				return;
 			}
-		}
-
-		public MetadataDictionary GetMetadata(byte[] buffer)
-		{
-			var stream = new MemoryStream(buffer);
-			//stream.Write(buffer, 0, buffer.Length);
-			//stream.Position = 0;
-			var writer = new BinaryReader(stream);
-			return MetadataDictionary.FromStream(writer);
 		}
 
 		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)

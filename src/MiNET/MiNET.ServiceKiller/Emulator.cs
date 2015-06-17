@@ -21,7 +21,7 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 200; i++)
 			{
 				counter[0]++;
 				//string playerName = string.Format("Player {0}", (i + 1));
@@ -65,7 +65,7 @@ namespace MiNET.ServiceKiller
 				Thread.Sleep(100); // Let the server process
 				//Thread.Yield();
 
-				client.SendMcpeLogin(username);
+				client.SendLogin(username);
 				Thread.Sleep(100); // Let the server process
 				//Thread.Yield();
 

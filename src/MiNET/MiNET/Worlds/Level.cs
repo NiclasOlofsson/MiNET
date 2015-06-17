@@ -223,11 +223,6 @@ namespace MiNET.Worlds
 						SendRemoveForPlayer(targetPlayer, player);
 						SendRemoveForPlayer(player, targetPlayer);
 					}
-
-					foreach (Entity entity in Entities.ToArray())
-					{
-						SendAddEntityToPlayer(entity, player);
-					}
 				}
 				EntityManager.RemoveEntity(null, player);
 
@@ -300,7 +295,9 @@ namespace MiNET.Worlds
 						x = entity.KnownPosition.X,
 						y = entity.KnownPosition.Y,
 						z = entity.KnownPosition.Z,
-						metadata = entity.GetMetadata().GetBytes()
+						//yaw = entity.KnownPosition.Yaw,
+						//pitch = entity.KnownPosition.Pitch,
+						metadata = entity.GetMetadata()
 					};
 					{
 						double dx = entity.Velocity.X;
@@ -338,12 +335,23 @@ namespace MiNET.Worlds
 							dz = maxVelocity;
 						}
 
+						//addEntity.speedX = (short) (dx*8000.0d);
+						//addEntity.speedY = (short) (dy*8000.0d);
+						//addEntity.speedZ = (short) (dz*8000.0d);
 						addEntity.speedX = (float) (dx);
 						addEntity.speedY = (float) (dy);
 						addEntity.speedZ = (float) (dz);
 					}
 
 					RelayBroadcast(addEntity);
+
+					Log.DebugFormat("Metadata: {0}", entity.GetMetadata());
+
+					RelayBroadcast(new McpeSetEntityData
+					{
+						entityId = entity.EntityId,
+						metadata = entity.GetMetadata(),
+					});
 				}
 			}
 		}
@@ -371,7 +379,7 @@ namespace MiNET.Worlds
 					x = entity.KnownPosition.X,
 					y = entity.KnownPosition.Y,
 					z = entity.KnownPosition.Z,
-					metadata = entity.GetMetadata().GetBytes(),
+					metadata = entity.GetMetadata(),
 					speedX = (float) entity.Velocity.X,
 					speedY = (float) entity.Velocity.Y,
 					speedZ = (float) entity.Velocity.Z,

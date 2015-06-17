@@ -186,16 +186,16 @@ namespace MiNET
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
 				// Measure latency through system
-				//_internalPingTimer = new Timer(delegate(object state)
-				//{
-				//	IPEndPoint playerEndpoint = _playerSessions.Keys.FirstOrDefault();
-				//	if (playerEndpoint != null)
-				//	{
-				//		var ping = new InternalPing();
-				//		ping.Timer.Start();
-				//		HandlePackage(ping, playerEndpoint);
-				//	}
-				//}, null, 1000, 1000);
+				_internalPingTimer = new Timer(delegate(object state)
+				{
+					var playerSession = _playerSessions.Values.FirstOrDefault();
+					if (playerSession != null)
+					{
+						var ping = new InternalPing();
+						ping.Timer.Start();
+						HandlePackage(ping, playerSession);
+					}
+				}, null, 1000, 1000);
 
 				Log.Info("Server open for business...");
 
@@ -700,7 +700,7 @@ namespace MiNET
 			if (typeof (McpeBatch) == message.GetType())
 			{
 				McpeBatch batch = (McpeBatch) message;
-				
+
 				var messages = new List<Package>();
 
 				// Get bytes
@@ -884,23 +884,23 @@ namespace MiNET
 		{
 			if (_throughPut == null)
 			{
-				//_throughPut = new Timer(delegate(object state)
-				//{
-				//	int threads;
-				//	int portThreads;
-				//	ThreadPool.GetAvailableThreads(out threads, out portThreads);
-				//	double kbitPerSecondOut = _totalPacketSizeOut*8/1000000D;
-				//	double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
-				//	Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-				//		_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
-				//		_level.Players.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
+				_throughPut = new Timer(delegate(object state)
+				{
+					int threads;
+					int portThreads;
+					ThreadPool.GetAvailableThreads(out threads, out portThreads);
+					double kbitPerSecondOut = _totalPacketSizeOut*8/1000000D;
+					double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
+					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
+						_level.Players.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
 
-				//	_numberOfAckSent = 0;
-				//	_totalPacketSizeOut = 0;
-				//	_totalPacketSizeIn = 0;
-				//	_numberOfPacketsOutPerSecond = 0;
-				//	_numberOfPacketsInPerSecond = 0;
-				//}, null, 1000, 1000);
+					_numberOfAckSent = 0;
+					_totalPacketSizeOut = 0;
+					_totalPacketSizeIn = 0;
+					_numberOfPacketsOutPerSecond = 0;
+					_numberOfPacketsInPerSecond = 0;
+				}, null, 1000, 1000);
 			}
 
 			//_listener.SendAsync(data, data.Length, targetEndpoint).Wait(); // Has thread pooling issues?

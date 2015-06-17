@@ -11,16 +11,17 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void Relese(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
+		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
 		{
 			float force = CalculateForce(timeUsed);
 			if (force <= 0) return;
 
 			Arrow arrow = new Arrow(player, world);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
+			//arrow.KnownPosition.Y += 1.62f;
 
-			float yaw = player.KnownPosition.Yaw;
-			float pitch = player.KnownPosition.Pitch;
+			float yaw = arrow.KnownPosition.Yaw;
+			float pitch = arrow.KnownPosition.Pitch;
 
 			var vx = -Math.Sin(yaw/180f*Math.PI)*Math.Cos(pitch/180f*Math.PI);
 			var vy = -Math.Sin(pitch/180f*Math.PI);

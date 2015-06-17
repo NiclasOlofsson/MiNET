@@ -480,7 +480,7 @@ link[2] byte
 |Speed Z | float |  |
 |Yaw | float |  |
 |Pitch | float |  |
-|Metadata | byte[] | 0 |
+|Metadata | MetadataDictionary |  |
 |Links | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x8b)
@@ -832,7 +832,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|NamedTag | byte[] | 0 |
+|Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Motion (0x9f)
 

@@ -377,6 +377,19 @@ namespace MiNET.Net
 			}
 		}
 
+		public MetadataDictionary ReadMetadataDictionary()
+		{
+			return MetadataDictionary.FromStream(_reader);
+		}
+
+		public void Write(MetadataDictionary metadata)
+		{
+			if (metadata != null)
+			{
+				metadata.WriteTo(_writer);
+			}
+		}
+
 		public MetadataSlot ReadMetadataSlot()
 		{
 			return new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));

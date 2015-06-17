@@ -1297,7 +1297,7 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public float yaw; // = null;
 		public float pitch; // = null;
-		public byte[] metadata; // = null;
+		public MetadataDictionary metadata; // = null;
 		public short links; // = null;
 		public McpeAddEntity()
 		{
@@ -1345,7 +1345,7 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			yaw = ReadFloat();
 			pitch = ReadFloat();
-			metadata = ReadBytes(0);
+			metadata = ReadMetadataDictionary();
 			links = ReadShort();
 
 			AfterDecode();
@@ -2285,7 +2285,7 @@ namespace MiNET.Net
 	public partial class McpeSetEntityData : Package<McpeSetEntityData>
 	{
 		public long entityId; // = null;
-		public byte[] namedtag; // = null;
+		public MetadataDictionary metadata; // = null;
 		public McpeSetEntityData()
 		{
 			Id = 0x9e;
@@ -2298,7 +2298,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(entityId);
-			Write(namedtag);
+			Write(metadata);
 
 			AfterEncode();
 		}
@@ -2313,7 +2313,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			namedtag = ReadBytes(0);
+			metadata = ReadMetadataDictionary();
 
 			AfterDecode();
 		}

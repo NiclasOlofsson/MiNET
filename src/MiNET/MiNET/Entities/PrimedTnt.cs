@@ -46,7 +46,7 @@ namespace MiNET.Entities
 			{
 				var entityData = McpeSetEntityData.CreateObject();
 				entityData.entityId = EntityId;
-				entityData.namedtag = GetMetadata().GetBytes();
+				entityData.metadata = GetMetadata();
 				Level.RelayBroadcast(entityData);
 				if (CheckPosition) PositionCheck();
 			}

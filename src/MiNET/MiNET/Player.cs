@@ -275,13 +275,13 @@ namespace MiNET
 				{
 					if (_itemUseTimer == null) return;
 
-					MetadataDictionary metadata = new MetadataDictionary();
-					metadata[0] = new MetadataByte(0);
-					Level.RelayBroadcast(this, new McpeSetEntityData
-					{
-						entityId = EntityId,
-						namedtag = metadata.GetBytes(),
-					});
+					//MetadataDictionary metadata = new MetadataDictionary();
+					//metadata[0] = new MetadataByte(0);
+					//Level.RelayBroadcast(this, new McpeSetEntityData
+					//{
+					//	entityId = EntityId,
+					//	metadata = metadata,
+					//});
 
 					MetadataSlot itemSlot = Inventory.ItemInHand;
 					Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
@@ -289,7 +289,7 @@ namespace MiNET
 					if (itemInHand == null) return; // Cheat(?)
 
 					_itemUseTimer.Stop();
-					itemInHand.Relese(Level, this, new BlockCoordinates(message.x, message.y, message.z), _itemUseTimer.ElapsedMilliseconds);
+					itemInHand.Release(Level, this, new BlockCoordinates(message.x, message.y, message.z), _itemUseTimer.ElapsedMilliseconds);
 
 					_itemUseTimer = null;
 					break;
@@ -490,7 +490,7 @@ namespace MiNET
 			SendPackage(new McpeSetEntityData
 			{
 				entityId = EntityId,
-				namedtag = GetMetadata().GetBytes()
+				metadata = GetMetadata()
 			});
 
 			SendPackage(new McpeContainerSetContent
@@ -936,7 +936,7 @@ namespace MiNET
 				Level.RelayBroadcast(this, new McpeSetEntityData
 				{
 					entityId = EntityId,
-					namedtag = metadata.GetBytes(),
+					metadata = metadata,
 				});
 			}
 		}

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using MiNET.Net;
@@ -196,14 +198,55 @@ namespace MiNET.ServiceKiller
 			SendPackage(packet, _mtuSize, 0, 0);
 		}
 
-		public void SendMcpeLogin(string username)
+		public void SendLogin(string username)
 		{
 			var packet = new McpeLogin()
 			{
+				clientId = 12345,
 				username = username,
+				protocol = 27,
+				slim = 0,
+				skin = new string('Z', 8192)
 			};
 
-			SendPackage(packet, _mtuSize, 0, 0);
+			McpeBatch batch = new McpeBatch();
+			byte[] buffer = CompressBytes(packet.Encode());
+
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+
+			SendPackage(batch, _mtuSize, 0, 0);
+		}
+
+		public byte[] CompressBytes(byte[] input)
+		{
+			MemoryStream stream = new MemoryStream();
+			stream.WriteByte(0x78);
+			stream.WriteByte(0x01);
+			int checksum;
+			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
+				writer.Write(input);
+
+				writer.Flush();
+
+				checksum = compressStream.Checksum;
+				writer.Close();
+			}
+
+			byte[] checksumBytes = BitConverter.GetBytes(checksum);
+			if (BitConverter.IsLittleEndian)
+			{
+				// Adler32 checksum is big-endian
+				Array.Reverse(checksumBytes);
+			}
+			stream.Write(checksumBytes, 0, checksumBytes.Length);
+
+			var bytes = stream.ToArray();
+			stream.Close();
+
+			return bytes;
 		}
 
 

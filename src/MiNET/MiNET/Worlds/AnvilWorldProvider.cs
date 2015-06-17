@@ -294,8 +294,9 @@ namespace MiNET.Worlds
 						var blockEntityTag = (NbtCompound) nbtTag;
 						string entityId = blockEntityTag["id"].StringValue;
 						int x = blockEntityTag["x"].IntValue;
-						int y = blockEntityTag["y"].IntValue;
+						int y = blockEntityTag["y"].IntValue - yoffset;
 						int z = blockEntityTag["z"].IntValue;
+						blockEntityTag["y"] = new NbtInt("y", y);
 
 						BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
 						if (blockEntity != null)

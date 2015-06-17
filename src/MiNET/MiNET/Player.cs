@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
@@ -12,7 +11,6 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
-using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -474,8 +472,8 @@ namespace MiNET
 			SendStartGame();
 			SendSetSpawnPosition();
 			SendSetTime();
-			SendPackage(new McpeSetDifficulty { difficulty = (int)Level.Difficulty });
-			SendPackage(new McpeAdventureSettings { flags = 0x80 });
+			SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
+			SendPackage(new McpeAdventureSettings {flags = 0x80});
 			SendSetHealth();
 
 			SendPackage(new McpeSetEntityData
@@ -507,9 +505,12 @@ namespace MiNET
 				z = KnownPosition.Z
 			});
 
-			SendPackage(new McpePlayerStatus { status = 3 });
+			SendPackage(new McpePlayerStatus {status = 3});
 
 			SendChunksForKnownPosition();
+
+			IsSpawned = true;
+
 			LastUpdatedTime = DateTime.UtcNow;
 		}
 
@@ -518,8 +519,6 @@ namespace MiNET
 		/// </summary>
 		private void InitializePlayer()
 		{
-			IsSpawned = true;
-
 			//TODO: Send MobEffects here
 
 			//send time again
@@ -987,7 +986,6 @@ namespace MiNET
 
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				int count = 0;
 				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
 					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
@@ -1004,16 +1002,9 @@ namespace MiNET
 
 					// This is to slow down chunk-sending not to overrun old devices.
 					// The timeout should be configurable and enable/disable.
-					Thread.Sleep(12);
+					//Thread.Sleep(12);
 
 					SendPackage(batch);
-
-					if (count == 56 && !IsSpawned)
-					{
-						InitializePlayer();
-					}
-
-					count++;
 				}
 			});
 		}
@@ -1099,7 +1090,7 @@ namespace MiNET
 			//[17] long 6 0
 
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte)(HealthManager.IsOnFire ? 1 : 0));
+			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(Username);
 			metadata[3] = new MetadataByte(1);

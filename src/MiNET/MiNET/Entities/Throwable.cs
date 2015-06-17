@@ -36,7 +36,6 @@ namespace MiNET.Entities
 
 		public override void OnTick()
 		{
-			return;
 			base.OnTick();
 
 			if (KnownPosition.Y <= 0

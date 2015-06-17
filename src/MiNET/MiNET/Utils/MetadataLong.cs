@@ -4,9 +4,10 @@ namespace MiNET.Utils
 {
 	public class MetadataLong : MetadataEntry
 	{
+		public byte id = 7;
 		public override byte Identifier
 		{
-			get { return 6; }
+			get { return id; }
 		}
 
 		public override string FriendlyName

@@ -160,8 +160,8 @@ namespace MiNET.Client
 			if (receiveBytes.Length != 0)
 			{
 				//new Task(() => ProcessMessage(receiveBytes, senderEndpoint)).Start();
-				ProcessMessage(receiveBytes, senderEndpoint);
 				if (listener.Client == null) return;
+				ProcessMessage(receiveBytes, senderEndpoint);
 				listener.BeginReceive(ReceiveCallback, listener);
 			}
 			else
@@ -195,7 +195,7 @@ namespace MiNET.Client
 				{
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
-						Thread.Sleep(50);
+						//Thread.Sleep(50);
 						UnconnectedPong incoming = (UnconnectedPong) message;
 						SendOpenConnectionRequest1();
 
@@ -203,25 +203,26 @@ namespace MiNET.Client
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
 					{
-						Thread.Sleep(50);
+						//Thread.Sleep(50);
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
+						if(incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
 						SendOpenConnectionRequest2();
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_2:
 					{
 						OpenConnectionReply2 incoming = (OpenConnectionReply2) message;
-						Thread.Sleep(50);
+						//Thread.Sleep(50);
 						//_mtuSize = incoming.mtuSize;
 						SendConnectionRequest();
 						break;
 					}
 					case DefaultMessageIdTypes.ID_CONNECTION_REQUEST_ACCEPTED:
 					{
-						Thread.Sleep(50);
+						//Thread.Sleep(50);
 						SendNewIncomingConnection();
 						var t1 = new Timer(state => SendConnectedPing(), null, 0, 5000);
-						Thread.Sleep(50);
+						//Thread.Sleep(50);
 						SendLogin("Client12");
 						break;
 					}
@@ -277,6 +278,10 @@ namespace MiNET.Client
 							{
 								_splits[spId] = new SplitPartPackage[spCount];
 							}
+							else
+							{
+								Log.WarnFormat("Resent split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
+							}
 
 							SplitPartPackage[] spPackets = _splits[spId];
 							spPackets[spIdx] = splitMessage;
@@ -289,7 +294,7 @@ namespace MiNET.Client
 
 							if (!haveEmpty)
 							{
-								Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+								Log.WarnFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
 
 								MemoryStream stream = new MemoryStream();
 								for (int i = 0; i < spPackets.Length; i++)
@@ -491,10 +496,13 @@ namespace MiNET.Client
 				Log.DebugFormat("X: {0}", msg.x);
 				Log.DebugFormat("Y: {0}", msg.y);
 				Log.DebugFormat("Z: {0}", msg.z);
+				Log.DebugFormat("Yaw: {0}", msg.yaw);
+				Log.DebugFormat("Pitch: {0}", msg.pitch);
 				Log.DebugFormat("Velocity X: {0}", msg.speedX);
 				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
 				Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
+				Log.DebugFormat("Links count: {0}", msg.links);
 
 				return;
 			}

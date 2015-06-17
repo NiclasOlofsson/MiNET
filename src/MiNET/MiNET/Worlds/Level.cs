@@ -167,14 +167,14 @@ namespace MiNET.Worlds
 			receiver.SendPackage(
 				new McpeAddPlayer
 				{
-					clientId = 0,
+					clientId = player.EntityId,
 					username = player.Username,
 					entityId = player.EntityId,
 					x = player.KnownPosition.X,
 					y = player.KnownPosition.Y,
 					z = player.KnownPosition.Z,
 					yaw = player.KnownPosition.Yaw,
-					headYaw = player.KnownPosition.Yaw,
+					headYaw = player.KnownPosition.HeadYaw,
 					pitch = player.KnownPosition.Pitch,
 					slim = 0,
 					skin = player.Skin,
@@ -295,57 +295,57 @@ namespace MiNET.Worlds
 						x = entity.KnownPosition.X,
 						y = entity.KnownPosition.Y,
 						z = entity.KnownPosition.Z,
-						//yaw = entity.KnownPosition.Yaw,
-						//pitch = entity.KnownPosition.Pitch,
+						yaw = entity.KnownPosition.Yaw,
+						pitch = entity.KnownPosition.Pitch,
 						metadata = entity.GetMetadata()
 					};
 					{
 						double dx = entity.Velocity.X;
 						double dy = entity.Velocity.Y;
 						double dz = entity.Velocity.Z;
-						double maxVelocity = 3.92d;
+						//double maxVelocity = 3.92d;
 
-						if (dx < -maxVelocity)
-						{
-							dx = -maxVelocity;
-						}
+						//if (dx < -maxVelocity)
+						//{
+						//	dx = -maxVelocity;
+						//}
 
-						if (dy < -maxVelocity)
-						{
-							dy = -maxVelocity;
-						}
+						//if (dy < -maxVelocity)
+						//{
+						//	dy = -maxVelocity;
+						//}
 
-						if (dz < -maxVelocity)
-						{
-							dz = -maxVelocity;
-						}
+						//if (dz < -maxVelocity)
+						//{
+						//	dz = -maxVelocity;
+						//}
 
-						if (dx > maxVelocity)
-						{
-							dx = maxVelocity;
-						}
+						//if (dx > maxVelocity)
+						//{
+						//	dx = maxVelocity;
+						//}
 
-						if (dy > maxVelocity)
-						{
-							dy = maxVelocity;
-						}
+						//if (dy > maxVelocity)
+						//{
+						//	dy = maxVelocity;
+						//}
 
-						if (dz > maxVelocity)
-						{
-							dz = maxVelocity;
-						}
+						//if (dz > maxVelocity)
+						//{
+						//	dz = maxVelocity;
+						//}
 
-						//addEntity.speedX = (short) (dx*8000.0d);
-						//addEntity.speedY = (short) (dy*8000.0d);
-						//addEntity.speedZ = (short) (dz*8000.0d);
-						addEntity.speedX = (float) (dx);
-						addEntity.speedY = (float) (dy);
-						addEntity.speedZ = (float) (dz);
+						//addEntity.speedX = (short)(dx * 8000.0d);
+						//addEntity.speedY = (short)(dy * 8000.0d);
+						//addEntity.speedZ = (short)(dz * 8000.0d);
+						addEntity.speedX = (float)(dx);
+						addEntity.speedY = (float)(dy);
+						addEntity.speedZ = (float)(dz);
 					}
 
 					RelayBroadcast(addEntity);
 
-					Log.DebugFormat("Metadata: {0}", entity.GetMetadata());
+					Log.WarnFormat("Metadata: {0}", entity.GetMetadata());
 
 					RelayBroadcast(new McpeSetEntityData
 					{
@@ -379,6 +379,8 @@ namespace MiNET.Worlds
 					x = entity.KnownPosition.X,
 					y = entity.KnownPosition.Y,
 					z = entity.KnownPosition.Z,
+					yaw = entity.KnownPosition.Yaw,
+					pitch = entity.KnownPosition.Pitch,
 					metadata = entity.GetMetadata(),
 					speedX = (float) entity.Velocity.X,
 					speedY = (float) entity.Velocity.Y,

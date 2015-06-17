@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -40,7 +39,11 @@ namespace MiNET.Utils
 				byte index = (byte) (key & 0x1F);
 
 				var entry = EntryTypes[type]();
-				if(index == 17) entry = new MetadataLong();
+				if (index == 17)
+				{
+					entry = new MetadataLong {id = type};
+				}
+
 				entry.FromStream(stream);
 				entry.Index = index;
 
@@ -69,9 +72,8 @@ namespace MiNET.Utils
 			() => new MetadataString(), // 4
 			() => new MetadataSlot(), // 5
 			() => new MetadataIntCoordinates(), // 6
-			() => new MetadataByte(), // 7 Rotation Ignore
+			() => new MetadataLong(), // 7
 			() => new MetadataLong(), // 8
-			//() => new MetadataIntCoordinates(), // 6
 		};
 
 		public override string ToString()

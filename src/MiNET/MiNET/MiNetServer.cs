@@ -180,7 +180,7 @@ namespace MiNET
 				//	}
 				//});
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 20);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -385,6 +385,7 @@ namespace MiNET
 
 							PlayerNetworkSession session =
 								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
+							//session.Player.EntityId = incoming.clientGuid;
 							session.LastUpdatedTime = DateTime.UtcNow;
 
 							_playerSessions.TryAdd(senderEndpoint, session);

@@ -29,6 +29,10 @@ namespace MiNET.Items
 
 			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5);
 
+			var k = Math.Sqrt((arrow.Velocity.X * arrow.Velocity.X) + (arrow.Velocity.Z * arrow.Velocity.Z));
+			arrow.KnownPosition.Yaw = (float)(Math.Atan2(arrow.Velocity.X, arrow.Velocity.Z) * 180f / Math.PI);
+			arrow.KnownPosition.Pitch = (float)(Math.Atan2(arrow.Velocity.Y, k) * 180f / Math.PI);
+
 			arrow.SpawnEntity();
 		}
 

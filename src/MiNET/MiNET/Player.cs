@@ -12,6 +12,7 @@ using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
+using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -275,14 +276,6 @@ namespace MiNET
 				{
 					if (_itemUseTimer == null) return;
 
-					//MetadataDictionary metadata = new MetadataDictionary();
-					//metadata[0] = new MetadataByte(0);
-					//Level.RelayBroadcast(this, new McpeSetEntityData
-					//{
-					//	entityId = EntityId,
-					//	metadata = metadata,
-					//});
-
 					MetadataSlot itemSlot = Inventory.ItemInHand;
 					Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
 
@@ -292,6 +285,15 @@ namespace MiNET
 					itemInHand.Release(Level, this, new BlockCoordinates(message.x, message.y, message.z), _itemUseTimer.ElapsedMilliseconds);
 
 					_itemUseTimer = null;
+
+					MetadataDictionary metadata = new MetadataDictionary();
+					metadata[0] = new MetadataByte(0);
+					Level.RelayBroadcast(this, new McpeSetEntityData
+					{
+						entityId = EntityId,
+						metadata = metadata,
+					});
+
 					break;
 				}
 				default:
@@ -375,10 +377,10 @@ namespace MiNET
 				hotbarData = null
 			});
 
+			BroadcastSetEntityData();
+
 			// Broadcast spawn to all
 			Level.AddPlayer(this);
-
-			BroadcastSetEntityData();
 
 			SendMovePlayer();
 		}
@@ -400,6 +402,7 @@ namespace MiNET
 		private void HandleConnectionRequest(ConnectionRequest message)
 		{
 			ClientGuid = message.clientGuid;
+			EntityId = ClientGuid;
 
 			var response = new ConnectionRequestAcceptedManual((short) EndPoint.Port, message.timestamp);
 
@@ -469,29 +472,19 @@ namespace MiNET
 
 			SendPackage(new McpePlayerStatus {status = 0});
 			SendStartGame();
-			SendSetTime();
-			//SendPackage(new McpeRespawn { entityId = EntityId, x = KnownPosition.X, y = KnownPosition.Y, z = KnownPosition.Z });
 			SendSetSpawnPosition();
+			SendSetTime();
+			SendPackage(new McpeSetDifficulty { difficulty = (int)Level.Difficulty });
+			SendPackage(new McpeAdventureSettings { flags = 0x80 });
 			SendSetHealth();
-			SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
-			SendChunksForKnownPosition();
-			LastUpdatedTime = DateTime.UtcNow;
-		}
-
-		/// <summary>
-		///     Initializes the player.
-		/// </summary>
-		private void InitializePlayer()
-		{
-			SendPackage(new McpeAdventureSettings {flags = 0x80});
-
-			//TODO: Send MobEffects here
 
 			SendPackage(new McpeSetEntityData
 			{
 				entityId = EntityId,
 				metadata = GetMetadata()
 			});
+
+			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
 			SendPackage(new McpeContainerSetContent
 			{
@@ -507,9 +500,6 @@ namespace MiNET
 				hotbarData = null
 			});
 
-			//send time again
-			SendSetTime();
-
 			SendPackage(new McpeRespawn
 			{
 				x = KnownPosition.X,
@@ -517,13 +507,27 @@ namespace MiNET
 				z = KnownPosition.Z
 			});
 
-			SendPackage(new McpePlayerStatus {status = 3});
+			SendPackage(new McpePlayerStatus { status = 3 });
+
+			SendChunksForKnownPosition();
+			LastUpdatedTime = DateTime.UtcNow;
+		}
+
+		/// <summary>
+		///     Initializes the player.
+		/// </summary>
+		private void InitializePlayer()
+		{
+			IsSpawned = true;
+
+			//TODO: Send MobEffects here
+
+			//send time again
+			SendSetTime();
+
 
 			// Teleport user (MovePlayerPacket) teleport=1
 			//SendMovePlayer();
-
-			IsSpawned = true;
-			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
 			//BroadcastSetEntityData();
 		}
@@ -949,9 +953,9 @@ namespace MiNET
 				generator = 1,
 				gamemode = (int) Level.GameMode,
 				entityId = EntityId,
-				spawnX = (int) KnownPosition.X,
-				spawnY = (int) KnownPosition.Y,
-				spawnZ = (int) KnownPosition.Z,
+				spawnX = Level.SpawnPoint.X,
+				spawnY = Level.SpawnPoint.Y,
+				spawnZ = Level.SpawnPoint.Z,
 				x = KnownPosition.X,
 				y = KnownPosition.Y,
 				z = KnownPosition.Z
@@ -1068,8 +1072,8 @@ namespace MiNET
 			package.y = KnownPosition.Y;
 			package.z = KnownPosition.Z;
 			package.yaw = KnownPosition.Yaw;
-			package.pitch = KnownPosition.Pitch;
 			package.headYaw = KnownPosition.HeadYaw;
+			package.pitch = KnownPosition.Pitch;
 			package.teleport = 0x80;
 
 			SendPackage(package);
@@ -1079,6 +1083,36 @@ namespace MiNET
 		{
 			base.OnTick();
 		}
+
+
+		public override MetadataDictionary GetMetadata()
+		{
+			//[0] byte 0 0, 
+			//[1] short 1 300, 
+			//[2] string 4 Client12, 
+			//[3] byte 0 1, 
+			//[4] byte 0 0, 
+			//[7] int 2 0, 
+			//[8] byte 0 0, 
+			//[15] byte 0 0, 
+			//[16] byte 0 0, 
+			//[17] long 6 0
+
+			MetadataDictionary metadata = new MetadataDictionary();
+			metadata[0] = new MetadataByte((byte)(HealthManager.IsOnFire ? 1 : 0));
+			metadata[1] = new MetadataShort(HealthManager.Air);
+			metadata[2] = new MetadataString(Username);
+			metadata[3] = new MetadataByte(1);
+			metadata[4] = new MetadataByte(0);
+			metadata[7] = new MetadataInt(0);
+			metadata[8] = new MetadataByte(0);
+			metadata[15] = new MetadataByte(0);
+			metadata[16] = new MetadataByte(0);
+			metadata[17] = new MetadataLong(0);
+
+			return metadata;
+		}
+
 
 		public override void DespawnEntity()
 		{

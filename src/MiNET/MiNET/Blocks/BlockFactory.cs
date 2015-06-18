@@ -46,6 +46,7 @@ namespace MiNET.Blocks
 			else if (blockId == 21) block = new LapsisOre();
 			else if (blockId == 22) block = new LapsisBlock();
 			else if (blockId == 24) block = new Sandstone();
+			else if (blockId == 24) block = new Bed();
 			else if (blockId == 31) block = new TallGrass();
 			else if (blockId == 41) block = new GoldBlock();
 			else if (blockId == 43) block = new DoubleStoneSlab();
@@ -99,23 +100,6 @@ namespace MiNET.Blocks
 			}
 
 			return block;
-		}
-	}
-
-	public class TallGrass : Block
-	{
-		public enum TallGrassTypes
-		{
-			DeadShrub = 0,
-			TallGrass = 1,
-			Fern = 2
-		}
-
-		protected internal TallGrass() : base(31)
-		{
-			IsSolid = false;
-			IsReplacible = true;
-			IsTransparent = true;
 		}
 	}
 }

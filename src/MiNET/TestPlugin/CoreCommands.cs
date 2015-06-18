@@ -138,6 +138,7 @@ namespace TestPlugin
 		public void PlayerInfo(Player player)
 		{
 			player.SendMessage(string.Format("Username={0}", player.Username));
+			player.SendMessage(string.Format("Entity ID={0}", player.EntityId));
 			player.SendMessage(string.Format("Client GUID={0}", player.ClientGuid));
 			player.SendMessage(string.Format("Client ID={0}", player.ClientId));
 		}

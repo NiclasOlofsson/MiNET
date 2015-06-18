@@ -65,6 +65,7 @@
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="BlockFace.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
+    <Compile Include="Blocks\Bed.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />
     <Compile Include="Blocks\BlockStairs.cs" />
     <Compile Include="Blocks\BookShelf.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Blocks\StoneBrick.cs" />
     <Compile Include="Blocks\StoneBrickStairs.cs" />
     <Compile Include="Blocks\StoneSlab.cs" />
+    <Compile Include="Blocks\TallGrass.cs" />
     <Compile Include="Blocks\WallSign.cs" />
     <Compile Include="Blocks\StationaryWater.cs" />
     <Compile Include="Blocks\Wood.cs" />
@@ -131,6 +133,7 @@
     <Compile Include="Entities\Throwable.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
+    <Compile Include="Items\ItemBed.cs" />
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />

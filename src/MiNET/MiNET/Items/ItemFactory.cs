@@ -44,6 +44,7 @@ namespace MiNET.Items
 			else if (id == 324) item = new ItemDoor(metadata);
 			else if (id == 325) item = new ItemBucket(metadata);
 			else if (id == 332) item = new ItemSnowball(metadata);
+			else if (id == 355) item = new ItemBed(metadata);
 			else if (id == 363) item = new ItemRawBeef(metadata);
 			else if (id == 365) item = new ItemRawChicken(metadata);
 			else if (id == 319) item = new ItemRawPorkchop(metadata);

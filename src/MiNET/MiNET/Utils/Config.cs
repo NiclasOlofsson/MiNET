@@ -15,21 +15,31 @@ namespace MiNET.Utils
 
 		static Config()
 		{
-			try
+			if (!MiNetServer.IsRunningOnMono()) //Fix issue on linux/mono.
 			{
-				var assembly = Assembly.GetExecutingAssembly().GetName().CodeBase;
-				var path = new Uri(Path.GetDirectoryName(assembly)).LocalPath;
-
-				var configFilePath = Path.Combine(path, ConfigFileName);
-
-				if (File.Exists(configFilePath))
+				try
 				{
-					FileContents = File.ReadAllText(configFilePath);
+					var assembly = Assembly.GetExecutingAssembly().GetName().CodeBase;
+					var path = new Uri(Path.GetDirectoryName(assembly)).LocalPath;
+
+					var configFilePath = Path.Combine(path, ConfigFileName);
+
+					if (File.Exists(configFilePath))
+					{
+						FileContents = File.ReadAllText(configFilePath);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Warn("Error configuring parser", e);
 				}
 			}
-			catch (Exception e)
+			else
 			{
-				Log.Warn("Error configuring parser", e);
+				if (File.Exists(ConfigFileName))
+				{
+					FileContents = File.ReadAllText(ConfigFileName);
+				}
 			}
 		}
 

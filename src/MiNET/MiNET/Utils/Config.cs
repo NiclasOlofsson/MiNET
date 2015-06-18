@@ -15,9 +15,9 @@ namespace MiNET.Utils
 
 		static Config()
 		{
-			if (!MiNetServer.IsRunningOnMono()) //Fix issue on linux/mono.
+			try
 			{
-				try
+				if (!MiNetServer.IsRunningOnMono()) //Fix issue on linux/mono.
 				{
 					var assembly = Assembly.GetExecutingAssembly().GetName().CodeBase;
 					var path = new Uri(Path.GetDirectoryName(assembly)).LocalPath;
@@ -29,17 +29,17 @@ namespace MiNET.Utils
 						FileContents = File.ReadAllText(configFilePath);
 					}
 				}
-				catch (Exception e)
+				else
 				{
-					Log.Warn("Error configuring parser", e);
+					if (File.Exists(ConfigFileName))
+					{
+						FileContents = File.ReadAllText(ConfigFileName);
+					}
 				}
 			}
-			else
+			catch (Exception e)
 			{
-				if (File.Exists(ConfigFileName))
-				{
-					FileContents = File.ReadAllText(ConfigFileName);
-				}
+				Log.Warn("Error configuring parser", e);
 			}
 		}
 

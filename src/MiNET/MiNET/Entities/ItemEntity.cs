@@ -50,12 +50,6 @@ namespace MiNET.Entities
 			{
 				if (KnownPosition.DistanceTo(player.KnownPosition) <= 1)
 				{
-					//player.SendPackage(new McpeTakeItemEntity()
-					//{
-					//	entityId = 0,
-					//	target = EntityId
-					//});
-
 					Level.RelayBroadcast(new McpeTakeItemEntity()
 					{
 						entityId = player.EntityId,

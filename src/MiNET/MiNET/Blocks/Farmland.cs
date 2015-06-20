@@ -4,9 +4,10 @@ namespace MiNET.Blocks
 {
     class FarmLand : Block
     {
-        internal  FarmLand() : base(60)
+        internal FarmLand()
+            : base(60)
         {
- 
+
         }
     }
 }

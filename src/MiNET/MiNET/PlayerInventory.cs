@@ -48,6 +48,7 @@ namespace MiNET
 			Slots[c++] = new MetadataSlot(new ItemStack(263, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(268, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(280, 10));
+            Slots[c++] = new MetadataSlot(new ItemStack(290, 1));
 
 			for (byte i = 0; i < 6; i++)
 			{

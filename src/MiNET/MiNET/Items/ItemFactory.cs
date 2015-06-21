@@ -62,7 +62,7 @@ namespace MiNET.Items
 			else if (id == 312) item = new ItemDiamondLeggings(metadata);
 			else if (id == 313) item = new ItemDiamondBoots(metadata);
 			else if (id == 344) item = new ItemEgg(metadata);
-			else if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte)id), metadata);
+			else if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte) id), metadata);
 			else item = new Item(id, metadata);
 
 			return item;

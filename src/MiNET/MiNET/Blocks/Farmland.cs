@@ -1,13 +1,9 @@
-﻿
-
-namespace MiNET.Blocks
+﻿namespace MiNET.Blocks
 {
-    class FarmLand : Block
-    {
-        internal FarmLand()
-            : base(60)
-        {
-
-        }
-    }
+	internal class Farmland : Block
+	{
+		internal Farmland() : base(60)
+		{
+		}
+	}
 }

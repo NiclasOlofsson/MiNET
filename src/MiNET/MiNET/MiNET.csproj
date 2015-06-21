@@ -147,6 +147,7 @@
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldHoe.cs" />
+    <Compile Include="Items\ItemHoe.cs" />
     <Compile Include="Items\ItemIronBoots.cs" />
     <Compile Include="Items\ItemIronChestplate.cs" />
     <Compile Include="Items\ItemIronHelmet.cs" />

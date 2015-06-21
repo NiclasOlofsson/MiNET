@@ -40,6 +40,11 @@ namespace MiNET.Items
 			else if (id == 270) item = new ItemWoodenPickaxe(metadata);
 			else if (id == 271) item = new ItemWoodenAxe(metadata);
 			else if (id == 280) item = new ItemStick(metadata);
+			else if (id == 290) item = new ItemWoodenHoe(metadata);
+			else if (id == 291) item = new ItemStoneHoe(metadata);
+			else if (id == 292) item = new ItemIronHoe(metadata);
+			else if (id == 293) item = new ItemDiamondHoe(metadata);
+			else if (id == 294) item = new ItemGoldHoe(metadata);
 			else if (id == 323) item = new ItemSign(metadata);
 			else if (id == 324) item = new ItemDoor(metadata);
 			else if (id == 325) item = new ItemBucket(metadata);
@@ -57,7 +62,7 @@ namespace MiNET.Items
 			else if (id == 312) item = new ItemDiamondLeggings(metadata);
 			else if (id == 313) item = new ItemDiamondBoots(metadata);
 			else if (id == 344) item = new ItemEgg(metadata);
-			else if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte) id), metadata);
+			else if (id <= 255) item = new ItemBlock(BlockFactory.GetBlockById((byte)id), metadata);
 			else item = new Item(id, metadata);
 
 			return item;

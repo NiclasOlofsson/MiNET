@@ -142,6 +142,7 @@ namespace MiNET.Items
 		PickAxe,
 		Axe,
 		Item,
+		Hoe,
 
 		//Armor
 		Helmet,

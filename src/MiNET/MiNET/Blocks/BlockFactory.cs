@@ -9,7 +9,7 @@ namespace MiNET.Blocks
 
 	public static class BlockFactory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BlockFactory));
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
@@ -59,6 +59,7 @@ namespace MiNET.Blocks
 			else if (blockId == 54) block = new Chest();
 			else if (blockId == 56) block = new DiamondOre();
 			else if (blockId == 58) block = new CraftingTable();
+			else if (blockId == 60) block = new FarmLand();
 			else if (blockId == 61) block = new Furnace();
 			else if (blockId == 62) block = new LitFurnace();
 			else if (blockId == 63) block = new StandingSign();

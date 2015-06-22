@@ -29,8 +29,8 @@ namespace MiNET.Worlds
 			isDirty = false;
 			//Parallel.For(0, skylight.Data.Length, i => skylight.Data[i] = 0xff);
 
-			for (int i = 0; i < skylight.Data.Length; i++)
-				skylight.Data[i] = 0xff;
+			//for (int i = 0; i < skylight.Data.Length; i++)
+			//	skylight.Data[i] = 0xff;
 
 			for (int i = 0; i < biomeColor.Length; i++)
 				biomeColor[i] = 8761930; // Grass color?

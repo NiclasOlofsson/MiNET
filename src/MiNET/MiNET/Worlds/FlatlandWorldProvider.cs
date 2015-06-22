@@ -76,6 +76,24 @@ namespace MiNET.Worlds
 					}
 				}
 
+				for (int x = 0; x < 16; x++)
+				{
+					for (int z = 0; z < 16; z++)
+					{
+						for (int y = 127; y != 0; y--)
+						{
+							if (chunk.GetBlock(x, y, z) == 0x00)
+							{
+								chunk.SetSkylight(x, y, z, 0xff);
+							}
+							else
+							{
+								chunk.SetSkylight(x, y, z, 0x00);
+							}
+						}
+					}
+				}
+
 				_chunkCache[chunkCoordinates] = chunk;
 
 				return chunk;

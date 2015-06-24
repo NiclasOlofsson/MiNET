@@ -20,6 +20,7 @@ namespace MiNET.Entities
 			Shooter = shooter;
 			Ttl = 0;
 			DespawnOnImpact = true;
+			BroadcastMovement = false;
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -36,11 +37,11 @@ namespace MiNET.Entities
 
 		public override void OnTick()
 		{
-			base.OnTick();
+			//base.OnTick();
 
 			if (KnownPosition.Y <= 0
-				|| (Velocity.Distance <= 0 && DespawnOnImpact)
-				|| (Velocity.Distance <= 0 && !DespawnOnImpact && Ttl == 0))
+			    || (Velocity.Distance <= 0 && DespawnOnImpact)
+			    || (Velocity.Distance <= 0 && !DespawnOnImpact && Ttl <= 0))
 			{
 				DespawnEntity();
 				return;
@@ -50,22 +51,11 @@ namespace MiNET.Entities
 
 			if (KnownPosition.Y <= 0 || Velocity.Distance <= 0) return;
 
-			Velocity *= (1.0 - Drag);
-			Velocity -= new Vector3(0, Gravity, 0);
-
-			KnownPosition.X += (float) Velocity.X;
-			KnownPosition.Y += (float) Velocity.Y;
-			KnownPosition.Z += (float) Velocity.Z;
-
-			var k = Math.Sqrt((Velocity.X*Velocity.X) + (Velocity.Z*Velocity.Z));
-			KnownPosition.Yaw = (float) (Math.Atan2(Velocity.X, Velocity.Z)*180f/Math.PI);
-			KnownPosition.Pitch = (float) (Math.Atan2(Velocity.Y, k)*180f/Math.PI);
-
 			var bbox = GetBoundingBox();
 
 			Player playerHitted = CheckEntityCollide(bbox);
 
-			bool collided;
+			bool collided = false;
 			if (playerHitted != null)
 			{
 				playerHitted.HealthManager.TakeHit(this, 1, DamageCause.Projectile);
@@ -73,16 +63,57 @@ namespace MiNET.Entities
 			}
 			else
 			{
-				collided = CheckBlockCollide(KnownPosition);
+				//collided = CheckBlockCollide(KnownPosition);
+				if (!collided)
+				{
+					var velocity2 = Velocity;
+					velocity2 *= (1.0d - Drag);
+					velocity2 -= new Vector3(0, Gravity, 0);
+					double distance = velocity2.Distance;
+					velocity2 = velocity2.Normalize()/2;
+
+					for (int i = 0; i < Math.Ceiling(distance)*2; i++)
+					{
+						PlayerLocation nextPos = (PlayerLocation) KnownPosition.Clone();
+						nextPos.X += (float) velocity2.X*i;
+						nextPos.Y += (float) velocity2.Y*i;
+						nextPos.Z += (float) velocity2.Z*i;
+
+						BlockCoordinates coord = new BlockCoordinates(nextPos);
+						Block block = Level.GetBlock(coord);
+						collided = block.Id != 0 && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+						if (collided)
+						{
+							var substBlock = new Block(57) {Coordinates = block.Coordinates};
+							//Level.SetBlock(substBlock);
+							//KnownPosition = nextPos;
+							SetIntersectLocation(block.GetBoundingBox(), KnownPosition);
+							break;
+						}
+					}
+				}
 			}
 
 			if (collided)
 			{
 				Velocity = Vector3.Zero;
 			}
+			else
+			{
+				KnownPosition.X += (float)Velocity.X;
+				KnownPosition.Y += (float)Velocity.Y;
+				KnownPosition.Z += (float)Velocity.Z;
+
+				Velocity *= (1.0 - Drag);
+				Velocity -= new Vector3(0, Gravity, 0);
+
+				var k = Math.Sqrt((Velocity.X*Velocity.X) + (Velocity.Z*Velocity.Z));
+				KnownPosition.Yaw = (float) (Math.Atan2(Velocity.X, Velocity.Z)*180f/Math.PI);
+				KnownPosition.Pitch = (float) (Math.Atan2(Velocity.Y, k)*180f/Math.PI);
+			}
 
 			// For debugging of flight-path
-			//BroadcastMoveAndMotion();
+			BroadcastMoveAndMotion();
 		}
 
 		private Player CheckEntityCollide(BoundingBox bbox)
@@ -186,13 +217,18 @@ namespace MiNET.Entities
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
-			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entities = new EntityMotions {{EntityId, Velocity}};
-			new Task(() => Level.RelayBroadcast(motions)).Start();
+			if (BroadcastMovement)
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entities = new EntityMotions {{EntityId, Velocity}};
+				new Task(() => Level.RelayBroadcast(motions)).Start();
 
-			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-			moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
-			new Task(() => Level.RelayBroadcast(moveEntity)).Start();
+				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+				moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
+				new Task(() => Level.RelayBroadcast(moveEntity)).Start();
+			}
 		}
+
+		public bool BroadcastMovement { get; set; }
 	}
 }

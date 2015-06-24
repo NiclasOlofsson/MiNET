@@ -28,11 +28,19 @@ namespace MiNET.Utils
 		}
 
 		/// <summary>
-		/// Truncates the decimal component of each part of this Vector3.
+		/// Floors the decimal component of each part of this Vector3.
 		/// </summary>
 		public Vector3 Floor()
 		{
 			return new Vector3(Math.Floor(X), Math.Floor(Y), Math.Floor(Z));
+		}
+
+		/// <summary>
+		/// Truncate the decimal component of each part of this Vector3.
+		/// </summary>
+		public Vector3 Truncate()
+		{
+			return new Vector3(Math.Truncate(X), Math.Truncate(Y), Math.Truncate(Z));
 		}
 
 		public Vector3 Normalize()

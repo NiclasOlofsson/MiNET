@@ -559,7 +559,7 @@ namespace MiNET
 			KnownPosition = new PlayerLocation
 			{
 				X = message.x,
-				Y = message.y,
+				Y = message.y - 1.62f,
 				Z = message.z,
 				Pitch = message.pitch,
 				Yaw = message.yaw,
@@ -1059,7 +1059,7 @@ namespace MiNET
 			var package = McpeMovePlayer.CreateObject();
 			package.entityId = EntityId;
 			package.x = KnownPosition.X;
-			package.y = KnownPosition.Y;
+			package.y = KnownPosition.Y + 1.62f;
 			package.z = KnownPosition.Z;
 			package.yaw = KnownPosition.Yaw;
 			package.headYaw = KnownPosition.HeadYaw;

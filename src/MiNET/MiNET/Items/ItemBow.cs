@@ -18,7 +18,7 @@ namespace MiNET.Items
 
 			Arrow arrow = new Arrow(player, world);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-			//arrow.KnownPosition.Y += 1.62f;
+			arrow.KnownPosition.Y += 1.62f;
 
 			float yaw = arrow.KnownPosition.Yaw;
 			float pitch = arrow.KnownPosition.Pitch;
@@ -27,11 +27,20 @@ namespace MiNET.Items
 			var vy = -Math.Sin(pitch/180f*Math.PI);
 			var vz = Math.Cos(yaw/180f*Math.PI)*Math.Cos(pitch/180f*Math.PI);
 
-			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5);
+			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5f);
 
-			var k = Math.Sqrt((arrow.Velocity.X * arrow.Velocity.X) + (arrow.Velocity.Z * arrow.Velocity.Z));
-			arrow.KnownPosition.Yaw = (float)(Math.Atan2(arrow.Velocity.X, arrow.Velocity.Z) * 180f / Math.PI);
-			arrow.KnownPosition.Pitch = (float)(Math.Atan2(arrow.Velocity.Y, k) * 180f / Math.PI);
+			var k = Math.Sqrt((arrow.Velocity.X*arrow.Velocity.X) + (arrow.Velocity.Z*arrow.Velocity.Z));
+			arrow.KnownPosition.Yaw = (float) (Math.Atan2(arrow.Velocity.X, arrow.Velocity.Z)*180f/Math.PI);
+			arrow.KnownPosition.Pitch = (float) (Math.Atan2(arrow.Velocity.Y, k)*180f/Math.PI);
+
+			Arrow arrow2 = new Arrow(player, world)
+			{
+				KnownPosition = (PlayerLocation)arrow.KnownPosition.Clone(),
+				Velocity = arrow.Velocity,
+				BroadcastMovement = true
+			};
+			//arrow2.HealthManager.Ignite();
+			arrow2.SpawnEntity();
 
 			arrow.SpawnEntity();
 		}

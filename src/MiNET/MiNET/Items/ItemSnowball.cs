@@ -1,3 +1,4 @@
+using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -19,7 +20,7 @@ namespace MiNET.Items
 				KnownPosition = (PlayerLocation) player.KnownPosition.Clone(),
 				Velocity = new Vector3(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z).Normalize()*force
 			};
-
+			snowBall.KnownPosition.Y += 1.62f;
 			snowBall.SpawnEntity();
 		}
 	}

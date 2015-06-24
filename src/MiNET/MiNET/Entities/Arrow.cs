@@ -13,6 +13,8 @@ namespace MiNET.Entities
 			Gravity = 0.05;
 			Drag = 0.01;
 
+			//OK: Drag = 0.0083;
+
 			HealthManager.IsInvulnerable = true;
 			Ttl = 1200;
 			DespawnOnImpact = false;

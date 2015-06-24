@@ -28,8 +28,8 @@ namespace MiNET.Utils
 		public BlockCoordinates(PlayerLocation location)
 		{
 			X = (int) Math.Floor(location.X);
-			Y = (int)Math.Floor(location.Y);
-			Z = (int)Math.Floor(location.Z);
+			Y = (int) Math.Floor(location.Y);
+			Z = (int) Math.Floor(location.Z);
 		}
 
 

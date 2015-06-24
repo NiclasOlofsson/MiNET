@@ -530,7 +530,7 @@ namespace MiNET.Worlds
 					McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
 					move.entityId = updatedPlayer.EntityId;
 					move.x = knownPosition.X;
-					move.y = knownPosition.Y;
+					move.y = knownPosition.Y + 1.62f;
 					move.z = knownPosition.Z;
 					move.yaw = knownPosition.Yaw;
 					move.pitch = knownPosition.Pitch;

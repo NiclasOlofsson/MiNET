@@ -142,6 +142,11 @@ namespace MiNET.Utils
 			return new BoundingBox(a.Min - b, a.Max + b);
 		}
 
+		public static BoundingBox operator -(BoundingBox a, double b)
+		{
+			return new BoundingBox(a.Min + b, a.Max - b);
+		}
+
 		public static bool operator ==(BoundingBox a, BoundingBox b)
 		{
 			return a.Equals(b);

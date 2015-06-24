@@ -19,6 +19,7 @@ namespace MiNET.Items
 				KnownPosition = (PlayerLocation) player.KnownPosition.Clone(),
 				Velocity = new Vector3(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z).Normalize()*force
 			};
+			egg.KnownPosition.Y += 1.62f;
 
 			egg.SpawnEntity();
 		}

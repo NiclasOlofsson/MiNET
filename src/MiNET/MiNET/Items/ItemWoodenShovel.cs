@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Items
 {
-	public class ItemWoodenShovel : Item
+	public class ItemWoodenShovel : ItemShovel
 	{
 		public ItemWoodenShovel(short metadata) : base(269, metadata)
 		{

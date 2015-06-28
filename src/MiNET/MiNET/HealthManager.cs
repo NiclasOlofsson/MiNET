@@ -10,8 +10,8 @@ namespace MiNET
 	{
 		[Description("{0} went MIA")] Unknown,
 		[Description("{0} was pricked to death")] Contact,
-		[Description("{0} was killed by {1}")] EntityAttack,
-		[Description("{0}  was shot by {1}")] Projectile,
+		[Description("{0} was slain by {1}")] EntityAttack,
+		[Description("{0} was shot by {1}")] Projectile,
 		[Description("{0} suffocated in a wall")] Suffocation,
 		[Description("{0} hit the ground too hard")] Fall,
 		[Description("{0} went up in flames")] Fire,
@@ -22,7 +22,7 @@ namespace MiNET
 		[Description("{0} blew up")] EntityExplosion,
 		[Description("{0} fell out of the world")] Void,
 		[Description("{0} died")] Suicide,
-		[Description("{0} died magically")] Magic,
+		[Description("{0} was killed by magic")] Magic,
 		[Description("{0} died a customized death")] Custom
 	}
 

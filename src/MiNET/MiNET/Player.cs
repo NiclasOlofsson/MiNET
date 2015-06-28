@@ -1086,6 +1086,12 @@ namespace MiNET
 			base.OnTick();
 		}
 
+		public override void Knockback(Vector3 velocity)
+		{
+			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			motions.entities = new EntityMotions {{EntityId, velocity}};
+			Level.RelayBroadcast(motions);
+		}
 
 		public override MetadataDictionary GetMetadata()
 		{

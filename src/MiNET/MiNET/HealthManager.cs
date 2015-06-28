@@ -56,7 +56,6 @@ namespace MiNET
 		{
 			if (CooldownTick > 0) return;
 
-			if (LastDamageCause == DamageCause.Unknown) LastDamageCause = cause;
 			LastDamageSource = source;
 
 			Health -= damage*10;
@@ -213,7 +212,7 @@ namespace MiNET
 
 			if (Entity.KnownPosition.Y < 0 && !IsDead)
 			{
-				TakeHit(null, 100);
+				TakeHit(null, 100, DamageCause.Void);
 				LastDamageCause = DamageCause.Void;
 				return;
 			}

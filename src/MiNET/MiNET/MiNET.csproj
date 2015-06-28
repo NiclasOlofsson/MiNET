@@ -121,8 +121,6 @@
     <Compile Include="Blocks\Wood.cs" />
     <Compile Include="Blocks\WoodenPlanks.cs" />
     <Compile Include="Blocks\WoodSlab.cs" />
-    <Compile Include="CommandHandler\GiveCommand.cs" />
-    <Compile Include="CommandHandler\HelpCommand.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Entities\Arrow.cs" />
     <Compile Include="Entities\Egg.cs" />

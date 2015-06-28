@@ -140,6 +140,7 @@
     <Compile Include="Items\ItemDiamondChestplate.cs" />
     <Compile Include="Items\ItemDiamondHelmet.cs" />
     <Compile Include="Items\ItemDiamondHoe.cs" />
+    <Compile Include="Items\ItemDiamondShovel.cs" />
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
     <Compile Include="Items\ItemEgg.cs" />
@@ -153,6 +154,7 @@
     <Compile Include="Items\ItemIronLeggings.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemSign.cs" />
+    <Compile Include="Items\ItemShovel.cs" />
     <Compile Include="Items\ItemSlab.cs" />
     <Compile Include="Items\ItemSnowball.cs" />
     <Compile Include="Items\ItemSpawnEgg.cs" />

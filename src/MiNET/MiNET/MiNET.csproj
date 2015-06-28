@@ -152,6 +152,7 @@
     <Compile Include="Items\ItemIronHoe.cs" />
     <Compile Include="Items\ItemIronLeggings.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
+    <compile Include="Items\ItemShovel.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemSlab.cs" />
     <Compile Include="Items\ItemSnowball.cs" />

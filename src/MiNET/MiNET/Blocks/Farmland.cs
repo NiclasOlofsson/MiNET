@@ -1,4 +1,6 @@
-﻿namespace MiNET.Blocks
+﻿using MiNET.Items;
+
+namespace MiNET.Blocks
 {
 	internal class Farmland : Block
 	{

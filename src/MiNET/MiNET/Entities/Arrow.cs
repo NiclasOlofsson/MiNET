@@ -2,7 +2,7 @@
 
 namespace MiNET.Entities
 {
-	public class Arrow : Throwable
+	public class Arrow : Projectile
 	{
 		public Arrow(Player shooter, Level level) : base(shooter, 80, level)
 		{

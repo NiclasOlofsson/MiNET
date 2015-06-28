@@ -1,5 +1,6 @@
 ﻿using System;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -34,8 +35,8 @@ namespace MiNET.Entities
 			Height = 1;
 			Width = 1;
 			Length = 1;
-			Drag = 0;
-			Gravity = 0;
+			Gravity = 0.08;
+			Drag = 0.02;
 
 			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
@@ -47,7 +48,7 @@ namespace MiNET.Entities
 		public virtual MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte)(HealthManager.IsOnFire ? 1 : 0));
+			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString("");
 			metadata[3] = new MetadataByte(1);
@@ -60,14 +61,54 @@ namespace MiNET.Entities
 
 		public virtual void OnTick()
 		{
-			// If dead despawn
-
-			// Check collisions
-			CheckBlockCollisions();
-
 			// Fire ticks
 			// damage ticks
 			HealthManager.OnTick();
+
+			if (Velocity.Distance > 0)
+			{
+				if (!(this is Player) && !(this is Projectile))
+				{
+					PlayerLocation oldPosition = (PlayerLocation) KnownPosition.Clone();
+					var onGroundBefore = IsOnGround(KnownPosition);
+
+					KnownPosition.X += (float) Velocity.X;
+					KnownPosition.Y += (float) Velocity.Y;
+					KnownPosition.Z += (float) Velocity.Z;
+
+					var onGround = IsOnGround(KnownPosition);
+					if (!onGroundBefore && onGround)
+					{
+						KnownPosition.Y = (float) Math.Floor(oldPosition.Y);
+						Velocity = Vector3.Zero;
+					}
+					else
+					{
+						Velocity *= (1.0 - Drag);
+						Velocity -= new Vector3(0, Gravity, 0);
+					}
+				}
+			}
+
+			if (!(this is Player) && !(this is Projectile))
+			{
+				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+				moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
+				Level.RelayBroadcast(moveEntity);
+
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entities = new EntityMotions {{EntityId, Velocity}};
+				Level.RelayBroadcast(motions);
+			}
+		}
+
+		private bool IsOnGround(PlayerLocation position)
+		{
+			PlayerLocation pos = (PlayerLocation) position.Clone();
+			pos.Y -= 0.1f;
+			Block block = Level.GetBlock(new BlockCoordinates(pos));
+
+			return block.Id != 0; // Should probably test for solid
 		}
 
 		private void CheckBlockCollisions()
@@ -122,6 +163,11 @@ namespace MiNET.Entities
 					return 0; // South 
 			}
 			return 0;
+		}
+
+		public virtual void Knockback(Vector3 velocity)
+		{
+			Velocity += velocity;
 		}
 	}
 }

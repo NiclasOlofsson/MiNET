@@ -669,7 +669,7 @@ namespace MiNET
 
 			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
-				Log.DebugFormat("NAK from Player {1} #{0}", i, session.Player.Username);
+				Log.WarnFormat("NAK from Player {1} #{0}", i, session.Player.Username);
 
 				Datagram datagram;
 				if (queue.TryGetValue(i, out datagram))

@@ -509,6 +509,14 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public Entity[] GetEntites()
+		{
+			lock (Entities)
+			{
+				return Entities.ToArray();
+			}
+		}
+
 		private Player[] GetUpdatedPlayers(Player[] players)
 		{
 			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;

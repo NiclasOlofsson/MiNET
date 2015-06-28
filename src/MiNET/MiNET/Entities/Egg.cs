@@ -2,7 +2,7 @@
 
 namespace MiNET.Entities
 {
-	public class Egg : Throwable
+	public class Egg : Projectile
 	{
 		public Egg(Player shooter, Level level) : base(shooter, 82, level)
 		{

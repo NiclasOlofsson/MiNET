@@ -9,13 +9,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
-	public class Throwable : Entity
+	public class Projectile : Entity
 	{
 		public Player Shooter { get; set; }
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
 
-		protected Throwable(Player shooter, int entityTypeId, Level level) : base(entityTypeId, level)
+		protected Projectile(Player shooter, int entityTypeId, Level level) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
 			Ttl = 0;
@@ -37,7 +37,7 @@ namespace MiNET.Entities
 
 		public override void OnTick()
 		{
-			//base.OnTick();
+			base.OnTick();
 
 			if (KnownPosition.Y <= 0
 			    || (Velocity.Distance <= 0 && DespawnOnImpact)
@@ -51,14 +51,15 @@ namespace MiNET.Entities
 
 			if (KnownPosition.Y <= 0 || Velocity.Distance <= 0) return;
 
-			var bbox = GetBoundingBox();
+			//var bbox = GetBoundingBox();
 
-			Player playerHitted = CheckEntityCollide(bbox);
+			Entity entityCollided = CheckEntityCollide(KnownPosition.ToVector3());
 
 			bool collided = false;
-			if (playerHitted != null)
+			if (entityCollided != null)
 			{
-				playerHitted.HealthManager.TakeHit(this, 1, DamageCause.Projectile);
+				SetIntersectLocation(entityCollided.GetBoundingBox(), KnownPosition);
+				entityCollided.HealthManager.TakeHit(this, 2, DamageCause.Projectile);
 				collided = true;
 			}
 			else
@@ -100,9 +101,9 @@ namespace MiNET.Entities
 			}
 			else
 			{
-				KnownPosition.X += (float)Velocity.X;
-				KnownPosition.Y += (float)Velocity.Y;
-				KnownPosition.Z += (float)Velocity.Z;
+				KnownPosition.X += (float) Velocity.X;
+				KnownPosition.Y += (float) Velocity.Y;
+				KnownPosition.Z += (float) Velocity.Z;
 
 				Velocity *= (1.0 - Drag);
 				Velocity -= new Vector3(0, Gravity, 0);
@@ -113,19 +114,31 @@ namespace MiNET.Entities
 			}
 
 			// For debugging of flight-path
-			BroadcastMoveAndMotion();
+			if (BroadcastMovement) BroadcastMoveAndMotion();
 		}
 
-		private Player CheckEntityCollide(BoundingBox bbox)
+		private Entity CheckEntityCollide(Vector3 position)
 		{
 			Player[] players = Level.GetSpawnedPlayers();
-			foreach (var player in players)
+			foreach (var entity in players)
 			{
-				if (player == Shooter) continue;
+				if (entity == Shooter) continue;
 
-				if ((player.GetBoundingBox() + 0.3).Intersects(bbox))
+				if ((entity.GetBoundingBox() + 0.3).Contains(position))
 				{
-					return player;
+					return entity;
+				}
+			}
+
+			Entity[] entities = Level.GetEntites();
+			foreach (var entity in entities)
+			{
+				if (entity == Shooter) continue;
+				if (entity == this) continue;
+
+				if ((entity.GetBoundingBox() + 0.3).Contains(position))
+				{
+					return entity;
 				}
 			}
 
@@ -217,16 +230,13 @@ namespace MiNET.Entities
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
-			if (BroadcastMovement)
-			{
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{EntityId, Velocity}};
-				new Task(() => Level.RelayBroadcast(motions)).Start();
+			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			motions.entities = new EntityMotions {{EntityId, Velocity}};
+			new Task(() => Level.RelayBroadcast(motions)).Start();
 
-				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-				moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
-				new Task(() => Level.RelayBroadcast(moveEntity)).Start();
-			}
+			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+			moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
+			new Task(() => Level.RelayBroadcast(moveEntity)).Start();
 		}
 
 		public bool BroadcastMovement { get; set; }

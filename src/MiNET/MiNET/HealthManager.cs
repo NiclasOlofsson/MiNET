@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Reflection;
 using MiNET.Entities;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET
@@ -66,6 +67,54 @@ namespace MiNET
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 			}
+			else
+			{
+				Entity.Level.RelayBroadcast(new McpeEntityEvent
+				{
+					entityId = Entity.EntityId,
+					eventId = (byte) (Health <= 0 ? 3 : 2)
+				});
+			}
+
+			{
+				double dx = source.KnownPosition.X - Entity.KnownPosition.X;
+
+				Random rand = new Random();
+				double dz;
+				for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
+				{
+					dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
+				}
+
+				double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
+				float knockbackMultiplier = 0.4F;
+
+				//this.motX /= 2.0D;
+				//this.motY /= 2.0D;
+				//this.motZ /= 2.0D;
+				double motX = 0;
+				motX -= dx/knockbackForce*knockbackMultiplier;
+				double motY = knockbackMultiplier;
+				double motZ = 0;
+				motZ -= dz/knockbackForce*knockbackMultiplier;
+				if (motY > 0.4)
+				{
+					motY = 0.4;
+				}
+				Entity.Knockback(new Vector3(motX, motY, motZ));
+			}
+
+			//double f = Math.Sqrt(source.Velocity.X*source.Velocity.X + source.Velocity.Z*source.Velocity.Z);
+
+			//double mx = source.Velocity.X*2d*0.6d/f;
+			//double my = 0.4f;
+			//double mz = source.Velocity.Z*2d*0.6d/f;
+
+			//Vector3 velocity = new Vector3(mx, my, mz);
+
+			//Entity.Velocity = velocity;
+
+			//Entity.Knockback(velocity);
 
 			CooldownTick = 10;
 
@@ -107,10 +156,25 @@ namespace MiNET
 			{
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
+				player.SendPackage(new McpeRespawn
+				{
+					x = player.Level.SpawnPoint.X,
+					y = player.Level.SpawnPoint.Y,
+					z = player.Level.SpawnPoint.Z
+				});
 			}
 			Entity.BroadcastSetEntityData();
-
 			Entity.DespawnEntity();
+
+			if (player != null)
+			{
+				player.SendPackage(new McpeRespawn
+				{
+					x = player.Level.SpawnPoint.X,
+					y = player.Level.SpawnPoint.Y,
+					z = player.Level.SpawnPoint.Z
+				});
+			}
 		}
 
 		public event EventHandler<HealthEventArgs> PlayerKilled;

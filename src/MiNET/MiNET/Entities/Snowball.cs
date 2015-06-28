@@ -2,7 +2,7 @@
 
 namespace MiNET.Entities
 {
-	public class Snowball : Throwable
+	public class Snowball : Projectile
 	{
 		public Snowball(Player shooter, Level level) : base(shooter, 81, level)
 		{

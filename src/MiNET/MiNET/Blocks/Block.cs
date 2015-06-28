@@ -143,9 +143,7 @@ namespace MiNET.Blocks
 
 		public BoundingBox GetBoundingBox()
 		{
-			return new BoundingBox(
-				new Vector3(Coordinates.X, Coordinates.Y, Coordinates.Z),
-				new Vector3(Coordinates.X + 1, Coordinates.Y + 1, Coordinates.Z + 1));
+			return new BoundingBox(Coordinates, Coordinates + 1);
 		}
 	}
 }

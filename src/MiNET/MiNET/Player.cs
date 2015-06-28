@@ -294,6 +294,9 @@ namespace MiNET
 
 					break;
 				}
+				case 7: // Respawn
+					HandleRespawn(null);
+					break;
 				default:
 					return;
 			}
@@ -507,7 +510,7 @@ namespace MiNET
 			SendPackage(new McpePlayerStatus {status = 3});
 
 			SendChunksForKnownPosition();
-	
+
 			IsSpawned = true;
 
 			LastUpdatedTime = DateTime.UtcNow;
@@ -779,7 +782,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleInteract(McpeInteract message)
 		{
-			Player target = Level.EntityManager.GetEntity(message.targetEntityId) as Player;
+			Entity target = Level.EntityManager.GetEntity(message.targetEntityId);
 
 			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
 			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
@@ -891,6 +894,15 @@ namespace MiNET
 			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0 - armorValue));
+
+			return damage;
+		}
+
+		private int CalculateDamage(Entity target)
+		{
+			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+
+			damage = (int) Math.Floor(damage*(1.0));
 
 			return damage;
 		}
@@ -1064,7 +1076,7 @@ namespace MiNET
 			package.yaw = KnownPosition.Yaw;
 			package.headYaw = KnownPosition.HeadYaw;
 			package.pitch = KnownPosition.Pitch;
-			package.teleport = 0x80;
+			package.teleport = 0x0;
 
 			SendPackage(package);
 		}

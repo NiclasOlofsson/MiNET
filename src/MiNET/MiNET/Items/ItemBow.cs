@@ -33,15 +33,16 @@ namespace MiNET.Items
 			arrow.KnownPosition.Yaw = (float) (Math.Atan2(arrow.Velocity.X, arrow.Velocity.Z)*180f/Math.PI);
 			arrow.KnownPosition.Pitch = (float) (Math.Atan2(arrow.Velocity.Y, k)*180f/Math.PI);
 
-			Arrow arrow2 = new Arrow(player, world)
-			{
-				KnownPosition = (PlayerLocation)arrow.KnownPosition.Clone(),
-				Velocity = arrow.Velocity,
-				BroadcastMovement = true
-			};
-			//arrow2.HealthManager.Ignite();
-			arrow2.SpawnEntity();
-
+			//Arrow arrow2 = new Arrow(player, world)
+			//{
+			//	KnownPosition = (PlayerLocation)arrow.KnownPosition.Clone(),
+			//	Velocity = arrow.Velocity,
+			//	BroadcastMovement = true
+			//};
+			////arrow2.HealthManager.Ignite();
+			//arrow2.SpawnEntity();
+			arrow.BroadcastMovement = false;
+			arrow.DespawnOnImpact = true;
 			arrow.SpawnEntity();
 		}
 

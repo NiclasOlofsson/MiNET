@@ -12,10 +12,10 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Block tile = world.GetBlock(blockCoordinates);
-			if (tile.Id == 2)
+			Block block = world.GetBlock(blockCoordinates);
+			if (block is Grass)
 			{
-				TileGrassPathName grassPath = new TileGrassPathName
+				GrassPath grassPath = new GrassPath
 				{
 					Coordinates = blockCoordinates,
 					Metadata = 0

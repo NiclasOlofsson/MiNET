@@ -95,6 +95,11 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public bool IsSurvival
+		{
+			get { return GameMode == GameMode.Survival; }
+		}
+
 		public void Initialize()
 		{
 			CurrentWorldTime = 6000;
@@ -338,9 +343,9 @@ namespace MiNET.Worlds
 						//addEntity.speedX = (short)(dx * 8000.0d);
 						//addEntity.speedY = (short)(dy * 8000.0d);
 						//addEntity.speedZ = (short)(dz * 8000.0d);
-						addEntity.speedX = (float)(dx);
-						addEntity.speedY = (float)(dy);
-						addEntity.speedZ = (float)(dz);
+						addEntity.speedX = (float) (dx);
+						addEntity.speedY = (float) (dy);
+						addEntity.speedZ = (float) (dz);
 					}
 
 					RelayBroadcast(addEntity);

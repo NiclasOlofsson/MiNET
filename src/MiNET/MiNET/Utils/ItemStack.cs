@@ -12,8 +12,7 @@ namespace MiNET.Utils
 		{
 		}
 
-		public ItemStack(short id)
-			: this()
+		public ItemStack(short id) : this()
 		{
 			Id = id;
 			Count = 1;

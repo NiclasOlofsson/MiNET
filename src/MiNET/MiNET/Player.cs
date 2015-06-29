@@ -1155,7 +1155,7 @@ namespace MiNET
 			if (HealthManager.IsDead)
 			{
 				Player player = HealthManager.LastDamageSource as Player;
-				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
+				string cause = (HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
 				Level.BroadcastTextMessage(cause);
 			}
 		}

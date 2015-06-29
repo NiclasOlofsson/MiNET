@@ -4,6 +4,7 @@ namespace MiNET.Blocks
 	{
 		internal Ice() : base(79)
 		{
+          isSolid = false;
 		}
 	}
 }

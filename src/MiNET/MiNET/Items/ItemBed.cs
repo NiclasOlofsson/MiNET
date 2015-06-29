@@ -11,6 +11,7 @@ namespace MiNET.Items
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+          if(!block.isSlod
 		{
 			byte direction = player.GetDirection();
 

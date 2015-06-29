@@ -12,15 +12,15 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Block tile = world.GetBlock(blockCoordinates);
-			if (tile.Id == 2 || tile.Id == 3 || tile.Id == 198)
+			Block block = world.GetBlock(blockCoordinates);
+			if (block is Grass || block is Dirt || block is GrassPath)
 			{
-				Farmland farm = new Farmland
+				Farmland farmland = new Farmland
 				{
 					Coordinates = blockCoordinates,
 					Metadata = 0
 				};
-				world.SetBlock(farm);
+				world.SetBlock(farmland);
 			}
 		}
 	}

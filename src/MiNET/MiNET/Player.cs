@@ -362,7 +362,7 @@ namespace MiNET
 
 			SendSetHealth();
 
-			SendPackage(new McpeAdventureSettings {flags = 0x20});
+			SendPackage(new McpeAdventureSettings {flags = 0x80});
 
 			SendPackage(new McpeContainerSetContent
 			{

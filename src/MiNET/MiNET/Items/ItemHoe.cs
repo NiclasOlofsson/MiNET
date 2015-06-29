@@ -13,7 +13,7 @@ namespace MiNET.Items
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block tile = world.GetBlock(blockCoordinates);
-			if (tile.Id == 2 || tile.Id == 3)
+			if (tile.Id == 2 || tile.Id == 3 || tile.Id == 198)
 			{
 				Farmland farm = new Farmland
 				{

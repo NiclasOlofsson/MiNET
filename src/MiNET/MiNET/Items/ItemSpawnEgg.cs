@@ -1,3 +1,4 @@
+using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -12,6 +13,10 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+        Block block = world.GetBlock(blockCoordinates);
+          if(!block is Chest){
+     
+          
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
 			Mob entity = new Mob(Metadata, world)
@@ -21,7 +26,8 @@ namespace MiNET.Items
 			};
 			entity.SpawnEntity();
 
-			world.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, Metadata));
+			world.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, Metadata)); //Please remove on release
 		}
 	}
+ }
 }

@@ -1,4 +1,3 @@
-﻿using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -11,6 +10,7 @@ namespace MiNET.Items
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+          
 		{
 			byte direction = player.GetDirection();
 
@@ -72,4 +72,5 @@ namespace MiNET.Items
 			world.SetBlock(blockUpper);
 		}
 	}
+ }
 }

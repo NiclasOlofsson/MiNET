@@ -15,7 +15,16 @@ namespace MiNET.Items
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var block = world.GetBlock(blockCoordinates);
-			if (block.Id != 46)
+			if (block is Tnt)
+			{
+				world.SetBlock(new Air() {Coordinates = block.Coordinates});
+				new PrimedTnt(world)
+				{
+					KnownPosition = new PlayerLocation(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z),
+					Fuse = (byte) (new Random().Next(0, 20) + 10)
+				}.SpawnEntity();
+			}
+			else if (block.IsSolid)
 			{
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.Up));
 				if (affectedBlock.Id == 0)
@@ -26,15 +35,6 @@ namespace MiNET.Items
 					};
 					world.SetBlock(fire);
 				}
-			}
-			else
-			{
-				world.SetBlock(new Air() {Coordinates = block.Coordinates});
-				new PrimedTnt(world)
-				{
-					KnownPosition = new PlayerLocation(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z),
-					Fuse = (byte) (new Random().Next(0, 20) + 10)
-				}.SpawnEntity();
 			}
 		}
 	}

@@ -21,7 +21,7 @@ namespace MiNET.Items
 			};
 			entity.SpawnEntity();
 
-			world.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, Metadata));
+			world.BroadcastTextMessage("[DEBUG] Player {0} spawned Mob #{1}.", player.Username, Metadata)); //Please remove after release
 		}
 	}
 }

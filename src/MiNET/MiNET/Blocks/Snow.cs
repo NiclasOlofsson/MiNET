@@ -6,11 +6,12 @@ namespace MiNET.Blocks
 	{
 		internal Snow() : base(80)
 		{
+         isSolid = false;
 		}
 
 		public override ItemStack GetDrops()
 		{
-			return new ItemStack(332, 4); // Drop sign item
+			return new ItemStack(332, 4); // Drop snowball
 		}
 	}
 }

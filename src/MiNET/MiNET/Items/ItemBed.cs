@@ -1,4 +1,3 @@
-﻿using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 

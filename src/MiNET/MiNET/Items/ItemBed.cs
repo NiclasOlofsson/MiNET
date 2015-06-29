@@ -73,4 +73,5 @@ namespace MiNET.Items
 			world.SetBlock(blockUpper);
 		}
 	}
+ }
 }

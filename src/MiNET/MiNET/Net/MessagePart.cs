@@ -6,6 +6,7 @@ namespace MiNET.Net
 	{
 		public MessagePartHeader Header { get; private set; }
 		public byte[] Buffer { get; set; }
+		public byte ContainedMessageId { get; set; }
 
 		public MessagePart()
 		{
@@ -21,6 +22,7 @@ namespace MiNET.Net
 		{
 			base.Reset();
 			Header.Reset();
+			ContainedMessageId = 0;
 			Buffer = null;
 		}
 

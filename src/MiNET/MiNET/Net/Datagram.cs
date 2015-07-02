@@ -35,22 +35,29 @@ namespace MiNET.Net
 
 			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) Header.isContinuousSend = true;
 
+			if (FirstMessageId == 0) FirstMessageId = messagePart.ContainedMessageId;
+
 			MessageParts.Add(messagePart);
 			_currentSize = _currentSize + bytes.Length;
 
 			return true;
 		}
 
+		public int FirstMessageId { get; set; }
+
 		public override void Reset()
 		{
 			Header.Reset();
 			_currentSize = 4;
+			FirstMessageId = 0;
 			MessageParts.Clear();
 			_buf.SetLength(0);
 		}
 
 		public override byte[] Encode()
 		{
+			_buf.SetLength(0);
+
 			// Header
 			_buf.WriteByte((byte) (Header.isContinuousSend ? 0x8c : 0x84));
 			_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
@@ -65,20 +72,19 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, IPEndPoint senderEndpoint, Action<IPEndPoint, Datagram> sendDatagram)
+		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int reliableMessageNumber, IPEndPoint senderEndpoint, Action<IPEndPoint, Datagram> sendDatagram)
 		{
 			Datagram datagram = null;
 			foreach (var message in messages)
 			{
 				if (message is InternalPing) continue;
 
-				var messageParts = GetMessageParts(message, mtuSize, datagramSequenceNumber, Reliability.Reliable, ref reliableMessageNumber);
+				var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref reliableMessageNumber);
 				foreach (var messagePart in messageParts)
 				{
 					if (datagram == null)
 					{
 						datagram = CreateObject();
-						datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref datagramSequenceNumber);
 					}
 
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
@@ -87,7 +93,6 @@ namespace MiNET.Net
 						sendDatagram(senderEndpoint, datagram1);
 
 						datagram = CreateObject();
-						datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref datagramSequenceNumber);
 
 						if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 						{
@@ -103,15 +108,19 @@ namespace MiNET.Net
 			}
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, int datagramSequenceNumber, Reliability reliability, ref int reliableMessageNumber)
+		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, ref int reliableMessageNumber)
 		{
 			var messageParts = new List<MessagePart>();
 
 			byte[] encodedMessage = message.Encode();
-			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - 34));
+			if (encodedMessage == null) return messageParts;
+
+			//int datagramHeaderSize = 34;
+			int datagramHeaderSize = 34;
+			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;
-			short splitId = (short) (datagramSequenceNumber%short.MaxValue);
-			if (encodedMessage.Length <= mtuSize - 34)
+			short splitId = (short) (DateTime.UtcNow.Ticks%short.MaxValue);
+			if (encodedMessage.Length <= mtuSize - datagramHeaderSize)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;
@@ -120,13 +129,14 @@ namespace MiNET.Net
 				messagePart.Header.PartCount = count;
 				messagePart.Header.PartId = splitId;
 				messagePart.Header.PartIndex = index++;
+				messagePart.ContainedMessageId = message.Id;
 				messagePart.Buffer = encodedMessage;
 
 				messageParts.Add(messagePart);
 			}
 			else
 			{
-				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - 34))
+				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - datagramHeaderSize))
 				{
 					MessagePart messagePart = MessagePart.CreateObject();
 					messagePart.Header.Reliability = reliability;
@@ -135,6 +145,7 @@ namespace MiNET.Net
 					messagePart.Header.PartCount = count;
 					messagePart.Header.PartId = splitId;
 					messagePart.Header.PartIndex = index++;
+					messagePart.ContainedMessageId = message.Id;
 					messagePart.Buffer = bytes;
 
 					messageParts.Add(messagePart);

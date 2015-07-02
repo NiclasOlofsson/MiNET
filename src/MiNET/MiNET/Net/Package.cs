@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using fNbt;
@@ -164,7 +166,7 @@ namespace MiNET.Net
 
 		public void Write(string value)
 		{
-			byte[] bytes = Encoding.Default.GetBytes(value);
+			byte[] bytes = Encoding.UTF8.GetBytes(value);
 
 			Write((short) bytes.Length);
 			Write(bytes);
@@ -174,7 +176,7 @@ namespace MiNET.Net
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return "";
 			short len = ReadShort();
-			return Encoding.Default.GetString(ReadBytes(len));
+			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
 		public void Write(Records records)
@@ -272,6 +274,21 @@ namespace MiNET.Net
 				Write((float) (motion.Value.Y));
 				Write((float) (motion.Value.Z));
 			}
+		}
+
+		public void Write(IPEndPoint endpoint)
+		{
+			if (endpoint.AddressFamily == AddressFamily.InterNetwork)
+			{
+				Write((byte) 4);
+				Write(endpoint.Address.GetAddressBytes());
+				Write((short) endpoint.Port);
+			}
+		}
+
+		public IPEndPoint ReadIPEndPoint()
+		{
+			return new IPEndPoint(IPAddress.Loopback, 19132);
 		}
 
 		public EntityMotions ReadEntityMotions()
@@ -394,6 +411,22 @@ namespace MiNET.Net
 		{
 			return new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
 		}
+
+		public Skin ReadSkin()
+		{
+			Skin skin = new Skin();
+			skin.Slim = ReadByte() == 0x01;
+			skin.Texture = ReadBytes(ReadShort());
+			return skin;
+		}
+
+		public void Write(Skin skin)
+		{
+			Write((byte) (skin.Slim ? 0x01 : 0x00));
+			Write((short) skin.Texture.Length);
+			Write(skin.Texture);
+		}
+
 
 		public bool CanRead()
 		{

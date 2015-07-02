@@ -117,6 +117,11 @@ namespace MiNET.Worlds
 			return new Vector3(0, 100, 0);
 		}
 
+		public long GetTime()
+		{
+			return 0;
+		}
+
 		public void SaveChunks()
 		{
 		}

@@ -21,13 +21,13 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 1000; i++)
+			for (int i = 0; i < 70; i++)
 			{
 				counter[0]++;
 				string playerName = string.Format("Player {0}", (i + 1));
 				//string playerName = "Player " + Guid.NewGuid();
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(random.Next(33, 333));
+				Thread.Sleep(random.Next(100, 2000));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");
@@ -44,6 +44,9 @@ namespace MiNET.ServiceKiller
 				string username = (string) state;
 				Console.WriteLine("Client {0} connecting...", username);
 
+				IPHostEntry Host = Dns.GetHostEntry("test.inpvp.net");
+
+				//var client = new MiNetClient(new IPEndPoint(Host.AddressList[0], 19132));
 				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
 				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("65.52.75.30"), 19132));
 
@@ -78,7 +81,7 @@ namespace MiNET.ServiceKiller
 				Random random = new Random();
 				for (int i = 0; i < 100; i++)
 				{
-					float y = random.Next(7, 10);
+					float y = random.Next(7, 10) + 24;
 					float x, z;
 					float length = random.Next(5, 20);
 					double angle = 0.0;
@@ -91,8 +94,11 @@ namespace MiNET.ServiceKiller
 						z = (float) (length*Math.Sin(angle));
 						y += heightStepsize;
 
-						client.SendMcpeMovePlayer(x + 50, y, z + 50);
-						Thread.Sleep(random.Next(50, 500));
+						x += -421;
+						z += -1633;
+
+						client.SendMcpeMovePlayer(x, y, z);
+						Thread.Sleep(random.Next(50, 300));
 						angle += angleStepsize;
 					}
 				}

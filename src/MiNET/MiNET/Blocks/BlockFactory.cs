@@ -87,7 +87,7 @@ namespace MiNET.Blocks
 			else if (blockId == 198) block = new GrassPath();
 			else
 			{
-				Log.InfoFormat(@"
+				Log.DebugFormat(@"
 	// Add this missing block to the BlockFactory
 	else if (blockId == {1}) block = new {0}();
 	

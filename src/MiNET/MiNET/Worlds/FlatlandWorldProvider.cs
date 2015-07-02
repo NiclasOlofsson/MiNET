@@ -105,6 +105,11 @@ namespace MiNET.Worlds
 			return new Vector3(0, 12, 0);
 		}
 
+		public long GetTime()
+		{
+			return 0;
+		}
+
 		public int PopulateChunk(ChunkColumn chunk)
 		{
 			int h = 0;

@@ -175,6 +175,7 @@
     <Compile Include="LevelFactory.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\McpeText.cs" />
+    <Compile Include="Net\Skin.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />

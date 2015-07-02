@@ -272,7 +272,7 @@ namespace MiNET.Worlds
 								if (blockId > 255) blockId = 41;
 
 								if (yi == 127 && blockId != 0) blockId = 30;
-								if (yi == 0 && (blockId == 8 || blockId == 9 || blockId == 0)) blockId = 7;
+								if (yi == 0 && (blockId == 8 || blockId == 9 /*|| blockId == 0*/)) blockId = 7;
 
 								//if (blockId != 0) blockId = 41;
 
@@ -338,6 +338,11 @@ namespace MiNET.Worlds
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 
 			return spawnPoint;
+		}
+
+		public long GetTime()
+		{
+			return _level.Time;
 		}
 
 		public void SaveChunks()
@@ -502,7 +507,7 @@ namespace MiNET.Worlds
 			levelTag.Add(blockEntitiesTag);
 			foreach (NbtCompound blockEntityNbt in chunk.BlockEntities.Values)
 			{
-				NbtCompound nbtClone = (NbtCompound)blockEntityNbt.Clone();
+				NbtCompound nbtClone = (NbtCompound) blockEntityNbt.Clone();
 				nbtClone.Name = null;
 				blockEntitiesTag.Add(nbtClone);
 			}

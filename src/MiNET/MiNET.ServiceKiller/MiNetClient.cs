@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -200,13 +201,13 @@ namespace MiNET.ServiceKiller
 
 		public void SendLogin(string username)
 		{
+			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 			var packet = new McpeLogin()
 			{
 				clientId = 12345,
 				username = username,
 				protocol = 27,
-				slim = 0,
-				skin = new string('Z', 8192)
+				skin = skin
 			};
 
 			McpeBatch batch = new McpeBatch();

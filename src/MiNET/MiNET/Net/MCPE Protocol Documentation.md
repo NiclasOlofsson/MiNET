@@ -309,8 +309,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |protocol | int |  |
 |protocol2 | int |  |
 |Client ID | int |  |
-|Slim | byte |  |
-|Skin | string |  |
+|Skin | Skin |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Status (0x83)
 
@@ -432,8 +431,7 @@ TODO: Parameters
 |Pitch | float |  |
 |Item | short |  |
 |Meta | short |  |
-|Slim | byte |  |
-|Skin | string |  |
+|Skin | Skin |  |
 |Metadata | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x89)

@@ -891,8 +891,7 @@ namespace MiNET.Net
 		public int protocol; // = null;
 		public int protocol2; // = null;
 		public int clientId; // = null;
-		public byte slim; // = null;
-		public string skin; // = null;
+		public Skin skin; // = null;
 		public McpeLogin()
 		{
 			Id = 0x82;
@@ -908,7 +907,6 @@ namespace MiNET.Net
 			Write(protocol);
 			Write(protocol2);
 			Write(clientId);
-			Write(slim);
 			Write(skin);
 
 			AfterEncode();
@@ -927,8 +925,7 @@ namespace MiNET.Net
 			protocol = ReadInt();
 			protocol2 = ReadInt();
 			clientId = ReadInt();
-			slim = ReadByte();
-			skin = ReadString();
+			skin = ReadSkin();
 
 			AfterDecode();
 		}
@@ -1174,8 +1171,7 @@ namespace MiNET.Net
 		public float pitch; // = null;
 		public short item; // = null;
 		public short meta; // = null;
-		public byte slim; // = null;
-		public string skin; // = null;
+		public Skin skin; // = null;
 		public byte[] metadata; // = null;
 		public McpeAddPlayer()
 		{
@@ -1202,7 +1198,6 @@ namespace MiNET.Net
 			Write(pitch);
 			Write(item);
 			Write(meta);
-			Write(slim);
 			Write(skin);
 			Write(metadata);
 
@@ -1232,8 +1227,7 @@ namespace MiNET.Net
 			pitch = ReadFloat();
 			item = ReadShort();
 			meta = ReadShort();
-			slim = ReadByte();
-			skin = ReadString();
+			skin = ReadSkin();
 			metadata = ReadBytes(0);
 
 			AfterDecode();

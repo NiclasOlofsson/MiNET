@@ -9,10 +9,13 @@ namespace MiNET
 	public class PlayerNetworkSession
 	{
 		public Player Player { get; set; }
+		public int Mtuize { get; set; }
 		public IPEndPoint EndPoint { get; set; }
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
 		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
 		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
+		public int DatagramSequenceNumber = -1;
+		public int NackCount { get; set; }
 
 		public Dictionary<int, SplitPartPackage[]> Splits
 		{

@@ -62,7 +62,8 @@ namespace MiNET
 		/// <summary>
 		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
-		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
+		public MiNetServer()
+			: this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
 
@@ -70,7 +71,8 @@ namespace MiNET
 		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
 		/// <param name="port">The port.</param>
-		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
+		public MiNetServer(int port)
+			: this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
@@ -108,7 +110,9 @@ namespace MiNET
 				Log.Info("Initializing...");
 
 				Log.Info("Loading settings...");
-				Motd = Config.GetProperty("motd", "Minecraft: PE Server");
+				//string t = "Instant Network MiNET Test";
+				string t = "§6§l\u00BB §5Instant§dNetwork §aTest §6§l\u00AB";
+				Motd = Config.GetProperty("motd", t);
 
 				Log.Info("Loading plugins...");
 				_pluginManager = new PluginManager();
@@ -130,7 +134,7 @@ namespace MiNET
 				_level = LevelFactory.CreateLevel("Default");
 				_levels.Add(_level);
 
-				//for (int i = 1; i < 60; i++)
+				//for (int i = 1; i < 10; i++)
 				//{
 				//	Level level = LevelFactory.CreateLevel("" + i);
 				//	_levels.Add(level);
@@ -148,9 +152,9 @@ namespace MiNET
 				else
 				{
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
-					//_listener.Client.SendBufferSize = 1024*1024*8;
+					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
 					_listener.Client.SendBufferSize = int.MaxValue;
-					//_listener.DontFragment = true;
+					_listener.DontFragment = true;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -167,20 +171,7 @@ namespace MiNET
 					//
 				}
 
-				//Task.Run(() =>
-				//{
-				//	while (true)
-				//	{
-				//		var result = _listener.ReceiveAsync();
-				//		byte[] receiveBytes = result.Result.Buffer;
-				//		_availableBytes = _listener.Available;
-				//		_numberOfPacketsInPerSecond++;
-				//		_totalPacketSizeIn += receiveBytes.Length;
-				//		ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, result.Result.RemoteEndPoint));
-				//	}
-				//});
-
-				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 20);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -311,6 +302,7 @@ namespace MiNET
 
 			if (msgId == 0xFE)
 			{
+				Log.WarnFormat("A query detected from: {0}", senderEndpoint.Address);
 				HandleQuery(receiveBytes, senderEndpoint);
 			}
 			else if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
@@ -336,8 +328,7 @@ namespace MiNET
 						{
 							serverId = 22345,
 							pingId = incoming.pingId /*incoming.pingId*/,
-							//serverName = "MCCPP;MiNET - Another MC server"
-							serverName = string.Format("MCPE;{0};27;0.11.1;0;20", Motd)
+							serverName = string.Format(@"MCPE;{0};27;0.11.1;{1};{2}", Motd, _playerSessions.Count, 1000)
 						};
 						var data = packet.Encode();
 						TraceSend(packet);
@@ -377,16 +368,16 @@ namespace MiNET
 						{
 							if (_playerSessions.ContainsKey(senderEndpoint))
 							{
-								Log.Info("Removed ghost");
-								_playerSessions[senderEndpoint].Player.HandleDisconnectionNotification();
 								PlayerNetworkSession value;
 								_playerSessions.TryRemove(senderEndpoint, out value);
+								value.Player.HandleDisconnectionNotification();
+								Log.Info("Removed ghost");
 							}
 
 							PlayerNetworkSession session =
 								new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
-							//session.Player.EntityId = incoming.clientGuid;
 							session.LastUpdatedTime = DateTime.UtcNow;
+							session.Mtuize = incoming.mtuSize;
 
 							_playerSessions.TryAdd(senderEndpoint, session);
 						}
@@ -445,21 +436,18 @@ namespace MiNET
 					// IF reliable code below is enabled, useItem start sending doubles
 					// for some unknown reason.
 
-					//Reliability reliability = package._reliability;
-
-					//if (reliability == Reliability.Reliable
-					//	|| reliability == Reliability.ReliableSequenced
-					//	|| reliability == Reliability.ReliableOrdered
-					//	)
-					//{
-					EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
-					//}
-
-					if (_playerSessions.ContainsKey(senderEndpoint))
+					Reliability reliability = package._reliability;
+					if (reliability == Reliability.Reliable
+					    || reliability == Reliability.ReliableSequenced
+					    || reliability == Reliability.ReliableOrdered
+						)
 					{
-						PlayerNetworkSession playerSession = _playerSessions[senderEndpoint];
+						EnqueueAck(senderEndpoint, package._datagramSequenceNumber);
+					}
 
-
+					PlayerNetworkSession playerSession;
+					if (_playerSessions.TryGetValue(senderEndpoint, out playerSession))
+					{
 						foreach (var message in messages)
 						{
 							if (message is SplitPartPackage)
@@ -472,7 +460,7 @@ namespace MiNET
 
 								if (!playerSession.Splits.ContainsKey(spId))
 								{
-									playerSession.Splits[spId] = new SplitPartPackage[spCount];
+									playerSession.Splits.Add(spId, new SplitPartPackage[spCount]);
 								}
 
 								SplitPartPackage[] spPackets = playerSession.Splits[spId];
@@ -637,6 +625,10 @@ namespace MiNET
 				Datagram datagram;
 				if (queue.TryRemove(i, out datagram))
 				{
+					long pingTime = session.Player.PingTime;
+					pingTime = ((pingTime*9) + datagram.Timer.ElapsedMilliseconds)/10;
+					session.Player.PingTime = pingTime;
+
 					foreach (MessagePart part in datagram.MessageParts)
 					{
 						part.PutPool();
@@ -667,19 +659,25 @@ namespace MiNET
 
 			var queue = session.WaitingForAcksQueue;
 
-			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
-			{
-				Log.WarnFormat("NAK from Player {1} #{0}", i, session.Player.Username);
+			Log.WarnFormat("NAK from Player {0}({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.PingTime);
 
+			for (int i = ackSeqNo; i < toAckSeqNo; i++)
+			{
+				session.NackCount++;
+				//session.Player.PingTime++;
 				Datagram datagram;
-				if (queue.TryGetValue(i, out datagram))
+				if (queue.TryRemove(i, out datagram))
 				{
-					SendDatagram(senderEndpoint, datagram, true);
-					Log.DebugFormat("Resent #{0}", i);
+					//if(i < 300)
+					{
+						SendDatagram(senderEndpoint, datagram, true);
+						Log.DebugFormat("Resent #{0}", i);
+					}
 				}
 				else
 				{
 					Log.WarnFormat("No datagram #{0} to resend", i);
+					Log.WarnFormat("Lenght: {0}", receiveBytes.Length);
 				}
 			}
 		}
@@ -751,26 +749,36 @@ namespace MiNET
 
 		private void Update(object state)
 		{
-			if (_isPerformanceTest) return;
+			long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
-				long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-				if (lastUpdate + 10000 < now)
+				if (!session.Player.IsBot)
 				{
-					// Disconnect user
-					HandlePackage(new DisconnectionNotification(), session);
+					if (session.NackCount > 500)
+					{
+						//Log.WarnFormat("Kick #{0} for too many NAK", session.Player.Username);
 
-					return;
-				}
-				else if (lastUpdate + 8500 < now)
-				{
-					session.Player.DetectLostConnection();
-				}
+						//HandlePackage(new DisconnectionNotification(), session);
 
+
+						//return;
+					}
+
+					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
+					if (lastUpdate + 10000 < now)
+					{
+						// Disconnect user
+						HandlePackage(new DisconnectionNotification(), session);
+
+						return;
+					}
+					else if (lastUpdate + 8500 < now)
+					{
+						session.Player.DetectLostConnection();
+					}
+				}
 				var queue = session.WaitingForAcksQueue;
-
 				foreach (var datagram in queue.Values)
 				{
 					if (!datagram.Timer.IsRunning)
@@ -778,12 +786,13 @@ namespace MiNET
 						Log.DebugFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
 					}
 
-					if (datagram.Timer.ElapsedMilliseconds > 5000)
+					if (datagram.Timer.ElapsedMilliseconds > 10000)
 					{
 						Datagram deleted;
 						if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
-							Log.DebugFormat("Cleaned #{0}", deleted.Header.datagramSequenceNumber.IntValue());
+							//Log.WarnFormat("Cleaned #{0} Type: {2} (0x{2:x2}) for {1}", deleted.Header.datagramSequenceNumber.IntValue(), session.Player.Username, deleted.FirstMessageId);
+							session.NackCount++;
 							foreach (MessagePart part in deleted.MessageParts)
 							{
 								part.PutPool();
@@ -823,17 +832,17 @@ namespace MiNET
 			});
 		}
 
-		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, short mtuSize, ref int datagramSequenceNumber, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
+		public void SendPackage(IPEndPoint senderEndpoint, List<Package> messages, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
 		{
 			if (messages.Count == 0) return;
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, senderEndpoint, SendDatagram);
+			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, senderEndpoint, SendDatagram);
 
 			foreach (var message in messages)
 			{
 				if (message is InternalPing)
 				{
-					_latency = message.Timer.ElapsedMilliseconds;
+					_latency = (_latency*9 + message.Timer.ElapsedMilliseconds)/10;
 				}
 
 				TraceSend(message);
@@ -850,28 +859,44 @@ namespace MiNET
 
 		private void SendDatagram(IPEndPoint senderEndpoint, Datagram datagram, bool isResend)
 		{
-			if (datagram.MessageParts.Count != 0)
+			PlayerNetworkSession session;
+			if (_playerSessions.TryGetValue(senderEndpoint, out session))
 			{
-				byte[] data = datagram.Encode();
-
-				datagram.Timer.Restart();
-				SendData(data, senderEndpoint);
-
-				if (_playerSessions.ContainsKey(senderEndpoint) && !isResend && !_isPerformanceTest)
+				if (datagram.MessageParts.Count != 0)
 				{
-					PlayerNetworkSession session = _playerSessions[senderEndpoint];
-					session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber, datagram);
-				}
-			}
+					//if (!isResend)
+					datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 
-			if (_isPerformanceTest)
-			{
-				foreach (MessagePart part in datagram.MessageParts)
+					byte[] data = datagram.Encode();
+					datagram.Timer.Restart();
+					SendData(data, senderEndpoint);
+					if (!isResend)
+					{
+						//if (session.Player.PingTime == -1)
+						//{
+						//	//Thread.Sleep(10); // Slow to start with
+						//}
+						//int delay = (int)Math.Floor(session.Player.PingTime / 50d);
+						//if (delay > 0)
+						//{
+						//	Thread.Sleep(delay);
+						//}
+					}
+					if ( /*!isResend && */!session.Player.IsBot)
+					{
+						session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber, datagram);
+					}
+				}
+
+				if (session.Player.IsBot)
 				{
-					part.PutPool();
-				}
+					foreach (MessagePart part in datagram.MessageParts)
+					{
+						part.PutPool();
+					}
 
-				datagram.PutPool();
+					datagram.PutPool();
+				}
 			}
 		}
 
@@ -894,7 +919,7 @@ namespace MiNET
 					double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
 					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
-						_level.Players.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
+						_playerSessions.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
 
 					_numberOfAckSent = 0;
 					_totalPacketSizeOut = 0;
@@ -905,7 +930,11 @@ namespace MiNET
 			}
 
 			//_listener.SendAsync(data, data.Length, targetEndpoint).Wait(); // Has thread pooling issues?
-			_listener.Send(data, data.Length, targetEndpoint); // Less thread-issues it seems
+
+			//lock (_listener)
+			{
+				_listener.Send(data, data.Length, targetEndpoint); // Less thread-issues it seems
+			}
 
 			_numberOfPacketsOutPerSecond++;
 			_totalPacketSizeOut += data.Length;
@@ -927,7 +956,6 @@ namespace MiNET
 			hex.Append("}");
 			return hex.ToString();
 		}
-
 
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{

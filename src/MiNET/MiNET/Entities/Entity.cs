@@ -21,7 +21,7 @@ namespace MiNET.Entities
 		public PlayerLocation KnownPosition { get; set; }
 		public Vector3 Velocity { get; set; }
 
-		public HealthManager HealthManager { get; private set; }
+		public HealthManager HealthManager { get; protected set; }
 
 		public double Height { get; set; }
 		public double Width { get; set; }

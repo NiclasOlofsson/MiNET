@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 
@@ -29,10 +32,36 @@ namespace MiNET.Security
 
 		public Task<User> FindByIdAsync(string userId)
 		{
-			User user;
-			_users.TryGetValue(userId, out user);
+			WebClient client = new WebClient();
+			string key;
+			{
+				key = client.DownloadString("https://api.inpvp.net/auth/key");
+			}
+
+			User user = null;
+
+			client.Headers[HttpRequestHeader.ContentType] = "application/json";
+			client.Headers["X-Auth-Key"] = key;
+			{
+				try
+				{
+					//TODO: Fix that it first checks if exist, and then later check password.
+					client.UploadString("https://api.inpvp.net/auth/validate", 
+						"{\"username\":\"" + userId + "\",\"password\":\"" + Base64Encode(userId) + "\",\"ip\":\"\",\"server\":\"0\"}");
+					user = new User(userId);
+				}
+				catch (WebException e)
+				{
+				}
+			}
 
 			return Task.FromResult(user);
+		}
+
+		public static string Base64Encode(string plainText)
+		{
+			var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+			return Convert.ToBase64String(plainTextBytes);
 		}
 
 		public Task<User> FindByNameAsync(string userName)

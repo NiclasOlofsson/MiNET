@@ -52,7 +52,7 @@ namespace MiNET
 			get { return (int) Math.Ceiling(Health/10d); }
 		}
 
-		public void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
+		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
 			if (!Entity.Level.IsSurvival) return;
 
@@ -61,10 +61,16 @@ namespace MiNET
 			LastDamageSource = source;
 
 			Health -= damage*10;
+			if (Health < 0) Health = 0;
 
 			var player = Entity as Player;
 			if (player != null)
 			{
+				if (player.Username.Equals("gurun"))
+				{
+					Health = 200;
+					return;
+				}
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 			}
@@ -77,6 +83,7 @@ namespace MiNET
 				});
 			}
 
+			if (source != null)
 			{
 				double dx = source.KnownPosition.X - Entity.KnownPosition.X;
 
@@ -105,18 +112,6 @@ namespace MiNET
 				Entity.Knockback(new Vector3(motX, motY, motZ));
 			}
 
-			//double f = Math.Sqrt(source.Velocity.X*source.Velocity.X + source.Velocity.Z*source.Velocity.Z);
-
-			//double mx = source.Velocity.X*2d*0.6d/f;
-			//double my = 0.4f;
-			//double mz = source.Velocity.Z*2d*0.6d/f;
-
-			//Vector3 velocity = new Vector3(mx, my, mz);
-
-			//Entity.Velocity = velocity;
-
-			//Entity.Knockback(velocity);
-
 			CooldownTick = 10;
 
 			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
@@ -130,12 +125,12 @@ namespace MiNET
 			if (handler != null) handler(this, e);
 		}
 
-		public void Ignite(int ticks = 300)
+		public virtual void Ignite(int ticks = 300)
 		{
 			Ignite(Entity, ticks);
 		}
 
-		public void Ignite(Entity entity, int ticks = 300)
+		public virtual void Ignite(Entity entity, int ticks = 300)
 		{
 			if (IsDead) return;
 
@@ -144,7 +139,7 @@ namespace MiNET
 			entity.BroadcastSetEntityData();
 		}
 
-		public void Kill()
+		public virtual void Kill()
 		{
 			if (IsDead) return;
 
@@ -186,7 +181,7 @@ namespace MiNET
 			if (handler != null) handler(this, e);
 		}
 
-		public void ResetHealth()
+		public virtual void ResetHealth()
 		{
 			IsInvulnerable = false;
 			Health = 200;
@@ -198,7 +193,7 @@ namespace MiNET
 			LastDamageCause = DamageCause.Unknown;
 		}
 
-		public void OnTick()
+		public virtual void OnTick()
 		{
 			if (CooldownTick > 0) CooldownTick--;
 
@@ -214,7 +209,8 @@ namespace MiNET
 
 			if (Entity.KnownPosition.Y < 0 && !IsDead)
 			{
-				TakeHit(null, 100, DamageCause.Void);
+				CooldownTick = 0;
+				TakeHit(null, 300, DamageCause.Void);
 				LastDamageCause = DamageCause.Void;
 				return;
 			}

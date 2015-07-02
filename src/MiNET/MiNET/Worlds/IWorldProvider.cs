@@ -12,6 +12,8 @@ namespace MiNET.Worlds
 
 		Vector3 GetSpawnPoint();
 
+		long GetTime();
+
 		void SaveChunks();
 	}
 }

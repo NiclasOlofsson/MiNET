@@ -4,6 +4,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using log4net;
 using log4net.Config;
@@ -205,7 +206,7 @@ namespace MiNET.Client
 					{
 						//Thread.Sleep(50);
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
-						if(incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
+						if (incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
 						SendOpenConnectionRequest2();
 						break;
 					}
@@ -553,7 +554,7 @@ namespace MiNET.Client
 				TraceSend(message);
 			}
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref datagramSequenceNumber, ref reliableMessageNumber, senderEndpoint, SendDatagram);
+			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, senderEndpoint, SendDatagram);
 		}
 
 		private void SendDatagram(IPEndPoint senderEndpoint, Datagram datagram)
@@ -690,13 +691,13 @@ namespace MiNET.Client
 
 		public void SendLogin(string username)
 		{
+			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 			var packet = new McpeLogin()
 			{
 				clientId = 12345,
 				username = username,
 				protocol = 27,
-				slim = 0,
-				skin = new string('Z', 8192)
+				skin = skin
 			};
 
 			McpeBatch batch = new McpeBatch();

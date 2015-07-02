@@ -44,9 +44,12 @@ namespace MiNET.Worlds
 
 		public Entity GetEntity(long entityId)
 		{
-			Entity player = _entities.FirstOrDefault(entity => entity.EntityId == entityId);
+			lock (_entities)
+			{
+				Entity entity = _entities.FirstOrDefault(e => e.EntityId == entityId);
 
-			return player;
+				return entity;
+			}
 		}
 	}
 }

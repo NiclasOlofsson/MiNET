@@ -45,6 +45,9 @@ namespace MiNET.Plugins
 			{
 				pluginDirectory = Path.GetFullPath(pluginDirectory);
 
+				AppDomain currentDomain = AppDomain.CurrentDomain;
+				currentDomain.AssemblyResolve += MyResolveEventHandler;
+
 				foreach (string pluginPath in Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories))
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
@@ -80,6 +83,17 @@ namespace MiNET.Plugins
 					}
 				}
 			}
+		}
+
+		private Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
+		{
+			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			pluginDirectory = Config.GetProperty("PluginDirectory", pluginDirectory);
+			pluginDirectory = Path.GetFullPath(pluginDirectory);
+
+			AssemblyName name = new AssemblyName(args.Name);
+			string assemblyPath = pluginDirectory + "\\" + name.Name + ".dll";
+			return Assembly.LoadFile(assemblyPath);
 		}
 
 		private void LoadCommands(Type type)

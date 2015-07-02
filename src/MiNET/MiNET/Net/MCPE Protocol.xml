@@ -107,8 +107,7 @@
 		<field name="protocol" type="int" />
 		<field name="protocol2" type="int" />
 		<field name="Client ID" type="int" />
-		<field name="Slim" type="byte" />
-		<field name="Skin" type="string" />
+		<field name="Skin" type="Skin" />
 	</pdu>
 
 	<!--
@@ -172,8 +171,7 @@
 		<field name="Pitch" type="float" />
 		<field name="Item" type="short" />
 		<field name="Meta" type="short" />
-		<field name="Slim" type="byte" note="slim == true ? 1 : 0" />
-		<field name="Skin" type="string" />
+		<field name="Skin" type="Skin" />
 		<field name="Metadata" type="byte[]" size="0" />
 	</pdu>
 

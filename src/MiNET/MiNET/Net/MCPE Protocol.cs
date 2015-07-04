@@ -4,6 +4,7 @@
 // 
 
 using System;
+using System.Net;
 using System.Threading;
 using MiNET.Utils; 
 using little = MiNET.Utils.Int24; // friendly name
@@ -310,6 +311,11 @@ namespace MiNET.Net
 					return package;
 				case 0xb1:
 					package = McpeBatch.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x1b:
+					package = McpeTransfer.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -3041,6 +3047,44 @@ namespace MiNET.Net
 
 			payloadSize = ReadInt();
 			payload = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeTransfer : Package<McpeTransfer>
+	{
+		public IPEndPoint endpoint; // = null;
+		public McpeTransfer()
+		{
+			Id = 0x1b;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(endpoint);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			endpoint = ReadIPEndPoint();
 
 			AfterDecode();
 		}

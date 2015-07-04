@@ -269,7 +269,7 @@ namespace MiNET.Net
 			Write(motions.Count);
 			foreach (var motion in motions)
 			{
-				Write(motion.Key); // Entity ID
+				Write((long) motion.Key); // Entity ID
 				Write((float) (motion.Value.X));
 				Write((float) (motion.Value.Y));
 				Write((float) (motion.Value.Z));
@@ -281,7 +281,11 @@ namespace MiNET.Net
 			if (endpoint.AddressFamily == AddressFamily.InterNetwork)
 			{
 				Write((byte) 4);
-				Write(endpoint.Address.GetAddressBytes());
+				var parts = endpoint.Address.ToString().Split('.');
+				foreach (var part in parts)
+				{
+					Write((byte) ~byte.Parse(part));
+				}
 				Write((short) endpoint.Port);
 			}
 		}

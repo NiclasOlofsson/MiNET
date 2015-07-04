@@ -350,57 +350,5 @@ namespace MiNET
 			hex.Append("}");
 			return hex.ToString();
 		}
-
-		[Test]
-		public void RestTest()
-		{
-			WebClient client = new WebClient();
-			string key;
-			{
-				key = client.DownloadString("https://api.inpvp.net/auth/key");
-			}
-
-			client.Headers[HttpRequestHeader.ContentType] = "application/json";
-			client.Headers["X-Auth-Key"] = key;
-			{
-				string result = client.UploadString("https://api.inpvp.net/auth/existsInternal", "{\"username\":\"GuruN\"}");
-				Assert.AreEqual(@"{""success"":true,""user_exists"":true,""lang"":""en_gb"",""username"":""gurun"",""hash"":""45853ad831c6580539462dec6b31be974c41e4ed96e513d6b9ccbdfcfa1137c809443""}", result);
-			}
-
-			client.Headers[HttpRequestHeader.ContentType] = "application/json";
-			client.Headers["X-Auth-Key"] = key;
-			{
-				string result = client.UploadString("https://api.inpvp.net/auth/check", string.Format(@"{{""username"":""gurun"",""password"":""{0}""}}", Base64Encode("oliver")));
-				Assert.AreEqual("", result);
-			}
-
-			client.Headers[HttpRequestHeader.ContentType] = "application/json";
-			client.Headers["X-Auth-Key"] = key;
-			{
-				try
-				{
-					string result = client.UploadString("https://api.inpvp.net/auth/validate", "{\"username\":\"gurun\",\"password\":\"" + Base64Encode("oliverX") + "\",\"ip\":\"\",\"server\":\"0\"}");
-					Assert.Fail("Expected failed login");
-				}
-				catch (WebException e)
-				{
-					HttpWebResponse response = (HttpWebResponse) e.Response;
-					Assert.AreEqual(HttpStatusCode.Forbidden, response.StatusCode);
-				}
-
-				//var jsonReader = JsonReaderWriterFactory.CreateJsonReader(Encoding.UTF8.GetBytes(result), new XmlDictionaryReaderQuotas());
-				//var root = XElement.Load(jsonReader);
-				//Assert.AreEqual("true", root.XPathSelectElement("//success").Value);
-				//Assert.AreEqual("gurun", root.XPathSelectElement("//name").Value);
-				//Assert.AreEqual("Guest", root.XPathSelectElement("//group/name").Value);
-				//Assert.AreEqual("0", root.XPathSelectElement("//vip").Value);
-			}
-		}
-
-		public static string Base64Encode(string plainText)
-		{
-			var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
-			return Convert.ToBase64String(plainTextBytes);
-		}
 	}
 }

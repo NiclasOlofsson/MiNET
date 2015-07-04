@@ -452,4 +452,8 @@
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>
 
+	<pdu id="0x1b" online="false" client="false" server="true" name="ID_MCPE_TRANSFER">
+		<field name="EndPoint" type="IPEndPoint" />
+	</pdu>
+
 </protocol>

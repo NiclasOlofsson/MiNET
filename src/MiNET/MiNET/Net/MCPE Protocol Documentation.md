@@ -17,6 +17,7 @@
 | Connection Request Accepted | 0x10 | 16 |   
 | New Incoming Connection | 0x13 | 19 |   
 | Disconnection Notification | 0x15 | 21 |   
+| Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
 | Mcpe Login | 0x82 | 130 |   
 | Mcpe Player Status | 0x83 | 131 |   
@@ -1098,6 +1099,20 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Payload size | int |  |
 |Payload | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Transfer (0x1b)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|EndPoint | IPEndPoint |  |
 -----------------------------------------------------------------------
 
 

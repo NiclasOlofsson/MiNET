@@ -15,6 +15,7 @@ doc.Load(path + @"\MCPE Protocol.xml");
 // 
 
 using System;
+using System.Net;
 using System.Threading;
 using MiNET.Utils; 
 using little = MiNET.Utils.Int24; // friendly name

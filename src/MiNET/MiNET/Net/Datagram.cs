@@ -10,6 +10,8 @@ namespace MiNET.Net
 	{
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
+		public long RetransmissionTimeOut { get; set; }
+		public int TransmissionCount { get; set; }
 
 		public DatagramHeader Header { get; private set; }
 		public List<MessagePart> MessageParts { get; set; }
@@ -48,6 +50,8 @@ namespace MiNET.Net
 		public override void Reset()
 		{
 			Header.Reset();
+			RetransmissionTimeOut = 0;
+			TransmissionCount = 0;
 			_currentSize = 4;
 			FirstMessageId = 0;
 			MessageParts.Clear();

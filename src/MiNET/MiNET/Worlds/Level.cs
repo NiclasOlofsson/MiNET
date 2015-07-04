@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -133,30 +135,33 @@ namespace MiNET.Worlds
 
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
+			if (newPlayer.Username == null) return;
+
+			Player[] spawnedPlayers;
 			lock (Players)
 			{
 				if (Players.Contains(newPlayer)) return;
 
-				if (newPlayer.Username == null) return;
-
 				EntityManager.AddEntity(null, newPlayer);
+				spawnedPlayers = GetSpawnedPlayers();
+			}
 
-				foreach (var targetPlayer in GetSpawnedPlayers())
+			foreach (var targetPlayer in spawnedPlayers)
+			{
+				if (spawn)
 				{
-					if (spawn)
-					{
-						SendAddForPlayer(targetPlayer, newPlayer);
-						SendAddForPlayer(newPlayer, targetPlayer);
-						Thread.Sleep(5);
-					}
+					SendAddForPlayer(targetPlayer, newPlayer);
+					SendAddForPlayer(newPlayer, targetPlayer);
 				}
+			}
 
-				foreach (Entity entity in Entities.ToArray())
-				{
-					SendAddEntityToPlayer(entity, newPlayer);
-					Thread.Sleep(5);
-				}
+			foreach (Entity entity in Entities.ToArray())
+			{
+				SendAddEntityToPlayer(entity, newPlayer);
+			}
 
+			lock (Players)
+			{
 				if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
 
 				if (!string.IsNullOrEmpty(broadcastText))
@@ -352,8 +357,6 @@ namespace MiNET.Worlds
 
 					RelayBroadcast(addEntity);
 
-					Log.WarnFormat("Metadata: {0}", entity.GetMetadata());
-
 					RelayBroadcast(new McpeSetEntityData
 					{
 						entityId = entity.EntityId,
@@ -425,19 +428,16 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BroadcastTextMessage(string text, Player sender = null)
+		public void BroadcastTextMessage(string text, Player sender = null, byte type = McpeText.TypeChat)
 		{
-			var response = new McpeText
+			foreach (var line in text.Split('\n'))
 			{
-				type = McpeText.TypeChat,
-				source = sender == null ? "MiNET" : sender.Username,
-				message = text
-			};
+				McpeText message = McpeText.CreateObject();
+				message.type = type;
+				message.source = sender == null ? "MiNET" : sender.Username;
+				message.message = line;
 
-			foreach (var player in GetSpawnedPlayers())
-			{
-				// Should probaby encode first...
-				player.SendPackage((Package) response.Clone());
+				RelayBroadcast(message);
 			}
 		}
 
@@ -563,6 +563,68 @@ namespace MiNET.Worlds
 				Task sendTask = new Task(delegate { player.SendMoveList(moves); });
 				sendTask.Start();
 			}
+
+
+			//MemoryStream stream = new MemoryStream();
+
+			//int messageCount = 0;
+			//foreach (var movePlayer in moves)
+			//{
+			//	{
+			//		messageCount++;
+			//		byte[] bytes = movePlayer.Encode();
+			//		stream.Write(bytes, 0, bytes.Length);
+			//	}
+
+			//	movePlayer.PutPool();
+			//}
+
+			//if (messageCount > 0)
+			//{
+			//	McpeBatch batch = McpeBatch.CreateObject(players.Length);
+			//	byte[] buffer = CompressBytes(stream.ToArray());
+			//	batch.payloadSize = buffer.Length;
+			//	batch.payload = buffer;
+			//	batch.Encode();
+
+			//	foreach (var p in players)
+			//	{
+			//		Player player = p;
+			//		Task sendTask = new Task(delegate { player.SendPackage(batch, true); });
+			//		sendTask.Start();
+			//	}
+			//}
+		}
+
+		public byte[] CompressBytes(byte[] input)
+		{
+			MemoryStream stream = new MemoryStream();
+			stream.WriteByte(0x78);
+			stream.WriteByte(0x01);
+			int checksum;
+			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			{
+				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
+				writer.Write(input);
+
+				writer.Flush();
+
+				checksum = compressStream.Checksum;
+				writer.Close();
+			}
+
+			byte[] checksumBytes = BitConverter.GetBytes(checksum);
+			if (BitConverter.IsLittleEndian)
+			{
+				// Adler32 checksum is big-endian
+				Array.Reverse(checksumBytes);
+			}
+			stream.Write(checksumBytes, 0, checksumBytes.Length);
+
+			var bytes = stream.ToArray();
+			stream.Close();
+
+			return bytes;
 		}
 
 
@@ -693,7 +755,6 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
-			return;
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);

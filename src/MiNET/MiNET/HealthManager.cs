@@ -59,6 +59,7 @@ namespace MiNET
 			if (CooldownTick > 0) return;
 
 			LastDamageSource = source;
+			LastDamageCause = cause;
 
 			Health -= damage*10;
 			if (Health < 0) Health = 0;
@@ -150,6 +151,14 @@ namespace MiNET
 			var player = Entity as Player;
 			if (player != null)
 			{
+				// HACK
+				if (LastDamageCause == DamageCause.EntityAttack)
+				{
+					Player source = LastDamageSource as Player;
+					if (source != null) source.Kills++;
+					player.Deaths++;
+				}
+
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 				player.SendPackage(new McpeRespawn

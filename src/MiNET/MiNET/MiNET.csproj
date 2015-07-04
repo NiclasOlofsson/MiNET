@@ -223,6 +223,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Plugins\PluginContext.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
+    <Compile Include="Popup.cs" />
     <Compile Include="Security\DefaultRoleStore.cs" />
     <Compile Include="Security\DefaultUserStore.cs" />
     <Compile Include="Security\Role.cs" />

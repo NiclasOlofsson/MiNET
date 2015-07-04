@@ -21,13 +21,13 @@ namespace MiNET.ServiceKiller
 
 			int[] counter = {0};
 			Random random = new Random();
-			for (int i = 0; i < 70; i++)
+			for (int i = 0; i < 300; i++)
 			{
 				counter[0]++;
 				string playerName = string.Format("Player {0}", (i + 1));
 				//string playerName = "Player " + Guid.NewGuid();
 				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(random.Next(100, 2000));
+				Thread.Sleep(random.Next(150, 1100));
 			}
 
 			Console.WriteLine("Clients done. Press <enter> to exit.");
@@ -81,7 +81,7 @@ namespace MiNET.ServiceKiller
 				Random random = new Random();
 				for (int i = 0; i < 100; i++)
 				{
-					float y = random.Next(7, 10) + 24;
+					float y = random.Next(7, 10) + /*24*/30;
 					float x, z;
 					float length = random.Next(5, 20);
 					double angle = 0.0;

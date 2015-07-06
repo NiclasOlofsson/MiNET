@@ -4,7 +4,7 @@
 	{
 		public Glass() : base(20)
 		{
-			IsSolid = true;
+			IsSolid = false;
 		}
 	}
 }

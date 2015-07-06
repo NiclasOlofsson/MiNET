@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,10 +7,11 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using log4net;
+using Microsoft.AspNet.Identity;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Plugins;
+using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -23,31 +23,27 @@ namespace MiNET
 
 		public MiNetServer Server { get; private set; }
 		public IPEndPoint EndPoint { get; private set; }
-		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
 
 		private int _mtuSize;
 		private int _reliableMessageNumber;
 		private int _datagramSequenceNumber = -1; // Very important to start with -1 since Interlock.Increament doesn't offer another solution
-		private ConcurrentQueue<Package> _sendQueue = new ConcurrentQueue<Package>();
+		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
+		private object _queueSync = new object();
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _sendTicker;
 
+		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
 		private ChunkCoordinates _currentChunkPosition;
+
 		private Inventory _openInventory;
-		private PluginManager _pluginManager;
-
-		public bool IsConnected { get; set; }
-
 		public PlayerInventory Inventory { get; private set; }
 
-		public bool Console { get; set; }
-
+		public bool IsConnected { get; set; }
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
 		public PermissionManager Permissions { get; set; }
-
 		public Skin Skin { get; set; }
 		public bool IsBot { get; set; }
 
@@ -57,11 +53,14 @@ namespace MiNET
 
 		public List<Popup> Popups { get; set; }
 
+		public User User { get; set; }
+		public Session Session { get; set; }
+
 		// HACK
 		public int Kills { get; set; }
 		public int Deaths { get; set; }
 
-		public Player(MiNetServer server, IPEndPoint endPoint, Level level, PluginManager pluginManager, int mtuSize) : base(-1, level)
+		public Player(MiNetServer server, IPEndPoint endPoint, Level level, int mtuSize) : base(-1, level)
 		{
 			Rtt = -1;
 			Width = 0.6;
@@ -74,7 +73,6 @@ namespace MiNET
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
 			Level = level;
-			_pluginManager = pluginManager;
 
 			Permissions = new PermissionManager(UserGroup.User);
 			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
@@ -105,8 +103,8 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public void HandlePackage(Package message)
 		{
-			var result = _pluginManager.PluginPacketHandler(message, true, this);
-			if (result != message) message.PutPool();
+			var result = Server.PluginManager.PluginPacketHandler(message, true, this);
+			//if (result != message) message.PutPool();
 			message = result;
 
 			if (message == null) return;
@@ -475,12 +473,24 @@ namespace MiNET
 		///     or
 		///     No username on login
 		/// </exception>
-		private void HandleLogin(McpeLogin message)
+		protected virtual void HandleLogin(McpeLogin message)
 		{
 			if (Username != null) return; // Already doing login
 
 			Username = message.username;
 			ClientId = message.clientId;
+
+			User user = Server.UserManager.FindByName(Username);
+			if (user != null)
+			{
+				Session = Server.SessionManager.FindSession(EndPoint, ClientId, Username);
+				if (Session != null)
+				{
+					User = user;
+				}
+			}
+
+
 			Skin = message.skin;
 			//Skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)) };
 
@@ -492,42 +502,21 @@ namespace MiNET
 				return;
 			}
 
-			//Success = 0;
-			//FailedClientIsOld = 1;
-			//FailedServerIsOld, FailedClientIsNew = 2;
-			//FailedPlayerAuthentication = 3;
-
-			//if (Server.UserManager != null)
-			//{
-			//	if (Username == null || Server.UserManager.FindByName(Username) == null)
-			//	{
-			//		//TODO: Must implement disconnect properly. This is not enough for the client to "get it".
-			//		SendPackage(new McpeLoginStatus {status = 3});
-			//		return;
-			//	}
-			//}
-
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);
 
-			if (Username.StartsWith("Player")) IsBot = true;
+			if (Username.StartsWith("Player")) IsBot = true; // HACK
 
 			if (Username.StartsWith("Wix")) return;
 			if (Username.StartsWith("Wiz")) return;
-
-			//LoadFromFile();
+			if (Username.StartsWith("Aga")) return;
 
 			// Start game
 
 			Level.EntityManager.AddEntity(null, this);
 
-			//const LOGIN_SUCCESS = 0;
-			//const LOGIN_FAILED_CLIENT = 1;
-			//const LOGIN_FAILED_SERVER = 2;
-			//const PLAYER_SPAWN = 3;
-
+			// We send a ping here to get an initial value for chunk-sending
 			_pingSendTime = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-
 			SendPackage(new ConnectedPing {sendpingtime = _pingSendTime});
 
 
@@ -603,7 +592,7 @@ namespace MiNET
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))
 			{
-				_pluginManager.HandleCommand(Server.UserManager, text, this);
+				Server.PluginManager.HandleCommand(Server.UserManager, text, this);
 			}
 			else
 			{
@@ -619,7 +608,7 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			if (DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks < 20000) return;
+			//if (DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks < 20000) return;
 
 			KnownPosition = new PlayerLocation
 			{
@@ -661,7 +650,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		private void HandleRemoveBlock(McpeRemoveBlock message)
 		{
-			//Level.BreakBlock(new BlockCoordinates(message.x, message.y, message.z));
+			Level.BreakBlock(new BlockCoordinates(message.x, message.y, message.z));
 		}
 
 		/// <summary>
@@ -1191,35 +1180,43 @@ namespace MiNET
 
 			bool hasDisplayedPopup = false;
 			bool hasDisplayedTio = false;
-			foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
+			lock (Popups)
 			{
-				if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
+				foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
 				{
-					Popups.Remove(popup);
-					continue;
-				}
-
-				if (popup.CurrentTick > popup.DisplayDelay)
-				{
-					if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
+					if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
 					{
-						SendMessage(popup.Message, type: (byte)popup.MessageType);
-						hasDisplayedPopup = true;
+						Popups.Remove(popup);
+						continue;
 					}
-					if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
-					{
-						SendMessage(popup.Message, type: (byte)popup.MessageType);
-						hasDisplayedTio = true;
-					}
-				}
 
-				popup.CurrentTick++;
+					if (popup.CurrentTick > popup.DisplayDelay)
+					{
+						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
+						{
+							SendMessage(popup.Message, type: (byte) popup.MessageType);
+							hasDisplayedPopup = true;
+						}
+						if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
+						{
+							SendMessage(popup.Message, type: (byte) popup.MessageType);
+							hasDisplayedTio = true;
+						}
+					}
+
+					popup.CurrentTick++;
+				}
 			}
 		}
 
 		public void AddPopup(Popup popup)
 		{
-			Popups.Add(popup);
+			lock (Popups) Popups.Add(popup);
+		}
+
+		public void ClearPopups()
+		{
+			lock (Popups) Popups.Clear();
 		}
 
 		public override void Knockback(Vector3 velocity)
@@ -1300,9 +1297,6 @@ namespace MiNET
 			SendPackage(ping);
 		}
 
-		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
-		private object _queueSync = new object();
-
 		/// <summary>
 		///     Very important litle method. This does all the sending of packages for
 		///     the player class. Treat with respect!
@@ -1311,7 +1305,7 @@ namespace MiNET
 		{
 			if (!IsConnected) return;
 
-			var result = _pluginManager.PluginPacketHandler(package, false, this);
+			var result = Server.PluginManager.PluginPacketHandler(package, false, this);
 			if (result != package) package.PutPool();
 			package = result;
 
@@ -1326,7 +1320,7 @@ namespace MiNET
 			}
 			else
 			{
-				Server.SendPackage(this, EndPoint, new List<Package>(new[] {package}), _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, new List<Package>(new[] {package}), _mtuSize, ref _reliableMessageNumber);
 			}
 		}
 
@@ -1374,7 +1368,7 @@ namespace MiNET
 			batch.payload = buffer;
 			batch.Encode();
 
-			Server.SendPackage(this, EndPoint, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 			//Server.SendPackage(EndPoint, messages, _mtuSize, ref _reliableMessageNumber);
 		}
 
@@ -1408,7 +1402,7 @@ namespace MiNET
 				batch.payload = buffer;
 				batch.Encode();
 
-				Server.SendPackage(this, EndPoint, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 				//Server.SendPackage(EndPoint, messages, _mtuSize, ref _reliableMessageNumber);
 			}
 		}

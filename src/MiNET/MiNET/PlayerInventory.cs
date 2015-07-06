@@ -39,7 +39,6 @@ namespace MiNET
 			byte c = 0;
 			//Slots[c++] = new MetadataSlot(new ItemStack(383, 1, 34));
 			//Slots[c++] = new MetadataSlot(new ItemStack(355, 64));
-			//Slots[c++] = new MetadataSlot(new ItemStack(325, 1, 8));
 			Slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
 			Slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
 			Slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
@@ -49,6 +48,9 @@ namespace MiNET
 			Slots[c++] = new MetadataSlot(new ItemStack(268, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(280, 10));
 			Slots[c++] = new MetadataSlot(new ItemStack(290, 1));
+			//Slots[c++] = new MetadataSlot(new ItemStack(259, 1)); // Flint/Steal
+			//Slots[c++] = new MetadataSlot(new ItemStack(325, 64, 8)); // Water
+			//Slots[c++] = new MetadataSlot(new ItemStack(325, 64, 10)); // Lava
 
 			for (byte i = 0; i < 6; i++)
 			{

@@ -61,10 +61,6 @@
     <Compile Include="MobHunt\MobHuntLevel.cs" />
     <Compile Include="MobHunt\MobHuntLevelFactory.cs" />
     <Compile Include="MobHunt\PluginBlockFactory.cs" />
-    <Compile Include="Nwo\NewWorldOrderPlugin.cs" />
-    <Compile Include="Nwo\NwoMobSelector.cs" />
-    <Compile Include="Nwo\NwoPasswordHasher.cs" />
-    <Compile Include="Nwo\NwoUserStore.cs" />
     <Compile Include="Teams\CustomStandingSign.cs" />
     <Compile Include="Teams\CustomWallSign.cs" />
     <Compile Include="Teams\Game.cs" />

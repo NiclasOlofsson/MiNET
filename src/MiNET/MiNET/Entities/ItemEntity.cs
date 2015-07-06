@@ -50,11 +50,14 @@ namespace MiNET.Entities
 			{
 				if (KnownPosition.DistanceTo(player.KnownPosition) <= 1)
 				{
+					//BUG: If this is sent, the client crashes for some unknown reason.
 					Level.RelayBroadcast(new McpeTakeItemEntity()
 					{
-						entityId = player.EntityId,
-						target = EntityId
-					});
+						//entityId = player.EntityId,
+						//target = EntityId
+						entityId = EntityId,
+						target = player.EntityId
+ 					});
 					player.Inventory.SetFirstEmptySlot((short)Item.Id, (byte)Count, Item.Metadata); //Add the items to the inventory
 
 					DespawnEntity();

@@ -26,13 +26,14 @@ namespace MiNET
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private const int DefaultPort = 19132;
-		private static string Motd = string.Empty;
+		private static string _motd = string.Empty;
 
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private Level _level;
-		private PluginManager _pluginManager;
+		public PluginManager PluginManager { get; set; }
+		public SessionManager SessionManager { get; set; }
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _internalPingTimer;
 		private Random _random = new Random();
@@ -47,6 +48,13 @@ namespace MiNET
 		public RoleManager<Role> RoleManager { get; set; }
 
 		public LevelFactory LevelFactory { get; set; }
+		public PlayerFactory PlayerFactory { get; set; }
+
+		public static string Motd
+		{
+			get { return _motd; }
+			set { _motd = value; }
+		}
 
 		// Performance measures
 		private long _numberOfAckSent = 0;
@@ -62,8 +70,7 @@ namespace MiNET
 		/// <summary>
 		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
-		public MiNetServer()
-			: this(new IPEndPoint(IPAddress.Any, DefaultPort))
+		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
 
@@ -71,8 +78,7 @@ namespace MiNET
 		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
 		/// </summary>
 		/// <param name="port">The port.</param>
-		public MiNetServer(int port)
-			: this(new IPEndPoint(IPAddress.Any, port))
+		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
@@ -110,17 +116,15 @@ namespace MiNET
 				Log.Info("Initializing...");
 
 				Log.Info("Loading settings...");
-				//string t = "Instant Network MiNET Test";
-				string t = "§6§l\u00BB §5Instant§dNetwork §aTest §6§l\u00AB";
-				Motd = Config.GetProperty("motd", t);
+				Motd = Config.GetProperty("motd", "MiNET: MCPE Server");
 
 				Log.Info("Loading plugins...");
-				_pluginManager = new PluginManager();
-				_pluginManager.LoadPlugins();
+				PluginManager = new PluginManager();
+				PluginManager.LoadPlugins();
 				Log.Info("Plugins loaded!");
 
 				// Bootstrap server
-				_pluginManager.ExecuteStartup(this);
+				PluginManager.ExecuteStartup(this);
 
 				if (Config.GetProperty("EnableSecurity", false))
 				{
@@ -129,7 +133,9 @@ namespace MiNET
 					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
 				}
 
+				SessionManager = SessionManager?? new SessionManager();
 				LevelFactory = LevelFactory ?? new LevelFactory();
+				PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
 				_level = LevelFactory.CreateLevel("Default");
 				_levels.Add(_level);
@@ -140,7 +146,7 @@ namespace MiNET
 				//	_levels.Add(level);
 				//}
 
-				_pluginManager.EnablePlugins(_levels);
+				PluginManager.EnablePlugins(this, _levels);
 
 				_listener = new UdpClient(_endpoint);
 
@@ -171,7 +177,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 30);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -216,7 +222,7 @@ namespace MiNET
 				}
 
 				Log.Info("Disabling plugins...");
-				_pluginManager.DisablePlugins();
+				PluginManager.DisablePlugins();
 
 				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.
@@ -332,7 +338,7 @@ namespace MiNET
 						};
 						var data = packet.Encode();
 						TraceSend(packet);
-						SendData(data, senderEndpoint, _listener);
+						SendData(data, senderEndpoint, new object());
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
@@ -350,7 +356,7 @@ namespace MiNET
 
 						var data = packet.Encode();
 						TraceSend(packet);
-						SendData(data, senderEndpoint, _listener);
+						SendData(data, senderEndpoint, new object());
 						break;
 					}
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
@@ -377,7 +383,8 @@ namespace MiNET
 								Log.Info("Removed ghost");
 							}
 
-							session = new PlayerNetworkSession(new Player(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], _pluginManager, incoming.mtuSize), senderEndpoint);
+							Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
+							session = new PlayerNetworkSession(player, senderEndpoint);
 							session.LastUpdatedTime = DateTime.UtcNow;
 							session.Mtuize = incoming.mtuSize;
 
@@ -777,6 +784,34 @@ namespace MiNET
 			}
 		}
 
+		private void SendAckQueue(object state)
+		{
+			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
+			{
+				var queue = session.PlayerAckQueue;
+				int lenght = queue.Count;
+
+				if (lenght == 0) return;
+
+				Acks acks = Acks.CreateObject();
+				for (int i = 0; i < lenght; i++)
+				{
+					int ack;
+					if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
+
+					acks.acks.Add(ack);
+				}
+
+				if (acks.acks.Count > 0)
+				{
+					byte[] data = acks.Encode();
+					SendData(data, session.EndPoint, session.SyncRoot);
+				}
+
+				acks.PutPool();
+			});
+		}
+
 		private void Update(object state)
 		{
 			long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
@@ -806,7 +841,7 @@ namespace MiNET
 						session.Player.DetectLostConnection();
 					}
 				}
-				var queue = session.WaitingForAcksQueue;
+				//var queue = session.WaitingForAcksQueue;
 				//foreach (var datagram in queue.Values)
 				//{
 				//	if (!datagram.Timer.IsRunning)
@@ -854,39 +889,11 @@ namespace MiNET
 			});
 		}
 
-		private void SendAckQueue(object state)
-		{
-			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
-			{
-				var queue = session.PlayerAckQueue;
-				int lenght = queue.Count;
-
-				if (lenght == 0) return;
-
-				Acks acks = Acks.CreateObject();
-				for (int i = 0; i < lenght; i++)
-				{
-					int ack;
-					if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
-
-					acks.acks.Add(ack);
-				}
-
-				if (acks.acks.Count > 0)
-				{
-					byte[] data = acks.Encode();
-					SendData(data, session.EndPoint, session.SyncRoot);
-				}
-
-				acks.PutPool();
-			});
-		}
-
-		public void SendPackage(Player player, IPEndPoint senderEndpoint, List<Package> messages, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
+		public void SendPackage(Player player, List<Package> messages, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
 		{
 			if (messages.Count == 0) return;
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, senderEndpoint, SendDatagram);
+			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, player.EndPoint, SendDatagram);
 
 			foreach (var message in messages)
 			{

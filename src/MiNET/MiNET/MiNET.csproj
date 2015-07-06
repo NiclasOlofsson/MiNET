@@ -177,6 +177,7 @@
     <Compile Include="Net\McpeText.cs" />
     <Compile Include="Net\Skin.cs" />
     <Compile Include="PermissionManager.cs" />
+    <Compile Include="PlayerFactory.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />
     <Compile Include="Plugins\IStartup.cs" />
@@ -228,6 +229,7 @@
     <Compile Include="Security\DefaultUserStore.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\User.cs" />
+    <Compile Include="SessionManager.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\EntityLocations.cs" />

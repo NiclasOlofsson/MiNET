@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using Microsoft.AspNet.Identity;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -38,32 +40,32 @@ namespace TestPlugin
 			player.SendMessage(sb.ToString());
 		}
 
-		//[Command]
-		//public void Login(Player player, string password)
-		//{
-		//	UserManager<User> userManager = player.Server.UserManager;
-		//	if (userManager != null)
-		//	{
-		//		if (player.Username == null) return;
+		[Command]
+		public void Login(Player player, string password)
+		{
+			UserManager<User> userManager = player.Server.UserManager;
+			if (userManager != null)
+			{
+				if (player.Username == null) return;
 
-		//		User user = userManager.FindByName(player.Username);
+				User user = userManager.FindByName(player.Username);
 
-		//		if (user == null)
-		//		{
-		//			user = new User(player.Username);
-		//			if (!userManager.Create(user, password).Succeeded) return;
-		//		}
+				if (user == null)
+				{
+					user = new User(player.Username);
+					if (!userManager.Create(user, password).Succeeded) return;
+				}
 
-		//		if (userManager.CheckPassword(user, password))
-		//		{
-		//			player.SendMessage("Login successful");
-		//		}
-		//		else
-		//		{
-		//			player.SendMessage("Login failed");
-		//		}
-		//	}
-		//}
+				if (userManager.CheckPassword(user, password))
+				{
+					player.SendMessage("Login successful");
+				}
+				else
+				{
+					player.SendMessage("Login failed");
+				}
+			}
+		}
 
 		[Command(Command = "tp")]
 		public void Teleport(Player player, int x, int y, int z)

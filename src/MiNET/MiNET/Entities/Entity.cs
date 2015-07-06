@@ -1,6 +1,5 @@
 ﻿using System;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -22,6 +21,8 @@ namespace MiNET.Entities
 		public Vector3 Velocity { get; set; }
 
 		public HealthManager HealthManager { get; set; }
+
+		public string NameTag { get; set; }
 
 		public double Height { get; set; }
 		public double Width { get; set; }
@@ -50,7 +51,7 @@ namespace MiNET.Entities
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[2] = new MetadataString("");
+			metadata[2] = new MetadataString(NameTag ?? string.Empty);
 			metadata[3] = new MetadataByte(1);
 			metadata[4] = new MetadataByte(0);
 			metadata[15] = new MetadataByte(0);

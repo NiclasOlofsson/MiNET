@@ -480,16 +480,18 @@ namespace MiNET
 			Username = message.username;
 			ClientId = message.clientId;
 
-			User user = Server.UserManager.FindByName(Username);
-			if (user != null)
+			if (Server.IsSecurityEnabled)
 			{
-				Session = Server.SessionManager.FindSession(EndPoint, ClientId, Username);
-				if (Session != null)
+				User user = Server.UserManager.FindByName(Username);
+				if (user != null)
 				{
-					User = user;
+					Session = Server.SessionManager.FindSession(EndPoint, ClientId, Username);
+					if (Session != null)
+					{
+						User = user;
+					}
 				}
 			}
-
 
 			Skin = message.skin;
 			//Skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)) };

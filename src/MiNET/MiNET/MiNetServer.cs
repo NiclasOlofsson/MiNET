@@ -102,6 +102,7 @@ namespace MiNET
 
 
 		private List<Level> _levels = new List<Level>();
+		public bool IsSecurityEnabled { get; private set; }
 
 		/// <summary>
 		///     Starts the server.
@@ -126,7 +127,8 @@ namespace MiNET
 				// Bootstrap server
 				PluginManager.ExecuteStartup(this);
 
-				if (Config.GetProperty("EnableSecurity", false))
+				IsSecurityEnabled = Config.GetProperty("EnableSecurity", false);
+				if (IsSecurityEnabled)
 				{
 					// http://www.asp.net/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity
 					UserManager = UserManager ?? new UserManager<User>(new DefaultUserStore());

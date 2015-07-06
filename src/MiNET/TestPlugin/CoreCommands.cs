@@ -67,6 +67,24 @@ namespace TestPlugin
 			}
 		}
 
+		[Command(Command = "gm")]
+		public void GameMode(Player player, int gameMode)
+		{
+			player.SendPackage(new McpeStartGame
+			{
+				seed = -1,
+				generator = 1,
+				gamemode = gameMode,
+				entityId = player.EntityId,
+				spawnX = player.Level.SpawnPoint.X,
+				spawnY = player.Level.SpawnPoint.Y,
+				spawnZ = player.Level.SpawnPoint.Z,
+				x = player.KnownPosition.X,
+				y = player.KnownPosition.Y,
+				z = player.KnownPosition.Z
+			});
+		}
+
 		[Command(Command = "tp")]
 		public void Teleport(Player player, int x, int y, int z)
 		{

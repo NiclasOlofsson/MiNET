@@ -144,6 +144,7 @@ namespace MiNET.Worlds
 
 				EntityManager.AddEntity(null, newPlayer);
 				spawnedPlayers = GetSpawnedPlayers();
+				Players.Add(newPlayer);
 			}
 
 			foreach (var targetPlayer in spawnedPlayers)
@@ -160,17 +161,17 @@ namespace MiNET.Worlds
 				SendAddEntityToPlayer(entity, newPlayer);
 			}
 
-			lock (Players)
-			{
-				if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
+			//lock (Players)
+			//{
+			//	if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
 
-				if (!string.IsNullOrEmpty(broadcastText))
-				{
-					//BroadcastTextMessage(broadcastText);
-				}
+			//	if (!string.IsNullOrEmpty(broadcastText))
+			//	{
+			//		//BroadcastTextMessage(broadcastText);
+			//	}
 
-				//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
-			}
+			//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
+			//}
 		}
 
 		public void SendAddForPlayer(Player receiver, Player player)
@@ -428,12 +429,12 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BroadcastTextMessage(string text, Player sender = null, byte type = McpeText.TypeChat)
+		public void BroadcastTextMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
 		{
 			foreach (var line in text.Split('\n'))
 			{
 				McpeText message = McpeText.CreateObject();
-				message.type = type;
+				message.type = (byte) type;
 				message.source = sender == null ? "MiNET" : sender.Username;
 				message.message = line;
 
@@ -462,8 +463,8 @@ namespace MiNET.Worlds
 				if (TickTime%100 == 0)
 				{
 					//McpeSetTime message = McpeSetTime.CreateObject();
-					//message.time = (int) CurrentWorldTime;
-					//message.started = (byte) (IsWorldTimeStarted ? 0x80 : 0x00);
+					//message.time = (int)CurrentWorldTime;
+					//message.started = (byte)(IsWorldTimeStarted ? 0x80 : 0x00);
 
 					//RelayBroadcast(players, message);
 				}
@@ -498,8 +499,11 @@ namespace MiNET.Worlds
 				}
 
 				// Send player movements
-				Player[] updatedPlayers = GetUpdatedPlayers(players);
-				BroadCastMovement(players, updatedPlayers);
+				//if (TickTime%2 == 0)
+				{
+					Player[] updatedPlayers = GetUpdatedPlayers(players);
+					BroadCastMovement(players, updatedPlayers);
+				}
 			}
 			finally
 			{
@@ -563,70 +567,47 @@ namespace MiNET.Worlds
 				Task sendTask = new Task(delegate { player.SendMoveList(moves); });
 				sendTask.Start();
 			}
-
-
-			//MemoryStream stream = new MemoryStream();
-
-			//int messageCount = 0;
-			//foreach (var movePlayer in moves)
-			//{
-			//	{
-			//		messageCount++;
-			//		byte[] bytes = movePlayer.Encode();
-			//		stream.Write(bytes, 0, bytes.Length);
-			//	}
-
-			//	movePlayer.PutPool();
-			//}
-
-			//if (messageCount > 0)
-			//{
-			//	McpeBatch batch = McpeBatch.CreateObject(players.Length);
-			//	byte[] buffer = CompressBytes(stream.ToArray());
-			//	batch.payloadSize = buffer.Length;
-			//	batch.payload = buffer;
-			//	batch.Encode();
-
-			//	foreach (var p in players)
-			//	{
-			//		Player player = p;
-			//		Task sendTask = new Task(delegate { player.SendPackage(batch, true); });
-			//		sendTask.Start();
-			//	}
-			//}
 		}
 
-		public byte[] CompressBytes(byte[] input)
+
+		protected virtual void BroadCastMovement2(Player[] players, Player[] updatedPlayers)
 		{
+			if (updatedPlayers.Length == 0) return;
+
 			MemoryStream stream = new MemoryStream();
-			stream.WriteByte(0x78);
-			stream.WriteByte(0x01);
-			int checksum;
-			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			foreach (var player in updatedPlayers)
 			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
-				writer.Write(input);
-
-				writer.Flush();
-
-				checksum = compressStream.Checksum;
-				writer.Close();
+				Player updatedPlayer = player;
+				var knownPosition = updatedPlayer.KnownPosition;
+				{
+					McpeMovePlayer move = McpeMovePlayer.CreateObject();
+					move.entityId = updatedPlayer.EntityId;
+					move.x = knownPosition.X;
+					move.y = knownPosition.Y + 1.62f;
+					move.z = knownPosition.Z;
+					move.yaw = knownPosition.Yaw;
+					move.pitch = knownPosition.Pitch;
+					move.headYaw = knownPosition.HeadYaw;
+					move.teleport = 0;
+					var bytes = move.Encode(); // Optmized
+					stream.Write(bytes, 0, bytes.Length);
+					move.PutPool();
+				}
 			}
 
-			byte[] checksumBytes = BitConverter.GetBytes(checksum);
-			if (BitConverter.IsLittleEndian)
+			McpeBatch batch = McpeBatch.CreateObject(players.Length);
+			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			//batch.Encode();
+
+			foreach (var p in players)
 			{
-				// Adler32 checksum is big-endian
-				Array.Reverse(checksumBytes);
+				Player player = p;
+				Task sendTask = new Task(delegate { player.SendPackage(batch, true); });
+				sendTask.Start();
 			}
-			stream.Write(checksumBytes, 0, checksumBytes.Length);
-
-			var bytes = stream.ToArray();
-			stream.Close();
-
-			return bytes;
 		}
-
 
 		public IEnumerable<ChunkColumn> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
 		{
@@ -882,6 +863,7 @@ namespace MiNET.Worlds
 
 		public void BreakBlock(BlockCoordinates blockCoordinates)
 		{
+			return;
 			List<ItemStack> drops = new List<ItemStack>();
 
 			Block block = GetBlock(blockCoordinates);

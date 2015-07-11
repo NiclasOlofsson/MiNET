@@ -85,8 +85,8 @@
 	</pdu>
 
 	<pdu id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
-		<field name="Client System Address" type="long" />
-		<field name="System Index" type="long" />
+		<field name="System Address" type="IPEndPoint" />
+		<field name="System Addresses" type="IPEndPoint[]" />
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>

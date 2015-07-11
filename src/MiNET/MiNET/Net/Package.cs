@@ -276,17 +276,30 @@ namespace MiNET.Net
 			}
 		}
 
+		public void Write(IPEndPoint[] endpoints)
+		{
+			foreach (var endpoint in endpoints)
+			{
+				Write(endpoint);
+			}
+		}
+
+		public IPEndPoint[] ReadIPEndPoints()
+		{
+			return new IPEndPoint[0];
+		}
+
 		public void Write(IPEndPoint endpoint)
 		{
 			if (endpoint.AddressFamily == AddressFamily.InterNetwork)
 			{
-				Write((byte) 4);
+				Write((byte)4);
 				var parts = endpoint.Address.ToString().Split('.');
 				foreach (var part in parts)
 				{
-					Write((byte) ~byte.Parse(part));
+					Write((byte)~byte.Parse(part));
 				}
-				Write((short) endpoint.Port);
+				Write((short)endpoint.Port);
 			}
 		}
 

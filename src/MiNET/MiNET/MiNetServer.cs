@@ -26,88 +26,56 @@ namespace MiNET
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private const int DefaultPort = 19132;
-		private static string _motd = string.Empty;
 
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private Level _level;
-		public PluginManager PluginManager { get; set; }
-		public SessionManager SessionManager { get; set; }
-		// ReSharper disable once NotAccessedField.Local
-		private Timer _internalPingTimer;
-		private Random _random = new Random();
 
-		// ReSharper disable once NotAccessedField.Local
-		private Timer _ackTimer;
-		// ReSharper disable once NotAccessedField.Local
-		private Timer _cleanerTimer;
 
-		private static bool _isPerformanceTest = false;
+		public bool IsSecurityEnabled { get; private set; }
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
 
 		public LevelFactory LevelFactory { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 
-		public static string Motd
-		{
-			get { return _motd; }
-			set { _motd = value; }
-		}
+		public PluginManager PluginManager { get; set; }
+		public SessionManager SessionManager { get; set; }
 
-		// Performance measures
-		private long _numberOfAckSent = 0;
-		private long _numberOfPacketsOutPerSecond = 0;
-		private long _numberOfPacketsInPerSecond = 0;
-		private long _totalPacketSizeOut = 0;
-		private long _totalPacketSizeIn = 0;
-		private Timer _throughPut = null;
-		private long _latency = -1;
-		private int _availableBytes;
+		private Random _random = new Random();
 
+		private static bool _isPerformanceTest = false;
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
-		/// </summary>
+		private Timer _internalPingTimer;
+		private Timer _ackTimer;
+		private Timer _cleanerTimer;
+
+		private List<Level> _levels = new List<Level>();
+
+		public string Motd { get; set; }
+
+		public ServerInfo ServerInfo { get; set; }
+
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
 		{
 		}
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
-		/// </summary>
-		/// <param name="port">The port.</param>
 		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
 		{
 		}
 
-		/// <summary>
-		///     Initializes a new instance of the <see cref="MiNetServer" /> class.
-		/// </summary>
-		/// <param name="endpoint">The endpoint.</param>
 		public MiNetServer(IPEndPoint endpoint)
 		{
+			Motd = string.Empty;
 			_endpoint = endpoint;
 		}
 
-		/// <summary>
-		///     Determines whether is running on mono.
-		/// </summary>
-		/// <returns></returns>
 		public static bool IsRunningOnMono()
 		{
 			return Type.GetType("Mono.Runtime") != null;
 		}
 
-
-		private List<Level> _levels = new List<Level>();
-		public bool IsSecurityEnabled { get; private set; }
-
-		/// <summary>
-		///     Starts the server.
-		/// </summary>
-		/// <returns></returns>
 		public bool StartServer()
 		{
 			if (_listener != null) return false; // Already started
@@ -135,14 +103,16 @@ namespace MiNET
 					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
 				}
 
-				SessionManager = SessionManager?? new SessionManager();
+				SessionManager = SessionManager ?? new SessionManager();
 				LevelFactory = LevelFactory ?? new LevelFactory();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
 				_level = LevelFactory.CreateLevel("Default");
 				_levels.Add(_level);
 
-				//for (int i = 1; i < 10; i++)
+				ServerInfo = new ServerInfo(_level, _playerSessions);
+
+				//for (int i = 1; i < 60; i++)
 				//{
 				//	Level level = LevelFactory.CreateLevel("" + i);
 				//	_levels.Add(level);
@@ -179,7 +149,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 30);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -209,10 +179,6 @@ namespace MiNET
 			return false;
 		}
 
-		/// <summary>
-		///     Stops the server.
-		/// </summary>
-		/// <returns></returns>
 		public bool StopServer()
 		{
 			try
@@ -242,10 +208,6 @@ namespace MiNET
 			return false;
 		}
 
-		/// <summary>
-		///     Handles the callback.
-		/// </summary>
-		/// <param name="ar">The results</param>
 		private void ReceiveCallback(IAsyncResult ar)
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
@@ -286,11 +248,18 @@ namespace MiNET
 			if (receiveBytes.Length != 0)
 			{
 				listener.BeginReceive(ReceiveCallback, listener);
-				_availableBytes = listener.Available;
-				_numberOfPacketsInPerSecond++;
-				_totalPacketSizeIn += receiveBytes.Length;
+				ServerInfo.AvailableBytes = listener.Available;
+				ServerInfo.NumberOfPacketsInPerSecond++;
+				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				//ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, senderEndpoint));
-				ProcessMessage(receiveBytes, senderEndpoint);
+				try
+				{
+					ProcessMessage(receiveBytes, senderEndpoint);
+				}
+				catch (Exception e)
+				{
+					Log.Warn("Process message error", e);
+				}
 			}
 			else
 			{
@@ -298,12 +267,6 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Processes a message.
-		/// </summary>
-		/// <param name="receiveBytes">The received bytes.</param>
-		/// <param name="senderEndpoint">The sender's endpoint.</param>
-		/// <exception cref="System.Exception">Receive ERROR, NAK in wrong place</exception>
 		private void ProcessMessage(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
 			byte msgId = receiveBytes[0];
@@ -469,6 +432,14 @@ namespace MiNET
 					PlayerNetworkSession playerSession;
 					if (_playerSessions.TryGetValue(senderEndpoint, out playerSession))
 					{
+						if (package._datagramSequenceNumber.IntValue() > 0 && playerSession.LastDatagramNumber >= package._datagramSequenceNumber.IntValue())
+						{
+							Log.WarnFormat("Sequence out of order {0}", package._datagramSequenceNumber.IntValue());
+							//throw new Exception("Sequence number not correct");
+							//return;
+						}
+
+						playerSession.LastDatagramNumber = header.datagramSequenceNumber;
 						foreach (var message in messages)
 						{
 							if (message is SplitPartPackage)
@@ -652,15 +623,16 @@ namespace MiNET
 					// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
 					// RTO = RTT + 4 * RTTVar
 					long rtt = datagram.Timer.ElapsedMilliseconds;
-					if (rtt > session.Player.Rto) Log.WarnFormat("RTT bigger !!!!!!");
 					long RTT = session.Player.Rtt;
 					long RTTVar = session.Player.RttVar;
 
 					session.Player.Rtt = (long) (RTT*0.875 + rtt*0.125);
 					session.Player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 					session.Player.Rto = session.Player.Rtt + 4*session.Player.RttVar + 10; // SYNC time in the end
+					SendDatagram(senderEndpoint, datagram);
+					Thread.Sleep(12);
 
-					ThreadPool.QueueUserWorkItem(delegate(object data) { SendDatagram(senderEndpoint, (Datagram) data); }, datagram);
+					//ThreadPool.QueueUserWorkItem(delegate(object data) { SendDatagram(senderEndpoint, (Datagram)data); }, datagram);
 				}
 				else
 				{
@@ -721,11 +693,6 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Handles the specified package.
-		/// </summary>
-		/// <param name="message">The package.</param>
-		/// <param name="senderEndpoint">The sender's endpoint.</param>
 		private void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
 			TraceReceive(message);
@@ -777,7 +744,7 @@ namespace MiNET
 
 		private void EnqueueAck(IPEndPoint senderEndpoint, Int24 sequenceNumber)
 		{
-			_numberOfAckSent++;
+			ServerInfo.NumberOfAckSent++;
 
 			if (_playerSessions.ContainsKey(senderEndpoint))
 			{
@@ -834,6 +801,7 @@ namespace MiNET
 					if (lastUpdate + 10000 < now)
 					{
 						// Disconnect user
+						session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Inactivity."});
 						HandlePackage(new DisconnectionNotification(), session);
 
 						return;
@@ -897,18 +865,45 @@ namespace MiNET
 
 			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, player.EndPoint, SendDatagram);
 
-			foreach (var message in messages)
+			PlayerNetworkSession session;
+			if (_playerSessions.TryGetValue(player.EndPoint, out session))
 			{
-				if (!player.IsBot) Thread.Sleep(5);
-
-				if (message is InternalPing)
+				foreach (var message in messages)
 				{
-					_latency = (_latency*9 + message.Timer.ElapsedMilliseconds)/10;
+					//if (!player.IsBot) Thread.Sleep(7); // 7 is a good value
+					if (!player.IsBot)
+					{
+						if (session.ErrorCount > 50)
+						{
+							if (!session.IsSlowClient)
+							{
+								session.IsSlowClient = true;
+								player.Level.BroadcastTextMessage("Slow client detected, slowing down speed for " + player.Username, type: MessageType.Raw);
+							}
+
+							// This is to slow down chunk-sending not to overrun old devices.
+							// The timeout should be configurable and enable/disable.
+							if (Math.Floor(player.Rtt/10d) > 0)
+							{
+								Thread.Sleep(Math.Min(Math.Max((int) Math.Floor(player.Rtt/10d), 7), 20));
+							}
+						}
+						else
+						{
+							Thread.Sleep(3); // Seems to be needed regardless :-(
+						}
+
+					}
+
+					if (message is InternalPing)
+					{
+						ServerInfo.Latency = (ServerInfo.Latency*9 + message.Timer.ElapsedMilliseconds)/10;
+					}
+
+					TraceSend(message);
+
+					message.PutPool();
 				}
-
-				TraceSend(message);
-
-				message.PutPool();
 			}
 		}
 
@@ -950,58 +945,15 @@ namespace MiNET
 		}
 
 
-		/// <summary>
-		///     Sends the data.
-		/// </summary>
 		private void SendData(byte[] data, IPEndPoint targetEndPoint, object syncRoot)
 		{
-			if (_throughPut == null)
-			{
-				_throughPut = new Timer(delegate(object state)
-				{
-					int threads;
-					int portThreads;
-					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = _totalPacketSizeOut*8/1000000D;
-					double kbitPerSecondIn = _totalPacketSizeIn*8/1000000D;
-					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-						_numberOfPacketsOutPerSecond, _numberOfAckSent, _numberOfPacketsInPerSecond, kbitPerSecondOut, _level.LastTickProcessingTime,
-						_playerSessions.Count, _latency, kbitPerSecondIn, _availableBytes/1000, threads, portThreads);
-
-					_numberOfAckSent = 0;
-					_totalPacketSizeOut = 0;
-					_totalPacketSizeIn = 0;
-					_numberOfPacketsOutPerSecond = 0;
-					_numberOfPacketsInPerSecond = 0;
-				}, null, 1000, 1000);
-			}
-
-			//_listener.SendAsync(data, data.Length, targetEndpoint).Wait(); // Has thread pooling issues?
-
 			lock (syncRoot)
 			{
 				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 			}
 
-			_numberOfPacketsOutPerSecond++;
-			_totalPacketSizeOut += data.Length;
-		}
-
-		// ReSharper disable once UnusedMember.Global
-
-		/// <summary>
-		///     Converts a byte[] to string.
-		/// </summary>
-		/// <param name="ba">The data to convert.</param>
-		/// <returns></returns>
-		public static string ByteArrayToString(byte[] ba)
-		{
-			StringBuilder hex = new StringBuilder((ba.Length*2) + 100);
-			hex.Append("{");
-			foreach (byte b in ba)
-				hex.AppendFormat("0x{0:x2},", b);
-			hex.Append("}");
-			return hex.ToString();
+			ServerInfo.NumberOfPacketsOutPerSecond++;
+			ServerInfo.TotalPacketSizeOut += data.Length;
 		}
 
 		private static void TraceReceive(Package message, int refNumber = 0)

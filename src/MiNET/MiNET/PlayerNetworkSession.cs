@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using MiNET.Net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -23,6 +24,10 @@ namespace MiNET
 		public int DatagramSequenceNumber = -1;
 		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
+		public bool IsSlowClient { get; set; }
+
+		public DateTime LastUpdatedTime { get; set; }
+		public int LastDatagramNumber { get; set; }
 
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
@@ -45,7 +50,5 @@ namespace MiNET
 		{
 			get { return _waitingForAcksQueue; }
 		}
-
-		public DateTime LastUpdatedTime { get; set; }
 	}
 }

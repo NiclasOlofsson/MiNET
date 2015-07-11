@@ -38,6 +38,7 @@ namespace MiNET
 		private Inventory _openInventory;
 		public PlayerInventory Inventory { get; private set; }
 
+		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
 		public bool IsSpawned { get; private set; }
 		public string Username { get; private set; }
@@ -231,12 +232,12 @@ namespace MiNET
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 				if (elapsedMilliseconds > 100)
 				{
-					Log.WarnFormat("Package ({1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 				}
 			}
 			else
 			{
-				Log.WarnFormat("Package ({0:x2}) timer not started.", message.Id);
+				Log.WarnFormat("Package (0x{0:x2}) timer not started.", message.Id);
 			}
 		}
 
@@ -423,7 +424,7 @@ namespace MiNET
 		public void HandleDisconnectionNotification()
 		{
 			IsConnected = false;
-			IsSpawned = true;
+			IsSpawned = false;
 			Level.RemovePlayer(this);
 		}
 
@@ -437,7 +438,17 @@ namespace MiNET
 
 			ClientGuid = message.clientGuid;
 
-			var response = new ConnectionRequestAcceptedManual((short) EndPoint.Port, message.timestamp);
+			var response = ConnectionRequestAccepted.CreateObject();
+			response.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
+			response.systemAddresses = new IPEndPoint[10];
+			response.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
+			response.incomingTimestamp = message.timestamp;
+			response.serverTimestamp = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+
+			for (int i = 1; i < 10; i++)
+			{
+				response.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
+			}
 
 			SendPackage(response);
 		}
@@ -480,17 +491,10 @@ namespace MiNET
 			Username = message.username;
 			ClientId = message.clientId;
 
+			Session = Server.SessionManager.CreateSession(this);
 			if (Server.IsSecurityEnabled)
 			{
-				User user = Server.UserManager.FindByName(Username);
-				if (user != null)
-				{
-					Session = Server.SessionManager.FindSession(EndPoint, ClientId, Username);
-					if (Session != null)
-					{
-						User = user;
-					}
-				}
+				User = Server.UserManager.FindByName(Username);
 			}
 
 			Skin = message.skin;
@@ -509,9 +513,16 @@ namespace MiNET
 
 			if (Username.StartsWith("Player")) IsBot = true; // HACK
 
-			if (Username.StartsWith("Wix")) return;
-			if (Username.StartsWith("Wiz")) return;
-			if (Username.StartsWith("Aga")) return;
+			//if (Username.StartsWith("Wix")
+			//	|| EndPoint.Address.ToString().EndsWith("166.91")
+			//	|| (Username.StartsWith("Wiz"))
+			//	|| (Username.StartsWith("Anon"))
+			//	|| (Username.StartsWith("Gang"))
+			//	)
+			//{
+			//	SendPackage(new McpeDisconnect() {message = "From [gurun]: You've been temp banned.\nPlease try again later :-)"});
+			//	return;
+			//}
 
 			// Start game
 
@@ -561,15 +572,19 @@ namespace MiNET
 			//IsSpawned = true;
 
 			LastUpdatedTime = DateTime.UtcNow;
+
+			if (IsBot)
+			{
+				InitializePlayer();
+				return;
+			}
 		}
 
 		/// <summary>
 		///     Initializes the player.
 		/// </summary>
-		private void InitializePlayer()
+		public virtual void InitializePlayer()
 		{
-			ThreadPool.QueueUserWorkItem(delegate(object state) { });
-
 			SendPackage(new McpePlayerStatus {status = 3});
 
 			SendPackage(new McpeRespawn
@@ -610,7 +625,35 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			//if (DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks < 20000) return;
+			//long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+			//if (GameMode == GameMode.Survival
+			//	&& HealthManager.CooldownTick == 0
+			//	&& td > 49*TimeSpan.TicksPerMillisecond
+			//	&& td < 500*TimeSpan.TicksPerMillisecond
+			//	&& Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
+			//	)
+			//{
+			//	{
+			//		Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+			//		double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+			//		double speed = distanceTo/td*TimeSpan.TicksPerSecond;
+			//		if (speed > (6.0d /* / TimeSpan.TicksPerSecond*/))
+			//		{
+			//			Level.BroadcastTextMessage(string.Format("{0} cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), speed));
+			//			AddPopup(new Popup
+			//			{
+			//				MessageType = MessageType.Tip,
+			//				Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), speed),
+			//				Duration = 1
+			//			});
+
+			//			LastUpdatedTime = DateTime.UtcNow;
+			//			HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+			//			SendMovePlayer();
+			//			return;
+			//		}
+			//	}
+			//}
 
 			KnownPosition = new PlayerLocation
 			{
@@ -621,7 +664,6 @@ namespace MiNET
 				Yaw = message.yaw,
 				HeadYaw = message.headYaw
 			};
-
 			LastUpdatedTime = DateTime.UtcNow;
 
 			if (IsBot) return;
@@ -684,6 +726,31 @@ namespace MiNET
 			Inventory.ItemInHand.Value.Id = message.item;
 			Inventory.ItemInHand.Value.Metadata = message.meta;
 
+			//if(GameMode == GameMode.Survival)
+			{
+				int slot = (message.slot - 9);
+				if (!Inventory.Slots.Contains((byte) slot))
+				{
+					//Level.BroadcastTextMessage(string.Format("Inventory change detected for player: {0} Slot: {1}", Username, slot), type: MessageType.Raw);
+
+					//SendPackage(new McpeContainerSetContent
+					//{
+					//	windowId = 0,
+					//	slotData = Inventory.Slots,
+					//	hotbarData = Inventory.ItemHotbar
+					//});
+
+					return;
+				}
+				else
+				{
+					var existing = Inventory.Slots[(byte) slot];
+					var selected = Inventory.Slots[message.selectedSlot];
+					Inventory.Slots[(byte) slot] = selected;
+					Inventory.Slots[message.selectedSlot] = existing;
+				}
+			}
+
 			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
 			msg.entityId = EntityId;
 			msg.item = message.item;
@@ -693,7 +760,6 @@ namespace MiNET
 
 			Level.RelayBroadcast(this, msg);
 		}
-
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
@@ -1053,6 +1119,8 @@ namespace MiNET
 		/// </summary>
 		private void SendChunksForKnownPosition()
 		{
+			if (IsBot) return;
+
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
@@ -1078,24 +1146,29 @@ namespace MiNET
 					fullChunkData.chunkZ = chunk.z;
 					fullChunkData.chunkData = chunk.GetBytes();
 					fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
-
-
-					McpeBatch batch = McpeBatch.CreateObject();
-					byte[] buffer = CompressBytes(fullChunkData.Encode());
-					batch.payloadSize = buffer.Length;
-					batch.payload = buffer;
+					byte[] bytes = fullChunkData.Encode();
 					fullChunkData.PutPool();
+
+					//if (!IsSpawned)
+					{
+						McpeBatch batch = McpeBatch.CreateObject();
+						byte[] buffer = CompressBytes(bytes, CompressionLevel.Optimal);
+						batch.payloadSize = buffer.Length;
+						batch.payload = buffer;
+						SendPackage(batch, sendDirect: true);
+					}
+					//else
+					//{
+					//	stream.Write(bytes, 0, bytes.Length);
+					//}
 
 					// This is to slow down chunk-sending not to overrun old devices.
 					// The timeout should be configurable and enable/disable.
-					if (Math.Floor(Rtt/10d) > 0)
-					{
-						Thread.Sleep(Math.Min(Math.Max((int) Math.Floor(Rtt/10d), 12) + 10, 40));
-					}
+					//if (Math.Floor(Rtt/10d) > 0)
+					//{
+					//	Thread.Sleep(Math.Min(Math.Max((int) Math.Floor(Rtt/10d), 12) + 10, 40));
+					//}
 
-					SendPackage(batch, sendDirect: true);
-					//var bytes = fullChunkData.Encode();
-					//stream.Write(bytes, 0, bytes.Length);
 					if (!IsSpawned)
 					{
 						if (packetCount++ == 56)
@@ -1105,31 +1178,27 @@ namespace MiNET
 					}
 				}
 
-				//McpeBatch batch = new McpeBatch();
-				//byte[] buffer = CompressBytes(stream.ToArray());
-				//batch.payloadSize = buffer.Length;
-				//batch.payload = buffer;
-				//batch.Encode();
-
-				//SendPackage(batch);
+				//if (IsSpawned)
+				//{
+				//	McpeBatch batch = McpeBatch.CreateObject();
+				//	byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
+				//	batch.payloadSize = buffer.Length;
+				//	batch.payload = buffer;
+				//	SendPackage(batch, sendDirect: true);
+				//}
 			});
 		}
 
-		public byte[] CompressBytes(byte[] input)
+		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel)
 		{
 			MemoryStream stream = new MemoryStream();
 			stream.WriteByte(0x78);
 			stream.WriteByte(0x01);
 			int checksum;
-			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
+			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
-				writer.Write(input);
-
-				writer.Flush();
-
+				compressStream.Write(input, 0, input.Length);
 				checksum = compressStream.Checksum;
-				writer.Close();
 			}
 
 			byte[] checksumBytes = BitConverter.GetBytes(checksum);
@@ -1196,12 +1265,12 @@ namespace MiNET
 					{
 						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
 						{
-							SendMessage(popup.Message, type: (byte) popup.MessageType);
+							SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedPopup = true;
 						}
 						if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
 						{
-							SendMessage(popup.Message, type: (byte) popup.MessageType);
+							SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedTio = true;
 						}
 					}
@@ -1263,12 +1332,12 @@ namespace MiNET
 			Level.RemovePlayer(this);
 		}
 
-		public void SendMessage(string text, Player sender = null, byte type = McpeText.TypeChat)
+		public void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
 		{
 			foreach (var line in text.Split('\n'))
 			{
 				McpeText message = McpeText.CreateObject();
-				message.type = type;
+				message.type = (byte) type;
 				message.source = sender == null ? "MiNET" : sender.Username;
 				message.message = line;
 
@@ -1365,7 +1434,7 @@ namespace MiNET
 			if (messageCount == 0) return;
 
 			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = CompressBytes(stream.ToArray());
+			byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();
@@ -1399,13 +1468,13 @@ namespace MiNET
 			if (messageCount > 0)
 			{
 				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = CompressBytes(stream.ToArray());
+				byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
 				batch.payloadSize = buffer.Length;
 				batch.payload = buffer;
 				batch.Encode();
 
 				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
-				//Server.SendPackage(EndPoint, messages, _mtuSize, ref _reliableMessageNumber);
+				//SendPackage(batch, true);
 			}
 		}
 	}

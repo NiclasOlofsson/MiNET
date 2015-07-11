@@ -21,7 +21,7 @@ namespace MiNET.Entities
 			Length = 0.25;
 
 			PickupDelay = 10;
-			TimeToLive = 20*10;
+			TimeToLive = 6000;
 		}
 
 		public MetadataSlot GetMetadataSlot()
@@ -48,7 +48,7 @@ namespace MiNET.Entities
 			var players = Level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
-				if (KnownPosition.DistanceTo(player.KnownPosition) <= 1)
+				if (KnownPosition.DistanceTo(player.KnownPosition) <= 2)
 				{
 					//BUG: If this is sent, the client crashes for some unknown reason.
 					Level.RelayBroadcast(new McpeTakeItemEntity()
@@ -58,8 +58,10 @@ namespace MiNET.Entities
 						entityId = EntityId,
 						target = player.EntityId
  					});
-					player.Inventory.SetFirstEmptySlot((short)Item.Id, (byte)Count, Item.Metadata); //Add the items to the inventory
-
+					if (player.GameMode == GameMode.Survival)
+					{
+						player.Inventory.SetFirstEmptySlot((short) Item.Id, (byte) Count, Item.Metadata); //Add the items to the inventory
+					}
 					DespawnEntity();
 					break;
 				}

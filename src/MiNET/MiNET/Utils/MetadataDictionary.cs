@@ -9,22 +9,27 @@ namespace MiNET.Utils
 	/// </summary>
 	public class MetadataDictionary
 	{
-		private readonly Dictionary<byte, MetadataEntry> entries;
+		private readonly Dictionary<byte, MetadataEntry> _entries;
 
 		public MetadataDictionary()
 		{
-			entries = new Dictionary<byte, MetadataEntry>();
+			_entries = new Dictionary<byte, MetadataEntry>();
 		}
 
 		public int Count
 		{
-			get { return entries.Count; }
+			get { return _entries.Count; }
 		}
 
 		public MetadataEntry this[byte index]
 		{
-			get { return entries[index]; }
-			set { entries[index] = value; }
+			get { return _entries[index]; }
+			set { _entries[index] = value; }
+		}
+
+		public bool Contains(byte index)
+		{
+			return _entries.ContainsKey(index);
 		}
 
 		public static MetadataDictionary FromStream(BinaryReader stream)
@@ -54,7 +59,7 @@ namespace MiNET.Utils
 
 		public void WriteTo(BinaryWriter stream)
 		{
-			foreach (var entry in entries)
+			foreach (var entry in _entries)
 			{
 				entry.Value.WriteTo(stream, entry.Key);
 			}
@@ -80,7 +85,7 @@ namespace MiNET.Utils
 		{
 			StringBuilder sb = null;
 
-			foreach (var entry in entries)
+			foreach (var entry in _entries)
 			{
 				if (sb != null)
 					sb.Append(", ");

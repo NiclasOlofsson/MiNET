@@ -173,6 +173,7 @@
     <Compile Include="Items\ItemRawChicken.cs" />
     <Compile Include="Items\ItemRawPorkchop.cs" />
     <Compile Include="LevelFactory.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\McpeText.cs" />
     <Compile Include="Net\Skin.cs" />
@@ -202,7 +203,6 @@
     <Compile Include="Items\ItemFlintAndSteel.cs" />
     <Compile Include="Net\Ack.cs" />
     <Compile Include="Net\ConnectedPackage.cs" />
-    <Compile Include="Net\ConnectionRequestAcceptedManual.cs" />
     <Compile Include="Net\Datagram.cs" />
     <Compile Include="Net\DatagramHeader.cs" />
     <Compile Include="Net\McpeMovePlayer.cs" />
@@ -229,6 +229,7 @@
     <Compile Include="Security\DefaultUserStore.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\User.cs" />
+    <Compile Include="ServerInfo.cs" />
     <Compile Include="SessionManager.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
@@ -237,6 +238,7 @@
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\Ray.cs" />
+    <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\Vector3.cs" />
     <Compile Include="Utils\Compression.cs" />
     <Compile Include="Utils\BlockCoordinates.cs" />

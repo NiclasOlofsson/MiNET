@@ -761,8 +761,8 @@ namespace MiNET.Net
 
 	public partial class ConnectionRequestAccepted : Package<ConnectionRequestAccepted>
 	{
-		public long clientSystemAddress; // = null;
-		public long systemIndex; // = null;
+		public IPEndPoint systemAddress; // = null;
+		public IPEndPoint[] systemAddresses; // = null;
 		public long incomingTimestamp; // = null;
 		public long serverTimestamp; // = null;
 		public ConnectionRequestAccepted()
@@ -776,8 +776,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(clientSystemAddress);
-			Write(systemIndex);
+			Write(systemAddress);
+			Write(systemAddresses);
 			Write(incomingTimestamp);
 			Write(serverTimestamp);
 
@@ -793,8 +793,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			clientSystemAddress = ReadLong();
-			systemIndex = ReadLong();
+			systemAddress = ReadIPEndPoint();
+			systemAddresses = ReadIPEndPoints();
 			incomingTimestamp = ReadLong();
 			serverTimestamp = ReadLong();
 

@@ -9,6 +9,7 @@ namespace MiNET
 	public class ServerInfo
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ServerInfo));
+
 		private Level _level;
 		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
 

@@ -36,6 +36,8 @@ namespace MiNET
 		public bool ForwardAllPlayers { get; set; }
 		public IPEndPoint ForwardTarget { get; set; }
 
+		public MotdProvider MotdProvider { get; set; }
+
 		public bool IsSecurityEnabled { get; private set; }
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
@@ -56,8 +58,6 @@ namespace MiNET
 
 		private List<Level> _levels = new List<Level>();
 
-		public string Motd { get; set; }
-
 		public ServerInfo ServerInfo { get; set; }
 
 		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
@@ -70,7 +70,6 @@ namespace MiNET
 
 		public MiNetServer(IPEndPoint endpoint)
 		{
-			Motd = string.Empty;
 			_endpoint = endpoint;
 		}
 
@@ -87,9 +86,6 @@ namespace MiNET
 			{
 				Log.Info("Initializing...");
 
-				Log.Info("Loading settings...");
-				Motd = Config.GetProperty("motd", "MiNET: MCPE Server");
-
 				Log.Info("Loading plugins...");
 				PluginManager = new PluginManager();
 				PluginManager.LoadPlugins();
@@ -97,6 +93,8 @@ namespace MiNET
 
 				// Bootstrap server
 				PluginManager.ExecuteStartup(this);
+
+				MotdProvider = MotdProvider ?? new MotdProvider();
 
 				IsSecurityEnabled = Config.GetProperty("EnableSecurity", false);
 				if (IsSecurityEnabled)
@@ -152,7 +150,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -302,7 +300,7 @@ namespace MiNET
 						{
 							serverId = 22345,
 							pingId = incoming.pingId /*incoming.pingId*/,
-							serverName = string.Format(@"MCPE;{0};27;0.11.1;{1};{2}", Motd, _playerSessions.Count, 1000)
+							serverName = MotdProvider.GetMotd(ServerInfo)
 						};
 						var data = packet.Encode();
 						TraceSend(packet);

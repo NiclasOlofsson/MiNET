@@ -527,6 +527,9 @@ namespace MiNET
 			    || (Username.StartsWith("Anon"))
 			    || (Username.StartsWith("Gang"))
 			    || (Username.StartsWith("Pafty"))
+			    || (Username.StartsWith("tanker"))
+			    || (Username.StartsWith("Chubet"))
+			    || (Username.StartsWith("Anth"))
 				)
 			{
 				SendPackage(new McpeDisconnect() {message = "From [gurun]: You've been temp banned.\nPlease try again later :-)"});
@@ -1330,7 +1333,7 @@ namespace MiNET
 			Level.RemovePlayer(this);
 		}
 
-		public void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
+		public virtual void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
 		{
 			foreach (var line in text.Split('\n'))
 			{

@@ -434,7 +434,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BroadcastTextMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
+		public virtual void BroadcastTextMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
 		{
 			foreach (var line in text.Split('\n'))
 			{

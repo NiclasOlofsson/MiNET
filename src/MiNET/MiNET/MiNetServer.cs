@@ -33,6 +33,9 @@ namespace MiNET
 		private Level _level;
 
 
+		public bool ForwardAllPlayers { get; set; }
+		public IPEndPoint ForwardTarget { get; set; }
+
 		public bool IsSecurityEnabled { get; private set; }
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
@@ -356,6 +359,7 @@ namespace MiNET
 							_playerSessions.TryAdd(senderEndpoint, session);
 						}
 
+
 						var data = packet.Encode();
 						TraceSend(packet);
 						SendData(data, senderEndpoint, session.SyncRoot);
@@ -432,11 +436,19 @@ namespace MiNET
 					PlayerNetworkSession playerSession;
 					if (_playerSessions.TryGetValue(senderEndpoint, out playerSession))
 					{
+						if (ForwardAllPlayers)
+						{
+							playerSession.Player.SendPackage(new McpeTransfer
+							{
+								endpoint = ForwardTarget
+							}, true);
+
+							return;
+						}
+
 						if (package._datagramSequenceNumber.IntValue() > 0 && playerSession.LastDatagramNumber >= package._datagramSequenceNumber.IntValue())
 						{
 							Log.WarnFormat("Sequence out of order {0}", package._datagramSequenceNumber.IntValue());
-							//throw new Exception("Sequence number not correct");
-							//return;
 						}
 
 						playerSession.LastDatagramNumber = header.datagramSequenceNumber;
@@ -610,7 +622,7 @@ namespace MiNET
 
 			var queue = session.WaitingForAcksQueue;
 
-			Log.WarnFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
+			Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
 
 			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
@@ -657,7 +669,7 @@ namespace MiNET
 
 			if (ack.onlyOneSequence != 1 && ack.count > 2)
 			{
-				Log.WarnFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, session.Player.Rtt);
+				Log.DebugFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, session.Player.Rtt);
 			}
 
 			ack.PutPool();
@@ -791,8 +803,8 @@ namespace MiNET
 				{
 					//if (session.ErrorCount > 1000 /* && session.SendDelay >= 50*/)
 					//{
-					//	Log.WarnFormat("Kick #{0} for too many NAK", session.Player.Username);
-					//	session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Too slow client."});
+					//	Log.WarnFormat("Kick #{0} for too many errors.", session.Player.Username);
+					//	session.Player.SendPackage(new McpeDisconnect() { message = "You've been kicked with reason: Too slow client." });
 					//	HandlePackage(new DisconnectionNotification(), session);
 					//	return;
 					//}
@@ -878,7 +890,7 @@ namespace MiNET
 							if (!session.IsSlowClient)
 							{
 								session.IsSlowClient = true;
-								player.Level.BroadcastTextMessage("Slow client detected, slowing down speed for " + player.Username, type: MessageType.Raw);
+								//player.Level.BroadcastTextMessage("Slow client detected, slowing down speed for " + player.Username, type: MessageType.Raw);
 							}
 
 							// This is to slow down chunk-sending not to overrun old devices.
@@ -892,7 +904,6 @@ namespace MiNET
 						{
 							Thread.Sleep(3); // Seems to be needed regardless :-(
 						}
-
 					}
 
 					if (message is InternalPing)

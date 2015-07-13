@@ -137,41 +137,46 @@ namespace MiNET.Worlds
 		{
 			if (newPlayer.Username == null) return;
 
-			Player[] spawnedPlayers;
 			lock (Players)
 			{
 				if (Players.Contains(newPlayer)) return;
 
-				EntityManager.AddEntity(null, newPlayer);
-				spawnedPlayers = GetSpawnedPlayers();
-				Players.Add(newPlayer);
-			}
-
-			foreach (var targetPlayer in spawnedPlayers)
-			{
-				if (spawn)
+				//if (newPlayer.EntityId == EntityManager.EntityIdUndefined)
 				{
-					SendAddForPlayer(targetPlayer, newPlayer);
-					SendAddForPlayer(newPlayer, targetPlayer);
+					EntityManager.AddEntity(null, newPlayer);
 				}
+
+				Player[] spawnedPlayers = GetSpawnedPlayers();
+				Players.Add(newPlayer);
+
+				foreach (var targetPlayer in spawnedPlayers)
+				{
+					if (spawn)
+					{
+						SendAddForPlayer(targetPlayer, newPlayer);
+						SendAddForPlayer(newPlayer, targetPlayer);
+					}
+				}
+
+				foreach (Entity entity in Entities.ToArray())
+				{
+					SendAddEntityToPlayer(entity, newPlayer);
+				}
+
+				//lock (Players)
+				//{
+				//	if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
+
+				//	if (!string.IsNullOrEmpty(broadcastText))
+				//	{
+				//		//BroadcastTextMessage(broadcastText);
+				//	}
+
+				//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
+				//}
+
+				newPlayer.IsSpawned = true;
 			}
-
-			foreach (Entity entity in Entities.ToArray())
-			{
-				SendAddEntityToPlayer(entity, newPlayer);
-			}
-
-			//lock (Players)
-			//{
-			//	if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
-
-			//	if (!string.IsNullOrEmpty(broadcastText))
-			//	{
-			//		//BroadcastTextMessage(broadcastText);
-			//	}
-
-			//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
-			//}
 		}
 
 		public void SendAddForPlayer(Player receiver, Player player)

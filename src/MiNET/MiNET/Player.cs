@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
@@ -40,7 +41,7 @@ namespace MiNET
 
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
-		public bool IsSpawned { get; private set; }
+		public bool IsSpawned { get; set; }
 		public string Username { get; private set; }
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
@@ -488,6 +489,12 @@ namespace MiNET
 		{
 			if (Username != null) return; // Already doing login
 
+			if (!Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
+			{
+				SendPackage(new McpeDisconnect() {message = "Invalid username."});
+				return;
+			}
+
 			Username = message.username;
 			ClientId = message.clientId;
 
@@ -512,17 +519,19 @@ namespace MiNET
 			Level.RemoveDuplicatePlayers(Username);
 
 			if (Username.StartsWith("Player")) IsBot = true; // HACK
+			//if (!Username.StartsWith("gurun")) return; // HACK
 
-			//if (Username.StartsWith("Wix")
-			//	|| EndPoint.Address.ToString().EndsWith("166.91")
-			//	|| (Username.StartsWith("Wiz"))
-			//	|| (Username.StartsWith("Anon"))
-			//	|| (Username.StartsWith("Gang"))
-			//	)
-			//{
-			//	SendPackage(new McpeDisconnect() {message = "From [gurun]: You've been temp banned.\nPlease try again later :-)"});
-			//	return;
-			//}
+			if (Username.StartsWith("Wix")
+			    || EndPoint.Address.ToString().EndsWith("166.91")
+			    || (Username.StartsWith("Wiz"))
+			    || (Username.StartsWith("Anon"))
+			    || (Username.StartsWith("Gang"))
+			    || (Username.StartsWith("Pafty"))
+				)
+			{
+				SendPackage(new McpeDisconnect() {message = "From [gurun]: You've been temp banned.\nPlease try again later :-)"});
+				return;
+			}
 
 			// Start game
 
@@ -531,7 +540,6 @@ namespace MiNET
 			// We send a ping here to get an initial value for chunk-sending
 			_pingSendTime = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 			SendPackage(new ConnectedPing {sendpingtime = _pingSendTime});
-
 
 			SendPackage(new McpePlayerStatus {status = 0});
 			SendStartGame();
@@ -548,7 +556,7 @@ namespace MiNET
 				metadata = GetMetadata()
 			});
 
-			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
+			//Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
 			SendPackage(new McpeContainerSetContent
 			{
@@ -565,7 +573,6 @@ namespace MiNET
 			});
 
 			//SendPackage(new McpePlayerStatus {status = 3});
-
 
 			SendChunksForKnownPosition();
 
@@ -596,6 +603,7 @@ namespace MiNET
 
 			//send time again
 			SendSetTime();
+			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 			IsSpawned = true;
 		}
 
@@ -613,6 +621,7 @@ namespace MiNET
 			}
 			else
 			{
+				text = TextUtils.Strip(text);
 				Level.BroadcastTextMessage(text, this);
 			}
 		}
@@ -1299,21 +1308,10 @@ namespace MiNET
 
 		public override MetadataDictionary GetMetadata()
 		{
-			//[0] byte 0 0, 
-			//[1] short 1 300, 
-			//[2] string 4 Client12, 
-			//[3] byte 0 1, 
-			//[4] byte 0 0, 
-			//[7] int 2 0, 
-			//[8] byte 0 0, 
-			//[15] byte 0 0, 
-			//[16] byte 0 0, 
-			//[17] long 6 0
-
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[2] = new MetadataString(Username);
+			metadata[2] = new MetadataString(NameTag ?? Username);
 			metadata[3] = new MetadataByte(1);
 			metadata[4] = new MetadataByte(0);
 			metadata[7] = new MetadataInt(0);

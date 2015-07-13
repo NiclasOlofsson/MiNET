@@ -80,7 +80,7 @@
     <Compile Include="Blocks\Dirt.cs" />
     <Compile Include="Blocks\DoubleStoneSlab.cs" />
     <Compile Include="Blocks\DoubleWoodSlab.cs" />
-    <Compile Include="Blocks\FarmLand.cs" />
+    <Compile Include="Blocks\Farmland.cs" />
     <Compile Include="Blocks\Fence.cs" />
     <Compile Include="Blocks\Fencegate.cs" />
     <Compile Include="Blocks\Fire.cs" />

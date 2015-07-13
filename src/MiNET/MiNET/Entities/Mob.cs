@@ -18,7 +18,7 @@ namespace MiNET.Entities
 		{
 			base.OnTick();
 
-			if (Velocity.Distance > 0)
+			if (Velocity.Distance > 0.001)
 			{
 				PlayerLocation oldPosition = (PlayerLocation) KnownPosition.Clone();
 				var onGroundBefore = IsOnGround(KnownPosition);
@@ -36,8 +36,15 @@ namespace MiNET.Entities
 				else
 				{
 					Velocity *= (1.0 - Drag);
-					Velocity -= new Vector3(0, Gravity, 0);
+					if (!onGround)
+					{
+						Velocity -= new Vector3(0, Gravity, 0);
+					}
 				}
+			}
+			else
+			{
+				Velocity = Vector3.Zero;
 			}
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();

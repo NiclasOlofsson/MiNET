@@ -15,6 +15,7 @@ namespace MiNET.Entities
 
 		public int EntityTypeId { get; private set; }
 		public long EntityId { get; set; }
+		public bool IsSpawned { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
 		public PlayerLocation KnownPosition { get; set; }

@@ -530,6 +530,7 @@ namespace MiNET
 			    || (Username.StartsWith("tanker"))
 			    || (Username.StartsWith("Chubet"))
 			    || (Username.StartsWith("Anth"))
+			    || (Username.StartsWith("10de"))
 				)
 			{
 				SendPackage(new McpeDisconnect() {message = "From [gurun]: You've been temp banned.\nPlease try again later :-)"});
@@ -559,7 +560,7 @@ namespace MiNET
 				metadata = GetMetadata()
 			});
 
-			//Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
+			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 
 			SendPackage(new McpeContainerSetContent
 			{
@@ -606,7 +607,6 @@ namespace MiNET
 
 			//send time again
 			SendSetTime();
-			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
 			IsSpawned = true;
 		}
 
@@ -637,35 +637,68 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			//long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-			//if (GameMode == GameMode.Survival
-			//	&& HealthManager.CooldownTick == 0
-			//	&& td > 49*TimeSpan.TicksPerMillisecond
-			//	&& td < 500*TimeSpan.TicksPerMillisecond
-			//	&& Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
-			//	)
-			//{
-			//	{
-			//		Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-			//		double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-			//		double speed = distanceTo/td*TimeSpan.TicksPerSecond;
-			//		if (speed > (6.0d /* / TimeSpan.TicksPerSecond*/))
-			//		{
-			//			Level.BroadcastTextMessage(string.Format("{0} cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), speed));
-			//			AddPopup(new Popup
-			//			{
-			//				MessageType = MessageType.Tip,
-			//				Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), speed),
-			//				Duration = 1
-			//			});
+			long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+			if (GameMode == GameMode.Survival
+			    && HealthManager.CooldownTick == 0
+			    && td > 49*TimeSpan.TicksPerMillisecond
+			    && td < 500*TimeSpan.TicksPerMillisecond
+			    && Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
+				)
+			{
+				double horizSpeed;
+				{
+					// Speed in the xz plane
 
-			//			LastUpdatedTime = DateTime.UtcNow;
-			//			HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-			//			SendMovePlayer();
-			//			return;
-			//		}
-			//	}
-			//}
+					Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+					double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+					horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+					if (horizSpeed > 11.0d)
+					{
+						//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
+						AddPopup(new Popup
+						{
+							MessageType = MessageType.Tip,
+							Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
+							Duration = 1
+						});
+
+						LastUpdatedTime = DateTime.UtcNow;
+						HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+						SendMovePlayer();
+						return;
+					}
+				}
+
+				double verticalSpeed;
+				{
+					// Speed in 3d
+					double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
+					double distanceTo = (message.y - 1.62) - KnownPosition.Y;
+					verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+					if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
+					{
+						//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
+						AddPopup(new Popup
+						{
+							MessageType = MessageType.Tip,
+							Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
+							Duration = 1
+						});
+
+						LastUpdatedTime = DateTime.UtcNow;
+						HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+						//SendMovePlayer();
+						return;
+					}
+				}
+				AddPopup(new Popup
+				{
+					MessageType = MessageType.Tip,
+					Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
+					Duration = 1
+				});
+			}
+
 
 			KnownPosition = new PlayerLocation
 			{
@@ -1304,9 +1337,19 @@ namespace MiNET
 
 		public override void Knockback(Vector3 velocity)
 		{
-			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entities = new EntityMotions {{EntityId, velocity}};
-			Level.RelayBroadcast(motions);
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entities = new EntityMotions {{EntityId, velocity}};
+				Level.RelayBroadcast(motions);
+			}
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				Thread.Sleep(500);
+
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entities = new EntityMotions {{EntityId, Vector3.Zero}};
+				Level.RelayBroadcast(motions);
+			});
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -1335,7 +1378,7 @@ namespace MiNET
 
 		public virtual void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
 		{
-			foreach (var line in text.Split('\n'))
+			foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
 			{
 				McpeText message = McpeText.CreateObject();
 				message.type = (byte) type;

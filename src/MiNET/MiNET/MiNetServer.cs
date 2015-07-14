@@ -60,11 +60,7 @@ namespace MiNET
 
 		public ServerInfo ServerInfo { get; set; }
 
-		public MiNetServer() : this(new IPEndPoint(IPAddress.Any, DefaultPort))
-		{
-		}
-
-		public MiNetServer(int port) : this(new IPEndPoint(IPAddress.Any, port))
+		public MiNetServer()
 		{
 		}
 
@@ -85,6 +81,13 @@ namespace MiNET
 			try
 			{
 				Log.Info("Initializing...");
+
+				if (_endpoint == null)
+				{
+					var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
+					int port = Config.GetProperty("port", 19132);
+					_endpoint = new IPEndPoint(ip, port);
+				}
 
 				Log.Info("Loading plugins...");
 				PluginManager = new PluginManager();
@@ -930,15 +933,19 @@ namespace MiNET
 
 					byte[] data = datagram.Encode();
 
-					SendData(data, senderEndpoint, session.SyncRoot);
-
-					datagram.TransmissionCount++;
-					datagram.Timer.Restart();
-
 					if (!session.Player.IsBot)
 					{
-						session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber, datagram);
+						if (!session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber.IntValue(), datagram))
+						{
+							Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
+						}
 					}
+
+					datagram.TransmissionCount++;
+
+					SendData(data, senderEndpoint, session.SyncRoot);
+
+					datagram.Timer.Restart();
 				}
 
 				if (session.Player.IsBot)

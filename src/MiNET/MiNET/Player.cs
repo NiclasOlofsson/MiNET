@@ -422,7 +422,7 @@ namespace MiNET
 		/// <summary>
 		///     Handles the disconnection notification.
 		/// </summary>
-		protected virtual void HandleDisconnectionNotification()
+		public virtual void HandleDisconnectionNotification()
 		{
 			IsConnected = false;
 			IsSpawned = false;

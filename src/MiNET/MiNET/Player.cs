@@ -242,12 +242,12 @@ namespace MiNET
 			}
 		}
 
-		private void HandleNewIncomingConnection(NewIncomingConnection message)
+		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
 		{
 			Log.InfoFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
 		}
 
-		private void HandlePlayerDropItem(McpeDropItem message)
+		protected virtual void HandlePlayerDropItem(McpeDropItem message)
 		{
 			if (!Inventory.HasItem(message.item)) return;
 
@@ -273,7 +273,7 @@ namespace MiNET
 		///     Handles an animate packet.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleAnimate(McpeAnimate message)
+		protected virtual void HandleAnimate(McpeAnimate message)
 		{
 			Log.DebugFormat("Action: {0}", message.actionId);
 
@@ -288,7 +288,7 @@ namespace MiNET
 		///     Handles the player action.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandlePlayerAction(McpePlayerAction message)
+		protected virtual void HandlePlayerAction(McpePlayerAction message)
 		{
 			Log.DebugFormat("Player action: {0}", message.actionId);
 			Log.DebugFormat("Entity ID: {0}", message.entityId);
@@ -338,7 +338,7 @@ namespace MiNET
 		///     Handles the ping.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandlePing(InternalPing message)
+		protected virtual void HandlePing(InternalPing message)
 		{
 			SendPackage(message, sendDirect: true);
 		}
@@ -347,7 +347,7 @@ namespace MiNET
 		///     Handles the entity data.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleEntityData(McpeTileEntityData message)
+		protected virtual void HandleEntityData(McpeTileEntityData message)
 		{
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
@@ -376,7 +376,7 @@ namespace MiNET
 		///     Handles the respawn.
 		/// </summary>
 		/// <param name="msg">The MSG.</param>
-		private void HandleRespawn(McpeRespawn msg)
+		protected virtual void HandleRespawn(McpeRespawn msg)
 		{
 			// reset all health states
 			HealthManager.ResetHealth();
@@ -422,7 +422,7 @@ namespace MiNET
 		/// <summary>
 		///     Handles the disconnection notification.
 		/// </summary>
-		public void HandleDisconnectionNotification()
+		protected virtual void HandleDisconnectionNotification()
 		{
 			IsConnected = false;
 			IsSpawned = false;
@@ -433,7 +433,7 @@ namespace MiNET
 		///     Handles the connection request.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleConnectionRequest(ConnectionRequest message)
+		protected virtual void HandleConnectionRequest(ConnectionRequest message)
 		{
 			Log.InfoFormat("Connection request from: {0}", EndPoint.Address);
 
@@ -458,7 +458,7 @@ namespace MiNET
 		///     Handles the connected ping.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleConnectedPing(ConnectedPing message)
+		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
 			SendPackage(new ConnectedPong
 			{
@@ -469,7 +469,7 @@ namespace MiNET
 
 		private long _pingSendTime = 0;
 
-		private void HandleConnectedPong(ConnectedPong message)
+		protected virtual void HandleConnectedPong(ConnectedPong message)
 		{
 			//long time = message.sendpingtime - message.sendpongtime;
 			Rtt = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond - _pingSendTime;
@@ -615,7 +615,7 @@ namespace MiNET
 		///     Handles the message.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleMessage(McpeText message)
+		protected virtual void HandleMessage(McpeText message)
 		{
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))
@@ -633,72 +633,75 @@ namespace MiNET
 		///     Handles the move player.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleMovePlayer(McpeMovePlayer message)
+		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
 			if (HealthManager.IsDead) return;
 
-			long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-			if (GameMode == GameMode.Survival
-			    && HealthManager.CooldownTick == 0
-			    && td > 49*TimeSpan.TicksPerMillisecond
-			    && td < 500*TimeSpan.TicksPerMillisecond
-			    && Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
-				)
+			bool useAntiCheat = false;
+			if (useAntiCheat)
 			{
-				double horizSpeed;
+				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+				if (GameMode == GameMode.Survival
+				    && HealthManager.CooldownTick == 0
+				    && td > 49*TimeSpan.TicksPerMillisecond
+				    && td < 500*TimeSpan.TicksPerMillisecond
+				    && Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
+					)
 				{
-					// Speed in the xz plane
-
-					Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-					double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-					horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-					if (horizSpeed > 11.0d)
+					double horizSpeed;
 					{
-						//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
-						AddPopup(new Popup
+						// Speed in the xz plane
+
+						Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+						double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+						horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+						if (horizSpeed > 11.0d)
 						{
-							MessageType = MessageType.Tip,
-							Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
-							Duration = 1
-						});
+							//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
+							AddPopup(new Popup
+							{
+								MessageType = MessageType.Tip,
+								Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
+								Duration = 1
+							});
 
-						LastUpdatedTime = DateTime.UtcNow;
-						HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-						SendMovePlayer();
-						return;
+							LastUpdatedTime = DateTime.UtcNow;
+							HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+							SendMovePlayer();
+							return;
+						}
 					}
-				}
 
-				double verticalSpeed;
-				{
-					// Speed in 3d
-					double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
-					double distanceTo = (message.y - 1.62) - KnownPosition.Y;
-					verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-					if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
+					double verticalSpeed;
 					{
-						//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
-						AddPopup(new Popup
+						// Speed in 3d
+						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
+						double distanceTo = (message.y - 1.62) - KnownPosition.Y;
+						verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+						if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
 						{
-							MessageType = MessageType.Tip,
-							Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
-							Duration = 1
-						});
+							//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
+							AddPopup(new Popup
+							{
+								MessageType = MessageType.Tip,
+								Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
+								Duration = 1
+							});
 
-						LastUpdatedTime = DateTime.UtcNow;
-						HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-						//SendMovePlayer();
-						return;
+							LastUpdatedTime = DateTime.UtcNow;
+							HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+							//SendMovePlayer();
+							return;
+						}
 					}
+					AddPopup(new Popup
+					{
+						MessageType = MessageType.Tip,
+						Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
+						Duration = 1
+					});
 				}
-				AddPopup(new Popup
-				{
-					MessageType = MessageType.Tip,
-					Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
-					Duration = 1
-				});
 			}
-
 
 			KnownPosition = new PlayerLocation
 			{
@@ -737,7 +740,7 @@ namespace MiNET
 		///     Handles the remove block.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleRemoveBlock(McpeRemoveBlock message)
+		protected virtual void HandleRemoveBlock(McpeRemoveBlock message)
 		{
 			Level.BreakBlock(new BlockCoordinates(message.x, message.y, message.z));
 		}
@@ -746,7 +749,7 @@ namespace MiNET
 		///     Handles the player armor equipment.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
+		protected virtual void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
@@ -764,7 +767,7 @@ namespace MiNET
 		///     Handles the player equipment.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandlePlayerEquipment(McpePlayerEquipment message)
+		protected virtual void HandlePlayerEquipment(McpePlayerEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
@@ -878,7 +881,7 @@ namespace MiNET
 		///     Handles the container set slot.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleContainerSetSlot(McpeContainerSetSlot message)
+		protected virtual void HandleContainerSetSlot(McpeContainerSetSlot message)
 		{
 			if (HealthManager.IsDead) return;
 
@@ -925,7 +928,7 @@ namespace MiNET
 			});
 		}
 
-		private void HandleMcpeContainerClose(McpeContainerClose message)
+		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
 			if (_openInventory == null) return;
 
@@ -954,7 +957,7 @@ namespace MiNET
 		///     Handles the interact.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		private void HandleInteract(McpeInteract message)
+		protected virtual void HandleInteract(McpeInteract message)
 		{
 			Entity target = Level.EntityManager.GetEntity(message.targetEntityId);
 
@@ -1084,7 +1087,7 @@ namespace MiNET
 
 		private Stopwatch _itemUseTimer;
 
-		private void HandleUseItem(McpeUseItem message)
+		protected virtual void HandleUseItem(McpeUseItem message)
 		{
 			Log.DebugFormat("Use item: {0}", message.item);
 			Log.DebugFormat("Entity ID: {0}", message.entityId);

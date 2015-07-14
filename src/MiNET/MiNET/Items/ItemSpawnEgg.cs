@@ -1,3 +1,4 @@
+using log4net;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -6,6 +7,8 @@ namespace MiNET.Items
 {
 	public class ItemSpawnEgg : Item
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemSpawnEgg));
+
 		public ItemSpawnEgg(short metadata) : base(383, metadata)
 		{
 		}
@@ -21,7 +24,8 @@ namespace MiNET.Items
 			};
 			entity.SpawnEntity();
 
-			world.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, Metadata));
+			Log.WarnFormat("Player {0} spawned Mob #{1}.", player.Username, Metadata);
+			//world.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, Metadata));
 		}
 	}
 }

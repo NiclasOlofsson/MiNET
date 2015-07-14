@@ -121,6 +121,7 @@ namespace MiNET.Worlds
 						if (GetBlock(x, y, z) != 0)
 						{
 							SetHeight(x, z, y);
+							break;
 						}
 					}
 				}
@@ -140,8 +141,7 @@ namespace MiNET.Worlds
 				writer.Write(skylight.Data);
 				writer.Write(blocklight.Data);
 
-				//writer.Write(biomeId);
-				RecalcHeight();
+				//RecalcHeight();
 				writer.Write(height);
 
 				for (int i = 0; i < biomeColor.Length; i++)

@@ -153,7 +153,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 20);
 				_cleanerTimer = new Timer(Update, null, 0, 10);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -814,10 +814,10 @@ namespace MiNET
 					if (lastUpdate + 10000 < now)
 					{
 						// Disconnect user
-						session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Inactivity."});
-						HandlePackage(new DisconnectionNotification(), session);
+						//session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Inactivity."});
+						//HandlePackage(new DisconnectionNotification(), session);
 
-						return;
+						//return;
 					}
 					else if (lastUpdate + 8500 < now)
 					{

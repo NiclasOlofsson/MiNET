@@ -247,6 +247,11 @@ namespace MiNET.Plugins
 			}
 		}
 
+		private static bool IsParams(ParameterInfo param)
+		{
+			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
+		}
+
 		private bool ExecuteCommand(MethodInfo method, Player player, string[] args)
 		{
 			var parameters = method.GetParameters();
@@ -257,7 +262,17 @@ namespace MiNET.Plugins
 				addLenght = 1;
 			}
 
-			if (parameters.Length != args.Length + addLenght) return false;
+			if (IsParams(parameters.Last()))
+			{
+				// method params ex: int int params int[] 
+				// input ex:           1  1  1 1 1 
+				// so arguments in must be at least the lenght of method arguments
+				if (parameters.Length > args.Length + addLenght) return false;
+			}
+			else
+			{
+				if (parameters.Length != args.Length + addLenght) return false;
+			}
 
 			object[] objectArgs = new object[parameters.Length];
 
@@ -321,6 +336,17 @@ namespace MiNET.Plugins
 					double value;
 					if (!double.TryParse(args[i], out value)) return false;
 					objectArgs[k] = value;
+					continue;
+				}
+
+				if (IsParams(parameter) && parameter.ParameterType == typeof (string[]))
+				{
+					List<string> strings = new List<string>();
+					for (int j = i; j < args.Length; j++)
+					{
+						strings.Add(args[j]);
+					}
+					objectArgs[k] = strings.ToArray();
 					continue;
 				}
 

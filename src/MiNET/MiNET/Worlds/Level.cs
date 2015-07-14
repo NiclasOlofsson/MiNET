@@ -113,8 +113,8 @@ namespace MiNET.Worlds
 
 			if (_worldProvider.IsCaching)
 			{
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
+				//ThreadPool.QueueUserWorkItem(delegate(object state)
+				//{
 					Stopwatch chunkLoading = new Stopwatch();
 					chunkLoading.Start();
 					// Pre-cache chunks for spawn coordinates
@@ -125,7 +125,7 @@ namespace MiNET.Worlds
 						i++;
 					}
 					Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
-				});
+				//});
 			}
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;

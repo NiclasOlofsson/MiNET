@@ -42,7 +42,6 @@ namespace TestPlugin.Teams
 			Players.Add(player);
 			PlayerDeaths.Add(player, 0);
 			PlayerKills.Add(player, 0);
-			player.HealthManager.PlayerKilled += HealthManagerOnPlayerKilled;
 		}
 
 		public void RemovePlayer(Player player)
@@ -52,22 +51,6 @@ namespace TestPlugin.Teams
 			Players.Remove(player);
 			PlayerDeaths.Remove(player);
 			PlayerKills.Remove(player);
-			player.HealthManager.PlayerKilled -= HealthManagerOnPlayerKilled;
-		}
-
-		private void HealthManagerOnPlayerKilled(object sender, HealthEventArgs eventArgs)
-		{
-			Player targetPlayer = eventArgs.TargetEntity as Player;
-			if (targetPlayer != null)
-			{
-				PlayerDeaths[targetPlayer]++;
-			}
-
-			Player sourcePlayer = eventArgs.TargetEntity as Player;
-			if (sourcePlayer != null)
-			{
-				PlayerKills[sourcePlayer]++;
-			}
 		}
 
 		private void Tick(object state)

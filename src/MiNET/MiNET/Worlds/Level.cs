@@ -175,7 +175,7 @@ namespace MiNET.Worlds
 				//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
 				//}
 
-				newPlayer.IsSpawned = true;
+				//newPlayer.IsSpawned = true;
 			}
 		}
 
@@ -369,6 +369,8 @@ namespace MiNET.Worlds
 						metadata = entity.GetMetadata(),
 					});
 				}
+
+				entity.IsSpawned = true;
 			}
 		}
 

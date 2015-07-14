@@ -18,7 +18,7 @@ namespace MiNET.Entities
 		{
 			base.OnTick();
 
-			if (Velocity.Distance > 0.001)
+			if (Velocity.Distance > 0)
 			{
 				PlayerLocation oldPosition = (PlayerLocation) KnownPosition.Clone();
 				var onGroundBefore = IsOnGround(KnownPosition);

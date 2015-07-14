@@ -654,10 +654,10 @@ namespace MiNET
 					horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
 					if (horizSpeed > 11.0d)
 					{
-						//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
+						Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Chat);
 						AddPopup(new Popup
 						{
-							MessageType = MessageType.Tip,
+							MessageType = MessageType.Chat,
 							Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
 							Duration = 1
 						});

@@ -45,9 +45,10 @@ namespace MiNET.Plugins
 			{
 				pluginDirectory = Path.GetFullPath(pluginDirectory);
 
-				AppDomain currentDomain = AppDomain.CurrentDomain;
-				currentDomain.AssemblyResolve += MyResolveEventHandler;
+                AppDomain currentDomain = AppDomain.CurrentDomain;
+			    currentDomain.AssemblyResolve += MyResolveEventHandler;
 
+			    if (!Directory.Exists(pluginDirectory)) Directory.CreateDirectory(pluginDirectory);
 				foreach (string pluginPath in Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories))
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
@@ -63,7 +64,14 @@ namespace MiNET.Plugins
 								PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
 								if (pluginAttribute != null)
 								{
-									if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+								    if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true))
+								    {
+								        continue;
+								    }
+								    else
+								    {
+								        Config.SetBoolean(pluginAttribute.PluginName + ".Enabled", true);
+								    }
 								}
 							}
 							var ctor = type.GetConstructor(Type.EmptyTypes);

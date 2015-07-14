@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using log4net;
 using MiNET.Worlds;
@@ -12,6 +13,7 @@ namespace MiNET.Utils
 
 		public static string ConfigFileName = "server.conf";
 		private static string FileContents = string.Empty;
+	    private static string FileDir = string.Empty;
 
 		static Config()
 		{
@@ -21,13 +23,35 @@ namespace MiNET.Utils
 				{
 					var assembly = Assembly.GetExecutingAssembly().GetName().CodeBase;
 					var path = new Uri(Path.GetDirectoryName(assembly)).LocalPath;
-
-					var configFilePath = Path.Combine(path, ConfigFileName);
-
-					if (File.Exists(configFilePath))
-					{
-						FileContents = File.ReadAllText(configFilePath);
-					}
+                    var configFilePath = Path.Combine(path, ConfigFileName);
+				    FileDir = ConfigFileName;
+                    Log.Info("TEETET");
+				    if (File.Exists(configFilePath))
+				    {
+				        FileContents = File.ReadAllText(configFilePath);
+				    }
+				    else
+				    {
+				        Log.WarnFormat("No Config File");
+				        Log.WarnFormat("Creating Config File");
+                        var pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+				        File.Create(configFilePath).Close();
+				        FileContents = ("ip=0.0.0.0\r\n" +
+				                        "port=19132\r\n" +
+				                        "EnableSecurity=false\r\n" +
+				                        "WorldSave=false\r\n" +
+				                        "motd=MiNET: MCPE Server\r\n" +
+				                        "PluginDisabled=false\r\n" +
+				                        "PluginDirectory=pluginDirectory\r\n" +
+				                        "PCWorldFolder=World\r\n" +
+				                        "PCWaterOffset=0\r\n" +
+				                        "seed=noise\r\n" +
+				                        "GameMode=0\r\n" +
+				                        "Difficulty=0\r\n" +
+				                        "ViewDistance=250\r\n" +
+				                        "WorldProvider=flat\r\n");
+                        Config.SaveAll();
+				    }
 				}
 				else
 				{
@@ -71,6 +95,12 @@ namespace MiNET.Utils
 				return defaultValue;
 			}
 		}
+
+	    public static Boolean SaveAll()
+	    {
+            File.WriteAllText(FileDir,FileContents.ToString());
+            return true;
+	    }
 
 		public static Boolean GetProperty(string property, bool defaultValue)
 		{
@@ -121,7 +151,7 @@ namespace MiNET.Utils
 				return defaultValue;
 			}
 		}
-
+        
 		public static string GetProperty(string property, string defaultValue)
 		{
 			try
@@ -133,6 +163,48 @@ namespace MiNET.Utils
 				return defaultValue;
 			}
 		}
+
+        public static Boolean SetBoolean(string key, int val)
+        {
+            foreach (string line in FileContents.Split(new[] { "\r\n", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (line.ToLower().StartsWith(key.ToLower() + "="))
+                {
+                    string newline = key + "=" + val;
+                    FileContents.Replace(line, newline);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static Boolean SetBoolean(string key, bool val)
+        {
+            foreach (string line in FileContents.Split(new[] { "\r\n", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (line.ToLower().StartsWith(key.ToLower() + "="))
+                {
+                    string newline = key + "=" + val;
+                    FileContents.Replace(line, newline);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static Boolean SetString(string key, string val)
+	    {
+            foreach (string line in FileContents.Split(new[] { "\r\n", "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                if (line.ToLower().StartsWith(key.ToLower() + "="))
+                {
+                    string newline = key+"="+val;
+                    FileContents.Replace(line, newline);
+                    return true;
+                }
+            }
+	        return false;
+	    }
 
 		private static string ReadString(string property)
 		{

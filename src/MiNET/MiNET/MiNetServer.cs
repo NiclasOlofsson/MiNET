@@ -86,6 +86,7 @@ namespace MiNET
 				{
 					var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
 					int port = Config.GetProperty("port", 19132);
+                    Log.InfoFormat("Server Connection Info: IP {0} and Port {1}",ip,port);
 					_endpoint = new IPEndPoint(ip, port);
 				}
 
@@ -108,7 +109,15 @@ namespace MiNET
 				}
 
 				SessionManager = SessionManager ?? new SessionManager();
-				LevelFactory = LevelFactory ?? new LevelFactory();
+                if (LevelFactory is LevelFactory)
+                /*{
+                    Log.Info("Level already loaded!");
+                }else
+                {*/
+                    Log.Info("Creating Level");
+                    LevelFactory = new LevelFactory();
+                //}
+				//LevelFactory = LevelFactory ?? new LevelFactory();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
 				_level = LevelFactory.CreateLevel("Default");
@@ -195,6 +204,9 @@ namespace MiNET
 
 				Log.Info("Disabling plugins...");
 				PluginManager.DisablePlugins();
+
+                Log.Info("Saving config");
+			    Config.SaveAll();
 
 				Log.Info("Shutting down...");
 				if (_listener == null) return true; // Already stopped. It's ok.

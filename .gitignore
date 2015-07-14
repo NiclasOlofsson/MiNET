@@ -182,3 +182,6 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 /src/MiNET/packages
+.idea/
+src/MiNET/MiNET.xaccdata
+src/MiNET/MiNET.xaccproj

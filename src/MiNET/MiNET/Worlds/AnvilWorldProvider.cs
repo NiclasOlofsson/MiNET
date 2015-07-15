@@ -3,9 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -20,6 +22,7 @@ namespace MiNET.Worlds
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+		private readonly ConcurrentDictionary<ChunkCoordinates, McpeBatch> _batchCache = new ConcurrentDictionary<ChunkCoordinates, McpeBatch>();
 		private string _basePath;
 
 		public bool IsCaching { get; private set; }
@@ -164,6 +167,35 @@ namespace MiNET.Worlds
 				_chunkCache[chunkCoordinates] = chunk;
 
 				return chunk;
+			}
+		}
+
+		public McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates)
+		{
+			lock (_batchCache)
+			{
+				McpeBatch cachedChunk;
+				if (_batchCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
+
+				ChunkColumn chunk = GenerateChunkColumn(chunkCoordinates);
+
+				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+				fullChunkData.chunkX = chunk.x;
+				fullChunkData.chunkZ = chunk.z;
+				fullChunkData.chunkData = chunk.GetBytes();
+				fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
+				byte[] bytes = fullChunkData.Encode();
+				fullChunkData.PutPool();
+
+				McpeBatch batch = McpeBatch.CreateObject();
+				byte[] buffer = Player.CompressBytes(bytes, CompressionLevel.Optimal);
+				batch.payloadSize = buffer.Length;
+				batch.payload = buffer;
+				batch.Encode();
+
+				_batchCache[chunkCoordinates] = batch;
+
+				return batch;
 			}
 		}
 

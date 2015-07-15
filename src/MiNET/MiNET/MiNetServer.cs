@@ -89,6 +89,14 @@ namespace MiNET
 					_endpoint = new IPEndPoint(ip, port);
 				}
 
+				ForwardAllPlayers = Config.GetProperty("ForwardAllPlayers", false);
+				if (ForwardAllPlayers)
+				{
+					var ip = IPAddress.Parse(Config.GetProperty("ForwardIP", "127.0.0.1"));
+					int port = Config.GetProperty("ForwardPort", 19132);
+					_endpoint = new IPEndPoint(ip, port);
+				}
+
 				Log.Info("Loading plugins...");
 				PluginManager = new PluginManager();
 				PluginManager.LoadPlugins();
@@ -116,7 +124,7 @@ namespace MiNET
 
 				ServerInfo = new ServerInfo(_level, _playerSessions);
 
-				//for (int i = 1; i < 60; i++)
+				//for (int i = 1; i < 10; i++)
 				//{
 				//	Level level = LevelFactory.CreateLevel("" + i);
 				//	_levels.Add(level);
@@ -133,10 +141,12 @@ namespace MiNET
 				}
 				else
 				{
+					//_listener.Client.ReceiveBufferSize = 1600*500;
+					//_listener.Client.ReceiveBufferSize = 1024 * 1024 * 3;
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
 					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
 					_listener.Client.SendBufferSize = int.MaxValue;
-					//_listener.DontFragment = true;
+					_listener.DontFragment = true;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -649,7 +659,7 @@ namespace MiNET
 				}
 				else
 				{
-					Log.WarnFormat("No datagram #{0} to resend for {1}", i, session.Player.Username);
+					Log.DebugFormat("No datagram #{0} to resend for {1}", i, session.Player.Username);
 				}
 			}
 		}
@@ -814,10 +824,10 @@ namespace MiNET
 					if (lastUpdate + 10000 < now)
 					{
 						// Disconnect user
-						//session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Inactivity."});
-						//HandlePackage(new DisconnectionNotification(), session);
+						session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Inactivity."});
+						HandlePackage(new DisconnectionNotification(), session);
 
-						//return;
+						return;
 					}
 					else if (lastUpdate + 8500 < now)
 					{
@@ -898,12 +908,12 @@ namespace MiNET
 							// The timeout should be configurable and enable/disable.
 							if (Math.Floor(player.Rtt/10d) > 0)
 							{
-								Thread.Sleep(Math.Min(Math.Max((int) Math.Floor(player.Rtt/10d), 7), 20));
+								Thread.Sleep(Math.Min(Math.Max((int) Math.Floor(player.Rtt/10d), 10), 20));
 							}
 						}
 						else
 						{
-							Thread.Sleep(3); // Seems to be needed regardless :-(
+							Thread.Sleep(10); // Seems to be needed regardless :-(
 						}
 					}
 

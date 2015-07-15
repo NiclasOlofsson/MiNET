@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -32,6 +33,11 @@ namespace MiNET.Worlds
 			_chunkCache[chunkCoordinates] = chunk;
 
 			return chunk;
+		}
+
+		public McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates)
+		{
+			return null;
 		}
 
 		public Vector3 GetSpawnPoint()

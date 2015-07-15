@@ -115,16 +115,15 @@ namespace MiNET.Worlds
 			{
 				//ThreadPool.QueueUserWorkItem(delegate(object state)
 				//{
-					Stopwatch chunkLoading = new Stopwatch();
-					chunkLoading.Start();
-					// Pre-cache chunks for spawn coordinates
-					int i = 0;
-					foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X >> 4, SpawnPoint.Z >> 4), new Dictionary<Tuple<int, int>, ChunkColumn>()))
-					{
-						chunk.GetBytes();
-						i++;
-					}
-					Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
+				Stopwatch chunkLoading = new Stopwatch();
+				chunkLoading.Start();
+				// Pre-cache chunks for spawn coordinates
+				int i = 0;
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X >> 4, SpawnPoint.Z >> 4), new Dictionary<Tuple<int, int>, McpeBatch>()))
+				{
+					i++;
+				}
+				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
 				//});
 			}
 
@@ -616,7 +615,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public IEnumerable<ChunkColumn> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, ChunkColumn> chunksUsed)
+		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)
 		{
 			lock (chunksUsed)
 			{
@@ -666,10 +665,13 @@ namespace MiNET.Worlds
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
+					McpeBatch chunk = _worldProvider.GenerateFullBatch(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
 					chunksUsed.Add(pair.Key, chunk);
 
-					yield return chunk;
+					McpeBatch sendChunk = McpeBatch.CreateObject();
+					sendChunk.SetEncodedMessage(chunk.Encode());
+
+					yield return sendChunk;
 				}
 
 				if (chunksUsed.Count > ViewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);

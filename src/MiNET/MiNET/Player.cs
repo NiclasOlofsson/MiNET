@@ -33,7 +33,7 @@ namespace MiNET
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _sendTicker;
 
-		private Dictionary<Tuple<int, int>, ChunkColumn> _chunksUsed;
+		private Dictionary<Tuple<int, int>, McpeBatch> _chunksUsed;
 		private ChunkCoordinates _currentChunkPosition;
 
 		private Inventory _openInventory;
@@ -81,7 +81,7 @@ namespace MiNET
 
 			Inventory = new PlayerInventory(this);
 
-			_chunksUsed = new Dictionary<Tuple<int, int>, ChunkColumn>();
+			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 
 			IsSpawned = false;
 			IsConnected = true;
@@ -498,6 +498,14 @@ namespace MiNET
 			Username = message.username;
 			ClientId = message.clientId;
 
+			if (Username.StartsWith("Player")) IsBot = true; // HACK
+
+			//if (!IsBot && !Username.Equals("gurun"))
+			//{
+			//	SendPackage(new McpeDisconnect() {message = "InPVP is doing performance testing\nPlease try again later"});
+			//	return;
+			//}
+			
 			Session = Server.SessionManager.CreateSession(this);
 			if (Server.IsSecurityEnabled)
 			{
@@ -518,24 +526,24 @@ namespace MiNET
 			// Check if the user already exist, that case bumpt the old one
 			Level.RemoveDuplicatePlayers(Username);
 
-			if (Username.StartsWith("Player")) IsBot = true; // HACK
 			//if (!Username.StartsWith("gurun")) return; // HACK
 
-			if (Username.StartsWith("Wix")
-			    || EndPoint.Address.ToString().EndsWith("166.91")
-			    || (Username.StartsWith("Wiz"))
-			    || (Username.StartsWith("Anon"))
-			    || (Username.StartsWith("Gang"))
-			    || (Username.StartsWith("Pafty"))
-			    || (Username.StartsWith("tanker"))
-			    || (Username.StartsWith("Chubet"))
-			    || (Username.StartsWith("Anth"))
-			    || (Username.StartsWith("10de"))
-				)
-			{
-				SendPackage(new McpeDisconnect() {message = "From [gurun]: You've been temp banned.\nPlease try again later :-)"});
-				return;
-			}
+			//if (Username.StartsWith("Wix")
+			//	|| EndPoint.Address.ToString().EndsWith("166.91")
+			//	|| (Username.StartsWith("Wiz"))
+			//	|| (Username.StartsWith("Anon"))
+			//	|| (Username.StartsWith("Gang"))
+			//	|| (Username.StartsWith("Pafty"))
+			//	|| (Username.StartsWith("tanker"))
+			//	|| (Username.StartsWith("Chubet"))
+			//	|| (Username.StartsWith("Anth"))
+			//	|| (Username.StartsWith("10de"))
+			//	)
+			//{
+			//	SendPackage(new McpeDisconnect() { message = "From InPVP: You've been temp disconnected.\nPlease try again later :-)" });
+			//	//SendPackage(new McpeDisconnect() { message = "From [gurun]: You've been temp banned.\nPlease try again later :-)" });
+			//	return;
+			//}
 
 			// Start game
 
@@ -584,16 +592,13 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 
-			if (IsBot)
-			{
-				InitializePlayer();
-				return;
-			}
+			//if (IsBot)
+			//{
+			//	InitializePlayer();
+			//	return;
+			//}
 		}
 
-		/// <summary>
-		///     Initializes the player.
-		/// </summary>
 		public virtual void InitializePlayer()
 		{
 			SendPackage(new McpePlayerStatus {status = 3});
@@ -1167,7 +1172,7 @@ namespace MiNET
 		/// </summary>
 		private void SendChunksForKnownPosition()
 		{
-			if (IsBot) return;
+			//if (IsBot) return;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
@@ -1186,36 +1191,13 @@ namespace MiNET
 					}
 				}
 
-				MemoryStream stream = new MemoryStream();
-				foreach (var chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
+				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-					McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
-					fullChunkData.chunkX = chunk.x;
-					fullChunkData.chunkZ = chunk.z;
-					fullChunkData.chunkData = chunk.GetBytes();
-					fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
-					byte[] bytes = fullChunkData.Encode();
-					fullChunkData.PutPool();
-
-					//if (!IsSpawned)
 					{
 						McpeBatch batch = McpeBatch.CreateObject();
-						byte[] buffer = CompressBytes(bytes, CompressionLevel.Optimal);
-						batch.payloadSize = buffer.Length;
-						batch.payload = buffer;
+						batch.SetEncodedMessage(chunk.Encode());
 						SendPackage(batch, sendDirect: true);
 					}
-					//else
-					//{
-					//	stream.Write(bytes, 0, bytes.Length);
-					//}
-
-					// This is to slow down chunk-sending not to overrun old devices.
-					// The timeout should be configurable and enable/disable.
-					//if (Math.Floor(Rtt/10d) > 0)
-					//{
-					//	Thread.Sleep(Math.Min(Math.Max((int) Math.Floor(Rtt/10d), 12) + 10, 40));
-					//}
 
 					if (!IsSpawned)
 					{
@@ -1225,15 +1207,6 @@ namespace MiNET
 						}
 					}
 				}
-
-				//if (IsSpawned)
-				//{
-				//	McpeBatch batch = McpeBatch.CreateObject();
-				//	byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
-				//	batch.payloadSize = buffer.Length;
-				//	batch.payload = buffer;
-				//	SendPackage(batch, sendDirect: true);
-				//}
 			});
 		}
 

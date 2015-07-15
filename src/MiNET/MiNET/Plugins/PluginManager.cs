@@ -434,7 +434,7 @@ namespace MiNET.Plugins
 			{
 				//For now we will just ignore this, not to big of a deal.
 				//Will have to think a bit more about this later on.
-				Log.Warn("Plugin Error: " + ex);
+				Log.Warn("Plugin Error: " + ex.InnerException);
 			}
 
 			return currentPackage;

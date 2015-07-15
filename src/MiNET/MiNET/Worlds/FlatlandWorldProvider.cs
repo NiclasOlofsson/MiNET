@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using MiNET.BlockEntities;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -98,6 +99,11 @@ namespace MiNET.Worlds
 
 				return chunk;
 			}
+		}
+
+		public McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates)
+		{
+			return null;
 		}
 
 		public Vector3 GetSpawnPoint()

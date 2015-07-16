@@ -1,16 +1,15 @@
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using Microsoft.AspNet.Identity;
 using MiNET;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
-using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -21,10 +20,41 @@ namespace TestPlugin
 	{
 		private Dictionary<string, Level> _worlds = new Dictionary<string, Level>();
 
+		private Timer _scoreboardTimer;
+		private Timer _gameTimer;
+		private Timer _popupTimer;
+
+
 		protected override void OnEnable()
 		{
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 		}
+
+		private void DoDevelopmentPopups(object state)
+		{
+			foreach (var level in Context.Levels)
+			{
+				var players = level.GetSpawnedPlayers();
+				foreach (var player in players)
+				{
+					player.AddPopup(new Popup()
+					{
+						MessageType = MessageType.Popup,
+						Message = "Restarts without notice frequently",
+						Duration = 20*5,
+						DisplayDelay = 20*1
+					});
+					player.AddPopup(new Popup()
+					{
+						MessageType = MessageType.Tip,
+						Message = "This is a development server",
+						Duration = 20*4
+					});
+				}
+			}
+		}
+
 
 		[Command]
 		public void Version(Player player)
@@ -467,9 +497,6 @@ namespace TestPlugin
 				Context.Server.ForwardAllPlayers = true;
 			}
 		}
-
-		private Timer _scoreboardTimer;
-		private Timer _gameTimer;
 
 		private void StartNewRoundCallback(object state)
 		{

@@ -490,6 +490,12 @@ namespace MiNET
 
 			var serverInfo = Server.ServerInfo;
 
+			if (message.protocol < 27)
+			{
+				SendPackage(new McpeDisconnect {message = "Outdated Minecraft Pocket Edition, please upgrad."});
+				return;
+			}
+
 			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
 			{
 				if (serverInfo.NumberOfPlayers > Server.MaxNumberOfPlayers)
@@ -1396,7 +1402,7 @@ namespace MiNET
 				Player player = HealthManager.LastDamageSource as Player;
 				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
 				Level.BroadcastTextMessage(cause, type: McpeText.TypeRaw);
-				Log.WarnFormat(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
+				Log.DebugFormat(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
 			}
 		}
 

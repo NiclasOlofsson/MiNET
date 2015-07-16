@@ -152,6 +152,7 @@ namespace MiNET
 					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
 					_listener.Client.SendBufferSize = int.MaxValue;
 					_listener.DontFragment = true;
+					_listener.EnableBroadcast = false;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -269,6 +270,7 @@ namespace MiNET
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				try
 				{
+					if (senderEndpoint.Address.Equals(IPAddress.Parse("208.167.225.40"))) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)

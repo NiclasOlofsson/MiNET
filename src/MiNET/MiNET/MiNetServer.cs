@@ -151,7 +151,7 @@ namespace MiNET
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
 					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
 					_listener.Client.SendBufferSize = int.MaxValue;
-					//_listener.DontFragment = true;
+					_listener.DontFragment = true;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -267,7 +267,6 @@ namespace MiNET
 				ServerInfo.AvailableBytes = listener.Available;
 				ServerInfo.NumberOfPacketsInPerSecond++;
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
-				//ThreadPool.QueueUserWorkItem(state => ProcessMessage(receiveBytes, senderEndpoint));
 				try
 				{
 					ProcessMessage(receiveBytes, senderEndpoint);
@@ -294,114 +293,7 @@ namespace MiNET
 			}
 			else if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
-				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
-
-				Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
-				if (message == null)
-				{
-					Log.ErrorFormat("Receive bad packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
-					return;
-				}
-
-				TraceReceive(message);
-
-				switch (msgIdType)
-				{
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
-					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
-					{
-						UnconnectedPing incoming = (UnconnectedPing) message;
-
-						//TODO: This needs to be verified with RakNet first
-						//response.sendpingtime = msg.sendpingtime;
-						//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
-
-						var packet = new UnconnectedPong
-						{
-							serverId = 22345,
-							pingId = incoming.pingId /*incoming.pingId*/,
-							serverName = MotdProvider.GetMotd(ServerInfo)
-						};
-						var data = packet.Encode();
-						TraceSend(packet);
-						SendData(data, senderEndpoint, new object());
-						break;
-					}
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
-					{
-						OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
-
-						_isPerformanceTest = _isPerformanceTest || incoming.raknetProtocolVersion == byte.MaxValue;
-
-						var packet = new OpenConnectionReply1
-						{
-							serverGuid = 12345,
-							mtuSize = incoming.mtuSize,
-							serverHasSecurity = 0
-						};
-
-						var data = packet.Encode();
-						TraceSend(packet);
-						SendData(data, senderEndpoint, new object());
-						break;
-					}
-					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
-					{
-						OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
-
-						Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
-
-						//if (ServerInfo.ConnectionsInConnectPhase >= MaxNumberOfConcurrentConnects || ServerInfo.NumberOfPlayers >= MaxNumberOfPlayers)
-						//{
-						//	Log.InfoFormat("Denied new connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
-						//	break;
-						//}
-
-						var packet = new OpenConnectionReply2
-						{
-							serverGuid = 12345,
-							mtuSize = incoming.mtuSize,
-							doSecurityAndHandshake = new byte[0]
-						};
-
-						PlayerNetworkSession session = null;
-						lock (_playerSessions)
-						{
-							if (_playerSessions.ContainsKey(senderEndpoint))
-							{
-								PlayerNetworkSession value;
-								_playerSessions.TryRemove(senderEndpoint, out value);
-								value.Player.HandleDisconnectionNotification();
-								Log.DebugFormat("Removed ghost");
-							}
-
-							Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
-							session = new PlayerNetworkSession(player, senderEndpoint);
-							session.LastUpdatedTime = DateTime.UtcNow;
-							session.Mtuize = incoming.mtuSize;
-
-							_playerSessions.TryAdd(senderEndpoint, session);
-						}
-
-
-						var data = packet.Encode();
-						TraceSend(packet);
-						SendData(data, senderEndpoint, session.SyncRoot);
-						break;
-					}
-					default:
-						Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
-						break;
-				}
-
-				if (message != null)
-				{
-					message.PutPool();
-				}
-				else
-				{
-					Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
-				}
+				HandleRakNetMessage(receiveBytes, senderEndpoint, msgId);
 			}
 			else
 			{
@@ -539,6 +431,106 @@ namespace MiNET
 					Log.Warn("!!!! ERROR, Invalid header !!!!!");
 				}
 			}
+		}
+
+		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
+		{
+			DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
+
+			Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
+			if (message == null)
+			{
+				Log.ErrorFormat("Receive bad packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+				return;
+			}
+
+			TraceReceive(message);
+
+			switch (msgIdType)
+			{
+				case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
+				case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
+				{
+					UnconnectedPing incoming = (UnconnectedPing) message;
+
+					//TODO: This needs to be verified with RakNet first
+					//response.sendpingtime = msg.sendpingtime;
+					//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+
+					var packet = UnconnectedPong.CreateObject();
+					packet.serverId = 22345;
+					packet.pingId = incoming.pingId;
+					packet.serverName = MotdProvider.GetMotd(ServerInfo);
+					var data = packet.Encode();
+					TraceSend(packet);
+					SendData(data, senderEndpoint, new object());
+					break;
+				}
+				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
+				{
+					OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
+
+					_isPerformanceTest = _isPerformanceTest || incoming.raknetProtocolVersion == byte.MaxValue;
+
+					var packet = OpenConnectionReply1.CreateObject();
+					packet.serverGuid = 12345;
+					packet.mtuSize = incoming.mtuSize;
+					packet.serverHasSecurity = 0;
+
+					var data = packet.Encode();
+					TraceSend(packet);
+					SendData(data, senderEndpoint, new object());
+					break;
+				}
+				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
+				{
+					OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
+
+					Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
+
+					//if (ServerInfo.ConnectionsInConnectPhase >= MaxNumberOfConcurrentConnects || ServerInfo.NumberOfPlayers >= MaxNumberOfPlayers)
+					//{
+					//	Log.InfoFormat("Denied new connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
+					//	break;
+					//}
+
+					var packet = OpenConnectionReply2.CreateObject();
+					packet.serverGuid = 12345;
+					packet.mtuSize = incoming.mtuSize;
+					packet.doSecurityAndHandshake = new byte[0];
+
+					PlayerNetworkSession session;
+					lock (_playerSessions)
+					{
+						if (_playerSessions.ContainsKey(senderEndpoint))
+						{
+							//HACK and needs fix
+							PlayerNetworkSession value;
+							_playerSessions.TryRemove(senderEndpoint, out value);
+							value.Player.HandleDisconnectionNotification();
+							Log.DebugFormat("Removed ghost");
+						}
+
+						Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
+						session = new PlayerNetworkSession(player, senderEndpoint);
+						session.LastUpdatedTime = DateTime.UtcNow;
+						session.Mtuize = incoming.mtuSize;
+
+						_playerSessions.TryAdd(senderEndpoint, session);
+					}
+
+
+					var data = packet.Encode();
+					TraceSend(packet);
+					SendData(data, senderEndpoint, session.SyncRoot);
+					break;
+				}
+				default:
+					Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+					break;
+			}
+
+			message.PutPool();
 		}
 
 		private void HandleQuery(byte[] receiveBytes, IPEndPoint senderEndpoint)

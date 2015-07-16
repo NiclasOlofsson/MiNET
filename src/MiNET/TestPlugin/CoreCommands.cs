@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Microsoft.AspNet.Identity;
 using MiNET;
-using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -19,11 +21,16 @@ namespace TestPlugin
 	{
 		private Dictionary<string, Level> _worlds = new Dictionary<string, Level>();
 
+		protected override void OnEnable()
+		{
+			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
+		}
+
 		[Command]
 		public void Version(Player player)
 		{
 			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
-			player.SendMessage(string.Format("MiNET v{0}", productVersion));
+			player.SendMessage(string.Format("MiNET v{0}", productVersion), type: MessageType.Raw);
 		}
 
 		[Command]
@@ -33,43 +40,54 @@ namespace TestPlugin
 			sb.Append("Plugins: ");
 			foreach (var plugin in Context.PluginManager.Plugins)
 			{
-				sb.Append(plugin.GetType().Name);
-				sb.Append(" ");
+				sb.AppendLine(plugin.GetType().Name);
 			}
 
-			player.SendMessage(sb.ToString());
+			player.SendMessage(sb.ToString(), type: MessageType.Raw);
 		}
 
-		[Command]
-		public void Login(Player player, string password)
+		//[Command]
+		//public void Login(Player player, string password)
+		//{
+		//	UserManager<User> userManager = player.Server.UserManager;
+		//	if (userManager != null)
+		//	{
+		//		if (player.Username == null) return;
+
+		//		User user = userManager.FindByName(player.Username);
+
+		//		if (user == null)
+		//		{
+		//			user = new User(player.Username);
+		//			if (!userManager.Create(user, password).Succeeded) return;
+		//		}
+
+		//		if (userManager.CheckPassword(user, password))
+		//		{
+		//			player.SendMessage("Login successful");
+		//		}
+		//		else
+		//		{
+		//			player.SendMessage("Login failed");
+		//		}
+		//	}
+		//}
+
+		[Command(Command = "items")]
+		public void AddItems(Player player, byte itemId, int noItems)
 		{
-			UserManager<User> userManager = player.Server.UserManager;
-			if (userManager != null)
+			for (int i = 0; i < noItems; i++)
 			{
-				if (player.Username == null) return;
-
-				User user = userManager.FindByName(player.Username);
-
-				if (user == null)
-				{
-					user = new User(player.Username);
-					if (!userManager.Create(user, password).Succeeded) return;
-				}
-
-				if (userManager.CheckPassword(user, password))
-				{
-					player.SendMessage("Login successful");
-				}
-				else
-				{
-					player.SendMessage("Login failed");
-				}
+				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 10, new ItemStack(itemId, 1));
 			}
 		}
 
 		[Command(Command = "gm")]
+		[Authorize(Users = "gurun")]
 		public void GameMode(Player player, int gameMode)
 		{
+			return;
+			player.GameMode = (GameMode) gameMode;
 			player.SendPackage(new McpeStartGame
 			{
 				seed = -1,
@@ -83,7 +101,10 @@ namespace TestPlugin
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z
 			});
+
+			player.Level.BroadcastTextMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
 		}
+
 
 		[Command(Command = "tp")]
 		public void Teleport(Player player, int x, int y, int z)
@@ -100,7 +121,7 @@ namespace TestPlugin
 			};
 
 			player.SendMovePlayer();
-			player.Level.BroadcastTextMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z));
+			player.Level.BroadcastTextMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		//[Command(Command = "tp")]
@@ -146,23 +167,30 @@ namespace TestPlugin
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player)
 		{
-			player.Level.BroadcastTextMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance));
+			player.Level.BroadcastTextMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player, int viewDistance)
 		{
 			player.Level.ViewDistance = viewDistance;
-			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance));
+			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
+		}
+
+		[Command(Command = "twitter")]
+		public void Twitter(Player player)
+		{
+			player.Level.BroadcastTextMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
+			player.Level.BroadcastTextMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
 		}
 
 		[Command(Command = "pi")]
 		public void PlayerInfo(Player player)
 		{
-			player.SendMessage(string.Format("Username={0}", player.Username));
-			player.SendMessage(string.Format("Entity ID={0}", player.EntityId));
-			player.SendMessage(string.Format("Client GUID={0}", player.ClientGuid));
-			player.SendMessage(string.Format("Client ID={0}", player.ClientId));
+			player.SendMessage(string.Format("Username={0}", player.Username), type: MessageType.Raw);
+			player.SendMessage(string.Format("Entity ID={0}", player.EntityId), type: MessageType.Raw);
+			player.SendMessage(string.Format("Client GUID={0}", player.ClientGuid), type: MessageType.Raw);
+			player.SendMessage(string.Format("Client ID={0}", player.ClientId), type: MessageType.Raw);
 		}
 
 		[Command(Command = "pos")]
@@ -178,83 +206,97 @@ namespace TestPlugin
 			int zi = (chunkZ%32);
 			if (zi < 0) zi += 32;
 
-			player.SendMessage(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
-			player.SendMessage(string.Format("Local chunk X={0} Z={1}", xi, zi));
-			player.SendMessage(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ));
-			player.SendMessage(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
+			player.SendMessage(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5), type: MessageType.Raw);
+			player.SendMessage(string.Format("Local chunk X={0} Z={1}", xi, zi), type: MessageType.Raw);
+			player.SendMessage(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ), type: MessageType.Raw);
+			player.SendMessage(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z), type: MessageType.Raw);
 		}
+
+		//[Command]
+		//[Authorize(Users = "gurun")]
+		//public void Spawn(Player player, byte id)
+		//{
+		//	Level level = player.Level;
+
+		//	Mob entity = new Mob(id, level)
+		//	{
+		//		KnownPosition = player.KnownPosition,
+		//		//Data = -(blockId | 0 << 0x10)
+		//	};
+		//	entity.SpawnEntity();
+
+		//	level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id), type: MessageType.Raw);
+		//}
+
+		//[Command]
+		//public void Hide(Player player)
+		//{
+		//	player.Level.HidePlayer(player, true);
+		//	player.Level.BroadcastTextMessage(string.Format("Player {0} hides.", player.Username), type: MessageType.Raw);
+		//}
+
+		//[Command]
+		//public void Unhide(Player player)
+		//{
+		//	player.Level.HidePlayer(player, false);
+		//	player.Level.BroadcastTextMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
+		//}
+
+
+		//private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
+
+		//[Command]
+		//[Authorize(Users = "gurun")]
+		//public void Hide(Player player, byte id)
+		//{
+		//	Level level = player.Level;
+
+		//	level.HidePlayer(player, true);
+
+		//	Mob entity = new Mob(id, level)
+		//	{
+		//		KnownPosition = player.KnownPosition,
+		//		//Data = -(blockId | 0 << 0x10)
+		//	};
+		//	entity.SpawnEntity();
+
+		//	player.SendPackage(new McpeRemoveEntity()
+		//	{
+		//		entityId = entity.EntityId,
+		//	});
+
+		//	_playerEntities[player] = entity;
+
+		//	level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
+		//}
+
 
 		[Command]
-		public void Spawn(Player player, byte id)
+		[Authorize(Users = "gurun")]
+		public void Kill(Player player, string target)
 		{
-			Level level = player.Level;
-
-			Mob entity = new Mob(id, level)
+			Player targetPlayer = player.Level.Players.FirstOrDefault(player1 => player1.Username == target);
+			if (targetPlayer != null)
 			{
-				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
-			};
-			entity.SpawnEntity();
-
-			level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id));
-		}
-
-		[Command]
-		public void Hide(Player player)
-		{
-			player.Level.HidePlayer(player, true);
-			player.Level.BroadcastTextMessage(string.Format("Player {0} hides.", player.Username));
-		}
-
-		[Command]
-		public void Unhide(Player player)
-		{
-			player.Level.HidePlayer(player, false);
-			player.Level.BroadcastTextMessage(string.Format("Player {0} unhides.", player.Username));
-		}
-
-
-		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
-
-		[Command]
-		public void Hide(Player player, byte id)
-		{
-			Level level = player.Level;
-
-			level.HidePlayer(player, true);
-
-			Mob entity = new Mob(id, level)
-			{
-				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
-			};
-			entity.SpawnEntity();
-
-			player.SendPackage(new McpeRemoveEntity()
-			{
-				entityId = entity.EntityId,
-			});
-
-			_playerEntities[player] = entity;
-
-			level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username));
-		}
-
-		[PacketHandler, Receive]
-		public Package HandleIncoming(McpeMovePlayer packet, Player player)
-		{
-			if (_playerEntities.ContainsKey(player))
-			{
-				var entity = _playerEntities[player];
-				entity.KnownPosition = player.KnownPosition;
-				var message = new McpeMoveEntity();
-				message.entities = new EntityLocations();
-				message.entities.Add(entity.EntityId, entity.KnownPosition);
-				player.Level.RelayBroadcast(message);
+				targetPlayer.HealthManager.Kill();
 			}
-
-			return packet; // Process
 		}
+
+		//[PacketHandler, Receive]
+		//public Package HandleIncoming(McpeMovePlayer packet, Player player)
+		//{
+		//	if (_playerEntities.ContainsKey(player))
+		//	{
+		//		var entity = _playerEntities[player];
+		//		entity.KnownPosition = player.KnownPosition;
+		//		var message = new McpeMoveEntity();
+		//		message.entities = new EntityLocations();
+		//		message.entities.Add(entity.EntityId, entity.KnownPosition);
+		//		player.Level.RelayBroadcast(message);
+		//	}
+
+		//	return packet; // Process
+		//}
 
 		[Command]
 		public void Kit(Player player, int kitId)
@@ -330,7 +372,7 @@ namespace TestPlugin
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);
 
-			player.Level.BroadcastTextMessage(string.Format("Player {0} changed kit.", player.Username));
+			player.Level.BroadcastTextMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
 
 		private void SendEquipmentForPlayer(Player player)
@@ -354,6 +396,136 @@ namespace TestPlugin
 				leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256),
 				boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256)
 			});
+		}
+
+		[Command]
+		public void Fly(Player player)
+		{
+			player.SendPackage(new McpeAdventureSettings {flags = 0x80});
+			player.Level.BroadcastTextMessage(string.Format("Player {0} enabled flying.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command(Command = "e")]
+		public void Effect(Player player)
+		{
+			Effect(player, 1, 3, 20);
+		}
+
+		[Command(Command = "e")]
+		public void Effect(Player player, int effectId, int amplifier = 1, int duration = 20)
+		{
+			player.SendPackage(new McpeMobEffect
+			{
+				entityId = player.EntityId,
+				eventId = 1, // Add
+				effectId = (byte) effectId,
+				duration = 20*duration,
+				amplifier = (byte) amplifier,
+				particles = 0,
+			});
+			player.Level.BroadcastTextMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
+		}
+
+		[Command(Command = "s")]
+		public void Stats(Player currentPlayer)
+		{
+			var players = Context.Levels[0].Players.ToArray();
+			currentPlayer.SendMessage("Statistics:", type: McpeText.TypeRaw);
+			foreach (var player in players)
+			{
+				currentPlayer.SendMessage(string.Format("RTT: {1:0000} User: {0}", player.Username, player.Rtt), type: McpeText.TypeRaw);
+			}
+		}
+
+		[Command(Command = "r")]
+		[Authorize(Users = "gurun")]
+		public void DisplayRestartNotice(Player currentPlayer)
+		{
+			var players = currentPlayer.Level.GetSpawnedPlayers();
+			foreach (var player in players)
+			{
+				player.AddPopup(new Popup()
+				{
+					Priority = 100,
+					MessageType = MessageType.Tip,
+					Message = "SERVER WILL RESTART!",
+					Duration = 20*10,
+				});
+
+				player.AddPopup(new Popup()
+				{
+					Priority = 100,
+					MessageType = MessageType.Popup,
+					Message = "Transfering all players!",
+					Duration = 20*10,
+				});
+
+				Thread.Sleep(1500);
+
+				IPHostEntry host = Dns.GetHostEntry("test.inpvp.net");
+				Context.Server.ForwardTarget = new IPEndPoint(host.AddressList[0], 19132);
+				Context.Server.ForwardAllPlayers = true;
+			}
+		}
+
+		private Timer _scoreboardTimer;
+		private Timer _gameTimer;
+
+		private void StartNewRoundCallback(object state)
+		{
+			if (_scoreboardTimer == null)
+			{
+				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
+
+				Context.Levels[0].BroadcastTextMessage(
+					"§6§l»§r§7 --------------------------- §6§l«\n"
+					+ "§e GAME STARTED\n"
+					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+			}
+			else
+			{
+				var players = Context.Levels[0].GetSpawnedPlayers();
+				if (players.Length <= 1) return;
+
+				var winner = players.OrderByDescending(CalculatedKdRatio).FirstOrDefault();
+
+				if (winner != null)
+				{
+					Context.Levels[0].BroadcastTextMessage(
+						"§6§l»§r§7 --------------------------- §6§l«\n"
+						+ "§e Winner!!\n"
+						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
+				}
+				foreach (var player in players)
+				{
+					player.Kills = 0;
+					player.Deaths = 0;
+				}
+
+				Context.Levels[0].BroadcastTextMessage(
+					"§e NEW ROUND STARTED\n"
+					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+			}
+		}
+
+		private static double CalculatedKdRatio(Player player)
+		{
+			return player.Deaths == 0 ? player.Kills : player.Kills/((double) player.Deaths);
+		}
+
+		private void ScoreboardCallback(object state)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
+			var players = Context.Levels[0].GetSpawnedPlayers();
+			if (players.Length <= 1) return;
+
+			foreach (var player in players.OrderByDescending(CalculatedKdRatio).Take(5))
+			{
+				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
+			}
+			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
+			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
 		}
 	}
 }

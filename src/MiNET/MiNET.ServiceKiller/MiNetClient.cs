@@ -12,7 +12,7 @@ using MiNET.Worlds;
 
 namespace MiNET.ServiceKiller
 {
-	public class MiNetClient
+	public class MiNetClient2
 	{
 		private IPEndPoint _endpoint;
 		public UdpClient _listener;
@@ -23,7 +23,7 @@ namespace MiNET.ServiceKiller
 		private decimal _lastSequenceNumber;
 		private McpeMovePlayer _movePlayerPacket;
 
-		public MiNetClient(IPEndPoint endpoint = null)
+		public MiNetClient2(IPEndPoint endpoint = null)
 		{
 			_endpoint = new IPEndPoint(IPAddress.Any, 0);
 			_serverEndpoint = endpoint ?? new IPEndPoint(IPAddress.Loopback, 19132);

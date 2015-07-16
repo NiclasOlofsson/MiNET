@@ -35,15 +35,24 @@ namespace MiNET.Plugins
 			get { return _pluginCommands.Values.ToList(); }
 		}
 
+		private string _currentPath = null;
+
 		internal void LoadPlugins()
 		{
 			if (Config.GetProperty("PluginDisabled", false)) return;
 
-			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			pluginDirectory = Config.GetProperty("PluginDirectory", pluginDirectory);
-			if (pluginDirectory != null)
+			// Default it is the directory we are executing, and below.
+			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
+			//HACK: Make it possible to define multiple PATH;PATH;PATH
+
+			foreach (string dirPath in pluginDirectoryPaths.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries))
 			{
-				pluginDirectory = Path.GetFullPath(pluginDirectory);
+				if (dirPath == null) continue;
+
+				string pluginDirectory = Path.GetFullPath(dirPath);
+
+				_currentPath = pluginDirectory;
 
 				AppDomain currentDomain = AppDomain.CurrentDomain;
 				currentDomain.AssemblyResolve += MyResolveEventHandler;
@@ -87,12 +96,14 @@ namespace MiNET.Plugins
 
 		private Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
 		{
-			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			pluginDirectory = Config.GetProperty("PluginDirectory", pluginDirectory);
-			pluginDirectory = Path.GetFullPath(pluginDirectory);
+			if (_currentPath == null) return null;
+
+			//string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			//pluginDirectory = Config.GetProperty("PluginDirectory", pluginDirectory);
+			//pluginDirectory = Path.GetFullPath(pluginDirectory);
 
 			AssemblyName name = new AssemblyName(args.Name);
-			string assemblyPath = pluginDirectory + "\\" + name.Name + ".dll";
+			string assemblyPath = _currentPath + "\\" + name.Name + ".dll";
 			return Assembly.LoadFile(assemblyPath);
 		}
 
@@ -386,11 +397,16 @@ namespace MiNET.Plugins
 					packetHandlers = _packetSendHandlerDictionary;
 				}
 
+				if (packetHandlers == null) return message;
+
 				foreach (var handler in packetHandlers)
 				{
+					if(handler.Value == null) continue;
+					if(handler.Key == null) continue;
+
 					PacketHandlerAttribute atrib = handler.Value;
 					if (atrib.PacketType == null) continue;
-					if (atrib.PacketType != currentPackage.GetType()) continue;
+					if (currentPackage != null && atrib.PacketType != currentPackage.GetType()) continue;
 
 					MethodInfo method = handler.Key;
 					if (method == null) continue;
@@ -434,7 +450,8 @@ namespace MiNET.Plugins
 			{
 				//For now we will just ignore this, not to big of a deal.
 				//Will have to think a bit more about this later on.
-				Log.Warn("Plugin Error: " + ex.InnerException);
+				Log.Warn("Plugin Error: ", ex);
+				Log.Warn("Plugin Error: ", ex.InnerException);
 			}
 
 			return currentPackage;

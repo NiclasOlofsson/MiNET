@@ -233,7 +233,7 @@ namespace MiNET
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 				if (elapsedMilliseconds > 100)
 				{
-					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+					Log.DebugFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 				}
 			}
 			else
@@ -244,7 +244,7 @@ namespace MiNET
 
 		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
 		{
-			Log.InfoFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
+			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
 		}
 
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)
@@ -435,7 +435,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleConnectionRequest(ConnectionRequest message)
 		{
-			Log.InfoFormat("Connection request from: {0}", EndPoint.Address);
+			Log.DebugFormat("Connection request from: {0}", EndPoint.Address);
 
 			ClientGuid = message.clientGuid;
 
@@ -473,7 +473,6 @@ namespace MiNET
 		{
 			//long time = message.sendpingtime - message.sendpongtime;
 			Rtt = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond - _pingSendTime;
-			Log.Warn(string.Format("WAAAAAAAAAAAAAAARNING {0} Ping Time: {1}", Username, Rtt));
 		}
 
 		/// <summary>
@@ -489,130 +488,149 @@ namespace MiNET
 		{
 			if (Username != null) return; // Already doing login
 
+			var serverInfo = Server.ServerInfo;
+
+			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
+			{
+				if (serverInfo.NumberOfPlayers > Server.MaxNumberOfPlayers)
+				{
+					SendPackage(new McpeDisconnect {message = "We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again."});
+					return;
+				}
+
+				if (serverInfo.ConnectionsInConnectPhase > Server.MaxNumberOfConcurrentConnects)
+				{
+					SendPackage(new McpeDisconnect {message = "We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again."});
+					return;
+				}
+			}
+
 			if (!Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
 			{
-				SendPackage(new McpeDisconnect() {message = "Invalid username."});
+				SendPackage(new McpeDisconnect {message = "Invalid username."});
 				return;
 			}
 
-			Username = message.username;
-			ClientId = message.clientId;
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-			if (Username.StartsWith("Player")) IsBot = true; // HACK
-
-			//if (!IsBot && !Username.Equals("gurun"))
-			//{
-			//	SendPackage(new McpeDisconnect() {message = "InPVP is doing performance testing\nPlease try again later"});
-			//	return;
-			//}
-			
-			Session = Server.SessionManager.CreateSession(this);
-			if (Server.IsSecurityEnabled)
+			try
 			{
-				User = Server.UserManager.FindByName(Username);
+				Username = message.username;
+				ClientId = message.clientId;
+
+				if (Username.Trim().Length == 0)
+				{
+					SendPackage(new McpePlayerStatus {status = 2});
+					Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+					return;
+				}
+
+				if (Username.StartsWith("Player")) IsBot = true; // HACK
+
+				Session = Server.SessionManager.CreateSession(this);
+				if (Server.IsSecurityEnabled)
+				{
+					User = Server.UserManager.FindByName(Username);
+				}
+
+				Skin = message.skin;
+				//Skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)) };
+
+				Log.InfoFormat("Login attempt by: {0}", Username);
+
+				// Check if the user already exist, that case bumpt the old one
+				Level.RemoveDuplicatePlayers(Username);
+
+				//if (!Username.StartsWith("gurun")) return; // HACK
+
+				//if (Username.StartsWith("Wix")
+				//	|| EndPoint.Address.ToString().EndsWith("166.91")
+				//	|| (Username.StartsWith("Wiz"))
+				//	|| (Username.StartsWith("Anon"))
+				//	|| (Username.StartsWith("Gang"))
+				//	|| (Username.StartsWith("Pafty"))
+				//	|| (Username.StartsWith("tanker"))
+				//	|| (Username.StartsWith("Chubet"))
+				//	|| (Username.StartsWith("Anth"))
+				//	|| (Username.StartsWith("10de"))
+				//	)
+				//{
+				//	SendPackage(new McpeDisconnect() { message = "From InPVP: You've been temp disconnected.\nPlease try again later :-)" });
+				//	//SendPackage(new McpeDisconnect() { message = "From [gurun]: You've been temp banned.\nPlease try again later :-)" });
+				//	return;
+				//}
+
+				// Start game
+
+				Level.EntityManager.AddEntity(null, this);
+
+				// We send a ping here to get an initial value for chunk-sending
+				_pingSendTime = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+				SendPackage(new ConnectedPing {sendpingtime = _pingSendTime});
+
+				SendPackage(new McpePlayerStatus {status = 0});
+				SendStartGame();
+				SendSetSpawnPosition();
+				SendSetTime();
+				SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
+				SendPackage(new McpeAdventureSettings {flags = Level.IsSurvival ? 0x20 : 0x80});
+				//SendPackage(new McpeAdventureSettings { flags = Level.IsSurvival ? 0x80 : 0x80 });
+				SendSetHealth();
+
+				SendPackage(new McpeSetEntityData
+				{
+					entityId = EntityId,
+					metadata = GetMetadata()
+				});
+
+				Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
+
+				SendPackage(new McpeContainerSetContent
+				{
+					windowId = 0,
+					slotData = Inventory.Slots,
+					hotbarData = Inventory.ItemHotbar
+				});
+
+				SendPackage(new McpeContainerSetContent
+				{
+					windowId = 0x78, // Armor windows ID
+					slotData = Inventory.Armor,
+					hotbarData = null
+				});
+
+				SendChunksForKnownPosition();
+
+				LastUpdatedTime = DateTime.UtcNow;
 			}
-
-			Skin = message.skin;
-			//Skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)) };
-
-			Log.WarnFormat("Login attempt by: {0}", Username);
-
-			if (Username.Trim().Length == 0)
+			catch (Exception e)
 			{
-				SendPackage(new McpePlayerStatus {status = 2});
-				return;
+				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
-
-			// Check if the user already exist, that case bumpt the old one
-			Level.RemoveDuplicatePlayers(Username);
-
-			//if (!Username.StartsWith("gurun")) return; // HACK
-
-			//if (Username.StartsWith("Wix")
-			//	|| EndPoint.Address.ToString().EndsWith("166.91")
-			//	|| (Username.StartsWith("Wiz"))
-			//	|| (Username.StartsWith("Anon"))
-			//	|| (Username.StartsWith("Gang"))
-			//	|| (Username.StartsWith("Pafty"))
-			//	|| (Username.StartsWith("tanker"))
-			//	|| (Username.StartsWith("Chubet"))
-			//	|| (Username.StartsWith("Anth"))
-			//	|| (Username.StartsWith("10de"))
-			//	)
-			//{
-			//	SendPackage(new McpeDisconnect() { message = "From InPVP: You've been temp disconnected.\nPlease try again later :-)" });
-			//	//SendPackage(new McpeDisconnect() { message = "From [gurun]: You've been temp banned.\nPlease try again later :-)" });
-			//	return;
-			//}
-
-			// Start game
-
-			Level.EntityManager.AddEntity(null, this);
-
-			// We send a ping here to get an initial value for chunk-sending
-			_pingSendTime = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-			SendPackage(new ConnectedPing {sendpingtime = _pingSendTime});
-
-			SendPackage(new McpePlayerStatus {status = 0});
-			SendStartGame();
-			SendSetSpawnPosition();
-			SendSetTime();
-			SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
-			SendPackage(new McpeAdventureSettings {flags = Level.IsSurvival ? 0x20 : 0x80});
-			//SendPackage(new McpeAdventureSettings { flags = Level.IsSurvival ? 0x80 : 0x80 });
-			SendSetHealth();
-
-			SendPackage(new McpeSetEntityData
-			{
-				entityId = EntityId,
-				metadata = GetMetadata()
-			});
-
-			Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
-
-			SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0,
-				slotData = Inventory.Slots,
-				hotbarData = Inventory.ItemHotbar
-			});
-
-			SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0x78, // Armor windows ID
-				slotData = Inventory.Armor,
-				hotbarData = null
-			});
-
-			//SendPackage(new McpePlayerStatus {status = 3});
-
-			SendChunksForKnownPosition();
-
-			//IsSpawned = true;
-
-			LastUpdatedTime = DateTime.UtcNow;
-
-			//if (IsBot)
-			//{
-			//	InitializePlayer();
-			//	return;
-			//}
 		}
 
 		public virtual void InitializePlayer()
 		{
-			SendPackage(new McpePlayerStatus {status = 3});
-
-			SendPackage(new McpeRespawn
+			try
 			{
-				x = KnownPosition.X,
-				y = KnownPosition.Y,
-				z = KnownPosition.Z
-			});
+				SendPackage(new McpePlayerStatus {status = 3});
 
-			//send time again
-			SendSetTime();
-			IsSpawned = true;
+				SendPackage(new McpeRespawn
+				{
+					x = KnownPosition.X,
+					y = KnownPosition.Y,
+					z = KnownPosition.Z
+				});
+
+				//send time again
+				SendSetTime();
+				IsSpawned = true;
+			}
+			finally
+			{
+				var serverInfo = Server.ServerInfo;
+				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+			}
 		}
 
 

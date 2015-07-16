@@ -59,6 +59,8 @@ namespace MiNET
 		private List<Level> _levels = new List<Level>();
 
 		public ServerInfo ServerInfo { get; set; }
+		public int MaxNumberOfPlayers { get; set; }
+		public int MaxNumberOfConcurrentConnects { get; set; }
 
 		public MiNetServer()
 		{
@@ -81,6 +83,9 @@ namespace MiNET
 			try
 			{
 				Log.Info("Initializing...");
+
+				MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 100);
+				MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", 4);
 
 				if (_endpoint == null)
 				{
@@ -146,7 +151,7 @@ namespace MiNET
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
 					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
 					_listener.Client.SendBufferSize = int.MaxValue;
-					_listener.DontFragment = true;
+					//_listener.DontFragment = true;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -342,7 +347,7 @@ namespace MiNET
 					{
 						OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
 
-						Log.WarnFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
+						Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
 
 						var packet = new OpenConnectionReply2
 						{
@@ -359,7 +364,7 @@ namespace MiNET
 								PlayerNetworkSession value;
 								_playerSessions.TryRemove(senderEndpoint, out value);
 								value.Player.HandleDisconnectionNotification();
-								Log.Info("Removed ghost");
+								Log.DebugFormat("Removed ghost");
 							}
 
 							Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);

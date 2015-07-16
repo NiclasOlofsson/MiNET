@@ -6,7 +6,8 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			mtuSize = (short) (((int) (_buffer.Length - _buffer.Position)) + 1);
+			// 1412 but should be 1447
+			mtuSize = (short) (((int) (_buffer.Length - _buffer.Position)) + 1/* + 35*/);
 		}
 	}
 }

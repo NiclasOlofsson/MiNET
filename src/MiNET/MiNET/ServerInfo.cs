@@ -23,6 +23,7 @@ namespace MiNET
 		public Timer ThroughPut { get; set; }
 		public long Latency { get; set; }
 		public int AvailableBytes { get; set; }
+		public int ConnectionsInConnectPhase = 0;
 
 		public ServerInfo(Level level, ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> playerSessions)
 		{

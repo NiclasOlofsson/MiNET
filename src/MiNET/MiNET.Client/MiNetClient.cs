@@ -25,18 +25,18 @@ namespace MiNET.Client
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private IPEndPoint _endpoint;
-		private IPEndPoint _serverEndpoint;
+		private IPEndPoint _serverTargetEndpoint;
 		private UdpClient _listener;
 		private short _mtuSize = 1447;
 		private int _reliableMessageNumber;
-		private int _datagramSequenceNumber;
+		private int _datagramSequenceNumber = 1;
 		private Vector3 _spawn;
 		private long _entityId;
 
-		public MiNetClient(IPEndPoint endpoint)
+		public MiNetClient(IPEndPoint targetEndpoint, IPEndPoint listenEndPoint = null)
 		{
-			_serverEndpoint = endpoint;
-			_endpoint = new IPEndPoint(IPAddress.Any, 19132);
+			_serverTargetEndpoint = targetEndpoint;
+			_endpoint = listenEndPoint ?? new IPEndPoint(IPAddress.Any, 19132);
 		}
 
 		public static bool IsRunningOnMono()
@@ -46,7 +46,7 @@ namespace MiNET.Client
 
 		public bool StartServer()
 		{
-			if (_listener != null) return false; // Already started
+			if (Listener != null) return false; // Already started
 
 			try
 			{
@@ -56,15 +56,15 @@ namespace MiNET.Client
 
 				if (IsRunningOnMono())
 				{
-					_listener.Client.ReceiveBufferSize = 1024*1024*3;
-					_listener.Client.SendBufferSize = 4096;
+					Listener.Client.ReceiveBufferSize = 1024*1024*3;
+					Listener.Client.SendBufferSize = 4096;
 				}
 				else
 				{
-					_listener.Client.ReceiveBufferSize = int.MaxValue;
+					Listener.Client.ReceiveBufferSize = int.MaxValue;
 					////_listener.Client.SendBufferSize = 1024*1024*8;
-					_listener.Client.SendBufferSize = int.MaxValue;
-					_listener.DontFragment = true;
+					Listener.Client.SendBufferSize = int.MaxValue;
+					Listener.DontFragment = true;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
@@ -74,16 +74,16 @@ namespace MiNET.Client
 					uint IOC_IN = 0x80000000;
 					uint IOC_VENDOR = 0x18000000;
 					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-					_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+					Listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
 					////
 					////WARNING: We need to catch errors here to remove the code above.
 					////
 				}
 
-				_listener.BeginReceive(ReceiveCallback, _listener);
+				Listener.BeginReceive(ReceiveCallback, Listener);
 
-				Log.Info("Server open for business...");
+				Log.InfoFormat("Server open for business for {0}", Username);
 
 				return true;
 			}
@@ -104,11 +104,12 @@ namespace MiNET.Client
 		{
 			try
 			{
-				Log.Info("Shutting down...");
-				if (_listener == null) return true; // Already stopped. It's ok.
+				if (Listener == null) return true; // Already stopped. It's ok.
 
-				_listener.Close();
+				Listener.Close();
 				_listener = null;
+
+				Log.InfoFormat("Client closed for business {0}", Username);
 
 				return true;
 			}
@@ -163,7 +164,14 @@ namespace MiNET.Client
 				//new Task(() => ProcessMessage(receiveBytes, senderEndpoint)).Start();
 				if (listener.Client == null) return;
 				ProcessMessage(receiveBytes, senderEndpoint);
-				listener.BeginReceive(ReceiveCallback, listener);
+				try
+				{
+					if (listener.Client == null) return;
+					listener.BeginReceive(ReceiveCallback, listener);
+				}
+				catch (Exception e)
+				{
+				}
 			}
 			else
 			{
@@ -224,7 +232,7 @@ namespace MiNET.Client
 						SendNewIncomingConnection();
 						var t1 = new Timer(state => SendConnectedPing(), null, 0, 5000);
 						//Thread.Sleep(50);
-						SendLogin("Client12");
+						SendLogin(Username);
 						break;
 					}
 				}
@@ -267,59 +275,67 @@ namespace MiNET.Client
 					{
 						if (message is SplitPartPackage)
 						{
-							SplitPartPackage splitMessage = message as SplitPartPackage;
-
-							int spId = package._splitPacketId;
-							int spIdx = package._splitPacketIndex;
-							int spCount = package._splitPacketCount;
-
-							Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-
-							if (!_splits.ContainsKey(spId))
+							lock (_splits)
 							{
-								_splits[spId] = new SplitPartPackage[spCount];
-							}
-							else
-							{
-								Log.WarnFormat("Resent split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-							}
+								SplitPartPackage splitMessage = message as SplitPartPackage;
 
-							SplitPartPackage[] spPackets = _splits[spId];
-							spPackets[spIdx] = splitMessage;
+								int spId = package._splitPacketId;
+								int spIdx = package._splitPacketIndex;
+								int spCount = package._splitPacketCount;
 
-							bool haveEmpty = false;
-							for (int i = 0; i < spPackets.Length; i++)
-							{
-								haveEmpty = haveEmpty || spPackets[i] == null;
-							}
+								Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
 
-							if (!haveEmpty)
-							{
-								Log.WarnFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+								if (!_splits.ContainsKey(spId))
+								{
+									_splits.Add(spId, new SplitPartPackage[spCount]);
+								}
+								else
+								{
+									Log.DebugFormat("Resent split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
+								}
 
-								MemoryStream stream = new MemoryStream();
+								SplitPartPackage[] spPackets = _splits[spId];
+								if (spIdx < 0 || spIdx >= spPackets.Length)
+								{
+									Log.WarnFormat("Unexpeted split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
+									return;
+								}
+								spPackets[spIdx] = splitMessage;
+
+								bool haveEmpty = false;
 								for (int i = 0; i < spPackets.Length; i++)
 								{
-									byte[] buf = spPackets[i].Message;
-									stream.Write(buf, 0, buf.Length);
+									haveEmpty = haveEmpty || spPackets[i] == null;
 								}
 
-								try
+								if (!haveEmpty)
 								{
-									byte[] buffer = stream.ToArray();
-									var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-									Log.Debug("Processing split-message");
-									HandlePackage(fullMessage, senderEndpoint);
-									fullMessage.PutPool();
+									//Log.WarnFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+
+									MemoryStream stream = new MemoryStream();
+									for (int i = 0; i < spPackets.Length; i++)
+									{
+										byte[] buf = spPackets[i].Message;
+										stream.Write(buf, 0, buf.Length);
+									}
+
+									try
+									{
+										byte[] buffer = stream.ToArray();
+										var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+										Log.Debug("Processing split-message");
+										HandlePackage(fullMessage, senderEndpoint);
+										fullMessage.PutPool();
+									}
+									catch (Exception e)
+									{
+										Log.Warn("When processing split-message", e);
+									}
 								}
-								catch (Exception e)
-								{
-									Log.Warn("When processing split-message", e);
-								}
+
+								message.PutPool();
+								return;
 							}
-
-							message.PutPool();
-							return;
 						}
 
 						{
@@ -360,10 +376,10 @@ namespace MiNET.Client
 
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			Ack ack = Ack.CreateObject();
-			ack.Decode(receiveBytes);
-			int ackSeqNo = ack.sequenceNumber.IntValue();
-			Log.Debug("ACK #" + ackSeqNo);
+			//Ack ack = Ack.CreateObject();
+			//ack.Decode(receiveBytes);
+			//int ackSeqNo = ack.sequenceNumber.IntValue();
+			//Log.Debug("ACK #" + ackSeqNo);
 		}
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
@@ -418,7 +434,8 @@ namespace MiNET.Client
 			if (typeof (McpeDisconnect) == message.GetType())
 			{
 				McpeDisconnect msg = (McpeDisconnect) message;
-				Log.Debug(msg.message);
+				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
+				SendDisconnectionNotification();
 				StopServer();
 				return;
 			}
@@ -439,7 +456,7 @@ namespace MiNET.Client
 					Log.DebugFormat("Chunk X={0}", chunk.x);
 					Log.DebugFormat("Chunk Z={0}", chunk.z);
 
-					ClientUtils.SaveChunkToAnvil(chunk);
+					//ClientUtils.SaveChunkToAnvil(chunk);
 				}
 				return;
 			}
@@ -474,7 +491,7 @@ namespace MiNET.Client
 				_level.Version = 19133;
 				_level.GameType = msg.gamemode;
 
-				ClientUtils.SaveLevel(_level);
+				//ClientUtils.SaveLevel(_level);
 
 				return;
 			}
@@ -518,11 +535,11 @@ namespace MiNET.Client
 
 			if (typeof (McpeMovePlayer) == message.GetType())
 			{
-				McpeMovePlayer msg = (McpeMovePlayer) message;
-				Log.DebugFormat("Entity ID: {0}", msg.entityId);
+				//McpeMovePlayer msg = (McpeMovePlayer) message;
+				//Log.DebugFormat("Entity ID: {0}", msg.entityId);
 
-				_currentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
-				SendMcpeMovePlayer();
+				//CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
+				//SendMcpeMovePlayer();
 				return;
 			}
 
@@ -578,14 +595,14 @@ namespace MiNET.Client
 
 		private void SendData(byte[] data)
 		{
-			SendData(data, _serverEndpoint);
+			SendData(data, _serverTargetEndpoint);
 		}
 
 
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
-			if (_listener == null) return;
-			_listener.Send(data, data.Length, targetEndpoint);
+			if (Listener == null) return;
+			Listener.Send(data, data.Length, targetEndpoint);
 		}
 
 		private static void TraceReceive(Package message)
@@ -677,7 +694,7 @@ namespace MiNET.Client
 
 		private void SendPackage(Package package)
 		{
-			SendPackage(_serverEndpoint, new List<Package>() {package}, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
+			SendPackage(_serverTargetEndpoint, new List<Package>() {package}, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
 		}
 
 		public void SendNewIncomingConnection()
@@ -744,7 +761,7 @@ namespace MiNET.Client
 		{
 			var packet = new McpeText()
 			{
-				source = "Nicke",
+				source = Username,
 				message = text
 			};
 
@@ -754,7 +771,14 @@ namespace MiNET.Client
 		private Random random = new Random();
 		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
 		private LevelInfo _level = new LevelInfo();
-		private PlayerLocation _currentLocation;
+		public PlayerLocation CurrentLocation { get; set; }
+
+		public UdpClient Listener
+		{
+			get { return _listener; }
+		}
+
+		public string Username { get; set; }
 
 
 		public void SendMcpeMovePlayer()
@@ -762,9 +786,9 @@ namespace MiNET.Client
 			//var movePlayerPacket = McpeMovePlayer.AddReference();
 			McpeMovePlayer movePlayerPacket = new McpeMovePlayer();
 			movePlayerPacket.entityId = _entityId;
-			movePlayerPacket.x = _currentLocation.X;
-			movePlayerPacket.y = _currentLocation.Y;
-			movePlayerPacket.z = _currentLocation.Z;
+			movePlayerPacket.x = CurrentLocation.X;
+			movePlayerPacket.y = CurrentLocation.Y;
+			movePlayerPacket.z = CurrentLocation.Z;
 			movePlayerPacket.yaw = 91;
 			movePlayerPacket.pitch = 28;
 			movePlayerPacket.headYaw = 91;
@@ -774,6 +798,11 @@ namespace MiNET.Client
 			//SendChat("Testing");
 		}
 
+
+		public void SendDisconnectionNotification()
+		{
+			SendPackage(new DisconnectionNotification());
+		}
 
 		public static void Connect()
 		{

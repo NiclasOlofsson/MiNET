@@ -490,7 +490,7 @@ namespace MiNET
 
 			var serverInfo = Server.ServerInfo;
 
-			if (message.protocol < 27)
+			if (message.protocol != 27)
 			{
 				SendPackage(new McpeDisconnect {message = "Outdated Minecraft Pocket Edition, please upgrad."});
 				return;

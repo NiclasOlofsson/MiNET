@@ -601,6 +601,8 @@ namespace MiNET
 			disconnect.message = reason;
 			SendPackage(disconnect);
 
+			HandleDisconnectionNotification();
+
 			//HACK: But needed
 			PlayerNetworkSession value;
 			Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out value);

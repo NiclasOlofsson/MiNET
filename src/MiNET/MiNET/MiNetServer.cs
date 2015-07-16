@@ -151,7 +151,7 @@ namespace MiNET
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
 					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
 					_listener.Client.SendBufferSize = int.MaxValue;
-					_listener.DontFragment = true;
+					_listener.DontFragment = false;
 					_listener.EnableBroadcast = false;
 
 					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
@@ -998,7 +998,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Log.Error("Send", e);
+				Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
 			}
 		}
 

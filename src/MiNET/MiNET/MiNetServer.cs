@@ -289,7 +289,7 @@ namespace MiNET
 
 			if (msgId == 0xFE)
 			{
-				Log.WarnFormat("A query detected from: {0}", senderEndpoint.Address);
+				Log.InfoFormat("A query detected from: {0}", senderEndpoint.Address);
 				HandleQuery(receiveBytes, senderEndpoint);
 			}
 			else if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
@@ -532,6 +532,8 @@ namespace MiNET
 
 		private void HandleQuery(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			if (!Config.GetProperty("EnableQuery", false)) return;
+
 			if (receiveBytes[0] != 0xFE || receiveBytes[1] != 0xFD) return;
 
 			byte packetId = receiveBytes[2];
@@ -578,6 +580,8 @@ namespace MiNET
 					//	stream.Write(bytes, 0, bytes.Length);
 					//}
 
+					//string numplayers = _playerSessions.Count.ToString(CultureInfo.InvariantCulture);
+					string numplayers = "99";
 					var data = new Dictionary<string, string>
 					{
 						{"splitnum", "" + (char) 128},
@@ -588,7 +592,7 @@ namespace MiNET
 						{"server_engine", "MiNET v0.0.0"},
 						{"plugins", "MiNET v0.0.0"},
 						{"map", "world"},
-						{"numplayers", _playerSessions.Count.ToString(CultureInfo.InvariantCulture)},
+						{"numplayers", numplayers},
 						{"maxplayers", "4000"},
 						{"whitelist", "off"},
 						//{"hostip", "192.168.0.1"},

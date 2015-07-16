@@ -44,6 +44,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\fNbt.0.6.3\lib\net35-client\fNbt.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Moq, Version=4.2.1502.911, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Moq.4.2.1502.0911\lib\net40\Moq.dll</HintPath>

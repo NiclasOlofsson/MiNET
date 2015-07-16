@@ -351,11 +351,11 @@ namespace MiNET
 
 						Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
 
-						if (ServerInfo.ConnectionsInConnectPhase >= MaxNumberOfConcurrentConnects || ServerInfo.NumberOfPlayers >= MaxNumberOfPlayers)
-						{
-							Log.InfoFormat("Denied new connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
-							break;
-						}
+						//if (ServerInfo.ConnectionsInConnectPhase >= MaxNumberOfConcurrentConnects || ServerInfo.NumberOfPlayers >= MaxNumberOfPlayers)
+						//{
+						//	Log.InfoFormat("Denied new connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
+						//	break;
+						//}
 
 						var packet = new OpenConnectionReply2
 						{
@@ -1010,6 +1010,7 @@ namespace MiNET
 
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
+			return;
 			if (_isPerformanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
@@ -1020,6 +1021,7 @@ namespace MiNET
 
 		private static void TraceSend(Package message)
 		{
+			return;
 			if (_isPerformanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)

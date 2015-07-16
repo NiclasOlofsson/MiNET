@@ -488,32 +488,40 @@ namespace MiNET
 		{
 			if (Username != null) return; // Already doing login
 
-			var serverInfo = Server.ServerInfo;
+			Log.InfoFormat("Login attempt by: {0}", message.username);
 
 			if (message.protocol != 27)
 			{
-				SendPackage(new McpeDisconnect {message = "Outdated Minecraft Pocket Edition, please upgrad."});
+				Disconnect("Outdated Minecraft Pocket Edition, please upgrad.");
 				return;
 			}
+
+			var serverInfo = Server.ServerInfo;
 
 			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
 			{
 				if (serverInfo.NumberOfPlayers > Server.MaxNumberOfPlayers)
 				{
-					SendPackage(new McpeDisconnect {message = "We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again."});
+					Disconnect("We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
 					return;
 				}
 
 				if (serverInfo.ConnectionsInConnectPhase > Server.MaxNumberOfConcurrentConnects)
 				{
-					SendPackage(new McpeDisconnect {message = "We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again."});
+					Disconnect("We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
 					return;
 				}
 			}
 
-			if (!Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
+			if (message.username == null || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$") || message.username.Trim().Length == 0)
 			{
-				SendPackage(new McpeDisconnect {message = "Invalid username."});
+				Disconnect("Invalid username.");
+				return;
+			}
+
+			if (message.skin.Texture == null)
+			{
+				Disconnect("Invalid skin.");
 				return;
 			}
 
@@ -524,14 +532,11 @@ namespace MiNET
 				Username = message.username;
 				ClientId = message.clientId;
 
-				if (Username.Trim().Length == 0)
-				{
-					SendPackage(new McpePlayerStatus {status = 2});
-					Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
-					return;
-				}
-
 				if (Username.StartsWith("Player")) IsBot = true; // HACK
+
+
+				// Check if the user already exist, that case bumpt the old one
+				Level.RemoveDuplicatePlayers(Username);
 
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
@@ -540,30 +545,6 @@ namespace MiNET
 				}
 
 				Skin = message.skin;
-
-				Log.InfoFormat("Login attempt by: {0}", Username);
-
-				// Check if the user already exist, that case bumpt the old one
-				Level.RemoveDuplicatePlayers(Username);
-
-				//if (!Username.StartsWith("gurun")) return; // HACK
-
-				//if (Username.StartsWith("Wix")
-				//	|| EndPoint.Address.ToString().EndsWith("166.91")
-				//	|| (Username.StartsWith("Wiz"))
-				//	|| (Username.StartsWith("Anon"))
-				//	|| (Username.StartsWith("Gang"))
-				//	|| (Username.StartsWith("Pafty"))
-				//	|| (Username.StartsWith("tanker"))
-				//	|| (Username.StartsWith("Chubet"))
-				//	|| (Username.StartsWith("Anth"))
-				//	|| (Username.StartsWith("10de"))
-				//	)
-				//{
-				//	SendPackage(new McpeDisconnect() { message = "From InPVP: You've been temp disconnected.\nPlease try again later :-)" });
-				//	//SendPackage(new McpeDisconnect() { message = "From [gurun]: You've been temp banned.\nPlease try again later :-)" });
-				//	return;
-				//}
 
 				// Start game
 
@@ -612,6 +593,17 @@ namespace MiNET
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
+		}
+
+		public void Disconnect(string reason)
+		{
+			McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+			disconnect.message = reason;
+			SendPackage(disconnect);
+
+			//HACK: But needed
+			PlayerNetworkSession value;
+			Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out value);
 		}
 
 		public virtual void InitializePlayer()

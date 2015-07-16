@@ -718,7 +718,7 @@ namespace MiNET
 			}
 		}
 
-		private void HandlePackage(Package message, PlayerNetworkSession playerSession)
+		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
 			TraceReceive(message);
 
@@ -826,8 +826,7 @@ namespace MiNET
 					if (lastUpdate + 10000 < now)
 					{
 						// Disconnect user
-						session.Player.SendPackage(new McpeDisconnect() {message = "You've been kicked with reason: Inactivity."});
-						HandlePackage(new DisconnectionNotification(), session);
+						session.Player.Disconnect("You've been kicked with reason: Inactivity.");
 
 						return;
 					}

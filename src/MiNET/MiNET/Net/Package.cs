@@ -433,15 +433,25 @@ namespace MiNET.Net
 		{
 			Skin skin = new Skin();
 			skin.Slim = ReadByte() == 0x01;
-			skin.Texture = ReadBytes(ReadShort());
+			try
+			{
+				skin.Texture = ReadBytes(ReadShort());
+			}
+			catch (Exception e)
+			{
+			}
+
 			return skin;
 		}
 
 		public void Write(Skin skin)
 		{
 			Write((byte) (skin.Slim ? 0x01 : 0x00));
-			Write((short) skin.Texture.Length);
-			Write(skin.Texture);
+			if(skin.Texture != null)
+			{
+				Write((short)skin.Texture.Length);
+				Write(skin.Texture);
+			}
 		}
 
 

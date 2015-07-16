@@ -249,15 +249,12 @@ namespace MiNET
 			{
 				if (listener.Client != null)
 				{
-					Log.Warn(e);
 					try
 					{
 						listener.BeginReceive(ReceiveCallback, listener);
 					}
 					catch (ObjectDisposedException dex)
 					{
-						// Log and move on. Should probably free up the player and remove them here.
-						Log.Warn(dex);
 					}
 				}
 
@@ -978,13 +975,23 @@ namespace MiNET
 
 		private void SendData(byte[] data, IPEndPoint targetEndPoint, object syncRoot)
 		{
-			lock (syncRoot)
+			try
 			{
-				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
-			}
+				lock (syncRoot)
+				{
+					_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
+				}
 
-			ServerInfo.NumberOfPacketsOutPerSecond++;
-			ServerInfo.TotalPacketSizeOut += data.Length;
+				ServerInfo.NumberOfPacketsOutPerSecond++;
+				ServerInfo.TotalPacketSizeOut += data.Length;
+			}
+			catch (ObjectDisposedException e)
+			{
+			}
+			catch (Exception e)
+			{
+				Log.Error("Send", e);
+			}
 		}
 
 		private static void TraceReceive(Package message, int refNumber = 0)

@@ -297,6 +297,11 @@ namespace MiNET
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
 
 				Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
+				if (message == null)
+				{
+					Log.ErrorFormat("Receive bad packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+					return;
+				}
 
 				TraceReceive(message);
 
@@ -345,6 +350,12 @@ namespace MiNET
 						OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
 
 						Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
+
+						if (ServerInfo.ConnectionsInConnectPhase >= MaxNumberOfConcurrentConnects || ServerInfo.NumberOfPlayers >= MaxNumberOfPlayers)
+						{
+							Log.InfoFormat("Denied new connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
+							break;
+						}
 
 						var packet = new OpenConnectionReply2
 						{

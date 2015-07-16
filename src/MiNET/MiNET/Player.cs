@@ -540,7 +540,6 @@ namespace MiNET
 				}
 
 				Skin = message.skin;
-				//Skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)) };
 
 				Log.InfoFormat("Login attempt by: {0}", Username);
 

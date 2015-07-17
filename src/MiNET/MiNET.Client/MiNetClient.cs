@@ -214,7 +214,7 @@ namespace MiNET.Client
 					{
 						//Thread.Sleep(50);
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
-						if (incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
+						//if (incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
 						SendOpenConnectionRequest2();
 						break;
 					}
@@ -242,6 +242,8 @@ namespace MiNET.Client
 				DatagramHeader header = new DatagramHeader(receiveBytes[0]);
 				if (!header.isACK && !header.isNAK && header.isValid)
 				{
+					if (LoginSent) return; //HACK
+
 					if (receiveBytes[0] == 0xa0)
 					{
 						throw new Exception("Receive ERROR, NAK in wrong place");
@@ -253,11 +255,8 @@ namespace MiNET.Client
 
 					var messages = package.Messages;
 
-					//Log.Debug("Received package: #" + package._datagramSequenceNumber.IntValue());
 
-					Reliability reliability = package._reliability;
-					//Log.InfoFormat("Reliability: {0}", reliability);
-
+					//Reliability reliability = package._reliability;
 					//if (reliability == Reliability.Reliable
 					//	|| reliability == Reliability.ReliableSequenced
 					//	|| reliability == Reliability.ReliableOrdered
@@ -341,7 +340,7 @@ namespace MiNET.Client
 						{
 							message.Timer.Restart();
 							HandlePackage(message, senderEndpoint);
-							//message.PutPool();
+							message.PutPool();
 						}
 					}
 
@@ -420,6 +419,7 @@ namespace MiNET.Client
 				foreach (var msg in messages)
 				{
 					HandlePackage(msg, senderEndpoint);
+					msg.PutPool();
 				}
 				return;
 			}
@@ -449,15 +449,15 @@ namespace MiNET.Client
 
 			if (typeof (McpeFullChunkData) == message.GetType())
 			{
-				McpeFullChunkData msg = (McpeFullChunkData) message;
-				ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
-				if (chunk != null)
-				{
-					Log.DebugFormat("Chunk X={0}", chunk.x);
-					Log.DebugFormat("Chunk Z={0}", chunk.z);
+				//McpeFullChunkData msg = (McpeFullChunkData) message;
+				//ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
+				//if (chunk != null)
+				//{
+				//	Log.DebugFormat("Chunk X={0}", chunk.x);
+				//	Log.DebugFormat("Chunk Z={0}", chunk.z);
 
-					//ClientUtils.SaveChunkToAnvil(chunk);
-				}
+				//	//ClientUtils.SaveChunkToAnvil(chunk);
+				//}
 				return;
 			}
 
@@ -467,7 +467,7 @@ namespace MiNET.Client
 				SendNewIncomingConnection();
 				var t1 = new Timer(state => SendConnectedPing(), null, 2000, 5000);
 				Thread.Sleep(50);
-				SendLogin("Client12");
+				SendLogin(Username);
 				return;
 			}
 
@@ -695,6 +695,7 @@ namespace MiNET.Client
 		private void SendPackage(Package package)
 		{
 			SendPackage(_serverTargetEndpoint, new List<Package>() {package}, _mtuSize, ref _datagramSequenceNumber, ref _reliableMessageNumber);
+			package.PutPool();
 		}
 
 		public void SendNewIncomingConnection()
@@ -711,7 +712,7 @@ namespace MiNET.Client
 			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 			var packet = new McpeLogin()
 			{
-				clientId = 12345,
+				clientId = ClientId,
 				username = username,
 				protocol = 27,
 				skin = skin
@@ -725,6 +726,8 @@ namespace MiNET.Client
 
 			SendPackage(batch);
 		}
+
+		public bool LoginSent { get; set; }
 
 		public byte[] CompressBytes(byte[] input)
 		{
@@ -779,12 +782,13 @@ namespace MiNET.Client
 		}
 
 		public string Username { get; set; }
+		public int ClientId { get; set; }
 
 
 		public void SendMcpeMovePlayer()
 		{
 			//var movePlayerPacket = McpeMovePlayer.AddReference();
-			McpeMovePlayer movePlayerPacket = new McpeMovePlayer();
+			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
 			movePlayerPacket.entityId = _entityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;

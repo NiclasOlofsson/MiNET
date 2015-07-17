@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using MiNET.Client;
@@ -6,61 +7,84 @@ using MiNET.Utils;
 
 namespace MiNET.ServiceKiller
 {
-	internal class Emulator
+	public class Emulator
 	{
 		private static bool _running = true;
 
-		private static void Main(string[] args)
+		public bool Running
 		{
-			Console.WriteLine("Clients sleeping...");
-			Thread.Sleep(1000); // Let the server start first
-
-			Console.ReadLine();
-
-			var emulator = new Emulator();
-			ThreadPool.SetMinThreads(1000, 1000);
-			//ThreadPool.SetMinThreads(1000, 1000);
-			//ThreadPool.SetMaxThreads(2000, 2000);
-
-			int[] counter = {0};
-			Random random = new Random();
-			for (int i = 0; i < 1000; i++)
-			{
-				if (i > 0 && i%100 == 0) Thread.Sleep(1000);
-
-				counter[0]++;
-				string playerName = string.Format("Player-{0}", (i + 1));
-				//string playerName = "Player " + Guid.NewGuid();
-				ThreadPool.QueueUserWorkItem(emulator.EmulateClient, playerName);
-				Thread.Sleep(1);
-				//Thread.Sleep(random.Next(250, 551));
-				//Thread.Sleep(random.Next(150, 1100));
-			}
-
-			Console.WriteLine("Clients done. Press <enter> to exit.");
-
-			Console.ReadLine();
-			_running = false;
-			Console.ReadLine();
+			get { return _running; }
+			set { _running = value; }
 		}
 
-		private void EmulateClient(object state)
+		private static void Main(string[] args)
 		{
+			Console.WriteLine("Press <Enter> to start emulation...");
+			Console.ReadLine();
+
+
+			Emulator emulator = new Emulator {Running = true};
 			Random random = new Random();
 
+			{
+				Stopwatch watch = new Stopwatch();
+				watch.Start();
+				int i = 0;
+				while (watch.ElapsedMilliseconds < 120*1000)
+				{
+					if (i > 0 && i%10 == 0) Thread.Sleep(1000);
+
+					string playerName = string.Format("Player-{0}", (i + 1));
+					//string playerName = "Player " + Guid.NewGuid();
+					ClientEmulator client = new ClientEmulator(emulator, random.Next(10, 30), playerName, i)
+					{
+						Random = random
+					};
+					ThreadPool.QueueUserWorkItem(client.EmulateClient);
+					Thread.Sleep(1);
+
+					i++;
+				}
+			}
+
+			Console.WriteLine("Press <enter> to stop all clients.");
+
+			Console.ReadLine();
+			emulator.Running = false;
+
+			Console.WriteLine("Emulation complete. Press <enter> to exit.");
+			Console.ReadLine();
+		}
+	}
+
+	public class ClientEmulator
+	{
+		public Emulator Emulator { get; private set; }
+		public string Name { get; set; }
+		public int ClientId { get; set; }
+		public Random Random { get; set; }
+		public int TimeToRun { get; set; }
+
+		public ClientEmulator(Emulator emulator, int timeToRun, string name, int clientId)
+		{
+			Emulator = emulator;
+			TimeToRun = timeToRun;
+			Name = name;
+			ClientId = clientId;
+		}
+
+		public void EmulateClient(object state)
+		{
 			try
 			{
-				string username = (string) state;
-				Console.WriteLine("Client {0} connecting...", username);
+				Console.WriteLine("Client {0} connecting...", Name);
 
-				IPHostEntry Host = Dns.GetHostEntry("play.inpvp.net");
+				var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
 
-
-				//var client = new MiNetClient(new IPEndPoint(Host.AddressList[0], random.Next(2) == 0 ? 19152 : 19153));
-				//var client = new MiNetClient(new IPEndPoint(Host.AddressList[0], 19152));
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
-				client.Username = username;
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("65.52.75.30"), 19132));
+				client.Username = Name;
+				client.ClientId = (int) DateTime.UtcNow.Ticks;
 
 				client.StartServer();
 				Console.WriteLine("Client started.");
@@ -69,52 +93,31 @@ namespace MiNET.ServiceKiller
 
 				client.SendUnconnectedPing();
 
-				//client.StartServer();
+				Thread.Sleep(1000);
 
-				//client.SendUnconnectedPing();
-				//Thread.Sleep(100); // Let the server process
-				////Thread.Yield();
+				client.LoginSent = true;
 
-				//client.SendOpenConnectionRequest1();
-				//Thread.Sleep(100); // Let the server process
-				////Thread.Yield();
+				Stopwatch watch = new Stopwatch();
+				watch.Start();
+				if (client.Listener != null) Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", Name);
 
-				//client.SendOpenConnectionRequest2();
-				//Thread.Sleep(100); // Let the server process
-				////Thread.Yield();
-
-				//client.SendConnectionRequest();
-				//Thread.Sleep(100); // Let the server process
-				////Thread.Yield();
-
-				//client.SendLogin(username);
-				////Thread.Sleep(1000); // Let the server process
-				////Thread.Yield();
-
-				//Console.WriteLine("\t\tClient {0} connected, sleeping 10s...", username);
-
-				Thread.Sleep(7000);
-
-				if (client.Listener != null) Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", username);
-
-				for (int i = 0; i < 100; i++)
+				for (int i = 0; i < 10 && Emulator.Running && watch.ElapsedMilliseconds < TimeToRun; i++)
 				{
 					if (client.Listener == null) break;
 
-					float y = random.Next(7, 10) + /*24*/ 30;
-					float x, z;
-					float length = random.Next(5, 20);
+					float y = Random.Next(7, 10) + /*24*/ 30;
+					float length = Random.Next(5, 20);
 
 					double angle = 0.0;
 					const double angleStepsize = 0.05;
-					float heightStepsize = (float) (random.NextDouble()/5);
+					float heightStepsize = (float) (Random.NextDouble()/5);
 
-					while (angle < 2*Math.PI && _running)
+					while (angle < 2*Math.PI && Emulator.Running)
 					{
 						if (client.Listener == null) break;
 
-						x = (float) (length*Math.Cos(angle));
-						z = (float) (length*Math.Sin(angle));
+						float x = (float) (length*Math.Cos(angle));
+						float z = (float) (length*Math.Sin(angle));
 						y += heightStepsize;
 
 						x += -421;
@@ -122,7 +125,7 @@ namespace MiNET.ServiceKiller
 
 						client.CurrentLocation = new PlayerLocation(x, y, z);
 						client.SendMcpeMovePlayer();
-						Thread.Sleep(random.Next(150, 450));
+						Thread.Sleep(Random.Next(150, 450));
 						angle += angleStepsize;
 					}
 				}

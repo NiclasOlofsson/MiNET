@@ -64,7 +64,7 @@ namespace MiNET
 
 		public Player(MiNetServer server, IPEndPoint endPoint, Level level, int mtuSize) : base(-1, level)
 		{
-			Rtt = -1;
+			Rtt = 300;
 			Width = 0.6;
 			Length = 0.6;
 			Height = 1.80;
@@ -467,12 +467,8 @@ namespace MiNET
 			});
 		}
 
-		private long _pingSendTime = 0;
-
 		protected virtual void HandleConnectedPong(ConnectedPong message)
 		{
-			//long time = message.sendpingtime - message.sendpongtime;
-			Rtt = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond - _pingSendTime;
 		}
 
 		/// <summary>
@@ -549,10 +545,6 @@ namespace MiNET
 				// Start game
 
 				Level.EntityManager.AddEntity(null, this);
-
-				// We send a ping here to get an initial value for chunk-sending
-				_pingSendTime = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-				SendPackage(new ConnectedPing {sendpingtime = _pingSendTime});
 
 				SendPackage(new McpePlayerStatus {status = 0});
 				SendStartGame();
@@ -1200,13 +1192,13 @@ namespace MiNET
 			{
 				int packetCount = 0;
 
-				if (!IsBot)
-				{
-					while (Rtt < 0)
-					{
-						Thread.Yield();
-					}
-				}
+				//if (!IsBot)
+				//{
+				//	while (Rtt < 0)
+				//	{
+				//		Thread.Yield();
+				//	}
+				//}
 
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{

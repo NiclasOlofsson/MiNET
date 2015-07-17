@@ -84,8 +84,10 @@ namespace MiNET
 			{
 				Log.Info("Initializing...");
 
-				MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 100);
-				MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", 4);
+				//ThreadPool.SetMaxThreads(16, 16);
+
+				MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
+				MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", MaxNumberOfPlayers);
 
 				if (_endpoint == null)
 				{
@@ -471,8 +473,6 @@ namespace MiNET
 				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
 				{
 					OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
-
-					_isPerformanceTest = _isPerformanceTest || incoming.raknetProtocolVersion == byte.MaxValue;
 
 					var packet = OpenConnectionReply1.CreateObject();
 					packet.serverGuid = 12345;
@@ -1005,7 +1005,7 @@ namespace MiNET
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
 			return;
-			if (_isPerformanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
+			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
 			{
@@ -1016,7 +1016,7 @@ namespace MiNET
 		private static void TraceSend(Package message)
 		{
 			return;
-			if (_isPerformanceTest || !Debugger.IsAttached || !Log.IsDebugEnabled) return;
+			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)
 			{

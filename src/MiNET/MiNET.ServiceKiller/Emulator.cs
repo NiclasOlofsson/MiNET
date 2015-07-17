@@ -22,6 +22,7 @@ namespace MiNET.ServiceKiller
 			Console.WriteLine("Press <Enter> to start emulation...");
 			Console.ReadLine();
 
+			ThreadPool.SetMinThreads(1000, 1000);
 
 			Emulator emulator = new Emulator {Running = true};
 			Random random = new Random();
@@ -36,11 +37,12 @@ namespace MiNET.ServiceKiller
 
 					string playerName = string.Format("Player-{0}", (i + 1));
 					//string playerName = "Player " + Guid.NewGuid();
-					ClientEmulator client = new ClientEmulator(emulator, random.Next(10, 30), playerName, i)
+					ClientEmulator client = new ClientEmulator(emulator, random.Next(10, 30)*1000, playerName, i)
 					{
 						Random = random
 					};
-					ThreadPool.QueueUserWorkItem(client.EmulateClient);
+					ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
+
 					Thread.Sleep(1);
 
 					i++;
@@ -73,14 +75,14 @@ namespace MiNET.ServiceKiller
 			ClientId = clientId;
 		}
 
-		public void EmulateClient(object state)
+		public void EmulateClient()
 		{
 			try
 			{
 				Console.WriteLine("Client {0} connecting...", Name);
 
-				var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
+				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
+				var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
 				//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
 
 				client.Username = Name;

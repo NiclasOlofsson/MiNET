@@ -145,7 +145,7 @@ namespace MiNET.Client
 			catch (Exception e)
 			{
 				if (listener.Client == null) return;
-				Log.Warn(e);
+				Log.Debug(e);
 				try
 				{
 					listener.BeginReceive(ReceiveCallback, listener);
@@ -153,7 +153,7 @@ namespace MiNET.Client
 				catch (ObjectDisposedException dex)
 				{
 					// Log and move on. Should probably free up the player and remove them here.
-					Log.Warn(dex);
+					Log.Debug(dex);
 				}
 
 				return;
@@ -175,7 +175,7 @@ namespace MiNET.Client
 			}
 			else
 			{
-				Log.Error("Unexpected end of transmission?");
+				Log.Debug("Unexpected end of transmission?");
 			}
 		}
 
@@ -296,7 +296,7 @@ namespace MiNET.Client
 								SplitPartPackage[] spPackets = _splits[spId];
 								if (spIdx < 0 || spIdx >= spPackets.Length)
 								{
-									Log.WarnFormat("Unexpeted split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
+									Log.DebugFormat("Unexpeted split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
 									return;
 								}
 								spPackets[spIdx] = splitMessage;
@@ -328,7 +328,7 @@ namespace MiNET.Client
 									}
 									catch (Exception e)
 									{
-										Log.Warn("When processing split-message", e);
+										Log.Debug("When processing split-message", e);
 									}
 								}
 
@@ -602,7 +602,14 @@ namespace MiNET.Client
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
 			if (Listener == null) return;
-			Listener.Send(data, data.Length, targetEndpoint);
+			try
+			{
+				Listener.Send(data, data.Length, targetEndpoint);
+			}
+			catch (Exception e)
+			{
+				Log.Debug("Send exception", e);
+			}
 		}
 
 		private static void TraceReceive(Package message)

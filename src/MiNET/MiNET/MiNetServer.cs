@@ -59,8 +59,6 @@ namespace MiNET
 		private List<Level> _levels = new List<Level>();
 
 		public ServerInfo ServerInfo { get; set; }
-		public int MaxNumberOfPlayers { get; set; }
-		public int MaxNumberOfConcurrentConnects { get; set; }
 
 		public MiNetServer()
 		{
@@ -86,8 +84,8 @@ namespace MiNET
 
 				//ThreadPool.SetMaxThreads(16, 16);
 
-				MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
-				MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", MaxNumberOfPlayers);
+				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
+				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				if (_endpoint == null)
 				{

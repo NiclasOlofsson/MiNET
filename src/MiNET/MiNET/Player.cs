@@ -496,13 +496,13 @@ namespace MiNET
 
 			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
 			{
-				if (serverInfo.NumberOfPlayers > Server.MaxNumberOfPlayers)
+				if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
 				{
 					Disconnect("We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
 					return;
 				}
 
-				if (serverInfo.ConnectionsInConnectPhase > Server.MaxNumberOfConcurrentConnects)
+				if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
 				{
 					Disconnect("We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
 					return;

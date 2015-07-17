@@ -25,6 +25,9 @@ namespace MiNET
 		public int AvailableBytes { get; set; }
 		public int ConnectionsInConnectPhase = 0;
 
+		public int MaxNumberOfPlayers { get; set; }
+		public int MaxNumberOfConcurrentConnects { get; set; }
+
 		public ServerInfo(Level level, ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> playerSessions)
 		{
 			_level = level;

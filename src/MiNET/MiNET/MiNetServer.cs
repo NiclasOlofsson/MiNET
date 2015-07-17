@@ -84,9 +84,6 @@ namespace MiNET
 
 				//ThreadPool.SetMaxThreads(16, 16);
 
-				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
-				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
-
 				if (_endpoint == null)
 				{
 					var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
@@ -128,6 +125,8 @@ namespace MiNET
 				_levels.Add(_level);
 
 				ServerInfo = new ServerInfo(_level, _playerSessions);
+				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
+				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				//for (int i = 1; i < 10; i++)
 				//{

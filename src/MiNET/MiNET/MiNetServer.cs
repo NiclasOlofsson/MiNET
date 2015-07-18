@@ -819,6 +819,8 @@ namespace MiNET
 
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
+				if (!Monitor.TryEnter(session.SyncRootUpdate)) return;
+
 				long rto = Math.Max(100, session.Player.Rto);
 				//if (!session.Player.IsBot)
 				{

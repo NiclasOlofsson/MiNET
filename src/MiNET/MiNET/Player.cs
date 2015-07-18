@@ -471,15 +471,6 @@ namespace MiNET
 		{
 		}
 
-		/// <summary>
-		///     Handles the login.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		/// <exception cref="System.Exception">
-		///     No username on login
-		///     or
-		///     No username on login
-		/// </exception>
 		protected virtual void HandleLogin(McpeLogin message)
 		{
 			if (Username != null) return; // Already doing login
@@ -522,6 +513,7 @@ namespace MiNET
 			}
 
 			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+			IsPerformingLoginSequence = true;
 
 			try
 			{
@@ -587,8 +579,15 @@ namespace MiNET
 			}
 		}
 
+		public bool IsPerformingLoginSequence { get; set; }
+
 		public void Disconnect(string reason)
 		{
+			if (IsPerformingLoginSequence)
+			{
+				Interlocked.Decrement(ref Server.ServerInfo.ConnectionsInConnectPhase);
+			}
+
 			McpeDisconnect disconnect = McpeDisconnect.CreateObject();
 			disconnect.message = reason;
 			SendPackage(disconnect, true);
@@ -620,8 +619,8 @@ namespace MiNET
 			}
 			finally
 			{
-				var serverInfo = Server.ServerInfo;
-				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+				IsPerformingLoginSequence = false;
+				Interlocked.Decrement(ref Server.ServerInfo.ConnectionsInConnectPhase);
 			}
 		}
 

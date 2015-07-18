@@ -11,6 +11,7 @@ namespace MiNET
 	public class PlayerNetworkSession
 	{
 		public object SyncRoot { get; private set; }
+		public object SyncRootUpdate { get; private set; }
 
 		public Player Player { get; set; }
 		public int Mtuize { get; set; }
@@ -32,6 +33,7 @@ namespace MiNET
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
 			SyncRoot = new object();
+			SyncRootUpdate = new object();
 			Player = player;
 			EndPoint = endPoint;
 		}

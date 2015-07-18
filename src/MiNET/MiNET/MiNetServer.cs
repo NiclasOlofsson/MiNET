@@ -631,6 +631,8 @@ namespace MiNET
 			PlayerNetworkSession session;
 			if (!_playerSessions.TryGetValue(senderEndpoint, out session)) return;
 
+			session.LastUpdatedTime = DateTime.UtcNow;
+
 			Nak nak = Nak.CreateObject();
 			nak.Decode(receiveBytes);
 

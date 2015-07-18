@@ -510,6 +510,24 @@ namespace MiNET.Worlds
 					Player[] updatedPlayers = GetUpdatedPlayers(players);
 					BroadCastMovement(players, updatedPlayers);
 				}
+
+				if (TickTime%20*5 == 0)
+				{
+					Player[] updatedPlayers = GetStaledPlayers(Players);
+					if (updatedPlayers.Any())
+					{
+						foreach (var player in updatedPlayers)
+						{
+							Player player1 = player;
+							ThreadPool.QueueUserWorkItem(delegate(object state)
+							{
+								player1.Disconnect("Inactivity");
+
+								BroadcastTextMessage("Evicted player " + player1.Username);
+							});
+						}
+					}
+				}
 			}
 			finally
 			{
@@ -539,6 +557,12 @@ namespace MiNET.Worlds
 			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
 			long now = DateTime.UtcNow.Ticks;
 			return players.Where(player => ((now - player.LastUpdatedTime.Ticks) <= tickTime)).ToArray();
+		}
+
+		private Player[] GetStaledPlayers(List<Player> players)
+		{
+			DateTime now = DateTime.UtcNow;
+			return players.Where(player => ((now - player.LastUpdatedTime) > TimeSpan.FromSeconds(300))).ToArray();
 		}
 
 		protected virtual void BroadCastMovement(Player[] players, Player[] updatedPlayers)

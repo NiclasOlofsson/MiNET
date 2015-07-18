@@ -591,8 +591,9 @@ namespace MiNET
 		{
 			McpeDisconnect disconnect = McpeDisconnect.CreateObject();
 			disconnect.message = reason;
-			SendPackage(disconnect);
+			SendPackage(disconnect, true);
 
+			Log.InfoFormat("Disconnected player {0}, reason: {1}", Username, reason);
 			HandleDisconnectionNotification();
 
 			//HACK: But needed

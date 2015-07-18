@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -29,6 +28,15 @@ namespace TestPlugin
 		{
 			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
+		}
+
+		[PacketHandler, Receive]
+		public Package ChatHandler(McpeText text, Player player)
+		{
+			if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
+
+			player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
+			return null;
 		}
 
 		private void DoDevelopmentPopups(object state)
@@ -116,7 +124,6 @@ namespace TestPlugin
 		[Authorize(Users = "gurun")]
 		public void GameMode(Player player, int gameMode)
 		{
-			return;
 			player.GameMode = (GameMode) gameMode;
 			player.SendPackage(new McpeStartGame
 			{

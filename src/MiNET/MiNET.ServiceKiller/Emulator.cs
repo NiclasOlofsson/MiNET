@@ -31,9 +31,9 @@ namespace MiNET.ServiceKiller
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
 				int i = 0;
-				while (watch.ElapsedMilliseconds < 120*1000)
+				while (watch.ElapsedMilliseconds < 300*1000)
 				{
-					if (i > 0 && i%10 == 0) Thread.Sleep(1000);
+					if (i > 0 && i%5 == 0) Thread.Sleep(10000);
 
 					string playerName = string.Format("Player-{0}", (i + 1));
 					//string playerName = "Player " + Guid.NewGuid();
@@ -81,9 +81,10 @@ namespace MiNET.ServiceKiller
 			{
 				Console.WriteLine("Client {0} connecting...", Name);
 
+				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("play.lbsg.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
 				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
+				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
 
 				client.Username = Name;
 				client.ClientId = (int) DateTime.UtcNow.Ticks;

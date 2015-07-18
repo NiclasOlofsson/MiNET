@@ -726,7 +726,7 @@ namespace MiNET.Client
 			};
 
 			McpeBatch batch = new McpeBatch();
-			byte[] buffer = CompressBytes(packet.Encode());
+			byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest);
 
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
@@ -735,37 +735,6 @@ namespace MiNET.Client
 		}
 
 		public bool LoginSent { get; set; }
-
-		public byte[] CompressBytes(byte[] input)
-		{
-			MemoryStream stream = new MemoryStream();
-			stream.WriteByte(0x78);
-			stream.WriteByte(0x01);
-			int checksum;
-			using (var compressStream = new ZLibStream(stream, CompressionLevel.Optimal, true))
-			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(compressStream, true);
-				writer.Write(input);
-
-				writer.Flush();
-
-				checksum = compressStream.Checksum;
-				writer.Close();
-			}
-
-			byte[] checksumBytes = BitConverter.GetBytes(checksum);
-			if (BitConverter.IsLittleEndian)
-			{
-				// Adler32 checksum is big-endian
-				Array.Reverse(checksumBytes);
-			}
-			stream.Write(checksumBytes, 0, checksumBytes.Length);
-
-			var bytes = stream.ToArray();
-			stream.Close();
-
-			return bytes;
-		}
 
 		public void SendChat(string text)
 		{

@@ -82,8 +82,6 @@ namespace MiNET
 			{
 				Log.Info("Initializing...");
 
-				//ThreadPool.SetMaxThreads(16, 16);
-
 				if (_endpoint == null)
 				{
 					var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
@@ -148,7 +146,7 @@ namespace MiNET
 					//_listener.Client.ReceiveBufferSize = 1600*500;
 					//_listener.Client.ReceiveBufferSize = 1024 * 1024 * 3;
 					_listener.Client.ReceiveBufferSize = int.MaxValue;
-					//_listener.Client.SendBufferSize = 1024 * 1024 * 8;
+					//_listener.Client.SendBufferSize = 1500 * 1024 * 3;
 					_listener.Client.SendBufferSize = int.MaxValue;
 					_listener.DontFragment = false;
 					_listener.EnableBroadcast = false;
@@ -191,7 +189,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Log.Error(e);
+				Log.Error("Error from startu", e);
 				StopServer();
 			}
 
@@ -641,7 +639,7 @@ namespace MiNET
 
 			var queue = session.WaitingForAcksQueue;
 
-			Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
+			Log.InfoFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
 
 			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
@@ -667,7 +665,7 @@ namespace MiNET
 				}
 				else
 				{
-					Log.DebugFormat("No datagram #{0} to resend for {1}", i, session.Player.Username);
+					Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, session.Player.Username);
 				}
 			}
 		}
@@ -818,7 +816,7 @@ namespace MiNET
 
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
-				if (!session.Player.IsBot)
+				//if (!session.Player.IsBot)
 				{
 					//if (session.ErrorCount > 1000 /* && session.SendDelay >= 50*/)
 					//{
@@ -841,51 +839,59 @@ namespace MiNET
 						session.Player.DetectLostConnection();
 					}
 				}
-				//var queue = session.WaitingForAcksQueue;
-				//foreach (var datagram in queue.Values)
-				//{
-				//	if (!datagram.Timer.IsRunning)
-				//	{
-				//		Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
-				//		continue;
-				//	}
+				var queue = session.WaitingForAcksQueue;
+				foreach (var datagram in queue.Values)
+				{
+					if (!datagram.Timer.IsRunning)
+					{
+						Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+						continue;
+					}
 
-				//	if(session.Player.Rtt == -1) continue;
+					if (session.Player.Rtt == -1) continue;
 
-				//	long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-				//	long rto = Math.Max(100, session.Player.Rto);
-				//	if (elapsedTime >= rto * (datagram.TransmissionCount))
-				//	{
-				//		Datagram deleted;
-				//		if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-				//		{
-				//			session.ErrorCount++;
+					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
+					long rto = Math.Max(100, session.Player.Rto);
+					if (elapsedTime >= rto*(datagram.TransmissionCount +2))
+					{
+						Datagram deleted;
+						if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+						{
+							session.ErrorCount++;
 
-				//			if (deleted.TransmissionCount > 2)
-				//			{
-				//				foreach (MessagePart part in deleted.MessageParts)
-				//				{
-				//					part.PutPool();
-				//				}
-				//				deleted.PutPool();
+							Log.WarnFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+								deleted.Header.datagramSequenceNumber.IntValue(),
+								session.Player.Username,
+								deleted.FirstMessageId,
+								elapsedTime,
+								rto,
+								session.Player.Rtt);
 
-				//				continue;
-				//			}
+							//if (deleted.TransmissionCount > 2)
+							{
+								foreach (MessagePart part in deleted.MessageParts)
+								{
+									part.PutPool();
+								}
+								deleted.PutPool();
 
-				//			//ThreadPool.QueueUserWorkItem(delegate(object data)
-				//			//{
-				//			//	Log.WarnFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
-				//			//		deleted.Header.datagramSequenceNumber.IntValue(),
-				//			//		session.Player.Username,
-				//			//		deleted.FirstMessageId,
-				//			//		elapsedTime,
-				//			//		rto,
-				//			//		session.Player.Rtt);
-				//			//	//SendDatagram(session.EndPoint, (Datagram) data);
-				//			//}, datagram);
-				//		}
-				//	}
-				//}
+								continue;
+							}
+
+							//ThreadPool.QueueUserWorkItem(delegate(object data)
+							//{
+							//	Log.WarnFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+							//		deleted.Header.datagramSequenceNumber.IntValue(),
+							//		session.Player.Username,
+							//		deleted.FirstMessageId,
+							//		elapsedTime,
+							//		rto,
+							//		session.Player.Rtt);
+							//	//SendDatagram(session.EndPoint, (Datagram) data);
+							//}, datagram);
+						}
+					}
+				}
 			});
 		}
 
@@ -995,7 +1001,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
+				if (_listener.Client != null) Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
 			}
 		}
 

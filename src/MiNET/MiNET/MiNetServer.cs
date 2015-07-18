@@ -821,6 +821,8 @@ namespace MiNET
 
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
+				if (session.Evicted) return;
+
 				if (!Monitor.TryEnter(session.SyncRootUpdate)) return;
 
 				long rto = Math.Max(100, session.Player.Rto);
@@ -835,10 +837,11 @@ namespace MiNET
 					//}
 
 					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-					if (lastUpdate + InacvitityTimeout + rto*2 < now)
+					if (lastUpdate + InacvitityTimeout + 1000 + (rto*2) < now)
 					{
+						session.Evicted = true;
 						// Disconnect user
-						session.Player.Disconnect("You've been kicked with reason: Inactivity.");
+						session.Player.Disconnect("You've been kicked with reason: Network inactivity detected.");
 
 						return;
 					}
@@ -957,6 +960,8 @@ namespace MiNET
 			PlayerNetworkSession session;
 			if (_playerSessions.TryGetValue(senderEndpoint, out session))
 			{
+				if (session.Evicted) return;
+
 				if (datagram.MessageParts.Count != 0)
 				{
 					//if (!isResend)

@@ -26,6 +26,7 @@ namespace MiNET
 		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
 		public bool IsSlowClient { get; set; }
+		public bool Evicted { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
 		public int LastDatagramNumber { get; set; }
@@ -52,5 +53,6 @@ namespace MiNET
 		{
 			get { return _waitingForAcksQueue; }
 		}
+
 	}
 }

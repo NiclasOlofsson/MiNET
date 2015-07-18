@@ -57,6 +57,7 @@ namespace MiNET
 		private Timer _cleanerTimer;
 
 		private List<Level> _levels = new List<Level>();
+		public int InacvitityTimeout { get; private set; }
 
 		public ServerInfo ServerInfo { get; set; }
 
@@ -81,6 +82,8 @@ namespace MiNET
 			try
 			{
 				Log.Info("Initializing...");
+
+				InacvitityTimeout = Config.GetProperty("InacvitityTimeout", 8500);
 
 				if (_endpoint == null)
 				{
@@ -639,7 +642,7 @@ namespace MiNET
 
 			var queue = session.WaitingForAcksQueue;
 
-			Log.InfoFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
+			Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
 
 			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
@@ -665,7 +668,7 @@ namespace MiNET
 				}
 				else
 				{
-					Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, session.Player.Username);
+					Log.WarnFormat("NAK, no datagram #{0} to resend for {1}", i, session.Player.Username);
 				}
 			}
 		}
@@ -816,6 +819,7 @@ namespace MiNET
 
 			Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 			{
+				long rto = Math.Max(100, session.Player.Rto);
 				//if (!session.Player.IsBot)
 				{
 					//if (session.ErrorCount > 1000 /* && session.SendDelay >= 50*/)
@@ -827,16 +831,19 @@ namespace MiNET
 					//}
 
 					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-					if (lastUpdate + 10000 < now)
+					if (lastUpdate + InacvitityTimeout + rto*2 < now)
 					{
 						// Disconnect user
 						session.Player.Disconnect("You've been kicked with reason: Inactivity.");
 
 						return;
 					}
-					else if (lastUpdate + 8500 < now)
+					else
 					{
-						session.Player.DetectLostConnection();
+						if (lastUpdate + InacvitityTimeout < now)
+						{
+							session.Player.DetectLostConnection();
+						}
 					}
 				}
 				var queue = session.WaitingForAcksQueue;
@@ -851,15 +858,14 @@ namespace MiNET
 					if (session.Player.Rtt == -1) continue;
 
 					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-					long rto = Math.Max(100, session.Player.Rto);
-					if (elapsedTime >= rto*(datagram.TransmissionCount +2))
+					if (elapsedTime >= rto*(datagram.TransmissionCount + 2))
 					{
 						Datagram deleted;
 						if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
 							session.ErrorCount++;
 
-							Log.WarnFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+							Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
 								deleted.Header.datagramSequenceNumber.IntValue(),
 								session.Player.Username,
 								deleted.FirstMessageId,

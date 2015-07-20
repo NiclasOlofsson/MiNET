@@ -85,5 +85,10 @@ namespace MiNET.Utils
 		{
 			return d.IntValue(); // implicit conversion
 		}
+
+		public override string ToString()
+		{
+			return _value.ToString();
+		}
 	}
 }

@@ -33,7 +33,7 @@ namespace MiNET.ServiceKiller
 				int i = 0;
 				while (watch.ElapsedMilliseconds < 300*1000)
 				{
-					if (i > 0 && i%5 == 0) Thread.Sleep(10000);
+					if (i > 0 && i%20 == 0) Thread.Sleep(10000);
 
 					string playerName = string.Format("Player-{0}", (i + 1));
 					//string playerName = "Player " + Guid.NewGuid();

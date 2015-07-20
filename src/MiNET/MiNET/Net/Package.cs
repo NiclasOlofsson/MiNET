@@ -17,6 +17,8 @@ namespace MiNET.Net
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
 
+		public int DatagramSequenceNumber = 0;
+
 		public byte Id;
 
 		protected MemoryStream _buffer;
@@ -468,6 +470,7 @@ namespace MiNET.Net
 
 		public virtual void Reset()
 		{
+			DatagramSequenceNumber = 0;
 			_encodedMessage = null;
 			_writer.Flush();
 			_buffer.SetLength(0);

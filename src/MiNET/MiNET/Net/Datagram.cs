@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Threading;
 
 namespace MiNET.Net
@@ -76,7 +75,7 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int reliableMessageNumber, IPEndPoint senderEndpoint, Action<IPEndPoint, Datagram> sendDatagram)
+		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int reliableMessageNumber, PlayerNetworkSession session, Action<PlayerNetworkSession, Datagram> sendDatagram)
 		{
 			Datagram datagram = null;
 			foreach (var message in messages)
@@ -94,7 +93,7 @@ namespace MiNET.Net
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
 						Datagram datagram1 = datagram;
-						sendDatagram(senderEndpoint, datagram1);
+						sendDatagram(session, datagram1);
 
 						datagram = CreateObject();
 
@@ -108,7 +107,7 @@ namespace MiNET.Net
 
 			if (datagram != null)
 			{
-				sendDatagram(senderEndpoint, datagram);
+				sendDatagram(session, datagram);
 			}
 		}
 

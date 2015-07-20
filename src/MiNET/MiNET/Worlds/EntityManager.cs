@@ -9,7 +9,7 @@ namespace MiNET.Worlds
 	{
 		public const long EntityIdUndefined = -1;
 
-		private static long _entityId = 1;
+		private long _entityId = 1;
 
 		private List<Entity> _entities = new List<Entity>();
 

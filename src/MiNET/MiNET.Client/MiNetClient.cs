@@ -571,12 +571,13 @@ namespace MiNET.Client
 				TraceSend(message);
 			}
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, senderEndpoint, SendDatagram);
+			PlayerNetworkSession session  = new PlayerNetworkSession(null, senderEndpoint);
+			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, session, SendDatagram);
 		}
 
-		private void SendDatagram(IPEndPoint senderEndpoint, Datagram datagram)
+		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
 		{
-			SendDatagram(senderEndpoint, datagram, false);
+			SendDatagram(session.EndPoint, datagram, false);
 		}
 
 

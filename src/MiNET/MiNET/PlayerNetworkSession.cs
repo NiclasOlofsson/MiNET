@@ -11,6 +11,7 @@ namespace MiNET
 	public class PlayerNetworkSession
 	{
 		public object SyncRoot { get; private set; }
+		public object ProcessSyncRoot { get; private set; }
 		public object SyncRootUpdate { get; private set; }
 
 		public Player Player { get; set; }
@@ -30,11 +31,11 @@ namespace MiNET
 
 		public DateTime LastUpdatedTime { get; set; }
 		public int LastDatagramNumber { get; set; }
-
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
 			SyncRoot = new object();
 			SyncRootUpdate = new object();
+			ProcessSyncRoot = new object();
 			Player = player;
 			EndPoint = endPoint;
 		}

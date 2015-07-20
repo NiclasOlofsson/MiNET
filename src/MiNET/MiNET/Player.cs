@@ -416,6 +416,7 @@ namespace MiNET
 			// Broadcast spawn to all
 			Level.AddPlayer(this);
 
+
 			SendMovePlayer();
 		}
 
@@ -424,9 +425,7 @@ namespace MiNET
 		/// </summary>
 		public virtual void HandleDisconnectionNotification()
 		{
-			IsConnected = false;
-			IsSpawned = false;
-			Level.RemovePlayer(this);
+			Disconnect("Client requested disconnected");
 		}
 
 		/// <summary>
@@ -471,8 +470,13 @@ namespace MiNET
 		{
 		}
 
+		private object _loginSyncLock = new object();
+
 		protected virtual void HandleLogin(McpeLogin message)
 		{
+			// Only one login!
+			if (!Monitor.TryEnter(_loginSyncLock)) return;
+
 			if (Username != null) return; // Already doing login
 
 			Log.InfoFormat("Login attempt by: {0}", message.username);
@@ -485,20 +489,21 @@ namespace MiNET
 
 			var serverInfo = Server.ServerInfo;
 
-			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
-			{
-				if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
-				{
-					Disconnect("We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
-					return;
-				}
+			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
+			//{
+			//	if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
+			//	{
+			//		Disconnect("We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
+			//		return;
+			//	}
 
-				if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
-				{
-					Disconnect("We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
-					return;
-				}
-			}
+			//	// Use for loadbalance only right now.
+			//	//if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
+			//	//{
+			//	//	Disconnect("We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
+			//	//	return;
+			//	//}
+			//}
 
 			if (message.username == null || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$") || message.username.Trim().Length == 0)
 			{
@@ -512,19 +517,17 @@ namespace MiNET
 				return;
 			}
 
-			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-			IsPerformingLoginSequence = true;
-
 			try
 			{
+				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
 				Username = message.username;
 				ClientId = message.clientId;
 
 				if (Username.StartsWith("Player")) IsBot = true; // HACK
 
-
 				// Check if the user already exist, that case bumpt the old one
-				Level.RemoveDuplicatePlayers(Username);
+				Level.RemoveDuplicatePlayers(Username, ClientId);
 
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
@@ -544,7 +547,6 @@ namespace MiNET
 				SendSetTime();
 				SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
 				SendPackage(new McpeAdventureSettings {flags = Level.IsSurvival ? 0x20 : 0x80});
-				//SendPackage(new McpeAdventureSettings { flags = Level.IsSurvival ? 0x80 : 0x80 });
 				SendSetHealth();
 
 				SendPackage(new McpeSetEntityData
@@ -573,31 +575,43 @@ namespace MiNET
 
 				LastUpdatedTime = DateTime.UtcNow;
 			}
-			catch (Exception e)
+			finally
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
 		}
 
-		public bool IsPerformingLoginSequence { get; set; }
+		private object _disconnectSync = new object();
 
 		public void Disconnect(string reason)
 		{
-			if (IsPerformingLoginSequence)
+			if (!Monitor.TryEnter(_disconnectSync)) return;
+			if (!IsConnected) return;
+
+			if (IsSpawned)
 			{
-				Interlocked.Decrement(ref Server.ServerInfo.ConnectionsInConnectPhase);
+				DespawnEntity();
+
+				McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+				disconnect.message = reason;
+				SendPackage(disconnect, true);
+
+				IsSpawned = false;
 			}
 
-			McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-			disconnect.message = reason;
-			SendPackage(disconnect, true);
-
-			Log.InfoFormat("Disconnected player {0}, reason: {1}", Username, reason);
-			HandleDisconnectionNotification();
+			if (IsConnected)
+			{
+				IsConnected = false;
+			}
 
 			//HACK: But needed
 			PlayerNetworkSession value;
-			Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out value);
+			if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out value))
+			{
+				value.Evicted = true;
+			}
+
+			Log.InfoFormat("Disconnected player {0} {1}, reason: {2}", Username, EndPoint.Address, reason);
 		}
 
 		public virtual void InitializePlayer()
@@ -619,8 +633,8 @@ namespace MiNET
 			}
 			finally
 			{
-				IsPerformingLoginSequence = false;
-				Interlocked.Decrement(ref Server.ServerInfo.ConnectionsInConnectPhase);
+				//IsPerformingLoginSequence = false;
+				//Interlocked.Decrement(ref Server.ServerInfo.ConnectionsInConnectPhase);
 			}
 		}
 
@@ -643,13 +657,25 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Handles the move player.
-		/// </summary>
-		/// <param name="message">The message.</param>
+		private int _lastPlayerMoveSequenceNUmber;
+		private object _moveSyncLock = new object();
+
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
 			if (HealthManager.IsDead) return;
+
+			lock (_moveSyncLock)
+			{
+				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
+				{
+					Log.DebugFormat("Skipping move {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
+					//return;
+				}
+				else
+				{
+					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
+				}
+			}
 
 			bool useAntiCheat = false;
 			if (useAntiCheat)
@@ -1176,47 +1202,35 @@ namespace MiNET
 			});
 		}
 
-		/// <summary>
-		///     Sends the chunks for known position.
-		/// </summary>
+		private object _sendChunkSync = new object();
+
 		private void SendChunksForKnownPosition()
 		{
-			//if (IsBot) return;
+			if (!Monitor.TryEnter(_sendChunkSync)) return;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
 			_currentChunkPosition = chunkPosition;
 
-			ThreadPool.QueueUserWorkItem(delegate(object state)
+			int packetCount = 0;
+
+			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 			{
-				int packetCount = 0;
-
-				//if (!IsBot)
-				//{
-				//	while (Rtt < 0)
-				//	{
-				//		Thread.Yield();
-				//	}
-				//}
-
-				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-					{
-						McpeBatch batch = McpeBatch.CreateObject();
-						batch.SetEncodedMessage(chunk.Encode());
-						SendPackage(batch, sendDirect: true);
-					}
+					McpeBatch batch = McpeBatch.CreateObject();
+					batch.SetEncodedMessage(chunk.Encode());
+					SendPackage(batch, sendDirect: true);
+				}
 
-					if (!IsSpawned)
+				if (!IsSpawned)
+				{
+					if (packetCount++ == 56)
 					{
-						if (packetCount++ == 56)
-						{
-							InitializePlayer();
-						}
+						InitializePlayer();
 					}
 				}
-			});
+			}
 		}
 
 		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel)
@@ -1475,8 +1489,6 @@ namespace MiNET
 		public void SendMoveList(List<McpeMovePlayer> movePlayerPackages)
 		{
 			if (!IsConnected) return;
-
-			//if (Level.TickTime%4 != 0) return;
 
 			int messageCount = 0;
 

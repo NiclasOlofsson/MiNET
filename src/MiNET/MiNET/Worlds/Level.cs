@@ -132,50 +132,49 @@ namespace MiNET.Worlds
 			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
 		}
 
+		private object _playerWriteLock = new object();
+
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
 			if (newPlayer.Username == null) return;
 
+			EntityManager.AddEntity(null, newPlayer);
+
+			Player[] spawnedPlayers;
 			lock (Players)
 			{
 				if (Players.Contains(newPlayer)) return;
-
-				//if (newPlayer.EntityId == EntityManager.EntityIdUndefined)
-				{
-					EntityManager.AddEntity(null, newPlayer);
-				}
-
-				Player[] spawnedPlayers = GetSpawnedPlayers();
 				Players.Add(newPlayer);
-
-				foreach (var targetPlayer in spawnedPlayers)
-				{
-					if (spawn)
-					{
-						SendAddForPlayer(targetPlayer, newPlayer);
-						SendAddForPlayer(newPlayer, targetPlayer);
-					}
-				}
-
-				foreach (Entity entity in Entities.ToArray())
-				{
-					SendAddEntityToPlayer(entity, newPlayer);
-				}
-
-				//lock (Players)
-				//{
-				//	if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
-
-				//	if (!string.IsNullOrEmpty(broadcastText))
-				//	{
-				//		//BroadcastTextMessage(broadcastText);
-				//	}
-
-				//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
-				//}
-
-				//newPlayer.IsSpawned = true;
+				spawnedPlayers = GetSpawnedPlayers();
 			}
+
+			foreach (var targetPlayer in spawnedPlayers)
+			{
+				if (spawn)
+				{
+					SendAddForPlayer(targetPlayer, newPlayer);
+					SendAddForPlayer(newPlayer, targetPlayer);
+				}
+			}
+
+			foreach (Entity entity in Entities.ToArray())
+			{
+				SendAddEntityToPlayer(entity, newPlayer);
+			}
+
+			//lock (Players)
+			//{
+			//	if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
+
+			//	if (!string.IsNullOrEmpty(broadcastText))
+			//	{
+			//		//BroadcastTextMessage(broadcastText);
+			//	}
+
+			//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
+			//}
+
+			//newPlayer.IsSpawned = true;
 		}
 
 		public void SendAddForPlayer(Player receiver, Player player)
@@ -232,19 +231,19 @@ namespace MiNET.Worlds
 			lock (Players)
 			{
 				if (!Players.Remove(player)) return;
-
-				if (despawn)
-				{
-					foreach (var targetPlayer in GetSpawnedPlayers())
-					{
-						SendRemoveForPlayer(targetPlayer, player);
-						SendRemoveForPlayer(player, targetPlayer);
-					}
-				}
 				EntityManager.RemoveEntity(null, player);
-
-				//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
 			}
+
+			if (despawn)
+			{
+				foreach (var targetPlayer in GetSpawnedPlayers())
+				{
+					SendRemoveForPlayer(targetPlayer, player);
+					SendRemoveForPlayer(player, targetPlayer);
+				}
+			}
+
+			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
 		}
 
 		public void HidePlayer(Player player, bool hide)
@@ -420,18 +419,18 @@ namespace MiNET.Worlds
 		}
 
 
-		public void RemoveDuplicatePlayers(string username)
+		public void RemoveDuplicatePlayers(string username, int clientId)
 		{
 			Player[] existingPlayers;
 			lock (Players)
 			{
-				existingPlayers = Players.Where(player => player.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase)).ToArray();
+				existingPlayers = Players.Where(player => player.ClientId == clientId && player.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase)).ToArray();
 			}
 
 			foreach (var existingPlayer in existingPlayers)
 			{
 				Log.InfoFormat("Removing staled players on login {0}", username);
-				existingPlayer.HandleDisconnectionNotification();
+				existingPlayer.Disconnect("Stale player.");
 			}
 		}
 
@@ -505,29 +504,27 @@ namespace MiNET.Worlds
 				}
 
 				// Send player movements
-				//if (TickTime%2 == 0)
+				//if (TickTime % 2 == 0)
 				{
 					Player[] updatedPlayers = GetUpdatedPlayers(players);
 					BroadCastMovement(players, updatedPlayers);
 				}
 
-				if (TickTime%20*5 == 0)
-				{
-					Player[] updatedPlayers = GetStaledPlayers(Players);
-					if (updatedPlayers.Any())
-					{
-						foreach (var player in updatedPlayers)
-						{
-							Player player1 = player;
-							ThreadPool.QueueUserWorkItem(delegate(object state)
-							{
-								player1.Disconnect("Inactivity");
-
-								BroadcastTextMessage("Evicted player " + player1.Username);
-							});
-						}
-					}
-				}
+				//if (TickTime%20*5 == 0)
+				//{
+				//	Player[] updatedPlayers = GetStaledPlayers(Players);
+				//	if (updatedPlayers.Any())
+				//	{
+				//		foreach (var player in updatedPlayers)
+				//		{
+				//			Player player1 = player;
+				//			ThreadPool.QueueUserWorkItem(delegate(object state)
+				//			{
+				//				player1.Disconnect("Inactivity");
+				//			});
+				//		}
+				//	}
+				//}
 			}
 			finally
 			{
@@ -573,8 +570,7 @@ namespace MiNET.Worlds
 			foreach (var player in updatedPlayers)
 			{
 				Player updatedPlayer = player;
-				var knownPosition = updatedPlayer.KnownPosition;
-
+				PlayerLocation knownPosition = (PlayerLocation) updatedPlayer.KnownPosition.Clone();
 				{
 					McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
 					move.entityId = updatedPlayer.EntityId;

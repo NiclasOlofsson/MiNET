@@ -308,17 +308,6 @@ namespace TestPlugin
 		//}
 
 
-		[Command]
-		[Authorize(Users = "gurun")]
-		public void Kill(Player player, string target)
-		{
-			Player targetPlayer = player.Level.Players.FirstOrDefault(player1 => player1.Username == target);
-			if (targetPlayer != null)
-			{
-				targetPlayer.HealthManager.Kill();
-			}
-		}
-
 		//[PacketHandler, Receive]
 		//public Package HandleIncoming(McpeMovePlayer packet, Player player)
 		//{
@@ -466,7 +455,7 @@ namespace TestPlugin
 		[Command(Command = "s")]
 		public void Stats(Player currentPlayer)
 		{
-			var players = Context.Levels[0].Players.ToArray();
+			var players = Context.Levels[0].Players.Values.ToArray();
 			currentPlayer.SendMessage("Statistics:", type: McpeText.TypeRaw);
 			foreach (var player in players)
 			{

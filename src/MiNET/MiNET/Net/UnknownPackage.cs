@@ -15,14 +15,12 @@ namespace MiNET.Net
 		public byte[] Message { get; private set; }
 	}
 
-	public class SplitPartPackage : Package<UnknownPackage>
+	public class SplitPartPackage : Package<SplitPartPackage>
 	{
-		public SplitPartPackage(byte id, byte[] message)
+		public SplitPartPackage()
 		{
-			Message = message;
-			Id = id;
 		}
 
-		public byte[] Message { get; private set; }
+		public byte[] Message { get; set; }
 	}
 }

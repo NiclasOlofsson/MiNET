@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using fNbt;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
 
@@ -13,6 +14,10 @@ namespace MiNET.Net
 {
 	public abstract partial class Package
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
+
+		public string Source { get; set; }
+
 		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
@@ -295,13 +300,13 @@ namespace MiNET.Net
 		{
 			if (endpoint.AddressFamily == AddressFamily.InterNetwork)
 			{
-				Write((byte)4);
+				Write((byte) 4);
 				var parts = endpoint.Address.ToString().Split('.');
 				foreach (var part in parts)
 				{
-					Write((byte)~byte.Parse(part));
+					Write((byte) ~byte.Parse(part));
 				}
-				Write((short)endpoint.Port);
+				Write((short) endpoint.Port);
 			}
 		}
 
@@ -449,9 +454,9 @@ namespace MiNET.Net
 		public void Write(Skin skin)
 		{
 			Write((byte) (skin.Slim ? 0x01 : 0x00));
-			if(skin.Texture != null)
+			if (skin.Texture != null)
 			{
-				Write((short)skin.Texture.Length);
+				Write((short) skin.Texture.Length);
 				Write(skin.Texture);
 			}
 		}
@@ -538,6 +543,8 @@ namespace MiNET.Net
 	/// Base package class
 	public abstract partial class Package<T> : Package, ICloneable where T : Package<T>, new()
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
+
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 
 		private bool _isPooled;
@@ -596,6 +603,15 @@ namespace MiNET.Net
 			}
 		}
 
+
+		//~Package()
+		//{
+		//	//if(IsPooled)
+		//	{
+		//		Log.Warn(string.Format("Unexpected dispose 0x{0:x2} IsPooled={1}, Refs={2}, Source={3}", Id, IsPooled, _referenceCounter, Source));
+		//	}
+		//}
+
 		public override void PutPool()
 		{
 			if (!IsPooled) return;
@@ -603,6 +619,7 @@ namespace MiNET.Net
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
 
 			Reset();
+			Source = null;
 			Pool.PutObject((T) this);
 		}
 	}

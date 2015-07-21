@@ -171,11 +171,15 @@ namespace MiNET.Net
 
 				if (hasSplitPacket != 0)
 				{
-					Messages.Add(new SplitPartPackage(internalBuffer[0], internalBuffer));
+					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
+					splitPartPackage.Id = internalBuffer[0];
+					splitPartPackage.Message = internalBuffer;
+					Messages.Add(splitPartPackage);
 					return;
 				}
 
-				Messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				Package package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
+				Messages.Add(package);
 				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 			}
 		}

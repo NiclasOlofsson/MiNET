@@ -85,11 +85,10 @@ namespace MiNET.Entities
 
 		public virtual void BroadcastSetEntityData()
 		{
-			Level.RelayBroadcast(this, new McpeSetEntityData
-			{
-				entityId = EntityId,
-				metadata = GetMetadata()
-			});
+			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			mcpeSetEntityData.entityId = EntityId;
+			mcpeSetEntityData.metadata = GetMetadata();
+			Level.RelayBroadcast(this, mcpeSetEntityData);
 		}
 
 		public BoundingBox GetBoundingBox()

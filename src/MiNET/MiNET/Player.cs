@@ -191,6 +191,7 @@ namespace MiNET
 			else if (typeof (McpeLogin) == message.GetType())
 			{
 				HandleLogin((McpeLogin) message);
+				//ThreadPool.QueueUserWorkItem(state => HandleLogin((McpeLogin) message));
 			}
 
 			else if (typeof (McpeMovePlayer) == message.GetType())
@@ -205,7 +206,7 @@ namespace MiNET
 
 			else if (typeof (McpeRespawn) == message.GetType())
 			{
-				HandleRespawn((McpeRespawn) message);
+				ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn((McpeRespawn) message); });
 			}
 
 			else if (typeof (McpeTileEntityData) == message.GetType())
@@ -231,9 +232,9 @@ namespace MiNET
 			if (message.Timer.IsRunning)
 			{
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
-				if (elapsedMilliseconds > 100)
+				if (elapsedMilliseconds > 500)
 				{
-					Log.DebugFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 				}
 			}
 			else
@@ -327,7 +328,7 @@ namespace MiNET
 					break;
 				}
 				case 7: // Respawn
-					HandleRespawn(null);
+					ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn(null); });
 					break;
 				default:
 					return;
@@ -378,46 +379,57 @@ namespace MiNET
 		/// <param name="msg">The MSG.</param>
 		protected virtual void HandleRespawn(McpeRespawn msg)
 		{
-			// reset all health states
-			HealthManager.ResetHealth();
-
-			// send teleport to spawn
-			KnownPosition = new PlayerLocation
+			ServerInfo serverInfo = Server.ServerInfo;
+			try
 			{
-				X = Level.SpawnPoint.X,
-				Y = Level.SpawnPoint.Y,
-				Z = Level.SpawnPoint.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
-			};
+				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-			SendSetHealth();
+				// reset all health states
+				HealthManager.ResetHealth();
 
-			SendPackage(new McpeAdventureSettings {flags = Level.IsSurvival ? 0x20 : 0x80});
-			//SendPackage(new McpeAdventureSettings { flags = Level.IsSurvival ? 0x80 : 0x80 });
+				// send teleport to spawn
+				KnownPosition = new PlayerLocation
+				{
+					X = Level.SpawnPoint.X,
+					Y = Level.SpawnPoint.Y,
+					Z = Level.SpawnPoint.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
+				};
 
-			SendPackage(new McpeContainerSetContent
+				SendSetHealth();
+
+				McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
+				mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
+				SendPackage(mcpeAdventureSettings);
+
+				McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
+				mcpeContainerSetContent.windowId = 0;
+				mcpeContainerSetContent.slotData = Inventory.Slots;
+				mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
+				SendPackage(mcpeContainerSetContent);
+
+				McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
+				containerSetContent.windowId = 0x78;
+				containerSetContent.slotData = Inventory.Armor;
+				containerSetContent.hotbarData = null;
+				SendPackage(containerSetContent);
+
+				BroadcastSetEntityData();
+
+				// Broadcast spawn to all
+				Level.AddPlayer(this);
+				IsSpawned = true;
+
+				SendMovePlayer();
+
+				Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
+			}
+			finally
 			{
-				windowId = 0,
-				slotData = Inventory.Slots,
-				hotbarData = Inventory.ItemHotbar
-			});
-
-			SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0x78, // Armor windows ID
-				slotData = Inventory.Armor,
-				hotbarData = null
-			});
-
-			BroadcastSetEntityData();
-
-			// Broadcast spawn to all
-			Level.AddPlayer(this);
-
-
-			SendMovePlayer();
+				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+			}
 		}
 
 		/// <summary>
@@ -459,11 +471,12 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
-			SendPackage(new ConnectedPong
-			{
-				sendpingtime = message.sendpingtime,
-				sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond
-			});
+			message.Source = "Player";
+
+			ConnectedPong package = ConnectedPong.CreateObject();
+			package.sendpingtime = message.sendpingtime;
+			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+			SendPackage(package);
 		}
 
 		protected virtual void HandleConnectedPong(ConnectedPong message)
@@ -474,10 +487,19 @@ namespace MiNET
 
 		protected virtual void HandleLogin(McpeLogin message)
 		{
-			// Only one login!
-			if (!Monitor.TryEnter(_loginSyncLock)) return;
+			Stopwatch watch = new Stopwatch();
+			watch.Restart();
 
-			if (Username != null) return; // Already doing login
+			// Only one login!
+			lock (_loginSyncLock)
+			{
+				if (Username != null)
+				{
+					Log.ErrorFormat("Player {0} doing multiple logins on Level: {1}", Username, Level.LevelId);
+					return; // Already doing login
+				}
+				Username = message.username;
+			}
 
 			Log.InfoFormat("Login attempt by: {0}", message.username);
 
@@ -519,7 +541,12 @@ namespace MiNET
 
 			try
 			{
+				LastUpdatedTime = DateTime.UtcNow;
 				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
+				McpePlayerStatus mcpePlayerStatus = McpePlayerStatus.CreateObject();
+				mcpePlayerStatus.status = 0;
+				SendPackage(mcpePlayerStatus);
 
 				Username = message.username;
 				ClientId = message.clientId;
@@ -541,44 +568,50 @@ namespace MiNET
 
 				Level.EntityManager.AddEntity(null, this);
 
-				SendPackage(new McpePlayerStatus {status = 0});
 				SendStartGame();
+
 				SendSetSpawnPosition();
+
 				SendSetTime();
-				SendPackage(new McpeSetDifficulty {difficulty = (int) Level.Difficulty});
-				SendPackage(new McpeAdventureSettings {flags = Level.IsSurvival ? 0x20 : 0x80});
+
+				McpeSetDifficulty mcpeSetDifficulty = McpeSetDifficulty.CreateObject();
+				mcpeSetDifficulty.difficulty = (int) Level.Difficulty;
+				SendPackage(mcpeSetDifficulty);
+
+				McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
+				mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
+				SendPackage(mcpeAdventureSettings);
+
 				SendSetHealth();
 
-				SendPackage(new McpeSetEntityData
-				{
-					entityId = EntityId,
-					metadata = GetMetadata()
-				});
+				McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+				mcpeSetEntityData.entityId = EntityId;
+				mcpeSetEntityData.metadata = GetMetadata();
+				SendPackage(mcpeSetEntityData);
 
 				Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
-
-				SendPackage(new McpeContainerSetContent
-				{
-					windowId = 0,
-					slotData = Inventory.Slots,
-					hotbarData = Inventory.ItemHotbar
-				});
-
-				SendPackage(new McpeContainerSetContent
-				{
-					windowId = 0x78, // Armor windows ID
-					slotData = Inventory.Armor,
-					hotbarData = null
-				});
-
-				SendChunksForKnownPosition();
-
-				LastUpdatedTime = DateTime.UtcNow;
 			}
 			finally
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
+
+			McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
+			mcpeContainerSetContent.windowId = 0;
+			mcpeContainerSetContent.slotData = Inventory.Slots;
+			mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
+			SendPackage(mcpeContainerSetContent);
+
+			McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
+			containerSetContent.windowId = 0x78;
+			containerSetContent.slotData = Inventory.Armor;
+			containerSetContent.hotbarData = null;
+			SendPackage(containerSetContent);
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+
+			LastUpdatedTime = DateTime.UtcNow;
+			Log.InfoFormat("Login complete by: {0} in {1}ms", message.username, watch.ElapsedMilliseconds);
 		}
 
 		private object _disconnectSync = new object();
@@ -605,37 +638,33 @@ namespace MiNET
 			}
 
 			//HACK: But needed
-			PlayerNetworkSession value;
-			if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out value))
+			PlayerNetworkSession session;
+			if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 			{
-				value.Evicted = true;
+				session.Evicted = true;
+				session.Clean();
 			}
 
-			Log.InfoFormat("Disconnected player {0} {1}, reason: {2}", Username, EndPoint.Address, reason);
+			string levelId = Level == null ? "" : Level.LevelId;
+			Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
 		}
 
 		public virtual void InitializePlayer()
 		{
-			try
-			{
-				SendPackage(new McpePlayerStatus {status = 3});
+			McpePlayerStatus mcpePlayerStatus = McpePlayerStatus.CreateObject();
+			mcpePlayerStatus.status = 3;
+			SendPackage(mcpePlayerStatus);
 
-				SendPackage(new McpeRespawn
-				{
-					x = KnownPosition.X,
-					y = KnownPosition.Y,
-					z = KnownPosition.Z
-				});
+			McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
+			mcpeRespawn.x = KnownPosition.X;
+			mcpeRespawn.y = KnownPosition.Y;
+			mcpeRespawn.z = KnownPosition.Z;
+			SendPackage(mcpeRespawn);
 
-				//send time again
-				SendSetTime();
-				IsSpawned = true;
-			}
-			finally
-			{
-				//IsPerformingLoginSequence = false;
-				//Interlocked.Decrement(ref Server.ServerInfo.ConnectionsInConnectPhase);
-			}
+			//send time again
+			SendSetTime();
+			IsSpawned = true;
+			LastUpdatedTime = DateTime.UtcNow;
 		}
 
 
@@ -752,6 +781,7 @@ namespace MiNET
 				Yaw = message.yaw,
 				HeadYaw = message.headYaw
 			};
+
 			LastUpdatedTime = DateTime.UtcNow;
 
 			if (IsBot) return;
@@ -999,7 +1029,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleInteract(McpeInteract message)
 		{
-			Entity target = Level.EntityManager.GetEntity(message.targetEntityId);
+			Entity target = Level.GetEntity(message.targetEntityId);
 
 			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
 			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
@@ -1174,19 +1204,18 @@ namespace MiNET
 
 		private void SendStartGame()
 		{
-			SendPackage(new McpeStartGame
-			{
-				seed = -1,
-				generator = 1,
-				gamemode = (int) Level.GameMode,
-				entityId = EntityId,
-				spawnX = Level.SpawnPoint.X,
-				spawnY = Level.SpawnPoint.Y,
-				spawnZ = Level.SpawnPoint.Z,
-				x = KnownPosition.X,
-				y = KnownPosition.Y,
-				z = KnownPosition.Z
-			});
+			McpeStartGame mcpeStartGame = McpeStartGame.CreateObject();
+			mcpeStartGame.seed = -1;
+			mcpeStartGame.generator = 1;
+			mcpeStartGame.gamemode = (int) Level.GameMode;
+			mcpeStartGame.entityId = EntityId;
+			mcpeStartGame.spawnX = Level.SpawnPoint.X;
+			mcpeStartGame.spawnY = Level.SpawnPoint.Y;
+			mcpeStartGame.spawnZ = Level.SpawnPoint.Z;
+			mcpeStartGame.x = KnownPosition.X;
+			mcpeStartGame.y = KnownPosition.Y;
+			mcpeStartGame.z = KnownPosition.Z;
+			SendPackage(mcpeStartGame);
 		}
 
 		/// <summary>
@@ -1194,12 +1223,11 @@ namespace MiNET
 		/// </summary>
 		private void SendSetSpawnPosition()
 		{
-			SendPackage(new McpeSetSpawnPosition
-			{
-				x = Level.SpawnPoint.X,
-				y = (byte) Level.SpawnPoint.Y,
-				z = Level.SpawnPoint.Z
-			});
+			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
+			mcpeSetSpawnPosition.x = Level.SpawnPoint.X;
+			mcpeSetSpawnPosition.y = (byte) Level.SpawnPoint.Y;
+			mcpeSetSpawnPosition.z = Level.SpawnPoint.Z;
+			SendPackage(mcpeSetSpawnPosition);
 		}
 
 		private object _sendChunkSync = new object();
@@ -1211,17 +1239,22 @@ namespace MiNET
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
+			if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
+			{
+				Log.WarnFormat("Denied chunk, too little distance.");
+				return;
+			}
+
 			_currentChunkPosition = chunkPosition;
 
 			int packetCount = 0;
 
 			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 			{
-				{
-					McpeBatch batch = McpeBatch.CreateObject();
-					batch.SetEncodedMessage(chunk.Encode());
-					SendPackage(batch, sendDirect: true);
-				}
+				//McpeBatch batch = McpeBatch.CreateObject();
+				//batch.Source = "chunks";
+				//batch.SetEncodedMessage(chunk.Encode());
+				SendPackage(chunk, sendDirect: true);
 
 				if (!IsSpawned)
 				{
@@ -1262,7 +1295,9 @@ namespace MiNET
 
 		internal void SendSetHealth()
 		{
-			SendPackage(new McpeSetHealth {health = HealthManager.Hearts});
+			McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
+			mcpeSetHealth.health = HealthManager.Hearts;
+			SendPackage(mcpeSetHealth);
 		}
 
 		public void SendSetTime()
@@ -1407,7 +1442,7 @@ namespace MiNET
 
 		public void DetectLostConnection()
 		{
-			DetectLostConnections ping = new DetectLostConnections();
+			DetectLostConnections ping = DetectLostConnections.CreateObject();
 			SendPackage(ping);
 		}
 
@@ -1417,7 +1452,11 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package, bool sendDirect = false)
 		{
-			if (!IsConnected) return;
+			if (!IsConnected)
+			{
+				package.PutPool();
+				return;
+			}
 
 			var result = Server.PluginManager.PluginPacketHandler(package, false, this);
 			if (result != package) package.PutPool();
@@ -1440,8 +1479,6 @@ namespace MiNET
 
 		private void SendQueue(object sender)
 		{
-			if (!IsConnected) return;
-
 			Queue<Package> queue = _sendQueueNotConcurrent;
 
 			int messageCount = 0;
@@ -1470,11 +1507,12 @@ namespace MiNET
 				{
 					messageCount++;
 					stream.Write(bytes, 0, bytes.Length);
-					package.PutPool();
 				}
+				package.PutPool();
 			}
 
 			if (messageCount == 0) return;
+			if (!IsConnected) return;
 
 			McpeBatch batch = McpeBatch.CreateObject();
 			byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
@@ -1483,13 +1521,10 @@ namespace MiNET
 			batch.Encode();
 
 			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
-			//Server.SendPackage(EndPoint, messages, _mtuSize, ref _reliableMessageNumber);
 		}
 
 		public void SendMoveList(List<McpeMovePlayer> movePlayerPackages)
 		{
-			if (!IsConnected) return;
-
 			int messageCount = 0;
 
 			MemoryStream stream = new MemoryStream();
@@ -1506,9 +1541,12 @@ namespace MiNET
 				movePlayer.PutPool();
 			}
 
+			if (!IsConnected) return;
+
 			if (messageCount > 0)
 			{
 				McpeBatch batch = McpeBatch.CreateObject();
+				batch.Source = "moves";
 				byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
 				batch.payloadSize = buffer.Length;
 				batch.payload = buffer;

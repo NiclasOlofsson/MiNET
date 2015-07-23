@@ -23,6 +23,7 @@ namespace MiNET.Plugins
 		private readonly List<object> _plugins = new List<object>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
+        private readonly List<IPacketHandler> packetHandlers = new List<IPacketHandler>();
 		private readonly Dictionary<MethodInfo, CommandAttribute> _pluginCommands = new Dictionary<MethodInfo, CommandAttribute>();
 
 		public List<object> Plugins
@@ -39,13 +40,13 @@ namespace MiNET.Plugins
 
 		internal void LoadPlugins()
 		{
-			if (Config.GetProperty("PluginDisabled", false)) return;
+            if (Config.GetProperty("PluginDisabled", false)) return;
 
 			// Default it is the directory we are executing, and below.
 			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
 			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
-			//HACK: Make it possible to define multiple PATH;PATH;PATH
-
+            //HACK: Make it possible to define multiple PATH;PATH;PATH
+            
 			foreach (string dirPath in pluginDirectoryPaths.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries))
 			{
 				if (dirPath == null) continue;
@@ -142,30 +143,38 @@ namespace MiNET.Plugins
 		{
 			var methods = type.GetMethods();
 			foreach (MethodInfo method in methods)
-			{
-				{
-					PacketHandlerAttribute packetHandlerAttribute = Attribute.GetCustomAttribute(method, typeof (PacketHandlerAttribute), false) as PacketHandlerAttribute;
-					if (packetHandlerAttribute != null)
-					{
-						ParameterInfo[] parameters = method.GetParameters();
-						if (parameters.Length < 1) continue;
-						if (!parameters[0].ParameterType.IsSubclassOf(typeof (Package))) continue;
-						if (packetHandlerAttribute.PacketType == null) packetHandlerAttribute.PacketType = parameters[0].ParameterType;
+            {
+                PacketHandlerAttribute packetHandlerAttribute = Attribute.GetCustomAttribute(method, typeof(PacketHandlerAttribute), false) as PacketHandlerAttribute;
+                if (packetHandlerAttribute != null)
+                {
+                    ParameterInfo[] parameters = method.GetParameters();
+                    if (parameters.Length < 1) continue;
+                    if (!parameters[0].ParameterType.IsSubclassOf(typeof(Package))) continue;
+                    if (packetHandlerAttribute.PacketType == null) packetHandlerAttribute.PacketType = parameters[0].ParameterType;
 
-						if (Attribute.GetCustomAttribute(method, typeof (SendAttribute), false) != null)
-						{
-							_packetSendHandlerDictionary.Add(method, packetHandlerAttribute);
-						}
-						else
-						{
-							_packetHandlerDictionary.Add(method, packetHandlerAttribute);
-						}
-					}
-				}
-			}
+                    if (Attribute.GetCustomAttribute(method, typeof(SendAttribute), false) != null)
+                    {
+                        _packetSendHandlerDictionary.Add(method, packetHandlerAttribute);
+                    }
+                    else
+                    {
+                        _packetHandlerDictionary.Add(method, packetHandlerAttribute);
+                    }
+                }
+            }
 		}
 
-		internal void ExecuteStartup(MiNetServer server)
+        public void RegisterPacketHandler(IPacketHandler handler)
+        {
+            packetHandlers.Add(handler);
+        }
+
+        public void UnregisterPacketHandler(IPacketHandler handler)
+        {
+            packetHandlers.Remove(handler);
+        }
+
+        internal void ExecuteStartup(MiNetServer server)
 		{
 			foreach (object plugin in _plugins)
 			{
@@ -387,19 +396,33 @@ namespace MiNET.Plugins
 
 			try
 			{
-				Dictionary<MethodInfo, PacketHandlerAttribute> packetHandlers;
+                foreach(IPacketHandler handler in packetHandlers)
+                {
+                    if(! handler.GetPackageType().Equals(message.GetType()))
+                        continue;
+                    if(isReceiveHandler)
+                    {
+                        handler.OnReceive(message, player);
+                    }
+                    else
+                    {
+                        handler.OnSend(message, player);
+                    }
+                }
+
+				Dictionary<MethodInfo, PacketHandlerAttribute> inClassPacketHandlers;
 				if (isReceiveHandler)
 				{
-					packetHandlers = _packetHandlerDictionary;
+					inClassPacketHandlers = _packetHandlerDictionary;
 				}
 				else
 				{
-					packetHandlers = _packetSendHandlerDictionary;
+					inClassPacketHandlers = _packetSendHandlerDictionary;
 				}
 
-				if (packetHandlers == null) return message;
+				if (inClassPacketHandlers == null) return message;
 
-				foreach (var handler in packetHandlers)
+				foreach (var handler in inClassPacketHandlers)
 				{
 					if(handler.Value == null) continue;
 					if(handler.Key == null) continue;

@@ -13,6 +13,6 @@ namespace MiNET.Plugins
 
         Package OnSend(Package package, Player player);
 
-        Type GetPackageType();
+        List<Type> GetPackageTypes();
     }
 }

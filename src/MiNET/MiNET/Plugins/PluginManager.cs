@@ -396,9 +396,9 @@ namespace MiNET.Plugins
 
 			try
 			{
-                foreach(IPacketHandler handler in packetHandlers)
+                foreach (IPacketHandler handler in packetHandlers)
                 {
-                    if(! handler.GetPackageType().Equals(message.GetType()))
+                    if(handler == null || ! handler.GetPackageTypes().Contains(message.GetType()))
                         continue;
                     if(isReceiveHandler)
                     {

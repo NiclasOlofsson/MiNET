@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,36 +48,36 @@ namespace TestPlugin.MobHunt
 			entity.DespawnEntity();
 		}
 
-		protected override void BroadCastMovement(Player[] players, Player[] updatedPlayers)
-		{
-			if (updatedPlayers.Length == 0) return;
+		//protected override void BroadCastMovement(ConcurrentDictionary<long, Player> players, IEnumerable<KeyValuePair<long, Player>> updatedPlayers)
+		//{
+		//	//if (updatedPlayers.Length == 0) return;
 
-			var moveEntity = McpeMoveEntity.CreateObject(players.Count());
-			moveEntity.entities = new EntityLocations();
+		//	//var moveEntity = McpeMoveEntity.CreateObject(players.Count());
+		//	//moveEntity.entities = new EntityLocations();
 
-			//var rotateHead = McpeRotateHead.CreateObject(players.Count());
-			//rotateHead.entities = new EntityHeadRotations();
+		//	////var rotateHead = McpeRotateHead.CreateObject(players.Count());
+		//	////rotateHead.entities = new EntityHeadRotations();
 
-			foreach (var player in updatedPlayers)
-			{
-				Entity entity;
-				if (!_playerEntities.TryGetValue(player, out entity)) continue;
+		//	//foreach (var player in updatedPlayers)
+		//	//{
+		//	//	Entity entity;
+		//	//	if (!_playerEntities.TryGetValue(player, out entity)) continue;
 
-				entity.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
-				if (entity.EntityTypeId == 10)
-				{
-					//BUG: Duck has it's value reversed
-					entity.KnownPosition.Pitch = -player.KnownPosition.Pitch;
-				}
-				moveEntity.entities.Add(entity.EntityId, entity.KnownPosition);
-				//rotateHead.entities.Add(entity.EntityId, entity.KnownPosition);
-			}
+		//	//	entity.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
+		//	//	if (entity.EntityTypeId == 10)
+		//	//	{
+		//	//		//BUG: Duck has it's value reversed
+		//	//		entity.KnownPosition.Pitch = -player.KnownPosition.Pitch;
+		//	//	}
+		//	//	moveEntity.entities.Add(entity.EntityId, entity.KnownPosition);
+		//	//	//rotateHead.entities.Add(entity.EntityId, entity.KnownPosition);
+		//	//}
 
-			moveEntity.Encode();
-			//rotateHead.Encode();
+		//	//moveEntity.Encode();
+		//	////rotateHead.Encode();
 
-			new Task(() => RelayBroadcast(moveEntity)).Start();
-			//new Task(() => RelayBroadcast(rotateHead)).Start();
-		}
+		//	//new Task(() => RelayBroadcast(moveEntity)).Start();
+		//	////new Task(() => RelayBroadcast(rotateHead)).Start();
+		//}
 	}
 }

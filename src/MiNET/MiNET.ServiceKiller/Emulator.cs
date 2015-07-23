@@ -43,7 +43,7 @@ namespace MiNET.ServiceKiller
 					};
 					ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
-					Thread.Sleep(1);
+					Thread.Sleep(500);
 
 					i++;
 				}

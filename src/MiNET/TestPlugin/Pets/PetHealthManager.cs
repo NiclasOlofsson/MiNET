@@ -43,7 +43,7 @@ namespace TestPlugin.Pets
 					if (pet.Level.Random.Next(500) == 0)
 					{
 						pet.AttackTarget = (Player) source;
-						pet.RageTick = 20*3;
+						pet.RageTick = 20*2;
 						return;
 					}
 
@@ -59,7 +59,7 @@ namespace TestPlugin.Pets
 				else
 				{
 					// HAHA Steal IT!
-					if (pet.Level.Random.Next(30) == 0)
+					if (pet.Level.Random.Next(50) == 0)
 					{
 						pet.Owner = (Player) source;
 						pet.AttackTarget = null;
@@ -68,7 +68,7 @@ namespace TestPlugin.Pets
 					}
 
 					// Don't trust animals!
-					if (pet.Level.Random.Next(50) == 0)
+					if (pet.Level.Random.Next(30) == 0)
 					{
 						pet.AttackTarget = (Player) source;
 						pet.RageTick = 20*3;

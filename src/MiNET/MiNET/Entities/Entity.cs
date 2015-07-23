@@ -25,6 +25,7 @@ namespace MiNET.Entities
 
 		public string NameTag { get; set; }
 
+		public long Age { get; set; }
 		public double Height { get; set; }
 		public double Width { get; set; }
 		public double Length { get; set; }
@@ -63,8 +64,8 @@ namespace MiNET.Entities
 
 		public virtual void OnTick()
 		{
-			// Fire ticks
-			// damage ticks
+			Age++;
+
 			HealthManager.OnTick();
 		}
 

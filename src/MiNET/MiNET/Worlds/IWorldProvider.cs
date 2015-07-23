@@ -1,5 +1,4 @@
-﻿using MiNET.Net;
-using MiNET.Utils;
+﻿using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
@@ -10,8 +9,6 @@ namespace MiNET.Worlds
 		void Initialize();
 
 		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates);
-
-		McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates);
 
 		Vector3 GetSpawnPoint();
 

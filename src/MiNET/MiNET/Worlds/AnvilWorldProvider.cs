@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -167,38 +166,6 @@ namespace MiNET.Worlds
 				_chunkCache[chunkCoordinates] = chunk;
 
 				return chunk;
-			}
-		}
-
-		public McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates)
-		{
-			lock (_batchCache)
-			{
-				McpeBatch cachedChunk;
-				if (_batchCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
-
-				Log.WarnFormat("Cache-miss, generating full chunk {0},{1}", chunkCoordinates.X, chunkCoordinates.Z);
-
-				ChunkColumn chunk = GenerateChunkColumn(chunkCoordinates);
-
-				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
-				fullChunkData.chunkX = chunk.x;
-				fullChunkData.chunkZ = chunk.z;
-				fullChunkData.chunkData = chunk.GetBytes();
-				fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
-				byte[] bytes = fullChunkData.Encode();
-				fullChunkData.PutPool();
-
-				McpeBatch batch = McpeBatch.CreateObject();
-				batch.Source = "GenerateFullBatch";
-				byte[] buffer = Player.CompressBytes(bytes, CompressionLevel.Optimal);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-
-				_batchCache[chunkCoordinates] = batch;
-
-				return batch;
 			}
 		}
 

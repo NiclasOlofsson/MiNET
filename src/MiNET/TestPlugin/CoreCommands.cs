@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MiNET;
+using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -46,18 +47,18 @@ namespace TestPlugin
 				var players = level.GetSpawnedPlayers();
 				foreach (var player in players)
 				{
+					//player.AddPopup(new Popup()
+					//{
+					//	MessageType = MessageType.Tip,
+					//	Message = "This is a development server",
+					//	Duration = 20 * 4
+					//});
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
 						Message = "Restarts without notice frequently",
 						Duration = 20*5,
 						DisplayDelay = 20*1
-					});
-					player.AddPopup(new Popup()
-					{
-						MessageType = MessageType.Tip,
-						Message = "This is a development server",
-						Duration = 20*4
 					});
 				}
 			}
@@ -121,7 +122,7 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "gm")]
-		[Authorize(Users = "gurun")]
+		//[Authorize(Users = "gurun")]
 		public void GameMode(Player player, int gameMode)
 		{
 			player.GameMode = (GameMode) gameMode;
@@ -452,6 +453,13 @@ namespace TestPlugin
 			player.Level.BroadcastTextMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
 		}
 
+		[Command(Command = "nd")]
+		public void NoDamage(Player player)
+		{
+			player.HealthManager = player.HealthManager is NoDamageHealthManager ? new HealthManager(player) : new NoDamageHealthManager(player);
+		}
+
+
 		[Command(Command = "s")]
 		public void Stats(Player currentPlayer)
 		{
@@ -549,6 +557,18 @@ namespace TestPlugin
 			}
 			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
 			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
+		}
+	}
+
+	public class NoDamageHealthManager : HealthManager
+	{
+		public NoDamageHealthManager(Entity entity) : base(entity)
+		{
+		}
+
+		public override void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
+		{
+			base.TakeHit(source, 0, cause);
 		}
 	}
 }

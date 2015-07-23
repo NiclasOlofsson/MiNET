@@ -27,12 +27,14 @@ namespace MiNET
 		public int ErrorCount { get; set; }
 		public bool IsSlowClient { get; set; }
 		public bool Evicted { get; set; }
+		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
 		public int LastDatagramNumber { get; set; }
 
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
+			State = ConnectionState.Unconnected;
 			SyncRoot = new object();
 			SyncRootUpdate = new object();
 			ProcessSyncRoot = new object();

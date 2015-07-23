@@ -35,11 +35,6 @@ namespace MiNET.Worlds
 			return chunk;
 		}
 
-		public McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates)
-		{
-			return null;
-		}
-
 		public Vector3 GetSpawnPoint()
 		{
 			return new Vector3(50, 10, 50);

@@ -95,15 +95,12 @@ namespace MiNET.Worlds
 					}
 				}
 
+				// Cache
+				chunk.GetBatch();
 				_chunkCache[chunkCoordinates] = chunk;
 
 				return chunk;
 			}
-		}
-
-		public McpeBatch GenerateFullBatch(ChunkCoordinates chunkCoordinates)
-		{
-			return null;
 		}
 
 		public Vector3 GetSpawnPoint()

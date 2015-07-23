@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -145,22 +143,9 @@ namespace MiNET.Worlds
 			{
 				if (spawn)
 				{
-					foreach (var pair in Players)
-					{
-						Player targetPlayer = pair.Value;
-						if (!targetPlayer.IsSpawned) continue;
-						SendAddForPlayer(newPlayer, targetPlayer);
-						SendAddForPlayer(targetPlayer, newPlayer);
-					}
+					SpawnToAll(newPlayer);
 				}
 			}
-
-			//foreach (var targetPlayer in allPlayers)
-			//{
-			//	if (!targetPlayer.IsSpawned) continue;
-			//	SendAddForPlayer(newPlayer, targetPlayer);
-			//	SendAddForPlayer(targetPlayer, newPlayer);
-			//}
 
 			foreach (Entity entity in Entities.ToArray())
 			{
@@ -169,20 +154,8 @@ namespace MiNET.Worlds
 
 			//ThreadPool.QueueUserWorkItem(delegate(object state)
 			//{
-			//	foreach (var targetPlayer in allPlayers)
-			//	{
-			//		if (!targetPlayer.IsSpawned) continue;
-
-			//		if (spawn)
-			//		{
-			//			SendAddForPlayer(targetPlayer, newPlayer);
-			//		}
 			//	}
 			//});
-
-			//lock (Players)
-			//{
-			//	if (!Players.Contains(newPlayer)) Players.Add(newPlayer);
 
 			//	if (!string.IsNullOrEmpty(broadcastText))
 			//	{
@@ -193,6 +166,17 @@ namespace MiNET.Worlds
 			//}
 
 			//newPlayer.IsSpawned = true;
+		}
+
+		public void SpawnToAll(Player player)
+		{
+			foreach (var targetPlayer in Players.Values)
+			{
+				if (!targetPlayer.IsSpawned) continue;
+
+				SendAddForPlayer(player, targetPlayer);
+				SendAddForPlayer(targetPlayer, player);
+			}
 		}
 
 		public void SendAddForPlayer(Player receiver, Player player)
@@ -239,25 +223,31 @@ namespace MiNET.Worlds
 			receiver.SendPackage(mcpePlayerArmorEquipment);
 		}
 
-
 		public virtual void RemovePlayer(Player player, bool despawn = true)
 		{
 			Player removed;
 			if (Players.TryRemove(player.EntityId, out removed))
 			{
+				player.IsSpawned = false;
 				if (despawn)
 				{
-					foreach (var pair in Players)
-					{
-						Player targetPlayer = pair.Value;
-
-						SendRemoveForPlayer(targetPlayer, player);
-						SendRemoveForPlayer(player, targetPlayer);
-					}
+					DespawnFromAll(player);
 				}
 			}
 
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
+		}
+
+
+		public void DespawnFromAll(Player player)
+		{
+			foreach (var pair in Players)
+			{
+				Player targetPlayer = pair.Value;
+
+				SendRemoveForPlayer(targetPlayer, player);
+				SendRemoveForPlayer(player, targetPlayer);
+			}
 		}
 
 		public void HidePlayer(Player player, bool hide)
@@ -453,6 +443,7 @@ namespace MiNET.Worlds
 		private object _tickSync = new object();
 		private Stopwatch _tickTimer = new Stopwatch();
 		public long LastTickProcessingTime = 0;
+		public long AvarageTickProcessingTime = 50;
 
 		private void WorldTick(object sender)
 		{
@@ -462,8 +453,6 @@ namespace MiNET.Worlds
 			try
 			{
 				TickTime++;
-
-				Player[] players = Players.Values.ToArray();
 
 				if (IsWorldTimeStarted) CurrentWorldTime += 1.25;
 				if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
@@ -477,7 +466,7 @@ namespace MiNET.Worlds
 				}
 
 				// Block updates
-				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks.ToArray())
+				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks)
 				{
 					if (blockEvent.Value <= TickTime)
 					{
@@ -499,38 +488,36 @@ namespace MiNET.Worlds
 					entity.OnTick();
 				}
 
+				var players = Players.Values;
 				// Player tick
-				foreach (Player player in players)
+				foreach (var player in players)
 				{
 					if (player.IsSpawned) player.OnTick();
 				}
 
 				// Send player movements
-				//if (TickTime % 2 == 0)
-				{
-					Player[] updatedPlayers = GetUpdatedPlayers(players);
-					BroadCastMovement(players, updatedPlayers);
-				}
+				BroadCastMovement(players);
 
-				if (TickTime%100 == 0) // Every 5 seconds
-				{
-					Player[] staledPlayers = GetStaledPlayers(players);
-					if (staledPlayers.Any())
-					{
-						foreach (var p in staledPlayers)
-						{
-							ThreadPool.QueueUserWorkItem(delegate(object state)
-							{
-								Player player = (Player) state;
-								player.Disconnect("Too long inactivity.");
-							}, p);
-						}
-					}
-				}
+				//if (TickTime%100 == 0) // Every 5 seconds
+				//{
+				//	Player[] staledPlayers = GetStaledPlayers(players);
+				//	if (staledPlayers.Any())
+				//	{
+				//		foreach (var p in staledPlayers)
+				//		{
+				//			ThreadPool.QueueUserWorkItem(delegate(object state)
+				//			{
+				//				Player player = (Player) state;
+				//				player.Disconnect("Too long inactivity.");
+				//			}, p);
+				//		}
+				//	}
+				//}
 			}
 			finally
 			{
 				LastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
+				AvarageTickProcessingTime = ((AvarageTickProcessingTime*9) + _tickTimer.ElapsedMilliseconds)/10L;
 				Monitor.Exit(_tickSync);
 			}
 		}
@@ -548,13 +535,6 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private Player[] GetUpdatedPlayers(Player[] players)
-		{
-			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
-			long now = DateTime.UtcNow.Ticks;
-			return players.Where(player => ((now - player.LastUpdatedTime.Ticks) <= tickTime)).ToArray();
-		}
-
 		private Player[] GetStaledPlayers(Player[] players)
 		{
 			DateTime now = DateTime.UtcNow;
@@ -566,35 +546,40 @@ namespace MiNET.Worlds
 			}).ToArray();
 		}
 
-		protected virtual void BroadCastMovement(Player[] players, Player[] updatedPlayers)
+		protected virtual void BroadCastMovement(ICollection<Player> players)
 		{
-			if (updatedPlayers.Length == 0) return;
+			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
+			long now = DateTime.UtcNow.Ticks;
+
+			int numberOfReferences = players.Count;
 
 			List<McpeMovePlayer> moves = new List<McpeMovePlayer>();
-			foreach (var player in updatedPlayers)
+			foreach (var player in players)
 			{
-				PlayerLocation knownPosition = (PlayerLocation) player.KnownPosition.Clone();
+				if (((now - player.LastUpdatedTime.Ticks) <= tickTime))
 				{
-					//McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
-					McpeMovePlayer move = McpeMovePlayer.CreateObject(players.Length);
-					move.entityId = player.EntityId;
-					move.x = knownPosition.X;
-					move.y = knownPosition.Y + 1.62f;
-					move.z = knownPosition.Z;
-					move.yaw = knownPosition.Yaw;
-					move.pitch = knownPosition.Pitch;
-					move.headYaw = knownPosition.HeadYaw;
-					move.teleport = 0;
-					move.Encode(); // Optmized
+					PlayerLocation knownPosition = player.KnownPosition;
+					{
+						McpeMovePlayer move = McpeMovePlayer.CreateObject(numberOfReferences);
+						move.entityId = player.EntityId;
+						move.x = knownPosition.X;
+						move.y = knownPosition.Y + 1.62f;
+						move.z = knownPosition.Z;
+						move.yaw = knownPosition.Yaw;
+						move.pitch = knownPosition.Pitch;
+						move.headYaw = knownPosition.HeadYaw;
+						move.teleport = 0;
+						move.Encode(); // Optmized
 
-					moves.Add(move);
+						moves.Add(move);
+					}
 				}
 			}
 
 			List<Task> tasks = new List<Task>();
-			foreach (var p in players)
+			foreach (var player in players)
 			{
-				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(moves), p);
+				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(moves), player);
 				sendTask.Start();
 				tasks.Add(sendTask);
 			}
@@ -602,45 +587,49 @@ namespace MiNET.Worlds
 			Task.WaitAll(tasks.ToArray());
 		}
 
-
-		protected virtual void BroadCastMovement2(Player[] players, Player[] updatedPlayers)
+		protected virtual void BroadCastMovement(ConcurrentDictionary<long, Player> players)
 		{
-			if (updatedPlayers.Length == 0) return;
+			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
+			long now = DateTime.UtcNow.Ticks;
 
-			MemoryStream stream = new MemoryStream();
-			foreach (var player in updatedPlayers)
+			int numberOfReferences = players.Count;
+
+			List<McpeMovePlayer> moves = new List<McpeMovePlayer>();
+			foreach (var pair in players)
 			{
-				Player updatedPlayer = player;
-				var knownPosition = updatedPlayer.KnownPosition;
+				Player player = pair.Value;
+				if (((now - player.LastUpdatedTime.Ticks) <= tickTime))
 				{
-					McpeMovePlayer move = McpeMovePlayer.CreateObject();
-					move.entityId = updatedPlayer.EntityId;
-					move.x = knownPosition.X;
-					move.y = knownPosition.Y + 1.62f;
-					move.z = knownPosition.Z;
-					move.yaw = knownPosition.Yaw;
-					move.pitch = knownPosition.Pitch;
-					move.headYaw = knownPosition.HeadYaw;
-					move.teleport = 0;
-					var bytes = move.Encode(); // Optmized
-					stream.Write(bytes, 0, bytes.Length);
-					move.PutPool();
+					PlayerLocation knownPosition = player.KnownPosition;
+					{
+						McpeMovePlayer move = McpeMovePlayer.CreateObject(numberOfReferences);
+						move.entityId = player.EntityId;
+						move.x = knownPosition.X;
+						move.y = knownPosition.Y + 1.62f;
+						move.z = knownPosition.Z;
+						move.yaw = knownPosition.Yaw;
+						move.pitch = knownPosition.Pitch;
+						move.headYaw = knownPosition.HeadYaw;
+						move.teleport = 0;
+						move.Encode(); // Optmized
+
+						moves.Add(move);
+					}
 				}
 			}
 
-			McpeBatch batch = McpeBatch.CreateObject(players.Length);
-			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
-
-			foreach (var p in players)
+			List<Task> tasks = new List<Task>();
+			foreach (var kv in players)
 			{
-				Player player = p;
-				Task sendTask = new Task(delegate { player.SendPackage(batch, true); });
+				Player p = kv.Value;
+				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(moves), p);
 				sendTask.Start();
+				tasks.Add(sendTask);
 			}
+
+			//Task.WaitAll(tasks.ToArray());
 		}
+
 
 		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)
 		{
@@ -692,11 +681,10 @@ namespace MiNET.Worlds
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					McpeBatch chunk = _worldProvider.GenerateFullBatch(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
+					McpeBatch chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2)).GetBatch();
 					chunksUsed.Add(pair.Key, chunk);
 
 					McpeBatch sendChunk = McpeBatch.CreateObject();
-					sendChunk.Source = "GenerateChunks";
 					sendChunk.SetEncodedMessage(chunk.Encode());
 
 					yield return sendChunk;
@@ -707,49 +695,52 @@ namespace MiNET.Worlds
 		}
 
 
-		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Package<T>, new()
-		{
-			RelayBroadcast(null, sendList, message);
-		}
-
 		public void RelayBroadcast<T>(T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, GetSpawnedPlayers(), message);
+			RelayBroadcast(null, Players, message);
 		}
 
 		public void RelayBroadcast<T>(Entity source, T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(source, GetSpawnedPlayers(), message);
+			RelayBroadcast(source, Players, message);
 		}
 
 		public void RelayBroadcast<T>(Entity source, Player[] sendList, T message) where T : Package<T>, new()
 		{
+			RelayBroadcast(source, new ConcurrentDictionary<long, Player>(sendList.ToDictionary(p => p.EntityId)), message);
+		}
+
+		public void RelayBroadcast<T>(Entity source, ConcurrentDictionary<long, Player> sendList, T message) where T : Package<T>, new()
+		{
+			if (message == null) return;
+
 			if (!message.IsPooled)
 			{
 				message.MakePoolable();
 			}
 
-			if (sendList.Length == 0)
+			if (sendList == null || sendList.Count == 0)
 			{
 				message.PutPool();
 				return;
 			}
 
-			if (message.ReferenceCounter == 1 && sendList.Length > 1)
+			var list = sendList.Values;
+
+			if (message.ReferenceCounter == 1 && list.Count > 1)
 			{
-				message.AddReferences(sendList.Length - 1);
+				message.AddReferences(list.Count - 1);
 			}
 
 			if (message.IsPooled) message.Encode(); // In case forgotten during create
 
-			foreach (var player in sendList)
+			foreach (var player in list)
 			{
 				if (source != null && player == source)
 				{
 					message.PutPool();
 					continue;
 				}
-
 				player.SendPackage(message);
 			}
 		}

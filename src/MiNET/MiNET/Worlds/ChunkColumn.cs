@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using fNbt;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -128,7 +130,33 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public byte[] GetBytes()
+		private McpeBatch _cachedBatch = null;
+
+		public McpeBatch GetBatch()
+		{
+			if (_cache != null && _cachedBatch != null) return _cachedBatch;
+
+			McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+			fullChunkData.chunkX = x;
+			fullChunkData.chunkZ = z;
+			fullChunkData.chunkData = GetBytes();
+			fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
+			byte[] bytes = fullChunkData.Encode();
+			fullChunkData.PutPool();
+
+			McpeBatch batch = McpeBatch.CreateObject();
+			byte[] buffer = Player.CompressBytes(bytes, CompressionLevel.Optimal);
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode();
+
+			_cachedBatch = batch;
+
+			return batch;
+		}
+
+
+		private byte[] GetBytes()
 		{
 			if (_cache != null) return _cache;
 

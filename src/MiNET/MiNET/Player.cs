@@ -24,6 +24,7 @@ namespace MiNET
 
 		public MiNetServer Server { get; private set; }
 		public IPEndPoint EndPoint { get; private set; }
+		public PlayerNetworkSession NetworkSession { get; set; }
 
 		private int _mtuSize;
 		private int _reliableMessageNumber;
@@ -191,7 +192,6 @@ namespace MiNET
 			else if (typeof (McpeLogin) == message.GetType())
 			{
 				HandleLogin((McpeLogin) message);
-				//ThreadPool.QueueUserWorkItem(state => HandleLogin((McpeLogin) message));
 			}
 
 			else if (typeof (McpeMovePlayer) == message.GetType())
@@ -206,7 +206,7 @@ namespace MiNET
 
 			else if (typeof (McpeRespawn) == message.GetType())
 			{
-				ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn((McpeRespawn) message); });
+				HandleRespawn((McpeRespawn) message);
 			}
 
 			else if (typeof (McpeTileEntityData) == message.GetType())
@@ -239,12 +239,13 @@ namespace MiNET
 			}
 			else
 			{
-				Log.WarnFormat("Package (0x{0:x2}) timer not started.", message.Id);
+				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
 			}
 		}
 
 		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
 		{
+			NetworkSession.State = ConnectionState.Connected;
 			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
 		}
 
@@ -373,63 +374,11 @@ namespace MiNET
 			SendChunksForKnownPosition();
 		}
 
-		/// <summary>
-		///     Handles the respawn.
-		/// </summary>
-		/// <param name="msg">The MSG.</param>
-		protected virtual void HandleRespawn(McpeRespawn msg)
+		private void SendAdventureSettings()
 		{
-			ServerInfo serverInfo = Server.ServerInfo;
-			try
-			{
-				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
-				// reset all health states
-				HealthManager.ResetHealth();
-
-				// send teleport to spawn
-				KnownPosition = new PlayerLocation
-				{
-					X = Level.SpawnPoint.X,
-					Y = Level.SpawnPoint.Y,
-					Z = Level.SpawnPoint.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91
-				};
-
-				SendSetHealth();
-
-				McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
-				mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
-				SendPackage(mcpeAdventureSettings);
-
-				McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
-				mcpeContainerSetContent.windowId = 0;
-				mcpeContainerSetContent.slotData = Inventory.Slots;
-				mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
-				SendPackage(mcpeContainerSetContent);
-
-				McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
-				containerSetContent.windowId = 0x78;
-				containerSetContent.slotData = Inventory.Armor;
-				containerSetContent.hotbarData = null;
-				SendPackage(containerSetContent);
-
-				BroadcastSetEntityData();
-
-				// Broadcast spawn to all
-				Level.AddPlayer(this);
-				IsSpawned = true;
-
-				SendMovePlayer();
-
-				Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
-			}
-			finally
-			{
-				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
-			}
+			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
+			mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
+			SendPackage(mcpeAdventureSettings);
 		}
 
 		/// <summary>
@@ -511,21 +460,21 @@ namespace MiNET
 
 			var serverInfo = Server.ServerInfo;
 
-			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
-			//{
-			//	if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
-			//	{
-			//		Disconnect("We are performance testing.\nToo many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
-			//		return;
-			//	}
+			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
+			{
+				if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
+				{
+					Disconnect("Too many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
+					return;
+				}
 
-			//	// Use for loadbalance only right now.
-			//	//if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
-			//	//{
-			//	//	Disconnect("We are performance testing.\nToo many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
-			//	//	return;
-			//	//}
-			//}
+				// Use for loadbalance only right now.
+				if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
+				{
+					Disconnect("Too many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
+					return;
+				}
+			}
 
 			if (message.username == null || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$") || message.username.Trim().Length == 0)
 			{
@@ -541,12 +490,9 @@ namespace MiNET
 
 			try
 			{
-				LastUpdatedTime = DateTime.UtcNow;
 				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-				McpePlayerStatus mcpePlayerStatus = McpePlayerStatus.CreateObject();
-				mcpePlayerStatus.status = 0;
-				SendPackage(mcpePlayerStatus);
+				SendPlayerStatus(0);
 
 				Username = message.username;
 				ClientId = message.clientId;
@@ -555,6 +501,8 @@ namespace MiNET
 
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
+
+				Level.EntityManager.AddEntity(null, this);
 
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
@@ -566,94 +514,44 @@ namespace MiNET
 
 				// Start game
 
-				Level.EntityManager.AddEntity(null, this);
-
 				SendStartGame();
 
 				SendSetSpawnPosition();
 
 				SendSetTime();
 
-				McpeSetDifficulty mcpeSetDifficulty = McpeSetDifficulty.CreateObject();
-				mcpeSetDifficulty.difficulty = (int) Level.Difficulty;
-				SendPackage(mcpeSetDifficulty);
+				SendSetDificulty();
 
-				McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
-				mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
-				SendPackage(mcpeAdventureSettings);
+				SendAdventureSettings();
 
 				SendSetHealth();
 
-				McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				mcpeSetEntityData.entityId = EntityId;
-				mcpeSetEntityData.metadata = GetMetadata();
-				SendPackage(mcpeSetEntityData);
+				SendSetEntityData();
 
-				Level.AddPlayer(this, string.Format("{0} joined the game!", Username));
+				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), false);
+
+				LastUpdatedTime = DateTime.UtcNow;
+
+				SendPlayerInventory();
+
+				ThreadPool.QueueUserWorkItem(delegate(object state)
+				{
+					Level.SpawnToAll(this);
+					SendChunksForKnownPosition();
+				});
+
+				LastUpdatedTime = DateTime.UtcNow;
+				Log.InfoFormat("Login complete by: {0} in {1}ms", message.username, watch.ElapsedMilliseconds);
 			}
 			finally
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
-
-			McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
-			mcpeContainerSetContent.windowId = 0;
-			mcpeContainerSetContent.slotData = Inventory.Slots;
-			mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
-			SendPackage(mcpeContainerSetContent);
-
-			McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
-			containerSetContent.windowId = 0x78;
-			containerSetContent.slotData = Inventory.Armor;
-			containerSetContent.hotbarData = null;
-			SendPackage(containerSetContent);
-
-			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
-
-			LastUpdatedTime = DateTime.UtcNow;
-			Log.InfoFormat("Login complete by: {0} in {1}ms", message.username, watch.ElapsedMilliseconds);
-		}
-
-		private object _disconnectSync = new object();
-
-		public void Disconnect(string reason)
-		{
-			if (!Monitor.TryEnter(_disconnectSync)) return;
-			if (!IsConnected) return;
-
-			if (IsSpawned)
-			{
-				DespawnEntity();
-
-				McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-				disconnect.message = reason;
-				SendPackage(disconnect, true);
-
-				IsSpawned = false;
-			}
-
-			if (IsConnected)
-			{
-				IsConnected = false;
-			}
-
-			//HACK: But needed
-			PlayerNetworkSession session;
-			if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
-			{
-				session.Evicted = true;
-				session.Clean();
-			}
-
-			string levelId = Level == null ? "" : Level.LevelId;
-			Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
 		}
 
 		public virtual void InitializePlayer()
 		{
-			McpePlayerStatus mcpePlayerStatus = McpePlayerStatus.CreateObject();
-			mcpePlayerStatus.status = 3;
-			SendPackage(mcpePlayerStatus);
+			SendPlayerStatus(3);
 
 			McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
 			mcpeRespawn.x = KnownPosition.X;
@@ -667,11 +565,131 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 		}
 
+		protected virtual void HandleRespawn(McpeRespawn msg)
+		{
+			ServerInfo serverInfo = Server.ServerInfo;
+			try
+			{
+				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-		/// <summary>
-		///     Handles the message.
-		/// </summary>
-		/// <param name="message">The message.</param>
+				// reset all health states
+				HealthManager.ResetHealth();
+
+				// send teleport to spawn
+				KnownPosition = new PlayerLocation
+				{
+					X = Level.SpawnPoint.X,
+					Y = Level.SpawnPoint.Y,
+					Z = Level.SpawnPoint.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91,
+				};
+
+				SendSetHealth();
+
+				SendAdventureSettings();
+
+				SendPlayerInventory();
+
+				BroadcastSetEntityData();
+
+				ThreadPool.QueueUserWorkItem(delegate(object state)
+				{
+					Level.SpawnToAll(this);
+					SendChunksForKnownPosition();
+				});
+
+				IsSpawned = true;
+
+				SendMovePlayer();
+
+				Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
+			}
+			finally
+			{
+				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+			}
+		}
+
+		public void SendSetEntityData()
+		{
+			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			mcpeSetEntityData.entityId = EntityId;
+			mcpeSetEntityData.metadata = GetMetadata();
+			SendPackage(mcpeSetEntityData);
+		}
+
+		public void SendSetDificulty()
+		{
+			McpeSetDifficulty mcpeSetDifficulty = McpeSetDifficulty.CreateObject();
+			mcpeSetDifficulty.difficulty = (int) Level.Difficulty;
+			SendPackage(mcpeSetDifficulty);
+		}
+
+		public void SendPlayerInventory()
+		{
+			McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
+			mcpeContainerSetContent.windowId = 0;
+			mcpeContainerSetContent.slotData = Inventory.Slots;
+			mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
+			SendPackage(mcpeContainerSetContent);
+
+			McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
+			containerSetContent.windowId = 0x78;
+			containerSetContent.slotData = Inventory.Armor;
+			containerSetContent.hotbarData = null;
+			SendPackage(containerSetContent);
+		}
+
+		public void SendPlayerStatus(int status)
+		{
+			McpePlayerStatus mcpePlayerStatus = McpePlayerStatus.CreateObject();
+			mcpePlayerStatus.status = status;
+			SendPackage(mcpePlayerStatus);
+		}
+
+		private object _disconnectSync = new object();
+
+		public virtual void Disconnect(string reason)
+		{
+			if (!Monitor.TryEnter(_disconnectSync)) return;
+			try
+			{
+				if (!IsConnected) return;
+
+				DespawnEntity();
+				Level.RemovePlayer(this);
+
+				McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+				disconnect.message = reason;
+				SendPackage(disconnect, true);
+
+				if (IsConnected)
+				{
+					IsConnected = false;
+				}
+
+				//HACK: But needed
+				PlayerNetworkSession session;
+				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
+				{
+					NetworkSession = null;
+					session.Player = null;
+					session.State = ConnectionState.Unconnected;
+					session.Evicted = true;
+					session.Clean();
+				}
+
+				string levelId = Level == null ? "" : Level.LevelId;
+				Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
+			}
+			finally
+			{
+				Monitor.Exit(_disconnectSync);
+			}
+		}
+
 		protected virtual void HandleMessage(McpeText message)
 		{
 			string text = message.message;
@@ -803,7 +821,7 @@ namespace MiNET
 			//	});
 			//}
 
-			SendChunksForKnownPosition();
+			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
 		}
 
 		/// <summary>
@@ -1236,33 +1254,37 @@ namespace MiNET
 		{
 			if (!Monitor.TryEnter(_sendChunkSync)) return;
 
-			var chunkPosition = new ChunkCoordinates(KnownPosition);
-			if (IsSpawned && _currentChunkPosition == chunkPosition) return;
-
-			if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
+			try
 			{
-				Log.WarnFormat("Denied chunk, too little distance.");
-				return;
-			}
+				var chunkPosition = new ChunkCoordinates(KnownPosition);
+				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-			_currentChunkPosition = chunkPosition;
+				//if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
+				//{
+				//	Log.DebugFormat("Denied chunk, too little distance.");
+				//	return;
+				//}
 
-			int packetCount = 0;
+				_currentChunkPosition = chunkPosition;
 
-			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
-			{
-				//McpeBatch batch = McpeBatch.CreateObject();
-				//batch.Source = "chunks";
-				//batch.SetEncodedMessage(chunk.Encode());
-				SendPackage(chunk, sendDirect: true);
+				int packetCount = 0;
 
-				if (!IsSpawned)
+				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-					if (packetCount++ == 56)
+					SendPackage(chunk, sendDirect: true);
+
+					if (!IsSpawned)
 					{
-						InitializePlayer();
+						if (packetCount++ == 56)
+						{
+							InitializePlayer();
+						}
 					}
 				}
+			}
+			finally
+			{
+				Monitor.Exit(_sendChunkSync);
 			}
 		}
 
@@ -1328,40 +1350,62 @@ namespace MiNET
 		{
 			base.OnTick();
 
+			if (Username.Equals("gurun"))
+			{
+				Popup popup = new Popup
+				{
+					Duration = 1,
+					MessageType = MessageType.Tip,
+					Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
+				};
+
+				AddPopup(popup);
+			}
+
 			bool hasDisplayedPopup = false;
 			bool hasDisplayedTio = false;
-			lock (Popups)
+			//if (Level.TickTime%3 == 0)
 			{
-				foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
+				lock (Popups)
 				{
-					if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
+					foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
 					{
-						Popups.Remove(popup);
-						continue;
-					}
-
-					if (popup.CurrentTick > popup.DisplayDelay)
-					{
-						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
+						if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
 						{
-							SendMessage(popup.Message, type: popup.MessageType);
-							hasDisplayedPopup = true;
+							Popups.Remove(popup);
+							continue;
 						}
-						if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
-						{
-							SendMessage(popup.Message, type: popup.MessageType);
-							hasDisplayedTio = true;
-						}
-					}
 
-					popup.CurrentTick++;
+						if (popup.CurrentTick > popup.DisplayDelay)
+						{
+							if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
+							{
+								SendMessage(popup.Message, type: popup.MessageType);
+								hasDisplayedPopup = true;
+							}
+							if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
+							{
+								SendMessage(popup.Message, type: popup.MessageType);
+								hasDisplayedTio = true;
+							}
+						}
+
+						popup.CurrentTick++;
+					}
 				}
 			}
 		}
 
 		public void AddPopup(Popup popup)
 		{
-			lock (Popups) Popups.Add(popup);
+			lock (Popups)
+			{
+				if (popup.Id == 0) popup.Id = popup.Message.GetHashCode();
+				var exist = Popups.FirstOrDefault(pop => pop.Id == popup.Id);
+				if (exist != null) Popups.Remove(exist);
+
+				Popups.Add(popup);
+			}
 		}
 
 		public void ClearPopups()
@@ -1406,8 +1450,8 @@ namespace MiNET
 
 		public override void DespawnEntity()
 		{
-			//IsSpawned = false;
-			Level.RemovePlayer(this);
+			IsSpawned = false;
+			Level.DespawnFromAll(this);
 		}
 
 		public virtual void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)

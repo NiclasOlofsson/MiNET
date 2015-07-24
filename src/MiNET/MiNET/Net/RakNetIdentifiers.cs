@@ -48,16 +48,16 @@
 		ID_CONNECTED_PING = 0x00,
 
 		/// Ping from an unconnected system. Reply but do not update timestamps. (internal use only)
-		ID_UNCONNECTED_PING,
+		ID_UNCONNECTED_PING = 0x01,
 
 		/// Ping from an unconnected system. Only reply if we have open connections. Do not update timestamps. (internal use only)
-		ID_UNCONNECTED_PING_OPEN_CONNECTIONS,
+		ID_UNCONNECTED_PING_OPEN_CONNECTIONS = 0x02,
 
 		/// Pong from a connected system. Update timestamps (internal use only)
-		ID_CONNECTED_PONG,
+		ID_CONNECTED_PONG = 0x03,
 
 		/// A reliable packet to detect lost connections (internal use only)
-		ID_DETECT_LOST_CONNECTIONS,
+		ID_DETECT_LOST_CONNECTIONS = 0x04,
 
 		/// C2S: Initial query: Header(1), OfflineMesageID(16), Protocol number(1), Pad(toMTU), sent with no fragment set.
 		/// If protocol fails on server, returns ID_INCOMPATIBLE_PROTOCOL_VERSION to client
@@ -79,24 +79,24 @@
 		ID_CONNECTION_REQUEST = 0x09,
 
 		/// RakPeer - Remote system requires secure connections, pass a public key to RakPeerInterface::Connect()
-		ID_REMOTE_SYSTEM_REQUIRES_PUBLIC_KEY,
+		ID_REMOTE_SYSTEM_REQUIRES_PUBLIC_KEY = 0x0a,
 
 		/// RakPeer - We passed a public key to RakPeerInterface::Connect(), but the other system did not have security turned on
-		ID_OUR_SYSTEM_REQUIRES_SECURITY,
+		ID_OUR_SYSTEM_REQUIRES_SECURITY = 0x0b,
 
 		/// RakPeer - Wrong public key passed to RakPeerInterface::Connect()
-		ID_PUBLIC_KEY_MISMATCH,
+		ID_PUBLIC_KEY_MISMATCH = 0x0c,
 
 		/// RakPeer - Same as ID_ADVERTISE_SYSTEM, but intended for internal use rather than being passed to the user.
 		/// Second byte indicates type. Used currently for NAT punchthrough for receiver port advertisement. See ID_NAT_ADVERTISE_RECIPIENT_PORT
-		ID_OUT_OF_BAND_INTERNAL,
+		ID_OUT_OF_BAND_INTERNAL = 0x0d,
 
 		/// If RakPeerInterface::Send() is called where PacketReliability contains _WITH_ACK_RECEIPT, then on a later call to
 		/// RakPeerInterface::Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS. The message will be 5 bytes long,
 		/// and bytes 1-4 inclusive will contain a number in native order containing a number that identifies this message.
 		/// This number will be returned by RakPeerInterface::Send() or RakPeerInterface::SendList(). ID_SND_RECEIPT_ACKED means that
 		/// the message arrived
-		ID_SND_RECEIPT_ACKED,
+		ID_SND_RECEIPT_ACKED = 0x0e,
 
 		/// If RakPeerInterface::Send() is called where PacketReliability contains _WITH_ACK_RECEIPT, then on a later call to
 		/// RakPeerInterface::Receive() you will get ID_SND_RECEIPT_ACKED or ID_SND_RECEIPT_LOSS. The message will be 5 bytes long,
@@ -104,13 +104,13 @@
 		/// will be returned by RakPeerInterface::Send() or RakPeerInterface::SendList(). ID_SND_RECEIPT_LOSS means that an ack for the
 		/// message did not arrive (it may or may not have been delivered, probably not). On disconnect or shutdown, you will not get
 		/// ID_SND_RECEIPT_LOSS for unsent messages, you should consider those messages as all lost.
-		ID_SND_RECEIPT_LOSS,
+		ID_SND_RECEIPT_LOSS = 0x0f,
 		//
 		// USER TYPES - DO NOT CHANGE THESE
 		//
 
 		/// RakPeer - In a client/server environment, our connection request to the server has been accepted.
-		ID_CONNECTION_REQUEST_ACCEPTED,
+		ID_CONNECTION_REQUEST_ACCEPTED = 0x10,
 
 		/// RakPeer - Sent to the player when a connection request cannot be completed due to inability to connect.
 		ID_CONNECTION_ATTEMPT_FAILED,

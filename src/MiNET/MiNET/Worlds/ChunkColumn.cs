@@ -149,6 +149,7 @@ namespace MiNET.Worlds
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();
+			batch.MarkPermanent();
 
 			_cachedBatch = batch;
 

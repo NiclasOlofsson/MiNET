@@ -615,7 +615,7 @@ namespace MiNET
 		public void SendSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = EntityId;
+			mcpeSetEntityData.entityId = 0;
 			mcpeSetEntityData.metadata = GetMetadata();
 			SendPackage(mcpeSetEntityData);
 		}
@@ -656,9 +656,14 @@ namespace MiNET
 			if (!Monitor.TryEnter(_disconnectSync)) return;
 			try
 			{
+				if (_sendTicker != null)
+				{
+					_sendTicker.Dispose();
+					_sendTicker = null;
+				}
+
 				if (!IsConnected) return;
 
-				DespawnEntity();
 				Level.RemovePlayer(this);
 
 				McpeDisconnect disconnect = McpeDisconnect.CreateObject();
@@ -801,8 +806,6 @@ namespace MiNET
 			};
 
 			LastUpdatedTime = DateTime.UtcNow;
-
-			if (IsBot) return;
 
 			//if (Level.Random.Next(0, 5) == 0)
 			//{
@@ -1226,7 +1229,7 @@ namespace MiNET
 			mcpeStartGame.seed = -1;
 			mcpeStartGame.generator = 1;
 			mcpeStartGame.gamemode = (int) Level.GameMode;
-			mcpeStartGame.entityId = EntityId;
+			mcpeStartGame.entityId = 0;
 			mcpeStartGame.spawnX = Level.SpawnPoint.X;
 			mcpeStartGame.spawnY = Level.SpawnPoint.Y;
 			mcpeStartGame.spawnZ = Level.SpawnPoint.Z;
@@ -1259,11 +1262,11 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				//if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
-				//{
-				//	Log.DebugFormat("Denied chunk, too little distance.");
-				//	return;
-				//}
+				if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
+				{
+					Log.DebugFormat("Denied chunk, too little distance.");
+					return;
+				}
 
 				_currentChunkPosition = chunkPosition;
 
@@ -1354,6 +1357,7 @@ namespace MiNET
 			{
 				Popup popup = new Popup
 				{
+					Priority = -10,
 					Duration = 1,
 					MessageType = MessageType.Tip,
 					Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
@@ -1362,35 +1366,63 @@ namespace MiNET
 				AddPopup(popup);
 			}
 
+			lock (Popups)
+			{
+				if (_currentPopup != null) TickPopup(_currentPopup);
+				if (_currentTip != null) TickPopup(_currentTip);
+
+				foreach (var popup in Popups)
+				{
+					popup.CurrentTick++;
+				}
+			}
+		}
+
+		private Popup _currentPopup = null;
+		private Popup _currentTip = null;
+
+		private void TickPopup(Popup popup)
+		{
+			if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
+			{
+				RecalculatePopus();
+				return;
+			}
+
+			if (popup.CurrentTick >= popup.DisplayDelay)
+			{
+				SendMessage(popup.Message, type: popup.MessageType);
+			}
+		}
+
+		private void RecalculatePopus()
+		{
 			bool hasDisplayedPopup = false;
 			bool hasDisplayedTio = false;
-			//if (Level.TickTime%3 == 0)
+			lock (Popups)
 			{
-				lock (Popups)
+				foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
 				{
-					foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
+					if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
 					{
-						if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
-						{
-							Popups.Remove(popup);
-							continue;
-						}
+						Popups.Remove(popup);
+						if (popup == _currentPopup) _currentPopup = null;
+						if (popup == _currentTip) _currentTip = null;
+						continue;
+					}
 
-						if (popup.CurrentTick > popup.DisplayDelay)
+					if (popup.CurrentTick >= popup.DisplayDelay)
+					{
+						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
 						{
-							if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
-							{
-								SendMessage(popup.Message, type: popup.MessageType);
-								hasDisplayedPopup = true;
-							}
-							if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
-							{
-								SendMessage(popup.Message, type: popup.MessageType);
-								hasDisplayedTio = true;
-							}
+							_currentPopup = popup;
+							hasDisplayedPopup = true;
 						}
-
-						popup.CurrentTick++;
+						if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
+						{
+							_currentTip = popup;
+							hasDisplayedTio = true;
+						}
 					}
 				}
 			}
@@ -1405,12 +1437,17 @@ namespace MiNET
 				if (exist != null) Popups.Remove(exist);
 
 				Popups.Add(popup);
+				RecalculatePopus();
 			}
 		}
 
 		public void ClearPopups()
 		{
-			lock (Popups) Popups.Clear();
+			lock (Popups)
+			{
+				Popups.Clear();
+				RecalculatePopus();
+			}
 		}
 
 		public override void Knockback(Vector3 velocity)
@@ -1496,28 +1533,35 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package, bool sendDirect = false)
 		{
+			if (package == null) return;
+
 			if (!IsConnected)
 			{
 				package.PutPool();
 				return;
 			}
 
-			var result = Server.PluginManager.PluginPacketHandler(package, false, this);
-			if (result != package) package.PutPool();
-			package = result;
+			bool isBatch = package is McpeBatch;
+
+			if (!isBatch)
+			{
+				var result = Server.PluginManager.PluginPacketHandler(package, false, this);
+				if (result != package) package.PutPool();
+				package = result;
+			}
 
 			if (package == null) return;
 
-			if (IsSpawned && !sendDirect)
+			if (!IsSpawned || sendDirect || isBatch)
+			{
+				Server.SendPackage(this, new List<Package>(new[] {package}), _mtuSize, ref _reliableMessageNumber);
+			}
+			else
 			{
 				lock (_queueSync)
 				{
 					_sendQueueNotConcurrent.Enqueue(package);
 				}
-			}
-			else
-			{
-				Server.SendPackage(this, new List<Package>(new[] {package}), _mtuSize, ref _reliableMessageNumber);
 			}
 		}
 
@@ -1567,37 +1611,26 @@ namespace MiNET
 			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 		}
 
-		public void SendMoveList(List<McpeMovePlayer> movePlayerPackages)
+		private object _sendMoveListSync = new object();
+		private DateTime _lastMoveListSendTime = DateTime.UtcNow;
+
+		public void SendMoveList(McpeBatch batch, DateTime sendTime)
 		{
-			int messageCount = 0;
-
-			MemoryStream stream = new MemoryStream();
-
-			foreach (var movePlayer in movePlayerPackages)
+			if (sendTime < _lastMoveListSendTime || !Monitor.TryEnter(_sendMoveListSync))
 			{
-				if (movePlayer.entityId != EntityId)
-				{
-					messageCount++;
-					byte[] bytes = movePlayer.Encode();
-					stream.Write(bytes, 0, bytes.Length);
-				}
-
-				movePlayer.PutPool();
+				batch.PutPool();
+				return;
 			}
 
-			if (!IsConnected) return;
+			_lastMoveListSendTime = sendTime;
 
-			if (messageCount > 0)
+			try
 			{
-				McpeBatch batch = McpeBatch.CreateObject();
-				batch.Source = "moves";
-				byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-
 				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
-				//SendPackage(batch, true);
+			}
+			finally
+			{
+				Monitor.Exit(_sendMoveListSync);
 			}
 		}
 	}

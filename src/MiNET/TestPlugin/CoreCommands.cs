@@ -47,12 +47,13 @@ namespace TestPlugin
 				var players = level.GetSpawnedPlayers();
 				foreach (var player in players)
 				{
-					//player.AddPopup(new Popup()
-					//{
-					//	MessageType = MessageType.Tip,
-					//	Message = "This is a development server",
-					//	Duration = 20 * 4
-					//});
+					player.AddPopup(new Popup()
+					{
+						MessageType = MessageType.Tip,
+						Message = "This is a development server",
+						Duration = 20*4
+					});
+
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,

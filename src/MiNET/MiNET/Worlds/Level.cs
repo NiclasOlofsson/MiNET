@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -119,7 +121,7 @@ namespace MiNET.Worlds
 				int i = 0;
 				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X >> 4, SpawnPoint.Z >> 4), new Dictionary<Tuple<int, int>, McpeBatch>()))
 				{
-					chunk.PutPool();
+					//chunk.PutPool();
 					i++;
 				}
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
@@ -133,20 +135,26 @@ namespace MiNET.Worlds
 
 		private object _playerWriteLock = new object();
 
+		private Player[] _tickPlayers = new Player[0];
+
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
 			if (newPlayer.Username == null) return;
 
 			EntityManager.AddEntity(null, newPlayer);
 
-			if (Players.TryAdd(newPlayer.EntityId, newPlayer))
+			lock (_playerWriteLock)
 			{
-				if (spawn)
+				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
-					SpawnToAll(newPlayer);
+					if (spawn)
+					{
+						SpawnToAll(newPlayer);
+					}
 				}
+				_tickPlayers = Players.Values.ToArray();
+				//Thread.Sleep(_worldTickTime);
 			}
-
 			foreach (Entity entity in Entities.ToArray())
 			{
 				SendAddEntityToPlayer(entity, newPlayer);
@@ -226,15 +234,19 @@ namespace MiNET.Worlds
 		public virtual void RemovePlayer(Player player, bool despawn = true)
 		{
 			Player removed;
-			if (Players.TryRemove(player.EntityId, out removed))
+			lock (_playerWriteLock)
 			{
-				player.IsSpawned = false;
-				if (despawn)
+				if (Players.TryRemove(player.EntityId, out removed))
 				{
-					DespawnFromAll(player);
+					player.IsSpawned = false;
+					if (despawn)
+					{
+						DespawnFromAll(player);
+					}
+
+					_tickPlayers = Players.Values.ToArray();
 				}
 			}
-
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
 		}
 
@@ -488,7 +500,8 @@ namespace MiNET.Worlds
 					entity.OnTick();
 				}
 
-				var players = Players.Values;
+				Player[] players = _tickPlayers.Where(player => player.IsSpawned).ToArray();
+
 				// Player tick
 				foreach (var player in players)
 				{
@@ -518,6 +531,7 @@ namespace MiNET.Worlds
 			{
 				LastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
 				AvarageTickProcessingTime = ((AvarageTickProcessingTime*9) + _tickTimer.ElapsedMilliseconds)/10L;
+
 				Monitor.Exit(_tickSync);
 			}
 		}
@@ -546,21 +560,26 @@ namespace MiNET.Worlds
 			}).ToArray();
 		}
 
-		protected virtual void BroadCastMovement(ICollection<Player> players)
+		private DateTime _lastSendTime = DateTime.UtcNow;
+
+		protected virtual void BroadCastMovement(Player[] players)
 		{
-			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
-			long now = DateTime.UtcNow.Ticks;
+			if (players.Length == 0) return;
 
-			int numberOfReferences = players.Count;
+			DateTime tickTime = _lastSendTime;
+			_lastSendTime = DateTime.UtcNow;
+			//long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
+			DateTime now = DateTime.UtcNow;
 
-			List<McpeMovePlayer> moves = new List<McpeMovePlayer>();
+			int count = 0;
+			MemoryStream stream = new MemoryStream();
 			foreach (var player in players)
 			{
-				if (((now - player.LastUpdatedTime.Ticks) <= tickTime))
+				if (((now - player.LastUpdatedTime) <= now - tickTime))
 				{
 					PlayerLocation knownPosition = player.KnownPosition;
 					{
-						McpeMovePlayer move = McpeMovePlayer.CreateObject(numberOfReferences);
+						McpeMovePlayer move = McpeMovePlayer.CreateObject();
 						move.entityId = player.EntityId;
 						move.x = knownPosition.X;
 						move.y = knownPosition.Y + 1.62f;
@@ -569,67 +588,34 @@ namespace MiNET.Worlds
 						move.pitch = knownPosition.Pitch;
 						move.headYaw = knownPosition.HeadYaw;
 						move.teleport = 0;
-						move.Encode(); // Optmized
-
-						moves.Add(move);
+						byte[] bytes = move.Encode();
+						stream.Write(bytes, 0, bytes.Length);
+						move.PutPool();
 					}
+					count++;
 				}
 			}
 
-			List<Task> tasks = new List<Task>();
+			if (count == 0) return;
+
+			McpeBatch batch = McpeBatch.CreateObject(players.Length);
+			batch.Source = "moves";
+			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
+			//byte[] buffer = stream.ToArray();
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode();
+
+			//List<Task> tasks = new List<Task>();
 			foreach (var player in players)
 			{
-				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(moves), player);
+				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(batch, now), player);
 				sendTask.Start();
-				tasks.Add(sendTask);
-			}
-
-			Task.WaitAll(tasks.ToArray());
-		}
-
-		protected virtual void BroadCastMovement(ConcurrentDictionary<long, Player> players)
-		{
-			long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
-			long now = DateTime.UtcNow.Ticks;
-
-			int numberOfReferences = players.Count;
-
-			List<McpeMovePlayer> moves = new List<McpeMovePlayer>();
-			foreach (var pair in players)
-			{
-				Player player = pair.Value;
-				if (((now - player.LastUpdatedTime.Ticks) <= tickTime))
-				{
-					PlayerLocation knownPosition = player.KnownPosition;
-					{
-						McpeMovePlayer move = McpeMovePlayer.CreateObject(numberOfReferences);
-						move.entityId = player.EntityId;
-						move.x = knownPosition.X;
-						move.y = knownPosition.Y + 1.62f;
-						move.z = knownPosition.Z;
-						move.yaw = knownPosition.Yaw;
-						move.pitch = knownPosition.Pitch;
-						move.headYaw = knownPosition.HeadYaw;
-						move.teleport = 0;
-						move.Encode(); // Optmized
-
-						moves.Add(move);
-					}
-				}
-			}
-
-			List<Task> tasks = new List<Task>();
-			foreach (var kv in players)
-			{
-				Player p = kv.Value;
-				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(moves), p);
-				sendTask.Start();
-				tasks.Add(sendTask);
+				//tasks.Add(sendTask);
 			}
 
 			//Task.WaitAll(tasks.ToArray());
 		}
-
 
 		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)
 		{
@@ -684,10 +670,7 @@ namespace MiNET.Worlds
 					McpeBatch chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2)).GetBatch();
 					chunksUsed.Add(pair.Key, chunk);
 
-					McpeBatch sendChunk = McpeBatch.CreateObject();
-					sendChunk.SetEncodedMessage(chunk.Encode());
-
-					yield return sendChunk;
+					yield return chunk;
 				}
 
 				if (chunksUsed.Count > ViewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);

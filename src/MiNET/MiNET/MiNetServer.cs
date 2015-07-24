@@ -304,9 +304,11 @@ namespace MiNET
 				PlayerNetworkSession playerSession;
 				if (!_playerSessions.TryGetValue(senderEndpoint, out playerSession))
 				{
-					Log.DebugFormat("Receive connection without session {0}", senderEndpoint.Address);
+					Log.DebugFormat("Receive MCPE message 0x{1:x2} without session {0}", senderEndpoint.Address, msgId);
 					return;
 				}
+
+				if (playerSession.Evicted) return;		
 
 				playerSession.LastUpdatedTime = DateTime.UtcNow;
 
@@ -867,6 +869,9 @@ namespace MiNET
 
 				Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
 				{
+					if (session == null) return;
+					if (session.Evicted) return;
+
 					try
 					{
 						long rto = Math.Max(100, session.Player.Rto);
@@ -876,7 +881,17 @@ namespace MiNET
 							{
 								session.Evicted = true;
 								// Disconnect user
-								session.Player.Disconnect("You've been kicked with reason: Network timeout.");
+								ThreadPool.QueueUserWorkItem(delegate(object o)
+								{
+									PlayerNetworkSession s = o as PlayerNetworkSession;
+									if (s != null)
+									{
+										Player p = s.Player;
+										if (p != null) p.Disconnect("You've been kicked with reason: Network timeout.");
+									}
+								}, session);
+
+								return;
 							}
 							else
 							{

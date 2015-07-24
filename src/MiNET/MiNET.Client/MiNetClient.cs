@@ -228,11 +228,11 @@ namespace MiNET.Client
 					}
 					case DefaultMessageIdTypes.ID_CONNECTION_REQUEST_ACCEPTED:
 					{
-						//Thread.Sleep(50);
-						SendNewIncomingConnection();
-						var t1 = new Timer(state => SendConnectedPing(), null, 0, 5000);
-						//Thread.Sleep(50);
-						SendLogin(Username);
+						////Thread.Sleep(50);
+						//SendNewIncomingConnection();
+						//var t1 = new Timer(state => SendConnectedPing(), null, 0, 5000);
+						////Thread.Sleep(50);
+						//SendLogin(Username);
 						break;
 					}
 				}
@@ -242,8 +242,6 @@ namespace MiNET.Client
 				DatagramHeader header = new DatagramHeader(receiveBytes[0]);
 				if (!header.isACK && !header.isNAK && header.isValid)
 				{
-					if (LoginSent) return; //HACK
-
 					if (receiveBytes[0] == 0xa0)
 					{
 						throw new Exception("Receive ERROR, NAK in wrong place");
@@ -269,6 +267,8 @@ namespace MiNET.Client
 						//Log.Debug("<\tSend ACK on #" + package._datagramSequenceNumber.IntValue());
 						SendData(data, senderEndpoint);
 					}
+
+					if (LoginSent) return; //HACK
 
 					foreach (var message in messages)
 					{
@@ -383,6 +383,7 @@ namespace MiNET.Client
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			Log.Warn("!! WHAT THE F NAK NAK NAK");
 		}
 
 		/// <summary>
@@ -463,7 +464,7 @@ namespace MiNET.Client
 
 			if (typeof (ConnectionRequestAccepted) == message.GetType())
 			{
-				Thread.Sleep(50);
+				Thread.Sleep(150);
 				SendNewIncomingConnection();
 				var t1 = new Timer(state => SendConnectedPing(), null, 2000, 5000);
 				Thread.Sleep(50);
@@ -571,7 +572,7 @@ namespace MiNET.Client
 				TraceSend(message);
 			}
 
-			PlayerNetworkSession session  = new PlayerNetworkSession(null, senderEndpoint);
+			PlayerNetworkSession session = new PlayerNetworkSession(null, senderEndpoint);
 			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, session, SendDatagram);
 		}
 
@@ -733,6 +734,7 @@ namespace MiNET.Client
 			batch.payload = buffer;
 
 			SendPackage(batch);
+			LoginSent = true;
 		}
 
 		public bool LoginSent { get; set; }

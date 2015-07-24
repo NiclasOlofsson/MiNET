@@ -547,6 +547,7 @@ namespace MiNET.Net
 
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 
+		private bool _isPermanent;
 		private bool _isPooled;
 		private long _referenceCounter;
 
@@ -562,8 +563,18 @@ namespace MiNET.Net
 		}
 
 
+		public T MarkPermanent(bool permanent = true)
+		{
+			if (!_isPooled) throw new Exception("Tried to make non pooled item permanent");
+			_isPermanent = permanent;
+
+			return (T) this;
+		}
+
 		public T AddReferences(long numberOfReferences)
 		{
+			if (_isPermanent) return (T) this;
+
 			if (!_isPooled) throw new Exception("Tried to referenc count a non pooled item");
 			Interlocked.Add(ref _referenceCounter, numberOfReferences);
 
@@ -572,6 +583,8 @@ namespace MiNET.Net
 
 		public T AddReference(Package<T> item)
 		{
+			if (_isPermanent) return (T) this;
+
 			if (!item.IsPooled) throw new Exception("Item template needs to come from a pool");
 
 			Interlocked.Increment(ref item._referenceCounter);
@@ -614,6 +627,7 @@ namespace MiNET.Net
 
 		public override void PutPool()
 		{
+			if (_isPermanent) return;
 			if (!IsPooled) return;
 
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;

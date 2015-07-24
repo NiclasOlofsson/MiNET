@@ -33,17 +33,17 @@ namespace MiNET.ServiceKiller
 				int i = 0;
 				while (watch.ElapsedMilliseconds < 300*1000)
 				{
-					if (i > 0 && i%20 == 0) Thread.Sleep(10000);
+					if (i > 0 && i%10 == 0) Thread.Sleep(10000);
 
 					string playerName = string.Format("Player-{0}", (i + 1));
 					//string playerName = "Player " + Guid.NewGuid();
-					ClientEmulator client = new ClientEmulator(emulator, random.Next(10, 30)*1000, playerName, i)
+					ClientEmulator client = new ClientEmulator(emulator, random.Next(60, 120)*1000, playerName, i)
 					{
 						Random = random
 					};
 					ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
-					Thread.Sleep(500);
+					Thread.Sleep(200);
 
 					i++;
 				}
@@ -92,13 +92,13 @@ namespace MiNET.ServiceKiller
 				client.StartServer();
 				Console.WriteLine("Client started.");
 
-				Thread.Sleep(2000);
+				Thread.Sleep(3000);
 
 				client.SendUnconnectedPing();
 
-				Thread.Sleep(1000);
+				Thread.Sleep(2000);
 
-				client.LoginSent = true;
+				//client.LoginSent = true;
 
 				Stopwatch watch = new Stopwatch();
 				watch.Start();

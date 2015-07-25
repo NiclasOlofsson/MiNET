@@ -1,6 +1,5 @@
 ﻿using System;
 using MiNET.Blocks;
-using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -41,19 +40,13 @@ namespace MiNET.Entities
 						Velocity -= new Vector3(0, Gravity, 0);
 					}
 				}
+				LastUpdatedTime = DateTime.UtcNow;
 			}
-			else
+			else if (Velocity != Vector3.Zero)
 			{
 				Velocity = Vector3.Zero;
+				LastUpdatedTime = DateTime.UtcNow;
 			}
-
-			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-			moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
-			Level.RelayBroadcast(moveEntity);
-
-			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entities = new EntityMotions {{EntityId, Velocity}};
-			Level.RelayBroadcast(motions);
 		}
 
 		private bool IsOnGround(PlayerLocation position)

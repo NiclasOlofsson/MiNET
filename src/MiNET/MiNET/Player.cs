@@ -100,12 +100,12 @@ namespace MiNET
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
 
-		/// <summary>
-		///     Handles the package.
-		/// </summary>
-		/// <param name="message">The message.</param>
+		public DateTime LastNetworkActivity { get; set; }
+
 		public void HandlePackage(Package message)
 		{
+			LastNetworkActivity = DateTime.UtcNow;
+
 			var result = Server.PluginManager.PluginPacketHandler(message, true, this);
 			//if (result != message) message.PutPool();
 			message = result;
@@ -662,7 +662,7 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				if (!IsConnected) return;
+				//if (!IsConnected) return;
 
 				Level.RemovePlayer(this);
 
@@ -710,6 +710,7 @@ namespace MiNET
 		}
 
 		private int _lastPlayerMoveSequenceNUmber;
+		private int _lastOrderingIndex;
 		private object _moveSyncLock = new object();
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
@@ -720,80 +721,100 @@ namespace MiNET
 			{
 				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
 				{
-					Log.DebugFormat("Skipping move {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
-					//return;
+					Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
+					return;
 				}
 				else
 				{
 					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 				}
-			}
 
-			bool useAntiCheat = false;
-			if (useAntiCheat)
-			{
-				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-				if (GameMode == GameMode.Survival
-				    && HealthManager.CooldownTick == 0
-				    && td > 49*TimeSpan.TicksPerMillisecond
-				    && td < 500*TimeSpan.TicksPerMillisecond
-				    && Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
-					)
+				if (_lastOrderingIndex > message.OrderingIndex)
 				{
-					double horizSpeed;
-					{
-						// Speed in the xz plane
+					Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
+					return;
+				}
+				else
+				{
+					_lastOrderingIndex = message.OrderingIndex;
+				}
 
-						Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-						double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-						horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-						if (horizSpeed > 11.0d)
-						{
-							//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
-							AddPopup(new Popup
-							{
-								MessageType = MessageType.Tip,
-								Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
-								Duration = 1
-							});
 
-							LastUpdatedTime = DateTime.UtcNow;
-							HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-							SendMovePlayer();
-							return;
-						}
-					}
-
-					double verticalSpeed;
-					{
-						// Speed in 3d
-						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
-						double distanceTo = (message.y - 1.62) - KnownPosition.Y;
-						verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-						if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
-						{
-							//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
-							AddPopup(new Popup
-							{
-								MessageType = MessageType.Tip,
-								Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
-								Duration = 1
-							});
-
-							LastUpdatedTime = DateTime.UtcNow;
-							HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-							//SendMovePlayer();
-							return;
-						}
-					}
-					AddPopup(new Popup
-					{
-						MessageType = MessageType.Tip,
-						Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
-						Duration = 1
-					});
+				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+				Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+				double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+				if (distanceTo/td*TimeSpan.TicksPerSecond > 25.0d)
+				{
+					//SendMovePlayer();
+					return;
 				}
 			}
+
+			//bool useAntiCheat = false;
+			//if (useAntiCheat)
+			//{
+			//	long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+			//	if (GameMode == GameMode.Survival
+			//		&& HealthManager.CooldownTick == 0
+			//		&& td > 49*TimeSpan.TicksPerMillisecond
+			//		&& td < 500*TimeSpan.TicksPerMillisecond
+			//		&& Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
+			//		)
+			//	{
+			//		double horizSpeed;
+			//		{
+			//			// Speed in the xz plane
+
+			//			Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+			//			double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+			//			horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+			//			if (horizSpeed > 11.0d)
+			//			{
+			//				//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
+			//				AddPopup(new Popup
+			//				{
+			//					MessageType = MessageType.Tip,
+			//					Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
+			//					Duration = 1
+			//				});
+
+			//				LastUpdatedTime = DateTime.UtcNow;
+			//				HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+			//				SendMovePlayer();
+			//				return;
+			//			}
+			//		}
+
+			//		double verticalSpeed;
+			//		{
+			//			// Speed in 3d
+			//			double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
+			//			double distanceTo = (message.y - 1.62) - KnownPosition.Y;
+			//			verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+			//			if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
+			//			{
+			//				//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
+			//				AddPopup(new Popup
+			//				{
+			//					MessageType = MessageType.Tip,
+			//					Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
+			//					Duration = 1
+			//				});
+
+			//				LastUpdatedTime = DateTime.UtcNow;
+			//				HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+			//				//SendMovePlayer();
+			//				return;
+			//			}
+			//		}
+			//		AddPopup(new Popup
+			//		{
+			//			MessageType = MessageType.Tip,
+			//			Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
+			//			Duration = 1
+			//		});
+			//	}
+			//}
 
 			KnownPosition = new PlayerLocation
 			{
@@ -1262,11 +1283,11 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
-				{
-					Log.DebugFormat("Denied chunk, too little distance.");
-					return;
-				}
+				//if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
+				//{
+				//	Log.DebugFormat("Denied chunk, too little distance.");
+				//	return;
+				//}
 
 				_currentChunkPosition = chunkPosition;
 
@@ -1337,7 +1358,7 @@ namespace MiNET
 		public void SendMovePlayer()
 		{
 			var package = McpeMovePlayer.CreateObject();
-			package.entityId = EntityId;
+			package.entityId = 0;
 			package.x = KnownPosition.X;
 			package.y = KnownPosition.Y + 1.62f;
 			package.z = KnownPosition.Z;
@@ -1349,65 +1370,40 @@ namespace MiNET
 			SendPackage(package);
 		}
 
+
 		public override void OnTick()
 		{
 			base.OnTick();
 
-			if (Username.Equals("gurun"))
+			if (Level.TickTime%30 == 0)
 			{
-				Popup popup = new Popup
+				if (Username.Equals("gurun"))
 				{
-					Priority = -10,
-					Duration = 1,
-					MessageType = MessageType.Tip,
-					Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
-				};
+					Popup popup = new Popup
+					{
+						Duration = 1,
+						MessageType = MessageType.Tip,
+						Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
+					};
 
-				AddPopup(popup);
-			}
-
-			lock (Popups)
-			{
-				if (_currentPopup != null) TickPopup(_currentPopup);
-				if (_currentTip != null) TickPopup(_currentTip);
-
-				foreach (var popup in Popups)
-				{
-					popup.CurrentTick++;
+					AddPopup(popup);
 				}
 			}
-		}
 
-		private Popup _currentPopup = null;
-		private Popup _currentTip = null;
-
-		private void TickPopup(Popup popup)
-		{
-			if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
-			{
-				RecalculatePopus();
-				return;
-			}
-
-			if (popup.CurrentTick >= popup.DisplayDelay)
-			{
-				SendMessage(popup.Message, type: popup.MessageType);
-			}
-		}
-
-		private void RecalculatePopus()
-		{
 			bool hasDisplayedPopup = false;
-			bool hasDisplayedTio = false;
+			bool hasDisplayedTip = false;
 			lock (Popups)
 			{
+				// Code below is just pure magic and mystery. In short, it takes care of sorting a list of popups
+				// based on priority, ticks and delays. And then makes sure that the most applicable popup and tip
+				// is presented.
+				// In the end it adjusts for the display times for tip (20ticks) and popup (10ticks) and sends it at
+				// regular intervalls to make sure there is no blinking.
 				foreach (var popup in Popups.OrderByDescending(p => p.Priority).ThenByDescending(p => p.CurrentTick))
 				{
-					if (popup.CurrentTick > popup.Duration + popup.DisplayDelay)
+					if (popup.CurrentTick >= popup.Duration + popup.DisplayDelay)
 					{
 						Popups.Remove(popup);
-						if (popup == _currentPopup) _currentPopup = null;
-						if (popup == _currentTip) _currentTip = null;
 						continue;
 					}
 
@@ -1415,15 +1411,17 @@ namespace MiNET
 					{
 						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
 						{
-							_currentPopup = popup;
+							if (popup.CurrentTick%10 == 0 || popup.CurrentTick == popup.Duration - 20) SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedPopup = true;
 						}
-						if (popup.MessageType == MessageType.Tip && !hasDisplayedTio)
+						if (popup.MessageType == MessageType.Tip && !hasDisplayedTip)
 						{
-							_currentTip = popup;
-							hasDisplayedTio = true;
+							if (popup.CurrentTick%10 == 0 || popup.CurrentTick == popup.Duration - 10) SendMessage(popup.Message, type: popup.MessageType);
+							hasDisplayedTip = true;
 						}
 					}
+
+					popup.CurrentTick++;
 				}
 			}
 		}
@@ -1437,17 +1435,12 @@ namespace MiNET
 				if (exist != null) Popups.Remove(exist);
 
 				Popups.Add(popup);
-				RecalculatePopus();
 			}
 		}
 
 		public void ClearPopups()
 		{
-			lock (Popups)
-			{
-				Popups.Clear();
-				RecalculatePopus();
-			}
+			lock (Popups) Popups.Clear();
 		}
 
 		public override void Knockback(Vector3 velocity)
@@ -1631,6 +1624,30 @@ namespace MiNET
 			finally
 			{
 				Monitor.Exit(_sendMoveListSync);
+			}
+		}
+
+
+		private object _sendEntityMoveListSync = new object();
+		private DateTime _lastEntityMoveListSendTime = DateTime.UtcNow;
+
+		public void SendEntityMoveList(McpeBatch batch, DateTime sendTime)
+		{
+			if (sendTime < _lastEntityMoveListSendTime || !Monitor.TryEnter(_sendEntityMoveListSync))
+			{
+				batch.PutPool();
+				return;
+			}
+
+			_lastEntityMoveListSendTime = sendTime;
+
+			try
+			{
+				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+			}
+			finally
+			{
+				Monitor.Exit(_sendEntityMoveListSync);
 			}
 		}
 	}

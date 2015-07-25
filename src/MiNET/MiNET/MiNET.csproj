@@ -209,7 +209,6 @@
     <Compile Include="Net\ConnectedPackage.cs" />
     <Compile Include="Net\Datagram.cs" />
     <Compile Include="Net\DatagramHeader.cs" />
-    <Compile Include="Net\McpeMovePlayer.cs" />
     <Compile Include="Net\MessagePart.cs" />
     <Compile Include="Net\MessagePartHeader.cs" />
     <Compile Include="Net\Nak.cs" />

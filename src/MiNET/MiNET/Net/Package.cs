@@ -24,6 +24,9 @@ namespace MiNET.Net
 
 		public int DatagramSequenceNumber = 0;
 
+		public int OrderingChannel = 0;
+		public int OrderingIndex = 0;
+
 		public byte Id;
 
 		protected MemoryStream _buffer;

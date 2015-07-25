@@ -308,7 +308,7 @@ namespace MiNET
 					return;
 				}
 
-				if (playerSession.Evicted) return;		
+				if (playerSession.Evicted) return;
 
 				playerSession.LastUpdatedTime = DateTime.UtcNow;
 
@@ -496,20 +496,6 @@ namespace MiNET
 
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
-			int datagramSequenceNumber = 0;
-			lock (playerSession.ProcessSyncRoot)
-			{
-				datagramSequenceNumber = package._datagramSequenceNumber;
-
-				if (datagramSequenceNumber > 0 && playerSession.LastDatagramNumber >= datagramSequenceNumber)
-				{
-					Log.DebugFormat("Sequence out of order {0}", package._datagramSequenceNumber);
-				}
-				else if (datagramSequenceNumber > 0)
-				{
-					playerSession.LastDatagramNumber = package._datagramSequenceNumber;
-				}
-			}
 			if (ForwardAllPlayers)
 			{
 				playerSession.Player.SendPackage(new McpeTransfer
@@ -523,6 +509,10 @@ namespace MiNET
 			List<Package> messages = package.Messages;
 			foreach (var message in messages)
 			{
+				message.DatagramSequenceNumber = package._datagramSequenceNumber;
+				message.OrderingChannel = package._orderingChannel;
+				message.OrderingIndex = package._orderingIndex;
+
 				if (message is SplitPartPackage)
 				{
 					message.Source = "Receive SplitPartPackage";
@@ -563,15 +553,18 @@ namespace MiNET
 						playerSession.Splits.Remove(spId);
 
 						byte[] buffer = stream.ToArray();
-						var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-						HandlePackage(datagramSequenceNumber, fullMessage, playerSession);
+						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+						fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+						fullMessage.OrderingChannel = package._orderingChannel;
+						fullMessage.OrderingIndex = package._orderingIndex;
+						HandlePackage(fullMessage, playerSession);
 					}
 
 					continue;
 				}
 
 				message.Timer.Restart();
-				HandlePackage(datagramSequenceNumber, message, playerSession);
+				HandlePackage(message, playerSession);
 				//message.PutPool(); // Handled in HandlePacket now()
 			}
 			package.PutPool();
@@ -758,11 +751,11 @@ namespace MiNET
 			}
 		}
 
-		internal void HandlePackage(int datagramSequenceNumber, Package message, PlayerNetworkSession playerSession)
+		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
-			TraceReceive(message);
+			if (message == null) return;
 
-			message.DatagramSequenceNumber = datagramSequenceNumber;
+			TraceReceive(message);
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -796,7 +789,10 @@ namespace MiNET
 				}
 				foreach (var msg in messages)
 				{
-					HandlePackage(datagramSequenceNumber, msg, playerSession);
+					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+					msg.OrderingChannel = batch.OrderingChannel;
+					msg.OrderingIndex = batch.OrderingIndex;
+					HandlePackage(msg, playerSession);
 				}
 
 				batch.PutPool();
@@ -921,7 +917,7 @@ namespace MiNET
 								{
 									session.ErrorCount++;
 
-									//if (deleted.TransmissionCount > 1)
+									if (deleted.TransmissionCount > 1)
 									{
 										Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),
@@ -945,14 +941,20 @@ namespace MiNET
 									{
 										ThreadPool.QueueUserWorkItem(delegate(object data)
 										{
-											Log.DebugFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
-												deleted.Header.datagramSequenceNumber.IntValue(),
-												session.Player.Username,
-												deleted.FirstMessageId,
-												elapsedTime,
-												rto,
-												session.Player.Rtt);
-											SendDatagram(session, (Datagram) data);
+											try
+											{
+												Log.DebugFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+													deleted.Header.datagramSequenceNumber.IntValue(),
+													session.Player.Username,
+													deleted.FirstMessageId,
+													elapsedTime,
+													rto,
+													session.Player.Rtt);
+												SendDatagram(session, (Datagram) data);
+											}
+											catch (Exception e)
+											{
+											}
 										}, datagram);
 									}
 								}

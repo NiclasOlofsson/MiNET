@@ -17,6 +17,8 @@ namespace MiNET.Worlds
 
 		private static List<int> _gaps;
 		private static List<int> _ignore;
+		private static Dictionary<int, int> _convert;
+
 		private byte _waterOffsetY;
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
@@ -66,7 +68,6 @@ namespace MiNET.Worlds
 //			_ignore.Add(76);
 			_ignore.Add(77);
 			_ignore.Add(84);
-			_ignore.Add(87);
 			_ignore.Add(88);
 			_ignore.Add(93);
 			_ignore.Add(94);
@@ -152,6 +153,75 @@ namespace MiNET.Worlds
 			_gaps.Add(168);
 			_gaps.Add(169);
 			_gaps.Sort();
+
+			_convert = new Dictionary<int, int>
+			{
+				{25, 3}, // Note Block		=> Dirt
+				{27, 66}, // Powered Rail		=> Rail
+				{28, 66}, // Detector Rail 	=> Rail
+				{29, 0}, // Sticky Piston	=> Air
+				{33, 0}, // Piston		=> Air
+				{34, 0}, // Piston Head		=> Air
+				{55, 0}, // Redstone Wire	=> Air
+				{69, 0}, // Lever		=> Air
+				{70, 0}, // Stone Pressure	=> Air
+				{72, 0}, // Wooden Pressure	=> Air
+				{75, 0}, // Redstone Torch O	=> Air
+				{76, 0}, // Redstone Torch I	=> Air
+				{77, 0}, // Stone Button		=> Air
+				{84, 3}, // Jukebox		=> Dirt
+				{90, 0}, // Nether Portal	=> Air
+				{93, 0}, // Red Repeater	O	=> Air
+				{94, 0}, // Red Repeater I	=> Air
+				{97, 1}, // Stone Monster Eg	=> Stone
+				{113, 85}, // Nether Fence		=> Fence
+				{115, 0}, // Nether Wart		=> Air
+				{116, 0}, // Enchant Table	=> Air
+				{117, 0}, // Brewing Stand	=> Air
+				{118, 0}, // Cauldron		=> Air
+				{119, 0}, // End Portal		=> Air
+				{122, 0}, // Dragon Egg		=> Air
+				{123, 89}, // Redstone Lamp O	=> Glowstone
+				{124, 89}, // Redstone Lamp I	=> Glowstone
+				{125, 157}, // 2x Wooden Slabs	=> (2x Wooden Slabs)
+				{126, 158}, // Wooden Slabs		=> (Wooden Slabs)
+				{130, 54}, // Ender Chest		=> Chest
+				{131, 0}, // Tripwire Hook	=> Air
+				{132, 0}, // Tripwire		=> Air
+				{137, 0}, // Command Block	=> Air
+				{138, 0}, // Beacon		=> Air
+				{143, 0}, // Wooden Button	=> Air
+				{144, 0}, // Mob Head		=> Air
+				{145, 0}, // Anvil		=> Air
+				{146, 54}, // Trapped Chest	=> Chest
+				{147, 0}, // Gold Pressure	=> Air
+				{148, 0}, // Iron Pressure	=> Air
+				{149, 0}, // Comparator O		=> Air
+				{150, 0}, // Comparator I		=> Air
+				{151, 0}, // Daylight Sensor	=> Air
+				{153, 87}, // Nether Quarts Ore 	=> Netherrack
+				{154, 0}, // Hopper		=> Air
+				{157, 66}, // Activator Rail	=> Rail
+				{158, 0}, // Dropper		=> Air
+				{160, 102}, // Stained Glass Pa	=> Glass Pane
+				{161, 18}, // Acacia Leaves	=> Leaves
+				{162, 17}, // Acacia Wood		=> Wood
+				{165, 0}, // Slime Block		=> Air
+				{166, 97}, // Barrier		=> (Invisible Bedrock)
+				{167, 96}, // Iron Trapdoor	=> Trapdoor
+				{168, 0}, // Prismarine		=> Air
+				{169, 89}, // Sea Lantern		=> Glowstone
+				{183, 107}, // Spruce Gate		=> Gate
+				{184, 107}, // Birch Gate		=> Gate
+				{185, 107}, // Jungle Gate		=> Gate
+				{186, 107}, // Dark Oak Gate	=> Gate
+				{187, 107}, // Acacia Gate		=> Gate
+				{188, 85}, // Spruce Fence		=> Fence
+				{189, 85}, // Birch Fence		=> Fence
+				{190, 85}, // Jungle Fence		=> Fence
+				{191, 85}, // Dark Oak Fence	=> Fence
+				{192, 85}, // Acacia Fence		=> Fence
+			};
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
@@ -257,7 +327,8 @@ namespace MiNET.Worlds
 								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
 
 								// Anvil to PE friendly converstion
-								if (blockId == 125) blockId = 5;
+								if (_convert.ContainsKey(blockId)) blockId = _convert[blockId];
+								else if (blockId == 125) blockId = 5;
 								else if (blockId == 126) blockId = 158;
 								else if (blockId == 75) blockId = 50;
 								else if (blockId == 76) blockId = 50;
@@ -282,6 +353,20 @@ namespace MiNET.Worlds
 								chunk.SetMetadata(x, yi, z, Nibble4(data, anvilIndex));
 								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+
+								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
+								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
+								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
+								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
+								{
+									chunk.SetBlock(x, yi, z, 198);
+									chunk.SetMetadata(x, yi, z, 0);
+								}
+								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
+								{
+									chunk.SetBlock(x, yi, z, 143); //Coarse Dirt => Pat
+									chunk.SetMetadata(x, yi, z, 0); // Podzol => (Podzol)
+								}
 							}
 						}
 					}

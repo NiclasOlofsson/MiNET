@@ -233,9 +233,9 @@ namespace MiNET.Worlds
 
 		public virtual void RemovePlayer(Player player, bool despawn = true)
 		{
-			Player removed;
 			lock (_playerWriteLock)
 			{
+				Player removed;
 				if (Players.TryRemove(player.EntityId, out removed))
 				{
 					player.IsSpawned = false;
@@ -245,6 +245,10 @@ namespace MiNET.Worlds
 					}
 
 					_tickPlayers = Players.Values.ToArray();
+				}
+				else
+				{
+					Log.ErrorFormat("Failed to remove player {0}", player.Username);
 				}
 			}
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
@@ -495,7 +499,8 @@ namespace MiNET.Worlds
 				}
 
 				// Entity updates
-				foreach (Entity entity in Entities.ToArray())
+				Entity[] entities = Entities.ToArray();
+				foreach (Entity entity in entities)
 				{
 					entity.OnTick();
 				}
@@ -509,23 +514,20 @@ namespace MiNET.Worlds
 				}
 
 				// Send player movements
-				BroadCastMovement(players);
+				BroadCastPlayerMovement(players, entities);
 
-				//if (TickTime%100 == 0) // Every 5 seconds
-				//{
-				//	Player[] staledPlayers = GetStaledPlayers(players);
-				//	if (staledPlayers.Any())
-				//	{
-				//		foreach (var p in staledPlayers)
-				//		{
-				//			ThreadPool.QueueUserWorkItem(delegate(object state)
-				//			{
-				//				Player player = (Player) state;
-				//				player.Disconnect("Too long inactivity.");
-				//			}, p);
-				//		}
-				//	}
-				//}
+				if (TickTime%100 == 0) // Every 5 seconds
+				{
+					var staledPlayers = GetStaledPlayers(players);
+					foreach (var p in staledPlayers)
+					{
+						ThreadPool.QueueUserWorkItem(delegate(object state)
+						{
+							Player player = (Player) state;
+							player.Disconnect("Staled.");
+						}, p);
+					}
+				}
 			}
 			finally
 			{
@@ -549,72 +551,89 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private Player[] GetStaledPlayers(Player[] players)
+		private IEnumerable<Player> GetStaledPlayers(Player[] players)
 		{
 			DateTime now = DateTime.UtcNow;
 			TimeSpan span = TimeSpan.FromSeconds(300);
-			return players.Where(player =>
-			{
-				bool evict = ((now - player.LastUpdatedTime) > span);
-				return evict;
-			}).ToArray();
+			return players.Where(player => player.NetworkSession == null);
+			//return players.Where(player => (now - player.LastUpdatedTime) > span);
 		}
 
 		private DateTime _lastSendTime = DateTime.UtcNow;
 
-		protected virtual void BroadCastMovement(Player[] players)
+		protected virtual void BroadCastPlayerMovement(Player[] players, Entity[] entities)
 		{
 			if (players.Length == 0) return;
 
 			DateTime tickTime = _lastSendTime;
 			_lastSendTime = DateTime.UtcNow;
-			//long tickTime = _worldTickTime*TimeSpan.TicksPerMillisecond;
 			DateTime now = DateTime.UtcNow;
 
-			int count = 0;
 			MemoryStream stream = new MemoryStream();
+
+			int count = 0;
 			foreach (var player in players)
 			{
 				if (((now - player.LastUpdatedTime) <= now - tickTime))
 				{
 					PlayerLocation knownPosition = player.KnownPosition;
-					{
-						McpeMovePlayer move = McpeMovePlayer.CreateObject();
-						move.entityId = player.EntityId;
-						move.x = knownPosition.X;
-						move.y = knownPosition.Y + 1.62f;
-						move.z = knownPosition.Z;
-						move.yaw = knownPosition.Yaw;
-						move.pitch = knownPosition.Pitch;
-						move.headYaw = knownPosition.HeadYaw;
-						move.teleport = 0;
-						byte[] bytes = move.Encode();
-						stream.Write(bytes, 0, bytes.Length);
-						move.PutPool();
-					}
+
+					McpeMovePlayer move = McpeMovePlayer.CreateObject();
+					move.entityId = player.EntityId;
+					move.x = knownPosition.X;
+					move.y = knownPosition.Y + 1.62f;
+					move.z = knownPosition.Z;
+					move.yaw = knownPosition.Yaw;
+					move.pitch = knownPosition.Pitch;
+					move.headYaw = knownPosition.HeadYaw;
+					move.teleport = 0;
+					byte[] bytes = move.Encode();
+					stream.Write(bytes, 0, bytes.Length);
+					move.PutPool();
 					count++;
 				}
 			}
 
+			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+			moveEntity.entities = new EntityLocations();
+
+			//McpeSetEntityMotion entityMotion = McpeSetEntityMotion.CreateObject();
+			//entityMotion.entities = new EntityMotions();
+
+			foreach (var entity in entities)
+			{
+				if (((now - entity.LastUpdatedTime) <= now - tickTime))
+				{
+					moveEntity.entities.Add(entity.EntityId, entity.KnownPosition);
+					//entityMotion.entities.Add(entity.EntityId, entity.Velocity);
+					count++;
+				}
+			}
+
+			{
+				byte[] bytes = moveEntity.Encode();
+				stream.Write(bytes, 0, bytes.Length);
+				moveEntity.PutPool();
+			}
+			//{
+			//	byte[] bytes = entityMotion.Encode();
+			//	stream.Write(bytes, 0, bytes.Length);
+			//	entityMotion.PutPool();
+			//}
+
 			if (count == 0) return;
 
 			McpeBatch batch = McpeBatch.CreateObject(players.Length);
-			batch.Source = "moves";
 			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
-			//byte[] buffer = stream.ToArray();
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();
 
-			//List<Task> tasks = new List<Task>();
 			foreach (var player in players)
 			{
 				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(batch, now), player);
 				sendTask.Start();
-				//tasks.Add(sendTask);
 			}
-
-			//Task.WaitAll(tasks.ToArray());
 		}
 
 		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)

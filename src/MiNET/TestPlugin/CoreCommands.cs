@@ -31,14 +31,14 @@ namespace TestPlugin
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 		}
 
-		[PacketHandler, Receive]
-		public Package ChatHandler(McpeText text, Player player)
-		{
-			if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
+		//[PacketHandler, Receive]
+		//public Package ChatHandler(McpeText text, Player player)
+		//{
+		//	if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
 
-			player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
-			return null;
-		}
+		//	player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
+		//	return null;
+		//}
 
 		private void DoDevelopmentPopups(object state)
 		{

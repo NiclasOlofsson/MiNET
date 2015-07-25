@@ -450,8 +450,6 @@ namespace MiNET
 				Username = message.username;
 			}
 
-			Log.InfoFormat("Login attempt by: {0}", message.username);
-
 			if (message.protocol != 27)
 			{
 				Disconnect("Outdated Minecraft Pocket Edition, please upgrad.");
@@ -662,7 +660,13 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				//if (!IsConnected) return;
+				lock (_sendQueueNotConcurrent)
+				{
+					foreach (var packet in _sendQueueNotConcurrent)
+					{
+						packet.PutPool();
+					}
+				}
 
 				Level.RemovePlayer(this);
 

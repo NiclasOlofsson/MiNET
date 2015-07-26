@@ -1,0 +1,361 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using MiNET;
+using MiNET.Entities;
+using MiNET.Net;
+using MiNET.Plugins;
+using MiNET.Plugins.Attributes;
+using MiNET.Utils;
+using MiNET.Worlds;
+using TestPlugin.Annotations;
+
+namespace TestPlugin.NiceLobby
+{
+	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team"), UsedImplicitly]
+	public class NiceLobbyPlugin : Plugin
+	{
+		[UsedImplicitly] private Timer _popupTimer;
+		[UsedImplicitly] private Timer _gameTimer;
+		[UsedImplicitly] private Timer _scoreboardTimer;
+		[UsedImplicitly] private Timer _tickTimer;
+
+		private long _tick = 0;
+
+		protected override void OnEnable()
+		{
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
+			//_tickTimer = new Timer(LevelTick, null, 0, 50);
+		}
+
+		private double m = 0.1d;
+
+		private void LevelTick(object state)
+		{
+			if (m > 0)
+			{
+				//if (_tick%random.Next(1, 4) == 0)
+				Level level = Context.Levels.First();
+				Random random = level.Random;
+
+				BlockCoordinates point1 = level.SpawnPoint;
+				BlockCoordinates point2 = level.SpawnPoint;
+				point2.X += 10;
+				BlockCoordinates point3 = level.SpawnPoint;
+				point3.X -= 10;
+
+				if (Math.Abs(m - 3) < 0.1)
+				{
+					McpeSetTime timeDay = McpeSetTime.CreateObject();
+					timeDay.time = 0;
+					timeDay.started = 0x80;
+					level.RelayBroadcast(timeDay, true);
+
+					ThreadPool.QueueUserWorkItem(delegate(object o)
+					{
+						Thread.Sleep(100);
+
+						McpeSetTime timeReset = McpeSetTime.CreateObject();
+						timeReset.time = (int) level.CurrentWorldTime;
+						timeReset.started = (byte) (level.IsWorldTimeStarted ? 1 : 0);
+						level.RelayBroadcast(timeDay, true);
+
+						Thread.Sleep(200);
+
+						{
+							var mcpeExplode = McpeExplode.CreateObject();
+							mcpeExplode.x = point1.X;
+							mcpeExplode.y = point1.Y;
+							mcpeExplode.z = point1.Z;
+							mcpeExplode.radius = 100;
+							mcpeExplode.records = new Records();
+							level.RelayBroadcast(mcpeExplode, true);
+						}
+
+						Thread.Sleep(250);
+						{
+							var mcpeExplode = McpeExplode.CreateObject();
+							mcpeExplode.x = point2.X;
+							mcpeExplode.y = point2.Y;
+							mcpeExplode.z = point2.Z;
+							mcpeExplode.radius = 100;
+							mcpeExplode.records = new Records();
+							level.RelayBroadcast(mcpeExplode, true);
+						}
+						Thread.Sleep(250);
+						{
+							var mcpeExplode = McpeExplode.CreateObject();
+							mcpeExplode.x = point3.X;
+							mcpeExplode.y = point3.Y;
+							mcpeExplode.z = point3.Z;
+							mcpeExplode.radius = 100;
+							mcpeExplode.records = new Records();
+							level.RelayBroadcast(mcpeExplode, true);
+						}
+					});
+				}
+
+				if (m < 0.4 || m > 3)
+					for (int i = 0; i < 15 + (30*m); i++)
+					{
+						GenerateParticles(random, level, point1, m < 0.6 ? 0 : 20, new Vector3(m*(m/2), m + 10, m*(m/2)), m);
+						GenerateParticles(random, level, point2, m < 0.4 ? 0 : 12, new Vector3(m, m + 6, m), m);
+						GenerateParticles(random, level, point3, m < 0.2 ? 0 : 9, new Vector3(m/2, m/2 + 6, m/2), m);
+					}
+			}
+			m += 0.1;
+			if (m > 3.8) m = -5;
+		}
+
+		private void GenerateParticles(Random random, Level level, BlockCoordinates point, float yoffset, Vector3 multiplier, double d)
+		{
+			float vx = (float) random.NextDouble();
+			vx *= random.Next(2) == 0 ? 1 : -1;
+			vx *= (float) multiplier.X;
+
+			float vy = (float) random.NextDouble();
+			//vy *= random.Next(2) == 0 ? 1 : -1;
+			vy *= (float) multiplier.Y;
+
+			float vz = (float) random.NextDouble();
+			vz *= random.Next(2) == 0 ? 1 : -1;
+			vz *= (float) multiplier.Z;
+
+			McpeLevelEvent mobParticles = McpeLevelEvent.CreateObject();
+			mobParticles.eventId = (short) (0x4000 | GetParticle(random.Next(0, m < 1 ? 2 : 5)));
+			mobParticles.x = point.X + vx;
+			mobParticles.y = (point.Y - 2) + yoffset + vy;
+			mobParticles.z = point.Z + vz;
+			level.RelayBroadcast(mobParticles);
+		}
+
+		private short GetParticle(int rand)
+		{
+			switch (rand)
+			{
+				case 0:
+					return 4; // Expload
+					break;
+				case 1:
+					return 5; // Flame
+					break;
+				case 2:
+					return 6; // Lava
+					break;
+				case 3:
+					return 2; // Critical
+					break;
+				case 4:
+					return 21; // Lava drip
+					break;
+				case 5:
+					return 13; // Entity flame
+					break;
+			}
+
+			return 4;
+		}
+
+		[PacketHandler, Receive]
+		public Package ChatHandler(McpeText text, Player player)
+		{
+			if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
+
+			player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
+			return null;
+		}
+
+		[PacketHandler, Send, UsedImplicitly]
+		public Package RespawnHandler(McpeRespawn packet, Player player)
+		{
+			McpeMobEffect speedEffect = McpeMobEffect.CreateObject();
+			speedEffect.entityId = 0;
+			speedEffect.eventId = 1;
+			speedEffect.effectId = 1;
+			speedEffect.duration = 0x7fffffff;
+			speedEffect.amplifier = 2;
+			speedEffect.particles = 1;
+			player.SendPackage(speedEffect);
+
+			McpeMobEffect jumpEffect = McpeMobEffect.CreateObject();
+			jumpEffect.entityId = 0;
+			jumpEffect.eventId = 1;
+			jumpEffect.effectId = 8;
+			jumpEffect.duration = 0x7fffffff;
+			jumpEffect.amplifier = 2;
+			jumpEffect.particles = 1;
+			player.SendPackage(jumpEffect);
+
+			player.Level.CurrentWorldTime = 10000;
+			player.Level.IsWorldTimeStarted = false;
+
+			player.SendSetTime();
+
+			return packet;
+		}
+
+		private void DoDevelopmentPopups(object state)
+		{
+			foreach (var level in Context.Levels)
+			{
+				var players = level.GetSpawnedPlayers();
+				foreach (var player in players)
+				{
+					player.AddPopup(new Popup()
+					{
+						MessageType = MessageType.Tip,
+						Message = "This is a development server",
+						Duration = 20*4
+					});
+
+					player.AddPopup(new Popup()
+					{
+						MessageType = MessageType.Popup,
+						Message = "Restarts without notice frequently",
+						Duration = 20*5,
+						DisplayDelay = 20*1
+					});
+				}
+			}
+		}
+
+		private void StartNewRoundCallback(object state)
+		{
+			if (_scoreboardTimer == null)
+			{
+				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
+
+				Context.Levels[0].BroadcastTextMessage(
+					"§6§l»§r§7 --------------------------- §6§l«\n"
+					+ "§e GAME STARTED\n"
+					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+			}
+			else
+			{
+				var players = Context.Levels[0].GetSpawnedPlayers();
+				if (players.Length <= 1) return;
+
+				var winner = players.OrderByDescending(CalculatedKdRatio).FirstOrDefault();
+
+				if (winner != null)
+				{
+					Context.Levels[0].BroadcastTextMessage(
+						"§6§l»§r§7 --------------------------- §6§l«\n"
+						+ "§e Winner!!\n"
+						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
+				}
+				foreach (var player in players)
+				{
+					player.Kills = 0;
+					player.Deaths = 0;
+				}
+
+				Context.Levels[0].BroadcastTextMessage(
+					"§e NEW ROUND STARTED\n"
+					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+			}
+		}
+
+		private static double CalculatedKdRatio(Player player)
+		{
+			return player.Deaths == 0 ? player.Kills : player.Kills/((double) player.Deaths);
+		}
+
+		private void ScoreboardCallback(object state)
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
+			var players = Context.Levels[0].GetSpawnedPlayers();
+			if (players.Length <= 1) return;
+
+			foreach (var player in players.OrderByDescending(CalculatedKdRatio).Take(5))
+			{
+				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
+			}
+			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
+			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
+		}
+
+
+		[Command]
+		public void Hide(Player player)
+		{
+			HidePlayer(player, true);
+			player.Level.BroadcastTextMessage(string.Format("Player {0} hides.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
+		public void Unhide(Player player)
+		{
+			HidePlayer(player, false);
+			player.Level.BroadcastTextMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
+		}
+
+		private void HidePlayer(Player player, bool hide)
+		{
+			Level level = player.Level;
+			if (hide)
+			{
+				foreach (var pair in level.Players)
+				{
+					Player targetPlayer = pair.Value;
+
+					level.SendRemoveForPlayer(targetPlayer, player);
+				}
+			}
+			else
+			{
+				foreach (var targetPlayer in level.GetSpawnedPlayers())
+				{
+					level.SendAddForPlayer(targetPlayer, player);
+				}
+			}
+		}
+
+		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
+
+		//[Command]
+		//public void Hide(Player player, byte id)
+		//{
+		//	Level level = player.Level;
+
+		//	HidePlayer(player, true);
+
+		//	Mob entity = new Mob(id, level)
+		//	{
+		//		KnownPosition = player.KnownPosition,
+		//		//Data = -(blockId | 0 << 0x10)
+		//	};
+		//	entity.SpawnEntity();
+
+		//	player.SendPackage(new McpeRemoveEntity()
+		//	{
+		//		entityId = entity.EntityId,
+		//	});
+
+		//	_playerEntities[player] = entity;
+
+		//	level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
+		//}
+
+
+		[PacketHandler, Receive]
+		public Package HandleIncoming(McpeMovePlayer packet, Player player)
+		{
+			if (_playerEntities.ContainsKey(player))
+			{
+				var entity = _playerEntities[player];
+				entity.KnownPosition = player.KnownPosition;
+				var message = new McpeMoveEntity();
+				message.entities = new EntityLocations();
+				message.entities.Add(entity.EntityId, entity.KnownPosition);
+				player.Level.RelayBroadcast(message);
+			}
+
+			return packet; // Process
+		}
+	}
+}

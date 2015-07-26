@@ -33,24 +33,20 @@ namespace MiNET
 
 			for (byte i = 0; i < 35; i++)
 			{
-				Slots[i] = new MetadataSlot(new ItemStack((short)-1, 0));
+				Slots[i] = new MetadataSlot(new ItemStack((short) -1, 0));
 			}
 
 			byte c = 0;
-			//Slots[c++] = new MetadataSlot(new ItemStack(383, 1, 34));
-			//Slots[c++] = new MetadataSlot(new ItemStack(355, 64));
+			//Slots[c++] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
+
 			//Slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
 			//Slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
 			//Slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
 			//Slots[c++] = new MetadataSlot(new ItemStack(332, 64)); // Snowballs
-			//Slots[c++] = new MetadataSlot(new ItemStack(46, 64));
-			//Slots[c++] = new MetadataSlot(new ItemStack(259, 1));
-			//Slots[c++] = new MetadataSlot(new ItemStack(268, 1));
-			//Slots[c++] = new MetadataSlot(new ItemStack(280, 10));
-			//Slots[c++] = new MetadataSlot(new ItemStack(290, 1));
-			//Slots[c++] = new MetadataSlot(new ItemStack(259, 1)); // Flint/Steal
-			//Slots[c++] = new MetadataSlot(new ItemStack(325, 64, 8)); // Water
-			//Slots[c++] = new MetadataSlot(new ItemStack(325, 64, 10)); // Lava
 
 			for (byte i = 0; i < 6; i++)
 			{
@@ -82,10 +78,10 @@ namespace MiNET
 		{
 			for (byte s = 0; s < Slots.Count; s++)
 			{
-				var b = (MetadataSlot)Slots[s];
+				var b = (MetadataSlot) Slots[s];
 				if (b.Value.Id == itemId && b.Value.Metadata == metadata && b.Value.Count < 64)
 				{
-					SetInventorySlot(s, itemId, (byte)(b.Value.Count + amount), metadata);
+					SetInventorySlot(s, itemId, (byte) (b.Value.Count + amount), metadata);
 					break;
 				}
 				else if (b.Value == null || b.Value.Id == 0 || b.Value.Id == -1)
@@ -109,7 +105,7 @@ namespace MiNET
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (((MetadataSlot)Slots[i]).Value.Id == item.Value.Id && ((MetadataSlot)Slots[i]).Value.Metadata == item.Value.Metadata)
+				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id && ((MetadataSlot) Slots[i]).Value.Metadata == item.Value.Metadata)
 				{
 					return true;
 				}

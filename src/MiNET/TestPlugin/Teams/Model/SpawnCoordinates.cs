@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using MiNET.Utils;
 
-namespace TestPlugin.Teams
+namespace TestPlugin.Teams.Model
 {
 	[DataContract]
 	public struct SpawnCoordinates

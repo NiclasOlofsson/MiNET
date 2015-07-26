@@ -300,8 +300,6 @@ namespace MiNET
 			Log.DebugFormat("z:  {0}", message.z);
 			Log.DebugFormat("face:  {0}", message.face);
 
-			if (message.entityId != EntityId) return;
-
 			switch (message.actionId)
 			{
 				case 5: // Shoot arrow
@@ -366,12 +364,31 @@ namespace MiNET
 
 		public void SpawnLevel(Level level)
 		{
-			DespawnEntity();
-			_chunksUsed.Clear();
+			Level.RemovePlayer(this, true);
+			Level.EntityManager.RemoveEntity(null, this);
+			EntityId = EntityManager.EntityIdUndefined;
+			lock (_chunksUsed)
+			{
+				_chunksUsed.Clear();
+			}
+
 			Level = level;
+			Level.EntityManager.AddEntity(null, this);
+			Level.AddPlayer(this, "", false);
+
+			KnownPosition = new PlayerLocation
+			{
+				X = Level.SpawnPoint.X,
+				Y = Level.SpawnPoint.Y + 10,
+				Z = Level.SpawnPoint.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91
+			};
+
 			SendSetSpawnPosition();
 			HandleRespawn(null);
-			SendChunksForKnownPosition();
+			ForcedSendChunksForKnownPosition();
 		}
 
 		private void SendAdventureSettings()
@@ -474,6 +491,13 @@ namespace MiNET
 				}
 			}
 
+			//if (message.username.StartsWith("iekeo") || EndPoint.Address.ToString() == "1.236.65.223" || EndPoint.Address.ToString().StartsWith("223"))
+			//{
+			//	Disconnect("BANNED! Told ya, don't come back.");
+			//	//Disconnect("BANNED! Come back later, when i'm not working.");
+			//	return;
+			//}
+
 			if (message.username == null || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$") || message.username.Trim().Length == 0)
 			{
 				Disconnect("Invalid username.");
@@ -539,7 +563,7 @@ namespace MiNET
 				});
 
 				LastUpdatedTime = DateTime.UtcNow;
-				Log.InfoFormat("Login complete by: {0} in {1}ms", message.username, watch.ElapsedMilliseconds);
+				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
 			}
 			finally
 			{
@@ -660,7 +684,7 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				lock (_sendQueueNotConcurrent)
+				lock (_queueSync)
 				{
 					foreach (var packet in _sendQueueNotConcurrent)
 					{
@@ -1278,6 +1302,27 @@ namespace MiNET
 
 		private object _sendChunkSync = new object();
 
+		private void ForcedSendChunksForKnownPosition()
+		{
+			var chunkPosition = new ChunkCoordinates(KnownPosition);
+			_currentChunkPosition = chunkPosition;
+
+			int packetCount = 0;
+
+			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
+			{
+				SendPackage(chunk, sendDirect: true);
+
+				if (!IsSpawned)
+				{
+					if (packetCount++ == 56)
+					{
+						InitializePlayer();
+					}
+				}
+			}
+		}
+
 		private void SendChunksForKnownPosition()
 		{
 			if (!Monitor.TryEnter(_sendChunkSync)) return;
@@ -1451,16 +1496,16 @@ namespace MiNET
 		{
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{EntityId, velocity}};
-				Level.RelayBroadcast(motions);
+				motions.entities = new EntityMotions {{0, velocity}};
+				SendPackage(motions, true);
 			}
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				Thread.Sleep(500);
 
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{EntityId, Vector3.Zero}};
-				Level.RelayBroadcast(motions);
+				motions.entities = new EntityMotions {{0, Vector3.Zero}};
+				SendPackage(motions, true);
 			});
 		}
 

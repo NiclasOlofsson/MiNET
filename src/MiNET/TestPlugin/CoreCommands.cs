@@ -20,49 +20,8 @@ namespace TestPlugin
 	{
 		private Dictionary<string, Level> _worlds = new Dictionary<string, Level>();
 
-		private Timer _scoreboardTimer;
-		private Timer _gameTimer;
-		private Timer _popupTimer;
-
-
 		protected override void OnEnable()
 		{
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
-			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
-		}
-
-		//[PacketHandler, Receive]
-		//public Package ChatHandler(McpeText text, Player player)
-		//{
-		//	if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
-
-		//	player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
-		//	return null;
-		//}
-
-		private void DoDevelopmentPopups(object state)
-		{
-			foreach (var level in Context.Levels)
-			{
-				var players = level.GetSpawnedPlayers();
-				foreach (var player in players)
-				{
-					player.AddPopup(new Popup()
-					{
-						MessageType = MessageType.Tip,
-						Message = "This is a development server",
-						Duration = 20*4
-					});
-
-					player.AddPopup(new Popup()
-					{
-						MessageType = MessageType.Popup,
-						Message = "Restarts without notice frequently",
-						Duration = 20*5,
-						DisplayDelay = 20*1
-					});
-				}
-			}
 		}
 
 
@@ -123,10 +82,9 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "gm")]
-		//[Authorize(Users = "gurun")]
 		public void GameMode(Player player, int gameMode)
 		{
-			player.GameMode = (GameMode) gameMode;
+			player.GameMode = (GameMode)gameMode;
 			player.SendPackage(new McpeStartGame
 			{
 				seed = -1,
@@ -163,33 +121,38 @@ namespace TestPlugin
 			player.Level.BroadcastTextMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
-		//[Command(Command = "tp")]
-		//public void Teleport(Player player)
-		//{
-		//	if (!_worlds.ContainsKey("Default")) return;
-		//	Teleport(player, "Default");
-		//}
+		[Command(Command = "tp")]
+		public void Teleport(Player player)
+		{
+			if (!_worlds.ContainsKey("Default")) return;
+			Teleport(player, "Default");
+		}
 
-		//[Command(Command = "tp")]
-		//public void Teleport(Player player, string world)
-		//{
-		//	if (player.Level.LevelId.Equals(world)) return;
+		[Command(Command = "tp")]
+		public void Teleport(Player player, string world)
+		{
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				if (player.Level.LevelId.Equals(world)) return;
 
-		//	if (!_worlds.ContainsKey(player.Level.LevelId))
-		//	{
-		//		_worlds.Add(player.Level.LevelId, player.Level);
-		//	}
+				if (!_worlds.ContainsKey(player.Level.LevelId))
+				{
+					_worlds.Add(player.Level.LevelId, player.Level);
+				}
 
+				if (!_worlds.ContainsKey(world))
+				{
+					Level newLevel = new Level(world, new FlatlandWorldProvider());
+					newLevel.Initialize();
+					_worlds.Add(world, newLevel);
+				}
 
-		//	if (!_worlds.ContainsKey(world))
-		//	{
-		//		_worlds.Add(world, new Level(world, new FlatlandWorldProvider()));
-		//	}
+				Level level = _worlds[world];
+				player.Level.BroadcastTextMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId), type: MessageType.Raw);
 
-		//	Level level = _worlds[world];
-		//	player.SpawnLevel(level);
-		//	level.BroadcastTextMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId));
-		//}
+				player.SpawnLevel(level);
+			});
+		}
 
 		[Command]
 		public void Clear(Player player)
@@ -265,65 +228,6 @@ namespace TestPlugin
 		//	entity.SpawnEntity();
 
 		//	level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id), type: MessageType.Raw);
-		//}
-
-		//[Command]
-		//public void Hide(Player player)
-		//{
-		//	player.Level.HidePlayer(player, true);
-		//	player.Level.BroadcastTextMessage(string.Format("Player {0} hides.", player.Username), type: MessageType.Raw);
-		//}
-
-		//[Command]
-		//public void Unhide(Player player)
-		//{
-		//	player.Level.HidePlayer(player, false);
-		//	player.Level.BroadcastTextMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
-		//}
-
-
-		//private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
-
-		//[Command]
-		//[Authorize(Users = "gurun")]
-		//public void Hide(Player player, byte id)
-		//{
-		//	Level level = player.Level;
-
-		//	level.HidePlayer(player, true);
-
-		//	Mob entity = new Mob(id, level)
-		//	{
-		//		KnownPosition = player.KnownPosition,
-		//		//Data = -(blockId | 0 << 0x10)
-		//	};
-		//	entity.SpawnEntity();
-
-		//	player.SendPackage(new McpeRemoveEntity()
-		//	{
-		//		entityId = entity.EntityId,
-		//	});
-
-		//	_playerEntities[player] = entity;
-
-		//	level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
-		//}
-
-
-		//[PacketHandler, Receive]
-		//public Package HandleIncoming(McpeMovePlayer packet, Player player)
-		//{
-		//	if (_playerEntities.ContainsKey(player))
-		//	{
-		//		var entity = _playerEntities[player];
-		//		entity.KnownPosition = player.KnownPosition;
-		//		var message = new McpeMoveEntity();
-		//		message.entities = new EntityLocations();
-		//		message.entities.Add(entity.EntityId, entity.KnownPosition);
-		//		player.Level.RelayBroadcast(message);
-		//	}
-
-		//	return packet; // Process
 		//}
 
 		[Command]
@@ -444,7 +348,7 @@ namespace TestPlugin
 		{
 			player.SendPackage(new McpeMobEffect
 			{
-				entityId = player.EntityId,
+				entityId = 0,
 				eventId = 1, // Add
 				effectId = (byte) effectId,
 				duration = 20*duration,
@@ -501,63 +405,6 @@ namespace TestPlugin
 				Context.Server.ForwardTarget = new IPEndPoint(host.AddressList[0], 19132);
 				Context.Server.ForwardAllPlayers = true;
 			}
-		}
-
-		private void StartNewRoundCallback(object state)
-		{
-			if (_scoreboardTimer == null)
-			{
-				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
-
-				Context.Levels[0].BroadcastTextMessage(
-					"§6§l»§r§7 --------------------------- §6§l«\n"
-					+ "§e GAME STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
-			}
-			else
-			{
-				var players = Context.Levels[0].GetSpawnedPlayers();
-				if (players.Length <= 1) return;
-
-				var winner = players.OrderByDescending(CalculatedKdRatio).FirstOrDefault();
-
-				if (winner != null)
-				{
-					Context.Levels[0].BroadcastTextMessage(
-						"§6§l»§r§7 --------------------------- §6§l«\n"
-						+ "§e Winner!!\n"
-						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
-				}
-				foreach (var player in players)
-				{
-					player.Kills = 0;
-					player.Deaths = 0;
-				}
-
-				Context.Levels[0].BroadcastTextMessage(
-					"§e NEW ROUND STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
-			}
-		}
-
-		private static double CalculatedKdRatio(Player player)
-		{
-			return player.Deaths == 0 ? player.Kills : player.Kills/((double) player.Deaths);
-		}
-
-		private void ScoreboardCallback(object state)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			var players = Context.Levels[0].GetSpawnedPlayers();
-			if (players.Length <= 1) return;
-
-			foreach (var player in players.OrderByDescending(CalculatedKdRatio).Take(5))
-			{
-				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
-			}
-			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
 		}
 	}
 

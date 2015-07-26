@@ -4,13 +4,13 @@ using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace TestPlugin.Teams
+namespace TestPlugin.Teams.Blocks
 {
-	public class CustomStandingSign : StandingSign
+	public class CustomWallSign : WallSign
 	{
 		private GameManager _gameManager;
 
-		public CustomStandingSign(GameManager gameManager)
+		public CustomWallSign(GameManager gameManager)
 		{
 			_gameManager = gameManager;
 		}

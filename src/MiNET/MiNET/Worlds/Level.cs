@@ -48,7 +48,7 @@ namespace MiNET.Worlds
 		public double CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
-		public bool IsWorldTimeStarted { get; private set; }
+		public bool IsWorldTimeStarted { get; set; }
 
 		public EntityManager EntityManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
@@ -170,10 +170,8 @@ namespace MiNET.Worlds
 
 		public void SpawnToAll(Player player)
 		{
-			foreach (var targetPlayer in Players.Values)
+			foreach (var targetPlayer in GetSpawnedPlayers())
 			{
-				if (!targetPlayer.IsSpawned) continue;
-
 				SendAddForPlayer(player, targetPlayer);
 				SendAddForPlayer(targetPlayer, player);
 			}
@@ -197,9 +195,9 @@ namespace MiNET.Worlds
 			mcpeAddPlayer.metadata = player.GetMetadata().GetBytes();
 			receiver.SendPackage(mcpeAddPlayer);
 
-			//SendEquipmentForPlayer(receiver, player);
+			SendEquipmentForPlayer(receiver, player);
 
-			//SendArmorForPlayer(receiver, player);
+			SendArmorForPlayer(receiver, player);
 		}
 
 		public void SendEquipmentForPlayer(Player receiver, Player player)
@@ -253,15 +251,6 @@ namespace MiNET.Worlds
 
 				SendRemoveForPlayer(targetPlayer, player);
 				SendRemoveForPlayer(player, targetPlayer);
-			}
-		}
-
-		public void HidePlayer(Player player, bool hide)
-		{
-			foreach (var targetPlayer in GetSpawnedPlayers())
-			{
-				if (hide) SendRemoveForPlayer(targetPlayer, player);
-				else SendAddForPlayer(targetPlayer, player);
 			}
 		}
 
@@ -626,17 +615,17 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void RelayBroadcast<T>(T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(T message, bool sendDirect = false) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, GetSpawnedPlayers(), message);
+			RelayBroadcast(null, GetSpawnedPlayers(), message, sendDirect);
 		}
 
-		public void RelayBroadcast<T>(Entity source, T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Entity source, T message, bool sendDirect = false) where T : Package<T>, new()
 		{
-			RelayBroadcast(source, GetSpawnedPlayers(), message);
+			RelayBroadcast(source, GetSpawnedPlayers(), message, sendDirect);
 		}
 
-		public void RelayBroadcast<T>(Entity source, Player[] sendList, T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Entity source, Player[] sendList, T message, bool sendDirect = false) where T : Package<T>, new()
 		{
 			if (message == null) return;
 
@@ -668,7 +657,7 @@ namespace MiNET.Worlds
 					continue;
 				}
 
-				Task sendTask = new Task(obj => ((Player) obj).SendPackage(message), player);
+				Task sendTask = new Task(obj => ((Player) obj).SendPackage(message, sendDirect), player);
 				sendTask.Start();
 			}
 		}
@@ -758,6 +747,13 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
+
+			BlockCoordinates spawn = SpawnPoint;
+			if (block.Coordinates.DistanceTo(spawn) < 30)
+			{
+				return;
+			}
+
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);

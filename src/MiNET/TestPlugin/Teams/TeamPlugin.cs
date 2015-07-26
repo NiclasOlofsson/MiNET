@@ -2,6 +2,7 @@
 using MiNET.Blocks;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using TestPlugin.Teams.Blocks;
 
 namespace TestPlugin.Teams
 {

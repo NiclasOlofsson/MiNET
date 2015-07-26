@@ -1,6 +1,6 @@
 ﻿using MiNET.Blocks;
 
-namespace TestPlugin.Teams
+namespace TestPlugin.Teams.Blocks
 {
 	public class PluginBlockFactory : ICustomBlockFactory
 	{

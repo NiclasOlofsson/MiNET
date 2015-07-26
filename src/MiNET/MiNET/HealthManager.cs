@@ -72,6 +72,14 @@ namespace MiNET
 					Health = 200;
 					return;
 				}
+
+				BlockCoordinates spawn = player.Level.SpawnPoint;
+				if (player.KnownPosition.DistanceTo(new PlayerLocation(spawn.X, spawn.Y, spawn.Z)) < 7)
+				{
+					Health = 200;
+					return;
+				}
+
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 			}
@@ -144,8 +152,6 @@ namespace MiNET
 		{
 			if (IsDead) return;
 
-			OnPlayerKilled(new HealthEventArgs(this, LastDamageSource, Entity));
-
 			IsDead = true;
 			Health = 0;
 			var player = Entity as Player;
@@ -161,12 +167,6 @@ namespace MiNET
 
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
-				player.SendPackage(new McpeRespawn
-				{
-					x = player.Level.SpawnPoint.X,
-					y = player.Level.SpawnPoint.Y,
-					z = player.Level.SpawnPoint.Z
-				});
 			}
 			Entity.BroadcastSetEntityData();
 			Entity.DespawnEntity();
@@ -180,14 +180,6 @@ namespace MiNET
 					z = player.Level.SpawnPoint.Z
 				});
 			}
-		}
-
-		public event EventHandler<HealthEventArgs> PlayerKilled;
-
-		protected virtual void OnPlayerKilled(HealthEventArgs e)
-		{
-			EventHandler<HealthEventArgs> handler = PlayerKilled;
-			if (handler != null) handler(this, e);
 		}
 
 		public virtual void ResetHealth()

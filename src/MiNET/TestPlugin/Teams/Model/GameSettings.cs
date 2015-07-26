@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace TestPlugin.Teams
+namespace TestPlugin.Teams.Model
 {
 	[DataContract]
 	public class GameSettings

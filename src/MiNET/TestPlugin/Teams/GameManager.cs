@@ -9,6 +9,8 @@ using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Utils;
 using MiNET.Worlds;
+using TestPlugin.Teams.Model;
+using GameMode = TestPlugin.Teams.Model.GameMode;
 
 namespace TestPlugin.Teams
 {

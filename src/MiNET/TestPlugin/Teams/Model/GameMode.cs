@@ -1,4 +1,4 @@
-﻿namespace TestPlugin.Teams
+﻿namespace TestPlugin.Teams.Model
 {
 	public enum GameMode
 	{

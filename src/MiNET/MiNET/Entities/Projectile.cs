@@ -29,7 +29,7 @@ namespace MiNET.Entities
 
 			if (Shooter != null)
 			{
-				metadata[17] = new MetadataLong(Shooter.EntityId);
+				metadata[17] = new MetadataLong(0);
 			}
 
 			return metadata;

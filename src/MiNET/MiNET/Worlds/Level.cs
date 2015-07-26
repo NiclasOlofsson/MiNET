@@ -439,6 +439,7 @@ namespace MiNET.Worlds
 		private Stopwatch _tickTimer = new Stopwatch();
 		public long LastTickProcessingTime = 0;
 		public long AvarageTickProcessingTime = 50;
+		public int PlayerCount { get; private set; }
 
 		private void WorldTick(object sender)
 		{
@@ -485,6 +486,7 @@ namespace MiNET.Worlds
 				}
 
 				Player[] players = GetSpawnedPlayers();
+				PlayerCount = players.Length;
 
 				// Player tick
 				foreach (var player in players)

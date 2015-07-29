@@ -7,9 +7,6 @@ namespace TestPlugin.Teams.Model
 	public struct SpawnCoordinates
 	{
 		[DataMember]
-		public int TeamId { get; set; }
-
-		[DataMember]
 		public int X { get; set; }
 
 		[DataMember]
@@ -18,28 +15,30 @@ namespace TestPlugin.Teams.Model
 		[DataMember]
 		public int Z { get; set; }
 
-		public SpawnCoordinates(int teamId, int value) : this()
+		public SpawnCoordinates(int value) : this()
 		{
-			TeamId = teamId;
 			X = value;
 			Y = value;
 			Z = value;
 		}
 
-		public SpawnCoordinates(int teamId, int x, int y, int z) : this()
+		public SpawnCoordinates(int x, int y, int z) : this()
 		{
-			TeamId = teamId;
 			X = x;
 			Y = y;
 			Z = z;
 		}
 
-		public SpawnCoordinates(int teamId, BlockCoordinates v) : this()
+		public SpawnCoordinates(BlockCoordinates v) : this()
 		{
-			TeamId = teamId;
 			X = v.X;
 			Y = v.Y;
 			Z = v.Z;
+		}
+
+		public static implicit operator BlockCoordinates(SpawnCoordinates a)
+		{
+			return new BlockCoordinates(a.X, a.Y, a.Z);
 		}
 	}
 }

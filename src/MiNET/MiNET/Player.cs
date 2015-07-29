@@ -40,6 +40,8 @@ namespace MiNET
 		private Inventory _openInventory;
 		public PlayerInventory Inventory { get; private set; }
 
+		public BlockCoordinates SpawnPosition { get; set; }
+
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
 		public bool IsSpawned { get; set; }
@@ -87,15 +89,17 @@ namespace MiNET
 			IsSpawned = false;
 			IsConnected = true;
 
+			SpawnPosition = Level.SpawnPoint;
 			KnownPosition = new PlayerLocation
 			{
-				X = Level.SpawnPoint.X,
-				Y = Level.SpawnPoint.Y,
-				Z = Level.SpawnPoint.Z,
+				X = SpawnPosition.X,
+				Y = SpawnPosition.Y,
+				Z = SpawnPosition.Z,
 				Yaw = 91,
 				Pitch = 28,
 				HeadYaw = 91
 			};
+
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
@@ -362,34 +366,6 @@ namespace MiNET
 			Level.SetBlockEntity(blockEntity);
 		}
 
-		public void SpawnLevel(Level level)
-		{
-			Level.RemovePlayer(this, true);
-			Level.EntityManager.RemoveEntity(null, this);
-			EntityId = EntityManager.EntityIdUndefined;
-			lock (_chunksUsed)
-			{
-				_chunksUsed.Clear();
-			}
-
-			Level = level;
-			Level.EntityManager.AddEntity(null, this);
-			Level.AddPlayer(this, "", false);
-
-			KnownPosition = new PlayerLocation
-			{
-				X = Level.SpawnPoint.X,
-				Y = Level.SpawnPoint.Y + 10,
-				Z = Level.SpawnPoint.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
-			};
-
-			SendSetSpawnPosition();
-			HandleRespawn(null);
-			ForcedSendChunksForKnownPosition();
-		}
 
 		private void SendAdventureSettings()
 		{
@@ -491,7 +467,7 @@ namespace MiNET
 				}
 			}
 
-			//if (message.username.StartsWith("iekeo") || EndPoint.Address.ToString() == "1.236.65.223" || EndPoint.Address.ToString().StartsWith("223"))
+			//if (message.username.StartsWith("iekeo") || EndPoint.Address.ToString() == "1.236.65.223" || EndPoint.Address.ToString().StartsWith("24.185.157.79"))
 			//{
 			//	Disconnect("BANNED! Told ya, don't come back.");
 			//	//Disconnect("BANNED! Come back later, when i'm not working.");
@@ -576,9 +552,9 @@ namespace MiNET
 			SendPlayerStatus(3);
 
 			McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
-			mcpeRespawn.x = KnownPosition.X;
-			mcpeRespawn.y = KnownPosition.Y;
-			mcpeRespawn.z = KnownPosition.Z;
+			mcpeRespawn.x = SpawnPosition.X;
+			mcpeRespawn.y = SpawnPosition.Y;
+			mcpeRespawn.z = SpawnPosition.Z;
 			SendPackage(mcpeRespawn);
 
 			//send time again
@@ -600,9 +576,9 @@ namespace MiNET
 				// send teleport to spawn
 				KnownPosition = new PlayerLocation
 				{
-					X = Level.SpawnPoint.X,
-					Y = Level.SpawnPoint.Y,
-					Z = Level.SpawnPoint.Z,
+					X = SpawnPosition.X,
+					Y = SpawnPosition.Y,
+					Z = SpawnPosition.Z,
 					Yaw = 91,
 					Pitch = 28,
 					HeadYaw = 91,
@@ -633,6 +609,92 @@ namespace MiNET
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
 		}
+
+		public void SpawnLevel(Level level)
+		{
+			SpawnLevel(level, SpawnPosition);
+		}
+
+		public void SpawnLevel(Level level, BlockCoordinates spawnPoint)
+		{
+			{
+				// send teleport to spawn
+				KnownPosition = new PlayerLocation
+				{
+					X = spawnPoint.X,
+					Y = 400,
+					Z = spawnPoint.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91,
+				};
+
+				SendMovePlayer(true);
+
+				Level.RemovePlayer(this, true);
+
+				Level.EntityManager.RemoveEntity(null, this);
+				EntityId = EntityManager.EntityIdUndefined;
+
+				Level = level; // Change level
+				SpawnPosition = spawnPoint;
+				Level.EntityManager.AddEntity(null, this);
+				Level.AddPlayer(this, "", false);
+
+				ServerInfo serverInfo = Server.ServerInfo;
+				try
+				{
+					Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
+					// reset all health states
+					HealthManager.ResetHealth();
+
+					McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
+					mcpeSetSpawnPosition.x = spawnPoint.X;
+					mcpeSetSpawnPosition.y = (byte)spawnPoint.Y;
+					mcpeSetSpawnPosition.z = spawnPoint.Z;
+					SendPackage(mcpeSetSpawnPosition, true);
+
+					SendSetHealth();
+
+					SendAdventureSettings();
+
+					SendPlayerInventory();
+
+					BroadcastSetEntityData();
+
+					Level.SpawnToAll(this);
+					IsSpawned = true;
+					lock (_chunksUsed)
+					{
+						_chunksUsed.Clear();
+					}
+					ForcedSendChunksForKnownPosition();
+
+					// send teleport to spawn
+					KnownPosition = new PlayerLocation
+					{
+						X = spawnPoint.X,
+						Y = spawnPoint.Y,
+						Z = spawnPoint.Z,
+						Yaw = 91,
+						Pitch = 28,
+						HeadYaw = 91,
+					};
+
+					SendMovePlayer(true);
+
+					Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
+				}
+				finally
+				{
+					Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+				}
+
+				SendSetTime();
+			}
+		}
+
 
 		public void SendSetEntityData()
 		{
@@ -1279,9 +1341,9 @@ namespace MiNET
 			mcpeStartGame.generator = 1;
 			mcpeStartGame.gamemode = (int) Level.GameMode;
 			mcpeStartGame.entityId = 0;
-			mcpeStartGame.spawnX = Level.SpawnPoint.X;
-			mcpeStartGame.spawnY = Level.SpawnPoint.Y;
-			mcpeStartGame.spawnZ = Level.SpawnPoint.Z;
+			mcpeStartGame.spawnX = (int) SpawnPosition.X;
+			mcpeStartGame.spawnY = (int) SpawnPosition.Y;
+			mcpeStartGame.spawnZ = (int) SpawnPosition.Z;
 			mcpeStartGame.x = KnownPosition.X;
 			mcpeStartGame.y = KnownPosition.Y;
 			mcpeStartGame.z = KnownPosition.Z;
@@ -1294,9 +1356,9 @@ namespace MiNET
 		private void SendSetSpawnPosition()
 		{
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
-			mcpeSetSpawnPosition.x = Level.SpawnPoint.X;
-			mcpeSetSpawnPosition.y = (byte) Level.SpawnPoint.Y;
-			mcpeSetSpawnPosition.z = Level.SpawnPoint.Z;
+			mcpeSetSpawnPosition.x = (int) SpawnPosition.X;
+			mcpeSetSpawnPosition.y = (byte) SpawnPosition.Y;
+			mcpeSetSpawnPosition.z = (int) SpawnPosition.Z;
 			SendPackage(mcpeSetSpawnPosition);
 		}
 
@@ -1311,6 +1373,7 @@ namespace MiNET
 
 			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 			{
+				Thread.Sleep(12);
 				SendPackage(chunk, sendDirect: true);
 
 				if (!IsSpawned)
@@ -1404,7 +1467,7 @@ namespace MiNET
 			SendPackage(message);
 		}
 
-		public void SendMovePlayer()
+		public void SendMovePlayer(bool teleport = false)
 		{
 			var package = McpeMovePlayer.CreateObject();
 			package.entityId = 0;
@@ -1414,7 +1477,7 @@ namespace MiNET
 			package.yaw = KnownPosition.Yaw;
 			package.headYaw = KnownPosition.HeadYaw;
 			package.pitch = KnownPosition.Pitch;
-			package.teleport = 0x0;
+			package.teleport = (byte) (teleport?1:0);
 
 			SendPackage(package);
 		}

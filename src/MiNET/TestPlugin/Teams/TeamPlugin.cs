@@ -1,8 +1,7 @@
-﻿using MiNET;
-using MiNET.Blocks;
+﻿using System.Threading;
+using MiNET;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
-using TestPlugin.Teams.Blocks;
 
 namespace TestPlugin.Teams
 {
@@ -11,12 +10,13 @@ namespace TestPlugin.Teams
 	{
 		private MiNetServer _server;
 		private PluginContext _context;
+		private GameManager _gameManager;
 
 		public void Configure(MiNetServer server)
 		{
-			BlockFactory.CustomBlockFactory = new PluginBlockFactory(new GameManager());
+			_gameManager = new GameManager();
+			//BlockFactory.CustomBlockFactory = new PluginBlockFactory(_gameManager);
 		}
-
 
 		public void OnEnable()
 		{
@@ -24,6 +24,14 @@ namespace TestPlugin.Teams
 
 		public void OnDisable()
 		{
+		}
+
+		[Command]
+		public void Join(Player player, string world)
+		{
+			if (player.Level.LevelId.Equals(world)) return;
+
+			_gameManager.Join(player, world);
 		}
 	}
 }

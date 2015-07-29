@@ -425,27 +425,7 @@ namespace MiNET
 				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
 				{
 					OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
-
-					var packet = OpenConnectionReply1.CreateObject();
-					packet.serverGuid = 12345;
-					packet.mtuSize = incoming.mtuSize;
-					packet.serverHasSecurity = 0;
-					var data = packet.Encode();
-					packet.PutPool();
-					TraceSend(packet);
-					SendData(data, senderEndpoint, new object());
-					break;
-				}
-				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
-				{
-					OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
-
-					Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, incoming.clientUdpPort);
-
-					var packet = OpenConnectionReply2.CreateObject();
-					packet.serverGuid = 12345;
-					packet.mtuSize = incoming.mtuSize;
-					packet.doSecurityAndHandshake = new byte[0];
+					Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);
 
 					PlayerNetworkSession session;
 					lock (_playerSessions)
@@ -461,25 +441,53 @@ namespace MiNET
 							if (oldPlayer != null) oldPlayer.Disconnect("Reconnecting.");
 						}
 
-						Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
-
-						session = new PlayerNetworkSession(player, senderEndpoint)
+						session = new PlayerNetworkSession(null, senderEndpoint)
 						{
 							State = ConnectionState.Connecting,
 							LastUpdatedTime = DateTime.UtcNow,
 							Mtuize = incoming.mtuSize
 						};
 
-						player.ClientGuid = incoming.clientGuid;
-						player.NetworkSession = session;
-
 						_playerSessions.TryAdd(senderEndpoint, session);
 					}
 
-
+					var packet = OpenConnectionReply1.CreateObject();
+					packet.serverGuid = 12345;
+					packet.mtuSize = incoming.mtuSize;
+					packet.serverHasSecurity = 0;
 					var data = packet.Encode();
 					packet.PutPool();
+
 					TraceSend(packet);
+
+					SendData(data, senderEndpoint, session.SyncRoot);
+					break;
+				}
+				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
+				{
+					OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
+
+					PlayerNetworkSession session;
+					if (!_playerSessions.TryGetValue(senderEndpoint, out session))
+					{
+						Log.ErrorFormat("Receive connection request 2 without previous session from {0}", senderEndpoint.Address);
+						return;
+					}
+
+					Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
+					player.ClientGuid = incoming.clientGuid;
+					player.NetworkSession = session;
+					session.Player = player;
+
+					var reply = OpenConnectionReply2.CreateObject();
+					reply.serverGuid = 12345;
+					reply.mtuSize = incoming.mtuSize;
+					reply.doSecurityAndHandshake = new byte[0];
+					var data = reply.Encode();
+					reply.PutPool();
+
+					TraceSend(reply);
+
 					SendData(data, senderEndpoint, session.SyncRoot);
 					break;
 				}

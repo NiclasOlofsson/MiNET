@@ -219,6 +219,11 @@ namespace MiNET.Utils
 			}
 		}
 
+		public override string ToString()
+		{
+			return string.Format("X={0}, Y={1}, Z={2}", X, Y, Z);
+		}
+
 		//public override int GetHashCode()
 		//{
 		//	unchecked

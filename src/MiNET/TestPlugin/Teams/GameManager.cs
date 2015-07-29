@@ -27,6 +27,61 @@ namespace TestPlugin.Teams
 			GameTemplates = new Dictionary<string, GameSettings>
 			{
 				{
+					"sw", new GameSettings
+					{
+						Name = "SkyWars",
+						LevelType = typeof (Level),
+						IsTimeLimited = false,
+						AllowRespwan = true,
+						ArenaWorldPath = @"D:\Development\Worlds\Sky Wars 2.0 By JJtCool",
+						ArenaWorldWaterOffset = 55,
+						GameMode = GameMode.TvT,
+						MaxPlayers = Int32.MaxValue,
+						MinPlayers = 3,
+						NumberOfTeams = 3, // Can be 6 because we have that spawn
+						Teams = new List<TeamSettings>
+						{
+							new TeamSettings
+							{
+								TeamId = 0,
+								TeamName = "Intensive Bulldozers",
+								TeamSpawn = new SpawnCoordinates(4, 30, 192)
+							},
+							new TeamSettings
+							{
+								TeamId = 1,
+								TeamName = "Solid Monkeys",
+								TeamSpawn = new SpawnCoordinates(6, 33, 283)
+							},
+							new TeamSettings
+							{
+								TeamId = 2,
+								TeamName = "Alien Butters",
+								TeamSpawn = new SpawnCoordinates(-70, 31, 130)
+							},
+							new TeamSettings
+							{
+								TeamId = 3,
+								TeamName = "Dangerous Skunks",
+								TeamSpawn = new SpawnCoordinates(-181, 28, 170)
+							},
+							new TeamSettings
+							{
+								TeamId = 4,
+								TeamName = "Ninth Scorpions",
+								TeamSpawn = new SpawnCoordinates(-171, 28, 271)
+							},
+							new TeamSettings
+							{
+								TeamId = 5,
+								TeamName = "Bitter Doorstops",
+								TeamSpawn = new SpawnCoordinates(-75, 33, 326)
+							}
+						}
+					}
+				},
+
+				{
 					"1", new GameSettings
 					{
 						Name = "1",
@@ -40,9 +95,9 @@ namespace TestPlugin.Teams
 						MinPlayers = 1,
 						SpawnLocations = new List<SpawnCoordinates>
 						{
-							new SpawnCoordinates(0, 0, 0, 0),
-							new SpawnCoordinates(0, 0, 0, 0),
-							new SpawnCoordinates(0, 0, 0, 0),
+							new SpawnCoordinates(0, 0, 0),
+							new SpawnCoordinates(0, 0, 0),
+							new SpawnCoordinates(0, 0, 0),
 						}
 					}
 				},
@@ -131,16 +186,31 @@ namespace TestPlugin.Teams
 			}
 		}
 
+		private object _joinSyncLock = new object();
+
 		public Game Join(Player player, string world)
 		{
-			if (!Games.ContainsKey(player.Level.LevelId))
+			lock (_joinSyncLock)
 			{
-				Games.Add(player.Level.LevelId, new Game(this)
+				if (!Games.ContainsKey(player.Level.LevelId))
 				{
-					Name = player.Level.LevelId,
-					Level = player.Level,
-					State = GameState.Undefined
-				});
+					GameSettings settings;
+					if (GameTemplates.ContainsKey(player.Level.LevelId))
+					{
+						settings = GameTemplates[world];
+					}
+					else
+					{
+						settings = new GameSettings();
+					}
+
+					Games.Add(player.Level.LevelId, new Game(this, settings)
+					{
+						Name = player.Level.LevelId,
+						Level = player.Level,
+						State = GameState.Undefined
+					});
+				}
 			}
 
 			if (!Games.ContainsKey(world))
@@ -149,7 +219,12 @@ namespace TestPlugin.Teams
 
 				GameSettings settings = GameTemplates[world];
 
-				Level gameLevel = new Level(settings.Name, new AnvilWorldProvider(settings.ArenaWorldPath));
+				Level gameLevel = new Level(settings.Name,
+					new AnvilWorldProvider(settings.ArenaWorldPath)
+					{
+						WaterOffsetY = settings.ArenaWorldWaterOffset
+					});
+
 				gameLevel.Initialize();
 
 				var spawn = gameLevel.SpawnPoint;
@@ -163,7 +238,12 @@ namespace TestPlugin.Teams
 					};
 				}
 
-				Games.Add(world, new Game(this) {Name = world, Level = gameLevel, State = GameState.WaitingToStart});
+				Games.Add(world, new Game(this, settings)
+				{
+					Name = settings.Name,
+					Level = gameLevel,
+					State = GameState.WaitingToStart,
+				});
 			}
 
 			Game currentGame = Games[player.Level.LevelId];
@@ -176,9 +256,22 @@ namespace TestPlugin.Teams
 
 			currentGame.RemovePlayer(player);
 
-			game.AddPlayer(player);
-			player.SpawnLevel(game.Level);
-			game.Level.BroadcastTextMessage(string.Format("{0} joined game <{1}>.", player.Username, game.Name));
+			var spawnPoint = game.AddPlayer(player);
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+
+				{
+					player.SpawnLevel(game.Level, spawnPoint);
+
+					TeamSettings team = game.GetTeamSettingsFor(player);
+					string teamName = string.Empty;
+					if (team != null) teamName = team.TeamName;
+					string text = string.Format("{0} joined team {2} playing {1}.", player.Username, game.Name, teamName);
+					currentGame.Level.BroadcastTextMessage(text, type: MessageType.Raw);
+					game.Level.BroadcastTextMessage(text, type: MessageType.Raw);
+				}
+			});
 
 			return game;
 		}

@@ -19,7 +19,6 @@ namespace MiNET.Worlds
 		private static List<int> _ignore;
 		private static Dictionary<int, int> _convert;
 
-		private byte _waterOffsetY;
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
@@ -27,6 +26,8 @@ namespace MiNET.Worlds
 		private string _basePath;
 
 		public bool IsCaching { get; private set; }
+
+		public byte WaterOffsetY { get; set; }
 
 
 		public AnvilWorldProvider()
@@ -49,8 +50,8 @@ namespace MiNET.Worlds
 			NbtTag dataTag = file.RootTag["Data"];
 			_level = new LevelInfo(dataTag);
 
-			_waterOffsetY = (byte) Config.GetProperty("PCWaterOffset", 0);
-
+			WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
+	
 			_ignore = new List<int>();
 			_ignore.Add(23);
 			_ignore.Add(25);
@@ -231,7 +232,7 @@ namespace MiNET.Worlds
 				ChunkColumn cachedChunk;
 				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
 
-				ChunkColumn chunk = GetChunk(chunkCoordinates, _basePath, _flatland, _waterOffsetY);
+				ChunkColumn chunk = GetChunk(chunkCoordinates, _basePath, _flatland, WaterOffsetY);
 
 				_chunkCache[chunkCoordinates] = chunk;
 
@@ -420,7 +421,7 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2 + _waterOffsetY, _level.SpawnZ);
+			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2/* + WaterOffsetY*/, _level.SpawnZ);
 
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 
@@ -438,7 +439,7 @@ namespace MiNET.Worlds
 			{
 				foreach (var chunkColumn in _chunkCache)
 				{
-					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, _basePath, _waterOffsetY);
+					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, _basePath, WaterOffsetY);
 				}
 			}
 		}

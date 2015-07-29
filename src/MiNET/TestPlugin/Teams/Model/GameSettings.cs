@@ -33,6 +33,29 @@ namespace TestPlugin.Teams.Model
 		public int MinPlayers { get; set; }
 
 		[DataMember]
+		public int NumberOfTeams { get; set; }
+
+		[DataMember]
 		public List<SpawnCoordinates> SpawnLocations { get; set; }
+
+		[DataMember]
+		public byte ArenaWorldWaterOffset { get; set; }
+
+		[DataMember]
+		public List<TeamSettings> Teams { get; set; }
+	}
+
+
+
+	public class TeamSettings
+	{
+		[DataMember]
+		public int TeamId { get; set; }
+
+		[DataMember]
+		public string TeamName { get; set; }
+
+		[DataMember]
+		public SpawnCoordinates TeamSpawn { get; set; }
 	}
 }

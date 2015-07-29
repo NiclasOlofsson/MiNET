@@ -883,7 +883,6 @@ namespace MiNET.Worlds
 
 		public void BreakBlock(BlockCoordinates blockCoordinates)
 		{
-			return;
 			List<ItemStack> drops = new List<ItemStack>();
 
 			Block block = GetBlock(blockCoordinates);

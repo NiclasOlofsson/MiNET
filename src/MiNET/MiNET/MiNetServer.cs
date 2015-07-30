@@ -18,6 +18,7 @@ using MiNET.Plugins;
 using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Commands;
 
 namespace MiNET
 {
@@ -45,6 +46,7 @@ namespace MiNET
 		public LevelFactory LevelFactory { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 
+        public CommandManager CommandManager { get; set; }
 		public PluginManager PluginManager { get; set; }
 		public SessionManager SessionManager { get; set; }
 
@@ -104,6 +106,8 @@ namespace MiNET
 				PluginManager = new PluginManager();
 				PluginManager.LoadPlugins();
 				Log.Info("Plugins loaded!");
+
+                CommandManager = new CommandManager();
 
 				// Bootstrap server
 				PluginManager.ExecuteStartup(this);

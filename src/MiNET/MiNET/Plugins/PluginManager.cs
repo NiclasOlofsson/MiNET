@@ -182,6 +182,10 @@ namespace MiNET.Plugins
                 if(packetHandlers.ContainsKey(type))
                 {
                     packetHandlers[type].Remove(handler);
+                    if(packetHandlers[type].Count == 0)
+                    {
+                        packetHandlers.Remove(type);
+                    }
                 }
             }
         }

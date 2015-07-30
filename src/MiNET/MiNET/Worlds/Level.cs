@@ -265,7 +265,7 @@ namespace MiNET.Worlds
 		}
 
 
-		public void AddEntity(Entity entity)
+		public void AddEntity(ItemEntity entity)
 		{
 			lock (Entities)
 			{
@@ -280,89 +280,41 @@ namespace MiNET.Worlds
 					throw new Exception("Entity existed in the players list when it should not");
 				}
 
-				if (entity is ItemEntity)
+				ItemEntity itemEntity = (ItemEntity) entity;
+
+				Random random = new Random();
+
+				float f = 0.7F;
+				float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+				float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+				float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+
+				McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
+				mcpeAddItemEntity.entityId = itemEntity.EntityId;
+				mcpeAddItemEntity.item = itemEntity.GetMetadataSlot();
+				mcpeAddItemEntity.x = itemEntity.KnownPosition.X + xr;
+				mcpeAddItemEntity.y = itemEntity.KnownPosition.Y + yr;
+				mcpeAddItemEntity.z = itemEntity.KnownPosition.Z + zr;
+				RelayBroadcast(mcpeAddItemEntity);
+
+				entity.IsSpawned = true;
+			}
+		}
+
+		public void AddEntity(Entity entity)
+		{
+			lock (Entities)
+			{
+				EntityManager.AddEntity(null, entity);
+
+				if (!Entities.Contains(entity))
 				{
-					ItemEntity itemEntity = (ItemEntity) entity;
-
-					Random random = new Random();
-
-					float f = 0.7F;
-					float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-					float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-					float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-
-					McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-					mcpeAddItemEntity.entityId = itemEntity.EntityId;
-					mcpeAddItemEntity.item = itemEntity.GetMetadataSlot();
-					mcpeAddItemEntity.x = itemEntity.KnownPosition.X + xr;
-					mcpeAddItemEntity.y = itemEntity.KnownPosition.Y + yr;
-					mcpeAddItemEntity.z = itemEntity.KnownPosition.Z + zr;
-					RelayBroadcast(mcpeAddItemEntity);
+					Entities.Add(entity);
 				}
 				else
 				{
-					var addEntity = McpeAddEntity.CreateObject();
-					addEntity.entityType = entity.EntityTypeId;
-					addEntity.entityId = entity.EntityId;
-					addEntity.x = entity.KnownPosition.X;
-					addEntity.y = entity.KnownPosition.Y;
-					addEntity.z = entity.KnownPosition.Z;
-					addEntity.yaw = entity.KnownPosition.Yaw;
-					addEntity.pitch = entity.KnownPosition.Pitch;
-					addEntity.metadata = entity.GetMetadata();
-					{
-						double dx = entity.Velocity.X;
-						double dy = entity.Velocity.Y;
-						double dz = entity.Velocity.Z;
-						//double maxVelocity = 3.92d;
-
-						//if (dx < -maxVelocity)
-						//{
-						//	dx = -maxVelocity;
-						//}
-
-						//if (dy < -maxVelocity)
-						//{
-						//	dy = -maxVelocity;
-						//}
-
-						//if (dz < -maxVelocity)
-						//{
-						//	dz = -maxVelocity;
-						//}
-
-						//if (dx > maxVelocity)
-						//{
-						//	dx = maxVelocity;
-						//}
-
-						//if (dy > maxVelocity)
-						//{
-						//	dy = maxVelocity;
-						//}
-
-						//if (dz > maxVelocity)
-						//{
-						//	dz = maxVelocity;
-						//}
-
-						//addEntity.speedX = (short)(dx * 8000.0d);
-						//addEntity.speedY = (short)(dy * 8000.0d);
-						//addEntity.speedZ = (short)(dz * 8000.0d);
-						addEntity.speedX = (float) (dx);
-						addEntity.speedY = (float) (dy);
-						addEntity.speedZ = (float) (dz);
-					}
-
-					RelayBroadcast(addEntity);
-
-					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-					mcpeSetEntityData.entityId = entity.EntityId;
-					mcpeSetEntityData.metadata = entity.GetMetadata();
-					RelayBroadcast(mcpeSetEntityData);
+					throw new Exception("Entity existed in the players list when it should not");
 				}
-
-				entity.IsSpawned = true;
 			}
 		}
 
@@ -749,7 +701,6 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
-
 			BlockCoordinates spawn = SpawnPoint;
 			if (block.Coordinates.DistanceTo(spawn) < 30)
 			{

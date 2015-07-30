@@ -119,6 +119,7 @@
     <Compile Include="Blocks\StoneSlab.cs" />
     <Compile Include="Blocks\TallGrass.cs" />
     <Compile Include="Blocks\GrassPath.cs" />
+    <Compile Include="Blocks\Torch.cs" />
     <Compile Include="Blocks\WallSign.cs" />
     <Compile Include="Blocks\StationaryWater.cs" />
     <Compile Include="Blocks\Wood.cs" />

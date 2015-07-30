@@ -41,16 +41,15 @@ namespace MiNET.Blocks
 			LightLevel = 0;
 		}
 
-		public bool CanPlace(Level world)
+		public bool CanPlace(Level world, BlockFace face)
 		{
-			return CanPlace(world, Coordinates);
+			return CanPlace(world, Coordinates, face);
 		}
 
-		protected virtual bool CanPlace(Level world, BlockCoordinates blockCoordinates)
+		protected virtual bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
-
 
 		public virtual void BreakBlock(Level world)
 		{

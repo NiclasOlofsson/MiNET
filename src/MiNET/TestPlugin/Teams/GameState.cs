@@ -1,4 +1,4 @@
-﻿namespace TestPlugin.Teams
+﻿	namespace TestPlugin.Teams
 {
 	public enum GameState
 	{

@@ -159,7 +159,7 @@ namespace TestPlugin.NiceLobby
 			return 4;
 		}
 
-		[PacketHandler, Receive]
+		[PacketHandler, Receive, UsedImplicitly]
 		public Package ChatHandler(McpeText text, Player player)
 		{
 			if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
@@ -189,8 +189,12 @@ namespace TestPlugin.NiceLobby
 			jumpEffect.particles = 1;
 			player.SendPackage(jumpEffect);
 
-			player.Level.CurrentWorldTime = 10000;
-			player.Level.IsWorldTimeStarted = false;
+			if (player.Level.LevelId.Equals("Default"))
+			{
+				player.Level.CurrentWorldTime = 10000;
+				player.Level.IsWorldTimeStarted = false;
+
+			}
 
 			player.SendSetTime();
 

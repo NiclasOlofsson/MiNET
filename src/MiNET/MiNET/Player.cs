@@ -651,7 +651,7 @@ namespace MiNET
 
 					McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
 					mcpeSetSpawnPosition.x = spawnPoint.X;
-					mcpeSetSpawnPosition.y = (byte)spawnPoint.Y;
+					mcpeSetSpawnPosition.y = (byte) spawnPoint.Y;
 					mcpeSetSpawnPosition.z = spawnPoint.Z;
 					SendPackage(mcpeSetSpawnPosition, true);
 
@@ -1477,7 +1477,7 @@ namespace MiNET
 			package.yaw = KnownPosition.Yaw;
 			package.headYaw = KnownPosition.HeadYaw;
 			package.pitch = KnownPosition.Pitch;
-			package.teleport = (byte) (teleport?1:0);
+			package.teleport = (byte) (teleport ? 1 : 0);
 
 			SendPackage(package);
 		}

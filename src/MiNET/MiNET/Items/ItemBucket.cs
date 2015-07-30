@@ -18,7 +18,7 @@ namespace MiNET.Items
 			{
 				Block block = BlockFactory.GetBlockById((byte) Metadata);
 				block.Coordinates = coordinates;
-				if (!block.CanPlace(world)) return;
+				if (!block.CanPlace(world, face)) return;
 				world.SetBlock(block);
 				block.PlaceBlock(world, player, block.Coordinates, face, faceCoords);
 			}

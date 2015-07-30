@@ -77,6 +77,28 @@ namespace MiNET.Entities
 		public virtual void SpawnEntity()
 		{
 			Level.AddEntity(this);
+
+			var addEntity = McpeAddEntity.CreateObject();
+			addEntity.entityType = EntityTypeId;
+			addEntity.entityId = EntityId;
+			addEntity.x = KnownPosition.X;
+			addEntity.y = KnownPosition.Y;
+			addEntity.z = KnownPosition.Z;
+			addEntity.yaw = KnownPosition.Yaw;
+			addEntity.pitch = KnownPosition.Pitch;
+			addEntity.metadata = GetMetadata();
+			addEntity.speedX = (float) Velocity.X;
+			addEntity.speedY = (float) Velocity.Y;
+			addEntity.speedZ = (float) Velocity.Z;
+
+			Level.RelayBroadcast(addEntity);
+
+			IsSpawned = true;
+
+			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			mcpeSetEntityData.entityId = EntityId;
+			mcpeSetEntityData.metadata = GetMetadata();
+			Level.RelayBroadcast(mcpeSetEntityData);
 		}
 
 		public virtual void DespawnEntity()

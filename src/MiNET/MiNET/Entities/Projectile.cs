@@ -23,13 +23,97 @@ namespace MiNET.Entities
 			BroadcastMovement = false;
 		}
 
+		public override void SpawnEntity()
+		{
+			Level.AddEntity(this);
+
+			if(Shooter == null)
+			{
+				var addEntity = McpeAddEntity.CreateObject();
+				addEntity.entityType = EntityTypeId;
+				addEntity.entityId = EntityId;
+				addEntity.x = KnownPosition.X;
+				addEntity.y = KnownPosition.Y;
+				addEntity.z = KnownPosition.Z;
+				addEntity.yaw = KnownPosition.Yaw;
+				addEntity.pitch = KnownPosition.Pitch;
+				addEntity.metadata = GetMetadata();
+				addEntity.speedX = (float)Velocity.X;
+				addEntity.speedY = (float)Velocity.Y;
+				addEntity.speedZ = (float)Velocity.Z;
+
+				Level.RelayBroadcast(addEntity);
+
+				IsSpawned = true;
+
+				McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+				mcpeSetEntityData.entityId = EntityId;
+				mcpeSetEntityData.metadata = GetMetadata();
+				Level.RelayBroadcast(mcpeSetEntityData);
+			}
+			else
+			{
+				{
+
+					var addEntity = McpeAddEntity.CreateObject();
+					addEntity.entityType = EntityTypeId;
+					addEntity.entityId = EntityId;
+					addEntity.x = KnownPosition.X;
+					addEntity.y = KnownPosition.Y;
+					addEntity.z = KnownPosition.Z;
+					addEntity.yaw = KnownPosition.Yaw;
+					addEntity.pitch = KnownPosition.Pitch;
+					addEntity.metadata = GetMetadata();
+					addEntity.speedX = (float)Velocity.X;
+					addEntity.speedY = (float)Velocity.Y;
+					addEntity.speedZ = (float)Velocity.Z;
+
+					Level.RelayBroadcast(Shooter, addEntity);
+
+					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+					mcpeSetEntityData.entityId = EntityId;
+					mcpeSetEntityData.metadata = GetMetadata();
+					Level.RelayBroadcast(Shooter, mcpeSetEntityData);
+				}
+				{
+					MetadataDictionary metadata = GetMetadata();
+					metadata[17] = new MetadataLong(0);
+
+					var addEntity = McpeAddEntity.CreateObject();
+					addEntity.entityType = EntityTypeId;
+					addEntity.entityId = EntityId;
+					addEntity.x = KnownPosition.X;
+					addEntity.y = KnownPosition.Y;
+					addEntity.z = KnownPosition.Z;
+					addEntity.yaw = KnownPosition.Yaw;
+					addEntity.pitch = KnownPosition.Pitch;
+					addEntity.metadata = metadata;
+					addEntity.speedX = (float)Velocity.X;
+					addEntity.speedY = (float)Velocity.Y;
+					addEntity.speedZ = (float)Velocity.Z;
+
+					Shooter.SendPackage(addEntity);
+
+					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+					mcpeSetEntityData.entityId = EntityId;
+					mcpeSetEntityData.metadata = metadata;
+					Shooter.SendPackage(mcpeSetEntityData);
+				}
+
+
+
+			}
+
+
+		}
+
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
 
 			if (Shooter != null)
 			{
-				metadata[17] = new MetadataLong(0);
+				metadata[17] = new MetadataLong(Shooter.EntityId);
 			}
 
 			return metadata;
@@ -51,14 +135,11 @@ namespace MiNET.Entities
 
 			if (KnownPosition.Y <= 0 || Velocity.Distance <= 0) return;
 
-			//var bbox = GetBoundingBox();
-
-			Entity entityCollided = CheckEntityCollide(KnownPosition.ToVector3());
+			Entity entityCollided = CheckEntityCollide(KnownPosition.ToVector3(), Velocity);
 
 			bool collided = false;
 			if (entityCollided != null)
 			{
-				SetIntersectLocation(entityCollided.GetBoundingBox(), KnownPosition);
 				entityCollided.HealthManager.TakeHit(this, 2, DamageCause.Projectile);
 				collided = true;
 			}
@@ -117,27 +198,41 @@ namespace MiNET.Entities
 			if (BroadcastMovement) BroadcastMoveAndMotion();
 		}
 
-		private Entity CheckEntityCollide(Vector3 position)
+		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
 		{
-			Player[] players = Level.GetSpawnedPlayers();
+			var players = Level.GetSpawnedPlayers().OrderBy(player => position.DistanceTo(player.KnownPosition.ToVector3()));
+			Ray2 ray = new Ray2
+			{
+				x = position,
+				d = direction.Normalize()
+			};
+
 			foreach (var entity in players)
 			{
 				if (entity == Shooter) continue;
 
-				if ((entity.GetBoundingBox() + 0.3).Contains(position))
+				if (Intersect(entity.GetBoundingBox(), ray))
 				{
+					if (ray.tNear < direction.Distance) break;
+
+					Vector3 p = ray.x + ray.tNear*ray.d;
+					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
 					return entity;
 				}
 			}
 
-			Entity[] entities = Level.GetEntites();
+			var entities = Level.Entities.OrderBy(entity => position.DistanceTo(entity.KnownPosition.ToVector3()));
 			foreach (var entity in entities)
 			{
 				if (entity == Shooter) continue;
 				if (entity == this) continue;
 
-				if ((entity.GetBoundingBox() + 0.3).Contains(position))
+				if (Intersect(entity.GetBoundingBox(), ray))
 				{
+					if (ray.tNear < direction.Distance) break;
+
+					Vector3 p = ray.x + ray.tNear*ray.d;
+					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
 					return entity;
 				}
 			}
@@ -240,5 +335,144 @@ namespace MiNET.Entities
 		}
 
 		public bool BroadcastMovement { get; set; }
+
+
+		public static Vector3 GetMinimum(BoundingBox bbox)
+		{
+			return bbox.Min;
+		}
+
+		public static Vector3 GetMaximum(BoundingBox bbox)
+		{
+			return bbox.Max;
+		}
+
+		//public static Vector3 getRandom(AxisAlignedBB aabb)
+		//{
+		//	Vector min = getMinimum(aabb), max = getMaximum(aabb);
+		//	Random random = GameManager.getInstance().getRandom();
+		//	return new Vector(
+		//			random.nextFloat() * (max.getX() - min.getX()) + min.getX(),
+		//			random.nextFloat() * (max.getY() - min.getY()) + min.getY(),
+		//			random.nextFloat() * (max.getZ() - min.getZ()) + min.getZ()
+		//	);
+		//}
+
+
+		public static bool Intersect(BoundingBox aabb, Ray2 ray)
+		{
+			Vector3 min = GetMinimum(aabb), max = GetMaximum(aabb);
+			double ix = ray.x.X;
+			double iy = ray.x.Y;
+			double iz = ray.x.Z;
+			double t, u, v;
+			bool hit = false;
+
+			ray.tNear = Double.MaxValue;
+
+			t = (min.X - ix)/ray.d.X;
+			if (t < ray.tNear && t > -Ray2.EPSILON)
+			{
+				u = iz + ray.d.Z*t;
+				v = iy + ray.d.Y*t;
+				if (u >= min.Z && u <= max.Z &&
+				    v >= min.Y && v <= max.Y)
+				{
+					hit = true;
+					ray.tNear = t;
+					ray.u = u;
+					ray.v = v;
+					ray.n.X = -1;
+					ray.n.Y = 0;
+					ray.n.Z = 0;
+				}
+			}
+			t = (max.X - ix)/ray.d.X;
+			if (t < ray.tNear && t > -Ray2.EPSILON)
+			{
+				u = iz + ray.d.Z*t;
+				v = iy + ray.d.Y*t;
+				if (u >= min.Z && u <= max.Z &&
+				    v >= min.Y && v <= max.Y)
+				{
+					hit = true;
+					ray.tNear = t;
+					ray.u = 1 - u;
+					ray.v = v;
+					ray.n.X = 1;
+					ray.n.Y = 0;
+					ray.n.Z = 0;
+				}
+			}
+			t = (min.Y - iy)/ray.d.Y;
+			if (t < ray.tNear && t > -Ray2.EPSILON)
+			{
+				u = ix + ray.d.X*t;
+				v = iz + ray.d.Z*t;
+				if (u >= min.X && u <= max.X &&
+				    v >= min.Z && v <= max.Z)
+				{
+					hit = true;
+					ray.tNear = t;
+					ray.u = u;
+					ray.v = v;
+					ray.n.X = 0;
+					ray.n.Y = -1;
+					ray.n.Z = 0;
+				}
+			}
+			t = (max.Y - iy)/ray.d.Y;
+			if (t < ray.tNear && t > -Ray2.EPSILON)
+			{
+				u = ix + ray.d.X*t;
+				v = iz + ray.d.Z*t;
+				if (u >= min.X && u <= max.X &&
+				    v >= min.Z && v <= max.Z)
+				{
+					hit = true;
+					ray.tNear = t;
+					ray.u = u;
+					ray.v = v;
+					ray.n.X = 0;
+					ray.n.Y = 1;
+					ray.n.Z = 0;
+				}
+			}
+			t = (min.Z - iz)/ray.d.Z;
+			if (t < ray.tNear && t > -Ray2.EPSILON)
+			{
+				u = ix + ray.d.X*t;
+				v = iy + ray.d.Y*t;
+				if (u >= min.X && u <= max.X &&
+				    v >= min.Y && v <= max.Y)
+				{
+					hit = true;
+					ray.tNear = t;
+					ray.u = 1 - u;
+					ray.v = v;
+					ray.n.X = 0;
+					ray.n.Y = 0;
+					ray.n.Z = -1;
+				}
+			}
+			t = (max.Z - iz)/ray.d.Z;
+			if (t < ray.tNear && t > -Ray2.EPSILON)
+			{
+				u = ix + ray.d.X*t;
+				v = iy + ray.d.Y*t;
+				if (u >= min.X && u <= max.X &&
+				    v >= min.Y && v <= max.Y)
+				{
+					hit = true;
+					ray.tNear = t;
+					ray.u = u;
+					ray.v = v;
+					ray.n.X = 0;
+					ray.n.Y = 0;
+					ray.n.Z = 1;
+				}
+			}
+			return hit;
+		}
 	}
 }

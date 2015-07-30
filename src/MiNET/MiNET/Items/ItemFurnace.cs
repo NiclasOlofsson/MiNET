@@ -21,7 +21,7 @@ namespace MiNET.Items
 				Metadata = (byte) Metadata
 			};
 
-			if (!furnace.CanPlace(world)) return;
+			if (!furnace.CanPlace(world, face)) return;
 
 			furnace.PlaceBlock(world, player, coor, face, faceCoords);
 

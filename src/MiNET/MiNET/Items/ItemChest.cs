@@ -20,7 +20,7 @@ namespace MiNET.Items
 				Metadata = (byte) Metadata
 			};
 
-			if (!chest.CanPlace(world)) return;
+			if (!chest.CanPlace(world, face)) return;
 
 			chest.PlaceBlock(world, player, coor, face, faceCoords);
 

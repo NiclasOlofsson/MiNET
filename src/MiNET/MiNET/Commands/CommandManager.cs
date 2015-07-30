@@ -48,14 +48,20 @@ namespace MiNET.Commands
             commandHandlers[command].Add(handler);
         }
 
-        public void RemoveCommandHandler(string command, CommandHandler handler)
+        public void RemoveCommandHandler(CommandHandler handler)
         {
-            if(commandHandlers.ContainsKey(command))
+            List<string> toRemove = new List<string>();
+            foreach(KeyValuePair<string, List<CommandHandler>> entry in commandHandlers)
             {
-                commandHandlers[command].Remove(handler);
-                if(commandHandlers[command].Count == 0)
-                    commandHandlers.Remove(command);
+                if(entry.Value.Contains(handler))
+                {
+                    commandHandlers[entry.Key].Remove(handler);
+                    if(commandHandlers[entry.Key].Count == 0)
+                        toRemove.Add(entry.Key);
+                }
             }
+            foreach(string key in toRemove)
+                commandHandlers.Remove(key);
         }
 
         public void ClearHandlers(string command)

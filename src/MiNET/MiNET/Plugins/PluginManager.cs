@@ -23,7 +23,7 @@ namespace MiNET.Plugins
 		private readonly List<object> _plugins = new List<object>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
-        private readonly List<IPacketHandler> packetHandlers = new List<IPacketHandler>();
+        private readonly Dictionary<Type, List<IPacketHandler>> packetHandlers = new Dictionary<Type, List<IPacketHandler>>();
 		private readonly Dictionary<MethodInfo, CommandAttribute> _pluginCommands = new Dictionary<MethodInfo, CommandAttribute>();
 
 		public List<object> Plugins
@@ -166,12 +166,24 @@ namespace MiNET.Plugins
 
         public void RegisterPacketHandler(IPacketHandler handler)
         {
-            packetHandlers.Add(handler);
+            foreach (Type type in handler.GetPackageTypes()) {
+                if(! packetHandlers.ContainsKey(type))
+                {
+                    packetHandlers.Add(type, new List<IPacketHandler>());
+                }
+                packetHandlers[type].Add(handler);
+            }
         }
 
         public void UnregisterPacketHandler(IPacketHandler handler)
         {
-            packetHandlers.Remove(handler);
+            foreach (Type type in handler.GetPackageTypes())
+            {
+                if(packetHandlers.ContainsKey(type))
+                {
+                    packetHandlers[type].Remove(handler);
+                }
+            }
         }
 
         internal void ExecuteStartup(MiNetServer server)
@@ -396,17 +408,20 @@ namespace MiNET.Plugins
 
 			try
 			{
-                foreach (IPacketHandler handler in packetHandlers)
+                if (packetHandlers.ContainsKey(message.GetType()))
                 {
-                    if(handler == null || ! handler.GetPackageTypes().Contains(message.GetType()))
-                        continue;
-                    if(isReceiveHandler)
+                    foreach (IPacketHandler handler in packetHandlers[message.GetType()])
                     {
-                        handler.OnReceive(message, player);
-                    }
-                    else
-                    {
-                        handler.OnSend(message, player);
+                        if (handler == null || !handler.GetPackageTypes().Contains(message.GetType()))
+                            continue;
+                        if (isReceiveHandler)
+                        {
+                            handler.OnReceive(message, player);
+                        }
+                        else
+                        {
+                            handler.OnSend(message, player);
+                        }
                     }
                 }
 

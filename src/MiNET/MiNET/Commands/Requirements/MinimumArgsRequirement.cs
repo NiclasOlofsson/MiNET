@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiNET.Commands.Requirements
 {
-    class MinimumArgsRequirement : CommandRequirement
+    public class MinimumArgsRequirement : CommandRequirement
     {
         public int Count { get; set; }
 

@@ -28,7 +28,10 @@ namespace MiNET.Commands
         public void HandleCommand(string command, Player player, List<String> args)
         {
             if (!commandHandlers.ContainsKey(command))
+            {
+                player.SendMessage("§cCommand not found!");
                 return;
+            }
 
             CommandCall call = new CommandCall(command, player, args);
             foreach(CommandHandler handler in commandHandlers[command])

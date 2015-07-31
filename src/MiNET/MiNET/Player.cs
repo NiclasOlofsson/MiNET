@@ -675,9 +675,11 @@ namespace MiNET
 		protected virtual void HandleMessage(McpeText message)
 		{
 			string text = message.message;
+            Log.Info(string.Format("<{0}> {1}", Username, text));
 			if (text.StartsWith("/") || text.StartsWith("."))
 			{
 				Server.PluginManager.HandleCommand(Server.UserManager, text, this);
+                Server.CommandManager.HandleRawCommand(text, this);
 			}
 			else
 			{

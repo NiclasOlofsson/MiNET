@@ -1418,8 +1418,8 @@ namespace MiNET
 			Level.RemovePlayer(this);
 		}
 
-		public virtual void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
-		{
+		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
+        {
 			foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
 			{
 				McpeText message = McpeText.CreateObject();

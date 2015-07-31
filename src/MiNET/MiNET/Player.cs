@@ -1326,6 +1326,12 @@ namespace MiNET
 			SendPackage(package);
 		}
 
+        public void Teleport(PlayerLocation location)
+        {
+            KnownPosition = location;
+            SendMovePlayer();
+        }
+
 		public override void OnTick()
 		{
 			base.OnTick();

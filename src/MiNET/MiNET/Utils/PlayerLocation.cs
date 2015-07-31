@@ -24,6 +24,13 @@ namespace MiNET.Utils
 			Z = z;
 		}
 
+        public PlayerLocation(double x, double y, double z)
+        {
+            X = (float) x;
+            Y = (float) y;
+            Z = (float) z;
+        }
+
 		public BlockCoordinates GetCoordinates3D()
 		{
 			return new BlockCoordinates((int) X, (int) Y, (int) Z);

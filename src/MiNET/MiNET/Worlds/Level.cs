@@ -436,8 +436,8 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public virtual void BroadcastTextMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
-		{
+		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
+        {
 			foreach (var line in text.Split('\n'))
 			{
 				McpeText message = McpeText.CreateObject();

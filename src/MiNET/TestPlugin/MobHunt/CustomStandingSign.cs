@@ -35,7 +35,7 @@ namespace TestPlugin.MobHunt
 
 			Level level = Worlds[world];
 			player.SpawnLevel(level);
-			level.BroadcastTextMessage(string.Format("{0} teleported to world <{1}>.", player.Username, level.LevelId));
+			level.BroadcastMessage(string.Format("{0} teleported to world <{1}>.", player.Username, level.LevelId));
 
 			return true;
 		}

@@ -64,20 +64,20 @@ namespace TestPlugin.Teams
 				Time.Restart();
 				State = GameState.Started;
 
-				Level.BroadcastTextMessage(string.Format("Game {0} started.", Name));
+				Level.BroadcastMessage(string.Format("Game {0} started.", Name));
 			}
 			else if (State == GameState.Started && Time.ElapsedMilliseconds >= 30000)
 			{
 				Time.Restart();
 				State = GameState.Finshed;
 
-				Level.BroadcastTextMessage(string.Format("Game {0} finished.", Name));
+				Level.BroadcastMessage(string.Format("Game {0} finished.", Name));
 
 				if (Players.Count > 0)
 				{
 					var winner = PlayerKills.OrderBy(pair => pair.Value).First();
 
-					Level.BroadcastTextMessage(string.Format("Player {0} won game {2} with {1} kills.", winner.Key.Username, winner.Value, Name));
+					Level.BroadcastMessage(string.Format("Player {0} won game {2} with {1} kills.", winner.Key.Username, winner.Value, Name));
 
 					foreach (var player in Players.ToArray())
 					{
@@ -90,7 +90,7 @@ namespace TestPlugin.Teams
 				Time.Restart();
 				State = GameState.WaitingToStart;
 
-				Level.BroadcastTextMessage(string.Format("New game {0} waiting to start.", Name));
+				Level.BroadcastMessage(string.Format("New game {0} waiting to start.", Name));
 			}
 		}
 

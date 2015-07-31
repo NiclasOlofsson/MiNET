@@ -684,7 +684,7 @@ namespace MiNET
 			else
 			{
 				text = TextUtils.Strip(text);
-				Level.BroadcastTextMessage(text, this);
+				Level.BroadcastMessage(text, sender: this);
 			}
 		}
 
@@ -1443,7 +1443,7 @@ namespace MiNET
 			{
 				Player player = HealthManager.LastDamageSource as Player;
 				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
-				Level.BroadcastTextMessage(cause, type: McpeText.TypeRaw);
+				Level.BroadcastMessage(cause, type: McpeText.TypeRaw);
 				Log.DebugFormat(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
 			}
 		}

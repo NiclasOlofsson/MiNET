@@ -176,7 +176,7 @@ namespace TestPlugin.Teams
 
 			game.AddPlayer(player);
 			player.SpawnLevel(game.Level);
-			game.Level.BroadcastTextMessage(string.Format("{0} joined game <{1}>.", player.Username, game.Name));
+			game.Level.BroadcastMessage(string.Format("{0} joined game <{1}>.", player.Username, game.Name));
 
 			return game;
 		}

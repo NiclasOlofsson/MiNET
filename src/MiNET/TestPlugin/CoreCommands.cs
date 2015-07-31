@@ -35,7 +35,7 @@ namespace TestPlugin
 		{
 			if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
 
-			player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
+			player.Level.BroadcastMessage((" §7" + player.Username + "§7: §r§f" + text.message), MessageType.Raw, null);
 			return null;
 		}
 
@@ -139,7 +139,7 @@ namespace TestPlugin
 				z = player.KnownPosition.Z
 			});
 
-			player.Level.BroadcastTextMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
 		}
 
 
@@ -158,7 +158,7 @@ namespace TestPlugin
 			};
 
 			player.SendMovePlayer();
-			player.Level.BroadcastTextMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		//[Command(Command = "tp")]
@@ -204,21 +204,21 @@ namespace TestPlugin
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player)
 		{
-			player.Level.BroadcastTextMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player, int viewDistance)
 		{
 			player.Level.ViewDistance = viewDistance;
-			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
 		[Command(Command = "twitter")]
 		public void Twitter(Player player)
 		{
-			player.Level.BroadcastTextMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastTextMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
 		}
 
 		[Command(Command = "pi")]
@@ -398,7 +398,7 @@ namespace TestPlugin
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);
 
-			player.Level.BroadcastTextMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
 
 		private void SendEquipmentForPlayer(Player player)
@@ -428,7 +428,7 @@ namespace TestPlugin
 		public void Fly(Player player)
 		{
 			player.SendPackage(new McpeAdventureSettings {flags = 0x80});
-			player.Level.BroadcastTextMessage(string.Format("Player {0} enabled flying.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Player {0} enabled flying.", player.Username), type: MessageType.Raw);
 		}
 
 		[Command(Command = "e")]
@@ -449,7 +449,7 @@ namespace TestPlugin
 				amplifier = (byte) amplifier,
 				particles = 0,
 			});
-			player.Level.BroadcastTextMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
 		}
 
 		[Command(Command = "s")]
@@ -500,10 +500,10 @@ namespace TestPlugin
 			{
 				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
 
-				Context.Levels[0].BroadcastTextMessage(
-					"§6§l»§r§7 --------------------------- §6§l«\n"
-					+ "§e GAME STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+				Context.Levels[0].BroadcastMessage(
+                    "§6§l»§r§7 --------------------------- §6§l«\n"
+                    + "§e GAME STARTED\n"
+                    + "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 			else
 			{
@@ -514,10 +514,10 @@ namespace TestPlugin
 
 				if (winner != null)
 				{
-					Context.Levels[0].BroadcastTextMessage(
-						"§6§l»§r§7 --------------------------- §6§l«\n"
-						+ "§e Winner!!\n"
-						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
+					Context.Levels[0].BroadcastMessage(
+                        "§6§l»§r§7 --------------------------- §6§l«\n"
+                        + "§e Winner!!\n"
+                        + "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
 				}
 				foreach (var player in players)
 				{
@@ -525,9 +525,9 @@ namespace TestPlugin
 					player.Deaths = 0;
 				}
 
-				Context.Levels[0].BroadcastTextMessage(
-					"§e NEW ROUND STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+				Context.Levels[0].BroadcastMessage(
+                    "§e NEW ROUND STARTED\n"
+                    + "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 		}
 
@@ -548,7 +548,7 @@ namespace TestPlugin
 				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
 			}
 			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
+			Context.Levels[0].BroadcastMessage(sb.ToString(), type: McpeText.TypeRaw);
 		}
 	}
 }

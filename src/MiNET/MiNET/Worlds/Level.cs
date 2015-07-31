@@ -236,7 +236,7 @@ namespace MiNET.Worlds
 				}
 				else
 				{
-					Log.ErrorFormat("Failed to remove player {0}", player.Username);
+					Log.DebugFormat("Failed to remove player {0}", player.Username);
 				}
 			}
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));

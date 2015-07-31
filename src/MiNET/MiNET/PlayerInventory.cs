@@ -37,16 +37,16 @@ namespace MiNET
 			}
 
 			byte c = 0;
-			Slots[c++] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
-			Slots[c++] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
-			Slots[c++] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
-			Slots[c++] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
-			Slots[c++] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
+			//Slots[c++] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
 
-			Slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
-			Slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
-			Slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
-			Slots[c++] = new MetadataSlot(new ItemStack(332, 64)); // Snowballs
+			//Slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
+			//Slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
+			//Slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
+			//Slots[c++] = new MetadataSlot(new ItemStack(332, 64)); // Snowballs
 
 			for (byte i = 0; i < 6; i++)
 			{

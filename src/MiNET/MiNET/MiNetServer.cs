@@ -30,6 +30,7 @@ namespace MiNET
 		private IPEndPoint _endpoint;
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
+		private ConcurrentDictionary<Tuple<IPAddress, long>, PlayerNetworkSession> _playerSessionsClientIds = new ConcurrentDictionary<Tuple<IPAddress, long>, PlayerNetworkSession>();
 		private Level _level;
 
 
@@ -277,12 +278,12 @@ namespace MiNET
 				}
 				catch (Exception e)
 				{
-					Log.Warn("Process message error", e);
+					Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
 				}
 			}
 			else
 			{
-				Log.Debug("Unexpected end of transmission?");
+				Log.Error("Unexpected end of transmission?");
 			}
 		}
 
@@ -308,6 +309,15 @@ namespace MiNET
 					return;
 				}
 
+				Player player = playerSession.Player;
+
+				if (player == null)
+				{
+					Log.ErrorFormat("Receive MCPE message 0x{1:x2} without player {0}. Session removed.", senderEndpoint.Address, msgId);
+					_playerSessions.TryRemove(senderEndpoint, out playerSession);
+					return;
+				}
+
 				if (playerSession.Evicted) return;
 
 				playerSession.LastUpdatedTime = DateTime.UtcNow;
@@ -321,7 +331,16 @@ namespace MiNET
 					}
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
-					package.Decode(receiveBytes);
+					try
+					{
+						package.Decode(receiveBytes);
+					}
+					catch (Exception e)
+					{
+						player.Disconnect("Bad package received from client.");
+						return;
+					}
+
 					List<Package> messages = package.Messages;
 
 					if (messages.Count == 1)
@@ -385,6 +404,8 @@ namespace MiNET
 			}
 		}
 
+		private Dictionary<IPEndPoint, bool> _connectionAttemps = new Dictionary<IPEndPoint, bool>();
+
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
 			DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
@@ -427,28 +448,25 @@ namespace MiNET
 					OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
 					Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);
 
-					PlayerNetworkSession session;
 					lock (_playerSessions)
 					{
+						PlayerNetworkSession session;
 						if (_playerSessions.TryGetValue(senderEndpoint, out session))
 						{
-							// Already connecting, then this is just a duplicate
-							if (session.State == ConnectionState.Connecting) return;
-
 							Log.WarnFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
 
 							Player oldPlayer = session.Player;
-							if (oldPlayer != null) oldPlayer.Disconnect("Reconnecting.");
+							if (oldPlayer != null)
+							{
+								oldPlayer.Disconnect("Reconnecting.");
+							}
+							else
+							{
+								_playerSessions.TryRemove(session.EndPoint, out session);
+							}
 						}
 
-						session = new PlayerNetworkSession(null, senderEndpoint)
-						{
-							State = ConnectionState.Connecting,
-							LastUpdatedTime = DateTime.UtcNow,
-							Mtuize = incoming.mtuSize
-						};
-
-						_playerSessions.TryAdd(senderEndpoint, session);
+						if (!_connectionAttemps.ContainsKey(senderEndpoint)) _connectionAttemps.Add(senderEndpoint, true);
 					}
 
 					var packet = OpenConnectionReply1.CreateObject();
@@ -460,7 +478,7 @@ namespace MiNET
 
 					TraceSend(packet);
 
-					SendData(data, senderEndpoint, session.SyncRoot);
+					SendData(data, senderEndpoint, new object());
 					break;
 				}
 				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
@@ -468,10 +486,46 @@ namespace MiNET
 					OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
 
 					PlayerNetworkSession session;
-					if (!_playerSessions.TryGetValue(senderEndpoint, out session))
+					lock (_playerSessions)
 					{
-						Log.ErrorFormat("Receive connection request 2 without previous session from {0}", senderEndpoint.Address);
-						return;
+						if (_connectionAttemps.ContainsKey(senderEndpoint))
+						{
+							_connectionAttemps.Remove(senderEndpoint);
+						}
+						else
+						{
+							Log.ErrorFormat("Unexpected connection request packet from {0}.", senderEndpoint.Address);
+						}
+
+						if (_playerSessions.TryGetValue(senderEndpoint, out session))
+						{
+							// Already connecting, then this is just a duplicate
+							if (session.State == ConnectionState.Connecting /* && DateTime.UtcNow < session.LastUpdatedTime + TimeSpan.FromSeconds(2)*/)
+							{
+								return;
+							}
+
+							Log.ErrorFormat("Unexpected session from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
+
+							Player oldPlayer = session.Player;
+							if (oldPlayer != null)
+							{
+								oldPlayer.Disconnect("Reconnecting.");
+							}
+							else
+							{
+								_playerSessions.TryRemove(session.EndPoint, out session);
+							}
+						}
+
+						session = new PlayerNetworkSession(null, senderEndpoint)
+						{
+							State = ConnectionState.Connecting,
+							LastUpdatedTime = DateTime.UtcNow,
+							Mtuize = incoming.mtuSize
+						};
+
+						_playerSessions.TryAdd(senderEndpoint, session);
 					}
 
 					Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
@@ -504,9 +558,11 @@ namespace MiNET
 
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
+			Player player = playerSession.Player;
+
 			if (ForwardAllPlayers)
 			{
-				playerSession.Player.SendPackage(new McpeTransfer
+				player.SendPackage(new McpeTransfer
 				{
 					endpoint = ForwardTarget
 				}, true);
@@ -561,11 +617,18 @@ namespace MiNET
 						playerSession.Splits.Remove(spId);
 
 						byte[] buffer = stream.ToArray();
-						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-						fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
-						fullMessage.OrderingChannel = package._orderingChannel;
-						fullMessage.OrderingIndex = package._orderingIndex;
-						HandlePackage(fullMessage, playerSession);
+						try
+						{
+							Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+							fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+							fullMessage.OrderingChannel = package._orderingChannel;
+							fullMessage.OrderingIndex = package._orderingIndex;
+							HandlePackage(fullMessage, playerSession);
+						}
+						catch (Exception e)
+						{
+							player.Disconnect("Bad package received from client.");
+						}
 					}
 
 					continue;
@@ -673,6 +736,11 @@ namespace MiNET
 
 		private void HandleNak(PlayerNetworkSession session, byte[] receiveBytes)
 		{
+			if (session == null) return;
+
+			Player player = session.Player;
+			if (player == null) return;
+
 			Nak nak = Nak.CreateObject();
 			nak.Decode(receiveBytes);
 
@@ -684,7 +752,7 @@ namespace MiNET
 
 			var queue = session.WaitingForAcksQueue;
 
-			Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, session.Player.Rtt);
+			Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, player.Rtt);
 
 			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
@@ -697,23 +765,28 @@ namespace MiNET
 					// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
 					// RTO = RTT + 4 * RTTVar
 					long rtt = datagram.Timer.ElapsedMilliseconds;
-					long RTT = session.Player.Rtt;
-					long RTTVar = session.Player.RttVar;
+					long RTT = player.Rtt;
+					long RTTVar = player.RttVar;
 
-					session.Player.Rtt = (long) (RTT*0.875 + rtt*0.125);
-					session.Player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-					session.Player.Rto = session.Player.Rtt + 4*session.Player.RttVar + 10; // SYNC time in the end
+					player.Rtt = (long) (RTT*0.875 + rtt*0.125);
+					player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+					player.Rto = player.Rtt + 4*player.RttVar + 10; // SYNC time in the end
 					SendDatagram(session, datagram);
 				}
 				else
 				{
-					Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, session.Player.Username);
+					Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, player.Username);
 				}
 			}
 		}
 
 		private void HandleAck(PlayerNetworkSession session, byte[] receiveBytes)
 		{
+			if (session == null) return;
+
+			Player player = session.Player;
+			if (player == null) return;
+
 			Ack ack = Ack.CreateObject();
 			ack.Decode(receiveBytes);
 
@@ -723,7 +796,7 @@ namespace MiNET
 
 			if (ack.onlyOneSequence != 1 && ack.count > 2)
 			{
-				Log.DebugFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", session.Player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, session.Player.Rtt);
+				Log.DebugFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, player.Rtt);
 			}
 
 			ack.PutPool();
@@ -739,12 +812,12 @@ namespace MiNET
 					// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
 					// RTO = RTT + 4 * RTTVar
 					long rtt = datagram.Timer.ElapsedMilliseconds;
-					long RTT = session.Player.Rtt;
-					long RTTVar = session.Player.RttVar;
+					long RTT = player.Rtt;
+					long RTTVar = player.RttVar;
 
-					session.Player.Rtt = (long) (RTT*0.875 + rtt*0.125);
-					session.Player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-					session.Player.Rto = session.Player.Rtt + 4*session.Player.RttVar + 100; // SYNC time in the end
+					player.Rtt = (long) (RTT*0.875 + rtt*0.125);
+					player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+					player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
 					foreach (MessagePart part in datagram.MessageParts)
 					{
@@ -754,7 +827,7 @@ namespace MiNET
 				}
 				else
 				{
-					Log.DebugFormat("Failed to remove ACK #{0} for {2}. Queue size={1}", i, queue.Count, session.Player.Username);
+					Log.DebugFormat("Failed to remove ACK #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
 				}
 			}
 		}
@@ -809,7 +882,8 @@ namespace MiNET
 
 			message.Source = "HandlePackage";
 
-			playerSession.Player.HandlePackage(message);
+			Player player = playerSession.Player;
+			if (player != null) player.HandlePackage(message);
 
 			message.PutPool();
 		}
@@ -878,33 +952,63 @@ namespace MiNET
 
 					try
 					{
-						long rto = Math.Max(100, session.Player.Rto);
-						{
-							long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-							if (lastUpdate + InacvitityTimeout + 1000 + (rto*2) < now)
-							{
-								session.Evicted = true;
-								// Disconnect user
-								ThreadPool.QueueUserWorkItem(delegate(object o)
-								{
-									PlayerNetworkSession s = o as PlayerNetworkSession;
-									if (s != null)
-									{
-										Player p = s.Player;
-										if (p != null) p.Disconnect("You've been kicked with reason: Network timeout.");
-									}
-								}, session);
+						Player player = session.Player;
 
-								return;
-							}
-							else
+						long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
+						if (lastUpdate + InacvitityTimeout + 3000 + Math.Min(5000, ServerInfo.AvailableBytes) < now)
+						{
+							session.Evicted = true;
+							// Disconnect user
+							ThreadPool.QueueUserWorkItem(delegate(object o)
 							{
-								if (lastUpdate + InacvitityTimeout < now)
+								PlayerNetworkSession s = o as PlayerNetworkSession;
+								if (s != null)
 								{
-									session.Player.DetectLostConnection();
+									Player p = s.Player;
+									if (p != null)
+									{
+										p.Disconnect("You've been kicked with reason: Network timeout.");
+									}
+									else
+									{
+										if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
+										{
+											session.Player = null;
+											session.State = ConnectionState.Unconnected;
+											session.Evicted = true;
+											session.Clean();
+										}
+									}
 								}
-							}
+							}, session);
+
+							return;
 						}
+
+
+						if (session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+						{
+							ThreadPool.QueueUserWorkItem(delegate(object o)
+							{
+								PlayerNetworkSession s = o as PlayerNetworkSession;
+								if (s != null)
+								{
+									Player p = s.Player;
+									if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+								}
+							}, session);
+
+							return;
+						}
+
+						if (player == null) return;
+
+						if (lastUpdate + InacvitityTimeout < now)
+						{
+							player.DetectLostConnection();
+						}
+
+						long rto = Math.Max(100, player.Rto);
 						var queue = session.WaitingForAcksQueue;
 						foreach (var datagram in queue.Values)
 						{
@@ -915,7 +1019,7 @@ namespace MiNET
 								continue;
 							}
 
-							if (session.Player.Rtt == -1) continue;
+							if (player.Rtt == -1) continue;
 
 							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 							if (elapsedTime >= rto*(datagram.TransmissionCount + 2))
@@ -929,11 +1033,11 @@ namespace MiNET
 									{
 										Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),
-											session.Player.Username,
+											player.Username,
 											deleted.FirstMessageId,
 											elapsedTime,
 											rto,
-											session.Player.Rtt);
+											player.Rtt);
 
 
 										foreach (MessagePart part in deleted.MessageParts)
@@ -953,11 +1057,11 @@ namespace MiNET
 											{
 												Log.DebugFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
 													deleted.Header.datagramSequenceNumber.IntValue(),
-													session.Player.Username,
+													player.Username,
 													deleted.FirstMessageId,
 													elapsedTime,
 													rto,
-													session.Player.Rtt);
+													player.Rtt);
 												SendDatagram(session, (Datagram) data);
 											}
 											catch (Exception e)

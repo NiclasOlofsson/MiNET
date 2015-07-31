@@ -238,7 +238,7 @@ namespace MiNET
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 				if (elapsedMilliseconds > 500)
 				{
-					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+					Log.DebugFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 				}
 			}
 			else
@@ -437,7 +437,7 @@ namespace MiNET
 			{
 				if (Username != null)
 				{
-					Log.ErrorFormat("Player {0} doing multiple logins on Level: {1}", Username, Level.LevelId);
+					Log.DebugFormat("Player {0} doing multiple logins on Level: {1}", Username, Level.LevelId);
 					return; // Already doing login
 				}
 				Username = message.username;

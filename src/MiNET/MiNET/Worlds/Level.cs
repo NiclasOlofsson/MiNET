@@ -594,16 +594,14 @@ namespace MiNET.Worlds
 				return;
 			}
 
-			var list = sendList;
-
-			if (message.ReferenceCounter == 1 && list.Length > 1)
+			if (message.ReferenceCounter == 1 && sendList.Length > 1)
 			{
-				message.AddReferences(list.Length - 1);
+				message.AddReferences(sendList.Length - 1);
 			}
 
 			if (message.IsPooled) message.Encode(); // In case forgotten during create
 
-			foreach (var player in list)
+			foreach (var player in sendList)
 			{
 				if (source != null && player == source)
 				{

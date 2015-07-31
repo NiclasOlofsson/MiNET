@@ -746,14 +746,6 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				lock (_queueSync)
-				{
-					foreach (var packet in _sendQueueNotConcurrent)
-					{
-						packet.PutPool();
-					}
-				}
-
 				Level.RemovePlayer(this);
 
 				McpeDisconnect disconnect = McpeDisconnect.CreateObject();
@@ -776,6 +768,13 @@ namespace MiNET
 					session.Clean();
 				}
 
+				while (_sendQueueNotConcurrent.Count > 0)
+				{
+					lock (_queueSync)
+					{
+						SendQueue(null);
+					}
+				}
 				string levelId = Level == null ? "" : Level.LevelId;
 				Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
 			}
@@ -1670,7 +1669,7 @@ namespace MiNET
 			}
 		}
 
-		private void SendQueue(object sender)
+		private void SendQueue(object state)
 		{
 			Queue<Package> queue = _sendQueueNotConcurrent;
 

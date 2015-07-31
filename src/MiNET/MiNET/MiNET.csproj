@@ -125,6 +125,12 @@
     <Compile Include="Blocks\WoodenPlanks.cs" />
     <Compile Include="Blocks\WoodSlab.cs" />
     <Compile Include="Blocks\Tnt.cs" />
+    <Compile Include="Commands\CommandCall.cs" />
+    <Compile Include="Commands\CommandHandler.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\CommandRequirement.cs" />
+    <Compile Include="Commands\RequirementCheckResult.cs" />
+    <Compile Include="Commands\Requirements\MinimumArgsRequirement.cs" />
     <Compile Include="Entities\Arrow.cs" />
     <Compile Include="Entities\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />
@@ -184,6 +190,7 @@
     <Compile Include="PlayerFactory.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />
+    <Compile Include="Plugins\PacketHandler\IPacketHandler.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />
@@ -311,6 +318,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

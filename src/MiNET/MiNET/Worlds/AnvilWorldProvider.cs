@@ -177,7 +177,7 @@ namespace MiNET.Worlds
 				McpeBatch cachedChunk;
 				if (_batchCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
 
-				Log.WarnFormat("Cache-miss, generating full chunk {0},{1}", chunkCoordinates.X, chunkCoordinates.Z);
+				//Log.WarnFormat("Cache-miss, generating full chunk {0},{1}", chunkCoordinates.X, chunkCoordinates.Z);
 
 				ChunkColumn chunk = GenerateChunkColumn(chunkCoordinates);
 

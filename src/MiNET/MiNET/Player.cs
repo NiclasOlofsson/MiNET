@@ -1332,6 +1332,24 @@ namespace MiNET
             SendMovePlayer();
         }
 
+        public void SetGameMode(GameMode gameMode)
+        {
+            GameMode = gameMode;
+            SendPackage(new McpeStartGame
+            {
+                seed = -1,
+                generator = 1,
+                gamemode = (int) gameMode,
+                entityId = EntityId,
+                spawnX = Level.SpawnPoint.X,
+                spawnY = Level.SpawnPoint.Y,
+                spawnZ = Level.SpawnPoint.Z,
+                x = KnownPosition.X,
+                y = KnownPosition.Y,
+                z = KnownPosition.Z
+            });
+        }
+
 		public override void OnTick()
 		{
 			base.OnTick();

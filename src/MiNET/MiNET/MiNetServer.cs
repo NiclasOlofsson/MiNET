@@ -51,8 +51,6 @@ namespace MiNET
 
 		private Random _random = new Random();
 
-		private static bool _isPerformanceTest = false;
-
 		private Timer _internalPingTimer;
 		private Timer _ackTimer;
 		private Timer _cleanerTimer;
@@ -341,6 +339,19 @@ namespace MiNET
 						return;
 					}
 
+
+					// IF reliable code below is enabled, useItem start sending doubles
+					// for some unknown reason.
+
+					//Reliability reliability = package._reliability;
+					//if (reliability == Reliability.Reliable
+					//	|| reliability == Reliability.ReliableSequenced
+					//	|| reliability == Reliability.ReliableOrdered
+					//	)
+					{
+						EnqueueAck(playerSession, package._datagramSequenceNumber);
+					}
+
 					List<Package> messages = package.Messages;
 
 					if (messages.Count == 1)
@@ -373,19 +384,8 @@ namespace MiNET
 						}
 					}
 
-					// IF reliable code below is enabled, useItem start sending doubles
-					// for some unknown reason.
-
-					//Reliability reliability = package._reliability;
-					//if (reliability == Reliability.Reliable
-					//	|| reliability == Reliability.ReliableSequenced
-					//	|| reliability == Reliability.ReliableOrdered
-					//	)
-					{
-						EnqueueAck(playerSession, package._datagramSequenceNumber);
-					}
-
 					DelayedProcessing(playerSession, package);
+					package.PutPool();
 				}
 				else if (header.isACK && header.isValid)
 				{
@@ -404,7 +404,7 @@ namespace MiNET
 			}
 		}
 
-		private Dictionary<IPEndPoint, bool> _connectionAttemps = new Dictionary<IPEndPoint, bool>();
+		private Dictionary<IPEndPoint, DateTime> _connectionAttemps = new Dictionary<IPEndPoint, DateTime>();
 
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
@@ -450,23 +450,36 @@ namespace MiNET
 
 					lock (_playerSessions)
 					{
-						PlayerNetworkSession session;
-						if (_playerSessions.TryGetValue(senderEndpoint, out session))
+						// Already connecting, then this is just a duplicate
+						if (_connectionAttemps.ContainsKey(senderEndpoint))
 						{
-							Log.WarnFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
+							DateTime created;
+							_connectionAttemps.TryGetValue(senderEndpoint, out created);
 
-							Player oldPlayer = session.Player;
-							if (oldPlayer != null)
+							if (DateTime.UtcNow < created + TimeSpan.FromSeconds(3))
 							{
-								oldPlayer.Disconnect("Reconnecting.");
-							}
-							else
-							{
-								_playerSessions.TryRemove(session.EndPoint, out session);
+								return;
 							}
 						}
 
-						if (!_connectionAttemps.ContainsKey(senderEndpoint)) _connectionAttemps.Add(senderEndpoint, true);
+						//PlayerNetworkSession session;
+						//if (_playerSessions.TryGetValue(senderEndpoint, out session))
+						//{
+
+						//	Log.DebugFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
+
+						//	Player oldPlayer = session.Player;
+						//	if (oldPlayer != null)
+						//	{
+						//		oldPlayer.Disconnect("Reconnecting.");
+						//	}
+						//	else
+						//	{
+						//		_playerSessions.TryRemove(session.EndPoint, out session);
+						//	}
+						//}
+
+						if (!_connectionAttemps.ContainsKey(senderEndpoint)) _connectionAttemps.Add(senderEndpoint, DateTime.UtcNow);
 					}
 
 					var packet = OpenConnectionReply1.CreateObject();
@@ -495,7 +508,26 @@ namespace MiNET
 						else
 						{
 							Log.ErrorFormat("Unexpected connection request packet from {0}.", senderEndpoint.Address);
+							return;
 						}
+
+						//PlayerNetworkSession session;
+						if (_playerSessions.TryGetValue(senderEndpoint, out session))
+						{
+
+							Log.WarnFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
+
+							Player oldPlayer = session.Player;
+							if (oldPlayer != null)
+							{
+								oldPlayer.Disconnect("Reconnecting.");
+							}
+							else
+							{
+								_playerSessions.TryRemove(session.EndPoint, out session);
+							}
+						}
+
 
 						if (_playerSessions.TryGetValue(senderEndpoint, out session))
 						{
@@ -624,6 +656,7 @@ namespace MiNET
 							fullMessage.OrderingChannel = package._orderingChannel;
 							fullMessage.OrderingIndex = package._orderingIndex;
 							HandlePackage(fullMessage, playerSession);
+							fullMessage.PutPool();
 						}
 						catch (Exception e)
 						{
@@ -636,9 +669,8 @@ namespace MiNET
 
 				message.Timer.Restart();
 				HandlePackage(message, playerSession);
-				//message.PutPool(); // Handled in HandlePacket now()
+				message.PutPool(); // Handled in HandlePacket now()
 			}
-			package.PutPool();
 		}
 
 		private void HandleQuery(byte[] receiveBytes, IPEndPoint senderEndpoint)
@@ -840,7 +872,6 @@ namespace MiNET
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
-				message.PutPool();
 				return;
 			}
 
@@ -874,9 +905,9 @@ namespace MiNET
 					msg.OrderingChannel = batch.OrderingChannel;
 					msg.OrderingIndex = batch.OrderingIndex;
 					HandlePackage(msg, playerSession);
+					msg.PutPool();
 				}
 
-				batch.PutPool();
 				return;
 			}
 
@@ -884,8 +915,6 @@ namespace MiNET
 
 			Player player = playerSession.Player;
 			if (player != null) player.HandlePackage(message);
-
-			message.PutPool();
 		}
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)

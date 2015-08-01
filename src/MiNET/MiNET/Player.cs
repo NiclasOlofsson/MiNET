@@ -50,7 +50,6 @@ namespace MiNET
 		public long ClientGuid { get; set; }
 		public PermissionManager Permissions { get; set; }
 		public Skin Skin { get; set; }
-		public bool IsBot { get; set; }
 
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
@@ -467,13 +466,6 @@ namespace MiNET
 				}
 			}
 
-			//if (message.username.StartsWith("iekeo") || EndPoint.Address.ToString() == "1.236.65.223" || EndPoint.Address.ToString().StartsWith("24.185.157.79"))
-			//{
-			//	Disconnect("BANNED! Told ya, don't come back.");
-			//	//Disconnect("BANNED! Come back later, when i'm not working.");
-			//	return;
-			//}
-
 			if (message.username == null || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$") || message.username.Trim().Length == 0)
 			{
 				Disconnect("Invalid username.");
@@ -494,8 +486,6 @@ namespace MiNET
 
 				Username = message.username;
 				ClientId = message.clientId;
-
-				if (Username.StartsWith("Player")) IsBot = true; // HACK
 
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
@@ -748,12 +738,12 @@ namespace MiNET
 
 				Level.RemovePlayer(this);
 
-				McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-				disconnect.message = reason;
-				SendPackage(disconnect, true);
-
 				if (IsConnected)
 				{
+					McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+					disconnect.message = reason;
+					SendPackage(disconnect, true);
+
 					IsConnected = false;
 				}
 

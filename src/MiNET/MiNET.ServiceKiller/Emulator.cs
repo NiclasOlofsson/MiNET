@@ -19,6 +19,7 @@ namespace MiNET.ServiceKiller
 
 		private static void Main(string[] args)
 		{
+			AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 			Console.WriteLine("Press <Enter> to start emulation...");
 			Console.ReadLine();
 
@@ -27,27 +28,45 @@ namespace MiNET.ServiceKiller
 			Emulator emulator = new Emulator {Running = true};
 			Random random = new Random();
 
+			//{
+			//	Stopwatch watch = new Stopwatch();
+			//	watch.Start();
+			//	int i = 0;
+			//	while (watch.ElapsedMilliseconds < 300*1000)
+			//	{
+			//		if (i > 0 && i%10 == 0) Thread.Sleep(10000);
+
+			//		string playerName = string.Format("Player-{0}", (i + 1));
+			//		//string playerName = "Player " + Guid.NewGuid();
+			//		ClientEmulator client = new ClientEmulator(emulator, random.Next(60, 120)*1000, playerName, i)
+			//		{
+			//			Random = random
+			//		};
+			//		ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
+
+			//		Thread.Sleep(500);
+
+			//		i++;
+			//	}
+			//}
+
 			{
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
-				int i = 0;
-				while (watch.ElapsedMilliseconds < 300*1000)
+				for (int j = 0; j < 100; j++)
 				{
-					if (i > 0 && i%10 == 0) Thread.Sleep(10000);
-
-					string playerName = string.Format("Player-{0}", (i + 1));
-					//string playerName = "Player " + Guid.NewGuid();
-					ClientEmulator client = new ClientEmulator(emulator, random.Next(60, 120)*1000, playerName, i)
+					string playerName = string.Format("Player-{0}", (j + 1));
+					ClientEmulator client = new ClientEmulator(emulator, 300*1000, playerName, j)
 					{
 						Random = random
 					};
 					ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
-					Thread.Sleep(200);
-
-					i++;
+					Thread.Sleep(500);
 				}
 			}
+
+			Thread.Sleep(300000);
 
 			Console.WriteLine("Press <enter> to stop all clients.");
 
@@ -56,6 +75,11 @@ namespace MiNET.ServiceKiller
 
 			Console.WriteLine("Emulation complete. Press <enter> to exit.");
 			Console.ReadLine();
+		}
+
+		private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+		{
+			Console.WriteLine("ERROR." + unhandledExceptionEventArgs.ExceptionObject);
 		}
 	}
 
@@ -87,7 +111,7 @@ namespace MiNET.ServiceKiller
 				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
 
 				client.Username = Name;
-				client.ClientId = (int) DateTime.UtcNow.Ticks;
+				client.ClientId = ClientId;
 
 				client.StartServer();
 				Console.WriteLine("Client started.");
@@ -108,7 +132,7 @@ namespace MiNET.ServiceKiller
 				{
 					if (client.Listener == null) break;
 
-					float y = Random.Next(7, 10) + /*24*/ 30;
+					float y = Random.Next(7, 10) + /*24*/ 55;
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;
@@ -123,8 +147,8 @@ namespace MiNET.ServiceKiller
 						float z = (float) (length*Math.Sin(angle));
 						y += heightStepsize;
 
-						x += -421;
-						z += -1633;
+						x += -2562;
+						z += 743;
 
 						client.CurrentLocation = new PlayerLocation(x, y, z);
 						client.SendMcpeMovePlayer();

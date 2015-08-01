@@ -150,6 +150,7 @@ namespace MiNET.Net
 				}
 				else
 				{
+					_orderingIndex = 0;
 					_orderingChannel = 0;
 				}
 

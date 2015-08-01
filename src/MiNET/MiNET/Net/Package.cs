@@ -479,6 +479,7 @@ namespace MiNET.Net
 		public virtual void Reset()
 		{
 			DatagramSequenceNumber = 0;
+			OrderingIndex = 0;
 			_encodedMessage = null;
 			_writer.Flush();
 			_buffer.SetLength(0);

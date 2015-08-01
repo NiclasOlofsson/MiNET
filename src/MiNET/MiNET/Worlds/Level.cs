@@ -702,7 +702,7 @@ namespace MiNET.Worlds
 			BlockCoordinates spawn = SpawnPoint;
 			if (block.Coordinates.DistanceTo(spawn) < 30)
 			{
-				return;
+				//return;
 			}
 
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));

@@ -174,6 +174,7 @@ namespace MiNET.Worlds
 				{90, 0}, // Nether Portal	=> Air
 				{93, 0}, // Red Repeater	O	=> Air
 				{94, 0}, // Red Repeater I	=> Air
+				{95, 20}, // Invisible bedrock	=> Air
 				{97, 1}, // Stone Monster Eg	=> Stone
 				{113, 85}, // Nether Fence		=> Fence
 				{115, 0}, // Nether Wart		=> Air
@@ -339,7 +340,7 @@ namespace MiNET.Worlds
 								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
 								else if (_gaps.BinarySearch(blockId) >= 0)
 								{
-									Debug.WriteLine("Missing material: " + blockId);
+									Log.DebugFormat("Missing material: {0}", blockId);
 									blockId = 133;
 								}
 

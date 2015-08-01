@@ -16,6 +16,7 @@ namespace MiNET
 		public Player Player { get; set; }
 		public int Mtuize { get; set; }
 
+		public DateTime CreateTime { get; private set; }
 		public IPEndPoint EndPoint { get; private set; }
 		public UdpClient UdpClient { get; set; }
 
@@ -40,6 +41,7 @@ namespace MiNET
 			ProcessSyncRoot = new object();
 			Player = player;
 			EndPoint = endPoint;
+			CreateTime = DateTime.UtcNow;
 		}
 
 		public Dictionary<int, SplitPartPackage[]> Splits

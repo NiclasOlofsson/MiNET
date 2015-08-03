@@ -58,7 +58,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigSamplePlugin.cs" />
     <Compile Include="CoreCommands.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />
     <Compile Include="Pets\Pet.cs" />

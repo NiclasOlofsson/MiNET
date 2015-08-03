@@ -53,6 +53,7 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -182,6 +183,29 @@
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\McpeText.cs" />
     <Compile Include="Net\Skin.cs" />
+    <Compile Include="Particles\BubbleParticle.cs" />
+    <Compile Include="Particles\CriticalParticle.cs" />
+    <Compile Include="Particles\DestroyBlockParticle.cs" />
+    <Compile Include="Particles\DustParticle.cs" />
+    <Compile Include="Particles\EnchantParticle.cs" />
+    <Compile Include="Particles\EntityFlameParticle.cs" />
+    <Compile Include="Particles\ExploadParticle.cs" />
+    <Compile Include="Particles\FlameParticle.cs" />
+    <Compile Include="Particles\HeartParticle.cs" />
+    <Compile Include="Particles\InkParticle.cs" />
+    <Compile Include="Particles\ItemBreakParticle.cs" />
+    <Compile Include="Particles\LavaDripParticle.cs" />
+    <Compile Include="Particles\LavaParticle.cs" />
+    <Compile Include="Particles\Particle.cs" />
+    <Compile Include="Particles\PortalParticle.cs" />
+    <Compile Include="Particles\RedstoneParticle.cs" />
+    <Compile Include="Particles\SmokeParticle.cs" />
+    <Compile Include="Particles\SpawnParticle.cs" />
+    <Compile Include="Particles\SplashParticle.cs" />
+    <Compile Include="Particles\SporeParticle.cs" />
+    <Compile Include="Particles\TerrainParticle.cs" />
+    <Compile Include="Particles\WaterDripParticle.cs" />
+    <Compile Include="Particles\WaterParticle.cs" />
     <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerFactory.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
@@ -308,9 +332,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

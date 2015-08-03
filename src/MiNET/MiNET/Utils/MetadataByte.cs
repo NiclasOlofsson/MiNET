@@ -25,6 +25,11 @@ namespace MiNET.Utils
 		{
 		}
 
+		public MetadataByte(bool value)
+		{
+			Value = (byte) (value ? 1 : 0);
+		}
+
 		public MetadataByte(byte value)
 		{
 			Value = value;
@@ -45,6 +50,5 @@ namespace MiNET.Utils
 		{
 			return string.Format("{0} {1} {2}", FriendlyName, Identifier, Value);
 		}
-
 	}
 }

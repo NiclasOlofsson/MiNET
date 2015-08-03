@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -700,10 +701,10 @@ namespace MiNET.Worlds
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
 			BlockCoordinates spawn = SpawnPoint;
-			if (block.Coordinates.DistanceTo(spawn) < 30)
-			{
-				//return;
-			}
+			//if (block.Coordinates.DistanceTo(spawn) < 30)
+			//{
+			//	return;
+			//}
 
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
@@ -910,6 +911,18 @@ namespace MiNET.Worlds
 			Players.TryGetValue(targetEntityId, out entity);
 
 			return entity ?? Entities.FirstOrDefault(e => e.EntityId == targetEntityId);
+		}
+
+
+		public ChunkColumn[] GetLoadedChunks()
+		{
+			var provider = _worldProvider as AnvilWorldProvider;
+			if (provider != null)
+			{
+				return provider.GetCachedChunks();
+			}
+
+			return new ChunkColumn[0];
 		}
 	}
 }

@@ -600,20 +600,23 @@ namespace MiNET
 			}
 		}
 
-		public void SpawnLevel(Level level)
+		public void SpawnLevel(Level toLevel)
 		{
-			SpawnLevel(level, SpawnPosition);
+			SpawnLevel(toLevel, SpawnPosition);
 		}
 
-		public void SpawnLevel(Level level, BlockCoordinates spawnPoint)
+		public void SpawnLevel(Level toLevel, BlockCoordinates spawnPoint)
 		{
 			{
-				// send teleport to spawn
+				NoAi = true;
+				SendSetEntityData();
+
+				// send teleport straight up, no chunk loading
 				KnownPosition = new PlayerLocation
 				{
-					X = spawnPoint.X,
-					Y = 400,
-					Z = spawnPoint.Z,
+					X = KnownPosition.X,
+					Y = 4000,
+					Z = KnownPosition.Z,
 					Yaw = 91,
 					Pitch = 28,
 					HeadYaw = 91,
@@ -626,60 +629,53 @@ namespace MiNET
 				Level.EntityManager.RemoveEntity(null, this);
 				EntityId = EntityManager.EntityIdUndefined;
 
-				Level = level; // Change level
+				Level = toLevel; // Change level
 				SpawnPosition = spawnPoint;
 				Level.EntityManager.AddEntity(null, this);
 				Level.AddPlayer(this, "", false);
+				// reset all health states
+				HealthManager.ResetHealth();
 
-				ServerInfo serverInfo = Server.ServerInfo;
-				try
+				McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
+				mcpeSetSpawnPosition.x = spawnPoint.X;
+				mcpeSetSpawnPosition.y = (byte) spawnPoint.Y;
+				mcpeSetSpawnPosition.z = spawnPoint.Z;
+				SendPackage(mcpeSetSpawnPosition, true);
+
+				SendSetHealth();
+
+				SendAdventureSettings();
+
+				SendPlayerInventory();
+
+				BroadcastSetEntityData();
+
+				Level.SpawnToAll(this);
+				IsSpawned = true;
+				lock (_chunksUsed)
 				{
-					Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
-					// reset all health states
-					HealthManager.ResetHealth();
-
-					McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
-					mcpeSetSpawnPosition.x = spawnPoint.X;
-					mcpeSetSpawnPosition.y = (byte) spawnPoint.Y;
-					mcpeSetSpawnPosition.z = spawnPoint.Z;
-					SendPackage(mcpeSetSpawnPosition, true);
-
-					SendSetHealth();
-
-					SendAdventureSettings();
-
-					SendPlayerInventory();
-
-					BroadcastSetEntityData();
-
-					Level.SpawnToAll(this);
-					IsSpawned = true;
-					lock (_chunksUsed)
-					{
-						_chunksUsed.Clear();
-					}
-					ForcedSendChunksForKnownPosition();
-
-					// send teleport to spawn
-					KnownPosition = new PlayerLocation
-					{
-						X = spawnPoint.X,
-						Y = spawnPoint.Y,
-						Z = spawnPoint.Z,
-						Yaw = 91,
-						Pitch = 28,
-						HeadYaw = 91,
-					};
-
-					SendMovePlayer(true);
-
-					Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
+					_chunksUsed.Clear();
 				}
-				finally
+
+				ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
+
+				// send teleport to spawn
+				KnownPosition = new PlayerLocation
 				{
-					Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
-				}
+					X = spawnPoint.X,
+					Y = spawnPoint.Y,
+					Z = spawnPoint.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91,
+				};
+
+				SendMovePlayer(true);
+
+				NoAi = false;
+				SendSetEntityData();
+
+				Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
 
 				SendSetTime();
 			}
@@ -1567,16 +1563,20 @@ namespace MiNET
 			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(NameTag ?? Username);
-			metadata[3] = new MetadataByte(1);
-			metadata[4] = new MetadataByte(0);
-			metadata[7] = new MetadataInt(0);
-			metadata[8] = new MetadataByte(0);
-			metadata[15] = new MetadataByte(0);
-			metadata[16] = new MetadataByte(0);
+			metadata[3] = new MetadataByte(!HideNameTag);
+			metadata[4] = new MetadataByte(Silent);
+			metadata[7] = new MetadataInt(0); // Potion Color
+			metadata[8] = new MetadataByte(0); // Potion Ambient
+			metadata[15] = new MetadataByte(NoAi);
+			metadata[16] = new MetadataByte(0); // Player flags
 			metadata[17] = new MetadataLong(0);
 
 			return metadata;
 		}
+
+		public bool Silent { get; set; }
+		public bool HideNameTag { get; set; }
+		public bool NoAi { get; set; }
 
 
 		public override void DespawnEntity()

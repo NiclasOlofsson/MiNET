@@ -32,6 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="fNbt, Version=0.6.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\fNbt.0.6.3\lib\net35-client\fNbt.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -56,30 +60,14 @@
   <ItemGroup>
     <Compile Include="ConfigSamplePlugin.cs" />
     <Compile Include="CoreCommands.cs" />
-    <Compile Include="MobHunt\CustomStandingSign.cs" />
-    <Compile Include="MobHunt\MobHuntPlugin.cs" />
-    <Compile Include="MobHunt\MobHuntLevel.cs" />
-    <Compile Include="MobHunt\MobHuntLevelFactory.cs" />
-    <Compile Include="MobHunt\PluginBlockFactory.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />
     <Compile Include="Pets\Pet.cs" />
     <Compile Include="Pets\PetHealthManager.cs" />
     <Compile Include="Pets\PetsPlugin.cs" />
     <Compile Include="Pets\PetTypes.cs" />
     <Compile Include="Properties\Annotations.cs" />
-    <Compile Include="Teams\Blocks\CustomStandingSign.cs" />
-    <Compile Include="Teams\Blocks\CustomWallSign.cs" />
-    <Compile Include="Teams\Blocks\PluginBlockFactory.cs" />
-    <Compile Include="Teams\Game.cs" />
-    <Compile Include="Teams\GameManager.cs" />
-    <Compile Include="Teams\GameState.cs" />
-    <Compile Include="Teams\Model\GameMode.cs" />
-    <Compile Include="Teams\Model\GameSettings.cs" />
-    <Compile Include="Teams\Model\SpawnCoordinates.cs" />
-    <Compile Include="Teams\TeamPlugin.cs" />
     <Compile Include="TestPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WorldEdit\WorldEditPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiNET\MiNET.csproj">

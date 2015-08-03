@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using log4net;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Net;
@@ -18,10 +21,13 @@ namespace TestPlugin
 	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class CoreCommands : Plugin
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (CoreCommands));
+
 		private Dictionary<string, Level> _worlds = new Dictionary<string, Level>();
 
 		protected override void OnEnable()
 		{
+			//Context.PluginManager.RegisterCommands(Version);
 		}
 
 
@@ -84,7 +90,7 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
-			player.GameMode = (GameMode)gameMode;
+			player.GameMode = (GameMode) gameMode;
 			player.SendPackage(new McpeStartGame
 			{
 				seed = -1,
@@ -208,10 +214,15 @@ namespace TestPlugin
 			int zi = (chunkZ%32);
 			if (zi < 0) zi += 32;
 
-			player.SendMessage(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5), type: MessageType.Raw);
-			player.SendMessage(string.Format("Local chunk X={0} Z={1}", xi, zi), type: MessageType.Raw);
-			player.SendMessage(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ), type: MessageType.Raw);
-			player.SendMessage(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z), type: MessageType.Raw);
+			StringBuilder sb = new StringBuilder();
+			sb.AppendLine(string.Format("Region X:{0} Z:{1}", chunkX >> 5, chunkZ >> 5));
+			sb.AppendLine(string.Format("Local chunk X:{0} Z:{1}", xi, zi));
+			sb.AppendLine(string.Format("Chunk X:{0} Z:{1}", chunkX, chunkZ));
+			sb.AppendLine(string.Format("Position X:{0:F1} Y:{1:F1} Z:{2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
+			string text = sb.ToString();
+
+			player.SendMessage(text, type: MessageType.Raw);
+			Log.Info(text);
 		}
 
 		//[Command]

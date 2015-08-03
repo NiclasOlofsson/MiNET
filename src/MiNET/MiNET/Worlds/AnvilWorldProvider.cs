@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -51,7 +51,7 @@ namespace MiNET.Worlds
 			_level = new LevelInfo(dataTag);
 
 			WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
-	
+
 			_ignore = new List<int>();
 			_ignore.Add(23);
 			_ignore.Add(25);
@@ -224,6 +224,14 @@ namespace MiNET.Worlds
 				{191, 85}, // Dark Oak Fence	=> Fence
 				{192, 85}, // Acacia Fence		=> Fence
 			};
+		}
+
+		public ChunkColumn[] GetCachedChunks()
+		{
+			lock (_chunkCache)
+			{
+				return _chunkCache.Values.ToArray();
+			}
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
@@ -422,7 +430,7 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2/* + WaterOffsetY*/, _level.SpawnZ);
+			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2 /* + WaterOffsetY*/, _level.SpawnZ);
 
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 

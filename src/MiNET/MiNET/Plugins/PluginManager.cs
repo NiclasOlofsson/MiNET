@@ -60,6 +60,7 @@ namespace MiNET.Plugins
 				foreach (string pluginPath in Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories))
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
+
 					Type[] types = newAssembly.GetExportedTypes();
 					foreach (Type type in types)
 					{
@@ -98,13 +99,16 @@ namespace MiNET.Plugins
 		{
 			if (_currentPath == null) return null;
 
-			//string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-			//pluginDirectory = Config.GetProperty("PluginDirectory", pluginDirectory);
-			//pluginDirectory = Path.GetFullPath(pluginDirectory);
-
-			AssemblyName name = new AssemblyName(args.Name);
-			string assemblyPath = _currentPath + "\\" + name.Name + ".dll";
-			return Assembly.LoadFile(assemblyPath);
+			try
+			{
+				AssemblyName name = new AssemblyName(args.Name);
+				string assemblyPath = _currentPath + "\\" + name.Name + ".dll";
+				return Assembly.LoadFile(assemblyPath);
+			}
+			catch (Exception)
+			{
+				return Assembly.LoadFile(args.Name + ".dll");
+			}
 		}
 
 		private void LoadCommands(Type type)
@@ -401,8 +405,8 @@ namespace MiNET.Plugins
 
 				foreach (var handler in packetHandlers)
 				{
-					if(handler.Value == null) continue;
-					if(handler.Key == null) continue;
+					if (handler.Value == null) continue;
+					if (handler.Key == null) continue;
 
 					PacketHandlerAttribute atrib = handler.Value;
 					if (atrib.PacketType == null) continue;

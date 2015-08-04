@@ -51,33 +51,6 @@ namespace TestPlugin
 			player.SendMessage(sb.ToString(), type: MessageType.Raw);
 		}
 
-		//[Command]
-		//public void Login(Player player, string password)
-		//{
-		//	UserManager<User> userManager = player.Server.UserManager;
-		//	if (userManager != null)
-		//	{
-		//		if (player.Username == null) return;
-
-		//		User user = userManager.FindByName(player.Username);
-
-		//		if (user == null)
-		//		{
-		//			user = new User(player.Username);
-		//			if (!userManager.Create(user, password).Succeeded) return;
-		//		}
-
-		//		if (userManager.CheckPassword(user, password))
-		//		{
-		//			player.SendMessage("Login successful");
-		//		}
-		//		else
-		//		{
-		//			player.SendMessage("Login failed");
-		//		}
-		//	}
-		//}
-
 		[Command(Command = "items")]
 		public void AddItems(Player player, byte itemId, int noItems)
 		{

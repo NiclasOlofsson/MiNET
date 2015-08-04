@@ -600,6 +600,21 @@ namespace MiNET
 			}
 		}
 
+		public void SetPosition(PlayerLocation position, bool teleport = true)
+		{
+			var package = McpeMovePlayer.CreateObject();
+			package.entityId = 0;
+			package.x = position.X;
+			package.y = position.Y + 1.62f;
+			package.z = position.Z;
+			package.yaw = position.Yaw;
+			package.headYaw = position.HeadYaw;
+			package.pitch = position.Pitch;
+			package.teleport = (byte) (teleport ? 1 : 0);
+
+			SendPackage(package);
+		}
+
 		public void SpawnLevel(Level toLevel)
 		{
 			SpawnLevel(toLevel, SpawnPosition);
@@ -612,7 +627,7 @@ namespace MiNET
 				SendSetEntityData();
 
 				// send teleport straight up, no chunk loading
-				KnownPosition = new PlayerLocation
+				SetPosition(new PlayerLocation
 				{
 					X = KnownPosition.X,
 					Y = 4000,
@@ -620,9 +635,7 @@ namespace MiNET
 					Yaw = 91,
 					Pitch = 28,
 					HeadYaw = 91,
-				};
-
-				SendMovePlayer(true);
+				});
 
 				Level.RemovePlayer(this, true);
 
@@ -660,7 +673,7 @@ namespace MiNET
 				ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
 
 				// send teleport to spawn
-				KnownPosition = new PlayerLocation
+				SetPosition(new PlayerLocation
 				{
 					X = spawnPoint.X,
 					Y = spawnPoint.Y,
@@ -668,9 +681,7 @@ namespace MiNET
 					Yaw = 91,
 					Pitch = 28,
 					HeadYaw = 91,
-				};
-
-				SendMovePlayer(true);
+				});
 
 				NoAi = false;
 				SendSetEntityData();

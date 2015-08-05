@@ -732,7 +732,25 @@ namespace MiNET
 			SendPackage(mcpePlayerStatus);
 		}
 
-		private object _disconnectSync = new object();
+        public void SetGameMode(GameMode gameMode)
+        {
+            GameMode = gameMode;
+            SendPackage(new McpeStartGame
+            {
+                seed = -1,
+                generator = 1,
+                gamemode = (int)gameMode,
+                entityId = EntityId,
+                spawnX = Level.SpawnPoint.X,
+                spawnY = Level.SpawnPoint.Y,
+                spawnZ = Level.SpawnPoint.Z,
+                x = KnownPosition.X,
+                y = KnownPosition.Y,
+                z = KnownPosition.Z
+            });
+        }
+
+        private object _disconnectSync = new object();
 
 		public virtual void Disconnect(string reason)
 		{
@@ -793,7 +811,7 @@ namespace MiNET
 			else
 			{
 				text = TextUtils.Strip(text);
-				Level.BroadcastTextMessage(text, this);
+				Level.BroadcastMessage(text, sender: this);
 			}
 		}
 
@@ -1598,8 +1616,8 @@ namespace MiNET
 			Level.DespawnFromAll(this);
 		}
 
-		public virtual void SendMessage(string text, Player sender = null, MessageType type = MessageType.Chat)
-		{
+		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
+        {
 			foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
 			{
 				McpeText message = McpeText.CreateObject();
@@ -1623,7 +1641,7 @@ namespace MiNET
 			{
 				Player player = HealthManager.LastDamageSource as Player;
 				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
-				Level.BroadcastTextMessage(cause, type: McpeText.TypeRaw);
+				Level.BroadcastMessage(cause, type: McpeText.TypeRaw);
 				Log.DebugFormat(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
 			}
 		}

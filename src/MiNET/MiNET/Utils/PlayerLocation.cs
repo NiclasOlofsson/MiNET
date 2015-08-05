@@ -17,6 +17,8 @@ namespace MiNET.Utils
 		{
 		}
 
+        public PlayerLocation(double x, double y, double z) : this((float) x, (float) y, (float)z) { }
+
 		public PlayerLocation(float x, float y, float z)
 		{
 			X = x;

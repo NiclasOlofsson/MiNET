@@ -231,10 +231,10 @@ namespace TestPlugin.NiceLobby
 			{
 				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
 
-				Context.Levels[0].BroadcastTextMessage(
-					"§6§l»§r§7 --------------------------- §6§l«\n"
-					+ "§e GAME STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+				Context.Levels[0].BroadcastMessage(
+                    "§6§l»§r§7 --------------------------- §6§l«\n"
+                    + "§e GAME STARTED\n"
+                    + "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 			else
 			{
@@ -245,10 +245,10 @@ namespace TestPlugin.NiceLobby
 
 				if (winner != null)
 				{
-					Context.Levels[0].BroadcastTextMessage(
-						"§6§l»§r§7 --------------------------- §6§l«\n"
-						+ "§e Winner!!\n"
-						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
+					Context.Levels[0].BroadcastMessage(
+                        "§6§l»§r§7 --------------------------- §6§l«\n"
+                        + "§e Winner!!\n"
+                        + "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
 				}
 				foreach (var player in players)
 				{
@@ -256,9 +256,9 @@ namespace TestPlugin.NiceLobby
 					player.Deaths = 0;
 				}
 
-				Context.Levels[0].BroadcastTextMessage(
-					"§e NEW ROUND STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+				Context.Levels[0].BroadcastMessage(
+                    "§e NEW ROUND STARTED\n"
+                    + "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 		}
 
@@ -279,7 +279,7 @@ namespace TestPlugin.NiceLobby
 				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
 			}
 			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
+			Context.Levels[0].BroadcastMessage(sb.ToString(), type: McpeText.TypeRaw);
 		}
 
 		[Command]
@@ -290,7 +290,7 @@ namespace TestPlugin.NiceLobby
 				AnvilWorldProvider worldProvider = player.Level._worldProvider as AnvilWorldProvider;
 				if (worldProvider == null) return;
 
-				player.Level.BroadcastTextMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);
+				player.Level.BroadcastMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);
 
 				lock (worldProvider._chunkCache)
 				{
@@ -373,14 +373,14 @@ namespace TestPlugin.NiceLobby
 		public void Hide(Player player)
 		{
 			HidePlayer(player, true);
-			player.Level.BroadcastTextMessage(string.Format("Player {0} hides.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Player {0} hides.", player.Username), type: MessageType.Raw);
 		}
 
 		[Command]
 		public void Unhide(Player player)
 		{
 			HidePlayer(player, false);
-			player.Level.BroadcastTextMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
 		}
 
 		private void HidePlayer(Player player, bool hide)

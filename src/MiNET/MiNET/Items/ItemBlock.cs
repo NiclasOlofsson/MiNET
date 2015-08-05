@@ -9,7 +9,7 @@ namespace MiNET.Items
 	/// </summary>
 	public class ItemBlock : Item
 	{
-		private readonly Block _block;
+		protected readonly Block _block;
 
 		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
 		{

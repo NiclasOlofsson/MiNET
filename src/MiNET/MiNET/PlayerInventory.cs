@@ -92,11 +92,24 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Empty the specified slot
-		/// </summary>
-		/// <param name="slot">The slot to empty.</param>
-		public void ClearInventorySlot(byte slot)
+        public void SetHeldItemSlot(int slot)
+        {
+            McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
+            order.entityId = 0;
+            order.selectedSlot = (byte)slot;
+            _player.SendPackage(order);
+
+            McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
+            broadcast.entityId = _player.EntityId;
+            broadcast.selectedSlot = (byte)slot;
+            _player.Level.RelayBroadcast(broadcast);
+        }
+
+        /// <summary>
+        ///     Empty the specified slot
+        /// </summary>
+        /// <param name="slot">The slot to empty.</param>
+        public void ClearInventorySlot(byte slot)
 		{
 			SetInventorySlot(slot, 0, 0);
 		}

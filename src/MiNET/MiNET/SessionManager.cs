@@ -21,6 +21,10 @@ namespace MiNET
 
 			return FindSession(player);
 		}
+
+		public virtual void SaveSession(Session session)
+		{
+		}
 	}
 
 	public class Session : Dictionary<string, object>

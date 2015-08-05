@@ -602,6 +602,8 @@ namespace MiNET
 
 		public void SetPosition(PlayerLocation position, bool teleport = true)
 		{
+			KnownPosition = position;
+
 			var package = McpeMovePlayer.CreateObject();
 			package.entityId = 0;
 			package.x = position.X;
@@ -1760,6 +1762,14 @@ namespace MiNET
 			finally
 			{
 				Monitor.Exit(_sendEntityMoveListSync);
+			}
+		}
+
+		public void CleanCache()
+		{
+			lock (_chunksUsed)
+			{
+				_chunksUsed.Clear();
 			}
 		}
 	}

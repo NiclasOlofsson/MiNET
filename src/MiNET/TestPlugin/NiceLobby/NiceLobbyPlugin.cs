@@ -26,7 +26,7 @@ namespace TestPlugin.NiceLobby
 
 		protected override void OnEnable()
 		{
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 		}
@@ -159,14 +159,14 @@ namespace TestPlugin.NiceLobby
 			return 4;
 		}
 
-		[PacketHandler, Receive, UsedImplicitly]
-		public Package ChatHandler(McpeText text, Player player)
-		{
-			if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
+		//[PacketHandler, Receive, UsedImplicitly]
+		//public Package ChatHandler(McpeText text, Player player)
+		//{
+		//	if (text.message.StartsWith("/") || text.message.StartsWith(".")) return text;
 
-			player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
-			return null;
-		}
+		//	player.Level.BroadcastTextMessage((" §7" + player.Username + "§7: §r§f" + text.message), null, MessageType.Raw);
+		//	return null;
+		//}
 
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
@@ -193,7 +193,6 @@ namespace TestPlugin.NiceLobby
 			{
 				player.Level.CurrentWorldTime = 10000;
 				player.Level.IsWorldTimeStarted = false;
-
 			}
 
 			player.SendSetTime();
@@ -283,6 +282,92 @@ namespace TestPlugin.NiceLobby
 			Context.Levels[0].BroadcastTextMessage(sb.ToString(), type: McpeText.TypeRaw);
 		}
 
+		[Command]
+		public void Reset(Player player)
+		{
+			lock (player.Level.Players)
+			{
+				AnvilWorldProvider worldProvider = player.Level._worldProvider as AnvilWorldProvider;
+				if (worldProvider == null) return;
+
+				player.Level.BroadcastTextMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);
+
+				lock (worldProvider._chunkCache)
+				{
+					worldProvider._chunkCache.Clear();
+					worldProvider._batchCache.Clear();
+				}
+
+				var players = player.Level.Players;
+				foreach (var p in players)
+				{
+					p.Value.CleanCache();
+				}
+			}
+		}
+
+
+		[Command]
+		public void Awk(Player player)
+		{
+			string awk = "§4[AWK]";
+			if (player.NameTag.StartsWith(awk))
+			{
+				player.NameTag = player.Username;
+			}
+			else
+			{
+				player.NameTag = awk + player.Username;
+			}
+
+			player.BroadcastSetEntityData();
+		}
+
+		[Command]
+		public void ClearRank(Player player)
+		{
+			if (player.NameTag.StartsWith("["))
+			{
+				if (player.Session != null)
+				{
+					player.Session["rank"] = null;
+					Context.Server.SessionManager.SaveSession(player.Session);
+				}
+				player.SendMessage("Your cleared your rank", type: MessageType.Raw);
+			}
+
+			player.NameTag = player.Username;
+			player.BroadcastSetEntityData();
+		}
+
+		[Command]
+		public void UseRank(Player player)
+		{
+			if (player.Session != null && player.Session.ContainsKey("rank"))
+			{
+				string rank = (string) player.Session["rank"];
+				if (string.IsNullOrEmpty(rank)) return;
+
+				player.NameTag = "[" + rank + "§r]" + player.Username;
+
+				player.BroadcastSetEntityData();
+				player.SendMessage("Your rank is now: [" + rank + "§r]", type: MessageType.Raw);
+			}
+		}
+
+		[Command]
+		public void SetRank(Player player, string rank)
+		{
+			player.NameTag = "[" + rank + "§r]" + player.Username;
+			if (player.Session != null)
+			{
+				player.Session["rank"] = rank;
+				Context.Server.SessionManager.SaveSession(player.Session);
+			}
+
+			player.BroadcastSetEntityData();
+			player.SendMessage("Your rank is now: [" + rank + "§r]", type: MessageType.Raw);
+		}
 
 		[Command]
 		public void Hide(Player player)

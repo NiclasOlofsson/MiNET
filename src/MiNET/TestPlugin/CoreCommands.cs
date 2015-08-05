@@ -78,7 +78,7 @@ namespace TestPlugin
 				z = player.KnownPosition.Z
 			});
 
-			player.Level.BroadcastTextMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
 		}
 
 
@@ -97,7 +97,7 @@ namespace TestPlugin
 			};
 
 			player.SendMovePlayer();
-			player.Level.BroadcastTextMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		[Command(Command = "tp")]
@@ -127,7 +127,7 @@ namespace TestPlugin
 				}
 
 				Level level = _worlds[world];
-				player.Level.BroadcastTextMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId), type: MessageType.Raw);
+				player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId), type: MessageType.Raw);
 
 				player.SpawnLevel(level);
 			});
@@ -148,21 +148,21 @@ namespace TestPlugin
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player)
 		{
-			player.Level.BroadcastTextMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player, int viewDistance)
 		{
 			player.Level.ViewDistance = viewDistance;
-			player.Level.BroadcastTextMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
 		[Command(Command = "twitter")]
 		public void Twitter(Player player)
 		{
-			player.Level.BroadcastTextMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastTextMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
 		}
 
 		[Command(Command = "pi")]
@@ -288,7 +288,7 @@ namespace TestPlugin
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);
 
-			player.Level.BroadcastTextMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
 
 		private void SendEquipmentForPlayer(Player player)
@@ -318,7 +318,7 @@ namespace TestPlugin
 		public void Fly(Player player)
 		{
 			player.SendPackage(new McpeAdventureSettings {flags = 0x80});
-			player.Level.BroadcastTextMessage(string.Format("Player {0} enabled flying.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("Player {0} enabled flying.", player.Username), type: MessageType.Raw);
 		}
 
 		[Command(Command = "e")]
@@ -339,7 +339,7 @@ namespace TestPlugin
 				amplifier = (byte) amplifier,
 				particles = 0,
 			});
-			player.Level.BroadcastTextMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
 		}
 
 		[Command(Command = "nd")]

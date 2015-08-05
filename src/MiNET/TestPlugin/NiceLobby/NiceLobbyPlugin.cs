@@ -310,7 +310,7 @@ namespace TestPlugin.NiceLobby
 		[Command]
 		public void Awk(Player player)
 		{
-			string awk = "§4[AWK]";
+			string awk = "[" + ChatColors.DarkRed + "AWK" + ChatFormatting.Reset + "]";
 			if (player.NameTag.StartsWith(awk))
 			{
 				player.NameTag = player.Username;
@@ -348,17 +348,17 @@ namespace TestPlugin.NiceLobby
 				string rank = (string) player.Session["rank"];
 				if (string.IsNullOrEmpty(rank)) return;
 
-				player.NameTag = "[" + rank + "§r]" + player.Username;
+				player.NameTag = "[" + rank + ChatFormatting.Reset + "]" + player.Username;
 
 				player.BroadcastSetEntityData();
-				player.SendMessage("Your rank is now: [" + rank + "§r]", type: MessageType.Raw);
+				player.SendMessage("Your rank is now: [" + rank + ChatFormatting.Reset + "]", type: MessageType.Raw);
 			}
 		}
 
 		[Command]
 		public void SetRank(Player player, string rank)
 		{
-			player.NameTag = "[" + rank + "§r]" + player.Username;
+			player.NameTag = "[" + rank + ChatFormatting.Reset + "]" + player.Username;
 			if (player.Session != null)
 			{
 				player.Session["rank"] = rank;
@@ -366,7 +366,7 @@ namespace TestPlugin.NiceLobby
 			}
 
 			player.BroadcastSetEntityData();
-			player.SendMessage("Your rank is now: [" + rank + "§r]", type: MessageType.Raw);
+			player.SendMessage("Your rank is now: [" + rank + ChatFormatting.Reset + "]", type: MessageType.Raw);
 		}
 
 		[Command]

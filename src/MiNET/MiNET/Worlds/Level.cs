@@ -380,7 +380,7 @@ namespace MiNET.Worlds
 			{
 				McpeText message = McpeText.CreateObject();
 				message.type = (byte) type;
-				message.source = sender == null ? "MiNET" : sender.Username;
+				message.source = sender == null ? "" : sender.Username;
 				message.message = line;
 
 				RelayBroadcast(message);

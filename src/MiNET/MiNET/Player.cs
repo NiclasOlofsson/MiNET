@@ -50,6 +50,9 @@ namespace MiNET
 		public long ClientGuid { get; set; }
 		public PermissionManager Permissions { get; set; }
 		public Skin Skin { get; set; }
+		public bool Silent { get; set; }
+		public bool HideNameTag { get; set; }
+		public bool NoAi { get; set; }
 
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
@@ -604,6 +607,7 @@ namespace MiNET
 			}
 		}
 
+		[Wired]
 		public void SetPosition(PlayerLocation position, bool teleport = true)
 		{
 			KnownPosition = position;
@@ -732,6 +736,7 @@ namespace MiNET
 			SendPackage(mcpePlayerStatus);
 		}
 
+		[Wired]
 		public void SetGameMode(GameMode gameMode)
 		{
 			GameMode = gameMode;
@@ -1593,9 +1598,29 @@ namespace MiNET
 			return metadata;
 		}
 
-		public bool Silent { get; set; }
-		public bool HideNameTag { get; set; }
-		public bool NoAi { get; set; }
+		[Wired]
+		public void SetNoAi(bool noAi)
+		{
+			NoAi = noAi;
+
+			SendSetEntityData();
+		}
+
+		[Wired]
+		public void SetHideNameTag(bool hideNameTag)
+		{
+			HideNameTag = hideNameTag;
+
+			SendSetEntityData();
+		}
+
+		[Wired]
+		public void SetNameTag(string nameTag)
+		{
+			NameTag = nameTag;
+
+			SendSetEntityData();
+		}
 
 
 		public override void DespawnEntity()

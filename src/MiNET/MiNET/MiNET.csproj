@@ -178,6 +178,7 @@
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\McpeText.cs" />
+    <Compile Include="Net\WiredAttribute.cs" />
     <Compile Include="Net\Skin.cs" />
     <Compile Include="Particles\BubbleParticle.cs" />
     <Compile Include="Particles\CriticalParticle.cs" />

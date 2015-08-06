@@ -301,7 +301,7 @@ namespace MiNET
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
 			Log.DebugFormat("z:  {0}", message.z);
-			Log.DebugFormat("face:  {0}", message.face);
+			Log.DebugFormat("Face:  {0}", message.face);
 
 			switch (message.actionId)
 			{
@@ -444,7 +444,7 @@ namespace MiNET
 
 			if (message.protocol != 27)
 			{
-				Disconnect("Outdated Minecraft Pocket Edition, please upgrad.");
+				Disconnect("Outdated Minecraft Pocket Edition, please upgrade.");
 				return;
 			}
 
@@ -601,7 +601,7 @@ namespace MiNET
 
 				SendMovePlayer();
 
-				Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
+				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 			}
 			finally
 			{
@@ -693,7 +693,7 @@ namespace MiNET
 				NoAi = false;
 				SendSetEntityData();
 
-				Log.InfoFormat("Respwan player {0} on level {1}", Username, Level.LevelId);
+				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 				SendSetTime();
 			}

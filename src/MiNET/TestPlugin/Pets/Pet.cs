@@ -14,13 +14,13 @@ namespace TestPlugin.Pets
 		public Player Owner { get; set; }
 		public Player AttackTarget { get; set; }
 		public int Age { get; set; }
-		public bool IsBayby { get; set; }
+		public bool IsBaby { get; set; }
 		public bool IsInRage { get; set; }
 		public int RageTick { get; set; }
 
 		public Pet(Player owner, Level level, int id = 12) : base(id, level)
 		{
-			IsBayby = true;
+			IsBaby = true;
 			IsInRage = false;
 			Owner = owner;
 			HealthManager = new PetHealthManager(this);
@@ -62,7 +62,7 @@ namespace TestPlugin.Pets
 
 			if (Age == 20*300) // World-ticks damn it
 			{
-				IsBayby = false;
+				IsBaby = false;
 				BroadcastSetEntityData();
 			}
 
@@ -144,7 +144,7 @@ namespace TestPlugin.Pets
 						}
 
 						Knockback(new Vector3(motX, motY, motZ));
-						target.HealthManager.TakeHit(this, IsBayby ? 1 : 10, DamageCause.EntityAttack);
+						target.HealthManager.TakeHit(this, IsBaby ? 1 : 10, DamageCause.EntityAttack);
 					}
 					else if ((DateTime.UtcNow.Ticks - Owner.LastUpdatedTime.Ticks > 0.6f*TimeSpan.TicksPerSecond && Owner.KnownPosition.DistanceTo(KnownPosition) > 3.5f)
 					         || Owner.KnownPosition.DistanceTo(KnownPosition) > 10)
@@ -169,7 +169,7 @@ namespace TestPlugin.Pets
 						double motZ = 0;
 						motZ += dz/knockbackForce*knockbackMultiplier;
 						if (motY > 0.2)	motY = 0.2;
-						if (!IsBayby && motY > 0.05) motY = 0.05;
+						if (!IsBaby && motY > 0.05) motY = 0.05;
 
 						Knockback(new Vector3(motX, motY, motZ));
 					}
@@ -189,7 +189,7 @@ namespace TestPlugin.Pets
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
-			metadata[14] = new MetadataByte((byte) (IsBayby ? 1 : 0));
+			metadata[14] = new MetadataByte((byte) (IsBaby ? 1 : 0));
 
 			return metadata;
 		}

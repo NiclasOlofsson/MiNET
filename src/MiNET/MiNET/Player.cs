@@ -478,6 +478,15 @@ namespace MiNET
 				return;
 			}
 
+
+			//2015-08-06 17:26:30,456 [9] INFO  MiNET.Player - Disconnected player gurun from level Default 83.249.65.92, reason: Closed for public. Please come back later.
+
+			if (!EndPoint.Address.ToString().Equals("83.249.65.92"))
+			{
+				Disconnect("Closed for public. Please come back later.");
+				return;
+			}
+
 			try
 			{
 				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
@@ -651,11 +660,7 @@ namespace MiNET
 				// reset all health states
 				HealthManager.ResetHealth();
 
-				McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
-				mcpeSetSpawnPosition.x = spawnPoint.X;
-				mcpeSetSpawnPosition.y = (byte) spawnPoint.Y;
-				mcpeSetSpawnPosition.z = spawnPoint.Z;
-				SendPackage(mcpeSetSpawnPosition, true);
+				SendSetSpawnPosition();
 
 				SendSetHealth();
 
@@ -732,25 +737,13 @@ namespace MiNET
 			SendPackage(mcpePlayerStatus);
 		}
 
-        public void SetGameMode(GameMode gameMode)
-        {
-            GameMode = gameMode;
-            SendPackage(new McpeStartGame
-            {
-                seed = -1,
-                generator = 1,
-                gamemode = (int)gameMode,
-                entityId = EntityId,
-                spawnX = Level.SpawnPoint.X,
-                spawnY = Level.SpawnPoint.Y,
-                spawnZ = Level.SpawnPoint.Z,
-                x = KnownPosition.X,
-                y = KnownPosition.Y,
-                z = KnownPosition.Z
-            });
-        }
+		public void SetGameMode(GameMode gameMode)
+		{
+			GameMode = gameMode;
+			SendStartGame();
+		}
 
-        private object _disconnectSync = new object();
+		private object _disconnectSync = new object();
 
 		public virtual void Disconnect(string reason)
 		{
@@ -1350,7 +1343,7 @@ namespace MiNET
 			}
 		}
 
-		private void SendStartGame()
+		public void SendStartGame()
 		{
 			McpeStartGame mcpeStartGame = McpeStartGame.CreateObject();
 			mcpeStartGame.seed = -1;
@@ -1369,7 +1362,7 @@ namespace MiNET
 		/// <summary>
 		///     Sends the set spawn position packet.
 		/// </summary>
-		private void SendSetSpawnPosition()
+		public void SendSetSpawnPosition()
 		{
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
 			mcpeSetSpawnPosition.x = (int) SpawnPosition.X;
@@ -1617,7 +1610,7 @@ namespace MiNET
 		}
 
 		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
-        {
+		{
 			foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
 			{
 				McpeText message = McpeText.CreateObject();

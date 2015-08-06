@@ -99,6 +99,7 @@ namespace MiNET
 				HeadYaw = 91
 			};
 
+			GameMode = level.GameMode;
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
@@ -1342,7 +1343,7 @@ namespace MiNET
 			McpeStartGame mcpeStartGame = McpeStartGame.CreateObject();
 			mcpeStartGame.seed = -1;
 			mcpeStartGame.generator = 1;
-			mcpeStartGame.gamemode = (int) Level.GameMode;
+			mcpeStartGame.gamemode = (int) GameMode;
 			mcpeStartGame.entityId = 0;
 			mcpeStartGame.spawnX = (int) SpawnPosition.X;
 			mcpeStartGame.spawnY = (int) SpawnPosition.Y;

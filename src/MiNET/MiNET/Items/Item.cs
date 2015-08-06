@@ -36,7 +36,7 @@ namespace MiNET.Items
 		{
 		}
 
-		protected BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
+		public BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{
 			switch (face)
 			{

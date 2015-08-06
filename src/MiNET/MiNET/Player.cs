@@ -953,7 +953,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleRemoveBlock(McpeRemoveBlock message)
 		{
-			Level.BreakBlock(new BlockCoordinates(message.x, message.y, message.z));
+			Level.BreakBlock(this, new BlockCoordinates(message.x, message.y, message.z));
 		}
 
 		/// <summary>

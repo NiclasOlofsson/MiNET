@@ -29,6 +29,21 @@ namespace TestPlugin.NiceLobby
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
+			foreach (var level in Context.Levels)
+			{
+				level.BlockBreak += LevelOnBlockBreak;
+				level.BlockPlace += LevelOnBlockPlace;
+			}
+		}
+
+		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
+		{
+			e.Cancel = true;
+		}
+
+		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
+		{
+			e.Cancel = true;
 		}
 
 		private double m = 0.1d;
@@ -232,9 +247,9 @@ namespace TestPlugin.NiceLobby
 				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
 
 				Context.Levels[0].BroadcastMessage(
-                    "§6§l»§r§7 --------------------------- §6§l«\n"
-                    + "§e GAME STARTED\n"
-                    + "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+					"§6§l»§r§7 --------------------------- §6§l«\n"
+					+ "§e GAME STARTED\n"
+					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 			else
 			{
@@ -246,9 +261,9 @@ namespace TestPlugin.NiceLobby
 				if (winner != null)
 				{
 					Context.Levels[0].BroadcastMessage(
-                        "§6§l»§r§7 --------------------------- §6§l«\n"
-                        + "§e Winner!!\n"
-                        + "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
+						"§6§l»§r§7 --------------------------- §6§l«\n"
+						+ "§e Winner!!\n"
+						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
 				}
 				foreach (var player in players)
 				{
@@ -257,8 +272,8 @@ namespace TestPlugin.NiceLobby
 				}
 
 				Context.Levels[0].BroadcastMessage(
-                    "§e NEW ROUND STARTED\n"
-                    + "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
+					"§e NEW ROUND STARTED\n"
+					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 		}
 

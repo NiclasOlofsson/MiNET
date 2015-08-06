@@ -370,6 +370,8 @@ namespace MiNET
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 			mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
+			//mcpeAdventureSettings.flags = mcpeAdventureSettings.flags | 0x01; // Adventure mode (force proper tool usage)
+			//mcpeAdventureSettings.flags = mcpeAdventureSettings.flags | 0x100; // Spectator mode (no collisons)
 			SendPackage(mcpeAdventureSettings);
 		}
 
@@ -478,14 +480,6 @@ namespace MiNET
 				return;
 			}
 
-
-			//2015-08-06 17:26:30,456 [9] INFO  MiNET.Player - Disconnected player gurun from level Default 83.249.65.92, reason: Closed for public. Please come back later.
-
-			if (!EndPoint.Address.ToString().Equals("83.249.65.92"))
-			{
-				Disconnect("Closed for public. Please come back later.");
-				return;
-			}
 
 			try
 			{

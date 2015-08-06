@@ -191,7 +191,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
-				Log.Error("Error from startu", e);
+				Log.Error("Error during startup!", e);
 				StopServer();
 			}
 

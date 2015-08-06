@@ -189,7 +189,7 @@
     <Compile Include="Particles\DustParticle.cs" />
     <Compile Include="Particles\EnchantParticle.cs" />
     <Compile Include="Particles\EntityFlameParticle.cs" />
-    <Compile Include="Particles\ExploadParticle.cs" />
+    <Compile Include="Particles\ExplosionParticle.cs" />
     <Compile Include="Particles\FlameParticle.cs" />
     <Compile Include="Particles\HeartParticle.cs" />
     <Compile Include="Particles\InkParticle.cs" />

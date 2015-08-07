@@ -173,11 +173,12 @@
     <Compile Include="Items\ItemRawBeef.cs" />
     <Compile Include="Items\ItemRawChicken.cs" />
     <Compile Include="Items\ItemRawPorkchop.cs" />
-    <Compile Include="LevelFactory.cs" />
+    <Compile Include="LevelManager.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\McpeText.cs" />
+    <Compile Include="Net\WiredAttribute.cs" />
     <Compile Include="Net\Skin.cs" />
     <Compile Include="Particles\BubbleParticle.cs" />
     <Compile Include="Particles\CriticalParticle.cs" />

@@ -187,7 +187,7 @@ namespace MiNET.Plugins
 			}
 		}
 
-		internal void EnablePlugins(MiNetServer server, List<Level> levels)
+		internal void EnablePlugins(MiNetServer server, LevelManager levelManager)
 		{
 			foreach (object plugin in _plugins)
 			{
@@ -196,7 +196,7 @@ namespace MiNET.Plugins
 
 				try
 				{
-					enablingPlugin.OnEnable(new PluginContext(server, this, levels));
+					enablingPlugin.OnEnable(new PluginContext(server, this, levelManager));
 				}
 				catch (Exception ex)
 				{

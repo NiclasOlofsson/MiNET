@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -375,7 +374,7 @@ namespace MiNET.Worlds
 		}
 
 		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
-        {
+		{
 			foreach (var line in text.Split('\n'))
 			{
 				McpeText message = McpeText.CreateObject();
@@ -817,6 +816,16 @@ namespace MiNET.Worlds
 			itemInHand.UseItem(world, player, blockCoordinates);
 		}
 
+		public event EventHandler<BlockPlaceEventArgs> BlockPlace;
+
+		protected virtual bool OnBlockPlace(BlockPlaceEventArgs e)
+		{
+			EventHandler<BlockPlaceEventArgs> handler = BlockPlace;
+			if (handler != null) handler(this, e);
+
+			return !e.Cancel;
+		}
+
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
 		{
 			// Make sure we are holding the item we claim to be using
@@ -828,27 +837,66 @@ namespace MiNET.Worlds
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
+			if (itemInHand is ItemBlock)
+			{
+				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target)))
+				{
+					Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
+
+					Block sendBlock = new Block(block.Id)
+					{
+						Coordinates = block.Coordinates,
+						Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
+					};
+
+					var message = McpeUpdateBlock.CreateObject();
+					message.blocks = new BlockRecords {sendBlock};
+					player.SendPackage(message, true);
+
+					return;
+				}
+			}
+
 			itemInHand.UseItem(world, player, blockCoordinates, face, faceCoords);
 		}
 
-		public void BreakBlock(BlockCoordinates blockCoordinates)
+		public event EventHandler<BlockBreakEventArgs> BlockBreak;
+
+		protected virtual bool OnBlockBreak(BlockBreakEventArgs e)
+		{
+			EventHandler<BlockBreakEventArgs> handler = BlockBreak;
+			if (handler != null) handler(this, e);
+
+			return !e.Cancel;
+		}
+
+		public void BreakBlock(Player player, BlockCoordinates blockCoordinates)
 		{
 			List<ItemStack> drops = new List<ItemStack>();
 
 			Block block = GetBlock(blockCoordinates);
-			block.BreakBlock(this);
-			drops.Add(block.GetDrops());
-
-			BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
-			if (blockEnity != null)
+			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block)))
 			{
-				RemoveBlockEntity(blockCoordinates);
-				drops.AddRange(blockEnity.GetDrops());
+				block.BreakBlock(this);
+				drops.Add(block.GetDrops());
+
+				BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
+				if (blockEnity != null)
+				{
+					RemoveBlockEntity(blockCoordinates);
+					drops.AddRange(blockEnity.GetDrops());
+				}
+
+				foreach (ItemStack drop in drops)
+				{
+					DropItem(blockCoordinates, drop);
+				}
 			}
-
-			foreach (ItemStack drop in drops)
+			else
 			{
-				DropItem(blockCoordinates, drop);
+				var message = McpeUpdateBlock.CreateObject();
+				message.blocks = new BlockRecords {block};
+				player.SendPackage(message, true);
 			}
 		}
 
@@ -923,6 +971,41 @@ namespace MiNET.Worlds
 			}
 
 			return new ChunkColumn[0];
+		}
+	}
+
+	public class LevelEventArgs : EventArgs
+	{
+		public Player Player { get; set; }
+		public Level Level { get; set; }
+
+		public bool Cancel { get; set; }
+
+		public LevelEventArgs(Player player, Level level)
+		{
+			Player = player;
+			Level = level;
+		}
+	}
+
+	public class BlockPlaceEventArgs : LevelEventArgs
+	{
+		public Block Block { get; private set; }
+
+		public BlockPlaceEventArgs(Player player, Level level, Block block) : base(player, level)
+		{
+			Block = block;
+		}
+	}
+
+
+	public class BlockBreakEventArgs : LevelEventArgs
+	{
+		public Block Block { get; private set; }
+
+		public BlockBreakEventArgs(Player player, Level level, Block block) : base(player, level)
+		{
+			Block = block;
 		}
 	}
 }

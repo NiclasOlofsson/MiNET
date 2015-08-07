@@ -17,7 +17,6 @@ using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Security;
 using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -31,8 +30,6 @@ namespace MiNET
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private ConcurrentDictionary<Tuple<IPAddress, long>, PlayerNetworkSession> _playerSessionsClientIds = new ConcurrentDictionary<Tuple<IPAddress, long>, PlayerNetworkSession>();
-		private Level _level;
-
 
 		public bool ForwardAllPlayers { get; set; }
 		public IPEndPoint ForwardTarget { get; set; }
@@ -43,7 +40,7 @@ namespace MiNET
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
 
-		public LevelFactory LevelFactory { get; set; }
+		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 
 		public PluginManager PluginManager { get; set; }
@@ -55,7 +52,6 @@ namespace MiNET
 		private Timer _ackTimer;
 		private Timer _cleanerTimer;
 
-		private List<Level> _levels = new List<Level>();
 		public int InacvitityTimeout { get; private set; }
 
 		public ServerInfo ServerInfo { get; set; }
@@ -118,13 +114,13 @@ namespace MiNET
 				}
 
 				SessionManager = SessionManager ?? new SessionManager();
-				LevelFactory = LevelFactory ?? new LevelFactory();
+				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
-				_level = LevelFactory.CreateLevel("Default");
-				_levels.Add(_level);
+				// Cache
+				LevelManager.GetLevel("Default");
 
-				ServerInfo = new ServerInfo(_level, _playerSessions);
+				ServerInfo = new ServerInfo(LevelManager, _playerSessions);
 				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
 				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
@@ -134,7 +130,7 @@ namespace MiNET
 				//	_levels.Add(level);
 				//}
 
-				PluginManager.EnablePlugins(this, _levels);
+				PluginManager.EnablePlugins(this, LevelManager);
 
 				_listener = new UdpClient(_endpoint);
 
@@ -202,12 +198,6 @@ namespace MiNET
 		{
 			try
 			{
-				if (Config.GetProperty("WorldSave", false))
-				{
-					Log.Info("Saving chunks...");
-					_level._worldProvider.SaveChunks();
-				}
-
 				Log.Info("Disabling plugins...");
 				PluginManager.DisablePlugins();
 
@@ -514,7 +504,6 @@ namespace MiNET
 						//PlayerNetworkSession session;
 						if (_playerSessions.TryGetValue(senderEndpoint, out session))
 						{
-
 							Log.WarnFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
 
 							Player oldPlayer = session.Player;
@@ -560,7 +549,7 @@ namespace MiNET
 						_playerSessions.TryAdd(senderEndpoint, session);
 					}
 
-					Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, _levels[_random.Next(0, _levels.Count)], incoming.mtuSize);
+					Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, incoming.mtuSize);
 					player.ClientGuid = incoming.clientGuid;
 					player.NetworkSession = session;
 					session.Player = player;

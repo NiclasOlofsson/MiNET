@@ -50,6 +50,9 @@ namespace MiNET
 		public long ClientGuid { get; set; }
 		public PermissionManager Permissions { get; set; }
 		public Skin Skin { get; set; }
+		public bool Silent { get; set; }
+		public bool HideNameTag { get; set; }
+		public bool NoAi { get; set; }
 
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
@@ -604,6 +607,7 @@ namespace MiNET
 			}
 		}
 
+		[Wired]
 		public void SetPosition(PlayerLocation position, bool teleport = true)
 		{
 			KnownPosition = position;
@@ -623,75 +627,73 @@ namespace MiNET
 
 		public void SpawnLevel(Level toLevel)
 		{
-			SpawnLevel(toLevel, SpawnPosition);
+			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
 		public void SpawnLevel(Level toLevel, BlockCoordinates spawnPoint)
 		{
+			NoAi = true;
+			SendSetEntityData();
+
+			// send teleport straight up, no chunk loading
+			SetPosition(new PlayerLocation
 			{
-				NoAi = true;
-				SendSetEntityData();
+				X = KnownPosition.X,
+				Y = 4000,
+				Z = KnownPosition.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91,
+			});
 
-				// send teleport straight up, no chunk loading
-				SetPosition(new PlayerLocation
-				{
-					X = KnownPosition.X,
-					Y = 4000,
-					Z = KnownPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
-				});
+			Level.RemovePlayer(this, true);
 
-				Level.RemovePlayer(this, true);
+			Level.EntityManager.RemoveEntity(null, this);
+			EntityId = EntityManager.EntityIdUndefined;
 
-				Level.EntityManager.RemoveEntity(null, this);
-				EntityId = EntityManager.EntityIdUndefined;
+			Level = toLevel; // Change level
+			SpawnPosition = spawnPoint;
+			Level.EntityManager.AddEntity(null, this);
+			Level.AddPlayer(this, "", false);
+			// reset all health states
+			HealthManager.ResetHealth();
 
-				Level = toLevel; // Change level
-				SpawnPosition = spawnPoint;
-				Level.EntityManager.AddEntity(null, this);
-				Level.AddPlayer(this, "", false);
-				// reset all health states
-				HealthManager.ResetHealth();
+			SendSetSpawnPosition();
 
-				SendSetSpawnPosition();
+			SendSetHealth();
 
-				SendSetHealth();
+			SendAdventureSettings();
 
-				SendAdventureSettings();
+			SendPlayerInventory();
 
-				SendPlayerInventory();
+			BroadcastSetEntityData();
 
-				BroadcastSetEntityData();
-
-				Level.SpawnToAll(this);
-				IsSpawned = true;
-				lock (_chunksUsed)
-				{
-					_chunksUsed.Clear();
-				}
-
-				ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
-
-				// send teleport to spawn
-				SetPosition(new PlayerLocation
-				{
-					X = spawnPoint.X,
-					Y = spawnPoint.Y,
-					Z = spawnPoint.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
-				});
-
-				NoAi = false;
-				SendSetEntityData();
-
-				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-				SendSetTime();
+			Level.SpawnToAll(this);
+			IsSpawned = true;
+			lock (_chunksUsed)
+			{
+				_chunksUsed.Clear();
 			}
+
+			ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
+
+			// send teleport to spawn
+			SetPosition(new PlayerLocation
+			{
+				X = spawnPoint.X,
+				Y = spawnPoint.Y,
+				Z = spawnPoint.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91,
+			});
+
+			NoAi = false;
+			SendSetEntityData();
+
+			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+			SendSetTime();
 		}
 
 
@@ -732,6 +734,7 @@ namespace MiNET
 			SendPackage(mcpePlayerStatus);
 		}
 
+		[Wired]
 		public void SetGameMode(GameMode gameMode)
 		{
 			GameMode = gameMode;
@@ -948,7 +951,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleRemoveBlock(McpeRemoveBlock message)
 		{
-			Level.BreakBlock(new BlockCoordinates(message.x, message.y, message.z));
+			Level.BreakBlock(this, new BlockCoordinates(message.x, message.y, message.z));
 		}
 
 		/// <summary>
@@ -1593,9 +1596,29 @@ namespace MiNET
 			return metadata;
 		}
 
-		public bool Silent { get; set; }
-		public bool HideNameTag { get; set; }
-		public bool NoAi { get; set; }
+		[Wired]
+		public void SetNoAi(bool noAi)
+		{
+			NoAi = noAi;
+
+			SendSetEntityData();
+		}
+
+		[Wired]
+		public void SetHideNameTag(bool hideNameTag)
+		{
+			HideNameTag = hideNameTag;
+
+			SendSetEntityData();
+		}
+
+		[Wired]
+		public void SetNameTag(string nameTag)
+		{
+			NameTag = nameTag;
+
+			SendSetEntityData();
+		}
 
 
 		public override void DespawnEntity()

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -103,34 +101,39 @@ namespace TestPlugin
 		[Command(Command = "tp")]
 		public void Teleport(Player player)
 		{
-			if (!_worlds.ContainsKey("Default")) return;
 			Teleport(player, "Default");
 		}
 
 		[Command(Command = "tp")]
 		public void Teleport(Player player, string world)
 		{
+			if (player.Level.LevelId.Equals(world)) return;
+
+			if (!Context.LevelManager.Levels.Contains(player.Level))
+			{
+				Context.LevelManager.Levels.Add(player.Level);
+			}
+
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				if (player.Level.LevelId.Equals(world)) return;
+				Level[] levels = state as Level[];
 
-				if (!_worlds.ContainsKey(player.Level.LevelId))
+				if (levels != null)
 				{
-					_worlds.Add(player.Level.LevelId, player.Level);
+					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+
+					if (nextLevel == null)
+					{
+						nextLevel = new Level(world, new FlatlandWorldProvider());
+						nextLevel.Initialize();
+						Context.LevelManager.Levels.Add(nextLevel);
+					}
+
+					player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, nextLevel.LevelId), type: MessageType.Raw);
+
+					player.SpawnLevel(nextLevel);
 				}
-
-				if (!_worlds.ContainsKey(world))
-				{
-					Level newLevel = new Level(world, new FlatlandWorldProvider());
-					newLevel.Initialize();
-					_worlds.Add(world, newLevel);
-				}
-
-				Level level = _worlds[world];
-				player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, level.LevelId), type: MessageType.Raw);
-
-				player.SpawnLevel(level);
-			});
+			}, Context.LevelManager.Levels.ToArray());
 		}
 
 		[Command]
@@ -352,7 +355,7 @@ namespace TestPlugin
 		[Command(Command = "s")]
 		public void Stats(Player currentPlayer)
 		{
-			var players = Context.Levels[0].Players.Values.ToArray();
+			var players = Context.LevelManager.Levels[0].Players.Values.ToArray();
 			currentPlayer.SendMessage("Statistics:", type: McpeText.TypeRaw);
 			foreach (var player in players)
 			{

@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using log4net;
-using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -10,7 +9,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ServerInfo));
 
-		private Level _level;
+		private LevelManager _levelManager;
 		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
 
 		public int NumberOfPlayers { get; set; }
@@ -31,9 +30,9 @@ namespace MiNET
 		public int MaxNumberOfConcurrentConnects { get; set; }
 		public int ConnectionsInConnectPhase = 0;
 
-		public ServerInfo(Level level, ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> playerSessions)
+		public ServerInfo(LevelManager levelManager, ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> playerSessions)
 		{
-			_level = level;
+			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
 			ThroughPut = new Timer(delegate(object state)
 			{
@@ -49,13 +48,13 @@ namespace MiNET
 					NumberOfAckSent,
 					NumberOfPacketsInPerSecond,
 					kbitPerSecondOut,
-					_level.LastTickProcessingTime,
+					0 /*_level.LastTickProcessingTime*/,
 					NumberOfPlayers,
 					Latency,
 					kbitPerSecondIn, AvailableBytes/1000,
 					threads,
 					portThreads,
-					NumberOfAckReceive, 
+					NumberOfAckReceive,
 					NumberOfNakReceive);
 
 				NumberOfAckReceive = 0;

@@ -29,11 +29,11 @@ namespace TestPlugin.NiceLobby
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			foreach (var level in Context.Levels)
-			{
-				level.BlockBreak += LevelOnBlockBreak;
-				level.BlockPlace += LevelOnBlockPlace;
-			}
+			//foreach (var level in Context.Levels)
+			//{
+			//	level.BlockBreak += LevelOnBlockBreak;
+			//	level.BlockPlace += LevelOnBlockPlace;
+			//}
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
@@ -53,7 +53,7 @@ namespace TestPlugin.NiceLobby
 			if (m > 0)
 			{
 				//if (_tick%random.Next(1, 4) == 0)
-				Level level = Context.Levels.First();
+				Level level = Context.LevelManager.Levels.First();
 				Random random = level.Random;
 
 				BlockCoordinates point1 = level.SpawnPoint;
@@ -217,7 +217,7 @@ namespace TestPlugin.NiceLobby
 
 		private void DoDevelopmentPopups(object state)
 		{
-			foreach (var level in Context.Levels)
+			foreach (var level in Context.LevelManager.Levels)
 			{
 				var players = level.GetSpawnedPlayers();
 				foreach (var player in players)
@@ -246,21 +246,21 @@ namespace TestPlugin.NiceLobby
 			{
 				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
 
-				Context.Levels[0].BroadcastMessage(
+				Context.LevelManager.Levels[0].BroadcastMessage(
 					"§6§l»§r§7 --------------------------- §6§l«\n"
 					+ "§e GAME STARTED\n"
 					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
 			else
 			{
-				var players = Context.Levels[0].GetSpawnedPlayers();
+				var players = Context.LevelManager.Levels[0].GetSpawnedPlayers();
 				if (players.Length <= 1) return;
 
 				var winner = players.OrderByDescending(CalculatedKdRatio).FirstOrDefault();
 
 				if (winner != null)
 				{
-					Context.Levels[0].BroadcastMessage(
+					Context.LevelManager.Levels[0].BroadcastMessage(
 						"§6§l»§r§7 --------------------------- §6§l«\n"
 						+ "§e Winner!!\n"
 						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
@@ -271,7 +271,7 @@ namespace TestPlugin.NiceLobby
 					player.Deaths = 0;
 				}
 
-				Context.Levels[0].BroadcastMessage(
+				Context.LevelManager.Levels[0].BroadcastMessage(
 					"§e NEW ROUND STARTED\n"
 					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
 			}
@@ -286,7 +286,7 @@ namespace TestPlugin.NiceLobby
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			var players = Context.Levels[0].GetSpawnedPlayers();
+			var players = Context.LevelManager.Levels[0].GetSpawnedPlayers();
 			if (players.Length <= 1) return;
 
 			foreach (var player in players.OrderByDescending(CalculatedKdRatio).Take(5))
@@ -294,18 +294,31 @@ namespace TestPlugin.NiceLobby
 				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
 			}
 			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			Context.Levels[0].BroadcastMessage(sb.ToString(), type: McpeText.TypeRaw);
+			Context.LevelManager.Levels[0].BroadcastMessage(sb.ToString(), type: McpeText.TypeRaw);
 		}
 
 		[Command]
 		public void Reset(Player player)
 		{
-			lock (player.Level.Players)
+			Level level = player.Level;
+			lock (level.Entities)
 			{
-				AnvilWorldProvider worldProvider = player.Level._worldProvider as AnvilWorldProvider;
+				foreach (var entity in level.Entities.ToArray())
+				{
+					entity.DespawnEntity();
+				}
+				foreach (var entity in level.BlockEntities.ToArray())
+				{
+					level.RemoveBlockEntity(entity.Coordinates);
+				}
+			}
+
+			lock (level.Players)
+			{
+				AnvilWorldProvider worldProvider = level._worldProvider as AnvilWorldProvider;
 				if (worldProvider == null) return;
 
-				player.Level.BroadcastMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);
+				level.BroadcastMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);
 
 				lock (worldProvider._chunkCache)
 				{
@@ -313,7 +326,7 @@ namespace TestPlugin.NiceLobby
 					worldProvider._batchCache.Clear();
 				}
 
-				var players = player.Level.Players;
+				var players = level.Players;
 				foreach (var p in players)
 				{
 					p.Value.CleanCache();
@@ -339,49 +352,23 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
-		public void ClearRank(Player player)
+		public void Idk(Player player)
 		{
-			if (player.NameTag.StartsWith("["))
-			{
-				if (player.Session != null)
-				{
-					player.Session["rank"] = null;
-					Context.Server.SessionManager.SaveSession(player.Session);
-				}
-				player.SendMessage("Your cleared your rank", type: MessageType.Raw);
-			}
-
-			player.NameTag = player.Username;
-			player.BroadcastSetEntityData();
+			player.Level.BroadcastMessage(string.Format(ChatColors.Gold + "{0} says 'I don't know' in a nasty way!", player.Username), type: MessageType.Raw);
 		}
 
 		[Command]
-		public void UseRank(Player player)
+		public void Kick(Player player, string otherUser)
 		{
-			if (player.Session != null && player.Session.ContainsKey("rank"))
-			{
-				string rank = (string) player.Session["rank"];
-				if (string.IsNullOrEmpty(rank)) return;
-
-				player.NameTag = "[" + rank + ChatFormatting.Reset + "]" + player.Username;
-
-				player.BroadcastSetEntityData();
-				player.SendMessage("Your rank is now: [" + rank + ChatFormatting.Reset + "]", type: MessageType.Raw);
-			}
+			player.Level.BroadcastMessage(string.Format(ChatColors.Gold + "{0} tried to kick {1} but kicked self instead!!", player.Username, otherUser), type: MessageType.Raw);
+			player.Disconnect("You kicked yourself :-)");
 		}
 
 		[Command]
-		public void SetRank(Player player, string rank)
+		public void Ban(Player player, string otherUser)
 		{
-			player.NameTag = "[" + rank + ChatFormatting.Reset + "]" + player.Username;
-			if (player.Session != null)
-			{
-				player.Session["rank"] = rank;
-				Context.Server.SessionManager.SaveSession(player.Session);
-			}
-
-			player.BroadcastSetEntityData();
-			player.SendMessage("Your rank is now: [" + rank + ChatFormatting.Reset + "]", type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format(ChatColors.Gold + "{0} tried to ban {1} but banned self instead!!", player.Username, otherUser), type: MessageType.Raw);
+			player.Disconnect("Oopps, banned the wrong player. See ya soon!!");
 		}
 
 		[Command]

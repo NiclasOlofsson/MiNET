@@ -627,75 +627,73 @@ namespace MiNET
 
 		public void SpawnLevel(Level toLevel)
 		{
-			SpawnLevel(toLevel, SpawnPosition);
+			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
 		public void SpawnLevel(Level toLevel, BlockCoordinates spawnPoint)
 		{
+			NoAi = true;
+			SendSetEntityData();
+
+			// send teleport straight up, no chunk loading
+			SetPosition(new PlayerLocation
 			{
-				NoAi = true;
-				SendSetEntityData();
+				X = KnownPosition.X,
+				Y = 4000,
+				Z = KnownPosition.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91,
+			});
 
-				// send teleport straight up, no chunk loading
-				SetPosition(new PlayerLocation
-				{
-					X = KnownPosition.X,
-					Y = 4000,
-					Z = KnownPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
-				});
+			Level.RemovePlayer(this, true);
 
-				Level.RemovePlayer(this, true);
+			Level.EntityManager.RemoveEntity(null, this);
+			EntityId = EntityManager.EntityIdUndefined;
 
-				Level.EntityManager.RemoveEntity(null, this);
-				EntityId = EntityManager.EntityIdUndefined;
+			Level = toLevel; // Change level
+			SpawnPosition = spawnPoint;
+			Level.EntityManager.AddEntity(null, this);
+			Level.AddPlayer(this, "", false);
+			// reset all health states
+			HealthManager.ResetHealth();
 
-				Level = toLevel; // Change level
-				SpawnPosition = spawnPoint;
-				Level.EntityManager.AddEntity(null, this);
-				Level.AddPlayer(this, "", false);
-				// reset all health states
-				HealthManager.ResetHealth();
+			SendSetSpawnPosition();
 
-				SendSetSpawnPosition();
+			SendSetHealth();
 
-				SendSetHealth();
+			SendAdventureSettings();
 
-				SendAdventureSettings();
+			SendPlayerInventory();
 
-				SendPlayerInventory();
+			BroadcastSetEntityData();
 
-				BroadcastSetEntityData();
-
-				Level.SpawnToAll(this);
-				IsSpawned = true;
-				lock (_chunksUsed)
-				{
-					_chunksUsed.Clear();
-				}
-
-				ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
-
-				// send teleport to spawn
-				SetPosition(new PlayerLocation
-				{
-					X = spawnPoint.X,
-					Y = spawnPoint.Y,
-					Z = spawnPoint.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
-				});
-
-				NoAi = false;
-				SendSetEntityData();
-
-				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-				SendSetTime();
+			Level.SpawnToAll(this);
+			IsSpawned = true;
+			lock (_chunksUsed)
+			{
+				_chunksUsed.Clear();
 			}
+
+			ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
+
+			// send teleport to spawn
+			SetPosition(new PlayerLocation
+			{
+				X = spawnPoint.X,
+				Y = spawnPoint.Y,
+				Z = spawnPoint.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91,
+			});
+
+			NoAi = false;
+			SendSetEntityData();
+
+			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+			SendSetTime();
 		}
 
 

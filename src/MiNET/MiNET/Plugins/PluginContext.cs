@@ -7,13 +7,13 @@ namespace MiNET.Plugins
 	{
 		public MiNetServer Server { get; private set; }
 		public PluginManager PluginManager { get; private set; }
-		public List<Level> Levels { get; private set; }
+		public LevelManager LevelManager { get; private set; }
 
-		public PluginContext(MiNetServer server, PluginManager pluginManager, List<Level> levels)
+		public PluginContext(MiNetServer server, PluginManager pluginManager, LevelManager levelManager)
 		{
 			Server = server;
 			PluginManager = pluginManager;
-			Levels = levels;
+			LevelManager = levelManager;
 		}
 	}
 }

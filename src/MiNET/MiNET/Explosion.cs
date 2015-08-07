@@ -87,7 +87,7 @@ namespace MiNET
 								var bz = (int) Math.Floor(cZ);
 								Block block = _world.GetBlock(bx, by, bz);
 
-								if (block.Id != 0)
+								if (!(block is Air))
 								{
 									float blastForce3 = block.GetHardness();
 									blastForce1 -= (blastForce3 + 0.3F)*blastForce2;
@@ -95,7 +95,7 @@ namespace MiNET
 
 								if (blastForce1 > 0.0F)
 								{
-									if (!_afectedBlocks.ContainsKey(block.Coordinates) && block.Id != 0) _afectedBlocks.Add(block.Coordinates, block);
+									if (!_afectedBlocks.ContainsKey(block.Coordinates) && !(block is Air)) _afectedBlocks.Add(block.Coordinates, block);
 								}
 
 								cX += x*blastForce2;

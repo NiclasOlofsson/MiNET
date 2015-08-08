@@ -48,7 +48,13 @@ namespace MiNET
 			OnInventoryChange(slot, itemStack);
 		}
 
-		public bool DecreasteSlot(byte slot)
+        public ItemStack GetSlot(byte slot)
+        {
+            MetadataSlot slotData = (MetadataSlot)Slots[slot];
+            return slotData.Value;
+        }
+
+		public bool DecreaseSlot(byte slot)
 		{
 			bool isEmpty = false;
 
@@ -68,7 +74,7 @@ namespace MiNET
 			return isEmpty;
 		}
 
-		public void IncreasteSlot(byte slot, int itemId, short metadata)
+		public void IncreaseSlot(byte slot, int itemId, short metadata)
 		{
 			MetadataSlot slotData = (MetadataSlot) Slots[slot];
 			if (slotData.Value.Id == 0)

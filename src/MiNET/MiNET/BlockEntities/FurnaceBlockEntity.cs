@@ -97,7 +97,7 @@ namespace MiNET.BlockEntities
 					BurnTime = GetFuelEfficiency(GetFuel());
 					FuelEfficiency = BurnTime;
 					CookTime = 0;
-					Inventory.DecreasteSlot(1);
+					Inventory.DecreaseSlot(1);
 				}
 			}
 
@@ -116,8 +116,8 @@ namespace MiNET.BlockEntities
 						Item result = GetResult(GetIngredient());
 						if (result != null)
 						{
-							Inventory.DecreasteSlot(0);
-							Inventory.IncreasteSlot(2, result.Id, result.Metadata);
+							Inventory.DecreaseSlot(0);
+							Inventory.IncreaseSlot(2, result.Id, result.Metadata);
 						}
 
 						CookTime = 0;
@@ -131,7 +131,7 @@ namespace MiNET.BlockEntities
 
 			if (BurnTime <= 0)
 			{
-				if (!Inventory.DecreasteSlot(1))
+				if (!Inventory.DecreaseSlot(1))
 				{
 					//CookTime = 0;
 					BurnTime = GetFuelEfficiency(GetFuel());

@@ -148,28 +148,6 @@ namespace TestPlugin
 			Clear(target);
 		}
 
-        [Command]
-        public void TestGetSlot(Player player, int x, int y, int z)
-        {
-            BlockCoordinates coords = new BlockCoordinates(x, y, z);
-            Inventory inventory = player.Level.InventoryManager.GetInventory(coords);
-            if(inventory == null)
-            {
-                player.SendMessage("No inventory on that location!");
-                return;
-            }
-
-            inventory.SetSlot(3, new ItemStack(3, 2));
-            ItemStack stack = inventory.GetSlot(4);
-            if(stack == null)
-            {
-                player.SendMessage("Nothing in slot 4!");
-                return;
-            }
-
-            player.SendMessage("Found " + stack.Count + " of " + stack.Id);
-        }
-
 		[Command(Command = "vd")]
 		public void ViewDistance(Player player)
 		{

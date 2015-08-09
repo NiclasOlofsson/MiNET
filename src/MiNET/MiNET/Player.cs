@@ -1651,11 +1651,16 @@ namespace MiNET
 			if (HealthManager.IsDead)
 			{
 				Player player = HealthManager.LastDamageSource as Player;
-				string cause = string.Format(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
-				Level.BroadcastMessage(cause, type: McpeText.TypeRaw);
-				Log.DebugFormat(HealthManager.GetDescription(HealthManager.LastDamageCause), Username, player == null ? "" : player.Username);
+                BroadcastDeathMessage(player, HealthManager.LastDamageCause);
 			}
 		}
+
+        public virtual void BroadcastDeathMessage(Player player, DamageCause lastDamageCause)
+        {
+            string deathMessage = string.Format(HealthManager.GetDescription(lastDamageCause), Username, player == null ? "" : player.Username);
+            Level.BroadcastMessage(deathMessage, type: McpeText.TypeRaw);
+            Log.Debug(deathMessage);
+        }
 
 		public void DetectLostConnection()
 		{

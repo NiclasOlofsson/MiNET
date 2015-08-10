@@ -472,7 +472,7 @@ namespace MiNET
 				}
 			}
 
-			if (message.username == null || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$") || message.username.Trim().Length == 0)
+			if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
 			{
 				Disconnect("Invalid username.");
 				return;
@@ -484,6 +484,11 @@ namespace MiNET
 				return;
 			}
 
+			//if (!EndPoint.Address.ToString().Equals("83.249.65.92"))
+			//{
+			//	Disconnect("Sorry, closed for public while hacking.\nTry again later.");
+			//	return;
+			//}
 
 			try
 			{
@@ -812,7 +817,7 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
-			if (HealthManager.IsDead) return;
+			if (!IsSpawned || HealthManager.IsDead) return;
 
 			lock (_moveSyncLock)
 			{

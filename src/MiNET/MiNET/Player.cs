@@ -812,7 +812,7 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
-			if (HealthManager.IsDead) return;
+			if (!IsSpawned || HealthManager.IsDead) return;
 
 			lock (_moveSyncLock)
 			{

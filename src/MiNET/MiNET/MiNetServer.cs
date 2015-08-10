@@ -26,7 +26,7 @@ namespace MiNET
 
 		private const int DefaultPort = 19132;
 
-		private IPEndPoint _endpoint;
+		public IPEndPoint Endpoint { get; private set; }
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 		private ConcurrentDictionary<Tuple<IPAddress, long>, PlayerNetworkSession> _playerSessionsClientIds = new ConcurrentDictionary<Tuple<IPAddress, long>, PlayerNetworkSession>();
@@ -62,7 +62,7 @@ namespace MiNET
 
 		public MiNetServer(IPEndPoint endpoint)
 		{
-			_endpoint = endpoint;
+			Endpoint = endpoint;
 		}
 
 		public static bool IsRunningOnMono()
@@ -80,11 +80,11 @@ namespace MiNET
 
 				InacvitityTimeout = Config.GetProperty("InacvitityTimeout", 8500);
 
-				if (_endpoint == null)
+				if (Endpoint == null)
 				{
 					var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
 					int port = Config.GetProperty("port", 19132);
-					_endpoint = new IPEndPoint(ip, port);
+					Endpoint = new IPEndPoint(ip, port);
 				}
 
 				ForwardAllPlayers = Config.GetProperty("ForwardAllPlayers", false);
@@ -92,7 +92,7 @@ namespace MiNET
 				{
 					var ip = IPAddress.Parse(Config.GetProperty("ForwardIP", "127.0.0.1"));
 					int port = Config.GetProperty("ForwardPort", 19132);
-					_endpoint = new IPEndPoint(ip, port);
+					Endpoint = new IPEndPoint(ip, port);
 				}
 
 				Log.Info("Loading plugins...");
@@ -132,7 +132,7 @@ namespace MiNET
 
 				PluginManager.EnablePlugins(this, LevelManager);
 
-				_listener = new UdpClient(_endpoint);
+				_listener = new UdpClient(Endpoint);
 
 				if (IsRunningOnMono())
 				{
@@ -403,7 +403,7 @@ namespace MiNET
 			Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
 			if (message == null)
 			{
-				if (!_badPacketBans.ContainsKey(_endpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
+				if (!_badPacketBans.ContainsKey(senderEndpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
 				Log.ErrorFormat("Receive bad packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
 				return;
 			}
@@ -567,7 +567,7 @@ namespace MiNET
 					break;
 				}
 				default:
-					if (!_badPacketBans.ContainsKey(_endpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
+				if (!_badPacketBans.ContainsKey(senderEndpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
 					Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
 					break;
 			}

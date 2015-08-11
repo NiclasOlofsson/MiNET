@@ -415,16 +415,15 @@ namespace TestPlugin.NiceLobby
 		[Command(Command = "sp")]
 		public void SpawnPlayer(Player player, string name)
 		{
-			MobPlayer fake = new MobPlayer(name, player.Level)
+			PlayerMob fake = new PlayerMob(name, player.Level)
 			{
 				KnownPosition = player.KnownPosition,
-				ItemInHand = new MetadataSlot(new ItemStack(267))
+				ItemInHand = new ItemStack(267),
+				Helmet = 302,
+				Chest = 303,
+				Leggings = 304,
+				Boots = 305
 			};
-
-			fake.Armor[0] = new MetadataSlot(new ItemStack(302)); // Helmet
-			fake.Armor[1] = new MetadataSlot(new ItemStack(303)); // Chest
-			fake.Armor[2] = new MetadataSlot(new ItemStack(304)); // Leggings
-			fake.Armor[3] = new MetadataSlot(new ItemStack(305)); // Boots
 
 			fake.SpawnEntity();
 		}

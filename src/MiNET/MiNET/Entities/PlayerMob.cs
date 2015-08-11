@@ -5,7 +5,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
-	public class MobPlayer : Mob
+	public class PlayerMob : Mob
 	{
 		public string Name { get; private set; }
 		public Skin Skin { get; set; }
@@ -13,10 +13,14 @@ namespace MiNET.Entities
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public MetadataSlots Armor { get; private set; }
-		public MetadataSlot ItemInHand { get; set; }
+		public int Boots { get; set; }
+		public int Leggings { get; set; }
+		public int Chest { get; set; }
+		public int Helmet { get; set; }
 
-		public MobPlayer(string name, Level level) : base(63, level)
+		public ItemStack ItemInHand { get; set; }
+
+		public PlayerMob(string name, Level level) : base(63, level)
 		{
 			Width = 0.6;
 			Length = 0.6;
@@ -27,10 +31,7 @@ namespace MiNET.Entities
 			Name = name;
 			Skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 
-			ItemInHand = new MetadataSlot(new ItemStack());
-
-			//REFACT: Make xplicit
-			Armor = new MetadataSlots();
+			ItemInHand = new ItemStack();
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -79,18 +80,18 @@ namespace MiNET.Entities
 			{
 				McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
 				message.entityId = EntityId;
-				message.item = ItemInHand.Value.Id;
-				message.meta = ItemInHand.Value.Metadata;
+				message.item = ItemInHand.Id;
+				message.meta = ItemInHand.Metadata;
 				message.slot = 0;
 				player.SendPackage(message);
 			}
 			{
 				McpePlayerArmorEquipment message = McpePlayerArmorEquipment.CreateObject();
 				message.entityId = EntityId;
-				message.helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256);
-				message.chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256);
-				message.leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256);
-				message.boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256);
+				message.helmet = (byte) (Helmet - 256);
+				message.chestplate = (byte) (Chest - 256);
+				message.leggings = (byte) (Leggings - 256);
+				message.boots = (byte) (Boots - 256);
 				player.SendPackage(message);
 			}
 		}
@@ -121,8 +122,8 @@ namespace MiNET.Entities
 		{
 			McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
 			message.entityId = EntityId;
-			message.item = ItemInHand.Value.Id;
-			message.meta = ItemInHand.Value.Metadata;
+			message.item = ItemInHand.Id;
+			message.meta = ItemInHand.Metadata;
 			message.slot = 0;
 			Level.RelayBroadcast(message);
 		}
@@ -131,10 +132,10 @@ namespace MiNET.Entities
 		{
 			McpePlayerArmorEquipment message = McpePlayerArmorEquipment.CreateObject();
 			message.entityId = EntityId;
-			message.helmet = (byte) (((MetadataSlot) Armor[0]).Value.Id - 256);
-			message.chestplate = (byte) (((MetadataSlot) Armor[1]).Value.Id - 256);
-			message.leggings = (byte) (((MetadataSlot) Armor[2]).Value.Id - 256);
-			message.boots = (byte) (((MetadataSlot) Armor[3]).Value.Id - 256);
+			message.helmet = (byte) (Helmet - 256);
+			message.chestplate = (byte) (Chest - 256);
+			message.leggings = (byte) (Leggings - 256);
+			message.boots = (byte) (Boots - 256);
 			Level.RelayBroadcast(message);
 		}
 	}

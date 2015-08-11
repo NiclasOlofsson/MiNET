@@ -3,10 +3,11 @@ using MiNET;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using TestPlugin.Annotations;
 
 namespace TestPlugin.Pets
 {
-	[Plugin(PluginName = "Pets", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
+	[Plugin(PluginName = "Pets", Description = "", PluginVersion = "1.0", Author = "MiNET Team"), UsedImplicitly]
 	public class PetsPlugin : Plugin
 	{
 		[Command]

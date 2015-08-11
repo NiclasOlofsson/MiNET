@@ -60,6 +60,7 @@
   <ItemGroup>
     <Compile Include="CoreCommands.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />
+    <Compile Include="NoDamageHealthManager.cs" />
     <Compile Include="Pets\Pet.cs" />
     <Compile Include="Pets\PetHealthManager.cs" />
     <Compile Include="Pets\PetsPlugin.cs" />

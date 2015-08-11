@@ -567,7 +567,7 @@ namespace MiNET
 					break;
 				}
 				default:
-				if (!_badPacketBans.ContainsKey(senderEndpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
+					if (!_badPacketBans.ContainsKey(senderEndpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
 					Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
 					break;
 			}

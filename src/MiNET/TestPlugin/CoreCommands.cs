@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading;
 using log4net;
 using MiNET;
-using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -392,18 +391,6 @@ namespace TestPlugin
 				Context.Server.ForwardTarget = new IPEndPoint(host.AddressList[0], 19132);
 				Context.Server.ForwardAllPlayers = true;
 			}
-		}
-	}
-
-	public class NoDamageHealthManager : HealthManager
-	{
-		public NoDamageHealthManager(Entity entity) : base(entity)
-		{
-		}
-
-		public override void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
-		{
-			base.TakeHit(source, 0, cause);
 		}
 	}
 }

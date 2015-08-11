@@ -139,6 +139,7 @@
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
+    <Compile Include="Items\ItemDiamondAxe.cs" />
     <Compile Include="Items\ItemDiamondBoots.cs" />
     <Compile Include="Items\ItemDiamondChestplate.cs" />
     <Compile Include="Items\ItemDiamondHelmet.cs" />
@@ -148,9 +149,12 @@
     <Compile Include="Items\ItemDiamondSword.cs" />
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
+    <Compile Include="Items\ItemGoldAxe.cs" />
     <Compile Include="Items\ItemGoldHoe.cs" />
     <Compile Include="Items\ItemGoldShovel.cs" />
+    <Compile Include="Items\ItemGoldSword.cs" />
     <Compile Include="Items\ItemHoe.cs" />
+    <Compile Include="Items\ItemIronAxe.cs" />
     <Compile Include="Items\ItemIronBoots.cs" />
     <Compile Include="Items\ItemIronChestplate.cs" />
     <Compile Include="Items\ItemIronHelmet.cs" />

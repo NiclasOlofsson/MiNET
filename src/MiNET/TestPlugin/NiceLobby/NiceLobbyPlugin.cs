@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using MiNET;
@@ -415,14 +417,19 @@ namespace TestPlugin.NiceLobby
 		[Command(Command = "sp")]
 		public void SpawnPlayer(Player player, string name)
 		{
+			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+
+			byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "Char8.png"));
+
 			PlayerMob fake = new PlayerMob(name, player.Level)
 			{
+				Skin = new Skin {Slim = false, Texture = bytes},
 				KnownPosition = player.KnownPosition,
 				ItemInHand = new ItemStack(267),
 				Helmet = 302,
 				Chest = 303,
 				Leggings = 304,
-				Boots = 305
+				Boots = 305,
 			};
 
 			fake.SpawnEntity();

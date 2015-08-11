@@ -10,7 +10,7 @@ namespace MiNET
 	public enum DamageCause
 	{
 		[Description("{0} went MIA")] Unknown,
-		[Description("{0} was prickled to death")] Contact,
+		[Description("{0} was pricked  to death")] Contact,
 		[Description("{0} was slain by {1}")] EntityAttack,
 		[Description("{0} was shot by {1}")] Projectile,
 		[Description("{0} suffocated in a wall")] Suffocation,

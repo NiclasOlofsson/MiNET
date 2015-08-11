@@ -6,7 +6,6 @@
 		{
 			ItemMaterial = ItemMaterial.Diamond;
 			ItemType = ItemType.Axe;
-			FuelEfficiency = 10;
 		}
 	}
 }

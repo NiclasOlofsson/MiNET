@@ -6,7 +6,6 @@
 		{
 			ItemMaterial = ItemMaterial.Gold;
 			ItemType = ItemType.Sword;
-			FuelEfficiency = 10;
 		}
 	}
 }

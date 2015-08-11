@@ -6,7 +6,6 @@
 		{
 			ItemMaterial = ItemMaterial.Iron;
 			ItemType = ItemType.Axe;
-			FuelEfficiency = 10;
 		}
 	}
 }

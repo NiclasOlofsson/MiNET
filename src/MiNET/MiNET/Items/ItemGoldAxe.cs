@@ -6,7 +6,6 @@
 		{
 			ItemMaterial = ItemMaterial.Gold;
 			ItemType = ItemType.Axe;
-			FuelEfficiency = 10;
 		}
 	}
 }

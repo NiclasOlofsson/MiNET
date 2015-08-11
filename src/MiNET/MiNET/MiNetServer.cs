@@ -92,7 +92,7 @@ namespace MiNET
 				{
 					var ip = IPAddress.Parse(Config.GetProperty("ForwardIP", "127.0.0.1"));
 					int port = Config.GetProperty("ForwardPort", 19132);
-					Endpoint = new IPEndPoint(ip, port);
+					ForwardTarget = new IPEndPoint(ip, port);
 				}
 
 				Log.Info("Loading plugins...");

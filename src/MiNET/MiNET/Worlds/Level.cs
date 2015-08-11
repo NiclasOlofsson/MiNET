@@ -333,19 +333,7 @@ namespace MiNET.Worlds
 			}
 			else
 			{
-				McpeAddEntity mcpeAddEntity = McpeAddEntity.CreateObject();
-				mcpeAddEntity.entityType = entity.EntityTypeId;
-				mcpeAddEntity.entityId = entity.EntityId;
-				mcpeAddEntity.x = entity.KnownPosition.X;
-				mcpeAddEntity.y = entity.KnownPosition.Y;
-				mcpeAddEntity.z = entity.KnownPosition.Z;
-				mcpeAddEntity.yaw = entity.KnownPosition.Yaw;
-				mcpeAddEntity.pitch = entity.KnownPosition.Pitch;
-				mcpeAddEntity.metadata = entity.GetMetadata();
-				mcpeAddEntity.speedX = (float) entity.Velocity.X;
-				mcpeAddEntity.speedY = (float) entity.Velocity.Y;
-				mcpeAddEntity.speedZ = (float) entity.Velocity.Z;
-				player.SendPackage(mcpeAddEntity);
+				entity.SpawnToPlayer(player);
 			}
 		}
 

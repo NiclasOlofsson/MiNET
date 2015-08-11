@@ -12,14 +12,14 @@ namespace MiNET.Net
 		{
 			Bitmap bitmap = new Bitmap(filename);
 			if (bitmap.Width != 64) return null;
-			if (bitmap.Height != 32) return null;
+			if (bitmap.Height != 32 && bitmap.Height != 64) return null;
 
-			byte[] bytes = new byte[64*32*4];
+			byte[] bytes = new byte[bitmap.Height*bitmap.Width*4];
 
 			int i = 0;
-			for (int y = 0; y < 32; y++)
+			for (int y = 0; y < bitmap.Height; y++)
 			{
-				for (int x = 0; x < 64; x++)
+				for (int x = 0; x < bitmap.Width; x++)
 				{
 					Color color = bitmap.GetPixel(x, y);
 					bytes[i++] = color.R;

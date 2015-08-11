@@ -23,7 +23,7 @@ namespace MiNET.Items
 				block.PlaceBlock(world, player, block.Coordinates, face, faceCoords);
 			}
 
-			FuelEfficiency = (short)(Metadata == 10 ? 1000 : 0);
+			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
 		}
 	}
 }

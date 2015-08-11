@@ -1,6 +1,6 @@
-﻿using MiNET.Utils;
-using MiNET.BlockEntities;
+﻿using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MiNET.Items
+﻿namespace MiNET.Items
 {
-	class ItemIronLeggings: Item
+	internal class ItemIronLeggings : Item
 	{
 		internal ItemIronLeggings(short metadata) : base(308, metadata)
 		{

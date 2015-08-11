@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MiNET.Items
+﻿namespace MiNET.Items
 {
-	class ItemRawBeef : Item
+	internal class ItemRawBeef : Item
 	{
 		internal ItemRawBeef(short metadata) : base(363, metadata)
 		{

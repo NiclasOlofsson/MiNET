@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MiNET.Items
+﻿namespace MiNET.Items
 {
-	class ItemIronBoots: Item
+	internal class ItemIronBoots : Item
 	{
 		internal ItemIronBoots(short metadata) : base(309, metadata)
 		{

@@ -1175,7 +1175,6 @@ namespace MiNET
 
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
-			return;
 			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
@@ -1186,7 +1185,6 @@ namespace MiNET
 
 		private static void TraceSend(Package message)
 		{
-			return;
 			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)

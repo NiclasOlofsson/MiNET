@@ -57,10 +57,10 @@ namespace TestPlugin.NiceLobby
 				Level level = Context.LevelManager.Levels.First();
 				Random random = level.Random;
 
-				BlockCoordinates point1 = level.SpawnPoint;
-				BlockCoordinates point2 = level.SpawnPoint;
+				PlayerLocation point1 = level.SpawnPoint;
+                PlayerLocation point2 = level.SpawnPoint;
 				point2.X += 10;
-				BlockCoordinates point3 = level.SpawnPoint;
+                PlayerLocation point3 = level.SpawnPoint;
 				point3.X -= 10;
 
 				if (Math.Abs(m - 3) < 0.1)
@@ -126,7 +126,7 @@ namespace TestPlugin.NiceLobby
 			if (m > 3.8) m = -5;
 		}
 
-		private void GenerateParticles(Random random, Level level, BlockCoordinates point, float yoffset, Vector3 multiplier, double d)
+		private void GenerateParticles(Random random, Level level, PlayerLocation point, float yoffset, Vector3 multiplier, double d)
 		{
 			float vx = (float) random.NextDouble();
 			vx *= random.Next(2) == 0 ? 1 : -1;

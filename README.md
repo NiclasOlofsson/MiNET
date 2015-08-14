@@ -11,10 +11,9 @@ MiNET
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
 
 ## Can I test this before I download it?
-Yes, you can. We have just setup a public demo server, this server is always up2date.<br>
-IP: **94.23.50.5**    
+Yes, you can. At times there is a dev server running and you might be lucky to get in..<br>
+IP: **test.inpvp.net**    
 Port: **19132**    
-*This server will be automatically restarted when the CPU load is above 50% for security reasons.<br>
 
 ## What is this?
 

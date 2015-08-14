@@ -40,7 +40,7 @@ namespace MiNET
 		private Inventory _openInventory;
 		public PlayerInventory Inventory { get; private set; }
 
-		public BlockCoordinates SpawnPosition { get; set; }
+		public PlayerLocation SpawnPosition { get; set; }
 
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
@@ -635,7 +635,7 @@ namespace MiNET
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
-		public void SpawnLevel(Level toLevel, BlockCoordinates spawnPoint)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
 		{
 			NoAi = true;
 			SendSetEntityData();
@@ -683,15 +683,7 @@ namespace MiNET
 			ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
 
 			// send teleport to spawn
-			SetPosition(new PlayerLocation
-			{
-				X = spawnPoint.X,
-				Y = spawnPoint.Y,
-				Z = spawnPoint.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91,
-			});
+			SetPosition(spawnPoint);
 
 			NoAi = false;
 			SendSetEntityData();

@@ -67,9 +67,9 @@ namespace TestPlugin
 				generator = 1,
 				gamemode = gameMode,
 				entityId = player.EntityId,
-				spawnX = player.Level.SpawnPoint.X,
-				spawnY = player.Level.SpawnPoint.Y,
-				spawnZ = player.Level.SpawnPoint.Z,
+				spawnX = (int) player.Level.SpawnPoint.X,
+				spawnY = (int) player.Level.SpawnPoint.Y,
+				spawnZ = (int) player.Level.SpawnPoint.Z,
 				x = player.KnownPosition.X,
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z

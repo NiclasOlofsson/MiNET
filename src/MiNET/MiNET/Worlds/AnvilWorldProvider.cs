@@ -168,8 +168,8 @@ namespace MiNET.Worlds
 				{69, 0}, // Lever		=> Air
 				{70, 0}, // Stone Pressure	=> Air
 				{72, 0}, // Wooden Pressure	=> Air
-				{75, 0}, // Redstone Torch O	=> Air
-				{76, 0}, // Redstone Torch I	=> Air
+				{75, 50}, // Redstone Torch O	=> Torch
+				{76, 50}, // Redstone Torch I	=> Torch
 				{77, 0}, // Stone Button		=> Air
 				{84, 3}, // Jukebox		=> Dirt
 				{90, 0}, // Nether Portal	=> Air
@@ -202,6 +202,7 @@ namespace MiNET.Worlds
 				{149, 0}, // Comparator O		=> Air
 				{150, 0}, // Comparator I		=> Air
 				{151, 0}, // Daylight Sensor	=> Air
+				{152, 152}, // Block of Redstone	=> Block of Redstone
 				{153, 87}, // Nether Quarts Ore 	=> Netherrack
 				{154, 0}, // Hopper		=> Air
 				{157, 66}, // Activator Rail	=> Rail
@@ -339,26 +340,17 @@ namespace MiNET.Worlds
 
 								// Anvil to PE friendly converstion
 								if (_convert.ContainsKey(blockId)) blockId = _convert[blockId];
-								else if (blockId == 125) blockId = 5;
-								else if (blockId == 126) blockId = 158;
-								else if (blockId == 75) blockId = 50;
-								else if (blockId == 76) blockId = 50;
-								else if (blockId == 123) blockId = 89;
-								else if (blockId == 124) blockId = 89;
-								else if (blockId == 152) blockId = 73;
 								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
 								else if (_gaps.BinarySearch(blockId) >= 0)
 								{
-									Log.DebugFormat("Missing material: {0}", blockId);
+									Log.WarnFormat("Missing material on convert: {0}", blockId);
 									blockId = 133;
 								}
 
 								if (blockId > 255) blockId = 41;
 
 								if (yi == 127 && blockId != 0) blockId = 30;
-								if (yi == 0 && (blockId == 8 || blockId == 9 /*|| blockId == 0*/)) blockId = 7;
-
-								//if (blockId != 0) blockId = 41;
+								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
 								chunk.SetBlock(x, yi, z, (byte) blockId);
 								chunk.SetMetadata(x, yi, z, Nibble4(data, anvilIndex));

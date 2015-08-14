@@ -635,7 +635,7 @@ namespace MiNET
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
-		public void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
 		{
 			NoAi = true;
 			SendSetEntityData();

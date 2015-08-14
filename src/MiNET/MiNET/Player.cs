@@ -683,15 +683,7 @@ namespace MiNET
 			ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
 
 			// send teleport to spawn
-			SetPosition(new PlayerLocation
-			{
-				X = spawnPoint.X,
-				Y = spawnPoint.Y,
-				Z = spawnPoint.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91,
-			});
+			SetPosition(spawnPoint);
 
 			NoAi = false;
 			SendSetEntityData();

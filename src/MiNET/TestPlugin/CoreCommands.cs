@@ -194,6 +194,7 @@ namespace TestPlugin
 			sb.AppendLine(string.Format("Local chunk X:{0} Z:{1}", xi, zi));
 			sb.AppendLine(string.Format("Chunk X:{0} Z:{1}", chunkX, chunkZ));
 			sb.AppendLine(string.Format("Position X:{0:F1} Y:{1:F1} Z:{2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
+			sb.AppendLine(string.Format("Direction Yaw:{0:F1} HeadYap:{1:F1} Pitch:{2:F1}", player.KnownPosition.Yaw, player.KnownPosition.HeadYaw, player.KnownPosition.Pitch));
 			string text = sb.ToString();
 
 			player.SendMessage(text, type: MessageType.Raw);

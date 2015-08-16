@@ -374,9 +374,50 @@ namespace MiNET
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 			mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
-			//mcpeAdventureSettings.flags = mcpeAdventureSettings.flags | 0x01; // Adventure mode (force proper tool usage)
-			//mcpeAdventureSettings.flags = mcpeAdventureSettings.flags | 0x100; // Spectator mode (no collisons)
+
+			if (IsAdventure)
+			{
+				mcpeAdventureSettings.flags |= 0x01;
+			}
+
+			if (IsAutoJump)
+			{
+				mcpeAdventureSettings.flags |= 0x40;
+			}
+
+			if (IsSpectator)
+			{
+				mcpeAdventureSettings.flags |= 0x100;
+			}
+
 			SendPackage(mcpeAdventureSettings);
+		}
+
+		public bool IsAdventure { get; set; }
+
+		[Wired]
+		public void SetAdventure(bool isAdventure)
+		{
+			IsAdventure = isAdventure;
+			SendAdventureSettings();
+		}
+
+		public bool IsSpectator { get; set; }
+
+		[Wired]
+		public void SetSpecator(bool isSpectator)
+		{
+			IsSpectator = isSpectator;
+			SendAdventureSettings();
+		}
+
+		public bool IsAutoJump { get; set; }
+
+		[Wired]
+		public void SetAutoJump(bool isAutoJump)
+		{
+			IsAutoJump = isAutoJump;
+			SendAdventureSettings();
 		}
 
 		/// <summary>
@@ -483,12 +524,6 @@ namespace MiNET
 				Disconnect("Invalid skin.");
 				return;
 			}
-
-			//if (!EndPoint.Address.ToString().Equals("83.249.65.92"))
-			//{
-			//	Disconnect("Sorry, closed for public while hacking.\nTry again later.");
-			//	return;
-			//}
 
 			try
 			{
@@ -1648,16 +1683,16 @@ namespace MiNET
 			if (HealthManager.IsDead)
 			{
 				Player player = HealthManager.LastDamageSource as Player;
-                BroadcastDeathMessage(player, HealthManager.LastDamageCause);
+				BroadcastDeathMessage(player, HealthManager.LastDamageCause);
 			}
 		}
 
-        public virtual void BroadcastDeathMessage(Player player, DamageCause lastDamageCause)
-        {
-            string deathMessage = string.Format(HealthManager.GetDescription(lastDamageCause), Username, player == null ? "" : player.Username);
-            Level.BroadcastMessage(deathMessage, type: McpeText.TypeRaw);
-            Log.Debug(deathMessage);
-        }
+		public virtual void BroadcastDeathMessage(Player player, DamageCause lastDamageCause)
+		{
+			string deathMessage = string.Format(HealthManager.GetDescription(lastDamageCause), Username, player == null ? "" : player.Username);
+			Level.BroadcastMessage(deathMessage, type: McpeText.TypeRaw);
+			Log.Debug(deathMessage);
+		}
 
 		public void DetectLostConnection()
 		{

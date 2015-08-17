@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -368,6 +369,7 @@ namespace MiNET
 								MemoryStream destination = new MemoryStream();
 								defStream2.CopyTo(destination);
 								byte[] internalBuffer = destination.ToArray();
+
 								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
 							}
 							batch.PutPool();
@@ -885,8 +887,14 @@ namespace MiNET
 					// Get actual package out of bytes
 					MemoryStream destination = new MemoryStream();
 					defStream2.CopyTo(destination);
-					byte[] internalBuffer = destination.ToArray();
+					destination.Position = 0;
+					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+					int len = reader.ReadInt32();
+					byte[] internalBuffer = reader.ReadBytes(len);
+
+					//byte[] internalBuffer = destination.ToArray();
 					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+					if (destination.Length > destination.Position) throw new Exception("Have more data");
 				}
 				foreach (var msg in messages)
 				{
@@ -968,63 +976,65 @@ namespace MiNET
 					if (session == null) return;
 					if (session.Evicted) return;
 
+					return;
+
 					try
 					{
 						Player player = session.Player;
 
 						long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-						if (lastUpdate + InacvitityTimeout + 3000 + Math.Min(5000, ServerInfo.AvailableBytes) < now)
-						{
-							session.Evicted = true;
-							// Disconnect user
-							ThreadPool.QueueUserWorkItem(delegate(object o)
-							{
-								PlayerNetworkSession s = o as PlayerNetworkSession;
-								if (s != null)
-								{
-									Player p = s.Player;
-									if (p != null)
-									{
-										p.Disconnect("You've been kicked with reason: Network timeout.");
-									}
-									else
-									{
-										if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
-										{
-											session.Player = null;
-											session.State = ConnectionState.Unconnected;
-											session.Evicted = true;
-											session.Clean();
-										}
-									}
-								}
-							}, session);
+						//if (lastUpdate + InacvitityTimeout + 3000 + Math.Min(5000, ServerInfo.AvailableBytes) < now)
+						//{
+						//	session.Evicted = true;
+						//	// Disconnect user
+						//	ThreadPool.QueueUserWorkItem(delegate(object o)
+						//	{
+						//		PlayerNetworkSession s = o as PlayerNetworkSession;
+						//		if (s != null)
+						//		{
+						//			Player p = s.Player;
+						//			if (p != null)
+						//			{
+						//				p.Disconnect("You've been kicked with reason: Network timeout.");
+						//			}
+						//			else
+						//			{
+						//				if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
+						//				{
+						//					session.Player = null;
+						//					session.State = ConnectionState.Unconnected;
+						//					session.Evicted = true;
+						//					session.Clean();
+						//				}
+						//			}
+						//		}
+						//	}, session);
 
-							return;
-						}
+						//	return;
+						//}
 
 
-						if (session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
-						{
-							ThreadPool.QueueUserWorkItem(delegate(object o)
-							{
-								PlayerNetworkSession s = o as PlayerNetworkSession;
-								if (s != null)
-								{
-									Player p = s.Player;
-									if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
-								}
-							}, session);
+						//if (session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+						//{
+						//	ThreadPool.QueueUserWorkItem(delegate(object o)
+						//	{
+						//		PlayerNetworkSession s = o as PlayerNetworkSession;
+						//		if (s != null)
+						//		{
+						//			Player p = s.Player;
+						//			if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+						//		}
+						//	}, session);
 
-							return;
-						}
+						//	return;
+						//}
 
-						if (player == null) return;
+						//if (player == null) return;
 
-						if (lastUpdate + InacvitityTimeout < now)
-						{
-							player.DetectLostConnection();
-						}
+						//if (lastUpdate + InacvitityTimeout < now)
+						//{
+						//	player.DetectLostConnection();
+						//}
 
 						long rto = Math.Max(100, player.Rto);
 						var queue = session.WaitingForAcksQueue;
@@ -1175,7 +1185,6 @@ namespace MiNET
 
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
-			return;
 			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
@@ -1186,7 +1195,6 @@ namespace MiNET
 
 		private static void TraceSend(Package message)
 		{
-			return;
 			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)

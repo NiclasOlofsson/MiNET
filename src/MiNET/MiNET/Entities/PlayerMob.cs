@@ -64,7 +64,7 @@ namespace MiNET.Entities
 		{
 			{
 				McpeAddPlayer message = McpeAddPlayer.CreateObject();
-				message.clientId = EntityId;
+				message.uuid = player.ClientUuid;
 				message.username = NameTag ?? Name;
 				message.entityId = EntityId;
 				message.x = KnownPosition.X;
@@ -73,7 +73,6 @@ namespace MiNET.Entities
 				message.yaw = KnownPosition.Yaw;
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
-				message.skin = Skin;
 				message.metadata = GetMetadata().GetBytes();
 				player.SendPackage(message);
 			}
@@ -99,7 +98,7 @@ namespace MiNET.Entities
 		protected virtual void SpawnToAll()
 		{
 			McpeAddPlayer message = McpeAddPlayer.CreateObject();
-			message.clientId = EntityId;
+			message.uuid = new UUID();
 			message.username = NameTag ?? Name;
 			message.entityId = EntityId;
 			message.x = KnownPosition.X;
@@ -108,7 +107,6 @@ namespace MiNET.Entities
 			message.yaw = KnownPosition.Yaw;
 			message.headYaw = KnownPosition.HeadYaw;
 			message.pitch = KnownPosition.Pitch;
-			message.skin = Skin;
 			message.metadata = GetMetadata().GetBytes();
 
 			Level.RelayBroadcast(message);

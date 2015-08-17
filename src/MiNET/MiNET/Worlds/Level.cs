@@ -182,7 +182,7 @@ namespace MiNET.Worlds
 			if (player == receiver) return;
 
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
-			mcpeAddPlayer.clientId = player.EntityId;
+			mcpeAddPlayer.uuid = player.ClientUuid;
 			mcpeAddPlayer.username = player.Username;
 			mcpeAddPlayer.entityId = player.EntityId;
 			mcpeAddPlayer.x = player.KnownPosition.X;
@@ -191,7 +191,6 @@ namespace MiNET.Worlds
 			mcpeAddPlayer.yaw = player.KnownPosition.Yaw;
 			mcpeAddPlayer.headYaw = player.KnownPosition.HeadYaw;
 			mcpeAddPlayer.pitch = player.KnownPosition.Pitch;
-			mcpeAddPlayer.skin = player.Skin;
 			mcpeAddPlayer.metadata = player.GetMetadata().GetBytes();
 			receiver.SendPackage(mcpeAddPlayer);
 
@@ -259,7 +258,7 @@ namespace MiNET.Worlds
 			if (player == receiver) return;
 
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
-			mcpeRemovePlayer.clientId = 0;
+			mcpeRemovePlayer.clientUuid = player.ClientUuid;
 			mcpeRemovePlayer.entityId = player.EntityId;
 			receiver.SendPackage(mcpeRemovePlayer);
 		}
@@ -491,6 +490,7 @@ namespace MiNET.Worlds
 			DateTime now = DateTime.UtcNow;
 
 			MemoryStream stream = new MemoryStream();
+			NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
 			int count = 0;
 			foreach (var player in players)
@@ -507,9 +507,10 @@ namespace MiNET.Worlds
 					move.yaw = knownPosition.Yaw;
 					move.pitch = knownPosition.Pitch;
 					move.headYaw = knownPosition.HeadYaw;
-					move.teleport = 0;
+					move.mode = 0;
 					byte[] bytes = move.Encode();
-					stream.Write(bytes, 0, bytes.Length);
+					writer.Write(bytes.Length);
+					writer.Write(bytes, 0, bytes.Length);
 					move.PutPool();
 					count++;
 				}
@@ -533,16 +534,20 @@ namespace MiNET.Worlds
 
 			{
 				byte[] bytes = moveEntity.Encode();
-				stream.Write(bytes, 0, bytes.Length);
+				writer.Write(bytes.Length);
+				writer.Write(bytes, 0, bytes.Length);
 				moveEntity.PutPool();
 			}
 			{
 				byte[] bytes = entityMotion.Encode();
-				stream.Write(bytes, 0, bytes.Length);
+				writer.Write(bytes.Length);
+				writer.Write(bytes, 0, bytes.Length);
 				entityMotion.PutPool();
 			}
 
 			if (count == 0) return;
+
+			writer.Flush();
 
 			McpeBatch batch = McpeBatch.CreateObject(players.Length);
 			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);

@@ -19,52 +19,56 @@
 | Disconnection Notification | 0x15 | 21 |   
 | Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
-| Mcpe Login | 0x82 | 130 |   
-| Mcpe Player Status | 0x83 | 131 |   
-| Mcpe Disconnect | 0x84 | 132 |   
-| Mcpe Text | 0x85 | 133 |   
-| Mcpe Set Time | 0x86 | 134 |   
-| Mcpe Start Game | 0x87 | 135 |   
-| Mcpe Add Player | 0x88 | 136 |   
-| Mcpe Remove Player | 0x89 | 137 |   
-| Mcpe Add Entity | 0x8a | 138 |   
-| Mcpe Remove Entity | 0x8b | 139 |   
-| Mcpe Add Item Entity | 0x8c | 140 |   
-| Mcpe Take Item Entity | 0x8d | 141 |   
-| Mcpe Move Entity | 0x8e | 142 |   
-| Mcpe Move Player | 0x8f | 143 |   
-| Mcpe Remove Block | 0x90 | 144 |   
-| Mcpe Update Block | 0x91 | 145 |   
-| Mcpe Add Painting | 0x92 | 146 |   
-| Mcpe Explode | 0x93 | 147 |   
-| Mcpe Level Event | 0x94 | 148 |   
-| Mcpe Tile Event | 0x95 | 149 |   
-| Mcpe Entity Event | 0x96 | 150 |   
-| Mcpe Mob Effect | 0x97 | 151 |   
-| Mcpe Player Equipment | 0x98 | 152 |   
-| Mcpe Player Armor Equipment | 0x99 | 153 |   
-| Mcpe Interact | 0x9a | 154 |   
-| Mcpe Use Item | 0x9b | 155 |   
-| Mcpe Player Action | 0x9c | 156 |   
-| Mcpe Hurt Armor | 0x9d | 157 |   
-| Mcpe Set Entity Data | 0x9e | 158 |   
-| Mcpe Set Entity Motion | 0x9f | 159 |   
-| Mcpe Set Entity Link | 0xa0 | 160 |   
-| Mcpe Set Health | 0xa1 | 161 |   
-| Mcpe Set Spawn Position | 0xa2 | 162 |   
-| Mcpe Animate | 0xa3 | 163 |   
-| Mcpe Respawn | 0xa4 | 164 |   
-| Mcpe Drop Item | 0xa5 | 165 |   
-| Mcpe Container Open | 0xa6 | 166 |   
-| Mcpe Container Close | 0xa7 | 167 |   
-| Mcpe Container Set Slot | 0xa8 | 168 |   
-| Mcpe Container Set Data | 0xa9 | 169 |   
-| Mcpe Container Set Content | 0xaa | 170 |   
-| Mcpe Adventure Settings | 0xac | 172 |   
-| Mcpe Tile Entity Data | 0xad | 173 |   
-| Mcpe Full Chunk Data | 0xaf | 175 |   
-| Mcpe Set Difficulty | 0xb0 | 176 |   
-| Mcpe Batch | 0xb1 | 177 |   
+| Mcpe Login | 0x8f | 143 |   
+| Mcpe Player Status | 0x90 | 144 |   
+| Mcpe Disconnect | 0x91 | 145 |   
+| Mcpe Batch | 0x92 | 146 |   
+| Mcpe Text | 0x93 | 147 |   
+| Mcpe Set Time | 0x94 | 148 |   
+| Mcpe Start Game | 0x95 | 149 |   
+| Mcpe Add Player | 0x96 | 150 |   
+| Mcpe Remove Player | 0x97 | 151 |   
+| Mcpe Add Entity | 0x98 | 152 |   
+| Mcpe Remove Entity | 0x99 | 153 |   
+| Mcpe Add Item Entity | 0x9a | 154 |   
+| Mcpe Take Item Entity | 0x9b | 155 |   
+| Mcpe Move Entity | 0x9c | 156 |   
+| Mcpe Move Player | 0x9d | 157 |   
+| Mcpe Remove Block | 0x9e | 158 |   
+| Mcpe Update Block | 0x9f | 159 |   
+| Mcpe Add Painting | 0xa0 | 160 |   
+| Mcpe Explode | 0xa1 | 161 |   
+| Mcpe Level Event | 0xa2 | 162 |   
+| Mcpe Tile Event | 0xa3 | 163 |   
+| Mcpe Entity Event | 0xa4 | 164 |   
+| Mcpe Mob Effect | 0xa5 | 165 |   
+| Mcpe Update Attributes | 0xa6 | 166 |   
+| Mcpe Player Equipment | 0xa7 | 167 |   
+| Mcpe Player Armor Equipment | 0xa8 | 168 |   
+| Mcpe Interact | 0xa9 | 169 |   
+| Mcpe Use Item | 0xaa | 170 |   
+| Mcpe Player Action | 0xab | 171 |   
+| Mcpe Hurt Armor | 0xac | 172 |   
+| Mcpe Set Entity Data | 0xad | 173 |   
+| Mcpe Set Entity Motion | 0xae | 174 |   
+| Mcpe Set Entity Link | 0xaf | 175 |   
+| Mcpe Set Health | 0xb0 | 176 |   
+| Mcpe Set Spawn Position | 0xb1 | 177 |   
+| Mcpe Animate | 0xb2 | 178 |   
+| Mcpe Respawn | 0xb3 | 179 |   
+| Mcpe Drop Item | 0xb4 | 180 |   
+| Mcpe Container Open | 0xb5 | 181 |   
+| Mcpe Container Close | 0xb6 | 182 |   
+| Mcpe Container Set Slot | 0xb7 | 183 |   
+| Mcpe Container Set Data | 0xb8 | 184 |   
+| Mcpe Container Set Content | 0xb9 | 185 |   
+| Mcpe Crafting Data | 0xba | 186 |   
+| Mcpe Crafting Event | 0xbb | 187 |   
+| Mcpe Adventure Settings | 0xbc | 188 |   
+| Mcpe Tile Entity Data | 0xbd | 189 |   
+| Mcpe Full Chunk Data | 0xbf | 191 |   
+| Mcpe Set Difficulty | 0xc0 | 192 |   
+| Mcpe Player List | 0xc3 | 195 |   
 
 
 ##Constants
@@ -294,7 +298,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-###Package: Mcpe Login (0x82)
+###Package: Mcpe Login (0x8f)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -309,10 +313,13 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |username | string |  |
 |protocol | int |  |
 |protocol2 | int |  |
-|Client ID | int |  |
+|Client ID | long |  |
+|Client UUID | UUID |  |
+|Server Address | string |  |
+|Client Secret | string |  |
 |Skin | Skin |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Status (0x83)
+###Package: Mcpe Player Status (0x90)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -332,7 +339,7 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Status | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Disconnect (0x84)
+###Package: Mcpe Disconnect (0x91)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -346,7 +353,22 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Message | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Text (0x85)
+###Package: Mcpe Batch (0x92)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Payload size | int |  |
+|Payload | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Text (0x93)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -368,7 +390,7 @@ TODO: Parameters
 |:-----|:-----|:-----|
 |Type | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Time (0x86)
+###Package: Mcpe Set Time (0x94)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -383,7 +405,7 @@ TODO: Parameters
 |Time | int |  |
 |Started | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Start Game (0x87)
+###Package: Mcpe Start Game (0x95)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -396,6 +418,7 @@ TODO: Parameters
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Seed | int |  |
+|Dimension | byte |  |
 |Generator | int |  |
 |Gamemode | int |  |
 |Entity ID | long |  |
@@ -405,8 +428,9 @@ TODO: Parameters
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
+|unknown | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Player (0x88)
+###Package: Mcpe Add Player (0x96)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -418,7 +442,7 @@ TODO: Parameters
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Client ID | long |  |
+|UUID | UUID |  |
 |Username | string |  |
 |Entity ID | long |  |
 |X | float |  |
@@ -430,12 +454,11 @@ TODO: Parameters
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Pitch | float |  |
-|Item | short |  |
-|Meta | short |  |
-|Skin | Skin |  |
+|Item Id | short |  |
+|Item Meta | short |  |
 |Metadata | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Remove Player (0x89)
+###Package: Mcpe Remove Player (0x97)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -448,9 +471,9 @@ TODO: Parameters
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Client ID | long |  |
+|Client UUID | UUID |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Entity (0x8a)
+###Package: Mcpe Add Entity (0x98)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -482,7 +505,7 @@ link[2] byte
 |Metadata | MetadataDictionary |  |
 |Links | short |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Remove Entity (0x8b)
+###Package: Mcpe Remove Entity (0x99)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -496,7 +519,7 @@ link[2] byte
 |:-----|:-----|:-----|
 |Entity ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Item Entity (0x8c)
+###Package: Mcpe Add Item Entity (0x9a)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -517,7 +540,7 @@ link[2] byte
 |Speed Y | float |  |
 |Speed Z | float |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Take Item Entity (0x8d)
+###Package: Mcpe Take Item Entity (0x9b)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -532,7 +555,7 @@ link[2] byte
 |Target | long |  |
 |Entity Id | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Move Entity (0x8e)
+###Package: Mcpe Move Entity (0x9c)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -546,12 +569,16 @@ link[2] byte
 |:-----|:-----|:-----|
 |Entities | EntityLocations |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Move Player (0x8f)
+###Package: Mcpe Move Player (0x9d)
 
 **Sent from server:** true
 **Sent from client:** true
 **Packet size:** 
 
+
+MODE_NORMAL = 0;
+MODE_RESET = 1;
+MODE_ROTATION = 2;
 
 
 ####Fields
@@ -565,10 +592,10 @@ link[2] byte
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Pitch | float |  |
-|Teleport | byte |  |
+|Mode | byte |  |
 |On Ground | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Remove Block (0x90)
+###Package: Mcpe Remove Block (0x9e)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -585,7 +612,7 @@ link[2] byte
 |Z | int |  |
 |Y | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Update Block (0x91)
+###Package: Mcpe Update Block (0x9f)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -601,7 +628,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Blocks | BlockRecords |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Add Painting (0x92)
+###Package: Mcpe Add Painting (0xa0)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -620,7 +647,7 @@ TODO: can have multiple blocks.
 |Direction | int |  |
 |Title | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Explode (0x93)
+###Package: Mcpe Explode (0xa1)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -638,7 +665,7 @@ TODO: can have multiple blocks.
 |Radius | float |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Level Event (0x94)
+###Package: Mcpe Level Event (0xa2)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -656,7 +683,7 @@ TODO: can have multiple blocks.
 |Z | float |  |
 |Data | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Tile Event (0x95)
+###Package: Mcpe Tile Event (0xa3)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -674,7 +701,7 @@ TODO: can have multiple blocks.
 |Case 1 | int |  |
 |Case 2 | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Entity Event (0x96)
+###Package: Mcpe Entity Event (0xa4)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -689,7 +716,7 @@ TODO: can have multiple blocks.
 |Entity ID | long |  |
 |Event ID | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Mob Effect (0x97)
+###Package: Mcpe Mob Effect (0xa5)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -708,7 +735,20 @@ TODO: can have multiple blocks.
 |Particles | byte |  |
 |Duration | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Equipment (0x98)
+###Package: Mcpe Update Attributes (0xa6)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Mcpe Player Equipment (0xa7)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -726,7 +766,7 @@ TODO: can have multiple blocks.
 |Slot | byte |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Armor Equipment (0x99)
+###Package: Mcpe Player Armor Equipment (0xa8)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -744,7 +784,7 @@ TODO: can have multiple blocks.
 |Leggings | byte |  |
 |Boots | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Interact (0x9a)
+###Package: Mcpe Interact (0xa9)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -759,7 +799,7 @@ TODO: can have multiple blocks.
 |Action ID | byte |  |
 |Target Entity ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Use Item (0x9b)
+###Package: Mcpe Use Item (0xaa)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -785,7 +825,7 @@ TODO: can have multiple blocks.
 |Position Y | float |  |
 |Position Z | float |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Action (0x9c)
+###Package: Mcpe Player Action (0xab)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -804,7 +844,7 @@ TODO: can have multiple blocks.
 |Z | int |  |
 |Face | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Hurt Armor (0x9d)
+###Package: Mcpe Hurt Armor (0xac)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -818,7 +858,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Health | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Data (0x9e)
+###Package: Mcpe Set Entity Data (0xad)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -833,7 +873,7 @@ TODO: can have multiple blocks.
 |Entity ID | long |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Motion (0x9f)
+###Package: Mcpe Set Entity Motion (0xae)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -847,7 +887,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Entities | EntityMotions |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Entity Link (0xa0)
+###Package: Mcpe Set Entity Link (0xaf)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -863,7 +903,7 @@ TODO: can have multiple blocks.
 |Ridden ID | long |  |
 |Link Type | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Health (0xa1)
+###Package: Mcpe Set Health (0xb0)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -877,7 +917,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Health | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Spawn Position (0xa2)
+###Package: Mcpe Set Spawn Position (0xb1)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -891,9 +931,9 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |X | int |  |
 |Z | int |  |
-|Y | byte |  |
+|Y | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Animate (0xa3)
+###Package: Mcpe Animate (0xb2)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -908,7 +948,7 @@ TODO: can have multiple blocks.
 |Action ID | byte |  |
 |Entity ID | long |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Respawn (0xa4)
+###Package: Mcpe Respawn (0xb3)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -924,7 +964,7 @@ TODO: can have multiple blocks.
 |Y | float |  |
 |Z | float |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Drop Item (0xa5)
+###Package: Mcpe Drop Item (0xb4)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -940,7 +980,7 @@ TODO: can have multiple blocks.
 |Unknown | byte |  |
 |Item | MetadataSlot |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Open (0xa6)
+###Package: Mcpe Container Open (0xb5)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -959,7 +999,7 @@ TODO: can have multiple blocks.
 |Y | int |  |
 |Z | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Close (0xa7)
+###Package: Mcpe Container Close (0xb6)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -973,7 +1013,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Set Slot (0xa8)
+###Package: Mcpe Container Set Slot (0xb7)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -991,7 +1031,7 @@ TODO: can have multiple blocks.
 |Item Count | byte |  |
 |Item Damage | short |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Set Data (0xa9)
+###Package: Mcpe Container Set Data (0xb8)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1007,7 +1047,7 @@ TODO: can have multiple blocks.
 |Property | short |  |
 |Value | short |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Container Set Content (0xaa)
+###Package: Mcpe Container Set Content (0xb9)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1023,7 +1063,7 @@ TODO: can have multiple blocks.
 |Slot Data | MetadataSlots |  |
 |Hotbar Data | MetadataInts |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Adventure Settings (0xac)
+###Package: Mcpe Crafting Data (0xba)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1037,7 +1077,35 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Flags | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Tile Entity Data (0xad)
+###Package: Mcpe Crafting Event (0xbb)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Flags | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Adventure Settings (0xbc)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Flags | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Tile Entity Data (0xbd)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1054,12 +1122,15 @@ TODO: can have multiple blocks.
 |Z | int |  |
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Full Chunk Data (0xaf)
+###Package: Mcpe Full Chunk Data (0xbf)
 
 **Sent from server:** true
 **Sent from client:** false
 **Packet size:** 
 
+ 
+ORDER_COLUMNS = 0;
+ORDER_LAYERED = 1;
 
 
 ####Fields
@@ -1068,10 +1139,11 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Chunk X | int |  |
 |Chunk Z | int |  |
+|Order | byte |  |
 |Chunk Data Length | int |  |
 |Chunk Data | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Difficulty (0xb0)
+###Package: Mcpe Set Difficulty (0xc0)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1085,7 +1157,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Difficulty | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Batch (0xb1)
+###Package: Mcpe Player List (0xc3)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1097,8 +1169,6 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Payload size | int |  |
-|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Transfer (0x1b)
 

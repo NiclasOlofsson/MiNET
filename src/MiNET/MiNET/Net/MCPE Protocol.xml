@@ -102,11 +102,14 @@
 	<pdu id="0x15" online="false" client="true" server="true" name="ID_DISCONNECTION_NOTIFICATION">
 	</pdu>
 
-	<pdu id="0x82" online="false" client="true" server="false" name="ID_MCPE_LOGIN">
+	<pdu id="0x8f" online="false" client="true" server="false" name="MCPE_LOGIN">
 		<field name="username" type="string" />
 		<field name="protocol" type="int" />
 		<field name="protocol2" type="int" />
-		<field name="Client ID" type="int" />
+		<field name="Client ID" type="long" />
+		<field name="Client UUID" type="UUID" />
+		<field name="Server Address" type="string" />
+		<field name="Client Secret" type="string" />
 		<field name="Skin" type="Skin" />
 	</pdu>
 
@@ -117,12 +120,17 @@
 		2: If the game is outdated.
 		3: If the player is sapwned.
 		-->
-	<pdu id="0x83" online="false" client="false" server="true" name="ID_MCPE_PLAYER_STATUS">
+	<pdu id="0x90" online="false" client="false" server="true" name="MCPE_PLAYER_STATUS">
 		<field name="Status" type="int" />
 	</pdu>
 
-	<pdu id="0x84" online="false" client="false" server="true" name="ID_MCPE_DISCONNECT">
+	<pdu id="0x91" online="false" client="false" server="true" name="MCPE_DISCONNECT">
 		<field name="Message" type="string" />
+	</pdu>
+
+	<pdu id="0x92" online="false" client="false" server="true" name="MCPE_BATCH">
+		<field name="Payload size" type="int" />
+		<field name="Payload" type="byte[]" size="0" />
 	</pdu>
 
 	<!-- 
@@ -134,17 +142,18 @@
 
 		TODO: Parameters
 		-->
-	<pdu id="0x85" online="false" client="false" server="true" name="ID_MCPE_TEXT">
+	<pdu id="0x93" online="false" client="false" server="true" name="MCPE_TEXT">
 		<field name="Type" type="byte" />
 	</pdu>
 
-	<pdu id="0x86" online="false" client="false" server="true" name="ID_MCPE_SET_TIME">
+	<pdu id="0x94" online="false" client="false" server="true" name="MCPE_SET_TIME">
 		<field name="Time" type="int" />
 		<field name="Started" type="byte" note="started == true ? 0x80 : 0x00" />
 	</pdu>
 
-	<pdu id="0x87" online="false" client="false" server="true" name="ID_MCPE_START_GAME">
+	<pdu id="0x95" online="false" client="false" server="true" name="MCPE_START_GAME">
 		<field name="Seed" type="int" />
+		<field name="Dimension" type="byte" />
 		<field name="Generator" type="int" />
 		<field name="Gamemode" type="int" />
 		<field name="Entity ID" type="long" />
@@ -154,10 +163,11 @@
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
+		<field name="unknown" type="byte" />
 	</pdu>
 
-	<pdu id="0x88" online="false" client="true" server="true" name="ID_MCPE_ADD_PLAYER">
-		<field name="Client ID" type="long" />
+	<pdu id="0x96" online="false" client="true" server="true" name="MCPE_ADD_PLAYER">
+		<field name="UUID" type="UUID" />
 		<field name="Username" type="string" />
 		<field name="Entity ID" type="long" />
 		<field name="X" type="float" />
@@ -169,15 +179,14 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Item" type="short" />
-		<field name="Meta" type="short" />
-		<field name="Skin" type="Skin" />
+		<field name="Item Id" type="short" />
+		<field name="Item Meta" type="short" />
 		<field name="Metadata" type="byte[]" size="0" />
 	</pdu>
 
-	<pdu id="0x89" online="false" client="false" server="true" name="ID_MCPE_REMOVE_PLAYER">
+	<pdu id="0x97" online="false" client="false" server="true" name="MCPE_REMOVE_PLAYER">
 		<field name="Entity ID" type="long" />
-		<field name="Client ID" type="long" />
+		<field name="Client UUID" type="UUID" />
 	</pdu>
 
 	<!--
@@ -188,7 +197,7 @@
 				link[1] long
 				link[2] byte
 		-->
-	<pdu id="0x8a" online="false" client="false" server="true" name="ID_MCPE_ADD_ENTITY">
+	<pdu id="0x98" online="false" client="false" server="true" name="MCPE_ADD_ENTITY">
 		<field name="Entity ID" type="long" />
 		<field name="Entity Type" type="int" />
 		<field name="X" type="float" />
@@ -203,11 +212,11 @@
 		<field name="Links" type="short" />
 	</pdu>
 
-	<pdu id="0x8b" online="false" client="false" server="true" name="ID_MCPE_REMOVE_ENTITY">
+	<pdu id="0x99" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">
 		<field name="Entity ID" type="long" />
 	</pdu>
 
-	<pdu id="0x8c" online="false" client="true" server="true" name="ID_MCPE_ADD_ITEM_ENTITY">
+	<pdu id="0x9a" online="false" client="true" server="true" name="MCPE_ADD_ITEM_ENTITY">
 		<field name="Entity Id" type="long" />
 		<field name="Item" type="MetadataSlot" />
 		<field name="X" type="float" />
@@ -218,16 +227,21 @@
 		<field name="Speed Z" type="float" />
 	</pdu>
 
-	<pdu id="0x8d" online="false" client="true" server="true" name="ID_MCPE_TAKE_ITEM_ENTITY">
+	<pdu id="0x9b" online="false" client="true" server="true" name="MCPE_TAKE_ITEM_ENTITY">
 		<field name="Target" type="long" />
 		<field name="Entity Id" type="long" />
 	</pdu>
 
-	<pdu id="0x8e" online="false" client="true" server="true" name="ID_MCPE_MOVE_ENTITY">
+	<pdu id="0x9c" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
 		<field name="Entities" type="EntityLocations" />
 	</pdu>
 
-	<pdu id="0x8f" online="false" client="true" server="true" name="ID_MCPE_MOVE_PLAYER">
+	<!--
+	MODE_NORMAL = 0;
+	MODE_RESET = 1;
+	MODE_ROTATION = 2;
+	-->
+	<pdu id="0x9d" online="false" client="true" server="true" name="MCPE_MOVE_PLAYER">
 		<field name="Entity ID" type="long" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
@@ -235,11 +249,11 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Teleport" type="byte" note="teleport == true ? 0x80 : 0x00" />
+		<field name="Mode" type="byte" />
 		<field name="On Ground" type="byte" />
 	</pdu>
 
-	<pdu id="0x90" online="false" client="true" server="true" name="ID_MCPE_REMOVE_BLOCK">
+	<pdu id="0x9e" online="false" client="true" server="true" name="MCPE_REMOVE_BLOCK">
 		<field name="Entity ID" type="long" />
 		<field name="X" type="int" />
 		<field name="Z" type="int" />
@@ -249,11 +263,11 @@
 	<!--
 		TODO: can have multiple blocks.
 		-->
-	<pdu id="0x91" online="false" client="true" server="true" name="ID_MCPE_UPDATE_BLOCK">
+	<pdu id="0x9f" online="false" client="true" server="true" name="MCPE_UPDATE_BLOCK">
 		<field name="Blocks" type="BlockRecords" />
 	</pdu>
 
-	<pdu id="0x92" online="false" client="true" server="true" name="ID_MCPE_ADD_PAINTING">
+	<pdu id="0xa0" online="false" client="true" server="true" name="MCPE_ADD_PAINTING">
 		<field name="Entity ID" type="long" />
 		<field name="X" type="int" />
 		<field name="Y" type="int" />
@@ -262,7 +276,7 @@
 		<field name="Title" type="string" />
 	</pdu>
 
-	<pdu id="0x93" online="false" client="false" server="true" name="ID_MCPE_EXPLODE">
+	<pdu id="0xa1" online="false" client="false" server="true" name="MCPE_EXPLODE">
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
@@ -270,7 +284,7 @@
 		<field name="Records" type="Records" />
 	</pdu>
 
-	<pdu id="0x94" online="false" client="true" server="true" name="ID_MCPE_LEVEL_EVENT">
+	<pdu id="0xa2" online="false" client="true" server="true" name="MCPE_LEVEL_EVENT">
 		<field name="Event ID" type="short" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
@@ -278,7 +292,7 @@
 		<field name="Data" type="int" />
 	</pdu>
 
-	<pdu id="0x95" online="false" client="true" server="true" name="ID_MCPE_TILE_EVENT">
+	<pdu id="0xa3" online="false" client="true" server="true" name="MCPE_TILE_EVENT">
 		<field name="X" type="int" />
 		<field name="Z" type="int" />
 		<field name="Y" type="int" />
@@ -286,12 +300,12 @@
 		<field name="Case 2" type="int" />
 	</pdu>
 
-	<pdu id="0x96" online="false" client="true" server="true" name="ID_MCPE_ENTITY_EVENT">
+	<pdu id="0xa4" online="false" client="true" server="true" name="MCPE_ENTITY_EVENT">
 		<field name="Entity ID" type="long" />
 		<field name="Event ID" type="byte" />
 	</pdu>
 
-	<pdu id="0x97" online="false" client="true" server="true" name="ID_MCPE_MOB_EFFECT">
+	<pdu id="0xa5" online="false" client="true" server="true" name="MCPE_MOB_EFFECT">
 		<field name="Entity ID" type="long" />
 		<field name="Event ID" type="byte" />
 		<field name="Effect ID" type="byte" />
@@ -300,7 +314,10 @@
 		<field name="Duration" type="int" />
 	</pdu>
 
-	<pdu id="0x98" online="false" client="true" server="true" name="ID_MCPE_PLAYER_EQUIPMENT">
+	<pdu id="0xa6" online="false" client="true" server="true" name="MCPE_UPDATE_ATTRIBUTES">
+	</pdu>
+
+	<pdu id="0xa7" online="false" client="true" server="true" name="MCPE_PLAYER_EQUIPMENT">
 		<field name="Entity ID" type="long" />
 		<field name="Item" type="short" />
 		<field name="Meta" type="short" />
@@ -308,7 +325,7 @@
 		<field name="Selected Slot" type="byte" />
 	</pdu>
 
-	<pdu id="0x99" online="false" client="true" server="true" name="ID_MCPE_PLAYER_ARMOR_EQUIPMENT">
+	<pdu id="0xa8" online="false" client="true" server="true" name="MCPE_PLAYER_ARMOR_EQUIPMENT">
 		<field name="Entity ID" type="long" />
 		<field name="Helmet" type="byte" />
 		<field name="Chestplate" type="byte" />
@@ -316,12 +333,12 @@
 		<field name="Boots" type="byte" />
 	</pdu>
 
-	<pdu id="0x9a" online="false" client="true" server="true" name="ID_MCPE_INTERACT">
+	<pdu id="0xa9" online="false" client="true" server="true" name="MCPE_INTERACT">
 		<field name="Action ID" type="byte" />
 		<field name="Target Entity ID" type="long" />
 	</pdu>
 
-	<pdu id="0x9b" online="false" client="true" server="true" name="ID_MCPE_USE_ITEM">
+	<pdu id="0xaa" online="false" client="true" server="true" name="MCPE_USE_ITEM">
 		<field name="X" type="int" />
 		<field name="Y" type="int" />
 		<field name="Z" type="int" />
@@ -337,7 +354,7 @@
 		<field name="Position Z" type="float" />
 	</pdu>
 
-	<pdu id="0x9c" online="false" client="true" server="false" name="ID_MCPE_PLAYER_ACTION">
+	<pdu id="0xab" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">
 		<field name="Entity ID" type="long" />
 		<field name="Action ID" type="int" />
 		<field name="X" type="int" />
@@ -346,53 +363,53 @@
 		<field name="Face" type="int" />
 	</pdu>
 
-	<pdu id="0x9d" online="false" client="true" server="true" name="ID_MCPE_HURT_ARMOR">
+	<pdu id="0xac" online="false" client="true" server="true" name="MCPE_HURT_ARMOR">
 		<field name="Health" type="int" />
 	</pdu>
 
-	<pdu id="0x9e" online="false" client="false" server="true" name="ID_MCPE_SET_ENTITY_DATA">
+	<pdu id="0xad" online="false" client="false" server="true" name="MCPE_SET_ENTITY_DATA">
 		<field name="Entity ID" type="long" />
 		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
-	<pdu id="0x9f" online="false" client="true" server="true" name="ID_MCPE_SET_ENTITY_MOTION">
+	<pdu id="0xae" online="false" client="true" server="true" name="MCPE_SET_ENTITY_MOTION">
 		<field name="Entities" type="EntityMotions" />
 	</pdu>
 
-	<pdu id="0xa0" online="false" client="true" server="true" name="ID_MCPE_SET_ENTITY_LINK">
+	<pdu id="0xaf" online="false" client="true" server="true" name="MCPE_SET_ENTITY_LINK">
 		<field name="Rider ID" type="long" />
 		<field name="Ridden ID" type="long" />
 		<field name="Link Type" type="byte" />
 	</pdu>
 
-	<pdu id="0xa1" online="false" client="false" server="true" name="ID_MCPE_SET_HEALTH">
+	<pdu id="0xb0" online="false" client="false" server="true" name="MCPE_SET_HEALTH">
 		<field name="Health" type="int" />
 	</pdu>
 
-	<pdu id="0xa2" online="false" client="false" server="true" name="ID_MCPE_SET_SPAWN_POSITION">
+	<pdu id="0xb1" online="false" client="false" server="true" name="MCPE_SET_SPAWN_POSITION">
 		<field name="X" type="int" />
 		<field name="Z" type="int" />
-		<field name="Y" type="byte" />
+		<field name="Y" type="int" />
 	</pdu>
 
-	<pdu id="0xa3" online="false" client="true" server="true" name="ID_MCPE_ANIMATE">
+	<pdu id="0xb2" online="false" client="true" server="true" name="MCPE_ANIMATE">
 		<field name="Action ID" type="byte" />
 		<field name="Entity ID" type="long" />
 	</pdu>
 
-	<pdu id="0xa4" online="false" client="true" server="true" name="ID_MCPE_RESPAWN">
+	<pdu id="0xb3" online="false" client="true" server="true" name="MCPE_RESPAWN">
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
 	</pdu>
 
-	<pdu id="0xa5" online="false" client="true" server="false" name="ID_MCPE_DROP_ITEM">
+	<pdu id="0xb4" online="false" client="true" server="false" name="MCPE_DROP_ITEM">
 		<field name="Entity Id" type="long" />
 		<field name="Unknown" type="byte" />
 		<field name="Item" type="MetadataSlot" />
 	</pdu>
 
-	<pdu id="0xa6" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_OPEN">
+	<pdu id="0xb5" online="false" client="true" server="true" name="MCPE_CONTAINER_OPEN">
 		<field name="Window ID" type="byte" />
 		<field name="Type" type="byte" />
 		<field name="Slot Count" type="short" />
@@ -401,11 +418,11 @@
 		<field name="Z" type="int" />
 	</pdu>
 
-	<pdu id="0xa7" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_CLOSE">
+	<pdu id="0xb6" online="false" client="true" server="true" name="MCPE_CONTAINER_CLOSE">
 		<field name="Window ID" type="byte" />
 	</pdu>
 
-	<pdu id="0xa8" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_SET_SLOT">
+	<pdu id="0xb7" online="false" client="true" server="true" name="MCPE_CONTAINER_SET_SLOT">
 		<field name="Window ID" type="byte" />
 		<field name="Slot" type="short" />
 		<field name="Item ID" type="short" />
@@ -413,46 +430,57 @@
 		<field name="Item Damage" type="short" />
 	</pdu>
 
-	<pdu id="0xa9" online="false" client="true" server="true" name="ID_MCPE_CONTAINER_SET_DATA">
+	<pdu id="0xb8" online="false" client="true" server="true" name="MCPE_CONTAINER_SET_DATA">
 		<field name="Window ID" type="byte" />
 		<field name="Property" type="short" />
 		<field name="Value" type="short" />
 	</pdu>
 
-	<pdu id="0xaa" online="false" client="false" server="true" name="ID_MCPE_CONTAINER_SET_CONTENT">
+	<pdu id="0xb9" online="false" client="false" server="true" name="MCPE_CONTAINER_SET_CONTENT">
 		<field name="Window ID" type="byte" />
 		<field name="Slot Data" type="MetadataSlots" />
 		<field name="Hotbar Data" type="MetadataInts" />
 	</pdu>
 
-	<pdu id="0xac" online="false" client="false" server="true" name="ID_MCPE_ADVENTURE_SETTINGS">
+	<pdu id="0xba" online="false" client="false" server="true" name="MCPE_CRAFTING_DATA">
 		<field name="Flags" type="int" />
 	</pdu>
 
-	<pdu id="0xad" online="false" client="false" server="true" name="ID_MCPE_TILE_ENTITY_DATA">
+	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_CRAFTING_EVENT">
+		<field name="Flags" type="int" />
+	</pdu>
+
+	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">
+		<field name="Flags" type="int" />
+	</pdu>
+
+	<pdu id="0xbd" online="false" client="false" server="true" name="MCPE_TILE_ENTITY_DATA">
 		<field name="X" type="int" />
 		<field name="Y" type="byte" />
 		<field name="Z" type="int" />
 		<field name="NamedTag" type="Nbt"/>
 	</pdu>
 
-	<pdu id="0xaf" online="false" client="false" server="true" name="ID_MCPE_FULL_CHUNK_DATA">
+	<!-- 	
+		ORDER_COLUMNS = 0;
+		ORDER_LAYERED = 1;
+	-->
+	<pdu id="0xbf" online="false" client="false" server="true" name="MCPE_FULL_CHUNK_DATA">
 		<field name="Chunk X" type="int" />
 		<field name="Chunk Z" type="int" />
+		<field name="Order" type="byte" />
 		<field name="Chunk Data Length" type="int" />
 		<field name="Chunk Data" type="byte[]" size="0" />
 	</pdu>
 
-	<pdu id="0xb0" online="false" client="false" server="true" name="ID_MCPE_SET_DIFFICULTY">
+	<pdu id="0xc0" online="false" client="false" server="true" name="MCPE_SET_DIFFICULTY">
 		<field name="Difficulty" type="int" />
 	</pdu>
 
-	<pdu id="0xb1" online="false" client="false" server="true" name="ID_MCPE_BATCH">
-		<field name="Payload size" type="int" />
-		<field name="Payload" type="byte[]" size="0" />
+	<pdu id="0xc3" online="false" client="false" server="true" name="MCPE_PLAYER_LIST">
 	</pdu>
 
-	<pdu id="0x1b" online="false" client="false" server="true" name="ID_MCPE_TRANSFER">
+	<pdu id="0x1b" online="false" client="false" server="true" name="MCPE_TRANSFER">
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>
 

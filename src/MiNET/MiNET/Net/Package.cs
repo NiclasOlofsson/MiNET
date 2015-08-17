@@ -294,6 +294,18 @@ namespace MiNET.Net
 			}
 		}
 
+		public UUID ReadUUID()
+		{
+			UUID uuid = new UUID {Id = ReadBytes(16)};
+			return uuid;
+		}
+
+		public void Write(UUID uuid)
+		{
+			if(uuid == null) throw  new Exception("Expected UUID, required");
+			Write(uuid.Id);
+		}
+
 		public IPEndPoint[] ReadIPEndPoints()
 		{
 			return new IPEndPoint[0];

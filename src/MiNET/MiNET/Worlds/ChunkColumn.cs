@@ -144,8 +144,14 @@ namespace MiNET.Worlds
 			byte[] bytes = fullChunkData.Encode();
 			fullChunkData.PutPool();
 
+			MemoryStream memStream = new MemoryStream();
+			NbtBinaryWriter writer = new NbtBinaryWriter(memStream, true);
+			writer.Write(bytes.Length);
+			writer.Write(bytes, 0, bytes.Length);
+			writer.Flush();
+
 			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = Player.CompressBytes(bytes, CompressionLevel.Optimal);
+			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();

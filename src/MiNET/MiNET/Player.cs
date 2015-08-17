@@ -448,9 +448,9 @@ namespace MiNET
 				Username = message.username;
 			}
 
-			if (message.protocol != 27)
+			if (message.protocol != 34)
 			{
-				Disconnect("Outdated Minecraft Pocket Edition, please upgrade.");
+				Disconnect(string.Format("Wrong version {0} of Minecraft Pocket Edition, please upgrade.", message.protocol));
 				return;
 			}
 
@@ -494,10 +494,11 @@ namespace MiNET
 			{
 				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-				SendPlayerStatus(0);
+				SendPlayerStatus(0); // Hmm, login success?
 
 				Username = message.username;
-				ClientId = message.clientId;
+				ClientId = (int) message.clientId;
+				ClientUuid = message.clientUuid;
 
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
@@ -548,6 +549,8 @@ namespace MiNET
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
 		}
+
+		public UUID ClientUuid { get; set; }
 
 		public virtual void InitializePlayer()
 		{
@@ -625,7 +628,7 @@ namespace MiNET
 			package.yaw = position.Yaw;
 			package.headYaw = position.HeadYaw;
 			package.pitch = position.Pitch;
-			package.teleport = (byte) (teleport ? 1 : 0);
+			package.mode = (byte) (teleport ? 1 : 0);
 
 			SendPackage(package);
 		}
@@ -1368,9 +1371,9 @@ namespace MiNET
 		public void SendSetSpawnPosition()
 		{
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
-			mcpeSetSpawnPosition.x = (int) SpawnPosition.X;
-			mcpeSetSpawnPosition.y = (byte) SpawnPosition.Y;
-			mcpeSetSpawnPosition.z = (int) SpawnPosition.Z;
+			mcpeSetSpawnPosition.x = SpawnPosition.X;
+			mcpeSetSpawnPosition.y = SpawnPosition.Y;
+			mcpeSetSpawnPosition.z = SpawnPosition.Z;
 			SendPackage(mcpeSetSpawnPosition);
 		}
 
@@ -1420,7 +1423,7 @@ namespace MiNET
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
 					SendPackage(chunk, sendDirect: true);
-
+					Thread.Sleep(20);
 					if (!IsSpawned)
 					{
 						if (packetCount++ == 56)
@@ -1489,7 +1492,7 @@ namespace MiNET
 			package.yaw = KnownPosition.Yaw;
 			package.headYaw = KnownPosition.HeadYaw;
 			package.pitch = KnownPosition.Pitch;
-			package.teleport = (byte) (teleport ? 1 : 0);
+			package.mode = (byte) (teleport ? 1 : 0);
 
 			SendPackage(package);
 		}
@@ -1718,7 +1721,8 @@ namespace MiNET
 			int messageCount = 0;
 
 			int lenght = queue.Count;
-			MemoryStream stream = new MemoryStream();
+			MemoryStream memStream = new MemoryStream();
+			NbtBinaryWriter writer = new NbtBinaryWriter(memStream, true);
 			for (int i = 0; i < lenght; i++)
 			{
 				Package package = null;
@@ -1736,11 +1740,14 @@ namespace MiNET
 
 				if (package == null) continue;
 
+				Server.SendPackage(this, new List<Package> { package }, _mtuSize, ref _reliableMessageNumber);
+
 				byte[] bytes = package.Encode();
 				if (bytes != null)
 				{
 					messageCount++;
-					stream.Write(bytes, 0, bytes.Length);
+					writer.Write(bytes.Length);
+					writer.Write(bytes, 0, bytes.Length);
 				}
 				package.PutPool();
 			}
@@ -1749,12 +1756,12 @@ namespace MiNET
 			if (!IsConnected) return;
 
 			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
+			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();
 
-			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+			//Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 		}
 
 		private object _sendMoveListSync = new object();

@@ -199,8 +199,7 @@ namespace MiNET.Worlds
 		{
 			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 			mcpePlayerEquipment.entityId = player.EntityId;
-			mcpePlayerEquipment.item = player.Inventory.ItemInHand.Value.Id;
-			mcpePlayerEquipment.meta = player.Inventory.ItemInHand.Value.Metadata;
+			mcpePlayerEquipment.item = player.Inventory.ItemInHand;
 			mcpePlayerEquipment.slot = 0;
 			receiver.SendPackage(mcpePlayerEquipment);
 		}

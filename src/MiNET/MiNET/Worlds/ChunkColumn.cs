@@ -139,6 +139,7 @@ namespace MiNET.Worlds
 			McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 			fullChunkData.chunkX = x;
 			fullChunkData.chunkZ = z;
+			fullChunkData.order = 0;
 			fullChunkData.chunkData = GetBytes();
 			fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
 			byte[] bytes = fullChunkData.Encode();
@@ -183,6 +184,8 @@ namespace MiNET.Worlds
 				{
 					writer.Write(biomeColor[i]);
 				}
+
+				writer.Write(0); // No extra data
 
 				foreach (var blockEntity in BlockEntities.Values)
 				{

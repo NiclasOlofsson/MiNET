@@ -761,8 +761,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Item | short |  |
-|Meta | short |  |
+|Item | MetadataSlot |  |
 |Slot | byte |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
@@ -1169,6 +1168,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Records | PlayerRecords |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Transfer (0x1b)
 

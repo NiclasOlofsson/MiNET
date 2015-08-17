@@ -327,6 +327,10 @@ namespace MiNET
 					catch (Exception e)
 					{
 						player.Disconnect("Bad package received from client.");
+						if (Log.IsDebugEnabled)
+						{
+							Log.Debug("Bad packet " + receiveBytes[0], e);
+						}
 						return;
 					}
 

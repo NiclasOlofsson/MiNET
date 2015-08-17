@@ -189,6 +189,36 @@ namespace MiNET.Net
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
+		public void Write(PlayerRecords records)
+		{
+			if (records is PlayerAddRecords)
+			{
+				Write((byte) 0);
+				Write(records.Count);
+				foreach (var record in records)
+				{
+					Write(record.ClientUuid);
+					Write(record.EntityId);
+					Write(record.Username);
+					Write(record.Skin);
+				}
+			}
+			else if (records is PlayerRemoveRecords)
+			{
+				Write((byte) 1);
+				Write(records.Count);
+				foreach (var record in records)
+				{
+					Write(record.ClientUuid);
+				}
+			}
+		}
+
+		public PlayerRecords ReadPlayerRecords()
+		{
+			return null;
+		}
+
 		public void Write(Records records)
 		{
 			Write(records.Count);
@@ -302,7 +332,7 @@ namespace MiNET.Net
 
 		public void Write(UUID uuid)
 		{
-			if(uuid == null) throw  new Exception("Expected UUID, required");
+			if (uuid == null) throw new Exception("Expected UUID, required");
 			Write(uuid.Id);
 		}
 
@@ -433,6 +463,14 @@ namespace MiNET.Net
 			}
 		}
 
+		public MetadataSlot ReadMetadataSlot()
+		{
+			short id = ReadShort();
+			if(id ==0) return new MetadataSlot(new ItemStack());
+			return new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
+		}
+
+
 		public MetadataDictionary ReadMetadataDictionary()
 		{
 			return MetadataDictionary.FromStream(_reader);
@@ -444,11 +482,6 @@ namespace MiNET.Net
 			{
 				metadata.WriteTo(_writer);
 			}
-		}
-
-		public MetadataSlot ReadMetadataSlot()
-		{
-			return new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
 		}
 
 		public Skin ReadSkin()

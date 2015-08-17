@@ -25,4 +25,24 @@ namespace MiNET.Utils
 		{
 		}
 	}
+
+	public abstract class PlayerRecords : List<Player>
+	{
+		public PlayerRecords()
+		{
+		}
+
+		public PlayerRecords(IEnumerable<Player> players)
+			: base(players)
+		{
+		}
+	}
+
+	public class PlayerAddRecords : PlayerRecords
+	{
+	}
+
+	public class PlayerRemoveRecords : PlayerRecords
+	{
+	}
 }

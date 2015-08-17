@@ -79,8 +79,7 @@ namespace MiNET.Entities
 			{
 				McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
 				message.entityId = EntityId;
-				message.item = ItemInHand.Id;
-				message.meta = ItemInHand.Metadata;
+				message.item = ItemInHand;
 				message.slot = 0;
 				player.SendPackage(message);
 			}
@@ -120,8 +119,7 @@ namespace MiNET.Entities
 		{
 			McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
 			message.entityId = EntityId;
-			message.item = ItemInHand.Id;
-			message.meta = ItemInHand.Metadata;
+			message.item = ItemInHand;
 			message.slot = 0;
 			Level.RelayBroadcast(message);
 		}

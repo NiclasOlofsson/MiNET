@@ -319,8 +319,7 @@
 
 	<pdu id="0xa7" online="false" client="true" server="true" name="MCPE_PLAYER_EQUIPMENT">
 		<field name="Entity ID" type="long" />
-		<field name="Item" type="short" />
-		<field name="Meta" type="short" />
+		<field name="Item" type="MetadataSlot" />
 		<field name="Slot" type="byte" />
 		<field name="Selected Slot" type="byte" />
 	</pdu>
@@ -478,6 +477,7 @@
 	</pdu>
 
 	<pdu id="0xc3" online="false" client="false" server="true" name="MCPE_PLAYER_LIST">
+		<field name="Records" type="PlayerRecords" />
 	</pdu>
 
 	<pdu id="0x1b" online="false" client="false" server="true" name="MCPE_TRANSFER">

@@ -2087,8 +2087,7 @@ namespace MiNET.Net
 	public partial class McpePlayerEquipment : Package<McpePlayerEquipment>
 	{
 		public long entityId; // = null;
-		public short item; // = null;
-		public short meta; // = null;
+		public MetadataSlot item; // = null;
 		public byte slot; // = null;
 		public byte selectedSlot; // = null;
 		public McpePlayerEquipment()
@@ -2104,7 +2103,6 @@ namespace MiNET.Net
 
 			Write(entityId);
 			Write(item);
-			Write(meta);
 			Write(slot);
 			Write(selectedSlot);
 
@@ -2121,8 +2119,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			item = ReadShort();
-			meta = ReadShort();
+			item = ReadMetadataSlot();
 			slot = ReadByte();
 			selectedSlot = ReadByte();
 
@@ -3204,6 +3201,7 @@ namespace MiNET.Net
 
 	public partial class McpePlayerList : Package<McpePlayerList>
 	{
+		public PlayerRecords records; // = null;
 		public McpePlayerList()
 		{
 			Id = 0xc3;
@@ -3215,6 +3213,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(records);
 
 			AfterEncode();
 		}
@@ -3228,6 +3227,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			records = ReadPlayerRecords();
 
 			AfterDecode();
 		}

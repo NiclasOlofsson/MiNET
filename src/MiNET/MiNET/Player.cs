@@ -566,6 +566,10 @@ namespace MiNET
 
 				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), false);
 
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerAddRecords {this};
+				SendPackage(playerList);
+
 				LastUpdatedTime = DateTime.UtcNow;
 
 				SendPlayerInventory();
@@ -1015,8 +1019,7 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			Inventory.ItemInHand.Value.Id = message.item;
-			Inventory.ItemInHand.Value.Metadata = message.meta;
+			Inventory.ItemInHand = message.item;
 
 			//if(GameMode == GameMode.Survival)
 			{
@@ -1046,7 +1049,6 @@ namespace MiNET
 			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
 			msg.entityId = EntityId;
 			msg.item = message.item;
-			msg.meta = message.meta;
 			msg.slot = message.slot;
 			msg.selectedSlot = message.selectedSlot;
 
@@ -1166,8 +1168,7 @@ namespace MiNET
 			Level.RelayBroadcast(this, new McpePlayerEquipment()
 			{
 				entityId = EntityId,
-				item = Inventory.ItemInHand.Value.Id,
-				meta = Inventory.ItemInHand.Value.Metadata,
+				item = Inventory.ItemInHand,
 				slot = 0
 			});
 		}
@@ -1398,9 +1399,9 @@ namespace MiNET
 		public void SendSetSpawnPosition()
 		{
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
-			mcpeSetSpawnPosition.x = SpawnPosition.X;
-			mcpeSetSpawnPosition.y = SpawnPosition.Y;
-			mcpeSetSpawnPosition.z = SpawnPosition.Z;
+			mcpeSetSpawnPosition.x = (int) SpawnPosition.X;
+			mcpeSetSpawnPosition.y = (int) SpawnPosition.Y;
+			mcpeSetSpawnPosition.z = (int) SpawnPosition.Z;
 			SendPackage(mcpeSetSpawnPosition);
 		}
 
@@ -1450,7 +1451,6 @@ namespace MiNET
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
 					SendPackage(chunk, sendDirect: true);
-					Thread.Sleep(20);
 					if (!IsSpawned)
 					{
 						if (packetCount++ == 56)
@@ -1767,7 +1767,7 @@ namespace MiNET
 
 				if (package == null) continue;
 
-				Server.SendPackage(this, new List<Package> { package }, _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, new List<Package> {package}, _mtuSize, ref _reliableMessageNumber);
 
 				byte[] bytes = package.Encode();
 				if (bytes != null)

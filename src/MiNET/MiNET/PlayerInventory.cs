@@ -10,7 +10,7 @@ namespace MiNET
 		public MetadataSlots Armor { get; private set; }
 		public MetadataSlots Slots { get; private set; }
 		public MetadataInts ItemHotbar { get; private set; }
-		public MetadataSlot ItemInHand { get; private set; }
+		public MetadataSlot ItemInHand { get; set; }
 		private Player _player;
 
 		public PlayerInventory(Player player)

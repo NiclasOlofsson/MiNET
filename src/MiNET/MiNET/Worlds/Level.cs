@@ -36,7 +36,7 @@ namespace MiNET.Worlds
 		private int _worldDayCycleTime = 19200;
 		//private int _worldDayCycleTime = 14400;
 
-		public BlockCoordinates SpawnPoint { get; set; }
+		public PlayerLocation SpawnPoint { get; set; }
 		public ConcurrentDictionary<long, Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<BlockEntity> BlockEntities { get; private set; } //TODO: Need to protect this, not threadsafe
@@ -63,7 +63,7 @@ namespace MiNET.Worlds
 
 			EntityManager = new EntityManager();
 			InventoryManager = new InventoryManager(this);
-			SpawnPoint = new BlockCoordinates(50, 10, 50);
+			SpawnPoint = new PlayerLocation(50, 4000, 50);
 			Players = new ConcurrentDictionary<long, Player>();
 			Entities = new List<Entity>();
 			BlockEntities = new List<BlockEntity>();
@@ -108,24 +108,20 @@ namespace MiNET.Worlds
 			IsWorldTimeStarted = true;
 			_worldProvider.Initialize();
 
-			SpawnPoint = _worldProvider.GetSpawnPoint();
+			SpawnPoint = new PlayerLocation(_worldProvider.GetSpawnPoint());
 			CurrentWorldTime = _worldProvider.GetTime();
 
 			if (_worldProvider.IsCaching)
 			{
-				//ThreadPool.QueueUserWorkItem(delegate(object state)
-				//{
 				Stopwatch chunkLoading = new Stopwatch();
 				chunkLoading.Start();
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
-				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint.X >> 4, SpawnPoint.Z >> 4), new Dictionary<Tuple<int, int>, McpeBatch>()))
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>()))
 				{
-					//chunk.PutPool();
 					i++;
 				}
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
-				//});
 			}
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
@@ -692,11 +688,7 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
-			BlockCoordinates spawn = SpawnPoint;
-			//if (block.Coordinates.DistanceTo(spawn) < 30)
-			//{
-			//	return;
-			//}
+			PlayerLocation spawn = SpawnPoint;
 
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);

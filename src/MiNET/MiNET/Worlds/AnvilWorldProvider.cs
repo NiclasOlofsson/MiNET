@@ -6,6 +6,7 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -167,8 +168,8 @@ namespace MiNET.Worlds
 				{69, 0}, // Lever		=> Air
 				{70, 0}, // Stone Pressure	=> Air
 				{72, 0}, // Wooden Pressure	=> Air
-				{75, 0}, // Redstone Torch O	=> Air
-				{76, 0}, // Redstone Torch I	=> Air
+				{75, 50}, // Redstone Torch O	=> Torch
+				{76, 50}, // Redstone Torch I	=> Torch
 				{77, 0}, // Stone Button		=> Air
 				{84, 3}, // Jukebox		=> Dirt
 				{90, 0}, // Nether Portal	=> Air
@@ -201,6 +202,7 @@ namespace MiNET.Worlds
 				{149, 0}, // Comparator O		=> Air
 				{150, 0}, // Comparator I		=> Air
 				{151, 0}, // Daylight Sensor	=> Air
+				{152, 152}, // Block of Redstone	=> Block of Redstone
 				{153, 87}, // Nether Quarts Ore 	=> Netherrack
 				{154, 0}, // Hopper		=> Air
 				{157, 66}, // Activator Rail	=> Rail
@@ -213,16 +215,16 @@ namespace MiNET.Worlds
 				{167, 96}, // Iron Trapdoor	=> Trapdoor
 				{168, 0}, // Prismarine		=> Air
 				{169, 89}, // Sea Lantern		=> Glowstone
-				{183, 107}, // Spruce Gate		=> Gate
-				{184, 107}, // Birch Gate		=> Gate
-				{185, 107}, // Jungle Gate		=> Gate
-				{186, 107}, // Dark Oak Gate	=> Gate
-				{187, 107}, // Acacia Gate		=> Gate
-				{188, 85}, // Spruce Fence		=> Fence
-				{189, 85}, // Birch Fence		=> Fence
-				{190, 85}, // Jungle Fence		=> Fence
-				{191, 85}, // Dark Oak Fence	=> Fence
-				{192, 85}, // Acacia Fence		=> Fence
+				{183, 183}, // Spruce Gate		=> Gate
+				{184, 184}, // Birch Gate		=> Gate
+				{185, 185}, // Jungle Gate		=> Gate
+				{186, 186}, // Dark Oak Gate	=> Gate
+				{187, 187}, // Acacia Gate		=> Gate
+				{188, 188}, // Spruce Fence		=> Fence
+				{189, 189}, // Birch Fence		=> Fence
+				{190, 190}, // Jungle Fence		=> Fence
+				{191, 191}, // Dark Oak Fence	=> Fence
+				{192, 192}, // Acacia Fence		=> Fence
 			};
 		}
 
@@ -338,31 +340,28 @@ namespace MiNET.Worlds
 
 								// Anvil to PE friendly converstion
 								if (_convert.ContainsKey(blockId)) blockId = _convert[blockId];
-								else if (blockId == 125) blockId = 5;
-								else if (blockId == 126) blockId = 158;
-								else if (blockId == 75) blockId = 50;
-								else if (blockId == 76) blockId = 50;
-								else if (blockId == 123) blockId = 89;
-								else if (blockId == 124) blockId = 89;
-								else if (blockId == 152) blockId = 73;
 								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
 								else if (_gaps.BinarySearch(blockId) >= 0)
 								{
-									Log.DebugFormat("Missing material: {0}", blockId);
+									Log.WarnFormat("Missing material on convert: {0}", blockId);
 									blockId = 133;
 								}
 
 								if (blockId > 255) blockId = 41;
 
 								if (yi == 127 && blockId != 0) blockId = 30;
-								if (yi == 0 && (blockId == 8 || blockId == 9 /*|| blockId == 0*/)) blockId = 7;
-
-								//if (blockId != 0) blockId = 41;
+								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
 								chunk.SetBlock(x, yi, z, (byte) blockId);
 								chunk.SetMetadata(x, yi, z, Nibble4(data, anvilIndex));
 								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+
+								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
+								if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
+								{
+									chunk.SetSkylight(x, yi, z, 0xff);
+								}
 
 								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
 								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);

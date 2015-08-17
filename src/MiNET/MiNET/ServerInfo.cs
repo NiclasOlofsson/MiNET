@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using log4net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -34,38 +35,41 @@ namespace MiNET
 		{
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
-			ThroughPut = new Timer(delegate(object state)
+			if (Config.GetProperty("EnableStatistics", false))
 			{
-				NumberOfPlayers = PlayerSessions.Count;
+				ThroughPut = new Timer(delegate(object state)
+				{
+					NumberOfPlayers = PlayerSessions.Count;
 
-				int threads;
-				int portThreads;
-				ThreadPool.GetAvailableThreads(out threads, out portThreads);
-				double kbitPerSecondOut = TotalPacketSizeOut*8/1000000D;
-				double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
-				Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10} {11} {12}",
-					NumberOfPacketsOutPerSecond,
-					NumberOfAckSent,
-					NumberOfPacketsInPerSecond,
-					kbitPerSecondOut,
-					0 /*_level.LastTickProcessingTime*/,
-					NumberOfPlayers,
-					Latency,
-					kbitPerSecondIn, AvailableBytes/1000,
-					threads,
-					portThreads,
-					NumberOfAckReceive,
-					NumberOfNakReceive);
+					int threads;
+					int portThreads;
+					ThreadPool.GetAvailableThreads(out threads, out portThreads);
+					double kbitPerSecondOut = TotalPacketSizeOut*8/1000000D;
+					double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
+					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10} {11} {12}",
+						NumberOfPacketsOutPerSecond,
+						NumberOfAckSent,
+						NumberOfPacketsInPerSecond,
+						kbitPerSecondOut,
+						0 /*_level.LastTickProcessingTime*/,
+						NumberOfPlayers,
+						Latency,
+						kbitPerSecondIn, AvailableBytes/1000,
+						threads,
+						portThreads,
+						NumberOfAckReceive,
+						NumberOfNakReceive);
 
-				NumberOfAckReceive = 0;
-				NumberOfNakReceive = 0;
+					NumberOfAckReceive = 0;
+					NumberOfNakReceive = 0;
 
-				NumberOfAckSent = 0;
-				TotalPacketSizeOut = 0;
-				TotalPacketSizeIn = 0;
-				NumberOfPacketsOutPerSecond = 0;
-				NumberOfPacketsInPerSecond = 0;
-			}, null, 1000, 1000);
+					NumberOfAckSent = 0;
+					TotalPacketSizeOut = 0;
+					TotalPacketSizeIn = 0;
+					NumberOfPacketsOutPerSecond = 0;
+					NumberOfPacketsInPerSecond = 0;
+				}, null, 1000, 1000);
+			}
 		}
 	}
 }

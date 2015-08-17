@@ -44,7 +44,7 @@ namespace MiNET.Client
 		public MiNetClient(IPEndPoint targetEndpoint, IPEndPoint clientEndpoint = null)
 		{
 			_serverTargetEndpoint = targetEndpoint;
-			_clientEndpoint = clientEndpoint ?? new IPEndPoint(IPAddress.Any, 19132);
+			_clientEndpoint = clientEndpoint ?? new IPEndPoint(IPAddress.Any, 0);
 		}
 
 		public static bool IsRunningOnMono()
@@ -191,6 +191,8 @@ namespace MiNET.Client
 		private void ProcessMessage(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
 			byte msgId = receiveBytes[0];
+
+			Log.DebugFormat("Recieve {0}", msgId);
 
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
@@ -595,12 +597,12 @@ namespace MiNET.Client
 
 		private void TraceReceive(Package message)
 		{
-			//Log.InfoFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.InfoFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
 
 		private void TraceSend(Package message)
 		{
-			//Log.InfoFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.InfoFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
 
 		public void SendUnconnectedPing()
@@ -755,8 +757,9 @@ namespace MiNET.Client
 
 		public static void Connect()
 		{
-			//var client = new MiNetRealClient(new IPEndPoint(IPAddress.Loopback, 19132));
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.2"), 19132));
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132));
 
 			client.StartServer();
 			Console.WriteLine("Server started.");

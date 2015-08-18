@@ -1117,7 +1117,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |X | int |  |
-|Y | byte |  |
+|Y | int |  |
 |Z | int |  |
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------

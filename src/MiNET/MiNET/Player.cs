@@ -572,7 +572,10 @@ namespace MiNET
 
 				LastUpdatedTime = DateTime.UtcNow;
 
-				SendPlayerInventory();
+				if (GameMode != GameMode.Creative)
+				{
+					SendPlayerInventory();
+				}
 
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
@@ -1502,10 +1505,9 @@ namespace MiNET
 
 		public void SendSetTime()
 		{
-			// started == true ? 0x80 : 0x00);
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = (int) Level.CurrentWorldTime;
-			message.started = (byte) (Level.IsWorldTimeStarted ? 0x80 : 0x00);
+			message.started = (byte) (Level.IsWorldTimeStarted ? 1 : 0);
 			SendPackage(message);
 		}
 

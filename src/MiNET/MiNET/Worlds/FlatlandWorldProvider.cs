@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using MiNET.BlockEntities;
-using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds

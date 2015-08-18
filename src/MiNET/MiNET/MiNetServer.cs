@@ -980,65 +980,63 @@ namespace MiNET
 					if (session == null) return;
 					if (session.Evicted) return;
 
-					return;
-
 					try
 					{
 						Player player = session.Player;
 
 						long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-						//if (lastUpdate + InacvitityTimeout + 3000 + Math.Min(5000, ServerInfo.AvailableBytes) < now)
-						//{
-						//	session.Evicted = true;
-						//	// Disconnect user
-						//	ThreadPool.QueueUserWorkItem(delegate(object o)
-						//	{
-						//		PlayerNetworkSession s = o as PlayerNetworkSession;
-						//		if (s != null)
-						//		{
-						//			Player p = s.Player;
-						//			if (p != null)
-						//			{
-						//				p.Disconnect("You've been kicked with reason: Network timeout.");
-						//			}
-						//			else
-						//			{
-						//				if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
-						//				{
-						//					session.Player = null;
-						//					session.State = ConnectionState.Unconnected;
-						//					session.Evicted = true;
-						//					session.Clean();
-						//				}
-						//			}
-						//		}
-						//	}, session);
+						if (lastUpdate + InacvitityTimeout + 3000 + Math.Min(5000, ServerInfo.AvailableBytes) < now)
+						{
+							session.Evicted = true;
+							// Disconnect user
+							ThreadPool.QueueUserWorkItem(delegate(object o)
+							{
+								PlayerNetworkSession s = o as PlayerNetworkSession;
+								if (s != null)
+								{
+									Player p = s.Player;
+									if (p != null)
+									{
+										p.Disconnect("You've been kicked with reason: Network timeout.");
+									}
+									else
+									{
+										if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
+										{
+											session.Player = null;
+											session.State = ConnectionState.Unconnected;
+											session.Evicted = true;
+											session.Clean();
+										}
+									}
+								}
+							}, session);
 
-						//	return;
-						//}
+							return;
+						}
 
 
-						//if (session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
-						//{
-						//	ThreadPool.QueueUserWorkItem(delegate(object o)
-						//	{
-						//		PlayerNetworkSession s = o as PlayerNetworkSession;
-						//		if (s != null)
-						//		{
-						//			Player p = s.Player;
-						//			if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
-						//		}
-						//	}, session);
+						if (session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+						{
+							ThreadPool.QueueUserWorkItem(delegate(object o)
+							{
+								PlayerNetworkSession s = o as PlayerNetworkSession;
+								if (s != null)
+								{
+									Player p = s.Player;
+									if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+								}
+							}, session);
 
-						//	return;
-						//}
+							return;
+						}
 
-						//if (player == null) return;
+						if (player == null) return;
 
-						//if (lastUpdate + InacvitityTimeout < now)
-						//{
-						//	player.DetectLostConnection();
-						//}
+						if (lastUpdate + InacvitityTimeout < now)
+						{
+							player.DetectLostConnection();
+						}
 
 						long rto = Math.Max(100, player.Rto);
 						var queue = session.WaitingForAcksQueue;

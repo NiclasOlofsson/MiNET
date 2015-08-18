@@ -187,12 +187,21 @@ namespace MiNET.Worlds
 
 				writer.Write(0); // No extra data
 
-				foreach (var blockEntity in BlockEntities.Values)
+				if (BlockEntities.Count == 0)
 				{
-					NbtFile file = new NbtFile(blockEntity);
-					file.BigEndian = false;
+					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) { BigEndian = false };
 					writer.Write(file.SaveToBuffer(NbtCompression.None));
 				}
+				else
+				{
+					//TODO: Not working
+					foreach (var blockEntity in BlockEntities.Values)
+					{
+						NbtFile file = new NbtFile(blockEntity) { BigEndian = false };
+						writer.Write(file.SaveToBuffer(NbtCompression.None));
+					}
+				}
+
 
 				writer.Flush();
 				writer.Close();

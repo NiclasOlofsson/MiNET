@@ -19,18 +19,13 @@ namespace MiNET.BlockEntities
 
 		public override NbtCompound GetCompound()
 		{
-			if (Text1 == null) Text1 = string.Empty;
-			if (Text2 == null) Text2 = string.Empty;
-			if (Text3 == null) Text3 = string.Empty;
-			if (Text4 == null) Text4 = string.Empty;
-
 			var compound = new NbtCompound(string.Empty)
 			{
 				new NbtString("id", Id),
-				new NbtString("Text1", Text1),
-				new NbtString("Text2", Text2),
-				new NbtString("Text3", Text3),
-				new NbtString("Text4", Text4),
+				new NbtString("Text1", Text1 ?? string.Empty),
+				new NbtString("Text2", Text2 ?? string.Empty),
+				new NbtString("Text3", Text3 ?? string.Empty),
+				new NbtString("Text4", Text4 ?? string.Empty),
 				new NbtInt("x", Coordinates.X),
 				new NbtInt("y", Coordinates.Y),
 				new NbtInt("z", Coordinates.Z)

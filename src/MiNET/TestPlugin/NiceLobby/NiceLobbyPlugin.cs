@@ -67,7 +67,7 @@ namespace TestPlugin.NiceLobby
 				{
 					McpeSetTime timeDay = McpeSetTime.CreateObject();
 					timeDay.time = 0;
-					timeDay.started = 0x80;
+					timeDay.started = 1;
 					level.RelayBroadcast(timeDay, true);
 
 					ThreadPool.QueueUserWorkItem(delegate(object o)

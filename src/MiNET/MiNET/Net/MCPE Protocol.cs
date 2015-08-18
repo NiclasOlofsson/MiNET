@@ -3067,7 +3067,7 @@ namespace MiNET.Net
 	public partial class McpeTileEntityData : Package<McpeTileEntityData>
 	{
 		public int x; // = null;
-		public byte y; // = null;
+		public int y; // = null;
 		public int z; // = null;
 		public Nbt namedtag; // = null;
 		public McpeTileEntityData()
@@ -3099,7 +3099,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			x = ReadInt();
-			y = ReadByte();
+			y = ReadInt();
 			z = ReadInt();
 			namedtag = ReadNbt();
 

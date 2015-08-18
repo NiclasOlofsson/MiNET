@@ -49,7 +49,7 @@
 
 	<pdu id="0x05" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_1" size="">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
-		<field name="RakNet Protocol Version" type="byte" exampleData="0x05" />
+		<field name="RakNet Protocol Version" type="byte" exampleData="0x06" />
 		<!--<field name="Pad to MTU size" type="byte[]" size="0" />-->
 	</pdu>
 
@@ -455,7 +455,7 @@
 
 	<pdu id="0xbd" online="false" client="false" server="true" name="MCPE_TILE_ENTITY_DATA">
 		<field name="X" type="int" />
-		<field name="Y" type="byte" />
+		<field name="Y" type="int" />
 		<field name="Z" type="int" />
 		<field name="NamedTag" type="Nbt"/>
 	</pdu>

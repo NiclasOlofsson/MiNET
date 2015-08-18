@@ -663,6 +663,7 @@ namespace MiNET
 			package.teleport = (byte) (teleport ? 1 : 0);
 
 			SendPackage(package);
+			SendChunksForKnownPosition();
 		}
 
 		public void SpawnLevel(Level toLevel)

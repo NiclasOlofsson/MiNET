@@ -672,10 +672,8 @@ namespace MiNET
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
 		{
-			if (toLevel == Level) return;
+			SetNoAi(true);
 
-			NoAi = true;
-			SendSetEntityData();
 
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
@@ -1512,20 +1510,20 @@ namespace MiNET
 		{
 			base.OnTick();
 
-			if (Level.TickTime%30 == 0)
-			{
-				if (Username.Equals("gurun"))
-				{
-					Popup popup = new Popup
-					{
-						Duration = 1,
-						MessageType = MessageType.Tip,
-						Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
-					};
+			//if (Level.TickTime%30 == 0)
+			//{
+			//	if (Username.Equals("gurun"))
+			//	{
+			//		Popup popup = new Popup
+			//		{
+			//			Duration = 1,
+			//			MessageType = MessageType.Tip,
+			//			Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
+			//		};
 
-					AddPopup(popup);
-				}
-			}
+			//		AddPopup(popup);
+			//	}
+			//}
 
 			bool hasDisplayedPopup = false;
 			bool hasDisplayedTip = false;

@@ -230,6 +230,11 @@ namespace MiNET.Worlds
 					{
 						DespawnFromAll(player);
 					}
+
+					foreach (Entity entity in Entities.ToArray())
+					{
+						entity.DespawnFromPlayer(removed);
+					}
 				}
 				else
 				{
@@ -259,43 +264,6 @@ namespace MiNET.Worlds
 			mcpeRemovePlayer.clientId = 0;
 			mcpeRemovePlayer.entityId = player.EntityId;
 			receiver.SendPackage(mcpeRemovePlayer);
-		}
-
-
-		public void AddEntity(ItemEntity entity)
-		{
-			lock (Entities)
-			{
-				EntityManager.AddEntity(null, entity);
-
-				if (!Entities.Contains(entity))
-				{
-					Entities.Add(entity);
-				}
-				else
-				{
-					throw new Exception("Entity existed in the players list when it should not");
-				}
-
-				ItemEntity itemEntity = (ItemEntity) entity;
-
-				Random random = new Random();
-
-				float f = 0.7F;
-				float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-				float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-				float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-
-				McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-				mcpeAddItemEntity.entityId = itemEntity.EntityId;
-				mcpeAddItemEntity.item = itemEntity.GetMetadataSlot();
-				mcpeAddItemEntity.x = itemEntity.KnownPosition.X + xr;
-				mcpeAddItemEntity.y = itemEntity.KnownPosition.Y + yr;
-				mcpeAddItemEntity.z = itemEntity.KnownPosition.Z + zr;
-				RelayBroadcast(mcpeAddItemEntity);
-
-				entity.IsSpawned = true;
-			}
 		}
 
 		public void AddEntity(Entity entity)

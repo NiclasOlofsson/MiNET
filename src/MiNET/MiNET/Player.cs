@@ -275,7 +275,7 @@ namespace MiNET
 				Count = itemStack.Count
 			};
 
-			Level.AddEntity(itemEntity);
+			itemEntity.SpawnEntity();
 		}
 
 		/// <summary>

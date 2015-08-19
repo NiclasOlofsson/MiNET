@@ -133,7 +133,7 @@ namespace MiNET.Worlds
 
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
-			if (newPlayer.Username == null) return;
+			if (newPlayer.Username == null) throw new NullReferenceException("Username NULL");
 
 			EntityManager.AddEntity(null, newPlayer);
 
@@ -164,36 +164,37 @@ namespace MiNET.Worlds
 			//newPlayer.IsSpawned = true;
 		}
 
-		public void SpawnToAll(Player player)
+		public void SpawnToAll(Player newPlayer)
 		{
-			foreach (var targetPlayer in GetSpawnedPlayers())
+			foreach (Player spawnedPlayer in GetSpawnedPlayers())
 			{
-				SendAddForPlayer(player, targetPlayer);
-				SendAddForPlayer(targetPlayer, player);
+				SendAddForPlayer(newPlayer, spawnedPlayer);
+				SendAddForPlayer(spawnedPlayer, newPlayer);
+				Log.InfoFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
 			}
 		}
 
-		public void SendAddForPlayer(Player receiver, Player player)
+		public void SendAddForPlayer(Player receiver, Player addedPlayer)
 		{
-			if (player == receiver) return;
+			if (addedPlayer == receiver) return;
 
-			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
-			mcpeAddPlayer.clientId = player.EntityId;
-			mcpeAddPlayer.username = player.Username;
-			mcpeAddPlayer.entityId = player.EntityId;
-			mcpeAddPlayer.x = player.KnownPosition.X;
-			mcpeAddPlayer.y = player.KnownPosition.Y;
-			mcpeAddPlayer.z = player.KnownPosition.Z;
-			mcpeAddPlayer.yaw = player.KnownPosition.Yaw;
-			mcpeAddPlayer.headYaw = player.KnownPosition.HeadYaw;
-			mcpeAddPlayer.pitch = player.KnownPosition.Pitch;
-			mcpeAddPlayer.skin = player.Skin;
-			mcpeAddPlayer.metadata = player.GetMetadata().GetBytes();
-			receiver.SendPackage(mcpeAddPlayer);
+			McpeAddPlayer message = McpeAddPlayer.CreateObject();
+			message.clientId = addedPlayer.EntityId;
+			message.username = addedPlayer.Username;
+			message.entityId = addedPlayer.EntityId;
+			message.x = addedPlayer.KnownPosition.X;
+			message.y = addedPlayer.KnownPosition.Y;
+			message.z = addedPlayer.KnownPosition.Z;
+			message.yaw = addedPlayer.KnownPosition.Yaw;
+			message.headYaw = addedPlayer.KnownPosition.HeadYaw;
+			message.pitch = addedPlayer.KnownPosition.Pitch;
+			message.skin = addedPlayer.Skin;
+			message.metadata = addedPlayer.GetMetadata().GetBytes();
+			receiver.SendPackage(message);
 
-			SendEquipmentForPlayer(receiver, player);
+			SendEquipmentForPlayer(receiver, addedPlayer);
 
-			SendArmorForPlayer(receiver, player);
+			SendArmorForPlayer(receiver, addedPlayer);
 		}
 
 		public void SendEquipmentForPlayer(Player receiver, Player player)
@@ -232,7 +233,7 @@ namespace MiNET.Worlds
 				}
 				else
 				{
-					Log.DebugFormat("Failed to remove player {0}", player.Username);
+					Log.WarnFormat("Failed to remove player {0}", player.Username);
 				}
 			}
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));

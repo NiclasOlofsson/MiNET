@@ -672,6 +672,8 @@ namespace MiNET
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
 		{
+			if (toLevel == Level) return;
+
 			NoAi = true;
 			SendSetEntityData();
 
@@ -687,41 +689,36 @@ namespace MiNET
 			});
 
 			Level.RemovePlayer(this, true);
-
 			Level.EntityManager.RemoveEntity(null, this);
-			EntityId = EntityManager.EntityIdUndefined;
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;
-			Level.EntityManager.AddEntity(null, this);
 			Level.AddPlayer(this, "", false);
 			// reset all health states
 			HealthManager.ResetHealth();
+			SendSetHealth();
 
 			SendSetSpawnPosition();
-
-			SendSetHealth();
 
 			SendAdventureSettings();
 
 			SendPlayerInventory();
 
-			BroadcastSetEntityData();
 
-			Level.SpawnToAll(this);
-			IsSpawned = true;
 			lock (_chunksUsed)
 			{
 				_chunksUsed.Clear();
 			}
 
-			ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
+			ForcedSendChunksForKnownPosition(spawnPoint);
 
 			// send teleport to spawn
 			SetPosition(spawnPoint);
 
-			NoAi = false;
-			SendSetEntityData();
+			Level.SpawnToAll(this);
+			IsSpawned = true;
+
+			SetNoAi(false);
 
 			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
@@ -1403,25 +1400,14 @@ namespace MiNET
 
 		private object _sendChunkSync = new object();
 
-		private void ForcedSendChunksForKnownPosition()
+		private void ForcedSendChunksForKnownPosition(PlayerLocation position)
 		{
-			var chunkPosition = new ChunkCoordinates(KnownPosition);
+			var chunkPosition = new ChunkCoordinates(position);
 			_currentChunkPosition = chunkPosition;
-
-			int packetCount = 0;
 
 			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 			{
-				Thread.Sleep(12);
-				SendPackage(chunk, sendDirect: true);
-
-				if (!IsSpawned)
-				{
-					if (packetCount++ == 56)
-					{
-						InitializePlayer();
-					}
-				}
+				SendPackage(chunk, true);
 			}
 		}
 

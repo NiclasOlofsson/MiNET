@@ -674,7 +674,6 @@ namespace MiNET
 		{
 			SetNoAi(true);
 
-
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
 			{
@@ -702,7 +701,6 @@ namespace MiNET
 
 			SendPlayerInventory();
 
-
 			lock (_chunksUsed)
 			{
 				_chunksUsed.Clear();
@@ -713,10 +711,10 @@ namespace MiNET
 			// send teleport to spawn
 			SetPosition(spawnPoint);
 
+			SetNoAi(false);
+
 			Level.SpawnToAll(this);
 			IsSpawned = true;
-
-			SetNoAi(false);
 
 			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 

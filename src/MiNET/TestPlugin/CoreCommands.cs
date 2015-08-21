@@ -53,7 +53,7 @@ namespace TestPlugin
 		{
 			for (int i = 0; i < noItems; i++)
 			{
-				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 10, new ItemStack(itemId, 1));
+				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 1, new ItemStack(itemId, 1));
 			}
 		}
 

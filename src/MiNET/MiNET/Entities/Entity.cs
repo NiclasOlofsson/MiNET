@@ -128,6 +128,13 @@ namespace MiNET.Entities
 			Level.RemoveEntity(this);
 		}
 
+		public virtual void DespawnFromPlayer(Player player)
+		{
+			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
+			mcpeRemoveEntity.entityId = EntityId;
+			player.SendPackage(mcpeRemoveEntity);
+		}
+
 		public virtual void BroadcastSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();

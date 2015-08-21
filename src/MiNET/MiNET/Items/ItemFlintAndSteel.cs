@@ -25,7 +25,7 @@ namespace MiNET.Items
 				}.SpawnEntity();
 			}
 			else if(block is Glass || block is Ice || block is Snow || block is BrickStairs || block is Farmland || block is GrassPath || block is WoodSlab || block is StoneSlab){
-				return true;
+				return;
 			}
 			else if (block.IsSolid)
 			{

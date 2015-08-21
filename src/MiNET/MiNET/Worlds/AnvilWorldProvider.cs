@@ -12,13 +12,28 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
+	public class Mapper : Tuple<int, Func<int, byte, byte>>
+	{
+		public Mapper(int blockId, Func<int, byte, byte> dataMapper)
+			: base(blockId, dataMapper)
+		{
+		}
+	}
+
+	public class NoDataMapper : Mapper
+	{
+		public NoDataMapper(int blockId) : base(blockId, (bi, i1) => i1)
+		{
+		}
+	}
+
 	public class AnvilWorldProvider : IWorldProvider
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
 		private static List<int> _gaps;
 		private static List<int> _ignore;
-		private static Dictionary<int, int> _convert;
+		private static Dictionary<int, Tuple<int, Func<int, byte, byte>>> _convert;
 
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
@@ -156,76 +171,84 @@ namespace MiNET.Worlds
 			_gaps.Add(169);
 			_gaps.Sort();
 
-			_convert = new Dictionary<int, int>
+			var air = new Mapper(0, (i, b) => 0);
+
+			_convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
 			{
-				{25, 3}, // Note Block		=> Dirt
-				{27, 66}, // Powered Rail		=> Rail
-				{28, 66}, // Detector Rail 	=> Rail
-				{29, 0}, // Sticky Piston	=> Air
-				{33, 0}, // Piston		=> Air
-				{34, 0}, // Piston Head		=> Air
-				{55, 0}, // Redstone Wire	=> Air
-				{69, 0}, // Lever		=> Air
-				{70, 0}, // Stone Pressure	=> Air
-				{72, 0}, // Wooden Pressure	=> Air
-				{75, 50}, // Redstone Torch O	=> Torch
-				{76, 50}, // Redstone Torch I	=> Torch
-				{77, 0}, // Stone Button		=> Air
-				{84, 3}, // Jukebox		=> Dirt
-				{90, 0}, // Nether Portal	=> Air
-				{93, 0}, // Red Repeater	O	=> Air
-				{94, 0}, // Red Repeater I	=> Air
-				{95, 20}, // Invisible bedrock	=> Air
-				{97, 1}, // Stone Monster Eg	=> Stone
-				{113, 85}, // Nether Fence		=> Fence
-				{115, 0}, // Nether Wart		=> Air
-				{116, 0}, // Enchant Table	=> Air
-				{117, 0}, // Brewing Stand	=> Air
-				{118, 0}, // Cauldron		=> Air
-				{119, 0}, // End Portal		=> Air
-				{122, 0}, // Dragon Egg		=> Air
-				{123, 89}, // Redstone Lamp O	=> Glowstone
-				{124, 89}, // Redstone Lamp I	=> Glowstone
-				{125, 157}, // 2x Wooden Slabs	=> (2x Wooden Slabs)
-				{126, 158}, // Wooden Slabs		=> (Wooden Slabs)
-				{130, 54}, // Ender Chest		=> Chest
-				{131, 0}, // Tripwire Hook	=> Air
-				{132, 0}, // Tripwire		=> Air
-				{137, 0}, // Command Block	=> Air
-				{138, 0}, // Beacon		=> Air
-				{143, 0}, // Wooden Button	=> Air
-				{144, 0}, // Mob Head		=> Air
-				{145, 0}, // Anvil		=> Air
-				{146, 54}, // Trapped Chest	=> Chest
-				{147, 0}, // Gold Pressure	=> Air
-				{148, 0}, // Iron Pressure	=> Air
-				{149, 0}, // Comparator O		=> Air
-				{150, 0}, // Comparator I		=> Air
-				{151, 0}, // Daylight Sensor	=> Air
-				{152, 152}, // Block of Redstone	=> Block of Redstone
-				{153, 87}, // Nether Quarts Ore 	=> Netherrack
-				{154, 0}, // Hopper		=> Air
-				{157, 66}, // Activator Rail	=> Rail
-				{158, 0}, // Dropper		=> Air
-				{160, 102}, // Stained Glass Pa	=> Glass Pane
-				{161, 18}, // Acacia Leaves	=> Leaves
-				{162, 17}, // Acacia Wood		=> Wood
-				{165, 0}, // Slime Block		=> Air
-				{166, 97}, // Barrier		=> (Invisible Bedrock)
-				{167, 96}, // Iron Trapdoor	=> Trapdoor
-				{168, 0}, // Prismarine		=> Air
-				{169, 89}, // Sea Lantern		=> Glowstone
-				{183, 183}, // Spruce Gate		=> Gate
-				{184, 184}, // Birch Gate		=> Gate
-				{185, 185}, // Jungle Gate		=> Gate
-				{186, 186}, // Dark Oak Gate	=> Gate
-				{187, 187}, // Acacia Gate		=> Gate
-				{188, 188}, // Spruce Fence		=> Fence
-				{189, 189}, // Birch Fence		=> Fence
-				{190, 190}, // Jungle Fence		=> Fence
-				{191, 191}, // Dark Oak Fence	=> Fence
-				{192, 192}, // Acacia Fence		=> Fence
+				{25, new NoDataMapper(3)}, // Note Block		=> Dirt
+				{27, new NoDataMapper(66)}, // Powered Rail		=> Rail
+				{28, new NoDataMapper(66)}, // Detector Rail 	=> Rail
+				{29, air}, // Sticky Piston	=> Air
+				{33, air}, // Piston		=> Air
+				{34, air}, // Piston Head		=> Air
+				{55, air}, // Redstone Wire	=> Air
+				{69, air}, // Lever		=> Air
+				{70, air}, // Stone Pressure	=> Air
+				{72, air}, // Wooden Pressure	=> Air
+				{75, new NoDataMapper(50)}, // Redstone Torch O	=> Torch
+				{76, new NoDataMapper(50)}, // Redstone Torch I	=> Torch
+				{77, air}, // Stone Button		=> Air
+				{84, new NoDataMapper(3)}, // Jukebox		=> Dirt
+				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
+				{90, air}, // Nether Portal	=> Air
+				{93, air}, // Red Repeater	O	=> Air
+				{94, air}, // Red Repeater I	=> Air
+				{95, new NoDataMapper(20)}, // Invisible bedrock	=> Air
+				{97, new NoDataMapper(1)}, // Stone Monster Eg	=> Stone
+				{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
+				{115, air}, // Nether Wart		=> Air
+				{116, air}, // Enchant Table	=> Air
+				{117, air}, // Brewing Stand	=> Air
+				{118, air}, // Cauldron		=> Air
+				{119, air}, // End Portal		=> Air
+				{122, air}, // Dragon Egg		=> Air
+				{123, new NoDataMapper(89)}, // Redstone Lamp O	=> Glowstone
+				{124, new NoDataMapper(89)}, // Redstone Lamp I	=> Glowstone
+				{125, new NoDataMapper(157)}, // 2x Wooden Slabs	=> (2x Wooden Slabs)
+				{126, new NoDataMapper(158)}, // Wooden Slabs		=> (Wooden Slabs)
+				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
+				{131, air}, // Tripwire Hook	=> Air
+				{132, air}, // Tripwire		=> Air
+				{137, air}, // Command Block	=> Air
+				{138, air}, // Beacon		=> Air
+				{143, air}, // Wooden Button	=> Air
+				{144, air}, // Mob Head		=> Air
+				{145, air}, // Anvil		=> Air
+				{146, new NoDataMapper(54)}, // Trapped Chest	=> Chest
+				{147, air}, // Gold Pressure	=> Air
+				{148, air}, // Iron Pressure	=> Air
+				{149, air}, // Comparator O		=> Air
+				{150, air}, // Comparator I		=> Air
+				{151, air}, // Daylight Sensor	=> Air
+				{152, new NoDataMapper(152)}, // Block of Redstone	=> Block of Redstone
+				{153, new NoDataMapper(87)}, // Nether Quarts Ore 	=> Netherrack
+				{154, air}, // Hopper		=> Air
+				{157, new NoDataMapper(66)}, // Activator Rail	=> Rail
+				{158, air}, // Dropper		=> Air
+				{160, new NoDataMapper(102)}, // Stained Glass Pa	=> Glass Pane
+				{161, new NoDataMapper(18)}, // Acacia Leaves	=> Leaves
+				{162, new NoDataMapper(17)}, // Acacia Wood		=> Wood
+				{165, air}, // Slime Block		=> Air
+				{166, new NoDataMapper(97)}, // Barrier		=> (Invisible Bedrock)
+				{167, new NoDataMapper(96)}, // Iron Trapdoor	=> Trapdoor
+				{168, air}, // Prismarine		=> Air
+				{169, new NoDataMapper(89)}, // Sea Lantern		=> Glowstone
+				{183, new NoDataMapper(183)}, // Spruce Gate		=> Gate
+				{184, new NoDataMapper(184)}, // Birch Gate		=> Gate
+				{185, new NoDataMapper(185)}, // Jungle Gate		=> Gate
+				{186, new NoDataMapper(186)}, // Dark Oak Gate	=> Gate
+				{187, new NoDataMapper(187)}, // Acacia Gate		=> Gate
+				{188, new Mapper(85, (i, b) => 1)}, // Spruce Fence		=> Fence
+				{189, new Mapper(85, (i, b) => 2)}, // Birch Fence		=> Fence
+				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
+				{191, new Mapper(85, (i, b) => 4)}, // Dark Oak Fence	=> Fence
+				{192, new Mapper(85, (i, b) => 5)}, // Acacia Fence		=> Fence
 			};
+		}
+
+		private int Noop(int blockId, int data)
+		{
+			return 0;
 		}
 
 		public ChunkColumn[] GetCachedChunks()
@@ -338,8 +361,13 @@ namespace MiNET.Worlds
 								int anvilIndex = y*16*16 + z*16 + x;
 								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
 
+								Func<int, byte, byte> dataConverter = (i, b) => b;
 								// Anvil to PE friendly converstion
-								if (_convert.ContainsKey(blockId)) blockId = _convert[blockId];
+								if (_convert.ContainsKey(blockId))
+								{
+									dataConverter = _convert[blockId].Item2;
+									blockId = _convert[blockId].Item1;
+								}
 								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
 								else if (_gaps.BinarySearch(blockId) >= 0)
 								{
@@ -353,7 +381,10 @@ namespace MiNET.Worlds
 								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
 								chunk.SetBlock(x, yi, z, (byte) blockId);
-								chunk.SetMetadata(x, yi, z, Nibble4(data, anvilIndex));
+								byte metadata = Nibble4(data, anvilIndex);
+								metadata = dataConverter(blockId, metadata);
+
+								chunk.SetMetadata(x, yi, z, metadata);
 								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
 

@@ -1,4 +1,5 @@
-﻿using MiNET.Items;
+﻿using System;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -30,6 +31,28 @@ namespace MiNET.Entities
 			return metadataSlot;
 		}
 
+		public override void SpawnEntity()
+		{
+			Level.AddEntity(this);
+
+			Random random = new Random();
+
+			float f = 0.7F;
+			float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+
+			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
+			mcpeAddItemEntity.entityId = EntityId;
+			mcpeAddItemEntity.item = GetMetadataSlot();
+			mcpeAddItemEntity.x = KnownPosition.X + xr;
+			mcpeAddItemEntity.y = KnownPosition.Y + yr;
+			mcpeAddItemEntity.z = KnownPosition.Z + zr;
+			Level.RelayBroadcast(mcpeAddItemEntity);
+
+			IsSpawned = true;
+		}
+
 		public override void OnTick()
 		{
 			base.OnTick();
@@ -57,7 +80,7 @@ namespace MiNET.Entities
 						//target = EntityId
 						entityId = EntityId,
 						target = player.EntityId
- 					});
+					});
 					if (player.GameMode == GameMode.Survival)
 					{
 						player.Inventory.SetFirstEmptySlot((short) Item.Id, (byte) Count, Item.Metadata); //Add the items to the inventory

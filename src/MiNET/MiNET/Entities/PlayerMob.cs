@@ -115,6 +115,13 @@ namespace MiNET.Entities
 			SendArmor();
 		}
 
+		public override void DespawnFromPlayer(Player player)
+		{
+			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
+			mcpeRemovePlayer.entityId = EntityId;
+			player.SendPackage(mcpeRemovePlayer);
+		}
+
 		protected virtual void SendEquipment()
 		{
 			McpePlayerEquipment message = McpePlayerEquipment.CreateObject();

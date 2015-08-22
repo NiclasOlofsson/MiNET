@@ -5,7 +5,7 @@ namespace MiNET.Blocks
 {
 	public class Furnace : Block
 	{
-		internal Furnace() : base(61)
+		public Furnace() : base(61)
 		{
 		}
 
@@ -43,13 +43,6 @@ namespace MiNET.Blocks
 			player.OpenInventory(blockCoordinates);
 
 			return true;
-		}
-	}
-
-	public class LitFurnace : Furnace
-	{
-		public LitFurnace() : base(62)
-		{
 		}
 	}
 }

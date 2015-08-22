@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Blocks
 {
-	internal class SpruceWoodStairsStairs : BlockStairs
+	public class SpruceWoodStairsStairs : BlockStairs
 	{
 		public SpruceWoodStairsStairs() : base(134)
 		{

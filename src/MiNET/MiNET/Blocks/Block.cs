@@ -25,7 +25,7 @@ namespace MiNET.Blocks
 		public bool IsBuildable { get; protected set; }
 		public bool IsTransparent { get; protected set; }
 
-		protected internal Block(byte id)
+		public Block(byte id)
 		{
 			Id = id;
 

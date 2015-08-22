@@ -2,7 +2,7 @@
 {
 	public class Fence : Block
 	{
-		internal Fence() : base(85)
+		public Fence() : base(85)
 		{
 			FuelEfficiency = 15;
 		}

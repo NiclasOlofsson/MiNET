@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class StoneSlab : Block
 	{
-		internal StoneSlab() : base(44)
+		public StoneSlab() : base(44)
 		{
 		}
 	}

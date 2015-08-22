@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Items
 {
-	internal class ItemIronLeggings : Item
+	public class ItemIronLeggings : Item
 	{
-		internal ItemIronLeggings(short metadata) : base(308, metadata)
+		public ItemIronLeggings(short metadata) : base(308, metadata)
 		{
 			ItemType = ItemType.Leggings;
 			ItemMaterial = ItemMaterial.Iron;

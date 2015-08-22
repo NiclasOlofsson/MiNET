@@ -5,7 +5,7 @@ namespace MiNET.Blocks
 {
 	public class CraftingTable : Block
 	{
-		internal CraftingTable() : base(58)
+		public CraftingTable() : base(58)
 		{
 			FuelEfficiency = 15;
 		}

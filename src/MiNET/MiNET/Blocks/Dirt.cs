@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class Dirt : Block
 	{
-		internal Dirt() : base(3)
+		public Dirt() : base(3)
 		{
 		}
 	}

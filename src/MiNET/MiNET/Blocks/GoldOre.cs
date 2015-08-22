@@ -4,7 +4,7 @@ namespace MiNET.Blocks
 {
 	public class GoldOre : Block
 	{
-		internal GoldOre() : base(14)
+		public GoldOre() : base(14)
 		{
 		}
 

@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class Ice : Block
 	{
-		internal Ice() : base(79)
+		public Ice() : base(79)
 		{
 		}
 	}

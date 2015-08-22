@@ -313,8 +313,7 @@ namespace MiNET
 				{
 					if (_itemUseTimer == null) return;
 
-					MetadataSlot itemSlot = Inventory.ItemInHand;
-					Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+					Item itemInHand = Inventory.ItemInHand;
 
 					if (itemInHand == null) return; // Cheat(?)
 
@@ -739,17 +738,17 @@ namespace MiNET
 
 		public void SendPlayerInventory()
 		{
-			McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
-			mcpeContainerSetContent.windowId = 0;
-			mcpeContainerSetContent.slotData = Inventory.Slots;
-			mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
-			SendPackage(mcpeContainerSetContent);
+			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+			inventoryContent.windowId = 0;
+			inventoryContent.slotData = Inventory.GetSlots();
+			inventoryContent.hotbarData = Inventory.GetHotbar();
+			SendPackage(inventoryContent);
 
-			McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
-			containerSetContent.windowId = 0x78;
-			containerSetContent.slotData = Inventory.Armor;
-			containerSetContent.hotbarData = null;
-			SendPackage(containerSetContent);
+			McpeContainerSetContent armorContent = McpeContainerSetContent.CreateObject();
+			armorContent.windowId = 0x78;
+			armorContent.slotData = Inventory.GetArmor();
+			armorContent.hotbarData = null;
+			SendPackage(armorContent);
 		}
 
 		public void SendPlayerStatus(int status)
@@ -1005,13 +1004,10 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			Inventory.ItemInHand.Value.Id = message.item;
-			Inventory.ItemInHand.Value.Metadata = message.meta;
-
 			//if(GameMode == GameMode.Survival)
 			{
 				int slot = (message.slot - 9);
-				if (!Inventory.Slots.Contains((byte) slot))
+				if (slot < 0 || slot > Inventory.Slots.Count || Inventory.Slots[((byte) slot)] == null)
 				{
 					//Level.BroadcastTextMessage(string.Format("Inventory change detected for player: {0} Slot: {1}", Username, slot), type: MessageType.Raw);
 
@@ -1024,13 +1020,12 @@ namespace MiNET
 
 					return;
 				}
-				else
-				{
-					var existing = Inventory.Slots[(byte) slot];
-					var selected = Inventory.Slots[message.selectedSlot];
-					Inventory.Slots[(byte) slot] = selected;
-					Inventory.Slots[message.selectedSlot] = existing;
-				}
+
+				ItemStack existing = Inventory.Slots[(byte) slot];
+				ItemStack selected = Inventory.Slots[message.selectedSlot];
+				Inventory.Slots[(byte) slot] = selected;
+				Inventory.Slots[message.selectedSlot] = existing;
+				Inventory.ItemInHand = existing.Item;
 			}
 
 			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
@@ -1042,6 +1037,7 @@ namespace MiNET
 
 			Level.RelayBroadcast(this, msg);
 		}
+
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
@@ -1125,7 +1121,6 @@ namespace MiNET
 			// also get the update.
 
 			var itemStack = new ItemStack(message.itemId, message.itemCount, message.itemDamage);
-			var metadataSlot = new MetadataSlot(itemStack);
 
 			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
 			if (inventory != null)
@@ -1137,29 +1132,41 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					Inventory.Slots[(byte) message.slot] = metadataSlot;
+					Inventory.Slots[(byte) message.slot] = itemStack;
 					break;
 				case 0x78:
-					Inventory.Armor[(byte) message.slot] = metadataSlot;
+					switch ((byte) message.slot)
+					{
+						case 0:
+							Inventory.Helmet = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+						case 1:
+							Inventory.Chest = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+						case 2:
+							Inventory.Leggings = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+						case 3:
+							Inventory.Boots = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+					}
 					break;
 			}
 
-			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
-			{
-				entityId = EntityId,
-				helmet = (byte) (((MetadataSlot) Inventory.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) Inventory.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) Inventory.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) Inventory.Armor[3]).Value.Id - 256)
-			});
+			var armorEquipment = McpePlayerArmorEquipment.CreateObject();
+			armorEquipment.entityId = EntityId;
+			armorEquipment.helmet = (byte) (Inventory.Helmet.Id - 256);
+			armorEquipment.chestplate = (byte) (Inventory.Chest.Id - 256);
+			armorEquipment.leggings = (byte) (Inventory.Leggings.Id - 256);
+			armorEquipment.boots = (byte) (Inventory.Boots.Id - 256);
+			Level.RelayBroadcast(this, armorEquipment);
 
-			Level.RelayBroadcast(this, new McpePlayerEquipment()
-			{
-				entityId = EntityId,
-				item = Inventory.ItemInHand.Value.Id,
-				meta = Inventory.ItemInHand.Value.Metadata,
-				slot = 0
-			});
+			var playerEquipment = McpePlayerEquipment.CreateObject();
+			playerEquipment.entityId = EntityId;
+			playerEquipment.item = (short) Inventory.ItemInHand.Id;
+			playerEquipment.meta = Inventory.ItemInHand.Metadata;
+			playerEquipment.slot = 0;
+			Level.RelayBroadcast(this, playerEquipment);
 		}
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
@@ -1207,12 +1214,9 @@ namespace MiNET
 		{
 			double armorValue = 0;
 
-			for (byte i = 0; i < target.Inventory.Armor.Count; i++)
 			{
-				MetadataSlot id = (MetadataSlot) (target.Inventory.Armor[i]);
-				var armorPiece = ItemFactory.GetItem(id.Value.Id);
-				if (armorPiece.ItemType == ItemType.Helmet)
 				{
+					var armorPiece = Inventory.Helmet;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1233,8 +1237,8 @@ namespace MiNET
 					}
 				}
 
-				if (armorPiece.ItemType == ItemType.Chestplate)
 				{
+					var armorPiece = Inventory.Chest;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1255,8 +1259,8 @@ namespace MiNET
 					}
 				}
 
-				if (armorPiece.ItemType == ItemType.Leggings)
 				{
+					var armorPiece = Inventory.Leggings;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1277,8 +1281,8 @@ namespace MiNET
 					}
 				}
 
-				if (armorPiece.ItemType == ItemType.Boots)
 				{
+					var armorPiece = Inventory.Boots;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1302,7 +1306,7 @@ namespace MiNET
 
 			armorValue *= 0.04; // Each armor point represent 4% reduction
 
-			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+			int damage = Inventory.ItemInHand.GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0 - armorValue));
 
@@ -1311,7 +1315,7 @@ namespace MiNET
 
 		private int CalculateDamage(Entity target)
 		{
-			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+			int damage = Inventory.ItemInHand.GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0));
 

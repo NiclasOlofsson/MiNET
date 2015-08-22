@@ -4,7 +4,7 @@ namespace MiNET.Blocks
 {
 	public class Cobblestone : Block
 	{
-		internal Cobblestone() : base(4)
+		public Cobblestone() : base(4)
 		{
 		}
 

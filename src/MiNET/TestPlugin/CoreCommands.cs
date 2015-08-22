@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading;
 using log4net;
 using MiNET;
+using MiNET.BlockEntities;
+using MiNET.Blocks;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -220,74 +223,48 @@ namespace TestPlugin
 		[Command]
 		public void Kit(Player player, int kitId)
 		{
-			var armor = player.Inventory.Armor;
-			var slots = player.Inventory.Slots;
+			var inventory = player.Inventory;
 
 			switch (kitId)
 			{
 				case 0:
 					// Kit leather tier
-					armor[0] = new MetadataSlot(new ItemStack(298)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(299)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(300)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(301)); // Boots
 					break;
 				case 1:
 					// Kit gold tier
-					armor[0] = new MetadataSlot(new ItemStack(314)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(315)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(316)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(317)); // Boots
 					break;
 				case 2:
 					// Kit chain tier
-					armor[0] = new MetadataSlot(new ItemStack(302)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(303)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(304)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(305)); // Boots
 					break;
 				case 3:
 					// Kit iron tier
-					armor[0] = new MetadataSlot(new ItemStack(306)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(307)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(308)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(309)); // Boots
+					inventory.Boots = new ItemIronBoots(0);
+					inventory.Leggings = new ItemIronLeggings(0);
+					inventory.Chest = new ItemIronChestplate(0);
+					inventory.Helmet = new ItemIronHelmet(0);
 					break;
 				case 4:
 					// Kit diamond tier
-					armor[0] = new MetadataSlot(new ItemStack(310)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(311)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(312)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(313)); // Boots
+					inventory.Boots = new ItemDiamondBoots(0);
+					inventory.Leggings = new ItemDiamondLeggings(0);
+					inventory.Chest = new ItemDiamondChestplate(0);
+					inventory.Helmet = new ItemDiamondHelmet(0);
 					break;
 			}
 
 			byte c = 0;
-			slots[c++] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
-			slots[c++] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
-			slots[c++] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
-			slots[c++] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
-			slots[c++] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
+			inventory.Slots[c++] = (new ItemStack(268, 1)); // Wooden Sword
+			inventory.Slots[c++] = (new ItemStack(283, 1)); // Golden Sword
+			inventory.Slots[c++] = (new ItemStack(272, 1)); // Stone Sword
+			inventory.Slots[c++] = (new ItemStack(267, 1)); // Iron Sword
+			inventory.Slots[c++] = (new ItemStack(276, 1)); // Diamond Sword
 
-			slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
-			slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
-			slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
-			slots[c++] = new MetadataSlot(new ItemStack(332, 64)); // Snowballs
+			inventory.Slots[c++] = (new ItemStack(261, 1)); // Bow
+			inventory.Slots[c++] = (new ItemStack(262, 64)); // Arrows
+			inventory.Slots[c++] = (new ItemStack(344, 64)); // Eggs
+			inventory.Slots[c++] = (new ItemStack(332, 64)); // Snowballs
 
-			player.SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0,
-				slotData = player.Inventory.Slots,
-				hotbarData = player.Inventory.ItemHotbar
-			});
-
-			player.SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0x78, // Armor windows ID
-				slotData = player.Inventory.Armor,
-				hotbarData = null
-			});
-
+			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);
 
@@ -299,8 +276,8 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerEquipment
 			{
 				entityId = player.EntityId,
-				item = player.Inventory.ItemInHand.Value.Id,
-				meta = player.Inventory.ItemInHand.Value.Metadata,
+				item = (short) player.Inventory.ItemInHand.Id,
+				meta = player.Inventory.ItemInHand.Metadata,
 				slot = 0
 			});
 		}
@@ -310,10 +287,10 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerArmorEquipment
 			{
 				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256)
+				helmet = (byte) (player.Inventory.Helmet.Id - 256),
+				chestplate = (byte) (player.Inventory.Chest.Id - 256),
+				leggings = (byte) (player.Inventory.Leggings.Id - 256),
+				boots = (byte) (player.Inventory.Boots.Id - 256)
 			});
 		}
 
@@ -392,6 +369,31 @@ namespace TestPlugin
 				Context.Server.ForwardTarget = new IPEndPoint(host.AddressList[0], 19132);
 				Context.Server.ForwardAllPlayers = true;
 			}
+		}
+
+		private byte _invId = 0;
+
+		[Command(Command = "oi")]
+		public void OpenInventory(Player player)
+		{
+			BlockCoordinates coor = new BlockCoordinates(player.KnownPosition);
+			Chest chest = new Chest
+			{
+				Coordinates = coor,
+				Metadata = 0
+			};
+			player.Level.SetBlock(chest, true);
+
+			// Then we create and set the sign block entity that has all the intersting data
+
+			ChestBlockEntity chestBlockEntity = new ChestBlockEntity
+			{
+				Coordinates = coor
+			};
+
+			player.Level.SetBlockEntity(chestBlockEntity, false);
+
+			player.OpenInventory(coor);
 		}
 	}
 }

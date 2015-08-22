@@ -2,7 +2,7 @@ using MiNET.Utils;
 
 ﻿namespace MiNET.Blocks
 {
-	internal class Bedrock : Block
+	public class Bedrock : Block
 	{
 		public Bedrock() : base(7)
 		{

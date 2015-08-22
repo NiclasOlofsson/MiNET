@@ -1,5 +1,7 @@
 using System;
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -7,71 +9,81 @@ namespace MiNET
 {
 	public class PlayerInventory
 	{
-		public MetadataSlots Armor { get; private set; }
-		public MetadataSlots Slots { get; private set; }
-		public MetadataInts ItemHotbar { get; private set; }
-		public MetadataSlot ItemInHand { get; private set; }
-		private Player _player;
+		public Player Player { get; private set; }
+
+		public List<ItemStack> Slots { get; private set; }
+		public int[] ItemHotbar { get; private set; }
+		public Item ItemInHand { get; set; }
+
+
+		// Armour
+		public Item Boots { get; set; }
+		public Item Leggings { get; set; }
+		public Item Chest { get; set; }
+		public Item Helmet { get; set; }
 
 		public PlayerInventory(Player player)
 		{
-			_player = player;
-			Armor = new MetadataSlots();
-			Slots = new MetadataSlots();
-			ItemHotbar = new MetadataInts();
-			ItemInHand = new MetadataSlot(new ItemStack());
+			Player = player;
+			Slots = Enumerable.Repeat(new ItemStack(), 35).ToList();
+			ItemHotbar = new int[6];
+			ItemInHand = new Item(-1, 0);
 
-			Armor[0] = new MetadataSlot(new ItemStack());
-			Armor[1] = new MetadataSlot(new ItemStack());
-			Armor[2] = new MetadataSlot(new ItemStack());
-			Armor[3] = new MetadataSlot(new ItemStack());
-
-			//Armor[0] = new MetadataSlot(new ItemStack(306));
-			//Armor[1] = new MetadataSlot(new ItemStack(307));
-			//Armor[2] = new MetadataSlot(new ItemStack(308));
-			//Armor[3] = new MetadataSlot(new ItemStack(309));
-
-			for (byte i = 0; i < 35; i++)
-			{
-				Slots[i] = new MetadataSlot(new ItemStack((short) -1, 0));
-			}
-
-			byte c = 0;
-			//Slots[c++] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
-			//Slots[c++] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
-			//Slots[c++] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
-			//Slots[c++] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
-			//Slots[c++] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
-
-			//Slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
-			//Slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
-			//Slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
-			//Slots[c++] = new MetadataSlot(new ItemStack(332, 64)); // Snowballs
+			Boots = new ItemDiamondBoots(0);
+			Leggings = new ItemDiamondLeggings(0);
+			Chest = new ItemDiamondChestplate(0);
+			Helmet = new ItemDiamondHelmet(0);
 
 			for (byte i = 0; i < 6; i++)
 			{
-				ItemHotbar[i] = new MetadataInt(i + 9);
+				ItemHotbar[i] = i + 9;
 			}
 		}
 
-		/// <summary>
-		///     Set a players slot to the specified item.
-		/// </summary>
-		/// <param name="slot">The slot to set</param>
-		/// <param name="itemId">The item id</param>
-		/// <param name="amount">Amount of items</param>
-		/// <param name="metadata">Metadata for the item</param>
+		[Wired]
 		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
 		{
 			if (slot > 35) throw new IndexOutOfRangeException("slot");
-			Slots[slot] = new MetadataSlot(new ItemStack(itemId, amount, metadata));
+			Slots[slot] = new ItemStack(itemId, amount, metadata);
 
-			_player.SendPackage(new McpeContainerSetContent
+			Player.SendPackage(new McpeContainerSetContent
 			{
 				windowId = 0,
-				slotData = Slots,
-				hotbarData = ItemHotbar
+				slotData = GetSlots(),
+				hotbarData = GetHotbar()
 			});
+		}
+
+		public MetadataInts GetHotbar()
+		{
+			MetadataInts metadata = new MetadataInts();
+			for (byte i = 0; i < ItemHotbar.Length; i++)
+			{
+				metadata[i] = new MetadataInt(ItemHotbar[i]);
+			}
+
+			return metadata;
+		}
+
+		public MetadataSlots GetSlots()
+		{
+			var slotData = new MetadataSlots();
+			for (byte i = 0; i < Slots.Count; i++)
+			{
+				slotData[i] = new MetadataSlot(Slots[i]);
+			}
+
+			return slotData;
+		}
+
+		public MetadataSlots GetArmor()
+		{
+			var slotData = new MetadataSlots();
+			slotData[0] = new MetadataSlot(new ItemStack((short) Helmet.Id, 1, Helmet.Metadata));
+			slotData[1] = new MetadataSlot(new ItemStack((short) Chest.Id, 1, Helmet.Metadata));
+			slotData[2] = new MetadataSlot(new ItemStack((short) Leggings.Id, 1, Helmet.Metadata));
+			slotData[3] = new MetadataSlot(new ItemStack((short) Boots.Id, 1, Helmet.Metadata));
+			return slotData;
 		}
 
 		public void SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
@@ -92,24 +104,24 @@ namespace MiNET
 			}
 		}
 
-        public void SetHeldItemSlot(int slot)
-        {
-            McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
-            order.entityId = 0;
-            order.selectedSlot = (byte)slot;
-            _player.SendPackage(order);
+		public void SetHeldItemSlot(int slot)
+		{
+			McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
+			order.entityId = 0;
+			order.selectedSlot = (byte) slot;
+			Player.SendPackage(order);
 
-            McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
-            broadcast.entityId = _player.EntityId;
-            broadcast.selectedSlot = (byte)slot;
-            _player.Level.RelayBroadcast(broadcast);
-        }
+			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
+			broadcast.entityId = Player.EntityId;
+			broadcast.selectedSlot = (byte) slot;
+			Player.Level.RelayBroadcast(broadcast);
+		}
 
-        /// <summary>
-        ///     Empty the specified slot
-        /// </summary>
-        /// <param name="slot">The slot to empty.</param>
-        public void ClearInventorySlot(byte slot)
+		/// <summary>
+		///     Empty the specified slot
+		/// </summary>
+		/// <param name="slot">The slot to empty.</param>
+		public void ClearInventorySlot(byte slot)
 		{
 			SetInventorySlot(slot, 0, 0);
 		}
@@ -124,39 +136,6 @@ namespace MiNET
 				}
 			}
 			return false;
-		}
-
-		public byte[] Export()
-		{
-			byte[] buffer;
-			using (MemoryStream stream = new MemoryStream())
-			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
-
-				Armor.WriteTo(writer);
-
-				Slots.WriteTo(writer);
-
-				ItemHotbar.WriteTo(writer);
-
-				writer.Flush();
-				buffer = stream.GetBuffer();
-			}
-			return buffer;
-		}
-
-		public bool Import(byte[] data)
-		{
-			using (MemoryStream stream = new MemoryStream(data))
-			{
-				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
-
-				Armor = MetadataSlots.FromStream(reader);
-				Slots = MetadataSlots.FromStream(reader);
-				ItemHotbar = MetadataInts.FromStream(reader);
-			}
-
-			return true;
 		}
 	}
 }

@@ -201,8 +201,8 @@ namespace MiNET.Worlds
 		{
 			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 			mcpePlayerEquipment.entityId = player.EntityId;
-			mcpePlayerEquipment.item = player.Inventory.ItemInHand.Value.Id;
-			mcpePlayerEquipment.meta = player.Inventory.ItemInHand.Value.Metadata;
+			mcpePlayerEquipment.item = (short) player.Inventory.ItemInHand.Id;
+			mcpePlayerEquipment.meta = player.Inventory.ItemInHand.Metadata;
 			mcpePlayerEquipment.slot = 0;
 			receiver.SendPackage(mcpePlayerEquipment);
 		}
@@ -211,10 +211,10 @@ namespace MiNET.Worlds
 		{
 			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = player.EntityId;
-			mcpePlayerArmorEquipment.helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256);
-			mcpePlayerArmorEquipment.chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256);
-			mcpePlayerArmorEquipment.leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256);
-			mcpePlayerArmorEquipment.boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256);
+			mcpePlayerArmorEquipment.helmet = (byte) (player.Inventory.Helmet.Id - 256);
+			mcpePlayerArmorEquipment.chestplate = (byte) (player.Inventory.Chest.Id - 256);
+			mcpePlayerArmorEquipment.leggings = (byte) (player.Inventory.Leggings.Id - 256);
+			mcpePlayerArmorEquipment.boots = (byte) (player.Inventory.Boots.Id - 256);
 			receiver.SendPackage(mcpePlayerArmorEquipment);
 		}
 
@@ -757,8 +757,7 @@ namespace MiNET.Worlds
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata)
 		{
 			// Make sure we are holding the item we claim to be using
-			MetadataSlot itemSlot = player.Inventory.ItemInHand;
-			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id, metadata);
+			Item itemInHand = player.Inventory.ItemInHand;
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
@@ -778,8 +777,7 @@ namespace MiNET.Worlds
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
 		{
 			// Make sure we are holding the item we claim to be using
-			MetadataSlot itemSlot = player.Inventory.ItemInHand;
-			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id, metadata);
+			Item itemInHand = player.Inventory.ItemInHand;
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 

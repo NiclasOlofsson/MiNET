@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class StationaryWater : Stationary
 	{
-		internal StationaryWater() : base(9)
+		public StationaryWater() : base(9)
 		{
 		}
 	}

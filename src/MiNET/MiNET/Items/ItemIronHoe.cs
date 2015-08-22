@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Items
 {
-	internal class ItemIronHoe : ItemHoe
+	public class ItemIronHoe : ItemHoe
 	{
 		public ItemIronHoe(short metadata)
 			: base(292, metadata)

@@ -359,6 +359,18 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
+		public void Lol(Player player)
+		{
+			player.Level.BroadcastMessage(string.Format(ChatColors.Yellow + "{0} is really 'laughing out loud!', and it really hurst our ears :-(", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
+		public void Wtf(Player player)
+		{
+			player.Level.BroadcastMessage(string.Format(ChatColors.Red + "{0} just said the forbidden 'What the ****'. Shame on {0}!", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Kick(Player player, string otherUser)
 		{
 			player.Level.BroadcastMessage(string.Format(ChatColors.Gold + "{0} tried to kick {1} but kicked self instead!!", player.Username, otherUser), type: MessageType.Raw);

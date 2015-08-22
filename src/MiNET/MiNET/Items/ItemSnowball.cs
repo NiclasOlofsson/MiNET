@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemSnowball : Item
 	{
-		internal ItemSnowball(short metadata) : base(332, metadata)
+		public ItemSnowball(short metadata) : base(332, metadata)
 		{
 		}
 

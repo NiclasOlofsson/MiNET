@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Items
 {
-	internal class ItemRawBeef : Item
+	public class ItemRawBeef : Item
 	{
-		internal ItemRawBeef(short metadata) : base(363, metadata)
+		public ItemRawBeef(short metadata) : base(363, metadata)
 		{
 		}
 

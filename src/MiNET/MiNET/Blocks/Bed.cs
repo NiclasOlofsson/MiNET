@@ -5,7 +5,7 @@ namespace MiNET.Blocks
 {
 	public class Bed : Block
 	{
-		protected internal Bed() : base(26)
+		public Bed() : base(26)
 		{
 		}
 

@@ -3,7 +3,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	internal abstract class BlockStairs : Block
+	public abstract class BlockStairs : Block
 	{
 		protected BlockStairs(byte id) : base(id)
 		{

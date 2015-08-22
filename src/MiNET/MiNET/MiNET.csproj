@@ -97,6 +97,7 @@
     <Compile Include="Blocks\JungleWoodStairs.cs" />
     <Compile Include="Blocks\LapsisBlock.cs" />
     <Compile Include="Blocks\LapsisOre.cs" />
+    <Compile Include="Blocks\LitFurnace.cs" />
     <Compile Include="Blocks\Obsidian.cs" />
     <Compile Include="Blocks\Sandstone.cs" />
     <Compile Include="Blocks\Snow.cs" />

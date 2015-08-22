@@ -2,9 +2,9 @@ using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
-	internal class GrassPath : Block
+	public class GrassPath : Block
 	{
-		internal GrassPath() : base(198)
+		public GrassPath() : base(198)
 		{
 		}
 

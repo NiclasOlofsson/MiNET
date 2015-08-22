@@ -2,7 +2,7 @@ namespace MiNET.Blocks
 {
 	public class LapsisOre : Block
 	{
-		internal LapsisOre() : base(21)
+		public LapsisOre() : base(21)
 		{
 		}
 	}

@@ -9,7 +9,7 @@ namespace MiNET.Blocks
 			isSolid = false;
 		}
 		
-		public override ItemStack getDrops(){
+		public override ItemStack GetDrops(){
 			return null; //Drop nothing
 		}
 	}

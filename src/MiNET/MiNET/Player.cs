@@ -1125,6 +1125,7 @@ namespace MiNET
 			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
 			if (inventory != null)
 			{
+				// block inventories of various kinds (chests, furnace, etc)
 				inventory.SetSlot((byte) message.slot, itemStack);
 				return;
 			}
@@ -1132,7 +1133,16 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					Inventory.Slots[(byte) message.slot] = itemStack;
+					if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
+					{
+						Log.Warn("Inventory set from client not matching inventory on server");
+						SendPlayerInventory();
+					}
+					else if(GameMode == GameMode.Creative)
+					{
+						Inventory.Slots[(byte) message.slot] = itemStack;
+					}
+
 					break;
 				case 0x78:
 					switch ((byte) message.slot)

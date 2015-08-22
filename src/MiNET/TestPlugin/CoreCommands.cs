@@ -253,16 +253,19 @@ namespace TestPlugin
 			}
 
 			byte c = 0;
-			inventory.Slots[c++] = (new ItemStack(268, 1)); // Wooden Sword
-			inventory.Slots[c++] = (new ItemStack(283, 1)); // Golden Sword
-			inventory.Slots[c++] = (new ItemStack(272, 1)); // Stone Sword
-			inventory.Slots[c++] = (new ItemStack(267, 1)); // Iron Sword
-			inventory.Slots[c++] = (new ItemStack(276, 1)); // Diamond Sword
+			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
 
-			inventory.Slots[c++] = (new ItemStack(261, 1)); // Bow
-			inventory.Slots[c++] = (new ItemStack(262, 64)); // Arrows
-			inventory.Slots[c++] = (new ItemStack(344, 64)); // Eggs
-			inventory.Slots[c++] = (new ItemStack(332, 64)); // Snowballs
+			inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
+			inventory.Slots[c++] = new ItemStack(268, 1); // Wooden Sword
+			inventory.Slots[c++] = new ItemStack(283, 1); // Golden Sword
+			inventory.Slots[c++] = new ItemStack(272, 1); // Stone Sword
+			inventory.Slots[c++] = new ItemStack(267, 1); // Iron Sword
+			inventory.Slots[c++] = new ItemStack(276, 1); // Diamond Sword
+
+			inventory.Slots[c++] = new ItemStack(261, 1); // Bow
+			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
+			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
+			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
 
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);

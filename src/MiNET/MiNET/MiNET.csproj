@@ -140,6 +140,7 @@
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
+    <Compile Include="Items\ItemCommand.cs" />
     <Compile Include="Items\ItemDiamondAxe.cs" />
     <Compile Include="Items\ItemDiamondBoots.cs" />
     <Compile Include="Items\ItemDiamondChestplate.cs" />

@@ -6,7 +6,7 @@ namespace MiNET.Blocks
 	{
 		public Ice() : base(79)
 		{
-			isSolid = false;
+			IsSolid = false;
 		}
 		
 		public override ItemStack GetDrops(){

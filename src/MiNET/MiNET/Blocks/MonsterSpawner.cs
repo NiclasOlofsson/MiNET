@@ -6,7 +6,7 @@ namespace MiNET.Blocks
 	{
 		public MonsterSpawner() : base (52)
 		{
-			isSolid = false;
+			IsSolid = false;
 		}
 		
 		public override ItemStack GetDrops(){

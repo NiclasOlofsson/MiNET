@@ -1133,15 +1133,16 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
-					{
-						Log.Warn("Inventory set from client not matching inventory on server");
-						SendPlayerInventory();
-					}
-					else if(GameMode == GameMode.Creative)
-					{
-						Inventory.Slots[(byte) message.slot] = itemStack;
-					}
+					//if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
+					//{
+					//	Log.Warn("Inventory set from client not matching inventory on server");
+					//	SendPlayerInventory();
+					//}
+					//else if(GameMode == GameMode.Creative)
+					//{
+					//	Inventory.Slots[(byte) message.slot] = itemStack;
+					//}
+					Inventory.Slots[(byte)message.slot] = itemStack;
 
 					break;
 				case 0x78:

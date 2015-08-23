@@ -2,9 +2,9 @@ using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
-	public class Ice : Block
+	public class MonsterSpawner : Block
 	{
-		public Ice() : base(79)
+		public MonsterSpawner() : base (52)
 		{
 			IsSolid = false;
 		}
@@ -13,4 +13,5 @@ namespace MiNET.Blocks
 			return null; //Drop nothing
 		}
 	}
+	
 }

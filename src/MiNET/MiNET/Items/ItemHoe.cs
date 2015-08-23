@@ -1,4 +1,4 @@
-﻿using MiNET.Blocks;
+using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -13,7 +13,7 @@ namespace MiNET.Items
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(blockCoordinates);
-			if (block is Grass || block is Dirt || block is GrassPath)
+			if (block is Grass || block is Dirt || block is GrassPath && face == BlockFace.Up)
 			{
 				Farmland farmland = new Farmland
 				{

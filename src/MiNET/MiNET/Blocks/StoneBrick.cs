@@ -1,11 +1,10 @@
-﻿using MiNET.Items;
+using MiNET.Items;
 
 namespace MiNET.Blocks
 {
 	public class StoneBrick : Block
 	{
-		public StoneBrick()
-			: base(98)
+		public StoneBrick()	: base(98)
 		{
 		}
 

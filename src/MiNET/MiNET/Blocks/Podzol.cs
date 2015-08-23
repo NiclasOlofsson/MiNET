@@ -2,15 +2,15 @@ using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
-	public class Ice : Block
+	public class Podzol : Block
 	{
-		public Ice() : base(79)
+		public Podzol : base(243)
 		{
-			IsSolid = false;
+			
 		}
 		
 		public override ItemStack GetDrops(){
-			return null; //Drop nothing
+			return new ItemStack(3); //Drop dirt
 		}
 	}
 }

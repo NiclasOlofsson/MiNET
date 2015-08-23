@@ -777,12 +777,13 @@ namespace MiNET.Worlds
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
 		{
 			// Make sure we are holding the item we claim to be using
-			Item itemInHand = player.Inventory.ItemInHand;
-
-			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
+
+			Item itemInHand = player.Inventory.ItemInHand;
+
+			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			if (itemInHand is ItemBlock)
 			{

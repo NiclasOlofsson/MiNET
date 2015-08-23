@@ -29,10 +29,15 @@ namespace MiNET
 			ItemHotbar = new int[6];
 			ItemInHand = new Item(-1, 0);
 
-			Boots = new ItemDiamondBoots(0);
-			Leggings = new ItemDiamondLeggings(0);
-			Chest = new ItemDiamondChestplate(0);
-			Helmet = new ItemDiamondHelmet(0);
+			//Boots = new ItemDiamondBoots(0);
+			//Leggings = new ItemDiamondLeggings(0);
+			//Chest = new ItemDiamondChestplate(0);
+			//Helmet = new ItemDiamondHelmet(0);
+
+			Boots = new Item(0, 0);
+			Leggings = new Item(0, 0);
+			Chest = new Item(0, 0);
+			Helmet = new Item(0, 0);
 
 			for (byte i = 0; i < 6; i++)
 			{

@@ -822,10 +822,10 @@ namespace MiNET.Worlds
 			List<ItemStack> drops = new List<ItemStack>();
 
 			Block block = GetBlock(blockCoordinates);
-			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block)))
+			drops.Add(block.GetDrops());
+			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
 			{
 				block.BreakBlock(this);
-				drops.Add(block.GetDrops());
 
 				BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
 				if (blockEnity != null)
@@ -949,10 +949,12 @@ namespace MiNET.Worlds
 	public class BlockBreakEventArgs : LevelEventArgs
 	{
 		public Block Block { get; private set; }
+		public List<ItemStack> Drops { get; private set; }
 
-		public BlockBreakEventArgs(Player player, Level level, Block block) : base(player, level)
+		public BlockBreakEventArgs(Player player, Level level, Block block, List<ItemStack> drops) : base(player, level)
 		{
 			Block = block;
+			Drops = drops;
 		}
 	}
 }

@@ -100,6 +100,7 @@
     <Compile Include="Blocks\LitFurnace.cs" />
     <Compile Include="Blocks\MonsterSpawner.cs" />
     <Compile Include="Blocks\Obsidian.cs" />
+    <Compile Include="Blocks\Podzol.cs" />
     <Compile Include="Blocks\Sandstone.cs" />
     <Compile Include="Blocks\Snow.cs" />
     <Compile Include="Blocks\Stationary.cs" />

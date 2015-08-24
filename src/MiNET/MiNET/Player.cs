@@ -676,6 +676,7 @@ namespace MiNET
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
 		{
+			bool oldNoAi = NoAi;
 			SetNoAi(true);
 
 			// send teleport straight up, no chunk loading
@@ -715,7 +716,7 @@ namespace MiNET
 			// send teleport to spawn
 			SetPosition(spawnPoint);
 
-			SetNoAi(false);
+			SetNoAi(oldNoAi);
 
 			Level.SpawnToAll(this);
 			IsSpawned = true;

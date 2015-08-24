@@ -160,6 +160,11 @@ namespace MiNET
 				HandleUseItem((McpeUseItem) message);
 			}
 
+			else if (typeof (McpeEntityEvent) == message.GetType())
+			{
+				HandleEntityEvent((McpeEntityEvent) message);
+			}
+
 			else if (typeof (ConnectedPing) == message.GetType())
 			{
 				HandleConnectedPing((ConnectedPing) message);
@@ -1142,7 +1147,7 @@ namespace MiNET
 					//{
 					//	Inventory.Slots[(byte) message.slot] = itemStack;
 					//}
-					Inventory.Slots[(byte)message.slot] = itemStack;
+					Inventory.Slots[(byte) message.slot] = itemStack;
 
 					break;
 				case 0x78:
@@ -1334,6 +1339,28 @@ namespace MiNET
 		}
 
 
+		private void HandleEntityEvent(McpeEntityEvent message)
+		{
+			Log.Debug("Entity Id:" + message.entityId);
+			Log.Debug("Entity Event:" + message.eventId);
+
+			//if (message.eventId != 0) return; // Should probably broadcast?!
+
+			switch (message.eventId)
+			{
+				case 9:
+					// Eat food
+
+					FoodItem foodItem = Inventory.ItemInHand as FoodItem;
+					if (foodItem != null)
+					{
+						foodItem.Consume(this);
+					}
+
+					break;
+			}
+		}
+
 		private Stopwatch _itemUseTimer;
 
 		protected virtual void HandleUseItem(McpeUseItem message)
@@ -1487,14 +1514,14 @@ namespace MiNET
 		}
 
 
-		internal void SendSetHealth()
+		public virtual void SendSetHealth()
 		{
 			McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
 			mcpeSetHealth.health = HealthManager.Hearts;
 			SendPackage(mcpeSetHealth);
 		}
 
-		public void SendSetTime()
+		public virtual void SendSetTime()
 		{
 			// started == true ? 0x80 : 0x00);
 			McpeSetTime message = McpeSetTime.CreateObject();
@@ -1503,7 +1530,7 @@ namespace MiNET
 			SendPackage(message);
 		}
 
-		public void SendMovePlayer(bool teleport = false)
+		public virtual void SendMovePlayer(bool teleport = false)
 		{
 			var package = McpeMovePlayer.CreateObject();
 			package.entityId = 0;

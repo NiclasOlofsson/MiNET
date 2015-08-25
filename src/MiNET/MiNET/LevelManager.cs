@@ -14,7 +14,7 @@ namespace MiNET
 			Levels = new List<Level>();
 		}
 
-		public virtual Level GetLevel(string name)
+		public virtual Level GetLevel(Player player, string name)
 		{
 			Level level = Levels.FirstOrDefault(l => l.LevelId.Equals(name, StringComparison.InvariantCultureIgnoreCase));
 			if (level == null)

@@ -1,5 +1,4 @@
 using System.Net;
-using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -7,8 +6,7 @@ namespace MiNET
 	{
 		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint, int mtuSize)
 		{
-			Level level = server.LevelManager.GetLevel("Default");
-			return new Player(server, endPoint, level, mtuSize);
+			return new Player(server, endPoint, mtuSize);
 		}
 	}
 }

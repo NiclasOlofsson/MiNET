@@ -67,7 +67,7 @@ namespace MiNET
 		public int Kills { get; set; }
 		public int Deaths { get; set; }
 
-		public Player(MiNetServer server, IPEndPoint endPoint, Level level, int mtuSize) : base(-1, level)
+		public Player(MiNetServer server, IPEndPoint endPoint, int mtuSize) : base(-1, null)
 		{
 			Rtt = 300;
 			Width = 0.6;
@@ -79,7 +79,6 @@ namespace MiNET
 			Server = server;
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
-			Level = level;
 
 			Permissions = new PermissionManager(UserGroup.User);
 			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
@@ -90,19 +89,6 @@ namespace MiNET
 
 			IsSpawned = false;
 			IsConnected = true;
-
-			SpawnPosition = Level.SpawnPoint;
-			KnownPosition = new PlayerLocation
-			{
-				X = SpawnPosition.X,
-				Y = SpawnPosition.Y,
-				Z = SpawnPosition.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
-			};
-
-			GameMode = level.GameMode;
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
@@ -538,11 +524,6 @@ namespace MiNET
 				Username = message.username;
 				ClientId = message.clientId;
 
-				// Check if the user already exist, that case bumpt the old one
-				Level.RemoveDuplicatePlayers(Username, ClientId);
-
-				Level.EntityManager.AddEntity(null, this);
-
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
 				{
@@ -550,6 +531,24 @@ namespace MiNET
 				}
 
 				Skin = message.skin;
+
+				Level = Server.LevelManager.GetLevel(this, "Default");
+
+				SpawnPosition = Level.SpawnPoint;
+				KnownPosition = new PlayerLocation
+				{
+					X = SpawnPosition.X,
+					Y = SpawnPosition.Y,
+					Z = SpawnPosition.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
+				};
+
+				// Check if the user already exist, that case bumpt the old one
+				Level.RemoveDuplicatePlayers(Username, ClientId);
+				Level.EntityManager.AddEntity(null, this);
+				GameMode = Level.GameMode;
 
 				// Start game
 

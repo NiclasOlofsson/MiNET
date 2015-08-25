@@ -117,8 +117,8 @@ namespace MiNET
 				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
-				// Cache
-				LevelManager.GetLevel("Default");
+				// Cache - remove
+				LevelManager.GetLevel(null, "Default");
 
 				ServerInfo = new ServerInfo(LevelManager, _playerSessions);
 				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);

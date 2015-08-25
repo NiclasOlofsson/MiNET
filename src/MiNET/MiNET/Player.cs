@@ -1010,9 +1010,12 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
+			var selectedHotbarSlot = message.selectedSlot;
+			var selectedInventorySlot = message.slot;
+
 			//if(GameMode == GameMode.Survival)
 			{
-				int slot = (message.slot - 9);
+				int slot = (selectedInventorySlot - 9);
 				if (slot < 0 || slot > Inventory.Slots.Count || Inventory.Slots[((byte) slot)] == null)
 				{
 					//Level.BroadcastTextMessage(string.Format("Inventory change detected for player: {0} Slot: {1}", Username, slot), type: MessageType.Raw);
@@ -1027,19 +1030,31 @@ namespace MiNET
 					return;
 				}
 
-				ItemStack existing = Inventory.Slots[(byte) slot];
-				ItemStack selected = Inventory.Slots[message.selectedSlot];
-				Inventory.Slots[(byte) slot] = selected;
-				Inventory.Slots[message.selectedSlot] = existing;
-				Inventory.ItemInHand = existing.Item;
+				var currentIndex = -1;
+				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
+				{
+					if (Inventory.ItemHotbar[i] == selectedInventorySlot)
+					{
+						currentIndex = i;
+						break;
+					}
+				}
+
+				if (currentIndex != -1)
+				{
+					Inventory.ItemHotbar[currentIndex] = Inventory.ItemHotbar[selectedHotbarSlot];
+				}
+
+				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
+				SendPlayerInventory();
 			}
 
 			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
 			msg.entityId = EntityId;
 			msg.item = message.item;
 			msg.meta = message.meta;
-			msg.slot = message.slot;
-			msg.selectedSlot = message.selectedSlot;
+			msg.slot = selectedInventorySlot;
+			msg.selectedSlot = selectedHotbarSlot;
 
 			Level.RelayBroadcast(this, msg);
 		}

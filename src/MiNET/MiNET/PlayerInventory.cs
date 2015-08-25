@@ -26,6 +26,9 @@ namespace MiNET
 		{
 			Player = player;
 			Slots = Enumerable.Repeat(new ItemStack(), 35).ToList();
+			Slots[10] = new ItemStack(new ItemGoldAxe(0), 1);
+			Slots[11] = new ItemStack(new ItemIronAxe(0), 1);
+			Slots[12] = new ItemStack(new ItemWoodenAxe(0), 1);
 			ItemHotbar = new int[6];
 			ItemInHand = new Item(-1, 0);
 

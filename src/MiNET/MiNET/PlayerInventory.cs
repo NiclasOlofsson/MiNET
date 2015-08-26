@@ -13,7 +13,7 @@ namespace MiNET
 
 		public List<ItemStack> Slots { get; private set; }
 		public int[] ItemHotbar { get; private set; }
-		public Item ItemInHand { get; set; }
+		public int InHandSlot { get; set; }
 
 
 		// Armour
@@ -26,11 +26,13 @@ namespace MiNET
 		{
 			Player = player;
 			Slots = Enumerable.Repeat(new ItemStack(), 35).ToList();
-			Slots[10] = new ItemStack(new ItemGoldAxe(0), 1);
-			Slots[11] = new ItemStack(new ItemIronAxe(0), 1);
-			Slots[12] = new ItemStack(new ItemWoodenAxe(0), 1);
+			//int c = 0;
+			//Slots[++c] = new ItemStack(new ItemSteak(), 3);
+			//Slots[++c] = new ItemStack(new ItemApple(), 3);
+			//Slots[++c] = new ItemStack(new ItemBakedPotato(), 3);
+
 			ItemHotbar = new int[6];
-			ItemInHand = new Item(-1, 0);
+			InHandSlot = 0;
 
 			//Boots = new ItemDiamondBoots(0);
 			//Leggings = new ItemDiamondLeggings(0);
@@ -44,8 +46,13 @@ namespace MiNET
 
 			for (byte i = 0; i < 6; i++)
 			{
-				ItemHotbar[i] = i + 9;
+				ItemHotbar[i] = i;
 			}
+		}
+
+		public virtual ItemStack GetItemInHand()
+		{
+			return Slots[ItemHotbar[InHandSlot]];
 		}
 
 		[Wired]
@@ -67,7 +74,7 @@ namespace MiNET
 			MetadataInts metadata = new MetadataInts();
 			for (byte i = 0; i < ItemHotbar.Length; i++)
 			{
-				metadata[i] = new MetadataInt(ItemHotbar[i]);
+				metadata[i] = new MetadataInt(ItemHotbar[i]+9);
 			}
 
 			return metadata;
@@ -78,6 +85,7 @@ namespace MiNET
 			var slotData = new MetadataSlots();
 			for (byte i = 0; i < Slots.Count; i++)
 			{
+				if (Slots[i].Count == 0) Slots[i] = new ItemStack();
 				slotData[i] = new MetadataSlot(Slots[i]);
 			}
 

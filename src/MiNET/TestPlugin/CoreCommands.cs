@@ -279,8 +279,8 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerEquipment
 			{
 				entityId = player.EntityId,
-				item = (short) player.Inventory.ItemInHand.Id,
-				meta = player.Inventory.ItemInHand.Metadata,
+				item = (short)player.Inventory.GetItemInHand().Id,
+				meta = player.Inventory.GetItemInHand().Metadata,
 				slot = 0
 			});
 		}

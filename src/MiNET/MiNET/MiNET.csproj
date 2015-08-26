@@ -137,11 +137,18 @@
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="Items\FoodItem.cs" />
+    <Compile Include="Items\ItemApple.cs" />
+    <Compile Include="Items\ItemBakedPotato.cs" />
     <Compile Include="Items\ItemBed.cs" />
     <Compile Include="Items\ItemBow.cs" />
+    <Compile Include="Items\ItemBread.cs" />
+    <Compile Include="Items\ItemCarrot.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
     <Compile Include="Items\ItemCommand.cs" />
+    <Compile Include="Items\ItemCoockedChicken.cs" />
+    <Compile Include="Items\ItemCookedPorkshop.cs" />
+    <Compile Include="Items\ItemCookie.cs" />
     <Compile Include="Items\ItemDiamondAxe.cs" />
     <Compile Include="Items\ItemDiamondBoots.cs" />
     <Compile Include="Items\ItemDiamondChestplate.cs" />
@@ -153,6 +160,7 @@
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldAxe.cs" />
+    <Compile Include="Items\ItemGoldenApple.cs" />
     <Compile Include="Items\ItemGoldHoe.cs" />
     <Compile Include="Items\ItemGoldShovel.cs" />
     <Compile Include="Items\ItemGoldSword.cs" />
@@ -165,6 +173,9 @@
     <Compile Include="Items\ItemIronLeggings.cs" />
     <Compile Include="Items\ItemIronShovel.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
+    <Compile Include="Items\ItemMelonSlice.cs" />
+    <Compile Include="Items\ItemPotato.cs" />
+    <Compile Include="Items\ItemPumpkinPie.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemShovel.cs" />
     <Compile Include="Items\ItemSlab.cs" />

@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Items
 {
-	public class ItemRawChicken : Item
+	public class ItemRawChicken : FoodItem
 	{
-		public ItemRawChicken(short metadata) : base(365, metadata)
+		public ItemRawChicken() : base(365, 0, 2)
 		{
 		}
 

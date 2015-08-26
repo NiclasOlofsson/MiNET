@@ -2,7 +2,7 @@
 {
 	public class ItemSteak : FoodItem
 	{
-		public ItemSteak() : base(364, 8, 8)
+		public ItemSteak() : base(364, 0, 8)
 		{
 		}
 	}

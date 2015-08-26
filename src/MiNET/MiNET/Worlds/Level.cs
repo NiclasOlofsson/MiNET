@@ -201,8 +201,8 @@ namespace MiNET.Worlds
 		{
 			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 			mcpePlayerEquipment.entityId = player.EntityId;
-			mcpePlayerEquipment.item = (short) player.Inventory.ItemInHand.Id;
-			mcpePlayerEquipment.meta = player.Inventory.ItemInHand.Metadata;
+			mcpePlayerEquipment.item = (short) player.Inventory.GetItemInHand().Id;
+			mcpePlayerEquipment.meta = player.Inventory.GetItemInHand().Metadata;
 			mcpePlayerEquipment.slot = 0;
 			receiver.SendPackage(mcpePlayerEquipment);
 		}
@@ -757,7 +757,7 @@ namespace MiNET.Worlds
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata)
 		{
 			// Make sure we are holding the item we claim to be using
-			Item itemInHand = player.Inventory.ItemInHand;
+			Item itemInHand = player.Inventory.GetItemInHand().Item;
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
@@ -781,7 +781,7 @@ namespace MiNET.Worlds
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
-			Item itemInHand = player.Inventory.ItemInHand;
+			Item itemInHand = player.Inventory.GetItemInHand().Item;
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 

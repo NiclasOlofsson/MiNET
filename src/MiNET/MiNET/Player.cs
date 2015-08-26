@@ -304,7 +304,7 @@ namespace MiNET
 				{
 					if (_itemUseTimer == null) return;
 
-					Item itemInHand = Inventory.ItemInHand;
+					Item itemInHand = Inventory.GetItemInHand().Item;
 
 					if (itemInHand == null) return; // Cheat(?)
 
@@ -1009,23 +1009,14 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			var selectedHotbarSlot = message.selectedSlot;
-			var selectedInventorySlot = message.slot;
+			byte selectedHotbarSlot = message.selectedSlot;
+			int selectedInventorySlot = (byte)(message.slot - 9);
 
 			//if(GameMode == GameMode.Survival)
 			{
-				int slot = (selectedInventorySlot - 9);
-				if (slot < 0 || slot > Inventory.Slots.Count || Inventory.Slots[((byte) slot)] == null)
+				if (selectedInventorySlot < 0 || selectedInventorySlot > Inventory.Slots.Count)
 				{
-					//Level.BroadcastTextMessage(string.Format("Inventory change detected for player: {0} Slot: {1}", Username, slot), type: MessageType.Raw);
-
-					//SendPackage(new McpeContainerSetContent
-					//{
-					//	windowId = 0,
-					//	slotData = Inventory.Slots,
-					//	hotbarData = Inventory.ItemHotbar
-					//});
-
+					Log.WarnFormat("Set equiptment fails with inv slot: {0}", selectedInventorySlot);
 					return;
 				}
 
@@ -1045,14 +1036,14 @@ namespace MiNET
 				}
 
 				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
-				SendPlayerInventory();
+				Inventory.InHandSlot = selectedHotbarSlot;
 			}
 
 			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
 			msg.entityId = EntityId;
 			msg.item = message.item;
 			msg.meta = message.meta;
-			msg.slot = selectedInventorySlot;
+			msg.slot = (byte) selectedInventorySlot;
 			msg.selectedSlot = selectedHotbarSlot;
 
 			Level.RelayBroadcast(this, msg);
@@ -1194,8 +1185,8 @@ namespace MiNET
 
 			var playerEquipment = McpePlayerEquipment.CreateObject();
 			playerEquipment.entityId = EntityId;
-			playerEquipment.item = (short) Inventory.ItemInHand.Id;
-			playerEquipment.meta = Inventory.ItemInHand.Metadata;
+			playerEquipment.item = (short) Inventory.GetItemInHand().Id;
+			playerEquipment.meta = Inventory.GetItemInHand().Metadata;
 			playerEquipment.slot = 0;
 			Level.RelayBroadcast(this, playerEquipment);
 		}
@@ -1337,7 +1328,7 @@ namespace MiNET
 
 			armorValue *= 0.04; // Each armor point represent 4% reduction
 
-			int damage = Inventory.ItemInHand.GetDamage(); //Item Damage.
+			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0 - armorValue));
 
@@ -1346,7 +1337,7 @@ namespace MiNET
 
 		private int CalculateDamage(Entity target)
 		{
-			int damage = Inventory.ItemInHand.GetDamage(); //Item Damage.
+			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0));
 
@@ -1366,10 +1357,12 @@ namespace MiNET
 				case 9:
 					// Eat food
 
-					FoodItem foodItem = Inventory.ItemInHand as FoodItem;
+					FoodItem foodItem = Inventory.GetItemInHand().Item as FoodItem;
 					if (foodItem != null)
 					{
 						foodItem.Consume(this);
+						Inventory.GetItemInHand().Count--;
+						SendPlayerInventory();
 					}
 
 					break;

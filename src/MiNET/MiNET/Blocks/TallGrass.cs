@@ -1,3 +1,5 @@
+using MiNET.Utils;
+
 namespace MiNET.Blocks
 {
 	public class TallGrass : Block
@@ -14,6 +16,10 @@ namespace MiNET.Blocks
 			IsSolid = false;
 			IsReplacible = true;
 			IsTransparent = true;
+		}
+		
+		public override ItemStack GetDrops(){
+			return null; //TODO: Check if player is holding shears and drop grass
 		}
 	}
 }

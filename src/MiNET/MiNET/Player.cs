@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
+using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
@@ -54,6 +55,8 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
+		public Dictionary<EffectType, Effect> Effects { get; set; }
+
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
 		public long Rto { get; set; }
@@ -75,6 +78,7 @@ namespace MiNET
 			Height = 1.80;
 
 			Popups = new List<Popup>();
+			Effects = new Dictionary<EffectType, Effect>();
 
 			Server = server;
 			EndPoint = endPoint;
@@ -540,9 +544,9 @@ namespace MiNET
 					X = SpawnPosition.X,
 					Y = SpawnPosition.Y,
 					Z = SpawnPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91
+					Yaw = SpawnPosition.Yaw,
+					Pitch = SpawnPosition.Pitch,
+					HeadYaw = SpawnPosition.HeadYaw,
 				};
 
 				// Check if the user already exist, that case bumpt the old one
@@ -619,9 +623,9 @@ namespace MiNET
 					X = SpawnPosition.X,
 					Y = SpawnPosition.Y,
 					Z = SpawnPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
+					Yaw = SpawnPosition.Yaw,
+					Pitch = SpawnPosition.Pitch,
+					HeadYaw = SpawnPosition.HeadYaw,
 				};
 
 				SendSetHealth();
@@ -1010,7 +1014,7 @@ namespace MiNET
 			if (HealthManager.IsDead) return;
 
 			byte selectedHotbarSlot = message.selectedSlot;
-			int selectedInventorySlot = (byte)(message.slot - 9);
+			int selectedInventorySlot = (byte) (message.slot - 9);
 
 			//if(GameMode == GameMode.Survival)
 			{
@@ -1684,6 +1688,39 @@ namespace MiNET
 			SendSetEntityData();
 		}
 
+		[Wired]
+		public void SetEffect(Effect effect)
+		{
+			if (Effects.ContainsKey(effect.EffectId))
+			{
+				effect.SendUpdate(this);
+			}
+			else
+			{
+				effect.SendAdd(this);
+			}
+
+			Effects[effect.EffectId] = effect;
+		}
+
+		[Wired]
+		public void RemoveEffect(Effect effect)
+		{
+			if (Effects.ContainsKey(effect.EffectId))
+			{
+				effect.SendRemove(this);
+				Effects.Remove(effect.EffectId);
+			}
+		}
+
+		[Wired]
+		public void RemoveAllEffects()
+		{
+			foreach (var effect	 in Effects.Values)
+			{
+				RemoveEffect(effect);
+			}
+		}
 
 		public override void DespawnEntity()
 		{

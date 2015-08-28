@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MiNET;
+using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -58,9 +59,9 @@ namespace TestPlugin.NiceLobby
 				Random random = level.Random;
 
 				PlayerLocation point1 = level.SpawnPoint;
-                PlayerLocation point2 = level.SpawnPoint;
+				PlayerLocation point2 = level.SpawnPoint;
 				point2.X += 10;
-                PlayerLocation point3 = level.SpawnPoint;
+				PlayerLocation point3 = level.SpawnPoint;
 				point3.X -= 10;
 
 				if (Math.Abs(m - 3) < 0.1)
@@ -187,23 +188,9 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			McpeMobEffect speedEffect = McpeMobEffect.CreateObject();
-			speedEffect.entityId = 0;
-			speedEffect.eventId = 1;
-			speedEffect.effectId = 1;
-			speedEffect.duration = 0x7fffffff;
-			speedEffect.amplifier = 2;
-			speedEffect.particles = 1;
-			player.SendPackage(speedEffect);
-
-			McpeMobEffect jumpEffect = McpeMobEffect.CreateObject();
-			jumpEffect.entityId = 0;
-			jumpEffect.eventId = 1;
-			jumpEffect.effectId = 8;
-			jumpEffect.duration = 0x7fffffff;
-			jumpEffect.amplifier = 2;
-			jumpEffect.particles = 1;
-			player.SendPackage(jumpEffect);
+			player.SetEffect(new Speed {Level = 2, Duration = Effect.MaxDuration});
+			player.SetEffect(new Slowness {Level = 2, Duration = 20});
+			player.SetEffect(new JumpBoost {Level = 2, Duration = Effect.MaxDuration});
 
 			if (player.Level.LevelId.Equals("Default"))
 			{

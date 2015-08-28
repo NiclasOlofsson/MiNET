@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +10,7 @@ using log4net;
 using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Effects;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -279,7 +281,7 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerEquipment
 			{
 				entityId = player.EntityId,
-				item = (short)player.Inventory.GetItemInHand().Id,
+				item = (short) player.Inventory.GetItemInHand().Id,
 				meta = player.Inventory.GetItemInHand().Metadata,
 				slot = 0
 			});
@@ -305,24 +307,100 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "e")]
-		public void Effect(Player player)
+		public void Effect(Player player, string effect, int level = 1, int duration = 20)
 		{
-			Effect(player, 1, 3, 20);
-		}
-
-		[Command(Command = "e")]
-		public void Effect(Player player, int effectId, int amplifier = 1, int duration = 20)
-		{
-			player.SendPackage(new McpeMobEffect
+			EffectType effectType;
+			if (Enum.TryParse(effect, true, out effectType))
 			{
-				entityId = 0,
-				eventId = 1, // Add
-				effectId = (byte) effectId,
-				duration = 20*duration,
-				amplifier = (byte) amplifier,
-				particles = 0,
-			});
-			player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
+				Effect eff = null;
+				switch (effectType)
+				{
+					case EffectType.Speed:
+						eff = new Speed();
+						break;
+					case EffectType.Slowness:
+						eff = new Slowness();
+						break;
+					case EffectType.Haste:
+						eff = new Haste();
+						break;
+					case EffectType.MiningFatigue:
+						eff = new MiningFatigue();
+						break;
+					case EffectType.Strenght:
+						eff = new Strength();
+						break;
+					case EffectType.InstandHealth:
+						eff = new InstandHealth();
+						break;
+					case EffectType.InstantDamage:
+						eff = new InstantDamage();
+						break;
+					case EffectType.JumpBoost:
+						eff = new JumpBoost();
+						break;
+					case EffectType.Nausea:
+						eff = new Nausea();
+						break;
+					case EffectType.Regeneration:
+						eff = new Regeneration();
+						break;
+					case EffectType.Resistance:
+						eff = new Resistance();
+						break;
+					case EffectType.FireResistance:
+						eff = new FireResistance();
+						break;
+					case EffectType.WaterBreathing:
+						eff = new WaterBreathing();
+						break;
+					case EffectType.Invisibility:
+						eff = new Invisibility();
+						break;
+					case EffectType.Blindness:
+						eff = new Blindness();
+						break;
+					case EffectType.NightVision:
+						eff = new NightVision();
+						break;
+					case EffectType.Hunger:
+						eff = new Hunger();
+						break;
+					case EffectType.Weakness:
+						eff = new Weakness();
+						break;
+					case EffectType.Poison:
+						eff = new Poison();
+						break;
+					case EffectType.Wither:
+						eff = new Wither();
+						break;
+					case EffectType.HealthBoost:
+						eff = new HealthBoost();
+						break;
+					case EffectType.Absorption:
+						eff = new Absorption();
+						break;
+					case EffectType.Saturation:
+						eff = new Saturation();
+						break;
+					case EffectType.Glowing:
+						eff = new Glowing();
+						break;
+					case EffectType.Levitation:
+						eff = new Levitation();
+						break;
+				}
+
+				if (eff != null)
+				{
+					eff.Level = level;
+					eff.Duration = duration;
+
+					player.SetEffect(eff);
+					player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectType, level), MessageType.Raw);
+				}
+			}
 		}
 
 		[Command(Command = "nd")]
@@ -352,18 +430,12 @@ namespace TestPlugin
 			{
 				player.AddPopup(new Popup()
 				{
-					Priority = 100,
-					MessageType = MessageType.Tip,
-					Message = "SERVER WILL RESTART!",
-					Duration = 20*10,
+					Priority = 100, MessageType = MessageType.Tip, Message = "SERVER WILL RESTART!", Duration = 20*10,
 				});
 
 				player.AddPopup(new Popup()
 				{
-					Priority = 100,
-					MessageType = MessageType.Popup,
-					Message = "Transfering all players!",
-					Duration = 20*10,
+					Priority = 100, MessageType = MessageType.Popup, Message = "Transfering all players!", Duration = 20*10,
 				});
 
 				Thread.Sleep(1500);
@@ -382,8 +454,7 @@ namespace TestPlugin
 			BlockCoordinates coor = new BlockCoordinates(player.KnownPosition);
 			Chest chest = new Chest
 			{
-				Coordinates = coor,
-				Metadata = 0
+				Coordinates = coor, Metadata = 0
 			};
 			player.Level.SetBlock(chest, true);
 

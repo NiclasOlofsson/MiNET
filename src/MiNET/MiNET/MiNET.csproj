@@ -125,6 +125,7 @@
     <Compile Include="Blocks\WoodSlab.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="ConnectionState.cs" />
+    <Compile Include="Effects\Effect.cs" />
     <Compile Include="Entities\Arrow.cs" />
     <Compile Include="Entities\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />

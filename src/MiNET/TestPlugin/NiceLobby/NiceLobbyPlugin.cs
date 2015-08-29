@@ -189,7 +189,7 @@ namespace TestPlugin.NiceLobby
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
 			player.SetEffect(new Speed {Level = 2, Duration = Effect.MaxDuration});
-			player.SetEffect(new Slowness {Level = 2, Duration = 20});
+			//player.SetEffect(new Slowness {Level = 2, Duration = 20});
 			player.SetEffect(new JumpBoost {Level = 2, Duration = Effect.MaxDuration});
 
 			if (player.Level.LevelId.Equals("Default"))

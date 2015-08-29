@@ -1716,7 +1716,7 @@ namespace MiNET
 		[Wired]
 		public void RemoveAllEffects()
 		{
-			foreach (var effect	 in Effects.Values)
+			foreach (var effect	 in Effects.Values.ToArray())
 			{
 				RemoveEffect(effect);
 			}

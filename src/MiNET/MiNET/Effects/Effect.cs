@@ -57,7 +57,7 @@ namespace MiNET.Effects
 				message.duration = 20*Duration;
 				message.amplifier = (byte) Level;
 				message.particles = (byte) (Particles ? 1 : 0);
-				player.SendPackage(message);
+				player.SendPackage(message, true);
 			}
 
 			//{
@@ -82,7 +82,7 @@ namespace MiNET.Effects
 				message.duration = 20*Duration;
 				message.amplifier = (byte) Level;
 				message.particles = (byte) (Particles ? 1 : 0);
-				player.SendPackage(message);
+				player.SendPackage(message, true);
 			}
 
 			{
@@ -93,7 +93,7 @@ namespace MiNET.Effects
 				message.duration = 20*Duration;
 				message.amplifier = (byte) Level;
 				message.particles = (byte) (Particles ? 1 : 0);
-				player.Level.RelayBroadcast(player, message);
+				player.Level.RelayBroadcast(player, message, true);
 			}
 		}
 
@@ -104,7 +104,7 @@ namespace MiNET.Effects
 				message.entityId = 0;
 				message.eventId = 3;
 				message.effectId = (byte) EffectId;
-				player.SendPackage(message);
+				player.SendPackage(message, true);
 			}
 
 			{
@@ -112,7 +112,7 @@ namespace MiNET.Effects
 				message.entityId = player.EntityId;
 				message.eventId = 3;
 				message.effectId = (byte) EffectId;
-				player.Level.RelayBroadcast(player, message);
+				player.Level.RelayBroadcast(player, message, true);
 			}
 		}
 	}

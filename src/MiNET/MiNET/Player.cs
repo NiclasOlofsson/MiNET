@@ -845,6 +845,13 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
+			if (_openInventory != null)
+			{
+				// Hack for testing. Chests won't open again.
+				Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
+				HandleMcpeContainerClose(null);
+			}
+
 			if (!IsSpawned || HealthManager.IsDead) return;
 
 			lock (_moveSyncLock)

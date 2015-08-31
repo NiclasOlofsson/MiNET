@@ -188,13 +188,14 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			player.SetEffect(new Speed {Level = 2, Duration = Effect.MaxDuration});
+			player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration});
 			//player.SetEffect(new Slowness {Level = 2, Duration = 20});
-			player.SetEffect(new JumpBoost {Level = 2, Duration = Effect.MaxDuration});
+			player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
+			player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))
 			{
-				player.Level.CurrentWorldTime = 10000;
+				player.Level.CurrentWorldTime = 6000;
 				player.Level.IsWorldTimeStarted = false;
 			}
 
@@ -476,5 +477,47 @@ namespace TestPlugin.NiceLobby
 
 		//	return packet; // Process
 		//}
+		[Command(Command = "w")]
+		public void Warp(Player player, string warp)
+		{
+			float x;
+			float y;
+			float z;
+
+			switch (warp)
+			{
+				case "sg1":
+					x = 137;
+					y = 20;
+					z = 431;
+					break;
+				case "sg2":
+					x = 682;
+					y = 20;
+					z = 324;
+					break;
+				case "sg3":
+					x = 685;
+					y = 20;
+					z = -119;
+					break;
+				default:
+					return;
+			}
+
+			var playerLocation = new PlayerLocation
+			{
+				X = x,
+				Y = y,
+				Z = z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91
+			};
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { player.SpawnLevel(player.Level, playerLocation); }, null);
+
+			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+		}
 	}
 }

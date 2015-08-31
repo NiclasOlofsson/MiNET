@@ -170,7 +170,7 @@ namespace MiNET.Worlds
 			{
 				SendAddForPlayer(newPlayer, spawnedPlayer);
 				SendAddForPlayer(spawnedPlayer, newPlayer);
-				Log.InfoFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
+				Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
 			}
 		}
 

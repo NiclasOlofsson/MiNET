@@ -27,9 +27,13 @@ namespace MiNET
 			Player = player;
 			Slots = Enumerable.Repeat(new ItemStack(), 35).ToList();
 			//int c = 0;
-			//Slots[++c] = new ItemStack(new ItemSteak(), 3);
-			//Slots[++c] = new ItemStack(new ItemApple(), 3);
-			//Slots[++c] = new ItemStack(new ItemBakedPotato(), 3);
+			//Slots[++c] = new ItemStack(new ItemBow(0), 3);
+			//Slots[++c] = new ItemStack(262, 64);
+			//Slots[++c] = new ItemStack(new ItemSteak(), 1);
+			//Slots[++c] = new ItemStack(new ItemApple(), 1);
+			//Slots[++c] = new ItemStack(new ItemBakedPotato(), 1);
+			//Slots[++c] = new ItemStack(new ItemBakedPotato(), 1);
+			//Slots[++c] = new ItemStack(new ItemBakedPotato(), 1);
 
 			ItemHotbar = new int[6];
 			InHandSlot = 0;

@@ -17,7 +17,9 @@ namespace MiNET.Utils
 		{
 		}
 
-        public PlayerLocation(double x, double y, double z) : this((float) x, (float) y, (float)z) { }
+		public PlayerLocation(double x, double y, double z) : this((float) x, (float) y, (float) z)
+		{
+		}
 
 		public PlayerLocation(float x, float y, float z)
 		{
@@ -26,7 +28,9 @@ namespace MiNET.Utils
 			Z = z;
 		}
 
-        public PlayerLocation(Vector3 vector) : this(vector.X, vector.Y, vector.Z) { }
+		public PlayerLocation(Vector3 vector) : this(vector.X, vector.Y, vector.Z)
+		{
+		}
 
 		public BlockCoordinates GetCoordinates3D()
 		{
@@ -50,7 +54,33 @@ namespace MiNET.Utils
 			return new Vector3(X, Y, Z);
 		}
 
-		public byte[] Export()
+		public Vector3 GetDirection()
+		{
+			Vector3 vector = new Vector3();
+
+			double pitch = Vector3.ToRadians(Pitch);
+			double yaw = Vector3.ToRadians(Yaw);
+			vector.X = -Math.Sin(yaw)*Math.Cos(pitch);
+			vector.Y = -Math.Sin(pitch);
+			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
+
+			return vector;
+		}
+
+		public Vector3 GetHeadDirection()
+		{
+			Vector3 vector = new Vector3();
+
+			double pitch = Vector3.ToRadians(Pitch);
+			double yaw = Vector3.ToRadians(HeadYaw);
+			vector.X = -Math.Sin(yaw)*Math.Cos(pitch);
+			vector.Y = -Math.Sin(pitch);
+			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
+
+			return vector;
+		}
+
+		private byte[] Export()
 		{
 			using (MemoryStream stream = new MemoryStream())
 			{
@@ -66,7 +96,7 @@ namespace MiNET.Utils
 			}
 		}
 
-		public void Import(byte[] data)
+		private void Import(byte[] data)
 		{
 			using (MemoryStream stream = new MemoryStream(data))
 			{

@@ -261,10 +261,11 @@ namespace MiNET
 
 			var itemEntity = new ItemEntity(Level, item)
 			{
+				Velocity = KnownPosition.GetDirection()*0.7,
 				KnownPosition =
 				{
 					X = KnownPosition.X,
-					Y = KnownPosition.Y,
+					Y = (float) (KnownPosition.Y + Height),
 					Z = KnownPosition.Z
 				},
 				Count = itemStack.Count

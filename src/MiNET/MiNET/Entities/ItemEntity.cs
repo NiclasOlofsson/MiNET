@@ -6,7 +6,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
-	public class ItemEntity : Entity
+	public class ItemEntity : Mob
 	{
 		public Item Item { get; private set; }
 		public short Count { get; set; }
@@ -37,10 +37,14 @@ namespace MiNET.Entities
 
 			Random random = new Random();
 
-			float f = 0.7F;
-			float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-			float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-			float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			//float f = 0.7F;
+			//float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			//float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			//float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+
+			float xr = 0;
+			float yr = 0;
+			float zr = 0;
 
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
 			mcpeAddItemEntity.entityId = EntityId;
@@ -48,6 +52,10 @@ namespace MiNET.Entities
 			mcpeAddItemEntity.x = KnownPosition.X + xr;
 			mcpeAddItemEntity.y = KnownPosition.Y + yr;
 			mcpeAddItemEntity.z = KnownPosition.Z + zr;
+
+			mcpeAddItemEntity.speedX = (float) Velocity.X;
+			mcpeAddItemEntity.speedY = (float) Velocity.Y;
+			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
 			Level.RelayBroadcast(mcpeAddItemEntity);
 
 			IsSpawned = true;
@@ -65,6 +73,10 @@ namespace MiNET.Entities
 				DespawnEntity();
 				return;
 			}
+
+			// Motion
+
+
 
 			if (PickupDelay > 0) return;
 

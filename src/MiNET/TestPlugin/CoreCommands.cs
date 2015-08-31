@@ -88,18 +88,31 @@ namespace TestPlugin
 		public void Teleport(Player player, int x, int y, int z)
 		{
 			// send teleport to spawn
-			player.KnownPosition = new PlayerLocation
-			{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
-			};
+			//player.SetPosition(
+			//	new PlayerLocation
+			//{
+			//	X = x,
+			//	Y = y,
+			//	Z = z,
+			//	Yaw = 91,
+			//	Pitch = 28,
+			//	HeadYaw = 91
+			//}, true);
 
-			player.SendMovePlayer();
-			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				player.SpawnLevel(player.Level, new PlayerLocation
+				{
+					X = x,
+					Y = y,
+					Z = z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
+				});
+			}, null);
+
+			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		[Command(Command = "tp")]

@@ -48,7 +48,9 @@ namespace MiNET.Items
 			else if (id == 269) item = new ItemWoodenShovel(metadata);
 			else if (id == 270) item = new ItemWoodenPickaxe(metadata);
 			else if (id == 271) item = new ItemWoodenAxe(metadata);
+			else if (id == 272) item = new ItemStoneSword(metadata);
 			else if (id == 273) item = new ItemStoneShovel(metadata);
+			else if (id == 275) item = new ItemStoneAxe(metadata);
 			else if (id == 276) item = new ItemDiamondSword(metadata);
 			else if (id == 277) item = new ItemDiamondShovel(metadata);
 			else if (id == 279) item = new ItemDiamondAxe(metadata);

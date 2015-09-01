@@ -56,6 +56,7 @@ namespace MiNET.Blocks
 			else if (blockId == 49) block = new Obsidian();
 			else if (blockId == 50) block = new Torch();
 			else if (blockId == 51) block = new Fire();
+			else if (blockId == 52) block = new MonsterSpawner();
 			else if (blockId == 53) block = new OakWoodStairs();
 			else if (blockId == 54) block = new Chest();
 			else if (blockId == 56) block = new DiamondOre();
@@ -84,8 +85,9 @@ namespace MiNET.Blocks
 			else if (blockId == 158) block = new WoodSlab();
 			else if (blockId == 163) block = new AcaciaWoodStairs();
 			else if (blockId == 164) block = new DarkOakWoodStairs();
-			else if (blockId == 173) block = new CoalBlock();
+			else if (blockId == 173) block = new CoalBlock(); 
 			else if (blockId == 198) block = new GrassPath();
+			else if (blockId == 243) block = new Podzol();
 			else
 			{
 				Log.DebugFormat(@"

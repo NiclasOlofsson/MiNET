@@ -566,10 +566,6 @@ namespace MiNET
 
 				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), false);
 
-				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerAddRecords {this};
-				SendPackage(playerList);
-
 				LastUpdatedTime = DateTime.UtcNow;
 
 				if (GameMode != GameMode.Creative)

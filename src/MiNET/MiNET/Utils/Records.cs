@@ -32,17 +32,32 @@ namespace MiNET.Utils
 		{
 		}
 
-		public PlayerRecords(IEnumerable<Player> players)
-			: base(players)
+		public PlayerRecords(IEnumerable<Player> players) : base(players)
 		{
 		}
 	}
 
 	public class PlayerAddRecords : PlayerRecords
 	{
+		public PlayerAddRecords()
+		{
+		}
+
+
+		public PlayerAddRecords(IEnumerable<Player> players) : base(players)
+		{
+		}
 	}
 
 	public class PlayerRemoveRecords : PlayerRecords
 	{
+		public PlayerRemoveRecords()
+		{
+		}
+
+
+		public PlayerRemoveRecords(IEnumerable<Player> players) : base(players)
+		{
+		}
 	}
 }

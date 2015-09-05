@@ -316,6 +316,12 @@ namespace MiNET.Net
 			}
 		}
 
+		public IPEndPoint[] ReadIPEndPoints()
+		{
+			return new IPEndPoint[0];
+		}
+
+
 		public void Write(IPEndPoint[] endpoints)
 		{
 			foreach (var endpoint in endpoints)
@@ -326,19 +332,14 @@ namespace MiNET.Net
 
 		public UUID ReadUUID()
 		{
-			UUID uuid = new UUID {Id = ReadBytes(16)};
+			UUID uuid = new UUID(ReadBytes(16));
 			return uuid;
 		}
 
 		public void Write(UUID uuid)
 		{
 			if (uuid == null) throw new Exception("Expected UUID, required");
-			Write(uuid.Id);
-		}
-
-		public IPEndPoint[] ReadIPEndPoints()
-		{
-			return new IPEndPoint[0];
+			Write(uuid.GetBytes());
 		}
 
 		public void Write(IPEndPoint endpoint)
@@ -466,7 +467,7 @@ namespace MiNET.Net
 		public MetadataSlot ReadMetadataSlot()
 		{
 			short id = ReadShort();
-			if(id ==0) return new MetadataSlot(new ItemStack());
+			if (id == 0) return new MetadataSlot(new ItemStack());
 			return new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
 		}
 

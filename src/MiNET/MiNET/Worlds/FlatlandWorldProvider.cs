@@ -43,9 +43,9 @@ namespace MiNET.Worlds
 
 				//chunk.SetBlock(6, h + 1, 6, 57);
 
-				chunk.SetBlock(6, h, 9, 63);
-				chunk.SetMetadata(6, h, 9, 12);
-				var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
+				chunk.SetBlock(6, h+1, 9, 63);
+				chunk.SetMetadata(6, h + 1, 9, 12);
+				var blockEntity = GetBlockEntity((chunkCoordinates.X * 16) + 6, h + 1, (chunkCoordinates.Z * 16) + 9);
 				chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
 				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)

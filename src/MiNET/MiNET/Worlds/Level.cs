@@ -141,6 +141,18 @@ namespace MiNET.Worlds
 			{
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
+					{
+						McpePlayerList playerList = McpePlayerList.CreateObject();
+						playerList.records = new PlayerAddRecords {newPlayer};
+						RelayBroadcast(newPlayer, playerList);
+					}
+
+					{
+						McpePlayerList playerList = McpePlayerList.CreateObject();
+						playerList.records = new PlayerAddRecords(Players.Values);
+						newPlayer.SendPackage(playerList);
+					}
+
 					if (spawn)
 					{
 						SpawnToAll(newPlayer);
@@ -222,6 +234,10 @@ namespace MiNET.Worlds
 				Player removed;
 				if (Players.TryRemove(player.EntityId, out removed))
 				{
+					McpePlayerList playerList = McpePlayerList.CreateObject();
+					playerList.records = new PlayerAddRecords {player};
+					RelayBroadcast(playerList);
+
 					player.IsSpawned = false;
 					if (despawn)
 					{

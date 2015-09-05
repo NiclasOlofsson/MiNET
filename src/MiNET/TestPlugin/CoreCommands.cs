@@ -174,6 +174,7 @@ namespace TestPlugin
 			player.SendMessage(string.Format("Entity ID={0}", player.EntityId), type: MessageType.Raw);
 			player.SendMessage(string.Format("Client GUID={0}", player.ClientGuid), type: MessageType.Raw);
 			player.SendMessage(string.Format("Client ID={0}", player.ClientId), type: MessageType.Raw);
+			player.SendMessage(string.Format("Client ID={0}", player.ClientUuid), type: MessageType.Raw);
 		}
 
 		[Command(Command = "pos")]

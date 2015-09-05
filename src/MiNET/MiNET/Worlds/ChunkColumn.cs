@@ -195,7 +195,7 @@ namespace MiNET.Worlds
 				else
 				{
 					//TODO: Not working
-					foreach (var blockEntity in BlockEntities.Values)
+					foreach (NbtCompound blockEntity in BlockEntities.Values)
 					{
 						NbtFile file = new NbtFile(blockEntity) { BigEndian = false };
 						writer.Write(file.SaveToBuffer(NbtCompression.None));

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
+using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
@@ -54,6 +55,8 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
+		public Dictionary<EffectType, Effect> Effects { get; set; }
+
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
 		public long Rto { get; set; }
@@ -67,7 +70,7 @@ namespace MiNET
 		public int Kills { get; set; }
 		public int Deaths { get; set; }
 
-		public Player(MiNetServer server, IPEndPoint endPoint, Level level, int mtuSize) : base(-1, level)
+		public Player(MiNetServer server, IPEndPoint endPoint, int mtuSize) : base(-1, null)
 		{
 			Rtt = 300;
 			Width = 0.6;
@@ -75,11 +78,11 @@ namespace MiNET
 			Height = 1.80;
 
 			Popups = new List<Popup>();
+			Effects = new Dictionary<EffectType, Effect>();
 
 			Server = server;
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
-			Level = level;
 
 			Permissions = new PermissionManager(UserGroup.User);
 			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
@@ -90,19 +93,6 @@ namespace MiNET
 
 			IsSpawned = false;
 			IsConnected = true;
-
-			SpawnPosition = Level.SpawnPoint;
-			KnownPosition = new PlayerLocation
-			{
-				X = SpawnPosition.X,
-				Y = SpawnPosition.Y,
-				Z = SpawnPosition.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
-			};
-
-			GameMode = level.GameMode;
 
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
@@ -158,6 +148,11 @@ namespace MiNET
 			else if (typeof (McpeUseItem) == message.GetType())
 			{
 				HandleUseItem((McpeUseItem) message);
+			}
+
+			else if (typeof (McpeEntityEvent) == message.GetType())
+			{
+				HandleEntityEvent((McpeEntityEvent) message);
 			}
 
 			else if (typeof (ConnectedPing) == message.GetType())
@@ -266,16 +261,17 @@ namespace MiNET
 
 			var itemEntity = new ItemEntity(Level, item)
 			{
+				Velocity = KnownPosition.GetDirection()*0.7,
 				KnownPosition =
 				{
 					X = KnownPosition.X,
-					Y = KnownPosition.Y,
+					Y = (float) (KnownPosition.Y + Height),
 					Z = KnownPosition.Z
 				},
 				Count = itemStack.Count
 			};
 
-			Level.AddEntity(itemEntity);
+			itemEntity.SpawnEntity();
 		}
 
 		/// <summary>
@@ -313,8 +309,7 @@ namespace MiNET
 				{
 					if (_itemUseTimer == null) return;
 
-					MetadataSlot itemSlot = Inventory.ItemInHand;
-					Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id);
+					Item itemInHand = Inventory.GetItemInHand().Item;
 
 					if (itemInHand == null) return; // Cheat(?)
 
@@ -535,11 +530,6 @@ namespace MiNET
 				ClientId = (int) message.clientId;
 				ClientUuid = message.clientUuid;
 
-				// Check if the user already exist, that case bumpt the old one
-				Level.RemoveDuplicatePlayers(Username, ClientId);
-
-				Level.EntityManager.AddEntity(null, this);
-
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
 				{
@@ -547,6 +537,24 @@ namespace MiNET
 				}
 
 				Skin = message.skin;
+
+				Level = Server.LevelManager.GetLevel(this, "Default");
+
+				SpawnPosition = Level.SpawnPoint;
+				KnownPosition = new PlayerLocation
+				{
+					X = SpawnPosition.X,
+					Y = SpawnPosition.Y,
+					Z = SpawnPosition.Z,
+					Yaw = SpawnPosition.Yaw,
+					Pitch = SpawnPosition.Pitch,
+					HeadYaw = SpawnPosition.HeadYaw,
+				};
+
+				// Check if the user already exist, that case bumpt the old one
+				Level.RemoveDuplicatePlayers(Username, ClientId);
+				Level.EntityManager.AddEntity(null, this);
+				GameMode = Level.GameMode;
 
 				// Start game
 
@@ -570,7 +578,7 @@ namespace MiNET
 
 				if (GameMode != GameMode.Creative)
 				{
-					SendPlayerInventory();
+				SendPlayerInventory();
 				}
 
 				ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -622,9 +630,9 @@ namespace MiNET
 					X = SpawnPosition.X,
 					Y = SpawnPosition.Y,
 					Z = SpawnPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
+					Yaw = SpawnPosition.Yaw,
+					Pitch = SpawnPosition.Pitch,
+					HeadYaw = SpawnPosition.HeadYaw,
 				};
 
 				SendSetHealth();
@@ -678,8 +686,8 @@ namespace MiNET
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
 		{
-			NoAi = true;
-			SendSetEntityData();
+			bool oldNoAi = NoAi;
+			SetNoAi(true);
 
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
@@ -693,41 +701,35 @@ namespace MiNET
 			});
 
 			Level.RemovePlayer(this, true);
-
 			Level.EntityManager.RemoveEntity(null, this);
-			EntityId = EntityManager.EntityIdUndefined;
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;
-			Level.EntityManager.AddEntity(null, this);
 			Level.AddPlayer(this, "", false);
 			// reset all health states
 			HealthManager.ResetHealth();
+			SendSetHealth();
 
 			SendSetSpawnPosition();
-
-			SendSetHealth();
 
 			SendAdventureSettings();
 
 			SendPlayerInventory();
 
-			BroadcastSetEntityData();
-
-			Level.SpawnToAll(this);
-			IsSpawned = true;
 			lock (_chunksUsed)
 			{
 				_chunksUsed.Clear();
 			}
 
-			ThreadPool.QueueUserWorkItem(state => ForcedSendChunksForKnownPosition());
+			ForcedSendChunksForKnownPosition(spawnPoint);
 
 			// send teleport to spawn
 			SetPosition(spawnPoint);
 
-			NoAi = false;
-			SendSetEntityData();
+			SetNoAi(oldNoAi);
+
+			Level.SpawnToAll(this);
+			IsSpawned = true;
 
 			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
@@ -752,17 +754,17 @@ namespace MiNET
 
 		public void SendPlayerInventory()
 		{
-			McpeContainerSetContent mcpeContainerSetContent = McpeContainerSetContent.CreateObject();
-			mcpeContainerSetContent.windowId = 0;
-			mcpeContainerSetContent.slotData = Inventory.Slots;
-			mcpeContainerSetContent.hotbarData = Inventory.ItemHotbar;
-			SendPackage(mcpeContainerSetContent);
+			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+			inventoryContent.windowId = 0;
+			inventoryContent.slotData = Inventory.GetSlots();
+			inventoryContent.hotbarData = Inventory.GetHotbar();
+			SendPackage(inventoryContent);
 
-			McpeContainerSetContent containerSetContent = McpeContainerSetContent.CreateObject();
-			containerSetContent.windowId = 0x78;
-			containerSetContent.slotData = Inventory.Armor;
-			containerSetContent.hotbarData = null;
-			SendPackage(containerSetContent);
+			McpeContainerSetContent armorContent = McpeContainerSetContent.CreateObject();
+			armorContent.windowId = 0x78;
+			armorContent.slotData = Inventory.GetArmor();
+			armorContent.hotbarData = null;
+			SendPackage(armorContent);
 		}
 
 		public void SendPlayerStatus(int status)
@@ -792,7 +794,10 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				Level.RemovePlayer(this);
+				if(Level != null)
+				{
+					Level.RemovePlayer(this);
+				}
 
 				if (IsConnected)
 				{
@@ -850,6 +855,13 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
+			if (_openInventory != null)
+			{
+				// Hack for testing. Chests won't open again.
+				Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
+				HandleMcpeContainerClose(null);
+			}
+
 			if (!IsSpawned || HealthManager.IsDead) return;
 
 			lock (_moveSyncLock)
@@ -1018,41 +1030,45 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			Inventory.ItemInHand = message.item;
+			byte selectedHotbarSlot = message.selectedSlot;
+			int selectedInventorySlot = (byte) (message.slot - 9);
 
 			//if(GameMode == GameMode.Survival)
 			{
-				int slot = (message.slot - 9);
-				if (!Inventory.Slots.Contains((byte) slot))
+				if (selectedInventorySlot < 0 || selectedInventorySlot > Inventory.Slots.Count)
 				{
-					//Level.BroadcastTextMessage(string.Format("Inventory change detected for player: {0} Slot: {1}", Username, slot), type: MessageType.Raw);
-
-					//SendPackage(new McpeContainerSetContent
-					//{
-					//	windowId = 0,
-					//	slotData = Inventory.Slots,
-					//	hotbarData = Inventory.ItemHotbar
-					//});
-
+					Log.WarnFormat("Set equiptment fails with inv slot: {0}", selectedInventorySlot);
 					return;
 				}
-				else
+
+				var currentIndex = -1;
+				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
 				{
-					var existing = Inventory.Slots[(byte) slot];
-					var selected = Inventory.Slots[message.selectedSlot];
-					Inventory.Slots[(byte) slot] = selected;
-					Inventory.Slots[message.selectedSlot] = existing;
+					if (Inventory.ItemHotbar[i] == selectedInventorySlot)
+					{
+						currentIndex = i;
+						break;
 				}
+			}
+
+				if (currentIndex != -1)
+				{
+					Inventory.ItemHotbar[currentIndex] = Inventory.ItemHotbar[selectedHotbarSlot];
+				}
+
+				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
+				Inventory.InHandSlot = selectedHotbarSlot;
 			}
 
 			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
 			msg.entityId = EntityId;
 			msg.item = message.item;
-			msg.slot = message.slot;
-			msg.selectedSlot = message.selectedSlot;
+			msg.slot = (byte) selectedInventorySlot;
+			msg.selectedSlot = selectedHotbarSlot;
 
 			Level.RelayBroadcast(this, msg);
 		}
+
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
@@ -1136,11 +1152,11 @@ namespace MiNET
 			// also get the update.
 
 			var itemStack = new ItemStack(message.itemId, message.itemCount, message.itemDamage);
-			var metadataSlot = new MetadataSlot(itemStack);
 
 			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
 			if (inventory != null)
 			{
+				// block inventories of various kinds (chests, furnace, etc)
 				inventory.SetSlot((byte) message.slot, itemStack);
 				return;
 			}
@@ -1148,28 +1164,50 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					Inventory.Slots[(byte) message.slot] = metadataSlot;
+					//if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
+					//{
+					//	Log.Warn("Inventory set from client not matching inventory on server");
+					//	SendPlayerInventory();
+					//}
+					//else if(GameMode == GameMode.Creative)
+					//{
+					//	Inventory.Slots[(byte) message.slot] = itemStack;
+					//}
+					Inventory.Slots[(byte) message.slot] = itemStack;
+
 					break;
 				case 0x78:
-					Inventory.Armor[(byte) message.slot] = metadataSlot;
+					switch ((byte) message.slot)
+					{
+						case 0:
+							Inventory.Helmet = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+						case 1:
+							Inventory.Chest = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+						case 2:
+							Inventory.Leggings = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+						case 3:
+							Inventory.Boots = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							break;
+					}
 					break;
 			}
 
-			Level.RelayBroadcast(this, new McpePlayerArmorEquipment()
-			{
-				entityId = EntityId,
-				helmet = (byte) (((MetadataSlot) Inventory.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) Inventory.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) Inventory.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) Inventory.Armor[3]).Value.Id - 256)
-			});
+			var armorEquipment = McpePlayerArmorEquipment.CreateObject();
+			armorEquipment.entityId = EntityId;
+			armorEquipment.helmet = (byte) (Inventory.Helmet.Id - 256);
+			armorEquipment.chestplate = (byte) (Inventory.Chest.Id - 256);
+			armorEquipment.leggings = (byte) (Inventory.Leggings.Id - 256);
+			armorEquipment.boots = (byte) (Inventory.Boots.Id - 256);
+			Level.RelayBroadcast(this, armorEquipment);
 
-			Level.RelayBroadcast(this, new McpePlayerEquipment()
-			{
-				entityId = EntityId,
-				item = Inventory.ItemInHand,
-				slot = 0
-			});
+			var playerEquipment = McpePlayerEquipment.CreateObject();
+			playerEquipment.entityId = EntityId;
+			playerEquipment.item = new MetadataSlot(Inventory.GetItemInHand());
+			playerEquipment.slot = 0;
+			Level.RelayBroadcast(this, playerEquipment);
 		}
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
@@ -1217,12 +1255,9 @@ namespace MiNET
 		{
 			double armorValue = 0;
 
-			for (byte i = 0; i < target.Inventory.Armor.Count; i++)
 			{
-				MetadataSlot id = (MetadataSlot) (target.Inventory.Armor[i]);
-				var armorPiece = ItemFactory.GetItem(id.Value.Id);
-				if (armorPiece.ItemType == ItemType.Helmet)
 				{
+					var armorPiece = Inventory.Helmet;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1243,8 +1278,8 @@ namespace MiNET
 					}
 				}
 
-				if (armorPiece.ItemType == ItemType.Chestplate)
 				{
+					var armorPiece = Inventory.Chest;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1265,8 +1300,8 @@ namespace MiNET
 					}
 				}
 
-				if (armorPiece.ItemType == ItemType.Leggings)
 				{
+					var armorPiece = Inventory.Leggings;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1287,8 +1322,8 @@ namespace MiNET
 					}
 				}
 
-				if (armorPiece.ItemType == ItemType.Boots)
 				{
+					var armorPiece = Inventory.Boots;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1312,7 +1347,7 @@ namespace MiNET
 
 			armorValue *= 0.04; // Each armor point represent 4% reduction
 
-			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0 - armorValue));
 
@@ -1321,13 +1356,37 @@ namespace MiNET
 
 		private int CalculateDamage(Entity target)
 		{
-			int damage = ItemFactory.GetItem(Inventory.ItemInHand.Value.Id).GetDamage(); //Item Damage.
+			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0));
 
 			return damage;
 		}
 
+
+		private void HandleEntityEvent(McpeEntityEvent message)
+		{
+			Log.Debug("Entity Id:" + message.entityId);
+			Log.Debug("Entity Event:" + message.eventId);
+
+			//if (message.eventId != 0) return; // Should probably broadcast?!
+
+			switch (message.eventId)
+			{
+				case 9:
+					// Eat food
+
+					FoodItem foodItem = Inventory.GetItemInHand().Item as FoodItem;
+					if (foodItem != null)
+					{
+						foodItem.Consume(this);
+						Inventory.GetItemInHand().Count--;
+						SendPlayerInventory();
+					}
+
+					break;
+			}
+		}
 
 		private Stopwatch _itemUseTimer;
 
@@ -1406,25 +1465,14 @@ namespace MiNET
 
 		private object _sendChunkSync = new object();
 
-		private void ForcedSendChunksForKnownPosition()
+		private void ForcedSendChunksForKnownPosition(PlayerLocation position)
 		{
-			var chunkPosition = new ChunkCoordinates(KnownPosition);
+			var chunkPosition = new ChunkCoordinates(position);
 			_currentChunkPosition = chunkPosition;
-
-			int packetCount = 0;
 
 			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 			{
-				Thread.Sleep(12);
-				SendPackage(chunk, sendDirect: true);
-
-				if (!IsSpawned)
-				{
-					if (packetCount++ == 56)
-					{
-						InitializePlayer();
-					}
-				}
+				SendPackage(chunk, true);
 			}
 		}
 
@@ -1492,14 +1540,14 @@ namespace MiNET
 		}
 
 
-		internal void SendSetHealth()
+		public virtual void SendSetHealth()
 		{
 			McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
 			mcpeSetHealth.health = HealthManager.Hearts;
 			SendPackage(mcpeSetHealth);
 		}
 
-		public void SendSetTime()
+		public virtual void SendSetTime()
 		{
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = (int) Level.CurrentWorldTime;
@@ -1507,7 +1555,7 @@ namespace MiNET
 			SendPackage(message);
 		}
 
-		public void SendMovePlayer(bool teleport = false)
+		public virtual void SendMovePlayer(bool teleport = false)
 		{
 			var package = McpeMovePlayer.CreateObject();
 			package.entityId = 0;
@@ -1527,20 +1575,20 @@ namespace MiNET
 		{
 			base.OnTick();
 
-			if (Level.TickTime%30 == 0)
-			{
-				if (Username.Equals("gurun"))
-				{
-					Popup popup = new Popup
-					{
-						Duration = 1,
-						MessageType = MessageType.Tip,
-						Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
-					};
+			//if (Level.TickTime%30 == 0)
+			//{
+			//	if (Username.Equals("gurun"))
+			//	{
+			//		Popup popup = new Popup
+			//		{
+			//			Duration = 1,
+			//			MessageType = MessageType.Tip,
+			//			Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
+			//		};
 
-					AddPopup(popup);
-				}
-			}
+			//		AddPopup(popup);
+			//	}
+			//}
 
 			bool hasDisplayedPopup = false;
 			bool hasDisplayedTip = false;
@@ -1653,6 +1701,39 @@ namespace MiNET
 			SendSetEntityData();
 		}
 
+		[Wired]
+		public void SetEffect(Effect effect)
+		{
+			if (Effects.ContainsKey(effect.EffectId))
+			{
+				effect.SendUpdate(this);
+			}
+			else
+			{
+				effect.SendAdd(this);
+			}
+
+			Effects[effect.EffectId] = effect;
+		}
+
+		[Wired]
+		public void RemoveEffect(Effect effect)
+		{
+			if (Effects.ContainsKey(effect.EffectId))
+			{
+				effect.SendRemove(this);
+				Effects.Remove(effect.EffectId);
+			}
+		}
+
+		[Wired]
+		public void RemoveAllEffects()
+		{
+			foreach (var effect	 in Effects.Values.ToArray())
+			{
+				RemoveEffect(effect);
+			}
+		}
 
 		public override void DespawnEntity()
 		{

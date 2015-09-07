@@ -9,7 +9,7 @@ namespace MiNET.Blocks
 			Fern = 2
 		}
 
-		protected internal TallGrass() : base(31)
+		public TallGrass() : base(31)
 		{
 			IsSolid = false;
 			IsReplacible = true;

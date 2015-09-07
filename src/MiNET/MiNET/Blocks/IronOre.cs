@@ -4,7 +4,7 @@ namespace MiNET.Blocks
 {
 	public class IronOre : Block
 	{
-		internal IronOre() : base(15)
+		public IronOre() : base(15)
 		{
 		}
 

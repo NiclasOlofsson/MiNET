@@ -97,6 +97,7 @@
     <Compile Include="Blocks\JungleWoodStairs.cs" />
     <Compile Include="Blocks\LapsisBlock.cs" />
     <Compile Include="Blocks\LapsisOre.cs" />
+    <Compile Include="Blocks\LitFurnace.cs" />
     <Compile Include="Blocks\Obsidian.cs" />
     <Compile Include="Blocks\Sandstone.cs" />
     <Compile Include="Blocks\Snow.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Blocks\WoodSlab.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="ConnectionState.cs" />
+    <Compile Include="Effects\Effect.cs" />
     <Compile Include="Entities\Arrow.cs" />
     <Compile Include="Entities\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />
@@ -135,10 +137,19 @@
     <Compile Include="Entities\Projectile.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
+    <Compile Include="Items\FoodItem.cs" />
+    <Compile Include="Items\ItemApple.cs" />
+    <Compile Include="Items\ItemBakedPotato.cs" />
     <Compile Include="Items\ItemBed.cs" />
     <Compile Include="Items\ItemBow.cs" />
+    <Compile Include="Items\ItemBread.cs" />
+    <Compile Include="Items\ItemCarrot.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
+    <Compile Include="Items\ItemCommand.cs" />
+    <Compile Include="Items\ItemCoockedChicken.cs" />
+    <Compile Include="Items\ItemCookedPorkshop.cs" />
+    <Compile Include="Items\ItemCookie.cs" />
     <Compile Include="Items\ItemDiamondAxe.cs" />
     <Compile Include="Items\ItemDiamondBoots.cs" />
     <Compile Include="Items\ItemDiamondChestplate.cs" />
@@ -150,6 +161,7 @@
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldAxe.cs" />
+    <Compile Include="Items\ItemGoldenApple.cs" />
     <Compile Include="Items\ItemGoldHoe.cs" />
     <Compile Include="Items\ItemGoldShovel.cs" />
     <Compile Include="Items\ItemGoldSword.cs" />
@@ -162,14 +174,20 @@
     <Compile Include="Items\ItemIronLeggings.cs" />
     <Compile Include="Items\ItemIronShovel.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
+    <Compile Include="Items\ItemMelonSlice.cs" />
+    <Compile Include="Items\ItemPotato.cs" />
+    <Compile Include="Items\ItemPumpkinPie.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemShovel.cs" />
     <Compile Include="Items\ItemSlab.cs" />
     <Compile Include="Items\ItemSnowball.cs" />
     <Compile Include="Items\ItemSpawnEgg.cs" />
+    <Compile Include="Items\ItemSteak.cs" />
     <Compile Include="Items\ItemStick.cs" />
+    <Compile Include="Items\ItemStoneAxe.cs" />
     <Compile Include="Items\ItemStoneHoe.cs" />
     <Compile Include="Items\ItemStoneShovel.cs" />
+    <Compile Include="Items\ItemStoneSword.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />
     <Compile Include="Items\ItemWoodenHoe.cs" />
     <Compile Include="Items\ItemWoodenPickaxe.cs" />
@@ -307,9 +325,9 @@
     <Compile Include="Worlds\LevelInfo.cs" />
     <Compile Include="Worlds\Structures\OakTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
-    <Content Include="Net\MCPE Protocol.xml">
+    <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
-    </Content>
+    </None>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Config.cs" />
     <Compile Include="Items\ItemBucket.cs" />

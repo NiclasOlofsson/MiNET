@@ -27,6 +27,27 @@ namespace MiNET.Utils
 			Z = v.Z;
 		}
 
+		public double GetYaw()
+		{
+			return ToDegrees(Math.Atan2(X, Z));
+		}
+
+		public double GetPitch()
+		{
+			var distance = Math.Sqrt((X*X) + (Z*Z));
+			return ToDegrees(Math.Atan2(Y, distance));
+		}
+
+		public static double ToRadians(double angle)
+		{
+			return (Math.PI/180)*angle;
+		}
+
+		public static double ToDegrees(double angle)
+		{
+			return angle*(180.0/Math.PI);
+		}
+
 		/// <summary>
 		/// Floors the decimal component of each part of this Vector3.
 		/// </summary>

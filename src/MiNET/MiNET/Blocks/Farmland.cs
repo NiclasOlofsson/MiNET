@@ -2,9 +2,9 @@ using MiNET.Utils;
 
 ﻿namespace MiNET.Blocks
 {
-	internal class Farmland : Block
+	public class Farmland : Block
 	{
-		internal Farmland() : base(60)
+		public Farmland() : base(60)
 		{
 		}
 

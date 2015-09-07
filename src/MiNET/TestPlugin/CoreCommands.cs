@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,6 +8,10 @@ using System.Text;
 using System.Threading;
 using log4net;
 using MiNET;
+using MiNET.BlockEntities;
+using MiNET.Blocks;
+using MiNET.Effects;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -53,7 +58,7 @@ namespace TestPlugin
 		{
 			for (int i = 0; i < noItems; i++)
 			{
-				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 10, new ItemStack(itemId, 1));
+				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 1, new ItemStack(itemId, 1));
 			}
 		}
 
@@ -83,18 +88,31 @@ namespace TestPlugin
 		public void Teleport(Player player, int x, int y, int z)
 		{
 			// send teleport to spawn
-			player.KnownPosition = new PlayerLocation
+			//player.SetPosition(
+			//	new PlayerLocation
+			//{
+			//	X = x,
+			//	Y = y,
+			//	Z = z,
+			//	Yaw = 91,
+			//	Pitch = 28,
+			//	HeadYaw = 91
+			//}, true);
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
+				player.SpawnLevel(player.Level, new PlayerLocation
+				{
 				X = x,
 				Y = y,
 				Z = z,
 				Yaw = 91,
 				Pitch = 28,
 				HeadYaw = 91
-			};
+				});
+			}, null);
 
-			player.SendMovePlayer();
-			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		[Command(Command = "tp")]
@@ -221,74 +239,51 @@ namespace TestPlugin
 		[Command]
 		public void Kit(Player player, int kitId)
 		{
-			var armor = player.Inventory.Armor;
-			var slots = player.Inventory.Slots;
+			var inventory = player.Inventory;
 
 			switch (kitId)
 			{
 				case 0:
 					// Kit leather tier
-					armor[0] = new MetadataSlot(new ItemStack(298)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(299)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(300)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(301)); // Boots
 					break;
 				case 1:
 					// Kit gold tier
-					armor[0] = new MetadataSlot(new ItemStack(314)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(315)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(316)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(317)); // Boots
 					break;
 				case 2:
 					// Kit chain tier
-					armor[0] = new MetadataSlot(new ItemStack(302)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(303)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(304)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(305)); // Boots
 					break;
 				case 3:
 					// Kit iron tier
-					armor[0] = new MetadataSlot(new ItemStack(306)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(307)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(308)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(309)); // Boots
+					inventory.Boots = new ItemIronBoots(0);
+					inventory.Leggings = new ItemIronLeggings(0);
+					inventory.Chest = new ItemIronChestplate(0);
+					inventory.Helmet = new ItemIronHelmet(0);
 					break;
 				case 4:
 					// Kit diamond tier
-					armor[0] = new MetadataSlot(new ItemStack(310)); // Helmet
-					armor[1] = new MetadataSlot(new ItemStack(311)); // Chest
-					armor[2] = new MetadataSlot(new ItemStack(312)); // Leggings
-					armor[3] = new MetadataSlot(new ItemStack(313)); // Boots
+					inventory.Boots = new ItemDiamondBoots(0);
+					inventory.Leggings = new ItemDiamondLeggings(0);
+					inventory.Chest = new ItemDiamondChestplate(0);
+					inventory.Helmet = new ItemDiamondHelmet(0);
 					break;
 			}
 
 			byte c = 0;
-			slots[c++] = new MetadataSlot(new ItemStack(268, 1)); // Wooden Sword
-			slots[c++] = new MetadataSlot(new ItemStack(283, 1)); // Golden Sword
-			slots[c++] = new MetadataSlot(new ItemStack(272, 1)); // Stone Sword
-			slots[c++] = new MetadataSlot(new ItemStack(267, 1)); // Iron Sword
-			slots[c++] = new MetadataSlot(new ItemStack(276, 1)); // Diamond Sword
+			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
 
-			slots[c++] = new MetadataSlot(new ItemStack(261, 1)); // Bow
-			slots[c++] = new MetadataSlot(new ItemStack(262, 64)); // Arrows
-			slots[c++] = new MetadataSlot(new ItemStack(344, 64)); // Eggs
-			slots[c++] = new MetadataSlot(new ItemStack(332, 64)); // Snowballs
+			inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
+			inventory.Slots[c++] = new ItemStack(268, 1); // Wooden Sword
+			inventory.Slots[c++] = new ItemStack(283, 1); // Golden Sword
+			inventory.Slots[c++] = new ItemStack(272, 1); // Stone Sword
+			inventory.Slots[c++] = new ItemStack(267, 1); // Iron Sword
+			inventory.Slots[c++] = new ItemStack(276, 1); // Diamond Sword
 
-			player.SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0,
-				slotData = player.Inventory.Slots,
-				hotbarData = player.Inventory.ItemHotbar
-			});
+			inventory.Slots[c++] = new ItemStack(261, 1); // Bow
+			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
+			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
+			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
 
-			player.SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0x78, // Armor windows ID
-				slotData = player.Inventory.Armor,
-				hotbarData = null
-			});
-
+			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);
 
@@ -300,7 +295,7 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerEquipment
 			{
 				entityId = player.EntityId,
-				item = player.Inventory.ItemInHand,
+				item = new MetadataSlot(player.Inventory.GetItemInHand()),
 				slot = 0
 			});
 		}
@@ -310,10 +305,10 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerArmorEquipment
 			{
 				entityId = player.EntityId,
-				helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256),
-				chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256),
-				leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256),
-				boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256)
+				helmet = (byte) (player.Inventory.Helmet.Id - 256),
+				chestplate = (byte) (player.Inventory.Chest.Id - 256),
+				leggings = (byte) (player.Inventory.Leggings.Id - 256),
+				boots = (byte) (player.Inventory.Boots.Id - 256)
 			});
 		}
 
@@ -325,24 +320,100 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "e")]
-		public void Effect(Player player)
+		public void Effect(Player player, string effect, int level = 1, int duration = 20)
 		{
-			Effect(player, 1, 3, 20);
+			EffectType effectType;
+			if (Enum.TryParse(effect, true, out effectType))
+			{
+				Effect eff = null;
+				switch (effectType)
+				{
+					case EffectType.Speed:
+						eff = new Speed();
+						break;
+					case EffectType.Slowness:
+						eff = new Slowness();
+						break;
+					case EffectType.Haste:
+						eff = new Haste();
+						break;
+					case EffectType.MiningFatigue:
+						eff = new MiningFatigue();
+						break;
+					case EffectType.Strenght:
+						eff = new Strength();
+						break;
+					case EffectType.InstandHealth:
+						eff = new InstandHealth();
+						break;
+					case EffectType.InstantDamage:
+						eff = new InstantDamage();
+						break;
+					case EffectType.JumpBoost:
+						eff = new JumpBoost();
+						break;
+					case EffectType.Nausea:
+						eff = new Nausea();
+						break;
+					case EffectType.Regeneration:
+						eff = new Regeneration();
+						break;
+					case EffectType.Resistance:
+						eff = new Resistance();
+						break;
+					case EffectType.FireResistance:
+						eff = new FireResistance();
+						break;
+					case EffectType.WaterBreathing:
+						eff = new WaterBreathing();
+						break;
+					case EffectType.Invisibility:
+						eff = new Invisibility();
+						break;
+					case EffectType.Blindness:
+						eff = new Blindness();
+						break;
+					case EffectType.NightVision:
+						eff = new NightVision();
+						break;
+					case EffectType.Hunger:
+						eff = new Hunger();
+						break;
+					case EffectType.Weakness:
+						eff = new Weakness();
+						break;
+					case EffectType.Poison:
+						eff = new Poison();
+						break;
+					case EffectType.Wither:
+						eff = new Wither();
+						break;
+					case EffectType.HealthBoost:
+						eff = new HealthBoost();
+						break;
+					case EffectType.Absorption:
+						eff = new Absorption();
+						break;
+					case EffectType.Saturation:
+						eff = new Saturation();
+						break;
+					case EffectType.Glowing:
+						eff = new Glowing();
+						break;
+					case EffectType.Levitation:
+						eff = new Levitation();
+						break;
 		}
 
-		[Command(Command = "e")]
-		public void Effect(Player player, int effectId, int amplifier = 1, int duration = 20)
-		{
-			player.SendPackage(new McpeMobEffect
+				if (eff != null)
 			{
-				entityId = 0,
-				eventId = 1, // Add
-				effectId = (byte) effectId,
-				duration = 20*duration,
-				amplifier = (byte) amplifier,
-				particles = 0,
-			});
-			player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectId, amplifier), type: MessageType.Raw);
+					eff.Level = level;
+					eff.Duration = duration;
+
+					player.SetEffect(eff);
+					player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectType, level), MessageType.Raw);
+				}
+			}
 		}
 
 		[Command(Command = "nd")]
@@ -372,18 +443,12 @@ namespace TestPlugin
 			{
 				player.AddPopup(new Popup()
 				{
-					Priority = 100,
-					MessageType = MessageType.Tip,
-					Message = "SERVER WILL RESTART!",
-					Duration = 20*10,
+					Priority = 100, MessageType = MessageType.Tip, Message = "SERVER WILL RESTART!", Duration = 20*10,
 				});
 
 				player.AddPopup(new Popup()
 				{
-					Priority = 100,
-					MessageType = MessageType.Popup,
-					Message = "Transfering all players!",
-					Duration = 20*10,
+					Priority = 100, MessageType = MessageType.Popup, Message = "Transfering all players!", Duration = 20*10,
 				});
 
 				Thread.Sleep(1500);
@@ -392,6 +457,30 @@ namespace TestPlugin
 				Context.Server.ForwardTarget = new IPEndPoint(host.AddressList[0], 19132);
 				Context.Server.ForwardAllPlayers = true;
 			}
+		}
+
+		private byte _invId = 0;
+
+		[Command(Command = "oi")]
+		public void OpenInventory(Player player)
+		{
+			BlockCoordinates coor = new BlockCoordinates(player.KnownPosition);
+			Chest chest = new Chest
+			{
+				Coordinates = coor, Metadata = 0
+			};
+			player.Level.SetBlock(chest, true);
+
+			// Then we create and set the sign block entity that has all the intersting data
+
+			ChestBlockEntity chestBlockEntity = new ChestBlockEntity
+			{
+				Coordinates = coor
+			};
+
+			player.Level.SetBlockEntity(chestBlockEntity, false);
+
+			player.OpenInventory(coor);
 		}
 	}
 }

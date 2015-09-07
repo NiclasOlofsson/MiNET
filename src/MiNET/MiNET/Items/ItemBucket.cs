@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemBucket : Item
 	{
-		internal ItemBucket(short metadata) : base(325, metadata)
+		public ItemBucket(short metadata) : base(325, metadata)
 		{
 			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
 		}

@@ -2,7 +2,7 @@
 {
 	public class WoodenPlanks : Block
 	{
-		internal WoodenPlanks() : base(5)
+		public WoodenPlanks() : base(5)
 		{
 			FuelEfficiency = 15;
 		}

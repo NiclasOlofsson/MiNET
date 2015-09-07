@@ -2,7 +2,7 @@
 {
 	public class Sapling : Block
 	{
-		internal Sapling() : base(6)
+		public Sapling() : base(6)
 		{
 			FuelEfficiency = 5;
 		}

@@ -1,17 +1,10 @@
-﻿using System.ComponentModel;
-using log4net;
-using Microsoft.AspNet.Identity;
-using MiNET;
-using MiNET.Net;
-using MiNET.Plugins;
-using MiNET.Plugins.Attributes;
-using MiNET.Security;
-using MiNET.Utils;
-
-// ReSharper disable UnusedMember.Global
+﻿ // ReSharper disable UnusedMember.Global
 
 namespace TestPlugin
 {
+	public class Shit
+	{
+	}
 
 	//[Plugin]
 	//public class SimplePlugin : Plugin

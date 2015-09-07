@@ -5,7 +5,7 @@ namespace MiNET.Blocks
 {
 	public class Wood : Block
 	{
-		internal Wood() : base(17)
+		public Wood() : base(17)
 		{
 			FuelEfficiency = 15;
 		}

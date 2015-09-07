@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MiNET;
+using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -58,9 +59,9 @@ namespace TestPlugin.NiceLobby
 				Random random = level.Random;
 
 				PlayerLocation point1 = level.SpawnPoint;
-                PlayerLocation point2 = level.SpawnPoint;
+				PlayerLocation point2 = level.SpawnPoint;
 				point2.X += 10;
-                PlayerLocation point3 = level.SpawnPoint;
+				PlayerLocation point3 = level.SpawnPoint;
 				point3.X -= 10;
 
 				if (Math.Abs(m - 3) < 0.1)
@@ -187,27 +188,14 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			McpeMobEffect speedEffect = McpeMobEffect.CreateObject();
-			speedEffect.entityId = 0;
-			speedEffect.eventId = 1;
-			speedEffect.effectId = 1;
-			speedEffect.duration = 0x7fffffff;
-			speedEffect.amplifier = 2;
-			speedEffect.particles = 1;
-			player.SendPackage(speedEffect);
-
-			McpeMobEffect jumpEffect = McpeMobEffect.CreateObject();
-			jumpEffect.entityId = 0;
-			jumpEffect.eventId = 1;
-			jumpEffect.effectId = 8;
-			jumpEffect.duration = 0x7fffffff;
-			jumpEffect.amplifier = 2;
-			jumpEffect.particles = 1;
-			player.SendPackage(jumpEffect);
+			player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration});
+			//player.SetEffect(new Slowness {Level = 2, Duration = 20});
+			player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
+			player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))
 			{
-				player.Level.CurrentWorldTime = 10000;
+				player.Level.CurrentWorldTime = 6000;
 				player.Level.IsWorldTimeStarted = false;
 			}
 
@@ -359,6 +347,18 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
+		public void Lol(Player player)
+		{
+			player.Level.BroadcastMessage(string.Format(ChatColors.Yellow + "{0} is really 'laughing out loud!', and it really hurst our ears :-(", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
+		public void Wtf(Player player)
+		{
+			player.Level.BroadcastMessage(string.Format(ChatColors.Red + "{0} just said the forbidden 'What the ****'. Shame on {0}!", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Kick(Player player, string otherUser)
 		{
 			player.Level.BroadcastMessage(string.Format(ChatColors.Gold + "{0} tried to kick {1} but kicked self instead!!", player.Username, otherUser), type: MessageType.Raw);
@@ -477,5 +477,47 @@ namespace TestPlugin.NiceLobby
 
 		//	return packet; // Process
 		//}
+		[Command(Command = "w")]
+		public void Warp(Player player, string warp)
+		{
+			float x;
+			float y;
+			float z;
+
+			switch (warp)
+			{
+				case "sg1":
+					x = 137;
+					y = 20;
+					z = 431;
+					break;
+				case "sg2":
+					x = 682;
+					y = 20;
+					z = 324;
+					break;
+				case "sg3":
+					x = 685;
+					y = 20;
+					z = -119;
+					break;
+				default:
+					return;
+			}
+
+			var playerLocation = new PlayerLocation
+			{
+				X = x,
+				Y = y,
+				Z = z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91
+			};
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { player.SpawnLevel(player.Level, playerLocation); }, null);
+
+			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+		}
 	}
 }

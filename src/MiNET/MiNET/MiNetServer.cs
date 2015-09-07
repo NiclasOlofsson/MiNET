@@ -118,8 +118,8 @@ namespace MiNET
 				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
-				// Cache
-				LevelManager.GetLevel("Default");
+				// Cache - remove
+				LevelManager.GetLevel(null, "Default");
 
 				ServerInfo = new ServerInfo(LevelManager, _playerSessions);
 				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
@@ -720,23 +720,22 @@ namespace MiNET
 					//}
 
 					//string numplayers = _playerSessions.Count.ToString(CultureInfo.InvariantCulture);
-					string numplayers = "99";
 					var data = new Dictionary<string, string>
 					{
 						{"splitnum", "" + (char) 128},
 						{"hostname", "Personal Minecraft Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.10.5 alpha"},
-						{"server_engine", "MiNET v0.0.0"},
-						{"plugins", "MiNET v0.0.0"},
+						{"version", "0.11.1 alpha"},
+						{"server_engine", "MiNET v1.0.0"},
+						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},
-						{"numplayers", numplayers},
-						{"maxplayers", "4000"},
+						{"numplayers", ServerInfo.NumberOfPlayers.ToString()},
+						{"maxplayers", ServerInfo.MaxNumberOfPlayers.ToString()},
 						{"whitelist", "off"},
 						//{"hostip", "192.168.0.1"},
 						//{"hostport", "19132"}
-					};
+					};					
 
 					foreach (KeyValuePair<string, string> valuePair in data)
 					{
@@ -1025,7 +1024,7 @@ namespace MiNET
 								if (s != null)
 								{
 									Player p = s.Player;
-									if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+									//if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
 								}
 							}, session);
 

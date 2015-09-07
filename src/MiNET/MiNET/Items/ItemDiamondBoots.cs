@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Items
 {
-	internal class ItemDiamondBoots : Item
+	public class ItemDiamondBoots : Item
 	{
 		public ItemDiamondBoots(short metadata) : base(313, metadata)
 		{

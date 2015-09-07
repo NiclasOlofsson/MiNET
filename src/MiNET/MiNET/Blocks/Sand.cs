@@ -4,7 +4,7 @@ namespace MiNET.Blocks
 {
 	public class Sand : Block
 	{
-		internal Sand() : base(12)
+		public Sand() : base(12)
 		{
 		}
 

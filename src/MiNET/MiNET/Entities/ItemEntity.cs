@@ -1,11 +1,12 @@
-﻿using MiNET.Items;
+﻿using System;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
-	public class ItemEntity : Entity
+	public class ItemEntity : Mob
 	{
 		public Item Item { get; private set; }
 		public short Count { get; set; }
@@ -30,6 +31,36 @@ namespace MiNET.Entities
 			return metadataSlot;
 		}
 
+		public override void SpawnEntity()
+		{
+			Level.AddEntity(this);
+
+			Random random = new Random();
+
+			//float f = 0.7F;
+			//float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			//float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			//float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+
+			float xr = 0;
+			float yr = 0;
+			float zr = 0;
+
+			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
+			mcpeAddItemEntity.entityId = EntityId;
+			mcpeAddItemEntity.item = GetMetadataSlot();
+			mcpeAddItemEntity.x = KnownPosition.X + xr;
+			mcpeAddItemEntity.y = KnownPosition.Y + yr;
+			mcpeAddItemEntity.z = KnownPosition.Z + zr;
+
+			mcpeAddItemEntity.speedX = (float) Velocity.X;
+			mcpeAddItemEntity.speedY = (float) Velocity.Y;
+			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
+			Level.RelayBroadcast(mcpeAddItemEntity);
+
+			IsSpawned = true;
+		}
+
 		public override void OnTick()
 		{
 			base.OnTick();
@@ -42,6 +73,10 @@ namespace MiNET.Entities
 				DespawnEntity();
 				return;
 			}
+
+			// Motion
+
+
 
 			if (PickupDelay > 0) return;
 
@@ -57,7 +92,7 @@ namespace MiNET.Entities
 						//target = EntityId
 						entityId = EntityId,
 						target = player.EntityId
- 					});
+					});
 					if (player.GameMode == GameMode.Survival)
 					{
 						player.Inventory.SetFirstEmptySlot((short) Item.Id, (byte) Count, Item.Metadata); //Add the items to the inventory

@@ -5,7 +5,7 @@ namespace MiNET.Blocks
 {
 	public class Torch : Block
 	{
-		protected internal Torch() : base(50)
+		public Torch() : base(50)
 		{
 			IsTransparent = true;
 			IsSolid = false;

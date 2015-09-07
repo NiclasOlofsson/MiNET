@@ -133,7 +133,7 @@ namespace MiNET.Worlds
 
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
-			if (newPlayer.Username == null) return;
+			if (newPlayer.Username == null) throw new NullReferenceException("Username NULL");
 
 			EntityManager.AddEntity(null, newPlayer);
 
@@ -176,42 +176,43 @@ namespace MiNET.Worlds
 			//newPlayer.IsSpawned = true;
 		}
 
-		public void SpawnToAll(Player player)
+		public void SpawnToAll(Player newPlayer)
 		{
-			foreach (var targetPlayer in GetSpawnedPlayers())
+			foreach (Player spawnedPlayer in GetSpawnedPlayers())
 			{
-				SendAddForPlayer(player, targetPlayer);
-				SendAddForPlayer(targetPlayer, player);
+				SendAddForPlayer(newPlayer, spawnedPlayer);
+				SendAddForPlayer(spawnedPlayer, newPlayer);
+				Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
 			}
 		}
 
-		public void SendAddForPlayer(Player receiver, Player player)
+		public void SendAddForPlayer(Player receiver, Player addedPlayer)
 		{
-			if (player == receiver) return;
+			if (addedPlayer == receiver) return;
 
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
-			mcpeAddPlayer.uuid = player.ClientUuid;
-			mcpeAddPlayer.username = player.Username;
-			mcpeAddPlayer.entityId = player.EntityId;
-			mcpeAddPlayer.x = player.KnownPosition.X;
-			mcpeAddPlayer.y = player.KnownPosition.Y;
-			mcpeAddPlayer.z = player.KnownPosition.Z;
-			mcpeAddPlayer.yaw = player.KnownPosition.Yaw;
-			mcpeAddPlayer.headYaw = player.KnownPosition.HeadYaw;
-			mcpeAddPlayer.pitch = player.KnownPosition.Pitch;
-			mcpeAddPlayer.metadata = player.GetMetadata().GetBytes();
+			mcpeAddPlayer.uuid = addedPlayer.ClientUuid;
+			mcpeAddPlayer.username = addedPlayer.Username;
+			mcpeAddPlayer.entityId = addedPlayer.EntityId;
+			mcpeAddPlayer.x = addedPlayer.KnownPosition.X;
+			mcpeAddPlayer.y = addedPlayer.KnownPosition.Y;
+			mcpeAddPlayer.z = addedPlayer.KnownPosition.Z;
+			mcpeAddPlayer.yaw = addedPlayer.KnownPosition.Yaw;
+			mcpeAddPlayer.headYaw = addedPlayer.KnownPosition.HeadYaw;
+			mcpeAddPlayer.pitch = addedPlayer.KnownPosition.Pitch;
+			mcpeAddPlayer.metadata = addedPlayer.GetMetadata().GetBytes();
 			receiver.SendPackage(mcpeAddPlayer);
 
-			SendEquipmentForPlayer(receiver, player);
+			SendEquipmentForPlayer(receiver, addedPlayer);
 
-			SendArmorForPlayer(receiver, player);
+			SendArmorForPlayer(receiver, addedPlayer);
 		}
 
 		public void SendEquipmentForPlayer(Player receiver, Player player)
 		{
 			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 			mcpePlayerEquipment.entityId = player.EntityId;
-			mcpePlayerEquipment.item = player.Inventory.ItemInHand;
+			mcpePlayerEquipment.item = new MetadataSlot(player.Inventory.GetItemInHand());
 			mcpePlayerEquipment.slot = 0;
 			receiver.SendPackage(mcpePlayerEquipment);
 		}
@@ -220,10 +221,10 @@ namespace MiNET.Worlds
 		{
 			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = player.EntityId;
-			mcpePlayerArmorEquipment.helmet = (byte) (((MetadataSlot) player.Inventory.Armor[0]).Value.Id - 256);
-			mcpePlayerArmorEquipment.chestplate = (byte) (((MetadataSlot) player.Inventory.Armor[1]).Value.Id - 256);
-			mcpePlayerArmorEquipment.leggings = (byte) (((MetadataSlot) player.Inventory.Armor[2]).Value.Id - 256);
-			mcpePlayerArmorEquipment.boots = (byte) (((MetadataSlot) player.Inventory.Armor[3]).Value.Id - 256);
+			mcpePlayerArmorEquipment.helmet = (byte) (player.Inventory.Helmet.Id - 256);
+			mcpePlayerArmorEquipment.chestplate = (byte) (player.Inventory.Chest.Id - 256);
+			mcpePlayerArmorEquipment.leggings = (byte) (player.Inventory.Leggings.Id - 256);
+			mcpePlayerArmorEquipment.boots = (byte) (player.Inventory.Boots.Id - 256);
 			receiver.SendPackage(mcpePlayerArmorEquipment);
 		}
 
@@ -243,10 +244,15 @@ namespace MiNET.Worlds
 					{
 						DespawnFromAll(player);
 					}
+
+					foreach (Entity entity in Entities.ToArray())
+					{
+						entity.DespawnFromPlayer(removed);
+					}
 				}
 				else
 				{
-					Log.DebugFormat("Failed to remove player {0}", player.Username);
+					Log.WarnFormat("Failed to remove player {0}", player.Username);
 				}
 			}
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
@@ -272,43 +278,6 @@ namespace MiNET.Worlds
 			mcpeRemovePlayer.clientUuid = player.ClientUuid;
 			mcpeRemovePlayer.entityId = player.EntityId;
 			receiver.SendPackage(mcpeRemovePlayer);
-		}
-
-
-		public void AddEntity(ItemEntity entity)
-		{
-			lock (Entities)
-			{
-				EntityManager.AddEntity(null, entity);
-
-				if (!Entities.Contains(entity))
-				{
-					Entities.Add(entity);
-				}
-				else
-				{
-					throw new Exception("Entity existed in the players list when it should not");
-				}
-
-				ItemEntity itemEntity = (ItemEntity) entity;
-
-				Random random = new Random();
-
-				float f = 0.7F;
-				float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-				float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-				float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-
-				McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-				mcpeAddItemEntity.entityId = itemEntity.EntityId;
-				mcpeAddItemEntity.item = itemEntity.GetMetadataSlot();
-				mcpeAddItemEntity.x = itemEntity.KnownPosition.X + xr;
-				mcpeAddItemEntity.y = itemEntity.KnownPosition.Y + yr;
-				mcpeAddItemEntity.z = itemEntity.KnownPosition.Z + zr;
-				RelayBroadcast(mcpeAddItemEntity);
-
-				entity.IsSpawned = true;
-			}
 		}
 
 		public void AddEntity(Entity entity)
@@ -808,8 +777,7 @@ namespace MiNET.Worlds
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata)
 		{
 			// Make sure we are holding the item we claim to be using
-			MetadataSlot itemSlot = player.Inventory.ItemInHand;
-			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id, metadata);
+			Item itemInHand = player.Inventory.GetItemInHand().Item;
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
@@ -829,13 +797,13 @@ namespace MiNET.Worlds
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
 		{
 			// Make sure we are holding the item we claim to be using
-			MetadataSlot itemSlot = player.Inventory.ItemInHand;
-			Item itemInHand = ItemFactory.GetItem(itemSlot.Value.Id, metadata);
-
-			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
+
+			Item itemInHand = player.Inventory.GetItemInHand().Item;
+
+			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 
 			if (itemInHand is ItemBlock)
 			{
@@ -875,10 +843,10 @@ namespace MiNET.Worlds
 			List<ItemStack> drops = new List<ItemStack>();
 
 			Block block = GetBlock(blockCoordinates);
-			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block)))
+			drops.Add(block.GetDrops());
+			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
 			{
 				block.BreakBlock(this);
-				drops.Add(block.GetDrops());
 
 				BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
 				if (blockEnity != null)
@@ -1002,10 +970,12 @@ namespace MiNET.Worlds
 	public class BlockBreakEventArgs : LevelEventArgs
 	{
 		public Block Block { get; private set; }
+		public List<ItemStack> Drops { get; private set; }
 
-		public BlockBreakEventArgs(Player player, Level level, Block block) : base(player, level)
+		public BlockBreakEventArgs(Player player, Level level, Block block, List<ItemStack> drops) : base(player, level)
 		{
 			Block = block;
+			Drops = drops;
 		}
 	}
 }

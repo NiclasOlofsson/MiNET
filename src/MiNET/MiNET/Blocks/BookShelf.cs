@@ -2,7 +2,7 @@
 {
 	public class Bookshelf : Block
 	{
-		internal Bookshelf() : base(47)
+		public Bookshelf() : base(47)
 		{
 			FuelEfficiency = 15;
 		}

@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemEgg : Item
 	{
-		internal ItemEgg(short metadata) : base(344, metadata)
+		public ItemEgg(short metadata) : base(344, metadata)
 		{
 		}
 

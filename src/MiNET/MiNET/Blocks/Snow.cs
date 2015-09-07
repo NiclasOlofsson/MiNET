@@ -4,7 +4,7 @@ namespace MiNET.Blocks
 {
 	public class Snow : Block
 	{
-		internal Snow() : base(80)
+		public Snow() : base(80)
 		{
 		}
 

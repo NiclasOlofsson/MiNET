@@ -27,7 +27,7 @@ namespace MiNET.Entities
 		{
 			Level.AddEntity(this);
 
-			if(Shooter == null)
+			if (Shooter == null)
 			{
 				var addEntity = McpeAddEntity.CreateObject();
 				addEntity.entityType = EntityTypeId;
@@ -38,9 +38,9 @@ namespace MiNET.Entities
 				addEntity.yaw = KnownPosition.Yaw;
 				addEntity.pitch = KnownPosition.Pitch;
 				addEntity.metadata = GetMetadata();
-				addEntity.speedX = (float)Velocity.X;
-				addEntity.speedY = (float)Velocity.Y;
-				addEntity.speedZ = (float)Velocity.Z;
+				addEntity.speedX = (float) Velocity.X;
+				addEntity.speedY = (float) Velocity.Y;
+				addEntity.speedZ = (float) Velocity.Z;
 
 				Level.RelayBroadcast(addEntity);
 
@@ -54,7 +54,6 @@ namespace MiNET.Entities
 			else
 			{
 				{
-
 					var addEntity = McpeAddEntity.CreateObject();
 					addEntity.entityType = EntityTypeId;
 					addEntity.entityId = EntityId;
@@ -64,9 +63,9 @@ namespace MiNET.Entities
 					addEntity.yaw = KnownPosition.Yaw;
 					addEntity.pitch = KnownPosition.Pitch;
 					addEntity.metadata = GetMetadata();
-					addEntity.speedX = (float)Velocity.X;
-					addEntity.speedY = (float)Velocity.Y;
-					addEntity.speedZ = (float)Velocity.Z;
+					addEntity.speedX = (float) Velocity.X;
+					addEntity.speedY = (float) Velocity.Y;
+					addEntity.speedZ = (float) Velocity.Z;
 
 					Level.RelayBroadcast(Shooter, addEntity);
 
@@ -88,9 +87,9 @@ namespace MiNET.Entities
 					addEntity.yaw = KnownPosition.Yaw;
 					addEntity.pitch = KnownPosition.Pitch;
 					addEntity.metadata = metadata;
-					addEntity.speedX = (float)Velocity.X;
-					addEntity.speedY = (float)Velocity.Y;
-					addEntity.speedZ = (float)Velocity.Z;
+					addEntity.speedX = (float) Velocity.X;
+					addEntity.speedY = (float) Velocity.Y;
+					addEntity.speedZ = (float) Velocity.Z;
 
 					Shooter.SendPackage(addEntity);
 
@@ -99,12 +98,7 @@ namespace MiNET.Entities
 					mcpeSetEntityData.metadata = metadata;
 					Shooter.SendPackage(mcpeSetEntityData);
 				}
-
-
-
 			}
-
-
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -189,9 +183,12 @@ namespace MiNET.Entities
 				Velocity *= (1.0 - Drag);
 				Velocity -= new Vector3(0, Gravity, 0);
 
-				var k = Math.Sqrt((Velocity.X*Velocity.X) + (Velocity.Z*Velocity.Z));
-				KnownPosition.Yaw = (float) (Math.Atan2(Velocity.X, Velocity.Z)*180f/Math.PI);
-				KnownPosition.Pitch = (float) (Math.Atan2(Velocity.Y, k)*180f/Math.PI);
+				//var k = Math.Sqrt((Velocity.X*Velocity.X) + (Velocity.Z*Velocity.Z));
+				//KnownPosition.Yaw =  (float) Vector3.RadiansToDegrees(Math.Atan2(Velocity.X, Velocity.Z));
+				//KnownPosition.Pitch = (float) Vector3.RadiansToDegrees(Math.Atan2(Velocity.Y, k));
+
+				KnownPosition.Yaw = (float) Velocity.GetYaw();
+				KnownPosition.Pitch = (float) Velocity.GetPitch();
 			}
 
 			// For debugging of flight-path

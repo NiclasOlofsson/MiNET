@@ -113,20 +113,20 @@
 		ID_CONNECTION_REQUEST_ACCEPTED = 0x10,
 
 		/// RakPeer - Sent to the player when a connection request cannot be completed due to inability to connect.
-		ID_CONNECTION_ATTEMPT_FAILED,
+		ID_CONNECTION_ATTEMPT_FAILED = 0x11,
 
 		/// RakPeer - Sent a connect request to a system we are currently connected to.
-		ID_ALREADY_CONNECTED,
+		ID_ALREADY_CONNECTED = 0x12,
 
 		/// RakPeer - A remote system has successfully connected.
-		ID_NEW_INCOMING_CONNECTION,
+		ID_NEW_INCOMING_CONNECTION = 0x13,
 
 		/// RakPeer - The system we attempted to connect to is not accepting new connections.
-		ID_NO_FREE_INCOMING_CONNECTIONS,
+		ID_NO_FREE_INCOMING_CONNECTIONS = 0x14,
 
 		/// RakPeer - The system specified in Packet::systemAddress has disconnected from us. For the client, this would mean the
 		/// server has shutdown.
-		ID_DISCONNECTION_NOTIFICATION,
+		ID_DISCONNECTION_NOTIFICATION = 0x15,
 
 		/// RakPeer - Reliable packets cannot be delivered to the system specified in Packet::systemAddress. The connection to that
 		/// system has been closed.

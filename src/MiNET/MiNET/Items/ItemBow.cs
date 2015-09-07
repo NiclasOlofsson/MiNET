@@ -20,18 +20,9 @@ namespace MiNET.Items
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.62f;
 
-			float yaw = arrow.KnownPosition.Yaw;
-			float pitch = arrow.KnownPosition.Pitch;
-
-			var vx = -Math.Sin(yaw/180f*Math.PI)*Math.Cos(pitch/180f*Math.PI);
-			var vy = -Math.Sin(pitch/180f*Math.PI);
-			var vz = Math.Cos(yaw/180f*Math.PI)*Math.Cos(pitch/180f*Math.PI);
-
-			arrow.Velocity = new Vector3(vx, vy, vz)*(force*2.0f*1.5f);
-
-			var k = Math.Sqrt((arrow.Velocity.X*arrow.Velocity.X) + (arrow.Velocity.Z*arrow.Velocity.Z));
-			arrow.KnownPosition.Yaw = (float) (Math.Atan2(arrow.Velocity.X, arrow.Velocity.Z)*180f/Math.PI);
-			arrow.KnownPosition.Pitch = (float) (Math.Atan2(arrow.Velocity.Y, k)*180f/Math.PI);
+			arrow.Velocity = arrow.KnownPosition.GetDirection()*(force*2.0f*1.5f);
+			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
+			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 
 			//Arrow arrow2 = new Arrow(player, world)
 			//{

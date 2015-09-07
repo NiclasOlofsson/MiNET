@@ -562,6 +562,7 @@ namespace MiNET
 
 					var reply = OpenConnectionReply2.CreateObject();
 					reply.serverGuid = 12345;
+					reply.clientendpoint = senderEndpoint;
 					reply.mtuSize = incoming.mtuSize;
 					reply.doSecurityAndHandshake = new byte[0];
 					var data = reply.Encode();

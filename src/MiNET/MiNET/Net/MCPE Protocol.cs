@@ -692,6 +692,7 @@ namespace MiNET.Net
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
+		public IPEndPoint clientendpoint; // = null;
 		public short mtuSize; // = null;
 		public byte[] doSecurityAndHandshake; // = null;
 		public OpenConnectionReply2()
@@ -707,6 +708,7 @@ namespace MiNET.Net
 
 			Write(offlineMessageDataId);
 			Write(serverGuid);
+			Write(clientendpoint);
 			Write(mtuSize);
 			Write(doSecurityAndHandshake);
 
@@ -724,6 +726,7 @@ namespace MiNET.Net
 
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
+			clientendpoint = ReadIPEndPoint();
 			mtuSize = ReadShort();
 			doSecurityAndHandshake = ReadBytes(0);
 

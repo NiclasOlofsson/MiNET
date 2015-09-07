@@ -231,6 +231,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 |Server GUID | long |  |
+|ClientEndpoint | IPEndPoint |  |
 |MTU Size | short |  |
 |Do security and handshake | byte[] | 0 |
 -----------------------------------------------------------------------

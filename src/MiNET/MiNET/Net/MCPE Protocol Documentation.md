@@ -815,15 +815,13 @@ TODO: can have multiple blocks.
 |Y | int |  |
 |Z | int |  |
 |Face | byte |  |
-|Item | short |  |
-|Meta | short |  |
-|Entity ID | long |  |
 |Fx | float |  |
 |Fy | float |  |
 |Fz | float |  |
 |Position X | float |  |
 |Position Y | float |  |
 |Position Z | float |  |
+|Item | MetadataSlot |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Action (0xab)
 

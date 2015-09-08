@@ -420,7 +420,7 @@ namespace MiNET
 		/// </summary>
 		public virtual void HandleDisconnectionNotification()
 		{
-			Disconnect("Client requested disconnected");
+			Disconnect("Client requested disconnected", false);
 		}
 
 		/// <summary>
@@ -578,7 +578,7 @@ namespace MiNET
 
 				if (GameMode != GameMode.Creative)
 				{
-				SendPlayerInventory();
+					SendPlayerInventory();
 				}
 
 				ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -783,8 +783,9 @@ namespace MiNET
 
 		private object _disconnectSync = new object();
 
-		public virtual void Disconnect(string reason)
+		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
+			reason = "gurun: " + reason;
 			if (!Monitor.TryEnter(_disconnectSync)) return;
 			try
 			{
@@ -794,16 +795,23 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				if(Level != null)
+				if (Level != null)
 				{
 					Level.RemovePlayer(this);
 				}
 
 				if (IsConnected)
 				{
-					McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-					disconnect.message = reason;
-					SendPackage(disconnect, true);
+					if (sendDisconnect)
+					{
+						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+						disconnect.message = reason;
+						SendPackage(disconnect, true);
+					}
+					//McpeTransfer transfer = new McpeTransfer();
+					//transfer.endpoint = Server.Endpoint;
+					////transfer.endpoint = new IPEndPoint(IPAddress.Parse("86.8.24.26"), 19132);
+					//SendPackage(transfer, true);
 
 					IsConnected = false;
 				}
@@ -1048,8 +1056,8 @@ namespace MiNET
 					{
 						currentIndex = i;
 						break;
+					}
 				}
-			}
 
 				if (currentIndex != -1)
 				{
@@ -1393,8 +1401,6 @@ namespace MiNET
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
 			Log.DebugFormat("Use item: {0}", message.item);
-			Log.DebugFormat("Entity ID: {0}", message.entityId);
-			Log.DebugFormat("meta:  {0}", message.meta);
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
 			Log.DebugFormat("z:  {0}", message.z);
@@ -1416,14 +1422,14 @@ namespace MiNET
 
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
 
-				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta, (BlockFace) message.face, faceCoords);
+				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata, (BlockFace) message.face, faceCoords);
 			}
 			else
 			{
 				_itemUseTimer = new Stopwatch();
 				_itemUseTimer.Start();
 				// Snowballs and shit
-				Level.Interact(Level, this, message.item, new BlockCoordinates(message.x, message.y, message.z), message.meta);
+				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata);
 
 				MetadataDictionary metadata = new MetadataDictionary();
 				metadata[0] = new MetadataByte(16);
@@ -1446,7 +1452,7 @@ namespace MiNET
 			mcpeStartGame.spawnY = (int) SpawnPosition.Y;
 			mcpeStartGame.spawnZ = (int) SpawnPosition.Z;
 			mcpeStartGame.x = KnownPosition.X;
-			mcpeStartGame.y = KnownPosition.Y;
+			mcpeStartGame.y = (float) (KnownPosition.Y + Height);
 			mcpeStartGame.z = KnownPosition.Z;
 			SendPackage(mcpeStartGame);
 		}

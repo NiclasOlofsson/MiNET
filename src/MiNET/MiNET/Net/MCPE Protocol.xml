@@ -343,15 +343,13 @@
 		<field name="Y" type="int" />
 		<field name="Z" type="int" />
 		<field name="Face" type="byte" />
-		<field name="Item" type="short" />
-		<field name="Meta" type="short" />
-		<field name="Entity ID" type="long" />
 		<field name="Fx" type="float" />
 		<field name="Fy" type="float" />
 		<field name="Fz" type="float" />
 		<field name="Position X" type="float" />
 		<field name="Position Y" type="float" />
 		<field name="Position Z" type="float" />
+		<field name="Item" type="MetadataSlot" />
 	</pdu>
 
 	<pdu id="0xab" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">

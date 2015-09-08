@@ -703,10 +703,13 @@ namespace MiNET.Client
 			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 			var packet = new McpeLogin()
 			{
+				clientUuid = new UUID(),
 				clientId = ClientId,
 				username = username,
 				protocol = 27,
-				skin = skin
+				skin = skin,
+				clientSecret = "secret",
+				serverAddress = "192.168.0.3"
 			};
 
 			McpeBatch batch = new McpeBatch();
@@ -758,9 +761,9 @@ namespace MiNET.Client
 		public static void Connect()
 		{
 			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Any, 0));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132));
-
+			client.Username = "TestClient";
 			client.StartServer();
 			Console.WriteLine("Server started.");
 
@@ -768,7 +771,8 @@ namespace MiNET.Client
 
 			Console.WriteLine("Sending ping...");
 
-			client.SendUnconnectedPing();
+			//client.SendUnconnectedPing();
+			client.SendOpenConnectionRequest1();
 			//client.SendUnconnectedPing();
 			//client.SendUnconnectedPing();
 

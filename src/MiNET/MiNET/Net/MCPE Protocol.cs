@@ -2231,15 +2231,13 @@ namespace MiNET.Net
 		public int y; // = null;
 		public int z; // = null;
 		public byte face; // = null;
-		public short item; // = null;
-		public short meta; // = null;
-		public long entityId; // = null;
 		public float fx; // = null;
 		public float fy; // = null;
 		public float fz; // = null;
 		public float positionX; // = null;
 		public float positionY; // = null;
 		public float positionZ; // = null;
+		public MetadataSlot item; // = null;
 		public McpeUseItem()
 		{
 			Id = 0xaa;
@@ -2255,15 +2253,13 @@ namespace MiNET.Net
 			Write(y);
 			Write(z);
 			Write(face);
-			Write(item);
-			Write(meta);
-			Write(entityId);
 			Write(fx);
 			Write(fy);
 			Write(fz);
 			Write(positionX);
 			Write(positionY);
 			Write(positionZ);
+			Write(item);
 
 			AfterEncode();
 		}
@@ -2281,15 +2277,13 @@ namespace MiNET.Net
 			y = ReadInt();
 			z = ReadInt();
 			face = ReadByte();
-			item = ReadShort();
-			meta = ReadShort();
-			entityId = ReadLong();
 			fx = ReadFloat();
 			fy = ReadFloat();
 			fz = ReadFloat();
 			positionX = ReadFloat();
 			positionY = ReadFloat();
 			positionZ = ReadFloat();
+			item = ReadMetadataSlot();
 
 			AfterDecode();
 		}

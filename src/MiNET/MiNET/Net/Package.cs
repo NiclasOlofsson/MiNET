@@ -433,9 +433,16 @@ namespace MiNET.Net
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
 				{
+					if (slot.Value.Id == 0)
+					{
+						Write((short) 0);
+						continue;
+					}
+
 					Write(slot.Value.Id);
 					Write(slot.Value.Count);
 					Write(slot.Value.Metadata);
+					Write((short) 0); // NBT Len
 				}
 			}
 		}
@@ -449,6 +456,7 @@ namespace MiNET.Net
 			for (byte i = 0; i < count; i++)
 			{
 				metadata[i] = new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
+				ReadShort(); // NbtLen
 			}
 
 			return metadata;
@@ -456,12 +464,15 @@ namespace MiNET.Net
 
 		public void Write(MetadataSlot slot)
 		{
-			if (slot != null)
+			if (slot == null)
 			{
-				Write(slot.Value.Id);
-				Write(slot.Value.Count);
-				Write(slot.Value.Metadata);
+				Write((short) 0);
+				return;
 			}
+
+			Write(slot.Value.Id);
+			Write(slot.Value.Count);
+			Write(slot.Value.Metadata);
 		}
 
 		public MetadataSlot ReadMetadataSlot()

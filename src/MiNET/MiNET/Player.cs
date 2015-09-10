@@ -1140,9 +1140,7 @@ namespace MiNET
 			{
 				windowId = inventory.Id,
 				slot = slot,
-				itemCount = itemStack.Count,
-				itemId = itemStack.Id,
-				itemDamage = itemStack.Metadata,
+				item = new MetadataSlot(itemStack)
 			});
 		}
 
@@ -1159,7 +1157,7 @@ namespace MiNET
 			// Inventory manager makes sure other players with the same inventory open will 
 			// also get the update.
 
-			var itemStack = new ItemStack(message.itemId, message.itemCount, message.itemDamage);
+			var itemStack = message.item.Value;
 
 			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
 			if (inventory != null)
@@ -1185,30 +1183,32 @@ namespace MiNET
 
 					break;
 				case 0x78:
+					int itemId = message.item.Value.Id;
+					short itemMetadata = message.item.Value.Metadata;
 					switch ((byte) message.slot)
 					{
 						case 0:
-							Inventory.Helmet = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							Inventory.Helmet = ItemFactory.GetItem(itemId, itemMetadata);
 							break;
 						case 1:
-							Inventory.Chest = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							Inventory.Chest = ItemFactory.GetItem(itemId, itemMetadata);
 							break;
 						case 2:
-							Inventory.Leggings = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							Inventory.Leggings = ItemFactory.GetItem(itemId, itemMetadata);
 							break;
 						case 3:
-							Inventory.Boots = ItemFactory.GetItem(message.itemId, message.itemDamage);
+							Inventory.Boots = ItemFactory.GetItem(itemId, itemMetadata);
 							break;
 					}
 					break;
 			}
 
-			var armorEquipment = McpePlayerArmorEquipment.CreateObject();
+			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 			armorEquipment.entityId = EntityId;
-			armorEquipment.helmet = (byte) (Inventory.Helmet.Id - 256);
-			armorEquipment.chestplate = (byte) (Inventory.Chest.Id - 256);
-			armorEquipment.leggings = (byte) (Inventory.Leggings.Id - 256);
-			armorEquipment.boots = (byte) (Inventory.Boots.Id - 256);
+			armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 1));
+			armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 1));
+			armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 1));
+			armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 1));
 			Level.RelayBroadcast(this, armorEquipment);
 
 			var playerEquipment = McpePlayerEquipment.CreateObject();
@@ -1400,7 +1400,8 @@ namespace MiNET
 
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
-			Log.DebugFormat("Use item: {0}", message.item);
+			Log.DebugFormat("Use item: {0}", message.item.Value.Id);
+			Log.DebugFormat("item meta: {0}", message.item.Value.Metadata);
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
 			Log.DebugFormat("z:  {0}", message.z);

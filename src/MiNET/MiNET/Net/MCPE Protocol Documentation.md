@@ -779,10 +779,10 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Helmet | byte |  |
-|Chestplate | byte |  |
-|Leggings | byte |  |
-|Boots | byte |  |
+|Helmet | MetadataSlot |  |
+|Chestplate | MetadataSlot |  |
+|Leggings | MetadataSlot |  |
+|Boots | MetadataSlot |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Interact (0xa9)
 
@@ -1025,9 +1025,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 |Slot | short |  |
-|Item ID | short |  |
-|Item Count | byte |  |
-|Item Damage | short |  |
+|Item | MetadataSlot |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Data (0xb8)
 

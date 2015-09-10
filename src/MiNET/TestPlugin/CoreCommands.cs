@@ -103,12 +103,12 @@ namespace TestPlugin
 			{
 				player.SpawnLevel(player.Level, new PlayerLocation
 				{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
+					X = x,
+					Y = y,
+					Z = z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
 				});
 			}, null);
 
@@ -302,14 +302,13 @@ namespace TestPlugin
 
 		private void SendArmorForPlayer(Player player)
 		{
-			player.Level.RelayBroadcast(new McpePlayerArmorEquipment
-			{
-				entityId = player.EntityId,
-				helmet = (byte) (player.Inventory.Helmet.Id - 256),
-				chestplate = (byte) (player.Inventory.Chest.Id - 256),
-				leggings = (byte) (player.Inventory.Leggings.Id - 256),
-				boots = (byte) (player.Inventory.Boots.Id - 256)
-			});
+			var armorEquipment = new McpePlayerArmorEquipment();
+			armorEquipment.entityId = player.EntityId;
+			armorEquipment.helmet = new MetadataSlot(new ItemStack(player.Inventory.Helmet, 0));
+			armorEquipment.chestplate = new MetadataSlot(new ItemStack(player.Inventory.Chest, 0));
+			armorEquipment.leggings = new MetadataSlot(new ItemStack(player.Inventory.Leggings, 0));
+			armorEquipment.boots = new MetadataSlot(new ItemStack(player.Inventory.Boots, 0));
+			player.Level.RelayBroadcast(armorEquipment);
 		}
 
 		[Command]
@@ -403,10 +402,10 @@ namespace TestPlugin
 					case EffectType.Levitation:
 						eff = new Levitation();
 						break;
-		}
+				}
 
 				if (eff != null)
-			{
+				{
 					eff.Level = level;
 					eff.Duration = duration;
 

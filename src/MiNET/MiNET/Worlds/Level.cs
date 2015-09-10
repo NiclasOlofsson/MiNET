@@ -221,10 +221,10 @@ namespace MiNET.Worlds
 		{
 			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = player.EntityId;
-			mcpePlayerArmorEquipment.helmet = (byte) (player.Inventory.Helmet.Id - 256);
-			mcpePlayerArmorEquipment.chestplate = (byte) (player.Inventory.Chest.Id - 256);
-			mcpePlayerArmorEquipment.leggings = (byte) (player.Inventory.Leggings.Id - 256);
-			mcpePlayerArmorEquipment.boots = (byte) (player.Inventory.Boots.Id - 256);
+			mcpePlayerArmorEquipment.helmet = new MetadataSlot(new ItemStack(player.Inventory.Helmet,0));
+			mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(player.Inventory.Chest, 0));
+			mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(player.Inventory.Leggings, 0));
+			mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(player.Inventory.Boots, 0));
 			receiver.SendPackage(mcpePlayerArmorEquipment);
 		}
 
@@ -672,8 +672,6 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true)
 		{
-			PlayerLocation spawn = SpawnPoint;
-
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
@@ -814,11 +812,11 @@ namespace MiNET.Worlds
 					Block sendBlock = new Block(block.Id)
 					{
 						Coordinates = block.Coordinates,
-						Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
+						Metadata = (byte)(0xb << 4 | (block.Metadata & 0xf))
 					};
 
 					var message = McpeUpdateBlock.CreateObject();
-					message.blocks = new BlockRecords {sendBlock};
+					message.blocks = new BlockRecords { sendBlock };
 					player.SendPackage(message, true);
 
 					return;

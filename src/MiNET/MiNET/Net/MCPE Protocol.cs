@@ -2137,10 +2137,10 @@ namespace MiNET.Net
 	public partial class McpePlayerArmorEquipment : Package<McpePlayerArmorEquipment>
 	{
 		public long entityId; // = null;
-		public byte helmet; // = null;
-		public byte chestplate; // = null;
-		public byte leggings; // = null;
-		public byte boots; // = null;
+		public MetadataSlot helmet; // = null;
+		public MetadataSlot chestplate; // = null;
+		public MetadataSlot leggings; // = null;
+		public MetadataSlot boots; // = null;
 		public McpePlayerArmorEquipment()
 		{
 			Id = 0xa8;
@@ -2171,10 +2171,10 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			helmet = ReadByte();
-			chestplate = ReadByte();
-			leggings = ReadByte();
-			boots = ReadByte();
+			helmet = ReadMetadataSlot();
+			chestplate = ReadMetadataSlot();
+			leggings = ReadMetadataSlot();
+			boots = ReadMetadataSlot();
 
 			AfterDecode();
 		}
@@ -2813,9 +2813,7 @@ namespace MiNET.Net
 	{
 		public byte windowId; // = null;
 		public short slot; // = null;
-		public short itemId; // = null;
-		public byte itemCount; // = null;
-		public short itemDamage; // = null;
+		public MetadataSlot item; // = null;
 		public McpeContainerSetSlot()
 		{
 			Id = 0xb7;
@@ -2829,9 +2827,7 @@ namespace MiNET.Net
 
 			Write(windowId);
 			Write(slot);
-			Write(itemId);
-			Write(itemCount);
-			Write(itemDamage);
+			Write(item);
 
 			AfterEncode();
 		}
@@ -2847,9 +2843,7 @@ namespace MiNET.Net
 
 			windowId = ReadByte();
 			slot = ReadShort();
-			itemId = ReadShort();
-			itemCount = ReadByte();
-			itemDamage = ReadShort();
+			item = ReadMetadataSlot();
 
 			AfterDecode();
 		}

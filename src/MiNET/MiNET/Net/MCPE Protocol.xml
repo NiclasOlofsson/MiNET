@@ -327,10 +327,10 @@
 
 	<pdu id="0xa8" online="false" client="true" server="true" name="MCPE_PLAYER_ARMOR_EQUIPMENT">
 		<field name="Entity ID" type="long" />
-		<field name="Helmet" type="byte" />
-		<field name="Chestplate" type="byte" />
-		<field name="Leggings" type="byte" />
-		<field name="Boots" type="byte" />
+		<field name="Helmet" type="MetadataSlot" />
+		<field name="Chestplate" type="MetadataSlot" />
+		<field name="Leggings" type="MetadataSlot" />
+		<field name="Boots" type="MetadataSlot" />
 	</pdu>
 
 	<pdu id="0xa9" online="false" client="true" server="true" name="MCPE_INTERACT">
@@ -423,9 +423,7 @@
 	<pdu id="0xb7" online="false" client="true" server="true" name="MCPE_CONTAINER_SET_SLOT">
 		<field name="Window ID" type="byte" />
 		<field name="Slot" type="short" />
-		<field name="Item ID" type="short" />
-		<field name="Item Count" type="byte" />
-		<field name="Item Damage" type="short" />
+		<field name="Item" type="MetadataSlot" />
 	</pdu>
 
 	<pdu id="0xb8" online="false" client="true" server="true" name="MCPE_CONTAINER_SET_DATA">

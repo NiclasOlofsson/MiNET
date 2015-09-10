@@ -84,13 +84,17 @@ namespace MiNET.Entities
 				player.SendPackage(message);
 			}
 			{
-				McpePlayerArmorEquipment message = McpePlayerArmorEquipment.CreateObject();
-				message.entityId = EntityId;
-				message.helmet = (byte) (Helmet - 256);
-				message.chestplate = (byte) (Chest - 256);
-				message.leggings = (byte) (Leggings - 256);
-				message.boots = (byte) (Boots - 256);
-				player.SendPackage(message);
+				McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+				armorEquipment.entityId = EntityId;
+				armorEquipment.helmet = new MetadataSlot(new ItemStack());
+				armorEquipment.chestplate = new MetadataSlot(new ItemStack());
+				armorEquipment.leggings = new MetadataSlot(new ItemStack());
+				armorEquipment.boots = new MetadataSlot(new ItemStack());
+				//armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 0));
+				//armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 0));
+				//armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 0));
+				//armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 0));
+				player.SendPackage(armorEquipment);
 			}
 		}
 
@@ -133,13 +137,13 @@ namespace MiNET.Entities
 
 		protected virtual void SendArmor()
 		{
-			McpePlayerArmorEquipment message = McpePlayerArmorEquipment.CreateObject();
-			message.entityId = EntityId;
-			message.helmet = (byte) (Helmet - 256);
-			message.chestplate = (byte) (Chest - 256);
-			message.leggings = (byte) (Leggings - 256);
-			message.boots = (byte) (Boots - 256);
-			Level.RelayBroadcast(message);
+			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+			armorEquipment.entityId = EntityId;
+			armorEquipment.helmet = new MetadataSlot(new ItemStack());
+			armorEquipment.chestplate = new MetadataSlot(new ItemStack());
+			armorEquipment.leggings = new MetadataSlot(new ItemStack());
+			armorEquipment.boots = new MetadataSlot(new ItemStack());
+			Level.RelayBroadcast(armorEquipment);
 		}
 	}
 }

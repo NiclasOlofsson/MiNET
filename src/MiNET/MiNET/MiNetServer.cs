@@ -182,7 +182,7 @@ namespace MiNET
 				//	}
 				//}, null, 1000, 1000);
 
-				Log.Info("Server open for business...");
+				Log.Info("Server open for business on port " + Endpoint.Port + " ...");
 
 				return true;
 			}
@@ -262,7 +262,7 @@ namespace MiNET
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				try
 				{
-					if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
+					//if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)

@@ -578,7 +578,7 @@ namespace MiNET
 
 				if (GameMode != GameMode.Creative)
 				{
-					SendPlayerInventory();
+				SendPlayerInventory();
 				}
 
 				ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -797,16 +797,16 @@ namespace MiNET
 
 				if (Level != null)
 				{
-					Level.RemovePlayer(this);
+				Level.RemovePlayer(this);
 				}
 
 				if (IsConnected)
 				{
 					if (sendDisconnect)
 					{
-						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-						disconnect.message = reason;
-						SendPackage(disconnect, true);
+					McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+					disconnect.message = reason;
+					SendPackage(disconnect, true);
 					}
 					//McpeTransfer transfer = new McpeTransfer();
 					//transfer.endpoint = Server.Endpoint;
@@ -1056,8 +1056,8 @@ namespace MiNET
 					{
 						currentIndex = i;
 						break;
-					}
 				}
+			}
 
 				if (currentIndex != -1)
 				{

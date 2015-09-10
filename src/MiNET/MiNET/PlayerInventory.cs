@@ -68,12 +68,12 @@ namespace MiNET
 		}
 
 		public virtual ItemStack GetItemInHand()
-		{
+			{
 			var index = ItemHotbar[InHandSlot];
 			if (index == -1) return new ItemStack();
 
 			return Slots[index];
-		}
+			}
 
 		[Wired]
 		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
@@ -140,24 +140,24 @@ namespace MiNET
 			}
 		}
 
-		public void SetHeldItemSlot(int slot)
-		{
-			McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
-			order.entityId = 0;
+        public void SetHeldItemSlot(int slot)
+        {
+            McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
+            order.entityId = 0;
 			order.selectedSlot = (byte) slot;
 			Player.SendPackage(order);
 
-			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
+            McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
 			broadcast.entityId = Player.EntityId;
 			broadcast.selectedSlot = (byte) slot;
 			Player.Level.RelayBroadcast(broadcast);
-		}
+        }
 
-		/// <summary>
-		///     Empty the specified slot
-		/// </summary>
-		/// <param name="slot">The slot to empty.</param>
-		public void ClearInventorySlot(byte slot)
+        /// <summary>
+        ///     Empty the specified slot
+        /// </summary>
+        /// <param name="slot">The slot to empty.</param>
+        public void ClearInventorySlot(byte slot)
 		{
 			SetInventorySlot(slot, 0, 0);
 		}

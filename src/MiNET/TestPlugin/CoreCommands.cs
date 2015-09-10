@@ -103,12 +103,12 @@ namespace TestPlugin
 			{
 				player.SpawnLevel(player.Level, new PlayerLocation
 				{
-					X = x,
-					Y = y,
-					Z = z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91
+				X = x,
+				Y = y,
+				Z = z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91
 				});
 			}, null);
 
@@ -402,10 +402,10 @@ namespace TestPlugin
 					case EffectType.Levitation:
 						eff = new Levitation();
 						break;
-				}
+		}
 
 				if (eff != null)
-				{
+			{
 					eff.Level = level;
 					eff.Duration = duration;
 

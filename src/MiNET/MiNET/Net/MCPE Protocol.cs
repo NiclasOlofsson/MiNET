@@ -7,6 +7,7 @@ using System;
 using System.Net;
 using System.Threading;
 using MiNET.Utils; 
+using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
 
 namespace MiNET.Net
@@ -638,9 +639,7 @@ namespace MiNET.Net
 	public partial class OpenConnectionRequest2 : Package<OpenConnectionRequest2>
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
-		public byte serverSecurity; // = null;
-		public byte[] systemadress; // = null;
-		public short clientUdpPort; // = null;
+		public IPEndPoint clientendpoint; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
 		public OpenConnectionRequest2()
@@ -655,9 +654,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(offlineMessageDataId);
-			Write(serverSecurity);
-			Write(systemadress);
-			Write(clientUdpPort);
+			Write(clientendpoint);
 			Write(mtuSize);
 			Write(clientGuid);
 
@@ -674,9 +671,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			ReadBytes(offlineMessageDataId.Length);
-			serverSecurity = ReadByte();
-			systemadress = ReadBytes(4);
-			clientUdpPort = ReadShort();
+			clientendpoint = ReadIPEndPoint();
 			mtuSize = ReadShort();
 			clientGuid = ReadLong();
 
@@ -2943,7 +2938,7 @@ namespace MiNET.Net
 
 	public partial class McpeCraftingData : Package<McpeCraftingData>
 	{
-		public int flags; // = null;
+		public Recipes recipes; // = null;
 		public McpeCraftingData()
 		{
 			Id = 0xba;
@@ -2955,7 +2950,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(flags);
+			Write(recipes);
 
 			AfterEncode();
 		}
@@ -2969,7 +2964,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			flags = ReadInt();
+			recipes = ReadRecipes();
 
 			AfterDecode();
 		}

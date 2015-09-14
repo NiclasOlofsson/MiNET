@@ -576,9 +576,15 @@ namespace MiNET
 
 				LastUpdatedTime = DateTime.UtcNow;
 
+				McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+				inventoryContent.windowId = 0x79;
+				inventoryContent.slotData = Inventory.GetSlots();
+				inventoryContent.hotbarData = Inventory.GetHotbar();
+				SendPackage(inventoryContent);
+
 				if (GameMode != GameMode.Creative)
 				{
-				SendPlayerInventory();
+					SendPlayerInventory();
 				}
 
 				ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -785,7 +791,6 @@ namespace MiNET
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			reason = "gurun: " + reason;
 			if (!Monitor.TryEnter(_disconnectSync)) return;
 			try
 			{
@@ -797,16 +802,16 @@ namespace MiNET
 
 				if (Level != null)
 				{
-				Level.RemovePlayer(this);
+					Level.RemovePlayer(this);
 				}
 
 				if (IsConnected)
 				{
 					if (sendDisconnect)
 					{
-					McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-					disconnect.message = reason;
-					SendPackage(disconnect, true);
+						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+						disconnect.message = reason;
+						SendPackage(disconnect, true);
 					}
 					//McpeTransfer transfer = new McpeTransfer();
 					//transfer.endpoint = Server.Endpoint;
@@ -1056,8 +1061,8 @@ namespace MiNET
 					{
 						currentIndex = i;
 						break;
+					}
 				}
-			}
 
 				if (currentIndex != -1)
 				{
@@ -1520,7 +1525,7 @@ namespace MiNET
 			}
 		}
 
-		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel)
+		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel, bool writeLen = false)
 		{
 			MemoryStream stream = new MemoryStream();
 			stream.WriteByte(0x78);
@@ -1528,6 +1533,9 @@ namespace MiNET
 			int checksum;
 			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 			{
+				byte[] lenBytes = BitConverter.GetBytes(input.Length);
+				Array.Reverse(lenBytes);
+				if(writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
 				compressStream.Write(input, 0, input.Length);
 				checksum = compressStream.Checksum;
 			}

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -11,7 +10,7 @@ namespace MiNET
 	public class PlayerInventory
 	{
 		public const int HotbarSize = 9;
-		public const int InventorySize = HotbarSize+27;
+		public const int InventorySize = HotbarSize + 27;
 		public Player Player { get; private set; }
 
 		public List<ItemStack> Slots { get; private set; }
@@ -29,8 +28,8 @@ namespace MiNET
 		{
 			Player = player;
 			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
-			int c = 0;
-			Slots[++c] = new ItemStack(new ItemBlock(new DiamondOre(), 0), 64);
+			int c = -1;
+			//Slots[++c] = new ItemStack(new ItemBlock(new DiamondOre(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
@@ -46,7 +45,7 @@ namespace MiNET
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
-			Slots[++c] = new ItemStack(new ItemBlock(new CoalBlock(), 0), 64);
+			//Slots[++c] = new ItemStack(new ItemBlock(new CoalBlock(), 0), 64);
 
 			ItemHotbar = new int[HotbarSize];
 			InHandSlot = 0;
@@ -68,12 +67,12 @@ namespace MiNET
 		}
 
 		public virtual ItemStack GetItemInHand()
-			{
+		{
 			var index = ItemHotbar[InHandSlot];
-			if (index == -1) return new ItemStack();
+			if (index == -1 || index >= Slots.Count) return new ItemStack();
 
 			return Slots[index];
-			}
+		}
 
 		[Wired]
 		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
@@ -140,24 +139,24 @@ namespace MiNET
 			}
 		}
 
-        public void SetHeldItemSlot(int slot)
-        {
-            McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
-            order.entityId = 0;
+		public void SetHeldItemSlot(int slot)
+		{
+			McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
+			order.entityId = 0;
 			order.selectedSlot = (byte) slot;
 			Player.SendPackage(order);
 
-            McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
+			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
 			broadcast.entityId = Player.EntityId;
 			broadcast.selectedSlot = (byte) slot;
 			Player.Level.RelayBroadcast(broadcast);
-        }
+		}
 
-        /// <summary>
-        ///     Empty the specified slot
-        /// </summary>
-        /// <param name="slot">The slot to empty.</param>
-        public void ClearInventorySlot(byte slot)
+		/// <summary>
+		///     Empty the specified slot
+		/// </summary>
+		/// <param name="slot">The slot to empty.</param>
+		public void ClearInventorySlot(byte slot)
 		{
 			SetInventorySlot(slot, 0, 0);
 		}

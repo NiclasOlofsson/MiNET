@@ -11,9 +11,9 @@ namespace MiNET.Net
 
 		public UUID(byte[] rfc4122Bytes)
 		{
-			Array.Reverse(rfc4122Bytes, 0, 4);
-			Array.Reverse(rfc4122Bytes, 4, 2);
-			Array.Reverse(rfc4122Bytes, 6, 2);
+			//Array.Reverse(rfc4122Bytes, 0, 4);
+			//Array.Reverse(rfc4122Bytes, 4, 2);
+			//Array.Reverse(rfc4122Bytes, 6, 2);
 			Id = new Guid(rfc4122Bytes);
 		}
 
@@ -23,9 +23,9 @@ namespace MiNET.Net
 		{
 			var bytes = Id.ToByteArray();
 
-			Array.Reverse(bytes, 0, 4);
-			Array.Reverse(bytes, 4, 2);
-			Array.Reverse(bytes, 6, 2);
+			//Array.Reverse(bytes, 0, 4);
+			//Array.Reverse(bytes, 4, 2);
+			//Array.Reverse(bytes, 6, 2);
 
 			return bytes;
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -8,6 +9,8 @@ using System.Text;
 using System.Threading;
 using log4net;
 using log4net.Config;
+using MiNET.Crafting;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -25,98 +28,113 @@ namespace MiNET.Client
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private IPEndPoint _clientEndpoint;
-		private IPEndPoint _serverTargetEndpoint;
+		private IPEndPoint _serverEndpoint;
 		private short _mtuSize = 1447;
-		private int _reliableMessageNumber = 1;
+		private int _reliableMessageNumber = -1;
 		private Vector3 _spawn;
 		private long _entityId;
 		public PlayerNetworkSession Session { get; set; }
 
-
 		private LevelInfo _level = new LevelInfo();
+		private int _clientGuid;
+		private Timer _connectedPingTimer;
 		public PlayerLocation CurrentLocation { get; set; }
 
-		public UdpClient Listener { get; private set; }
+		public UdpClient UdpClient { get; private set; }
 
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
-		public MiNetClient(IPEndPoint targetEndpoint, IPEndPoint clientEndpoint = null)
+		public MiNetClient(IPEndPoint endpoint, string username)
 		{
-			_serverTargetEndpoint = targetEndpoint;
-			_clientEndpoint = clientEndpoint ?? new IPEndPoint(IPAddress.Any, 0);
+			Username = username;
+			ClientId = new Random().Next();
+			_serverEndpoint = endpoint;
+			_clientEndpoint = new IPEndPoint(IPAddress.Any, 0);
 		}
 
-		public static bool IsRunningOnMono()
+		private static void Main(string[] args)
 		{
-			return Type.GetType("Mono.Runtime") != null;
+			Console.WriteLine("Starting client...");
+
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
+
+			client.StartClient();
+			Console.WriteLine("Server started.");
+
+			Thread.Sleep(2000);
+
+			Console.WriteLine("Sending ping...");
+
+			client.SendUnconnectedPing();
+
+			Console.WriteLine("<Enter> to exit!");
+			Console.ReadLine();
+			client.StopClient();
 		}
 
-		public bool StartServer()
+		public void StartClient()
 		{
-			if (Listener != null) return false; // Already started
+			if (UdpClient != null) return;
 
 			try
 			{
 				Log.Info("Initializing...");
 
-				Listener = new UdpClient(_clientEndpoint);
-
-				if (IsRunningOnMono())
+				UdpClient = new UdpClient(_clientEndpoint)
 				{
-					Listener.Client.ReceiveBufferSize = 1024*1024*3;
-					Listener.Client.SendBufferSize = 4096;
-				}
-				else
-				{
-					Listener.Client.ReceiveBufferSize = int.MaxValue;
-					Listener.Client.SendBufferSize = int.MaxValue;
-					Listener.DontFragment = false;
+					Client =
+					{
+						ReceiveBufferSize = int.MaxValue,
+						SendBufferSize = int.MaxValue
+					},
+					DontFragment = false
+				};
 
-					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-					// - Set to TRUE to enable reporting.
-					// - Set to FALSE to disable reporting.
+				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
+				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+				// - Set to TRUE to enable reporting.
+				// - Set to FALSE to disable reporting.
 
-					uint IOC_IN = 0x80000000;
-					uint IOC_VENDOR = 0x18000000;
-					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-					Listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+				//uint IOC_IN = 0x80000000;
+				//uint IOC_VENDOR = 0x18000000;
+				//uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+				//UdpClient.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
-					////
-					////WARNING: We need to catch errors here to remove the code above.
-					////
-				}
+				////
+				////WARNING: We need to catch errors here to remove the code above.
+				////
 
 				Session = new PlayerNetworkSession(null, _clientEndpoint);
 
-				Listener.BeginReceive(ReceiveCallback, Listener);
+				UdpClient.BeginReceive(ReceiveCallback, UdpClient);
+				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
 
 				Log.InfoFormat("Server open for business for {0}", Username);
 
-				return true;
+				return;
 			}
 			catch (Exception e)
 			{
-				Log.Error(e);
-				StopServer();
+				Log.Error("Main loop", e);
+				StopClient();
 			}
-
-			return false;
 		}
 
 		/// <summary>
 		///     Stops the server.
 		/// </summary>
 		/// <returns></returns>
-		public bool StopServer()
+		public bool StopClient()
 		{
 			try
 			{
-				if (Listener == null) return true; // Already stopped. It's ok.
+				if (UdpClient == null) return true; // Already stopped. It's ok.
 
-				Listener.Close();
-				Listener = null;
+				UdpClient.Close();
+				UdpClient = null;
 
 				Log.InfoFormat("Client closed for business {0}", Username);
 
@@ -174,7 +192,14 @@ namespace MiNET.Client
 				listener.BeginReceive(ReceiveCallback, listener);
 
 				if (listener.Client == null) return;
-				ProcessMessage(receiveBytes, senderEndpoint);
+				try
+				{
+					ProcessMessage(receiveBytes, senderEndpoint);
+				}
+				catch (Exception e)
+				{
+					Log.Error("Processing", e);
+				}
 			}
 			else
 			{
@@ -192,7 +217,7 @@ namespace MiNET.Client
 		{
 			byte msgId = receiveBytes[0];
 
-			Log.DebugFormat("Recieve {0}", msgId);
+			//Log.DebugFormat("Recieve {0} 0x{0:x2} len: {1}", msgId, receiveBytes.Length);
 
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
@@ -216,6 +241,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
 					{
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
+						_mtuSize = incoming.mtuSize;
 						//if (incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
 						SendOpenConnectionRequest2();
 						break;
@@ -239,12 +265,12 @@ namespace MiNET.Client
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					ConnectedPackage package = ConnectedPackage.CreateObject();
+					//ConnectedPackage package = ConnectedPackage.CreateObject();
+					ConnectedPackage package = new ConnectedPackage();
 					package.Decode(receiveBytes);
-					Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
+					//Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
 
 					var messages = package.Messages;
-
 
 					//Reliability reliability = package._reliability;
 					//if (reliability == Reliability.Reliable
@@ -256,33 +282,30 @@ namespace MiNET.Client
 						Acks ack = new Acks();
 						ack.acks.Add(package._datagramSequenceNumber.IntValue());
 						byte[] data = ack.Encode();
+						//Log.Info("Send ACK #" + package._datagramSequenceNumber.IntValue());
 						SendData(data, senderEndpoint);
 					}
 
-					if (LoginSent) return; //HACK
+					//if (LoginSent) return; //HACK
 
 					foreach (var message in messages)
 					{
 						if (message is SplitPartPackage)
 						{
-							var splits = Session.Splits;
-							lock (splits)
+							//lock (Session.SyncRoot)
 							{
+								var splits = Session.Splits;
 								SplitPartPackage splitMessage = message as SplitPartPackage;
 
 								int spId = package._splitPacketId;
 								int spIdx = package._splitPacketIndex;
 								int spCount = package._splitPacketCount;
 
-								Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
+								//Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
 
 								if (!splits.ContainsKey(spId))
 								{
 									splits.Add(spId, new SplitPartPackage[spCount]);
-								}
-								else
-								{
-									Log.DebugFormat("Resent split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
 								}
 
 								SplitPartPackage[] spPackets = splits[spId];
@@ -313,22 +336,23 @@ namespace MiNET.Client
 									try
 									{
 										byte[] buffer = stream.ToArray();
-										var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-										Log.Debug("Processing split-message");
+										Log.DebugFormat("Processing split-message 0x{1:x2}, lenght={0}", buffer.Length, buffer[0]);
+										Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
 										HandlePackage(fullMessage, senderEndpoint);
 										fullMessage.PutPool();
+										continue;
 									}
 									catch (Exception e)
 									{
-										Log.Debug("When processing split-message", e);
+										Log.Error("When processing split-message", e);
 									}
 								}
 
 								message.PutPool();
-								return;
+								continue;
 							}
 						}
-
+						else
 						{
 							message.Timer.Restart();
 							HandlePackage(message, senderEndpoint);
@@ -367,6 +391,7 @@ namespace MiNET.Client
 
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			Log.Info("Ack");
 		}
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
@@ -383,6 +408,7 @@ namespace MiNET.Client
 		{
 			if (typeof (McpeBatch) == message.GetType())
 			{
+				Log.Debug("Processing Batch package");
 				McpeBatch batch = (McpeBatch) message;
 
 				var messages = new List<Package>();
@@ -394,7 +420,7 @@ namespace MiNET.Client
 				MemoryStream stream = new MemoryStream(payload);
 				if (stream.ReadByte() != 0x78)
 				{
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78");
 				}
 				stream.ReadByte();
 				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
@@ -402,8 +428,14 @@ namespace MiNET.Client
 					// Get actual package out of bytes
 					MemoryStream destination = new MemoryStream();
 					defStream2.CopyTo(destination);
-					byte[] internalBuffer = destination.ToArray();
-					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+					destination.Position = 0;
+					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+					do
+					{
+						int len = reader.ReadInt32();
+						byte[] internalBuffer = reader.ReadBytes(len);
+						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+					} while (destination.Position < destination.Length); // throw new Exception("Have more data");
 				}
 				foreach (var msg in messages)
 				{
@@ -425,7 +457,7 @@ namespace MiNET.Client
 				McpeDisconnect msg = (McpeDisconnect) message;
 				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
 				SendDisconnectionNotification();
-				StopServer();
+				StopClient();
 				return;
 			}
 
@@ -452,9 +484,9 @@ namespace MiNET.Client
 
 			if (typeof (ConnectionRequestAccepted) == message.GetType())
 			{
-				Thread.Sleep(150);
+				Thread.Sleep(50);
 				SendNewIncomingConnection();
-				var t1 = new Timer(state => SendConnectedPing(), null, 2000, 5000);
+				//_connectedPingTimer = new Timer(state => SendConnectedPing(), null, 1000, 1000);
 				Thread.Sleep(50);
 				SendLogin(Username);
 				return;
@@ -549,6 +581,89 @@ namespace MiNET.Client
 				Log.DebugFormat("Data: {0}", msg.data);
 				return;
 			}
+
+			if (typeof (McpeContainerSetContent) == message.GetType())
+			{
+				McpeContainerSetContent msg = (McpeContainerSetContent) message;
+				Log.DebugFormat("Window ID: 0x{0:x2}, Count: {1}", msg.windowId, msg.slotData.Count);
+				var slots = msg.slotData.GetValues();
+
+				foreach (var entry in slots)
+				{
+					MetadataSlot slot = (MetadataSlot) entry;
+					//Log.DebugFormat(" - Id: {0}, Metadata: {1}, Count: {2}", slot.Value.Item.Id, slot.Value.Item.Metadata, slot.Value.Count);
+				}
+				return;
+			}
+
+			if (typeof (McpeCraftingData) == message.GetType())
+			{
+				string fileName = Path.GetTempPath() + "Recipes_" + Guid.NewGuid() + ".txt";
+				Log.Info("Writing recipes to filename: " + fileName);
+				FileStream file = File.OpenWrite(fileName);
+
+				McpeCraftingData msg = (McpeCraftingData) message;
+				IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+
+				writer.WriteLine("static RecipeManager()");
+				writer.WriteLine("{");
+				writer.Indent++;
+				writer.WriteLine("Recipes = new Recipes");
+				writer.WriteLine("{");
+				writer.Indent++;
+
+				foreach (Recipe recipe in msg.recipes)
+				{
+					ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
+					if (shapelessRecipe != null)
+					{
+						writer.WriteLine(string.Format("new ShapelessRecipe(new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", shapelessRecipe.Result.Id, shapelessRecipe.Result.Metadata, shapelessRecipe.Result.Count));
+						writer.Indent++;
+						writer.WriteLine("new List<ItemStack>");
+						writer.WriteLine("{");
+						writer.Indent++;
+						foreach (var itemStack in shapelessRecipe.Input)
+						{
+							writer.WriteLine(string.Format("new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", itemStack.Id, itemStack.Metadata, itemStack.Count));
+						}
+						writer.Indent--;
+						writer.WriteLine("}),");
+						writer.Indent--;
+
+						continue;
+					}
+
+					ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
+					if (shapedRecipe != null)
+					{
+						writer.WriteLine(string.Format("new ShapedRecipe({0}, {1}, new ItemStack(ItemFactory.GetItem({2}, {3}), {4}),", shapedRecipe.Width, shapedRecipe.Height, shapedRecipe.Result.Id, shapedRecipe.Result.Metadata, shapedRecipe.Result.Count));
+						writer.Indent++;
+						writer.WriteLine("new Item[]");
+						writer.WriteLine("{");
+						writer.Indent++;
+						foreach (Item item in shapedRecipe.Input)
+						{
+							writer.WriteLine(string.Format("ItemFactory.GetItem({0}, {1}),", item.Id, item.Metadata));
+						}
+						writer.Indent--;
+						writer.WriteLine("}),");
+						writer.Indent--;
+
+						continue;
+					}
+				}
+
+				writer.WriteLine("};");
+				writer.Indent--;
+				writer.WriteLine("}");
+				writer.Indent--;
+
+				writer.Flush();
+
+				file.Close();
+				Environment.Exit(0);
+				return;
+			}
 		}
 
 		public void SendPackage(List<Package> messages, short mtuSize, ref int reliableMessageNumber)
@@ -571,23 +686,23 @@ namespace MiNET.Client
 				byte[] data = datagram.Encode();
 
 				datagram.Timer.Restart();
-				SendData(data, _serverTargetEndpoint);
+				SendData(data, _serverEndpoint);
 			}
 		}
 
 
 		private void SendData(byte[] data)
 		{
-			SendData(data, _serverTargetEndpoint);
+			SendData(data, _serverEndpoint);
 		}
 
 
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
-			if (Listener == null) return;
+			if (UdpClient == null) return;
 			try
 			{
-				Listener.Send(data, data.Length, targetEndpoint);
+				UdpClient.SendAsync(data, data.Length, targetEndpoint);
 			}
 			catch (Exception e)
 			{
@@ -614,7 +729,7 @@ namespace MiNET.Client
 
 			var data = packet.Encode();
 			TraceSend(packet);
-			SendData(data);
+			SendData(data /*, new IPEndPoint(IPAddress.Parse("192.168.0.255"), 19132)*/);
 		}
 
 		public void SendConnectedPing()
@@ -642,7 +757,7 @@ namespace MiNET.Client
 		{
 			var packet = new OpenConnectionRequest1()
 			{
-				raknetProtocolVersion = 5, // Indicate to the server that this is a performance tests. Disables logging.
+				raknetProtocolVersion = 7, // Indicate to the server that this is a performance tests. Disables logging.
 				mtuSize = _mtuSize
 			};
 
@@ -659,12 +774,12 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest2()
 		{
+			_clientGuid = new Random().Next();
 			var packet = new OpenConnectionRequest2()
 			{
-				systemadress = new byte[4],
+				clientendpoint = _clientEndpoint,
 				mtuSize = _mtuSize,
-				clientGuid = DateTime.UtcNow.Ticks,
-				//clientUdpPort = (short) _listener.Client.
+				clientGuid = _clientGuid,
 			};
 
 			var data = packet.Encode();
@@ -678,6 +793,9 @@ namespace MiNET.Client
 		{
 			var packet = new ConnectionRequest()
 			{
+				clientGuid = _clientGuid,
+				timestamp = DateTime.UtcNow.Ticks,
+				doSecurity = 0,
 			};
 
 			SendPackage(packet);
@@ -691,8 +809,14 @@ namespace MiNET.Client
 
 		public void SendNewIncomingConnection()
 		{
+			Random rand = new Random();
 			var packet = new NewIncomingConnection
 			{
+				doSecurity = 163,
+				session = rand.Next(),
+				session2 = rand.Next(),
+				cookie = rand.Next(),
+				port = (short) _clientEndpoint.Port
 			};
 
 			SendPackage(packet);
@@ -701,22 +825,26 @@ namespace MiNET.Client
 		public void SendLogin(string username)
 		{
 			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
+			//Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
 			var packet = new McpeLogin()
 			{
-				clientUuid = new UUID(),
-				clientId = ClientId,
 				username = username,
-				protocol = 27,
+				protocol = 34,
+				protocol2 = 34,
+				clientId = ClientId,
+				clientUuid = new UUID(),
+				serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
+				clientSecret = "iwmvi45hm85oncyo58",
+				//clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),
 				skin = skin,
-				clientSecret = "secret",
-				serverAddress = "192.168.0.3"
 			};
 
-			McpeBatch batch = new McpeBatch();
-			byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest);
+			byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
 
+			McpeBatch batch = new McpeBatch();
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
+			batch.Encode();
 
 			SendPackage(batch);
 			LoginSent = true;
@@ -756,40 +884,6 @@ namespace MiNET.Client
 		public void SendDisconnectionNotification()
 		{
 			SendPackage(new DisconnectionNotification());
-		}
-
-		public static void Connect()
-		{
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Any, 0));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132));
-			client.Username = "TestClient";
-			client.StartServer();
-			Console.WriteLine("Server started.");
-
-			Thread.Sleep(2000);
-
-			Console.WriteLine("Sending ping...");
-
-			//client.SendUnconnectedPing();
-			client.SendOpenConnectionRequest1();
-			//client.SendUnconnectedPing();
-			//client.SendUnconnectedPing();
-
-			Console.WriteLine("<Enter> to exit!");
-			Console.ReadLine();
-			client.StopServer();
-		}
-
-		private static void Main(string[] args)
-		{
-			Console.WriteLine("Starting client...");
-
-			Connect();
-
-			Console.ReadLine();
-
-			Console.WriteLine("Close client...");
 		}
 	}
 }

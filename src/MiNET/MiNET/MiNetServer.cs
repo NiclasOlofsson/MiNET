@@ -369,6 +369,7 @@ namespace MiNET
 							stream.ReadByte();
 							using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 							{
+								NbtBinaryReader reader = new NbtBinaryReader(defStream2, false);
 								// Get actual package out of bytes
 								MemoryStream destination = new MemoryStream();
 								defStream2.CopyTo(destination);

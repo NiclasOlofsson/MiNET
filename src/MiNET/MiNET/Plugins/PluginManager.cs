@@ -388,6 +388,7 @@ namespace MiNET.Plugins
 		internal Package PluginPacketHandler(Package message, bool isReceiveHandler, Player player)
 		{
 			Package currentPackage = message;
+			Package returnPacket = currentPackage;
 
 			try
 			{
@@ -416,6 +417,7 @@ namespace MiNET.Plugins
 					if (method == null) continue;
 					if (method.IsStatic)
 					{
+						//TODO: Move below and set pluginInstance = null instead
 						method.Invoke(null, new object[] {currentPackage, player});
 					}
 					else
@@ -440,11 +442,11 @@ namespace MiNET.Plugins
 							ParameterInfo[] parameters = method.GetParameters();
 							if (parameters.Length == 1)
 							{
-								currentPackage = method.Invoke(pluginInstance, new object[] {currentPackage}) as Package;
+								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage}) as Package;
 							}
 							else if (parameters.Length == 2 && parameters[1].ParameterType == typeof (Player))
 							{
-								currentPackage = method.Invoke(pluginInstance, new object[] {currentPackage, player}) as Package;
+								returnPacket = method.Invoke(pluginInstance, new object[] { currentPackage, player }) as Package;
 							}
 						}
 					}
@@ -458,7 +460,7 @@ namespace MiNET.Plugins
 				Log.Warn("Plugin Error: ", ex.InnerException);
 			}
 
-			return currentPackage;
+			return returnPacket;
 		}
 	}
 }

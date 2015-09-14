@@ -88,17 +88,17 @@ namespace MiNET.Blocks
 			else if (blockId == 198) block = new GrassPath();
 			else
 			{
-				Log.DebugFormat(@"
-	// Add this missing block to the BlockFactory
-	else if (blockId == {1}) block = new {0}();
-	
-	public class {0} : Block
-	{{
-		internal {0}() : base({1})
-		{{
-		}}
-	}}
-", "Missing", blockId);
+//				Log.DebugFormat(@"
+//	// Add this missing block to the BlockFactory
+//	else if (blockId == {1}) block = new {0}();
+//	
+//	public class {0} : Block
+//	{{
+//		internal {0}() : base({1})
+//		{{
+//		}}
+//	}}
+//", "Missing", blockId);
 				block = new Block(blockId);
 			}
 

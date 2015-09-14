@@ -211,9 +211,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Server Security | byte |  |
-|SystemAdress | byte[] | 4 |
-|Client UDP Port | short |  |
+|ClientEndpoint | IPEndPoint |  |
 |MTU Size | short |  |
 |Client GUID | long |  |
 -----------------------------------------------------------------------
@@ -1071,7 +1069,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Flags | int |  |
+|Recipes | Recipes |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Crafting Event (0xbb)
 

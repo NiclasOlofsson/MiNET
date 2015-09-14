@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MiNET.Utils
@@ -9,11 +10,11 @@ namespace MiNET.Utils
 	/// </summary>
 	public class MetadataDictionary
 	{
-		private readonly Dictionary<byte, MetadataEntry> _entries;
+		private readonly Dictionary<int, MetadataEntry> _entries;
 
 		public MetadataDictionary()
 		{
-			_entries = new Dictionary<byte, MetadataEntry>();
+			_entries = new Dictionary<int, MetadataEntry>();
 		}
 
 		public int Count
@@ -21,10 +22,15 @@ namespace MiNET.Utils
 			get { return _entries.Count; }
 		}
 
-		public MetadataEntry this[byte index]
+		public MetadataEntry this[int index]
 		{
 			get { return _entries[index]; }
 			set { _entries[index] = value; }
+		}
+
+		public MetadataEntry[] GetValues()
+		{
+			return _entries.Values.ToArray();
 		}
 
 		public bool Contains(byte index)
@@ -61,7 +67,7 @@ namespace MiNET.Utils
 		{
 			foreach (var entry in _entries)
 			{
-				entry.Value.WriteTo(stream, entry.Key);
+				entry.Value.WriteTo(stream, (byte)entry.Key);
 			}
 			stream.Write((byte) 0x7F);
 		}

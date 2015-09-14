@@ -21,6 +21,12 @@ namespace MiNET.Net
 		{
 		}
 
+		public override void Reset()
+		{
+			base.Reset();
+			Message = null;
+		}
+
 		public byte[] Message { get; set; }
 	}
 }

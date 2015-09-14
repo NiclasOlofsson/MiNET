@@ -63,9 +63,7 @@
 
 	<pdu id="0x07" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_2" size="34">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
-		<field name="Server Security" type="byte" />
-		<field name="SystemAdress" type="byte[]" size="4" />
-		<field name="Client UDP Port" type="short" />
+		<field name="ClientEndpoint" type="IPEndPoint" />
 		<field name="MTU Size" type="short" />
 		<field name="Client GUID" type="long" />
 	</pdu>
@@ -439,7 +437,7 @@
 	</pdu>
 
 	<pdu id="0xba" online="false" client="false" server="true" name="MCPE_CRAFTING_DATA">
-		<field name="Flags" type="int" />
+		<field name="Recipes" type="Recipes" />
 	</pdu>
 
 	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_CRAFTING_EVENT">

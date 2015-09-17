@@ -65,6 +65,7 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
+			return;
 			player.GameMode = (GameMode) gameMode;
 			player.SendPackage(new McpeStartGame
 			{

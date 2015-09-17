@@ -748,6 +748,7 @@ namespace MiNET
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = 0;
 			mcpeSetEntityData.metadata = GetMetadata();
+			mcpeSetEntityData.Encode();
 			SendPackage(mcpeSetEntityData);
 		}
 
@@ -1050,7 +1051,7 @@ namespace MiNET
 			{
 				if (selectedInventorySlot < 0 || selectedInventorySlot > Inventory.Slots.Count)
 				{
-					Log.WarnFormat("Set equiptment fails with inv slot: {0}", selectedInventorySlot);
+					Log.WarnFormat("Set equiptment fails with inv slot: {0}, {1}", selectedInventorySlot, message.slot);
 					return;
 				}
 

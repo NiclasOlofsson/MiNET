@@ -60,10 +60,10 @@ namespace MiNET
 			Chest = new Item(0, 0);
 			Helmet = new Item(0, 0);
 
-			Boots = new ItemDiamondBoots(0);
-			Leggings = new ItemDiamondLeggings(0);
-			Chest = new ItemDiamondChestplate(0);
-			Helmet = new ItemDiamondHelmet(0);
+			//Boots = new ItemDiamondBoots(0);
+			//Leggings = new ItemDiamondLeggings(0);
+			//Chest = new ItemDiamondChestplate(0);
+			//Helmet = new ItemDiamondHelmet(0);
 		}
 
 		public virtual ItemStack GetItemInHand()

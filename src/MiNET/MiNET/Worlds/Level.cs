@@ -141,18 +141,6 @@ namespace MiNET.Worlds
 			{
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
-					{
-						McpePlayerList playerList = McpePlayerList.CreateObject();
-						playerList.records = new PlayerAddRecords {newPlayer};
-						RelayBroadcast(newPlayer, playerList);
-					}
-
-					{
-						McpePlayerList playerList = McpePlayerList.CreateObject();
-						playerList.records = new PlayerAddRecords(Players.Values);
-						newPlayer.SendPackage(playerList);
-					}
-
 					if (spawn)
 					{
 						SpawnToAll(newPlayer);
@@ -178,6 +166,10 @@ namespace MiNET.Worlds
 
 		public void SpawnToAll(Player newPlayer)
 		{
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerAddRecords {newPlayer};
+			newPlayer.SendPackage(playerList);
+
 			foreach (Player spawnedPlayer in GetSpawnedPlayers())
 			{
 				SendAddForPlayer(newPlayer, spawnedPlayer);
@@ -189,6 +181,12 @@ namespace MiNET.Worlds
 		public void SendAddForPlayer(Player receiver, Player addedPlayer)
 		{
 			if (addedPlayer == receiver) return;
+
+			{
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerAddRecords { addedPlayer };
+				receiver.SendPackage(playerList);
+			}
 
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = addedPlayer.ClientUuid;

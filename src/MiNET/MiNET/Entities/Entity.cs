@@ -120,6 +120,7 @@ namespace MiNET.Entities
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
+			mcpeSetEntityData.Encode();
 			player.SendPackage(mcpeSetEntityData);
 		}
 

@@ -1862,8 +1862,6 @@ namespace MiNET
 
 				if (package == null) continue;
 
-				Server.SendPackage(this, new List<Package> {package}, _mtuSize, ref _reliableMessageNumber);
-
 				byte[] bytes = package.Encode();
 				if (bytes != null)
 				{
@@ -1883,7 +1881,7 @@ namespace MiNET
 			batch.payload = buffer;
 			batch.Encode();
 
-			//Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+			Server.SendPackage(this, new List<Package> { batch }, _mtuSize, ref _reliableMessageNumber);
 		}
 
 		private object _sendMoveListSync = new object();

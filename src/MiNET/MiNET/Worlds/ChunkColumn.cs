@@ -185,7 +185,8 @@ namespace MiNET.Worlds
 					writer.Write(biomeColor[i]);
 				}
 
-				writer.Write(0); // No extra data
+				int extraSize = 0;
+				writer.Write(extraSize); // No extra data
 
 				if (BlockEntities.Count == 0)
 				{

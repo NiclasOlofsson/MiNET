@@ -148,6 +148,20 @@ namespace MiNET.Entities
 
 		public override void DespawnFromPlayer(Player player)
 		{
+			{
+				Player fake = new Player(null, null, 0)
+				{
+					ClientUuid = Uuid,
+					EntityId = EntityId,
+					NameTag = NameTag ?? Name,
+					Skin = Skin
+				};
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords { fake };
+				player.SendPackage(playerList);
+			}
+
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
 			mcpeRemovePlayer.clientUuid = Uuid;

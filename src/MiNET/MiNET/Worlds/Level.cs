@@ -181,12 +181,10 @@ namespace MiNET.Worlds
 		public void SendAddForPlayer(Player receiver, Player addedPlayer)
 		{
 			if (addedPlayer == receiver) return;
-
-			{
-				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerAddRecords { addedPlayer };
-				receiver.SendPackage(playerList);
-			}
+			
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerAddRecords {addedPlayer};
+			receiver.SendPackage(playerList);
 
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = addedPlayer.ClientUuid;
@@ -233,10 +231,6 @@ namespace MiNET.Worlds
 				Player removed;
 				if (Players.TryRemove(player.EntityId, out removed))
 				{
-					McpePlayerList playerList = McpePlayerList.CreateObject();
-					playerList.records = new PlayerAddRecords {player};
-					RelayBroadcast(playerList);
-
 					player.IsSpawned = false;
 					if (despawn)
 					{
@@ -271,6 +265,11 @@ namespace MiNET.Worlds
 		public void SendRemoveForPlayer(Player receiver, Player player)
 		{
 			if (player == receiver) return;
+			
+			McpePlayerList playerList = McpePlayerList.CreateObject();
+			playerList.records = new PlayerRemoveRecords {player};
+			receiver.SendPackage(playerList);
+
 
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
 			mcpeRemovePlayer.clientUuid = player.ClientUuid;

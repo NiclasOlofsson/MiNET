@@ -12,7 +12,7 @@ MiNET
 
 ## Can I test this before I download it?
 Yes, you can. At times there is a dev server running and you might be lucky to get in..<br>
-IP: **test.inpvp.net**    
+IP: **play.bladestorm.net**    
 Port: **19132**    
 
 ## What is this?

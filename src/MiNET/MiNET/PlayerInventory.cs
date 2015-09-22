@@ -29,6 +29,12 @@ namespace MiNET
 			Player = player;
 			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
 			int c = -1;
+
+			Slots[++c] = new ItemStack(new ItemIronSword(0), 1);
+			Slots[++c] = new ItemStack(new ItemBow(0), 1);
+			Slots[++c] = new ItemStack(new ItemSnowball(0), 64);
+			Slots[++c] = new ItemStack(new ItemEgg(0), 64);
+			Slots[++c] = new ItemStack(262, 32);
 			//Slots[++c] = new ItemStack(new ItemBlock(new DiamondOre(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
@@ -55,15 +61,15 @@ namespace MiNET
 				ItemHotbar[i] = i;
 			}
 
-			Boots = new Item(0, 0);
-			Leggings = new Item(0, 0);
-			Chest = new Item(0, 0);
-			Helmet = new Item(0, 0);
+			//Boots = new Item(0, 0);
+			//Leggings = new Item(0, 0);
+			//Chest = new Item(0, 0);
+			//Helmet = new Item(0, 0);
 
-			//Boots = new ItemDiamondBoots(0);
-			//Leggings = new ItemDiamondLeggings(0);
-			//Chest = new ItemDiamondChestplate(0);
-			//Helmet = new ItemDiamondHelmet(0);
+			Boots = new ItemDiamondBoots(0);
+			Leggings = new ItemDiamondLeggings(0);
+			Chest = new ItemDiamondChestplate(0);
+			Helmet = new ItemDiamondHelmet(0);
 		}
 
 		public virtual ItemStack GetItemInHand()

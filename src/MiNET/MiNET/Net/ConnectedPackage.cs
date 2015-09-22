@@ -172,8 +172,8 @@ namespace MiNET.Net
 
 				if (isSplitPacket)
 				{
-					//SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
-					SplitPartPackage splitPartPackage = new SplitPartPackage();
+					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
+					//SplitPartPackage splitPartPackage = new SplitPartPackage();
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
 					Messages.Add(splitPartPackage);

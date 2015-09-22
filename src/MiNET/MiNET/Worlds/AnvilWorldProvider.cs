@@ -416,22 +416,22 @@ namespace MiNET.Worlds
 				NbtList blockEntities = dataTag["TileEntities"] as NbtList;
 				if (blockEntities != null)
 				{
-					foreach (var nbtTag in blockEntities)
-					{
-						var blockEntityTag = (NbtCompound) nbtTag;
-						string entityId = blockEntityTag["id"].StringValue;
-						int x = blockEntityTag["x"].IntValue;
-						int y = blockEntityTag["y"].IntValue - yoffset;
-						int z = blockEntityTag["z"].IntValue;
-						blockEntityTag["y"] = new NbtInt("y", y);
+					//foreach (var nbtTag in blockEntities)
+					//{
+					//	var blockEntityTag = (NbtCompound) nbtTag;
+					//	string entityId = blockEntityTag["id"].StringValue;
+					//	int x = blockEntityTag["x"].IntValue;
+					//	int y = blockEntityTag["y"].IntValue - yoffset;
+					//	int z = blockEntityTag["z"].IntValue;
+					//	blockEntityTag["y"] = new NbtInt("y", y);
 
-						BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
-						if (blockEntity != null)
-						{
-							blockEntityTag.Name = string.Empty;
-							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
-						}
-					}
+					//	BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
+					//	if (blockEntity != null)
+					//	{
+					//		blockEntityTag.Name = string.Empty;
+					//		chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
+					//	}
+					//}
 				}
 
 				NbtList tileTicks = dataTag["TileTicks"] as NbtList;

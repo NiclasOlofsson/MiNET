@@ -35,7 +35,7 @@ namespace MiNET
 		{
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
-			if (Config.GetProperty("EnableStatistics", false))
+			if (Config.GetProperty("EnableStatistics", true))
 			{
 				ThroughPut = new Timer(delegate(object state)
 				{

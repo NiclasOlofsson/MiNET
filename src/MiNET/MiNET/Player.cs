@@ -1498,11 +1498,11 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				//if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
-				//{
-				//	Log.DebugFormat("Denied chunk, too little distance.");
-				//	return;
-				//}
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 4)
+				{
+					Log.DebugFormat("Denied chunk, too little distance.");
+					return;
+				}
 
 				_currentChunkPosition = chunkPosition;
 

@@ -262,7 +262,7 @@ namespace MiNET
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				try
 				{
-					//if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
+					if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)
@@ -295,6 +295,10 @@ namespace MiNET
 				if (!_playerSessions.TryGetValue(senderEndpoint, out playerSession))
 				{
 					Log.DebugFormat("Receive MCPE message 0x{1:x2} without session {0}", senderEndpoint.Address, msgId);
+					if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+					{
+						_badPacketBans.Add(senderEndpoint.Address, true);
+					}
 					return;
 				}
 
@@ -304,6 +308,10 @@ namespace MiNET
 				{
 					Log.ErrorFormat("Receive MCPE message 0x{1:x2} without player {0}. Session removed.", senderEndpoint.Address, msgId);
 					_playerSessions.TryRemove(senderEndpoint, out playerSession);
+					if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+					{
+						_badPacketBans.Add(senderEndpoint.Address, true);
+					}
 					return;
 				}
 
@@ -327,10 +335,16 @@ namespace MiNET
 					catch (Exception e)
 					{
 						player.Disconnect("Bad package received from client.");
-						if (Log.IsDebugEnabled)
+						//if (Log.IsDebugEnabled)
 						{
-							Log.Debug("Bad packet " + receiveBytes[0], e);
+							Log.Warn("Bad packet " + receiveBytes[0], e);
 						}
+
+						if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+						{
+							_badPacketBans.Add(senderEndpoint.Address, true);
+						}
+
 						return;
 					}
 
@@ -505,6 +519,10 @@ namespace MiNET
 						else
 						{
 							Log.ErrorFormat("Unexpected connection request packet from {0}.", senderEndpoint.Address);
+							//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+							//{
+							//	_badPacketBans.Add(senderEndpoint.Address, true);
+							//}
 							return;
 						}
 
@@ -522,6 +540,13 @@ namespace MiNET
 							{
 								_playerSessions.TryRemove(session.EndPoint, out session);
 							}
+
+							//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+							//{
+							//	_badPacketBans.Add(senderEndpoint.Address, true);
+							//}
+							//return;
+
 						}
 
 
@@ -538,12 +563,19 @@ namespace MiNET
 							Player oldPlayer = session.Player;
 							if (oldPlayer != null)
 							{
-								oldPlayer.Disconnect("Reconnecting.");
+								oldPlayer.Disconnect("Reconnecting.", false);
 							}
 							else
 							{
 								_playerSessions.TryRemove(session.EndPoint, out session);
 							}
+
+							//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+							//{
+							//	_badPacketBans.Add(senderEndpoint.Address, true);
+							//}
+
+							//return;
 						}
 
 						session = new PlayerNetworkSession(null, senderEndpoint)
@@ -998,7 +1030,7 @@ namespace MiNET
 									Player p = s.Player;
 									if (p != null)
 									{
-										p.Disconnect("You've been kicked with reason: Network timeout.");
+										p.Disconnect("You've been kicked with reason: Network timeout.", false);
 									}
 									else
 									{

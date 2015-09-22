@@ -292,7 +292,7 @@ namespace MiNET.Client
 					{
 						if (message is SplitPartPackage)
 						{
-							//lock (Session.SyncRoot)
+							lock (Session.SyncRoot)
 							{
 								var splits = Session.Splits;
 								SplitPartPackage splitMessage = message as SplitPartPackage;
@@ -301,7 +301,7 @@ namespace MiNET.Client
 								int spIdx = package._splitPacketIndex;
 								int spCount = package._splitPacketCount;
 
-								//Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
+								Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
 
 								if (!splits.ContainsKey(spId))
 								{
@@ -312,8 +312,15 @@ namespace MiNET.Client
 								if (spIdx < 0 || spIdx >= spPackets.Length)
 								{
 									Log.DebugFormat("Unexpeted split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-									return;
+									continue;
 								}
+
+								if(splitMessage.Message == null)
+								{
+									Log.DebugFormat("Empty split package");
+									continue;
+								}
+
 								spPackets[spIdx] = splitMessage;
 
 								bool haveEmpty = false;
@@ -324,7 +331,7 @@ namespace MiNET.Client
 
 								if (!haveEmpty)
 								{
-									//Log.WarnFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+									Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
 
 									MemoryStream stream = new MemoryStream();
 									for (int i = 0; i < spPackets.Length; i++)
@@ -540,8 +547,8 @@ namespace MiNET.Client
 				Log.DebugFormat("Velocity X: {0}", msg.speedX);
 				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-				Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
-				Log.DebugFormat("Links count: {0}", msg.links);
+				//Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
+				//Log.DebugFormat("Links count: {0}", msg.links);
 
 				return;
 			}

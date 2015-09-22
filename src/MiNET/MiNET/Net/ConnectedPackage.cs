@@ -110,7 +110,7 @@ namespace MiNET.Net
 			_datagramHeader = new DatagramHeader(ReadByte());
 			_datagramSequenceNumber = ReadLittle();
 
-			while (_buffer.Position != _buffer.Length)
+			while (_buffer.Position < _buffer.Length)
 			{
 				byte flags = ReadByte();
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
@@ -160,7 +160,7 @@ namespace MiNET.Net
 				}
 				else
 				{
-					_splitPacketCount = 0;
+					_splitPacketCount = -1;
 					_splitPacketId = -1;
 					_splitPacketIndex = -1;
 				}
@@ -177,7 +177,7 @@ namespace MiNET.Net
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
 					Messages.Add(splitPartPackage);
-					continue;
+					return;
 				}
 
 				Package package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);

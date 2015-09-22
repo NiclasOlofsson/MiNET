@@ -1416,8 +1416,8 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			yaw = ReadFloat();
 			pitch = ReadFloat();
-			metadata = ReadMetadataDictionary();
-			links = ReadShort();
+			//metadata = ReadMetadataDictionary();
+			//links = ReadShort();
 
 			AfterDecode();
 		}

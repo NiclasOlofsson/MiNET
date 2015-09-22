@@ -40,11 +40,11 @@ namespace MiNET.Utils
 
 		public static MetadataDictionary FromStream(BinaryReader stream)
 		{
-			var value = new MetadataDictionary();
+			MetadataDictionary metadata = new MetadataDictionary();
 			while (true)
 			{
 				byte key = stream.ReadByte();
-				if (key == 127) break;
+				if (key == 0x7F) break;
 
 				byte type = (byte) ((key & 0xE0) >> 5);
 				byte index = (byte) (key & 0x1F);
@@ -58,9 +58,9 @@ namespace MiNET.Utils
 				entry.FromStream(stream);
 				entry.Index = index;
 
-				value[index] = entry;
+				metadata[index] = entry;
 			}
-			return value;
+			return metadata;
 		}
 
 		public void WriteTo(BinaryWriter stream)

@@ -516,7 +516,7 @@ namespace MiNET
 							Player oldPlayer = session.Player;
 							if (oldPlayer != null)
 							{
-								oldPlayer.Disconnect("Reconnecting.");
+								oldPlayer.Disconnect("Reconnecting.", false);
 							}
 							else
 							{

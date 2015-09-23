@@ -470,6 +470,9 @@ namespace MiNET
 
 		protected virtual void HandleLogin(McpeLogin message)
 		{
+			//Disconnect("This server is now closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
+			//return;
+
 			Stopwatch watch = new Stopwatch();
 			watch.Restart();
 
@@ -492,7 +495,7 @@ namespace MiNET
 
 			var serverInfo = Server.ServerInfo;
 
-			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
+			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
 			{
 				if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
 				{

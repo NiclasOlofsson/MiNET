@@ -501,8 +501,6 @@ link[2] byte
 |Speed Z | float |  |
 |Yaw | float |  |
 |Pitch | float |  |
-|Metadata | MetadataDictionary |  |
-|Links | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x99)
 
@@ -972,8 +970,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Id | long |  |
-|Unknown | byte |  |
+|ItemType | byte |  |
 |Item | MetadataSlot |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Open (0xb5)

@@ -1368,6 +1368,8 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public float yaw; // = null;
 		public float pitch; // = null;
+		public MetadataDictionary metadata; // = null;
+		public short links; // = null;
 		public McpeAddEntity()
 		{
 			Id = 0x98;
@@ -1389,6 +1391,8 @@ namespace MiNET.Net
 			Write(speedZ);
 			Write(yaw);
 			Write(pitch);
+			Write(metadata);
+			Write(links);
 
 			AfterEncode();
 		}
@@ -1412,6 +1416,8 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			yaw = ReadFloat();
 			pitch = ReadFloat();
+			//metadata = ReadMetadataDictionary();
+			//links = ReadShort();
 
 			AfterDecode();
 		}
@@ -2665,7 +2671,8 @@ namespace MiNET.Net
 
 	public partial class McpeDropItem : Package<McpeDropItem>
 	{
-		public byte itemtype; // = null;
+		public long entityId; // = null;
+		public byte unknown; // = null;
 		public MetadataSlot item; // = null;
 		public McpeDropItem()
 		{
@@ -2678,7 +2685,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(itemtype);
+			Write(entityId);
+			Write(unknown);
 			Write(item);
 
 			AfterEncode();
@@ -2693,7 +2701,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			itemtype = ReadByte();
+			entityId = ReadLong();
+			unknown = ReadByte();
 			item = ReadMetadataSlot();
 
 			AfterDecode();

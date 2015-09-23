@@ -67,17 +67,17 @@ namespace MiNET
 			var player = Entity as Player;
 			if (player != null)
 			{
-				if (player.Username.Equals("gurun") && cause != DamageCause.Void)
-				{
-					Health = 200;
-					return;
-				}
+				//if (player.Username.Equals("gurun") && cause != DamageCause.Void)
+				//{
+				//	Health = 200;
+				//	return;
+				//}
 
-				if (cause != DamageCause.Void && player.KnownPosition.DistanceTo(player.SpawnPosition) < 7)
-				{
-					Health = 200;
-					return;
-				}
+				//if (cause != DamageCause.Void && player.KnownPosition.DistanceTo(player.SpawnPosition) < 7)
+				//{
+				//	Health = 200;
+				//	return;
+				//}
 
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();

@@ -262,7 +262,7 @@ namespace MiNET
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				try
 				{
-					if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
+					//if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)
@@ -375,6 +375,7 @@ namespace MiNET
 							byte[] payload = batch.payload;
 							// Decompress bytes
 
+
 							MemoryStream stream = new MemoryStream(payload);
 							if (stream.ReadByte() != 0x78)
 							{
@@ -383,13 +384,17 @@ namespace MiNET
 							stream.ReadByte();
 							using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 							{
-								NbtBinaryReader reader = new NbtBinaryReader(defStream2, false);
 								// Get actual package out of bytes
 								MemoryStream destination = new MemoryStream();
 								defStream2.CopyTo(destination);
-								byte[] internalBuffer = destination.ToArray();
+								destination.Position = 0;
+								NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+								int len = reader.ReadInt32();
+								byte[] internalBuffer = reader.ReadBytes(len);
 
+								//byte[] internalBuffer = destination.ToArray();
 								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+								if (destination.Length > destination.Position) throw new Exception("Have more data");
 							}
 							batch.PutPool();
 						}
@@ -1030,7 +1035,7 @@ namespace MiNET
 									Player p = s.Player;
 									if (p != null)
 									{
-										p.Disconnect("You've been kicked with reason: Network timeout.", false);
+										p.Disconnect("You've been kicked with reason: Network timeout.");
 									}
 									else
 									{
@@ -1057,7 +1062,7 @@ namespace MiNET
 								if (s != null)
 								{
 									Player p = s.Player;
-									//if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+									if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
 								}
 							}, session);
 
@@ -1092,7 +1097,7 @@ namespace MiNET
 								{
 									session.ErrorCount++;
 
-									if (deleted.TransmissionCount > 1)
+									if (deleted.TransmissionCount > 2)
 									{
 										Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),

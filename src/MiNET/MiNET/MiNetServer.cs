@@ -295,10 +295,10 @@ namespace MiNET
 				if (!_playerSessions.TryGetValue(senderEndpoint, out playerSession))
 				{
 					Log.DebugFormat("Receive MCPE message 0x{1:x2} without session {0}", senderEndpoint.Address, msgId);
-					if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
-					{
-						_badPacketBans.Add(senderEndpoint.Address, true);
-					}
+					//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+					//{
+					//	_badPacketBans.Add(senderEndpoint.Address, true);
+					//}
 					return;
 				}
 
@@ -308,10 +308,10 @@ namespace MiNET
 				{
 					Log.ErrorFormat("Receive MCPE message 0x{1:x2} without player {0}. Session removed.", senderEndpoint.Address, msgId);
 					_playerSessions.TryRemove(senderEndpoint, out playerSession);
-					if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
-					{
-						_badPacketBans.Add(senderEndpoint.Address, true);
-					}
+					//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
+					//{
+					//	_badPacketBans.Add(senderEndpoint.Address, true);
+					//}
 					return;
 				}
 

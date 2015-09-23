@@ -86,7 +86,7 @@ namespace MiNET.Entities
 			addEntity.z = KnownPosition.Z;
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
-			addEntity.metadata = GetMetadata();
+			//addEntity.metadata = GetMetadata();
 			addEntity.speedX = (float) Velocity.X;
 			addEntity.speedY = (float) Velocity.Y;
 			addEntity.speedZ = (float) Velocity.Z;
@@ -111,7 +111,7 @@ namespace MiNET.Entities
 			addEntity.z = KnownPosition.Z;
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
-			addEntity.metadata = GetMetadata();
+			//addEntity.metadata = GetMetadata();
 			addEntity.speedX = (float) Velocity.X;
 			addEntity.speedY = (float) Velocity.Y;
 			addEntity.speedZ = (float) Velocity.Z;

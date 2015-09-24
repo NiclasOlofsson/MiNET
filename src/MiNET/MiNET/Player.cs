@@ -766,7 +766,7 @@ namespace MiNET
 		public void SendPlayerInventory()
 		{
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			inventoryContent.windowId = 0;
+			inventoryContent.windowId = (byte) (GameMode == GameMode.Creative ? 0x79 : 0x00);
 			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
 			SendPackage(inventoryContent);
@@ -1540,7 +1540,7 @@ namespace MiNET
 			{
 				byte[] lenBytes = BitConverter.GetBytes(input.Length);
 				Array.Reverse(lenBytes);
-				if(writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
+				if (writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
 				compressStream.Write(input, 0, input.Length);
 				checksum = compressStream.Checksum;
 			}
@@ -1885,7 +1885,7 @@ namespace MiNET
 			batch.payload = buffer;
 			batch.Encode();
 
-			Server.SendPackage(this, new List<Package> { batch }, _mtuSize, ref _reliableMessageNumber);
+			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 		}
 
 		private object _sendMoveListSync = new object();

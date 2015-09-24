@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -27,9 +28,9 @@ namespace MiNET
 		public PlayerInventory(Player player)
 		{
 			Player = player;
-			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
-			int c = -1;
 
+			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
+			//int c = -1;
 			//Slots[++c] = new ItemStack(new ItemIronSword(0), 1);
 			//Slots[++c] = new ItemStack(new ItemBow(0), 1);
 			//Slots[++c] = new ItemStack(new ItemSnowball(0), 64);
@@ -52,6 +53,12 @@ namespace MiNET
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new CoalBlock(), 0), 64);
+
+			//Slots = new List<ItemStack>();
+			//for (int i = 0; i < 100; i++)
+			//{
+			//	Slots.Add(new ItemStack(ItemFactory.GetItem(i, 0), 1));
+			//}
 
 			ItemHotbar = new int[HotbarSize];
 			InHandSlot = 0;

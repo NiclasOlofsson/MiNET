@@ -166,11 +166,14 @@ namespace MiNET.Worlds
 
 		public void SpawnToAll(Player newPlayer)
 		{
+			List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
+			spawnedPlayers.Add(newPlayer);
+
 			McpePlayerList playerList = McpePlayerList.CreateObject();
-			playerList.records = new PlayerAddRecords {newPlayer};
+			playerList.records = new PlayerAddRecords(spawnedPlayers);
 			newPlayer.SendPackage(playerList);
 
-			foreach (Player spawnedPlayer in GetSpawnedPlayers())
+			foreach (Player spawnedPlayer in spawnedPlayers)
 			{
 				SendAddForPlayer(newPlayer, spawnedPlayer);
 				SendAddForPlayer(spawnedPlayer, newPlayer);
@@ -182,10 +185,6 @@ namespace MiNET.Worlds
 		{
 			if (addedPlayer == receiver) return;
 			
-			McpePlayerList playerList = McpePlayerList.CreateObject();
-			playerList.records = new PlayerAddRecords {addedPlayer};
-			receiver.SendPackage(playerList);
-
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = addedPlayer.ClientUuid;
 			mcpeAddPlayer.username = addedPlayer.Username;

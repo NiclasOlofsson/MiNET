@@ -470,9 +470,9 @@ namespace MiNET
 
 		protected virtual void HandleLogin(McpeLogin message)
 		{
-			//Disconnect("Este servidor ya no existe. Por favor, conecta a " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " para seguir jugando.");
-			////Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
-			//return;
+			Disconnect("Este servidor ya no existe. Por favor, conecta a " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " para seguir jugando.");
+			//Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
+			return;
 
 			Stopwatch watch = new Stopwatch();
 			watch.Restart();
@@ -877,7 +877,16 @@ namespace MiNET
 			{
 				// Hack for testing. Chests won't open again.
 				Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
-				HandleMcpeContainerClose(null);
+				ThreadPool.QueueUserWorkItem(delegate(object state)
+				{
+					try
+					{
+						HandleMcpeContainerClose(null);
+					}
+					finally
+					{
+					}
+				});
 			}
 
 			if (!IsSpawned || HealthManager.IsDead) return;

@@ -175,16 +175,23 @@ namespace MiNET.Worlds
 
 			foreach (Player spawnedPlayer in spawnedPlayers)
 			{
-				SendAddForPlayer(newPlayer, spawnedPlayer);
+				SendAddForPlayer(newPlayer, spawnedPlayer, false);
 				SendAddForPlayer(spawnedPlayer, newPlayer);
 				Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
 			}
 		}
 
-		public void SendAddForPlayer(Player receiver, Player addedPlayer)
+		public void SendAddForPlayer(Player receiver, Player addedPlayer, bool sendPlayerListAdd = true)
 		{
 			if (addedPlayer == receiver) return;
-			
+
+			if(sendPlayerListAdd)
+			{
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerAddRecords { addedPlayer };
+				receiver.SendPackage(playerList);
+			}
+
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = addedPlayer.ClientUuid;
 			mcpeAddPlayer.username = addedPlayer.Username;

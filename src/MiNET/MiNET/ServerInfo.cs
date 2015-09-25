@@ -46,7 +46,7 @@ namespace MiNET
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
 					double kbitPerSecondOut = TotalPacketSizeOut*8/1000000D;
 					double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
-					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACKs {1}/s Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10} {11} {12}",
+					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 						NumberOfPacketsOutPerSecond,
 						NumberOfAckSent,
 						NumberOfPacketsInPerSecond,
@@ -57,7 +57,6 @@ namespace MiNET
 						kbitPerSecondIn, AvailableBytes/1000,
 						threads,
 						portThreads,
-						NumberOfAckReceive,
 						NumberOfNakReceive);
 
 					NumberOfAckReceive = 0;

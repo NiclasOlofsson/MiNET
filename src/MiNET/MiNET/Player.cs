@@ -873,21 +873,21 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
-			if (_openInventory != null)
-			{
-				// Hack for testing. Chests won't open again.
-				Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
-					try
-					{
-						HandleMcpeContainerClose(null);
-					}
-					finally
-					{
-					}
-				});
-			}
+			//if (_openInventory != null)
+			//{
+			//	// Hack for testing. Chests won't open again.
+			//	Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
+			//	ThreadPool.QueueUserWorkItem(delegate(object state)
+			//	{
+			//		try
+			//		{
+			//			HandleMcpeContainerClose(null);
+			//		}
+			//		finally
+			//		{
+			//		}
+			//	});
+			//}
 
 			if (!IsSpawned || HealthManager.IsDead) return;
 
@@ -1198,8 +1198,14 @@ namespace MiNET
 					//{
 					//	Inventory.Slots[(byte) message.slot] = itemStack;
 					//}
-					Inventory.Slots[(byte) message.slot] = itemStack;
-
+					try
+					{
+						Inventory.Slots[(byte) message.slot] = itemStack;
+					}
+					catch (Exception e)
+					{
+						Disconnect("Inventory hacking not allowed!");
+					}
 					break;
 				case 0x78:
 					int itemId = message.item.Value.Id;
@@ -1511,9 +1517,10 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 4)
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
 				{
-					Log.DebugFormat("Denied chunk, too little distance.");
+					if(Log.IsDebugEnabled)
+						Log.DebugFormat("Denied chunk, too little distance.");
 					return;
 				}
 

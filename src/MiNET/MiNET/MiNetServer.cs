@@ -8,7 +8,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -361,44 +360,6 @@ namespace MiNET
 						EnqueueAck(playerSession, package._datagramSequenceNumber);
 					}
 
-					List<Package> messages = package.Messages;
-
-					if (messages.Count == 1)
-					{
-						McpeBatch batch = messages.First() as McpeBatch;
-						if (batch != null)
-						{
-							batch.Source = "Client";
-							messages.Clear();
-
-							// Get bytes
-							byte[] payload = batch.payload;
-							// Decompress bytes
-
-
-							MemoryStream stream = new MemoryStream(payload);
-							if (stream.ReadByte() != 0x78)
-							{
-								throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-							}
-							stream.ReadByte();
-							using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-							{
-								// Get actual package out of bytes
-								MemoryStream destination = new MemoryStream();
-								defStream2.CopyTo(destination);
-								destination.Position = 0;
-								NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-								int len = reader.ReadInt32();
-								byte[] internalBuffer = reader.ReadBytes(len);
-
-								//byte[] internalBuffer = destination.ToArray();
-								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
-								if (destination.Length > destination.Position) throw new Exception("Have more data");
-							}
-							batch.PutPool();
-						}
-					}
 
 					DelayedProcessing(playerSession, package);
 					package.PutPool();
@@ -602,7 +563,7 @@ namespace MiNET
 					reply.serverGuid = 12345;
 					reply.clientendpoint = senderEndpoint;
 					reply.mtuSize = incoming.mtuSize;
-					reply.doSecurityAndHandshake = new byte[0];
+					reply.doSecurityAndHandshake = new byte[1];
 					var data = reply.Encode();
 					reply.PutPool();
 
@@ -773,7 +734,7 @@ namespace MiNET
 						{"whitelist", "off"},
 						//{"hostip", "192.168.0.1"},
 						//{"hostport", "19132"}
-					};					
+					};
 
 					foreach (KeyValuePair<string, string> valuePair in data)
 					{
@@ -817,7 +778,8 @@ namespace MiNET
 
 			var queue = session.WaitingForAcksQueue;
 
-			Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, player.Rtt);
+			if (Log.IsDebugEnabled)
+				Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, player.Rtt);
 
 			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 			{
@@ -840,7 +802,8 @@ namespace MiNET
 				}
 				else
 				{
-					Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, player.Username);
+					if (Log.IsDebugEnabled)
+						Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, player.Username);
 				}
 			}
 		}
@@ -861,7 +824,8 @@ namespace MiNET
 
 			if (ack.onlyOneSequence != 1 && ack.count > 2)
 			{
-				Log.DebugFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, player.Rtt);
+				if (Log.IsDebugEnabled)
+					Log.DebugFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, player.Rtt);
 			}
 
 			ack.PutPool();
@@ -892,7 +856,8 @@ namespace MiNET
 				}
 				else
 				{
-					Log.DebugFormat("Failed to remove ACK #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
+					if (Log.IsDebugEnabled)
+						Log.DebugFormat("Failed to remove ACK #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
 				}
 			}
 		}
@@ -1097,15 +1062,16 @@ namespace MiNET
 								{
 									session.ErrorCount++;
 
-									if (deleted.TransmissionCount > 2)
+									if (deleted.TransmissionCount > 1)
 									{
-										Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
-											deleted.Header.datagramSequenceNumber.IntValue(),
-											player.Username,
-											deleted.FirstMessageId,
-											elapsedTime,
-											rto,
-											player.Rtt);
+										if (Log.IsDebugEnabled)
+											Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+												deleted.Header.datagramSequenceNumber.IntValue(),
+												player.Username,
+												deleted.FirstMessageId,
+												elapsedTime,
+												rto,
+												player.Rtt);
 
 
 										foreach (MessagePart part in deleted.MessageParts)
@@ -1123,13 +1089,14 @@ namespace MiNET
 										{
 											try
 											{
-												Log.DebugFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
-													deleted.Header.datagramSequenceNumber.IntValue(),
-													player.Username,
-													deleted.FirstMessageId,
-													elapsedTime,
-													rto,
-													player.Rtt);
+												if (Log.IsDebugEnabled)
+													Log.InfoFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+														deleted.Header.datagramSequenceNumber.IntValue(),
+														player.Username,
+														deleted.FirstMessageId,
+														elapsedTime,
+														rto,
+														player.Rtt);
 												SendDatagram(session, (Datagram) data);
 											}
 											catch (Exception e)
@@ -1206,7 +1173,7 @@ namespace MiNET
 		{
 			try
 			{
-				lock (syncRoot)
+				//lock (syncRoot)
 				{
 					_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 				}

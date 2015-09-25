@@ -201,7 +201,7 @@ namespace MiNET.Worlds
 
 			McpePlayerList playerList = McpePlayerList.CreateObject();
 			playerList.records = new PlayerAddRecords(spawnedPlayers);
-			newPlayer.SendPackage(playerList);
+			newPlayer.SendPackage(playerList, true);
 
 			foreach (Player spawnedPlayer in spawnedPlayers)
 			{
@@ -219,7 +219,7 @@ namespace MiNET.Worlds
 			{
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {addedPlayer};
-				receiver.SendPackage(playerList);
+				receiver.SendPackage(playerList, true);
 			}
 
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
@@ -353,7 +353,7 @@ namespace MiNET.Worlds
 		{
 			lock (Entities)
 			{
-				if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove.");
+				if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove. Type of entity is: " + entity.GetType());
 
 				McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 				mcpeRemoveEntity.entityId = entity.EntityId;

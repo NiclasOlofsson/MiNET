@@ -26,5 +26,17 @@ namespace MiNET
 
 			return level;
 		}
+
+		public void RemoveLevel(Level level)
+		{
+			if(Levels.Contains(level))
+			{
+				Levels.Remove(level);
+			}
+
+			level.Close();
+		}
+
+
 	}
 }

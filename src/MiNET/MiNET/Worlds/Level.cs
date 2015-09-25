@@ -353,7 +353,8 @@ namespace MiNET.Worlds
 		{
 			lock (Entities)
 			{
-				if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove. Type of entity is: " + entity.GetType());
+				//if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove. Type of entity is: " + entity.GetType());
+				if (!Entities.Remove(entity)) return; // It's ok. Holograms destroy this play..
 
 				McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 				mcpeRemoveEntity.entityId = entity.EntityId;

@@ -482,9 +482,10 @@ namespace MiNET
 			{
 				if (Username != null)
 				{
-					Log.DebugFormat("Player {0} doing multiple logins on Level: {1}", Username, Level.LevelId);
+					Log.WarnFormat("Player {0} doing multiple logins", Username);
 					return; // Already doing login
 				}
+
 				Username = message.username;
 			}
 
@@ -818,6 +819,7 @@ namespace MiNET
 						disconnect.message = reason;
 						SendPackage(disconnect, true);
 					}
+
 					//McpeTransfer transfer = new McpeTransfer();
 					//transfer.endpoint = Server.Endpoint;
 					////transfer.endpoint = new IPEndPoint(IPAddress.Parse("86.8.24.26"), 19132);

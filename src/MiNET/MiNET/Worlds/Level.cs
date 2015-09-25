@@ -129,6 +129,36 @@ namespace MiNET.Worlds
 			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
 		}
 
+		public void Close()
+		{
+			WaitHandle waithandle = new AutoResetEvent(false);
+			_levelTicker.Dispose(waithandle);
+
+			WaitHandle waitHandle = new AutoResetEvent(false);
+			_levelTicker.Dispose(waitHandle);
+			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromSeconds(10));
+			_levelTicker = null;
+
+			foreach (var entity in Entities.ToArray())
+			{
+				entity.DespawnEntity();
+			}
+
+			Entities.Clear();
+			Entities = null;
+
+			Players.Clear();
+			Players = null;
+
+			BlockEntities.Clear();
+			BlockEntities = null;
+
+			BlockWithTicks.Clear();
+			BlockWithTicks = null;
+
+			_worldProvider = null;
+		}
+
 		private object _playerWriteLock = new object();
 
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
@@ -185,10 +215,10 @@ namespace MiNET.Worlds
 		{
 			if (addedPlayer == receiver) return;
 
-			if(sendPlayerListAdd)
+			if (sendPlayerListAdd)
 			{
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerAddRecords { addedPlayer };
+				playerList.records = new PlayerAddRecords {addedPlayer};
 				receiver.SendPackage(playerList);
 			}
 
@@ -223,7 +253,7 @@ namespace MiNET.Worlds
 		{
 			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = player.EntityId;
-			mcpePlayerArmorEquipment.helmet = new MetadataSlot(new ItemStack(player.Inventory.Helmet,0));
+			mcpePlayerArmorEquipment.helmet = new MetadataSlot(new ItemStack(player.Inventory.Helmet, 0));
 			mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(player.Inventory.Chest, 0));
 			mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(player.Inventory.Leggings, 0));
 			mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(player.Inventory.Boots, 0));
@@ -271,7 +301,7 @@ namespace MiNET.Worlds
 		public void SendRemoveForPlayer(Player receiver, Player player)
 		{
 			if (player == receiver) return;
-			
+
 			McpePlayerList playerList = McpePlayerList.CreateObject();
 			playerList.records = new PlayerRemoveRecords {player};
 			receiver.SendPackage(playerList);
@@ -815,11 +845,11 @@ namespace MiNET.Worlds
 					Block sendBlock = new Block(block.Id)
 					{
 						Coordinates = block.Coordinates,
-						Metadata = (byte)(0xb << 4 | (block.Metadata & 0xf))
+						Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
 					};
 
 					var message = McpeUpdateBlock.CreateObject();
-					message.blocks = new BlockRecords { sendBlock };
+					message.blocks = new BlockRecords {sendBlock};
 					player.SendPackage(message, true);
 
 					return;

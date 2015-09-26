@@ -13,7 +13,7 @@ namespace MiNET
 
 		public virtual string GetMotd(ServerInfo serverInfo)
 		{
-			return string.Format(@"MCPE;{0};34;0.12.1;{1};{2}", Motd, serverInfo.NumberOfPlayers, 64);
+			return string.Format(@"MCPE;{0};34;0.12.1;{1};{2}", Motd, serverInfo.NumberOfPlayers, serverInfo.MaxNumberOfPlayers);
 		}
 	}
 }

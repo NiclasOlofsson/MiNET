@@ -131,12 +131,9 @@ namespace MiNET.Worlds
 
 		public void Close()
 		{
-			WaitHandle waithandle = new AutoResetEvent(false);
-			_levelTicker.Dispose(waithandle);
+			Task.Delay(5000).Wait();
 
-			WaitHandle waitHandle = new AutoResetEvent(false);
-			_levelTicker.Dispose(waitHandle);
-			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromSeconds(10));
+			_levelTicker.Dispose();
 			_levelTicker = null;
 
 			foreach (var entity in Entities.ToArray())
@@ -162,6 +159,8 @@ namespace MiNET.Worlds
 			BlockWithTicks = null;
 
 			_worldProvider = null;
+
+			Log.Info("Closed level: " + LevelId);
 		}
 
 		private object _playerWriteLock = new object();

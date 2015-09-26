@@ -474,9 +474,6 @@ namespace MiNET
 			////Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
 			//return;
 
-			Stopwatch watch = new Stopwatch();
-			watch.Restart();
-
 			// Only one login!
 			lock (_loginSyncLock)
 			{
@@ -524,6 +521,19 @@ namespace MiNET
 				Disconnect("Invalid skin.");
 				return;
 			}
+
+			Thread t = new Thread(Start);
+			t.Start(message);
+		}
+
+		private void Start(object o)
+		{
+			McpeLogin message = (McpeLogin) o;
+
+			Stopwatch watch = new Stopwatch();
+			watch.Restart();
+
+			var serverInfo = Server.ServerInfo;
 
 			try
 			{
@@ -594,10 +604,7 @@ namespace MiNET
 
 				Level.SpawnToAll(this);
 
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
-					SendChunksForKnownPosition();
-				});
+				SendChunksForKnownPosition();
 
 				LastUpdatedTime = DateTime.UtcNow;
 				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
@@ -1903,7 +1910,7 @@ namespace MiNET
 				if (messageCount == 0) continue;
 				if (!IsConnected) continue;
 
-				ThreadPool.QueueUserWorkItem(delegate (object o)
+				ThreadPool.QueueUserWorkItem(delegate(object o)
 				{
 					McpeBatch batch = McpeBatch.CreateObject();
 					byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
@@ -1911,14 +1918,15 @@ namespace MiNET
 					batch.payload = buffer;
 					batch.Encode();
 
-					Server.SendPackage(this, new List<Package> { batch }, _mtuSize, ref _reliableMessageNumber);
+					Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 				});
 			}
 		}
 
 
 		private object _syncHack = new object();
-		MemoryStream memStream = new MemoryStream();
+		private MemoryStream memStream = new MemoryStream();
+
 		private void SendQueue(object state)
 		{
 			if (!Monitor.TryEnter(_syncHack)) return;
@@ -1968,13 +1976,12 @@ namespace MiNET
 				batch.payload = buffer;
 				batch.Encode();
 
-				Server.SendPackage(this, new List<Package> { batch }, _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 			}
 			finally
 			{
 				Monitor.Exit(_syncHack);
 			}
-
 		}
 
 		private object _sendMoveListSync = new object();

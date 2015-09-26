@@ -57,7 +57,7 @@ namespace MiNET.Client
 		{
 			Console.WriteLine("Starting client...");
 
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), "TheGrey");
+			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("70.81.33.215"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 

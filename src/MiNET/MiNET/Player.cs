@@ -92,9 +92,12 @@ namespace MiNET
 			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 
 			IsSpawned = false;
-			IsConnected = true;
+			IsConnected = server != null;
 
-			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+		    if (IsConnected)
+		    {
+		        _sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+		    }
 		}
 
 		public DateTime LastNetworkActivity { get; set; }
@@ -1851,6 +1854,8 @@ namespace MiNET
 
 		private void SendQueue(object state)
 		{
+            Console.WriteLine("SendQueue " + Username);
+
 			Queue<Package> queue = _sendQueueNotConcurrent;
 
 			int messageCount = 0;

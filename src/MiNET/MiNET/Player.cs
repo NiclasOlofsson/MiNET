@@ -92,9 +92,9 @@ namespace MiNET
 			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 
 			IsSpawned = false;
-			IsConnected = true;
+			IsConnected = endPoint != null; // Can't connect if there is no endpoint
 
-			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+			if (IsConnected) _sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
 
 		public DateTime LastNetworkActivity { get; set; }
@@ -1199,22 +1199,20 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					//if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
-					//{
-					//	Log.Warn("Inventory set from client not matching inventory on server");
-					//	SendPlayerInventory();
-					//}
-					//else if(GameMode == GameMode.Creative)
-					//{
-					//	Inventory.Slots[(byte) message.slot] = itemStack;
-					//}
-					try
-					{
-						Inventory.Slots[(byte) message.slot] = itemStack;
-					}
-					catch (Exception e)
+					if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
 					{
 						Disconnect("Inventory hacking not allowed!");
+					}
+					else if (GameMode == GameMode.Creative)
+					{
+						try
+						{
+							Inventory.Slots[(byte) message.slot] = itemStack;
+						}
+						catch (Exception e)
+						{
+							Disconnect("Inventory hacking not allowed!");
+						}
 					}
 					break;
 				case 0x78:
@@ -1457,6 +1455,11 @@ namespace MiNET
 				});
 
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
+				if (Inventory.GetItemInHand().Id != message.item.Value.Id)
+				{
+					Disconnect("Inventory hacks not allowed.");
+					return;
+				}
 
 				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata, (BlockFace) message.face, faceCoords);
 			}

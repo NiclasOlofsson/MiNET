@@ -131,7 +131,7 @@ namespace MiNET.Worlds
 
 		public void Close()
 		{
-			Task.Delay(5000).Wait();
+			Task.Delay(60000).Wait();
 
 			_levelTicker.Dispose();
 			_levelTicker = null;

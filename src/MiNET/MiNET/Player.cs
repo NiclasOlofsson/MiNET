@@ -592,9 +592,10 @@ namespace MiNET
 					SendPlayerInventory();
 				}
 
+				Level.SpawnToAll(this);
+
 				ThreadPool.QueueUserWorkItem(delegate(object state)
 				{
-					Level.SpawnToAll(this);
 					SendChunksForKnownPosition();
 				});
 
@@ -839,9 +840,9 @@ namespace MiNET
 					session.Clean();
 				}
 
-				while (_sendQueueNotConcurrent.Count > 0)
+				//while (_sendQueueNotConcurrent.Count > 0)
 				{
-					lock (_queueSync)
+					//lock (_queueSync)
 					{
 						SendQueue(null);
 					}
@@ -1521,7 +1522,7 @@ namespace MiNET
 
 				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
 				{
-					if(Log.IsDebugEnabled)
+					if (Log.IsDebugEnabled)
 						Log.DebugFormat("Denied chunk, too little distance.");
 					return;
 				}
@@ -1858,52 +1859,122 @@ namespace MiNET
 			}
 		}
 
+		private void SendQueueSingleThreaded(object state)
+		{
+			while (IsConnected)
+			{
+				//Task.Delay(10).Wait();
+
+				Thread.Sleep(10);
+
+				Queue<Package> queue = _sendQueueNotConcurrent;
+
+				int messageCount = 0;
+
+				int lenght = queue.Count;
+				MemoryStream memStream = new MemoryStream();
+				for (int i = 0; i < lenght; i++)
+				{
+					Package package = null;
+					lock (_queueSync)
+					{
+						if (queue.Count == 0) break;
+						try
+						{
+							package = queue.Dequeue();
+						}
+						catch (Exception e)
+						{
+						}
+					}
+
+					if (package == null) continue;
+
+					byte[] bytes = package.Encode();
+					if (bytes != null)
+					{
+						messageCount++;
+						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						memStream.Write(bytes, 0, bytes.Length);
+					}
+					package.PutPool();
+				}
+
+				if (messageCount == 0) continue;
+				if (!IsConnected) continue;
+
+				ThreadPool.QueueUserWorkItem(delegate (object o)
+				{
+					McpeBatch batch = McpeBatch.CreateObject();
+					byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+					batch.payloadSize = buffer.Length;
+					batch.payload = buffer;
+					batch.Encode();
+
+					Server.SendPackage(this, new List<Package> { batch }, _mtuSize, ref _reliableMessageNumber);
+				});
+			}
+		}
+
+
+		private object _syncHack = new object();
+		MemoryStream memStream = new MemoryStream();
 		private void SendQueue(object state)
 		{
-			Queue<Package> queue = _sendQueueNotConcurrent;
+			if (!Monitor.TryEnter(_syncHack)) return;
 
-			int messageCount = 0;
-
-			int lenght = queue.Count;
-			MemoryStream memStream = new MemoryStream();
-			NbtBinaryWriter writer = new NbtBinaryWriter(memStream, true);
-			for (int i = 0; i < lenght; i++)
+			try
 			{
-				Package package = null;
-				lock (_queueSync)
+				memStream.Position = 0;
+				memStream.SetLength(0);
+				Queue<Package> queue = _sendQueueNotConcurrent;
+
+				int messageCount = 0;
+
+				int lenght = queue.Count;
+				for (int i = 0; i < lenght; i++)
 				{
-					if (queue.Count == 0) break;
-					try
+					Package package = null;
+					lock (_queueSync)
 					{
-						package = queue.Dequeue();
+						if (queue.Count == 0) break;
+						try
+						{
+							package = queue.Dequeue();
+						}
+						catch (Exception e)
+						{
+						}
 					}
-					catch (Exception e)
+
+					if (package == null) continue;
+
+					byte[] bytes = package.Encode();
+					if (bytes != null)
 					{
+						messageCount++;
+						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						memStream.Write(bytes, 0, bytes.Length);
 					}
+					package.PutPool();
 				}
 
-				if (package == null) continue;
+				if (messageCount == 0) return;
+				if (!IsConnected) return;
 
-				byte[] bytes = package.Encode();
-				if (bytes != null)
-				{
-					messageCount++;
-					writer.Write(bytes.Length);
-					writer.Write(bytes, 0, bytes.Length);
-				}
-				package.PutPool();
+				McpeBatch batch = McpeBatch.CreateObject();
+				byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+				batch.payloadSize = buffer.Length;
+				batch.payload = buffer;
+				batch.Encode();
+
+				Server.SendPackage(this, new List<Package> { batch }, _mtuSize, ref _reliableMessageNumber);
+			}
+			finally
+			{
+				Monitor.Exit(_syncHack);
 			}
 
-			if (messageCount == 0) return;
-			if (!IsConnected) return;
-
-			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
-
-			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
 		}
 
 		private object _sendMoveListSync = new object();

@@ -1122,6 +1122,8 @@ namespace MiNET
 		public void SendPackage(Player player, List<Package> messages, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
 		{
 			if (messages.Count == 0) return;
+			Stopwatch t = new Stopwatch();
+			t.Start();
 
 			PlayerNetworkSession session;
 			if (_playerSessions.TryGetValue(player.EndPoint, out session))
@@ -1129,18 +1131,17 @@ namespace MiNET
 				Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, session, SendDatagram);
 				foreach (var message in messages)
 				{
-					Thread.Sleep(1); // Seems to be needed regardless :-(
-
-					if (message is InternalPing)
-					{
-						ServerInfo.Latency = (ServerInfo.Latency*9 + message.Timer.ElapsedMilliseconds)/10;
-					}
+					//if (message is InternalPing)
+					//{
+					//	ServerInfo.Latency = (ServerInfo.Latency*9 + message.Timer.ElapsedMilliseconds)/10;
+					//}
 
 					TraceSend(message);
 
 					message.PutPool();
 				}
 			}
+			if (t.ElapsedMilliseconds < 1) Thread.Sleep(1);
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
@@ -1173,7 +1174,7 @@ namespace MiNET
 		{
 			try
 			{
-				//lock (syncRoot)
+				lock (syncRoot)
 				{
 					_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 				}
@@ -1192,7 +1193,8 @@ namespace MiNET
 
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
-			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
+			if (!Log.IsDebugEnabled) return;
+			if (!Debugger.IsAttached) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
 			{
@@ -1202,7 +1204,8 @@ namespace MiNET
 
 		private static void TraceSend(Package message)
 		{
-			if (!Debugger.IsAttached || !Log.IsDebugEnabled) return;
+			if (!Log.IsDebugEnabled) return;
+			if (!Debugger.IsAttached) return;
 
 			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)
 			{

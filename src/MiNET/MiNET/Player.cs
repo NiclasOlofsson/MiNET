@@ -92,9 +92,12 @@ namespace MiNET
 			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 
 			IsSpawned = false;
-			IsConnected = true;
+			IsConnected = server != null;
 
+		    if (IsConnected)
+		    {
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+		}
 		}
 
 		public DateTime LastNetworkActivity { get; set; }
@@ -602,9 +605,9 @@ namespace MiNET
 					SendPlayerInventory();
 				}
 
-				Level.SpawnToAll(this);
+					Level.SpawnToAll(this);
 
-				SendChunksForKnownPosition();
+					SendChunksForKnownPosition();
 
 				LastUpdatedTime = DateTime.UtcNow;
 				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
@@ -1210,7 +1213,7 @@ namespace MiNET
 					//}
 					try
 					{
-						Inventory.Slots[(byte) message.slot] = itemStack;
+					Inventory.Slots[(byte) message.slot] = itemStack;
 					}
 					catch (Exception e)
 					{
@@ -1530,7 +1533,7 @@ namespace MiNET
 				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
 				{
 					if (Log.IsDebugEnabled)
-						Log.DebugFormat("Denied chunk, too little distance.");
+					Log.DebugFormat("Denied chunk, too little distance.");
 					return;
 				}
 
@@ -1935,49 +1938,49 @@ namespace MiNET
 			{
 				memStream.Position = 0;
 				memStream.SetLength(0);
-				Queue<Package> queue = _sendQueueNotConcurrent;
+			Queue<Package> queue = _sendQueueNotConcurrent;
 
-				int messageCount = 0;
+			int messageCount = 0;
 
-				int lenght = queue.Count;
-				for (int i = 0; i < lenght; i++)
+			int lenght = queue.Count;
+			for (int i = 0; i < lenght; i++)
+			{
+				Package package = null;
+				lock (_queueSync)
 				{
-					Package package = null;
-					lock (_queueSync)
+					if (queue.Count == 0) break;
+					try
 					{
-						if (queue.Count == 0) break;
-						try
-						{
-							package = queue.Dequeue();
-						}
-						catch (Exception e)
-						{
-						}
+						package = queue.Dequeue();
 					}
-
-					if (package == null) continue;
-
-					byte[] bytes = package.Encode();
-					if (bytes != null)
+					catch (Exception e)
 					{
-						messageCount++;
-						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-						memStream.Write(bytes, 0, bytes.Length);
 					}
-					package.PutPool();
 				}
 
-				if (messageCount == 0) return;
-				if (!IsConnected) return;
+				if (package == null) continue;
 
-				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-
-				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+				byte[] bytes = package.Encode();
+				if (bytes != null)
+				{
+					messageCount++;
+						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						memStream.Write(bytes, 0, bytes.Length);
+				}
+				package.PutPool();
 			}
+
+			if (messageCount == 0) return;
+			if (!IsConnected) return;
+
+			McpeBatch batch = McpeBatch.CreateObject();
+			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode();
+
+			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+		}
 			finally
 			{
 				Monitor.Exit(_syncHack);

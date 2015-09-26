@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 
 namespace MiNET.Utils
 {
@@ -78,36 +77,6 @@ namespace MiNET.Utils
 			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
 
 			return vector;
-		}
-
-		private byte[] Export()
-		{
-			using (MemoryStream stream = new MemoryStream())
-			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, false);
-				writer.Write(X);
-				writer.Write(Y);
-				writer.Write(Z);
-				writer.Write(Yaw);
-				writer.Write(Pitch);
-				writer.Write(HeadYaw);
-				writer.Flush();
-				return stream.GetBuffer();
-			}
-		}
-
-		private void Import(byte[] data)
-		{
-			using (MemoryStream stream = new MemoryStream(data))
-			{
-				NbtBinaryReader reader = new NbtBinaryReader(stream, false);
-				X = reader.ReadSingle();
-				Y = reader.ReadSingle();
-				Z = reader.ReadSingle();
-				Yaw = reader.ReadSingle();
-				Pitch = reader.ReadSingle();
-				HeadYaw = reader.ReadSingle();
-			}
 		}
 
 		public object Clone()

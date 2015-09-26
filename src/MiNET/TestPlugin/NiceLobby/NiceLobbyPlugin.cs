@@ -28,14 +28,14 @@ namespace TestPlugin.NiceLobby
 
 		protected override void OnEnable()
 		{
-			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			//foreach (var level in Context.Levels)
-			//{
-			//	level.BlockBreak += LevelOnBlockBreak;
-			//	level.BlockPlace += LevelOnBlockPlace;
-			//}
+			foreach (var level in Context.LevelManager.Levels)
+			{
+				level.BlockBreak += LevelOnBlockBreak;
+				level.BlockPlace += LevelOnBlockPlace;
+			}
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)

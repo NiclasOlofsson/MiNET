@@ -131,12 +131,9 @@ namespace MiNET.Worlds
 
 		public void Close()
 		{
-			WaitHandle waithandle = new AutoResetEvent(false);
-			_levelTicker.Dispose(waithandle);
+			Task.Delay(5000).Wait();
 
-			WaitHandle waitHandle = new AutoResetEvent(false);
-			_levelTicker.Dispose(waitHandle);
-			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromSeconds(10));
+			_levelTicker.Dispose();
 			_levelTicker = null;
 
 			foreach (var entity in Entities.ToArray())
@@ -146,6 +143,11 @@ namespace MiNET.Worlds
 
 			Entities.Clear();
 			Entities = null;
+
+			foreach (Player player in Players.Values.ToArray())
+			{
+				player.Disconnect("Unexpected player lingering on close of level: " + player.Username);	
+			}
 
 			Players.Clear();
 			Players = null;
@@ -157,6 +159,8 @@ namespace MiNET.Worlds
 			BlockWithTicks = null;
 
 			_worldProvider = null;
+
+			Log.Info("Closed level: " + LevelId);
 		}
 
 		private object _playerWriteLock = new object();
@@ -167,20 +171,30 @@ namespace MiNET.Worlds
 
 			EntityManager.AddEntity(null, newPlayer);
 
-			lock (_playerWriteLock)
+			if(!spawn)
 			{
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
-					if (spawn)
+					foreach (Entity entity in Entities.ToArray())
 					{
-						SpawnToAll(newPlayer);
+						SendAddEntityToPlayer(entity, newPlayer);
 					}
 				}
 			}
-
-			foreach (Entity entity in Entities.ToArray())
+			else
 			{
-				SendAddEntityToPlayer(entity, newPlayer);
+				lock (_playerWriteLock)
+				{
+					if (Players.TryAdd(newPlayer.EntityId, newPlayer))
+					{
+						SpawnToAll(newPlayer);
+
+						foreach (Entity entity in Entities.ToArray())
+						{
+							SendAddEntityToPlayer(entity, newPlayer);
+						}
+					}
+				}
 			}
 
 			//	if (!string.IsNullOrEmpty(broadcastText))
@@ -262,27 +276,41 @@ namespace MiNET.Worlds
 
 		public virtual void RemovePlayer(Player player, bool despawn = true)
 		{
-			lock (_playerWriteLock)
+			if (Players == null) return; // Closing down the level sets players to null;
+			if (Entities == null) return; // Closing down the level sets players to null;
+
+			if (!despawn)
 			{
 				Player removed;
 				if (Players.TryRemove(player.EntityId, out removed))
 				{
-					player.IsSpawned = false;
-					if (despawn)
-					{
-						DespawnFromAll(player);
-					}
-
 					foreach (Entity entity in Entities.ToArray())
 					{
 						entity.DespawnFromPlayer(removed);
 					}
 				}
-				else
+			}
+			else
+			{
+				lock (_playerWriteLock)
 				{
-					Log.WarnFormat("Failed to remove player {0}", player.Username);
+					Player removed;
+					if (Players.TryRemove(player.EntityId, out removed))
+					{
+						player.IsSpawned = false;
+						if (despawn)
+						{
+							DespawnFromAll(player);
+						}
+
+						foreach (Entity entity in Entities.ToArray())
+						{
+							entity.DespawnFromPlayer(removed);
+						}
+					}
 				}
 			}
+
 			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
 		}
 
@@ -353,7 +381,8 @@ namespace MiNET.Worlds
 		{
 			lock (Entities)
 			{
-				if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove.");
+				//if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove. Type of entity is: " + entity.GetType());
+				if (!Entities.Remove(entity)) return; // It's ok. Holograms destroy this play..
 
 				McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 				mcpeRemoveEntity.entityId = entity.EntityId;
@@ -503,7 +532,6 @@ namespace MiNET.Worlds
 			DateTime now = DateTime.UtcNow;
 
 			MemoryStream stream = new MemoryStream();
-			NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
 			int count = 0;
 			foreach (var player in players)
@@ -522,8 +550,8 @@ namespace MiNET.Worlds
 					move.headYaw = knownPosition.HeadYaw;
 					move.mode = 0;
 					byte[] bytes = move.Encode();
-					writer.Write(bytes.Length);
-					writer.Write(bytes, 0, bytes.Length);
+					stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+					stream.Write(bytes, 0, bytes.Length);
 					move.PutPool();
 					count++;
 				}
@@ -547,20 +575,18 @@ namespace MiNET.Worlds
 
 			{
 				byte[] bytes = moveEntity.Encode();
-				writer.Write(bytes.Length);
-				writer.Write(bytes, 0, bytes.Length);
+				stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				stream.Write(bytes, 0, bytes.Length);
 				moveEntity.PutPool();
 			}
 			{
 				byte[] bytes = entityMotion.Encode();
-				writer.Write(bytes.Length);
-				writer.Write(bytes, 0, bytes.Length);
+				stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				stream.Write(bytes, 0, bytes.Length);
 				entityMotion.PutPool();
 			}
 
 			if (count == 0) return;
-
-			writer.Flush();
 
 			McpeBatch batch = McpeBatch.CreateObject(players.Length);
 			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using log4net;
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
@@ -29,6 +30,8 @@ namespace MiNET
 
 	public class HealthManager
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (HealthManager));
+
 		private int _hearts;
 		public Entity Entity { get; set; }
 		public int Health { get; set; }
@@ -78,6 +81,7 @@ namespace MiNET
 				//	Health = 200;
 				//	return;
 				//}
+
 
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();

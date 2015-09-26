@@ -96,8 +96,8 @@ namespace MiNET
 
 		    if (IsConnected)
 		    {
-		        _sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
-		    }
+			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+		}
 		}
 
 		public DateTime LastNetworkActivity { get; set; }
@@ -477,17 +477,15 @@ namespace MiNET
 			////Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
 			//return;
 
-			Stopwatch watch = new Stopwatch();
-			watch.Restart();
-
 			// Only one login!
 			lock (_loginSyncLock)
 			{
 				if (Username != null)
 				{
-					Log.DebugFormat("Player {0} doing multiple logins on Level: {1}", Username, Level.LevelId);
+					Log.WarnFormat("Player {0} doing multiple logins", Username);
 					return; // Already doing login
 				}
+
 				Username = message.username;
 			}
 
@@ -526,6 +524,19 @@ namespace MiNET
 				Disconnect("Invalid skin.");
 				return;
 			}
+
+			Thread t = new Thread(Start);
+			t.Start(message);
+		}
+
+		private void Start(object o)
+		{
+			McpeLogin message = (McpeLogin) o;
+
+			Stopwatch watch = new Stopwatch();
+			watch.Restart();
+
+			var serverInfo = Server.ServerInfo;
 
 			try
 			{
@@ -594,11 +605,9 @@ namespace MiNET
 					SendPlayerInventory();
 				}
 
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
 					Level.SpawnToAll(this);
+
 					SendChunksForKnownPosition();
-				});
 
 				LastUpdatedTime = DateTime.UtcNow;
 				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
@@ -821,6 +830,7 @@ namespace MiNET
 						disconnect.message = reason;
 						SendPackage(disconnect, true);
 					}
+
 					//McpeTransfer transfer = new McpeTransfer();
 					//transfer.endpoint = Server.Endpoint;
 					////transfer.endpoint = new IPEndPoint(IPAddress.Parse("86.8.24.26"), 19132);
@@ -840,9 +850,9 @@ namespace MiNET
 					session.Clean();
 				}
 
-				while (_sendQueueNotConcurrent.Count > 0)
+				//while (_sendQueueNotConcurrent.Count > 0)
 				{
-					lock (_queueSync)
+					//lock (_queueSync)
 					{
 						SendQueue(null);
 					}
@@ -876,21 +886,21 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
-			if (_openInventory != null)
-			{
-				// Hack for testing. Chests won't open again.
-				Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
-					try
-					{
-						HandleMcpeContainerClose(null);
-					}
-					finally
-					{
-					}
-				});
-			}
+			//if (_openInventory != null)
+			//{
+			//	// Hack for testing. Chests won't open again.
+			//	Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
+			//	ThreadPool.QueueUserWorkItem(delegate(object state)
+			//	{
+			//		try
+			//		{
+			//			HandleMcpeContainerClose(null);
+			//		}
+			//		finally
+			//		{
+			//		}
+			//	});
+			//}
 
 			if (!IsSpawned || HealthManager.IsDead) return;
 
@@ -1201,8 +1211,14 @@ namespace MiNET
 					//{
 					//	Inventory.Slots[(byte) message.slot] = itemStack;
 					//}
+					try
+					{
 					Inventory.Slots[(byte) message.slot] = itemStack;
-
+					}
+					catch (Exception e)
+					{
+						Disconnect("Inventory hacking not allowed!");
+					}
 					break;
 				case 0x78:
 					int itemId = message.item.Value.Id;
@@ -1514,8 +1530,9 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 4)
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
 				{
+					if (Log.IsDebugEnabled)
 					Log.DebugFormat("Denied chunk, too little distance.");
 					return;
 				}
@@ -1852,17 +1869,80 @@ namespace MiNET
 			}
 		}
 
+		private void SendQueueSingleThreaded(object state)
+		{
+			while (IsConnected)
+			{
+				//Task.Delay(10).Wait();
+
+				Thread.Sleep(10);
+
+				Queue<Package> queue = _sendQueueNotConcurrent;
+
+				int messageCount = 0;
+
+				int lenght = queue.Count;
+				MemoryStream memStream = new MemoryStream();
+				for (int i = 0; i < lenght; i++)
+				{
+					Package package = null;
+					lock (_queueSync)
+					{
+						if (queue.Count == 0) break;
+						try
+						{
+							package = queue.Dequeue();
+						}
+						catch (Exception e)
+						{
+						}
+					}
+
+					if (package == null) continue;
+
+					byte[] bytes = package.Encode();
+					if (bytes != null)
+					{
+						messageCount++;
+						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						memStream.Write(bytes, 0, bytes.Length);
+					}
+					package.PutPool();
+				}
+
+				if (messageCount == 0) continue;
+				if (!IsConnected) continue;
+
+				ThreadPool.QueueUserWorkItem(delegate(object o)
+				{
+					McpeBatch batch = McpeBatch.CreateObject();
+					byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+					batch.payloadSize = buffer.Length;
+					batch.payload = buffer;
+					batch.Encode();
+
+					Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+				});
+			}
+		}
+
+
+		private object _syncHack = new object();
+		private MemoryStream memStream = new MemoryStream();
+
 		private void SendQueue(object state)
 		{
-            Console.WriteLine("SendQueue " + Username);
+			if (!Monitor.TryEnter(_syncHack)) return;
 
+			try
+			{
+				memStream.Position = 0;
+				memStream.SetLength(0);
 			Queue<Package> queue = _sendQueueNotConcurrent;
 
 			int messageCount = 0;
 
 			int lenght = queue.Count;
-			MemoryStream memStream = new MemoryStream();
-			NbtBinaryWriter writer = new NbtBinaryWriter(memStream, true);
 			for (int i = 0; i < lenght; i++)
 			{
 				Package package = null;
@@ -1884,8 +1964,8 @@ namespace MiNET
 				if (bytes != null)
 				{
 					messageCount++;
-					writer.Write(bytes.Length);
-					writer.Write(bytes, 0, bytes.Length);
+						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						memStream.Write(bytes, 0, bytes.Length);
 				}
 				package.PutPool();
 			}
@@ -1900,6 +1980,11 @@ namespace MiNET
 			batch.Encode();
 
 			Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+		}
+			finally
+			{
+				Monitor.Exit(_syncHack);
+			}
 		}
 
 		private object _sendMoveListSync = new object();

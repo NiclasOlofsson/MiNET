@@ -454,8 +454,6 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
-			message.Source = "Player";
-
 			ConnectedPong package = ConnectedPong.CreateObject();
 			package.sendpingtime = message.sendpingtime;
 			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
@@ -604,7 +602,7 @@ namespace MiNET
 
 				Level.SpawnToAll(this);
 
-				SendChunksForKnownPosition();
+				ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
 
 				LastUpdatedTime = DateTime.UtcNow;
 				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
@@ -638,7 +636,7 @@ namespace MiNET
 			ServerInfo serverInfo = Server.ServerInfo;
 			try
 			{
-				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+				//Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
 				// reset all health states
 				HealthManager.ResetHealth();
@@ -662,11 +660,9 @@ namespace MiNET
 
 				BroadcastSetEntityData();
 
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
-					Level.SpawnToAll(this);
-					SendChunksForKnownPosition();
-				});
+				Level.SpawnToAll(this);
+
+				ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
 
 				IsSpawned = true;
 
@@ -676,7 +672,7 @@ namespace MiNET
 			}
 			finally
 			{
-				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
+				//Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
 		}
 
@@ -1199,21 +1195,36 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
-					if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
+					//if (GameMode != GameMode.Creative)
+					//{
+					//	if (Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
+					//	{
+					//		Disconnect("Inventory hacking not allowed!");
+					//	}
+					//	else if (GameMode == GameMode.Creative)
+					//	{
+					//		try
+					//		{
+					//			Inventory.Slots[(byte) message.slot] = itemStack;
+					//		}
+					//		catch (Exception e)
+					//		{
+					//			Disconnect("Inventory hacking not allowed!");
+					//		}
+					//	}
+					//}
+					//else if (GameMode == GameMode.Creative)
+				{
+					try
 					{
-						Disconnect("Inventory hacking not allowed!");
+						Inventory.Slots[(byte) message.slot] = itemStack;
 					}
-					else if (GameMode == GameMode.Creative)
+					catch (Exception e)
 					{
-						try
-						{
-							Inventory.Slots[(byte) message.slot] = itemStack;
-						}
-						catch (Exception e)
-						{
-							Disconnect("Inventory hacking not allowed!");
-						}
+						//Disconnect("Inventory hacking not allowed!");
 					}
+				}
+
 					break;
 				case 0x78:
 					int itemId = message.item.Value.Id;
@@ -1457,7 +1468,7 @@ namespace MiNET
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
 				if (Inventory.GetItemInHand().Id != message.item.Value.Id)
 				{
-					Disconnect("Inventory hacks not allowed.");
+					//Disconnect("Inventory hacks not allowed.");
 					return;
 				}
 
@@ -1858,7 +1869,7 @@ namespace MiNET
 
 			if (!IsSpawned || sendDirect || isBatch)
 			{
-				Server.SendPackage(this, new List<Package>(new[] {package}), _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
 			}
 			else
 			{
@@ -1916,12 +1927,12 @@ namespace MiNET
 				ThreadPool.QueueUserWorkItem(delegate(object o)
 				{
 					McpeBatch batch = McpeBatch.CreateObject();
-					byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+					byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 					batch.payloadSize = buffer.Length;
 					batch.payload = buffer;
 					batch.Encode();
 
-					Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+					Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
 				});
 			}
 		}
@@ -1974,12 +1985,12 @@ namespace MiNET
 				if (!IsConnected) return;
 
 				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+				byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 				batch.payloadSize = buffer.Length;
 				batch.payload = buffer;
 				batch.Encode();
 
-				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
 			}
 			finally
 			{
@@ -2002,35 +2013,11 @@ namespace MiNET
 
 			try
 			{
-				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+				Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
 			}
 			finally
 			{
 				Monitor.Exit(_sendMoveListSync);
-			}
-		}
-
-
-		private object _sendEntityMoveListSync = new object();
-		private DateTime _lastEntityMoveListSendTime = DateTime.UtcNow;
-
-		public void SendEntityMoveList(McpeBatch batch, DateTime sendTime)
-		{
-			if (sendTime < _lastEntityMoveListSendTime || !Monitor.TryEnter(_sendEntityMoveListSync))
-			{
-				batch.PutPool();
-				return;
-			}
-
-			_lastEntityMoveListSendTime = sendTime;
-
-			try
-			{
-				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
-			}
-			finally
-			{
-				Monitor.Exit(_sendEntityMoveListSync);
 			}
 		}
 

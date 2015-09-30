@@ -315,7 +315,7 @@ namespace MiNET.Client
 									continue;
 								}
 
-								if(splitMessage.Message == null)
+								if (splitMessage.Message == null)
 								{
 									Log.DebugFormat("Empty split package");
 									continue;
@@ -673,16 +673,13 @@ namespace MiNET.Client
 			}
 		}
 
-		public void SendPackage(List<Package> messages, short mtuSize, ref int reliableMessageNumber)
+		public void SendPackage(Package message, short mtuSize, ref int reliableMessageNumber)
 		{
-			if (messages.Count == 0) return;
+			if (message == null) return;
 
-			foreach (var message in messages)
-			{
-				TraceSend(message);
-			}
+			TraceSend(message);
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, Session, SendDatagram);
+			Datagram.CreateDatagrams(message, mtuSize, ref reliableMessageNumber, Session, SendDatagram);
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
@@ -810,7 +807,7 @@ namespace MiNET.Client
 
 		private void SendPackage(Package package)
 		{
-			SendPackage(new List<Package> {package}, _mtuSize, ref _reliableMessageNumber);
+			SendPackage(package, _mtuSize, ref _reliableMessageNumber);
 			package.PutPool();
 		}
 

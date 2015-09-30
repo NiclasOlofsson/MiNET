@@ -229,7 +229,7 @@ namespace MiNET.Worlds
 				{161, new NoDataMapper(18)}, // Acacia Leaves	=> Leaves
 				{162, new NoDataMapper(17)}, // Acacia Wood		=> Wood
 				{165, air}, // Slime Block		=> Air
-				{166, new NoDataMapper(97)}, // Barrier		=> (Invisible Bedrock)
+				{166, new NoDataMapper(95)}, // Barrier		=> (Invisible Bedrock)
 				{167, new NoDataMapper(96)}, // Iron Trapdoor	=> Trapdoor
 				{168, air}, // Prismarine		=> Air
 				{169, new NoDataMapper(89)}, // Sea Lantern		=> Glowstone

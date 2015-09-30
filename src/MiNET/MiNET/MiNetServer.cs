@@ -395,8 +395,6 @@ namespace MiNET
 				return;
 			}
 
-			message.Source = "RakNet";
-
 			TraceReceive(message);
 
 			switch (msgIdType)
@@ -512,7 +510,6 @@ namespace MiNET
 							//	_badPacketBans.Add(senderEndpoint.Address, true);
 							//}
 							//return;
-
 						}
 
 
@@ -606,8 +603,6 @@ namespace MiNET
 
 				if (message is SplitPartPackage)
 				{
-					message.Source = "Receive SplitPartPackage";
-
 					SplitPartPackage splitMessage = message as SplitPartPackage;
 
 					int spId = package._splitPacketId;
@@ -915,8 +910,6 @@ namespace MiNET
 				return;
 			}
 
-			message.Source = "HandlePackage";
-
 			Player player = playerSession.Player;
 			if (player != null) player.HandlePackage(message);
 		}
@@ -1055,7 +1048,7 @@ namespace MiNET
 							if (player.Rtt == -1) continue;
 
 							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-							if (elapsedTime >= rto*(datagram.TransmissionCount + 2))
+							if (elapsedTime >= rto * (datagram.TransmissionCount + 2))
 							{
 								Datagram deleted;
 								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
@@ -1119,29 +1112,19 @@ namespace MiNET
 			}
 		}
 
-		public void SendPackage(Player player, List<Package> messages, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
+		public void SendPackage(Player player, Package message, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
 		{
-			if (messages.Count == 0) return;
-			Stopwatch t = new Stopwatch();
-			t.Start();
+			if (message == null) return;
 
 			PlayerNetworkSession session;
 			if (_playerSessions.TryGetValue(player.EndPoint, out session))
 			{
-				Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, session, SendDatagram);
-				foreach (var message in messages)
-				{
-					//if (message is InternalPing)
-					//{
-					//	ServerInfo.Latency = (ServerInfo.Latency*9 + message.Timer.ElapsedMilliseconds)/10;
-					//}
+				Datagram.CreateDatagrams(message, mtuSize, ref reliableMessageNumber, session, SendDatagram);
 
-					TraceSend(message);
-
-					message.PutPool();
-				}
+				message.PutPool();
 			}
-			if (t.ElapsedMilliseconds < 1) Thread.Sleep(1);
+
+			Thread.Sleep(1); // Really important to slow down speed a bit
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
@@ -1152,7 +1135,6 @@ namespace MiNET
 				return;
 			}
 
-			datagram.Source = "Datagram";
 			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 
 			byte[] data = datagram.Encode();

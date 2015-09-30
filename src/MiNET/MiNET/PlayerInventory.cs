@@ -90,7 +90,7 @@ namespace MiNET
 		[Wired]
 		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
 		{
-			if (slot > InventorySize) throw new IndexOutOfRangeException("slot");
+			//if (slot > InventorySize) throw new IndexOutOfRangeException("slot");
 			Slots[slot] = new ItemStack(itemId, amount, metadata);
 
 			Player.SendPackage(new McpeContainerSetContent

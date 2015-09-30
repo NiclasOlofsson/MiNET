@@ -131,9 +131,10 @@ namespace MiNET.Worlds
 
 		public void Close()
 		{
-			Task.Delay(60000).Wait();
-
-			_levelTicker.Dispose();
+			_levelTicker.Change(Timeout.Infinite, Timeout.Infinite);
+			WaitHandle waitHandle = new AutoResetEvent(false);
+			_levelTicker.Dispose(waitHandle);
+			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
 			_levelTicker = null;
 
 			foreach (var entity in Entities.ToArray())
@@ -142,21 +143,21 @@ namespace MiNET.Worlds
 			}
 
 			Entities.Clear();
-			Entities = null;
 
 			foreach (Player player in Players.Values.ToArray())
 			{
-				player.Disconnect("Unexpected player lingering on close of level: " + player.Username);	
+				player.Disconnect("Unexpected player lingering on close of level: " + player.Username);
 			}
 
 			Players.Clear();
-			Players = null;
 
 			BlockEntities.Clear();
-			BlockEntities = null;
 
 			BlockWithTicks.Clear();
 			BlockWithTicks = null;
+			BlockEntities = null;
+			Players = null;
+			Entities = null;
 
 			_worldProvider = null;
 
@@ -171,28 +172,15 @@ namespace MiNET.Worlds
 
 			EntityManager.AddEntity(null, newPlayer);
 
-			if(!spawn)
+			lock (_playerWriteLock)
 			{
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
+					if (spawn) SpawnToAll(newPlayer);
+
 					foreach (Entity entity in Entities.ToArray())
 					{
 						SendAddEntityToPlayer(entity, newPlayer);
-					}
-				}
-			}
-			else
-			{
-				lock (_playerWriteLock)
-				{
-					if (Players.TryAdd(newPlayer.EntityId, newPlayer))
-					{
-						SpawnToAll(newPlayer);
-
-						foreach (Entity entity in Entities.ToArray())
-						{
-							SendAddEntityToPlayer(entity, newPlayer);
-						}
 					}
 				}
 			}
@@ -210,31 +198,70 @@ namespace MiNET.Worlds
 
 		public void SpawnToAll(Player newPlayer)
 		{
-			List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
-			spawnedPlayers.Add(newPlayer);
-
-			McpePlayerList playerList = McpePlayerList.CreateObject();
-			playerList.records = new PlayerAddRecords(spawnedPlayers);
-			newPlayer.SendPackage(playerList);
-
-			foreach (Player spawnedPlayer in spawnedPlayers)
+			lock (_playerWriteLock)
 			{
-				SendAddForPlayer(newPlayer, spawnedPlayer, false);
-				SendAddForPlayer(spawnedPlayer, newPlayer);
-				Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
+				List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
+				spawnedPlayers.Add(newPlayer);
+
+				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
+				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
+				var bytes = playerListMessage.Encode();
+
+				MemoryStream memStream = new MemoryStream();
+				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				memStream.Write(bytes, 0, bytes.Length);
+
+				McpeBatch batch = McpeBatch.CreateObject();
+				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+				batch.payloadSize = buffer.Length;
+				batch.payload = buffer;
+				batch.Encode();
+
+				newPlayer.SendPackage(batch);
+
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerAddRecords {newPlayer};
+				RelayBroadcast(newPlayer, playerList);
+
+				McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
+				mcpeAddPlayer.uuid = newPlayer.ClientUuid;
+				mcpeAddPlayer.username = newPlayer.Username;
+				mcpeAddPlayer.entityId = newPlayer.EntityId;
+				mcpeAddPlayer.x = newPlayer.KnownPosition.X;
+				mcpeAddPlayer.y = newPlayer.KnownPosition.Y;
+				mcpeAddPlayer.z = newPlayer.KnownPosition.Z;
+				mcpeAddPlayer.yaw = newPlayer.KnownPosition.Yaw;
+				mcpeAddPlayer.headYaw = newPlayer.KnownPosition.HeadYaw;
+				mcpeAddPlayer.pitch = newPlayer.KnownPosition.Pitch;
+				mcpeAddPlayer.metadata = newPlayer.GetMetadata().GetBytes();
+				RelayBroadcast(newPlayer, mcpeAddPlayer);
+
+				McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
+				mcpePlayerEquipment.entityId = newPlayer.EntityId;
+				mcpePlayerEquipment.item = new MetadataSlot(newPlayer.Inventory.GetItemInHand());
+				mcpePlayerEquipment.slot = 0;
+				RelayBroadcast(newPlayer, mcpePlayerEquipment);
+
+				McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
+				mcpePlayerArmorEquipment.entityId = newPlayer.EntityId;
+				mcpePlayerArmorEquipment.helmet = new MetadataSlot(new ItemStack(newPlayer.Inventory.Helmet, 0));
+				mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(newPlayer.Inventory.Chest, 0));
+				mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(newPlayer.Inventory.Leggings, 0));
+				mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(newPlayer.Inventory.Boots, 0));
+				RelayBroadcast(newPlayer, mcpePlayerArmorEquipment);
+
+				foreach (Player spawnedPlayer in spawnedPlayers)
+				{
+					SendAddForPlayer(newPlayer, spawnedPlayer, false);
+					//Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
+				}
 			}
 		}
 
 		public void SendAddForPlayer(Player receiver, Player addedPlayer, bool sendPlayerListAdd = true)
 		{
 			if (addedPlayer == receiver) return;
-
-			if (sendPlayerListAdd)
-			{
-				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerAddRecords {addedPlayer};
-				receiver.SendPackage(playerList);
-			}
 
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = addedPlayer.ClientUuid;
@@ -279,61 +306,63 @@ namespace MiNET.Worlds
 			if (Players == null) return; // Closing down the level sets players to null;
 			if (Entities == null) return; // Closing down the level sets players to null;
 
-			if (!despawn)
+			lock (_playerWriteLock)
 			{
 				Player removed;
 				if (Players.TryRemove(player.EntityId, out removed))
 				{
+					player.IsSpawned = false;
+					if (despawn) DespawnFromAll(player);
+
 					foreach (Entity entity in Entities.ToArray())
 					{
 						entity.DespawnFromPlayer(removed);
 					}
 				}
 			}
-			else
-			{
-				lock (_playerWriteLock)
-				{
-					Player removed;
-					if (Players.TryRemove(player.EntityId, out removed))
-					{
-						player.IsSpawned = false;
-						if (despawn)
-						{
-							DespawnFromAll(player);
-						}
-
-						foreach (Entity entity in Entities.ToArray())
-						{
-							entity.DespawnFromPlayer(removed);
-						}
-					}
-				}
-			}
-
-			//BroadcastTextMessage(string.Format("{0} left the game!", player.Username));
 		}
 
 
 		public void DespawnFromAll(Player player)
 		{
-			foreach (var pair in Players)
+			lock (_playerWriteLock)
 			{
-				Player targetPlayer = pair.Value;
+				List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
 
-				SendRemoveForPlayer(targetPlayer, player);
-				SendRemoveForPlayer(player, targetPlayer);
+				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
+				playerListMessage.records = new PlayerRemoveRecords(spawnedPlayers);
+				var bytes = playerListMessage.Encode();
+
+				MemoryStream memStream = new MemoryStream();
+				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				memStream.Write(bytes, 0, bytes.Length);
+
+				McpeBatch batch = McpeBatch.CreateObject();
+				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+				batch.payloadSize = buffer.Length;
+				batch.payload = buffer;
+				batch.Encode();
+				player.SendPackage(batch);
+
+				foreach (Player spawnedPlayer in spawnedPlayers)
+				{
+					SendRemoveForPlayer(player, spawnedPlayer, false);
+				}
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords {player};
+				RelayBroadcast(player, playerList);
+
+				McpeRemovePlayer removePlayerMessage = McpeRemovePlayer.CreateObject();
+				removePlayerMessage.clientUuid = player.ClientUuid;
+				removePlayerMessage.entityId = player.EntityId;
+				RelayBroadcast(player, removePlayerMessage);
 			}
 		}
 
-		public void SendRemoveForPlayer(Player receiver, Player player)
+		public void SendRemoveForPlayer(Player receiver, Player player, bool sendRemovePlayerList = true)
 		{
 			if (player == receiver) return;
-
-			McpePlayerList playerList = McpePlayerList.CreateObject();
-			playerList.records = new PlayerRemoveRecords {player};
-			receiver.SendPackage(playerList);
-
 
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
 			mcpeRemovePlayer.clientUuid = player.ClientUuid;
@@ -476,6 +505,7 @@ namespace MiNET.Worlds
 				}
 
 				// Send player movements
+				//if (TickTime % 2 == 0)
 				BroadCastMovement(players, entities);
 
 				if (TickTime%100 == 0) // Every 5 seconds
@@ -502,6 +532,8 @@ namespace MiNET.Worlds
 
 		public Player[] GetSpawnedPlayers()
 		{
+			if (Players == null) return new Player[0]; // HACK
+
 			return Players.Values.Where(player => player.IsSpawned).ToArray();
 		}
 
@@ -534,13 +566,13 @@ namespace MiNET.Worlds
 			MemoryStream stream = new MemoryStream();
 
 			int count = 0;
+			McpeMovePlayer move = McpeMovePlayer.CreateObject();
 			foreach (var player in players)
 			{
 				if (((now - player.LastUpdatedTime) <= now - tickTime))
 				{
 					PlayerLocation knownPosition = player.KnownPosition;
 
-					McpeMovePlayer move = McpeMovePlayer.CreateObject();
 					move.entityId = player.EntityId;
 					move.x = knownPosition.X;
 					move.y = knownPosition.Y + 1.62f;
@@ -552,10 +584,11 @@ namespace MiNET.Worlds
 					byte[] bytes = move.Encode();
 					stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 					stream.Write(bytes, 0, bytes.Length);
-					move.PutPool();
+					move.Reset();
 					count++;
 				}
 			}
+			move.PutPool();
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 			moveEntity.entities = new EntityLocations();
@@ -589,7 +622,7 @@ namespace MiNET.Worlds
 			if (count == 0) return;
 
 			McpeBatch batch = McpeBatch.CreateObject(players.Length);
-			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Fastest);
+			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Optimal);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();

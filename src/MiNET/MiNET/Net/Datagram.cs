@@ -75,12 +75,11 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int reliableMessageNumber, PlayerNetworkSession session, Action<PlayerNetworkSession, Datagram> sendDatagram)
+		public static void CreateDatagrams(Package message, int mtuSize, ref int reliableMessageNumber, PlayerNetworkSession session, Action<PlayerNetworkSession, Datagram> sendDatagram)
 		{
 			Datagram datagram = null;
-			foreach (var message in messages)
 			{
-				if (message is InternalPing) continue;
+				if (message is InternalPing) return;
 
 				var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref reliableMessageNumber);
 				foreach (var messagePart in messageParts)

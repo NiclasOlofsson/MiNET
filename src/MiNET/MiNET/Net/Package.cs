@@ -18,8 +18,6 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		public string Source { get; set; }
-
 		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
@@ -823,7 +821,6 @@ namespace MiNET.Net
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
 
 			Reset();
-			Source = null;
 			Pool.PutObject((T) this);
 		}
 	}

@@ -420,6 +420,19 @@ namespace MiNET
 				}
 				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
 				{
+					if (ServerInfo.NumberOfPlayers > ServerInfo.MaxNumberOfPlayers || ServerInfo.ConnectionsInConnectPhase > ServerInfo.MaxNumberOfConcurrentConnects)
+					{
+						NoFreeIncomingConnections noFree = NoFreeIncomingConnections.CreateObject();
+
+						var bytes = noFree.Encode();
+						noFree.PutPool();
+
+						TraceSend(noFree);
+
+						SendData(bytes, senderEndpoint, new object());
+						return;
+					}
+
 					OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
 					Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);
 
@@ -1048,7 +1061,7 @@ namespace MiNET
 							if (player.Rtt == -1) continue;
 
 							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-							if (elapsedTime >= rto * (datagram.TransmissionCount + 2))
+							if (elapsedTime >= rto*(datagram.TransmissionCount + 2))
 							{
 								Datagram deleted;
 								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))

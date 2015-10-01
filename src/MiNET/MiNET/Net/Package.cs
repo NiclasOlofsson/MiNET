@@ -437,6 +437,8 @@ namespace MiNET.Net
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
+				if(!metadata.Contains(i)) continue;
+
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
 				{

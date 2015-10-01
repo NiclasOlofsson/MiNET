@@ -292,7 +292,7 @@ namespace TestPlugin.NiceLobby
 			Level level = player.Level;
 			lock (level.Entities)
 			{
-				foreach (var entity in level.Entities.ToArray())
+				foreach (var entity in level.Entities.Values.ToArray())
 				{
 					entity.DespawnEntity();
 				}

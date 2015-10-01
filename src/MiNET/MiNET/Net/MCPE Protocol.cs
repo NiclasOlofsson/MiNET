@@ -80,6 +80,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x14:
+					package = NoFreeIncomingConnections.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x15:
 					package = DisconnectionNotification.CreateObject();
 					//package.Timer.Start();
@@ -865,6 +870,41 @@ namespace MiNET.Net
 			port = ReadShort();
 			session = ReadLong();
 			session2 = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class NoFreeIncomingConnections : Package<NoFreeIncomingConnections>
+	{
+		public NoFreeIncomingConnections()
+		{
+			Id = 0x14;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
 
 			AfterDecode();
 		}

@@ -16,6 +16,7 @@
 | Connection Request | 0x09 | 9 |   
 | Connection Request Accepted | 0x10 | 16 |   
 | New Incoming Connection | 0x13 | 19 |   
+| No Free Incoming Connections | 0x14 | 20 |   
 | Disconnection Notification | 0x15 | 21 |   
 | Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
@@ -283,6 +284,19 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Port | short |  |
 |Session | long |  |
 |Session2 | long |  |
+-----------------------------------------------------------------------
+###Package: No Free Incoming Connections (0x14)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ###Package: Disconnection Notification (0x15)
 

@@ -280,6 +280,8 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleAnimate(McpeAnimate message)
 		{
+			if (Level == null) return;
+
 			Log.DebugFormat("Action: {0}", message.actionId);
 
 			McpeAnimate msg = McpeAnimate.CreateObject();
@@ -492,21 +494,21 @@ namespace MiNET
 
 			var serverInfo = Server.ServerInfo;
 
-			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
-			{
-				if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
-				{
-					Disconnect("Too many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
-					return;
-				}
+			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
+			//{
+			//	if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
+			//	{
+			//		Disconnect("Too many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
+			//		return;
+			//	}
 
-				// Use for loadbalance only right now.
-				if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
-				{
-					Disconnect("Too many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
-					return;
-				}
-			}
+			//	// Use for loadbalance only right now.
+			//	if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
+			//	{
+			//		Disconnect("Too many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
+			//		return;
+			//	}
+			//}
 
 			if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
 			{
@@ -1226,6 +1228,9 @@ namespace MiNET
 				}
 
 					break;
+				case 0x79:
+					Inventory.Slots[(byte) message.slot] = itemStack;
+					break;
 				case 0x78:
 					int itemId = message.item.Value.Id;
 					short itemMetadata = message.item.Value.Metadata;
@@ -1459,6 +1464,8 @@ namespace MiNET
 
 			if (message.face <= 5)
 			{
+				// Right click
+
 				Level.RelayBroadcast(this, new McpeAnimate()
 				{
 					actionId = 1,
@@ -1476,9 +1483,11 @@ namespace MiNET
 			}
 			else
 			{
+				// Snowballs and shit
+
 				_itemUseTimer = new Stopwatch();
 				_itemUseTimer.Start();
-				// Snowballs and shit
+
 				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata);
 
 				MetadataDictionary metadata = new MetadataDictionary();

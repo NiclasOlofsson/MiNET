@@ -38,7 +38,7 @@ namespace MiNET.Worlds
 
 		public PlayerLocation SpawnPoint { get; set; }
 		public ConcurrentDictionary<long, Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
-		public List<Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
+		public ConcurrentDictionary<long, Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public List<BlockEntity> BlockEntities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public ConcurrentDictionary<BlockCoordinates, long> BlockWithTicks { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
@@ -65,7 +65,7 @@ namespace MiNET.Worlds
 			InventoryManager = new InventoryManager(this);
 			SpawnPoint = new PlayerLocation(50, 4000, 50);
 			Players = new ConcurrentDictionary<long, Player>();
-			Entities = new List<Entity>();
+			Entities = new ConcurrentDictionary<long, Entity>();
 			BlockEntities = new List<BlockEntity>();
 			BlockWithTicks = new ConcurrentDictionary<BlockCoordinates, long>();
 			LevelId = levelId;
@@ -137,7 +137,7 @@ namespace MiNET.Worlds
 			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
 			_levelTicker = null;
 
-			foreach (var entity in Entities.ToArray())
+			foreach (var entity in Entities.Values.ToArray())
 			{
 				entity.DespawnEntity();
 			}
@@ -178,7 +178,7 @@ namespace MiNET.Worlds
 				{
 					if (spawn) SpawnToAll(newPlayer);
 
-					foreach (Entity entity in Entities.ToArray())
+					foreach (Entity entity in Entities.Values.ToArray())
 					{
 						SendAddEntityToPlayer(entity, newPlayer);
 					}
@@ -314,7 +314,7 @@ namespace MiNET.Worlds
 					player.IsSpawned = false;
 					if (despawn) DespawnFromAll(player);
 
-					foreach (Entity entity in Entities.ToArray())
+					foreach (Entity entity in Entities.Values.ToArray())
 					{
 						entity.DespawnFromPlayer(removed);
 					}
@@ -376,9 +376,8 @@ namespace MiNET.Worlds
 			{
 				EntityManager.AddEntity(null, entity);
 
-				if (!Entities.Contains(entity))
+				if (Entities.TryAdd(entity.EntityId, entity))
 				{
-					Entities.Add(entity);
 				}
 				else
 				{
@@ -410,8 +409,7 @@ namespace MiNET.Worlds
 		{
 			lock (Entities)
 			{
-				//if (!Entities.Remove(entity)) throw new Exception("Expected entity to exist on remove. Type of entity is: " + entity.GetType());
-				if (!Entities.Remove(entity)) return; // It's ok. Holograms destroy this play..
+				if (!Entities.TryRemove(entity.EntityId, out entity)) return; // It's ok. Holograms destroy this play..
 
 				McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 				mcpeRemoveEntity.entityId = entity.EntityId;
@@ -489,7 +487,7 @@ namespace MiNET.Worlds
 				}
 
 				// Entity updates
-				Entity[] entities = Entities.ToArray();
+				Entity[] entities = Entities.Values.ToArray();
 				foreach (Entity entity in entities)
 				{
 					entity.OnTick();
@@ -541,7 +539,7 @@ namespace MiNET.Worlds
 		{
 			lock (Entities)
 			{
-				return Entities.ToArray();
+				return Entities.Values.ToArray();
 			}
 		}
 
@@ -1016,7 +1014,7 @@ namespace MiNET.Worlds
 			Player entity;
 			Players.TryGetValue(targetEntityId, out entity);
 
-			return entity ?? Entities.FirstOrDefault(e => e.EntityId == targetEntityId);
+			return entity ?? Entities.Values.FirstOrDefault(e => e.EntityId == targetEntityId);
 		}
 
 

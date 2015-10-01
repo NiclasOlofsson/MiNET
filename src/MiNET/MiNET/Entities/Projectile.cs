@@ -218,8 +218,8 @@ namespace MiNET.Entities
 				}
 			}
 
-			var entities = Level.Entities.OrderBy(entity => position.DistanceTo(entity.KnownPosition.ToVector3()));
-			foreach (var entity in entities)
+			var entities = Level.Entities.Values.OrderBy(entity => position.DistanceTo(entity.KnownPosition.ToVector3()));
+			foreach (Entity entity in entities)
 			{
 				if (entity == Shooter) continue;
 				if (entity == this) continue;

@@ -40,12 +40,12 @@ namespace TestPlugin.NiceLobby
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
 		{
-			e.Cancel = true;
+			e.Cancel = e.Player.GameMode != GameMode.Creative;
 		}
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			e.Cancel = true;
+			e.Cancel = e.Player.GameMode != GameMode.Creative;
 		}
 
 		private double m = 0.1d;

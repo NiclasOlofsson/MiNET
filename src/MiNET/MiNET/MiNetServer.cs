@@ -422,7 +422,9 @@ namespace MiNET
 				{
 					if (ServerInfo.NumberOfPlayers > ServerInfo.MaxNumberOfPlayers || ServerInfo.ConnectionsInConnectPhase > ServerInfo.MaxNumberOfConcurrentConnects)
 					{
-						NoFreeIncomingConnections noFree = NoFreeIncomingConnections.CreateObject();
+						var noFree = NoFreeIncomingConnections.CreateObject();
+						//var noFree = IpRecentlyConnected.CreateObject();
+						//var noFree = ConnectionBanned.CreateObject();
 
 						var bytes = noFree.Encode();
 						noFree.PutPool();

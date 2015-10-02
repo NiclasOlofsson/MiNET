@@ -18,6 +18,8 @@
 | New Incoming Connection | 0x13 | 19 |   
 | No Free Incoming Connections | 0x14 | 20 |   
 | Disconnection Notification | 0x15 | 21 |   
+| Connection Banned | 0x17 | 23 |   
+| Ip Recently Connected | 0x1A | 26 |   
 | Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
 | Mcpe Login | 0x8f | 143 |   
@@ -299,6 +301,32 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ###Package: Disconnection Notification (0x15)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Connection Banned (0x17)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Ip Recently Connected (0x1A)
 
 **Sent from server:** true
 **Sent from client:** true

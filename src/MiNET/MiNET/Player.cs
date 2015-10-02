@@ -591,16 +591,14 @@ namespace MiNET
 
 				LastUpdatedTime = DateTime.UtcNow;
 
-				McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-				inventoryContent.windowId = 0x79;
-				inventoryContent.slotData = Inventory.GetSlots();
-				inventoryContent.hotbarData = Inventory.GetHotbar();
-				SendPackage(inventoryContent);
+				//if (GameMode == GameMode.Creative)
+				//{
+				//	Inventory.Slots.Clear();
 
-				if (GameMode != GameMode.Creative)
-				{
-					SendPlayerInventory();
-				}
+				//	Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+				//}
+
+				SendPlayerInventory();
 
 				Level.SpawnToAll(this);
 
@@ -772,11 +770,22 @@ namespace MiNET
 
 		public void SendPlayerInventory()
 		{
-			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			inventoryContent.windowId = (byte) (GameMode == GameMode.Creative ? 0x79 : 0x00);
-			inventoryContent.slotData = Inventory.GetSlots();
-			inventoryContent.hotbarData = Inventory.GetHotbar();
-			SendPackage(inventoryContent);
+			//if (GameMode == GameMode.Creative)
+			{
+				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+				creativeContent.windowId = (byte) 0x79;
+				creativeContent.slotData = Inventory.GetSlots();
+				creativeContent.hotbarData = Inventory.GetHotbar();
+				SendPackage(creativeContent);
+			}
+
+			{
+				McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+				inventoryContent.windowId = (byte)0x00;
+				inventoryContent.slotData = Inventory.GetSlots();
+				inventoryContent.hotbarData = Inventory.GetHotbar();
+				SendPackage(inventoryContent);
+			}
 
 			McpeContainerSetContent armorContent = McpeContainerSetContent.CreateObject();
 			armorContent.windowId = 0x78;
@@ -1066,29 +1075,32 @@ namespace MiNET
 			if (HealthManager.IsDead) return;
 
 			byte selectedHotbarSlot = message.selectedSlot;
-			int selectedInventorySlot = (byte) (message.slot - 9);
+			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
 
 			//if(GameMode == GameMode.Survival)
 			{
-				if (selectedInventorySlot < 0 || selectedInventorySlot > Inventory.Slots.Count)
+				if (selectedInventorySlot < 0 || selectedInventorySlot >= Inventory.Slots.Count)
 				{
-					Log.WarnFormat("Set equiptment fails with inv slot: {0}, {1}", selectedInventorySlot, message.slot);
+					Log.WarnFormat("Player {2} set equiptment fails with inv slot: {0}, {1}", selectedInventorySlot, message.slot, Username);
 					return;
 				}
 
-				var currentIndex = -1;
+				//var existingItemId = Inventory.Slots[selectedInventorySlot].Id;
+				//var incomingItemId = message.item.Value.Id;
+
+				//if (existingItemId != incomingItemId)
+				//{
+				//	Log.ErrorFormat("Player {2} set equiptment fails because incoming item ID {1} didn't match existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+				//	return;
+				//}
+
 				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
 				{
 					if (Inventory.ItemHotbar[i] == selectedInventorySlot)
 					{
-						currentIndex = i;
+						Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
 						break;
 					}
-				}
-
-				if (currentIndex != -1)
-				{
-					Inventory.ItemHotbar[currentIndex] = Inventory.ItemHotbar[selectedHotbarSlot];
 				}
 
 				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
@@ -1100,7 +1112,6 @@ namespace MiNET
 			msg.item = message.item;
 			msg.slot = (byte) selectedInventorySlot;
 			msg.selectedSlot = selectedHotbarSlot;
-
 			Level.RelayBroadcast(this, msg);
 		}
 
@@ -1466,11 +1477,10 @@ namespace MiNET
 			{
 				// Right click
 
-				Level.RelayBroadcast(this, new McpeAnimate()
-				{
-					actionId = 1,
-					entityId = EntityId
-				});
+				var mcpeAnimate = McpeAnimate.CreateObject();
+				mcpeAnimate.actionId = 1;
+				mcpeAnimate.entityId = EntityId;
+				Level.RelayBroadcast(this, mcpeAnimate);
 
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
 				if (Inventory.GetItemInHand().Id != message.item.Value.Id)

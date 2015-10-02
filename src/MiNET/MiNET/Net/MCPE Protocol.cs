@@ -90,6 +90,16 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x17:
+					package = ConnectionBanned.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x1A:
+					package = IpRecentlyConnected.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x8f:
 					package = McpeLogin.CreateObject();
 					//package.Timer.Start();
@@ -919,6 +929,76 @@ namespace MiNET.Net
 		public DisconnectionNotification()
 		{
 			Id = 0x15;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class ConnectionBanned : Package<ConnectionBanned>
+	{
+		public ConnectionBanned()
+		{
+			Id = 0x17;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IpRecentlyConnected : Package<IpRecentlyConnected>
+	{
+		public IpRecentlyConnected()
+		{
+			Id = 0x1a;
 		}
 
 		protected override void EncodePackage()

@@ -6,7 +6,6 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
-using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -31,20 +30,103 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
-		private static List<int> _gaps;
-		private static List<int> _ignore;
-		private static Dictionary<int, Tuple<int, Func<int, byte, byte>>> _convert;
+		private static readonly List<int> Gaps;
+		private static readonly List<int> Ignore;
+		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
-		public readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-		public readonly ConcurrentDictionary<ChunkCoordinates, McpeBatch> _batchCache = new ConcurrentDictionary<ChunkCoordinates, McpeBatch>();
+		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+		public ConcurrentDictionary<ChunkCoordinates, McpeBatch> _batchCache = new ConcurrentDictionary<ChunkCoordinates, McpeBatch>();
+
 		private string _basePath;
 
 		public bool IsCaching { get; private set; }
 
 		public byte WaterOffsetY { get; set; }
 
+		static AnvilWorldProvider()
+		{
+			Ignore = new List<int> {23, 25, 28, 29, 33, 34, 36, 55, 69, 70, 71, 72, 77, 84, 88, 93, 94, 97, 113, 115, 117, 118, 131, 132, 138, 140, 143, 144, 145};
+			Ignore.Sort();
+
+			Gaps = new List<int> {23, 25, 28, 29, 33, 34, 36, 55, 69, 70, 72, 75, 76, 77, 84, 88, 90, 93, 94, 95, 97, 115, 116, 117, 118, 119, 122, 123, 124, 125, 126, 130, 131, 132, 137, 138, 140, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 160, 165, 166, 167, 168, 169};
+			Gaps.Sort();
+
+			var air = new Mapper(0, (i, b) => 0);
+
+			Convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
+			{
+				{25, new NoDataMapper(3)}, // Note Block		=> Dirt
+				{27, new NoDataMapper(66)}, // Powered Rail		=> Rail
+				{28, new NoDataMapper(66)}, // Detector Rail 	=> Rail
+				{29, air}, // Sticky Piston	=> Air
+				{33, air}, // Piston		=> Air
+				{34, air}, // Piston Head		=> Air
+				{55, air}, // Redstone Wire	=> Air
+				{69, air}, // Lever		=> Air
+				{70, air}, // Stone Pressure	=> Air
+				{72, air}, // Wooden Pressure	=> Air
+				{75, new NoDataMapper(50)}, // Redstone Torch O	=> Torch
+				{76, new NoDataMapper(50)}, // Redstone Torch I	=> Torch
+				{77, air}, // Stone Button		=> Air
+				{84, new NoDataMapper(3)}, // Jukebox		=> Dirt
+				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
+				{90, air}, // Nether Portal	=> Air
+				{93, air}, // Red Repeater	O	=> Air
+				{94, air}, // Red Repeater I	=> Air
+				{95, new NoDataMapper(20)}, // Invisible bedrock	=> Air
+				{97, new NoDataMapper(1)}, // Stone Monster Eg	=> Stone
+				{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
+				{115, air}, // Nether Wart		=> Air
+				{116, air}, // Enchant Table	=> Air
+				{117, air}, // Brewing Stand	=> Air
+				{118, air}, // Cauldron		=> Air
+				{119, air}, // End Portal		=> Air
+				{122, air}, // Dragon Egg		=> Air
+				{123, new NoDataMapper(89)}, // Redstone Lamp O	=> Glowstone
+				{124, new NoDataMapper(89)}, // Redstone Lamp I	=> Glowstone
+				{125, new NoDataMapper(157)}, // 2x Wooden Slabs	=> (2x Wooden Slabs)
+				{126, new NoDataMapper(158)}, // Wooden Slabs		=> (Wooden Slabs)
+				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
+				{131, air}, // Tripwire Hook	=> Air
+				{132, air}, // Tripwire		=> Air
+				{137, air}, // Command Block	=> Air
+				{138, air}, // Beacon		=> Air
+				{143, air}, // Wooden Button	=> Air
+				{144, air}, // Mob Head		=> Air
+				{145, air}, // Anvil		=> Air
+				{146, new NoDataMapper(54)}, // Trapped Chest	=> Chest
+				{147, air}, // Gold Pressure	=> Air
+				{148, air}, // Iron Pressure	=> Air
+				{149, air}, // Comparator O		=> Air
+				{150, air}, // Comparator I		=> Air
+				{151, air}, // Daylight Sensor	=> Air
+				{152, new NoDataMapper(152)}, // Block of Redstone	=> Block of Redstone
+				{153, new NoDataMapper(87)}, // Nether Quarts Ore 	=> Netherrack
+				{154, air}, // Hopper		=> Air
+				{157, new NoDataMapper(66)}, // Activator Rail	=> Rail
+				{158, air}, // Dropper		=> Air
+				{160, new NoDataMapper(102)}, // Stained Glass Pa	=> Glass Pane
+				{161, new NoDataMapper(18)}, // Acacia Leaves	=> Leaves
+				{162, new NoDataMapper(17)}, // Acacia Wood		=> Wood
+				{165, air}, // Slime Block		=> Air
+				{166, new NoDataMapper(95)}, // Barrier		=> (Invisible Bedrock)
+				{167, new NoDataMapper(96)}, // Iron Trapdoor	=> Trapdoor
+				{168, air}, // Prismarine		=> Air
+				{169, new NoDataMapper(89)}, // Sea Lantern		=> Glowstone
+				{183, new NoDataMapper(183)}, // Spruce Gate		=> Gate
+				{184, new NoDataMapper(184)}, // Birch Gate		=> Gate
+				{185, new NoDataMapper(185)}, // Jungle Gate		=> Gate
+				{186, new NoDataMapper(186)}, // Dark Oak Gate	=> Gate
+				{187, new NoDataMapper(187)}, // Acacia Gate		=> Gate
+				{188, new Mapper(85, (i, b) => 1)}, // Spruce Fence		=> Fence
+				{189, new Mapper(85, (i, b) => 2)}, // Birch Fence		=> Fence
+				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
+				{191, new Mapper(85, (i, b) => 4)}, // Dark Oak Fence	=> Fence
+				{192, new Mapper(85, (i, b) => 5)}, // Acacia Fence		=> Fence
+			};
+		}
 
 		public AnvilWorldProvider()
 		{
@@ -58,8 +140,8 @@ namespace MiNET.Worlds
 		}
 
 		private bool _isInitialized = false;
-
 		private object _initializeSync = new object();
+
 		public void Initialize()
 		{
 			if (_isInitialized) return; // Quick exit
@@ -76,183 +158,6 @@ namespace MiNET.Worlds
 				_level = new LevelInfo(dataTag);
 
 				WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
-
-				_ignore = new List<int>();
-				_ignore.Add(23);
-				_ignore.Add(25);
-				_ignore.Add(28);
-				_ignore.Add(29);
-				_ignore.Add(33);
-				_ignore.Add(34);
-				_ignore.Add(36);
-				_ignore.Add(55);
-				_ignore.Add(69);
-				_ignore.Add(70);
-				_ignore.Add(71);
-				_ignore.Add(72);
-//			_ignore.Add(75);
-//			_ignore.Add(76);
-				_ignore.Add(77);
-				_ignore.Add(84);
-				_ignore.Add(88);
-				_ignore.Add(93);
-				_ignore.Add(94);
-				_ignore.Add(97);
-				_ignore.Add(113);
-				_ignore.Add(115);
-				_ignore.Add(117);
-				_ignore.Add(118);
-//			_ignore.Add(123);
-				_ignore.Add(131);
-				_ignore.Add(132);
-				_ignore.Add(138);
-				_ignore.Add(140);
-				_ignore.Add(143);
-				_ignore.Add(144);
-				_ignore.Add(145);
-				_ignore.Sort();
-
-				_gaps = new List<int>();
-				_gaps.Add(23);
-				_gaps.Add(25);
-//			_gaps.Add(27);
-				_gaps.Add(28);
-				_gaps.Add(29);
-				_gaps.Add(33);
-				_gaps.Add(34);
-				_gaps.Add(36);
-				_gaps.Add(55);
-//			_gaps.Add(66);
-				_gaps.Add(69);
-				_gaps.Add(70);
-				_gaps.Add(72);
-				_gaps.Add(75);
-				_gaps.Add(76);
-				_gaps.Add(77);
-				_gaps.Add(84);
-//			_gaps.Add(87);
-				_gaps.Add(88);
-				_gaps.Add(90);
-				_gaps.Add(93);
-				_gaps.Add(94);
-				_gaps.Add(95);
-				_gaps.Add(97);
-//			_gaps.Add(99);
-//			_gaps.Add(100);
-//			_gaps.Add(106);
-//			_gaps.Add(111);
-				_gaps.Add(115);
-				_gaps.Add(116);
-				_gaps.Add(117);
-				_gaps.Add(118);
-				_gaps.Add(119);
-//			_gaps.Add(120);
-//			_gaps.Add(121);
-				_gaps.Add(122);
-				_gaps.Add(123);
-				_gaps.Add(124);
-				_gaps.Add(125);
-				_gaps.Add(126);
-//			_gaps.Add(127);
-				_gaps.Add(130);
-				_gaps.Add(131);
-				_gaps.Add(132);
-				_gaps.Add(137);
-				_gaps.Add(138);
-				_gaps.Add(140);
-				_gaps.Add(143);
-				_gaps.Add(144);
-				_gaps.Add(145);
-				_gaps.Add(146);
-				_gaps.Add(147);
-				_gaps.Add(148);
-				_gaps.Add(149);
-				_gaps.Add(150);
-				_gaps.Add(151);
-				_gaps.Add(152);
-				_gaps.Add(153);
-				_gaps.Add(154);
-				_gaps.Add(160);
-				_gaps.Add(165);
-				_gaps.Add(166);
-				_gaps.Add(167);
-				_gaps.Add(168);
-				_gaps.Add(169);
-				_gaps.Sort();
-
-				var air = new Mapper(0, (i, b) => 0);
-
-				_convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
-				{
-					{25, new NoDataMapper(3)}, // Note Block		=> Dirt
-					{27, new NoDataMapper(66)}, // Powered Rail		=> Rail
-					{28, new NoDataMapper(66)}, // Detector Rail 	=> Rail
-					{29, air}, // Sticky Piston	=> Air
-					{33, air}, // Piston		=> Air
-					{34, air}, // Piston Head		=> Air
-					{55, air}, // Redstone Wire	=> Air
-					{69, air}, // Lever		=> Air
-					{70, air}, // Stone Pressure	=> Air
-					{72, air}, // Wooden Pressure	=> Air
-					{75, new NoDataMapper(50)}, // Redstone Torch O	=> Torch
-					{76, new NoDataMapper(50)}, // Redstone Torch I	=> Torch
-					{77, air}, // Stone Button		=> Air
-					{84, new NoDataMapper(3)}, // Jukebox		=> Dirt
-					{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
-					{90, air}, // Nether Portal	=> Air
-					{93, air}, // Red Repeater	O	=> Air
-					{94, air}, // Red Repeater I	=> Air
-					{95, new NoDataMapper(20)}, // Invisible bedrock	=> Air
-					{97, new NoDataMapper(1)}, // Stone Monster Eg	=> Stone
-					{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
-					{115, air}, // Nether Wart		=> Air
-					{116, air}, // Enchant Table	=> Air
-					{117, air}, // Brewing Stand	=> Air
-					{118, air}, // Cauldron		=> Air
-					{119, air}, // End Portal		=> Air
-					{122, air}, // Dragon Egg		=> Air
-					{123, new NoDataMapper(89)}, // Redstone Lamp O	=> Glowstone
-					{124, new NoDataMapper(89)}, // Redstone Lamp I	=> Glowstone
-					{125, new NoDataMapper(157)}, // 2x Wooden Slabs	=> (2x Wooden Slabs)
-					{126, new NoDataMapper(158)}, // Wooden Slabs		=> (Wooden Slabs)
-					{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
-					{131, air}, // Tripwire Hook	=> Air
-					{132, air}, // Tripwire		=> Air
-					{137, air}, // Command Block	=> Air
-					{138, air}, // Beacon		=> Air
-					{143, air}, // Wooden Button	=> Air
-					{144, air}, // Mob Head		=> Air
-					{145, air}, // Anvil		=> Air
-					{146, new NoDataMapper(54)}, // Trapped Chest	=> Chest
-					{147, air}, // Gold Pressure	=> Air
-					{148, air}, // Iron Pressure	=> Air
-					{149, air}, // Comparator O		=> Air
-					{150, air}, // Comparator I		=> Air
-					{151, air}, // Daylight Sensor	=> Air
-					{152, new NoDataMapper(152)}, // Block of Redstone	=> Block of Redstone
-					{153, new NoDataMapper(87)}, // Nether Quarts Ore 	=> Netherrack
-					{154, air}, // Hopper		=> Air
-					{157, new NoDataMapper(66)}, // Activator Rail	=> Rail
-					{158, air}, // Dropper		=> Air
-					{160, new NoDataMapper(102)}, // Stained Glass Pa	=> Glass Pane
-					{161, new NoDataMapper(18)}, // Acacia Leaves	=> Leaves
-					{162, new NoDataMapper(17)}, // Acacia Wood		=> Wood
-					{165, air}, // Slime Block		=> Air
-					{166, new NoDataMapper(95)}, // Barrier		=> (Invisible Bedrock)
-					{167, new NoDataMapper(96)}, // Iron Trapdoor	=> Trapdoor
-					{168, air}, // Prismarine		=> Air
-					{169, new NoDataMapper(89)}, // Sea Lantern		=> Glowstone
-					{183, new NoDataMapper(183)}, // Spruce Gate		=> Gate
-					{184, new NoDataMapper(184)}, // Birch Gate		=> Gate
-					{185, new NoDataMapper(185)}, // Jungle Gate		=> Gate
-					{186, new NoDataMapper(186)}, // Dark Oak Gate	=> Gate
-					{187, new NoDataMapper(187)}, // Acacia Gate		=> Gate
-					{188, new Mapper(85, (i, b) => 1)}, // Spruce Fence		=> Fence
-					{189, new Mapper(85, (i, b) => 2)}, // Birch Fence		=> Fence
-					{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
-					{191, new Mapper(85, (i, b) => 4)}, // Dark Oak Fence	=> Fence
-					{192, new Mapper(85, (i, b) => 5)}, // Acacia Fence		=> Fence
-				};
 
 				_isInitialized = true;
 			}
@@ -375,13 +280,13 @@ namespace MiNET.Worlds
 
 								Func<int, byte, byte> dataConverter = (i, b) => b;
 								// Anvil to PE friendly converstion
-								if (_convert.ContainsKey(blockId))
+								if (Convert.ContainsKey(blockId))
 								{
-									dataConverter = _convert[blockId].Item2;
-									blockId = _convert[blockId].Item1;
+									dataConverter = Convert[blockId].Item2;
+									blockId = Convert[blockId].Item1;
 								}
-								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
-								else if (_gaps.BinarySearch(blockId) >= 0)
+								else if (Ignore.BinarySearch(blockId) >= 0) blockId = 0;
+								else if (Gaps.BinarySearch(blockId) >= 0)
 								{
 									Log.WarnFormat("Missing material on convert: {0}", blockId);
 									blockId = 133;
@@ -430,7 +335,7 @@ namespace MiNET.Worlds
 				{
 					foreach (var nbtTag in blockEntities)
 					{
-						var blockEntityTag = (NbtCompound)nbtTag;
+						var blockEntityTag = (NbtCompound) nbtTag;
 						string entityId = blockEntityTag["id"].StringValue;
 						int x = blockEntityTag["x"].IntValue;
 						int y = blockEntityTag["y"].IntValue - yoffset;

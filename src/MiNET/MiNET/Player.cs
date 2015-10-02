@@ -587,7 +587,7 @@ namespace MiNET
 
 				SendSetEntityData();
 
-				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), false);
+				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), true);
 
 				LastUpdatedTime = DateTime.UtcNow;
 
@@ -600,7 +600,7 @@ namespace MiNET
 
 				SendPlayerInventory();
 
-				Level.SpawnToAll(this);
+				//Level.SpawnToAll(this);
 
 				ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
 
@@ -720,7 +720,7 @@ namespace MiNET
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;
-			Level.AddPlayer(this, "", false);
+			//Level.AddPlayer(this, "", false);
 			// reset all health states
 			HealthManager.ResetHealth();
 			SendSetHealth();
@@ -743,7 +743,8 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-			Level.SpawnToAll(this);
+			Level.AddPlayer(this, "", true);
+			//Level.SpawnToAll(this);
 			IsSpawned = true;
 
 			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
@@ -781,7 +782,7 @@ namespace MiNET
 
 			{
 				McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-				inventoryContent.windowId = (byte)0x00;
+				inventoryContent.windowId = (byte) 0x00;
 				inventoryContent.slotData = Inventory.GetSlots();
 				inventoryContent.hotbarData = Inventory.GetHotbar();
 				SendPackage(inventoryContent);
@@ -1085,14 +1086,29 @@ namespace MiNET
 					return;
 				}
 
-				//var existingItemId = Inventory.Slots[selectedInventorySlot].Id;
-				//var incomingItemId = message.item.Value.Id;
+				if (GameMode != GameMode.Creative)
+				{
+					var itemStack = Inventory.Slots[selectedInventorySlot];
+					if (itemStack != null)
+					{
+						var existingItemId = itemStack.Id;
+						var incomingItemId = message.item.Value.Id;
 
-				//if (existingItemId != incomingItemId)
-				//{
-				//	Log.ErrorFormat("Player {2} set equiptment fails because incoming item ID {1} didn't match existing inventory item ID {0}", existingItemId, incomingItemId, Username);
-				//	return;
-				//}
+						if (existingItemId != incomingItemId)
+						{
+							Log.ErrorFormat("Player {2} set equiptment fails because incoming item ID {1} didn't match existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+							return;
+						}
+						else
+						{
+							Log.ErrorFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+						}
+					}
+					else
+					{
+						Log.ErrorFormat("Player {0} set equiptment fails, probably hacker", Username);
+					}
+				}
 
 				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
 				{

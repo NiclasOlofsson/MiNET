@@ -195,6 +195,7 @@ namespace MiNET
 			IsDead = false;
 			CooldownTick = 0;
 			LastDamageCause = DamageCause.Unknown;
+			LastDamageSource = null;
 		}
 
 		public virtual void OnTick()

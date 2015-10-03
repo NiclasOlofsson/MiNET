@@ -2163,6 +2163,8 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateAttributes : Package<McpeUpdateAttributes>
 	{
+		public long entityId; // = null;
+		public PlayerAttributes attributes; // = null;
 		public McpeUpdateAttributes()
 		{
 			Id = 0xa6;
@@ -2174,6 +2176,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(entityId);
+			Write(attributes);
 
 			AfterEncode();
 		}
@@ -2187,6 +2191,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			entityId = ReadLong();
+			attributes = ReadPlayerAttributes();
 
 			AfterDecode();
 		}

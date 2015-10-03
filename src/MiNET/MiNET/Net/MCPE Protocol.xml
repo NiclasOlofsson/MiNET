@@ -323,6 +323,8 @@
 	</pdu>
 
 	<pdu id="0xa6" online="false" client="true" server="true" name="MCPE_UPDATE_ATTRIBUTES">
+		<field name="Entity ID" type="long" />
+		<field name="Attributes" type="PlayerAttributes" />
 	</pdu>
 
 	<pdu id="0xa7" online="false" client="true" server="true" name="MCPE_PLAYER_EQUIPMENT">

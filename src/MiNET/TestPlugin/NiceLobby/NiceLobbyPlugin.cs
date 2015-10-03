@@ -287,6 +287,16 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
+		public void Fuck(Player player)
+		{
+			//player.SendSetHealth();
+			player.Level.BroadcastMessage(string.Format("{0} current health is {1} with {2} hearts!", player.Username, player.HealthManager.Health, player.HealthManager.Hearts), type: MessageType.Raw);
+			player.HealthManager.Health -= 5;
+			player.SendSetHealth();
+			player.Level.BroadcastMessage(string.Format("{0} health after reset is {1} with {2} hearts!", player.Username, player.HealthManager.Health, player.HealthManager.Hearts), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Reset(Player player)
 		{
 			Level level = player.Level;

@@ -132,33 +132,38 @@ namespace MiNET.Worlds
 
 		private McpeBatch _cachedBatch = null;
 
+		private object _cacheSync = new object();
+
 		public McpeBatch GetBatch()
 		{
-			if (_cache != null && _cachedBatch != null) return _cachedBatch;
+			lock (_cacheSync)
+			{
+				if (_cache != null && _cachedBatch != null) return _cachedBatch;
 
-			McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
-			fullChunkData.chunkX = x;
-			fullChunkData.chunkZ = z;
-			fullChunkData.order = 0;
-			fullChunkData.chunkData = GetBytes();
-			fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
-			byte[] bytes = fullChunkData.Encode();
-			fullChunkData.PutPool();
+				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+				fullChunkData.chunkX = x;
+				fullChunkData.chunkZ = z;
+				fullChunkData.order = 0;
+				fullChunkData.chunkData = GetBytes();
+				fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
+				byte[] bytes = fullChunkData.Encode();
+				fullChunkData.PutPool();
 
-			MemoryStream memStream = new MemoryStream();
-			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-			memStream.Write(bytes, 0, bytes.Length);
+				MemoryStream memStream = new MemoryStream();
+				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				memStream.Write(bytes, 0, bytes.Length);
 
-			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
-			batch.MarkPermanent();
+				McpeBatch batch = McpeBatch.CreateObject();
+				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+				batch.payloadSize = buffer.Length;
+				batch.payload = buffer;
+				batch.Encode();
+				batch.MarkPermanent();
 
-			_cachedBatch = batch;
+				_cachedBatch = batch;
 
-			return batch;
+				return batch;
+			}
 		}
 
 

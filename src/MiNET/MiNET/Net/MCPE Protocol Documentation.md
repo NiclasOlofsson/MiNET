@@ -786,6 +786,8 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entity ID | long |  |
+|Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Equipment (0xa7)
 

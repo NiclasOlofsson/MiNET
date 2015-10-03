@@ -437,7 +437,7 @@ namespace MiNET.Net
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
-				if(!metadata.Contains(i)) continue;
+				if (!metadata.Contains(i)) continue;
 
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
@@ -517,6 +517,38 @@ namespace MiNET.Net
 			{
 				metadata.WriteTo(_writer);
 			}
+		}
+
+		public void Write(PlayerAttributes attributes)
+		{
+			Write((short) attributes.Count);
+			foreach (PlayerAttribute attribute in attributes.Values)
+			{
+				Write(attribute.MinValue);
+				Write(attribute.MaxValue);
+				Write(attribute.Value);
+				Write(attribute.Name);
+			}
+		}
+
+		public PlayerAttributes ReadPlayerAttributes()
+		{
+			var attributes = new PlayerAttributes();
+			short count = ReadShort();
+			for (int i = 0; i < count; i++)
+			{
+				PlayerAttribute attribute = new PlayerAttribute
+				{
+					MinValue = ReadFloat(),
+					MaxValue = ReadFloat(),
+					Value = ReadFloat(),
+					Name = ReadString()
+				};
+
+				attributes[attribute.Name] = attribute;
+			}
+
+			return attributes;
 		}
 
 		public Skin ReadSkin()

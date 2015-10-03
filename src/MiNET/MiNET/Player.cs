@@ -19,6 +19,18 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
+	public class PlayerAttributes : Dictionary<string, PlayerAttribute>
+	{
+	}
+
+	public class PlayerAttribute
+	{
+		public string Name { get; set; }
+		public float MinValue { get; set; }
+		public float MaxValue { get; set; }
+		public float Value { get; set; }
+	}
+
 	public class Player : Entity
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
@@ -1096,12 +1108,12 @@ namespace MiNET
 
 						if (existingItemId != incomingItemId)
 						{
-							Log.ErrorFormat("Player {2} set equiptment fails because incoming item ID {1} didn't match existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+							//Log.ErrorFormat("Player {2} set equiptment fails because incoming item ID {1} didn't match existing inventory item ID {0}", existingItemId, incomingItemId, Username);
 							return;
 						}
 						else
 						{
-							Log.ErrorFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+							//Log.ErrorFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
 						}
 					}
 					else
@@ -1637,9 +1649,50 @@ namespace MiNET
 
 		public virtual void SendSetHealth()
 		{
-			McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
-			mcpeSetHealth.health = HealthManager.Hearts;
-			SendPackage(mcpeSetHealth);
+			//McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
+			//mcpeSetHealth.health = HealthManager.Hearts;
+			//SendPackage(mcpeSetHealth);
+
+			var attributes = new PlayerAttributes
+			{
+				["generic.health"] =
+					new PlayerAttribute
+					{
+						Name = "generic.health",
+						MinValue = 0,
+						MaxValue = 20,
+						Value = HealthManager.Hearts
+					},
+				["player.hunger"] =
+					new PlayerAttribute
+					{
+						Name = "player.hunger",
+						MinValue = 0,
+						MaxValue = 20,
+						Value = 20
+					},
+				["player.level"] =
+					new PlayerAttribute
+					{
+						Name = "player.level",
+						MinValue = 0,
+						MaxValue = 24791,
+						Value = 0
+					},
+				["player.experience"] =
+					new PlayerAttribute
+					{
+						Name = "player.experience",
+						MinValue = 0,
+						MaxValue = 1,
+						Value = 0
+					}
+			};
+
+			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
+			attributesPackate.entityId = 0;
+			attributesPackate.attributes = attributes;
+			SendPackage(attributesPackate);
 		}
 
 		public virtual void SendSetTime()

@@ -351,7 +351,7 @@ namespace MiNET.Worlds
 					}
 				}
 
-				NbtList tileTicks = dataTag["TileTicks"] as NbtList;
+				//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
 				chunk.isDirty = false;
 				return chunk;

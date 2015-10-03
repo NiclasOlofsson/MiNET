@@ -504,8 +504,6 @@ namespace MiNET
 				return;
 			}
 
-			var serverInfo = Server.ServerInfo;
-
 			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
 			//{
 			//	if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
@@ -534,14 +532,23 @@ namespace MiNET
 				return;
 			}
 
-			Thread t = new Thread(Start);
-			t.Start(message);
+			SendPlayerStatus(0); // Hmm, login success?
+
+			Username = message.username;
+			ClientId = (int) message.clientId;
+			ClientUuid = message.clientUuid;
+			Skin = message.skin;
+
+			// THIS counter exist to protect the level from being swamped with player list add
+			// attempts during startup (normally).
+			var serverInfo = Server.ServerInfo;
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
+			new Thread(Start).Start();
 		}
 
 		private void Start(object o)
 		{
-			McpeLogin message = (McpeLogin) o;
-
 			Stopwatch watch = new Stopwatch();
 			watch.Restart();
 
@@ -549,25 +556,15 @@ namespace MiNET
 
 			try
 			{
-				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
-				SendPlayerStatus(0); // Hmm, login success?
-
-				Username = message.username;
-				ClientId = (int) message.clientId;
-				ClientUuid = message.clientUuid;
-
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
 				{
 					User = Server.UserManager.FindByName(Username);
 				}
 
-				Skin = message.skin;
-
 				Level = Server.LevelManager.GetLevel(this, "Default");
 
-				SpawnPosition = Level.SpawnPoint;
+				SpawnPosition = SpawnPosition ?? Level.SpawnPoint;
 				KnownPosition = new PlayerLocation
 				{
 					X = SpawnPosition.X,
@@ -578,9 +575,12 @@ namespace MiNET
 					HeadYaw = SpawnPosition.HeadYaw,
 				};
 
+
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
+
 				Level.EntityManager.AddEntity(null, this);
+
 				GameMode = Level.GameMode;
 
 				// Start game
@@ -600,29 +600,29 @@ namespace MiNET
 				SendSetEntityData();
 
 				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), true);
-
-				LastUpdatedTime = DateTime.UtcNow;
-
-				//if (GameMode == GameMode.Creative)
-				//{
-				//	Inventory.Slots.Clear();
-
-				//	Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
-				//}
-
-				SendPlayerInventory();
-
-				//Level.SpawnToAll(this);
-
-				ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
-
-				LastUpdatedTime = DateTime.UtcNow;
-				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
 			}
 			finally
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
+
+			LastUpdatedTime = DateTime.UtcNow;
+
+			//if (GameMode == GameMode.Creative)
+			//{
+			//	Inventory.Slots.Clear();
+
+			//	Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+			//}
+
+			SendPlayerInventory();
+
+			//Level.SpawnToAll(this);
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+
+			LastUpdatedTime = DateTime.UtcNow;
+			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
 		}
 
 		public UUID ClientUuid { get; set; }
@@ -900,6 +900,8 @@ namespace MiNET
 		private int _lastPlayerMoveSequenceNUmber;
 		private int _lastOrderingIndex;
 		private object _moveSyncLock = new object();
+		private int _isKnownCheater = 0;
+		private int _cheatLimit = 5;
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
@@ -925,23 +927,19 @@ namespace MiNET
 			{
 				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
 				{
-					Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
+					if (Log.IsDebugEnabled)
+						Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
 					return;
 				}
-				else
-				{
-					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
-				}
+				_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
 				if (_lastOrderingIndex > message.OrderingIndex)
 				{
-					Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
+					if (Log.IsDebugEnabled)
+						Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
 					return;
 				}
-				else
-				{
-					_lastOrderingIndex = message.OrderingIndex;
-				}
+				_lastOrderingIndex = message.OrderingIndex;
 
 
 				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
@@ -954,71 +952,77 @@ namespace MiNET
 				}
 			}
 
-			//bool useAntiCheat = false;
-			//if (useAntiCheat)
-			//{
-			//	long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-			//	if (GameMode == GameMode.Survival
-			//		&& HealthManager.CooldownTick == 0
-			//		&& td > 49*TimeSpan.TicksPerMillisecond
-			//		&& td < 500*TimeSpan.TicksPerMillisecond
-			//		&& Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
-			//		)
-			//	{
-			//		double horizSpeed;
-			//		{
-			//			// Speed in the xz plane
+			bool useAntiCheat = true;
+			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit && useAntiCheat)
+			{
+				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+				if (GameMode == GameMode.Survival
+				    && HealthManager.CooldownTick == 0
+				    && td > 49*TimeSpan.TicksPerMillisecond
+				    && td < 500*TimeSpan.TicksPerMillisecond
+				    && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0
+					)
+				{
+					double horizSpeed;
+					{
+						// Speed in the xz plane
 
-			//			Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-			//			double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-			//			horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-			//			if (horizSpeed > 11.0d)
-			//			{
-			//				//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
-			//				AddPopup(new Popup
-			//				{
-			//					MessageType = MessageType.Tip,
-			//					Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
-			//					Duration = 1
-			//				});
+						Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+						double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+						horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+						//if (horizSpeed > 11.0d)
+						//{
+						//	_isKnownCheater = true;
+						//	Level.BroadcastMessage(string.Format("{0} is spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
+						//	AddPopup(new Popup
+						//	{
+						//		MessageType = MessageType.Tip,
+						//		Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), horizSpeed),
+						//		Duration = 1
+						//	});
 
-			//				LastUpdatedTime = DateTime.UtcNow;
-			//				HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-			//				SendMovePlayer();
-			//				return;
-			//			}
-			//		}
+						//	LastUpdatedTime = DateTime.UtcNow;
+						//	//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+						//	//SendMovePlayer();
+						//	return;
+						//}
+					}
 
-			//		double verticalSpeed;
-			//		{
-			//			// Speed in 3d
-			//			double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
-			//			double distanceTo = (message.y - 1.62) - KnownPosition.Y;
-			//			verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-			//			if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
-			//			{
-			//				//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
-			//				AddPopup(new Popup
-			//				{
-			//					MessageType = MessageType.Tip,
-			//					Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
-			//					Duration = 1
-			//				});
+					double verticalSpeed;
+					{
+						// Speed in 3d
+						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
+						double distanceTo = (message.y - 1.62) - KnownPosition.Y;
+						verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+						if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
+						{
+							if (_isKnownCheater == _cheatLimit)
+							{
+								Level.BroadcastMessage(string.Format("{0} is fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
+								Log.WarnFormat("{0} is fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed);
+							} //AddPopup(new Popup
+							//{
+							//	MessageType = MessageType.Tip,
+							//	Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), verticalSpeed),
+							//	Duration = 1
+							//});
 
-			//				LastUpdatedTime = DateTime.UtcNow;
-			//				HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-			//				//SendMovePlayer();
-			//				return;
-			//			}
-			//		}
-			//		AddPopup(new Popup
-			//		{
-			//			MessageType = MessageType.Tip,
-			//			Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
-			//			Duration = 1
-			//		});
-			//	}
-			//}
+							LastUpdatedTime = DateTime.UtcNow;
+							//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+							//SendMovePlayer();
+							_isKnownCheater++;
+							return;
+						}
+					}
+
+					//AddPopup(new Popup
+					//{
+					//	MessageType = MessageType.Tip,
+					//	Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
+					//	Duration = 1
+					//});
+				}
+			}
 
 			KnownPosition = new PlayerLocation
 			{
@@ -1094,7 +1098,7 @@ namespace MiNET
 			{
 				if (selectedInventorySlot < 0 || selectedInventorySlot >= Inventory.Slots.Count)
 				{
-					Log.WarnFormat("Player {2} set equiptment fails with inv slot: {0}, {1}", selectedInventorySlot, message.slot, Username);
+					Log.InfoFormat("Player {2} set equiptment fails with inv slot: {0}, {1}", selectedInventorySlot, message.slot, Username);
 					return;
 				}
 

@@ -425,7 +425,7 @@ namespace MiNET.Worlds
 			foreach (var existingPlayer in existingPlayers)
 			{
 				Log.InfoFormat("Removing staled players on login {0}", username);
-				existingPlayer.Value.Disconnect("Stale player.");
+				existingPlayer.Value.Disconnect("Duplicate player. Crashed.", false);
 			}
 		}
 
@@ -506,18 +506,18 @@ namespace MiNET.Worlds
 				//if (TickTime % 2 == 0)
 				BroadCastMovement(players, entities);
 
-				if (TickTime%100 == 0) // Every 5 seconds
-				{
-					var staledPlayers = GetStaledPlayers(players);
-					foreach (var p in staledPlayers)
-					{
-						ThreadPool.QueueUserWorkItem(delegate(object state)
-						{
-							Player player = (Player) state;
-							player.Disconnect("Staled.");
-						}, p);
-					}
-				}
+				//if (TickTime%100 == 0) // Every 5 seconds
+				//{
+				//	var staledPlayers = GetStaledPlayers(players);
+				//	foreach (var p in staledPlayers)
+				//	{
+				//		ThreadPool.QueueUserWorkItem(delegate(object state)
+				//		{
+				//			Player player = (Player) state;
+				//			player.Disconnect("Staled.");
+				//		}, p);
+				//	}
+				//}
 			}
 			finally
 			{
@@ -547,8 +547,8 @@ namespace MiNET.Worlds
 		{
 			DateTime now = DateTime.UtcNow;
 			TimeSpan span = TimeSpan.FromSeconds(300);
-			return players.Where(player => player.NetworkSession == null);
-			//return players.Where(player => (now - player.LastUpdatedTime) > span);
+			//return players.Where(player => player.NetworkSession == null);
+			return players.Where(player => (now - player.LastUpdatedTime) > span);
 		}
 
 		private DateTime _lastSendTime = DateTime.UtcNow;

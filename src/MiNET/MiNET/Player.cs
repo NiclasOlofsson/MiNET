@@ -491,7 +491,7 @@ namespace MiNET
 			{
 				if (Username != null)
 				{
-					Log.WarnFormat("Player {0} doing multiple logins", Username);
+					Log.InfoFormat("Player {0} doing multiple logins", Username);
 					return; // Already doing login
 				}
 
@@ -532,17 +532,18 @@ namespace MiNET
 				return;
 			}
 
+
+			// THIS counter exist to protect the level from being swamped with player list add
+			// attempts during startup (normally).
+			var serverInfo = Server.ServerInfo;
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
 			SendPlayerStatus(0); // Hmm, login success?
 
 			Username = message.username;
 			ClientId = (int) message.clientId;
 			ClientUuid = message.clientUuid;
 			Skin = message.skin;
-
-			// THIS counter exist to protect the level from being swamped with player list add
-			// attempts during startup (normally).
-			var serverInfo = Server.ServerInfo;
-			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
 			new Thread(Start).Start();
 		}
@@ -563,6 +564,11 @@ namespace MiNET
 				}
 
 				Level = Server.LevelManager.GetLevel(this, "Default");
+				if(Level == null)
+				{
+					Disconnect("No level assigned.");
+					return;
+				}
 
 				SpawnPosition = SpawnPosition ?? Level.SpawnPoint;
 				KnownPosition = new PlayerLocation
@@ -991,16 +997,17 @@ namespace MiNET
 					double verticalSpeed;
 					{
 						// Speed in 3d
-						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
+						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 12d; //6d;
 						double distanceTo = (message.y - 1.62) - KnownPosition.Y;
 						verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
 						if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
 						{
 							if (_isKnownCheater == _cheatLimit)
 							{
-								Level.BroadcastMessage(string.Format("{0} is fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
+								Level.BroadcastMessage(string.Format("{0} is detected as flying {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
 								Log.WarnFormat("{0} is fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed);
-							} //AddPopup(new Popup
+							}
+							//AddPopup(new Popup
 							//{
 							//	MessageType = MessageType.Tip,
 							//	Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), verticalSpeed),

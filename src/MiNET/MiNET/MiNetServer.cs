@@ -42,6 +42,7 @@ namespace MiNET
 
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
+		public GreylistManager GreylistManager { get; set; }
 
 		public PluginManager PluginManager { get; set; }
 		public SessionManager SessionManager { get; set; }
@@ -113,6 +114,7 @@ namespace MiNET
 					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
 				}
 
+				GreylistManager = GreylistManager ?? new GreylistManager(this);
 				SessionManager = SessionManager ?? new SessionManager();
 				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
@@ -217,8 +219,6 @@ namespace MiNET
 			return false;
 		}
 
-		private object _megaUdpSync = new object();
-
 		private void ReceiveCallback(IAsyncResult ar)
 		{
 			UdpClient listener = (UdpClient) ar.AsyncState;
@@ -261,7 +261,7 @@ namespace MiNET
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				try
 				{
-					//if (_badPacketBans.ContainsKey(senderEndpoint.Address)) return;
+					if (GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)
@@ -339,10 +339,7 @@ namespace MiNET
 							Log.Warn("Bad packet " + receiveBytes[0], e);
 						}
 
-						if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
-						{
-							_badPacketBans.Add(senderEndpoint.Address, true);
-						}
+						GreylistManager.Blacklist(senderEndpoint.Address);
 
 						return;
 					}
@@ -381,220 +378,189 @@ namespace MiNET
 			}
 		}
 
-		private Dictionary<IPEndPoint, DateTime> _connectionAttemps = new Dictionary<IPEndPoint, DateTime>();
+		private ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttemps = new ConcurrentDictionary<IPEndPoint, DateTime>();
 
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
 			DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
 
-			Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
-			if (message == null)
+			Package message = null;
+			try
 			{
-				if (!_badPacketBans.ContainsKey(senderEndpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
-				Log.ErrorFormat("Receive bad packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+				try
+				{
+					message = PackageFactory.CreatePackage(msgId, receiveBytes);
+				}
+				catch (Exception)
+				{
+					message = null;
+				}
+
+				if (message == null)
+				{
+					GreylistManager.Blacklist(senderEndpoint.Address);
+					Log.ErrorFormat("Receive bad packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+
+					return;
+				}
+
+				TraceReceive(message);
+
+				switch (msgIdType)
+				{
+					case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
+					case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
+					{
+						HandleRakNetMessage(senderEndpoint, (UnconnectedPing) message);
+						break;
+					}
+					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
+					{
+						HandleRakNetMessage(senderEndpoint, (OpenConnectionRequest1) message);
+						break;
+					}
+					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
+					{
+						HandleRakNetMessage(senderEndpoint, (OpenConnectionRequest2) message);
+						break;
+					}
+					default:
+						GreylistManager.Blacklist(senderEndpoint.Address);
+						Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+						break;
+				}
+			}
+			finally
+			{
+				if (message != null) message.PutPool();
+			}
+		}
+
+		private void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPing incoming)
+		{
+			//TODO: This needs to be verified with RakNet first
+			//response.sendpingtime = msg.sendpingtime;
+			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
+
+			var packet = UnconnectedPong.CreateObject();
+			packet.serverId = 22345;
+			packet.pingId = incoming.pingId;
+			packet.serverName = MotdProvider.GetMotd(ServerInfo);
+			var data = packet.Encode();
+			packet.PutPool();
+
+			TraceSend(packet);
+
+			SendData(data, senderEndpoint, new object());
+			return;
+		}
+
+		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest1 incoming)
+		{
+			if (!GreylistManager.AcceptConnection(senderEndpoint))
+			{
+				var noFree = NoFreeIncomingConnections.CreateObject();
+				var bytes = noFree.Encode();
+				noFree.PutPool();
+
+				TraceSend(noFree);
+
+				SendData(bytes, senderEndpoint, new object());
 				return;
 			}
 
-			TraceReceive(message);
+			if (Log.IsDebugEnabled)
+				Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);
 
-			switch (msgIdType)
+			lock (_playerSessions)
 			{
-				case DefaultMessageIdTypes.ID_UNCONNECTED_PING:
-				case DefaultMessageIdTypes.ID_UNCONNECTED_PING_OPEN_CONNECTIONS:
+				// Already connecting, then this is just a duplicate
+				if (_connectionAttemps.ContainsKey(senderEndpoint))
 				{
-					UnconnectedPing incoming = (UnconnectedPing) message;
+					DateTime created;
+					_connectionAttemps.TryGetValue(senderEndpoint, out created);
 
-					//TODO: This needs to be verified with RakNet first
-					//response.sendpingtime = msg.sendpingtime;
-					//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
-
-					var packet = UnconnectedPong.CreateObject();
-					packet.serverId = 22345;
-					packet.pingId = incoming.pingId;
-					packet.serverName = MotdProvider.GetMotd(ServerInfo);
-					var data = packet.Encode();
-					packet.PutPool();
-					TraceSend(packet);
-					SendData(data, senderEndpoint, new object());
-					break;
-				}
-				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1:
-				{
-					if (!senderEndpoint.Address.ToString().Equals("83.249.65.92"))
-						if (ServerInfo.NumberOfPlayers > ServerInfo.MaxNumberOfPlayers || ServerInfo.ConnectionsInConnectPhase > ServerInfo.MaxNumberOfConcurrentConnects)
-						{
-							var noFree = NoFreeIncomingConnections.CreateObject();
-							//var noFree = IpRecentlyConnected.CreateObject();
-							//var noFree = ConnectionBanned.CreateObject();
-
-							var bytes = noFree.Encode();
-							noFree.PutPool();
-
-							TraceSend(noFree);
-
-							SendData(bytes, senderEndpoint, new object());
-							return;
-						}
-
-					OpenConnectionRequest1 incoming = (OpenConnectionRequest1) message;
-					Log.DebugFormat("New connection from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);
-
-					lock (_playerSessions)
+					if (DateTime.UtcNow < created + TimeSpan.FromSeconds(3))
 					{
-						// Already connecting, then this is just a duplicate
-						if (_connectionAttemps.ContainsKey(senderEndpoint))
-						{
-							DateTime created;
-							_connectionAttemps.TryGetValue(senderEndpoint, out created);
-
-							if (DateTime.UtcNow < created + TimeSpan.FromSeconds(3))
-							{
-								return;
-							}
-						}
-
-						//PlayerNetworkSession session;
-						//if (_playerSessions.TryGetValue(senderEndpoint, out session))
-						//{
-
-						//	Log.DebugFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
-
-						//	Player oldPlayer = session.Player;
-						//	if (oldPlayer != null)
-						//	{
-						//		oldPlayer.Disconnect("Reconnecting.");
-						//	}
-						//	else
-						//	{
-						//		_playerSessions.TryRemove(session.EndPoint, out session);
-						//	}
-						//}
-
-						if (!_connectionAttemps.ContainsKey(senderEndpoint)) _connectionAttemps.Add(senderEndpoint, DateTime.UtcNow);
+						return;
 					}
 
-					var packet = OpenConnectionReply1.CreateObject();
-					packet.serverGuid = 12345;
-					packet.mtuSize = incoming.mtuSize;
-					packet.serverHasSecurity = 0;
-					var data = packet.Encode();
-					packet.PutPool();
-
-					TraceSend(packet);
-
-					SendData(data, senderEndpoint, new object());
-					break;
+					_connectionAttemps.TryRemove(senderEndpoint, out created);
 				}
-				case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_2:
-				{
-					OpenConnectionRequest2 incoming = (OpenConnectionRequest2) message;
 
-					PlayerNetworkSession session;
-					lock (_playerSessions)
-					{
-						if (_connectionAttemps.ContainsKey(senderEndpoint))
-						{
-							_connectionAttemps.Remove(senderEndpoint);
-						}
-						else
-						{
-							Log.ErrorFormat("Unexpected connection request packet from {0}.", senderEndpoint.Address);
-							//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
-							//{
-							//	_badPacketBans.Add(senderEndpoint.Address, true);
-							//}
-							return;
-						}
-
-						//PlayerNetworkSession session;
-						if (_playerSessions.TryGetValue(senderEndpoint, out session))
-						{
-							Log.WarnFormat("Reconnection detected from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
-
-							Player oldPlayer = session.Player;
-							if (oldPlayer != null)
-							{
-								oldPlayer.Disconnect("Reconnecting.", false);
-							}
-							else
-							{
-								_playerSessions.TryRemove(session.EndPoint, out session);
-							}
-
-							//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
-							//{
-							//	_badPacketBans.Add(senderEndpoint.Address, true);
-							//}
-							//return;
-						}
-
-
-						if (_playerSessions.TryGetValue(senderEndpoint, out session))
-						{
-							// Already connecting, then this is just a duplicate
-							if (session.State == ConnectionState.Connecting /* && DateTime.UtcNow < session.LastUpdatedTime + TimeSpan.FromSeconds(2)*/)
-							{
-								return;
-							}
-
-							Log.ErrorFormat("Unexpected session from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
-
-							Player oldPlayer = session.Player;
-							if (oldPlayer != null)
-							{
-								oldPlayer.Disconnect("Reconnecting.", false);
-							}
-							else
-							{
-								_playerSessions.TryRemove(session.EndPoint, out session);
-							}
-
-							//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
-							//{
-							//	_badPacketBans.Add(senderEndpoint.Address, true);
-							//}
-
-							//return;
-						}
-
-						session = new PlayerNetworkSession(null, senderEndpoint)
-						{
-							State = ConnectionState.Connecting,
-							LastUpdatedTime = DateTime.UtcNow,
-							Mtuize = incoming.mtuSize
-						};
-
-						_playerSessions.TryAdd(senderEndpoint, session);
-					}
-
-					Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, incoming.mtuSize);
-					player.ClientGuid = incoming.clientGuid;
-					player.NetworkSession = session;
-					session.Player = player;
-
-					var reply = OpenConnectionReply2.CreateObject();
-					reply.serverGuid = 12345;
-					reply.clientendpoint = senderEndpoint;
-					reply.mtuSize = incoming.mtuSize;
-					reply.doSecurityAndHandshake = new byte[1];
-					var data = reply.Encode();
-					reply.PutPool();
-
-					TraceSend(reply);
-
-					SendData(data, senderEndpoint, session.SyncRoot);
-					break;
-				}
-				default:
-					if (!_badPacketBans.ContainsKey(senderEndpoint.Address)) _badPacketBans.Add(senderEndpoint.Address, true);
-					Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
-					break;
+				if (!_connectionAttemps.TryAdd(senderEndpoint, DateTime.UtcNow)) return;
 			}
 
-			message.PutPool();
+			var packet = OpenConnectionReply1.CreateObject();
+			packet.serverGuid = 12345;
+			packet.mtuSize = incoming.mtuSize;
+			packet.serverHasSecurity = 0;
+			var data = packet.Encode();
+			packet.PutPool();
+
+			TraceSend(packet);
+
+			SendData(data, senderEndpoint, new object());
 		}
 
-		private IDictionary<IPAddress, bool> _badPacketBans = new Dictionary<IPAddress, bool>();
+		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest2 incoming)
+		{
+			PlayerNetworkSession session;
+			lock (_playerSessions)
+			{
+				DateTime trash;
+				if (!_connectionAttemps.TryRemove(senderEndpoint, out trash))
+				{
+					Log.ErrorFormat("Unexpected connection request packet from {0}. Proboble resend.", senderEndpoint.Address);
+					return;
+				}
+
+				if (_playerSessions.TryGetValue(senderEndpoint, out session))
+				{
+					// Already connecting, then this is just a duplicate
+					if (session.State == ConnectionState.Connecting /* && DateTime.UtcNow < session.LastUpdatedTime + TimeSpan.FromSeconds(2)*/)
+					{
+						return;
+					}
+
+					Log.ErrorFormat("Unexpected session from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
+
+					Player oldPlayer = session.Player;
+					if (oldPlayer != null)
+					{
+						oldPlayer.Disconnect("Reconnecting.", false);
+					}
+
+					_playerSessions.TryRemove(session.EndPoint, out session);
+				}
+
+				session = new PlayerNetworkSession(null, senderEndpoint)
+				{
+					State = ConnectionState.Connecting,
+					LastUpdatedTime = DateTime.UtcNow,
+					Mtuize = incoming.mtuSize
+				};
+
+				_playerSessions.TryAdd(senderEndpoint, session);
+			}
+
+			Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, incoming.mtuSize);
+			player.ClientGuid = incoming.clientGuid;
+			player.NetworkSession = session;
+			session.Player = player;
+
+			var reply = OpenConnectionReply2.CreateObject();
+			reply.serverGuid = 12345;
+			reply.clientendpoint = senderEndpoint;
+			reply.mtuSize = incoming.mtuSize;
+			reply.doSecurityAndHandshake = new byte[1];
+			var data = reply.Encode();
+			reply.PutPool();
+
+			TraceSend(reply);
+
+			SendData(data, senderEndpoint, session.SyncRoot);
+		}
 
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{

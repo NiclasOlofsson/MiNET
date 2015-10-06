@@ -38,7 +38,7 @@ namespace MiNET
 		{
 			ServerInfo serverInfo = _server.ServerInfo;
 
-			if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers || serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
+			if (serverInfo.NumberOfPlayers >= serverInfo.MaxNumberOfPlayers || serverInfo.ConnectionsInConnectPhase >= serverInfo.MaxNumberOfConcurrentConnects)
 			{
 				if (Log.IsInfoEnabled)
 					Log.InfoFormat("Rejected connection (server full) from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);

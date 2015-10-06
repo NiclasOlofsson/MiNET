@@ -1664,40 +1664,34 @@ namespace MiNET
 			//mcpeSetHealth.health = HealthManager.Hearts;
 			//SendPackage(mcpeSetHealth);
 
-			var attributes = new PlayerAttributes
+			var attributes = new PlayerAttributes();
+			attributes["generic.health"] = new PlayerAttribute
 			{
-				["generic.health"] =
-					new PlayerAttribute
-					{
-						Name = "generic.health",
-						MinValue = 0,
-						MaxValue = 20,
-						Value = HealthManager.Hearts
-					},
-				["player.hunger"] =
-					new PlayerAttribute
-					{
-						Name = "player.hunger",
-						MinValue = 0,
-						MaxValue = 20,
-						Value = 20
-					},
-				["player.level"] =
-					new PlayerAttribute
-					{
-						Name = "player.level",
-						MinValue = 0,
-						MaxValue = 24791,
-						Value = 0
-					},
-				["player.experience"] =
-					new PlayerAttribute
-					{
-						Name = "player.experience",
-						MinValue = 0,
-						MaxValue = 1,
-						Value = 0
-					}
+				Name = "generic.health",
+				MinValue = 0,
+				MaxValue = 20,
+				Value = HealthManager.Hearts
+			};
+			attributes["player.hunger"] = new PlayerAttribute
+			{
+				Name = "player.hunger",
+				MinValue = 0,
+				MaxValue = 20,
+				Value = 20
+			};
+			attributes["player.level"] = new PlayerAttribute
+			{
+				Name = "player.level",
+				MinValue = 0,
+				MaxValue = 24791,
+				Value = 0
+			};
+			attributes["player.experience"] = new PlayerAttribute
+			{
+				Name = "player.experience",
+				MinValue = 0,
+				MaxValue = 1,
+				Value = 0
 			};
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();

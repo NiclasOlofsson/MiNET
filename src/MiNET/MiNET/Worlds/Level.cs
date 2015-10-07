@@ -1028,6 +1028,13 @@ namespace MiNET.Worlds
 
 			return new ChunkColumn[0];
 		}
+
+		public void StrikeLightning(Vector3 position)
+		{
+			Mob lightning = new Mob(93, this);
+			lightning.SpawnEntity();
+			new Timer(state => lightning.DespawnEntity(), null, 2000, Timeout.Infinite);
+		}
 	}
 
 	public class LevelEventArgs : EventArgs

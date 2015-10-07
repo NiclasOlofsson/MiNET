@@ -564,7 +564,7 @@ namespace MiNET
 				}
 
 				Level = Server.LevelManager.GetLevel(this, "Default");
-				if(Level == null)
+				if (Level == null)
 				{
 					Disconnect("No level assigned.");
 					return;
@@ -825,6 +825,15 @@ namespace MiNET
 		{
 			GameMode = gameMode;
 			SendStartGame();
+		}
+
+
+		[Wired]
+		public void StrikeLightning()
+		{
+			Mob lightning = new Mob(93, Level) {KnownPosition = KnownPosition};
+			lightning.SpawnEntity();
+			new Timer(state => lightning.DespawnEntity(), null, 2000, Timeout.Infinite);
 		}
 
 		private object _disconnectSync = new object();
@@ -1660,7 +1669,6 @@ namespace MiNET
 
 		public virtual void SendSetHealth()
 		{
-
 			//McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
 			//mcpeSetHealth.health = HealthManager.Hearts;
 			//SendPackage(mcpeSetHealth);
@@ -1799,18 +1807,20 @@ namespace MiNET
 
 		public override void Knockback(Vector3 velocity)
 		{
+			ThreadPool.QueueUserWorkItem(delegate
 			{
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{0, velocity}};
-				SendPackage(motions, true);
-			}
-			ThreadPool.QueueUserWorkItem(delegate(object state)
-			{
-				Thread.Sleep(500);
+				{
+					McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+					motions.entities = new EntityMotions {{0, velocity}};
+					SendPackage(motions, true);
+				}
 
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{0, Vector3.Zero}};
-				SendPackage(motions, true);
+				var timer = new Timer(delegate(object state)
+				{
+					McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+					motions.entities = new EntityMotions {{0, Vector3.Zero}};
+					SendPackage(motions, true);
+				}, null, 500, Timeout.Infinite);
 			});
 		}
 

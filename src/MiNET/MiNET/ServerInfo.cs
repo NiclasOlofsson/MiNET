@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using log4net;
-using MiNET.Utils;
 
 namespace MiNET
 {
@@ -59,6 +58,10 @@ namespace MiNET
 							threads,
 							portThreads,
 							NumberOfNakReceive);
+					}
+					else if (AvailableBytes != 0)
+					{
+						Log.WarnFormat("Socket buffering, avail: {0}", AvailableBytes);
 					}
 
 					NumberOfAckReceive = 0;

@@ -963,7 +963,7 @@ namespace MiNET
 						Player player = session.Player;
 
 						long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-						if (lastUpdate + InacvitityTimeout + 3000 + Math.Min(5000, ServerInfo.AvailableBytes) < now)
+						if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/ < now)
 						{
 							session.Evicted = true;
 							// Disconnect user
@@ -994,7 +994,7 @@ namespace MiNET
 						}
 
 
-						if (session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+						if (ServerInfo.AvailableBytes < 1000 && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
 						{
 							ThreadPool.QueueUserWorkItem(delegate(object o)
 							{
@@ -1030,14 +1030,14 @@ namespace MiNET
 							if (player.Rtt == -1) continue;
 
 							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-							if (elapsedTime >= rto*(datagram.TransmissionCount + 2))
+							if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= rto*(datagram.TransmissionCount + 2))
 							{
 								Datagram deleted;
 								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 								{
 									session.ErrorCount++;
 
-									if (deleted.TransmissionCount > 1)
+									if (deleted.TransmissionCount > 1 || elapsedTime > 8000)
 									{
 										if (Log.IsDebugEnabled)
 											Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
@@ -1081,6 +1081,21 @@ namespace MiNET
 									}
 								}
 							}
+							else if (elapsedTime > 8000)
+							{
+								Datagram deleted;
+								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+								{
+									foreach (MessagePart part in deleted.MessageParts)
+									{
+										part.PutPool();
+									}
+									deleted.PutPool();
+									
+								}
+								continue;
+							}
+
 						}
 					}
 					catch (Exception e)

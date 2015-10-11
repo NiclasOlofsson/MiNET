@@ -17,6 +17,7 @@ namespace MiNET
 		public long NumberOfAckReceive { get; set; }
 		public long NumberOfNakReceive { get; set; }
 
+		public int NumberOfDeniedConnectionRequestsPerSecond = 0;
 		public long NumberOfAckSent { get; set; }
 		public long NumberOfPacketsOutPerSecond { get; set; }
 		public long NumberOfPacketsInPerSecond { get; set; }
@@ -63,6 +64,7 @@ namespace MiNET
 					{
 						Log.WarnFormat("Socket buffering, avail: {0}", AvailableBytes);
 					}
+					Log.WarnFormat("Number of denied connections per second: {0}", NumberOfDeniedConnectionRequestsPerSecond);
 
 					NumberOfAckReceive = 0;
 					NumberOfNakReceive = 0;
@@ -72,6 +74,7 @@ namespace MiNET
 					TotalPacketSizeIn = 0;
 					NumberOfPacketsOutPerSecond = 0;
 					NumberOfPacketsInPerSecond = 0;
+					NumberOfDeniedConnectionRequestsPerSecond = 0;
 				}, null, 1000, 1000);
 			}
 		}

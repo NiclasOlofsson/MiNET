@@ -168,7 +168,7 @@ namespace MiNET.Worlds
 
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
-			if (newPlayer.Username == null) throw new NullReferenceException("Username NULL");
+			if (newPlayer.Username == null) throw new ArgumentNullException(nameof(newPlayer));
 
 			EntityManager.AddEntity(null, newPlayer);
 
@@ -727,7 +727,14 @@ namespace MiNET.Worlds
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					McpeBatch chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2)).GetBatch();
+					if(_worldProvider == null) continue;
+
+					ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
+					if(chunkColumn == null) continue;
+
+					McpeBatch chunk = chunkColumn.GetBatch();
+					if(chunk == null) continue;
+					
 					chunksUsed.Add(pair.Key, chunk);
 
 					yield return chunk;

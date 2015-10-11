@@ -34,14 +34,16 @@ namespace MiNET
 			}
 		}
 
-		public virtual bool AcceptConnection(IPEndPoint senderEndpoint)
+		public virtual bool AcceptConnection(IPAddress senderAddress)
 		{
+			if (IsWhitelisted(senderAddress)) return true;
+
 			ServerInfo serverInfo = _server.ServerInfo;
 
 			if (serverInfo.NumberOfPlayers >= serverInfo.MaxNumberOfPlayers || serverInfo.ConnectionsInConnectPhase >= serverInfo.MaxNumberOfConcurrentConnects)
 			{
 				if (Log.IsInfoEnabled)
-					Log.InfoFormat("Rejected connection (server full) from: {0} {1}", senderEndpoint.Address, senderEndpoint.Port);
+					Log.InfoFormat("Rejected connection (server full) from: {0}", senderAddress);
 
 				return false;
 			}

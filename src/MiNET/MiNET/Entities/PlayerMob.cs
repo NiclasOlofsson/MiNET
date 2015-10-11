@@ -76,7 +76,7 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords { fake };
-				player.SendPackage(playerList);
+				player.SendPackage(playerList, true);
 			}
 
 			{

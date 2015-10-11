@@ -143,11 +143,10 @@ namespace MiNET
 				}
 				else
 				{
-					//_listener.Client.ReceiveBufferSize = 1600*500;
-					//_listener.Client.ReceiveBufferSize = 1024 * 1024 * 3;
-					_listener.Client.ReceiveBufferSize = int.MaxValue;
-					//_listener.Client.SendBufferSize = 1500 * 1024 * 3;
-					_listener.Client.SendBufferSize = int.MaxValue;
+					_listener.Client.ReceiveBufferSize = 1600 * 40000;
+					//_listener.Client.ReceiveBufferSize = int.MaxValue;
+					_listener.Client.SendBufferSize = 1600 * 40000;
+					//_listener.Client.SendBufferSize = int.MaxValue;
 					_listener.DontFragment = false;
 					_listener.EnableBroadcast = false;
 
@@ -167,7 +166,8 @@ namespace MiNET
 				}
 
 				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
-				_cleanerTimer = new Timer(Update, null, 0, 10);
+				_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
+				//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
@@ -261,7 +261,7 @@ namespace MiNET
 				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
 				try
 				{
-					if (GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
+					if (!GreylistManager.IsWhitelisted(senderEndpoint.Address) && GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)
@@ -457,7 +457,7 @@ namespace MiNET
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest1 incoming)
 		{
-			if (!GreylistManager.AcceptConnection(senderEndpoint))
+			if (!GreylistManager.AcceptConnection(senderEndpoint.Address))
 			{
 				var noFree = NoFreeIncomingConnections.CreateObject();
 				var bytes = noFree.Encode();
@@ -466,6 +466,7 @@ namespace MiNET
 				TraceSend(noFree);
 
 				SendData(bytes, senderEndpoint, new object());
+				ServerInfo.NumberOfDeniedConnectionRequestsPerSecond++;
 				return;
 			}
 
@@ -948,6 +949,8 @@ namespace MiNET
 		private void Update(object state)
 		{
 			if (!Monitor.TryEnter(_updateGlobalLock)) return;
+			Stopwatch forceQuitTimer = new Stopwatch();
+			forceQuitTimer.Restart();
 
 			try
 			{
@@ -1020,6 +1023,9 @@ namespace MiNET
 						var queue = session.WaitingForAcksQueue;
 						foreach (var datagram in queue.Values)
 						{
+							// We don't do too much processing in each step, becasue one bad queue will hold the others.
+							if (forceQuitTimer.ElapsedMilliseconds > 100) return;
+
 							if (!datagram.Timer.IsRunning)
 							{
 								Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
@@ -1037,7 +1043,7 @@ namespace MiNET
 								{
 									session.ErrorCount++;
 
-									if (deleted.TransmissionCount > 1 || elapsedTime > 8000)
+									if (deleted.TransmissionCount > 1/* || elapsedTime > 8000*/)
 									{
 										if (Log.IsDebugEnabled)
 											Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
@@ -1081,7 +1087,7 @@ namespace MiNET
 									}
 								}
 							}
-							else if (elapsedTime > 8000)
+							else if (elapsedTime > 5000)
 							{
 								Datagram deleted;
 								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
@@ -1106,6 +1112,7 @@ namespace MiNET
 			finally
 			{
 				Monitor.Exit(_updateGlobalLock);
+				_cleanerTimer.Change(100, Timeout.Infinite);
 			}
 		}
 

@@ -1621,6 +1621,8 @@ namespace MiNET
 
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
+					if(chunk == null) continue;
+
 					SendPackage(chunk, sendDirect: true);
 					if (!IsSpawned)
 					{

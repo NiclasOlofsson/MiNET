@@ -32,7 +32,7 @@ namespace MiNET
 				protocol = 34,
 				protocol2 = 34,
 				clientId = new Random().Next(),
-				clientUuid = new UUID(),
+				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
 				serverAddress = "83.249.65.92:19132",
 				clientSecret = "iwmvi45hm85oncyo58",
 				skin = skin,

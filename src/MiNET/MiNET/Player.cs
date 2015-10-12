@@ -246,9 +246,9 @@ namespace MiNET
 			if (message.Timer.IsRunning)
 			{
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
-				if (elapsedMilliseconds > 500)
+				if (elapsedMilliseconds > 1000)
 				{
-					Log.DebugFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 				}
 			}
 			else

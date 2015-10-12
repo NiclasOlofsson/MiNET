@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using MiNET.Net;
 using MiNET.Utils;
@@ -23,7 +24,7 @@ namespace MiNET.Entities
 
 		public PlayerMob(string name, Level level) : base(63, level)
 		{
-			Uuid = new UUID();
+			Uuid = new UUID(Guid.NewGuid().ToByteArray());
 
 			Width = 0.6;
 			Length = 0.6;

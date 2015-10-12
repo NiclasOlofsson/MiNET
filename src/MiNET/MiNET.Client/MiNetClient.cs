@@ -834,7 +834,7 @@ namespace MiNET.Client
 				protocol = 34,
 				protocol2 = 34,
 				clientId = ClientId,
-				clientUuid = new UUID(),
+				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
 				serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
 				clientSecret = "iwmvi45hm85oncyo58",
 				//clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),

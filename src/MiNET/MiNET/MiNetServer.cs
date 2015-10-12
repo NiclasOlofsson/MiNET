@@ -1022,7 +1022,7 @@ namespace MiNET
 						foreach (var datagram in queue.Values)
 						{
 							// We don't do too much processing in each step, becasue one bad queue will hold the others.
-							if (forceQuitTimer.ElapsedMilliseconds > 100) return;
+							if (forceQuitTimer.ElapsedMilliseconds > 50) return;
 
 							if (!datagram.Timer.IsRunning)
 							{
@@ -1109,7 +1109,7 @@ namespace MiNET
 			finally
 			{
 				Monitor.Exit(_updateGlobalLock);
-				_cleanerTimer.Change(100, Timeout.Infinite);
+				_cleanerTimer.Change(10, Timeout.Infinite);
 			}
 		}
 

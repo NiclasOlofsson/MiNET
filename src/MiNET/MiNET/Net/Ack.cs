@@ -23,7 +23,7 @@ namespace MiNET.Net
 		{
 			base.EncodePackage();
 
-			var ranges = Slize(acks);
+			List<Tuple<int, int>> ranges = Slize(acks);
 
 			Write((short) ranges.Count);
 
@@ -103,34 +103,39 @@ namespace MiNET.Net
 
 	public class Ack : Package<Ack>
 	{
-		public short count; // = null;
-		public byte onlyOneSequence; // = null;
-		public Int24 sequenceNumber; // = null;
-		public Int24 toSequenceNumber; // = null;
+		public List<Tuple<int, int>> ranges = new List<Tuple<int, int>>();
 
 		public Ack()
 		{
 			Id = 0xc0;
 		}
 
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			Write(count);
-			Write(onlyOneSequence);
-			Write(sequenceNumber);
-		}
-
 		protected override void DecodePackage()
 		{
-			base.DecodePackage();
+            base.DecodePackage();
 
-			count = ReadShort();
-			onlyOneSequence = ReadByte();
-			sequenceNumber = ReadLittle();
-			if (onlyOneSequence == 0)
-				toSequenceNumber = ReadLittle();
+			ranges.Clear();
+
+			short count = ReadShort();
+			for (int i = 0; i < count; i++)
+			{
+				var onlyOneSequence = ReadByte();
+				if (onlyOneSequence == 0)
+				{
+					int from = ReadLittle().IntValue();
+					int to = ReadLittle().IntValue();
+					if (to - from > 510) to = from + 512;
+
+					var range = new Tuple<int, int>(from, to);
+					ranges.Add(range);
+				}
+				else
+				{
+					int seqNo = ReadLittle().IntValue();
+					var range = new Tuple<int, int>(seqNo, seqNo);
+					ranges.Add(range);
+				}
+			}
 		}
 	}
 }

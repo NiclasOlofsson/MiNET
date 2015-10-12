@@ -118,11 +118,11 @@ namespace MiNET.Net
 			if (encodedMessage == null) return messageParts;
 
 			//int datagramHeaderSize = 34;
-			int datagramHeaderSize = 34;
+			int datagramHeaderSize = 60;
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;
 			short splitId = (short) (DateTime.UtcNow.Ticks%short.MaxValue);
-			if (encodedMessage.Length <= mtuSize - datagramHeaderSize)
+			if (count <= 1)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;

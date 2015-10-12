@@ -1,30 +1,16 @@
+using System;
+using System.Collections.Generic;
 using MiNET.Utils;
 
 namespace MiNET.Net
 {
 	public partial class Nak : Package<Nak>
 	{
-		public short count; // = null;
-		public byte onlyOneSequence; // = null;
-		public Int24 sequenceNumber; // = null;
-		public Int24 toSequenceNumber; // = null;
+		public List<Tuple<int, int>> ranges = new List<Tuple<int, int>>();
 
 		public Nak()
 		{
 			Id = 0xa0;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(count);
-			Write(onlyOneSequence);
-			Write(sequenceNumber);
-
-			AfterEncode();
 		}
 
 		partial void BeforeEncode();
@@ -34,15 +20,28 @@ namespace MiNET.Net
 		{
 			base.DecodePackage();
 
-			BeforeDecode();
+			ranges.Clear();
 
-			count = ReadShort();
-			onlyOneSequence = ReadByte();
-			sequenceNumber = ReadLittle();
-			if (onlyOneSequence == 0)
-				toSequenceNumber = ReadLittle();
+			short count = ReadShort();
+			for (int i = 0; i < count; i++)
+			{
+				var onlyOneSequence = ReadByte();
+				if (onlyOneSequence == 0)
+				{
+					int from = ReadLittle().IntValue();
+					int to = ReadLittle().IntValue();
+					if (to - from > 510) to = from + 512;
 
-			AfterDecode();
+					var range = new Tuple<int, int>(from, to);
+					ranges.Add(range);
+				}
+				else
+				{
+					int seqNo = ReadLittle().IntValue();
+					var range = new Tuple<int, int>(seqNo, seqNo);
+					ranges.Add(range);
+				}
+			}
 		}
 
 		partial void BeforeDecode();

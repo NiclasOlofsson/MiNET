@@ -64,7 +64,6 @@ namespace MiNET
 					{
 						Log.WarnFormat("Socket buffering, avail: {0}", AvailableBytes);
 					}
-					Log.WarnFormat("Number of denied connections per second: {0}", NumberOfDeniedConnectionRequestsPerSecond);
 
 					NumberOfAckReceive = 0;
 					NumberOfNakReceive = 0;

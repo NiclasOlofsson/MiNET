@@ -1610,8 +1610,6 @@ namespace MiNET
 
 				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
 				{
-					if (Log.IsDebugEnabled)
-						Log.DebugFormat("Denied chunk, too little distance.");
 					return;
 				}
 

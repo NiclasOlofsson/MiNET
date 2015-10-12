@@ -168,7 +168,7 @@ namespace MiNET.Worlds
 
 		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
 		{
-			if (newPlayer.Username == null) throw new ArgumentNullException(nameof(newPlayer));
+			if (newPlayer.Username == null) throw new ArgumentNullException("newPlayer");
 
 			EntityManager.AddEntity(null, newPlayer);
 

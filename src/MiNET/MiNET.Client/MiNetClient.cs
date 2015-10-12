@@ -381,8 +381,6 @@ namespace MiNET.Client
 				{
 					Nak nak = new Nak();
 					nak.Decode(receiveBytes);
-
-					Log.Warn("!!!! NAK !!!!!" + nak.sequenceNumber.IntValue());
 					HandleNak(receiveBytes, senderEndpoint);
 				}
 				else if (!header.isValid)

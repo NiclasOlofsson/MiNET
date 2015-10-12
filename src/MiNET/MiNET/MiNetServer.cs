@@ -143,9 +143,9 @@ namespace MiNET
 				}
 				else
 				{
-					_listener.Client.ReceiveBufferSize = 1600 * 40000;
+					_listener.Client.ReceiveBufferSize = 1600*40000;
 					//_listener.Client.ReceiveBufferSize = int.MaxValue;
-					_listener.Client.SendBufferSize = 1600 * 40000;
+					_listener.Client.SendBufferSize = 1600*40000;
 					//_listener.Client.SendBufferSize = int.MaxValue;
 					_listener.DontFragment = false;
 					_listener.EnableBroadcast = false;
@@ -748,42 +748,42 @@ namespace MiNET
 			Nak nak = Nak.CreateObject();
 			nak.Decode(receiveBytes);
 
-			int ackSeqNo = nak.sequenceNumber.IntValue();
-			int toAckSeqNo = nak.toSequenceNumber.IntValue();
-			if (nak.onlyOneSequence == 1) toAckSeqNo = ackSeqNo;
-
-			nak.PutPool();
-
 			var queue = session.WaitingForAcksQueue;
 
-			if (Log.IsDebugEnabled)
-				Log.DebugFormat("NAK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, nak.onlyOneSequence, nak.count, player.Rtt);
-
-			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
+			foreach (Tuple<int, int> range in nak.ranges)
 			{
-				session.ErrorCount++;
+				int ackSeqNo = range.Item1;
+				int toAckSeqNo = range.Item2;
 
-				Datagram datagram;
-				if (queue.TryRemove(i, out datagram))
+				for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 				{
-					// RTT = RTT * 0.875 + rtt * 0.125
-					// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
-					// RTO = RTT + 4 * RTTVar
-					long rtt = datagram.Timer.ElapsedMilliseconds;
-					long RTT = player.Rtt;
-					long RTTVar = player.RttVar;
+					session.ErrorCount++;
 
-					player.Rtt = (long) (RTT*0.875 + rtt*0.125);
-					player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-					player.Rto = player.Rtt + 4*player.RttVar + 10; // SYNC time in the end
-					SendDatagram(session, datagram);
-				}
-				else
-				{
-					if (Log.IsDebugEnabled)
-						Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, player.Username);
+					Datagram datagram;
+					if (queue.TryRemove(i, out datagram))
+					{
+						// RTT = RTT * 0.875 + rtt * 0.125
+						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
+						// RTO = RTT + 4 * RTTVar
+						long rtt = datagram.Timer.ElapsedMilliseconds;
+						long RTT = player.Rtt;
+						long RTTVar = player.RttVar;
+
+						player.Rtt = (long) (RTT*0.875 + rtt*0.125);
+						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
+
+						SendDatagram(session, datagram, false);
+					}
+					else
+					{
+						if (Log.IsDebugEnabled)
+							Log.DebugFormat("NAK, no datagram #{0} to resend for {1}", i, player.Username);
+					}
 				}
 			}
+
+			nak.PutPool();
 		}
 
 		private void HandleAck(PlayerNetworkSession session, byte[] receiveBytes)
@@ -796,48 +796,44 @@ namespace MiNET
 			Ack ack = Ack.CreateObject();
 			ack.Decode(receiveBytes);
 
-			int ackSeqNo = ack.sequenceNumber.IntValue();
-			int toAckSeqNo = ack.toSequenceNumber.IntValue();
-			if (ack.onlyOneSequence == 1) toAckSeqNo = ackSeqNo;
-
-			if (ack.onlyOneSequence != 1 && ack.count > 2)
-			{
-				if (Log.IsDebugEnabled)
-					Log.DebugFormat("ACK from Player {0} ({5}) #{1}-{2} IsOnlyOne {3} Count={4}", player.Username, ackSeqNo, toAckSeqNo, ack.onlyOneSequence, ack.count, player.Rtt);
-			}
-
-			ack.PutPool();
 
 			var queue = session.WaitingForAcksQueue;
 
-			for (int i = ackSeqNo; i <= toAckSeqNo; i++)
+			foreach (Tuple<int, int> range in ack.ranges)
 			{
-				Datagram datagram;
-				if (queue.TryRemove(i, out datagram))
+				int ackSeqNo = range.Item1;
+				int toAckSeqNo = range.Item2;
+				for (int i = ackSeqNo; i <= toAckSeqNo; i++)
 				{
-					// RTT = RTT * 0.875 + rtt * 0.125
-					// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
-					// RTO = RTT + 4 * RTTVar
-					long rtt = datagram.Timer.ElapsedMilliseconds;
-					long RTT = player.Rtt;
-					long RTTVar = player.RttVar;
-
-					player.Rtt = (long) (RTT*0.875 + rtt*0.125);
-					player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-					player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
-
-					foreach (MessagePart part in datagram.MessageParts)
+					Datagram datagram;
+					if (queue.TryRemove(i, out datagram))
 					{
-						part.PutPool();
+						// RTT = RTT * 0.875 + rtt * 0.125
+						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
+						// RTO = RTT + 4 * RTTVar
+						long rtt = datagram.Timer.ElapsedMilliseconds;
+						long RTT = player.Rtt;
+						long RTTVar = player.RttVar;
+
+						player.Rtt = (long) (RTT*0.875 + rtt*0.125);
+						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
+
+						foreach (MessagePart part in datagram.MessageParts)
+						{
+							part.PutPool();
+						}
+						datagram.PutPool();
 					}
-					datagram.PutPool();
-				}
-				else
-				{
-					if (Log.IsDebugEnabled)
-						Log.DebugFormat("Failed to remove ACK #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
+					else
+					{
+						if (Log.IsDebugEnabled)
+							Log.DebugFormat("Failed to remove ACK #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
+					}
 				}
 			}
+
+			ack.PutPool();
 		}
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
@@ -966,7 +962,7 @@ namespace MiNET
 						Player player = session.Player;
 
 						long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-						if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/ < now)
+						if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/< now)
 						{
 							session.Evicted = true;
 							// Disconnect user
@@ -1019,6 +1015,8 @@ namespace MiNET
 							player.DetectLostConnection();
 						}
 
+						if (player.Rto == 0) return;
+
 						long rto = Math.Max(100, player.Rto);
 						var queue = session.WaitingForAcksQueue;
 						foreach (var datagram in queue.Values)
@@ -1036,23 +1034,24 @@ namespace MiNET
 							if (player.Rtt == -1) continue;
 
 							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-							if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= rto*(datagram.TransmissionCount + 2))
+							var datagramTimout = rto*(datagram.TransmissionCount + 2);
+							if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= datagramTimout)
 							{
 								Datagram deleted;
 								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 								{
 									session.ErrorCount++;
 
-									if (deleted.TransmissionCount > 1/* || elapsedTime > 8000*/)
+									if (deleted.TransmissionCount > 1 /* || elapsedTime > 8000*/)
 									{
 										if (Log.IsDebugEnabled)
-											Log.DebugFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+											Log.InfoFormat("Remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 												deleted.Header.datagramSequenceNumber.IntValue(),
 												player.Username,
 												deleted.FirstMessageId,
 												elapsedTime,
-												rto,
-												player.Rtt);
+												datagramTimout,
+												player.Rto);
 
 
 										foreach (MessagePart part in deleted.MessageParts)
@@ -1071,13 +1070,13 @@ namespace MiNET
 											try
 											{
 												if (Log.IsDebugEnabled)
-													Log.InfoFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTT {5}",
+													Log.InfoFormat("Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 														deleted.Header.datagramSequenceNumber.IntValue(),
 														player.Username,
 														deleted.FirstMessageId,
 														elapsedTime,
-														rto,
-														player.Rtt);
+														datagramTimout,
+														player.Rto);
 												SendDatagram(session, (Datagram) data);
 											}
 											catch (Exception e)
@@ -1097,11 +1096,9 @@ namespace MiNET
 										part.PutPool();
 									}
 									deleted.PutPool();
-									
 								}
 								continue;
 							}
-
 						}
 					}
 					catch (Exception e)
@@ -1133,26 +1130,33 @@ namespace MiNET
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
 		{
+			SendDatagram(session, datagram, true);
+		}
+
+		private void SendDatagram(PlayerNetworkSession session, Datagram datagram, bool updateCounter)
+		{
 			if (datagram.MessageParts.Count == 0)
 			{
 				datagram.PutPool();
 				return;
 			}
 
-			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
+			if (updateCounter)
+			{
+				datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
+			}
 
 			byte[] data = datagram.Encode();
+
+			SendData(data, session.EndPoint, session.SyncRoot);
+
+			datagram.TransmissionCount++;
+			datagram.Timer.Restart();
 
 			if (!session.WaitingForAcksQueue.TryAdd(datagram.Header.datagramSequenceNumber.IntValue(), datagram))
 			{
 				Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
 			}
-
-			datagram.TransmissionCount++;
-
-			SendData(data, session.EndPoint, session.SyncRoot);
-
-			datagram.Timer.Restart();
 		}
 
 

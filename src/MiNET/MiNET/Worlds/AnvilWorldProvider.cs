@@ -37,7 +37,6 @@ namespace MiNET.Worlds
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
 		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-		public ConcurrentDictionary<ChunkCoordinates, McpeBatch> _batchCache = new ConcurrentDictionary<ChunkCoordinates, McpeBatch>();
 
 		private string _basePath;
 

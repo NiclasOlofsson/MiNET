@@ -12,7 +12,7 @@ namespace MiNET.Net
 			Id = new Guid(rfc4122Bytes);
 		}
 
-		private Guid Id { get; set; }
+		public Guid Id { get; set; }
 
 		public byte[] GetBytes()
 		{

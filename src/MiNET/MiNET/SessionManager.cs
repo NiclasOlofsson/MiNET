@@ -25,11 +25,16 @@ namespace MiNET
 		public virtual void SaveSession(Session session)
 		{
 		}
+
+		public void RemoveSession(Session session)
+		{
+			_sessions.TryRemove(session.Player.ClientId, out session);
+		}
 	}
 
 	public class Session : Dictionary<string, object>
 	{
-		public Player Player { get; private set; }
+		public Player Player { get; set; }
 
 		public Session(Player player)
 		{

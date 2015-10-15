@@ -159,6 +159,13 @@ namespace MiNET.Worlds
 			Players = null;
 			Entities = null;
 
+			AnvilWorldProvider provider = _worldProvider as AnvilWorldProvider;
+			if (provider != null)
+			{
+				AnvilWorldProvider anvil = provider;
+				anvil._chunkCache.Clear();
+			}
+
 			_worldProvider = null;
 
 			Log.Info("Closed level: " + LevelId);
@@ -206,6 +213,7 @@ namespace MiNET.Worlds
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
 				var bytes = playerListMessage.Encode();
+				playerListMessage.records = null;
 
 				MemoryStream memStream = new MemoryStream();
 				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
@@ -222,6 +230,8 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {newPlayer};
+				playerList.Encode();
+				playerList.records = null;
 				RelayBroadcast(newPlayer, playerList);
 
 				McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
@@ -332,6 +342,7 @@ namespace MiNET.Worlds
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerRemoveRecords(spawnedPlayers);
 				var bytes = playerListMessage.Encode();
+				playerListMessage.records = null;
 
 				MemoryStream memStream = new MemoryStream();
 				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
@@ -351,6 +362,8 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {player};
+				playerList.Encode();
+				playerList.records = null;
 				RelayBroadcast(player, playerList);
 
 				McpeRemovePlayer removePlayerMessage = McpeRemovePlayer.CreateObject();

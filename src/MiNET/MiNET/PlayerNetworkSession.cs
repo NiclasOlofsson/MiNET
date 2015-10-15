@@ -33,6 +33,9 @@ namespace MiNET
 		public DateTime LastUpdatedTime { get; set; }
 		public int LastDatagramNumber { get; set; }
 
+		public bool WaitForAck { get; set; }
+		public int ResendCount { get; set; }
+
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
 			State = ConnectionState.Unconnected;

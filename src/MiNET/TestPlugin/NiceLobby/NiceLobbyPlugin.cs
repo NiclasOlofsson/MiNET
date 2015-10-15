@@ -322,7 +322,6 @@ namespace TestPlugin.NiceLobby
 				lock (worldProvider._chunkCache)
 				{
 					worldProvider._chunkCache.Clear();
-					worldProvider._batchCache.Clear();
 				}
 
 				var players = level.Players;

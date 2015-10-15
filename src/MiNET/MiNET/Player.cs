@@ -61,7 +61,6 @@ namespace MiNET
 		public string Username { get; private set; }
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
-		public PermissionManager Permissions { get; set; }
 		public Skin Skin { get; set; }
 		public bool Silent { get; set; }
 		public bool HideNameTag { get; set; }
@@ -96,9 +95,6 @@ namespace MiNET
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
 
-			Permissions = new PermissionManager(UserGroup.User);
-			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
-
 			Inventory = new PlayerInventory(this);
 
 			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
@@ -113,6 +109,8 @@ namespace MiNET
 
 		public void HandlePackage(Package message)
 		{
+			//if (!IsConnected) return;
+
 			LastNetworkActivity = DateTime.UtcNow;
 
 			var result = Server.PluginManager.PluginPacketHandler(message, true, this);
@@ -294,7 +292,7 @@ namespace MiNET
 		{
 			if (Level == null) return;
 
-			Log.DebugFormat("Action: {0}", message.actionId);
+			//Log.DebugFormat("Action: {0}", message.actionId);
 
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.entityId = message.entityId;
@@ -309,13 +307,13 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandlePlayerAction(McpePlayerAction message)
 		{
-			Log.DebugFormat("Player action: {0}", message.actionId);
-			Log.DebugFormat("Entity ID: {0}", message.entityId);
-			Log.DebugFormat("Action ID:  {0}", message.actionId);
-			Log.DebugFormat("x:  {0}", message.x);
-			Log.DebugFormat("y:  {0}", message.y);
-			Log.DebugFormat("z:  {0}", message.z);
-			Log.DebugFormat("Face:  {0}", message.face);
+			//Log.DebugFormat("Player action: {0}", message.actionId);
+			//Log.DebugFormat("Entity ID: {0}", message.entityId);
+			//Log.DebugFormat("Action ID:  {0}", message.actionId);
+			//Log.DebugFormat("x:  {0}", message.x);
+			//Log.DebugFormat("y:  {0}", message.y);
+			//Log.DebugFormat("z:  {0}", message.z);
+			//Log.DebugFormat("Face:  {0}", message.face);
 
 			switch (message.actionId)
 			{
@@ -733,8 +731,11 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
-			Level.RemovePlayer(this, true);
-			Level.EntityManager.RemoveEntity(null, this);
+			//if (Level != null)
+			{
+				Level.RemovePlayer(this, true);
+				Level.EntityManager.RemoveEntity(null, this);
+			}
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;
@@ -854,6 +855,13 @@ namespace MiNET
 					Level.RemovePlayer(this);
 				}
 
+				if (Session != null)
+				{
+					Server.SessionManager.RemoveSession(Session);
+					Session.Player = null;
+					Session = null;
+				}
+
 				if (IsConnected)
 				{
 					if (sendDisconnect)
@@ -891,6 +899,13 @@ namespace MiNET
 				}
 				string levelId = Level == null ? "" : Level.LevelId;
 				Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
+
+				// Clear cache
+				{
+					_chunksUsed.Clear();
+					//Level = null;
+				}
+
 			}
 			finally
 			{
@@ -942,16 +957,16 @@ namespace MiNET
 			{
 				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
 				{
-					if (Log.IsDebugEnabled)
-						Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
+					//if (Log.IsDebugEnabled)
+					//	Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
 					return;
 				}
 				_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
 				if (_lastOrderingIndex > message.OrderingIndex)
 				{
-					if (Log.IsDebugEnabled)
-						Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
+					//if (Log.IsDebugEnabled)
+					//	Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
 					return;
 				}
 				_lastOrderingIndex = message.OrderingIndex;
@@ -1359,8 +1374,8 @@ namespace MiNET
 		{
 			Entity target = Level.GetEntity(message.targetEntityId);
 
-			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
+			//Log.DebugFormat("Interact Action ID: {0}", message.actionId);
+			//Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
 
 			if (target == null) return;
 
@@ -1508,18 +1523,18 @@ namespace MiNET
 
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
-			Log.DebugFormat("Use item: {0}", message.item.Value.Id);
-			Log.DebugFormat("item meta: {0}", message.item.Value.Metadata);
-			Log.DebugFormat("x:  {0}", message.x);
-			Log.DebugFormat("y:  {0}", message.y);
-			Log.DebugFormat("z:  {0}", message.z);
-			Log.DebugFormat("face:  {0}", message.face);
-			Log.DebugFormat("fx:  {0}", message.fx);
-			Log.DebugFormat("fy:  {0}", message.fy);
-			Log.DebugFormat("fz:  {0}", message.fz);
-			Log.DebugFormat("px:  {0}", message.positionX);
-			Log.DebugFormat("py:  {0}", message.positionY);
-			Log.DebugFormat("pz:  {0}", message.positionZ);
+			//Log.DebugFormat("Use item: {0}", message.item.Value.Id);
+			//Log.DebugFormat("item meta: {0}", message.item.Value.Metadata);
+			//Log.DebugFormat("x:  {0}", message.x);
+			//Log.DebugFormat("y:  {0}", message.y);
+			//Log.DebugFormat("z:  {0}", message.z);
+			//Log.DebugFormat("face:  {0}", message.face);
+			//Log.DebugFormat("fx:  {0}", message.fx);
+			//Log.DebugFormat("fy:  {0}", message.fy);
+			//Log.DebugFormat("fz:  {0}", message.fz);
+			//Log.DebugFormat("px:  {0}", message.positionX);
+			//Log.DebugFormat("py:  {0}", message.positionY);
+			//Log.DebugFormat("pz:  {0}", message.positionZ);
 
 			if (message.face <= 5)
 			{
@@ -1617,9 +1632,11 @@ namespace MiNET
 
 				int packetCount = 0;
 
+				if (Level == null) return;
+
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-					if(chunk == null) continue;
+					if (chunk == null) continue;
 
 					SendPackage(chunk, sendDirect: true);
 					if (!IsSpawned)

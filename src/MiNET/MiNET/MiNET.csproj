@@ -231,7 +231,6 @@
     <Compile Include="Particles\TerrainParticle.cs" />
     <Compile Include="Particles\WaterDripParticle.cs" />
     <Compile Include="Particles\WaterParticle.cs" />
-    <Compile Include="PermissionManager.cs" />
     <Compile Include="PlayerFactory.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />

@@ -49,7 +49,7 @@ namespace MiNET
 					{
 						Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 							NumberOfPacketsOutPerSecond,
-							NumberOfAckSent,
+							NumberOfAckReceive,
 							NumberOfPacketsInPerSecond,
 							kbitPerSecondOut,
 							0 /*_level.LastTickProcessingTime*/,

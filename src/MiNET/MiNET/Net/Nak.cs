@@ -20,6 +20,7 @@ namespace MiNET.Net
 		{
 			base.DecodePackage();
 
+			if (Id != 0xa0) throw new Exception("Not NAK");
 			ranges.Clear();
 
 			short count = ReadShort();
@@ -28,11 +29,11 @@ namespace MiNET.Net
 				var onlyOneSequence = ReadByte();
 				if (onlyOneSequence == 0)
 				{
-					int from = ReadLittle().IntValue();
-					int to = ReadLittle().IntValue();
-					if (to - from > 510) to = from + 512;
+					int start = ReadLittle().IntValue();
+					int end = ReadLittle().IntValue();
+					if (end - start > 512) end = start + 512;
 
-					var range = new Tuple<int, int>(from, to);
+					var range = new Tuple<int, int>(start, end);
 					ranges.Add(range);
 				}
 				else

@@ -833,6 +833,9 @@ namespace MiNET
 		public void StrikeLightning()
 		{
 			Mob lightning = new Mob(93, Level) {KnownPosition = KnownPosition};
+
+			if (lightning.Level == null) return;
+
 			lightning.SpawnEntity();
 			new Timer(state => lightning.DespawnEntity(), null, 2000, Timeout.Infinite);
 		}

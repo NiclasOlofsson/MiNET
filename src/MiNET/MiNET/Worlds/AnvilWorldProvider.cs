@@ -6,7 +6,6 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
-using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -26,7 +25,7 @@ namespace MiNET.Worlds
 		}
 	}
 
-	public class AnvilWorldProvider : IWorldProvider
+	public class AnvilWorldProvider : IWorldProvider, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
@@ -136,6 +135,16 @@ namespace MiNET.Worlds
 		public AnvilWorldProvider(string basePath) : this()
 		{
 			_basePath = basePath;
+		}
+
+		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, byte waterOffsetY, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
+		{
+			IsCaching = true;
+			_basePath = basePath;
+			_level = levelInfo;
+			WaterOffsetY = waterOffsetY;
+			_chunkCache = chunkCache;
+			_isInitialized = true;
 		}
 
 		private bool _isInitialized = false;
@@ -563,6 +572,18 @@ namespace MiNET.Worlds
 		public int NumberOfCachedChunks()
 		{
 			return _chunkCache.Count;
+		}
+
+		public object Clone()
+		{
+			ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
+			{
+				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value.Clone());
+			}
+
+			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, _level, WaterOffsetY, chunkCache);
+			return provider;
 		}
 	}
 }

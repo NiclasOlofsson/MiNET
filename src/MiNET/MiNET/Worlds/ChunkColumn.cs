@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -9,7 +10,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class ChunkColumn
+	public class ChunkColumn : ICloneable
 	{
 		public int x;
 		public int z;
@@ -193,7 +194,7 @@ namespace MiNET.Worlds
 
 				if (BlockEntities.Count == 0)
 				{
-					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) { BigEndian = false };
+					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) {BigEndian = false};
 					writer.Write(file.SaveToBuffer(NbtCompression.None));
 				}
 				else
@@ -201,7 +202,7 @@ namespace MiNET.Worlds
 					//TODO: Not working
 					foreach (NbtCompound blockEntity in BlockEntities.Values)
 					{
-						NbtFile file = new NbtFile(blockEntity) { BigEndian = false };
+						NbtFile file = new NbtFile(blockEntity) {BigEndian = false};
 						writer.Write(file.SaveToBuffer(NbtCompression.None));
 					}
 				}
@@ -246,6 +247,23 @@ namespace MiNET.Worlds
 
 			writer.Close();
 			return stream.ToArray();
+		}
+
+		public object Clone()
+		{
+			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
+			cc._cache = _cache;
+			cc._cachedBatch = (McpeBatch) _cachedBatch.Clone();
+			cc.metadata = (NibbleArray) metadata.Clone();
+			cc.blocklight = (NibbleArray) blocklight.Clone();
+			cc.skylight = (NibbleArray) skylight.Clone();
+			cc.BlockEntities = new ConcurrentDictionary<BlockCoordinates, NbtCompound>();
+			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
+			{
+				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
+			}
+
+			return cc;
 		}
 	}
 

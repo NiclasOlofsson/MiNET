@@ -145,6 +145,7 @@ namespace MiNET.Worlds
 			WaterOffsetY = waterOffsetY;
 			_chunkCache = chunkCache;
 			_isInitialized = true;
+			_flatland = new FlatlandWorldProvider();
 		}
 
 		private bool _isInitialized = false;
@@ -582,7 +583,7 @@ namespace MiNET.Worlds
 				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value.Clone());
 			}
 
-			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, _level, WaterOffsetY, chunkCache);
+			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, (LevelInfo) _level.Clone(), WaterOffsetY, chunkCache);
 			return provider;
 		}
 	}

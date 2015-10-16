@@ -26,6 +26,9 @@ namespace MiNET.Worlds
 
 		private byte[] _cache;
 		public bool isDirty;
+		private McpeBatch _cachedBatch = null;
+		private object _cacheSync = new object();
+
 
 		public ChunkColumn()
 		{
@@ -130,10 +133,6 @@ namespace MiNET.Worlds
 				}
 			}
 		}
-
-		private McpeBatch _cachedBatch = null;
-
-		private object _cacheSync = new object();
 
 		public McpeBatch GetBatch()
 		{
@@ -252,16 +251,53 @@ namespace MiNET.Worlds
 		public object Clone()
 		{
 			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
-			cc._cache = _cache;
-			cc._cachedBatch = (McpeBatch) _cachedBatch.Clone();
-			cc.metadata = (NibbleArray) metadata.Clone();
-			cc.blocklight = (NibbleArray) blocklight.Clone();
-			cc.skylight = (NibbleArray) skylight.Clone();
+
+			//public int x;
+			//public int z;
+			//public bool isDirty;
+
+			//public byte[] biomeId = ArrayOf<byte>.Create(256, 2);
+			cc.biomeId = (byte[])biomeId.Clone();
+
+			//public int[] biomeColor = ArrayOf<int>.Create(256, 1);
+			cc.biomeColor = (int[]) biomeColor.Clone();
+
+			//public byte[] height = ArrayOf<byte>.Create(256, 0);
+			cc.height = (byte[]) height.Clone();
+
+			//public byte[] blocks = new byte[16 * 16 * 128];
+			cc.blocks = (byte[])blocks.Clone();
+
+			//public NibbleArray metadata = new NibbleArray(16 * 16 * 128);
+			cc.metadata = (NibbleArray)metadata.Clone();
+			
+			//public NibbleArray blocklight = new NibbleArray(16 * 16 * 128);
+			cc.blocklight = (NibbleArray)blocklight.Clone();
+			
+			//public NibbleArray skylight = new NibbleArray(16 * 16 * 128);
+			cc.skylight = (NibbleArray)skylight.Clone();
+
+			//public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 			cc.BlockEntities = new ConcurrentDictionary<BlockCoordinates, NbtCompound>();
 			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
 			{
-				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
+				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound)blockEntityPair.Value.Clone());
 			}
+
+			//private byte[] _cache;
+			cc._cache = (byte[])_cache.Clone();
+
+			//private McpeBatch _cachedBatch = null;
+			McpeBatch batch = McpeBatch.CreateObject();
+			batch.payloadSize = _cachedBatch.payloadSize;
+			batch.payload = _cachedBatch.payload;
+			batch.Encode();
+			batch.MarkPermanent();
+
+			cc._cachedBatch = batch;
+
+			//private object _cacheSync = new object();
+			_cacheSync = new object();
 
 			return cc;
 		}

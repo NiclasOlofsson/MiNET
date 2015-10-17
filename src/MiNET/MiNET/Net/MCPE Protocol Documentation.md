@@ -735,8 +735,8 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |X | int |  |
-|Z | int |  |
 |Y | int |  |
+|Z | int |  |
 |Case 1 | int |  |
 |Case 2 | int |  |
 -----------------------------------------------------------------------

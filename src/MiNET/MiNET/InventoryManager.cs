@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using fNbt;
+using log4net;
 using MiNET.BlockEntities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -9,7 +10,9 @@ namespace MiNET
 {
 	public class InventoryManager
 	{
-		private static byte _inventoryId = 15;
+		private static readonly ILog Log = LogManager.GetLogger(typeof (InventoryManager));
+
+		private static byte _inventoryId = 2;
 
 		private readonly Level _level;
 		private Dictionary<BlockCoordinates, Inventory> _cache = new Dictionary<BlockCoordinates, Inventory>();
@@ -20,7 +23,7 @@ namespace MiNET
 			_level = level;
 		}
 
-		public Inventory GetInventory(byte inventoryId)
+		public Inventory GetInventory(int inventoryId)
 		{
 			lock (_cache)
 			{
@@ -47,14 +50,14 @@ namespace MiNET
 				Inventory inventory;
 				if (blockEntity is ChestBlockEntity)
 				{
-					inventory = new Inventory(_inventoryId++, blockEntity, 27, (NbtList) comp["Items"])
+					inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
 					{
 						Type = 0,
 					};
 				}
 				else if (blockEntity is FurnaceBlockEntity)
 				{
-					inventory = new Inventory(_inventoryId++, blockEntity, 3, (NbtList) comp["Items"])
+					inventory = new Inventory(GetInventoryId(), blockEntity, 3, (NbtList) comp["Items"])
 					{
 						Type = 2,
 					};
@@ -70,6 +73,20 @@ namespace MiNET
 				_cache[inventoryCoord] = inventory;
 
 				return inventory;
+			}
+		}
+
+		private byte GetInventoryId()
+		{
+			lock (_cache)
+			{
+				_inventoryId++;
+				if (_inventoryId == 0x78)
+					_inventoryId++;
+				if (_inventoryId == 0x79)
+					_inventoryId++;
+
+				return _inventoryId;
 			}
 		}
 	}

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -90,15 +89,13 @@ namespace MiNET
 		[Wired]
 		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
 		{
-			//if (slot > InventorySize) throw new IndexOutOfRangeException("slot");
 			Slots[slot] = new ItemStack(itemId, amount, metadata);
 
-			Player.SendPackage(new McpeContainerSetContent
-			{
-				windowId = 0,
-				slotData = GetSlots(),
-				hotbarData = GetHotbar()
-			});
+			var containerSetContent = McpeContainerSetContent.CreateObject();
+			containerSetContent.windowId = 0;
+			containerSetContent.slotData = GetSlots();
+			containerSetContent.hotbarData = GetHotbar();
+			Player.SendPackage(containerSetContent);
 		}
 
 		public MetadataInts GetHotbar()
@@ -192,11 +189,16 @@ namespace MiNET
 		public static void Clear(this PlayerInventory inv)
 		{
 			for (byte i = 0; i < inv.Slots.Count; ++i)
-				inv.SetInventorySlot(i, Material.Air);
-			inv.Helmet = new Item(0, 0);
-			inv.Chest = new Item(0, 0);
-			inv.Leggings = new Item(0, 0);
-			inv.Boots = new Item(0, 0);
+			{
+				if (inv.Slots[i] == null || inv.Slots[i].Id != 0) inv.Slots[i] = new ItemStack();
+			}
+
+			if (inv.Helmet.Id != 0) inv.Helmet = new Item(0, 0);
+			if (inv.Chest.Id != 0) inv.Chest = new Item(0, 0);
+			if (inv.Leggings.Id != 0) inv.Leggings = new Item(0, 0);
+			if (inv.Boots.Id != 0) inv.Boots = new Item(0, 0);
+
+			inv.Player.SendPlayerInventory();
 		}
 
 		public static List<ItemStack> CreativeInventoryItems = new List<ItemStack>()

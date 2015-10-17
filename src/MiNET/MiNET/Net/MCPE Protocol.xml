@@ -302,8 +302,8 @@
 
 	<pdu id="0xa3" online="false" client="true" server="true" name="MCPE_TILE_EVENT">
 		<field name="X" type="int" />
-		<field name="Z" type="int" />
 		<field name="Y" type="int" />
+		<field name="Z" type="int" />
 		<field name="Case 1" type="int" />
 		<field name="Case 2" type="int" />
 	</pdu>

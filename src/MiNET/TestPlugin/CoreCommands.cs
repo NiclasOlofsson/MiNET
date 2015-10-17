@@ -284,6 +284,9 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
 			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
 
+			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1); // Snowballs
+			inventory.Slots[c++] = new ItemStack(new ItemWoodenPickaxe(0), 1); // Snowballs
+
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);

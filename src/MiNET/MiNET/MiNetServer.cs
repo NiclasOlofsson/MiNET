@@ -951,18 +951,20 @@ namespace MiNET
 
 		private object _updateGlobalLock = new object();
 
+		//private Stopwatch _forceQuitTimer = new Stopwatch();
+
 		private void Update(object state)
 		{
 			if (!Monitor.TryEnter(_updateGlobalLock)) return;
-			Stopwatch forceQuitTimer = new Stopwatch();
-			forceQuitTimer.Restart();
+			//_forceQuitTimer.Restart();
 
 			try
 			{
 				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
-				Parallel.ForEach(_playerSessions.Values.ToArray(), delegate(PlayerNetworkSession session)
+				Parallel.ForEach(_playerSessions, delegate (KeyValuePair<IPEndPoint, PlayerNetworkSession> pair)
 				{
+					var session = pair.Value;
 					if (session == null) return;
 					if (session.Evicted) return;
 
@@ -1029,10 +1031,12 @@ namespace MiNET
 						long rto = Math.Max(100, player.Rto);
 						var queue = session.WaitingForAcksQueue;
 
-						foreach (var datagram in queue.Values)
+						foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 						{
 							// We don't do too much processing in each step, becasue one bad queue will hold the others.
-							if (forceQuitTimer.ElapsedMilliseconds > 50) return;
+							//if (forceQuitTimer.ElapsedMilliseconds > 100) return;
+
+							var datagram = datagramPair.Value;
 
 							if (!datagram.Timer.IsRunning)
 							{
@@ -1105,19 +1109,6 @@ namespace MiNET
 									}
 								}
 							}
-							//else if (elapsedTime > 5000)
-							//{
-							//	Datagram deleted;
-							//	if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-							//	{
-							//		foreach (MessagePart part in deleted.MessageParts)
-							//		{
-							//			part.PutPool();
-							//		}
-							//		deleted.PutPool();
-							//	}
-							//	continue;
-							//}
 						}
 					}
 					catch (Exception e)

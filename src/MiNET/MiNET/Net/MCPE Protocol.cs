@@ -2020,8 +2020,8 @@ namespace MiNET.Net
 	public partial class McpeTileEvent : Package<McpeTileEvent>
 	{
 		public int x; // = null;
-		public int z; // = null;
 		public int y; // = null;
+		public int z; // = null;
 		public int case1; // = null;
 		public int case2; // = null;
 		public McpeTileEvent()
@@ -2036,8 +2036,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(x);
-			Write(z);
 			Write(y);
+			Write(z);
 			Write(case1);
 			Write(case2);
 
@@ -2054,8 +2054,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			x = ReadInt();
-			z = ReadInt();
 			y = ReadInt();
+			z = ReadInt();
 			case1 = ReadInt();
 			case2 = ReadInt();
 

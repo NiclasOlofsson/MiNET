@@ -9,14 +9,14 @@ namespace MiNET
 	{
 		public event Action<Inventory, byte, ItemStack> InventoryChange;
 
-		public byte Id { get; set; }
+		public int Id { get; set; }
 		public byte Type { get; set; }
 		public MetadataSlots Slots { get; set; }
 		public short Size { get; set; }
 		public BlockCoordinates Coordinates { get; set; }
 		public BlockEntity BlockEntity { get; set; }
 
-		public Inventory(byte id, BlockEntity blockEntity, short inventorySize, NbtList slots)
+		public Inventory(int id, BlockEntity blockEntity, short inventorySize, NbtList slots)
 		{
 			Id = id;
 			BlockEntity = blockEntity;
@@ -87,6 +87,11 @@ namespace MiNET
 			}
 
 			OnInventoryChange(slot, slotData.Value);
+		}
+
+		public bool IsOpen()
+		{
+			return InventoryChange != null;
 		}
 
 

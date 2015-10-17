@@ -332,11 +332,11 @@ namespace MiNET
 
 					MetadataDictionary metadata = new MetadataDictionary();
 					metadata[0] = new MetadataByte(0);
-					Level.RelayBroadcast(this, new McpeSetEntityData
-					{
-						entityId = EntityId,
-						metadata = metadata,
-					});
+
+					var setEntityData = McpeSetEntityData.CreateObject();
+					setEntityData.entityId = EntityId;
+					setEntityData.metadata = metadata;
+					Level.RelayBroadcast(this, setEntityData);
 
 					break;
 				}
@@ -908,7 +908,6 @@ namespace MiNET
 					_chunksUsed.Clear();
 					//Level = null;
 				}
-
 			}
 			finally
 			{
@@ -1199,53 +1198,46 @@ namespace MiNET
 
 			_openInventory = inventory;
 
+			if (inventory.Type == 0 && !inventory.IsOpen()) // Chest open animation
+			{
+				var tileEvent = McpeTileEvent.CreateObject();
+				tileEvent.x = inventoryCoord.X;
+				tileEvent.y = inventoryCoord.Y;
+				tileEvent.z = inventoryCoord.Z;
+				tileEvent.case1 = 1;
+				tileEvent.case2 = 2;
+				Level.RelayBroadcast(tileEvent);
+			}
+
 			// subscribe to inventory changes
 			inventory.InventoryChange += OnInventoryChange;
 
 			// open inventory
 
-			SendPackage(
-				new McpeContainerOpen()
-				{
-					windowId = inventory.Id,
-					type = inventory.Type,
-					slotCount = inventory.Size,
-					x = inventoryCoord.X,
-					y = inventoryCoord.Y,
-					z = inventoryCoord.Z,
-				});
+			var containerOpen = McpeContainerOpen.CreateObject();
+			containerOpen.windowId = (byte)(inventory.Type == 0 ? 10 : 11);
+			containerOpen.type = inventory.Type;
+			containerOpen.slotCount = inventory.Size;
+			containerOpen.x = inventoryCoord.X;
+			containerOpen.y = inventoryCoord.Y;
+			containerOpen.z = inventoryCoord.Z;
+			SendPackage(containerOpen, true);
 
-			SendPackage(
-				new McpeContainerSetContent()
-				{
-					windowId = inventory.Id,
-					slotData = inventory.Slots,
-				});
-
-			if (inventory.Type == 0) // Chest open animation
-			{
-				SendPackage(
-					new McpeTileEvent()
-					{
-						x = inventoryCoord.X,
-						y = inventoryCoord.Y,
-						z = inventoryCoord.Z,
-						case1 = 1,
-						case2 = 2,
-					});
-			}
+			var containerSetContent = McpeContainerSetContent.CreateObject();
+			containerSetContent.windowId = (byte)(inventory.Type == 0 ? 10 : 11);
+			containerSetContent.slotData = inventory.Slots;
+			SendPackage(containerSetContent, true);
 		}
 
 		private void OnInventoryChange(Inventory inventory, byte slot, ItemStack itemStack)
 		{
 			Level.SetBlockEntity(inventory.BlockEntity, false);
 
-			SendPackage(new McpeContainerSetSlot()
-			{
-				windowId = inventory.Id,
-				slot = slot,
-				item = new MetadataSlot(itemStack)
-			});
+			var containerSetSlot = McpeContainerSetSlot.CreateObject();
+			containerSetSlot.windowId = (byte) (inventory.Type == 0?10:11);
+			containerSetSlot.slot = slot;
+			containerSetSlot.item = new MetadataSlot(itemStack);
+			SendPackage(containerSetSlot, true);
 		}
 
 		/// <summary>
@@ -1352,17 +1344,15 @@ namespace MiNET
 			_openInventory.InventoryChange -= OnInventoryChange;
 
 			// close container 
-			if (_openInventory.Type == 0)
+			if (_openInventory.Type == 0 && !_openInventory.IsOpen())
 			{
-				SendPackage(
-					new McpeTileEvent()
-					{
-						x = _openInventory.Coordinates.X,
-						y = _openInventory.Coordinates.Y,
-						z = _openInventory.Coordinates.Z,
-						case1 = 1,
-						case2 = 0,
-					});
+				var tileEvent = McpeTileEvent.CreateObject();
+				tileEvent.x = _openInventory.Coordinates.X;
+				tileEvent.y = _openInventory.Coordinates.Y;
+				tileEvent.z = _openInventory.Coordinates.Z;
+				tileEvent.case1 = 1;
+				tileEvent.case2 = 0;
+				Level.RelayBroadcast(tileEvent);
 			}
 
 			// active inventory set to null
@@ -1382,10 +1372,18 @@ namespace MiNET
 
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
+			Player player = target as Player;
+			if (player != null)
+			{
+				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player), DamageCause.EntityAttack);
+			}
+			else
+			{
+				target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
+			}
 		}
 
-		private int CalculateDamage(Player target)
+		private int CalculatePlayerDamage(Player target)
 		{
 			double armorValue = 0;
 
@@ -1568,11 +1566,10 @@ namespace MiNET
 
 				MetadataDictionary metadata = new MetadataDictionary();
 				metadata[0] = new MetadataByte(16);
-				Level.RelayBroadcast(this, new McpeSetEntityData
-				{
-					entityId = EntityId,
-					metadata = metadata,
-				});
+				var setEntityData = McpeSetEntityData.CreateObject();
+				setEntityData.entityId = EntityId;
+				setEntityData.metadata = metadata;
+				Level.RelayBroadcast(this, setEntityData);
 			}
 		}
 

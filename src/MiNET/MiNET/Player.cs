@@ -1215,7 +1215,7 @@ namespace MiNET
 			// open inventory
 
 			var containerOpen = McpeContainerOpen.CreateObject();
-			containerOpen.windowId = (byte)(inventory.Type == 0 ? 10 : 11);
+			containerOpen.windowId = inventory.WindowsId;
 			containerOpen.type = inventory.Type;
 			containerOpen.slotCount = inventory.Size;
 			containerOpen.x = inventoryCoord.X;
@@ -1224,20 +1224,25 @@ namespace MiNET
 			SendPackage(containerOpen, true);
 
 			var containerSetContent = McpeContainerSetContent.CreateObject();
-			containerSetContent.windowId = (byte)(inventory.Type == 0 ? 10 : 11);
+			containerSetContent.windowId = inventory.WindowsId;
 			containerSetContent.slotData = inventory.Slots;
 			SendPackage(containerSetContent, true);
 		}
 
-		private void OnInventoryChange(Inventory inventory, byte slot, ItemStack itemStack)
+		private void OnInventoryChange(Player player, Inventory inventory, byte slot, ItemStack itemStack)
 		{
-			Level.SetBlockEntity(inventory.BlockEntity, false);
-
-			var containerSetSlot = McpeContainerSetSlot.CreateObject();
-			containerSetSlot.windowId = (byte) (inventory.Type == 0?10:11);
-			containerSetSlot.slot = slot;
-			containerSetSlot.item = new MetadataSlot(itemStack);
-			SendPackage(containerSetSlot, true);
+			if (player == this)
+			{
+				Level.SetBlockEntity(inventory.BlockEntity, false);
+			}
+			else
+			{
+				var containerSetSlot = McpeContainerSetSlot.CreateObject();
+				containerSetSlot.windowId = inventory.WindowsId;
+				containerSetSlot.slot = slot;
+				containerSetSlot.item = new MetadataSlot(itemStack);
+				SendPackage(containerSetSlot, true);
+			}
 		}
 
 		/// <summary>
@@ -1255,11 +1260,10 @@ namespace MiNET
 
 			var itemStack = message.item.Value;
 
-			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
-			if (inventory != null)
+			if (_openInventory != null && _openInventory.WindowsId == message.windowId)
 			{
 				// block inventories of various kinds (chests, furnace, etc)
-				inventory.SetSlot((byte) message.slot, itemStack);
+				_openInventory.SetSlot(this, (byte) message.slot, itemStack);
 				return;
 			}
 
@@ -1355,6 +1359,8 @@ namespace MiNET
 				Level.RelayBroadcast(tileEvent);
 			}
 
+			SendPlayerInventory();
+
 			// active inventory set to null
 			_openInventory = null;
 		}
@@ -1389,7 +1395,7 @@ namespace MiNET
 
 			{
 				{
-					var armorPiece = Inventory.Helmet;
+					var armorPiece = target.Inventory.Helmet;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1411,7 +1417,7 @@ namespace MiNET
 				}
 
 				{
-					var armorPiece = Inventory.Chest;
+					var armorPiece = target.Inventory.Chest;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1433,7 +1439,7 @@ namespace MiNET
 				}
 
 				{
-					var armorPiece = Inventory.Leggings;
+					var armorPiece = target.Inventory.Leggings;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1455,7 +1461,7 @@ namespace MiNET
 				}
 
 				{
-					var armorPiece = Inventory.Boots;
+					var armorPiece = target.Inventory.Boots;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1937,11 +1943,18 @@ namespace MiNET
 
 		public void BroadcastEntityEvent()
 		{
-			Level.RelayBroadcast(new McpeEntityEvent()
 			{
-				entityId = EntityId,
-				eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2)
-			});
+				var entityEvent = McpeEntityEvent.CreateObject();
+				entityEvent.entityId = 0;
+				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
+				SendPackage(entityEvent);
+			}
+			{
+				var entityEvent = McpeEntityEvent.CreateObject();
+				entityEvent.entityId = EntityId;
+				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
+				Level.RelayBroadcast(this, entityEvent);
+			}
 
 			if (HealthManager.IsDead)
 			{

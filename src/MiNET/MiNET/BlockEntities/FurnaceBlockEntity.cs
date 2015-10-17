@@ -157,14 +157,14 @@ namespace MiNET.BlockEntities
 
 			level.RelayBroadcast(new McpeContainerSetData
 			{
-				windowId = (byte) (Inventory.Type == 0 ? 10 : 11),
+				windowId = Inventory.WindowsId,
 				property = 0,
 				value = CookTime
 			});
 
 			level.RelayBroadcast(new McpeContainerSetData
 			{
-				windowId = (byte) (Inventory.Type == 0 ? 10 : 11),
+				windowId = Inventory.WindowsId,
 				property = 1,
 				value = BurnTick
 			});

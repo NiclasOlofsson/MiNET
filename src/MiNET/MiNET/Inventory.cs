@@ -7,7 +7,7 @@ namespace MiNET
 {
 	public class Inventory
 	{
-		public event Action<Inventory, byte, ItemStack> InventoryChange;
+		public event Action<Player, Inventory, byte, ItemStack> InventoryChange;
 
 		public int Id { get; set; }
 		public byte Type { get; set; }
@@ -15,6 +15,7 @@ namespace MiNET
 		public short Size { get; set; }
 		public BlockCoordinates Coordinates { get; set; }
 		public BlockEntity BlockEntity { get; set; }
+		public byte WindowsId { get; set; }
 
 		public Inventory(int id, BlockEntity blockEntity, short inventorySize, NbtList slots)
 		{
@@ -38,14 +39,14 @@ namespace MiNET
 			}
 		}
 
-		public void SetSlot(byte slot, ItemStack itemStack)
+		public void SetSlot(Player player, byte slot, ItemStack itemStack)
 		{
 			Slots[slot] = new MetadataSlot(itemStack);
 
 			NbtCompound compound = BlockEntity.GetCompound();
 			compound["Items"] = GetSlots();
 
-			OnInventoryChange(slot, itemStack);
+			OnInventoryChange(player, slot, itemStack);
 		}
 
         public ItemStack GetSlot(byte slot)
@@ -55,6 +56,11 @@ namespace MiNET
         }
 
 		public bool DecreaseSlot(byte slot)
+		{
+			return DecreaseSlot(null, slot);
+		}
+
+		public bool DecreaseSlot(Player player, byte slot)
 		{
 			bool isEmpty = false;
 
@@ -69,12 +75,17 @@ namespace MiNET
 				slotData.Value.Count--;
 			}
 
-			OnInventoryChange(slot, slotData.Value);
+			OnInventoryChange(player, slot, slotData.Value);
 
 			return isEmpty;
 		}
 
 		public void IncreaseSlot(byte slot, int itemId, short metadata)
+		{
+			IncreaseSlot(null, slot, itemId, metadata);
+		}
+
+		public void IncreaseSlot(Player player, byte slot, int itemId, short metadata)
 		{
 			MetadataSlot slotData = (MetadataSlot) Slots[slot];
 			if (slotData.Value.Id == 0)
@@ -86,7 +97,7 @@ namespace MiNET
 				slotData.Value.Count++;
 			}
 
-			OnInventoryChange(slot, slotData.Value);
+			OnInventoryChange(player, slot, slotData.Value);
 		}
 
 		public bool IsOpen()
@@ -113,10 +124,10 @@ namespace MiNET
 			return slots;
 		}
 
-		protected virtual void OnInventoryChange(byte slot, ItemStack itemStack)
+		protected virtual void OnInventoryChange(Player player, byte slot, ItemStack itemStack)
 		{
-			Action<Inventory, byte, ItemStack> handler = InventoryChange;
-			if (handler != null) handler(this, slot, itemStack);
+			Action<Player, Inventory, byte, ItemStack> handler = InventoryChange;
+			if (handler != null) handler(player, this, slot, itemStack);
 		}
 	}
 }

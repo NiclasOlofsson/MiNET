@@ -23,36 +23,16 @@ namespace MiNET.Entities
 			BroadcastMovement = false;
 		}
 
+		private object _spawnSync = new object();
 		public override void SpawnEntity()
 		{
-			Level.AddEntity(this);
-
-			if (Shooter == null)
+			lock (_spawnSync)
 			{
-				var addEntity = McpeAddEntity.CreateObject();
-				addEntity.entityType = EntityTypeId;
-				addEntity.entityId = EntityId;
-				addEntity.x = KnownPosition.X;
-				addEntity.y = KnownPosition.Y;
-				addEntity.z = KnownPosition.Z;
-				addEntity.yaw = KnownPosition.Yaw;
-				addEntity.pitch = KnownPosition.Pitch;
-				//addEntity.metadata = GetMetadata();
-				addEntity.speedX = (float) Velocity.X;
-				addEntity.speedY = (float) Velocity.Y;
-				addEntity.speedZ = (float) Velocity.Z;
+				if(IsSpawned) throw	new Exception("Invalid state. Tried to spawn projectile more than one time.");
 
-				Level.RelayBroadcast(addEntity);
+				Level.AddEntity(this);
 
-				IsSpawned = true;
-
-				McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				mcpeSetEntityData.entityId = EntityId;
-				mcpeSetEntityData.metadata = GetMetadata();
-				Level.RelayBroadcast(mcpeSetEntityData);
-			}
-			else
-			{
+				if (Shooter == null)
 				{
 					var addEntity = McpeAddEntity.CreateObject();
 					addEntity.entityType = EntityTypeId;
@@ -67,36 +47,62 @@ namespace MiNET.Entities
 					addEntity.speedY = (float) Velocity.Y;
 					addEntity.speedZ = (float) Velocity.Z;
 
-					Level.RelayBroadcast(Shooter, addEntity);
+					Level.RelayBroadcast(addEntity);
+
+					IsSpawned = true;
 
 					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 					mcpeSetEntityData.entityId = EntityId;
 					mcpeSetEntityData.metadata = GetMetadata();
-					Level.RelayBroadcast(Shooter, mcpeSetEntityData);
+					Level.RelayBroadcast(mcpeSetEntityData);
 				}
+				else
 				{
-					MetadataDictionary metadata = GetMetadata();
-					metadata[17] = new MetadataLong(0);
+					{
+						var addEntity = McpeAddEntity.CreateObject();
+						addEntity.entityType = EntityTypeId;
+						addEntity.entityId = EntityId;
+						addEntity.x = KnownPosition.X;
+						addEntity.y = KnownPosition.Y;
+						addEntity.z = KnownPosition.Z;
+						addEntity.yaw = KnownPosition.Yaw;
+						addEntity.pitch = KnownPosition.Pitch;
+						//addEntity.metadata = GetMetadata();
+						addEntity.speedX = (float) Velocity.X;
+						addEntity.speedY = (float) Velocity.Y;
+						addEntity.speedZ = (float) Velocity.Z;
 
-					var addEntity = McpeAddEntity.CreateObject();
-					addEntity.entityType = EntityTypeId;
-					addEntity.entityId = EntityId;
-					addEntity.x = KnownPosition.X;
-					addEntity.y = KnownPosition.Y;
-					addEntity.z = KnownPosition.Z;
-					addEntity.yaw = KnownPosition.Yaw;
-					addEntity.pitch = KnownPosition.Pitch;
-					//addEntity.metadata = metadata;
-					addEntity.speedX = (float) Velocity.X;
-					addEntity.speedY = (float) Velocity.Y;
-					addEntity.speedZ = (float) Velocity.Z;
+						Level.RelayBroadcast(Shooter, addEntity);
 
-					Shooter.SendPackage(addEntity);
+						McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+						mcpeSetEntityData.entityId = EntityId;
+						mcpeSetEntityData.metadata = GetMetadata();
+						Level.RelayBroadcast(Shooter, mcpeSetEntityData);
+					}
+					{
+						MetadataDictionary metadata = GetMetadata();
+						metadata[17] = new MetadataLong(0);
 
-					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-					mcpeSetEntityData.entityId = EntityId;
-					mcpeSetEntityData.metadata = metadata;
-					Shooter.SendPackage(mcpeSetEntityData);
+						var addEntity = McpeAddEntity.CreateObject();
+						addEntity.entityType = EntityTypeId;
+						addEntity.entityId = EntityId;
+						addEntity.x = KnownPosition.X;
+						addEntity.y = KnownPosition.Y;
+						addEntity.z = KnownPosition.Z;
+						addEntity.yaw = KnownPosition.Yaw;
+						addEntity.pitch = KnownPosition.Pitch;
+						//addEntity.metadata = metadata;
+						addEntity.speedX = (float) Velocity.X;
+						addEntity.speedY = (float) Velocity.Y;
+						addEntity.speedZ = (float) Velocity.Z;
+
+						Shooter.SendPackage(addEntity);
+
+						McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+						mcpeSetEntityData.entityId = EntityId;
+						mcpeSetEntityData.metadata = metadata;
+						Shooter.SendPackage(mcpeSetEntityData);
+					}
 				}
 			}
 		}

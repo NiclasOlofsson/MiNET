@@ -53,6 +53,7 @@ namespace MiNET
 					inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
 					{
 						Type = 0,
+						WindowsId = 10,
 					};
 				}
 				else if (blockEntity is FurnaceBlockEntity)
@@ -60,6 +61,7 @@ namespace MiNET
 					inventory = new Inventory(GetInventoryId(), blockEntity, 3, (NbtList) comp["Items"])
 					{
 						Type = 2,
+						WindowsId = 11,
 					};
 
 					FurnaceBlockEntity furnace = (FurnaceBlockEntity) blockEntity;

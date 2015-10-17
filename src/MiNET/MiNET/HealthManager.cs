@@ -56,7 +56,7 @@ namespace MiNET
 		}
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
-		{
+		{	
 			if (!Entity.Level.IsSurvival) return;
 
 			if (CooldownTick > 0) return;

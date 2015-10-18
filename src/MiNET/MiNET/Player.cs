@@ -1709,7 +1709,7 @@ namespace MiNET
 				Name = "player.hunger",
 				MinValue = 0,
 				MaxValue = 20,
-				Value = 20
+				Value = 15
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{

@@ -691,19 +691,20 @@ namespace MiNET
 					//	stream.Write(bytes, 0, bytes.Length);
 					//}
 
-					//string numplayers = _playerSessions.Count.ToString(CultureInfo.InvariantCulture);
+					MotdProvider.GetMotd(ServerInfo); // Force update the player counts :-)
+
 					var data = new Dictionary<string, string>
 					{
 						{"splitnum", "" + (char) 128},
 						{"hostname", "Personal Minecraft Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.11.1 alpha"},
+						{"version", "0.12.2"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},
-						{"numplayers", ServerInfo.NumberOfPlayers.ToString()},
-						{"maxplayers", ServerInfo.MaxNumberOfPlayers.ToString()},
+						{"numplayers", MotdProvider.NumberOfPlayers.ToString()},
+						{"maxplayers", MotdProvider.MaxNumberOfPlayers.ToString()},
 						{"whitelist", "off"},
 						//{"hostip", "192.168.0.1"},
 						//{"hostport", "19132"}

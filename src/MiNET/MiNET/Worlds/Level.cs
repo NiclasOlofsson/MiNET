@@ -244,7 +244,7 @@ namespace MiNET.Worlds
 				mcpeAddPlayer.yaw = newPlayer.KnownPosition.Yaw;
 				mcpeAddPlayer.headYaw = newPlayer.KnownPosition.HeadYaw;
 				mcpeAddPlayer.pitch = newPlayer.KnownPosition.Pitch;
-				mcpeAddPlayer.metadata = newPlayer.GetMetadata().GetBytes();
+				mcpeAddPlayer.metadata = newPlayer.GetMetadata();
 				RelayBroadcast(newPlayer, mcpeAddPlayer);
 
 				McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
@@ -283,7 +283,7 @@ namespace MiNET.Worlds
 			mcpeAddPlayer.yaw = addedPlayer.KnownPosition.Yaw;
 			mcpeAddPlayer.headYaw = addedPlayer.KnownPosition.HeadYaw;
 			mcpeAddPlayer.pitch = addedPlayer.KnownPosition.Pitch;
-			mcpeAddPlayer.metadata = addedPlayer.GetMetadata().GetBytes();
+			mcpeAddPlayer.metadata = addedPlayer.GetMetadata();
 			receiver.SendPackage(mcpeAddPlayer);
 
 			SendEquipmentForPlayer(receiver, addedPlayer);

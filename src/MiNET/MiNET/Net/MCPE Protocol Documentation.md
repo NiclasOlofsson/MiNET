@@ -495,9 +495,8 @@ TODO: Parameters
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Pitch | float |  |
-|Item Id | short |  |
-|Item Meta | short |  |
-|Metadata | byte[] | 0 |
+|Item | MetadataSlot |  |
+|Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x97)
 
@@ -894,7 +893,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Health | int |  |
+|Health | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Data (0xad)
 

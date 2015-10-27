@@ -1369,9 +1369,8 @@ namespace MiNET.Net
 		public float yaw; // = null;
 		public float headYaw; // = null;
 		public float pitch; // = null;
-		public short itemId; // = null;
-		public short itemMeta; // = null;
-		public byte[] metadata; // = null;
+		public MetadataSlot item; // = null;
+		public MetadataDictionary metadata; // = null;
 		public McpeAddPlayer()
 		{
 			Id = 0x96;
@@ -1395,8 +1394,7 @@ namespace MiNET.Net
 			Write(yaw);
 			Write(headYaw);
 			Write(pitch);
-			Write(itemId);
-			Write(itemMeta);
+			Write(item);
 			Write(metadata);
 
 			AfterEncode();
@@ -1423,9 +1421,8 @@ namespace MiNET.Net
 			yaw = ReadFloat();
 			headYaw = ReadFloat();
 			pitch = ReadFloat();
-			itemId = ReadShort();
-			itemMeta = ReadShort();
-			metadata = ReadBytes(0);
+			item = ReadMetadataSlot();
+			metadata = ReadMetadataDictionary();
 
 			AfterDecode();
 		}
@@ -2463,7 +2460,7 @@ namespace MiNET.Net
 
 	public partial class McpeHurtArmor : Package<McpeHurtArmor>
 	{
-		public int health; // = null;
+		public byte health; // = null;
 		public McpeHurtArmor()
 		{
 			Id = 0xac;
@@ -2489,7 +2486,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			health = ReadInt();
+			health = ReadByte();
 
 			AfterDecode();
 		}

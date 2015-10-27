@@ -140,10 +140,10 @@ namespace MiNET
 				}
 				else
 				{
-					_listener.Client.ReceiveBufferSize = 1600*40000;
-					//_listener.Client.ReceiveBufferSize = int.MaxValue;
-					_listener.Client.SendBufferSize = 1600*40000;
-					//_listener.Client.SendBufferSize = int.MaxValue;
+					//_listener.Client.ReceiveBufferSize = 1600*40000;
+					_listener.Client.ReceiveBufferSize = int.MaxValue;
+					//_listener.Client.SendBufferSize = 1600*40000;
+					_listener.Client.SendBufferSize = int.MaxValue;
 					_listener.DontFragment = false;
 					_listener.EnableBroadcast = false;
 
@@ -259,6 +259,7 @@ namespace MiNET
 				try
 				{
 					if (!GreylistManager.IsWhitelisted(senderEndpoint.Address) && GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
+					//if (GreylistManager.IsGreylisted(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)
@@ -295,6 +296,7 @@ namespace MiNET
 					//{
 					//	_badPacketBans.Add(senderEndpoint.Address, true);
 					//}
+					GreylistManager.Greylist(senderEndpoint.Address, 1000);
 					return;
 				}
 
@@ -379,6 +381,26 @@ namespace MiNET
 		{
 			DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
 
+			// Increase fast, decrease slow on 1s ticks.
+			if (ServerInfo.NumberOfPlayers < ServerInfo.PlayerSessions.Count) ServerInfo.NumberOfPlayers = ServerInfo.PlayerSessions.Count;
+
+			// Shortcut to reply fast, and no parsing
+			if (msgIdType == DefaultMessageIdTypes.ID_OPEN_CONNECTION_REQUEST_1)
+			{
+				if (!GreylistManager.AcceptConnection(senderEndpoint.Address))
+				{
+					var noFree = NoFreeIncomingConnections.CreateObject();
+					var bytes = noFree.Encode();
+					noFree.PutPool();
+
+					TraceSend(noFree);
+
+					SendData(bytes, senderEndpoint, new object());
+					ServerInfo.NumberOfDeniedConnectionRequestsPerSecond++;
+					return;
+				}
+			}
+
 			Package message = null;
 			try
 			{
@@ -433,6 +455,8 @@ namespace MiNET
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPing incoming)
 		{
+			GreylistManager.Greylist(senderEndpoint.Address, 1000);
+
 			//TODO: This needs to be verified with RakNet first
 			//response.sendpingtime = msg.sendpingtime;
 			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
@@ -452,19 +476,6 @@ namespace MiNET
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest1 incoming)
 		{
-			if (!GreylistManager.AcceptConnection(senderEndpoint.Address))
-			{
-				var noFree = NoFreeIncomingConnections.CreateObject();
-				var bytes = noFree.Encode();
-				noFree.PutPool();
-
-				TraceSend(noFree);
-
-				SendData(bytes, senderEndpoint, new object());
-				ServerInfo.NumberOfDeniedConnectionRequestsPerSecond++;
-				return;
-			}
-
 			lock (_playerSessions)
 			{
 				// Already connecting, then this is just a duplicate
@@ -581,56 +592,7 @@ namespace MiNET
 
 				if (message is SplitPartPackage)
 				{
-					SplitPartPackage splitMessage = message as SplitPartPackage;
-
-					int spId = package._splitPacketId;
-					int spIdx = package._splitPacketIndex;
-					int spCount = package._splitPacketCount;
-
-					if (!playerSession.Splits.ContainsKey(spId))
-					{
-						playerSession.Splits.Add(spId, new SplitPartPackage[spCount]);
-					}
-
-					SplitPartPackage[] spPackets = playerSession.Splits[spId];
-					spPackets[spIdx] = splitMessage;
-
-					bool haveEmpty = false;
-					for (int i = 0; i < spPackets.Length; i++)
-					{
-						haveEmpty = haveEmpty || spPackets[i] == null;
-					}
-
-					if (!haveEmpty)
-					{
-						Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
-
-						MemoryStream stream = new MemoryStream();
-						for (int i = 0; i < spPackets.Length; i++)
-						{
-							SplitPartPackage splitPartPackage = spPackets[i];
-							byte[] buf = splitPartPackage.Message;
-							stream.Write(buf, 0, buf.Length);
-							splitPartPackage.PutPool();
-						}
-
-						playerSession.Splits.Remove(spId);
-
-						byte[] buffer = stream.ToArray();
-						try
-						{
-							Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-							fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
-							fullMessage.OrderingChannel = package._orderingChannel;
-							fullMessage.OrderingIndex = package._orderingIndex;
-							HandlePackage(fullMessage, playerSession);
-							fullMessage.PutPool();
-						}
-						catch (Exception e)
-						{
-							player.Disconnect("Bad package received from client.");
-						}
-					}
+					HandleSplitMessage(playerSession, package, (SplitPartPackage) message, player);
 
 					continue;
 				}
@@ -638,6 +600,64 @@ namespace MiNET
 				message.Timer.Restart();
 				HandlePackage(message, playerSession);
 				message.PutPool(); // Handled in HandlePacket now()
+			}
+		}
+
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)
+		{
+			int spId = package._splitPacketId;
+			int spIdx = package._splitPacketIndex;
+			int spCount = package._splitPacketCount;
+
+			if (!playerSession.Splits.ContainsKey(spId))
+			{
+				playerSession.Splits.Add(spId, new SplitPartPackage[spCount]);
+			}
+
+			SplitPartPackage[] spPackets = playerSession.Splits[spId];
+			spPackets[spIdx] = splitMessage;
+
+			bool haveEmpty = false;
+			for (int i = 0; i < spPackets.Length; i++)
+			{
+				haveEmpty = haveEmpty || spPackets[i] == null;
+			}
+
+			if (!haveEmpty)
+			{
+				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+
+				MemoryStream stream = new MemoryStream();
+				for (int i = 0; i < spPackets.Length; i++)
+				{
+					SplitPartPackage splitPartPackage = spPackets[i];
+					byte[] buf = splitPartPackage.Message;
+					if (buf == null)
+					{
+						Log.Error("Expected bytes in splitpart, but got none");
+						continue;
+					}
+
+					stream.Write(buf, 0, buf.Length);
+					splitPartPackage.PutPool();
+				}
+
+				playerSession.Splits.Remove(spId);
+
+				byte[] buffer = stream.ToArray();
+				try
+				{
+					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+					fullMessage.OrderingChannel = package._orderingChannel;
+					fullMessage.OrderingIndex = package._orderingIndex;
+					HandlePackage(fullMessage, playerSession);
+					fullMessage.PutPool();
+				}
+				catch (Exception e)
+				{
+					player.Disconnect("Bad package received from client.");
+				}
 			}
 		}
 
@@ -674,7 +694,7 @@ namespace MiNET
 					var stream = new MemoryStream();
 
 					bool isFullStatRequest = receiveBytes.Length == 15;
-					Log.InfoFormat("Full request: {0}", isFullStatRequest);
+					if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
 
 					// ID
 					stream.WriteByte(0x00);
@@ -696,10 +716,10 @@ namespace MiNET
 					var data = new Dictionary<string, string>
 					{
 						{"splitnum", "" + (char) 128},
-						{"hostname", "Personal Minecraft Server"},
+						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.12.2"},
+						{"version", "0.12.3"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},
@@ -727,6 +747,7 @@ namespace MiNET
 					stream.WriteByte(0);
 					var buffer = stream.ToArray();
 					_listener.Send(buffer, buffer.Length, senderEndpoint);
+					GreylistManager.Greylist(senderEndpoint.Address, 5000);
 					break;
 				}
 				default:
@@ -826,10 +847,6 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						foreach (MessagePart part in datagram.MessageParts)
-						{
-							part.PutPool();
-						}
 						datagram.PutPool();
 					}
 					else
@@ -952,7 +969,7 @@ namespace MiNET
 
 		private object _updateGlobalLock = new object();
 
-		//private Stopwatch _forceQuitTimer = new Stopwatch();
+		private Stopwatch _forceQuitTimer = new Stopwatch();
 
 		private void Update(object state)
 		{
@@ -963,7 +980,7 @@ namespace MiNET
 			{
 				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
-				Parallel.ForEach(_playerSessions, delegate (KeyValuePair<IPEndPoint, PlayerNetworkSession> pair)
+				Parallel.ForEach(_playerSessions, delegate(KeyValuePair<IPEndPoint, PlayerNetworkSession> pair)
 				{
 					var session = pair.Value;
 					if (session == null) return;
@@ -1035,7 +1052,7 @@ namespace MiNET
 						foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 						{
 							// We don't do too much processing in each step, becasue one bad queue will hold the others.
-							//if (forceQuitTimer.ElapsedMilliseconds > 100) return;
+							//if (_forceQuitTimer.ElapsedMilliseconds > 100) return;
 
 							var datagram = datagramPair.Value;
 
@@ -1051,7 +1068,7 @@ namespace MiNET
 							if (session.WaitForAck) continue;
 
 							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-							var datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
+							long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
 							if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= datagramTimout)
 							{
 								if (session.WaitForAck) continue;
@@ -1074,12 +1091,6 @@ namespace MiNET
 												datagramTimout,
 												rto);
 
-										//if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-
-										foreach (MessagePart part in deleted.MessageParts)
-										{
-											part.PutPool();
-										}
 										deleted.PutPool();
 
 										session.WaitForAck = true;
@@ -1101,7 +1112,7 @@ namespace MiNET
 														elapsedTime,
 														datagramTimout,
 														player.Rto);
-												SendDatagram(session, (Datagram) data, true);
+												SendDatagram(session, (Datagram) data, false);
 											}
 											catch (Exception e)
 											{
@@ -1110,6 +1121,19 @@ namespace MiNET
 									}
 								}
 							}
+							//else if (elapsedTime > 5000)
+							//{
+							//	Datagram deleted;
+							//	if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+							//	{
+							//		foreach (MessagePart part in deleted.MessageParts)
+							//		{
+							//			part.PutPool();
+							//		}
+							//		deleted.PutPool();
+							//	}
+							//	continue;
+							//}
 						}
 					}
 					catch (Exception e)

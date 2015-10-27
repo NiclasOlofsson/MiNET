@@ -50,7 +50,7 @@ namespace MiNET.Entities
 			metadata[8] = new MetadataByte(0); // Potion Ambient
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataLong(0);
+			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 
 			return metadata;
 		}
@@ -91,7 +91,7 @@ namespace MiNET.Entities
 				message.yaw = KnownPosition.Yaw;
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
-				message.metadata = GetMetadata().GetBytes();
+				message.metadata = GetMetadata();
 				player.SendPackage(message);
 			}
 			{
@@ -138,7 +138,7 @@ namespace MiNET.Entities
 			message.yaw = KnownPosition.Yaw;
 			message.headYaw = KnownPosition.HeadYaw;
 			message.pitch = KnownPosition.Pitch;
-			message.metadata = GetMetadata().GetBytes();
+			message.metadata = GetMetadata();
 
 			Level.RelayBroadcast(message);
 

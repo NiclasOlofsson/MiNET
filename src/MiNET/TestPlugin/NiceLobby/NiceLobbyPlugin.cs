@@ -188,9 +188,9 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration});
-			//player.SetEffect(new Slowness {Level = 2, Duration = 20});
-			player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
+			//player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration});
+			////player.SetEffect(new Slowness {Level = 2, Duration = 20});
+			//player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
 			player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))
@@ -360,6 +360,13 @@ namespace TestPlugin.NiceLobby
 		{
 			player.Level.BroadcastMessage(string.Format(ChatColors.Yellow + "{0} is really 'laughing out loud!', and it really hurst our ears :-(", player.Username), type: MessageType.Raw);
 		}
+
+		[Command]
+		public void Hi(Player player)
+		{
+			player.SendMessage(string.Format(ChatColors.Yellow + "Hi {0}!", player.Username), type: MessageType.Raw);
+		}
+
 
 		[Command]
 		public void Wtf(Player player)

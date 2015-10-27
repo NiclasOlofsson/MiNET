@@ -38,6 +38,7 @@ namespace MiNET.Client
 		private LevelInfo _level = new LevelInfo();
 		private int _clientGuid;
 		private Timer _connectedPingTimer;
+		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
 
 		public UdpClient UdpClient { get; private set; }
@@ -57,18 +58,20 @@ namespace MiNET.Client
 		{
 			Console.WriteLine("Starting client...");
 
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), "TheGrey");
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
 			client.StartClient();
 			Console.WriteLine("Server started.");
 
-			Thread.Sleep(2000);
 
-			Console.WriteLine("Sending ping...");
-
-			client.SendUnconnectedPing();
+			while (!client.HaveServer)
+			{
+				Thread.Sleep(500);
+				Console.WriteLine("Sending ping...");
+				client.SendUnconnectedPing();
+			}
 
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();
@@ -234,6 +237,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
 						UnconnectedPong incoming = (UnconnectedPong) message;
+						HaveServer = true;
 						SendOpenConnectionRequest1();
 
 						break;
@@ -294,77 +298,15 @@ namespace MiNET.Client
 						{
 							lock (Session.SyncRoot)
 							{
-								var splits = Session.Splits;
-								SplitPartPackage splitMessage = message as SplitPartPackage;
-
-								int spId = package._splitPacketId;
-								int spIdx = package._splitPacketIndex;
-								int spCount = package._splitPacketCount;
-
-								Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-
-								if (!splits.ContainsKey(spId))
-								{
-									splits.Add(spId, new SplitPartPackage[spCount]);
-								}
-
-								SplitPartPackage[] spPackets = splits[spId];
-								if (spIdx < 0 || spIdx >= spPackets.Length)
-								{
-									Log.DebugFormat("Unexpeted split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-									continue;
-								}
-
-								if (splitMessage.Message == null)
-								{
-									Log.DebugFormat("Empty split package");
-									continue;
-								}
-
-								spPackets[spIdx] = splitMessage;
-
-								bool haveEmpty = false;
-								for (int i = 0; i < spPackets.Length; i++)
-								{
-									haveEmpty = haveEmpty || spPackets[i] == null;
-								}
-
-								if (!haveEmpty)
-								{
-									Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
-
-									MemoryStream stream = new MemoryStream();
-									for (int i = 0; i < spPackets.Length; i++)
-									{
-										byte[] buf = spPackets[i].Message;
-										stream.Write(buf, 0, buf.Length);
-									}
-
-									try
-									{
-										byte[] buffer = stream.ToArray();
-										Log.DebugFormat("Processing split-message 0x{1:x2}, lenght={0}", buffer.Length, buffer[0]);
-										Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-										HandlePackage(fullMessage, senderEndpoint);
-										fullMessage.PutPool();
-										continue;
-									}
-									catch (Exception e)
-									{
-										Log.Error("When processing split-message", e);
-									}
-								}
-
-								message.PutPool();
-								continue;
+								HandleSplitMessage(Session, package, (SplitPartPackage) message);
 							}
+
+							continue;
 						}
-						else
-						{
-							message.Timer.Restart();
-							HandlePackage(message, senderEndpoint);
-							message.PutPool();
-						}
+
+						message.Timer.Restart();
+						HandlePackage(message);
+						message.PutPool();
 					}
 
 					//package.PutPool();
@@ -394,6 +336,7 @@ namespace MiNET.Client
 			}
 		}
 
+
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
 			Log.Info("Ack");
@@ -404,16 +347,56 @@ namespace MiNET.Client
 			Log.Warn("!! WHAT THE F NAK NAK NAK");
 		}
 
-		/// <summary>
-		///     Handles the specified package.
-		/// </summary>
-		/// <param name="message">The package.</param>
-		/// <param name="senderEndpoint">The sender's endpoint.</param>
-		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage)
+		{
+			int spId = package._splitPacketId;
+			int spIdx = package._splitPacketIndex;
+			int spCount = package._splitPacketCount;
+
+			if (!playerSession.Splits.ContainsKey(spId))
+			{
+				playerSession.Splits.Add(spId, new SplitPartPackage[spCount]);
+			}
+
+			SplitPartPackage[] spPackets = playerSession.Splits[spId];
+			spPackets[spIdx] = splitMessage;
+
+			bool haveEmpty = false;
+			for (int i = 0; i < spPackets.Length; i++)
+			{
+				haveEmpty = haveEmpty || spPackets[i] == null;
+			}
+
+			if (!haveEmpty)
+			{
+				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+
+				MemoryStream stream = new MemoryStream();
+				for (int i = 0; i < spPackets.Length; i++)
+				{
+					SplitPartPackage splitPartPackage = spPackets[i];
+					byte[] buf = splitPartPackage.Message;
+					stream.Write(buf, 0, buf.Length);
+					splitPartPackage.PutPool();
+				}
+
+				playerSession.Splits.Remove(spId);
+
+				byte[] buffer = stream.ToArray();
+
+				Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+				fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+				fullMessage.OrderingChannel = package._orderingChannel;
+				fullMessage.OrderingIndex = package._orderingIndex;
+				HandlePackage(fullMessage);
+				fullMessage.PutPool();
+			}
+		}
+
+		private void HandlePackage(Package message)
 		{
 			if (typeof (McpeBatch) == message.GetType())
 			{
-				Log.Debug("Processing Batch package");
 				McpeBatch batch = (McpeBatch) message;
 
 				var messages = new List<Package>();
@@ -425,7 +408,7 @@ namespace MiNET.Client
 				MemoryStream stream = new MemoryStream(payload);
 				if (stream.ReadByte() != 0x78)
 				{
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78");
+					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
 				}
 				stream.ReadByte();
 				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
@@ -440,13 +423,17 @@ namespace MiNET.Client
 						int len = reader.ReadInt32();
 						byte[] internalBuffer = reader.ReadBytes(len);
 						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
-					} while (destination.Position < destination.Length); // throw new Exception("Have more data");
+					} while (destination.Position < destination.Length);
 				}
 				foreach (var msg in messages)
 				{
-					HandlePackage(msg, senderEndpoint);
+					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+					msg.OrderingChannel = batch.OrderingChannel;
+					msg.OrderingIndex = batch.OrderingIndex;
+					HandlePackage(msg);
 					msg.PutPool();
 				}
+
 				return;
 			}
 
@@ -475,15 +462,14 @@ namespace MiNET.Client
 
 			if (typeof (McpeFullChunkData) == message.GetType())
 			{
-				//McpeFullChunkData msg = (McpeFullChunkData) message;
-				//ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
-				//if (chunk != null)
-				//{
-				//	Log.DebugFormat("Chunk X={0}", chunk.x);
-				//	Log.DebugFormat("Chunk Z={0}", chunk.z);
+				McpeFullChunkData msg = (McpeFullChunkData)message;
+				ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
+				if (chunk != null)
+				{
+					Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
 
-				//	//ClientUtils.SaveChunkToAnvil(chunk);
-				//}
+					//ClientUtils.SaveChunkToAnvil(chunk);
+				}
 				return;
 			}
 
@@ -545,7 +531,23 @@ namespace MiNET.Client
 				Log.DebugFormat("Velocity X: {0}", msg.speedX);
 				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-				//Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
+				//Log.DebugFormat("Links count: {0}", msg.links);
+
+				return;
+			}
+			if (typeof(McpeAddPlayer) == message.GetType())
+			{
+				McpeAddPlayer msg = (McpeAddPlayer)message;
+				Log.DebugFormat("Entity ID: {0}", msg.entityId);
+				Log.DebugFormat("X: {0}", msg.x);
+				Log.DebugFormat("Y: {0}", msg.y);
+				Log.DebugFormat("Z: {0}", msg.z);
+				Log.DebugFormat("Yaw: {0}", msg.yaw);
+				Log.DebugFormat("Pitch: {0}", msg.pitch);
+				Log.DebugFormat("Velocity X: {0}", msg.speedX);
+				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+				Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
 				//Log.DebugFormat("Links count: {0}", msg.links);
 
 				return;
@@ -555,6 +557,7 @@ namespace MiNET.Client
 				McpeSetEntityData msg = (McpeSetEntityData) message;
 				Log.DebugFormat("Entity ID: {0}", msg.entityId);
 				MetadataDictionary metadata = msg.metadata;
+				if(metadata.Contains(17))
 				Log.DebugFormat("Metadata: {0}", metadata.ToString());
 				return;
 			}
@@ -666,7 +669,7 @@ namespace MiNET.Client
 				writer.Flush();
 
 				file.Close();
-				Environment.Exit(0);
+				//Environment.Exit(0);
 				return;
 			}
 		}
@@ -714,12 +717,12 @@ namespace MiNET.Client
 
 		private void TraceReceive(Package message)
 		{
-			Log.InfoFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
 
 		private void TraceSend(Package message)
 		{
-			Log.InfoFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
 
 		public void SendUnconnectedPing()
@@ -731,7 +734,8 @@ namespace MiNET.Client
 
 			var data = packet.Encode();
 			TraceSend(packet);
-			SendData(data /*, new IPEndPoint(IPAddress.Parse("192.168.0.255"), 19132)*/);
+			//SendData(data);
+			SendData(data, new IPEndPoint(IPAddress.Broadcast, 19132));
 		}
 
 		public void SendConnectedPing()

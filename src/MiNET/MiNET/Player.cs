@@ -645,6 +645,7 @@ namespace MiNET
 			SendSetTime();
 			IsSpawned = true;
 			LastUpdatedTime = DateTime.UtcNow;
+			_haveJoined = true;
 		}
 
 		protected virtual void HandleRespawn(McpeRespawn msg)
@@ -842,13 +843,32 @@ namespace MiNET
 
 		private object _disconnectSync = new object();
 
+		private bool _haveJoined = false;
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
 			if (!Monitor.TryEnter(_disconnectSync)) return;
 			try
 			{
+				if (IsConnected)
+				{
+					IsConnected = false;
+
+					if (sendDisconnect)
+					{
+						Server.GreylistManager.Greylist(EndPoint.Address, 10000);
+
+						ThreadPool.QueueUserWorkItem(delegate(object state)
+						{
+							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+							disconnect.message = reason;
+							SendPackage(disconnect, true);
+						});
+					}
+				}
+
 				if (_sendTicker != null)
 				{
+					_sendTicker.Change(Timeout.Infinite, Timeout.Infinite);
 					_sendTicker.Dispose();
 					_sendTicker = null;
 				}
@@ -858,52 +878,42 @@ namespace MiNET
 					Level.RemovePlayer(this);
 				}
 
-				if (Session != null)
+				var playerSession = Session;
+				Session = null;
+				if (playerSession != null)
 				{
-					Server.SessionManager.RemoveSession(Session);
-					Session.Player = null;
-					Session = null;
+					Server.SessionManager.RemoveSession(playerSession);
+					playerSession.Player = null;
 				}
 
-				if (IsConnected)
+				string levelId = Level == null ? "Unknown" : Level.LevelId;
+				Log.InfoFormat("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
+				if (!_haveJoined)
 				{
-					if (sendDisconnect)
-					{
-						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-						disconnect.message = reason;
-						SendPackage(disconnect, true);
-					}
-
-					//McpeTransfer transfer = new McpeTransfer();
-					//transfer.endpoint = Server.Endpoint;
-					////transfer.endpoint = new IPEndPoint(IPAddress.Parse("86.8.24.26"), 19132);
-					//SendPackage(transfer, true);
-
-					IsConnected = false;
+					Log.WarnFormat("Disconnected crashed player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
+				}
+				else if (NetworkSession != null && NetworkSession.CreateTime.AddSeconds(10) < DateTime.UtcNow)
+				{
+					Log.WarnFormat("Early disconnect of player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
 				}
 
 				//HACK: But needed
 				PlayerNetworkSession session;
 				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 				{
-					NetworkSession = null;
-					session.Player = null;
 					session.State = ConnectionState.Unconnected;
 					session.Evicted = true;
+
+					NetworkSession = null;
+					session.Player = null;
+
 					session.Clean();
 				}
 
-				//while (_sendQueueNotConcurrent.Count > 0)
-				{
-					//lock (_queueSync)
-					{
-						SendQueue(null);
-					}
-				}
-				string levelId = Level == null ? "" : Level.LevelId;
-				Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
+				SendQueue(null);
 
 				// Clear cache
+				lock (_chunksUsed)
 				{
 					_chunksUsed.Clear();
 					//Level = null;
@@ -1113,7 +1123,7 @@ namespace MiNET
 			msg.leggings = message.leggings;
 			msg.boots = message.boots;
 
-			Level.RelayBroadcast(this, msg);
+			Level?.RelayBroadcast(this, msg);
 		}
 
 		/// <summary>
@@ -1859,7 +1869,7 @@ namespace MiNET
 			metadata[8] = new MetadataByte(0); // Potion Ambient
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataLong(0);
+			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 
 			return metadata;
 		}

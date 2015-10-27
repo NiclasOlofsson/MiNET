@@ -6,6 +6,7 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -303,7 +304,7 @@ namespace MiNET.Worlds
 
 								if (blockId > 255) blockId = 41;
 
-								if (yi == 127 && blockId != 0) blockId = 30;
+								//if (yi == 127 && blockId != 0) blockId = 30;
 								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
 								chunk.SetBlock(x, yi, z, (byte) blockId);
@@ -314,11 +315,11 @@ namespace MiNET.Worlds
 								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
 
-								//var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
-								//{
-								//	chunk.SetSkylight(x, yi, z, 0xff);
-								//}
+								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
+								if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
+								{
+									chunk.SetSkylight(x, yi, z, 0xff);
+								}
 
 								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
 								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);

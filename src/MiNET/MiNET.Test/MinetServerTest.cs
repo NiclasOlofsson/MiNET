@@ -40,6 +40,14 @@ namespace MiNET
 
 			var bytes = packet.Encode();
 			Console.WriteLine(Package.HexDump(bytes, 16));
+
+			UUID uuid2 = new UUID(rfc4122Bytes);
+
+			Dictionary<UUID, string> uuiDictionary = new Dictionary<UUID, string>();
+			uuiDictionary.Add(uuid, "test");
+
+			Assert.AreEqual("test", uuiDictionary[uuid2]);
+			
 		}
 
 		[Test]

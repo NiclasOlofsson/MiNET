@@ -64,6 +64,12 @@ namespace MiNET.Net
 			TransmissionCount = 0;
 			_currentSize = 4;
 			FirstMessageId = 0;
+
+			foreach (MessagePart part in MessageParts)
+			{
+				part.PutPool();
+			}
+
 			MessageParts.Clear();
 			_buf.SetLength(0);
 		}

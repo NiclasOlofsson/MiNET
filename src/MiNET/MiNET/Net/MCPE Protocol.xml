@@ -187,9 +187,8 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Item Id" type="short" />
-		<field name="Item Meta" type="short" />
-		<field name="Metadata" type="byte[]" size="0" />
+		<field name="Item" type="MetadataSlot" />
+		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
 	<pdu id="0x97" online="false" client="false" server="true" name="MCPE_REMOVE_PLAYER">
@@ -371,7 +370,7 @@
 	</pdu>
 
 	<pdu id="0xac" online="false" client="true" server="true" name="MCPE_HURT_ARMOR">
-		<field name="Health" type="int" />
+		<field name="Health" type="byte" />
 	</pdu>
 
 	<pdu id="0xad" online="false" client="false" server="true" name="MCPE_SET_ENTITY_DATA">

@@ -424,9 +424,12 @@ namespace MiNET.Worlds
 			{
 				if (!Entities.TryRemove(entity.EntityId, out entity)) return; // It's ok. Holograms destroy this play..
 
-				McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
-				mcpeRemoveEntity.entityId = entity.EntityId;
-				RelayBroadcast(mcpeRemoveEntity);
+				List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
+
+				foreach (Player player in spawnedPlayers)
+				{
+					entity.DespawnFromPlayer(player);
+				}
 			}
 		}
 

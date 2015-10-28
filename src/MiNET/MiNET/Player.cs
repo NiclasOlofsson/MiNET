@@ -1187,7 +1187,7 @@ namespace MiNET
 			msg.item = message.item;
 			msg.slot = (byte) selectedInventorySlot;
 			msg.selectedSlot = selectedHotbarSlot;
-			Level.RelayBroadcast(this, msg);
+			Level?.RelayBroadcast(this, msg);
 		}
 
 

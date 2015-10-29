@@ -4,7 +4,7 @@
 	{
 		public Fire() : base(51)
 		{
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsSolid = false;
 		}
 	}

@@ -20,7 +20,7 @@ namespace MiNET.Blocks
 		public float FrictionFactor { get; protected set; }
 		public int LightLevel { get; protected set; }
 
-		public bool IsReplacible { get; protected set; }
+		public bool IsReplaceable { get; protected set; }
 		public bool IsSolid { get; protected set; }
 		public bool IsBuildable { get; protected set; }
 		public bool IsTransparent { get; protected set; }
@@ -31,7 +31,7 @@ namespace MiNET.Blocks
 
 			IsSolid = true;
 			IsBuildable = true;
-			IsReplacible = false;
+			IsReplaceable = false;
 			IsTransparent = false;
 
 			Hardness = 30;
@@ -48,7 +48,7 @@ namespace MiNET.Blocks
 
 		protected virtual bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
 		{
-			return world.GetBlock(blockCoordinates).IsReplacible;
+			return world.GetBlock(blockCoordinates).IsReplaceable;
 		}
 
 		public virtual void BreakBlock(Level world)

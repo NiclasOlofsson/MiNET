@@ -13,7 +13,7 @@ namespace MiNET.Blocks
 
 		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
 		{
-			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;
+			return world.GetBlock(blockCoordinates).IsReplaceable && world.GetBlock(blockCoordinates + Level.Up).IsReplaceable;
 		}
 
 		public override void BreakBlock(Level level)

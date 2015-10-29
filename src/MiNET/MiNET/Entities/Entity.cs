@@ -86,7 +86,7 @@ namespace MiNET.Entities
 			addEntity.z = KnownPosition.Z;
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
-			//addEntity.metadata = GetMetadata();
+			addEntity.metadata = GetMetadata();
 			addEntity.speedX = (float) Velocity.X;
 			addEntity.speedY = (float) Velocity.Y;
 			addEntity.speedZ = (float) Velocity.Z;
@@ -95,10 +95,10 @@ namespace MiNET.Entities
 
 			IsSpawned = true;
 
-			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = EntityId;
-			mcpeSetEntityData.metadata = GetMetadata();
-			Level.RelayBroadcast(mcpeSetEntityData);
+			//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			//mcpeSetEntityData.entityId = EntityId;
+			//mcpeSetEntityData.metadata = GetMetadata();
+			//Level.RelayBroadcast(mcpeSetEntityData);
 		}
 
 		public virtual void SpawnToPlayer(Player player)
@@ -111,17 +111,17 @@ namespace MiNET.Entities
 			addEntity.z = KnownPosition.Z;
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
-			//addEntity.metadata = GetMetadata();
+			addEntity.metadata = GetMetadata();
 			addEntity.speedX = (float) Velocity.X;
 			addEntity.speedY = (float) Velocity.Y;
 			addEntity.speedZ = (float) Velocity.Z;
 			player.SendPackage(addEntity);
 
-			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = EntityId;
-			mcpeSetEntityData.metadata = GetMetadata();
-			mcpeSetEntityData.Encode();
-			player.SendPackage(mcpeSetEntityData);
+			//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			//mcpeSetEntityData.entityId = EntityId;
+			//mcpeSetEntityData.metadata = GetMetadata();
+			//mcpeSetEntityData.Encode();
+			//player.SendPackage(mcpeSetEntityData);
 		}
 
 		public virtual void DespawnEntity()

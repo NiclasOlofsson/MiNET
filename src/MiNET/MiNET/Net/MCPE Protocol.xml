@@ -215,8 +215,8 @@
 		<field name="Speed Z" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<!--<field name="Metadata" type="MetadataDictionary"/>
-		<field name="Links" type="short" />-->
+		<field name="Metadata" type="MetadataDictionary"/>
+		<field name="Links" type="short" />
 	</pdu>
 
 	<pdu id="0x99" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">

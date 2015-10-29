@@ -542,6 +542,8 @@ link[2] byte
 |Speed Z | float |  |
 |Yaw | float |  |
 |Pitch | float |  |
+|Metadata | MetadataDictionary |  |
+|Links | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x99)
 

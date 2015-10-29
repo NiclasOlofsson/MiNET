@@ -6,7 +6,7 @@ namespace MiNET.Blocks
 	{
 		public Air() : base(0)
 		{
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsSolid = false;
 			IsBuildable = false;
 		}

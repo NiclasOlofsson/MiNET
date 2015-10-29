@@ -974,7 +974,7 @@ namespace MiNET
 		private void Update(object state)
 		{
 			if (!Monitor.TryEnter(_updateGlobalLock)) return;
-			//_forceQuitTimer.Restart();
+			_forceQuitTimer.Restart();
 
 			try
 			{
@@ -1052,7 +1052,7 @@ namespace MiNET
 						foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 						{
 							// We don't do too much processing in each step, becasue one bad queue will hold the others.
-							//if (_forceQuitTimer.ElapsedMilliseconds > 100) return;
+							if (_forceQuitTimer.ElapsedMilliseconds > 100) return;
 
 							var datagram = datagramPair.Value;
 
@@ -1143,8 +1143,8 @@ namespace MiNET
 			}
 			finally
 			{
-				Monitor.Exit(_updateGlobalLock);
 				_cleanerTimer.Change(10, Timeout.Infinite);
+				Monitor.Exit(_updateGlobalLock);
 			}
 		}
 
@@ -1156,6 +1156,8 @@ namespace MiNET
 			if (_playerSessions.TryGetValue(player.EndPoint, out session))
 			{
 				Datagram.CreateDatagrams(message, mtuSize, ref reliableMessageNumber, session, SendDatagram);
+
+				TraceSend(message);
 
 				message.PutPool();
 
@@ -1193,13 +1195,7 @@ namespace MiNET
 				Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
 			}
 
-			lock (session.SyncRoot)
-			{
-				SendData(data, session.EndPoint, session.SyncRoot);
-				int sndDelay = (int) (50f/4f);
-				sndDelay = sndDelay + (20*(1/(datagram.Header.datagramSequenceNumber.IntValue() + 1)));
-				//Thread.Sleep(sndDelay); // Really important to slow down speed a bit
-			}
+			SendData(data, session.EndPoint, session.SyncRoot);
 		}
 
 
@@ -1207,13 +1203,13 @@ namespace MiNET
 		{
 			try
 			{
-				//lock (syncRoot)
+				lock (syncRoot)
 				{
 					_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
-				}
 
-				ServerInfo.NumberOfPacketsOutPerSecond++;
-				ServerInfo.TotalPacketSizeOut += data.Length;
+					ServerInfo.NumberOfPacketsOutPerSecond++;
+					ServerInfo.TotalPacketSizeOut += data.Length;
+				}
 			}
 			catch (ObjectDisposedException e)
 			{

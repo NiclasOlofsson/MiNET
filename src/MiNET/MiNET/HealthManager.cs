@@ -168,9 +168,11 @@ namespace MiNET
 					player.Deaths++;
 				}
 
+				player.DropInventory();
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 			}
+
 			Entity.BroadcastSetEntityData();
 			Entity.DespawnEntity();
 

@@ -469,7 +469,7 @@ namespace MiNET
 			ConnectedPong package = ConnectedPong.CreateObject();
 			package.sendpingtime = message.sendpingtime;
 			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-			SendPackage(package);
+			SendPackage(package, true);
 		}
 
 		protected virtual void HandleConnectedPong(ConnectedPong message)
@@ -844,6 +844,7 @@ namespace MiNET
 		private object _disconnectSync = new object();
 
 		private bool _haveJoined = false;
+
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
 			if (!Monitor.TryEnter(_disconnectSync)) return;
@@ -2024,64 +2025,6 @@ namespace MiNET
 			}
 		}
 
-		private void SendQueueSingleThreaded(object state)
-		{
-			while (IsConnected)
-			{
-				//Task.Delay(10).Wait();
-
-				Thread.Sleep(10);
-
-				Queue<Package> queue = _sendQueueNotConcurrent;
-
-				int messageCount = 0;
-
-				int lenght = queue.Count;
-				MemoryStream memStream = new MemoryStream();
-				for (int i = 0; i < lenght; i++)
-				{
-					Package package = null;
-					lock (_queueSync)
-					{
-						if (queue.Count == 0) break;
-						try
-						{
-							package = queue.Dequeue();
-						}
-						catch (Exception e)
-						{
-						}
-					}
-
-					if (package == null) continue;
-
-					byte[] bytes = package.Encode();
-					if (bytes != null)
-					{
-						messageCount++;
-						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-						memStream.Write(bytes, 0, bytes.Length);
-					}
-					package.PutPool();
-				}
-
-				if (messageCount == 0) continue;
-				if (!IsConnected) continue;
-
-				ThreadPool.QueueUserWorkItem(delegate(object o)
-				{
-					McpeBatch batch = McpeBatch.CreateObject();
-					byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-					batch.payloadSize = buffer.Length;
-					batch.payload = buffer;
-					batch.Encode();
-
-					Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
-				});
-			}
-		}
-
-
 		private object _syncHack = new object();
 		private MemoryStream memStream = new MemoryStream();
 
@@ -2115,14 +2058,28 @@ namespace MiNET
 
 					if (package == null) continue;
 
-					byte[] bytes = package.Encode();
-					if (bytes != null)
+					if (lenght < 3)
 					{
-						messageCount++;
-						memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-						memStream.Write(bytes, 0, bytes.Length);
+						if (!IsConnected)
+						{
+							package.PutPool();
+							continue;
+						}
+
+						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
 					}
-					package.PutPool();
+					else
+					{
+						byte[] bytes = package.Encode();
+						if (bytes != null)
+						{
+							messageCount++;
+							memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+							memStream.Write(bytes, 0, bytes.Length);
+						}
+
+						package.PutPool();
+					}
 				}
 
 				if (messageCount == 0) return;
@@ -2171,6 +2128,24 @@ namespace MiNET
 			{
 				_chunksUsed.Clear();
 			}
+		}
+
+		public virtual void DropInventory()
+		{
+			var slots = Inventory.Slots;
+			foreach (var stack in slots)
+			{
+				Level.DropItem(KnownPosition.GetCoordinates3D(), stack);
+			}
+
+			if (Inventory.Helmet.Id != 0)
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Helmet, 1));
+			if (Inventory.Chest.Id != 0)
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Chest, 1));
+			if (Inventory.Leggings.Id != 0)
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Leggings, 1));
+			if (Inventory.Boots.Id != 0)
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Boots, 1));
 		}
 	}
 }

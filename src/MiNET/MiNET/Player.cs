@@ -2133,7 +2133,7 @@ namespace MiNET
 		public virtual void DropInventory()
 		{
 			var slots = Inventory.Slots;
-			foreach (var stack in slots)
+			foreach (var stack in slots.ToArray())
 			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), stack);
 			}

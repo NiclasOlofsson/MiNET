@@ -9,7 +9,7 @@ namespace MiNET.Blocks
 		{
 			IsSolid = false;
 			IsBuildable = false;
-			IsReplacible = true;
+			IsReplaceable = true;
 		}
 
 		public override void DoPhysics(Level level)

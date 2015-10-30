@@ -4,7 +4,7 @@
 	{
 		public Tnt() : base(46)
 		{
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsSolid = false;
 		}
 	}

@@ -12,7 +12,7 @@ namespace MiNET.Blocks
 		public TallGrass() : base(31)
 		{
 			IsSolid = false;
-			IsReplacible = true;
+			IsReplaceable = true;
 			IsTransparent = true;
 		}
 	}

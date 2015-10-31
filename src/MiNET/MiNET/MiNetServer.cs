@@ -969,12 +969,12 @@ namespace MiNET
 
 		private object _updateGlobalLock = new object();
 
-		//private Stopwatch _forceQuitTimer = new Stopwatch();
+		private Stopwatch _forceQuitTimer = new Stopwatch();
 
 		private void Update(object state)
 		{
 			if (!Monitor.TryEnter(_updateGlobalLock)) return;
-			//_forceQuitTimer.Restart();
+			_forceQuitTimer.Restart();
 
 			try
 			{
@@ -1052,7 +1052,11 @@ namespace MiNET
 						foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 						{
 							// We don't do too much processing in each step, becasue one bad queue will hold the others.
-							//if (_forceQuitTimer.ElapsedMilliseconds > 100) return;
+							if (_forceQuitTimer.ElapsedMilliseconds > 100)
+							{
+								Log.WarnFormat("Update aborted early");
+								return;
+							}
 
 							var datagram = datagramPair.Value;
 
@@ -1121,19 +1125,6 @@ namespace MiNET
 									}
 								}
 							}
-							//else if (elapsedTime > 5000)
-							//{
-							//	Datagram deleted;
-							//	if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-							//	{
-							//		foreach (MessagePart part in deleted.MessageParts)
-							//		{
-							//			part.PutPool();
-							//		}
-							//		deleted.PutPool();
-							//	}
-							//	continue;
-							//}
 						}
 					}
 					catch (Exception e)
@@ -1143,7 +1134,7 @@ namespace MiNET
 			}
 			finally
 			{
-				//_cleanerTimer.Change(10, Timeout.Infinite);
+				_cleanerTimer.Change(10, Timeout.Infinite);
 				Monitor.Exit(_updateGlobalLock);
 			}
 		}

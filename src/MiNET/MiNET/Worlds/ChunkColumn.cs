@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using fNbt;
 using MiNET.Net;
@@ -198,8 +199,7 @@ namespace MiNET.Worlds
 				}
 				else
 				{
-					//TODO: Not working
-					foreach (NbtCompound blockEntity in BlockEntities.Values)
+					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
 						NbtFile file = new NbtFile(blockEntity) {BigEndian = false};
 						writer.Write(file.SaveToBuffer(NbtCompression.None));
@@ -278,7 +278,7 @@ namespace MiNET.Worlds
 			cc.skylight = (NibbleArray)skylight.Clone();
 
 			//public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
-			cc.BlockEntities = new ConcurrentDictionary<BlockCoordinates, NbtCompound>();
+			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
 			{
 				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound)blockEntityPair.Value.Clone());

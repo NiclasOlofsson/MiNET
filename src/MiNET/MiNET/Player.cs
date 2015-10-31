@@ -61,6 +61,9 @@ namespace MiNET
 		public string Username { get; private set; }
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
+		public string ClientSecret { get; set; }
+		public UUID ClientUuid { get; set; }
+
 		public Skin Skin { get; set; }
 		public bool Silent { get; set; }
 		public bool HideNameTag { get; set; }
@@ -541,8 +544,19 @@ namespace MiNET
 			Username = message.username;
 			ClientId = (int) message.clientId;
 			ClientUuid = message.clientUuid;
+			ClientSecret = message.clientSecret;
 			Skin = message.skin;
 
+			if(ClientSecret != null)
+			{
+				var count = serverInfo.PlayerSessions.Values.Count(session => session.Player != null && ClientSecret.Equals(session.Player.ClientSecret));
+				if(count != 1)
+				{
+					Disconnect($"Invalid skin {count}.");
+					return;
+				}
+				
+			}
 			new Thread(Start).Start();
 		}
 
@@ -628,8 +642,6 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
 		}
-
-		public UUID ClientUuid { get; set; }
 
 		public virtual void InitializePlayer()
 		{
@@ -2058,7 +2070,7 @@ namespace MiNET
 
 					if (package == null) continue;
 
-					if (lenght < 3)
+					if (lenght == 1)
 					{
 						if (!IsConnected)
 						{

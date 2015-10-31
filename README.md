@@ -67,9 +67,10 @@ Once you've cloned the repository, you can use the `xbuild` tool to compile the 
 
     cd MiNET; xbuild src/MiNET/MiNET.sln
 
-If you get error messages (currently on Ubuntu 15.10 with Mono 4.0.4), you may have to use:
+If the build fails, try manually setting the TargetFrameworkVersion:
 
     cd MiNet; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
+
 
 #### Troubleshooting
 

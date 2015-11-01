@@ -1,0 +1,81 @@
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading;
+using log4net;
+
+namespace MiNET
+{
+	public class GreylistManager
+	{
+		private readonly MiNetServer _server;
+		private static readonly ILog Log = LogManager.GetLogger(typeof (GreylistManager));
+
+		private IDictionary<IPAddress, bool> _blacklist = new Dictionary<IPAddress, bool>();
+		private ConcurrentDictionary<IPAddress, DateTime> _greylist = new ConcurrentDictionary<IPAddress, DateTime>();
+
+		public GreylistManager(MiNetServer server)
+		{
+			_server = server;
+		}
+
+		public virtual bool IsWhitelisted(IPAddress senderAddress)
+		{
+			return false;
+		}
+
+		public virtual bool IsBlacklisted(IPAddress senderAddress)
+		{
+			return _blacklist.ContainsKey(senderAddress);
+		}
+
+		public virtual void Blacklist(IPAddress senderAddress)
+		{
+			if (!_blacklist.ContainsKey(senderAddress))
+			{
+				_blacklist.Add(senderAddress, true);
+			}
+		}
+
+		public virtual bool AcceptConnection(IPAddress senderAddress)
+		{
+			if (IsWhitelisted(senderAddress)) return true;
+
+			ServerInfo serverInfo = _server.ServerInfo;
+
+			if (serverInfo.NumberOfPlayers >= serverInfo.MaxNumberOfPlayers || serverInfo.ConnectionsInConnectPhase >= serverInfo.MaxNumberOfConcurrentConnects)
+			{
+				if (Log.IsInfoEnabled)
+					Log.InfoFormat("Rejected connection (server full) from: {0}", senderAddress);
+
+				return false;
+			}
+
+			return true;
+		}
+
+		public virtual bool IsGreylisted(IPAddress address)
+		{
+			//if (_greylist.ContainsKey(address))
+			//{
+			//	if (_greylist[address] > DateTime.UtcNow)
+			//	{
+			//		return true;
+			//	}
+
+			//	DateTime waste;
+			//	_greylist.TryRemove(address, out waste);
+			//}
+
+			return false;
+		}
+
+		public void Greylist(IPAddress address, int time)
+		{
+			//var dateTime = DateTime.UtcNow.AddMilliseconds(time);
+			//Thread.Sleep(1);
+			//_greylist.TryAdd(address, dateTime);
+		}
+	}
+}

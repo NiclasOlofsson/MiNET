@@ -155,19 +155,17 @@ namespace MiNET.BlockEntities
 				}
 			}
 
-			level.RelayBroadcast(new McpeContainerSetData
-			{
-				windowId = Inventory.Id,
-				property = 0,
-				value = CookTime
-			});
+			//var cookTimeSetData = McpeContainerSetData.CreateObject();
+			//cookTimeSetData.windowId = Inventory.WindowsId;
+			//cookTimeSetData.property = 0;
+			//cookTimeSetData.value = CookTime;
+			//level.RelayBroadcast(cookTimeSetData);
 
-			level.RelayBroadcast(new McpeContainerSetData
-			{
-				windowId = Inventory.Id,
-				property = 1,
-				value = BurnTick
-			});
+			//var burnTimeSetData = McpeContainerSetData.CreateObject();
+			//burnTimeSetData.windowId = Inventory.WindowsId;
+			//burnTimeSetData.property = 1;
+			//burnTimeSetData.value = BurnTick;
+			//level.RelayBroadcast(burnTimeSetData);
 		}
 
 		private Item GetResult(ItemStack ingredient)

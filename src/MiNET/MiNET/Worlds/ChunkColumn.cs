@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using fNbt;
 using MiNET.Net;
@@ -9,7 +11,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class ChunkColumn
+	public class ChunkColumn : ICloneable
 	{
 		public int x;
 		public int z;
@@ -25,6 +27,9 @@ namespace MiNET.Worlds
 
 		private byte[] _cache;
 		public bool isDirty;
+		private McpeBatch _cachedBatch = null;
+		private object _cacheSync = new object();
+
 
 		public ChunkColumn()
 		{
@@ -130,35 +135,36 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private McpeBatch _cachedBatch = null;
-
 		public McpeBatch GetBatch()
 		{
-			if (_cache != null && _cachedBatch != null) return _cachedBatch;
+			lock (_cacheSync)
+			{
+				if (_cache != null && _cachedBatch != null) return _cachedBatch;
 
-			McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
-			fullChunkData.chunkX = x;
-			fullChunkData.chunkZ = z;
-			fullChunkData.order = 0;
-			fullChunkData.chunkData = GetBytes();
-			fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
-			byte[] bytes = fullChunkData.Encode();
-			fullChunkData.PutPool();
+				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
+				fullChunkData.chunkX = x;
+				fullChunkData.chunkZ = z;
+				fullChunkData.order = 0;
+				fullChunkData.chunkData = GetBytes();
+				fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
+				byte[] bytes = fullChunkData.Encode();
+				fullChunkData.PutPool();
 
-			MemoryStream memStream = new MemoryStream();
-			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-			memStream.Write(bytes, 0, bytes.Length);
+				MemoryStream memStream = new MemoryStream();
+				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				memStream.Write(bytes, 0, bytes.Length);
 
-			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
-			batch.MarkPermanent();
+				McpeBatch batch = McpeBatch.CreateObject();
+				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+				batch.payloadSize = buffer.Length;
+				batch.payload = buffer;
+				batch.Encode();
+				batch.MarkPermanent();
 
-			_cachedBatch = batch;
+				_cachedBatch = batch;
 
-			return batch;
+				return batch;
+			}
 		}
 
 
@@ -188,15 +194,14 @@ namespace MiNET.Worlds
 
 				if (BlockEntities.Count == 0)
 				{
-					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) { BigEndian = false };
+					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) {BigEndian = false};
 					writer.Write(file.SaveToBuffer(NbtCompression.None));
 				}
 				else
 				{
-					//TODO: Not working
-					foreach (NbtCompound blockEntity in BlockEntities.Values)
+					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
-						NbtFile file = new NbtFile(blockEntity) { BigEndian = false };
+						NbtFile file = new NbtFile(blockEntity) {BigEndian = false};
 						writer.Write(file.SaveToBuffer(NbtCompression.None));
 					}
 				}
@@ -241,6 +246,60 @@ namespace MiNET.Worlds
 
 			writer.Close();
 			return stream.ToArray();
+		}
+
+		public object Clone()
+		{
+			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
+
+			//public int x;
+			//public int z;
+			//public bool isDirty;
+
+			//public byte[] biomeId = ArrayOf<byte>.Create(256, 2);
+			cc.biomeId = (byte[])biomeId.Clone();
+
+			//public int[] biomeColor = ArrayOf<int>.Create(256, 1);
+			cc.biomeColor = (int[]) biomeColor.Clone();
+
+			//public byte[] height = ArrayOf<byte>.Create(256, 0);
+			cc.height = (byte[]) height.Clone();
+
+			//public byte[] blocks = new byte[16 * 16 * 128];
+			cc.blocks = (byte[])blocks.Clone();
+
+			//public NibbleArray metadata = new NibbleArray(16 * 16 * 128);
+			cc.metadata = (NibbleArray)metadata.Clone();
+			
+			//public NibbleArray blocklight = new NibbleArray(16 * 16 * 128);
+			cc.blocklight = (NibbleArray)blocklight.Clone();
+			
+			//public NibbleArray skylight = new NibbleArray(16 * 16 * 128);
+			cc.skylight = (NibbleArray)skylight.Clone();
+
+			//public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
+			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
+			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
+			{
+				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound)blockEntityPair.Value.Clone());
+			}
+
+			//private byte[] _cache;
+			cc._cache = (byte[])_cache.Clone();
+
+			//private McpeBatch _cachedBatch = null;
+			McpeBatch batch = McpeBatch.CreateObject();
+			batch.payloadSize = _cachedBatch.payloadSize;
+			batch.payload = _cachedBatch.payload;
+			batch.Encode();
+			batch.MarkPermanent();
+
+			cc._cachedBatch = batch;
+
+			//private object _cacheSync = new object();
+			_cacheSync = new object();
+
+			return cc;
 		}
 	}
 

@@ -5,7 +5,7 @@ using fNbt;
 
 namespace MiNET.Worlds
 {
-	public class LevelInfo
+	public class LevelInfo : ICloneable
 	{
 		public LevelInfo()
 		{
@@ -232,6 +232,11 @@ namespace MiNET.Worlds
 			SetPropertyValue(dataTag, () => RainTime);
 			SetPropertyValue(dataTag, () => Thundering);
 			SetPropertyValue(dataTag, () => ThunderTime);
+		}
+
+		public object Clone()
+		{
+			return MemberwiseClone();
 		}
 	}
 }

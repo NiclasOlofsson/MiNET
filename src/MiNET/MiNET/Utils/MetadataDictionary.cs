@@ -50,9 +50,9 @@ namespace MiNET.Utils
 				byte index = (byte) (key & 0x1F);
 
 				var entry = EntryTypes[type]();
-				if (index == 17)
+				if (index == 17 && type != 6)
 				{
-					entry = new MetadataLong {id = type};
+						entry = new MetadataLong { id = type };
 				}
 
 				entry.FromStream(stream);
@@ -84,7 +84,6 @@ namespace MiNET.Utils
 			() => new MetadataSlot(), // 5
 			() => new MetadataIntCoordinates(), // 6
 			() => new MetadataLong(), // 7
-			() => new MetadataLong(), // 8
 		};
 
 		public override string ToString()

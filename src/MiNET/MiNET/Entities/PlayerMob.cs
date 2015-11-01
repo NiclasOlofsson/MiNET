@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using MiNET.Net;
 using MiNET.Utils;
@@ -23,7 +24,7 @@ namespace MiNET.Entities
 
 		public PlayerMob(string name, Level level) : base(63, level)
 		{
-			Uuid = new UUID();
+			Uuid = new UUID(Guid.NewGuid().ToByteArray());
 
 			Width = 0.6;
 			Length = 0.6;
@@ -49,7 +50,7 @@ namespace MiNET.Entities
 			metadata[8] = new MetadataByte(0); // Potion Ambient
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataLong(0);
+			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 
 			return metadata;
 		}
@@ -76,7 +77,7 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords { fake };
-				player.SendPackage(playerList);
+				player.SendPackage(playerList, true);
 			}
 
 			{
@@ -90,7 +91,7 @@ namespace MiNET.Entities
 				message.yaw = KnownPosition.Yaw;
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
-				message.metadata = GetMetadata().GetBytes();
+				message.metadata = GetMetadata();
 				player.SendPackage(message);
 			}
 			{
@@ -137,7 +138,7 @@ namespace MiNET.Entities
 			message.yaw = KnownPosition.Yaw;
 			message.headYaw = KnownPosition.HeadYaw;
 			message.pitch = KnownPosition.Pitch;
-			message.metadata = GetMetadata().GetBytes();
+			message.metadata = GetMetadata();
 
 			Level.RelayBroadcast(message);
 

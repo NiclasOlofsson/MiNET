@@ -16,7 +16,10 @@
 | Connection Request | 0x09 | 9 |   
 | Connection Request Accepted | 0x10 | 16 |   
 | New Incoming Connection | 0x13 | 19 |   
+| No Free Incoming Connections | 0x14 | 20 |   
 | Disconnection Notification | 0x15 | 21 |   
+| Connection Banned | 0x17 | 23 |   
+| Ip Recently Connected | 0x1A | 26 |   
 | Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
 | Mcpe Login | 0x8f | 143 |   
@@ -284,7 +287,46 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Session | long |  |
 |Session2 | long |  |
 -----------------------------------------------------------------------
+###Package: No Free Incoming Connections (0x14)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
 ###Package: Disconnection Notification (0x15)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Connection Banned (0x17)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Ip Recently Connected (0x1A)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -453,9 +495,8 @@ TODO: Parameters
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Pitch | float |  |
-|Item Id | short |  |
-|Item Meta | short |  |
-|Metadata | byte[] | 0 |
+|Item | MetadataSlot |  |
+|Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x97)
 
@@ -501,6 +542,8 @@ link[2] byte
 |Speed Z | float |  |
 |Yaw | float |  |
 |Pitch | float |  |
+|Metadata | MetadataDictionary |  |
+|Links | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x99)
 
@@ -693,8 +736,8 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |X | int |  |
-|Z | int |  |
 |Y | int |  |
+|Z | int |  |
 |Case 1 | int |  |
 |Case 2 | int |  |
 -----------------------------------------------------------------------
@@ -744,6 +787,8 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entity ID | long |  |
+|Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Equipment (0xa7)
 
@@ -850,7 +895,7 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Health | int |  |
+|Health | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Data (0xad)
 

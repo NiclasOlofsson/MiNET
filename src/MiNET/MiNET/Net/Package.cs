@@ -18,8 +18,6 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		public string Source { get; set; }
-
 		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
@@ -439,6 +437,8 @@ namespace MiNET.Net
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
+				if (!metadata.Contains(i)) continue;
+
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
 				{
@@ -484,7 +484,7 @@ namespace MiNET.Net
 
 		public void Write(MetadataSlot slot)
 		{
-			if (slot == null)
+			if (slot == null || slot.Value.Id == 0)
 			{
 				Write((short) 0);
 				return;
@@ -500,6 +500,7 @@ namespace MiNET.Net
 		{
 			short id = ReadShort();
 			if (id == 0) return new MetadataSlot(new ItemStack());
+
 			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
 			ReadShort(); // Nbt len
 			return metadataSlot;
@@ -517,6 +518,38 @@ namespace MiNET.Net
 			{
 				metadata.WriteTo(_writer);
 			}
+		}
+
+		public void Write(PlayerAttributes attributes)
+		{
+			Write((short) attributes.Count);
+			foreach (PlayerAttribute attribute in attributes.Values)
+			{
+				Write(attribute.MinValue);
+				Write(attribute.MaxValue);
+				Write(attribute.Value);
+				Write(attribute.Name);
+			}
+		}
+
+		public PlayerAttributes ReadPlayerAttributes()
+		{
+			var attributes = new PlayerAttributes();
+			short count = ReadShort();
+			for (int i = 0; i < count; i++)
+			{
+				PlayerAttribute attribute = new PlayerAttribute
+				{
+					MinValue = ReadFloat(),
+					MaxValue = ReadFloat(),
+					Value = ReadFloat(),
+					Name = ReadString()
+				};
+
+				attributes[attribute.Name] = attribute;
+			}
+
+			return attributes;
 		}
 
 		public Skin ReadSkin()
@@ -823,7 +856,6 @@ namespace MiNET.Net
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
 
 			Reset();
-			Source = null;
 			Pool.PutObject((T) this);
 		}
 	}

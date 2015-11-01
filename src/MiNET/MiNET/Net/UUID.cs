@@ -4,11 +4,6 @@ namespace MiNET.Net
 {
 	public class UUID
 	{
-		public UUID()
-		{
-			Id = Guid.NewGuid();
-		}
-
 		public UUID(byte[] rfc4122Bytes)
 		{
 			//Array.Reverse(rfc4122Bytes, 0, 4);
@@ -17,7 +12,7 @@ namespace MiNET.Net
 			Id = new Guid(rfc4122Bytes);
 		}
 
-		public Guid Id { get; private set; }
+		public Guid Id { get; set; }
 
 		public byte[] GetBytes()
 		{
@@ -28,6 +23,25 @@ namespace MiNET.Net
 			//Array.Reverse(bytes, 6, 2);
 
 			return bytes;
+		}
+
+		protected bool Equals(UUID other)
+		{
+			return Id.Equals(other.Id);
+		}
+
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((UUID) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
 		}
 
 		public override string ToString()

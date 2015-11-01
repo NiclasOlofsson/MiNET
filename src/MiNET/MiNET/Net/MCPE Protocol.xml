@@ -98,7 +98,16 @@
 		<field name="Session2" type="long" />
 	</pdu>
 
+	<pdu id="0x14" online="false" client="true" server="true" name="ID_NO_FREE_INCOMING_CONNECTIONS">
+	</pdu>
+
 	<pdu id="0x15" online="false" client="true" server="true" name="ID_DISCONNECTION_NOTIFICATION">
+	</pdu>
+
+	<pdu id="0x17" online="false" client="true" server="true" name="ID_CONNECTION_BANNED">
+	</pdu>
+
+	<pdu id="0x1A" online="false" client="true" server="true" name="ID_IP_RECENTLY_CONNECTED">
 	</pdu>
 
 	<pdu id="0x8f" online="false" client="true" server="false" name="MCPE_LOGIN">
@@ -178,9 +187,8 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Item Id" type="short" />
-		<field name="Item Meta" type="short" />
-		<field name="Metadata" type="byte[]" size="0" />
+		<field name="Item" type="MetadataSlot" />
+		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
 	<pdu id="0x97" online="false" client="false" server="true" name="MCPE_REMOVE_PLAYER">
@@ -207,8 +215,8 @@
 		<field name="Speed Z" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<!--<field name="Metadata" type="MetadataDictionary"/>
-		<field name="Links" type="short" />-->
+		<field name="Metadata" type="MetadataDictionary"/>
+		<field name="Links" type="short" />
 	</pdu>
 
 	<pdu id="0x99" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">
@@ -293,8 +301,8 @@
 
 	<pdu id="0xa3" online="false" client="true" server="true" name="MCPE_TILE_EVENT">
 		<field name="X" type="int" />
-		<field name="Z" type="int" />
 		<field name="Y" type="int" />
+		<field name="Z" type="int" />
 		<field name="Case 1" type="int" />
 		<field name="Case 2" type="int" />
 	</pdu>
@@ -314,6 +322,8 @@
 	</pdu>
 
 	<pdu id="0xa6" online="false" client="true" server="true" name="MCPE_UPDATE_ATTRIBUTES">
+		<field name="Entity ID" type="long" />
+		<field name="Attributes" type="PlayerAttributes" />
 	</pdu>
 
 	<pdu id="0xa7" online="false" client="true" server="true" name="MCPE_PLAYER_EQUIPMENT">
@@ -360,7 +370,7 @@
 	</pdu>
 
 	<pdu id="0xac" online="false" client="true" server="true" name="MCPE_HURT_ARMOR">
-		<field name="Health" type="int" />
+		<field name="Health" type="byte" />
 	</pdu>
 
 	<pdu id="0xad" online="false" client="false" server="true" name="MCPE_SET_ENTITY_DATA">

@@ -32,7 +32,7 @@ namespace MiNET
 				protocol = 34,
 				protocol2 = 34,
 				clientId = new Random().Next(),
-				clientUuid = new UUID(),
+				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
 				serverAddress = "83.249.65.92:19132",
 				clientSecret = "iwmvi45hm85oncyo58",
 				skin = skin,
@@ -40,6 +40,14 @@ namespace MiNET
 
 			var bytes = packet.Encode();
 			Console.WriteLine(Package.HexDump(bytes, 16));
+
+			UUID uuid2 = new UUID(rfc4122Bytes);
+
+			Dictionary<UUID, string> uuiDictionary = new Dictionary<UUID, string>();
+			uuiDictionary.Add(uuid, "test");
+
+			Assert.AreEqual("test", uuiDictionary[uuid2]);
+			
 		}
 
 		[Test]

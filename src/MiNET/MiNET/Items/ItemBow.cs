@@ -16,22 +16,13 @@ namespace MiNET.Items
 			float force = CalculateForce(timeUsed);
 			if (force <= 0) return;
 
-			Arrow arrow = new Arrow(player, world);
+			Arrow arrow = new Arrow(player, world, !(force < 1.0));
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.62f;
 
 			arrow.Velocity = arrow.KnownPosition.GetDirection()*(force*2.0f*1.5f);
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
-
-			//Arrow arrow2 = new Arrow(player, world)
-			//{
-			//	KnownPosition = (PlayerLocation)arrow.KnownPosition.Clone(),
-			//	Velocity = arrow.Velocity,
-			//	BroadcastMovement = true
-			//};
-			////arrow2.HealthManager.Ignite();
-			//arrow2.SpawnEntity();
 			arrow.BroadcastMovement = false;
 			arrow.DespawnOnImpact = true;
 			arrow.SpawnEntity();

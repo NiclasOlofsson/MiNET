@@ -1,6 +1,8 @@
-﻿namespace MiNET.Utils
+﻿using System;
+
+namespace MiNET.Utils
 {
-	public class NibbleArray
+	public class NibbleArray: ICloneable
 	{
 		public byte[] Data { get; set; }
 
@@ -27,6 +29,12 @@
 				Data[index/2] &= (byte) (0xF << ((index + 1)%2*4));
 				Data[index/2] |= (byte) (value << (index%2*4));
 			}
+		}
+
+		public object Clone()
+		{
+			// BUG sinec this creates a shallow copy, not what we want.
+			return MemberwiseClone();
 		}
 	}
 }

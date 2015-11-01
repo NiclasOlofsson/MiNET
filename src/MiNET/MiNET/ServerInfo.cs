@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using log4net;
-using MiNET.Utils;
 
 namespace MiNET
 {
@@ -18,6 +17,7 @@ namespace MiNET
 		public long NumberOfAckReceive { get; set; }
 		public long NumberOfNakReceive { get; set; }
 
+		public int NumberOfDeniedConnectionRequestsPerSecond = 0;
 		public long NumberOfAckSent { get; set; }
 		public long NumberOfPacketsOutPerSecond { get; set; }
 		public long NumberOfPacketsInPerSecond { get; set; }
@@ -35,7 +35,6 @@ namespace MiNET
 		{
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
-			if (Config.GetProperty("EnableStatistics", true))
 			{
 				ThroughPut = new Timer(delegate(object state)
 				{
@@ -46,18 +45,25 @@ namespace MiNET
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
 					double kbitPerSecondOut = TotalPacketSizeOut*8/1000000D;
 					double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
-					Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-						NumberOfPacketsOutPerSecond,
-						NumberOfAckSent,
-						NumberOfPacketsInPerSecond,
-						kbitPerSecondOut,
-						0 /*_level.LastTickProcessingTime*/,
-						NumberOfPlayers,
-						Latency,
-						kbitPerSecondIn, AvailableBytes/1000,
-						threads,
-						portThreads,
-						NumberOfNakReceive);
+					if (Log.IsInfoEnabled)
+					{
+						Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+							NumberOfPacketsOutPerSecond,
+							NumberOfAckReceive,
+							NumberOfPacketsInPerSecond,
+							kbitPerSecondOut,
+							0 /*_level.LastTickProcessingTime*/,
+							NumberOfPlayers,
+							Latency,
+							kbitPerSecondIn, AvailableBytes/1000,
+							threads,
+							portThreads,
+							NumberOfNakReceive);
+					}
+					else if (AvailableBytes != 0)
+					{
+						Log.WarnFormat("Socket buffering, avail: {0}", AvailableBytes);
+					}
 
 					NumberOfAckReceive = 0;
 					NumberOfNakReceive = 0;
@@ -67,6 +73,7 @@ namespace MiNET
 					TotalPacketSizeIn = 0;
 					NumberOfPacketsOutPerSecond = 0;
 					NumberOfPacketsInPerSecond = 0;
+					NumberOfDeniedConnectionRequestsPerSecond = 0;
 				}, null, 1000, 1000);
 			}
 		}

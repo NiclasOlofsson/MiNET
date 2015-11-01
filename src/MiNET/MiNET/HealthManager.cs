@@ -56,7 +56,7 @@ namespace MiNET
 		}
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
-		{
+		{	
 			if (!Entity.Level.IsSurvival) return;
 
 			if (CooldownTick > 0) return;
@@ -168,9 +168,11 @@ namespace MiNET
 					player.Deaths++;
 				}
 
+				player.DropInventory();
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 			}
+
 			Entity.BroadcastSetEntityData();
 			Entity.DespawnEntity();
 
@@ -195,6 +197,7 @@ namespace MiNET
 			IsDead = false;
 			CooldownTick = 0;
 			LastDamageCause = DamageCause.Unknown;
+			LastDamageSource = null;
 		}
 
 		public virtual void OnTick()

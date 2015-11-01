@@ -12,7 +12,7 @@ MiNET
 
 ## Can I test this before I download it?
 Yes, you can. At times there is a dev server running and you might be lucky to get in..<br>
-IP: **play.bladestorm.net**    
+IP: **pe.hypixel.net**    
 Port: **19132**    
 
 ## What is this?
@@ -66,6 +66,11 @@ The first step is to clone the repository. The repo uses submodules so it's easi
 Once you've cloned the repository, you can use the `xbuild` tool to compile the code. You'll need a relatively recent version of Mono to be able to run the server (3.10.x) and you might find that your distribution's repositories (if you're relying on them) have a version that's too old. As a result, you may want to looking into downloading the latest stable Mono build from the [website](http://www.mono-project.com/download/#download-lin). xbuild will want to be given the path to the solution file to work:
 
     cd MiNET; xbuild src/MiNET/MiNET.sln
+
+If the build fails, try manually setting the TargetFrameworkVersion:
+
+    cd MiNet; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
+
 
 #### Troubleshooting
 

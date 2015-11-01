@@ -395,7 +395,7 @@ namespace MiNET
 
 					TraceSend(noFree);
 
-					SendData(bytes, senderEndpoint, new object());
+					SendData(bytes, senderEndpoint);
 					ServerInfo.NumberOfDeniedConnectionRequestsPerSecond++;
 					return;
 				}
@@ -470,7 +470,7 @@ namespace MiNET
 
 			TraceSend(packet);
 
-			SendData(data, senderEndpoint, new object());
+			SendData(data, senderEndpoint);
 			return;
 		}
 
@@ -507,7 +507,7 @@ namespace MiNET
 
 			TraceSend(packet);
 
-			SendData(data, senderEndpoint, new object());
+			SendData(data, senderEndpoint);
 		}
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, OpenConnectionRequest2 incoming)
@@ -566,7 +566,7 @@ namespace MiNET
 
 			TraceSend(reply);
 
-			SendData(data, senderEndpoint, session.SyncRoot);
+			SendData(data, senderEndpoint);
 		}
 
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
@@ -935,34 +935,27 @@ namespace MiNET
 				ThreadPool.QueueUserWorkItem(delegate(object o)
 				{
 					PlayerNetworkSession session = (PlayerNetworkSession) o;
-					try
+					var queue = session.PlayerAckQueue;
+					int lenght = queue.Count;
+
+					if (lenght == 0) return;
+
+					Acks acks = Acks.CreateObject();
+					for (int i = 0; i < lenght; i++)
 					{
-						var queue = session.PlayerAckQueue;
-						int lenght = queue.Count;
+						int ack;
+						if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
 
-						if (lenght == 0) return;
-
-						Acks acks = Acks.CreateObject();
-						for (int i = 0; i < lenght; i++)
-						{
-							int ack;
-							if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
-
-							acks.acks.Add(ack);
-						}
-
-						if (acks.acks.Count > 0)
-						{
-							byte[] data = acks.Encode();
-							SendData(data, session.EndPoint, new object());
-							//SendData(data, session.EndPoint, session.SyncRoot);
-						}
-
-						acks.PutPool();
+						acks.acks.Add(ack);
 					}
-					catch (Exception e)
+
+					if (acks.acks.Count > 0)
 					{
+						byte[] data = acks.Encode();
+						SendData(data, session.EndPoint);
 					}
+
+					acks.PutPool();
 				}, s);
 			}
 		}
@@ -985,150 +978,137 @@ namespace MiNET
 					var session = pair.Value;
 					if (session == null) return;
 					if (session.Evicted) return;
+					Player player = session.Player;
 
-					try
+					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
+					if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/< now)
 					{
-						Player player = session.Player;
-
-						long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-						if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/< now)
+						session.Evicted = true;
+						// Disconnect user
+						ThreadPool.QueueUserWorkItem(delegate(object o)
 						{
-							session.Evicted = true;
-							// Disconnect user
-							ThreadPool.QueueUserWorkItem(delegate(object o)
+							PlayerNetworkSession s = o as PlayerNetworkSession;
+							if (s != null)
 							{
-								PlayerNetworkSession s = o as PlayerNetworkSession;
-								if (s != null)
+								Player p = s.Player;
+								if (p != null)
 								{
-									Player p = s.Player;
-									if (p != null)
+									p.Disconnect("You've been kicked with reason: Network timeout.");
+								}
+								else
+								{
+									if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
 									{
-										p.Disconnect("You've been kicked with reason: Network timeout.");
-									}
-									else
-									{
-										if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
-										{
-											session.Player = null;
-											session.State = ConnectionState.Unconnected;
-											session.Evicted = true;
-											session.Clean();
-										}
+										session.Player = null;
+										session.State = ConnectionState.Unconnected;
+										session.Evicted = true;
+										session.Clean();
 									}
 								}
-							}, session);
+							}
+						}, session);
 
+						return;
+					}
+
+
+					if (ServerInfo.AvailableBytes < 1000 && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+					{
+						ThreadPool.QueueUserWorkItem(delegate(object o)
+						{
+							PlayerNetworkSession s = o as PlayerNetworkSession;
+							if (s != null)
+							{
+								Player p = s.Player;
+								if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+							}
+						}, session);
+
+						return;
+					}
+
+					if (player == null) return;
+
+					if (lastUpdate + InacvitityTimeout < now)
+					{
+						player.DetectLostConnection();
+					}
+
+					if (player.Rto == 0) return;
+
+					long rto = Math.Max(100, player.Rto);
+					var queue = session.WaitingForAcksQueue;
+
+					foreach (KeyValuePair<int, Datagram> datagramPair in queue)
+					{
+						// We don't do too much processing in each step, becasue one bad queue will hold the others.
+						if (_forceQuitTimer.ElapsedMilliseconds > 100)
+						{
+							Log.WarnFormat("Update aborted early");
 							return;
 						}
 
+						var datagram = datagramPair.Value;
 
-						if (ServerInfo.AvailableBytes < 1000 && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+						if (!datagram.Timer.IsRunning)
 						{
-							ThreadPool.QueueUserWorkItem(delegate(object o)
+							Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+							datagram.Timer.Restart();
+							continue;
+						}
+
+						if (player.Rtt == -1) return;
+
+						if (session.WaitForAck) return;
+
+						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
+						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
+						if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= datagramTimout)
+						{
+							if (session.WaitForAck) return;
+
+							session.WaitForAck = session.ResendCount++ > 3;
+
+							Datagram deleted;
+							if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 							{
-								PlayerNetworkSession s = o as PlayerNetworkSession;
-								if (s != null)
+								session.ErrorCount++;
+
+								if (deleted.TransmissionCount > 1)
 								{
-									Player p = s.Player;
-									if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
+									if (Log.IsDebugEnabled)
+										Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
+											deleted.Header.datagramSequenceNumber.IntValue(),
+											player.Username,
+											deleted.FirstMessageId,
+											elapsedTime,
+											datagramTimout,
+											rto);
+
+									deleted.PutPool();
+
+									session.WaitForAck = true;
+
+									continue;
 								}
-							}, session);
 
-							return;
-						}
-
-						if (player == null) return;
-
-						if (lastUpdate + InacvitityTimeout < now)
-						{
-							player.DetectLostConnection();
-						}
-
-						if (player.Rto == 0) return;
-
-						long rto = Math.Max(100, player.Rto);
-						var queue = session.WaitingForAcksQueue;
-
-						foreach (KeyValuePair<int, Datagram> datagramPair in queue)
-						{
-							// We don't do too much processing in each step, becasue one bad queue will hold the others.
-							if (_forceQuitTimer.ElapsedMilliseconds > 100)
-							{
-								Log.WarnFormat("Update aborted early");
-								return;
-							}
-
-							var datagram = datagramPair.Value;
-
-							if (!datagram.Timer.IsRunning)
-							{
-								Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
-								datagram.Timer.Restart();
-								continue;
-							}
-
-							if (player.Rtt == -1) continue;
-
-							if (session.WaitForAck) continue;
-
-							long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-							long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
-							if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= datagramTimout)
-							{
-								if (session.WaitForAck) continue;
-
-								session.WaitForAck = session.ResendCount++ > 3;
-
-								Datagram deleted;
-								if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+								if (!session.Evicted)
 								{
-									session.ErrorCount++;
-
-									if (deleted.TransmissionCount > 1)
+									ThreadPool.QueueUserWorkItem(delegate(object data)
 									{
 										if (Log.IsDebugEnabled)
-											Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
+											Log.DebugFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 												deleted.Header.datagramSequenceNumber.IntValue(),
 												player.Username,
 												deleted.FirstMessageId,
 												elapsedTime,
 												datagramTimout,
-												rto);
-
-										deleted.PutPool();
-
-										session.WaitForAck = true;
-
-										continue;
-									}
-
-									if (!session.Evicted)
-									{
-										ThreadPool.QueueUserWorkItem(delegate(object data)
-										{
-											try
-											{
-												if (Log.IsDebugEnabled)
-													Log.DebugFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
-														deleted.Header.datagramSequenceNumber.IntValue(),
-														player.Username,
-														deleted.FirstMessageId,
-														elapsedTime,
-														datagramTimout,
-														player.Rto);
-												SendDatagram(session, (Datagram) data, false);
-											}
-											catch (Exception e)
-											{
-											}
-										}, datagram);
-									}
+												player.Rto);
+										SendDatagram(session, (Datagram) data, false);
+									}, datagram);
 								}
 							}
 						}
-					}
-					catch (Exception e)
-					{
 					}
 				});
 			}
@@ -1186,21 +1166,21 @@ namespace MiNET
 				Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
 			}
 
-			SendData(data, session.EndPoint, session.SyncRoot);
+			lock (session.SyncRoot)
+			{
+				SendData(data, session.EndPoint);
+			}
 		}
 
 
-		private void SendData(byte[] data, IPEndPoint targetEndPoint, object syncRoot)
+		private void SendData(byte[] data, IPEndPoint targetEndPoint)
 		{
 			try
 			{
-				lock (syncRoot)
-				{
-					_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
+				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 
-					ServerInfo.NumberOfPacketsOutPerSecond++;
-					ServerInfo.TotalPacketSizeOut += data.Length;
-				}
+				ServerInfo.NumberOfPacketsOutPerSecond++;
+				ServerInfo.TotalPacketSizeOut += data.Length;
 			}
 			catch (ObjectDisposedException e)
 			{

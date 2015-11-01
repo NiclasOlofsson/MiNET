@@ -14,21 +14,26 @@ namespace MiNET.Entities
 		public Player Shooter { get; set; }
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
+		public int Damage { get; set; }
+		public bool IsCritical { get; set; }
 
-		protected Projectile(Player shooter, int entityTypeId, Level level) : base(entityTypeId, level)
+		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
+			Damage = damage;
+			IsCritical = isCritical;
 			Ttl = 0;
 			DespawnOnImpact = true;
 			BroadcastMovement = false;
 		}
 
 		private object _spawnSync = new object();
+
 		public override void SpawnEntity()
 		{
 			lock (_spawnSync)
 			{
-				if(IsSpawned) throw	new Exception("Invalid state. Tried to spawn projectile more than one time.");
+				if (IsSpawned) throw new Exception("Invalid state. Tried to spawn projectile more than one time.");
 
 				Level.AddEntity(this);
 
@@ -140,7 +145,21 @@ namespace MiNET.Entities
 			bool collided = false;
 			if (entityCollided != null)
 			{
-				entityCollided.HealthManager.TakeHit(this, 2, DamageCause.Projectile);
+				double speed = Math.Sqrt(Velocity.X*Velocity.X + Velocity.Y*Velocity.Y + Velocity.Z*Velocity.Z);
+				int damage = (int) Math.Ceiling(speed*Damage);
+				if (IsCritical)
+				{
+					damage += Level.Random.Next(damage/2 + 2);
+				}
+
+				Player player = entityCollided as Player;
+
+				if (player != null)
+				{
+					damage = player.CalculatePlayerDamage(player, damage);
+				}
+
+				entityCollided.HealthManager.TakeHit(this, damage, DamageCause.Projectile);
 				collided = true;
 			}
 			else
@@ -166,7 +185,7 @@ namespace MiNET.Entities
 						collided = block.Id != 0 && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
 						if (collided)
 						{
-							var substBlock = new Block(57) {Coordinates = block.Coordinates};
+							//var substBlock = new Block(57) {Coordinates = block.Coordinates};
 							//Level.SetBlock(substBlock);
 							//KnownPosition = nextPos;
 							SetIntersectLocation(block.GetBoundingBox(), KnownPosition);

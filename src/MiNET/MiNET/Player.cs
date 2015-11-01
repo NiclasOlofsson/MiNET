@@ -792,6 +792,8 @@ namespace MiNET
 			mcpeSetEntityData.metadata = GetMetadata();
 			mcpeSetEntityData.Encode();
 			SendPackage(mcpeSetEntityData);
+
+			BroadcastSetEntityData();
 		}
 
 		public void SendSetDificulty()
@@ -905,7 +907,7 @@ namespace MiNET
 				{
 					Log.WarnFormat("Disconnected crashed player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
 				}
-				else if (NetworkSession != null && NetworkSession.CreateTime.AddSeconds(10) < DateTime.UtcNow)
+				else if (NetworkSession != null && NetworkSession.CreateTime.AddSeconds(10) > DateTime.UtcNow)
 				{
 					Log.WarnFormat("Early disconnect of player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
 				}
@@ -1404,7 +1406,9 @@ namespace MiNET
 			Player player = target as Player;
 			if (player != null)
 			{
-				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player), DamageCause.EntityAttack);
+
+				int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
+				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
 			}
 			else
 			{
@@ -1412,7 +1416,7 @@ namespace MiNET
 			}
 		}
 
-		private int CalculatePlayerDamage(Player target)
+		public int CalculatePlayerDamage(Player target, int damage)
 		{
 			double armorValue = 0;
 
@@ -1508,11 +1512,7 @@ namespace MiNET
 
 			armorValue *= 0.04; // Each armor point represent 4% reduction
 
-			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
-
-			damage = (int) Math.Floor(damage*(1.0 - armorValue));
-
-			return damage;
+			return (int) Math.Floor(damage*(1.0 - armorValue));
 		}
 
 		private int CalculateDamage(Entity target)

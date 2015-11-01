@@ -4,7 +4,7 @@ namespace MiNET.Entities
 {
 	public class Arrow : Projectile
 	{
-		public Arrow(Player shooter, Level level) : base(shooter, 80, level)
+		public Arrow(Player shooter, Level level, bool isCritical = false) : base(shooter, 80, level, 2, isCritical)
 		{
 			Width = 0.5;
 			Length = 0.5;

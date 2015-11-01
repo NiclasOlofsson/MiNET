@@ -33,6 +33,7 @@ namespace MiNET.Utils
 
 		public object Clone()
 		{
+			// BUG sinec this creates a shallow copy, not what we want.
 			return MemberwiseClone();
 		}
 	}

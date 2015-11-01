@@ -6,7 +6,7 @@ namespace MiNET
 {
 	public class SessionManager
 	{
-		private ConcurrentDictionary<UUID, Session> _sessions = new ConcurrentDictionary<UUID, Session>();
+		public static ConcurrentDictionary<UUID, Session> _sessions = new ConcurrentDictionary<UUID, Session>();
 
 		public virtual Session FindSession(Player player)
 		{

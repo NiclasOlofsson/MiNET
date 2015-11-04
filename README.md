@@ -56,7 +56,7 @@ Also, make sure to join our Gitter chat for easy communication.
 ## Is there any forums for MiNET?
 
 Yes there is a forums for communicating and sharing your ideas
-(Here)(http://minetcn.com/index.php).
+[Here](http://minetcn.com/index.php)
 The one problem that people have when they try to confirm there account is that they don't see it in there inbox. To fix this go into your junk mail and there should be a confirmation email. If you don't see it in there contact us on the gitter chat for MiNET and we should be able to approve your account.
 
 ## How do I install this on Linux?

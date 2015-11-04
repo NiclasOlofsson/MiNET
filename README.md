@@ -69,7 +69,7 @@ Once you've cloned the repository, you can use the `xbuild` tool to compile the 
 
 If the build fails, try manually setting the TargetFrameworkVersion:
 
-    cd MiNet; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
+    cd MiNET; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
 
 
 #### Troubleshooting

@@ -110,13 +110,11 @@ namespace MiNET.Net
 			_datagramHeader = new DatagramHeader(ReadByte());
 			_datagramSequenceNumber = ReadLittle();
 
-			while (_buffer.Position != _buffer.Length)
+			while (_buffer.Position < _buffer.Length)
 			{
 				byte flags = ReadByte();
-
-
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
-				int hasSplitPacket = ((flags & Convert.ToByte("00010000", 2)) >> 0);
+				bool isSplitPacket = ((flags & Convert.ToByte("00010000", 2)) > 0);
 
 				short dataBitLength = ReadShort();
 
@@ -154,7 +152,7 @@ namespace MiNET.Net
 					_orderingChannel = 0;
 				}
 
-				if (hasSplitPacket != 0)
+				if (isSplitPacket)
 				{
 					_splitPacketCount = ReadInt();
 					_splitPacketId = ReadShort();
@@ -162,7 +160,9 @@ namespace MiNET.Net
 				}
 				else
 				{
-					_splitPacketCount = 0;
+					_splitPacketCount = -1;
+					_splitPacketId = -1;
+					_splitPacketIndex = -1;
 				}
 
 				// Slurp the payload
@@ -170,7 +170,7 @@ namespace MiNET.Net
 
 				byte[] internalBuffer = ReadBytes(MessageLength);
 
-				if (hasSplitPacket != 0)
+				if (isSplitPacket)
 				{
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
 					splitPartPackage.Id = internalBuffer[0];

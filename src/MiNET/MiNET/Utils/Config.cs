@@ -45,30 +45,25 @@ namespace MiNET.Utils
 
 		public static GameMode GetProperty(string property, GameMode defaultValue)
 		{
-			try
+			string value = ReadString(property);
+			if (value == null) return defaultValue;
+
+			switch (value.ToLower())
 			{
-				string gm = ReadString(property);
-				switch (gm.ToLower())
-				{
-					case "1":
-					case "creative":
-						return GameMode.Creative;
-					case "0":
-					case "survival":
-						return GameMode.Survival;
-					case "2":
-					case "adventure":
-						return GameMode.Adventure;
-					case "3":
-					case "spectator":
-						return GameMode.Spectator;
-					default:
-						return defaultValue;
-				}
-			}
-			catch
-			{
-				return defaultValue;
+				case "1":
+				case "creative":
+					return GameMode.Creative;
+				case "0":
+				case "survival":
+					return GameMode.Survival;
+				case "2":
+				case "adventure":
+					return GameMode.Adventure;
+				case "3":
+				case "spectator":
+					return GameMode.Spectator;
+				default:
+					return defaultValue;
 			}
 		}
 
@@ -77,6 +72,8 @@ namespace MiNET.Utils
 			try
 			{
 				string d = ReadString(property);
+				if (d == null) return defaultValue;
+
 				return Convert.ToBoolean(d);
 			}
 			catch
@@ -89,7 +86,10 @@ namespace MiNET.Utils
 		{
 			try
 			{
-				return Convert.ToInt32(ReadString(property));
+				var value = ReadString(property);
+				if (value == null) return defaultValue;
+
+				return Convert.ToInt32(value);
 			}
 			catch
 			{
@@ -99,39 +99,28 @@ namespace MiNET.Utils
 
 		public static Difficulty GetProperty(string property, Difficulty defaultValue)
 		{
-			try
+			string df = ReadString(property);
+
+			if (df == null) return defaultValue;
+
+			switch (df.ToLower())
 			{
-				string df = ReadString(property).ToLower();
-				switch (df)
-				{
-					case "easy":
-						return Difficulty.Easy;
-					case "normal":
-						return Difficulty.Normal;
-					case "hard":
-						return Difficulty.Hard;
-					case "peaceful":
-						return Difficulty.Peaceful;
-					default:
-						return defaultValue;
-				}
-			}
-			catch
-			{
-				return defaultValue;
+				case "easy":
+					return Difficulty.Easy;
+				case "normal":
+					return Difficulty.Normal;
+				case "hard":
+					return Difficulty.Hard;
+				case "peaceful":
+					return Difficulty.Peaceful;
+				default:
+					return defaultValue;
 			}
 		}
 
 		public static string GetProperty(string property, string defaultValue)
 		{
-			try
-			{
-				return ReadString(property);
-			}
-			catch
-			{
-				return defaultValue;
-			}
+			return ReadString(property) ?? defaultValue;
 		}
 
 		private static string ReadString(string property)
@@ -144,7 +133,8 @@ namespace MiNET.Utils
 					return value;
 				}
 			}
-			throw new EntryPointNotFoundException("The specified property was not found.");
+
+			return null;
 		}
 	}
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using MiNET.Net;
 using MiNET.Utils;
@@ -7,6 +8,7 @@ namespace MiNET.Entities
 {
 	public class PlayerMob : Mob
 	{
+		public UUID Uuid { get; private set; }
 		public string Name { get; private set; }
 		public Skin Skin { get; set; }
 		public bool Silent { get; set; }
@@ -22,6 +24,8 @@ namespace MiNET.Entities
 
 		public PlayerMob(string name, Level level) : base(63, level)
 		{
+			Uuid = new UUID(Guid.NewGuid().ToByteArray());
+
 			Width = 0.6;
 			Length = 0.6;
 			Height = 1.80;
@@ -46,7 +50,7 @@ namespace MiNET.Entities
 			metadata[8] = new MetadataByte(0); // Potion Ambient
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataLong(0);
+			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 
 			return metadata;
 		}
@@ -63,8 +67,22 @@ namespace MiNET.Entities
 		public override void SpawnToPlayer(Player player)
 		{
 			{
+				Player fake = new Player(null, null, 0)
+				{
+					ClientUuid = Uuid,
+					EntityId = EntityId,
+					NameTag = NameTag ?? Name,
+					Skin = Skin
+				};
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerAddRecords { fake };
+				player.SendPackage(playerList, true);
+			}
+
+			{
 				McpeAddPlayer message = McpeAddPlayer.CreateObject();
-				message.uuid = player.ClientUuid;
+				message.uuid = Uuid;
 				message.username = NameTag ?? Name;
 				message.entityId = EntityId;
 				message.x = KnownPosition.X;
@@ -73,7 +91,7 @@ namespace MiNET.Entities
 				message.yaw = KnownPosition.Yaw;
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
-				message.metadata = GetMetadata().GetBytes();
+				message.metadata = GetMetadata();
 				player.SendPackage(message);
 			}
 			{
@@ -90,18 +108,28 @@ namespace MiNET.Entities
 				armorEquipment.chestplate = new MetadataSlot(new ItemStack());
 				armorEquipment.leggings = new MetadataSlot(new ItemStack());
 				armorEquipment.boots = new MetadataSlot(new ItemStack());
-				//armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 0));
-				//armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 0));
-				//armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 0));
-				//armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 0));
 				player.SendPackage(armorEquipment);
 			}
 		}
 
 		protected virtual void SpawnToAll()
 		{
+			{
+				Player fake = new Player(null, null, 0)
+				{
+					ClientUuid = Uuid,
+					EntityId = EntityId,
+					NameTag = NameTag ?? Name,
+					Skin = Skin
+				};
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerAddRecords { fake };
+				Level.RelayBroadcast(playerList);
+			}
+
 			McpeAddPlayer message = McpeAddPlayer.CreateObject();
-			message.uuid = new UUID();
+			message.uuid = Uuid;
 			message.username = NameTag ?? Name;
 			message.entityId = EntityId;
 			message.x = KnownPosition.X;
@@ -110,7 +138,7 @@ namespace MiNET.Entities
 			message.yaw = KnownPosition.Yaw;
 			message.headYaw = KnownPosition.HeadYaw;
 			message.pitch = KnownPosition.Pitch;
-			message.metadata = GetMetadata().GetBytes();
+			message.metadata = GetMetadata();
 
 			Level.RelayBroadcast(message);
 
@@ -121,8 +149,23 @@ namespace MiNET.Entities
 
 		public override void DespawnFromPlayer(Player player)
 		{
+			{
+				Player fake = new Player(null, null, 0)
+				{
+					ClientUuid = Uuid,
+					EntityId = EntityId,
+					NameTag = NameTag ?? Name,
+					Skin = Skin
+				};
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords { fake };
+				player.SendPackage(playerList);
+			}
+
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
+			mcpeRemovePlayer.clientUuid = Uuid;
 			player.SendPackage(mcpeRemovePlayer);
 		}
 

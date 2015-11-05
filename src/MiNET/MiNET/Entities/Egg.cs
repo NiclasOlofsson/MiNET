@@ -4,7 +4,7 @@ namespace MiNET.Entities
 {
 	public class Egg : Projectile
 	{
-		public Egg(Player shooter, Level level) : base(shooter, 82, level)
+		public Egg(Player shooter, Level level) : base(shooter, 82, level, 0)
 		{
 			Width = 0.25;
 			Length = 0.25;

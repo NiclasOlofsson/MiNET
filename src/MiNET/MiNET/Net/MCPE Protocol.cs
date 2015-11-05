@@ -7,6 +7,7 @@ using System;
 using System.Net;
 using System.Threading;
 using MiNET.Utils; 
+using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
 
 namespace MiNET.Net
@@ -79,8 +80,23 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x14:
+					package = NoFreeIncomingConnections.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x15:
 					package = DisconnectionNotification.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x17:
+					package = ConnectionBanned.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0x1A:
+					package = IpRecentlyConnected.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -638,9 +654,7 @@ namespace MiNET.Net
 	public partial class OpenConnectionRequest2 : Package<OpenConnectionRequest2>
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
-		public byte serverSecurity; // = null;
-		public byte[] systemadress; // = null;
-		public short clientUdpPort; // = null;
+		public IPEndPoint clientendpoint; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
 		public OpenConnectionRequest2()
@@ -655,9 +669,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(offlineMessageDataId);
-			Write(serverSecurity);
-			Write(systemadress);
-			Write(clientUdpPort);
+			Write(clientendpoint);
 			Write(mtuSize);
 			Write(clientGuid);
 
@@ -674,9 +686,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			ReadBytes(offlineMessageDataId.Length);
-			serverSecurity = ReadByte();
-			systemadress = ReadBytes(4);
-			clientUdpPort = ReadShort();
+			clientendpoint = ReadIPEndPoint();
 			mtuSize = ReadShort();
 			clientGuid = ReadLong();
 
@@ -879,11 +889,116 @@ namespace MiNET.Net
 
 	}
 
+	public partial class NoFreeIncomingConnections : Package<NoFreeIncomingConnections>
+	{
+		public NoFreeIncomingConnections()
+		{
+			Id = 0x14;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class DisconnectionNotification : Package<DisconnectionNotification>
 	{
 		public DisconnectionNotification()
 		{
 			Id = 0x15;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class ConnectionBanned : Package<ConnectionBanned>
+	{
+		public ConnectionBanned()
+		{
+			Id = 0x17;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class IpRecentlyConnected : Package<IpRecentlyConnected>
+	{
+		public IpRecentlyConnected()
+		{
+			Id = 0x1a;
 		}
 
 		protected override void EncodePackage()
@@ -1254,9 +1369,8 @@ namespace MiNET.Net
 		public float yaw; // = null;
 		public float headYaw; // = null;
 		public float pitch; // = null;
-		public short itemId; // = null;
-		public short itemMeta; // = null;
-		public byte[] metadata; // = null;
+		public MetadataSlot item; // = null;
+		public MetadataDictionary metadata; // = null;
 		public McpeAddPlayer()
 		{
 			Id = 0x96;
@@ -1280,8 +1394,7 @@ namespace MiNET.Net
 			Write(yaw);
 			Write(headYaw);
 			Write(pitch);
-			Write(itemId);
-			Write(itemMeta);
+			Write(item);
 			Write(metadata);
 
 			AfterEncode();
@@ -1308,9 +1421,8 @@ namespace MiNET.Net
 			yaw = ReadFloat();
 			headYaw = ReadFloat();
 			pitch = ReadFloat();
-			itemId = ReadShort();
-			itemMeta = ReadShort();
-			metadata = ReadBytes(0);
+			item = ReadMetadataSlot();
+			metadata = ReadMetadataDictionary();
 
 			AfterDecode();
 		}
@@ -1911,8 +2023,8 @@ namespace MiNET.Net
 	public partial class McpeTileEvent : Package<McpeTileEvent>
 	{
 		public int x; // = null;
-		public int z; // = null;
 		public int y; // = null;
+		public int z; // = null;
 		public int case1; // = null;
 		public int case2; // = null;
 		public McpeTileEvent()
@@ -1927,8 +2039,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(x);
-			Write(z);
 			Write(y);
+			Write(z);
 			Write(case1);
 			Write(case2);
 
@@ -1945,8 +2057,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			x = ReadInt();
-			z = ReadInt();
 			y = ReadInt();
+			z = ReadInt();
 			case1 = ReadInt();
 			case2 = ReadInt();
 
@@ -2054,6 +2166,8 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateAttributes : Package<McpeUpdateAttributes>
 	{
+		public long entityId; // = null;
+		public PlayerAttributes attributes; // = null;
 		public McpeUpdateAttributes()
 		{
 			Id = 0xa6;
@@ -2065,6 +2179,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(entityId);
+			Write(attributes);
 
 			AfterEncode();
 		}
@@ -2078,6 +2194,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			entityId = ReadLong();
+			attributes = ReadPlayerAttributes();
 
 			AfterDecode();
 		}
@@ -2348,7 +2466,7 @@ namespace MiNET.Net
 
 	public partial class McpeHurtArmor : Package<McpeHurtArmor>
 	{
-		public int health; // = null;
+		public byte health; // = null;
 		public McpeHurtArmor()
 		{
 			Id = 0xac;
@@ -2374,7 +2492,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			health = ReadInt();
+			health = ReadByte();
 
 			AfterDecode();
 		}
@@ -2676,8 +2794,7 @@ namespace MiNET.Net
 
 	public partial class McpeDropItem : Package<McpeDropItem>
 	{
-		public long entityId; // = null;
-		public byte unknown; // = null;
+		public byte itemtype; // = null;
 		public MetadataSlot item; // = null;
 		public McpeDropItem()
 		{
@@ -2690,8 +2807,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(entityId);
-			Write(unknown);
+			Write(itemtype);
 			Write(item);
 
 			AfterEncode();
@@ -2706,8 +2822,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadLong();
-			unknown = ReadByte();
+			itemtype = ReadByte();
 			item = ReadMetadataSlot();
 
 			AfterDecode();
@@ -2943,7 +3058,7 @@ namespace MiNET.Net
 
 	public partial class McpeCraftingData : Package<McpeCraftingData>
 	{
-		public int flags; // = null;
+		public Recipes recipes; // = null;
 		public McpeCraftingData()
 		{
 			Id = 0xba;
@@ -2955,7 +3070,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(flags);
+			Write(recipes);
 
 			AfterEncode();
 		}
@@ -2969,7 +3084,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			flags = ReadInt();
+			recipes = ReadRecipes();
 
 			AfterDecode();
 		}

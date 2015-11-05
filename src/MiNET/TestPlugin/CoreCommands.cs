@@ -65,6 +65,7 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
+			return;
 			player.GameMode = (GameMode) gameMode;
 			player.SendPackage(new McpeStartGame
 			{
@@ -115,43 +116,43 @@ namespace TestPlugin
 			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
-		[Command(Command = "tp")]
-		public void Teleport(Player player)
-		{
-			Teleport(player, "Default");
-		}
+		//[Command(Command = "tp")]
+		//public void Teleport(Player player)
+		//{
+		//	Teleport(player, "Default");
+		//}
 
-		[Command(Command = "tp")]
-		public void Teleport(Player player, string world)
-		{
-			if (player.Level.LevelId.Equals(world)) return;
+		//[Command(Command = "tp")]
+		//public void Teleport(Player player, string world)
+		//{
+		//	if (player.Level.LevelId.Equals(world)) return;
 
-			if (!Context.LevelManager.Levels.Contains(player.Level))
-			{
-				Context.LevelManager.Levels.Add(player.Level);
-			}
+		//	if (!Context.LevelManager.Levels.Contains(player.Level))
+		//	{
+		//		Context.LevelManager.Levels.Add(player.Level);
+		//	}
 
-			ThreadPool.QueueUserWorkItem(delegate(object state)
-			{
-				Level[] levels = state as Level[];
+		//	ThreadPool.QueueUserWorkItem(delegate(object state)
+		//	{
+		//		Level[] levels = state as Level[];
 
-				if (levels != null)
-				{
-					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+		//		if (levels != null)
+		//		{
+		//			Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
 
-					if (nextLevel == null)
-					{
-						nextLevel = new Level(world, new FlatlandWorldProvider());
-						nextLevel.Initialize();
-						Context.LevelManager.Levels.Add(nextLevel);
-					}
+		//			if (nextLevel == null)
+		//			{
+		//				nextLevel = new Level(world, new FlatlandWorldProvider());
+		//				nextLevel.Initialize();
+		//				Context.LevelManager.Levels.Add(nextLevel);
+		//			}
 
-					player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, nextLevel.LevelId), type: MessageType.Raw);
+		//			player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, nextLevel.LevelId), type: MessageType.Raw);
 
-					player.SpawnLevel(nextLevel);
-				}
-			}, Context.LevelManager.Levels.ToArray());
-		}
+		//			player.SpawnLevel(nextLevel);
+		//		}
+		//	}, Context.LevelManager.Levels.ToArray());
+		//}
 
 		[Command]
 		public void Clear(Player player)
@@ -282,6 +283,10 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
 			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
 			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
+
+			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);
+			inventory.Slots[c++] = new ItemStack(new ItemWoodenPickaxe(0), 1);
+			inventory.Slots[c++] = new ItemStack(new ItemBread(), 5);
 
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);

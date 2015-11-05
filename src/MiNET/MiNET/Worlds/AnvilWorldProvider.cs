@@ -7,7 +7,6 @@ using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
-using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -27,153 +26,35 @@ namespace MiNET.Worlds
 		}
 	}
 
-	public class AnvilWorldProvider : IWorldProvider
+	public class AnvilWorldProvider : IWorldProvider, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
-		private static List<int> _gaps;
-		private static List<int> _ignore;
-		private static Dictionary<int, Tuple<int, Func<int, byte, byte>>> _convert;
+		private static readonly List<int> Gaps;
+		private static readonly List<int> Ignore;
+		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
 		private FlatlandWorldProvider _flatland;
 		private LevelInfo _level;
-		public readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-		public readonly ConcurrentDictionary<ChunkCoordinates, McpeBatch> _batchCache = new ConcurrentDictionary<ChunkCoordinates, McpeBatch>();
+		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+
 		private string _basePath;
 
 		public bool IsCaching { get; private set; }
 
 		public byte WaterOffsetY { get; set; }
 
-
-		public AnvilWorldProvider()
+		static AnvilWorldProvider()
 		{
-			IsCaching = true;
-			_flatland = new FlatlandWorldProvider();
-		}
+			Ignore = new List<int> {23, 25, 28, 29, 33, 34, 36, 55, 69, 70, 71, 72, 77, 84, 88, 93, 94, 97, 113, 115, 117, 118, 131, 132, 138, 140, 143, 144, 145};
+			Ignore.Sort();
 
-		public AnvilWorldProvider(string basePath) : this()
-		{
-			_basePath = basePath;
-		}
-
-		public void Initialize()
-		{
-			_basePath = _basePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
-
-			NbtFile file = new NbtFile();
-			file.LoadFromFile(Path.Combine(_basePath, "level.dat"));
-			NbtTag dataTag = file.RootTag["Data"];
-			_level = new LevelInfo(dataTag);
-
-			WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
-
-			_ignore = new List<int>();
-			_ignore.Add(23);
-			_ignore.Add(25);
-			_ignore.Add(28);
-			_ignore.Add(29);
-			_ignore.Add(33);
-			_ignore.Add(34);
-			_ignore.Add(36);
-			_ignore.Add(55);
-			_ignore.Add(69);
-			_ignore.Add(70);
-			_ignore.Add(71);
-			_ignore.Add(72);
-//			_ignore.Add(75);
-//			_ignore.Add(76);
-			_ignore.Add(77);
-			_ignore.Add(84);
-			_ignore.Add(88);
-			_ignore.Add(93);
-			_ignore.Add(94);
-			_ignore.Add(97);
-			_ignore.Add(113);
-			_ignore.Add(115);
-			_ignore.Add(117);
-			_ignore.Add(118);
-//			_ignore.Add(123);
-			_ignore.Add(131);
-			_ignore.Add(132);
-			_ignore.Add(138);
-			_ignore.Add(140);
-			_ignore.Add(143);
-			_ignore.Add(144);
-			_ignore.Add(145);
-			_ignore.Sort();
-
-			_gaps = new List<int>();
-			_gaps.Add(23);
-			_gaps.Add(25);
-//			_gaps.Add(27);
-			_gaps.Add(28);
-			_gaps.Add(29);
-			_gaps.Add(33);
-			_gaps.Add(34);
-			_gaps.Add(36);
-			_gaps.Add(55);
-//			_gaps.Add(66);
-			_gaps.Add(69);
-			_gaps.Add(70);
-			_gaps.Add(72);
-			_gaps.Add(75);
-			_gaps.Add(76);
-			_gaps.Add(77);
-			_gaps.Add(84);
-//			_gaps.Add(87);
-			_gaps.Add(88);
-			_gaps.Add(90);
-			_gaps.Add(93);
-			_gaps.Add(94);
-			_gaps.Add(95);
-			_gaps.Add(97);
-//			_gaps.Add(99);
-//			_gaps.Add(100);
-//			_gaps.Add(106);
-//			_gaps.Add(111);
-			_gaps.Add(115);
-			_gaps.Add(116);
-			_gaps.Add(117);
-			_gaps.Add(118);
-			_gaps.Add(119);
-//			_gaps.Add(120);
-//			_gaps.Add(121);
-			_gaps.Add(122);
-			_gaps.Add(123);
-			_gaps.Add(124);
-			_gaps.Add(125);
-			_gaps.Add(126);
-//			_gaps.Add(127);
-			_gaps.Add(130);
-			_gaps.Add(131);
-			_gaps.Add(132);
-			_gaps.Add(137);
-			_gaps.Add(138);
-			_gaps.Add(140);
-			_gaps.Add(143);
-			_gaps.Add(144);
-			_gaps.Add(145);
-			_gaps.Add(146);
-			_gaps.Add(147);
-			_gaps.Add(148);
-			_gaps.Add(149);
-			_gaps.Add(150);
-			_gaps.Add(151);
-			_gaps.Add(152);
-			_gaps.Add(153);
-			_gaps.Add(154);
-			_gaps.Add(160);
-			_gaps.Add(165);
-			_gaps.Add(166);
-			_gaps.Add(167);
-			_gaps.Add(168);
-			_gaps.Add(169);
-			_gaps.Sort();
+			Gaps = new List<int> {23, 25, 28, 29, 33, 34, 36, 55, 69, 70, 72, 75, 76, 77, 84, 88, 90, 93, 94, 95, 97, 115, 116, 117, 118, 119, 122, 123, 124, 125, 126, 130, 131, 132, 137, 138, 140, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 160, 165, 166, 167, 168, 169};
+			Gaps.Sort();
 
 			var air = new Mapper(0, (i, b) => 0);
 
-			_convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
+			Convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
 			{
 				{25, new NoDataMapper(3)}, // Note Block		=> Dirt
 				{27, new NoDataMapper(66)}, // Powered Rail		=> Rail
@@ -229,7 +110,7 @@ namespace MiNET.Worlds
 				{161, new NoDataMapper(18)}, // Acacia Leaves	=> Leaves
 				{162, new NoDataMapper(17)}, // Acacia Wood		=> Wood
 				{165, air}, // Slime Block		=> Air
-				{166, new NoDataMapper(97)}, // Barrier		=> (Invisible Bedrock)
+				{166, new NoDataMapper(95)}, // Barrier		=> (Invisible Bedrock)
 				{167, new NoDataMapper(96)}, // Iron Trapdoor	=> Trapdoor
 				{168, air}, // Prismarine		=> Air
 				{169, new NoDataMapper(89)}, // Sea Lantern		=> Glowstone
@@ -244,6 +125,52 @@ namespace MiNET.Worlds
 				{191, new Mapper(85, (i, b) => 4)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 5)}, // Acacia Fence		=> Fence
 			};
+		}
+
+		public AnvilWorldProvider()
+		{
+			IsCaching = true;
+			_flatland = new FlatlandWorldProvider();
+		}
+
+		public AnvilWorldProvider(string basePath) : this()
+		{
+			_basePath = basePath;
+		}
+
+		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, byte waterOffsetY, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
+		{
+			IsCaching = true;
+			_basePath = basePath;
+			_level = levelInfo;
+			WaterOffsetY = waterOffsetY;
+			_chunkCache = chunkCache;
+			_isInitialized = true;
+			_flatland = new FlatlandWorldProvider();
+		}
+
+		private bool _isInitialized = false;
+		private object _initializeSync = new object();
+
+		public void Initialize()
+		{
+			if (_isInitialized) return; // Quick exit
+
+			lock (_initializeSync)
+			{
+				if (_isInitialized) return;
+
+				_basePath = _basePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
+
+				NbtFile file = new NbtFile();
+				file.LoadFromFile(Path.Combine(_basePath, "level.dat"));
+				NbtTag dataTag = file.RootTag["Data"];
+				_level = new LevelInfo(dataTag);
+
+				WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
+
+				_isInitialized = true;
+			}
 		}
 
 		private int Noop(int blockId, int data)
@@ -363,13 +290,13 @@ namespace MiNET.Worlds
 
 								Func<int, byte, byte> dataConverter = (i, b) => b;
 								// Anvil to PE friendly converstion
-								if (_convert.ContainsKey(blockId))
+								if (Convert.ContainsKey(blockId))
 								{
-									dataConverter = _convert[blockId].Item2;
-									blockId = _convert[blockId].Item1;
+									dataConverter = Convert[blockId].Item2;
+									blockId = Convert[blockId].Item1;
 								}
-								else if (_ignore.BinarySearch(blockId) >= 0) blockId = 0;
-								else if (_gaps.BinarySearch(blockId) >= 0)
+								else if (Ignore.BinarySearch(blockId) >= 0) blockId = 0;
+								else if (Gaps.BinarySearch(blockId) >= 0)
 								{
 									Log.WarnFormat("Missing material on convert: {0}", blockId);
 									blockId = 133;
@@ -377,7 +304,7 @@ namespace MiNET.Worlds
 
 								if (blockId > 255) blockId = 41;
 
-								if (yi == 127 && blockId != 0) blockId = 30;
+								//if (yi == 127 && blockId != 0) blockId = 30;
 								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
 								chunk.SetBlock(x, yi, z, (byte) blockId);
@@ -388,11 +315,11 @@ namespace MiNET.Worlds
 								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
 
-								//var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
-								//{
-								//	chunk.SetSkylight(x, yi, z, 0xff);
-								//}
+								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
+								if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
+								{
+									chunk.SetSkylight(x, yi, z, 0xff);
+								}
 
 								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
 								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
@@ -434,7 +361,7 @@ namespace MiNET.Worlds
 					}
 				}
 
-				NbtList tileTicks = dataTag["TileTicks"] as NbtList;
+				//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
 				chunk.isDirty = false;
 				return chunk;
@@ -647,6 +574,18 @@ namespace MiNET.Worlds
 		public int NumberOfCachedChunks()
 		{
 			return _chunkCache.Count;
+		}
+
+		public object Clone()
+		{
+			ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
+			{
+				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value.Clone());
+			}
+
+			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, (LevelInfo) _level.Clone(), WaterOffsetY, chunkCache);
+			return provider;
 		}
 	}
 }

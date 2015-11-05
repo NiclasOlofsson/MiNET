@@ -1,23 +1,24 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using MiNET.Net;
 
 namespace MiNET
 {
 	public class SessionManager
 	{
-		private ConcurrentDictionary<int, Session> _sessions = new ConcurrentDictionary<int, Session>();
+		private ConcurrentDictionary<UUID, Session> _sessions = new ConcurrentDictionary<UUID, Session>();
 
 		public virtual Session FindSession(Player player)
 		{
 			Session session;
-			_sessions.TryGetValue(player.ClientId, out session);
+			_sessions.TryGetValue(player.ClientUuid, out session);
 
 			return session;
 		}
 
 		public virtual Session CreateSession(Player player)
 		{
-			_sessions.TryAdd(player.ClientId, new Session(player));
+			_sessions.TryAdd(player.ClientUuid, new Session(player));
 
 			return FindSession(player);
 		}
@@ -25,11 +26,18 @@ namespace MiNET
 		public virtual void SaveSession(Session session)
 		{
 		}
+
+		public void RemoveSession(Session session)
+		{
+			if (session.Player.ClientUuid == null) return;
+
+			_sessions.TryRemove(session.Player.ClientUuid, out session);
+		}
 	}
 
 	public class Session : Dictionary<string, object>
 	{
-		public Player Player { get; private set; }
+		public Player Player { get; set; }
 
 		public Session(Player player)
 		{

@@ -33,6 +33,9 @@ namespace MiNET
 		public DateTime LastUpdatedTime { get; set; }
 		public int LastDatagramNumber { get; set; }
 
+		public bool WaitForAck { get; set; }
+		public int ResendCount { get; set; }
+
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
 			State = ConnectionState.Unconnected;
@@ -61,30 +64,25 @@ namespace MiNET
 
 		public void Clean()
 		{
-			//var queue = WaitingForAcksQueue;
-			//foreach (var datagram in queue.Values)
-			//{
-			//	Datagram deleted;
-			//	if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-			//	{
-			//		foreach (MessagePart part in deleted.MessageParts)
-			//		{
-			//			part.PutPool();
-			//		}
-			//		deleted.PutPool();
-			//	}
-			//}
+			var queue = WaitingForAcksQueue;
+			foreach (var datagram in queue.Values)
+			{
+				datagram.PutPool();
+			}
 
-			//foreach (var splitPartPackagese in Splits)
-			//{
-			//	if (splitPartPackagese.Value != null)
-			//	{
-			//		foreach (SplitPartPackage package in splitPartPackagese.Value)
-			//		{
-			//			if (package != null) package.PutPool();
-			//		}
-			//	}
-			//}
+			foreach (var splitPartPackagese in Splits)
+			{
+				if (splitPartPackagese.Value != null)
+				{
+					foreach (SplitPartPackage package in splitPartPackagese.Value)
+					{
+						if (package != null) package.PutPool();
+					}
+				}
+			}
+
+			queue.Clear();
+			Splits.Clear();
 		}
 	}
 }

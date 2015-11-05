@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using log4net;
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
@@ -29,6 +30,8 @@ namespace MiNET
 
 	public class HealthManager
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (HealthManager));
+
 		private int _hearts;
 		public Entity Entity { get; set; }
 		public int Health { get; set; }
@@ -53,7 +56,7 @@ namespace MiNET
 		}
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
-		{
+		{	
 			if (!Entity.Level.IsSurvival) return;
 
 			if (CooldownTick > 0) return;
@@ -73,12 +76,12 @@ namespace MiNET
 				//	return;
 				//}
 
-				//BlockCoordinates spawn = player.SpawnPosition;
-				//if (cause != DamageCause.Void && player.KnownPosition.DistanceTo(new PlayerLocation(spawn.X, spawn.Y, spawn.Z)) < 7)
+				//if (cause != DamageCause.Void && player.KnownPosition.DistanceTo(player.SpawnPosition) < 7)
 				//{
 				//	Health = 200;
 				//	return;
 				//}
+
 
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
@@ -165,9 +168,11 @@ namespace MiNET
 					player.Deaths++;
 				}
 
+				player.DropInventory();
 				player.SendSetHealth();
 				player.BroadcastEntityEvent();
 			}
+
 			Entity.BroadcastSetEntityData();
 			Entity.DespawnEntity();
 
@@ -192,6 +197,7 @@ namespace MiNET
 			IsDead = false;
 			CooldownTick = 0;
 			LastDamageCause = DamageCause.Unknown;
+			LastDamageSource = null;
 		}
 
 		public virtual void OnTick()

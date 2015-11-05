@@ -65,9 +65,13 @@ namespace MiNET.BlockEntities
 		public override List<ItemStack> GetDrops()
 		{
 			List<ItemStack> slots = new List<ItemStack>();
-			for (byte i = 0; i < 27; i++)
+
+			var items = Compound["Items"] as NbtList;
+			if (items == null) return slots;
+
+			for (byte i = 0; i < items.Count; i++)
 			{
-				NbtCompound item = (NbtCompound) Compound["Items"][i];
+				NbtCompound item = (NbtCompound) items[i];
 				slots.Add(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
 			}
 

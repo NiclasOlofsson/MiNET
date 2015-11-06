@@ -64,6 +64,14 @@ namespace MiNET.Items
 			else if (id == 293) item = new ItemDiamondHoe(metadata);
 			else if (id == 294) item = new ItemGoldHoe(metadata);
 			else if (id == 297) item = new ItemBread();
+			else if (id == 298) item = new ItemLeatherHelmet(metadata);
+			else if (id == 299) item = new ItemLeatherChestplate(metadata);
+			else if (id == 300) item = new ItemLeatherLeggings(metadata);
+			else if (id == 301) item = new ItemLeatherBoots(metadata);
+			else if (id == 302) item = new ItemChainmailHelmet(metadata);
+			else if (id == 303) item = new ItemChainmailChestplate(metadata);
+			else if (id == 304) item = new ItemChainmailLeggings(metadata);
+			else if (id == 305) item = new ItemChainmailBoots(metadata);
 			else if (id == 309) item = new ItemIronBoots(metadata);
 			else if (id == 308) item = new ItemIronLeggings(metadata);
 			else if (id == 307) item = new ItemIronChestplate(metadata);

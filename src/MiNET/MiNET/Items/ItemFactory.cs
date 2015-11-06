@@ -80,6 +80,10 @@ namespace MiNET.Items
 			else if (id == 311) item = new ItemDiamondChestplate(metadata);
 			else if (id == 312) item = new ItemDiamondLeggings(metadata);
 			else if (id == 313) item = new ItemDiamondBoots(metadata);
+			else if (id == 314) item = new ItemGoldHelmet(metadata);
+			else if (id == 315) item = new ItemGoldChestplate(metadata);
+			else if (id == 316) item = new ItemGoldLeggings(metadata);
+			else if (id == 317) item = new ItemGoldBoots(metadata);
 			else if (id == 319) item = new ItemRawPorkchop(metadata);
 			else if (id == 320) item = new ItemCookedPorkshop();
 			else if (id == 322) item = new ItemGoldenApple();

@@ -168,6 +168,10 @@
     <Compile Include="Items\ItemGoldHoe.cs" />
     <Compile Include="Items\ItemGoldShovel.cs" />
     <Compile Include="Items\ItemGoldSword.cs" />
+    <Compile Include="Items\ItemGoldBoots.cs" />
+    <Compile Include="Items\ItemGoldChestplate.cs" />
+    <Compile Include="Items\ItemGoldHelmet.cs" />
+    <Compile Include="Items\ItemGoldLeggings.cs" />
     <Compile Include="Items\ItemHoe.cs" />
     <Compile Include="Items\ItemIronAxe.cs" />
     <Compile Include="Items\ItemLeatherBoots.cs" />

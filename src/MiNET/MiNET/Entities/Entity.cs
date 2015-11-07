@@ -22,6 +22,7 @@ namespace MiNET.Entities
 		public Vector3 Velocity { get; set; }
 
 		public HealthManager HealthManager { get; set; }
+		public ExperienceManager ExperienceManager { get; set; }
 
 		public string NameTag { get; set; }
 
@@ -46,6 +47,7 @@ namespace MiNET.Entities
 			EntityTypeId = entityTypeId;
 			KnownPosition = new PlayerLocation();
 			HealthManager = new HealthManager(this);
+			ExperienceManager = new ExperienceManager(this);
 		}
 
 		public virtual MetadataDictionary GetMetadata()

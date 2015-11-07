@@ -1732,21 +1732,21 @@ namespace MiNET
 				Name = "player.hunger",
 				MinValue = 0,
 				MaxValue = 20,
-				Value = 15
+				Value = 20
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{
 				Name = "player.level",
 				MinValue = 0,
 				MaxValue = 24791,
-				Value = 0
+				Value = ExperienceManager.getLevel()
 			};
 			attributes["player.experience"] = new PlayerAttribute
 			{
 				Name = "player.experience",
 				MinValue = 0,
 				MaxValue = 1,
-				Value = 0
+				Value = ExperienceManager.Experience
 			};
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();

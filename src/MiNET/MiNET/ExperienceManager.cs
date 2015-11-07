@@ -24,6 +24,10 @@ namespace MiNET
 		{
 			Experience = 0;
 		}
+		
+		public int getLevel(){
+			return 0;
+		}
 
 		public virtual void ResetExperience()
 		{

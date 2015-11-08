@@ -210,6 +210,8 @@ namespace MiNET.Worlds
 				List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
 				spawnedPlayers.Add(newPlayer);
 
+				Player[] sendList = spawnedPlayers.ToArray();
+
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
 				var bytes = playerListMessage.Encode();
@@ -227,12 +229,11 @@ namespace MiNET.Worlds
 
 				newPlayer.SendPackage(batch);
 
-
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {newPlayer};
 				playerList.Encode();
 				playerList.records = null;
-				RelayBroadcast(newPlayer, playerList);
+				RelayBroadcast(newPlayer, sendList, playerList);
 
 				McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 				mcpeAddPlayer.uuid = newPlayer.ClientUuid;
@@ -245,13 +246,13 @@ namespace MiNET.Worlds
 				mcpeAddPlayer.headYaw = newPlayer.KnownPosition.HeadYaw;
 				mcpeAddPlayer.pitch = newPlayer.KnownPosition.Pitch;
 				mcpeAddPlayer.metadata = newPlayer.GetMetadata();
-				RelayBroadcast(newPlayer, mcpeAddPlayer);
+				RelayBroadcast(newPlayer, sendList, mcpeAddPlayer);
 
 				McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 				mcpePlayerEquipment.entityId = newPlayer.EntityId;
 				mcpePlayerEquipment.item = new MetadataSlot(newPlayer.Inventory.GetItemInHand());
 				mcpePlayerEquipment.slot = 0;
-				RelayBroadcast(newPlayer, mcpePlayerEquipment);
+				RelayBroadcast(newPlayer, sendList, mcpePlayerEquipment);
 
 				McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 				mcpePlayerArmorEquipment.entityId = newPlayer.EntityId;
@@ -259,7 +260,7 @@ namespace MiNET.Worlds
 				mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(newPlayer.Inventory.Chest, 0));
 				mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(newPlayer.Inventory.Leggings, 0));
 				mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(newPlayer.Inventory.Boots, 0));
-				RelayBroadcast(newPlayer, mcpePlayerArmorEquipment);
+				RelayBroadcast(newPlayer, sendList, mcpePlayerArmorEquipment);
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
@@ -693,6 +694,19 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public McpeBatch GenerateChunk(ChunkCoordinates chunkPosition)
+		{
+			if (_worldProvider == null) return null;
+
+			ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(chunkPosition);
+			if (chunkColumn == null) return null;
+
+			McpeBatch chunk = chunkColumn.GetBatch();
+			if (chunk == null) return null;
+
+			return chunk;
+		}
+
 		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)
 		{
 			lock (chunksUsed)
@@ -743,14 +757,14 @@ namespace MiNET.Worlds
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					if(_worldProvider == null) continue;
+					if (_worldProvider == null) continue;
 
 					ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
-					if(chunkColumn == null) continue;
+					if (chunkColumn == null) continue;
 
 					McpeBatch chunk = chunkColumn.GetBatch();
-					if(chunk == null) continue;
-					
+					if (chunk == null) continue;
+
 					chunksUsed.Add(pair.Key, chunk);
 
 					yield return chunk;

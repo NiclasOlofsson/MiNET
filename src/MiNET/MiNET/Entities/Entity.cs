@@ -141,7 +141,7 @@ namespace MiNET.Entities
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
-			Level.RelayBroadcast(this, mcpeSetEntityData);
+			Level?.RelayBroadcast(this, mcpeSetEntityData);
 		}
 
 		public BoundingBox GetBoundingBox()

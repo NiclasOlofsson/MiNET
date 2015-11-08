@@ -484,7 +484,7 @@ namespace MiNET.Net
 
 		public void Write(MetadataSlot slot)
 		{
-			if (slot == null || slot.Value.Id == 0)
+			if (slot == null || slot.Value.Id <= 0)
 			{
 				Write((short) 0);
 				return;
@@ -499,9 +499,14 @@ namespace MiNET.Net
 		public MetadataSlot ReadMetadataSlot()
 		{
 			short id = ReadShort();
-			if (id == 0) return new MetadataSlot(new ItemStack());
+			if (id <= 0)
+				return new MetadataSlot(new ItemStack());
 
-			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
+			byte count = ReadByte();
+			if(count == 0)
+				return new MetadataSlot(new ItemStack());
+			short metadata = ReadShort();
+			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, count, metadata));
 			ReadShort(); // Nbt len
 			return metadataSlot;
 		}

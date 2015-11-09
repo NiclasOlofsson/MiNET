@@ -18,7 +18,6 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
 

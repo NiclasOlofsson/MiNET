@@ -75,6 +75,7 @@ namespace MiNET.Worlds
 				{93, air}, // Red Repeater	O	=> Air
 				{94, air}, // Red Repeater I	=> Air
 				{95, new NoDataMapper(20)}, // Invisible bedrock	=> Air
+				{96, new Mapper(96, (i, b) => (byte)(((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, // Trapdoor Fix
 				{97, new NoDataMapper(1)}, // Stone Monster Eg	=> Stone
 				{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
 				{115, air}, // Nether Wart		=> Air

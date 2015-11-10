@@ -881,10 +881,10 @@ namespace MiNET
 							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
 							disconnect.message = reason;
 							SendPackage(disconnect, true);
+							IsConnected = false;
 						});
 					}
 
-					IsConnected = false;
 				}
 
 				if (_sendTicker != null)

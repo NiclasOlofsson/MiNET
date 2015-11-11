@@ -402,21 +402,7 @@ namespace MiNET.Worlds
 
 		public void SendAddEntityToPlayer(Entity entity, Player player)
 		{
-			if (entity is ItemEntity)
-			{
-				ItemEntity itemEntity = (ItemEntity) entity;
-				McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-				mcpeAddItemEntity.entityId = itemEntity.EntityId;
-				mcpeAddItemEntity.item = itemEntity.GetMetadataSlot();
-				mcpeAddItemEntity.x = itemEntity.KnownPosition.X;
-				mcpeAddItemEntity.y = itemEntity.KnownPosition.Y;
-				mcpeAddItemEntity.z = itemEntity.KnownPosition.Z;
-				player.SendPackage(mcpeAddItemEntity);
-			}
-			else
-			{
-				entity.SpawnToPlayer(player);
-			}
+			entity.SpawnToPlayer(player);
 		}
 
 		public void RemoveEntity(Entity entity)

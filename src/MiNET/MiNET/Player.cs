@@ -2193,19 +2193,34 @@ namespace MiNET
 		public virtual void DropInventory()
 		{
 			var slots = Inventory.Slots;
+
 			foreach (var stack in slots.ToArray())
 			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), stack);
 			}
 
 			if (Inventory.Helmet.Id != 0)
+			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Helmet, 1));
+				Inventory.Helmet = new Item(0, 0);
+			}
 			if (Inventory.Chest.Id != 0)
+			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Chest, 1));
+				Inventory.Chest = new Item(0, 0);
+			}
 			if (Inventory.Leggings.Id != 0)
+			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Leggings, 1));
+				Inventory.Leggings = new Item(0, 0);
+			}
 			if (Inventory.Boots.Id != 0)
+			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Boots, 1));
+				Inventory.Boots = new Item(0, 0);
+			}
+
+			Inventory.Clear();
 		}
 	}
 }

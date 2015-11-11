@@ -346,7 +346,7 @@ namespace MiNET.Worlds
 				{
 					foreach (var nbtTag in blockEntities)
 					{
-						var blockEntityTag = (NbtCompound) nbtTag;
+						var blockEntityTag = (NbtCompound) nbtTag.Clone();
 						string entityId = blockEntityTag["id"].StringValue;
 						int x = blockEntityTag["x"].IntValue;
 						int y = blockEntityTag["y"].IntValue - yoffset;

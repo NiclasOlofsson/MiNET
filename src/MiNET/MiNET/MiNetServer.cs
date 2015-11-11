@@ -779,7 +779,7 @@ namespace MiNET
 					session.ErrorCount++;
 
 					// HACK: Just to make sure we aren't getting unessecary load on the queue during heavy buffering.
-					if(ServerInfo.AvailableBytes > 1000) continue;
+					if (ServerInfo.AvailableBytes > 1000) continue;
 
 					Datagram datagram;
 					if (queue.TryGetValue(i, out datagram))
@@ -977,13 +977,17 @@ namespace MiNET
 
 				Parallel.ForEach(_playerSessions, delegate(KeyValuePair<IPEndPoint, PlayerNetworkSession> pair)
 				{
-					var session = pair.Value;
+					PlayerNetworkSession session = pair.Value;
+
 					if (session == null) return;
 					if (session.Evicted) return;
+
 					Player player = session.Player;
 
 					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-					if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/< now)
+					bool serverHasNoLag = ServerInfo.AvailableBytes < 1000;
+
+					if (serverHasNoLag && lastUpdate + InacvitityTimeout + 3000 < now)
 					{
 						session.Evicted = true;
 						// Disconnect user
@@ -1014,7 +1018,7 @@ namespace MiNET
 					}
 
 
-					if (ServerInfo.AvailableBytes < 1000 && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+					if (serverHasNoLag && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
 					{
 						ThreadPool.QueueUserWorkItem(delegate(object o)
 						{
@@ -1031,9 +1035,10 @@ namespace MiNET
 
 					if (player == null) return;
 
-					if (lastUpdate + InacvitityTimeout < now)
+					if (serverHasNoLag && lastUpdate + InacvitityTimeout < now && !session.WaitForAck)
 					{
 						player.DetectLostConnection();
+						session.WaitForAck = true;
 					}
 
 					if (player.Rto == 0) return;
@@ -1065,7 +1070,7 @@ namespace MiNET
 
 						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
-						if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= datagramTimout)
+						if (serverHasNoLag && elapsedTime >= datagramTimout)
 						{
 							//if (session.WaitForAck) return;
 

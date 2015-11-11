@@ -279,7 +279,7 @@ namespace MiNET
 				KnownPosition =
 				{
 					X = KnownPosition.X,
-					Y = (float) (KnownPosition.Y + 1.65),
+					Y = KnownPosition.Y + 1.62f,
 					Z = KnownPosition.Z
 				},
 				Count = itemStack.Count

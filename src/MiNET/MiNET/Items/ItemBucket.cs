@@ -16,8 +16,6 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Log.Warn("Player " + player.Username + " should be banned for hacking!");
-
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 			if (Metadata == 8 || Metadata == 10) //Prevent some kind of cheating...
 			{

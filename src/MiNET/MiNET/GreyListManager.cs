@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using log4net;
 
 namespace MiNET
@@ -12,7 +11,7 @@ namespace MiNET
 		private readonly MiNetServer _server;
 		private static readonly ILog Log = LogManager.GetLogger(typeof (GreylistManager));
 
-		private IDictionary<IPAddress, bool> _blacklist = new Dictionary<IPAddress, bool>();
+		private HashSet<IPAddress> _blacklist = new HashSet<IPAddress>();
 		private ConcurrentDictionary<IPAddress, DateTime> _greylist = new ConcurrentDictionary<IPAddress, DateTime>();
 
 		public GreylistManager(MiNetServer server)
@@ -27,14 +26,17 @@ namespace MiNET
 
 		public virtual bool IsBlacklisted(IPAddress senderAddress)
 		{
-			return _blacklist.ContainsKey(senderAddress);
+			lock (_blacklist)
+			{
+				return _blacklist.Contains(senderAddress);
+			}
 		}
 
 		public virtual void Blacklist(IPAddress senderAddress)
 		{
-			if (!_blacklist.ContainsKey(senderAddress))
+			lock (_blacklist)
 			{
-				_blacklist.Add(senderAddress, true);
+				_blacklist.Add(senderAddress);
 			}
 		}
 

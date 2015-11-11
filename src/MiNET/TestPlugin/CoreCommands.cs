@@ -287,6 +287,8 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);
 			inventory.Slots[c++] = new ItemStack(new ItemWoodenPickaxe(0), 1);
 			inventory.Slots[c++] = new ItemStack(new ItemBread(), 5);
+			inventory.Slots[c++] = new ItemStack(new ItemBlock(new Block(35), 0), 64);
+			inventory.Slots[c++] = new ItemStack(new ItemBucket(8), 1);
 
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);

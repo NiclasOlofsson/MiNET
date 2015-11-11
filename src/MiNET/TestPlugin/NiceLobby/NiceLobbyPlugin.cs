@@ -45,7 +45,7 @@ namespace TestPlugin.NiceLobby
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			e.Cancel = e.Player.GameMode != GameMode.Creative;
+			//e.Cancel = e.Player.GameMode != GameMode.Creative;
 		}
 
 		private double m = 0.1d;

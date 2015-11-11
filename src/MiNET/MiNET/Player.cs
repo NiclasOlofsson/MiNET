@@ -266,7 +266,8 @@ namespace MiNET
 
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)
 		{
-			if (!Inventory.HasItem(message.item)) return;
+			if ((_tempItemStack == null || _tempItemStack.Item.Id != message.item.Value.Id || _tempItemStack.Item.Metadata != message.item.Value.Metadata)
+			    && !Inventory.HasItem(message.item)) return;
 
 			ItemStack itemStack = message.item.Value;
 
@@ -278,7 +279,7 @@ namespace MiNET
 				KnownPosition =
 				{
 					X = KnownPosition.X,
-					Y = (float) (KnownPosition.Y + Height),
+					Y = (float) (KnownPosition.Y + 1.65),
 					Z = KnownPosition.Z
 				},
 				Count = itemStack.Count
@@ -884,7 +885,6 @@ namespace MiNET
 							IsConnected = false;
 						});
 					}
-
 				}
 
 				if (_sendTicker != null)

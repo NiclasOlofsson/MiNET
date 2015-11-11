@@ -285,7 +285,10 @@ namespace MiNET.Worlds
 			}
 
 			//private byte[] _cache;
-			cc._cache = (byte[])_cache.Clone();
+			if(_cache != null)
+			{
+				cc._cache = (byte[])_cache.Clone();
+			}
 
 			//private McpeBatch _cachedBatch = null;
 			McpeBatch batch = McpeBatch.CreateObject();

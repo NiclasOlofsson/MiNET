@@ -965,60 +965,49 @@ namespace MiNET
 		private int _lastPlayerMoveSequenceNUmber;
 		private int _lastOrderingIndex;
 		private object _moveSyncLock = new object();
-		private int _isKnownCheater = 0;
-		private int _cheatLimit = 5;
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
-			//if (_openInventory != null)
-			//{
-			//	// Hack for testing. Chests won't open again.
-			//	Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
-			//	ThreadPool.QueueUserWorkItem(delegate(object state)
-			//	{
-			//		try
-			//		{
-			//			HandleMcpeContainerClose(null);
-			//		}
-			//		finally
-			//		{
-			//		}
-			//	});
-			//}
-
 			if (!IsSpawned || HealthManager.IsDead) return;
 
 			lock (_moveSyncLock)
 			{
 				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
 				{
-					//if (Log.IsDebugEnabled)
-					//	Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
 					return;
 				}
 				_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
 				if (_lastOrderingIndex > message.OrderingIndex)
 				{
-					//if (Log.IsDebugEnabled)
-					//	Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
 					return;
 				}
 				_lastOrderingIndex = message.OrderingIndex;
-
-
-				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-				Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-				double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-				if (distanceTo/td*TimeSpan.TicksPerSecond > 25.0d)
-				{
-					//SendMovePlayer();
-					return;
-				}
 			}
 
-			bool useAntiCheat = true;
-			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit && useAntiCheat)
+			if (!AcceptPlayerMove(message)) return;
+
+			KnownPosition = new PlayerLocation
+			{
+				X = message.x,
+				Y = message.y - 1.62f,
+				Z = message.z,
+				Pitch = message.pitch,
+				Yaw = message.yaw,
+				HeadYaw = message.headYaw
+			};
+
+			LastUpdatedTime = DateTime.UtcNow;
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+		}
+
+		private int _isKnownCheater = 0;
+		private int _cheatLimit = 5;
+
+		protected virtual bool AcceptPlayerMove(McpeMovePlayer message)
+		{
+			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit)
 			{
 				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
 				if (GameMode == GameMode.Survival
@@ -1077,7 +1066,7 @@ namespace MiNET
 							//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
 							//SendMovePlayer();
 							_isKnownCheater++;
-							return;
+							return false;
 						}
 					}
 
@@ -1090,36 +1079,7 @@ namespace MiNET
 				}
 			}
 
-			KnownPosition = new PlayerLocation
-			{
-				X = message.x,
-				Y = message.y - 1.62f,
-				Z = message.z,
-				Pitch = message.pitch,
-				Yaw = message.yaw,
-				HeadYaw = message.headYaw
-			};
-
-			LastUpdatedTime = DateTime.UtcNow;
-
-			//if (Level.Random.Next(0, 5) == 0)
-			//{
-			//	int data = 0;
-			//	//data = (int) uint.Parse("FFFF0000", NumberStyles.HexNumber);
-			//	data = Level.Random.Next((int) uint.Parse("FFFF0000", NumberStyles.HexNumber), (int) uint.Parse("FFFFFFFF", NumberStyles.HexNumber));
-
-			//	Level.RelayBroadcast(new McpeLevelEvent
-			//	{
-			//		eventId = 0x4000 | 22,
-			//		x = KnownPosition.X,
-			//		//y = KnownPosition.Y - 1.62f,
-			//		y = KnownPosition.Y - 1f,
-			//		z = KnownPosition.Z,
-			//		data = data
-			//	});
-			//}
-
-			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+			return true;
 		}
 
 		/// <summary>

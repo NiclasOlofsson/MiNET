@@ -488,4 +488,12 @@
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>
 
+	<pdu id="0xc5" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">
+		<field name="Entity ID" type="long" />
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="int" />
+		<field name="Count" type="int" />
+	</pdu>
+
 </protocol>

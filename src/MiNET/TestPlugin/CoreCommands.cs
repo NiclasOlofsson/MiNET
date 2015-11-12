@@ -62,6 +62,24 @@ namespace TestPlugin
 			}
 		}
 
+
+		[Command]
+		public void Orb(Player player1)
+		{
+			foreach (Player player in player1.Level.Players.Values)
+			{
+				// 128 = 32 + 32 + 32
+				player.Level.RelayBroadcast(new McpeSpawnExperienceOrb()
+				{
+					entityId = player.EntityId,
+					x = (int) (player1.KnownPosition.X + 1),
+					y = (int) (player1.KnownPosition.Y + 2),
+					z = (int) (player1.KnownPosition.Z + 1),
+					count = 10
+				});
+			}
+		}
+
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
@@ -104,12 +122,12 @@ namespace TestPlugin
 			{
 				player.SpawnLevel(player.Level, new PlayerLocation
 				{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
+					X = x,
+					Y = y,
+					Z = z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
 				});
 			}, null);
 
@@ -132,7 +150,7 @@ namespace TestPlugin
 				Context.LevelManager.Levels.Add(player.Level);
 			}
 
-			ThreadPool.QueueUserWorkItem(delegate (object state)
+			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				Level[] levels = state as Level[];
 
@@ -409,12 +427,13 @@ namespace TestPlugin
 					case EffectType.Levitation:
 						eff = new Levitation();
 						break;
-		}
+				}
 
 				if (eff != null)
-			{
+				{
 					eff.Level = level;
 					eff.Duration = duration;
+					eff.Particles = false;
 
 					player.SetEffect(eff);
 					player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectType, level), MessageType.Raw);

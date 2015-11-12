@@ -29,6 +29,11 @@ namespace MiNET
 		public float MinValue { get; set; }
 		public float MaxValue { get; set; }
 		public float Value { get; set; }
+
+		public override string ToString()
+		{
+			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}";
+		}
 	}
 
 	public class Player : Entity
@@ -311,18 +316,23 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandlePlayerAction(McpePlayerAction message)
 		{
-			//Log.DebugFormat("Player action: {0}", message.actionId);
-			//Log.DebugFormat("Entity ID: {0}", message.entityId);
-			//Log.DebugFormat("Action ID:  {0}", message.actionId);
-			//Log.DebugFormat("x:  {0}", message.x);
-			//Log.DebugFormat("y:  {0}", message.y);
-			//Log.DebugFormat("z:  {0}", message.z);
-			//Log.DebugFormat("Face:  {0}", message.face);
+			Log.DebugFormat("Player action: {0}", message.actionId);
+			Log.DebugFormat("Entity ID: {0}", message.entityId);
+			Log.DebugFormat("Action ID:  {0}", message.actionId);
+			Log.DebugFormat("x:  {0}", message.x);
+			Log.DebugFormat("y:  {0}", message.y);
+			Log.DebugFormat("z:  {0}", message.z);
+			Log.DebugFormat("Face:  {0}", message.face);
 
-			switch (message.actionId)
+			switch ((PlayerAction) message.actionId)
 			{
-				case 5: // Shoot arrow
-				{
+				case PlayerAction.StartBreak:
+					break;
+				case PlayerAction.AbortBreak:
+					break;
+				case PlayerAction.StopBreak:
+					break;
+				case PlayerAction.ReleaseItem:
 					if (_itemUseTimer == null) return;
 
 					Item itemInHand = Inventory.GetItemInHand().Item;
@@ -343,12 +353,25 @@ namespace MiNET
 					Level.RelayBroadcast(this, setEntityData);
 
 					break;
-				}
-				case 7: // Respawn
+				case PlayerAction.StopSleeping:
+					break;
+				case PlayerAction.Respawn:
 					ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn(null); });
 					break;
+				case PlayerAction.Jump:
+					break;
+				case PlayerAction.StartSprint:
+					break;
+				case PlayerAction.StopSprint:
+					break;
+				case PlayerAction.StartSneak:
+					break;
+				case PlayerAction.StopSneak:
+					break;
+				case PlayerAction.DimensionChange:
+					break;
 				default:
-					return;
+					throw new ArgumentOutOfRangeException();
 			}
 		}
 
@@ -585,12 +608,7 @@ namespace MiNET
 				SpawnPosition = SpawnPosition ?? Level.SpawnPoint;
 				KnownPosition = new PlayerLocation
 				{
-					X = SpawnPosition.X,
-					Y = SpawnPosition.Y,
-					Z = SpawnPosition.Z,
-					Yaw = SpawnPosition.Yaw,
-					Pitch = SpawnPosition.Pitch,
-					HeadYaw = SpawnPosition.HeadYaw,
+					X = SpawnPosition.X, Y = SpawnPosition.Y, Z = SpawnPosition.Z, Yaw = SpawnPosition.Yaw, Pitch = SpawnPosition.Pitch, HeadYaw = SpawnPosition.HeadYaw,
 				};
 
 
@@ -678,12 +696,7 @@ namespace MiNET
 				// send teleport to spawn
 				KnownPosition = new PlayerLocation
 				{
-					X = SpawnPosition.X,
-					Y = SpawnPosition.Y,
-					Z = SpawnPosition.Z,
-					Yaw = SpawnPosition.Yaw,
-					Pitch = SpawnPosition.Pitch,
-					HeadYaw = SpawnPosition.HeadYaw,
+					X = SpawnPosition.X, Y = SpawnPosition.Y, Z = SpawnPosition.Z, Yaw = SpawnPosition.Yaw, Pitch = SpawnPosition.Pitch, HeadYaw = SpawnPosition.HeadYaw,
 				};
 
 				SendSetHealth();
@@ -741,12 +754,7 @@ namespace MiNET
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
 			{
-				X = KnownPosition.X,
-				Y = 4000,
-				Z = KnownPosition.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91,
+				X = KnownPosition.X, Y = 4000, Z = KnownPosition.Z, Yaw = 91, Pitch = 28, HeadYaw = 91,
 			});
 
 			//if (Level != null)
@@ -989,12 +997,7 @@ namespace MiNET
 
 			KnownPosition = new PlayerLocation
 			{
-				X = message.x,
-				Y = message.y - 1.62f,
-				Z = message.z,
-				Pitch = message.pitch,
-				Yaw = message.yaw,
-				HeadYaw = message.headYaw
+				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
 			};
 
 			LastUpdatedTime = DateTime.UtcNow;
@@ -1010,12 +1013,7 @@ namespace MiNET
 			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit)
 			{
 				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-				if (GameMode == GameMode.Survival
-				    && HealthManager.CooldownTick == 0
-				    && td > 49*TimeSpan.TicksPerMillisecond
-				    && td < 500*TimeSpan.TicksPerMillisecond
-				    && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0
-					)
+				if (GameMode == GameMode.Survival && HealthManager.CooldownTick == 0 && td > 49*TimeSpan.TicksPerMillisecond && td < 500*TimeSpan.TicksPerMillisecond && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0)
 				{
 					double horizSpeed;
 					{
@@ -1730,31 +1728,19 @@ namespace MiNET
 			var attributes = new PlayerAttributes();
 			attributes["generic.health"] = new PlayerAttribute
 			{
-				Name = "generic.health",
-				MinValue = 0,
-				MaxValue = 20,
-				Value = HealthManager.Hearts
+				Name = "generic.health", MinValue = 0, MaxValue = 20, Value = HealthManager.Hearts
 			};
 			attributes["player.hunger"] = new PlayerAttribute
 			{
-				Name = "player.hunger",
-				MinValue = 0,
-				MaxValue = 20,
-				Value = 15
+				Name = "player.hunger", MinValue = 0, MaxValue = 20, Value = 15
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{
-				Name = "player.level",
-				MinValue = 0,
-				MaxValue = 24791,
-				Value = 0
+				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = 0
 			};
 			attributes["player.experience"] = new PlayerAttribute
 			{
-				Name = "player.experience",
-				MinValue = 0,
-				MaxValue = 1,
-				Value = 0
+				Name = "player.experience", MinValue = 0, MaxValue = 1, Value = 0
 			};
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();

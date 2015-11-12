@@ -59,7 +59,7 @@ namespace MiNET.Client
 			Console.WriteLine("Starting client...");
 
 			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("83.249.65.92"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
 			client.StartClient();
@@ -339,12 +339,12 @@ namespace MiNET.Client
 
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			Log.Info("Ack");
+			//Log.Info("Ack");
 		}
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			Log.Warn("!! WHAT THE F NAK NAK NAK");
+			Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage)
@@ -448,7 +448,7 @@ namespace MiNET.Client
 			{
 				McpeDisconnect msg = (McpeDisconnect) message;
 				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
-				SendDisconnectionNotification();
+				//SendDisconnectionNotification();
 				StopClient();
 				return;
 			}
@@ -590,6 +590,29 @@ namespace MiNET.Client
 				return;
 			}
 
+			if (typeof(McpeMobEffect) == message.GetType())
+			{
+				McpeMobEffect msg = (McpeMobEffect)message;
+				Log.DebugFormat("operation: {0}", msg.eventId);
+				Log.DebugFormat("entity id: {0}", msg.entityId);
+				Log.DebugFormat("effectId: {0}", msg.effectId);
+				Log.DebugFormat("amplifier: {0}", msg.amplifier);
+				Log.DebugFormat("duration: {0}", msg.duration);
+				Log.DebugFormat("particles: {0}", msg.particles);
+				return;
+			}
+
+			if (typeof(McpeSpawnExperienceOrb) == message.GetType())
+			{
+				McpeSpawnExperienceOrb msg = (McpeSpawnExperienceOrb)message;
+				Log.DebugFormat("Event ID: {0}", msg.entityId);
+				Log.DebugFormat("X: {0}", msg.x);
+				Log.DebugFormat("Y: {0}", msg.y);
+				Log.DebugFormat("Z: {0}", msg.z);
+				Log.DebugFormat("count: {0}", msg.count);
+				return;
+			}
+
 			if (typeof (McpeContainerSetContent) == message.GetType())
 			{
 				McpeContainerSetContent msg = (McpeContainerSetContent) message;
@@ -717,7 +740,13 @@ namespace MiNET.Client
 
 		private void TraceReceive(Package message)
 		{
-			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			if (message is McpeMoveEntity || message is McpeMovePlayer || message is McpeBatch || message is McpeFullChunkData || message is ConnectedPing) return;
+
+			var stringWriter = new StringWriter();
+			ObjectDumper.Write(message, 1, stringWriter);
+
+			//Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.DebugFormat("> Receive: {0} (0x{0:x2}) {1}:\n{2} ", message.Id, message.GetType().Name, stringWriter.ToString());
 		}
 
 		private void TraceSend(Package message)

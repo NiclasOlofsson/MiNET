@@ -72,6 +72,7 @@
 | Mcpe Full Chunk Data | 0xbf | 191 |   
 | Mcpe Set Difficulty | 0xc0 | 192 |   
 | Mcpe Player List | 0xc3 | 195 |   
+| Mcpe Spawn Experience Orb | 0xc5 | 197 |   
 
 
 ##Constants
@@ -1220,6 +1221,24 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |EndPoint | IPEndPoint |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Spawn Experience Orb (0xc5)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Entity ID | long |  |
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Count | int |  |
 -----------------------------------------------------------------------
 
 

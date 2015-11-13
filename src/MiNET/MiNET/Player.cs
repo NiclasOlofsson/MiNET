@@ -1263,6 +1263,12 @@ namespace MiNET
 			switch (message.windowId)
 			{
 				case 0:
+
+					if (message.slot < 0 || message.slot >= Inventory.Slots.Count)
+					{
+						break;
+					}
+
 					try
 					{
 						if (_openInventory != null)

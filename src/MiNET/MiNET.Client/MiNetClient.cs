@@ -66,12 +66,17 @@ namespace MiNET.Client
 			Console.WriteLine("Server started.");
 
 
-			while (!client.HaveServer)
-			{
-				Thread.Sleep(500);
-				Console.WriteLine("Sending ping...");
-				client.SendUnconnectedPing();
-			}
+			//while (!client.HaveServer)
+			//{
+			//	Thread.Sleep(500);
+			//	Console.WriteLine("Sending ping...");
+			//	client.SendUnconnectedPing();
+			//}
+
+			Console.WriteLine("<Enter> to connect!");
+			Console.ReadLine();
+			client.HaveServer = true;
+			client.SendOpenConnectionRequest1();
 
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();

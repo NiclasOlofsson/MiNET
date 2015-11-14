@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -123,8 +124,8 @@ namespace MiNET.Worlds
 				{188, new Mapper(85, (i, b) => 1)}, // Spruce Fence		=> Fence
 				{189, new Mapper(85, (i, b) => 2)}, // Birch Fence		=> Fence
 				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
-				{191, new Mapper(85, (i, b) => 4)}, // Dark Oak Fence	=> Fence
-				{192, new Mapper(85, (i, b) => 5)}, // Acacia Fence		=> Fence
+				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
+				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
 			};
 		}
 
@@ -357,6 +358,17 @@ namespace MiNET.Worlds
 						if (blockEntity != null)
 						{
 							blockEntityTag.Name = string.Empty;
+
+							if (blockEntity is Sign)
+							{
+								// Remove the JSON stuff and get the text out of extra data.
+								// TAG_String("Text2"): "{"extra":["10c a loaf!"],"text":""}"
+								CleanSignText(blockEntityTag, "Text1");
+								CleanSignText(blockEntityTag, "Text2");
+								CleanSignText(blockEntityTag, "Text3");
+								CleanSignText(blockEntityTag, "Text4");
+							}
+
 							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
 						}
 					}
@@ -367,6 +379,15 @@ namespace MiNET.Worlds
 				chunk.isDirty = false;
 				return chunk;
 			}
+		}
+
+		private static Regex _regex = new Regex(@"^((\{""extra"":\[)?)""(.*?)""(],""text"":""""})?$");
+
+		private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
+		{
+			var text = blockEntityTag[tagName].StringValue;
+			var replace = _regex.Replace(text, "$3");
+			blockEntityTag[tagName] = new NbtString(tagName, replace);
 		}
 
 		private static byte Nibble4(byte[] arr, int index)

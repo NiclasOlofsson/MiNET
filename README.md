@@ -53,11 +53,10 @@ Of course you can! We just need you to accept the following:
 Also, make sure to join our Gitter chat for easy communication.    
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## Is there any forums for MiNET?
+## Are there forums for MiNET?
 
-Yes there is a forums for communicating and sharing your ideas
-[MiNET Forum](http://minetcn.com/index.php).
-The one problem that people have when they try to confirm there account is that they don't see it in there inbox. To fix this go into your junk mail and there should be a confirmation email. If you don't see it in there contact us on the gitter chat for MiNET and we should be able to approve your account.
+Yes there's a community driven [MiNET Forum](http://minetcn.com/index.php) for sharing ideas and helping others in the community with MiNET .. stuff. Do notice that this forum does not belong to this project, so please don't contact me about it.
+In case you don't get the registration email for the forum, please check your junk-mail folder or ask for help on MiNET's gitter (the admins hang out there).
 
 ## How do I install this on Linux?
 

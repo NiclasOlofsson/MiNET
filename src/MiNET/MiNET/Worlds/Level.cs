@@ -966,9 +966,12 @@ namespace MiNET.Worlds
 					drops.AddRange(blockEnity.GetDrops());
 				}
 
-				foreach (ItemStack drop in drops)
+				if (player.GameMode != GameMode.Creative)
 				{
-					DropItem(blockCoordinates, drop);
+					foreach (ItemStack drop in drops)
+					{
+						DropItem(blockCoordinates, drop);
+					}
 				}
 			}
 			else

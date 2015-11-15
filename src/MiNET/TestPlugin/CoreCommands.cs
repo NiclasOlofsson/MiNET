@@ -11,6 +11,7 @@ using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Effects;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -239,21 +240,26 @@ namespace TestPlugin
 			Log.Info(text);
 		}
 
-		//[Command]
-		//[Authorize(Users = "gurun")]
-		//public void Spawn(Player player, byte id)
-		//{
-		//	Level level = player.Level;
+		[Command]
+		[Authorize(Users = "gurun")]
+		public void Spawn(Player player, byte id)
+		{
+			Level level = player.Level;
 
-		//	Mob entity = new Mob(id, level)
-		//	{
-		//		KnownPosition = player.KnownPosition,
-		//		//Data = -(blockId | 0 << 0x10)
-		//	};
-		//	entity.SpawnEntity();
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
+		}
 
-		//	level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id), type: MessageType.Raw);
-		//}
+		[Command]
+		public void Strike(Player player)
+		{
+			//player.Level.StrikeLightning(player.KnownPosition.ToVector3());
+			player.StrikeLightning();
+		}
 
 		[Command]
 		public void Kit(Player player, int kitId)

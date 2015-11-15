@@ -156,6 +156,7 @@
     <Compile Include="Entities\Arrow.cs" />
     <Compile Include="Entities\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\Lightning.cs" />
     <Compile Include="Entities\PlayerMob.cs" />
     <Compile Include="Entities\ItemEntity.cs" />
     <Compile Include="Entities\Mob.cs" />

@@ -1057,9 +1057,8 @@ namespace MiNET.Worlds
 
 		public void StrikeLightning(Vector3 position)
 		{
-			Mob lightning = new Mob(93, this);
+			Lightning lightning = new Lightning(this);
 			lightning.SpawnEntity();
-			new Timer(state => lightning.DespawnEntity(), null, 2000, Timeout.Infinite);
 		}
 	}
 

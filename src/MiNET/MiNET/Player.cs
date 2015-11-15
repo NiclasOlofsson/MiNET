@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Effects;
@@ -776,10 +777,7 @@ namespace MiNET
 
 			SendPlayerInventory();
 
-			lock (_chunksUsed)
-			{
-				_chunksUsed.Clear();
-			}
+			CleanCache();
 
 			ForcedSendChunk(spawnPoint);
 
@@ -862,12 +860,11 @@ namespace MiNET
 		[Wired]
 		public void StrikeLightning()
 		{
-			Mob lightning = new Mob(93, Level) {KnownPosition = KnownPosition};
+			Lightning lightning = new Lightning(Level) {KnownPosition = KnownPosition};
 
 			if (lightning.Level == null) return;
 
 			lightning.SpawnEntity();
-			new Timer(state => lightning.DespawnEntity(), null, 2000, Timeout.Infinite);
 		}
 
 		private object _disconnectSync = new object();
@@ -943,12 +940,7 @@ namespace MiNET
 
 				SendQueue(null);
 
-				// Clear cache
-				lock (_chunksUsed)
-				{
-					_chunksUsed.Clear();
-					//Level = null;
-				}
+				CleanCache();
 			}
 			finally
 			{
@@ -1853,20 +1845,17 @@ namespace MiNET
 
 		public override void Knockback(Vector3 velocity)
 		{
-			ThreadPool.QueueUserWorkItem(delegate
 			{
-				{
-					McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-					motions.entities = new EntityMotions {{0, velocity}};
-					SendPackage(motions, true);
-				}
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entities = new EntityMotions {{0, velocity}};
+				SendPackage(motions);
+			}
 
-				var timer = new Timer(delegate(object state)
-				{
-					McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-					motions.entities = new EntityMotions {{0, Vector3.Zero}};
-					SendPackage(motions, true);
-				}, null, 500, Timeout.Infinite);
+			Task.Delay(500).ContinueWith(delegate(Task task)
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entities = new EntityMotions {{0, Vector3.Zero}};
+				SendPackage(motions, true);
 			});
 		}
 

@@ -178,12 +178,11 @@ namespace MiNET
 
 			if (player != null)
 			{
-				player.SendPackage(new McpeRespawn
-				{
-					x = player.SpawnPosition.X,
-					y = player.SpawnPosition.Y,
-					z = player.SpawnPosition.Z
-				});
+				var mcpeRespawn = McpeRespawn.CreateObject();
+				mcpeRespawn.x = player.SpawnPosition.X;
+				mcpeRespawn.y = player.SpawnPosition.Y;
+				mcpeRespawn.z = player.SpawnPosition.Z;
+				player.SendPackage(mcpeRespawn);
 			}
 		}
 

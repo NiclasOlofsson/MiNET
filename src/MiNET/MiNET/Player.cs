@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Effects;
@@ -641,7 +640,7 @@ namespace MiNET
 
 				SendSetEntityData();
 
-				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), true);
+				Level.AddPlayer(this, false);
 			}
 			finally
 			{
@@ -786,9 +785,7 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-			Level.AddPlayer(this, "", true);
-
-			IsSpawned = true;
+			Level.AddPlayer(this, true);
 
 			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
@@ -1157,8 +1154,10 @@ namespace MiNET
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
+
 			if (_openInventory != null)
 			{
+				if (_openInventory.Coordinates == inventoryCoord) return;
 				HandleMcpeContainerClose(null);
 			}
 
@@ -1198,12 +1197,12 @@ namespace MiNET
 			containerOpen.x = inventoryCoord.X;
 			containerOpen.y = inventoryCoord.Y;
 			containerOpen.z = inventoryCoord.Z;
-			SendPackage(containerOpen, true);
+			SendPackage(containerOpen);
 
 			var containerSetContent = McpeContainerSetContent.CreateObject();
 			containerSetContent.windowId = inventory.WindowsId;
 			containerSetContent.slotData = inventory.Slots;
-			SendPackage(containerSetContent, true);
+			SendPackage(containerSetContent);
 		}
 
 		private void OnInventoryChange(Player player, Inventory inventory, byte slot, ItemStack itemStack)
@@ -1218,7 +1217,7 @@ namespace MiNET
 				containerSetSlot.windowId = inventory.WindowsId;
 				containerSetSlot.slot = slot;
 				containerSetSlot.item = new MetadataSlot(itemStack);
-				SendPackage(containerSetSlot, true);
+				SendPackage(containerSetSlot);
 			}
 		}
 
@@ -1347,18 +1346,23 @@ namespace MiNET
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
-			if (_openInventory == null) return;
+			var inventory = _openInventory;
+			_openInventory = null;
+
+			if (inventory == null) return;
 
 			// unsubscribe to inventory changes
-			_openInventory.InventoryChange -= OnInventoryChange;
+			inventory.InventoryChange -= OnInventoryChange;
+
+			if (message != null && message.windowId != inventory.WindowsId) return;
 
 			// close container 
-			if (_openInventory.Type == 0 && !_openInventory.IsOpen())
+			if (inventory.Type == 0 && !inventory.IsOpen())
 			{
 				var tileEvent = McpeTileEvent.CreateObject();
-				tileEvent.x = _openInventory.Coordinates.X;
-				tileEvent.y = _openInventory.Coordinates.Y;
-				tileEvent.z = _openInventory.Coordinates.Z;
+				tileEvent.x = inventory.Coordinates.X;
+				tileEvent.y = inventory.Coordinates.Y;
+				tileEvent.z = inventory.Coordinates.Z;
 				tileEvent.case1 = 1;
 				tileEvent.case2 = 0;
 				Level.RelayBroadcast(tileEvent);
@@ -1367,7 +1371,6 @@ namespace MiNET
 			SendPlayerInventory();
 
 			// active inventory set to null
-			_openInventory = null;
 		}
 
 		/// <summary>
@@ -1851,12 +1854,13 @@ namespace MiNET
 				SendPackage(motions);
 			}
 
-			Task.Delay(500).ContinueWith(delegate(Task task)
-			{
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{0, Vector3.Zero}};
-				SendPackage(motions, true);
-			});
+			//Task.Delay(500).ContinueWith(delegate(Task task)
+			//{
+			//	McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			//	motions.entities = new EntityMotions {{0, Vector3.Zero}};
+			//	SendPackage(motions);
+			//}
+			//);
 		}
 
 		public override MetadataDictionary GetMetadata()

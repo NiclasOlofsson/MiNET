@@ -861,8 +861,8 @@ namespace MiNET
 
 			ack.PutPool();
 
-			session.WaitForAck = false;
 			session.ResendCount = 0;
+			session.WaitForAck = false;
 		}
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)

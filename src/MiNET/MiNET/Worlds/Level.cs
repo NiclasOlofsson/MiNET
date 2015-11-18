@@ -173,7 +173,7 @@ namespace MiNET.Worlds
 
 		private object _playerWriteLock = new object();
 
-		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
+		public virtual void AddPlayer(Player newPlayer, bool spawn)
 		{
 			if (newPlayer.Username == null) throw new ArgumentNullException("newPlayer");
 
@@ -183,24 +183,16 @@ namespace MiNET.Worlds
 			{
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
-					if (spawn) SpawnToAll(newPlayer);
+					SpawnToAll(newPlayer);
 
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
 						SendAddEntityToPlayer(entity, newPlayer);
 					}
 				}
+
+				newPlayer.IsSpawned = spawn;
 			}
-
-			//	if (!string.IsNullOrEmpty(broadcastText))
-			//	{
-			//		//BroadcastTextMessage(broadcastText);
-			//	}
-
-			//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
-			//}
-
-			//newPlayer.IsSpawned = true;
 		}
 
 		public void SpawnToAll(Player newPlayer)
@@ -265,7 +257,6 @@ namespace MiNET.Worlds
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
 					SendAddForPlayer(newPlayer, spawnedPlayer, false);
-					//Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
 				}
 			}
 		}

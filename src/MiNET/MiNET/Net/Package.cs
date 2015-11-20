@@ -559,6 +559,7 @@ namespace MiNET.Net
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
+			//skin.Alpha = ReadByte();
 			skin.Slim = ReadByte() == 0x01;
 			try
 			{
@@ -573,6 +574,7 @@ namespace MiNET.Net
 
 		public void Write(Skin skin)
 		{
+			//Write(skin.Alpha);
 			Write((byte) (skin.Slim ? 0x01 : 0x00));
 			if (skin.Texture != null)
 			{
@@ -690,7 +692,7 @@ namespace MiNET.Net
 			_writer.Flush();
 			_buffer.SetLength(0);
 			_buffer.Position = 0;
-			_timer.Reset();
+			_timer.Restart();
 			_isEncoded = false;
 		}
 

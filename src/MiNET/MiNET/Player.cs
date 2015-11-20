@@ -381,7 +381,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandlePing(InternalPing message)
 		{
-			SendPackage(message, sendDirect: true);
+			SendPackage(message);
 		}
 
 		/// <summary>
@@ -1154,7 +1154,6 @@ namespace MiNET
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
-
 			if (_openInventory != null)
 			{
 				if (_openInventory.Coordinates == inventoryCoord) return;
@@ -2017,9 +2016,22 @@ namespace MiNET
 
 			if (package == null) return;
 
-			if (!IsSpawned || sendDirect || isBatch)
+			if (!IsSpawned)
+			{
+				//ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
+				//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+				lock (_queueSync)
+				{
+					_sendQueueNotConcurrent.Enqueue(package);
+				}
+			}
+			else if (sendDirect)
 			{
 				Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+			}
+			else if (isBatch)
+			{
+				ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
 			}
 			else
 			{
@@ -2063,14 +2075,18 @@ namespace MiNET
 
 					if (package == null) continue;
 
-					if (lenght == 1)
+					if (!IsConnected)
 					{
-						if (!IsConnected)
-						{
-							package.PutPool();
-							continue;
-						}
+						package.PutPool();
+						continue;
+					}
 
+					if (!IsSpawned)
+					{
+						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+					}
+					else if (lenght == 1)
+					{
 						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
 					}
 					else

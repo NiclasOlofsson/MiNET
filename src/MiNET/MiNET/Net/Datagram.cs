@@ -58,7 +58,7 @@ namespace MiNET.Net
 
 		public override void Reset()
 		{
-			base.Reset();
+			//base.Reset();
 
 			Header.Reset();
 			RetransmissionTimeOut = 0;

@@ -6,6 +6,7 @@ namespace MiNET.Net
 	{
 		public bool Slim { get; set; }
 		public byte[] Texture { get; set; }
+		public byte Alpha { get; set; }
 
 
 		public static byte[] GetTextureFromFile(string filename)

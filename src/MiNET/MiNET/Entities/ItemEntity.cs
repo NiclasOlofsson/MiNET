@@ -35,12 +35,12 @@ namespace MiNET.Entities
 		{
 			Level.AddEntity(this);
 
-			Random random = new Random();
+			Random random = Level.Random;
 
-			//float f = 0.7F;
-			//float xr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-			//float yr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
-			//float zr = (float) (random.NextDouble()*f + (1.0F - f)*0.5D);
+			//double f = 0.7;
+			//float xr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
+			//float yr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
+			//float zr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
 
 			float xr = 0;
 			float yr = 0;
@@ -59,6 +59,25 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(mcpeAddItemEntity);
 
 			IsSpawned = true;
+		}
+
+		public override void SpawnToPlayer(Player player)
+		{
+			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
+			mcpeAddItemEntity.entityId = EntityId;
+			mcpeAddItemEntity.item = GetMetadataSlot();
+			mcpeAddItemEntity.x = KnownPosition.X;
+			mcpeAddItemEntity.y = KnownPosition.Y;
+			mcpeAddItemEntity.z = KnownPosition.Z;
+			mcpeAddItemEntity.speedX = (float) Velocity.X;
+			mcpeAddItemEntity.speedY = (float) Velocity.Y;
+			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
+			player.SendPackage(mcpeAddItemEntity);
+		}
+
+		public override void DespawnFromPlayer(Player player)
+		{
+			base.DespawnFromPlayer(player);
 		}
 
 		public override void OnTick()
@@ -86,13 +105,11 @@ namespace MiNET.Entities
 				if (KnownPosition.DistanceTo(player.KnownPosition) <= 2)
 				{
 					//BUG: If this is sent, the client crashes for some unknown reason.
-					Level.RelayBroadcast(new McpeTakeItemEntity()
-					{
-						//entityId = player.EntityId,
-						//target = EntityId
-						entityId = EntityId,
-						target = player.EntityId
-					});
+					var takeItemEntity = McpeTakeItemEntity.CreateObject();
+					takeItemEntity.entityId = EntityId;
+					takeItemEntity.target = player.EntityId;
+
+					Level.RelayBroadcast(takeItemEntity);
 					if (player.GameMode == GameMode.Survival)
 					{
 						player.Inventory.SetFirstEmptySlot((short) Item.Id, (byte) Count, Item.Metadata); //Add the items to the inventory

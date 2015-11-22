@@ -355,6 +355,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xc5:
+					package = McpeSpawnExperienceOrb.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
@@ -3372,6 +3377,56 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			endpoint = ReadIPEndPoint();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
+	{
+		public long entityId; // = null;
+		public int x; // = null;
+		public int y; // = null;
+		public int z; // = null;
+		public int count; // = null;
+		public McpeSpawnExperienceOrb()
+		{
+			Id = 0xc5;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(count);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadLong();
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadInt();
+			count = ReadInt();
 
 			AfterDecode();
 		}

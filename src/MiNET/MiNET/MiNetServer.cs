@@ -164,7 +164,6 @@ namespace MiNET
 
 				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
 				_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
-				//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
 
@@ -779,6 +778,9 @@ namespace MiNET
 				{
 					session.ErrorCount++;
 
+					// HACK: Just to make sure we aren't getting unessecary load on the queue during heavy buffering.
+					if (ServerInfo.AvailableBytes > 1000) continue;
+
 					Datagram datagram;
 					if (queue.TryGetValue(i, out datagram))
 					{
@@ -859,8 +861,8 @@ namespace MiNET
 
 			ack.PutPool();
 
-			session.WaitForAck = false;
 			session.ResendCount = 0;
+			session.WaitForAck = false;
 		}
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
@@ -975,13 +977,17 @@ namespace MiNET
 
 				Parallel.ForEach(_playerSessions, delegate(KeyValuePair<IPEndPoint, PlayerNetworkSession> pair)
 				{
-					var session = pair.Value;
+					PlayerNetworkSession session = pair.Value;
+
 					if (session == null) return;
 					if (session.Evicted) return;
+
 					Player player = session.Player;
 
 					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-					if (ServerInfo.AvailableBytes < 1000 && lastUpdate + InacvitityTimeout + 3000 /*+ Math.Min(5000, ServerInfo.AvailableBytes)*/< now)
+					bool serverHasNoLag = ServerInfo.AvailableBytes < 1000;
+
+					if (serverHasNoLag && lastUpdate + InacvitityTimeout + 3000 < now)
 					{
 						session.Evicted = true;
 						// Disconnect user
@@ -1012,7 +1018,7 @@ namespace MiNET
 					}
 
 
-					if (ServerInfo.AvailableBytes < 1000 && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+					if (serverHasNoLag && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
 					{
 						ThreadPool.QueueUserWorkItem(delegate(object o)
 						{
@@ -1029,9 +1035,10 @@ namespace MiNET
 
 					if (player == null) return;
 
-					if (lastUpdate + InacvitityTimeout < now)
+					if (serverHasNoLag && lastUpdate + InacvitityTimeout < now && !session.WaitForAck)
 					{
 						player.DetectLostConnection();
+						session.WaitForAck = true;
 					}
 
 					if (player.Rto == 0) return;
@@ -1042,11 +1049,11 @@ namespace MiNET
 					foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 					{
 						// We don't do too much processing in each step, becasue one bad queue will hold the others.
-						if (_forceQuitTimer.ElapsedMilliseconds > 100)
-						{
-							Log.WarnFormat("Update aborted early");
-							return;
-						}
+						//if (_forceQuitTimer.ElapsedMilliseconds > 100)
+						//{
+						//	Log.WarnFormat("Update aborted early");
+						//	return;
+						//}
 
 						var datagram = datagramPair.Value;
 
@@ -1059,15 +1066,15 @@ namespace MiNET
 
 						if (player.Rtt == -1) return;
 
-						if (session.WaitForAck) return;
+						//if (session.WaitForAck) return;
 
 						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
-						if (ServerInfo.AvailableBytes < 1000 && elapsedTime >= datagramTimout)
+						if (serverHasNoLag && elapsedTime >= datagramTimout)
 						{
-							if (session.WaitForAck) return;
+							//if (session.WaitForAck) return;
 
-							session.WaitForAck = session.ResendCount++ > 3;
+							//session.WaitForAck = session.ResendCount++ > 3;
 
 							Datagram deleted;
 							if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
@@ -1087,7 +1094,7 @@ namespace MiNET
 
 									deleted.PutPool();
 
-									session.WaitForAck = true;
+									//session.WaitForAck = true;
 
 									continue;
 								}
@@ -1114,8 +1121,13 @@ namespace MiNET
 			}
 			finally
 			{
-				_cleanerTimer.Change(10, Timeout.Infinite);
+				if (_forceQuitTimer.ElapsedMilliseconds > 100)
+				{
+					Log.WarnFormat("Update took unexpected long time: {0}", _forceQuitTimer.ElapsedMilliseconds);
+				}
+
 				Monitor.Exit(_updateGlobalLock);
+				_cleanerTimer.Change(10, Timeout.Infinite);
 			}
 		}
 

@@ -35,12 +35,11 @@ namespace MiNET.Net
 			var bytes = messagePart.Encode();
 			if (bytes.Length + _currentSize > mtuSize)
 			{
-				//Log.Warn(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
 				return false;
 			}
 			if (messagePart.Header.HasSplit && MessageParts.Count > 0)
 			{
-				Log.Warn(string.Format("Message has split and count > 0: {0}, MTU: {1}", MessageParts.Count, mtuSize));
+				//Log.Warn(string.Format("Message has split and count > 0: {0}, MTU: {1}", MessageParts.Count, mtuSize));
 				return false;
 			}
 			//if (Header.isContinuousSend) return false;
@@ -59,6 +58,8 @@ namespace MiNET.Net
 
 		public override void Reset()
 		{
+			//base.Reset();
+
 			Header.Reset();
 			RetransmissionTimeOut = 0;
 			TransmissionCount = 0;
@@ -94,10 +95,10 @@ namespace MiNET.Net
 
 		public static void CreateDatagrams(Package message, int mtuSize, ref int reliableMessageNumber, PlayerNetworkSession session, Action<PlayerNetworkSession, Datagram> sendDatagram)
 		{
+			if (message is InternalPing) return;
+
 			Datagram datagram = CreateObject();
 			datagram.Reset();
-
-			if (message is InternalPing) return;
 
 			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref reliableMessageNumber);
 			foreach (var messagePart in messageParts)
@@ -128,7 +129,7 @@ namespace MiNET.Net
 			byte[] encodedMessage = message.Encode();
 			if (encodedMessage == null) return messageParts;
 
-			int datagramHeaderSize = 34;
+			int datagramHeaderSize = 60;
 			//int datagramHeaderSize = 100;
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;

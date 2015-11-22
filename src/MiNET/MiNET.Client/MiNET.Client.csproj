@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="ClientUtils.cs" />
     <Compile Include="MiNetClient.cs" />
+    <Compile Include="ObjectDumper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

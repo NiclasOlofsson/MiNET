@@ -18,7 +18,6 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
 
@@ -484,7 +483,7 @@ namespace MiNET.Net
 
 		public void Write(MetadataSlot slot)
 		{
-			if (slot == null || slot.Value.Id == 0)
+			if (slot == null || slot.Value.Id <= 0)
 			{
 				Write((short) 0);
 				return;
@@ -499,9 +498,14 @@ namespace MiNET.Net
 		public MetadataSlot ReadMetadataSlot()
 		{
 			short id = ReadShort();
-			if (id == 0) return new MetadataSlot(new ItemStack());
+			if (id <= 0)
+				return new MetadataSlot(new ItemStack());
 
-			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
+			byte count = ReadByte();
+			if(count == 0)
+				return new MetadataSlot(new ItemStack());
+			short metadata = ReadShort();
+			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, count, metadata));
 			ReadShort(); // Nbt len
 			return metadataSlot;
 		}
@@ -555,6 +559,7 @@ namespace MiNET.Net
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
+			//skin.Alpha = ReadByte();
 			skin.Slim = ReadByte() == 0x01;
 			try
 			{
@@ -569,6 +574,7 @@ namespace MiNET.Net
 
 		public void Write(Skin skin)
 		{
+			//Write(skin.Alpha);
 			Write((byte) (skin.Slim ? 0x01 : 0x00));
 			if (skin.Texture != null)
 			{
@@ -686,7 +692,7 @@ namespace MiNET.Net
 			_writer.Flush();
 			_buffer.SetLength(0);
 			_buffer.Position = 0;
-			_timer.Reset();
+			_timer.Restart();
 			_isEncoded = false;
 		}
 

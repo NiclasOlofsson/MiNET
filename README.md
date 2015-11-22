@@ -11,9 +11,12 @@ MiNET
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
 
 ## Can I test this before I download it?
-Yes, you can. At times there is a dev server running and you might be lucky to get in..<br>
+Yes, you can. At times there are dev servers running and you might be lucky enough to get in..<br>
 IP: **pe.hypixel.net**    
 Port: **19132**    
+
+IP: **beta.minepocket.com**    
+Port: **19132** 
 
 ## What is this?
 
@@ -53,6 +56,11 @@ Of course you can! We just need you to accept the following:
 Also, make sure to join our Gitter chat for easy communication.    
 [![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+## Are there forums for MiNET?
+
+Yes there's a community driven [MiNET Related Forum](http://minepocket.com/#minet-development-releated-minet-related-only.71) for sharing ideas and helping others in the community with MiNET .. stuff. Do notice that this forum does not belong to this project, so please don't contact me about it.
+In case you don't get the registration email for the forum, please check your junk-mail folder or ask for help on MiNET's gitter (the admins hang out there).
+
 ## How do I install this on Linux?
 
 On Linux, compiling and using the server is relatively straightforward but there are a few things that can catch you out in the process.
@@ -69,7 +77,7 @@ Once you've cloned the repository, you can use the `xbuild` tool to compile the 
 
 If the build fails, try manually setting the TargetFrameworkVersion:
 
-    cd MiNet; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
+    cd MiNET; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
 
 
 #### Troubleshooting
@@ -110,3 +118,9 @@ at (wrapper remoting-invoke-with-check) MiNET.Utils.ZLibStream:.ctor (System.IO.
 at MiNET.Worlds.ChunkColumn.GetBytes () [0x00000] in <filename unknown>:0
 at MiNET.Worlds.Level.<Initialize>m__0 (System.Object state) [0x00000] in <filename unknown>:0 
 ```
+#### Windows Troubleshooting
+
+```
+When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
+```
+

@@ -173,7 +173,7 @@ namespace MiNET.Worlds
 
 		private object _playerWriteLock = new object();
 
-		public virtual void AddPlayer(Player newPlayer, string broadcastText = null, bool spawn = true)
+		public virtual void AddPlayer(Player newPlayer, bool spawn)
 		{
 			if (newPlayer.Username == null) throw new ArgumentNullException("newPlayer");
 
@@ -183,24 +183,16 @@ namespace MiNET.Worlds
 			{
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
-					if (spawn) SpawnToAll(newPlayer);
+					SpawnToAll(newPlayer);
 
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
 						SendAddEntityToPlayer(entity, newPlayer);
 					}
 				}
+
+				newPlayer.IsSpawned = spawn;
 			}
-
-			//	if (!string.IsNullOrEmpty(broadcastText))
-			//	{
-			//		//BroadcastTextMessage(broadcastText);
-			//	}
-
-			//	//BroadCastMovement(new[] {newPlayer}, GetSpawnedPlayers());
-			//}
-
-			//newPlayer.IsSpawned = true;
 		}
 
 		public void SpawnToAll(Player newPlayer)
@@ -209,6 +201,8 @@ namespace MiNET.Worlds
 			{
 				List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
 				spawnedPlayers.Add(newPlayer);
+
+				Player[] sendList = spawnedPlayers.ToArray();
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
@@ -227,12 +221,11 @@ namespace MiNET.Worlds
 
 				newPlayer.SendPackage(batch);
 
-
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {newPlayer};
 				playerList.Encode();
 				playerList.records = null;
-				RelayBroadcast(newPlayer, playerList);
+				RelayBroadcast(newPlayer, sendList, playerList);
 
 				McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 				mcpeAddPlayer.uuid = newPlayer.ClientUuid;
@@ -245,13 +238,13 @@ namespace MiNET.Worlds
 				mcpeAddPlayer.headYaw = newPlayer.KnownPosition.HeadYaw;
 				mcpeAddPlayer.pitch = newPlayer.KnownPosition.Pitch;
 				mcpeAddPlayer.metadata = newPlayer.GetMetadata();
-				RelayBroadcast(newPlayer, mcpeAddPlayer);
+				RelayBroadcast(newPlayer, sendList, mcpeAddPlayer);
 
 				McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 				mcpePlayerEquipment.entityId = newPlayer.EntityId;
 				mcpePlayerEquipment.item = new MetadataSlot(newPlayer.Inventory.GetItemInHand());
 				mcpePlayerEquipment.slot = 0;
-				RelayBroadcast(newPlayer, mcpePlayerEquipment);
+				RelayBroadcast(newPlayer, sendList, mcpePlayerEquipment);
 
 				McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 				mcpePlayerArmorEquipment.entityId = newPlayer.EntityId;
@@ -259,12 +252,11 @@ namespace MiNET.Worlds
 				mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(newPlayer.Inventory.Chest, 0));
 				mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(newPlayer.Inventory.Leggings, 0));
 				mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(newPlayer.Inventory.Boots, 0));
-				RelayBroadcast(newPlayer, mcpePlayerArmorEquipment);
+				RelayBroadcast(newPlayer, sendList, mcpePlayerArmorEquipment);
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
 					SendAddForPlayer(newPlayer, spawnedPlayer, false);
-					//Log.DebugFormat("Send AddPlayer to {0} for new player {1}", spawnedPlayer.Username, newPlayer.Username);
 				}
 			}
 		}
@@ -401,21 +393,7 @@ namespace MiNET.Worlds
 
 		public void SendAddEntityToPlayer(Entity entity, Player player)
 		{
-			if (entity is ItemEntity)
-			{
-				ItemEntity itemEntity = (ItemEntity) entity;
-				McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-				mcpeAddItemEntity.entityId = itemEntity.EntityId;
-				mcpeAddItemEntity.item = itemEntity.GetMetadataSlot();
-				mcpeAddItemEntity.x = itemEntity.KnownPosition.X;
-				mcpeAddItemEntity.y = itemEntity.KnownPosition.Y;
-				mcpeAddItemEntity.z = itemEntity.KnownPosition.Z;
-				player.SendPackage(mcpeAddItemEntity);
-			}
-			else
-			{
-				entity.SpawnToPlayer(player);
-			}
+			entity.SpawnToPlayer(player);
 		}
 
 		public void RemoveEntity(Entity entity)
@@ -693,6 +671,19 @@ namespace MiNET.Worlds
 			}
 		}
 
+		public McpeBatch GenerateChunk(ChunkCoordinates chunkPosition)
+		{
+			if (_worldProvider == null) return null;
+
+			ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(chunkPosition);
+			if (chunkColumn == null) return null;
+
+			McpeBatch chunk = chunkColumn.GetBatch();
+			if (chunk == null) return null;
+
+			return chunk;
+		}
+
 		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)
 		{
 			lock (chunksUsed)
@@ -743,14 +734,14 @@ namespace MiNET.Worlds
 				{
 					if (chunksUsed.ContainsKey(pair.Key)) continue;
 
-					if(_worldProvider == null) continue;
+					if (_worldProvider == null) continue;
 
 					ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
-					if(chunkColumn == null) continue;
+					if (chunkColumn == null) continue;
 
 					McpeBatch chunk = chunkColumn.GetBatch();
-					if(chunk == null) continue;
-					
+					if (chunk == null) continue;
+
 					chunksUsed.Add(pair.Key, chunk);
 
 					yield return chunk;
@@ -966,9 +957,12 @@ namespace MiNET.Worlds
 					drops.AddRange(blockEnity.GetDrops());
 				}
 
-				foreach (ItemStack drop in drops)
+				if (player.GameMode != GameMode.Creative)
 				{
-					DropItem(blockCoordinates, drop);
+					foreach (ItemStack drop in drops)
+					{
+						DropItem(blockCoordinates, drop);
+					}
 				}
 			}
 			else
@@ -1054,9 +1048,8 @@ namespace MiNET.Worlds
 
 		public void StrikeLightning(Vector3 position)
 		{
-			Mob lightning = new Mob(93, this);
+			Lightning lightning = new Lightning(this);
 			lightning.SpawnEntity();
-			new Timer(state => lightning.DespawnEntity(), null, 2000, Timeout.Infinite);
 		}
 	}
 

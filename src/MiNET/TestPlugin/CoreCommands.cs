@@ -11,6 +11,7 @@ using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Effects;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -62,6 +63,24 @@ namespace TestPlugin
 			}
 		}
 
+
+		[Command]
+		public void Orb(Player player1)
+		{
+			foreach (Player player in player1.Level.Players.Values)
+			{
+				// 128 = 32 + 32 + 32
+				player.Level.RelayBroadcast(new McpeSpawnExperienceOrb()
+				{
+					entityId = player.EntityId,
+					x = (int) (player1.KnownPosition.X + 1),
+					y = (int) (player1.KnownPosition.Y + 2),
+					z = (int) (player1.KnownPosition.Z + 1),
+					count = 10
+				});
+			}
+		}
+
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
@@ -104,55 +123,55 @@ namespace TestPlugin
 			{
 				player.SpawnLevel(player.Level, new PlayerLocation
 				{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
+					X = x,
+					Y = y,
+					Z = z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
 				});
 			}, null);
 
 			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
-		//[Command(Command = "tp")]
-		//public void Teleport(Player player)
-		//{
-		//	Teleport(player, "Default");
-		//}
+		[Command(Command = "tp")]
+		public void Teleport(Player player)
+		{
+			Teleport(player, "Default");
+		}
 
-		//[Command(Command = "tp")]
-		//public void Teleport(Player player, string world)
-		//{
-		//	if (player.Level.LevelId.Equals(world)) return;
+		[Command(Command = "tp")]
+		public void Teleport(Player player, string world)
+		{
+			if (player.Level.LevelId.Equals(world)) return;
 
-		//	if (!Context.LevelManager.Levels.Contains(player.Level))
-		//	{
-		//		Context.LevelManager.Levels.Add(player.Level);
-		//	}
+			if (!Context.LevelManager.Levels.Contains(player.Level))
+			{
+				Context.LevelManager.Levels.Add(player.Level);
+			}
 
-		//	ThreadPool.QueueUserWorkItem(delegate(object state)
-		//	{
-		//		Level[] levels = state as Level[];
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				Level[] levels = state as Level[];
 
-		//		if (levels != null)
-		//		{
-		//			Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+				if (levels != null)
+				{
+					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
 
-		//			if (nextLevel == null)
-		//			{
-		//				nextLevel = new Level(world, new FlatlandWorldProvider());
-		//				nextLevel.Initialize();
-		//				Context.LevelManager.Levels.Add(nextLevel);
-		//			}
+					if (nextLevel == null)
+					{
+						nextLevel = new Level(world, new FlatlandWorldProvider());
+						nextLevel.Initialize();
+						Context.LevelManager.Levels.Add(nextLevel);
+					}
 
-		//			player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, nextLevel.LevelId), type: MessageType.Raw);
+					player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, nextLevel.LevelId), type: MessageType.Raw);
 
-		//			player.SpawnLevel(nextLevel);
-		//		}
-		//	}, Context.LevelManager.Levels.ToArray());
-		//}
+					player.SpawnLevel(nextLevel);
+				}
+			}, Context.LevelManager.Levels.ToArray());
+		}
 
 		[Command]
 		public void Clear(Player player)
@@ -221,21 +240,26 @@ namespace TestPlugin
 			Log.Info(text);
 		}
 
-		//[Command]
-		//[Authorize(Users = "gurun")]
-		//public void Spawn(Player player, byte id)
-		//{
-		//	Level level = player.Level;
+		[Command]
+		[Authorize(Users = "gurun")]
+		public void Spawn(Player player, byte id)
+		{
+			Level level = player.Level;
 
-		//	Mob entity = new Mob(id, level)
-		//	{
-		//		KnownPosition = player.KnownPosition,
-		//		//Data = -(blockId | 0 << 0x10)
-		//	};
-		//	entity.SpawnEntity();
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
+		}
 
-		//	level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id), type: MessageType.Raw);
-		//}
+		[Command]
+		public void Strike(Player player)
+		{
+			//player.Level.StrikeLightning(player.KnownPosition.ToVector3());
+			player.StrikeLightning();
+		}
 
 		[Command]
 		public void Kit(Player player, int kitId)
@@ -287,6 +311,8 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);
 			inventory.Slots[c++] = new ItemStack(new ItemWoodenPickaxe(0), 1);
 			inventory.Slots[c++] = new ItemStack(new ItemBread(), 5);
+			inventory.Slots[c++] = new ItemStack(new ItemBlock(new Block(35), 0), 64);
+			inventory.Slots[c++] = new ItemStack(new ItemBucket(8), 1);
 
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);
@@ -407,12 +433,13 @@ namespace TestPlugin
 					case EffectType.Levitation:
 						eff = new Levitation();
 						break;
-		}
+				}
 
 				if (eff != null)
-			{
+				{
 					eff.Level = level;
 					eff.Duration = duration;
+					eff.Particles = false;
 
 					player.SetEffect(eff);
 					player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectType, level), MessageType.Raw);

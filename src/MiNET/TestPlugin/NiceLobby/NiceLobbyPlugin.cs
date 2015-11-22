@@ -45,7 +45,7 @@ namespace TestPlugin.NiceLobby
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			e.Cancel = e.Player.GameMode != GameMode.Creative;
+			//e.Cancel = e.Player.GameMode != GameMode.Creative;
 		}
 
 		private double m = 0.1d;
@@ -188,10 +188,12 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			//player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration});
+			player.RemoveAllEffects();
+
+			player.SetEffect(new Speed { Level = 2, Duration = 1000 });
 			////player.SetEffect(new Slowness {Level = 2, Duration = 20});
-			//player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
-			player.SetAutoJump(true);
+			//player.SetEffect(new JumpBoost { Level = 2, Duration = Effect.MaxDuration });
+			//player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))
 			{

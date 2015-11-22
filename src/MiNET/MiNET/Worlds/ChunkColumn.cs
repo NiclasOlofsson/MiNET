@@ -139,7 +139,7 @@ namespace MiNET.Worlds
 		{
 			lock (_cacheSync)
 			{
-				if (_cache != null && _cachedBatch != null) return _cachedBatch;
+				if (!isDirty && _cachedBatch != null) return _cachedBatch;
 
 				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 				fullChunkData.chunkX = x;
@@ -162,6 +162,7 @@ namespace MiNET.Worlds
 				batch.MarkPermanent();
 
 				_cachedBatch = batch;
+				_cache = null;
 
 				return batch;
 			}
@@ -195,17 +196,16 @@ namespace MiNET.Worlds
 				if (BlockEntities.Count == 0)
 				{
 					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) {BigEndian = false};
-					writer.Write(file.SaveToBuffer(NbtCompression.None));
+					file.SaveToStream(writer.BaseStream, NbtCompression.None);
 				}
 				else
 				{
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
 						NbtFile file = new NbtFile(blockEntity) {BigEndian = false};
-						writer.Write(file.SaveToBuffer(NbtCompression.None));
+						file.SaveToStream(writer.BaseStream, NbtCompression.None);
 					}
 				}
-
 
 				writer.Flush();
 				writer.Close();
@@ -285,7 +285,10 @@ namespace MiNET.Worlds
 			}
 
 			//private byte[] _cache;
-			cc._cache = (byte[])_cache.Clone();
+			if(_cache != null)
+			{
+				cc._cache = (byte[])_cache.Clone();
+			}
 
 			//private McpeBatch _cachedBatch = null;
 			McpeBatch batch = McpeBatch.CreateObject();

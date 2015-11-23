@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -28,14 +29,15 @@ namespace MiNET
 			Player = player;
 
 			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
-			//int c = -1;
+			int c = -1;
 			//Slots[++c] = new ItemStack(new ItemIronSword(0), 1);
 			//Slots[++c] = new ItemStack(new ItemBow(0), 1);
 			//Slots[++c] = new ItemStack(new ItemSnowball(0), 64);
 			//Slots[++c] = new ItemStack(new ItemEgg(0), 64);
 			//Slots[++c] = new ItemStack(262, 32);
 			//Slots[++c] = new ItemStack(new ItemBucket(10), 1);
-			//Slots[++c] = new ItemStack(new ItemBlock(new DiamondOre(), 0), 64);
+			//Slots[++c] = new ItemStack(new ItemChest(0), 1);
+			////Slots[++c] = new ItemStack(new ItemBlock(new DiamondOre(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
@@ -151,15 +153,19 @@ namespace MiNET
 
 		public void SetHeldItemSlot(int slot)
 		{
+			InHandSlot = slot;
+
 			McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
 			order.entityId = 0;
+			order.item = GetItemInHand();
 			order.selectedSlot = (byte) slot;
 			Player.SendPackage(order);
 
 			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
 			broadcast.entityId = Player.EntityId;
+			broadcast.item = GetItemInHand();
 			broadcast.selectedSlot = (byte) slot;
-			Player.Level.RelayBroadcast(broadcast);
+			Player.Level?.RelayBroadcast(broadcast);
 		}
 
 		/// <summary>

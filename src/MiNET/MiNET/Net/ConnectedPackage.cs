@@ -10,7 +10,7 @@ namespace MiNET.Net
 {
 	public class ConnectedPackage : Package<ConnectedPackage>
 	{
-		private DatagramHeader _datagramHeader;
+		public DatagramHeader _datagramHeader;
 		public Int24 _datagramSequenceNumber; // uint 24
 
 		public Reliability _reliability;
@@ -109,6 +109,7 @@ namespace MiNET.Net
 
 			_datagramHeader = new DatagramHeader(ReadByte());
 			_datagramSequenceNumber = ReadLittle();
+			_datagramHeader.datagramSequenceNumber = _datagramSequenceNumber;
 
 			while (_buffer.Position < _buffer.Length)
 			{

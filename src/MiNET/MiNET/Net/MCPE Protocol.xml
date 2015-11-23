@@ -430,6 +430,7 @@
 	<pdu id="0xb7" online="false" client="true" server="true" name="MCPE_CONTAINER_SET_SLOT">
 		<field name="Window ID" type="byte" />
 		<field name="Slot" type="short" />
+		<field name="Unknown" type="short" />
 		<field name="Item" type="MetadataSlot" />
 	</pdu>
 

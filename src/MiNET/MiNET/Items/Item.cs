@@ -13,9 +13,9 @@ namespace MiNET.Items
 	public class Item
 	{
 		public int Id { get; set; }
+		public short Metadata { get; set; }
 		public ItemMaterial ItemMaterial { get; set; }
 		public ItemType ItemType { get; set; }
-		public short Metadata { get; set; }
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }
 

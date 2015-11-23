@@ -737,10 +737,11 @@ namespace MiNET.Worlds
 					if (_worldProvider == null) continue;
 
 					ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
-					if (chunkColumn == null) continue;
-
-					McpeBatch chunk = chunkColumn.GetBatch();
-					if (chunk == null) continue;
+					McpeBatch chunk = null;
+					if (chunkColumn != null)
+					{
+						chunk = chunkColumn.GetBatch();
+					}
 
 					chunksUsed.Add(pair.Key, chunk);
 

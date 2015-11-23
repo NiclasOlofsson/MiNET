@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
@@ -11,6 +12,8 @@ namespace MiNET.Entities
 {
 	public class Projectile : Entity
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Projectile));
+
 		public Player Shooter { get; set; }
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
@@ -35,7 +38,10 @@ namespace MiNET.Entities
 			{
 				if (IsSpawned) throw new Exception("Invalid state. Tried to spawn projectile more than one time.");
 
+
 				Level.AddEntity(this);
+
+				IsSpawned = true;
 
 				if (Shooter == null)
 				{
@@ -54,8 +60,6 @@ namespace MiNET.Entities
 
 					Level.RelayBroadcast(addEntity);
 
-					IsSpawned = true;
-
 					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 					mcpeSetEntityData.entityId = EntityId;
 					mcpeSetEntityData.metadata = GetMetadata();
@@ -73,9 +77,9 @@ namespace MiNET.Entities
 						addEntity.yaw = KnownPosition.Yaw;
 						addEntity.pitch = KnownPosition.Pitch;
 						addEntity.metadata = GetMetadata();
-						addEntity.speedX = (float) Velocity.X;
-						addEntity.speedY = (float) Velocity.Y;
-						addEntity.speedZ = (float) Velocity.Z;
+						addEntity.speedX = (float)Velocity.X;
+						addEntity.speedY = (float)Velocity.Y;
+						addEntity.speedZ = (float)Velocity.Z;
 
 						Level.RelayBroadcast(Shooter, addEntity);
 

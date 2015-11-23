@@ -2933,6 +2933,7 @@ namespace MiNET.Net
 	{
 		public byte windowId; // = null;
 		public short slot; // = null;
+		public short unknown; // = null;
 		public MetadataSlot item; // = null;
 		public McpeContainerSetSlot()
 		{
@@ -2947,6 +2948,7 @@ namespace MiNET.Net
 
 			Write(windowId);
 			Write(slot);
+			Write(unknown);
 			Write(item);
 
 			AfterEncode();
@@ -2963,6 +2965,7 @@ namespace MiNET.Net
 
 			windowId = ReadByte();
 			slot = ReadShort();
+			unknown = ReadShort();
 			item = ReadMetadataSlot();
 
 			AfterDecode();

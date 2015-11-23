@@ -235,6 +235,7 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
+				Log.Error("Unexpected end of transmission?", e);
 				if (listener.Client != null)
 				{
 					try
@@ -243,6 +244,7 @@ namespace MiNET
 					}
 					catch (ObjectDisposedException dex)
 					{
+						Log.Error("Unexpected end of transmission?", dex);
 					}
 				}
 
@@ -718,7 +720,7 @@ namespace MiNET
 						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.12.3"},
+						{"version", "0.13.0"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},

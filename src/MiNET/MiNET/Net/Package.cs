@@ -499,11 +499,11 @@ namespace MiNET.Net
 		{
 			short id = ReadShort();
 			if (id <= 0)
-				return new MetadataSlot(new ItemStack());
+				return new MetadataSlot(new ItemStack(id, 0, 0));
 
-			byte count = ReadByte();
-			if(count == 0)
-				return new MetadataSlot(new ItemStack());
+			var count = ReadByte();
+			if (count == 0)
+				return new MetadataSlot(new ItemStack(id, 0, 0));
 			short metadata = ReadShort();
 			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, count, metadata));
 			ReadShort(); // Nbt len
@@ -559,7 +559,7 @@ namespace MiNET.Net
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
-			//skin.Alpha = ReadByte();
+			skin.Alpha = ReadByte();
 			skin.Slim = ReadByte() == 0x01;
 			try
 			{
@@ -574,7 +574,7 @@ namespace MiNET.Net
 
 		public void Write(Skin skin)
 		{
-			//Write(skin.Alpha);
+			Write(skin.Alpha);
 			Write((byte) (skin.Slim ? 0x01 : 0x00));
 			if (skin.Texture != null)
 			{

@@ -1066,6 +1066,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 |Slot | short |  |
+|Unknown | short |  |
 |Item | MetadataSlot |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Data (0xb8)

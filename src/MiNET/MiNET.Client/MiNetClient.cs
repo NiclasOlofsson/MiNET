@@ -225,8 +225,6 @@ namespace MiNET.Client
 		{
 			byte msgId = receiveBytes[0];
 
-			//Log.DebugFormat("Recieve {0} 0x{0:x2} len: {1}", msgId, receiveBytes.Length);
-
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
@@ -277,7 +275,9 @@ namespace MiNET.Client
 					//ConnectedPackage package = ConnectedPackage.CreateObject();
 					ConnectedPackage package = new ConnectedPackage();
 					package.Decode(receiveBytes);
+					header = package._datagramHeader;
 					//Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
+					Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {header.isPacketPair}, {header.isContinuousSend}, {package._orderingChannel}, {package._orderingIndex}");
 
 					var messages = package.Messages;
 
@@ -287,12 +287,20 @@ namespace MiNET.Client
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
 					{
-						// Send ACK
-						Acks ack = new Acks();
-						ack.acks.Add(package._datagramSequenceNumber.IntValue());
-						byte[] data = ack.Encode();
-						//Log.Info("Send ACK #" + package._datagramSequenceNumber.IntValue());
-						SendData(data, senderEndpoint);
+						if (header.datagramSequenceNumber == 1000)
+						{
+							Log.Error("Datagram 1000 ignored");
+						}
+						else
+						{
+							// Send ACK
+							Acks ack = new Acks();
+							ack.acks.Add(package._datagramSequenceNumber.IntValue());
+							byte[] data = ack.Encode();
+							//Log.Info("Send ACK #" + package._datagramSequenceNumber.IntValue());
+							SendData(data, senderEndpoint);
+						}
+
 					}
 
 					//if (LoginSent) return; //HACK
@@ -536,6 +544,7 @@ namespace MiNET.Client
 				Log.DebugFormat("Velocity X: {0}", msg.speedX);
 				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+				Log.DebugFormat("Velocity Z: {0}", msg.metadata);
 				//Log.DebugFormat("Links count: {0}", msg.links);
 
 				return;
@@ -745,7 +754,12 @@ namespace MiNET.Client
 
 		private void TraceReceive(Package message)
 		{
-			if (message is McpeMoveEntity || message is McpeMovePlayer || message is McpeBatch || message is McpeFullChunkData || message is ConnectedPing) return;
+			if (message is McpeMoveEntity 
+				|| message is McpeMovePlayer 
+				|| message is McpeSetEntityMotion
+				|| message is McpeBatch 
+				|| message is McpeFullChunkData 
+				|| message is ConnectedPing) return;
 
 			var stringWriter = new StringWriter();
 			ObjectDumper.Write(message, 1, stringWriter);
@@ -869,8 +883,8 @@ namespace MiNET.Client
 			var packet = new McpeLogin()
 			{
 				username = username,
-				protocol = 34,
-				protocol2 = 34,
+				protocol = 38,
+				protocol2 = 38,
 				clientId = ClientId,
 				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
 				serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,

@@ -213,7 +213,14 @@ namespace MiNET.Worlds
 
 			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
-			if (!File.Exists(filePath)) return generator.GenerateChunkColumn(coordinates);
+			if (!File.Exists(filePath))
+			{
+				return new ChunkColumn
+				{
+					x = coordinates.X,
+					z = coordinates.Z,
+				};
+			}
 
 			using (var regionFile = File.OpenRead(filePath))
 			{
@@ -238,7 +245,11 @@ namespace MiNET.Worlds
 
 				if (offset == 0 || length == 0)
 				{
-					return generator.GenerateChunkColumn(coordinates);
+					return new ChunkColumn
+					{
+						x = coordinates.X,
+						z = coordinates.Z,
+					};
 				}
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
@@ -603,7 +614,7 @@ namespace MiNET.Worlds
 			ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
 			{
-				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value.Clone());
+				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value?.Clone());
 			}
 
 			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, (LevelInfo) _level.Clone(), WaterOffsetY, chunkCache);

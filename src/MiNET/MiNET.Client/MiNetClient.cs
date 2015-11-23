@@ -368,7 +368,7 @@ namespace MiNET.Client
 
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
-				playerSession.Splits.Add(spId, new SplitPartPackage[spCount]);
+				playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
 			}
 
 			SplitPartPackage[] spPackets = playerSession.Splits[spId];
@@ -384,6 +384,9 @@ namespace MiNET.Client
 			{
 				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
 
+				SplitPartPackage[] waste;
+				playerSession.Splits.TryRemove(spId, out waste);
+
 				MemoryStream stream = new MemoryStream();
 				for (int i = 0; i < spPackets.Length; i++)
 				{
@@ -392,8 +395,6 @@ namespace MiNET.Client
 					stream.Write(buf, 0, buf.Length);
 					splitPartPackage.PutPool();
 				}
-
-				playerSession.Splits.Remove(spId);
 
 				byte[] buffer = stream.ToArray();
 

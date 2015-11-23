@@ -203,6 +203,8 @@ namespace MiNET
 		{
 			if (CooldownTick > 0) CooldownTick--;
 
+			if (!Entity.IsSpawned) return;
+
 			if (IsDead) return;
 
 			if (IsInvulnerable) Health = 200;

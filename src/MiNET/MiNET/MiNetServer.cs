@@ -260,7 +260,7 @@ namespace MiNET
 				try
 				{
 					if (!GreylistManager.IsWhitelisted(senderEndpoint.Address) && GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
-					//if (GreylistManager.IsGreylisted(senderEndpoint.Address)) return;
+					if (GreylistManager.IsGreylisted(senderEndpoint.Address)) return;
 					ProcessMessage(receiveBytes, senderEndpoint);
 				}
 				catch (Exception e)
@@ -612,7 +612,7 @@ namespace MiNET
 
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
-				playerSession.Splits.Add(spId, new SplitPartPackage[spCount]);
+				playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
 			}
 
 			SplitPartPackage[] spPackets = playerSession.Splits[spId];
@@ -628,6 +628,9 @@ namespace MiNET
 			{
 				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
 
+				SplitPartPackage[] waste;
+				playerSession.Splits.TryRemove(spId, out waste);
+
 				MemoryStream stream = new MemoryStream();
 				for (int i = 0; i < spPackets.Length; i++)
 				{
@@ -642,8 +645,6 @@ namespace MiNET
 					stream.Write(buf, 0, buf.Length);
 					splitPartPackage.PutPool();
 				}
-
-				playerSession.Splits.Remove(spId);
 
 				byte[] buffer = stream.ToArray();
 				try
@@ -1072,7 +1073,14 @@ namespace MiNET
 
 						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
-						if (serverHasNoLag && elapsedTime >= datagramTimout)
+
+						if(elapsedTime > 5000)
+						{
+							Datagram deleted;
+							queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted);
+						}
+
+						else if (serverHasNoLag && elapsedTime >= datagramTimout)
 						{
 							//if (session.WaitForAck) return;
 
@@ -1113,7 +1121,7 @@ namespace MiNET
 												elapsedTime,
 												datagramTimout,
 												player.Rto);
-										SendDatagram(session, (Datagram) data, false);
+										SendDatagram(session, (Datagram) data, true);
 									}, datagram);
 								}
 							}

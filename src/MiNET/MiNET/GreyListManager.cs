@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using log4net;
 
 namespace MiNET
@@ -59,25 +60,30 @@ namespace MiNET
 
 		public virtual bool IsGreylisted(IPAddress address)
 		{
-			//if (_greylist.ContainsKey(address))
-			//{
-			//	if (_greylist[address] > DateTime.UtcNow)
-			//	{
-			//		return true;
-			//	}
+			lock (_greylist)
+			{
+				if (_greylist.ContainsKey(address))
+				{
+					if (_greylist[address] > DateTime.UtcNow)
+					{
+						return true;
+					}
 
-			//	DateTime waste;
-			//	_greylist.TryRemove(address, out waste);
-			//}
-
+					DateTime waste;
+					_greylist.TryRemove(address, out waste);
+				}
+			}
 			return false;
 		}
 
 		public void Greylist(IPAddress address, int time)
 		{
-			//var dateTime = DateTime.UtcNow.AddMilliseconds(time);
-			//Thread.Sleep(1);
-			//_greylist.TryAdd(address, dateTime);
+			lock (_greylist)
+			{
+				var dateTime = DateTime.UtcNow.AddMilliseconds(time);
+				Thread.Sleep(1);
+				_greylist.TryAdd(address, dateTime);
+			}
 		}
 	}
 }

@@ -765,6 +765,8 @@ namespace MiNET.Worlds
 		public Block GetBlock(BlockCoordinates blockCoordinates)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
+			if(chunk == null) return new Air();
+
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 
@@ -922,7 +924,7 @@ namespace MiNET.Worlds
 
 					var message = McpeUpdateBlock.CreateObject();
 					message.blocks = new BlockRecords {sendBlock};
-					player.SendPackage(message, true);
+					player.SendPackage(message);
 
 					return;
 				}
@@ -970,7 +972,7 @@ namespace MiNET.Worlds
 			{
 				var message = McpeUpdateBlock.CreateObject();
 				message.blocks = new BlockRecords {block};
-				player.SendPackage(message, true);
+				player.SendPackage(message);
 			}
 		}
 

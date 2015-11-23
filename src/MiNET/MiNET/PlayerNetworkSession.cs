@@ -22,7 +22,7 @@ namespace MiNET
 
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
 		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
-		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
+		private ConcurrentDictionary<int, SplitPartPackage[]> _splits = new ConcurrentDictionary<int, SplitPartPackage[]>();
 		public int DatagramSequenceNumber = -1;
 		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
@@ -47,7 +47,7 @@ namespace MiNET
 			CreateTime = DateTime.UtcNow;
 		}
 
-		public Dictionary<int, SplitPartPackage[]> Splits
+		public ConcurrentDictionary<int, SplitPartPackage[]> Splits
 		{
 			get { return _splits; }
 		}

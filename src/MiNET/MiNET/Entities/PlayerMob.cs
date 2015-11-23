@@ -58,10 +58,10 @@ namespace MiNET.Entities
 		public override void SpawnEntity()
 		{
 			Level.AddEntity(this);
-			IsSpawned = true;
-			BroadcastSetEntityData();
-
 			SpawnToAll();
+			IsSpawned = true;
+
+			BroadcastSetEntityData();
 		}
 
 		public override void SpawnToPlayer(Player player)

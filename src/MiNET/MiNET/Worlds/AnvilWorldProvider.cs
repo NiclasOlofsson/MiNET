@@ -132,7 +132,7 @@ namespace MiNET.Worlds
 		public AnvilWorldProvider()
 		{
 			IsCaching = true;
-			_flatland = new FlatlandWorldProvider();
+			//_flatland = new FlatlandWorldProvider();
 		}
 
 		public AnvilWorldProvider(string basePath) : this()
@@ -148,7 +148,7 @@ namespace MiNET.Worlds
 			WaterOffsetY = waterOffsetY;
 			_chunkCache = chunkCache;
 			_isInitialized = true;
-			_flatland = new FlatlandWorldProvider();
+			//_flatland = new FlatlandWorldProvider();
 		}
 
 		private bool _isInitialized = false;
@@ -184,7 +184,7 @@ namespace MiNET.Worlds
 		{
 			lock (_chunkCache)
 			{
-				return _chunkCache.Values.ToArray();
+				return _chunkCache.Values.Where(column => column != null).ToArray();
 			}
 		}
 
@@ -215,11 +215,12 @@ namespace MiNET.Worlds
 
 			if (!File.Exists(filePath))
 			{
-				return new ChunkColumn
-				{
-					x = coordinates.X,
-					z = coordinates.Z,
-				};
+				return generator?.GenerateChunkColumn(coordinates);
+				//return new ChunkColumn
+				//{
+				//	x = coordinates.X,
+				//	z = coordinates.Z,
+				//};
 			}
 
 			using (var regionFile = File.OpenRead(filePath))
@@ -245,11 +246,12 @@ namespace MiNET.Worlds
 
 				if (offset == 0 || length == 0)
 				{
-					return new ChunkColumn
-					{
-						x = coordinates.X,
-						z = coordinates.Z,
-					};
+					return generator?.GenerateChunkColumn(coordinates);
+					//return new ChunkColumn
+					//{
+					//	x = coordinates.X,
+					//	z = coordinates.Z,
+					//};
 				}
 
 				regionFile.Seek(offset, SeekOrigin.Begin);

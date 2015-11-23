@@ -525,6 +525,7 @@ namespace MiNET
 
 			if (message.protocol < 38)
 			{
+				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
 				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));
 				return;
 			}
@@ -898,7 +899,7 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				if (Level != null)
+				if (Level != null && IsSpawned)
 				{
 					Level.RemovePlayer(this);
 				}
@@ -1674,7 +1675,7 @@ namespace MiNET
 		{
 			var chunkPosition = new ChunkCoordinates(position);
 
-			var chunk = Level.GenerateChunk(chunkPosition);
+			McpeBatch chunk = Level.GenerateChunk(chunkPosition);
 			_chunksUsed.Add(new Tuple<int, int>(chunkPosition.X, chunkPosition.Z), chunk);
 			if (chunk != null)
 			{
@@ -1697,7 +1698,7 @@ namespace MiNET
 				{
 					if (chunk == null) continue;
 
-					SendPackage(chunk, sendDirect: true);
+					SendPackage(chunk, true);
 				}
 			}
 			finally
@@ -1728,7 +1729,7 @@ namespace MiNET
 
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-                    if (chunk != null) SendPackage(chunk, sendDirect: true);
+                    if (chunk != null) SendPackage(chunk);
 
 					if (!IsSpawned)
 					{
@@ -2053,7 +2054,7 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package, bool sendDirect = false)
 		{
-			if (package == null) return;
+            if (package == null) return;
 
 			if (!IsConnected)
 			{
@@ -2088,6 +2089,7 @@ namespace MiNET
 			else if (isBatch)
 			{
 				ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
+				//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
 			}
 			else
 			{

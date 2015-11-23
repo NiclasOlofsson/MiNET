@@ -6,7 +6,7 @@ namespace MiNET
 {
 	public class SessionManager
 	{
-		private ConcurrentDictionary<UUID, Session> _sessions = new ConcurrentDictionary<UUID, Session>();
+		public static ConcurrentDictionary<UUID, Session> _sessions = new ConcurrentDictionary<UUID, Session>();
 
 		public virtual Session FindSession(Player player)
 		{
@@ -27,7 +27,7 @@ namespace MiNET
 		{
 		}
 
-		public void RemoveSession(Session session)
+		public static void RemoveSession(Session session)
 		{
 			if (session.Player.ClientUuid == null) return;
 
@@ -35,7 +35,7 @@ namespace MiNET
 		}
 	}
 
-	public class Session : Dictionary<string, object>
+	public static class Session : Dictionary<string, object>
 	{
 		public Player Player { get; set; }
 

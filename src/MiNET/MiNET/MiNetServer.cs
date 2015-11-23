@@ -297,7 +297,6 @@ namespace MiNET
 					//{
 					//	_badPacketBans.Add(senderEndpoint.Address, true);
 					//}
-					GreylistManager.Greylist(senderEndpoint.Address, 1000);
 					return;
 				}
 
@@ -456,8 +455,6 @@ namespace MiNET
 
 		private void HandleRakNetMessage(IPEndPoint senderEndpoint, UnconnectedPing incoming)
 		{
-			GreylistManager.Greylist(senderEndpoint.Address, 1000);
-
 			//TODO: This needs to be verified with RakNet first
 			//response.sendpingtime = msg.sendpingtime;
 			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
@@ -749,7 +746,6 @@ namespace MiNET
 					stream.WriteByte(0);
 					var buffer = stream.ToArray();
 					_listener.Send(buffer, buffer.Length, senderEndpoint);
-					GreylistManager.Greylist(senderEndpoint.Address, 5000);
 					break;
 				}
 				default:

@@ -878,8 +878,6 @@ namespace MiNET
 				{
 					if (sendDisconnect)
 					{
-						Server.GreylistManager.Greylist(EndPoint.Address, 10000);
-
 						ThreadPool.QueueUserWorkItem(delegate(object state)
 						{
 							McpeDisconnect disconnect = McpeDisconnect.CreateObject();

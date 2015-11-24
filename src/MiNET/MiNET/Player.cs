@@ -1671,13 +1671,16 @@ namespace MiNET
 
 		private void ForcedSendChunk(PlayerLocation position)
 		{
-			var chunkPosition = new ChunkCoordinates(position);
-
-			McpeBatch chunk = Level.GenerateChunk(chunkPosition);
-			_chunksUsed.Add(new Tuple<int, int>(chunkPosition.X, chunkPosition.Z), chunk);
-			if (chunk != null)
+			lock (_sendChunkSync)
 			{
-				SendPackage(chunk, true);
+				var chunkPosition = new ChunkCoordinates(position);
+
+				McpeBatch chunk = Level.GenerateChunk(chunkPosition);
+				_chunksUsed.Add(new Tuple<int, int>(chunkPosition.X, chunkPosition.Z), chunk);
+				if (chunk != null)
+				{
+					SendPackage(chunk, true);
+				}
 			}
 		}
 
@@ -2046,6 +2049,11 @@ namespace MiNET
 			SendPackage(ping);
 		}
 
+		public void SendDirectPackage(Package package)
+		{
+			Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+		}
+
 		/// <summary>
 		///     Very important litle method. This does all the sending of packages for
 		///     the player class. Treat with respect!
@@ -2071,25 +2079,27 @@ namespace MiNET
 
 			if (package == null) return;
 
-			if (!IsSpawned)
-			{
-				//ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
-				//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
-				lock (_queueSync)
-				{
-					_sendQueueNotConcurrent.Enqueue(package);
-				}
-			}
-			else if (sendDirect)
-			{
-				Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
-			}
-			else if (isBatch)
-			{
-				ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
-				//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
-			}
-			else
+			//if (!IsSpawned)
+			//{
+			//	//ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
+			//	//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+			//	lock (_queueSync)
+			//	{
+			//		_sendQueueNotConcurrent.Enqueue(package);
+			//	}
+			//}
+			//else 
+			//if (sendDirect)
+			//{
+			//	Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+			//}
+			//else 
+			//if (isBatch)
+			//{
+			//	ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
+			//	//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+			//}
+			//else
 			{
 				lock (_queueSync)
 				{
@@ -2107,8 +2117,6 @@ namespace MiNET
 
 			try
 			{
-				memStream.Position = 0;
-				memStream.SetLength(0);
 				Queue<Package> queue = _sendQueueNotConcurrent;
 
 				int messageCount = 0;
@@ -2137,16 +2145,31 @@ namespace MiNET
 						continue;
 					}
 
-					if (!IsSpawned)
+					if (lenght == 1)
 					{
+                        Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+					}
+					else if (!IsSpawned)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
 						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
 					}
-					else if (lenght == 1)
+					else if (package is McpeBatch)
 					{
+						SendBuffered(messageCount);
+						messageCount = 0;
 						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+						Thread.Sleep(1); // Really important to slow down speed a bit
 					}
 					else
 					{
+						if(messageCount == 0)
+						{
+							memStream.Position = 0;
+							memStream.SetLength(0);
+						}
+
 						byte[] bytes = package.Encode();
 						if (bytes != null)
 						{
@@ -2159,21 +2182,30 @@ namespace MiNET
 					}
 				}
 
-				if (messageCount == 0) return;
 				if (!IsConnected) return;
 
-				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-
-				Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
+				SendBuffered(messageCount);
 			}
 			finally
 			{
 				Monitor.Exit(_syncHack);
 			}
+		}
+
+		private void SendBuffered(int messageCount)
+		{
+			if (messageCount == 0) return;
+
+			McpeBatch batch = McpeBatch.CreateObject();
+			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode();
+
+			memStream.Position = 0;
+			memStream.SetLength(0);
+
+			Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
 		}
 
 		private object _sendMoveListSync = new object();
@@ -2191,7 +2223,8 @@ namespace MiNET
 
 			try
 			{
-				Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
+				//Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
+				SendPackage(batch);
 			}
 			finally
 			{

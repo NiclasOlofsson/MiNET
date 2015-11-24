@@ -1,5 +1,7 @@
 using System;
+using System.Resources;
 using System.Text;
+using System.Threading;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -78,6 +80,7 @@ namespace MiNET.Entities
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords { fake };
 				player.SendPackage(playerList);
+				//player.SendDirectPackage(playerList);
 			}
 
 			{

@@ -1070,13 +1070,13 @@ namespace MiNET
 						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
 
-						if(elapsedTime > 5000)
-						{
-							Datagram deleted;
-							queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted);
-						}
-
-						else if (serverHasNoLag && elapsedTime >= datagramTimout)
+						//if(elapsedTime > 5000)
+						//{
+						//	Datagram deleted;
+						//	queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted);
+						//}
+						//else 
+						if (serverHasNoLag && elapsedTime >= datagramTimout)
 						{
 							//if (session.WaitForAck) return;
 
@@ -1087,7 +1087,7 @@ namespace MiNET
 							{
 								session.ErrorCount++;
 
-								if (deleted.TransmissionCount > 1)
+								if (deleted.TransmissionCount > 3)
 								{
 									if (Log.IsDebugEnabled)
 										Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
@@ -1150,7 +1150,7 @@ namespace MiNET
 
 				message.PutPool();
 
-				Thread.Sleep(1); // Really important to slow down speed a bit
+				//Thread.Sleep(1); // Really important to slow down speed a bit
 			}
 		}
 

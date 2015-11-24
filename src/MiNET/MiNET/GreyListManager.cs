@@ -60,30 +60,23 @@ namespace MiNET
 
 		public virtual bool IsGreylisted(IPAddress address)
 		{
-			lock (_greylist)
+			if (_greylist.ContainsKey(address))
 			{
-				if (_greylist.ContainsKey(address))
+				if (_greylist[address] > DateTime.UtcNow)
 				{
-					if (_greylist[address] > DateTime.UtcNow)
-					{
-						return true;
-					}
-
-					DateTime waste;
-					_greylist.TryRemove(address, out waste);
+					return true;
 				}
+
+				DateTime waste;
+				_greylist.TryRemove(address, out waste);
 			}
 			return false;
 		}
 
-		public void Greylist(IPAddress address, int time)
+		public virtual void Greylist(IPAddress address, int time)
 		{
-			lock (_greylist)
-			{
-				var dateTime = DateTime.UtcNow.AddMilliseconds(time);
-				Thread.Sleep(1);
-				_greylist.TryAdd(address, dateTime);
-			}
+			var dateTime = DateTime.UtcNow.AddMilliseconds(time);
+			_greylist.TryAdd(address, dateTime);
 		}
 	}
 }

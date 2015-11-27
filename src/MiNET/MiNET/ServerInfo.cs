@@ -47,7 +47,7 @@ namespace MiNET
 					double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
 					if (Log.IsInfoEnabled)
 					{
-						Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+						System.Console.Title = string.Format("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 							NumberOfPacketsOutPerSecond,
 							NumberOfAckReceive,
 							NumberOfPacketsInPerSecond,

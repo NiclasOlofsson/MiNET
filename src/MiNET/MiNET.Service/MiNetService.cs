@@ -48,7 +48,7 @@ namespace MiNET.Service
 			{
 				var service = new MiNetService();
 				service.Start();
-				Console.WriteLine("MiNET запущен. Нажмите <enter> для остановкиа..");
+				Console.WriteLine("MiNET запущен. Нажмите <enter> для остановкиа.. ");
 				Console.ReadLine();
 				service.Stop();
 			}

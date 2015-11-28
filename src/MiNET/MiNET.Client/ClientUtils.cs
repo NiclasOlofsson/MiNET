@@ -54,7 +54,7 @@ namespace MiNET.Client
 				arr[index/2] = (byte) (((value << 4) & 0xF0) | arr[index/2]);
 			}
 		}
-
+        
 		public static void SaveLevel(LevelInfo level)
 		{
 			if (!Directory.Exists(_basePath))

@@ -212,8 +212,9 @@ namespace MiNET.Worlds
 			int rz = coordinates.Z >> 5;
 
 			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
+           // Console.WriteLine("GDATA: {0}; {1}", rx, rz);
 
-			if (!File.Exists(filePath))
+            if (!File.Exists(filePath))
 			{
 				return generator?.GenerateChunkColumn(coordinates);
 				//return new ChunkColumn
@@ -454,8 +455,8 @@ namespace MiNET.Worlds
 
 			int rx = coordinates.X >> 5;
 			int rz = coordinates.Z >> 5;
-
-			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
+           // Console.WriteLine("SDATA: {0}; {1}", rx, rz);
+            string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
 			if (!File.Exists(filePath))
 			{

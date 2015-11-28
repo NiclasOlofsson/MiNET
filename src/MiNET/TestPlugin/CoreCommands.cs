@@ -84,7 +84,6 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
-			return;
 			player.GameMode = (GameMode) gameMode;
 			player.SendPackage(new McpeStartGame
 			{
@@ -177,15 +176,41 @@ namespace TestPlugin
 		public void Clear(Player player)
 		{
 			for (byte slot = 0; slot < 35; slot++) player.Inventory.SetInventorySlot(slot, -1); //Empty all slots.
-		}
+        }
 
-		[Command]
-		public void Clear(Player player, Player target)
-		{
-			Clear(target);
-		}
+        [Command]
+        public void Clear(Player player, Player target)
+        {
+            Clear(target);
+        }
 
-		[Command(Command = "vd")]
+        [Command]
+        public void Save(Player player)
+        {
+
+            player.Level.BroadcastMessage("save...", type: MessageType.Raw);
+            /*new FlatlandWorldProvider().GenerateChunkColumn(new ChunkCoordinates(player.KnownPosition));//*/
+            ChunkColumn a = AnvilWorldProvider.GetChunk(new ChunkCoordinates(player.KnownPosition), "world", new AnvilWorldProvider("world"), 0);
+            //a.SetBlock();
+            try
+            {
+                player.Level.BroadcastMessage("AND...", type: MessageType.Raw);
+                AnvilWorldProvider.SaveChunk(a, "world", 0);
+                player.Level.BroadcastMessage("FANTASTIC!", type: MessageType.Raw);
+            }
+            catch { }
+        }
+
+        [PacketHandler]
+        [Receive]
+        protected Package HandleRemoveBlock(McpeMovePlayer packet)
+        {
+            
+            //Level.BreakBlock(this, new BlockCoordinates(message.x, message.y, message.z));
+            return packet;
+        }
+
+        [Command(Command = "vd")]
 		public void ViewDistance(Player player)
 		{
 			player.Level.BroadcastMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);

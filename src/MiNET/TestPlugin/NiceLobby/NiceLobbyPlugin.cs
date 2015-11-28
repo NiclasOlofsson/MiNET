@@ -432,6 +432,7 @@ namespace TestPlugin.NiceLobby
 			mob.SpawnEntity();
 		}
 
+
 		[Command(Command = "sp")]
 		public void SpawnPlayer(Player player, string name)
 		{
@@ -454,48 +455,48 @@ namespace TestPlugin.NiceLobby
 			fake.SpawnEntity();
 		}
 
-		//private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
+        private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
 
-		//[Command]
-		//public void Hide(Player player, byte id)
-		//{
-		//	Level level = player.Level;
+        [Command]
+        public void Hide(Player player, byte id)
+        {
+            Level level = player.Level;
 
-		//	HidePlayer(player, true);
+            HidePlayer(player, true);
 
-		//	Mob entity = new Mob(id, level)
-		//	{
-		//		KnownPosition = player.KnownPosition,
-		//		//Data = -(blockId | 0 << 0x10)
-		//	};
-		//	entity.SpawnEntity();
+            Mob entity = new Mob(id, level)
+            {
+                KnownPosition = player.KnownPosition,
+                //Data = -(blockId | 0 << 0x10)
+            };
+            entity.SpawnEntity();
 
-		//	player.SendPackage(new McpeRemoveEntity()
-		//	{
-		//		entityId = entity.EntityId,
-		//	});
+            player.SendPackage(new McpeRemoveEntity()
+            {
+                entityId = entity.EntityId,
+            });
 
-		//	_playerEntities[player] = entity;
+            _playerEntities[player] = entity;
 
-		//	level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
-		//}
+            level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
+        }
 
-		//[PacketHandler, Receive]
-		//public Package HandleIncoming(McpeMovePlayer packet, Player player)
-		//{
-		//	if (_playerEntities.ContainsKey(player))
-		//	{
-		//		var entity = _playerEntities[player];
-		//		entity.KnownPosition = player.KnownPosition;
-		//		var message = new McpeMoveEntity();
-		//		message.entities = new EntityLocations();
-		//		message.entities.Add(entity.EntityId, entity.KnownPosition);
-		//		player.Level.RelayBroadcast(message);
-		//	}
+        [PacketHandler, Receive]
+        public Package HandleIncoming(McpeMovePlayer packet, Player player)
+        {
+            if (_playerEntities.ContainsKey(player))
+            {
+                var entity = _playerEntities[player];
+                entity.KnownPosition = player.KnownPosition;
+                var message = new McpeMoveEntity();
+                message.entities = new EntityLocations();
+                message.entities.Add(entity.EntityId, entity.KnownPosition);
+                player.Level.RelayBroadcast(message);
+            }
 
-		//	return packet; // Process
-		//}
-		[Command(Command = "w")]
+            return packet; // Process
+        }
+        [Command(Command = "w")]
 		public void Warp(Player player, string warp)
 		{
 			float x;

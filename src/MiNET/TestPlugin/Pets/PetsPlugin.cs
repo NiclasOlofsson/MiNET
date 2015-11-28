@@ -4,6 +4,7 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using TestPlugin.Annotations;
+using MiNET.Entities;
 
 namespace TestPlugin.Pets
 {
@@ -38,7 +39,7 @@ namespace TestPlugin.Pets
 				petName = string.Join(" ", name);
 			}
 
-			var entities = player.Level.GetEntites();
+			/*var entities = player.Level.GetEntites();
 			foreach (var entity in entities)
 			{
 				Pet pet = entity as Pet;
@@ -47,7 +48,7 @@ namespace TestPlugin.Pets
 					pet.HealthManager.Kill();
 					break;
 				}
-			}
+			}*/
 
 			//ThreadPool.QueueUserWorkItem(delegate(object state)
 			//{
@@ -59,5 +60,21 @@ namespace TestPlugin.Pets
 			newPet.SpawnEntity();
 			//});
 		}
-	}
+
+
+        [Command]
+        //public void Pet(Player player, string type)
+        public void Human(Player player, string name)
+        {
+            //TODO: Fix space in pets name, too difficult damn..
+            PlayerMob p = new PlayerMob(name, player.Level)
+            {
+                NameTag = name,
+                KnownPosition = (PlayerLocation)player.KnownPosition.Clone()
+            };
+
+            p.SpawnEntity();
+            //});
+        }
+    }
 }

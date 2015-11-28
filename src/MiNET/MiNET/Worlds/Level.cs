@@ -891,12 +891,12 @@ namespace MiNET.Worlds
 
 		public event EventHandler<BlockPlaceEventArgs> BlockPlace;
 
-		protected virtual bool OnBlockPlace(BlockPlaceEventArgs e)
+        protected virtual bool OnBlockPlace(BlockPlaceEventArgs e)
 		{
 			EventHandler<BlockPlaceEventArgs> handler = BlockPlace;
 			if (handler != null) handler(this, e);
-
-			return !e.Cancel;
+            
+            return !e.Cancel;
 		}
 
 		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
@@ -912,7 +912,7 @@ namespace MiNET.Worlds
 
 			if (itemInHand is ItemBlock)
 			{
-				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target)))
+				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target, (ItemBlock)itemInHand, face)))
 				{
 					Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
 
@@ -940,7 +940,7 @@ namespace MiNET.Worlds
 			EventHandler<BlockBreakEventArgs> handler = BlockBreak;
 			if (handler != null) handler(this, e);
 
-			return !e.Cancel;
+            return !e.Cancel;
 		}
 
 		public void BreakBlock(Player player, BlockCoordinates blockCoordinates)
@@ -1073,11 +1073,15 @@ namespace MiNET.Worlds
 	public class BlockPlaceEventArgs : LevelEventArgs
 	{
 		public Block Block { get; private set; }
+        public ItemBlock Next { get; private set; }
+        public BlockFace Face { get; private set; }
 
-		public BlockPlaceEventArgs(Player player, Level level, Block block) : base(player, level)
+        public BlockPlaceEventArgs(Player player, Level level, Block block, ItemBlock next = null, BlockFace face = BlockFace.Down) : base(player, level)
 		{
 			Block = block;
-		}
+            Next = next;
+            Face = face;
+        }
 	}
 
 

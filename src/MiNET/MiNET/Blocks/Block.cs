@@ -70,14 +70,15 @@ namespace MiNET.Blocks
 		}
 
 		public virtual void OnTick(Level level)
-		{
-		}
+        {
+
+        }
 
 
 		public virtual void BlockUpdate(Level world, BlockCoordinates blockCoordinates)
 		{
-			/*BlockCoordinates up = new BlockCoordinates() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
-			/*BlockCoordinates down = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
+            /*BlockCoordinates up = new BlockCoordinates() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
+			BlockCoordinates down = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
 			BlockCoordinates left = new BlockCoordinates() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
 			BlockCoordinates right = new BlockCoordinates() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
 			BlockCoordinates zplus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z + 1 };
@@ -89,6 +90,10 @@ namespace MiNET.Blocks
 			{
 				world.SetBlock(new Air {Coordinates = up});
 			}*/
+
+            /*Block b = BlockFactory.GetBlockById(Id);
+            b.Coordinates = blockCoordinates;
+            world.SetBlock(b);*/
 
 
 			//This code is really not something we wanna keep :-(

@@ -24,6 +24,11 @@ namespace CorePlugins
         public ModelUser model;
         public Player player;
         public string ip;
+
+        public User Copy(string nick = null, ModelUser model = new ModelUser { id = -1 }, Player player = null, string ip = "")
+        {
+            return new User { nick = nick ?? this.nick, ip = ip ?? this.ip, model = model.id == -1 ? this.model : model, player = player ?? this.player };
+        }
     }
 
     [Plugin(PluginName = "CoreCommands", Description = "The core.", PluginVersion = "1.0", Author = "Artem Valko")]
@@ -96,7 +101,10 @@ namespace CorePlugins
             int i = 0;
             if((i = users.FindLastIndex(x => x.nick == nick)) != -1)
             {
-                e.Cancel = users[i].model.role < e.RoleRequired;
+                ModelUser model;
+                db.HasUser(nick, out model);
+                users[i] = users[i].Copy(model: model);
+                e.Cancel = model.role < e.RoleRequired;
             }
             bool auth = e.command == "l" || e.command == "r" || e.command == "register" || e.command == "login";
             e.Cancel = !(auth && !e.player.isLogin);
@@ -353,8 +361,7 @@ namespace CorePlugins
             {
                 // заменяем элемент, дабы порт сменился
                 int i = users.FindIndex(x => x.ip == player.EndPoint.Address.ToString() && x.nick == player.Username);
-                var tmp = users[i];
-                users[i] = new User { ip = tmp.ip, model = tmp.model, nick = tmp.nick, player = player };
+                users[i] = users[i].Copy(player: player);
                 // просто пропускаем его, ip тот-же
                 player.AddPopup(new Popup()
                 {

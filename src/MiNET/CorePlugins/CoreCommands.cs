@@ -98,7 +98,7 @@ namespace CorePlugins
             {
                 e.Cancel = users[i].model.role < e.RoleRequired;
             }
-            e.Cancel = true;
+            e.Cancel = e.player.isLogin;
         }
 
         private void Disconect(string message, Player player)

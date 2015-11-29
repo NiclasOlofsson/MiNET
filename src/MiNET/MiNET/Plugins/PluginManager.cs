@@ -267,7 +267,7 @@ namespace MiNET.Plugins
                     HandleCommandAction(this, e);
                     if (e.Cancel)
                     {
-                        player.SendMessage("§cУ вас нет прав!");
+                        player.SendMessage("[Perm] §cУ вас нет прав!");
                         return;
                     }
 

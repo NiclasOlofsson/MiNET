@@ -665,13 +665,13 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
-
+                        
             HandleStartAction(this, new EventArgs());
             isStartSuccess = true;
         }
 
         public static event EventHandler<EventArgs> HandleStartAction;
-        public bool isStartSuccess = false;
+        public bool isStartSuccess = false, isLogin = false, isRegister = true;
 
 
         public virtual void InitializePlayer()

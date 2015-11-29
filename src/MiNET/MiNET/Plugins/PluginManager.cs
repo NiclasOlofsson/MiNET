@@ -59,7 +59,15 @@ namespace MiNET.Plugins
 
 				foreach (string pluginPath in Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories))
 				{
-					Assembly newAssembly = Assembly.LoadFile(pluginPath);
+                    Assembly newAssembly;
+                    try
+                    {
+                        newAssembly = Assembly.LoadFile(pluginPath);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
 
 					Type[] types = newAssembly.GetExportedTypes();
 					foreach (Type type in types)
@@ -223,7 +231,9 @@ namespace MiNET.Plugins
 			}
 		}
 
-		public void HandleCommand(UserManager<User> userManager, string message, Player player)
+        public event EventHandler<HandleCommandActionEventArgs> HandleCommandAction;
+
+        public void HandleCommand(UserManager<User> userManager, string message, Player player)
 		{
 			try
 			{
@@ -252,6 +262,14 @@ namespace MiNET.Plugins
 							return;
 						}
 					}
+
+                    var e = new HandleCommandActionEventArgs { RoleRequired = commandAttribute.RoleRequired, player = player };
+                    HandleCommandAction(this, e);
+                    if (e.Cancel)
+                    {
+                        player.SendMessage("§cУ вас нет прав!");
+                        return;
+                    }
 
 					if (ExecuteCommand(method, player, arguments)) return;
 				}
@@ -462,5 +480,13 @@ namespace MiNET.Plugins
 
 			return returnPacket;
 		}
-	}
+
+        public class HandleCommandActionEventArgs : EventArgs
+        {
+            public bool Cancel { get; set; } = false;
+
+            public int RoleRequired { get; set; }
+            public Player player { get; set; }
+        }
+    }
 }

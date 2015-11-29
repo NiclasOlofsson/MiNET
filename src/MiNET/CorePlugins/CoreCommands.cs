@@ -12,9 +12,12 @@ using MiNET.Worlds;
 using MiNET.Utils;
 using MiNET.Blocks;
 using System.Threading;
+using MiNET.Security;
+using MiNET.Net;
 
 namespace CorePlugins
 {
+
     [Plugin(PluginName = "CoreCommands", Description = "The core.", PluginVersion = "1.0", Author = "Artem Valko")]
     public class CoreCommands : Plugin
     {
@@ -27,8 +30,30 @@ namespace CorePlugins
             }
 
             _timerOnBlock = new Timer(TimerOnBlock, null, 30000, 5000);
+
+            DataBase db = new DataBase();
+
+            Context.PluginManager.HandleCommandAction += HandleCommandAction;
+            Player.HandleStartAction += HandleStartAction;
+            Player.HandleDisconnectAction += HandleDisconnectAction;
         }
 
+        private void HandleStartAction(object sender, EventArgs e)
+        {
+            // Добавление нового игрока
+            Player target = sender as Player;
+        }
+
+        private void HandleDisconnectAction(object sender, EventArgs e)
+        {
+            // Отключение игрока
+            Player target = sender as Player;
+        }
+
+        private void HandleCommandAction(object sender, PluginManager.HandleCommandActionEventArgs e)
+        {
+            // Обработка привелегий
+        }
 
         #region Block Change
         static readonly object _lockOnBlockAdd = new object();
@@ -149,5 +174,10 @@ namespace CorePlugins
         }*/
         
         #endregion
+
+        private void Disconect(string message, Player player)
+        {
+            player.Disconnect(message, true, false);
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace MiNET.Plugins.Attributes
 		public string Permission;
 		public string Usage;
 		public string Description;
+        public int RoleRequired = 0;
 	}
 }

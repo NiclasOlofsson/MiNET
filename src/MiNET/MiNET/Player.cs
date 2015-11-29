@@ -665,9 +665,16 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
-		}
 
-		public virtual void InitializePlayer()
+            HandleStartAction(this, new EventArgs());
+            isStartSuccess = true;
+        }
+
+        public static event EventHandler<EventArgs> HandleStartAction;
+        public bool isStartSuccess = false;
+
+
+        public virtual void InitializePlayer()
 		{
 			SendPlayerStatus(3);
 
@@ -869,7 +876,7 @@ namespace MiNET
 
 		private bool _haveJoined = false;
 
-		public virtual void Disconnect(string reason, bool sendDisconnect = true)
+		public virtual void Disconnect(string reason, bool sendDisconnect = true, bool notFromCore = true)
 		{
 			if (!Monitor.TryEnter(_disconnectSync)) return;
 			try
@@ -942,9 +949,16 @@ namespace MiNET
 			{
 				Monitor.Exit(_disconnectSync);
 			}
+
+            if(isStartSuccess && notFromCore)
+            {
+                HandleDisconnectAction(this, new EventArgs());
+            }
 		}
 
-		protected virtual void HandleMessage(McpeText message)
+        public static event EventHandler<EventArgs> HandleDisconnectAction;
+
+        protected virtual void HandleMessage(McpeText message)
 		{
 			string text = message.message;
 			if (text.StartsWith("/") || text.StartsWith("."))

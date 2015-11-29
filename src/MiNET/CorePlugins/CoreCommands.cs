@@ -105,6 +105,7 @@ namespace CorePlugins
                 db.HasUser(nick, out model);
                 users[i] = users[i].Copy(model: model);
                 e.Cancel = model.role < e.RoleRequired;
+                return;
             }
             bool auth = e.command == "l" || e.command == "r" || e.command == "register" || e.command == "login";
             e.Cancel = !(auth && !e.player.isLogin);

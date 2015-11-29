@@ -45,21 +45,31 @@ namespace CorePlugins
 
         public bool HasUser(string nick, out ModelUser user)
         {
-            var res = _provider.Query("select * from users where nick == @0", new List<string> { "id", "nick", "password", "role" }, nick);
+            var res = _provider.Query("select * from users where nick == @0", new List<string> { "id", "nick", "password", "role", "perm_id", "perms" }, nick);
             if (res.Count == 0)
             {
                 user = NotUser;
                 return false;
             }
 
-            user = new ModelUser { id = (long)res["id"], nick = res["nick"].ToString(), password = res["password"].ToString(), role = (int)res["role"]};
+            user = new ModelUser { id = (long)res["id"], nick = res["nick"].ToString(), password = res["password"].ToString(), role = (int)res["role"], perm_id = (long)res["perm_id"], perms = res["perms"].ToString()};
 
             return true;
         }
 
         public void AddUser(string nick, string password)
         {
-            _provider.NonQuery("insert into users values (null, @0, @1, 0)", nick, password);
+            _provider.NonQuery("insert into users values (null, @0, @1, 0, 1, '')", nick, password);
+        }
+
+        public void ChangeUserRole(long id, int role)
+        {
+            _provider.NonQuery("update users set role = @1 where id = @0", id, role);
+        }
+
+        public void ChangeUserPerm(long id, int perm_id)
+        {
+            _provider.NonQuery("update users set perm_id = @1 where id = @0", id, perm_id);
         }
 
         ~DataBase()
@@ -70,13 +80,23 @@ namespace CorePlugins
 
     public struct ModelUser
     {
-        public long id;
+        public long id, perm_id;
         public int role;
-        public string nick, password;
+        public string nick, password, perms;
 
         public override string ToString()
         {
             return string.Format("User {0}; nick: {1}; password: {2}; role: {3}", id, nick, password, role);
+        }
+    }
+    public struct ModelPerm
+    {
+        public long id;
+        public string perms;
+
+        public override string ToString()
+        {
+            return string.Format("Perm {0}; perms: {1}", id, perms);
         }
     }
 

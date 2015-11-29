@@ -223,16 +223,5 @@ namespace MiNET.Utils
 		{
 			return string.Format("X={0}, Y={1}, Z={2}", X, Y, Z);
 		}
-
-		//public override int GetHashCode()
-		//{
-		//	unchecked
-		//	{
-		//		int result = X.GetHashCode();
-		//		result = (result*397) ^ Y.GetHashCode();
-		//		result = (result*397) ^ Z.GetHashCode();
-		//		return result;
-		//	}
-		//}
 	}
 }

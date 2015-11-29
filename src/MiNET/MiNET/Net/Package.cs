@@ -23,6 +23,8 @@ namespace MiNET.Net
 
 		public int DatagramSequenceNumber = 0;
 
+		public bool NoBatch { get; set; }
+
 		public int OrderingChannel = 0;
 		public int OrderingIndex = 0;
 
@@ -688,6 +690,7 @@ namespace MiNET.Net
 		{
 			DatagramSequenceNumber = 0;
 			OrderingIndex = 0;
+			NoBatch = false;
 			_encodedMessage = null;
 			_writer.Flush();
 			_buffer.SetLength(0);

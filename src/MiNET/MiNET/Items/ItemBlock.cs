@@ -28,6 +28,7 @@ namespace MiNET.Items
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;
 
+			if (player.GetBoundingBox().Intersects(_block.GetBoundingBox())) return;
 			if (!_block.CanPlace(world, face)) return;
 
 			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled

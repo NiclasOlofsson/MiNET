@@ -23,6 +23,8 @@ namespace MiNET.Worlds
 		public NibbleArray metadata = new NibbleArray(16*16*128);
 		public NibbleArray blocklight = new NibbleArray(16*16*128);
 		public NibbleArray skylight = new NibbleArray(16*16*128);
+
+		//TODO: This dictionary need to be concurent. Investigate performance before changing.
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 
 		private byte[] _cache;
@@ -50,9 +52,9 @@ namespace MiNET.Worlds
 
 		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
+			blocks[(bx*2048) + (bz*128) + by] = bid;
 			_cache = null;
 			isDirty = true;
-			blocks[(bx*2048) + (bz*128) + by] = bid;
 		}
 
 		public void SetHeight(int bx, int bz, byte h)
@@ -67,9 +69,9 @@ namespace MiNET.Worlds
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
+			blocklight[(bx*2048) + (bz*128) + by] = data;
 			_cache = null;
 			isDirty = true;
-			blocklight[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -79,9 +81,9 @@ namespace MiNET.Worlds
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
+			metadata[(bx*2048) + (bz*128) + by] = data;
 			_cache = null;
 			isDirty = true;
-			metadata[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
@@ -91,30 +93,33 @@ namespace MiNET.Worlds
 
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
+			skylight[(bx*2048) + (bz*128) + by] = data;
 			_cache = null;
 			isDirty = true;
-			skylight[(bx*2048) + (bz*128) + by] = data;
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
 		{
 			NbtCompound nbt;
 			BlockEntities.TryGetValue(coordinates, out nbt);
-			return nbt;
+
+			// High cost clone. Consider alternative options on this.
+			return (NbtCompound) nbt?.Clone();
 		}
 
 		public void SetBlockEntity(BlockCoordinates coordinates, NbtCompound nbt)
 		{
+			NbtCompound blockEntity = (NbtCompound) nbt.Clone();
+			BlockEntities[coordinates] = blockEntity;
 			_cache = null;
 			isDirty = true;
-			BlockEntities[coordinates] = nbt;
 		}
 
 		public void RemoveBlockEntity(BlockCoordinates coordinates)
 		{
+			BlockEntities.Remove(coordinates);
 			_cache = null;
 			isDirty = true;
-			BlockEntities.Remove(coordinates);
 		}
 
 		public void RecalcHeight()
@@ -163,6 +168,7 @@ namespace MiNET.Worlds
 
 				_cachedBatch = batch;
 				_cache = null;
+				isDirty = false;
 
 				return batch;
 			}

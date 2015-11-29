@@ -45,8 +45,6 @@ namespace MiNET
 		public PlayerNetworkSession NetworkSession { get; set; }
 
 		private int _mtuSize;
-		private int _reliableMessageNumber;
-		private int _datagramSequenceNumber = -1; // Very important to start with -1 since Interlock.Increament doesn't offer another solution
 		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
 		private object _queueSync = new object();
 		// ReSharper disable once NotAccessedField.Local
@@ -62,7 +60,6 @@ namespace MiNET
 
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
-		public bool IsSpawned { get; set; }
 		public string Username { get; private set; }
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
@@ -686,42 +683,45 @@ namespace MiNET
 
 		protected virtual void HandleRespawn(McpeRespawn msg)
 		{
-			ServerInfo serverInfo = Server.ServerInfo;
-			try
-			{
-				//Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+			HealthManager.ResetHealth();
+			SendSetHealth();
 
-				// reset all health states
-				HealthManager.ResetHealth();
+			SendSetSpawnPosition();
 
-				// send teleport to spawn
-				KnownPosition = new PlayerLocation
-				{
-					X = SpawnPosition.X, Y = SpawnPosition.Y, Z = SpawnPosition.Z, Yaw = SpawnPosition.Yaw, Pitch = SpawnPosition.Pitch, HeadYaw = SpawnPosition.HeadYaw,
-				};
+			SendAdventureSettings();
 
-				SendSetHealth();
+			SendPlayerInventory();
 
-				SendAdventureSettings();
+			CleanCache();
 
-				SendPlayerInventory();
+			ForcedSendChunk(SpawnPosition);
 
-				BroadcastSetEntityData();
+			// send teleport to spawn
+			SetPosition(SpawnPosition);
 
-				Level.SpawnToAll(this);
+			Level.SpawnToAll(this);
 
-				ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+			IsSpawned = true;
 
-				IsSpawned = true;
+			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-				SendMovePlayer();
+			SendSetTime();
 
-				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-			}
-			finally
-			{
-				//Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
-			}
+			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
+
+			//SendPlayerStatus(3);
+
+			//McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
+			//mcpeRespawn.x = SpawnPosition.X;
+			//mcpeRespawn.y = SpawnPosition.Y;
+			//mcpeRespawn.z = SpawnPosition.Z;
+			//SendPackage(mcpeRespawn);
+
+			////send time again
+			//SendSetTime();
+			//IsSpawned = true;
+			//LastUpdatedTime = DateTime.UtcNow;
+			//_haveJoined = true;
 		}
 
 		[Wired]
@@ -881,11 +881,12 @@ namespace MiNET
 						ThreadPool.QueueUserWorkItem(delegate(object state)
 						{
 							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+							disconnect.NoBatch = true;
 							disconnect.message = reason;
-							SendPackage(disconnect, true);
-							IsConnected = false;
+							SendPackage(disconnect);
 						});
 					}
+					IsConnected = false;
 				}
 
 				if (_sendTicker != null)
@@ -1102,7 +1103,10 @@ namespace MiNET
 				// 255 indicates empty hmmm
 				if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
 				{
-					Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
+					if(GameMode != GameMode.Creative)
+					{
+						Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Value?.Id}");
+					}
 					return;
 				}
 
@@ -1116,7 +1120,10 @@ namespace MiNET
 
 					if (existingItemId != incomingItemId)
 					{
-						Log.Error($"Player {Username} set equiptment fails because incoming item ID {incomingItemId} didn't match existing inventory item ID {existingItemId}");
+						if (GameMode != GameMode.Creative)
+						{
+							Log.Error($"Player {Username} set equiptment fails because incoming item ID {incomingItemId} didn't match existing inventory item ID {existingItemId}");
+						}
 						//return;
 					}
 					else
@@ -1151,65 +1158,73 @@ namespace MiNET
 		}
 
 
+		private object _inventorySync = new object();
+
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
-			if (_openInventory != null)
+			lock (_inventorySync)
 			{
-				if (_openInventory.Coordinates == inventoryCoord) return;
-				HandleMcpeContainerClose(null);
+				if (_openInventory != null)
+				{
+					if (_openInventory.Coordinates.Equals(inventoryCoord)) return;
+					HandleMcpeContainerClose(null);
+				}
+
+				_transaction = null;
+
+				// get inventory from coordinates
+				// - get blockentity
+				// - get inventory from block entity
+
+				Inventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
+
+				if (inventory == null) return;
+
+				// get inventory # from inventory manager
+				// set inventory as active on player
+
+				_openInventory = inventory;
+
+				if (inventory.Type == 0 && !inventory.IsOpen()) // Chest open animation
+				{
+					var tileEvent = McpeTileEvent.CreateObject();
+					tileEvent.x = inventoryCoord.X;
+					tileEvent.y = inventoryCoord.Y;
+					tileEvent.z = inventoryCoord.Z;
+					tileEvent.case1 = 1;
+					tileEvent.case2 = 2;
+					Level.RelayBroadcast(tileEvent);
+				}
+
+				// subscribe to inventory changes
+				inventory.InventoryChange += OnInventoryChange;
+
+				// open inventory
+
+				var containerOpen = McpeContainerOpen.CreateObject();
+				containerOpen.NoBatch = true;
+				containerOpen.windowId = inventory.WindowsId;
+				containerOpen.type = inventory.Type;
+				containerOpen.slotCount = inventory.Size;
+				containerOpen.x = inventoryCoord.X;
+				containerOpen.y = inventoryCoord.Y;
+				containerOpen.z = inventoryCoord.Z;
+				SendPackage(containerOpen);
+
+				var containerSetContent = McpeContainerSetContent.CreateObject();
+				containerSetContent.NoBatch = true;
+				containerSetContent.windowId = inventory.WindowsId;
+				containerSetContent.slotData = inventory.Slots;
+				SendPackage(containerSetContent);
 			}
-
-			_transaction = null;
-
-			// get inventory from coordinates
-			// - get blockentity
-			// - get inventory from block entity
-
-			Inventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
-
-			if (inventory == null) return;
-
-			// get inventory # from inventory manager
-			// set inventory as active on player
-
-			_openInventory = inventory;
-
-			if (inventory.Type == 0 && !inventory.IsOpen()) // Chest open animation
-			{
-				var tileEvent = McpeTileEvent.CreateObject();
-				tileEvent.x = inventoryCoord.X;
-				tileEvent.y = inventoryCoord.Y;
-				tileEvent.z = inventoryCoord.Z;
-				tileEvent.case1 = 1;
-				tileEvent.case2 = 2;
-				Level.RelayBroadcast(tileEvent);
-			}
-
-			// subscribe to inventory changes
-			inventory.InventoryChange += OnInventoryChange;
-
-			// open inventory
-
-			var containerOpen = McpeContainerOpen.CreateObject();
-			containerOpen.windowId = inventory.WindowsId;
-			containerOpen.type = inventory.Type;
-			containerOpen.slotCount = inventory.Size;
-			containerOpen.x = inventoryCoord.X;
-			containerOpen.y = inventoryCoord.Y;
-			containerOpen.z = inventoryCoord.Z;
-			SendPackage(containerOpen);
-
-			var containerSetContent = McpeContainerSetContent.CreateObject();
-			containerSetContent.windowId = inventory.WindowsId;
-			containerSetContent.slotData = inventory.Slots;
-			SendPackage(containerSetContent);
 		}
 
 		private void OnInventoryChange(Player player, Inventory inventory, byte slot, ItemStack itemStack)
 		{
 			if (player == this)
 			{
-				Level.SetBlockEntity(inventory.BlockEntity, false);
+				//TODO: This needs to be synced to work properly under heavy load (SG).
+				//Level.SetBlockEntity(inventory.BlockEntity, false);
 			}
 			else
 			{
@@ -1357,35 +1372,35 @@ namespace MiNET
 
 					break;
 				case 0x79:
-					Inventory.Slots[(byte)message.slot] = itemStack;
+					Inventory.Slots[(byte) message.slot] = itemStack;
 					break;
 				case 0x78:
 
 					//if (itemId == 0 || _tempItemStack.Id == itemId)
+				{
+					//Log.ErrorFormat("Item is valid: {0}, {1}", itemId, _tempItemStack.Id);
+					var armorItem = ItemFactory.GetItem(message.item.Value.Id, message.item.Value.Metadata);
+					switch ((byte) message.slot)
 					{
-						//Log.ErrorFormat("Item is valid: {0}, {1}", itemId, _tempItemStack.Id);
-						var armorItem = ItemFactory.GetItem(message.item.Value.Id, message.item.Value.Metadata);
-						switch ((byte)message.slot)
-						{
-							case 0:
-								Inventory.Helmet = armorItem;
-								break;
-							case 1:
-								Inventory.Chest = armorItem;
-								break;
-							case 2:
-								Inventory.Leggings = armorItem;
-								break;
-							case 3:
-								Inventory.Boots = armorItem;
-								break;
-						}
+						case 0:
+							Inventory.Helmet = armorItem;
+							break;
+						case 1:
+							Inventory.Chest = armorItem;
+							break;
+						case 2:
+							Inventory.Leggings = armorItem;
+							break;
+						case 3:
+							Inventory.Boots = armorItem;
+							break;
 					}
-					//else
-					//{
-					//	SendPlayerInventory();
-					//	//Log.ErrorFormat("Item is NOT valid: {0}", itemId);
-					//}
+				}
+				//else
+				//{
+				//	SendPlayerInventory();
+				//	//Log.ErrorFormat("Item is NOT valid: {0}", itemId);
+				//}
 
 					McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 					armorEquipment.entityId = EntityId;
@@ -1401,31 +1416,34 @@ namespace MiNET
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
-			var inventory = _openInventory;
-			_openInventory = null;
-
-			if (inventory == null) return;
-
-			// unsubscribe to inventory changes
-			inventory.InventoryChange -= OnInventoryChange;
-
-			if (message != null && message.windowId != inventory.WindowsId) return;
-
-			// close container 
-			if (inventory.Type == 0 && !inventory.IsOpen())
+			lock (_inventorySync)
 			{
-				var tileEvent = McpeTileEvent.CreateObject();
-				tileEvent.x = inventory.Coordinates.X;
-				tileEvent.y = inventory.Coordinates.Y;
-				tileEvent.z = inventory.Coordinates.Z;
-				tileEvent.case1 = 1;
-				tileEvent.case2 = 0;
-				Level.RelayBroadcast(tileEvent);
+				var inventory = _openInventory;
+				_openInventory = null;
+
+				if (inventory == null) return;
+
+				// unsubscribe to inventory changes
+				inventory.InventoryChange -= OnInventoryChange;
+
+				if (message != null && message.windowId != inventory.WindowsId) return;
+
+				// close container 
+				if (inventory.Type == 0 && !inventory.IsOpen())
+				{
+					var tileEvent = McpeTileEvent.CreateObject();
+					tileEvent.x = inventory.Coordinates.X;
+					tileEvent.y = inventory.Coordinates.Y;
+					tileEvent.z = inventory.Coordinates.Z;
+					tileEvent.case1 = 1;
+					tileEvent.case2 = 0;
+					Level.RelayBroadcast(tileEvent);
+				}
+
+				//SendPlayerInventory();
+
+				// active inventory set to null
 			}
-
-			SendPlayerInventory();
-
-			// active inventory set to null
 		}
 
 		/// <summary>
@@ -1676,7 +1694,12 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(position);
 
 				McpeBatch chunk = Level.GenerateChunk(chunkPosition);
-				_chunksUsed.Add(new Tuple<int, int>(chunkPosition.X, chunkPosition.Z), chunk);
+				var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
+				if (!_chunksUsed.ContainsKey(key))
+				{
+					_chunksUsed.Add(key, chunk);
+				}
+
 				if (chunk != null)
 				{
 					SendPackage(chunk, true);
@@ -1730,7 +1753,7 @@ namespace MiNET
 
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-                    if (chunk != null) SendPackage(chunk);
+					if (chunk != null) SendPackage(chunk);
 
 					if (!IsSpawned)
 					{
@@ -2051,7 +2074,7 @@ namespace MiNET
 
 		public void SendDirectPackage(Package package)
 		{
-			Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+			Server.SendPackage(this, package, _mtuSize);
 		}
 
 		/// <summary>
@@ -2060,7 +2083,7 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package, bool sendDirect = false)
 		{
-            if (package == null) return;
+			if (package == null) return;
 
 			if (!IsConnected)
 			{
@@ -2079,32 +2102,9 @@ namespace MiNET
 
 			if (package == null) return;
 
-			//if (!IsSpawned)
-			//{
-			//	//ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
-			//	//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
-			//	lock (_queueSync)
-			//	{
-			//		_sendQueueNotConcurrent.Enqueue(package);
-			//	}
-			//}
-			//else 
-			//if (sendDirect)
-			//{
-			//	Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
-			//}
-			//else 
-			//if (isBatch)
-			//{
-			//	ThreadPool.QueueUserWorkItem(_ => Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber));
-			//	//Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
-			//}
-			//else
+			lock (_queueSync)
 			{
-				lock (_queueSync)
-				{
-					_sendQueueNotConcurrent.Enqueue(package);
-				}
+				_sendQueueNotConcurrent.Enqueue(package);
 			}
 		}
 
@@ -2147,24 +2147,30 @@ namespace MiNET
 
 					if (lenght == 1)
 					{
-                        Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+						Server.SendPackage(this, package, _mtuSize);
 					}
 					else if (!IsSpawned)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;
-						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+						Server.SendPackage(this, package, _mtuSize);
+					}
+					else if (package.NoBatch)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
+						Server.SendPackage(this, package, _mtuSize);
 					}
 					else if (package is McpeBatch)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;
-						Server.SendPackage(this, package, _mtuSize, ref _reliableMessageNumber);
+						Server.SendPackage(this, package, _mtuSize);
 						Thread.Sleep(1); // Really important to slow down speed a bit
 					}
 					else
 					{
-						if(messageCount == 0)
+						if (messageCount == 0)
 						{
 							memStream.Position = 0;
 							memStream.SetLength(0);
@@ -2205,7 +2211,7 @@ namespace MiNET
 			memStream.Position = 0;
 			memStream.SetLength(0);
 
-			Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
+			Server.SendPackage(this, batch, _mtuSize);
 		}
 
 		private object _sendMoveListSync = new object();

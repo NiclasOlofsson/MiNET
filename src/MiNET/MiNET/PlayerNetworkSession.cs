@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using MiNET.Net;
@@ -24,6 +23,7 @@ namespace MiNET
 		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
 		private ConcurrentDictionary<int, SplitPartPackage[]> _splits = new ConcurrentDictionary<int, SplitPartPackage[]>();
 		public int DatagramSequenceNumber = -1;
+		public int ReliableMessageNumber = 0;
 		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
 		public bool IsSlowClient { get; set; }
@@ -65,16 +65,20 @@ namespace MiNET
 		public void Clean()
 		{
 			var queue = WaitingForAcksQueue;
-			foreach (var datagram in queue.Values)
+			foreach (var kvp in queue)
 			{
-				datagram.PutPool();
+				Datagram datagram;
+				if (queue.TryRemove(kvp.Key, out datagram)) datagram.PutPool();
 			}
 
-			foreach (var splitPartPackagese in Splits)
+			foreach (var kvp in Splits)
 			{
-				if (splitPartPackagese.Value != null)
+				SplitPartPackage[] splitPartPackagese;
+				if (Splits.TryRemove(kvp.Key, out splitPartPackagese))
 				{
-					foreach (SplitPartPackage package in splitPartPackagese.Value)
+					if(splitPartPackagese == null) continue;
+
+					foreach (SplitPartPackage package in splitPartPackagese)
 					{
 						if (package != null) package.PutPool();
 					}

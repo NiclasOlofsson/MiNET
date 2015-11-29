@@ -1117,7 +1117,7 @@ namespace MiNET
 												elapsedTime,
 												datagramTimout,
 												player.Rto);
-										SendDatagram(session, (Datagram) data, true);
+										SendDatagram(session, (Datagram) data);
 									}, datagram);
 								}
 							}
@@ -1137,14 +1137,17 @@ namespace MiNET
 			}
 		}
 
-		public void SendPackage(Player player, Package message, int mtuSize, ref int reliableMessageNumber, Reliability reliability = Reliability.Reliable)
+		public void SendPackage(Player player, Package message, int mtuSize, Reliability reliability = Reliability.Reliable)
 		{
 			if (message == null) return;
 
 			PlayerNetworkSession session;
 			if (_playerSessions.TryGetValue(player.EndPoint, out session))
 			{
-				Datagram.CreateDatagrams(message, mtuSize, ref reliableMessageNumber, session, SendDatagram);
+				foreach (var datagram in Datagram.CreateDatagrams(message, mtuSize, session))
+				{
+					SendDatagram(session, datagram);
+				}
 
 				TraceSend(message);
 
@@ -1156,11 +1159,6 @@ namespace MiNET
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
 		{
-			SendDatagram(session, datagram, true);
-		}
-
-		private void SendDatagram(PlayerNetworkSession session, Datagram datagram, bool updateCounter)
-		{
 			if (datagram.MessageParts.Count == 0)
 			{
 				datagram.PutPool();
@@ -1168,10 +1166,7 @@ namespace MiNET
 				return;
 			}
 
-			if (updateCounter)
-			{
-				datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
-			}
+			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 
 			datagram.TransmissionCount++;
 

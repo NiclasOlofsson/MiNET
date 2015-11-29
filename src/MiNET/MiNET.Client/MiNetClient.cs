@@ -718,7 +718,10 @@ namespace MiNET.Client
 
 			TraceSend(message);
 
-			Datagram.CreateDatagrams(message, mtuSize, ref reliableMessageNumber, Session, SendDatagram);
+			foreach (var datagram in Datagram.CreateDatagrams(message, mtuSize, Session))
+			{
+				SendDatagram(Session, datagram);
+			}
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)

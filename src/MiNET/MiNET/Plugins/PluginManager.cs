@@ -263,7 +263,7 @@ namespace MiNET.Plugins
 						}
 					}
 
-                    var e = new HandleCommandActionEventArgs { RoleRequired = commandAttribute.RoleRequired, player = player };
+                    var e = new HandleCommandActionEventArgs { RoleRequired = commandAttribute.RoleRequired, player = player, command = commandAttribute.Command };
                     HandleCommandAction(this, e);
                     if (e.Cancel)
                     {
@@ -487,6 +487,7 @@ namespace MiNET.Plugins
 
             public int RoleRequired { get; set; }
             public Player player { get; set; }
+            public String command { get; set; }
         }
     }
 }

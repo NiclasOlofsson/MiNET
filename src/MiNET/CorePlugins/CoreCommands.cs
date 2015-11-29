@@ -98,7 +98,8 @@ namespace CorePlugins
             {
                 e.Cancel = users[i].model.role < e.RoleRequired;
             }
-            e.Cancel = e.player.isLogin;
+            bool auth = e.command == "l" || e.command == "r" || e.command == "register" || e.command == "login";
+            e.Cancel = !(auth && !e.player.isLogin);
         }
 
         private void Disconect(string message, Player player)
@@ -425,6 +426,7 @@ namespace CorePlugins
         [Command(Command = "tp", RoleRequired = 1)]
         public void Teleport(Player player)
         {
+            player.SendMessage("tp....");
         }
     }
 }

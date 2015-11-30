@@ -25,6 +25,7 @@ namespace MiNET.Net
 
 		public bool NoBatch { get; set; }
 
+		public int ReliableMessageNumber = 0;
 		public int OrderingChannel = 0;
 		public int OrderingIndex = 0;
 

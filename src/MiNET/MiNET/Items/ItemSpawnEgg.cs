@@ -11,6 +11,7 @@ namespace MiNET.Items
 
 		public ItemSpawnEgg(short metadata) : base(383, metadata)
 		{
+			MaxStackSize = 1;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

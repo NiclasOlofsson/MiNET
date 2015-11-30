@@ -584,9 +584,10 @@ namespace MiNET
 			List<Package> messages = package.Messages;
 			foreach (var message in messages)
 			{
-				message.DatagramSequenceNumber = package._datagramSequenceNumber;
-				message.OrderingChannel = package._orderingChannel;
-				message.OrderingIndex = package._orderingIndex;
+				//message.DatagramSequenceNumber = package._datagramSequenceNumber;
+				//message.ReliableMessageNumber = package._reliableMessageNumber;
+				//message.OrderingChannel = package._orderingChannel;
+				//message.OrderingIndex = package._orderingIndex;
 
 				if (message is SplitPartPackage)
 				{
@@ -648,6 +649,7 @@ namespace MiNET
 				{
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
 					fullMessage.OrderingChannel = package._orderingChannel;
 					fullMessage.OrderingIndex = package._orderingIndex;
 					HandlePackage(fullMessage, playerSession);

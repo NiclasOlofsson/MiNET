@@ -14,8 +14,10 @@ namespace MiNET.Items
 	{
 		public int Id { get; set; }
 		public short Metadata { get; set; }
-		public ItemMaterial ItemMaterial { get; set; }
-		public ItemType ItemType { get; set; }
+		public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
+		public ItemType ItemType { get; set; } = ItemType.Item;
+		public int MaxStackSize { get; set; } = 64;
+		public bool IsStackable => MaxStackSize > 1;
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }
 
@@ -23,9 +25,6 @@ namespace MiNET.Items
 		{
 			Id = id;
 			Metadata = metadata;
-
-			ItemMaterial = ItemMaterial.None;
-			ItemType = ItemType.Item;
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
@@ -117,6 +116,27 @@ namespace MiNET.Items
 
 		public virtual void Release(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
 		{
+		}
+
+		protected bool Equals(Item other)
+		{
+			return Id == other.Id && Metadata == other.Metadata;
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((Item) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (Id*397) ^ Metadata.GetHashCode();
+			}
 		}
 	}
 

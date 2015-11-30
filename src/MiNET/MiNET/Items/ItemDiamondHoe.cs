@@ -4,6 +4,7 @@
 	{
 		public ItemDiamondHoe(short metadata) : base(293, metadata)
 		{
+			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Diamond;
 			ItemType = ItemType.Hoe;
 		}

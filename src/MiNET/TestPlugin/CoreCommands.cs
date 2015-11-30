@@ -84,8 +84,15 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
-			return;
-			player.GameMode = (GameMode) gameMode;
+			if (gameMode == 1)
+			{
+				player.Inventory.Slots.Clear();
+
+				player.Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+			}
+
+			//player.GameMode = (GameMode) gameMode;
+
 			player.SendPackage(new McpeStartGame
 			{
 				seed = -1,
@@ -99,6 +106,14 @@ namespace TestPlugin
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z
 			});
+
+			{
+				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+				creativeContent.windowId = (byte)0x79;
+				creativeContent.slotData = player.Inventory.GetSlots();
+				creativeContent.hotbarData = player.Inventory.GetHotbar();
+				player.SendPackage(creativeContent);
+			}
 
 			player.Level.BroadcastMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
 		}

@@ -1,4 +1,5 @@
 using System;
+using log4net;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -7,14 +8,37 @@ namespace MiNET.Items
 {
 	public class ItemBow : Item
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBow));
+
 		public ItemBow(short metadata) : base(261, metadata)
 		{
+			MaxStackSize = 1;
 		}
 
 		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
 		{
+			var inventory = player.Inventory;
+			bool haveArrows = false;
+			for (byte i = 0; i < inventory.Slots.Count; i++)
+			{
+				var itemStack = inventory.Slots[i];
+				if (itemStack.Id == 262)
+				{
+                    if (--itemStack.Count <= 0)
+					{
+						// set empty
+						Log.Debug($"Send arrows on slot {i} to 0");
+						inventory.Slots[i] = new ItemStack();
+					}
+					haveArrows = true;
+					break;
+				}
+			}
+
+			if (!haveArrows) return;
+
 			float force = CalculateForce(timeUsed);
-			if (force <= 0) return;
+			if (force < 0.1D) return;
 
 			Arrow arrow = new Arrow(player, world, !(force < 1.0));
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();

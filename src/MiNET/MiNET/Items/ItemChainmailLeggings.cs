@@ -4,6 +4,7 @@ namespace MiNET.Items
 	{
 		public ItemChainmailLeggings(short metadata) : base(304, metadata)
 		{
+			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;
 			ItemMaterial = ItemMaterial.Chain;
 		}

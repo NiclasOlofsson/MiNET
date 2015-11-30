@@ -104,18 +104,22 @@ namespace MiNET.Entities
 			{
 				if (KnownPosition.DistanceTo(player.KnownPosition) <= 2)
 				{
-					//BUG: If this is sent, the client crashes for some unknown reason.
-					var takeItemEntity = McpeTakeItemEntity.CreateObject();
-					takeItemEntity.entityId = EntityId;
-					takeItemEntity.target = player.EntityId;
-
-					Level.RelayBroadcast(takeItemEntity);
 					if (player.GameMode == GameMode.Survival)
 					{
-						player.Inventory.SetFirstEmptySlot((short) Item.Id, (byte) Count, Item.Metadata); //Add the items to the inventory
+
+						//Add the items to the inventory if posible
+						if (player.Inventory.SetFirstEmptySlot((short)Item.Id, (byte)Count, Item.Metadata))
+						{
+							//BUG: If this is sent, the client crashes for some unknown reason.
+							var takeItemEntity = McpeTakeItemEntity.CreateObject();
+							takeItemEntity.entityId = EntityId;
+							takeItemEntity.target = player.EntityId;
+
+							Level.RelayBroadcast(takeItemEntity);
+							DespawnEntity();
+							break;
+						}
 					}
-					DespawnEntity();
-					break;
 				}
 			}
 		}

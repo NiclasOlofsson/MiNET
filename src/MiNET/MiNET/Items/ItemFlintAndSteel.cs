@@ -13,6 +13,7 @@ namespace MiNET.Items
 
 		public ItemFlintAndSteel(short metadata) : base(259, metadata)
 		{
+			MaxStackSize = 1;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

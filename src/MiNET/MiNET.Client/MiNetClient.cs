@@ -277,7 +277,7 @@ namespace MiNET.Client
 					package.Decode(receiveBytes);
 					header = package._datagramHeader;
 					//Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
-					Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {header.isPacketPair}, {header.isContinuousSend}, {package._orderingChannel}, {package._orderingIndex}");
+					Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {package._hasSplit}, {package._splitPacketId}, {package._reliability}, {package._reliableMessageNumber}, {package._sequencingIndex}, {package._orderingChannel}, {package._orderingIndex}");
 
 					var messages = package.Messages;
 
@@ -300,7 +300,6 @@ namespace MiNET.Client
 							//Log.Info("Send ACK #" + package._datagramSequenceNumber.IntValue());
 							SendData(data, senderEndpoint);
 						}
-
 					}
 
 					//if (LoginSent) return; //HACK
@@ -411,54 +410,19 @@ namespace MiNET.Client
 		{
 			if (typeof (McpeBatch) == message.GetType())
 			{
-				McpeBatch batch = (McpeBatch) message;
-
-				var messages = new List<Package>();
-
-				// Get bytes
-				byte[] payload = batch.payload;
-				// Decompress bytes
-
-				MemoryStream stream = new MemoryStream(payload);
-				if (stream.ReadByte() != 0x78)
-				{
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-				}
-				stream.ReadByte();
-				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-				{
-					// Get actual package out of bytes
-					MemoryStream destination = new MemoryStream();
-					defStream2.CopyTo(destination);
-					destination.Position = 0;
-					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-					do
-					{
-						int len = reader.ReadInt32();
-						byte[] internalBuffer = reader.ReadBytes(len);
-						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
-					} while (destination.Position < destination.Length);
-				}
-				foreach (var msg in messages)
-				{
-					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
-					msg.OrderingChannel = batch.OrderingChannel;
-					msg.OrderingIndex = batch.OrderingIndex;
-					HandlePackage(msg);
-					msg.PutPool();
-				}
+				OnBatch(message);
 
 				return;
 			}
 
-			TraceReceive(message);
+			//TraceReceive(message);
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				return;
 			}
 
-			if (typeof (McpeDisconnect) == message.GetType())
+			else if (typeof (McpeDisconnect) == message.GetType())
 			{
 				McpeDisconnect msg = (McpeDisconnect) message;
 				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
@@ -467,248 +431,364 @@ namespace MiNET.Client
 				return;
 			}
 
-			if (typeof (ConnectedPing) == message.GetType())
+			else if (typeof (ConnectedPing) == message.GetType())
 			{
 				ConnectedPing msg = (ConnectedPing) message;
 				SendConnectedPong(msg.sendpingtime);
 				return;
 			}
 
-			if (typeof (McpeFullChunkData) == message.GetType())
+			else if (typeof (McpeFullChunkData) == message.GetType())
 			{
-				McpeFullChunkData msg = (McpeFullChunkData)message;
-				ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
-				if (chunk != null)
+				OnFullChunkData(message);
+				return;
+			}
+
+			else if (typeof (ConnectionRequestAccepted) == message.GetType())
+			{
+				OnConnectionRequestAccepted();
+				return;
+			}
+
+			else if (typeof (McpeSetSpawnPosition) == message.GetType())
+			{
+				OnMcpeSetSpawnPosition(message);
+
+				return;
+			}
+
+			else if (typeof (McpeStartGame) == message.GetType())
+			{
+				OnMcpeStartGame(message);
+
+				return;
+			}
+
+			else if (typeof (McpeTileEvent) == message.GetType())
+			{
+				OnMcpeTileEvent(message);
+				return;
+			}
+			else if (typeof (McpeAddEntity) == message.GetType())
+			{
+				OnMcpeAddEntity(message);
+
+				return;
+			}
+			else if (typeof (McpeAddPlayer) == message.GetType())
+			{
+				OnMcpeAddPlayer(message);
+
+				return;
+			}
+			else if (typeof (McpeSetEntityData) == message.GetType())
+			{
+				OnMcpeSetEntityData(message);
+				return;
+			}
+
+			else if (typeof (McpeMovePlayer) == message.GetType())
+			{
+				//OnMcpeMovePlayer(message);
+				return;
+			}
+
+			else if (typeof (McpeUpdateBlock) == message.GetType())
+			{
+				OnMcpeUpdateBlock(message);
+				return;
+			}
+
+			else if (typeof (McpeLevelEvent) == message.GetType())
+			{
+				OnMcpeLevelEvent(message);
+				return;
+			}
+
+			else if (typeof (McpeMobEffect) == message.GetType())
+			{
+				OnMcpeMobEffect(message);
+				return;
+			}
+
+			else if (typeof (McpeSpawnExperienceOrb) == message.GetType())
+			{
+				OnMcpeSpawnExperienceOrb(message);
+				return;
+			}
+
+
+			else if (typeof (McpeContainerSetContent) == message.GetType())
+			{
+				OnMcpeContainerSetContent(message);
+				return;
+			}
+
+			else if (typeof (McpeCraftingData) == message.GetType())
+			{
+				OnMcpeCraftingData(message);
+				return;
+			}
+		}
+
+		private static void OnMcpeCraftingData(Package message)
+		{
+			string fileName = Path.GetTempPath() + "Recipes_" + Guid.NewGuid() + ".txt";
+			Log.Info("Writing recipes to filename: " + fileName);
+			FileStream file = File.OpenWrite(fileName);
+
+			McpeCraftingData msg = (McpeCraftingData) message;
+			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+
+			writer.WriteLine("static RecipeManager()");
+			writer.WriteLine("{");
+			writer.Indent++;
+			writer.WriteLine("Recipes = new Recipes");
+			writer.WriteLine("{");
+			writer.Indent++;
+
+			foreach (Recipe recipe in msg.recipes)
+			{
+				ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
+				if (shapelessRecipe != null)
 				{
-					Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
+					writer.WriteLine(string.Format("new ShapelessRecipe(new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", shapelessRecipe.Result.Id, shapelessRecipe.Result.Metadata, shapelessRecipe.Result.Count));
+					writer.Indent++;
+					writer.WriteLine("new List<ItemStack>");
+					writer.WriteLine("{");
+					writer.Indent++;
+					foreach (var itemStack in shapelessRecipe.Input)
+					{
+						writer.WriteLine(string.Format("new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", itemStack.Id, itemStack.Metadata, itemStack.Count));
+					}
+					writer.Indent--;
+					writer.WriteLine("}),");
+					writer.Indent--;
 
-					//ClientUtils.SaveChunkToAnvil(chunk);
+					continue;
 				}
-				return;
+
+				ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
+				if (shapedRecipe != null)
+				{
+					writer.WriteLine(string.Format("new ShapedRecipe({0}, {1}, new ItemStack(ItemFactory.GetItem({2}, {3}), {4}),", shapedRecipe.Width, shapedRecipe.Height, shapedRecipe.Result.Id, shapedRecipe.Result.Metadata, shapedRecipe.Result.Count));
+					writer.Indent++;
+					writer.WriteLine("new Item[]");
+					writer.WriteLine("{");
+					writer.Indent++;
+					foreach (Item item in shapedRecipe.Input)
+					{
+						writer.WriteLine(string.Format("ItemFactory.GetItem({0}, {1}),", item.Id, item.Metadata));
+					}
+					writer.Indent--;
+					writer.WriteLine("}),");
+					writer.Indent--;
+
+					continue;
+				}
 			}
 
-			if (typeof (ConnectionRequestAccepted) == message.GetType())
+			writer.WriteLine("};");
+			writer.Indent--;
+			writer.WriteLine("}");
+			writer.Indent--;
+
+			writer.Flush();
+
+			file.Close();
+			//Environment.Exit(0);
+		}
+
+		private static void OnMcpeContainerSetContent(Package message)
+		{
+			McpeContainerSetContent msg = (McpeContainerSetContent) message;
+			Log.DebugFormat("Window ID: 0x{0:x2}, Count: {1}", msg.windowId, msg.slotData.Count);
+			var slots = msg.slotData.GetValues();
+
+			foreach (var entry in slots)
 			{
-				Thread.Sleep(50);
-				SendNewIncomingConnection();
-				//_connectedPingTimer = new Timer(state => SendConnectedPing(), null, 1000, 1000);
-				Thread.Sleep(50);
-				SendLogin(Username);
-				return;
+				MetadataSlot slot = (MetadataSlot) entry;
+				//Log.DebugFormat(" - Id: {0}, Metadata: {1}, Count: {2}", slot.Value.Item.Id, slot.Value.Item.Metadata, slot.Value.Count);
 			}
+		}
 
-			if (typeof (McpeSetSpawnPosition) == message.GetType())
-			{
-				McpeSetSpawnPosition msg = (McpeSetSpawnPosition) message;
-				_spawn = new Vector3(msg.x, msg.y, msg.z);
-				_level.SpawnX = (int) _spawn.X;
-				_level.SpawnY = (int) _spawn.Y;
-				_level.SpawnZ = (int) _spawn.Z;
+		private static void OnMcpeSpawnExperienceOrb(Package message)
+		{
+			McpeSpawnExperienceOrb msg = (McpeSpawnExperienceOrb) message;
+			Log.DebugFormat("Event ID: {0}", msg.entityId);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("count: {0}", msg.count);
+		}
 
-				return;
-			}
+		private static void OnMcpeMobEffect(Package message)
+		{
+			McpeMobEffect msg = (McpeMobEffect) message;
+			Log.DebugFormat("operation: {0}", msg.eventId);
+			Log.DebugFormat("entity id: {0}", msg.entityId);
+			Log.DebugFormat("effectId: {0}", msg.effectId);
+			Log.DebugFormat("amplifier: {0}", msg.amplifier);
+			Log.DebugFormat("duration: {0}", msg.duration);
+			Log.DebugFormat("particles: {0}", msg.particles);
+		}
 
-			if (typeof (McpeStartGame) == message.GetType())
-			{
-				McpeStartGame msg = (McpeStartGame) message;
-				_entityId = msg.entityId;
-				_spawn = new Vector3(msg.x, msg.y, msg.z);
-				_level.LevelName = "Default";
-				_level.Version = 19133;
-				_level.GameType = msg.gamemode;
+		private static void OnMcpeLevelEvent(Package message)
+		{
+			McpeLevelEvent msg = (McpeLevelEvent) message;
+			Log.DebugFormat("Event ID: {0}", msg.eventId);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Data: {0}", msg.data);
+		}
 
-				//ClientUtils.SaveLevel(_level);
+		private static void OnMcpeUpdateBlock(Package message)
+		{
+			McpeUpdateBlock msg = (McpeUpdateBlock) message;
+			Log.DebugFormat("No of Blocks: {0}", msg.blocks.Count);
+		}
 
-				return;
-			}
+		private void OnMcpeMovePlayer(Package message)
+		{
+			McpeMovePlayer msg = (McpeMovePlayer) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
 
-			if (typeof (McpeTileEvent) == message.GetType())
-			{
-				McpeTileEvent msg = (McpeTileEvent) message;
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Case 1: {0}", msg.case1);
-				Log.DebugFormat("Case 2: {0}", msg.case2);
-				return;
-			}
-			if (typeof (McpeAddEntity) == message.GetType())
-			{
-				McpeAddEntity msg = (McpeAddEntity) message;
-				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				Log.DebugFormat("Entity Type: {0}", msg.entityType);
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Yaw: {0}", msg.yaw);
-				Log.DebugFormat("Pitch: {0}", msg.pitch);
-				Log.DebugFormat("Velocity X: {0}", msg.speedX);
-				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-				Log.DebugFormat("Velocity Z: {0}", msg.metadata);
-				//Log.DebugFormat("Links count: {0}", msg.links);
+			CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
+			SendMcpeMovePlayer();
+		}
 
-				return;
-			}
-			if (typeof(McpeAddPlayer) == message.GetType())
-			{
-				McpeAddPlayer msg = (McpeAddPlayer)message;
-				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Yaw: {0}", msg.yaw);
-				Log.DebugFormat("Pitch: {0}", msg.pitch);
-				Log.DebugFormat("Velocity X: {0}", msg.speedX);
-				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-				Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
-				//Log.DebugFormat("Links count: {0}", msg.links);
-
-				return;
-			}
-			if (typeof (McpeSetEntityData) == message.GetType())
-			{
-				McpeSetEntityData msg = (McpeSetEntityData) message;
-				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				MetadataDictionary metadata = msg.metadata;
-				if(metadata.Contains(17))
+		private static void OnMcpeSetEntityData(Package message)
+		{
+			McpeSetEntityData msg = (McpeSetEntityData) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			MetadataDictionary metadata = msg.metadata;
+			if (metadata.Contains(17))
 				Log.DebugFormat("Metadata: {0}", metadata.ToString());
-				return;
-			}
+		}
 
-			if (typeof (McpeMovePlayer) == message.GetType())
+		private static void OnMcpeAddPlayer(Package message)
+		{
+			McpeAddPlayer msg = (McpeAddPlayer) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Yaw: {0}", msg.yaw);
+			Log.DebugFormat("Pitch: {0}", msg.pitch);
+			Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
+			//Log.DebugFormat("Links count: {0}", msg.links);
+		}
+
+		private static void OnMcpeAddEntity(Package message)
+		{
+			McpeAddEntity msg = (McpeAddEntity) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("Entity Type: {0}", msg.entityType);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Yaw: {0}", msg.yaw);
+			Log.DebugFormat("Pitch: {0}", msg.pitch);
+			Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			Log.DebugFormat("Velocity Z: {0}", msg.metadata);
+			//Log.DebugFormat("Links count: {0}", msg.links);
+		}
+
+		private static void OnMcpeTileEvent(Package message)
+		{
+			McpeTileEvent msg = (McpeTileEvent) message;
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Case 1: {0}", msg.case1);
+			Log.DebugFormat("Case 2: {0}", msg.case2);
+		}
+
+		private void OnMcpeStartGame(Package message)
+		{
+			McpeStartGame msg = (McpeStartGame) message;
+			_entityId = msg.entityId;
+			_spawn = new Vector3(msg.x, msg.y, msg.z);
+			_level.LevelName = "Default";
+			_level.Version = 19133;
+			_level.GameType = msg.gamemode;
+
+			//ClientUtils.SaveLevel(_level);
+		}
+
+		private void OnMcpeSetSpawnPosition(Package message)
+		{
+			McpeSetSpawnPosition msg = (McpeSetSpawnPosition) message;
+			_spawn = new Vector3(msg.x, msg.y, msg.z);
+			_level.SpawnX = (int) _spawn.X;
+			_level.SpawnY = (int) _spawn.Y;
+			_level.SpawnZ = (int) _spawn.Z;
+		}
+
+		private void OnConnectionRequestAccepted()
+		{
+			Thread.Sleep(50);
+			SendNewIncomingConnection();
+			//_connectedPingTimer = new Timer(state => SendConnectedPing(), null, 1000, 1000);
+			Thread.Sleep(50);
+			SendLogin(Username);
+		}
+
+		private static void OnFullChunkData(Package message)
+		{
+			McpeFullChunkData msg = (McpeFullChunkData) message;
+			ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
+			if (chunk != null)
 			{
-				//McpeMovePlayer msg = (McpeMovePlayer) message;
-				//Log.DebugFormat("Entity ID: {0}", msg.entityId);
+				Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
 
-				//CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
-				//SendMcpeMovePlayer();
-				return;
+				//ClientUtils.SaveChunkToAnvil(chunk);
 			}
+		}
 
-			if (typeof (McpeUpdateBlock) == message.GetType())
+		private void OnBatch(Package message)
+		{
+			McpeBatch batch = (McpeBatch) message;
+
+			var messages = new List<Package>();
+
+			// Get bytes
+			byte[] payload = batch.payload;
+			// Decompress bytes
+
+			MemoryStream stream = new MemoryStream(payload);
+			if (stream.ReadByte() != 0x78)
 			{
-				McpeUpdateBlock msg = (McpeUpdateBlock) message;
-				Log.DebugFormat("No of Blocks: {0}", msg.blocks.Count);
-				return;
+				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
 			}
-
-			if (typeof (McpeLevelEvent) == message.GetType())
+			stream.ReadByte();
+			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
-				McpeLevelEvent msg = (McpeLevelEvent) message;
-				Log.DebugFormat("Event ID: {0}", msg.eventId);
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Data: {0}", msg.data);
-				return;
-			}
-
-			if (typeof(McpeMobEffect) == message.GetType())
-			{
-				McpeMobEffect msg = (McpeMobEffect)message;
-				Log.DebugFormat("operation: {0}", msg.eventId);
-				Log.DebugFormat("entity id: {0}", msg.entityId);
-				Log.DebugFormat("effectId: {0}", msg.effectId);
-				Log.DebugFormat("amplifier: {0}", msg.amplifier);
-				Log.DebugFormat("duration: {0}", msg.duration);
-				Log.DebugFormat("particles: {0}", msg.particles);
-				return;
-			}
-
-			if (typeof(McpeSpawnExperienceOrb) == message.GetType())
-			{
-				McpeSpawnExperienceOrb msg = (McpeSpawnExperienceOrb)message;
-				Log.DebugFormat("Event ID: {0}", msg.entityId);
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("count: {0}", msg.count);
-				return;
-			}
-
-			if (typeof (McpeContainerSetContent) == message.GetType())
-			{
-				McpeContainerSetContent msg = (McpeContainerSetContent) message;
-				Log.DebugFormat("Window ID: 0x{0:x2}, Count: {1}", msg.windowId, msg.slotData.Count);
-				var slots = msg.slotData.GetValues();
-
-				foreach (var entry in slots)
+				// Get actual package out of bytes
+				MemoryStream destination = new MemoryStream();
+				defStream2.CopyTo(destination);
+				destination.Position = 0;
+				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+				do
 				{
-					MetadataSlot slot = (MetadataSlot) entry;
-					//Log.DebugFormat(" - Id: {0}, Metadata: {1}, Count: {2}", slot.Value.Item.Id, slot.Value.Item.Metadata, slot.Value.Count);
-				}
-				return;
+					int len = reader.ReadInt32();
+					byte[] internalBuffer = reader.ReadBytes(len);
+					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				} while (destination.Position < destination.Length);
 			}
-
-			if (typeof (McpeCraftingData) == message.GetType())
+			foreach (var msg in messages)
 			{
-				string fileName = Path.GetTempPath() + "Recipes_" + Guid.NewGuid() + ".txt";
-				Log.Info("Writing recipes to filename: " + fileName);
-				FileStream file = File.OpenWrite(fileName);
-
-				McpeCraftingData msg = (McpeCraftingData) message;
-				IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
-
-				writer.WriteLine("static RecipeManager()");
-				writer.WriteLine("{");
-				writer.Indent++;
-				writer.WriteLine("Recipes = new Recipes");
-				writer.WriteLine("{");
-				writer.Indent++;
-
-				foreach (Recipe recipe in msg.recipes)
-				{
-					ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
-					if (shapelessRecipe != null)
-					{
-						writer.WriteLine(string.Format("new ShapelessRecipe(new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", shapelessRecipe.Result.Id, shapelessRecipe.Result.Metadata, shapelessRecipe.Result.Count));
-						writer.Indent++;
-						writer.WriteLine("new List<ItemStack>");
-						writer.WriteLine("{");
-						writer.Indent++;
-						foreach (var itemStack in shapelessRecipe.Input)
-						{
-							writer.WriteLine(string.Format("new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", itemStack.Id, itemStack.Metadata, itemStack.Count));
-						}
-						writer.Indent--;
-						writer.WriteLine("}),");
-						writer.Indent--;
-
-						continue;
-					}
-
-					ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
-					if (shapedRecipe != null)
-					{
-						writer.WriteLine(string.Format("new ShapedRecipe({0}, {1}, new ItemStack(ItemFactory.GetItem({2}, {3}), {4}),", shapedRecipe.Width, shapedRecipe.Height, shapedRecipe.Result.Id, shapedRecipe.Result.Metadata, shapedRecipe.Result.Count));
-						writer.Indent++;
-						writer.WriteLine("new Item[]");
-						writer.WriteLine("{");
-						writer.Indent++;
-						foreach (Item item in shapedRecipe.Input)
-						{
-							writer.WriteLine(string.Format("ItemFactory.GetItem({0}, {1}),", item.Id, item.Metadata));
-						}
-						writer.Indent--;
-						writer.WriteLine("}),");
-						writer.Indent--;
-
-						continue;
-					}
-				}
-
-				writer.WriteLine("};");
-				writer.Indent--;
-				writer.WriteLine("}");
-				writer.Indent--;
-
-				writer.Flush();
-
-				file.Close();
-				//Environment.Exit(0);
-				return;
+				msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+				msg.OrderingChannel = batch.OrderingChannel;
+				msg.OrderingIndex = batch.OrderingIndex;
+				HandlePackage(msg);
+				msg.PutPool();
 			}
 		}
 
@@ -758,12 +838,12 @@ namespace MiNET.Client
 
 		private void TraceReceive(Package message)
 		{
-			if (message is McpeMoveEntity 
-				|| message is McpeMovePlayer 
-				|| message is McpeSetEntityMotion
-				|| message is McpeBatch 
-				|| message is McpeFullChunkData 
-				|| message is ConnectedPing) return;
+			if (message is McpeMoveEntity
+			    || message is McpeMovePlayer
+			    || message is McpeSetEntityMotion
+			    || message is McpeBatch
+			    || message is McpeFullChunkData
+			    || message is ConnectedPing) return;
 
 			var stringWriter = new StringWriter();
 			ObjectDumper.Write(message, 1, stringWriter);

@@ -765,7 +765,7 @@ namespace MiNET.Worlds
 		public Block GetBlock(BlockCoordinates blockCoordinates)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
-			if(chunk == null) return new Air();
+			if (chunk == null) return new Air();
 
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
@@ -906,7 +906,8 @@ namespace MiNET.Worlds
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
-			Item itemInHand = player.Inventory.GetItemInHand().Item;
+			ItemStack itemStackInHand = player.Inventory.GetItemInHand();
+			Item itemInHand = itemStackInHand.Item;
 
 			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
 

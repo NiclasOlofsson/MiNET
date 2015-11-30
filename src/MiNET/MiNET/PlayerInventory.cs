@@ -10,7 +10,7 @@ namespace MiNET
 	public class PlayerInventory
 	{
 		public const int HotbarSize = 9;
-		public const int InventorySize = HotbarSize + 27;
+		public const int InventorySize = HotbarSize + 36;
 		public Player Player { get; private set; }
 
 		public List<ItemStack> Slots { get; private set; }
@@ -29,7 +29,10 @@ namespace MiNET
 			Player = player;
 
 			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
-			int c = -1;
+			//Slots = Enumerable.Repeat(new ItemStack(new ItemIronSword(0), 1), InventorySize).ToList();
+			//Slots[Slots.Count-10] = new ItemStack(new ItemDiamondAxe(0), 1);
+			//Slots[Slots.Count-9] = new ItemStack(new ItemDiamondAxe(0), 1);
+			//int c = -1;
 			//Slots[++c] = new ItemStack(new ItemIronSword(0), 1);
 			//Slots[++c] = new ItemStack(new ItemBow(0), 1);
 			//Slots[++c] = new ItemStack(new ItemSnowball(0), 64);
@@ -88,6 +91,11 @@ namespace MiNET
 			return Slots[index];
 		}
 
+		public virtual int GetItemInHandSlot()
+		{
+			return ItemHotbar[InHandSlot];
+		}
+
 		[Wired]
 		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
 		{
@@ -133,22 +141,26 @@ namespace MiNET
 			return slotData;
 		}
 
-		public void SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
+		public bool SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
 		{
+			Item item = ItemFactory.GetItem(itemId, metadata);
+
 			for (byte s = 0; s < Slots.Count; s++)
 			{
-				var b = (MetadataSlot) Slots[s];
-				if (b.Value.Id == itemId && b.Value.Metadata == metadata && b.Value.Count < 64)
+				var b = Slots[s];
+				if (b.Id == itemId && b.Metadata == metadata && b.Count + amount <= item.MaxStackSize)
 				{
-					SetInventorySlot(s, itemId, (byte) (b.Value.Count + amount), metadata);
-					break;
+					SetInventorySlot(s, itemId, (byte) (b.Count + amount), metadata);
+					return true;
 				}
-				else if (b.Value == null || b.Value.Id == 0 || b.Value.Id == -1)
+				else if (b.Id == 0 || b.Id == -1)
 				{
 					SetInventorySlot(s, itemId, amount, metadata);
-					break;
+					return true;
 				}
 			}
+
+			return false;
 		}
 
 		public void SetHeldItemSlot(int slot)

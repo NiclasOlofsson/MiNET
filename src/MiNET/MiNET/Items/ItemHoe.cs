@@ -8,6 +8,7 @@ namespace MiNET.Items
 	{
 		internal ItemHoe(int id, short metadata) : base(id, metadata)
 		{
+			MaxStackSize = 1;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

@@ -8,10 +8,21 @@ namespace MiNET.Items
 	{
 		public ItemEgg(short metadata) : base(344, metadata)
 		{
+			MaxStackSize = 16;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
+			var inventory = player.Inventory;
+			var itemInHand = inventory.GetItemInHand();
+
+			itemInHand.Count--;
+			if (itemInHand.Count <= 0)
+			{
+				// set empty
+				inventory.Slots[inventory.Slots.IndexOf(itemInHand)] = new ItemStack();
+			}
+
 			float force = 1.5f;
 
 			Egg egg = new Egg(null, world);

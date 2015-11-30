@@ -4,6 +4,7 @@
 	{
 		public ItemCoal(short metadata) : base(263, metadata)
 		{
+			MaxStackSize = 1;
 			FuelEfficiency = 80;
 		}
 	}

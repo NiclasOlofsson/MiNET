@@ -25,7 +25,7 @@ namespace CorePlugins
         public Player player;
         public string ip;
 
-        public User Copy(string nick = null, ModelUser model = new ModelUser { id = -1 }, Player player = null, string ip = "")
+        public User Copy(string nick = null, ModelUser model = new ModelUser { id = -1 }, Player player = null, string ip = null)
         {
             return new User { nick = nick ?? this.nick, ip = ip ?? this.ip, model = model.id == -1 ? this.model : model, player = player ?? this.player };
         }
@@ -38,6 +38,7 @@ namespace CorePlugins
         private Dictionary<string, string> preLoginUser = new Dictionary<string, string>();
         private DataBase db;
         private PlayerLocation spawnPosition;
+        public static User UserEmpty = new User { ip = "-1" };
 
         protected override void OnEnable()
         {
@@ -47,7 +48,7 @@ namespace CorePlugins
                 level.BlockPlace += LevelOnBlockPlace;
             }
 
-            _timerOnBlock = new Timer(TimerOnBlock, null, 30000, 5000);
+            //_timerOnBlock = new Timer(TimerOnBlock, null, 30000, 5000);
 
             db = new DataBase();
 
@@ -65,7 +66,7 @@ namespace CorePlugins
             Player target = sender as Player;
             ModelUser model;
 
-            if(users.Exists(x => x.nick == target.Username) || preLoginUser.ContainsKey(target.Username))
+            if((users.Exists(x => x.nick == target.Username && x.player.AntiDoubleLogin)) || preLoginUser.ContainsKey(target.Username))
             {
                 Disconect("Double login.", target);
                 return;
@@ -89,9 +90,10 @@ namespace CorePlugins
         {
             // Отключение игрока
             Player target = sender as Player;
+            target.AntiDoubleLogin = false;
             target.isLogin = true; // :)
             target.isRegister = true; // :)
-            users.RemoveAll(x => x.nick == target.Username);
+            //users.RemoveAll(x => x.nick == target.Username);
             preLoginUser.Remove(target.Username);
         }
 
@@ -113,7 +115,16 @@ namespace CorePlugins
 
         private void Disconect(string message, Player player)
         {
+            player.AntiDoubleLogin = false;
             player.Disconnect(message, true, false);
+        }
+
+        public User GetUserAsName(Player player)
+        {
+            var tmp = users.Where(x => x.nick == player.Username).ToArray();
+            if (tmp.Length > 0)
+                return tmp[0];
+            return UserEmpty;
         }
 
         #region Block Change
@@ -357,6 +368,7 @@ namespace CorePlugins
 
         private void ProcessLogin(Player player, ModelUser model)
         {
+            string str = "";
             // авторизация была?
             if (users.Exists(x => x.ip == player.EndPoint.Address.ToString() && x.nick == player.Username))
             {
@@ -429,12 +441,21 @@ namespace CorePlugins
             }), null, 0, 100);
         }
 
+        [Command(Command = "newpass")]
+        public void ChangePasswordCommand(Player player, string pass)
+        {
+            db.ChangeUserPassword(player.Username, pass);
+        }
+
+        [Command(Command = "newpass")]
+        public void ChangePasswordCommand(Player player)
+        {
+            player.SendMessage("[Auth] Использование: /newpass new-password");
+        }
+
         #endregion
 
-        [Command(Command = "tp", RoleRequired = 1)]
-        public void Teleport(Player player)
-        {
-            player.SendMessage("tp....");
-        }
+
+
     }
 }

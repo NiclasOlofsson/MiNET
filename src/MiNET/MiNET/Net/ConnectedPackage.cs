@@ -53,9 +53,11 @@ namespace MiNET.Net
 			if (_splitPacketCount > 1 && _splitPacketIndex > 0)
 			{
 				Write((byte) 0x8c);
+				_hasSplit = true;
 			}
 			else
 			{
+				_hasSplit = false;
 				Write((byte) 0x84);
 			}
 
@@ -115,7 +117,7 @@ namespace MiNET.Net
 			{
 				byte flags = ReadByte();
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
-				bool isSplitPacket = ((flags & Convert.ToByte("00010000", 2)) > 0);
+				_hasSplit = ((flags & Convert.ToByte("00010000", 2)) > 0);
 
 				short dataBitLength = ReadShort();
 
@@ -153,7 +155,7 @@ namespace MiNET.Net
 					_orderingChannel = 0;
 				}
 
-				if (isSplitPacket)
+				if (_hasSplit)
 				{
 					_splitPacketCount = ReadInt();
 					_splitPacketId = ReadShort();
@@ -171,7 +173,7 @@ namespace MiNET.Net
 
 				byte[] internalBuffer = ReadBytes(MessageLength);
 
-				if (isSplitPacket)
+				if (_hasSplit)
 				{
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
 					splitPartPackage.Id = internalBuffer[0];
@@ -181,6 +183,10 @@ namespace MiNET.Net
 				}
 
 				Package package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
+				package.DatagramSequenceNumber = _datagramSequenceNumber;
+				package.ReliableMessageNumber = _reliableMessageNumber;
+				package.OrderingChannel = _orderingChannel;
+				package.OrderingIndex = _orderingIndex;
 				Messages.Add(package);
 				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 			}

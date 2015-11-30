@@ -25,9 +25,18 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			ItemStack itemStackInHand = player.Inventory.GetItemInHand();
+			itemStackInHand.Count--;
+			if (itemStackInHand.Count <= 0)
+			{
+				// set empty
+				player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemStack();
+			}
+
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;
 
+			if (player.GetBoundingBox().Intersects(_block.GetBoundingBox())) return;
 			if (!_block.CanPlace(world, face)) return;
 
 			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled

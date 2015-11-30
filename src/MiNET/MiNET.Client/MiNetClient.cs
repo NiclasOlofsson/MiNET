@@ -482,7 +482,7 @@ namespace MiNET.Client
 				{
 					Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
 
-					//ClientUtils.SaveChunkToAnvil(chunk);
+					ClientUtils.SaveChunkToAnvil(chunk);
 				}
 				return;
 			}

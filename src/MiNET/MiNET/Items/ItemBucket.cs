@@ -11,6 +11,7 @@ namespace MiNET.Items
 
 		public ItemBucket(short metadata) : base(325, metadata)
 		{
+			MaxStackSize = 1;
 			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
 		}
 

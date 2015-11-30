@@ -470,7 +470,7 @@ namespace MiNET.Worlds
 					regionFile.Write(buffer, 0, buffer.Length);
 				}
 
-				return;
+				//return;
 			}
 
 			using (var regionFile = File.Open(filePath, FileMode.Open))

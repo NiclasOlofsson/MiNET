@@ -93,23 +93,22 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static void CreateDatagrams(Package message, int mtuSize, ref int reliableMessageNumber, PlayerNetworkSession session, Action<PlayerNetworkSession, Datagram> sendDatagram)
+		public static IEnumerable<Datagram> CreateDatagrams(Package message, int mtuSize, PlayerNetworkSession session)
 		{
-			if (message is InternalPing) return;
+			if (message is InternalPing) yield break;
 
 			Datagram datagram = CreateObject();
-			datagram.Reset();
+			//datagram.Reset();
 
-			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref reliableMessageNumber);
+			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref session.ReliableMessageNumber);
 			foreach (var messagePart in messageParts)
 			{
 				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 				{
-					Datagram datagram1 = datagram;
-					sendDatagram(session, datagram1);
+					yield return datagram;
 
 					datagram = CreateObject();
-					datagram.Reset();
+					//datagram.Reset();
 
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
@@ -119,7 +118,7 @@ namespace MiNET.Net
 				}
 			}
 
-			sendDatagram(session, datagram);
+			yield return datagram;
 		}
 
 		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, ref int reliableMessageNumber)

@@ -4,6 +4,7 @@ namespace MiNET.Items
 	{
 		public ItemGoldChestplate(short metadata) : base(315, metadata)
 		{
+			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;
 			ItemMaterial = ItemMaterial.Gold;
 		}

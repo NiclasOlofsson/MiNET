@@ -82,8 +82,6 @@ namespace CorePlugins
                 target.isRegister = false;
                 ProcessRegister(target);
             }
-
-
         }
 
         private void HandleDisconnectAction(object sender, EventArgs e)
@@ -455,7 +453,12 @@ namespace CorePlugins
 
         #endregion
 
-
+        [Command]
+        public void Strike(Player player)
+        {
+            //player.Level.StrikeLightning(player.KnownPosition.ToVector3());
+            player.StrikeLightning();
+        }
 
     }
 }

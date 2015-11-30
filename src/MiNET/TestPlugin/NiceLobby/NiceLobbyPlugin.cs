@@ -28,10 +28,10 @@ namespace TestPlugin.NiceLobby
 
 		protected override void OnEnable()
 		{
-			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			//foreach (var level in Context.Levels)
+			//foreach (var level in Context.LevelManager.Levels)
 			//{
 			//	level.BlockBreak += LevelOnBlockBreak;
 			//	level.BlockPlace += LevelOnBlockPlace;
@@ -40,12 +40,12 @@ namespace TestPlugin.NiceLobby
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
 		{
-			e.Cancel = true;
+			e.Cancel = e.Player.GameMode != GameMode.Creative;
 		}
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			e.Cancel = true;
+			//e.Cancel = e.Player.GameMode != GameMode.Creative;
 		}
 
 		private double m = 0.1d;
@@ -188,10 +188,12 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration});
-			//player.SetEffect(new Slowness {Level = 2, Duration = 20});
-			player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
-			player.SetAutoJump(true);
+			player.RemoveAllEffects();
+
+			player.SetEffect(new Speed { Level = 2, Duration = 1000 });
+			////player.SetEffect(new Slowness {Level = 2, Duration = 20});
+			//player.SetEffect(new JumpBoost { Level = 2, Duration = Effect.MaxDuration });
+			//player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))
 			{
@@ -287,12 +289,22 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
+		public void Fuck(Player player)
+		{
+			//player.SendSetHealth();
+			player.Level.BroadcastMessage(string.Format("{0} current health is {1} with {2} hearts!", player.Username, player.HealthManager.Health, player.HealthManager.Hearts), type: MessageType.Raw);
+			player.HealthManager.Health -= 5;
+			player.SendSetHealth();
+			player.Level.BroadcastMessage(string.Format("{0} health after reset is {1} with {2} hearts!", player.Username, player.HealthManager.Health, player.HealthManager.Hearts), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Reset(Player player)
 		{
 			Level level = player.Level;
 			lock (level.Entities)
 			{
-				foreach (var entity in level.Entities.ToArray())
+				foreach (var entity in level.Entities.Values.ToArray())
 				{
 					entity.DespawnEntity();
 				}
@@ -312,7 +324,6 @@ namespace TestPlugin.NiceLobby
 				lock (worldProvider._chunkCache)
 				{
 					worldProvider._chunkCache.Clear();
-					worldProvider._batchCache.Clear();
 				}
 
 				var players = level.Players;
@@ -351,6 +362,13 @@ namespace TestPlugin.NiceLobby
 		{
 			player.Level.BroadcastMessage(string.Format(ChatColors.Yellow + "{0} is really 'laughing out loud!', and it really hurst our ears :-(", player.Username), type: MessageType.Raw);
 		}
+
+		[Command]
+		public void Hi(Player player)
+		{
+			player.SendMessage(string.Format(ChatColors.Yellow + "Hi {0}!", player.Username), type: MessageType.Raw);
+		}
+
 
 		[Command]
 		public void Wtf(Player player)

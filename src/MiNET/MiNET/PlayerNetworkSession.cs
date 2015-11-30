@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using MiNET.Net;
@@ -22,8 +21,9 @@ namespace MiNET
 
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
 		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
-		private Dictionary<int, SplitPartPackage[]> _splits = new Dictionary<int, SplitPartPackage[]>();
+		private ConcurrentDictionary<int, SplitPartPackage[]> _splits = new ConcurrentDictionary<int, SplitPartPackage[]>();
 		public int DatagramSequenceNumber = -1;
+		public int ReliableMessageNumber = 0;
 		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
 		public bool IsSlowClient { get; set; }
@@ -32,6 +32,9 @@ namespace MiNET
 
 		public DateTime LastUpdatedTime { get; set; }
 		public int LastDatagramNumber { get; set; }
+
+		public bool WaitForAck { get; set; }
+		public int ResendCount { get; set; }
 
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
 		{
@@ -44,7 +47,7 @@ namespace MiNET
 			CreateTime = DateTime.UtcNow;
 		}
 
-		public Dictionary<int, SplitPartPackage[]> Splits
+		public ConcurrentDictionary<int, SplitPartPackage[]> Splits
 		{
 			get { return _splits; }
 		}
@@ -61,30 +64,29 @@ namespace MiNET
 
 		public void Clean()
 		{
-			//var queue = WaitingForAcksQueue;
-			//foreach (var datagram in queue.Values)
-			//{
-			//	Datagram deleted;
-			//	if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-			//	{
-			//		foreach (MessagePart part in deleted.MessageParts)
-			//		{
-			//			part.PutPool();
-			//		}
-			//		deleted.PutPool();
-			//	}
-			//}
+			var queue = WaitingForAcksQueue;
+			foreach (var kvp in queue)
+			{
+				Datagram datagram;
+				if (queue.TryRemove(kvp.Key, out datagram)) datagram.PutPool();
+			}
 
-			//foreach (var splitPartPackagese in Splits)
-			//{
-			//	if (splitPartPackagese.Value != null)
-			//	{
-			//		foreach (SplitPartPackage package in splitPartPackagese.Value)
-			//		{
-			//			if (package != null) package.PutPool();
-			//		}
-			//	}
-			//}
+			foreach (var kvp in Splits)
+			{
+				SplitPartPackage[] splitPartPackagese;
+				if (Splits.TryRemove(kvp.Key, out splitPartPackagese))
+				{
+					if(splitPartPackagese == null) continue;
+
+					foreach (SplitPartPackage package in splitPartPackagese)
+					{
+						if (package != null) package.PutPool();
+					}
+				}
+			}
+
+			queue.Clear();
+			Splits.Clear();
 		}
 	}
 }

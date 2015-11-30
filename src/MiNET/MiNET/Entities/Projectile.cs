@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
@@ -11,48 +12,38 @@ namespace MiNET.Entities
 {
 	public class Projectile : Entity
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Projectile));
+
 		public Player Shooter { get; set; }
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
+		public int Damage { get; set; }
+		public bool IsCritical { get; set; }
 
-		protected Projectile(Player shooter, int entityTypeId, Level level) : base(entityTypeId, level)
+		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
+			Damage = damage;
+			IsCritical = isCritical;
 			Ttl = 0;
 			DespawnOnImpact = true;
 			BroadcastMovement = false;
 		}
 
+		private object _spawnSync = new object();
+
 		public override void SpawnEntity()
 		{
-			Level.AddEntity(this);
-
-			if (Shooter == null)
+			lock (_spawnSync)
 			{
-				var addEntity = McpeAddEntity.CreateObject();
-				addEntity.entityType = EntityTypeId;
-				addEntity.entityId = EntityId;
-				addEntity.x = KnownPosition.X;
-				addEntity.y = KnownPosition.Y;
-				addEntity.z = KnownPosition.Z;
-				addEntity.yaw = KnownPosition.Yaw;
-				addEntity.pitch = KnownPosition.Pitch;
-				addEntity.metadata = GetMetadata();
-				addEntity.speedX = (float) Velocity.X;
-				addEntity.speedY = (float) Velocity.Y;
-				addEntity.speedZ = (float) Velocity.Z;
+				if (IsSpawned) throw new Exception("Invalid state. Tried to spawn projectile more than one time.");
 
-				Level.RelayBroadcast(addEntity);
+
+				Level.AddEntity(this);
 
 				IsSpawned = true;
 
-				McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				mcpeSetEntityData.entityId = EntityId;
-				mcpeSetEntityData.metadata = GetMetadata();
-				Level.RelayBroadcast(mcpeSetEntityData);
-			}
-			else
-			{
+				if (Shooter == null)
 				{
 					var addEntity = McpeAddEntity.CreateObject();
 					addEntity.entityType = EntityTypeId;
@@ -67,36 +58,60 @@ namespace MiNET.Entities
 					addEntity.speedY = (float) Velocity.Y;
 					addEntity.speedZ = (float) Velocity.Z;
 
-					Level.RelayBroadcast(Shooter, addEntity);
+					Level.RelayBroadcast(addEntity);
 
 					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 					mcpeSetEntityData.entityId = EntityId;
 					mcpeSetEntityData.metadata = GetMetadata();
-					Level.RelayBroadcast(Shooter, mcpeSetEntityData);
+					Level.RelayBroadcast(mcpeSetEntityData);
 				}
+				else
 				{
-					MetadataDictionary metadata = GetMetadata();
-					metadata[17] = new MetadataLong(0);
+					{
+						var addEntity = McpeAddEntity.CreateObject();
+						addEntity.entityType = EntityTypeId;
+						addEntity.entityId = EntityId;
+						addEntity.x = KnownPosition.X;
+						addEntity.y = KnownPosition.Y;
+						addEntity.z = KnownPosition.Z;
+						addEntity.yaw = KnownPosition.Yaw;
+						addEntity.pitch = KnownPosition.Pitch;
+						addEntity.metadata = GetMetadata();
+						addEntity.speedX = (float)Velocity.X;
+						addEntity.speedY = (float)Velocity.Y;
+						addEntity.speedZ = (float)Velocity.Z;
 
-					var addEntity = McpeAddEntity.CreateObject();
-					addEntity.entityType = EntityTypeId;
-					addEntity.entityId = EntityId;
-					addEntity.x = KnownPosition.X;
-					addEntity.y = KnownPosition.Y;
-					addEntity.z = KnownPosition.Z;
-					addEntity.yaw = KnownPosition.Yaw;
-					addEntity.pitch = KnownPosition.Pitch;
-					addEntity.metadata = metadata;
-					addEntity.speedX = (float) Velocity.X;
-					addEntity.speedY = (float) Velocity.Y;
-					addEntity.speedZ = (float) Velocity.Z;
+						Level.RelayBroadcast(Shooter, addEntity);
 
-					Shooter.SendPackage(addEntity);
+						McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+						mcpeSetEntityData.entityId = EntityId;
+						mcpeSetEntityData.metadata = GetMetadata();
+						Level.RelayBroadcast(Shooter, mcpeSetEntityData);
+					}
+					{
+						MetadataDictionary metadata = GetMetadata();
+						metadata[17] = new MetadataLong(0);
 
-					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-					mcpeSetEntityData.entityId = EntityId;
-					mcpeSetEntityData.metadata = metadata;
-					Shooter.SendPackage(mcpeSetEntityData);
+						var addEntity = McpeAddEntity.CreateObject();
+						addEntity.entityType = EntityTypeId;
+						addEntity.entityId = EntityId;
+						addEntity.x = KnownPosition.X;
+						addEntity.y = KnownPosition.Y;
+						addEntity.z = KnownPosition.Z;
+						addEntity.yaw = KnownPosition.Yaw;
+						addEntity.pitch = KnownPosition.Pitch;
+						addEntity.metadata = metadata;
+						addEntity.speedX = (float) Velocity.X;
+						addEntity.speedY = (float) Velocity.Y;
+						addEntity.speedZ = (float) Velocity.Z;
+
+						Shooter.SendPackage(addEntity);
+
+						McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+						mcpeSetEntityData.entityId = EntityId;
+						mcpeSetEntityData.metadata = metadata;
+						Shooter.SendPackage(mcpeSetEntityData);
+					}
 				}
 			}
 		}
@@ -134,7 +149,21 @@ namespace MiNET.Entities
 			bool collided = false;
 			if (entityCollided != null)
 			{
-				entityCollided.HealthManager.TakeHit(this, 2, DamageCause.Projectile);
+				double speed = Math.Sqrt(Velocity.X*Velocity.X + Velocity.Y*Velocity.Y + Velocity.Z*Velocity.Z);
+				int damage = (int) Math.Ceiling(speed*Damage);
+				if (IsCritical)
+				{
+					damage += Level.Random.Next(damage/2 + 2);
+				}
+
+				Player player = entityCollided as Player;
+
+				if (player != null)
+				{
+					damage = player.CalculatePlayerDamage(player, damage);
+				}
+
+				entityCollided.HealthManager.TakeHit(this, damage, DamageCause.Projectile);
 				collided = true;
 			}
 			else
@@ -160,7 +189,7 @@ namespace MiNET.Entities
 						collided = block.Id != 0 && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
 						if (collided)
 						{
-							var substBlock = new Block(57) {Coordinates = block.Coordinates};
+							//var substBlock = new Block(57) {Coordinates = block.Coordinates};
 							//Level.SetBlock(substBlock);
 							//KnownPosition = nextPos;
 							SetIntersectLocation(block.GetBoundingBox(), KnownPosition);
@@ -218,8 +247,8 @@ namespace MiNET.Entities
 				}
 			}
 
-			var entities = Level.Entities.OrderBy(entity => position.DistanceTo(entity.KnownPosition.ToVector3()));
-			foreach (var entity in entities)
+			var entities = Level.Entities.Values.OrderBy(entity => position.DistanceTo(entity.KnownPosition.ToVector3()));
+			foreach (Entity entity in entities)
 			{
 				if (entity == Shooter) continue;
 				if (entity == this) continue;

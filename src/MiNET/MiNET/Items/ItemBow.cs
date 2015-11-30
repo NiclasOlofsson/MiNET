@@ -1,4 +1,5 @@
 using System;
+using log4net;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -7,31 +8,45 @@ namespace MiNET.Items
 {
 	public class ItemBow : Item
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBow));
+
 		public ItemBow(short metadata) : base(261, metadata)
 		{
+			MaxStackSize = 1;
 		}
 
 		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
 		{
-			float force = CalculateForce(timeUsed);
-			if (force <= 0) return;
+			var inventory = player.Inventory;
+			bool haveArrows = false;
+			for (byte i = 0; i < inventory.Slots.Count; i++)
+			{
+				var itemStack = inventory.Slots[i];
+				if (itemStack.Id == 262)
+				{
+                    if (--itemStack.Count <= 0)
+					{
+						// set empty
+						Log.Debug($"Send arrows on slot {i} to 0");
+						inventory.Slots[i] = new ItemStack();
+					}
+					haveArrows = true;
+					break;
+				}
+			}
 
-			Arrow arrow = new Arrow(player, world);
+			if (!haveArrows) return;
+
+			float force = CalculateForce(timeUsed);
+			if (force < 0.1D) return;
+
+			Arrow arrow = new Arrow(player, world, !(force < 1.0));
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.62f;
 
 			arrow.Velocity = arrow.KnownPosition.GetDirection()*(force*2.0f*1.5f);
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
-
-			//Arrow arrow2 = new Arrow(player, world)
-			//{
-			//	KnownPosition = (PlayerLocation)arrow.KnownPosition.Clone(),
-			//	Velocity = arrow.Velocity,
-			//	BroadcastMovement = true
-			//};
-			////arrow2.HealthManager.Ignite();
-			//arrow2.SpawnEntity();
 			arrow.BroadcastMovement = false;
 			arrow.DespawnOnImpact = true;
 			arrow.SpawnEntity();

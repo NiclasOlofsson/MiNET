@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using log4net;
 
 namespace MiNET.Net
 {
 	public class Datagram : Package<Datagram>
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Datagram));
+
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
 		public long RetransmissionTimeOut { get; set; }
@@ -30,8 +33,15 @@ namespace MiNET.Net
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
 		{
 			var bytes = messagePart.Encode();
-			if (bytes.Length + _currentSize > mtuSize) return false;
-			if (messagePart.Header.HasSplit && MessageParts.Count > 0) return false;
+			if (bytes.Length + _currentSize > mtuSize)
+			{
+				return false;
+			}
+			if (messagePart.Header.HasSplit && MessageParts.Count > 0)
+			{
+				//Log.Warn(string.Format("Message has split and count > 0: {0}, MTU: {1}", MessageParts.Count, mtuSize));
+				return false;
+			}
 			//if (Header.isContinuousSend) return false;
 
 			if (messagePart.Header.PartCount > 0 && messagePart.Header.PartIndex > 0) Header.isContinuousSend = true;
@@ -48,11 +58,19 @@ namespace MiNET.Net
 
 		public override void Reset()
 		{
+			//base.Reset();
+
 			Header.Reset();
 			RetransmissionTimeOut = 0;
 			TransmissionCount = 0;
 			_currentSize = 4;
 			FirstMessageId = 0;
+
+			foreach (MessagePart part in MessageParts)
+			{
+				part.PutPool();
+			}
+
 			MessageParts.Clear();
 			_buf.SetLength(0);
 		}
@@ -75,40 +93,32 @@ namespace MiNET.Net
 			return _buf.ToArray();
 		}
 
-		public static void CreateDatagrams(List<Package> messages, int mtuSize, ref int reliableMessageNumber, PlayerNetworkSession session, Action<PlayerNetworkSession, Datagram> sendDatagram)
+		public static IEnumerable<Datagram> CreateDatagrams(Package message, int mtuSize, PlayerNetworkSession session)
 		{
-			Datagram datagram = null;
-			foreach (var message in messages)
-			{
-				if (message is InternalPing) continue;
+			if (message is InternalPing) yield break;
 
-				var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref reliableMessageNumber);
-				foreach (var messagePart in messageParts)
+			Datagram datagram = CreateObject();
+			//datagram.Reset();
+
+			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref session.ReliableMessageNumber);
+			foreach (var messagePart in messageParts)
+			{
+				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 				{
-					if (datagram == null)
-					{
-						datagram = CreateObject();
-					}
+					yield return datagram;
+
+					datagram = CreateObject();
+					//datagram.Reset();
 
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
-						Datagram datagram1 = datagram;
-						sendDatagram(session, datagram1);
-
-						datagram = CreateObject();
-
-						if (!datagram.TryAddMessagePart(messagePart, mtuSize))
-						{
-							throw new Exception(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
-						}
+						Log.Warn(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
+						throw new Exception(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
 					}
 				}
 			}
 
-			if (datagram != null)
-			{
-				sendDatagram(session, datagram);
-			}
+			yield return datagram;
 		}
 
 		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, ref int reliableMessageNumber)
@@ -118,12 +128,12 @@ namespace MiNET.Net
 			byte[] encodedMessage = message.Encode();
 			if (encodedMessage == null) return messageParts;
 
-			//int datagramHeaderSize = 34;
-			int datagramHeaderSize = 34;
+			int datagramHeaderSize = 60;
+			//int datagramHeaderSize = 100;
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;
 			short splitId = (short) (DateTime.UtcNow.Ticks%short.MaxValue);
-			if (encodedMessage.Length <= mtuSize - datagramHeaderSize)
+			if (count <= 1)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;

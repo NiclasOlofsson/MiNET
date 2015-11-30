@@ -130,33 +130,33 @@
 
 		/// RakPeer - Reliable packets cannot be delivered to the system specified in Packet::systemAddress. The connection to that
 		/// system has been closed.
-		ID_CONNECTION_LOST,
+		ID_CONNECTION_LOST = 0x16,
 
 		/// RakPeer - We are banned from the system we attempted to connect to.
-		ID_CONNECTION_BANNED,
+		ID_CONNECTION_BANNED = 0x17,
 
 		/// RakPeer - The remote system is using a password and has refused our connection because we did not set the correct password.
-		ID_INVALID_PASSWORD,
+		ID_INVALID_PASSWORD = 0x18,
 		// RAKNET_PROTOCOL_VERSION in RakNetVersion.h does not match on the remote system what we have on our system
 		// This means the two systems cannot communicate.
 		// The 2nd byte of the message contains the value of RAKNET_PROTOCOL_VERSION for the remote system
-		ID_INCOMPATIBLE_PROTOCOL_VERSION,
+		ID_INCOMPATIBLE_PROTOCOL_VERSION = 0x19,
 		// Means that this IP address connected recently, and can't connect again as a security measure. See
 		/// RakPeer::SetLimitIPConnectionFrequency()
-		ID_IP_RECENTLY_CONNECTED,
+		ID_IP_RECENTLY_CONNECTED = 0x1A,
 
 		/// RakPeer - The sizeof(RakNetTime) bytes following this byte represent a value which is automatically modified by the difference
 		/// in system times between the sender and the recipient. Requires that you call SetOccasionalPing.
-		ID_TIMESTAMP,
+		ID_TIMESTAMP = 0x1B,
 
 		/// RakPeer - Pong from an unconnected system. First byte is ID_UNCONNECTED_PONG, second sizeof(RakNet::TimeMS) bytes is the ping,
 		/// following bytes is system specific enumeration data.
 		/// Read using bitstreams
-		ID_UNCONNECTED_PONG,
+		ID_UNCONNECTED_PONG = 0x1C,
 
 		/// RakPeer - Inform a remote system of our IP/Port. On the recipient, all data past ID_ADVERTISE_SYSTEM is whatever was passed to
 		/// the data parameter
-		ID_ADVERTISE_SYSTEM,
+		ID_ADVERTISE_SYSTEM = 0x1D,
 		// RakPeer - Downloading a large message. Format is ID_DOWNLOAD_PROGRESS (MessageID), partCount (unsigned int),
 		/// partTotal (unsigned int),
 		/// partLength (unsigned int), first part data (length

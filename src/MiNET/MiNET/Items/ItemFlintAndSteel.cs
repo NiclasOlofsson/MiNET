@@ -1,4 +1,5 @@
 ﻿using System;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Utils;
@@ -8,12 +9,17 @@ namespace MiNET.Items
 {
 	public class ItemFlintAndSteel : Item
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFlintAndSteel));
+
 		public ItemFlintAndSteel(short metadata) : base(259, metadata)
 		{
+			MaxStackSize = 1;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			Log.Warn("Player " + player.Username + " should be banned for hacking!");
+
 			var block = world.GetBlock(blockCoordinates);
 			if (block is Tnt)
 			{

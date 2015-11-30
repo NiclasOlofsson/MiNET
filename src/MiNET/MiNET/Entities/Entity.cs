@@ -95,10 +95,10 @@ namespace MiNET.Entities
 
 			IsSpawned = true;
 
-			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = EntityId;
-			mcpeSetEntityData.metadata = GetMetadata();
-			Level.RelayBroadcast(mcpeSetEntityData);
+			//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			//mcpeSetEntityData.entityId = EntityId;
+			//mcpeSetEntityData.metadata = GetMetadata();
+			//Level.RelayBroadcast(mcpeSetEntityData);
 		}
 
 		public virtual void SpawnToPlayer(Player player)
@@ -117,10 +117,11 @@ namespace MiNET.Entities
 			addEntity.speedZ = (float) Velocity.Z;
 			player.SendPackage(addEntity);
 
-			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = EntityId;
-			mcpeSetEntityData.metadata = GetMetadata();
-			player.SendPackage(mcpeSetEntityData);
+			//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			//mcpeSetEntityData.entityId = EntityId;
+			//mcpeSetEntityData.metadata = GetMetadata();
+			//mcpeSetEntityData.Encode();
+			//player.SendPackage(mcpeSetEntityData);
 		}
 
 		public virtual void DespawnEntity()
@@ -140,7 +141,7 @@ namespace MiNET.Entities
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
-			Level.RelayBroadcast(this, mcpeSetEntityData);
+			Level?.RelayBroadcast(this, mcpeSetEntityData);
 		}
 
 		public BoundingBox GetBoundingBox()

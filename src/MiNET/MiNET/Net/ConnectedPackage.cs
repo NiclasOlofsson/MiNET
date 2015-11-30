@@ -10,7 +10,7 @@ namespace MiNET.Net
 {
 	public class ConnectedPackage : Package<ConnectedPackage>
 	{
-		private DatagramHeader _datagramHeader;
+		public DatagramHeader _datagramHeader;
 		public Int24 _datagramSequenceNumber; // uint 24
 
 		public Reliability _reliability;
@@ -53,9 +53,11 @@ namespace MiNET.Net
 			if (_splitPacketCount > 1 && _splitPacketIndex > 0)
 			{
 				Write((byte) 0x8c);
+				_hasSplit = true;
 			}
 			else
 			{
+				_hasSplit = false;
 				Write((byte) 0x84);
 			}
 
@@ -109,14 +111,13 @@ namespace MiNET.Net
 
 			_datagramHeader = new DatagramHeader(ReadByte());
 			_datagramSequenceNumber = ReadLittle();
+			_datagramHeader.datagramSequenceNumber = _datagramSequenceNumber;
 
-			while (_buffer.Position != _buffer.Length)
+			while (_buffer.Position < _buffer.Length)
 			{
 				byte flags = ReadByte();
-
-
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
-				int hasSplitPacket = ((flags & Convert.ToByte("00010000", 2)) >> 0);
+				_hasSplit = ((flags & Convert.ToByte("00010000", 2)) > 0);
 
 				short dataBitLength = ReadShort();
 
@@ -154,7 +155,7 @@ namespace MiNET.Net
 					_orderingChannel = 0;
 				}
 
-				if (hasSplitPacket != 0)
+				if (_hasSplit)
 				{
 					_splitPacketCount = ReadInt();
 					_splitPacketId = ReadShort();
@@ -162,7 +163,9 @@ namespace MiNET.Net
 				}
 				else
 				{
-					_splitPacketCount = 0;
+					_splitPacketCount = -1;
+					_splitPacketId = -1;
+					_splitPacketIndex = -1;
 				}
 
 				// Slurp the payload
@@ -170,7 +173,7 @@ namespace MiNET.Net
 
 				byte[] internalBuffer = ReadBytes(MessageLength);
 
-				if (hasSplitPacket != 0)
+				if (_hasSplit)
 				{
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
 					splitPartPackage.Id = internalBuffer[0];
@@ -180,6 +183,10 @@ namespace MiNET.Net
 				}
 
 				Package package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
+				package.DatagramSequenceNumber = _datagramSequenceNumber;
+				package.ReliableMessageNumber = _reliableMessageNumber;
+				package.OrderingChannel = _orderingChannel;
+				package.OrderingIndex = _orderingIndex;
 				Messages.Add(package);
 				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 			}

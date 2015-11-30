@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading;
 using fNbt;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Crafting;
 using MiNET.Utils;
 
 namespace MiNET.Net
@@ -16,14 +18,14 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		public string Source { get; set; }
-
-		protected object _bufferSync = new object();
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
 
 		public int DatagramSequenceNumber = 0;
 
+		public bool NoBatch { get; set; }
+
+		public int ReliableMessageNumber = 0;
 		public int OrderingChannel = 0;
 		public int OrderingIndex = 0;
 
@@ -176,6 +178,12 @@ namespace MiNET.Net
 
 		public void Write(string value)
 		{
+			if (value == null)
+			{
+				Write((short) 0);
+				return;
+			}
+
 			byte[] bytes = Encoding.UTF8.GetBytes(value);
 
 			Write((short) bytes.Length);
@@ -186,6 +194,7 @@ namespace MiNET.Net
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return "";
 			short len = ReadShort();
+			if (len == 0) return string.Empty;
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
@@ -430,6 +439,8 @@ namespace MiNET.Net
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
+				if (!metadata.Contains(i)) continue;
+
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
 				{
@@ -453,10 +464,21 @@ namespace MiNET.Net
 
 			MetadataSlots metadata = new MetadataSlots();
 
-			for (byte i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
-				metadata[i] = new MetadataSlot(new ItemStack(ReadShort(), ReadByte(), ReadShort()));
-				ReadShort(); // NbtLen
+				short id = ReadShort();
+				if (id <= 0)
+				{
+					metadata[i] = new MetadataSlot(new ItemStack());
+					continue;
+				}
+
+				metadata[i] = new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
+				int nbtLen = ReadShort(); // NbtLen
+				if (nbtLen > 0)
+				{
+					ReadBytes(nbtLen); // Slurp
+				}
 			}
 
 			return metadata;
@@ -464,7 +486,7 @@ namespace MiNET.Net
 
 		public void Write(MetadataSlot slot)
 		{
-			if (slot == null)
+			if (slot == null || slot.Value.Id <= 0)
 			{
 				Write((short) 0);
 				return;
@@ -473,13 +495,22 @@ namespace MiNET.Net
 			Write(slot.Value.Id);
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
+			Write((short) 0);
 		}
 
 		public MetadataSlot ReadMetadataSlot()
 		{
 			short id = ReadShort();
-			if (id == 0) return new MetadataSlot(new ItemStack());
-			return new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
+			if (id <= 0)
+				return new MetadataSlot(new ItemStack(id, 0, 0));
+
+			var count = ReadByte();
+			if (count == 0)
+				return new MetadataSlot(new ItemStack(id, 0, 0));
+			short metadata = ReadShort();
+			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, count, metadata));
+			ReadShort(); // Nbt len
+			return metadataSlot;
 		}
 
 
@@ -496,9 +527,42 @@ namespace MiNET.Net
 			}
 		}
 
+		public void Write(PlayerAttributes attributes)
+		{
+			Write((short) attributes.Count);
+			foreach (PlayerAttribute attribute in attributes.Values)
+			{
+				Write(attribute.MinValue);
+				Write(attribute.MaxValue);
+				Write(attribute.Value);
+				Write(attribute.Name);
+			}
+		}
+
+		public PlayerAttributes ReadPlayerAttributes()
+		{
+			var attributes = new PlayerAttributes();
+			short count = ReadShort();
+			for (int i = 0; i < count; i++)
+			{
+				PlayerAttribute attribute = new PlayerAttribute
+				{
+					MinValue = ReadFloat(),
+					MaxValue = ReadFloat(),
+					Value = ReadFloat(),
+					Name = ReadString()
+				};
+
+				attributes[attribute.Name] = attribute;
+			}
+
+			return attributes;
+		}
+
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
+			skin.Alpha = ReadByte();
 			skin.Slim = ReadByte() == 0x01;
 			try
 			{
@@ -513,6 +577,7 @@ namespace MiNET.Net
 
 		public void Write(Skin skin)
 		{
+			Write(skin.Alpha);
 			Write((byte) (skin.Slim ? 0x01 : 0x00));
 			if (skin.Texture != null)
 			{
@@ -521,6 +586,95 @@ namespace MiNET.Net
 			}
 		}
 
+		public Recipes ReadRecipes()
+		{
+			Recipes recipes = new Recipes();
+
+			int count = ReadInt();
+			Log.InfoFormat("Recipes Count: {0}", count);
+
+			for (int i = 0; i < count; i++)
+			{
+				int recipeType = ReadInt();
+				int len = ReadInt();
+				if (recipeType < 0 || len == 0)
+				{
+					Log.Warn("Read void recipe");
+					return recipes;
+				}
+
+				if (recipeType == 0)
+				{
+					//const ENTRY_SHAPELESS = 0;
+					ShapelessRecipe recipe = new ShapelessRecipe();
+					int ingrediensCount = ReadInt(); // 
+					for (int j = 0; j < ingrediensCount; j++)
+					{
+						recipe.Input.Add(ReadMetadataSlot().Value);
+					}
+					ReadInt(); // 1?
+					recipe.Result = ReadMetadataSlot().Value;
+					recipe.Id = ReadUUID(); // Id
+					recipes.Add(recipe);
+				}
+				else if (recipeType == 1)
+				{
+					//const ENTRY_SHAPED = 1;
+					int width = ReadInt(); // Width
+					int height = ReadInt(); // Height
+					ShapedRecipe recipe = new ShapedRecipe(width, height);
+					//if(width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
+					for (int w = 0; w < width; w++)
+					{
+						for (int h = 0; h < height; h++)
+						{
+							recipe.Input[(h*width) + w] = ReadMetadataSlot().Value.Item;
+						}
+					}
+
+					ReadInt(); // 1?
+					recipe.Result = ReadMetadataSlot().Value;
+					recipe.Id = ReadUUID(); // Id
+					recipes.Add(recipe);
+				}
+				else if (recipeType == 2)
+				{
+					//const ENTRY_FURNACE = 2;
+					ReadInt(); // type
+					ReadInt(); // input (with metadata) 
+					ReadMetadataSlot(); // Result
+				}
+				else if (recipeType == 3)
+				{
+					//const ENTRY_FURNACE_DATA = 3;
+					ReadInt(); // input 
+					ReadMetadataSlot(); // Result
+				}
+				else if (recipeType == 4)
+				{
+					//const ENTRY_ENCHANT_LIST = 4;
+					int enchantmentListCount = ReadByte(); // count
+					for (int j = 0; j < enchantmentListCount; j++)
+					{
+						ReadMetadataSlot();
+						ReadInt(); // Cost
+						byte enchantmentCount = ReadByte(); // EnchantCount
+						for (int k = 0; k < enchantmentCount; k++)
+						{
+							ReadInt(); // Id
+							ReadInt(); // Level(strenght)
+						}
+						ReadString(); // Name
+					}
+				}
+			}
+
+			return recipes;
+		}
+
+		public void Write(Recipes recipes)
+		{
+		}
 
 		public bool CanRead()
 		{
@@ -537,11 +691,12 @@ namespace MiNET.Net
 		{
 			DatagramSequenceNumber = 0;
 			OrderingIndex = 0;
+			NoBatch = false;
 			_encodedMessage = null;
 			_writer.Flush();
 			_buffer.SetLength(0);
 			_buffer.Position = 0;
-			_timer.Reset();
+			_timer.Restart();
 			_isEncoded = false;
 		}
 
@@ -599,6 +754,23 @@ namespace MiNET.Net
 		}
 
 		public abstract void PutPool();
+
+		public static string HexDump(byte[] bytes, int bytesPerLine = 16)
+		{
+			StringBuilder sb = new StringBuilder();
+			for (int line = 0; line < bytes.Length; line += bytesPerLine)
+			{
+				byte[] lineBytes = bytes.Skip(line).Take(bytesPerLine).ToArray();
+				sb.AppendFormat("{0:x8} ", line);
+				sb.Append(string.Join(" ", lineBytes.Select(b => b.ToString("x2"))
+					.ToArray()).PadRight(bytesPerLine*3));
+				sb.Append(" ");
+				sb.Append(new string(lineBytes.Select(b => b < 32 ? '.' : (char) b)
+					.ToArray()));
+				sb.AppendLine();
+			}
+			return sb.ToString();
+		}
 	}
 
 	/// Base package class
@@ -694,7 +866,6 @@ namespace MiNET.Net
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
 
 			Reset();
-			Source = null;
 			Pool.PutObject((T) this);
 		}
 	}

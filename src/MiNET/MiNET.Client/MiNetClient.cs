@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -8,6 +9,8 @@ using System.Text;
 using System.Threading;
 using log4net;
 using log4net.Config;
+using MiNET.Crafting;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -25,98 +28,121 @@ namespace MiNET.Client
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private IPEndPoint _clientEndpoint;
-		private IPEndPoint _serverTargetEndpoint;
+		private IPEndPoint _serverEndpoint;
 		private short _mtuSize = 1447;
-		private int _reliableMessageNumber = 1;
+		private int _reliableMessageNumber = -1;
 		private Vector3 _spawn;
 		private long _entityId;
 		public PlayerNetworkSession Session { get; set; }
 
-
 		private LevelInfo _level = new LevelInfo();
+		private int _clientGuid;
+		private Timer _connectedPingTimer;
+		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
 
-		public UdpClient Listener { get; private set; }
+		public UdpClient UdpClient { get; private set; }
 
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
-		public MiNetClient(IPEndPoint targetEndpoint, IPEndPoint clientEndpoint = null)
+		public MiNetClient(IPEndPoint endpoint, string username)
 		{
-			_serverTargetEndpoint = targetEndpoint;
-			_clientEndpoint = clientEndpoint ?? new IPEndPoint(IPAddress.Any, 0);
+			Username = username;
+			ClientId = new Random().Next();
+			_serverEndpoint = endpoint;
+			_clientEndpoint = new IPEndPoint(IPAddress.Any, 0);
 		}
 
-		public static bool IsRunningOnMono()
+		private static void Main(string[] args)
 		{
-			return Type.GetType("Mono.Runtime") != null;
+			Console.WriteLine("Starting client...");
+
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("83.249.65.92"), 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
+
+			client.StartClient();
+			Console.WriteLine("Server started.");
+
+
+			//while (!client.HaveServer)
+			//{
+			//	Thread.Sleep(500);
+			//	Console.WriteLine("Sending ping...");
+			//	client.SendUnconnectedPing();
+			//}
+
+			Console.WriteLine("<Enter> to connect!");
+			Console.ReadLine();
+			client.HaveServer = true;
+			client.SendOpenConnectionRequest1();
+
+			Console.WriteLine("<Enter> to exit!");
+			Console.ReadLine();
+			client.StopClient();
 		}
 
-		public bool StartServer()
+		public void StartClient()
 		{
-			if (Listener != null) return false; // Already started
+			if (UdpClient != null) return;
 
 			try
 			{
 				Log.Info("Initializing...");
 
-				Listener = new UdpClient(_clientEndpoint);
-
-				if (IsRunningOnMono())
+				UdpClient = new UdpClient(_clientEndpoint)
 				{
-					Listener.Client.ReceiveBufferSize = 1024*1024*3;
-					Listener.Client.SendBufferSize = 4096;
-				}
-				else
-				{
-					Listener.Client.ReceiveBufferSize = int.MaxValue;
-					Listener.Client.SendBufferSize = int.MaxValue;
-					Listener.DontFragment = false;
+					Client =
+					{
+						ReceiveBufferSize = int.MaxValue,
+						SendBufferSize = int.MaxValue
+					},
+					DontFragment = false
+				};
 
-					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-					// - Set to TRUE to enable reporting.
-					// - Set to FALSE to disable reporting.
+				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
+				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+				// - Set to TRUE to enable reporting.
+				// - Set to FALSE to disable reporting.
 
-					uint IOC_IN = 0x80000000;
-					uint IOC_VENDOR = 0x18000000;
-					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-					Listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+				//uint IOC_IN = 0x80000000;
+				//uint IOC_VENDOR = 0x18000000;
+				//uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+				//UdpClient.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
-					////
-					////WARNING: We need to catch errors here to remove the code above.
-					////
-				}
+				////
+				////WARNING: We need to catch errors here to remove the code above.
+				////
 
 				Session = new PlayerNetworkSession(null, _clientEndpoint);
 
-				Listener.BeginReceive(ReceiveCallback, Listener);
+				UdpClient.BeginReceive(ReceiveCallback, UdpClient);
+				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
 
 				Log.InfoFormat("Server open for business for {0}", Username);
 
-				return true;
+				return;
 			}
 			catch (Exception e)
 			{
-				Log.Error(e);
-				StopServer();
+				Log.Error("Main loop", e);
+				StopClient();
 			}
-
-			return false;
 		}
 
 		/// <summary>
 		///     Stops the server.
 		/// </summary>
 		/// <returns></returns>
-		public bool StopServer()
+		public bool StopClient()
 		{
 			try
 			{
-				if (Listener == null) return true; // Already stopped. It's ok.
+				if (UdpClient == null) return true; // Already stopped. It's ok.
 
-				Listener.Close();
-				Listener = null;
+				UdpClient.Close();
+				UdpClient = null;
 
 				Log.InfoFormat("Client closed for business {0}", Username);
 
@@ -174,7 +200,14 @@ namespace MiNET.Client
 				listener.BeginReceive(ReceiveCallback, listener);
 
 				if (listener.Client == null) return;
-				ProcessMessage(receiveBytes, senderEndpoint);
+				try
+				{
+					ProcessMessage(receiveBytes, senderEndpoint);
+				}
+				catch (Exception e)
+				{
+					Log.Error("Processing", e);
+				}
 			}
 			else
 			{
@@ -192,8 +225,6 @@ namespace MiNET.Client
 		{
 			byte msgId = receiveBytes[0];
 
-			Log.DebugFormat("Recieve {0}", msgId);
-
 			if (msgId <= (byte) DefaultMessageIdTypes.ID_USER_PACKET_ENUM)
 			{
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
@@ -209,6 +240,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
 						UnconnectedPong incoming = (UnconnectedPong) message;
+						HaveServer = true;
 						SendOpenConnectionRequest1();
 
 						break;
@@ -216,6 +248,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
 					{
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
+						_mtuSize = incoming.mtuSize;
 						//if (incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
 						SendOpenConnectionRequest2();
 						break;
@@ -239,12 +272,14 @@ namespace MiNET.Client
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					ConnectedPackage package = ConnectedPackage.CreateObject();
+					//ConnectedPackage package = ConnectedPackage.CreateObject();
+					ConnectedPackage package = new ConnectedPackage();
 					package.Decode(receiveBytes);
-					Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
+					header = package._datagramHeader;
+					//Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
+					Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {package._hasSplit}, {package._splitPacketId}, {package._reliability}, {package._reliableMessageNumber}, {package._sequencingIndex}, {package._orderingChannel}, {package._orderingIndex}");
 
 					var messages = package.Messages;
-
 
 					//Reliability reliability = package._reliability;
 					//if (reliability == Reliability.Reliable
@@ -252,88 +287,38 @@ namespace MiNET.Client
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
 					{
-						// Send ACK
-						Acks ack = new Acks();
-						ack.acks.Add(package._datagramSequenceNumber.IntValue());
-						byte[] data = ack.Encode();
-						SendData(data, senderEndpoint);
+						if (header.datagramSequenceNumber == 1000)
+						{
+							Log.Error("Datagram 1000 ignored");
+						}
+						else
+						{
+							// Send ACK
+							Acks ack = new Acks();
+							ack.acks.Add(package._datagramSequenceNumber.IntValue());
+							byte[] data = ack.Encode();
+							//Log.Info("Send ACK #" + package._datagramSequenceNumber.IntValue());
+							SendData(data, senderEndpoint);
+						}
 					}
 
-					if (LoginSent) return; //HACK
+					//if (LoginSent) return; //HACK
 
 					foreach (var message in messages)
 					{
 						if (message is SplitPartPackage)
 						{
-							var splits = Session.Splits;
-							lock (splits)
+							lock (Session.SyncRoot)
 							{
-								SplitPartPackage splitMessage = message as SplitPartPackage;
-
-								int spId = package._splitPacketId;
-								int spIdx = package._splitPacketIndex;
-								int spCount = package._splitPacketCount;
-
-								Log.DebugFormat("Got split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-
-								if (!splits.ContainsKey(spId))
-								{
-									splits.Add(spId, new SplitPartPackage[spCount]);
-								}
-								else
-								{
-									Log.DebugFormat("Resent split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-								}
-
-								SplitPartPackage[] spPackets = splits[spId];
-								if (spIdx < 0 || spIdx >= spPackets.Length)
-								{
-									Log.DebugFormat("Unexpeted split package {2} (of {0}) for split ID: {1}", spCount, spId, spIdx);
-									return;
-								}
-								spPackets[spIdx] = splitMessage;
-
-								bool haveEmpty = false;
-								for (int i = 0; i < spPackets.Length; i++)
-								{
-									haveEmpty = haveEmpty || spPackets[i] == null;
-								}
-
-								if (!haveEmpty)
-								{
-									//Log.WarnFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
-
-									MemoryStream stream = new MemoryStream();
-									for (int i = 0; i < spPackets.Length; i++)
-									{
-										byte[] buf = spPackets[i].Message;
-										stream.Write(buf, 0, buf.Length);
-									}
-
-									try
-									{
-										byte[] buffer = stream.ToArray();
-										var fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
-										Log.Debug("Processing split-message");
-										HandlePackage(fullMessage, senderEndpoint);
-										fullMessage.PutPool();
-									}
-									catch (Exception e)
-									{
-										Log.Debug("When processing split-message", e);
-									}
-								}
-
-								message.PutPool();
-								return;
+								HandleSplitMessage(Session, package, (SplitPartPackage) message);
 							}
+
+							continue;
 						}
 
-						{
-							message.Timer.Restart();
-							HandlePackage(message, senderEndpoint);
-							message.PutPool();
-						}
+						message.Timer.Restart();
+						HandlePackage(message);
+						message.PutPool();
 					}
 
 					//package.PutPool();
@@ -350,8 +335,6 @@ namespace MiNET.Client
 				{
 					Nak nak = new Nak();
 					nak.Decode(receiveBytes);
-
-					Log.Warn("!!!! NAK !!!!!" + nak.sequenceNumber.IntValue());
 					HandleNak(receiveBytes, senderEndpoint);
 				}
 				else if (!header.isValid)
@@ -365,202 +348,460 @@ namespace MiNET.Client
 			}
 		}
 
+
 		private void HandleAck(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
+			//Log.Info("Ack");
 		}
 
 		private void HandleNak(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			Log.Warn("!! WHAT THE F NAK NAK NAK");
+			Log.Warn("!! WHAT THE FUK NAK NAK NAK");
 		}
 
-		/// <summary>
-		///     Handles the specified package.
-		/// </summary>
-		/// <param name="message">The package.</param>
-		/// <param name="senderEndpoint">The sender's endpoint.</param>
-		private void HandlePackage(Package message, IPEndPoint senderEndpoint)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage)
+		{
+			int spId = package._splitPacketId;
+			int spIdx = package._splitPacketIndex;
+			int spCount = package._splitPacketCount;
+
+			if (!playerSession.Splits.ContainsKey(spId))
+			{
+				playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
+			}
+
+			SplitPartPackage[] spPackets = playerSession.Splits[spId];
+			spPackets[spIdx] = splitMessage;
+
+			bool haveEmpty = false;
+			for (int i = 0; i < spPackets.Length; i++)
+			{
+				haveEmpty = haveEmpty || spPackets[i] == null;
+			}
+
+			if (!haveEmpty)
+			{
+				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+
+				SplitPartPackage[] waste;
+				playerSession.Splits.TryRemove(spId, out waste);
+
+				MemoryStream stream = new MemoryStream();
+				for (int i = 0; i < spPackets.Length; i++)
+				{
+					SplitPartPackage splitPartPackage = spPackets[i];
+					byte[] buf = splitPartPackage.Message;
+					stream.Write(buf, 0, buf.Length);
+					splitPartPackage.PutPool();
+				}
+
+				byte[] buffer = stream.ToArray();
+
+				Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+				fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+				fullMessage.OrderingChannel = package._orderingChannel;
+				fullMessage.OrderingIndex = package._orderingIndex;
+				HandlePackage(fullMessage);
+				fullMessage.PutPool();
+			}
+		}
+
+		private void HandlePackage(Package message)
 		{
 			if (typeof (McpeBatch) == message.GetType())
 			{
-				McpeBatch batch = (McpeBatch) message;
+				OnBatch(message);
 
-				var messages = new List<Package>();
-
-				// Get bytes
-				byte[] payload = batch.payload;
-				// Decompress bytes
-
-				MemoryStream stream = new MemoryStream(payload);
-				if (stream.ReadByte() != 0x78)
-				{
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-				}
-				stream.ReadByte();
-				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-				{
-					// Get actual package out of bytes
-					MemoryStream destination = new MemoryStream();
-					defStream2.CopyTo(destination);
-					byte[] internalBuffer = destination.ToArray();
-					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
-				}
-				foreach (var msg in messages)
-				{
-					HandlePackage(msg, senderEndpoint);
-					msg.PutPool();
-				}
 				return;
 			}
 
-			TraceReceive(message);
+			//TraceReceive(message);
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				return;
 			}
 
-			if (typeof (McpeDisconnect) == message.GetType())
+			else if (typeof (McpeDisconnect) == message.GetType())
 			{
 				McpeDisconnect msg = (McpeDisconnect) message;
 				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
-				SendDisconnectionNotification();
-				StopServer();
+				//SendDisconnectionNotification();
+				StopClient();
 				return;
 			}
 
-			if (typeof (ConnectedPing) == message.GetType())
+			else if (typeof (ConnectedPing) == message.GetType())
 			{
 				ConnectedPing msg = (ConnectedPing) message;
 				SendConnectedPong(msg.sendpingtime);
 				return;
 			}
 
-			if (typeof (McpeFullChunkData) == message.GetType())
+			else if (typeof (McpeFullChunkData) == message.GetType())
 			{
-				//McpeFullChunkData msg = (McpeFullChunkData) message;
-				//ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
-				//if (chunk != null)
-				//{
-				//	Log.DebugFormat("Chunk X={0}", chunk.x);
-				//	Log.DebugFormat("Chunk Z={0}", chunk.z);
-
-				//	//ClientUtils.SaveChunkToAnvil(chunk);
-				//}
+				OnFullChunkData(message);
 				return;
 			}
 
-			if (typeof (ConnectionRequestAccepted) == message.GetType())
+			else if (typeof (ConnectionRequestAccepted) == message.GetType())
 			{
-				Thread.Sleep(150);
-				SendNewIncomingConnection();
-				var t1 = new Timer(state => SendConnectedPing(), null, 2000, 5000);
-				Thread.Sleep(50);
-				SendLogin(Username);
+				OnConnectionRequestAccepted();
 				return;
 			}
 
-			if (typeof (McpeSetSpawnPosition) == message.GetType())
+			else if (typeof (McpeSetSpawnPosition) == message.GetType())
 			{
-				McpeSetSpawnPosition msg = (McpeSetSpawnPosition) message;
-				_spawn = new Vector3(msg.x, msg.y, msg.z);
-				_level.SpawnX = (int) _spawn.X;
-				_level.SpawnY = (int) _spawn.Y;
-				_level.SpawnZ = (int) _spawn.Z;
+				OnMcpeSetSpawnPosition(message);
 
 				return;
 			}
 
-			if (typeof (McpeStartGame) == message.GetType())
+			else if (typeof (McpeStartGame) == message.GetType())
 			{
-				McpeStartGame msg = (McpeStartGame) message;
-				_entityId = msg.entityId;
-				_spawn = new Vector3(msg.x, msg.y, msg.z);
-				_level.LevelName = "Default";
-				_level.Version = 19133;
-				_level.GameType = msg.gamemode;
-
-				//ClientUtils.SaveLevel(_level);
+				OnMcpeStartGame(message);
 
 				return;
 			}
 
-			if (typeof (McpeTileEvent) == message.GetType())
+			else if (typeof (McpeTileEvent) == message.GetType())
 			{
-				McpeTileEvent msg = (McpeTileEvent) message;
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Case 1: {0}", msg.case1);
-				Log.DebugFormat("Case 2: {0}", msg.case2);
+				OnMcpeTileEvent(message);
 				return;
 			}
-			if (typeof (McpeAddEntity) == message.GetType())
+			else if (typeof (McpeAddEntity) == message.GetType())
 			{
-				McpeAddEntity msg = (McpeAddEntity) message;
-				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				Log.DebugFormat("Entity Type: {0}", msg.entityType);
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Yaw: {0}", msg.yaw);
-				Log.DebugFormat("Pitch: {0}", msg.pitch);
-				Log.DebugFormat("Velocity X: {0}", msg.speedX);
-				Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-				Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-				Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
-				Log.DebugFormat("Links count: {0}", msg.links);
+				OnMcpeAddEntity(message);
 
 				return;
 			}
-			if (typeof (McpeSetEntityData) == message.GetType())
+			else if (typeof (McpeAddPlayer) == message.GetType())
 			{
-				McpeSetEntityData msg = (McpeSetEntityData) message;
-				Log.DebugFormat("Entity ID: {0}", msg.entityId);
-				MetadataDictionary metadata = msg.metadata;
-				Log.DebugFormat("Metadata: {0}", metadata.ToString());
+				OnMcpeAddPlayer(message);
+
+				return;
+			}
+			else if (typeof (McpeSetEntityData) == message.GetType())
+			{
+				OnMcpeSetEntityData(message);
 				return;
 			}
 
-			if (typeof (McpeMovePlayer) == message.GetType())
+			else if (typeof (McpeMovePlayer) == message.GetType())
 			{
-				//McpeMovePlayer msg = (McpeMovePlayer) message;
-				//Log.DebugFormat("Entity ID: {0}", msg.entityId);
-
-				//CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
-				//SendMcpeMovePlayer();
+				//OnMcpeMovePlayer(message);
 				return;
 			}
 
-			if (typeof (McpeUpdateBlock) == message.GetType())
+			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
-				McpeUpdateBlock msg = (McpeUpdateBlock) message;
-				Log.DebugFormat("No of Blocks: {0}", msg.blocks.Count);
+				OnMcpeUpdateBlock(message);
 				return;
 			}
 
-			if (typeof (McpeLevelEvent) == message.GetType())
+			else if (typeof (McpeLevelEvent) == message.GetType())
 			{
-				McpeLevelEvent msg = (McpeLevelEvent) message;
-				Log.DebugFormat("Event ID: {0}", msg.eventId);
-				Log.DebugFormat("X: {0}", msg.x);
-				Log.DebugFormat("Y: {0}", msg.y);
-				Log.DebugFormat("Z: {0}", msg.z);
-				Log.DebugFormat("Data: {0}", msg.data);
+				OnMcpeLevelEvent(message);
+				return;
+			}
+
+			else if (typeof (McpeMobEffect) == message.GetType())
+			{
+				OnMcpeMobEffect(message);
+				return;
+			}
+
+			else if (typeof (McpeSpawnExperienceOrb) == message.GetType())
+			{
+				OnMcpeSpawnExperienceOrb(message);
+				return;
+			}
+
+
+			else if (typeof (McpeContainerSetContent) == message.GetType())
+			{
+				OnMcpeContainerSetContent(message);
+				return;
+			}
+
+			else if (typeof (McpeCraftingData) == message.GetType())
+			{
+				OnMcpeCraftingData(message);
 				return;
 			}
 		}
 
-		public void SendPackage(List<Package> messages, short mtuSize, ref int reliableMessageNumber)
+		private static void OnMcpeCraftingData(Package message)
 		{
-			if (messages.Count == 0) return;
+			string fileName = Path.GetTempPath() + "Recipes_" + Guid.NewGuid() + ".txt";
+			Log.Info("Writing recipes to filename: " + fileName);
+			FileStream file = File.OpenWrite(fileName);
 
-			foreach (var message in messages)
+			McpeCraftingData msg = (McpeCraftingData) message;
+			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+
+			writer.WriteLine("static RecipeManager()");
+			writer.WriteLine("{");
+			writer.Indent++;
+			writer.WriteLine("Recipes = new Recipes");
+			writer.WriteLine("{");
+			writer.Indent++;
+
+			foreach (Recipe recipe in msg.recipes)
 			{
-				TraceSend(message);
+				ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
+				if (shapelessRecipe != null)
+				{
+					writer.WriteLine(string.Format("new ShapelessRecipe(new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", shapelessRecipe.Result.Id, shapelessRecipe.Result.Metadata, shapelessRecipe.Result.Count));
+					writer.Indent++;
+					writer.WriteLine("new List<ItemStack>");
+					writer.WriteLine("{");
+					writer.Indent++;
+					foreach (var itemStack in shapelessRecipe.Input)
+					{
+						writer.WriteLine(string.Format("new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", itemStack.Id, itemStack.Metadata, itemStack.Count));
+					}
+					writer.Indent--;
+					writer.WriteLine("}),");
+					writer.Indent--;
+
+					continue;
+				}
+
+				ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
+				if (shapedRecipe != null)
+				{
+					writer.WriteLine(string.Format("new ShapedRecipe({0}, {1}, new ItemStack(ItemFactory.GetItem({2}, {3}), {4}),", shapedRecipe.Width, shapedRecipe.Height, shapedRecipe.Result.Id, shapedRecipe.Result.Metadata, shapedRecipe.Result.Count));
+					writer.Indent++;
+					writer.WriteLine("new Item[]");
+					writer.WriteLine("{");
+					writer.Indent++;
+					foreach (Item item in shapedRecipe.Input)
+					{
+						writer.WriteLine(string.Format("ItemFactory.GetItem({0}, {1}),", item.Id, item.Metadata));
+					}
+					writer.Indent--;
+					writer.WriteLine("}),");
+					writer.Indent--;
+
+					continue;
+				}
 			}
 
-			Datagram.CreateDatagrams(messages, mtuSize, ref reliableMessageNumber, Session, SendDatagram);
+			writer.WriteLine("};");
+			writer.Indent--;
+			writer.WriteLine("}");
+			writer.Indent--;
+
+			writer.Flush();
+
+			file.Close();
+			//Environment.Exit(0);
+		}
+
+		private static void OnMcpeContainerSetContent(Package message)
+		{
+			McpeContainerSetContent msg = (McpeContainerSetContent) message;
+			Log.DebugFormat("Window ID: 0x{0:x2}, Count: {1}", msg.windowId, msg.slotData.Count);
+			var slots = msg.slotData.GetValues();
+
+			foreach (var entry in slots)
+			{
+				MetadataSlot slot = (MetadataSlot) entry;
+				//Log.DebugFormat(" - Id: {0}, Metadata: {1}, Count: {2}", slot.Value.Item.Id, slot.Value.Item.Metadata, slot.Value.Count);
+			}
+		}
+
+		private static void OnMcpeSpawnExperienceOrb(Package message)
+		{
+			McpeSpawnExperienceOrb msg = (McpeSpawnExperienceOrb) message;
+			Log.DebugFormat("Event ID: {0}", msg.entityId);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("count: {0}", msg.count);
+		}
+
+		private static void OnMcpeMobEffect(Package message)
+		{
+			McpeMobEffect msg = (McpeMobEffect) message;
+			Log.DebugFormat("operation: {0}", msg.eventId);
+			Log.DebugFormat("entity id: {0}", msg.entityId);
+			Log.DebugFormat("effectId: {0}", msg.effectId);
+			Log.DebugFormat("amplifier: {0}", msg.amplifier);
+			Log.DebugFormat("duration: {0}", msg.duration);
+			Log.DebugFormat("particles: {0}", msg.particles);
+		}
+
+		private static void OnMcpeLevelEvent(Package message)
+		{
+			McpeLevelEvent msg = (McpeLevelEvent) message;
+			Log.DebugFormat("Event ID: {0}", msg.eventId);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Data: {0}", msg.data);
+		}
+
+		private static void OnMcpeUpdateBlock(Package message)
+		{
+			McpeUpdateBlock msg = (McpeUpdateBlock) message;
+			Log.DebugFormat("No of Blocks: {0}", msg.blocks.Count);
+		}
+
+		private void OnMcpeMovePlayer(Package message)
+		{
+			McpeMovePlayer msg = (McpeMovePlayer) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+
+			CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
+			SendMcpeMovePlayer();
+		}
+
+		private static void OnMcpeSetEntityData(Package message)
+		{
+			McpeSetEntityData msg = (McpeSetEntityData) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			MetadataDictionary metadata = msg.metadata;
+			if (metadata.Contains(17))
+				Log.DebugFormat("Metadata: {0}", metadata.ToString());
+		}
+
+		private static void OnMcpeAddPlayer(Package message)
+		{
+			McpeAddPlayer msg = (McpeAddPlayer) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Yaw: {0}", msg.yaw);
+			Log.DebugFormat("Pitch: {0}", msg.pitch);
+			Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
+			//Log.DebugFormat("Links count: {0}", msg.links);
+		}
+
+		private static void OnMcpeAddEntity(Package message)
+		{
+			McpeAddEntity msg = (McpeAddEntity) message;
+			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("Entity Type: {0}", msg.entityType);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Yaw: {0}", msg.yaw);
+			Log.DebugFormat("Pitch: {0}", msg.pitch);
+			Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			Log.DebugFormat("Velocity Z: {0}", msg.metadata);
+			//Log.DebugFormat("Links count: {0}", msg.links);
+		}
+
+		private static void OnMcpeTileEvent(Package message)
+		{
+			McpeTileEvent msg = (McpeTileEvent) message;
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Case 1: {0}", msg.case1);
+			Log.DebugFormat("Case 2: {0}", msg.case2);
+		}
+
+		private void OnMcpeStartGame(Package message)
+		{
+			McpeStartGame msg = (McpeStartGame) message;
+			_entityId = msg.entityId;
+			_spawn = new Vector3(msg.x, msg.y, msg.z);
+			_level.LevelName = "Default";
+			_level.Version = 19133;
+			_level.GameType = msg.gamemode;
+
+			//ClientUtils.SaveLevel(_level);
+		}
+
+		private void OnMcpeSetSpawnPosition(Package message)
+		{
+			McpeSetSpawnPosition msg = (McpeSetSpawnPosition) message;
+			_spawn = new Vector3(msg.x, msg.y, msg.z);
+			_level.SpawnX = (int) _spawn.X;
+			_level.SpawnY = (int) _spawn.Y;
+			_level.SpawnZ = (int) _spawn.Z;
+		}
+
+		private void OnConnectionRequestAccepted()
+		{
+			Thread.Sleep(50);
+			SendNewIncomingConnection();
+			//_connectedPingTimer = new Timer(state => SendConnectedPing(), null, 1000, 1000);
+			Thread.Sleep(50);
+			SendLogin(Username);
+		}
+
+		private static void OnFullChunkData(Package message)
+		{
+			McpeFullChunkData msg = (McpeFullChunkData) message;
+			ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
+			if (chunk != null)
+			{
+				Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
+
+				//ClientUtils.SaveChunkToAnvil(chunk);
+			}
+		}
+
+		private void OnBatch(Package message)
+		{
+			McpeBatch batch = (McpeBatch) message;
+
+			var messages = new List<Package>();
+
+			// Get bytes
+			byte[] payload = batch.payload;
+			// Decompress bytes
+
+			MemoryStream stream = new MemoryStream(payload);
+			if (stream.ReadByte() != 0x78)
+			{
+				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+			}
+			stream.ReadByte();
+			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+			{
+				// Get actual package out of bytes
+				MemoryStream destination = new MemoryStream();
+				defStream2.CopyTo(destination);
+				destination.Position = 0;
+				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+				do
+				{
+					int len = reader.ReadInt32();
+					byte[] internalBuffer = reader.ReadBytes(len);
+					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				} while (destination.Position < destination.Length);
+			}
+			foreach (var msg in messages)
+			{
+				msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+				msg.OrderingChannel = batch.OrderingChannel;
+				msg.OrderingIndex = batch.OrderingIndex;
+				HandlePackage(msg);
+				msg.PutPool();
+			}
+		}
+
+		public void SendPackage(Package message, short mtuSize, ref int reliableMessageNumber)
+		{
+			if (message == null) return;
+
+			TraceSend(message);
+
+			foreach (var datagram in Datagram.CreateDatagrams(message, mtuSize, Session))
+			{
+				SendDatagram(Session, datagram);
+			}
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
@@ -571,23 +812,23 @@ namespace MiNET.Client
 				byte[] data = datagram.Encode();
 
 				datagram.Timer.Restart();
-				SendData(data, _serverTargetEndpoint);
+				SendData(data, _serverEndpoint);
 			}
 		}
 
 
 		private void SendData(byte[] data)
 		{
-			SendData(data, _serverTargetEndpoint);
+			SendData(data, _serverEndpoint);
 		}
 
 
 		private void SendData(byte[] data, IPEndPoint targetEndpoint)
 		{
-			if (Listener == null) return;
+			if (UdpClient == null) return;
 			try
 			{
-				Listener.Send(data, data.Length, targetEndpoint);
+				UdpClient.SendAsync(data, data.Length, targetEndpoint);
 			}
 			catch (Exception e)
 			{
@@ -597,12 +838,23 @@ namespace MiNET.Client
 
 		private void TraceReceive(Package message)
 		{
-			Log.InfoFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			if (message is McpeMoveEntity
+			    || message is McpeMovePlayer
+			    || message is McpeSetEntityMotion
+			    || message is McpeBatch
+			    || message is McpeFullChunkData
+			    || message is ConnectedPing) return;
+
+			var stringWriter = new StringWriter();
+			ObjectDumper.Write(message, 1, stringWriter);
+
+			//Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.DebugFormat("> Receive: {0} (0x{0:x2}) {1}:\n{2} ", message.Id, message.GetType().Name, stringWriter.ToString());
 		}
 
 		private void TraceSend(Package message)
 		{
-			Log.InfoFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
 
 		public void SendUnconnectedPing()
@@ -614,7 +866,8 @@ namespace MiNET.Client
 
 			var data = packet.Encode();
 			TraceSend(packet);
-			SendData(data);
+			//SendData(data);
+			SendData(data, new IPEndPoint(IPAddress.Broadcast, 19132));
 		}
 
 		public void SendConnectedPing()
@@ -642,7 +895,7 @@ namespace MiNET.Client
 		{
 			var packet = new OpenConnectionRequest1()
 			{
-				raknetProtocolVersion = 5, // Indicate to the server that this is a performance tests. Disables logging.
+				raknetProtocolVersion = 7, // Indicate to the server that this is a performance tests. Disables logging.
 				mtuSize = _mtuSize
 			};
 
@@ -659,12 +912,12 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest2()
 		{
+			_clientGuid = new Random().Next();
 			var packet = new OpenConnectionRequest2()
 			{
-				systemadress = new byte[4],
+				clientendpoint = _clientEndpoint,
 				mtuSize = _mtuSize,
-				clientGuid = DateTime.UtcNow.Ticks,
-				//clientUdpPort = (short) _listener.Client.
+				clientGuid = _clientGuid,
 			};
 
 			var data = packet.Encode();
@@ -678,6 +931,9 @@ namespace MiNET.Client
 		{
 			var packet = new ConnectionRequest()
 			{
+				clientGuid = _clientGuid,
+				timestamp = DateTime.UtcNow.Ticks,
+				doSecurity = 0,
 			};
 
 			SendPackage(packet);
@@ -685,14 +941,20 @@ namespace MiNET.Client
 
 		private void SendPackage(Package package)
 		{
-			SendPackage(new List<Package> {package}, _mtuSize, ref _reliableMessageNumber);
+			SendPackage(package, _mtuSize, ref _reliableMessageNumber);
 			package.PutPool();
 		}
 
 		public void SendNewIncomingConnection()
 		{
+			Random rand = new Random();
 			var packet = new NewIncomingConnection
 			{
+				doSecurity = 163,
+				session = rand.Next(),
+				session2 = rand.Next(),
+				cookie = rand.Next(),
+				port = (short) _clientEndpoint.Port
 			};
 
 			SendPackage(packet);
@@ -701,22 +963,26 @@ namespace MiNET.Client
 		public void SendLogin(string username)
 		{
 			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
+			//Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
 			var packet = new McpeLogin()
 			{
-				clientUuid = new UUID(),
-				clientId = ClientId,
 				username = username,
-				protocol = 27,
+				protocol = 38,
+				protocol2 = 38,
+				clientId = ClientId,
+				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
+				serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
+				clientSecret = "iwmvi45hm85oncyo58",
+				//clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),
 				skin = skin,
-				clientSecret = "secret",
-				serverAddress = "192.168.0.3"
 			};
 
-			McpeBatch batch = new McpeBatch();
-			byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest);
+			byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
 
+			McpeBatch batch = new McpeBatch();
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
+			batch.Encode();
 
 			SendPackage(batch);
 			LoginSent = true;
@@ -756,40 +1022,6 @@ namespace MiNET.Client
 		public void SendDisconnectionNotification()
 		{
 			SendPackage(new DisconnectionNotification());
-		}
-
-		public static void Connect()
-		{
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Any, 0));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132));
-			client.Username = "TestClient";
-			client.StartServer();
-			Console.WriteLine("Server started.");
-
-			Thread.Sleep(2000);
-
-			Console.WriteLine("Sending ping...");
-
-			//client.SendUnconnectedPing();
-			client.SendOpenConnectionRequest1();
-			//client.SendUnconnectedPing();
-			//client.SendUnconnectedPing();
-
-			Console.WriteLine("<Enter> to exit!");
-			Console.ReadLine();
-			client.StopServer();
-		}
-
-		private static void Main(string[] args)
-		{
-			Console.WriteLine("Starting client...");
-
-			Connect();
-
-			Console.ReadLine();
-
-			Console.WriteLine("Close client...");
 		}
 	}
 }

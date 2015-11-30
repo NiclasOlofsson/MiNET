@@ -11,6 +11,7 @@ using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Effects;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -62,10 +63,36 @@ namespace TestPlugin
 			}
 		}
 
+
+		[Command]
+		public void Orb(Player player1)
+		{
+			foreach (Player player in player1.Level.Players.Values)
+			{
+				// 128 = 32 + 32 + 32
+				player.Level.RelayBroadcast(new McpeSpawnExperienceOrb()
+				{
+					entityId = player.EntityId,
+					x = (int) (player1.KnownPosition.X + 1),
+					y = (int) (player1.KnownPosition.Y + 2),
+					z = (int) (player1.KnownPosition.Z + 1),
+					count = 10
+				});
+			}
+		}
+
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
-			player.GameMode = (GameMode) gameMode;
+			if (gameMode == 1)
+			{
+				player.Inventory.Slots.Clear();
+
+				player.Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+			}
+
+			//player.GameMode = (GameMode) gameMode;
+
 			player.SendPackage(new McpeStartGame
 			{
 				seed = -1,
@@ -79,6 +106,14 @@ namespace TestPlugin
 				y = player.KnownPosition.Y,
 				z = player.KnownPosition.Z
 			});
+
+			{
+				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+				creativeContent.windowId = (byte)0x79;
+				creativeContent.slotData = player.Inventory.GetSlots();
+				creativeContent.hotbarData = player.Inventory.GetHotbar();
+				player.SendPackage(creativeContent);
+			}
 
 			player.Level.BroadcastMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
 		}
@@ -103,12 +138,12 @@ namespace TestPlugin
 			{
 				player.SpawnLevel(player.Level, new PlayerLocation
 				{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
+					X = x,
+					Y = y,
+					Z = z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91
 				});
 			}, null);
 
@@ -220,21 +255,26 @@ namespace TestPlugin
 			Log.Info(text);
 		}
 
-		//[Command]
-		//[Authorize(Users = "gurun")]
-		//public void Spawn(Player player, byte id)
-		//{
-		//	Level level = player.Level;
+		[Command]
+		[Authorize(Users = "gurun")]
+		public void Spawn(Player player, byte id)
+		{
+			Level level = player.Level;
 
-		//	Mob entity = new Mob(id, level)
-		//	{
-		//		KnownPosition = player.KnownPosition,
-		//		//Data = -(blockId | 0 << 0x10)
-		//	};
-		//	entity.SpawnEntity();
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
+		}
 
-		//	level.BroadcastTextMessage(string.Format("Player {0} spawned Mob #{1}.", player.Username, id), type: MessageType.Raw);
-		//}
+		[Command]
+		public void Strike(Player player)
+		{
+			//player.Level.StrikeLightning(player.KnownPosition.ToVector3());
+			player.StrikeLightning();
+		}
 
 		[Command]
 		public void Kit(Player player, int kitId)
@@ -268,20 +308,32 @@ namespace TestPlugin
 					break;
 			}
 
-			byte c = 0;
 			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
 
-			inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
+			// Hotbar
+			byte c = 0;
+			//inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
 			inventory.Slots[c++] = new ItemStack(268, 1); // Wooden Sword
-			inventory.Slots[c++] = new ItemStack(283, 1); // Golden Sword
 			inventory.Slots[c++] = new ItemStack(272, 1); // Stone Sword
+			inventory.Slots[c++] = new ItemStack(283, 1); // Golden Sword
 			inventory.Slots[c++] = new ItemStack(267, 1); // Iron Sword
 			inventory.Slots[c++] = new ItemStack(276, 1); // Diamond Sword
-
 			inventory.Slots[c++] = new ItemStack(261, 1); // Bow
 			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
 			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
 			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
+
+			inventory.Slots[c++] = new ItemStack(new ItemChest(0), 1);
+			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);
+			inventory.Slots[c++] = new ItemStack(new ItemWoodenPickaxe(0), 1);
+			inventory.Slots[c++] = new ItemStack(new ItemBread(), 5);
+			inventory.Slots[c++] = new ItemStack(new ItemBlock(new Block(35), 0), 64);
+			inventory.Slots[c++] = new ItemStack(new ItemBucket(8), 1);
+
+			//for (byte i = 0; i < inventory.ItemHotbar.Length; i++)
+			//{
+			//	inventory.ItemHotbar[i] = i;
+			//}
 
 			player.SendPlayerInventory();
 			SendEquipmentForPlayer(player);
@@ -402,12 +454,13 @@ namespace TestPlugin
 					case EffectType.Levitation:
 						eff = new Levitation();
 						break;
-		}
+				}
 
 				if (eff != null)
-			{
+				{
 					eff.Level = level;
 					eff.Duration = duration;
+					eff.Particles = false;
 
 					player.SetEffect(eff);
 					player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectType, level), MessageType.Raw);

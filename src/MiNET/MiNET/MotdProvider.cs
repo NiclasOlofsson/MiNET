@@ -6,6 +6,10 @@ namespace MiNET
 	{
 		public string Motd { get; set; }
 
+		public int MaxNumberOfPlayers { get; set; }
+
+		public int NumberOfPlayers { get; set; }
+
 		public MotdProvider()
 		{
 			Motd = Config.GetProperty("motd", "MiNET: MCPE Server");
@@ -13,7 +17,11 @@ namespace MiNET
 
 		public virtual string GetMotd(ServerInfo serverInfo)
 		{
-			return string.Format(@"MCPE;{0};34;0.12.1;{1};{2}", Motd, serverInfo.NumberOfPlayers, 64);
+			NumberOfPlayers = serverInfo.NumberOfPlayers;
+			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
+
+			return string.Format(@"MCPE;{0};38;0.13.0;{1};{2}", Motd, NumberOfPlayers, MaxNumberOfPlayers);
 		}
+
 	}
 }

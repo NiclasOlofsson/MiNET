@@ -19,6 +19,23 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
+	public class PlayerAttributes : Dictionary<string, PlayerAttribute>
+	{
+	}
+
+	public class PlayerAttribute
+	{
+		public string Name { get; set; }
+		public float MinValue { get; set; }
+		public float MaxValue { get; set; }
+		public float Value { get; set; }
+
+		public override string ToString()
+		{
+			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}";
+		}
+	}
+
 	public class Player : Entity
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
@@ -28,8 +45,6 @@ namespace MiNET
 		public PlayerNetworkSession NetworkSession { get; set; }
 
 		private int _mtuSize;
-		private int _reliableMessageNumber;
-		private int _datagramSequenceNumber = -1; // Very important to start with -1 since Interlock.Increament doesn't offer another solution
 		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
 		private object _queueSync = new object();
 		// ReSharper disable once NotAccessedField.Local
@@ -45,11 +60,12 @@ namespace MiNET
 
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
-		public bool IsSpawned { get; set; }
 		public string Username { get; private set; }
 		public int ClientId { get; set; }
 		public long ClientGuid { get; set; }
-		public PermissionManager Permissions { get; set; }
+		public string ClientSecret { get; set; }
+		public UUID ClientUuid { get; set; }
+
 		public Skin Skin { get; set; }
 		public bool Silent { get; set; }
 		public bool HideNameTag { get; set; }
@@ -84,23 +100,22 @@ namespace MiNET
 			EndPoint = endPoint;
 			_mtuSize = mtuSize;
 
-			Permissions = new PermissionManager(UserGroup.User);
-			Permissions.AddPermission("*"); //All users can use all commands. (For debugging purposes)
-
 			Inventory = new PlayerInventory(this);
 
 			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 
 			IsSpawned = false;
-			IsConnected = true;
+			IsConnected = endPoint != null; // Can't connect if there is no endpoint
 
-			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
+			if (IsConnected) _sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
 
 		public DateTime LastNetworkActivity { get; set; }
 
 		public void HandlePackage(Package message)
 		{
+			//if (!IsConnected) return;
+
 			LastNetworkActivity = DateTime.UtcNow;
 
 			var result = Server.PluginManager.PluginPacketHandler(message, true, this);
@@ -234,9 +249,9 @@ namespace MiNET
 			if (message.Timer.IsRunning)
 			{
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
-				if (elapsedMilliseconds > 500)
+				if (elapsedMilliseconds > 1000)
 				{
-					Log.DebugFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 				}
 			}
 			else
@@ -251,36 +266,15 @@ namespace MiNET
 			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
 		}
 
-		protected virtual void HandlePlayerDropItem(McpeDropItem message)
-		{
-			if (!Inventory.HasItem(message.item)) return;
-
-			ItemStack itemStack = message.item.Value;
-
-			Item item = ItemFactory.GetItem(itemStack.Id, itemStack.Metadata);
-
-			var itemEntity = new ItemEntity(Level, item)
-			{
-				Velocity = KnownPosition.GetDirection()*0.7,
-				KnownPosition =
-				{
-					X = KnownPosition.X,
-					Y = (float) (KnownPosition.Y + Height),
-					Z = KnownPosition.Z
-				},
-				Count = itemStack.Count
-			};
-
-			itemEntity.SpawnEntity();
-		}
-
 		/// <summary>
 		///     Handles an animate packet.
 		/// </summary>
 		/// <param name="message">The message.</param>
 		protected virtual void HandleAnimate(McpeAnimate message)
 		{
-			Log.DebugFormat("Action: {0}", message.actionId);
+			if (Level == null) return;
+
+			//Log.DebugFormat("Action: {0}", message.actionId);
 
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.entityId = message.entityId;
@@ -295,18 +289,23 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandlePlayerAction(McpePlayerAction message)
 		{
-			Log.DebugFormat("Player action: {0}", message.actionId);
-			Log.DebugFormat("Entity ID: {0}", message.entityId);
-			Log.DebugFormat("Action ID:  {0}", message.actionId);
-			Log.DebugFormat("x:  {0}", message.x);
-			Log.DebugFormat("y:  {0}", message.y);
-			Log.DebugFormat("z:  {0}", message.z);
-			Log.DebugFormat("Face:  {0}", message.face);
+			//Log.DebugFormat("Player action: {0}", message.actionId);
+			//Log.DebugFormat("Entity ID: {0}", message.entityId);
+			//Log.DebugFormat("Action ID:  {0}", message.actionId);
+			//Log.DebugFormat("x:  {0}", message.x);
+			//Log.DebugFormat("y:  {0}", message.y);
+			//Log.DebugFormat("z:  {0}", message.z);
+			//Log.DebugFormat("Face:  {0}", message.face);
 
-			switch (message.actionId)
+			switch ((PlayerAction) message.actionId)
 			{
-				case 5: // Shoot arrow
-				{
+				case PlayerAction.StartBreak:
+					break;
+				case PlayerAction.AbortBreak:
+					break;
+				case PlayerAction.StopBreak:
+					break;
+				case PlayerAction.ReleaseItem:
 					if (_itemUseTimer == null) return;
 
 					Item itemInHand = Inventory.GetItemInHand().Item;
@@ -318,22 +317,36 @@ namespace MiNET
 
 					_itemUseTimer = null;
 
-					MetadataDictionary metadata = new MetadataDictionary();
-					metadata[0] = new MetadataByte(0);
-					Level.RelayBroadcast(this, new McpeSetEntityData
-					{
-						entityId = EntityId,
-						metadata = metadata,
-					});
-
 					break;
-				}
-				case 7: // Respawn
+				case PlayerAction.StopSleeping:
+					break;
+				case PlayerAction.Respawn:
 					ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn(null); });
 					break;
+				case PlayerAction.Jump:
+					break;
+				case PlayerAction.StartSprint:
+					break;
+				case PlayerAction.StopSprint:
+					break;
+				case PlayerAction.StartSneak:
+					break;
+				case PlayerAction.StopSneak:
+					break;
+				case PlayerAction.DimensionChange:
+					break;
 				default:
-					return;
+					throw new ArgumentOutOfRangeException();
 			}
+
+			// Player out of action
+			MetadataDictionary metadata = new MetadataDictionary();
+			metadata[0] = new MetadataByte(0);
+
+			var setEntityData = McpeSetEntityData.CreateObject();
+			setEntityData.entityId = EntityId;
+			setEntityData.metadata = metadata;
+			Level.RelayBroadcast(this, setEntityData);
 		}
 
 		/// <summary>
@@ -342,7 +355,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandlePing(InternalPing message)
 		{
-			SendPackage(message, sendDirect: true);
+			SendPackage(message);
 		}
 
 		/// <summary>
@@ -454,12 +467,10 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
-			message.Source = "Player";
-
 			ConnectedPong package = ConnectedPong.CreateObject();
 			package.sendpingtime = message.sendpingtime;
 			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-			SendPackage(package);
+			SendPackage(package, true);
 		}
 
 		protected virtual void HandleConnectedPong(ConnectedPong message)
@@ -470,43 +481,44 @@ namespace MiNET
 
 		protected virtual void HandleLogin(McpeLogin message)
 		{
-			Stopwatch watch = new Stopwatch();
-			watch.Restart();
+			//Disconnect("Este servidor ya no existe. Por favor, conecta a " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " para seguir jugando.");
+			////Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
+			//return;
 
 			// Only one login!
 			lock (_loginSyncLock)
 			{
 				if (Username != null)
 				{
-					Log.DebugFormat("Player {0} doing multiple logins on Level: {1}", Username, Level.LevelId);
+					Log.InfoFormat("Player {0} doing multiple logins", Username);
 					return; // Already doing login
 				}
+
 				Username = message.username;
 			}
 
-			if (message.protocol != 34)
+			if (message.protocol < 38)
 			{
-				Disconnect(string.Format("Wrong version {0} of Minecraft Pocket Edition, please upgrade.", message.protocol));
+				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
+				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));
 				return;
 			}
 
-			var serverInfo = Server.ServerInfo;
+			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
+			//{
+			//	if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
+			//	{
+			//		Disconnect("Too many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
+			//		return;
+			//	}
 
-			if (!message.username.Equals("gurun") && !message.username.Equals("TruDan"))
-			{
-				if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
-				{
-					Disconnect("Too many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
-					return;
-				}
-
-				// Use for loadbalance only right now.
-				if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
-				{
-					Disconnect("Too many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
-					return;
-				}
-			}
+			//	// Use for loadbalance only right now.
+			//	if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
+			//	{
+			//		Disconnect("Too many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
+			//		return;
+			//	}
+			//}
 
 			if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
 			{
@@ -520,41 +532,72 @@ namespace MiNET
 				return;
 			}
 
+
+			// THIS counter exist to protect the level from being swamped with player list add
+			// attempts during startup (normally).
+			var serverInfo = Server.ServerInfo;
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
+			SendPlayerStatus(0); // Hmm, login success?
+
+			Username = message.username;
+			ClientId = (int) message.clientId;
+			ClientUuid = message.clientUuid;
+			ClientSecret = message.clientSecret;
+			Skin = message.skin;
+
+			if (ClientSecret != null)
+			{
+				var count = serverInfo.PlayerSessions.Values.Count(session => session.Player != null && ClientSecret.Equals(session.Player.ClientSecret));
+				if (count != 1)
+				{
+					Disconnect($"Invalid skin {count}.");
+					return;
+				}
+			}
+			new Thread(Start).Start();
+		}
+
+		private void Start(object o)
+		{
+			Stopwatch watch = new Stopwatch();
+			watch.Restart();
+
+			var serverInfo = Server.ServerInfo;
+
 			try
 			{
-				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
-				SendPlayerStatus(0); // Hmm, login success?
-
-				Username = message.username;
-				ClientId = (int) message.clientId;
-				ClientUuid = message.clientUuid;
-
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
 				{
 					User = Server.UserManager.FindByName(Username);
 				}
 
-				Skin = message.skin;
-
 				Level = Server.LevelManager.GetLevel(this, "Default");
+				if (Level == null)
+				{
+					Disconnect("No level assigned.");
+					return;
+				}
 
-				SpawnPosition = Level.SpawnPoint;
+				SpawnPosition = SpawnPosition ?? Level.SpawnPoint;
 				KnownPosition = new PlayerLocation
 				{
-					X = SpawnPosition.X,
-					Y = SpawnPosition.Y,
-					Z = SpawnPosition.Z,
-					Yaw = SpawnPosition.Yaw,
-					Pitch = SpawnPosition.Pitch,
-					HeadYaw = SpawnPosition.HeadYaw,
+					X = SpawnPosition.X, Y = SpawnPosition.Y, Z = SpawnPosition.Z, Yaw = SpawnPosition.Yaw, Pitch = SpawnPosition.Pitch, HeadYaw = SpawnPosition.HeadYaw,
 				};
+
 
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
+
 				Level.EntityManager.AddEntity(null, this);
+
 				GameMode = Level.GameMode;
+				if (GameMode == GameMode.Creative)
+				{
+					Inventory.Slots.Clear();
+					Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+				}
 
 				// Start game
 
@@ -572,31 +615,31 @@ namespace MiNET
 
 				SendSetEntityData();
 
-				Level.AddPlayer(this, string.Format("{0} joined the game!", Username), false);
-
-				LastUpdatedTime = DateTime.UtcNow;
-
-				if (GameMode != GameMode.Creative)
-				{
-				SendPlayerInventory();
-				}
-
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
-					Level.SpawnToAll(this);
-					SendChunksForKnownPosition();
-				});
-
-				LastUpdatedTime = DateTime.UtcNow;
-				Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", message.username, watch.ElapsedMilliseconds, EndPoint);
+				Level.AddPlayer(this, false);
 			}
 			finally
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
-		}
 
-		public UUID ClientUuid { get; set; }
+			LastUpdatedTime = DateTime.UtcNow;
+
+			//if (GameMode == GameMode.Creative)
+			//{
+			//	Inventory.Slots.Clear();
+
+			//	Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+			//}
+
+			SendPlayerInventory();
+
+			//Level.SpawnToAll(this);
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+
+			LastUpdatedTime = DateTime.UtcNow;
+			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
+		}
 
 		public virtual void InitializePlayer()
 		{
@@ -612,53 +655,50 @@ namespace MiNET
 			SendSetTime();
 			IsSpawned = true;
 			LastUpdatedTime = DateTime.UtcNow;
+			_haveJoined = true;
 		}
 
 		protected virtual void HandleRespawn(McpeRespawn msg)
 		{
-			ServerInfo serverInfo = Server.ServerInfo;
-			try
-			{
-				Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+			HealthManager.ResetHealth();
+			SendSetHealth();
 
-				// reset all health states
-				HealthManager.ResetHealth();
+			SendSetSpawnPosition();
 
-				// send teleport to spawn
-				KnownPosition = new PlayerLocation
-				{
-					X = SpawnPosition.X,
-					Y = SpawnPosition.Y,
-					Z = SpawnPosition.Z,
-					Yaw = SpawnPosition.Yaw,
-					Pitch = SpawnPosition.Pitch,
-					HeadYaw = SpawnPosition.HeadYaw,
-				};
+			SendAdventureSettings();
 
-				SendSetHealth();
+			SendPlayerInventory();
 
-				SendAdventureSettings();
+			CleanCache();
 
-				SendPlayerInventory();
+			ForcedSendChunk(SpawnPosition);
 
-				BroadcastSetEntityData();
+			// send teleport to spawn
+			SetPosition(SpawnPosition);
 
-				ThreadPool.QueueUserWorkItem(delegate(object state)
-				{
-					Level.SpawnToAll(this);
-					SendChunksForKnownPosition();
-				});
+			Level.SpawnToAll(this);
 
-				IsSpawned = true;
+			IsSpawned = true;
 
-				SendMovePlayer();
+			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-				Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-			}
-			finally
-			{
-				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
-			}
+			SendSetTime();
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
+
+			//SendPlayerStatus(3);
+
+			//McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
+			//mcpeRespawn.x = SpawnPosition.X;
+			//mcpeRespawn.y = SpawnPosition.Y;
+			//mcpeRespawn.z = SpawnPosition.Z;
+			//SendPackage(mcpeRespawn);
+
+			////send time again
+			//SendSetTime();
+			//IsSpawned = true;
+			//LastUpdatedTime = DateTime.UtcNow;
+			//_haveJoined = true;
 		}
 
 		[Wired]
@@ -692,20 +732,18 @@ namespace MiNET
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
 			{
-				X = KnownPosition.X,
-				Y = 4000,
-				Z = KnownPosition.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91,
+				X = KnownPosition.X, Y = 4000, Z = KnownPosition.Z, Yaw = 91, Pitch = 28, HeadYaw = 91,
 			});
 
-			Level.RemovePlayer(this, true);
-			Level.EntityManager.RemoveEntity(null, this);
+			//if (Level != null)
+			{
+				Level.RemovePlayer(this, true);
+				Level.EntityManager.RemoveEntity(null, this);
+			}
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;
-			Level.AddPlayer(this, "", false);
+			//Level.AddPlayer(this, "", false);
 			// reset all health states
 			HealthManager.ResetHealth();
 			SendSetHealth();
@@ -716,24 +754,22 @@ namespace MiNET
 
 			SendPlayerInventory();
 
-			lock (_chunksUsed)
-			{
-				_chunksUsed.Clear();
-			}
+			CleanCache();
 
-			ForcedSendChunksForKnownPosition(spawnPoint);
+			ForcedSendChunk(spawnPoint);
 
 			// send teleport to spawn
 			SetPosition(spawnPoint);
 
 			SetNoAi(oldNoAi);
 
-			Level.SpawnToAll(this);
-			IsSpawned = true;
+			Level.AddPlayer(this, true);
 
 			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 			SendSetTime();
+
+			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
 		}
 
 
@@ -742,7 +778,10 @@ namespace MiNET
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = 0;
 			mcpeSetEntityData.metadata = GetMetadata();
+			mcpeSetEntityData.Encode();
 			SendPackage(mcpeSetEntityData);
+
+			BroadcastSetEntityData();
 		}
 
 		public void SendSetDificulty()
@@ -754,11 +793,22 @@ namespace MiNET
 
 		public void SendPlayerInventory()
 		{
-			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			inventoryContent.windowId = 0;
-			inventoryContent.slotData = Inventory.GetSlots();
-			inventoryContent.hotbarData = Inventory.GetHotbar();
-			SendPackage(inventoryContent);
+			//if (GameMode == GameMode.Creative && !IsSpawned)
+			{
+				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+				creativeContent.windowId = (byte) 0x79;
+				creativeContent.slotData = Inventory.GetSlots();
+				creativeContent.hotbarData = Inventory.GetHotbar();
+				SendPackage(creativeContent);
+			}
+
+			{
+				McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+				inventoryContent.windowId = (byte) 0x00;
+				inventoryContent.slotData = Inventory.GetSlots();
+				inventoryContent.hotbarData = Inventory.GetHotbar();
+				SendPackage(inventoryContent);
+			}
 
 			McpeContainerSetContent armorContent = McpeContainerSetContent.CreateObject();
 			armorContent.windowId = 0x78;
@@ -781,61 +831,90 @@ namespace MiNET
 			SendStartGame();
 		}
 
+
+		[Wired]
+		public void StrikeLightning()
+		{
+			Lightning lightning = new Lightning(Level) {KnownPosition = KnownPosition};
+
+			if (lightning.Level == null) return;
+
+			lightning.SpawnEntity();
+		}
+
 		private object _disconnectSync = new object();
+
+		private bool _haveJoined = false;
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			reason = "gurun: " + reason;
 			if (!Monitor.TryEnter(_disconnectSync)) return;
 			try
 			{
-				if (_sendTicker != null)
-				{
-					_sendTicker.Dispose();
-					_sendTicker = null;
-				}
-
-				if (Level != null)
-				{
-				Level.RemovePlayer(this);
-				}
-
 				if (IsConnected)
 				{
 					if (sendDisconnect)
 					{
-					McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-					disconnect.message = reason;
-					SendPackage(disconnect, true);
+						ThreadPool.QueueUserWorkItem(delegate(object state)
+						{
+							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+							disconnect.NoBatch = true;
+							disconnect.message = reason;
+							SendPackage(disconnect);
+						});
 					}
-					//McpeTransfer transfer = new McpeTransfer();
-					//transfer.endpoint = Server.Endpoint;
-					////transfer.endpoint = new IPEndPoint(IPAddress.Parse("86.8.24.26"), 19132);
-					//SendPackage(transfer, true);
-
 					IsConnected = false;
+				}
+
+				if (_sendTicker != null)
+				{
+					_sendTicker.Change(Timeout.Infinite, Timeout.Infinite);
+					WaitHandle waitHandle = new AutoResetEvent(false);
+					_sendTicker.Dispose(waitHandle);
+					WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
+					_sendTicker = null;
+				}
+
+				if (Level != null && IsSpawned)
+				{
+					Level.RemovePlayer(this);
+				}
+
+				var playerSession = Session;
+				Session = null;
+				if (playerSession != null)
+				{
+					Server.SessionManager.RemoveSession(playerSession);
+					playerSession.Player = null;
+				}
+
+				string levelId = Level == null ? "Unknown" : Level.LevelId;
+				Log.InfoFormat("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
+				if (!_haveJoined)
+				{
+					Log.WarnFormat("Disconnected crashed player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
+				}
+				else if (NetworkSession != null && NetworkSession.CreateTime.AddSeconds(10) > DateTime.UtcNow)
+				{
+					Log.WarnFormat("Early disconnect of player {0}/{1} from level <{3}> after less then 10s with reason: {2}", Username, EndPoint.Address, reason, levelId);
 				}
 
 				//HACK: But needed
 				PlayerNetworkSession session;
 				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 				{
-					NetworkSession = null;
-					session.Player = null;
 					session.State = ConnectionState.Unconnected;
 					session.Evicted = true;
+
+					NetworkSession = null;
+					session.Player = null;
+
 					session.Clean();
 				}
 
-				while (_sendQueueNotConcurrent.Count > 0)
-				{
-					lock (_queueSync)
-					{
-						SendQueue(null);
-					}
-				}
-				string levelId = Level == null ? "" : Level.LevelId;
-				Log.InfoFormat("Disconnected player {0} from level {3} {1}, reason: {2}", Username, EndPoint.Address, reason, levelId);
+				SendQueue(null);
+
+				CleanCache();
 			}
 			finally
 			{
@@ -863,286 +942,310 @@ namespace MiNET
 
 		protected virtual void HandleMovePlayer(McpeMovePlayer message)
 		{
-			if (_openInventory != null)
-			{
-				// Hack for testing. Chests won't open again.
-				Log.ErrorFormat("Force closing chest because player {0} moved. Probably a missing packet.", Username);
-				HandleMcpeContainerClose(null);
-			}
-
 			if (!IsSpawned || HealthManager.IsDead) return;
 
 			lock (_moveSyncLock)
 			{
 				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
 				{
-					Log.DebugFormat("Skipping move datagram {1}/{2} for player {0}", Username, _lastPlayerMoveSequenceNUmber, message.DatagramSequenceNumber);
 					return;
 				}
-				else
-				{
-					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
-				}
+				_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
 				if (_lastOrderingIndex > message.OrderingIndex)
 				{
-					Log.DebugFormat("Skipping move ordering {1}/{2} for player {0}", Username, _lastOrderingIndex, message.OrderingIndex);
 					return;
 				}
-				else
-				{
-					_lastOrderingIndex = message.OrderingIndex;
-				}
-
-
-				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-				Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-				double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-				if (distanceTo/td*TimeSpan.TicksPerSecond > 25.0d)
-				{
-					//SendMovePlayer();
-					return;
-				}
+				_lastOrderingIndex = message.OrderingIndex;
 			}
 
-			//bool useAntiCheat = false;
-			//if (useAntiCheat)
-			//{
-			//	long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-			//	if (GameMode == GameMode.Survival
-			//		&& HealthManager.CooldownTick == 0
-			//		&& td > 49*TimeSpan.TicksPerMillisecond
-			//		&& td < 500*TimeSpan.TicksPerMillisecond
-			//		&& Level.SpawnPoint.DistanceTo(new BlockCoordinates(KnownPosition)) > 2.0
-			//		)
-			//	{
-			//		double horizSpeed;
-			//		{
-			//			// Speed in the xz plane
-
-			//			Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-			//			double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-			//			horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-			//			if (horizSpeed > 11.0d)
-			//			{
-			//				//Level.BroadcastTextMessage(string.Format("{0} spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
-			//				AddPopup(new Popup
-			//				{
-			//					MessageType = MessageType.Tip,
-			//					Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed),
-			//					Duration = 1
-			//				});
-
-			//				LastUpdatedTime = DateTime.UtcNow;
-			//				HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-			//				SendMovePlayer();
-			//				return;
-			//			}
-			//		}
-
-			//		double verticalSpeed;
-			//		{
-			//			// Speed in 3d
-			//			double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 6d;
-			//			double distanceTo = (message.y - 1.62) - KnownPosition.Y;
-			//			verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-			//			if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
-			//			{
-			//				//Level.BroadcastTextMessage(string.Format("{0} fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
-			//				AddPopup(new Popup
-			//				{
-			//					MessageType = MessageType.Tip,
-			//					Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed),
-			//					Duration = 1
-			//				});
-
-			//				LastUpdatedTime = DateTime.UtcNow;
-			//				HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-			//				//SendMovePlayer();
-			//				return;
-			//			}
-			//		}
-			//		AddPopup(new Popup
-			//		{
-			//			MessageType = MessageType.Tip,
-			//			Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
-			//			Duration = 1
-			//		});
-			//	}
-			//}
+			if (!AcceptPlayerMove(message)) return;
 
 			KnownPosition = new PlayerLocation
 			{
-				X = message.x,
-				Y = message.y - 1.62f,
-				Z = message.z,
-				Pitch = message.pitch,
-				Yaw = message.yaw,
-				HeadYaw = message.headYaw
+				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
 			};
 
 			LastUpdatedTime = DateTime.UtcNow;
 
-			//if (Level.Random.Next(0, 5) == 0)
-			//{
-			//	int data = 0;
-			//	//data = (int) uint.Parse("FFFF0000", NumberStyles.HexNumber);
-			//	data = Level.Random.Next((int) uint.Parse("FFFF0000", NumberStyles.HexNumber), (int) uint.Parse("FFFFFFFF", NumberStyles.HexNumber));
-
-			//	Level.RelayBroadcast(new McpeLevelEvent
-			//	{
-			//		eventId = 0x4000 | 22,
-			//		x = KnownPosition.X,
-			//		//y = KnownPosition.Y - 1.62f,
-			//		y = KnownPosition.Y - 1f,
-			//		z = KnownPosition.Z,
-			//		data = data
-			//	});
-			//}
-
 			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
 		}
 
-		/// <summary>
-		///     Handles the remove block.
-		/// </summary>
-		/// <param name="message">The message.</param>
+		private int _isKnownCheater = 0;
+		private int _cheatLimit = 5;
+
+		protected virtual bool AcceptPlayerMove(McpeMovePlayer message)
+		{
+			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit)
+			{
+				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
+				if (GameMode == GameMode.Survival && HealthManager.CooldownTick == 0 && td > 49*TimeSpan.TicksPerMillisecond && td < 500*TimeSpan.TicksPerMillisecond && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0)
+				{
+					double horizSpeed;
+					{
+						// Speed in the xz plane
+
+						Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+						double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+						horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+						//if (horizSpeed > 11.0d)
+						//{
+						//	_isKnownCheater = true;
+						//	Level.BroadcastMessage(string.Format("{0} is spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
+						//	AddPopup(new Popup
+						//	{
+						//		MessageType = MessageType.Tip,
+						//		Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), horizSpeed),
+						//		Duration = 1
+						//	});
+
+						//	LastUpdatedTime = DateTime.UtcNow;
+						//	//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+						//	//SendMovePlayer();
+						//	return;
+						//}
+					}
+
+					double verticalSpeed;
+					{
+						// Speed in 3d
+						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 12d; //6d;
+						double distanceTo = (message.y - 1.62) - KnownPosition.Y;
+						verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
+						if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
+						{
+							if (_isKnownCheater == _cheatLimit)
+							{
+								Level.BroadcastMessage(string.Format("{0} is detected as flying {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
+								Log.WarnFormat("{0} is fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed);
+							}
+							//AddPopup(new Popup
+							//{
+							//	MessageType = MessageType.Tip,
+							//	Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), verticalSpeed),
+							//	Duration = 1
+							//});
+
+							LastUpdatedTime = DateTime.UtcNow;
+							//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
+							//SendMovePlayer();
+							_isKnownCheater++;
+							return false;
+						}
+					}
+
+					//AddPopup(new Popup
+					//{
+					//	MessageType = MessageType.Tip,
+					//	Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
+					//	Duration = 1
+					//});
+				}
+			}
+
+			return true;
+		}
+
 		protected virtual void HandleRemoveBlock(McpeRemoveBlock message)
 		{
 			Level.BreakBlock(this, new BlockCoordinates(message.x, message.y, message.z));
 		}
 
-		/// <summary>
-		///     Handles the player armor equipment.
-		/// </summary>
-		/// <param name="message">The message.</param>
 		protected virtual void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
 		{
-			if (HealthManager.IsDead) return;
-
-			McpePlayerArmorEquipment msg = McpePlayerArmorEquipment.CreateObject();
-			msg.entityId = EntityId;
-			msg.helmet = message.helmet;
-			msg.chestplate = message.chestplate;
-			msg.leggings = message.leggings;
-			msg.boots = message.boots;
-
-			Level.RelayBroadcast(this, msg);
 		}
 
-		/// <summary>
-		///     Handles the player equipment.
-		/// </summary>
-		/// <param name="message">The message.</param>
+		protected virtual void HandlePlayerDropItem(McpeDropItem message)
+		{
+			lock (Inventory)
+			{
+				var stack = message.item.Value;
+				Log.Debug($"Player {Username} drops item with inv slot: {message.itemtype} and Item ID: {stack.Id} with count item count: {stack.Count}");
+
+				if (_transaction == null && !Inventory.HasItem(message.item) || (_transaction != null && !_transaction.Equals(stack)))
+				{
+					Log.Error($"Player {Username} failed to drops item with inv slot: {message.itemtype}) and Item ID: {stack.Id} with count item count: {stack.Count}. Did not match current transaction state.");
+					return;
+				}
+
+				// Clear current inventory slot.
+				if (_transaction != null)
+				{
+					Log.Info("Closed inventory transaction via drop item");
+					_transaction = null;
+
+					var itemEntity = new ItemEntity(Level, stack.Item)
+					{
+						Velocity = KnownPosition.GetDirection()*0.7,
+						KnownPosition =
+						{
+							X = KnownPosition.X,
+							Y = KnownPosition.Y + 1.62f,
+							Z = KnownPosition.Z
+						},
+						Count = stack.Count
+					};
+
+					itemEntity.SpawnEntity();
+				}
+				else
+				{
+					Log.Info("Begin drop transaction on quick drop item");
+					_dropTransaction = stack;
+				}
+			}
+		}
+
 		protected virtual void HandlePlayerEquipment(McpePlayerEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
-			byte selectedHotbarSlot = message.selectedSlot;
-			int selectedInventorySlot = (byte) (message.slot - 9);
+			//Log.Info($"Player {Username} called set equiptment with inv slot: {message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Value.Id} with count item count: {message.item.Value.Count}");
 
-			//if(GameMode == GameMode.Survival)
+			byte selectedHotbarSlot = message.selectedSlot;
+			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
+
 			{
-				if (selectedInventorySlot < 0 || selectedInventorySlot > Inventory.Slots.Count)
+				// 255 indicates empty hmmm
+				if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
 				{
-					Log.WarnFormat("Set equiptment fails with inv slot: {0}", selectedInventorySlot);
+					if (GameMode != GameMode.Creative)
+					{
+						Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Value?.Id}");
+					}
 					return;
 				}
 
-				var currentIndex = -1;
+				Log.Info($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
+
+				//ItemStack itemStack = message.slot != 255 ? Inventory.Slots[selectedInventorySlot] : message.item.Value;
+				//if (itemStack != null)
+				//{
+				//	var existingItemId = itemStack.Id;
+				//	var incomingItemId = message.item.Value.Id;
+
+				//	if (existingItemId != incomingItemId)
+				//	{
+				//		if (GameMode != GameMode.Creative)
+				//		{
+				//			Log.Error($"Player {Username} set equiptment fails because incoming item ID {incomingItemId} didn't match existing inventory item ID {existingItemId}");
+				//		}
+				//		//return;
+				//	}
+				//	else
+				//	{
+				//		//Log.InfoFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+				//	}
+				//}
+				//else
+				//{
+				//	Log.ErrorFormat("Player {0} set equiptment fails, probably hacker", Username);
+				//}
+
 				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
 				{
 					if (Inventory.ItemHotbar[i] == selectedInventorySlot)
 					{
-						currentIndex = i;
+						Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
 						break;
-				}
-			}
-
-				if (currentIndex != -1)
-				{
-					Inventory.ItemHotbar[currentIndex] = Inventory.ItemHotbar[selectedHotbarSlot];
+					}
 				}
 
 				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
-				Inventory.InHandSlot = selectedHotbarSlot;
+				Inventory.SetHeldItemSlot(selectedHotbarSlot);
 			}
 
-			McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
-			msg.entityId = EntityId;
-			msg.item = message.item;
-			msg.slot = (byte) selectedInventorySlot;
-			msg.selectedSlot = selectedHotbarSlot;
-
-			Level.RelayBroadcast(this, msg);
+			//McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
+			//msg.entityId = EntityId;
+			//msg.item = message.item;
+			//msg.slot = message.slot;
+			//msg.selectedSlot = message.selectedSlot;
+			//Level?.RelayBroadcast(this, msg);
 		}
 
+
+		private object _inventorySync = new object();
 
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
-			if (_openInventory != null) return;
-
-			// get inventory from coordinates
-			// - get blockentity
-			// - get inventory from block entity
-
-			Inventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
-
-			if (inventory == null) return;
-
-			// get inventory # from inventory manager
-			// set inventory as active on player
-
-			_openInventory = inventory;
-
-			// subscribe to inventory changes
-			inventory.InventoryChange += OnInventoryChange;
-
-			// open inventory
-
-			SendPackage(
-				new McpeContainerOpen()
-				{
-					windowId = inventory.Id,
-					type = inventory.Type,
-					slotCount = inventory.Size,
-					x = inventoryCoord.X,
-					y = inventoryCoord.Y,
-					z = inventoryCoord.Z,
-				});
-
-			SendPackage(
-				new McpeContainerSetContent()
-				{
-					windowId = inventory.Id,
-					slotData = inventory.Slots,
-				});
-
-			if (inventory.Type == 0) // Chest open animation
+			lock (_inventorySync)
 			{
-				SendPackage(
-					new McpeTileEvent()
-					{
-						x = inventoryCoord.X,
-						y = inventoryCoord.Y,
-						z = inventoryCoord.Z,
-						case1 = 1,
-						case2 = 2,
-					});
+				if (_openInventory != null)
+				{
+					if (_openInventory.Coordinates.Equals(inventoryCoord)) return;
+					HandleMcpeContainerClose(null);
+				}
+
+				_transaction = null;
+
+				// get inventory from coordinates
+				// - get blockentity
+				// - get inventory from block entity
+
+				Inventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
+
+				if (inventory == null) return;
+
+				// get inventory # from inventory manager
+				// set inventory as active on player
+
+				_openInventory = inventory;
+
+				if (inventory.Type == 0 && !inventory.IsOpen()) // Chest open animation
+				{
+					var tileEvent = McpeTileEvent.CreateObject();
+					tileEvent.x = inventoryCoord.X;
+					tileEvent.y = inventoryCoord.Y;
+					tileEvent.z = inventoryCoord.Z;
+					tileEvent.case1 = 1;
+					tileEvent.case2 = 2;
+					Level.RelayBroadcast(tileEvent);
+				}
+
+				// subscribe to inventory changes
+				inventory.InventoryChange += OnInventoryChange;
+
+				// open inventory
+
+				var containerOpen = McpeContainerOpen.CreateObject();
+				containerOpen.NoBatch = true;
+				containerOpen.windowId = inventory.WindowsId;
+				containerOpen.type = inventory.Type;
+				containerOpen.slotCount = inventory.Size;
+				containerOpen.x = inventoryCoord.X;
+				containerOpen.y = inventoryCoord.Y;
+				containerOpen.z = inventoryCoord.Z;
+				SendPackage(containerOpen);
+
+				var containerSetContent = McpeContainerSetContent.CreateObject();
+				containerSetContent.NoBatch = true;
+				containerSetContent.windowId = inventory.WindowsId;
+				containerSetContent.slotData = inventory.Slots;
+				SendPackage(containerSetContent);
 			}
 		}
 
-		private void OnInventoryChange(Inventory inventory, byte slot, ItemStack itemStack)
+		private void OnInventoryChange(Player player, Inventory inventory, byte slot, ItemStack itemStack)
 		{
-			Level.SetBlockEntity(inventory.BlockEntity, false);
-
-			SendPackage(new McpeContainerSetSlot()
+			if (player == this)
 			{
-				windowId = inventory.Id,
-				slot = slot,
-				item = new MetadataSlot(itemStack)
-			});
+				//TODO: This needs to be synced to work properly under heavy load (SG).
+				//Level.SetBlockEntity(inventory.BlockEntity, false);
+			}
+			else
+			{
+				var containerSetSlot = McpeContainerSetSlot.CreateObject();
+				containerSetSlot.windowId = inventory.WindowsId;
+				containerSetSlot.slot = slot;
+				containerSetSlot.item = new MetadataSlot(itemStack);
+				SendPackage(containerSetSlot);
+			}
 		}
+
+
+		private ItemStack _transaction = null;
+		private ItemStack _dropTransaction = null;
+		private int _isInArmorWorkaround = -1;
 
 		/// <summary>
 		///     Handles the container set slot.
@@ -1150,97 +1253,326 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandleContainerSetSlot(McpeContainerSetSlot message)
 		{
-			if (HealthManager.IsDead) return;
-
-			// on all set container content, check if we have active inventory
-			// and update that inventory.
-			// Inventory manager makes sure other players with the same inventory open will 
-			// also get the update.
-
-			var itemStack = message.item.Value;
-
-			Inventory inventory = Level.InventoryManager.GetInventory(message.windowId);
-			if (inventory != null)
+			lock (Inventory)
 			{
-				// block inventories of various kinds (chests, furnace, etc)
-				inventory.SetSlot((byte) message.slot, itemStack);
-				return;
-			}
+				if (HealthManager.IsDead) return;
 
-			switch (message.windowId)
-			{
-				case 0:
-					//if (GameMode != GameMode.Creative && Inventory.Slots[(byte) message.slot].Id != itemStack.Id)
-					//{
-					//	Log.Warn("Inventory set from client not matching inventory on server");
-					//	SendPlayerInventory();
-					//}
-					//else if(GameMode == GameMode.Creative)
-					//{
-					//	Inventory.Slots[(byte) message.slot] = itemStack;
-					//}
-					Inventory.Slots[(byte) message.slot] = itemStack;
+				Log.Info($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {message.item.Value.Id} Item Count: {message.item.Value.Count} Meta: {message.item.Value.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 
-					break;
-				case 0x78:
-					int itemId = message.item.Value.Id;
-					short itemMetadata = message.item.Value.Metadata;
-					switch ((byte) message.slot)
+				// on all set container content, check if we have active inventory
+				// and update that inventory.
+				// Inventory manager makes sure other players with the same inventory open will 
+				// also get the update.
+
+				ItemStack itemStack = message.item.Value;
+
+				if (_openInventory != null)
+				{
+					if (_openInventory.WindowsId == message.windowId)
 					{
-						case 0:
-							Inventory.Helmet = ItemFactory.GetItem(itemId, itemMetadata);
-							break;
-						case 1:
-							Inventory.Chest = ItemFactory.GetItem(itemId, itemMetadata);
-							break;
-						case 2:
-							Inventory.Leggings = ItemFactory.GetItem(itemId, itemMetadata);
-							break;
-						case 3:
-							Inventory.Boots = ItemFactory.GetItem(itemId, itemMetadata);
-							break;
+						// block inventories of various kinds (chests, furnace, etc)
+						_openInventory.SetSlot(this, (byte) message.slot, itemStack);
+						return;
 					}
-					break;
+
+					if (message.windowId == 0)
+					{
+						Inventory.Slots[message.slot] = itemStack;
+						return;
+					}
+				}
+
+				//short itemId = message.item.Value.Id;
+				//short itemMetadata = message.item.Value.Metadata;
+
+				switch (message.windowId)
+				{
+					case 0:
+						if (message.slot >= Inventory.Slots.Count) return;
+
+						if (_dropTransaction != null)
+						{
+							bool doDrop = false;
+
+							if (itemStack.Id == _dropTransaction.Id)
+							{
+								var stack = Inventory.Slots[message.slot];
+								if (stack.Count - (itemStack.Count + _dropTransaction.Count) == 0)
+								{
+									Inventory.Slots[message.slot] = itemStack;
+									doDrop = true;
+								}
+							}
+							else if (itemStack.Id == 0)
+							{
+								Inventory.Slots[message.slot] = new ItemStack();
+								doDrop = true;
+							}
+
+							if (doDrop)
+							{
+								var itemEntity = new ItemEntity(Level, _dropTransaction.Item)
+								{
+									Velocity = KnownPosition.GetDirection()*0.7,
+									KnownPosition =
+									{
+										X = KnownPosition.X,
+										Y = KnownPosition.Y + 1.62f,
+										Z = KnownPosition.Z
+									},
+									Count = _dropTransaction.Count
+								};
+
+								itemEntity.SpawnEntity();
+
+								Log.Info("Close drop transaction.");
+								_transaction = null;
+								_dropTransaction = null;
+							}
+							else
+							{
+								Log.Error("Abort inventory drop transaction. Failed item match.");
+								_transaction = null;
+								_dropTransaction = null;
+							}
+
+
+							return;
+						}
+
+						if (_transaction == null)
+						{
+							_isInArmorWorkaround = -1;
+
+							Log.Info("Start inventory transaction");
+
+							_transaction = Inventory.Slots[message.slot];
+
+							if (itemStack.Equals(_transaction))
+							{
+								_transaction.Item.Metadata = itemStack.Metadata;
+								_transaction = null;
+								Log.Info("Closed inventory confirm only transaction");
+
+								return;
+							}
+
+							if (itemStack.Id == _transaction.Id && itemStack.Count == _transaction.Count && itemStack.Metadata != _transaction.Metadata)
+							{
+								_transaction.Item.Metadata = itemStack.Metadata;
+								_transaction = null;
+								Log.Info("Closed inventory metadata only transaction");
+
+								return;
+							}
+
+							if (itemStack.Id == _transaction.Id && itemStack.Count != _transaction.Count && itemStack.Metadata == _transaction.Metadata)
+							{
+								Log.Info("Partial stack begin transaction");
+
+								byte delta = (byte) (_transaction.Count - itemStack.Count);
+								if (delta > 0)
+								{
+									Inventory.Slots[message.slot] = new ItemStack(_transaction.Id, itemStack.Count, _transaction.Metadata);
+									_transaction.Count = delta;
+								}
+
+								return;
+							}
+
+							if (itemStack.Id == 0)
+							{
+								Log.Info($"Full stack begin transaction. Existing id: {_transaction.Id}, meta: {_transaction.Metadata}, count: {_transaction.Count}");
+								Inventory.Slots[message.slot] = new ItemStack();
+							}
+							else
+							{
+								if (message.item.Value.Count == 1 && Inventory.Slots[message.slot].Id == 0)
+								{
+									Inventory.Slots[message.slot] = itemStack;
+									_isInArmorWorkaround = message.slot;
+								}
+								else
+								{
+									Log.Error($"Abort (hack?) inventory transaction for {Username} ");
+									_transaction = null;
+									SendPlayerInventory();
+								}
+							}
+
+							return;
+						}
+						else
+						{
+							if (_isInArmorWorkaround >= 0)
+							{
+								Log.Error($"Abort (hack?) inventory transaction for {Username} ");
+								Inventory.Slots[_isInArmorWorkaround] = new ItemStack();
+								_transaction = null;
+								_isInArmorWorkaround = -1;
+								SendPlayerInventory();
+								return;
+							}
+
+							if (itemStack.Id == _transaction.Id && itemStack.Metadata == _transaction.Metadata)
+							{
+								if (Inventory.Slots[message.slot].Id != 0
+								    && (itemStack.Id != Inventory.Slots[message.slot].Id || itemStack.Metadata != Inventory.Slots[message.slot].Metadata))
+								{
+									Log.Info("Partial inventory transaction, change transaction item");
+									_transaction = Inventory.Slots[message.slot];
+									Inventory.Slots[message.slot] = itemStack;
+								}
+								else
+								{
+									byte existing = Inventory.Slots[message.slot].Count;
+									byte delta = (byte) (_transaction.Count - (itemStack.Count - existing));
+									if (delta > 0)
+									{
+										Inventory.Slots[message.slot] = new ItemStack(_transaction.Id, itemStack.Count, _transaction.Metadata);
+										_transaction.Count -= (byte) (itemStack.Count - existing);
+										Log.Info("Partial inventory transaction. Left in transaction: " + _transaction.Count);
+									}
+									else
+									{
+										_transaction.Count += existing;
+										Inventory.Slots[message.slot] = _transaction;
+										_transaction = null;
+										Log.Info("Close inventory transaction");
+										SendPlayerInventory();
+									}
+								}
+							}
+							else
+							{
+								Log.Info("Partial inventory transaction, clear slot");
+								Inventory.Slots[message.slot] = new ItemStack();
+							}
+
+							return;
+						}
+
+						break;
+					case 0x79:
+						Inventory.Slots[(byte) message.slot] = itemStack;
+						break;
+					case 0x78:
+
+						if (_isInArmorWorkaround >= 0 || itemStack.Id == 0 && _transaction == null || _transaction != null && _transaction.Id == itemStack.Id)
+						{
+							var armorItem = itemStack.Item;
+							Item currentArmorItem = null;
+							switch (message.slot)
+							{
+								case 0:
+									currentArmorItem = Inventory.Helmet;
+									Inventory.Helmet = armorItem;
+									break;
+								case 1:
+									currentArmorItem = Inventory.Chest;
+									Inventory.Chest = armorItem;
+									break;
+								case 2:
+									currentArmorItem = Inventory.Leggings;
+									Inventory.Leggings = armorItem;
+									break;
+								case 3:
+									currentArmorItem = Inventory.Boots;
+									Inventory.Boots = armorItem;
+									break;
+							}
+
+							if (_isInArmorWorkaround >= 0 || currentArmorItem == null || currentArmorItem.Id == 0)
+							{
+								_isInArmorWorkaround = -1;
+								_transaction = null;
+								Log.Info("Close armor transaction");
+							}
+							else
+							{
+								_transaction = new ItemStack(currentArmorItem, 1);
+								Log.Info("Partial armor transaction");
+							}
+
+
+							McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+							armorEquipment.entityId = EntityId;
+							armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 1));
+							armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 1));
+							armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 1));
+							armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 1));
+							Level.RelayBroadcast(this, armorEquipment);
+						}
+						else if (itemStack.Id != 0 && _transaction == null)
+						{
+							bool isVerifyOnly = false;
+
+							var armorItem = itemStack.Item;
+							switch (message.slot)
+							{
+								case 0:
+									isVerifyOnly = Inventory.Helmet.Equals(armorItem);
+									break;
+								case 1:
+									isVerifyOnly = Inventory.Chest.Equals(armorItem);
+									break;
+								case 2:
+									isVerifyOnly = Inventory.Leggings.Equals(armorItem);
+									break;
+								case 3:
+									isVerifyOnly = Inventory.Boots.Equals(armorItem);
+									break;
+							}
+
+							if (!isVerifyOnly)
+							{
+								Log.Error("Armor transaction failed (hack?)");
+								_transaction = null;
+								SendPlayerInventory();
+							}
+						}
+						else
+						{
+							Log.Error("Armor transaction failed");
+							_transaction = null;
+							SendPlayerInventory();
+						}
+
+						break;
+				}
 			}
-
-			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
-			armorEquipment.entityId = EntityId;
-			armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 1));
-			armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 1));
-			armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 1));
-			armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 1));
-			Level.RelayBroadcast(this, armorEquipment);
-
-			var playerEquipment = McpePlayerEquipment.CreateObject();
-			playerEquipment.entityId = EntityId;
-			playerEquipment.item = new MetadataSlot(Inventory.GetItemInHand());
-			playerEquipment.slot = 0;
-			Level.RelayBroadcast(this, playerEquipment);
 		}
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
-			if (_openInventory == null) return;
-
-			// unsubscribe to inventory changes
-			_openInventory.InventoryChange -= OnInventoryChange;
-
-			// close container 
-			if (_openInventory.Type == 0)
+			lock (_inventorySync)
 			{
-				SendPackage(
-					new McpeTileEvent()
-					{
-						x = _openInventory.Coordinates.X,
-						y = _openInventory.Coordinates.Y,
-						z = _openInventory.Coordinates.Z,
-						case1 = 1,
-						case2 = 0,
-					});
-			}
+				var inventory = _openInventory;
+				_openInventory = null;
 
-			// active inventory set to null
-			_openInventory = null;
+				if (inventory == null) return;
+
+				// unsubscribe to inventory changes
+				inventory.InventoryChange -= OnInventoryChange;
+
+				if (message != null && message.windowId != inventory.WindowsId) return;
+
+				// close container 
+				if (inventory.Type == 0 && !inventory.IsOpen())
+				{
+					var tileEvent = McpeTileEvent.CreateObject();
+					tileEvent.x = inventory.Coordinates.X;
+					tileEvent.y = inventory.Coordinates.Y;
+					tileEvent.z = inventory.Coordinates.Z;
+					tileEvent.case1 = 1;
+					tileEvent.case2 = 0;
+					Level.RelayBroadcast(tileEvent);
+				}
+
+				//SendPlayerInventory();
+
+				// active inventory set to null
+			}
 		}
 
 		/// <summary>
@@ -1251,21 +1583,30 @@ namespace MiNET
 		{
 			Entity target = Level.GetEntity(message.targetEntityId);
 
-			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
+			//Log.DebugFormat("Interact Action ID: {0}", message.actionId);
+			//Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
 
 			if (target == null) return;
 
-			target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
+			Player player = target as Player;
+			if (player != null)
+			{
+				int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
+				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
+			}
+			else
+			{
+				target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
+			}
 		}
 
-		private int CalculateDamage(Player target)
+		public int CalculatePlayerDamage(Player target, int damage)
 		{
 			double armorValue = 0;
 
 			{
 				{
-					var armorPiece = Inventory.Helmet;
+					var armorPiece = target.Inventory.Helmet;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1287,7 +1628,7 @@ namespace MiNET
 				}
 
 				{
-					var armorPiece = Inventory.Chest;
+					var armorPiece = target.Inventory.Chest;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1309,7 +1650,7 @@ namespace MiNET
 				}
 
 				{
-					var armorPiece = Inventory.Leggings;
+					var armorPiece = target.Inventory.Leggings;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1331,7 +1672,7 @@ namespace MiNET
 				}
 
 				{
-					var armorPiece = Inventory.Boots;
+					var armorPiece = target.Inventory.Boots;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1355,11 +1696,7 @@ namespace MiNET
 
 			armorValue *= 0.04; // Each armor point represent 4% reduction
 
-			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
-
-			damage = (int) Math.Floor(damage*(1.0 - armorValue));
-
-			return damage;
+			return (int) Math.Floor(damage*(1.0 - armorValue));
 		}
 
 		private int CalculateDamage(Entity target)
@@ -1400,45 +1737,54 @@ namespace MiNET
 
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
-			Log.DebugFormat("Use item: {0}", message.item.Value.Id);
-			Log.DebugFormat("item meta: {0}", message.item.Value.Metadata);
-			Log.DebugFormat("x:  {0}", message.x);
-			Log.DebugFormat("y:  {0}", message.y);
-			Log.DebugFormat("z:  {0}", message.z);
-			Log.DebugFormat("face:  {0}", message.face);
-			Log.DebugFormat("fx:  {0}", message.fx);
-			Log.DebugFormat("fy:  {0}", message.fy);
-			Log.DebugFormat("fz:  {0}", message.fz);
-			Log.DebugFormat("px:  {0}", message.positionX);
-			Log.DebugFormat("py:  {0}", message.positionY);
-			Log.DebugFormat("pz:  {0}", message.positionZ);
+			//Log.DebugFormat("Use item: {0}", message.item.Value.Id);
+			//Log.DebugFormat("item meta: {0}", message.item.Value.Metadata);
+			//Log.DebugFormat("x:  {0}", message.x);
+			//Log.DebugFormat("y:  {0}", message.y);
+			//Log.DebugFormat("z:  {0}", message.z);
+			//Log.DebugFormat("face:  {0}", message.face);
+			//Log.DebugFormat("fx:  {0}", message.fx);
+			//Log.DebugFormat("fy:  {0}", message.fy);
+			//Log.DebugFormat("fz:  {0}", message.fz);
+			//Log.DebugFormat("px:  {0}", message.positionX);
+			//Log.DebugFormat("py:  {0}", message.positionY);
+			//Log.DebugFormat("pz:  {0}", message.positionZ);
 
 			if (message.face <= 5)
 			{
-				Level.RelayBroadcast(this, new McpeAnimate()
-				{
-					actionId = 1,
-					entityId = EntityId
-				});
+				// Right click
+
+				var mcpeAnimate = McpeAnimate.CreateObject();
+				mcpeAnimate.actionId = 1;
+				mcpeAnimate.entityId = EntityId;
+				Level.RelayBroadcast(this, mcpeAnimate);
 
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
+				//if (Inventory.GetItemInHand().Id != message.item.Value.Id)
+				//{
+				//	//Disconnect("Inventory hacks not allowed.");
+				//	return;
+				//}
 
 				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata, (BlockFace) message.face, faceCoords);
 			}
 			else
 			{
+				// Snowballs and shit
+
 				_itemUseTimer = new Stopwatch();
 				_itemUseTimer.Start();
-				// Snowballs and shit
+
 				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata);
 
+				// Player in action
 				MetadataDictionary metadata = new MetadataDictionary();
 				metadata[0] = new MetadataByte(16);
-				Level.RelayBroadcast(this, new McpeSetEntityData
-				{
-					entityId = EntityId,
-					metadata = metadata,
-				});
+
+				var setEntityData = McpeSetEntityData.CreateObject();
+				setEntityData.entityId = EntityId;
+				setEntityData.metadata = metadata;
+				Level.RelayBroadcast(this, setEntityData);
 			}
 		}
 
@@ -1472,14 +1818,47 @@ namespace MiNET
 
 		private object _sendChunkSync = new object();
 
-		private void ForcedSendChunksForKnownPosition(PlayerLocation position)
+		private void ForcedSendChunk(PlayerLocation position)
 		{
-			var chunkPosition = new ChunkCoordinates(position);
-			_currentChunkPosition = chunkPosition;
-
-			foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
+			lock (_sendChunkSync)
 			{
-				SendPackage(chunk, true);
+				var chunkPosition = new ChunkCoordinates(position);
+
+				McpeBatch chunk = Level.GenerateChunk(chunkPosition);
+				var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
+				if (!_chunksUsed.ContainsKey(key))
+				{
+					_chunksUsed.Add(key, chunk);
+				}
+
+				if (chunk != null)
+				{
+					SendPackage(chunk, true);
+				}
+			}
+		}
+
+		private void ForcedSendChunks()
+		{
+			if (!Monitor.TryEnter(_sendChunkSync)) return;
+			try
+			{
+				var chunkPosition = new ChunkCoordinates(KnownPosition);
+
+				_currentChunkPosition = chunkPosition;
+
+				if (Level == null) return;
+
+				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
+				{
+					if (chunk == null) continue;
+
+					SendPackage(chunk, true);
+				}
+			}
+			finally
+			{
+				Monitor.Exit(_sendChunkSync);
 			}
 		}
 
@@ -1492,19 +1871,21 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				//if (_currentChunkPosition.DistanceTo(chunkPosition) < 4)
-				//{
-				//	Log.DebugFormat("Denied chunk, too little distance.");
-				//	return;
-				//}
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
+				{
+					return;
+				}
 
 				_currentChunkPosition = chunkPosition;
 
 				int packetCount = 0;
 
+				if (Level == null) return;
+
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
 				{
-					SendPackage(chunk, sendDirect: true);
+					if (chunk != null) SendPackage(chunk);
+
 					if (!IsSpawned)
 					{
 						if (packetCount++ == 56)
@@ -1520,7 +1901,7 @@ namespace MiNET
 			}
 		}
 
-		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel)
+		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel, bool writeLen = false)
 		{
 			MemoryStream stream = new MemoryStream();
 			stream.WriteByte(0x78);
@@ -1528,6 +1909,9 @@ namespace MiNET
 			int checksum;
 			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 			{
+				byte[] lenBytes = BitConverter.GetBytes(input.Length);
+				Array.Reverse(lenBytes);
+				if (writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
 				compressStream.Write(input, 0, input.Length);
 				checksum = compressStream.Checksum;
 			}
@@ -1549,14 +1933,38 @@ namespace MiNET
 
 		public virtual void SendSetHealth()
 		{
-			McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
-			mcpeSetHealth.health = HealthManager.Hearts;
-			SendPackage(mcpeSetHealth);
+			//McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
+			//mcpeSetHealth.health = HealthManager.Hearts;
+			//SendPackage(mcpeSetHealth);
+
+			var attributes = new PlayerAttributes();
+			attributes["generic.health"] = new PlayerAttribute
+			{
+				Name = "generic.health", MinValue = 0, MaxValue = 20, Value = HealthManager.Hearts
+			};
+			attributes["player.hunger"] = new PlayerAttribute
+			{
+				Name = "player.hunger", MinValue = 0, MaxValue = 20, Value = 15
+			};
+			attributes["player.level"] = new PlayerAttribute
+			{
+				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = 0
+			};
+			attributes["player.experience"] = new PlayerAttribute
+			{
+				Name = "player.experience", MinValue = 0, MaxValue = 1, Value = 0
+			};
+
+			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
+			attributesPackate.entityId = 0;
+			attributesPackate.attributes = attributes;
+			SendPackage(attributesPackate);
 		}
 
 		public virtual void SendSetTime()
 		{
 			McpeSetTime message = McpeSetTime.CreateObject();
+			message.NoBatch = true;
 			message.time = (int) Level.CurrentWorldTime;
 			message.started = (byte) (Level.IsWorldTimeStarted ? 1 : 0);
 			SendPackage(message);
@@ -1655,16 +2063,16 @@ namespace MiNET
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 				motions.entities = new EntityMotions {{0, velocity}};
-				SendPackage(motions, true);
+				SendPackage(motions);
 			}
-			ThreadPool.QueueUserWorkItem(delegate(object state)
-			{
-				Thread.Sleep(500);
 
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{0, Vector3.Zero}};
-				SendPackage(motions, true);
-			});
+			//Task.Delay(500).ContinueWith(delegate(Task task)
+			//{
+			//	McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			//	motions.entities = new EntityMotions {{0, Vector3.Zero}};
+			//	SendPackage(motions);
+			//}
+			//);
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -1679,7 +2087,7 @@ namespace MiNET
 			metadata[8] = new MetadataByte(0); // Potion Ambient
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataLong(0);
+			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 
 			return metadata;
 		}
@@ -1763,11 +2171,18 @@ namespace MiNET
 
 		public void BroadcastEntityEvent()
 		{
-			Level.RelayBroadcast(new McpeEntityEvent()
 			{
-				entityId = EntityId,
-				eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2)
-			});
+				var entityEvent = McpeEntityEvent.CreateObject();
+				entityEvent.entityId = 0;
+				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
+				SendPackage(entityEvent);
+			}
+			{
+				var entityEvent = McpeEntityEvent.CreateObject();
+				entityEvent.entityId = EntityId;
+				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
+				Level.RelayBroadcast(this, entityEvent);
+			}
 
 			if (HealthManager.IsDead)
 			{
@@ -1787,6 +2202,11 @@ namespace MiNET
 		{
 			DetectLostConnections ping = DetectLostConnections.CreateObject();
 			SendPackage(ping);
+		}
+
+		public void SendDirectPackage(Package package)
+		{
+			Server.SendPackage(this, package, _mtuSize);
 		}
 
 		/// <summary>
@@ -1814,67 +2234,116 @@ namespace MiNET
 
 			if (package == null) return;
 
-			if (!IsSpawned || sendDirect || isBatch)
+			lock (_queueSync)
 			{
-				Server.SendPackage(this, new List<Package>(new[] {package}), _mtuSize, ref _reliableMessageNumber);
-			}
-			else
-			{
-				lock (_queueSync)
-				{
-					_sendQueueNotConcurrent.Enqueue(package);
-				}
+				_sendQueueNotConcurrent.Enqueue(package);
 			}
 		}
 
+		private object _syncHack = new object();
+		private MemoryStream memStream = new MemoryStream();
+
 		private void SendQueue(object state)
 		{
-			Queue<Package> queue = _sendQueueNotConcurrent;
+			if (!Monitor.TryEnter(_syncHack)) return;
 
-			int messageCount = 0;
-
-			int lenght = queue.Count;
-			MemoryStream memStream = new MemoryStream();
-			NbtBinaryWriter writer = new NbtBinaryWriter(memStream, true);
-			for (int i = 0; i < lenght; i++)
+			try
 			{
-				Package package = null;
-				lock (_queueSync)
+				Queue<Package> queue = _sendQueueNotConcurrent;
+
+				int messageCount = 0;
+
+				int lenght = queue.Count;
+				for (int i = 0; i < lenght; i++)
 				{
-					if (queue.Count == 0) break;
-					try
+					Package package = null;
+					lock (_queueSync)
 					{
-						package = queue.Dequeue();
+						if (queue.Count == 0) break;
+						try
+						{
+							package = queue.Dequeue();
+						}
+						catch (Exception e)
+						{
+						}
 					}
-					catch (Exception e)
+
+					if (package == null) continue;
+
+					if (!IsConnected)
 					{
+						package.PutPool();
+						continue;
+					}
+
+					if (lenght == 1)
+					{
+						Server.SendPackage(this, package, _mtuSize);
+					}
+					else if (!IsSpawned)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
+						Server.SendPackage(this, package, _mtuSize);
+					}
+					else if (package.NoBatch)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
+						Server.SendPackage(this, package, _mtuSize);
+					}
+					else if (package is McpeBatch)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
+						Server.SendPackage(this, package, _mtuSize);
+						Thread.Sleep(1); // Really important to slow down speed a bit
+					}
+					else
+					{
+						if (messageCount == 0)
+						{
+							memStream.Position = 0;
+							memStream.SetLength(0);
+						}
+
+						byte[] bytes = package.Encode();
+						if (bytes != null)
+						{
+							messageCount++;
+							memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+							memStream.Write(bytes, 0, bytes.Length);
+						}
+
+						package.PutPool();
 					}
 				}
 
-				if (package == null) continue;
+				if (!IsConnected) return;
 
-				Server.SendPackage(this, new List<Package> {package}, _mtuSize, ref _reliableMessageNumber);
-
-				byte[] bytes = package.Encode();
-				if (bytes != null)
-				{
-					messageCount++;
-					writer.Write(bytes.Length);
-					writer.Write(bytes, 0, bytes.Length);
-				}
-				package.PutPool();
+				SendBuffered(messageCount);
 			}
+			finally
+			{
+				Monitor.Exit(_syncHack);
+			}
+		}
 
+		private void SendBuffered(int messageCount)
+		{
 			if (messageCount == 0) return;
-			if (!IsConnected) return;
 
 			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Fastest);
+			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();
 
-			//Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+			memStream.Position = 0;
+			memStream.SetLength(0);
+
+			Server.SendPackage(this, batch, _mtuSize);
 		}
 
 		private object _sendMoveListSync = new object();
@@ -1892,35 +2361,12 @@ namespace MiNET
 
 			try
 			{
-				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
+				//Server.SendPackage(this, batch, _mtuSize, ref _reliableMessageNumber);
+				SendPackage(batch);
 			}
 			finally
 			{
 				Monitor.Exit(_sendMoveListSync);
-			}
-		}
-
-
-		private object _sendEntityMoveListSync = new object();
-		private DateTime _lastEntityMoveListSendTime = DateTime.UtcNow;
-
-		public void SendEntityMoveList(McpeBatch batch, DateTime sendTime)
-		{
-			if (sendTime < _lastEntityMoveListSendTime || !Monitor.TryEnter(_sendEntityMoveListSync))
-			{
-				batch.PutPool();
-				return;
-			}
-
-			_lastEntityMoveListSendTime = sendTime;
-
-			try
-			{
-				Server.SendPackage(this, new List<Package> {batch}, _mtuSize, ref _reliableMessageNumber);
-			}
-			finally
-			{
-				Monitor.Exit(_sendEntityMoveListSync);
 			}
 		}
 
@@ -1930,6 +2376,39 @@ namespace MiNET
 			{
 				_chunksUsed.Clear();
 			}
+		}
+
+		public virtual void DropInventory()
+		{
+			var slots = Inventory.Slots;
+
+			foreach (var stack in slots.ToArray())
+			{
+				Level.DropItem(KnownPosition.GetCoordinates3D(), stack);
+			}
+
+			if (Inventory.Helmet.Id != 0)
+			{
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Helmet, 1));
+				Inventory.Helmet = new Item(0, 0);
+			}
+			if (Inventory.Chest.Id != 0)
+			{
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Chest, 1));
+				Inventory.Chest = new Item(0, 0);
+			}
+			if (Inventory.Leggings.Id != 0)
+			{
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Leggings, 1));
+				Inventory.Leggings = new Item(0, 0);
+			}
+			if (Inventory.Boots.Id != 0)
+			{
+				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Boots, 1));
+				Inventory.Boots = new Item(0, 0);
+			}
+
+			Inventory.Clear();
 		}
 	}
 }

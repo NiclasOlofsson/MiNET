@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace MiNET.Utils
@@ -9,11 +10,11 @@ namespace MiNET.Utils
 	/// </summary>
 	public class MetadataDictionary
 	{
-		private readonly Dictionary<byte, MetadataEntry> _entries;
+		private readonly Dictionary<int, MetadataEntry> _entries;
 
 		public MetadataDictionary()
 		{
-			_entries = new Dictionary<byte, MetadataEntry>();
+			_entries = new Dictionary<int, MetadataEntry>();
 		}
 
 		public int Count
@@ -21,10 +22,15 @@ namespace MiNET.Utils
 			get { return _entries.Count; }
 		}
 
-		public MetadataEntry this[byte index]
+		public MetadataEntry this[int index]
 		{
 			get { return _entries[index]; }
 			set { _entries[index] = value; }
+		}
+
+		public MetadataEntry[] GetValues()
+		{
+			return _entries.Values.ToArray();
 		}
 
 		public bool Contains(byte index)
@@ -34,34 +40,34 @@ namespace MiNET.Utils
 
 		public static MetadataDictionary FromStream(BinaryReader stream)
 		{
-			var value = new MetadataDictionary();
+			MetadataDictionary metadata = new MetadataDictionary();
 			while (true)
 			{
 				byte key = stream.ReadByte();
-				if (key == 127) break;
+				if (key == 0x7F) break;
 
 				byte type = (byte) ((key & 0xE0) >> 5);
 				byte index = (byte) (key & 0x1F);
 
 				var entry = EntryTypes[type]();
-				if (index == 17)
+				if (index == 17 && type != 6)
 				{
-					entry = new MetadataLong {id = type};
+						entry = new MetadataLong { id = type };
 				}
 
 				entry.FromStream(stream);
 				entry.Index = index;
 
-				value[index] = entry;
+				metadata[index] = entry;
 			}
-			return value;
+			return metadata;
 		}
 
 		public void WriteTo(BinaryWriter stream)
 		{
 			foreach (var entry in _entries)
 			{
-				entry.Value.WriteTo(stream, entry.Key);
+				entry.Value.WriteTo(stream, (byte)entry.Key);
 			}
 			stream.Write((byte) 0x7F);
 		}
@@ -78,7 +84,6 @@ namespace MiNET.Utils
 			() => new MetadataSlot(), // 5
 			() => new MetadataIntCoordinates(), // 6
 			() => new MetadataLong(), // 7
-			() => new MetadataLong(), // 8
 		};
 
 		public override string ToString()

@@ -108,12 +108,10 @@ namespace MiNET.ServiceKiller
 				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("play.lbsg.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
 				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
 				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), new IPEndPoint(IPAddress.Loopback, 0));
-
-				client.Username = Name;
+				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), Name);
 				client.ClientId = ClientId;
 
-				client.StartServer();
+				client.StartClient();
 				Console.WriteLine("Client started.");
 
 				Thread.Sleep(3000);
@@ -126,11 +124,11 @@ namespace MiNET.ServiceKiller
 
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
-				if (client.Listener != null) Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", Name);
+				if (client.UdpClient != null) Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", Name);
 
 				for (int i = 0; i < 10 && Emulator.Running && watch.ElapsedMilliseconds < TimeToRun; i++)
 				{
-					if (client.Listener == null) break;
+					if (client.UdpClient == null) break;
 
 					float y = Random.Next(7, 10) + /*24*/ 55;
 					float length = Random.Next(5, 20);
@@ -141,7 +139,7 @@ namespace MiNET.ServiceKiller
 
 					while (angle < 2*Math.PI && Emulator.Running)
 					{
-						if (client.Listener == null) break;
+						if (client.UdpClient == null) break;
 
 						float x = (float) (length*Math.Cos(angle));
 						float z = (float) (length*Math.Sin(angle));
@@ -157,9 +155,9 @@ namespace MiNET.ServiceKiller
 					}
 				}
 
-				if (client.Listener != null) client.SendDisconnectionNotification();
+				if (client.UdpClient != null) client.SendDisconnectionNotification();
 
-				client.StopServer();
+				client.StopClient();
 			}
 			catch (Exception e)
 			{

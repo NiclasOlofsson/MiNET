@@ -533,11 +533,6 @@ namespace MiNET
 			}
 
 
-			// THIS counter exist to protect the level from being swamped with player list add
-			// attempts during startup (normally).
-			var serverInfo = Server.ServerInfo;
-			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
 			SendPlayerStatus(0); // Hmm, login success?
 
 			Username = message.username;
@@ -545,6 +540,8 @@ namespace MiNET
 			ClientUuid = message.clientUuid;
 			ClientSecret = message.clientSecret;
 			Skin = message.skin;
+
+			var serverInfo = Server.ServerInfo;
 
 			if (ClientSecret != null)
 			{
@@ -555,6 +552,11 @@ namespace MiNET
 					return;
 				}
 			}
+
+			// THIS counter exist to protect the level from being swamped with player list add
+			// attempts during startup (normally).
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
 			new Thread(Start).Start();
 		}
 
@@ -864,6 +866,7 @@ namespace MiNET
 						});
 					}
 					IsConnected = false;
+					Server.GreylistManager.Greylist(EndPoint.Address, 10000);
 				}
 
 				if (_sendTicker != null)

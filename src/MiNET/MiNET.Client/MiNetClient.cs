@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using fNbt;
 using log4net;
 using log4net.Config;
 using MiNET.Crafting;
@@ -594,7 +595,6 @@ namespace MiNET.Client
 			writer.Indent--;
 
 			writer.Flush();
-
 			file.Close();
 			//Environment.Exit(0);
 		}
@@ -605,11 +605,61 @@ namespace MiNET.Client
 			Log.DebugFormat("Window ID: 0x{0:x2}, Count: {1}", msg.windowId, msg.slotData.Count);
 			var slots = msg.slotData.GetValues();
 
+			if (msg.windowId == 0x79)
+			{
+				string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
+				WriteInventoryToFile(fileName, slots);
+			}
+			else if (msg.windowId == 0x00)
+			{
+				string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
+				WriteInventoryToFile(fileName, slots);
+			}
+		}
+
+		private static void WriteInventoryToFile(string fileName, MetadataEntry[] slots)
+		{
+			Log.Info($"Writing inventory to filename: {fileName}");
+			FileStream file = File.OpenWrite(fileName);
+
+			IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+
+			writer.WriteLine("// GENERATED CODE. DON'T EDIT BY HAND");
+			writer.Indent++;
+			writer.Indent++;
+			writer.WriteLine("public static List<ItemStack> CreativeInventoryItems = new List<ItemStack>()");
+			writer.WriteLine("{");
+			writer.Indent++;
+
 			foreach (var entry in slots)
 			{
 				MetadataSlot slot = (MetadataSlot) entry;
-				//Log.DebugFormat(" - Id: {0}, Metadata: {1}, Count: {2}", slot.Value.Item.Id, slot.Value.Item.Metadata, slot.Value.Count);
+				NbtCompound extraData = slot.Value.ExtraData;
+				if (extraData == null)
+				{
+					writer.WriteLine($"new ItemStack({slot.Value.Id}, {slot.Value.Count}, {slot.Value.Metadata}),");
+				}
+				else
+				{
+					Log.Debug($"Nbt: " + extraData.ToString());
+					NbtList ench = (NbtList) extraData["ench"];
+					NbtCompound enchComp = (NbtCompound) ench[0];
+					var id = enchComp["id"].ShortValue;
+					var lvl = enchComp["lvl"].ShortValue;
+					writer.WriteLine($"new ItemStack({slot.Value.Id}, {slot.Value.Count}, {slot.Value.Metadata}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
+				}
 			}
+
+			new ItemStack(0, 0, 0) {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 0)}}}};
+			//var compound = new NbtCompound(string.Empty) { new NbtList("ench", new NbtCompound()) {new NbtShort("id", 0),new NbtShort("lvl", 0),}, };
+
+			writer.Indent--;
+			writer.WriteLine("};");
+			writer.Indent--;
+			writer.Indent--;
+
+			writer.Flush();
+			file.Close();
 		}
 
 		private static void OnMcpeSpawnExperienceOrb(Package message)

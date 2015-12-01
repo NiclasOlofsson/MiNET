@@ -13,14 +13,16 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			var inventory = player.Inventory;
-			var itemInHand = inventory.GetItemInHand();
-
-			itemInHand.Count--;
-			if (itemInHand.Count <= 0)
+			if (player.GameMode != GameMode.Creative)
 			{
-				// set empty
-				inventory.Slots[inventory.Slots.IndexOf(itemInHand)] = new ItemStack();
+				ItemStack itemStackInHand = player.Inventory.GetItemInHand();
+				itemStackInHand.Count--;
+
+				if (itemStackInHand.Count <= 0)
+				{
+					// set empty
+					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemStack();
+				}
 			}
 
 			float force = 1.5f;

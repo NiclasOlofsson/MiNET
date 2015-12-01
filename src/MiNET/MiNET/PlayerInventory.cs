@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using MiNET.Blocks;
+using log4net;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -9,6 +9,8 @@ namespace MiNET
 {
 	public class PlayerInventory
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (PlayerInventory));
+
 		public const int HotbarSize = 9;
 		public const int InventorySize = HotbarSize + 36;
 		public Player Player { get; private set; }
@@ -97,7 +99,7 @@ namespace MiNET
 		}
 
 		[Wired]
-		public void SetInventorySlot(byte slot, short itemId, byte amount = 1, short metadata = 0)
+		public void SetInventorySlot(int slot, short itemId, byte amount = 1, short metadata = 0)
 		{
 			Slots[slot] = new ItemStack(itemId, amount, metadata);
 
@@ -122,7 +124,7 @@ namespace MiNET
 		public MetadataSlots GetSlots()
 		{
 			var slotData = new MetadataSlots();
-			for (byte i = 0; i < Slots.Count; i++)
+			for (int i = 0; i < Slots.Count; i++)
 			{
 				if (Slots[i].Count == 0) Slots[i] = new ItemStack();
 				slotData[i] = new MetadataSlot(Slots[i]);
@@ -200,272 +202,6 @@ namespace MiNET
 			}
 			return false;
 		}
-	}
-
-	public static class InventoryUtils
-	{
-		public static void Clear(this PlayerInventory inv)
-		{
-			for (byte i = 0; i < inv.Slots.Count; ++i)
-			{
-				if (inv.Slots[i] == null || inv.Slots[i].Id != 0) inv.Slots[i] = new ItemStack();
-			}
-
-			if (inv.Helmet.Id != 0) inv.Helmet = new Item(0, 0);
-			if (inv.Chest.Id != 0) inv.Chest = new Item(0, 0);
-			if (inv.Leggings.Id != 0) inv.Leggings = new Item(0, 0);
-			if (inv.Boots.Id != 0) inv.Boots = new Item(0, 0);
-
-			inv.Player.SendPlayerInventory();
-		}
-
-		public static List<ItemStack> CreativeInventoryItems = new List<ItemStack>()
-		{
-			new ItemStack(Material.Cobblestone, 1, 0),
-			new ItemStack(Material.StoneBrick, 1, 0),
-			new ItemStack(Material.StoneBrick, 1, 1),
-			new ItemStack(Material.StoneBrick, 1, 2),
-			new ItemStack(Material.StoneBrick, 1, 3),
-			new ItemStack(Material.MossStone, 1, 0),
-			new ItemStack(Material.WoodPlank, 1, 0),
-			new ItemStack(Material.WoodPlank, 1, 1),
-			new ItemStack(Material.WoodPlank, 1, 2),
-			new ItemStack(Material.WoodPlank, 1, 3),
-			new ItemStack(Material.WoodPlank, 1, 4),
-			new ItemStack(Material.WoodPlank, 1, 5),
-			new ItemStack(Material.Bricks, 1, 0),
-			new ItemStack(Material.Stone, 1, 0),
-			new ItemStack(Material.Stone, 1, 1),
-			new ItemStack(Material.Stone, 1, 2),
-			new ItemStack(Material.Stone, 1, 3),
-			new ItemStack(Material.Stone, 1, 4),
-			new ItemStack(Material.Stone, 1, 5),
-			new ItemStack(Material.Stone, 1, 6),
-			new ItemStack(Material.Dirt, 1, 0),
-			new ItemStack(Material.Podzol, 1, 0),
-			new ItemStack(Material.Grass, 1, 0),
-			new ItemStack(Material.Mycelium, 1, 0),
-			new ItemStack(Material.ClayBlock, 1, 0),
-			new ItemStack(Material.HardenedClay, 1, 0),
-			new ItemStack(Material.StainedClay, 1, 0),
-			new ItemStack(Material.StainedClay, 1, 1),
-			new ItemStack(Material.StainedClay, 1, 2),
-			new ItemStack(Material.StainedClay, 1, 3),
-			new ItemStack(Material.StainedClay, 1, 4),
-			new ItemStack(Material.StainedClay, 1, 5),
-			new ItemStack(Material.StainedClay, 1, 6),
-			new ItemStack(Material.StainedClay, 1, 7),
-			new ItemStack(Material.StainedClay, 1, 8),
-			new ItemStack(Material.StainedClay, 1, 9),
-			new ItemStack(Material.StainedClay, 1, 10),
-			new ItemStack(Material.StainedClay, 1, 11),
-			new ItemStack(Material.StainedClay, 1, 12),
-			new ItemStack(Material.StainedClay, 1, 13),
-			new ItemStack(Material.StainedClay, 1, 14),
-			new ItemStack(Material.StainedClay, 1, 15),
-			new ItemStack(Material.Sandstone, 1, 0),
-			new ItemStack(Material.Sandstone, 1, 1),
-			new ItemStack(Material.Sandstone, 1, 2),
-			new ItemStack(Material.Sand, 1, 0),
-			new ItemStack(Material.Sand, 1, 1),
-			new ItemStack(Material.Gravel, 1, 0),
-			new ItemStack(Material.NetherBrick, 1, 0),
-			new ItemStack(Material.Netherrack, 1, 0),
-			new ItemStack(Material.Bedrock, 1, 0),
-			new ItemStack(Material.CobbleStairs, 1, 0),
-			new ItemStack(Material.OakWoodStairs, 1, 0),
-			new ItemStack(Material.SpruceWoodStairs, 1, 0),
-			new ItemStack(Material.BirchWoodStairs, 1, 0),
-			new ItemStack(Material.JungleWoodStairs, 1, 0),
-			new ItemStack(Material.AcaciaWoodStairs, 1, 0),
-			new ItemStack(Material.DarkOakWoodStairs, 1, 0),
-			new ItemStack(Material.BrickStairs, 1, 0),
-			new ItemStack(Material.SandstoneStairs, 1, 0),
-			new ItemStack(Material.StoneBrickStairs, 1, 0),
-			new ItemStack(Material.NetherBrickStairs, 1, 0),
-			new ItemStack(Material.QuartzStairs, 1, 0),
-			new ItemStack(Material.StoneSlab, 1, 0),
-			new ItemStack(Material.StoneSlab, 1, 1),
-			new ItemStack(Material.StoneSlab, 1, 2),
-			new ItemStack(Material.StoneSlab, 1, 3),
-			new ItemStack(Material.StoneSlab, 1, 4),
-			new ItemStack(Material.StoneSlab, 1, 5),
-			new ItemStack(Material.StoneSlab, 1, 6),
-			new ItemStack(Material.WoodSlab, 1, 0),
-			new ItemStack(Material.WoodSlab, 1, 1),
-			new ItemStack(Material.WoodSlab, 1, 2),
-			new ItemStack(Material.WoodSlab, 1, 3),
-			new ItemStack(Material.WoodSlab, 1, 4),
-			new ItemStack(Material.WoodSlab, 1, 5),
-			new ItemStack(Material.QuartzBlock, 1, 0),
-			new ItemStack(Material.QuartzBlock, 1, 1),
-			new ItemStack(Material.QuartzBlock, 1, 2),
-			new ItemStack(Material.CoalOre, 1, 0),
-			new ItemStack(Material.IronOre, 1, 0),
-			new ItemStack(Material.GoldOre, 1, 0),
-			new ItemStack(Material.DiamondOre, 1, 0),
-			new ItemStack(Material.LapisOre, 1, 0),
-			new ItemStack(Material.RedstoneOre, 1, 0),
-			new ItemStack(Material.EmeraldOre, 1, 0),
-			new ItemStack(Material.Obsidian, 1, 0),
-			new ItemStack(Material.Ice, 1, 0),
-			new ItemStack(Material.Snow, 1, 0),
-			new ItemStack(Material.EndStone, 1, 0),
-			new ItemStack(Material.CobbleWall, 1, 0),
-			new ItemStack(Material.CobbleWall, 1, 1),
-			new ItemStack(Material.LapisBlock, 1, 0),
-			new ItemStack(Material.CoalBlock, 1, 0),
-			new ItemStack(Material.EmeraldBlock, 1, 0),
-			new ItemStack(Material.RedstoneBlock, 1, 0),
-			new ItemStack(Material.SnowLayer, 1, 0),
-			new ItemStack(Material.Glass, 1, 0),
-			new ItemStack(Material.Glowstone, 1, 0),
-			new ItemStack(Material.Vines, 1, 0),
-			new ItemStack(Material.Ladder, 1, 0),
-			new ItemStack(Material.Sponge, 1, 0),
-			new ItemStack(Material.GlassPane, 1, 0),
-			new ItemStack(Material.WoodDoorItem, 1, 0),
-			new ItemStack(Material.Trapdoor, 1, 0),
-			new ItemStack(Material.Fence, 1, 0),
-			new ItemStack(Material.Fence, 1, 0),
-			new ItemStack(Material.Fence, 1, 1),
-			new ItemStack(Material.Fence, 1, 2),
-			new ItemStack(Material.Fence, 1, 3),
-			new ItemStack(Material.Fence, 1, 4),
-			new ItemStack(Material.Fence, 1, 5),
-			new ItemStack(Material.FenceGate, 1, 0),
-			new ItemStack(Material.BirchFenceGate, 1, 0),
-			new ItemStack(Material.SpruceFenceGate, 1, 0),
-			new ItemStack(Material.DarkOakFenceGate, 1, 0),
-			new ItemStack(Material.JungleFenceGate, 1, 0),
-			new ItemStack(Material.AcaciaFenceGate, 1, 0),
-			new ItemStack(Material.IronBars, 1, 0),
-			new ItemStack(Material.Bed, 1, 0),
-			new ItemStack(Material.Bookshelf, 1, 0),
-			new ItemStack(Material.Painting, 1, 0),
-			new ItemStack(Material.CraftingTable, 1, 0),
-			new ItemStack(Material.StoneCutter, 1, 0),
-			new ItemStack(Material.Chest, 1, 0),
-			new ItemStack(Material.Furnace, 1, 0),
-			new ItemStack(Material.EndPortal, 1, 0),
-			new ItemStack(Material.Dandelion, 1, 0),
-			new ItemStack(Material.Flower, 1, 0),
-			new ItemStack(Material.Flower, 1, 1),
-			new ItemStack(Material.Flower, 1, 2),
-			new ItemStack(Material.Flower, 1, 3),
-			new ItemStack(Material.Flower, 1, 4),
-			new ItemStack(Material.Flower, 1, 5),
-			new ItemStack(Material.Flower, 1, 6),
-			new ItemStack(Material.Flower, 1, 7),
-			new ItemStack(Material.Flower, 1, 8),
-			new ItemStack(Material.BrownMushroomBlock, 1, 0),
-			new ItemStack(Material.RedMushroomBlock, 1, 0),
-			new ItemStack(Material.Cactus, 1, 0),
-			new ItemStack(Material.MelonBlock, 1, 0),
-			new ItemStack(Material.Pumpkin, 1, 0),
-			new ItemStack(Material.PumpkinLantern, 1, 0),
-			new ItemStack(Material.Cobweb, 1, 0),
-			new ItemStack(Material.Cobweb, 1, 0),
-			new ItemStack(Material.HayBale, 1, 0),
-			new ItemStack(Material.TallGrass, 1, 1),
-			new ItemStack(Material.TallGrass, 1, 2),
-			new ItemStack(Material.DeadBush, 1, 0),
-			new ItemStack(Material.Sapling, 1, 0),
-			new ItemStack(Material.Sapling, 1, 1),
-			new ItemStack(Material.Sapling, 1, 2),
-			new ItemStack(Material.Sapling, 1, 3),
-			new ItemStack(Material.Sapling, 1, 4),
-			new ItemStack(Material.Sapling, 1, 5),
-			new ItemStack(Material.Leaves, 1, 0),
-			new ItemStack(Material.Leaves, 1, 1),
-			new ItemStack(Material.Leaves, 1, 2),
-			new ItemStack(Material.Leaves, 1, 3),
-			new ItemStack(Material.AcaciaLeaves, 1, 0),
-			new ItemStack(Material.AcaciaLeaves, 1, 1),
-			new ItemStack(Material.CakeItem, 1, 0),
-			new ItemStack(Material.SignItem, 1, 0),
-			new ItemStack(Material.MonsterSpawner, 1, 0),
-			new ItemStack(Material.Wool, 1, 0),
-			new ItemStack(Material.Wool, 1, 1),
-			new ItemStack(Material.Wool, 1, 2),
-			new ItemStack(Material.Wool, 1, 3),
-			new ItemStack(Material.Wool, 1, 4),
-			new ItemStack(Material.Wool, 1, 5),
-			new ItemStack(Material.Wool, 1, 6),
-			new ItemStack(Material.Wool, 1, 7),
-			new ItemStack(Material.Wool, 1, 8),
-			new ItemStack(Material.Wool, 1, 9),
-			new ItemStack(Material.Wool, 1, 10),
-			new ItemStack(Material.Wool, 1, 11),
-			new ItemStack(Material.Wool, 1, 12),
-			new ItemStack(Material.Wool, 1, 13),
-			new ItemStack(Material.Wool, 1, 14),
-			new ItemStack(Material.Wool, 1, 15),
-			new ItemStack(Material.Wool, 1, 16),
-			new ItemStack(Material.Carpet, 1, 0),
-			new ItemStack(Material.Carpet, 1, 1),
-			new ItemStack(Material.Carpet, 1, 2),
-			new ItemStack(Material.Carpet, 1, 3),
-			new ItemStack(Material.Carpet, 1, 4),
-			new ItemStack(Material.Carpet, 1, 5),
-			new ItemStack(Material.Carpet, 1, 6),
-			new ItemStack(Material.Carpet, 1, 7),
-			new ItemStack(Material.Carpet, 1, 8),
-			new ItemStack(Material.Carpet, 1, 9),
-			new ItemStack(Material.Carpet, 1, 10),
-			new ItemStack(Material.Carpet, 1, 11),
-			new ItemStack(Material.Carpet, 1, 12),
-			new ItemStack(Material.Carpet, 1, 13),
-			new ItemStack(Material.Carpet, 1, 14),
-			new ItemStack(Material.Carpet, 1, 15),
-			new ItemStack(Material.Carpet, 1, 16),
-			new ItemStack(Material.Torch, 1, 0),
-			new ItemStack(Material.Bucket, 1, 0),
-			new ItemStack(Material.Bucket, 1, 1),
-			new ItemStack(Material.Bucket, 1, 8),
-			new ItemStack(Material.Bucket, 1, 10),
-			new ItemStack(Material.TNT, 1, 0),
-			new ItemStack(Material.IronHoe, 1, 0),
-			new ItemStack(Material.IronShovel, 1, 0),
-			new ItemStack(Material.IronSword, 1, 0),
-			new ItemStack(Material.Bow, 1, 0),
-			new ItemStack(Material.Shears, 1, 0),
-			new ItemStack(Material.FlintAndSteel, 1, 0),
-			new ItemStack(Material.Clock, 1, 0),
-			new ItemStack(Material.Compass, 1, 0),
-			new ItemStack(Material.Minecart, 1, 0),
-			new ItemStack(Material.Snowball, 1, 0),
-			new ItemStack(Material.SugarCane, 1, 0),
-			new ItemStack(Material.Wheat, 1, 0),
-			new ItemStack(Material.SeedsItem, 1, 0),
-			new ItemStack(Material.MelonSeeds, 1, 0),
-			new ItemStack(Material.PumpkinSeeds, 1, 0),
-			new ItemStack(Material.CarrotItem, 1, 0),
-			new ItemStack(Material.BeetrootSeeds, 1, 0),
-			new ItemStack(Material.Egg, 1, 0),
-			new ItemStack(Material.RawFish, 1, 0),
-			new ItemStack(Material.RawFish, 1, 1),
-			new ItemStack(Material.RawFish, 1, 2),
-			new ItemStack(Material.RawFish, 1, 3),
-			new ItemStack(Material.CookedFish, 1, 0),
-			new ItemStack(Material.CookedFish, 1, 1),
-			new ItemStack(Material.Dye, 1, 0),
-			new ItemStack(Material.Dye, 1, 1),
-			new ItemStack(Material.Dye, 1, 2),
-			new ItemStack(Material.Dye, 1, 3),
-			new ItemStack(Material.Dye, 1, 4),
-			new ItemStack(Material.Dye, 1, 5),
-			new ItemStack(Material.Dye, 1, 6),
-			new ItemStack(Material.Dye, 1, 7),
-			new ItemStack(Material.Dye, 1, 8),
-			new ItemStack(Material.Dye, 1, 9),
-			new ItemStack(Material.Dye, 1, 10),
-			new ItemStack(Material.Dye, 1, 11),
-			new ItemStack(Material.Dye, 1, 12),
-			new ItemStack(Material.Dye, 1, 13),
-			new ItemStack(Material.Dye, 1, 14),
-			new ItemStack(Material.Dye, 1, 15),
-		};
 	}
 
 	public class Material

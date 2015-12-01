@@ -595,11 +595,6 @@ namespace MiNET
 				Level.EntityManager.AddEntity(null, this);
 
 				GameMode = Level.GameMode;
-				if (GameMode == GameMode.Creative)
-				{
-					Inventory.Slots.Clear();
-					Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
-				}
 
 				// Start game
 
@@ -625,13 +620,6 @@ namespace MiNET
 			}
 
 			LastUpdatedTime = DateTime.UtcNow;
-
-			//if (GameMode == GameMode.Creative)
-			//{
-			//	Inventory.Slots.Clear();
-
-			//	Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
-			//}
 
 			SendPlayerInventory();
 
@@ -795,22 +783,29 @@ namespace MiNET
 
 		public void SendPlayerInventory()
 		{
-			//if (GameMode == GameMode.Creative && !IsSpawned)
+			MetadataSlots creativeInv = new MetadataSlots();
+			MetadataSlots playerInv = new MetadataSlots();
+
+			if (GameMode == GameMode.Creative)
 			{
-				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-				creativeContent.windowId = (byte) 0x79;
-				creativeContent.slotData = Inventory.GetSlots();
-				creativeContent.hotbarData = Inventory.GetHotbar();
-				SendPackage(creativeContent);
+				creativeInv = InventoryUtils.GetCreativeMetadataSlots();
+			}
+			else
+			{
+				playerInv = Inventory.GetSlots();
 			}
 
-			{
-				McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-				inventoryContent.windowId = (byte) 0x00;
-				inventoryContent.slotData = Inventory.GetSlots();
-				inventoryContent.hotbarData = Inventory.GetHotbar();
-				SendPackage(inventoryContent);
-			}
+			McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+			creativeContent.windowId = (byte) 0x79;
+			creativeContent.slotData = creativeInv;
+			creativeContent.hotbarData = Inventory.GetHotbar();
+			SendPackage(creativeContent);
+
+			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+			inventoryContent.windowId = (byte) 0x00;
+			inventoryContent.slotData = playerInv;
+			inventoryContent.hotbarData = Inventory.GetHotbar();
+			SendPackage(inventoryContent);
 
 			McpeContainerSetContent armorContent = McpeContainerSetContent.CreateObject();
 			armorContent.windowId = 0x78;
@@ -830,6 +825,9 @@ namespace MiNET
 		public void SetGameMode(GameMode gameMode)
 		{
 			GameMode = gameMode;
+
+			SendPlayerInventory();
+
 			SendStartGame();
 		}
 
@@ -864,9 +862,9 @@ namespace MiNET
 							disconnect.message = reason;
 							SendPackage(disconnect);
 						});
+						Server.GreylistManager.Greylist(EndPoint.Address, 10000);
 					}
 					IsConnected = false;
-					Server.GreylistManager.Greylist(EndPoint.Address, 10000);
 				}
 
 				if (_sendTicker != null)
@@ -1283,6 +1281,11 @@ namespace MiNET
 						Inventory.Slots[message.slot] = itemStack;
 						return;
 					}
+				}
+				else if (GameMode == GameMode.Creative)
+				{
+					Inventory.Slots[message.slot] = itemStack;
+					return;
 				}
 
 				//short itemId = message.item.Value.Id;
@@ -1724,14 +1727,16 @@ namespace MiNET
 				case 9:
 					// Eat food
 
-					FoodItem foodItem = Inventory.GetItemInHand().Item as FoodItem;
-					if (foodItem != null)
+					if (GameMode == GameMode.Survival)
 					{
-						foodItem.Consume(this);
-						Inventory.GetItemInHand().Count--;
-						SendPlayerInventory();
+						FoodItem foodItem = Inventory.GetItemInHand().Item as FoodItem;
+						if (foodItem != null)
+						{
+							foodItem.Consume(this);
+							Inventory.GetItemInHand().Count--;
+							SendPlayerInventory();
+						}
 					}
-
 					break;
 			}
 		}

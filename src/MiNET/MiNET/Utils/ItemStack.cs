@@ -1,4 +1,5 @@
 using System.IO;
+using fNbt;
 using MiNET.Items;
 
 namespace MiNET.Utils
@@ -17,6 +18,8 @@ namespace MiNET.Utils
 		{
 			get { return Item.Metadata; }
 		}
+
+		public NbtCompound ExtraData { get; set; }
 
 		public ItemStack() : this(0, 0, 0)
 		{

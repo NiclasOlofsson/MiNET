@@ -414,13 +414,13 @@ namespace MiNET.Worlds
 
 		public void RemoveDuplicatePlayers(string username, int clientId)
 		{
-			var existingPlayers = Players.Where(player => player.Value.ClientId == clientId && player.Value.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+			//var existingPlayers = Players.Where(player => player.Value.ClientId == clientId && player.Value.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
 
-			foreach (var existingPlayer in existingPlayers)
-			{
-				Log.InfoFormat("Removing staled players on login {0}", username);
-				existingPlayer.Value.Disconnect("Duplicate player. Crashed.", false);
-			}
+			//foreach (var existingPlayer in existingPlayers)
+			//{
+			//	Log.InfoFormat("Removing staled players on login {0}", username);
+			//	existingPlayer.Value.Disconnect("Duplicate player. Crashed.", false);
+			//}
 		}
 
 		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
@@ -792,6 +792,7 @@ namespace MiNET.Worlds
 				Coordinates = block.Coordinates,
 				Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
 			};
+
 			var message = McpeUpdateBlock.CreateObject();
 			message.blocks = new BlockRecords {sendBlock};
 			RelayBroadcast(message);

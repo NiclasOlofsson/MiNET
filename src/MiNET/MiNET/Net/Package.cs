@@ -437,9 +437,9 @@ namespace MiNET.Net
 
 			Write((short) metadata.Count);
 
-			for (byte i = 0; i < metadata.Count; i++)
+			for (int i = 0; i < metadata.Count; i++)
 			{
-				if (!metadata.Contains(i)) continue;
+				//if (!metadata.Contains(i)) continue;
 
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
@@ -453,7 +453,16 @@ namespace MiNET.Net
 					Write(slot.Value.Id);
 					Write(slot.Value.Count);
 					Write(slot.Value.Metadata);
-					Write((short) 0); // NBT Len
+					if (slot.Value.ExtraData == null)
+					{
+						Write((short)0);
+					}
+					else
+					{
+						var bytes = GetNbtData(slot.Value.ExtraData);
+						Write((short)bytes.Length);
+						Write(bytes);
+					}
 				}
 			}
 		}
@@ -473,11 +482,14 @@ namespace MiNET.Net
 					continue;
 				}
 
-				metadata[i] = new MetadataSlot(new ItemStack(id, ReadByte(), ReadShort()));
+				var stack = new ItemStack(id, ReadByte(), ReadShort());
+				var slot = new MetadataSlot(stack);
+				metadata[i] = slot;
 				int nbtLen = ReadShort(); // NbtLen
 				if (nbtLen > 0)
 				{
-					ReadBytes(nbtLen); // Slurp
+					stack.ExtraData = ReadNbt().NbtFile.RootTag;
+					//ReadBytes(nbtLen); // Slurp
 				}
 			}
 
@@ -495,7 +507,25 @@ namespace MiNET.Net
 			Write(slot.Value.Id);
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
-			Write((short) 0);
+			if (slot.Value.ExtraData == null)
+			{
+				Write((short) 0);
+			}
+			else
+			{
+				var bytes = GetNbtData(slot.Value.ExtraData);
+				Write((short) bytes.Length);
+				Write(bytes);
+			}
+		}
+
+		private byte[] GetNbtData(NbtCompound nbtCompound)
+		{
+			nbtCompound.Name = string.Empty;
+			var file = new NbtFile(nbtCompound);
+			file.BigEndian = false;
+
+			return file.SaveToBuffer(NbtCompression.None);
 		}
 
 		public MetadataSlot ReadMetadataSlot()

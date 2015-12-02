@@ -31,8 +31,6 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
-		private static readonly List<int> Gaps;
-		private static readonly List<int> Ignore;
 		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
 		private FlatlandWorldProvider _flatland;
@@ -47,75 +45,46 @@ namespace MiNET.Worlds
 
 		static AnvilWorldProvider()
 		{
-			Ignore = new List<int> {23, 25, 28, 29, 33, 34, 36, 55, 69, 70, 71, 72, 77, 84, 88, 93, 94, 97, 113, 115, 117, 118, 131, 132, 138, 140, 143, 144, 145};
-			Ignore.Sort();
-
-			Gaps = new List<int> {23, 25, 28, 29, 33, 34, 36, 55, 69, 70, 72, 75, 76, 77, 84, 88, 90, 93, 94, 95, 97, 115, 116, 117, 118, 119, 122, 123, 124, 125, 126, 130, 131, 132, 137, 138, 140, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 160, 165, 166, 167, 168, 169};
-			Gaps.Sort();
-
 			var air = new Mapper(0, (i, b) => 0);
 
 			Convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
 			{
-				{25, new NoDataMapper(3)}, // Note Block		=> Dirt
-				{27, new NoDataMapper(66)}, // Powered Rail		=> Rail
-				{28, new NoDataMapper(66)}, // Detector Rail 	=> Rail
-				{29, air}, // Sticky Piston	=> Air
-				{33, air}, // Piston		=> Air
-				{34, air}, // Piston Head		=> Air
-				{55, air}, // Redstone Wire	=> Air
-				{69, air}, // Lever		=> Air
-				{70, air}, // Stone Pressure	=> Air
-				{72, air}, // Wooden Pressure	=> Air
-				{75, new NoDataMapper(50)}, // Redstone Torch O	=> Torch
-				{76, new NoDataMapper(50)}, // Redstone Torch I	=> Torch
-				{77, air}, // Stone Button		=> Air
-				{84, new NoDataMapper(3)}, // Jukebox		=> Dirt
+				{23, air}, // minecraft:dispenser	=> Air
+				{29, air}, // minecraft:sticky_piston	=> Air
+				{33, air}, // minecraft:piston		=> Air
+				{34, air}, // minecraft:piston_head		=> Air
+				{36, air}, // minecraft:piston_extension		=> Air
+				{84, air}, // minecraft:jukebox		=> Air
 				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
 				{90, air}, // Nether Portal	=> Air
-				{93, air}, // Red Repeater	O	=> Air
-				{94, air}, // Red Repeater I	=> Air
-				{95, new NoDataMapper(20)}, // Invisible bedrock	=> Air
+				{93, air}, // minecraft:unpowered_repeater	=> Air
+				{94, air}, // minecraft:powered_repeater	=> Air
+				{95, new NoDataMapper(20)}, // minecraft:stained_glass	=> Glass
 				{96, new Mapper(96, (i, b) => (byte)(((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, // Trapdoor Fix
-				{97, new NoDataMapper(1)}, // Stone Monster Eg	=> Stone
 				{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
-				{115, air}, // Nether Wart		=> Air
-				{116, air}, // Enchant Table	=> Air
-				{117, air}, // Brewing Stand	=> Air
-				{118, air}, // Cauldron		=> Air
-				{119, air}, // End Portal		=> Air
+				{118, air}, // minecraft:cauldron		=> Air
+				{119, air}, // minecraft:end_portal		=> Air
 				{122, air}, // Dragon Egg		=> Air
-				{123, new NoDataMapper(89)}, // Redstone Lamp O	=> Glowstone
-				{124, new NoDataMapper(89)}, // Redstone Lamp I	=> Glowstone
-				{125, new NoDataMapper(157)}, // 2x Wooden Slabs	=> (2x Wooden Slabs)
-				{126, new NoDataMapper(158)}, // Wooden Slabs		=> (Wooden Slabs)
+				{123, new NoDataMapper(122)}, // Redstone Lamp O	=> Glowstone
+				{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
+				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
+				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
 				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
-				{131, air}, // Tripwire Hook	=> Air
-				{132, air}, // Tripwire		=> Air
 				{137, air}, // Command Block	=> Air
 				{138, air}, // Beacon		=> Air
-				{143, air}, // Wooden Button	=> Air
-				{144, air}, // Mob Head		=> Air
-				{145, air}, // Anvil		=> Air
-				{146, new NoDataMapper(54)}, // Trapped Chest	=> Chest
-				{147, air}, // Gold Pressure	=> Air
-				{148, air}, // Iron Pressure	=> Air
-				{149, air}, // Comparator O		=> Air
-				{150, air}, // Comparator I		=> Air
-				{151, air}, // Daylight Sensor	=> Air
-				{152, new NoDataMapper(152)}, // Block of Redstone	=> Block of Redstone
-				{153, new NoDataMapper(87)}, // Nether Quarts Ore 	=> Netherrack
-				{154, air}, // Hopper		=> Air
-				{157, new NoDataMapper(66)}, // Activator Rail	=> Rail
-				{158, air}, // Dropper		=> Air
-				{160, new NoDataMapper(102)}, // Stained Glass Pa	=> Glass Pane
-				{161, new NoDataMapper(18)}, // Acacia Leaves	=> Leaves
-				{162, new NoDataMapper(17)}, // Acacia Wood		=> Wood
+				{149, air}, // minecraft:unpowered_comparator		=> Air
+				{150, air}, // minecraft:powered_comparator		=> Air
+				{154, air}, // minecraft:hopper		=> Air
+				{157, new NoDataMapper(126)}, // minecraft:activator_rail	=> minecraft:activator_rail
+				{158, air}, // minecraft:dropper		=> Air
+				{160, new NoDataMapper(102)}, // minecraft:stained_glass_pane	=> Glass Pane
 				{165, air}, // Slime Block		=> Air
-				{166, new NoDataMapper(95)}, // Barrier		=> (Invisible Bedrock)
-				{167, new NoDataMapper(96)}, // Iron Trapdoor	=> Trapdoor
-				{168, air}, // Prismarine		=> Air
-				{169, new NoDataMapper(89)}, // Sea Lantern		=> Glowstone
+				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
+				{168, air}, // minecraft:prismarine		=> Air
+				{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
+				{176, air}, // minecraft:standing_banner		=> Air
+				{177, air}, // minecraft:wall_banner		=> Air
+				// 179-182 Need mapping (Red Sandstone)
 				{183, new NoDataMapper(183)}, // Spruce Gate		=> Gate
 				{184, new NoDataMapper(184)}, // Birch Gate		=> Gate
 				{185, new NoDataMapper(185)}, // Jungle Gate		=> Gate
@@ -126,6 +95,7 @@ namespace MiNET.Worlds
 				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
 				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
+				{198, air}, // minecraft:end_rod		=> Air
 			};
 		}
 
@@ -303,18 +273,13 @@ namespace MiNET.Worlds
 								int anvilIndex = y*16*16 + z*16 + x;
 								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
 
-								Func<int, byte, byte> dataConverter = (i, b) => b;
 								// Anvil to PE friendly converstion
+
+								Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
 								if (Convert.ContainsKey(blockId))
 								{
 									dataConverter = Convert[blockId].Item2;
 									blockId = Convert[blockId].Item1;
-								}
-								else if (Ignore.BinarySearch(blockId) >= 0) blockId = 0;
-								else if (Gaps.BinarySearch(blockId) >= 0)
-								{
-									Log.WarnFormat("Missing material on convert: {0}", blockId);
-									blockId = 133;
 								}
 
 								if (blockId > 255) blockId = 41;
@@ -341,13 +306,15 @@ namespace MiNET.Worlds
 								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
 								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
 								{
+									// Dirt Course => (Grass Path)
 									chunk.SetBlock(x, yi, z, 198);
 									chunk.SetMetadata(x, yi, z, 0);
 								}
 								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
 								{
-									chunk.SetBlock(x, yi, z, 143); //Coarse Dirt => Pat
-									chunk.SetMetadata(x, yi, z, 0); // Podzol => (Podzol)
+									// Dirt Podzol => (Podzol)
+									chunk.SetBlock(x, yi, z, 243);
+									chunk.SetMetadata(x, yi, z, 0);
 								}
 							}
 						}

@@ -784,15 +784,10 @@ namespace MiNET
 		public void SendPlayerInventory()
 		{
 			MetadataSlots creativeInv = new MetadataSlots();
-			MetadataSlots playerInv = new MetadataSlots();
 
 			if (GameMode == GameMode.Creative)
 			{
 				creativeInv = InventoryUtils.GetCreativeMetadataSlots();
-			}
-			else
-			{
-				playerInv = Inventory.GetSlots();
 			}
 
 			McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
@@ -803,7 +798,7 @@ namespace MiNET
 
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
 			inventoryContent.windowId = (byte) 0x00;
-			inventoryContent.slotData = playerInv;
+			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
 			SendPackage(inventoryContent);
 
@@ -1247,6 +1242,7 @@ namespace MiNET
 		private ItemStack _transaction = null;
 		private ItemStack _dropTransaction = null;
 		private int _isInArmorWorkaround = -1;
+		private int _lastChestOrderingIndex;
 
 		/// <summary>
 		///     Handles the container set slot.
@@ -1256,16 +1252,20 @@ namespace MiNET
 		{
 			lock (Inventory)
 			{
+				bool isLagging = _lastChestOrderingIndex >= message.OrderingIndex;
+				if (_lastChestOrderingIndex == message.OrderingIndex) return; // Resend :-(
+                _lastChestOrderingIndex = message.OrderingIndex;
+
 				if (HealthManager.IsDead) return;
 
-				Log.Info($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {message.item.Value.Id} Item Count: {message.item.Value.Count} Meta: {message.item.Value.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+				ItemStack itemStack = message.item.Value;
+				Log.Info($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 
 				// on all set container content, check if we have active inventory
 				// and update that inventory.
 				// Inventory manager makes sure other players with the same inventory open will 
 				// also get the update.
 
-				ItemStack itemStack = message.item.Value;
 
 				if (_openInventory != null)
 				{
@@ -1288,8 +1288,6 @@ namespace MiNET
 					return;
 				}
 
-				//short itemId = message.item.Value.Id;
-				//short itemMetadata = message.item.Value.Metadata;
 
 				switch (message.windowId)
 				{
@@ -1337,9 +1335,10 @@ namespace MiNET
 							}
 							else
 							{
-								Log.Error("Abort inventory drop transaction. Failed item match.");
+								Log.Error($"Lagging: {isLagging}. Abort inventory drop transaction. Failed item match for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
 								_transaction = null;
 								_dropTransaction = null;
+								SendPlayerInventory();
 							}
 
 
@@ -1393,14 +1392,14 @@ namespace MiNET
 							}
 							else
 							{
-								if (message.item.Value.Count == 1 && Inventory.Slots[message.slot].Id == 0)
+								if (itemStack.Count == 1 && Inventory.Slots[message.slot].Id == 0)
 								{
 									Inventory.Slots[message.slot] = itemStack;
 									_isInArmorWorkaround = message.slot;
 								}
 								else
 								{
-									Log.Error($"Abort (hack?) inventory transaction for {Username} ");
+									Log.Error($"Lagging: {isLagging}. Abort (hack?) inventory transaction for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
 									_transaction = null;
 									SendPlayerInventory();
 								}
@@ -1412,7 +1411,7 @@ namespace MiNET
 						{
 							if (_isInArmorWorkaround >= 0)
 							{
-								Log.Error($"Abort (hack?) inventory transaction for {Username} ");
+								Log.Error($"Lagging: {isLagging}. Abort (hack?) inventory/armor transaction for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
 								Inventory.Slots[_isInArmorWorkaround] = new ItemStack();
 								_transaction = null;
 								_isInArmorWorkaround = -1;
@@ -1445,7 +1444,6 @@ namespace MiNET
 										Inventory.Slots[message.slot] = _transaction;
 										_transaction = null;
 										Log.Info("Close inventory transaction");
-										SendPlayerInventory();
 									}
 								}
 							}
@@ -1532,14 +1530,14 @@ namespace MiNET
 
 							if (!isVerifyOnly)
 							{
-								Log.Error("Armor transaction failed (hack?)");
+								Log.Error($"Lagging: {isLagging}. Armor transaction failed (hack?) for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
 								_transaction = null;
 								SendPlayerInventory();
 							}
 						}
 						else
 						{
-							Log.Error("Armor transaction failed");
+							Log.Error($"Lagging: {isLagging}. Armor transaction failed (unknown reason?) for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
 							_transaction = null;
 							SendPlayerInventory();
 						}

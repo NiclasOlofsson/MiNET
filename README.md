@@ -69,7 +69,7 @@ On Linux, compiling and using the server is relatively straightforward but there
 
 The first step is to clone the repository. The repo uses submodules so it's easiest if you use the `--recursive` switch to download them all at once. 
 
-    git clone --recursive git@github.com:NiclasOlofsson/MiNET.git
+    git clone --recursive https://github.com/NiclasOlofsson/MiNET.git
 
 Once you've cloned the repository, you can use the `xbuild` tool to compile the code. You'll need a relatively recent version of Mono to be able to run the server (3.10.x) and you might find that your distribution's repositories (if you're relying on them) have a version that's too old. As a result, you may want to looking into downloading the latest stable Mono build from the [website](http://www.mono-project.com/download/#download-lin). xbuild will want to be given the path to the solution file to work:
 

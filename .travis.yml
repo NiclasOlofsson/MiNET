@@ -1,0 +1,7 @@
+language: csharp
+solution: src/MiNET/MiNET.sln
+mono:
+  - latest
+  - weekly
+  - beta
+  - alpha

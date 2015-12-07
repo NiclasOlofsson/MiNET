@@ -5,3 +5,4 @@ mono:
   - weekly
   - beta
   - alpha
+script: xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using MiNET.BlockEntities;
 using MiNET.Utils;
@@ -19,6 +20,7 @@ namespace MiNET.Worlds
 		{
 		}
 
+		Random rand = new Random();
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
 			lock (_chunkCache)
@@ -32,6 +34,7 @@ namespace MiNET.Worlds
 				ChunkColumn chunk = new ChunkColumn();
 				chunk.x = chunkCoordinates.X;
 				chunk.z = chunkCoordinates.Z;
+				//chunk.biomeId = ArrayOf<byte>.Create(256, (byte) rand.Next(0, 37));
 
 				int h = PopulateChunk(chunk);
 
@@ -43,9 +46,17 @@ namespace MiNET.Worlds
 
 				//chunk.SetBlock(6, h + 1, 6, 57);
 
+				chunk.SetBlock(0, h, 0, 31);
+				chunk.SetBlock(0, h, 1, 161);
+				chunk.SetBlock(0, h, 2, 18);
+
+				chunk.SetBlock(0, h, 15, 31);
+				chunk.SetBlock(0, h, 14, 161);
+				chunk.SetBlock(0, h, 13, 18);
+
 				chunk.SetBlock(6, h, 9, 63);
 				chunk.SetMetadata(6, h, 9, 12);
-				var blockEntity = GetBlockEntity((chunkCoordinates.X * 16) + 6, h, (chunkCoordinates.Z * 16) + 9);
+				var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
 				chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
 				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
@@ -164,11 +175,7 @@ namespace MiNET.Worlds
 			}
 
 			chunk.blocks = stones;
-			//chunk.biomeColor = ArrayOf<int>.Create(256, random.Next(6761930, 8761930));
-//			for (int i = 0; i < chunk.biomeColor.Length; i++)
-//			{
-//				chunk.biomeColor[i] = random.Next(6761930, 8761930);
-//			}
+
 			return h;
 		}
 

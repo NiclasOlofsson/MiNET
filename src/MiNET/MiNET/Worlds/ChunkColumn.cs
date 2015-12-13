@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using fNbt;
 using MiNET.Net;
 using MiNET.Utils;
@@ -15,8 +14,8 @@ namespace MiNET.Worlds
 	{
 		public int x;
 		public int z;
-		public byte[] biomeId = ArrayOf<byte>.Create(256, 2);
-		public int[] biomeColor = ArrayOf<int>.Create(256, 1);
+		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
+		public int[] biomeColor = ArrayOf<int>.Create(256, 0);
 		public byte[] height = ArrayOf<byte>.Create(256, 0);
 
 		public byte[] blocks = new byte[16*16*128];
@@ -43,6 +42,12 @@ namespace MiNET.Worlds
 
 			for (int i = 0; i < biomeColor.Length; i++)
 				biomeColor[i] = 8761930; // Grass color?
+
+			//for (int i = 0; i < biomeColor.Length; i++)
+			//	biomeColor[i] = Color.FromArgb(0, 255, 204, 51).ToArgb();
+
+			BiomeUtils utils = new BiomeUtils();
+			utils.PrecomputeBiomeColors();
 		}
 
 		public byte GetBlock(int bx, int by, int bz)
@@ -60,6 +65,21 @@ namespace MiNET.Worlds
 		public void SetHeight(int bx, int bz, byte h)
 		{
 			height[(bx << 4) + (bz)] = h;
+		}
+
+		public void SetBiome(int bx, int bz, byte biome)
+		{
+			biomeId[(bx << 4) + (bz)] = biome;
+		}
+
+		public byte GetBiome(int bx, int bz)
+		{
+			return biomeId[(bx << 4) + (bz)];
+		}
+
+		public void SetBiomeColor(int bx, int bz, int color)
+		{
+			biomeColor[(bx << 4) + (bz)] = color;
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
@@ -122,6 +142,92 @@ namespace MiNET.Worlds
 			isDirty = true;
 		}
 
+
+		/// <summary>Blends the specified colors together.</summary>
+		/// <param name="color">Color to blend onto the background color.</param>
+		/// <param name="backColor">Color to blend the other color onto.</param>
+		/// <param name="amount">How much of <paramref name="color"/> to keep,
+		/// “on top of” <paramref name="backColor"/>.</param>
+		/// <returns>The blended colors.</returns>
+		public static Color Blend(Color color, Color backColor, double amount)
+		{
+			byte r = (byte) ((color.R*amount) + backColor.R*(1 - amount));
+			byte g = (byte) ((color.G*amount) + backColor.G*(1 - amount));
+			byte b = (byte) ((color.B*amount) + backColor.B*(1 - amount));
+			return Color.FromArgb(r, g, b);
+		}
+
+		public Color CombineColors(params Color[] aColors)
+		{
+			int r = 0;
+			int g = 0;
+			int b = 0;
+			foreach (Color c in aColors)
+			{
+				r += c.R;
+				g += c.G;
+				b += c.B;
+			}
+
+			r /= aColors.Length;
+			g /= aColors.Length;
+			b /= aColors.Length;
+
+			return Color.FromArgb(r, g, b);
+		}
+
+		private void InterpolateBiomes()
+		{
+			BiomeUtils utils = new BiomeUtils();
+
+			for (int i = 0; i < biomeId.Length; i++)
+			{
+				var biome = biomeId[i];
+				biomeColor[i] = utils.ComputeBiomeColor(biome, 0, true);
+			}
+
+			for (int x = 0; x < 16; x++)
+			{
+				for (int z = 0; z < 16; z++)
+				{
+					Color c = CombineColors(
+						GetBiomeColor(x, z),
+						GetBiomeColor(x - 1, z - 1),
+						GetBiomeColor(x - 1, z),
+						GetBiomeColor(x, z - 1),
+						GetBiomeColor(x + 1, z + 1),
+						GetBiomeColor(x + 1, z),
+						GetBiomeColor(x, z + 1),
+						GetBiomeColor(x - 1, z + 1),
+						GetBiomeColor(x + 1, z - 1)
+						);
+					SetBiomeColor(x, z, c.ToArgb());
+				}
+			}
+		}
+
+		private Random random = new Random();
+
+		private Color GetBiomeColor(int x, int z)
+		{
+			if (x < 0) x = 0;
+			if (z < 0) z = 0;
+			if (x > 15) x = 15;
+			if (z > 15) z = 15;
+
+			BiomeUtils utils = new BiomeUtils();
+			var biome = GetBiome(x, z);
+			int color = utils.ComputeBiomeColor(biome, 0, true);
+
+			if (random.Next(30) == 0)
+			{
+				Color col = Color.FromArgb(color);
+				color = Color.FromArgb(0, Math.Max(0, col.R - 160), Math.Max(0, col.G - 160), Math.Max(0, col.B - 160)).ToArgb();
+			}
+
+			return Color.FromArgb(color);
+		}
+
 		public void RecalcHeight()
 		{
 			for (int x = 0; x < 16; x++)
@@ -175,7 +281,7 @@ namespace MiNET.Worlds
 		}
 
 
-		private byte[] GetBytes()
+		public byte[] GetBytes()
 		{
 			if (_cache != null) return _cache;
 
@@ -191,9 +297,16 @@ namespace MiNET.Worlds
 				//RecalcHeight();
 				writer.Write(height);
 
-				for (int i = 0; i < biomeColor.Length; i++)
+				BiomeUtils utils = new BiomeUtils();
+				utils.PrecomputeBiomeColors();
+
+				InterpolateBiomes();
+
+				for (int i = 0; i < biomeId.Length; i++)
 				{
-					writer.Write(biomeColor[i]);
+					var biome = biomeId[i];
+					int color = biomeColor[i];
+					writer.Write((color & 0x00ffffff) | biome << 24);
 				}
 
 				int extraSize = 0;
@@ -225,35 +338,6 @@ namespace MiNET.Worlds
 			return bytes;
 		}
 
-		public byte[] GetBytes(bool compress)
-		{
-			if (compress) return GetBytes();
-
-			MemoryStream stream = new MemoryStream();
-			NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
-
-			writer.Write(IPAddress.HostToNetworkOrder(x));
-			writer.Write(IPAddress.HostToNetworkOrder(z));
-
-			writer.Write(blocks);
-			writer.Write(metadata.Data);
-			writer.Write(skylight.Data);
-			writer.Write(blocklight.Data);
-
-			writer.Write(biomeId);
-
-			for (int i = 0; i < biomeColor.Length; i++)
-			{
-				writer.Write(biomeColor[i]);
-			}
-
-
-			writer.Flush();
-
-			writer.Close();
-			return stream.ToArray();
-		}
-
 		public object Clone()
 		{
 			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
@@ -263,7 +347,7 @@ namespace MiNET.Worlds
 			//public bool isDirty;
 
 			//public byte[] biomeId = ArrayOf<byte>.Create(256, 2);
-			cc.biomeId = (byte[])biomeId.Clone();
+			cc.biomeId = (byte[]) biomeId.Clone();
 
 			//public int[] biomeColor = ArrayOf<int>.Create(256, 1);
 			cc.biomeColor = (int[]) biomeColor.Clone();
@@ -272,28 +356,28 @@ namespace MiNET.Worlds
 			cc.height = (byte[]) height.Clone();
 
 			//public byte[] blocks = new byte[16 * 16 * 128];
-			cc.blocks = (byte[])blocks.Clone();
+			cc.blocks = (byte[]) blocks.Clone();
 
 			//public NibbleArray metadata = new NibbleArray(16 * 16 * 128);
-			cc.metadata = (NibbleArray)metadata.Clone();
-			
+			cc.metadata = (NibbleArray) metadata.Clone();
+
 			//public NibbleArray blocklight = new NibbleArray(16 * 16 * 128);
-			cc.blocklight = (NibbleArray)blocklight.Clone();
-			
+			cc.blocklight = (NibbleArray) blocklight.Clone();
+
 			//public NibbleArray skylight = new NibbleArray(16 * 16 * 128);
-			cc.skylight = (NibbleArray)skylight.Clone();
+			cc.skylight = (NibbleArray) skylight.Clone();
 
 			//public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
 			{
-				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound)blockEntityPair.Value.Clone());
+				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
 			}
 
 			//private byte[] _cache;
-			if(_cache != null)
+			if (_cache != null)
 			{
-				cc._cache = (byte[])_cache.Clone();
+				cc._cache = (byte[]) _cache.Clone();
 			}
 
 			//private McpeBatch _cachedBatch = null;

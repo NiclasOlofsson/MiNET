@@ -369,7 +369,7 @@ namespace MiNET
 				//Assert.AreEqual(83208, uncompressed.Length);
 				Assert.AreEqual(8, chunk.x);
 				Assert.AreEqual(9, chunk.z);
-				byte[] data = chunk.GetBytes(false);
+				byte[] data = chunk.GetBytes();
 				Assert.AreEqual(83208, data.Length); // Expected uncompressed length
 			}
 		}

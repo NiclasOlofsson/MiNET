@@ -44,6 +44,7 @@ namespace MiNET.Worlds
 		public string LevelId { get; private set; }
 
 		public GameMode GameMode { get; private set; }
+		public bool HaveDownfall { get; set; }
 		public Difficulty Difficulty { get; private set; }
 		public double CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }

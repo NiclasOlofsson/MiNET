@@ -575,7 +575,12 @@ namespace MiNET
 					User = Server.UserManager.FindByName(Username);
 				}
 
-				Level = Server.LevelManager.GetLevel(this, "Default");
+				lock (_disconnectSync)
+				{
+					if (!IsConnected) return;
+
+					Level = Server.LevelManager.GetLevel(this, "Default");
+				}
 				if (Level == null)
 				{
 					Disconnect("No level assigned.");
@@ -843,21 +848,16 @@ namespace MiNET
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			if (!Monitor.TryEnter(_disconnectSync)) return;
-			try
+			lock(_disconnectSync)
 			{
 				if (IsConnected)
 				{
 					if (sendDisconnect)
 					{
-						ThreadPool.QueueUserWorkItem(delegate(object state)
-						{
-							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-							disconnect.NoBatch = true;
-							disconnect.message = reason;
-							SendPackage(disconnect);
-						});
-						Server.GreylistManager.Greylist(EndPoint.Address, 10000);
+						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+						disconnect.NoBatch = true;
+						disconnect.message = reason;
+						SendDirectPackage(disconnect);
 					}
 					IsConnected = false;
 				}
@@ -911,10 +911,8 @@ namespace MiNET
 				SendQueue(null);
 
 				CleanCache();
-			}
-			finally
-			{
-				Monitor.Exit(_disconnectSync);
+
+				Server.GreylistManager.Greylist(EndPoint.Address, 10000);
 			}
 		}
 
@@ -2341,7 +2339,15 @@ namespace MiNET
 			if (messageCount == 0) return;
 
 			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+			var array = memStream.ToArray();
+			//byte[] bufferNoComp = CompressBytes(array, CompressionLevel.NoCompression);
+			//byte[] bufferOptimal = CompressBytes(array, CompressionLevel.Optimal);
+			byte[] bufferSpeed = CompressBytes(array, CompressionLevel.Fastest);
+
+			//Log.Error($"No comp: {bufferNoComp.Length}, Optimal: {bufferOptimal.Length}, Fastest: {bufferSpeed.Length}");
+
+			var buffer = bufferSpeed;
+
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
 			batch.Encode();

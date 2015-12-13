@@ -192,10 +192,6 @@ namespace MiNET.Worlds
 
 			switch (biome)
 			{
-				case FOREST_BIOME:
-					return isGrass ? 0xff00ff : 0x9e814d;
-					break;
-
 				case SWAMPLAND_BIOME:
 					// the fefefe makes it so that carries are copied to the low bit,
 					// then their magic "go to green" color offset is added in, then

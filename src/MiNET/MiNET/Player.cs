@@ -2384,7 +2384,7 @@ namespace MiNET
 
 		public void CleanCache()
 		{
-			lock (_chunksUsed)
+			lock (_sendChunkSync)
 			{
 				_chunksUsed.Clear();
 			}

@@ -178,7 +178,7 @@ namespace MiNET.Net
 
 		public void Write(string value)
 		{
-			if (value == null)
+			if (string.IsNullOrEmpty(value))
 			{
 				Write((short) 0);
 				return;
@@ -592,14 +592,29 @@ namespace MiNET.Net
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
-			skin.Alpha = ReadByte();
-			skin.Slim = ReadByte() == 0x01;
+
 			try
 			{
-				skin.Texture = ReadBytes(ReadShort());
+				skin.SkinType = ReadString();
+				if (string.IsNullOrEmpty(skin.SkinType)) skin.SkinType = null;
+
+				if (skin.SkinType != null)
+				{
+					var length = ReadShort();
+					if(length == 64*32*4 || length == 64 * 64 * 4)
+					{
+						skin.Texture = ReadBytes(length);
+					}
+					else
+					{
+						skin.SkinType = null;
+					}
+				}
 			}
 			catch (Exception e)
 			{
+				skin.SkinType = null;
+				skin.Texture = null;
 			}
 
 			return skin;
@@ -607,10 +622,11 @@ namespace MiNET.Net
 
 		public void Write(Skin skin)
 		{
-			Write(skin.Alpha);
-			Write((byte) (skin.Slim ? 0x01 : 0x00));
 			if (skin.Texture != null)
 			{
+				var skinType = skin.SkinType;
+				if (string.IsNullOrEmpty(skinType)) skinType = "Standard_Custom";
+                Write(skinType);
 				Write((short) skin.Texture.Length);
 				Write(skin.Texture);
 			}

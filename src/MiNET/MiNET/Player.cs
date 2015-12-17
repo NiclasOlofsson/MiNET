@@ -526,7 +526,7 @@ namespace MiNET
 				return;
 			}
 
-			if (message.skin.Texture == null)
+			if (string.IsNullOrEmpty(message.skin.SkinType) || message.skin.Texture == null)
 			{
 				Disconnect("Invalid skin.");
 				return;

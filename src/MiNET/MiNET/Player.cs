@@ -346,7 +346,7 @@ namespace MiNET
 			var setEntityData = McpeSetEntityData.CreateObject();
 			setEntityData.entityId = EntityId;
 			setEntityData.metadata = metadata;
-			Level.RelayBroadcast(this, setEntityData);
+			Level?.RelayBroadcast(this, setEntityData);
 		}
 
 		/// <summary>
@@ -528,10 +528,9 @@ namespace MiNET
 
 			if (string.IsNullOrEmpty(message.skin.SkinType) || message.skin.Texture == null)
 			{
-				Disconnect("Invalid skin.");
+				Disconnect("Invalid skin. Please upgrade your version of Minecraft Pocket Edition");
 				return;
 			}
-
 
 			SendPlayerStatus(0); // Hmm, login success?
 
@@ -540,6 +539,10 @@ namespace MiNET
 			ClientUuid = message.clientUuid;
 			ClientSecret = message.clientSecret;
 			Skin = message.skin;
+
+			//string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
+			//Log.Info($"Writing skin to filename: {fileName}");
+			//Skin.SaveTextureToFile(fileName, Skin.Texture);
 
 			var serverInfo = Server.ServerInfo;
 
@@ -1146,15 +1149,9 @@ namespace MiNET
 				}
 
 				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
-				Inventory.SetHeldItemSlot(selectedHotbarSlot);
+				Inventory.SetHeldItemSlotNoSend(selectedHotbarSlot);
 			}
 
-			//McpePlayerEquipment msg = McpePlayerEquipment.CreateObject();
-			//msg.entityId = EntityId;
-			//msg.item = message.item;
-			//msg.slot = message.slot;
-			//msg.selectedSlot = message.selectedSlot;
-			//Level?.RelayBroadcast(this, msg);
 		}
 
 

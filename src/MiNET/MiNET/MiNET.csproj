@@ -71,6 +71,9 @@
     <Compile Include="Blocks\BlockStairs.cs" />
     <Compile Include="Blocks\BookShelf.cs" />
     <Compile Include="Blocks\BrickStairs.cs" />
+    <Compile Include="Blocks\Button.cs" />
+    <Compile Include="Blocks\StoneButton.cs" />
+    <Compile Include="Blocks\WoodenButton.cs" />
     <Compile Include="Blocks\CoalBlock.cs" />
     <Compile Include="Blocks\CoalOre.cs" />
     <Compile Include="Blocks\Cobblestone.cs" />

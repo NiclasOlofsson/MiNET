@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
+using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Items;
@@ -621,6 +622,12 @@ namespace MiNET
 				SendSetEntityData();
 
 				Level.AddPlayer(this, false);
+
+				{
+					var craftingData = new McpeCraftingData();
+					craftingData.recipes = RecipeManager.Recipes;
+					SendPackage(craftingData);
+				}
 			}
 			finally
 			{

@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
+using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
@@ -247,6 +248,11 @@ namespace MiNET
 				HandlePlayerDropItem((McpeDropItem) message);
 			}
 
+			else if (typeof(McpeCraftingEvent) == message.GetType())
+			{
+				HandleCraftingEvent((McpeCraftingEvent)message);
+			}
+
 			if (message.Timer.IsRunning)
 			{
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
@@ -275,10 +281,10 @@ namespace MiNET
 		{
 			if (Level == null) return;
 
-			//Log.DebugFormat("Action: {0}", message.actionId);
+			Log.DebugFormat("Action: {0}", message.actionId);
 
 			McpeAnimate msg = McpeAnimate.CreateObject();
-			msg.entityId = message.entityId;
+			msg.entityId = EntityId;
 			msg.actionId = message.actionId;
 
 			Level.RelayBroadcast(this, msg);
@@ -623,11 +629,11 @@ namespace MiNET
 
 				Level.AddPlayer(this, false);
 
-				{
-					var craftingData = new McpeCraftingData();
-					craftingData.recipes = RecipeManager.Recipes;
-					SendPackage(craftingData);
-				}
+				//{
+				//	var craftingData = new McpeCraftingData();
+				//	craftingData.recipes = RecipeManager.Recipes;
+				//	SendPackage(craftingData);
+				//}
 			}
 			finally
 			{
@@ -1057,6 +1063,16 @@ namespace MiNET
 
 		protected virtual void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
 		{
+		}
+
+		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
+		{
+			lock (Inventory)
+			{
+				_transaction = null;
+				Log.Info("Closed inventory crafing transaction");
+				SendPlayerInventory();
+			}
 		}
 
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)
@@ -1574,10 +1590,6 @@ namespace MiNET
 					tileEvent.case2 = 0;
 					Level.RelayBroadcast(tileEvent);
 				}
-
-				//SendPlayerInventory();
-
-				// active inventory set to null
 			}
 		}
 

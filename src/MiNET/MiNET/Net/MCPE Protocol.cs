@@ -3104,7 +3104,11 @@ namespace MiNET.Net
 
 	public partial class McpeCraftingEvent : Package<McpeCraftingEvent>
 	{
-		public int flags; // = null;
+		public byte windowId; // = null;
+		public int recipeType; // = null;
+		public UUID recipeId; // = null;
+		public MetadataSlots input; // = null;
+		public MetadataSlots result; // = null;
 		public McpeCraftingEvent()
 		{
 			Id = 0xbb;
@@ -3116,7 +3120,11 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(flags);
+			Write(windowId);
+			Write(recipeType);
+			Write(recipeId);
+			Write(input);
+			Write(result);
 
 			AfterEncode();
 		}
@@ -3130,7 +3138,11 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			flags = ReadInt();
+			windowId = ReadByte();
+			recipeType = ReadInt();
+			recipeId = ReadUUID();
+			input = ReadMetadataSlots();
+			result = ReadMetadataSlots();
 
 			AfterDecode();
 		}

@@ -915,9 +915,9 @@ namespace MiNET.Worlds
 
 			if (itemInHand is ItemBlock)
 			{
-				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target)))
+				Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
+				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
 				{
-					Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
 
 					Block sendBlock = new Block(block.Id)
 					{
@@ -1075,11 +1075,13 @@ namespace MiNET.Worlds
 
 	public class BlockPlaceEventArgs : LevelEventArgs
 	{
-		public Block Block { get; private set; }
+		public Block TargetBlock { get; private set; }
+		public Block ExistingBlock { get; private set; }
 
-		public BlockPlaceEventArgs(Player player, Level level, Block block) : base(player, level)
+		public BlockPlaceEventArgs(Player player, Level level, Block targetBlock, Block existingBlock) : base(player, level)
 		{
-			Block = block;
+			TargetBlock = targetBlock;
+			ExistingBlock = existingBlock;
 		}
 	}
 

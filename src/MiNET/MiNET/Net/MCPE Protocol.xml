@@ -451,7 +451,11 @@
 	</pdu>
 
 	<pdu id="0xbb" online="false" client="false" server="true" name="MCPE_CRAFTING_EVENT">
-		<field name="Flags" type="int" />
+		<field name="Window ID" type="byte" />
+		<field name="Recipe Type" type="int" />
+		<field name="Recipe ID" type="UUID" />
+		<field name="Input" type="MetadataSlots" />
+		<field name="Result" type="MetadataSlots" />
 	</pdu>
 
 	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">

@@ -1127,7 +1127,11 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Flags | int |  |
+|Window ID | byte |  |
+|Recipe Type | int |  |
+|Recipe ID | UUID |  |
+|Input | MetadataSlots |  |
+|Result | MetadataSlots |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Adventure Settings (0xbc)
 

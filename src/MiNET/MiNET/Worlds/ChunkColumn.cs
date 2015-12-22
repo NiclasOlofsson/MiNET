@@ -79,7 +79,7 @@ namespace MiNET.Worlds
 
 		public void SetBiomeColor(int bx, int bz, int color)
 		{
-			biomeColor[(bx << 4) + (bz)] = color;
+			biomeColor[(bx << 4) + (bz)] = (color & 0x00ffffff);
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
@@ -178,45 +178,42 @@ namespace MiNET.Worlds
 
 		private void InterpolateBiomes()
 		{
-			BiomeUtils utils = new BiomeUtils();
-
-			for (int i = 0; i < biomeId.Length; i++)
+			for (int bx = 0; bx < 16; bx++)
 			{
-				var biome = biomeId[i];
-				biomeColor[i] = utils.ComputeBiomeColor(biome, 0, true);
-			}
-
-			for (int x = 0; x < 16; x++)
-			{
-				for (int z = 0; z < 16; z++)
+				for (int bz = 0; bz < 16; bz++)
 				{
 					Color c = CombineColors(
-						GetBiomeColor(x, z),
-						GetBiomeColor(x - 1, z - 1),
-						GetBiomeColor(x - 1, z),
-						GetBiomeColor(x, z - 1),
-						GetBiomeColor(x + 1, z + 1),
-						GetBiomeColor(x + 1, z),
-						GetBiomeColor(x, z + 1),
-						GetBiomeColor(x - 1, z + 1),
-						GetBiomeColor(x + 1, z - 1)
+						GetBiomeColor(bx, bz),
+						GetBiomeColor(bx - 1, bz - 1),
+						GetBiomeColor(bx - 1, bz),
+						GetBiomeColor(bx, bz - 1),
+						GetBiomeColor(bx + 1, bz + 1),
+						GetBiomeColor(bx + 1, bz),
+						GetBiomeColor(bx, bz + 1),
+						GetBiomeColor(bx - 1, bz + 1),
+						GetBiomeColor(bx + 1, bz - 1)
 						);
-					SetBiomeColor(x, z, c.ToArgb());
+					SetBiomeColor(bx, bz, c.ToArgb());
 				}
 			}
+
+			//SetBiomeColor(0, 0, Color.GreenYellow.ToArgb());
+			//SetBiomeColor(0, 15, Color.Blue.ToArgb());
+			//SetBiomeColor(15, 0, Color.Red.ToArgb());
+			//SetBiomeColor(15, 15, Color.Yellow.ToArgb());
 		}
 
 		private Random random = new Random();
 
-		private Color GetBiomeColor(int x, int z)
+		private Color GetBiomeColor(int bx, int bz)
 		{
-			if (x < 0) x = 0;
-			if (z < 0) z = 0;
-			if (x > 15) x = 15;
-			if (z > 15) z = 15;
+			if (bx < 0) bx = 0;
+			if (bz < 0) bz = 0;
+			if (bx > 15) bx = 15;
+			if (bz > 15) bz = 15;
 
 			BiomeUtils utils = new BiomeUtils();
-			var biome = GetBiome(x, z);
+			var biome = GetBiome(bx, bz);
 			int color = utils.ComputeBiomeColor(biome, 0, true);
 
 			if (random.Next(30) == 0)

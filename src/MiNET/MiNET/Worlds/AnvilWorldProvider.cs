@@ -173,7 +173,6 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static Dictionary<int, bool> biomeIds = new Dictionary<int, bool>(); 
 		public static ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator, int yoffset)
 		{
 			int width = 32;
@@ -244,15 +243,6 @@ namespace MiNET.Worlds
 					biomeId = dataTag["Biomes"].ByteArrayValue
 				};
 
-				for (int i = 0; i < chunk.biomeId.Length; i++)
-				{
-					if (!biomeIds.ContainsKey(chunk.biomeId[i]))
-					{
-						biomeIds.Add(chunk.biomeId[i], true);
-						Log.Info("Biome ID: " + chunk.biomeId[i]);
-					}
-					//if (chunk.biomeId[i] > 22) chunk.biomeId[i] = 0;
-				}
 				if (chunk.biomeId.Length > 256) throw new Exception();
 
 				// This will turn into a full chunk column

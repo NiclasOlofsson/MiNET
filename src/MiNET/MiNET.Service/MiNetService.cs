@@ -48,7 +48,7 @@ namespace MiNET.Service
 			{
 				var service = new MiNetService();
 				service.Start();
-				Console.WriteLine("MiNET runing. Press <enter> to stop service..");
+				Console.WriteLine("MiNET running. Press <enter> to stop service.");
 				Console.ReadLine();
 				service.Stop();
 			}
@@ -65,7 +65,7 @@ namespace MiNET.Service
 
 					host.RunAsLocalService();
 					host.SetDisplayName("MiNET Service");
-					host.SetDescription("MiNET MineCraft Pocket Edition server.");
+					host.SetDescription("MiNET Minecraft Pocket Edition server.");
 					host.SetServiceName("MiNET");
 				});
 			}

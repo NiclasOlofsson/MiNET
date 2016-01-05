@@ -440,7 +440,7 @@ namespace TestPlugin.NiceLobby
 			byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "IMG_0220.png"));
 			//byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "Char8.png"));
 
-			PlayerMob fake = new PlayerMob(name, player.Level)
+			PlayerMob fake = new PlayerMob("§6§lSurvival Games" + name + "§r\n§9       ", player.Level)
 			{
 				Skin = new Skin {Slim = false, Texture = bytes},
 				KnownPosition = player.KnownPosition,

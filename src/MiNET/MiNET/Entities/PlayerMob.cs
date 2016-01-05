@@ -113,6 +113,21 @@ namespace MiNET.Entities
 				armorEquipment.boots = new MetadataSlot(new ItemStack());
 				player.SendPackage(armorEquipment);
 			}
+
+			{
+				Player fake = new Player(null, null, 0)
+				{
+					ClientUuid = Uuid,
+					EntityId = EntityId,
+					NameTag = NameTag ?? Name,
+					Skin = Skin
+				};
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords { fake };
+				player.SendPackage(playerList);
+			}
+
 		}
 
 		protected virtual void SpawnToAll()
@@ -148,6 +163,21 @@ namespace MiNET.Entities
 			SendEquipment();
 
 			SendArmor();
+
+			{
+				Player fake = new Player(null, null, 0)
+				{
+					ClientUuid = Uuid,
+					EntityId = EntityId,
+					NameTag = NameTag ?? Name,
+					Skin = Skin
+				};
+
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords { fake };
+				Level.RelayBroadcast(playerList);
+			}
+
 		}
 
 		public override void DespawnFromPlayer(Player player)

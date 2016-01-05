@@ -10,6 +10,7 @@ using System.Threading;
 using fNbt;
 using log4net;
 using log4net.Config;
+using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Net;
@@ -277,8 +278,7 @@ namespace MiNET.Client
 					ConnectedPackage package = new ConnectedPackage();
 					package.Decode(receiveBytes);
 					header = package._datagramHeader;
-					//Log.Debug(">\tReceive Datagram #" + package._datagramSequenceNumber.IntValue());
-					Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {package._hasSplit}, {package._splitPacketId}, {package._reliability}, {package._reliableMessageNumber}, {package._sequencingIndex}, {package._orderingChannel}, {package._orderingIndex}");
+					//Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {package._hasSplit}, {package._splitPacketId}, {package._reliability}, {package._reliableMessageNumber}, {package._sequencingIndex}, {package._orderingChannel}, {package._orderingIndex}");
 
 					var messages = package.Messages;
 
@@ -416,13 +416,6 @@ namespace MiNET.Client
 				return;
 			}
 
-			//TraceReceive(message);
-
-			if (typeof (UnknownPackage) == message.GetType())
-			{
-				return;
-			}
-
 			else if (typeof (McpeDisconnect) == message.GetType())
 			{
 				McpeDisconnect msg = (McpeDisconnect) message;
@@ -518,10 +511,27 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof(McpePlayerEquipment) == message.GetType())
+			{
+				OnMcpePlayerEquipment((McpePlayerEquipment) message);
+				return;
+			}
 
 			else if (typeof (McpeContainerSetContent) == message.GetType())
 			{
 				OnMcpeContainerSetContent(message);
+				return;
+			}
+
+			else if (typeof(McpeContainerSetSlot) == message.GetType())
+			{
+				OnMcpeContainerSetSlot(message);
+				return;
+			}
+
+			else if (typeof(McpeContainerSetData) == message.GetType())
+			{
+				OnMcpeContainerSetData(message);
 				return;
 			}
 
@@ -530,9 +540,181 @@ namespace MiNET.Client
 				OnMcpeCraftingData(message);
 				return;
 			}
+
+			else if (typeof(McpeMoveEntity) == message.GetType())
+			{
+			}
+
+			else if (typeof(McpeSetEntityMotion) == message.GetType())
+			{
+			}
+
+			else if (typeof(McpeEntityEvent) == message.GetType())
+			{
+			}
+
+			else if (typeof(McpeText) == message.GetType())
+			{
+				OnMcpeText((McpeText) message);
+			}
+
+			else
+			{
+				Log.Warn($"Unhandled package: {message.GetType().Name}");
+			}
 		}
 
-		private static void OnMcpeCraftingData(Package message)
+		private void OnMcpeText(McpeText message)
+		{
+			Log.Debug($"Text: {message.message}");
+
+			if (message.message.Equals(".do"))
+			{
+				SendCraftingEvent();
+			}
+		}
+
+		private void OnMcpePlayerEquipment(McpePlayerEquipment message)
+		{
+			Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Value.Id}");
+		}
+
+		private ShapedRecipe _recipeToSend = null;
+
+		public void SendCraftingEvent2()
+		{
+			var recipe = _recipeToSend;
+
+			if (recipe != null)
+			{
+				Log.Error("Sending crafting event: " + recipe.Id);
+
+				McpeCraftingEvent crafting = new McpeCraftingEvent();
+				crafting.windowId = 0;
+				crafting.recipeType = 1;
+				crafting.recipeId = recipe.Id;
+
+				{
+					var slotData = new MetadataSlots();
+					for (int i = 0; i < recipe.Input.Length; i++)
+					{
+						slotData[i] = new MetadataSlot(new ItemStack(recipe.Input[i], 1));
+
+						McpeContainerSetSlot setSlot = new McpeContainerSetSlot
+						{
+							item = new MetadataSlot(new ItemStack(recipe.Input[i], 1)),
+							windowId = 0,
+							slot = (short) (i)
+						};
+						SendPackage(setSlot);
+						Log.Error("Set set slot");
+					}
+					crafting.input = slotData;
+
+					{
+						McpePlayerEquipment eq = new McpePlayerEquipment
+						{
+							entityId = _entityId,
+							slot = 9,
+							selectedSlot = 0,
+							item = new MetadataSlot(new ItemStack(recipe.Input[0], 1))
+						};
+						SendPackage(eq);
+						Log.Error("Set eq slot");
+					}
+				}
+				{
+					MetadataSlots slotData = new MetadataSlots();
+					slotData[0] = new MetadataSlot(recipe.Result);
+					crafting.result = slotData;
+				}
+
+				SendPackage(crafting);
+			}
+
+
+			//{
+			//	McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+			//	setSlot.item = new MetadataSlot(new ItemStack(new ItemDiamondAxe(0), 1));
+			//	setSlot.windowId = 0;
+			//	setSlot.slot = 0;
+			//	SendPackage(setSlot);
+			//}
+			//{
+			//	McpePlayerEquipment eq = new McpePlayerEquipment();
+			//	eq.entityId = _entityId;
+			//	eq.slot = 9;
+			//	eq.selectedSlot = 0;
+			//	eq.item = new MetadataSlot(new ItemStack(new ItemDiamondAxe(0), 1));
+			//	SendPackage(eq);
+			//}
+
+		}
+
+		public void SendCraftingEvent()
+		{
+			var recipe = _recipeToSend;
+
+			if (recipe != null)
+			{
+				{
+					McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+					setSlot.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(17), 0), 1));
+					setSlot.windowId = 0;
+					setSlot.slot = 0;
+					SendPackage(setSlot);
+				}
+				{
+					McpePlayerEquipment eq = new McpePlayerEquipment();
+					eq.entityId = _entityId;
+					eq.slot = 9;
+					eq.selectedSlot = 0;
+					eq.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(17), 0), 1));
+					SendPackage(eq);
+				}
+
+				Log.Error("Sending crafting event: " + recipe.Id);
+
+				McpeCraftingEvent crafting = new McpeCraftingEvent();
+				crafting.windowId = 0;
+				crafting.recipeType = 1;
+				crafting.recipeId = recipe.Id;
+
+				{
+					MetadataSlots slotData = new MetadataSlots();
+					slotData[0] = new MetadataSlot(new ItemStack(new ItemBlock(new Block(17), 0), 1));
+					crafting.input = slotData;
+				}
+				{
+					MetadataSlots slotData = new MetadataSlots();
+					slotData[0] = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
+					crafting.result = slotData;
+				}
+
+				SendPackage(crafting);
+
+				//{
+				//	McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+				//	setSlot.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
+				//	setSlot.windowId = 0;
+				//	setSlot.slot = 0;
+				//	SendPackage(setSlot);
+				//}
+
+				{
+					McpePlayerEquipment eq = new McpePlayerEquipment();
+					eq.entityId = _entityId;
+					eq.slot = 10;
+					eq.selectedSlot = 1;
+					eq.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
+					SendPackage(eq);
+				}
+
+			}
+		}
+
+
+		private void OnMcpeCraftingData(Package message)
 		{
 			string fileName = Path.GetTempPath() + "Recipes_" + Guid.NewGuid() + ".txt";
 			Log.Info("Writing recipes to filename: " + fileName);
@@ -570,6 +752,16 @@ namespace MiNET.Client
 				}
 
 				ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
+
+				if (shapedRecipe != null && _recipeToSend == null)
+				{
+					if (shapedRecipe.Result.Id == 5 && shapedRecipe.Result.Count == 4 && shapedRecipe.Result.Metadata == 0)
+					{
+						Log.Error("Setting recipe! " + shapedRecipe.Id);
+						_recipeToSend = shapedRecipe;
+					}
+				}
+
 				if (shapedRecipe != null)
 				{
 					writer.WriteLine(string.Format("new ShapedRecipe({0}, {1}, new ItemStack(ItemFactory.GetItem({2}, {3}), {4}),", shapedRecipe.Width, shapedRecipe.Height, shapedRecipe.Result.Id, shapedRecipe.Result.Metadata, shapedRecipe.Result.Count));
@@ -599,10 +791,23 @@ namespace MiNET.Client
 			//Environment.Exit(0);
 		}
 
+		private void OnMcpeContainerSetData(Package msg)
+		{
+			McpeContainerSetData message = (McpeContainerSetData)msg;
+			Log.Error($"Set container data window 0x{message.windowId:X2} with property ID: {message.property} value: {message.value}");
+		}
+
+		private void OnMcpeContainerSetSlot(Package msg)
+		{
+			McpeContainerSetSlot message = (McpeContainerSetSlot) msg;
+			ItemStack itemStack = message.item.Value;
+			Log.Error($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+		}
+
 		private static void OnMcpeContainerSetContent(Package message)
 		{
 			McpeContainerSetContent msg = (McpeContainerSetContent) message;
-			Log.DebugFormat("Window ID: 0x{0:x2}, Count: {1}", msg.windowId, msg.slotData.Count);
+			Log.Error($"Set container content on Window ID: 0x{msg.windowId:x2}, Count: {msg.slotData.Count}");
 			var slots = msg.slotData.GetValues();
 
 			if (msg.windowId == 0x79)
@@ -614,6 +819,14 @@ namespace MiNET.Client
 			{
 				string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
 				WriteInventoryToFile(fileName, slots);
+				var hotbar= msg.hotbarData.GetValues();
+				int i = 0;
+				foreach (MetadataEntry entry in hotbar)
+				{
+					MetadataInt val = (MetadataInt) entry;
+					Log.Error($"Hotbar slot: {i} val: {val.Value}");
+					i++;
+				}
 			}
 		}
 
@@ -641,7 +854,6 @@ namespace MiNET.Client
 				}
 				else
 				{
-					Log.Debug($"Nbt: " + extraData.ToString());
 					NbtList ench = (NbtList) extraData["ench"];
 					NbtCompound enchComp = (NbtCompound) ench[0];
 					var id = enchComp["id"].ShortValue;
@@ -702,7 +914,7 @@ namespace MiNET.Client
 		private void OnMcpeMovePlayer(Package message)
 		{
 			McpeMovePlayer msg = (McpeMovePlayer) message;
-			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			//Log.DebugFormat("McpeMovePlayer Entity ID: {0}", msg.entityId);
 
 			CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
 			SendMcpeMovePlayer();
@@ -711,16 +923,13 @@ namespace MiNET.Client
 		private static void OnMcpeSetEntityData(Package message)
 		{
 			McpeSetEntityData msg = (McpeSetEntityData) message;
-			Log.DebugFormat("Entity ID: {0}", msg.entityId);
-			MetadataDictionary metadata = msg.metadata;
-			if (metadata.Contains(17))
-				Log.DebugFormat("Metadata: {0}", metadata.ToString());
+			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", msg.entityId, msg.metadata);
 		}
 
 		private static void OnMcpeAddPlayer(Package message)
 		{
 			McpeAddPlayer msg = (McpeAddPlayer) message;
-			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeAddPlayer Entity ID: {0}", msg.entityId);
 			Log.DebugFormat("X: {0}", msg.x);
 			Log.DebugFormat("Y: {0}", msg.y);
 			Log.DebugFormat("Z: {0}", msg.z);
@@ -736,7 +945,7 @@ namespace MiNET.Client
 		private static void OnMcpeAddEntity(Package message)
 		{
 			McpeAddEntity msg = (McpeAddEntity) message;
-			Log.DebugFormat("Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
 			Log.DebugFormat("Entity Type: {0}", msg.entityType);
 			Log.DebugFormat("X: {0}", msg.x);
 			Log.DebugFormat("Y: {0}", msg.y);

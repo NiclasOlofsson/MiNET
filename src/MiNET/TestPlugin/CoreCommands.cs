@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using fNbt;
 using log4net;
 using MiNET;
 using MiNET.BlockEntities;
@@ -154,36 +155,36 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
-			if (gameMode == 1)
-			{
-				player.Inventory.Slots.Clear();
+			player.SetGameMode((GameMode)gameMode);
 
-				player.Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
-			}
+			//if (gameMode == 1)
+			//{
+			//	player.Inventory.Slots.Clear();
 
-			//player.GameMode = (GameMode) gameMode;
+			//	player.Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
+			//}
 
-			player.SendPackage(new McpeStartGame
-			{
-				seed = -1,
-				generator = 1,
-				gamemode = gameMode,
-				entityId = player.EntityId,
-				spawnX = (int) player.Level.SpawnPoint.X,
-				spawnY = (int) player.Level.SpawnPoint.Y,
-				spawnZ = (int) player.Level.SpawnPoint.Z,
-				x = player.KnownPosition.X,
-				y = player.KnownPosition.Y,
-				z = player.KnownPosition.Z
-			});
+			//player.SendPackage(new McpeStartGame
+			//{
+			//	seed = -1,
+			//	generator = 1,
+			//	gamemode = gameMode,
+			//	entityId = player.EntityId,
+			//	spawnX = (int) player.Level.SpawnPoint.X,
+			//	spawnY = (int) player.Level.SpawnPoint.Y,
+			//	spawnZ = (int) player.Level.SpawnPoint.Z,
+			//	x = player.KnownPosition.X,
+			//	y = player.KnownPosition.Y,
+			//	z = player.KnownPosition.Z
+			//});
 
-			{
-				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-				creativeContent.windowId = (byte) 0x79;
-				creativeContent.slotData = player.Inventory.GetSlots();
-				creativeContent.hotbarData = player.Inventory.GetHotbar();
-				player.SendPackage(creativeContent);
-			}
+			//{
+			//	McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+			//	creativeContent.windowId = (byte) 0x79;
+			//	creativeContent.slotData = player.Inventory.GetSlots();
+			//	creativeContent.hotbarData = player.Inventory.GetHotbar();
+			//	player.SendPackage(creativeContent);
+			//}
 
 			player.Level.BroadcastMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
 		}
@@ -346,6 +347,13 @@ namespace TestPlugin
 			player.StrikeLightning();
 		}
 
+		[Command(Command = "si")]
+		public void SendInventory(Player player)
+		{
+			player.SendPlayerInventory();
+		}
+
+
 		[Command]
 		public void Kit(Player player, int kitId)
 		{
@@ -392,6 +400,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
 			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
 			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
+			inventory.Slots[c++] = new ItemStack(267, 64, 0) {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}};
 
 			inventory.Slots[c++] = new ItemStack(new ItemChest(0), 1);
 			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);
@@ -399,6 +408,10 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(new ItemBread(), 5);
 			inventory.Slots[c++] = new ItemStack(new ItemBlock(new Block(35), 0), 64);
 			inventory.Slots[c++] = new ItemStack(new ItemBucket(8), 1);
+
+			inventory.Slots[c++] = new ItemStack(ItemFactory.GetItem(39, 0), 4);
+			inventory.Slots[c++] = new ItemStack(ItemFactory.GetItem(40, 0), 4);
+			inventory.Slots[c++] = new ItemStack(ItemFactory.GetItem(281, 0), 4);
 
 			//for (byte i = 0; i < inventory.ItemHotbar.Length; i++)
 			//{

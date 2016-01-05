@@ -7,9 +7,9 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
+using fNbt;
 using log4net;
 using Microsoft.AspNet.Identity;
-using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
@@ -124,26 +124,9 @@ namespace MiNET
 			//if (result != message) message.PutPool();
 			message = result;
 
-			if (message == null) return;
-
-			if (typeof (McpeContainerSetSlot) == message.GetType())
+			if (message == null)
 			{
-				HandleContainerSetSlot((McpeContainerSetSlot) message);
-			}
-
-			else if (typeof (McpeContainerClose) == message.GetType())
-			{
-				HandleMcpeContainerClose((McpeContainerClose) message);
-			}
-
-			else if (typeof (McpePlayerEquipment) == message.GetType())
-			{
-				HandlePlayerEquipment((McpePlayerEquipment) message);
-			}
-
-			else if (typeof (McpePlayerArmorEquipment) == message.GetType())
-			{
-				HandlePlayerArmorEquipment((McpePlayerArmorEquipment) message);
+				return;
 			}
 
 			else if (typeof (McpeUpdateBlock) == message.GetType())
@@ -248,9 +231,35 @@ namespace MiNET
 				HandlePlayerDropItem((McpeDropItem) message);
 			}
 
-			else if (typeof(McpeCraftingEvent) == message.GetType())
+			else if (typeof (McpeContainerSetSlot) == message.GetType())
 			{
-				HandleCraftingEvent((McpeCraftingEvent)message);
+				Thread.Sleep(10);
+				HandleContainerSetSlot((McpeContainerSetSlot) message);
+			}
+
+			else if (typeof (McpeContainerClose) == message.GetType())
+			{
+				HandleMcpeContainerClose((McpeContainerClose) message);
+			}
+
+			else if (typeof (McpePlayerEquipment) == message.GetType())
+			{
+				HandlePlayerEquipment((McpePlayerEquipment) message);
+			}
+
+			else if (typeof (McpePlayerArmorEquipment) == message.GetType())
+			{
+				HandlePlayerArmorEquipment((McpePlayerArmorEquipment) message);
+			}
+
+			else if (typeof (McpeCraftingEvent) == message.GetType())
+			{
+				HandleCraftingEvent((McpeCraftingEvent) message);
+			}
+
+			else
+			{
+				Log.Error($"Unhandled package: " + message.GetType().Name);
 			}
 
 			if (message.Timer.IsRunning)
@@ -281,7 +290,7 @@ namespace MiNET
 		{
 			if (Level == null) return;
 
-			Log.DebugFormat("Action: {0}", message.actionId);
+			Log.DebugFormat("HandleAnimate Action: {0}", message.actionId);
 
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.entityId = EntityId;
@@ -296,13 +305,13 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		protected virtual void HandlePlayerAction(McpePlayerAction message)
 		{
-			//Log.DebugFormat("Player action: {0}", message.actionId);
-			//Log.DebugFormat("Entity ID: {0}", message.entityId);
-			//Log.DebugFormat("Action ID:  {0}", message.actionId);
-			//Log.DebugFormat("x:  {0}", message.x);
-			//Log.DebugFormat("y:  {0}", message.y);
-			//Log.DebugFormat("z:  {0}", message.z);
-			//Log.DebugFormat("Face:  {0}", message.face);
+			Log.DebugFormat("Player action: {0}", message.actionId);
+			Log.DebugFormat("Entity ID: {0}", message.entityId);
+			Log.DebugFormat("Action ID:  {0}", message.actionId);
+			Log.DebugFormat("x:  {0}", message.x);
+			Log.DebugFormat("y:  {0}", message.y);
+			Log.DebugFormat("z:  {0}", message.z);
+			Log.DebugFormat("Face:  {0}", message.face);
 
 			switch ((PlayerAction) message.actionId)
 			{
@@ -629,11 +638,11 @@ namespace MiNET
 
 				Level.AddPlayer(this, false);
 
-				//{
-				//	var craftingData = new McpeCraftingData();
-				//	craftingData.recipes = RecipeManager.Recipes;
-				//	SendPackage(craftingData);
-				//}
+				{
+					var craftingData = new McpeCraftingData();
+					craftingData.recipes = RecipeManager.Recipes;
+					SendPackage(craftingData);
+				}
 			}
 			finally
 			{
@@ -641,6 +650,8 @@ namespace MiNET
 			}
 
 			LastUpdatedTime = DateTime.UtcNow;
+
+			SendCreativeInventory();
 
 			SendPlayerInventory();
 
@@ -802,22 +813,11 @@ namespace MiNET
 			SendPackage(mcpeSetDifficulty);
 		}
 
-		public void SendPlayerInventory()
+		public virtual void SendPlayerInventory()
 		{
-			MetadataSlots creativeInv = new MetadataSlots();
-
-			if (GameMode == GameMode.Creative)
-			{
-				creativeInv = InventoryUtils.GetCreativeMetadataSlots();
-			}
-
-			McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-			creativeContent.windowId = (byte) 0x79;
-			creativeContent.slotData = creativeInv;
-			creativeContent.hotbarData = Inventory.GetHotbar();
-			SendPackage(creativeContent);
-
+			//Log.Error("Send player inventory");
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
+			inventoryContent.NoBatch = true;
 			inventoryContent.windowId = (byte) 0x00;
 			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
@@ -828,6 +828,15 @@ namespace MiNET
 			armorContent.slotData = Inventory.GetArmor();
 			armorContent.hotbarData = null;
 			SendPackage(armorContent);
+		}
+
+		public virtual void SendCreativeInventory()
+		{
+			McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
+			creativeContent.windowId = (byte) 0x79;
+			creativeContent.slotData = InventoryUtils.GetCreativeMetadataSlots();
+			creativeContent.hotbarData = Inventory.GetHotbar();
+			SendPackage(creativeContent);
 		}
 
 		public void SendPlayerStatus(int status)
@@ -842,7 +851,7 @@ namespace MiNET
 		{
 			GameMode = gameMode;
 
-			SendPlayerInventory();
+			//SendPlayerInventory();
 
 			SendStartGame();
 		}
@@ -864,7 +873,7 @@ namespace MiNET
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			lock(_disconnectSync)
+			lock (_disconnectSync)
 			{
 				if (IsConnected)
 				{
@@ -1065,16 +1074,6 @@ namespace MiNET
 		{
 		}
 
-		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
-		{
-			lock (Inventory)
-			{
-				_transaction = null;
-				Log.Info("Closed inventory crafing transaction");
-				SendPlayerInventory();
-			}
-		}
-
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)
 		{
 			lock (Inventory)
@@ -1082,18 +1081,11 @@ namespace MiNET
 				var stack = message.item.Value;
 				Log.Debug($"Player {Username} drops item with inv slot: {message.itemtype} and Item ID: {stack.Id} with count item count: {stack.Count}");
 
-				if (_transaction == null && !Inventory.HasItem(message.item) || (_transaction != null && !_transaction.Equals(stack)))
-				{
-					Log.Error($"Player {Username} failed to drops item with inv slot: {message.itemtype}) and Item ID: {stack.Id} with count item count: {stack.Count}. Did not match current transaction state.");
-					return;
-				}
+
+				if (!VerifyItemStack(stack)) return;
 
 				// Clear current inventory slot.
-				if (_transaction != null)
 				{
-					Log.Info("Closed inventory transaction via drop item");
-					_transaction = null;
-
 					var itemEntity = new ItemEntity(Level, stack.Item)
 					{
 						Velocity = KnownPosition.GetDirection()*0.7,
@@ -1108,11 +1100,6 @@ namespace MiNET
 
 					itemEntity.SpawnEntity();
 				}
-				else
-				{
-					Log.Info("Begin drop transaction on quick drop item");
-					_dropTransaction = stack;
-				}
 			}
 		}
 
@@ -1120,10 +1107,12 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			//Log.Info($"Player {Username} called set equiptment with inv slot: {message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Value.Id} with count item count: {message.item.Value.Count}");
+			Log.Info($"Player {Username} called set equiptment with inv slot: {message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Value.Id} with count item count: {message.item.Value.Count}");
 
 			byte selectedHotbarSlot = message.selectedSlot;
 			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
+
+			Log.Info($"Handle player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
 
 			{
 				// 255 indicates empty hmmm
@@ -1173,8 +1162,11 @@ namespace MiNET
 
 				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
 				Inventory.SetHeldItemSlotNoSend(selectedHotbarSlot);
+				if (selectedInventorySlot < Inventory.Slots.Count)
+				{
+					Inventory.Slots[selectedInventorySlot] = message.item.Value;
+				}
 			}
-
 		}
 
 
@@ -1189,8 +1181,6 @@ namespace MiNET
 					if (_openInventory.Coordinates.Equals(inventoryCoord)) return;
 					HandleMcpeContainerClose(null);
 				}
-
-				_transaction = null;
 
 				// get inventory from coordinates
 				// - get blockentity
@@ -1257,9 +1247,91 @@ namespace MiNET
 		}
 
 
-		private ItemStack _transaction = null;
-		private ItemStack _dropTransaction = null;
-		private int _isInArmorWorkaround = -1;
+		private bool _haveCrafted = true;
+		private int _lastCraftingNumber = -1;
+
+		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
+		{
+			lock (Inventory)
+			{
+				if (_lastCraftingNumber >= message.ReliableMessageNumber) return;
+				_lastCraftingNumber = message.ReliableMessageNumber;
+
+				Log.Info($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+
+				_haveCrafted = true;
+
+				for (int i = 0; i < message.input.Count; i++)
+				{
+					MetadataSlot slot = (MetadataSlot) message.input[i];
+					if (slot != null)
+					{
+						var itemStack = slot.Value;
+						if (!VerifyItemStack(itemStack))
+						{
+							Log.Error($"Kicked {Username} for craft hacking.");
+							Disconnect("Error #324. Please report this error.");
+						}
+
+						if (itemStack.Id == 0) continue;
+						Log.Info($"Player {Username} craft input item ID: {itemStack.Id}, Meta: {itemStack.Metadata} Count: {itemStack.Count}");
+						Inventory.RemoveItems(itemStack.Id, itemStack.Count);
+					}
+				}
+
+				//for (int i = 0; i < message.result.Count; i++)
+				//{
+				//	MetadataSlot slot = (MetadataSlot) message.result[i];
+				//	if (slot != null)
+				//	{
+				//		var itemStack = slot.Value;
+				//		if (!VerifyItemStack(itemStack))
+				//		{
+				//			return;
+				//		}
+
+				//		if (!VerifyCraftingItemStack(this, itemStack))
+				//		{
+				//			return;
+				//		}
+
+				//		Log.Info($"Player {Username} craft output Item ID: {itemStack.Id} with count item count: {itemStack.Count}");
+				//		Inventory.SetFirstEmptySlot(itemStack.Id, itemStack.Count, itemStack.Metadata, false, false);
+				//	}
+				//}
+
+				//SendPlayerInventory();
+			}
+		}
+
+		public static bool VerifyCraftingItemStack(Player player, ItemStack itemStack)
+		{
+			if (itemStack.Id == 0 && itemStack.Count == 0 && itemStack.Metadata == 0) return true;
+
+			if (itemStack.ExtraData == null)
+			{
+				Log.Error($"{player.Username} Missing ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
+				return false;
+			}
+
+			NbtCompound tag = itemStack.ExtraData["Item"] as NbtCompound;
+			if (tag == null)
+			{
+				Log.Error($"{player.Username} Missing hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
+				return false;
+			}
+
+			NbtByte name = tag["Crafting"] as NbtByte;
+			if (name == null || name.Value == 0)
+			{
+				Log.Error($"{player.Username} Invalid hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}, {itemStack.ExtraData}");
+				return false;
+			}
+
+			return true;
+		}
+
+
 		private int _lastChestOrderingIndex;
 
 		/// <summary>
@@ -1272,18 +1344,28 @@ namespace MiNET
 			{
 				bool isLagging = _lastChestOrderingIndex >= message.OrderingIndex;
 				if (_lastChestOrderingIndex == message.OrderingIndex) return; // Resend :-(
-                _lastChestOrderingIndex = message.OrderingIndex;
+				_lastChestOrderingIndex = message.OrderingIndex;
 
 				if (HealthManager.IsDead) return;
 
 				ItemStack itemStack = message.item.Value;
+
+				if (GameMode != GameMode.Creative)
+				{
+					if (!VerifyItemStack(itemStack))
+					{
+						Log.Error($"Kicked {Username} for inventory hacking.");
+						Disconnect("Error #324. Please report this error.");
+						return;
+					}
+				}
+
 				Log.Info($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 
 				// on all set container content, check if we have active inventory
 				// and update that inventory.
 				// Inventory manager makes sure other players with the same inventory open will 
 				// also get the update.
-
 
 				if (_openInventory != null)
 				{
@@ -1293,276 +1375,54 @@ namespace MiNET
 						_openInventory.SetSlot(this, (byte) message.slot, itemStack);
 						return;
 					}
-
-					if (message.windowId == 0)
-					{
-						Inventory.Slots[message.slot] = itemStack;
-						return;
-					}
 				}
-				else if (GameMode == GameMode.Creative)
-				{
-					Inventory.Slots[message.slot] = itemStack;
-					return;
-				}
-
 
 				switch (message.windowId)
 				{
 					case 0:
-						if (message.slot >= Inventory.Slots.Count) return;
-
-						if (_dropTransaction != null)
-						{
-							bool doDrop = false;
-
-							if (itemStack.Id == _dropTransaction.Id)
-							{
-								var stack = Inventory.Slots[message.slot];
-								if (stack.Count - (itemStack.Count + _dropTransaction.Count) == 0)
-								{
-									Inventory.Slots[message.slot] = itemStack;
-									doDrop = true;
-								}
-							}
-							else if (itemStack.Id == 0)
-							{
-								Inventory.Slots[message.slot] = new ItemStack();
-								doDrop = true;
-							}
-
-							if (doDrop)
-							{
-								var itemEntity = new ItemEntity(Level, _dropTransaction.Item)
-								{
-									Velocity = KnownPosition.GetDirection()*0.7,
-									KnownPosition =
-									{
-										X = KnownPosition.X,
-										Y = KnownPosition.Y + 1.62f,
-										Z = KnownPosition.Z
-									},
-									Count = _dropTransaction.Count
-								};
-
-								itemEntity.SpawnEntity();
-
-								Log.Info("Close drop transaction.");
-								_transaction = null;
-								_dropTransaction = null;
-							}
-							else
-							{
-								Log.Error($"Lagging: {isLagging}. Abort inventory drop transaction. Failed item match for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
-								_transaction = null;
-								_dropTransaction = null;
-								SendPlayerInventory();
-							}
-
-
-							return;
-						}
-
-						if (_transaction == null)
-						{
-							_isInArmorWorkaround = -1;
-
-							Log.Info("Start inventory transaction");
-
-							_transaction = Inventory.Slots[message.slot];
-
-							if (itemStack.Equals(_transaction))
-							{
-								_transaction.Item.Metadata = itemStack.Metadata;
-								_transaction = null;
-								Log.Info("Closed inventory confirm only transaction");
-
-								return;
-							}
-
-							if (itemStack.Id == _transaction.Id && itemStack.Count == _transaction.Count && itemStack.Metadata != _transaction.Metadata)
-							{
-								_transaction.Item.Metadata = itemStack.Metadata;
-								_transaction = null;
-								Log.Info("Closed inventory metadata only transaction");
-
-								return;
-							}
-
-							if (itemStack.Id == _transaction.Id && itemStack.Count != _transaction.Count && itemStack.Metadata == _transaction.Metadata)
-							{
-								Log.Info("Partial stack begin transaction");
-
-								byte delta = (byte) (_transaction.Count - itemStack.Count);
-								if (delta > 0)
-								{
-									Inventory.Slots[message.slot] = new ItemStack(_transaction.Id, itemStack.Count, _transaction.Metadata);
-									_transaction.Count = delta;
-								}
-
-								return;
-							}
-
-							if (itemStack.Id == 0)
-							{
-								Log.Info($"Full stack begin transaction. Existing id: {_transaction.Id}, meta: {_transaction.Metadata}, count: {_transaction.Count}");
-								Inventory.Slots[message.slot] = new ItemStack();
-							}
-							else
-							{
-								if (itemStack.Count == 1 && Inventory.Slots[message.slot].Id == 0)
-								{
-									Inventory.Slots[message.slot] = itemStack;
-									_isInArmorWorkaround = message.slot;
-								}
-								else
-								{
-									Log.Error($"Lagging: {isLagging}. Abort (hack?) inventory transaction for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
-									_transaction = null;
-									SendPlayerInventory();
-								}
-							}
-
-							return;
-						}
-						else
-						{
-							if (_isInArmorWorkaround >= 0)
-							{
-								Log.Error($"Lagging: {isLagging}. Abort (hack?) inventory/armor transaction for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
-								Inventory.Slots[_isInArmorWorkaround] = new ItemStack();
-								_transaction = null;
-								_isInArmorWorkaround = -1;
-								SendPlayerInventory();
-								return;
-							}
-
-							if (itemStack.Id == _transaction.Id && itemStack.Metadata == _transaction.Metadata)
-							{
-								if (Inventory.Slots[message.slot].Id != 0
-								    && (itemStack.Id != Inventory.Slots[message.slot].Id || itemStack.Metadata != Inventory.Slots[message.slot].Metadata))
-								{
-									Log.Info("Partial inventory transaction, change transaction item");
-									_transaction = Inventory.Slots[message.slot];
-									Inventory.Slots[message.slot] = itemStack;
-								}
-								else
-								{
-									byte existing = Inventory.Slots[message.slot].Count;
-									byte delta = (byte) (_transaction.Count - (itemStack.Count - existing));
-									if (delta > 0)
-									{
-										Inventory.Slots[message.slot] = new ItemStack(_transaction.Id, itemStack.Count, _transaction.Metadata);
-										_transaction.Count -= (byte) (itemStack.Count - existing);
-										Log.Info("Partial inventory transaction. Left in transaction: " + _transaction.Count);
-									}
-									else
-									{
-										_transaction.Count += existing;
-										Inventory.Slots[message.slot] = _transaction;
-										_transaction = null;
-										Log.Info("Close inventory transaction");
-									}
-								}
-							}
-							else
-							{
-								Log.Info("Partial inventory transaction, clear slot");
-								Inventory.Slots[message.slot] = new ItemStack();
-							}
-
-							return;
-						}
-
+						Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x79:
-						Inventory.Slots[(byte) message.slot] = itemStack;
+						Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x78:
 
-						if (_isInArmorWorkaround >= 0 || itemStack.Id == 0 && _transaction == null || _transaction != null && _transaction.Id == itemStack.Id)
+						var armorItem = itemStack.Item;
+						switch (message.slot)
 						{
-							var armorItem = itemStack.Item;
-							Item currentArmorItem = null;
-							switch (message.slot)
-							{
-								case 0:
-									currentArmorItem = Inventory.Helmet;
-									Inventory.Helmet = armorItem;
-									break;
-								case 1:
-									currentArmorItem = Inventory.Chest;
-									Inventory.Chest = armorItem;
-									break;
-								case 2:
-									currentArmorItem = Inventory.Leggings;
-									Inventory.Leggings = armorItem;
-									break;
-								case 3:
-									currentArmorItem = Inventory.Boots;
-									Inventory.Boots = armorItem;
-									break;
-							}
-
-							if (_isInArmorWorkaround >= 0 || currentArmorItem == null || currentArmorItem.Id == 0)
-							{
-								_isInArmorWorkaround = -1;
-								_transaction = null;
-								Log.Info("Close armor transaction");
-							}
-							else
-							{
-								_transaction = new ItemStack(currentArmorItem, 1);
-								Log.Info("Partial armor transaction");
-							}
-
-
-							McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
-							armorEquipment.entityId = EntityId;
-							armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 1));
-							armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 1));
-							armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 1));
-							armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 1));
-							Level.RelayBroadcast(this, armorEquipment);
-						}
-						else if (itemStack.Id != 0 && _transaction == null)
-						{
-							bool isVerifyOnly = false;
-
-							var armorItem = itemStack.Item;
-							switch (message.slot)
-							{
-								case 0:
-									isVerifyOnly = Inventory.Helmet.Equals(armorItem);
-									break;
-								case 1:
-									isVerifyOnly = Inventory.Chest.Equals(armorItem);
-									break;
-								case 2:
-									isVerifyOnly = Inventory.Leggings.Equals(armorItem);
-									break;
-								case 3:
-									isVerifyOnly = Inventory.Boots.Equals(armorItem);
-									break;
-							}
-
-							if (!isVerifyOnly)
-							{
-								Log.Error($"Lagging: {isLagging}. Armor transaction failed (hack?) for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
-								_transaction = null;
-								SendPlayerInventory();
-							}
-						}
-						else
-						{
-							Log.Error($"Lagging: {isLagging}. Armor transaction failed (unknown reason?) for {Username} . Incoming item id: {itemStack.Id}, meta: {itemStack.Metadata}, count: {itemStack.Count}");
-							_transaction = null;
-							SendPlayerInventory();
+							case 0:
+								Inventory.Helmet = armorItem;
+								break;
+							case 1:
+								Inventory.Chest = armorItem;
+								break;
+							case 2:
+								Inventory.Leggings = armorItem;
+								break;
+							case 3:
+								Inventory.Boots = armorItem;
+								break;
 						}
 
+						McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+						armorEquipment.entityId = EntityId;
+						armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 1));
+						armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 1));
+						armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 1));
+						armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 1));
+						Level.RelayBroadcast(this, armorEquipment);
+
+						break;
+					case 0x7A:
+						//Inventory.ItemHotbar[message.unknown] = message.slot/* + PlayerInventory.HotbarSize*/;
 						break;
 				}
 			}
+		}
+
+		public virtual bool VerifyItemStack(ItemStack itemStack)
+		{
+			return McpeWriter.VerifyItemStack(this, itemStack);
 		}
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
@@ -1774,17 +1634,7 @@ namespace MiNET
 			{
 				// Right click
 
-				var mcpeAnimate = McpeAnimate.CreateObject();
-				mcpeAnimate.actionId = 1;
-				mcpeAnimate.entityId = EntityId;
-				Level.RelayBroadcast(this, mcpeAnimate);
-
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
-				//if (Inventory.GetItemInHand().Id != message.item.Value.Id)
-				//{
-				//	//Disconnect("Inventory hacks not allowed.");
-				//	return;
-				//}
 
 				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata, (BlockFace) message.face, faceCoords);
 			}

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -35,6 +37,7 @@ namespace MiNET
 			//Slots[Slots.Count-10] = new ItemStack(new ItemDiamondAxe(0), 1);
 			//Slots[Slots.Count-9] = new ItemStack(new ItemDiamondAxe(0), 1);
 			//int c = -1;
+			//Slots[++c] = new ItemStack(new Item(17, 0), 1);
 			//Slots[++c] = new ItemStack(new ItemIronSword(0), 1);
 			//Slots[++c] = new ItemStack(new ItemBow(0), 1);
 			//Slots[++c] = new ItemStack(new ItemSnowball(0), 64);
@@ -115,7 +118,14 @@ namespace MiNET
 			MetadataInts metadata = new MetadataInts();
 			for (byte i = 0; i < ItemHotbar.Length; i++)
 			{
-				metadata[i] = new MetadataInt(ItemHotbar[i] + HotbarSize);
+				if(ItemHotbar[i] == -1)
+				{
+					metadata[i] = new MetadataInt(-1);
+				}
+				else
+				{
+					metadata[i] = new MetadataInt(ItemHotbar[i] + HotbarSize);
+				}
 			}
 
 			return metadata;
@@ -145,23 +155,50 @@ namespace MiNET
 
 		public bool SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
 		{
+			return SetFirstEmptySlot(itemId, amount, itemId, true, false);
+		}
+
+		public bool SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0, bool update = true, bool reverseOrder = false)
+		{
 			Item item = ItemFactory.GetItem(itemId, metadata);
 
-			for (byte s = 0; s < Slots.Count; s++)
+			if (reverseOrder)
 			{
-				var b = Slots[s];
-				if (b.Id == itemId && b.Metadata == metadata && b.Count + amount <= item.MaxStackSize)
+				for (int si = Slots.Count; si > 0; si--)
 				{
-					SetInventorySlot(s, itemId, (byte) (b.Count + amount), metadata);
-					return true;
+					if (FirstEmptySlot(itemId, amount, metadata, update, si-1, item)) return true;
 				}
-				else if (b.Id == 0 || b.Id == -1)
+			}
+			else
+			{
+				for (int si = 0; si < Slots.Count; si++)
 				{
-					SetInventorySlot(s, itemId, amount, metadata);
-					return true;
+					if (FirstEmptySlot(itemId, amount, metadata, update, si, item)) return true;
 				}
 			}
 
+			return false;
+		}
+
+		private bool FirstEmptySlot(short itemId, byte amount, short metadata, bool update, int si, Item item)
+		{
+			var b = Slots[si];
+			if (b.Id == itemId && b.Metadata == metadata && b.Count + amount <= item.MaxStackSize)
+			{
+				Slots[si].Count += amount;
+				//if (update) Player.SendPlayerInventory();
+				//SendSetSlot(si);
+				Log.Info("Set on slot " + si);
+				return true;
+			}
+			else if (b.Id == 0 || b.Id == -1)
+			{
+				Slots[si] = new ItemStack(itemId, amount, metadata);
+				//if (update) Player.SendPlayerInventory();
+				//SendSetSlot(si);
+				Log.Info("Set on slot " + si);
+				return true;
+			}
 			return false;
 		}
 
@@ -212,6 +249,34 @@ namespace MiNET
 				}
 			}
 			return false;
+		}
+
+		public void RemoveItems(short id, byte count)
+		{
+			for (byte i = 0; i < Slots.Count; i++)
+			{
+				var slot = Slots[i];
+				if (slot.Id == id)
+				{
+					slot.Count--;
+					if(slot.Count == 0)
+					{
+						Slots[i] = new ItemStack();
+					}
+
+					SendSetSlot(i);
+					return;
+				}
+			}
+		}
+
+		public void SendSetSlot(int slot)
+		{
+			McpeContainerSetSlot sendSlot = new McpeContainerSetSlot();
+			sendSlot.NoBatch = true;
+			sendSlot.slot = (short) slot;
+			sendSlot.item = Slots[slot];
+			Player.SendPackage(sendSlot);
 		}
 	}
 

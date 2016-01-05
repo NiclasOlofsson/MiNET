@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using fNbt;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Utils;
@@ -12,6 +13,8 @@ namespace MiNET.Net
 {
 	public class McpeWriter
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (McpeWriter));
+
 		private BinaryWriter _writer;
 
 		public McpeWriter(Stream stream)
@@ -161,15 +164,18 @@ namespace MiNET.Net
 					Write(slot.Value.Id);
 					Write(slot.Value.Count);
 					Write(slot.Value.Metadata);
-					if (slot.Value.ExtraData == null)
+					var extraData = slot.Value.ExtraData;
+					extraData = SignNbt(extraData, true);
+
+					if (extraData != null)
 					{
-						Write((short)0);
+						var bytes = GetNbtData(extraData);
+						Write((short)bytes.Length);
+						Write(bytes);
 					}
 					else
 					{
-						var bytes = GetNbtData(slot.Value.ExtraData);
-						Write((short)bytes.Length);
-						Write(bytes);
+						Write((short)0);
 					}
 				}
 			}
@@ -186,16 +192,67 @@ namespace MiNET.Net
 			Write(slot.Value.Id);
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
-			if (slot.Value.ExtraData == null)
+			var extraData = slot.Value.ExtraData;
+			extraData = SignNbt(extraData, true);
+
+			if (extraData != null)
 			{
-				Write((short)0);
-			}
-			else
-			{
-				var bytes = GetNbtData(slot.Value.ExtraData);
+				var bytes = GetNbtData(extraData);
 				Write((short)bytes.Length);
 				Write(bytes);
 			}
+			else
+			{
+				Write((short)0);
+			}
+		}
+
+		public static NbtCompound SignNbt(NbtCompound extraData, bool crafting = false)
+		{
+			if (extraData == null)
+			{
+				extraData = new NbtCompound("");
+			}
+
+			lock (extraData)
+			{
+				//extraData = (NbtCompound)extraData.Clone();
+				if (!extraData.Contains("Item"))
+					extraData["Item"] =
+						new NbtCompound("Item")
+						{
+							new NbtShort("_hash", 1234),
+							new NbtByte("Crafting", (byte) (crafting?1:0))
+						};
+			}
+			return extraData;
+		}
+
+		public static bool VerifyItemStack(Player player, ItemStack itemStack)
+		{
+			if (itemStack.Id == 0 && itemStack.Count == 0 && itemStack.Metadata == 0) return true;
+
+			if (itemStack.ExtraData == null)
+			{
+				Log.Error($"{player.Username} Missing ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
+				return false;
+			}
+
+			NbtCompound tag = itemStack.ExtraData["Item"] as NbtCompound;
+			if (tag == null)
+			{
+				Log.Error($"{player.Username} Missing hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
+				return false;
+			}
+
+			NbtShort name = tag["_hash"] as NbtShort;
+			if (name == null)
+			{
+				Log.Error($"{player.Username} Invalid hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
+				return false;
+			}
+
+			return true;
 		}
 
 		private byte[] GetNbtData(NbtCompound nbtCompound)

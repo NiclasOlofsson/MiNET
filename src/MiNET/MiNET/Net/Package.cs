@@ -193,9 +193,9 @@ namespace MiNET.Net
 
 		public string ReadString()
 		{
-			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return "";
+			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
 			short len = ReadShort();
-			if (len == 0) return string.Empty;
+			if (len <= 0) return string.Empty;
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
@@ -209,7 +209,7 @@ namespace MiNET.Net
 				{
 					Write(record.ClientUuid);
 					Write(record.EntityId);
-					Write(record.Username);
+					Write(record.Username ?? record.NameTag);
 					Write(record.Skin);
 				}
 			}
@@ -226,7 +226,44 @@ namespace MiNET.Net
 
 		public PlayerRecords ReadPlayerRecords()
 		{
-			return null;
+			// This should never be used in production. It is primarily for 
+			// the client to work.
+			byte recordType = ReadByte();
+			int count = ReadInt();
+			PlayerRecords records = null;
+			switch (recordType)
+			{
+				case 0:
+					records = new PlayerAddRecords();
+					for (int i = 0; i < count; i++)
+					{
+						var player = new Player(null, null, 0);
+						try
+						{
+							player.ClientUuid = ReadUUID();
+							player.EntityId = ReadLong();
+							player.NameTag = ReadString();
+							player.Skin = ReadSkin();
+							records.Add(player);
+						}
+						catch (Exception e)
+						{
+							Log.Error("Player List", e);
+						}
+					}
+					break;
+				case 1:
+					records = new PlayerRemoveRecords();
+					for (int i = 0; i < count; i++)
+					{
+						var player = new Player(null, null, 0);
+						player.ClientUuid = ReadUUID();
+						records.Add(player);
+					}
+					break;
+			}
+
+			return records;
 		}
 
 		public void Write(Records records)
@@ -430,18 +467,34 @@ namespace MiNET.Net
 
 		public void Write(MetadataSlots metadata)
 		{
+			McpeContainerSetContent msg = this as McpeContainerSetContent;
+			bool signItems = msg == null || msg.windowId != 0x79;
+
 			if (metadata == null)
 			{
-				Write((short) 0);
+				if (this is McpeCraftingEvent)
+				{
+					Write((int) 0);
+				}
+				else
+				{
+					Write((short) 0);
+				}
 				return;
 			}
 
-			Write((short) metadata.Count);
+			if (this is McpeCraftingEvent)
+			{
+				Write((int) metadata.Count);
+			}
+			else
+			{
+				Write((short) metadata.Count);
+			}
+
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
-				//if (!metadata.Contains(i)) continue;
-
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
 				{
@@ -454,15 +507,20 @@ namespace MiNET.Net
 					Write(slot.Value.Id);
 					Write(slot.Value.Count);
 					Write(slot.Value.Metadata);
-					if (slot.Value.ExtraData == null)
+					var extraData = slot.Value.ExtraData;
+					if (signItems)
 					{
-						Write((short) 0);
+						extraData = McpeWriter.SignNbt(extraData);
+					}
+					if (extraData != null)
+					{
+						var bytes = GetNbtData(extraData);
+						Write((short) bytes.Length);
+						Write(bytes);
 					}
 					else
 					{
-						var bytes = GetNbtData(slot.Value.ExtraData);
-						Write((short) bytes.Length);
-						Write(bytes);
+						Write((short) 0);
 					}
 				}
 			}
@@ -470,7 +528,16 @@ namespace MiNET.Net
 
 		public MetadataSlots ReadMetadataSlots()
 		{
-			short count = ReadShort();
+			int count;
+			if (this is McpeCraftingEvent)
+			{
+				// Misaligned array counters for some packets :-(
+				count = ReadInt();
+			}
+			else
+			{
+				count = ReadShort();
+			}
 
 			MetadataSlots metadata = new MetadataSlots();
 
@@ -490,7 +557,6 @@ namespace MiNET.Net
 				if (nbtLen > 0)
 				{
 					stack.ExtraData = ReadNbt().NbtFile.RootTag;
-					//ReadBytes(nbtLen); // Slurp
 				}
 			}
 
@@ -508,15 +574,18 @@ namespace MiNET.Net
 			Write(slot.Value.Id);
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
-			if (slot.Value.ExtraData == null)
+			var extraData = slot.Value.ExtraData;
+			extraData = McpeWriter.SignNbt(extraData);
+
+			if (extraData != null)
 			{
-				Write((short) 0);
+				var bytes = GetNbtData(extraData);
+				Write((short) bytes.Length);
+				Write(bytes);
 			}
 			else
 			{
-				var bytes = GetNbtData(slot.Value.ExtraData);
-				Write((short) bytes.Length);
-				Write(bytes);
+				Write((short) 0);
 			}
 		}
 
@@ -533,17 +602,20 @@ namespace MiNET.Net
 		{
 			short id = ReadShort();
 			if (id <= 0)
-				return new MetadataSlot(new ItemStack(id, 0, 0));
+			{
+				return new MetadataSlot(new ItemStack());
+			}
 
-			var count = ReadByte();
-			if (count == 0)
-				return new MetadataSlot(new ItemStack(id, 0, 0));
-			short metadata = ReadShort();
-			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack(id, count, metadata));
-			ReadShort(); // Nbt len
-			return metadataSlot;
+			var stack = new ItemStack(id, ReadByte(), ReadShort());
+			var slot = new MetadataSlot(stack);
+			int nbtLen = ReadShort(); // NbtLen
+			if (nbtLen > 0)
+			{
+				stack.ExtraData = ReadNbt().NbtFile.RootTag;
+			}
+
+			return slot;
 		}
-
 
 		public MetadataDictionary ReadMetadataDictionary()
 		{
@@ -638,7 +710,6 @@ namespace MiNET.Net
 			Recipes recipes = new Recipes();
 
 			int count = ReadInt();
-			Log.InfoFormat("Recipes Count: {0}", count);
 
 			for (int i = 0; i < count; i++)
 			{
@@ -647,7 +718,8 @@ namespace MiNET.Net
 				if (recipeType < 0 || len == 0)
 				{
 					Log.Warn("Read void recipe");
-					return recipes;
+					continue;
+					//return recipes;
 				}
 
 				if (recipeType == 0)
@@ -670,7 +742,7 @@ namespace MiNET.Net
 					int width = ReadInt(); // Width
 					int height = ReadInt(); // Height
 					ShapedRecipe recipe = new ShapedRecipe(width, height);
-					//if(width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
+					if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
 					for (int w = 0; w < width; w++)
 					{
 						for (int h = 0; h < height; h++)
@@ -679,23 +751,35 @@ namespace MiNET.Net
 						}
 					}
 
-					ReadInt(); // 1?
-					recipe.Result = ReadMetadataSlot().Value;
+					int resultCount = ReadInt(); // 1?
+					for (int j = 0; j < resultCount; j++)
+					{
+						recipe.Result = ReadMetadataSlot().Value;
+					}
 					recipe.Id = ReadUUID(); // Id
 					recipes.Add(recipe);
 				}
 				else if (recipeType == 2)
 				{
 					//const ENTRY_FURNACE = 2;
-					ReadInt(); // type
-					ReadInt(); // input (with metadata) 
-					ReadMetadataSlot(); // Result
+					SmeltingRecipe recipe = new SmeltingRecipe();
+					short meta = ReadShort(); // input (with metadata) 
+					short id = ReadShort(); // input (with metadata) 
+					var result = ReadMetadataSlot(); // Result
+					recipe.Input = ItemFactory.GetItem(id, meta);
+					recipe.Result = result.Value;
+					recipes.Add(recipe);
 				}
 				else if (recipeType == 3)
 				{
 					//const ENTRY_FURNACE_DATA = 3;
-					ReadInt(); // input 
-					ReadMetadataSlot(); // Result
+					SmeltingRecipe recipe = new SmeltingRecipe();
+					short id = ReadShort(); // input (with metadata) 
+					short meta = ReadShort(); // input (with metadata) 
+					var result = ReadMetadataSlot(); // Result
+					recipe.Input = ItemFactory.GetItem(id, 0);
+					recipe.Result = result.Value;
+					recipes.Add(recipe);
 				}
 				else if (recipeType == 4)
 				{
@@ -713,6 +797,11 @@ namespace MiNET.Net
 						}
 						ReadString(); // Name
 					}
+				}
+				else
+				{
+					Log.Error($"Read unknown recipe type: {recipeType}, lenght: {len}");
+					ReadBytes(len);
 				}
 			}
 
@@ -758,7 +847,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							writer.Write(new ItemStack(rec.Input[(h * rec.Width) + w], 1));
+							writer.Write((MetadataSlot) new ItemStack(rec.Input[(h*rec.Width) + w], 1));
 						}
 					}
 					writer.Write(1);
@@ -803,16 +892,21 @@ namespace MiNET.Net
 			_isEncoded = true;
 		}
 
+		private object _encodeSync = new object();
+
 		public virtual byte[] Encode()
 		{
-			if (_isEncoded) return _encodedMessage;
+			lock (_encodeSync)
+			{
+				if (_isEncoded) return _encodedMessage;
 
-			EncodePackage();
-			_writer.Flush();
-			_buffer.Position = 0;
-			_encodedMessage = _buffer.ToArray();
-			_isEncoded = true;
-			return _encodedMessage;
+				EncodePackage();
+				_writer.Flush();
+				_buffer.Position = 0;
+				_encodedMessage = _buffer.ToArray();
+				_isEncoded = true;
+				return _encodedMessage;
+			}
 		}
 
 		protected virtual void DecodePackage()

@@ -67,6 +67,7 @@ namespace MiNET.Blocks
 			else if (blockId == 64) block = new WoodenDoor();
 			else if (blockId == 67) block = new CobblestoneStairs();
 			else if (blockId == 68) block = new WallSign();
+			else if (blockId == 77) block = new StoneButton();
 			else if (blockId == 79) block = new Ice();
 			else if (blockId == 80) block = new Snow();
 			else if (blockId == 85) block = new Fence();
@@ -79,6 +80,7 @@ namespace MiNET.Blocks
 			else if (blockId == 134) block = new SpruceWoodStairsStairs();
 			else if (blockId == 135) block = new BirchWoodStairs();
 			else if (blockId == 136) block = new JungleWoodStairs();
+			else if (blockId == 143) block = new WoodenButton();
 			else if (blockId == 156) block = new QuartzStairs();
 			else if (blockId == 157) block = new DoubleWoodSlab();
 			else if (blockId == 158) block = new WoodSlab();

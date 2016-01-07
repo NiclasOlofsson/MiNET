@@ -40,8 +40,9 @@
     <Reference Include="LibNoise">
       <HintPath>..\packages\LibNoise.0.2\lib\NET45\LibNoise.dll</HintPath>
     </Reference>
-    <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -70,6 +71,9 @@
     <Compile Include="Blocks\BlockStairs.cs" />
     <Compile Include="Blocks\BookShelf.cs" />
     <Compile Include="Blocks\BrickStairs.cs" />
+    <Compile Include="Blocks\Button.cs" />
+    <Compile Include="Blocks\StoneButton.cs" />
+    <Compile Include="Blocks\WoodenButton.cs" />
     <Compile Include="Blocks\CoalBlock.cs" />
     <Compile Include="Blocks\CoalOre.cs" />
     <Compile Include="Blocks\Cobblestone.cs" />
@@ -243,6 +247,7 @@
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\McpeText.cs" />
+    <Compile Include="Net\McpeWriter.cs" />
     <Compile Include="Net\PlayerAction.cs" />
     <Compile Include="Net\SplitPartPackage.cs" />
     <Compile Include="Net\UUID.cs" />
@@ -355,6 +360,7 @@
     <Compile Include="Utils\PlayerLocation.cs" />
     <Compile Include="Utils\Records.cs" />
     <Compile Include="Worlds\AnvilWorldProvider.cs" />
+    <Compile Include="Worlds\BiomeUtils.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />

@@ -12,6 +12,14 @@ namespace MiNET.Net
 			Id = new Guid(rfc4122Bytes);
 		}
 
+		public UUID(Guid id)
+		{
+			//Array.Reverse(rfc4122Bytes, 0, 4);
+			//Array.Reverse(rfc4122Bytes, 4, 2);
+			//Array.Reverse(rfc4122Bytes, 6, 2);
+			Id = id;
+		}
+
 		public Guid Id { get; set; }
 
 		public byte[] GetBytes()

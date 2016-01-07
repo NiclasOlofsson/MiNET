@@ -10,6 +10,7 @@ using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
+using MiNET.Items;
 using MiNET.Utils;
 
 namespace MiNET.Net
@@ -178,7 +179,7 @@ namespace MiNET.Net
 
 		public void Write(string value)
 		{
-			if (value == null)
+			if (string.IsNullOrEmpty(value))
 			{
 				Write((short) 0);
 				return;
@@ -455,12 +456,12 @@ namespace MiNET.Net
 					Write(slot.Value.Metadata);
 					if (slot.Value.ExtraData == null)
 					{
-						Write((short)0);
+						Write((short) 0);
 					}
 					else
 					{
 						var bytes = GetNbtData(slot.Value.ExtraData);
-						Write((short)bytes.Length);
+						Write((short) bytes.Length);
 						Write(bytes);
 					}
 				}
@@ -592,14 +593,29 @@ namespace MiNET.Net
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
-			skin.Alpha = ReadByte();
-			skin.Slim = ReadByte() == 0x01;
+
 			try
 			{
-				skin.Texture = ReadBytes(ReadShort());
+				skin.SkinType = ReadString();
+				if (string.IsNullOrEmpty(skin.SkinType)) skin.SkinType = null;
+
+				if (skin.SkinType != null)
+				{
+					var length = ReadShort();
+					if (length == 64*32*4 || length == 64*64*4)
+					{
+						skin.Texture = ReadBytes(length);
+					}
+					else
+					{
+						skin.SkinType = null;
+					}
+				}
 			}
 			catch (Exception e)
 			{
+				skin.SkinType = null;
+				skin.Texture = null;
 			}
 
 			return skin;
@@ -607,10 +623,11 @@ namespace MiNET.Net
 
 		public void Write(Skin skin)
 		{
-			Write(skin.Alpha);
-			Write((byte) (skin.Slim ? 0x01 : 0x00));
 			if (skin.Texture != null)
 			{
+				var skinType = skin.SkinType;
+				if (string.IsNullOrEmpty(skinType)) skinType = "Standard_Custom";
+				Write(skinType);
 				Write((short) skin.Texture.Length);
 				Write(skin.Texture);
 			}
@@ -704,6 +721,56 @@ namespace MiNET.Net
 
 		public void Write(Recipes recipes)
 		{
+			Write(recipes.Count);
+
+			foreach (Recipe recipe in recipes)
+			{
+				if (recipe is ShapelessRecipe)
+				{
+					var memoryStream = new MemoryStream();
+					McpeWriter writer = new McpeWriter(memoryStream);
+
+					ShapelessRecipe rec = (ShapelessRecipe) recipe;
+					writer.Write(rec.Input.Count);
+					foreach (ItemStack stack in rec.Input)
+					{
+						writer.Write((MetadataSlot) stack);
+					}
+					writer.Write(1);
+					writer.Write(rec.Result);
+					writer.Write(new UUID(Guid.NewGuid()));
+
+					Write(0); // Type
+					var bytes = memoryStream.ToArray();
+					Write(bytes.Length);
+					Write(bytes);
+				}
+				else if (recipe is ShapedRecipe)
+				{
+					var memoryStream = new MemoryStream();
+					McpeWriter writer = new McpeWriter(memoryStream);
+
+					ShapedRecipe rec = (ShapedRecipe) recipe;
+					writer.Write(rec.Width);
+					writer.Write(rec.Height);
+
+					for (int w = 0; w < rec.Width; w++)
+					{
+						for (int h = 0; h < rec.Height; h++)
+						{
+							writer.Write(new ItemStack(rec.Input[(h * rec.Width) + w], 1));
+						}
+					}
+					writer.Write(1);
+					writer.Write(rec.Result);
+					writer.Write(new UUID(Guid.NewGuid()));
+
+					Write(1); // Type
+					var bytes = memoryStream.ToArray();
+					Write(bytes.Length);
+					Write(bytes);
+				}
+			}
 		}
 
 		public bool CanRead()

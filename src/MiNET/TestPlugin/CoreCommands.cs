@@ -33,12 +33,82 @@ namespace TestPlugin
 			//Context.PluginManager.RegisterCommands(Version);
 		}
 
+		[Command(Command = "td")]
+		public void ToggleDownfall(Player player, int value)
+		{
+			{
+				McpeLevelEvent levelEvent = new McpeLevelEvent();
+				levelEvent.eventId = 3001;
+				levelEvent.data = value;
+				player.SendPackage(levelEvent);
+			}
+			player.SendMessage("Downfall " + value, type: MessageType.Raw);
+		}
+
+		[Command]
+		public void ToggleDownfall(Player player)
+		{
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				for (int i = 0; i < short.MaxValue; i = i+2000)
+				{
+					var data = i;
+					{
+						McpeLevelEvent levelEvent = new McpeLevelEvent();
+						levelEvent.eventId = 3001;
+						levelEvent.data = data;
+						player.SendPackage(levelEvent);
+					}
+					//{
+					//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+					//	levelEvent.eventId = 3002;
+					//	levelEvent.data = i;
+					//	player.SendPackage(levelEvent);
+					//}
+					player.SendMessage("Downfall " + data, type: MessageType.Raw);
+					Thread.Sleep(5000);
+				}
+				for (int i = short.MaxValue; i >= 0; i = i - 2000)
+				{
+					{
+						McpeLevelEvent levelEvent = new McpeLevelEvent();
+						levelEvent.eventId = 3001;
+						levelEvent.data = i;
+						player.SendPackage(levelEvent);
+					}
+					//{
+					//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+					//	levelEvent.eventId = 3002;
+					//	levelEvent.data = i;
+					//	player.SendPackage(levelEvent);
+					//}
+
+					player.SendMessage("Downfall " + i, type: MessageType.Raw);
+					Thread.Sleep(5000);
+				}
+			});
+
+			//{
+			//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+			//	levelEvent.eventId = 3001;
+			//	levelEvent.data = 100000;
+			//	player.SendPackage(levelEvent);
+			//}
+			//{
+			//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+			//	levelEvent.eventId = 3002;
+			//	levelEvent.data = 36625;
+			//	player.SendPackage(levelEvent);
+			//}
+			player.SendMessage("Toggled downfall", type: MessageType.Raw);
+		}
+
 
 		[Command]
 		public void Version(Player player)
 		{
 			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
-			player.SendMessage(string.Format("MiNET v{0}", productVersion), type: MessageType.Raw);
+			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
 		}
 
 		[Command]
@@ -109,7 +179,7 @@ namespace TestPlugin
 
 			{
 				McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-				creativeContent.windowId = (byte)0x79;
+				creativeContent.windowId = (byte) 0x79;
 				creativeContent.slotData = player.Inventory.GetSlots();
 				creativeContent.hotbarData = player.Inventory.GetHotbar();
 				player.SendPackage(creativeContent);

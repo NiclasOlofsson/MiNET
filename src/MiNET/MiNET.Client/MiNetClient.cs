@@ -1013,6 +1013,7 @@ namespace MiNET.Client
 		public void SendLogin(string username)
 		{
 			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
+			skin.SkinType = "Standard_Custom";
 			//Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
 			var packet = new McpeLogin()
 			{

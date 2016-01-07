@@ -90,7 +90,7 @@ namespace MiNET
 			var index = ItemHotbar[InHandSlot];
 			if (index == -1 || index >= Slots.Count) return new ItemStack();
 
-			return Slots[index];
+			return Slots[index]?? new ItemStack();
 		}
 
 		public virtual int GetItemInHandSlot()
@@ -163,6 +163,17 @@ namespace MiNET
 			}
 
 			return false;
+		}
+
+		public void SetHeldItemSlotNoSend(int slot)
+		{
+			InHandSlot = slot;
+
+			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
+			broadcast.entityId = Player.EntityId;
+			broadcast.item = GetItemInHand();
+			broadcast.selectedSlot = (byte)slot;
+			Player.Level?.RelayBroadcast(broadcast);
 		}
 
 		public void SetHeldItemSlot(int slot)

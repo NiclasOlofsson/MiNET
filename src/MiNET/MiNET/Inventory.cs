@@ -30,7 +30,7 @@ namespace MiNET
 				if (i < slots.Count)
 				{
 					NbtCompound item = (NbtCompound)slots[i];
-					Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
+					Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue, item["Damage"].ByteValue));
 				}
 				else
 				{

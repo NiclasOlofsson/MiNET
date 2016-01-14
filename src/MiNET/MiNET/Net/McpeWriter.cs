@@ -1,12 +1,8 @@
 using System;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using fNbt;
 using log4net;
-using MiNET.Blocks;
-using MiNET.Crafting;
 using MiNET.Utils;
 
 namespace MiNET.Net
@@ -94,13 +90,13 @@ namespace MiNET.Net
 		{
 			if (string.IsNullOrEmpty(value))
 			{
-				Write((short)0);
+				Write((short) 0);
 				return;
 			}
 
 			byte[] bytes = Encoding.UTF8.GetBytes(value);
 
-			Write((short)bytes.Length);
+			Write((short) bytes.Length);
 			Write(bytes);
 		}
 
@@ -122,11 +118,11 @@ namespace MiNET.Net
 		{
 			if (metadata == null)
 			{
-				Write((short)0);
+				Write((short) 0);
 				return;
 			}
 
-			Write((short)metadata.Count);
+			Write((short) metadata.Count);
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
@@ -142,11 +138,11 @@ namespace MiNET.Net
 		{
 			if (metadata == null)
 			{
-				Write((short)0);
+				Write((short) 0);
 				return;
 			}
 
-			Write((short)metadata.Count);
+			Write((short) metadata.Count);
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
@@ -157,7 +153,7 @@ namespace MiNET.Net
 				{
 					if (slot.Value.Id == 0)
 					{
-						Write((short)0);
+						Write((short) 0);
 						continue;
 					}
 
@@ -165,17 +161,17 @@ namespace MiNET.Net
 					Write(slot.Value.Count);
 					Write(slot.Value.Metadata);
 					var extraData = slot.Value.ExtraData;
-					extraData = SignNbt(extraData, true);
+					extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData, true);
 
 					if (extraData != null)
 					{
 						var bytes = GetNbtData(extraData);
-						Write((short)bytes.Length);
+						Write((short) bytes.Length);
 						Write(bytes);
 					}
 					else
 					{
-						Write((short)0);
+						Write((short) 0);
 					}
 				}
 			}
@@ -185,7 +181,7 @@ namespace MiNET.Net
 		{
 			if (slot == null || slot.Value.Id <= 0)
 			{
-				Write((short)0);
+				Write((short) 0);
 				return;
 			}
 
@@ -193,66 +189,18 @@ namespace MiNET.Net
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
 			var extraData = slot.Value.ExtraData;
-			extraData = SignNbt(extraData, true);
+			extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData, true);
 
 			if (extraData != null)
 			{
 				var bytes = GetNbtData(extraData);
-				Write((short)bytes.Length);
+				Write((short) bytes.Length);
 				Write(bytes);
 			}
 			else
 			{
-				Write((short)0);
+				Write((short) 0);
 			}
-		}
-
-		public static NbtCompound SignNbt(NbtCompound extraData, bool crafting = false)
-		{
-			if (extraData == null)
-			{
-				extraData = new NbtCompound("");
-			}
-
-			lock (extraData)
-			{
-				//extraData = (NbtCompound)extraData.Clone();
-				if (!extraData.Contains("Item"))
-					extraData["Item"] =
-						new NbtCompound("Item")
-						{
-							new NbtShort("_hash", 1234),
-							new NbtByte("Crafting", (byte) (crafting?1:0))
-						};
-			}
-			return extraData;
-		}
-
-		public static bool VerifyItemStack(Player player, ItemStack itemStack)
-		{
-			if (itemStack.Id == 0 && itemStack.Count == 0 && itemStack.Metadata == 0) return true;
-
-			if (itemStack.ExtraData == null)
-			{
-				Log.Error($"{player.Username} Missing ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
-				return false;
-			}
-
-			NbtCompound tag = itemStack.ExtraData["Item"] as NbtCompound;
-			if (tag == null)
-			{
-				Log.Error($"{player.Username} Missing hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
-				return false;
-			}
-
-			NbtShort name = tag["_hash"] as NbtShort;
-			if (name == null)
-			{
-				Log.Error($"{player.Username} Invalid hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
-				return false;
-			}
-
-			return true;
 		}
 
 		private byte[] GetNbtData(NbtCompound nbtCompound)
@@ -274,7 +222,7 @@ namespace MiNET.Net
 
 		public void Write(PlayerAttributes attributes)
 		{
-			Write((short)attributes.Count);
+			Write((short) attributes.Count);
 			foreach (PlayerAttribute attribute in attributes.Values)
 			{
 				Write(attribute.MinValue);

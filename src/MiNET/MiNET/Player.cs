@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
-using fNbt;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Crafting;
@@ -607,11 +606,7 @@ namespace MiNET
 				}
 
 				SpawnPosition = SpawnPosition ?? Level.SpawnPoint;
-				KnownPosition = new PlayerLocation
-				{
-					X = SpawnPosition.X, Y = SpawnPosition.Y, Z = SpawnPosition.Z, Yaw = SpawnPosition.Yaw, Pitch = SpawnPosition.Pitch, HeadYaw = SpawnPosition.HeadYaw,
-				};
-
+				KnownPosition = SpawnPosition;
 
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
@@ -625,6 +620,8 @@ namespace MiNET
 				SendStartGame();
 
 				SendSetSpawnPosition();
+
+				SetPosition(SpawnPosition);
 
 				SendSetTime();
 
@@ -654,8 +651,6 @@ namespace MiNET
 			SendCreativeInventory();
 
 			SendPlayerInventory();
-
-			//Level.SpawnToAll(this);
 
 			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
 
@@ -1304,34 +1299,6 @@ namespace MiNET
 			}
 		}
 
-		public static bool VerifyCraftingItemStack(Player player, ItemStack itemStack)
-		{
-			if (itemStack.Id == 0 && itemStack.Count == 0 && itemStack.Metadata == 0) return true;
-
-			if (itemStack.ExtraData == null)
-			{
-				Log.Error($"{player.Username} Missing ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
-				return false;
-			}
-
-			NbtCompound tag = itemStack.ExtraData["Item"] as NbtCompound;
-			if (tag == null)
-			{
-				Log.Error($"{player.Username} Missing hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}");
-				return false;
-			}
-
-			NbtByte name = tag["Crafting"] as NbtByte;
-			if (name == null || name.Value == 0)
-			{
-				Log.Error($"{player.Username} Invalid hash for ExtraData on item with ID: {itemStack.Id}, Meta: {itemStack.Metadata}, Count: {itemStack.Count}, {itemStack.ExtraData}");
-				return false;
-			}
-
-			return true;
-		}
-
-
 		private int _lastChestOrderingIndex;
 
 		/// <summary>
@@ -1371,6 +1338,14 @@ namespace MiNET
 				{
 					if (_openInventory.WindowsId == message.windowId)
 					{
+						if (_openInventory.Type == 4)
+						{
+							Recipes recipes = new Recipes();
+							recipes.Add(new EnchantingRecipe());
+							McpeCraftingData crafting = new McpeCraftingData {recipes = recipes};
+							SendPackage(crafting);
+						}
+
 						// block inventories of various kinds (chests, furnace, etc)
 						_openInventory.SetSlot(this, (byte) message.slot, itemStack);
 						return;
@@ -1422,7 +1397,9 @@ namespace MiNET
 
 		public virtual bool VerifyItemStack(ItemStack itemStack)
 		{
-			return McpeWriter.VerifyItemStack(this, itemStack);
+			if (ItemSigner.DefualtItemSigner == null) return true;
+
+			return ItemSigner.DefualtItemSigner.VerifyItemStack(this, itemStack);
 		}
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)

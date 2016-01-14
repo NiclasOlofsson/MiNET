@@ -2749,6 +2749,11 @@ namespace MiNET.Crafting
 		public UUID Id { get; set; }
 	}
 
+	public class EnchantingRecipe : Recipe
+	{
+	}
+
+
 	public class ShapelessRecipe : Recipe
 	{
 		public List<ItemStack> Input { get; private set; }

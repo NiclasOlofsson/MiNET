@@ -62,6 +62,7 @@
     <Compile Include="BlockEntities\BlockEntity.cs" />
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
+    <Compile Include="BlockEntities\EnchantingTableBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="BlockFace.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Blocks\BookShelf.cs" />
     <Compile Include="Blocks\BrickStairs.cs" />
     <Compile Include="Blocks\Button.cs" />
+    <Compile Include="Blocks\EnchantingTable.cs" />
     <Compile Include="Blocks\StoneButton.cs" />
     <Compile Include="Blocks\WoodenButton.cs" />
     <Compile Include="Blocks\CoalBlock.cs" />
@@ -193,6 +195,7 @@
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
     <Compile Include="Items\ItemEgg.cs" />
+    <Compile Include="Items\ItemEnchantingTable.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldAxe.cs" />
     <Compile Include="Items\ItemGoldenApple.cs" />
@@ -246,6 +249,7 @@
     <Compile Include="MessageType.cs" />
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />
+    <Compile Include="Net\ItemSigner.cs" />
     <Compile Include="Net\McpeText.cs" />
     <Compile Include="Net\McpeWriter.cs" />
     <Compile Include="Net\PlayerAction.cs" />

@@ -56,6 +56,14 @@ namespace MiNET
 						WindowsId = 10,
 					};
 				}
+				else if (blockEntity is EnchantingTableBlockEntity)
+				{
+					inventory = new Inventory(GetInventoryId(), blockEntity, 2, (NbtList)comp["Items"])
+					{
+						Type = 4,
+						WindowsId = 12,
+					};
+				}
 				else if (blockEntity is FurnaceBlockEntity)
 				{
 					inventory = new Inventory(GetInventoryId(), blockEntity, 3, (NbtList) comp["Items"])

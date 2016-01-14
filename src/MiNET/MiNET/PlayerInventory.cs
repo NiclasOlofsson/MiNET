@@ -37,8 +37,10 @@ namespace MiNET
 			//Slots[Slots.Count-10] = new ItemStack(new ItemDiamondAxe(0), 1);
 			//Slots[Slots.Count-9] = new ItemStack(new ItemDiamondAxe(0), 1);
 			//int c = -1;
-			//Slots[++c] = new ItemStack(new Item(17, 0), 1);
+			//Slots[++c] = new ItemStack(new ItemEnchantingTable(0), 3);
 			//Slots[++c] = new ItemStack(new ItemIronSword(0), 1);
+			//Slots[++c] = new ItemStack(new ItemDiamondSword(0), 1);
+			//Slots[++c] = new ItemStack(new Item(17, 0), 14);
 			//Slots[++c] = new ItemStack(new ItemBow(0), 1);
 			//Slots[++c] = new ItemStack(new ItemSnowball(0), 64);
 			//Slots[++c] = new ItemStack(new ItemEgg(0), 64);
@@ -46,6 +48,7 @@ namespace MiNET
 			//Slots[++c] = new ItemStack(new ItemBucket(10), 1);
 			//Slots[++c] = new ItemStack(new ItemChest(0), 1);
 			////Slots[++c] = new ItemStack(new ItemBlock(new DiamondOre(), 0), 64);
+			//Slots[++c] = new ItemStack(new Item(351, 4), 30);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
 			//Slots[++c] = new ItemStack(new ItemBlock(new GoldBlock(), 0), 64);
@@ -155,10 +158,10 @@ namespace MiNET
 
 		public bool SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
 		{
-			return SetFirstEmptySlot(itemId, amount, itemId, true, false);
+			return SetFirstEmptySlot(itemId, amount, metadata, true, false);
 		}
 
-		public bool SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0, bool update = true, bool reverseOrder = false)
+		public bool SetFirstEmptySlot(short itemId, byte amount, short metadata, bool update, bool reverseOrder)
 		{
 			Item item = ItemFactory.GetItem(itemId, metadata);
 
@@ -187,7 +190,7 @@ namespace MiNET
 			{
 				Slots[si].Count += amount;
 				//if (update) Player.SendPlayerInventory();
-				//SendSetSlot(si);
+				if (update) SendSetSlot(si);
 				Log.Info("Set on slot " + si);
 				return true;
 			}
@@ -195,7 +198,7 @@ namespace MiNET
 			{
 				Slots[si] = new ItemStack(itemId, amount, metadata);
 				//if (update) Player.SendPlayerInventory();
-				//SendSetSlot(si);
+				if (update) SendSetSlot(si);
 				Log.Info("Set on slot " + si);
 				return true;
 			}

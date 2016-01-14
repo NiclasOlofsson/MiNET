@@ -76,6 +76,7 @@ namespace MiNET.Blocks
 			else if (blockId == 108) block = new BrickStairs();
 			else if (blockId == 109) block = new StoneBrickStairs();
 			else if (blockId == 114) block = new NetherBrickStairs();
+			else if (blockId == 116) block = new EnchantingTable();
 			else if (blockId == 128) block = new SandStoneStairs();
 			else if (blockId == 134) block = new SpruceWoodStairsStairs();
 			else if (blockId == 135) block = new BirchWoodStairs();

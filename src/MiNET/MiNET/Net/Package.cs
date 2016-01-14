@@ -510,7 +510,7 @@ namespace MiNET.Net
 					var extraData = slot.Value.ExtraData;
 					if (signItems)
 					{
-						extraData = McpeWriter.SignNbt(extraData);
+						extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData);
 					}
 					if (extraData != null)
 					{
@@ -575,7 +575,7 @@ namespace MiNET.Net
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
 			var extraData = slot.Value.ExtraData;
-			extraData = McpeWriter.SignNbt(extraData);
+			extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData);
 
 			if (extraData != null)
 			{
@@ -717,9 +717,8 @@ namespace MiNET.Net
 				int len = ReadInt();
 				if (recipeType < 0 || len == 0)
 				{
-					Log.Warn("Read void recipe");
+					Log.Error("Read void recipe");
 					continue;
-					//return recipes;
 				}
 
 				if (recipeType == 0)
@@ -783,11 +782,11 @@ namespace MiNET.Net
 				}
 				else if (recipeType == 4)
 				{
+					Log.Error("Reading ENCHANT_LIST");
 					//const ENTRY_ENCHANT_LIST = 4;
 					int enchantmentListCount = ReadByte(); // count
 					for (int j = 0; j < enchantmentListCount; j++)
 					{
-						ReadMetadataSlot();
 						ReadInt(); // Cost
 						byte enchantmentCount = ReadByte(); // EnchantCount
 						for (int k = 0; k < enchantmentCount; k++)
@@ -795,7 +794,8 @@ namespace MiNET.Net
 							ReadInt(); // Id
 							ReadInt(); // Level(strenght)
 						}
-						ReadString(); // Name
+						string name = ReadString(); // Name
+						Log.Error("Enchant: " + name);
 					}
 				}
 				else
@@ -804,6 +804,8 @@ namespace MiNET.Net
 					ReadBytes(len);
 				}
 			}
+
+			ReadByte(); // Clean (1) or update (0)
 
 			return recipes;
 		}
@@ -859,7 +861,43 @@ namespace MiNET.Net
 					Write(bytes.Length);
 					Write(bytes);
 				}
+				else if (recipe is EnchantingRecipe)
+				{
+					var memoryStream = new MemoryStream();
+					McpeWriter writer = new McpeWriter(memoryStream);
+
+					writer.Write((byte) 3); // Count
+					{
+						writer.Write((int) 1); // Cost
+						writer.Write((byte) 1); // Count
+						writer.Write((int) 9); // Id
+						writer.Write((int) 1); // Level
+						writer.Write("Test1"); // Level
+					}
+
+					{
+						writer.Write((int) 2); // Cost
+						writer.Write((byte) 1); // Count
+						writer.Write((int) 10); // Id
+						writer.Write((int) 2); // Level
+						writer.Write("Test2"); // Level
+					}
+					{
+						writer.Write((int) 3); // Cost
+						writer.Write((byte) 1); // Count
+						writer.Write((int) 12); // Id
+						writer.Write((int) 3); // Level
+						writer.Write("Test3"); // Level
+					}
+
+					Write(4); // Type
+					var bytes = memoryStream.ToArray();
+					Write(bytes.Length);
+					Write(bytes);
+				}
 			}
+
+			Write((byte) 1);
 		}
 
 		public bool CanRead()

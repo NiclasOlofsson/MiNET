@@ -535,7 +535,7 @@ namespace MiNET
 			//	}
 			//}
 
-			if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,16}$"))
+			if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_ -]{3,16}$"))
 			{
 				Disconnect("Invalid username.");
 				return;

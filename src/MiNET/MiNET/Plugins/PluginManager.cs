@@ -261,10 +261,6 @@ namespace MiNET.Plugins
 								{
 									S = 3;
 								}
-								else
-								{
-									CArg += C;
-								}
 								
 								if (C == ' ')
 								{
@@ -273,6 +269,10 @@ namespace MiNET.Plugins
 									if (CArg != "")
 										_arguments.Add(CArg);
 									CArg = "";
+								}
+								else
+								{
+									CArg += C;
 								}
 								break;
 							case 2:

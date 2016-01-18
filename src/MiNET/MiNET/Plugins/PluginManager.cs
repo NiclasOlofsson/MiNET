@@ -227,11 +227,88 @@ namespace MiNET.Plugins
 		{
 			try
 			{
-				string commandText = message.Split(' ')[0];
-				message = message.Replace(commandText, "").Trim();
-				commandText = commandText.Replace("/", "").Replace(".", "");
+				string commandText = "";
+				List<string> _arguments = new List<String>();
 
-				string[] arguments = message.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+				{
+					int S = 0;
+
+					char C = ' ';
+					string CArg = "";
+
+					for (var i = 1; i < message.Length; i++)
+					{
+						C = message[i];
+
+						switch (S)
+						{
+							case 0:
+								if (C == ' ')
+								{
+									S = 1;
+								}
+								else
+								{
+									commandText += C;
+								}
+								break;
+							case 1:
+								if (C == '"')
+								{
+									S = 2;
+								}
+								else if (C == '\'')
+								{
+									S = 3;
+								}
+								else if (C == ' ')
+								{
+									CArg = CArg.Trim();
+
+									if (CArg != "")
+										_arguments.Add(CArg);
+									CArg = "";
+								}
+								else
+								{
+									CArg += C;
+								}
+								break;
+							case 2:
+								if (C == '"')
+								{
+									S = 1;
+								}
+
+								CArg += C;
+								break;
+							case 3:
+								if (C == '\'')
+								{
+									S = 1;
+								}
+
+								CArg += C;
+								break;
+						}
+					}
+
+					CArg = CArg.Trim();
+
+					if (CArg != "")
+						_arguments.Add(CArg);
+
+					_arguments = _arguments.Select(Arg =>
+					{
+						if (((Arg.StartsWith("'")) && (Arg.EndsWith("'"))) ||
+							((Arg.StartsWith("\"")) && (Arg.EndsWith("\""))))
+							return Arg.Substring(1, Arg.Length - 2);
+
+						return Arg;
+					}).ToList();
+				}
+
+				string[] arguments = _arguments.ToArray();
 
 				foreach (var handlerEntry in _pluginCommands)
 				{

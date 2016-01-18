@@ -261,17 +261,18 @@ namespace MiNET.Plugins
 								{
 									S = 3;
 								}
-								else if (C == ' ')
+								else
+								{
+									CArg += C;
+								}
+								
+								if (C == ' ')
 								{
 									CArg = CArg.Trim();
 
 									if (CArg != "")
 										_arguments.Add(CArg);
 									CArg = "";
-								}
-								else
-								{
-									CArg += C;
 								}
 								break;
 							case 2:

@@ -258,7 +258,7 @@ namespace MiNET
 
 			else
 			{
-				Log.Error($"Unhandled package: " + message.GetType().Name);
+				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
 			}
 
 			if (message.Timer.IsRunning)
@@ -1102,66 +1102,68 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
-			Log.Info($"Player {Username} called set equiptment with inv slot: {message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Value.Id} with count item count: {message.item.Value.Count}");
-
 			byte selectedHotbarSlot = message.selectedSlot;
 			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
 
-			Log.Info($"Handle player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
+			Log.Info($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Value.Id} with count item count: {message.item.Value.Count}");
 
+			// 255 indicates empty hmmm
+			if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
 			{
-				// 255 indicates empty hmmm
-				if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
+				if (GameMode != GameMode.Creative)
 				{
-					if (GameMode != GameMode.Creative)
-					{
-						Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Value?.Id}");
-					}
-					return;
+					Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Value?.Id}");
 				}
+				return;
+			}
 
-				Log.Info($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
+			if(message.slot == 255)
+			{
+				Inventory.ItemHotbar[selectedHotbarSlot] = -1;
+				return;
+			}
 
-				//ItemStack itemStack = message.slot != 255 ? Inventory.Slots[selectedInventorySlot] : message.item.Value;
-				//if (itemStack != null)
-				//{
-				//	var existingItemId = itemStack.Id;
-				//	var incomingItemId = message.item.Value.Id;
+			//ItemStack itemStack = message.slot != 255 ? Inventory.Slots[selectedInventorySlot] : message.item.Value;
+			//if (itemStack != null)
+			//{
+			//	var existingItemId = itemStack.Id;
+			//	var incomingItemId = message.item.Value.Id;
 
-				//	if (existingItemId != incomingItemId)
-				//	{
-				//		if (GameMode != GameMode.Creative)
-				//		{
-				//			Log.Error($"Player {Username} set equiptment fails because incoming item ID {incomingItemId} didn't match existing inventory item ID {existingItemId}");
-				//		}
-				//		//return;
-				//	}
-				//	else
-				//	{
-				//		//Log.InfoFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
-				//	}
-				//}
-				//else
-				//{
-				//	Log.ErrorFormat("Player {0} set equiptment fails, probably hacker", Username);
-				//}
+			//	if (existingItemId != incomingItemId)
+			//	{
+			//		if (GameMode != GameMode.Creative)
+			//		{
+			//			Log.Error($"Player {Username} set equiptment fails because incoming item ID {incomingItemId} didn't match existing inventory item ID {existingItemId}");
+			//		}
+			//		//return;
+			//	}
+			//	else
+			//	{
+			//		//Log.InfoFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
+			//	}
+			//}
+			//else
+			//{
+			//	Log.ErrorFormat("Player {0} set equiptment fails, probably hacker", Username);
+			//}
 
-				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
+			for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
+			{
+				if (Inventory.ItemHotbar[i] == selectedInventorySlot)
 				{
-					if (Inventory.ItemHotbar[i] == selectedInventorySlot)
-					{
-						Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
-						break;
-					}
-				}
-
-				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
-				Inventory.SetHeldItemSlotNoSend(selectedHotbarSlot);
-				if (selectedInventorySlot < Inventory.Slots.Count)
-				{
-					Inventory.Slots[selectedInventorySlot] = message.item.Value;
+					Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
+					break;
 				}
 			}
+
+			Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
+			Inventory.SetHeldItemSlotNoSend(selectedHotbarSlot);
+			if (selectedInventorySlot < Inventory.Slots.Count)
+			{
+				Inventory.Slots[selectedInventorySlot] = message.item.Value;
+			}
+
+			Log.Info($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
 		}
 
 

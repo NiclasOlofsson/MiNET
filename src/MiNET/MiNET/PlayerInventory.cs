@@ -275,11 +275,19 @@ namespace MiNET
 
 		public void SendSetSlot(int slot)
 		{
-			McpeContainerSetSlot sendSlot = new McpeContainerSetSlot();
-			sendSlot.NoBatch = true;
-			sendSlot.slot = (short) slot;
-			sendSlot.item = Slots[slot];
-			Player.SendPackage(sendSlot);
+			if (slot < HotbarSize && (ItemHotbar[slot] == -1 || ItemHotbar[slot] == slot))
+			{
+				ItemHotbar[slot] = slot/* + HotbarSize*/;
+                Player.SendPlayerInventory();
+			}
+			else
+			{
+				McpeContainerSetSlot sendSlot = new McpeContainerSetSlot();
+				sendSlot.NoBatch = true;
+				sendSlot.slot = (short)slot;
+				sendSlot.item = Slots[slot];
+				Player.SendPackage(sendSlot);
+			}
 		}
 	}
 

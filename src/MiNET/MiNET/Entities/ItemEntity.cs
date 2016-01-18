@@ -25,6 +25,13 @@ namespace MiNET.Entities
 			TimeToLive = 6000;
 		}
 
+		public override MetadataDictionary GetMetadata()
+		{
+			MetadataDictionary metadata = base.GetMetadata();
+			metadata[15] = new MetadataByte(1);
+			return metadata;
+		}
+
 		public MetadataSlot GetMetadataSlot()
 		{
 			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack((short) Item.Id, Count, Item.Metadata));
@@ -58,6 +65,8 @@ namespace MiNET.Entities
 			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
 			Level.RelayBroadcast(mcpeAddItemEntity);
 
+			BroadcastSetEntityData();
+
 			IsSpawned = true;
 		}
 
@@ -73,6 +82,8 @@ namespace MiNET.Entities
 			mcpeAddItemEntity.speedY = (float) Velocity.Y;
 			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
 			player.SendPackage(mcpeAddItemEntity);
+
+			BroadcastSetEntityData();
 		}
 
 		public override void DespawnFromPlayer(Player player)

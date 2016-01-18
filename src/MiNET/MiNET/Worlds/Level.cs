@@ -911,7 +911,11 @@ namespace MiNET.Worlds
 			ItemStack itemStackInHand = player.Inventory.GetItemInHand();
 			Item itemInHand = itemStackInHand.Item;
 
-			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
+			if (itemInHand == null || itemInHand.Id != itemId)
+			{
+				Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
+				return; // Cheat(?)
+			}
 
 			if (itemInHand is ItemBlock)
 			{
@@ -994,9 +998,9 @@ namespace MiNET.Worlds
 				Count = drop.Count,
 				KnownPosition =
 				{
-					X = coordinates.X,
-					Y = coordinates.Y,
-					Z = coordinates.Z
+					X = coordinates.X + 0.5f,
+					Y = coordinates.Y + 0.5f,
+					Z = coordinates.Z + 0.5f
 				},
 			};
 

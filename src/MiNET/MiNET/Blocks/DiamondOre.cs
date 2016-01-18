@@ -1,4 +1,5 @@
 using MiNET.Items;
+using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
@@ -6,6 +7,11 @@ namespace MiNET.Blocks
 	{
 		public DiamondOre() : base(56)
 		{
+		}
+
+		public override ItemStack GetDrops()
+		{
+			return new ItemStack(264, 1);
 		}
 
 		public override Item GetSmelt()

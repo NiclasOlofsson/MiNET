@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Drawing;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
@@ -51,7 +53,8 @@ namespace MiNET.Entities
 		public virtual MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
+			metadata[0] = new MetadataByte(GetDataValue());
+			//metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(NameTag ?? string.Empty);
 			metadata[3] = new MetadataByte(1);
@@ -60,6 +63,30 @@ namespace MiNET.Entities
 			//metadata[16] = new MetadataByte(0);
 
 			return metadata;
+		}
+
+
+		public bool IsSneaking { get; set; }
+		public bool IsRiding { get; set; }
+		public bool IsSprinting { get; set; }
+		public bool IsInAction { get; set; }
+		public bool IsInvisible { get; set; }
+
+		public byte GetDataValue()
+		{
+			BitArray bits = new BitArray(8);
+			bits[0] = HealthManager.IsOnFire;
+			bits[1] = IsSneaking; // Sneaking
+			bits[2] = IsRiding; // Riding
+			bits[3] = IsSprinting; // Sprinting
+			bits[4] = IsInAction; // Action
+			bits[5] = IsInvisible; // Invisible
+			bits[6] = false; // Unused
+			bits[7] = false; // Unused
+
+			byte[] bytes = new byte[1];
+			bits.CopyTo(bytes, 0);
+			return bytes[0];
 		}
 
 		public virtual void OnTick()

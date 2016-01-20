@@ -913,7 +913,7 @@ namespace MiNET.Worlds
 
 			if (itemInHand == null || itemInHand.Id != itemId)
 			{
-				Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
+				if(player.GameMode != GameMode.Creative) Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
 				return; // Cheat(?)
 			}
 

@@ -259,6 +259,7 @@ namespace MiNET
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
+				Disconnect("Unhandled package", false);
 			}
 
 			if (message.Timer.IsRunning)
@@ -341,12 +342,16 @@ namespace MiNET
 				case PlayerAction.Jump:
 					break;
 				case PlayerAction.StartSprint:
+					IsSprinting = true;
 					break;
 				case PlayerAction.StopSprint:
+					IsSprinting = false;
 					break;
 				case PlayerAction.StartSneak:
+					IsSneaking = true;
 					break;
 				case PlayerAction.StopSneak:
+					IsSneaking = false;
 					break;
 				case PlayerAction.DimensionChange:
 					break;
@@ -354,9 +359,11 @@ namespace MiNET
 					throw new ArgumentOutOfRangeException();
 			}
 
-			// Player out of action
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte(0);
+			IsInAction = false;
+			MetadataDictionary metadata = new MetadataDictionary
+			{
+				[0] = GetDataValue()
+			};
 
 			var setEntityData = McpeSetEntityData.CreateObject();
 			setEntityData.entityId = EntityId;
@@ -1102,6 +1109,14 @@ namespace MiNET
 		{
 			if (HealthManager.IsDead) return;
 
+
+			ItemStack itemStack = message.item.Value;
+			if (GameMode != GameMode.Creative && itemStack != null && !VerifyItemStack(itemStack))
+			{
+				Log.Error($"Kicked {Username} for equipment hacking.");
+				Disconnect("Error #376. Please report this error.");
+			}
+
 			byte selectedHotbarSlot = message.selectedSlot;
 			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
 
@@ -1117,51 +1132,31 @@ namespace MiNET
 				return;
 			}
 
-			if(message.slot == 255)
+			if (message.slot == 255)
 			{
-				Inventory.ItemHotbar[selectedHotbarSlot] = -1;
-				return;
+				//Inventory.ItemHotbar[selectedHotbarSlot] = -1;
+				//return;
+				selectedInventorySlot = -1;
 			}
-
-			//ItemStack itemStack = message.slot != 255 ? Inventory.Slots[selectedInventorySlot] : message.item.Value;
-			//if (itemStack != null)
-			//{
-			//	var existingItemId = itemStack.Id;
-			//	var incomingItemId = message.item.Value.Id;
-
-			//	if (existingItemId != incomingItemId)
-			//	{
-			//		if (GameMode != GameMode.Creative)
-			//		{
-			//			Log.Error($"Player {Username} set equiptment fails because incoming item ID {incomingItemId} didn't match existing inventory item ID {existingItemId}");
-			//		}
-			//		//return;
-			//	}
-			//	else
-			//	{
-			//		//Log.InfoFormat("Player {2} set equiptment SUCCESS because incoming item ID {1} matched existing inventory item ID {0}", existingItemId, incomingItemId, Username);
-			//	}
-			//}
-			//else
-			//{
-			//	Log.ErrorFormat("Player {0} set equiptment fails, probably hacker", Username);
-			//}
-
-			for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
+			else
 			{
-				if (Inventory.ItemHotbar[i] == selectedInventorySlot)
+				for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
 				{
-					Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
-					break;
+					if (Inventory.ItemHotbar[i] == selectedInventorySlot)
+					{
+						Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
+						break;
+					}
 				}
 			}
 
 			Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
 			Inventory.SetHeldItemSlotNoSend(selectedHotbarSlot);
-			if (selectedInventorySlot < Inventory.Slots.Count)
-			{
-				Inventory.Slots[selectedInventorySlot] = message.item.Value;
-			}
+
+			//if (selectedInventorySlot < Inventory.Slots.Count)
+			//{
+			//	Inventory.Slots[selectedInventorySlot] = message.item.Value;
+			//}
 
 			Log.Info($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
 		}
@@ -1611,6 +1606,17 @@ namespace MiNET
 
 			if (message.face <= 5)
 			{
+				if (GameMode != GameMode.Creative)
+				{
+					ItemStack itemStack = message.item.Value;
+					if (itemStack != null && !VerifyItemStack(itemStack))
+					{
+						Log.Error($"Kicked {Username} for use item hacking.");
+						Disconnect("Error #324. Please report this error.");
+						return;
+					}
+				}
+
 				// Right click
 
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
@@ -1626,9 +1632,11 @@ namespace MiNET
 
 				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata);
 
-				// Player in action
-				MetadataDictionary metadata = new MetadataDictionary();
-				metadata[0] = new MetadataByte(16);
+				IsInAction = true;
+				MetadataDictionary metadata = new MetadataDictionary
+				{
+					[0] = GetDataValue()
+				};
 
 				var setEntityData = McpeSetEntityData.CreateObject();
 				setEntityData.entityId = EntityId;
@@ -1927,7 +1935,7 @@ namespace MiNET
 		public override MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
+			metadata[0] = new MetadataByte(GetDataValue());
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(NameTag ?? Username);
 			metadata[3] = new MetadataByte(!HideNameTag);

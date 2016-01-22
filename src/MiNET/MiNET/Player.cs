@@ -232,7 +232,6 @@ namespace MiNET
 
 			else if (typeof (McpeContainerSetSlot) == message.GetType())
 			{
-				Thread.Sleep(10);
 				HandleContainerSetSlot((McpeContainerSetSlot) message);
 			}
 
@@ -1239,19 +1238,11 @@ namespace MiNET
 		}
 
 
-		private bool _haveCrafted = true;
-		private int _lastCraftingNumber = -1;
-
 		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
 		{
 			lock (Inventory)
 			{
-				if (_lastCraftingNumber >= message.ReliableMessageNumber) return;
-				_lastCraftingNumber = message.ReliableMessageNumber;
-
 				Log.Info($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
-
-				_haveCrafted = true;
 
 				for (int i = 0; i < message.input.Count; i++)
 				{
@@ -1296,8 +1287,6 @@ namespace MiNET
 			}
 		}
 
-		private int _lastChestOrderingIndex;
-
 		/// <summary>
 		///     Handles the container set slot.
 		/// </summary>
@@ -1306,10 +1295,6 @@ namespace MiNET
 		{
 			lock (Inventory)
 			{
-				bool isLagging = _lastChestOrderingIndex >= message.OrderingIndex;
-				if (_lastChestOrderingIndex == message.OrderingIndex) return; // Resend :-(
-				_lastChestOrderingIndex = message.OrderingIndex;
-
 				if (HealthManager.IsDead) return;
 
 				ItemStack itemStack = message.item.Value;

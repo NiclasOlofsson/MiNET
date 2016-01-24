@@ -69,7 +69,7 @@ namespace MiNET.Entities
 		{
 			// Litteral "fire and forget"
 			new Explosion(Level,
-				new BlockCoordinates((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4, Fire)
+				new BlockCoordinates((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 14, Fire)
 				.Explode();
 		}
 	}

@@ -65,6 +65,7 @@
     <Compile Include="BlockEntities\EnchantingTableBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
+    <Compile Include="BlockEntities\SkullBlockEntity.cs" />
     <Compile Include="BlockFace.cs" />
     <Compile Include="Blocks\AcaciaWoodStairs.cs" />
     <Compile Include="Blocks\Bed.cs" />
@@ -224,6 +225,7 @@
     <Compile Include="Items\ItemIronShovel.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
     <Compile Include="Items\ItemMelonSlice.cs" />
+    <Compile Include="Items\ItemMobHead.cs" />
     <Compile Include="Items\ItemPotato.cs" />
     <Compile Include="Items\ItemPumpkinPie.cs" />
     <Compile Include="Items\ItemSign.cs" />

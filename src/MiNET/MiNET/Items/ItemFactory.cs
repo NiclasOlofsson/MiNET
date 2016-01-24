@@ -106,6 +106,7 @@ namespace MiNET.Items
 			else if (id == 391) item = new ItemCarrot();
 			else if (id == 392) item = new ItemPotato();
 			else if (id == 393) item = new ItemBakedPotato();
+			else if (id == 397) item = new ItemMobHead(metadata);
 			else if (id == 400) item = new ItemPumpkinPie();
 			else if (id <= 255)
 			{

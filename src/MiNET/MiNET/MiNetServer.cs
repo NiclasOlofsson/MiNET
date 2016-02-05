@@ -647,7 +647,9 @@ namespace MiNET
 				byte[] buffer = stream.ToArray();
 				try
 				{
-					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+					Package fullMessage = PackageFactory.CreatePackage(buffer[1], buffer) ?? new UnknownPackage(buffer[1], buffer);
+					Log.Debug($"0x{fullMessage.Id:x2}\n{Package.HexDump(buffer)}");
+
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
 					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
 					fullMessage.OrderingChannel = package._orderingChannel;

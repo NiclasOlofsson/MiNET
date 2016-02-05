@@ -134,50 +134,7 @@ namespace MiNET.Net
 			}
 		}
 
-		public void Write(MetadataSlots metadata)
-		{
-			if (metadata == null)
-			{
-				Write((short) 0);
-				return;
-			}
-
-			Write((short) metadata.Count);
-
-			for (int i = 0; i < metadata.Count; i++)
-			{
-				//if (!metadata.Contains(i)) continue;
-
-				MetadataSlot slot = metadata[i] as MetadataSlot;
-				if (slot != null)
-				{
-					if (slot.Value.Id == 0)
-					{
-						Write((short) 0);
-						continue;
-					}
-
-					Write(slot.Value.Id);
-					Write(slot.Value.Count);
-					Write(slot.Value.Metadata);
-					var extraData = slot.Value.ExtraData;
-					extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData, true);
-
-					if (extraData != null)
-					{
-						var bytes = GetNbtData(extraData);
-						Write((short) bytes.Length);
-						Write(bytes);
-					}
-					else
-					{
-						Write((short) 0);
-					}
-				}
-			}
-		}
-
-		public void Write(MetadataSlot slot)
+		public void Write(MetadataSlot slot, bool sign = true)
 		{
 			if (slot == null || slot.Value.Id <= 0)
 			{
@@ -189,12 +146,14 @@ namespace MiNET.Net
 			Write(slot.Value.Count);
 			Write(slot.Value.Metadata);
 			var extraData = slot.Value.ExtraData;
-			extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData, true);
+			if(sign) extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData, true);
 
 			if (extraData != null)
 			{
 				var bytes = GetNbtData(extraData);
-				Write((short) bytes.Length);
+				var length = bytes.Length;
+				Write((byte)length);
+				Write((byte)0);
 				Write(bytes);
 			}
 			else

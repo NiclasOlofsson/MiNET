@@ -4,12 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using log4net;
 using MiNET.Utils;
 
 namespace MiNET.Net
 {
 	public class ConnectedPackage : Package<ConnectedPackage>
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ConnectedPackage));
+
 		public DatagramHeader _datagramHeader;
 		public Int24 _datagramSequenceNumber; // uint 24
 
@@ -175,6 +178,7 @@ namespace MiNET.Net
 
 				if (_hasSplit)
 				{
+					//Log.Debug("Recieve split\n" + HexDump(internalBuffer));
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
@@ -182,11 +186,20 @@ namespace MiNET.Net
 					return;
 				}
 
-				Package package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
+				byte id = internalBuffer[0];
+				if (id == 0x8e)
+				{
+					id = internalBuffer[1];
+				}
+
+				Package package = PackageFactory.CreatePackage(id, internalBuffer) ?? new UnknownPackage(id, internalBuffer);
 				package.DatagramSequenceNumber = _datagramSequenceNumber;
 				package.ReliableMessageNumber = _reliableMessageNumber;
 				package.OrderingChannel = _orderingChannel;
 				package.OrderingIndex = _orderingIndex;
+
+				if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
+
 				Messages.Add(package);
 				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
 			}

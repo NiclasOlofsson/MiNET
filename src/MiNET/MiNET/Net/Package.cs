@@ -85,7 +85,7 @@ namespace MiNET.Net
 			}
 
 			var readBytes = _reader.ReadBytes(count);
-			if (readBytes.Length != count) throw new ArgumentOutOfRangeException();
+			if (readBytes.Length != count) throw new ArgumentOutOfRangeException($"Expected {count} bytes but read {readBytes.Length}.");
 			return readBytes;
 		}
 
@@ -498,7 +498,7 @@ namespace MiNET.Net
 				MetadataSlot slot = metadata[i] as MetadataSlot;
 				if (slot != null)
 				{
-					if (slot.Value.Id == 0)
+					if (slot.Value.Id <= 0)
 					{
 						Write((short) 0);
 						continue;
@@ -515,7 +515,9 @@ namespace MiNET.Net
 					if (extraData != null)
 					{
 						var bytes = GetNbtData(extraData);
-						Write((short) bytes.Length);
+						var length = bytes.Length;
+						Write((byte)length);
+						Write((byte)0);
 						Write(bytes);
 					}
 					else
@@ -553,10 +555,13 @@ namespace MiNET.Net
 				var stack = new ItemStack(id, ReadByte(), ReadShort());
 				var slot = new MetadataSlot(stack);
 				metadata[i] = slot;
+				if (stack.Count == 0) continue;
+
 				int nbtLen = ReadShort(); // NbtLen
 				if (nbtLen > 0)
 				{
-					stack.ExtraData = ReadNbt().NbtFile.RootTag;
+					var nbt = ReadNbt();
+					stack.ExtraData = nbt.NbtFile.RootTag;
 				}
 			}
 
@@ -580,7 +585,9 @@ namespace MiNET.Net
 			if (extraData != null)
 			{
 				var bytes = GetNbtData(extraData);
-				Write((short) bytes.Length);
+				var length = bytes.Length;
+				Write((byte) length);
+				Write((byte) 0);
 				Write(bytes);
 			}
 			else
@@ -591,7 +598,7 @@ namespace MiNET.Net
 
 		private byte[] GetNbtData(NbtCompound nbtCompound)
 		{
-			nbtCompound.Name = string.Empty;
+			nbtCompound.Name = nbtCompound.Name?? string.Empty;
 			var file = new NbtFile(nbtCompound);
 			file.BigEndian = false;
 
@@ -900,6 +907,9 @@ namespace MiNET.Net
 			Write((byte) 1);
 		}
 
+
+		private bool _prependByte = false;
+
 		public bool CanRead()
 		{
 			return _reader.BaseStream.Position < _reader.BaseStream.Length;
@@ -908,6 +918,7 @@ namespace MiNET.Net
 		protected virtual void EncodePackage()
 		{
 			_buffer.Position = 0;
+			if(_prependByte) Write((byte) 0x8e);
 			Write(Id);
 		}
 
@@ -934,10 +945,17 @@ namespace MiNET.Net
 
 		public virtual byte[] Encode()
 		{
+			return Encode(false);
+		}
+
+		public virtual byte[] Encode(bool prependByte)
+		{
 			lock (_encodeSync)
 			{
-				if (_isEncoded) return _encodedMessage;
+				//if (_isEncoded && !prependByte) return _encodedMessage;
+				_isEncoded = false;
 
+				_prependByte = prependByte;
 				EncodePackage();
 				_writer.Flush();
 				_buffer.Position = 0;
@@ -951,6 +969,10 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
+			if (Id == 0x8e)
+			{
+				Id = ReadByte();
+			}
 		}
 
 		public virtual void Decode(byte[] buffer)

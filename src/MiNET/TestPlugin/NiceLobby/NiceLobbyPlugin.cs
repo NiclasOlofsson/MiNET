@@ -190,9 +190,9 @@ namespace TestPlugin.NiceLobby
 		{
 			player.RemoveAllEffects();
 
-			player.SetEffect(new Speed { Level = 2, Duration = 1000 });
+			//player.SetEffect(new Speed { Level = 3, Duration = 1000 });
 			////player.SetEffect(new Slowness {Level = 2, Duration = 20});
-			//player.SetEffect(new JumpBoost { Level = 2, Duration = Effect.MaxDuration });
+			player.SetEffect(new JumpBoost { Level = 3, Duration = Effect.MaxDuration });
 			//player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))

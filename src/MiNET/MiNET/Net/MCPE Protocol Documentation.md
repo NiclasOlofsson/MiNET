@@ -20,7 +20,6 @@
 | Disconnection Notification | 0x15 | 21 |   
 | Connection Banned | 0x17 | 23 |   
 | Ip Recently Connected | 0x1A | 26 |   
-| Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
 | Mcpe Login | 0x8f | 143 |   
 | Mcpe Player Status | 0x90 | 144 |   

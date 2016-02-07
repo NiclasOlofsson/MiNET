@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -21,6 +20,23 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
+	public class PlayerAttributes : Dictionary<string, PlayerAttribute>
+	{
+	}
+
+	public class PlayerAttribute
+	{
+		public string Name { get; set; }
+		public float MinValue { get; set; }
+		public float MaxValue { get; set; }
+		public float Value { get; set; }
+
+		public override string ToString()
+		{
+			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}";
+		}
+	}
+
 	public class Player : Entity
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
@@ -56,7 +72,7 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public ConcurrentDictionary<EffectType, Effect> Effects { get; set; }
+		public Dictionary<EffectType, Effect> Effects { get; set; }
 
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
@@ -79,7 +95,7 @@ namespace MiNET
 			Height = 1.80;
 
 			Popups = new List<Popup>();
-			Effects = new ConcurrentDictionary<EffectType, Effect>();
+			Effects = new Dictionary<EffectType, Effect>();
 
 			Server = server;
 			EndPoint = endPoint;
@@ -242,7 +258,7 @@ namespace MiNET
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
-				//Disconnect("Unhandled package", false);
+				Disconnect("Unhandled package", false);
 			}
 
 			if (message.Timer.IsRunning)
@@ -326,21 +342,15 @@ namespace MiNET
 					break;
 				case PlayerAction.StartSprint:
 					IsSprinting = true;
-					//Speed = 0.15f;
-					//SendSetHealth();
 					break;
 				case PlayerAction.StopSprint:
 					IsSprinting = false;
-					Speed = 0.1f;
-					SendSetHealth();
 					break;
 				case PlayerAction.StartSneak:
 					IsSneaking = true;
-					//SendSetHealth();
 					break;
 				case PlayerAction.StopSneak:
 					IsSneaking = false;
-					//SendSetHealth();
 					break;
 				case PlayerAction.DimensionChange:
 					break;
@@ -508,10 +518,10 @@ namespace MiNET
 				Username = message.username;
 			}
 
-			if (message.protocol < 43)
+			if (message.protocol < 38)
 			{
 				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
-				Disconnect($"Wrong version ({message.protocol}) of Minecraft Pocket Edition, please upgrade.");
+				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));
 				return;
 			}
 
@@ -550,8 +560,6 @@ namespace MiNET
 			ClientUuid = message.clientUuid;
 			ClientSecret = message.clientSecret;
 			Skin = message.skin;
-
-			Log.Warn("ClientSecret: " + ClientSecret);
 
 			//string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
 			//Log.Info($"Writing skin to filename: {fileName}");
@@ -826,7 +834,7 @@ namespace MiNET
 		public virtual void SendCreativeInventory()
 		{
 			McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-			creativeContent.windowId = (byte)0x79;
+			creativeContent.windowId = (byte) 0x79;
 			creativeContent.slotData = InventoryUtils.GetCreativeMetadataSlots();
 			creativeContent.hotbarData = Inventory.GetHotbar();
 			SendPackage(creativeContent);
@@ -991,7 +999,7 @@ namespace MiNET
 			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit)
 			{
 				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-				if (HealthManager.CooldownTick == 0 && td > 49*TimeSpan.TicksPerMillisecond && td < 500*TimeSpan.TicksPerMillisecond && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0)
+				if (GameMode == GameMode.Survival && HealthManager.CooldownTick == 0 && td > 49*TimeSpan.TicksPerMillisecond && td < 500*TimeSpan.TicksPerMillisecond && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0)
 				{
 					double horizSpeed;
 					{
@@ -1046,12 +1054,12 @@ namespace MiNET
 						}
 					}
 
-					AddPopup(new Popup
-					{
-						MessageType = MessageType.Tip,
-						Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
-						Duration = 1
-					});
+					//AddPopup(new Popup
+					//{
+					//	MessageType = MessageType.Tip,
+					//	Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
+					//	Duration = 1
+					//});
 				}
 			}
 
@@ -1767,6 +1775,10 @@ namespace MiNET
 
 		public virtual void SendSetHealth()
 		{
+			//McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
+			//mcpeSetHealth.health = HealthManager.Hearts;
+			//SendPackage(mcpeSetHealth);
+
 			var attributes = new PlayerAttributes();
 			attributes["generic.health"] = new PlayerAttribute
 			{
@@ -1785,20 +1797,11 @@ namespace MiNET
 				Name = "player.experience", MinValue = 0, MaxValue = 1, Value = 0
 			};
 
-			if (Speed == 0.0f) Speed = 0.1f;
-
-			attributes["generic.movementSpeed"] = new PlayerAttribute
-			{
-				Name = "generic.movementSpeed", MinValue = 0, MaxValue = float.MaxValue, Value = Speed
-			};
-
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.entityId = 0;
 			attributesPackate.attributes = attributes;
 			SendPackage(attributesPackate);
 		}
-
-		public float Speed { get; private set; }
 
 		public virtual void SendSetTime()
 		{
@@ -1919,7 +1922,7 @@ namespace MiNET
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte(GetDataValue());
 			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[2] = new MetadataString("\u2764 \u2665 " + (NameTag ?? Username));
+			metadata[2] = new MetadataString(NameTag ?? Username);
 			metadata[3] = new MetadataByte(!HideNameTag);
 			metadata[4] = new MetadataByte(Silent);
 			metadata[7] = new MetadataInt(0); // Potion Color
@@ -1958,31 +1961,32 @@ namespace MiNET
 		[Wired]
 		public void SetEffect(Effect effect)
 		{
-			Effects.AddOrUpdate(effect.EffectId, delegate
-			{
-				effect.SendAdd(this);
-				return effect;
-			}, delegate
+			if (Effects.ContainsKey(effect.EffectId))
 			{
 				effect.SendUpdate(this);
-				return effect;
-			});
+			}
+			else
+			{
+				effect.SendAdd(this);
+			}
+
+			Effects[effect.EffectId] = effect;
 		}
 
 		[Wired]
 		public void RemoveEffect(Effect effect)
 		{
-			Effect removed;
-			if (Effects.TryRemove(effect.EffectId, out removed))
+			if (Effects.ContainsKey(effect.EffectId))
 			{
 				effect.SendRemove(this);
+				Effects.Remove(effect.EffectId);
 			}
 		}
 
 		[Wired]
 		public void RemoveAllEffects()
 		{
-			foreach (var effect	in Effects.Values)
+			foreach (var effect	 in Effects.Values.ToArray())
 			{
 				RemoveEffect(effect);
 			}
@@ -2115,8 +2119,7 @@ namespace MiNET
 						continue;
 					}
 
-					package.NoBatch = true;
-                    if (lenght == 1)
+					if (lenght == 1)
 					{
 						Server.SendPackage(this, package, _mtuSize);
 					}

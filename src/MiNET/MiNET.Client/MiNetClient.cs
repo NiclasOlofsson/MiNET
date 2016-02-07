@@ -27,7 +27,7 @@ namespace MiNET.Client
 {
 	public class MiNetClient
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetClient));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
 
 		private IPEndPoint _clientEndpoint;
 		private IPEndPoint _serverEndpoint;
@@ -60,8 +60,7 @@ namespace MiNET.Client
 		{
 			Console.WriteLine("Starting client...");
 
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.9"), 19132), "TheGrey");
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("83.249.65.92"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
@@ -399,19 +398,10 @@ namespace MiNET.Client
 
 				byte[] buffer = stream.ToArray();
 
-				byte id = buffer[0];
-				if (id == 0x8e)
-				{
-					id = buffer[1];
-				}
-
-				Package fullMessage = PackageFactory.CreatePackage(id, buffer) ?? new UnknownPackage(id, buffer);
+				Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
 				fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
 				fullMessage.OrderingChannel = package._orderingChannel;
 				fullMessage.OrderingIndex = package._orderingIndex;
-
-				if(!(fullMessage is McpeBatch)) Log.Debug($"Split: {fullMessage.GetType().Name} 0x{fullMessage.Id:x2} \n{Package.HexDump(buffer)}");
-
 				HandlePackage(fullMessage);
 				fullMessage.PutPool();
 			}
@@ -568,20 +558,10 @@ namespace MiNET.Client
 				OnMcpeText((McpeText) message);
 			}
 
-			else if (typeof(McpePlayerStatus) == message.GetType())
-			{
-				OnMcpePlayerStatus((McpePlayerStatus)message);
-			}
-
 			else
 			{
 				Log.Warn($"Unhandled package: {message.GetType().Name}");
 			}
-		}
-
-		private void OnMcpePlayerStatus(McpePlayerStatus message)
-		{
-			Log.Debug($"Status: {message.status}");
 		}
 
 		private void OnMcpeText(McpeText message)
@@ -596,7 +576,7 @@ namespace MiNET.Client
 
 		private void OnMcpePlayerEquipment(McpePlayerEquipment message)
 		{
-			Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Value.Id}, NBT: {message.item.Value.ExtraData}");
+			Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Value.Id}");
 		}
 
 		private ShapedRecipe _recipeToSend = null;
@@ -1058,11 +1038,7 @@ namespace MiNET.Client
 				{
 					int len = reader.ReadInt32();
 					byte[] internalBuffer = reader.ReadBytes(len);
-					var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
-					messages.Add(package);
-
-					if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
-
+					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer));
 				} while (destination.Position < destination.Length);
 			}
 			foreach (var msg in messages)
@@ -1251,8 +1227,8 @@ namespace MiNET.Client
 			var packet = new McpeLogin()
 			{
 				username = username,
-				protocol = 43,
-				protocol2 = 43,
+				protocol = 38,
+				protocol2 = 38,
 				clientId = ClientId,
 				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
 				serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
@@ -1261,16 +1237,14 @@ namespace MiNET.Client
 				skin = skin,
 			};
 
-			SendPackage(packet);
+			byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
 
-			//byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
+			McpeBatch batch = new McpeBatch();
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode();
 
-			//McpeBatch batch = new McpeBatch();
-			//batch.payloadSize = buffer.Length;
-			//batch.payload = buffer;
-			//batch.Encode();
-
-			//SendPackage(batch);
+			SendPackage(batch);
 			LoginSent = true;
 		}
 

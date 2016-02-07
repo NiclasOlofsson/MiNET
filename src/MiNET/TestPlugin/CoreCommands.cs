@@ -353,12 +353,6 @@ namespace TestPlugin
 			player.SendPlayerInventory();
 		}
 
-		[Command]
-		public void Kit(Player player)
-		{
-			Kit(player, 4);
-		}
-
 
 		[Command]
 		public void Kit(Player player, int kitId)
@@ -397,18 +391,6 @@ namespace TestPlugin
 			// Hotbar
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
-			inventory.Slots[c++] = new ItemStack(267, 1)
-			{
-				ExtraData = new NbtCompound("tag")
-				{
-					new NbtInt("RepairCost", 1),
-					new NbtCompound("display")
-					{
-						new NbtString("Name", "Stone Sword tessst"),
-					}
-				}
-			};
-
 			inventory.Slots[c++] = new ItemStack(268, 1); // Wooden Sword
 			inventory.Slots[c++] = new ItemStack(272, 1); // Stone Sword
 			inventory.Slots[c++] = new ItemStack(283, 1); // Golden Sword
@@ -418,6 +400,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
 			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
 			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
+			inventory.Slots[c++] = new ItemStack(267, 64, 0) {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}};
 
 			inventory.Slots[c++] = new ItemStack(new ItemChest(0), 1);
 			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);

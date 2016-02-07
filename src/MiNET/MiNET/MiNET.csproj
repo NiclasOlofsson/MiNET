@@ -282,8 +282,6 @@
     <Compile Include="Particles\TerrainParticle.cs" />
     <Compile Include="Particles\WaterDripParticle.cs" />
     <Compile Include="Particles\WaterParticle.cs" />
-    <Compile Include="PlayerAttribute.cs" />
-    <Compile Include="PlayerAttributes.cs" />
     <Compile Include="PlayerFactory.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />

@@ -112,6 +112,27 @@ namespace MiNET.Worlds
 			SpawnPoint = new PlayerLocation(_worldProvider.GetSpawnPoint());
 			CurrentWorldTime = _worldProvider.GetTime();
 
+			foreach(ChunkColumn chunkcache in GetLoadedChunks()){
+				foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in chunkcache.BlockEntities) {
+					NbtCompound nbt = (NbtCompound)blockEntityPair.Value.Clone ();
+					if (nbt == null) return;
+
+					string id = null;
+					var idTag = nbt.Get("id");
+					if (idTag != null)
+					{
+						idn = idTag.StringValue;
+					}
+
+					if (string.IsNullOrEmpty(id)) return;
+
+					BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(id);
+					blockEntity.Coordinates = blockEntityPair.Key;
+					blockEntity.SetCompound(nbt);
+					SetBlockEntity (blockEntity, true);
+				}
+			}
+
 			if (_worldProvider.IsCaching)
 			{
 				Stopwatch chunkLoading = new Stopwatch();

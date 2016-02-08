@@ -121,7 +121,7 @@ namespace MiNET.Worlds
 					var idTag = nbt.Get("id");
 					if (idTag != null)
 					{
-						id = idTag.StringValue;
+						idn = idTag.StringValue;
 					}
 
 					if (string.IsNullOrEmpty(id)) return;
@@ -129,7 +129,7 @@ namespace MiNET.Worlds
 					BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(id);
 					blockEntity.Coordinates = blockEntityPair.Key;
 					blockEntity.SetCompound(nbt);
-					SetBlockEntity (blockEntity, true);
+					BlockEntities.add(blockEntity);
 				}
 			}
 

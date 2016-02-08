@@ -121,7 +121,7 @@ namespace MiNET.Worlds
 					var idTag = nbt.Get("id");
 					if (idTag != null)
 					{
-						idn = idTag.StringValue;
+						id = idTag.StringValue;
 					}
 
 					if (string.IsNullOrEmpty(id)) return;

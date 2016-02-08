@@ -129,7 +129,7 @@ namespace MiNET.Worlds
 					BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(id);
 					blockEntity.Coordinates = blockEntityPair.Key;
 					blockEntity.SetCompound(nbt);
-					BlockEntities.add(blockEntity);
+					BlockEntities.Add(blockEntity);
 				}
 			}
 

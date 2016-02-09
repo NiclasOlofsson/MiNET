@@ -61,66 +61,14 @@ Also, make sure to join our Gitter chat for easy communication.
 Yes there's a community driven [MiNET Related Forum](http://minepocket.com/#minet-development-releated-minet-related-only.71) for sharing ideas and helping others in the community with MiNET .. stuff. Do notice that this forum does not belong to this project, so please don't contact me about it.
 In case you don't get the registration email for the forum, please check your junk-mail folder or ask for help on MiNET's gitter (the admins hang out there).
 
-## How do I install this on Linux?
+## Installation
 
-On Linux, compiling and using the server is relatively straightforward but there are a few things that can catch you out in the process.
+### Windows
 
-### Compiling the server
+For a windows installation you can choose to download the binary from the build server or fetch the code and compile from Visual Studio. Note that MiNET require .NET 4.6
 
-The first step is to clone the repository. The repo uses submodules so it's easiest if you use the `--recursive` switch to download them all at once. 
-
-    git clone --recursive https://github.com/NiclasOlofsson/MiNET.git
-
-Once you've cloned the repository, you can use the `xbuild` tool to compile the code. You'll need a relatively recent version of Mono to be able to run the server (3.10.x) and you might find that your distribution's repositories (if you're relying on them) have a version that's too old. As a result, you may want to looking into downloading the latest stable Mono build from the [website](http://www.mono-project.com/download/#download-lin). xbuild will want to be given the path to the solution file to work:
-
-    cd MiNET; xbuild src/MiNET/MiNET.sln
-
-If the build fails, try manually setting the TargetFrameworkVersion:
-
-    cd MiNET; xbuild /p:TargetFrameworkVersion="v4.5" src/MiNET/MiNET.sln
-
-
-#### Troubleshooting
-
-You might have some issues with the tool downloading NuGet packages. You'll see an error like the one below if this is the case:
-
-    WARNING: Error getting response stream (Write: The authentication or decryption has failed.): SendFailure
-
-To fix this, follow the instructions in [this StackOverflow answer](http://stackoverflow.com/a/16589218).
-
-### Running the server
-
-Now that the code is compiled, you can run the MiNET.Service.exe file using Mono:
-
-    cd src/MiNET/MiNET.Service/bin/Debug; mono MiNET.Service.exe
-
-If everything went as expected, you should see the following output:
-
-```
- INFO [NetService] - Starting MiNET
- INFO [iNetServer] - Initializing...
- INFO [iNetServer] - Loading settings...
- INFO [iNetServer] - Loading plugins...
- INFO [iNetServer] - Plugins loaded!
- INFO [iNetServer] - Server open for business...
-MiNET runing. Press <enter> to stop service..
-```
-
-#### Troubleshooting
-
-If you instead see an exception like the one in the stack trace below, you need to update your version of Mono.
-
-```
-System.NotImplementedException: The requested feature is not implemented.
-at System.IO.Compression.DeflateStream..ctor (System.IO.Stream stream, CompressionLevel compressionLevel, Boolean leaveOpen) [0x00000] in <filename unknown>:0
-at MiNET.Utils.ZLibStream..ctor (System.IO.Stream stream, CompressionLevel level, Boolean leaveOpen) [0x00000] in <filename unknown>:0
-at (wrapper remoting-invoke-with-check) MiNET.Utils.ZLibStream:.ctor (System.IO.Stream,System.IO.Compression.CompressionLevel,bool)
-at MiNET.Worlds.ChunkColumn.GetBytes () [0x00000] in <filename unknown>:0
-at MiNET.Worlds.Level.<Initialize>m__0 (System.Object state) [0x00000] in <filename unknown>:0 
-```
-#### Windows Troubleshooting
-
-```
 When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
-```
 
+### Linux
+
+[Linux Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)

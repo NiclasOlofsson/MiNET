@@ -5,7 +5,11 @@ namespace MiNET.Blocks
 {
 	public class Chest : Block
 	{
-		public Chest() : base(54)
+		public Chest() : this(54)
+		{
+		}
+
+		public Chest(byte id) : base(id)
 		{
 			FuelEfficiency = 15;
 		}
@@ -41,6 +45,13 @@ namespace MiNET.Blocks
 			player.OpenInventory(blockCoordinates);
 
 			return true;
+		}
+	}
+
+	public class TrappedChest : Chest
+	{
+		public TrappedChest() : base(146)
+		{
 		}
 	}
 }

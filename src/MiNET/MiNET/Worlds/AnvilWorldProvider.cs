@@ -344,6 +344,23 @@ namespace MiNET.Worlds
 								CleanSignText(blockEntityTag, "Text3");
 								CleanSignText(blockEntityTag, "Text4");
 							}
+							else if(blockEntity is ChestBlockEntity)
+							{
+								NbtList items = (NbtList) blockEntityTag["Items"];
+
+								Log.Debug($"Chest entity:\n{blockEntityTag}");
+
+								for (byte i = 0; i < items.Count; i++)
+								{
+									NbtCompound item = (NbtCompound)items[i];
+
+									item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
+
+									byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
+									item.Remove("Damage");
+									item.Add(new NbtByte("Damage", metadata));
+								}
+							}
 
 							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
 						}

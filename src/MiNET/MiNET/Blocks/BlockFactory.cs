@@ -82,6 +82,7 @@ namespace MiNET.Blocks
 			else if (blockId == 135) block = new BirchWoodStairs();
 			else if (blockId == 136) block = new JungleWoodStairs();
 			else if (blockId == 143) block = new WoodenButton();
+			else if (blockId == 146) block = new TrappedChest();
 			else if (blockId == 156) block = new QuartzStairs();
 			else if (blockId == 157) block = new DoubleWoodSlab();
 			else if (blockId == 158) block = new WoodSlab();

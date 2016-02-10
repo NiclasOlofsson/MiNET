@@ -27,15 +27,14 @@ namespace MiNET
 			Slots = new MetadataSlots();
 			for (byte i = 0; i < Size; i++)
 			{
-				if (i < slots.Count)
-				{
-					NbtCompound item = (NbtCompound)slots[i];
-					Slots[i] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue, item["Damage"].ByteValue));
-				}
-				else
-				{
-					Slots[i] = new MetadataSlot(new ItemStack());
-				}
+				Slots[i] = new MetadataSlot(new ItemStack());
+			}
+
+			for (byte i = 0; i < slots.Count; i++)
+			{
+				NbtCompound item = (NbtCompound) slots[i];
+
+				Slots[item["Slot"].ByteValue] = new MetadataSlot(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue, item["Damage"].ByteValue));
 			}
 		}
 
@@ -49,11 +48,11 @@ namespace MiNET
 			OnInventoryChange(player, slot, itemStack);
 		}
 
-        public ItemStack GetSlot(byte slot)
-        {
-            MetadataSlot slotData = (MetadataSlot)Slots[slot];
-            return slotData.Value;
-        }
+		public ItemStack GetSlot(byte slot)
+		{
+			MetadataSlot slotData = (MetadataSlot) Slots[slot];
+			return slotData.Value;
+		}
 
 		public bool DecreaseSlot(byte slot)
 		{

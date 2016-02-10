@@ -12,7 +12,6 @@ using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Security;
 using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET.Plugins
 {
@@ -57,7 +56,11 @@ namespace MiNET.Plugins
 				AppDomain currentDomain = AppDomain.CurrentDomain;
 				currentDomain.AssemblyResolve += MyResolveEventHandler;
 
-				foreach (string pluginPath in Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories))
+				List<string> pluginPaths = new List<string>();
+				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories));
+				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.exe", SearchOption.AllDirectories));
+
+				foreach (string pluginPath in pluginPaths)
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
 
@@ -107,7 +110,16 @@ namespace MiNET.Plugins
 			}
 			catch (Exception)
 			{
-				return Assembly.LoadFile(args.Name + ".dll");
+				try
+				{
+					AssemblyName name = new AssemblyName(args.Name);
+					string assemblyPath = _currentPath + "\\" + name.Name + ".exe";
+					return Assembly.LoadFile(assemblyPath);
+				}
+				catch (Exception)
+				{
+					return Assembly.LoadFile(args.Name + ".dll");
+				}
 			}
 		}
 
@@ -446,7 +458,7 @@ namespace MiNET.Plugins
 							}
 							else if (parameters.Length == 2 && parameters[1].ParameterType == typeof (Player))
 							{
-								returnPacket = method.Invoke(pluginInstance, new object[] { currentPackage, player }) as Package;
+								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage, player}) as Package;
 							}
 						}
 					}

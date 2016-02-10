@@ -3,6 +3,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using fNbt;
 
 namespace MiNET.Entities
 {
@@ -12,7 +13,8 @@ namespace MiNET.Entities
 		public byte Count { get; set; }
 		public int PickupDelay { get; set; }
 		public int TimeToLive { get; set; }
-
+		public MetadataSlot metadataSlot { get; set; }
+		
 		public ItemEntity(Level level, Item item) : base(64, level)
 		{
 			Item = item;
@@ -23,6 +25,7 @@ namespace MiNET.Entities
 
 			PickupDelay = 10;
 			TimeToLive = 6000;
+			metadataSlot = new MetadataSlot(new ItemStack((short) Item.Id, Count, Item.Metadata));
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -31,10 +34,13 @@ namespace MiNET.Entities
 			metadata[15] = new MetadataByte(1);
 			return metadata;
 		}
+		
+		public void setExtraData(NbtCompound nbt){
+ 			metadataSlot.Value.ExtraData = nbt;
+ 		}
 
 		public MetadataSlot GetMetadataSlot()
 		{
-			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack((short) Item.Id, Count, Item.Metadata));
 			return metadataSlot;
 		}
 

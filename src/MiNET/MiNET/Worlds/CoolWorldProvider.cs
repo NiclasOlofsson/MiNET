@@ -268,20 +268,21 @@ namespace MiNET.Worlds
 
 		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z, WoodType woodType)
 		{
-			switch((byte)woodType)
+			switch(woodType)
 			{
-				case 1:
+				case WoodType.Spruce:
 					new SpruceTree().Create(chunk, x, treebase, z);
 					break;
-				case 2:
+				case WoodType.Birch:
 					new BirchTree().Create(chunk, x, treebase, z);
 					break;
-				case 3:
+				case WoodType.Jungle:
 					new JungleTree().Create(chunk, x, treebase, z);
 					break;
-				case 4:
+				case WoodType.Acacia:
 					new AcaciaTree().Create(chunk, x, treebase, z);
-				case 0:
+                    break;
+				case WoodType.Oak:
 				default:	// Lets generate an Oak tree by default ;)
 					new OakTree().Create(chunk, x, treebase, z);
 					break;

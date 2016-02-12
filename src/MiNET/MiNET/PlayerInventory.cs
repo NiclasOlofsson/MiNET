@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -96,7 +94,7 @@ namespace MiNET
 			var index = ItemHotbar[InHandSlot];
 			if (index == -1 || index >= Slots.Count) return new ItemStack();
 
-			return Slots[index]?? new ItemStack();
+			return Slots[index] ?? new ItemStack();
 		}
 
 		public virtual int GetItemInHandSlot()
@@ -121,7 +119,7 @@ namespace MiNET
 			MetadataInts metadata = new MetadataInts();
 			for (byte i = 0; i < ItemHotbar.Length; i++)
 			{
-				if(ItemHotbar[i] == -1)
+				if (ItemHotbar[i] == -1)
 				{
 					metadata[i] = new MetadataInt(-1);
 				}
@@ -134,25 +132,27 @@ namespace MiNET
 			return metadata;
 		}
 
-		public MetadataSlots GetSlots()
+		public ItemStacks GetSlots()
 		{
-			var slotData = new MetadataSlots();
+			ItemStacks slotData = new ItemStacks();
 			for (int i = 0; i < Slots.Count; i++)
 			{
 				if (Slots[i].Count == 0) Slots[i] = new ItemStack();
-				slotData[i] = new MetadataSlot(Slots[i]);
+				slotData.Add(Slots[i]);
 			}
 
 			return slotData;
 		}
 
-		public MetadataSlots GetArmor()
+		public ItemStacks GetArmor()
 		{
-			var slotData = new MetadataSlots();
-			slotData[0] = new MetadataSlot(new ItemStack((short) Helmet.Id, 1, Helmet.Metadata));
-			slotData[1] = new MetadataSlot(new ItemStack((short) Chest.Id, 1, Helmet.Metadata));
-			slotData[2] = new MetadataSlot(new ItemStack((short) Leggings.Id, 1, Helmet.Metadata));
-			slotData[3] = new MetadataSlot(new ItemStack((short) Boots.Id, 1, Helmet.Metadata));
+			ItemStacks slotData = new ItemStacks
+			{
+				new ItemStack((short) Helmet.Id, 1, Helmet.Metadata),
+				new ItemStack((short) Chest.Id, 1, Helmet.Metadata),
+				new ItemStack((short) Leggings.Id, 1, Helmet.Metadata),
+				new ItemStack((short) Boots.Id, 1, Helmet.Metadata)
+			};
 			return slotData;
 		}
 
@@ -169,7 +169,7 @@ namespace MiNET
 			{
 				for (int si = Slots.Count; si > 0; si--)
 				{
-					if (FirstEmptySlot(itemId, amount, metadata, update, si-1, item)) return true;
+					if (FirstEmptySlot(itemId, amount, metadata, update, si - 1, item)) return true;
 				}
 			}
 			else
@@ -212,7 +212,7 @@ namespace MiNET
 			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
 			broadcast.entityId = Player.EntityId;
 			broadcast.item = GetItemInHand();
-			broadcast.selectedSlot = (byte)slot;
+			broadcast.selectedSlot = (byte) slot;
 			Player.Level?.RelayBroadcast(broadcast);
 		}
 
@@ -242,11 +242,11 @@ namespace MiNET
 			SetInventorySlot(slot, 0, 0);
 		}
 
-		public bool HasItem(MetadataSlot item)
+		public bool HasItem(ItemStack item)
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if (((MetadataSlot) Slots[i]).Value.Id == item.Value.Id && ((MetadataSlot) Slots[i]).Value.Metadata == item.Value.Metadata)
+				if ((Slots[i]).Id == item.Id && (Slots[i]).Metadata == item.Metadata)
 				{
 					return true;
 				}
@@ -262,7 +262,7 @@ namespace MiNET
 				if (slot.Id == id)
 				{
 					slot.Count--;
-					if(slot.Count == 0)
+					if (slot.Count == 0)
 					{
 						Slots[i] = new ItemStack();
 					}
@@ -277,14 +277,14 @@ namespace MiNET
 		{
 			if (slot < HotbarSize && (ItemHotbar[slot] == -1 || ItemHotbar[slot] == slot))
 			{
-				ItemHotbar[slot] = slot/* + HotbarSize*/;
-                Player.SendPlayerInventory();
+				ItemHotbar[slot] = slot /* + HotbarSize*/;
+				Player.SendPlayerInventory();
 			}
 			else
 			{
 				McpeContainerSetSlot sendSlot = new McpeContainerSetSlot();
 				sendSlot.NoBatch = true;
-				sendSlot.slot = (short)slot;
+				sendSlot.slot = (short) slot;
 				sendSlot.item = Slots[slot];
 				Player.SendPackage(sendSlot);
 			}

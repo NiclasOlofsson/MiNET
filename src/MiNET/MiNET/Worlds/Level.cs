@@ -243,16 +243,16 @@ namespace MiNET.Worlds
 
 				McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 				mcpePlayerEquipment.entityId = newPlayer.EntityId;
-				mcpePlayerEquipment.item = new MetadataSlot(newPlayer.Inventory.GetItemInHand());
+				mcpePlayerEquipment.item = newPlayer.Inventory.GetItemInHand();
 				mcpePlayerEquipment.slot = 0;
 				RelayBroadcast(newPlayer, sendList, mcpePlayerEquipment);
 
 				McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 				mcpePlayerArmorEquipment.entityId = newPlayer.EntityId;
-				mcpePlayerArmorEquipment.helmet = new MetadataSlot(new ItemStack(newPlayer.Inventory.Helmet, 0));
-				mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(newPlayer.Inventory.Chest, 0));
-				mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(newPlayer.Inventory.Leggings, 0));
-				mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(newPlayer.Inventory.Boots, 0));
+				mcpePlayerArmorEquipment.helmet = new ItemStack(newPlayer.Inventory.Helmet, 0);
+				mcpePlayerArmorEquipment.chestplate = new ItemStack(newPlayer.Inventory.Chest, 0);
+				mcpePlayerArmorEquipment.leggings = new ItemStack(newPlayer.Inventory.Leggings, 0);
+				mcpePlayerArmorEquipment.boots = new ItemStack(newPlayer.Inventory.Boots, 0);
 				RelayBroadcast(newPlayer, sendList, mcpePlayerArmorEquipment);
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
@@ -288,7 +288,7 @@ namespace MiNET.Worlds
 		{
 			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
 			mcpePlayerEquipment.entityId = player.EntityId;
-			mcpePlayerEquipment.item = new MetadataSlot(player.Inventory.GetItemInHand());
+			mcpePlayerEquipment.item = player.Inventory.GetItemInHand();
 			mcpePlayerEquipment.slot = 0;
 			receiver.SendPackage(mcpePlayerEquipment);
 		}
@@ -297,10 +297,10 @@ namespace MiNET.Worlds
 		{
 			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = player.EntityId;
-			mcpePlayerArmorEquipment.helmet = new MetadataSlot(new ItemStack(player.Inventory.Helmet, 0));
-			mcpePlayerArmorEquipment.chestplate = new MetadataSlot(new ItemStack(player.Inventory.Chest, 0));
-			mcpePlayerArmorEquipment.leggings = new MetadataSlot(new ItemStack(player.Inventory.Leggings, 0));
-			mcpePlayerArmorEquipment.boots = new MetadataSlot(new ItemStack(player.Inventory.Boots, 0));
+			mcpePlayerArmorEquipment.helmet = new ItemStack(player.Inventory.Helmet, 0);
+			mcpePlayerArmorEquipment.chestplate = new ItemStack(player.Inventory.Chest, 0);
+			mcpePlayerArmorEquipment.leggings = new ItemStack(player.Inventory.Leggings, 0);
+			mcpePlayerArmorEquipment.boots = new ItemStack(player.Inventory.Boots, 0);
 			receiver.SendPackage(mcpePlayerArmorEquipment);
 		}
 
@@ -881,16 +881,6 @@ namespace MiNET.Worlds
 			chunk.RemoveBlockEntity(blockCoordinates);
 		}
 
-		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata)
-		{
-			// Make sure we are holding the item we claim to be using
-			Item itemInHand = player.Inventory.GetItemInHand().Item;
-
-			if (itemInHand == null || itemInHand.Id != itemId) return; // Cheat(?)
-
-			itemInHand.UseItem(world, player, blockCoordinates);
-		}
-
 		public event EventHandler<BlockPlaceEventArgs> BlockPlace;
 
 		protected virtual bool OnBlockPlace(BlockPlaceEventArgs e)
@@ -913,7 +903,7 @@ namespace MiNET.Worlds
 
 			if (itemInHand == null || itemInHand.Id != itemId)
 			{
-				if(player.GameMode != GameMode.Creative) Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
+				if (player.GameMode != GameMode.Creative) Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
 				return; // Cheat(?)
 			}
 
@@ -922,7 +912,6 @@ namespace MiNET.Worlds
 				Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
 				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
 				{
-
 					Block sendBlock = new Block(block.Id)
 					{
 						Coordinates = block.Coordinates,

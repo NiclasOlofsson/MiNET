@@ -42,11 +42,6 @@ namespace MiNET.Utils
 			return new MetadataLong(value);
 		}
 
-		public static implicit operator MetadataEntry(ItemStack value)
-		{
-			return new MetadataSlot(value);
-		}
-
 		protected byte GetKey(byte index)
 		{
 			Index = index; // Cheat to get this for ToString

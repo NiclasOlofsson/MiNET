@@ -1079,7 +1079,7 @@ namespace MiNET
 		{
 			lock (Inventory)
 			{
-				var stack = message.item.Value;
+				var stack = message.item;
 				Log.Debug($"Player {Username} drops item with inv slot: {message.itemtype} and Item ID: {stack.Id} with count item count: {stack.Count}");
 
 
@@ -1109,7 +1109,7 @@ namespace MiNET
 			if (HealthManager.IsDead) return;
 
 
-			ItemStack itemStack = message.item.Value;
+			ItemStack itemStack = message.item;
 			if (GameMode != GameMode.Creative && itemStack != null && !VerifyItemStack(itemStack))
 			{
 				Log.Error($"Kicked {Username} for equipment hacking.");
@@ -1119,14 +1119,14 @@ namespace MiNET
 			byte selectedHotbarSlot = message.selectedSlot;
 			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
 
-			Log.Info($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Value.Id} with count item count: {message.item.Value.Count}");
+			Log.Info($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Id} with count item count: {message.item.Count}");
 
 			// 255 indicates empty hmmm
 			if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
 			{
 				if (GameMode != GameMode.Creative)
 				{
-					Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Value?.Id}");
+					Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Id}");
 				}
 				return;
 			}
@@ -1232,7 +1232,7 @@ namespace MiNET
 				var containerSetSlot = McpeContainerSetSlot.CreateObject();
 				containerSetSlot.windowId = inventory.WindowsId;
 				containerSetSlot.slot = slot;
-				containerSetSlot.item = new MetadataSlot(itemStack);
+				containerSetSlot.item = itemStack;
 				SendPackage(containerSetSlot);
 			}
 		}
@@ -1246,10 +1246,9 @@ namespace MiNET
 
 				for (int i = 0; i < message.input.Count; i++)
 				{
-					MetadataSlot slot = (MetadataSlot) message.input[i];
-					if (slot != null)
+					ItemStack itemStack = message.input[i];
+					if (itemStack != null)
 					{
-						var itemStack = slot.Value;
 						if (!VerifyItemStack(itemStack))
 						{
 							Log.Error($"Kicked {Username} for craft hacking.");
@@ -1297,7 +1296,7 @@ namespace MiNET
 			{
 				if (HealthManager.IsDead) return;
 
-				ItemStack itemStack = message.item.Value;
+				ItemStack itemStack = message.item;
 
 				if (GameMode != GameMode.Creative)
 				{
@@ -1363,10 +1362,10 @@ namespace MiNET
 
 						McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 						armorEquipment.entityId = EntityId;
-						armorEquipment.helmet = new MetadataSlot(new ItemStack(Inventory.Helmet, 1));
-						armorEquipment.chestplate = new MetadataSlot(new ItemStack(Inventory.Chest, 1));
-						armorEquipment.leggings = new MetadataSlot(new ItemStack(Inventory.Leggings, 1));
-						armorEquipment.boots = new MetadataSlot(new ItemStack(Inventory.Boots, 1));
+						armorEquipment.helmet = new ItemStack(Inventory.Helmet, 1);
+						armorEquipment.chestplate = new ItemStack(Inventory.Chest, 1);
+						armorEquipment.leggings = new ItemStack(Inventory.Leggings, 1);
+						armorEquipment.boots = new ItemStack(Inventory.Boots, 1);
 						Level.RelayBroadcast(this, armorEquipment);
 
 						break;
@@ -1576,8 +1575,8 @@ namespace MiNET
 
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
-			//Log.DebugFormat("Use item: {0}", message.item.Value.Id);
-			//Log.DebugFormat("item meta: {0}", message.item.Value.Metadata);
+			//Log.DebugFormat("Use item: {0}", message.item.Id);
+			//Log.DebugFormat("item meta: {0}", message.item.Metadata);
 			//Log.DebugFormat("x:  {0}", message.x);
 			//Log.DebugFormat("y:  {0}", message.y);
 			//Log.DebugFormat("z:  {0}", message.z);
@@ -1593,7 +1592,7 @@ namespace MiNET
 			{
 				if (GameMode != GameMode.Creative)
 				{
-					ItemStack itemStack = message.item.Value;
+					ItemStack itemStack = message.item;
 					if (itemStack != null && !VerifyItemStack(itemStack))
 					{
 						Log.Error($"Kicked {Username} for use item hacking.");
@@ -1606,7 +1605,7 @@ namespace MiNET
 
 				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
 
-				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata, (BlockFace) message.face, faceCoords);
+				Level.Interact(Level, this, message.item.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Metadata, (BlockFace) message.face, faceCoords);
 			}
 			else
 			{
@@ -1615,7 +1614,17 @@ namespace MiNET
 				_itemUseTimer = new Stopwatch();
 				_itemUseTimer.Start();
 
-				Level.Interact(Level, this, message.item.Value.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Value.Metadata);
+				// Make sure we are holding the item we claim to be using
+				Item itemInHand = Inventory.GetItemInHand().Item;
+
+				var itemId = message.item.Id;
+				if (itemInHand == null || itemInHand.Id != itemId)
+				{
+					if (GameMode != GameMode.Creative) Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
+					return; // Cheat(?)
+				}
+
+				itemInHand.UseItem(Level, this, new BlockCoordinates(message.x, message.y, message.z));
 
 				IsInAction = true;
 				MetadataDictionary metadata = new MetadataDictionary

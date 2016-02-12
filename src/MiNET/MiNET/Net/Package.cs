@@ -465,7 +465,7 @@ namespace MiNET.Net
 			return metadata;
 		}
 
-		public void Write(MetadataSlots metadata)
+		public void Write(ItemStacks metadata)
 		{
 			McpeContainerSetContent msg = this as McpeContainerSetContent;
 			bool signItems = msg == null || msg.windowId != 0x79;
@@ -495,38 +495,11 @@ namespace MiNET.Net
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
-				MetadataSlot slot = metadata[i] as MetadataSlot;
-				if (slot != null)
-				{
-					if (slot.Value.Id == 0)
-					{
-						Write((short) 0);
-						continue;
-					}
-
-					Write(slot.Value.Id);
-					Write(slot.Value.Count);
-					Write(slot.Value.Metadata);
-					var extraData = slot.Value.ExtraData;
-					if (signItems)
-					{
-						extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData);
-					}
-					if (extraData != null)
-					{
-						var bytes = GetNbtData(extraData);
-						Write((short) bytes.Length);
-						Write(bytes);
-					}
-					else
-					{
-						Write((short) 0);
-					}
-				}
+				Write(metadata[i], signItems);
 			}
 		}
 
-		public MetadataSlots ReadMetadataSlots()
+		public ItemStacks ReadItemStacks()
 		{
 			int count;
 			if (this is McpeCraftingEvent)
@@ -539,47 +512,37 @@ namespace MiNET.Net
 				count = ReadShort();
 			}
 
-			MetadataSlots metadata = new MetadataSlots();
+			ItemStacks metadata = new ItemStacks();
 
 			for (int i = 0; i < count; i++)
 			{
-				short id = ReadShort();
-				if (id <= 0)
-				{
-					metadata[i] = new MetadataSlot(new ItemStack());
-					continue;
-				}
-
-				var stack = new ItemStack(id, ReadByte(), ReadShort());
-				var slot = new MetadataSlot(stack);
-				metadata[i] = slot;
-				int nbtLen = ReadShort(); // NbtLen
-				if (nbtLen > 0)
-				{
-					stack.ExtraData = ReadNbt().NbtFile.RootTag;
-				}
+				metadata.Add(ReadItemStack());
 			}
 
 			return metadata;
 		}
 
-		public void Write(MetadataSlot slot)
+		public void Write(ItemStack stack, bool signItem = true)
 		{
-			if (slot == null || slot.Value.Id <= 0)
+			if (stack == null || stack.Id <= 0)
 			{
 				Write((short) 0);
 				return;
 			}
 
-			Write(slot.Value.Id);
-			Write(slot.Value.Count);
-			Write(slot.Value.Metadata);
-			var extraData = slot.Value.ExtraData;
-			extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData);
+			Write(stack.Id);
+			Write(stack.Count);
+			Write(stack.Metadata);
+
+			NbtCompound extraData = stack.ExtraData;
+			if (signItem)
+			{
+				extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData);
+			}
 
 			if (extraData != null)
 			{
-				var bytes = GetNbtData(extraData);
+				byte[] bytes = GetNbtData(extraData);
 				Write((short) bytes.Length);
 				Write(bytes);
 			}
@@ -589,6 +552,25 @@ namespace MiNET.Net
 			}
 		}
 
+		public ItemStack ReadItemStack()
+		{
+			short id = ReadShort();
+			if (id <= 0)
+			{
+				return new ItemStack();
+			}
+
+			var stack = new ItemStack(id, ReadByte(), ReadShort());
+			int nbtLen = ReadShort(); // NbtLen
+			if (nbtLen > 0)
+			{
+				stack.ExtraData = ReadNbt().NbtFile.RootTag;
+			}
+
+			return stack;
+		}
+
+
 		private byte[] GetNbtData(NbtCompound nbtCompound)
 		{
 			nbtCompound.Name = string.Empty;
@@ -596,25 +578,6 @@ namespace MiNET.Net
 			file.BigEndian = false;
 
 			return file.SaveToBuffer(NbtCompression.None);
-		}
-
-		public MetadataSlot ReadMetadataSlot()
-		{
-			short id = ReadShort();
-			if (id <= 0)
-			{
-				return new MetadataSlot(new ItemStack());
-			}
-
-			var stack = new ItemStack(id, ReadByte(), ReadShort());
-			var slot = new MetadataSlot(stack);
-			int nbtLen = ReadShort(); // NbtLen
-			if (nbtLen > 0)
-			{
-				stack.ExtraData = ReadNbt().NbtFile.RootTag;
-			}
-
-			return slot;
 		}
 
 		public MetadataDictionary ReadMetadataDictionary()
@@ -728,10 +691,10 @@ namespace MiNET.Net
 					int ingrediensCount = ReadInt(); // 
 					for (int j = 0; j < ingrediensCount; j++)
 					{
-						recipe.Input.Add(ReadMetadataSlot().Value);
+						recipe.Input.Add(ReadItemStack());
 					}
 					ReadInt(); // 1?
-					recipe.Result = ReadMetadataSlot().Value;
+					recipe.Result = ReadItemStack();
 					recipe.Id = ReadUUID(); // Id
 					recipes.Add(recipe);
 				}
@@ -746,14 +709,14 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < height; h++)
 						{
-							recipe.Input[(h*width) + w] = ReadMetadataSlot().Value.Item;
+							recipe.Input[(h*width) + w] = ReadItemStack().Item;
 						}
 					}
 
 					int resultCount = ReadInt(); // 1?
 					for (int j = 0; j < resultCount; j++)
 					{
-						recipe.Result = ReadMetadataSlot().Value;
+						recipe.Result = ReadItemStack();
 					}
 					recipe.Id = ReadUUID(); // Id
 					recipes.Add(recipe);
@@ -764,9 +727,9 @@ namespace MiNET.Net
 					SmeltingRecipe recipe = new SmeltingRecipe();
 					short meta = ReadShort(); // input (with metadata) 
 					short id = ReadShort(); // input (with metadata) 
-					var result = ReadMetadataSlot(); // Result
+					ItemStack result = ReadItemStack(); // Result
 					recipe.Input = ItemFactory.GetItem(id, meta);
-					recipe.Result = result.Value;
+					recipe.Result = result;
 					recipes.Add(recipe);
 				}
 				else if (recipeType == 3)
@@ -775,9 +738,9 @@ namespace MiNET.Net
 					SmeltingRecipe recipe = new SmeltingRecipe();
 					short id = ReadShort(); // input (with metadata) 
 					short meta = ReadShort(); // input (with metadata) 
-					var result = ReadMetadataSlot(); // Result
+					ItemStack result = ReadItemStack(); // Result
 					recipe.Input = ItemFactory.GetItem(id, 0);
-					recipe.Result = result.Value;
+					recipe.Result = result;
 					recipes.Add(recipe);
 				}
 				else if (recipeType == 4)
@@ -825,7 +788,7 @@ namespace MiNET.Net
 					writer.Write(rec.Input.Count);
 					foreach (ItemStack stack in rec.Input)
 					{
-						writer.Write((MetadataSlot) stack);
+						writer.Write(stack);
 					}
 					writer.Write(1);
 					writer.Write(rec.Result);
@@ -849,7 +812,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							writer.Write((MetadataSlot) new ItemStack(rec.Input[(h*rec.Width) + w], 1));
+							writer.Write(new ItemStack(rec.Input[(h*rec.Width) + w], 1));
 						}
 					}
 					writer.Write(1);

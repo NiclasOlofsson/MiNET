@@ -32,10 +32,9 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
-		public MetadataSlot GetMetadataSlot()
+		public ItemStack GetItemStack()
 		{
-			MetadataSlot metadataSlot = new MetadataSlot(new ItemStack((short) Item.Id, Count, Item.Metadata));
-			return metadataSlot;
+			return new ItemStack((short) Item.Id, Count, Item.Metadata);
 		}
 
 		public override void SpawnEntity()
@@ -55,7 +54,7 @@ namespace MiNET.Entities
 
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
 			mcpeAddItemEntity.entityId = EntityId;
-			mcpeAddItemEntity.item = GetMetadataSlot();
+			mcpeAddItemEntity.item = GetItemStack();
 			mcpeAddItemEntity.x = KnownPosition.X + xr;
 			mcpeAddItemEntity.y = KnownPosition.Y + yr;
 			mcpeAddItemEntity.z = KnownPosition.Z + zr;
@@ -74,7 +73,7 @@ namespace MiNET.Entities
 		{
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
 			mcpeAddItemEntity.entityId = EntityId;
-			mcpeAddItemEntity.item = GetMetadataSlot();
+			mcpeAddItemEntity.item = GetItemStack();
 			mcpeAddItemEntity.x = KnownPosition.X;
 			mcpeAddItemEntity.y = KnownPosition.Y;
 			mcpeAddItemEntity.z = KnownPosition.Z;

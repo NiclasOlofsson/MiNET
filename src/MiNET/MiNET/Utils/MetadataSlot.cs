@@ -16,11 +16,6 @@ namespace MiNET.Utils
 
 		public ItemStack Value { get; set; }
 
-		public static implicit operator MetadataSlot(ItemStack value)
-		{
-			return new MetadataSlot(value);
-		}
-
 		public MetadataSlot()
 		{
 		}

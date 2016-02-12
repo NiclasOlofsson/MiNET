@@ -178,12 +178,12 @@ namespace MiNET.BlockEntities
 
 		private ItemStack GetFuel()
 		{
-			return ((MetadataSlot) Inventory.Slots[1]).Value;
+			return Inventory.Slots[1];
 		}
 
 		private ItemStack GetIngredient()
 		{
-			return ((MetadataSlot) Inventory.Slots[0]).Value;
+			return Inventory.Slots[0];
 		}
 
 		private short GetFuelEfficiency(ItemStack itemStack)

@@ -107,10 +107,10 @@ namespace MiNET.Entities
 			{
 				McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 				armorEquipment.entityId = EntityId;
-				armorEquipment.helmet = new MetadataSlot(new ItemStack());
-				armorEquipment.chestplate = new MetadataSlot(new ItemStack());
-				armorEquipment.leggings = new MetadataSlot(new ItemStack());
-				armorEquipment.boots = new MetadataSlot(new ItemStack());
+				armorEquipment.helmet = new ItemStack();
+				armorEquipment.chestplate = new ItemStack();
+				armorEquipment.leggings = new ItemStack();
+				armorEquipment.boots = new ItemStack();
 				player.SendPackage(armorEquipment);
 			}
 
@@ -215,10 +215,10 @@ namespace MiNET.Entities
 		{
 			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 			armorEquipment.entityId = EntityId;
-			armorEquipment.helmet = new MetadataSlot(new ItemStack());
-			armorEquipment.chestplate = new MetadataSlot(new ItemStack());
-			armorEquipment.leggings = new MetadataSlot(new ItemStack());
-			armorEquipment.boots = new MetadataSlot(new ItemStack());
+			armorEquipment.helmet = new ItemStack();
+			armorEquipment.chestplate = new ItemStack();
+			armorEquipment.leggings = new ItemStack();
+			armorEquipment.boots = new ItemStack();
 			Level.RelayBroadcast(armorEquipment);
 		}
 	}

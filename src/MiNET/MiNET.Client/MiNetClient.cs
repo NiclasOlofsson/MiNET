@@ -511,7 +511,7 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof(McpePlayerEquipment) == message.GetType())
+			else if (typeof (McpePlayerEquipment) == message.GetType())
 			{
 				OnMcpePlayerEquipment((McpePlayerEquipment) message);
 				return;
@@ -523,13 +523,13 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof(McpeContainerSetSlot) == message.GetType())
+			else if (typeof (McpeContainerSetSlot) == message.GetType())
 			{
 				OnMcpeContainerSetSlot(message);
 				return;
 			}
 
-			else if (typeof(McpeContainerSetData) == message.GetType())
+			else if (typeof (McpeContainerSetData) == message.GetType())
 			{
 				OnMcpeContainerSetData(message);
 				return;
@@ -541,19 +541,19 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof(McpeMoveEntity) == message.GetType())
+			else if (typeof (McpeMoveEntity) == message.GetType())
 			{
 			}
 
-			else if (typeof(McpeSetEntityMotion) == message.GetType())
+			else if (typeof (McpeSetEntityMotion) == message.GetType())
 			{
 			}
 
-			else if (typeof(McpeEntityEvent) == message.GetType())
+			else if (typeof (McpeEntityEvent) == message.GetType())
 			{
 			}
 
-			else if (typeof(McpeText) == message.GetType())
+			else if (typeof (McpeText) == message.GetType())
 			{
 				OnMcpeText((McpeText) message);
 			}
@@ -576,7 +576,7 @@ namespace MiNET.Client
 
 		private void OnMcpePlayerEquipment(McpePlayerEquipment message)
 		{
-			Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Value.Id}");
+			Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Id}");
 		}
 
 		private ShapedRecipe _recipeToSend = null;
@@ -595,14 +595,14 @@ namespace MiNET.Client
 				crafting.recipeId = recipe.Id;
 
 				{
-					var slotData = new MetadataSlots();
+					ItemStacks slotData = new ItemStacks();
 					for (int i = 0; i < recipe.Input.Length; i++)
 					{
-						slotData[i] = new MetadataSlot(new ItemStack(recipe.Input[i], 1));
+						slotData.Add(new ItemStack(recipe.Input[i], 1));
 
 						McpeContainerSetSlot setSlot = new McpeContainerSetSlot
 						{
-							item = new MetadataSlot(new ItemStack(recipe.Input[i], 1)),
+							item = new ItemStack(recipe.Input[i], 1),
 							windowId = 0,
 							slot = (short) (i)
 						};
@@ -617,15 +617,14 @@ namespace MiNET.Client
 							entityId = _entityId,
 							slot = 9,
 							selectedSlot = 0,
-							item = new MetadataSlot(new ItemStack(recipe.Input[0], 1))
+							item = new ItemStack(recipe.Input[0], 1)
 						};
 						SendPackage(eq);
 						Log.Error("Set eq slot");
 					}
 				}
 				{
-					MetadataSlots slotData = new MetadataSlots();
-					slotData[0] = new MetadataSlot(recipe.Result);
+					ItemStacks slotData = new ItemStacks {recipe.Result};
 					crafting.result = slotData;
 				}
 
@@ -648,7 +647,6 @@ namespace MiNET.Client
 			//	eq.item = new MetadataSlot(new ItemStack(new ItemDiamondAxe(0), 1));
 			//	SendPackage(eq);
 			//}
-
 		}
 
 		public void SendCraftingEvent()
@@ -659,7 +657,7 @@ namespace MiNET.Client
 			{
 				{
 					McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
-					setSlot.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(17), 0), 1));
+					setSlot.item = new ItemStack(new ItemBlock(new Block(17), 0), 1);
 					setSlot.windowId = 0;
 					setSlot.slot = 0;
 					SendPackage(setSlot);
@@ -669,7 +667,7 @@ namespace MiNET.Client
 					eq.entityId = _entityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
-					eq.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(17), 0), 1));
+					eq.item = new ItemStack(new ItemBlock(new Block(17), 0), 1);
 					SendPackage(eq);
 				}
 
@@ -681,13 +679,11 @@ namespace MiNET.Client
 				crafting.recipeId = recipe.Id;
 
 				{
-					MetadataSlots slotData = new MetadataSlots();
-					slotData[0] = new MetadataSlot(new ItemStack(new ItemBlock(new Block(17), 0), 1));
+					ItemStacks slotData = new ItemStacks {new ItemStack(new ItemBlock(new Block(17), 0), 1)};
 					crafting.input = slotData;
 				}
 				{
-					MetadataSlots slotData = new MetadataSlots();
-					slotData[0] = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
+					ItemStacks slotData = new ItemStacks {new ItemStack(new ItemBlock(new Block(5), 0), 4)};
 					crafting.result = slotData;
 				}
 
@@ -706,10 +702,9 @@ namespace MiNET.Client
 					eq.entityId = _entityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
-					eq.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
+					eq.item = new ItemStack(new ItemBlock(new Block(5), 0), 4);
 					SendPackage(eq);
 				}
-
 			}
 		}
 
@@ -793,14 +788,14 @@ namespace MiNET.Client
 
 		private void OnMcpeContainerSetData(Package msg)
 		{
-			McpeContainerSetData message = (McpeContainerSetData)msg;
+			McpeContainerSetData message = (McpeContainerSetData) msg;
 			Log.Error($"Set container data window 0x{message.windowId:X2} with property ID: {message.property} value: {message.value}");
 		}
 
 		private void OnMcpeContainerSetSlot(Package msg)
 		{
 			McpeContainerSetSlot message = (McpeContainerSetSlot) msg;
-			ItemStack itemStack = message.item.Value;
+			ItemStack itemStack = message.item;
 			Log.Error($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 		}
 
@@ -808,7 +803,7 @@ namespace MiNET.Client
 		{
 			McpeContainerSetContent msg = (McpeContainerSetContent) message;
 			Log.Error($"Set container content on Window ID: 0x{msg.windowId:x2}, Count: {msg.slotData.Count}");
-			var slots = msg.slotData.GetValues();
+			var slots = msg.slotData;
 
 			if (msg.windowId == 0x79)
 			{
@@ -819,7 +814,7 @@ namespace MiNET.Client
 			{
 				string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
 				WriteInventoryToFile(fileName, slots);
-				var hotbar= msg.hotbarData.GetValues();
+				var hotbar = msg.hotbarData.GetValues();
 				int i = 0;
 				foreach (MetadataEntry entry in hotbar)
 				{
@@ -830,7 +825,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private static void WriteInventoryToFile(string fileName, MetadataEntry[] slots)
+		private static void WriteInventoryToFile(string fileName, ItemStacks slots)
 		{
 			Log.Info($"Writing inventory to filename: {fileName}");
 			FileStream file = File.OpenWrite(fileName);
@@ -846,11 +841,11 @@ namespace MiNET.Client
 
 			foreach (var entry in slots)
 			{
-				MetadataSlot slot = (MetadataSlot) entry;
-				NbtCompound extraData = slot.Value.ExtraData;
+				var slot = entry;
+				NbtCompound extraData = slot.ExtraData;
 				if (extraData == null)
 				{
-					writer.WriteLine($"new ItemStack({slot.Value.Id}, {slot.Value.Count}, {slot.Value.Metadata}),");
+					writer.WriteLine($"new ItemStack({slot.Id}, {slot.Count}, {slot.Metadata}),");
 				}
 				else
 				{
@@ -858,7 +853,7 @@ namespace MiNET.Client
 					NbtCompound enchComp = (NbtCompound) ench[0];
 					var id = enchComp["id"].ShortValue;
 					var lvl = enchComp["lvl"].ShortValue;
-					writer.WriteLine($"new ItemStack({slot.Value.Id}, {slot.Value.Count}, {slot.Value.Metadata}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
+					writer.WriteLine($"new ItemStack({slot.Id}, {slot.Count}, {slot.Metadata}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
 				}
 			}
 

@@ -22,12 +22,12 @@ namespace MiNET
 			inv.Player.SendPlayerInventory();
 		}
 
-		public static MetadataSlots GetCreativeMetadataSlots()
+		public static ItemStacks GetCreativeMetadataSlots()
 		{
-			var slotData = new MetadataSlots();
+			ItemStacks slotData = new ItemStacks();
 			for (int i = 0; i < CreativeInventoryItems.Count; i++)
 			{
-				slotData[i] = new MetadataSlot(CreativeInventoryItems[i]);
+				slotData.Add(CreativeInventoryItems[i]);
 			}
 
 			return slotData;

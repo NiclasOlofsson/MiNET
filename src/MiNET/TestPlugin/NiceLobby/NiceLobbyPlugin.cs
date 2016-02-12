@@ -28,7 +28,7 @@ namespace TestPlugin.NiceLobby
 
 		protected override void OnEnable()
 		{
-			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 			//foreach (var level in Context.LevelManager.Levels)
@@ -341,14 +341,12 @@ namespace TestPlugin.NiceLobby
 			string awk = "[" + ChatColors.DarkRed + "AWK" + ChatFormatting.Reset + "]";
 			if (player.NameTag.StartsWith(awk))
 			{
-				player.NameTag = player.Username;
+				player.SetNameTag(player.Username);;
 			}
 			else
 			{
-				player.NameTag = awk + player.Username;
+				player.SetNameTag(awk + player.Username);
 			}
-
-			player.BroadcastSetEntityData();
 		}
 
 		[Command]

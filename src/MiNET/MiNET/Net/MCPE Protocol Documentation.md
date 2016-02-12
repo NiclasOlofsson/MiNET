@@ -496,7 +496,7 @@ TODO: Parameters
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Pitch | float |  |
-|Item | MetadataSlot |  |
+|Item | ItemStack |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x97)
@@ -573,7 +573,7 @@ link[2] byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity Id | long |  |
-|Item | MetadataSlot |  |
+|Item | ItemStack |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -804,7 +804,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Item | MetadataSlot |  |
+|Item | ItemStack |  |
 |Slot | byte |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
@@ -821,10 +821,10 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Helmet | MetadataSlot |  |
-|Chestplate | MetadataSlot |  |
-|Leggings | MetadataSlot |  |
-|Boots | MetadataSlot |  |
+|Helmet | ItemStack |  |
+|Chestplate | ItemStack |  |
+|Leggings | ItemStack |  |
+|Boots | ItemStack |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Interact (0xa9)
 
@@ -863,7 +863,7 @@ TODO: can have multiple blocks.
 |Position X | float |  |
 |Position Y | float |  |
 |Position Z | float |  |
-|Item | MetadataSlot |  |
+|Item | ItemStack |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Action (0xab)
 
@@ -1017,7 +1017,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |ItemType | byte |  |
-|Item | MetadataSlot |  |
+|Item | ItemStack |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Open (0xb5)
 
@@ -1067,7 +1067,7 @@ TODO: can have multiple blocks.
 |Window ID | byte |  |
 |Slot | short |  |
 |Unknown | short |  |
-|Item | MetadataSlot |  |
+|Item | ItemStack |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Data (0xb8)
 
@@ -1098,7 +1098,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Window ID | byte |  |
-|Slot Data | MetadataSlots |  |
+|Slot Data | ItemStacks |  |
 |Hotbar Data | MetadataInts |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Crafting Data (0xba)
@@ -1130,8 +1130,8 @@ TODO: can have multiple blocks.
 |Window ID | byte |  |
 |Recipe Type | int |  |
 |Recipe ID | UUID |  |
-|Input | MetadataSlots |  |
-|Result | MetadataSlots |  |
+|Input | ItemStacks |  |
+|Result | ItemStacks |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Adventure Settings (0xbc)
 

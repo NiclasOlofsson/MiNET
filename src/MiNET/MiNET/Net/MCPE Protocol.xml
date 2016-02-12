@@ -187,7 +187,7 @@
 		<field name="Yaw" type="float" />
 		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Item" type="MetadataSlot" />
+		<field name="Item" type="ItemStack" />
 		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
@@ -225,7 +225,7 @@
 
 	<pdu id="0x9a" online="false" client="true" server="true" name="MCPE_ADD_ITEM_ENTITY">
 		<field name="Entity Id" type="long" />
-		<field name="Item" type="MetadataSlot" />
+		<field name="Item" type="ItemStack" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
@@ -328,17 +328,17 @@
 
 	<pdu id="0xa7" online="false" client="true" server="true" name="MCPE_PLAYER_EQUIPMENT">
 		<field name="Entity ID" type="long" />
-		<field name="Item" type="MetadataSlot" />
+		<field name="Item" type="ItemStack" />
 		<field name="Slot" type="byte" />
 		<field name="Selected Slot" type="byte" />
 	</pdu>
 
 	<pdu id="0xa8" online="false" client="true" server="true" name="MCPE_PLAYER_ARMOR_EQUIPMENT">
 		<field name="Entity ID" type="long" />
-		<field name="Helmet" type="MetadataSlot" />
-		<field name="Chestplate" type="MetadataSlot" />
-		<field name="Leggings" type="MetadataSlot" />
-		<field name="Boots" type="MetadataSlot" />
+		<field name="Helmet" type="ItemStack" />
+		<field name="Chestplate" type="ItemStack" />
+		<field name="Leggings" type="ItemStack" />
+		<field name="Boots" type="ItemStack" />
 	</pdu>
 
 	<pdu id="0xa9" online="false" client="true" server="true" name="MCPE_INTERACT">
@@ -357,7 +357,7 @@
 		<field name="Position X" type="float" />
 		<field name="Position Y" type="float" />
 		<field name="Position Z" type="float" />
-		<field name="Item" type="MetadataSlot" />
+		<field name="Item" type="ItemStack" />
 	</pdu>
 
 	<pdu id="0xab" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">
@@ -411,7 +411,7 @@
 
 	<pdu id="0xb4" online="false" client="true" server="false" name="MCPE_DROP_ITEM">
 		<field name="ItemType" type="byte" />
-		<field name="Item" type="MetadataSlot" />
+		<field name="Item" type="ItemStack" />
 	</pdu>
 
 	<pdu id="0xb5" online="false" client="true" server="true" name="MCPE_CONTAINER_OPEN">
@@ -431,7 +431,7 @@
 		<field name="Window ID" type="byte" />
 		<field name="Slot" type="short" />
 		<field name="Unknown" type="short" />
-		<field name="Item" type="MetadataSlot" />
+		<field name="Item" type="ItemStack" />
 	</pdu>
 
 	<pdu id="0xb8" online="false" client="true" server="true" name="MCPE_CONTAINER_SET_DATA">
@@ -442,7 +442,7 @@
 
 	<pdu id="0xb9" online="false" client="false" server="true" name="MCPE_CONTAINER_SET_CONTENT">
 		<field name="Window ID" type="byte" />
-		<field name="Slot Data" type="MetadataSlots" />
+		<field name="Slot Data" type="ItemStacks" />
 		<field name="Hotbar Data" type="MetadataInts" />
 	</pdu>
 
@@ -454,8 +454,8 @@
 		<field name="Window ID" type="byte" />
 		<field name="Recipe Type" type="int" />
 		<field name="Recipe ID" type="UUID" />
-		<field name="Input" type="MetadataSlots" />
-		<field name="Result" type="MetadataSlots" />
+		<field name="Input" type="ItemStacks" />
+		<field name="Result" type="ItemStacks" />
 	</pdu>
 
 	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">

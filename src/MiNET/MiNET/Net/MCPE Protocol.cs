@@ -1374,7 +1374,7 @@ namespace MiNET.Net
 		public float yaw; // = null;
 		public float headYaw; // = null;
 		public float pitch; // = null;
-		public MetadataSlot item; // = null;
+		public ItemStack item; // = null;
 		public MetadataDictionary metadata; // = null;
 		public McpeAddPlayer()
 		{
@@ -1426,7 +1426,7 @@ namespace MiNET.Net
 			yaw = ReadFloat();
 			headYaw = ReadFloat();
 			pitch = ReadFloat();
-			item = ReadMetadataSlot();
+			item = ReadItemStack();
 			metadata = ReadMetadataDictionary();
 
 			AfterDecode();
@@ -1590,7 +1590,7 @@ namespace MiNET.Net
 	public partial class McpeAddItemEntity : Package<McpeAddItemEntity>
 	{
 		public long entityId; // = null;
-		public MetadataSlot item; // = null;
+		public ItemStack item; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -1630,7 +1630,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			item = ReadMetadataSlot();
+			item = ReadItemStack();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -2213,7 +2213,7 @@ namespace MiNET.Net
 	public partial class McpePlayerEquipment : Package<McpePlayerEquipment>
 	{
 		public long entityId; // = null;
-		public MetadataSlot item; // = null;
+		public ItemStack item; // = null;
 		public byte slot; // = null;
 		public byte selectedSlot; // = null;
 		public McpePlayerEquipment()
@@ -2245,7 +2245,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			item = ReadMetadataSlot();
+			item = ReadItemStack();
 			slot = ReadByte();
 			selectedSlot = ReadByte();
 
@@ -2260,10 +2260,10 @@ namespace MiNET.Net
 	public partial class McpePlayerArmorEquipment : Package<McpePlayerArmorEquipment>
 	{
 		public long entityId; // = null;
-		public MetadataSlot helmet; // = null;
-		public MetadataSlot chestplate; // = null;
-		public MetadataSlot leggings; // = null;
-		public MetadataSlot boots; // = null;
+		public ItemStack helmet; // = null;
+		public ItemStack chestplate; // = null;
+		public ItemStack leggings; // = null;
+		public ItemStack boots; // = null;
 		public McpePlayerArmorEquipment()
 		{
 			Id = 0xa8;
@@ -2294,10 +2294,10 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			helmet = ReadMetadataSlot();
-			chestplate = ReadMetadataSlot();
-			leggings = ReadMetadataSlot();
-			boots = ReadMetadataSlot();
+			helmet = ReadItemStack();
+			chestplate = ReadItemStack();
+			leggings = ReadItemStack();
+			boots = ReadItemStack();
 
 			AfterDecode();
 		}
@@ -2360,7 +2360,7 @@ namespace MiNET.Net
 		public float positionX; // = null;
 		public float positionY; // = null;
 		public float positionZ; // = null;
-		public MetadataSlot item; // = null;
+		public ItemStack item; // = null;
 		public McpeUseItem()
 		{
 			Id = 0xaa;
@@ -2406,7 +2406,7 @@ namespace MiNET.Net
 			positionX = ReadFloat();
 			positionY = ReadFloat();
 			positionZ = ReadFloat();
-			item = ReadMetadataSlot();
+			item = ReadItemStack();
 
 			AfterDecode();
 		}
@@ -2800,7 +2800,7 @@ namespace MiNET.Net
 	public partial class McpeDropItem : Package<McpeDropItem>
 	{
 		public byte itemtype; // = null;
-		public MetadataSlot item; // = null;
+		public ItemStack item; // = null;
 		public McpeDropItem()
 		{
 			Id = 0xb4;
@@ -2828,7 +2828,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			itemtype = ReadByte();
-			item = ReadMetadataSlot();
+			item = ReadItemStack();
 
 			AfterDecode();
 		}
@@ -2934,7 +2934,7 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public short slot; // = null;
 		public short unknown; // = null;
-		public MetadataSlot item; // = null;
+		public ItemStack item; // = null;
 		public McpeContainerSetSlot()
 		{
 			Id = 0xb7;
@@ -2966,7 +2966,7 @@ namespace MiNET.Net
 			windowId = ReadByte();
 			slot = ReadShort();
 			unknown = ReadShort();
-			item = ReadMetadataSlot();
+			item = ReadItemStack();
 
 			AfterDecode();
 		}
@@ -3023,7 +3023,7 @@ namespace MiNET.Net
 	public partial class McpeContainerSetContent : Package<McpeContainerSetContent>
 	{
 		public byte windowId; // = null;
-		public MetadataSlots slotData; // = null;
+		public ItemStacks slotData; // = null;
 		public MetadataInts hotbarData; // = null;
 		public McpeContainerSetContent()
 		{
@@ -3053,7 +3053,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			windowId = ReadByte();
-			slotData = ReadMetadataSlots();
+			slotData = ReadItemStacks();
 			hotbarData = ReadMetadataInts();
 
 			AfterDecode();
@@ -3107,8 +3107,8 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public int recipeType; // = null;
 		public UUID recipeId; // = null;
-		public MetadataSlots input; // = null;
-		public MetadataSlots result; // = null;
+		public ItemStacks input; // = null;
+		public ItemStacks result; // = null;
 		public McpeCraftingEvent()
 		{
 			Id = 0xbb;
@@ -3141,8 +3141,8 @@ namespace MiNET.Net
 			windowId = ReadByte();
 			recipeType = ReadInt();
 			recipeId = ReadUUID();
-			input = ReadMetadataSlots();
-			result = ReadMetadataSlots();
+			input = ReadItemStacks();
+			result = ReadItemStacks();
 
 			AfterDecode();
 		}

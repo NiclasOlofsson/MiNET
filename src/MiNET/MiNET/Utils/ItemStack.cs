@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using fNbt;
 using MiNET.Items;
@@ -75,5 +76,9 @@ namespace MiNET.Utils
 				return ((Item != null ? Item.GetHashCode() : 0)*397) ^ Count.GetHashCode();
 			}
 		}
+	}
+
+	public class ItemStacks : List<ItemStack>
+	{
 	}
 }

@@ -430,7 +430,7 @@ namespace TestPlugin
 			player.Level.RelayBroadcast(new McpePlayerEquipment
 			{
 				entityId = player.EntityId,
-				item = new MetadataSlot(player.Inventory.GetItemInHand()),
+				item = player.Inventory.GetItemInHand(),
 				slot = 0
 			});
 		}
@@ -439,10 +439,10 @@ namespace TestPlugin
 		{
 			var armorEquipment = new McpePlayerArmorEquipment();
 			armorEquipment.entityId = player.EntityId;
-			armorEquipment.helmet = new MetadataSlot(new ItemStack(player.Inventory.Helmet, 0));
-			armorEquipment.chestplate = new MetadataSlot(new ItemStack(player.Inventory.Chest, 0));
-			armorEquipment.leggings = new MetadataSlot(new ItemStack(player.Inventory.Leggings, 0));
-			armorEquipment.boots = new MetadataSlot(new ItemStack(player.Inventory.Boots, 0));
+			armorEquipment.helmet = new ItemStack(player.Inventory.Helmet, 0);
+			armorEquipment.chestplate = new ItemStack(player.Inventory.Chest, 0);
+			armorEquipment.leggings = new ItemStack(player.Inventory.Leggings, 0);
+			armorEquipment.boots = new ItemStack(player.Inventory.Boots, 0);
 			player.Level.RelayBroadcast(armorEquipment);
 		}
 

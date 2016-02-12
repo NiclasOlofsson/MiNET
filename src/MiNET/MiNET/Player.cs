@@ -1575,37 +1575,39 @@ namespace MiNET
 
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
-			//Log.DebugFormat("Use item: {0}", message.item.Id);
-			//Log.DebugFormat("item meta: {0}", message.item.Metadata);
-			//Log.DebugFormat("x:  {0}", message.x);
-			//Log.DebugFormat("y:  {0}", message.y);
-			//Log.DebugFormat("z:  {0}", message.z);
-			//Log.DebugFormat("face:  {0}", message.face);
-			//Log.DebugFormat("fx:  {0}", message.fx);
-			//Log.DebugFormat("fy:  {0}", message.fy);
-			//Log.DebugFormat("fz:  {0}", message.fz);
-			//Log.DebugFormat("px:  {0}", message.positionX);
-			//Log.DebugFormat("py:  {0}", message.positionY);
-			//Log.DebugFormat("pz:  {0}", message.positionZ);
+			Log.DebugFormat("Use item: {0}", message.item);
+			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);
+			Log.DebugFormat("face:  {0}", message.face);
+			Log.DebugFormat("Facecoordinates:  {0}", message.facecoordinates);
+			Log.DebugFormat("Player position:  {0}", message.playerposition);
+
+			if (message.item == null)
+			{
+				Log.Warn($"{Username} sent us a use item message with no item (null).");
+				return;
+			}
+
+			if (GameMode != GameMode.Creative && !VerifyItemStack(message.item))
+			{
+				Log.Error($"Kicked {Username} for use item hacking.");
+				Disconnect("Error #324. Please report this error.");
+				return;
+			}
+
+
+			// Make sure we are holding the item we claim to be using
+			ItemStack itemInHand = Inventory.GetItemInHand();
+			if (itemInHand == null || itemInHand.Id != message.item.Id)
+			{
+				if (GameMode != GameMode.Creative) Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
+				return; // Cheat(?)
+			}
 
 			if (message.face <= 5)
 			{
-				if (GameMode != GameMode.Creative)
-				{
-					ItemStack itemStack = message.item;
-					if (itemStack != null && !VerifyItemStack(itemStack))
-					{
-						Log.Error($"Kicked {Username} for use item hacking.");
-						Disconnect("Error #324. Please report this error.");
-						return;
-					}
-				}
-
 				// Right click
 
-				Vector3 faceCoords = new Vector3(message.fx, message.fy, message.fz);
-
-				Level.Interact(Level, this, message.item.Id, new BlockCoordinates(message.x, message.y, message.z), message.item.Metadata, (BlockFace) message.face, faceCoords);
+				Level.Interact(Level, this, message.item.Id, message.blockcoordinates, message.item.Metadata, (BlockFace) message.face, message.facecoordinates);
 			}
 			else
 			{
@@ -1614,17 +1616,7 @@ namespace MiNET
 				_itemUseTimer = new Stopwatch();
 				_itemUseTimer.Start();
 
-				// Make sure we are holding the item we claim to be using
-				Item itemInHand = Inventory.GetItemInHand().Item;
-
-				var itemId = message.item.Id;
-				if (itemInHand == null || itemInHand.Id != itemId)
-				{
-					if (GameMode != GameMode.Creative) Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
-					return; // Cheat(?)
-				}
-
-				itemInHand.UseItem(Level, this, new BlockCoordinates(message.x, message.y, message.z));
+				itemInHand.Item.UseItem(Level, this, message.blockcoordinates);
 
 				IsInAction = true;
 				MetadataDictionary metadata = new MetadataDictionary

@@ -853,16 +853,10 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|X | int |  |
-|Y | int |  |
-|Z | int |  |
+|BlockCoordinates | BlockCoordinates |  |
 |Face | byte |  |
-|Fx | float |  |
-|Fy | float |  |
-|Fz | float |  |
-|Position X | float |  |
-|Position Y | float |  |
-|Position Z | float |  |
+|FaceCoordinates | Vector3 |  |
+|PlayerPosition | Vector3 |  |
 |Item | ItemStack |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Action (0xab)

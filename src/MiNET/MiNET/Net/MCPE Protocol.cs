@@ -2350,16 +2350,10 @@ namespace MiNET.Net
 
 	public partial class McpeUseItem : Package<McpeUseItem>
 	{
-		public int x; // = null;
-		public int y; // = null;
-		public int z; // = null;
+		public BlockCoordinates blockcoordinates; // = null;
 		public byte face; // = null;
-		public float fx; // = null;
-		public float fy; // = null;
-		public float fz; // = null;
-		public float positionX; // = null;
-		public float positionY; // = null;
-		public float positionZ; // = null;
+		public Vector3 facecoordinates; // = null;
+		public Vector3 playerposition; // = null;
 		public ItemStack item; // = null;
 		public McpeUseItem()
 		{
@@ -2372,16 +2366,10 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(x);
-			Write(y);
-			Write(z);
+			Write(blockcoordinates);
 			Write(face);
-			Write(fx);
-			Write(fy);
-			Write(fz);
-			Write(positionX);
-			Write(positionY);
-			Write(positionZ);
+			Write(facecoordinates);
+			Write(playerposition);
 			Write(item);
 
 			AfterEncode();
@@ -2396,16 +2384,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			x = ReadInt();
-			y = ReadInt();
-			z = ReadInt();
+			blockcoordinates = ReadBlockCoordinates();
 			face = ReadByte();
-			fx = ReadFloat();
-			fy = ReadFloat();
-			fz = ReadFloat();
-			positionX = ReadFloat();
-			positionY = ReadFloat();
-			positionZ = ReadFloat();
+			facecoordinates = ReadVector3();
+			playerposition = ReadVector3();
 			item = ReadItemStack();
 
 			AfterDecode();

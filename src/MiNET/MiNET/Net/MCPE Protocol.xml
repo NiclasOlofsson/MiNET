@@ -347,16 +347,10 @@
 	</pdu>
 
 	<pdu id="0xaa" online="false" client="true" server="true" name="MCPE_USE_ITEM">
-		<field name="X" type="int" />
-		<field name="Y" type="int" />
-		<field name="Z" type="int" />
+		<field name="BlockCoordinates" type="BlockCoordinates" />
 		<field name="Face" type="byte" />
-		<field name="Fx" type="float" />
-		<field name="Fy" type="float" />
-		<field name="Fz" type="float" />
-		<field name="Position X" type="float" />
-		<field name="Position Y" type="float" />
-		<field name="Position Z" type="float" />
+		<field name="FaceCoordinates" type="Vector3" />
+		<field name="PlayerPosition" type="Vector3" />
 		<field name="Item" type="ItemStack" />
 	</pdu>
 

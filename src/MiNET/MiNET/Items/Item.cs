@@ -1,4 +1,5 @@
-﻿using MiNET.Utils;
+﻿using fNbt;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Items
@@ -14,6 +15,10 @@ namespace MiNET.Items
 	{
 		public int Id { get; set; }
 		public short Metadata { get; set; }
+
+		public byte Count { get; set; }
+		public NbtCompound ExtraData { get; set; }
+
 		public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
 		public ItemType ItemType { get; set; } = ItemType.Item;
 		public int MaxStackSize { get; set; } = 64;
@@ -138,6 +143,12 @@ namespace MiNET.Items
 				return (Id*397) ^ Metadata.GetHashCode();
 			}
 		}
+
+		public override string ToString()
+		{
+			return $"Id={Id}, Metadata={Metadata}";
+		}
+
 	}
 
 	public enum ItemMaterial

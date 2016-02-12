@@ -199,6 +199,30 @@ namespace MiNET.Net
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
+		public void Write(Vector3 vec)
+		{
+			Write((float)vec.X);
+			Write((float)vec.Y);
+			Write((float)vec.Z);
+		}
+
+		public Vector3 ReadVector3()
+		{
+			return new Vector3(ReadFloat(), ReadFloat(), ReadFloat());
+		}
+
+		public void Write(BlockCoordinates coord)
+		{
+			Write(coord.X);
+			Write(coord.Y);
+			Write(coord.Z);
+		}
+
+		public BlockCoordinates ReadBlockCoordinates()
+		{
+			return new BlockCoordinates(ReadInt(), ReadInt(), ReadInt());
+		}
+
 		public void Write(PlayerRecords records)
 		{
 			if (records is PlayerAddRecords)

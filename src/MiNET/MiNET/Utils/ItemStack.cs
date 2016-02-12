@@ -9,18 +9,10 @@ namespace MiNET.Utils
 	{
 		public Item Item { get; set; }
 		public byte Count { get; set; }
-
-		public short Id
-		{
-			get { return (short) Item.Id; }
-		}
-
-		public short Metadata
-		{
-			get { return Item.Metadata; }
-		}
-
 		public NbtCompound ExtraData { get; set; }
+
+		public short Id => (short) Item.Id;
+		public short Metadata => Item.Metadata;
 
 		public ItemStack() : this(0, 0, 0)
 		{
@@ -76,6 +68,12 @@ namespace MiNET.Utils
 				return ((Item != null ? Item.GetHashCode() : 0)*397) ^ Count.GetHashCode();
 			}
 		}
+
+		public override string ToString()
+		{
+			return $"Id={Id}, Metadata={Metadata}, Count={Count}, NBT={ExtraData}";
+		}
+
 	}
 
 	public class ItemStacks : List<ItemStack>

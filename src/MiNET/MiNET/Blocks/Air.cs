@@ -1,4 +1,4 @@
-﻿using MiNET.Utils;
+﻿using MiNET.Items;
 
 namespace MiNET.Blocks
 {
@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 			IsBuildable = false;
 		}
 
-		public override ItemStack GetDrops()
+		public override Item GetDrops()
 		{
 			return null;
 		}

@@ -9,7 +9,6 @@ namespace MiNET.Entities
 	public class ItemEntity : Mob
 	{
 		public Item Item { get; private set; }
-		public byte Count { get; set; }
 		public int PickupDelay { get; set; }
 		public int TimeToLive { get; set; }
 
@@ -32,9 +31,9 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
-		public ItemStack GetItemStack()
+		public Item GetItemStack()
 		{
-			return new ItemStack((short) Item.Id, Count, Item.Metadata);
+			return Item;
 		}
 
 		public override void SpawnEntity()
@@ -118,7 +117,7 @@ namespace MiNET.Entities
 					{
 
 						//Add the items to the inventory if posible
-						if (player.Inventory.SetFirstEmptySlot((short)Item.Id, Count, Item.Metadata))
+						if (player.Inventory.SetFirstEmptySlot((short)Item.Id, Item.Count, Item.Metadata))
 						{
 							//BUG: If this is sent, the client crashes for some unknown reason.
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();

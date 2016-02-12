@@ -598,11 +598,11 @@ namespace MiNET.Client
 					ItemStacks slotData = new ItemStacks();
 					for (int i = 0; i < recipe.Input.Length; i++)
 					{
-						slotData.Add(new ItemStack(recipe.Input[i], 1));
+						slotData.Add(recipe.Input[i]);
 
 						McpeContainerSetSlot setSlot = new McpeContainerSetSlot
 						{
-							item = new ItemStack(recipe.Input[i], 1),
+							item = recipe.Input[i],
 							windowId = 0,
 							slot = (short) (i)
 						};
@@ -617,7 +617,7 @@ namespace MiNET.Client
 							entityId = _entityId,
 							slot = 9,
 							selectedSlot = 0,
-							item = new ItemStack(recipe.Input[0], 1)
+							item = recipe.Input[0]
 						};
 						SendPackage(eq);
 						Log.Error("Set eq slot");
@@ -657,7 +657,7 @@ namespace MiNET.Client
 			{
 				{
 					McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
-					setSlot.item = new ItemStack(new ItemBlock(new Block(17), 0), 1);
+					setSlot.item = new ItemBlock(new Block(17), 0) {Count = 1};
 					setSlot.windowId = 0;
 					setSlot.slot = 0;
 					SendPackage(setSlot);
@@ -667,7 +667,7 @@ namespace MiNET.Client
 					eq.entityId = _entityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
-					eq.item = new ItemStack(new ItemBlock(new Block(17), 0), 1);
+					eq.item = new ItemBlock(new Block(17), 0) {Count = 1};
 					SendPackage(eq);
 				}
 
@@ -679,11 +679,11 @@ namespace MiNET.Client
 				crafting.recipeId = recipe.Id;
 
 				{
-					ItemStacks slotData = new ItemStacks {new ItemStack(new ItemBlock(new Block(17), 0), 1)};
+					ItemStacks slotData = new ItemStacks {new ItemBlock(new Block(17), 0) {Count = 1}};
 					crafting.input = slotData;
 				}
 				{
-					ItemStacks slotData = new ItemStacks {new ItemStack(new ItemBlock(new Block(5), 0), 4)};
+					ItemStacks slotData = new ItemStacks {new ItemBlock(new Block(5), 0) {Count = 1}};
 					crafting.result = slotData;
 				}
 
@@ -702,7 +702,7 @@ namespace MiNET.Client
 					eq.entityId = _entityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
-					eq.item = new ItemStack(new ItemBlock(new Block(5), 0), 4);
+					eq.item = new ItemBlock(new Block(5), 0) {Count = 1};
 					SendPackage(eq);
 				}
 			}
@@ -730,14 +730,14 @@ namespace MiNET.Client
 				ShapelessRecipe shapelessRecipe = recipe as ShapelessRecipe;
 				if (shapelessRecipe != null)
 				{
-					writer.WriteLine(string.Format("new ShapelessRecipe(new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", shapelessRecipe.Result.Id, shapelessRecipe.Result.Metadata, shapelessRecipe.Result.Count));
+					writer.WriteLine($"new ShapelessRecipe(new Item({shapelessRecipe.Result.Id}, {shapelessRecipe.Result.Metadata}, {shapelessRecipe.Result.Count}),");
 					writer.Indent++;
-					writer.WriteLine("new List<ItemStack>");
+					writer.WriteLine("new List<Item>");
 					writer.WriteLine("{");
 					writer.Indent++;
 					foreach (var itemStack in shapelessRecipe.Input)
 					{
-						writer.WriteLine(string.Format("new ItemStack(ItemFactory.GetItem({0}, {1}), {2}),", itemStack.Id, itemStack.Metadata, itemStack.Count));
+						writer.WriteLine($"new Item({itemStack.Id}, {itemStack.Metadata}, {itemStack.Count}),");
 					}
 					writer.Indent--;
 					writer.WriteLine("}),");
@@ -759,14 +759,14 @@ namespace MiNET.Client
 
 				if (shapedRecipe != null)
 				{
-					writer.WriteLine(string.Format("new ShapedRecipe({0}, {1}, new ItemStack(ItemFactory.GetItem({2}, {3}), {4}),", shapedRecipe.Width, shapedRecipe.Height, shapedRecipe.Result.Id, shapedRecipe.Result.Metadata, shapedRecipe.Result.Count));
+					writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new Item({shapedRecipe.Result.Id}, {shapedRecipe.Result.Metadata}, {shapedRecipe.Result.Count}),");
 					writer.Indent++;
 					writer.WriteLine("new Item[]");
 					writer.WriteLine("{");
 					writer.Indent++;
 					foreach (Item item in shapedRecipe.Input)
 					{
-						writer.WriteLine(string.Format("ItemFactory.GetItem({0}, {1}),", item.Id, item.Metadata));
+						writer.WriteLine($"new Item({item.Id}, {item.Metadata}),");
 					}
 					writer.Indent--;
 					writer.WriteLine("}),");
@@ -795,7 +795,7 @@ namespace MiNET.Client
 		private void OnMcpeContainerSetSlot(Package msg)
 		{
 			McpeContainerSetSlot message = (McpeContainerSetSlot) msg;
-			ItemStack itemStack = message.item;
+			Item itemStack = message.item;
 			Log.Error($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 		}
 
@@ -835,7 +835,7 @@ namespace MiNET.Client
 			writer.WriteLine("// GENERATED CODE. DON'T EDIT BY HAND");
 			writer.Indent++;
 			writer.Indent++;
-			writer.WriteLine("public static List<ItemStack> CreativeInventoryItems = new List<ItemStack>()");
+			writer.WriteLine("public static List<Item> CreativeInventoryItems = new List<Item>()");
 			writer.WriteLine("{");
 			writer.Indent++;
 
@@ -845,7 +845,7 @@ namespace MiNET.Client
 				NbtCompound extraData = slot.ExtraData;
 				if (extraData == null)
 				{
-					writer.WriteLine($"new ItemStack({slot.Id}, {slot.Count}, {slot.Metadata}),");
+					writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}),");
 				}
 				else
 				{
@@ -853,11 +853,11 @@ namespace MiNET.Client
 					NbtCompound enchComp = (NbtCompound) ench[0];
 					var id = enchComp["id"].ShortValue;
 					var lvl = enchComp["lvl"].ShortValue;
-					writer.WriteLine($"new ItemStack({slot.Id}, {slot.Count}, {slot.Metadata}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
+					writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
 				}
 			}
 
-			new ItemStack(0, 0, 0) {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 0)}}}};
+			new Item {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 0)}}}};
 			//var compound = new NbtCompound(string.Empty) { new NbtList("ench", new NbtCompound()) {new NbtShort("id", 0),new NbtShort("lvl", 0),}, };
 
 			writer.Indent--;
@@ -1222,8 +1222,8 @@ namespace MiNET.Client
 			var packet = new McpeLogin()
 			{
 				username = username,
-				protocol = 38,
-				protocol2 = 38,
+				protocol = 39,
+				protocol2 = 39,
 				clientId = ClientId,
 				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
 				serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,

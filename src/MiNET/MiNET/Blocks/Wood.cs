@@ -1,5 +1,4 @@
 ﻿using MiNET.Items;
-using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
@@ -10,9 +9,9 @@ namespace MiNET.Blocks
 			FuelEfficiency = 15;
 		}
 
-		public override ItemStack GetDrops()
+		public override Item GetDrops()
 		{
-			return new ItemStack(Id, 1, (short) (Metadata & 0x03));
+			return new Item(Id, (short) (Metadata & 0x03)) {Count = 1};
 		}
 
 		public override Item GetSmelt()

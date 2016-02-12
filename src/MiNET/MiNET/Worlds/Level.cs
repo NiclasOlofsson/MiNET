@@ -249,10 +249,10 @@ namespace MiNET.Worlds
 
 				McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 				mcpePlayerArmorEquipment.entityId = newPlayer.EntityId;
-				mcpePlayerArmorEquipment.helmet = new ItemStack(newPlayer.Inventory.Helmet, 0);
-				mcpePlayerArmorEquipment.chestplate = new ItemStack(newPlayer.Inventory.Chest, 0);
-				mcpePlayerArmorEquipment.leggings = new ItemStack(newPlayer.Inventory.Leggings, 0);
-				mcpePlayerArmorEquipment.boots = new ItemStack(newPlayer.Inventory.Boots, 0);
+				mcpePlayerArmorEquipment.helmet = newPlayer.Inventory.Helmet;
+				mcpePlayerArmorEquipment.chestplate = newPlayer.Inventory.Chest;
+				mcpePlayerArmorEquipment.leggings = newPlayer.Inventory.Leggings;
+				mcpePlayerArmorEquipment.boots = newPlayer.Inventory.Boots;
 				RelayBroadcast(newPlayer, sendList, mcpePlayerArmorEquipment);
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
@@ -297,10 +297,10 @@ namespace MiNET.Worlds
 		{
 			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = player.EntityId;
-			mcpePlayerArmorEquipment.helmet = new ItemStack(player.Inventory.Helmet, 0);
-			mcpePlayerArmorEquipment.chestplate = new ItemStack(player.Inventory.Chest, 0);
-			mcpePlayerArmorEquipment.leggings = new ItemStack(player.Inventory.Leggings, 0);
-			mcpePlayerArmorEquipment.boots = new ItemStack(player.Inventory.Boots, 0);
+			mcpePlayerArmorEquipment.helmet = player.Inventory.Helmet;
+			mcpePlayerArmorEquipment.chestplate = player.Inventory.Chest;
+			mcpePlayerArmorEquipment.leggings = player.Inventory.Leggings;
+			mcpePlayerArmorEquipment.boots = player.Inventory.Boots;
 			receiver.SendPackage(mcpePlayerArmorEquipment);
 		}
 
@@ -898,8 +898,13 @@ namespace MiNET.Worlds
 			Block target = GetBlock(blockCoordinates);
 			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
 
-			ItemStack itemStackInHand = player.Inventory.GetItemInHand();
-			Item itemInHand = itemStackInHand.Item;
+			Item itemInHand = player.Inventory.GetItemInHand();
+
+			if (itemInHand.GetType() == typeof(Item))
+			{
+				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {itemId} and item in hand is {itemInHand?.Id}");
+				return; // Cheat(?)
+			}
 
 			if (itemInHand == null || itemInHand.Id != itemId)
 			{
@@ -941,7 +946,7 @@ namespace MiNET.Worlds
 
 		public void BreakBlock(Player player, BlockCoordinates blockCoordinates)
 		{
-			List<ItemStack> drops = new List<ItemStack>();
+			List<Item> drops = new List<Item>();
 
 			Block block = GetBlock(blockCoordinates);
 			drops.Add(block.GetDrops());
@@ -958,7 +963,7 @@ namespace MiNET.Worlds
 
 				if (player.GameMode != GameMode.Creative)
 				{
-					foreach (ItemStack drop in drops)
+					foreach (Item drop in drops)
 					{
 						DropItem(blockCoordinates, drop);
 					}
@@ -972,7 +977,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void DropItem(BlockCoordinates coordinates, ItemStack drop)
+		public void DropItem(BlockCoordinates coordinates, Item drop)
 		{
 			if (GameMode == GameMode.Creative) return;
 
@@ -984,7 +989,6 @@ namespace MiNET.Worlds
 
 			var itemEntity = new ItemEntity(this, item)
 			{
-				Count = drop.Count,
 				KnownPosition =
 				{
 					X = coordinates.X + 0.5f,
@@ -1082,9 +1086,9 @@ namespace MiNET.Worlds
 	public class BlockBreakEventArgs : LevelEventArgs
 	{
 		public Block Block { get; private set; }
-		public List<ItemStack> Drops { get; private set; }
+		public List<Item> Drops { get; private set; }
 
-		public BlockBreakEventArgs(Player player, Level level, Block block, List<ItemStack> drops) : base(player, level)
+		public BlockBreakEventArgs(Player player, Level level, Block block, List<Item> drops) : base(player, level)
 		{
 			Block = block;
 			Drops = drops;

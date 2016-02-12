@@ -126,9 +126,9 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public virtual ItemStack GetDrops()
+		public virtual Item GetDrops()
 		{
-			return new ItemStack(Id, 1, Metadata);
+			return new Item(Id, Metadata) {Count = 1};
 		}
 
 		public virtual Item GetSmelt()

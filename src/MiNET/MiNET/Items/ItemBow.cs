@@ -24,11 +24,11 @@ namespace MiNET.Items
 				var itemStack = inventory.Slots[i];
 				if (itemStack.Id == 262)
 				{
-                    if (--itemStack.Count <= 0)
+					if (--itemStack.Count <= 0)
 					{
 						// set empty
 						Log.Debug($"Send arrows on slot {i} to 0");
-						inventory.Slots[i] = new ItemStack();
+						inventory.Slots[i] = new Item();
 					}
 					haveArrows = true;
 					break;

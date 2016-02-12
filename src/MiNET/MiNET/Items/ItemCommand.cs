@@ -13,7 +13,7 @@ namespace MiNET.Items
 		public Action<ItemCommand, Level, Player, BlockCoordinates> Action { get; set; }
 		public bool NeedBlockRevert { get; set; }
 
-		public ItemCommand(int id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base(id, metadata)
+		public ItemCommand(short id, short metadata, Action<ItemCommand, Level, Player, BlockCoordinates> action) : base(id, metadata)
 		{
 			Action = action;
 			if (action == null) throw new ArgumentNullException("action");

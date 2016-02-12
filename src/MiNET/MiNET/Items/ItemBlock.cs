@@ -27,13 +27,13 @@ namespace MiNET.Items
 		{
 			if (player.GameMode != GameMode.Creative)
 			{
-				ItemStack itemStackInHand = player.Inventory.GetItemInHand();
+				Item itemStackInHand = player.Inventory.GetItemInHand();
 				itemStackInHand.Count--;
 
 				if (itemStackInHand.Count <= 0)
 				{
 					// set empty
-					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemStack();
+					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new Item();
 				}
 			}
 

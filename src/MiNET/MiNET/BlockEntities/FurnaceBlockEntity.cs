@@ -168,7 +168,7 @@ namespace MiNET.BlockEntities
 			//level.RelayBroadcast(burnTimeSetData);
 		}
 
-		private Item GetResult(ItemStack ingredient)
+		private Item GetResult(Item ingredient)
 		{
 			Item item = ItemFactory.GetItem(ingredient.Id, ingredient.Metadata);
 			return item.GetSmelt();
@@ -176,17 +176,17 @@ namespace MiNET.BlockEntities
 
 		public short FuelEfficiency { get; set; }
 
-		private ItemStack GetFuel()
+		private Item GetFuel()
 		{
 			return Inventory.Slots[1];
 		}
 
-		private ItemStack GetIngredient()
+		private Item GetIngredient()
 		{
 			return Inventory.Slots[0];
 		}
 
-		private short GetFuelEfficiency(ItemStack itemStack)
+		private short GetFuelEfficiency(Item itemStack)
 		{
 			Item item = ItemFactory.GetItem(itemStack.Id, itemStack.Metadata);
 			return (short) (item.FuelEfficiency*20);

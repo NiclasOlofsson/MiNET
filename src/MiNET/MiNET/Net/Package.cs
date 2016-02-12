@@ -201,9 +201,9 @@ namespace MiNET.Net
 
 		public void Write(Vector3 vec)
 		{
-			Write((float)vec.X);
-			Write((float)vec.Y);
-			Write((float)vec.Z);
+			Write((float) vec.X);
+			Write((float) vec.Y);
+			Write((float) vec.Z);
 		}
 
 		public Vector3 ReadVector3()
@@ -540,13 +540,13 @@ namespace MiNET.Net
 
 			for (int i = 0; i < count; i++)
 			{
-				metadata.Add(ReadItemStack());
+				metadata.Add(ReadItem());
 			}
 
 			return metadata;
 		}
 
-		public void Write(ItemStack stack, bool signItem = true)
+		public void Write(Item stack, bool signItem = true)
 		{
 			if (stack == null || stack.Id <= 0)
 			{
@@ -576,15 +576,19 @@ namespace MiNET.Net
 			}
 		}
 
-		public ItemStack ReadItemStack()
+		public Item ReadItem()
 		{
 			short id = ReadShort();
 			if (id <= 0)
 			{
-				return new ItemStack();
+				return new Item();
 			}
 
-			var stack = new ItemStack(id, ReadByte(), ReadShort());
+			byte count = ReadByte();
+			short metadata = ReadShort();
+			Item stack = ItemFactory.GetItem(id, metadata);
+			stack.Count = count;
+
 			int nbtLen = ReadShort(); // NbtLen
 			if (nbtLen > 0)
 			{
@@ -715,10 +719,10 @@ namespace MiNET.Net
 					int ingrediensCount = ReadInt(); // 
 					for (int j = 0; j < ingrediensCount; j++)
 					{
-						recipe.Input.Add(ReadItemStack());
+						recipe.Input.Add(ReadItem());
 					}
 					ReadInt(); // 1?
-					recipe.Result = ReadItemStack();
+					recipe.Result = ReadItem();
 					recipe.Id = ReadUUID(); // Id
 					recipes.Add(recipe);
 				}
@@ -733,14 +737,14 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < height; h++)
 						{
-							recipe.Input[(h*width) + w] = ReadItemStack().Item;
+							recipe.Input[(h*width) + w] = ReadItem();
 						}
 					}
 
 					int resultCount = ReadInt(); // 1?
 					for (int j = 0; j < resultCount; j++)
 					{
-						recipe.Result = ReadItemStack();
+						recipe.Result = ReadItem();
 					}
 					recipe.Id = ReadUUID(); // Id
 					recipes.Add(recipe);
@@ -751,7 +755,7 @@ namespace MiNET.Net
 					SmeltingRecipe recipe = new SmeltingRecipe();
 					short meta = ReadShort(); // input (with metadata) 
 					short id = ReadShort(); // input (with metadata) 
-					ItemStack result = ReadItemStack(); // Result
+					Item result = ReadItem(); // Result
 					recipe.Input = ItemFactory.GetItem(id, meta);
 					recipe.Result = result;
 					recipes.Add(recipe);
@@ -762,7 +766,7 @@ namespace MiNET.Net
 					SmeltingRecipe recipe = new SmeltingRecipe();
 					short id = ReadShort(); // input (with metadata) 
 					short meta = ReadShort(); // input (with metadata) 
-					ItemStack result = ReadItemStack(); // Result
+					Item result = ReadItem(); // Result
 					recipe.Input = ItemFactory.GetItem(id, 0);
 					recipe.Result = result;
 					recipes.Add(recipe);
@@ -810,7 +814,7 @@ namespace MiNET.Net
 
 					ShapelessRecipe rec = (ShapelessRecipe) recipe;
 					writer.Write(rec.Input.Count);
-					foreach (ItemStack stack in rec.Input)
+					foreach (Item stack in rec.Input)
 					{
 						writer.Write(stack);
 					}
@@ -836,7 +840,7 @@ namespace MiNET.Net
 					{
 						for (int h = 0; h < rec.Height; h++)
 						{
-							writer.Write(new ItemStack(rec.Input[(h*rec.Width) + w], 1));
+							writer.Write(rec.Input[(h*rec.Width) + w]);
 						}
 					}
 					writer.Write(1);

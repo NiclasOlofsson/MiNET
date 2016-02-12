@@ -1,6 +1,6 @@
 using fNbt;
 using log4net;
-using MiNET.Utils;
+using MiNET.Items;
 
 namespace MiNET.Net
 {
@@ -20,10 +20,9 @@ namespace MiNET.Net
 			return extraData;
 		}
 
-		public virtual bool VerifyItemStack(Player player, ItemStack itemStack)
+		public virtual bool VerifyItemStack(Player player, Item itemStack)
 		{
 			return true;
 		}
 	}
-
 }

@@ -1,13 +1,14 @@
 using System;
 using fNbt;
 using MiNET.BlockEntities;
+using MiNET.Items;
 using MiNET.Utils;
 
 namespace MiNET
 {
 	public class Inventory
 	{
-		public event Action<Player, Inventory, byte, ItemStack> InventoryChange;
+		public event Action<Player, Inventory, byte, Item> InventoryChange;
 
 		public int Id { get; set; }
 		public byte Type { get; set; }
@@ -27,18 +28,18 @@ namespace MiNET
 			Slots = new ItemStacks();
 			for (byte i = 0; i < Size; i++)
 			{
-				Slots.Add(new ItemStack());
+				Slots.Add(new Item());
 			}
 
 			for (byte i = 0; i < slots.Count; i++)
 			{
 				NbtCompound item = (NbtCompound) slots[i];
 
-				Slots[item["Slot"].ByteValue] = new ItemStack(item["id"].ShortValue, item["Count"].ByteValue, item["Damage"].ByteValue);
+				Slots[item["Slot"].ByteValue] = new Item(item["id"].ShortValue, item["Damage"].ByteValue) {Count = item["Count"].ByteValue};
 			}
 		}
 
-		public void SetSlot(Player player, byte slot, ItemStack itemStack)
+		public void SetSlot(Player player, byte slot, Item itemStack)
 		{
 			Slots[slot] = itemStack;
 
@@ -48,7 +49,7 @@ namespace MiNET
 			OnInventoryChange(player, slot, itemStack);
 		}
 
-		public ItemStack GetSlot(byte slot)
+		public Item GetSlot(byte slot)
 		{
 			return Slots[slot];
 		}
@@ -65,7 +66,7 @@ namespace MiNET
 			var slotData = Slots[slot];
 			if (slotData.Id == 0 || slotData.Count <= 1)
 			{
-				slotData = new ItemStack(0, 0, 0);
+				slotData = new Item();
 				isEmpty = true;
 			}
 			else
@@ -78,17 +79,17 @@ namespace MiNET
 			return isEmpty;
 		}
 
-		public void IncreaseSlot(byte slot, int itemId, short metadata)
+		public void IncreaseSlot(byte slot, short itemId, short metadata)
 		{
 			IncreaseSlot(null, slot, itemId, metadata);
 		}
 
-		public void IncreaseSlot(Player player, byte slot, int itemId, short metadata)
+		public void IncreaseSlot(Player player, byte slot, short itemId, short metadata)
 		{
 			var slotData = Slots[slot];
 			if (slotData.Id == 0)
 			{
-				slotData = new ItemStack((short) itemId, 1, metadata);
+				slotData = new Item(itemId, metadata) {Count = 1};
 			}
 			else
 			{
@@ -122,9 +123,9 @@ namespace MiNET
 			return slots;
 		}
 
-		protected virtual void OnInventoryChange(Player player, byte slot, ItemStack itemStack)
+		protected virtual void OnInventoryChange(Player player, byte slot, Item itemStack)
 		{
-			Action<Player, Inventory, byte, ItemStack> handler = InventoryChange;
+			Action<Player, Inventory, byte, Item> handler = InventoryChange;
 			if (handler != null) handler(player, this, slot, itemStack);
 		}
 	}

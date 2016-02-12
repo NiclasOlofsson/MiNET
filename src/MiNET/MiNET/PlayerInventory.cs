@@ -15,7 +15,7 @@ namespace MiNET
 		public const int InventorySize = HotbarSize + 36;
 		public Player Player { get; private set; }
 
-		public List<ItemStack> Slots { get; private set; }
+		public List<Item> Slots { get; private set; }
 		public int[] ItemHotbar { get; private set; }
 		public int InHandSlot { get; set; }
 
@@ -30,7 +30,7 @@ namespace MiNET
 		{
 			Player = player;
 
-			Slots = Enumerable.Repeat(new ItemStack(), InventorySize).ToList();
+			Slots = Enumerable.Repeat(new Item(), InventorySize).ToList();
 			//Slots = Enumerable.Repeat(new ItemStack(new ItemIronSword(0), 1), InventorySize).ToList();
 			//Slots[Slots.Count-10] = new ItemStack(new ItemDiamondAxe(0), 1);
 			//Slots[Slots.Count-9] = new ItemStack(new ItemDiamondAxe(0), 1);
@@ -78,10 +78,10 @@ namespace MiNET
 				ItemHotbar[i] = i;
 			}
 
-			Boots = new Item(0, 0);
-			Leggings = new Item(0, 0);
-			Chest = new Item(0, 0);
-			Helmet = new Item(0, 0);
+			Boots = new Item();
+			Leggings = new Item();
+			Chest = new Item();
+			Helmet = new Item();
 
 			//Boots = new ItemDiamondBoots(0);
 			//Leggings = new ItemDiamondLeggings(0);
@@ -89,12 +89,12 @@ namespace MiNET
 			//Helmet = new ItemDiamondHelmet(0);
 		}
 
-		public virtual ItemStack GetItemInHand()
+		public virtual Item GetItemInHand()
 		{
 			var index = ItemHotbar[InHandSlot];
-			if (index == -1 || index >= Slots.Count) return new ItemStack();
+			if (index == -1 || index >= Slots.Count) return new Item();
 
-			return Slots[index] ?? new ItemStack();
+			return Slots[index] ?? new Item();
 		}
 
 		public virtual int GetItemInHandSlot()
@@ -105,7 +105,7 @@ namespace MiNET
 		[Wired]
 		public void SetInventorySlot(int slot, short itemId, byte amount = 1, short metadata = 0)
 		{
-			Slots[slot] = new ItemStack(itemId, amount, metadata);
+			Slots[slot] = new Item(itemId, metadata) {Count = amount};
 
 			var containerSetContent = McpeContainerSetContent.CreateObject();
 			containerSetContent.windowId = 0;
@@ -137,7 +137,7 @@ namespace MiNET
 			ItemStacks slotData = new ItemStacks();
 			for (int i = 0; i < Slots.Count; i++)
 			{
-				if (Slots[i].Count == 0) Slots[i] = new ItemStack();
+				if (Slots[i].Count == 0) Slots[i] = new Item();
 				slotData.Add(Slots[i]);
 			}
 
@@ -148,10 +148,10 @@ namespace MiNET
 		{
 			ItemStacks slotData = new ItemStacks
 			{
-				new ItemStack((short) Helmet.Id, 1, Helmet.Metadata),
-				new ItemStack((short) Chest.Id, 1, Helmet.Metadata),
-				new ItemStack((short) Leggings.Id, 1, Helmet.Metadata),
-				new ItemStack((short) Boots.Id, 1, Helmet.Metadata)
+				new Item(Helmet.Id, Helmet.Metadata) {Count = 1},
+				new Item(Chest.Id, Helmet.Metadata) {Count = 1},
+				new Item(Leggings.Id, Helmet.Metadata) {Count = 1},
+				new Item(Boots.Id, Helmet.Metadata) {Count = 1}
 			};
 			return slotData;
 		}
@@ -196,7 +196,7 @@ namespace MiNET
 			}
 			else if (b.Id == 0 || b.Id == -1)
 			{
-				Slots[si] = new ItemStack(itemId, amount, metadata);
+				Slots[si] = new Item(itemId, metadata) {Count = amount};
 				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
 				Log.Info("Set on slot " + si);
@@ -242,7 +242,7 @@ namespace MiNET
 			SetInventorySlot(slot, 0, 0);
 		}
 
-		public bool HasItem(ItemStack item)
+		public bool HasItem(Item item)
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
@@ -264,7 +264,7 @@ namespace MiNET
 					slot.Count--;
 					if (slot.Count == 0)
 					{
-						Slots[i] = new ItemStack();
+						Slots[i] = new Item();
 					}
 
 					SendSetSlot(i);

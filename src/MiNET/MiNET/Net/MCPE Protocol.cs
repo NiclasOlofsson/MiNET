@@ -7,6 +7,7 @@ using System;
 using System.Net;
 using System.Threading;
 using MiNET.Utils; 
+using MiNET.Items;
 using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
 
@@ -1374,7 +1375,7 @@ namespace MiNET.Net
 		public float yaw; // = null;
 		public float headYaw; // = null;
 		public float pitch; // = null;
-		public ItemStack item; // = null;
+		public Item item; // = null;
 		public MetadataDictionary metadata; // = null;
 		public McpeAddPlayer()
 		{
@@ -1426,7 +1427,7 @@ namespace MiNET.Net
 			yaw = ReadFloat();
 			headYaw = ReadFloat();
 			pitch = ReadFloat();
-			item = ReadItemStack();
+			item = ReadItem();
 			metadata = ReadMetadataDictionary();
 
 			AfterDecode();
@@ -1590,7 +1591,7 @@ namespace MiNET.Net
 	public partial class McpeAddItemEntity : Package<McpeAddItemEntity>
 	{
 		public long entityId; // = null;
-		public ItemStack item; // = null;
+		public Item item; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -1630,7 +1631,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			item = ReadItemStack();
+			item = ReadItem();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -2213,7 +2214,7 @@ namespace MiNET.Net
 	public partial class McpePlayerEquipment : Package<McpePlayerEquipment>
 	{
 		public long entityId; // = null;
-		public ItemStack item; // = null;
+		public Item item; // = null;
 		public byte slot; // = null;
 		public byte selectedSlot; // = null;
 		public McpePlayerEquipment()
@@ -2245,7 +2246,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			item = ReadItemStack();
+			item = ReadItem();
 			slot = ReadByte();
 			selectedSlot = ReadByte();
 
@@ -2260,10 +2261,10 @@ namespace MiNET.Net
 	public partial class McpePlayerArmorEquipment : Package<McpePlayerArmorEquipment>
 	{
 		public long entityId; // = null;
-		public ItemStack helmet; // = null;
-		public ItemStack chestplate; // = null;
-		public ItemStack leggings; // = null;
-		public ItemStack boots; // = null;
+		public Item helmet; // = null;
+		public Item chestplate; // = null;
+		public Item leggings; // = null;
+		public Item boots; // = null;
 		public McpePlayerArmorEquipment()
 		{
 			Id = 0xa8;
@@ -2294,10 +2295,10 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			helmet = ReadItemStack();
-			chestplate = ReadItemStack();
-			leggings = ReadItemStack();
-			boots = ReadItemStack();
+			helmet = ReadItem();
+			chestplate = ReadItem();
+			leggings = ReadItem();
+			boots = ReadItem();
 
 			AfterDecode();
 		}
@@ -2354,7 +2355,7 @@ namespace MiNET.Net
 		public byte face; // = null;
 		public Vector3 facecoordinates; // = null;
 		public Vector3 playerposition; // = null;
-		public ItemStack item; // = null;
+		public Item item; // = null;
 		public McpeUseItem()
 		{
 			Id = 0xaa;
@@ -2388,7 +2389,7 @@ namespace MiNET.Net
 			face = ReadByte();
 			facecoordinates = ReadVector3();
 			playerposition = ReadVector3();
-			item = ReadItemStack();
+			item = ReadItem();
 
 			AfterDecode();
 		}
@@ -2782,7 +2783,7 @@ namespace MiNET.Net
 	public partial class McpeDropItem : Package<McpeDropItem>
 	{
 		public byte itemtype; // = null;
-		public ItemStack item; // = null;
+		public Item item; // = null;
 		public McpeDropItem()
 		{
 			Id = 0xb4;
@@ -2810,7 +2811,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			itemtype = ReadByte();
-			item = ReadItemStack();
+			item = ReadItem();
 
 			AfterDecode();
 		}
@@ -2916,7 +2917,7 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public short slot; // = null;
 		public short unknown; // = null;
-		public ItemStack item; // = null;
+		public Item item; // = null;
 		public McpeContainerSetSlot()
 		{
 			Id = 0xb7;
@@ -2948,7 +2949,7 @@ namespace MiNET.Net
 			windowId = ReadByte();
 			slot = ReadShort();
 			unknown = ReadShort();
-			item = ReadItemStack();
+			item = ReadItem();
 
 			AfterDecode();
 		}

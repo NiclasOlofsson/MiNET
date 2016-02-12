@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using fNbt;
 using log4net;
+using MiNET.Items;
 using MiNET.Utils;
 
 namespace MiNET.Net
@@ -134,7 +135,7 @@ namespace MiNET.Net
 			}
 		}
 
-		public void Write(ItemStack stack, bool signItem = true)
+		public void Write(Item stack, bool signItem = true)
 		{
 			if (stack == null || stack.Id <= 0)
 			{

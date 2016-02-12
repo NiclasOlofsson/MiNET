@@ -1,6 +1,6 @@
-using MiNET.Utils;
+using MiNET.Items;
 
-﻿namespace MiNET.Blocks
+namespace MiNET.Blocks
 {
 	public class Farmland : Block
 	{
@@ -8,10 +8,10 @@ using MiNET.Utils;
 		{
 		}
 
-     
-		public override ItemStack GetDrops()
+
+		public override Item GetDrops()
 		{
-			return new ItemStack(3); // Drop dirt block
+			return new Item(3); // Drop dirt block
 		}
 	}
 }

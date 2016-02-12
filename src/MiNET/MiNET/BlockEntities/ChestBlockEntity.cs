@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using fNbt;
-using MiNET.Utils;
+using MiNET.Items;
 
 namespace MiNET.BlockEntities
 {
@@ -22,12 +22,12 @@ namespace MiNET.BlockEntities
 			NbtList items = (NbtList) Compound["Items"];
 			for (byte i = 0; i < 27; i++)
 			{
-				items.Add(new NbtCompound()
+				items.Add(new NbtCompound
 				{
-					new NbtByte("Count", 0),
 					new NbtByte("Slot", i),
 					new NbtShort("id", 0),
 					new NbtByte("Damage", 0),
+					new NbtByte("Count", 0),
 				});
 			}
 		}
@@ -52,19 +52,19 @@ namespace MiNET.BlockEntities
 				{
 					items.Add(new NbtCompound()
 					{
-						new NbtByte("Count", 0),
 						new NbtByte("Slot", i),
 						new NbtShort("id", 0),
 						new NbtByte("Damage", 0),
+						new NbtByte("Count", 0),
 					});
 				}
 				Compound["Items"] = items;
 			}
 		}
 
-		public override List<ItemStack> GetDrops()
+		public override List<Item> GetDrops()
 		{
-			List<ItemStack> slots = new List<ItemStack>();
+			List<Item> slots = new List<Item>();
 
 			var items = Compound["Items"] as NbtList;
 			if (items == null) return slots;
@@ -72,7 +72,7 @@ namespace MiNET.BlockEntities
 			for (byte i = 0; i < items.Count; i++)
 			{
 				NbtCompound item = (NbtCompound) items[i];
-				slots.Add(new ItemStack(item["id"].ShortValue, item["Count"].ByteValue));
+				slots.Add(new Item(item["id"].ShortValue, item["Damage"].ByteValue) {Count = item["Count"].ByteValue});
 			}
 
 			return slots;

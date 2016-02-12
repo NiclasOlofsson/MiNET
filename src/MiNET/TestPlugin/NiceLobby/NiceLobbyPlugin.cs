@@ -7,6 +7,7 @@ using System.Threading;
 using MiNET;
 using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -190,7 +191,7 @@ namespace TestPlugin.NiceLobby
 		{
 			player.RemoveAllEffects();
 
-			player.SetEffect(new Speed { Level = 2, Duration = 1000 });
+			player.SetEffect(new Speed {Level = 2, Duration = 1000});
 			////player.SetEffect(new Slowness {Level = 2, Duration = 20});
 			//player.SetEffect(new JumpBoost { Level = 2, Duration = Effect.MaxDuration });
 			//player.SetAutoJump(true);
@@ -341,7 +342,8 @@ namespace TestPlugin.NiceLobby
 			string awk = "[" + ChatColors.DarkRed + "AWK" + ChatFormatting.Reset + "]";
 			if (player.NameTag.StartsWith(awk))
 			{
-				player.SetNameTag(player.Username);;
+				player.SetNameTag(player.Username);
+				;
 			}
 			else
 			{
@@ -442,7 +444,7 @@ namespace TestPlugin.NiceLobby
 			{
 				Skin = new Skin {Slim = false, Texture = bytes},
 				KnownPosition = player.KnownPosition,
-				ItemInHand = new ItemStack(267),
+				ItemInHand = new Item(267),
 				Helmet = 302,
 				Chest = 303,
 				Leggings = 304,

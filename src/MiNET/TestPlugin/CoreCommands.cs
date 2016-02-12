@@ -51,7 +51,7 @@ namespace TestPlugin
 		{
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				for (int i = 0; i < short.MaxValue; i = i+2000)
+				for (int i = 0; i < short.MaxValue; i = i + 2000)
 				{
 					var data = i;
 					{
@@ -130,7 +130,7 @@ namespace TestPlugin
 		{
 			for (int i = 0; i < noItems; i++)
 			{
-				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 1, new ItemStack(itemId, 1));
+				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 1, new Item(itemId) {Count = 1});
 			}
 		}
 
@@ -155,7 +155,7 @@ namespace TestPlugin
 		[Command(Command = "gm")]
 		public void GameMode(Player player, int gameMode)
 		{
-			player.SetGameMode((GameMode)gameMode);
+			player.SetGameMode((GameMode) gameMode);
 
 			//if (gameMode == 1)
 			//{
@@ -391,27 +391,27 @@ namespace TestPlugin
 			// Hotbar
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
-			inventory.Slots[c++] = new ItemStack(268, 1); // Wooden Sword
-			inventory.Slots[c++] = new ItemStack(272, 1); // Stone Sword
-			inventory.Slots[c++] = new ItemStack(283, 1); // Golden Sword
-			inventory.Slots[c++] = new ItemStack(267, 1); // Iron Sword
-			inventory.Slots[c++] = new ItemStack(276, 1); // Diamond Sword
-			inventory.Slots[c++] = new ItemStack(261, 1); // Bow
-			inventory.Slots[c++] = new ItemStack(262, 64); // Arrows
-			inventory.Slots[c++] = new ItemStack(344, 64); // Eggs
-			inventory.Slots[c++] = new ItemStack(332, 64); // Snowballs
-			inventory.Slots[c++] = new ItemStack(267, 64, 0) {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}};
+			inventory.Slots[c++] = new Item(268, 0) {Count = 1}; // Wooden Sword
+			inventory.Slots[c++] = new Item(272, 0) {Count = 1}; // Stone Sword
+			inventory.Slots[c++] = new Item(283, 0) {Count = 1}; // Golden Sword
+			inventory.Slots[c++] = new Item(267, 0) {Count = 1}; // Iron Sword
+			inventory.Slots[c++] = new Item(276, 0) {Count = 1}; // Diamond Sword
+			inventory.Slots[c++] = new Item(261, 0) {Count = 1}; // Bow
+			inventory.Slots[c++] = new Item(262, 0) {Count = 64}; // Arrows
+			inventory.Slots[c++] = new Item(344, 0) {Count = 64}; // Eggs
+			inventory.Slots[c++] = new Item(332, 0) {Count = 64}; // Snowballs
+			inventory.Slots[c++] = new Item(267, 0) {Count = 64, ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}};
 
-			inventory.Slots[c++] = new ItemStack(new ItemChest(0), 1);
-			inventory.Slots[c++] = new ItemStack(new ItemStoneAxe(0), 1);
-			inventory.Slots[c++] = new ItemStack(new ItemWoodenPickaxe(0), 1);
-			inventory.Slots[c++] = new ItemStack(new ItemBread(), 5);
-			inventory.Slots[c++] = new ItemStack(new ItemBlock(new Block(35), 0), 64);
-			inventory.Slots[c++] = new ItemStack(new ItemBucket(8), 1);
+			inventory.Slots[c++] = new ItemChest(0) {Count = 1};
+			inventory.Slots[c++] = new ItemStoneAxe(0) {Count = 1};
+			inventory.Slots[c++] = new ItemWoodenPickaxe(0) {Count = 1};
+			inventory.Slots[c++] = new ItemBread {Count = 5};
+			inventory.Slots[c++] = new ItemBlock(new Block(35), 0) {Count = 64};
+			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
 
-			inventory.Slots[c++] = new ItemStack(ItemFactory.GetItem(39, 0), 4);
-			inventory.Slots[c++] = new ItemStack(ItemFactory.GetItem(40, 0), 4);
-			inventory.Slots[c++] = new ItemStack(ItemFactory.GetItem(281, 0), 4);
+			//inventory.Slots[c++] = ItemFactory.GetItem(39, 0) { Count = 1};
+			//inventory.Slots[c++] = ItemFactory.GetItem(40, 0), 4);
+			//inventory.Slots[c++] = ItemFactory.GetItem(281, 0), 4);
 
 			//for (byte i = 0; i < inventory.ItemHotbar.Length; i++)
 			//{
@@ -439,10 +439,10 @@ namespace TestPlugin
 		{
 			var armorEquipment = new McpePlayerArmorEquipment();
 			armorEquipment.entityId = player.EntityId;
-			armorEquipment.helmet = new ItemStack(player.Inventory.Helmet, 0);
-			armorEquipment.chestplate = new ItemStack(player.Inventory.Chest, 0);
-			armorEquipment.leggings = new ItemStack(player.Inventory.Leggings, 0);
-			armorEquipment.boots = new ItemStack(player.Inventory.Boots, 0);
+			armorEquipment.helmet = player.Inventory.Helmet;
+			armorEquipment.chestplate = player.Inventory.Chest;
+			armorEquipment.leggings = player.Inventory.Leggings;
+			armorEquipment.boots = player.Inventory.Boots;
 			player.Level.RelayBroadcast(armorEquipment);
 		}
 

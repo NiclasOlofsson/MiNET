@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemHoe : Item
 	{
-		internal ItemHoe(int id, short metadata) : base(id, metadata)
+		internal ItemHoe(short id, short metadata) : base(id, metadata)
 		{
 			MaxStackSize = 1;
 		}

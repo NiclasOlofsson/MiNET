@@ -1,4 +1,4 @@
-using MiNET.Utils;
+using MiNET.Items;
 
 namespace MiNET.Blocks
 {
@@ -8,9 +8,9 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public override ItemStack GetDrops()
+		public override Item GetDrops()
 		{
-			return new ItemStack(263, 1);
+			return new Item(263, 0) {Count = 1};
 		}
 	}
 }

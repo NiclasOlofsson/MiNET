@@ -1,6 +1,6 @@
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
-using ItemStack = MiNET.Utils.ItemStack;
 
 namespace MiNET.Blocks
 {
@@ -15,9 +15,9 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override ItemStack GetDrops()
+		public override Item GetDrops()
 		{
-			return new ItemStack(323, 1); // Drop sign item
+			return new Item(323, 0) {Count = 1}; // Drop sign item
 		}
 	}
 }

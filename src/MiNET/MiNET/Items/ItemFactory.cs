@@ -4,7 +4,7 @@ namespace MiNET.Items
 {
 	public interface ICustomItemFactory
 	{
-		Item GetItem(int id, short metadata);
+		Item GetItem(short id, short metadata);
 	}
 
 	public interface ICustomBlockItemFactory
@@ -17,12 +17,12 @@ namespace MiNET.Items
 		public static ICustomItemFactory CustomItemFactory { get; set; }
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
 
-		public static Item GetItem(int id)
+		public static Item GetItem(short id)
 		{
 			return GetItem(id, 0);
 		}
 
-		public static Item GetItem(int id, short metadata)
+		public static Item GetItem(short id, short metadata)
 		{
 			Item item = null;
 

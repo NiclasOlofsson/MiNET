@@ -6,7 +6,7 @@ namespace MiNET.Items
 	{
 		public int FoodPoints { get; set; }
 
-		public FoodItem(int id, short metadata, int foodPoints) : base(id, metadata)
+		public FoodItem(short id, short metadata, int foodPoints) : base(id, metadata)
 		{
 			FoodPoints = foodPoints;
 		}

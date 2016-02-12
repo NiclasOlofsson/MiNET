@@ -356,7 +356,6 @@
     <Compile Include="Utils\MetadataInt.cs" />
     <Compile Include="Utils\MetadataInts.cs" />
     <Compile Include="Utils\MetadataShort.cs" />
-    <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataString.cs" />
     <Compile Include="Utils\Nbt.cs" />
     <Compile Include="Utils\NbtBinaryReader.cs" />

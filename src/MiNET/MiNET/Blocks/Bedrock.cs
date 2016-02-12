@@ -1,6 +1,6 @@
-using MiNET.Utils;
+using MiNET.Items;
 
-﻿namespace MiNET.Blocks
+namespace MiNET.Blocks
 {
 	public class Bedrock : Block
 	{
@@ -9,8 +9,8 @@ using MiNET.Utils;
 			Hardness = 60000;
 		}
 
-     
-		public override ItemStack GetDrops()
+
+		public override Item GetDrops()
 		{
 			return null; //Drop nothing
 		}

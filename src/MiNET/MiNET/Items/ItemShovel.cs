@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemShovel : Item
 	{
-		internal ItemShovel(int id, short metadata) : base(id, metadata)
+		internal ItemShovel(short id, short metadata) : base(id, metadata)
 		{
 			MaxStackSize = 1;
 		}

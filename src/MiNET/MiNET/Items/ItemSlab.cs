@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemSlab : Item
 	{
-		public ItemSlab(int id, short metadata) : base(id, metadata)
+		public ItemSlab(short id, short metadata) : base(id, metadata)
 		{
 		}
 

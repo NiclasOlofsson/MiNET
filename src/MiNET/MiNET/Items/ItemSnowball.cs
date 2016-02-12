@@ -15,13 +15,13 @@ namespace MiNET.Items
 		{
 			if (player.GameMode != GameMode.Creative)
 			{
-				ItemStack itemStackInHand = player.Inventory.GetItemInHand();
+				Item itemStackInHand = player.Inventory.GetItemInHand();
 				itemStackInHand.Count--;
 
 				if (itemStackInHand.Count <= 0)
 				{
 					// set empty
-					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemStack();
+					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new Item();
 				}
 			}
 
@@ -30,7 +30,7 @@ namespace MiNET.Items
 			Snowball snowBall = new Snowball(null, world);
 			snowBall.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			snowBall.KnownPosition.Y += 1.62f;
-			snowBall.Velocity = snowBall.KnownPosition.GetDirection() * (force);
+			snowBall.Velocity = snowBall.KnownPosition.GetDirection()*(force);
 			snowBall.BroadcastMovement = false;
 			snowBall.DespawnOnImpact = true;
 			snowBall.SpawnEntity();

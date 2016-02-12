@@ -323,7 +323,7 @@ namespace MiNET
 				case PlayerAction.ReleaseItem:
 					if (_itemUseTimer == null) return;
 
-					Item itemInHand = Inventory.GetItemInHand().Item;
+					Item itemInHand = Inventory.GetItemInHand();
 
 					if (itemInHand == null) return; // Cheat(?)
 
@@ -1087,7 +1087,7 @@ namespace MiNET
 
 				// Clear current inventory slot.
 				{
-					var itemEntity = new ItemEntity(Level, stack.Item)
+					var itemEntity = new ItemEntity(Level, stack)
 					{
 						Velocity = KnownPosition.GetDirection()*0.7,
 						KnownPosition =
@@ -1096,7 +1096,6 @@ namespace MiNET
 							Y = KnownPosition.Y + 1.62f,
 							Z = KnownPosition.Z
 						},
-						Count = stack.Count
 					};
 
 					itemEntity.SpawnEntity();
@@ -1109,7 +1108,7 @@ namespace MiNET
 			if (HealthManager.IsDead) return;
 
 
-			ItemStack itemStack = message.item;
+			Item itemStack = message.item;
 			if (GameMode != GameMode.Creative && itemStack != null && !VerifyItemStack(itemStack))
 			{
 				Log.Error($"Kicked {Username} for equipment hacking.");
@@ -1179,7 +1178,11 @@ namespace MiNET
 
 				Inventory inventory = Level.InventoryManager.GetInventory(inventoryCoord);
 
-				if (inventory == null) return;
+				if (inventory == null)
+				{
+					Log.Warn($"No chest found at {inventoryCoord}");
+					return;
+				}
 
 				// get inventory # from inventory manager
 				// set inventory as active on player
@@ -1220,7 +1223,7 @@ namespace MiNET
 			}
 		}
 
-		private void OnInventoryChange(Player player, Inventory inventory, byte slot, ItemStack itemStack)
+		private void OnInventoryChange(Player player, Inventory inventory, byte slot, Item itemStack)
 		{
 			if (player == this)
 			{
@@ -1246,7 +1249,7 @@ namespace MiNET
 
 				for (int i = 0; i < message.input.Count; i++)
 				{
-					ItemStack itemStack = message.input[i];
+					Item itemStack = message.input[i];
 					if (itemStack != null)
 					{
 						if (!VerifyItemStack(itemStack))
@@ -1296,7 +1299,7 @@ namespace MiNET
 			{
 				if (HealthManager.IsDead) return;
 
-				ItemStack itemStack = message.item;
+				Item itemStack = message.item;
 
 				if (GameMode != GameMode.Creative)
 				{
@@ -1343,7 +1346,7 @@ namespace MiNET
 						break;
 					case 0x78:
 
-						var armorItem = itemStack.Item;
+						var armorItem = itemStack;
 						switch (message.slot)
 						{
 							case 0:
@@ -1362,10 +1365,10 @@ namespace MiNET
 
 						McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 						armorEquipment.entityId = EntityId;
-						armorEquipment.helmet = new ItemStack(Inventory.Helmet, 1);
-						armorEquipment.chestplate = new ItemStack(Inventory.Chest, 1);
-						armorEquipment.leggings = new ItemStack(Inventory.Leggings, 1);
-						armorEquipment.boots = new ItemStack(Inventory.Boots, 1);
+						armorEquipment.helmet = Inventory.Helmet;
+						armorEquipment.chestplate = Inventory.Chest;
+						armorEquipment.leggings = Inventory.Leggings;
+						armorEquipment.boots = Inventory.Boots;
 						Level.RelayBroadcast(this, armorEquipment);
 
 						break;
@@ -1376,7 +1379,7 @@ namespace MiNET
 			}
 		}
 
-		public virtual bool VerifyItemStack(ItemStack itemStack)
+		public virtual bool VerifyItemStack(Item itemStack)
 		{
 			if (ItemSigner.DefualtItemSigner == null) return true;
 
@@ -1427,7 +1430,7 @@ namespace MiNET
 			Player player = target as Player;
 			if (player != null)
 			{
-				int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
+				int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
 				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
 			}
 			else
@@ -1537,7 +1540,7 @@ namespace MiNET
 
 		private int CalculateDamage(Entity target)
 		{
-			int damage = Inventory.GetItemInHand().Item.GetDamage(); //Item Damage.
+			int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
 
 			damage = (int) Math.Floor(damage*(1.0));
 
@@ -1559,7 +1562,7 @@ namespace MiNET
 
 					if (GameMode == GameMode.Survival)
 					{
-						FoodItem foodItem = Inventory.GetItemInHand().Item as FoodItem;
+						FoodItem foodItem = Inventory.GetItemInHand() as FoodItem;
 						if (foodItem != null)
 						{
 							foodItem.Consume(this);
@@ -1596,7 +1599,7 @@ namespace MiNET
 
 
 			// Make sure we are holding the item we claim to be using
-			ItemStack itemInHand = Inventory.GetItemInHand();
+			Item itemInHand = Inventory.GetItemInHand();
 			if (itemInHand == null || itemInHand.Id != message.item.Id)
 			{
 				if (GameMode != GameMode.Creative) Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
@@ -1616,7 +1619,7 @@ namespace MiNET
 				_itemUseTimer = new Stopwatch();
 				_itemUseTimer.Start();
 
-				itemInHand.Item.UseItem(Level, this, message.blockcoordinates);
+				itemInHand.UseItem(Level, this, message.blockcoordinates);
 
 				IsInAction = true;
 				MetadataDictionary metadata = new MetadataDictionary
@@ -2240,23 +2243,23 @@ namespace MiNET
 
 			if (Inventory.Helmet.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Helmet, 1));
-				Inventory.Helmet = new Item(0, 0);
+				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Helmet);
+				Inventory.Helmet = new Item();
 			}
 			if (Inventory.Chest.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Chest, 1));
-				Inventory.Chest = new Item(0, 0);
+				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Chest);
+				Inventory.Chest = new Item();
 			}
 			if (Inventory.Leggings.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Leggings, 1));
-				Inventory.Leggings = new Item(0, 0);
+				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Leggings);
+				Inventory.Leggings = new Item();
 			}
 			if (Inventory.Boots.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), new ItemStack(Inventory.Boots, 1));
-				Inventory.Boots = new Item(0, 0);
+				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Boots);
+				Inventory.Boots = new Item();
 			}
 
 			Inventory.Clear();

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using fNbt;
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -31,9 +32,9 @@ namespace MiNET.BlockEntities
 		}
 
 
-		public virtual List<ItemStack> GetDrops()
+		public virtual List<Item> GetDrops()
 		{
-			return new List<ItemStack>();
+			return new List<Item>();
 		}
 	}
 }

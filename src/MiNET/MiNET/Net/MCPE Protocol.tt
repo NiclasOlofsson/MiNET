@@ -18,6 +18,7 @@ using System;
 using System.Net;
 using System.Threading;
 using MiNET.Utils; 
+using MiNET.Items;
 using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
 

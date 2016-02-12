@@ -13,9 +13,8 @@ namespace MiNET.Items
 	/// </summary>
 	public class Item
 	{
-		public int Id { get; set; }
+		public short Id { get; set; }
 		public short Metadata { get; set; }
-
 		public byte Count { get; set; }
 		public NbtCompound ExtraData { get; set; }
 
@@ -26,10 +25,24 @@ namespace MiNET.Items
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }
 
-		public Item(int id, short metadata)
+		// Air constructor hmm
+		public Item() : this(0, 0, 0)
 		{
-			Id = id;
+		}
+
+		public Item(short id) : this(id, 0, 0)
+		{
+		}
+
+		public Item(short id, short metadata) : this(id, metadata, 0)
+		{
+		}
+
+		public Item(short id, short metadata, byte count)
+		{
+			Id = (short) id;
 			Metadata = metadata;
+			Count = count;
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
@@ -148,7 +161,6 @@ namespace MiNET.Items
 		{
 			return $"Id={Id}, Metadata={Metadata}";
 		}
-
 	}
 
 	public enum ItemMaterial

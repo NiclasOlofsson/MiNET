@@ -496,7 +496,7 @@ TODO: Parameters
 |Yaw | float |  |
 |Head Yaw | float |  |
 |Pitch | float |  |
-|Item | ItemStack |  |
+|Item | Item |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Player (0x97)
@@ -573,7 +573,7 @@ link[2] byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity Id | long |  |
-|Item | ItemStack |  |
+|Item | Item |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -804,7 +804,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Item | ItemStack |  |
+|Item | Item |  |
 |Slot | byte |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
@@ -821,10 +821,10 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Helmet | ItemStack |  |
-|Chestplate | ItemStack |  |
-|Leggings | ItemStack |  |
-|Boots | ItemStack |  |
+|Helmet | Item |  |
+|Chestplate | Item |  |
+|Leggings | Item |  |
+|Boots | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Interact (0xa9)
 
@@ -857,7 +857,7 @@ TODO: can have multiple blocks.
 |Face | byte |  |
 |FaceCoordinates | Vector3 |  |
 |PlayerPosition | Vector3 |  |
-|Item | ItemStack |  |
+|Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Action (0xab)
 
@@ -1011,7 +1011,7 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |ItemType | byte |  |
-|Item | ItemStack |  |
+|Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Open (0xb5)
 
@@ -1061,7 +1061,7 @@ TODO: can have multiple blocks.
 |Window ID | byte |  |
 |Slot | short |  |
 |Unknown | short |  |
-|Item | ItemStack |  |
+|Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Data (0xb8)
 

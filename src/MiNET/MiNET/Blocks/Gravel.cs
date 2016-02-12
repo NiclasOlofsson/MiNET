@@ -13,7 +13,7 @@ namespace MiNET.Blocks
 	    {
 	        Random random = new Random();
 	        if (random.Next(10) == 0)
-	        {
+            {
 	            return new ItemStack(318, 1);
 	        }
             return new ItemStack(13, 0);

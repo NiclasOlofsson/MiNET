@@ -25,7 +25,7 @@ namespace MiNET.Items
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }
 
-		internal Item(short id, short metadata, byte count = 0)
+		protected internal Item(short id, short metadata, byte count = 0)
 		{
 			Id = id;
 			Metadata = metadata;

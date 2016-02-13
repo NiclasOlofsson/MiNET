@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemLeatherChestplate : Item
 	{
-		public ItemLeatherChestplate(short metadata) : base(299, metadata)
+		public ItemLeatherChestplate() : base(299)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

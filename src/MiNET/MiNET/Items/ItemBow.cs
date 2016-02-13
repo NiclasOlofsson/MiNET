@@ -10,7 +10,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBow));
 
-		public ItemBow(short metadata) : base(261, metadata)
+		public ItemBow() : base(261)
 		{
 			MaxStackSize = 1;
 		}

@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemGoldBoots : Item
 	{
-		public ItemGoldBoots(short metadata) : base(317, metadata)
+		public ItemGoldBoots() : base(317)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

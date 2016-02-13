@@ -2,7 +2,7 @@
 {
 	public class ItemIronBoots : Item
 	{
-		public ItemIronBoots(short metadata) : base(309, metadata)
+		public ItemIronBoots() : base(309)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemEgg : Item
 	{
-		public ItemEgg(short metadata) : base(344, metadata)
+		public ItemEgg() : base(344)
 		{
 			MaxStackSize = 16;
 		}

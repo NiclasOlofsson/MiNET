@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondAxe : Item
 	{
-		public ItemDiamondAxe(short metadata) : base(279, metadata)
+		public ItemDiamondAxe() : base(279)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Diamond;

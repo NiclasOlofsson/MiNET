@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemGoldHelmet : Item
 	{
-		public ItemGoldHelmet(short metadata) : base(314, metadata)
+		public ItemGoldHelmet() : base(314)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Helmet;

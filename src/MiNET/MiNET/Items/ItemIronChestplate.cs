@@ -2,7 +2,7 @@
 {
 	public class ItemIronChestplate : Item
 	{
-		public ItemIronChestplate(short metadata) : base(307, metadata)
+		public ItemIronChestplate() : base(307)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

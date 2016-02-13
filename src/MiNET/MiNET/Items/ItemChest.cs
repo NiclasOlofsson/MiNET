@@ -7,7 +7,7 @@ namespace MiNET.Items
 {
 	public class ItemChest : Item
 	{
-		public ItemChest(short metadata) : base(54, metadata)
+		public ItemChest() : base(54)
 		{
 		}
 
@@ -29,7 +29,6 @@ namespace MiNET.Items
 			Chest chest = new Chest
 			{
 				Coordinates = coor,
-				Metadata = (byte) Metadata
 			};
 
 			if (!chest.CanPlace(world, face)) return;

@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemShovel : Item
 	{
-		internal ItemShovel(short id, short metadata) : base(id, metadata)
+		internal ItemShovel(short id) : base(id)
 		{
 			MaxStackSize = 1;
 		}
@@ -19,7 +19,6 @@ namespace MiNET.Items
 				GrassPath grassPath = new GrassPath
 				{
 					Coordinates = blockCoordinates,
-					Metadata = 0
 				};
 				world.SetBlock(grassPath);
 			}

@@ -2,7 +2,7 @@
 {
 	public class ItemWoodenShovel : ItemShovel
 	{
-		public ItemWoodenShovel(short metadata) : base(269, metadata)
+		public ItemWoodenShovel() : base(269)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Wood;

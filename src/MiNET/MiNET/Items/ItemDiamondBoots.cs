@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondBoots : Item
 	{
-		public ItemDiamondBoots(short metadata) : base(313, metadata)
+		public ItemDiamondBoots() : base(313)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

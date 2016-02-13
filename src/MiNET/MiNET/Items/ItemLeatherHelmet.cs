@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemLeatherHelmet : Item
 	{
-		public ItemLeatherHelmet(short metadata) : base(298, metadata)
+		public ItemLeatherHelmet() : base(298)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Helmet;

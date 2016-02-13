@@ -7,7 +7,7 @@ namespace MiNET.Items
 {
 	public class ItemFurnace : Item
 	{
-		public ItemFurnace(short metadata) : base(61, metadata)
+		public ItemFurnace() : base(61)
 		{
 		}
 
@@ -18,7 +18,6 @@ namespace MiNET.Items
 			Furnace furnace = new Furnace
 			{
 				Coordinates = coor,
-				Metadata = (byte) Metadata
 			};
 
 			if (!furnace.CanPlace(world, face)) return;

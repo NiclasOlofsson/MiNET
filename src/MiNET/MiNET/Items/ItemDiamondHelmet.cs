@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondHelmet : Item
 	{
-		public ItemDiamondHelmet(short metadata) : base(310, metadata)
+		public ItemDiamondHelmet() : base(310)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Helmet;

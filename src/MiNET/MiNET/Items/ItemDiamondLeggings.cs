@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondLeggings : Item
 	{
-		public ItemDiamondLeggings(short metadata) : base(312, metadata)
+		public ItemDiamondLeggings() : base(312)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;

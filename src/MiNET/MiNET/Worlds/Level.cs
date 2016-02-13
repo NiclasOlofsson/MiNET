@@ -985,7 +985,7 @@ namespace MiNET.Worlds
 			if (drop.Id == 0) return;
 			if (drop.Count == 0) return;
 
-			Item item = ItemFactory.GetItem(drop.Id, drop.Metadata);
+			Item item = ItemFactory.GetItem(drop.Id, drop.Metadata, drop.Count);
 
 			var itemEntity = new ItemEntity(this, item)
 			{

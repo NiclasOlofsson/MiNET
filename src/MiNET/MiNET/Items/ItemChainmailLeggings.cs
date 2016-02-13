@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemChainmailLeggings : Item
 	{
-		public ItemChainmailLeggings(short metadata) : base(304, metadata)
+		public ItemChainmailLeggings() : base(304)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;

@@ -586,8 +586,7 @@ namespace MiNET.Net
 
 			byte count = ReadByte();
 			short metadata = ReadShort();
-			Item stack = ItemFactory.GetItem(id, metadata);
-			stack.Count = count;
+			Item stack = ItemFactory.GetItem(id, metadata, count);
 
 			int nbtLen = ReadShort(); // NbtLen
 			if (nbtLen > 0)
@@ -767,7 +766,7 @@ namespace MiNET.Net
 					short id = ReadShort(); // input (with metadata) 
 					short meta = ReadShort(); // input (with metadata) 
 					Item result = ReadItem(); // Result
-					recipe.Input = ItemFactory.GetItem(id, 0);
+					recipe.Input = ItemFactory.GetItem(id, meta);
 					recipe.Result = result;
 					recipes.Add(recipe);
 				}

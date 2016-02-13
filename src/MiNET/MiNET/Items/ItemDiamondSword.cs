@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondSword : Item
 	{
-		public ItemDiamondSword(short metadata) : base(276, metadata)
+		public ItemDiamondSword() : base(276)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Sword;

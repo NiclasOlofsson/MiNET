@@ -8,7 +8,7 @@ namespace MiNET.Items
 	// and its facing and opened status in the block data of its lower block
 	public class ItemDoor : Item
 	{
-		public ItemDoor(short metadata) : base(324, metadata)
+		public ItemDoor() : base(324)
 		{
 		}
 

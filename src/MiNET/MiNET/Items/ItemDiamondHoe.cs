@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondHoe : ItemHoe
 	{
-		public ItemDiamondHoe(short metadata) : base(293, metadata)
+		public ItemDiamondHoe() : base(293)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Diamond;

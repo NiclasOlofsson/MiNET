@@ -7,7 +7,7 @@ namespace MiNET.Items
 {
 	public class ItemEnchantingTable : Item
 	{
-		public ItemEnchantingTable(short metadata) : base(116, metadata)
+		public ItemEnchantingTable() : base(116)
 		{
 		}
 
@@ -29,7 +29,6 @@ namespace MiNET.Items
 			EnchantingTable table = new EnchantingTable
 			{
 				Coordinates = coor,
-				Metadata = (byte) Metadata
 			};
 
 			if (!table.CanPlace(world, face)) return;

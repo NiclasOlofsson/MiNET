@@ -72,8 +72,7 @@ namespace MiNET.BlockEntities
 			for (byte i = 0; i < items.Count; i++)
 			{
 				NbtCompound itemData = (NbtCompound) items[i];
-				Item item = ItemFactory.GetItem(itemData["id"].ShortValue, itemData["Damage"].ByteValue);
-				item.Count = itemData["Count"].ByteValue;
+				Item item = ItemFactory.GetItem(itemData["id"].ShortValue, itemData["Damage"].ByteValue, itemData["Count"].ByteValue);
 				slots.Add(item);
 			}
 

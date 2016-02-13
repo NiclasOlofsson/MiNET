@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemGoldShovel : ItemShovel
 	{
-		public ItemGoldShovel(short metadata) : base(284, metadata)
+		public ItemGoldShovel() : base(284)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Gold;

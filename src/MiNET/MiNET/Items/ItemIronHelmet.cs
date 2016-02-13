@@ -2,7 +2,7 @@
 {
 	public class ItemIronHelmet : Item
 	{
-		public ItemIronHelmet(short metadata) : base(306, metadata)
+		public ItemIronHelmet() : base(306)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Helmet;

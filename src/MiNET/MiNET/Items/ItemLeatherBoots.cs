@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemLeatherBoots : Item
 	{
-		public ItemLeatherBoots(short metadata) : base(301, metadata)
+		public ItemLeatherBoots() : base(301)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Boots;

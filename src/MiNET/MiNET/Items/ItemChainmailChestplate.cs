@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemChainmailChestplate : Item
 	{
-		public ItemChainmailChestplate(short metadata) : base(303, metadata)
+		public ItemChainmailChestplate() : base(303)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

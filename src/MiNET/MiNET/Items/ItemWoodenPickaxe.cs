@@ -2,7 +2,7 @@
 {
 	public class ItemWoodenPickaxe : Item
 	{
-		public ItemWoodenPickaxe(short metadata) : base(270, metadata)
+		public ItemWoodenPickaxe() : base(270)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Wood;

@@ -2,7 +2,7 @@
 {
 	public class ItemCoal : Item
 	{
-		public ItemCoal(short metadata) : base(263, metadata)
+		public ItemCoal() : base(263)
 		{
 			MaxStackSize = 1;
 			FuelEfficiency = 80;

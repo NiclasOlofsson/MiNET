@@ -2,7 +2,7 @@
 {
 	public class ItemIronLeggings : Item
 	{
-		public ItemIronLeggings(short metadata) : base(308, metadata)
+		public ItemIronLeggings() : base(308)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;

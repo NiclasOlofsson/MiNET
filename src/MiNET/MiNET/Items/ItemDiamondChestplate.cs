@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondChestplate : Item
 	{
-		public ItemDiamondChestplate(short metadata) : base(311, metadata)
+		public ItemDiamondChestplate() : base(311)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Chestplate;

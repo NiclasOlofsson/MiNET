@@ -2,7 +2,7 @@
 {
 	public class ItemWoodenHoe : ItemHoe
 	{
-		public ItemWoodenHoe(short metadata) : base(290, metadata)
+		public ItemWoodenHoe() : base(290)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Wood;

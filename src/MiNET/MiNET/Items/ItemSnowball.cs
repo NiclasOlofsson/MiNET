@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemSnowball : Item
 	{
-		public ItemSnowball(short metadata) : base(332, metadata)
+		public ItemSnowball() : base(332)
 		{
 			MaxStackSize = 16;
 		}

@@ -8,7 +8,7 @@ namespace MiNET.Items
 {
 	public class ItemSign : Item
 	{
-		public ItemSign(short metadata) : base(323, metadata)
+		public ItemSign() : base(323)
 		{
 			MaxStackSize = 1;
 		}

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using MiNET.Items;
@@ -103,9 +104,16 @@ namespace MiNET
 		}
 
 		[Wired]
+		[Obsolete("Use method with item instead.")]
 		public void SetInventorySlot(int slot, short itemId, byte amount = 1, short metadata = 0)
 		{
-			Slots[slot] = ItemFactory.GetItem(itemId, metadata, amount);
+			SetInventorySlot(slot, ItemFactory.GetItem(itemId, metadata, amount));
+		}
+
+		[Wired]
+		public void SetInventorySlot(int slot, Item item)
+		{
+			Slots[slot] = item;
 
 			var containerSetContent = McpeContainerSetContent.CreateObject();
 			containerSetContent.windowId = 0;

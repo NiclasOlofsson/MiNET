@@ -6,7 +6,7 @@ namespace MiNET.Items
 {
 	public class ItemBed : Item
 	{
-		public ItemBed(short metadata) : base(355, metadata)
+		public ItemBed() : base(355)
 		{
 		}
 

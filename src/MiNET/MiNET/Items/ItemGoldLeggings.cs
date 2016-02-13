@@ -2,7 +2,7 @@ namespace MiNET.Items
 {
 	public class ItemGoldLeggings : Item
 	{
-		public ItemGoldLeggings(short metadata) : base(316, metadata)
+		public ItemGoldLeggings() : base(316)
 		{
 			MaxStackSize = 1;
 			ItemType = ItemType.Leggings;

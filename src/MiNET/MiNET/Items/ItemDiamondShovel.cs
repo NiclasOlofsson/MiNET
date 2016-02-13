@@ -2,7 +2,7 @@
 {
 	public class ItemDiamondShovel : ItemShovel
 	{
-		public ItemDiamondShovel(short metadata) : base(277, metadata)
+		public ItemDiamondShovel() : base(277)
 		{
 			MaxStackSize = 1;
 			ItemMaterial = ItemMaterial.Diamond;

@@ -13,7 +13,7 @@ namespace MiNET.Items
 	/// </summary>
 	public class Item
 	{
-		public short Id { get; set; }
+		public short Id { get; protected set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }
 		public NbtCompound ExtraData { get; set; }
@@ -25,12 +25,7 @@ namespace MiNET.Items
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }
 
-		// Air constructor hmm
-		public Item() : this(0, 0, 0)
-		{
-		}
-
-		public Item(short id) : this(id, 0, 0)
+		protected Item(short id) : this(id, 0, 0)
 		{
 		}
 
@@ -40,7 +35,7 @@ namespace MiNET.Items
 
 		public Item(short id, short metadata, byte count)
 		{
-			Id = (short) id;
+			Id = id;
 			Metadata = metadata;
 			Count = count;
 		}
@@ -159,7 +154,7 @@ namespace MiNET.Items
 
 		public override string ToString()
 		{
-			return $"Id={Id}, Metadata={Metadata}";
+			return $"Type={GetType().Name}, Id={Id}, Metadata={Metadata}, Count={Count}, ExtraData={ExtraData}";
 		}
 	}
 

@@ -36,7 +36,7 @@ namespace MiNET.Entities
 			Name = name;
 			Skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 
-			ItemInHand = new Item();
+			ItemInHand = new ItemAir();
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -106,10 +106,10 @@ namespace MiNET.Entities
 			{
 				McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 				armorEquipment.entityId = EntityId;
-				armorEquipment.helmet = new Item();
-				armorEquipment.chestplate = new Item();
-				armorEquipment.leggings = new Item();
-				armorEquipment.boots = new Item();
+				armorEquipment.helmet = new ItemAir();
+				armorEquipment.chestplate = new ItemAir();
+				armorEquipment.leggings = new ItemAir();
+				armorEquipment.boots = new ItemAir();
 				player.SendPackage(armorEquipment);
 			}
 
@@ -212,10 +212,10 @@ namespace MiNET.Entities
 		{
 			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 			armorEquipment.entityId = EntityId;
-			armorEquipment.helmet = new Item();
-			armorEquipment.chestplate = new Item();
-			armorEquipment.leggings = new Item();
-			armorEquipment.boots = new Item();
+			armorEquipment.helmet = new ItemAir();
+			armorEquipment.chestplate = new ItemAir();
+			armorEquipment.leggings = new ItemAir();
+			armorEquipment.boots = new ItemAir();
 			Level.RelayBroadcast(armorEquipment);
 		}
 	}

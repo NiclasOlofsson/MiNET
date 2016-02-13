@@ -28,7 +28,7 @@ namespace MiNET
 			Slots = new ItemStacks();
 			for (byte i = 0; i < Size; i++)
 			{
-				Slots.Add(new Item());
+				Slots.Add(new ItemAir());
 			}
 
 			for (byte i = 0; i < slots.Count; i++)
@@ -66,7 +66,7 @@ namespace MiNET
 			var slotData = Slots[slot];
 			if (slotData.Id == 0 || slotData.Count <= 1)
 			{
-				slotData = new Item();
+				slotData = new ItemAir();
 				isEmpty = true;
 			}
 			else

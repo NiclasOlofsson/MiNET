@@ -581,7 +581,7 @@ namespace MiNET.Net
 			short id = ReadShort();
 			if (id <= 0)
 			{
-				return new Item();
+				return new ItemAir();
 			}
 
 			byte count = ReadByte();

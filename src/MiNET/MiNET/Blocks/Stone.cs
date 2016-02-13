@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 
 		public override Item GetDrops()
 		{
-			return new Item(4); // Drop cobblestone
+			return new ItemBlock(new Cobblestone(), 0) {Count = 1}; // Drop cobblestone
 		}
 	}
 }

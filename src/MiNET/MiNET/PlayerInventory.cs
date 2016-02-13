@@ -30,7 +30,7 @@ namespace MiNET
 		{
 			Player = player;
 
-			Slots = Enumerable.Repeat(new Item(), InventorySize).ToList();
+			Slots = Enumerable.Repeat((Item) new ItemAir(), InventorySize).ToList();
 			//Slots = Enumerable.Repeat(new ItemStack(new ItemIronSword(0), 1), InventorySize).ToList();
 			//Slots[Slots.Count-10] = new ItemStack(new ItemDiamondAxe(0), 1);
 			//Slots[Slots.Count-9] = new ItemStack(new ItemDiamondAxe(0), 1);
@@ -78,10 +78,10 @@ namespace MiNET
 				ItemHotbar[i] = i;
 			}
 
-			Boots = new Item();
-			Leggings = new Item();
-			Chest = new Item();
-			Helmet = new Item();
+			Boots = new ItemAir();
+			Leggings = new ItemAir();
+			Chest = new ItemAir();
+			Helmet = new ItemAir();
 
 			//Boots = new ItemDiamondBoots(0);
 			//Leggings = new ItemDiamondLeggings(0);
@@ -92,9 +92,9 @@ namespace MiNET
 		public virtual Item GetItemInHand()
 		{
 			var index = ItemHotbar[InHandSlot];
-			if (index == -1 || index >= Slots.Count) return new Item();
+			if (index == -1 || index >= Slots.Count) return new ItemAir();
 
-			return Slots[index] ?? new Item();
+			return Slots[index] ?? new ItemAir();
 		}
 
 		public virtual int GetItemInHandSlot()
@@ -137,7 +137,7 @@ namespace MiNET
 			ItemStacks slotData = new ItemStacks();
 			for (int i = 0; i < Slots.Count; i++)
 			{
-				if (Slots[i].Count == 0) Slots[i] = new Item();
+				if (Slots[i].Count == 0) Slots[i] = new ItemAir();
 				slotData.Add(Slots[i]);
 			}
 
@@ -146,85 +146,71 @@ namespace MiNET
 
 		public ItemStacks GetArmor()
 		{
-			ItemStacks slotData = new ItemStacks
+			return new ItemStacks
 			{
-				new Item(Helmet.Id, Helmet.Metadata) {Count = 1},
-				new Item(Chest.Id, Helmet.Metadata) {Count = 1},
-				new Item(Leggings.Id, Helmet.Metadata) {Count = 1},
-				new Item(Boots.Id, Helmet.Metadata) {Count = 1}
+				Helmet ?? new ItemAir(),
+				Chest ?? new ItemAir(),
+				Leggings ?? new ItemAir(),
+				Boots ?? new ItemAir(),
 			};
-			return slotData;
 		}
 
-		public bool SetFirstEmptySlot(short itemId, byte amount = 1, short metadata = 0)
+		public bool SetFirstEmptySlot(Item item, bool update, bool reverseOrder)
 		{
-			return SetFirstEmptySlot(itemId, amount, metadata, true, false);
-		}
-
-		public bool SetFirstEmptySlot(short itemId, byte amount, short metadata, bool update, bool reverseOrder)
-		{
-			Item item = ItemFactory.GetItem(itemId, metadata);
-
 			if (reverseOrder)
 			{
 				for (int si = Slots.Count; si > 0; si--)
 				{
-					if (FirstEmptySlot(itemId, amount, metadata, update, si - 1, item)) return true;
+					if (FirstEmptySlot(item, update, si - 1)) return true;
 				}
 			}
 			else
 			{
 				for (int si = 0; si < Slots.Count; si++)
 				{
-					if (FirstEmptySlot(itemId, amount, metadata, update, si, item)) return true;
+					if (FirstEmptySlot(item, update, si)) return true;
 				}
 			}
 
 			return false;
 		}
 
-		private bool FirstEmptySlot(short itemId, byte amount, short metadata, bool update, int si, Item item)
+		private bool FirstEmptySlot(Item item, bool update, int si)
 		{
-			var b = Slots[si];
-			if (b.Id == itemId && b.Metadata == metadata && b.Count + amount <= item.MaxStackSize)
+			Item existingItem = Slots[si];
+
+			if (existingItem.Id == item.Id && existingItem.Metadata == item.Metadata && existingItem.Count + item.Count <= item.MaxStackSize)
 			{
-				Slots[si].Count += amount;
+				Slots[si].Count += item.Count;
 				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
-				Log.Info("Set on slot " + si);
+				Log.Debug($"Set on slot {si}");
 				return true;
 			}
-			else if (b.Id == 0 || b.Id == -1)
+			else if (existingItem is ItemAir || existingItem.Id == -1)
 			{
-				Slots[si] = new Item(itemId, metadata) {Count = amount};
+				Slots[si] = item;
 				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
-				Log.Info("Set on slot " + si);
+				Log.Debug($"Set on slot {si}");
 				return true;
 			}
+
 			return false;
 		}
 
-		public void SetHeldItemSlotNoSend(int slot)
+		public void SetHeldItemSlot(int slot, bool sendToPlayer = true)
 		{
 			InHandSlot = slot;
 
-			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
-			broadcast.entityId = Player.EntityId;
-			broadcast.item = GetItemInHand();
-			broadcast.selectedSlot = (byte) slot;
-			Player.Level?.RelayBroadcast(broadcast);
-		}
-
-		public void SetHeldItemSlot(int slot)
-		{
-			InHandSlot = slot;
-
-			McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
-			order.entityId = 0;
-			order.item = GetItemInHand();
-			order.selectedSlot = (byte) slot;
-			Player.SendPackage(order);
+			if (sendToPlayer)
+			{
+				McpePlayerEquipment order = McpePlayerEquipment.CreateObject();
+				order.entityId = 0;
+				order.item = GetItemInHand();
+				order.selectedSlot = (byte) slot;
+				Player.SendPackage(order);
+			}
 
 			McpePlayerEquipment broadcast = McpePlayerEquipment.CreateObject();
 			broadcast.entityId = Player.EntityId;
@@ -264,7 +250,7 @@ namespace MiNET
 					slot.Count--;
 					if (slot.Count == 0)
 					{
-						Slots[i] = new Item();
+						Slots[i] = new ItemAir();
 					}
 
 					SendSetSlot(i);

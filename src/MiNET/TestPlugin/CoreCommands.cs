@@ -125,16 +125,6 @@ namespace TestPlugin
 			player.SendMessage(sb.ToString(), type: MessageType.Raw);
 		}
 
-		[Command(Command = "items")]
-		public void AddItems(Player player, byte itemId, int noItems)
-		{
-			for (int i = 0; i < noItems; i++)
-			{
-				player.Level.DropItem(new BlockCoordinates(player.KnownPosition) + 1, new Item(itemId) {Count = 1});
-			}
-		}
-
-
 		[Command]
 		public void Orb(Player player1)
 		{

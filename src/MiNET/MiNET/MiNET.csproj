@@ -175,6 +175,7 @@
     <Compile Include="InventoryManager.cs" />
     <Compile Include="InventoryUtils.cs" />
     <Compile Include="Items\FoodItem.cs" />
+    <Compile Include="Items\ItemAir.cs" />
     <Compile Include="Items\ItemApple.cs" />
     <Compile Include="Items\ItemBakedPotato.cs" />
     <Compile Include="Items\ItemBed.cs" />

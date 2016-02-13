@@ -1079,34 +1079,32 @@ namespace MiNET
 		{
 			lock (Inventory)
 			{
-				var stack = message.item;
-				Log.Debug($"Player {Username} drops item with inv slot: {message.itemtype} and Item ID: {stack.Id} with count item count: {stack.Count}");
+				Item droppedItem = message.item;
+				Log.Debug($"Player {Username} drops item {droppedItem} with inv slot {message.itemtype}");
 
 
-				if (!VerifyItemStack(stack)) return;
+				if (!VerifyItemStack(droppedItem)) return;
 
 				// Clear current inventory slot.
-				{
-					var itemEntity = new ItemEntity(Level, stack)
-					{
-						Velocity = KnownPosition.GetDirection()*0.7,
-						KnownPosition =
-						{
-							X = KnownPosition.X,
-							Y = KnownPosition.Y + 1.62f,
-							Z = KnownPosition.Z
-						},
-					};
 
-					itemEntity.SpawnEntity();
-				}
+				ItemEntity itemEntity = new ItemEntity(Level, droppedItem)
+				{
+					Velocity = KnownPosition.GetDirection()*0.7,
+					KnownPosition =
+					{
+						X = KnownPosition.X,
+						Y = KnownPosition.Y + 1.62f,
+						Z = KnownPosition.Z
+					},
+				};
+
+				itemEntity.SpawnEntity();
 			}
 		}
 
 		protected virtual void HandlePlayerEquipment(McpePlayerEquipment message)
 		{
 			if (HealthManager.IsDead) return;
-
 
 			Item itemStack = message.item;
 			if (GameMode != GameMode.Creative && itemStack != null && !VerifyItemStack(itemStack))
@@ -1118,7 +1116,7 @@ namespace MiNET
 			byte selectedHotbarSlot = message.selectedSlot;
 			int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
 
-			Log.Info($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Id} with count item count: {message.item.Count}");
+			Log.Debug($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Id} with count item count: {message.item.Count}");
 
 			// 255 indicates empty hmmm
 			if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
@@ -1149,14 +1147,14 @@ namespace MiNET
 			}
 
 			Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
-			Inventory.SetHeldItemSlotNoSend(selectedHotbarSlot);
+			Inventory.SetHeldItemSlot(selectedHotbarSlot, false);
 
 			//if (selectedInventorySlot < Inventory.Slots.Count)
 			//{
 			//	Inventory.Slots[selectedInventorySlot] = message.item.Value;
 			//}
 
-			Log.Info($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
+			Log.Debug($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
 		}
 
 
@@ -2244,22 +2242,22 @@ namespace MiNET
 			if (Inventory.Helmet.Id != 0)
 			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Helmet);
-				Inventory.Helmet = new Item();
+				Inventory.Helmet = new ItemAir();
 			}
 			if (Inventory.Chest.Id != 0)
 			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Chest);
-				Inventory.Chest = new Item();
+				Inventory.Chest = new ItemAir();
 			}
 			if (Inventory.Leggings.Id != 0)
 			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Leggings);
-				Inventory.Leggings = new Item();
+				Inventory.Leggings = new ItemAir();
 			}
 			if (Inventory.Boots.Id != 0)
 			{
 				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Boots);
-				Inventory.Boots = new Item();
+				Inventory.Boots = new ItemAir();
 			}
 
 			Inventory.Clear();

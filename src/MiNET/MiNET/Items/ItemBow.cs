@@ -28,7 +28,7 @@ namespace MiNET.Items
 					{
 						// set empty
 						Log.Debug($"Send arrows on slot {i} to 0");
-						inventory.Slots[i] = new Item();
+						inventory.Slots[i] = new ItemAir();
 					}
 					haveArrows = true;
 					break;

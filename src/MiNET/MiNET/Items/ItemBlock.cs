@@ -33,7 +33,7 @@ namespace MiNET.Items
 				if (itemStackInHand.Count <= 0)
 				{
 					// set empty
-					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new Item();
+					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemAir();
 				}
 			}
 

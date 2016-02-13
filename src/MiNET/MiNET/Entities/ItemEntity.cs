@@ -105,7 +105,6 @@ namespace MiNET.Entities
 			// Motion
 
 
-
 			if (PickupDelay > 0) return;
 
 			var players = Level.GetSpawnedPlayers();
@@ -115,9 +114,8 @@ namespace MiNET.Entities
 				{
 					if (player.GameMode == GameMode.Survival)
 					{
-
 						//Add the items to the inventory if posible
-						if (player.Inventory.SetFirstEmptySlot((short)Item.Id, Item.Count, Item.Metadata))
+						if (player.Inventory.SetFirstEmptySlot(Item, true, false))
 						{
 							//BUG: If this is sent, the client crashes for some unknown reason.
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();

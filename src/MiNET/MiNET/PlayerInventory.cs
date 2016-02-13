@@ -244,7 +244,7 @@ namespace MiNET
 		{
 			for (byte i = 0; i < Slots.Count; i++)
 			{
-				if ((Slots[i]).Id == item.Id && (Slots[i]).Metadata == item.Metadata && (Slots[i]).Count == item.Count)
+				if (Slots[i].Id == item.Id && Slots[i].Metadata == item.Metadata && Slots[i].Count >= item.Count)
 				{
 					return true;
 				}

@@ -728,6 +728,7 @@ namespace MiNET
 		public void SetPosition(PlayerLocation position, bool teleport = true)
 		{
 			KnownPosition = position;
+			LastUpdatedTime = DateTime.UtcNow;
 
 			var package = McpeMovePlayer.CreateObject();
 			package.entityId = 0;
@@ -740,6 +741,7 @@ namespace MiNET
 			package.mode = (byte) (teleport ? 1 : 0);
 
 			SendPackage(package);
+
 		}
 
 		public void SpawnLevel(Level toLevel)

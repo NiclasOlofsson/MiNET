@@ -195,6 +195,7 @@
     <Compile Include="Items\ItemDiamondShovel.cs" />
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
+    <Compile Include="Items\ItemDye.cs" />
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemEnchantingTable.cs" />
     <Compile Include="Items\ItemFurnace.cs" />

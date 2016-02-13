@@ -378,7 +378,11 @@
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
     <Compile Include="Worlds\LevelInfo.cs" />
+    <Compile Include="Worlds\Structures\AcaciaTree.cs" />
+    <Compile Include="Worlds\Structures\BirchTree.cs" />
+    <Compile Include="Worlds\Structures\JungleTree.cs" />
     <Compile Include="Worlds\Structures\OakTree.cs" />
+    <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
     <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>

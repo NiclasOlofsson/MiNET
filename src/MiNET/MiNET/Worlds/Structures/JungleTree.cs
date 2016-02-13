@@ -3,7 +3,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds.Structures
 {
-    class JzngleTree : Structure
+    class JungleTree : Structure
     {
         public override string Name
         {

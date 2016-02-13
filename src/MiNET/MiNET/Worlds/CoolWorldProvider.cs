@@ -268,7 +268,25 @@ namespace MiNET.Worlds
 
 		private void GenerateTree(ChunkColumn chunk, int x, int treebase, int z, WoodType woodType)
 		{
-			new OakTree().Create(chunk, x, treebase, z);
+			switch(woodType)
+			{
+				case WoodType.Spruce:
+					new SpruceTree().Create(chunk, x, treebase, z);
+					break;
+				case WoodType.Birch:
+					new BirchTree().Create(chunk, x, treebase, z);
+					break;
+				case WoodType.Jungle:
+					new JungleTree().Create(chunk, x, treebase, z);
+					break;
+				case WoodType.Acacia:
+					new AcaciaTree().Create(chunk, x, treebase, z);
+                    break;
+				case WoodType.Oak:
+				default:	// Lets generate an Oak tree by default ;)
+					new OakTree().Create(chunk, x, treebase, z);
+					break;
+			}
 		}
 
 		private static readonly Random Getrandom = new Random();
@@ -304,6 +322,7 @@ namespace MiNET.Worlds
 		Oak = 0,
 		Spruce = 1,
 		Birch = 2,
-		Jungle = 3
+		Jungle = 3,
+		Acacia = 4
 	}
 }

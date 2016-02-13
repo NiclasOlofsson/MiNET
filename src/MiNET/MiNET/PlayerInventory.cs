@@ -105,7 +105,7 @@ namespace MiNET
 		[Wired]
 		public void SetInventorySlot(int slot, short itemId, byte amount = 1, short metadata = 0)
 		{
-			Slots[slot] = new Item(itemId, metadata) {Count = amount};
+			Slots[slot] = ItemFactory.GetItem(itemId, metadata, amount);
 
 			var containerSetContent = McpeContainerSetContent.CreateObject();
 			containerSetContent.windowId = 0;

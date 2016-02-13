@@ -35,7 +35,7 @@ namespace MiNET
 			{
 				NbtCompound item = (NbtCompound) slots[i];
 
-				Slots[item["Slot"].ByteValue] = new Item(item["id"].ShortValue, item["Damage"].ByteValue) {Count = item["Count"].ByteValue};
+				Slots[item["Slot"].ByteValue] = ItemFactory.GetItem(item["id"].ShortValue, item["Damage"].ByteValue, item["Count"].ByteValue);
 			}
 		}
 
@@ -86,10 +86,10 @@ namespace MiNET
 
 		public void IncreaseSlot(Player player, byte slot, short itemId, short metadata)
 		{
-			var slotData = Slots[slot];
-			if (slotData.Id == 0)
+			Item slotData = Slots[slot];
+			if (slotData is ItemAir)
 			{
-				slotData = new Item(itemId, metadata) {Count = 1};
+				slotData = ItemFactory.GetItem(itemId, metadata, 1);
 			}
 			else
 			{

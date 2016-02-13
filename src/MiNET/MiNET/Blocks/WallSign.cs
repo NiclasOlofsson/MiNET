@@ -17,7 +17,7 @@ namespace MiNET.Blocks
 
 		public override Item GetDrops()
 		{
-			return new Item(323, 0) {Count = 1}; // Drop sign item
+			return ItemFactory.GetItem(323, 0, 1); // Drop sign item
 		}
 	}
 }

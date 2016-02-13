@@ -19,10 +19,15 @@ namespace MiNET.Items
 
 		public static Item GetItem(short id)
 		{
-			return GetItem(id, 0);
+			return GetItem(id, 0, 0);
 		}
 
 		public static Item GetItem(short id, short metadata)
+		{
+			return GetItem(id, metadata, 0);
+		}
+
+		public static Item GetItem(short id, short metadata, byte count)
 		{
 			Item item = null;
 
@@ -31,9 +36,14 @@ namespace MiNET.Items
 				item = CustomItemFactory.GetItem(id, metadata);
 			}
 
-			if (item != null) return item;
+			if (item != null)
+			{
+				item.Count = count;
+				return item;
+			}
 
-			if (id == 54) item = new ItemChest(metadata);
+			if (id == 0) item = new ItemAir();
+			else if (id == 54) item = new ItemChest(metadata);
 			else if (id == 44) item = new ItemSlab(id, metadata);
 			else if (id == 61) item = new ItemFurnace(metadata);
 			else if (id == 63) item = new ItemSign(metadata);
@@ -120,7 +130,9 @@ namespace MiNET.Items
 					item = CustomBlockItemFactory.GetBlockItem(block, metadata);
 				}
 			}
-			else item = new Item(id, metadata);
+			else item = new Item(id, metadata, count);
+
+			item.Count = count;
 
 			return item;
 		}

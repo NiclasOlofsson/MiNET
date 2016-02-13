@@ -381,16 +381,18 @@ namespace TestPlugin
 			// Hotbar
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Wooden Sword
-			inventory.Slots[c++] = new Item(268, 0) {Count = 1}; // Wooden Sword
-			inventory.Slots[c++] = new Item(272, 0) {Count = 1}; // Stone Sword
-			inventory.Slots[c++] = new Item(283, 0) {Count = 1}; // Golden Sword
-			inventory.Slots[c++] = new Item(267, 0) {Count = 1}; // Iron Sword
-			inventory.Slots[c++] = new Item(276, 0) {Count = 1}; // Diamond Sword
-			inventory.Slots[c++] = new Item(261, 0) {Count = 1}; // Bow
-			inventory.Slots[c++] = new Item(262, 0) {Count = 64}; // Arrows
-			inventory.Slots[c++] = new Item(344, 0) {Count = 64}; // Eggs
-			inventory.Slots[c++] = new Item(332, 0) {Count = 64}; // Snowballs
-			inventory.Slots[c++] = new Item(267, 0) {Count = 64, ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}};
+			inventory.Slots[c++] = ItemFactory.GetItem(268, 0, 1); // Wooden Sword
+			inventory.Slots[c++] = ItemFactory.GetItem(272, 0, 1); // Stone Sword
+			inventory.Slots[c++] = ItemFactory.GetItem(283, 0, 1); // Golden Sword
+			inventory.Slots[c++] = ItemFactory.GetItem(267, 0, 1); // Iron Sword
+			inventory.Slots[c++] = ItemFactory.GetItem(276, 0, 1); // Diamond Sword
+			inventory.Slots[c++] = ItemFactory.GetItem(261, 0, 1); // Bow
+			inventory.Slots[c++] = ItemFactory.GetItem(262, 0, 64); // Arrows
+			inventory.Slots[c++] = ItemFactory.GetItem(344, 0, 64); // Eggs
+			inventory.Slots[c++] = ItemFactory.GetItem(332, 0, 64); // Snowballs
+			Item item = ItemFactory.GetItem(267, 0, 64);
+			item.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}};
+			inventory.Slots[c++] = item;
 
 			inventory.Slots[c++] = new ItemChest(0) {Count = 1};
 			inventory.Slots[c++] = new ItemStoneAxe(0) {Count = 1};

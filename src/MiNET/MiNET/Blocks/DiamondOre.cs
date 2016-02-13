@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 
 		public override Item GetDrops()
 		{
-			return new Item(264, 0) {Count = 1};
+			return ItemFactory.GetItem(264, 0, 1);
 		}
 
 		public override Item GetSmelt()

@@ -128,7 +128,7 @@ namespace MiNET.Blocks
 
 		public virtual Item GetDrops()
 		{
-			return new Item(Id, Metadata) {Count = 1};
+			return new ItemBlock(this, Metadata) {Count = 1};
 		}
 
 		public virtual Item GetSmelt()

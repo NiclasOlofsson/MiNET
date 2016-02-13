@@ -444,7 +444,7 @@ namespace TestPlugin.NiceLobby
 			{
 				Skin = new Skin {Slim = false, Texture = bytes},
 				KnownPosition = player.KnownPosition,
-				ItemInHand = new ItemDiamondSword(0) {Count = 1},
+				ItemInHand = new ItemDiamondSword(),
 				Helmet = 302,
 				Chest = 303,
 				Leggings = 304,

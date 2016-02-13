@@ -362,17 +362,17 @@ namespace TestPlugin
 					break;
 				case 3:
 					// Kit iron tier
-					inventory.Boots = new ItemIronBoots(0);
-					inventory.Leggings = new ItemIronLeggings(0);
-					inventory.Chest = new ItemIronChestplate(0);
-					inventory.Helmet = new ItemIronHelmet(0);
+					inventory.Boots = new ItemIronBoots();
+					inventory.Leggings = new ItemIronLeggings();
+					inventory.Chest = new ItemIronChestplate();
+					inventory.Helmet = new ItemIronHelmet();
 					break;
 				case 4:
 					// Kit diamond tier
-					inventory.Boots = new ItemDiamondBoots(0);
-					inventory.Leggings = new ItemDiamondLeggings(0);
-					inventory.Chest = new ItemDiamondChestplate(0);
-					inventory.Helmet = new ItemDiamondHelmet(0);
+					inventory.Boots = new ItemDiamondBoots();
+					inventory.Leggings = new ItemDiamondLeggings();
+					inventory.Chest = new ItemDiamondChestplate();
+					inventory.Helmet = new ItemDiamondHelmet();
 					break;
 			}
 
@@ -394,12 +394,12 @@ namespace TestPlugin
 			item.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}};
 			inventory.Slots[c++] = item;
 
-			inventory.Slots[c++] = new ItemChest(0) {Count = 1};
-			inventory.Slots[c++] = new ItemStoneAxe(0) {Count = 1};
-			inventory.Slots[c++] = new ItemWoodenPickaxe(0) {Count = 1};
+			inventory.Slots[c++] = new ItemChest();
+			inventory.Slots[c++] = new ItemStoneAxe();
+			inventory.Slots[c++] = new ItemWoodenPickaxe();
 			inventory.Slots[c++] = new ItemBread {Count = 5};
 			inventory.Slots[c++] = new ItemBlock(new Block(35), 0) {Count = 64};
-			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
+			inventory.Slots[c++] = new ItemBucket(8);
 
 			//inventory.Slots[c++] = ItemFactory.GetItem(39, 0) { Count = 1};
 			//inventory.Slots[c++] = ItemFactory.GetItem(40, 0), 4);

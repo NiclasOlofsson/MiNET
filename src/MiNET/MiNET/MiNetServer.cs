@@ -531,12 +531,9 @@ namespace MiNET
 					Log.InfoFormat("Unexpected session from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
 
 					Player oldPlayer = session.Player;
-					if (oldPlayer != null)
-					{
-						oldPlayer.Disconnect("Reconnecting.", false);
-					}
+					oldPlayer?.Disconnect("Reconnecting.", false);
 
-					_playerSessions.TryRemove(session.EndPoint, out session);
+					_playerSessions.TryRemove(senderEndpoint, out session);
 				}
 
 				session = new PlayerNetworkSession(null, senderEndpoint)

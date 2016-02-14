@@ -11,7 +11,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFlintAndSteel));
 
-		public ItemFlintAndSteel(short metadata) : base(259, metadata)
+		public ItemFlintAndSteel() : base(259)
 		{
 			MaxStackSize = 1;
 		}

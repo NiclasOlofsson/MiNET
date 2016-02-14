@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Crafting;
@@ -741,7 +742,6 @@ namespace MiNET
 			package.mode = (byte) (teleport ? 1 : 0);
 
 			SendPackage(package);
-
 		}
 
 		public void SpawnLevel(Level toLevel)
@@ -924,23 +924,31 @@ namespace MiNET
 				}
 
 				//HACK: But needed
+
+				if (NetworkSession != null && NetworkSession.PlayerAckQueue.Count > 0)
+				{
+					Task.Delay(150).Wait();
+				}
+
 				PlayerNetworkSession session;
 				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 				{
+					Log.Error("Remove session");
+					session.Clean();
+
 					session.State = ConnectionState.Unconnected;
 					session.Evicted = true;
 
 					NetworkSession = null;
 					session.Player = null;
-
-					session.Clean();
 				}
+				;
 
 				SendQueue(null);
 
 				CleanCache();
 
-				Server.GreylistManager.Greylist(EndPoint.Address, 10000);
+				//Server.GreylistManager.Greylist(EndPoint.Address, 10000);
 			}
 		}
 
@@ -1779,10 +1787,6 @@ namespace MiNET
 
 		public virtual void SendSetHealth()
 		{
-			//McpeSetHealth mcpeSetHealth = McpeSetHealth.CreateObject();
-			//mcpeSetHealth.health = HealthManager.Hearts;
-			//SendPackage(mcpeSetHealth);
-
 			var attributes = new PlayerAttributes();
 			attributes["generic.health"] = new PlayerAttribute
 			{

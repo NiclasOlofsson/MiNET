@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
 using MiNET.Entities;
 using MiNET.Net;
@@ -56,7 +57,7 @@ namespace MiNET
 		}
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
-		{	
+		{
 			if (!Entity.Level.IsSurvival) return;
 
 			if (CooldownTick > 0) return;
@@ -178,11 +179,14 @@ namespace MiNET
 
 			if (player != null)
 			{
-				var mcpeRespawn = McpeRespawn.CreateObject();
-				mcpeRespawn.x = player.SpawnPosition.X;
-				mcpeRespawn.y = player.SpawnPosition.Y;
-				mcpeRespawn.z = player.SpawnPosition.Z;
-				player.SendPackage(mcpeRespawn);
+				//Task.Delay(10000).ContinueWith(delegate(Task task)
+				//{
+				//	var mcpeRespawn = McpeRespawn.CreateObject();
+				//	mcpeRespawn.x = player.SpawnPosition.X;
+				//	mcpeRespawn.y = player.SpawnPosition.Y;
+				//	mcpeRespawn.z = player.SpawnPosition.Z;
+				//	player.SendPackage(mcpeRespawn);
+				//});
 			}
 		}
 

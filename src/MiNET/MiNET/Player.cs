@@ -927,13 +927,12 @@ namespace MiNET
 
 				if (NetworkSession != null && NetworkSession.PlayerAckQueue.Count > 0)
 				{
-					Task.Delay(150).Wait();
+					Thread.Sleep(50);
 				}
 
 				PlayerNetworkSession session;
 				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 				{
-					Log.Error("Remove session");
 					session.Clean();
 
 					session.State = ConnectionState.Unconnected;
@@ -942,7 +941,6 @@ namespace MiNET
 					NetworkSession = null;
 					session.Player = null;
 				}
-				;
 
 				SendQueue(null);
 

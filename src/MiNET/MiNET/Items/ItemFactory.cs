@@ -37,6 +37,7 @@ namespace MiNET.Items
 			else if (id == 116) item = new ItemEnchantingTable();
 			else if (id == 158) item = new ItemSlab(id, metadata);
 			else if (id == 256) item = new ItemIronShovel();
+			else if (id == 257) item = new ItemIronPickaxe();
 			else if (id == 258) item = new ItemIronAxe();
 			else if (id == 259) item = new ItemFlintAndSteel();
 			else if (id == 260) item = new ItemApple();
@@ -49,13 +50,16 @@ namespace MiNET.Items
 			else if (id == 271) item = new ItemWoodenAxe();
 			else if (id == 272) item = new ItemStoneSword();
 			else if (id == 273) item = new ItemStoneShovel();
+			else if (id == 274) item = new ItemStonePickaxe();
 			else if (id == 275) item = new ItemStoneAxe();
 			else if (id == 276) item = new ItemDiamondSword();
 			else if (id == 277) item = new ItemDiamondShovel();
+			else if (id == 278) item = new ItemDiamondPickaxe();
 			else if (id == 279) item = new ItemDiamondAxe();
 			else if (id == 280) item = new ItemStick();
 			else if (id == 283) item = new ItemGoldSword();
 			else if (id == 284) item = new ItemGoldShovel();
+			else if (id == 285) item = new ItemGoldPickaxe();
 			else if (id == 286) item = new ItemGoldAxe();
 			else if (id == 290) item = new ItemWoodenHoe();
 			else if (id == 291) item = new ItemStoneHoe();

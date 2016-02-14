@@ -202,6 +202,7 @@
     <Compile Include="Items\ItemGoldAxe.cs" />
     <Compile Include="Items\ItemGoldenApple.cs" />
     <Compile Include="Items\ItemGoldHoe.cs" />
+    <Compile Include="Items\ItemGoldPickaxe.cs" />
     <Compile Include="Items\ItemGoldShovel.cs" />
     <Compile Include="Items\ItemGoldSword.cs" />
     <Compile Include="Items\ItemGoldBoots.cs" />
@@ -210,6 +211,7 @@
     <Compile Include="Items\ItemGoldLeggings.cs" />
     <Compile Include="Items\ItemHoe.cs" />
     <Compile Include="Items\ItemIronAxe.cs" />
+    <Compile Include="Items\ItemIronPickaxe.cs" />
     <Compile Include="Items\ItemLeatherBoots.cs" />
     <Compile Include="Items\ItemLeatherChestplate.cs" />
     <Compile Include="Items\ItemLeatherHelmet.cs" />
@@ -238,6 +240,7 @@
     <Compile Include="Items\ItemStick.cs" />
     <Compile Include="Items\ItemStoneAxe.cs" />
     <Compile Include="Items\ItemStoneHoe.cs" />
+    <Compile Include="Items\ItemStonePickaxe.cs" />
     <Compile Include="Items\ItemStoneShovel.cs" />
     <Compile Include="Items\ItemStoneSword.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />

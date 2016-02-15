@@ -900,7 +900,7 @@ namespace MiNET.Worlds
 
 			Item itemInHand = player.Inventory.GetItemInHand();
 
-			if (itemInHand.GetType() == typeof(Item))
+			if (itemInHand.GetType() == typeof (Item))
 			{
 				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {itemId} and item in hand is {itemInHand?.Id}");
 				return; // Cheat(?)
@@ -971,8 +971,14 @@ namespace MiNET.Worlds
 			}
 			else
 			{
+				Block sendBlock = new Block(block.Id)
+				{
+					Coordinates = block.Coordinates,
+					Metadata = (byte)(0xb << 4 | (block.Metadata & 0xf))
+				};
+
 				var message = McpeUpdateBlock.CreateObject();
-				message.blocks = new BlockRecords {block};
+				message.blocks = new BlockRecords { sendBlock };
 				player.SendPackage(message);
 			}
 		}

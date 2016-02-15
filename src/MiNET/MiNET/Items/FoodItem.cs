@@ -16,7 +16,7 @@ namespace MiNET.Items
 			var healthManager = player.HealthManager;
 			healthManager.Health += FoodPoints*10;
 			healthManager.Health = Math.Min(healthManager.Health, 200);
-			player.SendSetHealth();
+			player.SendUpdateAttributes();
 		}
 	}
 }

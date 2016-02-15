@@ -84,7 +84,7 @@ namespace MiNET
 				//}
 
 
-				player.SendSetHealth();
+				player.SendUpdateAttributes();
 				player.BroadcastEntityEvent();
 			}
 			else
@@ -170,7 +170,7 @@ namespace MiNET
 				}
 
 				player.DropInventory();
-				player.SendSetHealth();
+				player.SendUpdateAttributes();
 				player.BroadcastEntityEvent();
 			}
 
@@ -238,7 +238,7 @@ namespace MiNET
 						var player = Entity as Player;
 						if (player != null)
 						{
-							player.SendSetHealth();
+							player.SendUpdateAttributes();
 							player.BroadcastEntityEvent();
 						}
 						Entity.BroadcastSetEntityData();
@@ -279,7 +279,7 @@ namespace MiNET
 					var player = Entity as Player;
 					if (player != null)
 					{
-						player.SendSetHealth();
+						player.SendUpdateAttributes();
 						player.BroadcastEntityEvent();
 					}
 					Entity.BroadcastSetEntityData();

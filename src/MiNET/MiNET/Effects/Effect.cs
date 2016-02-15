@@ -34,7 +34,7 @@ namespace MiNET.Effects
 
 	public class Effect
 	{
-		public const int MaxDuration = 0x7fffffff/20;
+		public const int MaxDuration = 0x7fffffff;
 
 		public EffectType EffectId { get; set; }
 		public int Duration { get; set; }
@@ -53,10 +53,12 @@ namespace MiNET.Effects
 			message.entityId = 0;
 			message.eventId = 1;
 			message.effectId = (byte) EffectId;
-			message.duration = 20*Duration;
+			message.duration = Duration;
 			message.amplifier = (byte) Level;
 			message.particles = (byte) (Particles ? 1 : 0);
 			player.SendPackage(message);
+
+			player.SendSetEntityData();
 		}
 
 		public virtual void SendUpdate(Player player)
@@ -65,7 +67,7 @@ namespace MiNET.Effects
 			message.entityId = 0;
 			message.eventId = 2;
 			message.effectId = (byte) EffectId;
-			message.duration = 20*Duration;
+			message.duration = Duration;
 			message.amplifier = (byte) Level;
 			message.particles = (byte) (Particles ? 1 : 0);
 			player.SendPackage(message);
@@ -78,6 +80,17 @@ namespace MiNET.Effects
 			message.eventId = 3;
 			message.effectId = (byte) EffectId;
 			player.SendPackage(message);
+		}
+
+		public virtual void OnTick(Player player)
+		{
+			if (Duration > 0 && Duration != MaxDuration) Duration -= 1;
+			if(Duration <= 20) player.RemoveEffect(this);
+		}
+
+		public override string ToString()
+		{
+			return $"EffectId: {EffectId}, Duration: {Duration}, Level: {Level}, Particles: {Particles}";
 		}
 	}
 }

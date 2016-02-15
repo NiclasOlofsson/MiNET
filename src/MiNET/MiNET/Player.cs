@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Crafting;
@@ -73,7 +73,8 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public Dictionary<EffectType, Effect> Effects { get; set; }
+		public float MovementSpeed { get; set; } = 0.1f;
+		public ConcurrentDictionary<EffectType, Effect> Effects { get; set; }
 
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
@@ -96,7 +97,7 @@ namespace MiNET
 			Height = 1.80;
 
 			Popups = new List<Popup>();
-			Effects = new Dictionary<EffectType, Effect>();
+			Effects = new ConcurrentDictionary<EffectType, Effect>();
 
 			Server = server;
 			EndPoint = endPoint;
@@ -636,7 +637,7 @@ namespace MiNET
 
 				SendAdventureSettings();
 
-				SendSetHealth();
+				SendUpdateAttributes();
 
 				SendSetEntityData();
 
@@ -685,7 +686,7 @@ namespace MiNET
 		protected virtual void HandleRespawn(McpeRespawn msg)
 		{
 			HealthManager.ResetHealth();
-			SendSetHealth();
+			SendUpdateAttributes();
 
 			SendSetSpawnPosition();
 
@@ -771,7 +772,7 @@ namespace MiNET
 			//Level.AddPlayer(this, "", false);
 			// reset all health states
 			HealthManager.ResetHealth();
-			SendSetHealth();
+			SendUpdateAttributes();
 
 			SendSetSpawnPosition();
 
@@ -1783,7 +1784,7 @@ namespace MiNET
 		}
 
 
-		public virtual void SendSetHealth()
+		public virtual void SendUpdateAttributes()
 		{
 			var attributes = new PlayerAttributes();
 			attributes["generic.health"] = new PlayerAttribute
@@ -1801,6 +1802,10 @@ namespace MiNET
 			attributes["player.experience"] = new PlayerAttribute
 			{
 				Name = "player.experience", MinValue = 0, MaxValue = 1, Value = 0
+			};
+			attributes["generic.movementSpeed"] = new PlayerAttribute
+			{
+				Name = "generic.movementSpeed", MinValue = 0, MaxValue = 24791, Value = MovementSpeed
 			};
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
@@ -1837,6 +1842,11 @@ namespace MiNET
 		public override void OnTick()
 		{
 			base.OnTick();
+
+			foreach (var effect in Effects)
+			{
+				effect.Value.OnTick(this);
+			}
 
 			//if (Level.TickTime%30 == 0)
 			//{
@@ -1985,7 +1995,7 @@ namespace MiNET
 			if (Effects.ContainsKey(effect.EffectId))
 			{
 				effect.SendRemove(this);
-				Effects.Remove(effect.EffectId);
+				Effects.TryRemove(effect.EffectId, out effect);
 			}
 		}
 

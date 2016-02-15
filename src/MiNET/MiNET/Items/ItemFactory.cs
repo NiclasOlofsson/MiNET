@@ -42,6 +42,7 @@ namespace MiNET.Items
 			else if (id == 259) item = new ItemFlintAndSteel();
 			else if (id == 260) item = new ItemApple();
 			else if (id == 261) item = new ItemBow();
+			else if (id == 262) item = new ItemArrow();
 			else if (id == 263) item = new ItemCoal();
 			else if (id == 267) item = new ItemIronSword();
 			else if (id == 268) item = new ItemWoodenSword();

@@ -177,6 +177,7 @@
     <Compile Include="Items\FoodItem.cs" />
     <Compile Include="Items\ItemAir.cs" />
     <Compile Include="Items\ItemApple.cs" />
+    <Compile Include="Items\ItemArrow.cs" />
     <Compile Include="Items\ItemBakedPotato.cs" />
     <Compile Include="Items\ItemBed.cs" />
     <Compile Include="Items\ItemBow.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Items\ItemCoockedChicken.cs" />
     <Compile Include="Items\ItemCookedPorkshop.cs" />
     <Compile Include="Items\ItemCookie.cs" />
+    <Compile Include="Items\ItemDiamond.cs" />
     <Compile Include="Items\ItemDiamondAxe.cs" />
     <Compile Include="Items\ItemDiamondBoots.cs" />
     <Compile Include="Items\ItemDiamondChestplate.cs" />

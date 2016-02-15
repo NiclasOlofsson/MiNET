@@ -446,8 +446,31 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "e")]
-		public void Effect(Player player, string effect, int level = 1, int duration = 20)
+		public void Effect(Player player, string effect)
 		{
+			if ("clear".Equals(effect, StringComparison.InvariantCultureIgnoreCase))
+			{
+				player.Level.BroadcastMessage($"Removed all effects for {player.Username}.", MessageType.Raw);
+				player.RemoveAllEffects();
+			}
+		}
+
+		[Command(Command = "e")]
+		public void Effect(Player player, string effect, int level)
+		{
+			Effect(player, effect, level, MiNET.Effects.Effect.MaxDuration);
+		}
+
+		[Command(Command = "e")]
+		public void Effect(Player player, string effect, int level, int duration)
+		{
+			if ("clear".Equals(effect, StringComparison.InvariantCultureIgnoreCase))
+			{
+				player.Level.BroadcastMessage($"Removed all effects for {player.Username}.", MessageType.Raw);
+				player.RemoveAllEffects();
+				return;
+			}
+
 			EffectType effectType;
 			if (Enum.TryParse(effect, true, out effectType))
 			{
@@ -466,7 +489,7 @@ namespace TestPlugin
 					case EffectType.MiningFatigue:
 						eff = new MiningFatigue();
 						break;
-					case EffectType.Strenght:
+					case EffectType.Strength:
 						eff = new Strength();
 						break;
 					case EffectType.InstandHealth:
@@ -523,12 +546,6 @@ namespace TestPlugin
 					case EffectType.Saturation:
 						eff = new Saturation();
 						break;
-					case EffectType.Glowing:
-						eff = new Glowing();
-						break;
-					case EffectType.Levitation:
-						eff = new Levitation();
-						break;
 				}
 
 				if (eff != null)
@@ -538,7 +555,7 @@ namespace TestPlugin
 					eff.Particles = false;
 
 					player.SetEffect(eff);
-					player.Level.BroadcastMessage(string.Format("{0} added effect {1} with strenght {2}", player.Username, effectType, level), MessageType.Raw);
+					player.Level.BroadcastMessage($"{player.Username} added effect {effectType} with strenght {level}", MessageType.Raw);
 				}
 			}
 		}

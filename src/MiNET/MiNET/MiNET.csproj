@@ -138,7 +138,6 @@
     <Compile Include="Effects\Blindness.cs" />
     <Compile Include="Effects\Effect.cs" />
     <Compile Include="Effects\FireResistance.cs" />
-    <Compile Include="Effects\Glowing.cs" />
     <Compile Include="Effects\Haste.cs" />
     <Compile Include="Effects\HealthBoost.cs" />
     <Compile Include="Effects\Hunger.cs" />
@@ -146,7 +145,6 @@
     <Compile Include="Effects\InstantDamage.cs" />
     <Compile Include="Effects\Invisibility.cs" />
     <Compile Include="Effects\JumpBoost.cs" />
-    <Compile Include="Effects\Levitation.cs" />
     <Compile Include="Effects\MiningFatigue.cs" />
     <Compile Include="Effects\Nausea.cs" />
     <Compile Include="Effects\NightVision.cs" />

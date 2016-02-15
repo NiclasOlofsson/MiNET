@@ -191,9 +191,13 @@ namespace TestPlugin.NiceLobby
 		{
 			player.RemoveAllEffects();
 
-			player.SetEffect(new Speed {Level = 200, Duration = 20*10}); // 10s in ticks
-			////player.SetEffect(new Slowness {Level = 2, Duration = 20*20});
-			//player.SetEffect(new JumpBoost { Level = 2, Duration = Effect.MaxDuration });
+			//player.SetEffect(new Speed {Level = 2, Duration = 20*10}); // 10s in ticks
+			//player.SetEffect(new Slowness { Level = 20, Duration = 20 * 10 });
+			//player.SetEffect(new Haste { Level = 20, Duration = 20 * 10 });
+			//player.SetEffect(new MiningFatigue { Level = 20, Duration = 20 * 10 });
+			player.SetEffect(new Strength { Level = 20, Duration = 20 * 10 });
+			//player.SetEffect(new JumpBoost {Level = 20, Duration = Effect.MaxDuration});
+			//player.SetEffect(new Blindness { Level = 20, Duration = 20 * 10 });
 			//player.SetAutoJump(true);
 
 			if (player.Level.LevelId.Equals("Default"))

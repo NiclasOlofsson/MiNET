@@ -2,7 +2,7 @@ namespace MiNET.Effects
 {
 	public class Strength : Effect
 	{
-		public Strength() : base(EffectType.Strenght)
+		public Strength() : base(EffectType.Strength)
 		{
 		}
 	}

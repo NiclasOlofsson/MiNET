@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
-using System.Threading.Tasks;
 using log4net;
 using MiNET.Entities;
 using MiNET.Net;
@@ -179,13 +178,13 @@ namespace MiNET
 
 			if (player != null)
 			{
-				//Task.Delay(10000).ContinueWith(delegate(Task task)
+				//Task.Delay(10000).ContinueWith(delegate (Task task)
 				//{
-				//	var mcpeRespawn = McpeRespawn.CreateObject();
-				//	mcpeRespawn.x = player.SpawnPosition.X;
-				//	mcpeRespawn.y = player.SpawnPosition.Y;
-				//	mcpeRespawn.z = player.SpawnPosition.Z;
-				//	player.SendPackage(mcpeRespawn);
+				var mcpeRespawn = McpeRespawn.CreateObject();
+				mcpeRespawn.x = player.SpawnPosition.X;
+				mcpeRespawn.y = player.SpawnPosition.Y;
+				mcpeRespawn.z = player.SpawnPosition.Z;
+				player.SendPackage(mcpeRespawn);
 				//});
 			}
 		}

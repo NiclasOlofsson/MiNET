@@ -237,7 +237,7 @@ namespace TestPlugin
 
 					if (nextLevel == null)
 					{
-						nextLevel = new Level(world, new FlatlandWorldProvider());
+						nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
 						nextLevel.Initialize();
 						Context.LevelManager.Levels.Add(nextLevel);
 					}

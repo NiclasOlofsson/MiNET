@@ -44,6 +44,7 @@ namespace MiNET.Worlds
 		public string LevelId { get; private set; }
 
 		public GameMode GameMode { get; private set; }
+		public bool IsSurvival => GameMode == GameMode.Survival;
 		public bool HaveDownfall { get; set; }
 		public Difficulty Difficulty { get; private set; }
 		public double CurrentWorldTime { get; set; }
@@ -58,7 +59,7 @@ namespace MiNET.Worlds
 
 		public Random Random { get; private set; }
 
-		public Level(string levelId, IWorldProvider worldProvider = null)
+		public Level(string levelId, IWorldProvider worldProvider, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 250)
 		{
 			Random = new Random();
 
@@ -70,38 +71,10 @@ namespace MiNET.Worlds
 			BlockEntities = new List<BlockEntity>();
 			BlockWithTicks = new ConcurrentDictionary<BlockCoordinates, long>();
 			LevelId = levelId;
-			GameMode = Config.GetProperty("GameMode", GameMode.Survival);
-			Difficulty = Config.GetProperty("Difficulty", Difficulty.Peaceful);
-			ViewDistance = Config.GetProperty("ViewDistance", 250);
+			GameMode = gameMode;
+			Difficulty = difficulty;
+			ViewDistance = viewDistance;
 			_worldProvider = worldProvider;
-
-			if (_worldProvider == null)
-			{
-				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
-				{
-					case "flat":
-					case "flatland":
-						_worldProvider = new FlatlandWorldProvider();
-						break;
-					case "cool":
-						_worldProvider = new CoolWorldProvider();
-						break;
-					case "experimental":
-						_worldProvider = new ExperimentalWorldProvider();
-						break;
-					case "anvil":
-						_worldProvider = new AnvilWorldProvider();
-						break;
-					default:
-						_worldProvider = new FlatlandWorldProvider();
-						break;
-				}
-			}
-		}
-
-		public bool IsSurvival
-		{
-			get { return GameMode == GameMode.Survival; }
 		}
 
 		public void Initialize()
@@ -120,7 +93,7 @@ namespace MiNET.Worlds
 				int i = 0;
 				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>()))
 				{
-					i++;
+					if (chunk != null) i++;
 				}
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
 			}
@@ -976,11 +949,11 @@ namespace MiNET.Worlds
 				Block sendBlock = new Block(block.Id)
 				{
 					Coordinates = block.Coordinates,
-					Metadata = (byte)(0xb << 4 | (block.Metadata & 0xf))
+					Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
 				};
 
 				var message = McpeUpdateBlock.CreateObject();
-				message.blocks = new BlockRecords { sendBlock };
+				message.blocks = new BlockRecords {sendBlock};
 				player.SendPackage(message);
 			}
 		}

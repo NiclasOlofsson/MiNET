@@ -23,7 +23,7 @@ namespace MiNET
 			ResetHunger();
 		}
 
-		public void IncreaseFoodAndSaturation(Item item, int foodPoints, double saturationRestore)
+		public virtual void IncreaseFoodAndSaturation(Item item, int foodPoints, double saturationRestore)
 		{
 			Hunger += foodPoints;
 			Saturation += saturationRestore;
@@ -31,13 +31,13 @@ namespace MiNET
 			ProcessHunger(true);
 		}
 
-		public void IncreaseExhaustion(float amount)
+		public virtual void IncreaseExhaustion(float amount)
 		{
 			Exhaustion += amount;
 			ProcessHunger();
 		}
 
-		public void Move(double distance)
+		public virtual void Move(double distance)
 		{
 			if (distance < 0) throw new Exception("Distance: " + distance);
 			// 0.01 per meter for walking
@@ -98,7 +98,7 @@ namespace MiNET
 			if (send) SendHungerAttributes();
 		}
 
-		private long _ticker = 0;
+		private long _ticker;
 
 		public virtual void OnTick()
 		{
@@ -142,18 +142,21 @@ namespace MiNET
 
 		public void DisplayDebugPopup()
 		{
-			if (Player.Level.TickTime%10 == 0)
+			if (Log.IsDebugEnabled)
 			{
-				if (Player.Username.Equals("gurunx"))
+				if (Player.Level.TickTime%10 == 0)
 				{
-					Popup popup = new Popup
+					if (Player.Username.Equals("gurunx"))
 					{
-						Duration = 1,
-						MessageType = MessageType.Tip,
-						Message = $"Saturation={Saturation}, Exhaustion={Exhaustion:F3}"
-					};
+						Popup popup = new Popup
+						{
+							Duration = 1,
+							MessageType = MessageType.Tip,
+							Message = $"Saturation={Saturation}, Exhaustion={Exhaustion:F3}"
+						};
 
-					Player.AddPopup(popup);
+						Player.AddPopup(popup);
+					}
 				}
 			}
 		}

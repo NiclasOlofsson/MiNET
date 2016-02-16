@@ -20,7 +20,7 @@ namespace MiNET
 			NumberOfPlayers = serverInfo.NumberOfPlayers;
 			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
 
-			return string.Format(@"MCPE;{0};38;0.13.0;{1};{2}", Motd, NumberOfPlayers, MaxNumberOfPlayers);
+			return string.Format(@"MCPE;{0};39;0.13.2;{1};{2}", Motd, NumberOfPlayers, MaxNumberOfPlayers);
 		}
 
 	}

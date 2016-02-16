@@ -73,8 +73,13 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
+		public float EnchantingLevel { get; set; } = 0f;
+		public float Experience { get; set; } = 0f;
 		public float MovementSpeed { get; set; } = 0.1f;
+		public float Absorption { get; set; } = 0;
 		public ConcurrentDictionary<EffectType, Effect> Effects { get; set; }
+
+		public HungerManager HungerManager { get; set; }
 
 		public long Rtt { get; set; }
 		public long RttVar { get; set; }
@@ -104,6 +109,7 @@ namespace MiNET
 			_mtuSize = mtuSize;
 
 			Inventory = new PlayerInventory(this);
+			HungerManager = new HungerManager(this);
 
 			_chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 
@@ -686,6 +692,9 @@ namespace MiNET
 		protected virtual void HandleRespawn(McpeRespawn msg)
 		{
 			HealthManager.ResetHealth();
+
+			HungerManager.ResetHunger();
+
 			SendUpdateAttributes();
 
 			SendSetSpawnPosition();
@@ -987,6 +996,12 @@ namespace MiNET
 				}
 				_lastOrderingIndex = message.OrderingIndex;
 			}
+
+
+			// Hunger management
+			Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
+			double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
+			HungerManager.Move(distanceTo);
 
 			if (!AcceptPlayerMove(message)) return;
 
@@ -1786,6 +1801,18 @@ namespace MiNET
 
 		public virtual void SendUpdateAttributes()
 		{
+			//Attribute[generic.absorption, Name: generic.absorption, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0]
+			//Attribute[player.saturation, Name: player.saturation, MinValue: 0, MaxValue: 20, Value: 5]
+			//Attribute[player.exhaustion, Name: player.exhaustion, MinValue: 0, MaxValue: 5, Value: 0]
+			//Attribute[generic.knockbackResistance, Name: generic.knockbackResistance, MinValue: 0, MaxValue: 1, Value: 0]
+			//Attribute[generic.health, Name: generic.health, MinValue: 0, MaxValue: 20, Value: 20]
+			//Attribute[generic.movementSpeed, Name: generic.movementSpeed, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0, 1]
+			//Attribute[generic.followRange, Name: generic.followRange, MinValue: 0, MaxValue: 2048, Value: 16]
+			//Attribute[player.hunger, Name: player.hunger, MinValue: 0, MaxValue: 20, Value: 20]
+			//Attribute[generic.attackDamage, Name: generic.attackDamage, MinValue: 0, MaxValue: 3, 402823E+38, Value: 1]
+			//Attribute[player.level, Name: player.level, MinValue: 0, MaxValue: 24791, Value: 0]
+			//Attribute[player.experience, Name: player.experience, MinValue: 0, MaxValue: 1, Value: 0]
+
 			var attributes = new PlayerAttributes();
 			attributes["generic.health"] = new PlayerAttribute
 			{
@@ -1793,25 +1820,32 @@ namespace MiNET
 			};
 			attributes["player.hunger"] = new PlayerAttribute
 			{
-				Name = "player.hunger", MinValue = 0, MaxValue = 20, Value = 15
+				Name = "player.hunger", MinValue = HungerManager.MinHunger, MaxValue = HungerManager.MaxHunger, Value = HungerManager.Hunger
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{
-				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = 0
+				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = EnchantingLevel
 			};
 			attributes["player.experience"] = new PlayerAttribute
 			{
-				Name = "player.experience", MinValue = 0, MaxValue = 1, Value = 0
+				Name = "player.experience", MinValue = 0, MaxValue = 1, Value = Experience
 			};
 			attributes["generic.movementSpeed"] = new PlayerAttribute
 			{
 				Name = "generic.movementSpeed", MinValue = 0, MaxValue = 24791, Value = MovementSpeed
+			};
+			attributes["generic.absorption"] = new PlayerAttribute
+			{
+				Name = "generic.absorption", MinValue = 0, MaxValue = float.MaxValue, Value = Absorption
 			};
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.entityId = 0;
 			attributesPackate.attributes = attributes;
 			SendPackage(attributesPackate);
+
+			// Workaround, bad design.
+			HungerManager.SendHungerAttributes();
 		}
 
 		public virtual void SendSetTime()
@@ -1841,6 +1875,8 @@ namespace MiNET
 
 		public override void OnTick()
 		{
+			HungerManager.OnTick();
+
 			base.OnTick();
 
 			foreach (var effect in Effects)

@@ -81,7 +81,7 @@ namespace MiNET.Utils
 			() => new MetadataInt(), // 2
 			() => new MetadataFloat(), // 3
 			() => new MetadataString(), // 4
-			//() => new MetadataSlot(), // 5
+			() => new MetadataString(), // 5 - Should be MetadataSlot() but I don't want it :-(
 			() => new MetadataIntCoordinates(), // 6
 			() => new MetadataLong(), // 7
 		};

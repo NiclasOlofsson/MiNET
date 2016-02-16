@@ -2,7 +2,7 @@
 {
 	public class ItemRawChicken : FoodItem
 	{
-		public ItemRawChicken() : base(365, 0, 2)
+		public ItemRawChicken() : base(365, 0, 2, 1.2)
 		{
 		}
 

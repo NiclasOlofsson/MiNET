@@ -55,6 +55,18 @@ namespace MiNET
 			get { return (int) Math.Ceiling(Health/10d); }
 		}
 
+		public virtual void Regen(int amount = 1)
+		{
+			Health += amount*10;
+			if (Health > 200) Health = 200;
+
+			var player = Entity as Player;
+			if (player != null)
+			{
+				player.SendUpdateAttributes();
+			}
+		}
+
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
 			if (!Entity.Level.IsSurvival) return;

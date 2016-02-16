@@ -553,6 +553,11 @@ namespace MiNET.Client
 			{
 			}
 
+			else if (typeof(McpeUpdateAttributes) == message.GetType())
+			{
+				OnMcpeUpdateAttributes((McpeUpdateAttributes)message);
+			}
+
 			else if (typeof (McpeText) == message.GetType())
 			{
 				OnMcpeText((McpeText) message);
@@ -561,6 +566,14 @@ namespace MiNET.Client
 			else
 			{
 				Log.Warn($"Unhandled package: {message.GetType().Name}");
+			}
+		}
+
+		private void OnMcpeUpdateAttributes(McpeUpdateAttributes message)
+		{
+			foreach (var playerAttribute in message.attributes)
+			{
+				Log.Debug($"Attribute {playerAttribute}");
 			}
 		}
 

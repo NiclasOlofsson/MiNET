@@ -169,6 +169,7 @@
     <Compile Include="Entities\Snowball.cs" />
     <Compile Include="Entities\Projectile.cs" />
     <Compile Include="GreyListManager.cs" />
+    <Compile Include="HungerManager.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="InventoryUtils.cs" />

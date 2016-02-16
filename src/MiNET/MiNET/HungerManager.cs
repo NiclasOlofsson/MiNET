@@ -34,6 +34,7 @@ namespace MiNET
 		public void IncreaseExhaustion(float amount)
 		{
 			Exhaustion += amount;
+			ProcessHunger();
 		}
 
 		public void Move(double distance)

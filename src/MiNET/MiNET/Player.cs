@@ -1588,7 +1588,7 @@ namespace MiNET
 						if (foodItem != null)
 						{
 							foodItem.Consume(this);
-							Inventory.GetItemInHand().Count--;
+							foodItem.Count--;
 							SendPlayerInventory();
 						}
 					}

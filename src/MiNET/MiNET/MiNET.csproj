@@ -194,6 +194,7 @@
     <Compile Include="Items\ItemDiamondChestplate.cs" />
     <Compile Include="Items\ItemDiamondHelmet.cs" />
     <Compile Include="Items\ItemDiamondHoe.cs" />
+    <Compile Include="Items\ItemDiamondPickaxe.cs" />
     <Compile Include="Items\ItemDiamondShovel.cs" />
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />

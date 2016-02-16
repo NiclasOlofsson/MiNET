@@ -923,7 +923,6 @@ namespace MiNET.Worlds
 						Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
 					};
 
-					itemInHand.Count++;
 					player.SendPlayerInventory();
 
 					var message = McpeUpdateBlock.CreateObject();

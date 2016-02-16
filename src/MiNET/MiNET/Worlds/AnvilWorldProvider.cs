@@ -60,7 +60,7 @@ namespace MiNET.Worlds
 				{93, air}, // minecraft:unpowered_repeater	=> Air
 				{94, air}, // minecraft:powered_repeater	=> Air
 				{95, new NoDataMapper(20)}, // minecraft:stained_glass	=> Glass
-				{96, new Mapper(96, (i, b) => (byte)(((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, // Trapdoor Fix
+				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
 				{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
 				{118, air}, // minecraft:cauldron		=> Air
 				{119, air}, // minecraft:end_portal		=> Air
@@ -72,6 +72,50 @@ namespace MiNET.Worlds
 				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
 				{137, air}, // Command Block	=> Air
 				{138, air}, // Beacon		=> Air
+				{
+					143, new Mapper(143, delegate(int i, byte b)
+					{
+						switch (b & 0x7f)
+						{
+							case 0:
+								return (byte) BlockFace.Down; // 0
+							case 1:
+								return (byte) BlockFace.South; // 5
+							case 2:
+								return (byte) BlockFace.North; // 4
+							case 3:
+								return (byte) BlockFace.West; // 3
+							case 4:
+								return (byte) BlockFace.East; // 2
+							case 5:
+								return (byte) BlockFace.Up; // 1
+						}
+
+						return 0;
+					})
+				}, // Trapdoor Fix
+				{
+					77, new Mapper(77, delegate(int i, byte b)
+					{
+						switch (b & 0x7f)
+						{
+							case 0:
+								return (byte) BlockFace.Down;
+							case 1:
+								return (byte) BlockFace.South;
+							case 2:
+								return (byte) BlockFace.North;
+							case 3:
+								return (byte) BlockFace.West;
+							case 4:
+								return (byte) BlockFace.East;
+							case 5:
+								return (byte) BlockFace.Up;
+						}
+
+						return 0;
+					})
+				}, // Trapdoor Fix
 				{149, air}, // minecraft:unpowered_comparator		=> Air
 				{150, air}, // minecraft:powered_comparator		=> Air
 				{154, air}, // minecraft:hopper		=> Air
@@ -344,7 +388,7 @@ namespace MiNET.Worlds
 								CleanSignText(blockEntityTag, "Text3");
 								CleanSignText(blockEntityTag, "Text4");
 							}
-							else if(blockEntity is ChestBlockEntity)
+							else if (blockEntity is ChestBlockEntity)
 							{
 								NbtList items = (NbtList) blockEntityTag["Items"];
 
@@ -352,7 +396,7 @@ namespace MiNET.Worlds
 
 								for (byte i = 0; i < items.Count; i++)
 								{
-									NbtCompound item = (NbtCompound)items[i];
+									NbtCompound item = (NbtCompound) items[i];
 
 									item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
 

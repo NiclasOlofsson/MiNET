@@ -930,10 +930,7 @@ namespace MiNET
 					_sendTicker = null;
 				}
 
-				if (Level != null && IsSpawned)
-				{
-					Level.RemovePlayer(this);
-				}
+				Level?.RemovePlayer(this);
 
 				var playerSession = Session;
 				Session = null;

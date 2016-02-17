@@ -349,6 +349,7 @@ namespace MiNET
 					ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn(null); });
 					break;
 				case PlayerAction.Jump:
+					HungerManager.IncreaseExhaustion(IsSprinting? 0.8f: 0.2f);
 					break;
 				case PlayerAction.StartSprint:
 					IsSprinting = true;
@@ -1466,6 +1467,8 @@ namespace MiNET
 			{
 				target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
 			}
+
+			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
 		public int CalculatePlayerDamage(Player target, int damage)

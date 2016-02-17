@@ -10,7 +10,7 @@
 		{
 			if (Duration%(Level == 1 ? 25 : 50) == 0)
 			{
-				if (player.HealthManager.Health > 10)
+				if (player.HealthManager.Health > 12)
 				{
 					player.HealthManager.TakeHit(player, 2, DamageCause.Magic);
 				}

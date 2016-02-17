@@ -943,6 +943,8 @@ namespace MiNET.Worlds
 						DropItem(blockCoordinates, drop);
 					}
 				}
+
+				player.HungerManager.IncreaseExhaustion(0.025f);
 			}
 			else
 			{

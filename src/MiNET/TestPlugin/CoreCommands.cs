@@ -433,7 +433,7 @@ namespace TestPlugin
 
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Custom command block
-			for (short i = 7; i < 36; i++)
+			for (short i = 5; i < 36; i++)
 			{
 				inventory.Slots[c++] = new ItemPotion(i);
 			}

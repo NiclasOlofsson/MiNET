@@ -18,6 +18,12 @@ namespace MiNET.Items
 			Effect e = null;
 			switch (Metadata)
 			{
+				case 5:
+					e = new NightVision { Duration = 3600, Level = 0 };
+					break;
+				case 6:
+					e = new NightVision { Duration = 9600, Level = 0 };
+					break;
 				case 7:
 					e = new Invisibility {Duration = 3600, Level = 0};
 					break;

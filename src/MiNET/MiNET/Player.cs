@@ -1584,11 +1584,20 @@ namespace MiNET
 
 					if (GameMode == GameMode.Survival)
 					{
-						FoodItem foodItem = Inventory.GetItemInHand() as FoodItem;
-						if (foodItem != null)
+						Item itemInHand = Inventory.GetItemInHand();
+
+						if (itemInHand is FoodItem)
 						{
+							FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
 							foodItem.Consume(this);
 							foodItem.Count--;
+							SendPlayerInventory();
+						}
+						else if (itemInHand is ItemPotion)
+						{
+							ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
+							potion.Consume(this);
+							potion.Count--;
 							SendPlayerInventory();
 						}
 					}

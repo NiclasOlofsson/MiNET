@@ -233,6 +233,7 @@
     <Compile Include="Items\ItemMelonSlice.cs" />
     <Compile Include="Items\ItemMobHead.cs" />
     <Compile Include="Items\ItemPotato.cs" />
+    <Compile Include="Items\ItemPotion.cs" />
     <Compile Include="Items\ItemPumpkinPie.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemShovel.cs" />

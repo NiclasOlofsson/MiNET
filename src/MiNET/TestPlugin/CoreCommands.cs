@@ -252,7 +252,7 @@ namespace TestPlugin
 		[Command]
 		public void Clear(Player player)
 		{
-			for (byte slot = 0; slot < 35; slot++) player.Inventory.SetInventorySlot(slot, -1); //Empty all slots.
+			for (byte slot = 0; slot < 35; slot++) player.Inventory.SetInventorySlot(slot, new ItemAir()); //Empty all slots.
 		}
 
 		[Command]
@@ -381,6 +381,15 @@ namespace TestPlugin
 			// Hotbar
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Custom command block
+			inventory.Slots[c++] = new ItemPotion(1);
+			inventory.Slots[c++] = new ItemPotion(2);
+			inventory.Slots[c++] = new ItemPotion(3);
+			inventory.Slots[c++] = new ItemPotion(4);
+			inventory.Slots[c++] = new ItemPotion(5);
+			inventory.Slots[c++] = new ItemPotion(6);
+			inventory.Slots[c++] = new ItemPotion(7);
+			inventory.Slots[c++] = new ItemPotion(8);
+			inventory.Slots[c++] = new ItemPotion(9);
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
@@ -416,6 +425,26 @@ namespace TestPlugin
 
 			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
+
+		[Command]
+		public void Potions(Player player)
+		{
+			var inventory = player.Inventory;
+
+			byte c = 0;
+			//inventory.Slots[c++] = new ItemStack(command, 1); // Custom command block
+			for (short i = 7; i < 36; i++)
+			{
+				inventory.Slots[c++] = new ItemPotion(i);
+			}
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
 
 		private void SendEquipmentForPlayer(Player player)
 		{

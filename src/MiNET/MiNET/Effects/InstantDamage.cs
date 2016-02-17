@@ -8,7 +8,7 @@
 
 		public override void SendAdd(Player player)
 		{
-			player.HealthManager.TakeHit(player, 6*(Level + 1), DamageCause.Magic);
+			player.HealthManager.TakeHit(null, 6*(Level + 1), DamageCause.Magic);
 		}
 
 		public override void SendUpdate(Player player)

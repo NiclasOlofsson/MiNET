@@ -349,7 +349,7 @@ namespace MiNET
 					ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn(null); });
 					break;
 				case PlayerAction.Jump:
-					HungerManager.IncreaseExhaustion(IsSprinting? 0.8f: 0.2f);
+					HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
 					break;
 				case PlayerAction.StartSprint:
 					IsSprinting = true;
@@ -1461,6 +1461,17 @@ namespace MiNET
 			if (player != null)
 			{
 				int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
+				Effect effect;
+				if (Effects.TryGetValue(EffectType.Weakness, out effect))
+				{
+					damage -= (effect.Level + 1)*4;
+					if (damage < 0) damage = 0;
+				}
+				else if (Effects.TryGetValue(EffectType.Strength, out effect))
+				{
+					damage += (effect.Level + 1)*3;
+				}
+
 				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
 			}
 			else

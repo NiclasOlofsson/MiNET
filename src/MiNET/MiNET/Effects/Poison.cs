@@ -12,7 +12,7 @@
 			{
 				if (player.HealthManager.Health > 12)
 				{
-					player.HealthManager.TakeHit(player, 2, DamageCause.Magic);
+					player.HealthManager.TakeHit(null, 2, DamageCause.Magic);
 				}
 			}
 

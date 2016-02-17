@@ -108,7 +108,7 @@ namespace MiNET
 
 				if (_ticker%80 == 0)
 				{
-					Player.HealthManager.TakeHit(Player, 1, DamageCause.Unknown);
+					Player.HealthManager.TakeHit(null, 1, DamageCause.Unknown);
 				}
 			}
 			else if (Hunger > 18 && Player.HealthManager.Hearts < 20)

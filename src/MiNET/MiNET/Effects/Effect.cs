@@ -10,7 +10,7 @@ namespace MiNET.Effects
 		Haste = 3,
 		MiningFatigue = 4,
 		Strength = 5,
-		InstandHealth = 6,
+		InstantHealth = 6,
 		InstantDamage = 7,
 		JumpBoost = 8,
 		Nausea = 9,

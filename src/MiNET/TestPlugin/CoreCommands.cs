@@ -521,8 +521,8 @@ namespace TestPlugin
 					case EffectType.Strength:
 						eff = new Strength();
 						break;
-					case EffectType.InstandHealth:
-						eff = new InstandHealth();
+					case EffectType.InstantHealth:
+						eff = new InstantHealth();
 						break;
 					case EffectType.InstantDamage:
 						eff = new InstantDamage();

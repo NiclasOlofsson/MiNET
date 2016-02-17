@@ -61,10 +61,10 @@ namespace MiNET.Items
 					e = new WaterBreathing {Duration = 9600, Level = 0};
 					break;
 				case 21:
-					e = new InstandHealth {Duration = 0, Level = 0};
+					e = new InstantHealth {Duration = 0, Level = 0};
 					break;
 				case 22:
-					e = new InstandHealth {Duration = 0, Level = 1};
+					e = new InstantHealth {Duration = 0, Level = 1};
 					break;
 				case 23:
 					e = new InstantDamage {Duration = 0, Level = 0};

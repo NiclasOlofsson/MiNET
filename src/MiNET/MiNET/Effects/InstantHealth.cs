@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Effects
 {
-	public class InstandHealth : Effect
+	public class InstantHealth : Effect
 	{
-		public InstandHealth() : base(EffectType.InstandHealth)
+		public InstantHealth() : base(EffectType.InstantHealth)
 		{
 		}
 

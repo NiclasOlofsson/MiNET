@@ -142,7 +142,7 @@
     <Compile Include="Effects\Haste.cs" />
     <Compile Include="Effects\HealthBoost.cs" />
     <Compile Include="Effects\Hunger.cs" />
-    <Compile Include="Effects\InstandHealth.cs" />
+    <Compile Include="Effects\InstantHealth.cs" />
     <Compile Include="Effects\InstantDamage.cs" />
     <Compile Include="Effects\Invisibility.cs" />
     <Compile Include="Effects\JumpBoost.cs" />

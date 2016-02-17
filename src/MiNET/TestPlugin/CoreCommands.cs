@@ -470,8 +470,16 @@ namespace TestPlugin
 		[Command]
 		public void Fly(Player player)
 		{
-			player.SendPackage(new McpeAdventureSettings {flags = 0x80});
-			player.Level.BroadcastMessage(string.Format("Player {0} enabled flying.", player.Username), type: MessageType.Raw);
+			if (player.AllowFly)
+			{
+				player.SetAllowFly(false);
+				player.Level.BroadcastMessage($"Player {player.Username} disabld flying.", type: MessageType.Raw);
+			}
+			else
+			{
+				player.SetAllowFly(true);
+				player.Level.BroadcastMessage($"Player {player.Username} enabled flying.", type: MessageType.Raw);
+			}
 		}
 
 		[Command(Command = "e")]

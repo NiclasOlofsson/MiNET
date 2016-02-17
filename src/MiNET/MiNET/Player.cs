@@ -418,7 +418,6 @@ namespace MiNET
 		private void SendAdventureSettings()
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
-			mcpeAdventureSettings.flags = Level.IsSurvival ? 0x20 : 0x80;
 
 			if (IsAdventure)
 			{
@@ -428,6 +427,11 @@ namespace MiNET
 			if (IsAutoJump)
 			{
 				mcpeAdventureSettings.flags |= 0x40;
+			}
+
+			if (AllowFly)
+			{
+				mcpeAdventureSettings.flags |= 0x80;
 			}
 
 			if (IsSpectator)
@@ -462,6 +466,15 @@ namespace MiNET
 		public void SetAutoJump(bool isAutoJump)
 		{
 			IsAutoJump = isAutoJump;
+			SendAdventureSettings();
+		}
+
+		public bool AllowFly { get; set; }
+
+		[Wired]
+		public void SetAllowFly(bool allowFly)
+		{
+			AllowFly = allowFly;
 			SendAdventureSettings();
 		}
 

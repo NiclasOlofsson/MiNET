@@ -306,6 +306,8 @@ namespace MiNET
 			Level.RelayBroadcast(this, msg);
 		}
 
+		public float _baseSpeed;
+
 		/// <summary>
 		///     Handles the player action.
 		/// </summary>
@@ -350,9 +352,14 @@ namespace MiNET
 					break;
 				case PlayerAction.StartSprint:
 					IsSprinting = true;
+					_baseSpeed = MovementSpeed;
+					MovementSpeed += MovementSpeed*0.3f;
+					SendUpdateAttributes();
 					break;
 				case PlayerAction.StopSprint:
 					IsSprinting = false;
+					MovementSpeed = _baseSpeed;
+					SendUpdateAttributes();
 					break;
 				case PlayerAction.StartSneak:
 					IsSneaking = true;

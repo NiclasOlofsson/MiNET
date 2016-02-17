@@ -1,10 +1,8 @@
-﻿using log4net;
-
-namespace MiNET.Effects
+﻿namespace MiNET.Effects
 {
 	public class Speed : Effect
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Speed));
+		private double _multiplier = 0.02;
 
 		public Speed() : base(EffectType.Speed)
 		{
@@ -12,7 +10,7 @@ namespace MiNET.Effects
 
 		public override void SendAdd(Player player)
 		{
-			player.MovementSpeed = (float) (0.1 + (Level + 1)*0.01);
+			player.MovementSpeed = (float) (0.1 + (Level + 1)*_multiplier);
 			player.SendUpdateAttributes();
 
 			base.SendAdd(player);
@@ -20,7 +18,7 @@ namespace MiNET.Effects
 
 		public override void SendUpdate(Player player)
 		{
-			player.MovementSpeed = (float) (0.1 + (Level + 1)*0.01);
+			player.MovementSpeed = (float) (0.1 + (Level + 1)*_multiplier);
 			player.SendUpdateAttributes();
 
 			base.SendUpdate(player);
@@ -32,14 +30,6 @@ namespace MiNET.Effects
 			player.SendUpdateAttributes();
 
 			base.SendRemove(player);
-		}
-
-		public override void OnTick(Player player)
-		{
-			player.MovementSpeed = (float) (0.1 + (Level + 1)*0.01);
-			player.SendUpdateAttributes();
-
-			base.OnTick(player);
 		}
 	}
 }

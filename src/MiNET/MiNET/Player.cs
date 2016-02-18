@@ -1797,7 +1797,6 @@ namespace MiNET
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk != null) SendPackage(chunk);
-					Thread.Sleep(1);
 
 					if (!IsSpawned)
 					{
@@ -2215,9 +2214,6 @@ namespace MiNET
 						package.PutPool();
 						continue;
 					}
-
-					//package.NoBatch = true;
-
 
                     if (lenght == 1)
 					{

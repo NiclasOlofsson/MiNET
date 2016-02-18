@@ -73,6 +73,8 @@
 | Mcpe Set Difficulty | 0xc0 | 192 |   
 | Mcpe Player List | 0xc3 | 195 |   
 | Mcpe Spawn Experience Orb | 0xc5 | 197 |   
+| Mcpe Request Chunk Radius | 0xc8 | 200 |   
+| Mcpe Chunk Radius Update | 0xc9 | 201 |   
 
 
 ##Constants
@@ -1206,6 +1208,34 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Records | PlayerRecords |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Request Chunk Radius (0xc8)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Chunk Radius | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Chunk Radius Update (0xc9)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Chunk Radius | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Transfer (0x1b)
 

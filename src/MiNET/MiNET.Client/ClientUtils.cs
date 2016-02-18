@@ -20,8 +20,8 @@ namespace MiNET.Client
 				NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
 				ChunkColumn chunk = new ChunkColumn();
 
-				chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
-				chunk.z = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
+				//chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
+				//chunk.z = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
 
 				int chunkSize = 16*16*128;
 				defStream.Read(chunk.blocks, 0, chunkSize);
@@ -38,6 +38,8 @@ namespace MiNET.Client
 				{
 					chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {ints[i], ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
 				}
+
+				int extraSize = defStream.ReadInt32();
 
 				return chunk;
 			}

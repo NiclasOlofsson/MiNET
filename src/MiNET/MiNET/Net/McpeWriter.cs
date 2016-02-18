@@ -156,7 +156,8 @@ namespace MiNET.Net
 			if (extraData != null)
 			{
 				byte[] bytes = GetNbtData(extraData);
-				Write((short)bytes.Length);
+				Write((byte)bytes.Length);
+				Write((byte)0);
 				Write(bytes);
 			}
 			else

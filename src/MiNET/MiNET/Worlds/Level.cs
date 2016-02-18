@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
@@ -91,7 +92,7 @@ namespace MiNET.Worlds
 				chunkLoading.Start();
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
-				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>()))
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>(), 10))
 				{
 					if (chunk != null) i++;
 				}
@@ -664,7 +665,7 @@ namespace MiNET.Worlds
 			return chunk;
 		}
 
-		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed)
+		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed, double rad)
 		{
 			lock (chunksUsed)
 			{
@@ -672,8 +673,17 @@ namespace MiNET.Worlds
 				// ViewDistance is actually ViewArea
 				// A = pi r^2
 				// sqrt(A/pi) = r
-				double radiusSquared = ViewDistance/Math.PI;
-				double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
+				//var viewArea = ViewDistance;
+				//double radiusSquared = ViewDistance / Math.PI;
+				//double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
+
+				//double radOld = Math.Ceiling(Math.Sqrt(viewArea / Math.PI));
+
+				double radius = rad;
+				double radiusSquared = Math.Pow(radius, 2);
+				double viewArea = (Math.PI * (radiusSquared));
+				//Log.Error($"View Area={viewArea}, Old={radOld}");
+				Log.Error($"View Area={viewArea}");
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
 
@@ -693,11 +703,11 @@ namespace MiNET.Worlds
 					}
 				}
 
-				if (newOrders.Count > ViewDistance)
+				if (newOrders.Count > viewArea)
 				{
 					foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
 					{
-						if (newOrders.Count <= ViewDistance) break;
+						if (newOrders.Count <= viewArea) break;
 						newOrders.Remove(pair.Key);
 					}
 				}
@@ -728,7 +738,7 @@ namespace MiNET.Worlds
 					yield return chunk;
 				}
 
-				if (chunksUsed.Count > ViewDistance) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
+				if (chunksUsed.Count > viewArea) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
 			}
 		}
 

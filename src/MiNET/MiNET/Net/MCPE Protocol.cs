@@ -351,6 +351,16 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xc8:
+					package = McpeRequestChunkRadius.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xc9:
+					package = McpeChunkRadiusUpdate.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x1b:
 					package = McpeTransfer.CreateObject();
 					//package.Timer.Start();
@@ -3337,6 +3347,82 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			records = ReadPlayerRecords();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeRequestChunkRadius : Package<McpeRequestChunkRadius>
+	{
+		public int chunkRadius; // = null;
+		public McpeRequestChunkRadius()
+		{
+			Id = 0xc8;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(chunkRadius);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			chunkRadius = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeChunkRadiusUpdate : Package<McpeChunkRadiusUpdate>
+	{
+		public int chunkRadius; // = null;
+		public McpeChunkRadiusUpdate()
+		{
+			Id = 0xc9;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(chunkRadius);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			chunkRadius = ReadInt();
 
 			AfterDecode();
 		}

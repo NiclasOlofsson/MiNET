@@ -125,7 +125,8 @@ namespace MiNET.Net
 		{
 			var messageParts = new List<MessagePart>();
 
-			byte[] encodedMessage = message.Encode();
+			byte[] encodedMessage = message.Encode(message.Id > 0x8e);
+			//if(Log.IsDebugEnabled) Log.Debug($"\n{Package.HexDump(encodedMessage)}");
 			if (encodedMessage == null) return messageParts;
 
 			int datagramHeaderSize = 60;

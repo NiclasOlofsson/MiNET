@@ -21,23 +21,6 @@ using MiNET.Worlds;
 
 namespace MiNET
 {
-	public class PlayerAttributes : Dictionary<string, PlayerAttribute>
-	{
-	}
-
-	public class PlayerAttribute
-	{
-		public string Name { get; set; }
-		public float MinValue { get; set; }
-		public float MaxValue { get; set; }
-		public float Value { get; set; }
-
-		public override string ToString()
-		{
-			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}";
-		}
-	}
-
 	public class Player : Entity
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
@@ -263,10 +246,15 @@ namespace MiNET
 				HandleCraftingEvent((McpeCraftingEvent) message);
 			}
 
+			else if (typeof(McpeRequestChunkRadius) == message.GetType())
+			{
+				HandleMcpeRequestChunkRadius((McpeRequestChunkRadius)message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
-				Disconnect("Unhandled package", false);
+				//Disconnect("Unhandled package", false);
 			}
 
 			if (message.Timer.IsRunning)
@@ -281,6 +269,22 @@ namespace MiNET
 			{
 				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
 			}
+		}
+
+		public int ChunkRadius { get; private set; } = 10;
+
+		private void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
+		{
+			Log.Warn($"Requested chunk radius of: {message.chunkRadius}");
+
+			ChunkRadius = Math.Min(message.chunkRadius, 12);
+
+			var package = new McpeChunkRadiusUpdate()
+			{
+				chunkRadius = ChunkRadius
+			};
+
+			SendPackage(package);
 		}
 
 		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
@@ -547,7 +551,7 @@ namespace MiNET
 				Username = message.username;
 			}
 
-			if (message.protocol < 38)
+			if (message.protocol < 45)
 			{
 				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
 				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));
@@ -1757,7 +1761,7 @@ namespace MiNET
 
 				if (Level == null) return;
 
-				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
+				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk == null) continue;
 
@@ -1779,7 +1783,7 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 2)
 				{
 					return;
 				}
@@ -1790,9 +1794,10 @@ namespace MiNET
 
 				if (Level == null) return;
 
-				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed))
+				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk != null) SendPackage(chunk);
+					Thread.Sleep(1);
 
 					if (!IsSpawned)
 					{
@@ -2211,7 +2216,10 @@ namespace MiNET
 						continue;
 					}
 
-					if (lenght == 1)
+					//package.NoBatch = true;
+
+
+                    if (lenght == 1)
 					{
 						Server.SendPackage(this, package, _mtuSize);
 					}

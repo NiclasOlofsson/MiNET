@@ -644,7 +644,9 @@ namespace MiNET
 				byte[] buffer = stream.ToArray();
 				try
 				{
-					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
+					Package fullMessage = PackageFactory.CreatePackage(buffer[1], buffer) ?? new UnknownPackage(buffer[1], buffer);
+					Log.Debug($"0x{fullMessage.Id:x2}\n{Package.HexDump(buffer)}");
+
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
 					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
 					fullMessage.OrderingChannel = package._orderingChannel;
@@ -717,7 +719,7 @@ namespace MiNET
 						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.13.2"},
+						{"version", "0.14"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},

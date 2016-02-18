@@ -155,6 +155,12 @@ namespace MiNET.Worlds
 
 			lock (_playerWriteLock)
 			{
+				if (!newPlayer.IsConnected)
+				{
+					Log.Error("Tried to add player that was already disconnected.");
+					return;
+				}
+
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
 					SpawnToAll(newPlayer);

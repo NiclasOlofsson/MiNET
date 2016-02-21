@@ -381,27 +381,20 @@ namespace TestPlugin
 			// Hotbar
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Custom command block
-			inventory.Slots[c++] = new ItemPotion(1);
-			inventory.Slots[c++] = new ItemPotion(2);
-			inventory.Slots[c++] = new ItemPotion(3);
-			inventory.Slots[c++] = new ItemPotion(4);
-			inventory.Slots[c++] = new ItemPotion(5);
-			inventory.Slots[c++] = new ItemPotion(6);
-			inventory.Slots[c++] = new ItemPotion(7);
-			inventory.Slots[c++] = new ItemPotion(8);
-			inventory.Slots[c++] = new ItemPotion(9);
+
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
 			inventory.Slots[c++] = new ItemBow(); // Bow
-			inventory.Slots[c++] = ItemFactory.GetItem(262, 0, 64); // Arrows
-			inventory.Slots[c++] = ItemFactory.GetItem(344, 0, 64); // Eggs
-			inventory.Slots[c++] = ItemFactory.GetItem(332, 0, 64); // Snowballs
-			Item item = ItemFactory.GetItem(267, 0, 64);
-			item.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}};
-			inventory.Slots[c++] = item;
+			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows
+			inventory.Slots[c++] = new ItemEgg {Count = 64}; // Eggs
+			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}
+			};
 
 			inventory.Slots[c++] = new ItemChest();
 			inventory.Slots[c++] = new ItemStoneAxe();

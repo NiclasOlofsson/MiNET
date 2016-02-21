@@ -5,7 +5,7 @@ namespace MiNET.Particles
 {
 	public class DustParticle : Particle
 	{
-		public DustParticle(Level level, Color color) : base(22, level)
+		public DustParticle(Level level, Color color) : base(ParticleType.Dust, level)
 		{
 			byte r = color.R;
 			byte g = color.G;

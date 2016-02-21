@@ -4,7 +4,7 @@ namespace MiNET.Particles
 {
 	public class FlameParticle : Particle
 	{
-		public FlameParticle(Level level) : base(5, level)
+		public FlameParticle(Level level) : base(ParticleType.Flame, level)
 		{
 		}
 	}

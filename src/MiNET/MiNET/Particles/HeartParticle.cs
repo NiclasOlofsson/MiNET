@@ -4,7 +4,7 @@ namespace MiNET.Particles
 {
 	public class HeartParticle : Particle
 	{
-		public HeartParticle(Level level, int scale = 0) : base(14, level)
+		public HeartParticle(Level level, int scale = 0) : base(ParticleType.Heart, level)
 		{
 			Data = scale;
 		}

@@ -24,29 +24,29 @@ namespace MiNET
 				Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Peaceful);
 				int viewDistance = Config.GetProperty("ViewDistance", 250);
 
-				IWorldProvider _worldProvider = null;
+				IWorldProvider worldProvider = null;
 
 				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
 				{
 					case "flat":
 					case "flatland":
-						_worldProvider = new FlatlandWorldProvider();
+						worldProvider = new FlatlandWorldProvider();
 						break;
 					case "cool":
-						_worldProvider = new CoolWorldProvider();
+						worldProvider = new CoolWorldProvider();
 						break;
 					case "experimental":
-						_worldProvider = new ExperimentalWorldProvider();
+						worldProvider = new ExperimentalWorldProvider();
 						break;
 					case "anvil":
-						_worldProvider = new AnvilWorldProvider();
+						worldProvider = new AnvilWorldProvider();
 						break;
 					default:
-						_worldProvider = new FlatlandWorldProvider();
+						worldProvider = new FlatlandWorldProvider();
 						break;
 				}
 
-				level = new Level(name, _worldProvider, gameMode, difficulty, viewDistance);
+				level = new Level(name, worldProvider, gameMode, difficulty, viewDistance);
 				level.Initialize();
 				Levels.Add(level);
 			}

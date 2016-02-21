@@ -275,9 +275,10 @@ namespace MiNET
 
 		private void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
 		{
-			Log.Warn($"Requested chunk radius of: {message.chunkRadius}");
+			Log.Info($"Requested chunk radius of: {message.chunkRadius}");
 
-			ChunkRadius = Math.Min(message.chunkRadius, 12);
+			//ChunkRadius = message.chunkRadius;
+			ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, 12));
 
 			var package = new McpeChunkRadiusUpdate()
 			{
@@ -436,6 +437,10 @@ namespace MiNET
 			if (AllowFly)
 			{
 				mcpeAdventureSettings.flags |= 0x80;
+			}
+			else
+			{
+				mcpeAdventureSettings.flags |= 0x20;
 			}
 
 			if (IsSpectator)
@@ -691,7 +696,11 @@ namespace MiNET
 
 			SendPlayerInventory();
 
-			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				Thread.Sleep(10);
+				SendChunksForKnownPosition();
+			});
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
@@ -2082,9 +2091,9 @@ namespace MiNET
 		[Wired]
 		public void RemoveAllEffects()
 		{
-			foreach (var effect	 in Effects.Values.ToArray())
+			foreach (var effect	 in Effects)
 			{
-				RemoveEffect(effect);
+				RemoveEffect(effect.Value);
 			}
 		}
 

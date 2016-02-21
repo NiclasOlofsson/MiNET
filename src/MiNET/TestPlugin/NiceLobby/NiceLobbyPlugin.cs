@@ -9,6 +9,7 @@ using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -155,22 +156,22 @@ namespace TestPlugin.NiceLobby
 			switch (rand)
 			{
 				case 0:
-					return 4; // Expload
+					return (short) ParticleType.Explode; // Expload
 					break;
 				case 1:
-					return 5; // Flame
+					return (short)ParticleType.Flame; // Flame
 					break;
 				case 2:
-					return 6; // Lava
+					return (short)ParticleType.Lava; // Lava
 					break;
 				case 3:
-					return 2; // Critical
+					return (short)ParticleType.Critical; // Critical
 					break;
 				case 4:
-					return 21; // Lava drip
+					return (short)ParticleType.DripLava; // Lava drip
 					break;
 				case 5:
-					return 13; // Entity flame
+					return (short)ParticleType.MobFlame; // Entity flame
 					break;
 			}
 
@@ -195,7 +196,7 @@ namespace TestPlugin.NiceLobby
 			//player.SetEffect(new Slowness { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new Haste { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new MiningFatigue { Level = 20, Duration = 20 * 10 });
-			player.SetEffect(new Strength { Level = 20, Duration = 20 * 10 });
+			//player.SetEffect(new Strength { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new JumpBoost {Level = 20, Duration = Effect.MaxDuration});
 			//player.SetEffect(new Blindness { Level = 20, Duration = 20 * 10 });
 			//player.SetAutoJump(true);

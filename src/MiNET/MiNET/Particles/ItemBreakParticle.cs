@@ -5,7 +5,7 @@ namespace MiNET.Particles
 {
 	public class ItemBreakParticle : Particle
 	{
-		public ItemBreakParticle(Level level, Item item) : base(9, level)
+		public ItemBreakParticle(Level level, Item item) : base(ParticleType.ItemBreak, level)
 		{
 			Data = (item.Id << 16) | item.Metadata;
 		}

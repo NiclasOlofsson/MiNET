@@ -286,10 +286,11 @@
     <Compile Include="Particles\SmokeParticle.cs" />
     <Compile Include="Particles\SpawnParticle.cs" />
     <Compile Include="Particles\SplashParticle.cs" />
-    <Compile Include="Particles\SporeParticle.cs" />
+    <Compile Include="Particles\TownAuraParticle.cs" />
     <Compile Include="Particles\TerrainParticle.cs" />
     <Compile Include="Particles\WaterDripParticle.cs" />
-    <Compile Include="Particles\WaterParticle.cs" />
+    <Compile Include="Particles\WaterWakeParticle.cs" />
+    <Compile Include="Particles\WhiteSmokeParticle.cs" />
     <Compile Include="PlayerAttribute.cs" />
     <Compile Include="PlayerAttributes.cs" />
     <Compile Include="PlayerFactory.cs" />

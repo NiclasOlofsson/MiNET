@@ -682,8 +682,6 @@ namespace MiNET.Worlds
 				double radius = rad;
 				double radiusSquared = Math.Pow(radius, 2);
 				double viewArea = (Math.PI * (radiusSquared));
-				//Log.Error($"View Area={viewArea}, Old={radOld}");
-				Log.Error($"View Area={viewArea}");
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
 

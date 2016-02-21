@@ -113,6 +113,17 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Params(Player player, params string[] args)
+		{
+			player.SendMessage($"Executed command params, got {args.Length} arguments", type: MessageType.Raw);
+			foreach (string s in args)
+			{
+				player.SendMessage($"{s}", type: MessageType.Raw);
+			}
+		}
+
+
+		[Command]
 		public void Plugins(Player player)
 		{
 			StringBuilder sb = new StringBuilder();

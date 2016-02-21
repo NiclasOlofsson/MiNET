@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using MiNET;
-using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
@@ -159,19 +158,19 @@ namespace TestPlugin.NiceLobby
 					return (short) ParticleType.Explode; // Expload
 					break;
 				case 1:
-					return (short)ParticleType.Flame; // Flame
+					return (short) ParticleType.Flame; // Flame
 					break;
 				case 2:
-					return (short)ParticleType.Lava; // Lava
+					return (short) ParticleType.Lava; // Lava
 					break;
 				case 3:
-					return (short)ParticleType.Critical; // Critical
+					return (short) ParticleType.Critical; // Critical
 					break;
 				case 4:
-					return (short)ParticleType.DripLava; // Lava drip
+					return (short) ParticleType.DripLava; // Lava drip
 					break;
 				case 5:
-					return (short)ParticleType.MobFlame; // Entity flame
+					return (short) ParticleType.MobFlame; // Entity flame
 					break;
 			}
 
@@ -190,6 +189,8 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
+			string rank = player.Username.StartsWith("gurun") ? $"{ChatColors.Red}[ADMIN]" : $"{ChatColors.Gold}[VIP]";
+			player.SetNameTag($"{rank} {player.Username}");
 			player.RemoveAllEffects();
 
 			//player.SetEffect(new Speed {Level = 2, Duration = 20*10}); // 10s in ticks
@@ -210,6 +211,21 @@ namespace TestPlugin.NiceLobby
 			player.SendSetTime();
 
 			return packet;
+		}
+
+		[PacketHandler, Receive]
+		public Package MessageHandler(McpeText message, Player player)
+		{
+			string text = message.message;
+			if (text.StartsWith("/") || text.StartsWith("."))
+			{
+				return message;
+			}
+
+			text = TextUtils.Strip(text);
+			player.Level.BroadcastMessage($"{player.NameTag}:{ChatColors.White} {text}", MessageType.Raw);
+
+			return null;
 		}
 
 		private void DoDevelopmentPopups(object state)

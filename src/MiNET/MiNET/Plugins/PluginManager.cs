@@ -294,7 +294,7 @@ namespace MiNET.Plugins
 				// method params ex: int int params int[] 
 				// input ex:           1  1  1 1 1 
 				// so arguments in must be at least the lenght of method arguments
-				if (parameters.Length > args.Length + addLenght) return false;
+				if (parameters.Length -1 > args.Length + addLenght) return false;
 			}
 			else
 			{

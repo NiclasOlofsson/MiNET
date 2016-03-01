@@ -178,7 +178,6 @@ namespace MiNET.Net
 
 				if (_hasSplit)
 				{
-					//Log.Debug("Recieve split\n" + HexDump(internalBuffer));
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
@@ -187,6 +186,11 @@ namespace MiNET.Net
 				}
 
 				byte id = internalBuffer[0];
+				//if (id > 0x8e)
+				//{
+				//	throw new Exception($"Expected 0x8E but got 0x{id:X2}");
+				//}
+
 				if (id == 0x8e)
 				{
 					id = internalBuffer[1];

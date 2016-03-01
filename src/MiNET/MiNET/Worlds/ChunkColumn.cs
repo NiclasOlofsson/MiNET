@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using fNbt;
+using log4net;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -12,6 +13,8 @@ namespace MiNET.Worlds
 {
 	public class ChunkColumn : ICloneable
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
+
 		public int x;
 		public int z;
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
@@ -31,6 +34,10 @@ namespace MiNET.Worlds
 		private McpeBatch _cachedBatch = null;
 		private object _cacheSync = new object();
 
+		//~ChunkColumn()
+		//{
+		//	Log.Warn($"Unexpected dispose chunk. X={x}, Z={z}");
+		//}
 
 		public ChunkColumn()
 		{
@@ -266,7 +273,7 @@ namespace MiNET.Worlds
 				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 				batch.payloadSize = buffer.Length;
 				batch.payload = buffer;
-				batch.Encode();
+				batch.Encode(true);
 				batch.MarkPermanent();
 
 				_cachedBatch = batch;
@@ -381,7 +388,7 @@ namespace MiNET.Worlds
 			McpeBatch batch = McpeBatch.CreateObject();
 			batch.payloadSize = _cachedBatch.payloadSize;
 			batch.payload = _cachedBatch.payload;
-			batch.Encode();
+			batch.Encode(true);
 			batch.MarkPermanent();
 
 			cc._cachedBatch = batch;

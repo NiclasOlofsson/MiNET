@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Concurrent;
+using log4net;
 
 namespace MiNET.Net
 {
 	public class ObjectPool<T> where T : Package
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ObjectPool<T>));
+
 		private ConcurrentBag<T> _objects;
 		private Func<T> _objectGenerator;
 
@@ -32,9 +35,16 @@ namespace MiNET.Net
 			return _objectGenerator();
 		}
 
+		const long MaxPoolSize = 100;
+
 		public void PutObject(T item)
 		{
 			//GC.SuppressFinalize(item);
+			if (_objects.Count > MaxPoolSize)
+			{
+				return;
+			}
+
 			_objects.Add(item);
 		}
 	}

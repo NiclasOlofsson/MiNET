@@ -2,8 +2,12 @@
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using log4net;
+using log4net.Config;
 using MiNET.Client;
 using MiNET.Utils;
+
+[assembly: XmlConfigurator(Watch = true)]
 
 namespace MiNET.ServiceKiller
 {
@@ -26,50 +30,22 @@ namespace MiNET.ServiceKiller
 			ThreadPool.SetMinThreads(1000, 1000);
 
 			Emulator emulator = new Emulator {Running = true};
-			Random random = new Random();
+			Stopwatch watch = new Stopwatch();
+			watch.Start();
 
-			//{
-			//	Stopwatch watch = new Stopwatch();
-			//	watch.Start();
-			//	int i = 0;
-			//	while (watch.ElapsedMilliseconds < 300*1000)
-			//	{
-			//		if (i > 0 && i%10 == 0) Thread.Sleep(10000);
+			long start = DateTime.UtcNow.Ticks;
 
-			//		string playerName = string.Format("Player-{0}", (i + 1));
-			//		//string playerName = "Player " + Guid.NewGuid();
-			//		ClientEmulator client = new ClientEmulator(emulator, random.Next(60, 120)*1000, playerName, i)
-			//		{
-			//			Random = random
-			//		};
-			//		ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
-
-			//		Thread.Sleep(500);
-
-			//		i++;
-			//	}
-			//}
-
+			for (int j = 0; j < 200; j++)
 			{
-				Stopwatch watch = new Stopwatch();
-				watch.Start();
-				for (int j = 0; j < 100; j++)
-				{
-					string playerName = string.Format("Player-{0}", (j + 1));
-					ClientEmulator client = new ClientEmulator(emulator, 300*1000, playerName, j)
-					{
-						Random = random
-					};
-					ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
+				string playerName = $"{Guid.NewGuid()}";
+				//string playerName = $"TheGrey{j + 1:D3}";
+				ClientEmulator client = new ClientEmulator(emulator, 12*60*1000, playerName, (int) (DateTime.UtcNow.Ticks-start));
+				ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
-					Thread.Sleep(500);
-				}
+				Thread.Sleep(150);
 			}
 
-			Thread.Sleep(300000);
-
 			Console.WriteLine("Press <enter> to stop all clients.");
-
 			Console.ReadLine();
 			emulator.Running = false;
 
@@ -85,13 +61,15 @@ namespace MiNET.ServiceKiller
 
 	public class ClientEmulator
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ClientEmulator));
+
 		public Emulator Emulator { get; private set; }
 		public string Name { get; set; }
 		public int ClientId { get; set; }
-		public Random Random { get; set; }
-		public int TimeToRun { get; set; }
+		public Random Random { get; set; } = new Random();
+		public long TimeToRun { get; set; }
 
-		public ClientEmulator(Emulator emulator, int timeToRun, string name, int clientId)
+		public ClientEmulator(Emulator emulator, long timeToRun, string name, int clientId)
 		{
 			Emulator = emulator;
 			TimeToRun = timeToRun;
@@ -107,26 +85,26 @@ namespace MiNET.ServiceKiller
 
 				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("play.lbsg.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
 				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("188.165.235.161"), 19132), new IPEndPoint(IPAddress.Any, 0));
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), Name);
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("46.7.101.176"), 19132), Name);
+				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19134), Name);
+				client.IsEmulator = true;
 				client.ClientId = ClientId;
 
 				client.StartClient();
 				Console.WriteLine("Client started.");
 
-				Thread.Sleep(3000);
-
-				client.SendUnconnectedPing();
+				client.HaveServer = true;
+				client.SendOpenConnectionRequest1();
 
 				Thread.Sleep(2000);
 
-				//client.LoginSent = true;
+				client.LoginSent = true;
 
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
 				if (client.UdpClient != null) Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", Name);
 
-				for (int i = 0; i < 10 && Emulator.Running && watch.ElapsedMilliseconds < TimeToRun; i++)
+				for (int i = 0; /*i < 10 && */Emulator.Running && watch.ElapsedMilliseconds < TimeToRun; i++)
 				{
 					if (client.UdpClient == null) break;
 
@@ -145,15 +123,18 @@ namespace MiNET.ServiceKiller
 						float z = (float) (length*Math.Sin(angle));
 						y += heightStepsize;
 
-						x += -2562;
-						z += 743;
+						x += client.Level.SpawnX;
+						z += client.Level.SpawnZ;
 
 						client.CurrentLocation = new PlayerLocation(x, y, z);
 						client.SendMcpeMovePlayer();
-						Thread.Sleep(Random.Next(150, 450));
+						Thread.Sleep(50);
+						//Thread.Sleep(Random.Next(150, 450));
 						angle += angleStepsize;
 					}
 				}
+
+				Console.WriteLine($"{watch.ElapsedMilliseconds} Client stopping. {client.UdpClient == null}, {Emulator.Running}");
 
 				if (client.UdpClient != null) client.SendDisconnectionNotification();
 

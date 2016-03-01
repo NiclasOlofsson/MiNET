@@ -28,9 +28,9 @@ namespace MiNET.Entities
 		public string NameTag { get; set; }
 
 		public long Age { get; set; }
-		public double Height { get; set; }
-		public double Width { get; set; }
-		public double Length { get; set; }
+		public double Height { get; set; } = 1.80;
+		public double Width { get; set; } = 0.6;
+		public double Length { get; set; } = 0.6;
 		public double Drag { get; set; }
 		public double Gravity { get; set; }
 		public int Data { get; set; }

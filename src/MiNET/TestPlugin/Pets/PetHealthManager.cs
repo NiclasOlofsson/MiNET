@@ -49,9 +49,9 @@ namespace TestPlugin.Pets
 
 					pet.Level.RelayBroadcast(new McpeLevelEvent
 					{
-						eventId = 0x4000 | 14,
+						eventId = 0x4000 | 15,
 						x = Entity.KnownPosition.X,
-						y = Entity.KnownPosition.Y + 0.85f,
+						y = (float) (Entity.KnownPosition.Y + Entity.Height + 0.85d),
 						z = Entity.KnownPosition.Z,
 						data = size
 					});

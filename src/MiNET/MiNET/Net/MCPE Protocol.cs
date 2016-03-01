@@ -351,6 +351,21 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xc5:
+					package = McpeSpawnExperienceOrb.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xc6:
+					package = McpeClientboundMapItemData.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xc7:
+					package = McpeMapInfoRequest.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xc8:
 					package = McpeRequestChunkRadius.CreateObject();
 					//package.Timer.Start();
@@ -363,11 +378,6 @@ namespace MiNET.Net
 					return package;
 				case 0x1b:
 					package = McpeTransfer.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc5:
-					package = McpeSpawnExperienceOrb.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -3356,6 +3366,132 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
+	{
+		public long entityId; // = null;
+		public int x; // = null;
+		public int y; // = null;
+		public int z; // = null;
+		public int count; // = null;
+		public McpeSpawnExperienceOrb()
+		{
+			Id = 0xc5;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(entityId);
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(count);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			entityId = ReadLong();
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadInt();
+			count = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeClientboundMapItemData : Package<McpeClientboundMapItemData>
+	{
+		public MapInfo mapinfo; // = null;
+		public McpeClientboundMapItemData()
+		{
+			Id = 0xc6;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(mapinfo);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			mapinfo = ReadMapInfo();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeMapInfoRequest : Package<McpeMapInfoRequest>
+	{
+		public long mapId; // = null;
+		public McpeMapInfoRequest()
+		{
+			Id = 0xc7;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(mapId);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			mapId = ReadLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeRequestChunkRadius : Package<McpeRequestChunkRadius>
 	{
 		public int chunkRadius; // = null;
@@ -3461,56 +3597,6 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			endpoint = ReadIPEndPoint();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
-	{
-		public long entityId; // = null;
-		public int x; // = null;
-		public int y; // = null;
-		public int z; // = null;
-		public int count; // = null;
-		public McpeSpawnExperienceOrb()
-		{
-			Id = 0xc5;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(entityId);
-			Write(x);
-			Write(y);
-			Write(z);
-			Write(count);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			entityId = ReadLong();
-			x = ReadInt();
-			y = ReadInt();
-			z = ReadInt();
-			count = ReadInt();
 
 			AfterDecode();
 		}

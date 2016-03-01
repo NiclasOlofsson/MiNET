@@ -106,12 +106,13 @@ namespace TestPlugin.Pets
 						var yaw = thetaOffset + tanOutput;
 
 						double bDiff = Math.Sqrt((dx*dx) + (dz*dz));
-						var dy = KnownPosition.Y - closestPlayer.KnownPosition.Y - 1.62f;
+						var dy = (KnownPosition.Y + Height) - (closestPlayer.KnownPosition.Y + 1.62);
 						double pitch = RadianToDegree(Math.Atan(dy/(bDiff)));
 
 						KnownPosition.Yaw = (float) yaw;
 						KnownPosition.HeadYaw = (float) yaw;
 						KnownPosition.Pitch = (float) pitch;
+						LastUpdatedTime = DateTime.UtcNow;
 					}
 
 					if (RageTick > 0)

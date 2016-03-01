@@ -47,11 +47,4 @@ namespace MiNET.Blocks
 			return true;
 		}
 	}
-
-	public class TrappedChest : Chest
-	{
-		public TrappedChest() : base(146)
-		{
-		}
-	}
 }

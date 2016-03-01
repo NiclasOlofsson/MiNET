@@ -65,6 +65,7 @@
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
     <Compile Include="BlockEntities\EnchantingTableBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
+    <Compile Include="BlockEntities\ItemFrameBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="BlockEntities\SkullBlockEntity.cs" />
     <Compile Include="BlockFace.cs" />
@@ -76,7 +77,9 @@
     <Compile Include="Blocks\BrickStairs.cs" />
     <Compile Include="Blocks\Button.cs" />
     <Compile Include="Blocks\EnchantingTable.cs" />
+    <Compile Include="Blocks\ItemFrame.cs" />
     <Compile Include="Blocks\StoneButton.cs" />
+    <Compile Include="Blocks\TrappedChest.cs" />
     <Compile Include="Blocks\WoodenButton.cs" />
     <Compile Include="Blocks\CoalBlock.cs" />
     <Compile Include="Blocks\CoalOre.cs" />
@@ -162,7 +165,14 @@
     <Compile Include="Entities\Arrow.cs" />
     <Compile Include="Entities\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\ImageProviders\MapImageProvider.cs" />
+    <Compile Include="Entities\ImageProviders\IMapImageProvider.cs" />
+    <Compile Include="Entities\ImageProviders\RandomColorMapImageProvider.cs" />
+    <Compile Include="Entities\ImageProviders\TextMapImageProvider.cs" />
+    <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Lightning.cs" />
+    <Compile Include="Entities\MapEntity.cs" />
+    <Compile Include="Entities\MobTypes.cs" />
     <Compile Include="Entities\PlayerMob.cs" />
     <Compile Include="Entities\ItemEntity.cs" />
     <Compile Include="Entities\Mob.cs" />
@@ -200,6 +210,7 @@
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
     <Compile Include="Items\ItemEgg.cs" />
+    <Compile Include="Items\ItemEmptyMap.cs" />
     <Compile Include="Items\ItemEnchantingTable.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldAxe.cs" />
@@ -215,6 +226,7 @@
     <Compile Include="Items\ItemHoe.cs" />
     <Compile Include="Items\ItemIronAxe.cs" />
     <Compile Include="Items\ItemIronPickaxe.cs" />
+    <Compile Include="Items\ItemItemFrame.cs" />
     <Compile Include="Items\ItemLeatherBoots.cs" />
     <Compile Include="Items\ItemLeatherChestplate.cs" />
     <Compile Include="Items\ItemLeatherHelmet.cs" />
@@ -230,6 +242,7 @@
     <Compile Include="Items\ItemIronLeggings.cs" />
     <Compile Include="Items\ItemIronShovel.cs" />
     <Compile Include="Items\ItemIronSword.cs" />
+    <Compile Include="Items\ItemMap.cs" />
     <Compile Include="Items\ItemMelonSlice.cs" />
     <Compile Include="Items\ItemMobHead.cs" />
     <Compile Include="Items\ItemPotato.cs" />
@@ -348,10 +361,12 @@
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
+    <Compile Include="Utils\MapInfo.cs" />
     <Compile Include="Utils\MetadataIntCoordinates.cs" />
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\Ray.cs" />
+    <Compile Include="Utils\WannabeRandom.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\Vector3.cs" />
     <Compile Include="Utils\Compression.cs" />

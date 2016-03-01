@@ -70,6 +70,9 @@ namespace MiNET
 
 		public bool StartServer()
 		{
+			Datagram.CreateObject().PutPool();
+			
+
 			if (_listener != null) return false; // Already started
 
 			try
@@ -162,7 +165,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
 				_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -645,7 +648,8 @@ namespace MiNET
 				try
 				{
 					Package fullMessage = PackageFactory.CreatePackage(buffer[1], buffer) ?? new UnknownPackage(buffer[1], buffer);
-					Log.Debug($"0x{fullMessage.Id:x2}\n{Package.HexDump(buffer)}");
+					//if (Log.IsDebugEnabled)
+					//	Log.Debug($"0x{fullMessage.Id:x2}\n{Package.HexDump(buffer)}");
 
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
 					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
@@ -794,16 +798,11 @@ namespace MiNET
 						player.Rtt = (long) (RTT*0.875 + rtt*0.125);
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
-
-						//if (Log.IsDebugEnabled)
-						//	Log.ErrorFormat("NAK, resending datagram #{0} for {1}, MTU: {2}", i, player.Username, session.Mtuize);
-
-						//SendDatagram(session, datagram, false);
 					}
 					else
 					{
 						if (Log.IsDebugEnabled)
-							Log.WarnFormat("NAK, no datagram #{0} to resend for {1}", i, player.Username);
+							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, player.Username);
 					}
 				}
 			}
@@ -873,6 +872,8 @@ namespace MiNET
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
+				UnknownPackage packet = (UnknownPackage) message;
+				Log.Warn($"Receive unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 				return;
 			}
 
@@ -1070,6 +1071,7 @@ namespace MiNET
 
 						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
+						datagramTimout = Math.Min(datagramTimout, 3000);
 
 						//if(elapsedTime > 5000)
 						//{
@@ -1103,6 +1105,8 @@ namespace MiNET
 
 									//session.WaitForAck = true;
 
+									Interlocked.Increment(ref ServerInfo.NumberOfFails);
+
 									continue;
 								}
 
@@ -1111,14 +1115,15 @@ namespace MiNET
 									ThreadPool.QueueUserWorkItem(delegate(object data)
 									{
 										if (Log.IsDebugEnabled)
-											Log.DebugFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
+											Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 												deleted.Header.datagramSequenceNumber.IntValue(),
 												player.Username,
 												deleted.FirstMessageId,
 												elapsedTime,
 												datagramTimout,
 												player.Rto);
-										SendDatagram(session, (Datagram) data);
+										SendDatagram(session, (Datagram)data);
+										Interlocked.Increment(ref ServerInfo.NumberOfResends);
 									}, datagram);
 								}
 							}
@@ -1179,6 +1184,7 @@ namespace MiNET
 			{
 				Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
 			}
+			//datagram.PutPool();
 
 			lock (session.SyncRoot)
 			{
@@ -1193,7 +1199,7 @@ namespace MiNET
 			{
 				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 
-				ServerInfo.NumberOfPacketsOutPerSecond++;
+				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
 				ServerInfo.TotalPacketSizeOut += data.Length;
 			}
 			catch (ObjectDisposedException e)

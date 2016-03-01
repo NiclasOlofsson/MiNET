@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Security.Policy;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
@@ -102,14 +101,38 @@ namespace MiNET.Worlds
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
 			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
+
+			//_tickerThread = new Thread(RunWorldTick);
+			//_tickerThread.Priority = ThreadPriority.Highest;
+			//_tickerThread.IsBackground = true;
+			//_tickerThread.Start();
+			//_tickerThreadTimer.Start();
+		}
+
+		Thread _tickerThread = null;
+
+		Stopwatch _tickerThreadTimer = new Stopwatch();
+
+		private void RunWorldTick()
+		{
+			while (_tickerThread != null)
+			{
+				var timeout = (int) Math.Max(0, 50 - _tickerThreadTimer.ElapsedMilliseconds);
+				if (timeout == 0) Log.Warn($"Ticker is late {_tickerThreadTimer.ElapsedMilliseconds}");
+				Thread.Sleep(timeout);
+				if (Math.Abs(50 - _tickerThreadTimer.ElapsedMilliseconds) > 3) Log.Warn($"Ticker {_tickerThreadTimer.ElapsedMilliseconds}");
+				_tickerThreadTimer.Restart();
+				WorldTick(null);
+			}
 		}
 
 		public void Close()
 		{
+			//_tickerThread = null;
 			_levelTicker.Change(Timeout.Infinite, Timeout.Infinite);
 			WaitHandle waitHandle = new AutoResetEvent(false);
 			_levelTicker.Dispose(waitHandle);
-			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
+			WaitHandle.WaitAll(new[] { waitHandle }, TimeSpan.FromMinutes(2));
 			_levelTicker = null;
 
 			foreach (var entity in Entities.Values.ToArray())
@@ -187,26 +210,15 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
-				var bytes = playerListMessage.Encode();
+				newPlayer.SendPackage(CreateMcpeBatch(playerListMessage.Encode()));
 				playerListMessage.records = null;
-
-				MemoryStream memStream = new MemoryStream();
-				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-				memStream.Write(bytes, 0, bytes.Length);
-
-				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-
-				newPlayer.SendPackage(batch);
+				playerListMessage.PutPool();
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {newPlayer};
-				playerList.Encode();
+				RelayBroadcast(newPlayer, sendList, CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
-				RelayBroadcast(newPlayer, sendList, playerList);
+				playerList.PutPool();
 
 				McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 				mcpeAddPlayer.uuid = newPlayer.ClientUuid;
@@ -240,6 +252,20 @@ namespace MiNET.Worlds
 					SendAddForPlayer(newPlayer, spawnedPlayer, false);
 				}
 			}
+		}
+
+		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
+		{
+			MemoryStream memStream = new MemoryStream();
+			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+			memStream.Write(bytes, 0, bytes.Length);
+
+			McpeBatch batch = McpeBatch.CreateObject();
+			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode(true);
+			return batch;
 		}
 
 		public void SendAddForPlayer(Player receiver, Player addedPlayer, bool sendPlayerListAdd = true)
@@ -314,19 +340,9 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerRemoveRecords(spawnedPlayers);
-				var bytes = playerListMessage.Encode();
+				player.SendPackage(CreateMcpeBatch(playerListMessage.Encode()));
 				playerListMessage.records = null;
-
-				MemoryStream memStream = new MemoryStream();
-				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-				memStream.Write(bytes, 0, bytes.Length);
-
-				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-				player.SendPackage(batch);
+				playerListMessage.PutPool();
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
@@ -335,9 +351,9 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {player};
-				playerList.Encode();
+				RelayBroadcast(player, CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
-				RelayBroadcast(player, playerList);
+				playerList.PutPool();
 
 				McpeRemovePlayer removePlayerMessage = McpeRemovePlayer.CreateObject();
 				removePlayerMessage.clientUuid = player.ClientUuid;
@@ -579,18 +595,21 @@ namespace MiNET.Worlds
 				}
 			}
 
+			if (moveEntity.entities.Count > 0)
 			{
 				byte[] bytes = moveEntity.Encode();
 				stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 				stream.Write(bytes, 0, bytes.Length);
-				moveEntity.PutPool();
 			}
+			moveEntity.PutPool();
+
+			if (moveEntity.entities.Count > 0)
 			{
 				byte[] bytes = entityMotion.Encode();
 				stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 				stream.Write(bytes, 0, bytes.Length);
-				entityMotion.PutPool();
 			}
+			entityMotion.PutPool();
 
 			if (count == 0) return;
 
@@ -598,7 +617,7 @@ namespace MiNET.Worlds
 			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Optimal);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
-			batch.Encode();
+			batch.Encode(true);
 
 			foreach (var player in players)
 			{
@@ -637,7 +656,7 @@ namespace MiNET.Worlds
 				message.AddReferences(sendList.Length - 1);
 			}
 
-			if (message.IsPooled) message.Encode(); // In case forgotten during create
+			//if (message.IsPooled) message.Encode(); // In case forgotten during create
 
 			foreach (var player in sendList)
 			{
@@ -681,7 +700,8 @@ namespace MiNET.Worlds
 
 				double radius = rad;
 				double radiusSquared = Math.Pow(radius, 2);
-				double viewArea = (Math.PI * (radiusSquared));
+				double viewArea = (Math.PI*(radiusSquared));
+
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
 
@@ -692,7 +712,7 @@ namespace MiNET.Worlds
 						var distance = (x*x) + (z*z);
 						if (distance > radiusSquared)
 						{
-							continue;
+							//continue;
 						}
 						int chunkX = (int) (x + centerX);
 						int chunkZ = (int) (z + centerZ);
@@ -701,14 +721,14 @@ namespace MiNET.Worlds
 					}
 				}
 
-				if (newOrders.Count > viewArea)
-				{
-					foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
-					{
-						if (newOrders.Count <= viewArea) break;
-						newOrders.Remove(pair.Key);
-					}
-				}
+				//if (newOrders.Count > viewArea)
+				//{
+				//	foreach (var pair in newOrders.OrderByDescending(pair => pair.Value))
+				//	{
+				//		if (newOrders.Count <= viewArea) break;
+				//		newOrders.Remove(pair.Key);
+				//	}
+				//}
 
 				foreach (var chunkKey in chunksUsed.Keys.ToArray())
 				{
@@ -883,7 +903,7 @@ namespace MiNET.Worlds
 			// Make sure we are holding the item we claim to be using
 
 			Block target = GetBlock(blockCoordinates);
-			if (target.Interact(world, player, blockCoordinates, face)) return; // Handled in block interaction
+			if (target.Interact(world, player, blockCoordinates, face, faceCoords)) return; // Handled in block interaction
 
 			Item itemInHand = player.Inventory.GetItemInHand();
 

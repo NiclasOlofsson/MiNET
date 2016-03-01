@@ -483,6 +483,22 @@
 		<field name="Records" type="PlayerRecords" />
 	</pdu>
 	
+	<pdu id="0xc5" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">
+		<field name="Entity ID" type="long" />
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="int" />
+		<field name="Count" type="int" />
+	</pdu>
+
+	<pdu id="0xc6" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_MAP_ITEM_DATA ">
+		<field name="MapInfo" type="MapInfo" />
+	</pdu>
+
+	<pdu id="0xc7" online="false" client="false" server="true" name="MCPE_MAP_INFO_REQUEST">
+		<field name="Map ID" type="long" />
+	</pdu>
+
 	<pdu id="0xc8" online="false" client="false" server="true" name="MCPE_REQUEST_CHUNK_RADIUS">
 		<field name="Chunk Radius" type="int" />
 	</pdu>
@@ -495,12 +511,5 @@
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>
 
-	<pdu id="0xc5" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">
-		<field name="Entity ID" type="long" />
-		<field name="X" type="int" />
-		<field name="Y" type="int" />
-		<field name="Z" type="int" />
-		<field name="Count" type="int" />
-	</pdu>
 
 </protocol>

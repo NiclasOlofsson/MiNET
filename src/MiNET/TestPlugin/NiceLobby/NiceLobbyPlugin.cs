@@ -1,11 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using log4net;
 using MiNET;
+using MiNET.BlockEntities;
+using MiNET.Blocks;
+using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Entities.ImageProviders;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
@@ -20,6 +29,8 @@ namespace TestPlugin.NiceLobby
 	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team"), UsedImplicitly]
 	public class NiceLobbyPlugin : Plugin
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (NiceLobbyPlugin));
+
 		[UsedImplicitly] private Timer _popupTimer;
 		[UsedImplicitly] private Timer _gameTimer;
 		[UsedImplicitly] private Timer _scoreboardTimer;
@@ -29,8 +40,8 @@ namespace TestPlugin.NiceLobby
 
 		protected override void OnEnable()
 		{
-			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
-			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000*3);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000 * 3);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 			//foreach (var level in Context.LevelManager.Levels)
 			//{
@@ -186,19 +197,25 @@ namespace TestPlugin.NiceLobby
 		//	return null;
 		//}
 
+		[PacketHandler, Receive, UsedImplicitly]
+		public Package LoginHandler(McpeLogin packet, Player player)
+		{
+			player.DisplayName = TextUtils.Center($"{GetNameTag(packet.username ?? "")}");
+			return packet;
+		}
+
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
-			string rank = player.Username.StartsWith("gurun") ? $"{ChatColors.Red}[ADMIN]" : $"{ChatColors.Gold}[VIP]";
-			player.SetNameTag($"{rank} {player.Username}");
+			SendNameTag(player);
 			player.RemoveAllEffects();
 
-			//player.SetEffect(new Speed {Level = 2, Duration = 20*10}); // 10s in ticks
+			player.SetEffect(new Speed {Level = 1, Duration = Effect.MaxDuration}); // 10s in ticks
 			//player.SetEffect(new Slowness { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new Haste { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new MiningFatigue { Level = 20, Duration = 20 * 10 });
 			//player.SetEffect(new Strength { Level = 20, Duration = 20 * 10 });
-			//player.SetEffect(new JumpBoost {Level = 20, Duration = Effect.MaxDuration});
+			player.SetEffect(new JumpBoost {Level = 1, Duration = Effect.MaxDuration});
 			//player.SetEffect(new Blindness { Level = 20, Duration = 20 * 10 });
 			//player.SetAutoJump(true);
 
@@ -213,6 +230,28 @@ namespace TestPlugin.NiceLobby
 			return packet;
 		}
 
+		private void SendNameTag(Player player)
+		{
+			player.SetNameTag(TextUtils.Center($"{GetNameTag(player)}\n{ChatColors.Red}HP: {ChatColors.White}{player.HealthManager.Hearts}"));
+		}
+
+		private string GetNameTag(Player player)
+		{
+			return GetNameTag(player.Username);
+		}
+
+		private string GetNameTag(string username)
+		{
+			string rank = username.StartsWith("gurun") || username.StartsWith("Oliver") ? $"{ChatColors.Red}[ADMIN]" : $"{ChatColors.LightPurple}[VIP]";
+			return $"{rank} {username}";
+		}
+
+		[PacketHandler, Send]
+		public void SendUpdateAttributes(McpeUpdateAttributes packet, Player player)
+		{
+			SendNameTag(player);
+		}
+
 		[PacketHandler, Receive]
 		public Package MessageHandler(McpeText message, Player player)
 		{
@@ -223,10 +262,11 @@ namespace TestPlugin.NiceLobby
 			}
 
 			text = TextUtils.Strip(text);
-			player.Level.BroadcastMessage($"{player.NameTag}:{ChatColors.White} {text}", MessageType.Raw);
+			player.Level.BroadcastMessage($"{GetNameTag(player)}:{ChatColors.White} {text}", MessageType.Raw);
 
 			return null;
 		}
+
 
 		private void DoDevelopmentPopups(object state)
 		{
@@ -238,7 +278,7 @@ namespace TestPlugin.NiceLobby
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Tip,
-						Message = "This is a development server",
+						Message = "This is a MiNET development server",
 						Duration = 20*4
 					});
 
@@ -257,7 +297,7 @@ namespace TestPlugin.NiceLobby
 		{
 			if (_scoreboardTimer == null)
 			{
-				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 47000);
+				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 80000);
 
 				Context.LevelManager.Levels[0].BroadcastMessage(
 					"§6§l»§r§7 --------------------------- §6§l«\n"
@@ -475,47 +515,48 @@ namespace TestPlugin.NiceLobby
 			fake.SpawnEntity();
 		}
 
-		//private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
+		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
 
-		//[Command]
-		//public void Hide(Player player, byte id)
-		//{
-		//	Level level = player.Level;
+		[Command]
+		public void Hide(Player player, byte id)
+		{
+			Level level = player.Level;
 
-		//	HidePlayer(player, true);
+			HidePlayer(player, true);
 
-		//	Mob entity = new Mob(id, level)
-		//	{
-		//		KnownPosition = player.KnownPosition,
-		//		//Data = -(blockId | 0 << 0x10)
-		//	};
-		//	entity.SpawnEntity();
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
 
-		//	player.SendPackage(new McpeRemoveEntity()
-		//	{
-		//		entityId = entity.EntityId,
-		//	});
+			player.SendPackage(new McpeRemoveEntity()
+			{
+				entityId = entity.EntityId,
+			});
 
-		//	_playerEntities[player] = entity;
+			_playerEntities[player] = entity;
 
-		//	level.BroadcastTextMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
-		//}
+			level.BroadcastMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
+		}
 
-		//[PacketHandler, Receive]
-		//public Package HandleIncoming(McpeMovePlayer packet, Player player)
-		//{
-		//	if (_playerEntities.ContainsKey(player))
-		//	{
-		//		var entity = _playerEntities[player];
-		//		entity.KnownPosition = player.KnownPosition;
-		//		var message = new McpeMoveEntity();
-		//		message.entities = new EntityLocations();
-		//		message.entities.Add(entity.EntityId, entity.KnownPosition);
-		//		player.Level.RelayBroadcast(message);
-		//	}
+		[PacketHandler, Receive]
+		public Package HandleIncoming(McpeMovePlayer packet, Player player)
+		{
+			if (_playerEntities.ContainsKey(player))
+			{
+				var entity = _playerEntities[player];
+				entity.KnownPosition = player.KnownPosition;
+				var message = new McpeMoveEntity();
+				message.entities = new EntityLocations();
+				message.entities.Add(entity.EntityId, entity.KnownPosition);
+				player.Level.RelayBroadcast(message);
+			}
 
-		//	return packet; // Process
-		//}
+			return packet; // Process
+		}
+
 		[Command(Command = "w")]
 		public void Warp(Player player, string warp)
 		{
@@ -557,6 +598,287 @@ namespace TestPlugin.NiceLobby
 			ThreadPool.QueueUserWorkItem(delegate(object state) { player.SpawnLevel(player.Level, playerLocation); }, null);
 
 			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+		}
+
+
+		[Command]
+		public void Video(Player player, int numberOfFrames, bool color)
+		{
+			Task.Run(delegate
+			{
+				try
+				{
+					Dictionary<Tuple<int, int>, MapEntity> entities = new Dictionary<Tuple<int, int>, MapEntity>();
+
+					int width = 1;
+					int height = 1;
+					int frameCount = numberOfFrames;
+					//int frameOffset = 0;
+					int frameOffset = 120;
+
+					var frameTicker = new FrameTicker(frameCount);
+
+
+					// 768x384
+					for (int frame = frameOffset; frame < frameCount + frameOffset; frame++)
+					{
+						Log.Info($"Generating frame {frame}");
+
+						string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{frame:D4}.bmp");
+						//string file = Path.Combine(@"D:\Development\Other\2 by 1 PE test app ad for Gurun-2\exported frames 2", $"pe app ad{frame:D2}.bmp");
+						if (!File.Exists(file)) continue;
+
+						Bitmap image = new Bitmap((Bitmap) Image.FromFile(file), width*128, height*128);
+
+						for (int x = 0; x < width; x++)
+						{
+							for (int y = 0; y < height; y++)
+							{
+								var key = new Tuple<int, int>(x, y);
+								if (!entities.ContainsKey(key))
+								{
+									entities.Add(key, new MapEntity(player.Level) {ImageProvider = new VideoImageProvider(frameTicker)});
+								}
+
+								var croppedImage = CropImage(image, new Rectangle(new Point(x*128, y*128), new Size(128, 128)));
+								byte[] bitmapToBytes = BitmapToBytes(croppedImage, color);
+
+								if (bitmapToBytes.Length != 128*128*4) return;
+
+								((VideoImageProvider) entities[key].ImageProvider).Frames.Add(CreateCachedPacket(entities[key].EntityId, bitmapToBytes));
+							}
+						}
+					}
+
+					int i = 0;
+
+					player.Inventory.Slots[i++] = new ItemBlock(new WoodenPlanks(), 0) {Count = 64};
+					player.Inventory.Slots[i++] = new ItemItemFrame {Count = 64};
+
+					foreach (MapEntity entity in entities.Values)
+					{
+						entity.SpawnEntity();
+						player.Inventory.Slots[i++] = new ItemMap(entity.EntityId);
+					}
+
+					player.SendPlayerInventory();
+					player.SendMessage("Done generating video.", MessageType.Raw);
+				}
+				catch (Exception e)
+				{
+					Log.Error("Aborted video generation", e);
+				}
+			});
+
+			player.SendMessage("Generating video...", MessageType.Raw);
+		}
+
+		[Command]
+		public void Video2(Player player, int numberOfFrames, bool color)
+		{
+			Task.Run(delegate
+			{
+				try
+				{
+					Dictionary<Tuple<int, int>, List<MapEntity>> entities = new Dictionary<Tuple<int, int>, List<MapEntity>>();
+
+					int width = 1;
+					int height = 1;
+					int frameCount = numberOfFrames;
+					//int frameOffset = 0;
+					int frameOffset = 120;
+
+					var frameTicker = new FrameTicker(frameCount);
+
+					// 768x384
+					for (int frame = frameOffset; frame < frameCount + frameOffset; frame++)
+					{
+						Log.Info($"Generating frame {frame}");
+
+						string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{frame:D4}.bmp");
+						//string file = Path.Combine(@"D:\Development\Other\2 by 1 PE test app ad for Gurun-2\exported frames 2", $"pe app ad{frame:D2}.bmp");
+						if (!File.Exists(file)) continue;
+
+						Bitmap image = new Bitmap((Bitmap) Image.FromFile(file), width*128, height*128);
+
+						for (int x = 0; x < width; x++)
+						{
+							for (int y = 0; y < height; y++)
+							{
+								var key = new Tuple<int, int>(x, y);
+								if (!entities.ContainsKey(key))
+								{
+									entities.Add(key, new List<MapEntity>());
+								}
+
+								List<MapEntity> frames = entities[key];
+
+								var croppedImage = CropImage(image, new Rectangle(new Point(x*128, y*128), new Size(128, 128)));
+								byte[] bitmapToBytes = BitmapToBytes(croppedImage, color);
+
+								if (bitmapToBytes.Length != 128*128*4) return;
+
+								MapEntity entity = new MapEntity(player.Level);
+								entity.ImageProvider = new MapImageProvider {Batch = CreateCachedPacket(entity.EntityId, bitmapToBytes)};
+								entity.SpawnEntity();
+								frames.Add(entity);
+							}
+						}
+					}
+
+					int i = 0;
+
+					player.Inventory.Slots[i++] = new ItemBlock(new WoodenPlanks(), 0) {Count = 64};
+
+					foreach (var entites in entities.Values)
+					{
+						player.Inventory.Slots[i++] = new CustomItemItemFrame(entites, frameTicker) {Count = 64};
+					}
+
+					player.SendPlayerInventory();
+					player.SendMessage("Done generating video.", MessageType.Raw);
+
+					BlockCoordinates center = player.KnownPosition.GetCoordinates3D();
+					var level = player.Level;
+
+					for (int x = 0; x < width; x++)
+					{
+						for (int y = 0; y < height; y++)
+						{
+							var key = new Tuple<int, int>(x, y);
+							List<MapEntity> frames = entities[key];
+
+							BlockCoordinates bc = new BlockCoordinates(center.X - x, center.Y + height - y - 1, center.Z + 2);
+							var wood = new WoodenPlanks {Coordinates = bc};
+							level.SetBlock(wood);
+
+							BlockCoordinates frambc = new BlockCoordinates(center.X - x, center.Y + height - y - 1, center.Z + 1);
+							ItemFrameBlockEntity itemFrameBlockEntity = new ItemFrameBlockEntity
+							{
+								Coordinates = frambc
+							};
+
+							var itemFrame = new CustomItemFrame(frames, itemFrameBlockEntity, level, frameTicker) {Coordinates = frambc, Metadata = 3};
+							level.SetBlock(itemFrame);
+							level.SetBlockEntity(itemFrameBlockEntity);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Error("Aborted video generation", e);
+				}
+			});
+
+			player.SendMessage("Generating video...", MessageType.Raw);
+		}
+
+
+		private McpeBatch CreateCachedPacket(long mapId, byte[] bitmapToBytes)
+		{
+			MapInfo mapInfo = new MapInfo
+			{
+				MapId = mapId,
+				UpdateType = 6,
+				Direction = 0,
+				X = 0,
+				Z = 0,
+				Col = 128,
+				Row = 128,
+				XOffset = 0,
+				ZOffset = 0,
+				Data = bitmapToBytes,
+			};
+
+			McpeClientboundMapItemData packet = McpeClientboundMapItemData.CreateObject();
+			packet.mapinfo = mapInfo;
+			var batch = CreateMcpeBatch(packet.Encode());
+
+			return batch;
+		}
+
+		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
+		{
+			MemoryStream memStream = new MemoryStream();
+			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+			memStream.Write(bytes, 0, bytes.Length);
+
+			McpeBatch batch = McpeBatch.CreateObject();
+			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+			batch.MarkPermanent();
+			batch.payloadSize = buffer.Length;
+			batch.payload = buffer;
+			batch.Encode(true);
+			return batch;
+		}
+
+
+		private static Bitmap CropImage(Bitmap img, Rectangle cropArea)
+		{
+			return img.Clone(cropArea, img.PixelFormat);
+		}
+
+		private static byte[] ReadFrame(string filename)
+		{
+			Bitmap bitmap;
+			try
+			{
+				bitmap = new Bitmap(filename);
+			}
+			catch (Exception e)
+			{
+				Log.Error("Failed reading file " + filename);
+				bitmap = new Bitmap(128, 128);
+			}
+
+			byte[] bytes = BitmapToBytes(bitmap);
+
+			return bytes;
+		}
+
+		public Bitmap GrayScale(Bitmap bmp)
+		{
+			for (int y = 0; y < bmp.Height; y++)
+			{
+				for (int x = 0; x < bmp.Width; x++)
+				{
+					var c = bmp.GetPixel(x, y);
+					var rgb = (int) ((c.R + c.G + c.B)/3);
+					bmp.SetPixel(x, y, Color.FromArgb(rgb, rgb, rgb));
+				}
+			}
+			return bmp;
+		}
+
+		private static byte[] BitmapToBytes(Bitmap bitmap, bool useColor = false)
+		{
+			byte[] bytes;
+			bytes = new byte[bitmap.Height*bitmap.Width*4];
+
+			int i = 0;
+			for (int y = 0; y < bitmap.Height; y++)
+			{
+				for (int x = 0; x < bitmap.Width; x++)
+				{
+					Color color = bitmap.GetPixel(x, y);
+					if (!useColor)
+					{
+						byte rgb = (byte) ((color.R + color.G + color.B)/3);
+						bytes[i++] = rgb;
+						bytes[i++] = rgb;
+						bytes[i++] = rgb;
+						bytes[i++] = 0xff;
+					}
+					else
+					{
+						bytes[i++] = color.R;
+						bytes[i++] = color.G;
+						bytes[i++] = color.B;
+						bytes[i++] = 0xff;
+					}
+				}
+			}
+			return bytes;
 		}
 	}
 }

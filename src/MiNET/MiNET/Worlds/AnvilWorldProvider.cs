@@ -392,8 +392,6 @@ namespace MiNET.Worlds
 							{
 								NbtList items = (NbtList) blockEntityTag["Items"];
 
-								Log.Debug($"Chest entity:\n{blockEntityTag}");
-
 								for (byte i = 0; i < items.Count; i++)
 								{
 									NbtCompound item = (NbtCompound) items[i];

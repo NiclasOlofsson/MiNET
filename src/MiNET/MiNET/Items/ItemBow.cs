@@ -27,7 +27,6 @@ namespace MiNET.Items
 					if (--itemStack.Count <= 0)
 					{
 						// set empty
-						Log.Debug($"Send arrows on slot {i} to 0");
 						inventory.Slots[i] = new ItemAir();
 					}
 					haveArrows = true;

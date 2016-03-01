@@ -69,6 +69,12 @@ namespace MiNET.Blocks
 			return false;
 		}
 
+		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		{
+			// No default interaction. Return unhandled.
+			return Interact(world, player, blockCoordinates, face);
+		}
+
 		public virtual void OnTick(Level level)
 		{
 		}

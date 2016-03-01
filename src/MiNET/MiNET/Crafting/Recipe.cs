@@ -2,6 +2,7 @@
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Worlds;
 
 namespace MiNET.Crafting
 {
@@ -10,6 +11,22 @@ namespace MiNET.Crafting
 		private static readonly ILog Log = LogManager.GetLogger(typeof (RecipeManager));
 
 		public static Recipes Recipes { get; private set; }
+
+		private static McpeBatch _craftingData;
+
+		public static McpeBatch GetCraftingData()
+		{
+			if (_craftingData == null)
+			{
+				McpeCraftingData craftingData = McpeCraftingData.CreateObject();
+				craftingData.recipes = RecipeManager.Recipes;
+				var packet = Level.CreateMcpeBatch(craftingData.Encode());
+				packet.MarkPermanent(true);
+				_craftingData = packet;
+			}
+
+			return _craftingData;
+		}
 
 		static RecipeManager()
 		{

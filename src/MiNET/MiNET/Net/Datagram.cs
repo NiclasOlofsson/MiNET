@@ -27,7 +27,7 @@ namespace MiNET.Net
 				needsBAndAs = true,
 				//datagramSequenceNumber = datagramSequenceNumber
 			};
-			_buf = new MemoryStream();
+			_buf = new MemoryStream(new byte[1600]);
 		}
 
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
@@ -126,7 +126,6 @@ namespace MiNET.Net
 			var messageParts = new List<MessagePart>();
 
 			byte[] encodedMessage = message.Encode(message.Id > 0x8e);
-			//if(Log.IsDebugEnabled) Log.Debug($"\n{Package.HexDump(encodedMessage)}");
 			if (encodedMessage == null) return messageParts;
 
 			int datagramHeaderSize = 60;

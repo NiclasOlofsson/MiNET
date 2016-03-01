@@ -13,8 +13,6 @@ namespace MiNET.Items
 
 		public virtual void Consume(Player player)
 		{
-			Log.Debug($"Drinking potion with ID={Metadata}.");
-
 			Effect e = null;
 			switch (Metadata)
 			{

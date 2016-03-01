@@ -192,7 +192,6 @@ namespace MiNET
 				Slots[si].Count += item.Count;
 				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
-				Log.Debug($"Set on slot {si}");
 				return true;
 			}
 			else if (existingItem is ItemAir || existingItem.Id == -1)
@@ -200,7 +199,6 @@ namespace MiNET
 				Slots[si] = item;
 				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
-				Log.Debug($"Set on slot {si}");
 				return true;
 			}
 

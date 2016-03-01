@@ -13,6 +13,10 @@ namespace MiNET.Entities
 			Height = 1.80;
 		}
 
+		public Mob(MobTypes mobTypes, Level level) : this((int) mobTypes, level)
+		{
+		}
+
 		public override void OnTick()
 		{
 			base.OnTick();
@@ -56,6 +60,20 @@ namespace MiNET.Entities
 			Block block = Level.GetBlock(new BlockCoordinates(pos));
 
 			return block.Id != 0; // Should probably test for solid
+		}
+	}
+
+	public class Wolf : Mob
+	{
+		public Wolf(Level level) : base(MobTypes.Wolf, level)
+		{
+		}
+	}
+
+	public class IronGolem : Mob
+	{
+		public IronGolem(Level level) : base(MobTypes.IronGolem, level)
+		{
 		}
 	}
 }

@@ -153,42 +153,13 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Command = "gm")]
-		public void GameMode(Player player, int gameMode)
-		{
-			player.SetGameMode((GameMode) gameMode);
+		//[Command(Command = "gm")]
+		//public void GameMode(Player player, int gameMode)
+		//{
+		//	player.SetGameMode((GameMode) gameMode);
 
-			//if (gameMode == 1)
-			//{
-			//	player.Inventory.Slots.Clear();
-
-			//	player.Inventory.Slots.AddRange(InventoryUtils.CreativeInventoryItems);
-			//}
-
-			//player.SendPackage(new McpeStartGame
-			//{
-			//	seed = -1,
-			//	generator = 1,
-			//	gamemode = gameMode,
-			//	entityId = player.EntityId,
-			//	spawnX = (int) player.Level.SpawnPoint.X,
-			//	spawnY = (int) player.Level.SpawnPoint.Y,
-			//	spawnZ = (int) player.Level.SpawnPoint.Z,
-			//	x = player.KnownPosition.X,
-			//	y = player.KnownPosition.Y,
-			//	z = player.KnownPosition.Z
-			//});
-
-			//{
-			//	McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-			//	creativeContent.windowId = (byte) 0x79;
-			//	creativeContent.slotData = player.Inventory.GetSlots();
-			//	creativeContent.hotbarData = player.Inventory.GetHotbar();
-			//	player.SendPackage(creativeContent);
-			//}
-
-			player.Level.BroadcastMessage(string.Format("{0} changed to game mode {1}.", player.Username, gameMode), type: MessageType.Raw);
-		}
+		//	player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode)gameMode}.", type: MessageType.Raw);
+		//}
 
 
 		[Command(Command = "tp")]
@@ -328,7 +299,7 @@ namespace TestPlugin
 		}
 
 		[Command]
-		[Authorize(Users = "gurun")]
+		//[Authorize(Users = "gurun")]
 		public void Spawn(Player player, byte id)
 		{
 			Level level = player.Level;
@@ -364,12 +335,24 @@ namespace TestPlugin
 			{
 				case 0:
 					// Kit leather tier
+					inventory.Boots = new ItemLeatherBoots();
+					inventory.Leggings = new ItemLeatherLeggings();
+					inventory.Chest = new ItemLeatherChestplate();
+					inventory.Helmet = new ItemLeatherHelmet();
 					break;
 				case 1:
 					// Kit gold tier
+					inventory.Boots = new ItemGoldBoots();
+					inventory.Leggings = new ItemGoldLeggings();
+					inventory.Chest = new ItemGoldChestplate();
+					inventory.Helmet = new ItemGoldHelmet();
 					break;
 				case 2:
 					// Kit chain tier
+					inventory.Boots = new ItemChainmailBoots();
+					inventory.Leggings = new ItemChainmailLeggings();
+					inventory.Chest = new ItemChainmailChestplate();
+					inventory.Helmet = new ItemChainmailHelmet();
 					break;
 				case 3:
 					// Kit iron tier
@@ -393,6 +376,13 @@ namespace TestPlugin
 			byte c = 0;
 			//inventory.Slots[c++] = new ItemStack(command, 1); // Custom command block
 
+			//2016 - 02 - 26 02:59:08,740[6] INFO MiNET.Client.MiNetClient - Item Type = Item, Id = 358, Metadata = 0, Count = 1, 
+			// ExtraData = TAG_Compound("tag"): 1 entries {
+			//	TAG_String("map_uuid"): "-4294967268"
+			//}
+
+			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
+			//inventory.Slots[c++] = new ItemBlock(new WoodenPlanks(), 0) { Count = 64 };
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
@@ -407,12 +397,13 @@ namespace TestPlugin
 				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}
 			};
 
-			inventory.Slots[c++] = new ItemChest();
+			//inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
+			inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemWoodenPickaxe();
 			inventory.Slots[c++] = new ItemBread {Count = 5};
-			inventory.Slots[c++] = new ItemBlock(new Block(35), 0) {Count = 64};
-			inventory.Slots[c++] = new ItemBucket(8);
+			//inventory.Slots[c++] = new ItemBlock(new Block(35), 0) {Count = 64};
+			//inventory.Slots[c++] = new ItemBucket(8);
 
 			//inventory.Slots[c++] = ItemFactory.GetItem(39, 0) { Count = 1};
 			//inventory.Slots[c++] = ItemFactory.GetItem(40, 0), 4);
@@ -477,7 +468,7 @@ namespace TestPlugin
 			if (player.AllowFly)
 			{
 				player.SetAllowFly(false);
-				player.Level.BroadcastMessage($"Player {player.Username} disabld flying.", type: MessageType.Raw);
+				player.Level.BroadcastMessage($"Player {player.Username} disabled flying.", type: MessageType.Raw);
 			}
 			else
 			{

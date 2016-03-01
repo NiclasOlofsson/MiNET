@@ -19,7 +19,9 @@ namespace MiNET
 
 		public int NumberOfDeniedConnectionRequestsPerSecond = 0;
 		public long NumberOfAckSent { get; set; }
-		public long NumberOfPacketsOutPerSecond { get; set; }
+		public long NumberOfFails = 0;
+		public long NumberOfResends = 0;
+		public long NumberOfPacketsOutPerSecond = 0;
 		public long NumberOfPacketsInPerSecond { get; set; }
 		public long TotalPacketSizeOut { get; set; }
 		public long TotalPacketSizeIn { get; set; }
@@ -45,6 +47,20 @@ namespace MiNET
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
 					double kbitPerSecondOut = TotalPacketSizeOut*8/1000000D;
 					double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
+					Log.WarnFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) {1}/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+						NumberOfPacketsOutPerSecond,
+						NumberOfAckReceive,
+						NumberOfPacketsInPerSecond,
+						kbitPerSecondOut,
+						0 /*_level.LastTickProcessingTime*/,
+						NumberOfPlayers,
+						Latency,
+						kbitPerSecondIn, AvailableBytes / 1000,
+						threads,
+						portThreads,
+						NumberOfNakReceive,
+						NumberOfResends,
+						NumberOfFails);
 					if (Log.IsInfoEnabled)
 					{
 						Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
@@ -71,9 +87,11 @@ namespace MiNET
 					NumberOfAckSent = 0;
 					TotalPacketSizeOut = 0;
 					TotalPacketSizeIn = 0;
-					NumberOfPacketsOutPerSecond = 0;
+					Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0);
 					NumberOfPacketsInPerSecond = 0;
 					NumberOfDeniedConnectionRequestsPerSecond = 0;
+					Interlocked.Exchange(ref NumberOfFails, 0);
+					Interlocked.Exchange(ref NumberOfResends, 0);
 				}, null, 1000, 1000);
 			}
 		}

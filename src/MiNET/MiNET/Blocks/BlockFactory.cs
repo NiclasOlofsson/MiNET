@@ -90,6 +90,7 @@ namespace MiNET.Blocks
 			else if (blockId == 164) block = new DarkOakWoodStairs();
 			else if (blockId == 173) block = new CoalBlock();
 			else if (blockId == 198) block = new GrassPath();
+			else if (blockId == 199) block = new ItemFrame();
 			else
 			{
 //				Log.DebugFormat(@"

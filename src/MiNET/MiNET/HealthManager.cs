@@ -5,6 +5,7 @@ using log4net;
 using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -69,7 +70,10 @@ namespace MiNET
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
-			if (!Entity.Level.IsSurvival) return;
+			var player = Entity as Player;
+			if (player != null && player.GameMode != GameMode.Survival) return;
+
+			if (player != null && player.KnownPosition.DistanceTo(player.Level.SpawnPoint) < 10) return;
 
 			if (CooldownTick > 0) return;
 
@@ -79,7 +83,6 @@ namespace MiNET
 			Health -= damage*10;
 			if (Health < 0) Health = 0;
 
-			var player = Entity as Player;
 			if (player != null)
 			{
 				player.HungerManager.IncreaseExhaustion(0.3f);

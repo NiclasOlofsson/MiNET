@@ -25,17 +25,17 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			if (player.GameMode != GameMode.Creative)
-			{
-				Item itemStackInHand = player.Inventory.GetItemInHand();
-				itemStackInHand.Count--;
+			//if (player.GameMode != GameMode.Creative)
+			//{
+			//	Item itemStackInHand = player.Inventory.GetItemInHand();
+			//	itemStackInHand.Count--;
 
-				if (itemStackInHand.Count <= 0)
-				{
-					// set empty
-					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemAir();
-				}
-			}
+			//	if (itemStackInHand.Count <= 0)
+			//	{
+			//		// set empty
+			//		player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemAir();
+			//	}
+			//}
 
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;

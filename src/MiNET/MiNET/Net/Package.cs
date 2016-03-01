@@ -85,7 +85,7 @@ namespace MiNET.Net
 			}
 
 			var readBytes = _reader.ReadBytes(count);
-			if (readBytes.Length != count) throw new ArgumentOutOfRangeException();
+			if (readBytes.Length != count) throw new ArgumentOutOfRangeException($"Expected {count} bytes, only read {readBytes.Length}.");
 			return readBytes;
 		}
 
@@ -233,7 +233,7 @@ namespace MiNET.Net
 				{
 					Write(record.ClientUuid);
 					Write(record.EntityId);
-					Write(record.Username ?? record.NameTag);
+					Write(record.DisplayName ?? record.Username);
 					Write(record.Skin);
 				}
 			}
@@ -332,7 +332,7 @@ namespace MiNET.Net
 				var metadata = ReadByte();
 
 				Block block = BlockFactory.GetBlockById(id);
-				block.Metadata = metadata;
+				block.Metadata = (byte)(metadata & 0xf);
 				block.Coordinates = new BlockCoordinates(x, y, z);
 				blockRecords.Add(block);
 			}
@@ -891,6 +891,84 @@ namespace MiNET.Net
 			Write((byte) 1);
 		}
 
+		public MapInfo ReadMapInfo()
+		{
+			MapInfo map = new MapInfo();
+
+			map.MapId = ReadLong();
+			var readBytes = ReadBytes(3);
+			//Log.Warn($"{HexDump(readBytes)}");
+			map.UpdateType = ReadByte(); //
+			var bytes = ReadBytes(6);
+			//Log.Warn($"{HexDump(bytes)}");
+
+			map.Direction = ReadByte(); //
+			map.X = ReadByte(); //
+			map.Z = ReadByte(); //
+
+			if (map.UpdateType == 0x06)
+			{
+				// Full map
+				try
+				{
+					if(bytes[4] == 1)
+					{
+						map.Col = ReadInt();
+						map.Row = ReadInt(); //
+
+						map.XOffset = ReadInt(); //
+						map.ZOffset = ReadInt(); //
+
+						map.Data = ReadBytes(map.Col * map.Row * 4);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Errror while reading map data for map={map}", e);
+				}
+			}
+			else if (map.UpdateType == 0x04)
+			{
+				// Map update
+			}
+			else
+			{
+				Log.Warn($"Unknown map-type 0x{map.UpdateType:X2}");
+			}
+
+			return map;
+		}
+
+		public void Write(MapInfo map)
+		{
+			Write(map.MapId);
+			Write(new byte[3]);
+			Write(map.UpdateType);
+			Write(new byte[4]);
+			Write((byte)1);
+			Write((byte)0);
+			Write(map.Direction);
+			Write(map.X);
+			Write(map.Z);
+			if (map.UpdateType == 0x06)
+			{
+				// Full map
+				Write(map.Col);
+				Write(map.Row);
+				Write(map.XOffset);
+				Write(map.ZOffset);
+				Write(map.Data);
+			}
+			else if (map.UpdateType == 0x04)
+			{
+				// Map update
+			}
+			else
+			{
+				Log.Warn($"Tried to send unknown map-type 0x{map.UpdateType:X2}");
+			}
+		}
+
 		private bool _prependByte = false;
 
 		public bool CanRead()
@@ -901,7 +979,7 @@ namespace MiNET.Net
 		protected virtual void EncodePackage()
 		{
 			_buffer.Position = 0;
-			if (_prependByte) Write((byte)0x8e);
+			if (_prependByte) Write((byte) 0x8e);
 			Write(Id);
 		}
 
@@ -935,11 +1013,13 @@ namespace MiNET.Net
 		{
 			lock (_encodeSync)
 			{
-				//if (_isEncoded && !prependByte) return _encodedMessage;
-				_isEncoded = false;
+				if (_isEncoded && _prependByte == prependByte) return _encodedMessage;
 
+				_isEncoded = false;
 				_prependByte = prependByte;
+
 				EncodePackage();
+
 				_writer.Flush();
 				_buffer.Position = 0;
 				_encodedMessage = _buffer.ToArray();
@@ -1075,20 +1155,20 @@ namespace MiNET.Net
 			return item;
 		}
 
-		static Package()
-		{
-			for (int i = 0; i < 100; i++)
-			{
-				Pool.PutObject(Pool.GetObject());
-			}
-		}
+		//static Package()
+		//{
+		//	for (int i = 0; i < 100; i++)
+		//	{
+		//		Pool.PutObject(Pool.GetObject());
+		//	}
+		//}
 
 
 		//~Package()
 		//{
 		//	//if(IsPooled)
 		//	{
-		//		Log.Warn(string.Format("Unexpected dispose 0x{0:x2} IsPooled={1}, Refs={2}, Source={3}", Id, IsPooled, _referenceCounter, Source));
+		//		Log.Warn($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, Refs={_referenceCounter}");
 		//	}
 		//}
 
@@ -1100,6 +1180,7 @@ namespace MiNET.Net
 			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
 
 			Reset();
+
 			Pool.PutObject((T) this);
 		}
 	}

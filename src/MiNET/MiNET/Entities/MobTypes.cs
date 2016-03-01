@@ -1,6 +1,6 @@
-namespace TestPlugin.Pets
+﻿namespace MiNET.Entities
 {
-	internal enum PetTypes
+	public enum MobTypes
 	{
 		Chicken = 10,
 		Cow = 11,

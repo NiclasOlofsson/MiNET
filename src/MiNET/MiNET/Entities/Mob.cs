@@ -63,10 +63,52 @@ namespace MiNET.Entities
 		}
 	}
 
+	public class Chicken : Mob
+	{
+		public Chicken(Level level) : base(MobTypes.Chicken, level)
+		{
+			Width = Height = 0.3;
+			Height = 0.7;
+		}
+	}
+
+	public class Cow : Mob
+	{
+		public Cow(Level level) : base(MobTypes.Cow, level)
+		{
+			Width = 0.3;
+			Length = 0.9;
+			Height = 1.3; // baby = 0.65
+		}
+	}
+
+	public class Pig : Mob
+	{
+		public Pig(Level level) : base(MobTypes.Pig, level)
+		{
+			Width = 0.3;
+			Length = 0.9;
+			Height = 0.875; // baby = ?
+		}
+	}
+
+	public class Sheep : Mob
+	{
+		public Sheep(Level level) : base(MobTypes.Sheep, level)
+		{
+			Width = 0.625;
+			Length = 1.4375;
+			Height = 1.25; // baby = ?
+		}
+	}
+
 	public class Wolf : Mob
 	{
 		public Wolf(Level level) : base(MobTypes.Wolf, level)
 		{
+			Width = 0.3;
+			Length = 0.9;
+			Height = 0.85; // baby = 0.425
 		}
 	}
 

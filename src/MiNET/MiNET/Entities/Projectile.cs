@@ -226,20 +226,20 @@ namespace MiNET.Entities
 
 		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
 		{
-			var players = Level.GetSpawnedPlayers().OrderBy(player => position.DistanceTo(player.KnownPosition.ToVector3()));
 			Ray2 ray = new Ray2
 			{
 				x = position,
 				d = direction.Normalize()
 			};
 
+			var players = Level.GetSpawnedPlayers().OrderBy(player => position.DistanceTo(player.KnownPosition.ToVector3()));
 			foreach (var entity in players)
 			{
 				if (entity == Shooter) continue;
 
 				if (Intersect(entity.GetBoundingBox(), ray))
 				{
-					if (ray.tNear < direction.Distance) break;
+					if (ray.tNear > direction.Distance) break;
 
 					Vector3 p = ray.x + ray.tNear*ray.d;
 					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
@@ -255,7 +255,7 @@ namespace MiNET.Entities
 
 				if (Intersect(entity.GetBoundingBox(), ray))
 				{
-					if (ray.tNear < direction.Distance) break;
+					if (ray.tNear > direction.Distance) break;
 
 					Vector3 p = ray.x + ray.tNear*ray.d;
 					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);

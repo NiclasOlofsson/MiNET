@@ -24,13 +24,13 @@ namespace MiNET.Entities
 			if (Velocity.Distance > 0)
 			{
 				PlayerLocation oldPosition = (PlayerLocation) KnownPosition.Clone();
-				var onGroundBefore = IsOnGround(KnownPosition);
+				bool onGroundBefore = IsOnGround(KnownPosition);
 
 				KnownPosition.X += (float) Velocity.X;
 				KnownPosition.Y += (float) Velocity.Y;
 				KnownPosition.Z += (float) Velocity.Z;
 
-				var onGround = IsOnGround(KnownPosition);
+				bool onGround = IsOnGround(KnownPosition);
 				if (!onGroundBefore && onGround)
 				{
 					KnownPosition.Y = (float) Math.Floor(oldPosition.Y);
@@ -67,7 +67,7 @@ namespace MiNET.Entities
 	{
 		public Chicken(Level level) : base(MobTypes.Chicken, level)
 		{
-			Width = Height = 0.3;
+			Width = Height = 0.4;
 			Height = 0.7;
 		}
 	}
@@ -305,4 +305,14 @@ namespace MiNET.Entities
 			Height = 1.8;
 		}
 	}
+
+	public class Herobrine : Mob
+	{
+		public Herobrine(Level level) : base(666, level)
+		{
+			Width = Height = 0.6;
+			Height = 1.8;
+		}
+	}
+
 }

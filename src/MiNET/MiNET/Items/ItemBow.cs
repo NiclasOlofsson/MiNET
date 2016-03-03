@@ -35,9 +35,12 @@ namespace MiNET.Items
 			}
 
 			if (!haveArrows) return;
+			if (timeUsed < 6) return; // questionable, but we go with it for now.
 
 			float force = CalculateForce(timeUsed);
 			if (force < 0.1D) return;
+
+			Log.Warn($"Force {force}, time {timeUsed}");
 
 			Arrow arrow = new Arrow(player, world, !(force < 1.0));
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
@@ -48,15 +51,16 @@ namespace MiNET.Items
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = false;
 			arrow.DespawnOnImpact = true;
+			//arrow.BroadcastMovement = true;
+			//arrow.DespawnOnImpact = false;
 			arrow.SpawnEntity();
 		}
 
 		private float CalculateForce(long timeUsed)
 		{
-			long dt = timeUsed/50;
-			float force = dt/20.0F;
+			float force = timeUsed/20.0F;
 
-			force = (force*force + force*2.0F)/3.0F;
+			force = ((force*force) + (force*2.0F))/3.0F;
 			if (force < 0.1D)
 			{
 				return 0;

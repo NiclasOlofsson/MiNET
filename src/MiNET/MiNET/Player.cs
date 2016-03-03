@@ -383,16 +383,15 @@ namespace MiNET
 				case PlayerAction.StopBreak:
 					break;
 				case PlayerAction.ReleaseItem:
-					if (_itemUseTimer == null) return;
+					if (_itemUseTimer <= 0) return;
 
 					Item itemInHand = Inventory.GetItemInHand();
 
 					if (itemInHand == null) return; // Cheat(?)
 
-					_itemUseTimer.Stop();
-					itemInHand.Release(Level, this, new BlockCoordinates(message.x, message.y, message.z), _itemUseTimer.ElapsedMilliseconds);
+					itemInHand.Release(Level, this, new BlockCoordinates(message.x, message.y, message.z), Level.TickTime - _itemUseTimer);
 
-					_itemUseTimer = null;
+					_itemUseTimer = 0;
 
 					break;
 				case PlayerAction.StopSleeping:
@@ -1576,10 +1575,11 @@ namespace MiNET
 		{
 			Entity target = Level.GetEntity(message.targetEntityId);
 
-			//Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-			//Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
+			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
+			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
 
 			if (target == null) return;
+			if (message.actionId != 2) return;
 
 			Player player = target as Player;
 			if (player != null)
@@ -1750,7 +1750,7 @@ namespace MiNET
 			}
 		}
 
-		private Stopwatch _itemUseTimer;
+		private long _itemUseTimer;
 
 		protected virtual void HandleUseItem(McpeUseItem message)
 		{
@@ -1791,8 +1791,7 @@ namespace MiNET
 			{
 				// Snowballs and shit
 
-				_itemUseTimer = new Stopwatch();
-				_itemUseTimer.Start();
+				_itemUseTimer = Level.TickTime;
 
 				itemInHand.UseItem(Level, this, message.blockcoordinates);
 

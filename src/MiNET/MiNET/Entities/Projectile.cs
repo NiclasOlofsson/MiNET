@@ -77,9 +77,9 @@ namespace MiNET.Entities
 						addEntity.yaw = KnownPosition.Yaw;
 						addEntity.pitch = KnownPosition.Pitch;
 						addEntity.metadata = GetMetadata();
-						addEntity.speedX = (float)Velocity.X;
-						addEntity.speedY = (float)Velocity.Y;
-						addEntity.speedZ = (float)Velocity.Z;
+						addEntity.speedX = (float) Velocity.X;
+						addEntity.speedY = (float) Velocity.Y;
+						addEntity.speedZ = (float) Velocity.Z;
 
 						Level.RelayBroadcast(Shooter, addEntity);
 
@@ -120,6 +120,11 @@ namespace MiNET.Entities
 		{
 			var metadata = base.GetMetadata();
 
+			if (IsCritical)
+			{
+				metadata[16] = new MetadataByte(1);
+			}
+
 			if (Shooter != null)
 			{
 				metadata[17] = new MetadataLong(Shooter.EntityId);
@@ -154,6 +159,11 @@ namespace MiNET.Entities
 				if (IsCritical)
 				{
 					damage += Level.Random.Next(damage/2 + 2);
+
+					McpeAnimate animate = McpeAnimate.CreateObject();
+					animate.entityId = entityCollided.EntityId;
+					animate.actionId = 4;
+					Level.RelayBroadcast(animate);
 				}
 
 				Player player = entityCollided as Player;
@@ -164,37 +174,31 @@ namespace MiNET.Entities
 				}
 
 				entityCollided.HealthManager.TakeHit(this, damage, DamageCause.Projectile);
+				entityCollided.HealthManager.LastDamageSource = Shooter;
 				collided = true;
 			}
 			else
 			{
-				//collided = CheckBlockCollide(KnownPosition);
-				if (!collided)
+				var velocity2 = Velocity;
+				velocity2 *= (1.0d - Drag);
+				velocity2 -= new Vector3(0, Gravity, 0);
+				double distance = velocity2.Distance;
+				velocity2 = velocity2.Normalize()/2;
+
+				for (int i = 0; i < Math.Ceiling(distance)*2; i++)
 				{
-					var velocity2 = Velocity;
-					velocity2 *= (1.0d - Drag);
-					velocity2 -= new Vector3(0, Gravity, 0);
-					double distance = velocity2.Distance;
-					velocity2 = velocity2.Normalize()/2;
+					PlayerLocation nextPos = (PlayerLocation) KnownPosition.Clone();
+					nextPos.X += (float) velocity2.X*i;
+					nextPos.Y += (float) velocity2.Y*i;
+					nextPos.Z += (float) velocity2.Z*i;
 
-					for (int i = 0; i < Math.Ceiling(distance)*2; i++)
+					BlockCoordinates coord = new BlockCoordinates(nextPos);
+					Block block = Level.GetBlock(coord);
+					collided = block.Id != 0 && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+					if (collided)
 					{
-						PlayerLocation nextPos = (PlayerLocation) KnownPosition.Clone();
-						nextPos.X += (float) velocity2.X*i;
-						nextPos.Y += (float) velocity2.Y*i;
-						nextPos.Z += (float) velocity2.Z*i;
-
-						BlockCoordinates coord = new BlockCoordinates(nextPos);
-						Block block = Level.GetBlock(coord);
-						collided = block.Id != 0 && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
-						if (collided)
-						{
-							//var substBlock = new Block(57) {Coordinates = block.Coordinates};
-							//Level.SetBlock(substBlock);
-							//KnownPosition = nextPos;
-							SetIntersectLocation(block.GetBoundingBox(), KnownPosition);
-							break;
-						}
+						SetIntersectLocation(block.GetBoundingBox(), KnownPosition);
+						break;
 					}
 				}
 			}
@@ -211,10 +215,6 @@ namespace MiNET.Entities
 
 				Velocity *= (1.0 - Drag);
 				Velocity -= new Vector3(0, Gravity, 0);
-
-				//var k = Math.Sqrt((Velocity.X*Velocity.X) + (Velocity.Z*Velocity.Z));
-				//KnownPosition.Yaw =  (float) Vector3.RadiansToDegrees(Math.Atan2(Velocity.X, Velocity.Z));
-				//KnownPosition.Pitch = (float) Vector3.RadiansToDegrees(Math.Atan2(Velocity.Y, k));
 
 				KnownPosition.Yaw = (float) Velocity.GetYaw();
 				KnownPosition.Pitch = (float) Velocity.GetPitch();

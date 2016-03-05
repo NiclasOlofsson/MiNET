@@ -67,7 +67,7 @@ namespace MiNET.Entities
 	{
 		public Chicken(Level level) : base(MobTypes.Chicken, level)
 		{
-			Width = Height = 0.4;
+			Width = Length = 0.4;
 			Height = 0.7;
 		}
 	}
@@ -76,7 +76,7 @@ namespace MiNET.Entities
 	{
 		public Cow(Level level) : base(MobTypes.Cow, level)
 		{
-			Width = Height = 0.9;
+			Width = Length = 0.9;
 			Height = 1.4;
 		}
 	}
@@ -85,7 +85,7 @@ namespace MiNET.Entities
 	{
 		public Pig(Level level) : base(MobTypes.Pig, level)
 		{
-			Width = Height = 0.9;
+			Width = Length = 0.9;
 			Height = 0.9;
 		}
 	}
@@ -94,7 +94,7 @@ namespace MiNET.Entities
 	{
 		public Sheep(Level level) : base(MobTypes.Sheep, level)
 		{
-			Width = Height = 0.9;
+			Width = Length = 0.9;
 			Height = 1.3;
 		}
 	}
@@ -103,7 +103,7 @@ namespace MiNET.Entities
 	{
 		public Wolf(Level level) : base(MobTypes.Wolf, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 0.8;
 		}
 	}
@@ -112,7 +112,7 @@ namespace MiNET.Entities
 	{
 		public Villager(Level level) : base(MobTypes.Villager, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
@@ -121,7 +121,7 @@ namespace MiNET.Entities
 	{
 		public MushroomCow(Level level) : base(MobTypes.MushroomCow, level)
 		{
-			Width = Height = 0.9;
+			Width = Length = 0.9;
 			Height = 1.4;
 		}
 	}
@@ -130,7 +130,7 @@ namespace MiNET.Entities
 	{
 		public Squid(Level level) : base(MobTypes.Squid, level)
 		{
-			Width = Height = 0.95;
+			Width = Length = 0.95;
 			Height = 0.95;
 		}
 	}
@@ -139,7 +139,7 @@ namespace MiNET.Entities
 	{
 		public Rabbit(Level level) : base(MobTypes.Rabbit, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 0.7;
 		}
 	}
@@ -148,7 +148,7 @@ namespace MiNET.Entities
 	{
 		public Bat(Level level) : base(MobTypes.Bat, level)
 		{
-			Width = Height = 0.5;
+			Width = Length = 0.5;
 			Height = 0.9;
 		}
 	}
@@ -157,7 +157,7 @@ namespace MiNET.Entities
 	{
 		public IronGolem(Level level) : base(MobTypes.IronGolem, level)
 		{
-			Width = Height = 1.4;
+			Width = Length = 1.4;
 			Height = 2.9;
 		}
 	}
@@ -166,7 +166,7 @@ namespace MiNET.Entities
 	{
 		public Snowman(Level level) : base(MobTypes.Snowman, level)
 		{
-			Width = Height = 0.7;
+			Width = Length = 0.7;
 			Height = 1.9;
 		}
 	}
@@ -175,7 +175,7 @@ namespace MiNET.Entities
 	{
 		public Ocelot(Level level) : base(MobTypes.Ocelot, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 0.8;
 		}
 	}
@@ -184,7 +184,7 @@ namespace MiNET.Entities
 	{
 		public Zombie(Level level) : base(MobTypes.Zombie, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
@@ -193,7 +193,7 @@ namespace MiNET.Entities
 	{
 		public Creeper(Level level) : base(MobTypes.Creeper, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
@@ -202,7 +202,7 @@ namespace MiNET.Entities
 	{
 		public Skeleton(Level level) : base(MobTypes.Skeleton, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.95;
 		}
 	}
@@ -211,7 +211,7 @@ namespace MiNET.Entities
 	{
 		public Spider(Level level) : base(MobTypes.Spider, level)
 		{
-			Width = Height = 1.4;
+			Width = Length = 1.4;
 			Height = 0.9;
 		}
 	}
@@ -220,17 +220,36 @@ namespace MiNET.Entities
 	{
 		public ZombiePigman(Level level) : base(MobTypes.ZombiePigman, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
 
 	public class Slime : Mob
 	{
-		public Slime(Level level) : base(MobTypes.Slime, level)
+		private int _size = 1;
+
+		public int Size
 		{
-			Width = Height = 0.51000005;
-			Height = 0.51000005;
+			get { return _size; }
+			set
+			{
+				_size = value;
+				Width = Height = Length = _size*0.51000005;
+			}
+		}
+
+		public Slime(Level level, int size = 1) : base(MobTypes.Slime, level)
+		{
+			Size = size;
+		}
+
+		public override MetadataDictionary GetMetadata()
+		{
+			var metadata = base.GetMetadata();
+			metadata[16] = new MetadataByte((byte) Size);
+
+			return metadata;
 		}
 	}
 
@@ -238,7 +257,7 @@ namespace MiNET.Entities
 	{
 		public Enderman(Level level) : base(MobTypes.Enderman, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 2.9;
 		}
 	}
@@ -247,7 +266,7 @@ namespace MiNET.Entities
 	{
 		public Silverfish(Level level) : base(MobTypes.Silverfish, level)
 		{
-			Width = Height = 0.4;
+			Width = Length = 0.4;
 			Height = 0.3;
 		}
 	}
@@ -256,7 +275,7 @@ namespace MiNET.Entities
 	{
 		public CaveSpider(Level level) : base(MobTypes.CaveSpider, level)
 		{
-			Width = Height = 0.7;
+			Width = Length = 0.7;
 			Height = 0.5;
 		}
 	}
@@ -265,7 +284,7 @@ namespace MiNET.Entities
 	{
 		public Ghast(Level level) : base(MobTypes.Ghast, level)
 		{
-			Width = Height = 4.0;
+			Width = Length = 4.0;
 			Height = 4.0;
 		}
 	}
@@ -274,7 +293,7 @@ namespace MiNET.Entities
 	{
 		public MagmaCube(Level level) : base(MobTypes.MagmaCube, level)
 		{
-			Width = Height = 0.51000005;
+			Width = Length = 0.51000005;
 			Height = 0.51000005;
 		}
 	}
@@ -283,7 +302,7 @@ namespace MiNET.Entities
 	{
 		public Blaze(Level level) : base(MobTypes.Blaze, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
@@ -292,7 +311,7 @@ namespace MiNET.Entities
 	{
 		public ZombieVillager(Level level) : base(MobTypes.ZombieVillager, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
@@ -301,7 +320,7 @@ namespace MiNET.Entities
 	{
 		public Witch(Level level) : base(MobTypes.Witch, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
@@ -310,9 +329,8 @@ namespace MiNET.Entities
 	{
 		public Herobrine(Level level) : base(666, level)
 		{
-			Width = Height = 0.6;
+			Width = Length = 0.6;
 			Height = 1.8;
 		}
 	}
-
 }

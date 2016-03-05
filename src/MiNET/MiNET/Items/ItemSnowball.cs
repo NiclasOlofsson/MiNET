@@ -27,7 +27,7 @@ namespace MiNET.Items
 
 			float force = 1.5f;
 
-			Snowball snowBall = new Snowball(null, world);
+			Snowball snowBall = new Snowball(player, world);
 			snowBall.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			snowBall.KnownPosition.Y += 1.62f;
 			snowBall.Velocity = snowBall.KnownPosition.GetDirection()*(force);

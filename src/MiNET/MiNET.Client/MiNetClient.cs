@@ -64,9 +64,9 @@ namespace MiNET.Client
 		{
 			Console.WriteLine("Starting client...");
 
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.9"), 19132), "TheGrey");
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
 			client.StartClient();
@@ -612,6 +612,21 @@ namespace MiNET.Client
 				McpeClientboundMapItemData packet = (McpeClientboundMapItemData) message;
 			}
 
+			else if (typeof(McpeHurtArmor) == message.GetType())
+			{
+				OnMcpeHurtArmor((McpeHurtArmor)message);
+			}
+
+			else if (typeof(McpeAnimate) == message.GetType())
+			{
+				OnMcpeAnimate((McpeAnimate)message);
+			}
+
+			else if (typeof(McpeInteract) == message.GetType())
+			{
+				OnMcpeInteract((McpeInteract)message);
+			}
+
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
@@ -621,8 +636,23 @@ namespace MiNET.Client
 
 			else
 			{
-				//Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}");
+				Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}");
 			}
+		}
+
+		private void OnMcpeInteract(McpeInteract message)
+		{
+			Log.Debug($"Interact: EID={message.targetEntityId}, Action ID={message.actionId}");
+		}
+
+		private void OnMcpeAnimate(McpeAnimate message)
+		{
+			Log.Debug($"Animate: EID={message.entityId}, Action ID={message.actionId}");
+		}
+
+		private void OnMcpeHurtArmor(McpeHurtArmor message)
+		{
+			Log.Debug($"Hurt Armor: Health={message.health}");
 		}
 
 		private void OnMcpePlayerStatus(McpePlayerStatus message)

@@ -137,7 +137,7 @@ namespace MiNET
 				_ticker = 0;
 			}
 
-			DisplayDebugPopup();
+			//DisplayDebugPopup();
 		}
 
 		public void DisplayDebugPopup()

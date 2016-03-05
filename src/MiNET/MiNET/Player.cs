@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
+using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
@@ -64,6 +65,9 @@ namespace MiNET
 		public ConcurrentDictionary<EffectType, Effect> Effects { get; set; } = new ConcurrentDictionary<EffectType, Effect>();
 
 		public HungerManager HungerManager { get; set; }
+
+		public bool IsOnGround { get; set; }
+		public bool IsFalling { get; set; }
 
 		public long Rtt { get; set; } = 300;
 		public long RttVar { get; set; }
@@ -272,7 +276,8 @@ namespace MiNET
 		private object _mapInfoSync = new object();
 
 		private Timer _mapSender;
-		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>(); 
+		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>();
+
 		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 			lock (_mapInfoSync)
@@ -326,8 +331,8 @@ namespace MiNET
 		{
 			Log.Info($"Requested chunk radius of: {message.chunkRadius}");
 
-			//ChunkRadius = message.chunkRadius;
-			ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, 11));
+			ChunkRadius = message.chunkRadius;
+			//ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, 11));
 
 			SendChunkRadiusUpdate();
 
@@ -1124,98 +1129,74 @@ namespace MiNET
 				_lastOrderingIndex = message.OrderingIndex;
 			}
 
+			if (!AcceptPlayerMove(message)) return;
 
 			// Hunger management
-			Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-			double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-			HungerManager.Move(distanceTo);
+			HungerManager.Move(new Vector3(KnownPosition.X, 0, KnownPosition.Z).DistanceTo(new Vector3(message.x, 0, message.z)));
 
-			if (!AcceptPlayerMove(message)) return;
+			Vector3 origin = KnownPosition.ToVector3();
+			double distanceTo = origin.DistanceTo(new Vector3(message.x, message.y, message.z));
+			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			KnownPosition = new PlayerLocation
 			{
 				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
 			};
 
+			if (Math.Abs(distanceTo) > 0.001)
+			{
+				IsOnGround = CheckOnGround();
+			}
+
+			IsFalling = verticalMove < 0 && !IsOnGround;
+
 			LastUpdatedTime = DateTime.UtcNow;
+
+			//AddPopup(new Popup
+			//{
+			//	MessageType = MessageType.Tip,
+			//	Message = $"IsFalling={IsFalling}, IsOnGround={IsOnGround}",
+			//	Duration = 1
+			//});
 
 			ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
 		}
 
-		private int _isKnownCheater = 0;
-		private int _cheatLimit = 5;
-
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message)
 		{
-			if (GameMode != GameMode.Creative && _isKnownCheater <= _cheatLimit)
+			return true;
+		}
+
+		private static readonly int[] Layers = {-1, 0};
+		private static readonly int[] Arounds = {0, 1, -1};
+
+		public bool CheckOnGround()
+		{
+			if (Level == null)
+				return true;
+
+			BlockCoordinates pos = (BlockCoordinates) KnownPosition;
+
+			foreach (int layer in Layers)
 			{
-				long td = DateTime.UtcNow.Ticks - LastUpdatedTime.Ticks;
-				if (GameMode == GameMode.Survival && HealthManager.CooldownTick == 0 && td > 49*TimeSpan.TicksPerMillisecond && td < 500*TimeSpan.TicksPerMillisecond && Level.SpawnPoint.DistanceTo(KnownPosition) > 2.0)
+				foreach (int x in Arounds)
 				{
-					double horizSpeed;
+					foreach (int z in Arounds)
 					{
-						// Speed in the xz plane
-
-						Vector3 origin = new Vector3(KnownPosition.X, 0, KnownPosition.Z);
-						double distanceTo = origin.DistanceTo(new Vector3(message.x, 0, message.z));
-						horizSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-						//if (horizSpeed > 11.0d)
-						//{
-						//	_isKnownCheater = true;
-						//	Level.BroadcastMessage(string.Format("{0} is spead cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), horizSpeed), type: MessageType.Raw);
-						//	AddPopup(new Popup
-						//	{
-						//		MessageType = MessageType.Tip,
-						//		Message = string.Format("{0} sprinting {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), horizSpeed),
-						//		Duration = 1
-						//	});
-
-						//	LastUpdatedTime = DateTime.UtcNow;
-						//	//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-						//	//SendMovePlayer();
-						//	return;
-						//}
-					}
-
-					double verticalSpeed;
-					{
-						// Speed in 3d
-						double speedLimit = (message.y - 1.62) - KnownPosition.Y < 0 ? -70d : 12d; //6d;
-						double distanceTo = (message.y - 1.62) - KnownPosition.Y;
-						verticalSpeed = distanceTo/td*TimeSpan.TicksPerSecond;
-						if (!(horizSpeed > 0) && Math.Abs(verticalSpeed) > Math.Abs(speedLimit))
+						var offset = new BlockCoordinates(x, layer, z);
+						Block block = Level.GetBlock(pos + offset);
+						if (block.IsSolid)
 						{
-							if (_isKnownCheater == _cheatLimit)
-							{
-								Level.BroadcastMessage(string.Format("{0} is detected as flying {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed), type: MessageType.Raw);
-								Log.WarnFormat("{0} is fly cheating {3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int) ((double) td/TimeSpan.TicksPerMillisecond), verticalSpeed);
-							}
-							//AddPopup(new Popup
-							//{
-							//	MessageType = MessageType.Tip,
-							//	Message = string.Format("{3:##.##}m/s {1:##.##}m {2}ms", Username, distanceTo, (int)((double)td / TimeSpan.TicksPerMillisecond), verticalSpeed),
-							//	Duration = 1
-							//});
-
-							LastUpdatedTime = DateTime.UtcNow;
-							//HealthManager.TakeHit(this, 1, DamageCause.Suicide);
-							//SendMovePlayer();
-							_isKnownCheater++;
-							return false;
+							//Level.SetBlock(new GoldBlock() {Coordinates = block.Coordinates});
+							return true;
 						}
 					}
-
-					//AddPopup(new Popup
-					//{
-					//	MessageType = MessageType.Tip,
-					//	Message = string.Format("Horiz: {0:##.##}m/s Vert: {1:##.##}m/s", horizSpeed, verticalSpeed),
-					//	Duration = 1
-					//});
 				}
 			}
 
-			return true;
+			return false;
 		}
+
 
 		protected virtual void HandleRemoveBlock(McpeRemoveBlock message)
 		{
@@ -1395,50 +1376,8 @@ namespace MiNET
 
 		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
 		{
-			lock (Inventory)
-			{
-				Log.Info($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+				Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 
-				for (int i = 0; i < message.input.Count; i++)
-				{
-					Item itemStack = message.input[i];
-					if (itemStack != null)
-					{
-						if (!VerifyItemStack(itemStack))
-						{
-							Log.Error($"Kicked {Username} for craft hacking.");
-							Disconnect("Error #324. Please report this error.");
-						}
-
-						if (itemStack.Id == 0) continue;
-						Log.Info($"Player {Username} craft input item ID: {itemStack.Id}, Meta: {itemStack.Metadata} Count: {itemStack.Count}");
-						Inventory.RemoveItems(itemStack.Id, itemStack.Count);
-					}
-				}
-
-				//for (int i = 0; i < message.result.Count; i++)
-				//{
-				//	MetadataSlot slot = (MetadataSlot) message.result[i];
-				//	if (slot != null)
-				//	{
-				//		var itemStack = slot.Value;
-				//		if (!VerifyItemStack(itemStack))
-				//		{
-				//			return;
-				//		}
-
-				//		if (!VerifyCraftingItemStack(this, itemStack))
-				//		{
-				//			return;
-				//		}
-
-				//		Log.Info($"Player {Username} craft output Item ID: {itemStack.Id} with count item count: {itemStack.Count}");
-				//		Inventory.SetFirstEmptySlot(itemStack.Id, itemStack.Count, itemStack.Metadata, false, false);
-				//	}
-				//}
-
-				//SendPlayerInventory();
-			}
 		}
 
 		/// <summary>
@@ -1463,12 +1402,8 @@ namespace MiNET
 					}
 				}
 
-				Log.Info($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
-
-				// on all set container content, check if we have active inventory
-				// and update that inventory.
-				// Inventory manager makes sure other players with the same inventory open will 
-				// also get the update.
+				if (Log.IsDebugEnabled)
+					Log.Debug($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} and item: {itemStack}");
 
 				if (_openInventory != null)
 				{
@@ -1491,8 +1426,7 @@ namespace MiNET
 				switch (message.windowId)
 				{
 					case 0:
-						var current = Inventory.Slots[message.slot];
-						if(current.Id != itemStack.Id) Inventory.Slots[message.slot] = itemStack;
+						Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x79:
 						Inventory.Slots[message.slot] = itemStack;
@@ -1585,6 +1519,16 @@ namespace MiNET
 			if (player != null)
 			{
 				int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
+				if (IsFalling)
+				{
+					damage += Level.Random.Next(damage / 2 + 2);
+
+					McpeAnimate animate = McpeAnimate.CreateObject();
+					animate.entityId = target.EntityId;
+					animate.actionId = 4;
+					Level.RelayBroadcast(animate);
+				}
+
 				Effect effect;
 				if (Effects.TryGetValue(EffectType.Weakness, out effect))
 				{

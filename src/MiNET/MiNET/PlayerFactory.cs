@@ -4,9 +4,9 @@ namespace MiNET
 {
 	public class PlayerFactory
 	{
-		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint, int mtuSize)
+		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint)
 		{
-			return new Player(server, endPoint, mtuSize);
+			return new Player(server, endPoint);
 		}
 	}
 }

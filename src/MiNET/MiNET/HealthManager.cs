@@ -73,7 +73,6 @@ namespace MiNET
 			var player = Entity as Player;
 			if (player != null && player.GameMode != GameMode.Survival) return;
 
-			if (player != null && player.KnownPosition.DistanceTo(player.Level.SpawnPoint) < 10) return;
 
 			if (CooldownTick > 0) return;
 
@@ -164,14 +163,6 @@ namespace MiNET
 			var player = Entity as Player;
 			if (player != null)
 			{
-				// HACK
-				if (LastDamageCause == DamageCause.EntityAttack)
-				{
-					Player source = LastDamageSource as Player;
-					if (source != null) source.Kills++;
-					player.Deaths++;
-				}
-
 				player.DropInventory();
 				player.SendUpdateAttributes();
 				player.BroadcastEntityEvent();

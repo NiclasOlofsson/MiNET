@@ -261,7 +261,7 @@ namespace MiNET.Net
 					records = new PlayerAddRecords();
 					for (int i = 0; i < count; i++)
 					{
-						var player = new Player(null, null, 0);
+						var player = new Player(null, null);
 						try
 						{
 							player.ClientUuid = ReadUUID();
@@ -280,7 +280,7 @@ namespace MiNET.Net
 					records = new PlayerRemoveRecords();
 					for (int i = 0; i < count; i++)
 					{
-						var player = new Player(null, null, 0);
+						var player = new Player(null, null);
 						player.ClientUuid = ReadUUID();
 						records.Add(player);
 					}

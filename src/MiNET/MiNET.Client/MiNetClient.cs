@@ -122,7 +122,7 @@ namespace MiNET.Client
 				////WARNING: We need to catch errors here to remove the code above.
 				////
 
-				Session = new PlayerNetworkSession(null, _clientEndpoint);
+				Session = new PlayerNetworkSession(null, _clientEndpoint, 1300);
 
 				UdpClient.BeginReceive(ReceiveCallback, UdpClient);
 				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;

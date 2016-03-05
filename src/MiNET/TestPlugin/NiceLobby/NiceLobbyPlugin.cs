@@ -5,7 +5,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -32,32 +31,35 @@ namespace TestPlugin.NiceLobby
 		private static readonly ILog Log = LogManager.GetLogger(typeof (NiceLobbyPlugin));
 
 		[UsedImplicitly] private Timer _popupTimer;
-		[UsedImplicitly] private Timer _gameTimer;
-		[UsedImplicitly] private Timer _scoreboardTimer;
 		[UsedImplicitly] private Timer _tickTimer;
 
 		private long _tick = 0;
 
 		protected override void OnEnable()
 		{
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
-			//_gameTimer = new Timer(StartNewRoundCallback, null, 15000, 60000 * 3);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			//foreach (var level in Context.LevelManager.Levels)
-			//{
-			//	level.BlockBreak += LevelOnBlockBreak;
-			//	level.BlockPlace += LevelOnBlockPlace;
-			//}
+			foreach (var level in Context.LevelManager.Levels)
+			{
+				level.BlockBreak += LevelOnBlockBreak;
+				level.BlockPlace += LevelOnBlockPlace;
+			}
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
 		{
-			e.Cancel = e.Player.GameMode != GameMode.Creative;
+			if(e.Block.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 15)
+			{
+				e.Cancel = e.Player.GameMode != GameMode.Creative;
+			}
 		}
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			e.Cancel = e.Player.GameMode != GameMode.Creative;
+			if (e.ExistingBlock.Coordinates.DistanceTo((BlockCoordinates)e.Player.SpawnPosition) < 15)
+			{
+				e.Cancel = e.Player.GameMode != GameMode.Creative;
+			}
 		}
 
 		private double m = 0.1d;
@@ -293,63 +295,6 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-		private void StartNewRoundCallback(object state)
-		{
-			if (_scoreboardTimer == null)
-			{
-				_scoreboardTimer = new Timer(ScoreboardCallback, null, 5000, 80000);
-
-				Context.LevelManager.Levels[0].BroadcastMessage(
-					"§6§l»§r§7 --------------------------- §6§l«\n"
-					+ "§e GAME STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
-			}
-			else
-			{
-				var players = Context.LevelManager.Levels[0].GetSpawnedPlayers();
-				if (players.Length <= 1) return;
-
-				var winner = players.OrderByDescending(CalculatedKdRatio).FirstOrDefault();
-
-				if (winner != null)
-				{
-					Context.LevelManager.Levels[0].BroadcastMessage(
-						"§6§l»§r§7 --------------------------- §6§l«\n"
-						+ "§e Winner!!\n"
-						+ "§e       " + winner.Username + "\n", type: McpeText.TypeRaw);
-				}
-				foreach (var player in players)
-				{
-					player.Kills = 0;
-					player.Deaths = 0;
-				}
-
-				Context.LevelManager.Levels[0].BroadcastMessage(
-					"§e NEW ROUND STARTED\n"
-					+ "§6§l»§r§7 --------------------------- §6§l«", type: McpeText.TypeRaw);
-			}
-		}
-
-		private static double CalculatedKdRatio(Player player)
-		{
-			return player.Deaths == 0 ? player.Kills : player.Kills/((double) player.Deaths);
-		}
-
-		private void ScoreboardCallback(object state)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			var players = Context.LevelManager.Levels[0].GetSpawnedPlayers();
-			if (players.Length <= 1) return;
-
-			foreach (var player in players.OrderByDescending(CalculatedKdRatio).Take(5))
-			{
-				sb.AppendFormat("K/D: {3:0.00} K: {1:00} D: {2:00} {0}\n", player.Username, player.Kills, player.Deaths, CalculatedKdRatio(player));
-			}
-			sb.Append("§6§l»§r§7 --------------------------- §6§l«\n");
-			Context.LevelManager.Levels[0].BroadcastMessage(sb.ToString(), type: McpeText.TypeRaw);
-		}
-
 		[Command]
 		public void Fuck(Player player)
 		{
@@ -470,19 +415,11 @@ namespace TestPlugin.NiceLobby
 			Level level = player.Level;
 			if (hide)
 			{
-				foreach (var pair in level.Players)
-				{
-					Player targetPlayer = pair.Value;
-
-					level.SendRemoveForPlayer(targetPlayer, player);
-				}
+				player.DespawnFromPlayers(level.GetSpawnedPlayers());
 			}
 			else
 			{
-				foreach (var targetPlayer in level.GetSpawnedPlayers())
-				{
-					level.SendAddForPlayer(targetPlayer, player);
-				}
+				player.SpawnToPlayers(level.GetSpawnedPlayers());
 			}
 		}
 
@@ -501,7 +438,7 @@ namespace TestPlugin.NiceLobby
 			byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "IMG_0220.png"));
 			//byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "Char8.png"));
 
-			PlayerMob fake = new PlayerMob("§6§lSurvival Games" + name + "§r\n§9       ", player.Level)
+			PlayerMob fake = new PlayerMob("§6§lBot: " + name + "", player.Level)
 			{
 				Skin = new Skin {Slim = false, Texture = bytes},
 				KnownPosition = player.KnownPosition,
@@ -602,7 +539,7 @@ namespace TestPlugin.NiceLobby
 
 
 		[Command]
-		public void Video(Player player, int numberOfFrames, bool color)
+		public void VideoX(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
 			{
@@ -674,7 +611,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
-		public void Video2(Player player, int numberOfFrames, bool color)
+		public void Video2X(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
 			{
@@ -682,8 +619,8 @@ namespace TestPlugin.NiceLobby
 				{
 					Dictionary<Tuple<int, int>, List<MapEntity>> entities = new Dictionary<Tuple<int, int>, List<MapEntity>>();
 
-					int width = 1;
-					int height = 1;
+					int width = 3;
+					int height = 2;
 					int frameCount = numberOfFrames;
 					//int frameOffset = 0;
 					int frameOffset = 120;

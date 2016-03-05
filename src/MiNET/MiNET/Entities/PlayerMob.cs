@@ -59,7 +59,7 @@ namespace MiNET.Entities
 		public override void SpawnToPlayers(Player[] players)
 		{
 			{
-				Player fake = new Player(null, null, 0)
+				Player fake = new Player(null, null)
 				{
 					ClientUuid = Uuid,
 					EntityId = EntityId,
@@ -105,7 +105,7 @@ namespace MiNET.Entities
 			}
 
 			{
-				Player fake = new Player(null, null, 0)
+				Player fake = new Player(null, null)
 				{
 					ClientUuid = Uuid,
 					EntityId = EntityId,
@@ -125,7 +125,7 @@ namespace MiNET.Entities
 		public override void DespawnFromPlayers(Player[] players)
 		{
 			{
-				Player fake = new Player(null, null, 0)
+				Player fake = new Player(null, null)
 				{
 					ClientUuid = Uuid,
 					EntityId = EntityId,

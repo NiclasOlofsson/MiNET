@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using log4net;
 using log4net.Config;
 using Topshelf;
@@ -44,6 +45,7 @@ namespace MiNET.Service
 		/// <param name="args">The arguments.</param>
 		private static void Main(string[] args)
 		{
+			//Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
 			if (IsRunningOnMono())
 			{
 				var service = new MiNetService();

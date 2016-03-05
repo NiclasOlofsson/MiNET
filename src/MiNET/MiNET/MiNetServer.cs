@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -539,7 +540,7 @@ namespace MiNET
 					_playerSessions.TryRemove(senderEndpoint, out session);
 				}
 
-				session = new PlayerNetworkSession(null, senderEndpoint)
+				session = new PlayerNetworkSession(null, senderEndpoint, incoming.mtuSize)
 				{
 					State = ConnectionState.Connecting,
 					LastUpdatedTime = DateTime.UtcNow,
@@ -549,7 +550,7 @@ namespace MiNET
 				_playerSessions.TryAdd(senderEndpoint, session);
 			}
 
-			Player player = PlayerFactory.CreatePlayer(this, senderEndpoint, incoming.mtuSize);
+			Player player = PlayerFactory.CreatePlayer(this, senderEndpoint);
 			player.ClientGuid = incoming.clientGuid;
 			player.NetworkSession = session;
 			session.Player = player;
@@ -1143,14 +1144,14 @@ namespace MiNET
 			}
 		}
 
-		public void SendPackage(Player player, Package message, int mtuSize, Reliability reliability = Reliability.Reliable)
+		public void SendPackage(Player player, Package message, Reliability reliability = Reliability.Reliable)
 		{
 			if (message == null) return;
 
 			PlayerNetworkSession session;
 			if (_playerSessions.TryGetValue(player.EndPoint, out session))
 			{
-				foreach (var datagram in Datagram.CreateDatagrams(message, mtuSize, session))
+				foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 				{
 					SendDatagram(session, datagram);
 				}

@@ -17,6 +17,7 @@ namespace MiNET
 
 		public DateTime CreateTime { get; private set; }
 		public IPEndPoint EndPoint { get; private set; }
+		public short MtuSize { get; set; }
 		public UdpClient UdpClient { get; set; }
 
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
@@ -36,7 +37,7 @@ namespace MiNET
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
 
-		public PlayerNetworkSession(Player player, IPEndPoint endPoint)
+		public PlayerNetworkSession(Player player, IPEndPoint endPoint, short mtuSize)
 		{
 			State = ConnectionState.Unconnected;
 			SyncRoot = new object();
@@ -44,6 +45,7 @@ namespace MiNET
 			ProcessSyncRoot = new object();
 			Player = player;
 			EndPoint = endPoint;
+			MtuSize = mtuSize;
 			CreateTime = DateTime.UtcNow;
 		}
 

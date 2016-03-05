@@ -153,13 +153,13 @@ namespace TestPlugin
 			}
 		}
 
-		//[Command(Command = "gm")]
-		//public void GameMode(Player player, int gameMode)
-		//{
-		//	player.SetGameMode((GameMode) gameMode);
+		[Command(Command = "gm")]
+		public void GameMode(Player player, int gameMode)
+		{
+			player.SetGameMode((GameMode)gameMode);
 
-		//	player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode)gameMode}.", type: MessageType.Raw);
-		//}
+			player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode)gameMode}.", type: MessageType.Raw);
+		}
 
 
 		[Command(Command = "tp")]
@@ -299,7 +299,6 @@ namespace TestPlugin
 		}
 
 		[Command]
-		//[Authorize(Users = "gurun")]
 		public void Spawn(Player player, byte id)
 		{
 			Level level = player.Level;

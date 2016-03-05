@@ -30,7 +30,6 @@ namespace MiNET
 		public IPEndPoint EndPoint { get; private set; }
 		public PlayerNetworkSession NetworkSession { get; set; }
 
-		private int _mtuSize;
 		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
 		private object _queueSync = new object();
 		// ReSharper disable once NotAccessedField.Local
@@ -78,17 +77,12 @@ namespace MiNET
 		public User User { get; set; }
 		public Session Session { get; set; }
 
-		// HACK
-		public int Kills { get; set; }
-		public int Deaths { get; set; }
-
 		public DateTime LastNetworkActivity { get; set; }
 
-		public Player(MiNetServer server, IPEndPoint endPoint, int mtuSize) : base(-1, null)
+		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
 		{
 			Server = server;
 			EndPoint = endPoint;
-			_mtuSize = mtuSize;
 
 			Inventory = new PlayerInventory(this);
 			HungerManager = new HungerManager(this);
@@ -2232,7 +2226,7 @@ namespace MiNET
 
 		public void SendDirectPackage(Package package)
 		{
-			Server.SendPackage(this, package, _mtuSize);
+			Server.SendPackage(this, package);
 		}
 
 		/// <summary>
@@ -2305,26 +2299,26 @@ namespace MiNET
 
 					if (lenght == 1)
 					{
-						Server.SendPackage(this, package, _mtuSize);
+						Server.SendPackage(this, package);
 					}
 					else if (package is McpeBatch)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;
-						Server.SendPackage(this, package, _mtuSize);
+						Server.SendPackage(this, package);
 						Thread.Sleep(1); // Really important to slow down speed a bit
 					}
 					else if (package.NoBatch)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;
-						Server.SendPackage(this, package, _mtuSize);
+						Server.SendPackage(this, package);
 					}
 					else if (!IsSpawned)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;
-						Server.SendPackage(this, package, _mtuSize);
+						Server.SendPackage(this, package);
 					}
 					else
 					{
@@ -2377,7 +2371,7 @@ namespace MiNET
 			memStream.Position = 0;
 			memStream.SetLength(0);
 
-			Server.SendPackage(this, batch, _mtuSize);
+			Server.SendPackage(this, batch);
 		}
 
 		private object _sendMoveListSync = new object();

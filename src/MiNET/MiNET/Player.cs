@@ -2443,5 +2443,53 @@ namespace MiNET
 
 			Inventory.Clear();
 		}
+
+		public override void SpawnToPlayers(Player[] players)
+		{
+			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
+			mcpeAddPlayer.uuid = ClientUuid;
+			mcpeAddPlayer.username = Username;
+			mcpeAddPlayer.entityId = EntityId;
+			mcpeAddPlayer.x = KnownPosition.X;
+			mcpeAddPlayer.y = KnownPosition.Y;
+			mcpeAddPlayer.z = KnownPosition.Z;
+			mcpeAddPlayer.yaw = KnownPosition.Yaw;
+			mcpeAddPlayer.headYaw = KnownPosition.HeadYaw;
+			mcpeAddPlayer.pitch = KnownPosition.Pitch;
+			mcpeAddPlayer.metadata = GetMetadata();
+			Level.RelayBroadcast(this, players, mcpeAddPlayer);
+
+			SendEquipmentForPlayer(players);
+
+			SendArmorForPlayer(players);
+		}
+
+		public virtual void SendEquipmentForPlayer(Player[] receivers)
+		{
+			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
+			mcpePlayerEquipment.entityId = EntityId;
+			mcpePlayerEquipment.item = Inventory.GetItemInHand();
+			mcpePlayerEquipment.slot = 0;
+			Level.RelayBroadcast(this, receivers, mcpePlayerEquipment);
+		}
+
+		public virtual void SendArmorForPlayer(Player[] receivers)
+		{
+			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
+			mcpePlayerArmorEquipment.entityId = EntityId;
+			mcpePlayerArmorEquipment.helmet = Inventory.Helmet;
+			mcpePlayerArmorEquipment.chestplate = Inventory.Chest;
+			mcpePlayerArmorEquipment.leggings = Inventory.Leggings;
+			mcpePlayerArmorEquipment.boots = Inventory.Boots;
+			Level.RelayBroadcast(this, receivers, mcpePlayerArmorEquipment);
+		}
+
+		public override void DespawnFromPlayers(Player[] players)
+		{
+			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
+			mcpeRemovePlayer.clientUuid = ClientUuid;
+			mcpeRemovePlayer.entityId = EntityId;
+			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
+		}
 	}
 }

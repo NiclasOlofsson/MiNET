@@ -42,23 +42,14 @@ namespace MiNET.Entities
 			MapInfo = mapInfo;
 		}
 
-		public override void SpawnEntity()
+		public override void SpawnToPlayers(Player[] players)
 		{
-			Level.AddEntity(this);
-			IsSpawned = true;
+			// This is a server-side only entity
 		}
 
-		public override void SpawnToPlayer(Player player)
+		public override void DespawnFromPlayers(Player[] players)
 		{
-		}
-
-		public override void DespawnEntity()
-		{
-			Level.RemoveEntity(this);
-		}
-
-		public override void DespawnFromPlayer(Player player)
-		{
+			// This is a server-side only entity
 		}
 
 		public override void OnTick()

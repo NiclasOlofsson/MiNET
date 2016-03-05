@@ -132,7 +132,7 @@ namespace MiNET.Worlds
 			_levelTicker.Change(Timeout.Infinite, Timeout.Infinite);
 			WaitHandle waitHandle = new AutoResetEvent(false);
 			_levelTicker.Dispose(waitHandle);
-			WaitHandle.WaitAll(new[] { waitHandle }, TimeSpan.FromMinutes(2));
+			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
 			_levelTicker = null;
 
 			foreach (var entity in Entities.Values.ToArray())
@@ -173,7 +173,7 @@ namespace MiNET.Worlds
 
 		public virtual void AddPlayer(Player newPlayer, bool spawn)
 		{
-			if (newPlayer.Username == null) throw new ArgumentNullException("newPlayer");
+			if (newPlayer.Username == null) throw new ArgumentNullException(nameof(newPlayer.Username));
 
 			EntityManager.AddEntity(null, newPlayer);
 
@@ -191,7 +191,7 @@ namespace MiNET.Worlds
 
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
-						SendAddEntityToPlayer(entity, newPlayer);
+						entity.SpawnToPlayers(new[] { newPlayer });
 					}
 				}
 
@@ -325,12 +325,11 @@ namespace MiNET.Worlds
 
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
-						entity.DespawnFromPlayer(removed);
+						entity.DespawnFromPlayers(new[] {removed});
 					}
 				}
 			}
 		}
-
 
 		public void DespawnFromAll(Player player)
 		{
@@ -380,6 +379,7 @@ namespace MiNET.Worlds
 
 				if (Entities.TryAdd(entity.EntityId, entity))
 				{
+					entity.SpawnToPlayers(GetSpawnedPlayers());
 				}
 				else
 				{
@@ -388,23 +388,12 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void SendAddEntityToPlayer(Entity entity, Player player)
-		{
-			entity.SpawnToPlayer(player);
-		}
-
 		public void RemoveEntity(Entity entity)
 		{
 			lock (Entities)
 			{
 				if (!Entities.TryRemove(entity.EntityId, out entity)) return; // It's ok. Holograms destroy this play..
-
-				List<Player> spawnedPlayers = GetSpawnedPlayers().ToList();
-
-				foreach (Player player in spawnedPlayers)
-				{
-					entity.DespawnFromPlayer(player);
-				}
+				entity.DespawnFromPlayers(GetSpawnedPlayers());
 			}
 		}
 

@@ -1,5 +1,4 @@
-﻿using System;
-using MiNET.Items;
+﻿using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -36,39 +35,19 @@ namespace MiNET.Entities
 			return Item;
 		}
 
-		public override void SpawnEntity()
-		{
-			Level.AddEntity(this);
+		//public override void SpawnEntity()
+		//{
+		//	//double f = 0.7;
+		//	//float xr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
+		//	//float yr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
+		//	//float zr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
 
-			Random random = Level.Random;
+		//	Level.AddEntity(this);
 
-			//double f = 0.7;
-			//float xr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
-			//float yr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
-			//float zr = (float)(random.NextDouble() * f + (1.0 - f) * 0.5);
+		//	IsSpawned = true;
+		//}
 
-			float xr = 0;
-			float yr = 0;
-			float zr = 0;
-
-			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-			mcpeAddItemEntity.entityId = EntityId;
-			mcpeAddItemEntity.item = GetItemStack();
-			mcpeAddItemEntity.x = KnownPosition.X + xr;
-			mcpeAddItemEntity.y = KnownPosition.Y + yr;
-			mcpeAddItemEntity.z = KnownPosition.Z + zr;
-
-			mcpeAddItemEntity.speedX = (float) Velocity.X;
-			mcpeAddItemEntity.speedY = (float) Velocity.Y;
-			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
-			Level.RelayBroadcast(mcpeAddItemEntity);
-
-			BroadcastSetEntityData();
-
-			IsSpawned = true;
-		}
-
-		public override void SpawnToPlayer(Player player)
+		public override void SpawnToPlayers(Player[] players)
 		{
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
 			mcpeAddItemEntity.entityId = EntityId;
@@ -79,14 +58,9 @@ namespace MiNET.Entities
 			mcpeAddItemEntity.speedX = (float) Velocity.X;
 			mcpeAddItemEntity.speedY = (float) Velocity.Y;
 			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
-			player.SendPackage(mcpeAddItemEntity);
+			Level.RelayBroadcast(this, players, mcpeAddItemEntity);
 
 			BroadcastSetEntityData();
-		}
-
-		public override void DespawnFromPlayer(Player player)
-		{
-			base.DespawnFromPlayer(player);
 		}
 
 		public override void OnTick()

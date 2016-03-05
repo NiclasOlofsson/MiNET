@@ -105,30 +105,10 @@ namespace MiNET.Entities
 		{
 			Level.AddEntity(this);
 
-			var addEntity = McpeAddEntity.CreateObject();
-			addEntity.entityType = EntityTypeId;
-			addEntity.entityId = EntityId;
-			addEntity.x = KnownPosition.X;
-			addEntity.y = KnownPosition.Y;
-			addEntity.z = KnownPosition.Z;
-			addEntity.yaw = KnownPosition.Yaw;
-			addEntity.pitch = KnownPosition.Pitch;
-			addEntity.metadata = GetMetadata();
-			addEntity.speedX = (float) Velocity.X;
-			addEntity.speedY = (float) Velocity.Y;
-			addEntity.speedZ = (float) Velocity.Z;
-
-			Level.RelayBroadcast(addEntity);
-
 			IsSpawned = true;
-
-			//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			//mcpeSetEntityData.entityId = EntityId;
-			//mcpeSetEntityData.metadata = GetMetadata();
-			//Level.RelayBroadcast(mcpeSetEntityData);
 		}
 
-		public virtual void SpawnToPlayer(Player player)
+		public virtual void SpawnToPlayers(Player[] players)
 		{
 			var addEntity = McpeAddEntity.CreateObject();
 			addEntity.entityType = EntityTypeId;
@@ -139,16 +119,10 @@ namespace MiNET.Entities
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
 			addEntity.metadata = GetMetadata();
-			addEntity.speedX = (float) Velocity.X;
-			addEntity.speedY = (float) Velocity.Y;
-			addEntity.speedZ = (float) Velocity.Z;
-			player.SendPackage(addEntity);
-
-			//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			//mcpeSetEntityData.entityId = EntityId;
-			//mcpeSetEntityData.metadata = GetMetadata();
-			//mcpeSetEntityData.Encode();
-			//player.SendPackage(mcpeSetEntityData);
+			addEntity.speedX = (float)Velocity.X;
+			addEntity.speedY = (float)Velocity.Y;
+			addEntity.speedZ = (float)Velocity.Z;
+			Level.RelayBroadcast(this, players, addEntity);
 		}
 
 		public virtual void DespawnEntity()
@@ -156,11 +130,11 @@ namespace MiNET.Entities
 			Level.RemoveEntity(this);
 		}
 
-		public virtual void DespawnFromPlayer(Player player)
+		public virtual void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 			mcpeRemoveEntity.entityId = EntityId;
-			player.SendPackage(mcpeRemoveEntity);
+			Level.RelayBroadcast(this, mcpeRemoveEntity);
 		}
 
 		public virtual void BroadcastSetEntityData()

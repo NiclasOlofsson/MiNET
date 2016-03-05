@@ -16,10 +16,10 @@ namespace MiNET.Entities
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public int Boots { get; set; }
-		public int Leggings { get; set; }
-		public int Chest { get; set; }
-		public int Helmet { get; set; }
+		public short Boots { get; set; }
+		public short Leggings { get; set; }
+		public short Chest { get; set; }
+		public short Helmet { get; set; }
 
 		public Item ItemInHand { get; set; }
 
@@ -56,16 +56,7 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
-		public override void SpawnEntity()
-		{
-			Level.AddEntity(this);
-			SpawnToAll();
-			IsSpawned = true;
-
-			BroadcastSetEntityData();
-		}
-
-		public override void SpawnToPlayer(Player player)
+		public override void SpawnToPlayers(Player[] players)
 		{
 			{
 				Player fake = new Player(null, null, 0)
@@ -78,7 +69,7 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {fake};
-				player.SendPackage(playerList);
+				Level.RelayBroadcast(this, players, playerList);
 				//player.SendDirectPackage(playerList);
 			}
 
@@ -94,23 +85,23 @@ namespace MiNET.Entities
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
 				message.metadata = GetMetadata();
-				player.SendPackage(message);
+				Level.RelayBroadcast(this, players, message);
 			}
 			{
 				McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
 				message.entityId = EntityId;
 				message.item = ItemInHand;
 				message.slot = 0;
-				player.SendPackage(message);
+				Level.RelayBroadcast(this, players, message);
 			}
 			{
 				McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 				armorEquipment.entityId = EntityId;
-				armorEquipment.helmet = new ItemAir();
-				armorEquipment.chestplate = new ItemAir();
-				armorEquipment.leggings = new ItemAir();
-				armorEquipment.boots = new ItemAir();
-				player.SendPackage(armorEquipment);
+				armorEquipment.helmet = ItemFactory.GetItem(Helmet);
+				armorEquipment.chestplate = ItemFactory.GetItem(Chest);
+				armorEquipment.leggings = ItemFactory.GetItem(Leggings);
+				armorEquipment.boots = ItemFactory.GetItem(Boots);
+				Level.RelayBroadcast(this, players, armorEquipment);
 			}
 
 			{
@@ -124,11 +115,14 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {fake};
-				player.SendPackage(playerList);
+				Level.RelayBroadcast(this, players, playerList);
 			}
+
+			// Probably not needed
+			BroadcastSetEntityData();
 		}
 
-		protected virtual void SpawnToAll()
+		public override void DespawnFromPlayers(Player[] players)
 		{
 			{
 				Player fake = new Player(null, null, 0)
@@ -140,63 +134,14 @@ namespace MiNET.Entities
 				};
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerAddRecords {fake};
-				Level.RelayBroadcast(playerList);
-			}
-
-			McpeAddPlayer message = McpeAddPlayer.CreateObject();
-			message.uuid = Uuid;
-			message.username = NameTag ?? Name;
-			message.entityId = EntityId;
-			message.x = KnownPosition.X;
-			message.y = KnownPosition.Y;
-			message.z = KnownPosition.Z;
-			message.yaw = KnownPosition.Yaw;
-			message.headYaw = KnownPosition.HeadYaw;
-			message.pitch = KnownPosition.Pitch;
-			message.metadata = GetMetadata();
-
-			Level.RelayBroadcast(message);
-
-			SendEquipment();
-
-			SendArmor();
-
-			{
-				Player fake = new Player(null, null, 0)
-				{
-					ClientUuid = Uuid,
-					EntityId = EntityId,
-					NameTag = NameTag ?? Name,
-					Skin = Skin
-				};
-
-				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords {fake};
-				Level.RelayBroadcast(playerList);
-			}
-		}
-
-		public override void DespawnFromPlayer(Player player)
-		{
-			{
-				Player fake = new Player(null, null, 0)
-				{
-					ClientUuid = Uuid,
-					EntityId = EntityId,
-					NameTag = NameTag ?? Name,
-					Skin = Skin
-				};
-
-				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords {fake};
-				player.SendPackage(playerList);
+				playerList.records = new PlayerRemoveRecords { fake };
+				Level.RelayBroadcast(this, players, playerList);
 			}
 
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
 			mcpeRemovePlayer.clientUuid = Uuid;
-			player.SendPackage(mcpeRemovePlayer);
+			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
 		}
 
 		protected virtual void SendEquipment()
@@ -212,10 +157,10 @@ namespace MiNET.Entities
 		{
 			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
 			armorEquipment.entityId = EntityId;
-			armorEquipment.helmet = new ItemAir();
-			armorEquipment.chestplate = new ItemAir();
-			armorEquipment.leggings = new ItemAir();
-			armorEquipment.boots = new ItemAir();
+			armorEquipment.helmet = ItemFactory.GetItem(Helmet);
+			armorEquipment.chestplate = ItemFactory.GetItem(Chest);
+			armorEquipment.leggings = ItemFactory.GetItem(Leggings);
+			armorEquipment.boots = ItemFactory.GetItem(Boots);
 			Level.RelayBroadcast(armorEquipment);
 		}
 	}

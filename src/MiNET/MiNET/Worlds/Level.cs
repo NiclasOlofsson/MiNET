@@ -539,7 +539,7 @@ namespace MiNET.Worlds
 			RelayBroadcast(null, GetSpawnedPlayers(), message, sendDirect);
 		}
 
-		public void RelayBroadcast<T>(Entity source, T message, bool sendDirect = false) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player source, T message, bool sendDirect = false) where T : Package<T>, new()
 		{
 			RelayBroadcast(source, GetSpawnedPlayers(), message, sendDirect);
 		}
@@ -549,7 +549,7 @@ namespace MiNET.Worlds
 			RelayBroadcast(null, sendList, message, sendDirect);
 		}
 
-		public void RelayBroadcast<T>(Entity source, Player[] sendList, T message, bool sendDirect = false) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player source, Player[] sendList, T message, bool sendDirect = false) where T : Package<T>, new()
 		{
 			if (message == null) return;
 
@@ -569,19 +569,17 @@ namespace MiNET.Worlds
 				message.AddReferences(sendList.Length - 1);
 			}
 
-			//if (message.IsPooled) message.Encode(); // In case forgotten during create
-
-			foreach (var player in sendList)
+			Parallel.ForEach(sendList, player =>
 			{
 				if (source != null && player == source)
 				{
 					message.PutPool();
-					continue;
+					return;
 				}
 
-				Task sendTask = new Task(obj => ((Player) obj).SendPackage(message, sendDirect), player);
-				sendTask.Start();
-			}
+				player.SendPackage(message, sendDirect);
+			});
+
 		}
 
 		public McpeBatch GenerateChunk(ChunkCoordinates chunkPosition)

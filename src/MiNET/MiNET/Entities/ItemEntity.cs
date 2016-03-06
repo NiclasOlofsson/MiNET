@@ -58,7 +58,7 @@ namespace MiNET.Entities
 			mcpeAddItemEntity.speedX = (float) Velocity.X;
 			mcpeAddItemEntity.speedY = (float) Velocity.Y;
 			mcpeAddItemEntity.speedZ = (float) Velocity.Z;
-			Level.RelayBroadcast(this, players, mcpeAddItemEntity);
+			Level.RelayBroadcast(players, mcpeAddItemEntity);
 
 			BroadcastSetEntityData();
 		}
@@ -95,8 +95,8 @@ namespace MiNET.Entities
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();
 							takeItemEntity.entityId = EntityId;
 							takeItemEntity.target = player.EntityId;
-
 							Level.RelayBroadcast(takeItemEntity);
+
 							DespawnEntity();
 							break;
 						}

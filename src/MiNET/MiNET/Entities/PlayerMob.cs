@@ -69,8 +69,7 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {fake};
-				Level.RelayBroadcast(this, players, playerList);
-				//player.SendDirectPackage(playerList);
+				Level.RelayBroadcast(players, playerList);
 			}
 
 			{
@@ -85,14 +84,14 @@ namespace MiNET.Entities
 				message.headYaw = KnownPosition.HeadYaw;
 				message.pitch = KnownPosition.Pitch;
 				message.metadata = GetMetadata();
-				Level.RelayBroadcast(this, players, message);
+				Level.RelayBroadcast(players, message);
 			}
 			{
 				McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
 				message.entityId = EntityId;
 				message.item = ItemInHand;
 				message.slot = 0;
-				Level.RelayBroadcast(this, players, message);
+				Level.RelayBroadcast(players, message);
 			}
 			{
 				McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
@@ -101,7 +100,7 @@ namespace MiNET.Entities
 				armorEquipment.chestplate = ItemFactory.GetItem(Chest);
 				armorEquipment.leggings = ItemFactory.GetItem(Leggings);
 				armorEquipment.boots = ItemFactory.GetItem(Boots);
-				Level.RelayBroadcast(this, players, armorEquipment);
+				Level.RelayBroadcast(players, armorEquipment);
 			}
 
 			{
@@ -115,7 +114,7 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {fake};
-				Level.RelayBroadcast(this, players, playerList);
+				Level.RelayBroadcast(players, playerList);
 			}
 
 			// Probably not needed
@@ -135,13 +134,13 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords { fake };
-				Level.RelayBroadcast(this, players, playerList);
+				Level.RelayBroadcast(players, playerList);
 			}
 
 			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
 			mcpeRemovePlayer.clientUuid = Uuid;
-			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
+			Level.RelayBroadcast(players, mcpeRemovePlayer);
 		}
 
 		protected virtual void SendEquipment()

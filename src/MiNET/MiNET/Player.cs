@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -796,12 +797,6 @@ namespace MiNET
 		{
 			SendPlayerStatus(3);
 
-			//McpeRespawn mcpeRespawn = McpeRespawn.CreateObject();
-			//mcpeRespawn.x = SpawnPosition.X;
-			//mcpeRespawn.y = SpawnPosition.Y;
-			//mcpeRespawn.z = SpawnPosition.Z;
-			//SendPackage(mcpeRespawn);
-
 			//send time again
 			SendSetTime();
 			IsSpawned = true;
@@ -810,6 +805,8 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 			_haveJoined = true;
+
+			OnPlayerJoin(new PlayerEventArgs(this));
 		}
 
 		protected virtual void HandleRespawn(McpeRespawn msg)
@@ -1017,6 +1014,8 @@ namespace MiNET
 		{
 			lock (_disconnectSync)
 			{
+				OnPlayerLeave(new PlayerEventArgs(this));
+
 				if (IsConnected)
 				{
 					if (sendDisconnect)
@@ -1370,8 +1369,7 @@ namespace MiNET
 
 		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
 		{
-				Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
-
+			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 		}
 
 		/// <summary>
@@ -1515,7 +1513,7 @@ namespace MiNET
 				int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
 				if (IsFalling)
 				{
-					damage += Level.Random.Next(damage / 2 + 2);
+					damage += Level.Random.Next(damage/2 + 2);
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
 					animate.entityId = target.EntityId;
@@ -2484,6 +2482,33 @@ namespace MiNET
 			mcpeRemovePlayer.clientUuid = ClientUuid;
 			mcpeRemovePlayer.entityId = EntityId;
 			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
+		}
+
+
+		// Events
+
+		public event EventHandler<PlayerEventArgs> PlayerJoin;
+
+		protected virtual void OnPlayerJoin(PlayerEventArgs e)
+		{
+			PlayerJoin?.Invoke(this, e);
+		}
+
+		public event EventHandler<PlayerEventArgs> PlayerLeave;
+
+		protected virtual void OnPlayerLeave(PlayerEventArgs e)
+		{
+			PlayerLeave?.Invoke(this, e);
+		}
+	}
+
+	public class PlayerEventArgs : CancelEventArgs
+	{
+		public Player Player { get; }
+
+		public PlayerEventArgs(Player player)
+		{
+			Player = player;
 		}
 	}
 }

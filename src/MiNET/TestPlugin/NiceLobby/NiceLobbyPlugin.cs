@@ -232,6 +232,17 @@ namespace TestPlugin.NiceLobby
 			return packet;
 		}
 
+		[PacketHandler, Send, UsedImplicitly]
+		public Package AddPlayerHandler(McpeAddPlayer packet, Player player)
+		{
+			if(_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityId) != null)
+			{
+				return null;
+			}
+
+			return packet;
+		}
+
 		private void SendNameTag(Player player)
 		{
 			player.SetNameTag(TextUtils.Center($"{GetNameTag(player)}\n{ChatColors.Red}HP: {ChatColors.White}{player.HealthManager.Hearts}"));
@@ -406,6 +417,7 @@ namespace TestPlugin.NiceLobby
 		[Command]
 		public void Unhide(Player player)
 		{
+			_playerEntities.Remove(player);
 			HidePlayer(player, false);
 			player.Level.BroadcastMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
 		}
@@ -455,16 +467,28 @@ namespace TestPlugin.NiceLobby
 		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
 
 		[Command]
-		public void Hide(Player player, byte id)
+		public void Hide(Player player, string type)
 		{
+
+			MobTypes mobType;
+			try
+			{
+				mobType = (MobTypes)Enum.Parse(typeof(MobTypes), type, true);
+			}
+			catch (ArgumentException e)
+			{
+				return;
+			}
+
 			Level level = player.Level;
 
 			HidePlayer(player, true);
 
-			Mob entity = new Mob(id, level)
+			Mob entity = new Mob(mobType, level)
 			{
 				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
+				HealthManager = player.HealthManager,
+				NameTag = player.NameTag,
 			};
 			entity.SpawnEntity();
 

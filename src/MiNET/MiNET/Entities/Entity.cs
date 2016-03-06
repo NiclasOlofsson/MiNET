@@ -122,7 +122,7 @@ namespace MiNET.Entities
 			addEntity.speedX = (float)Velocity.X;
 			addEntity.speedY = (float)Velocity.Y;
 			addEntity.speedZ = (float)Velocity.Z;
-			Level.RelayBroadcast(this, players, addEntity);
+			Level.RelayBroadcast(players, addEntity);
 		}
 
 		public virtual void DespawnEntity()
@@ -134,7 +134,7 @@ namespace MiNET.Entities
 		{
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 			mcpeRemoveEntity.entityId = EntityId;
-			Level.RelayBroadcast(this, mcpeRemoveEntity);
+			Level.RelayBroadcast(players, mcpeRemoveEntity);
 		}
 
 		public virtual void BroadcastSetEntityData()
@@ -142,7 +142,7 @@ namespace MiNET.Entities
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
-			Level?.RelayBroadcast(this, mcpeSetEntityData);
+			Level?.RelayBroadcast(mcpeSetEntityData);
 		}
 
 		public BoundingBox GetBoundingBox()

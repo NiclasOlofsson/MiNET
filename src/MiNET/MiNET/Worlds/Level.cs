@@ -569,7 +569,7 @@ namespace MiNET.Worlds
 				message.AddReferences(sendList.Length - 1);
 			}
 
-			Parallel.ForEach(sendList, player =>
+			foreach (var player in sendList)
 			{
 				if (source != null && player == source)
 				{
@@ -577,8 +577,9 @@ namespace MiNET.Worlds
 					return;
 				}
 
-				player.SendPackage(message, sendDirect);
-			});
+				Task sendTask = new Task(obj => ((Player) obj).SendPackage(message, sendDirect), player);
+ 				sendTask.Start();
+ 			}
 
 		}
 

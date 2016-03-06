@@ -423,11 +423,15 @@ namespace TestPlugin.NiceLobby
 
 		private void HidePlayer(Player player, bool hide)
 		{
-			Entity entity;
-			if (_playerEntities.TryGetValue(player,out entity))
+			Player existingPlayer = _playerEntities.Keys.FirstOrDefault(p => p.Username.Equals(player.Username));
+			if(existingPlayer != null)
 			{
-				_playerEntities.Remove(player);
-				entity.DespawnEntity();
+				Entity entity;
+				if (_playerEntities.TryGetValue(existingPlayer, out entity))
+				{
+					_playerEntities.Remove(existingPlayer);
+					entity.DespawnEntity();
+				}
 			}
 
 			Level level = player.Level;

@@ -41,8 +41,12 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-			Context.PluginManager.LoadCommands(new TestStandaloneHandler());
-			Context.PluginManager.LoadPacketHandlers(new TestStandaloneHandler());
+			var instance = new TestStandaloneHandler();
+			Context.PluginManager.LoadCommands(instance);
+			Context.PluginManager.UnloadCommands(instance);
+
+			Context.PluginManager.LoadPacketHandlers(instance);
+			Context.PluginManager.UnloadPacketHandlers(instance);
 		}
 
 		[Command(Command = "td")]

@@ -150,7 +150,7 @@ namespace MiNET.Plugins
 				bool isFirstParam = true;
 				foreach (var parameter in parameters)
 				{
-					if (isFirstParam && parameter.ParameterType == typeof(Player))
+					if (isFirstParam && parameter.ParameterType == typeof (Player))
 					{
 						continue;
 					}
@@ -165,6 +165,18 @@ namespace MiNET.Plugins
 
 				_pluginCommands.Add(method, commandAttribute);
 				Log.Debug($"Loaded command {commandAttribute.Usage}");
+			}
+		}
+
+		public void UnloadCommands(object instance)
+		{
+			//if (!_plugins.Contains(instance)) return;
+			//_plugins.Remove(instance);
+
+			var methods = _pluginCommands.Keys.Where(info => info.DeclaringType == instance.GetType()).ToArray();
+			foreach (var method in methods)
+			{
+				_pluginCommands.Remove(method);
 			}
 		}
 
@@ -198,6 +210,18 @@ namespace MiNET.Plugins
 						}
 					}
 				}
+			}
+		}
+
+		public void UnloadPacketHandlers(object instance)
+		{
+			//if (!_plugins.Contains(instance)) return;
+			//_plugins.Remove(instance);
+
+			var methods = _packetHandlerDictionary.Keys.Where(info => info.DeclaringType == instance.GetType()).ToArray();
+			foreach (var method in methods)
+			{
+				_packetHandlerDictionary.Remove(method);
 			}
 		}
 
@@ -307,7 +331,6 @@ namespace MiNET.Plugins
 				{
 					player.SendMessage($"Usage: {commandAttribute.Usage}");
 				}
-
 			}
 			catch (Exception ex)
 			{
@@ -337,7 +360,7 @@ namespace MiNET.Plugins
 				// method params ex: int int params int[] 
 				// input ex:           1  1  1 1 1 
 				// so arguments in must be at least the lenght of method arguments
-				if (parameters.Length -1 > args.Length + addLenght) return false;
+				if (parameters.Length - 1 > args.Length + addLenght) return false;
 			}
 			else
 			{

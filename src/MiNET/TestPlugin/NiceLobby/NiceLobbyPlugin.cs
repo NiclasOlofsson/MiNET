@@ -417,13 +417,19 @@ namespace TestPlugin.NiceLobby
 		[Command]
 		public void Unhide(Player player)
 		{
-			_playerEntities.Remove(player);
 			HidePlayer(player, false);
 			player.Level.BroadcastMessage(string.Format("Player {0} unhides.", player.Username), type: MessageType.Raw);
 		}
 
 		private void HidePlayer(Player player, bool hide)
 		{
+			Entity entity;
+			if (_playerEntities.TryGetValue(player,out entity))
+			{
+				_playerEntities.Remove(player);
+				entity.DespawnEntity();
+			}
+
 			Level level = player.Level;
 			if (hide)
 			{
@@ -499,7 +505,7 @@ namespace TestPlugin.NiceLobby
 
 			_playerEntities[player] = entity;
 
-			level.BroadcastMessage(string.Format("Player {0} spawned as other entity.", player.Username), type: MessageType.Raw);
+			level.BroadcastMessage($"Player {player.Username} spawned as {mobType}.", type: MessageType.Raw);
 		}
 
 		[PacketHandler, Receive]

@@ -123,6 +123,12 @@ namespace MiNET.Plugins
 			}
 		}
 
+		public void LoadCommands(object instance)
+		{
+			if (!_plugins.Contains(instance)) _plugins.Add(instance);
+			LoadCommands(instance.GetType());
+		}
+
 		private void LoadCommands(Type type)
 		{
 			var methods = type.GetMethods();
@@ -141,8 +147,15 @@ namespace MiNET.Plugins
 				sb.Append(commandAttribute.Command);
 				var parameters = method.GetParameters();
 				if (parameters.Length > 0) sb.Append(" ");
+				bool isFirstParam = true;
 				foreach (var parameter in parameters)
 				{
+					if (isFirstParam && parameter.ParameterType == typeof(Player))
+					{
+						continue;
+					}
+					isFirstParam = false;
+
 					sb.AppendFormat("<{0}> ", parameter.Name);
 				}
 				commandAttribute.Usage = sb.ToString().Trim();
@@ -151,7 +164,14 @@ namespace MiNET.Plugins
 				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
 
 				_pluginCommands.Add(method, commandAttribute);
+				Log.Debug($"Loaded command {commandAttribute.Usage}");
 			}
+		}
+
+		public void LoadPacketHandlers(object instance)
+		{
+			if (!_plugins.Contains(instance)) _plugins.Add(instance);
+			LoadPacketHandlers(instance.GetType());
 		}
 
 		private void LoadPacketHandlers(Type type)
@@ -201,7 +221,7 @@ namespace MiNET.Plugins
 
 		internal void EnablePlugins(MiNetServer server, LevelManager levelManager)
 		{
-			foreach (object plugin in _plugins)
+			foreach (object plugin in _plugins.ToArray())
 			{
 				IPlugin enablingPlugin = plugin as IPlugin;
 				if (enablingPlugin == null) continue;
@@ -245,6 +265,7 @@ namespace MiNET.Plugins
 
 				string[] arguments = message.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
 
+				List<CommandAttribute> foundCommands = new List<CommandAttribute>();
 				foreach (var handlerEntry in _pluginCommands)
 				{
 					CommandAttribute commandAttribute = handlerEntry.Value;
@@ -253,10 +274,24 @@ namespace MiNET.Plugins
 					MethodInfo method = handlerEntry.Key;
 					if (method == null) return;
 
+					foundCommands.Add(commandAttribute);
+
 					var authorizationAttributes = method.GetCustomAttributes<AuthorizeAttribute>(true);
 					foreach (AuthorizeAttribute authorizationAttribute in authorizationAttributes)
 					{
+						if (userManager == null)
+						{
+							player.SendMessage($"UserManager not found. You are not permitted to use this command!");
+							return;
+						}
+
 						User user = userManager.FindByName(player.Username);
+						if (user == null)
+						{
+							player.SendMessage($"No registered user '{player.Username}' found. You are not permitted to use this command!");
+							return;
+						}
+
 						var userIdentity = userManager.CreateIdentity(user, "none");
 						if (!authorizationAttribute.OnAuthorization(new GenericPrincipal(userIdentity, new string[0])))
 						{
@@ -267,6 +302,12 @@ namespace MiNET.Plugins
 
 					if (ExecuteCommand(method, player, arguments)) return;
 				}
+
+				foreach (var commandAttribute in foundCommands)
+				{
+					player.SendMessage($"Usage: {commandAttribute.Usage}");
+				}
+
 			}
 			catch (Exception ex)
 			{
@@ -281,6 +322,8 @@ namespace MiNET.Plugins
 
 		private bool ExecuteCommand(MethodInfo method, Player player, string[] args)
 		{
+			Log.Info($"Execute command {method}");
+
 			var parameters = method.GetParameters();
 
 			int addLenght = 0;

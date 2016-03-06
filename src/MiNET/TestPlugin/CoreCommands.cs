@@ -22,6 +22,16 @@ using MiNET.Worlds;
 
 namespace TestPlugin
 {
+	public class TestStandaloneHandler
+	{
+		[Command]
+		public void Version2(Player player)
+		{
+			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
+		}
+	}
+
 	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class CoreCommands : Plugin
 	{
@@ -31,7 +41,8 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-			//Context.PluginManager.RegisterCommands(Version);
+			Context.PluginManager.LoadCommands(new TestStandaloneHandler());
+			Context.PluginManager.LoadPacketHandlers(new TestStandaloneHandler());
 		}
 
 		[Command(Command = "td")]
@@ -595,6 +606,8 @@ namespace TestPlugin
 		public void NoDamage(Player player)
 		{
 			player.HealthManager = player.HealthManager is NoDamageHealthManager ? new HealthManager(player) : new NoDamageHealthManager(player);
+			player.SendUpdateAttributes();
+			player.SendMessage($"{player.Username} set NoDamage={player.HealthManager is NoDamageHealthManager}", type: McpeText.TypeRaw);
 		}
 
 
@@ -611,6 +624,7 @@ namespace TestPlugin
 
 		[Command(Command = "r")]
 		[Authorize(Users = "gurun")]
+		[Authorize(Users = "gurunx")]
 		public void DisplayRestartNotice(Player currentPlayer)
 		{
 			var players = currentPlayer.Level.GetSpawnedPlayers();

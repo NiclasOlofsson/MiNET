@@ -10,6 +10,8 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBow));
 
+		public bool isInfinity = false;
+
 		public ItemBow() : base(261)
 		{
 			MaxStackSize = 1;
@@ -24,10 +26,12 @@ namespace MiNET.Items
 				var itemStack = inventory.Slots[i];
 				if (itemStack.Id == 262)
 				{
-					if (--itemStack.Count <= 0)
-					{
-						// set empty
-						inventory.Slots[i] = new ItemAir();
+					if(!isInfinity){
+						if (--itemStack.Count <= 0)
+						{
+							// set empty
+							inventory.Slots[i] = new ItemAir();
+						}
 					}
 					haveArrows = true;
 					break;
@@ -54,6 +58,19 @@ namespace MiNET.Items
 			//arrow.BroadcastMovement = true;
 			//arrow.DespawnOnImpact = false;
 			arrow.SpawnEntity();
+		}
+		
+		public void isInfinity(){
+			foreach(var value in ExtraData.Get ("ench")){
+				if(value["id"] == 22){
+					isInfinity = true;
+					return;
+				}
+			}
+		}
+		
+		public void setInfinity(bool infinity){
+			isInfinity = infinity;
 		}
 
 		private float CalculateForce(long timeUsed)

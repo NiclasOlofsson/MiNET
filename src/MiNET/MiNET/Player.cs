@@ -10,6 +10,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
+using fNbt;
 using Microsoft.AspNet.Identity;
 using MiNET.Blocks;
 using MiNET.Crafting;
@@ -1531,6 +1532,8 @@ namespace MiNET
 				{
 					damage += (effect.Level + 1)*3;
 				}
+				
+				damage += getSwordEnchantDamage(Inventory.GetItemInHand());
 
 				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
 			}
@@ -1541,6 +1544,43 @@ namespace MiNET
 
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
+		
+        	public int getSwordEnchantDamage(Item sword)
+        	{
+            		int damage = 0;
+            		if (sword.ItemType == ItemType.Sword)
+            		{
+                		NbtList list;
+                		if (sword.ExtraData.TryGet("ench", out list))
+                		{
+                    			foreach (NbtShort v in list)
+                    			{
+                        			if (v["id"].ShortValue == 9)
+                        			{
+                            				damage += (int) 0.5 + ((int)v["lvl"].ShortValue * 1 / 4);
+                        			}
+                    			}
+                		}
+            		}
+            		return damage;
+        	}
+
+        	public double EnchantDamage(Item armor)
+        	{
+        		double armorValue = 0;
+            		NbtList list;
+            		if (armor.ExtraData.TryGet("ench", out list))
+            		{
+                 		foreach (NbtShort v in list)
+                 		{
+                      			if (v["id"].ShortValue == 0)
+                      			{
+                        			armorValue += (6 + (int)v["lvl"].ShortValue * (int)v["lvl"].ShortValue) / 2;
+                      			}
+                 		}
+            		}
+            		return armorValue;
+        	}
 
 		public int CalculatePlayerDamage(Player target, int damage)
 		{
@@ -1549,6 +1589,7 @@ namespace MiNET
 			{
 				{
 					var armorPiece = target.Inventory.Helmet;
+					armorValue += EnchantDamage(armorPiece);
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1571,6 +1612,7 @@ namespace MiNET
 
 				{
 					var armorPiece = target.Inventory.Chest;
+					armorValue += EnchantDamage(armorPiece);
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1593,6 +1635,7 @@ namespace MiNET
 
 				{
 					var armorPiece = target.Inventory.Leggings;
+					armorValue += EnchantDamage(armorPiece);
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1615,6 +1658,7 @@ namespace MiNET
 
 				{
 					var armorPiece = target.Inventory.Boots;
+					armorValue += EnchantDamage(armorPiece);
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:

@@ -119,21 +119,16 @@ namespace MiNET
 				SessionManager = SessionManager ?? new SessionManager();
 				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
+				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
+				{
+					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
+				};
+				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
+
+				PluginManager.EnablePlugins(this, LevelManager);
 
 				// Cache - remove
 				LevelManager.GetLevel(null, "Default");
-
-				ServerInfo = new ServerInfo(LevelManager, _playerSessions);
-				ServerInfo.MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000);
-				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
-
-				//for (int i = 1; i < 10; i++)
-				//{
-				//	Level level = LevelFactory.CreateLevel("" + i);
-				//	_levels.Add(level);
-				//}
-
-				PluginManager.EnablePlugins(this, LevelManager);
 
 				_listener = new UdpClient(Endpoint);
 

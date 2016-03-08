@@ -169,6 +169,8 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "gm")]
+		[Authorize(Users = "gurun")]
+		[Authorize(Users = "gurunx")]
 		public void GameMode(Player player, int gameMode)
 		{
 			player.SetGameMode((GameMode)gameMode);

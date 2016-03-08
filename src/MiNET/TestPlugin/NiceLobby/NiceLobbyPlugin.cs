@@ -37,18 +37,29 @@ namespace TestPlugin.NiceLobby
 
 		protected override void OnEnable()
 		{
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);
-			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			foreach (var level in Context.LevelManager.Levels)
+			var server = Context.Server;
+
+			server.LevelManager.LevelCreated += (sender, args) =>
 			{
+				Level level = args.Level;
 				level.BlockBreak += LevelOnBlockBreak;
 				level.BlockPlace += LevelOnBlockPlace;
-			}
+			};
+
+			server.PlayerFactory.PlayerCreated += (sender, args) =>
+			{
+				Player player = args.Player;
+				player.PlayerJoin += (o, eventArgs) => eventArgs.Player.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
+				player.PlayerLeave += (o, eventArgs) => eventArgs.Player.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
+			};
+
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);
+			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
 		{
-			if(e.Block.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 15)
+			if (e.Block.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 15)
 			{
 				e.Cancel = e.Player.GameMode != GameMode.Creative;
 			}
@@ -56,7 +67,7 @@ namespace TestPlugin.NiceLobby
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			if (e.ExistingBlock.Coordinates.DistanceTo((BlockCoordinates)e.Player.SpawnPosition) < 15)
+			if (e.ExistingBlock.Coordinates.DistanceTo((BlockCoordinates) e.Player.SpawnPosition) < 15)
 			{
 				e.Cancel = e.Player.GameMode != GameMode.Creative;
 			}
@@ -235,7 +246,7 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package AddPlayerHandler(McpeAddPlayer packet, Player player)
 		{
-			if(_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityId) != null)
+			if (_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityId) != null)
 			{
 				return null;
 			}
@@ -424,7 +435,7 @@ namespace TestPlugin.NiceLobby
 		private void HidePlayer(Player player, bool hide)
 		{
 			Player existingPlayer = _playerEntities.Keys.FirstOrDefault(p => p.Username.Equals(player.Username));
-			if(existingPlayer != null)
+			if (existingPlayer != null)
 			{
 				Entity entity;
 				if (_playerEntities.TryGetValue(existingPlayer, out entity))
@@ -479,11 +490,10 @@ namespace TestPlugin.NiceLobby
 		[Command]
 		public void Hide(Player player, string type)
 		{
-
 			MobTypes mobType;
 			try
 			{
-				mobType = (MobTypes)Enum.Parse(typeof(MobTypes), type, true);
+				mobType = (MobTypes) Enum.Parse(typeof (MobTypes), type, true);
 			}
 			catch (ArgumentException e)
 			{
@@ -573,6 +583,8 @@ namespace TestPlugin.NiceLobby
 
 
 		[Command]
+		[Authorize(Users = "gurun")]
+		[Authorize(Users = "gurunx")]
 		public void VideoX(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
@@ -645,6 +657,8 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
+		[Authorize(Users = "gurun")]
+		[Authorize(Users = "gurunx")]
 		public void Video2X(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate

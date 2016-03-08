@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 
 namespace MiNET
@@ -6,7 +7,16 @@ namespace MiNET
 	{
 		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint)
 		{
-			return new Player(server, endPoint);
+			var player = new Player(server, endPoint);
+			OnPlayerCreated(new PlayerEventArgs(player));
+			return player;
+		}
+
+		public event EventHandler<PlayerEventArgs> PlayerCreated;
+
+		protected virtual void OnPlayerCreated(PlayerEventArgs e)
+		{
+			PlayerCreated?.Invoke(this, e);
 		}
 	}
 }

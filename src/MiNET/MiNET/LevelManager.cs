@@ -49,6 +49,9 @@ namespace MiNET
 				level = new Level(name, worldProvider, gameMode, difficulty, viewDistance);
 				level.Initialize();
 				Levels.Add(level);
+
+				OnLevelCreated(new LevelEventArgs(null, level));
+
 			}
 
 			return level;
@@ -56,7 +59,7 @@ namespace MiNET
 
 		public void RemoveLevel(Level level)
 		{
-			if(Levels.Contains(level))
+			if (Levels.Contains(level))
 			{
 				Levels.Remove(level);
 			}
@@ -64,6 +67,11 @@ namespace MiNET
 			level.Close();
 		}
 
+		public event EventHandler<LevelEventArgs> LevelCreated;
 
+		protected virtual void OnLevelCreated(LevelEventArgs e)
+		{
+			LevelCreated?.Invoke(this, e);
+		}
 	}
 }

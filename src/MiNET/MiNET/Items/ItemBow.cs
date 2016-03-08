@@ -60,13 +60,14 @@ namespace MiNET.Items
 			arrow.SpawnEntity();
 		}
 		
-		public void isInfinity(){
+		public void setInfinity(){
 			foreach(var value in ExtraData.Get ("ench")){
 				if(value["id"] == 22){
 					isInfinity = true;
 					return;
 				}
 			}
+			isInfinity = false;
 		}
 		
 		public void setInfinity(bool infinity){

@@ -64,14 +64,12 @@ namespace MiNET.Items
 		public void setInfinity(){
 			NbtList list;
             		if (ExtraData.TryGet("ench", out list)) {
-                		foreach (NbtCompound v in list)
-                		{
-                			if (v["id"].ShortValue == 22)
-                			{
-               					isInfinity = true;
-                				return;
-                			}
-        			}
+            			for(int i = 0; i < list.Count; i++) {
+					if(list[i]["id"].ShortValue == 22) {
+						isInfinity = true;
+						return;
+					}
+				}
             		}
 		}
 		

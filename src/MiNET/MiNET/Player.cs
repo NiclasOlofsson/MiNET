@@ -1553,7 +1553,7 @@ namespace MiNET
                 		NbtList list;
                 		if (sword.ExtraData.TryGet("ench", out list))
                 		{
-                    			foreach (NbtShort v in list)
+                    			foreach (NbtCompound v in list)
                     			{
                         			if (v["id"].ShortValue == 9)
                         			{
@@ -1571,7 +1571,7 @@ namespace MiNET
             		NbtList list;
             		if (armor.ExtraData.TryGet("ench", out list))
             		{
-                 		foreach (NbtShort v in list)
+                 		foreach (NbtCompound v in list)
                  		{
                       			if (v["id"].ShortValue == 0)
                       			{

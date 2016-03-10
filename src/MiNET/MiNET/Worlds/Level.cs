@@ -274,6 +274,11 @@ namespace MiNET.Worlds
 			{
 				var spawnedPlayers = GetSpawnedPlayers();
 
+				foreach (Player spawnedPlayer in spawnedPlayers)
+				{
+					spawnedPlayer.DespawnFromPlayers(new[] { player });
+				}
+
 				player.DespawnFromPlayers(spawnedPlayers);
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
@@ -287,11 +292,6 @@ namespace MiNET.Worlds
 				RelayBroadcast(player, CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
 				playerList.PutPool();
-
-				foreach (Player spawnedPlayer in spawnedPlayers)
-				{
-					spawnedPlayer.DespawnFromPlayers(new[] { player });
-				}
 			}
 		}
 

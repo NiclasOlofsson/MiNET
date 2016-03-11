@@ -49,8 +49,8 @@ namespace TestPlugin.NiceLobby
 			server.PlayerFactory.PlayerCreated += (sender, args) =>
 			{
 				Player player = args.Player;
-				player.PlayerJoin += (o, eventArgs) => eventArgs.Player.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
-				player.PlayerLeave += (o, eventArgs) => eventArgs.Player.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
+				player.PlayerJoin += (o, eventArgs) => eventArgs.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
+				player.PlayerLeave += (o, eventArgs) => eventArgs.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
 			};
 
 			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);

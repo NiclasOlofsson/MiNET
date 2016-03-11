@@ -2505,10 +2505,12 @@ namespace MiNET
 	public class PlayerEventArgs : CancelEventArgs
 	{
 		public Player Player { get; }
+		public Level Level { get; }
 
 		public PlayerEventArgs(Player player)
 		{
 			Player = player;
+			Level = player.Level;
 		}
 	}
 }

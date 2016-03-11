@@ -253,9 +253,11 @@ namespace MiNET
 			if (receiveBytes.Length != 0)
 			{
 				listener.BeginReceive(ReceiveCallback, listener);
-				ServerInfo.AvailableBytes = listener.Available;
-				ServerInfo.NumberOfPacketsInPerSecond++;
-				ServerInfo.TotalPacketSizeIn += receiveBytes.Length;
+
+				Interlocked.Exchange(ref ServerInfo.AvailableBytes, listener.Available);
+				Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeIn, receiveBytes.Length);
+
 				try
 				{
 					if (!GreylistManager.IsWhitelisted(senderEndpoint.Address) && GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
@@ -395,7 +397,7 @@ namespace MiNET
 					TraceSend(noFree);
 
 					SendData(bytes, senderEndpoint);
-					ServerInfo.NumberOfDeniedConnectionRequestsPerSecond++;
+					Interlocked.Increment(ref ServerInfo.NumberOfDeniedConnectionRequestsPerSecond);
 					return;
 				}
 			}
@@ -769,7 +771,7 @@ namespace MiNET
 
 			foreach (Tuple<int, int> range in nak.ranges)
 			{
-				ServerInfo.NumberOfNakReceive++;
+				Interlocked.Increment(ref ServerInfo.NumberOfNakReceive);
 
 				int start = range.Item1;
 				int end = range.Item2;
@@ -821,7 +823,7 @@ namespace MiNET
 
 			foreach (Tuple<int, int> range in ack.ranges)
 			{
-				ServerInfo.NumberOfAckReceive++;
+				Interlocked.Increment(ref ServerInfo.NumberOfAckReceive);
 
 				int start = range.Item1;
 				int end = range.Item2;
@@ -921,7 +923,7 @@ namespace MiNET
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
 		{
-			ServerInfo.NumberOfAckSent++;
+			Interlocked.Increment(ref ServerInfo.NumberOfAckSent);
 			session.PlayerAckQueue.Enqueue(sequenceNumber);
 		}
 
@@ -1196,7 +1198,7 @@ namespace MiNET
 				_listener.Send(data, data.Length, targetEndPoint); // Less thread-issues it seems
 
 				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
-				ServerInfo.TotalPacketSizeOut += data.Length;
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeOut, data.Length);
 			}
 			catch (ObjectDisposedException e)
 			{

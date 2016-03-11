@@ -14,20 +14,21 @@ namespace MiNET
 
 		public int NumberOfPlayers { get; set; }
 
-		public long NumberOfAckReceive { get; set; }
-		public long NumberOfNakReceive { get; set; }
+		public long NumberOfAckReceive = 0;
+		public long NumberOfNakReceive = 0;
 
 		public int NumberOfDeniedConnectionRequestsPerSecond = 0;
-		public long NumberOfAckSent { get; set; }
+		public long NumberOfAckSent = 0;
 		public long NumberOfFails = 0;
 		public long NumberOfResends = 0;
 		public long NumberOfPacketsOutPerSecond = 0;
-		public long NumberOfPacketsInPerSecond { get; set; }
-		public long TotalPacketSizeOut { get; set; }
-		public long TotalPacketSizeIn { get; set; }
+		public long NumberOfPacketsInPerSecond = 0;
+		public long TotalPacketSizeOut = 0;
+		public long TotalPacketSizeIn = 0;
+
 		public Timer ThroughPut { get; set; }
 		public long Latency { get; set; }
-		public int AvailableBytes { get; set; }
+		public int AvailableBytes = 0;
 
 		public int MaxNumberOfPlayers { get; set; }
 		public int MaxNumberOfConcurrentConnects { get; set; }
@@ -45,53 +46,34 @@ namespace MiNET
 					int threads;
 					int portThreads;
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = TotalPacketSizeOut*8/1000000D;
-					double kbitPerSecondIn = TotalPacketSizeIn*8/1000000D;
+					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8/1000000D;
+					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8/1000000D;
 					Log.WarnFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) {1}/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-						NumberOfPacketsOutPerSecond,
-						NumberOfAckReceive,
-						NumberOfPacketsInPerSecond,
+						Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0),
+						Interlocked.Exchange(ref NumberOfAckReceive, 0),
+						Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0),
 						kbitPerSecondOut,
 						0 /*_level.LastTickProcessingTime*/,
 						NumberOfPlayers,
 						Latency,
-						kbitPerSecondIn, AvailableBytes / 1000,
+						kbitPerSecondIn, 
+						AvailableBytes / 1000,
 						threads,
 						portThreads,
-						NumberOfNakReceive,
-						NumberOfResends,
-						NumberOfFails);
-					if (Log.IsInfoEnabled)
-					{
-						Log.InfoFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) ({0} {2}) ACK/NAK(#/s) {1}/{11} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
-							NumberOfPacketsOutPerSecond,
-							NumberOfAckReceive,
-							NumberOfPacketsInPerSecond,
-							kbitPerSecondOut,
-							0 /*_level.LastTickProcessingTime*/,
-							NumberOfPlayers,
-							Latency,
-							kbitPerSecondIn, AvailableBytes/1000,
-							threads,
-							portThreads,
-							NumberOfNakReceive);
-					}
-					else if (AvailableBytes != 0)
-					{
-						Log.WarnFormat("Socket buffering, avail: {0}", AvailableBytes);
-					}
+						Interlocked.Exchange(ref NumberOfNakReceive, 0),
+						Interlocked.Exchange(ref NumberOfResends, 0),
+						Interlocked.Exchange(ref NumberOfFails, 0));
 
-					NumberOfAckReceive = 0;
-					NumberOfNakReceive = 0;
-
-					NumberOfAckSent = 0;
-					TotalPacketSizeOut = 0;
-					TotalPacketSizeIn = 0;
-					Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0);
-					NumberOfPacketsInPerSecond = 0;
-					NumberOfDeniedConnectionRequestsPerSecond = 0;
-					Interlocked.Exchange(ref NumberOfFails, 0);
-					Interlocked.Exchange(ref NumberOfResends, 0);
+					//Interlocked.Exchange(ref NumberOfAckReceive, 0);
+					//Interlocked.Exchange(ref NumberOfNakReceive, 0);
+					Interlocked.Exchange(ref NumberOfAckSent, 0);
+					//Interlocked.Exchange(ref TotalPacketSizeOut, 0);
+					//Interlocked.Exchange(ref TotalPacketSizeIn, 0);
+					//Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0);
+					//Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0);
+					Interlocked.Exchange(ref NumberOfDeniedConnectionRequestsPerSecond, 0);
+					//Interlocked.Exchange(ref NumberOfFails, 0);
+					//Interlocked.Exchange(ref NumberOfResends, 0);
 				}, null, 1000, 1000);
 			}
 		}

@@ -1014,10 +1014,10 @@ namespace MiNET
 		{
 			lock (_disconnectSync)
 			{
-				OnPlayerLeave(new PlayerEventArgs(this));
-
 				if (IsConnected)
 				{
+					if (Level != null) OnPlayerLeave(new PlayerEventArgs(this));
+
 					if (sendDisconnect)
 					{
 						McpeDisconnect disconnect = McpeDisconnect.CreateObject();

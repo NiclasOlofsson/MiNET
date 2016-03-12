@@ -49,6 +49,28 @@ namespace TestPlugin
 			Context.PluginManager.UnloadPacketHandlers(instance);
 		}
 
+		[Command(Command = "le")]
+		public void LevelEvent(Player player, short value)
+		{
+			LevelEvent(player, value, 0);
+		}
+
+		[Command(Command = "le")]
+		public void LevelEvent(Player player, short value, int data)
+		{
+			McpeLevelEvent levelEvent = new McpeLevelEvent
+			{
+				eventId = value,
+				data = data,
+				x = player.KnownPosition.X,
+				y = player.KnownPosition.Y,
+				z = player.KnownPosition.Z
+			};
+			player.Level.RelayBroadcast(levelEvent);
+
+			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
+		}
+
 		[Command(Command = "td")]
 		public void ToggleDownfall(Player player, int value)
 		{

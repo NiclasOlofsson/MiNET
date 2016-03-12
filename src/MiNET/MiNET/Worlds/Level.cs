@@ -14,6 +14,7 @@ using MiNET.Blocks;
 using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Sounds;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -986,6 +987,11 @@ namespace MiNET.Worlds
 		{
 			Lightning lightning = new Lightning(this);
 			lightning.SpawnEntity();
+		}
+
+		public void MakeSound(Sound sound)
+		{
+			sound.Spawn(this);
 		}
 	}
 

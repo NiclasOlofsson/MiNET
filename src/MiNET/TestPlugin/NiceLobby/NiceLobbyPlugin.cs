@@ -49,12 +49,34 @@ namespace TestPlugin.NiceLobby
 			server.PlayerFactory.PlayerCreated += (sender, args) =>
 			{
 				Player player = args.Player;
-				player.PlayerJoin += (o, eventArgs) => eventArgs?.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
-				player.PlayerLeave += (o, eventArgs) => eventArgs?.Level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {eventArgs.Player.Username}");
+				player.PlayerJoin += OnPlayerJoin;
+				player.PlayerLeave += OnPlayerLeave;
 			};
 
 			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
+		}
+
+		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)
+		{
+			Level level = eventArgs.Level;
+			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
+
+			Player player = eventArgs.Player;
+			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
+
+			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+		}
+
+		private void OnPlayerJoin(object o, PlayerEventArgs eventArgs)
+		{
+			Level level = eventArgs.Level;
+			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
+
+			Player player = eventArgs.Player;
+			if(player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
+
+			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)

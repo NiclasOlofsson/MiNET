@@ -64,7 +64,7 @@ namespace MiNET.Items
 		public void setInfinity(){
 			NbtList list;
             		if (ExtraData.TryGet("ench", out list)) {
-				if(nbt.Get ("ench")[0]["id"].ShortValue == 22) {
+				if(ExtraData.Get ("ench")[0]["id"].ShortValue == 22) {
 					isInfinity = true;
 					return;
 				}

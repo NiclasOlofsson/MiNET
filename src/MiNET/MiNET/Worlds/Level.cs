@@ -277,7 +277,7 @@ namespace MiNET.Worlds
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
-					spawnedPlayer.DespawnFromPlayers(new[] { player });
+					spawnedPlayer.DespawnFromPlayers(new[] {player});
 				}
 
 				player.DespawnFromPlayers(spawnedPlayers);
@@ -585,7 +585,6 @@ namespace MiNET.Worlds
 
 				player.SendPackage(message, sendDirect);
 			});
-
 		}
 
 		public McpeBatch GenerateChunk(ChunkCoordinates chunkPosition)
@@ -911,7 +910,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void DropItem(BlockCoordinates coordinates, Item drop)
+		public void DropItem(Vector3 coordinates, Item drop)
 		{
 			if (GameMode == GameMode.Creative) return;
 
@@ -919,16 +918,16 @@ namespace MiNET.Worlds
 			if (drop.Id == 0) return;
 			if (drop.Count == 0) return;
 
-			Item item = ItemFactory.GetItem(drop.Id, drop.Metadata, drop.Count);
-
-			var itemEntity = new ItemEntity(this, item)
+			Random random = new Random();
+			var itemEntity = new ItemEntity(this, drop)
 			{
 				KnownPosition =
 				{
-					X = coordinates.X + 0.5f,
-					Y = coordinates.Y + 0.5f,
-					Z = coordinates.Z + 0.5f
+					X = (float) coordinates.X,
+					Y = (float) coordinates.Y,
+					Z = (float) coordinates.Z
 				},
+				Velocity = new Vector3(random.NextDouble()*0.3, random.NextDouble()*0.3, random.NextDouble()*0.3)
 			};
 
 			itemEntity.SpawnEntity();

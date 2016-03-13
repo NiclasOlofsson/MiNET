@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using fNbt;
 using MiNET.BlockEntities;
 using MiNET.Items;
@@ -54,37 +55,24 @@ namespace MiNET
 			return Slots[slot];
 		}
 
-		public bool DecreaseSlot(byte slot)
+		public void DecreaseSlot(byte slot)
 		{
-			return DecreaseSlot(null, slot);
-		}
-
-		public bool DecreaseSlot(Player player, byte slot)
-		{
-			bool isEmpty = false;
-
 			var slotData = Slots[slot];
-			if (slotData.Id == 0 || slotData.Count <= 1)
+			if (slotData is ItemAir) return;
+
+			slotData.Count--;
+
+			if (slotData.Count <= 0)
 			{
 				slotData = new ItemAir();
-				isEmpty = true;
-			}
-			else
-			{
-				slotData.Count--;
 			}
 
-			OnInventoryChange(player, slot, slotData);
+			SetSlot(null, slot, slotData);
 
-			return isEmpty;
+			OnInventoryChange(null, slot, slotData);
 		}
 
 		public void IncreaseSlot(byte slot, short itemId, short metadata)
-		{
-			IncreaseSlot(null, slot, itemId, metadata);
-		}
-
-		public void IncreaseSlot(Player player, byte slot, short itemId, short metadata)
 		{
 			Item slotData = Slots[slot];
 			if (slotData is ItemAir)
@@ -96,7 +84,9 @@ namespace MiNET
 				slotData.Count++;
 			}
 
-			OnInventoryChange(player, slot, slotData);
+			SetSlot(null, slot, slotData);
+
+			OnInventoryChange(null, slot, slotData);
 		}
 
 		public bool IsOpen()
@@ -127,6 +117,25 @@ namespace MiNET
 		{
 			Action<Player, Inventory, byte, Item> handler = InventoryChange;
 			if (handler != null) handler(player, this, slot, itemStack);
+		}
+
+
+		// Below is a workaround making it possible to send
+		// updates to only peopele that is looking at this inventory.
+		// Is should be converted to some sort of event based version.
+
+		public ConcurrentBag<Player> Observers { get; } = new ConcurrentBag<Player>();
+
+		public void AddObserver(Player player)
+		{
+			Observers.Add(player);
+		}
+
+		public void RemoveObserver(Player player)
+		{
+			// Need to arrange for this to work when players get disconnected
+			// from crash. It will leak players for sure.
+			Observers.TryTake(out player);
 		}
 	}
 }

@@ -852,6 +852,29 @@ namespace MiNET.Net
 					Write(bytes.Length);
 					Write(bytes);
 				}
+				else if (recipe is SmeltingRecipe)
+				{
+					////const ENTRY_FURNACE = 2;
+					//SmeltingRecipe recipe = new SmeltingRecipe();
+					//short meta = ReadShort(); // input (with metadata) 
+					//short id = ReadShort(); // input (with metadata) 
+					//Item result = ReadItem(); // Result
+					//recipe.Input = ItemFactory.GetItem(id, meta);
+					//recipe.Result = result;
+					//recipes.Add(recipe);
+					var memoryStream = new MemoryStream();
+					McpeWriter writer = new McpeWriter(memoryStream);
+
+					SmeltingRecipe rec = (SmeltingRecipe)recipe;
+					writer.Write(rec.Input.Metadata);
+					writer.Write(rec.Input.Id);
+					writer.Write(rec.Result);
+
+					Write(2); // Type
+					var bytes = memoryStream.ToArray();
+					Write(bytes.Length);
+					Write(bytes);
+				}
 				else if (recipe is EnchantingRecipe)
 				{
 					var memoryStream = new MemoryStream();

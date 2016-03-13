@@ -163,7 +163,6 @@ namespace MiNET
 			var player = Entity as Player;
 			if (player != null)
 			{
-				player.DropInventory();
 				player.SendUpdateAttributes();
 				player.BroadcastEntityEvent();
 			}
@@ -173,14 +172,13 @@ namespace MiNET
 
 			if (player != null)
 			{
-				//Task.Delay(10000).ContinueWith(delegate (Task task)
-				//{
+				player.DropInventory();
+
 				var mcpeRespawn = McpeRespawn.CreateObject();
 				mcpeRespawn.x = player.SpawnPosition.X;
 				mcpeRespawn.y = player.SpawnPosition.Y;
 				mcpeRespawn.z = player.SpawnPosition.Z;
 				player.SendPackage(mcpeRespawn);
-				//});
 			}
 		}
 

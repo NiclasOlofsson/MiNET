@@ -19,7 +19,7 @@ namespace MiNET.Crafting
 			if (_craftingData == null)
 			{
 				McpeCraftingData craftingData = McpeCraftingData.CreateObject();
-				craftingData.recipes = RecipeManager.Recipes;
+				craftingData.recipes = Recipes;
 				var packet = Level.CreateMcpeBatch(craftingData.Encode());
 				packet.MarkPermanent(true);
 				_craftingData = packet;
@@ -28,6 +28,7 @@ namespace MiNET.Crafting
 			return _craftingData;
 		}
 
+		// GENERATED CODE. DON'T EDIT BY HAND
 		static RecipeManager()
 		{
 			Recipes = new Recipes
@@ -586,6 +587,14 @@ namespace MiNET.Crafting
 						new Item(12, 0),
 						new Item(12, 0),
 					}),
+				new ShapedRecipe(2, 2, new Item(179, 0, 1),
+					new Item[]
+					{
+						new Item(12, 1),
+						new Item(12, 1),
+						new Item(12, 1),
+						new Item(12, 1),
+					}),
 				new ShapedRecipe(2, 2, new Item(24, 2, 4),
 					new Item[]
 					{
@@ -594,11 +603,25 @@ namespace MiNET.Crafting
 						new Item(24, -1),
 						new Item(24, -1),
 					}),
+				new ShapedRecipe(2, 2, new Item(179, 2, 4),
+					new Item[]
+					{
+						new Item(179, -1),
+						new Item(179, -1),
+						new Item(179, -1),
+						new Item(179, -1),
+					}),
 				new ShapedRecipe(1, 2, new Item(24, 1, 1),
 					new Item[]
 					{
 						new Item(44, 1),
 						new Item(44, 1),
+					}),
+				new ShapedRecipe(1, 2, new Item(179, 1, 1),
+					new Item[]
+					{
+						new Item(182, 0),
+						new Item(182, 0),
 					}),
 				new ShapedRecipe(2, 2, new Item(98, 0, 4),
 					new Item[]
@@ -1271,6 +1294,19 @@ namespace MiNET.Crafting
 					{
 						new Item(175, 5),
 					}),
+				new ShapedRecipe(3, 3, new Item(395, 1, 1),
+					new Item[]
+					{
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+						new Item(339, 0),
+					}),
 				new ShapedRecipe(3, 1, new Item(339, 0, 3),
 					new Item[]
 					{
@@ -1550,6 +1586,13 @@ namespace MiNET.Crafting
 						new Item(24, -1),
 						new Item(24, -1),
 						new Item(24, -1),
+					}),
+				new ShapedRecipe(3, 1, new Item(182, 0, 6),
+					new Item[]
+					{
+						new Item(179, -1),
+						new Item(179, -1),
+						new Item(179, -1),
 					}),
 				new ShapedRecipe(3, 1, new Item(158, 0, 6),
 					new Item[]
@@ -1997,6 +2040,31 @@ namespace MiNET.Crafting
 						new Item(265, 0),
 						new Item(265, 0),
 					}),
+				new ShapedRecipe(1, 2, new Item(342, 0, 1),
+					new Item[]
+					{
+						new Item(54, -1),
+						new Item(328, 0),
+					}),
+				new ShapedRecipe(1, 2, new Item(408, 0, 1),
+					new Item[]
+					{
+						new Item(410, 0),
+						new Item(328, 0),
+					}),
+				new ShapedRecipe(3, 3, new Item(380, 0, 1),
+					new Item[]
+					{
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(0, 0),
+						new Item(0, 0),
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(265, 0),
+					}),
 				new ShapedRecipe(3, 2, new Item(379, 0, 1),
 					new Item[]
 					{
@@ -2221,6 +2289,19 @@ namespace MiNET.Crafting
 						new Item(0, 0),
 						new Item(24, -1),
 					}),
+				new ShapedRecipe(3, 3, new Item(180, 0, 4),
+					new Item[]
+					{
+						new Item(179, -1),
+						new Item(179, -1),
+						new Item(179, -1),
+						new Item(0, 0),
+						new Item(179, -1),
+						new Item(179, -1),
+						new Item(0, 0),
+						new Item(0, 0),
+						new Item(179, -1),
+					}),
 				new ShapedRecipe(3, 3, new Item(109, 0, 4),
 					new Item[]
 					{
@@ -2337,6 +2418,16 @@ namespace MiNET.Crafting
 						new Item(406, 0),
 						new Item(158, -1),
 					}),
+				new ShapedRecipe(3, 2, new Item(356, 0, 1),
+					new Item[]
+					{
+						new Item(76, -1),
+						new Item(76, -1),
+						new Item(1, -1),
+						new Item(331, 0),
+						new Item(1, -1),
+						new Item(1, -1),
+					}),
 				new ShapedRecipe(3, 3, new Item(123, 0, 1),
 					new Item[]
 					{
@@ -2410,6 +2501,45 @@ namespace MiNET.Crafting
 						new Item(265, 0),
 						new Item(265, 0),
 					}),
+				new ShapedRecipe(3, 3, new Item(23, 3, 1),
+					new Item[]
+					{
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(261, 0),
+						new Item(331, 0),
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(4, -1),
+					}),
+				new ShapedRecipe(3, 3, new Item(125, 3, 1),
+					new Item[]
+					{
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(0, 0),
+						new Item(331, 0),
+						new Item(4, -1),
+						new Item(4, -1),
+						new Item(4, -1),
+					}),
+				new ShapedRecipe(3, 3, new Item(410, 0, 1),
+					new Item[]
+					{
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(0, 0),
+						new Item(0, 0),
+						new Item(54, -1),
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(265, 0),
+						new Item(0, 0),
+					}),
 				new ShapedRecipe(3, 2, new Item(355, 0, 1),
 					new Item[]
 					{
@@ -2440,6 +2570,38 @@ namespace MiNET.Crafting
 						new Item(415, 0),
 						new Item(415, 0),
 						new Item(415, 0),
+					}),
+				new ShapedRecipe(3, 3, new Item(404, 0, 1),
+					new Item[]
+					{
+						new Item(0, 0),
+						new Item(76, -1),
+						new Item(1, -1),
+						new Item(76, -1),
+						new Item(406, 0),
+						new Item(1, -1),
+						new Item(0, 0),
+						new Item(76, -1),
+						new Item(1, -1),
+					}),
+				new ShapedRecipe(1, 2, new Item(407, 0, 1),
+					new Item[]
+					{
+						new Item(46, -1),
+						new Item(328, 0),
+					}),
+				new ShapedRecipe(3, 3, new Item(389, 0, 1),
+					new Item[]
+					{
+						new Item(280, 0),
+						new Item(280, 0),
+						new Item(280, 0),
+						new Item(280, 0),
+						new Item(334, 0),
+						new Item(280, 0),
+						new Item(280, 0),
+						new Item(280, 0),
+						new Item(280, 0),
 					}),
 				new ShapedRecipe(2, 1, new Item(171, 0, 3),
 					new Item[]
@@ -2745,9 +2907,50 @@ namespace MiNET.Crafting
 						new Item(172, -1),
 						new Item(172, -1),
 					}),
+				new ShapedRecipe(3, 3, new Item(165, 0, 1),
+					new Item[]
+					{
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+						new Item(341, 0),
+					}),
+				new ShapedRecipe(1, 1, new Item(341, 0, 9),
+					new Item[]
+					{
+						new Item(165, 0),
+					}),
+				new SmeltingRecipe(new Item(1, 0, 1), new Item(4, 0)),
+				new SmeltingRecipe(new Item(20, 0, 1), new Item(12, 0)),
+				new SmeltingRecipe(new Item(266, 0, 1), new Item(14, 0)),
+				new SmeltingRecipe(new Item(265, 0, 1), new Item(15, 0)),
+				new SmeltingRecipe(new Item(263, 0, 1), new Item(16, 0)),
+				new SmeltingRecipe(new Item(263, 1, 1), new Item(17, 0)),
+				new SmeltingRecipe(new Item(351, 4, 1), new Item(21, 0)),
+				new SmeltingRecipe(new Item(264, 0, 1), new Item(56, 0)),
+				new SmeltingRecipe(new Item(331, 0, 1), new Item(73, 0)),
+				new SmeltingRecipe(new Item(351, 2, 1), new Item(81, 0)),
+				new SmeltingRecipe(new Item(172, 0, 1), new Item(82, 0)),
+				new SmeltingRecipe(new Item(405, 0, 1), new Item(87, 0)),
+				new SmeltingRecipe(new Item(388, 0, 1), new Item(129, 0)),
+				new SmeltingRecipe(new Item(406, 0, 1), new Item(153, 0)),
+				new SmeltingRecipe(new Item(263, 1, 1), new Item(162, 0)),
+				new SmeltingRecipe(new Item(320, 0, 1), new Item(319, 0)),
+				new SmeltingRecipe(new Item(336, 0, 1), new Item(337, 0)),
+				new SmeltingRecipe(new Item(350, 0, 1), new Item(349, 0)),
+				new SmeltingRecipe(new Item(364, 0, 1), new Item(363, 0)),
+				new SmeltingRecipe(new Item(366, 0, 1), new Item(365, 0)),
+				new SmeltingRecipe(new Item(393, 0, 1), new Item(392, 0)),
+				new SmeltingRecipe(new Item(412, 0, 1), new Item(411, 0)),
+				new SmeltingRecipe(new Item(463, 0, 1), new Item(460, 0)),
+				new SmeltingRecipe(new Item(98, 2, 1), new Item(98, 0)),
 			};
 		}
-
 
 		public static void Add(Recipe recipe)
 		{

@@ -191,8 +191,8 @@ namespace TestPlugin
 		}
 
 		[Command(Command = "gm")]
-		[Authorize(Users = "gurun")]
-		[Authorize(Users = "gurunx")]
+		//[Authorize(Users = "gurun")]
+		//[Authorize(Users = "gurunx")]
 		public void GameMode(Player player, int gameMode)
 		{
 			player.SetGameMode((GameMode)gameMode);
@@ -408,6 +408,17 @@ namespace TestPlugin
 					break;
 			}
 
+			// 0 = protection
+			// 1 = Fire protection
+			// 2 = Feather falling
+			// 3 = Blast protection
+			// 4 = Projectile protection
+			// 5 = Thorns
+
+
+			EnchantArmor(player.Inventory, 0, 2);
+
+
 			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
 
 			// Hotbar
@@ -459,6 +470,14 @@ namespace TestPlugin
 			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
 		}
 
+		private void EnchantArmor(PlayerInventory inventory, short enchId, short level)
+		{
+			inventory.Helmet.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
+			inventory.Chest.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
+			inventory.Leggings.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
+			inventory.Boots.ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", enchId), new NbtShort("lvl", level)}}};
+		}
+
 		[Command]
 		public void Potions(Player player)
 		{
@@ -475,7 +494,24 @@ namespace TestPlugin
 			SendEquipmentForPlayer(player);
 			SendArmorForPlayer(player);
 
-			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+			player.Level.BroadcastMessage($"{player.Username} got potions.", type: MessageType.Raw);
+		}
+
+		[Command]
+		public void Furnace(Player player)
+		{
+			var inventory = player.Inventory;
+
+			byte c = 0;
+			inventory.Slots[c++] = new ItemFurnace() {Count = 64}; // Custom command block
+			inventory.Slots[c++] = new ItemCoal() {Count = 64}; // Custom command block
+			inventory.Slots[c++] = new ItemBlock(new IronOre(), 0) {Count = 64}; // Custom command block
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage($"{player.Username} got potions.", type: MessageType.Raw);
 		}
 
 

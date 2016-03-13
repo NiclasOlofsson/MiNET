@@ -3,7 +3,6 @@ using fNbt;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.BlockEntities
@@ -83,7 +82,11 @@ namespace MiNET.BlockEntities
 
 			if (!(furnace is LitFurnace))
 			{
-				if (GetFuel().Id != 0)
+				Item fuel = GetFuel();
+				Item ingredient = GetIngredient();
+				Item smelt = ingredient.GetSmelt();
+				// To light a furnace you need both fule and proper ingredient.
+				if (fuel.Count > 0 && fuel.FuelEfficiency > 0 && smelt != null)
 				{
 					LitFurnace litFurnace = new LitFurnace
 					{
@@ -94,84 +97,90 @@ namespace MiNET.BlockEntities
 					level.SetBlock(litFurnace);
 					furnace = litFurnace;
 
-					BurnTime = GetFuelEfficiency(GetFuel());
+					BurnTime = GetFuelEfficiency(fuel);
 					FuelEfficiency = BurnTime;
 					CookTime = 0;
 					Inventory.DecreaseSlot(1);
 				}
 			}
 
-			if (!(furnace is LitFurnace)) return;
-
-			if (BurnTime > 0)
+			if (furnace is LitFurnace)
 			{
-				BurnTime--;
-				BurnTick = (short) Math.Ceiling((double) BurnTime/FuelEfficiency*200d);
-
-				if (GetIngredient().Id != 0)
+				if (BurnTime > 0)
 				{
-					CookTime++;
-					if (CookTime >= 200)
+					BurnTime--;
+					BurnTick = (short) Math.Ceiling((double) BurnTime/FuelEfficiency*200d);
+
+					Item ingredient = GetIngredient();
+					Item smelt = ingredient.GetSmelt();
+					if (smelt != null)
 					{
-						Item result = GetResult(GetIngredient());
-						if (result != null)
+						CookTime++;
+						if (CookTime >= 200)
 						{
 							Inventory.DecreaseSlot(0);
-							Inventory.IncreaseSlot(2, result.Id, result.Metadata);
-						}
+							Inventory.IncreaseSlot(2, smelt.Id, smelt.Metadata);
 
+							CookTime = 0;
+						}
+					}
+					else
+					{
 						CookTime = 0;
 					}
 				}
-				else
-				{
-					CookTime = 0;
-				}
-			}
 
-			if (BurnTime <= 0)
-			{
-				if (!Inventory.DecreaseSlot(1))
+				if (BurnTime <= 0)
 				{
-					//CookTime = 0;
-					BurnTime = GetFuelEfficiency(GetFuel());
-					FuelEfficiency = BurnTime;
-					BurnTick = (short) Math.Ceiling((double) BurnTime/FuelEfficiency*200d);
-				}
-				else
-				{
-					// No more fule
-					Furnace unlitFurnace = new Furnace
+					var fuel = GetFuel();
+					Item ingredient = GetIngredient();
+					Item smelt = ingredient.GetSmelt();
+					if (fuel.Count > 0 && fuel.FuelEfficiency > 0 && smelt != null)
 					{
-						Coordinates = furnace.Coordinates,
-						Metadata = furnace.Metadata
-					};
+						Inventory.DecreaseSlot(1);
 
-					level.SetBlock(unlitFurnace);
-					FuelEfficiency = 0;
-					BurnTick = 0;
-					BurnTime = 0;
-					CookTime = 0;
+						CookTime = 0;
+						BurnTime = GetFuelEfficiency(fuel);
+						FuelEfficiency = BurnTime;
+						BurnTick = (short) Math.Ceiling((double) BurnTime/FuelEfficiency*200d);
+					}
+					else
+					{
+						// No more fule or nothin more to smelt.
+						Furnace unlitFurnace = new Furnace
+						{
+							Coordinates = furnace.Coordinates,
+							Metadata = furnace.Metadata
+						};
+
+						level.SetBlock(unlitFurnace);
+						FuelEfficiency = 0;
+						BurnTick = 0;
+						BurnTime = 0;
+						CookTime = 0;
+					}
 				}
 			}
 
-			//var cookTimeSetData = McpeContainerSetData.CreateObject();
-			//cookTimeSetData.windowId = Inventory.WindowsId;
-			//cookTimeSetData.property = 0;
-			//cookTimeSetData.value = CookTime;
-			//level.RelayBroadcast(cookTimeSetData);
+			foreach (var observer in Inventory.Observers)
+			{
+				var cookTimeSetData = McpeContainerSetData.CreateObject();
+				cookTimeSetData.windowId = Inventory.WindowsId;
+				cookTimeSetData.property = 0;
+				cookTimeSetData.value = CookTime;
+				observer.SendPackage(cookTimeSetData);
 
-			//var burnTimeSetData = McpeContainerSetData.CreateObject();
-			//burnTimeSetData.windowId = Inventory.WindowsId;
-			//burnTimeSetData.property = 1;
-			//burnTimeSetData.value = BurnTick;
-			//level.RelayBroadcast(burnTimeSetData);
+				var burnTimeSetData = McpeContainerSetData.CreateObject();
+				burnTimeSetData.windowId = Inventory.WindowsId;
+				burnTimeSetData.property = 1;
+				burnTimeSetData.value = BurnTick;
+				observer.SendPackage(burnTimeSetData);
+			}
 		}
 
 		private Item GetResult(Item ingredient)
 		{
-			Item item = ItemFactory.GetItem(ingredient.Id, ingredient.Metadata);
-			return item.GetSmelt();
+			return ingredient.GetSmelt();
 		}
 
 		public short FuelEfficiency { get; set; }
@@ -186,9 +195,8 @@ namespace MiNET.BlockEntities
 			return Inventory.Slots[0];
 		}
 
-		private short GetFuelEfficiency(Item itemStack)
+		private short GetFuelEfficiency(Item item)
 		{
-			Item item = ItemFactory.GetItem(itemStack.Id, itemStack.Metadata);
 			return (short) (item.FuelEfficiency*20);
 		}
 	}

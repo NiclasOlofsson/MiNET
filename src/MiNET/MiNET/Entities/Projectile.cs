@@ -155,10 +155,10 @@ namespace MiNET.Entities
 			if (entityCollided != null)
 			{
 				double speed = Math.Sqrt(Velocity.X*Velocity.X + Velocity.Y*Velocity.Y + Velocity.Z*Velocity.Z);
-				int damage = (int) Math.Ceiling(speed*Damage);
+				double damage = Math.Ceiling(speed*Damage);
 				if (IsCritical)
 				{
-					damage += Level.Random.Next(damage/2 + 2);
+					damage += Level.Random.Next((int) (damage/2 + 2));
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
 					animate.entityId = entityCollided.EntityId;
@@ -173,7 +173,7 @@ namespace MiNET.Entities
 					damage = player.CalculatePlayerDamage(player, damage);
 				}
 
-				entityCollided.HealthManager.TakeHit(this, damage, DamageCause.Projectile);
+				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);
 				entityCollided.HealthManager.LastDamageSource = Shooter;
 				collided = true;
 			}

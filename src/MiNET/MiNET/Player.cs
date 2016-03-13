@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
+using fNbt;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Blocks;
@@ -1306,7 +1307,7 @@ namespace MiNET
 
 				if (inventory == null)
 				{
-					Log.Warn($"No chest found at {inventoryCoord}");
+					Log.Warn($"No inventory found at {inventoryCoord}");
 					return;
 				}
 
@@ -1328,6 +1329,7 @@ namespace MiNET
 
 				// subscribe to inventory changes
 				inventory.InventoryChange += OnInventoryChange;
+				inventory.AddObserver(this);
 
 				// open inventory
 
@@ -1364,6 +1366,11 @@ namespace MiNET
 				containerSetSlot.item = itemStack;
 				SendPackage(containerSetSlot);
 			}
+
+			//if(inventory.BlockEntity != null)
+			//{
+			//	Level.SetBlockEntity(inventory.BlockEntity, false);
+			//}
 		}
 
 
@@ -1476,6 +1483,7 @@ namespace MiNET
 
 				// unsubscribe to inventory changes
 				inventory.InventoryChange -= OnInventoryChange;
+				inventory.RemoveObserver(this);
 
 				if (message != null && message.windowId != inventory.WindowsId) return;
 
@@ -1532,23 +1540,26 @@ namespace MiNET
 					damage += (effect.Level + 1)*3;
 				}
 
-				player.HealthManager.TakeHit(this, CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
+				player.HealthManager.TakeHit(this, (int) CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
 			}
 			else
 			{
+				// This is totally wrong. Need to merge with the above damage calculation
 				target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
 			}
 
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
-		public int CalculatePlayerDamage(Player target, int damage)
+		public double CalculatePlayerDamage(Player target, double damage)
 		{
+			double originalDamage = damage;
 			double armorValue = 0;
+			double epfValue = 0;
 
 			{
 				{
-					var armorPiece = target.Inventory.Helmet;
+					Item armorPiece = target.Inventory.Helmet;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1567,10 +1578,11 @@ namespace MiNET
 							armorValue += 3;
 							break;
 					}
+					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
 				}
 
 				{
-					var armorPiece = target.Inventory.Chest;
+					Item armorPiece = target.Inventory.Chest;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1589,10 +1601,11 @@ namespace MiNET
 							armorValue += 8;
 							break;
 					}
+					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
 				}
 
 				{
-					var armorPiece = target.Inventory.Leggings;
+					Item armorPiece = target.Inventory.Leggings;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1611,10 +1624,11 @@ namespace MiNET
 							armorValue += 6;
 							break;
 					}
+					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
 				}
 
 				{
-					var armorPiece = target.Inventory.Boots;
+					Item armorPiece = target.Inventory.Boots;
 					switch (armorPiece.ItemMaterial)
 					{
 						case ItemMaterial.Leather:
@@ -1633,12 +1647,48 @@ namespace MiNET
 							armorValue += 3;
 							break;
 					}
+					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
 				}
 			}
 
-			armorValue *= 0.04; // Each armor point represent 4% reduction
+			damage = damage*(1 - Math.Max(armorValue/5, armorValue - damage/2)/25);
 
-			return (int) Math.Floor(damage*(1.0 - armorValue));
+			epfValue = Math.Min(20, epfValue);
+			damage = damage*(1 - epfValue/25);
+
+
+			Log.Debug($"Original Damage={originalDamage:F1} Redused Damage={damage:F1}, Armor Value={armorValue:F1}, EPF {epfValue:F1}");
+			return (int) damage;
+
+			//armorValue *= 0.04; // Each armor point represent 4% reduction
+			//return (int) Math.Floor(damage*(1.0 - armorValue));
+		}
+
+		public double CalculateDamageReducationFromEnchantments(Item armor)
+		{
+			if (armor == null) return 0;
+			if (armor.ExtraData == null) return 0;
+
+			NbtList enchantings;
+			if (!armor.ExtraData.TryGet("ench", out enchantings)) return 0;
+
+			double reduction = 0;
+			foreach (NbtCompound enchanting in enchantings)
+			{
+				short level = enchanting["lvl"].ShortValue;
+
+				double typeModifier = 0;
+				short id = enchanting["id"].ShortValue;
+				if (id == 0) typeModifier = 1;
+				else if (id == 1) typeModifier = 2;
+				else if (id == 2) typeModifier = 2;
+				else if (id == 3) typeModifier = 2;
+				else if (id == 4) typeModifier = 3;
+
+				reduction += level*typeModifier;
+			}
+
+			return reduction;
 		}
 
 		private int CalculateDamage(Entity target)
@@ -2407,29 +2457,32 @@ namespace MiNET
 		{
 			var slots = Inventory.Slots;
 
+			Vector3 coordinates = KnownPosition.ToVector3();
+			coordinates.Y += 0.5f;
+
 			foreach (var stack in slots.ToArray())
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), stack);
+				Level.DropItem(coordinates, stack);
 			}
 
 			if (Inventory.Helmet.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Helmet);
+				Level.DropItem(coordinates, Inventory.Helmet);
 				Inventory.Helmet = new ItemAir();
 			}
 			if (Inventory.Chest.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Chest);
+				Level.DropItem(coordinates, Inventory.Chest);
 				Inventory.Chest = new ItemAir();
 			}
 			if (Inventory.Leggings.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Leggings);
+				Level.DropItem(coordinates, Inventory.Leggings);
 				Inventory.Leggings = new ItemAir();
 			}
 			if (Inventory.Boots.Id != 0)
 			{
-				Level.DropItem(KnownPosition.GetCoordinates3D(), Inventory.Boots);
+				Level.DropItem(coordinates, Inventory.Boots);
 				Inventory.Boots = new ItemAir();
 			}
 

@@ -855,7 +855,6 @@ namespace MiNET.Client
 				}
 
 				ShapedRecipe shapedRecipe = recipe as ShapedRecipe;
-
 				if (shapedRecipe != null && _recipeToSend == null)
 				{
 					if (shapedRecipe.Result.Id == 5 && shapedRecipe.Result.Count == 4 && shapedRecipe.Result.Metadata == 0)
@@ -864,7 +863,6 @@ namespace MiNET.Client
 						_recipeToSend = shapedRecipe;
 					}
 				}
-
 				if (shapedRecipe != null)
 				{
 					writer.WriteLine($"new ShapedRecipe({shapedRecipe.Width}, {shapedRecipe.Height}, new Item({shapedRecipe.Result.Id}, {shapedRecipe.Result.Metadata}, {shapedRecipe.Result.Count}),");
@@ -880,6 +878,12 @@ namespace MiNET.Client
 					writer.WriteLine("}),");
 					writer.Indent--;
 
+					continue;
+				}
+				SmeltingRecipe smeltingRecipe = recipe as SmeltingRecipe;
+				if (smeltingRecipe != null)
+				{
+					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata})),");
 					continue;
 				}
 			}

@@ -443,7 +443,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
 			inventory.Slots[c++] = new ItemIronSword
 			{
-				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 0), new NbtShort("lvl", 2)}}}
+				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1)}}}
 			};
 
 			//inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword

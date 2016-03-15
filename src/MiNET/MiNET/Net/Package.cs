@@ -870,7 +870,7 @@ namespace MiNET.Net
 					writer.Write(rec.Input.Id);
 					writer.Write(rec.Result);
 
-					Write(2); // Type
+					Write(rec.Input.Metadata == 0? 2: 3); // Type
 					var bytes = memoryStream.ToArray();
 					Write(bytes.Length);
 					Write(bytes);

@@ -1518,10 +1518,11 @@ namespace MiNET
 			Player player = target as Player;
 			if (player != null)
 			{
-				int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
+				Item itemInHand = Inventory.GetItemInHand();
+				double damage = itemInHand.GetDamage(); //Item Damage.
 				if (IsFalling)
 				{
-					damage += Level.Random.Next(damage/2 + 2);
+					damage += Level.Random.Next((int) (damage/2 + 2));
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
 					animate.entityId = target.EntityId;
@@ -1540,6 +1541,8 @@ namespace MiNET
 					damage += (effect.Level + 1)*3;
 				}
 
+				damage += CalculateDamageIncreaseFromEnchantments(itemInHand);
+
 				player.HealthManager.TakeHit(this, (int) CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
 			}
 			else
@@ -1550,6 +1553,32 @@ namespace MiNET
 
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
+
+		public double CalculateDamageIncreaseFromEnchantments(Item tool)
+		{
+			if (tool == null) return 0;
+			if (tool.ExtraData == null) return 0;
+
+			NbtList enchantings;
+			if (!tool.ExtraData.TryGet("ench", out enchantings)) return 0;
+
+			double increase = 0;
+			foreach (NbtCompound enchanting in enchantings)
+			{
+				short level = enchanting["lvl"].ShortValue;
+
+				if (level == 0) continue;
+
+				short id = enchanting["id"].ShortValue;
+				if (id == 9)
+				{
+					increase += 1 + ((level - 1)*0.5);
+				}
+			}
+
+			return increase;
+		}
+
 
 		public double CalculatePlayerDamage(Player target, double damage)
 		{

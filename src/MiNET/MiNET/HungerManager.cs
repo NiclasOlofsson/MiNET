@@ -111,7 +111,7 @@ namespace MiNET
 					Player.HealthManager.TakeHit(null, 1, DamageCause.Unknown);
 				}
 			}
-			else if (Hunger > 18 && Player.HealthManager.Hearts < 20)
+			else if (Hunger > 18 && IsPlayerHurt())
 			{
 				_ticker++;
 
@@ -138,6 +138,11 @@ namespace MiNET
 			}
 
 			//DisplayDebugPopup();
+		}
+		
+		public virtual bool IsPlayerHurt()
+		{
+			return Player.HealthManager.Hearts < 20;
 		}
 
 		public void DisplayDebugPopup()

@@ -27,7 +27,7 @@ namespace MiNET
 		{
 		}
 
-		public void RemoveSession(Session session)
+		public virtual void RemoveSession(Session session)
 		{
 			if (session.Player == null) return;
 			if (session.Player.ClientUuid == null) return;

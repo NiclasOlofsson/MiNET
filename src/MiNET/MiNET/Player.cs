@@ -49,7 +49,7 @@ namespace MiNET
 		public bool IsConnected { get; set; }
 		public string Username { get; private set; }
 		public string DisplayName { get; set; }
-		public int ClientId { get; set; }
+		public long ClientId { get; set; }
 		public long ClientGuid { get; set; }
 		public string ClientSecret { get; set; }
 		public UUID ClientUuid { get; set; }
@@ -674,7 +674,7 @@ namespace MiNET
 			SendPlayerStatus(0); // Hmm, login success?
 
 			Username = message.username;
-			ClientId = (int) message.clientId;
+			ClientId = message.clientId;
 			ClientUuid = message.clientUuid;
 			ClientSecret = message.clientSecret;
 			Skin = message.skin;

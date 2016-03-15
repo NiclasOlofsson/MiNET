@@ -323,7 +323,7 @@ namespace MiNET.Worlds
 		}
 
 
-		public void RemoveDuplicatePlayers(string username, int clientId)
+		public void RemoveDuplicatePlayers(string username, long clientId)
 		{
 			//var existingPlayers = Players.Where(player => player.Value.ClientId == clientId && player.Value.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
 

@@ -716,7 +716,7 @@ namespace MiNET
 				Session = Server.SessionManager.CreateSession(this);
 				if (Server.IsSecurityEnabled)
 				{
-					User = Server.UserManager.FindByName(Username);
+					User = User ?? Server.UserManager.FindByName(Username);
 				}
 
 				lock (_disconnectSync)

@@ -150,7 +150,7 @@ namespace MiNET.Net
 			NbtCompound extraData = stack.ExtraData;
 			if (signItem)
 			{
-				extraData = ItemSigner.DefualtItemSigner?.SignNbt(extraData);
+				extraData = ItemSigner.DefaultItemSigner?.SignNbt(extraData);
 			}
 
 			if (extraData != null)

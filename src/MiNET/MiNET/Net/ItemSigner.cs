@@ -8,11 +8,12 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemSigner));
 
-		public static ItemSigner DefualtItemSigner { get; set; }
+		public static ItemSigner DefaultItemSigner { get; set; }
 
 		static ItemSigner()
 		{
-			DefualtItemSigner = new ItemSigner();
+			DefaultItemSigner = new ItemSigner();
+			//DefaultItemSigner = new HashedItemSigner();
 		}
 
 		public virtual NbtCompound SignNbt(NbtCompound extraData, bool crafting = false)

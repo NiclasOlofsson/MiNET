@@ -714,6 +714,7 @@ namespace MiNET
 			try
 			{
 				Session = Server.SessionManager.CreateSession(this);
+
 				if (Server.IsSecurityEnabled)
 				{
 					User = User ?? Server.UserManager.FindByName(Username);
@@ -1467,9 +1468,9 @@ namespace MiNET
 
 		public virtual bool VerifyItemStack(Item itemStack)
 		{
-			if (ItemSigner.DefualtItemSigner == null) return true;
+			if (ItemSigner.DefaultItemSigner == null) return true;
 
-			return ItemSigner.DefualtItemSigner.VerifyItemStack(this, itemStack);
+			return ItemSigner.DefaultItemSigner.VerifyItemStack(this, itemStack);
 		}
 
 		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)

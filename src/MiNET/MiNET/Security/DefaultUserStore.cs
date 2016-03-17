@@ -4,7 +4,7 @@ using Microsoft.AspNet.Identity;
 
 namespace MiNET.Security
 {
-	public class DefaultUserStore : IUserStore<User>, IUserPasswordStore<User>
+	public class DefaultUserStore : IUserStore<User>, IUserRoleStore<User>, IUserPasswordStore<User>
 	{
 		private Dictionary<string, User> _users = new Dictionary<string, User>();
 
@@ -61,6 +61,28 @@ namespace MiNET.Security
 
 		public void Dispose()
 		{
+		}
+
+		// User-Role store implementation
+
+		public Task AddToRoleAsync(User user, string roleName)
+		{
+			return Task.FromResult<object>(null);
+		}
+
+		public Task RemoveFromRoleAsync(User user, string roleName)
+		{
+			return Task.FromResult<object>(null);
+		}
+
+		public Task<IList<string>> GetRolesAsync(User user)
+		{
+			return Task.FromResult((IList<string>) new List<string>());
+		}
+
+		public Task<bool> IsInRoleAsync(User user, string roleName)
+		{
+			return Task.FromResult<bool>(true);
 		}
 	}
 }

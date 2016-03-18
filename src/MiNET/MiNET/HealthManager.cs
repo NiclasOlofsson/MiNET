@@ -38,7 +38,7 @@ namespace MiNET
 		public int Health { get; set; }
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
-		public int FireTick { get; set; }
+        public int FireTick { get; set; }
         public int SuffocationTicks { get; set; }
         public int CooldownTick { get; set; }
 		public bool IsOnFire { get; set; }
@@ -187,7 +187,7 @@ namespace MiNET
 		{
 			IsInvulnerable = false;
 			Health = 200;
-			Air = 300;
+            Air = 300;
             SuffocationTicks = 10;
 			IsOnFire = false;
 			FireTick = 0;
@@ -250,32 +250,32 @@ namespace MiNET
 			else
 			{
 				Air = 300;
-			}
-
+            }
+            
             if (IsInSolid(Entity.KnownPosition))
-            {
-                if (SuffocationTicks <= 0)
-                {
-                    Health -= 10;
-                    var player = Entity as Player;
-                    if (player != null)
-                    {
-                        player.SendUpdateAttributes();
-                        player.BroadcastEntityEvent();
-                    }
-                    Entity.BroadcastSetEntityData();
-                    LastDamageCause = DamageCause.Suffocation;
-                    SuffocationTicks = 10;
-                }
-                else
-                {
-                    SuffocationTicks--;
-                }
-            }
-            else
-            {
-                SuffocationTicks = 10;
-            }
+			{
+				if (SuffocationTicks <= 0)
+				{
+					Health -= 10;
+					var player = Entity as Player;
+					if (player != null)
+					{
+						player.SendUpdateAttributes();
+						player.BroadcastEntityEvent();
+					}
+					Entity.BroadcastSetEntityData();
+					LastDamageCause = DamageCause.Suffocation;
+					SuffocationTicks = 10;
+				}
+				else
+				{
+					SuffocationTicks--;
+				}
+			}
+			else
+			{
+				SuffocationTicks = 10;
+			}
 
 			if (!IsOnFire && IsInLava(Entity.KnownPosition))
 			{
@@ -334,25 +334,25 @@ namespace MiNET
 			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1/9) - 0.1111111);
 		}
 
-        private bool IsInSolid(PlayerLocation playerPosition)
-        {
-            float y = playerPosition.Y + 1.62f;
+		private bool IsInSolid(PlayerLocation playerPosition)
+		{
+			float y = playerPosition.Y + 1.62f;
 
-            BlockCoordinates solidPos = new BlockCoordinates
-            {
-                X = (int)Math.Floor(playerPosition.X),
-                Y = (int)Math.Floor(y),
-                Z = (int)Math.Floor(playerPosition.Z)
-            };
+			BlockCoordinates solidPos = new BlockCoordinates
+			{
+				X = (int)Math.Floor(playerPosition.X),
+				Y = (int)Math.Floor(y),
+				Z = (int)Math.Floor(playerPosition.Z)
+			};
 
-            var block = Entity.Level.GetBlock(solidPos);
+			var block = Entity.Level.GetBlock(solidPos);
 
-            if (block == null) return false;
+			if (block == null) return false;
 
-            return block.IsSolid;
-        }
+			return block.IsSolid;
+		}
 
-        public static string GetDescription(Enum value)
+		public static string GetDescription(Enum value)
 		{
 			FieldInfo fi = value.GetType().GetField(value.ToString());
 			DescriptionAttribute[] attributes = (DescriptionAttribute[]) fi.GetCustomAttributes(typeof (DescriptionAttribute), false);

@@ -16,7 +16,7 @@ namespace MiNET.Net
 			//DefaultItemSigner = new HashedItemSigner();
 		}
 
-		public virtual Item SignNbt(Item item, bool crafting = false)
+		public virtual Item SignNbt(Item item)
 		{
 			return item;
 		}

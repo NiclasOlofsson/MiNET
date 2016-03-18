@@ -44,8 +44,16 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\fNbt.0.6.3\lib\net35-client\fNbt.dll</HintPath>
     </Reference>
+    <Reference Include="LibNoise, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\LibNoise.0.2\lib\NET45\LibNoise.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -68,10 +76,6 @@
     <ProjectReference Include="..\MiNET.Client\MiNET.Client.csproj">
       <Project>{2BFFD5A4-DAC0-47D3-946F-1A8EE2ACCB46}</Project>
       <Name>MiNET.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MiNET\MiNET.csproj">
-      <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>
-      <Name>MiNET</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

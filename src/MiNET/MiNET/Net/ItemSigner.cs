@@ -4,26 +4,26 @@ using MiNET.Items;
 
 namespace MiNET.Net
 {
-    public class ItemSigner
-    {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ItemSigner));
+	public class ItemSigner
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemSigner));
 
-        public static ItemSigner DefaultItemSigner { get; set; }
+		public static ItemSigner DefaultItemSigner { get; set; }
 
-        static ItemSigner()
-        {
-            DefaultItemSigner = new ItemSigner();
-            //DefaultItemSigner = new HashedItemSigner();
-        }
+		static ItemSigner()
+		{
+			DefaultItemSigner = new ItemSigner();
+			//DefaultItemSigner = new HashedItemSigner();
+		}
 
-        public virtual Item SignNbt(Item item, bool crafting = false)
-        {
-            return item;
-        }
+		public virtual NbtCompound SignNbt(NbtCompound extraData, bool crafting = false)
+		{
+			return extraData;
+		}
 
-        public virtual bool VerifyItemStack(Player player, Item itemStack)
-        {
-            return true;
-        }
-    }
+		public virtual bool VerifyItemStack(Player player, Item itemStack)
+		{
+			return true;
+		}
+	}
 }

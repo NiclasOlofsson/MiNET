@@ -5,7 +5,7 @@
 		public ItemCoal() : base(263)
 		{
 			MaxStackSize = 64;
-			FuelEfficiency = 10;
+			FuelEfficiency = 80;
 		}
 	}
 }

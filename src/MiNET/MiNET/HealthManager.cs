@@ -250,7 +250,7 @@ namespace MiNET
 			else
 			{
 				Air = 300;
-            }
+			}
             
 			if (IsInSolid(Entity.KnownPosition))
 			{

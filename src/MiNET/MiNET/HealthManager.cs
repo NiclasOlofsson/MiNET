@@ -38,9 +38,9 @@ namespace MiNET
 		public int Health { get; set; }
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
-        public int FireTick { get; set; }
-        public int SuffocationTicks { get; set; }
-        public int CooldownTick { get; set; }
+		public int FireTick { get; set; }
+		public int SuffocationTicks { get; set; }
+		public int CooldownTick { get; set; }
 		public bool IsOnFire { get; set; }
 		public bool IsInvulnerable { get; set; }
 		public DamageCause LastDamageCause { get; set; }
@@ -187,8 +187,8 @@ namespace MiNET
 		{
 			IsInvulnerable = false;
 			Health = 200;
-            Air = 300;
-            SuffocationTicks = 10;
+			Air = 300;
+			SuffocationTicks = 10;
 			IsOnFire = false;
 			FireTick = 0;
 			IsDead = false;
@@ -252,7 +252,7 @@ namespace MiNET
 				Air = 300;
             }
             
-            if (IsInSolid(Entity.KnownPosition))
+			if (IsInSolid(Entity.KnownPosition))
 			{
 				if (SuffocationTicks <= 0)
 				{

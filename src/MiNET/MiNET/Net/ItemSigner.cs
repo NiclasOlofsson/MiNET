@@ -16,9 +16,9 @@ namespace MiNET.Net
 			//DefaultItemSigner = new HashedItemSigner();
 		}
 
-		public virtual Item SignNbt(Item item, bool crafting = false)
+		public virtual NbtCompound SignNbt(NbtCompound extraData, bool crafting = false)
 		{
-            return item;
+			return extraData;
 		}
 
 		public virtual bool VerifyItemStack(Player player, Item itemStack)

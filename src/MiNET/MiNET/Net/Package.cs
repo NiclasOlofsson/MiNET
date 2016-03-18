@@ -558,14 +558,15 @@ namespace MiNET.Net
 			Write(stack.Count);
 			Write(stack.Metadata);
 
+			NbtCompound extraData = stack.ExtraData;
 			if (signItem)
 			{
-				stack = ItemSigner.DefaultItemSigner?.SignNbt(stack);
+				extraData = ItemSigner.DefaultItemSigner?.SignNbt(extraData);
 			}
 
-			if (stack.ExtraData != null)
+			if (extraData != null)
 			{
-				byte[] bytes = GetNbtData(stack.ExtraData);
+				byte[] bytes = GetNbtData(extraData);
 				Write((byte) bytes.Length);
 				Write((byte) 0);
 				Write(bytes);

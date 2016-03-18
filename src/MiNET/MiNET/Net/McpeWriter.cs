@@ -149,7 +149,7 @@ namespace MiNET.Net
 
 			if (signItem)
 			{
-				stack = ItemSigner.DefaultItemSigner?.SignNbt(stack);
+				stack = ItemSigner.DefaultItemSigner?.SignItem(stack);
 			}
 
 			if (stack.ExtraData != null)

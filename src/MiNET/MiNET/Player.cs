@@ -535,7 +535,7 @@ namespace MiNET
 		public bool IsSpectator { get; set; }
 
 		[Wired]
-		public void SetSpecator(bool isSpectator)
+		public void SetSpectator(bool isSpectator)
 		{
 			IsSpectator = isSpectator;
 			SendAdventureSettings();

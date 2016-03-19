@@ -102,7 +102,9 @@ namespace TestPlugin.NiceLobby
 			if (m > 0)
 			{
 				//if (_tick%random.Next(1, 4) == 0)
-				Level level = Context.LevelManager.Levels.First();
+				Level level = Context.LevelManager.Levels.FirstOrDefault();
+				if (level == null) return;
+
 				Random random = level.Random;
 
 				PlayerLocation point1 = level.SpawnPoint;

@@ -80,7 +80,7 @@ namespace MiNET
 			{
 				Log.Info("Initializing...");
 
-				InacvitityTimeout = Config.GetProperty("InacvitityTimeout", 8500);
+				InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
 
 				if (Endpoint == null)
 				{
@@ -721,7 +721,7 @@ namespace MiNET
 						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.14"},
+						{"version", "0.14.0"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},
@@ -871,7 +871,7 @@ namespace MiNET
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
-				Log.Warn($"Receive unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
+				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 				return;
 			}
 

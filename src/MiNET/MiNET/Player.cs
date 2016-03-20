@@ -1863,7 +1863,7 @@ namespace MiNET
 
 		private object _sendChunkSync = new object();
 
-		private void ForcedSendChunk(PlayerLocation position)
+		public void ForcedSendChunk(PlayerLocation position)
 		{
 			lock (_sendChunkSync)
 			{
@@ -1883,7 +1883,7 @@ namespace MiNET
 			}
 		}
 
-		private void ForcedSendChunks()
+		public void ForcedSendChunks()
 		{
 			Monitor.Enter(_sendChunkSync);
 			try

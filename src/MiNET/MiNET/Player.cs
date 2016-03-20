@@ -893,10 +893,8 @@ namespace MiNET
 			});
 
 			//if (Level != null)
-			{
-				Level.RemovePlayer(this, true);
-				Level.EntityManager.RemoveEntity(null, this);
-			}
+			Level?.RemovePlayer(this, true);
+			Level?.EntityManager.RemoveEntity(null, this);
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;

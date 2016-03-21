@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNet.Identity;
 
 namespace MiNET.Security
@@ -6,6 +7,7 @@ namespace MiNET.Security
 	{
 		public string Id { get; private set; }
 		public string UserName { get; set; }
+		public IList<string> RoleNames { get; set; }
 		public string PasswordHash { get; set; }
 		public bool IsAuthenticated { get; set; }
 

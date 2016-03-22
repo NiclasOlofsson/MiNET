@@ -8,6 +8,12 @@ namespace MiNET.Blocks
 	{
 		public StandingSign() : base(63)
 		{
+			IsTransparent = true;
+			IsSolid = false;
+			BlastResistance = 5;
+			Hardness = 1;
+
+			IsFlammable = true; // Only in PE!!
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)

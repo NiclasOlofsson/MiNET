@@ -11,6 +11,8 @@ namespace MiNET.Blocks
 		public IronBars() : base(101)
 		{
 			IsTransparent = true;
+			BlastResistance = 30;
+			Hardness = 5;
 		}
 	}
 }

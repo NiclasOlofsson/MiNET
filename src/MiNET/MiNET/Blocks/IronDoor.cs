@@ -7,7 +7,9 @@ namespace MiNET.Blocks
 	{
 		public IronDoor() : base(71)
 		{
-
+			IsTransparent = true;
+			BlastResistance = 25;
+			Hardness = 5;
 		}
 
 		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)

@@ -13,10 +13,10 @@ namespace MiNET.Blocks
 			Hardness = 0.1f;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
 			// One per layer, plus one.
-			return ItemFactory.GetItem(332, 0, (byte)(Metadata + 2));
+			return new[] {ItemFactory.GetItem(332, 0, (byte)(Metadata + 2))};
 		}
 	}
 }

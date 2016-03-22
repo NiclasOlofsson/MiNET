@@ -146,7 +146,7 @@ namespace MiNET.Blocks
 			else if (blockId == 131) block = new TripwireHook();
 			else if (blockId == 132) block = new Tripwire();
 			else if (blockId == 133) block = new EmeraldBlock();
-			else if (blockId == 134) block = new SpruceWoodStairsStairs();
+			else if (blockId == 134) block = new SpruceWoodStairs();
 			else if (blockId == 135) block = new BirchWoodStairs();
 			else if (blockId == 136) block = new JungleWoodStairs();
 			else if (blockId == 139) block = new CobblestoneWall();

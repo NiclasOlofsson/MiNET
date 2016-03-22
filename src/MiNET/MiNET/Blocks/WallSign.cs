@@ -21,9 +21,9 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return ItemFactory.GetItem(323, 0, 1); // Drop sign item
+			return new[] {ItemFactory.GetItem(323, 0, 1)}; // Drop sign item
 		}
 	}
 }

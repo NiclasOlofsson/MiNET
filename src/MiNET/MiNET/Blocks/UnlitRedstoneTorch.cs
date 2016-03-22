@@ -60,9 +60,9 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return new ItemBlock(new RedstoneTorch(), 0);
+			return new[] {new ItemBlock(new RedstoneTorch(), 0)};
 		}
 	}
 }

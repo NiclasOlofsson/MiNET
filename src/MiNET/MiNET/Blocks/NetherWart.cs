@@ -11,15 +11,15 @@ namespace MiNET.Blocks
 			IsSolid = false;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
 			if (Metadata == 3)
 			{
 				var rnd = new Random((int)DateTime.UtcNow.Ticks);
-				return ItemFactory.GetItem(372, 0, (byte)(2 + rnd.Next(3)));
+				return new[] {ItemFactory.GetItem(372, 0, (byte)(2 + rnd.Next(3)))};
 			}
 
-			return ItemFactory.GetItem(372, 0, 1);
+			return new[] {ItemFactory.GetItem(372, 0, 1)};
 		}
 	}
 }

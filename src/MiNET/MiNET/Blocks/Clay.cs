@@ -10,9 +10,9 @@ namespace MiNET.Blocks
 			Hardness = 0.6f;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return ItemFactory.GetItem(337, 0, 4);
+			return new Item[] { ItemFactory.GetItem(337, 0, 4) };
 		}
 	}
 }

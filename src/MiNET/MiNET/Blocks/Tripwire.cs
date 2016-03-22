@@ -10,9 +10,9 @@ namespace MiNET.Blocks
 			IsSolid = false;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return ItemFactory.GetItem(287, 0, 1);
+			return new[] {ItemFactory.GetItem(287, 0, 1)};
 		}
 	}
 }

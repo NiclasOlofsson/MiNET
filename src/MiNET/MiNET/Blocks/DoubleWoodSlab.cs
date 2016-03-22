@@ -11,9 +11,9 @@ namespace MiNET.Blocks
 			IsFlammable = true;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return ItemFactory.GetItem(158, Metadata, 2);
+			return new[] {ItemFactory.GetItem(158, Metadata, 2)};
 		}
 	}
 }

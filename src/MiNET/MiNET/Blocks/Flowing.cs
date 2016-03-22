@@ -448,7 +448,7 @@ namespace MiNET.Blocks
 			return block is FlowingWater || block is StationaryWater;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
 			return null;
 		}

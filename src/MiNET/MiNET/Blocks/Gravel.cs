@@ -11,12 +11,12 @@ namespace MiNET.Blocks
 			Hardness = 0.6f;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
 			var rnd = new Random((int)DateTime.UtcNow.Ticks);
 			if (rnd.NextDouble() <= 0.1)
 			{
-				return ItemFactory.GetItem(318);
+				return new[] {ItemFactory.GetItem(318)};
 			}
 
 			return base.GetDrops();

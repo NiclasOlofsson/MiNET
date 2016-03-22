@@ -90,7 +90,7 @@
     <Compile Include="Blocks\Cactus.cs" />
     <Compile Include="Blocks\Cake.cs" />
     <Compile Include="Blocks\Carpet.cs" />
-    <Compile Include="Blocks\Carrot.cs" />
+    <Compile Include="Blocks\Carrots.cs" />
     <Compile Include="Blocks\Clay.cs" />
     <Compile Include="Blocks\CobblestoneWall.cs" />
     <Compile Include="Blocks\Cobweb.cs" />

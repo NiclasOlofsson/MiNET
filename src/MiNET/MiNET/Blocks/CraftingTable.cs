@@ -8,6 +8,9 @@ namespace MiNET.Blocks
 		public CraftingTable() : base(58)
 		{
 			FuelEfficiency = 15;
+			BlastResistance = 12.5f;
+			Hardness = 2.5f;
+			//IsFlammable = true; // Only from lava.
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)

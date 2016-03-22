@@ -9,6 +9,10 @@ namespace MiNET.Blocks
 
 		protected Button(byte id) : base(id)
 		{
+			IsSolid = false;
+			IsTransparent = true;
+			BlastResistance = 2.5f;
+			Hardness = 0.5f;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

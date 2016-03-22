@@ -10,7 +10,8 @@ namespace MiNET.Blocks
 	{
 		public DiamondBlock() : base(57)
 		{
-			
+			BlastResistance = 30;
+			Hardness = 5;
 		}
 	}
 }

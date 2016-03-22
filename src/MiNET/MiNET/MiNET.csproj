@@ -95,6 +95,7 @@
     <Compile Include="Blocks\CobblestoneWall.cs" />
     <Compile Include="Blocks\Cobweb.cs" />
     <Compile Include="Blocks\Cocoa.cs" />
+    <Compile Include="Blocks\LitRedstoneOre.cs" />
     <Compile Include="Blocks\Wheat.cs" />
     <Compile Include="Blocks\RedMushroom.cs" />
     <Compile Include="Blocks\YellowFlower.cs" />
@@ -113,7 +114,6 @@
     <Compile Include="Blocks\FlowerPot.cs" />
     <Compile Include="Blocks\GlassPane.cs" />
     <Compile Include="Blocks\GlowingObsidian.cs" />
-    <Compile Include="Blocks\LitRedstoneOre.cs" />
     <Compile Include="Blocks\Glowstone.cs" />
     <Compile Include="Blocks\HardenedClay.cs" />
     <Compile Include="Blocks\HayBlock.cs" />

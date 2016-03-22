@@ -9,7 +9,6 @@ namespace MiNET.Blocks
 		{
 			IsTransparent = true;
 			IsSolid = false;
-			Hardness = 0;
 			LightLevel = 14;
 		}
 

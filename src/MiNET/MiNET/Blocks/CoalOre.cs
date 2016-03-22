@@ -6,6 +6,8 @@ namespace MiNET.Blocks
 	{
 		public CoalOre() : base(16)
 		{
+			BlastResistance = 15;
+			Hardness = 3;
 		}
 
 		public override Item GetDrops()

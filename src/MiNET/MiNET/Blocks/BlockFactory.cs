@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 			else if (blockId == 2) block = new Grass();
 			else if (blockId == 3) block = new Dirt();
 			else if (blockId == 4) block = new Cobblestone();
-			else if (blockId == 5) block = new WoodenPlanks();
+			else if (blockId == 5) block = new Planks();
 			else if (blockId == 6) block = new Sapling();
 			else if (blockId == 7) block = new Bedrock();
 			else if (blockId == 8) block = new FlowingWater();
@@ -41,7 +41,7 @@ namespace MiNET.Blocks
 			else if (blockId == 14) block = new GoldOre();
 			else if (blockId == 15) block = new IronOre();
 			else if (blockId == 16) block = new CoalOre();
-			else if (blockId == 17) block = new Wood();
+			else if (blockId == 17) block = new Log();
 			else if (blockId == 20) block = new Glass();
 			else if (blockId == 21) block = new LapsisOre();
 			else if (blockId == 22) block = new LapsisBlock();

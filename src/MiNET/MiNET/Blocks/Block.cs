@@ -24,6 +24,7 @@ namespace MiNET.Blocks
 		public bool IsSolid { get; protected set; }
 		public bool IsBuildable { get; protected set; }
 		public bool IsTransparent { get; protected set; }
+		public bool IsFlammable { get; protected set; }
 
 		public Block(byte id)
 		{
@@ -33,8 +34,9 @@ namespace MiNET.Blocks
 			IsBuildable = true;
 			IsReplacible = false;
 			IsTransparent = false;
+			IsFlammable = false;
 
-			Hardness = 30;
+			Hardness = 0;
 			BlastResistance = 0;
 			FuelEfficiency = 0;
 			FrictionFactor = 0.6f;

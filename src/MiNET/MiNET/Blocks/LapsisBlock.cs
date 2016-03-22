@@ -4,6 +4,8 @@ namespace MiNET.Blocks
 	{
 		public LapsisBlock() : base(22)
 		{
+			BlastResistance = 15;
+			Hardness = 3;
 		}
 	}
 }

@@ -9,6 +9,7 @@ namespace MiNET.Blocks
 			IsReplacible = true;
 			IsSolid = false;
 			IsBuildable = false;
+			IsTransparent = true;
 		}
 
 		public override Item GetDrops()

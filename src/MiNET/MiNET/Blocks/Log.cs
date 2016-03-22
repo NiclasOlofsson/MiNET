@@ -2,11 +2,14 @@
 
 namespace MiNET.Blocks
 {
-	public class Wood : Block
+	public class Log : Block
 	{
-		public Wood() : base(17)
+		public Log() : base(17)
 		{
 			FuelEfficiency = 15;
+			BlastResistance = 10;
+			Hardness = 2;
+			IsFlammable = true;
 		}
 
 		public override Item GetDrops()

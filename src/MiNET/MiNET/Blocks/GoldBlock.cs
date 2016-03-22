@@ -4,6 +4,8 @@ namespace MiNET.Blocks
 	{
 		public GoldBlock() : base(41)
 		{
+			BlastResistance = 30;
+			Hardness = 3;
 		}
 	}
 }

@@ -3,9 +3,9 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class LapsisOre : Block
+	public class LapisOre : Block
 	{
-		public LapsisOre() : base(21)
+		public LapisOre() : base(21)
 		{
 			BlastResistance = 15;
 			Hardness = 3;

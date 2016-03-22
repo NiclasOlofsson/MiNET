@@ -45,8 +45,8 @@ namespace MiNET.Blocks
 			else if (blockId == 18) block = new Leaves();
 			else if (blockId == 19) block = new Sponge();
 			else if (blockId == 20) block = new Glass();
-			else if (blockId == 21) block = new LapsisOre();
-			else if (blockId == 22) block = new LapsisBlock();
+			else if (blockId == 21) block = new LapisOre();
+			else if (blockId == 22) block = new LapisBlock();
 			else if (blockId == 23) block = new Dispenser();
 			else if (blockId == 24) block = new Sandstone();
 			else if (blockId == 25) block = new NoteBlock();

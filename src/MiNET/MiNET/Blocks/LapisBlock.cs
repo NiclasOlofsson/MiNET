@@ -1,8 +1,8 @@
 namespace MiNET.Blocks
 {
-	public class LapsisBlock : Block
+	public class LapisBlock : Block
 	{
-		public LapsisBlock() : base(22)
+		public LapisBlock() : base(22)
 		{
 			BlastResistance = 15;
 			Hardness = 3;

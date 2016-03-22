@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class HardenedClay : Block
+	public class StainedHardenedClay : Block
 	{
-		public HardenedClay() : base(172)
+		public StainedHardenedClay() : base(159)
 		{
 			BlastResistance = 30;
 			Hardness = 1.25f;

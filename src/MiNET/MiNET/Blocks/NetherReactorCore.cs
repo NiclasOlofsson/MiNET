@@ -4,7 +4,7 @@
 	{
 		public NetherReactorCore() : base(247)
 		{
-			
+			BlastResistance = 30;
 		}
 	}
 }

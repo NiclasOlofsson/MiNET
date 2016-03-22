@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Blocks
 {
-	public class JungleFenceGate : Block
+	public class JungleFenceGate : FenceGate
 	{
 		public JungleFenceGate() : base(185)
 		{

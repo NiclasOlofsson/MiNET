@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class Beetroot : Block
+	public class Potatoes : Block
 	{
-		public Beetroot() : base(244)
+		public Potatoes() : base(142)
 		{
 			IsSolid = false;
 		}

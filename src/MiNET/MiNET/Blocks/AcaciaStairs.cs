@@ -1,12 +1,13 @@
 ﻿namespace MiNET.Blocks
 {
-	public class JungleWoodStairs : BlockStairs
+	public class AcaciaStairs : BlockStairs
 	{
-		public JungleWoodStairs() : base(136)
+		public AcaciaStairs() : base(163)
 		{
 			BlastResistance = 15;
 			Hardness = 2;
 			IsFlammable = true;
+			IsTransparent = true;
 		}
 	}
 }

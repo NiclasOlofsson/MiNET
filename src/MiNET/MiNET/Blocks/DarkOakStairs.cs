@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class JungleWoodStairs : BlockStairs
+	public class DarkOakStairs : BlockStairs
 	{
-		public JungleWoodStairs() : base(136)
+		public DarkOakStairs() : base(164)
 		{
 			BlastResistance = 15;
 			Hardness = 2;

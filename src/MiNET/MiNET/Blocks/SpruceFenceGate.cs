@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Blocks
 {
-	public class SpruceFenceGate : Block
+	public class SpruceFenceGate : FenceGate
 	{
 		public SpruceFenceGate() : base(183)
 		{

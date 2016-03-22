@@ -4,7 +4,7 @@
 	{
 		public Sunflower() : base(175)
 		{
-			
+			IsTransparent = true;
 		}
 	}
 }

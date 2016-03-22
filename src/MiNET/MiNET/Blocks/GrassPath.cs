@@ -6,6 +6,8 @@ namespace MiNET.Blocks
 	{
 		public GrassPath() : base(198)
 		{
+			BlastResistance = 3.25f;
+			Hardness = 0.6f;
 		}
 
 		public override Item GetDrops()

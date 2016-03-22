@@ -4,7 +4,7 @@
 	{
 		public Carrots() : base(141)
 		{
-			
+			IsSolid = false;
 		}
 	}
 }

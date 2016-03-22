@@ -2,9 +2,9 @@
 
 namespace MiNET.Blocks
 {
-	public class EmeraldOre : Block
+	public class QuartzOre : Block
 	{
-		public EmeraldOre() : base(129)
+		public QuartzOre() : base(153)
 		{
 			BlastResistance = 15;
 			Hardness = 3;
@@ -12,7 +12,7 @@ namespace MiNET.Blocks
 
 		public override Item GetDrops()
 		{
-			return ItemFactory.GetItem(388, 0, 1);
+			return ItemFactory.GetItem(406, 0, 1);
 		}
 	}
 }

@@ -1,10 +1,12 @@
 ﻿namespace MiNET.Blocks
 {
-	public class NetherBrickFence : Block
+	public class NetherBrickFence : Fence
 	{
 		public NetherBrickFence() : base(113)
 		{
-			IsTransparent = true;
+			IsFlammable = false; // Overrides Wooden Fence, so make sure its not flammable.
+			BlastResistance = 30;
+			Hardness = 2;
 		}
 	}
 }

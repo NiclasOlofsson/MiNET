@@ -1,6 +1,6 @@
 ﻿namespace MiNET.Blocks
 {
-	public class AcaciaFenceGate : Block
+	public class AcaciaFenceGate : FenceGate
 	{
 		public AcaciaFenceGate() : base(187)
 		{

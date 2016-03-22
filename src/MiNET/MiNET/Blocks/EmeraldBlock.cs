@@ -4,7 +4,8 @@
 	{
 		public EmeraldBlock() : base(133)
 		{
-			
+			BlastResistance = 30;
+			Hardness = 5;
 		}
 	}
 }

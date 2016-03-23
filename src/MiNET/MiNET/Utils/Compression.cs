@@ -11,7 +11,7 @@ namespace MiNET.Utils
 			if (inputData == null)
 				throw new ArgumentNullException("inputData");
 
-			using (var compressIntoMs = new MemoryStream())
+			using (var compressIntoMs = MiNetServer.MemoryStreamManager.GetStream())
 			{
 				using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionMode.Compress), 2*4096))
 				{
@@ -28,7 +28,7 @@ namespace MiNET.Utils
 
 			using (var compressedMs = new MemoryStream(inputData))
 			{
-				using (var decompressedMs = new MemoryStream())
+				using (var decompressedMs = MiNetServer.MemoryStreamManager.GetStream())
 				{
 					using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), 2*4096))
 					{

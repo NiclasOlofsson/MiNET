@@ -808,7 +808,7 @@ namespace TestPlugin.NiceLobby
 
 		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
 		{
-			MemoryStream memStream = new MemoryStream();
+			MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
 			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 			memStream.Write(bytes, 0, bytes.Length);
 

@@ -162,7 +162,7 @@ namespace MiNET.Utils
 	public sealed class ZLibStream : DeflateStream
 	{
 		private int adler32A = 1, adler32B;
-		private MemoryStream _buffer = new MemoryStream();
+		private MemoryStream _buffer = MiNetServer.MemoryStreamManager.GetStream();
 
 		private const int ChecksumModulus = 65521;
 

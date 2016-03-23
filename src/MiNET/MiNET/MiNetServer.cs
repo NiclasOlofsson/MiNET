@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.Identity;
+using Microsoft.IO;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Security;
@@ -39,6 +40,8 @@ namespace MiNET
 		public bool IsSecurityEnabled { get; private set; }
 		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
+
+		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
 
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
@@ -161,7 +164,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
 				_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -627,7 +630,7 @@ namespace MiNET
 				SplitPartPackage[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
-				MemoryStream stream = new MemoryStream();
+				MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 				for (int i = 0; i < spPackets.Length; i++)
 				{
 					SplitPartPackage splitPartPackage = spPackets[i];
@@ -693,7 +696,7 @@ namespace MiNET
 				}
 				case 0x00:
 				{
-					var stream = new MemoryStream();
+					var stream = MiNetServer.MemoryStreamManager.GetStream();
 
 					bool isFullStatRequest = receiveBytes.Length == 15;
 					if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
@@ -815,8 +818,9 @@ namespace MiNET
 			Player player = session.Player;
 			if (player == null) return;
 
-			Ack ack = Ack.CreateObject();
-			ack.Reset();
+			//Ack ack = Ack.CreateObject();
+			Ack ack = new Ack();
+			//ack.Reset();
 			ack.Decode(receiveBytes);
 
 			var queue = session.WaitingForAcksQueue;
@@ -856,7 +860,7 @@ namespace MiNET
 				}
 			}
 
-			ack.PutPool();
+			//ack.PutPool();
 
 			session.ResendCount = 0;
 			session.WaitForAck = false;
@@ -894,7 +898,7 @@ namespace MiNET
 				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 				{
 					// Get actual package out of bytes
-					MemoryStream destination = new MemoryStream();
+					MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
 					defStream2.CopyTo(destination);
 					destination.Position = 0;
 					NbtBinaryReader reader = new NbtBinaryReader(destination, true);

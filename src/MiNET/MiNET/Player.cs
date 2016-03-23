@@ -1958,7 +1958,7 @@ namespace MiNET
 
 		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel, bool writeLen = false)
 		{
-			MemoryStream stream = new MemoryStream();
+			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 			stream.WriteByte(0x78);
 			stream.WriteByte(0x01);
 			int checksum;

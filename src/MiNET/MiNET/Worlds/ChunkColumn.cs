@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
+using Microsoft.IO;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -265,7 +266,7 @@ namespace MiNET.Worlds
 				byte[] bytes = fullChunkData.Encode();
 				fullChunkData.PutPool();
 
-				MemoryStream memStream = new MemoryStream();
+				MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
 				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 				memStream.Write(bytes, 0, bytes.Length);
 
@@ -289,7 +290,7 @@ namespace MiNET.Worlds
 		{
 			if (_cache != null) return _cache;
 
-			MemoryStream stream = new MemoryStream();
+			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
@@ -331,15 +332,15 @@ namespace MiNET.Worlds
 				}
 
 				writer.Flush();
+
+				_cache = stream.ToArray();
+
 				writer.Close();
 			}
 
-			var bytes = stream.ToArray();
 			stream.Close();
 
-			_cache = bytes;
-
-			return bytes;
+			return _cache;
 		}
 
 		public object Clone()

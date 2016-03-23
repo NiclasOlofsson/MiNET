@@ -280,18 +280,19 @@ namespace MiNET.Client
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					//if (IsEmulator && PlayerStatus == 3)
-					//{
-					//	int datagramId = new Int24(new[] { receiveBytes[1], receiveBytes[2], receiveBytes[3] });
+					if (IsEmulator && PlayerStatus == 3)
+					{
+						int datagramId = new Int24(new[] { receiveBytes[1], receiveBytes[2], receiveBytes[3] });
 
-					//	Acks ack = Acks.CreateObject();
-					//	ack.acks.Add(datagramId);
-					//	byte[] data = ack.Encode();
-					//	ack.PutPool();
-					//	SendData(data, senderEndpoint);
+						//Acks ack = Acks.CreateObject();
+						Acks ack = new Acks();
+						ack.acks.Add(datagramId);
+						byte[] data = ack.Encode();
+						ack.PutPool();
+						SendData(data, senderEndpoint);
 
-					//	return;
-					//}
+						return;
+					}
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
 					//var package = new ConnectedPackage();
@@ -397,7 +398,7 @@ namespace MiNET.Client
 				SplitPartPackage[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
-				MemoryStream stream = new MemoryStream();
+				MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 				for (int i = 0; i < spPackets.Length; i++)
 				{
 					SplitPartPackage splitPartPackage = spPackets[i];
@@ -1195,7 +1196,7 @@ namespace MiNET.Client
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
-				MemoryStream destination = new MemoryStream();
+				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
 				defStream2.CopyTo(destination);
 				destination.Position = 0;
 				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
@@ -1445,8 +1446,8 @@ namespace MiNET.Client
 
 		public void SendMcpeMovePlayer()
 		{
-			//var movePlayerPacket = McpeMovePlayer.AddReference();
 			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
+			//McpeMovePlayer movePlayerPacket = new McpeMovePlayer();
 			movePlayerPacket.entityId = 0;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;

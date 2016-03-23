@@ -16,7 +16,6 @@ namespace MiNET.Net
 			for (int i = 0; i < count; i++)
 			{
 				var item = _objectGenerator();
-				//GC.SuppressFinalize(item);
 				_objects.Add(item);
 			}
 		}
@@ -35,13 +34,13 @@ namespace MiNET.Net
 			return _objectGenerator();
 		}
 
-		const long MaxPoolSize = 100;
+		const long MaxPoolSize = 10000000;
 
 		public void PutObject(T item)
 		{
-			//GC.SuppressFinalize(item);
 			if (_objects.Count > MaxPoolSize)
 			{
+				Log.Warn($"Pool for {typeof (T).Name} is full");
 				return;
 			}
 

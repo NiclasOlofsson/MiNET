@@ -37,8 +37,8 @@ namespace MiNET.ServiceKiller
 
 			for (int j = 0; j < 200; j++)
 			{
-				string playerName = $"{Guid.NewGuid()}";
-				//string playerName = $"TheGrey{j + 1:D3}";
+				//string playerName = $"{Guid.NewGuid()}";
+				string playerName = $"TheGrey{j + 1:D3}";
 				ClientEmulator client = new ClientEmulator(emulator, 12*60*1000, playerName, (int) (DateTime.UtcNow.Ticks-start));
 				ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
@@ -134,9 +134,11 @@ namespace MiNET.ServiceKiller
 					}
 				}
 
-				Console.WriteLine($"{watch.ElapsedMilliseconds} Client stopping. {client.UdpClient == null}, {Emulator.Running}");
-
-				if (client.UdpClient != null) client.SendDisconnectionNotification();
+				if (client.UdpClient != null)
+				{
+					Console.WriteLine($"{watch.ElapsedMilliseconds} Client stopping. {client.UdpClient == null}, {Emulator.Running}");
+					client.SendDisconnectionNotification();
+				}
 
 				client.StopClient();
 			}

@@ -118,12 +118,31 @@ namespace MiNET.Worlds
 		{
 			while (_tickerThread != null)
 			{
-				var timeout = (int) Math.Max(0, 50 - _tickerThreadTimer.ElapsedMilliseconds);
-				if (timeout == 0) Log.Warn($"Ticker is late {_tickerThreadTimer.ElapsedMilliseconds}");
-				Thread.Sleep(timeout);
-				if (Math.Abs(50 - _tickerThreadTimer.ElapsedMilliseconds) > 3) Log.Warn($"Ticker {_tickerThreadTimer.ElapsedMilliseconds}");
-				_tickerThreadTimer.Restart();
 				WorldTick(null);
+				LimitFrameRate(50);
+			}
+		}
+
+		private long _fpsStartTime = -1;
+		private long _fpsFrameCount;
+		public virtual void LimitFrameRate(int fps)
+		{
+			if (_fpsStartTime == -1) _fpsStartTime = Stopwatch.GetTimestamp();
+
+			long freq;
+			long frame;
+			freq = Stopwatch.Frequency;
+			frame = Stopwatch.GetTimestamp();
+			while ((frame - _fpsStartTime) * fps < freq * _fpsFrameCount)
+			{
+				int sleepTime = (int)((_fpsStartTime * fps + freq * _fpsFrameCount - frame * fps) * 1000 / (freq * fps));
+				if (sleepTime > 0) System.Threading.Thread.Sleep(sleepTime);
+				frame = System.Diagnostics.Stopwatch.GetTimestamp();
+			}
+			if (++_fpsFrameCount > fps)
+			{
+				_fpsFrameCount = 0;
+				_fpsStartTime = frame;
 			}
 		}
 
@@ -172,7 +191,7 @@ namespace MiNET.Worlds
 
 		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
 		{
-			MemoryStream memStream = new MemoryStream();
+			MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
 			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 			memStream.Write(bytes, 0, bytes.Length);
 
@@ -466,7 +485,7 @@ namespace MiNET.Worlds
 			_lastSendTime = DateTime.UtcNow;
 			DateTime now = DateTime.UtcNow;
 
-			MemoryStream stream = new MemoryStream();
+			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 
 			int count = 0;
 			McpeMovePlayer move = McpeMovePlayer.CreateObject();

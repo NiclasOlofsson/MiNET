@@ -363,6 +363,14 @@ namespace TestPlugin
 			player.SendPlayerInventory();
 		}
 
+		[Command(Command = "sp")]
+		public void SetSpawn(Player player)
+		{
+			player.SpawnPosition = (PlayerLocation) player.KnownPosition.Clone();
+			player.SendSetSpawnPosition();
+			player.Level.BroadcastMessage($"{player.Username} set new spawn position.", type: MessageType.Raw);
+			player.HealthManager.Kill();
+		}
 
 		[Command]
 		public void Kit(Player player, int kitId)
@@ -432,6 +440,7 @@ namespace TestPlugin
 
 			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
 			//inventory.Slots[c++] = new ItemBlock(new WoodenPlanks(), 0) { Count = 64 };
+			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword

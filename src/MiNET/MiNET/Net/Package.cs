@@ -332,7 +332,7 @@ namespace MiNET.Net
 				var metadata = ReadByte();
 
 				Block block = BlockFactory.GetBlockById(id);
-				block.Metadata = (byte)(metadata & 0xf);
+				block.Metadata = (byte) (metadata & 0xf);
 				block.Coordinates = new BlockCoordinates(x, y, z);
 				blockRecords.Add(block);
 			}
@@ -808,7 +808,7 @@ namespace MiNET.Net
 			{
 				if (recipe is ShapelessRecipe)
 				{
-					var memoryStream = new MemoryStream();
+					var memoryStream = MiNetServer.MemoryStreamManager.GetStream();
 					McpeWriter writer = new McpeWriter(memoryStream);
 
 					ShapelessRecipe rec = (ShapelessRecipe) recipe;
@@ -828,7 +828,7 @@ namespace MiNET.Net
 				}
 				else if (recipe is ShapedRecipe)
 				{
-					var memoryStream = new MemoryStream();
+					var memoryStream = MiNetServer.MemoryStreamManager.GetStream();
 					McpeWriter writer = new McpeWriter(memoryStream);
 
 					ShapedRecipe rec = (ShapedRecipe) recipe;
@@ -861,22 +861,22 @@ namespace MiNET.Net
 					//recipe.Input = ItemFactory.GetItem(id, meta);
 					//recipe.Result = result;
 					//recipes.Add(recipe);
-					var memoryStream = new MemoryStream();
+					var memoryStream = MiNetServer.MemoryStreamManager.GetStream();
 					McpeWriter writer = new McpeWriter(memoryStream);
 
-					SmeltingRecipe rec = (SmeltingRecipe)recipe;
+					SmeltingRecipe rec = (SmeltingRecipe) recipe;
 					writer.Write(rec.Input.Metadata);
 					writer.Write(rec.Input.Id);
 					writer.Write(rec.Result);
 
-					Write(rec.Input.Metadata == 0? 2: 3); // Type
+					Write(rec.Input.Metadata == 0 ? 2 : 3); // Type
 					var bytes = memoryStream.ToArray();
 					Write(bytes.Length);
 					Write(bytes);
 				}
 				else if (recipe is EnchantingRecipe)
 				{
-					var memoryStream = new MemoryStream();
+					var memoryStream = MiNetServer.MemoryStreamManager.GetStream();
 					McpeWriter writer = new McpeWriter(memoryStream);
 
 					writer.Write((byte) 3); // Count
@@ -933,7 +933,7 @@ namespace MiNET.Net
 				// Full map
 				try
 				{
-					if(bytes[4] == 1)
+					if (bytes[4] == 1)
 					{
 						map.Col = ReadInt();
 						map.Row = ReadInt(); //
@@ -941,7 +941,7 @@ namespace MiNET.Net
 						map.XOffset = ReadInt(); //
 						map.ZOffset = ReadInt(); //
 
-						map.Data = ReadBytes(map.Col * map.Row * 4);
+						map.Data = ReadBytes(map.Col*map.Row*4);
 					}
 				}
 				catch (Exception e)
@@ -967,8 +967,8 @@ namespace MiNET.Net
 			Write(new byte[3]);
 			Write(map.UpdateType);
 			Write(new byte[4]);
-			Write((byte)1);
-			Write((byte)0);
+			Write((byte) 1);
+			Write((byte) 0);
 			Write(map.Direction);
 			Write(map.X);
 			Write(map.Z);
@@ -1035,6 +1035,11 @@ namespace MiNET.Net
 		{
 			lock (_encodeSync)
 			{
+				if (_isEncoded && _prependByte != prependByte)
+				{
+					Log.Debug("Doing uncessary encoding :-(");
+				}
+
 				if (_isEncoded && _prependByte == prependByte) return _encodedMessage;
 
 				_isEncoded = false;
@@ -1071,7 +1076,7 @@ namespace MiNET.Net
 
 		public void CloneReset()
 		{
-			_buffer = new MemoryStream();
+			_buffer = MiNetServer.MemoryStreamManager.GetStream();
 			_reader = new BinaryReader(_buffer);
 			_writer = new BinaryWriter(_buffer);
 			Timer.Start();

@@ -323,7 +323,7 @@ namespace MiNET
 
 		public int ChunkRadius { get; private set; } = -1;
 
-		private void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
+		protected virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
 		{
 			Log.Info($"Requested chunk radius of: {message.chunkRadius}");
 

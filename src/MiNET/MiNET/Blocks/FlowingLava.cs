@@ -4,6 +4,9 @@ namespace MiNET.Blocks
 	{
 		public FlowingLava() : base(10)
 		{
+			LightLevel = 15;
+			BlastResistance = 500;
+			Hardness = 100;
 		}
 	}
 }

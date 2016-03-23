@@ -12,6 +12,9 @@ namespace MiNET.Blocks
 		public Chest(byte id) : base(id)
 		{
 			FuelEfficiency = 15;
+			IsTransparent = true;
+			BlastResistance = 12.5f;
+			Hardness = 2.5f;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

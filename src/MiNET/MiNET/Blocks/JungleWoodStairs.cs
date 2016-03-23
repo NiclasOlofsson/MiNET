@@ -4,6 +4,9 @@
 	{
 		public JungleWoodStairs() : base(136)
 		{
+			BlastResistance = 15;
+			Hardness = 2;
+			IsFlammable = true;
 		}
 	}
 }

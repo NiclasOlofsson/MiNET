@@ -6,6 +6,8 @@ namespace MiNET.Blocks
 	{
 		public GoldOre() : base(14)
 		{
+			BlastResistance = 15;
+			Hardness = 3;
 		}
 
 		public override Item GetSmelt()

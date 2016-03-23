@@ -4,6 +4,8 @@ namespace MiNET.Blocks
 	{
 		public FlowingWater() : base(8)
 		{
+			BlastResistance = 500;
+			Hardness = 100;
 		}
 	}
 }

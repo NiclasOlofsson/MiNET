@@ -12,6 +12,7 @@ namespace MiNET.Blocks
 
 		public ItemFrame() : base(199)
 		{
+			IsSolid = false;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

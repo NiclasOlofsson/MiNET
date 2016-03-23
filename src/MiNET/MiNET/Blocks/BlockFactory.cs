@@ -29,7 +29,7 @@ namespace MiNET.Blocks
 			else if (blockId == 2) block = new Grass();
 			else if (blockId == 3) block = new Dirt();
 			else if (blockId == 4) block = new Cobblestone();
-			else if (blockId == 5) block = new WoodenPlanks();
+			else if (blockId == 5) block = new Planks();
 			else if (blockId == 6) block = new Sapling();
 			else if (blockId == 7) block = new Bedrock();
 			else if (blockId == 8) block = new FlowingWater();
@@ -41,69 +41,169 @@ namespace MiNET.Blocks
 			else if (blockId == 14) block = new GoldOre();
 			else if (blockId == 15) block = new IronOre();
 			else if (blockId == 16) block = new CoalOre();
-			else if (blockId == 17) block = new Wood();
+			else if (blockId == 17) block = new Log();
+			else if (blockId == 18) block = new Leaves();
+			else if (blockId == 19) block = new Sponge();
 			else if (blockId == 20) block = new Glass();
-			else if (blockId == 21) block = new LapsisOre();
-			else if (blockId == 22) block = new LapsisBlock();
+			else if (blockId == 21) block = new LapisOre();
+			else if (blockId == 22) block = new LapisBlock();
+			else if (blockId == 23) block = new Dispenser();
 			else if (blockId == 24) block = new Sandstone();
+			else if (blockId == 25) block = new NoteBlock();
 			else if (blockId == 26) block = new Bed();
+			else if (blockId == 27) block = new GoldenRail();
+			else if (blockId == 28) block = new DetectorRail();
+			else if (blockId == 30) block = new Cobweb();
 			else if (blockId == 31) block = new TallGrass();
+			else if (blockId == 32) block = new DeadBush();
+			else if (blockId == 35) block = new Wool();
+			else if (blockId == 37) block = new YellowFlower();
+			else if (blockId == 38) block = new Flower();
+			else if (blockId == 39) block = new BrownMushroom();
+			else if (blockId == 40) block = new RedMushroom();
 			else if (blockId == 41) block = new GoldBlock();
+			else if (blockId == 42) block = new IronBlock();
 			else if (blockId == 43) block = new DoubleStoneSlab();
 			else if (blockId == 44) block = new StoneSlab();
+			else if (blockId == 45) block = new Bricks();
 			else if (blockId == 46) block = new Tnt();
 			else if (blockId == 47) block = new Bookshelf();
+			else if (blockId == 48) block = new MossStone();
 			else if (blockId == 49) block = new Obsidian();
 			else if (blockId == 50) block = new Torch();
 			else if (blockId == 51) block = new Fire();
+			else if (blockId == 52) block = new MonsterSpawner();
 			else if (blockId == 53) block = new OakWoodStairs();
 			else if (blockId == 54) block = new Chest();
+			else if (blockId == 55) block = new RedstoneWire();
 			else if (blockId == 56) block = new DiamondOre();
+			else if (blockId == 57) block = new DiamondBlock();
 			else if (blockId == 58) block = new CraftingTable();
+			else if (blockId == 59) block = new Wheat();
 			else if (blockId == 60) block = new Farmland();
 			else if (blockId == 61) block = new Furnace();
 			else if (blockId == 62) block = new LitFurnace();
 			else if (blockId == 63) block = new StandingSign();
 			else if (blockId == 64) block = new WoodenDoor();
+			else if (blockId == 65) block = new Ladder();
+			else if (blockId == 66) block = new Rail();
 			else if (blockId == 67) block = new CobblestoneStairs();
 			else if (blockId == 68) block = new WallSign();
+			else if (blockId == 69) block = new Lever();
+			else if (blockId == 70) block = new StonePressurePlate();
+			else if (blockId == 71) block = new IronDoor();
+			else if (blockId == 72) block = new WoodenPressurePlate();
+			else if (blockId == 73) block = new RedstoneOre();
+			else if (blockId == 74) block = new LitRedstoneOre();
+			else if (blockId == 75) block = new UnlitRedstoneTorch();
+			else if (blockId == 76) block = new RedstoneTorch();
 			else if (blockId == 77) block = new StoneButton();
+			else if (blockId == 78) block = new SnowLayer();
 			else if (blockId == 79) block = new Ice();
 			else if (blockId == 80) block = new Snow();
+			else if (blockId == 81) block = new Cactus();
+			else if (blockId == 82) block = new Clay();
+			else if (blockId == 83) block = new Reeds();
 			else if (blockId == 85) block = new Fence();
+			else if (blockId == 86) block = new Pumpkin();
+			else if (blockId == 87) block = new Netherrack();
+			else if (blockId == 88) block = new SoulSand();
+			else if (blockId == 89) block = new Glowstone();
+			else if (blockId == 90) block = new Portal();
+			else if (blockId == 91) block = new LitPumpkin();
+			else if (blockId == 92) block = new Cake();
+			else if (blockId == 93) block = new UnpoweredRepeater();
+			else if (blockId == 94) block = new PoweredRepeater();
+			else if (blockId == 95) block = new InvisibleBedrock();
+			else if (blockId == 96) block = new Trapdoor();
+			else if (blockId == 97) block = new MonsterEgg();
 			else if (blockId == 98) block = new StoneBrick();
+			else if (blockId == 99) block = new BrownMushroomBlock();
+			else if (blockId == 100) block = new RedMushroomBlock();
+			else if (blockId == 101) block = new IronBars();
+			else if (blockId == 102) block = new GlassPane();
+			else if (blockId == 103) block = new Melon();
+			else if (blockId == 106) block = new Vine();
 			else if (blockId == 107) block = new FenceGate();
 			else if (blockId == 108) block = new BrickStairs();
 			else if (blockId == 109) block = new StoneBrickStairs();
+			else if (blockId == 110) block = new Mycelium();
+			else if (blockId == 111) block = new Waterlily();
+			else if (blockId == 112) block = new NetherBrick();
+			else if (blockId == 113) block = new NetherBrickFence();
 			else if (blockId == 114) block = new NetherBrickStairs();
+			else if (blockId == 115) block = new NetherWart();
 			else if (blockId == 116) block = new EnchantingTable();
+			else if (blockId == 117) block = new BrewingStand();
+			else if (blockId == 120) block = new EndPortalFrame();
+			else if (blockId == 121) block = new EndStone();
+			else if (blockId == 122) block = new LitRedstoneLamp();
+			else if (blockId == 123) block = new RedstoneLamp();
+			else if (blockId == 126) block = new ActivatorRail();
+			else if (blockId == 127) block = new Cocoa();
 			else if (blockId == 128) block = new SandStoneStairs();
-			else if (blockId == 134) block = new SpruceWoodStairsStairs();
+			else if (blockId == 129) block = new EmeraldOre();
+			else if (blockId == 131) block = new TripwireHook();
+			else if (blockId == 132) block = new Tripwire();
+			else if (blockId == 133) block = new EmeraldBlock();
+			else if (blockId == 134) block = new SpruceWoodStairs();
 			else if (blockId == 135) block = new BirchWoodStairs();
 			else if (blockId == 136) block = new JungleWoodStairs();
+			else if (blockId == 139) block = new CobblestoneWall();
+			else if (blockId == 140) block = new FlowerPot();
+			else if (blockId == 141) block = new Carrots();
+			else if (blockId == 142) block = new Potatoes();
 			else if (blockId == 143) block = new WoodenButton();
+			else if (blockId == 144) block = new Skull();
+			else if (blockId == 145) block = new Anvil();
 			else if (blockId == 146) block = new TrappedChest();
+			else if (blockId == 147) block = new LightWeightedPressurePlate();
+			else if (blockId == 148) block = new HeavyWeightedPressurePlate();
+			else if (blockId == 151) block = new DaylightDetector();
+			else if (blockId == 152) block = new RedstoneBlock();
+			else if (blockId == 153) block = new QuartzOre();
+			else if (blockId == 155) block = new QuartzBlock();
 			else if (blockId == 156) block = new QuartzStairs();
 			else if (blockId == 157) block = new DoubleWoodSlab();
 			else if (blockId == 158) block = new WoodSlab();
-			else if (blockId == 163) block = new AcaciaWoodStairs();
-			else if (blockId == 164) block = new DarkOakWoodStairs();
+			else if (blockId == 159) block = new StainedHardenedClay();
+			else if (blockId == 161) block = new AcaciaLeaves();
+			else if (blockId == 162) block = new AcaciaLog();
+			else if (blockId == 163) block = new AcaciaStairs();
+			else if (blockId == 164) block = new DarkOakStairs();
+			else if (blockId == 167) block = new IronTrapdoor();
+			else if (blockId == 170) block = new HayBlock();
+			else if (blockId == 171) block = new Carpet();
+			else if (blockId == 172) block = new HardenedClay();
 			else if (blockId == 173) block = new CoalBlock();
+			else if (blockId == 174) block = new PackedIce();
+			else if (blockId == 175) block = new Sunflower();
+			else if (blockId == 178) block = new DaylightDetectorInverted();
+			else if (blockId == 183) block = new SpruceFenceGate();
+			else if (blockId == 184) block = new BirchFenceGate();
+			else if (blockId == 185) block = new JungleFenceGate();
+			else if (blockId == 186) block = new DarkOakFenceGate();
+			else if (blockId == 187) block = new AcaciaFenceGate();
 			else if (blockId == 198) block = new GrassPath();
 			else if (blockId == 199) block = new ItemFrame();
+			else if (blockId == 243) block = new Podzol();
+			else if (blockId == 244) block = new Beetroot();
+			else if (blockId == 245) block = new Stonecutter();
+			else if (blockId == 246) block = new GlowingObsidian();
+			else if (blockId == 247) block = new NetherReactorCore();
 			else
 			{
-//				Log.DebugFormat(@"
-//	// Add this missing block to the BlockFactory
-//	else if (blockId == {1}) block = new {0}();
-//	
-//	public class {0} : Block
-//	{{
-//		internal {0}() : base({1})
-//		{{
-//		}}
-//	}}
-//", "Missing", blockId);
+				//				Log.DebugFormat(@"
+				//	// Add this missing block to the BlockFactory
+				//	else if (blockId == {1}) block = new {0}();
+				//	
+				//	public class {0} : Block
+				//	{{
+				//		internal {0}() : base({1})
+				//		{{
+				//		}}
+				//	}}
+				//", "Missing", blockId);
 				block = new Block(blockId);
 			}
 

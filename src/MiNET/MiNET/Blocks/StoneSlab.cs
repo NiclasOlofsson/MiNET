@@ -4,6 +4,9 @@ namespace MiNET.Blocks
 	{
 		public StoneSlab() : base(44)
 		{
+			BlastResistance = 30;
+			Hardness = 2;
+			IsTransparent = true; // Partial
 		}
 	}
 }

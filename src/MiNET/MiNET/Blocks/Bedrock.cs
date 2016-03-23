@@ -7,10 +7,11 @@ namespace MiNET.Blocks
 		public Bedrock() : base(7)
 		{
 			Hardness = 60000;
+			BlastResistance = 18000000;
 		}
 
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
 			return null; //Drop nothing
 		}

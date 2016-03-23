@@ -1,9 +1,12 @@
 ﻿namespace MiNET.Blocks
 {
-	public class SpruceWoodStairsStairs : BlockStairs
+	public class SpruceWoodStairs : BlockStairs
 	{
-		public SpruceWoodStairsStairs() : base(134)
+		public SpruceWoodStairs() : base(134)
 		{
+			BlastResistance = 15;
+			Hardness = 2;
+			IsFlammable = true;
 		}
 	}
 }

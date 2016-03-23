@@ -4,7 +4,9 @@
 	{
 		public Glass() : base(20)
 		{
-			IsSolid = false;
+			IsTransparent = true;
+			BlastResistance = 1.5f;
+			Hardness = 0.3f;
 		}
 	}
 }

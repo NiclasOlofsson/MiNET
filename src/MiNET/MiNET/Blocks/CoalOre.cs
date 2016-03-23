@@ -6,11 +6,13 @@ namespace MiNET.Blocks
 	{
 		public CoalOre() : base(16)
 		{
+			BlastResistance = 15;
+			Hardness = 3;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return ItemFactory.GetItem(263, 0, 1);
+			return new[] {ItemFactory.GetItem(263, 0, 1)};
 		}
 	}
 }

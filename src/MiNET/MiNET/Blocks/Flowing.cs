@@ -1,4 +1,5 @@
 using System;
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -445,6 +446,11 @@ namespace MiNET.Blocks
 		{
 			Block block = world.GetBlock(x, y, z);
 			return block is FlowingWater || block is StationaryWater;
+		}
+
+		public override Item[] GetDrops()
+		{
+			return null;
 		}
 	}
 }

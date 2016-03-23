@@ -77,6 +77,8 @@
 | Mcpe Map Info Request | 0xc7 | 199 |   
 | Mcpe Request Chunk Radius | 0xc8 | 200 |   
 | Mcpe Chunk Radius Update | 0xc9 | 201 |   
+| Mcpe Item Fram Drop Item | 0xca | 202 |   
+| Mcpe Replace Selected Item | 0xcb | 203 |   
 
 
 ##Constants
@@ -1284,6 +1286,32 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Chunk Radius | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Item Fram Drop Item (0xca)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Mcpe Replace Selected Item (0xcb)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ###Package: Mcpe Transfer (0x1b)
 

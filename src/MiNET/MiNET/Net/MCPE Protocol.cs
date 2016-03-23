@@ -376,6 +376,16 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xca:
+					package = McpeItemFramDropItem.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xcb:
+					package = McpeReplaceSelectedItem.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0x1b:
 					package = McpeTransfer.CreateObject();
 					//package.Timer.Start();
@@ -3559,6 +3569,76 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			chunkRadius = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeItemFramDropItem : Package<McpeItemFramDropItem>
+	{
+		public McpeItemFramDropItem()
+		{
+			Id = 0xca;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeReplaceSelectedItem : Package<McpeReplaceSelectedItem>
+	{
+		public McpeReplaceSelectedItem()
+		{
+			Id = 0xcb;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
 
 			AfterDecode();
 		}

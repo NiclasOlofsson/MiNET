@@ -772,7 +772,7 @@ namespace MiNET
 
 				//SendPlayerStatus(3);
 
-				SendSetEntityData();
+				BroadcastSetEntityData();
 			}
 			finally
 			{
@@ -929,8 +929,7 @@ namespace MiNET
 			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
 		}
 
-
-		public void SendSetEntityData()
+		public override void BroadcastSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = 0;
@@ -938,7 +937,7 @@ namespace MiNET
 			mcpeSetEntityData.Encode();
 			SendPackage(mcpeSetEntityData);
 
-			BroadcastSetEntityData();
+			base.BroadcastSetEntityData();
 		}
 
 		public void SendSetDificulty()
@@ -2178,7 +2177,7 @@ namespace MiNET
 		{
 			NoAi = noAi;
 
-			SendSetEntityData();
+			BroadcastSetEntityData();
 		}
 
 		[Wired]
@@ -2186,7 +2185,7 @@ namespace MiNET
 		{
 			HideNameTag = hideNameTag;
 
-			SendSetEntityData();
+			BroadcastSetEntityData();
 		}
 
 		[Wired]
@@ -2194,7 +2193,7 @@ namespace MiNET
 		{
 			NameTag = nameTag;
 
-			SendSetEntityData();
+			BroadcastSetEntityData();
 		}
 
 		[Wired]

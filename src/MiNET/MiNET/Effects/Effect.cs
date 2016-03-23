@@ -56,7 +56,7 @@ namespace MiNET.Effects
 			message.particles = (byte) (Particles ? 1 : 0);
 			player.SendPackage(message);
 
-			player.SendSetEntityData();
+			player.BroadcastSetEntityData();
 		}
 
 		public virtual void SendUpdate(Player player)

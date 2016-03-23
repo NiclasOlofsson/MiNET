@@ -10,7 +10,7 @@
 		{
 			player.IsInvisible = true;
 			player.HideNameTag = true;
-			player.SendSetEntityData();
+			player.BroadcastSetEntityData();
 
 			base.SendAdd(player);
 		}
@@ -19,7 +19,7 @@
 		{
 			player.IsInvisible = true;
 			player.HideNameTag = true;
-			player.SendSetEntityData();
+			player.BroadcastSetEntityData();
 
 			base.SendUpdate(player);
 		}
@@ -28,7 +28,7 @@
 		{
 			player.IsInvisible = false;
 			player.HideNameTag = false;
-			player.SendSetEntityData();
+			player.BroadcastSetEntityData();
 
 			base.SendRemove(player);
 		}

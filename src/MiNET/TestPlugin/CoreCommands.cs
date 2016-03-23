@@ -373,6 +373,12 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Ignite(Player player)
+		{
+			player.HealthManager.Ignite();
+		}
+
+		[Command]
 		public void Kit(Player player, int kitId)
 		{
 			var inventory = player.Inventory;

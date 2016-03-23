@@ -507,6 +507,12 @@
 		<field name="Chunk Radius" type="int" />
 	</pdu>
 
+	<pdu id="0xca" online="false" client="false" server="true" name="MCPE_ITEM_FRAM_DROP_ITEM">
+	</pdu>
+
+	<pdu id="0xcb" online="false" client="false" server="true" name="MCPE_REPLACE_SELECTED_ITEM">
+	</pdu>
+
 	<pdu id="0x1b" online="false" client="false" server="true" name="MCPE_TRANSFER">
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>

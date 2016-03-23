@@ -16,6 +16,7 @@ using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Security;

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Drawing;
 using log4net;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -178,6 +179,12 @@ namespace MiNET.Entities
 		public virtual void Knockback(Vector3 velocity)
 		{
 			Velocity += velocity;
+		}
+
+		
+		public virtual Item[] GetDrops()
+		{
+			return new Item[] { };
 		}
 	}
 }

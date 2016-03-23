@@ -3,7 +3,7 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.Entities
+namespace MiNET.Entities.World
 {
 	public class ItemEntity : Mob
 	{

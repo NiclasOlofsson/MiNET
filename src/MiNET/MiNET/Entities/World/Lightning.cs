@@ -1,7 +1,6 @@
-﻿using System.Runtime.Remoting.Messaging;
-using MiNET.Worlds;
+﻿using MiNET.Worlds;
 
-namespace MiNET.Entities
+namespace MiNET.Entities.World
 {
 	public class Lightning : Entity
 	{

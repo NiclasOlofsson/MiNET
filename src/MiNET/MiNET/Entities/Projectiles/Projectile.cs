@@ -8,7 +8,7 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.Entities
+namespace MiNET.Entities.Projectiles
 {
 	public class Projectile : Entity
 	{

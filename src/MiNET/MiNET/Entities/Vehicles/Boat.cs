@@ -10,7 +10,7 @@ namespace MiNET.Entities.Vehicles
 {
 	public class Boat : Vechicle
 	{
-		public Boat(Level level) : base((int) EntityType.Boat, level)
+		public Boat(Level level) : base(EntityType.Boat, level)
 		{
 			
 		}

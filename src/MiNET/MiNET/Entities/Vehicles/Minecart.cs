@@ -1,11 +1,12 @@
 ﻿using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Entities.Vehicles
 {
 	public class Minecart : Vechicle
 	{
-		public Minecart(MiNET.Worlds.Level level, PlayerLocation position) : base((int) EntityType.Minecart, level)
+		public Minecart(Level level, PlayerLocation position) : base(EntityType.Minecart, level)
 		{
 			KnownPosition = position;
 		}

@@ -5,7 +5,7 @@ namespace MiNET.Entities.Passive
 {
 	public class SnowGolem : PassiveMob
 	{
-		public SnowGolem(Level level) : base((int) EntityType.SnowGolem, level)
+		public SnowGolem(Level level) : base(EntityType.SnowGolem, level)
 		{
 			Width = Length = 0.7;
 			Height = 1.9;

@@ -5,7 +5,7 @@ namespace MiNET.Entities.Passive
 {
 	public class Rabbit : PassiveMob
 	{
-		public Rabbit(Level level) : base((int) EntityType.Rabbit, level)
+		public Rabbit(Level level) : base(EntityType.Rabbit, level)
 		{
 			Width = Length = 0.6;
 			Height = 0.7;

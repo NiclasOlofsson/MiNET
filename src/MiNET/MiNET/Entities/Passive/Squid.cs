@@ -5,7 +5,7 @@ namespace MiNET.Entities.Passive
 {
 	public class Squid : PassiveMob
 	{
-		public Squid(Level level) : base((int) EntityType.Squid, level)
+		public Squid(Level level) : base(EntityType.Squid, level)
 		{
 			Width = Length = 0.95;
 			Height = 0.95;

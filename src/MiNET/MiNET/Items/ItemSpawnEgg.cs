@@ -1,5 +1,7 @@
 using log4net;
 using MiNET.Entities;
+using MiNET.Entities.Hostile;
+using MiNET.Entities.Passive;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -20,88 +22,88 @@ namespace MiNET.Items
 
 			Mob mob = null;
 
-			MobTypes type = (MobTypes) Metadata;
+			EntityType type = (EntityType) Metadata;
 			switch (type)
 			{
-				case MobTypes.Chicken:
+				case EntityType.Chicken:
 					mob = new Chicken(world);
 					break;
-				case MobTypes.Cow:
+				case EntityType.Cow:
 					mob = new Cow(world);
 					break;
-				case MobTypes.Pig:
+				case EntityType.Pig:
 					mob = new Pig(world);
 					break;
-				case MobTypes.Sheep:
+				case EntityType.Sheep:
 					mob = new Sheep(world);
 					break;
-				case MobTypes.Wolf:
+				case EntityType.Wolf:
 					mob = new Wolf(world);
 					break;
-				case MobTypes.Npc:
+				case EntityType.Npc:
 					mob = new Villager(world);
 					break;
-				case MobTypes.MushroomCow:
+				case EntityType.MushroomCow:
 					mob = new MushroomCow(world);
 					break;
-				case MobTypes.Squid:
+				case EntityType.Squid:
 					mob = new Squid(world);
 					break;
-				case MobTypes.Rabbit:
+				case EntityType.Rabbit:
 					mob = new Rabbit(world);
 					break;
-				case MobTypes.Bat:
+				case EntityType.Bat:
 					mob = new Bat(world);
 					break;
-				case MobTypes.IronGolem:
+				case EntityType.IronGolem:
 					mob = new IronGolem(world);
 					break;
-				case MobTypes.Snowman:
-					mob = new Snowman(world);
+				case EntityType.SnowGolem:
+					mob = new SnowGolem(world);
 					break;
-				case MobTypes.Ocelot:
+				case EntityType.Ocelot:
 					mob = new Ocelot(world);
 					break;
-				case MobTypes.Zombie:
+				case EntityType.Zombie:
 					mob = new Zombie(world);
 					break;
-				case MobTypes.Creeper:
+				case EntityType.Creeper:
 					mob = new Creeper(world);
 					break;
-				case MobTypes.Skeleton:
+				case EntityType.Skeleton:
 					mob = new Skeleton(world);
 					break;
-				case MobTypes.Spider:
+				case EntityType.Spider:
 					mob = new Spider(world);
 					break;
-				case MobTypes.ZombiePigman:
+				case EntityType.ZombiePigman:
 					mob = new ZombiePigman(world);
 					break;
-				case MobTypes.Slime:
+				case EntityType.Slime:
 					mob = new Slime(world);
 					break;
-				case MobTypes.Enderman:
+				case EntityType.Enderman:
 					mob = new Enderman(world);
 					break;
-				case MobTypes.Silverfish:
+				case EntityType.Silverfish:
 					mob = new Silverfish(world);
 					break;
-				case MobTypes.CaveSpider:
+				case EntityType.CaveSpider:
 					mob = new CaveSpider(world);
 					break;
-				case MobTypes.Ghast:
+				case EntityType.Ghast:
 					mob = new Ghast(world);
 					break;
-				case MobTypes.MagmaCube:
+				case EntityType.MagmaCube:
 					mob = new MagmaCube(world);
 					break;
-				case MobTypes.Blaze:
+				case EntityType.Blaze:
 					mob = new Blaze(world);
 					break;
-				case MobTypes.ZombieVillager:
+				case EntityType.ZombieVillager:
 					mob = new ZombieVillager(world);
 					break;
-				case MobTypes.Witch:
+				case EntityType.Witch:
 					mob = new Witch(world);
 					break;
 			}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MiNET.Blocks;
 using MiNET.Entities;
+using MiNET.Entities.World;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;

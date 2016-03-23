@@ -266,23 +266,58 @@
     <Compile Include="Effects\WaterBreathing.cs" />
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
-    <Compile Include="Entities\Arrow.cs" />
-    <Compile Include="Entities\Egg.cs" />
+    <Compile Include="Entities\Projectiles\Arrow.cs" />
+    <Compile Include="Entities\Projectiles\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />
+    <Compile Include="Entities\Hostile\HostileMob.cs" />
+    <Compile Include="Entities\Hostile\Blaze.cs" />
+    <Compile Include="Entities\Hostile\CaveSpider.cs" />
+    <Compile Include="Entities\Hostile\Creeper.cs" />
+    <Compile Include="Entities\Hostile\Enderman.cs" />
+    <Compile Include="Entities\Hostile\Ghast.cs" />
+    <Compile Include="Entities\Hostile\Herobrine.cs" />
+    <Compile Include="Entities\Hostile\MagmaCube.cs" />
+    <Compile Include="Entities\Hostile\Silverfish.cs" />
+    <Compile Include="Entities\Hostile\Skeleton.cs" />
+    <Compile Include="Entities\Hostile\Slime.cs" />
+    <Compile Include="Entities\Hostile\Spider.cs" />
+    <Compile Include="Entities\Hostile\Witch.cs" />
+    <Compile Include="Entities\Hostile\Zombie.cs" />
+    <Compile Include="Entities\Hostile\ZombiePigman.cs" />
+    <Compile Include="Entities\Hostile\ZombieVillager.cs" />
+    <Compile Include="Entities\IAgeable.cs" />
+    <Compile Include="Entities\IEternal.cs" />
     <Compile Include="Entities\ImageProviders\MapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\IMapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\RandomColorMapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\TextMapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
-    <Compile Include="Entities\Lightning.cs" />
-    <Compile Include="Entities\MapEntity.cs" />
-    <Compile Include="Entities\MobTypes.cs" />
+    <Compile Include="Entities\Vehicles\Boat.cs" />
+    <Compile Include="Entities\Vehicles\Vechicle.cs" />
+    <Compile Include="Entities\World\Lightning.cs" />
+    <Compile Include="Entities\World\MapEntity.cs" />
+    <Compile Include="Entities\EntityType.cs" />
+    <Compile Include="Entities\Passive\PassiveMob.cs" />
+    <Compile Include="Entities\Passive\Bat.cs" />
+    <Compile Include="Entities\Passive\Chicken.cs" />
+    <Compile Include="Entities\Passive\Cow.cs" />
+    <Compile Include="Entities\Passive\IronGolem.cs" />
+    <Compile Include="Entities\Passive\MushroomCow.cs" />
+    <Compile Include="Entities\Passive\Ocelot.cs" />
+    <Compile Include="Entities\Passive\Pig.cs" />
+    <Compile Include="Entities\Passive\Rabbit.cs" />
+    <Compile Include="Entities\Passive\Sheep.cs" />
+    <Compile Include="Entities\Passive\SnowGolem.cs" />
+    <Compile Include="Entities\Passive\Squid.cs" />
+    <Compile Include="Entities\Passive\Villager.cs" />
+    <Compile Include="Entities\Passive\Wolf.cs" />
     <Compile Include="Entities\PlayerMob.cs" />
-    <Compile Include="Entities\ItemEntity.cs" />
+    <Compile Include="Entities\World\ItemEntity.cs" />
     <Compile Include="Entities\Mob.cs" />
-    <Compile Include="Entities\PrimedTnt.cs" />
-    <Compile Include="Entities\Snowball.cs" />
-    <Compile Include="Entities\Projectile.cs" />
+    <Compile Include="Entities\World\PrimedTnt.cs" />
+    <Compile Include="Entities\Projectiles\Snowball.cs" />
+    <Compile Include="Entities\Projectiles\Projectile.cs" />
+    <Compile Include="Entities\Vehicles\Minecart.cs" />
     <Compile Include="GreyListManager.cs" />
     <Compile Include="HungerManager.cs" />
     <Compile Include="Inventory.cs" />
@@ -545,6 +580,7 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

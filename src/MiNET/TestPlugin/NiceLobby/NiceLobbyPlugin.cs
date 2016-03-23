@@ -14,6 +14,7 @@ using MiNET.Blocks;
 using MiNET.Effects;
 using MiNET.Entities;
 using MiNET.Entities.ImageProviders;
+using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
@@ -514,10 +515,10 @@ namespace TestPlugin.NiceLobby
 		[Command]
 		public void Hide(Player player, string type)
 		{
-			MobTypes mobType;
+			EntityType mobType;
 			try
 			{
-				mobType = (MobTypes) Enum.Parse(typeof (MobTypes), type, true);
+				mobType = (EntityType) Enum.Parse(typeof (EntityType), type, true);
 			}
 			catch (ArgumentException e)
 			{

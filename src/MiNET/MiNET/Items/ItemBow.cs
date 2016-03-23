@@ -1,6 +1,7 @@
 using System;
 using log4net;
 using MiNET.Entities;
+using MiNET.Entities.Projectiles;
 using MiNET.Utils;
 using MiNET.Worlds;
 

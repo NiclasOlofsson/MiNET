@@ -181,6 +181,14 @@ namespace MiNET
 				mcpeRespawn.z = player.SpawnPosition.Z;
 				player.SendPackage(mcpeRespawn);
 			}
+			else
+			{
+				var drops = Entity.GetDrops();
+				foreach (var drop in drops)
+				{
+					Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
+				}
+			}
 		}
 
 		public virtual void ResetHealth()

@@ -12,6 +12,7 @@ using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
+using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Sounds;

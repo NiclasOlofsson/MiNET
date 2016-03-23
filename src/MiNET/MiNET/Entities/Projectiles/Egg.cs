@@ -1,6 +1,6 @@
 ﻿using MiNET.Worlds;
 
-namespace MiNET.Entities
+namespace MiNET.Entities.Projectiles
 {
 	public class Egg : Projectile
 	{

@@ -4,8 +4,7 @@
 	{
 		public Tnt() : base(46)
 		{
-			IsReplacible = true;
-			IsSolid = false;
+			IsFlammable = true;
 		}
 	}
 }

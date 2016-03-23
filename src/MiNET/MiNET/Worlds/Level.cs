@@ -893,7 +893,7 @@ namespace MiNET.Worlds
 			List<Item> drops = new List<Item>();
 
 			Block block = GetBlock(blockCoordinates);
-			drops.Add(block.GetDrops());
+			drops.AddRange(block.GetDrops());
 			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
 			{
 				block.BreakBlock(this);

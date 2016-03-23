@@ -4,6 +4,9 @@ namespace MiNET.Blocks
 	{
 		public WoodSlab() : base(158)
 		{
+			BlastResistance = 15;
+			Hardness = 2;
+			IsFlammable = true;
 		}
 	}
 }

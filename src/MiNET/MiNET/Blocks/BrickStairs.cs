@@ -4,6 +4,8 @@
 	{
 		public BrickStairs() : base(108)
 		{
+			BlastResistance = 30;
+			Hardness = 2;
 		}
 	}
 }

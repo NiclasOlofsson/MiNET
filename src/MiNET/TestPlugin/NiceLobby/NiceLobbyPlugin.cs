@@ -659,7 +659,7 @@ namespace TestPlugin.NiceLobby
 
 					int i = 0;
 
-					player.Inventory.Slots[i++] = new ItemBlock(new WoodenPlanks(), 0) {Count = 64};
+					player.Inventory.Slots[i++] = new ItemBlock(new Planks(), 0) {Count = 64};
 					player.Inventory.Slots[i++] = new ItemItemFrame {Count = 64};
 
 					foreach (MapEntity entity in entities.Values)
@@ -737,7 +737,7 @@ namespace TestPlugin.NiceLobby
 
 					int i = 0;
 
-					player.Inventory.Slots[i++] = new ItemBlock(new WoodenPlanks(), 0) {Count = 64};
+					player.Inventory.Slots[i++] = new ItemBlock(new Planks(), 0) {Count = 64};
 
 					foreach (var entites in entities.Values)
 					{
@@ -758,7 +758,7 @@ namespace TestPlugin.NiceLobby
 							List<MapEntity> frames = entities[key];
 
 							BlockCoordinates bc = new BlockCoordinates(center.X - x, center.Y + height - y - 1, center.Z + 2);
-							var wood = new WoodenPlanks {Coordinates = bc};
+							var wood = new Planks {Coordinates = bc};
 							level.SetBlock(wood);
 
 							BlockCoordinates frambc = new BlockCoordinates(center.X - x, center.Y + height - y - 1, center.Z + 1);

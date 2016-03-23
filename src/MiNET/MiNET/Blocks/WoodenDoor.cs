@@ -9,6 +9,9 @@ namespace MiNET.Blocks
 	{
 		public WoodenDoor() : base(64)
 		{
+			IsTransparent = true;
+			BlastResistance = 15;
+			Hardness = 3;
 		}
 
 		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)

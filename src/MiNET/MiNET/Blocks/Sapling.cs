@@ -5,6 +5,8 @@
 		public Sapling() : base(6)
 		{
 			FuelEfficiency = 5;
+			IsTransparent = true;
+			IsFlammable = true;
 		}
 	}
 }

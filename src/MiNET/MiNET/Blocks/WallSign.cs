@@ -8,6 +8,12 @@ namespace MiNET.Blocks
 	{
 		public WallSign() : base(68)
 		{
+			IsTransparent = true;
+			IsSolid = false;
+			BlastResistance = 5;
+			Hardness = 1;
+
+			IsFlammable = true; // Only in PE!!
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
@@ -15,9 +21,9 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return ItemFactory.GetItem(323, 0, 1); // Drop sign item
+			return new[] {ItemFactory.GetItem(323, 0, 1)}; // Drop sign item
 		}
 	}
 }

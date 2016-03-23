@@ -6,11 +6,13 @@ namespace MiNET.Blocks
 	{
 		public Stone() : base(1)
 		{
+			BlastResistance = 30;
+			Hardness = 1.5f;
 		}
 
-		public override Item GetDrops()
+		public override Item[] GetDrops()
 		{
-			return new ItemBlock(new Cobblestone(), 0) {Count = 1}; // Drop cobblestone
+			return new[] {new ItemBlock(new Cobblestone(), 0) {Count = 1}}; // Drop cobblestone
 		}
 	}
 }

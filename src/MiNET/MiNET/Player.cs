@@ -817,6 +817,8 @@ namespace MiNET
 
 			HungerManager.ResetHunger();
 
+			BroadcastSetEntityData();
+
 			SendUpdateAttributes();
 
 			SendSetSpawnPosition();
@@ -902,7 +904,13 @@ namespace MiNET
 			SpawnPosition = spawnPoint;
 			//Level.AddPlayer(this, "", false);
 			// reset all health states
+
+			HungerManager.ResetHunger();
+
 			HealthManager.ResetHealth();
+
+			BroadcastSetEntityData();
+
 			SendUpdateAttributes();
 
 			SendSetSpawnPosition();

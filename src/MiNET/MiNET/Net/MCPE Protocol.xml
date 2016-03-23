@@ -517,5 +517,10 @@
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>
 
+  <pdu id="0xc1" online="false" client="false" server="true" name="MCPE_CHANGE_DIMENSION">
+		<field name="Dimension" type="byte" />
+    <field name="Misc" type="byte" />
+	</pdu>
+
 
 </protocol>

@@ -391,6 +391,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xc1:
+					package = McpeChangeDimension.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
@@ -3677,6 +3682,47 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			endpoint = ReadIPEndPoint();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeChangeDimension : Package<McpeChangeDimension>
+	{
+		public byte dimension; // = null;
+		public byte misc; // = null;
+		public McpeChangeDimension()
+		{
+			Id = 0xc1;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(dimension);
+			Write(misc);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			dimension = ReadByte();
+			misc = ReadByte();
 
 			AfterDecode();
 		}

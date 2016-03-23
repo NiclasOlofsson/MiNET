@@ -71,6 +71,7 @@
 | Mcpe Tile Entity Data | 0xbd | 189 |   
 | Mcpe Full Chunk Data | 0xbf | 191 |   
 | Mcpe Set Difficulty | 0xc0 | 192 |   
+| Mcpe Change Dimension | 0xc1 | 193 |   
 | Mcpe Player List | 0xc3 | 195 |   
 | Mcpe Spawn Experience Orb | 0xc5 | 197 |   
 | Mcpe Clientbound Map Item Data  | 0xc6 | 198 |   
@@ -1326,6 +1327,21 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |EndPoint | IPEndPoint |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Change Dimension (0xc1)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Dimension | byte |  |
+|Misc | byte |  |
 -----------------------------------------------------------------------
 
 

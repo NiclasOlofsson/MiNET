@@ -49,6 +49,15 @@ namespace TestPlugin
 			Context.PluginManager.UnloadPacketHandlers(instance);
 		}
 
+        [Command(Command = "dim")]
+	    public void ChangeDimension(Player player)
+        {
+            McpeChangeDimension change = McpeChangeDimension.CreateObject();
+            change.dimension = 1;
+            change.misc = 0;
+            player.SendPackage(change);
+        }
+
 		[Command(Command = "le")]
 		public void LevelEvent(Player player, short value)
 		{

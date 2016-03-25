@@ -10,7 +10,7 @@ namespace MiNET.Entities.Vehicles
 	public abstract class Vechicle : Entity
 	{
 
-		protected Vechicle(byte id, Level level) : base(id, level)
+		protected Vechicle(EntityType type, Level level) : base((int)type, level)
 		{
 			
 		}

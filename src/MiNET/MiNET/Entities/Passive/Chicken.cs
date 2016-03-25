@@ -5,7 +5,7 @@ namespace MiNET.Entities.Passive
 {
 	public class Chicken : PassiveMob
 	{
-		public Chicken(Level level) : base((int) EntityType.Chicken, level)
+		public Chicken(Level level) : base(EntityType.Chicken, level)
 		{
 			Width = Length = 0.4;
 			Height = 0.7;

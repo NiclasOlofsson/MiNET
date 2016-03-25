@@ -5,7 +5,7 @@ namespace MiNET.Entities.Passive
 {
 	public class Villager : PassiveMob
 	{
-		public Villager(Level level) : base((int) EntityType.Npc, level)
+		public Villager(Level level) : base(EntityType.Npc, level)
 		{
 			Width = Length = 0.6;
 			Height = 1.8;

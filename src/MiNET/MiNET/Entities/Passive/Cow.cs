@@ -6,7 +6,7 @@ namespace MiNET.Entities.Passive
 {
 	public class Cow : PassiveMob, IAgeable
 	{
-		public Cow(Level level) : base((int) EntityType.Cow, level)
+		public Cow(Level level) : base(EntityType.Cow, level)
 		{
 			Width = Length = 0.9;
 			Height = 1.4;

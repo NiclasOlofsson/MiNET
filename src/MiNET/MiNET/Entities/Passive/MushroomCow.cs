@@ -5,7 +5,7 @@ namespace MiNET.Entities.Passive
 {
 	public class MushroomCow : PassiveMob
 	{
-		public MushroomCow(Level level) : base((int) EntityType.MushroomCow, level)
+		public MushroomCow(Level level) : base(EntityType.MushroomCow, level)
 		{
 			Width = Length = 0.9;
 			Height = 1.4;

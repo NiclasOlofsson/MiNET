@@ -8,5 +8,10 @@ namespace MiNET.Entities.Hostile
 			: base(entityTypeId, level)
 		{
 		}
+
+		protected HostileMob(EntityType type, Level level)
+			: base(type, level)
+		{
+		}
 	}
 }

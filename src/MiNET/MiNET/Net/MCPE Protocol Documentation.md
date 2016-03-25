@@ -1200,6 +1200,24 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |Difficulty | int |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Change Dimension (0xc1)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Dimension | byte |  |
+|Target Spawn X | float |  |
+|Target Spawn Y | float |  |
+|Target Spawn Z | float |  |
+|Unknown | byte |  |
+-----------------------------------------------------------------------
 ###Package: Mcpe Player List (0xc3)
 
 **Sent from server:** true

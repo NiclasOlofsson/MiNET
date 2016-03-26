@@ -479,10 +479,15 @@
 		<field name="Difficulty" type="int" />
 	</pdu>
 
+	<pdu id="0xc1" online="false" client="false" server="true" name="MCPE_CHANGE_DIMENSION">
+		<field name="Dimension" type="byte" />
+		<field name="Unknown" type="byte" />
+	</pdu>
+
 	<pdu id="0xc3" online="false" client="false" server="true" name="MCPE_PLAYER_LIST">
 		<field name="Records" type="PlayerRecords" />
 	</pdu>
-	
+
 	<pdu id="0xc5" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">
 		<field name="Entity ID" type="long" />
 		<field name="X" type="int" />
@@ -516,11 +521,5 @@
 	<pdu id="0x1b" online="false" client="false" server="true" name="MCPE_TRANSFER">
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>
-
-  <pdu id="0xc1" online="false" client="false" server="true" name="MCPE_CHANGE_DIMENSION">
-		<field name="Dimension" type="byte" />
-    <field name="Misc" type="byte" />
-	</pdu>
-
 
 </protocol>

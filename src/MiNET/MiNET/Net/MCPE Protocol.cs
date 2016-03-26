@@ -346,6 +346,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xc1:
+					package = McpeChangeDimension.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xc3:
 					package = McpePlayerList.CreateObject();
 					//package.Timer.Start();
@@ -388,11 +393,6 @@ namespace MiNET.Net
 					return package;
 				case 0x1b:
 					package = McpeTransfer.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc1:
-					package = McpeChangeDimension.CreateObject();
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
@@ -3343,6 +3343,47 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeChangeDimension : Package<McpeChangeDimension>
+	{
+		public byte dimension; // = null;
+		public byte unknown; // = null;
+		public McpeChangeDimension()
+		{
+			Id = 0xc1;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(dimension);
+			Write(unknown);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			dimension = ReadByte();
+			unknown = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpePlayerList : Package<McpePlayerList>
 	{
 		public PlayerRecords records; // = null;
@@ -3682,47 +3723,6 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			endpoint = ReadIPEndPoint();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeChangeDimension : Package<McpeChangeDimension>
-	{
-		public byte dimension; // = null;
-		public byte misc; // = null;
-		public McpeChangeDimension()
-		{
-			Id = 0xc1;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(dimension);
-			Write(misc);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			dimension = ReadByte();
-			misc = ReadByte();
 
 			AfterDecode();
 		}

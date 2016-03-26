@@ -13,6 +13,7 @@ using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Entities.Passive;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
@@ -49,14 +50,14 @@ namespace TestPlugin
 			Context.PluginManager.UnloadPacketHandlers(instance);
 		}
 
-        [Command(Command = "dim")]
-	    public void ChangeDimension(Player player)
-        {
-            McpeChangeDimension change = McpeChangeDimension.CreateObject();
-            change.dimension = 1;
-            change.misc = 0;
-            player.SendPackage(change);
-        }
+		[Command(Command = "dim")]
+		public void ChangeDimension(Player player)
+		{
+			McpeChangeDimension change = McpeChangeDimension.CreateObject();
+			change.dimension = 1;
+			change.unknown = 0;
+			player.SendPackage(change);
+		}
 
 		[Command(Command = "le")]
 		public void LevelEvent(Player player, short value)
@@ -204,9 +205,9 @@ namespace TestPlugin
 		//[Authorize(Users = "gurunx")]
 		public void GameMode(Player player, int gameMode)
 		{
-			player.SetGameMode((GameMode)gameMode);
+			player.SetGameMode((GameMode) gameMode);
 
-			player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode)gameMode}.", type: MessageType.Raw);
+			player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode) gameMode}.", type: MessageType.Raw);
 		}
 
 
@@ -356,6 +357,21 @@ namespace TestPlugin
 				KnownPosition = player.KnownPosition,
 				//Data = -(blockId | 0 << 0x10)
 			};
+			entity.SpawnEntity();
+		}
+
+		[Command]
+		public void Doit(Player player, bool isAngry, byte data)
+		{
+			Level level = player.Level;
+
+			var entity = new Wolf(level)
+			{
+				KnownPosition = player.KnownPosition,
+				IsAngry = isAngry,
+				CollarColor = data,
+			};
+
 			entity.SpawnEntity();
 		}
 

@@ -1200,6 +1200,21 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |Difficulty | int |  |
 -----------------------------------------------------------------------
+###Package: Mcpe Change Dimension (0xc1)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Dimension | byte |  |
+|Unknown | byte |  |
+-----------------------------------------------------------------------
 ###Package: Mcpe Player List (0xc3)
 
 **Sent from server:** true
@@ -1327,21 +1342,6 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |EndPoint | IPEndPoint |  |
------------------------------------------------------------------------
-###Package: Mcpe Change Dimension (0xc1)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-####Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Dimension | byte |  |
-|Misc | byte |  |
 -----------------------------------------------------------------------
 
 

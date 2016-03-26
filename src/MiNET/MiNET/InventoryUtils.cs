@@ -8,21 +8,6 @@ namespace MiNET
 	// ReSharper disable RedundantArgumentDefaultValue
 	public static class InventoryUtils
 	{
-		public static void Clear(this PlayerInventory inv)
-		{
-			for (int i = 0; i < inv.Slots.Count; ++i)
-			{
-				if (inv.Slots[i] == null || inv.Slots[i].Id != 0) inv.Slots[i] = new ItemAir();
-			}
-
-			if (inv.Helmet.Id != 0) inv.Helmet = new ItemAir();
-			if (inv.Chest.Id != 0) inv.Chest = new ItemAir();
-			if (inv.Leggings.Id != 0) inv.Leggings = new ItemAir();
-			if (inv.Boots.Id != 0) inv.Boots = new ItemAir();
-
-			inv.Player.SendPlayerInventory();
-		}
-
 		public static ItemStacks GetCreativeMetadataSlots()
 		{
 			ItemStacks slotData = new ItemStacks();

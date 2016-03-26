@@ -310,7 +310,7 @@ namespace TestPlugin.NiceLobby
 				return message;
 			}
 
-			text = TextUtils.Strip(text);
+			text = TextUtils.RemoveFormatting(text);
 			player.Level.BroadcastMessage($"{GetNameTag(player)}:{ChatColors.White} {text}", MessageType.Raw);
 
 			return null;

@@ -135,13 +135,24 @@ namespace MiNET.Utils
 			if (keepBold)
 			{
 				Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefkmnor])");
-				result = rgx.Replace(input, "");
+ -				result = rgx.Replace(input, "\u1236");
+ -				Regex rgxBold = new Regex("(?:&|§|\u00a7)([l])");
+ -				result = rgxBold.Replace(result, "\u1234");
 			}
 			else
 			{
 				Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
-				result = rgx.Replace(input, "");
+				result = rgx.Replace(input, "/1236");
 			}
+			return result;
+		}
+		
+		public static string RemoveFormatting(string input)
+		{
+			string result;
+			
+			Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
+			result = rgx.Replace(input, "");
 			return result;
 		}
 	}

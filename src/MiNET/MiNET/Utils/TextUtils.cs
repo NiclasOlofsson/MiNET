@@ -142,7 +142,7 @@ namespace MiNET.Utils
 			else
 			{
 				Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
-				result = rgx.Replace(input, "/1236");
+				result = rgx.Replace(input, "\u1236");
 			}
 			return result;
 		}

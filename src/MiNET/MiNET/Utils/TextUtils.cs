@@ -129,7 +129,7 @@ namespace MiNET.Utils
 			return lenght;
 		}
 
-		public static string Strip(string input, bool keepBold = false)
+		private static string Strip(string input, bool keepBold = false)
 		{
 			string result;
 			if (keepBold)
@@ -144,6 +144,15 @@ namespace MiNET.Utils
 				Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
 				result = rgx.Replace(input, "\u1236");
 			}
+			return result;
+		}
+		
+		public static string RemoveFormatting(string input)
+		{
+			string result;
+			
+			Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
+			result = rgx.Replace(input, "");
 			return result;
 		}
 	}

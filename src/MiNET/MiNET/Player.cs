@@ -1104,7 +1104,6 @@ namespace MiNET
 			}
 			else
 			{
-				text = TextUtils.Strip(text);
 				Level.BroadcastMessage(text, sender: this);
 			}
 		}

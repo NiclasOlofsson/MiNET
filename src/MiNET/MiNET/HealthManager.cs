@@ -35,6 +35,7 @@ namespace MiNET
 
 		private int _hearts;
 		public Entity Entity { get; set; }
+		public int MaxHealth { get; set; }
 		public int Health { get; set; }
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
@@ -49,6 +50,7 @@ namespace MiNET
 		public HealthManager(Entity entity)
 		{
 			Entity = entity;
+			MaxHealth = 200;
 			ResetHealth();
 		}
 
@@ -60,7 +62,7 @@ namespace MiNET
 		public virtual void Regen(int amount = 1)
 		{
 			Health += amount*10;
-			if (Health > 200) Health = 200;
+			if (Health > MaxHealth) Health = MaxHealth;
 
 			var player = Entity as Player;
 			if (player != null)
@@ -194,7 +196,7 @@ namespace MiNET
 		public virtual void ResetHealth()
 		{
 			IsInvulnerable = false;
-			Health = 200;
+			Health = MaxHealth;
 			Air = 300;
 			IsOnFire = false;
 			FireTick = 0;
@@ -213,7 +215,7 @@ namespace MiNET
 
 			if (IsDead) return;
 
-			if (IsInvulnerable) Health = 200;
+			if (IsInvulnerable) Health = MaxHealth;
 
 			if (Health <= 0)
 			{

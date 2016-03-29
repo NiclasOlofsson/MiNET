@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Drawing;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -95,11 +96,81 @@ namespace MiNET.Entities
 			Age++;
 
 			HealthManager.OnTick();
+
+			if (Velocity.Distance > 0)
+			{
+				PlayerLocation oldPosition = (PlayerLocation)KnownPosition.Clone();
+				bool onGroundBefore = IsOnGround(KnownPosition);
+
+				KnownPosition.X += (float)Velocity.X;
+				KnownPosition.Y += (float)Velocity.Y;
+				KnownPosition.Z += (float)Velocity.Z;
+
+				bool onGround = IsOnGround(KnownPosition);
+				if (!onGroundBefore && onGround)
+				{
+					KnownPosition.Y = (float)Math.Floor(oldPosition.Y);
+					Velocity = Vector3.Zero;
+				}
+				else
+				{
+					if ((Math.Abs(Velocity.X) > 0.00001 || Math.Abs(Velocity.Z) > 0.00001) && CheckBlockCollisions())
+					{
+						KnownPosition = oldPosition;
+						Velocity = new Vector3(0, Velocity.Y, 0);
+					}
+
+					Velocity *= (1.0 - Drag);
+					if (!onGround)
+					{
+						Velocity -= new Vector3(0, Gravity, 0);
+					}
+				}
+
+				LastUpdatedTime = DateTime.UtcNow;
+			}
+			else if (Velocity != Vector3.Zero)
+			{
+				Velocity = Vector3.Zero;
+				LastUpdatedTime = DateTime.UtcNow;
+			}
 		}
 
-		private void CheckBlockCollisions()
+		private bool IsOnGround(PlayerLocation position)
+		{
+			PlayerLocation pos = (PlayerLocation)position.Clone();
+			pos.Y -= 0.1f;
+			Block block = Level.GetBlock(new BlockCoordinates(pos));
+
+			return block.Id != 0; // Should probably test for solid
+		}
+
+		private bool CheckBlockCollisions()
 		{
 			// Check all blocks within entity BB
+
+			// Get the blocks that the boundingbox intesects
+			var bb = GetBoundingBox();
+			var min = bb.Min;
+			var max = bb.Max;
+			
+
+			for (int x = (int) Math.Floor(min.X); x < (int) Math.Floor(max.X); x++)
+			{
+				for (int y = (int) Math.Floor(min.Y); y < (int) Math.Floor(max.Y); y++)
+				{
+					for (int z = (int) Math.Floor(min.Z); z < (int) Math.Floor(max.Z); z++)
+					{
+						var bl = Level.GetBlock(x, y, z);
+						if (!(bl is Air) && bl.GetBoundingBox().Intersects(bb))
+						{
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
 		}
 
 		public virtual void SpawnEntity()

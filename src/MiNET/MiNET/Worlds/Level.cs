@@ -102,54 +102,27 @@ namespace MiNET.Worlds
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
-			_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
+			//_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
 
 			//_tickerThread = new Thread(RunWorldTick);
 			//_tickerThread.Priority = ThreadPriority.Highest;
 			//_tickerThread.IsBackground = true;
 			//_tickerThread.Start();
 			//_tickerThreadTimer.Start();
+
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(50);
+			_tickerHighPrecisionTimer.Tick += _tickerHighPrecisionTimer_Tick;
 		}
 
-		Thread _tickerThread = null;
-
-		Stopwatch _tickerThreadTimer = new Stopwatch();
-
-		private void RunWorldTick()
+		private void _tickerHighPrecisionTimer_Tick(object sender, HighPrecisionTimer.TickEventArgs e)
 		{
-			while (_tickerThread != null)
-			{
-				WorldTick(null);
-				LimitFrameRate(50);
-			}
+			WorldTick(null);
 		}
 
-		private long _fpsStartTime = -1;
-		private long _fpsFrameCount;
-		public virtual void LimitFrameRate(int fps)
-		{
-			if (_fpsStartTime == -1) _fpsStartTime = Stopwatch.GetTimestamp();
-
-			long freq;
-			long frame;
-			freq = Stopwatch.Frequency;
-			frame = Stopwatch.GetTimestamp();
-			while ((frame - _fpsStartTime) * fps < freq * _fpsFrameCount)
-			{
-				int sleepTime = (int)((_fpsStartTime * fps + freq * _fpsFrameCount - frame * fps) * 1000 / (freq * fps));
-				if (sleepTime > 0) System.Threading.Thread.Sleep(sleepTime);
-				frame = System.Diagnostics.Stopwatch.GetTimestamp();
-			}
-			if (++_fpsFrameCount > fps)
-			{
-				_fpsFrameCount = 0;
-				_fpsStartTime = frame;
-			}
-		}
+		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
 		public void Close()
 		{
-			//_tickerThread = null;
 			_levelTicker.Change(Timeout.Infinite, Timeout.Infinite);
 			WaitHandle waitHandle = new AutoResetEvent(false);
 			_levelTicker.Dispose(waitHandle);
@@ -378,6 +351,8 @@ namespace MiNET.Worlds
 		{
 			if (!Monitor.TryEnter(_tickSync)) return;
 
+			//if (_tickTimer.ElapsedMilliseconds > 51) Log.Warn($"World tick late: {_tickTimer.ElapsedMilliseconds} ms");
+
 			_tickTimer.Restart();
 			try
 			{
@@ -443,6 +418,8 @@ namespace MiNET.Worlds
 				//		}, p);
 				//	}
 				//}
+
+				//if (_tickTimer.ElapsedMilliseconds >= 50) Log.Error($"World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
 			}
 			finally
 			{

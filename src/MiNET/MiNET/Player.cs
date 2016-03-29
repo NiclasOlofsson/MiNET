@@ -505,8 +505,6 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x40;
 			//}
 
-			Log.Warn("GameMode " + GameMode + " allowfly=" + AllowFly);
-
 			if (AllowFly || GameMode == GameMode.Creative)
 			{
 				mcpeAdventureSettings.flags |= 0x80;
@@ -1154,14 +1152,11 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 
-			//AddPopup(new Popup
-			//{
-			//	MessageType = MessageType.Tip,
-			//	Message = $"IsFalling={IsFalling}, IsOnGround={IsOnGround}",
-			//	Duration = 1
-			//});
-
-			ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
+			var chunkPosition = new ChunkCoordinates(KnownPosition);
+			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) > 5)
+			{
+				ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
+			}
 		}
 
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message)

@@ -503,6 +503,7 @@
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
+    <Compile Include="Utils\HighPrecisionTimer.cs" />
     <Compile Include="Utils\MapInfo.cs" />
     <Compile Include="Utils\MetadataIntCoordinates.cs" />
     <Compile Include="Utils\MetadataLong.cs" />

@@ -41,6 +41,7 @@ namespace MiNET
 		public bool IsDead { get; set; }
 		public int FireTick { get; set; }
 		public int SuffocationTicks { get; set; }
+		public int LavaTicks { get; set; }
 		public int CooldownTick { get; set; }
 		public bool IsOnFire { get; set; }
 		public bool IsInvulnerable { get; set; }
@@ -201,6 +202,7 @@ namespace MiNET
 			IsOnFire = false;
 			FireTick = 0;
 			SuffocationTicks = 10;
+			LavaTicks = 0;
 			IsDead = false;
 			CooldownTick = 0;
 			LastDamageCause = DamageCause.Unknown;
@@ -287,14 +289,44 @@ namespace MiNET
 				SuffocationTicks = 10;
 			}
 
-			if (!IsOnFire && IsInLava(Entity.KnownPosition))
+			if (IsInLava(Entity.KnownPosition))
 			{
-				FireTick = 300;
-				IsOnFire = true;
-				Entity.BroadcastSetEntityData();
+				if (LastDamageCause.Equals(DamageCause.Lava))
+				{
+					FireTick += 2;
+				}
+				else
+				{
+					FireTick = 300;
+					IsOnFire = true;
+					Entity.BroadcastSetEntityData();
+				}
+
+				if (LavaTicks <= 0)
+				{
+					Health -= 40;
+
+					var player = Entity as Player;
+					if (player != null)
+					{
+						player.SendUpdateAttributes();
+						player.BroadcastEntityEvent();
+					}
+					Entity.BroadcastSetEntityData();
+					LastDamageCause = DamageCause.Lava;
+					LavaTicks = 10;
+				}
+				else
+				{
+					LavaTicks--;
+				}
+			}
+			else
+			{
+				LavaTicks = 0;
 			}
 
-			if (IsOnFire)
+			if (!IsInLava(Entity.KnownPosition) && IsOnFire)
 			{
 				FireTick--;
 				if (FireTick <= 0)

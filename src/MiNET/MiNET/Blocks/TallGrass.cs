@@ -21,9 +21,9 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops()
 		{
-			// 50% chance to drop seeds.
+			// 1/24 chance of dropping seeds according to the wiki
 			var rnd = new Random((int) DateTime.UtcNow.Ticks);
-			if (rnd.NextDouble() > 0.5)
+			if (rnd.NextDouble() <= 0.041)
 			{
 				return new[] {ItemFactory.GetItem(295)};
 			}

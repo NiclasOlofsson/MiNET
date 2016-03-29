@@ -9,6 +9,8 @@ namespace MiNET.Entities.Passive
 		{
 			Width = Length = 0.7;
 			Height = 1.9;
+			HealthManager.MaxHealth = 40;
+			HealthManager.ResetHealth();
 		}
 
 		public override Item[] GetDrops()

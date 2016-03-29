@@ -9,6 +9,8 @@ namespace MiNET.Entities.Hostile
 		{
 			Width = Length = 0.6;
 			Height = 2.9;
+			HealthManager.MaxHealth = 400;
+			HealthManager.ResetHealth();
 		}
 	}
 }

@@ -9,6 +9,8 @@ namespace MiNET.Entities.Passive
 		{
 			Width = Length = 0.9;
 			Height = 1.3;
+			HealthManager.MaxHealth = 80;
+			HealthManager.ResetHealth();
 		}
 
 		public bool IsBaby { get; set; }

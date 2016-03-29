@@ -8,6 +8,8 @@ namespace MiNET.Entities.Passive
 		{
 			Width = Length = 0.5;
 			Height = 0.9;
+			HealthManager.MaxHealth = 60;
+			HealthManager.ResetHealth();
 		}
 	}
 }

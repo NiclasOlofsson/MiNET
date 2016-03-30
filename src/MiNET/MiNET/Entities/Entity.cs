@@ -36,6 +36,10 @@ namespace MiNET.Entities
 		public double Gravity { get; set; }
 		public int Data { get; set; }
 
+		public bool Silent { get; set; }
+		public bool HideNameTag { get; set; }
+		public bool NoAi { get; set; }
+
 		public Entity(int entityTypeId, Level level)
 		{
 			Height = 1;
@@ -58,9 +62,9 @@ namespace MiNET.Entities
 			//metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(NameTag ?? string.Empty);
-			metadata[3] = new MetadataByte(1);
-			metadata[4] = new MetadataByte(0);
-			metadata[15] = new MetadataByte(0);
+			metadata[3] = new MetadataByte(HideNameTag);
+			metadata[4] = new MetadataByte(Silent);
+			metadata[15] = new MetadataByte(NoAi);
 			//metadata[16] = new MetadataByte(0);
 
 			return metadata;

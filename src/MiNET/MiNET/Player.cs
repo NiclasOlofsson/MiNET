@@ -56,9 +56,6 @@ namespace MiNET
 		public UUID ClientUuid { get; set; }
 
 		public Skin Skin { get; set; }
-		public bool Silent { get; set; }
-		public bool HideNameTag { get; set; }
-		public bool NoAi { get; set; }
 
 		public float EnchantingLevel { get; set; } = 0f;
 		public float Experience { get; set; } = 0f;

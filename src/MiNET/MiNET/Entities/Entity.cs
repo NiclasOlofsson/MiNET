@@ -62,7 +62,7 @@ namespace MiNET.Entities
 			//metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(NameTag ?? string.Empty);
-			metadata[3] = new MetadataByte(HideNameTag);
+			metadata[3] = new MetadataByte(!HideNameTag);
 			metadata[4] = new MetadataByte(Silent);
 			metadata[15] = new MetadataByte(NoAi);
 			//metadata[16] = new MetadataByte(0);

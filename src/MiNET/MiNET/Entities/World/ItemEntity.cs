@@ -21,13 +21,7 @@ namespace MiNET.Entities.World
 
 			PickupDelay = 10;
 			TimeToLive = 6000;
-		}
-
-		public override MetadataDictionary GetMetadata()
-		{
-			MetadataDictionary metadata = base.GetMetadata();
-			metadata[15] = new MetadataByte(1);
-			return metadata;
+			NoAi = true;
 		}
 
 		public Item GetItemStack()

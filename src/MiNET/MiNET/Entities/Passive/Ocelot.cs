@@ -20,6 +20,8 @@ namespace MiNET.Entities.Passive
 			Width = Length = 0.6;
 			Height = 0.8;
 			CatType = CatType.WildOcelot;
+			HealthManager.MaxHealth = 100;
+			HealthManager.ResetHealth();
 		}
 
 		public override MetadataDictionary GetMetadata()

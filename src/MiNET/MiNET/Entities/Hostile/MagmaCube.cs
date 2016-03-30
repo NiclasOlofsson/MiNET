@@ -1,4 +1,5 @@
-﻿using MiNET.Worlds;
+﻿using System;
+using MiNET.Worlds;
 using MiNET.Items;
 using MiNET.Utils;
 
@@ -17,12 +18,14 @@ namespace MiNET.Entities.Hostile
 			{
 				_size = value;
 				Width = Height = Length = _size * 0.51000005;
+				HealthManager.MaxHealth = (int)Math.Pow(2, _size);
 			}
 		}
 
 		public MagmaCube(Level level, byte size = 1) : base((int) EntityType.MagmaCube, level)
 		{
 			Size = size;
+			HealthManager.ResetHealth();
 		}
 
 		public override MetadataDictionary GetMetadata()

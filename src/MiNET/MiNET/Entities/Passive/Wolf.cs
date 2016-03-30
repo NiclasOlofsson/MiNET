@@ -14,6 +14,8 @@ namespace MiNET.Entities.Passive
 			Height = 0.8;
 			IsAngry = false;
 			CollarColor = 14;
+			HealthManager.MaxHealth = 80;
+			HealthManager.ResetHealth();
 		}
 
 		public override MetadataDictionary GetMetadata()

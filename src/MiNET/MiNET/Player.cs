@@ -2157,15 +2157,9 @@ namespace MiNET
 
 		public override MetadataDictionary GetMetadata()
 		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte(GetDataValue());
-			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[2] = new MetadataString(NameTag ?? Username);
-			metadata[3] = new MetadataByte(!HideNameTag);
-			metadata[4] = new MetadataByte(Silent);
+			MetadataDictionary metadata = base.GetMetadata();
 			metadata[7] = new MetadataInt(0); // Potion Color
 			metadata[8] = new MetadataByte(0); // Potion Ambient
-			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
 			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 

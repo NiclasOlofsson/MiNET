@@ -8,7 +8,7 @@ namespace MiNET.Blocks
 {
 	public class Leaves : Block
 	{
-		public Leaves() : base(12)
+		public Leaves() : base(18)
 		{
 			IsTransparent = true;
 			BlastResistance = 1;

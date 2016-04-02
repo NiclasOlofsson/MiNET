@@ -450,7 +450,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops()
 		{
-			return null;
+			return new Item[0];
 		}
 	}
 }

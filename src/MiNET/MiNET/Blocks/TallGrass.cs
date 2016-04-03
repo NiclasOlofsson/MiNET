@@ -28,7 +28,7 @@ namespace MiNET.Blocks
 				return new[] {ItemFactory.GetItem(295)};
 			}
 
-			return null;
+			return new Item[0];
 		}
 	}
 }

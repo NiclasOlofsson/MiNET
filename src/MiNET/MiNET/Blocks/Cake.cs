@@ -14,7 +14,7 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops()
 		{
 			if (Metadata == 0) return new Item[] { ItemFactory.GetItem(354, 0, 1) };
-			return null;
+			return new Item[0];
 		}
 	}
 }

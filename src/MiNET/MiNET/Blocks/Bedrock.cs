@@ -13,7 +13,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops()
 		{
-			return null; //Drop nothing
+			return new Item[0]; //Drop nothing
 		}
 	}
 }

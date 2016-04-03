@@ -19,7 +19,7 @@ namespace MiNET.Blocks
 			{
 				return new[] {ItemFactory.GetItem(40, 0, (byte)next)};
 			}
-			return null;
+			return new Item[0];
 		}
 	}
 }

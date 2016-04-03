@@ -1213,6 +1213,9 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Dimension | byte |  |
+|X | float |  |
+|Y | float |  |
+|Z | float |  |
 |Unknown | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player List (0xc3)

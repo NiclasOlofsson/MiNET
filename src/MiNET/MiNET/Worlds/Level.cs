@@ -93,7 +93,7 @@ namespace MiNET.Worlds
 				chunkLoading.Start();
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
-				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>(), 10))
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>(), 11))
 				{
 					if (chunk != null) i++;
 				}
@@ -123,11 +123,13 @@ namespace MiNET.Worlds
 
 		public void Close()
 		{
-			_levelTicker.Change(Timeout.Infinite, Timeout.Infinite);
-			WaitHandle waitHandle = new AutoResetEvent(false);
-			_levelTicker.Dispose(waitHandle);
-			WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
-			_levelTicker = null;
+			//_levelTicker.Change(Timeout.Infinite, Timeout.Infinite);
+			//WaitHandle waitHandle = new AutoResetEvent(false);
+			//_levelTicker.Dispose(waitHandle);
+			//WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
+			//_levelTicker = null;
+
+			_tickerHighPrecisionTimer.Dispose();
 
 			foreach (var entity in Entities.Values.ToArray())
 			{
@@ -597,23 +599,13 @@ namespace MiNET.Worlds
 			return chunk;
 		}
 
-		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed, double rad)
+		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed, double radius)
 		{
 			lock (chunksUsed)
 			{
 				Dictionary<Tuple<int, int>, double> newOrders = new Dictionary<Tuple<int, int>, double>();
-				// ViewDistance is actually ViewArea
-				// A = pi r^2
-				// sqrt(A/pi) = r
-				//var viewArea = ViewDistance;
-				//double radiusSquared = ViewDistance / Math.PI;
-				//double radius = Math.Ceiling(Math.Sqrt(radiusSquared));
 
-				//double radOld = Math.Ceiling(Math.Sqrt(viewArea / Math.PI));
-
-				double radius = rad;
 				double radiusSquared = Math.Pow(radius, 2);
-				double viewArea = (Math.PI*(radiusSquared));
 
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
@@ -668,8 +660,6 @@ namespace MiNET.Worlds
 
 					yield return chunk;
 				}
-
-				if (chunksUsed.Count > viewArea) Debug.WriteLine("Too many chunks used: {0}", chunksUsed.Count);
 			}
 		}
 

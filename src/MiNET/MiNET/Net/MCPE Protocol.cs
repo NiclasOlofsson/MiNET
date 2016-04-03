@@ -3346,6 +3346,9 @@ namespace MiNET.Net
 	public partial class McpeChangeDimension : Package<McpeChangeDimension>
 	{
 		public byte dimension; // = null;
+		public float x; // = null;
+		public float y; // = null;
+		public float z; // = null;
 		public byte unknown; // = null;
 		public McpeChangeDimension()
 		{
@@ -3359,6 +3362,9 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(dimension);
+			Write(x);
+			Write(y);
+			Write(z);
 			Write(unknown);
 
 			AfterEncode();
@@ -3374,6 +3380,9 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			dimension = ReadByte();
+			x = ReadFloat();
+			y = ReadFloat();
+			z = ReadFloat();
 			unknown = ReadByte();
 
 			AfterDecode();

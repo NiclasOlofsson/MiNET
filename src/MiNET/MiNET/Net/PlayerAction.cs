@@ -14,6 +14,7 @@ namespace MiNET.Net
 		StopSprint = 10,
 		StartSneak = 11,
 		StopSneak = 12,
-		DimensionChange = 13
+		DimensionChange = 13,
+		AbortDimensionChange = 14,
 	}
 }

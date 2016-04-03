@@ -329,7 +329,7 @@ namespace MiNET
 			Log.Info($"Requested chunk radius of: {message.chunkRadius}");
 
 			ChunkRadius = message.chunkRadius;
-			//ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, 11));
+			ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, 11));
 
 			SendChunkRadiusUpdate();
 
@@ -420,8 +420,11 @@ namespace MiNET
 					break;
 				case PlayerAction.DimensionChange:
 					break;
+				case PlayerAction.AbortDimensionChange:
+					break;
 				default:
-					throw new ArgumentOutOfRangeException();
+					Log.Warn($"Unhandled action ID={message.actionId}");
+					throw new ArgumentOutOfRangeException(nameof(message.actionId));
 			}
 
 			IsInAction = false;
@@ -890,7 +893,12 @@ namespace MiNET
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
 			{
-				X = KnownPosition.X, Y = 4000, Z = KnownPosition.Z, Yaw = 91, Pitch = 28, HeadYaw = 91,
+				X = KnownPosition.X,
+				Y = 4000,
+				Z = KnownPosition.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91,
 			});
 
 			//if (Level != null)

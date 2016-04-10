@@ -22,7 +22,7 @@ namespace MiNET
 			{
 				GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
 				Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Peaceful);
-				int viewDistance = Config.GetProperty("ViewDistance", 250);
+				int viewDistance = Config.GetProperty("ViewDistance", 11);
 
 				IWorldProvider worldProvider = null;
 

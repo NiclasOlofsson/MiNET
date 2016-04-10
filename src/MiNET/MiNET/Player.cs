@@ -46,6 +46,7 @@ namespace MiNET
 
 		public PlayerLocation SpawnPosition { get; set; }
 
+		public int MaxViewDistance { get; set; } = 22;
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
 		public string Username { get; private set; }
@@ -326,10 +327,9 @@ namespace MiNET
 
 		protected virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
 		{
-			Log.Info($"Requested chunk radius of: {message.chunkRadius}");
+			Log.Debug($"Requested chunk radius of: {message.chunkRadius}");
 
-			ChunkRadius = message.chunkRadius;
-			ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, 11));
+			ChunkRadius = Math.Max(5, Math.Min(message.chunkRadius, MaxViewDistance));
 
 			SendChunkRadiusUpdate();
 

@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -8,6 +9,7 @@ namespace MiNET
 		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint)
 		{
 			var player = new Player(server, endPoint);
+			player.MaxViewDistance = Config.GetProperty("MaxViewDistance", 22);
 			OnPlayerCreated(new PlayerEventArgs(player));
 			return player;
 		}

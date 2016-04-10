@@ -61,7 +61,7 @@ namespace MiNET.Worlds
 
 		public Random Random { get; private set; }
 
-		public Level(string levelId, IWorldProvider worldProvider, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 250)
+		public Level(string levelId, IWorldProvider worldProvider, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
 		{
 			Random = new Random();
 
@@ -93,7 +93,7 @@ namespace MiNET.Worlds
 				chunkLoading.Start();
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
-				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>(), 11))
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>(), ViewDistance))
 				{
 					if (chunk != null) i++;
 				}

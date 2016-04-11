@@ -8,7 +8,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Vehicles
 {
-	public class Boat : Vechicle
+	public class Boat : Vehicle
 	{
 		public Boat(Level level) : base(EntityType.Boat, level)
 		{

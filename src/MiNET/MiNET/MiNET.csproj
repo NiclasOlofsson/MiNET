@@ -293,7 +293,7 @@
     <Compile Include="Entities\ImageProviders\TextMapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
-    <Compile Include="Entities\Vehicles\Vechicle.cs" />
+    <Compile Include="Entities\Vehicles\Vehicle.cs" />
     <Compile Include="Entities\World\Lightning.cs" />
     <Compile Include="Entities\World\MapEntity.cs" />
     <Compile Include="Entities\EntityType.cs" />

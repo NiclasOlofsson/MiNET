@@ -4,7 +4,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Vehicles
 {
-	public class Minecart : Vechicle
+	public class Minecart : Vehicle
 	{
 		public Minecart(Level level, PlayerLocation position) : base(EntityType.Minecart, level)
 		{

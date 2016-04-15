@@ -1217,7 +1217,7 @@ namespace MiNET
 		{
 		}
 
-		private void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
+		protected virtual void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
 			Item droppedItem = message.item;
 			/*if (Log.IsDebugEnabled) */Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");

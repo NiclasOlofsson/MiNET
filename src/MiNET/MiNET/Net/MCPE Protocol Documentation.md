@@ -1318,6 +1318,10 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|X | int |  |
+|Y | int |  |
+|Z | int |  |
+|Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Replace Selected Item (0xcb)
 

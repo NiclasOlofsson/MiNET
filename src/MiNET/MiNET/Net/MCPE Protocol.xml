@@ -516,6 +516,10 @@
 	</pdu>
 
 	<pdu id="0xca" online="false" client="false" server="true" name="MCPE_ITEM_FRAM_DROP_ITEM">
+		<field name="X" type="int" />
+		<field name="Y" type="int" />
+		<field name="Z" type="int" />
+		<field name="Item" type="Item" />
 	</pdu>
 
 	<pdu id="0xcb" online="false" client="false" server="true" name="MCPE_REPLACE_SELECTED_ITEM">

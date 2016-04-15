@@ -251,6 +251,11 @@ namespace MiNET
 				HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
 			}
 
+			else if (typeof (McpeItemFramDropItem) == message.GetType())
+			{
+				HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
@@ -1210,6 +1215,12 @@ namespace MiNET
 
 		protected virtual void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
 		{
+		}
+
+		private void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
+		{
+			Item droppedItem = message.item;
+			/*if (Log.IsDebugEnabled) */Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
 		}
 
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)

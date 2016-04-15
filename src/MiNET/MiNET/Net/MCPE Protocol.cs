@@ -3635,6 +3635,10 @@ namespace MiNET.Net
 
 	public partial class McpeItemFramDropItem : Package<McpeItemFramDropItem>
 	{
+		public int x; // = null;
+		public int y; // = null;
+		public int z; // = null;
+		public Item item; // = null;
 		public McpeItemFramDropItem()
 		{
 			Id = 0xca;
@@ -3646,6 +3650,10 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(x);
+			Write(y);
+			Write(z);
+			Write(item);
 
 			AfterEncode();
 		}
@@ -3659,6 +3667,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			x = ReadInt();
+			y = ReadInt();
+			z = ReadInt();
+			item = ReadItem();
 
 			AfterDecode();
 		}

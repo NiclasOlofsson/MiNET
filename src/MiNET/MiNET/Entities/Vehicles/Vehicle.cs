@@ -7,10 +7,10 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Vehicles
 {
-	public abstract class Vechicle : Entity
+	public abstract class Vehicle : Entity
 	{
 
-		protected Vechicle(EntityType type, Level level) : base((int)type, level)
+		protected Vehicle(EntityType type, Level level) : base((int)type, level)
 		{
 			
 		}

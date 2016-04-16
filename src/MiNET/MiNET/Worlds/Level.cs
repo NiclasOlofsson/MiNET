@@ -560,7 +560,16 @@ namespace MiNET.Worlds
 
 			if (!message.IsPooled)
 			{
-				message.MakePoolable();
+				//message.MakePoolable();
+				try
+				{
+					throw new ArgumentException($"Trying to broadcast a message of type {message.GetType().Name} that isn't pooled. Please use CreateObject and not the constructor.");
+				}
+				catch (Exception e)
+				{
+					Log.Fatal("Broadcast", e);
+					throw;
+				}               
 			}
 
 			if (sendList == null || sendList.Length == 0)

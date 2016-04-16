@@ -396,6 +396,16 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0x8e:
+					package = McpeWrapper.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
+				case 0xfe:
+					package = McpeWrapperNew.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 			}
 
 			return null;
@@ -3744,6 +3754,82 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			endpoint = ReadIPEndPoint();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeWrapper : Package<McpeWrapper>
+	{
+		public byte[] payload; // = null;
+		public McpeWrapper()
+		{
+			Id = 0x8e;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(payload);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			payload = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeWrapperNew : Package<McpeWrapperNew>
+	{
+		public byte[] payload; // = null;
+		public McpeWrapperNew()
+		{
+			Id = 0xfe;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(payload);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			payload = ReadBytes(0);
 
 			AfterDecode();
 		}

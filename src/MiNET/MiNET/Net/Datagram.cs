@@ -125,7 +125,19 @@ namespace MiNET.Net
 		{
 			var messageParts = new List<MessagePart>();
 
-			byte[] encodedMessage = message.Encode(message.Id > 0x8e);
+			byte[] encodedMessage = null;
+			if (message.Id >= 0x8e)
+			{
+				var wrapper = McpeWrapper.CreateObject();
+				wrapper.payload = message.Encode();
+				message = wrapper;
+				encodedMessage = message.Encode();
+			}
+			else
+			{
+				encodedMessage = message.Encode();
+			}
+
 			if (encodedMessage == null) return messageParts;
 
 			int datagramHeaderSize = 60;

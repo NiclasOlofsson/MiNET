@@ -529,4 +529,12 @@
 		<field name="EndPoint" type="IPEndPoint" />
 	</pdu>
 
+	<pdu id="0x8e" online="false" client="false" server="true" name="MCPE_WRAPPER">
+		<field name="Payload" type="byte[]" size="0" />
+	</pdu>
+
+	<pdu id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER_NEW">
+		<field name="Payload" type="byte[]" size="0" />
+	</pdu>
+
 </protocol>

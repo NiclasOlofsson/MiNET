@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -75,7 +74,7 @@ namespace MiNET
 		public bool StartServer()
 		{
 			Datagram.CreateObject().PutPool();
-			
+
 
 			if (_listener != null) return false; // Already started
 
@@ -630,7 +629,7 @@ namespace MiNET
 				SplitPartPackage[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
-				MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
+				MemoryStream stream = MemoryStreamManager.GetStream();
 				for (int i = 0; i < spPackets.Length; i++)
 				{
 					SplitPartPackage splitPartPackage = spPackets[i];
@@ -648,9 +647,10 @@ namespace MiNET
 				byte[] buffer = stream.ToArray();
 				try
 				{
-					Package fullMessage = PackageFactory.CreatePackage(buffer[1], buffer) ?? new UnknownPackage(buffer[1], buffer);
-					//if (Log.IsDebugEnabled)
-					//	Log.Debug($"0x{fullMessage.Id:x2}\n{Package.HexDump(buffer)}");
+					if (Log.IsDebugEnabled)
+						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
+
+					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer) ?? new UnknownPackage(buffer[0], buffer);
 
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
 					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
@@ -696,7 +696,7 @@ namespace MiNET
 				}
 				case 0x00:
 				{
-					var stream = MiNetServer.MemoryStreamManager.GetStream();
+					var stream = MemoryStreamManager.GetStream();
 
 					bool isFullStatRequest = receiveBytes.Length == 15;
 					if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
@@ -879,6 +879,17 @@ namespace MiNET
 				return;
 			}
 
+			if (typeof (McpeWrapper) == message.GetType())
+			{
+				McpeWrapper batch = (McpeWrapper) message;
+
+				// Get bytes
+				byte[] payload = batch.payload;
+
+				message = PackageFactory.CreatePackage(payload[0], payload) ?? new UnknownPackage(payload[0], payload);
+			}
+
+
 			if (typeof (McpeBatch) == message.GetType())
 			{
 				McpeBatch batch = (McpeBatch) message;
@@ -898,7 +909,7 @@ namespace MiNET
 				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 				{
 					// Get actual package out of bytes
-					MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
+					MemoryStream destination = MemoryStreamManager.GetStream();
 					defStream2.CopyTo(destination);
 					destination.Position = 0;
 					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
@@ -1124,7 +1135,7 @@ namespace MiNET
 												elapsedTime,
 												datagramTimout,
 												player.Rto);
-										SendDatagram(session, (Datagram)data);
+										SendDatagram(session, (Datagram) data);
 										Interlocked.Increment(ref ServerInfo.NumberOfResends);
 									}, datagram);
 								}
@@ -1216,23 +1227,17 @@ namespace MiNET
 		private static void TraceReceive(Package message, int refNumber = 0)
 		{
 			if (!Log.IsDebugEnabled) return;
-			if (!Debugger.IsAttached) return;
+			//if (!Debugger.IsAttached) return;
 
-			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
-			{
-				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
-			}
+			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
 		}
 
 		private static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
-			if (!Debugger.IsAttached) return;
+			//if (!Debugger.IsAttached) return;
 
-			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PONG && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PONG*/)
-			{
-				Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-			}
+			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
 	}
 }

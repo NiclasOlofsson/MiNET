@@ -991,8 +991,6 @@ namespace MiNET.Net
 			}
 		}
 
-		private bool _prependByte = false;
-
 		public bool CanRead()
 		{
 			return _reader.BaseStream.Position < _reader.BaseStream.Length;
@@ -1001,7 +999,6 @@ namespace MiNET.Net
 		protected virtual void EncodePackage()
 		{
 			_buffer.Position = 0;
-			if (_prependByte) Write((byte) 0x8e);
 			Write(Id);
 		}
 
@@ -1035,15 +1032,9 @@ namespace MiNET.Net
 		{
 			lock (_encodeSync)
 			{
-				if (_isEncoded && _prependByte != prependByte)
-				{
-					Log.Debug("Doing uncessary encoding :-(");
-				}
-
-				if (_isEncoded && _prependByte == prependByte) return _encodedMessage;
+				if (_isEncoded) return _encodedMessage;
 
 				_isEncoded = false;
-				_prependByte = prependByte;
 
 				EncodePackage();
 
@@ -1059,10 +1050,6 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
-			if (Id == 0x8e)
-			{
-				Id = ReadByte();
-			}
 		}
 
 		public virtual void Decode(byte[] buffer)

@@ -186,16 +186,6 @@ namespace MiNET.Net
 				}
 
 				byte id = internalBuffer[0];
-				//if (id > 0x8e)
-				//{
-				//	throw new Exception($"Expected 0x8E but got 0x{id:X2}");
-				//}
-
-				if (id == 0x8e)
-				{
-					id = internalBuffer[1];
-				}
-
 				Package package = PackageFactory.CreatePackage(id, internalBuffer) ?? new UnknownPackage(id, internalBuffer);
 				package.DatagramSequenceNumber = _datagramSequenceNumber;
 				package.ReliableMessageNumber = _reliableMessageNumber;

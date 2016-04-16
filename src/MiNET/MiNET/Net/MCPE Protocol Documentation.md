@@ -22,6 +22,7 @@
 | Ip Recently Connected | 0x1A | 26 |   
 | Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
+| Mcpe Wrapper | 0x8e | 142 |   
 | Mcpe Login | 0x8f | 143 |   
 | Mcpe Player Status | 0x90 | 144 |   
 | Mcpe Disconnect | 0x91 | 145 |   
@@ -80,6 +81,7 @@
 | Mcpe Chunk Radius Update | 0xc9 | 201 |   
 | Mcpe Item Fram Drop Item | 0xca | 202 |   
 | Mcpe Replace Selected Item | 0xcb | 203 |   
+| Mcpe Wrapper New | 0xfe | 254 |   
 
 
 ##Constants
@@ -1349,6 +1351,34 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |EndPoint | IPEndPoint |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Wrapper (0x8e)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Payload | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Wrapper New (0xfe)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 
 

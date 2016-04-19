@@ -264,7 +264,7 @@ namespace MiNET
 				Air = 300;
 			}
 
-			if (IsInTransparent(Entity.KnownPosition))
+			if (!IsInTransparent(Entity.KnownPosition))
 			{
 				if (SuffocationTicks <= 0)
 				{

@@ -696,7 +696,7 @@ namespace MiNET.Client
 			{
 				Log.Error("Sending crafting event: " + recipe.Id);
 
-				McpeCraftingEvent crafting = new McpeCraftingEvent();
+				McpeCraftingEvent crafting = McpeCraftingEvent.CreateObject();
 				crafting.windowId = 0;
 				crafting.recipeType = 1;
 				crafting.recipeId = recipe.Id;
@@ -707,25 +707,21 @@ namespace MiNET.Client
 					{
 						slotData.Add(recipe.Input[i]);
 
-						McpeContainerSetSlot setSlot = new McpeContainerSetSlot
-						{
-							item = recipe.Input[i],
-							windowId = 0,
-							slot = (short) (i)
-						};
+						McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
+						setSlot.item = recipe.Input[i];
+						setSlot.windowId = 0;
+						setSlot.slot = (short) (i);
 						SendPackage(setSlot);
 						Log.Error("Set set slot");
 					}
 					crafting.input = slotData;
 
 					{
-						McpePlayerEquipment eq = new McpePlayerEquipment
-						{
-							entityId = _entityId,
-							slot = 9,
-							selectedSlot = 0,
-							item = recipe.Input[0]
-						};
+						McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
+						eq.entityId = _entityId;
+						eq.slot = 9;
+						eq.selectedSlot = 0;
+						eq.item = recipe.Input[0];
 						SendPackage(eq);
 						Log.Error("Set eq slot");
 					}
@@ -740,14 +736,14 @@ namespace MiNET.Client
 
 
 			//{
-			//	McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+			//	McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
 			//	setSlot.item = new MetadataSlot(new ItemStack(new ItemDiamondAxe(0), 1));
 			//	setSlot.windowId = 0;
 			//	setSlot.slot = 0;
 			//	SendPackage(setSlot);
 			//}
 			//{
-			//	McpePlayerEquipment eq = new McpePlayerEquipment();
+			//	McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
 			//	eq.entityId = _entityId;
 			//	eq.slot = 9;
 			//	eq.selectedSlot = 0;
@@ -763,14 +759,14 @@ namespace MiNET.Client
 			if (recipe != null)
 			{
 				{
-					McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+					McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
 					setSlot.item = new ItemBlock(new Block(17), 0) {Count = 1};
 					setSlot.windowId = 0;
 					setSlot.slot = 0;
 					SendPackage(setSlot);
 				}
 				{
-					McpePlayerEquipment eq = new McpePlayerEquipment();
+					McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
 					eq.entityId = _entityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
@@ -780,7 +776,7 @@ namespace MiNET.Client
 
 				Log.Error("Sending crafting event: " + recipe.Id);
 
-				McpeCraftingEvent crafting = new McpeCraftingEvent();
+				McpeCraftingEvent crafting = McpeCraftingEvent.CreateObject();
 				crafting.windowId = 0;
 				crafting.recipeType = 1;
 				crafting.recipeId = recipe.Id;
@@ -797,7 +793,7 @@ namespace MiNET.Client
 				SendPackage(crafting);
 
 				//{
-				//	McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+				//	McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
 				//	setSlot.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
 				//	setSlot.windowId = 0;
 				//	setSlot.slot = 0;
@@ -805,7 +801,7 @@ namespace MiNET.Client
 				//}
 
 				{
-					McpePlayerEquipment eq = new McpePlayerEquipment();
+					McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
 					eq.entityId = _entityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
@@ -1124,10 +1120,8 @@ namespace MiNET.Client
 			//ClientUtils.SaveLevel(_level);
 
 			{
-				var packet = new McpeRequestChunkRadius()
-				{
-					chunkRadius = 5
-				};
+				var packet = McpeRequestChunkRadius.CreateObject();
+				packet.chunkRadius = 5;
 
 				SendPackage(packet);
 			}
@@ -1404,25 +1398,22 @@ namespace MiNET.Client
 			skin.SkinType = "Standard_Custom";
 			//Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
 			{
-				var packet = new McpeLogin()
-				{
-					username = username,
-					protocol = 45,
-					protocol2 = 45,
-					clientId = ClientId,
-					clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
-					serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
-					//clientSecret = "iwmvi45hm85oncyo58",
-					clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),
-					skin = skin,
-				};
+				var packet = McpeLogin.CreateObject();
+				packet.username = username;
+				packet.protocol = 45;
+				packet.protocol2 = 45;
+				packet.clientId = ClientId;
+				packet.clientUuid = new UUID(Guid.NewGuid().ToByteArray());
+				packet.serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port;
+				packet.clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port)));
+				packet.skin = skin;
 
 				SendPackage(packet);
 			}
 
 			//byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
 
-			//McpeBatch batch = new McpeBatch();
+			//McpeBatch batch = McpeBatch.CreateObject();
 			//batch.payloadSize = buffer.Length;
 			//batch.payload = buffer;
 			//batch.Encode();
@@ -1435,11 +1426,9 @@ namespace MiNET.Client
 
 		public void SendChat(string text)
 		{
-			var packet = new McpeText()
-			{
-				source = Username,
-				message = text
-			};
+			var packet = McpeText.CreateObject();
+			packet.source = Username;
+			packet.message = text;
 
 			SendPackage(packet);
 		}

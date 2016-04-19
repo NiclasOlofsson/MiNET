@@ -537,10 +537,9 @@ namespace TestPlugin.NiceLobby
 			};
 			entity.SpawnEntity();
 
-			player.SendPackage(new McpeRemoveEntity()
-			{
-				entityId = entity.EntityId,
-			});
+			var remove = McpeRemoveEntity.CreateObject();
+			remove.entityId = entity.EntityId;
+			player.SendPackage(remove);
 
 			_playerEntities[player] = entity;
 
@@ -554,7 +553,7 @@ namespace TestPlugin.NiceLobby
 			{
 				var entity = _playerEntities[player];
 				entity.KnownPosition = player.KnownPosition;
-				var message = new McpeMoveEntity();
+				var message = McpeMoveEntity.CreateObject();
 				message.entities = new EntityLocations();
 				message.entities.Add(entity.EntityId, entity.KnownPosition);
 				player.Level.RelayBroadcast(message);

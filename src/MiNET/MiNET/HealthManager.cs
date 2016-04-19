@@ -95,11 +95,10 @@ namespace MiNET
 			}
 			else
 			{
-				Entity.Level.RelayBroadcast(new McpeEntityEvent
-				{
-					entityId = Entity.EntityId,
-					eventId = (byte) (Health <= 0 ? 3 : 2)
-				});
+				var msg = McpeEntityEvent.CreateObject();
+				msg.entityId = Entity.EntityId;
+				msg.eventId = (byte) (Health <= 0 ? 3 : 2);
+				Entity.Level.RelayBroadcast(msg);
 			}
 
 			if (source != null)

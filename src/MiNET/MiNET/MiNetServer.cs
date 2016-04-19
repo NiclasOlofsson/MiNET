@@ -574,10 +574,9 @@ namespace MiNET
 
 			if (ForwardAllPlayers)
 			{
-				player.SendPackage(new McpeTransfer
-				{
-					endpoint = ForwardTarget
-				}, true);
+				var transfer = McpeTransfer.CreateObject();
+				transfer.endpoint = ForwardTarget;
+				player.SendPackage(transfer, true);
 
 				return;
 			}

@@ -773,13 +773,11 @@ namespace MiNET.Worlds
 				}
 			};
 
-			var entityData = new McpeTileEntityData
-			{
-				namedtag = nbt,
-				x = blockEntity.Coordinates.X,
-				y = (byte) blockEntity.Coordinates.Y,
-				z = blockEntity.Coordinates.Z
-			};
+			var entityData = McpeTileEntityData.CreateObject();
+			entityData.namedtag = nbt;
+			entityData.x = blockEntity.Coordinates.X;
+			entityData.y = (byte) blockEntity.Coordinates.Y;
+			entityData.z = blockEntity.Coordinates.Z;
 
 			RelayBroadcast(entityData);
 		}

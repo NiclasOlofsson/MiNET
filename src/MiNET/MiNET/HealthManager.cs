@@ -264,7 +264,7 @@ namespace MiNET
 				Air = 300;
 			}
 
-			if (IsInSolid(Entity.KnownPosition))
+			if (IsInTransparent(Entity.KnownPosition))
 			{
 				if (SuffocationTicks <= 0)
 				{
@@ -376,22 +376,22 @@ namespace MiNET
 			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1/9) - 0.1111111);
 		}
 
-		private bool IsInSolid(PlayerLocation playerPosition)
+		private bool IsInTransparent(PlayerLocation playerPosition)
 		{
 			float y = playerPosition.Y + 1.62f;
 
-			BlockCoordinates solidPos = new BlockCoordinates
+			BlockCoordinates blockPos = new BlockCoordinates
 			{
 				X = (int)Math.Floor(playerPosition.X),
 				Y = (int)Math.Floor(y),
 				Z = (int)Math.Floor(playerPosition.Z)
 			};
 
-			var block = Entity.Level.GetBlock(solidPos);
+			var block = Entity.Level.GetBlock(blockPos);
 
 			if (block == null) return false;
 
-			return block.IsSolid;
+			return block.IsTransparent;
 		}
 
 		public static string GetDescription(Enum value)

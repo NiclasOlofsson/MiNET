@@ -26,17 +26,15 @@ namespace MiNET
 			Assert.AreEqual(rfc4122Bytes, uuid.GetBytes());
 
 			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
-			var packet = new McpeLogin()
-			{
-				username = "Robotot",
-				protocol = 34,
-				protocol2 = 34,
-				clientId = new Random().Next(),
-				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
-				serverAddress = "83.249.65.92:19132",
-				clientSecret = "iwmvi45hm85oncyo58",
-				skin = skin,
-			};
+			var packet = McpeLogin.CreateObject();
+			packet.username = "Robotot";
+			packet.protocol = 34;
+			packet.protocol2 = 34;
+			packet.clientId = new Random().Next();
+			packet.clientUuid = new UUID(Guid.NewGuid().ToByteArray());
+			packet.serverAddress = "83.249.65.92:19132";
+			packet.clientSecret = "iwmvi45hm85oncyo58";
+			packet.skin = skin;
 
 			var bytes = packet.Encode();
 			Console.WriteLine(Package.HexDump(bytes, 16));
@@ -236,13 +234,11 @@ namespace MiNET
 
 			Nbt nbt = new Nbt();
 			nbt.NbtFile = file;
-			McpeTileEntityData message = new McpeTileEntityData()
-			{
-				x = 6,
-				y = 6,
-				z = 6,
-				namedtag = nbt
-			};
+			McpeTileEntityData message = McpeTileEntityData.CreateObject();
+			message.x = 6;
+			message.y = 6;
+			message.z = 6;
+			message.namedtag = nbt;
 
 			Assert.NotNull(message.Encode());
 			Console.WriteLine(ByteArrayToString(message.Encode()));

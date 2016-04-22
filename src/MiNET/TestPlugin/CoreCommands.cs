@@ -68,14 +68,12 @@ namespace TestPlugin
 		[Command(Command = "le")]
 		public void LevelEvent(Player player, short value, int data)
 		{
-			McpeLevelEvent levelEvent = new McpeLevelEvent
-			{
-				eventId = value,
-				data = data,
-				x = player.KnownPosition.X,
-				y = player.KnownPosition.Y,
-				z = player.KnownPosition.Z
-			};
+			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
+			levelEvent.eventId = value;
+			levelEvent.data = data;
+			levelEvent.x = player.KnownPosition.X;
+			levelEvent.y = player.KnownPosition.Y;
+			levelEvent.z = player.KnownPosition.Z;
 			player.Level.RelayBroadcast(levelEvent);
 
 			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
@@ -85,7 +83,7 @@ namespace TestPlugin
 		public void ToggleDownfall(Player player, int value)
 		{
 			{
-				McpeLevelEvent levelEvent = new McpeLevelEvent();
+				McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 				levelEvent.eventId = 3001;
 				levelEvent.data = value;
 				player.SendPackage(levelEvent);
@@ -102,13 +100,13 @@ namespace TestPlugin
 				{
 					var data = i;
 					{
-						McpeLevelEvent levelEvent = new McpeLevelEvent();
+						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = data;
 						player.SendPackage(levelEvent);
 					}
 					//{
-					//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 					//	levelEvent.eventId = 3002;
 					//	levelEvent.data = i;
 					//	player.SendPackage(levelEvent);
@@ -119,13 +117,13 @@ namespace TestPlugin
 				for (int i = short.MaxValue; i >= 0; i = i - 2000)
 				{
 					{
-						McpeLevelEvent levelEvent = new McpeLevelEvent();
+						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = i;
 						player.SendPackage(levelEvent);
 					}
 					//{
-					//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 					//	levelEvent.eventId = 3002;
 					//	levelEvent.data = i;
 					//	player.SendPackage(levelEvent);
@@ -137,13 +135,13 @@ namespace TestPlugin
 			});
 
 			//{
-			//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+			//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			//	levelEvent.eventId = 3001;
 			//	levelEvent.data = 100000;
 			//	player.SendPackage(levelEvent);
 			//}
 			//{
-			//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+			//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			//	levelEvent.eventId = 3002;
 			//	levelEvent.data = 36625;
 			//	player.SendPackage(levelEvent);
@@ -189,14 +187,13 @@ namespace TestPlugin
 			foreach (Player player in player1.Level.Players.Values)
 			{
 				// 128 = 32 + 32 + 32
-				player.Level.RelayBroadcast(new McpeSpawnExperienceOrb()
-				{
-					entityId = player.EntityId,
-					x = (int) (player1.KnownPosition.X + 1),
-					y = (int) (player1.KnownPosition.Y + 2),
-					z = (int) (player1.KnownPosition.Z + 1),
-					count = 10
-				});
+				var msg = McpeSpawnExperienceOrb.CreateObject();
+				msg.entityId = player.EntityId;
+				msg.x = (int) (player1.KnownPosition.X + 1);
+				msg.y = (int) (player1.KnownPosition.Y + 2);
+				msg.z = (int) (player1.KnownPosition.Z + 1);
+				msg.count = 10;
+				player.Level.RelayBroadcast(msg);
 			}
 		}
 
@@ -557,17 +554,16 @@ namespace TestPlugin
 
 		private void SendEquipmentForPlayer(Player player)
 		{
-			player.Level.RelayBroadcast(new McpePlayerEquipment
-			{
-				entityId = player.EntityId,
-				item = player.Inventory.GetItemInHand(),
-				slot = 0
-			});
+			var msg = McpePlayerEquipment.CreateObject();
+			msg.entityId = player.EntityId;
+			msg.item = player.Inventory.GetItemInHand();
+			msg.slot = 0;
+			player.Level.RelayBroadcast(msg);
 		}
 
 		private void SendArmorForPlayer(Player player)
 		{
-			var armorEquipment = new McpePlayerArmorEquipment();
+			var armorEquipment = McpePlayerArmorEquipment.CreateObject();
 			armorEquipment.entityId = player.EntityId;
 			armorEquipment.helmet = player.Inventory.Helmet;
 			armorEquipment.chestplate = player.Inventory.Chest;

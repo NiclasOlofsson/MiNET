@@ -1434,7 +1434,8 @@ namespace MiNET
 						{
 							Recipes recipes = new Recipes();
 							recipes.Add(new EnchantingRecipe());
-							McpeCraftingData crafting = new McpeCraftingData {recipes = recipes};
+							McpeCraftingData crafting = McpeCraftingData.CreateObject();
+							crafting.recipes = recipes;
 							SendPackage(crafting);
 						}
 

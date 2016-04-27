@@ -235,12 +235,12 @@ namespace TestPlugin.NiceLobby
 		//	return null;
 		//}
 
-		[PacketHandler, Receive, UsedImplicitly]
-		public Package LoginHandler(McpeLogin packet, Player player)
-		{
-			player.DisplayName = TextUtils.Center($"{GetNameTag(packet.username ?? "")}");
-			return packet;
-		}
+		//[PacketHandler, Receive, UsedImplicitly]
+		//public Package LoginHandler(McpeLogin packet, Player player)
+		//{
+		//	player.DisplayName = TextUtils.Center($"{GetNameTag(packet.username ?? "")}");
+		//	return packet;
+		//}
 
 		[PacketHandler, Send, UsedImplicitly]
 		public Package RespawnHandler(McpeRespawn packet, Player player)

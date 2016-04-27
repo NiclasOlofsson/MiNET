@@ -10,402 +10,420 @@ using MiNET.Utils;
 using MiNET.Items;
 using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
+using LongString = System.String;
 
 namespace MiNET.Net
 {
 
 	public class PackageFactory
 	{
-		public static Package CreatePackage(byte messageId, byte[] buffer)
+		public static Package CreatePackage(byte messageId, byte[] buffer, string ns)
 		{
 			Package package = null; 
-			switch (messageId)
-			{
-				case 0x00:
-					package = ConnectedPing.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x01:
-					package = UnconnectedPing.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x03:
-					package = ConnectedPong.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x04:
-					package = DetectLostConnections.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x1c:
-					package = UnconnectedPong.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x05:
-					package = OpenConnectionRequest1.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x06:
-					package = OpenConnectionReply1.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x07:
-					package = OpenConnectionRequest2.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x08:
-					package = OpenConnectionReply2.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x09:
-					package = ConnectionRequest.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x10:
-					package = ConnectionRequestAccepted.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x13:
-					package = NewIncomingConnection.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x14:
-					package = NoFreeIncomingConnections.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x15:
-					package = DisconnectionNotification.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x17:
-					package = ConnectionBanned.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x1A:
-					package = IpRecentlyConnected.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x8f:
-					package = McpeLogin.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x90:
-					package = McpePlayerStatus.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x91:
-					package = McpeDisconnect.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x92:
-					package = McpeBatch.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x93:
-					package = McpeText.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x94:
-					package = McpeSetTime.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x95:
-					package = McpeStartGame.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x96:
-					package = McpeAddPlayer.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x97:
-					package = McpeRemovePlayer.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x98:
-					package = McpeAddEntity.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x99:
-					package = McpeRemoveEntity.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x9a:
-					package = McpeAddItemEntity.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x9b:
-					package = McpeTakeItemEntity.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x9c:
-					package = McpeMoveEntity.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x9d:
-					package = McpeMovePlayer.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x9e:
-					package = McpeRemoveBlock.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x9f:
-					package = McpeUpdateBlock.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa0:
-					package = McpeAddPainting.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa1:
-					package = McpeExplode.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa2:
-					package = McpeLevelEvent.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa3:
-					package = McpeTileEvent.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa4:
-					package = McpeEntityEvent.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa5:
-					package = McpeMobEffect.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa6:
-					package = McpeUpdateAttributes.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa7:
-					package = McpePlayerEquipment.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa8:
-					package = McpePlayerArmorEquipment.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xa9:
-					package = McpeInteract.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xaa:
-					package = McpeUseItem.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xab:
-					package = McpePlayerAction.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xac:
-					package = McpeHurtArmor.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xad:
-					package = McpeSetEntityData.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xae:
-					package = McpeSetEntityMotion.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xaf:
-					package = McpeSetEntityLink.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb0:
-					package = McpeSetHealth.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb1:
-					package = McpeSetSpawnPosition.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb2:
-					package = McpeAnimate.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb3:
-					package = McpeRespawn.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb4:
-					package = McpeDropItem.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb5:
-					package = McpeContainerOpen.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb6:
-					package = McpeContainerClose.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb7:
-					package = McpeContainerSetSlot.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb8:
-					package = McpeContainerSetData.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xb9:
-					package = McpeContainerSetContent.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xba:
-					package = McpeCraftingData.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xbb:
-					package = McpeCraftingEvent.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xbc:
-					package = McpeAdventureSettings.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xbd:
-					package = McpeTileEntityData.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xbf:
-					package = McpeFullChunkData.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc0:
-					package = McpeSetDifficulty.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc1:
-					package = McpeChangeDimension.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc3:
-					package = McpePlayerList.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc5:
-					package = McpeSpawnExperienceOrb.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc6:
-					package = McpeClientboundMapItemData.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc7:
-					package = McpeMapInfoRequest.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc8:
-					package = McpeRequestChunkRadius.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xc9:
-					package = McpeChunkRadiusUpdate.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xca:
-					package = McpeItemFramDropItem.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xcb:
-					package = McpeReplaceSelectedItem.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x1b:
-					package = McpeTransfer.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0x8e:
-					package = McpeWrapper.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
-				case 0xfe:
-					package = McpeWrapperNew.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
+			if(ns == "raknet") {
+				switch (messageId)
+				{
+					case 0x00:
+						package = ConnectedPing.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x01:
+						package = UnconnectedPing.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x03:
+						package = ConnectedPong.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x04:
+						package = DetectLostConnections.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x1c:
+						package = UnconnectedPong.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x05:
+						package = OpenConnectionRequest1.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x06:
+						package = OpenConnectionReply1.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x07:
+						package = OpenConnectionRequest2.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x08:
+						package = OpenConnectionReply2.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x09:
+						package = ConnectionRequest.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x10:
+						package = ConnectionRequestAccepted.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x13:
+						package = NewIncomingConnection.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x14:
+						package = NoFreeIncomingConnections.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x15:
+						package = DisconnectionNotification.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x17:
+						package = ConnectionBanned.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x1A:
+						package = IpRecentlyConnected.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x8e:
+						package = McpeWrapperOld.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xfe:
+						package = McpeWrapper.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+				}
+			} else {
+
+				switch (messageId)
+				{
+					case 0x01:
+						package = McpeLogin.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x02:
+						package = McpeServerExchange.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x03:
+						package = McpeClientMagic.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x90:
+						package = McpePlayerStatus.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x91:
+						package = McpeDisconnect.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x92:
+						package = McpeBatch.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x93:
+						package = McpeText.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x94:
+						package = McpeSetTime.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x95:
+						package = McpeStartGame.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x96:
+						package = McpeAddPlayer.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x97:
+						package = McpeRemovePlayer.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x98:
+						package = McpeAddEntity.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x99:
+						package = McpeRemoveEntity.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x9a:
+						package = McpeAddItemEntity.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x9b:
+						package = McpeTakeItemEntity.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x9c:
+						package = McpeMoveEntity.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x9d:
+						package = McpeMovePlayer.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x9e:
+						package = McpeRemoveBlock.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x9f:
+						package = McpeUpdateBlock.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa0:
+						package = McpeAddPainting.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa1:
+						package = McpeExplode.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa2:
+						package = McpeLevelEvent.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa3:
+						package = McpeTileEvent.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa4:
+						package = McpeEntityEvent.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa5:
+						package = McpeMobEffect.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa6:
+						package = McpeUpdateAttributes.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa7:
+						package = McpePlayerEquipment.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa8:
+						package = McpePlayerArmorEquipment.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xa9:
+						package = McpeInteract.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xaa:
+						package = McpeUseItem.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xab:
+						package = McpePlayerAction.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xac:
+						package = McpeHurtArmor.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xad:
+						package = McpeSetEntityData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xae:
+						package = McpeSetEntityMotion.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xaf:
+						package = McpeSetEntityLink.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb0:
+						package = McpeSetHealth.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb1:
+						package = McpeSetSpawnPosition.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb2:
+						package = McpeAnimate.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb3:
+						package = McpeRespawn.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb4:
+						package = McpeDropItem.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb5:
+						package = McpeContainerOpen.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb6:
+						package = McpeContainerClose.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb7:
+						package = McpeContainerSetSlot.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb8:
+						package = McpeContainerSetData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xb9:
+						package = McpeContainerSetContent.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xba:
+						package = McpeCraftingData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xbb:
+						package = McpeCraftingEvent.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xbc:
+						package = McpeAdventureSettings.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xbd:
+						package = McpeTileEntityData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xbf:
+						package = McpeFullChunkData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc0:
+						package = McpeSetDifficulty.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc1:
+						package = McpeChangeDimension.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc3:
+						package = McpePlayerList.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc5:
+						package = McpeSpawnExperienceOrb.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc6:
+						package = McpeClientboundMapItemData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc7:
+						package = McpeMapInfoRequest.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc8:
+						package = McpeRequestChunkRadius.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xc9:
+						package = McpeChunkRadiusUpdate.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xca:
+						package = McpeItemFramDropItem.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xcb:
+						package = McpeReplaceSelectedItem.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x1b:
+						package = McpeTransfer.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+				}
 			}
 
 			return null;
@@ -1082,17 +1100,15 @@ namespace MiNET.Net
 
 	public partial class McpeLogin : Package<McpeLogin>
 	{
-		public string username; // = null;
-		public int protocol; // = null;
-		public int protocol2; // = null;
-		public long clientId; // = null;
-		public UUID clientUuid; // = null;
-		public string serverAddress; // = null;
-		public string clientSecret; // = null;
-		public Skin skin; // = null;
+		public string clientName; // = null;
+		public int protocolVersion1; // = null;
+		public int protocolVersion2; // = null;
+		public int payloadLenght; // = null;
+		public LongString certificateChain; // = null;
+		public LongString skinData; // = null;
 		public McpeLogin()
 		{
-			Id = 0x8f;
+			Id = 0x01;
 		}
 
 		protected override void EncodePackage()
@@ -1101,14 +1117,12 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(username);
-			Write(protocol);
-			Write(protocol2);
-			Write(clientId);
-			Write(clientUuid);
-			Write(serverAddress);
-			Write(clientSecret);
-			Write(skin);
+			Write(clientName);
+			Write(protocolVersion1);
+			Write(protocolVersion2);
+			Write(payloadLenght);
+			Write(certificateChain);
+			Write(skinData);
 
 			AfterEncode();
 		}
@@ -1122,14 +1136,91 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			username = ReadString();
-			protocol = ReadInt();
-			protocol2 = ReadInt();
-			clientId = ReadLong();
-			clientUuid = ReadUUID();
-			serverAddress = ReadString();
-			clientSecret = ReadString();
-			skin = ReadSkin();
+			clientName = ReadString();
+			protocolVersion1 = ReadInt();
+			protocolVersion2 = ReadInt();
+			payloadLenght = ReadInt();
+			certificateChain = ReadLongString();
+			skinData = ReadLongString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeServerExchange : Package<McpeServerExchange>
+	{
+		public string serverPublicKey; // = null;
+		public byte[] randomKeyToken; // = null;
+		public McpeServerExchange()
+		{
+			Id = 0x02;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(serverPublicKey);
+			Write(randomKeyToken);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			serverPublicKey = ReadString();
+			randomKeyToken = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeClientMagic : Package<McpeClientMagic>
+	{
+		public string clientName; // = null;
+		public McpeClientMagic()
+		{
+			Id = 0x03;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(clientName);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			clientName = ReadString();
 
 			AfterDecode();
 		}
@@ -3763,10 +3854,10 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeWrapper : Package<McpeWrapper>
+	public partial class McpeWrapperOld : Package<McpeWrapperOld>
 	{
 		public byte[] payload; // = null;
-		public McpeWrapper()
+		public McpeWrapperOld()
 		{
 			Id = 0x8e;
 		}
@@ -3801,10 +3892,10 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeWrapperNew : Package<McpeWrapperNew>
+	public partial class McpeWrapper : Package<McpeWrapper>
 	{
 		public byte[] payload; // = null;
-		public McpeWrapperNew()
+		public McpeWrapper()
 		{
 			Id = 0xfe;
 		}

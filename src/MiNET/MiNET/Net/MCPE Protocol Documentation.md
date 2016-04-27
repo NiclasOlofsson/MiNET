@@ -7,7 +7,10 @@
 |:--- |:---------|---------:| 
 | Connected Ping | 0x00 | 0 |   
 | Unconnected Ping | 0x01 | 1 |   
+| Mcpe Login | 0x01 | 1 |   
+| Mcpe Server Exchange | 0x02 | 2 |   
 | Connected Pong | 0x03 | 3 |   
+| Mcpe Client Magic | 0x03 | 3 |   
 | Detect Lost Connections | 0x04 | 4 |   
 | Open Connection Request 1 | 0x05 | 5 |   
 | Open Connection Reply 1 | 0x06 | 6 |   
@@ -22,8 +25,7 @@
 | Ip Recently Connected | 0x1A | 26 |   
 | Mcpe Transfer | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
-| Mcpe Wrapper | 0x8e | 142 |   
-| Mcpe Login | 0x8f | 143 |   
+| Mcpe Wrapper Old | 0x8e | 142 |   
 | Mcpe Player Status | 0x90 | 144 |   
 | Mcpe Disconnect | 0x91 | 145 |   
 | Mcpe Batch | 0x92 | 146 |   
@@ -81,7 +83,7 @@
 | Mcpe Chunk Radius Update | 0xc9 | 201 |   
 | Mcpe Item Fram Drop Item | 0xca | 202 |   
 | Mcpe Replace Selected Item | 0xcb | 203 |   
-| Mcpe Wrapper New | 0xfe | 254 |   
+| Mcpe Wrapper | 0xfe | 254 |   
 
 
 ##Constants
@@ -349,7 +351,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-###Package: Mcpe Login (0x8f)
+###Package: Mcpe Login (0x01)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -361,14 +363,41 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|username | string |  |
-|protocol | int |  |
-|protocol2 | int |  |
-|Client ID | long |  |
-|Client UUID | UUID |  |
-|Server Address | string |  |
-|Client Secret | string |  |
-|Skin | Skin |  |
+|Client Name | string |  |
+|Protocol Version 1 | int |  |
+|Protocol Version 2 | int |  |
+|Payload Lenght | int |  |
+|Certificate Chain | LongString |  |
+|Skin Data | LongString |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Server Exchange (0x02)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Server Public Key | string |  |
+|Random Key Token | byte[] | 0 |
+-----------------------------------------------------------------------
+###Package: Mcpe Client Magic (0x03)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Client Name | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Status (0x90)
 
@@ -1352,7 +1381,7 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |EndPoint | IPEndPoint |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Wrapper (0x8e)
+###Package: Mcpe Wrapper Old (0x8e)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1366,7 +1395,7 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Wrapper New (0xfe)
+###Package: Mcpe Wrapper (0xfe)
 
 **Sent from server:** true
 **Sent from client:** false

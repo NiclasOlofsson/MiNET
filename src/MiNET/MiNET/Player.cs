@@ -2,14 +2,19 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
+using System.Data.Odbc;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fNbt;
+using Jose;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Blocks;
@@ -22,6 +27,7 @@ using MiNET.Net;
 using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
@@ -640,15 +646,17 @@ namespace MiNET
 					return; // Already doing login
 				}
 
-				Username = message.username;
+				Username = string.Empty;
 			}
 
-			if (message.protocol < 45)
-			{
-				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
-				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));
-				return;
-			}
+			//if (message.unknown2 < 60)
+			//{
+			//	Server.GreylistManager.Greylist(EndPoint.Address, 30000);
+			//	Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.unknown2));
+			//	return;
+			//}
+
+			DecodeCert(message);
 
 			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
 			//{
@@ -666,47 +674,82 @@ namespace MiNET
 			//	}
 			//}
 
-			if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,56}$"))
+			//if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,56}$"))
+			//{
+			//	Disconnect("Invalid username.");
+			//	return;
+			//}
+
+			//if (string.IsNullOrEmpty(message.skin.SkinType) || message.skin.Texture == null)
+			//{
+			//	Disconnect("Invalid skin. Please upgrade your version of Minecraft Pocket Edition");
+			//	return;
+			//}
+
+			//SendPlayerStatus(0); // Hmm, login success?
+
+			//Username = message.username;
+			//ClientId = message.clientId;
+			//ClientUuid = message.clientUuid;
+			//ClientSecret = message.clientSecret;
+			//Skin = message.skin;
+
+			////string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
+			////Log.Info($"Writing skin to filename: {fileName}");
+			////Skin.SaveTextureToFile(fileName, Skin.Texture);
+
+			//var serverInfo = Server.ServerInfo;
+
+			//if (ClientSecret != null)
+			//{
+			//	var count = serverInfo.PlayerSessions.Values.Count(session => session.Player != null && ClientSecret.Equals(session.Player.ClientSecret));
+			//	if (count != 1)
+			//	{
+			//		Disconnect($"Invalid skin {count}.");
+			//		return;
+			//	}
+			//}
+
+			//// THIS counter exist to protect the level from being swamped with player list add
+			//// attempts during startup (normally).
+			//Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
+			//new Thread(Start).Start();
+		}
+
+		protected virtual void DecodeCert(McpeLogin message)
+		{
+			try
 			{
-				Disconnect("Invalid username.");
-				return;
-			}
+				var serverKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP384);
 
-			if (string.IsNullOrEmpty(message.skin.SkinType) || message.skin.Texture == null)
-			{
-				Disconnect("Invalid skin. Please upgrade your version of Minecraft Pocket Edition");
-				return;
-			}
+				dynamic json = JObject.Parse(message.certificateChain);
 
-			SendPlayerStatus(0); // Hmm, login success?
+				Log.Debug($"Raw: { message.certificateChain }");
+				Log.Debug($"JSON: { json }");
 
-			Username = message.username;
-			ClientId = message.clientId;
-			ClientUuid = message.clientUuid;
-			ClientSecret = message.clientSecret;
-			Skin = message.skin;
-
-			//string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
-			//Log.Info($"Writing skin to filename: {fileName}");
-			//Skin.SaveTextureToFile(fileName, Skin.Texture);
-
-			var serverInfo = Server.ServerInfo;
-
-			if (ClientSecret != null)
-			{
-				var count = serverInfo.PlayerSessions.Values.Count(session => session.Player != null && ClientSecret.Equals(session.Player.ClientSecret));
-				if (count != 1)
+				foreach (dynamic o in json.chain)
 				{
-					Disconnect($"Invalid skin {count}.");
-					return;
+					IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
+					var payload = JWT.Payload(o.ToString());
+					Log.Debug($"JWT Header: { headers }");
+					Log.Debug($"JWT Payload: { payload }");
+					if (headers.ContainsKey("x5u"))
+					{
+						string certString = headers["x5u"];
+						CngKey.Import(Encoding.UTF8.GetBytes(certString), CngKeyBlobFormat.EccPublicBlob);
+					}
+
 				}
+
+				Log.Debug($"SKIN: {message.skinData.Replace(',', '=')  }");
+				string skinPayload = JWT.Payload(message.skinData.Replace(',', '='));
+				Log.Debug($"JWT Payload SKIN: {skinPayload  }");
 			}
-
-			// THIS counter exist to protect the level from being swamped with player list add
-			// attempts during startup (normally).
-			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
-			new Thread(Start).Start();
+			catch (Exception e)
+			{
+				Log.Error("Decrypt", e);
+			}
 		}
 
 		private bool _completedStartSequence = false;

@@ -131,6 +131,11 @@ namespace MiNET.Net
 			return Endian.SwapInt32(_reader.ReadInt32());
 		}
 
+		public int ReadIntBE()
+		{
+			return _reader.ReadInt32();
+		}
+
 		public void Write(uint value)
 		{
 			_writer.Write(Endian.SwapUInt32(value));
@@ -196,6 +201,14 @@ namespace MiNET.Net
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
 			short len = ReadShort();
 			if (len <= 0) return string.Empty;
+			return Encoding.UTF8.GetString(ReadBytes(len));
+		}
+
+		public string ReadLongString()
+		{
+			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
+			int len = ReadIntBE();
+			if (len <= 0) return "unreadible" /*string.Empty*/;
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 

@@ -19,38 +19,6 @@ namespace MiNET
 	public class MinetServerTest
 	{
 		[Test]
-		public void TestUuid()
-		{
-			var rfc4122Bytes = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf};
-			UUID uuid = new UUID(rfc4122Bytes);
-			Assert.AreEqual(rfc4122Bytes, uuid.GetBytes());
-
-			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
-			var packet = new McpeLogin()
-			{
-				username = "Robotot",
-				protocol = 34,
-				protocol2 = 34,
-				clientId = new Random().Next(),
-				clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
-				serverAddress = "83.249.65.92:19132",
-				clientSecret = "iwmvi45hm85oncyo58",
-				skin = skin,
-			};
-
-			var bytes = packet.Encode();
-			Console.WriteLine(Package.HexDump(bytes, 16));
-
-			UUID uuid2 = new UUID(rfc4122Bytes);
-
-			Dictionary<UUID, string> uuiDictionary = new Dictionary<UUID, string>();
-			uuiDictionary.Add(uuid, "test");
-
-			Assert.AreEqual("test", uuiDictionary[uuid2]);
-			
-		}
-
-		[Test]
 		public void TestForce()
 		{
 			int j = 20;

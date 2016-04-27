@@ -21,30 +21,51 @@ using MiNET.Utils;
 using MiNET.Items;
 using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
+using LongString = System.String;
 
 namespace MiNET.Net
 {
 
 	public class PackageFactory
 	{
-		public static Package CreatePackage(byte messageId, byte[] buffer)
+		public static Package CreatePackage(byte messageId, byte[] buffer, string ns)
 		{
 			Package package = null; 
-			switch (messageId)
-			{
+			if(ns == "raknet") {
+				switch (messageId)
+				{
 <#	
 
-foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='raknet']"))
 {
 #>
-				case <#= pdu.Attributes["id"].Value #>:
-					package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-					//package.Timer.Start();
-					package.Decode(buffer);
-					return package;
+					case <#= pdu.Attributes["id"].Value #>:
+						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
 <#	
 } // foreach
 #>
+				}
+			} else {
+
+				switch (messageId)
+				{
+<#	
+
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet')]"))
+{
+#>
+					case <#= pdu.Attributes["id"].Value #>:
+						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+<#	
+} // foreach
+#>
+				}
 			}
 
 			return null;

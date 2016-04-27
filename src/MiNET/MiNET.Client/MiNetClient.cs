@@ -237,7 +237,7 @@ namespace MiNET.Client
 			{
 				DefaultMessageIdTypes msgIdType = (DefaultMessageIdTypes) msgId;
 
-				Package message = PackageFactory.CreatePackage(msgId, receiveBytes);
+				Package message = PackageFactory.CreatePackage(msgId, receiveBytes, "raknet");
 
 				if (message == null) return;
 
@@ -415,7 +415,7 @@ namespace MiNET.Client
 					id = buffer[1];
 				}
 
-				Package fullMessage = PackageFactory.CreatePackage(id, buffer) ?? new UnknownPackage(id, buffer);
+				Package fullMessage = PackageFactory.CreatePackage(id, buffer, "raknet") ?? new UnknownPackage(id, buffer);
 				fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
 				fullMessage.OrderingChannel = package._orderingChannel;
 				fullMessage.OrderingIndex = package._orderingIndex;
@@ -1207,7 +1207,7 @@ namespace MiNET.Client
 
 					if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
 
-					var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer) ?? new UnknownPackage(internalBuffer[0], internalBuffer);
+					var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer);
 					messages.Add(package);
 
 					//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
@@ -1400,35 +1400,35 @@ namespace MiNET.Client
 
 		public void SendLogin(string username)
 		{
-			Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
-			skin.SkinType = "Standard_Custom";
-			//Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
-			{
-				var packet = new McpeLogin()
-				{
-					username = username,
-					protocol = 45,
-					protocol2 = 45,
-					clientId = ClientId,
-					clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
-					serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
-					//clientSecret = "iwmvi45hm85oncyo58",
-					clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),
-					skin = skin,
-				};
+			//Skin skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
+			//skin.SkinType = "Standard_Custom";
+			////Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
+			//{
+			//	var packet = new McpeLogin()
+			//	{
+			//		username = username,
+			//		protocol = 45,
+			//		protocol2 = 45,
+			//		clientId = ClientId,
+			//		clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
+			//		serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
+			//		//clientSecret = "iwmvi45hm85oncyo58",
+			//		clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),
+			//		skin = skin,
+			//	};
 
-				SendPackage(packet);
-			}
+			//	SendPackage(packet);
+			//}
 
-			//byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
+			////byte[] buffer = Player.CompressBytes(packet.Encode(), CompressionLevel.Fastest, true);
 
-			//McpeBatch batch = new McpeBatch();
-			//batch.payloadSize = buffer.Length;
-			//batch.payload = buffer;
-			//batch.Encode();
+			////McpeBatch batch = new McpeBatch();
+			////batch.payloadSize = buffer.Length;
+			////batch.payload = buffer;
+			////batch.Encode();
 
-			//SendPackage(batch);
-			LoginSent = true;
+			////SendPackage(batch);
+			//LoginSent = true;
 		}
 
 		public bool LoginSent { get; set; }

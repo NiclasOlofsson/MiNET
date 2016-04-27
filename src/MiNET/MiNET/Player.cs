@@ -527,8 +527,8 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x100;
 			//}
 
-			mcpeAdventureSettings.flags2 = 2;
-			mcpeAdventureSettings.flags3 = 2;
+			mcpeAdventureSettings.userPermission = 0x2;
+			mcpeAdventureSettings.globalPermission = 0x2;
 			SendPackage(mcpeAdventureSettings);
 		}
 
@@ -1870,10 +1870,10 @@ namespace MiNET
 			mcpeStartGame.x = KnownPosition.X;
 			mcpeStartGame.y = (float) (KnownPosition.Y + Height);
 			mcpeStartGame.z = KnownPosition.Z;
-			mcpeStartGame.b1 = 1;
-			mcpeStartGame.b2 = 1;
-			mcpeStartGame.b3 = 0;
-			mcpeStartGame.unknownstr = "iX8AANxLbgA=";
+			mcpeStartGame.b1 = true;
+			mcpeStartGame.b2 = true;
+			mcpeStartGame.b3 = false;
+			mcpeStartGame.unknownstr = null;
 			// unknownstr=iX8AANxLbgA=
 
 			SendPackage(mcpeStartGame);

@@ -171,9 +171,9 @@
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
-		<field name="b1" type="byte" />
-		<field name="b2" type="byte" />
-		<field name="b3" type="byte" />
+		<field name="b1" type="bool" />
+		<field name="b2" type="bool" />
+		<field name="b3" type="bool" />
 		<field name="unknownstr" type="string" />
 	</pdu>
 
@@ -457,8 +457,8 @@
 
 	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">
 		<field name="Flags" type="int" />
-		<field name="Flags2" type="int" />
-		<field name="Flags3" type="int" />
+		<field name="User Permission" type="int" />
+		<field name="Global Permission" type="int" />
 	</pdu>
 
 	<pdu id="0xbd" online="false" client="false" server="true" name="MCPE_TILE_ENTITY_DATA">

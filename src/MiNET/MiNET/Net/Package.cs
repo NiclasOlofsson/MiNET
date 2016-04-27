@@ -60,6 +60,16 @@ namespace MiNET.Net
 			return _reader.ReadByte();
 		}
 
+		public void Write(bool value)
+		{
+			Write((byte)(value?1:0));
+		}
+
+		public bool ReadBool()
+		{
+			return _reader.ReadByte() != 0;
+		}
+
 		public void Write(sbyte value)
 		{
 			_writer.Write(value);

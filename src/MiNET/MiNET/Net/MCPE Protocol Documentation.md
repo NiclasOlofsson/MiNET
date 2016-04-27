@@ -477,7 +477,10 @@ TODO: Parameters
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|unknown | byte |  |
+|b1 | byte |  |
+|b2 | byte |  |
+|b3 | byte |  |
+|unknownstr | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x96)
 
@@ -1147,6 +1150,8 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Flags | int |  |
+|Flags2 | int |  |
+|Flags3 | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Tile Entity Data (0xbd)
 

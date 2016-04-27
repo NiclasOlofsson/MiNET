@@ -122,11 +122,6 @@ namespace MiNET
 				SessionManager = SessionManager ?? new SessionManager();
 				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
-				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
-				{
-					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
-				};
-				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				PluginManager.EnablePlugins(this, LevelManager);
 
@@ -180,6 +175,12 @@ namespace MiNET
 				//		HandlePackage(ping, playerSession);
 				//	}
 				//}, null, 1000, 1000);
+
+				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
+				{
+					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
+				};
+				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				Log.Info("Server open for business on port " + Endpoint.Port + " ...");
 
@@ -1217,10 +1218,7 @@ namespace MiNET
 			if (!Log.IsDebugEnabled) return;
 			if (!Debugger.IsAttached) return;
 
-			if (!(message is InternalPing) /*&& message.Id != (int) DefaultMessageIdTypes.ID_CONNECTED_PING && message.Id != (int) DefaultMessageIdTypes.ID_UNCONNECTED_PING*/)
-			{
-				Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
-			}
+			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
 		}
 
 		private static void TraceSend(Package message)

@@ -434,6 +434,8 @@ namespace MiNET.Client
 
 		private void HandlePackage(Package message)
 		{
+			TraceReceive(message);
+
 			//Log.Warn($"Package 0x{message.Id:X2} {message.GetType().Name}");
 
 			if (typeof (McpeBatch) == message.GetType())
@@ -581,6 +583,13 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof(McpeAdventureSettings) == message.GetType())
+			{
+				OnMcpeAdventureSettings((McpeAdventureSettings)message);
+				return;
+			}
+
+
 			else if (typeof (McpeMoveEntity) == message.GetType())
 			{
 			}
@@ -639,6 +648,12 @@ namespace MiNET.Client
 			{
 				Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}");
 			}
+		}
+
+		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
+		{
+			Log.Info($"Adventure settings flags: 0x{message.flags:X2}");
+
 		}
 
 		private void OnMcpeInteract(McpeInteract message)
@@ -1269,6 +1284,11 @@ namespace MiNET.Client
 			if (!Log.IsDebugEnabled) return;
 
 			if (message is McpeMoveEntity
+			    || message is McpeAddEntity
+			    || message is McpeCraftingData
+			    || message is McpeContainerSetContent
+			    || message is McpePlayerArmorEquipment
+			    || message is McpeClientboundMapItemData
 			    || message is McpeMovePlayer
 			    || message is McpeSetEntityMotion
 			    || message is McpeBatch
@@ -1400,8 +1420,8 @@ namespace MiNET.Client
 			{
 				var packet = McpeLogin.CreateObject();
 				packet.username = username;
-				packet.protocol = 45;
-				packet.protocol2 = 45;
+				packet.protocol = 60;
+				packet.protocol2 = 60;
 				packet.clientId = ClientId;
 				packet.clientUuid = new UUID(Guid.NewGuid().ToByteArray());
 				packet.serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port;

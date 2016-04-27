@@ -1072,6 +1072,7 @@ namespace MiNET.Net
 			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
 			DecodePackage();
+			if(_buffer.Position != (buffer.Length)) Log.Warn($"{this.GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!");
 		}
 
 		public void CloneReset()

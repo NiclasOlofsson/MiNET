@@ -1338,7 +1338,10 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
-		public byte unknown; // = null;
+		public byte b1; // = null;
+		public byte b2; // = null;
+		public byte b3; // = null;
+		public string unknownstr; // = null;
 		public McpeStartGame()
 		{
 			Id = 0x95;
@@ -1361,7 +1364,10 @@ namespace MiNET.Net
 			Write(x);
 			Write(y);
 			Write(z);
-			Write(unknown);
+			Write(b1);
+			Write(b2);
+			Write(b3);
+			Write(unknownstr);
 
 			AfterEncode();
 		}
@@ -1386,7 +1392,10 @@ namespace MiNET.Net
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
-			unknown = ReadByte();
+			b1 = ReadByte();
+			b2 = ReadByte();
+			b3 = ReadByte();
+			unknownstr = ReadString();
 
 			AfterDecode();
 		}
@@ -3173,6 +3182,8 @@ namespace MiNET.Net
 	public partial class McpeAdventureSettings : Package<McpeAdventureSettings>
 	{
 		public int flags; // = null;
+		public int flags2; // = null;
+		public int flags3; // = null;
 		public McpeAdventureSettings()
 		{
 			Id = 0xbc;
@@ -3185,6 +3196,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(flags);
+			Write(flags2);
+			Write(flags3);
 
 			AfterEncode();
 		}
@@ -3199,6 +3212,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			flags = ReadInt();
+			flags2 = ReadInt();
+			flags3 = ReadInt();
 
 			AfterDecode();
 		}

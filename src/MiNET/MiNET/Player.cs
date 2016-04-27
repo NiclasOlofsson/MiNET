@@ -508,10 +508,10 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x01;
 			//}
 
-			//if (IsAutoJump)
-			//{
-			//	mcpeAdventureSettings.flags |= 0x40;
-			//}
+			if (IsAutoJump)
+			{
+				mcpeAdventureSettings.flags |= 0x40;
+			}
 
 			if (AllowFly || GameMode == GameMode.Creative)
 			{
@@ -527,6 +527,8 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x100;
 			//}
 
+			mcpeAdventureSettings.flags2 = 2;
+			mcpeAdventureSettings.flags3 = 2;
 			SendPackage(mcpeAdventureSettings);
 		}
 
@@ -643,7 +645,7 @@ namespace MiNET
 				Username = message.username;
 			}
 
-			if (message.protocol < 45)
+			if (message.protocol < 60)
 			{
 				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
 				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));
@@ -1868,6 +1870,12 @@ namespace MiNET
 			mcpeStartGame.x = KnownPosition.X;
 			mcpeStartGame.y = (float) (KnownPosition.Y + Height);
 			mcpeStartGame.z = KnownPosition.Z;
+			mcpeStartGame.b1 = 1;
+			mcpeStartGame.b2 = 1;
+			mcpeStartGame.b3 = 0;
+			mcpeStartGame.unknownstr = "iX8AANxLbgA=";
+			// unknownstr=iX8AANxLbgA=
+
 			SendPackage(mcpeStartGame);
 		}
 

@@ -18,6 +18,7 @@
 	<pdu id="0x01" online="false" client="true" server="false" name="ID_UNCONNECTED_PING" size="">
 		<field name="Ping Id" type="long" exampleData="" />
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
+		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
 	</pdu>
 
 	<pdu id="0x03" online="false" client="true" server="true" name="ID_CONNECTED_PONG">
@@ -85,17 +86,16 @@
 
 	<pdu id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
 		<field name="System Address" type="IPEndPoint" />
-		<field name="System Addresses" type="IPEndPoint[]" />
+		<field name="System Addresses" type="IPEndPoint[]" size="10"/>
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>
 
 	<pdu id="0x13" online="false" client="true" server="false" name="ID_NEW_INCOMING_CONNECTION">
-		<field name="cookie" type="int" />
-		<field name="Do Security" type="byte" />
-		<field name="Port" type="short" />
-		<field name="Session" type="long" />
-		<field name="Session2" type="long" />
+		<field name="ClientEndpoint" type="IPEndPoint" />
+		<field name="System Addresses" type="IPEndPoint[]" size="10"/>
+		<field name="Incoming Timestamp" type="long" />
+		<field name="Server Timestamp" type="long" />
 	</pdu>
 
 	<pdu id="0x14" online="false" client="true" server="true" name="ID_NO_FREE_INCOMING_CONNECTIONS">

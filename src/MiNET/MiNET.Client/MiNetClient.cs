@@ -1402,11 +1402,7 @@ namespace MiNET.Client
 			Random rand = new Random();
 			var packet = new NewIncomingConnection
 			{
-				doSecurity = 163,
-				session = rand.Next(),
-				session2 = rand.Next(),
-				cookie = rand.Next(),
-				port = (short) _clientEndpoint.Port
+				//TODO: MUST FIX
 			};
 
 			SendPackage(packet);

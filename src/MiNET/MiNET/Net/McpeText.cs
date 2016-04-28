@@ -20,6 +20,8 @@ namespace MiNET.Net
 					Write(message);
 					break;
 				case TypeRaw:
+					Write(message);
+					break;
 				case TypePopup:
 				case TypeTip:
 					Write(message);

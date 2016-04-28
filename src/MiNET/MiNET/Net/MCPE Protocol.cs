@@ -444,6 +444,7 @@ namespace MiNET.Net
 	{
 		public long pingId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public long serverGuid; // = null;
 		public UnconnectedPing()
 		{
 			Id = 0x01;
@@ -457,6 +458,7 @@ namespace MiNET.Net
 
 			Write(pingId);
 			Write(offlineMessageDataId);
+			Write(serverGuid);
 
 			AfterEncode();
 		}
@@ -472,6 +474,7 @@ namespace MiNET.Net
 
 			pingId = ReadLong();
 			ReadBytes(offlineMessageDataId.Length);
+			serverGuid = ReadLong();
 
 			AfterDecode();
 		}
@@ -868,7 +871,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			systemAddress = ReadIPEndPoint();
-			systemAddresses = ReadIPEndPoints();
+			systemAddresses = ReadIPEndPoints(10);
 			incomingTimestamp = ReadLong();
 			serverTimestamp = ReadLong();
 
@@ -882,11 +885,10 @@ namespace MiNET.Net
 
 	public partial class NewIncomingConnection : Package<NewIncomingConnection>
 	{
-		public int cookie; // = null;
-		public byte doSecurity; // = null;
-		public short port; // = null;
-		public long session; // = null;
-		public long session2; // = null;
+		public IPEndPoint clientendpoint; // = null;
+		public IPEndPoint[] systemAddresses; // = null;
+		public long incomingTimestamp; // = null;
+		public long serverTimestamp; // = null;
 		public NewIncomingConnection()
 		{
 			Id = 0x13;
@@ -898,11 +900,10 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(cookie);
-			Write(doSecurity);
-			Write(port);
-			Write(session);
-			Write(session2);
+			Write(clientendpoint);
+			Write(systemAddresses);
+			Write(incomingTimestamp);
+			Write(serverTimestamp);
 
 			AfterEncode();
 		}
@@ -916,11 +917,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			cookie = ReadInt();
-			doSecurity = ReadByte();
-			port = ReadShort();
-			session = ReadLong();
-			session2 = ReadLong();
+			clientendpoint = ReadIPEndPoint();
+			systemAddresses = ReadIPEndPoints(10);
+			incomingTimestamp = ReadLong();
+			serverTimestamp = ReadLong();
 
 			AfterDecode();
 		}

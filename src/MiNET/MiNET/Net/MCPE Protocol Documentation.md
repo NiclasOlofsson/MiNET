@@ -121,6 +121,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Ping Id | long |  |
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Server GUID | long |  |
 -----------------------------------------------------------------------
 ###Package: Connected Pong (0x03)
 
@@ -273,7 +274,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |System Address | IPEndPoint |  |
-|System Addresses | IPEndPoint[] |  |
+|System Addresses | IPEndPoint[] | 10 |
 |Incoming Timestamp | long |  |
 |Server Timestamp | long |  |
 -----------------------------------------------------------------------
@@ -289,11 +290,10 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|cookie | int |  |
-|Do Security | byte |  |
-|Port | short |  |
-|Session | long |  |
-|Session2 | long |  |
+|ClientEndpoint | IPEndPoint |  |
+|System Addresses | IPEndPoint[] | 10 |
+|Incoming Timestamp | long |  |
+|Server Timestamp | long |  |
 -----------------------------------------------------------------------
 ###Package: No Free Incoming Connections (0x14)
 

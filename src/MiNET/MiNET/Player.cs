@@ -347,7 +347,7 @@ namespace MiNET
 		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
 		{
 			NetworkSession.State = ConnectionState.Connected;
-			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
+			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, EndPoint.Port);
 		}
 
 		/// <summary>

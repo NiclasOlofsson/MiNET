@@ -1097,7 +1097,10 @@ namespace MiNET.Net
 			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
 			DecodePackage();
-			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length)) Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!");
+			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length))
+			{
+				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!! {HexDump(buffer)}");
+			}
 		}
 
 		public void CloneReset()

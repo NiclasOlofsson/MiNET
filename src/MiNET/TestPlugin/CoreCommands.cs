@@ -483,8 +483,13 @@ namespace TestPlugin
 				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1)}}}
 			};
 
-			//inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
-			inventory.Slots[c++] = new ItemStoneAxe();
+            inventory.Slots[c++] = new ItemIronSword
+            {
+                ExtraData = new NbtCompound {  { new NbtCompound("display") { new NbtString("Name", "test") } } } 
+            };
+
+            //inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
+            inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemWoodenPickaxe();
 			inventory.Slots[c++] = new ItemBread {Count = 5};

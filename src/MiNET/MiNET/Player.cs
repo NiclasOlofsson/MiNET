@@ -942,16 +942,20 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-			Level.AddPlayer(this, true);
+		    ThreadPool.QueueUserWorkItem(delegate
+		    {
+		        ForcedSendChunks(() =>
+		        {
+                    Level.AddPlayer(this, true);
 
-			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+                    Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-			SendSetTime();
+                    SendSetTime();
+                });
+		    }); 
+        }
 
-			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
-		}
-
-		public override void BroadcastSetEntityData()
+        public override void BroadcastSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = 0;
@@ -1913,7 +1917,7 @@ namespace MiNET
 			}
 		}
 
-		private void ForcedSendChunks()
+		private void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
 			try
@@ -1938,6 +1942,11 @@ namespace MiNET
 			{
 				Monitor.Exit(_sendChunkSync);
 			}
+
+            if(postAction != null)
+            {
+                postAction();
+            }
 		}
 
 		private void SendChunksForKnownPosition()

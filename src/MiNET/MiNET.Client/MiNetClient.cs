@@ -373,9 +373,9 @@ namespace MiNET.Client
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage)
 		{
-			int spId = package._splitPacketId;
-			int spIdx = package._splitPacketIndex;
-			int spCount = package._splitPacketCount;
+			int spId = splitMessage.SplitId;
+			int spIdx = splitMessage.SplitIdx;
+			int spCount = splitMessage.SplitCount;
 
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
@@ -1400,10 +1400,13 @@ namespace MiNET.Client
 		public void SendNewIncomingConnection()
 		{
 			Random rand = new Random();
-			var packet = new NewIncomingConnection
+			var packet = NewIncomingConnection.CreateObject();
+			packet.clientendpoint = _clientEndpoint;
+			packet.systemAddresses = new IPEndPoint[10];
+			for (int i = 0; i < 10; i++)
 			{
-				//TODO: MUST FIX
-			};
+				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
+			}
 
 			SendPackage(packet);
 		}

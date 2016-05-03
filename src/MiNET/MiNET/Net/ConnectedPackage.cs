@@ -179,10 +179,14 @@ namespace MiNET.Net
 				if (_hasSplit)
 				{
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
+					splitPartPackage.SplitId = _splitPacketId;
+					splitPartPackage.SplitCount = _splitPacketCount;
+					splitPartPackage.SplitIdx = _splitPacketIndex;
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
 					Messages.Add(splitPartPackage);
-					return;
+					if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Warn($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
+					continue;
 				}
 
 				byte id = internalBuffer[0];
@@ -205,7 +209,7 @@ namespace MiNET.Net
 				//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
 
 				Messages.Add(package);
-				if (MessageLength != internalBuffer.Length) Debug.WriteLine("Missmatch of requested lenght, and actual read lenght");
+				if (Log.IsDebugEnabled && MessageLength != internalBuffer.Length) Log.Debug("Missmatch of requested lenght, and actual read lenght");
 			}
 		}
 	}

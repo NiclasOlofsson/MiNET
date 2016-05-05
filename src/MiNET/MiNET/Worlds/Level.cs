@@ -84,7 +84,7 @@ namespace MiNET.Worlds
 			IsWorldTimeStarted = true;
 			_worldProvider.Initialize();
 
-			SpawnPoint = new PlayerLocation(_worldProvider.GetSpawnPoint());
+			SpawnPoint = SpawnPoint?? new PlayerLocation(_worldProvider.GetSpawnPoint());
 			CurrentWorldTime = _worldProvider.GetTime();
 
 			if (_worldProvider.IsCaching)

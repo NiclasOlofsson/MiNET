@@ -67,7 +67,7 @@ namespace MiNET.Worlds
 
 			EntityManager = new EntityManager();
 			InventoryManager = new InventoryManager(this);
-			SpawnPoint = new PlayerLocation(50, 4000, 50);
+			SpawnPoint = null;
 			Players = new ConcurrentDictionary<long, Player>();
 			Entities = new ConcurrentDictionary<long, Entity>();
 			BlockEntities = new List<BlockEntity>();

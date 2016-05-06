@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -284,7 +285,8 @@ namespace MiNET.Worlds
 				{
 					x = coordinates.X,
 					z = coordinates.Z,
-					biomeId = dataTag["Biomes"].ByteArrayValue
+					biomeId = dataTag["Biomes"].ByteArrayValue,
+					isAllAir = true
 				};
 
 				if (chunk.biomeId.Length > 256) throw new Exception();
@@ -322,6 +324,7 @@ namespace MiNET.Worlds
 									blockId = Convert[blockId].Item1;
 								}
 
+								chunk.isAllAir = chunk.isAllAir && blockId == 0;
 								if (blockId > 255) blockId = 41;
 
 								//if (yi == 127 && blockId != 0) blockId = 30;
@@ -643,6 +646,55 @@ namespace MiNET.Worlds
 
 			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, (LevelInfo) _level.Clone(), WaterOffsetY, chunkCache);
 			return provider;
+		}
+
+		public int PruneAir()
+		{
+			int prunedChunks = 0;
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
+			{
+				ChunkCoordinates chunkCoordinates = valuePair.Key;
+				ChunkColumn chunkColumn = valuePair.Value;
+
+				if (chunkColumn != null && chunkColumn.isAllAir)
+				{
+					bool surroundingIsAir = true;
+
+					for (int startX = chunkCoordinates.X - 1; startX <= chunkCoordinates.X + 1; startX++)
+					{
+						for (int startZ = chunkCoordinates.Z - 1; startZ <= chunkCoordinates.Z + 1; startZ++)
+						{
+							ChunkCoordinates surroundingChunkCoordinates = new ChunkCoordinates(startX, startZ);
+
+							if (!surroundingChunkCoordinates.Equals(chunkCoordinates))
+							{
+								ChunkColumn surroundingChunkColumn;
+
+								_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
+
+								if (surroundingChunkColumn != null && !surroundingChunkColumn.isAllAir)
+								{
+									surroundingIsAir = false;
+									break;
+								}
+							}
+						}
+					}
+
+					if (surroundingIsAir)
+					{
+						_chunkCache[chunkCoordinates] = null;
+						prunedChunks++;
+					}
+				}
+			}
+
+			sw.Stop();
+			Log.Info("Pruned " + prunedChunks + " in " + sw.ElapsedMilliseconds + "ms");
+			return prunedChunks;
 		}
 	}
 }

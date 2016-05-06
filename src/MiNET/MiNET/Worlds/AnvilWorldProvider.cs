@@ -669,18 +669,18 @@ namespace MiNET.Worlds
 						{
 							ChunkCoordinates surroundingChunkCoordinates = new ChunkCoordinates(startX, startZ);
 
-							if (!surroundingChunkCoordinates.Equals(chunkCoordinates))
+							if (surroundingChunkCoordinates.Equals(chunkCoordinates)) continue;
+
+							ChunkColumn surroundingChunkColumn;
+
+							_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
+
+							if (surroundingChunkColumn != null && !surroundingChunkColumn.isAllAir)
 							{
-								ChunkColumn surroundingChunkColumn;
-
-								_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
-
-								if (surroundingChunkColumn != null && !surroundingChunkColumn.isAllAir)
-								{
-									surroundingIsAir = false;
-									break;
-								}
+								surroundingIsAir = false;
+								break;
 							}
+
 						}
 					}
 
@@ -695,6 +695,55 @@ namespace MiNET.Worlds
 			sw.Stop();
 			Log.Info("Pruned " + prunedChunks + " in " + sw.ElapsedMilliseconds + "ms");
 			return prunedChunks;
+		}
+
+		public int MakeAirChunksAroundWorldToCompensateForBadRendering()
+		{
+			int createdChunks = 0;
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
+			{
+				ChunkCoordinates chunkCoordinates = valuePair.Key;
+				ChunkColumn chunkColumn = valuePair.Value;
+
+				if (chunkColumn != null && !chunkColumn.isAllAir)
+				{
+					for (int startX = chunkCoordinates.X - 1; startX <= chunkCoordinates.X + 1; startX++)
+					{
+						for (int startZ = chunkCoordinates.Z - 1; startZ <= chunkCoordinates.Z + 1; startZ++)
+						{
+							ChunkCoordinates surroundingChunkCoordinates = new ChunkCoordinates(startX, startZ);
+
+							if (surroundingChunkCoordinates.Equals(chunkCoordinates)) continue;
+
+							ChunkColumn surroundingChunkColumn;
+
+							_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
+
+							if (surroundingChunkColumn == null)
+							{
+								ChunkColumn airColumn = new ChunkColumn
+								{
+									x = startX,
+									z = startZ,
+									isAllAir = true
+								};
+
+								airColumn.GetBatch();
+
+								_chunkCache[surroundingChunkCoordinates] = airColumn;
+								createdChunks++;
+							}
+						}
+					}
+				}
+			}
+
+			sw.Stop();
+			Log.Info("Created " + createdChunks + " air chunks in " + sw.ElapsedMilliseconds + "ms");
+			return createdChunks;
 		}
 	}
 }

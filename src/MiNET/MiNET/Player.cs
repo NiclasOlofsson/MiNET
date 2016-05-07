@@ -2306,7 +2306,7 @@ namespace MiNET
 			}
 		}
 
-		public void BroadcastEntityEvent()
+		public virtual void BroadcastEntityEvent()
 		{
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();

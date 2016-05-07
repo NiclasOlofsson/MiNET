@@ -238,7 +238,7 @@ namespace MiNET
 				{
 					if (Math.Abs(Air)%10 == 0)
 					{
-						TakeHit(null, 10, DamageCause.Drowning);
+						TakeHit(null, 1, DamageCause.Drowning);
 						
 						var player = Entity as Player;
 						if (player != null)
@@ -266,7 +266,7 @@ namespace MiNET
 			{
 				if (SuffocationTicks <= 0)
 				{
-					TakeHit(null, 10, DamageCause.Suffocation);
+					TakeHit(null, 1, DamageCause.Suffocation);
 					
 					var player = Entity as Player;
 					if (player != null)
@@ -302,7 +302,7 @@ namespace MiNET
 
 				if (LavaTicks <= 0)
 				{
-					TakeHit(null, 40, DamageCause.Lava);
+					TakeHit(null, 4, DamageCause.Lava);
 
 					var player = Entity as Player;
 					if (player != null)
@@ -333,7 +333,7 @@ namespace MiNET
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					TakeHit(null, 10, DamageCause.FireTick);
+					TakeHit(null, 1, DamageCause.FireTick);
 					
 					var player = Entity as Player;
 					if (player != null)

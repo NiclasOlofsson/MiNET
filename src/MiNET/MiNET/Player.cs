@@ -281,7 +281,7 @@ namespace MiNET
 		private Timer _mapSender;
 		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>();
 
-		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
+		protected virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 			lock (_mapInfoSync)
 			{
@@ -579,7 +579,7 @@ namespace MiNET
 		/// <summary>
 		///     Handles the disconnection notification.
 		/// </summary>
-		public virtual void HandleDisconnectionNotification()
+		protected virtual void HandleDisconnectionNotification()
 		{
 			Disconnect("Client requested disconnected", false);
 		}
@@ -1759,7 +1759,7 @@ namespace MiNET
 		}
 
 
-		private void HandleEntityEvent(McpeEntityEvent message)
+		protected virtual void HandleEntityEvent(McpeEntityEvent message)
 		{
 			Log.Debug("Entity Id:" + message.entityId);
 			Log.Debug("Entity Event:" + message.eventId);

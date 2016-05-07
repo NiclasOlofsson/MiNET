@@ -38,7 +38,7 @@ namespace MiNET
 		public MotdProvider MotdProvider { get; set; }
 
 		public bool IsSecurityEnabled { get; private set; }
-		public UserManager<User,string> UserManager { get; set; }
+		public UserManager<User> UserManager { get; set; }
 		public RoleManager<Role> RoleManager { get; set; }
 
 		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
@@ -114,7 +114,7 @@ namespace MiNET
 				if (IsSecurityEnabled)
 				{
 					// http://www.asp.net/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity
-					UserManager = UserManager ?? new UserManager<User,string>(new DefaultUserStore());
+					UserManager = UserManager ?? new UserManager<User>(new DefaultUserStore());
 					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
 				}
 

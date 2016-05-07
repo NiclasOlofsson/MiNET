@@ -6,7 +6,7 @@ using Microsoft.AspNet.Identity;
 
 namespace MiNET.Security
 {
-    public class DefaultUserStore : DefaultUserStore<string,User,Role,UserRole>
+    public class DefaultUserStore : DefaultUserStore<Role,UserRole>
     {
 
         public DefaultUserStore() : base(new List<Role>(), new List<User>(),new List<UserRole>())
@@ -18,31 +18,29 @@ namespace MiNET.Security
 
         }
     }
-    public class DefaultUserStore<TKey,TUser,TRole,TUserRole> : IUserStore<TUser,TKey>, IUserRoleStore<TUser, TKey>, IUserPasswordStore<TUser, TKey>
-        where TKey : IEquatable<TKey>
-        where TUser : User<TKey,TUserRole>
-        where TRole : Role<TKey,TUserRole>
-        where TUserRole : UserRole<TKey>, new()
+    public class DefaultUserStore<TRole,TUserRole> : IUserStore<User>, IUserRoleStore<User>, IUserPasswordStore<User>
+        where TRole : Role<string,TUserRole>
+        where TUserRole : UserRole<string>, new()
     {
-        private ICollection<TUser> _users;
+        private ICollection<User> _users;
         private ICollection<TUserRole> _userRoles;
         private ICollection<TRole> _roles;
         private bool _disposed = false;
 
-        public DefaultUserStore(List<TRole> roles,List<TUser> users, List<TUserRole> userRole)
+        public DefaultUserStore(List<TRole> roles,List<User> users, List<TUserRole> userRole)
         {
             _roles = roles;
             _userRoles = userRole;
             _users = users;
         }
 
-        public Task CreateAsync(TUser user)
+        public Task CreateAsync(User user)
         {
             _users.Add(user);
-            return Task.FromResult<TUser>(null);
+            return Task.FromResult<User>(null);
         }
 
-        public Task UpdateAsync(TUser user)
+        public Task UpdateAsync(User user)
         {
             if (user == null)
             {
@@ -55,48 +53,48 @@ namespace MiNET.Security
             }
             _users.Remove(temp);
             _users.Add(user);
-            return Task.FromResult<TUser>(null);
+            return Task.FromResult<User>(null);
         }
 
-        public Task DeleteAsync(TUser user)
+        public Task DeleteAsync(User user)
         {
             if (user == null)
             {
                 throw new ArgumentNullException("user");
             }
             _users.Remove(user);
-            return Task.FromResult<TUser>(null);
+            return Task.FromResult<User>(null);
         }
 
-        public Task<TUser> FindByIdAsync(TKey userId)
+        public Task<User> FindByIdAsync(string userId)
         {
             var user = _users.FirstOrDefault(t=>t.Id.Equals(userId));
             return Task.FromResult(user??null);
         }
 
-        public Task<TUser> FindByNameAsync(string userName)
+        public Task<User> FindByNameAsync(string userName)
         {
             var user = _users.FirstOrDefault(t => t.UserName.Equals(userName));
             return Task.FromResult(user??null);
         }
 
-        public Task SetPasswordHashAsync(TUser user, string passwordHash)
+        public Task SetPasswordHashAsync(User user, string passwordHash)
         {
             user.PasswordHash = passwordHash;
-            return Task.FromResult<TUser>(null);
+            return Task.FromResult<User>(null);
         }
 
-        public Task<string> GetPasswordHashAsync(TUser user)
+        public Task<string> GetPasswordHashAsync(User user)
         {
             return Task.FromResult(user.PasswordHash);
         }
 
-        public Task<bool> HasPasswordAsync(TUser user)
+        public Task<bool> HasPasswordAsync(User user)
         {
             return Task.FromResult(user.PasswordHash != null);
         }
 
-        public Task AddToRoleAsync(TUser user, string roleName)
+        public Task AddToRoleAsync(User user, string roleName)
         {
             if (user == null)
             {
@@ -111,7 +109,7 @@ namespace MiNET.Security
             return Task.FromResult<object>(null);
         }
 
-        public Task RemoveFromRoleAsync(TUser user, string roleName)
+        public Task RemoveFromRoleAsync(User user, string roleName)
         {
             if (user == null)
             {
@@ -131,7 +129,7 @@ namespace MiNET.Security
             return Task.FromResult<object>(null);
         }
 
-        public Task<IList<string>> GetRolesAsync(TUser user)
+        public Task<IList<string>> GetRolesAsync(User user)
         {
             if (user == null)
             {
@@ -146,7 +144,7 @@ namespace MiNET.Security
             return Task.FromResult(temp);
         }
 
-        public Task<bool> IsInRoleAsync(TUser user, string roleName)
+        public Task<bool> IsInRoleAsync(User user, string roleName)
         {
             if (user == null)
             {

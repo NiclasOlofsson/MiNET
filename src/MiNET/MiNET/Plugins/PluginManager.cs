@@ -279,7 +279,7 @@ namespace MiNET.Plugins
 			}
 		}
 
-		public void HandleCommand(UserManager<User,string> userManager, string message, Player player)
+		public void HandleCommand(UserManager<User> userManager, string message, Player player)
 		{
 			try
 			{

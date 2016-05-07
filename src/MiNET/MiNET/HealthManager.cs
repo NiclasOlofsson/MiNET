@@ -239,14 +239,6 @@ namespace MiNET
 					if (Math.Abs(Air)%10 == 0)
 					{
 						TakeHit(null, 1, DamageCause.Drowning);
-						
-						var player = Entity as Player;
-						if (player != null)
-						{
-							player.SendUpdateAttributes();
-							player.BroadcastEntityEvent();
-						}
-						Entity.BroadcastSetEntityData();
 					}
 				}
 
@@ -267,14 +259,6 @@ namespace MiNET
 				if (SuffocationTicks <= 0)
 				{
 					TakeHit(null, 1, DamageCause.Suffocation);
-					
-					var player = Entity as Player;
-					if (player != null)
-					{
-						player.SendUpdateAttributes();
-						player.BroadcastEntityEvent();
-					}
-					Entity.BroadcastSetEntityData();
 					SuffocationTicks = 10;
 				}
 				else
@@ -303,14 +287,6 @@ namespace MiNET
 				if (LavaTicks <= 0)
 				{
 					TakeHit(null, 4, DamageCause.Lava);
-
-					var player = Entity as Player;
-					if (player != null)
-					{
-						player.SendUpdateAttributes();
-						player.BroadcastEntityEvent();
-					}
-					Entity.BroadcastSetEntityData();
 					LavaTicks = 10;
 				}
 				else
@@ -334,14 +310,6 @@ namespace MiNET
 				if (Math.Abs(FireTick)%20 == 0)
 				{
 					TakeHit(null, 1, DamageCause.FireTick);
-					
-					var player = Entity as Player;
-					if (player != null)
-					{
-						player.SendUpdateAttributes();
-						player.BroadcastEntityEvent();
-					}
-					Entity.BroadcastSetEntityData();
 				}
 			}
 		}

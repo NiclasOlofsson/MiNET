@@ -3279,7 +3279,7 @@ namespace MiNET.Net
 	{
 		public float motionX; // = null;
 		public float motionZ; // = null;
-		public byte flags; // = null;
+		public short flags; // = null;
 		public McpePlayerInput()
 		{
 			Id = 0xbe;
@@ -3309,7 +3309,7 @@ namespace MiNET.Net
 
 			motionX = ReadFloat();
 			motionZ = ReadFloat();
-			flags = ReadByte();
+			flags = ReadShort();
 
 			AfterDecode();
 		}

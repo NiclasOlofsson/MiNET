@@ -1185,7 +1185,7 @@ TODO: can have multiple blocks.
 |:-----|:-----|:-----|
 |Motion X | float |  |
 |Motion Z | float |  |
-|Flags | byte |  |
+|Flags | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0xbf)
 

@@ -239,6 +239,7 @@ namespace MiNET
 					if (Math.Abs(Air)%10 == 0)
 					{
 						TakeHit(null, 1, DamageCause.Drowning);
+						Entity.BroadcastSetEntityData();
 					}
 				}
 
@@ -259,6 +260,8 @@ namespace MiNET
 				if (SuffocationTicks <= 0)
 				{
 					TakeHit(null, 1, DamageCause.Suffocation);
+					Entity.BroadcastSetEntityData();
+					
 					SuffocationTicks = 10;
 				}
 				else
@@ -287,6 +290,7 @@ namespace MiNET
 				if (LavaTicks <= 0)
 				{
 					TakeHit(null, 4, DamageCause.Lava);
+					Entity.BroadcastSetEntityData();
 					LavaTicks = 10;
 				}
 				else

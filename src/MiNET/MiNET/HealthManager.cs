@@ -291,6 +291,7 @@ namespace MiNET
 				{
 					TakeHit(null, 4, DamageCause.Lava);
 					Entity.BroadcastSetEntityData();
+					
 					LavaTicks = 10;
 				}
 				else
@@ -314,6 +315,7 @@ namespace MiNET
 				if (Math.Abs(FireTick)%20 == 0)
 				{
 					TakeHit(null, 1, DamageCause.FireTick);
+					Entity.BroadcastSetEntityData();
 				}
 			}
 		}

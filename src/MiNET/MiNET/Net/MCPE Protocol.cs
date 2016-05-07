@@ -2615,8 +2615,8 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityLink : Package<McpeSetEntityLink>
 	{
-		public long riderId; // = null;
 		public long riddenId; // = null;
+		public long riderId; // = null;
 		public byte linkType; // = null;
 		public McpeSetEntityLink()
 		{
@@ -2629,8 +2629,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(riderId);
 			Write(riddenId);
+			Write(riderId);
 			Write(linkType);
 
 			AfterEncode();
@@ -2645,8 +2645,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			riderId = ReadLong();
 			riddenId = ReadLong();
+			riderId = ReadLong();
 			linkType = ReadByte();
 
 			AfterDecode();

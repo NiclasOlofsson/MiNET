@@ -943,8 +943,8 @@ TODO: can have multiple blocks.
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Rider ID | long |  |
 |Ridden ID | long |  |
+|Rider ID | long |  |
 |Link Type | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Health (0xb0)

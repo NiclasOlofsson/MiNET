@@ -256,6 +256,11 @@ namespace MiNET
 				HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
 			}
 
+			else if (typeof(McpeItemFramDropItem) == message.GetType())
+			{
+				HandleMcpePlayerInput((McpePlayerInput)message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
@@ -274,6 +279,11 @@ namespace MiNET
 			{
 				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
 			}
+		}
+
+		protected virtual void HandleMcpePlayerInput(McpePlayerInput message)
+		{
+			Log.Debug($"Player input: Motion X={message.motionX}, Motion Z={message.motionZ}, Flags=0x{message.motionX:X2}");
 		}
 
 		private object _mapInfoSync = new object();
@@ -1172,7 +1182,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
-			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) > 5)
+			if (_currentChunkPosition != chunkPosition /*&& _currentChunkPosition.DistanceTo(chunkPosition) > 2*/)
 			{
 				ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
 			}
@@ -1961,10 +1971,10 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
-				{
-					return;
-				}
+				//if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 2)
+				//{
+				//	return;
+				//}
 
 				_currentChunkPosition = chunkPosition;
 

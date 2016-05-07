@@ -1,48 +1,72 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
 
 namespace MiNET.Security
 {
-	public class DefaultRoleStore : IRoleStore<Role>
-	{
-		private Dictionary<string, Role> _roles = new Dictionary<string, Role>();
-		
-		public Task CreateAsync(Role role)
-		{
-			_roles.Add(role.Id,role);
-                        return Task.FromResult<Role>(null);
-		}
+    public class DefaultRoleStore : DefaultRoleStore<string,Role,UserRole>
+    {
+        public DefaultRoleStore() : base(new List<Role>())
+        {
+        }
+        public DefaultRoleStore(List<Role> roles) : base(roles)
+        {
 
-		public Task UpdateAsync(Role role)
-		{
-			_roles[role.Id] = role;
-                        return Task.FromResult<Role>(null);
-		}
+        }
+    }
 
-		public Task DeleteAsync(Role role)
-		{
-			_roles.Remove(role.Id);
-                        return Task.FromResult<Role>(null);
-		}
+    public class DefaultRoleStore<TKey,TRole,TUserRole> : IRoleStore<TRole,TKey>
+        where TRole : Role<TKey, TUserRole>
+        where TUserRole : UserRole<TKey>,new()
+    {
+        private ICollection<TRole> _roles;
+        private bool _disposed = false;
 
-		public Task<Role> FindByIdAsync(string roleId)
-		{
-			Role role;
-                        _roles.TryGetValue(roleId,out role);
-                        return Task.FromResult(role);
-		}
+        public DefaultRoleStore(List<TRole> roles)
+        {
+            _roles = roles;
+        }
 
-		public Task<Role> FindByNameAsync(string roleName)
-		{
-			Role role;
-                        _roles.TryGetValue(roleName, out role);
-                        return Task.FromResult(role);
-		}
+        public Task CreateAsync(TRole role)
+        {
+            _roles.Add(role);
+            return Task.FromResult<TRole>(null);
+        }
 
-		public void Dispose()
-		{
-			_roles = null;
-			GC.SuppressFinalize(this);
-		}
-	}
+        public Task DeleteAsync(TRole role)
+        {
+            _roles.Remove(role);
+            return Task.FromResult<TRole>(null);
+        }
+
+        public Task<TRole> FindByIdAsync(TKey roleId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<TRole> FindByNameAsync(string roleName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateAsync(TRole role)
+        {
+            throw new NotImplementedException();
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _roles = null;
+            }
+            _disposed = true;
+        }
+    }
 }

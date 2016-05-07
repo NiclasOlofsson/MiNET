@@ -61,7 +61,7 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public float EnchantingLevel { get; set; } = 0f;
+		public float ExperienceLevel { get; set; } = 0f;
 		public float Experience { get; set; } = 0f;
 		public float MovementSpeed { get; set; } = 0.1f;
 		public float Absorption { get; set; } = 0;
@@ -2060,7 +2060,7 @@ namespace MiNET
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{
-				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = EnchantingLevel
+				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = ExperienceLevel
 			};
 			attributes["player.experience"] = new PlayerAttribute
 			{

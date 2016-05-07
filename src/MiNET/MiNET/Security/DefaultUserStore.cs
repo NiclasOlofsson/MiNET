@@ -8,6 +8,7 @@ namespace MiNET.Security
 {
     public class DefaultUserStore : DefaultUserStore<string,User,Role,UserRole>
     {
+
         public DefaultUserStore() : base(new List<Role>(), new List<User>(),new List<UserRole>())
         {
 
@@ -21,7 +22,7 @@ namespace MiNET.Security
         where TKey : IEquatable<TKey>
         where TUser : User<TKey,TUserRole>
         where TRole : Role<TKey,TUserRole>
-        where TUserRole : UserRole<TKey>,new()
+        where TUserRole : UserRole<TKey>, new()
     {
         private ICollection<TUser> _users;
         private ICollection<TUserRole> _userRoles;

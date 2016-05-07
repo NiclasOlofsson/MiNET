@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNet.Identity;
@@ -21,11 +22,12 @@ namespace MiNET.Security
         where TUserRole : UserRole<TKey>,new()
     {
         private ICollection<TRole> _roles;
-        private bool _disposed = false;
+        private bool _disposed;
 
         public DefaultRoleStore(List<TRole> roles)
         {
             _roles = roles;
+            _disposed = false;
         }
 
         public Task CreateAsync(TRole role)
@@ -42,17 +44,34 @@ namespace MiNET.Security
 
         public Task<TRole> FindByIdAsync(TKey roleId)
         {
-            throw new NotImplementedException();
+            TRole role = _roles.SingleOrDefault(t => t.Id.Equals(roleId));
+            if (role == null)
+            {
+                throw new ArgumentNullException("role");
+            }
+            return Task.FromResult(role);
         }
 
         public Task<TRole> FindByNameAsync(string roleName)
         {
-            throw new NotImplementedException();
+            TRole role = _roles.SingleOrDefault(t => t.Name == roleName);
+            if (role == null)
+            {
+                throw new ArgumentNullException("role");
+            }
+            return Task.FromResult(role);
         }
 
         public Task UpdateAsync(TRole role)
         {
-            throw new NotImplementedException();
+            var temp = _roles.SingleOrDefault(t => t.Id.Equals(role.Id));
+            if (temp == null)
+            {
+                throw new InvalidOperationException($"Unable to find a Role called {role.Name}");
+            }
+            _roles.Remove(temp);
+            _roles.Add(role);
+            return Task.FromResult<TRole>(null);
         }
         public void Dispose()
         {

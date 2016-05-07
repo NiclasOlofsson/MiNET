@@ -5,33 +5,44 @@ namespace MiNET.Security
 {
 	public class DefaultRoleStore : IRoleStore<Role>
 	{
+		private Dictionary<string, Role> _roles = new Dictionary<string, Role>();
+		
 		public Task CreateAsync(Role role)
 		{
-			return Task.FromResult<object>(null);
+			_roles.Add(role.Id,role);
+                        return Task.FromResult<Role>(null);
 		}
 
 		public Task UpdateAsync(Role role)
 		{
-			return Task.FromResult<object>(null);
+			_roles[role.Id] = role;
+                        return Task.FromResult<Role>(null);
 		}
 
 		public Task DeleteAsync(Role role)
 		{
-			return Task.FromResult<object>(null);
+			_roles.Remove(role.Id);
+                        return Task.FromResult<Role>(null);
 		}
 
 		public Task<Role> FindByIdAsync(string roleId)
 		{
-			return Task.FromResult(new Role(roleId));
+			Role role;
+                        _roles.TryGetValue(roleId,out role);
+                        return Task.FromResult(role);
 		}
 
 		public Task<Role> FindByNameAsync(string roleName)
 		{
-			return Task.FromResult(new Role(roleName));
+			Role role;
+                        _roles.TryGetValue(roleName, out role);
+                        return Task.FromResult(role);
 		}
 
 		public void Dispose()
 		{
+			_roles = null;
+			GC.SuppressFinalize(this);
 		}
 	}
 }

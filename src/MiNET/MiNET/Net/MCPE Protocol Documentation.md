@@ -69,6 +69,7 @@
 | Mcpe Crafting Event | 0xbb | 187 |   
 | Mcpe Adventure Settings | 0xbc | 188 |   
 | Mcpe Tile Entity Data | 0xbd | 189 |   
+| Mcpe Player Input | 0xbe | 190 |   
 | Mcpe Full Chunk Data | 0xbf | 191 |   
 | Mcpe Set Difficulty | 0xc0 | 192 |   
 | Mcpe Change Dimension | 0xc1 | 193 |   
@@ -1169,6 +1170,22 @@ TODO: can have multiple blocks.
 |Y | int |  |
 |Z | int |  |
 |NamedTag | Nbt |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Player Input (0xbe)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Motion X | float |  |
+|Motion Z | float |  |
+|Flags | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0xbf)
 

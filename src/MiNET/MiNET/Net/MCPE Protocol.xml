@@ -467,6 +467,12 @@
 		<field name="Z" type="int" />
 		<field name="NamedTag" type="Nbt"/>
 	</pdu>
+	
+	<pdu id="0xbe" online="false" client="true" server="false" name="MCPE_PLAYER_INPUT">
+		<field name="Motion X" type="float" />
+		<field name="Motion Z" type="float" />
+		<field name="Flags" type="byte"/>
+	</pdu>
 
 	<!-- 	
 		ORDER_COLUMNS = 0;

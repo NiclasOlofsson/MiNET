@@ -228,7 +228,6 @@ namespace MiNET
 			{
 				CooldownTick = 0;
 				TakeHit(null, 300, DamageCause.Void);
-				LastDamageCause = DamageCause.Void;
 				return;
 			}
 
@@ -239,7 +238,8 @@ namespace MiNET
 				{
 					if (Math.Abs(Air)%10 == 0)
 					{
-						Health -= 10;
+						TakeHit(null, 10, DamageCause.Drowning);
+						
 						var player = Entity as Player;
 						if (player != null)
 						{
@@ -247,7 +247,6 @@ namespace MiNET
 							player.BroadcastEntityEvent();
 						}
 						Entity.BroadcastSetEntityData();
-						LastDamageCause = DamageCause.Drowning;
 					}
 				}
 
@@ -267,7 +266,8 @@ namespace MiNET
 			{
 				if (SuffocationTicks <= 0)
 				{
-					Health -= 10;
+					TakeHit(null, 10, DamageCause.Suffocation);
+					
 					var player = Entity as Player;
 					if (player != null)
 					{
@@ -275,7 +275,6 @@ namespace MiNET
 						player.BroadcastEntityEvent();
 					}
 					Entity.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.Suffocation;
 					SuffocationTicks = 10;
 				}
 				else
@@ -303,7 +302,7 @@ namespace MiNET
 
 				if (LavaTicks <= 0)
 				{
-					Health -= 40;
+					TakeHit(null, 40, DamageCause.Lava);
 
 					var player = Entity as Player;
 					if (player != null)
@@ -312,7 +311,6 @@ namespace MiNET
 						player.BroadcastEntityEvent();
 					}
 					Entity.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.Lava;
 					LavaTicks = 10;
 				}
 				else
@@ -335,7 +333,8 @@ namespace MiNET
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					Health -= 10;
+					TakeHit(null, 10, DamageCause.FireTick);
+					
 					var player = Entity as Player;
 					if (player != null)
 					{

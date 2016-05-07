@@ -342,7 +342,6 @@ namespace MiNET
 						player.BroadcastEntityEvent();
 					}
 					Entity.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.FireTick;
 				}
 			}
 		}

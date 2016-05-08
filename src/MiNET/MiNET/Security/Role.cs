@@ -1,21 +1,28 @@
-﻿using Microsoft.AspNet.Identity;
+﻿using System.Collections.Generic;
+using Microsoft.AspNet.Identity;
 
 namespace MiNET.Security
 {
-	public class Role : IRole<string>
+    public class Role : Role<string, UserRole>
+    {
+
+        public Role(string name)
+            : this(name, name)
+        {
+        }
+
+        public Role(string id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+    }
+    public class Role<TKey,TUserRole> : IRole<TKey>
+        where TUserRole : UserRole<TKey>
 	{
-		public string Id { get; private set; }
+		public TKey Id { get; set; }
 		public string Name { get; set; }
-
-		public Role(string name)
-			: this(name, name)
-		{
-		}
-
-		public Role(string id, string name)
-		{
-			Id = id;
-			Name = name;
-		}
+        
+        public virtual ICollection<UserRole> Users { get; private set; }
 	}
 }

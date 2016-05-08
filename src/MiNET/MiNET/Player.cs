@@ -1593,7 +1593,7 @@ namespace MiNET
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
-		public double CalculateDamageIncreaseFromEnchantments(Item tool)
+		protected virtual double CalculateDamageIncreaseFromEnchantments(Item tool)
 		{
 			if (tool == null) return 0;
 			if (tool.ExtraData == null) return 0;
@@ -1619,7 +1619,7 @@ namespace MiNET
 		}
 
 
-		public double CalculatePlayerDamage(Player target, double damage)
+		public virtual double CalculatePlayerDamage(Player target, double damage)
 		{
 			double originalDamage = damage;
 			double armorValue = 0;
@@ -1732,7 +1732,7 @@ namespace MiNET
 			//return (int) Math.Floor(damage*(1.0 - armorValue));
 		}
 
-		public double CalculateDamageReducationFromEnchantments(Item armor)
+		protected virtual double CalculateDamageReducationFromEnchantments(Item armor)
 		{
 			if (armor == null) return 0;
 			if (armor.ExtraData == null) return 0;
@@ -1759,7 +1759,7 @@ namespace MiNET
 			return reduction;
 		}
 
-		private int CalculateDamage(Entity target)
+		protected virtual int CalculateDamage(Entity target)
 		{
 			int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
 

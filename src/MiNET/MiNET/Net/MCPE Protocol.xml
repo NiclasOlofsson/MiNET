@@ -380,8 +380,8 @@
 	</pdu>
 
 	<pdu id="0xaf" online="false" client="true" server="true" name="MCPE_SET_ENTITY_LINK">
-		<field name="Rider ID" type="long" />
 		<field name="Ridden ID" type="long" />
+		<field name="Rider ID" type="long" />
 		<field name="Link Type" type="byte" />
 	</pdu>
 
@@ -466,6 +466,12 @@
 		<field name="Y" type="int" />
 		<field name="Z" type="int" />
 		<field name="NamedTag" type="Nbt"/>
+	</pdu>
+	
+	<pdu id="0xbe" online="false" client="true" server="false" name="MCPE_PLAYER_INPUT">
+		<field name="Motion X" type="float" />
+		<field name="Motion Z" type="float" />
+		<field name="Flags" type="short"/>
 	</pdu>
 
 	<!-- 	

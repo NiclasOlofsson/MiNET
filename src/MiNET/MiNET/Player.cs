@@ -61,7 +61,7 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public float EnchantingLevel { get; set; } = 0f;
+		public float ExperienceLevel { get; set; } = 0f;
 		public float Experience { get; set; } = 0f;
 		public float MovementSpeed { get; set; } = 0.1f;
 		public float Absorption { get; set; } = 0;
@@ -256,6 +256,11 @@ namespace MiNET
 				HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
 			}
 
+			else if (typeof(McpeItemFramDropItem) == message.GetType())
+			{
+				HandleMcpePlayerInput((McpePlayerInput)message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
@@ -276,12 +281,17 @@ namespace MiNET
 			}
 		}
 
+		protected virtual void HandleMcpePlayerInput(McpePlayerInput message)
+		{
+			Log.Debug($"Player input: Motion X={message.motionX}, Motion Z={message.motionZ}, Flags=0x{message.motionX:X2}");
+		}
+
 		private object _mapInfoSync = new object();
 
 		private Timer _mapSender;
 		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>();
 
-		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
+		protected virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 			lock (_mapInfoSync)
 			{
@@ -579,7 +589,7 @@ namespace MiNET
 		/// <summary>
 		///     Handles the disconnection notification.
 		/// </summary>
-		public virtual void HandleDisconnectionNotification()
+		protected virtual void HandleDisconnectionNotification()
 		{
 			Disconnect("Client requested disconnected", false);
 		}
@@ -1172,7 +1182,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
-			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) > 5)
+			if (_currentChunkPosition != chunkPosition /*&& _currentChunkPosition.DistanceTo(chunkPosition) > 2*/)
 			{
 				ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
 			}
@@ -1759,7 +1769,7 @@ namespace MiNET
 		}
 
 
-		private void HandleEntityEvent(McpeEntityEvent message)
+		protected virtual void HandleEntityEvent(McpeEntityEvent message)
 		{
 			Log.Debug("Entity Id:" + message.entityId);
 			Log.Debug("Entity Event:" + message.eventId);
@@ -1961,10 +1971,10 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
-				{
-					return;
-				}
+				//if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 2)
+				//{
+				//	return;
+				//}
 
 				_currentChunkPosition = chunkPosition;
 
@@ -2050,7 +2060,7 @@ namespace MiNET
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{
-				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = EnchantingLevel
+				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = ExperienceLevel
 			};
 			attributes["player.experience"] = new PlayerAttribute
 			{
@@ -2306,7 +2316,7 @@ namespace MiNET
 			}
 		}
 
-		public void BroadcastEntityEvent()
+		public virtual void BroadcastEntityEvent()
 		{
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();

@@ -336,6 +336,11 @@ namespace MiNET.Net
 					//package.Timer.Start();
 					package.Decode(buffer);
 					return package;
+				case 0xbe:
+					package = McpePlayerInput.CreateObject();
+					//package.Timer.Start();
+					package.Decode(buffer);
+					return package;
 				case 0xbf:
 					package = McpeFullChunkData.CreateObject();
 					//package.Timer.Start();
@@ -2615,8 +2620,8 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityLink : Package<McpeSetEntityLink>
 	{
-		public long riderId; // = null;
 		public long riddenId; // = null;
+		public long riderId; // = null;
 		public byte linkType; // = null;
 		public McpeSetEntityLink()
 		{
@@ -2629,8 +2634,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(riderId);
 			Write(riddenId);
+			Write(riderId);
 			Write(linkType);
 
 			AfterEncode();
@@ -2645,8 +2650,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			riderId = ReadLong();
 			riddenId = ReadLong();
+			riderId = ReadLong();
 			linkType = ReadByte();
 
 			AfterDecode();
@@ -3261,6 +3266,50 @@ namespace MiNET.Net
 			y = ReadInt();
 			z = ReadInt();
 			namedtag = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpePlayerInput : Package<McpePlayerInput>
+	{
+		public float motionX; // = null;
+		public float motionZ; // = null;
+		public short flags; // = null;
+		public McpePlayerInput()
+		{
+			Id = 0xbe;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(motionX);
+			Write(motionZ);
+			Write(flags);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			motionX = ReadFloat();
+			motionZ = ReadFloat();
+			flags = ReadShort();
 
 			AfterDecode();
 		}

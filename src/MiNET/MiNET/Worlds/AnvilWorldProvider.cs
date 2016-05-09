@@ -34,13 +34,15 @@ namespace MiNET.Worlds
 
 		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
-		private FlatlandWorldProvider _flatland;
-		private LevelInfo _level;
-		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+	    public FlatlandWorldProvider MissingChunkProvider { get; set; }
 
-		private string _basePath;
+	    public LevelInfo LevelInfo { get; private set; }
 
-		public bool IsCaching { get; private set; }
+	    public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+
+	    public string BasePath { get; private set; }
+
+	    public bool IsCaching { get; private set; }
 
 		public byte WaterOffsetY { get; set; }
 
@@ -152,14 +154,14 @@ namespace MiNET.Worlds
 
 		public AnvilWorldProvider(string basePath) : this()
 		{
-			_basePath = basePath;
+			BasePath = basePath;
 		}
 
 		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, byte waterOffsetY, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
 		{
 			IsCaching = true;
-			_basePath = basePath;
-			_level = levelInfo;
+			BasePath = basePath;
+			LevelInfo = levelInfo;
 			WaterOffsetY = waterOffsetY;
 			_chunkCache = chunkCache;
 			_isInitialized = true;
@@ -177,12 +179,12 @@ namespace MiNET.Worlds
 			{
 				if (_isInitialized) return;
 
-				_basePath = _basePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
+				BasePath = BasePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
 
 				NbtFile file = new NbtFile();
-				file.LoadFromFile(Path.Combine(_basePath, "level.dat"));
+				file.LoadFromFile(Path.Combine(BasePath, "level.dat"));
 				NbtTag dataTag = file.RootTag["Data"];
-				_level = new LevelInfo(dataTag);
+				LevelInfo = new LevelInfo(dataTag);
 
 				WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
 
@@ -210,7 +212,7 @@ namespace MiNET.Worlds
 				ChunkColumn cachedChunk;
 				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
 
-				ChunkColumn chunk = GetChunk(chunkCoordinates, _basePath, _flatland, WaterOffsetY);
+				ChunkColumn chunk = GetChunk(chunkCoordinates, BasePath, MissingChunkProvider, WaterOffsetY);
 
 				_chunkCache[chunkCoordinates] = chunk;
 
@@ -447,7 +449,7 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2 /* + WaterOffsetY*/, _level.SpawnZ);
+			var spawnPoint = new Vector3(LevelInfo.SpawnX, LevelInfo.SpawnY + 2 /* + WaterOffsetY*/, LevelInfo.SpawnZ);
 
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 
@@ -456,7 +458,7 @@ namespace MiNET.Worlds
 
 		public long GetTime()
 		{
-			return _level.Time;
+			return LevelInfo.Time;
 		}
 
 		public void SaveChunks()
@@ -465,7 +467,7 @@ namespace MiNET.Worlds
 			{
 				foreach (var chunkColumn in _chunkCache)
 				{
-					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, _basePath, WaterOffsetY);
+					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
 				}
 			}
 		}
@@ -644,7 +646,7 @@ namespace MiNET.Worlds
 				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value?.Clone());
 			}
 
-			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, (LevelInfo) _level.Clone(), WaterOffsetY, chunkCache);
+			AnvilWorldProvider provider = new AnvilWorldProvider(BasePath, (LevelInfo) LevelInfo.Clone(), WaterOffsetY, chunkCache);
 			return provider;
 		}
 

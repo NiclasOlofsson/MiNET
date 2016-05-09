@@ -103,31 +103,7 @@ namespace MiNET
 
 			if (source != null)
 			{
-				double dx = source.KnownPosition.X - Entity.KnownPosition.X;
-
-				Random rand = new Random();
-				double dz;
-				for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
-				{
-					dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
-				}
-
-				double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
-				float knockbackMultiplier = 0.4F;
-
-				//this.motX /= 2.0D;
-				//this.motY /= 2.0D;
-				//this.motZ /= 2.0D;
-				double motX = 0;
-				motX -= dx/knockbackForce*knockbackMultiplier;
-				double motY = knockbackMultiplier;
-				double motZ = 0;
-				motZ -= dz/knockbackForce*knockbackMultiplier;
-				if (motY > 0.4)
-				{
-					motY = 0.4;
-				}
-				Entity.Knockback(new Vector3(motX, motY, motZ));
+				DoKnockback(source);
 			}
 
 			CooldownTick = 10;
@@ -135,7 +111,36 @@ namespace MiNET
 			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
 		}
 
-		public event EventHandler<HealthEventArgs> PlayerTakeHit;
+	    protected virtual void DoKnockback(Entity source)
+	    {
+	        double dx = source.KnownPosition.X - Entity.KnownPosition.X;
+
+	        Random rand = new Random();
+	        double dz;
+	        for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
+	        {
+	            dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
+	        }
+
+	        double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
+	        float knockbackMultiplier = 0.4F;
+
+	        //this.motX /= 2.0D;
+	        //this.motY /= 2.0D;
+	        //this.motZ /= 2.0D;
+	        double motX = 0;
+	        motX -= dx/knockbackForce*knockbackMultiplier;
+	        double motY = knockbackMultiplier;
+	        double motZ = 0;
+	        motZ -= dz/knockbackForce*knockbackMultiplier;
+	        if (motY > 0.4)
+	        {
+	            motY = 0.4;
+	        }
+	        Entity.Knockback(new Vector3(motX, motY, motZ));
+	    }
+
+	    public event EventHandler<HealthEventArgs> PlayerTakeHit;
 
 		protected virtual void OnPlayerTakeHit(HealthEventArgs e)
 		{

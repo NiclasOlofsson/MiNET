@@ -592,6 +592,14 @@ namespace TestPlugin
 			}
 		}
 
+		[Command(Command = "xporb")]
+		public void ExperienceOrb(Player player)
+		{
+			Mob xpOrb = new Mob(69, player.Level);
+			xpOrb.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
+			xpOrb.SpawnEntity();
+		}
+
 		[Command(Command = "e")]
 		public void Effect(Player player, string effect)
 		{

@@ -20,6 +20,7 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
+using TestPlugin.Annotations;
 
 namespace TestPlugin
 {
@@ -42,7 +43,7 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-			var instance = new TestStandaloneHandler();
+            var instance = new TestStandaloneHandler();
 			Context.PluginManager.LoadCommands(instance);
 			Context.PluginManager.UnloadCommands(instance);
 
@@ -50,7 +51,23 @@ namespace TestPlugin
 			Context.PluginManager.UnloadPacketHandlers(instance);
 		}
 
-		[Command(Command = "dim")]
+
+        [PacketHandler, Receive, UsedImplicitly]
+        public Package ReceivePacketHandler(Package packet, Player player)
+        {
+            Log.Warn($"Receive packet: {packet.GetType().Name}");
+            return packet;
+        }
+
+        [PacketHandler, Send, UsedImplicitly]
+        public Package SendPacketHandler(Package packet, Player player)
+        {
+            Log.Warn($"Sent packet: {packet.GetType().Name}");
+            return packet;
+        }
+
+
+        [Command(Command = "dim")]
 		public void ChangeDimension(Player player)
 		{
 			McpeChangeDimension change = McpeChangeDimension.CreateObject();

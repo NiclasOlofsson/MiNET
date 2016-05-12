@@ -12,11 +12,11 @@ MiNET
 
 ## Can I test this before I download it?
 Yes, you can. At times there are dev servers running and you might be lucky enough to get in..<br>
-IP: **pe.hypixel.net**    
-Port: **19132**    
-
-IP: **beta.minepocket.com**    
+IP: **play.inpvp.net**    
 Port: **19132** 
+
+IP: **yodamine.com**    
+Port: **19134**    
 
 ## What is this?
 

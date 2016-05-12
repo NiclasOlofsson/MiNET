@@ -69,6 +69,6 @@ For a windows installation you can choose to download the binary from the build 
 
 When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
 
-### Linux
+### Linux & Mac
 
-[Linux Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)
+[Linux & Mac Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux-and-Mac)

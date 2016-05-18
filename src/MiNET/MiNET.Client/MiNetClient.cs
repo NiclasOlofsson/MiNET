@@ -38,6 +38,7 @@ namespace MiNET.Client
 		private Vector3 _spawn;
 		private long _entityId;
 		public PlayerNetworkSession Session { get; set; }
+		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
 		private int _clientGuid;
@@ -1136,7 +1137,8 @@ namespace MiNET.Client
 
 			{
 				var packet = McpeRequestChunkRadius.CreateObject();
-				packet.chunkRadius = 5;
+				ChunkRadius = 5;
+				packet.chunkRadius = ChunkRadius;
 
 				SendPackage(packet);
 			}

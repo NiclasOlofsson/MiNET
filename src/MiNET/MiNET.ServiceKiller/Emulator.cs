@@ -13,6 +13,12 @@ namespace MiNET.ServiceKiller
 {
 	public class Emulator
 	{
+		private const int TimeBetweenSpawns = 280;
+		private const int DurationOfConnection = 15*1000;
+		private const int NumberOfBots = 300;
+		private const int RanSleepMin = 150;
+		private const int RanSleepMax = 450;
+		private const int RequestChunkRadius = 8;
 		private static bool _running = true;
 
 		public bool Running
@@ -35,14 +41,19 @@ namespace MiNET.ServiceKiller
 
 			long start = DateTime.UtcNow.Ticks;
 
-			for (int j = 0; j < 200; j++)
+			IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
+
+			for (int j = 0; j < NumberOfBots; j++)
 			{
-				//string playerName = $"{Guid.NewGuid()}";
 				string playerName = $"TheGrey{j + 1:D3}";
-				ClientEmulator client = new ClientEmulator(emulator, 12*60*1000, playerName, (int) (DateTime.UtcNow.Ticks-start));
+
+				ClientEmulator client = new ClientEmulator(emulator, DurationOfConnection, 
+					playerName, (int) (DateTime.UtcNow.Ticks - start), endPoint, 
+					RanSleepMin, RanSleepMax, RequestChunkRadius);
+
 				ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
-				Thread.Sleep(150);
+				Thread.Sleep(TimeBetweenSpawns);
 			}
 
 			Console.WriteLine("Press <enter> to stop all clients.");
@@ -61,7 +72,12 @@ namespace MiNET.ServiceKiller
 
 	public class ClientEmulator
 	{
+		public int RanMin { get; set; }
+		public int RanMax { get; set; }
+		public int ChunkRadius { get; set; }
+
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ClientEmulator));
+		public IPEndPoint EndPoint { get; }
 
 		public Emulator Emulator { get; private set; }
 		public string Name { get; set; }
@@ -69,12 +85,16 @@ namespace MiNET.ServiceKiller
 		public Random Random { get; set; } = new Random();
 		public long TimeToRun { get; set; }
 
-		public ClientEmulator(Emulator emulator, long timeToRun, string name, int clientId)
+		public ClientEmulator(Emulator emulator, long timeToRun, string name, int clientId, IPEndPoint endPoint, int ranMin = 150, int ranMax = 450, int chunkRadius = 8)
 		{
 			Emulator = emulator;
 			TimeToRun = timeToRun;
 			Name = name;
 			ClientId = clientId;
+			EndPoint = endPoint;
+			RanMin = ranMin;
+			RanMax = ranMax;
+			ChunkRadius = chunkRadius;
 		}
 
 		public void EmulateClient()
@@ -83,10 +103,8 @@ namespace MiNET.ServiceKiller
 			{
 				Console.WriteLine("Client {0} connecting...", Name);
 
-				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("play.lbsg.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-				//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.inpvp.net").AddressList[0], 19132), new IPEndPoint(IPAddress.Any, 0));
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("46.7.101.176"), 19132), Name);
-				var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19134), Name);
+				var client = new MiNetClient(EndPoint, Name);
+				client.ChunkRadius = ChunkRadius;
 				client.IsEmulator = true;
 				client.ClientId = ClientId;
 
@@ -128,8 +146,7 @@ namespace MiNET.ServiceKiller
 
 						client.CurrentLocation = new PlayerLocation(x, y, z);
 						client.SendMcpeMovePlayer();
-						Thread.Sleep(50);
-						//Thread.Sleep(Random.Next(150, 450));
+						Thread.Sleep(Random.Next(RanMin, RanMax));
 						angle += angleStepsize;
 					}
 				}

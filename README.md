@@ -13,7 +13,7 @@ MiNET
 ## Can I test this before I download it?
 Yes, you can. At times there are dev servers running and you might be lucky enough to get in..<br>
 IP: **play.inpvp.net**    
-Port: **19132** 
+Port: **19132/19134** 
 
 IP: **yodamine.com**    
 Port: **19134**    

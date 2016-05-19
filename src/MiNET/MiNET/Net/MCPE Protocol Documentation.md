@@ -868,6 +868,8 @@ TODO: can have multiple blocks.
 |Face | byte |  |
 |FaceCoordinates | Vector3 |  |
 |PlayerPosition | Vector3 |  |
+|Unknown | short |  |
+|Slot | short |  |
 |Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Action (0xab)

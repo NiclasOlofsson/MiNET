@@ -2404,6 +2404,8 @@ namespace MiNET.Net
 		public byte face; // = null;
 		public Vector3 facecoordinates; // = null;
 		public Vector3 playerposition; // = null;
+		public short unknown; // = null;
+		public short slot; // = null;
 		public Item item; // = null;
 		public McpeUseItem()
 		{
@@ -2420,6 +2422,8 @@ namespace MiNET.Net
 			Write(face);
 			Write(facecoordinates);
 			Write(playerposition);
+			Write(unknown);
+			Write(slot);
 			Write(item);
 
 			AfterEncode();
@@ -2438,6 +2442,8 @@ namespace MiNET.Net
 			face = ReadByte();
 			facecoordinates = ReadVector3();
 			playerposition = ReadVector3();
+			unknown = ReadShort();
+			slot = ReadShort();
 			item = ReadItem();
 
 			AfterDecode();

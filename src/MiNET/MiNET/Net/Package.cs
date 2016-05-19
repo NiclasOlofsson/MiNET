@@ -1099,7 +1099,7 @@ namespace MiNET.Net
 			DecodePackage();
 			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length))
 			{
-				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!! {HexDump(buffer)}");
+				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!\n{HexDump(buffer)}");
 			}
 		}
 

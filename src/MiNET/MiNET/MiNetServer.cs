@@ -724,7 +724,7 @@ namespace MiNET
 						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.14.0"},
+						{"version", "0.14.3"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},

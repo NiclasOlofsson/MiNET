@@ -16,7 +16,7 @@ IP: **play.inpvp.net**
 Port: **19132** 
 
 IP: **yodamine.com**    
-Port: **19134**    
+Port: **19132/19134**    
 
 ## What is this?
 

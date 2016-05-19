@@ -52,19 +52,19 @@ namespace TestPlugin
 		}
 
 
-        [PacketHandler, Receive, UsedImplicitly]
-        public Package ReceivePacketHandler(Package packet, Player player)
-        {
-            Log.Warn($"Receive packet: {packet.GetType().Name}");
-            return packet;
-        }
+        //[PacketHandler, Receive, UsedImplicitly]
+        //public Package ReceivePacketHandler(Package packet, Player player)
+        //{
+        //    Log.Warn($"Receive packet: {packet.GetType().Name}");
+        //    return packet;
+        //}
 
-        [PacketHandler, Send, UsedImplicitly]
-        public Package SendPacketHandler(Package packet, Player player)
-        {
-            Log.Warn($"Sent packet: {packet.GetType().Name}");
-            return packet;
-        }
+        //[PacketHandler, Send, UsedImplicitly]
+        //public Package SendPacketHandler(Package packet, Player player)
+        //{
+        //    Log.Warn($"Sent packet: {packet.GetType().Name}");
+        //    return packet;
+        //}
 
 
         [Command(Command = "dim")]

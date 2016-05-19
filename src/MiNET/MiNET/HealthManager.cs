@@ -84,7 +84,13 @@ namespace MiNET
 			LastDamageCause = cause;
 
 			Health -= damage*10;
-			if (Health < 0) Health = 0;
+			if (Health < 0)
+			{
+				OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
+				Health = 0;
+				Kill();
+				return;
+			}
 
 			if (player != null)
 			{
@@ -111,36 +117,36 @@ namespace MiNET
 			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
 		}
 
-	    protected virtual void DoKnockback(Entity source)
-	    {
-	        double dx = source.KnownPosition.X - Entity.KnownPosition.X;
+		protected virtual void DoKnockback(Entity source)
+		{
+			double dx = source.KnownPosition.X - Entity.KnownPosition.X;
 
-	        Random rand = new Random();
-	        double dz;
-	        for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
-	        {
-	            dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
-	        }
+			Random rand = new Random();
+			double dz;
+			for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
+			{
+				dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
+			}
 
-	        double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
-	        float knockbackMultiplier = 0.4F;
+			double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
+			float knockbackMultiplier = 0.4F;
 
-	        //this.motX /= 2.0D;
-	        //this.motY /= 2.0D;
-	        //this.motZ /= 2.0D;
-	        double motX = 0;
-	        motX -= dx/knockbackForce*knockbackMultiplier;
-	        double motY = knockbackMultiplier;
-	        double motZ = 0;
-	        motZ -= dz/knockbackForce*knockbackMultiplier;
-	        if (motY > 0.4)
-	        {
-	            motY = 0.4;
-	        }
-	        Entity.Knockback(new Vector3(motX, motY, motZ));
-	    }
+			//this.motX /= 2.0D;
+			//this.motY /= 2.0D;
+			//this.motZ /= 2.0D;
+			double motX = 0;
+			motX -= dx/knockbackForce*knockbackMultiplier;
+			double motY = knockbackMultiplier;
+			double motZ = 0;
+			motZ -= dz/knockbackForce*knockbackMultiplier;
+			if (motY > 0.4)
+			{
+				motY = 0.4;
+			}
+			Entity.Knockback(new Vector3(motX, motY, motZ));
+		}
 
-	    public event EventHandler<HealthEventArgs> PlayerTakeHit;
+		public event EventHandler<HealthEventArgs> PlayerTakeHit;
 
 		protected virtual void OnPlayerTakeHit(HealthEventArgs e)
 		{
@@ -266,7 +272,7 @@ namespace MiNET
 				{
 					TakeHit(null, 1, DamageCause.Suffocation);
 					Entity.BroadcastSetEntityData();
-					
+
 					SuffocationTicks = 10;
 				}
 				else
@@ -296,7 +302,7 @@ namespace MiNET
 				{
 					TakeHit(null, 4, DamageCause.Lava);
 					Entity.BroadcastSetEntityData();
-					
+
 					LavaTicks = 10;
 				}
 				else
@@ -358,9 +364,9 @@ namespace MiNET
 
 			BlockCoordinates solidPos = new BlockCoordinates
 			{
-				X = (int)Math.Floor(playerPosition.X),
-				Y = (int)Math.Floor(y),
-				Z = (int)Math.Floor(playerPosition.Z)
+				X = (int) Math.Floor(playerPosition.X),
+				Y = (int) Math.Floor(y),
+				Z = (int) Math.Floor(playerPosition.Z)
 			};
 
 			var block = Entity.Level.GetBlock(solidPos);

@@ -2305,12 +2305,24 @@ namespace MiNET
 
 		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
 		{
-			foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+			if (type == MessageType.Chat || type == MessageType.Raw)
+			{
+				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+				{
+					McpeText message = McpeText.CreateObject();
+					message.type = (byte) type;
+					message.source = sender == null ? "" : sender.Username;
+					message.message = line;
+
+					SendPackage(message);
+				}
+			}
+			else
 			{
 				McpeText message = McpeText.CreateObject();
-				message.type = (byte) type;
+				message.type = (byte)type;
 				message.source = sender == null ? "" : sender.Username;
-				message.message = line;
+				message.message = text;
 
 				SendPackage(message);
 			}

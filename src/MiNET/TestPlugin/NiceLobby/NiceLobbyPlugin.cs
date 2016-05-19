@@ -54,7 +54,7 @@ namespace TestPlugin.NiceLobby
 				player.PlayerLeave += OnPlayerLeave;
 			};
 
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 		}
 
@@ -334,7 +334,7 @@ namespace TestPlugin.NiceLobby
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
-						Message = "Restarts without notice frequently",
+						Message = "This is a MiNET development server\n\nRestarts without notice frequently",
 						Duration = 20*5,
 						DisplayDelay = 20*1
 					});

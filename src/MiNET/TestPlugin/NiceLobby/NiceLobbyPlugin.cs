@@ -43,6 +43,9 @@ namespace TestPlugin.NiceLobby
 			server.LevelManager.LevelCreated += (sender, args) =>
 			{
 				Level level = args.Level;
+				level.AllowBuild = false;
+				level.AllowBreak = false;
+
 				level.BlockBreak += LevelOnBlockBreak;
 				level.BlockPlace += LevelOnBlockPlace;
 			};

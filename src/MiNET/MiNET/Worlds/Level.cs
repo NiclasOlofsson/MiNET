@@ -54,6 +54,9 @@ namespace MiNET.Worlds
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; }
 
+		public bool AllowBuild { get; set; } = true;
+		public bool AllowBreak { get; set; } = true;
+
 		public EntityManager EntityManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
 
@@ -84,7 +87,7 @@ namespace MiNET.Worlds
 			IsWorldTimeStarted = true;
 			_worldProvider.Initialize();
 
-			SpawnPoint = SpawnPoint?? new PlayerLocation(_worldProvider.GetSpawnPoint());
+			SpawnPoint = SpawnPoint ?? new PlayerLocation(_worldProvider.GetSpawnPoint());
 			CurrentWorldTime = _worldProvider.GetTime();
 
 			if (_worldProvider.IsCaching)
@@ -569,7 +572,7 @@ namespace MiNET.Worlds
 				{
 					Log.Fatal("Broadcast", e);
 					throw;
-				}               
+				}
 			}
 
 			if (sendList == null || sendList.Length == 0)
@@ -832,8 +835,10 @@ namespace MiNET.Worlds
 			if (itemInHand is ItemBlock)
 			{
 				Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
-				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
+				if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
 				{
+					// Revert
+
 					Block sendBlock = new Block(block.Id)
 					{
 						Coordinates = block.Coordinates,
@@ -869,7 +874,21 @@ namespace MiNET.Worlds
 
 			Block block = GetBlock(blockCoordinates);
 			drops.AddRange(block.GetDrops());
-			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
+			if (!AllowBreak || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
+			{
+				// Revert
+
+				Block sendBlock = new Block(block.Id)
+				{
+					Coordinates = block.Coordinates,
+					Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
+				};
+
+				var message = McpeUpdateBlock.CreateObject();
+				message.blocks = new BlockRecords {sendBlock};
+				player.SendPackage(message);
+			}
+			else
 			{
 				block.BreakBlock(this);
 
@@ -889,18 +908,6 @@ namespace MiNET.Worlds
 				}
 
 				player.HungerManager.IncreaseExhaustion(0.025f);
-			}
-			else
-			{
-				Block sendBlock = new Block(block.Id)
-				{
-					Coordinates = block.Coordinates,
-					Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
-				};
-
-				var message = McpeUpdateBlock.CreateObject();
-				message.blocks = new BlockRecords {sendBlock};
-				player.SendPackage(message);
 			}
 		}
 

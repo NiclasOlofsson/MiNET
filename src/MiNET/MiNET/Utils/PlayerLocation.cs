@@ -16,18 +16,18 @@ namespace MiNET.Utils
 		{
 		}
 
-		public PlayerLocation(double x, double y, double z) : this((float) x, (float) y, (float) z)
-		{
-		}
-
-		public PlayerLocation(float x, float y, float z)
+		public PlayerLocation(float x, float y, float z, float headYaw = 0f, float yaw = 0f, float pitch = 0f)
 		{
 			X = x;
 			Y = y;
 			Z = z;
 		}
 
-		public PlayerLocation(Vector3 vector) : this(vector.X, vector.Y, vector.Z)
+		public PlayerLocation(double x, double y, double z, float headYaw = 0f, float yaw = 0f, float pitch = 0f) : this((float) x, (float) y, (float) z, headYaw, yaw, pitch)
+		{
+		}
+
+		public PlayerLocation(Vector3 vector, float headYaw = 0f, float yaw = 0f, float pitch = 0f) : this(vector.X, vector.Y, vector.Z, headYaw, yaw, pitch)
 		{
 		}
 
@@ -88,6 +88,5 @@ namespace MiNET.Utils
 		{
 			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pich={Pitch}, ";
 		}
-
 	}
 }

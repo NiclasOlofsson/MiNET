@@ -34,7 +34,7 @@ namespace MiNET.Worlds
 
 		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
-	    public FlatlandWorldProvider MissingChunkProvider { get; set; }
+	    public IWorldProvider MissingChunkProvider { get; set; }
 
 	    public LevelInfo LevelInfo { get; private set; }
 

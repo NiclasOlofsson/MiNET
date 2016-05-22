@@ -170,8 +170,8 @@ namespace MiNET.Plugins
 
 		public void UnloadCommands(object instance)
 		{
-			//if (!_plugins.Contains(instance)) return;
-			//_plugins.Remove(instance);
+			if (!_plugins.Contains(instance)) return;
+			_plugins.Remove(instance);
 
 			var methods = _pluginCommands.Keys.Where(info => info.DeclaringType == instance.GetType()).ToArray();
 			foreach (var method in methods)

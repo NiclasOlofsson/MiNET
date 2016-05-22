@@ -452,6 +452,7 @@
     <Compile Include="PlayerFactory.cs" />
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />
+    <Compile Include="Plugins\IPackageEventHandlerGenerator.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />

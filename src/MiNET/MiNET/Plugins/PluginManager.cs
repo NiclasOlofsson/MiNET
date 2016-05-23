@@ -194,6 +194,7 @@ namespace MiNET.Plugins
             Type type = instance.GetType();
             foreach (MethodInfo method in type.GetMethods())
             {
+                object registrant = instance;
                 PacketHandlerAttribute packetHandlerAttribute = Attribute.GetCustomAttribute(method, typeof(PacketHandlerAttribute), false) as PacketHandlerAttribute;
                 if (packetHandlerAttribute != null)
                 {
@@ -208,10 +209,13 @@ namespace MiNET.Plugins
                         continue;
                     }
 
-                    // TODO: Figure out potential alternative for tracking registration of static methods.
-                    if (method.IsStatic && parameters.Length != 2)
+                    if (method.IsStatic)
                     {
-                        continue;
+                        if (parameters.Length != 2)
+                        {
+                            continue;
+                        }
+                        registrant = registrant.GetType();
                     }
 
                     if (packetHandlerAttribute.PacketType == null)
@@ -222,7 +226,7 @@ namespace MiNET.Plugins
                     {
                         if (packetHandlerAttribute.PacketType != parameters[0].ParameterType)
                         {
-                            // TODO: Is it more appropriate to throw an error, or log a warning here?
+                            Log.WarnFormat("{0}::{1} subscribes to {2} but the first parameter is {3}", instance.GetType(), method.Name, packetHandlerAttribute.PacketType.Name, parameters[0].ParameterType.Name);
                             continue;
                         }
                     }
@@ -243,22 +247,22 @@ namespace MiNET.Plugins
 
                     try
                     {
-                        IPackageEventHandler handler = _packageEventHandlerGenerator.Generate(instance, method, package);
-                        if (!handlers.Add(handler))
+                        IPackageEventHandler handler = _packageEventHandlerGenerator.Generate(registrant, method, package);
+                        if (!handlers.Add(handler) && !method.IsStatic)
                         {
-                            Log.WarnFormat("Failed to register handler for {0}#{1}, already registered?", type.FullName, method.Name);
+                            Log.WarnFormat("Failed to register handler for {0}::{1}, already registered?", type.FullName, method.Name);
                         }
 
-                        if (!_registrantHandlerMapping.TryGetValue(instance, out handlers))
+                        if (!_registrantHandlerMapping.TryGetValue(registrant, out handlers))
                         {
                             handlers = new HashSet<IPackageEventHandler>();
-                            _registrantHandlerMapping.Add(instance, handlers);
+                            _registrantHandlerMapping.Add(registrant, handlers);
                         }
                         handlers.Add(handler);
                     }
                     catch (Exception exception)
                     {
-                        Log.ErrorFormat("Failed to generate handler for {0}#{1} using {2}: {3}", type.FullName, method.Name, _packageEventHandlerGenerator.GetType().FullName, exception);
+                        Log.ErrorFormat("Failed to generate handler for {0}::{1} using {2}: {3}", type.FullName, method.Name, _packageEventHandlerGenerator.GetType().FullName, exception);
                     }
                 }
             }

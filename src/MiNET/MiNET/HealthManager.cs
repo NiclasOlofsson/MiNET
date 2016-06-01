@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Numerics;
 using System.Reflection;
 using log4net;
 using MiNET.Entities;
@@ -143,7 +144,7 @@ namespace MiNET
 			{
 				motY = 0.4;
 			}
-			Entity.Knockback(new Vector3(motX, motY, motZ));
+			Entity.Knockback(new Vector3((float) motX, (float) motY, (float) motZ));
 		}
 
 		public event EventHandler<HealthEventArgs> PlayerTakeHit;

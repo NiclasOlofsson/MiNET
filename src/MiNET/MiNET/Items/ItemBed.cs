@@ -1,4 +1,5 @@
-﻿using MiNET.Blocks;
+﻿using System.Numerics;
+using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 

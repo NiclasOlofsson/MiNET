@@ -7,6 +7,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fNbt;
@@ -256,9 +257,9 @@ namespace MiNET
 				HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
 			}
 
-			else if (typeof(McpeItemFramDropItem) == message.GetType())
+			else if (typeof (McpeItemFramDropItem) == message.GetType())
 			{
-				HandleMcpePlayerInput((McpePlayerInput)message);
+				HandleMcpePlayerInput((McpePlayerInput) message);
 			}
 
 			else
@@ -952,20 +953,20 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-		    ThreadPool.QueueUserWorkItem(delegate
-		    {
-		        ForcedSendChunks(() =>
-		        {
-                    Level.AddPlayer(this, true);
+			ThreadPool.QueueUserWorkItem(delegate
+			{
+				ForcedSendChunks(() =>
+				{
+					Level.AddPlayer(this, true);
 
-                    Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-                    SendSetTime();
-                });
-		    }); 
-        }
+					SendSetTime();
+				});
+			});
+		}
 
-        public override void BroadcastSetEntityData()
+		public override void BroadcastSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.entityId = 0;
@@ -1161,10 +1162,10 @@ namespace MiNET
 			if (!AcceptPlayerMove(message)) return;
 
 			// Hunger management
-			HungerManager.Move(new Vector3(KnownPosition.X, 0, KnownPosition.Z).DistanceTo(new Vector3(message.x, 0, message.z)));
+			HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
 
 			Vector3 origin = KnownPosition.ToVector3();
-			double distanceTo = origin.DistanceTo(new Vector3(message.x, message.y, message.z));
+			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y, message.z));
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			KnownPosition = new PlayerLocation
@@ -1182,7 +1183,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
-			if (_currentChunkPosition != chunkPosition /*&& _currentChunkPosition.DistanceTo(chunkPosition) > 2*/)
+			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= Config.GetProperty("MoveRenderDistance", 1))
 			{
 				ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
 			}
@@ -1236,7 +1237,7 @@ namespace MiNET
 		protected virtual void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
 			Item droppedItem = message.item;
-			/*if (Log.IsDebugEnabled) */Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
+			Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
 		}
 
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)
@@ -1253,7 +1254,7 @@ namespace MiNET
 
 				ItemEntity itemEntity = new ItemEntity(Level, droppedItem)
 				{
-					Velocity = KnownPosition.GetDirection()*0.7,
+					Velocity = KnownPosition.GetDirection()*0.7f,
 					KnownPosition =
 					{
 						X = KnownPosition.X,
@@ -1953,10 +1954,10 @@ namespace MiNET
 				Monitor.Exit(_sendChunkSync);
 			}
 
-            if(postAction != null)
-            {
-                postAction();
-            }
+			if (postAction != null)
+			{
+				postAction();
+			}
 		}
 
 		private void SendChunksForKnownPosition()
@@ -1971,10 +1972,10 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				//if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 2)
-				//{
-				//	return;
-				//}
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < Config.GetProperty("MoveRenderDistance", 1))
+				{
+					return;
+				}
 
 				_currentChunkPosition = chunkPosition;
 
@@ -2320,7 +2321,7 @@ namespace MiNET
 			else
 			{
 				McpeText message = McpeText.CreateObject();
-				message.type = (byte)type;
+				message.type = (byte) type;
 				message.source = sender == null ? "" : sender.Username;
 				message.message = text;
 

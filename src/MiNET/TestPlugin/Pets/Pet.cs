@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using log4net;
 using MiNET;
 using MiNET.Entities;
@@ -87,7 +88,7 @@ namespace TestPlugin.Pets
 
 			try
 			{
-				if (Age > 20 && Math.Abs(Velocity.Distance) < 0.001)
+				if (Age > 20 && Math.Abs(Velocity.Length()) < 0.001)
 				{
 					Player target = AttackTarget ?? Owner;
 					{
@@ -144,7 +145,7 @@ namespace TestPlugin.Pets
 							motY = 1;
 						}
 
-						Knockback(new Vector3(motX, motY, motZ));
+						Knockback(new Vector3((float) motX, (float) motY, (float) motZ));
 						target.HealthManager.TakeHit(this, IsBaby ? 1 : 10, DamageCause.EntityAttack);
 					}
 					else if ((DateTime.UtcNow.Ticks - Owner.LastUpdatedTime.Ticks > 0.6f*TimeSpan.TicksPerSecond && Owner.KnownPosition.DistanceTo(KnownPosition) > 3.5f)
@@ -169,10 +170,10 @@ namespace TestPlugin.Pets
 						double motY = knockbackMultiplier;
 						double motZ = 0;
 						motZ += dz/knockbackForce*knockbackMultiplier;
-						if (motY > 0.2)	motY = 0.2;
+						if (motY > 0.2) motY = 0.2;
 						if (!IsBaby && motY > 0.05) motY = 0.05;
 
-						Knockback(new Vector3(motX, motY, motZ));
+						Knockback(new Vector3((float) motX, (float) motY, (float) motZ));
 					}
 				}
 			}

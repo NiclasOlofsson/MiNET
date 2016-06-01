@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
@@ -138,8 +139,8 @@ namespace MiNET.Entities.Projectiles
 			base.OnTick();
 
 			if (KnownPosition.Y <= 0
-			    || (Velocity.Distance <= 0 && DespawnOnImpact)
-			    || (Velocity.Distance <= 0 && !DespawnOnImpact && Ttl <= 0))
+			    || (Velocity.Length() <= 0 && DespawnOnImpact)
+			    || (Velocity.Length() <= 0 && !DespawnOnImpact && Ttl <= 0))
 			{
 				DespawnEntity();
 				return;
@@ -147,7 +148,7 @@ namespace MiNET.Entities.Projectiles
 
 			Ttl--;
 
-			if (KnownPosition.Y <= 0 || Velocity.Distance <= 0) return;
+			if (KnownPosition.Y <= 0 || Velocity.Length() <= 0) return;
 
 			Entity entityCollided = CheckEntityCollide(KnownPosition.ToVector3(), Velocity);
 
@@ -180,10 +181,10 @@ namespace MiNET.Entities.Projectiles
 			else
 			{
 				var velocity2 = Velocity;
-				velocity2 *= (1.0d - Drag);
-				velocity2 -= new Vector3(0, Gravity, 0);
-				double distance = velocity2.Distance;
-				velocity2 = velocity2.Normalize()/2;
+				velocity2 *= (float) (1.0d - Drag);
+				velocity2 -= new Vector3(0, (float) Gravity, 0);
+				double distance = velocity2.Length();
+				velocity2 = Vector3.Normalize(velocity2)/2;
 
 				for (int i = 0; i < Math.Ceiling(distance)*2; i++)
 				{
@@ -213,8 +214,8 @@ namespace MiNET.Entities.Projectiles
 				KnownPosition.Y += (float) Velocity.Y;
 				KnownPosition.Z += (float) Velocity.Z;
 
-				Velocity *= (1.0 - Drag);
-				Velocity -= new Vector3(0, Gravity, 0);
+				Velocity *= (float) (1.0 - Drag);
+				Velocity -= new Vector3(0, (float) Gravity, 0);
 
 				KnownPosition.Yaw = (float) Velocity.GetYaw();
 				KnownPosition.Pitch = (float) Velocity.GetPitch();
@@ -229,36 +230,37 @@ namespace MiNET.Entities.Projectiles
 			Ray2 ray = new Ray2
 			{
 				x = position,
-				d = direction.Normalize()
+				d = Vector3.Normalize(direction)
 			};
 
-			var players = Level.GetSpawnedPlayers().OrderBy(player => position.DistanceTo(player.KnownPosition.ToVector3()));
+			var players = Level.GetSpawnedPlayers().OrderBy(player => Vector3.Distance(position, player.KnownPosition.ToVector3()));
 			foreach (var entity in players)
 			{
 				if (entity == Shooter) continue;
 
 				if (Intersect(entity.GetBoundingBox(), ray))
 				{
-					if (ray.tNear > direction.Distance) break;
+					if (ray.tNear > direction.Length()) break;
 
-					Vector3 p = ray.x + ray.tNear*ray.d;
+					Vector3 p = ray.x + new Vector3((float) ray.tNear)*ray.d;
 					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
 					return entity;
 				}
 			}
 
-			var entities = Level.Entities.Values.OrderBy(entity => position.DistanceTo(entity.KnownPosition.ToVector3()));
+			var entities = Level.Entities.Values.OrderBy(entity => Vector3.Distance(position, entity.KnownPosition.ToVector3()));
 			foreach (Entity entity in entities)
 			{
 				if (entity == Shooter) continue;
 				if (entity == this) continue;
+				if (entity is Projectile) continue;
 
 				if (Intersect(entity.GetBoundingBox(), ray))
 				{
-					if (ray.tNear > direction.Distance) break;
+					if (ray.tNear > direction.Length()) break;
 
-					Vector3 p = ray.x + ray.tNear*ray.d;
-					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
+					Vector3 p = ray.x + new Vector3((float) ray.tNear)*ray.d;
+					KnownPosition = new PlayerLocation(p.X, p.Y, p.Z);
 					return entity;
 				}
 			}
@@ -287,7 +289,7 @@ namespace MiNET.Entities.Projectiles
 						Block block = Level.GetBlock(coords.X + x, coords.Y + y, coords.Z + z);
 						if (block is Air) continue;
 
-						BoundingBox blockbox = block.GetBoundingBox() + 0.3;
+						BoundingBox blockbox = block.GetBoundingBox() + 0.3f;
 						if (blockbox.Intersects(GetBoundingBox()))
 						{
 							//if (!blockbox.Contains(KnownPosition.ToVector3())) continue;
@@ -302,8 +304,8 @@ namespace MiNET.Entities.Projectiles
 
 							blockbox = block.GetBoundingBox();
 
-							var midPoint = blockbox.Min + 0.5;
-							blocks.Add((pos - Velocity).DistanceTo(midPoint), block);
+							var midPoint = blockbox.Min + new Vector3(0.5f);
+							blocks.Add(Vector3.Distance((pos - Velocity), midPoint), block);
 						}
 					}
 				}
@@ -331,15 +333,15 @@ namespace MiNET.Entities.Projectiles
 
 		public bool SetIntersectLocation(BoundingBox bbox, PlayerLocation location)
 		{
-			Ray ray = new Ray(location.ToVector3() - Velocity, Velocity.Normalize());
+			Ray ray = new Ray(location.ToVector3() - Velocity, Vector3.Normalize(Velocity));
 			double? distance = ray.Intersects(bbox);
 			if (distance != null)
 			{
-				double dist = (double) distance - 0.1;
-				Vector3 pos = ray.Position + (ray.Direction*dist);
-				KnownPosition.X = (float) pos.X;
-				KnownPosition.Y = (float) pos.Y;
-				KnownPosition.Z = (float) pos.Z;
+				float dist = (float) distance - 0.1f;
+				Vector3 pos = ray.Position + (ray.Direction*new Vector3(dist));
+				KnownPosition.X = pos.X;
+				KnownPosition.Y = pos.Y;
+				KnownPosition.Z = pos.Z;
 				return true;
 			}
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace MiNET.Utils
 {
@@ -24,8 +25,8 @@ namespace MiNET.Utils
 
 		public BoundingBox(BoundingBox box)
 		{
-			Min = new Vector3(box.Min);
-			Max = new Vector3(box.Max);
+			Min = box.Min;
+			Max = box.Max;
 		}
 
 		public ContainmentType Contains(BoundingBox box)
@@ -137,14 +138,14 @@ namespace MiNET.Utils
 			result = false;
 		}
 
-		public static BoundingBox operator +(BoundingBox a, double b)
+		public static BoundingBox operator +(BoundingBox a, float b)
 		{
-			return new BoundingBox(a.Min - b, a.Max + b);
+			return new BoundingBox(a.Min - new Vector3(b), a.Max + new Vector3(b));
 		}
 
-		public static BoundingBox operator -(BoundingBox a, double b)
+		public static BoundingBox operator -(BoundingBox a, float b)
 		{
-			return new BoundingBox(a.Min + b, a.Max - b);
+			return new BoundingBox(a.Min + new Vector3(b), a.Max - new Vector3(b));
 		}
 
 		public static bool operator ==(BoundingBox a, BoundingBox b)

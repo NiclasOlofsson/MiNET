@@ -1,4 +1,5 @@
-﻿using MiNET.Utils;
+﻿using System.Numerics;
+using MiNET.Utils;
 
 namespace MiNET.Worlds
 {

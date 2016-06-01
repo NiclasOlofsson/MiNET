@@ -13,12 +13,22 @@ namespace MiNET.ServiceKiller
 {
 	public class Emulator
 	{
-		private const int TimeBetweenSpawns = 280;
-		private const int DurationOfConnection = 15*1000;
-		private const int NumberOfBots = 300;
+		//private const int TimeBetweenSpawns = 500;
+		//private const int DurationOfConnection = 60 * 1000;
+		//private const int NumberOfBots = 2000;
+		//private const int RanSleepMin = 150;
+		//private const int RanSleepMax = 450;
+		//private const int RequestChunkRadius = 8;
+
+
+		//private const int TimeBetweenSpawns = 280;
+		private const int TimeBetweenSpawns = 350;
+		private const int DurationOfConnection = 120*1000;
+		private const int NumberOfBots = 2000;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 8;
+
 		private static bool _running = true;
 
 		public bool Running
@@ -47,8 +57,8 @@ namespace MiNET.ServiceKiller
 			{
 				string playerName = $"TheGrey{j + 1:D3}";
 
-				ClientEmulator client = new ClientEmulator(emulator, DurationOfConnection, 
-					playerName, (int) (DateTime.UtcNow.Ticks - start), endPoint, 
+				ClientEmulator client = new ClientEmulator(emulator, DurationOfConnection,
+					playerName, (int) (DateTime.UtcNow.Ticks - start), endPoint,
 					RanSleepMin, RanSleepMax, RequestChunkRadius);
 
 				ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });

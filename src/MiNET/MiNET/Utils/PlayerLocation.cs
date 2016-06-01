@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace MiNET.Utils
 {
@@ -57,11 +58,11 @@ namespace MiNET.Utils
 		{
 			Vector3 vector = new Vector3();
 
-			double pitch = Vector3.ToRadians(Pitch);
-			double yaw = Vector3.ToRadians(Yaw);
-			vector.X = -Math.Sin(yaw)*Math.Cos(pitch);
-			vector.Y = -Math.Sin(pitch);
-			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
+			double pitch = Pitch.ToRadians();
+			double yaw = Yaw.ToRadians();
+			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.Y = (float) -Math.Sin(pitch);
+			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
 
 			return vector;
 		}
@@ -70,11 +71,11 @@ namespace MiNET.Utils
 		{
 			Vector3 vector = new Vector3();
 
-			double pitch = Vector3.ToRadians(Pitch);
-			double yaw = Vector3.ToRadians(HeadYaw);
-			vector.X = -Math.Sin(yaw)*Math.Cos(pitch);
-			vector.Y = -Math.Sin(pitch);
-			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
+			double pitch = Pitch.ToRadians();
+			double yaw = HeadYaw.ToRadians();
+			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.Y = (float) -Math.Sin(pitch);
+			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
 
 			return vector;
 		}

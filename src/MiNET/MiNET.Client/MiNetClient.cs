@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -283,7 +284,7 @@ namespace MiNET.Client
 
 					if (IsEmulator && PlayerStatus == 3)
 					{
-						int datagramId = new Int24(new[] { receiveBytes[1], receiveBytes[2], receiveBytes[3] });
+						int datagramId = new Int24(new[] {receiveBytes[1], receiveBytes[2], receiveBytes[3]});
 
 						//Acks ack = Acks.CreateObject();
 						Acks ack = new Acks();
@@ -584,9 +585,9 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof(McpeAdventureSettings) == message.GetType())
+			else if (typeof (McpeAdventureSettings) == message.GetType())
 			{
-				OnMcpeAdventureSettings((McpeAdventureSettings)message);
+				OnMcpeAdventureSettings((McpeAdventureSettings) message);
 				return;
 			}
 
@@ -623,19 +624,19 @@ namespace MiNET.Client
 				McpeClientboundMapItemData packet = (McpeClientboundMapItemData) message;
 			}
 
-			else if (typeof(McpeHurtArmor) == message.GetType())
+			else if (typeof (McpeHurtArmor) == message.GetType())
 			{
-				OnMcpeHurtArmor((McpeHurtArmor)message);
+				OnMcpeHurtArmor((McpeHurtArmor) message);
 			}
 
-			else if (typeof(McpeAnimate) == message.GetType())
+			else if (typeof (McpeAnimate) == message.GetType())
 			{
-				OnMcpeAnimate((McpeAnimate)message);
+				OnMcpeAnimate((McpeAnimate) message);
 			}
 
-			else if (typeof(McpeInteract) == message.GetType())
+			else if (typeof (McpeInteract) == message.GetType())
 			{
-				OnMcpeInteract((McpeInteract)message);
+				OnMcpeInteract((McpeInteract) message);
 			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
@@ -654,7 +655,6 @@ namespace MiNET.Client
 		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
 		{
 			Log.Info($"Adventure settings flags: 0x{message.flags:X2}");
-
 		}
 
 		private void OnMcpeInteract(McpeInteract message)

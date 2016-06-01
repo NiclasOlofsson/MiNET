@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Drawing;
+using System.Numerics;
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
@@ -120,9 +120,9 @@ namespace MiNET.Entities
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
 			addEntity.metadata = GetMetadata();
-			addEntity.speedX = (float)Velocity.X;
-			addEntity.speedY = (float)Velocity.Y;
-			addEntity.speedZ = (float)Velocity.Z;
+			addEntity.speedX = (float) Velocity.X;
+			addEntity.speedY = (float) Velocity.Y;
+			addEntity.speedZ = (float) Velocity.Z;
 			Level.RelayBroadcast(players, addEntity);
 		}
 
@@ -151,7 +151,7 @@ namespace MiNET.Entities
 			var pos = KnownPosition;
 			double halfWidth = Width/2;
 
-			return new BoundingBox(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y + Height, pos.Z + halfWidth));
+			return new BoundingBox(new Vector3((float) (pos.X - halfWidth), pos.Y, (float) (pos.Z - halfWidth)), new Vector3((float) (pos.X + halfWidth), (float) (pos.Y + Height), (float) (pos.Z + halfWidth)));
 		}
 
 		public byte GetDirection()
@@ -181,10 +181,10 @@ namespace MiNET.Entities
 			Velocity += velocity;
 		}
 
-		
+
 		public virtual Item[] GetDrops()
 		{
-			return new Item[] { };
+			return new Item[] {};
 		}
 	}
 }

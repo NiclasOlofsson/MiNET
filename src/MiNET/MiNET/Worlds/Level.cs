@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
@@ -928,7 +929,7 @@ namespace MiNET.Worlds
 					Y = (float) coordinates.Y,
 					Z = (float) coordinates.Z
 				},
-				Velocity = new Vector3(random.NextDouble()*0.3, random.NextDouble()*0.3, random.NextDouble()*0.3)
+				Velocity = new Vector3((float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3))
 			};
 
 			itemEntity.SpawnEntity();

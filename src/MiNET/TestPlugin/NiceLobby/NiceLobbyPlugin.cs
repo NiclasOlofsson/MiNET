@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,8 +44,8 @@ namespace TestPlugin.NiceLobby
 			server.LevelManager.LevelCreated += (sender, args) =>
 			{
 				Level level = args.Level;
-				level.AllowBuild = false;
-				level.AllowBreak = false;
+				//level.AllowBuild = false;
+				//level.AllowBreak = false;
 
 				level.BlockBreak += LevelOnBlockBreak;
 				level.BlockPlace += LevelOnBlockPlace;
@@ -78,7 +79,7 @@ namespace TestPlugin.NiceLobby
 			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
 
 			Player player = eventArgs.Player;
-			if(player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
+			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}
@@ -99,7 +100,7 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-		private double m = 0.1d;
+		private float m = 0.1f;
 
 		private void LevelTick(object state)
 		{
@@ -176,7 +177,7 @@ namespace TestPlugin.NiceLobby
 						GenerateParticles(random, level, point3, m < 0.2 ? 0 : 9, new Vector3(m/2, m/2 + 6, m/2), m);
 					}
 			}
-			m += 0.1;
+			m += 0.1f;
 			if (m > 3.8) m = -5;
 		}
 

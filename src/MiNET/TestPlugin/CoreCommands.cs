@@ -20,7 +20,6 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
-using TestPlugin.Annotations;
 
 namespace TestPlugin
 {
@@ -43,7 +42,7 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-            var instance = new TestStandaloneHandler();
+			var instance = new TestStandaloneHandler();
 			Context.PluginManager.LoadCommands(instance);
 			Context.PluginManager.UnloadCommands(instance);
 
@@ -52,22 +51,22 @@ namespace TestPlugin
 		}
 
 
-        //[PacketHandler, Receive, UsedImplicitly]
-        //public Package ReceivePacketHandler(Package packet, Player player)
-        //{
-        //    Log.Warn($"Receive packet: {packet.GetType().Name}");
-        //    return packet;
-        //}
+		//[PacketHandler, Receive, UsedImplicitly]
+		//public Package ReceivePacketHandler(Package packet, Player player)
+		//{
+		//    Log.Warn($"Receive packet: {packet.GetType().Name}");
+		//    return packet;
+		//}
 
-        //[PacketHandler, Send, UsedImplicitly]
-        //public Package SendPacketHandler(Package packet, Player player)
-        //{
-        //    Log.Warn($"Sent packet: {packet.GetType().Name}");
-        //    return packet;
-        //}
+		//[PacketHandler, Send, UsedImplicitly]
+		//public Package SendPacketHandler(Package packet, Player player)
+		//{
+		//    Log.Warn($"Sent packet: {packet.GetType().Name}");
+		//    return packet;
+		//}
 
 
-        [Command(Command = "dim")]
+		[Command(Command = "dim")]
 		public void ChangeDimension(Player player)
 		{
 			McpeChangeDimension change = McpeChangeDimension.CreateObject();
@@ -228,21 +227,9 @@ namespace TestPlugin
 		[Command(Command = "tp")]
 		public void Teleport(Player player, int x, int y, int z)
 		{
-			// send teleport to spawn
-			//player.SetPosition(
-			//	new PlayerLocation
-			//{
-			//	X = x,
-			//	Y = y,
-			//	Z = z,
-			//	Yaw = 91,
-			//	Pitch = 28,
-			//	HeadYaw = 91
-			//}, true);
-
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				player.SpawnLevel(player.Level, new PlayerLocation
+				player.Teleport(new PlayerLocation
 				{
 					X = x,
 					Y = y,
@@ -253,7 +240,7 @@ namespace TestPlugin
 				});
 			}, null);
 
-			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		[Command(Command = "tp")]
@@ -265,7 +252,11 @@ namespace TestPlugin
 		[Command(Command = "tp")]
 		public void Teleport(Player player, string world)
 		{
-			if (player.Level.LevelId.Equals(world)) return;
+			if (player.Level.LevelId.Equals(world))
+			{
+				Teleport(player, (int) player.SpawnPosition.X, (int) player.SpawnPosition.Y, (int) player.SpawnPosition.Z);
+				return;
+			}
 
 			if (!Context.LevelManager.Levels.Contains(player.Level))
 			{
@@ -500,13 +491,13 @@ namespace TestPlugin
 				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1)}}}
 			};
 
-            inventory.Slots[c++] = new ItemIronSword
-            {
-                ExtraData = new NbtCompound {  { new NbtCompound("display") { new NbtString("Name", "test") } } } 
-            };
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound {{new NbtCompound("display") {new NbtString("Name", "test")}}}
+			};
 
-            //inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
-            inventory.Slots[c++] = new ItemStoneAxe();
+			//inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
+			inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemWoodenPickaxe();
 			inventory.Slots[c++] = new ItemBread {Count = 5};

@@ -902,6 +902,43 @@ namespace MiNET
 			SendPackage(package);
 		}
 
+		public virtual void Teleport(PlayerLocation newPosition)
+		{
+			bool oldNoAi = NoAi;
+			SetNoAi(true);
+
+			if (!IsChunkInCache(newPosition))
+			{
+				// send teleport straight up, no chunk loading
+				SetPosition(new PlayerLocation
+				{
+					X = KnownPosition.X,
+					Y = 4000,
+					Z = KnownPosition.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91,
+				});
+
+				ForcedSendChunk(newPosition);
+			}
+
+			// send teleport to spawn
+			SetPosition(newPosition);
+
+			SetNoAi(oldNoAi);
+
+			ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
+		}
+
+		private bool IsChunkInCache(PlayerLocation position)
+		{
+			var chunkPosition = new ChunkCoordinates(position);
+
+			var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
+			return _chunksUsed.ContainsKey(key);
+		}
+
 		public void SpawnLevel(Level toLevel)
 		{
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
@@ -923,11 +960,8 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
-			//if (Level != null)
-			{
-				Level.RemovePlayer(this, true);
-				Level.EntityManager.RemoveEntity(null, this);
-			}
+			Level.RemovePlayer(this, true);
+			Level.EntityManager.RemoveEntity(null, this);
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;

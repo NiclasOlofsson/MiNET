@@ -34,6 +34,15 @@ namespace MiNET.Net
 			}
 		}
 
+		public override void Reset()
+		{
+			type = 0;
+			source = null;
+			message = null;
+
+			base.Reset();
+		}
+
 		partial void AfterDecode()
 		{
 			switch (type)

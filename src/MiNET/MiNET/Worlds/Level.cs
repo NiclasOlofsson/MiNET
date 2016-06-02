@@ -874,6 +874,7 @@ namespace MiNET.Worlds
 			List<Item> drops = new List<Item>();
 
 			Block block = GetBlock(blockCoordinates);
+			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
 			drops.AddRange(block.GetDrops());
 			if (!AllowBreak || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
 			{
@@ -888,16 +889,36 @@ namespace MiNET.Worlds
 				var message = McpeUpdateBlock.CreateObject();
 				message.blocks = new BlockRecords {sendBlock};
 				player.SendPackage(message);
+
+				// Revert block entity if exists
+				if (blockEntity != null)
+				{
+					Nbt nbt = new Nbt
+					{
+						NbtFile = new NbtFile
+						{
+							BigEndian = false,
+							RootTag = blockEntity.GetCompound()
+						}
+					};
+
+					var entityData = McpeTileEntityData.CreateObject();
+					entityData.namedtag = nbt;
+					entityData.x = blockEntity.Coordinates.X;
+					entityData.y = (byte) blockEntity.Coordinates.Y;
+					entityData.z = blockEntity.Coordinates.Z;
+
+					player.SendPackage(entityData);
+				}
 			}
 			else
 			{
 				block.BreakBlock(this);
 
-				BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
-				if (blockEnity != null)
+				if (blockEntity != null)
 				{
 					RemoveBlockEntity(blockCoordinates);
-					drops.AddRange(blockEnity.GetDrops());
+					drops.AddRange(blockEntity.GetDrops());
 				}
 
 				if (player.GameMode != GameMode.Creative)

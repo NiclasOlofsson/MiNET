@@ -541,6 +541,11 @@ namespace MiNET
 			mcpeAdventureSettings.userPermission = 0x2;
 			mcpeAdventureSettings.globalPermission = 0x2;
 			SendPackage(mcpeAdventureSettings);
+
+			if (!AllowFly)
+			{
+				SendStartGame();
+			}
 		}
 
 		public bool IsAdventure { get; set; }
@@ -579,7 +584,6 @@ namespace MiNET
 			if (!AllowFly)
 			{
 				SendAdventureSettings();
-				SendStartGame();
 			}
 			else
 			{

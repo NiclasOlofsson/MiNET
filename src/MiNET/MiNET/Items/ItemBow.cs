@@ -52,10 +52,10 @@ namespace MiNET.Items
 			arrow.Velocity = arrow.KnownPosition.GetDirection()*(force*2.0f*1.5f);
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
-			//arrow.BroadcastMovement = false;
-			//arrow.DespawnOnImpact = true;
-			arrow.BroadcastMovement = true;
-			arrow.DespawnOnImpact = false;
+			arrow.BroadcastMovement = false;
+			arrow.DespawnOnImpact = true;
+			//arrow.BroadcastMovement = true;
+			//arrow.DespawnOnImpact = false;
 			arrow.SpawnEntity();
 		}
 

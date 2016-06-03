@@ -201,9 +201,9 @@ namespace MiNET
 				HandleRespawn((McpeRespawn) message);
 			}
 
-			else if (typeof (McpeTileEntityData) == message.GetType())
+			else if (typeof (McpeBlockEntityData) == message.GetType())
 			{
-				HandleEntityData((McpeTileEntityData) message);
+				HandleEntityData((McpeBlockEntityData) message);
 			}
 
 			else if (typeof (InternalPing) == message.GetType())
@@ -231,14 +231,14 @@ namespace MiNET
 				HandleMcpeContainerClose((McpeContainerClose) message);
 			}
 
-			else if (typeof (McpePlayerEquipment) == message.GetType())
+			else if (typeof (McpeMobEquipment) == message.GetType())
 			{
-				HandlePlayerEquipment((McpePlayerEquipment) message);
+				HandleMobEquipment((McpeMobEquipment) message);
 			}
 
-			else if (typeof (McpePlayerArmorEquipment) == message.GetType())
+			else if (typeof (McpeMobArmorEquipment) == message.GetType())
 			{
-				HandlePlayerArmorEquipment((McpePlayerArmorEquipment) message);
+				HandlePlayerArmorEquipment((McpeMobArmorEquipment) message);
 			}
 
 			else if (typeof (McpeCraftingEvent) == message.GetType())
@@ -499,7 +499,7 @@ namespace MiNET
 		///     Handles the entity data.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleEntityData(McpeTileEntityData message)
+		protected virtual void HandleEntityData(McpeBlockEntityData message)
 		{
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
@@ -1362,7 +1362,7 @@ namespace MiNET
 			Level.BreakBlock(this, new BlockCoordinates(message.x, message.y, message.z));
 		}
 
-		protected virtual void HandlePlayerArmorEquipment(McpePlayerArmorEquipment message)
+		protected virtual void HandlePlayerArmorEquipment(McpeMobArmorEquipment message)
 		{
 		}
 
@@ -1399,7 +1399,7 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void HandlePlayerEquipment(McpePlayerEquipment message)
+		protected virtual void HandleMobEquipment(McpeMobEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
@@ -1489,7 +1489,7 @@ namespace MiNET
 
 				if (inventory.Type == 0 && !inventory.IsOpen()) // Chest open animation
 				{
-					var tileEvent = McpeTileEvent.CreateObject();
+					var tileEvent = McpeBlockEvent.CreateObject();
 					tileEvent.x = inventoryCoord.X;
 					tileEvent.y = inventoryCoord.Y;
 					tileEvent.z = inventoryCoord.Z;
@@ -1621,7 +1621,7 @@ namespace MiNET
 								break;
 						}
 
-						McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+						McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
 						armorEquipment.entityId = EntityId;
 						armorEquipment.helmet = Inventory.Helmet;
 						armorEquipment.chestplate = Inventory.Chest;
@@ -1662,7 +1662,7 @@ namespace MiNET
 				// close container 
 				if (inventory.Type == 0 && !inventory.IsOpen())
 				{
-					var tileEvent = McpeTileEvent.CreateObject();
+					var tileEvent = McpeBlockEvent.CreateObject();
 					tileEvent.x = inventory.Coordinates.X;
 					tileEvent.y = inventory.Coordinates.Y;
 					tileEvent.z = inventory.Coordinates.Z;
@@ -2735,7 +2735,7 @@ namespace MiNET
 
 		public virtual void SendEquipmentForPlayer(Player[] receivers)
 		{
-			McpePlayerEquipment mcpePlayerEquipment = McpePlayerEquipment.CreateObject();
+			McpeMobEquipment mcpePlayerEquipment = McpeMobEquipment.CreateObject();
 			mcpePlayerEquipment.entityId = EntityId;
 			mcpePlayerEquipment.item = Inventory.GetItemInHand();
 			mcpePlayerEquipment.slot = 0;
@@ -2744,7 +2744,7 @@ namespace MiNET
 
 		public virtual void SendArmorForPlayer(Player[] receivers)
 		{
-			McpePlayerArmorEquipment mcpePlayerArmorEquipment = McpePlayerArmorEquipment.CreateObject();
+			McpeMobArmorEquipment mcpePlayerArmorEquipment = McpeMobArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.entityId = EntityId;
 			mcpePlayerArmorEquipment.helmet = Inventory.Helmet;
 			mcpePlayerArmorEquipment.chestplate = Inventory.Chest;

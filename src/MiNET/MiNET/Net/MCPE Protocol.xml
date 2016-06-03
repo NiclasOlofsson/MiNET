@@ -304,7 +304,7 @@
 		<field name="Data" type="int" />
 	</pdu>
 
-	<pdu id="0x17" online="false" client="true" server="true" name="MCPE_TILE_EVENT">
+	<pdu id="0x17" online="false" client="true" server="true" name="MCPE_BLOCK_EVENT">
 		<field name="X" type="int" />
 		<field name="Y" type="int" />
 		<field name="Z" type="int" />
@@ -331,14 +331,14 @@
 		<field name="Attributes" type="PlayerAttributes" />
 	</pdu>
 
-	<pdu id="0x1b" online="false" client="true" server="true" name="MCPE_PLAYER_EQUIPMENT">
+	<pdu id="0x1b" online="false" client="true" server="true" name="MCPE_MOB_EQUIPMENT">
 		<field name="Entity ID" type="long" />
 		<field name="Item" type="Item" />
 		<field name="Slot" type="byte" />
 		<field name="Selected Slot" type="byte" />
 	</pdu>
 
-	<pdu id="0x1c" online="false" client="true" server="true" name="MCPE_PLAYER_ARMOR_EQUIPMENT">
+	<pdu id="0x1c" online="false" client="true" server="true" name="MCPE_MOB_ARMOR_EQUIPMENT">
 		<field name="Entity ID" type="long" />
 		<field name="Helmet" type="Item" />
 		<field name="Chestplate" type="Item" />
@@ -463,7 +463,7 @@
 		<field name="Global Permission" type="int" />
 	</pdu>
 
-	<pdu id="0x32" online="false" client="false" server="true" name="MCPE_TILE_ENTITY_DATA">
+	<pdu id="0x32" online="false" client="false" server="true" name="MCPE_BLOCK_ENTITY_DATA">
 		<field name="X" type="int" />
 		<field name="Y" type="int" />
 		<field name="Z" type="int" />

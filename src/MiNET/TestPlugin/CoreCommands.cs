@@ -567,7 +567,7 @@ namespace TestPlugin
 
 		private void SendEquipmentForPlayer(Player player)
 		{
-			var msg = McpePlayerEquipment.CreateObject();
+			var msg = McpeMobEquipment.CreateObject();
 			msg.entityId = player.EntityId;
 			msg.item = player.Inventory.GetItemInHand();
 			msg.slot = 0;
@@ -576,7 +576,7 @@ namespace TestPlugin
 
 		private void SendArmorForPlayer(Player player)
 		{
-			var armorEquipment = McpePlayerArmorEquipment.CreateObject();
+			var armorEquipment = McpeMobArmorEquipment.CreateObject();
 			armorEquipment.entityId = player.EntityId;
 			armorEquipment.helmet = player.Inventory.Helmet;
 			armorEquipment.chestplate = player.Inventory.Chest;

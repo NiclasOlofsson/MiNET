@@ -777,7 +777,7 @@ namespace MiNET.Worlds
 				}
 			};
 
-			var entityData = McpeTileEntityData.CreateObject();
+			var entityData = McpeBlockEntityData.CreateObject();
 			entityData.namedtag = nbt;
 			entityData.x = blockEntity.Coordinates.X;
 			entityData.y = (byte) blockEntity.Coordinates.Y;
@@ -902,7 +902,7 @@ namespace MiNET.Worlds
 						}
 					};
 
-					var entityData = McpeTileEntityData.CreateObject();
+					var entityData = McpeBlockEntityData.CreateObject();
 					entityData.namedtag = nbt;
 					entityData.x = blockEntity.Coordinates.X;
 					entityData.y = (byte) blockEntity.Coordinates.Y;

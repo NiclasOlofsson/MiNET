@@ -205,7 +205,7 @@ namespace MiNET
 
 			Nbt nbt = new Nbt();
 			nbt.NbtFile = file;
-			McpeTileEntityData message = McpeTileEntityData.CreateObject();
+			McpeBlockEntityData message = McpeBlockEntityData.CreateObject();
 			message.x = 6;
 			message.y = 6;
 			message.z = 6;

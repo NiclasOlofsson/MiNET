@@ -41,14 +41,14 @@
 | Mcpe Explode | 0x15 | 21 |   
 | Mcpe Level Event | 0x16 | 22 |   
 | Connection Banned | 0x17 | 23 |   
-| Mcpe Tile Event | 0x17 | 23 |   
+| Mcpe Block Event | 0x17 | 23 |   
 | Mcpe Entity Event | 0x18 | 24 |   
 | Mcpe Mob Effect | 0x19 | 25 |   
 | Mcpe Update Attributes | 0x1a | 26 |   
 | Ip Recently Connected | 0x1A | 26 |   
-| Mcpe Player Equipment | 0x1b | 27 |   
+| Mcpe Mob Equipment | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
-| Mcpe Player Armor Equipment | 0x1c | 28 |   
+| Mcpe Mob Armor Equipment | 0x1c | 28 |   
 | Mcpe Interact | 0x1e | 30 |   
 | Mcpe Use Item | 0x1f | 31 |   
 | Mcpe Player Action | 0x20 | 32 |   
@@ -69,7 +69,7 @@
 | Mcpe Crafting Data | 0x2f | 47 |   
 | Mcpe Crafting Event | 0x30 | 48 |   
 | Mcpe Adventure Settings | 0x31 | 49 |   
-| Mcpe Tile Entity Data | 0x32 | 50 |   
+| Mcpe Block Entity Data | 0x32 | 50 |   
 | Mcpe Player Input | 0x33 | 51 |   
 | Mcpe Full Chunk Data | 0x34 | 52 |   
 | Mcpe Set Difficulty | 0x35 | 53 |   
@@ -761,7 +761,7 @@ TODO: can have multiple blocks.
 |Z | float |  |
 |Data | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Tile Event (0x17)
+###Package: Mcpe Block Event (0x17)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -828,7 +828,7 @@ TODO: can have multiple blocks.
 |Entity ID | long |  |
 |Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Equipment (0x1b)
+###Package: Mcpe Mob Equipment (0x1b)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -845,7 +845,7 @@ TODO: can have multiple blocks.
 |Slot | byte |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Player Armor Equipment (0x1c)
+###Package: Mcpe Mob Armor Equipment (0x1c)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1180,7 +1180,7 @@ TODO: can have multiple blocks.
 |User Permission | int |  |
 |Global Permission | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Tile Entity Data (0x32)
+###Package: Mcpe Block Entity Data (0x32)
 
 **Sent from server:** true
 **Sent from client:** false

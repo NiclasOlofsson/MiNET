@@ -489,15 +489,15 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof (McpeTileEvent) == message.GetType())
+			else if (typeof (McpeBlockEvent) == message.GetType())
 			{
 				OnMcpeTileEvent(message);
 				return;
 			}
 
-			else if (typeof (McpeTileEntityData) == message.GetType())
+			else if (typeof (McpeBlockEntityData) == message.GetType())
 			{
-				OnMcpeTileEntityData((McpeTileEntityData) message);
+				OnMcpeTileEntityData((McpeBlockEntityData) message);
 				return;
 			}
 
@@ -555,9 +555,9 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof (McpePlayerEquipment) == message.GetType())
+			else if (typeof (McpeMobEquipment) == message.GetType())
 			{
-				OnMcpePlayerEquipment((McpePlayerEquipment) message);
+				OnMcpePlayerEquipment((McpeMobEquipment) message);
 				return;
 			}
 
@@ -697,7 +697,7 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpePlayerEquipment(McpePlayerEquipment message)
+		private void OnMcpePlayerEquipment(McpeMobEquipment message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Id}");
 		}
@@ -733,7 +733,7 @@ namespace MiNET.Client
 					crafting.input = slotData;
 
 					{
-						McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
+						McpeMobEquipment eq = McpeMobEquipment.CreateObject();
 						eq.entityId = _entityId;
 						eq.slot = 9;
 						eq.selectedSlot = 0;
@@ -782,7 +782,7 @@ namespace MiNET.Client
 					SendPackage(setSlot);
 				}
 				{
-					McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
+					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
 					eq.entityId = _entityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
@@ -817,7 +817,7 @@ namespace MiNET.Client
 				//}
 
 				{
-					McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
+					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
 					eq.entityId = _entityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
@@ -1105,7 +1105,7 @@ namespace MiNET.Client
 			Log.Info($"Item {msg.item}");
 		}
 
-		private static void OnMcpeTileEntityData(McpeTileEntityData message)
+		private static void OnMcpeTileEntityData(McpeBlockEntityData message)
 		{
 			Log.DebugFormat("X: {0}", message.x);
 			Log.DebugFormat("Y: {0}", message.y);
@@ -1115,7 +1115,7 @@ namespace MiNET.Client
 
 		private static void OnMcpeTileEvent(Package message)
 		{
-			McpeTileEvent msg = (McpeTileEvent) message;
+			McpeBlockEvent msg = (McpeBlockEvent) message;
 			Log.DebugFormat("X: {0}", msg.x);
 			Log.DebugFormat("Y: {0}", msg.y);
 			Log.DebugFormat("Z: {0}", msg.z);
@@ -1289,8 +1289,8 @@ namespace MiNET.Client
 			    || message is McpeAddEntity
 			    || message is McpeCraftingData
 			    || message is McpeContainerSetContent
-			    || message is McpePlayerArmorEquipment
-			    || message is McpeClientboundMapItemData
+			    || message is McpeMobArmorEquipment
+				|| message is McpeClientboundMapItemData
 			    || message is McpeMovePlayer
 			    || message is McpeSetEntityMotion
 			    || message is McpeBatch

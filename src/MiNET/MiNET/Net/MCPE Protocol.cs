@@ -225,7 +225,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x17:
-						package = McpeTileEvent.CreateObject();
+						package = McpeBlockEvent.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -245,12 +245,12 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x1b:
-						package = McpePlayerEquipment.CreateObject();
+						package = McpeMobEquipment.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 					case 0x1c:
-						package = McpePlayerArmorEquipment.CreateObject();
+						package = McpeMobArmorEquipment.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -355,7 +355,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x32:
-						package = McpeTileEntityData.CreateObject();
+						package = McpeBlockEntityData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -2164,14 +2164,14 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeTileEvent : Package<McpeTileEvent>
+	public partial class McpeBlockEvent : Package<McpeBlockEvent>
 	{
 		public int x; // = null;
 		public int y; // = null;
 		public int z; // = null;
 		public int case1; // = null;
 		public int case2; // = null;
-		public McpeTileEvent()
+		public McpeBlockEvent()
 		{
 			Id = 0x17;
 		}
@@ -2349,13 +2349,13 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpePlayerEquipment : Package<McpePlayerEquipment>
+	public partial class McpeMobEquipment : Package<McpeMobEquipment>
 	{
 		public long entityId; // = null;
 		public Item item; // = null;
 		public byte slot; // = null;
 		public byte selectedSlot; // = null;
-		public McpePlayerEquipment()
+		public McpeMobEquipment()
 		{
 			Id = 0x1b;
 		}
@@ -2396,14 +2396,14 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpePlayerArmorEquipment : Package<McpePlayerArmorEquipment>
+	public partial class McpeMobArmorEquipment : Package<McpeMobArmorEquipment>
 	{
 		public long entityId; // = null;
 		public Item helmet; // = null;
 		public Item chestplate; // = null;
 		public Item leggings; // = null;
 		public Item boots; // = null;
-		public McpePlayerArmorEquipment()
+		public McpeMobArmorEquipment()
 		{
 			Id = 0x1c;
 		}
@@ -3317,13 +3317,13 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeTileEntityData : Package<McpeTileEntityData>
+	public partial class McpeBlockEntityData : Package<McpeBlockEntityData>
 	{
 		public int x; // = null;
 		public int y; // = null;
 		public int z; // = null;
 		public Nbt namedtag; // = null;
-		public McpeTileEntityData()
+		public McpeBlockEntityData()
 		{
 			Id = 0x32;
 		}

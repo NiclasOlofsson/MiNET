@@ -87,14 +87,14 @@ namespace MiNET.Entities
 				Level.RelayBroadcast(players, message);
 			}
 			{
-				McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
+				McpeMobEquipment message = McpeMobEquipment.CreateObject();
 				message.entityId = EntityId;
 				message.item = ItemInHand;
 				message.slot = 0;
 				Level.RelayBroadcast(players, message);
 			}
 			{
-				McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+				McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
 				armorEquipment.entityId = EntityId;
 				armorEquipment.helmet = ItemFactory.GetItem(Helmet);
 				armorEquipment.chestplate = ItemFactory.GetItem(Chest);
@@ -144,7 +144,7 @@ namespace MiNET.Entities
 
 		protected virtual void SendEquipment()
 		{
-			McpePlayerEquipment message = McpePlayerEquipment.CreateObject();
+			McpeMobEquipment message = McpeMobEquipment.CreateObject();
 			message.entityId = EntityId;
 			message.item = ItemInHand;
 			message.slot = 0;
@@ -153,7 +153,7 @@ namespace MiNET.Entities
 
 		protected virtual void SendArmor()
 		{
-			McpePlayerArmorEquipment armorEquipment = McpePlayerArmorEquipment.CreateObject();
+			McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
 			armorEquipment.entityId = EntityId;
 			armorEquipment.helmet = ItemFactory.GetItem(Helmet);
 			armorEquipment.chestplate = ItemFactory.GetItem(Chest);

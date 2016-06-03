@@ -1,5 +1,7 @@
 using System;
+using System.IO;
 using System.Linq;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Jose;
@@ -61,8 +63,8 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 		private byte[] FixPublicKey(byte[] publicKeyBlob)
 		{
-			var keyType = new byte[] { 0x45, 0x43, 0x4b, 0x33 };
-			var keyLength = new byte[] { 0x30, 0x00, 0x00, 0x00 };
+			var keyType = new byte[] {0x45, 0x43, 0x4b, 0x33};
+			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
 
 			return keyType.Concat(keyLength).Concat(publicKeyBlob.Skip(1)).ToArray();
 		}
@@ -70,8 +72,8 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 		private static ECDiffieHellmanPublicKey ImportEccPublicKeyFromCertificate(X509Certificate2 cert)
 		{
-			var keyType = new byte[] { 0x45, 0x43, 0x4b, 0x33 };
-			var keyLength = new byte[] { 0x30, 0x00, 0x00, 0x00 };
+			var keyType = new byte[] {0x45, 0x43, 0x4b, 0x33};
+			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
 			var key = cert.PublicKey.EncodedKeyValue.RawData.Skip(1);
 			var keyImport = keyType.Concat(keyLength).Concat(key).ToArray();
 
@@ -90,72 +92,90 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 		//			//CngKey.Import(Convert.FromBase64String(certString), CngKeyBlobFormat.Pkcs8PrivateBlob);
 		//		}
 
-		//[Test]
-		//public void TestDecrytp()
-		//{
-		//	for (int i = 0; i < 10000; i++)
-		//	{
+		[Test]
+		public void TestDecrytp()
+		{
+			//for (int i = 0; i < 10000; i++)
+			{
+				ECDiffieHellmanCng bob = new ECDiffieHellmanCng
+				{
+					KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash,
+					HashAlgorithm = CngAlgorithm.Rsa
+				};
 
-		//		ECDiffieHellmanCng bob = new ECDiffieHellmanCng
-		//		{
-		//			KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash,
-		//			HashAlgorithm = CngAlgorithm.Rsa
-		//		};
+				string clientPubKeyString = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs";
+				var clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
 
-		//		string clientPubKeyString = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs";
-		//		var clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
-
-		//		GetCryptoServiceProvider(clientPublicKeyBlob);
-
-
-		//		//clientPublicKeyBlob = FixPublicKey(clientPublicKeyBlob);
-
-		//		Assert.AreEqual(120, clientPublicKeyBlob.Length);
-
-		//		//var clientPubKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
-
-		//		//string serverSecKeyString = "MB8CAQAwEAYHKoZIzj0CAQYFK4EEACIECDAGAgEBBAEB";
-		//		//var serverSecKeyBlob = Base64Url.Decode(serverSecKeyString);
-		//		//serverSecKeyBlob = FixPublicKey(serverSecKeyBlob);
-		//		//Assert.AreEqual(40, serverSecKeyBlob.Length);
-		//		//var serverPrivKey = ECDiffieHellmanCngPublicKey.FromByteArray(serverSecKeyBlob, CngKeyBlobFormat.Pkcs8PrivateBlob);
+				//GetCryptoServiceProvider(clientPublicKeyBlob);
 
 
-		//		byte[] bobKey = bob.DeriveKeyMaterial(bob.PublicKey);
+				//clientPublicKeyBlob = FixPublicKey(clientPublicKeyBlob);
 
-		//		using (RijndaelManaged rijAlg = new RijndaelManaged())
-		//		{
-		//			//rijAlg.GenerateKey();
-		//			//rijAlg.GenerateIV();
+				Assert.AreEqual(120, clientPublicKeyBlob.Length);
 
-		//			rijAlg.Padding = PaddingMode.None;
-		//			rijAlg.Mode = CipherMode.CFB;
-		//			rijAlg.FeedbackSize = 8;
+				//var clientPubKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
 
-		//			rijAlg.Key = Base64Url.Decode("ZOBpyzki/M8UZv5tiBih048eYOBVPkQE3r5Fl0gmUP4=");
-		//			rijAlg.IV = Base64Url.Decode("ZOBpyzki/M8UZv5tiBih0w==");
+				//string serverSecKeyString = "MB8CAQAwEAYHKoZIzj0CAQYFK4EEACIECDAGAgEBBAEB";
+				//var serverSecKeyBlob = Base64Url.Decode(serverSecKeyString);
+				//serverSecKeyBlob = FixPublicKey(serverSecKeyBlob);
+				//Assert.AreEqual(40, serverSecKeyBlob.Length);
+				//var serverPrivKey = ECDiffieHellmanCngPublicKey.FromByteArray(serverSecKeyBlob, CngKeyBlobFormat.Pkcs8PrivateBlob);
 
-		//			// Create a decrytor to perform the stream transform.
-		//			ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
 
-		//			SoapHexBinary shb = SoapHexBinary.Parse("4B4FCA0C2A4114155D67F8092154AAA5EF");
+				//byte[] bobKey = bob.DeriveKeyMaterial(bob.PublicKey);
 
-		//			// Create the streams used for decryption.
-		//			using (MemoryStream msDecrypt = new MemoryStream(shb.Value))
-		//			{
-		//				using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-		//				{
-		//					using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-		//					{
-		//						// Read the decrypted bytes from the decrypting stream
-		//						// and place them in a string.
-		//						string plaintext = srDecrypt.ReadToEnd();
-		//					}
-		//				}
-		//			}
-		//		}
-		//	}
-		//}
+				using (RijndaelManaged rijAlg = new RijndaelManaged())
+				{
+					rijAlg.BlockSize = 128;
+					rijAlg.Padding = PaddingMode.None;
+					rijAlg.Mode = CipherMode.CFB;
+					rijAlg.FeedbackSize = 8;
+
+					rijAlg.Key = Base64Url.Decode("ZOBpyzki/M8UZv5tiBih048eYOBVPkQE3r5Fl0gmUP4=");
+					rijAlg.IV = Base64Url.Decode("ZOBpyzki/M8UZv5tiBih0w==");
+
+					Assert.AreEqual(rijAlg.Key.Take(16).ToArray(), rijAlg.IV);
+
+					// Create a decrytor to perform the stream transform.
+					ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
+
+					// Create the streams used for decryption.
+					using (MemoryStream msDecrypt = new MemoryStream())
+					{
+						byte[] buffer1 = SoapHexBinary.Parse("4B4FCA0C2A4114155D67F8092154AAA5EF").Value;
+						byte[] buffer2 = SoapHexBinary.Parse("DF53B9764DB48252FA1AE3AEE4").Value;
+						msDecrypt.Write(buffer1, 0, buffer1.Length);
+						msDecrypt.Write(buffer2, 0, buffer2.Length);
+						msDecrypt.Position = 0;
+						using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+						{
+							byte[] result1 = new byte[17];
+							csDecrypt.Read(result1, 0, 17);
+
+							byte[] result2 = new byte[13];
+							csDecrypt.Read(result2, 0, 13);
+
+							Assert.AreEqual(SoapHexBinary.Parse("0400000000499602D2FC2FCB233F34D5DD").Value, result1);
+							Assert.AreEqual(SoapHexBinary.Parse("3C000000085A446D11C0C7AA5A").Value, result2);
+
+
+							// Hashing
+							MemoryStream hashStream = new MemoryStream();
+							Assert.True(BitConverter.IsLittleEndian);
+							hashStream.Write(BitConverter.GetBytes(1L), 0, 8);
+							byte[] text = SoapHexBinary.Parse("3C00000008").Value;
+							hashStream.Write(text, 0, text.Length);
+							hashStream.Write(rijAlg.Key, 0, rijAlg.Key.Length);
+
+							SHA256Managed crypt = new SHA256Managed();
+							var buffer = hashStream.ToArray();
+							byte[] crypto = crypt.ComputeHash(buffer, 0, buffer.Length).Take(8).ToArray();
+							Assert.AreEqual(SoapHexBinary.Parse("5A446D11C0C7AA5A").Value, crypto);
+						}
+					}
+				}
+			}
+		}
 
 		private static readonly byte[] _nullAsnBytes = new byte[] {0, 5};
 
@@ -186,6 +206,5 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 			return null;
 		}
-
 	}
 }

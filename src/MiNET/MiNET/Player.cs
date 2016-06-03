@@ -7,10 +7,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Numerics;
-using System.Text.RegularExpressions;
 using System.Threading;
 using fNbt;
 using Jose;
@@ -747,7 +746,10 @@ namespace MiNET
 				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
 			}
 			stream.ReadByte();
-			byte[] internalBuffer = null;
+
+			string certificateChain;
+			string skinData;
+
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
@@ -755,11 +757,12 @@ namespace MiNET
 				defStream2.CopyTo(destination);
 				destination.Position = 0;
 				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-				int len = reader.ReadInt32();
-				internalBuffer = reader.ReadBytes(len);
+
+				certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(Endian.SwapInt32(reader.ReadInt32())));
+				skinData = Encoding.UTF8.GetString(reader.ReadBytes(Endian.SwapInt32(reader.ReadInt32())));
 
 				if (Log.IsDebugEnabled)
-					Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+					Log.Debug($"\n{Package.HexDump(destination.ToArray())}");
 			}
 
 
@@ -767,8 +770,6 @@ namespace MiNET
 			{
 				var serverKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP384);
 
-				string[] input = Encoding.UTF8.GetString(internalBuffer).Split('\n');
-				string certificateChain = input[0];
 
 				Log.Debug("Input JSON string: " + certificateChain);
 
@@ -792,8 +793,8 @@ namespace MiNET
 					}
 				}
 
-				string skinData = input[1].Substring(4, input[1].Length - 4);
 				Log.Debug("Input SKIN string: " + skinData);
+
 				string skinPayload = JWT.Payload(skinData);
 				Log.Debug($"JWT Payload SKIN: {skinPayload}");
 			}

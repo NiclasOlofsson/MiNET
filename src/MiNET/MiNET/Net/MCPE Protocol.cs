@@ -143,7 +143,7 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x92:
+					case 0x06:
 						package = McpeBatch.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
@@ -1100,12 +1100,9 @@ namespace MiNET.Net
 
 	public partial class McpeLogin : Package<McpeLogin>
 	{
-		public string clientName; // = null;
-		public int protocolVersion1; // = null;
-		public int protocolVersion2; // = null;
+		public int protocolVersion; // = null;
 		public int payloadLenght; // = null;
-		public LongString certificateChain; // = null;
-		public LongString skinData; // = null;
+		public byte[] payload; // = null;
 		public McpeLogin()
 		{
 			Id = 0x01;
@@ -1117,12 +1114,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(clientName);
-			Write(protocolVersion1);
-			Write(protocolVersion2);
+			Write(protocolVersion);
 			Write(payloadLenght);
-			Write(certificateChain);
-			Write(skinData);
+			Write(payload);
 
 			AfterEncode();
 		}
@@ -1136,12 +1130,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			clientName = ReadString();
-			protocolVersion1 = ReadInt();
-			protocolVersion2 = ReadInt();
+			protocolVersion = ReadInt();
 			payloadLenght = ReadInt();
-			certificateChain = ReadLongString();
-			skinData = ReadLongString();
+			payload = ReadBytes(0);
 
 			AfterDecode();
 		}
@@ -1312,7 +1303,7 @@ namespace MiNET.Net
 		public byte[] payload; // = null;
 		public McpeBatch()
 		{
-			Id = 0x92;
+			Id = 0x06;
 		}
 
 		protected override void EncodePackage()

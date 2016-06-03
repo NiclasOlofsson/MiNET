@@ -669,6 +669,9 @@ namespace MiNET
 				byte[] buffer = stream.ToArray();
 				try
 				{
+					if (Log.IsDebugEnabled)
+						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
+
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
 
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
@@ -680,6 +683,7 @@ namespace MiNET
 				}
 				catch (Exception e)
 				{
+					Log.Error("Error during split message parsing", e);
 					player.Disconnect("Bad package received from client.");
 				}
 			}
@@ -887,7 +891,10 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
-			if (message == null) return;
+			if (message == null)
+			{
+				return;
+			}
 
 			TraceReceive(message);
 
@@ -918,6 +925,7 @@ namespace MiNET
 
 			if (typeof (McpeBatch) == message.GetType())
 			{
+				Log.Debug("Handle MCPE batch message");
 				McpeBatch batch = (McpeBatch) message;
 
 				var messages = new List<Package>();
@@ -941,6 +949,9 @@ namespace MiNET
 					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
 					int len = reader.ReadInt32();
 					byte[] internalBuffer = reader.ReadBytes(len);
+
+					if (Log.IsDebugEnabled)
+						Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
 
 					//byte[] internalBuffer = destination.ToArray();
 					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));

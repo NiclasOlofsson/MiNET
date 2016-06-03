@@ -111,12 +111,9 @@
 	</pdu>
 
 	<pdu id="0x01" online="false" client="true" server="false" name="MCPE_LOGIN">
-		<field name="Client Name" type="string" />
-		<field name="Protocol Version 1" type="int" />
-		<field name="Protocol Version 2" type="int" />
+		<field name="Protocol Version" type="int" />
 		<field name="Payload Lenght" type="int" />
-		<field name="Certificate Chain" type="LongString" />
-		<field name="Skin Data" type="LongString" />
+		<field name="Payload" type="byte[]" size="0" />
 	</pdu>
 
 	<pdu id="0x02" online="false" client="false" server="true" name="MCPE_SERVER_EXCHANGE">
@@ -143,7 +140,7 @@
 		<field name="Message" type="string" />
 	</pdu>
 
-	<pdu id="0x92" online="false" client="false" server="true" name="MCPE_BATCH">
+	<pdu id="0x06" online="false" client="false" server="true" name="MCPE_BATCH">
 		<field name="Payload size" type="int" />
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>

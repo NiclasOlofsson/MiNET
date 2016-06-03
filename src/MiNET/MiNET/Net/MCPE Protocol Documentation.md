@@ -14,6 +14,7 @@
 | Detect Lost Connections | 0x04 | 4 |   
 | Open Connection Request 1 | 0x05 | 5 |   
 | Open Connection Reply 1 | 0x06 | 6 |   
+| Mcpe Batch | 0x06 | 6 |   
 | Open Connection Request 2 | 0x07 | 7 |   
 | Open Connection Reply 2 | 0x08 | 8 |   
 | Connection Request | 0x09 | 9 |   
@@ -28,7 +29,6 @@
 | Mcpe Wrapper Old | 0x8e | 142 |   
 | Mcpe Player Status | 0x90 | 144 |   
 | Mcpe Disconnect | 0x91 | 145 |   
-| Mcpe Batch | 0x92 | 146 |   
 | Mcpe Text | 0x93 | 147 |   
 | Mcpe Set Time | 0x94 | 148 |   
 | Mcpe Start Game | 0x95 | 149 |   
@@ -363,12 +363,9 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Client Name | string |  |
-|Protocol Version 1 | int |  |
-|Protocol Version 2 | int |  |
+|Protocol Version | int |  |
 |Payload Lenght | int |  |
-|Certificate Chain | LongString |  |
-|Skin Data | LongString |  |
+|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Server Exchange (0x02)
 
@@ -433,7 +430,7 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Message | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Batch (0x92)
+###Package: Mcpe Batch (0x06)
 
 **Sent from server:** true
 **Sent from client:** false

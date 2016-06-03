@@ -40,12 +40,12 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 			ECDiffieHellmanPublicKey clientKey = CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs");
 
-			ECDiffieHellmanCng bob = new ECDiffieHellmanCng(clientKey)
-			{
-				KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash,
-				HashAlgorithm = CngAlgorithm.Rsa
-			};
-			byte[] bobKey = bob.DeriveKeyMaterial(bob.PublicKey);
+			//ECDiffieHellmanCng bob = new ECDiffieHellmanCng(clientKey)
+			//{
+			//	KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash,
+			//	HashAlgorithm = CngAlgorithm.Rsa
+			//};
+			//byte[] bobKey = bob.DeriveKeyMaterial(bob.PublicKey);
 
 			Console.WriteLine(clientKey.ToXmlString());
 		}

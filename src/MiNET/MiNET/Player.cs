@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
-using System.Data.Odbc;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -11,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using fNbt;
 using Jose;
@@ -649,12 +646,12 @@ namespace MiNET
 				Username = string.Empty;
 			}
 
-			//if (message.unknown2 < 60)
-			//{
-			//	Server.GreylistManager.Greylist(EndPoint.Address, 30000);
-			//	Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.unknown2));
-			//	return;
-			//}
+			if (message.protocolVersion != 81)
+			{
+				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
+				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocolVersion));
+				return;
+			}
 
 			DecodeCert(message);
 
@@ -719,37 +716,89 @@ namespace MiNET
 
 		protected virtual void DecodeCert(McpeLogin message)
 		{
+			// Get bytes
+			byte[] buffer = message.payload;
+
+			if (message.payloadLenght != buffer.Length) throw new Exception($"Wrong lenght {message.payloadLenght} != {message.payload.Length}");
+			// Decompress bytes
+
+			MemoryStream stream = new MemoryStream(buffer);
+			if (stream.ReadByte() != 0x78)
+			{
+				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+			}
+			stream.ReadByte();
+			byte[] internalBuffer = null;
+			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+			{
+				// Get actual package out of bytes
+				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
+				defStream2.CopyTo(destination);
+				destination.Position = 0;
+				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+				int len = reader.ReadInt32();
+				internalBuffer = reader.ReadBytes(len);
+
+				if (Log.IsDebugEnabled)
+					Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+			}
+
+
 			try
 			{
 				var serverKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP384);
 
-				dynamic json = JObject.Parse(message.certificateChain);
+				string[] input = Encoding.UTF8.GetString(internalBuffer).Split('\n');
+				string certificateChain = input[0];
 
-				Log.Debug($"Raw: { message.certificateChain }");
-				Log.Debug($"JSON: { json }");
+				Log.Debug("Input JSON string: " + certificateChain);
+
+				dynamic json = JObject.Parse(certificateChain);
+
+				Log.Debug($"Raw: {certificateChain}");
+				Log.Debug($"JSON: {json}");
 
 				foreach (dynamic o in json.chain)
 				{
 					IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
 					var payload = JWT.Payload(o.ToString());
-					Log.Debug($"JWT Header: { headers }");
-					Log.Debug($"JWT Payload: { payload }");
+					Log.Debug($"JWT Header: {headers}");
+					Log.Debug($"JWT Payload: {payload}");
 					if (headers.ContainsKey("x5u"))
 					{
 						string certString = headers["x5u"];
-						CngKey.Import(Encoding.UTF8.GetBytes(certString), CngKeyBlobFormat.EccPublicBlob);
+						Log.Debug($"x5u cert: {certString}");
+						var publicKey = CreateEcDiffieHellmanPublicKey(certString);
+						Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 					}
-
 				}
 
-				Log.Debug($"SKIN: {message.skinData.Replace(',', '=')  }");
-				string skinPayload = JWT.Payload(message.skinData.Replace(',', '='));
-				Log.Debug($"JWT Payload SKIN: {skinPayload  }");
+				string skinData = input[1].Substring(4, input[1].Length - 4);
+				Log.Debug("Input SKIN string: " + skinData);
+				string skinPayload = JWT.Payload(skinData);
+				Log.Debug($"JWT Payload SKIN: {skinPayload}");
 			}
 			catch (Exception e)
 			{
 				Log.Error("Decrypt", e);
 			}
+		}
+
+		private ECDiffieHellmanPublicKey CreateEcDiffieHellmanPublicKey(string clientPubKeyString)
+		{
+			byte[] clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
+			clientPublicKeyBlob = FixPublicKey(clientPublicKeyBlob.Skip(23).ToArray());
+
+			ECDiffieHellmanPublicKey clientKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
+			return clientKey;
+		}
+
+		private byte[] FixPublicKey(byte[] publicKeyBlob)
+		{
+			var keyType = new byte[] {0x45, 0x43, 0x4b, 0x33};
+			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
+
+			return keyType.Concat(keyLength).Concat(publicKeyBlob.Skip(1)).ToArray();
 		}
 
 		private bool _completedStartSequence = false;
@@ -1263,7 +1312,8 @@ namespace MiNET
 		protected virtual void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
 			Item droppedItem = message.item;
-			/*if (Log.IsDebugEnabled) */Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
+			/*if (Log.IsDebugEnabled) */
+			Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
 		}
 
 		protected virtual void HandlePlayerDropItem(McpeDropItem message)

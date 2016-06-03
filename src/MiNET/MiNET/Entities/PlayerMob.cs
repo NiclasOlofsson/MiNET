@@ -137,9 +137,8 @@ namespace MiNET.Entities
 				Level.RelayBroadcast(players, playerList);
 			}
 
-			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
+			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
-			mcpeRemovePlayer.clientUuid = Uuid;
 			Level.RelayBroadcast(players, mcpeRemovePlayer);
 		}
 

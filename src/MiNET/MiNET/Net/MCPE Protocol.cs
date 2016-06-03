@@ -79,6 +79,11 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
+					case 0x13:
+						package = NewIncomingConnection.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
 					case 0x14:
 						package = NoFreeIncomingConnections.CreateObject();
 						//package.Timer.Start();
@@ -99,11 +104,6 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x8e:
-						package = McpeWrapperOld.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
 					case 0xfe:
 						package = McpeWrapper.CreateObject();
 						//package.Timer.Start();
@@ -114,32 +114,27 @@ namespace MiNET.Net
 
 				switch (messageId)
 				{
-					case 0x13:
-						package = NewIncomingConnection.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
 					case 0x01:
 						package = McpeLogin.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 					case 0x02:
-						package = McpeServerExchange.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
-					case 0x03:
-						package = McpeClientMagic.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
-					case 0x90:
 						package = McpePlayerStatus.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x91:
+					case 0x03:
+						package = McpeServerExchange.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x04:
+						package = McpeClientMagic.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x05:
 						package = McpeDisconnect.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
@@ -149,283 +144,293 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x93:
+					case 0x07:
 						package = McpeText.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x94:
+					case 0x08:
 						package = McpeSetTime.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x95:
+					case 0x09:
 						package = McpeStartGame.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x96:
+					case 0x0a:
 						package = McpeAddPlayer.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x97:
-						package = McpeRemovePlayer.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
-					case 0x98:
+					case 0x0b:
 						package = McpeAddEntity.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x99:
+					case 0x0c:
 						package = McpeRemoveEntity.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x9a:
+					case 0x0d:
 						package = McpeAddItemEntity.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x9b:
+					case 0x0e:
 						package = McpeTakeItemEntity.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x9c:
+					case 0x0f:
 						package = McpeMoveEntity.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x9d:
+					case 0x10:
 						package = McpeMovePlayer.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x9e:
+					case 0x11:
+						package = McpeRiderJump.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x12:
 						package = McpeRemoveBlock.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x9f:
+					case 0x13:
 						package = McpeUpdateBlock.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa0:
+					case 0x14:
 						package = McpeAddPainting.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa1:
+					case 0x15:
 						package = McpeExplode.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa2:
+					case 0x16:
 						package = McpeLevelEvent.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa3:
+					case 0x17:
 						package = McpeTileEvent.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa4:
+					case 0x18:
 						package = McpeEntityEvent.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa5:
+					case 0x19:
 						package = McpeMobEffect.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa6:
+					case 0x1a:
 						package = McpeUpdateAttributes.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa7:
+					case 0x1b:
 						package = McpePlayerEquipment.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa8:
+					case 0x1c:
 						package = McpePlayerArmorEquipment.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xa9:
+					case 0x1e:
 						package = McpeInteract.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xaa:
+					case 0x1f:
 						package = McpeUseItem.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xab:
+					case 0x20:
 						package = McpePlayerAction.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xac:
+					case 0x21:
 						package = McpeHurtArmor.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xad:
+					case 0x22:
 						package = McpeSetEntityData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xae:
+					case 0x23:
 						package = McpeSetEntityMotion.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xaf:
+					case 0x24:
 						package = McpeSetEntityLink.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb0:
+					case 0x25:
 						package = McpeSetHealth.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb1:
+					case 0x26:
 						package = McpeSetSpawnPosition.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb2:
+					case 0x27:
 						package = McpeAnimate.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb3:
+					case 0x28:
 						package = McpeRespawn.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb4:
+					case 0x29:
 						package = McpeDropItem.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb5:
+					case 0x2a:
 						package = McpeContainerOpen.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb6:
+					case 0x2b:
 						package = McpeContainerClose.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb7:
+					case 0x2c:
 						package = McpeContainerSetSlot.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb8:
+					case 0x2d:
 						package = McpeContainerSetData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xb9:
+					case 0x2e:
 						package = McpeContainerSetContent.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xba:
+					case 0x2f:
 						package = McpeCraftingData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xbb:
+					case 0x30:
 						package = McpeCraftingEvent.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xbc:
+					case 0x31:
 						package = McpeAdventureSettings.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xbd:
+					case 0x32:
 						package = McpeTileEntityData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xbe:
+					case 0x33:
 						package = McpePlayerInput.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xbf:
+					case 0x34:
 						package = McpeFullChunkData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc0:
+					case 0x35:
 						package = McpeSetDifficulty.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc1:
+					case 0x36:
 						package = McpeChangeDimension.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc3:
+					case 0x37:
+						package = McpeSetPlayerGaneType.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x38:
 						package = McpePlayerList.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc5:
+					case 0x39:
+						package = McpeTelemetryEvent.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x3a:
 						package = McpeSpawnExperienceOrb.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc6:
+					case 0x3b:
 						package = McpeClientboundMapItemData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc7:
+					case 0x3c:
 						package = McpeMapInfoRequest.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc8:
+					case 0x3d:
 						package = McpeRequestChunkRadius.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xc9:
+					case 0x3e:
 						package = McpeChunkRadiusUpdate.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xca:
+					case 0x3f:
 						package = McpeItemFramDropItem.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0xcb:
+					case 0x40:
 						package = McpeReplaceSelectedItem.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x1b:
-						package = McpeTransfer.CreateObject();
+					case 0x41:
+						package = McpeAddItem.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -1145,13 +1150,51 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpePlayerStatus : Package<McpePlayerStatus>
+	{
+		public int status; // = null;
+		public McpePlayerStatus()
+		{
+			Id = 0x02;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(status);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			status = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeServerExchange : Package<McpeServerExchange>
 	{
 		public string serverPublicKey; // = null;
 		public byte[] randomKeyToken; // = null;
 		public McpeServerExchange()
 		{
-			Id = 0x02;
+			Id = 0x03;
 		}
 
 		protected override void EncodePackage()
@@ -1191,7 +1234,7 @@ namespace MiNET.Net
 		public string clientName; // = null;
 		public McpeClientMagic()
 		{
-			Id = 0x03;
+			Id = 0x04;
 		}
 
 		protected override void EncodePackage()
@@ -1224,50 +1267,12 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpePlayerStatus : Package<McpePlayerStatus>
-	{
-		public int status; // = null;
-		public McpePlayerStatus()
-		{
-			Id = 0x90;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(status);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			status = ReadInt();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
 	public partial class McpeDisconnect : Package<McpeDisconnect>
 	{
 		public string message; // = null;
 		public McpeDisconnect()
 		{
-			Id = 0x91;
+			Id = 0x05;
 		}
 
 		protected override void EncodePackage()
@@ -1346,7 +1351,7 @@ namespace MiNET.Net
 		public byte type; // = null;
 		public McpeText()
 		{
-			Id = 0x93;
+			Id = 0x07;
 		}
 
 		protected override void EncodePackage()
@@ -1385,7 +1390,7 @@ namespace MiNET.Net
 		public byte started; // = null;
 		public McpeSetTime()
 		{
-			Id = 0x94;
+			Id = 0x08;
 		}
 
 		protected override void EncodePackage()
@@ -1439,7 +1444,7 @@ namespace MiNET.Net
 		public string unknownstr; // = null;
 		public McpeStartGame()
 		{
-			Id = 0x95;
+			Id = 0x09;
 		}
 
 		protected override void EncodePackage()
@@ -1518,7 +1523,7 @@ namespace MiNET.Net
 		public MetadataDictionary metadata; // = null;
 		public McpeAddPlayer()
 		{
-			Id = 0x96;
+			Id = 0x0a;
 		}
 
 		protected override void EncodePackage()
@@ -1577,47 +1582,6 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeRemovePlayer : Package<McpeRemovePlayer>
-	{
-		public long entityId; // = null;
-		public UUID clientUuid; // = null;
-		public McpeRemovePlayer()
-		{
-			Id = 0x97;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(entityId);
-			Write(clientUuid);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			entityId = ReadLong();
-			clientUuid = ReadUUID();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
 	public partial class McpeAddEntity : Package<McpeAddEntity>
 	{
 		public long entityId; // = null;
@@ -1634,7 +1598,7 @@ namespace MiNET.Net
 		public short links; // = null;
 		public McpeAddEntity()
 		{
-			Id = 0x98;
+			Id = 0x0b;
 		}
 
 		protected override void EncodePackage()
@@ -1694,7 +1658,7 @@ namespace MiNET.Net
 		public long entityId; // = null;
 		public McpeRemoveEntity()
 		{
-			Id = 0x99;
+			Id = 0x0c;
 		}
 
 		protected override void EncodePackage()
@@ -1739,7 +1703,7 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public McpeAddItemEntity()
 		{
-			Id = 0x9a;
+			Id = 0x0d;
 		}
 
 		protected override void EncodePackage()
@@ -1792,7 +1756,7 @@ namespace MiNET.Net
 		public long entityId; // = null;
 		public McpeTakeItemEntity()
 		{
-			Id = 0x9b;
+			Id = 0x0e;
 		}
 
 		protected override void EncodePackage()
@@ -1832,7 +1796,7 @@ namespace MiNET.Net
 		public EntityLocations entities; // = null;
 		public McpeMoveEntity()
 		{
-			Id = 0x9c;
+			Id = 0x0f;
 		}
 
 		protected override void EncodePackage()
@@ -1878,7 +1842,7 @@ namespace MiNET.Net
 		public byte onGround; // = null;
 		public McpeMovePlayer()
 		{
-			Id = 0x9d;
+			Id = 0x10;
 		}
 
 		protected override void EncodePackage()
@@ -1927,6 +1891,41 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeRiderJump : Package<McpeRiderJump>
+	{
+		public McpeRiderJump()
+		{
+			Id = 0x11;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeRemoveBlock : Package<McpeRemoveBlock>
 	{
 		public long entityId; // = null;
@@ -1935,7 +1934,7 @@ namespace MiNET.Net
 		public byte y; // = null;
 		public McpeRemoveBlock()
 		{
-			Id = 0x9e;
+			Id = 0x12;
 		}
 
 		protected override void EncodePackage()
@@ -1979,7 +1978,7 @@ namespace MiNET.Net
 		public BlockRecords blocks; // = null;
 		public McpeUpdateBlock()
 		{
-			Id = 0x9f;
+			Id = 0x13;
 		}
 
 		protected override void EncodePackage()
@@ -2022,7 +2021,7 @@ namespace MiNET.Net
 		public string title; // = null;
 		public McpeAddPainting()
 		{
-			Id = 0xa0;
+			Id = 0x14;
 		}
 
 		protected override void EncodePackage()
@@ -2074,7 +2073,7 @@ namespace MiNET.Net
 		public Records records; // = null;
 		public McpeExplode()
 		{
-			Id = 0xa1;
+			Id = 0x15;
 		}
 
 		protected override void EncodePackage()
@@ -2124,7 +2123,7 @@ namespace MiNET.Net
 		public int data; // = null;
 		public McpeLevelEvent()
 		{
-			Id = 0xa2;
+			Id = 0x16;
 		}
 
 		protected override void EncodePackage()
@@ -2174,7 +2173,7 @@ namespace MiNET.Net
 		public int case2; // = null;
 		public McpeTileEvent()
 		{
-			Id = 0xa3;
+			Id = 0x17;
 		}
 
 		protected override void EncodePackage()
@@ -2221,7 +2220,7 @@ namespace MiNET.Net
 		public byte eventId; // = null;
 		public McpeEntityEvent()
 		{
-			Id = 0xa4;
+			Id = 0x18;
 		}
 
 		protected override void EncodePackage()
@@ -2266,7 +2265,7 @@ namespace MiNET.Net
 		public int duration; // = null;
 		public McpeMobEffect()
 		{
-			Id = 0xa5;
+			Id = 0x19;
 		}
 
 		protected override void EncodePackage()
@@ -2315,7 +2314,7 @@ namespace MiNET.Net
 		public PlayerAttributes attributes; // = null;
 		public McpeUpdateAttributes()
 		{
-			Id = 0xa6;
+			Id = 0x1a;
 		}
 
 		protected override void EncodePackage()
@@ -2358,7 +2357,7 @@ namespace MiNET.Net
 		public byte selectedSlot; // = null;
 		public McpePlayerEquipment()
 		{
-			Id = 0xa7;
+			Id = 0x1b;
 		}
 
 		protected override void EncodePackage()
@@ -2406,7 +2405,7 @@ namespace MiNET.Net
 		public Item boots; // = null;
 		public McpePlayerArmorEquipment()
 		{
-			Id = 0xa8;
+			Id = 0x1c;
 		}
 
 		protected override void EncodePackage()
@@ -2453,7 +2452,7 @@ namespace MiNET.Net
 		public long targetEntityId; // = null;
 		public McpeInteract()
 		{
-			Id = 0xa9;
+			Id = 0x1e;
 		}
 
 		protected override void EncodePackage()
@@ -2497,7 +2496,7 @@ namespace MiNET.Net
 		public Item item; // = null;
 		public McpeUseItem()
 		{
-			Id = 0xaa;
+			Id = 0x1f;
 		}
 
 		protected override void EncodePackage()
@@ -2548,7 +2547,7 @@ namespace MiNET.Net
 		public int face; // = null;
 		public McpePlayerAction()
 		{
-			Id = 0xab;
+			Id = 0x20;
 		}
 
 		protected override void EncodePackage()
@@ -2596,7 +2595,7 @@ namespace MiNET.Net
 		public byte health; // = null;
 		public McpeHurtArmor()
 		{
-			Id = 0xac;
+			Id = 0x21;
 		}
 
 		protected override void EncodePackage()
@@ -2635,7 +2634,7 @@ namespace MiNET.Net
 		public MetadataDictionary metadata; // = null;
 		public McpeSetEntityData()
 		{
-			Id = 0xad;
+			Id = 0x22;
 		}
 
 		protected override void EncodePackage()
@@ -2675,7 +2674,7 @@ namespace MiNET.Net
 		public EntityMotions entities; // = null;
 		public McpeSetEntityMotion()
 		{
-			Id = 0xae;
+			Id = 0x23;
 		}
 
 		protected override void EncodePackage()
@@ -2715,7 +2714,7 @@ namespace MiNET.Net
 		public byte linkType; // = null;
 		public McpeSetEntityLink()
 		{
-			Id = 0xaf;
+			Id = 0x24;
 		}
 
 		protected override void EncodePackage()
@@ -2757,7 +2756,7 @@ namespace MiNET.Net
 		public int health; // = null;
 		public McpeSetHealth()
 		{
-			Id = 0xb0;
+			Id = 0x25;
 		}
 
 		protected override void EncodePackage()
@@ -2797,7 +2796,7 @@ namespace MiNET.Net
 		public int y; // = null;
 		public McpeSetSpawnPosition()
 		{
-			Id = 0xb1;
+			Id = 0x26;
 		}
 
 		protected override void EncodePackage()
@@ -2840,7 +2839,7 @@ namespace MiNET.Net
 		public long entityId; // = null;
 		public McpeAnimate()
 		{
-			Id = 0xb2;
+			Id = 0x27;
 		}
 
 		protected override void EncodePackage()
@@ -2882,7 +2881,7 @@ namespace MiNET.Net
 		public float z; // = null;
 		public McpeRespawn()
 		{
-			Id = 0xb3;
+			Id = 0x28;
 		}
 
 		protected override void EncodePackage()
@@ -2925,7 +2924,7 @@ namespace MiNET.Net
 		public Item item; // = null;
 		public McpeDropItem()
 		{
-			Id = 0xb4;
+			Id = 0x29;
 		}
 
 		protected override void EncodePackage()
@@ -2970,7 +2969,7 @@ namespace MiNET.Net
 		public int z; // = null;
 		public McpeContainerOpen()
 		{
-			Id = 0xb5;
+			Id = 0x2a;
 		}
 
 		protected override void EncodePackage()
@@ -3018,7 +3017,7 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public McpeContainerClose()
 		{
-			Id = 0xb6;
+			Id = 0x2b;
 		}
 
 		protected override void EncodePackage()
@@ -3059,7 +3058,7 @@ namespace MiNET.Net
 		public Item item; // = null;
 		public McpeContainerSetSlot()
 		{
-			Id = 0xb7;
+			Id = 0x2c;
 		}
 
 		protected override void EncodePackage()
@@ -3105,7 +3104,7 @@ namespace MiNET.Net
 		public short value; // = null;
 		public McpeContainerSetData()
 		{
-			Id = 0xb8;
+			Id = 0x2d;
 		}
 
 		protected override void EncodePackage()
@@ -3149,7 +3148,7 @@ namespace MiNET.Net
 		public MetadataInts hotbarData; // = null;
 		public McpeContainerSetContent()
 		{
-			Id = 0xb9;
+			Id = 0x2e;
 		}
 
 		protected override void EncodePackage()
@@ -3191,7 +3190,7 @@ namespace MiNET.Net
 		public Recipes recipes; // = null;
 		public McpeCraftingData()
 		{
-			Id = 0xba;
+			Id = 0x2f;
 		}
 
 		protected override void EncodePackage()
@@ -3233,7 +3232,7 @@ namespace MiNET.Net
 		public ItemStacks result; // = null;
 		public McpeCraftingEvent()
 		{
-			Id = 0xbb;
+			Id = 0x30;
 		}
 
 		protected override void EncodePackage()
@@ -3281,7 +3280,7 @@ namespace MiNET.Net
 		public int globalPermission; // = null;
 		public McpeAdventureSettings()
 		{
-			Id = 0xbc;
+			Id = 0x31;
 		}
 
 		protected override void EncodePackage()
@@ -3326,7 +3325,7 @@ namespace MiNET.Net
 		public Nbt namedtag; // = null;
 		public McpeTileEntityData()
 		{
-			Id = 0xbd;
+			Id = 0x32;
 		}
 
 		protected override void EncodePackage()
@@ -3372,7 +3371,7 @@ namespace MiNET.Net
 		public short flags; // = null;
 		public McpePlayerInput()
 		{
-			Id = 0xbe;
+			Id = 0x33;
 		}
 
 		protected override void EncodePackage()
@@ -3418,7 +3417,7 @@ namespace MiNET.Net
 		public byte[] chunkData; // = null;
 		public McpeFullChunkData()
 		{
-			Id = 0xbf;
+			Id = 0x34;
 		}
 
 		protected override void EncodePackage()
@@ -3464,7 +3463,7 @@ namespace MiNET.Net
 		public int difficulty; // = null;
 		public McpeSetDifficulty()
 		{
-			Id = 0xc0;
+			Id = 0x35;
 		}
 
 		protected override void EncodePackage()
@@ -3506,7 +3505,7 @@ namespace MiNET.Net
 		public byte unknown; // = null;
 		public McpeChangeDimension()
 		{
-			Id = 0xc1;
+			Id = 0x36;
 		}
 
 		protected override void EncodePackage()
@@ -3547,12 +3546,47 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeSetPlayerGaneType : Package<McpeSetPlayerGaneType>
+	{
+		public McpeSetPlayerGaneType()
+		{
+			Id = 0x37;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpePlayerList : Package<McpePlayerList>
 	{
 		public PlayerRecords records; // = null;
 		public McpePlayerList()
 		{
-			Id = 0xc3;
+			Id = 0x38;
 		}
 
 		protected override void EncodePackage()
@@ -3585,6 +3619,41 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeTelemetryEvent : Package<McpeTelemetryEvent>
+	{
+		public McpeTelemetryEvent()
+		{
+			Id = 0x39;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
 	{
 		public long entityId; // = null;
@@ -3594,7 +3663,7 @@ namespace MiNET.Net
 		public int count; // = null;
 		public McpeSpawnExperienceOrb()
 		{
-			Id = 0xc5;
+			Id = 0x3a;
 		}
 
 		protected override void EncodePackage()
@@ -3640,7 +3709,7 @@ namespace MiNET.Net
 		public MapInfo mapinfo; // = null;
 		public McpeClientboundMapItemData()
 		{
-			Id = 0xc6;
+			Id = 0x3b;
 		}
 
 		protected override void EncodePackage()
@@ -3678,7 +3747,7 @@ namespace MiNET.Net
 		public long mapId; // = null;
 		public McpeMapInfoRequest()
 		{
-			Id = 0xc7;
+			Id = 0x3c;
 		}
 
 		protected override void EncodePackage()
@@ -3716,7 +3785,7 @@ namespace MiNET.Net
 		public int chunkRadius; // = null;
 		public McpeRequestChunkRadius()
 		{
-			Id = 0xc8;
+			Id = 0x3d;
 		}
 
 		protected override void EncodePackage()
@@ -3754,7 +3823,7 @@ namespace MiNET.Net
 		public int chunkRadius; // = null;
 		public McpeChunkRadiusUpdate()
 		{
-			Id = 0xc9;
+			Id = 0x3e;
 		}
 
 		protected override void EncodePackage()
@@ -3795,7 +3864,7 @@ namespace MiNET.Net
 		public Item item; // = null;
 		public McpeItemFramDropItem()
 		{
-			Id = 0xca;
+			Id = 0x3f;
 		}
 
 		protected override void EncodePackage()
@@ -3838,7 +3907,7 @@ namespace MiNET.Net
 	{
 		public McpeReplaceSelectedItem()
 		{
-			Id = 0xcb;
+			Id = 0x40;
 		}
 
 		protected override void EncodePackage()
@@ -3869,12 +3938,11 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeTransfer : Package<McpeTransfer>
+	public partial class McpeAddItem : Package<McpeAddItem>
 	{
-		public IPEndPoint endpoint; // = null;
-		public McpeTransfer()
+		public McpeAddItem()
 		{
-			Id = 0x1b;
+			Id = 0x41;
 		}
 
 		protected override void EncodePackage()
@@ -3883,7 +3951,6 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(endpoint);
 
 			AfterEncode();
 		}
@@ -3897,45 +3964,6 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			endpoint = ReadIPEndPoint();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeWrapperOld : Package<McpeWrapperOld>
-	{
-		public byte[] payload; // = null;
-		public McpeWrapperOld()
-		{
-			Id = 0x8e;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(payload);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			payload = ReadBytes(0);
 
 			AfterDecode();
 		}

@@ -175,7 +175,7 @@ namespace MiNET
 				HandleMessage((McpeText) message);
 			}
 
-			else if (typeof (McpeRemovePlayer) == message.GetType())
+			else if (typeof (McpeRemoveEntity) == message.GetType())
 			{
 				// Do nothing right now, but should clear out the entities and stuff
 				// from this players internal structure.
@@ -2755,8 +2755,7 @@ namespace MiNET
 
 		public override void DespawnFromPlayers(Player[] players)
 		{
-			McpeRemovePlayer mcpeRemovePlayer = McpeRemovePlayer.CreateObject();
-			mcpeRemovePlayer.clientUuid = ClientUuid;
+			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
 			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
 		}

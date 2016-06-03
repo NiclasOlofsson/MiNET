@@ -594,15 +594,6 @@ namespace MiNET
 		{
 			Player player = playerSession.Player;
 
-			if (ForwardAllPlayers)
-			{
-				var transfer = McpeTransfer.CreateObject();
-				transfer.endpoint = ForwardTarget;
-				player.SendPackage(transfer, true);
-
-				return;
-			}
-
 			List<Package> messages = package.Messages;
 			foreach (var message in messages)
 			{

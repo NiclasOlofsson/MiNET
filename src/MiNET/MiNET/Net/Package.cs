@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using fNbt;
@@ -58,6 +59,16 @@ namespace MiNET.Net
 		public byte ReadByte()
 		{
 			return _reader.ReadByte();
+		}
+
+		public void Write(bool value)
+		{
+			Write((byte) (value ? 1 : 0));
+		}
+
+		public bool ReadBool()
+		{
+			return _reader.ReadByte() != 0;
 		}
 
 		public void Write(sbyte value)
@@ -405,6 +416,17 @@ namespace MiNET.Net
 			return new IPEndPoint[0];
 		}
 
+		public IPEndPoint[] ReadIPEndPoints(int count)
+		{
+			var endPoints = new IPEndPoint[count];
+			for (int i = 0; i < endPoints.Length; i++)
+			{
+				endPoints[i] = ReadIPEndPoint();
+			}
+
+			return endPoints;
+		}
+
 
 		public void Write(IPEndPoint[] endpoints)
 		{
@@ -434,7 +456,7 @@ namespace MiNET.Net
 				var parts = endpoint.Address.ToString().Split('.');
 				foreach (var part in parts)
 				{
-					Write((byte) ~byte.Parse(part));
+					Write((byte) byte.Parse(part));
 				}
 				Write((short) endpoint.Port);
 			}
@@ -442,7 +464,11 @@ namespace MiNET.Net
 
 		public IPEndPoint ReadIPEndPoint()
 		{
-			return new IPEndPoint(IPAddress.Loopback, 19132);
+			byte ipVersion = ReadByte();
+			string ipAddress = $"{ReadByte()}.{ReadByte()}.{ReadByte()}.{ReadByte()}";
+			int port = ReadShort();
+
+			return new IPEndPoint(IPAddress.Parse(ipAddress), 19132);
 		}
 
 		public EntityMotions ReadEntityMotions()
@@ -1072,6 +1098,10 @@ namespace MiNET.Net
 			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
 			DecodePackage();
+			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length))
+			{
+				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!\n{HexDump(buffer)}");
+			}
 		}
 
 		public void CloneReset()

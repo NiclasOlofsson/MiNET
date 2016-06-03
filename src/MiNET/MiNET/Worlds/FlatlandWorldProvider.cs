@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Numerics;
 using MiNET.BlockEntities;
 using MiNET.Utils;
 

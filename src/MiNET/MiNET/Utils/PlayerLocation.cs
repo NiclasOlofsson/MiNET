@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 
 namespace MiNET.Utils
 {
@@ -16,18 +17,18 @@ namespace MiNET.Utils
 		{
 		}
 
-		public PlayerLocation(double x, double y, double z) : this((float) x, (float) y, (float) z)
-		{
-		}
-
-		public PlayerLocation(float x, float y, float z)
+		public PlayerLocation(float x, float y, float z, float headYaw = 0f, float yaw = 0f, float pitch = 0f)
 		{
 			X = x;
 			Y = y;
 			Z = z;
 		}
 
-		public PlayerLocation(Vector3 vector) : this(vector.X, vector.Y, vector.Z)
+		public PlayerLocation(double x, double y, double z, float headYaw = 0f, float yaw = 0f, float pitch = 0f) : this((float) x, (float) y, (float) z, headYaw, yaw, pitch)
+		{
+		}
+
+		public PlayerLocation(Vector3 vector, float headYaw = 0f, float yaw = 0f, float pitch = 0f) : this(vector.X, vector.Y, vector.Z, headYaw, yaw, pitch)
 		{
 		}
 
@@ -57,11 +58,11 @@ namespace MiNET.Utils
 		{
 			Vector3 vector = new Vector3();
 
-			double pitch = Vector3.ToRadians(Pitch);
-			double yaw = Vector3.ToRadians(Yaw);
-			vector.X = -Math.Sin(yaw)*Math.Cos(pitch);
-			vector.Y = -Math.Sin(pitch);
-			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
+			double pitch = Pitch.ToRadians();
+			double yaw = Yaw.ToRadians();
+			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.Y = (float) -Math.Sin(pitch);
+			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
 
 			return vector;
 		}
@@ -70,11 +71,11 @@ namespace MiNET.Utils
 		{
 			Vector3 vector = new Vector3();
 
-			double pitch = Vector3.ToRadians(Pitch);
-			double yaw = Vector3.ToRadians(HeadYaw);
-			vector.X = -Math.Sin(yaw)*Math.Cos(pitch);
-			vector.Y = -Math.Sin(pitch);
-			vector.Z = Math.Cos(yaw)*Math.Cos(pitch);
+			double pitch = Pitch.ToRadians();
+			double yaw = HeadYaw.ToRadians();
+			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.Y = (float) -Math.Sin(pitch);
+			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
 
 			return vector;
 		}
@@ -88,6 +89,5 @@ namespace MiNET.Utils
 		{
 			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pich={Pitch}, ";
 		}
-
 	}
 }

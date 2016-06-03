@@ -8,6 +8,7 @@ namespace MiNET.Net
 		{
 			//mtuSize = (short) (((int) (_buffer.Length - _buffer.Position)) + 18);
 			mtuSize = (short) (_buffer.Length + 8 + 24);
+			ReadBytes((int) (_buffer.Length - 18));
 		}
 	}
 }

@@ -143,11 +143,6 @@ namespace MiNET
 				SessionManager = SessionManager ?? new SessionManager();
 				LevelManager = LevelManager ?? new LevelManager();
 				PlayerFactory = PlayerFactory ?? new PlayerFactory();
-				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
-				{
-					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
-				};
-				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				PluginManager.EnablePlugins(this, LevelManager);
 
@@ -201,6 +196,12 @@ namespace MiNET
 				//		HandlePackage(ping, playerSession);
 				//	}
 				//}, null, 1000, 1000);
+
+				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
+				{
+					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
+				};
+				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
 				Log.Info("Server open for business on port " + Endpoint.Port + " ...");
 
@@ -595,10 +596,9 @@ namespace MiNET
 
 			if (ForwardAllPlayers)
 			{
-				player.SendPackage(new McpeTransfer
-				{
-					endpoint = ForwardTarget
-				}, true);
+				var transfer = McpeTransfer.CreateObject();
+				transfer.endpoint = ForwardTarget;
+				player.SendPackage(transfer, true);
 
 				return;
 			}
@@ -747,7 +747,7 @@ namespace MiNET
 						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.14.0"},
+						{"version", "0.14.3"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},

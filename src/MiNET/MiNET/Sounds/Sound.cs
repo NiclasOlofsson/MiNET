@@ -1,3 +1,4 @@
+using System.Numerics;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -20,14 +21,12 @@ namespace MiNET.Sounds
 
 		public virtual void Spawn(Level level)
 		{
-			McpeLevelEvent levelEvent = new McpeLevelEvent
-			{
-				eventId = Id,
-				data = Pitch,
-				x = (float) Position.X,
-				y = (float) Position.Y,
-				z = (float) Position.Z
-			};
+			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
+			levelEvent.eventId = Id;
+			levelEvent.data = Pitch;
+			levelEvent.x = (float) Position.X;
+			levelEvent.y = (float) Position.Y;
+			levelEvent.z = (float) Position.Z;
 
 			level.RelayBroadcast(levelEvent);
 		}

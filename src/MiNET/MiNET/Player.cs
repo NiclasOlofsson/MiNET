@@ -9,6 +9,8 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Numerics;
+using System.Text.RegularExpressions;
 using System.Threading;
 using fNbt;
 using Jose;
@@ -64,7 +66,7 @@ namespace MiNET
 		public bool HideNameTag { get; set; }
 		public bool NoAi { get; set; }
 
-		public float EnchantingLevel { get; set; } = 0f;
+		public float ExperienceLevel { get; set; } = 0f;
 		public float Experience { get; set; } = 0f;
 		public float MovementSpeed { get; set; } = 0.1f;
 		public float Absorption { get; set; } = 0;
@@ -259,10 +261,16 @@ namespace MiNET
 				HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
 			}
 
+			else if (typeof (McpeItemFramDropItem) == message.GetType())
+			{
+				HandleMcpePlayerInput((McpePlayerInput) message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
-				//Disconnect("Unhandled package", false);
+				Disconnect("Unhandled package", false);
+				return;
 			}
 
 			if (message.Timer.IsRunning)
@@ -279,12 +287,17 @@ namespace MiNET
 			}
 		}
 
+		protected virtual void HandleMcpePlayerInput(McpePlayerInput message)
+		{
+			Log.Debug($"Player input: Motion X={message.motionX}, Motion Z={message.motionZ}, Flags=0x{message.motionX:X2}");
+		}
+
 		private object _mapInfoSync = new object();
 
 		private Timer _mapSender;
 		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>();
 
-		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
+		protected virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 			lock (_mapInfoSync)
 			{
@@ -350,7 +363,7 @@ namespace MiNET
 		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
 		{
 			NetworkSession.State = ConnectionState.Connected;
-			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, message.port);
+			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, EndPoint.Port);
 		}
 
 		/// <summary>
@@ -511,10 +524,10 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x01;
 			//}
 
-			//if (IsAutoJump)
-			//{
-			//	mcpeAdventureSettings.flags |= 0x40;
-			//}
+			if (IsAutoJump)
+			{
+				mcpeAdventureSettings.flags |= 0x40;
+			}
 
 			if (AllowFly || GameMode == GameMode.Creative)
 			{
@@ -530,7 +543,14 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x100;
 			//}
 
+			mcpeAdventureSettings.userPermission = 0x2;
+			mcpeAdventureSettings.globalPermission = 0x2;
 			SendPackage(mcpeAdventureSettings);
+
+			if (!AllowFly)
+			{
+				SendStartGame();
+			}
 		}
 
 		public bool IsAdventure { get; set; }
@@ -569,7 +589,6 @@ namespace MiNET
 			if (!AllowFly)
 			{
 				SendAdventureSettings();
-				SendStartGame();
 			}
 			else
 			{
@@ -580,7 +599,7 @@ namespace MiNET
 		/// <summary>
 		///     Handles the disconnection notification.
 		/// </summary>
-		public virtual void HandleDisconnectionNotification()
+		protected virtual void HandleDisconnectionNotification()
 		{
 			Disconnect("Client requested disconnected", false);
 		}
@@ -977,6 +996,43 @@ namespace MiNET
 			SendPackage(package);
 		}
 
+		public virtual void Teleport(PlayerLocation newPosition)
+		{
+			bool oldNoAi = NoAi;
+			SetNoAi(true);
+
+			if (!IsChunkInCache(newPosition))
+			{
+				// send teleport straight up, no chunk loading
+				SetPosition(new PlayerLocation
+				{
+					X = KnownPosition.X,
+					Y = 4000,
+					Z = KnownPosition.Z,
+					Yaw = 91,
+					Pitch = 28,
+					HeadYaw = 91,
+				});
+
+				ForcedSendChunk(newPosition);
+			}
+
+			// send teleport to spawn
+			SetPosition(newPosition);
+
+			SetNoAi(oldNoAi);
+
+			ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
+		}
+
+		private bool IsChunkInCache(PlayerLocation position)
+		{
+			var chunkPosition = new ChunkCoordinates(position);
+
+			var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
+			return _chunksUsed.ContainsKey(key);
+		}
+
 		public void SpawnLevel(Level toLevel)
 		{
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
@@ -998,11 +1054,8 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
-			//if (Level != null)
-			{
-				Level.RemovePlayer(this, true);
-				Level.EntityManager.RemoveEntity(null, this);
-			}
+			Level.RemovePlayer(this, true);
+			Level.EntityManager.RemoveEntity(null, this);
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint;
@@ -1032,13 +1085,17 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-			Level.AddPlayer(this, true);
+			ThreadPool.QueueUserWorkItem(delegate
+			{
+				ForcedSendChunks(() =>
+				{
+					Level.AddPlayer(this, true);
 
-			Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-			SendSetTime();
-
-			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
+					SendSetTime();
+				});
+			});
 		}
 
 		public override void BroadcastSetEntityData()
@@ -1237,10 +1294,10 @@ namespace MiNET
 			if (!AcceptPlayerMove(message)) return;
 
 			// Hunger management
-			HungerManager.Move(new Vector3(KnownPosition.X, 0, KnownPosition.Z).DistanceTo(new Vector3(message.x, 0, message.z)));
+			HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
 
 			Vector3 origin = KnownPosition.ToVector3();
-			double distanceTo = origin.DistanceTo(new Vector3(message.x, message.y, message.z));
+			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y, message.z));
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			KnownPosition = new PlayerLocation
@@ -1258,7 +1315,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
-			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) > 5)
+			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= Config.GetProperty("MoveRenderDistance", 1))
 			{
 				ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
 			}
@@ -1312,7 +1369,6 @@ namespace MiNET
 		protected virtual void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
 			Item droppedItem = message.item;
-			/*if (Log.IsDebugEnabled) */
 			Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
 		}
 
@@ -1330,7 +1386,7 @@ namespace MiNET
 
 				ItemEntity itemEntity = new ItemEntity(Level, droppedItem)
 				{
-					Velocity = KnownPosition.GetDirection()*0.7,
+					Velocity = KnownPosition.GetDirection()*0.7f,
 					KnownPosition =
 					{
 						X = KnownPosition.X,
@@ -1527,7 +1583,8 @@ namespace MiNET
 						{
 							Recipes recipes = new Recipes();
 							recipes.Add(new EnchantingRecipe());
-							McpeCraftingData crafting = new McpeCraftingData {recipes = recipes};
+							McpeCraftingData crafting = McpeCraftingData.CreateObject();
+							crafting.recipes = recipes;
 							SendPackage(crafting);
 						}
 
@@ -1669,7 +1726,7 @@ namespace MiNET
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
-		public double CalculateDamageIncreaseFromEnchantments(Item tool)
+		protected virtual double CalculateDamageIncreaseFromEnchantments(Item tool)
 		{
 			if (tool == null) return 0;
 			if (tool.ExtraData == null) return 0;
@@ -1695,7 +1752,7 @@ namespace MiNET
 		}
 
 
-		public double CalculatePlayerDamage(Player target, double damage)
+		public virtual double CalculatePlayerDamage(Player target, double damage)
 		{
 			double originalDamage = damage;
 			double armorValue = 0;
@@ -1808,7 +1865,7 @@ namespace MiNET
 			//return (int) Math.Floor(damage*(1.0 - armorValue));
 		}
 
-		public double CalculateDamageReducationFromEnchantments(Item armor)
+		protected virtual double CalculateDamageReducationFromEnchantments(Item armor)
 		{
 			if (armor == null) return 0;
 			if (armor.ExtraData == null) return 0;
@@ -1835,7 +1892,7 @@ namespace MiNET
 			return reduction;
 		}
 
-		private int CalculateDamage(Entity target)
+		protected virtual int CalculateDamage(Entity target)
 		{
 			int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.
 
@@ -1845,7 +1902,7 @@ namespace MiNET
 		}
 
 
-		private void HandleEntityEvent(McpeEntityEvent message)
+		protected virtual void HandleEntityEvent(McpeEntityEvent message)
 		{
 			Log.Debug("Entity Id:" + message.entityId);
 			Log.Debug("Entity Event:" + message.eventId);
@@ -1960,6 +2017,12 @@ namespace MiNET
 			mcpeStartGame.x = KnownPosition.X;
 			mcpeStartGame.y = (float) (KnownPosition.Y + Height);
 			mcpeStartGame.z = KnownPosition.Z;
+			mcpeStartGame.b1 = true;
+			mcpeStartGame.b2 = true;
+			mcpeStartGame.b3 = false;
+			mcpeStartGame.unknownstr = null;
+			// unknownstr=iX8AANxLbgA=
+
 			SendPackage(mcpeStartGame);
 		}
 
@@ -1997,7 +2060,7 @@ namespace MiNET
 			}
 		}
 
-		private void ForcedSendChunks()
+		private void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
 			try
@@ -2022,6 +2085,11 @@ namespace MiNET
 			{
 				Monitor.Exit(_sendChunkSync);
 			}
+
+			if (postAction != null)
+			{
+				postAction();
+			}
 		}
 
 		private void SendChunksForKnownPosition()
@@ -2036,7 +2104,7 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < 5)
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < Config.GetProperty("MoveRenderDistance", 1))
 				{
 					return;
 				}
@@ -2125,7 +2193,7 @@ namespace MiNET
 			};
 			attributes["player.level"] = new PlayerAttribute
 			{
-				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = EnchantingLevel
+				Name = "player.level", MinValue = 0, MaxValue = 24791, Value = ExperienceLevel
 			};
 			attributes["player.experience"] = new PlayerAttribute
 			{
@@ -2370,18 +2438,30 @@ namespace MiNET
 
 		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
 		{
-			foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+			if (type == MessageType.Chat || type == MessageType.Raw)
+			{
+				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+				{
+					McpeText message = McpeText.CreateObject();
+					message.type = (byte) type;
+					message.source = sender == null ? "" : sender.Username;
+					message.message = line;
+
+					SendPackage(message);
+				}
+			}
+			else
 			{
 				McpeText message = McpeText.CreateObject();
 				message.type = (byte) type;
 				message.source = sender == null ? "" : sender.Username;
-				message.message = line;
+				message.message = text;
 
 				SendPackage(message);
 			}
 		}
 
-		public void BroadcastEntityEvent()
+		public virtual void BroadcastEntityEvent()
 		{
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();

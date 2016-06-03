@@ -50,6 +50,22 @@ namespace TestPlugin
 			Context.PluginManager.UnloadPacketHandlers(instance);
 		}
 
+
+		//[PacketHandler, Receive, UsedImplicitly]
+		//public Package ReceivePacketHandler(Package packet, Player player)
+		//{
+		//    Log.Warn($"Receive packet: {packet.GetType().Name}");
+		//    return packet;
+		//}
+
+		//[PacketHandler, Send, UsedImplicitly]
+		//public Package SendPacketHandler(Package packet, Player player)
+		//{
+		//    Log.Warn($"Sent packet: {packet.GetType().Name}");
+		//    return packet;
+		//}
+
+
 		[Command(Command = "dim")]
 		public void ChangeDimension(Player player)
 		{
@@ -68,14 +84,12 @@ namespace TestPlugin
 		[Command(Command = "le")]
 		public void LevelEvent(Player player, short value, int data)
 		{
-			McpeLevelEvent levelEvent = new McpeLevelEvent
-			{
-				eventId = value,
-				data = data,
-				x = player.KnownPosition.X,
-				y = player.KnownPosition.Y,
-				z = player.KnownPosition.Z
-			};
+			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
+			levelEvent.eventId = value;
+			levelEvent.data = data;
+			levelEvent.x = player.KnownPosition.X;
+			levelEvent.y = player.KnownPosition.Y;
+			levelEvent.z = player.KnownPosition.Z;
 			player.Level.RelayBroadcast(levelEvent);
 
 			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
@@ -85,7 +99,7 @@ namespace TestPlugin
 		public void ToggleDownfall(Player player, int value)
 		{
 			{
-				McpeLevelEvent levelEvent = new McpeLevelEvent();
+				McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 				levelEvent.eventId = 3001;
 				levelEvent.data = value;
 				player.SendPackage(levelEvent);
@@ -102,13 +116,13 @@ namespace TestPlugin
 				{
 					var data = i;
 					{
-						McpeLevelEvent levelEvent = new McpeLevelEvent();
+						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = data;
 						player.SendPackage(levelEvent);
 					}
 					//{
-					//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 					//	levelEvent.eventId = 3002;
 					//	levelEvent.data = i;
 					//	player.SendPackage(levelEvent);
@@ -119,13 +133,13 @@ namespace TestPlugin
 				for (int i = short.MaxValue; i >= 0; i = i - 2000)
 				{
 					{
-						McpeLevelEvent levelEvent = new McpeLevelEvent();
+						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = i;
 						player.SendPackage(levelEvent);
 					}
 					//{
-					//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 					//	levelEvent.eventId = 3002;
 					//	levelEvent.data = i;
 					//	player.SendPackage(levelEvent);
@@ -137,13 +151,13 @@ namespace TestPlugin
 			});
 
 			//{
-			//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+			//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			//	levelEvent.eventId = 3001;
 			//	levelEvent.data = 100000;
 			//	player.SendPackage(levelEvent);
 			//}
 			//{
-			//	McpeLevelEvent levelEvent = new McpeLevelEvent();
+			//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			//	levelEvent.eventId = 3002;
 			//	levelEvent.data = 36625;
 			//	player.SendPackage(levelEvent);
@@ -189,14 +203,13 @@ namespace TestPlugin
 			foreach (Player player in player1.Level.Players.Values)
 			{
 				// 128 = 32 + 32 + 32
-				player.Level.RelayBroadcast(new McpeSpawnExperienceOrb()
-				{
-					entityId = player.EntityId,
-					x = (int) (player1.KnownPosition.X + 1),
-					y = (int) (player1.KnownPosition.Y + 2),
-					z = (int) (player1.KnownPosition.Z + 1),
-					count = 10
-				});
+				var msg = McpeSpawnExperienceOrb.CreateObject();
+				msg.entityId = player.EntityId;
+				msg.x = (int) (player1.KnownPosition.X + 1);
+				msg.y = (int) (player1.KnownPosition.Y + 2);
+				msg.z = (int) (player1.KnownPosition.Z + 1);
+				msg.count = 10;
+				player.Level.RelayBroadcast(msg);
 			}
 		}
 
@@ -214,21 +227,9 @@ namespace TestPlugin
 		[Command(Command = "tp")]
 		public void Teleport(Player player, int x, int y, int z)
 		{
-			// send teleport to spawn
-			//player.SetPosition(
-			//	new PlayerLocation
-			//{
-			//	X = x,
-			//	Y = y,
-			//	Z = z,
-			//	Yaw = 91,
-			//	Pitch = 28,
-			//	HeadYaw = 91
-			//}, true);
-
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				player.SpawnLevel(player.Level, new PlayerLocation
+				player.Teleport(new PlayerLocation
 				{
 					X = x,
 					Y = y,
@@ -239,7 +240,7 @@ namespace TestPlugin
 				});
 			}, null);
 
-			//player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
+			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
 		[Command(Command = "tp")]
@@ -251,7 +252,11 @@ namespace TestPlugin
 		[Command(Command = "tp")]
 		public void Teleport(Player player, string world)
 		{
-			if (player.Level.LevelId.Equals(world)) return;
+			if (player.Level.LevelId.Equals(world))
+			{
+				Teleport(player, (int) player.SpawnPosition.X, (int) player.SpawnPosition.Y, (int) player.SpawnPosition.Z);
+				return;
+			}
 
 			if (!Context.LevelManager.Levels.Contains(player.Level))
 			{
@@ -486,6 +491,11 @@ namespace TestPlugin
 				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1)}}}
 			};
 
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound {{new NbtCompound("display") {new NbtString("Name", "test")}}}
+			};
+
 			//inventory.Slots[c++] = new ItemEmptyMap { Count = 64 }; // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneAxe();
 			inventory.Slots[c++] = new ItemStoneAxe();
@@ -557,17 +567,16 @@ namespace TestPlugin
 
 		private void SendEquipmentForPlayer(Player player)
 		{
-			player.Level.RelayBroadcast(new McpePlayerEquipment
-			{
-				entityId = player.EntityId,
-				item = player.Inventory.GetItemInHand(),
-				slot = 0
-			});
+			var msg = McpePlayerEquipment.CreateObject();
+			msg.entityId = player.EntityId;
+			msg.item = player.Inventory.GetItemInHand();
+			msg.slot = 0;
+			player.Level.RelayBroadcast(msg);
 		}
 
 		private void SendArmorForPlayer(Player player)
 		{
-			var armorEquipment = new McpePlayerArmorEquipment();
+			var armorEquipment = McpePlayerArmorEquipment.CreateObject();
 			armorEquipment.entityId = player.EntityId;
 			armorEquipment.helmet = player.Inventory.Helmet;
 			armorEquipment.chestplate = player.Inventory.Chest;
@@ -589,6 +598,14 @@ namespace TestPlugin
 				player.SetAllowFly(true);
 				player.Level.BroadcastMessage($"Player {player.Username} enabled flying.", type: MessageType.Raw);
 			}
+		}
+
+		[Command(Command = "xporb")]
+		public void ExperienceOrb(Player player)
+		{
+			Mob xpOrb = new Mob(69, player.Level);
+			xpOrb.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
+			xpOrb.SpawnEntity();
 		}
 
 		[Command(Command = "e")]

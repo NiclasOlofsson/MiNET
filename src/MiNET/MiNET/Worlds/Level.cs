@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
@@ -54,6 +55,9 @@ namespace MiNET.Worlds
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; }
 
+		public bool AllowBuild { get; set; } = true;
+		public bool AllowBreak { get; set; } = true;
+
 		public EntityManager EntityManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
 
@@ -67,7 +71,7 @@ namespace MiNET.Worlds
 
 			EntityManager = new EntityManager();
 			InventoryManager = new InventoryManager(this);
-			SpawnPoint = new PlayerLocation(50, 4000, 50);
+			SpawnPoint = null;
 			Players = new ConcurrentDictionary<long, Player>();
 			Entities = new ConcurrentDictionary<long, Entity>();
 			BlockEntities = new List<BlockEntity>();
@@ -84,7 +88,7 @@ namespace MiNET.Worlds
 			IsWorldTimeStarted = true;
 			_worldProvider.Initialize();
 
-			SpawnPoint = new PlayerLocation(_worldProvider.GetSpawnPoint());
+			SpawnPoint = SpawnPoint ?? new PlayerLocation(_worldProvider.GetSpawnPoint());
 			CurrentWorldTime = _worldProvider.GetTime();
 
 			if (_worldProvider.IsCaching)
@@ -569,7 +573,7 @@ namespace MiNET.Worlds
 				{
 					Log.Fatal("Broadcast", e);
 					throw;
-				}               
+				}
 			}
 
 			if (sendList == null || sendList.Length == 0)
@@ -773,13 +777,11 @@ namespace MiNET.Worlds
 				}
 			};
 
-			var entityData = new McpeTileEntityData
-			{
-				namedtag = nbt,
-				x = blockEntity.Coordinates.X,
-				y = (byte) blockEntity.Coordinates.Y,
-				z = blockEntity.Coordinates.Z
-			};
+			var entityData = McpeTileEntityData.CreateObject();
+			entityData.namedtag = nbt;
+			entityData.x = blockEntity.Coordinates.X;
+			entityData.y = (byte) blockEntity.Coordinates.Y;
+			entityData.z = blockEntity.Coordinates.Z;
 
 			RelayBroadcast(entityData);
 		}
@@ -834,8 +836,10 @@ namespace MiNET.Worlds
 			if (itemInHand is ItemBlock)
 			{
 				Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
-				if (!OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
+				if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
 				{
+					// Revert
+
 					Block sendBlock = new Block(block.Id)
 					{
 						Coordinates = block.Coordinates,
@@ -870,16 +874,51 @@ namespace MiNET.Worlds
 			List<Item> drops = new List<Item>();
 
 			Block block = GetBlock(blockCoordinates);
+			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
 			drops.AddRange(block.GetDrops());
-			if (OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
+			if (!AllowBreak || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
+			{
+				// Revert
+
+				Block sendBlock = new Block(block.Id)
+				{
+					Coordinates = block.Coordinates,
+					Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
+				};
+
+				var message = McpeUpdateBlock.CreateObject();
+				message.blocks = new BlockRecords {sendBlock};
+				player.SendPackage(message);
+
+				// Revert block entity if exists
+				if (blockEntity != null)
+				{
+					Nbt nbt = new Nbt
+					{
+						NbtFile = new NbtFile
+						{
+							BigEndian = false,
+							RootTag = blockEntity.GetCompound()
+						}
+					};
+
+					var entityData = McpeTileEntityData.CreateObject();
+					entityData.namedtag = nbt;
+					entityData.x = blockEntity.Coordinates.X;
+					entityData.y = (byte) blockEntity.Coordinates.Y;
+					entityData.z = blockEntity.Coordinates.Z;
+
+					player.SendPackage(entityData);
+				}
+			}
+			else
 			{
 				block.BreakBlock(this);
 
-				BlockEntity blockEnity = GetBlockEntity(blockCoordinates);
-				if (blockEnity != null)
+				if (blockEntity != null)
 				{
 					RemoveBlockEntity(blockCoordinates);
-					drops.AddRange(blockEnity.GetDrops());
+					drops.AddRange(blockEntity.GetDrops());
 				}
 
 				if (player.GameMode != GameMode.Creative)
@@ -891,18 +930,6 @@ namespace MiNET.Worlds
 				}
 
 				player.HungerManager.IncreaseExhaustion(0.025f);
-			}
-			else
-			{
-				Block sendBlock = new Block(block.Id)
-				{
-					Coordinates = block.Coordinates,
-					Metadata = (byte) (0xb << 4 | (block.Metadata & 0xf))
-				};
-
-				var message = McpeUpdateBlock.CreateObject();
-				message.blocks = new BlockRecords {sendBlock};
-				player.SendPackage(message);
 			}
 		}
 
@@ -923,7 +950,7 @@ namespace MiNET.Worlds
 					Y = (float) coordinates.Y,
 					Z = (float) coordinates.Z
 				},
-				Velocity = new Vector3(random.NextDouble()*0.3, random.NextDouble()*0.3, random.NextDouble()*0.3)
+				Velocity = new Vector3((float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3))
 			};
 
 			itemEntity.SpawnEntity();

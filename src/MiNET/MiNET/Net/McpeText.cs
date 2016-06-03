@@ -20,6 +20,8 @@ namespace MiNET.Net
 					Write(message);
 					break;
 				case TypeRaw:
+					Write(message);
+					break;
 				case TypePopup:
 				case TypeTip:
 					Write(message);
@@ -30,6 +32,15 @@ namespace MiNET.Net
 					// More stuff
 					break;
 			}
+		}
+
+		public override void Reset()
+		{
+			type = 0;
+			source = null;
+			message = null;
+
+			base.Reset();
 		}
 
 		partial void AfterDecode()

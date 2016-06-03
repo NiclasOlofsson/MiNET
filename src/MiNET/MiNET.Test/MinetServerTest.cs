@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using fNbt;
@@ -204,13 +205,11 @@ namespace MiNET
 
 			Nbt nbt = new Nbt();
 			nbt.NbtFile = file;
-			McpeTileEntityData message = new McpeTileEntityData()
-			{
-				x = 6,
-				y = 6,
-				z = 6,
-				namedtag = nbt
-			};
+			McpeTileEntityData message = McpeTileEntityData.CreateObject();
+			message.x = 6;
+			message.y = 6;
+			message.z = 6;
+			message.namedtag = nbt;
 
 			Assert.NotNull(message.Encode());
 			Console.WriteLine(ByteArrayToString(message.Encode()));

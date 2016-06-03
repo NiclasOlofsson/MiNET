@@ -170,8 +170,8 @@ namespace MiNET.Plugins
 
 		public void UnloadCommands(object instance)
 		{
-			//if (!_plugins.Contains(instance)) return;
-			//_plugins.Remove(instance);
+			if (!_plugins.Contains(instance)) return;
+			_plugins.Remove(instance);
 
 			var methods = _pluginCommands.Keys.Where(info => info.DeclaringType == instance.GetType()).ToArray();
 			foreach (var method in methods)
@@ -197,7 +197,7 @@ namespace MiNET.Plugins
 					{
 						ParameterInfo[] parameters = method.GetParameters();
 						if (parameters.Length < 1) continue;
-						if (!parameters[0].ParameterType.IsSubclassOf(typeof (Package))) continue;
+						if (!typeof(Package).IsAssignableFrom(parameters[0].ParameterType)) continue;
 						if (packetHandlerAttribute.PacketType == null) packetHandlerAttribute.PacketType = parameters[0].ParameterType;
 
 						if (Attribute.GetCustomAttribute(method, typeof (SendAttribute), false) != null)
@@ -465,7 +465,9 @@ namespace MiNET.Plugins
 
 		internal Package PluginPacketHandler(Package message, bool isReceiveHandler, Player player)
 		{
-			Package currentPackage = message;
+            if(message == null) return null;
+
+            Package currentPackage = message;
 			Package returnPacket = currentPackage;
 
 			try
@@ -489,9 +491,16 @@ namespace MiNET.Plugins
 
 					PacketHandlerAttribute atrib = handler.Value;
 					if (atrib.PacketType == null) continue;
-					if (currentPackage != null && atrib.PacketType != currentPackage.GetType()) continue;
 
-					MethodInfo method = handler.Key;
+                    if (!atrib.PacketType.IsInstanceOfType(currentPackage) && atrib.PacketType != currentPackage.GetType())
+                    {
+                        //Log.Warn($"No assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
+                        continue;
+                    }
+
+                    //Log.Warn($"IS assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
+
+                    MethodInfo method = handler.Key;
 					if (method == null) continue;
 					if (method.IsStatic)
 					{

@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using fNbt;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -10,6 +11,32 @@ namespace MiNET
 	[TestFixture]
 	public class MinetAnvilTest
 	{
+		[Test, Ignore]
+		public void OffsetFileExistPerformance()
+		{
+			var basePath = @"D:\Development\Repos\MapsPE\hub";
+			var provider = new AnvilWorldProvider(basePath);
+			provider.Initialize();
+
+			var coordinates = new ChunkCoordinates(new PlayerLocation(-1021, 18, 2385));
+
+			for (int i = 0; i < 10000; i++)
+			{
+				var chunk = provider.GenerateChunkColumn(coordinates);
+
+				int rx = coordinates.X >> 5;
+				int rz = coordinates.Z >> 5;
+
+				string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
+				Assert.True(File.Exists(filePath));
+
+				Assert.AreEqual(-2, rx, "X");
+				Assert.AreEqual(4, rz, "Z");
+				Assert.IsNull(chunk, $"Region Coord: {rx}, {rz}");
+				//Assert.IsNotNull(chunk);
+			}
+		}
+
 		[Test, Ignore]
 		public void OffsetIntTest()
 		{
@@ -170,7 +197,7 @@ namespace MiNET
 
 			//Assert.Less(ticks/iterations, 100);
 
-			Console.WriteLine("Read {0} chunk-columns in {1}ns ({3}ms) at a rate of {2}ns/col", iterations, ticks, ticks / iterations, ms);
+			Console.WriteLine("Read {0} chunk-columns in {1}ns ({3}ms) at a rate of {2}ns/col", iterations, ticks, ticks/iterations, ms);
 		}
 
 

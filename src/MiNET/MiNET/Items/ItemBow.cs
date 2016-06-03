@@ -1,6 +1,6 @@
 using System;
+using System.Numerics;
 using log4net;
-using MiNET.Entities;
 using MiNET.Entities.Projectiles;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -19,22 +19,24 @@ namespace MiNET.Items
 		public override void Release(Level world, Player player, BlockCoordinates blockCoordinates, long timeUsed)
 		{
 			var inventory = player.Inventory;
-			bool haveArrows = false;
-			for (byte i = 0; i < inventory.Slots.Count; i++)
+			bool haveArrows = player.GameMode == GameMode.Creative;
+			if (!haveArrows)
 			{
-				var itemStack = inventory.Slots[i];
-				if (itemStack.Id == 262)
+				for (byte i = 0; i < inventory.Slots.Count; i++)
 				{
-					if (--itemStack.Count <= 0)
+					var itemStack = inventory.Slots[i];
+					if (itemStack.Id == 262)
 					{
-						// set empty
-						inventory.Slots[i] = new ItemAir();
+						if (--itemStack.Count <= 0)
+						{
+							// set empty
+							inventory.Slots[i] = new ItemAir();
+						}
+						haveArrows = true;
+						break;
 					}
-					haveArrows = true;
-					break;
 				}
 			}
-
 			if (!haveArrows) return;
 			if (timeUsed < 6) return; // questionable, but we go with it for now.
 
@@ -88,7 +90,7 @@ namespace MiNET.Items
 			motX *= f;
 			motY *= f;
 			motZ *= f;
-			return new Vector3(motX, motY, motZ);
+			return new Vector3((float) motX, (float) motY, (float) motZ);
 			//thismotX = motX;
 			//thismotY = motY;
 			//thismotZ = motZ;

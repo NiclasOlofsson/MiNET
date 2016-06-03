@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -38,6 +39,7 @@ namespace MiNET.Client
 		private Vector3 _spawn;
 		private long _entityId;
 		public PlayerNetworkSession Session { get; set; }
+		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
 		private int _clientGuid;
@@ -282,7 +284,7 @@ namespace MiNET.Client
 
 					if (IsEmulator && PlayerStatus == 3)
 					{
-						int datagramId = new Int24(new[] { receiveBytes[1], receiveBytes[2], receiveBytes[3] });
+						int datagramId = new Int24(new[] {receiveBytes[1], receiveBytes[2], receiveBytes[3]});
 
 						//Acks ack = Acks.CreateObject();
 						Acks ack = new Acks();
@@ -373,9 +375,9 @@ namespace MiNET.Client
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage)
 		{
-			int spId = package._splitPacketId;
-			int spIdx = package._splitPacketIndex;
-			int spCount = package._splitPacketCount;
+			int spId = splitMessage.SplitId;
+			int spIdx = splitMessage.SplitIdx;
+			int spCount = splitMessage.SplitCount;
 
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
@@ -434,6 +436,8 @@ namespace MiNET.Client
 
 		private void HandlePackage(Package message)
 		{
+			TraceReceive(message);
+
 			//Log.Warn($"Package 0x{message.Id:X2} {message.GetType().Name}");
 
 			if (typeof (McpeBatch) == message.GetType())
@@ -581,6 +585,13 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof (McpeAdventureSettings) == message.GetType())
+			{
+				OnMcpeAdventureSettings((McpeAdventureSettings) message);
+				return;
+			}
+
+
 			else if (typeof (McpeMoveEntity) == message.GetType())
 			{
 			}
@@ -613,19 +624,19 @@ namespace MiNET.Client
 				McpeClientboundMapItemData packet = (McpeClientboundMapItemData) message;
 			}
 
-			else if (typeof(McpeHurtArmor) == message.GetType())
+			else if (typeof (McpeHurtArmor) == message.GetType())
 			{
-				OnMcpeHurtArmor((McpeHurtArmor)message);
+				OnMcpeHurtArmor((McpeHurtArmor) message);
 			}
 
-			else if (typeof(McpeAnimate) == message.GetType())
+			else if (typeof (McpeAnimate) == message.GetType())
 			{
-				OnMcpeAnimate((McpeAnimate)message);
+				OnMcpeAnimate((McpeAnimate) message);
 			}
 
-			else if (typeof(McpeInteract) == message.GetType())
+			else if (typeof (McpeInteract) == message.GetType())
 			{
-				OnMcpeInteract((McpeInteract)message);
+				OnMcpeInteract((McpeInteract) message);
 			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
@@ -639,6 +650,11 @@ namespace MiNET.Client
 			{
 				Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}");
 			}
+		}
+
+		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
+		{
+			Log.Info($"Adventure settings flags: 0x{message.flags:X2}");
 		}
 
 		private void OnMcpeInteract(McpeInteract message)
@@ -696,7 +712,7 @@ namespace MiNET.Client
 			{
 				Log.Error("Sending crafting event: " + recipe.Id);
 
-				McpeCraftingEvent crafting = new McpeCraftingEvent();
+				McpeCraftingEvent crafting = McpeCraftingEvent.CreateObject();
 				crafting.windowId = 0;
 				crafting.recipeType = 1;
 				crafting.recipeId = recipe.Id;
@@ -707,25 +723,21 @@ namespace MiNET.Client
 					{
 						slotData.Add(recipe.Input[i]);
 
-						McpeContainerSetSlot setSlot = new McpeContainerSetSlot
-						{
-							item = recipe.Input[i],
-							windowId = 0,
-							slot = (short) (i)
-						};
+						McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
+						setSlot.item = recipe.Input[i];
+						setSlot.windowId = 0;
+						setSlot.slot = (short) (i);
 						SendPackage(setSlot);
 						Log.Error("Set set slot");
 					}
 					crafting.input = slotData;
 
 					{
-						McpePlayerEquipment eq = new McpePlayerEquipment
-						{
-							entityId = _entityId,
-							slot = 9,
-							selectedSlot = 0,
-							item = recipe.Input[0]
-						};
+						McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
+						eq.entityId = _entityId;
+						eq.slot = 9;
+						eq.selectedSlot = 0;
+						eq.item = recipe.Input[0];
 						SendPackage(eq);
 						Log.Error("Set eq slot");
 					}
@@ -740,14 +752,14 @@ namespace MiNET.Client
 
 
 			//{
-			//	McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+			//	McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
 			//	setSlot.item = new MetadataSlot(new ItemStack(new ItemDiamondAxe(0), 1));
 			//	setSlot.windowId = 0;
 			//	setSlot.slot = 0;
 			//	SendPackage(setSlot);
 			//}
 			//{
-			//	McpePlayerEquipment eq = new McpePlayerEquipment();
+			//	McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
 			//	eq.entityId = _entityId;
 			//	eq.slot = 9;
 			//	eq.selectedSlot = 0;
@@ -763,14 +775,14 @@ namespace MiNET.Client
 			if (recipe != null)
 			{
 				{
-					McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+					McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
 					setSlot.item = new ItemBlock(new Block(17), 0) {Count = 1};
 					setSlot.windowId = 0;
 					setSlot.slot = 0;
 					SendPackage(setSlot);
 				}
 				{
-					McpePlayerEquipment eq = new McpePlayerEquipment();
+					McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
 					eq.entityId = _entityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
@@ -780,7 +792,7 @@ namespace MiNET.Client
 
 				Log.Error("Sending crafting event: " + recipe.Id);
 
-				McpeCraftingEvent crafting = new McpeCraftingEvent();
+				McpeCraftingEvent crafting = McpeCraftingEvent.CreateObject();
 				crafting.windowId = 0;
 				crafting.recipeType = 1;
 				crafting.recipeId = recipe.Id;
@@ -797,7 +809,7 @@ namespace MiNET.Client
 				SendPackage(crafting);
 
 				//{
-				//	McpeContainerSetSlot setSlot = new McpeContainerSetSlot();
+				//	McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
 				//	setSlot.item = new MetadataSlot(new ItemStack(new ItemBlock(new Block(5), 0), 4));
 				//	setSlot.windowId = 0;
 				//	setSlot.slot = 0;
@@ -805,7 +817,7 @@ namespace MiNET.Client
 				//}
 
 				{
-					McpePlayerEquipment eq = new McpePlayerEquipment();
+					McpePlayerEquipment eq = McpePlayerEquipment.CreateObject();
 					eq.entityId = _entityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
@@ -1124,10 +1136,9 @@ namespace MiNET.Client
 			//ClientUtils.SaveLevel(_level);
 
 			{
-				var packet = new McpeRequestChunkRadius()
-				{
-					chunkRadius = 5
-				};
+				var packet = McpeRequestChunkRadius.CreateObject();
+				ChunkRadius = 5;
+				packet.chunkRadius = ChunkRadius;
 
 				SendPackage(packet);
 			}
@@ -1275,6 +1286,11 @@ namespace MiNET.Client
 			if (!Log.IsDebugEnabled) return;
 
 			if (message is McpeMoveEntity
+			    || message is McpeAddEntity
+			    || message is McpeCraftingData
+			    || message is McpeContainerSetContent
+			    || message is McpePlayerArmorEquipment
+			    || message is McpeClientboundMapItemData
 			    || message is McpeMovePlayer
 			    || message is McpeSetEntityMotion
 			    || message is McpeBatch
@@ -1386,14 +1402,13 @@ namespace MiNET.Client
 		public void SendNewIncomingConnection()
 		{
 			Random rand = new Random();
-			var packet = new NewIncomingConnection
+			var packet = NewIncomingConnection.CreateObject();
+			packet.clientendpoint = _clientEndpoint;
+			packet.systemAddresses = new IPEndPoint[10];
+			for (int i = 0; i < 10; i++)
 			{
-				doSecurity = 163,
-				session = rand.Next(),
-				session2 = rand.Next(),
-				cookie = rand.Next(),
-				port = (short) _clientEndpoint.Port
-			};
+				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
+			}
 
 			SendPackage(packet);
 		}
@@ -1435,11 +1450,9 @@ namespace MiNET.Client
 
 		public void SendChat(string text)
 		{
-			var packet = new McpeText()
-			{
-				source = Username,
-				message = text
-			};
+			var packet = McpeText.CreateObject();
+			packet.source = Username;
+			packet.message = text;
 
 			SendPackage(packet);
 		}

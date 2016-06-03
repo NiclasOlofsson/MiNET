@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,6 +44,9 @@ namespace TestPlugin.NiceLobby
 			server.LevelManager.LevelCreated += (sender, args) =>
 			{
 				Level level = args.Level;
+				//level.AllowBuild = false;
+				//level.AllowBreak = false;
+
 				level.BlockBreak += LevelOnBlockBreak;
 				level.BlockPlace += LevelOnBlockPlace;
 			};
@@ -54,7 +58,7 @@ namespace TestPlugin.NiceLobby
 				player.PlayerLeave += OnPlayerLeave;
 			};
 
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 30000);
+			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 		}
 
@@ -75,7 +79,7 @@ namespace TestPlugin.NiceLobby
 			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
 
 			Player player = eventArgs.Player;
-			if(player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
+			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}
@@ -96,7 +100,7 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-		private double m = 0.1d;
+		private float m = 0.1f;
 
 		private void LevelTick(object state)
 		{
@@ -173,7 +177,7 @@ namespace TestPlugin.NiceLobby
 						GenerateParticles(random, level, point3, m < 0.2 ? 0 : 9, new Vector3(m/2, m/2 + 6, m/2), m);
 					}
 			}
-			m += 0.1;
+			m += 0.1f;
 			if (m > 3.8) m = -5;
 		}
 
@@ -334,22 +338,12 @@ namespace TestPlugin.NiceLobby
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
-						Message = "Restarts without notice frequently",
+						Message = "This is a MiNET development server\n\nRestarts without notice frequently",
 						Duration = 20*5,
 						DisplayDelay = 20*1
 					});
 				}
 			}
-		}
-
-		[Command]
-		public void Fuck(Player player)
-		{
-			//player.SendSetHealth();
-			player.Level.BroadcastMessage(string.Format("{0} current health is {1} with {2} hearts!", player.Username, player.HealthManager.Health, player.HealthManager.Hearts), type: MessageType.Raw);
-			player.HealthManager.Health -= 5;
-			player.SendUpdateAttributes();
-			player.Level.BroadcastMessage(string.Format("{0} health after reset is {1} with {2} hearts!", player.Username, player.HealthManager.Health, player.HealthManager.Hearts), type: MessageType.Raw);
 		}
 
 		[Command]
@@ -537,10 +531,9 @@ namespace TestPlugin.NiceLobby
 			};
 			entity.SpawnEntity();
 
-			player.SendPackage(new McpeRemoveEntity()
-			{
-				entityId = entity.EntityId,
-			});
+			var remove = McpeRemoveEntity.CreateObject();
+			remove.entityId = entity.EntityId;
+			player.SendPackage(remove);
 
 			_playerEntities[player] = entity;
 
@@ -554,7 +547,7 @@ namespace TestPlugin.NiceLobby
 			{
 				var entity = _playerEntities[player];
 				entity.KnownPosition = player.KnownPosition;
-				var message = new McpeMoveEntity();
+				var message = McpeMoveEntity.CreateObject();
 				message.entities = new EntityLocations();
 				message.entities.Add(entity.EntityId, entity.KnownPosition);
 				player.Level.RelayBroadcast(message);

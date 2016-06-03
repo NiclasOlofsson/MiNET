@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Numerics;
 using System.Reflection;
 using log4net;
 using MiNET.Entities;
@@ -84,7 +85,13 @@ namespace MiNET
 			LastDamageCause = cause;
 
 			Health -= damage*10;
-			if (Health < 0) Health = 0;
+			if (Health < 0)
+			{
+				OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
+				Health = 0;
+				Kill();
+				return;
+			}
 
 			if (player != null)
 			{
@@ -95,45 +102,49 @@ namespace MiNET
 			}
 			else
 			{
-				Entity.Level.RelayBroadcast(new McpeEntityEvent
-				{
-					entityId = Entity.EntityId,
-					eventId = (byte) (Health <= 0 ? 3 : 2)
-				});
+				var msg = McpeEntityEvent.CreateObject();
+				msg.entityId = Entity.EntityId;
+				msg.eventId = (byte) (Health <= 0 ? 3 : 2);
+				Entity.Level.RelayBroadcast(msg);
 			}
 
 			if (source != null)
 			{
-				double dx = source.KnownPosition.X - Entity.KnownPosition.X;
-
-				Random rand = new Random();
-				double dz;
-				for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
-				{
-					dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
-				}
-
-				double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
-				float knockbackMultiplier = 0.4F;
-
-				//this.motX /= 2.0D;
-				//this.motY /= 2.0D;
-				//this.motZ /= 2.0D;
-				double motX = 0;
-				motX -= dx/knockbackForce*knockbackMultiplier;
-				double motY = knockbackMultiplier;
-				double motZ = 0;
-				motZ -= dz/knockbackForce*knockbackMultiplier;
-				if (motY > 0.4)
-				{
-					motY = 0.4;
-				}
-				Entity.Knockback(new Vector3(motX, motY, motZ));
+				DoKnockback(source);
 			}
 
 			CooldownTick = 10;
 
 			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
+		}
+
+		protected virtual void DoKnockback(Entity source)
+		{
+			double dx = source.KnownPosition.X - Entity.KnownPosition.X;
+
+			Random rand = new Random();
+			double dz;
+			for (dz = source.KnownPosition.Z - Entity.KnownPosition.Z; dx*dx + dz*dz < 0.00010; dz = (rand.NextDouble() - rand.NextDouble())*0.01D)
+			{
+				dx = (rand.NextDouble() - rand.NextDouble())*0.01D;
+			}
+
+			double knockbackForce = Math.Sqrt(dx*dx + dz*dz);
+			float knockbackMultiplier = 0.4F;
+
+			//this.motX /= 2.0D;
+			//this.motY /= 2.0D;
+			//this.motZ /= 2.0D;
+			double motX = 0;
+			motX -= dx/knockbackForce*knockbackMultiplier;
+			double motY = knockbackMultiplier;
+			double motZ = 0;
+			motZ -= dz/knockbackForce*knockbackMultiplier;
+			if (motY > 0.4)
+			{
+				motY = 0.4;
+			}
+			Entity.Knockback(new Vector3((float) motX, (float) motY, (float) motZ));
 		}
 
 		public event EventHandler<HealthEventArgs> PlayerTakeHit;
@@ -229,7 +240,6 @@ namespace MiNET
 			{
 				CooldownTick = 0;
 				TakeHit(null, 300, DamageCause.Void);
-				LastDamageCause = DamageCause.Void;
 				return;
 			}
 
@@ -240,15 +250,8 @@ namespace MiNET
 				{
 					if (Math.Abs(Air)%10 == 0)
 					{
-						Health -= 10;
-						var player = Entity as Player;
-						if (player != null)
-						{
-							player.SendUpdateAttributes();
-							player.BroadcastEntityEvent();
-						}
+						TakeHit(null, 1, DamageCause.Drowning);
 						Entity.BroadcastSetEntityData();
-						LastDamageCause = DamageCause.Drowning;
 					}
 				}
 
@@ -268,15 +271,9 @@ namespace MiNET
 			{
 				if (SuffocationTicks <= 0)
 				{
-					Health -= 10;
-					var player = Entity as Player;
-					if (player != null)
-					{
-						player.SendUpdateAttributes();
-						player.BroadcastEntityEvent();
-					}
+					TakeHit(null, 1, DamageCause.Suffocation);
 					Entity.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.Suffocation;
+
 					SuffocationTicks = 10;
 				}
 				else
@@ -304,16 +301,9 @@ namespace MiNET
 
 				if (LavaTicks <= 0)
 				{
-					Health -= 40;
-
-					var player = Entity as Player;
-					if (player != null)
-					{
-						player.SendUpdateAttributes();
-						player.BroadcastEntityEvent();
-					}
+					TakeHit(null, 4, DamageCause.Lava);
 					Entity.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.Lava;
+
 					LavaTicks = 10;
 				}
 				else
@@ -336,15 +326,8 @@ namespace MiNET
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					Health -= 10;
-					var player = Entity as Player;
-					if (player != null)
-					{
-						player.SendUpdateAttributes();
-						player.BroadcastEntityEvent();
-					}
+					TakeHit(null, 1, DamageCause.FireTick);
 					Entity.BroadcastSetEntityData();
-					LastDamageCause = DamageCause.FireTick;
 				}
 			}
 		}
@@ -382,9 +365,9 @@ namespace MiNET
 
 			BlockCoordinates solidPos = new BlockCoordinates
 			{
-				X = (int)Math.Floor(playerPosition.X),
-				Y = (int)Math.Floor(y),
-				Z = (int)Math.Floor(playerPosition.Z)
+				X = (int) Math.Floor(playerPosition.X),
+				Y = (int) Math.Floor(y),
+				Z = (int) Math.Floor(playerPosition.Z)
 			};
 
 			var block = Entity.Level.GetBlock(solidPos);

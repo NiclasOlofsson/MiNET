@@ -72,6 +72,7 @@
 | Mcpe Crafting Event | 0xbb | 187 |   
 | Mcpe Adventure Settings | 0xbc | 188 |   
 | Mcpe Tile Entity Data | 0xbd | 189 |   
+| Mcpe Player Input | 0xbe | 190 |   
 | Mcpe Full Chunk Data | 0xbf | 191 |   
 | Mcpe Set Difficulty | 0xc0 | 192 |   
 | Mcpe Change Dimension | 0xc1 | 193 |   
@@ -293,11 +294,10 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|cookie | int |  |
-|Do Security | byte |  |
-|Port | short |  |
-|Session | long |  |
-|Session2 | long |  |
+|ClientEndpoint | IPEndPoint |  |
+|System Addresses | IPEndPoint[] | 10 |
+|Incoming Timestamp | long |  |
+|Server Timestamp | long |  |
 -----------------------------------------------------------------------
 ###Package: No Free Incoming Connections (0x14)
 
@@ -505,7 +505,10 @@ TODO: Parameters
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|unknown | byte |  |
+|b1 | bool |  |
+|b2 | bool |  |
+|b3 | bool |  |
+|unknownstr | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x96)
 
@@ -1175,6 +1178,8 @@ TODO: can have multiple blocks.
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Flags | int |  |
+|User Permission | int |  |
+|Global Permission | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Tile Entity Data (0xbd)
 
@@ -1192,6 +1197,22 @@ TODO: can have multiple blocks.
 |Y | int |  |
 |Z | int |  |
 |NamedTag | Nbt |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Player Input (0xbe)
+
+**Sent from server:** false
+**Sent from client:** true
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Motion X | float |  |
+|Motion Z | float |  |
+|Flags | short |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0xbf)
 

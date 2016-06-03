@@ -90,14 +90,13 @@
 		<field name="Server Timestamp" type="long" />
 	</pdu>
 
-	<pdu namespace="raknet" id="0x13" online="false" client="true" server="false" name="ID_NEW_INCOMING_CONNECTION">
-		<field name="cookie" type="int" />
-		<field name="Do Security" type="byte" />
-		<field name="Port" type="short" />
-		<field name="Session" type="long" />
-		<field name="Session2" type="long" />
+	<pdu id="0x13" online="false" client="true" server="false" name="ID_NEW_INCOMING_CONNECTION">
+		<field name="ClientEndpoint" type="IPEndPoint" />
+		<field name="System Addresses" type="IPEndPoint[]" size="10"/>
+		<field name="Incoming Timestamp" type="long" />
+		<field name="Server Timestamp" type="long" />
 	</pdu>
-
+	
 	<pdu namespace="raknet" id="0x14" online="false" client="true" server="true" name="ID_NO_FREE_INCOMING_CONNECTIONS">
 	</pdu>
 
@@ -175,7 +174,10 @@
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
-		<field name="unknown" type="byte" />
+		<field name="b1" type="bool" />
+		<field name="b2" type="bool" />
+		<field name="b3" type="bool" />
+		<field name="unknownstr" type="string" />
 	</pdu>
 
 	<pdu id="0x96" online="false" client="true" server="true" name="MCPE_ADD_PLAYER">
@@ -458,6 +460,8 @@
 
 	<pdu id="0xbc" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">
 		<field name="Flags" type="int" />
+		<field name="User Permission" type="int" />
+		<field name="Global Permission" type="int" />
 	</pdu>
 
 	<pdu id="0xbd" online="false" client="false" server="true" name="MCPE_TILE_ENTITY_DATA">
@@ -467,6 +471,11 @@
 		<field name="NamedTag" type="Nbt"/>
 	</pdu>
 
+	<pdu id="0xbe" online="false" client="true" server="false" name="MCPE_PLAYER_INPUT">
+		<field name="Motion X" type="float" />
+		<field name="Motion Z" type="float" />
+		<field name="Flags" type="short"/>
+	</pdu>
 	<!-- 	
 		ORDER_COLUMNS = 0;
 		ORDER_LAYERED = 1;

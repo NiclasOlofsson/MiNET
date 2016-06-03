@@ -47,14 +47,13 @@ namespace TestPlugin.Pets
 						return;
 					}
 
-					pet.Level.RelayBroadcast(new McpeLevelEvent
-					{
-						eventId = 0x4000 | 15,
-						x = Entity.KnownPosition.X,
-						y = (float) (Entity.KnownPosition.Y + Entity.Height + 0.85d),
-						z = Entity.KnownPosition.Z,
-						data = size
-					});
+					var msg = McpeLevelEvent.CreateObject();
+					msg.eventId = 0x4000 | 15;
+					msg.x = Entity.KnownPosition.X;
+					msg.y = (float) (Entity.KnownPosition.Y + Entity.Height + 0.85d);
+					msg.z = Entity.KnownPosition.Z;
+					msg.data = size;
+					pet.Level.RelayBroadcast(msg);
 				}
 				else
 				{

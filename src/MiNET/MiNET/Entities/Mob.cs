@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -21,7 +22,7 @@ namespace MiNET.Entities
 		{
 			base.OnTick();
 
-			if (Velocity.Distance > 0)
+			if (Velocity.Length() > 0)
 			{
 				PlayerLocation oldPosition = (PlayerLocation) KnownPosition.Clone();
 				bool onGroundBefore = IsOnGround(KnownPosition);
@@ -38,10 +39,10 @@ namespace MiNET.Entities
 				}
 				else
 				{
-					Velocity *= (1.0 - Drag);
+					Velocity *= (float) (1.0f - Drag);
 					if (!onGround)
 					{
-						Velocity -= new Vector3(0, Gravity, 0);
+						Velocity -= new Vector3(0, (float) Gravity, 0);
 					}
 				}
 				LastUpdatedTime = DateTime.UtcNow;

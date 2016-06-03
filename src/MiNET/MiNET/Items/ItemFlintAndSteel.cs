@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities;

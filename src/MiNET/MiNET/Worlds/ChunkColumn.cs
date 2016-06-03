@@ -16,6 +16,8 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
 
+		public bool isAllAir = false;
+
 		public int x;
 		public int z;
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);

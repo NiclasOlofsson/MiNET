@@ -5,6 +5,7 @@
 
 using System;
 using System.Net;
+using System.Numerics;
 using System.Threading;
 using MiNET.Utils; 
 using MiNET.Items;
@@ -78,11 +79,6 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x13:
-						package = NewIncomingConnection.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
 					case 0x14:
 						package = NoFreeIncomingConnections.CreateObject();
 						//package.Timer.Start();
@@ -118,6 +114,11 @@ namespace MiNET.Net
 
 				switch (messageId)
 				{
+					case 0x13:
+						package = NewIncomingConnection.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
 					case 0x01:
 						package = McpeLogin.CreateObject();
 						//package.Timer.Start();
@@ -360,6 +361,11 @@ namespace MiNET.Net
 						return package;
 					case 0xbd:
 						package = McpeTileEntityData.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0xbe:
+						package = McpePlayerInput.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -910,11 +916,10 @@ namespace MiNET.Net
 
 	public partial class NewIncomingConnection : Package<NewIncomingConnection>
 	{
-		public int cookie; // = null;
-		public byte doSecurity; // = null;
-		public short port; // = null;
-		public long session; // = null;
-		public long session2; // = null;
+		public IPEndPoint clientendpoint; // = null;
+		public IPEndPoint[] systemAddresses; // = null;
+		public long incomingTimestamp; // = null;
+		public long serverTimestamp; // = null;
 		public NewIncomingConnection()
 		{
 			Id = 0x13;
@@ -926,11 +931,10 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(cookie);
-			Write(doSecurity);
-			Write(port);
-			Write(session);
-			Write(session2);
+			Write(clientendpoint);
+			Write(systemAddresses);
+			Write(incomingTimestamp);
+			Write(serverTimestamp);
 
 			AfterEncode();
 		}
@@ -944,11 +948,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			cookie = ReadInt();
-			doSecurity = ReadByte();
-			port = ReadShort();
-			session = ReadLong();
-			session2 = ReadLong();
+			clientendpoint = ReadIPEndPoint();
+			systemAddresses = ReadIPEndPoints(10);
+			incomingTimestamp = ReadLong();
+			serverTimestamp = ReadLong();
 
 			AfterDecode();
 		}
@@ -1430,7 +1433,10 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
-		public byte unknown; // = null;
+		public bool b1; // = null;
+		public bool b2; // = null;
+		public bool b3; // = null;
+		public string unknownstr; // = null;
 		public McpeStartGame()
 		{
 			Id = 0x95;
@@ -1453,7 +1459,10 @@ namespace MiNET.Net
 			Write(x);
 			Write(y);
 			Write(z);
-			Write(unknown);
+			Write(b1);
+			Write(b2);
+			Write(b3);
+			Write(unknownstr);
 
 			AfterEncode();
 		}
@@ -1478,7 +1487,10 @@ namespace MiNET.Net
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
-			unknown = ReadByte();
+			b1 = ReadBool();
+			b2 = ReadBool();
+			b3 = ReadBool();
+			unknownstr = ReadString();
 
 			AfterDecode();
 		}
@@ -3265,6 +3277,8 @@ namespace MiNET.Net
 	public partial class McpeAdventureSettings : Package<McpeAdventureSettings>
 	{
 		public int flags; // = null;
+		public int userPermission; // = null;
+		public int globalPermission; // = null;
 		public McpeAdventureSettings()
 		{
 			Id = 0xbc;
@@ -3277,6 +3291,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(flags);
+			Write(userPermission);
+			Write(globalPermission);
 
 			AfterEncode();
 		}
@@ -3291,6 +3307,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			flags = ReadInt();
+			userPermission = ReadInt();
+			globalPermission = ReadInt();
 
 			AfterDecode();
 		}
@@ -3338,6 +3356,50 @@ namespace MiNET.Net
 			y = ReadInt();
 			z = ReadInt();
 			namedtag = ReadNbt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpePlayerInput : Package<McpePlayerInput>
+	{
+		public float motionX; // = null;
+		public float motionZ; // = null;
+		public short flags; // = null;
+		public McpePlayerInput()
+		{
+			Id = 0xbe;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(motionX);
+			Write(motionZ);
+			Write(flags);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			motionX = ReadFloat();
+			motionZ = ReadFloat();
+			flags = ReadShort();
 
 			AfterDecode();
 		}

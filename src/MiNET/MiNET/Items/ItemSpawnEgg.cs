@@ -1,3 +1,4 @@
+using System.Numerics;
 using log4net;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text.RegularExpressions;
 using fNbt;
 using log4net;
@@ -33,13 +35,15 @@ namespace MiNET.Worlds
 
 		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
-		private FlatlandWorldProvider _flatland;
-		private LevelInfo _level;
-		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+	    public IWorldProvider MissingChunkProvider { get; set; }
 
-		private string _basePath;
+	    public LevelInfo LevelInfo { get; private set; }
 
-		public bool IsCaching { get; private set; }
+	    public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+
+	    public string BasePath { get; private set; }
+
+	    public bool IsCaching { get; private set; }
 
 		public byte WaterOffsetY { get; set; }
 
@@ -151,14 +155,14 @@ namespace MiNET.Worlds
 
 		public AnvilWorldProvider(string basePath) : this()
 		{
-			_basePath = basePath;
+			BasePath = basePath;
 		}
 
 		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, byte waterOffsetY, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
 		{
 			IsCaching = true;
-			_basePath = basePath;
-			_level = levelInfo;
+			BasePath = basePath;
+			LevelInfo = levelInfo;
 			WaterOffsetY = waterOffsetY;
 			_chunkCache = chunkCache;
 			_isInitialized = true;
@@ -176,12 +180,12 @@ namespace MiNET.Worlds
 			{
 				if (_isInitialized) return;
 
-				_basePath = _basePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
+				BasePath = BasePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
 
 				NbtFile file = new NbtFile();
-				file.LoadFromFile(Path.Combine(_basePath, "level.dat"));
+				file.LoadFromFile(Path.Combine(BasePath, "level.dat"));
 				NbtTag dataTag = file.RootTag["Data"];
-				_level = new LevelInfo(dataTag);
+				LevelInfo = new LevelInfo(dataTag);
 
 				WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
 
@@ -209,7 +213,7 @@ namespace MiNET.Worlds
 				ChunkColumn cachedChunk;
 				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
 
-				ChunkColumn chunk = GetChunk(chunkCoordinates, _basePath, _flatland, WaterOffsetY);
+				ChunkColumn chunk = GetChunk(chunkCoordinates, BasePath, MissingChunkProvider, WaterOffsetY);
 
 				_chunkCache[chunkCoordinates] = chunk;
 
@@ -284,7 +288,8 @@ namespace MiNET.Worlds
 				{
 					x = coordinates.X,
 					z = coordinates.Z,
-					biomeId = dataTag["Biomes"].ByteArrayValue
+					biomeId = dataTag["Biomes"].ByteArrayValue,
+					isAllAir = true
 				};
 
 				if (chunk.biomeId.Length > 256) throw new Exception();
@@ -322,6 +327,7 @@ namespace MiNET.Worlds
 									blockId = Convert[blockId].Item1;
 								}
 
+								chunk.isAllAir = chunk.isAllAir && blockId == 0;
 								if (blockId > 255) blockId = 41;
 
 								//if (yi == 127 && blockId != 0) blockId = 30;
@@ -444,7 +450,7 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			var spawnPoint = new Vector3(_level.SpawnX, _level.SpawnY + 2 /* + WaterOffsetY*/, _level.SpawnZ);
+			var spawnPoint = new Vector3(LevelInfo.SpawnX, LevelInfo.SpawnY + 2 /* + WaterOffsetY*/, LevelInfo.SpawnZ);
 
 			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
 
@@ -453,7 +459,7 @@ namespace MiNET.Worlds
 
 		public long GetTime()
 		{
-			return _level.Time;
+			return LevelInfo.Time;
 		}
 
 		public void SaveChunks()
@@ -462,7 +468,7 @@ namespace MiNET.Worlds
 			{
 				foreach (var chunkColumn in _chunkCache)
 				{
-					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, _basePath, WaterOffsetY);
+					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
 				}
 			}
 		}
@@ -641,8 +647,106 @@ namespace MiNET.Worlds
 				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value?.Clone());
 			}
 
-			AnvilWorldProvider provider = new AnvilWorldProvider(_basePath, (LevelInfo) _level.Clone(), WaterOffsetY, chunkCache);
+			AnvilWorldProvider provider = new AnvilWorldProvider(BasePath, (LevelInfo) LevelInfo.Clone(), WaterOffsetY, chunkCache);
 			return provider;
+		}
+
+		public int PruneAir()
+		{
+			int prunedChunks = 0;
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
+			{
+				ChunkCoordinates chunkCoordinates = valuePair.Key;
+				ChunkColumn chunkColumn = valuePair.Value;
+
+				if (chunkColumn != null && chunkColumn.isAllAir)
+				{
+					bool surroundingIsAir = true;
+
+					for (int startX = chunkCoordinates.X - 1; startX <= chunkCoordinates.X + 1; startX++)
+					{
+						for (int startZ = chunkCoordinates.Z - 1; startZ <= chunkCoordinates.Z + 1; startZ++)
+						{
+							ChunkCoordinates surroundingChunkCoordinates = new ChunkCoordinates(startX, startZ);
+
+							if (!surroundingChunkCoordinates.Equals(chunkCoordinates))
+							{
+								ChunkColumn surroundingChunkColumn;
+
+								_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
+
+								if (surroundingChunkColumn != null && !surroundingChunkColumn.isAllAir)
+								{
+									surroundingIsAir = false;
+									break;
+								}
+							}
+						}
+					}
+
+					if (surroundingIsAir)
+					{
+						_chunkCache[chunkCoordinates] = null;
+						prunedChunks++;
+					}
+				}
+			}
+
+			sw.Stop();
+			Log.Info("Pruned " + prunedChunks + " in " + sw.ElapsedMilliseconds + "ms");
+			return prunedChunks;
+		}
+
+		public int MakeAirChunksAroundWorldToCompensateForBadRendering()
+		{
+			int createdChunks = 0;
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+
+			foreach (KeyValuePair<ChunkCoordinates, ChunkColumn> valuePair in _chunkCache)
+			{
+				ChunkCoordinates chunkCoordinates = valuePair.Key;
+				ChunkColumn chunkColumn = valuePair.Value;
+
+				if (chunkColumn != null && !chunkColumn.isAllAir)
+				{
+					for (int startX = chunkCoordinates.X - 1; startX <= chunkCoordinates.X + 1; startX++)
+					{
+						for (int startZ = chunkCoordinates.Z - 1; startZ <= chunkCoordinates.Z + 1; startZ++)
+						{
+							ChunkCoordinates surroundingChunkCoordinates = new ChunkCoordinates(startX, startZ);
+
+							if (surroundingChunkCoordinates.Equals(chunkCoordinates)) continue;
+
+							ChunkColumn surroundingChunkColumn;
+
+							_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
+
+							if (surroundingChunkColumn == null)
+							{
+								ChunkColumn airColumn = new ChunkColumn
+								{
+									x = startX,
+									z = startZ,
+									isAllAir = true
+								};
+
+								airColumn.GetBatch();
+
+								_chunkCache[surroundingChunkCoordinates] = airColumn;
+								createdChunks++;
+							}
+						}
+					}
+				}
+			}
+
+			sw.Stop();
+			Log.Info("Created " + createdChunks + " air chunks in " + sw.ElapsedMilliseconds + "ms");
+			return createdChunks;
 		}
 	}
 }

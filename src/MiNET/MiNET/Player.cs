@@ -265,7 +265,8 @@ namespace MiNET
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
-				//Disconnect("Unhandled package", false);
+				Disconnect("Unhandled package", false);
+				return;
 			}
 
 			if (message.Timer.IsRunning)

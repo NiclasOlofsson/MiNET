@@ -1027,6 +1027,7 @@ namespace MiNET.Net
 		protected virtual void EncodePackage()
 		{
 			_buffer.Position = 0;
+			_buffer.SetLength(0);
 			if (_prependByte) Write((byte) 0x8e);
 			Write(Id);
 		}
@@ -1037,6 +1038,7 @@ namespace MiNET.Net
 			OrderingIndex = 0;
 			NoBatch = false;
 			_encodedMessage = null;
+			_prependByte = false;
 			_writer.Flush();
 			_buffer.SetLength(0);
 			_buffer.Position = 0;
@@ -1084,11 +1086,13 @@ namespace MiNET.Net
 		protected virtual void DecodePackage()
 		{
 			_buffer.Position = 0;
-			Id = ReadByte();
-			if (Id == 0x8e)
+			byte tmpId = ReadByte();
+			if (tmpId == 0x8e)
 			{
-				Id = ReadByte();
+				tmpId = ReadByte();
 			}
+
+			if (tmpId != Id) Log.Error($"Id 0x{tmpId:X2} not as expected 0x{Id:X2} for type {this.GetType().Name}");
 		}
 
 		public virtual void Decode(byte[] buffer)

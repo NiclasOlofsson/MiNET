@@ -5,8 +5,15 @@ using Jose;
 
 namespace MiNET.Utils
 {
-	public class CryptoUtils
+	public static class CryptoUtils
 	{
+		public static byte[] GetDerEncoded(this ECDiffieHellmanPublicKey key)
+		{
+			byte[] asn = new byte[24] {0x30, 118, 48, 16, 6, 7, 42, 134, 72, 206, 61, 2, 1, 6, 5, 43, 129, 4, 0, 34, 3, 98, 0, 4};
+
+			return asn.Concat(key.ToByteArray().Skip(8)).ToArray();
+		}
+
 		public static ECDiffieHellmanPublicKey CreateEcDiffieHellmanPublicKey(string clientPubKeyString)
 		{
 			byte[] clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
@@ -23,7 +30,6 @@ namespace MiNET.Utils
 
 			return keyType.Concat(keyLength).Concat(publicKeyBlob.Skip(1)).ToArray();
 		}
-
 
 		public static ECDiffieHellmanPublicKey ImportEccPublicKeyFromCertificate(X509Certificate2 cert)
 		{

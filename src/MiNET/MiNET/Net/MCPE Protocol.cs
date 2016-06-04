@@ -1191,7 +1191,7 @@ namespace MiNET.Net
 	public partial class McpeServerExchange : Package<McpeServerExchange>
 	{
 		public string serverPublicKey; // = null;
-		public byte[] randomKeyToken; // = null;
+		public string randomKeyToken; // = null;
 		public McpeServerExchange()
 		{
 			Id = 0x03;
@@ -1219,7 +1219,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			serverPublicKey = ReadString();
-			randomKeyToken = ReadBytes(0);
+			randomKeyToken = ReadString();
 
 			AfterDecode();
 		}

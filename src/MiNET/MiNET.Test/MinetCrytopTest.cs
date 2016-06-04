@@ -47,7 +47,7 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			//Console.WriteLine(certKey.ToXmlString());
 
 			// https://blogs.msdn.microsoft.com/shawnfa/2007/01/22/elliptic-curve-diffie-hellman/
-
+			// http://stackoverflow.com/questions/11266711/using-cngkey-to-generate-rsa-key-pair-in-pem-dkim-compatible-using-c-simi
 			{
 				string input = "eyJhbGciOiJFUzM4NCIsIng1dSI6Ik1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFN25uWnBDZnhtQ3JTd0RkQnY3ZUJYWE10S2hyb3hPcmlFcjNobU1PSkF1dy9acFFYajFLNUdHdEhTNENwRk50dGQxSllBS1lvSnhZZ2F5a3BpZTBFeUF2M3FpSzZ1dElIMnFuT0F0M1ZOclFZWGZJWkpTL1ZSZTNJbDhQZ3U5Q0IifQo.eyJleHAiOjE0NjQ5ODM4NDUsImV4dHJhRGF0YSI6eyJkaXNwbGF5TmFtZSI6Imd1cnVueCIsImlkZW50aXR5IjoiYWY2ZjdjNWUtZmNlYS0zZTQzLWJmM2EtZTAwNWU0MDBlNTc4In0sImlkZW50aXR5UHVibGljS2V5IjoiTUhZd0VBWUhLb1pJemowQ0FRWUZLNEVFQUNJRFlnQUU3bm5acENmeG1DclN3RGRCdjdlQlhYTXRLaHJveE9yaUVyM2htTU9KQXV3L1pwUVhqMUs1R0d0SFM0Q3BGTnR0ZDFKWUFLWW9KeFlnYXlrcGllMEV5QXYzcWlLNnV0SUgycW5PQXQzVk5yUVlYZklaSlMvVlJlM0lsOFBndTlDQiIsIm5iZiI6MTQ2NDk4Mzg0NH0K.4OrvYYbX09iwOkz-7_N_5yEejuATcUogEbe69fB-kr7r6sH_qSu6bxp9L64SEgABb0rU7tyYCLVnaCSQjd9Dvb34WI9EducgOPJ92qHspcpXr7j716LDfhZE31ksMtWQ";
 
@@ -72,18 +72,19 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 				//string decoded = JWT.Decode(input, t.Key);
 			}
-			// Public key
-			ECDiffieHellmanPublicKey clientKey = CryptoUtils.CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs");
 
-			// Private key
+			// Private key (in reality this is not necessary since we will generate it)
 			AsymmetricKeyParameter privKey = PrivateKeyFactory.CreateKey(Base64Url.Decode("MB8CAQAwEAYHKoZIzj0CAQYFK4EEACIECDAGAgEBBAEB"));
 			PrivateKeyInfo privKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(privKey);
 			byte[] derKey = privKeyInfo.GetDerEncoded();
-			CngKey privCngKey = CngKey.Import(derKey, CngKeyBlobFormat.Pkcs8PrivateBlob);
+			CngKey privCngKey = CngKey.Import(derKey, CngKeyBlobFormat.GenericPublicBlob);
 
 
 			Console.WriteLine(privKeyInfo.PrivateKeyAlgorithm.Algorithm);
 			Console.WriteLine(privCngKey.Algorithm.Algorithm);
+
+			// Public key
+			ECDiffieHellmanPublicKey clientKey = CryptoUtils.CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs");
 
 			// EC key to generate shared secret
 
@@ -106,15 +107,25 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 		}
 
 
-		//		[Test]
-		//		public void TestKeyMangling()
-		//		{
-		//			string certString = @"MHQCAQEEIKG5lvBghT6E/yPuAP5e8HFIev0WrvrUWk2AQHK9JGvXoAcGBSuBBAAK
-		//oUQDQgAEkAJfIFbTAEq0+7tPRmEoQhxzYzB3rd/gsORnd7ILCEqCx3dxPUJMvNqp
-		//9LowF6yjrE921Zxlxfrp99pYaSWfrg==";
+		[Test]
+		public void TestKeyMangling()
+		{
+			string keyString = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs";
+			byte[] keyBytes = Base64Url.Decode(keyString);
 
-		//			//CngKey.Import(Convert.FromBase64String(certString), CngKeyBlobFormat.Pkcs8PrivateBlob);
-		//		}
+			ECDiffieHellmanPublicKey clientKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(keyString);
+
+			byte[] outBytes = clientKey.GetDerEncoded();
+
+			string outString = Convert.ToBase64String(outBytes);
+
+			Console.WriteLine(Package.HexDump(keyBytes));
+			Console.WriteLine(Package.HexDump(outBytes));
+
+			Assert.AreEqual(keyBytes, outBytes);
+
+			Assert.AreEqual(keyString, outString);
+		}
 
 		[Test]
 		public void TestDecrytp()

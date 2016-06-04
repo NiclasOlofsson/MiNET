@@ -401,7 +401,7 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Server Public Key | string |  |
-|Random Key Token | byte[] | 0 |
+|Random Key Token | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Client Magic (0x04)
 

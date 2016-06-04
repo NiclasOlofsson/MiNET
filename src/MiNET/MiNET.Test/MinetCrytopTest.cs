@@ -5,7 +5,13 @@ using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Jose;
+using MiNET.Net;
+using MiNET.Utils;
 using NUnit.Framework;
+using Org.BouncyCastle.Asn1.Pkcs;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Pkcs;
+using Org.BouncyCastle.Security;
 
 namespace MiNET
 {
@@ -37,50 +43,68 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			Assert.AreEqual("1.2.840.10045.2.1", c.GetKeyAlgorithm());
 			Assert.AreEqual("06052B81040022", c.GetKeyAlgorithmParametersString());
 			Assert.AreEqual("ECC", c.PublicKey.Oid.FriendlyName);
-			ECDiffieHellmanPublicKey certKey = ImportEccPublicKeyFromCertificate(c);
-			Console.WriteLine(certKey.ToXmlString());
+			ECDiffieHellmanPublicKey certKey = CryptoUtils.ImportEccPublicKeyFromCertificate(c);
+			//Console.WriteLine(certKey.ToXmlString());
 
-			ECDiffieHellmanPublicKey clientKey = CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs");
+			// https://blogs.msdn.microsoft.com/shawnfa/2007/01/22/elliptic-curve-diffie-hellman/
 
-			//ECDiffieHellmanCng bob = new ECDiffieHellmanCng(clientKey)
-			//{
-			//	KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash,
-			//	HashAlgorithm = CngAlgorithm.Rsa
-			//};
-			//byte[] bobKey = bob.DeriveKeyMaterial(bob.PublicKey);
+			{
+				string input = "eyJhbGciOiJFUzM4NCIsIng1dSI6Ik1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFN25uWnBDZnhtQ3JTd0RkQnY3ZUJYWE10S2hyb3hPcmlFcjNobU1PSkF1dy9acFFYajFLNUdHdEhTNENwRk50dGQxSllBS1lvSnhZZ2F5a3BpZTBFeUF2M3FpSzZ1dElIMnFuT0F0M1ZOclFZWGZJWkpTL1ZSZTNJbDhQZ3U5Q0IifQo.eyJleHAiOjE0NjQ5ODM4NDUsImV4dHJhRGF0YSI6eyJkaXNwbGF5TmFtZSI6Imd1cnVueCIsImlkZW50aXR5IjoiYWY2ZjdjNWUtZmNlYS0zZTQzLWJmM2EtZTAwNWU0MDBlNTc4In0sImlkZW50aXR5UHVibGljS2V5IjoiTUhZd0VBWUhLb1pJemowQ0FRWUZLNEVFQUNJRFlnQUU3bm5acENmeG1DclN3RGRCdjdlQlhYTXRLaHJveE9yaUVyM2htTU9KQXV3L1pwUVhqMUs1R0d0SFM0Q3BGTnR0ZDFKWUFLWW9KeFlnYXlrcGllMEV5QXYzcWlLNnV0SUgycW5PQXQzVk5yUVlYZklaSlMvVlJlM0lsOFBndTlDQiIsIm5iZiI6MTQ2NDk4Mzg0NH0K.4OrvYYbX09iwOkz-7_N_5yEejuATcUogEbe69fB-kr7r6sH_qSu6bxp9L64SEgABb0rU7tyYCLVnaCSQjd9Dvb34WI9EducgOPJ92qHspcpXr7j716LDfhZE31ksMtWQ";
 
-			Console.WriteLine(clientKey.ToXmlString());
+				ECDiffieHellmanPublicKey rootKey = CryptoUtils.CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V");
+
+				Console.WriteLine($"Root Public Key:\n{rootKey.ToXmlString()}");
+				CngKey key = CngKey.Import(rootKey.ToByteArray(), CngKeyBlobFormat.EccPublicBlob);
+
+				Console.WriteLine("Key family: " + key.AlgorithmGroup);
+				//   "identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7nnZpCfxmCrSwDdBv7eBXXMtKhroxOriEr3hmMOJAuw/ZpQXj1K5GGtHS4CpFNttd1JYAKYoJxYgaykpie0EyAv3qiK6utIH2qnOAt3VNrQYXfIZJS/VRe3Il8Pgu9CB",
+
+				var newKey = CryptoUtils.ImportECDsaCngKeyFromString("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7nnZpCfxmCrSwDdBv7eBXXMtKhroxOriEr3hmMOJAuw/ZpQXj1K5GGtHS4CpFNttd1JYAKYoJxYgaykpie0EyAv3qiK6utIH2qnOAt3VNrQYXfIZJS/VRe3Il8Pgu9CB");
+				string decoded = JWT.Decode(input, newKey);
+				//Assert.AreEqual("", decoded);
+
+
+				//ECDsaCng t = new ECDsaCng();
+				//t.HashAlgorithm = CngAlgorithm.ECDiffieHellmanP384;
+				//t.KeySize = 384;
+				//byte[] test = t.Key.Export(CngKeyBlobFormat.EccPublicBlob);
+				//Assert.AreEqual(test, newKey);
+
+				//string decoded = JWT.Decode(input, t.Key);
+			}
+			// Public key
+			ECDiffieHellmanPublicKey clientKey = CryptoUtils.CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs");
+
+			// Private key
+			AsymmetricKeyParameter privKey = PrivateKeyFactory.CreateKey(Base64Url.Decode("MB8CAQAwEAYHKoZIzj0CAQYFK4EEACIECDAGAgEBBAEB"));
+			PrivateKeyInfo privKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(privKey);
+			byte[] derKey = privKeyInfo.GetDerEncoded();
+			CngKey privCngKey = CngKey.Import(derKey, CngKeyBlobFormat.Pkcs8PrivateBlob);
+
+
+			Console.WriteLine(privKeyInfo.PrivateKeyAlgorithm.Algorithm);
+			Console.WriteLine(privCngKey.Algorithm.Algorithm);
+
+			// EC key to generate shared secret
+
+			ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(privCngKey);
+			ecKey.HashAlgorithm = CngAlgorithm.Sha256;
+			ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+			ecKey.SecretPrepend = new byte[128]; // Server token
+			//ecKey.SecretPrepend = new byte[0]; // Server token
+
+			Console.WriteLine(ecKey.HashAlgorithm);
+			Console.WriteLine(ecKey.KeyExchangeAlgorithm);
+
+			byte[] secret = ecKey.DeriveKeyMaterial(clientKey);
+
+			Console.WriteLine(Package.HexDump(secret));
+			Console.WriteLine(Package.HexDump(Base64Url.Decode("ZOBpyzki/M8UZv5tiBih048eYOBVPkQE3r5Fl0gmUP4=")));
+			Console.WriteLine(Package.HexDump(Base64Url.Decode("DEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyod")));
+
+			//Console.WriteLine(Package.HexDump(Base64Url.Decode("DEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyod")));
 		}
 
-		private ECDiffieHellmanPublicKey CreateEcDiffieHellmanPublicKey(string clientPubKeyString)
-		{
-			byte[] clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
-			clientPublicKeyBlob = FixPublicKey(clientPublicKeyBlob.Skip(23).ToArray());
-
-			ECDiffieHellmanPublicKey clientKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
-			return clientKey;
-		}
-
-		private byte[] FixPublicKey(byte[] publicKeyBlob)
-		{
-			var keyType = new byte[] {0x45, 0x43, 0x4b, 0x33};
-			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
-
-			return keyType.Concat(keyLength).Concat(publicKeyBlob.Skip(1)).ToArray();
-		}
-
-
-		private static ECDiffieHellmanPublicKey ImportEccPublicKeyFromCertificate(X509Certificate2 cert)
-		{
-			var keyType = new byte[] {0x45, 0x43, 0x4b, 0x33};
-			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
-			var key = cert.PublicKey.EncodedKeyValue.RawData.Skip(1);
-			var keyImport = keyType.Concat(keyLength).Concat(key).ToArray();
-
-			//Assert.AreEqual(privateKey, keyImport);
-
-			return ECDiffieHellmanCngPublicKey.FromByteArray(keyImport, CngKeyBlobFormat.EccPublicBlob);
-		}
 
 		//		[Test]
 		//		public void TestKeyMangling()

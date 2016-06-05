@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
@@ -106,6 +108,25 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			//Console.WriteLine(Package.HexDump(Base64Url.Decode("DEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyod")));
 		}
 
+		[Test]
+		public void TestGenerateSecret()
+		{
+			string keyString = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEDEKneqEvcqUqqFMM1HM1A4zWjJC+I8Y+aKzG5dl+6wNOHHQ4NmG2PEXRJYhujyodFH+wO0dEr4GM1WoaWog8xsYQ6mQJAC0eVpBM96spUB1eMN56+BwlJ4H3Qx4TAvAs";
+			byte[] keyBytes = Base64Url.Decode(keyString);
+
+			ECDiffieHellmanPublicKey clientKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(keyString);
+
+			ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
+			ecKey.HashAlgorithm = CngAlgorithm.Sha256;
+			ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+			ecKey.SecretPrepend = new byte[128]; // Server token
+			//ecKey.SecretPrepend = new byte[0]; // Server token
+
+			Console.WriteLine(ecKey.HashAlgorithm);
+			Console.WriteLine(ecKey.KeyExchangeAlgorithm);
+
+			byte[] secret = ecKey.DeriveKeyMaterial(clientKey);
+		}
 
 		[Test]
 		public void TestKeyMangling()
@@ -169,6 +190,8 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 					rijAlg.Key = Base64Url.Decode("ZOBpyzki/M8UZv5tiBih048eYOBVPkQE3r5Fl0gmUP4=");
 					rijAlg.IV = Base64Url.Decode("ZOBpyzki/M8UZv5tiBih0w==");
 
+					Assert.AreEqual(32, rijAlg.Key.Length);
+
 					Assert.AreEqual(rijAlg.Key.Take(16).ToArray(), rijAlg.IV);
 
 					// Create a decrytor to perform the stream transform.
@@ -212,34 +235,105 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			}
 		}
 
-		private static readonly byte[] _nullAsnBytes = new byte[] {0, 5};
-
-		public RSACryptoServiceProvider GetCryptoServiceProvider(byte[] asnDerPublicKey)
+		[Test]
+		public void TestRealDecrytp()
 		{
-			var nullAsnValue = new AsnEncodedData(_nullAsnBytes);
+			// YFtS5MGIU/UQ2w2n3RdqMoBcHOzqEQqISOyKD+W9Prk=
 
-			//X509Certificate2 t;
-			//t.PublicKey
+			using (RijndaelManaged rijAlg = new RijndaelManaged())
+			{
+				rijAlg.BlockSize = 128;
+				rijAlg.Padding = PaddingMode.None;
+				rijAlg.Mode = CipherMode.CFB;
+				rijAlg.FeedbackSize = 8;
 
-			//string friendlyName = this.GetKeyAlgorithm();
-			//byte[] parameters = this.GetKeyAlgorithmParameters();
-			//byte[] keyValue = this.GetPublicKey();
-			//Oid oid = new Oid(friendlyName, OidGroup.PublicKeyAlgorithm, true);
-			//m_publicKey = new PublicKey(oid, new AsnEncodedData(oid, parameters), new AsnEncodedData(oid, keyValue));
+				rijAlg.Key = Base64Url.Decode("Tv9JFj4vhftDXgcjpNWNocWZrVKaVpF+icEh51M8MvI=");
+				rijAlg.IV = rijAlg.Key.Take(16).ToArray();
 
-			ECDiffieHellmanCngPublicKey.FromByteArray(asnDerPublicKey.Skip(17).Take(104).ToArray(), CngKeyBlobFormat.EccPublicBlob);
+				Assert.AreEqual(rijAlg.Key.Take(16).ToArray(), rijAlg.IV);
 
-			//var publi = new PublicKey(new Oid("1.2.840.10045.2.1"), new AsnEncodedData(new Oid("1.3.132.0.34"), _nullAsnBytes), new AsnEncodedData(new Oid("1.2.840.10045.2.1"), asnDerPublicKey));
-			//return (RSACryptoServiceProvider) publi.Key;
+				// Create a decrytor to perform the stream transform.
+				ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
 
-			//const string RSA_OID = "1.2.840.113549.1.1.1";
-			//var oid = new Oid(RSA_OID);
-			//var asnPublicKey = new AsnEncodedData(oid, asnDerPublicKey);
-			//var publicKey = new PublicKey(oid, nullAsnValue, asnPublicKey);
-			//Assert.IsTrue(publicKey.Key is RSACryptoServiceProvider);
-			//return publicKey.Key as RSACryptoServiceProvider;
+				// Create the streams used for decryption.
+				using (MemoryStream msDecrypt = new MemoryStream())
+				using (var clearBuffer = new MemoryStream())
+				{
+					byte[] buffer1 = SoapHexBinary.Parse("172e0592aba239d86b7ca2384cfad4e4fa5b883ff6db73931ecd").Value;
+					msDecrypt.Write(buffer1, 0, buffer1.Length);
+					msDecrypt.Position = 0;
+					using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+					{
+						var buffer = new byte[1024];
+						var read = csDecrypt.Read(buffer, 0, buffer.Length);
+						while (read > 0)
+						{
+							clearBuffer.Write(buffer, 0, read);
+							read = csDecrypt.Read(buffer, 0, buffer.Length);
+						}
+						csDecrypt.Flush();
 
-			return null;
+						var result = clearBuffer.ToArray();
+
+						Assert.AreEqual(6, result[0]);
+
+						Package message = PackageFactory.CreatePackage(result[0], result, "mcpe");
+						Assert.NotNull(message);
+						Assert.AreEqual(typeof (McpeBatch), message.GetType());
+
+						List<Package> messages = HandleBatch((McpeBatch) message);
+						McpeClientMagic magic = (McpeClientMagic) messages.FirstOrDefault();
+						Assert.AreEqual(typeof (McpeClientMagic), magic?.GetType());
+
+						// Hashing
+						MemoryStream hashStream = new MemoryStream();
+						Assert.True(BitConverter.IsLittleEndian);
+						hashStream.Write(BitConverter.GetBytes(0L), 0, 8);
+						hashStream.Write(result, 0, result.Length);
+						hashStream.Write(rijAlg.Key, 0, rijAlg.Key.Length);
+
+						SHA256Managed crypt = new SHA256Managed();
+						var hashBuffer = hashStream.ToArray();
+						byte[] crypto = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length).Take(8).ToArray();
+						Assert.AreEqual(SoapHexBinary.Parse("5A446D11C0C7AA5A").Value, crypto);
+					}
+				}
+			}
+		}
+
+		private List<Package> HandleBatch(McpeBatch batch)
+		{
+			var messages = new List<Package>();
+
+			// Get bytes
+			byte[] payload = batch.payload;
+			// Decompress bytes
+
+			Console.WriteLine("Package:\n" + Package.HexDump(payload));
+
+			MemoryStream stream = new MemoryStream(payload);
+			if (stream.ReadByte() != 0x78)
+			{
+				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+			}
+			stream.ReadByte();
+			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+			{
+				// Get actual package out of bytes
+				MemoryStream destination = new MemoryStream();
+				defStream2.CopyTo(destination);
+				destination.Position = 0;
+				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+				int len = reader.ReadInt32();
+				byte[] internalBuffer = reader.ReadBytes(len);
+
+				Console.WriteLine($"Package [len={len}:\n" + Package.HexDump(internalBuffer));
+
+				messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+				if (destination.Length > destination.Position) throw new Exception("Have more data");
+			}
+
+			return messages;
 		}
 	}
 }

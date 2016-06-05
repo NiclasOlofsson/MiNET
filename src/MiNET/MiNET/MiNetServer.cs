@@ -81,7 +81,7 @@ namespace MiNET
 			//byte[] data = Base64Url.Decode(certString);
 			string cert2 = @"MIIB0TCCATqgAwIBAgIQUq+2SdEkLr5K6xqjSEvRsDANBgkqhkiG9w0BAQUFADAUMRIwEAYDVQQDEwlsb2NhbGhvc3QwHhcNMTIwODA0MDA0OTEyWhcNMTcwODA0MDAwMDAwWjAUMRIwEAYDVQQDEwlsb2NhbGhvc3QwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAKjGuGT8NN5chlGSHIqEgjgceLQOX41f46MvYZMbGecoaFcl4yGAcU210oJeZyAjoZiuKueNdugqN4sTNq7IKpnK+cqNOr44aH1lCh6zAPz+KT/KtKuOBhXvYpv6QL4eDVVYpMfHNk120xaItE+pk75ZKh6aXmh+v4HIFD/Off8XAgMBAAGjJDAiMAsGA1UdDwQEAwIEsDATBgNVHSUEDDAKBggrBgEFBQcDATANBgkqhkiG9w0BAQUFAAOBgQCIBC/BE4ObFNbI6UV7bpg4abxrQDG+HYhMrLyw29jB4KNyeJPzkDHUkTuaY2nd44bYEpmaBy7XJ5UIGEkuD3VIxT2S+2bCwkRR+9/+7vggR2q7l7YEktM2mFBIyqOMOroAw+5cdc06c/B7UimwKFczsyhi9LUIr3rXI42FdXBHWw==";
 			byte[] cert3 = Base64Url.Decode(cert2);
-			Log.Debug($"Data: { Encoding.UTF8.GetString(cert3)  }");
+			Log.Debug($"Data: {Encoding.UTF8.GetString(cert3)}");
 
 			var cert = new X509Certificate2();
 			cert.Import(cert3);
@@ -907,10 +907,6 @@ namespace MiNET
 					Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
 
 				message = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
-				if (message is McpeLogin)
-				{
-					Log.Info("Decoded new login");
-				}
 			}
 
 

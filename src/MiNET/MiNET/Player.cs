@@ -703,8 +703,6 @@ namespace MiNET
 
 			//SendPlayerStatus(0); // Hmm, login success?
 
-			var response = new McpeServerExchange();
-
 			//Username = message.username;
 			//ClientId = message.clientId;
 			//ClientUuid = message.clientUuid;
@@ -715,7 +713,7 @@ namespace MiNET
 			////Log.Info($"Writing skin to filename: {fileName}");
 			////Skin.SaveTextureToFile(fileName, Skin.Texture);
 
-			//var serverInfo = Server.ServerInfo;
+			var serverInfo = Server.ServerInfo;
 
 			//if (ClientSecret != null)
 			//{
@@ -727,9 +725,9 @@ namespace MiNET
 			//	}
 			//}
 
-			//// THIS counter exist to protect the level from being swamped with player list add
-			//// attempts during startup (normally).
-			//Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+			// THIS counter exist to protect the level from being swamped with player list add
+			// attempts during startup (normally).
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
 			//new Thread(Start).Start();
 		}
@@ -784,7 +782,8 @@ namespace MiNET
 						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
 						var payload = JWT.Payload(o.ToString());
 						Log.Debug($"JWT Header: {string.Join(";", headers)}");
-						Log.Debug($"JWT Payload:\n{JObject.Parse(payload)}");
+						dynamic jsonPayload = JObject.Parse(payload);
+						Log.Debug($"JWT Payload:\n{jsonPayload}");
 
 						//{
 						//	"exp": 1464983845,
@@ -796,8 +795,8 @@ namespace MiNET
 						//	"nbf": 1464983844
 						//}
 
-						Username = o.extraData.displayName;
-						string identity = o.extraData.identity;
+						Username = jsonPayload.extraData.displayName;
+						string identity = jsonPayload.extraData.identity;
 						Log.Debug($"Connecting user {Username} with identity={identity}");
 
 
@@ -805,14 +804,36 @@ namespace MiNET
 						{
 							string certString = headers["x5u"];
 							Log.Debug($"x5u cert (string): {certString}");
+
 							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
 							Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
-							ECDiffieHellmanPublicKey rootKey = CryptoUtils.CreateEcDiffieHellmanPublicKey("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V");
-							Log.Debug($"Root Public Key:\n{rootKey.ToXmlString()}");
-
-							var newKey = CryptoUtils.ImportECDsaCngKeyFromString("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7nnZpCfxmCrSwDdBv7eBXXMtKhroxOriEr3hmMOJAuw/ZpQXj1K5GGtHS4CpFNttd1JYAKYoJxYgaykpie0EyAv3qiK6utIH2qnOAt3VNrQYXfIZJS/VRe3Il8Pgu9CB");
+							// Validate
+							var newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
 							string decoded = JWT.Decode(o.ToString(), newKey);
+
+							// Create shared shared secret
+							ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
+							ecKey.HashAlgorithm = CngAlgorithm.Sha256;
+							ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+							ecKey.SecretPrepend = Encoding.UTF8.GetBytes("RANDOM SECRET"); // Server token
+
+							byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
+
+							Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
+
+							//string intyre = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEttJo+Pw4qge1a4aks+pI1sUFqBDmXHdGaugjpJhPEdOcwcKf1tZ9ukFtg8n4SRXOcSQtM5WYZX3gHuIjp0Q7CN8Wp03pX98d1SofrpDWMhg8pfxauDfpPe44C6kUd0SB";
+
+							var response = McpeServerExchange.CreateObject();
+							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
+							response.randomKeyToken = Encoding.UTF8.GetString(ecKey.SecretPrepend);
+							var bytes = response.Encode();
+							response.PutPool();
+
+							var wrapper = McpeWrapper.CreateObject();
+							wrapper.payload = bytes;
+
+							SendPackage(wrapper);
 						}
 					}
 				}
@@ -837,7 +858,7 @@ namespace MiNET
 					new Skin()
 					{
 						SkinType = payload.SkinData,
-						Texture = Base64Url.Decode(payload.SkinData),
+						Texture = Convert.FromBase64String((string) payload.SkinData),
 					};
 				}
 			}

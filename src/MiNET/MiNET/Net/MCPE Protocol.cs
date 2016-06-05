@@ -1231,7 +1231,6 @@ namespace MiNET.Net
 
 	public partial class McpeClientMagic : Package<McpeClientMagic>
 	{
-		public string clientName; // = null;
 		public McpeClientMagic()
 		{
 			Id = 0x04;
@@ -1243,7 +1242,6 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(clientName);
 
 			AfterEncode();
 		}
@@ -1257,7 +1255,6 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			clientName = ReadString();
 
 			AfterDecode();
 		}

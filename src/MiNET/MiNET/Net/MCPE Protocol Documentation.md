@@ -415,7 +415,6 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Client Name | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Disconnect (0x05)
 

@@ -589,7 +589,7 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
-		private AutoResetEvent _autoEvent = new AutoResetEvent(true);
+		private ManualResetEvent _waitEvent = new ManualResetEvent(false);
 
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
@@ -618,7 +618,8 @@ namespace MiNET
 				if (current != comparand)
 				{
 					Log.Warn($"Recived datagrams out of order for {player?.Username} Current: #{current} != New: #{datagramSequenceNumber} - 1");
-					_autoEvent.WaitOne(100);
+					_waitEvent.Reset();
+					_waitEvent.WaitOne(100);
 					continue;
 				}
 
@@ -656,7 +657,7 @@ namespace MiNET
 				message.PutPool(); // Handled in HandlePacket now()
 			}
 
-			_autoEvent.Set();
+			_waitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)

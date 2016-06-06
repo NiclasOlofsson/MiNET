@@ -1070,11 +1070,6 @@ namespace MiNET.Net
 
 		public virtual byte[] Encode()
 		{
-			return Encode(false);
-		}
-
-		public virtual byte[] Encode(bool prependByte)
-		{
 			lock (_encodeSync)
 			{
 				if (_isEncoded) return _encodedMessage;

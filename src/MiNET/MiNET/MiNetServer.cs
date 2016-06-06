@@ -589,14 +589,51 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
+		private AutoResetEvent _autoEvent = new AutoResetEvent(true);
+
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
 			Player player = playerSession.Player;
 
-			if (Interlocked.CompareExchange(ref playerSession.LastDatagramNumber, package._datagramSequenceNumber, package._datagramSequenceNumber - 1) != package._datagramSequenceNumber - 1)
+			if (new Random().Next(20) == 0)
 			{
-				Log.Warn($"Recived datagrams out of order for {player?.Username} {playerSession.LastDatagramNumber} != {package._datagramSequenceNumber}+1");
-				Interlocked.Exchange(ref playerSession.LastDatagramNumber, package._datagramSequenceNumber);
+				// Debug force packet unordered.
+				Log.Debug("Sleeping for unorder");
+				Thread.Sleep(50);
+			}
+
+			long datagramSequenceNumber = package._datagramSequenceNumber.IntValue();
+
+			int countDown = 1000;
+			while (datagramSequenceNumber > 0 && countDown-- > 0)
+			{
+				if (datagramSequenceNumber <= playerSession.LastDatagramNumber)
+				{
+					Log.Warn($"Detected resend out of order for {player?.Username} #{datagramSequenceNumber}");
+					return;
+				}
+
+				long comparand = datagramSequenceNumber - 1L;
+				var current = Interlocked.CompareExchange(ref playerSession.LastDatagramNumber, datagramSequenceNumber, comparand);
+				if (current != comparand)
+				{
+					Log.Warn($"Recived datagrams out of order for {player?.Username} Current: #{current} != New: #{datagramSequenceNumber} - 1");
+					_autoEvent.WaitOne(100);
+					continue;
+				}
+
+				if(countDown < 999)
+				{
+					//Log.Warn($"Set new current for {player?.Username} to #{current}");
+					Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{datagramSequenceNumber}");
+				}
+
+				break;
+			}
+
+			if (countDown <= 0)
+			{
+				throw new Exception("Never caught up with datagram sequence");
 			}
 
 			List<Package> messages = package.Messages;
@@ -618,6 +655,8 @@ namespace MiNET
 				HandlePackage(message, playerSession);
 				message.PutPool(); // Handled in HandlePacket now()
 			}
+
+			_autoEvent.Set();
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)
@@ -665,9 +704,6 @@ namespace MiNET
 				byte[] buffer = stream.ToArray();
 				try
 				{
-					if (Log.IsDebugEnabled)
-						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
 
 					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
@@ -680,6 +716,8 @@ namespace MiNET
 				catch (Exception e)
 				{
 					Log.Error("Error during split message parsing", e);
+					if (Log.IsDebugEnabled)
+						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
 					player.Disconnect("Bad package received from client.");
 				}
 			}
@@ -912,8 +950,8 @@ namespace MiNET
 					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
 				}
 
-				if (Log.IsDebugEnabled)
-					Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
+				//if (Log.IsDebugEnabled)
+				//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
 
 				message = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
 			}
@@ -949,8 +987,8 @@ namespace MiNET
 						int len = reader.ReadInt32();
 						byte[] internalBuffer = reader.ReadBytes(len);
 
-						if (Log.IsDebugEnabled)
-							Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+						//if (Log.IsDebugEnabled)
+						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
 
 						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
 					}

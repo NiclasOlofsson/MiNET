@@ -276,7 +276,7 @@ namespace MiNET.Worlds
 				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 				batch.payloadSize = buffer.Length;
 				batch.payload = buffer;
-				batch.Encode(true);
+				batch.Encode();
 				batch.MarkPermanent();
 
 				_cachedBatch = batch;
@@ -391,7 +391,7 @@ namespace MiNET.Worlds
 			McpeBatch batch = McpeBatch.CreateObject();
 			batch.payloadSize = _cachedBatch.payloadSize;
 			batch.payload = _cachedBatch.payload;
-			batch.Encode(true);
+			batch.Encode();
 			batch.MarkPermanent();
 
 			cc._cachedBatch = batch;

@@ -356,6 +356,7 @@
 		<field name="Face" type="byte" />
 		<field name="FaceCoordinates" type="Vector3" />
 		<field name="PlayerPosition" type="Vector3" />
+		<field name="Unknown" type="byte[]" size="4"/>
 		<field name="Item" type="Item" />
 	</pdu>
 

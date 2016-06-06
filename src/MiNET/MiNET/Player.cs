@@ -775,8 +775,8 @@ namespace MiNET
 				certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(Endian.SwapInt32(reader.ReadInt32())));
 				skinData = Encoding.UTF8.GetString(reader.ReadBytes(Endian.SwapInt32(reader.ReadInt32())));
 
-				if (Log.IsDebugEnabled)
-					Log.Debug($"\n{Package.HexDump(destination.ToArray())}");
+				//if (Log.IsDebugEnabled)
+				//	Log.Debug($"\n{Package.HexDump(destination.ToArray())}");
 			}
 
 
@@ -2729,7 +2729,7 @@ namespace MiNET
 
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
-			batch.Encode(true);
+			batch.Encode();
 
 			memStream.Position = 0;
 			memStream.SetLength(0);

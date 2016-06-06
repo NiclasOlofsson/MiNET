@@ -100,7 +100,6 @@ namespace MiNET.Net
 			if (message is InternalPing) yield break;
 
 			Datagram datagram = CreateObject();
-			//datagram.Reset();
 
 			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref session.ReliableMessageNumber, session);
 			foreach (var messagePart in messageParts)
@@ -110,7 +109,6 @@ namespace MiNET.Net
 					yield return datagram;
 
 					datagram = CreateObject();
-					//datagram.Reset();
 
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{

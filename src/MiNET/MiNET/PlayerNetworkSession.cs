@@ -33,7 +33,7 @@ namespace MiNET
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
-		public long LastDatagramNumber = -1;
+		public long LastDatagramNumber = 0;
 
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }

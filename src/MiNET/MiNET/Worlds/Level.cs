@@ -179,7 +179,7 @@ namespace MiNET.Worlds
 			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
-			batch.Encode(true);
+			batch.Encode();
 			return batch;
 		}
 
@@ -534,7 +534,7 @@ namespace MiNET.Worlds
 			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Optimal);
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
-			batch.Encode(true);
+			batch.Encode();
 
 			foreach (var player in players)
 			{

@@ -811,7 +811,7 @@ namespace TestPlugin.NiceLobby
 			batch.MarkPermanent();
 			batch.payloadSize = buffer.Length;
 			batch.payload = buffer;
-			batch.Encode(true);
+			batch.Encode();
 			return batch;
 		}
 

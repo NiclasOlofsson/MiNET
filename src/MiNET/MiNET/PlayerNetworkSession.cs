@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using MiNET.Net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -32,10 +33,12 @@ namespace MiNET
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
-		public int LastDatagramNumber { get; set; }
+		public long LastDatagramNumber = -1;
 
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
+
+		public CryptoContext CryptoContext { get; set; }
 
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint, short mtuSize)
 		{

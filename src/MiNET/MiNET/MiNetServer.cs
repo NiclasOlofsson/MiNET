@@ -382,7 +382,6 @@ namespace MiNET
 						EnqueueAck(playerSession, package._datagramSequenceNumber);
 					}
 
-
 					DelayedProcessing(playerSession, package);
 					package.PutPool();
 				}
@@ -594,10 +593,16 @@ namespace MiNET
 		{
 			Player player = playerSession.Player;
 
+			if (Interlocked.CompareExchange(ref playerSession.LastDatagramNumber, package._datagramSequenceNumber, package._datagramSequenceNumber - 1) != package._datagramSequenceNumber - 1)
+			{
+				Log.Warn($"Recived datagrams out of order for {player?.Username} {playerSession.LastDatagramNumber} != {package._datagramSequenceNumber}+1");
+				Interlocked.Exchange(ref playerSession.LastDatagramNumber, package._datagramSequenceNumber);
+			}
+
 			List<Package> messages = package.Messages;
 			foreach (var message in messages)
 			{
-				//message.DatagramSequenceNumber = package._datagramSequenceNumber;
+				message.DatagramSequenceNumber = package._datagramSequenceNumber;
 				//message.ReliableMessageNumber = package._reliableMessageNumber;
 				//message.OrderingChannel = package._orderingChannel;
 				//message.OrderingIndex = package._orderingIndex;
@@ -887,7 +892,7 @@ namespace MiNET
 				return;
 			}
 
-			TraceReceive(message);
+			TraceReceive(message, message.DatagramSequenceNumber);
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -902,6 +907,10 @@ namespace MiNET
 
 				// Get bytes
 				byte[] payload = batch.payload;
+				if (playerSession.CryptoContext != null)
+				{
+					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+				}
 
 				if (Log.IsDebugEnabled)
 					Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
@@ -934,14 +943,18 @@ namespace MiNET
 					defStream2.CopyTo(destination);
 					destination.Position = 0;
 					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-					int len = reader.ReadInt32();
-					byte[] internalBuffer = reader.ReadBytes(len);
 
-					if (Log.IsDebugEnabled)
-						Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+					while (destination.Position < destination.Length)
+					{
+						int len = reader.ReadInt32();
+						byte[] internalBuffer = reader.ReadBytes(len);
 
-					//byte[] internalBuffer = destination.ToArray();
-					messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+						if (Log.IsDebugEnabled)
+							Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+
+						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+					}
+
 					if (destination.Length > destination.Position) throw new Exception("Have more data");
 				}
 				foreach (var msg in messages)
@@ -1180,23 +1193,28 @@ namespace MiNET
 			}
 		}
 
+		private object _sendSync = new object();
+
 		public void SendPackage(Player player, Package message, Reliability reliability = Reliability.Reliable)
 		{
 			if (message == null) return;
 
-			PlayerNetworkSession session;
-			if (_playerSessions.TryGetValue(player.EndPoint, out session))
+			lock (_sendSync)
 			{
-				foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
+				PlayerNetworkSession session;
+				if (_playerSessions.TryGetValue(player.EndPoint, out session))
 				{
-					SendDatagram(session, datagram);
+					foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
+					{
+						SendDatagram(session, datagram);
+					}
+
+					TraceSend(message);
+
+					message.PutPool();
+
+					//Thread.Sleep(5); // Really important to slow down speed a bit
 				}
-
-				TraceSend(message);
-
-				message.PutPool();
-
-				//Thread.Sleep(1); // Really important to slow down speed a bit
 			}
 		}
 

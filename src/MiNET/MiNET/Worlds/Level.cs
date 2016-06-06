@@ -595,7 +595,7 @@ namespace MiNET.Worlds
 					return;
 				}
 
-				player.SendPackage(message, sendDirect);
+				player.SendPackage(message);
 			});
 		}
 

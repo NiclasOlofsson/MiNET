@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Jose;
 using log4net;
+using MiNET.Utils;
 
 namespace MiNET.Net
 {
@@ -100,7 +102,7 @@ namespace MiNET.Net
 			Datagram datagram = CreateObject();
 			//datagram.Reset();
 
-			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref session.ReliableMessageNumber);
+			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref session.ReliableMessageNumber, session);
 			foreach (var messagePart in messageParts)
 			{
 				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
@@ -121,12 +123,33 @@ namespace MiNET.Net
 			yield return datagram;
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, ref int reliableMessageNumber)
+		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, ref int reliableMessageNumber, PlayerNetworkSession session)
 		{
 			var messageParts = new List<MessagePart>();
 
-			byte[] encodedMessage = null;
-			encodedMessage = message.Encode();
+			byte[] encodedMessage =  message.Encode();
+
+			CryptoContext cryptoContext = session.CryptoContext;
+			if(cryptoContext != null && !(message is ConnectedPong))
+			{
+
+				McpeWrapper wrapper = McpeWrapper.CreateObject();
+
+				if (message.ForceClear)
+				{
+					wrapper.payload = encodedMessage;
+				}
+				else
+				{
+					wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
+				}
+
+				encodedMessage = wrapper.Encode();
+				wrapper.PutPool();
+			}
+
+			//if (Log.IsDebugEnabled)
+			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
 
 			if (encodedMessage == null) return messageParts;
 

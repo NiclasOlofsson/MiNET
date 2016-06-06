@@ -127,6 +127,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Ping Id | long |  |
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|GUID | long |  |
 -----------------------------------------------------------------------
 ###Package: Connected Pong (0x03)
 

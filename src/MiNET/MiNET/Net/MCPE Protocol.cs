@@ -483,6 +483,7 @@ namespace MiNET.Net
 	{
 		public long pingId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public long guid; // = null;
 		public UnconnectedPing()
 		{
 			Id = 0x01;
@@ -496,6 +497,7 @@ namespace MiNET.Net
 
 			Write(pingId);
 			Write(offlineMessageDataId);
+			Write(guid);
 
 			AfterEncode();
 		}
@@ -511,6 +513,7 @@ namespace MiNET.Net
 
 			pingId = ReadLong();
 			ReadBytes(offlineMessageDataId.Length);
+			guid = ReadLong();
 
 			AfterDecode();
 		}

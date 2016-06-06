@@ -1,12 +1,19 @@
+using System;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using Jose;
+using log4net;
+using MiNET.Net;
 
 namespace MiNET.Utils
 {
 	public static class CryptoUtils
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (CryptoUtils));
+
 		public static byte[] GetDerEncoded(this ECDiffieHellmanPublicKey key)
 		{
 			byte[] asn = new byte[24]
@@ -66,6 +73,71 @@ namespace MiNET.Utils
 			var crypto = new ECDsaCng(cngKey);
 
 			return crypto.Key;
+		}
+
+		public static byte[] Encrypt(byte[] payload, CryptoContext cryptoContext)
+		{
+			var csEncrypt = cryptoContext.CryptoStreamOut;
+			var output = cryptoContext.OutputStream;
+			output.Position = 0;
+			output.SetLength(0);
+
+			using (MemoryStream hashStream = new MemoryStream())
+			{
+				// hash
+
+				SHA256Managed crypt = new SHA256Managed();
+
+				hashStream.Write(BitConverter.GetBytes(Interlocked.Increment(ref cryptoContext.SendCounter)), 0, 8);
+				hashStream.Write(payload, 0, payload.Length);
+				hashStream.Write(cryptoContext.Algorithm.Key, 0, cryptoContext.Algorithm.Key.Length);
+				var hashBuffer = hashStream.ToArray();
+
+				byte[] validationCheckSum = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length);
+
+				byte[] content = payload.Concat(validationCheckSum.Take(8)).ToArray();
+
+				csEncrypt.Write(content, 0, content.Length);
+				csEncrypt.Flush();
+			}
+
+			return output.ToArray();
+		}
+
+		public static byte[] Decrypt(byte[] payload, CryptoContext cryptoContext)
+		{
+			byte[] checksum;
+			byte[] clearBytes;
+
+			using (MemoryStream clearBuffer = new MemoryStream())
+			{
+				//if (Log.IsDebugEnabled)
+				//	Log.Debug($"Full payload\n{Package.HexDump(payload)}");
+
+				var input = cryptoContext.InputStream;
+				var csDecrypt = cryptoContext.CryptoStreamIn;
+
+				input.Position = 0;
+				input.SetLength(0);
+				input.Write(payload, 0, payload.Length);
+				input.Position = 0;
+
+				var buffer = new byte[payload.Length];
+				var read = csDecrypt.Read(buffer, 0, buffer.Length);
+				if (read <= 0) Log.Warn("Read 0 lenght from crypto stream");
+				clearBuffer.Write(buffer, 0, read);
+				csDecrypt.Flush();
+
+				var fullResult = clearBuffer.ToArray();
+
+				//if (Log.IsDebugEnabled)
+				//	Log.Debug($"Full content\n{Package.HexDump(fullResult)}");
+
+				clearBytes = (byte[]) fullResult.Take(fullResult.Length - 8).ToArray();
+				checksum = fullResult.Skip(fullResult.Length - 8).ToArray();
+			}
+
+			return clearBytes;
 		}
 	}
 }

@@ -31,6 +31,8 @@ namespace MiNET.Net
 		public int OrderingChannel = 0;
 		public int OrderingIndex = 0;
 
+		public bool ForceClear = false;
+
 		public byte Id;
 
 		protected MemoryStream _buffer;
@@ -83,7 +85,11 @@ namespace MiNET.Net
 
 		public void Write(byte[] value)
 		{
-			if (value == null) return;
+			if (value == null)
+			{
+				Log.Warn("Trying to write null byte[]");
+				return;
+			}
 
 			_writer.Write(value);
 		}

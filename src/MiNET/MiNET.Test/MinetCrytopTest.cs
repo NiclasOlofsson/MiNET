@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -79,7 +81,7 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			AsymmetricKeyParameter privKey = PrivateKeyFactory.CreateKey(Base64Url.Decode("MB8CAQAwEAYHKoZIzj0CAQYFK4EEACIECDAGAgEBBAEB"));
 			PrivateKeyInfo privKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(privKey);
 			byte[] derKey = privKeyInfo.GetDerEncoded();
-			CngKey privCngKey = CngKey.Import(derKey, CngKeyBlobFormat.GenericPublicBlob);
+			CngKey privCngKey = CngKey.Import(derKey, CngKeyBlobFormat.Pkcs8PrivateBlob);
 
 
 			Console.WriteLine(privKeyInfo.PrivateKeyAlgorithm.Algorithm);
@@ -203,12 +205,52 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 						byte[] buffer1 = SoapHexBinary.Parse("4B4FCA0C2A4114155D67F8092154AAA5EF").Value;
 						byte[] buffer2 = SoapHexBinary.Parse("DF53B9764DB48252FA1AE3AEE4").Value;
 						msDecrypt.Write(buffer1, 0, buffer1.Length);
+						msDecrypt.Position = 0;
+						using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+						{
+
+							byte[] result1 = new byte[17];
+							csDecrypt.Read(result1, 0, 17);
+
+							msDecrypt.Position = 0;
+							msDecrypt.SetLength(0); ;
+
+							msDecrypt.Write(buffer2, 0, buffer2.Length);
+							msDecrypt.Position = 0;
+
+							byte[] result2 = new byte[13];
+							csDecrypt.Read(result2, 0, 13);
+
+							Assert.AreEqual(SoapHexBinary.Parse("0400000000499602D2FC2FCB233F34D5DD").Value, result1);
+							Assert.AreEqual(SoapHexBinary.Parse("3C000000085A446D11C0C7AA5A").Value, result2);
+
+
+							// Hashing
+							MemoryStream hashStream = new MemoryStream();
+							Assert.True(BitConverter.IsLittleEndian);
+							hashStream.Write(BitConverter.GetBytes(1L), 0, 8);
+							byte[] text = SoapHexBinary.Parse("3C00000008").Value;
+							hashStream.Write(text, 0, text.Length);
+							hashStream.Write(rijAlg.Key, 0, rijAlg.Key.Length);
+
+							SHA256Managed crypt = new SHA256Managed();
+							var buffer = hashStream.ToArray();
+							byte[] crypto = crypt.ComputeHash(buffer, 0, buffer.Length).Take(8).ToArray();
+							Assert.AreEqual(SoapHexBinary.Parse("5A446D11C0C7AA5A").Value, crypto);
+						}
+					}
+					using (MemoryStream msDecrypt = new MemoryStream())
+					{
+						byte[] buffer1 = SoapHexBinary.Parse("4B4FCA0C2A4114155D67F8092154AAA5EF").Value;
+						byte[] buffer2 = SoapHexBinary.Parse("DF53B9764DB48252FA1AE3AEE4").Value;
+						msDecrypt.Write(buffer1, 0, buffer1.Length);
 						msDecrypt.Write(buffer2, 0, buffer2.Length);
 						msDecrypt.Position = 0;
 						using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
 						{
-							byte[] result1 = new byte[17];
-							csDecrypt.Read(result1, 0, 17);
+
+							byte[] result1 = new byte[buffer1.Length];
+							csDecrypt.Read(result1, 0, result1.Length);
 
 							byte[] result2 = new byte[13];
 							csDecrypt.Read(result2, 0, 13);
@@ -234,6 +276,13 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 				}
 			}
 		}
+		[Test]
+		public void TestUuidConvert()
+		{
+			//		"identity": "af6f7c5e-fcea-3e43-bf3a-e005e400e578"
+
+			Assert.AreEqual(new Guid("af6f7c5e-fcea-3e43-bf3a-e005e400e578").ToString(), "af6f7c5e-fcea-3e43-bf3a-e005e400e578");
+		}
 
 		[Test]
 		public void TestRealDecrytp()
@@ -257,27 +306,33 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 				// Create the streams used for decryption.
 				using (MemoryStream msDecrypt = new MemoryStream())
-				using (var clearBuffer = new MemoryStream())
 				{
 					byte[] buffer1 = SoapHexBinary.Parse("172e0592aba239d86b7ca2384cfad4e4fa5b883ff6db73931ecd").Value;
-					msDecrypt.Write(buffer1, 0, buffer1.Length);
-					msDecrypt.Position = 0;
 					using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
 					{
-						var buffer = new byte[1024];
-						var read = csDecrypt.Read(buffer, 0, buffer.Length);
-						while (read > 0)
+						msDecrypt.Write(buffer1, 0, buffer1.Length);
+						msDecrypt.Position = 0;
+						byte[] checksum;
+						byte[] clearBytes;
+						using (var clearBuffer = new MemoryStream())
 						{
-							clearBuffer.Write(buffer, 0, read);
-							read = csDecrypt.Read(buffer, 0, buffer.Length);
+							var buffer = new byte[1024];
+							var read = csDecrypt.Read(buffer, 0, buffer.Length);
+							while (read > 0)
+							{
+								clearBuffer.Write(buffer, 0, read);
+								read = csDecrypt.Read(buffer, 0, buffer.Length);
+							}
+							csDecrypt.Flush();
+
+							var fullResult = clearBuffer.ToArray();
+							clearBytes = (byte[]) fullResult.Take(fullResult.Length - 8).ToArray();
+							checksum = fullResult.Skip(fullResult.Length - 8).ToArray();
 						}
-						csDecrypt.Flush();
 
-						var result = clearBuffer.ToArray();
+						Assert.AreEqual(6, clearBytes[0]);
 
-						Assert.AreEqual(6, result[0]);
-
-						Package message = PackageFactory.CreatePackage(result[0], result, "mcpe");
+						Package message = PackageFactory.CreatePackage(clearBytes[0], clearBytes, "mcpe");
 						Assert.NotNull(message);
 						Assert.AreEqual(typeof (McpeBatch), message.GetType());
 
@@ -285,17 +340,16 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 						McpeClientMagic magic = (McpeClientMagic) messages.FirstOrDefault();
 						Assert.AreEqual(typeof (McpeClientMagic), magic?.GetType());
 
-						// Hashing
+						//Hashing - Checksum - Validation
 						MemoryStream hashStream = new MemoryStream();
 						Assert.True(BitConverter.IsLittleEndian);
 						hashStream.Write(BitConverter.GetBytes(0L), 0, 8);
-						hashStream.Write(result, 0, result.Length);
+						hashStream.Write(clearBytes, 0, clearBytes.Length);
 						hashStream.Write(rijAlg.Key, 0, rijAlg.Key.Length);
-
 						SHA256Managed crypt = new SHA256Managed();
 						var hashBuffer = hashStream.ToArray();
-						byte[] crypto = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length).Take(8).ToArray();
-						Assert.AreEqual(SoapHexBinary.Parse("5A446D11C0C7AA5A").Value, crypto);
+						byte[] validationCheckSum = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length).Take(8).ToArray();
+						Assert.AreEqual(checksum, validationCheckSum);
 					}
 				}
 			}

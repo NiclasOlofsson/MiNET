@@ -118,6 +118,12 @@ namespace MiNET
 				return;
 			}
 
+			else if (typeof (McpeClientMagic) == message.GetType())
+			{
+				// Start encrypotion
+				HandleMcpeClientMagic((McpeClientMagic) message);
+			}
+
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 
@@ -267,8 +273,7 @@ namespace MiNET
 
 			else
 			{
-				Log.Error($"Unhandled package: {message.GetType().Name} for user: {Username}, IP {EndPoint.Address}");
-				Disconnect("Unhandled package", false);
+				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
 				return;
 			}
 
@@ -284,6 +289,13 @@ namespace MiNET
 			{
 				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
 			}
+		}
+
+		private void HandleMcpeClientMagic(McpeClientMagic message)
+		{
+			SendPlayerStatus(0);
+
+			new Thread(Start).Start();
 		}
 
 		protected virtual void HandleMcpePlayerInput(McpePlayerInput message)
@@ -635,9 +647,11 @@ namespace MiNET
 		protected virtual void HandleConnectedPing(ConnectedPing message)
 		{
 			ConnectedPong package = ConnectedPong.CreateObject();
+			package.NoBatch = true;
+			package.ForceClear = true;
 			package.sendpingtime = message.sendpingtime;
 			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-			SendPackage(package, true);
+			SendPackage(package);
 		}
 
 		protected virtual void HandleConnectedPong(ConnectedPong message)
@@ -798,6 +812,7 @@ namespace MiNET
 						Username = jsonPayload.extraData.displayName;
 						string identity = jsonPayload.extraData.identity;
 						Log.Debug($"Connecting user {Username} with identity={identity}");
+						ClientUuid = new UUID(new Guid(identity));
 
 
 						if (headers.ContainsKey("x5u"))
@@ -824,16 +839,44 @@ namespace MiNET
 
 							//string intyre = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEttJo+Pw4qge1a4aks+pI1sUFqBDmXHdGaugjpJhPEdOcwcKf1tZ9ukFtg8n4SRXOcSQtM5WYZX3gHuIjp0Q7CN8Wp03pX98d1SofrpDWMhg8pfxauDfpPe44C6kUd0SB";
 
+							{
+								RijndaelManaged rijAlg = new RijndaelManaged
+								{
+									BlockSize = 128,
+									Padding = PaddingMode.None,
+									Mode = CipherMode.CFB,
+									FeedbackSize = 8,
+									Key = secret,
+									IV = secret.Take(16).ToArray(),
+								};
+
+								// Create a decrytor to perform the stream transform.
+								ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
+								MemoryStream inputStream = new MemoryStream();
+								CryptoStream cryptoStreamIn = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
+
+								ICryptoTransform encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
+								MemoryStream outputStream = new MemoryStream();
+								CryptoStream cryptoStreamOut = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
+
+								NetworkSession.CryptoContext = new CryptoContext
+								{
+									Algorithm = rijAlg,
+									Decryptor = decryptor,
+									Encryptor = encryptor,
+									InputStream = inputStream,
+									OutputStream = outputStream,
+									CryptoStreamIn = cryptoStreamIn,
+									CryptoStreamOut = cryptoStreamOut,
+								};
+							}
+
 							var response = McpeServerExchange.CreateObject();
+							response.ForceClear = true;
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
 							response.randomKeyToken = Encoding.UTF8.GetString(ecKey.SecretPrepend);
-							var bytes = response.Encode();
-							response.PutPool();
 
-							var wrapper = McpeWrapper.CreateObject();
-							wrapper.payload = bytes;
-
-							SendPackage(wrapper);
+							SendPackage(response);
 						}
 					}
 				}
@@ -855,7 +898,7 @@ namespace MiNET
 					// "SkinId": "Standard_Custom"
 					//}
 
-					new Skin()
+					Skin = new Skin()
 					{
 						SkinType = payload.SkinData,
 						Texture = Convert.FromBase64String((string) payload.SkinData),
@@ -2103,7 +2146,7 @@ namespace MiNET
 
 				if (chunk != null)
 				{
-					SendPackage(chunk, true);
+					SendPackage(chunk);
 				}
 			}
 		}
@@ -2122,7 +2165,7 @@ namespace MiNET
 				int packetCount = 0;
 				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
-					if (chunk != null) SendPackage(chunk, true);
+					if (chunk != null) SendPackage(chunk);
 
 					//if (packetCount > 16) Thread.Sleep(12);
 
@@ -2553,7 +2596,7 @@ namespace MiNET
 		///     Very important litle method. This does all the sending of packages for
 		///     the player class. Treat with respect!
 		/// </summary>
-		public void SendPackage(Package package, bool sendDirect = false)
+		public void SendPackage(Package package)
 		{
 			if (package == null) return;
 

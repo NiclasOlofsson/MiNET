@@ -18,6 +18,7 @@
 	<pdu namespace="raknet" id="0x01" online="false" client="true" server="false" name="ID_UNCONNECTED_PING" size="">
 		<field name="Ping Id" type="long" exampleData="" />
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
+		<field name="GUID" type="long" exampleData="" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x03" online="false" client="true" server="true" name="ID_CONNECTED_PONG">

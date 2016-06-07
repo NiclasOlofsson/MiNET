@@ -1421,8 +1421,8 @@ namespace MiNET.Client
 			{
 				var packet = McpeLogin.CreateObject();
 				packet.username = username;
-				packet.protocol = 70;
-				packet.protocol2 = 70;
+				packet.protocol = 81;
+				packet.protocol2 = 81;
 				packet.clientId = ClientId;
 				packet.clientUuid = new UUID(Guid.NewGuid().ToByteArray());
 				packet.serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port;

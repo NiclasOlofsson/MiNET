@@ -661,7 +661,7 @@ namespace MiNET
 				Username = message.username;
 			}
 
-			if (message.protocol != 70)
+			if (message.protocol != 81)
 			{
 				Server.GreylistManager.Greylist(EndPoint.Address, 30000);
 				Disconnect(string.Format("Wrong version ({0}) of Minecraft Pocket Edition, please upgrade.", message.protocol));

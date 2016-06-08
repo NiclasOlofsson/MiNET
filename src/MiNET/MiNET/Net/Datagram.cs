@@ -132,6 +132,7 @@ namespace MiNET.Net
 			{
 
 				McpeWrapper wrapper = McpeWrapper.CreateObject();
+				reliability = Reliability.ReliableOrdered;
 
 				if (message.ForceClear)
 				{
@@ -143,6 +144,8 @@ namespace MiNET.Net
 				}
 
 				encodedMessage = wrapper.Encode();
+				//if (Log.IsDebugEnabled)
+				//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
 				wrapper.PutPool();
 			}
 
@@ -156,6 +159,7 @@ namespace MiNET.Net
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;
 			short splitId = (short) (DateTime.UtcNow.Ticks%short.MaxValue);
+			var orderingIndex = reliability != Reliability.ReliableOrdered ? 0 : Interlocked.Increment(ref session.OrderingIndex);
 			if (count <= 1)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();
@@ -165,6 +169,8 @@ namespace MiNET.Net
 				messagePart.Header.PartCount = count;
 				messagePart.Header.PartId = splitId;
 				messagePart.Header.PartIndex = index++;
+				messagePart.Header.OrderingChannel = 0;
+				messagePart.Header.OrderingIndex = orderingIndex;
 				messagePart.ContainedMessageId = message.Id;
 				messagePart.Buffer = encodedMessage;
 
@@ -181,6 +187,8 @@ namespace MiNET.Net
 					messagePart.Header.PartCount = count;
 					messagePart.Header.PartId = splitId;
 					messagePart.Header.PartIndex = index++;
+					messagePart.Header.OrderingChannel = 0;
+					messagePart.Header.OrderingIndex = orderingIndex;
 					messagePart.ContainedMessageId = message.Id;
 					messagePart.Buffer = bytes;
 

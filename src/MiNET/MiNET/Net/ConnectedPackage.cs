@@ -142,6 +142,10 @@ namespace MiNET.Net
 				{
 					_sequencingIndex = ReadLittle();
 				}
+				else
+				{
+					_sequencingIndex = -1;
+				}
 
 				if (_reliability == Reliability.UnreliableSequenced
 				    || _reliability == Reliability.ReliableSequenced

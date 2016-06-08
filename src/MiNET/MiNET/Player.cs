@@ -8,6 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -790,14 +791,99 @@ namespace MiNET
 					//Log.Debug($"Raw: {certificateChain}");
 					Log.Debug($"JSON:\n{json}");
 
+					bool haveValidRealmsToken = false;
+					string validKey = null;
+					if(json.Length > 1)
+					{
+						// Xbox Login
+						validKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
+					}
+
 					foreach (dynamic o in json.chain)
 					{
 						Log.Debug("Raw chain element:\n" + o.ToString());
 						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
-						var payload = JWT.Payload(o.ToString());
 						Log.Debug($"JWT Header: {string.Join(";", headers)}");
-						dynamic jsonPayload = JObject.Parse(payload);
+
+						dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
 						Log.Debug($"JWT Payload:\n{jsonPayload}");
+
+						// x5u cert (string): MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
+
+						//{
+						//	"nbf": 1465304604,
+						//	"randomNonce": 2876920962471578546,
+						//	"iss": "RealmsAuthorization",
+						//	"exp": 1465391064,
+						//	"iat": 1465304664,
+						//	"certificateAuthority": true,
+						//	"identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEr935ZYD18b9p1mgmwoMTWmBhJ/eTmqX9CmcZb1wsVZg20za1JRGro9kcHxJo5VW11HbJev3T+a0/WxpoLKxN9dwDl+USHuzlzWcMdzHdJLymiLQScJJ522DykllRM4Pe"
+						//}
+
+						//if (HaveProperty(o, "certificateAuthority"))
+						//{
+						//	string realmsKey = o.identityPublicKey;
+						//	if (realmsKey.Equals("MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V"))
+						//	{
+						//		haveValidRealmsToken = true;
+						//	}
+						//}
+
+						//{
+						//	"exp": 1464983845,
+						//	"extraData": {
+						//		"displayName": "gurunx",
+						//		"identity": "af6f7c5e-fcea-3e43-bf3a-e005e400e578"
+						//	},
+						//	"identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7nnZpCfxmCrSwDdBv7eBXXMtKhroxOriEr3hmMOJAuw/ZpQXj1K5GGtHS4CpFNttd1JYAKYoJxYgaykpie0EyAv3qiK6utIH2qnOAt3VNrQYXfIZJS/VRe3Il8Pgu9CB",
+						//	"nbf": 1464983844
+						//}
+
+						if (headers.ContainsKey("x5u"))
+						{
+							string certString = headers["x5u"];
+							Log.Debug($"x5u cert (string): {certString}");
+
+							if (validKey == null) validKey = certString;
+
+							if (validKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
+							{
+								ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
+								Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+
+								// Validate
+								var newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
+								string decoded = JWT.Decode(o.ToString(), newKey);
+								if(decoded != null)
+								{
+									Log.Info("Decoded token success");
+									dynamic content = JObject.Parse(decoded);
+									validKey = content.identityPublicKey;
+								}
+								else
+								{
+									Log.Error("Not a valid Identity Public Key for decoding");
+								}
+							}
+						}
+					}
+
+					foreach (dynamic o in json.chain)
+					{
+						Log.Debug("Raw chain element:\n" + o.ToString());
+						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
+						Log.Debug($"JWT Header: {string.Join(";", headers)}");
+
+						dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
+						Log.Debug($"JWT Payload:\n{jsonPayload}");
+
+						string ident = jsonPayload.identityPublicKey;
+
+						if (!validKey.Equals(ident, StringComparison.InvariantCultureIgnoreCase))
+						{
+							Log.Warn("Found no valid key");
+							continue;
+						}
 
 						//{
 						//	"exp": 1464983845,
@@ -814,18 +900,11 @@ namespace MiNET
 						Log.Debug($"Connecting user {Username} with identity={identity}");
 						ClientUuid = new UUID(new Guid(identity));
 
-
-						if (headers.ContainsKey("x5u"))
 						{
-							string certString = headers["x5u"];
-							Log.Debug($"x5u cert (string): {certString}");
+							string certString = validKey;
 
 							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
 							Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
-
-							// Validate
-							var newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
-							string decoded = JWT.Decode(o.ToString(), newKey);
 
 							// Create shared shared secret
 							ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
@@ -836,8 +915,6 @@ namespace MiNET
 							byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
 
 							Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
-
-							//string intyre = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEttJo+Pw4qge1a4aks+pI1sUFqBDmXHdGaugjpJhPEdOcwcKf1tZ9ukFtg8n4SRXOcSQtM5WYZX3gHuIjp0Q7CN8Wp03pX98d1SofrpDWMhg8pfxauDfpPe44C6kUd0SB";
 
 							{
 								RijndaelManaged rijAlg = new RijndaelManaged
@@ -909,6 +986,12 @@ namespace MiNET
 			{
 				Log.Error("Decrypt", e);
 			}
+		}
+
+		private bool HaveProperty(dynamic obj, string property)
+		{
+			Type type = obj.GetType();
+			return type.GetMember(property, BindingFlags.Public | BindingFlags.Instance).Length != 0;
 		}
 
 		private bool _completedStartSequence = false;

@@ -180,7 +180,7 @@ namespace MiNET
 					//
 				}
 
-				_ackTimer = new Timer(SendAckQueue, null, 0, 50);
+				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
 				_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
 
 				_listener.BeginReceive(ReceiveCallback, _listener);
@@ -595,46 +595,55 @@ namespace MiNET
 		{
 			Player player = playerSession.Player;
 
-			if (new Random().Next(20) == 0)
-			{
-				// Debug force packet unordered.
-				Log.Debug("Sleeping for unorder");
-				Thread.Sleep(50);
-			}
+			long sequenceNumber = package._orderingIndex.IntValue();
 
-			long datagramSequenceNumber = package._datagramSequenceNumber.IntValue();
+			Log.Debug($"Received Dgrm: #{package._datagramSequenceNumber} {package._reliability} message #{package._reliableMessageNumber}, Chan: #{package._orderingChannel}, OrdIdx: #{package._orderingIndex}");
 
-			int countDown = 1000;
-			while (datagramSequenceNumber > 0 && countDown-- > 0)
+			//if (new Random().Next(20) == 0)
+			//{
+			//	// Debug force packet unordered.
+			//	Log.Debug($"Sleeping on #{sequenceNumber} to create chaos");
+			//	//Thread.Sleep(50);
+			//}
+
+			int countDown = (int) (sequenceNumber + Interlocked.Read(ref playerSession.LastSequenceNumber) + 5);
+			bool waited = false;
+			while (!package._hasSplit && package._reliability == Reliability.ReliableOrdered && countDown > 0)
 			{
-				if (datagramSequenceNumber <= playerSession.LastDatagramNumber)
+				countDown--;
+				if (sequenceNumber <= playerSession.LastSequenceNumber)
 				{
-					Log.Warn($"Detected resend out of order for {player?.Username} #{datagramSequenceNumber}");
+					Log.Warn($"Detected resend out of order for {player?.Username} #{sequenceNumber}");
 					return;
 				}
 
-				long comparand = datagramSequenceNumber - 1L;
-				var current = Interlocked.CompareExchange(ref playerSession.LastDatagramNumber, datagramSequenceNumber, comparand);
+				long comparand = sequenceNumber - 1L;
+				var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
 				if (current != comparand)
 				{
-					Log.Warn($"Recived datagrams out of order for {player?.Username} Current: #{current} != New: #{datagramSequenceNumber} - 1");
+					Log.Warn($"Recived datagrams out of order for {player?.Username} Current: #{current} != New: #{sequenceNumber} - 1");
+					if (playerSession.Evicted) return;
 					_waitEvent.Reset();
 					_waitEvent.WaitOne(100);
+					waited = true;
 					continue;
 				}
 
-				if(countDown < 999)
+				if (waited)
 				{
-					//Log.Warn($"Set new current for {player?.Username} to #{current}");
-					Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{datagramSequenceNumber}");
+					Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{sequenceNumber}");
 				}
 
+				_waitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 				break;
 			}
 
 			if (countDown <= 0)
 			{
-				throw new Exception("Never caught up with datagram sequence");
+				//Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, playerSession.LastSequenceNumber + 1, playerSession.LastSequenceNumber);
+				Log.Error($"Never caught up with datagram sequence for {player?.Username} #{sequenceNumber}");
+				//throw new Exception("Never caught up with datagram sequence");
+				DelayedProcessing(playerSession, package);
 			}
 
 			List<Package> messages = package.Messages;
@@ -657,7 +666,6 @@ namespace MiNET
 				message.PutPool(); // Handled in HandlePacket now()
 			}
 
-			_waitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)
@@ -705,14 +713,21 @@ namespace MiNET
 				byte[] buffer = stream.ToArray();
 				try
 				{
-					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
+					ConnectedPackage newPackage = ConnectedPackage.CreateObject();
+					newPackage._datagramSequenceNumber = package._datagramSequenceNumber;
+					newPackage._reliability = package._reliability;
+					newPackage._reliableMessageNumber = package._reliableMessageNumber;
+					newPackage._sequencingIndex = package._sequencingIndex;
+					newPackage._orderingIndex = package._orderingIndex;
+					newPackage._orderingChannel = package._orderingChannel;
+					newPackage._hasSplit = false;
 
-					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
-					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
-					fullMessage.OrderingChannel = package._orderingChannel;
-					fullMessage.OrderingIndex = package._orderingIndex;
-					HandlePackage(fullMessage, playerSession);
-					fullMessage.PutPool();
+					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
+					newPackage.Messages = new List<Package>();
+					newPackage.Messages.Add(fullMessage);
+					Log.Debug($"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
+					DelayedProcessing(playerSession, newPackage);
+					newPackage.PutPool();
 				}
 				catch (Exception e)
 				{
@@ -926,12 +941,14 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
+			Player player = playerSession.Player;
+
 			if (message == null)
 			{
 				return;
 			}
 
-			TraceReceive(message, message.DatagramSequenceNumber);
+			TraceReceive(message, message.ReliableMessageNumber);
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -1008,7 +1025,6 @@ namespace MiNET
 				return;
 			}
 
-			Player player = playerSession.Player;
 			if (player != null) player.HandlePackage(message);
 		}
 
@@ -1211,7 +1227,7 @@ namespace MiNET
 												elapsedTime,
 												datagramTimout,
 												player.Rto);
-										SendDatagram(session, (Datagram) data);
+										SendDatagram(session, (Datagram)data);
 										Interlocked.Increment(ref ServerInfo.NumberOfResends);
 									}, datagram);
 								}

@@ -26,6 +26,7 @@ namespace MiNET
 		private ConcurrentDictionary<int, SplitPartPackage[]> _splits = new ConcurrentDictionary<int, SplitPartPackage[]>();
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
+		public int OrderingIndex = -1;
 		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
 		public bool IsSlowClient { get; set; }
@@ -33,7 +34,7 @@ namespace MiNET
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
-		public long LastDatagramNumber = 0;
+		public long LastSequenceNumber = 0; // That's the first message with wrapper
 
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }

@@ -621,10 +621,13 @@ namespace MiNET
 				var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
 				if (current != comparand)
 				{
-					Log.Warn($"Recived datagrams out of order for {player?.Username} Current: #{current} != New: #{sequenceNumber} - 1");
+					Log.Warn($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
 					if (playerSession.Evicted) return;
 					_waitEvent.Reset();
-					_waitEvent.WaitOne(100);
+					if(!_waitEvent.WaitOne(1000))
+					{
+						Log.Warn($"Continue without signal {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
+					}
 					waited = true;
 					continue;
 				}
@@ -634,7 +637,6 @@ namespace MiNET
 					Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{sequenceNumber}");
 				}
 
-				_waitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 				break;
 			}
 
@@ -666,6 +668,7 @@ namespace MiNET
 				message.PutPool(); // Handled in HandlePacket now()
 			}
 
+			_waitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)
@@ -797,7 +800,7 @@ namespace MiNET
 						{"hostname", "Minecraft PE Server"},
 						{"gametype", "SMP"},
 						{"game_id", "MINECRAFTPE"},
-						{"version", "0.14.3"},
+						{"version", "0.15.0"},
 						{"server_engine", "MiNET v1.0.0"},
 						{"plugins", "MiNET v1.0.0"},
 						{"map", "world"},
@@ -1254,22 +1257,19 @@ namespace MiNET
 		{
 			if (message == null) return;
 
-			lock (_sendSync)
+			PlayerNetworkSession session;
+			if (_playerSessions.TryGetValue(player.EndPoint, out session))
 			{
-				PlayerNetworkSession session;
-				if (_playerSessions.TryGetValue(player.EndPoint, out session))
+				foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 				{
-					foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
-					{
-						SendDatagram(session, datagram);
-					}
-
-					TraceSend(message);
-
-					message.PutPool();
-
-					//Thread.Sleep(5); // Really important to slow down speed a bit
+					SendDatagram(session, datagram);
 				}
+
+				TraceSend(message);
+
+				message.PutPool();
+
+				//Thread.Sleep(5); // Really important to slow down speed a bit
 			}
 		}
 

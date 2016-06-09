@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Jose;
 using log4net;
 using MiNET.Utils;
 
@@ -101,7 +100,7 @@ namespace MiNET.Net
 
 			Datagram datagram = CreateObject();
 
-			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, ref session.ReliableMessageNumber, session);
+			var messageParts = GetMessageParts(message, mtuSize, Reliability.Reliable, session);
 			foreach (var messagePart in messageParts)
 			{
 				if (!datagram.TryAddMessagePart(messagePart, mtuSize))
@@ -121,50 +120,52 @@ namespace MiNET.Net
 			yield return datagram;
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, ref int reliableMessageNumber, PlayerNetworkSession session)
+		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
 		{
 			var messageParts = new List<MessagePart>();
 
-			byte[] encodedMessage =  message.Encode();
+			byte[] encodedMessage = message.Encode();
+
+			int orderingIndex = 0;
 
 			CryptoContext cryptoContext = session.CryptoContext;
-			if(cryptoContext != null && !(message is ConnectedPong))
+			if (cryptoContext != null && !(message is ConnectedPong))
 			{
-
-				McpeWrapper wrapper = McpeWrapper.CreateObject();
-				reliability = Reliability.ReliableOrdered;
-
-				if (message.ForceClear)
+				lock (session.EncodeSync)
 				{
-					wrapper.payload = encodedMessage;
-				}
-				else
-				{
-					wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
-				}
+					McpeWrapper wrapper = McpeWrapper.CreateObject();
+					reliability = Reliability.ReliableOrdered;
+					orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 
-				encodedMessage = wrapper.Encode();
-				//if (Log.IsDebugEnabled)
-				//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
-				wrapper.PutPool();
+					if (message.ForceClear)
+					{
+						wrapper.payload = encodedMessage;
+					}
+					else
+					{
+						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
+					}
+
+					encodedMessage = wrapper.Encode();
+					//if (Log.IsDebugEnabled)
+					//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
+					wrapper.PutPool();
+				}
 			}
-
 			//if (Log.IsDebugEnabled)
 			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
 
 			if (encodedMessage == null) return messageParts;
 
 			int datagramHeaderSize = 60;
-			//int datagramHeaderSize = 100;
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;
 			short splitId = (short) (DateTime.UtcNow.Ticks%short.MaxValue);
-			var orderingIndex = reliability != Reliability.ReliableOrdered ? 0 : Interlocked.Increment(ref session.OrderingIndex);
 			if (count <= 1)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();
 				messagePart.Header.Reliability = reliability;
-				messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref reliableMessageNumber);
+				messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 				messagePart.Header.HasSplit = count > 1;
 				messagePart.Header.PartCount = count;
 				messagePart.Header.PartId = splitId;
@@ -182,7 +183,7 @@ namespace MiNET.Net
 				{
 					MessagePart messagePart = MessagePart.CreateObject();
 					messagePart.Header.Reliability = reliability;
-					messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref reliableMessageNumber);
+					messagePart.Header.ReliableMessageNumber = Interlocked.Increment(ref session.ReliableMessageNumber);
 					messagePart.Header.HasSplit = count > 1;
 					messagePart.Header.PartCount = count;
 					messagePart.Header.PartId = splitId;

@@ -17,10 +17,10 @@ namespace MiNET
 
 		public GreylistManager(MiNetServer server)
 		{
-			_blacklist.Add(IPAddress.Parse("166.176.186.43"));
-			_blacklist.Add(IPAddress.Parse("185.89.216.247"));
-			_blacklist.Add(IPAddress.Parse("66.176.197.86"));
-			_blacklist.Add(IPAddress.Parse("78.197.138.50"));
+			//_blacklist.Add(IPAddress.Parse("166.176.186.43"));
+			//_blacklist.Add(IPAddress.Parse("185.89.216.247"));
+			//_blacklist.Add(IPAddress.Parse("66.176.197.86"));
+			//_blacklist.Add(IPAddress.Parse("78.197.138.50"));
 			_server = server;
 		}
 
@@ -33,7 +33,7 @@ namespace MiNET
 		{
 			lock (_blacklist)
 			{
-				if (senderAddress.ToString().StartsWith("185.89.216")) return true;
+				//if (senderAddress.ToString().StartsWith("185.89.216")) return true;
 				return _blacklist.Contains(senderAddress);
 			}
 		}

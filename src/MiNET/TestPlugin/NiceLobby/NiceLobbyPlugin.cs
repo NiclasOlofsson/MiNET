@@ -331,14 +331,14 @@ namespace TestPlugin.NiceLobby
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Tip,
-						Message = "This is a MiNET development server",
+						Message = $"{ChatFormatting.Bold}This is a MiNET development server",
 						Duration = 20*4
 					});
 
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
-						Message = "This is a MiNET development server\n\nRestarts without notice frequently",
+						Message = "\nRestarts without notice frequently",
 						Duration = 20*5,
 						DisplayDelay = 20*1
 					});

@@ -9,9 +9,10 @@ namespace MiNET
 {
 	public class PlayerNetworkSession
 	{
-		public object SyncRoot { get; private set; }
-		public object ProcessSyncRoot { get; private set; }
-		public object SyncRootUpdate { get; private set; }
+		public object SyncRoot { get; private set; } = new object();
+		public object ProcessSyncRoot { get; private set; } = new object();
+		public object SyncRootUpdate { get; private set; } = new object();
+		public object EncodeSync { get; private set; } = new object();
 
 		public Player Player { get; set; }
 		public int Mtuize { get; set; }
@@ -44,9 +45,6 @@ namespace MiNET
 		public PlayerNetworkSession(Player player, IPEndPoint endPoint, short mtuSize)
 		{
 			State = ConnectionState.Unconnected;
-			SyncRoot = new object();
-			SyncRootUpdate = new object();
-			ProcessSyncRoot = new object();
 			Player = player;
 			EndPoint = endPoint;
 			MtuSize = mtuSize;

@@ -915,6 +915,17 @@ namespace MiNET.Worlds
 			{
 				block.BreakBlock(this);
 
+				var levelEvent = new McpeLevelEvent()
+				{
+					eventId = (short) LevelEventType.ParticleDestroy,
+					data = block.Id,
+					x = blockCoordinates.X,
+					y = blockCoordinates.Y,
+					z = blockCoordinates.Z
+				};
+
+				player.SendPackage(levelEvent);
+
 				if (blockEntity != null)
 				{
 					RemoveBlockEntity(blockCoordinates);

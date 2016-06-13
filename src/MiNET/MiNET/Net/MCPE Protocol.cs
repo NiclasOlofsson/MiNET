@@ -1438,9 +1438,9 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
-		public bool b1; // = null;
-		public bool b2; // = null;
-		public bool b3; // = null;
+		public bool isLoadedInCreative; // = null;
+		public byte dayCycleStopTime; // = null;
+		public bool eduMode; // = null;
 		public string unknownstr; // = null;
 		public McpeStartGame()
 		{
@@ -1464,9 +1464,9 @@ namespace MiNET.Net
 			Write(x);
 			Write(y);
 			Write(z);
-			Write(b1);
-			Write(b2);
-			Write(b3);
+			Write(isLoadedInCreative);
+			Write(dayCycleStopTime);
+			Write(eduMode);
 			Write(unknownstr);
 
 			AfterEncode();
@@ -1492,9 +1492,9 @@ namespace MiNET.Net
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
-			b1 = ReadBool();
-			b2 = ReadBool();
-			b3 = ReadBool();
+			isLoadedInCreative = ReadBool();
+			dayCycleStopTime = ReadByte();
+			eduMode = ReadBool();
 			unknownstr = ReadString();
 
 			AfterDecode();

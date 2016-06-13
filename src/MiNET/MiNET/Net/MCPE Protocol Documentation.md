@@ -506,9 +506,9 @@ TODO: Parameters
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|b1 | bool |  |
-|b2 | bool |  |
-|b3 | bool |  |
+|Is loaded in creative | bool |  |
+|day cycle stop time | byte |  |
+|edu mode | bool |  |
 |unknownstr | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x0a)

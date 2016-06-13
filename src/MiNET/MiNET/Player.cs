@@ -2191,10 +2191,10 @@ namespace MiNET
 			mcpeStartGame.x = KnownPosition.X;
 			mcpeStartGame.y = (float) (KnownPosition.Y + Height);
 			mcpeStartGame.z = KnownPosition.Z;
-			mcpeStartGame.b1 = true;
-			mcpeStartGame.b2 = true;
-			mcpeStartGame.b3 = false;
-			mcpeStartGame.unknownstr = null;
+			mcpeStartGame.isLoadedInCreative = true/*GameMode == GameMode.Creative*/;
+			mcpeStartGame.dayCycleStopTime = 1;
+			mcpeStartGame.eduMode = false;
+			mcpeStartGame.unknownstr = "iX8AANxLbgA=";
 			// unknownstr=iX8AANxLbgA=
 
 			SendPackage(mcpeStartGame);
@@ -2525,6 +2525,8 @@ namespace MiNET
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
 			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
+			metadata[23] = new MetadataInt(-1); // Leads EID (target or holder?)
+			metadata[24] = new MetadataByte(0); // Leads on/off
 
 			return metadata;
 		}

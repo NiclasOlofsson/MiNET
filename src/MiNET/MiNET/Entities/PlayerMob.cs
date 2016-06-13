@@ -52,6 +52,8 @@ namespace MiNET.Entities
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
 			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
+			metadata[23] = new MetadataInt(-1); // Leads EID (target or holder?)
+			metadata[24] = new MetadataByte(0); // Leads on/off
 
 			return metadata;
 		}
@@ -133,7 +135,7 @@ namespace MiNET.Entities
 				};
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords { fake };
+				playerList.records = new PlayerRemoveRecords {fake};
 				Level.RelayBroadcast(players, playerList);
 			}
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -39,6 +40,8 @@ namespace MiNET
 
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
+
+		public ManualResetEvent WaitEvent = new ManualResetEvent(false);
 
 		public CryptoContext CryptoContext { get; set; }
 

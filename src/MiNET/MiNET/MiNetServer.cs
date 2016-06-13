@@ -589,10 +589,10 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
-		private ManualResetEvent _waitEvent = new ManualResetEvent(false);
-
 		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
+			playerSession.WaitEvent.Reset();
+
 			Player player = playerSession.Player;
 
 			long sequenceNumber = package._orderingIndex.IntValue();
@@ -621,12 +621,40 @@ namespace MiNET
 				var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
 				if (current != comparand)
 				{
-					Log.Warn($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
+					Log.Debug($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
+
 					if (playerSession.Evicted) return;
-					_waitEvent.Reset();
-					if(!_waitEvent.WaitOne(1000))
+
+					playerSession.WaitEvent.Reset();
+					if (!playerSession.WaitEvent.WaitOne(1000))
 					{
 						Log.Warn($"Continue without signal {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
+
+						playerSession.Evicted = true;
+						// Disconnect user
+						ThreadPool.QueueUserWorkItem(delegate (object o)
+						{
+							PlayerNetworkSession s = o as PlayerNetworkSession;
+							if (s != null)
+							{
+								Player p = s.Player;
+								if (p != null)
+								{
+									p.Disconnect("You've been kicked with reason: Network timeout.");
+								}
+								else
+								{
+									if (ServerInfo.PlayerSessions.TryRemove(s.EndPoint, out s))
+									{
+										s.Player = null;
+										s.State = ConnectionState.Unconnected;
+										s.Evicted = true;
+										s.Clean();
+									}
+								}
+							}
+						}, playerSession);
+
 					}
 					waited = true;
 					continue;
@@ -668,7 +696,7 @@ namespace MiNET
 				message.PutPool(); // Handled in HandlePacket now()
 			}
 
-			_waitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
+			playerSession.WaitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 		}
 
 		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)
@@ -966,7 +994,7 @@ namespace MiNET
 
 				// Get bytes
 				byte[] payload = batch.payload;
-				if (playerSession.CryptoContext != null)
+				if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
 				{
 					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
 				}
@@ -1230,7 +1258,7 @@ namespace MiNET
 												elapsedTime,
 												datagramTimout,
 												player.Rto);
-										SendDatagram(session, (Datagram)data);
+										SendDatagram(session, (Datagram) data);
 										Interlocked.Increment(ref ServerInfo.NumberOfResends);
 									}, datagram);
 								}

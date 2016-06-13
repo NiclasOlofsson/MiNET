@@ -953,7 +953,10 @@ namespace MiNET
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
 							response.randomKeyToken = Encoding.UTF8.GetString(ecKey.SecretPrepend);
 
-							SendPackage(response);
+							if (Config.GetProperty("UseEncryption", true))
+							{
+								SendPackage(response);
+							}
 						}
 					}
 				}
@@ -980,6 +983,13 @@ namespace MiNET
 						SkinType = payload.SkinData,
 						Texture = Convert.FromBase64String((string) payload.SkinData),
 					};
+				}
+
+				if (!Config.GetProperty("UseEncryption", true))
+				{
+					SendPlayerStatus(0);
+
+					new Thread(Start).Start();
 				}
 			}
 			catch (Exception e)

@@ -39,32 +39,19 @@ namespace MiNET.Utils
 	{
 		private const int LineLength = 30;
 		private const int CharWidth = 6;
+
 		private const char SpaceChar = ' ';
-		private const int SpaceWidth = 4;
 
-		public static string Center(string input)
-		{
-			var lines = input.Trim().Split('\n');
-			var sortedLines = lines.OrderByDescending(GetPixelLenght);
+		private static readonly Regex CleanAllFormattingFilter = new Regex("(?:&|§)([0123456789abcdefklmnor])",
+			RegexOptions.Compiled & RegexOptions.IgnoreCase);
 
-			string longest = sortedLines.First();
-			int maxLenght = GetPixelLenght(longest);
+		private static readonly Regex CleanColourFilter = new Regex("(?:&|§)([0123456789abcdef])",
+			RegexOptions.Compiled & RegexOptions.IgnoreCase);
 
-			string result = "";
-			foreach (var sortedLine in lines)
-			{
-				int len = GetPixelLenght(sortedLine);
-				int padding = (int) Math.Round((maxLenght - len)/2d/SpaceWidth);
-				int paddingRight = (int) Math.Floor((maxLenght - len)/2d/SpaceWidth);
-				result += new string(' ', padding) + sortedLine + "" + new string(' ', paddingRight) + '\n';
-			}
+		private static readonly Regex BoldTextRegex = new Regex("(?:&|§)l(.+?)(?:[&|§]r|$)",
+			RegexOptions.Compiled & RegexOptions.IgnoreCase);
 
-			return result;
-		}
-
-		private static int GetPixelLenght(string line)
-		{
-			var charWidths = new Dictionary<char, int>
+		private static readonly IDictionary<char, int> CharWidths = new Dictionary<char, int>
 			{
 				{' ', 4},
 				{'!', 2},
@@ -97,36 +84,74 @@ namespace MiNET.Utils
 				{'▒', 9},
 				{'▓', 9},
 				{'▌', 5},
-				{'─', 9},
+				{'─', 9}
 				//{'-', 9},
 			};
 
-			line = Strip(line, true);
+		public static string CenterLine(string input)
+		{
+			return Center(input, LineLength*CharWidth);
+		}
 
-			int lenght = 0;
-			bool isBold = false;
-			foreach (char c in line)
+		public static string Center(string input)
+		{
+			return Center(input, 0);
+		}
+
+		public static string Center(string input, int maxLength, bool addRightPadding = false)
+		{
+			var lines = input.Trim().Split('\n');
+			var sortedLines = lines.OrderByDescending(GetPixelLength);
+
+			var longest = sortedLines.First();
+			if (maxLength == 0)
 			{
-				if (c == '\u1236')
-				{
-					isBold = false;
-					continue;
-				}
-				if (c == '\u1234')
-				{
-					isBold = !isBold;
-					continue;
-				}
-
-				if (!charWidths.ContainsKey(c))
-					lenght += CharWidth;
-				else
-					lenght += charWidths[c];
-
-				if (isBold) lenght++;
+				maxLength = GetPixelLength(longest);
 			}
 
-			return lenght;
+			var result = "";
+
+			var spaceWidth = GetCharWidth(SpaceChar);
+
+			foreach (var sortedLine in lines)
+			{
+				var len = Math.Max(maxLength - GetPixelLength(sortedLine), 0);
+				var padding = (int)Math.Round(len / (2d * spaceWidth));
+				var paddingRight = (int)Math.Floor(len / (2d * spaceWidth));
+				result += new string(SpaceChar, padding) + sortedLine + "§r" + (addRightPadding ? new string(SpaceChar, paddingRight) : "" ) + "\n";
+			}
+
+			result = result.TrimEnd('\n');
+
+			return result;
+		}
+
+		private static int GetCharWidth(char c)
+		{
+			int width;
+			if (CharWidths.TryGetValue(c, out width))
+				return width;
+			return CharWidth;
+		}
+
+		public static int GetPixelLength(string line)
+		{
+			var clean = CleanAllFormattingFilter.Replace(line, "");
+			var length = clean.Sum(GetCharWidth);
+
+			// +1 for each bold character
+
+			var boldMatches = BoldTextRegex.Matches(line);
+			if (boldMatches.Count > 0)
+			{
+				foreach (Match boldText in boldMatches)
+				{
+					var cleanBoldText = CleanAllFormattingFilter.Replace(boldText.Value, "");
+					length += cleanBoldText.Length;
+				}
+			}
+
+			return length;
 		}
 
 		private static string Strip(string input, bool keepBold = false)
@@ -134,26 +159,18 @@ namespace MiNET.Utils
 			string result;
 			if (keepBold)
 			{
-				Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefkmnor])");
-				result = rgx.Replace(input, "\u1236");
-				Regex rgxBold = new Regex("(?:&|§|\u00a7)([l])");
-				result = rgxBold.Replace(result, "\u1234");
+				result = CleanColourFilter.Replace(input, "\u1234");
 			}
 			else
 			{
-				Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
-				result = rgx.Replace(input, "\u1236");
+				result = CleanAllFormattingFilter.Replace(input, "\u1236");
 			}
 			return result;
 		}
 		
 		public static string RemoveFormatting(string input)
 		{
-			string result;
-			
-			Regex rgx = new Regex("(?:&|§|\u00a7)([0123456789abcdefklmnor])");
-			result = rgx.Replace(input, "");
-			return result;
+			return CleanAllFormattingFilter.Replace(input, "");
 		}
 	}
 }

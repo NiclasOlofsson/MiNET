@@ -119,8 +119,15 @@ namespace MiNET.Entities
 				Level.RelayBroadcast(players, playerList);
 			}
 
-			// Probably not needed
-			BroadcastSetEntityData();
+			{
+
+		                McpeSetEntityData setEntityData = McpeSetEntityData.CreateObject();
+		                setEntityData.entityId = EntityId;
+		                setEntityData.metadata = GetMetadata();
+		                Level?.RelayBroadcast(players, setEntityData);
+	
+	            	}
+	            	
 		}
 
 		public override void DespawnFromPlayers(Player[] players)

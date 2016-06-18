@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -151,6 +149,38 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 		}
 
 		[Test]
+		public void TestJWTHandling()
+		{
+			var newKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP384, null, new CngKeyCreationParameters() {ExportPolicy = CngExportPolicies.AllowPlaintextExport, KeyUsage = CngKeyUsages.AllUsages});
+
+			var t = CryptoUtils.ImportECDsaCngKeyFromCngKey(newKey.Export(CngKeyBlobFormat.EccPrivateBlob));
+			var tk = CngKey.Import(t, CngKeyBlobFormat.EccPrivateBlob);
+			Assert.AreEqual(CngAlgorithmGroup.ECDsa, tk.AlgorithmGroup);
+
+			ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(newKey);
+			ecKey.HashAlgorithm = CngAlgorithm.Sha256;
+			ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
+
+			var b64key = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
+			string test = $@"
+{{ 
+	""exp"": 1464983845, 
+	""extraData"": {{ 
+		""displayName"": ""gurunx"",	
+		""identity"": ""af6f7c5e -fcea-3e43-bf3a-e005e400e578""	
+	}},	
+	""identityPublicKey"": ""{b64key}""
+	""nbf"": 1464983844
+}}";
+			string val = JWT.Encode(test, tk, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64key}});
+
+			Assert.AreEqual(b64key, JWT.Headers(val)["x5u"]);
+			//Assert.AreEqual("", string.Join(";", JWT.Headers(val)));
+			Assert.AreEqual(test, JWT.Payload(val));
+		}
+
+
+		[Test]
 		public void TestDecrytp()
 		{
 			//for (int i = 0; i < 10000; i++)
@@ -208,12 +238,12 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 						msDecrypt.Position = 0;
 						using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
 						{
-
 							byte[] result1 = new byte[17];
 							csDecrypt.Read(result1, 0, 17);
 
 							msDecrypt.Position = 0;
-							msDecrypt.SetLength(0); ;
+							msDecrypt.SetLength(0);
+							;
 
 							msDecrypt.Write(buffer2, 0, buffer2.Length);
 							msDecrypt.Position = 0;
@@ -248,7 +278,6 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 						msDecrypt.Position = 0;
 						using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
 						{
-
 							byte[] result1 = new byte[buffer1.Length];
 							csDecrypt.Read(result1, 0, result1.Length);
 
@@ -276,6 +305,7 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 				}
 			}
 		}
+
 		[Test]
 		public void TestUuidConvert()
 		{

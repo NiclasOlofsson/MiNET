@@ -280,7 +280,8 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |System Address | IPEndPoint |  |
-|System Addresses | IPEndPoint[] |  |
+|System Index | short |  |
+|System Addresses | IPEndPoint[] | 10 |
 |Incoming Timestamp | long |  |
 |Server Timestamp | long |  |
 -----------------------------------------------------------------------

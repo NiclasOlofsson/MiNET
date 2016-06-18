@@ -40,6 +40,9 @@ namespace MiNET
 
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
+		public DateTime? LastProcessTime = DateTime.UtcNow;
+		public object LastProcessTimeSync = new object();
+		public ConcurrentQueue<Package> ProcessingQueue = new ConcurrentQueue<Package>(); 
 
 		public ManualResetEvent WaitEvent = new ManualResetEvent(false);
 

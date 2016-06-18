@@ -86,7 +86,8 @@
 
 	<pdu namespace="raknet" id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
 		<field name="System Address" type="IPEndPoint" />
-		<field name="System Addresses" type="IPEndPoint[]" />
+		<field name="System Index" type="short" />
+		<field name="System Addresses" type="IPEndPoint[]" size="10" />
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>

@@ -755,6 +755,8 @@ namespace MiNET
 			if (message.payloadLenght != buffer.Length) throw new Exception($"Wrong lenght {message.payloadLenght} != {message.payload.Length}");
 			// Decompress bytes
 
+			Log.Debug("Lenght" + message.payloadLenght + "Message: " + Convert.ToBase64String(buffer));
+
 			MemoryStream stream = new MemoryStream(buffer);
 			if (stream.ReadByte() != 0x78)
 			{
@@ -2535,7 +2537,7 @@ namespace MiNET
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
 			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
-			metadata[23] = new MetadataInt(-1); // Leads EID (target or holder?)
+			metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			metadata[24] = new MetadataByte(0); // Leads on/off
 
 			return metadata;

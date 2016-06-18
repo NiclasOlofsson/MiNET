@@ -1094,6 +1094,7 @@ namespace MiNET.Net
 
 		public virtual void Decode(byte[] buffer)
 		{
+			Bytes = buffer;
 			_buffer.Position = 0;
 			_buffer.SetLength(buffer.Length);
 			_buffer.Write(buffer, 0, buffer.Length);
@@ -1104,6 +1105,8 @@ namespace MiNET.Net
 				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!\n{HexDump(buffer)}");
 			}
 		}
+
+		public byte[] Bytes { get; private set; }
 
 		public void CloneReset()
 		{

@@ -75,6 +75,12 @@ namespace MiNET.Utils
 			return crypto.Key;
 		}
 
+		public static byte[] ImportECDsaCngKeyFromCngKey(byte[] inKey)
+		{
+			inKey[2] = 83;
+			return inKey;
+		}
+
 		public static byte[] Encrypt(byte[] payload, CryptoContext cryptoContext)
 		{
 			var csEncrypt = cryptoContext.CryptoStreamOut;

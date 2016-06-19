@@ -1,6 +1,4 @@
 
-[![PayPayl donate button](http://img.shields.io/paypal/donate.png?color=yellow)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=8EBB48Y35K9QG&lc=US&item_name=MiNET%20MCPE%20Server&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_SM%2egif%3aNonHosted "Donate once-off to this project using Paypal")
-
 In case you don't find the information your are looking for in the README. Do try the [wiki](https://github.com/NiclasOlofsson/MiNET/wiki)
 
 如果你想了解更多的中文信息，可以点击这里查看[中文WIKI](https://github.com/NiclasOlofsson/MiNET/wiki/MiNET-INFO%EF%BC%88In-ZH_CN%EF%BC%89)，或是进入[MiNET中文论坛](http://minetcn.com/)

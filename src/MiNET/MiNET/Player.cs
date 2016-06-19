@@ -981,7 +981,7 @@ namespace MiNET
 
 					Skin = new Skin()
 					{
-						SkinType = payload.SkinData,
+						SkinType = payload.SkinId,
 						Texture = Convert.FromBase64String((string) payload.SkinData),
 					};
 				}

@@ -11,7 +11,7 @@ namespace TestPlugin
 
 		public override void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
-			base.TakeHit(source, 0, cause);
+			//base.TakeHit(source, 0, cause);
 		}
 	}
 }

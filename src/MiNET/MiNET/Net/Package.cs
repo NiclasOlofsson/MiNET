@@ -405,7 +405,6 @@ namespace MiNET.Net
 
 		public void Write(EntityMotions motions)
 		{
-			Write(motions.Count);
 			foreach (var motion in motions)
 			{
 				Write((long) motion.Key); // Entity ID

@@ -531,10 +531,7 @@ namespace MiNET
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 
-			//if (IsAdventure)
-			//{
-			//	mcpeAdventureSettings.flags |= 0x01;
-			//}
+			mcpeAdventureSettings.flags |= 0x02; // No PVP (Remove hit markers client-side).
 
 			if (IsAutoJump)
 			{

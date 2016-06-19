@@ -338,7 +338,6 @@ namespace MiNET.Net
 
 		public void Write(BlockRecords records)
 		{
-			Write((int) records.Count);
 			foreach (Block block in records)
 			{
 				Write(block.Coordinates.X);

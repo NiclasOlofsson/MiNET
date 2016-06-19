@@ -65,10 +65,10 @@ In case you don't get the registration email for the forum, please check your ju
 
 ### Windows
 
-For a windows installation you can choose to download the binary from the build server or fetch the code and compile from Visual Studio. Note that MiNET require .NET 4.6
+For a windows installation you can choose to download the binary from the build server or fetch the code and compile from Visual Studio. Note that MiNET requires .NET 4.6
 
 When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
 
-### Linux
+### Linux & OS X
 
-[Linux Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)
+[Pĺease refer to the Wiki for informations about running MiNET with Mono.](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux-and-Mac)

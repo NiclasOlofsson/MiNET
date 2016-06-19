@@ -1597,6 +1597,7 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public float yaw; // = null;
 		public float pitch; // = null;
+		public int modifiers; // = null;
 		public MetadataDictionary metadata; // = null;
 		public short links; // = null;
 		public McpeAddEntity()
@@ -1620,6 +1621,7 @@ namespace MiNET.Net
 			Write(speedZ);
 			Write(yaw);
 			Write(pitch);
+			Write(modifiers);
 			Write(metadata);
 			Write(links);
 
@@ -1645,6 +1647,7 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			yaw = ReadFloat();
 			pitch = ReadFloat();
+			modifiers = ReadInt();
 			metadata = ReadMetadataDictionary();
 			links = ReadShort();
 

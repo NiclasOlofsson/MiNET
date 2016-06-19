@@ -206,6 +206,11 @@
 				link[0] long
 				link[1] long
 				link[2] byte
+		TODO: Modifiers
+			count int
+				name string
+				val1 float
+				val2 float
 		-->
 	<pdu id="0x0b" online="false" client="false" server="true" name="MCPE_ADD_ENTITY">
 		<field name="Entity ID" type="long" />
@@ -218,6 +223,7 @@
 		<field name="Speed Z" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
+		<field name="Modifiers" type="int" />
 		<field name="Metadata" type="MetadataDictionary"/>
 		<field name="Links" type="short" />
 	</pdu>

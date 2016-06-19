@@ -980,6 +980,8 @@ namespace MiNET
 					// "SkinId": "Standard_Custom"
 					//}
 
+					ClientId = payload.ClientRandomId;
+
 					Skin = new Skin()
 					{
 						SkinType = payload.SkinData,

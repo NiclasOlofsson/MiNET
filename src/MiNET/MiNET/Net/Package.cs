@@ -371,16 +371,15 @@ namespace MiNET.Net
 
 		public void Write(EntityLocations locations)
 		{
-			Write(locations.Count);
 			foreach (var location in locations)
 			{
 				Write(location.Key); // Entity ID
 				Write(location.Value.X);
 				Write(location.Value.Y);
 				Write(location.Value.Z);
-				Write(location.Value.Yaw);
-				Write(location.Value.HeadYaw);
-				Write(location.Value.Pitch);
+				Write((byte)(location.Value.Pitch * 0.71)); // 256/360
+				Write((byte)(location.Value.HeadYaw * 0.71)); // 256/360
+				Write((byte)(location.Value.Yaw * 0.71)); // 256/360
 			}
 		}
 

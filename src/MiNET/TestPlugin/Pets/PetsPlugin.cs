@@ -1,5 +1,6 @@
 using System;
 using MiNET;
+using MiNET.Entities.Passive;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -32,6 +33,57 @@ namespace TestPlugin.Pets
 				return;
 			}
 
+
+			double height = 0.5;
+			switch (petType)
+			{
+				case PetTypes.Chicken:
+					height = new Chicken(null).Height;
+					break;
+				case PetTypes.Cow:
+					height = new Cow(null).Height;
+					break;
+				case PetTypes.Pig:
+					height = new Pig(null).Height;
+					break;
+				case PetTypes.Sheep:
+					height = new Sheep(null).Height;
+					break;
+				case PetTypes.Wolf:
+					height = new Wolf(null).Height;
+					break;
+				case PetTypes.Npc:
+					break;
+				case PetTypes.Mooshroom:
+					break;
+				case PetTypes.Squid:
+					break;
+				case PetTypes.Rabbit:
+					break;
+				case PetTypes.Bat:
+					break;
+				case PetTypes.IronGolem:
+					break;
+				case PetTypes.SnowGolem:
+					break;
+				case PetTypes.Ocelot:
+					break;
+				case PetTypes.Zombie:
+					break;
+				case PetTypes.Creeper:
+					break;
+				case PetTypes.ZombiePigman:
+					break;
+				case PetTypes.Enderman:
+					break;
+				case PetTypes.Blaze:
+					break;
+				case PetTypes.ZombieVillager:
+					break;
+				case PetTypes.Witch:
+					break;
+			}
+
 			string petName = null;
 			if (name.Length > 0)
 			{
@@ -49,15 +101,12 @@ namespace TestPlugin.Pets
 				}
 			}
 
-			//ThreadPool.QueueUserWorkItem(delegate(object state)
-			//{
 			Pet newPet = new Pet(player, player.Level, (int) petType)
 			{
-				NameTag = petName,
-				KnownPosition = (PlayerLocation) player.KnownPosition.Clone()
+				NameTag = petName, KnownPosition = (PlayerLocation) player.KnownPosition.Clone(),
+				Height = height,
 			};
 			newPet.SpawnEntity();
-			//});
 		}
 	}
 }

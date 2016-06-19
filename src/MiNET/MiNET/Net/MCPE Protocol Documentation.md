@@ -552,6 +552,11 @@ loop
 link[0] long
 link[1] long
 link[2] byte
+TODO: Modifiers
+count int
+name string
+val1 float
+val2 float
 
 
 ####Fields
@@ -568,6 +573,7 @@ link[2] byte
 |Speed Z | float |  |
 |Yaw | float |  |
 |Pitch | float |  |
+|Modifiers | int |  |
 |Metadata | MetadataDictionary |  |
 |Links | short |  |
 -----------------------------------------------------------------------

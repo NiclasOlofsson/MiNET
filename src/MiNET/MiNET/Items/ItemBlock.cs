@@ -1,4 +1,5 @@
 using System.Numerics;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -10,6 +11,8 @@ namespace MiNET.Items
 	/// </summary>
 	public class ItemBlock : Item
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBlock));
+
 		protected readonly Block _block;
 
 		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
@@ -41,7 +44,11 @@ namespace MiNET.Items
 			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;
 
-			if (player.GetBoundingBox().Intersects(_block.GetBoundingBox())) return;
+			if ((player.GetBoundingBox() - 0.01f).Intersects(_block.GetBoundingBox()))
+			{
+				Log.Debug("Can't build where you are standing: " + _block.GetBoundingBox());
+				return;
+			}
 			if (!_block.CanPlace(world, face)) return;
 
 			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled

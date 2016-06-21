@@ -11,31 +11,31 @@ namespace MiNET.BlockEntities
 		
 		public static readonly Dictionary<string, string> Formats = new Dictionary<string, string>
 		{
-	            {ChatFormatting.Bold, "bold"},
-	            {ChatFormatting.Italic, "italic"},
-	            {ChatFormatting.Strikethrough, "strikethrough"},
-	            {ChatFormatting.Underline, "underlined"},
-	            {ChatFormatting.Obfuscated, "obfuscated"}
+			{ChatFormatting.Bold, "bold"},
+			{ChatFormatting.Italic, "italic"},
+			{ChatFormatting.Strikethrough, "strikethrough"},
+			{ChatFormatting.Underline, "underlined"},
+			{ChatFormatting.Obfuscated, "obfuscated"}
 	        };
 
 		public static readonly Dictionary<string, string> Colors = new Dictionary<string, string>
 		{
-                    {ChatColors.Aqua, "aqua"},
-                    {ChatColors.Black, "black"},
-                    {ChatColors.Blue, "blue"},
-                    {ChatColors.DarkAqua, "dark_aqua"},
-                    {ChatColors.DarkBlue, "dark_blue"},
-                    {ChatColors.DarkGray, "dark_gray"},
-                    {ChatColors.DarkGreen, "dark_green"},
-                    {ChatColors.DarkPurple, "dark_purple"},
-                    {ChatColors.DarkRed, "dark_red"},
-                    {ChatColors.Gold, "gold"},
-                    {ChatColors.Gray, "gray"},
-                    {ChatColors.Green, "green"},
-                    {ChatColors.LightPurple, "light_purple"},
-                    {ChatColors.Red, "red"},
-                    {ChatColors.White, "white"},
-                    {ChatColors.Yellow, "yellow"},
+				{ChatColors.Aqua, "aqua"},
+				{ChatColors.Black, "black"},
+				{ChatColors.Blue, "blue"},
+				{ChatColors.DarkAqua, "dark_aqua"},
+				{ChatColors.DarkBlue, "dark_blue"},
+				{ChatColors.DarkGray, "dark_gray"},
+				{ChatColors.DarkGreen, "dark_green"},
+				{ChatColors.DarkPurple, "dark_purple"},
+				{ChatColors.DarkRed, "dark_red"},
+				{ChatColors.Gold, "gold"},
+				{ChatColors.Gray, "gray"},
+				{ChatColors.Green, "green"},
+				{ChatColors.LightPurple, "light_purple"},
+				{ChatColors.Red, "red"},
+				{ChatColors.White, "white"},
+				{ChatColors.Yellow, "yellow"},
                 };
 
 		public Sign() : base("Sign")

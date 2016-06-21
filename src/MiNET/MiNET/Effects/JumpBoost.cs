@@ -4,6 +4,7 @@
 	{
 		public JumpBoost() : base(EffectType.JumpBoost)
 		{
+			Particles = false;
 		}
 	}
 }

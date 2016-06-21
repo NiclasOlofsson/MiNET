@@ -6,6 +6,7 @@
 
 		public Speed() : base(EffectType.Speed)
 		{
+			Particles = false;
 		}
 
 		public override void SendAdd(Player player)

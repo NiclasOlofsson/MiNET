@@ -196,6 +196,7 @@ namespace MiNET.Net
 				byte id = internalBuffer[0];
 				Package package = PackageFactory.CreatePackage(id, internalBuffer, "raknet") ?? new UnknownPackage(id, internalBuffer);
 				package.DatagramSequenceNumber = _datagramSequenceNumber;
+				package.Reliability = _reliability;
 				package.ReliableMessageNumber = _reliableMessageNumber;
 				package.OrderingChannel = _orderingChannel;
 				package.OrderingIndex = _orderingIndex;

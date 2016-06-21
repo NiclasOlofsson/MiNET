@@ -80,9 +80,6 @@ namespace MiNET
 			ThreadPool.GetMinThreads(out threads, out iothreads);
 			ThreadPool.SetMinThreads(threads, iothreads * 4);
 
-			Datagram.CreateObject().PutPool();
-
-
 			if (_listener != null) return false; // Already started
 
 			try
@@ -340,7 +337,13 @@ namespace MiNET
 					try
 					{
 						package.Decode(receiveBytes);
-						if(package.Messages.Count > 1) Log.Warn("Parsed connected package with more than 1 message. Total number of msgs: " + package.Messages.Count);
+						if(package.Messages.Count > 1)
+						{
+							foreach (var message in package.Messages)
+							{
+								Log.Warn($"Received Dgrm with more than 1 message ({package.Messages.Count}): #{package._datagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
+							}
+						}
 					}
 					catch (Exception e)
 					{
@@ -580,146 +583,18 @@ namespace MiNET
 		{
 			Player player = playerSession.Player;
 
-			if (Config.GetProperty("UseEncryption", true))
-			{
-				long sequenceNumber = package._orderingIndex.IntValue();
-
-				Log.Debug($"Received Dgrm: #{package._datagramSequenceNumber} {package._reliability} message #{package._reliableMessageNumber}, Chan: #{package._orderingChannel}, OrdIdx: #{package._orderingIndex}");
-
-				//if (new Random().Next(1000) == 0)
-				//{
-				//	// Debug force packet unordered.
-				//	Log.Error($"Skipping #{sequenceNumber} to create chaos");
-				//	//Thread.Sleep(50);
-				//	return;
-				//}
-
-
-				int countDown = 50;
-				bool waited = false;
-				while (!package._hasSplit && package._reliability == Reliability.ReliableOrdered && countDown > 0)
-				{
-					countDown--;
-					if (sequenceNumber <= playerSession.LastSequenceNumber)
-					{
-						Log.Warn($"Detected resend out of order for {player?.Username} #{sequenceNumber}");
-						return;
-					}
-
-					long comparand = sequenceNumber - 1L;
-					var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
-					if (current != comparand)
-					{
-						lock (playerSession.LastProcessTimeSync)
-						{
-							if(playerSession.LastProcessTime == null)
-							{
-								playerSession.LastProcessTime = DateTime.UtcNow;
-							}
-
-							if (DateTime.UtcNow - playerSession.LastProcessTime > TimeSpan.FromMilliseconds(1000))
-							{
-								Log.Error($"Force order for {player?.Username} #{playerSession.LastSequenceNumber}");
-								playerSession.LastProcessTime = null;
-								Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, playerSession.LastSequenceNumber + 1, playerSession.LastSequenceNumber);
-
-								if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
-								{
-									byte[] payload = new byte[100];
-									payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
-								}
-							}
-						}
-
-						Log.Debug($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
-
-						if (playerSession.Evicted) return;
-
-						playerSession.WaitEvent.Reset();
-						if (!playerSession.WaitEvent.WaitOne(100))
-						{
-							Log.Warn($"Continue without signal {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
-
-							//playerSession.Evicted = true;
-							//// Disconnect user
-							//ThreadPool.QueueUserWorkItem(delegate (object o)
-							//{
-							//	PlayerNetworkSession s = o as PlayerNetworkSession;
-							//	if (s != null)
-							//	{
-							//		Player p = s.Player;
-							//		if (p != null)
-							//		{
-							//			p.Disconnect("You've been kicked with reason: Network timeout.");
-							//		}
-							//		else
-							//		{
-							//			if (ServerInfo.PlayerSessions.TryRemove(s.EndPoint, out s))
-							//			{
-							//				s.Player = null;
-							//				s.State = ConnectionState.Unconnected;
-							//				s.Evicted = true;
-							//				s.Clean();
-							//			}
-							//		}
-							//	}
-							//}, playerSession);
-
-						}
-						waited = true;
-						continue;
-					}
-
-					if (waited)
-					{
-						Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{sequenceNumber}");
-					}
-
-					break;
-				}
-
-				if (countDown == 0)
-				{
-					//Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, playerSession.LastSequenceNumber + 1, playerSession.LastSequenceNumber);
-					Log.Error($"Never caught up with datagram sequence for {player?.Username} #{sequenceNumber}");
-					//throw new Exception("Never caught up with datagram sequence");
-					DelayedProcessing(playerSession, package);
-					return;
-				}
-				
-			}
 			List<Package> messages = package.Messages;
 			foreach (var message in messages)
 			{
-				message.DatagramSequenceNumber = package._datagramSequenceNumber;
-				//message.ReliableMessageNumber = package._reliableMessageNumber;
-				//message.OrderingChannel = package._orderingChannel;
-				//message.OrderingIndex = package._orderingIndex;
-
 				if (message is SplitPartPackage)
 				{
 					HandleSplitMessage(playerSession, package, (SplitPartPackage) message, player);
-
 					continue;
 				}
 
 				message.Timer.Restart();
 				HandlePackage(message, playerSession);
 				message.PutPool(); // Handled in HandlePacket now()
-			}
-
-			if(Config.GetProperty("UseEncryption", true))
-			{
-				if(package._reliability == Reliability.ReliableOrdered)
-				{
-					lock (playerSession.LastProcessTimeSync)
-					{
-						playerSession.LastProcessTime = null;
-					
-					}
-					playerSession.WaitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
-				}
-				
 			}
 		}
 
@@ -778,8 +653,15 @@ namespace MiNET
 					newPackage._hasSplit = false;
 
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
+					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
+					fullMessage.Reliability = package._reliability;
+					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
+					fullMessage.OrderingIndex = package._orderingIndex;
+					fullMessage.OrderingChannel = package._orderingChannel;
+
 					newPackage.Messages = new List<Package>();
 					newPackage.Messages.Add(fullMessage);
+
 					Log.Debug($"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
 					DelayedProcessing(playerSession, newPackage);
 					newPackage.PutPool();
@@ -909,10 +791,12 @@ namespace MiNET
 
 				for (int i = start; i <= end; i++)
 				{
+					Log.WarnFormat("NAK on datagram #{0} for {1}", i, player.Username);
+
 					session.ErrorCount++;
 
 					// HACK: Just to make sure we aren't getting unessecary load on the queue during heavy buffering.
-					if (ServerInfo.AvailableBytes > 1000) continue;
+					//if (ServerInfo.AvailableBytes > 1000) continue;
 
 					Datagram datagram;
 					if (queue.TryGetValue(i, out datagram))
@@ -927,6 +811,16 @@ namespace MiNET
 						player.Rtt = (long) (RTT*0.875 + rtt*0.125);
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
+
+						ThreadPool.QueueUserWorkItem(delegate(object data)
+						{
+							var dgram = (Datagram) data;
+							if (Log.IsDebugEnabled)
+								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
+							SendDatagram(session, dgram);
+							Interlocked.Increment(ref ServerInfo.NumberOfResends);
+						}, datagram);
+
 					}
 					else
 					{
@@ -1003,14 +897,110 @@ namespace MiNET
 				return;
 			}
 
-			TraceReceive(message, message.ReliableMessageNumber);
+			TraceReceive(message, message.DatagramSequenceNumber);
 
-			if (typeof (UnknownPackage) == message.GetType())
+			if (Config.GetProperty("UseEncryption", true))
 			{
-				UnknownPackage packet = (UnknownPackage) message;
+				long sequenceNumber = message.OrderingIndex;
+
+				Log.Debug($"Received Dgrm: #{message.DatagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
+
+				//if (new Random().Next(1000) == 0)
+				//{
+				//	// Debug force packet unordered.
+				//	Log.Error($"Skipping #{sequenceNumber} to create chaos");
+				//	//Thread.Sleep(50);
+				//	return;
+				//}
+
+
+				int countDown = 50;
+				bool waited = false;
+				while (message.Reliability == Reliability.ReliableOrdered && countDown > 0)
+				{
+					countDown--;
+					if (sequenceNumber <= playerSession.LastSequenceNumber)
+					{
+						Log.Warn($"Detected resend out of order for {player?.Username} #{sequenceNumber}");
+						Log.Debug($"Received Dgrm: #{message.DatagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
+						return;
+					}
+
+					long comparand = sequenceNumber - 1L;
+					var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
+					if (current != comparand)
+					{
+						lock (playerSession.LastProcessTimeSync)
+						{
+							if (playerSession.LastProcessTime == null)
+							{
+								playerSession.LastProcessTime = DateTime.UtcNow;
+							}
+
+							//if (DateTime.UtcNow - playerSession.LastProcessTime > TimeSpan.FromMilliseconds(1000))
+							//{
+							//	Log.Error($"Force order for {player?.Username} #{playerSession.LastSequenceNumber}");
+							//	playerSession.LastProcessTime = null;
+							//	Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, playerSession.LastSequenceNumber + 1, playerSession.LastSequenceNumber);
+
+							//	if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
+							//	{
+							//		byte[] payload = new byte[100];
+							//		payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+							//	}
+							//}
+						}
+
+						Log.Debug($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
+
+						if (playerSession.Evicted) return;
+
+						playerSession.WaitEvent.Reset();
+						if (!playerSession.WaitEvent.WaitOne(100))
+						{
+							Log.Warn($"Continue without signal {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
+						}
+						waited = true;
+						continue;
+					}
+
+					if (waited)
+					{
+						Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{sequenceNumber}");
+					}
+
+					break;
+				}
+
+				if (countDown == 0)
+				{
+					Log.Error($"Never caught up with datagram sequence for {player?.Username} #{sequenceNumber}");
+					throw new Exception("Never caught up with datagram sequence");
+				}
+
+			}
+
+			if (Config.GetProperty("UseEncryption", true))
+			{
+				if (message.Reliability == Reliability.ReliableOrdered)
+				{
+					lock (playerSession.LastProcessTimeSync)
+					{
+						playerSession.LastProcessTime = null;
+
+					}
+					playerSession.WaitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
+				}
+
+			}
+
+			if (typeof(UnknownPackage) == message.GetType())
+			{
+				UnknownPackage packet = (UnknownPackage)message;
 				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 				return;
 			}
+
 
 			if (typeof (McpeWrapper) == message.GetType())
 			{
@@ -1028,7 +1018,6 @@ namespace MiNET
 
 				message = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
 			}
-
 
 			if (typeof (McpeBatch) == message.GetType())
 			{

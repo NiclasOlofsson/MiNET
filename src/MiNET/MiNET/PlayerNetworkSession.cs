@@ -36,7 +36,7 @@ namespace MiNET
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
-		public long LastSequenceNumber = 0; // That's the first message with wrapper
+		public long LastSequenceNumber = -1; // That's the first message with wrapper
 
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }

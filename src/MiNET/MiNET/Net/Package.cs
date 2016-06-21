@@ -27,6 +27,7 @@ namespace MiNET.Net
 
 		public bool NoBatch { get; set; }
 
+		public Reliability Reliability = Reliability.Unreliable;
 		public int ReliableMessageNumber = 0;
 		public int OrderingChannel = 0;
 		public int OrderingIndex = 0;
@@ -1235,9 +1236,11 @@ namespace MiNET.Net
 			if (_isPermanent) return;
 			if (!IsPooled) return;
 
-			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
+			if (Interlocked.Decrement(ref _referenceCounter) != 0) return;
 
 			Reset();
+
+			_isPooled = false;
 
 			Pool.PutObject((T) this);
 		}

@@ -8,11 +8,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Jose;
 using log4net;
 using Microsoft.AspNet.Identity;
 using Microsoft.IO;
@@ -78,7 +76,7 @@ namespace MiNET
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
-			ThreadPool.SetMinThreads(threads, iothreads * 4);
+			ThreadPool.SetMinThreads(threads, iothreads*4);
 
 			if (_listener != null) return false; // Already started
 
@@ -337,7 +335,7 @@ namespace MiNET
 					try
 					{
 						package.Decode(receiveBytes);
-						if(package.Messages.Count > 1)
+						if (package.Messages.Count > 1)
 						{
 							foreach (var message in package.Messages)
 							{
@@ -799,7 +797,7 @@ namespace MiNET
 					//if (ServerInfo.AvailableBytes > 1000) continue;
 
 					Datagram datagram;
-					if (queue.TryGetValue(i, out datagram))
+					if (queue.TryRemove(i, out datagram))
 					{
 						// RTT = RTT * 0.875 + rtt * 0.125
 						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
@@ -812,15 +810,14 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						//ThreadPool.QueueUserWorkItem(delegate(object data)
-						//{
-						//	var dgram = (Datagram) data;
-						//	if (Log.IsDebugEnabled)
-						//		Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
-						//	SendDatagram(session, dgram);
-						//	Interlocked.Increment(ref ServerInfo.NumberOfResends);
-						//}, datagram);
-
+						ThreadPool.QueueUserWorkItem(delegate(object data)
+						{
+							var dgram = (Datagram) data;
+							if (Log.IsDebugEnabled)
+								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
+							SendDatagram(session, dgram);
+							Interlocked.Increment(ref ServerInfo.NumberOfResends);
+						}, datagram);
 					}
 					else
 					{
@@ -930,27 +927,6 @@ namespace MiNET
 					var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
 					if (current != comparand)
 					{
-						lock (playerSession.LastProcessTimeSync)
-						{
-							if (playerSession.LastProcessTime == null)
-							{
-								playerSession.LastProcessTime = DateTime.UtcNow;
-							}
-
-							//if (DateTime.UtcNow - playerSession.LastProcessTime > TimeSpan.FromMilliseconds(1000))
-							//{
-							//	Log.Error($"Force order for {player?.Username} #{playerSession.LastSequenceNumber}");
-							//	playerSession.LastProcessTime = null;
-							//	Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, playerSession.LastSequenceNumber + 1, playerSession.LastSequenceNumber);
-
-							//	if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
-							//	{
-							//		byte[] payload = new byte[100];
-							//		payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
-							//	}
-							//}
-						}
-
 						Log.Debug($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
 
 						if (playerSession.Evicted) return;
@@ -977,26 +953,19 @@ namespace MiNET
 					Log.Error($"Never caught up with datagram sequence for {player?.Username} #{sequenceNumber}");
 					throw new Exception("Never caught up with datagram sequence");
 				}
-
 			}
 
 			if (Config.GetProperty("UseEncryption", true))
 			{
 				if (message.Reliability == Reliability.ReliableOrdered)
 				{
-					lock (playerSession.LastProcessTimeSync)
-					{
-						playerSession.LastProcessTime = null;
-
-					}
 					playerSession.WaitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
 				}
-
 			}
 
-			if (typeof(UnknownPackage) == message.GetType())
+			if (typeof (UnknownPackage) == message.GetType())
 			{
-				UnknownPackage packet = (UnknownPackage)message;
+				UnknownPackage packet = (UnknownPackage) message;
 				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 				return;
 			}

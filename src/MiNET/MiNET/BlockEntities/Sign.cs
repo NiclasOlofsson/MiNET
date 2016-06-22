@@ -86,7 +86,7 @@ namespace MiNET.BlockEntities
 			return text != null ? (text.StringValue ?? string.Empty) : string.Empty;
 		}
 		
-		private static void DecodeSignText(string text)
+		private static string DecodeSignText(string text)
 		{
 			
 			var message = "";
@@ -142,6 +142,8 @@ namespace MiNET.BlockEntities
 			{
 				message = text;
 			}
+			
+			return message;
 			
 		}
 		

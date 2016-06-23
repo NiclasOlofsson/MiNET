@@ -109,19 +109,22 @@ namespace MiNET
 
 		private long _lastSequenceNumber = -1; // That's the first message with wrapper
 		private AutoResetEvent _waitEvent = new AutoResetEvent(false);
+		private AutoResetEvent _mainWaitEvent = new AutoResetEvent(false);
+		private object _eventSync = new object();
 
 		public void AddToProcessing(Package message)
 		{
-			_queue.Enqueue(message.OrderingIndex, message);
-			_waitEvent.Set();
+			lock (_eventSync)
+			{
+				_queue.Enqueue(message.OrderingIndex, message);
+				WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
+			}
 		}
 
 		private Task ProcessQueue()
 		{
 			while (!_cancellationToken.Token.IsCancellationRequested)
 			{
-				_waitEvent.WaitOne();
-
 				KeyValuePair<int, Package> pair;
 
 				if (_queue.TryPeek(out pair))
@@ -149,6 +152,7 @@ namespace MiNET
 					//	Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
 					//}
 				}
+				WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent);
 			}
 
 			return Task.CompletedTask;

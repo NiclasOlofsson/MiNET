@@ -797,7 +797,7 @@ namespace MiNET
 
 					bool haveValidRealmsToken = false;
 					string validKey = null;
-					if(json.chain.Count > 1)
+					if (json.chain.Count > 1)
 					{
 						// Xbox Login
 						validKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
@@ -873,7 +873,7 @@ namespace MiNET
 								// Validate
 								var newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
 								string decoded = JWT.Decode(o.ToString(), newKey);
-								if(decoded != null)
+								if (decoded != null)
 								{
 									Log.Info("Decoded token success");
 									dynamic content = JObject.Parse(decoded);
@@ -2215,7 +2215,7 @@ namespace MiNET
 			mcpeStartGame.x = KnownPosition.X;
 			mcpeStartGame.y = (float) (KnownPosition.Y + Height);
 			mcpeStartGame.z = KnownPosition.Z;
-			mcpeStartGame.isLoadedInCreative = true/*GameMode == GameMode.Creative*/;
+			mcpeStartGame.isLoadedInCreative = true /*GameMode == GameMode.Creative*/;
 			mcpeStartGame.dayCycleStopTime = 1;
 			mcpeStartGame.eduMode = false;
 			mcpeStartGame.unknownstr = "iX8AANxLbgA=";

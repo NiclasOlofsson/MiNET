@@ -132,7 +132,11 @@ namespace MiNET
 				{
 					KeyValuePair<int, Package> pair = _queue.Take(_cancellationToken.Token);
 
-					HandlePackage(pair.Value, this);
+					ThreadPool.QueueUserWorkItem(delegate(object data)
+					{
+						HandlePackage(data as Package, this);
+					}, pair.Value);
+
 				}
 				catch (Exception e)
 				{

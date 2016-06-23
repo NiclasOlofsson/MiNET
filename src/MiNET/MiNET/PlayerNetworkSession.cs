@@ -121,56 +121,57 @@ namespace MiNET
 			//	WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
 			//}
 
-			_queue.Add(new KeyValuePair<int, Package>(message.OrderingIndex, message), _cancellationToken.Token);
+			//_queue.Add(new KeyValuePair<int, Package>(message.OrderingIndex, message), _cancellationToken.Token);
+			HandlePackage(message, this);
 		}
 
 		private Task ProcessQueue()
 		{
-			while (!_cancellationToken.Token.IsCancellationRequested)
-			{
-				try
-				{
-					KeyValuePair<int, Package> pair = _queue.Take(_cancellationToken.Token);
+			//while (!_cancellationToken.Token.IsCancellationRequested)
+			//{
+			//	try
+			//	{
+			//		KeyValuePair<int, Package> pair = _queue.Take(_cancellationToken.Token);
 
-					ThreadPool.QueueUserWorkItem(delegate(object data)
-					{
-						HandlePackage(data as Package, this);
-					}, pair.Value);
+			//		ThreadPool.QueueUserWorkItem(delegate(object data)
+			//		{
+			//			HandlePackage(data as Package, this);
+			//		}, pair.Value);
 
-				}
-				catch (Exception e)
-				{
-				}
+			//	}
+			//	catch (Exception e)
+			//	{
+			//	}
 
-				//KeyValuePair<int, Package> pair;
+			//	//KeyValuePair<int, Package> pair;
 
-				//if (_queue.TryPeek(out pair))
-				//{
-				//	//if (pair.Key == _lastSequenceNumber + 1)
-				//	{
-				//		if (_queue.TryDequeue(out pair))
-				//		{
-				//			_lastSequenceNumber = pair.Key;
+			//	//if (_queue.TryPeek(out pair))
+			//	//{
+			//	//	//if (pair.Key == _lastSequenceNumber + 1)
+			//	//	{
+			//	//		if (_queue.TryDequeue(out pair))
+			//	//		{
+			//	//			_lastSequenceNumber = pair.Key;
 
-				//			HandlePackage(pair.Value, this);
-				//			pair.Value.PutPool();
-				//		}
-				//	}
-				//	//else if (pair.Key <= _lastSequenceNumber)
-				//	//{
-				//	//	Log.Warn($"Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-				//	//	if (_queue.TryDequeue(out pair))
-				//	//	{
-				//	//		pair.Value.PutPool();
-				//	//	}
-				//	//}
-				//	//else
-				//	//{
-				//	//	Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-				//	//}
-				//}
-				//WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent);
-			}
+			//	//			HandlePackage(pair.Value, this);
+			//	//			pair.Value.PutPool();
+			//	//		}
+			//	//	}
+			//	//	//else if (pair.Key <= _lastSequenceNumber)
+			//	//	//{
+			//	//	//	Log.Warn($"Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+			//	//	//	if (_queue.TryDequeue(out pair))
+			//	//	//	{
+			//	//	//		pair.Value.PutPool();
+			//	//	//	}
+			//	//	//}
+			//	//	//else
+			//	//	//{
+			//	//	//	Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+			//	//	//}
+			//	//}
+			//	//WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent);
+			//}
 
 			return Task.CompletedTask;
 		}

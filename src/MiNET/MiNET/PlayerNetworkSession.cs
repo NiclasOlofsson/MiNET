@@ -123,9 +123,10 @@ namespace MiNET
 				_waitEvent.WaitOne();
 
 				KeyValuePair<int, Package> pair;
+
 				if (_queue.TryPeek(out pair))
 				{
-					if (pair.Key == _lastSequenceNumber + 1)
+					//if (pair.Key == _lastSequenceNumber + 1)
 					{
 						if (_queue.TryDequeue(out pair))
 						{
@@ -135,18 +136,18 @@ namespace MiNET
 							pair.Value.PutPool();
 						}
 					}
-					else if (pair.Key <= _lastSequenceNumber)
-					{
-						Log.Warn($"Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-						if (_queue.TryDequeue(out pair))
-						{
-							pair.Value.PutPool();
-						}
-					}
-					else
-					{
-						Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-					}
+					//else if (pair.Key <= _lastSequenceNumber)
+					//{
+					//	Log.Warn($"Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+					//	if (_queue.TryDequeue(out pair))
+					//	{
+					//		pair.Value.PutPool();
+					//	}
+					//}
+					//else
+					//{
+					//	Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+					//}
 				}
 			}
 

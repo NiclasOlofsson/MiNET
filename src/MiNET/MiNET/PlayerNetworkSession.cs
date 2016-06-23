@@ -1,8 +1,13 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+using log4net;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -10,6 +15,8 @@ namespace MiNET
 {
 	public class PlayerNetworkSession
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (PlayerNetworkSession));
+
 		public object SyncRoot { get; private set; } = new object();
 		public object ProcessSyncRoot { get; private set; } = new object();
 		public object SyncRootUpdate { get; private set; } = new object();
@@ -36,13 +43,12 @@ namespace MiNET
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
-		public long LastSequenceNumber = -1; // That's the first message with wrapper
-
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
-		public ConcurrentQueue<Package> ProcessingQueue = new ConcurrentQueue<Package>(); 
 
-		public ManualResetEvent WaitEvent = new ManualResetEvent(false);
+		//private BlockingCollection<KeyValuePair<int, Package>> _queue = new BlockingCollection<KeyValuePair<int, Package>>(new ConcurrentPriorityQueue<int, Package>());
+		private ConcurrentPriorityQueue<int, Package> _queue = new ConcurrentPriorityQueue<int, Package>();
+		private CancellationTokenSource _cancellationToken;
 
 		public CryptoContext CryptoContext { get; set; }
 
@@ -53,6 +59,8 @@ namespace MiNET
 			EndPoint = endPoint;
 			MtuSize = mtuSize;
 			CreateTime = DateTime.UtcNow;
+			_cancellationToken = new CancellationTokenSource();
+			Task.Run(ProcessQueue, _cancellationToken.Token);
 		}
 
 		public ConcurrentDictionary<int, SplitPartPackage[]> Splits
@@ -72,6 +80,8 @@ namespace MiNET
 
 		public void Clean()
 		{
+			_cancellationToken.Cancel();
+
 			var queue = WaitingForAcksQueue;
 			foreach (var kvp in queue)
 			{
@@ -84,7 +94,7 @@ namespace MiNET
 				SplitPartPackage[] splitPartPackagese;
 				if (Splits.TryRemove(kvp.Key, out splitPartPackagese))
 				{
-					if(splitPartPackagese == null) continue;
+					if (splitPartPackagese == null) continue;
 
 					foreach (SplitPartPackage package in splitPartPackagese)
 					{
@@ -95,6 +105,143 @@ namespace MiNET
 
 			queue.Clear();
 			Splits.Clear();
+		}
+
+		private long _lastSequenceNumber = -1; // That's the first message with wrapper
+		private AutoResetEvent _waitEvent = new AutoResetEvent(false);
+
+		public void AddToProcessing(Package message)
+		{
+			_queue.Enqueue(message.OrderingIndex, message);
+			_waitEvent.Set();
+		}
+
+		private Task ProcessQueue()
+		{
+			while (!_cancellationToken.Token.IsCancellationRequested)
+			{
+				_waitEvent.WaitOne();
+
+				KeyValuePair<int, Package> pair;
+				if (_queue.TryPeek(out pair))
+				{
+					if (pair.Key == _lastSequenceNumber + 1)
+					{
+						if (_queue.TryDequeue(out pair))
+						{
+							_lastSequenceNumber = pair.Key;
+
+							HandlePackage(pair.Value, this);
+							pair.Value.PutPool();
+						}
+					}
+					else if (pair.Key <= _lastSequenceNumber)
+					{
+						Log.Warn($"Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						if (_queue.TryDequeue(out pair))
+						{
+							pair.Value.PutPool();
+						}
+					}
+					else
+					{
+						Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+					}
+				}
+			}
+
+			return Task.CompletedTask;
+		}
+
+		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
+		{
+			Player player = playerSession.Player;
+
+			if (message == null)
+			{
+				return;
+			}
+
+			if (typeof (McpeWrapper) == message.GetType())
+			{
+				McpeWrapper batch = (McpeWrapper) message;
+
+				// Get bytes
+				byte[] payload = batch.payload;
+				if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
+				{
+					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+				}
+
+				//if (Log.IsDebugEnabled)
+				//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
+
+				var msg = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
+				HandlePackage(msg, playerSession);
+				msg.PutPool();
+
+				return;
+			}
+
+			if (typeof (UnknownPackage) == message.GetType())
+			{
+				UnknownPackage packet = (UnknownPackage) message;
+				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
+
+				return;
+			}
+
+			if (typeof (McpeBatch) == message.GetType())
+			{
+				Log.Debug("Handle MCPE batch message");
+				McpeBatch batch = (McpeBatch) message;
+
+				var messages = new List<Package>();
+
+				// Get bytes
+				byte[] payload = batch.payload;
+				// Decompress bytes
+
+				MemoryStream stream = new MemoryStream(payload);
+				if (stream.ReadByte() != 0x78)
+				{
+					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+				}
+				stream.ReadByte();
+				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+				{
+					// Get actual package out of bytes
+					MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
+					defStream2.CopyTo(destination);
+					destination.Position = 0;
+					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+
+					while (destination.Position < destination.Length)
+					{
+						int len = reader.ReadInt32();
+						byte[] internalBuffer = reader.ReadBytes(len);
+
+						//if (Log.IsDebugEnabled)
+						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+
+						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+					}
+
+					if (destination.Length > destination.Position) throw new Exception("Have more data");
+				}
+				foreach (var msg in messages)
+				{
+					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+					msg.OrderingChannel = batch.OrderingChannel;
+					msg.OrderingIndex = batch.OrderingIndex;
+					HandlePackage(msg, playerSession);
+					msg.PutPool();
+				}
+
+				return;
+			}
+
+			if (player != null) player.HandlePackage(message);
 		}
 	}
 }

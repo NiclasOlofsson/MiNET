@@ -1225,9 +1225,9 @@ namespace MiNET.Net
 
 		//~Package()
 		//{
-		//	//if(IsPooled)
+		//	if (IsPooled)
 		//	{
-		//		Log.Warn($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, Refs={_referenceCounter}");
+		//		Log.Warn($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
 		//	}
 		//}
 
@@ -1236,7 +1236,13 @@ namespace MiNET.Net
 			if (_isPermanent) return;
 			if (!IsPooled) return;
 
-			if (Interlocked.Decrement(ref _referenceCounter) != 0) return;
+			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
+
+			if(_referenceCounter < 0)
+			{
+				return;
+				//throw new Exception("Pooling error. Added pooled object too many times.");
+			}
 
 			Reset();
 

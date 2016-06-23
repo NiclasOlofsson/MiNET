@@ -513,6 +513,7 @@
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
+    <Compile Include="Utils\ConcurrentPriorityQueue.cs" />
     <Compile Include="Utils\CryptoContext.cs" />
     <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\EntityLocations.cs" />

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -370,7 +369,7 @@ namespace MiNET
 						Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
 					}
 
-					DelayedProcessing(playerSession, package);
+					HandleConnectedPackage(playerSession, package);
 					package.PutPool();
 				}
 				else if (header.isACK && header.isValid)
@@ -577,7 +576,7 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
-		private void DelayedProcessing(PlayerNetworkSession playerSession, ConnectedPackage package)
+		private void HandleConnectedPackage(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
 			Player player = playerSession.Player;
 
@@ -592,7 +591,6 @@ namespace MiNET
 
 				message.Timer.Restart();
 				HandlePackage(message, playerSession);
-				message.PutPool(); // Handled in HandlePacket now()
 			}
 		}
 
@@ -661,7 +659,7 @@ namespace MiNET
 					newPackage.Messages.Add(fullMessage);
 
 					Log.Debug($"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
-					DelayedProcessing(playerSession, newPackage);
+					HandleConnectedPackage(playerSession, newPackage);
 					newPackage.PutPool();
 				}
 				catch (Exception e)
@@ -789,15 +787,14 @@ namespace MiNET
 
 				for (int i = start; i <= end; i++)
 				{
-					Log.WarnFormat("NAK on datagram #{0} for {1}", i, player.Username);
-
 					session.ErrorCount++;
 
 					// HACK: Just to make sure we aren't getting unessecary load on the queue during heavy buffering.
 					//if (ServerInfo.AvailableBytes > 1000) continue;
 
 					Datagram datagram;
-					if (queue.TryRemove(i, out datagram))
+					//if (queue.TryRemove(i, out datagram))
+					if (queue.TryGetValue(i, out datagram))
 					{
 						// RTT = RTT * 0.875 + rtt * 0.125
 						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
@@ -810,14 +807,14 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						ThreadPool.QueueUserWorkItem(delegate(object data)
-						{
-							var dgram = (Datagram) data;
-							if (Log.IsDebugEnabled)
-								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
-							SendDatagram(session, dgram);
-							Interlocked.Increment(ref ServerInfo.NumberOfResends);
-						}, datagram);
+						//ThreadPool.QueueUserWorkItem(delegate(object data)
+						//{
+						//	var dgram = (Datagram) data;
+						//	if (Log.IsDebugEnabled)
+						//		Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
+						//	SendDatagram(session, dgram);
+						//	Interlocked.Increment(ref ServerInfo.NumberOfResends);
+						//}, datagram);
 					}
 					else
 					{
@@ -896,149 +893,22 @@ namespace MiNET
 
 			TraceReceive(message, message.DatagramSequenceNumber);
 
-			if (Config.GetProperty("UseEncryption", true))
+			if (message.Reliability == Reliability.ReliableOrdered)
 			{
-				long sequenceNumber = message.OrderingIndex;
-
-				Log.Debug($"Received Dgrm: #{message.DatagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
-
-				//if (new Random().Next(1000) == 0)
-				//{
-				//	// Debug force packet unordered.
-				//	Log.Error($"Skipping #{sequenceNumber} to create chaos");
-				//	//Thread.Sleep(50);
-				//	return;
-				//}
-
-
-				int countDown = 50;
-				bool waited = false;
-				while (message.Reliability == Reliability.ReliableOrdered && countDown > 0)
-				{
-					countDown--;
-					if (sequenceNumber <= playerSession.LastSequenceNumber)
-					{
-						Log.Warn($"Detected resend out of order for {player?.Username} #{sequenceNumber}");
-						Log.Debug($"Received Dgrm: #{message.DatagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
-						return;
-					}
-
-					long comparand = sequenceNumber - 1L;
-					var current = Interlocked.CompareExchange(ref playerSession.LastSequenceNumber, sequenceNumber, comparand);
-					if (current != comparand)
-					{
-						Log.Debug($"Recived datagrams out of order for {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
-
-						if (playerSession.Evicted) return;
-
-						playerSession.WaitEvent.Reset();
-						if (!playerSession.WaitEvent.WaitOne(100))
-						{
-							Log.Warn($"Continue without signal {player?.Username} (Attempts left: {countDown}) Current: #{current} != New: #{sequenceNumber} - 1");
-						}
-						waited = true;
-						continue;
-					}
-
-					if (waited)
-					{
-						Log.Warn($"Caught up on datagrams out of order for {player?.Username} #{sequenceNumber}");
-					}
-
-					break;
-				}
-
-				if (countDown == 0)
-				{
-					Log.Error($"Never caught up with datagram sequence for {player?.Username} #{sequenceNumber}");
-					throw new Exception("Never caught up with datagram sequence");
-				}
-			}
-
-			if (Config.GetProperty("UseEncryption", true))
-			{
-				if (message.Reliability == Reliability.ReliableOrdered)
-				{
-					playerSession.WaitEvent.Set(); // Release all threads waiting to check for ordered datagrams above.
-				}
+				playerSession.AddToProcessing(message);
+				return;
 			}
 
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
 				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
+				message.PutPool();
 				return;
 			}
 
-
-			if (typeof (McpeWrapper) == message.GetType())
-			{
-				McpeWrapper batch = (McpeWrapper) message;
-
-				// Get bytes
-				byte[] payload = batch.payload;
-				if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
-				{
-					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
-				}
-
-				//if (Log.IsDebugEnabled)
-				//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
-
-				message = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
-			}
-
-			if (typeof (McpeBatch) == message.GetType())
-			{
-				Log.Debug("Handle MCPE batch message");
-				McpeBatch batch = (McpeBatch) message;
-
-				var messages = new List<Package>();
-
-				// Get bytes
-				byte[] payload = batch.payload;
-				// Decompress bytes
-
-				MemoryStream stream = new MemoryStream(payload);
-				if (stream.ReadByte() != 0x78)
-				{
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-				}
-				stream.ReadByte();
-				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-				{
-					// Get actual package out of bytes
-					MemoryStream destination = MemoryStreamManager.GetStream();
-					defStream2.CopyTo(destination);
-					destination.Position = 0;
-					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-
-					while (destination.Position < destination.Length)
-					{
-						int len = reader.ReadInt32();
-						byte[] internalBuffer = reader.ReadBytes(len);
-
-						//if (Log.IsDebugEnabled)
-						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
-
-						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
-					}
-
-					if (destination.Length > destination.Position) throw new Exception("Have more data");
-				}
-				foreach (var msg in messages)
-				{
-					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
-					msg.OrderingChannel = batch.OrderingChannel;
-					msg.OrderingIndex = batch.OrderingIndex;
-					HandlePackage(msg, playerSession);
-					msg.PutPool();
-				}
-
-				return;
-			}
-
-			if (player != null) player.HandlePackage(message);
+			player?.HandlePackage(message);
+			message.PutPool();
 		}
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
@@ -1261,9 +1131,7 @@ namespace MiNET
 			}
 		}
 
-		private object _sendSync = new object();
-
-		public void SendPackage(Player player, Package message, Reliability reliability = Reliability.Reliable)
+		public void SendPackage(Player player, Package message)
 		{
 			if (message == null) return;
 
@@ -1304,7 +1172,6 @@ namespace MiNET
 			{
 				Log.Warn(string.Format("Datagram sequence unexpectedly existed in the ACK/NAK queue already {0}", datagram.Header.datagramSequenceNumber.IntValue()));
 			}
-			//datagram.PutPool();
 
 			lock (session.SyncRoot)
 			{

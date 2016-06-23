@@ -60,6 +60,7 @@ namespace MiNET
 		public long ClientGuid { get; set; }
 		public string ClientSecret { get; set; }
 		public UUID ClientUuid { get; set; }
+		public bool IsXboxLiveVerified { get; private set; }
 
 		public Skin Skin { get; set; }
 		public bool Silent { get; set; }
@@ -784,6 +785,8 @@ namespace MiNET
 
 			try
 			{
+				bool isXboxLogin = false;
+
 				{
 					Log.Debug("Input JSON string: " + certificateChain);
 
@@ -794,10 +797,11 @@ namespace MiNET
 
 					bool haveValidRealmsToken = false;
 					string validKey = null;
-					if(json.Length > 1)
+					if(json.chain.Count > 1)
 					{
 						// Xbox Login
 						validKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
+						isXboxLogin = true;
 					}
 
 					foreach (dynamic o in json.chain)
@@ -868,6 +872,9 @@ namespace MiNET
 							}
 						}
 					}
+
+					if (isXboxLogin) IsXboxLiveVerified = true;
+					Log.Warn("Is XBOX: " + IsXboxLiveVerified);
 
 					foreach (dynamic o in json.chain)
 					{

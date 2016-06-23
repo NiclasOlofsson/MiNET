@@ -290,12 +290,23 @@ namespace TestPlugin.NiceLobby
 
 		private string GetNameTag(Player player)
 		{
-			return GetNameTag(player.Username);
-		}
+			string username = player.Username;
 
-		private string GetNameTag(string username)
-		{
-			string rank = username.StartsWith("gurun") || username.StartsWith("Oliver") ? $"{ChatColors.Red}[ADMIN]" : $"{ChatColors.LightPurple}[VIP]";
+			string rank;
+			//if (username.StartsWith("gurun") || username.StartsWith("Oliver"))
+			//{
+			//	rank = $"{ChatColors.Red}[ADMIN]";
+			//}
+			//else 
+			if(player.IsXboxLiveVerified)
+			{
+				rank = $"{ChatColors.Green}[XBOX]";
+			}
+			else
+			{
+				rank = $"{ChatColors.White}";
+			}
+
 			return $"{rank} {username}";
 		}
 

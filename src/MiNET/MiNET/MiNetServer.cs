@@ -72,10 +72,20 @@ namespace MiNET
 
 		public bool StartServer()
 		{
+			int confMinWorkerThreads = Config.GetProperty("MinWorkerThreads", -1);
+			int confMinCompletionPortThreads = Config.GetProperty("MinCompletionPortThreads", -1);
+
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
-			ThreadPool.SetMinThreads(threads * 4, iothreads*4);
+
+			if (confMinWorkerThreads != -1) threads = confMinWorkerThreads;
+			else threads *= 4;
+
+			if (confMinCompletionPortThreads != -1) iothreads = confMinCompletionPortThreads;
+			else iothreads *= 4;
+
+			ThreadPool.SetMinThreads(threads, iothreads);
 
 			if (_listener != null) return false; // Already started
 

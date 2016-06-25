@@ -173,7 +173,7 @@ namespace MiNET
 					}	
 					else if (pair.Key <= _lastSequenceNumber)
 					{
-						Log.Warn($"{Player.Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						if(Log.IsDebugEnabled) Log.Warn($"{Player.Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
 						if (_queue.TryDequeue(out pair))
 						{
 							pair.Value.PutPool();
@@ -181,7 +181,7 @@ namespace MiNET
 					}
 					else
 					{
-						Log.Warn($"{Player.Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						if (Log.IsDebugEnabled) Log.Warn($"{Player.Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
 						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
 					}
 				}

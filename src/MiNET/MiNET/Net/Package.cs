@@ -1232,7 +1232,7 @@ namespace MiNET.Net
 		//}
 
 		public override void PutPool()
-		{
+		{	
 			if (_isPermanent) return;
 			if (!IsPooled) return;
 
@@ -1241,6 +1241,7 @@ namespace MiNET.Net
 			if(_referenceCounter < 0)
 			{
 				return;
+				//Log.Warn($"Pooling error. Added pooled object too many times. 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
 				//throw new Exception("Pooling error. Added pooled object too many times.");
 			}
 

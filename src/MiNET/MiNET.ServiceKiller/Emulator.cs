@@ -23,11 +23,11 @@ namespace MiNET.ServiceKiller
 
 		//private const int TimeBetweenSpawns = 280;
 		private const int TimeBetweenSpawns = 350;
-		private const int DurationOfConnection = 120*1000;
+		private const int DurationOfConnection = 30*1000;
 		private const int NumberOfBots = 2000;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
-		private const int RequestChunkRadius = 8;
+		private const int RequestChunkRadius = 5;
 
 		private static bool _running = true;
 
@@ -51,7 +51,7 @@ namespace MiNET.ServiceKiller
 
 			long start = DateTime.UtcNow.Ticks;
 
-			IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
+			IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19134);
 
 			for (int j = 0; j < NumberOfBots; j++)
 			{
@@ -61,7 +61,9 @@ namespace MiNET.ServiceKiller
 					playerName, (int) (DateTime.UtcNow.Ticks - start), endPoint,
 					RanSleepMin, RanSleepMax, RequestChunkRadius);
 
-				ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
+				new Thread(o => { client.EmulateClient(); }).Start();
+				//Thread thread = new Thread(delegate { client.EmulateClient(); });
+				//ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
 				Thread.Sleep(TimeBetweenSpawns);
 			}
@@ -124,7 +126,9 @@ namespace MiNET.ServiceKiller
 				client.HaveServer = true;
 				client.SendOpenConnectionRequest1();
 
-				Thread.Sleep(2000);
+				client.FirstPacketWaitHandle.WaitOne();
+
+				//Thread.Sleep(2000);
 
 				client.LoginSent = true;
 
@@ -163,11 +167,11 @@ namespace MiNET.ServiceKiller
 
 				if (client.UdpClient != null)
 				{
-					Console.WriteLine($"{watch.ElapsedMilliseconds} Client stopping. {client.UdpClient == null}, {Emulator.Running}");
 					client.SendDisconnectionNotification();
 				}
 
 				client.StopClient();
+				Console.WriteLine($"{watch.ElapsedMilliseconds} Client stopped. {client.UdpClient == null}, {Emulator.Running}");
 			}
 			catch (Exception e)
 			{

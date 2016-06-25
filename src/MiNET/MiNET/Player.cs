@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Reflection;
+using System.Resources;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -532,6 +533,8 @@ namespace MiNET
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 
+			//mcpeAdventureSettings.flags |= 0x01; // Immutable World (Remove hit markers client-side).
+
 			mcpeAdventureSettings.flags |= 0x02; // No PvP (Remove hit markers client-side).
 			mcpeAdventureSettings.flags |= 0x04; // No PvM (Remove hit markers client-side).
 			mcpeAdventureSettings.flags |= 0x08; // No PvE (Remove hit markers client-side).
@@ -686,6 +689,12 @@ namespace MiNET
 				return;
 			}
 
+			// THIS counter exist to protect the level from being swamped with player list add
+			// attempts during startup (normally).
+
+			var serverInfo = Server.ServerInfo;
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
 			DecodeCert(message);
 
 			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
@@ -728,8 +737,6 @@ namespace MiNET
 			////Log.Info($"Writing skin to filename: {fileName}");
 			////Skin.SaveTextureToFile(fileName, Skin.Texture);
 
-			var serverInfo = Server.ServerInfo;
-
 			//if (ClientSecret != null)
 			//{
 			//	var count = serverInfo.PlayerSessions.Values.Count(session => session.Player != null && ClientSecret.Equals(session.Player.ClientSecret));
@@ -739,10 +746,6 @@ namespace MiNET
 			//		return;
 			//	}
 			//}
-
-			// THIS counter exist to protect the level from being swamped with player list add
-			// attempts during startup (normally).
-			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
 			//new Thread(Start).Start();
 		}
@@ -888,7 +891,7 @@ namespace MiNET
 					}
 
 					if (isXboxLogin) IsXboxLiveVerified = true;
-					Log.Warn("Is XBOX: " + IsXboxLiveVerified);
+					if(Log.IsDebugEnabled) Log.Warn("Is XBOX: " + IsXboxLiveVerified);
 
 					foreach (dynamic o in json.chain)
 					{
@@ -911,6 +914,12 @@ namespace MiNET
 						string identity = jsonPayload.extraData.identity;
 						Log.Debug($"Connecting user {Username} with identity={identity}");
 						ClientUuid = new UUID(new Guid(identity));
+
+						if (Username == "gurun")
+						{
+							Username = "TheGrey" + new Random().Next();
+							ClientUuid = new UUID(Guid.NewGuid());
+						}
 
 						{
 							string certString = validKey;
@@ -1456,6 +1465,9 @@ namespace MiNET
 		protected virtual void HandleMessage(McpeText message)
 		{
 			string text = message.message;
+
+			if (text == null) return;
+
 			if (text.StartsWith("/") || text.StartsWith("."))
 			{
 				Server.PluginManager.HandleCommand(Server.UserManager, text, this);

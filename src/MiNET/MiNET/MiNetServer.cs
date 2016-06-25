@@ -75,7 +75,7 @@ namespace MiNET
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
-			ThreadPool.SetMinThreads(threads, iothreads*4);
+			ThreadPool.SetMinThreads(threads * 4, iothreads*4);
 
 			if (_listener != null) return false; // Already started
 

@@ -8,7 +8,8 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ObjectPool<T>));
 
-		private ConcurrentBag<T> _objects;
+		private ConcurrentQueue<T> _objects;
+		//private ConcurrentBag<T> _objects;
 		private Func<T> _objectGenerator;
 
 		public void FillPool(int count)
@@ -16,21 +17,22 @@ namespace MiNET.Net
 			for (int i = 0; i < count; i++)
 			{
 				var item = _objectGenerator();
-				_objects.Add(item);
+				_objects.Enqueue(item);
 			}
 		}
 
 		public ObjectPool(Func<T> objectGenerator)
 		{
 			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
-			_objects = new ConcurrentBag<T>();
+			//_objects = new ConcurrentBag<T>();
+			_objects = new ConcurrentQueue<T>();
 			_objectGenerator = objectGenerator;
 		}
 
 		public T GetObject()
 		{
 			T item;
-			if (_objects.TryTake(out item)) return item;
+			if (_objects.TryDequeue(out item)) return item;
 			return _objectGenerator();
 		}
 
@@ -38,13 +40,13 @@ namespace MiNET.Net
 
 		public void PutObject(T item)
 		{
-			if (_objects.Count > MaxPoolSize)
-			{
-				Log.Warn($"Pool for {typeof (T).Name} is full");
-				return;
-			}
+			//if (_objects.Count > MaxPoolSize)
+			//{
+			//	Log.Warn($"Pool for {typeof (T).Name} is full");
+			//	return;
+			//}
 
-			_objects.Add(item);
+			_objects.Enqueue(item);
 		}
 	}
 }

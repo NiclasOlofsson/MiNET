@@ -78,6 +78,9 @@ namespace MiNET
 		public void Clean()
 		{
 			_cancellationToken.Cancel();
+			_waitEvent.Set();
+			_mainWaitEvent.Set();
+			_queue.Clear();
 
 			var queue = WaitingForAcksQueue;
 			foreach (var kvp in queue)
@@ -109,70 +112,90 @@ namespace MiNET
 		private AutoResetEvent _mainWaitEvent = new AutoResetEvent(false);
 		private object _eventSync = new object();
 
-		private BlockingCollection<KeyValuePair<int, Package>> _queue = new BlockingCollection<KeyValuePair<int, Package>>(new ConcurrentPriorityQueue<int, Package>());
-		//private ConcurrentPriorityQueue<int, Package> _queue = new ConcurrentPriorityQueue<int, Package>();
+		//private BlockingCollection<KeyValuePair<int, Package>> _queue = new BlockingCollection<KeyValuePair<int, Package>>();
+		//private BlockingCollection<KeyValuePair<int, Package>> _queue = new BlockingCollection<KeyValuePair<int, Package>>(new ConcurrentPriorityQueue<int, Package>());
+		private ConcurrentPriorityQueue<int, Package> _queue = new ConcurrentPriorityQueue<int, Package>();
 		private CancellationTokenSource _cancellationToken;
 
 		public void AddToProcessing(Package message)
 		{
-			//lock (_eventSync)
-			//{
-			//	_queue.Enqueue(message.OrderingIndex, message);
-			//	WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
-			//}
+			if (_cancellationToken.Token.IsCancellationRequested) return;
+
+			lock (_eventSync)
+			{
+				_queue.Enqueue(message.OrderingIndex, message);
+				WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
+			}
 
 			//_queue.Add(new KeyValuePair<int, Package>(message.OrderingIndex, message), _cancellationToken.Token);
-			HandlePackage(message, this);
+
+			//HandlePackage(message, this);
+			//message.PutPool();
 		}
 
 		private Task ProcessQueue()
 		{
-			//while (!_cancellationToken.Token.IsCancellationRequested)
-			//{
-			//	try
-			//	{
-			//		KeyValuePair<int, Package> pair = _queue.Take(_cancellationToken.Token);
+			while (!_cancellationToken.IsCancellationRequested)
+			{
+				//try
+				//{
+				//	KeyValuePair<int, Package> pair = _queue.Take(_cancellationToken.Token);
 
-			//		ThreadPool.QueueUserWorkItem(delegate(object data)
-			//		{
-			//			HandlePackage(data as Package, this);
-			//		}, pair.Value);
+				//	//ThreadPool.QueueUserWorkItem(delegate (object data)
+				//	//{
+				//	//	HandlePackage(data as Package, this);
+				//	//}, pair.Value);
 
-			//	}
-			//	catch (Exception e)
-			//	{
-			//	}
+				//	HandlePackage(pair.Value as Package, this);
 
-			//	//KeyValuePair<int, Package> pair;
+				//}
+				//catch (Exception e)
+				//{
+				//}
 
-			//	//if (_queue.TryPeek(out pair))
-			//	//{
-			//	//	//if (pair.Key == _lastSequenceNumber + 1)
-			//	//	{
-			//	//		if (_queue.TryDequeue(out pair))
-			//	//		{
-			//	//			_lastSequenceNumber = pair.Key;
+				KeyValuePair<int, Package> pair;
 
-			//	//			HandlePackage(pair.Value, this);
-			//	//			pair.Value.PutPool();
-			//	//		}
-			//	//	}
-			//	//	//else if (pair.Key <= _lastSequenceNumber)
-			//	//	//{
-			//	//	//	Log.Warn($"Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-			//	//	//	if (_queue.TryDequeue(out pair))
-			//	//	//	{
-			//	//	//		pair.Value.PutPool();
-			//	//	//	}
-			//	//	//}
-			//	//	//else
-			//	//	//{
-			//	//	//	Log.Warn($"Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
-			//	//	//}
-			//	//}
-			//	//WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent);
-			//}
+				if (_queue.TryPeek(out pair))
+				{
+					if (pair.Key == _lastSequenceNumber + 1)
+					{
+						if (_queue.TryDequeue(out pair))
+						{
+							_lastSequenceNumber = pair.Key;
 
+							HandlePackage(pair.Value, this);
+							pair.Value.PutPool();
+
+							if (_queue.Count == 0)
+							{
+								WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
+							}
+						}
+					}	
+					else if (pair.Key <= _lastSequenceNumber)
+					{
+						Log.Warn($"{Player.Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						if (_queue.TryDequeue(out pair))
+						{
+							pair.Value.PutPool();
+						}
+					}
+					else
+					{
+						Log.Warn($"{Player.Username} - Wrong sequence. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
+					}
+				}
+				else
+				{
+					if (_queue.Count == 0)
+					{
+						WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
+					}
+				}
+			}
+
+			//Log.Warn($"Exit receive handler task for {Player.Username}");
 			return Task.CompletedTask;
 		}
 
@@ -264,7 +287,12 @@ namespace MiNET
 				return;
 			}
 
-			if (player != null) player.HandlePackage(message);
+			ThreadPool.QueueUserWorkItem(delegate (object data)
+			{
+				player?.HandlePackage(data as Package);
+			}, message);
+
+			//player?.HandlePackage(message);
 		}
 	}
 }

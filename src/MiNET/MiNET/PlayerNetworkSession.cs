@@ -164,7 +164,6 @@ namespace MiNET
 							_lastSequenceNumber = pair.Key;
 
 							HandlePackage(pair.Value, this);
-							pair.Value.PutPool();
 
 							if (_queue.Count == 0)
 							{
@@ -224,8 +223,8 @@ namespace MiNET
 
 				var msg = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
 				HandlePackage(msg, playerSession);
-				msg.PutPool();
 
+				message.PutPool();
 				return;
 			}
 
@@ -234,6 +233,7 @@ namespace MiNET
 				UnknownPackage packet = (UnknownPackage) message;
 				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 
+				message.PutPool();
 				return;
 			}
 
@@ -281,15 +281,16 @@ namespace MiNET
 					msg.OrderingChannel = batch.OrderingChannel;
 					msg.OrderingIndex = batch.OrderingIndex;
 					HandlePackage(msg, playerSession);
-					msg.PutPool();
 				}
 
+				message.PutPool();
 				return;
 			}
 
 			ThreadPool.QueueUserWorkItem(delegate (object data)
 			{
 				player?.HandlePackage(data as Package);
+				message.PutPool();
 			}, message);
 
 			//player?.HandlePackage(message);

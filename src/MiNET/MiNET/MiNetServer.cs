@@ -344,11 +344,14 @@ namespace MiNET
 					try
 					{
 						package.Decode(receiveBytes);
-						if (package.Messages.Count > 1)
+						if (Log.IsDebugEnabled)
 						{
-							foreach (var message in package.Messages)
+							if (package.Messages.Count > 2)
 							{
-								Log.Warn($"Received Dgrm with more than 1 message ({package.Messages.Count}): #{package._datagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
+								foreach (var message in package.Messages)
+								{
+									Log.Warn($"Received Dgrm with more than 2 messages ({package.Messages.Count}): #{package._datagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
+								}
 							}
 						}
 					}

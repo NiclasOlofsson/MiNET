@@ -251,6 +251,7 @@
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Blocks\Wool.cs" />
     <Compile Include="CertificateChain.cs" />
+    <Compile Include="CertificateData.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="Crafting\Recipe.cs" />
     <Compile Include="Effects\Absorption.cs" />

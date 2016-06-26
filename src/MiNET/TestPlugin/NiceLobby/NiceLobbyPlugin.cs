@@ -298,7 +298,7 @@ namespace TestPlugin.NiceLobby
 			//	rank = $"{ChatColors.Red}[ADMIN]";
 			//}
 			//else 
-			if(player.IsXboxLiveVerified)
+			if(player.CertificateData.ExtraData.Xuid != null)
 			{
 				rank = $"{ChatColors.Green}[XBOX]";
 			}

@@ -8,7 +8,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -54,13 +53,13 @@ namespace MiNET
 		public int MaxViewDistance { get; set; } = 22;
 		public GameMode GameMode { get; set; }
 		public bool IsConnected { get; set; }
+		public CertificateData CertificateData { get; private set; }
 		public string Username { get; private set; }
 		public string DisplayName { get; set; }
 		public long ClientId { get; set; }
 		public long ClientGuid { get; set; }
 		public string ClientSecret { get; set; }
 		public UUID ClientUuid { get; set; }
-		public bool IsXboxLiveVerified { get; private set; }
 
 		public Skin Skin { get; set; }
 		public bool Silent { get; set; }
@@ -787,131 +786,82 @@ namespace MiNET
 
 			try
 			{
-				bool isXboxLogin = false;
-
 				{
-					Log.Debug("Input JSON string: " + certificateChain);
+					if (Log.IsDebugEnabled) Log.Debug("Input JSON string: " + certificateChain);
 
 					dynamic json = JObject.Parse(certificateChain);
 
-					//Log.Debug($"Raw: {certificateChain}");
-					Log.Debug($"JSON:\n{json}");
+					if (Log.IsDebugEnabled) Log.Debug($"JSON:\n{json}");
 
-					bool haveValidRealmsToken = false;
-					string validKey = null;
-					if (json.chain.Count > 1)
-					{
-						// Xbox Login
-						validKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V";
-						isXboxLogin = true;
-					}
-
+					string validationKey = null;
 					foreach (dynamic o in json.chain)
 					{
-						Log.Debug("Raw chain element:\n" + o.ToString());
 						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
-						Log.Debug($"JWT Header: {string.Join(";", headers)}");
 
-						dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
-						Log.Debug($"JWT Payload:\n{jsonPayload}");
+						if (Log.IsDebugEnabled)
+						{
+							Log.Debug("Raw chain element:\n" + o.ToString());
+							Log.Debug($"JWT Header: {string.Join(";", headers)}");
+
+							dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
+							Log.Debug($"JWT Payload:\n{jsonPayload}");
+						}
 
 						// x5u cert (string): MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
-
-						//
-						// XBOX login
-						//
-
-						//{
-						//	"nbf": 1465304604,
-						//	"randomNonce": 2876920962471578546,
-						//	"iss": "RealmsAuthorization",
-						//	"exp": 1465391064,
-						//	"iat": 1465304664,
-						//	"certificateAuthority": true,
-						//	"identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEr935ZYD18b9p1mgmwoMTWmBhJ/eTmqX9CmcZb1wsVZg20za1JRGro9kcHxJo5VW11HbJev3T+a0/WxpoLKxN9dwDl+USHuzlzWcMdzHdJLymiLQScJJ522DykllRM4Pe"
-						//}
-						//{
-						//	"nbf": 1466694143,
-						//	"extraData": {
-						//		"identity": "6cdfec82-45b6-3322-9111-084cd74e32f0",
-						//		"displayName": "gurunx",
-						//		"XUID": "2535410512372218"
-						//	},
-						//	"randomNonce": -453593381138004104,
-						//	"iss": "RealmsAuthorization",
-						//	"exp": 1466780603,
-						//	"iat": 1466694203,
-						//	"identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAECj+h2Z1+bnF1vnfkRJ9GFJhZrORvImXo7j4YozPjIIKuVXPlKsvAB5JXSzYpVG3gCXVprEw02a2SumqqGPTwJLce2YSVmuyQsD65jjXFIJUGlKYcb/kLRlpwO1uw5/t6"
-						//}
-
-
-						//
-						// No XBOX login
-						//
-
-						//{
-						//	"exp": 1464983845,
-						//	"extraData": {
-						//		"displayName": "gurunx",
-						//		"identity": "af6f7c5e-fcea-3e43-bf3a-e005e400e578"
-						//	},
-						//	"identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7nnZpCfxmCrSwDdBv7eBXXMtKhroxOriEr3hmMOJAuw/ZpQXj1K5GGtHS4CpFNttd1JYAKYoJxYgaykpie0EyAv3qiK6utIH2qnOAt3VNrQYXfIZJS/VRe3Il8Pgu9CB",
-						//	"nbf": 1464983844
-						//}
-
-
 						if (headers.ContainsKey("x5u"))
 						{
 							string certString = headers["x5u"];
-							Log.Debug($"x5u cert (string): {certString}");
 
-							if (validKey == null) validKey = certString;
-
-							if (validKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
+							if (Log.IsDebugEnabled)
 							{
+								Log.Debug($"x5u cert (string): {certString}");
 								ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
 								Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+							}
 
-								// Validate
-								var newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
-								string decoded = JWT.Decode(o.ToString(), newKey);
-								if (decoded != null)
+							// Validate
+							CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
+							CertificateData data = JWT.Decode<CertificateData>(o.ToString(), newKey);
+
+							if (data != null)
+							{
+								if (Log.IsDebugEnabled) Log.Debug("Decoded token success");
+
+								if (CertificateData.MojangRootKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
 								{
-									Log.Info("Decoded token success");
-									dynamic content = JObject.Parse(decoded);
-									validKey = content.identityPublicKey;
+									Log.Debug("Got Mojang key. Is valid = " + data.CertificateAuthority);
+									validationKey = data.IdentityPublicKey;
+								}
+								else if (validationKey != null && validationKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
+								{
+									CertificateData = data;
 								}
 								else
 								{
-									Log.Error("Not a valid Identity Public Key for decoding");
+									// Self signed, make sure they don't fake XUID
+									if (data.ExtraData.Xuid != null)
+									{
+										Log.Warn("Received fake XUID from " + data.ExtraData.DisplayName);
+										data.ExtraData.Xuid = null;
+									}
+
+									CertificateData = data;
 								}
+							}
+							else
+							{
+								Log.Error("Not a valid Identity Public Key for decoding");
 							}
 						}
 					}
 
-					if (isXboxLogin) IsXboxLiveVerified = true;
-					if (Log.IsDebugEnabled) Log.Warn("Is XBOX: " + IsXboxLiveVerified);
+					//TODO: Implement disconnect here
 
-					foreach (dynamic o in json.chain)
 					{
-						Log.Debug("Raw chain element:\n" + o.ToString());
-						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
-						Log.Debug($"JWT Header: {string.Join(";", headers)}");
+						Username = CertificateData.ExtraData.DisplayName;
+						string identity = CertificateData.ExtraData.Identity;
 
-						dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
-						Log.Debug($"JWT Payload:\n{jsonPayload}");
-
-						string ident = jsonPayload.identityPublicKey;
-
-						if (!validKey.Equals(ident, StringComparison.InvariantCultureIgnoreCase))
-						{
-							Log.Warn("Found no valid key");
-							continue;
-						}
-
-						Username = jsonPayload.extraData.displayName;
-						string identity = jsonPayload.extraData.identity;
-						Log.Debug($"Connecting user {Username} with identity={identity}");
+						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {Username} with identity={identity}");
 						ClientUuid = new UUID(new Guid(identity));
 
 						if (Username == "gurun")
@@ -921,10 +871,8 @@ namespace MiNET
 						}
 
 						{
-							string certString = validKey;
-
-							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
-							Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(CertificateData.IdentityPublicKey);
+							if (Log.IsDebugEnabled) Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
 							// Create shared shared secret
 							ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
@@ -934,7 +882,7 @@ namespace MiNET
 
 							byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
 
-							Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
+							if (Log.IsDebugEnabled) Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
 
 							{
 								RijndaelManaged rijAlg = new RijndaelManaged
@@ -975,6 +923,7 @@ namespace MiNET
 
 							if (Config.GetProperty("UseEncryption", true))
 							{
+								Log.Warn($"Encryption enabled for {Username}");
 								SendPackage(response);
 							}
 						}
@@ -982,13 +931,13 @@ namespace MiNET
 				}
 
 				{
-					Log.Debug("Input SKIN string: " + skinData);
+					if (Log.IsDebugEnabled) Log.Debug("Input SKIN string: " + skinData);
 
 					IDictionary<string, dynamic> headers = JWT.Headers(skinData);
 					dynamic payload = JObject.Parse(JWT.Payload(skinData));
 
-					Log.Debug($"Skin JWT Header: {string.Join(";", headers)}");
-					Log.Debug($"Skin JWT Payload:\n{payload.ToString()}");
+					if (Log.IsDebugEnabled) Log.Debug($"Skin JWT Header: {string.Join(";", headers)}");
+					if (Log.IsDebugEnabled) Log.Debug($"Skin JWT Payload:\n{payload.ToString()}");
 
 					// Skin JWT Payload: 
 					//{
@@ -1018,12 +967,6 @@ namespace MiNET
 			{
 				Log.Error("Decrypt", e);
 			}
-		}
-
-		private bool HaveProperty(dynamic obj, string property)
-		{
-			Type type = obj.GetType();
-			return type.GetMember(property, BindingFlags.Public | BindingFlags.Instance).Length != 0;
 		}
 
 		private bool _completedStartSequence = false;

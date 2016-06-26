@@ -333,19 +333,35 @@ namespace MiNET.Worlds
 			//}
 		}
 
-		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
+		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null)
 		{
-			foreach (var line in text.Split('\n'))
+			McpeText message = McpeText.CreateObject();
+
+			if (type == MessageType.Chat || type == MessageType.Raw)
 			{
-				McpeText message = McpeText.CreateObject();
+				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+				{
+					message.type = (byte) type;
+					message.source = sender == null ? "" : sender.Username;
+					message.message = line;
+				}
+			}
+			else
+			{
 				message.type = (byte) type;
 				message.source = sender == null ? "" : sender.Username;
-				message.message = line;
+				message.message = text;
+			}
 
+			if (sendList == null)
+			{
 				RelayBroadcast(message);
 			}
+			else
+			{
+				RelayBroadcast(sendList, message);
+			}
 		}
-
 
 		private object _tickSync = new object();
 		private Stopwatch _tickTimer = new Stopwatch();
@@ -543,22 +559,22 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void RelayBroadcast<T>(T message, bool sendDirect = false) where T : Package<T>, new()
+		public void RelayBroadcast<T>(T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, GetSpawnedPlayers(), message, sendDirect);
+			RelayBroadcast(null, GetSpawnedPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player source, T message, bool sendDirect = false) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player source, T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(source, GetSpawnedPlayers(), message, sendDirect);
+			RelayBroadcast(source, GetSpawnedPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player[] sendList, T message, bool sendDirect = false) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, sendList, message, sendDirect);
+			RelayBroadcast(null, sendList, message);
 		}
 
-		public void RelayBroadcast<T>(Player source, Player[] sendList, T message, bool sendDirect = false) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player source, Player[] sendList, T message) where T : Package<T>, new()
 		{
 			if (message == null) return;
 

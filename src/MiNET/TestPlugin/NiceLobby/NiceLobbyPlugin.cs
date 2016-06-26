@@ -123,7 +123,7 @@ namespace TestPlugin.NiceLobby
 					McpeSetTime timeDay = McpeSetTime.CreateObject();
 					timeDay.time = 0;
 					timeDay.started = 1;
-					level.RelayBroadcast(timeDay, true);
+					level.RelayBroadcast(timeDay);
 
 					ThreadPool.QueueUserWorkItem(delegate(object o)
 					{
@@ -132,7 +132,7 @@ namespace TestPlugin.NiceLobby
 						McpeSetTime timeReset = McpeSetTime.CreateObject();
 						timeReset.time = (int) level.CurrentWorldTime;
 						timeReset.started = (byte) (level.IsWorldTimeStarted ? 1 : 0);
-						level.RelayBroadcast(timeDay, true);
+						level.RelayBroadcast(timeDay);
 
 						Thread.Sleep(200);
 
@@ -143,7 +143,7 @@ namespace TestPlugin.NiceLobby
 							mcpeExplode.z = point1.Z;
 							mcpeExplode.radius = 100;
 							mcpeExplode.records = new Records();
-							level.RelayBroadcast(mcpeExplode, true);
+							level.RelayBroadcast(mcpeExplode);
 						}
 
 						Thread.Sleep(250);
@@ -154,7 +154,7 @@ namespace TestPlugin.NiceLobby
 							mcpeExplode.z = point2.Z;
 							mcpeExplode.radius = 100;
 							mcpeExplode.records = new Records();
-							level.RelayBroadcast(mcpeExplode, true);
+							level.RelayBroadcast(mcpeExplode);
 						}
 						Thread.Sleep(250);
 						{
@@ -164,7 +164,7 @@ namespace TestPlugin.NiceLobby
 							mcpeExplode.z = point3.Z;
 							mcpeExplode.radius = 100;
 							mcpeExplode.records = new Records();
-							level.RelayBroadcast(mcpeExplode, true);
+							level.RelayBroadcast(mcpeExplode);
 						}
 					});
 				}

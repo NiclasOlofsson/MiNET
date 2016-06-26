@@ -9,7 +9,6 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Reflection;
-using System.Resources;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -891,7 +890,7 @@ namespace MiNET
 					}
 
 					if (isXboxLogin) IsXboxLiveVerified = true;
-					if(Log.IsDebugEnabled) Log.Warn("Is XBOX: " + IsXboxLiveVerified);
+					if (Log.IsDebugEnabled) Log.Warn("Is XBOX: " + IsXboxLiveVerified);
 
 					foreach (dynamic o in json.chain)
 					{
@@ -2650,27 +2649,7 @@ namespace MiNET
 
 		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
 		{
-			if (type == MessageType.Chat || type == MessageType.Raw)
-			{
-				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-				{
-					McpeText message = McpeText.CreateObject();
-					message.type = (byte) type;
-					message.source = sender == null ? "" : sender.Username;
-					message.message = line;
-
-					SendPackage(message);
-				}
-			}
-			else
-			{
-				McpeText message = McpeText.CreateObject();
-				message.type = (byte) type;
-				message.source = sender == null ? "" : sender.Username;
-				message.message = text;
-
-				SendPackage(message);
-			}
+			Level.BroadcastMessage(text, type, sender, new[] {this});
 		}
 
 		public virtual void BroadcastEntityEvent()

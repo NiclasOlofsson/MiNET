@@ -12,7 +12,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using fNbt;
-using Jose;
 using log4net;
 using log4net.Config;
 using MiNET.Blocks;
@@ -551,15 +550,15 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof (McpeMovePlayer) == message.GetType())
-			{
-				//OnMcpeMovePlayer(message);
-				return;
-			}
-
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
 				OnMcpeUpdateBlock(message);
+				return;
+			}
+
+			else if (typeof (McpeMovePlayer) == message.GetType())
+			{
+				OnMcpeMovePlayer((McpeMovePlayer) message);
 				return;
 			}
 
@@ -668,7 +667,7 @@ namespace MiNET.Client
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
-				if(Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
+				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 			}
 
 
@@ -1210,12 +1209,13 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeMovePlayer(Package message)
+		private void OnMcpeMovePlayer(McpeMovePlayer message)
 		{
-			McpeMovePlayer msg = (McpeMovePlayer) message;
 			//Log.DebugFormat("McpeMovePlayer Entity ID: {0}", msg.entityId);
 
-			CurrentLocation = new PlayerLocation(msg.x, msg.y + 10, msg.z);
+			if (message.entityId != _entityId) return;
+
+			CurrentLocation = new PlayerLocation(message.x, message.y + 1, message.z);
 			SendMcpeMovePlayer();
 		}
 
@@ -1601,7 +1601,7 @@ namespace MiNET.Client
 		{
 			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
 			//McpeMovePlayer movePlayerPacket = new McpeMovePlayer();
-			movePlayerPacket.entityId = 0;
+			movePlayerPacket.entityId = _entityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;
 			movePlayerPacket.z = CurrentLocation.Z;

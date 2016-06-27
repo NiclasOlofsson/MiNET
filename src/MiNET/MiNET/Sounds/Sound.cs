@@ -1,6 +1,5 @@
 using System.Numerics;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Sounds
@@ -11,7 +10,7 @@ namespace MiNET.Sounds
 		public int Pitch { get; set; }
 		public Vector3 Position { get; set; }
 
-		public Sound(short id, Vector3 position = new Vector3(), int pitch = 0)
+		public Sound(short id, Vector3 position, int pitch = 0)
 		{
 			Id = id;
 			Position = position;

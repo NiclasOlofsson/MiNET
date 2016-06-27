@@ -287,6 +287,8 @@ namespace MiNET
 				return;
 			}
 
+			MiNetServer.TraceReceive(message, message.OrderingIndex);
+
 			ThreadPool.QueueUserWorkItem(delegate (object data)
 			{
 				player?.HandlePackage(data as Package);

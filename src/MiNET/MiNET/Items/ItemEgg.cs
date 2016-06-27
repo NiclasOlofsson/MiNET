@@ -14,18 +14,6 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			if (player.GameMode != GameMode.Creative)
-			{
-				Item itemStackInHand = player.Inventory.GetItemInHand();
-				itemStackInHand.Count--;
-
-				if (itemStackInHand.Count <= 0)
-				{
-					// set empty
-					player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemAir();
-				}
-			}
-
 			float force = 1.5f;
 
 			Egg egg = new Egg(player, world);

@@ -1211,7 +1211,7 @@ namespace MiNET
 			}
 		}
 
-		private static void TraceReceive(Package message, int refNumber = 0)
+		internal static void TraceReceive(Package message, int refNumber = 0)
 		{
 			if (!Log.IsDebugEnabled) return;
 			//if (!Debugger.IsAttached) return;

@@ -296,6 +296,9 @@ namespace MiNET
 		{
 			SendPlayerStatus(0);
 
+			var serverInfo = Server.ServerInfo;
+			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
+
 			new Thread(Start).Start();
 		}
 
@@ -690,9 +693,6 @@ namespace MiNET
 			// THIS counter exist to protect the level from being swamped with player list add
 			// attempts during startup (normally).
 
-			var serverInfo = Server.ServerInfo;
-			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
-
 			DecodeCert(message);
 
 			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
@@ -959,6 +959,9 @@ namespace MiNET
 				if (!Config.GetProperty("UseEncryption", true))
 				{
 					SendPlayerStatus(0);
+
+					var serverInfo = Server.ServerInfo;
+					Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
 					new Thread(Start).Start();
 				}

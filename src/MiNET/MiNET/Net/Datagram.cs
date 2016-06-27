@@ -139,7 +139,7 @@ namespace MiNET.Net
 					reliability = Reliability.ReliableOrdered;
 					orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 
-					if (!message.ForceClear && Config.GetProperty("UseEncryption", true))
+					if (!message.ForceClear && session.CryptoContext.UseEncryption)
 					{
 						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
 					}

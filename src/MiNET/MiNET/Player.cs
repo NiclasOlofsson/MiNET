@@ -870,6 +870,13 @@ namespace MiNET
 							ClientUuid = new UUID(Guid.NewGuid());
 						}
 
+						NetworkSession.CryptoContext = new CryptoContext
+						{
+							UseEncryption = Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid),
+						};
+
+
+						if (NetworkSession.CryptoContext.UseEncryption)
 						{
 							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(CertificateData.IdentityPublicKey);
 							if (Log.IsDebugEnabled) Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
@@ -904,16 +911,13 @@ namespace MiNET
 								MemoryStream outputStream = new MemoryStream();
 								CryptoStream cryptoStreamOut = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
 
-								NetworkSession.CryptoContext = new CryptoContext
-								{
-									Algorithm = rijAlg,
-									Decryptor = decryptor,
-									Encryptor = encryptor,
-									InputStream = inputStream,
-									OutputStream = outputStream,
-									CryptoStreamIn = cryptoStreamIn,
-									CryptoStreamOut = cryptoStreamOut,
-								};
+								NetworkSession.CryptoContext.Algorithm = rijAlg;
+								NetworkSession.CryptoContext.Decryptor = decryptor;
+								NetworkSession.CryptoContext.Encryptor = encryptor;
+								NetworkSession.CryptoContext.InputStream = inputStream;
+								NetworkSession.CryptoContext.OutputStream = outputStream;
+								NetworkSession.CryptoContext.CryptoStreamIn = cryptoStreamIn;
+								NetworkSession.CryptoContext.CryptoStreamOut = cryptoStreamOut;
 							}
 
 							var response = McpeServerExchange.CreateObject();
@@ -921,11 +925,8 @@ namespace MiNET
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
 							response.randomKeyToken = Encoding.UTF8.GetString(ecKey.SecretPrepend);
 
-							if (Config.GetProperty("UseEncryption", true))
-							{
-								Log.Warn($"Encryption enabled for {Username}");
-								SendPackage(response);
-							}
+							Log.Warn($"Encryption enabled for {Username}");
+							SendPackage(response);
 						}
 					}
 				}
@@ -956,7 +957,7 @@ namespace MiNET
 					};
 				}
 
-				if (!Config.GetProperty("UseEncryption", true))
+				if (!NetworkSession.CryptoContext.UseEncryption)
 				{
 					SendPlayerStatus(0);
 

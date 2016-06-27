@@ -213,7 +213,7 @@ namespace MiNET
 
 				// Get bytes
 				byte[] payload = batch.payload;
-				if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
+				if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
 				{
 					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
 				}

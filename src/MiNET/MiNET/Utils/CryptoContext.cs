@@ -5,6 +5,8 @@ namespace MiNET.Utils
 {
 	public class CryptoContext
 	{
+		public bool UseEncryption;
+
 		public RijndaelManaged Algorithm { get; set; }
 
 		public ICryptoTransform Decryptor { get; set; }

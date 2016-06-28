@@ -807,7 +807,7 @@ namespace MiNET
 
 					Datagram datagram;
 					//if (queue.TryRemove(i, out datagram))
-					if (queue.TryGetValue(i, out datagram))
+					if (!session.Evicted && queue.TryRemove(i, out datagram))
 					{
 						// RTT = RTT * 0.875 + rtt * 0.125
 						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
@@ -820,14 +820,14 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						//ThreadPool.QueueUserWorkItem(delegate(object data)
-						//{
-						//	var dgram = (Datagram) data;
-						//	if (Log.IsDebugEnabled)
-						//		Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
-						//	SendDatagram(session, dgram);
-						//	Interlocked.Increment(ref ServerInfo.NumberOfResends);
-						//}, datagram);
+						ThreadPool.QueueUserWorkItem(delegate (object data)
+						{
+							var dgram = (Datagram)data;
+							if (Log.IsDebugEnabled)
+								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
+							SendDatagram(session, dgram);
+							Interlocked.Increment(ref ServerInfo.NumberOfResends);
+						}, datagram);
 					}
 					else
 					{

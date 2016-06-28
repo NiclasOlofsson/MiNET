@@ -1050,12 +1050,7 @@ namespace MiNET
 
 					foreach (KeyValuePair<int, Datagram> datagramPair in queue)
 					{
-						// We don't do too much processing in each step, becasue one bad queue will hold the others.
-						//if (_forceQuitTimer.ElapsedMilliseconds > 100)
-						//{
-						//	Log.WarnFormat("Update aborted early");
-						//	return;
-						//}
+						if (!session.Evicted) return;
 
 						var datagram = datagramPair.Value;
 
@@ -1074,12 +1069,6 @@ namespace MiNET
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
 						datagramTimout = Math.Min(datagramTimout, 3000);
 
-						//if(elapsedTime > 5000)
-						//{
-						//	Datagram deleted;
-						//	queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted);
-						//}
-						//else 
 						if (serverHasNoLag && elapsedTime >= datagramTimout)
 						{
 							//if (session.WaitForAck) return;
@@ -1087,46 +1076,23 @@ namespace MiNET
 							//session.WaitForAck = session.ResendCount++ > 3;
 
 							Datagram deleted;
-							if (queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+							if (!session.Evicted && queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 							{
 								session.ErrorCount++;
 
-								if (deleted.TransmissionCount > 3)
+								ThreadPool.QueueUserWorkItem(delegate(object data)
 								{
 									if (Log.IsDebugEnabled)
-										Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
+										Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),
 											player.Username,
 											deleted.FirstMessageId,
 											elapsedTime,
 											datagramTimout,
-											rto);
-
-									deleted.PutPool();
-
-									//session.WaitForAck = true;
-
-									Interlocked.Increment(ref ServerInfo.NumberOfFails);
-
-									continue;
-								}
-
-								if (!session.Evicted)
-								{
-									ThreadPool.QueueUserWorkItem(delegate(object data)
-									{
-										if (Log.IsDebugEnabled)
-											Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
-												deleted.Header.datagramSequenceNumber.IntValue(),
-												player.Username,
-												deleted.FirstMessageId,
-												elapsedTime,
-												datagramTimout,
-												player.Rto);
-										SendDatagram(session, (Datagram) data);
-										Interlocked.Increment(ref ServerInfo.NumberOfResends);
-									}, datagram);
-								}
+											player.Rto);
+									SendDatagram(session, (Datagram) data);
+									Interlocked.Increment(ref ServerInfo.NumberOfResends);
+								}, datagram);
 							}
 						}
 					}
@@ -1173,8 +1139,21 @@ namespace MiNET
 				return;
 			}
 
-			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
+			if (datagram.TransmissionCount > 3)
+			{
+				if (Log.IsDebugEnabled)
+					Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1}",
+						datagram.Header.datagramSequenceNumber.IntValue(),
+						session.Player.Username,
+						datagram.FirstMessageId);
 
+				datagram.PutPool();
+
+				Interlocked.Increment(ref ServerInfo.NumberOfFails);
+				return;
+			}
+
+			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 			datagram.TransmissionCount++;
 
 			byte[] data = datagram.Encode();

@@ -1068,6 +1068,7 @@ namespace MiNET
 						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
 						datagramTimout = Math.Min(datagramTimout, 3000);
+						datagramTimout = Math.Max(datagramTimout, 100);
 
 						if (serverHasNoLag && elapsedTime >= datagramTimout)
 						{
@@ -1139,7 +1140,7 @@ namespace MiNET
 				return;
 			}
 
-			if (datagram.TransmissionCount > 3)
+			if (datagram.TransmissionCount > 10)
 			{
 				if (Log.IsDebugEnabled)
 					Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1}",

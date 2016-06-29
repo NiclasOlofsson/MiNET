@@ -335,30 +335,23 @@ namespace MiNET.Worlds
 
 		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null)
 		{
-			McpeText message = McpeText.CreateObject();
-
 			if (type == MessageType.Chat || type == MessageType.Raw)
 			{
 				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
 				{
+					McpeText message = McpeText.CreateObject();
 					message.type = (byte) type;
 					message.source = sender == null ? "" : sender.Username;
 					message.message = line;
+					RelayBroadcast(sendList, message);
 				}
 			}
 			else
 			{
+				McpeText message = McpeText.CreateObject();
 				message.type = (byte) type;
 				message.source = sender == null ? "" : sender.Username;
 				message.message = text;
-			}
-
-			if (sendList == null)
-			{
-				RelayBroadcast(message);
-			}
-			else
-			{
 				RelayBroadcast(sendList, message);
 			}
 		}
@@ -571,7 +564,7 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, sendList, message);
+			RelayBroadcast(null, sendList ?? GetSpawnedPlayers(), message);
 		}
 
 		public void RelayBroadcast<T>(Player source, Player[] sendList, T message) where T : Package<T>, new()

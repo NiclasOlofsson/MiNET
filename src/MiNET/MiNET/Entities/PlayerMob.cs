@@ -41,15 +41,9 @@ namespace MiNET.Entities
 
 		public override MetadataDictionary GetMetadata()
 		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
-			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[2] = new MetadataString(NameTag ?? Name);
-			metadata[3] = new MetadataByte(!HideNameTag);
-			metadata[4] = new MetadataByte(Silent);
+			MetadataDictionary metadata = base.GetMetadata();
 			metadata[7] = new MetadataInt(0); // Potion Color
 			metadata[8] = new MetadataByte(0); // Potion Ambient
-			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
 			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 			metadata[23] = new MetadataInt(-1); // Leads EID (target or holder?)

@@ -1168,6 +1168,12 @@ namespace MiNET
 
 			lock (session.SyncRoot)
 			{
+				//if (new Random().Next(5) == 0)
+				//{
+				//	Log.Warn("Skip message #" + datagram.Header.datagramSequenceNumber.IntValue());
+				//	return;
+				//}
+
 				SendData(data, session.EndPoint);
 			}
 		}

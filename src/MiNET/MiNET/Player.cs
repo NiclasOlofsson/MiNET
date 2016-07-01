@@ -631,6 +631,7 @@ namespace MiNET
 			ClientGuid = message.clientGuid;
 
 			var response = ConnectionRequestAccepted.CreateObject();
+			response.NoBatch = true;
 			response.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
 			response.systemAddresses = new IPEndPoint[10];
 			response.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
@@ -921,6 +922,7 @@ namespace MiNET
 							}
 
 							var response = McpeServerExchange.CreateObject();
+							response.NoBatch = true;
 							response.ForceClear = true;
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
 							response.randomKeyToken = Encoding.UTF8.GetString(ecKey.SecretPrepend);
@@ -1273,7 +1275,7 @@ namespace MiNET
 		{
 			//Log.Error("Send player inventory");
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			inventoryContent.NoBatch = true;
+			//inventoryContent.NoBatch = true;
 			inventoryContent.windowId = (byte) 0x00;
 			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
@@ -2376,7 +2378,7 @@ namespace MiNET
 		public virtual void SendSetTime()
 		{
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.NoBatch = true;
+			//message.NoBatch = true;
 			message.time = (int) Level.CurrentWorldTime;
 			message.started = (byte) (Level.IsWorldTimeStarted ? 1 : 0);
 			SendPackage(message);
@@ -2707,11 +2709,11 @@ namespace MiNET
 						continue;
 					}
 
-					if (lenght == 1)
+/*					if (lenght == 1)
 					{
 						Server.SendPackage(this, package);
 					}
-					else if (package is McpeBatch)
+					else */if (package is McpeBatch)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;
@@ -2724,12 +2726,12 @@ namespace MiNET
 						messageCount = 0;
 						Server.SendPackage(this, package);
 					}
-					else if (!IsSpawned)
-					{
-						SendBuffered(messageCount);
-						messageCount = 0;
-						Server.SendPackage(this, package);
-					}
+					//else if (!IsSpawned)
+					//{
+					//	SendBuffered(messageCount);
+					//	messageCount = 0;
+					//	Server.SendPackage(this, package);
+					//}
 					else
 					{
 						if (messageCount == 0)

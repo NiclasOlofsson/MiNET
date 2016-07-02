@@ -704,14 +704,22 @@ MODE_ROTATION = 2;
 **Packet size:** 
 
 
-TODO: can have multiple blocks.
+0x00: None
+0x01: Neighbours
+0x02: Network
+0x04: No Graphic
+0x08: Priority
 
 
 ####Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Blocks | BlockRecords |  |
+|X | int |  |
+|Z | int |  |
+|Y | byte |  |
+|Block ID | byte |  |
+|Block Meta And Priority | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Painting (0x14)
 

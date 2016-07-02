@@ -1981,7 +1981,11 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateBlock : Package<McpeUpdateBlock>
 	{
-		public BlockRecords blocks; // = null;
+		public int x; // = null;
+		public int z; // = null;
+		public byte y; // = null;
+		public byte blockId; // = null;
+		public byte blockMetaAndPriority; // = null;
 		public McpeUpdateBlock()
 		{
 			Id = 0x13;
@@ -1993,7 +1997,11 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(blocks);
+			Write(x);
+			Write(z);
+			Write(y);
+			Write(blockId);
+			Write(blockMetaAndPriority);
 
 			AfterEncode();
 		}
@@ -2007,7 +2015,11 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			blocks = ReadBlockRecords();
+			x = ReadInt();
+			z = ReadInt();
+			y = ReadByte();
+			blockId = ReadByte();
+			blockMetaAndPriority = ReadByte();
 
 			AfterDecode();
 		}

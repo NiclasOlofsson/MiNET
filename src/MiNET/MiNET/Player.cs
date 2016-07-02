@@ -556,8 +556,14 @@ namespace MiNET
 			//	mcpeAdventureSettings.flags |= 0x100;
 			//}
 
-			mcpeAdventureSettings.userPermission = 0x2;
-			mcpeAdventureSettings.globalPermission = 0x2;
+
+			// 00 - Can Fly - NO Place/Break)
+			// 01 - Can Fly - NO Place/Break)
+			// 02 - NO FLY - Can Place/Break
+			// 03 - Can Fly - Can Place/Break
+
+			mcpeAdventureSettings.userPermission = 0x02;
+			mcpeAdventureSettings.globalPermission = 0x02;
 			SendPackage(mcpeAdventureSettings);
 
 			if (!AllowFly)

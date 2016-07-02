@@ -280,10 +280,18 @@
 	</pdu>
 
 	<!--
-		TODO: can have multiple blocks.
+	0x00: None
+	0x01: Neighbours
+	0x02: Network
+	0x04: No Graphic
+	0x08: Priority
 		-->
 	<pdu id="0x13" online="false" client="true" server="true" name="MCPE_UPDATE_BLOCK">
-		<field name="Blocks" type="BlockRecords" />
+		<field name="X" type="int" />
+		<field name="Z" type="int" />
+		<field name="Y" type="byte" />
+		<field name="Block ID" type="byte" />
+		<field name="Block Meta And Priority" type="byte" />
 	</pdu>
 
 	<pdu id="0x14" online="false" client="true" server="true" name="MCPE_ADD_PAINTING">

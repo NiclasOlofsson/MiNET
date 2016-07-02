@@ -339,6 +339,9 @@ namespace MiNET.Net
 
 		public void Write(BlockRecords records)
 		{
+			/*
+			 * 13
+			 * 000011C8 FFFFFFFD 04 01 B0*/
 			foreach (Block block in records)
 			{
 				Write(block.Coordinates.X);

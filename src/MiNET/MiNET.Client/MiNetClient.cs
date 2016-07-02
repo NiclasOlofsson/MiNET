@@ -552,7 +552,7 @@ namespace MiNET.Client
 
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
-				OnMcpeUpdateBlock(message);
+				OnMcpeUpdateBlock((McpeUpdateBlock) message);
 				return;
 			}
 
@@ -739,7 +739,6 @@ namespace MiNET.Client
 			Session.CryptoContext = new CryptoContext();
 
 			SendPackage(batch);
-			LoginSent = true;
 		}
 
 		private void OnMcpeServerExchange(McpeServerExchange message)
@@ -1199,14 +1198,9 @@ namespace MiNET.Client
 			Log.DebugFormat("Data: {0}", msg.data);
 		}
 
-		private void OnMcpeUpdateBlock(Package message)
+		private void OnMcpeUpdateBlock(McpeUpdateBlock message)
 		{
-			McpeUpdateBlock msg = (McpeUpdateBlock) message;
-			Log.DebugFormat("No of Blocks: {0}", msg.blocks.Count);
-			foreach (Block block in msg.blocks)
-			{
-				Log.Debug($"Blocks ID={block.Id}, Metadata={block.Metadata}");
-			}
+			Log.Debug($"Blocks ID={message.blockId}, Metadata={message.blockMetaAndPriority}");
 		}
 
 		private void OnMcpeMovePlayer(McpeMovePlayer message)
@@ -1585,8 +1579,6 @@ namespace MiNET.Client
 
 			SendPackage(packet);
 		}
-
-		public bool LoginSent { get; set; }
 
 		public void SendChat(string text)
 		{

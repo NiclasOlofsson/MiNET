@@ -60,7 +60,7 @@ namespace MiNET.Entities
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte(GetDataValue());
 			metadata[2] = new MetadataString(NameTag ?? string.Empty);
-			metadata[3] = new MetadataByte(1);
+			metadata[3] = new MetadataByte(!HideNameTag);
 			metadata[4] = new MetadataByte(Silent);
 			metadata[7] = new MetadataInt(0); // Potion Color
 			metadata[8] = new MetadataByte(0); // Potion Ambient

@@ -2486,14 +2486,6 @@ namespace MiNET
 				motions.entities = new EntityMotions {{0, velocity}};
 				SendPackage(motions);
 			}
-
-			//Task.Delay(500).ContinueWith(delegate(Task task)
-			//{
-			//	McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			//	motions.entities = new EntityMotions {{0, Vector3.Zero}};
-			//	SendPackage(motions);
-			//}
-			//);
 		}
 
 		public override MetadataDictionary GetMetadata()

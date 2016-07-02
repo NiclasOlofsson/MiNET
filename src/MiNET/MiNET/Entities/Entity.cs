@@ -55,13 +55,14 @@ namespace MiNET.Entities
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[0] = new MetadataByte(GetDataValue());
-			//metadata[0] = new MetadataByte((byte) (HealthManager.IsOnFire ? 1 : 0));
 			metadata[1] = new MetadataShort(HealthManager.Air);
 			metadata[2] = new MetadataString(NameTag ?? string.Empty);
 			metadata[3] = new MetadataByte(1);
 			metadata[4] = new MetadataByte(0);
 			metadata[15] = new MetadataByte(0);
 			//metadata[16] = new MetadataByte(0);
+			metadata[23] = new MetadataInt(-1); // Leads EID (target or holder?)
+			metadata[24] = new MetadataByte(0); // Leads on/off
 
 			return metadata;
 		}

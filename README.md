@@ -8,6 +8,9 @@ MiNET
 
 ## Can I test this before I download it?
 Yes, you can. At times there are dev servers running and you might be lucky enough to get in..<br>
+IP: **play.leet.cc**    
+Port: **19132** 
+
 IP: **play.inpvp.net**    
 Port: **19132** 
 

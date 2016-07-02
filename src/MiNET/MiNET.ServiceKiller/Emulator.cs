@@ -5,7 +5,6 @@ using System.Threading;
 using log4net;
 using log4net.Config;
 using MiNET.Client;
-using MiNET.Utils;
 
 [assembly: XmlConfigurator(Watch = true)]
 
@@ -23,8 +22,8 @@ namespace MiNET.ServiceKiller
 
 		//private const int TimeBetweenSpawns = 280;
 		private const int TimeBetweenSpawns = 350;
-		private const int DurationOfConnection = 30*1000;
-		private const int NumberOfBots = 2000;
+		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(((16*15) + 310));
+		private const int NumberOfBots = 16*4;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 5;
@@ -51,7 +50,8 @@ namespace MiNET.ServiceKiller
 
 			long start = DateTime.UtcNow.Ticks;
 
-			IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19134);
+			//IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
+			IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
 
 			for (int j = 0; j < NumberOfBots; j++)
 			{
@@ -62,7 +62,6 @@ namespace MiNET.ServiceKiller
 					RanSleepMin, RanSleepMax, RequestChunkRadius);
 
 				new Thread(o => { client.EmulateClient(); }).Start();
-				//Thread thread = new Thread(delegate { client.EmulateClient(); });
 				//ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
 				Thread.Sleep(TimeBetweenSpawns);
@@ -95,9 +94,9 @@ namespace MiNET.ServiceKiller
 		public string Name { get; set; }
 		public int ClientId { get; set; }
 		public Random Random { get; set; } = new Random();
-		public long TimeToRun { get; set; }
+		public TimeSpan TimeToRun { get; set; }
 
-		public ClientEmulator(Emulator emulator, long timeToRun, string name, int clientId, IPEndPoint endPoint, int ranMin = 150, int ranMax = 450, int chunkRadius = 8)
+		public ClientEmulator(Emulator emulator, TimeSpan timeToRun, string name, int clientId, IPEndPoint endPoint, int ranMin = 150, int ranMax = 450, int chunkRadius = 8)
 		{
 			Emulator = emulator;
 			TimeToRun = timeToRun;
@@ -128,45 +127,61 @@ namespace MiNET.ServiceKiller
 
 				client.FirstPacketWaitHandle.WaitOne();
 
-				//Thread.Sleep(2000);
-
-				client.LoginSent = true;
+				if (client.UdpClient != null) Console.WriteLine("\t\t\t\t\t\tClient {0} connected, emulating...", Name);
 
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
-				if (client.UdpClient != null) Console.WriteLine("\t\t\t\t\t\tClient {0} moving...", Name);
 
-				for (int i = 0; /*i < 10 && */Emulator.Running && watch.ElapsedMilliseconds < TimeToRun; i++)
-				{
-					if (client.UdpClient == null) break;
+				Thread.Sleep(3000);
 
-					float y = Random.Next(7, 10) + /*24*/ 55;
-					float length = Random.Next(5, 20);
+				client.SendChat("/join bb");
+				//client.SendChat("/join skywars");
 
-					double angle = 0.0;
-					const double angleStepsize = 0.05;
-					float heightStepsize = (float) (Random.NextDouble()/5);
+				Thread.Sleep(TimeToRun);
 
-					while (angle < 2*Math.PI && Emulator.Running)
-					{
-						if (client.UdpClient == null) break;
+				//if(client.CurrentLocation != null)
+				//{
+				//	client.CurrentLocation = new PlayerLocation(client.CurrentLocation.X, -10, client.CurrentLocation.Z);
+				//	client.SendMcpeMovePlayer();
+				//	Thread.Sleep(3000);
+				//}
 
-						float x = (float) (length*Math.Cos(angle));
-						float z = (float) (length*Math.Sin(angle));
-						y += heightStepsize;
+				//client.SendChat("/hub");
 
-						x += client.Level.SpawnX;
-						z += client.Level.SpawnZ;
+				//Thread.Sleep(3000);
 
-						client.CurrentLocation = new PlayerLocation(x, y, z);
-						client.SendMcpeMovePlayer();
-						Thread.Sleep(Random.Next(RanMin, RanMax));
-						angle += angleStepsize;
-					}
-				}
+				//for (int i = 0; /*i < 10 && */Emulator.Running && watch.ElapsedMilliseconds < TimeToRun; i++)
+				//{
+				//	if (client.UdpClient == null) break;
+
+				//	float y = Random.Next(7, 10) + /*24*/ 55;
+				//	float length = Random.Next(5, 20);
+
+				//	double angle = 0.0;
+				//	const double angleStepsize = 0.05;
+				//	float heightStepsize = (float) (Random.NextDouble()/5);
+
+				//	while (angle < 2*Math.PI && Emulator.Running)
+				//	{
+				//		if (client.UdpClient == null) break;
+
+				//		float x = (float) (length*Math.Cos(angle));
+				//		float z = (float) (length*Math.Sin(angle));
+				//		y += heightStepsize;
+
+				//		x += client.Level.SpawnX;
+				//		z += client.Level.SpawnZ;
+
+				//		client.CurrentLocation = new PlayerLocation(x, y, z);
+				//		client.SendMcpeMovePlayer();
+				//		Thread.Sleep(Random.Next(RanMin, RanMax));
+				//		angle += angleStepsize;
+				//	}
+				//}
 
 				if (client.UdpClient != null)
 				{
+					client.SendChat("Shadow gov agent BREXITING!");
 					client.SendDisconnectionNotification();
 				}
 

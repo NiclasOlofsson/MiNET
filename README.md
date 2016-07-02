@@ -1,8 +1,6 @@
 
 In case you don't find the information your are looking for in the README. Do try the [wiki](https://github.com/NiclasOlofsson/MiNET/wiki)
 
-如果你想了解更多的中文信息，可以点击这里查看[中文WIKI](https://github.com/NiclasOlofsson/MiNET/wiki/MiNET-INFO%EF%BC%88In-ZH_CN%EF%BC%89)，或是进入[MiNET中文论坛](http://minetcn.com/)
-
 MiNET
 =====
 
@@ -56,8 +54,7 @@ Also, make sure to join our Gitter chat for easy communication.
 
 ## Are there forums for MiNET?
 
-Yes there's a community driven [MiNET Related Forum](http://minepocket.com/#minet-development-releated-minet-related-only.71) for sharing ideas and helping others in the community with MiNET .. stuff. Do notice that this forum does not belong to this project, so please don't contact me about it.
-In case you don't get the registration email for the forum, please check your junk-mail folder or ask for help on MiNET's gitter (the admins hang out there).
+No.
 
 ## Installation
 
@@ -67,6 +64,6 @@ For a windows installation you can choose to download the binary from the build 
 
 When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
 
-### Linux
+### Mono (Linux & Mac)
 
-[Linux Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)
+[Mono Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)

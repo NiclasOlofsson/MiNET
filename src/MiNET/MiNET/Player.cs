@@ -62,9 +62,6 @@ namespace MiNET
 		public UUID ClientUuid { get; set; }
 
 		public Skin Skin { get; set; }
-		public bool Silent { get; set; }
-		public bool HideNameTag { get; set; }
-		public bool NoAi { get; set; }
 
 		public float ExperienceLevel { get; set; } = 0f;
 		public float Experience { get; set; } = 0f;
@@ -2490,19 +2487,8 @@ namespace MiNET
 
 		public override MetadataDictionary GetMetadata()
 		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte(GetDataValue());
-			metadata[1] = new MetadataShort(HealthManager.Air);
+			MetadataDictionary metadata = base.GetMetadata();
 			metadata[2] = new MetadataString(NameTag ?? Username);
-			metadata[3] = new MetadataByte(!HideNameTag);
-			metadata[4] = new MetadataByte(Silent);
-			metadata[7] = new MetadataInt(0); // Potion Color
-			metadata[8] = new MetadataByte(0); // Potion Ambient
-			metadata[15] = new MetadataByte(NoAi);
-			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
-			metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
-			metadata[24] = new MetadataByte(0); // Leads on/off
 
 			return metadata;
 		}
@@ -2705,7 +2691,8 @@ namespace MiNET
 					{
 						Server.SendPackage(this, package);
 					}
-					else */if (package is McpeBatch)
+					else */
+					if (package is McpeBatch)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;

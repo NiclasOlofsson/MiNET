@@ -12,9 +12,6 @@ namespace MiNET.Entities
 		public UUID Uuid { get; private set; }
 		public string Name { get; private set; }
 		public Skin Skin { get; set; }
-		public bool Silent { get; set; }
-		public bool HideNameTag { get; set; }
-		public bool NoAi { get; set; }
 
 		public short Boots { get; set; }
 		public short Leggings { get; set; }
@@ -37,25 +34,6 @@ namespace MiNET.Entities
 			Skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 
 			ItemInHand = new ItemAir();
-		}
-
-		public override MetadataDictionary GetMetadata()
-		{
-			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte(GetDataValue());
-			metadata[1] = new MetadataShort(HealthManager.Air);
-			metadata[2] = new MetadataString(NameTag ?? Name);
-			metadata[3] = new MetadataByte(!HideNameTag);
-			metadata[4] = new MetadataByte(Silent);
-			metadata[7] = new MetadataInt(0); // Potion Color
-			metadata[8] = new MetadataByte(0); // Potion Ambient
-			metadata[15] = new MetadataByte(NoAi);
-			metadata[16] = new MetadataByte(0); // Player flags
-			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
-			metadata[23] = new MetadataInt(-1); // Leads EID (target or holder?)
-			metadata[24] = new MetadataByte(0); // Leads on/off
-
-			return metadata;
 		}
 
 		public override void SpawnToPlayers(Player[] players)
@@ -120,14 +98,11 @@ namespace MiNET.Entities
 			}
 
 			{
-
-		                McpeSetEntityData setEntityData = McpeSetEntityData.CreateObject();
-		                setEntityData.entityId = EntityId;
-		                setEntityData.metadata = GetMetadata();
-		                Level?.RelayBroadcast(players, setEntityData);
-	
-	            	}
-	            	
+				McpeSetEntityData setEntityData = McpeSetEntityData.CreateObject();
+				setEntityData.entityId = EntityId;
+				setEntityData.metadata = GetMetadata();
+				Level?.RelayBroadcast(players, setEntityData);
+			}
 		}
 
 		public override void DespawnFromPlayers(Player[] players)

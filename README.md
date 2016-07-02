@@ -57,7 +57,7 @@ Also, make sure to join our Gitter chat for easy communication.
 
 ## Are there forums for MiNET?
 
-No.
+No, but you can answer questions on [stack**overflow**](http://stackoverflow.com/questions/ask?tags=minet) using the tag *MiNET*. 
 
 ## Installation
 

@@ -10,7 +10,6 @@ namespace MiNET.Entities
 	public class PlayerMob : Mob
 	{
 		public UUID Uuid { get; private set; }
-		public string Name { get; private set; }
 		public Skin Skin { get; set; }
 
 		public short Boots { get; set; }
@@ -30,7 +29,7 @@ namespace MiNET.Entities
 
 			IsSpawned = false;
 
-			Name = name;
+			NameTag = name;
 			Skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 
 			ItemInHand = new ItemAir();
@@ -43,7 +42,7 @@ namespace MiNET.Entities
 				{
 					ClientUuid = Uuid,
 					EntityId = EntityId,
-					NameTag = NameTag ?? Name,
+					NameTag = NameTag,
 					Skin = Skin
 				};
 
@@ -55,7 +54,7 @@ namespace MiNET.Entities
 			{
 				McpeAddPlayer message = McpeAddPlayer.CreateObject();
 				message.uuid = Uuid;
-				message.username = NameTag ?? Name;
+				message.username = NameTag;
 				message.entityId = EntityId;
 				message.x = KnownPosition.X;
 				message.y = KnownPosition.Y;
@@ -88,7 +87,7 @@ namespace MiNET.Entities
 				{
 					ClientUuid = Uuid,
 					EntityId = EntityId,
-					NameTag = NameTag ?? Name,
+					NameTag = NameTag,
 					Skin = Skin
 				};
 
@@ -112,7 +111,7 @@ namespace MiNET.Entities
 				{
 					ClientUuid = Uuid,
 					EntityId = EntityId,
-					NameTag = NameTag ?? Name,
+					NameTag = NameTag,
 					Skin = Skin
 				};
 

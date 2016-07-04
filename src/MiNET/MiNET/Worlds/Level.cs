@@ -505,37 +505,31 @@ namespace MiNET.Worlds
 			}
 			move.PutPool();
 
-			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-			moveEntity.entities = new EntityLocations();
-
-			McpeSetEntityMotion entityMotion = McpeSetEntityMotion.CreateObject();
-			entityMotion.entities = new EntityMotions();
-
 			foreach (var entity in entities)
 			{
 				if (((now - entity.LastUpdatedTime) <= now - tickTime))
 				{
-					moveEntity.entities.Add(entity.EntityId, entity.KnownPosition);
-					entityMotion.entities.Add(entity.EntityId, entity.Velocity);
+					{
+						McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+						moveEntity.entityId = entity.EntityId;
+						moveEntity.position = entity.KnownPosition;
+						byte[] bytes = moveEntity.Encode();
+						stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						stream.Write(bytes, 0, bytes.Length);
+						moveEntity.PutPool();
+					}
+					{
+						McpeSetEntityMotion entityMotion = McpeSetEntityMotion.CreateObject();
+						entityMotion.entityId = entity.EntityId;
+						entityMotion.velocity = entity.Velocity;
+						byte[] bytes = entityMotion.Encode();
+						stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						stream.Write(bytes, 0, bytes.Length);
+						entityMotion.PutPool();
+					}
 					count++;
 				}
 			}
-
-			if (moveEntity.entities.Count > 0)
-			{
-				byte[] bytes = moveEntity.Encode();
-				stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-				stream.Write(bytes, 0, bytes.Length);
-			}
-			moveEntity.PutPool();
-
-			if (moveEntity.entities.Count > 0)
-			{
-				byte[] bytes = entityMotion.Encode();
-				stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-				stream.Write(bytes, 0, bytes.Length);
-			}
-			entityMotion.PutPool();
 
 			if (count == 0) return;
 

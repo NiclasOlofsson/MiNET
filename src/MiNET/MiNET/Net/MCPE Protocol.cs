@@ -737,7 +737,7 @@ namespace MiNET.Net
 	public partial class OpenConnectionRequest2 : Package<OpenConnectionRequest2>
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
-		public IPEndPoint clientendpoint; // = null;
+		public IPEndPoint remoteBindingAddress; // = null;
 		public short mtuSize; // = null;
 		public long clientGuid; // = null;
 		public OpenConnectionRequest2()
@@ -752,7 +752,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(offlineMessageDataId);
-			Write(clientendpoint);
+			Write(remoteBindingAddress);
 			Write(mtuSize);
 			Write(clientGuid);
 
@@ -769,7 +769,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			ReadBytes(offlineMessageDataId.Length);
-			clientendpoint = ReadIPEndPoint();
+			remoteBindingAddress = ReadIPEndPoint();
 			mtuSize = ReadShort();
 			clientGuid = ReadLong();
 
@@ -785,7 +785,7 @@ namespace MiNET.Net
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
-		public IPEndPoint clientendpoint; // = null;
+		public IPEndPoint clientEndpoint; // = null;
 		public short mtuSize; // = null;
 		public byte[] doSecurityAndHandshake; // = null;
 		public OpenConnectionReply2()
@@ -801,7 +801,7 @@ namespace MiNET.Net
 
 			Write(offlineMessageDataId);
 			Write(serverGuid);
-			Write(clientendpoint);
+			Write(clientEndpoint);
 			Write(mtuSize);
 			Write(doSecurityAndHandshake);
 
@@ -819,7 +819,7 @@ namespace MiNET.Net
 
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
-			clientendpoint = ReadIPEndPoint();
+			clientEndpoint = ReadIPEndPoint();
 			mtuSize = ReadShort();
 			doSecurityAndHandshake = ReadBytes(0);
 
@@ -1197,7 +1197,8 @@ namespace MiNET.Net
 	public partial class McpeServerExchange : Package<McpeServerExchange>
 	{
 		public string serverPublicKey; // = null;
-		public string randomKeyToken; // = null;
+		public short tokenLenght; // = null;
+		public byte[] token; // = null;
 		public McpeServerExchange()
 		{
 			Id = 0x03;
@@ -1210,7 +1211,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(serverPublicKey);
-			Write(randomKeyToken);
+			Write(tokenLenght);
+			Write(token);
 
 			AfterEncode();
 		}
@@ -1225,7 +1227,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			serverPublicKey = ReadString();
-			randomKeyToken = ReadString();
+			tokenLenght = ReadShort();
+			token = ReadBytes(0);
 
 			AfterDecode();
 		}
@@ -1588,7 +1591,10 @@ namespace MiNET.Net
 	public partial class McpeAddEntity : Package<McpeAddEntity>
 	{
 		public long entityId; // = null;
-		public int entityType; // = null;
+		public byte unknown; // = null;
+		public byte entityDimension; // = null;
+		public byte entityFamily; // = null;
+		public byte entityType; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -1597,7 +1603,7 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public float yaw; // = null;
 		public float pitch; // = null;
-		public int modifiers; // = null;
+		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
 		public short links; // = null;
 		public McpeAddEntity()
@@ -1612,6 +1618,9 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(entityId);
+			Write(unknown);
+			Write(entityDimension);
+			Write(entityFamily);
 			Write(entityType);
 			Write(x);
 			Write(y);
@@ -1621,7 +1630,7 @@ namespace MiNET.Net
 			Write(speedZ);
 			Write(yaw);
 			Write(pitch);
-			Write(modifiers);
+			Write(attributes);
 			Write(metadata);
 			Write(links);
 
@@ -1638,7 +1647,10 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadLong();
-			entityType = ReadInt();
+			unknown = ReadByte();
+			entityDimension = ReadByte();
+			entityFamily = ReadByte();
+			entityType = ReadByte();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -1647,7 +1659,7 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			yaw = ReadFloat();
 			pitch = ReadFloat();
-			modifiers = ReadInt();
+			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
 			links = ReadShort();
 
@@ -1799,7 +1811,8 @@ namespace MiNET.Net
 
 	public partial class McpeMoveEntity : Package<McpeMoveEntity>
 	{
-		public EntityLocations entities; // = null;
+		public long entityId; // = null;
+		public PlayerLocation position; // = null;
 		public McpeMoveEntity()
 		{
 			Id = 0x0f;
@@ -1811,7 +1824,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(entities);
+			Write(entityId);
+			Write(position);
 
 			AfterEncode();
 		}
@@ -1825,7 +1839,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entities = ReadEntityLocations();
+			entityId = ReadLong();
+			position = ReadPlayerLocation();
 
 			AfterDecode();
 		}
@@ -2692,7 +2707,8 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityMotion : Package<McpeSetEntityMotion>
 	{
-		public EntityMotions entities; // = null;
+		public long entityId; // = null;
+		public Vector3 velocity; // = null;
 		public McpeSetEntityMotion()
 		{
 			Id = 0x23;
@@ -2704,7 +2720,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(entities);
+			Write(entityId);
+			Write(velocity);
 
 			AfterEncode();
 		}
@@ -2718,7 +2735,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entities = ReadEntityMotions();
+			entityId = ReadLong();
+			velocity = ReadVector3();
 
 			AfterDecode();
 		}

@@ -229,7 +229,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|ClientEndpoint | IPEndPoint |  |
+|Remote Binding Address | IPEndPoint |  |
 |MTU Size | short |  |
 |Client GUID | long |  |
 -----------------------------------------------------------------------
@@ -247,7 +247,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 |Server GUID | long |  |
-|ClientEndpoint | IPEndPoint |  |
+|Client Endpoint | IPEndPoint |  |
 |MTU Size | short |  |
 |Do security and handshake | byte[] | 0 |
 -----------------------------------------------------------------------
@@ -403,7 +403,8 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Server Public Key | string |  |
-|Random Key Token | string |  |
+|Token Lenght | short |  |
+|Token | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Client Magic (0x04)
 
@@ -564,7 +565,10 @@ val2 float
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | long |  |
-|Entity Type | int |  |
+|Unknown | byte |  |
+|Entity Dimension | byte |  |
+|Entity Family | byte |  |
+|Entity Type | byte |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -573,7 +577,7 @@ val2 float
 |Speed Z | float |  |
 |Yaw | float |  |
 |Pitch | float |  |
-|Modifiers | int |  |
+|Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | short |  |
 -----------------------------------------------------------------------
@@ -639,7 +643,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entities | EntityLocations |  |
+|Entity Id | long |  |
+|Position | PlayerLocation |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Move Player (0x10)
 
@@ -972,7 +977,8 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entities | EntityMotions |  |
+|Entity ID | long |  |
+|Velocity | Vector3 |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Link (0x24)
 

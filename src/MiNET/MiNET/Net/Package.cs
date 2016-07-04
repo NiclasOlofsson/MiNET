@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -336,23 +337,27 @@ namespace MiNET.Net
 			return new Records();
 		}
 
-		public void Write(EntityLocations locations)
+		public void Write(PlayerLocation location)
 		{
-			foreach (var location in locations)
-			{
-				Write(location.Key); // Entity ID
-				Write(location.Value.X);
-				Write(location.Value.Y);
-				Write(location.Value.Z);
-				Write((byte)(location.Value.Pitch * 0.71)); // 256/360
-				Write((byte)(location.Value.HeadYaw * 0.71)); // 256/360
-				Write((byte)(location.Value.Yaw * 0.71)); // 256/360
-			}
+			Write(location.X);
+			Write(location.Y);
+			Write(location.Z);
+			Write((byte) (location.Pitch*0.71)); // 256/360
+			Write((byte) (location.HeadYaw*0.71)); // 256/360
+			Write((byte) (location.Yaw*0.71)); // 256/360
 		}
 
-		public EntityLocations ReadEntityLocations()
+		public PlayerLocation ReadPlayerLocation()
 		{
-			return new EntityLocations();
+			PlayerLocation location = new PlayerLocation();
+			location.X = ReadFloat();
+			location.Y = ReadFloat();
+			location.Z = ReadFloat();
+			location.Pitch = ReadByte()*1f/0.71f;
+			location.HeadYaw = ReadByte()*1f/0.71f;
+			location.Yaw = ReadByte()*1f/0.71f;
+
+			return location;
 		}
 
 		public void Write(EntityHeadRotations locations)
@@ -367,6 +372,8 @@ namespace MiNET.Net
 
 		public EntityHeadRotations ReadEntityHeadRotations()
 		{
+			ReadLong();
+			ReadVector3();
 			return new EntityHeadRotations();
 		}
 
@@ -443,6 +450,7 @@ namespace MiNET.Net
 
 		public EntityMotions ReadEntityMotions()
 		{
+			ReadVector3();
 			return new EntityMotions();
 		}
 
@@ -652,7 +660,45 @@ namespace MiNET.Net
 					MinValue = ReadFloat(),
 					MaxValue = ReadFloat(),
 					Value = ReadFloat(),
-					Name = ReadString()
+					Name = ReadString(),
+				};
+
+				attributes[attribute.Name] = attribute;
+			}
+
+			return attributes;
+		}
+
+		public void Write(EntityAttributes attributes)
+		{
+			if(attributes == null)
+			{
+				Write(0);
+				return;
+			}
+
+			Write(attributes.Count);
+			foreach (EntityAttribute attribute in attributes.Values)
+			{
+				Write(attribute.Name);
+				Write(attribute.MinValue);
+				Write(attribute.Value);
+				Write(attribute.MaxValue);
+			}
+		}
+
+		public EntityAttributes ReadEntityAttributes()
+		{
+			var attributes = new EntityAttributes();
+			int count = ReadInt();
+			for (int i = 0; i < count; i++)
+			{
+				EntityAttribute attribute = new EntityAttribute
+				{
+					Name = ReadString(),
+					MinValue = ReadFloat(),
+					Value = ReadFloat(),
+					MaxValue = ReadFloat(),
 				};
 
 				attributes[attribute.Name] = attribute;

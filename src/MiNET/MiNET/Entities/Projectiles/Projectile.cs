@@ -47,7 +47,7 @@ namespace MiNET.Entities.Projectiles
 				if (Shooter == null)
 				{
 					var addEntity = McpeAddEntity.CreateObject();
-					addEntity.entityType = EntityTypeId;
+					addEntity.entityType = (byte) EntityTypeId;
 					addEntity.entityId = EntityId;
 					addEntity.x = KnownPosition.X;
 					addEntity.y = KnownPosition.Y;
@@ -70,7 +70,7 @@ namespace MiNET.Entities.Projectiles
 				{
 					{
 						var addEntity = McpeAddEntity.CreateObject();
-						addEntity.entityType = EntityTypeId;
+						addEntity.entityType = (byte) EntityTypeId;
 						addEntity.entityId = EntityId;
 						addEntity.x = KnownPosition.X;
 						addEntity.y = KnownPosition.Y;
@@ -94,7 +94,7 @@ namespace MiNET.Entities.Projectiles
 						metadata[17] = new MetadataLong(0);
 
 						var addEntity = McpeAddEntity.CreateObject();
-						addEntity.entityType = EntityTypeId;
+						addEntity.entityType = (byte) EntityTypeId;
 						addEntity.entityId = EntityId;
 						addEntity.x = KnownPosition.X;
 						addEntity.y = KnownPosition.Y;
@@ -354,11 +354,13 @@ namespace MiNET.Entities.Projectiles
 		private void BroadcastMoveAndMotion()
 		{
 			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entities = new EntityMotions {{EntityId, Velocity}};
+			motions.entityId = EntityId;
+			motions.velocity = Velocity;
 			new Task(() => Level.RelayBroadcast(motions)).Start();
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-			moveEntity.entities = new EntityLocations {{EntityId, KnownPosition}};
+			moveEntity.entityId = EntityId;
+			moveEntity.position = KnownPosition;
 			new Task(() => Level.RelayBroadcast(moveEntity)).Start();
 		}
 

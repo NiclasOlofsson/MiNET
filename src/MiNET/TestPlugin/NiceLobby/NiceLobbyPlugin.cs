@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -559,8 +560,8 @@ namespace TestPlugin.NiceLobby
 				var entity = _playerEntities[player];
 				entity.KnownPosition = player.KnownPosition;
 				var message = McpeMoveEntity.CreateObject();
-				message.entities = new EntityLocations();
-				message.entities.Add(entity.EntityId, entity.KnownPosition);
+				message.entityId = entity.EntityId;
+				message.position = entity.KnownPosition;
 				player.Level.RelayBroadcast(message);
 			}
 

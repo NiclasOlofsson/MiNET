@@ -426,9 +426,9 @@ namespace MiNET.Worlds
 
 		private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
 		{
-			var text = blockEntityTag[tagName].StringValue;
-			var replace = Regex.Unescape(_regex.Replace(text, "$3"));
-			blockEntityTag[tagName] = new NbtString(tagName, replace);
+			//var text = blockEntityTag[tagName].StringValue;
+			//var replace = Regex.Unescape(_regex.Replace(text, "$3"));
+			//blockEntityTag[tagName] = new NbtString(tagName, replace);
 		}
 
 		private static byte Nibble4(byte[] arr, int index)

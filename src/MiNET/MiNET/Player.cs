@@ -760,7 +760,7 @@ namespace MiNET
 			if (message.payloadLenght != buffer.Length) throw new Exception($"Wrong lenght {message.payloadLenght} != {message.payload.Length}");
 			// Decompress bytes
 
-			Log.Debug("Lenght" + message.payloadLenght + "Message: " + Convert.ToBase64String(buffer));
+			Log.Debug("Lenght: " + message.payloadLenght + ", Message: " + Convert.ToBase64String(buffer));
 
 			MemoryStream stream = new MemoryStream(buffer);
 			if (stream.ReadByte() != 0x78)
@@ -778,13 +778,25 @@ namespace MiNET
 				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
 				defStream2.CopyTo(destination);
 				destination.Position = 0;
-				NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+				NbtBinaryReader reader = new NbtBinaryReader(destination, false);
 
-				certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(Endian.SwapInt32(reader.ReadInt32())));
-				skinData = Encoding.UTF8.GetString(reader.ReadBytes(Endian.SwapInt32(reader.ReadInt32())));
+				try
+				{
+					var countCertData = reader.ReadInt32();
+					Log.Debug("Count cert: " + countCertData);
+					certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(countCertData));
+					Log.Debug("Decompressed certificateChain " + certificateChain);
 
-				//if (Log.IsDebugEnabled)
-				//	Log.Debug($"\n{Package.HexDump(destination.ToArray())}");
+					var countSkinData = reader.ReadInt32();
+					Log.Debug("Count skin: " + countSkinData);
+					skinData = Encoding.UTF8.GetString(reader.ReadBytes(countSkinData));
+					Log.Debug("Decompressed skinData" + skinData);
+				}
+				catch (Exception e)
+				{
+					Log.Error("Parsing login", e);
+					return;
+				}
 			}
 
 
@@ -876,7 +888,7 @@ namespace MiNET
 
 						NetworkSession.CryptoContext = new CryptoContext
 						{
-							UseEncryption = Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid),
+							UseEncryption = Config.GetProperty("UseEncryption", true) /*&& !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid)*/,
 						};
 
 
@@ -928,7 +940,8 @@ namespace MiNET
 							response.NoBatch = true;
 							response.ForceClear = true;
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-							response.randomKeyToken = Encoding.UTF8.GetString(ecKey.SecretPrepend);
+							response.tokenLenght = (short) ecKey.SecretPrepend.Length;
+							response.token = ecKey.SecretPrepend;
 
 							Log.Warn($"Encryption enabled for {Username}");
 							SendPackage(response);
@@ -2303,7 +2316,18 @@ namespace MiNET
 		{
 			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 			stream.WriteByte(0x78);
-			stream.WriteByte(0x01);
+			switch (compressionLevel)
+			{
+				case CompressionLevel.Optimal:
+					stream.WriteByte(0xda);
+					break;
+				case CompressionLevel.Fastest:
+					stream.WriteByte(0x9c);
+					break;
+				case CompressionLevel.NoCompression:
+					stream.WriteByte(0x01);
+					break;
+			}
 			int checksum;
 			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 			{
@@ -2486,7 +2510,8 @@ namespace MiNET
 		{
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entities = new EntityMotions {{0, velocity}};
+				motions.entityId = 0;
+				motions.velocity = velocity;;
 				SendPackage(motions);
 			}
 		}
@@ -2617,6 +2642,8 @@ namespace MiNET
 		public void DetectLostConnection()
 		{
 			DetectLostConnections ping = DetectLostConnections.CreateObject();
+			ping.ForceClear = true;
+			ping.NoBatch = true;
 			SendPackage(ping);
 		}
 
@@ -2693,12 +2720,11 @@ namespace MiNET
 						continue;
 					}
 
-/*					if (lenght == 1)
+					if (lenght == 1)
 					{
 						Server.SendPackage(this, package);
 					}
-					else */
-					if (package is McpeBatch)
+					else if (package is McpeBatch)
 					{
 						SendBuffered(messageCount);
 						messageCount = 0;

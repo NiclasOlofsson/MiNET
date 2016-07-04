@@ -64,7 +64,7 @@
 
 	<pdu namespace="raknet" id="0x07" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_2" size="34">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
-		<field name="ClientEndpoint" type="IPEndPoint" />
+		<field name="Remote Binding Address" type="IPEndPoint" />
 		<field name="MTU Size" type="short" />
 		<field name="Client GUID" type="long" />
 	</pdu>
@@ -72,7 +72,7 @@
 	<pdu namespace="raknet" id="0x08" client="false" server="true" name="ID_OPEN_CONNECTION_REPLY_2" size="30">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
-		<field name="ClientEndpoint" type="IPEndPoint" />
+		<field name="Client Endpoint" type="IPEndPoint" />
 		<field name="MTU Size" type="short" />
 		<field name="Do security and handshake" type="byte[]" size="0" note="Ignored" />
 	</pdu>
@@ -130,7 +130,8 @@
 
 	<pdu id="0x03" online="false" client="false" server="true" name="MCPE_SERVER_EXCHANGE">
 		<field name="Server Public Key" type="string" />
-		<field name="Random Key Token" type="string" />
+		<field name="Token Lenght" type="short" />
+		<field name="Token" type="byte[]" size="0" />
 	</pdu>
 
 	<pdu id="0x04" online="false" client="true" server="false" name="MCPE_CLIENT_MAGIC">
@@ -214,7 +215,10 @@
 		-->
 	<pdu id="0x0b" online="false" client="false" server="true" name="MCPE_ADD_ENTITY">
 		<field name="Entity ID" type="long" />
-		<field name="Entity Type" type="int" />
+		<field name="Unknown" type="byte" />
+		<field name="Entity Dimension" type="byte" />
+		<field name="Entity Family" type="byte" />
+		<field name="Entity Type" type="byte" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
@@ -223,7 +227,7 @@
 		<field name="Speed Z" type="float" />
 		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Modifiers" type="int" />
+		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary"/>
 		<field name="Links" type="short" />
 	</pdu>
@@ -249,7 +253,8 @@
 	</pdu>
 
 	<pdu id="0x0f" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
-		<field name="Entities" type="EntityLocations" />
+		<field name="Entity Id" type="long" />
+		<field name="Position" type="PlayerLocation" />
 	</pdu>
 
 	<!--
@@ -394,7 +399,8 @@
 	</pdu>
 
 	<pdu id="0x23" online="false" client="true" server="true" name="MCPE_SET_ENTITY_MOTION">
-		<field name="Entities" type="EntityMotions" />
+		<field name="Entity ID" type="long" />
+		<field name="Velocity" type="Vector3" />
 	</pdu>
 
 	<pdu id="0x24" online="false" client="true" server="true" name="MCPE_SET_ENTITY_LINK">

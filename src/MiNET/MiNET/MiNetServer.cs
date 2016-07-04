@@ -519,7 +519,7 @@ namespace MiNET
 			}
 
 			if (Log.IsDebugEnabled)
-				Log.WarnFormat("New connection from: {0} {1}, MTU: {2}", senderEndpoint.Address, senderEndpoint.Port, incoming.mtuSize);
+				Log.WarnFormat("New connection from: {0} {1}, MTU: {2}, Ver: {3}", senderEndpoint.Address, senderEndpoint.Port, incoming.mtuSize, incoming.raknetProtocolVersion);
 
 			var packet = OpenConnectionReply1.CreateObject();
 			packet.serverGuid = 12345;
@@ -578,7 +578,7 @@ namespace MiNET
 
 			var reply = OpenConnectionReply2.CreateObject();
 			reply.serverGuid = 12345;
-			reply.clientendpoint = senderEndpoint;
+			reply.clientEndpoint = senderEndpoint;
 			reply.mtuSize = incoming.mtuSize;
 			reply.doSecurityAndHandshake = new byte[1];
 			var data = reply.Encode();

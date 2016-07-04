@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using fNbt;
+using Jose;
 using log4net;
 using log4net.Config;
 using MiNET.Blocks;
@@ -35,7 +36,7 @@ namespace MiNET.Client
 
 		private IPEndPoint _clientEndpoint;
 		private IPEndPoint _serverEndpoint;
-		private short _mtuSize = 1447;
+		private short _mtuSize = 1400;
 		private int _reliableMessageNumber = -1;
 		private Vector3 _spawn;
 		private long _entityId;
@@ -43,7 +44,7 @@ namespace MiNET.Client
 		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
-		private int _clientGuid;
+		private long _clientGuid;
 		private Timer _connectedPingTimer;
 		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
@@ -67,26 +68,35 @@ namespace MiNET.Client
 		{
 			Console.WriteLine("Starting client...");
 
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("test.bladestorm.net").AddressList[0], 19132), "TheGrey");
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19134), "TheGrey");
+			var client = new MiNetClient(null, "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("pe.mineplex.com").AddressList[0], 19132), "*epicbluej");
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19134), "TheGrey");
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
+
+			// 157.7.202.57:29473
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("157.7.202.57"), 19132), "TheGrey");
 
 			client.StartClient();
 			Console.WriteLine("Server started.");
 
-
-			//while (!client.HaveServer)
-			//{
-			//	Thread.Sleep(500);
-			//	Console.WriteLine("Sending ping...");
-			//	client.SendUnconnectedPing();
-			//}
-
-			Console.WriteLine("<Enter> to connect!");
-			Console.ReadLine();
-			client.HaveServer = true;
-			client.SendOpenConnectionRequest1();
+			if (client._serverEndpoint == null)
+			{
+				while (!client.HaveServer)
+				{
+					Console.WriteLine("Sending ping...");
+					client.SendUnconnectedPing();
+					Thread.Sleep(500);
+				}
+			}
+			else
+			{
+				Console.WriteLine("<Enter> to connect!");
+				Console.ReadLine();
+				client.HaveServer = true;
+				client.SendOpenConnectionRequest1();
+			}
 
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();
@@ -125,7 +135,7 @@ namespace MiNET.Client
 				////WARNING: We need to catch errors here to remove the code above.
 				////
 
-				Session = new PlayerNetworkSession(null, _clientEndpoint, 1300);
+				Session = new PlayerNetworkSession(null, _clientEndpoint, _mtuSize);
 
 				UdpClient.BeginReceive(ReceiveCallback, UdpClient);
 				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
@@ -251,8 +261,10 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
 						UnconnectedPong incoming = (UnconnectedPong) message;
+						Log.Warn($"MOTD {incoming.serverName}");
 						if (!HaveServer)
 						{
+							_serverEndpoint = senderEndpoint;
 							HaveServer = true;
 							SendOpenConnectionRequest1();
 						}
@@ -262,8 +274,9 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
 					{
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
+						if (incoming.mtuSize != _mtuSize) Log.Warn("Error:" + incoming.mtuSize);
+						Log.Warn("Server Has Security" + incoming.serverHasSecurity);
 						_mtuSize = incoming.mtuSize;
-						//if (incoming.mtuSize < _mtuSize) throw new Exception("Error:" + incoming.mtuSize);
 						SendOpenConnectionRequest2();
 						break;
 					}
@@ -366,6 +379,9 @@ namespace MiNET.Client
 
 		private void HandleOpenConnectionReply2(OpenConnectionReply2 message)
 		{
+			Log.Warn("Do Security And Handshake" + message.doSecurityAndHandshake);
+			Log.Warn("Client Endpoint" + message.clientEndpoint);
+
 			SendConnectionRequest();
 		}
 
@@ -679,95 +695,74 @@ namespace MiNET.Client
 
 		public void SendLogin(string username)
 		{
+			//McpeLogin loginPacket = new McpeLogin
 			//{
-			//	"exp": 1464983845,
-			//	"extraData": {
-			//		"displayName": "gurunx",
-			//		"identity": "af6f7c5e-fcea-3e43-bf3a-e005e400e578"
-			//	},
-			//	"identityPublicKey": "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7nnZpCfxmCrSwDdBv7eBXXMtKhroxOriEr3hmMOJAuw/ZpQXj1K5GGtHS4CpFNttd1JYAKYoJxYgaykpie0EyAv3qiK6utIH2qnOAt3VNrQYXfIZJS/VRe3Il8Pgu9CB",
-			//	"nbf": 1464983844
-			//}
+			//	protocolVersion = 81,
+			//	payloadLenght = 5617,
+			//	payload = Convert.FromBase64String("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")
+			//};
+			JWT.JsonMapper = new NewtonsoftMapper();
 
-			//ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
-			//ecKey.HashAlgorithm = CngAlgorithm.Sha256;
-			//ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
-
-			//string publicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-
-			//JWT.Encode("payload", ecKey, JwsAlgorithm.ES384);
-
-			//Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)) };
-			//skin.SkinType = "Standard_Custom";
-
-			////Skin skin = new Skin { Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 16384)) };
-			//{
-			//	var packet = new McpeLogin()
-			//	{
-			//		username = username,
-			//		protocol = 45,
-			//		protocol2 = 45,
-			//		clientId = ClientId,
-			//		clientUuid = new UUID(Guid.NewGuid().ToByteArray()),
-			//		serverAddress = _serverEndpoint.Address + ":" + _serverEndpoint.Port,
-			//		//clientSecret = "iwmvi45hm85oncyo58",
-			//		clientSecret = Encoding.ASCII.GetString(MD5.Create().ComputeHash(Encoding.UTF8.GetBytes("" + ClientId + _serverEndpoint.Address + _serverEndpoint.Port))),
-			//		skin = skin,
-			//	};
-
-			//	SendPackage(packet);
-			//}
+			CngKey clientKey = CryptoUtils.GenerateClientKey();
+			var data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(Username, clientKey), CryptoUtils.EncodeSkinJwt(clientKey), CompressionLevel.Fastest);
 
 			McpeLogin loginPacket = new McpeLogin
 			{
 				protocolVersion = 81,
-				payloadLenght = 8697,
-				payload = Convert.FromBase64String("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")
+				payloadLenght = data.Length,
+				payload = data
 			};
+
+			var payload = Player.CompressBytes(loginPacket.Encode(), CompressionLevel.Fastest, true);
 
 			McpeBatch batch = new McpeBatch
 			{
-				payloadSize = Player.CompressBytes(loginPacket.Encode(), CompressionLevel.Fastest, true).Length,
-				payload = Player.CompressBytes(loginPacket.Encode(), CompressionLevel.Fastest, true)
+				payloadSize = payload.Length,
+				payload = payload
 			};
 
-			//McpeWrapper wrapper = new McpeWrapper
-			//{
-			//	payload = batch.Encode()
-			//};
-
-			Session.CryptoContext = new CryptoContext();
+			Session.CryptoContext = new CryptoContext()
+			{
+				ClientKey = clientKey
+			};
 
 			SendPackage(batch);
 		}
 
 		private void OnMcpeServerExchange(McpeServerExchange message)
 		{
-			var serverKey = message.serverPublicKey;
-			var randomKeyToken = message.randomKeyToken;
+			string serverKey = message.serverPublicKey;
+			byte[] randomKeyToken = message.token;
 
 			// Initiate encryption
 
 			InitiateEncryption(serverKey, randomKeyToken);
 		}
 
-		private void InitiateEncryption(string serverKey, string randomKeyToken)
+		private void InitiateEncryption(string serverKey, byte[] randomKeyToken)
 		{
 			{
-				string certString = serverKey;
-
-				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
+				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
+				Log.Debug("ServerKey (b64):\n" + serverKey);
 				Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
+				Log.Debug($"RANDOM TOKEN (raw):\n{randomKeyToken}");
+
+				if (randomKeyToken.Length != 0)
+				{
+					Log.Error("Lenght of random bytes: " + randomKeyToken.Length);
+				}
+
 				// Create shared shared secret
-				ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
+				ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(Session.CryptoContext.ClientKey);
 				ecKey.HashAlgorithm = CngAlgorithm.Sha256;
 				ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
-				ecKey.SecretPrepend = Encoding.UTF8.GetBytes(randomKeyToken); // Server token
+				ecKey.SecretPrepend = randomKeyToken; // Server token
 
 				byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
 
-				Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
+				//Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
+				Log.Debug($"SECRET KEY (raw):\n{Encoding.UTF8.GetString(secret)}");
 
 				{
 					RijndaelManaged rijAlg = new RijndaelManaged
@@ -798,11 +793,22 @@ namespace MiNET.Client
 						OutputStream = outputStream,
 						CryptoStreamIn = cryptoStreamIn,
 						CryptoStreamOut = cryptoStreamOut,
+						UseEncryption = true,
 					};
 				}
 
+				Thread.Sleep(1250);
 				McpeClientMagic magic = new McpeClientMagic();
-				SendPackage(magic);
+				//SendPackage(magic);
+
+				var payload = Player.CompressBytes(magic.Encode(), CompressionLevel.Fastest, true);
+
+				McpeBatch batch = new McpeBatch
+				{
+					payloadSize = payload.Length,
+					payload = payload
+				};
+				SendPackage(batch);
 			}
 		}
 
@@ -810,10 +816,10 @@ namespace MiNET.Client
 		{
 			// Get bytes
 			byte[] payload = message.payload;
-			//if (playerSession.CryptoContext != null && Config.GetProperty("UseEncryption", true))
-			//{
-			//	payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
-			//}
+			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
+			{
+				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
+			}
 
 			//if (Log.IsDebugEnabled)
 			//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
@@ -1205,7 +1211,7 @@ namespace MiNET.Client
 
 		private void OnMcpeMovePlayer(McpeMovePlayer message)
 		{
-			//Log.DebugFormat("McpeMovePlayer Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeMovePlayer Entity ID: {0}", message.entityId);
 
 			if (message.entityId != _entityId) return;
 
@@ -1524,8 +1530,9 @@ namespace MiNET.Client
 
 			TraceSend(packet);
 
+			// 1446 - 1464
 			// 1087 1447
-			byte[] data2 = new byte[_mtuSize - data.Length];
+			byte[] data2 = new byte[_mtuSize - data.Length + 18];
 			Buffer.BlockCopy(data, 0, data2, 0, data.Length);
 
 			SendData(data2);
@@ -1533,10 +1540,10 @@ namespace MiNET.Client
 
 		public void SendOpenConnectionRequest2()
 		{
-			_clientGuid = new Random().Next();
+			_clientGuid = new Random().Next() + new Random().Next();
 			var packet = new OpenConnectionRequest2()
 			{
-				clientendpoint = _clientEndpoint,
+				remoteBindingAddress = _serverEndpoint,
 				mtuSize = _mtuSize,
 				clientGuid = _clientGuid,
 			};
@@ -1553,7 +1560,7 @@ namespace MiNET.Client
 			var packet = new ConnectionRequest()
 			{
 				clientGuid = _clientGuid,
-				timestamp = DateTime.UtcNow.Ticks,
+				timestamp = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond,
 				doSecurity = 0,
 			};
 

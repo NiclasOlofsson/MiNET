@@ -6,9 +6,12 @@ using System.Linq;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Jose;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Crypto;
@@ -151,17 +154,17 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 		[Test]
 		public void TestJWTHandling()
 		{
-			var newKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP384, null, new CngKeyCreationParameters() {ExportPolicy = CngExportPolicies.AllowPlaintextExport, KeyUsage = CngKeyUsages.AllUsages});
+			CngKey newKey = CngKey.Create(CngAlgorithm.ECDiffieHellmanP384, null, new CngKeyCreationParameters() {ExportPolicy = CngExportPolicies.AllowPlaintextExport, KeyUsage = CngKeyUsages.AllUsages});
 
-			var t = CryptoUtils.ImportECDsaCngKeyFromCngKey(newKey.Export(CngKeyBlobFormat.EccPrivateBlob));
-			var tk = CngKey.Import(t, CngKeyBlobFormat.EccPrivateBlob);
+			byte[] t = CryptoUtils.ImportECDsaCngKeyFromCngKey(newKey.Export(CngKeyBlobFormat.EccPrivateBlob));
+			CngKey tk = CngKey.Import(t, CngKeyBlobFormat.EccPrivateBlob);
 			Assert.AreEqual(CngAlgorithmGroup.ECDsa, tk.AlgorithmGroup);
 
 			ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(newKey);
 			ecKey.HashAlgorithm = CngAlgorithm.Sha256;
 			ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
 
-			var b64key = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
+			var b64Key = Base64Url.Encode(ecKey.PublicKey.GetDerEncoded());
 			string test = $@"
 {{ 
 	""exp"": 1464983845, 
@@ -169,14 +172,51 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 		""displayName"": ""gurunx"",	
 		""identity"": ""af6f7c5e -fcea-3e43-bf3a-e005e400e578""	
 	}},	
-	""identityPublicKey"": ""{b64key}""
+	""identityPublicKey"": ""{b64Key}"",
 	""nbf"": 1464983844
 }}";
-			string val = JWT.Encode(test, tk, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64key}});
+			CertificateData certificateData = new CertificateData
+			{
+				Exp = 1464983845,
+				ExtraData = new ExtraData
+				{
+					DisplayName = "gurun",
+					Identity = "af6f7c5e -fcea-3e43-bf3a-e005e400e578",
 
-			Assert.AreEqual(b64key, JWT.Headers(val)["x5u"]);
+				},
+				IdentityPublicKey = b64Key,
+				Nbf = 1464983844,
+			};
+
+			JWT.JsonMapper = new NewtonsoftMapper();
+
+			string val = JWT.Encode(certificateData, tk, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
+			Console.WriteLine(val);
+
+			Assert.AreEqual(b64Key, JWT.Headers(val)["x5u"]);
 			//Assert.AreEqual("", string.Join(";", JWT.Headers(val)));
-			Assert.AreEqual(test, JWT.Payload(val));
+			//Assert.AreEqual(test, JWT.Payload(val));
+
+			Console.WriteLine(JWT.Payload(val));
+
+
+			IDictionary<string, dynamic> headers = JWT.Headers(val);
+			if (headers.ContainsKey("x5u"))
+			{
+				string certString = headers["x5u"];
+
+				// Validate
+				CngKey importKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
+				CertificateData data = JWT.Decode<CertificateData>(val, importKey);
+				Assert.NotNull(data);
+				Assert.AreEqual(certificateData.Exp, data.Exp);
+				Assert.AreEqual(certificateData.IdentityPublicKey, data.IdentityPublicKey);
+				Assert.AreEqual(certificateData.Nbf, data.Nbf);
+				Assert.NotNull(data.ExtraData);
+				Assert.AreEqual(certificateData.ExtraData.DisplayName, data.ExtraData.DisplayName);
+				Assert.AreEqual(certificateData.ExtraData.Identity, data.ExtraData.Identity);
+			}
+
 		}
 
 
@@ -418,6 +458,19 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			}
 
 			return messages;
+		}
+
+		[Test]
+		public void RoundTripTest()
+		{
+			string serverKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAElakYLA/xXdxMgBY+A6v/hOca33Lnz1Dr56XQuTOUdWN6z8mbg5DjoBL+hc3t4gG+GdIGLcBew+56UJRfm313HZIhR6zpNnhqyA9GJsbCsBTq1D3A2zp+jpUZmrzuQBR/";
+
+			ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
+
+			string b64Key = Convert.ToBase64String(publicKey.GetDerEncoded());
+
+			Assert.AreEqual(serverKey, b64Key);
+
 		}
 	}
 }

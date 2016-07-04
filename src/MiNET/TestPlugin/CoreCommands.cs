@@ -792,5 +792,39 @@ namespace TestPlugin
 
 			player.OpenInventory(coor);
 		}
+
+		[Command(Command = "test1")]
+		public void Test1(Player player)
+		{
+			List<Pig> pigs = new List<Pig>();
+			for (int i = 0; i < 10; i++)
+			{
+				Pig pig = new Pig(player.Level);
+				pig.KnownPosition = (PlayerLocation)player.KnownPosition.Clone();
+				pig.SpawnEntity();
+				pigs.Add(pig);
+			}
+			player.SendMessage("Spawned pigs");
+
+			Thread.Sleep(4000);
+
+			PlayerLocation loc = (PlayerLocation) player.KnownPosition.Clone();
+			loc.Y = loc.Y + 10;
+			loc.X = loc.X + 10;
+			loc.Z = loc.Z + 10;
+
+			player.SendMessage("Moved pigs");
+
+			Thread.Sleep(4000);
+
+			foreach (var pig in pigs)
+			{
+				pig.KnownPosition = (PlayerLocation) loc.Clone();
+				pig.LastUpdatedTime = DateTime.UtcNow;
+			}
+
+			player.SendMessage("Moved ALL pigs");
+		}
+
 	}
 }

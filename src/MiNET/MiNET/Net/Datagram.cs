@@ -131,7 +131,7 @@ namespace MiNET.Net
 			int orderingIndex = 0;
 
 			CryptoContext cryptoContext = session.CryptoContext;
-			if (cryptoContext != null && !(message is ConnectedPong))
+			if (cryptoContext != null && !(message is ConnectedPong) && !(message is DetectLostConnections))
 			{
 				lock (session.EncodeSync)
 				{

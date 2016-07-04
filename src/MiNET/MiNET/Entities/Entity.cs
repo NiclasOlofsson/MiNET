@@ -117,7 +117,7 @@ namespace MiNET.Entities
 		public virtual void SpawnToPlayers(Player[] players)
 		{
 			var addEntity = McpeAddEntity.CreateObject();
-			addEntity.entityType = EntityTypeId;
+			addEntity.entityType = (byte) EntityTypeId;
 			addEntity.entityId = EntityId;
 			addEntity.x = KnownPosition.X;
 			addEntity.y = KnownPosition.Y;

@@ -920,8 +920,9 @@ namespace MiNET
 				return;
 			}
 
-			player?.HandlePackage(message);
-			message.PutPool();
+			playerSession.HandlePackage(message, playerSession);
+			//player?.HandlePackage(message);
+			//message.PutPool();
 		}
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)

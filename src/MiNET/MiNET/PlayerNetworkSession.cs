@@ -119,6 +119,12 @@ namespace MiNET
 
 		public void AddToProcessing(Package message)
 		{
+			if(CryptoContext == null || !CryptoContext.UseEncryption)
+			{
+				HandlePackage(message, this);
+				return;
+			}
+
 			if (_cancellationToken.Token.IsCancellationRequested) return;
 
 			lock (_eventSync)

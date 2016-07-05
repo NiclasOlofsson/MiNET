@@ -888,7 +888,7 @@ namespace MiNET
 
 						NetworkSession.CryptoContext = new CryptoContext
 						{
-							UseEncryption = Config.GetProperty("UseEncryption", true) /*&& !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid)*/,
+							UseEncryption = Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid),
 						};
 
 
@@ -943,7 +943,7 @@ namespace MiNET
 							response.tokenLenght = (short) ecKey.SecretPrepend.Length;
 							response.token = ecKey.SecretPrepend;
 
-							Log.Warn($"Encryption enabled for {Username}");
+							if(Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {Username}");
 							SendPackage(response);
 						}
 					}

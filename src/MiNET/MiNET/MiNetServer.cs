@@ -897,6 +897,8 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
+			Player player = playerSession.Player;
+
 			if (message == null)
 			{
 				return;

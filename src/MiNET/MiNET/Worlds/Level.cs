@@ -362,7 +362,7 @@ namespace MiNET.Worlds
 		public long AvarageTickProcessingTime = 50;
 		public int PlayerCount { get; private set; }
 
-		private void WorldTick(object sender)
+		protected virtual void WorldTick(object sender)
 		{
 			if (!Monitor.TryEnter(_tickSync)) return;
 

@@ -119,7 +119,7 @@ namespace MiNET
 
 		public void AddToProcessing(Package message)
 		{
-			if(CryptoContext == null || !CryptoContext.UseEncryption)
+			if (CryptoContext != null && !CryptoContext.UseEncryption)
 			{
 				HandlePackage(message, this);
 				return;
@@ -176,10 +176,10 @@ namespace MiNET
 								WaitHandle.SignalAndWait(_mainWaitEvent, _waitEvent, TimeSpan.FromMilliseconds(50), true);
 							}
 						}
-					}	
+					}
 					else if (pair.Key <= _lastSequenceNumber)
 					{
-						if(Log.IsDebugEnabled) Log.Warn($"{Player.Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
+						if (Log.IsDebugEnabled) Log.Warn($"{Player.Username} - Resent. Expected {_lastSequenceNumber + 1}, but was {pair.Key}.");
 						if (_queue.TryDequeue(out pair))
 						{
 							pair.Value.PutPool();
@@ -295,7 +295,7 @@ namespace MiNET
 
 			MiNetServer.TraceReceive(message, message.OrderingIndex);
 
-			ThreadPool.QueueUserWorkItem(delegate (object data)
+			ThreadPool.QueueUserWorkItem(delegate(object data)
 			{
 				player?.HandlePackage(data as Package);
 				message.PutPool();

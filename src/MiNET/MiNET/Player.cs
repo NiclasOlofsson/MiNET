@@ -1471,7 +1471,7 @@ namespace MiNET
 			HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
 
 			Vector3 origin = KnownPosition.ToVector3();
-			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y, message.z));
+			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			KnownPosition = new PlayerLocation

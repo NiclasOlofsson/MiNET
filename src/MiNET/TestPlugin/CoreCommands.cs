@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using fNbt;
 using log4net;
 using MiNET;
@@ -793,7 +794,7 @@ namespace TestPlugin
 			player.OpenInventory(coor);
 		}
 
-		[Command(Command = "test1")]
+		[Command]
 		public void Test1(Player player)
 		{
 			List<Pig> pigs = new List<Pig>();
@@ -808,7 +809,7 @@ namespace TestPlugin
 
 			Thread.Sleep(4000);
 
-			PlayerLocation loc = (PlayerLocation) player.KnownPosition.Clone();
+			PlayerLocation loc = (PlayerLocation)player.KnownPosition.Clone();
 			loc.Y = loc.Y + 10;
 			loc.X = loc.X + 10;
 			loc.Z = loc.Z + 10;
@@ -819,11 +820,29 @@ namespace TestPlugin
 
 			foreach (var pig in pigs)
 			{
-				pig.KnownPosition = (PlayerLocation) loc.Clone();
+				pig.KnownPosition = (PlayerLocation)loc.Clone();
 				pig.LastUpdatedTime = DateTime.UtcNow;
 			}
 
 			player.SendMessage("Moved ALL pigs");
+		}
+
+		[Command]
+		public void Test2(Player player)
+		{
+			PlayerLocation pos = (PlayerLocation)player.KnownPosition.Clone();
+			Task.Run(() =>
+			{
+				for (int i = 0; i < 100; i++)
+				{
+					pos.HeadYaw += 10;
+					pos.Yaw += 10;
+					player.SetPosition(pos);
+					Thread.Sleep(100);
+				}
+			});
+
+
 		}
 
 	}

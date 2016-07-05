@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -299,7 +298,7 @@ namespace TestPlugin.NiceLobby
 			//	rank = $"{ChatColors.Red}[ADMIN]";
 			//}
 			//else 
-			if(player.CertificateData.ExtraData.Xuid != null)
+			if (player.CertificateData.ExtraData.Xuid != null)
 			{
 				rank = $"{ChatColors.Green}[XBOX]";
 			}

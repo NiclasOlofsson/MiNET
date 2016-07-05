@@ -83,7 +83,7 @@ namespace MiNET.Effects
 		public virtual void OnTick(Player player)
 		{
 			if (Duration > 0 && Duration != MaxDuration) Duration -= 1;
-			if(Duration <= 20) player.RemoveEffect(this);
+			if(Duration < -20) player.RemoveEffect(this); // Need 20 tick grace for some effects that fade
 		}
 
 		public override string ToString()

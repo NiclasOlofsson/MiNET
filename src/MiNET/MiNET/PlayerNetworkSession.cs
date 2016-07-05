@@ -119,16 +119,17 @@ namespace MiNET
 
 		public void AddToProcessing(Package message)
 		{
-			if (CryptoContext != null && !CryptoContext.UseEncryption)
-			{
-				HandlePackage(message, this);
-				return;
-			}
-
 			if (_cancellationToken.Token.IsCancellationRequested) return;
 
 			lock (_eventSync)
 			{
+				if(_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
+				{
+					_lastSequenceNumber = message.OrderingIndex;
+					HandlePackage(message, this);
+					return;
+				}
+
 				_queue.Enqueue(message.OrderingIndex, message);
 				WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
 			}

@@ -116,8 +116,11 @@ namespace MiNET.Net
 			_datagramSequenceNumber = ReadLittle();
 			_datagramHeader.datagramSequenceNumber = _datagramSequenceNumber;
 
+			_hasSplit = false;
 			while (_buffer.Position < _buffer.Length)
 			{
+				if(_hasSplit) Log.Warn("Reading second split message");
+
 				byte flags = ReadByte();
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
 				_hasSplit = ((flags & Convert.ToByte("00010000", 2)) > 0);
@@ -183,13 +186,17 @@ namespace MiNET.Net
 				if (_hasSplit)
 				{
 					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
+					splitPartPackage.DatagramSequenceNumber = _datagramSequenceNumber;
+					splitPartPackage.Reliability = _reliability;
+					splitPartPackage.ReliableMessageNumber = _reliableMessageNumber;
+					splitPartPackage.OrderingChannel = _orderingChannel;
+					splitPartPackage.OrderingIndex = _orderingIndex;
 					splitPartPackage.SplitId = _splitPacketId;
 					splitPartPackage.SplitCount = _splitPacketCount;
 					splitPartPackage.SplitIdx = _splitPacketIndex;
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
 					Messages.Add(splitPartPackage);
-					if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Warn($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
 					continue;
 				}
 

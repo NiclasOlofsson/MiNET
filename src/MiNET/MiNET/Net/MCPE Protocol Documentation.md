@@ -314,6 +314,8 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Server GUID | long |  |
 -----------------------------------------------------------------------
 ###Package: Disconnection Notification (0x15)
 
@@ -340,6 +342,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 -----------------------------------------------------------------------
 ###Package: Ip Recently Connected (0x1A)
 
@@ -353,6 +356,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Login (0x01)
 

@@ -598,7 +598,7 @@ namespace MiNET
 			{
 				if (message is SplitPartPackage)
 				{
-					HandleSplitMessage(playerSession, package, (SplitPartPackage) message, player);
+					HandleSplitMessage(playerSession, (SplitPartPackage) message, player);
 					continue;
 				}
 
@@ -607,11 +607,11 @@ namespace MiNET
 			}
 		}
 
-		private void HandleSplitMessage(PlayerNetworkSession playerSession, ConnectedPackage package, SplitPartPackage splitMessage, Player player)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPackage splitMessage, Player player)
 		{
-			int spId = package._splitPacketId;
-			int spIdx = package._splitPacketIndex;
-			int spCount = package._splitPacketCount;
+			int spId = splitMessage.SplitId;
+			int spIdx = splitMessage.SplitIdx;
+			int spCount = splitMessage.SplitCount;
 
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
@@ -653,20 +653,19 @@ namespace MiNET
 				try
 				{
 					ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-					newPackage._datagramSequenceNumber = package._datagramSequenceNumber;
-					newPackage._reliability = package._reliability;
-					newPackage._reliableMessageNumber = package._reliableMessageNumber;
-					newPackage._sequencingIndex = package._sequencingIndex;
-					newPackage._orderingIndex = package._orderingIndex;
-					newPackage._orderingChannel = package._orderingChannel;
+					newPackage._datagramSequenceNumber = splitMessage.DatagramSequenceNumber;
+					newPackage._reliability = splitMessage.Reliability;
+					newPackage._reliableMessageNumber = splitMessage.ReliableMessageNumber;
+					newPackage._orderingIndex = splitMessage.OrderingIndex;
+					newPackage._orderingChannel = (byte) splitMessage.OrderingChannel;
 					newPackage._hasSplit = false;
 
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
-					fullMessage.DatagramSequenceNumber = package._datagramSequenceNumber;
-					fullMessage.Reliability = package._reliability;
-					fullMessage.ReliableMessageNumber = package._reliableMessageNumber;
-					fullMessage.OrderingIndex = package._orderingIndex;
-					fullMessage.OrderingChannel = package._orderingChannel;
+					fullMessage.DatagramSequenceNumber = splitMessage.DatagramSequenceNumber;
+					fullMessage.Reliability = splitMessage.Reliability;
+					fullMessage.ReliableMessageNumber = splitMessage.ReliableMessageNumber;
+					fullMessage.OrderingIndex = splitMessage.OrderingIndex;
+					fullMessage.OrderingChannel = splitMessage.OrderingChannel;
 
 					newPackage.Messages = new List<Package>();
 					newPackage.Messages.Add(fullMessage);
@@ -820,9 +819,9 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						ThreadPool.QueueUserWorkItem(delegate (object data)
+						ThreadPool.QueueUserWorkItem(delegate(object data)
 						{
-							var dgram = (Datagram)data;
+							var dgram = (Datagram) data;
 							if (Log.IsDebugEnabled)
 								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
 							SendDatagram(session, dgram);

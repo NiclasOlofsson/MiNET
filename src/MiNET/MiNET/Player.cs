@@ -1209,8 +1209,28 @@ namespace MiNET
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
-		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false)
 		{
+			if(useLoadingScreen)
+			{
+				{
+					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
+					dimension.dimension = 0;
+					SendPackage(dimension);
+
+					McpePlayerStatus status = McpePlayerStatus.CreateObject();
+					status.status = 3;
+				}
+				{
+					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
+					dimension.dimension = 1;
+					SendPackage(dimension);
+
+					McpePlayerStatus status = McpePlayerStatus.CreateObject();
+					status.status = 3;
+				}
+			}
+
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
 
@@ -1224,6 +1244,28 @@ namespace MiNET
 				Pitch = 28,
 				HeadYaw = 91,
 			});
+
+			if (useLoadingScreen)
+			{
+				ForcedSendEmptyChunks();
+
+				{
+					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
+					dimension.dimension = 1;
+					SendPackage(dimension);
+
+					McpePlayerStatus status = McpePlayerStatus.CreateObject();
+					status.status = 3;
+				}
+				{
+					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
+					dimension.dimension = 0;
+					SendPackage(dimension);
+
+					McpePlayerStatus status = McpePlayerStatus.CreateObject();
+					status.status = 3;
+				}
+			}
 
 			Level.RemovePlayer(this, true);
 			Level.EntityManager.RemoveEntity(null, this);
@@ -2231,6 +2273,33 @@ namespace MiNET
 				{
 					SendPackage(chunk);
 				}
+			}
+		}
+
+		private void ForcedSendEmptyChunks()
+		{
+			Monitor.Enter(_sendChunkSync);
+			try
+			{
+				var chunkPosition = new ChunkCoordinates(KnownPosition);
+
+				_currentChunkPosition = chunkPosition;
+
+				if (Level == null) return;
+
+				foreach (KeyValuePair<Tuple<int, int>, McpeBatch> cachedChunk in _chunksUsed)
+				{
+					McpeFullChunkData chunk = new McpeFullChunkData();
+					chunk.chunkX = cachedChunk.Key.Item1;
+					chunk.chunkZ = cachedChunk.Key.Item2;
+					chunk.chunkDataLength = 0;
+					chunk.chunkData = new byte[0];
+					SendPackage(chunk);
+				}
+			}
+			finally
+			{
+				Monitor.Exit(_sendChunkSync);
 			}
 		}
 

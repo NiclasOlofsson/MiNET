@@ -100,15 +100,19 @@
 	</pdu>
 
 	<pdu namespace="raknet" id="0x14" online="false" client="true" server="true" name="ID_NO_FREE_INCOMING_CONNECTIONS">
+		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
+		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x15" online="false" client="true" server="true" name="ID_DISCONNECTION_NOTIFICATION">
 	</pdu>
 
 	<pdu namespace="raknet" id="0x17" online="false" client="true" server="true" name="ID_CONNECTION_BANNED">
+		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x1A" online="false" client="true" server="true" name="ID_IP_RECENTLY_CONNECTED">
+		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 	</pdu>
 
 	<pdu id="0x01" online="false" client="true" server="false" name="MCPE_LOGIN">

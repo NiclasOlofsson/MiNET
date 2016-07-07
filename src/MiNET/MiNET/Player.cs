@@ -103,8 +103,6 @@ namespace MiNET
 
 		public void HandlePackage(Package message)
 		{
-			//if (!IsConnected) return;
-
 			LastNetworkActivity = DateTime.UtcNow;
 
 			var result = Server.PluginManager.PluginPacketHandler(message, true, this);

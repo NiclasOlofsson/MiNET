@@ -481,13 +481,13 @@ namespace MiNET.Worlds
 			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
 
 			int count = 0;
-			McpeMovePlayer move = McpeMovePlayer.CreateObject();
 			foreach (var player in players)
 			{
-				if (((now - player.LastUpdatedTime) <= now - tickTime))
+				if (now - player.LastUpdatedTime <= now - tickTime)
 				{
 					PlayerLocation knownPosition = player.KnownPosition;
 
+					McpeMovePlayer move = McpeMovePlayer.CreateObject();
 					move.entityId = player.EntityId;
 					move.x = knownPosition.X;
 					move.y = knownPosition.Y + 1.62f;
@@ -499,15 +499,14 @@ namespace MiNET.Worlds
 					byte[] bytes = move.Encode();
 					stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 					stream.Write(bytes, 0, bytes.Length);
-					move.Reset();
+					move.PutPool();
 					count++;
 				}
 			}
-			move.PutPool();
 
 			foreach (var entity in entities)
 			{
-				if (((now - entity.LastUpdatedTime) <= now - tickTime))
+				if (now - entity.LastUpdatedTime <= now - tickTime)
 				{
 					{
 						McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();

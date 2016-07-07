@@ -912,14 +912,6 @@ namespace MiNET
 				return;
 			}
 
-			if (typeof (UnknownPackage) == message.GetType())
-			{
-				UnknownPackage packet = (UnknownPackage) message;
-				Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
-				message.PutPool();
-				return;
-			}
-
 			playerSession.HandlePackage(message, playerSession);
 		}
 

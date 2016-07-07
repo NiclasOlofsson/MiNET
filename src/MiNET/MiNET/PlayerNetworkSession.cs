@@ -207,8 +207,6 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
-			Player player = playerSession.Player;
-
 			if (message == null)
 			{
 				return;
@@ -216,10 +214,10 @@ namespace MiNET
 
 			if (typeof (McpeWrapper) == message.GetType())
 			{
-				McpeWrapper batch = (McpeWrapper) message;
+				McpeWrapper wrapper = (McpeWrapper) message;
 
 				// Get bytes
-				byte[] payload = batch.payload;
+				byte[] payload = wrapper.payload;
 				if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
 				{
 					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
@@ -229,6 +227,11 @@ namespace MiNET
 				//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
 
 				var msg = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
+				msg.DatagramSequenceNumber = wrapper.DatagramSequenceNumber;
+				msg.Reliability = wrapper.Reliability;
+				msg.ReliableMessageNumber = wrapper.ReliableMessageNumber;
+				msg.OrderingChannel = wrapper.OrderingChannel;
+				msg.OrderingIndex = wrapper.OrderingIndex;
 				HandlePackage(msg, playerSession);
 
 				message.PutPool();
@@ -285,6 +288,8 @@ namespace MiNET
 				foreach (var msg in messages)
 				{
 					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+					msg.Reliability = batch.Reliability;
+					msg.ReliableMessageNumber = batch.ReliableMessageNumber;
 					msg.OrderingChannel = batch.OrderingChannel;
 					msg.OrderingIndex = batch.OrderingIndex;
 					HandlePackage(msg, playerSession);
@@ -298,11 +303,9 @@ namespace MiNET
 
 			ThreadPool.QueueUserWorkItem(delegate(object data)
 			{
-				player?.HandlePackage(data as Package);
+				playerSession.Player?.HandlePackage(data as Package);
 				message.PutPool();
 			}, message);
-
-			//player?.HandlePackage(message);
 		}
 	}
 }

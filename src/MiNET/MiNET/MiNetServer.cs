@@ -591,14 +591,11 @@ namespace MiNET
 
 		private void HandleConnectedPackage(PlayerNetworkSession playerSession, ConnectedPackage package)
 		{
-			Player player = playerSession.Player;
-
-			List<Package> messages = package.Messages;
-			foreach (var message in messages)
+			foreach (var message in package.Messages)
 			{
 				if (message is SplitPartPackage)
 				{
-					HandleSplitMessage(playerSession, (SplitPartPackage) message, player);
+					HandleSplitMessage(playerSession, (SplitPartPackage) message);
 					continue;
 				}
 
@@ -607,11 +604,17 @@ namespace MiNET
 			}
 		}
 
-		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPackage splitMessage, Player player)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPackage splitMessage)
 		{
 			int spId = splitMessage.SplitId;
 			int spIdx = splitMessage.SplitIdx;
 			int spCount = splitMessage.SplitCount;
+
+			Int24 sequenceNumber = splitMessage.DatagramSequenceNumber;
+			Reliability reliability = splitMessage.Reliability;
+			Int24 reliableMessageNumber = splitMessage.ReliableMessageNumber;
+			Int24 orderingIndex = splitMessage.OrderingIndex;
+			byte orderingChannel = splitMessage.OrderingChannel;
 
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
@@ -653,19 +656,19 @@ namespace MiNET
 				try
 				{
 					ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-					newPackage._datagramSequenceNumber = splitMessage.DatagramSequenceNumber;
-					newPackage._reliability = splitMessage.Reliability;
-					newPackage._reliableMessageNumber = splitMessage.ReliableMessageNumber;
-					newPackage._orderingIndex = splitMessage.OrderingIndex;
-					newPackage._orderingChannel = (byte) splitMessage.OrderingChannel;
+					newPackage._datagramSequenceNumber = sequenceNumber;
+					newPackage._reliability = reliability;
+					newPackage._reliableMessageNumber = reliableMessageNumber;
+					newPackage._orderingIndex = orderingIndex;
+					newPackage._orderingChannel = (byte) orderingChannel;
 					newPackage._hasSplit = false;
 
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
-					fullMessage.DatagramSequenceNumber = splitMessage.DatagramSequenceNumber;
-					fullMessage.Reliability = splitMessage.Reliability;
-					fullMessage.ReliableMessageNumber = splitMessage.ReliableMessageNumber;
-					fullMessage.OrderingIndex = splitMessage.OrderingIndex;
-					fullMessage.OrderingChannel = splitMessage.OrderingChannel;
+					fullMessage.DatagramSequenceNumber = sequenceNumber;
+					fullMessage.Reliability = reliability;
+					fullMessage.ReliableMessageNumber = reliableMessageNumber;
+					fullMessage.OrderingIndex = orderingIndex;
+					fullMessage.OrderingChannel = orderingChannel;
 
 					newPackage.Messages = new List<Package>();
 					newPackage.Messages.Add(fullMessage);
@@ -679,7 +682,7 @@ namespace MiNET
 					Log.Error("Error during split message parsing", e);
 					if (Log.IsDebugEnabled)
 						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-					player.Disconnect("Bad package received from client.");
+					playerSession.Player?.Disconnect("Bad package received from client.");
 				}
 			}
 		}
@@ -918,8 +921,6 @@ namespace MiNET
 			}
 
 			playerSession.HandlePackage(message, playerSession);
-			//player?.HandlePackage(message);
-			//message.PutPool();
 		}
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)

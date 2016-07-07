@@ -197,6 +197,8 @@ namespace MiNET.Net
 					splitPartPackage.Id = internalBuffer[0];
 					splitPartPackage.Message = internalBuffer;
 					Messages.Add(splitPartPackage);
+
+					if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Debug($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
 					continue;
 				}
 
@@ -213,6 +215,12 @@ namespace MiNET.Net
 				Messages.Add(package);
 				if (Log.IsDebugEnabled && MessageLength != internalBuffer.Length) Log.Debug("Missmatch of requested lenght, and actual read lenght");
 			}
+		}
+
+		public override void Reset()
+		{
+			Messages = null;
+			base.Reset();
 		}
 	}
 }

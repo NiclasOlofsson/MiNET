@@ -14,6 +14,10 @@ namespace MiNET.Net
 		public override void Reset()
 		{
 			base.Reset();
+			SplitId = -1;
+			SplitCount = -1;
+			SplitIdx = -1;
+
 			Message = null;
 		}
 	}

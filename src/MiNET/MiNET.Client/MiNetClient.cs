@@ -492,9 +492,14 @@ namespace MiNET.Client
 			int spIdx = splitMessage.SplitIdx;
 			int spCount = splitMessage.SplitCount;
 
+			Int24 sequenceNumber = splitMessage.DatagramSequenceNumber;
+			Reliability reliability = splitMessage.Reliability;
+			Int24 reliableMessageNumber = splitMessage.ReliableMessageNumber;
+			Int24 orderingIndex = splitMessage.OrderingIndex;
+			byte orderingChannel = splitMessage.OrderingChannel;
+
 			if (!playerSession.Splits.ContainsKey(spId))
 			{
-				Log.Debug($"Split: ID={spId}, Idx={spIdx}, Count={spCount}");
 				playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
 			}
 
@@ -533,19 +538,19 @@ namespace MiNET.Client
 				try
 				{
 					ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-					newPackage._datagramSequenceNumber = splitMessage.DatagramSequenceNumber;
-					newPackage._reliability = splitMessage.Reliability;
-					newPackage._reliableMessageNumber = splitMessage.ReliableMessageNumber;
-					newPackage._orderingIndex = splitMessage.OrderingIndex;
-					newPackage._orderingChannel = (byte) splitMessage.OrderingChannel;
+					newPackage._datagramSequenceNumber = sequenceNumber;
+					newPackage._reliability = reliability;
+					newPackage._reliableMessageNumber = reliableMessageNumber;
+					newPackage._orderingIndex = orderingIndex;
+					newPackage._orderingChannel = (byte)orderingChannel;
 					newPackage._hasSplit = false;
 
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
-					fullMessage.DatagramSequenceNumber = splitMessage.DatagramSequenceNumber;
-					fullMessage.Reliability = splitMessage.Reliability;
-					fullMessage.ReliableMessageNumber = splitMessage.ReliableMessageNumber;
-					fullMessage.OrderingIndex = splitMessage.OrderingIndex;
-					fullMessage.OrderingChannel = splitMessage.OrderingChannel;
+					fullMessage.DatagramSequenceNumber = sequenceNumber;
+					fullMessage.Reliability = reliability;
+					fullMessage.ReliableMessageNumber = reliableMessageNumber;
+					fullMessage.OrderingIndex = orderingIndex;
+					fullMessage.OrderingChannel = orderingChannel;
 
 					newPackage.Messages = new List<Package>();
 					newPackage.Messages.Add(fullMessage);
@@ -559,6 +564,7 @@ namespace MiNET.Client
 					Log.Error("Error during split message parsing", e);
 					if (Log.IsDebugEnabled)
 						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
+					playerSession.Player?.Disconnect("Bad package received from client.");
 				}
 			}
 		}

@@ -29,7 +29,7 @@ namespace MiNET.Net
 
 		public Reliability Reliability = Reliability.Unreliable;
 		public int ReliableMessageNumber = 0;
-		public int OrderingChannel = 0;
+		public byte OrderingChannel = 0;
 		public int OrderingIndex = 0;
 
 		public bool ForceClear = false;
@@ -1059,9 +1059,16 @@ namespace MiNET.Net
 
 		public virtual void Reset()
 		{
-			DatagramSequenceNumber = 0;
-			OrderingIndex = 0;
+			DatagramSequenceNumber = -1;
+
+			Reliability = Reliability.Unreliable;
+			ReliableMessageNumber = -1;
+			OrderingChannel = 0;
+			OrderingIndex = -1;
+			
 			NoBatch = false;
+			ForceClear = false;
+
 			_encodedMessage = null;
 			_writer.Flush();
 			_buffer.SetLength(0);
@@ -1244,7 +1251,7 @@ namespace MiNET.Net
 		//}
 
 		public override void PutPool()
-		{	
+		{
 			if (_isPermanent) return;
 			if (!IsPooled) return;
 

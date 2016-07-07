@@ -941,7 +941,7 @@ namespace MiNET
 							response.tokenLenght = (short) ecKey.SecretPrepend.Length;
 							response.token = ecKey.SecretPrepend;
 
-							if(Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {Username}");
+							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {Username}");
 							SendPackage(response);
 						}
 					}
@@ -1209,7 +1209,7 @@ namespace MiNET
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false)
 		{
-			if(useLoadingScreen)
+			if (useLoadingScreen)
 			{
 				{
 					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
@@ -1218,6 +1218,7 @@ namespace MiNET
 
 					McpePlayerStatus status = McpePlayerStatus.CreateObject();
 					status.status = 3;
+					SendPackage(status);
 				}
 				{
 					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
@@ -1226,6 +1227,7 @@ namespace MiNET
 
 					McpePlayerStatus status = McpePlayerStatus.CreateObject();
 					status.status = 3;
+					SendPackage(status);
 				}
 			}
 
@@ -1254,6 +1256,7 @@ namespace MiNET
 
 					McpePlayerStatus status = McpePlayerStatus.CreateObject();
 					status.status = 3;
+					SendPackage(status);
 				}
 				{
 					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
@@ -1262,6 +1265,7 @@ namespace MiNET
 
 					McpePlayerStatus status = McpePlayerStatus.CreateObject();
 					status.status = 3;
+					SendPackage(status);
 				}
 			}
 
@@ -2285,14 +2289,17 @@ namespace MiNET
 
 				if (Level == null) return;
 
-				foreach (KeyValuePair<Tuple<int, int>, McpeBatch> cachedChunk in _chunksUsed)
+				for (int x = -3; x < 3; x++)
 				{
-					McpeFullChunkData chunk = new McpeFullChunkData();
-					chunk.chunkX = cachedChunk.Key.Item1;
-					chunk.chunkZ = cachedChunk.Key.Item2;
-					chunk.chunkDataLength = 0;
-					chunk.chunkData = new byte[0];
-					SendPackage(chunk);
+					for (int z = -3; z < 3; z++)
+					{
+						McpeFullChunkData chunk = new McpeFullChunkData();
+						chunk.chunkX = chunkPosition.X + x;
+						chunk.chunkZ = chunkPosition.Z + z;
+						chunk.chunkDataLength = 0;
+						chunk.chunkData = new byte[0];
+						SendPackage(chunk);
+					}
 				}
 			}
 			finally
@@ -2578,7 +2585,7 @@ namespace MiNET
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 				motions.entityId = 0;
-				motions.velocity = velocity;;
+				motions.velocity = velocity;
 				SendPackage(motions);
 			}
 		}

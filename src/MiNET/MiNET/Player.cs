@@ -1207,14 +1207,22 @@ namespace MiNET
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
-		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
 		{
+			bool oldNoAi = NoAi;
+			SetNoAi(true);
+
 			if (useLoadingScreen)
 			{
 				{
 					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
 					dimension.dimension = 0;
 					SendPackage(dimension);
+
+					if (toLevel == null && levelFunc != null)
+					{
+						toLevel = levelFunc();
+					}
 
 					McpePlayerStatus status = McpePlayerStatus.CreateObject();
 					status.status = 3;
@@ -1230,9 +1238,6 @@ namespace MiNET
 					SendPackage(status);
 				}
 			}
-
-			bool oldNoAi = NoAi;
-			SetNoAi(true);
 
 			// send teleport straight up, no chunk loading
 			SetPosition(new PlayerLocation
@@ -1273,7 +1278,7 @@ namespace MiNET
 			Level.EntityManager.RemoveEntity(null, this);
 
 			Level = toLevel; // Change level
-			SpawnPosition = spawnPoint;
+			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
 			//Level.AddPlayer(this, "", false);
 			// reset all health states
 
@@ -1293,10 +1298,10 @@ namespace MiNET
 
 			CleanCache();
 
-			ForcedSendChunk(spawnPoint);
+			ForcedSendChunk(SpawnPosition);
 
 			// send teleport to spawn
-			SetPosition(spawnPoint);
+			SetPosition(SpawnPosition);
 
 			SetNoAi(oldNoAi);
 

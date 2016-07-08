@@ -23,7 +23,7 @@ namespace MiNET
 		SoundAnvilBreak = 1020,
 		SoundAnvilUse = 1021,
 		SoundAnvilFall = 1022,
-		
+
 		SoundItemDrop = 1030,
 		SoundItemThrown = 1031,
 
@@ -31,8 +31,11 @@ namespace MiNET
 		SoundItemFramePlaced = 1041,
 		SoundItemFrameRemoved = 1042,
 		SoundItemFrameItemRemoved = 1043,
-		SoundItemFrameItemRotated = 1044, // Not sure if the name are correct
-		
+		SoundItemFrameItemRotated = 1044, // Not sure if the names are correct
+
+		SoundCameraTakePicture = 1050,
+		SoundExpOrb = 1051,
+
 		SoundButtonClick = 3500,
 
 		ParticleShoot = 2000,
@@ -40,13 +43,14 @@ namespace MiNET
 		ParticleSplash = 2002,
 		ParticleEyeDespawn = 2003,
 		ParticleSpawn = 2004,
-		Unknown = 2005, // proved existence but I have no idea what it does. Found in DyePowderItem::useOn. Related with bone meal.
+		ParticleGreenThingy = 2005,
 
 		StartRain = 3001,
 		StartThunder = 3002,
 		StopRain = 3003,
 		StopThunder = 3004,
-		
+
+		DankMemes = 3500,
 		CauldronExplode = 3501, // no idea what it is or why it is named like that
 		CauldronDyeArmor = 3502,
 		CauldronFillPotion = 3504,

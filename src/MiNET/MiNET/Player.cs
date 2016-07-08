@@ -1520,12 +1520,13 @@ namespace MiNET
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			bool isOnGround = IsOnGround;
-			if (Math.Abs(distanceTo) > 0.001)
+			bool isFlyingHorizontally = false;
+			if (Math.Abs(distanceTo) > 0.01)
 			{
 				isOnGround = CheckOnGround(message);
+				isFlyingHorizontally = DetectSimpleFly(message, isOnGround);
 			}
 
-			bool isFlyingHorizontally = DetectSimpleFly(message, isOnGround);
 
 			if (!AcceptPlayerMove(message, isOnGround, isFlyingHorizontally)) return;
 
@@ -1551,37 +1552,15 @@ namespace MiNET
 			}
 		}
 
-		private int _flyTicks;
-
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
-			if (isFlyingHorizontally)
-			{
-				_flyTicks++;
-			}
-			else
-			{
-				_flyTicks = 0;
-			}
-
-			if (_flyTicks > 4)
-			{
-				Disconnect("You cheating bastard!");
-				return false;
-			}
-
 			return true;
 		}
 
 		protected virtual bool DetectSimpleFly(McpeMovePlayer message, bool isOnGround)
 		{
 			double d = Math.Abs(KnownPosition.Y - (message.y - 1.62f));
-			if (!AllowFly && !IsOnGround && !isOnGround && d < 0.001)
-			{
-				return true;
-			}
-
-			return true;
+			return !(AllowFly || IsOnGround || isOnGround || d > 0.001);
 		}
 
 		private static readonly int[] Layers = {-1, 0};

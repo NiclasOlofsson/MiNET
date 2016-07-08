@@ -738,9 +738,9 @@ namespace MiNET.Worlds
 				return blockEntity;
 			}
 
-
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
-			NbtCompound nbt = chunk.GetBlockEntity(blockCoordinates);
+
+			NbtCompound nbt = chunk?.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
 
 			string id = null;
@@ -753,6 +753,8 @@ namespace MiNET.Worlds
 			if (string.IsNullOrEmpty(id)) return null;
 
 			blockEntity = BlockEntityFactory.GetBlockEntityById(id);
+			if (blockEntity == null) return null;
+
 			blockEntity.Coordinates = blockCoordinates;
 			blockEntity.SetCompound(nbt);
 

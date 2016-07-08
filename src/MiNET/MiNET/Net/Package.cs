@@ -297,7 +297,7 @@ namespace MiNET.Net
 						{
 							player.ClientUuid = ReadUUID();
 							player.EntityId = ReadLong();
-							player.NameTag = ReadString();
+							player.DisplayName = ReadString();
 							player.Skin = ReadSkin();
 							records.Add(player);
 						}

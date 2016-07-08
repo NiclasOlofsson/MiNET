@@ -73,6 +73,7 @@ namespace MiNET
 
 		public bool IsOnGround { get; set; }
 		public bool IsFalling { get; set; }
+		public bool IsFlyingHorizontally { get; set; }
 
 		public long Rtt { get; set; } = 300;
 		public long RttVar { get; set; }
@@ -1514,24 +1515,30 @@ namespace MiNET
 				_lastOrderingIndex = message.OrderingIndex;
 			}
 
-			if (!AcceptPlayerMove(message)) return;
-
-			// Hunger management
-			HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
-
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
+
+			bool isOnGround = IsOnGround;
+			if (Math.Abs(distanceTo) > 0.001)
+			{
+				isOnGround = CheckOnGround(message);
+			}
+
+			bool isFlyingHorizontally = DetectSimpleFly(message, isOnGround);
+
+			if (!AcceptPlayerMove(message, isOnGround)) return;
+
+			IsFlyingHorizontally = isFlyingHorizontally;
+			IsOnGround = isOnGround;
+
+			// Hunger management
+			HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
 
 			KnownPosition = new PlayerLocation
 			{
 				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
 			};
-
-			if (Math.Abs(distanceTo) > 0.001)
-			{
-				IsOnGround = CheckOnGround();
-			}
 
 			IsFalling = verticalMove < 0 && !IsOnGround;
 
@@ -1544,20 +1551,31 @@ namespace MiNET
 			}
 		}
 
-		protected virtual bool AcceptPlayerMove(McpeMovePlayer message)
+		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround)
 		{
+			return true;
+		}
+
+		protected virtual bool DetectSimpleFly(McpeMovePlayer message, bool isOnGround)
+		{
+			double d = Math.Abs(KnownPosition.Y - (message.y - 1.62f));
+			if (!AllowFly && !IsOnGround && !isOnGround && d < 0.001)
+			{
+				return true;
+			}
+
 			return true;
 		}
 
 		private static readonly int[] Layers = {-1, 0};
 		private static readonly int[] Arounds = {0, 1, -1};
 
-		public bool CheckOnGround()
+		public bool CheckOnGround(McpeMovePlayer message)
 		{
 			if (Level == null)
 				return true;
 
-			BlockCoordinates pos = (BlockCoordinates) KnownPosition;
+			BlockCoordinates pos = new Vector3(message.x, message.y - 1.62f, message.z);
 
 			foreach (int layer in Layers)
 			{

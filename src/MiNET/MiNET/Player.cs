@@ -1527,7 +1527,7 @@ namespace MiNET
 
 			bool isFlyingHorizontally = DetectSimpleFly(message, isOnGround);
 
-			if (!AcceptPlayerMove(message, isOnGround)) return;
+			if (!AcceptPlayerMove(message, isOnGround, isFlyingHorizontally)) return;
 
 			IsFlyingHorizontally = isFlyingHorizontally;
 			IsOnGround = isOnGround;
@@ -1551,8 +1551,25 @@ namespace MiNET
 			}
 		}
 
-		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround)
+		private int _flyTicks;
+
+		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
+			if (isFlyingHorizontally)
+			{
+				_flyTicks++;
+			}
+			else
+			{
+				_flyTicks = 0;
+			}
+
+			if (_flyTicks > 4)
+			{
+				Disconnect("You cheating bastard!");
+				return false;
+			}
+
 			return true;
 		}
 

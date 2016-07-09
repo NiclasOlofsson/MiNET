@@ -112,8 +112,6 @@ namespace MiNET
 		private AutoResetEvent _mainWaitEvent = new AutoResetEvent(false);
 		private object _eventSync = new object();
 
-		//private BlockingCollection<KeyValuePair<int, Package>> _queue = new BlockingCollection<KeyValuePair<int, Package>>();
-		//private BlockingCollection<KeyValuePair<int, Package>> _queue = new BlockingCollection<KeyValuePair<int, Package>>(new ConcurrentPriorityQueue<int, Package>());
 		private ConcurrentPriorityQueue<int, Package> _queue = new ConcurrentPriorityQueue<int, Package>();
 		private CancellationTokenSource _cancellationToken;
 
@@ -123,7 +121,7 @@ namespace MiNET
 
 			lock (_eventSync)
 			{
-				if(_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
+				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 				{
 					_lastSequenceNumber = message.OrderingIndex;
 					HandlePackage(message, this);

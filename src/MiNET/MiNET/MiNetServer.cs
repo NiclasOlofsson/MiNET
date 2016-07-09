@@ -908,7 +908,7 @@ namespace MiNET
 
 			if (message.Reliability == Reliability.ReliableOrdered)
 			{
-				playerSession.AddToProcessing(message);
+				Task.Run(() => playerSession.AddToProcessing(message));
 				return;
 			}
 

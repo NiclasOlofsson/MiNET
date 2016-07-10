@@ -253,6 +253,8 @@ namespace TestPlugin
 		[Command(Command = "tp")]
 		public void Teleport(Player player, string world)
 		{
+			Level oldLevel = player.Level;
+
 			if (player.Level.LevelId.Equals(world))
 			{
 				Teleport(player, (int) player.SpawnPosition.X, (int) player.SpawnPosition.Y, (int) player.SpawnPosition.Z);
@@ -270,18 +272,22 @@ namespace TestPlugin
 
 				if (levels != null)
 				{
-					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
-
-					if (nextLevel == null)
+					player.SpawnLevel(null, null, true, delegate
 					{
-						nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
-						nextLevel.Initialize();
-						Context.LevelManager.Levels.Add(nextLevel);
-					}
+						Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
 
-					player.Level.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, nextLevel.LevelId), type: MessageType.Raw);
+						if (nextLevel == null)
+						{
+							nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
+							nextLevel.Initialize();
+							Context.LevelManager.Levels.Add(nextLevel);
+						}
 
-					player.SpawnLevel(nextLevel);
+						return nextLevel;
+					});
+
+					oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
+
 				}
 			}, Context.LevelManager.Levels.ToArray());
 		}
@@ -843,6 +849,22 @@ namespace TestPlugin
 			});
 
 
+		}
+
+		[Command]
+		public void Count(Player player)
+		{
+			List<string> users = new List<string>();
+			var levels = Context.Server.LevelManager.Levels;
+			foreach (var level in levels)
+			{
+				foreach (var spawnedPlayer in level.GetSpawnedPlayers())
+				{
+					users.Add(spawnedPlayer.Username);
+				}
+			}
+
+			player.SendMessage($"There are {users.Count} of players online.");
 		}
 
 	}

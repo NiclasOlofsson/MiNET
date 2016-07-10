@@ -908,7 +908,15 @@ namespace MiNET
 
 			if (message.Reliability == Reliability.ReliableOrdered)
 			{
-				Task.Run(() => playerSession.AddToProcessing(message));
+				if (playerSession.CryptoContext == null || playerSession.CryptoContext.UseEncryption == false)
+				{
+					playerSession.AddToProcessing(message);
+				}
+				else
+				{
+					ThreadPool.QueueUserWorkItem(state => playerSession.AddToProcessing(message));
+				}
+
 				return;
 			}
 

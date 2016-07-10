@@ -1308,13 +1308,15 @@ namespace MiNET
 
 			ThreadPool.QueueUserWorkItem(delegate
 			{
+				Level.AddPlayer(this, true);
+
 				ForcedSendChunks(() =>
 				{
-					Level.AddPlayer(this, true);
 
 					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 					SendSetTime();
+
 				});
 			});
 		}

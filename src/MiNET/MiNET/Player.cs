@@ -52,6 +52,7 @@ namespace MiNET
 
 		public int MaxViewDistance { get; set; } = 22;
 		public GameMode GameMode { get; set; }
+		public bool UseCreativeInventory { get; set; } = true;
 		public bool IsConnected { get; set; }
 		public CertificateData CertificateData { get; private set; }
 		public string Username { get; private set; }
@@ -1358,6 +1359,8 @@ namespace MiNET
 
 		public virtual void SendCreativeInventory()
 		{
+			if (!UseCreativeInventory) return;
+
 			McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
 			creativeContent.windowId = (byte) 0x79;
 			creativeContent.slotData = InventoryUtils.GetCreativeMetadataSlots();

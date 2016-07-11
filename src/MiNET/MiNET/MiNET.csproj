@@ -331,7 +331,6 @@
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
     <Compile Include="GreyListManager.cs" />
-    <Compile Include="Helios.Concurrency.DedicatedThreadPool.cs" />
     <Compile Include="HungerManager.cs" />
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
@@ -531,6 +530,7 @@
     <Compile Include="Utils\CryptoContext.cs" />
     <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
+    <Compile Include="Utils\DedicatedThreadPool.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />
     <Compile Include="Utils\MapInfo.cs" />
     <Compile Include="Utils\MetadataIntCoordinates.cs" />
@@ -604,7 +604,9 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
     </None>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

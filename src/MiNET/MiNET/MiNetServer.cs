@@ -10,7 +10,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Helios.Concurrency;
 using log4net;
 using Microsoft.AspNet.Identity;
 using Microsoft.IO;
@@ -826,7 +825,7 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+						FastThreadPool.QueueUserWorkItem(delegate
 						{
 							var dgram = (Datagram) datagram;
 							if (Log.IsDebugEnabled)
@@ -939,7 +938,7 @@ namespace MiNET
 
 			foreach (var s in sessions)
 			{
-				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				FastThreadPool.QueueUserWorkItem(delegate
 				{
 					PlayerNetworkSession session = (PlayerNetworkSession) s;
 					var queue = session.PlayerAckQueue;
@@ -1084,7 +1083,7 @@ namespace MiNET
 							{
 								session.ErrorCount++;
 
-								MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
+								FastThreadPool.QueueUserWorkItem(delegate()
 								{
 									var dtgram = deleted;
 									if (Log.IsDebugEnabled)

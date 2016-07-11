@@ -7,12 +7,17 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemItemFrame : Item
+	public class ItemItemFrame : ItemBlock
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemItemFrame));
 
-		public ItemItemFrame() : base(199)
+		public ItemItemFrame() : base(199, 0)
 		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return null;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

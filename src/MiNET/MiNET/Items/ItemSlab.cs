@@ -5,10 +5,15 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSlab : Item
+	public class ItemSlab : ItemBlock
 	{
 		public ItemSlab(short id, short metadata) : base(id, metadata)
 		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return null;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

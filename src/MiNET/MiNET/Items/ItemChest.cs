@@ -6,10 +6,15 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemChest : Item
+	public class ItemChest : ItemBlock
 	{
-		public ItemChest() : base(54)
+		public ItemChest() : base(54, 0)
 		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return null;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

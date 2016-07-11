@@ -15,6 +15,10 @@ namespace MiNET.Items
 
 		protected readonly Block _block;
 
+		protected ItemBlock(short id, short metadata) : base(id, metadata)
+		{
+		}
+
 		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
 		{
 			_block = block;

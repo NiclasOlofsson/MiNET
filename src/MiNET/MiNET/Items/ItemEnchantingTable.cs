@@ -6,10 +6,15 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemEnchantingTable : Item
+	public class ItemEnchantingTable : ItemBlock
 	{
-		public ItemEnchantingTable() : base(116)
+		public ItemEnchantingTable() : base(116, 0)
 		{
+		}
+
+		public override Item GetSmelt()
+		{
+			return null;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

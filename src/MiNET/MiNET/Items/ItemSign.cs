@@ -7,11 +7,16 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSign : Item
+	public class ItemSign : ItemBlock
 	{
-		public ItemSign() : base(323)
+		public ItemSign() : base(323, 0)
 		{
 			MaxStackSize = 1;
+		}
+
+		public override Item GetSmelt()
+		{
+			return null;
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

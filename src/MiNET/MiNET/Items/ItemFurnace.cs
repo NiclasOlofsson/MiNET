@@ -6,12 +6,16 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemFurnace : Item
+	public class ItemFurnace : ItemBlock
 	{
-		public ItemFurnace() : base(61)
+		public ItemFurnace() : base(61, 0)
 		{
 		}
 
+		public override Item GetSmelt()
+		{
+			return null;
+		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

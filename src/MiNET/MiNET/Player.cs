@@ -201,7 +201,7 @@ namespace MiNET
 
 			else if (typeof (McpeRespawn) == message.GetType())
 			{
-				HandleRespawn((McpeRespawn) message);
+				HandleRespawn();
 			}
 
 			else if (typeof (McpeBlockEntityData) == message.GetType())
@@ -368,7 +368,7 @@ namespace MiNET
 
 			if (_completedStartSequence)
 			{
-				ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
 		}
 
@@ -432,7 +432,7 @@ namespace MiNET
 				case PlayerAction.StopSleeping:
 					break;
 				case PlayerAction.Respawn:
-					ThreadPool.QueueUserWorkItem(delegate(object state) { HandleRespawn(null); });
+					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleRespawn);
 					break;
 				case PlayerAction.Jump:
 					HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
@@ -1078,7 +1078,7 @@ namespace MiNET
 
 			_completedStartSequence = true;
 
-			ThreadPool.QueueUserWorkItem(delegate(object state) { SendChunksForKnownPosition(); });
+			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
@@ -1100,7 +1100,7 @@ namespace MiNET
 			OnPlayerJoin(new PlayerEventArgs(this));
 		}
 
-		protected virtual void HandleRespawn(McpeRespawn msg)
+		protected virtual void HandleRespawn()
 		{
 			HealthManager.ResetHealth();
 
@@ -1131,7 +1131,7 @@ namespace MiNET
 
 			SendSetTime();
 
-			ThreadPool.QueueUserWorkItem(delegate(object state) { ForcedSendChunks(); });
+			MiNetServer.FastThreadPool.QueueUserWorkItem(() => ForcedSendChunks());
 
 			//SendPlayerStatus(3);
 
@@ -1193,7 +1193,7 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-			ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
+			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 		}
 
 		private bool IsChunkInCache(PlayerLocation position)
@@ -1307,7 +1307,7 @@ namespace MiNET
 
 			SetNoAi(oldNoAi);
 
-			ThreadPool.QueueUserWorkItem(delegate
+			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
 			{
 				Level.AddPlayer(this, true);
 
@@ -1553,7 +1553,7 @@ namespace MiNET
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
 			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= Config.GetProperty("MoveRenderDistance", 1))
 			{
-				ThreadPool.QueueUserWorkItem(delegate { SendChunksForKnownPosition(); });
+				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
 		}
 
@@ -1621,6 +1621,7 @@ namespace MiNET
 				Item droppedItem = message.item;
 				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} drops item {droppedItem} with inv slot {message.itemtype}");
 
+				if(droppedItem.Count == 0) return; // 0.15 bug
 
 				if (!VerifyItemStack(droppedItem)) return;
 

@@ -10,6 +10,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Helios.Concurrency;
 using log4net;
 using Microsoft.AspNet.Identity;
 using Microsoft.IO;
@@ -56,6 +57,8 @@ namespace MiNET
 
 		public ServerInfo ServerInfo { get; set; }
 
+		internal static DedicatedThreadPool FastThreadPool { get; set; }
+
 		public MiNetServer()
 		{
 		}
@@ -86,6 +89,7 @@ namespace MiNET
 			else iothreads *= 4;
 
 			ThreadPool.SetMinThreads(threads, iothreads);
+			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(threads));
 
 			if (_listener != null) return false; // Already started
 
@@ -822,14 +826,14 @@ namespace MiNET
 						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
 						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
 
-						ThreadPool.QueueUserWorkItem(delegate(object data)
+						MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
 						{
-							var dgram = (Datagram) data;
+							var dgram = (Datagram) datagram;
 							if (Log.IsDebugEnabled)
 								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
 							SendDatagram(session, dgram);
 							Interlocked.Increment(ref ServerInfo.NumberOfResends);
-						}, datagram);
+						});
 					}
 					else
 					{
@@ -914,7 +918,7 @@ namespace MiNET
 				}
 				else
 				{
-					ThreadPool.QueueUserWorkItem(state => playerSession.AddToProcessing(message));
+					FastThreadPool.QueueUserWorkItem(() => playerSession.AddToProcessing(message));
 				}
 
 				return;
@@ -935,9 +939,9 @@ namespace MiNET
 
 			foreach (var s in sessions)
 			{
-				ThreadPool.QueueUserWorkItem(delegate(object o)
+				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
 				{
-					PlayerNetworkSession session = (PlayerNetworkSession) o;
+					PlayerNetworkSession session = (PlayerNetworkSession) s;
 					var queue = session.PlayerAckQueue;
 					int lenght = queue.Count;
 
@@ -959,7 +963,7 @@ namespace MiNET
 					}
 
 					acks.PutPool();
-				}, s);
+				});
 			}
 		}
 
@@ -1080,8 +1084,9 @@ namespace MiNET
 							{
 								session.ErrorCount++;
 
-								ThreadPool.QueueUserWorkItem(delegate(object data)
+								MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
 								{
+									var dtgram = deleted;
 									if (Log.IsDebugEnabled)
 										Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),
@@ -1090,9 +1095,9 @@ namespace MiNET
 											elapsedTime,
 											datagramTimout,
 											player.Rto);
-									SendDatagram(session, (Datagram) data);
+									SendDatagram(session, (Datagram) dtgram);
 									Interlocked.Increment(ref ServerInfo.NumberOfResends);
-								}, datagram);
+								});
 							}
 						}
 					}

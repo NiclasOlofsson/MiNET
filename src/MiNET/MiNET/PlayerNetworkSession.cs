@@ -323,11 +323,11 @@ namespace MiNET
 
 			if (CryptoContext != null && CryptoContext.UseEncryption)
 			{
-				ThreadPool.QueueUserWorkItem(delegate(object data)
+				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
 				{
-					playerSession.Player?.HandlePackage(data as Package);
+					playerSession.Player?.HandlePackage(message as Package);
 					message.PutPool();
-				}, message);
+				});
 			}
 			else
 			{

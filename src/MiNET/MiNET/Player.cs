@@ -61,6 +61,7 @@ namespace MiNET
 		public long ClientGuid { get; set; }
 		public string ClientSecret { get; set; }
 		public UUID ClientUuid { get; set; }
+		public string ServerAddress { get; set; }
 
 		public Skin Skin { get; set; }
 
@@ -966,6 +967,7 @@ namespace MiNET
 					// "SkinId": "Standard_Custom"
 					//}
 
+					ServerAddress = payload.ServerAddress;
 					ClientId = payload.ClientRandomId;
 
 					Skin = new Skin()

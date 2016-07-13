@@ -296,7 +296,7 @@ namespace MiNET
 			var serverInfo = Server.ServerInfo;
 			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-			new Thread(Start).Start();
+			new Thread(Start) {IsBackground = true}.Start();
 		}
 
 		protected virtual void HandleMcpePlayerInput(McpePlayerInput message)
@@ -981,7 +981,7 @@ namespace MiNET
 					var serverInfo = Server.ServerInfo;
 					Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-					new Thread(Start).Start();
+					new Thread(Start) {IsBackground = true}.Start();
 				}
 			}
 			catch (Exception e)
@@ -1312,11 +1312,9 @@ namespace MiNET
 
 				ForcedSendChunks(() =>
 				{
-
 					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 					SendSetTime();
-
 				});
 			});
 		}
@@ -1620,7 +1618,7 @@ namespace MiNET
 				Item droppedItem = message.item;
 				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} drops item {droppedItem} with inv slot {message.itemtype}");
 
-				if(droppedItem.Count == 0) return; // 0.15 bug
+				if (droppedItem.Count == 0) return; // 0.15 bug
 
 				if (!VerifyItemStack(droppedItem)) return;
 

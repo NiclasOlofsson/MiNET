@@ -419,6 +419,7 @@ namespace MiNET.Client
 				if(_processingThread == null)
 				{
 					_processingThread = new Thread(ProcessQueueThread);
+					_processingThread.IsBackground = true;
 					_processingThread.Start();
 				}
 

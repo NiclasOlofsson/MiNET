@@ -71,7 +71,7 @@ namespace MiNET.ServiceKiller
 						playerName, (int) (DateTime.UtcNow.Ticks - start), endPoint,
 						RanSleepMin, RanSleepMax, RequestChunkRadius);
 
-					new Thread(o => { client.EmulateClient(); }).Start();
+					new Thread(o => { client.EmulateClient(); }) {IsBackground = true}.Start();
 					//ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
 					Thread.Sleep(TimeBetweenSpawns);
@@ -80,7 +80,6 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine("Press <enter> to stop all clients.");
 				Console.ReadLine();
 				emulator.Running = false;
-
 			}
 			catch (Exception e)
 			{
@@ -184,14 +183,14 @@ namespace MiNET.ServiceKiller
 
 					double angle = 0.0;
 					const double angleStepsize = 0.05;
-					float heightStepsize = (float)(Random.NextDouble() / 5);
+					float heightStepsize = (float) (Random.NextDouble()/5);
 
-					while (angle < 2 * Math.PI && Emulator.Running)
+					while (angle < 2*Math.PI && Emulator.Running)
 					{
 						if (client.UdpClient == null) break;
 
-						float x = (float)(length * Math.Cos(angle));
-						float z = (float)(length * Math.Sin(angle));
+						float x = (float) (length*Math.Cos(angle));
+						float z = (float) (length*Math.Sin(angle));
 						y += heightStepsize;
 
 						x += client.Level.SpawnX;

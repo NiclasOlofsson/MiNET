@@ -134,10 +134,8 @@ namespace MiNET
 
 				bool forceOrder = Config.GetProperty("ForceOrderingForAll", false);
 
-				if(!forceOrder)
+				if (!forceOrder)
 				{
-					Log.Warn($"Expected forced order {Player.Username}, Force={forceOrder}");
-
 					if (CryptoContext == null || CryptoContext.UseEncryption == false)
 					{
 						_lastSequenceNumber = message.OrderingIndex;
@@ -155,11 +153,11 @@ namespace MiNET
 						return;
 					}
 
-					if (_processingThread== null)
+					if (_processingThread == null)
 					{
-						_processingThread = new Thread(ProcessQueueThread);
+						_processingThread = new Thread(ProcessQueueThread) {IsBackground = true};
 						_processingThread.Start();
-						Log.Warn($"Started processing thread for {Player.Username}");
+						if (Log.IsDebugEnabled) Log.Warn($"Started processing thread for {Player.Username}");
 					}
 
 					_queue.Enqueue(message.OrderingIndex, message);
@@ -267,7 +265,7 @@ namespace MiNET
 			if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
-				if(Log.IsDebugEnabled) Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
+				if (Log.IsDebugEnabled) Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 
 				message.PutPool();
 				return;

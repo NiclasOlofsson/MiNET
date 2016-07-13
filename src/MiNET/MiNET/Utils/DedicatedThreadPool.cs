@@ -17,7 +17,7 @@ namespace MiNET.Utils
 	/// <summary>
 	/// The type of threads to use - either foreground or background threads.
 	/// </summary>
-	internal enum ThreadType
+	public enum ThreadType
 	{
 		Foreground,
 		Background
@@ -26,7 +26,7 @@ namespace MiNET.Utils
 	/// <summary>
 	/// Provides settings for a dedicated thread pool
 	/// </summary>
-	internal class DedicatedThreadPoolSettings
+	public class DedicatedThreadPoolSettings
 	{
 		/// <summary>
 		/// Background threads are the default thread type
@@ -247,7 +247,7 @@ namespace MiNET.Utils
 	/// <summary>
 	/// An instanced, dedicated thread pool.
 	/// </summary>
-	internal sealed class DedicatedThreadPool : IDisposable
+	public sealed class DedicatedThreadPool : IDisposable
 	{
 		public DedicatedThreadPool(DedicatedThreadPoolSettings settings)
 		{

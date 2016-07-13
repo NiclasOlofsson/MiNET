@@ -888,9 +888,8 @@ namespace MiNET
 
 						NetworkSession.CryptoContext = new CryptoContext
 						{
-							UseEncryption = Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid),
+							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid)),
 						};
-
 
 						if (NetworkSession.CryptoContext.UseEncryption)
 						{

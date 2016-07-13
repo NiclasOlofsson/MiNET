@@ -343,6 +343,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
+|Server GUID | long |  |
 -----------------------------------------------------------------------
 ###Package: Ip Recently Connected (0x1A)
 

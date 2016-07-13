@@ -911,7 +911,7 @@ namespace MiNET
 
 			if (message.Reliability == Reliability.ReliableOrdered)
 			{
-				if (playerSession.CryptoContext == null || playerSession.CryptoContext.UseEncryption == false)
+				if (Config.GetProperty("ForceOrderingForAll", false) == false && (playerSession.CryptoContext == null || playerSession.CryptoContext.UseEncryption == false))
 				{
 					playerSession.AddToProcessing(message);
 				}

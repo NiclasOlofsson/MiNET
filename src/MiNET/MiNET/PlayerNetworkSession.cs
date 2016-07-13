@@ -132,17 +132,23 @@ namespace MiNET
 			{
 				if (_cancellationToken.Token.IsCancellationRequested) return;
 
-				if (CryptoContext == null || CryptoContext.UseEncryption == false)
-				{
-					_lastSequenceNumber = message.OrderingIndex;
-					HandlePackage(message, this);
-					return;
-				}
+				bool forceOrder = Config.GetProperty("ForceOrderingForAll", false);
 
+				if(!forceOrder)
+				{
+					Log.Warn($"Expected forced order {Player.Username}, Force={forceOrder}");
+
+					if (CryptoContext == null || CryptoContext.UseEncryption == false)
+					{
+						_lastSequenceNumber = message.OrderingIndex;
+						HandlePackage(message, this);
+						return;
+					}
+				}
 
 				lock (_eventSync)
 				{
-					if (CryptoContext == null || CryptoContext.UseEncryption == false || (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1))
+					if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 					{
 						_lastSequenceNumber = message.OrderingIndex;
 						HandlePackage(message, this);

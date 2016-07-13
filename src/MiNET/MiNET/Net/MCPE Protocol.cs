@@ -1051,6 +1051,7 @@ namespace MiNET.Net
 	public partial class ConnectionBanned : Package<ConnectionBanned>
 	{
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public long serverGuid; // = null;
 		public ConnectionBanned()
 		{
 			Id = 0x17;
@@ -1063,6 +1064,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(offlineMessageDataId);
+			Write(serverGuid);
 
 			AfterEncode();
 		}
@@ -1077,6 +1079,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			ReadBytes(offlineMessageDataId.Length);
+			serverGuid = ReadLong();
 
 			AfterDecode();
 		}

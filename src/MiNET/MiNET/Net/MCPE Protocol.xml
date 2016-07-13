@@ -109,6 +109,7 @@
 
 	<pdu namespace="raknet" id="0x17" online="false" client="true" server="true" name="ID_CONNECTION_BANNED">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
+		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x1A" online="false" client="true" server="true" name="ID_IP_RECENTLY_CONNECTED">

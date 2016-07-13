@@ -37,6 +37,7 @@ namespace MiNET.Client
 
 		private IPEndPoint _clientEndpoint;
 		private IPEndPoint _serverEndpoint;
+		private readonly DedicatedThreadPool _threadPool;
 		private short _mtuSize = 1400;
 		private int _reliableMessageNumber = -1;
 		private Vector3 _spawn;
@@ -57,11 +58,12 @@ namespace MiNET.Client
 		public string Username { get; set; }
 		public int ClientId { get; set; }
 
-		public MiNetClient(IPEndPoint endpoint, string username)
+		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
 			Username = username;
 			ClientId = new Random().Next();
 			_serverEndpoint = endpoint;
+			_threadPool = threadPool;
 			if(_serverEndpoint != null) Log.Warn("Connecting to: " + _serverEndpoint);
 			_clientEndpoint = new IPEndPoint(IPAddress.Any, 0);
 		}
@@ -70,7 +72,11 @@ namespace MiNET.Client
 		{
 			Console.WriteLine("Starting client...");
 
-			var client = new MiNetClient(null, "TheGrey");
+			int threads;
+			int iothreads;
+			ThreadPool.GetMinThreads(out threads, out iothreads);
+
+			var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(threads)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("pe.mineplex.com").AddressList[0], 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
@@ -165,7 +171,7 @@ namespace MiNET.Client
 		/// <returns></returns>
 		public bool StopClient()
 		{
-			Environment.Exit(0);
+			//Environment.Exit(0);
 			try
 			{
 				if (UdpClient == null) return true; // Already stopped. It's ok.
@@ -311,19 +317,19 @@ namespace MiNET.Client
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					//if (IsEmulator && PlayerStatus == 3)
-					//{
-					//	int datagramId = new Int24(new[] {receiveBytes[1], receiveBytes[2], receiveBytes[3]});
+					if (IsEmulator && PlayerStatus == 3)
+					{
+						int datagramId = new Int24(new[] { receiveBytes[1], receiveBytes[2], receiveBytes[3] });
 
-					//	//Acks ack = Acks.CreateObject();
-					//	Acks ack = new Acks();
-					//	ack.acks.Add(datagramId);
-					//	byte[] data = ack.Encode();
-					//	ack.PutPool();
-					//	SendData(data, senderEndpoint);
+						//Acks ack = Acks.CreateObject();
+						Acks ack = new Acks();
+						ack.acks.Add(datagramId);
+						byte[] data = ack.Encode();
+						ack.PutPool();
+						SendData(data, senderEndpoint);
 
-					//	//return;
-					//}
+						return;
+					}
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
 					//var package = new ConnectedPackage();
@@ -391,9 +397,11 @@ namespace MiNET.Client
 		private object _eventSync = new object();
 		private ConcurrentPriorityQueue<int, Package> _queue = new ConcurrentPriorityQueue<int, Package>();
 
+		private Thread _processingThread = null;
+
 		public void AddToProcessing(Package message)
 		{
-			if (message.Reliability != Reliability.ReliableOrdered)
+			if (Session.CryptoContext == null || Session.CryptoContext.UseEncryption == false || message.Reliability != Reliability.ReliableOrdered)
 			{
 				HandlePackage(message);
 				return;
@@ -408,9 +416,20 @@ namespace MiNET.Client
 					return;
 				}
 
+				if(_processingThread == null)
+				{
+					_processingThread = new Thread(ProcessQueueThread);
+					_processingThread.Start();
+				}
+
 				_queue.Enqueue(message.OrderingIndex, message);
 				WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
 			}
+		}
+
+		private void ProcessQueueThread(object o)
+		{
+			ProcessQueue();
 		}
 
 		private Task ProcessQueue()
@@ -572,8 +591,6 @@ namespace MiNET.Client
 		public int PlayerStatus { get; set; }
 
 
-		public AutoResetEvent FirstPacketWaitHandle = new AutoResetEvent(false);
-
 		private void HandlePackage(Package message)
 		{
 			//Log.Warn($"Package 0x{message.Id:X2} {message.GetType().Name}");
@@ -581,8 +598,6 @@ namespace MiNET.Client
 			if (typeof (McpeWrapper) == message.GetType())
 			{
 				OnWrapper((McpeWrapper) message);
-
-				FirstPacketWaitHandle.Set();
 
 				return;
 			}
@@ -852,7 +867,8 @@ namespace MiNET.Client
 
 			Session.CryptoContext = new CryptoContext()
 			{
-				ClientKey = clientKey
+				ClientKey = clientKey,
+				UseEncryption = false,
 			};
 
 			SendPackage(batch);
@@ -941,12 +957,19 @@ namespace MiNET.Client
 			}
 		}
 
+		public AutoResetEvent FirstEncryptedPacketWaitHandle = new AutoResetEvent(false);
+
+		public AutoResetEvent FirstPacketWaitHandle = new AutoResetEvent(false);
+
 		private void OnWrapper(McpeWrapper message)
 		{
+			FirstPacketWaitHandle.Set();
+
 			// Get bytes
 			byte[] payload = message.payload;
 			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
 			{
+				FirstEncryptedPacketWaitHandle.Set();
 				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
 			}
 
@@ -957,7 +980,16 @@ namespace MiNET.Client
 
 			TraceReceive(newMessage);
 
-			Task.Run(() => { HandlePackage(newMessage); });
+			if(_processingThread == null)
+			{
+				HandlePackage(newMessage);
+			}
+			else
+			{
+				_threadPool.QueueUserWorkItem(() => HandlePackage(newMessage));
+			}
+
+			//Task.Run(() => { HandlePackage(newMessage); });
 		}
 
 		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
@@ -980,14 +1012,18 @@ namespace MiNET.Client
 			Log.Debug($"Hurt Armor: Health={message.health}");
 		}
 
+		public AutoResetEvent PlayerStatusChangedWaitHandle = new AutoResetEvent(false);
+
 		private void OnMcpePlayerStatus(McpePlayerStatus message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Player status={message.status}");
 			PlayerStatus = message.status;
+			
 			if(PlayerStatus == 3)
 			{
+				PlayerStatusChangedWaitHandle.Set();
+
 				SendMcpeMovePlayer();
-				SendChat("/help");
 			}
 		}
 

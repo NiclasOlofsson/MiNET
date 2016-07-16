@@ -880,12 +880,6 @@ namespace MiNET
 						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {Username} with identity={identity}");
 						ClientUuid = new UUID(new Guid(identity));
 
-						if (Username == "gurun")
-						{
-							Username = "TheGrey" + new Random().Next();
-							ClientUuid = new UUID(Guid.NewGuid());
-						}
-
 						NetworkSession.CryptoContext = new CryptoContext
 						{
 							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(CertificateData.ExtraData.Xuid)),
@@ -1339,9 +1333,7 @@ namespace MiNET
 
 		public virtual void SendPlayerInventory()
 		{
-			//Log.Error("Send player inventory");
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			//inventoryContent.NoBatch = true;
 			inventoryContent.windowId = (byte) 0x00;
 			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
@@ -1687,11 +1679,6 @@ namespace MiNET
 
 				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
 				Inventory.SetHeldItemSlot(selectedHotbarSlot, false);
-
-				//if (selectedInventorySlot < Inventory.Slots.Count)
-				//{
-				//	Inventory.Slots[selectedInventorySlot] = message.item.Value;
-				//}
 
 				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
 			}

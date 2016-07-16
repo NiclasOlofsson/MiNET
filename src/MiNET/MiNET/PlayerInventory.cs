@@ -164,7 +164,7 @@ namespace MiNET
 			broadcast.item = GetItemInHand();
 			broadcast.selectedSlot = (byte) selectedHotbarSlot;
 			broadcast.slot = (byte) ItemHotbar[InHandSlot];
-			Player.Level?.RelayBroadcast(broadcast);
+			Player.Level?.RelayBroadcast(Player, broadcast);
 		}
 
 		/// <summary>

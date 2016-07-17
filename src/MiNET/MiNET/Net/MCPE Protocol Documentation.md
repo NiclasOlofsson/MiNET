@@ -516,6 +516,7 @@ TODO: Parameters
 |Is loaded in creative | bool |  |
 |day cycle stop time | byte |  |
 |edu mode | bool |  |
+|unknownbytes | long |  |
 |unknownstr | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Player (0x0a)

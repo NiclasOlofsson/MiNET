@@ -184,6 +184,7 @@
 		<field name="Is loaded in creative" type="bool" />
 		<field name="day cycle stop time" type="byte" />
 		<field name="edu mode" type="bool" />
+		<field name="unknownbytes" type="long" />
 		<field name="unknownstr" type="string" />
 	</pdu>
 

@@ -1462,6 +1462,7 @@ namespace MiNET.Net
 		public bool isLoadedInCreative; // = null;
 		public byte dayCycleStopTime; // = null;
 		public bool eduMode; // = null;
+		public long unknownbytes; // = null;
 		public string unknownstr; // = null;
 		public McpeStartGame()
 		{
@@ -1488,6 +1489,7 @@ namespace MiNET.Net
 			Write(isLoadedInCreative);
 			Write(dayCycleStopTime);
 			Write(eduMode);
+			Write(unknownbytes);
 			Write(unknownstr);
 
 			AfterEncode();
@@ -1516,6 +1518,7 @@ namespace MiNET.Net
 			isLoadedInCreative = ReadBool();
 			dayCycleStopTime = ReadByte();
 			eduMode = ReadBool();
+			unknownbytes = ReadLong();
 			unknownstr = ReadString();
 
 			AfterDecode();

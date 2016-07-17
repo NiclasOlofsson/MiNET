@@ -64,7 +64,7 @@ namespace MiNET.Client
 			ClientId = new Random().Next();
 			_serverEndpoint = endpoint;
 			_threadPool = threadPool;
-			if(_serverEndpoint != null) Log.Warn("Connecting to: " + _serverEndpoint);
+			if (_serverEndpoint != null) Log.Warn("Connecting to: " + _serverEndpoint);
 			_clientEndpoint = new IPEndPoint(IPAddress.Any, 0);
 		}
 
@@ -319,7 +319,7 @@ namespace MiNET.Client
 
 					if (IsEmulator && PlayerStatus == 3)
 					{
-						int datagramId = new Int24(new[] { receiveBytes[1], receiveBytes[2], receiveBytes[3] });
+						int datagramId = new Int24(new[] {receiveBytes[1], receiveBytes[2], receiveBytes[3]});
 
 						//Acks ack = Acks.CreateObject();
 						Acks ack = new Acks();
@@ -332,7 +332,6 @@ namespace MiNET.Client
 					}
 
 					ConnectedPackage package = ConnectedPackage.CreateObject();
-					//var package = new ConnectedPackage();
 					package.Decode(receiveBytes);
 					header = package._datagramHeader;
 					//Log.Debug($"> Datagram #{header.datagramSequenceNumber}, {package._hasSplit}, {package._splitPacketId}, {package._reliability}, {package._reliableMessageNumber}, {package._sequencingIndex}, {package._orderingChannel}, {package._orderingIndex}");
@@ -384,7 +383,7 @@ namespace MiNET.Client
 					continue;
 				}
 
-				TraceReceive(message);
+				//TraceReceive(message);
 
 				message.Timer.Restart();
 				AddToProcessing(message);
@@ -409,6 +408,8 @@ namespace MiNET.Client
 
 			lock (_eventSync)
 			{
+				if (_lastSequenceNumber < 0) _lastSequenceNumber = 1;
+
 				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 				{
 					_lastSequenceNumber = message.OrderingIndex;
@@ -416,7 +417,7 @@ namespace MiNET.Client
 					return;
 				}
 
-				if(_processingThread == null)
+				if (_processingThread == null)
 				{
 					_processingThread = new Thread(ProcessQueueThread);
 					_processingThread.IsBackground = true;
@@ -562,7 +563,7 @@ namespace MiNET.Client
 					newPackage._reliability = reliability;
 					newPackage._reliableMessageNumber = reliableMessageNumber;
 					newPackage._orderingIndex = orderingIndex;
-					newPackage._orderingChannel = (byte)orderingChannel;
+					newPackage._orderingChannel = (byte) orderingChannel;
 					newPackage._hasSplit = false;
 
 					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
@@ -617,7 +618,9 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof (McpeDisconnect) == message.GetType())
+			TraceReceive(message);
+
+			if (typeof (McpeDisconnect) == message.GetType())
 			{
 				McpeDisconnect msg = (McpeDisconnect) message;
 				Log.InfoFormat("Disconnect {1}: {0}", msg.message, Username);
@@ -652,9 +655,16 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof (McpeSetTime) == message.GetType())
+			{
+				OnMcpeSetTime((McpeSetTime) message);
+
+				return;
+			}
+
 			else if (typeof (McpeStartGame) == message.GetType())
 			{
-				OnMcpeStartGame(message);
+				OnMcpeStartGame((McpeStartGame) message);
 
 				return;
 			}
@@ -671,6 +681,12 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof (McpeAddPlayer) == message.GetType())
+			{
+				OnMcpeAddPlayer(message);
+
+				return;
+			}
 			else if (typeof (McpeAddEntity) == message.GetType())
 			{
 				OnMcpeAddEntity(message);
@@ -827,6 +843,15 @@ namespace MiNET.Client
 			}
 		}
 
+		private void OnMcpeSetTime(McpeSetTime message)
+		{
+			Log.Debug($@"
+McpeSetTime:
+	started: {message.started}	
+	time: {message.time}	
+");
+		}
+
 		private void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
 		{
 			Log.Error("No free connections from server ");
@@ -979,9 +1004,9 @@ namespace MiNET.Client
 
 			Package newMessage = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
 
-			TraceReceive(newMessage);
+			//TraceReceive(newMessage);
 
-			if(_processingThread == null)
+			if (_processingThread == null)
 			{
 				HandlePackage(newMessage);
 			}
@@ -995,7 +1020,12 @@ namespace MiNET.Client
 
 		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
 		{
-			Log.Info($"Adventure settings flags: 0x{message.flags:X2}");
+			Log.Debug($@"
+Adventure settings 
+	flags: 0x{message.flags:X2} - {Convert.ToString(message.flags, 2)}
+	flags: 0x{message.userPermission:X2} - {Convert.ToString(message.userPermission, 2)}
+	flags: 0x{message.globalPermission:X2} - {Convert.ToString(message.globalPermission, 2)}
+");
 		}
 
 		private void OnMcpeInteract(McpeInteract message)
@@ -1019,8 +1049,8 @@ namespace MiNET.Client
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Player status={message.status}");
 			PlayerStatus = message.status;
-			
-			if(PlayerStatus == 3)
+
+			if (PlayerStatus == 3 && IsEmulator)
 			{
 				PlayerStatusChangedWaitHandle.Set();
 
@@ -1390,7 +1420,7 @@ namespace MiNET.Client
 			if (message.entityId != _entityId) return;
 
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
-			//SendMcpeMovePlayer();
+			SendMcpeMovePlayer();
 		}
 
 		private static void OnMcpeSetEntityData(Package message)
@@ -1413,7 +1443,7 @@ namespace MiNET.Client
 			Log.DebugFormat("Velocity X: {0}", msg.speedX);
 			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.DebugFormat("Metadata: {0}", msg.metadata.ToString());
+			Log.DebugFormat("Metadata: {0}", msg.metadata);
 			//Log.DebugFormat("Links count: {0}", msg.links);
 		}
 
@@ -1433,7 +1463,14 @@ namespace MiNET.Client
 			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
 			Log.DebugFormat("Metadata: {0}", msg.metadata);
-			//Log.DebugFormat("Links count: {0}", msg.links);
+			if (Log.IsDebugEnabled)
+			{
+				foreach (var attribute in msg.attributes)
+				{
+					Log.Debug($"Entity attribute {attribute}");
+				}
+			}
+			Log.DebugFormat("Links count: {0}", msg.links);
 		}
 
 		private void OnMcpeAddItemEntity(Package message)
@@ -1469,15 +1506,25 @@ namespace MiNET.Client
 			Log.DebugFormat("Case 2: {0}", msg.case2);
 		}
 
-		private void OnMcpeStartGame(Package message)
+		private void OnMcpeStartGame(McpeStartGame message)
 		{
-			McpeStartGame msg = (McpeStartGame) message;
-			_entityId = msg.entityId;
-			_spawn = new Vector3(msg.x, msg.y, msg.z);
+			_entityId = message.entityId;
+			_spawn = new Vector3(message.x, message.y, message.z);
+
+			Log.Debug($@"
+StartGame:
+	isLoadedInCreative: {message.isLoadedInCreative}	
+	dayCycleStopTime: {message.dayCycleStopTime}	
+	eduMode: {message.eduMode}	
+	unknownbytes: {message.unknownbytes}	
+	unknownstr: {message.unknownstr}	
+");
+
+			if (message.unknownbytes != 0) Log.Error($"Got content in unknown bytes: {message.unknownbytes}");
 
 			Level.LevelName = "Default";
 			Level.Version = 19133;
-			Level.GameType = msg.gamemode;
+			Level.GameType = message.gamemode;
 
 			//ClientUtils.SaveLevel(_level);
 
@@ -1632,17 +1679,17 @@ namespace MiNET.Client
 			if (!Log.IsDebugEnabled) return;
 
 			//if (message is McpeMoveEntity
-			    //|| message is McpeAddEntity
-			    //|| message is McpeCraftingData
-			    //|| message is McpeContainerSetContent
-			    //|| message is McpeMobArmorEquipment
-			    //|| message is McpeClientboundMapItemData
-			    //|| message is McpeMovePlayer
-			    //|| message is McpeSetEntityMotion
-			    //|| message is McpeBatch
-			    //|| message is McpeFullChunkData
-			    //|| message is McpeWrapper
-			    //|| message is ConnectedPing) return;
+			//|| message is McpeAddEntity
+			//|| message is McpeCraftingData
+			//|| message is McpeContainerSetContent
+			//|| message is McpeMobArmorEquipment
+			//|| message is McpeClientboundMapItemData
+			//|| message is McpeMovePlayer
+			//|| message is McpeSetEntityMotion
+			//|| message is McpeBatch
+			//|| message is McpeFullChunkData
+			//|| message is McpeWrapper
+			//|| message is ConnectedPing) return;
 
 			//var stringWriter = new StringWriter();
 			//ObjectDumper.Write(message, 1, stringWriter);
@@ -1734,7 +1781,7 @@ namespace MiNET.Client
 			var packet = new ConnectionRequest()
 			{
 				clientGuid = _clientGuid,
-				timestamp = DateTime.UtcNow.Ticks/*/TimeSpan.TicksPerMillisecond*/,
+				timestamp = DateTime.UtcNow.Ticks /*/TimeSpan.TicksPerMillisecond*/,
 				doSecurity = 0,
 			};
 

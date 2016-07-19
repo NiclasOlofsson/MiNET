@@ -1098,24 +1098,18 @@ namespace MiNET
 			}
 		}
 
-		public void SendPackage(Player player, Package message)
+		public void SendPackage(PlayerNetworkSession session, Package message)
 		{
-			if (message == null) return;
-
-			PlayerNetworkSession session;
-			if (_playerSessions.TryGetValue(player.EndPoint, out session))
+			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 			{
-				foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
-				{
-					SendDatagram(session, datagram);
-				}
-
-				TraceSend(message);
-
-				message.PutPool();
-
-				//Thread.Sleep(5); // Really important to slow down speed a bit
+				SendDatagram(session, datagram);
 			}
+
+			TraceSend(message);
+
+			message.PutPool();
+
+			//Thread.Sleep(5); // Really important to slow down speed a bit
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)

@@ -329,15 +329,232 @@ namespace MiNET
 			{
 				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
 				{
-					playerSession.Player?.HandlePackage(message as Package);
+					HandlePackage(Player, message as Package);
 					message.PutPool();
 				});
 			}
 			else
 			{
-				playerSession.Player?.HandlePackage(message);
+				HandlePackage(Player, message);
 				message.PutPool();
 			}
+		}
+
+		private void HandlePackage(IMcpeMessageHandler handler, Package message)
+		{
+			Player.LastNetworkActivity = DateTime.UtcNow;
+
+			var result = Player.Server.PluginManager.PluginPacketHandler(message, true, Player);
+			//if (result != message) message.PutPool();
+			message = result;
+
+			if (message == null)
+			{
+				return;
+			}
+
+			else if (typeof (ConnectedPing) == message.GetType())
+			{
+				HandleConnectedPing((ConnectedPing) message);
+			}
+
+			else if (typeof (ConnectionRequest) == message.GetType())
+			{
+				HandleConnectionRequest((ConnectionRequest) message);
+			}
+
+			else if (typeof (NewIncomingConnection) == message.GetType())
+			{
+				HandleNewIncomingConnection((NewIncomingConnection) message);
+			}
+
+			else if (typeof (DisconnectionNotification) == message.GetType())
+			{
+				HandleDisconnectionNotification();
+			}
+
+			else if (typeof (McpeClientMagic) == message.GetType())
+			{
+				// Start encrypotion
+				handler.HandleMcpeClientMagic((McpeClientMagic) message);
+			}
+
+			else if (typeof (McpeUpdateBlock) == message.GetType())
+			{
+				// DO NOT USE. Will dissapear from MCPE any release. 
+				// It is a bug that it leaks these messages.
+			}
+
+			else if (typeof (McpeRemoveBlock) == message.GetType())
+			{
+				handler.HandleMcpeRemoveBlock((McpeRemoveBlock) message);
+			}
+
+			else if (typeof (McpeAnimate) == message.GetType())
+			{
+				handler.HandleMcpeAnimate((McpeAnimate) message);
+			}
+
+			else if (typeof (McpeUseItem) == message.GetType())
+			{
+				handler.HandleMcpeUseItem((McpeUseItem) message);
+			}
+
+			else if (typeof (McpeEntityEvent) == message.GetType())
+			{
+				handler.HandleMcpeEntityEvent((McpeEntityEvent) message);
+			}
+
+			else if (typeof (McpeText) == message.GetType())
+			{
+				handler.HandleMcpeText((McpeText) message);
+			}
+
+			else if (typeof (McpeRemoveEntity) == message.GetType())
+			{
+				// Do nothing right now, but should clear out the entities and stuff
+				// from this players internal structure.
+			}
+
+			else if (typeof (McpeLogin) == message.GetType())
+			{
+				handler.HandleMcpeLogin((McpeLogin) message);
+			}
+
+			else if (typeof (McpeMovePlayer) == message.GetType())
+			{
+				handler.HandleMcpeMovePlayer((McpeMovePlayer) message);
+			}
+
+			else if (typeof (McpeInteract) == message.GetType())
+			{
+				handler.HandleMcpeInteract((McpeInteract) message);
+			}
+
+			else if (typeof (McpeRespawn) == message.GetType())
+			{
+				handler.HandleMcpeRespawn((McpeRespawn) message);
+			}
+
+			else if (typeof (McpeBlockEntityData) == message.GetType())
+			{
+				handler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
+			}
+
+			else if (typeof (McpePlayerAction) == message.GetType())
+			{
+				handler.HandleMcpePlayerAction((McpePlayerAction) message);
+			}
+
+			else if (typeof (McpeDropItem) == message.GetType())
+			{
+				handler.HandleMcpeDropItem((McpeDropItem) message);
+			}
+
+			else if (typeof (McpeContainerSetSlot) == message.GetType())
+			{
+				handler.HandleMcpeContainerSetSlot((McpeContainerSetSlot) message);
+			}
+
+			else if (typeof (McpeContainerClose) == message.GetType())
+			{
+				handler.HandleMcpeContainerClose((McpeContainerClose) message);
+			}
+
+			else if (typeof (McpeMobEquipment) == message.GetType())
+			{
+				handler.HandleMcpeMobEquipment((McpeMobEquipment) message);
+			}
+
+			else if (typeof (McpeMobArmorEquipment) == message.GetType())
+			{
+				handler.HandleMcpeMobArmorEquipment((McpeMobArmorEquipment) message);
+			}
+
+			else if (typeof (McpeCraftingEvent) == message.GetType())
+			{
+				handler.HandleMcpeCraftingEvent((McpeCraftingEvent) message);
+			}
+
+			else if (typeof (McpeRequestChunkRadius) == message.GetType())
+			{
+				handler.HandleMcpeRequestChunkRadius((McpeRequestChunkRadius) message);
+			}
+
+			else if (typeof (McpeMapInfoRequest) == message.GetType())
+			{
+				handler.HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
+			}
+
+			else if (typeof (McpeItemFramDropItem) == message.GetType())
+			{
+				handler.HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
+			}
+
+			else if (typeof (McpeItemFramDropItem) == message.GetType())
+			{
+				handler.HandleMcpePlayerInput((McpePlayerInput) message);
+			}
+
+			else
+			{
+				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Player.Username}, IP {EndPoint.Address}");
+				return;
+			}
+
+			if (message.Timer.IsRunning)
+			{
+				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
+				if (elapsedMilliseconds > 1000)
+				{
+					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Player.Username);
+				}
+			}
+			else
+			{
+				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Player.Username);
+			}
+		}
+
+		protected virtual void HandleConnectedPing(ConnectedPing message)
+		{
+			ConnectedPong package = ConnectedPong.CreateObject();
+			package.NoBatch = true;
+			package.ForceClear = true;
+			package.sendpingtime = message.sendpingtime;
+			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+			Player.SendPackage(package);
+		}
+
+		protected virtual void HandleConnectionRequest(ConnectionRequest message)
+		{
+			Log.DebugFormat("Connection request from: {0}", EndPoint.Address);
+
+			var response = ConnectionRequestAccepted.CreateObject();
+			response.NoBatch = true;
+			response.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
+			response.systemAddresses = new IPEndPoint[10];
+			response.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
+			response.incomingTimestamp = message.timestamp;
+			response.serverTimestamp = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
+
+			for (int i = 1; i < 10; i++)
+			{
+				response.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
+			}
+
+			Player.SendPackage(response);
+		}
+
+		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
+		{
+			State = ConnectionState.Connected;
+			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, EndPoint.Port);
+		}
+
+		protected virtual void HandleDisconnectionNotification()
+		{
+			Player.Disconnect("Client requested disconnected", false);
 		}
 	}
 }

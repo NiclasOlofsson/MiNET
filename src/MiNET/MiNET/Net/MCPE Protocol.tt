@@ -26,6 +26,18 @@ using LongString = System.String;
 
 namespace MiNET.Net
 {
+	public interface IMcpeMessageHandler
+	{
+<#	
+
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @client='true']"))
+{
+#>
+		void Handle<#= CodeTypeName(pdu.Attributes["name"].Value) #>(<#= CodeTypeName(pdu.Attributes["name"].Value) #> message);
+<#	
+} // foreach
+#>
+	}
 
 	public class PackageFactory
 	{

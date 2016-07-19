@@ -29,7 +29,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
-	public class Player : Entity
+	public class Player : Entity, IMcpeMessageHandler
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
 
@@ -104,193 +104,7 @@ namespace MiNET
 			if (IsConnected) _sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
 		}
 
-		public void HandlePackage(Package message)
-		{
-			LastNetworkActivity = DateTime.UtcNow;
-
-			var result = Server.PluginManager.PluginPacketHandler(message, true, this);
-			//if (result != message) message.PutPool();
-			message = result;
-
-			if (message == null)
-			{
-				return;
-			}
-
-			else if (typeof (McpeClientMagic) == message.GetType())
-			{
-				// Start encrypotion
-				HandleMcpeClientMagic((McpeClientMagic) message);
-			}
-
-			else if (typeof (McpeUpdateBlock) == message.GetType())
-			{
-				// DO NOT USE. Will dissapear from MCPE any release. 
-				// It is a bug that it leaks these messages.
-			}
-
-			else if (typeof (McpeRemoveBlock) == message.GetType())
-			{
-				HandleRemoveBlock((McpeRemoveBlock) message);
-			}
-
-			else if (typeof (McpeAnimate) == message.GetType())
-			{
-				HandleAnimate((McpeAnimate) message);
-			}
-
-			else if (typeof (McpeUseItem) == message.GetType())
-			{
-				HandleUseItem((McpeUseItem) message);
-			}
-
-			else if (typeof (McpeEntityEvent) == message.GetType())
-			{
-				HandleEntityEvent((McpeEntityEvent) message);
-			}
-
-			else if (typeof (ConnectedPing) == message.GetType())
-			{
-				HandleConnectedPing((ConnectedPing) message);
-			}
-
-			else if (typeof (ConnectedPong) == message.GetType())
-			{
-				HandleConnectedPong((ConnectedPong) message);
-			}
-
-			else if (typeof (ConnectionRequest) == message.GetType())
-			{
-				HandleConnectionRequest((ConnectionRequest) message);
-			}
-
-			else if (typeof (NewIncomingConnection) == message.GetType())
-			{
-				HandleNewIncomingConnection((NewIncomingConnection) message);
-			}
-
-			else if (typeof (DisconnectionNotification) == message.GetType())
-			{
-				HandleDisconnectionNotification();
-			}
-
-			else if (typeof (McpeText) == message.GetType())
-			{
-				HandleMessage((McpeText) message);
-			}
-
-			else if (typeof (McpeRemoveEntity) == message.GetType())
-			{
-				// Do nothing right now, but should clear out the entities and stuff
-				// from this players internal structure.
-			}
-
-			else if (typeof (McpeLogin) == message.GetType())
-			{
-				HandleLogin((McpeLogin) message);
-			}
-
-			else if (typeof (McpeMovePlayer) == message.GetType())
-			{
-				HandleMovePlayer((McpeMovePlayer) message);
-			}
-
-			else if (typeof (McpeInteract) == message.GetType())
-			{
-				HandleInteract((McpeInteract) message);
-			}
-
-			else if (typeof (McpeRespawn) == message.GetType())
-			{
-				HandleRespawn();
-			}
-
-			else if (typeof (McpeBlockEntityData) == message.GetType())
-			{
-				HandleEntityData((McpeBlockEntityData) message);
-			}
-
-			else if (typeof (InternalPing) == message.GetType())
-			{
-				HandlePing((InternalPing) message);
-			}
-
-			else if (typeof (McpePlayerAction) == message.GetType())
-			{
-				HandlePlayerAction((McpePlayerAction) message);
-			}
-
-			else if (typeof (McpeDropItem) == message.GetType())
-			{
-				HandlePlayerDropItem((McpeDropItem) message);
-			}
-
-			else if (typeof (McpeContainerSetSlot) == message.GetType())
-			{
-				HandleContainerSetSlot((McpeContainerSetSlot) message);
-			}
-
-			else if (typeof (McpeContainerClose) == message.GetType())
-			{
-				HandleMcpeContainerClose((McpeContainerClose) message);
-			}
-
-			else if (typeof (McpeMobEquipment) == message.GetType())
-			{
-				HandleMobEquipment((McpeMobEquipment) message);
-			}
-
-			else if (typeof (McpeMobArmorEquipment) == message.GetType())
-			{
-				HandlePlayerArmorEquipment((McpeMobArmorEquipment) message);
-			}
-
-			else if (typeof (McpeCraftingEvent) == message.GetType())
-			{
-				HandleCraftingEvent((McpeCraftingEvent) message);
-			}
-
-			else if (typeof (McpeRequestChunkRadius) == message.GetType())
-			{
-				HandleMcpeRequestChunkRadius((McpeRequestChunkRadius) message);
-			}
-
-			else if (typeof (McpeMapInfoRequest) == message.GetType())
-			{
-				HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
-			}
-
-			else if (typeof (McpeItemFramDropItem) == message.GetType())
-			{
-				HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
-			}
-
-			else if (typeof (McpeItemFramDropItem) == message.GetType())
-			{
-				HandleMcpePlayerInput((McpePlayerInput) message);
-			}
-
-			else
-			{
-				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
-				return;
-			}
-
-			if (message.Timer.IsRunning)
-			{
-				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
-				if (elapsedMilliseconds > 1000)
-				{
-					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
-				}
-			}
-			else
-			{
-				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
-			}
-		}
-
-		private void HandleMcpeClientMagic(McpeClientMagic message)
+		public void HandleMcpeClientMagic(McpeClientMagic message)
 		{
 			SendPlayerStatus(0);
 
@@ -300,7 +114,7 @@ namespace MiNET
 			new Thread(Start) {IsBackground = true}.Start();
 		}
 
-		protected virtual void HandleMcpePlayerInput(McpePlayerInput message)
+		public virtual void HandleMcpePlayerInput(McpePlayerInput message)
 		{
 			Log.Debug($"Player input: Motion X={message.motionX}, Motion Z={message.motionZ}, Flags=0x{message.motionX:X2}");
 		}
@@ -310,7 +124,7 @@ namespace MiNET
 		private Timer _mapSender;
 		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>();
 
-		protected virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
+		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 			lock (_mapInfoSync)
 			{
@@ -359,7 +173,7 @@ namespace MiNET
 
 		public int ChunkRadius { get; private set; } = -1;
 
-		protected virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
+		public virtual void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message)
 		{
 			Log.Debug($"Requested chunk radius of: {message.chunkRadius}");
 
@@ -373,17 +187,12 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void HandleNewIncomingConnection(NewIncomingConnection message)
-		{
-			NetworkSession.State = ConnectionState.Connected;
-			Log.DebugFormat("New incoming connection from {0} {1}", EndPoint.Address, EndPoint.Port);
-		}
 
 		/// <summary>
 		///     Handles an animate packet.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleAnimate(McpeAnimate message)
+		public virtual void HandleMcpeAnimate(McpeAnimate message)
 		{
 			if (Level == null) return;
 
@@ -400,7 +209,7 @@ namespace MiNET
 		///     Handles the player action.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		protected virtual void HandlePlayerAction(McpePlayerAction message)
+		public virtual void HandleMcpePlayerAction(McpePlayerAction message)
 		{
 			Log.DebugFormat("Player action: {0}", message.actionId);
 			Log.DebugFormat("Entity ID: {0}", message.entityId);
@@ -433,7 +242,7 @@ namespace MiNET
 				case PlayerAction.StopSleeping:
 					break;
 				case PlayerAction.Respawn:
-					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleRespawn);
+					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
 					break;
 				case PlayerAction.Jump:
 					HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
@@ -500,19 +309,10 @@ namespace MiNET
 		}
 
 		/// <summary>
-		///     Handles the ping.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		protected virtual void HandlePing(InternalPing message)
-		{
-			SendPackage(message);
-		}
-
-		/// <summary>
 		///     Handles the entity data.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleEntityData(McpeBlockEntityData message)
+		public virtual void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
 			Log.DebugFormat("x:  {0}", message.x);
 			Log.DebugFormat("y:  {0}", message.y);
@@ -616,61 +416,9 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Handles the disconnection notification.
-		/// </summary>
-		protected virtual void HandleDisconnectionNotification()
-		{
-			Disconnect("Client requested disconnected", false);
-		}
-
-		/// <summary>
-		///     Handles the connection request.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		protected virtual void HandleConnectionRequest(ConnectionRequest message)
-		{
-			Log.DebugFormat("Connection request from: {0}", EndPoint.Address);
-
-			ClientGuid = message.clientGuid;
-
-			var response = ConnectionRequestAccepted.CreateObject();
-			response.NoBatch = true;
-			response.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
-			response.systemAddresses = new IPEndPoint[10];
-			response.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
-			response.incomingTimestamp = message.timestamp;
-			response.serverTimestamp = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-
-			for (int i = 1; i < 10; i++)
-			{
-				response.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
-			}
-
-			SendPackage(response);
-		}
-
-		/// <summary>
-		///     Handles the connected ping.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		protected virtual void HandleConnectedPing(ConnectedPing message)
-		{
-			ConnectedPong package = ConnectedPong.CreateObject();
-			package.NoBatch = true;
-			package.ForceClear = true;
-			package.sendpingtime = message.sendpingtime;
-			package.sendpongtime = DateTimeOffset.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-			SendPackage(package);
-		}
-
-		protected virtual void HandleConnectedPong(ConnectedPong message)
-		{
-		}
-
 		private object _loginSyncLock = new object();
 
-		protected virtual void HandleLogin(McpeLogin message)
+		public virtual void HandleMcpeLogin(McpeLogin message)
 		{
 			//Disconnect("Este servidor ya no existe. Por favor, conecta a " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " para seguir jugando.");
 			////Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
@@ -1095,7 +843,12 @@ namespace MiNET
 			OnPlayerJoin(new PlayerEventArgs(this));
 		}
 
-		protected virtual void HandleRespawn()
+		public virtual void HandleMcpeRespawn()
+		{
+			HandleMcpeRespawn(null);
+		}
+
+		public virtual void HandleMcpeRespawn(McpeRespawn message)
 		{
 			HealthManager.ResetHealth();
 
@@ -1472,7 +1225,7 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void HandleMessage(McpeText message)
+		public virtual void HandleMcpeText(McpeText message)
 		{
 			string text = message.message;
 
@@ -1492,7 +1245,7 @@ namespace MiNET
 		private int _lastOrderingIndex;
 		private object _moveSyncLock = new object();
 
-		protected virtual void HandleMovePlayer(McpeMovePlayer message)
+		public virtual void HandleMcpeMovePlayer(McpeMovePlayer message)
 		{
 			if (!IsSpawned || HealthManager.IsDead) return;
 
@@ -1590,22 +1343,22 @@ namespace MiNET
 		}
 
 
-		protected virtual void HandleRemoveBlock(McpeRemoveBlock message)
+		public virtual void HandleMcpeRemoveBlock(McpeRemoveBlock message)
 		{
 			Level.BreakBlock(this, new BlockCoordinates(message.x, message.y, message.z));
 		}
 
-		protected virtual void HandlePlayerArmorEquipment(McpeMobArmorEquipment message)
+		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
 		{
 		}
 
-		protected virtual void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
+		public virtual void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
 			Item droppedItem = message.item;
 			Log.Warn($"Player {Username} drops item frame {droppedItem} at {message.x}, {message.y}, {message.z}");
 		}
 
-		protected virtual void HandlePlayerDropItem(McpeDropItem message)
+		public virtual void HandleMcpeDropItem(McpeDropItem message)
 		{
 			lock (Inventory)
 			{
@@ -1633,7 +1386,7 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void HandleMobEquipment(McpeMobEquipment message)
+		public virtual void HandleMcpeMobEquipment(McpeMobEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
@@ -1774,7 +1527,7 @@ namespace MiNET
 		}
 
 
-		protected virtual void HandleCraftingEvent(McpeCraftingEvent message)
+		public virtual void HandleMcpeCraftingEvent(McpeCraftingEvent message)
 		{
 			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 		}
@@ -1783,7 +1536,7 @@ namespace MiNET
 		///     Handles the container set slot.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleContainerSetSlot(McpeContainerSetSlot message)
+		public virtual void HandleMcpeContainerSetSlot(McpeContainerSetSlot message)
 		{
 			lock (Inventory)
 			{
@@ -1873,7 +1626,7 @@ namespace MiNET
 			return ItemSigner.DefaultItemSigner.VerifyItemStack(this, itemStack);
 		}
 
-		protected virtual void HandleMcpeContainerClose(McpeContainerClose message)
+		public virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
 			lock (_inventorySync)
 			{
@@ -1906,7 +1659,7 @@ namespace MiNET
 		///     Handles the interact.
 		/// </summary>
 		/// <param name="message">The message.</param>
-		protected virtual void HandleInteract(McpeInteract message)
+		public virtual void HandleMcpeInteract(McpeInteract message)
 		{
 			Entity target = Level.GetEntity(message.targetEntityId);
 
@@ -2131,7 +1884,7 @@ namespace MiNET
 		}
 
 
-		protected virtual void HandleEntityEvent(McpeEntityEvent message)
+		public virtual void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 			Log.Debug("Entity Id:" + message.entityId);
 			Log.Debug("Entity Event:" + message.eventId);
@@ -2168,7 +1921,7 @@ namespace MiNET
 
 		private long _itemUseTimer;
 
-		protected virtual void HandleUseItem(McpeUseItem message)
+		public virtual void HandleMcpeUseItem(McpeUseItem message)
 		{
 			Log.DebugFormat("Use item: {0}", message.item);
 			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);

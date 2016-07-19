@@ -21,7 +21,9 @@ namespace MiNET.Ftl.Service
 
 		public void StartServer()
 		{
-			_serverTargetEndpoint = new IPEndPoint(IPAddress.Parse("147.75.194.126"), 19132);
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("pe.mineplex.com").AddressList[0], 19132), "TheGrey");
+			_serverTargetEndpoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19135);
+			//_serverTargetEndpoint = new IPEndPoint(IPAddress.Parse("147.75.194.126"), 19132);
 			_serverListenerEndPoint = Endpoint = new IPEndPoint(IPAddress.Any, 19134);
 
 			_listener = new UdpClient(Endpoint);
@@ -133,9 +135,8 @@ namespace MiNET.Ftl.Service
 				_endpointMappings.TryAdd(senderEndpoint, client);
 			}
 
-			//client.Send(receiveBytes, receiveBytes.Length, new IPEndPoint(Dns.GetHostEntry("pe.hypixel.net").AddressList[0], 19132));
 			client.Send(receiveBytes, receiveBytes.Length, _serverTargetEndpoint);
-			Log.InfoFormat("Forwarded message from c {2} -> s {1} 0x{0:x2}", receiveBytes[0], _serverTargetEndpoint, senderEndpoint);
+			Log.Info($"Forwarded message from c {senderEndpoint} -> s {_serverTargetEndpoint} 0x{receiveBytes[0]:x2}");
 		}
 
 		private void ClientRequestCallback(IAsyncResult ar)
@@ -180,11 +181,11 @@ namespace MiNET.Ftl.Service
 				try
 				{
 					_listener.Send(receiveBytes, receiveBytes.Length, endpoint);
-					Log.InfoFormat("Forwarded message from s {1} -> c {2} 0x{0:x2}", receiveBytes[0], _serverListenerEndPoint, endpoint);
+					Log.Info($"Forwarded message from s {_serverListenerEndPoint} -> c {endpoint} 0x{receiveBytes[0]:x2}");
 				}
 				catch (Exception e)
 				{
-					Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
+					Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
 				}
 			}
 			else

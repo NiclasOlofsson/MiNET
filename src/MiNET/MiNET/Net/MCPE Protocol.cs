@@ -15,6 +15,31 @@ using LongString = System.String;
 
 namespace MiNET.Net
 {
+	public interface IMcpeMessageHandler
+	{
+		void HandleMcpeLogin(McpeLogin message);
+		void HandleMcpeClientMagic(McpeClientMagic message);
+		void HandleMcpeText(McpeText message);
+		void HandleMcpeMovePlayer(McpeMovePlayer message);
+		void HandleMcpeRemoveBlock(McpeRemoveBlock message);
+		void HandleMcpeEntityEvent(McpeEntityEvent message);
+		void HandleMcpeMobEquipment(McpeMobEquipment message);
+		void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message);
+		void HandleMcpeInteract(McpeInteract message);
+		void HandleMcpeUseItem(McpeUseItem message);
+		void HandleMcpePlayerAction(McpePlayerAction message);
+		void HandleMcpeAnimate(McpeAnimate message);
+		void HandleMcpeRespawn(McpeRespawn message);
+		void HandleMcpeDropItem(McpeDropItem message);
+		void HandleMcpeContainerClose(McpeContainerClose message);
+		void HandleMcpeContainerSetSlot(McpeContainerSetSlot message);
+		void HandleMcpeCraftingEvent(McpeCraftingEvent message);
+		void HandleMcpeBlockEntityData(McpeBlockEntityData message);
+		void HandleMcpePlayerInput(McpePlayerInput message);
+		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
+		void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message);
+		void HandleMcpeItemFramDropItem(McpeItemFramDropItem message);
+	}
 
 	public class PackageFactory
 	{

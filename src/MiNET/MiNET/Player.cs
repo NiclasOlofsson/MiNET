@@ -77,10 +77,6 @@ namespace MiNET
 		public bool IsFalling { get; set; }
 		public bool IsFlyingHorizontally { get; set; }
 
-		public long Rtt { get; set; } = 300;
-		public long RttVar { get; set; }
-		public long Rto { get; set; }
-
 		public List<Popup> Popups { get; set; } = new List<Popup>();
 
 		public User User { get; set; }
@@ -2475,14 +2471,6 @@ namespace MiNET
 			string deathMessage = string.Format(HealthManager.GetDescription(lastDamageCause), Username, player == null ? "" : player.Username);
 			Level.BroadcastMessage(deathMessage, type: McpeText.TypeRaw);
 			Log.Debug(deathMessage);
-		}
-
-		public void DetectLostConnection()
-		{
-			DetectLostConnections ping = DetectLostConnections.CreateObject();
-			ping.ForceClear = true;
-			ping.NoBatch = true;
-			SendPackage(ping);
 		}
 
 		public void SendDirectPackage(Package package)

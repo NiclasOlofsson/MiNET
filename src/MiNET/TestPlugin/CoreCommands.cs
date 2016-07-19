@@ -746,7 +746,7 @@ namespace TestPlugin
 			currentPlayer.SendMessage("Statistics:", type: McpeText.TypeRaw);
 			foreach (var player in players)
 			{
-				currentPlayer.SendMessage(string.Format("RTT: {1:0000} User: {0}", player.Username, player.Rtt), type: McpeText.TypeRaw);
+				currentPlayer.SendMessage(string.Format("RTT: {1:0000} User: {0}", player.Username, player.NetworkSession.Rtt), type: McpeText.TypeRaw);
 			}
 		}
 

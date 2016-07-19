@@ -360,7 +360,7 @@ namespace MiNET
 					}
 					catch (Exception e)
 					{
-						player.Disconnect("Bad package received from client.");
+						playerSession.Disconnect("Bad package received from client.");
 						//if (Log.IsDebugEnabled)
 						{
 							Log.Warn("Bad packet " + receiveBytes[0], e);
@@ -382,7 +382,7 @@ namespace MiNET
 					//	)
 					{
 						EnqueueAck(playerSession, package._datagramSequenceNumber);
-						Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
+						if(Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
 					}
 
 					HandleConnectedPackage(playerSession, package);
@@ -558,8 +558,7 @@ namespace MiNET
 
 					Log.InfoFormat("Unexpected session from {0}. Removing old session and disconnecting old player.", senderEndpoint.Address);
 
-					Player oldPlayer = session.Player;
-					oldPlayer?.Disconnect("Reconnecting.", false);
+					session.Disconnect("Reconnecting.", false);
 
 					_playerSessions.TryRemove(senderEndpoint, out session);
 				}
@@ -685,7 +684,7 @@ namespace MiNET
 					Log.Error("Error during split message parsing", e);
 					if (Log.IsDebugEnabled)
 						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-					playerSession.Player?.Disconnect("Bad package received from client.");
+					playerSession.Disconnect("Bad package received from client.", false);
 				}
 			}
 		}
@@ -787,9 +786,6 @@ namespace MiNET
 		{
 			if (session == null) return;
 
-			Player player = session.Player;
-			if (player == null) return;
-
 			Nak nak = Nak.CreateObject();
 			nak.Reset();
 			nak.Decode(receiveBytes);
@@ -818,18 +814,18 @@ namespace MiNET
 						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
 						// RTO = RTT + 4 * RTTVar
 						long rtt = datagram.Timer.ElapsedMilliseconds;
-						long RTT = player.Rtt;
-						long RTTVar = player.RttVar;
+						long RTT = session.Rtt;
+						long RTTVar = session.RttVar;
 
-						player.Rtt = (long) (RTT*0.875 + rtt*0.125);
-						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
+						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
+						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+						session.Rto = session.Rtt + 4* session.RttVar + 100; // SYNC time in the end
 
 						FastThreadPool.QueueUserWorkItem(delegate
 						{
 							var dgram = (Datagram) datagram;
 							if (Log.IsDebugEnabled)
-								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, player.Username);
+								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, session.Player?.Username);
 							SendDatagram(session, dgram);
 							Interlocked.Increment(ref ServerInfo.NumberOfResends);
 						});
@@ -837,7 +833,7 @@ namespace MiNET
 					else
 					{
 						if (Log.IsDebugEnabled)
-							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, player.Username);
+							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, session.Player?.Username);
 					}
 				}
 			}
@@ -848,9 +844,6 @@ namespace MiNET
 		private void HandleAck(PlayerNetworkSession session, byte[] receiveBytes)
 		{
 			if (session == null) return;
-
-			Player player = session.Player;
-			if (player == null) return;
 
 			//Ack ack = Ack.CreateObject();
 			Ack ack = new Ack();
@@ -877,19 +870,19 @@ namespace MiNET
 						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
 						// RTO = RTT + 4 * RTTVar
 						long rtt = datagram.Timer.ElapsedMilliseconds;
-						long RTT = player.Rtt;
-						long RTTVar = player.RttVar;
+						long RTT = session.Rtt;
+						long RTTVar = session.RttVar;
 
-						player.Rtt = (long) (RTT*0.875 + rtt*0.125);
-						player.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						player.Rto = player.Rtt + 4*player.RttVar + 100; // SYNC time in the end
+						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
+						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+						session.Rto = session.Rtt + 4* session.RttVar + 100; // SYNC time in the end
 
 						datagram.PutPool();
 					}
 					else
 					{
 						if (Log.IsDebugEnabled)
-							Log.WarnFormat("ACK, Failed to remove datagram #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
+							Log.WarnFormat("ACK, Failed to remove datagram #{0} for {2}. Queue size={1}", i, queue.Count, session.Player?.Username);
 					}
 				}
 			}
@@ -986,8 +979,6 @@ namespace MiNET
 					if (session == null) return;
 					if (session.Evicted) return;
 
-					Player player = session.Player;
-
 					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
 					bool serverHasNoLag = ServerInfo.AvailableBytes < 1000;
 
@@ -997,23 +988,16 @@ namespace MiNET
 						// Disconnect user
 						ThreadPool.QueueUserWorkItem(delegate(object o)
 						{
-							PlayerNetworkSession s = o as PlayerNetworkSession;
-							if (s != null)
+							if (session != null)
 							{
-								Player p = s.Player;
-								if (p != null)
+								session.Disconnect("You've been kicked with reason: Network timeout.");
+
+								if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
 								{
-									p.Disconnect("You've been kicked with reason: Network timeout.");
-								}
-								else
-								{
-									if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
-									{
-										session.Player = null;
-										session.State = ConnectionState.Unconnected;
-										session.Evicted = true;
-										session.Clean();
-									}
+									session.Player = null;
+									session.State = ConnectionState.Unconnected;
+									session.Evicted = true;
+									session.Clean();
 								}
 							}
 						}, session);
@@ -1022,7 +1006,7 @@ namespace MiNET
 					}
 
 
-					if (serverHasNoLag && session.State != ConnectionState.Connected && player != null && lastUpdate + 3000 < now)
+					if (serverHasNoLag && session.State != ConnectionState.Connected && session.Player != null && lastUpdate + 3000 < now)
 					{
 						ThreadPool.QueueUserWorkItem(delegate(object o)
 						{
@@ -1037,17 +1021,17 @@ namespace MiNET
 						return;
 					}
 
-					if (player == null) return;
+					if (session.Player == null) return;
 
 					if (serverHasNoLag && lastUpdate + InacvitityTimeout < now && !session.WaitForAck)
 					{
-						player.DetectLostConnection();
+						session.DetectLostConnection();
 						session.WaitForAck = true;
 					}
 
-					if (player.Rto == 0) return;
+					if (session.Rto == 0) return;
 
-					long rto = Math.Max(100, player.Rto);
+					long rto = Math.Max(100, session.Rto);
 					var queue = session.WaitingForAcksQueue;
 
 					foreach (KeyValuePair<int, Datagram> datagramPair in queue)
@@ -1063,7 +1047,7 @@ namespace MiNET
 							continue;
 						}
 
-						if (player.Rtt == -1) return;
+						if (session.Rtt == -1) return;
 
 						//if (session.WaitForAck) return;
 
@@ -1089,11 +1073,11 @@ namespace MiNET
 									if (Log.IsDebugEnabled)
 										Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),
-											player.Username,
+											session.Player.Username,
 											deleted.FirstMessageId,
 											elapsedTime,
 											datagramTimout,
-											player.Rto);
+											session.Rto);
 									SendDatagram(session, (Datagram) dtgram);
 									Interlocked.Increment(ref ServerInfo.NumberOfResends);
 								});

@@ -46,6 +46,9 @@ namespace MiNET
 		public bool WaitForAck { get; set; }
 		public int ResendCount { get; set; }
 
+		public long Rtt { get; set; } = 300;
+		public long RttVar { get; set; }
+		public long Rto { get; set; }
 
 		public CryptoContext CryptoContext { get; set; }
 
@@ -554,7 +557,20 @@ namespace MiNET
 
 		protected virtual void HandleDisconnectionNotification()
 		{
-			Player.Disconnect("Client requested disconnected", false);
+			Disconnect("Client requested disconnected", false);
+		}
+
+		public virtual void Disconnect(string reason, bool sendDisconnect = true)
+		{
+			Player?.Disconnect(reason, sendDisconnect);
+		}
+
+		public void DetectLostConnection()
+		{
+			DetectLostConnections ping = DetectLostConnections.CreateObject();
+			ping.ForceClear = true;
+			ping.NoBatch = true;
+			Player?.SendPackage(ping);
 		}
 	}
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using Jose;
@@ -325,7 +324,7 @@ namespace MiNET
 			ServerManager serverManager = _session.Server.ServerManager;
 			Server server = serverManager.GetServer();
 
-			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _session.Server, _session.EndPoint, _playerInfo);
+			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
 			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
 
 			_session.MessageHandler.HandleMcpeClientMagic(null);
@@ -416,7 +415,7 @@ namespace MiNET
 	{
 		private Server _getServer = new Server();
 
-		public Server GetServer()
+		public virtual Server GetServer()
 		{
 			return _getServer;
 		}
@@ -424,9 +423,9 @@ namespace MiNET
 
 	public class Server
 	{
-		public IMcpeMessageHandler CreatePlayer(PlayerNetworkSession session, MiNetServer server, IPEndPoint endPoint, PlayerInfo playerInfo)
+		public virtual IMcpeMessageHandler CreatePlayer(PlayerNetworkSession session, PlayerInfo playerInfo)
 		{
-			Player player = server.PlayerFactory.CreatePlayer(session.Server, session.EndPoint);
+			Player player = session.Server.PlayerFactory.CreatePlayer(session.Server, session.EndPoint);
 			player.NetworkHandler = session;
 			player.CertificateData = playerInfo.CertificateData;
 			player.Username = playerInfo.Username;

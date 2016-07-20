@@ -1793,48 +1793,55 @@ namespace MiNET
 			}
 		}
 
-		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel, bool writeLen = false)
-		{
-			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
-			stream.WriteByte(0x78);
-			switch (compressionLevel)
-			{
-				case CompressionLevel.Optimal:
-					stream.WriteByte(0xda);
-					break;
-				case CompressionLevel.Fastest:
-					stream.WriteByte(0x9c);
-					break;
-				case CompressionLevel.NoCompression:
-					stream.WriteByte(0x01);
-					break;
-			}
-			int checksum;
-			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
-			{
-				byte[] lenBytes = BitConverter.GetBytes(input.Length);
-				Array.Reverse(lenBytes);
-				if (writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
-				compressStream.Write(input, 0, input.Length);
-				checksum = compressStream.Checksum;
-			}
+	    private static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)
+	    {
+            MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
+            stream.WriteByte(0x78);
+            switch (compressionLevel)
+            {
+                case CompressionLevel.Optimal:
+                    stream.WriteByte(0xda);
+                    break;
+                case CompressionLevel.Fastest:
+                    stream.WriteByte(0x9c);
+                    break;
+                case CompressionLevel.NoCompression:
+                    stream.WriteByte(0x01);
+                    break;
+            }
+            int checksum;
+            using (var compressStream = new ZLibStream(stream, compressionLevel, true))
+            {
+                byte[] lenBytes = BitConverter.GetBytes(length);
+                Array.Reverse(lenBytes);
+                if (writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
+                compressStream.Write(input, offset, length);
+                checksum = compressStream.Checksum;
+            }
 
-			byte[] checksumBytes = BitConverter.GetBytes(checksum);
-			if (BitConverter.IsLittleEndian)
-			{
-				// Adler32 checksum is big-endian
-				Array.Reverse(checksumBytes);
-			}
-			stream.Write(checksumBytes, 0, checksumBytes.Length);
+            byte[] checksumBytes = BitConverter.GetBytes(checksum);
+            if (BitConverter.IsLittleEndian)
+            {
+                // Adler32 checksum is big-endian
+                Array.Reverse(checksumBytes);
+            }
+            stream.Write(checksumBytes, 0, checksumBytes.Length);
+	        return stream;
+	    }
+        
+        public static McpeBatch CreateBatchPacket(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)
+        {
+            using (MemoryStream stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
+            {
+                McpeBatch batch = McpeBatch.CreateObject();
+                batch.payload = stream.GetBuffer();
+                batch.payloadSize = (int) stream.Length;
+                batch.Encode();
+                return batch;
+            }
+        }
 
-			var bytes = stream.ToArray();
-			stream.Close();
-
-			return bytes;
-		}
-
-
-		public virtual void SendUpdateAttributes()
+        public virtual void SendUpdateAttributes()
 		{
 			//Attribute[generic.absorption, Name: generic.absorption, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0]
 			//Attribute[player.saturation, Name: player.saturation, MinValue: 0, MaxValue: 20, Value: 5]

@@ -171,16 +171,12 @@ namespace MiNET.Worlds
 
 		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
 		{
-			MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
-			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-			memStream.Write(bytes, 0, bytes.Length);
-
-			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
-			return batch;
+		    using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+		    {
+                memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+                memStream.Write(bytes, 0, bytes.Length);
+                return Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
+            }
 		}
 
 		private object _playerWriteLock = new object();
@@ -532,12 +528,7 @@ namespace MiNET.Worlds
 
 			if (count == 0) return;
 
-			McpeBatch batch = McpeBatch.CreateObject(players.Length);
-			byte[] buffer = Player.CompressBytes(stream.ToArray(), CompressionLevel.Optimal);
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
-
+			McpeBatch batch = Player.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal);
 			foreach (var player in players)
 			{
 				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(batch, now), player);

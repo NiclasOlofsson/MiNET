@@ -1370,7 +1370,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(payloadSize);
-			Write(payload);
+			Write(payload, payloadSize);
 
 			AfterEncode();
 		}

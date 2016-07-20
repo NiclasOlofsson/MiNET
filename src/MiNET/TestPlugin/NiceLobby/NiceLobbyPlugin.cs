@@ -817,7 +817,7 @@ namespace TestPlugin.NiceLobby
 			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 			memStream.Write(bytes, 0, bytes.Length);
             
-			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal));
+			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
 			batch.MarkPermanent();
 			return batch;
 		}

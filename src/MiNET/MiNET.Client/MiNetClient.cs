@@ -882,8 +882,8 @@ McpeSetTime:
 				payload = data
 			};
             
-		    var encodedLoginPacket = loginPacket.Encode();
-		    McpeBatch batch = Player.CreateBatchPacket(encodedLoginPacket, 0, encodedLoginPacket.Length, CompressionLevel.Fastest, true);
+			var encodedLoginPacket = loginPacket.Encode();
+			McpeBatch batch = Player.CreateBatchPacket(encodedLoginPacket, 0, encodedLoginPacket.Length, CompressionLevel.Fastest, true);
 
 			Session.CryptoContext = new CryptoContext()
 			{
@@ -966,8 +966,8 @@ McpeSetTime:
 				McpeClientMagic magic = new McpeClientMagic();
 				//SendPackage(magic);
 
-			    var encodedMagic = magic.Encode();
-                var batch = Player.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
+				var encodedMagic = magic.Encode();
+				var batch = Player.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
 				SendPackage(batch);
 			}
 		}

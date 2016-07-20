@@ -106,7 +106,7 @@ namespace MiNET.Net
 			_writer.Write(value, 0, length);
 		}
 
-        public byte[] ReadBytes(int count)
+		public byte[] ReadBytes(int count)
 		{
 			if (count == 0)
 			{

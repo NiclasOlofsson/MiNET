@@ -200,9 +200,9 @@ namespace MiNET.Utils
 		}
 
 	    protected override void Dispose(bool disposing)
-	    {
-	        base.Dispose(disposing);
-            _buffer.Dispose();
-	    }
+		{
+			base.Dispose(disposing);
+			_buffer.Dispose();
+		}
 	}
 }

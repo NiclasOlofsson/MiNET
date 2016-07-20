@@ -199,7 +199,7 @@ namespace MiNET.Utils
 			base.Write(array, offset, count);
 		}
 
-	    protected override void Dispose(bool disposing)
+		protected override void Dispose(bool disposing)
 		{
 			base.Dispose(disposing);
 			_buffer.Dispose();

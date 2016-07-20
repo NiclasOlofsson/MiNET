@@ -1843,7 +1843,7 @@ namespace MiNET
 			}
 		}
 
-        public virtual void SendUpdateAttributes()
+		public virtual void SendUpdateAttributes()
 		{
 			//Attribute[generic.absorption, Name: generic.absorption, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0]
 			//Attribute[player.saturation, Name: player.saturation, MinValue: 0, MaxValue: 20, Value: 5]

@@ -16,7 +16,7 @@ namespace MiNET
 {
 	public class LoginMessageHandler : IMcpeMessageHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(LoginMessageHandler));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (LoginMessageHandler));
 
 		private readonly PlayerNetworkSession _session;
 
@@ -272,7 +272,7 @@ namespace MiNET
 							response.NoBatch = true;
 							response.ForceClear = true;
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-							response.tokenLenght = (short)ecKey.SecretPrepend.Length;
+							response.tokenLenght = (short) ecKey.SecretPrepend.Length;
 							response.token = ecKey.SecretPrepend;
 
 							_session.SendPackage(response);
@@ -305,7 +305,7 @@ namespace MiNET
 					_playerInfo.Skin = new Skin()
 					{
 						SkinType = payload.SkinId,
-						Texture = Convert.FromBase64String((string)payload.SkinData),
+						Texture = Convert.FromBase64String((string) payload.SkinData),
 					};
 				}
 
@@ -322,16 +322,11 @@ namespace MiNET
 
 		public void HandleMcpeClientMagic(McpeClientMagic message)
 		{
-			Player player = _session.Server.PlayerFactory.CreatePlayer(_session.Server, _session.EndPoint);
-			player.NetworkHandler = _session;
-			_session.MessageHandler = player; // Replace current message handler with real one.
+			ServerManager serverManager = _session.Server.ServerManager;
+			Server server = serverManager.GetServer();
 
-			player.CertificateData = _playerInfo.CertificateData;
-			player.Username = _playerInfo.Username;
-			player.ClientUuid = _playerInfo.ClientUuid;
-			player.ServerAddress = _playerInfo.ServerAddress;
-			player.ClientId = _playerInfo.ClientId;
-			player.Skin = _playerInfo.Skin;
+			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _session.Server, _session.EndPoint, _playerInfo);
+			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
 
 			_session.MessageHandler.HandleMcpeClientMagic(null);
 		}
@@ -414,6 +409,33 @@ namespace MiNET
 
 		public void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
+		}
+	}
+
+	public class ServerManager
+	{
+		private Server _getServer = new Server();
+
+		public Server GetServer()
+		{
+			return _getServer;
+		}
+	}
+
+	public class Server
+	{
+		public IMcpeMessageHandler CreatePlayer(PlayerNetworkSession session, MiNetServer server, IPEndPoint endPoint, PlayerInfo playerInfo)
+		{
+			Player player = server.PlayerFactory.CreatePlayer(session.Server, session.EndPoint);
+			player.NetworkHandler = session;
+			player.CertificateData = playerInfo.CertificateData;
+			player.Username = playerInfo.Username;
+			player.ClientUuid = playerInfo.ClientUuid;
+			player.ServerAddress = playerInfo.ServerAddress;
+			player.ClientId = playerInfo.ClientId;
+			player.Skin = playerInfo.Skin;
+
+			return player;
 		}
 	}
 }

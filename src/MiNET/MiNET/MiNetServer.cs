@@ -41,6 +41,7 @@ namespace MiNET
 
 		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
 
+		public ServerManager ServerManager { get; set; }
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
@@ -112,6 +113,8 @@ namespace MiNET
 					int port = Config.GetProperty("ForwardPort", 19132);
 					ForwardTarget = new IPEndPoint(ip, port);
 				}
+
+				ServerManager = new ServerManager();
 
 				Log.Info("Loading plugins...");
 				PluginManager = new PluginManager();

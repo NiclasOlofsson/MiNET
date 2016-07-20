@@ -95,15 +95,15 @@ namespace MiNET.Net
 			_writer.Write(value);
 		}
 
-        public void Write(byte[] value, int length)
-        {
-            if (value == null)
-            {
-                Log.Warn("Trying to write null byte[]");
-                return;
-            }
-
-            _writer.Write(value, 0, length);
+		public void Write(byte[] value, int length)
+		{
+			if (value == null)
+			{
+				Log.Warn("Trying to write null byte[]");
+				return;
+			}
+			
+			_writer.Write(value, 0, length);
         }
 
         public byte[] ReadBytes(int count)

@@ -269,14 +269,14 @@ namespace MiNET.Worlds
 				fullChunkData.PutPool();
 
 			    McpeBatch batch;
-			    using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
-			    {
-                    memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-                    memStream.Write(bytes, 0, bytes.Length);
-                    batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
-                    batch.Encode();
-                    batch.MarkPermanent();
-                }
+				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+				{
+					memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+					memStream.Write(bytes, 0, bytes.Length);
+					batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
+					batch.Encode();
+					batch.MarkPermanent();
+				}
 
 				_cachedBatch = batch;
 				_cache = null;

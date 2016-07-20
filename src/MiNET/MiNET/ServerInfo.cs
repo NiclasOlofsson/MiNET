@@ -7,7 +7,7 @@ namespace MiNET
 {
 	public class ServerInfo
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ServerInfo));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
 
 		private LevelManager _levelManager;
 		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
@@ -39,30 +39,30 @@ namespace MiNET
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
 			{
-				ThroughPut = new Timer(delegate(object state)
+				ThroughPut = new Timer(delegate (object state)
 				{
 					NumberOfPlayers = PlayerSessions.Count;
 
 					int threads;
 					int portThreads;
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8/1000000D;
-					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8/1000000D;
-					/*Log.WarnFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) {1}/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
+					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8 / 1000000D;
+					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8 / 1000000D;
+					Log.WarnFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) {1}/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 						Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0),
 						Interlocked.Exchange(ref NumberOfAckReceive, 0),
 						Interlocked.Exchange(ref NumberOfPacketsInPerSecond, 0),
 						kbitPerSecondOut,
-						0,
+						0 /*_level.LastTickProcessingTime*/,
 						NumberOfPlayers,
 						Latency,
-						kbitPerSecondIn, 
+						kbitPerSecondIn,
 						AvailableBytes / 1000,
 						threads,
 						portThreads,
 						Interlocked.Exchange(ref NumberOfNakReceive, 0),
 						Interlocked.Exchange(ref NumberOfResends, 0),
-						Interlocked.Exchange(ref NumberOfFails, 0));*/
+						Interlocked.Exchange(ref NumberOfFails, 0));
 
 					//Interlocked.Exchange(ref NumberOfAckReceive, 0);
 					//Interlocked.Exchange(ref NumberOfNakReceive, 0);

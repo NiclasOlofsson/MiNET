@@ -171,12 +171,12 @@ namespace MiNET.Worlds
 
 		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
 		{
-		    using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
-		    {
-                memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-                memStream.Write(bytes, 0, bytes.Length);
-                return Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
-            }
+			using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+			{
+				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+				memStream.Write(bytes, 0, bytes.Length);
+				return Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
+			}
 		}
 
 		private object _playerWriteLock = new object();

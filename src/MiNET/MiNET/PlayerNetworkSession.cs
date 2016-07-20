@@ -732,10 +732,10 @@ namespace MiNET
 		{
 			if (messageCount == 0) return;
 
-            //byte[] bufferNoComp = CompressBytes(array, CompressionLevel.NoCompression);
-            //byte[] bufferOptimal = CompressBytes(array, CompressionLevel.Optimal);
-            McpeBatch batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Fastest);
-
+			//byte[] bufferNoComp = CompressBytes(array, CompressionLevel.NoCompression);
+			//byte[] bufferOptimal = CompressBytes(array, CompressionLevel.Optimal);
+			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Fastest);
+			
 			memStream.Position = 0;
 			memStream.SetLength(0);
 

@@ -274,7 +274,6 @@ namespace MiNET.Worlds
 					memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 					memStream.Write(bytes, 0, bytes.Length);
 					batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
-					batch.Encode();
 					batch.MarkPermanent();
 				}
 

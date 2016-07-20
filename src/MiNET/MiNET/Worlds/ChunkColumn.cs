@@ -268,7 +268,7 @@ namespace MiNET.Worlds
 				byte[] bytes = fullChunkData.Encode();
 				fullChunkData.PutPool();
 
-			    McpeBatch batch;
+				McpeBatch batch;
 				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
 				{
 					memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);

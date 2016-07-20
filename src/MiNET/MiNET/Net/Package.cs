@@ -104,7 +104,7 @@ namespace MiNET.Net
 			}
 			
 			_writer.Write(value, 0, length);
-        }
+		}
 
         public byte[] ReadBytes(int count)
 		{

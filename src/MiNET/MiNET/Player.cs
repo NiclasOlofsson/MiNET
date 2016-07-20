@@ -837,6 +837,10 @@ namespace MiNET
 						disconnect.message = reason;
 						NetworkHandler.SendDirectPackage(disconnect);
 					}
+
+					NetworkHandler.Close();
+					NetworkHandler = null;
+
 					IsConnected = false;
 				}
 
@@ -859,16 +863,6 @@ namespace MiNET
 				{
 					Log.Warn(string.Format("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId));
 				}
-
-				//HACK: But needed
-
-				PlayerNetworkSession session;
-				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
-				{
-					session.Close();
-				}
-
-				NetworkHandler = null;
 
 				CleanCache();
 			}
@@ -2132,7 +2126,7 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package)
 		{
-			NetworkHandler.SendPackage(package);
+			NetworkHandler?.SendPackage(package);
 		}
 
 		private object _sendMoveListSync = new object();

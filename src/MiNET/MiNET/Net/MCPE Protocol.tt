@@ -28,6 +28,9 @@ namespace MiNET.Net
 {
 	public interface IMcpeMessageHandler
 	{
+
+		void Disconnect(string reason, bool sendDisconnect = true);
+
 <#	
 
 foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @client='true']"))

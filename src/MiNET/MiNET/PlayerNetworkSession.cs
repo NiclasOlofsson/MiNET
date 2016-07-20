@@ -3,18 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Jose;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
@@ -23,22 +17,16 @@ namespace MiNET
 		private static readonly ILog Log = LogManager.GetLogger(typeof (PlayerNetworkSession));
 
 		public object SyncRoot { get; private set; } = new object();
-		public object ProcessSyncRoot { get; private set; } = new object();
-		public object SyncRootUpdate { get; private set; } = new object();
 		public object EncodeSync { get; private set; } = new object();
 
 		public MiNetServer Server { get; private set; }
 
-		public Player Player { get; set; }
 		public string Username { get; set; }
 
 		public IMcpeMessageHandler MessageHandler { get; set; }
-		public int Mtuize { get; set; }
 
-		public DateTime CreateTime { get; private set; }
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
-		public UdpClient UdpClient { get; set; }
 
 		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
 		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
@@ -46,9 +34,8 @@ namespace MiNET
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
 		public int OrderingIndex = -1;
-		public double SendDelay { get; set; }
 		public int ErrorCount { get; set; }
-		public bool IsSlowClient { get; set; }
+
 		public bool Evicted { get; set; }
 		public ConnectionState State { get; set; }
 
@@ -67,11 +54,9 @@ namespace MiNET
 			State = ConnectionState.Unconnected;
 
 			Server = server;
-			Player = player;
 			MessageHandler = player;
 			EndPoint = endPoint;
 			MtuSize = mtuSize;
-			CreateTime = DateTime.UtcNow;
 
 			_cancellationToken = new CancellationTokenSource();
 			_sendTicker = new Timer(SendQueue, null, 10, 10); // RakNet send tick-time
@@ -94,6 +79,13 @@ namespace MiNET
 
 		public void Close()
 		{
+
+			PlayerNetworkSession session;
+			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
+			{
+				return;
+			}
+
 			if (PlayerAckQueue.Count > 0)
 			{
 				Thread.Sleep(50);
@@ -108,8 +100,11 @@ namespace MiNET
 				_sendTicker = null;
 			}
 
-			SendQueue(null);
+			State = ConnectionState.Unconnected;
+			Evicted = true;
+			MessageHandler = null;
 
+			SendQueue(null);
 
 			_cancellationToken.Cancel();
 			_waitEvent.Set();
@@ -151,10 +146,7 @@ namespace MiNET
 			{
 			}
 
-			State = ConnectionState.Unconnected;
-			Evicted = true;
-			Player = null;
-			MessageHandler = null;
+			if (Log.IsDebugEnabled) Log.Warn($"Closed network session for player {Username}");
 		}
 
 		private long _lastSequenceNumber = -1; // That's the first message with wrapper
@@ -382,9 +374,9 @@ namespace MiNET
 
 		private void HandlePackage(IMcpeMessageHandler handler, Package message)
 		{
-			var result = Server.PluginManager.PluginPacketHandler(message, true, Player);
-			//if (result != message) message.PutPool();
-			message = result;
+			//var result = Server.PluginManager.PluginPacketHandler(message, true, Player);
+			////if (result != message) message.PutPool();
+			//message = result;
 
 			if (message == null)
 			{
@@ -597,7 +589,7 @@ namespace MiNET
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			Player?.Disconnect(reason, sendDisconnect);
+			MessageHandler.Disconnect(reason, sendDisconnect);
 		}
 
 		public void DetectLostConnection()
@@ -620,7 +612,7 @@ namespace MiNET
 		{
 			if (package == null) return;
 
-			if (Player != null && !Player.IsConnected)
+			if (State == ConnectionState.Unconnected)
 			{
 				package.PutPool();
 				return;
@@ -630,12 +622,12 @@ namespace MiNET
 
 			if (!isBatch)
 			{
-				var result = Server.PluginManager.PluginPacketHandler(package, false, Player);
-				if (result != package) package.PutPool();
-				package = result;
-			}
+				//var result = Server.PluginManager.PluginPacketHandler(package, false, Player);
+				//if (result != package) package.PutPool();
+				//package = result;
 
-			if (package == null) return;
+				//if (package == null) return;
+			}
 
 			lock (_queueSync)
 			{
@@ -674,7 +666,7 @@ namespace MiNET
 
 					if (package == null) continue;
 
-					if (Player != null && !Player.IsConnected)
+					if (State == ConnectionState.Unconnected)
 					{
 						package.PutPool();
 						continue;
@@ -723,7 +715,10 @@ namespace MiNET
 					}
 				}
 
-				if (Player != null && !Player.IsConnected) return;
+				if (State == ConnectionState.Unconnected)
+				{
+					return;
+				}
 
 				SendBuffered(messageCount);
 			}

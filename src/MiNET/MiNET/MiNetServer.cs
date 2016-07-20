@@ -565,7 +565,7 @@ namespace MiNET
 				{
 					State = ConnectionState.Connecting,
 					LastUpdatedTime = DateTime.UtcNow,
-					Mtuize = incoming.mtuSize
+					MtuSize = incoming.mtuSize
 				};
 
 				_playerSessions.TryAdd(senderEndpoint, session);
@@ -898,8 +898,6 @@ namespace MiNET
 			{
 				return;
 			}
-
-			TraceReceive(message, message.DatagramSequenceNumber);
 
 			if (message.Reliability == Reliability.ReliableOrdered)
 			{

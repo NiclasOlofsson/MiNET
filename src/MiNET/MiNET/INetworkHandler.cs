@@ -4,6 +4,8 @@ namespace MiNET
 {
 	public interface INetworkHandler
 	{
+		void Close();
+
 		void SendPackage(Package package);
 		void SendDirectPackage(Package package);
 	}

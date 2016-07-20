@@ -28,6 +28,10 @@ namespace MiNET
 			_session = session;
 		}
 
+		public void Disconnect(string reason, bool sendDisconnect = true)
+		{
+		}
+
 		public virtual void HandleMcpeLogin(McpeLogin message)
 		{
 			//Disconnect("Este servidor ya no existe. Por favor, conecta a " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " para seguir jugando.");
@@ -320,7 +324,6 @@ namespace MiNET
 		{
 			Player player = _session.Server.PlayerFactory.CreatePlayer(_session.Server, _session.EndPoint);
 			player.NetworkHandler = _session;
-			_session.Player = player;
 			_session.MessageHandler = player; // Replace current message handler with real one.
 
 			player.CertificateData = _playerInfo.CertificateData;

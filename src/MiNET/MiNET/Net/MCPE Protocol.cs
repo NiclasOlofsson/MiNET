@@ -17,6 +17,9 @@ namespace MiNET.Net
 {
 	public interface IMcpeMessageHandler
 	{
+
+		void Disconnect(string reason, bool sendDisconnect = true);
+
 		void HandleMcpeLogin(McpeLogin message);
 		void HandleMcpeClientMagic(McpeClientMagic message);
 		void HandleMcpeText(McpeText message);

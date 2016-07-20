@@ -335,6 +335,7 @@
     <Compile Include="Inventory.cs" />
     <Compile Include="InventoryManager.cs" />
     <Compile Include="InventoryUtils.cs" />
+    <Compile Include="INetworkHandler.cs" />
     <Compile Include="Items\FoodItem.cs" />
     <Compile Include="Items\ItemAir.cs" />
     <Compile Include="Items\ItemApple.cs" />
@@ -422,6 +423,7 @@
     <Compile Include="Items\ItemRawPorkchop.cs" />
     <Compile Include="LevelEventType.cs" />
     <Compile Include="LevelManager.cs" />
+    <Compile Include="LoginMessageHandler.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />

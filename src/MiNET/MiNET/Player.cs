@@ -8,11 +8,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Numerics;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using fNbt;
-using Jose;
 using log4net;
 using Microsoft.AspNet.Identity;
 using MiNET.Blocks;
@@ -25,7 +22,6 @@ using MiNET.Net;
 using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
@@ -33,9 +29,9 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
 
-		public MiNetServer Server { get; private set; }
+		private MiNetServer Server { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
-		public PlayerNetworkSession NetworkSession { get; set; }
+		public INetworkHandler NetworkHandler { get; set; }
 
 		private Dictionary<Tuple<int, int>, McpeBatch> _chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
 		private ChunkCoordinates _currentChunkPosition;
@@ -53,8 +49,6 @@ namespace MiNET
 		public string Username { get; set; }
 		public string DisplayName { get; set; }
 		public long ClientId { get; set; }
-		public long ClientGuid { get; set; }
-		public string ClientSecret { get; set; }
 		public UUID ClientUuid { get; set; }
 		public string ServerAddress { get; set; }
 
@@ -76,8 +70,6 @@ namespace MiNET
 
 		public User User { get; set; }
 		public Session Session { get; set; }
-
-		public DateTime LastNetworkActivity { get; set; }
 
 		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
 		{
@@ -843,7 +835,7 @@ namespace MiNET
 						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
 						disconnect.NoBatch = true;
 						disconnect.message = reason;
-						NetworkSession.SendDirectPackage(disconnect);
+						NetworkHandler.SendDirectPackage(disconnect);
 					}
 					IsConnected = false;
 				}
@@ -859,38 +851,26 @@ namespace MiNET
 				}
 
 				string levelId = Level == null ? "Unknown" : Level.LevelId;
-				Log.InfoFormat("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
 				if (!_haveJoined)
 				{
 					Log.WarnFormat("Disconnected crashed player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
 				}
-				else if (NetworkSession != null && NetworkSession.CreateTime.AddSeconds(10) > DateTime.UtcNow)
+				else
 				{
-					Log.WarnFormat("Early disconnect of player {0}/{1} from level <{3}> after less then 10s with reason: {2}", Username, EndPoint.Address, reason, levelId);
+					Log.Warn(string.Format("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId));
 				}
 
 				//HACK: But needed
 
-				if (NetworkSession != null && NetworkSession.PlayerAckQueue.Count > 0)
-				{
-					Thread.Sleep(50);
-				}
-
 				PlayerNetworkSession session;
 				if (Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 				{
-					session.Clean();
-
-					session.State = ConnectionState.Unconnected;
-					session.Evicted = true;
-
-					NetworkSession = null;
-					session.Player = null;
+					session.Close();
 				}
 
-				CleanCache();
+				NetworkHandler = null;
 
-				//Server.GreylistManager.Greylist(EndPoint.Address, 10000);
+				CleanCache();
 			}
 		}
 
@@ -2152,7 +2132,7 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package)
 		{
-			NetworkSession.SendPackage(package);
+			NetworkHandler.SendPackage(package);
 		}
 
 		private object _sendMoveListSync = new object();

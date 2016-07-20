@@ -318,11 +318,9 @@ namespace MiNET
 					return;
 				}
 
-				Player player = playerSession.Player;
-
-				if (player == null)
+				if (playerSession.MessageHandler == null)
 				{
-					Log.ErrorFormat("Receive MCPE message 0x{1:x2} without player {0}. Session removed.", senderEndpoint.Address, msgId);
+					Log.ErrorFormat("Receive MCPE message 0x{1:x2} without message handler {0}. Session removed.", senderEndpoint.Address, msgId);
 					_playerSessions.TryRemove(senderEndpoint, out playerSession);
 					//if (!_badPacketBans.ContainsKey(senderEndpoint.Address))
 					//{
@@ -563,7 +561,7 @@ namespace MiNET
 					_playerSessions.TryRemove(senderEndpoint, out session);
 				}
 
-				session = new PlayerNetworkSession(null, senderEndpoint, incoming.mtuSize)
+				session = new PlayerNetworkSession(this, null, senderEndpoint, incoming.mtuSize)
 				{
 					State = ConnectionState.Connecting,
 					LastUpdatedTime = DateTime.UtcNow,
@@ -573,10 +571,11 @@ namespace MiNET
 				_playerSessions.TryAdd(senderEndpoint, session);
 			}
 
-			Player player = PlayerFactory.CreatePlayer(this, senderEndpoint);
-			player.ClientGuid = incoming.clientGuid;
-			player.NetworkSession = session;
-			session.Player = player;
+			//Player player = PlayerFactory.CreatePlayer(this, senderEndpoint);
+			//player.ClientGuid = incoming.clientGuid;
+			//player.NetworkHandler = session;
+			//session.Player = player;
+			session.MessageHandler = new LoginMessageHandler(session);
 
 			var reply = OpenConnectionReply2.CreateObject();
 			reply.serverGuid = 12345;
@@ -825,7 +824,7 @@ namespace MiNET
 						{
 							var dgram = (Datagram) datagram;
 							if (Log.IsDebugEnabled)
-								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, session.Player?.Username);
+								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, session.Username);
 							SendDatagram(session, dgram);
 							Interlocked.Increment(ref ServerInfo.NumberOfResends);
 						});
@@ -833,7 +832,7 @@ namespace MiNET
 					else
 					{
 						if (Log.IsDebugEnabled)
-							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, session.Player?.Username);
+							Log.WarnFormat("NAK, no datagram #{0} for {1}", i, session.Username);
 					}
 				}
 			}
@@ -882,7 +881,7 @@ namespace MiNET
 					else
 					{
 						if (Log.IsDebugEnabled)
-							Log.WarnFormat("ACK, Failed to remove datagram #{0} for {2}. Queue size={1}", i, queue.Count, session.Player?.Username);
+							Log.WarnFormat("ACK, Failed to remove datagram #{0} for {2}. Queue size={1}", i, queue.Count, session.Username);
 					}
 				}
 			}
@@ -994,10 +993,7 @@ namespace MiNET
 
 								if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
 								{
-									session.Player = null;
-									session.State = ConnectionState.Unconnected;
-									session.Evicted = true;
-									session.Clean();
+									session.Close();
 								}
 							}
 						}, session);
@@ -1006,22 +1002,14 @@ namespace MiNET
 					}
 
 
-					if (serverHasNoLag && session.State != ConnectionState.Connected && session.Player != null && lastUpdate + 3000 < now)
+					if (serverHasNoLag && session.State != ConnectionState.Connected && session.MessageHandler != null && lastUpdate + 3000 < now)
 					{
-						ThreadPool.QueueUserWorkItem(delegate(object o)
-						{
-							PlayerNetworkSession s = o as PlayerNetworkSession;
-							if (s != null)
-							{
-								Player p = s.Player;
-								if (p != null) p.Disconnect("You've been kicked with reason: Lost connection.");
-							}
-						}, session);
+						ThreadPool.QueueUserWorkItem(delegate(object o) { session.Disconnect("You've been kicked with reason: Lost connection."); }, session);
 
 						return;
 					}
 
-					if (session.Player == null) return;
+					if (session.MessageHandler == null) return;
 
 					if (serverHasNoLag && lastUpdate + InacvitityTimeout < now && !session.WaitForAck)
 					{
@@ -1073,7 +1061,7 @@ namespace MiNET
 									if (Log.IsDebugEnabled)
 										Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
 											deleted.Header.datagramSequenceNumber.IntValue(),
-											session.Player.Username,
+											session.Username,
 											deleted.FirstMessageId,
 											elapsedTime,
 											datagramTimout,
@@ -1126,7 +1114,7 @@ namespace MiNET
 				if (Log.IsDebugEnabled)
 					Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1}",
 						datagram.Header.datagramSequenceNumber.IntValue(),
-						session.Player.Username,
+						session.Username,
 						datagram.FirstMessageId);
 
 				datagram.PutPool();

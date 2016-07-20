@@ -329,7 +329,6 @@ namespace TestPlugin
 		{
 			player.SendMessage(string.Format("Username={0}", player.Username), type: MessageType.Raw);
 			player.SendMessage(string.Format("Entity ID={0}", player.EntityId), type: MessageType.Raw);
-			player.SendMessage(string.Format("Client GUID={0}", player.ClientGuid), type: MessageType.Raw);
 			player.SendMessage(string.Format("Client ID={0}", player.ClientId), type: MessageType.Raw);
 			player.SendMessage(string.Format("Client ID={0}", player.ClientUuid), type: MessageType.Raw);
 		}
@@ -736,18 +735,6 @@ namespace TestPlugin
 			player.HealthManager = player.HealthManager is NoDamageHealthManager ? new HealthManager(player) : new NoDamageHealthManager(player);
 			player.SendUpdateAttributes();
 			player.SendMessage($"{player.Username} set NoDamage={player.HealthManager is NoDamageHealthManager}", type: McpeText.TypeRaw);
-		}
-
-
-		[Command(Command = "s")]
-		public void Stats(Player currentPlayer)
-		{
-			var players = Context.LevelManager.Levels[0].Players.Values.ToArray();
-			currentPlayer.SendMessage("Statistics:", type: McpeText.TypeRaw);
-			foreach (var player in players)
-			{
-				currentPlayer.SendMessage(string.Format("RTT: {1:0000} User: {0}", player.Username, player.NetworkSession.Rtt), type: McpeText.TypeRaw);
-			}
 		}
 
 		[Command(Command = "r")]

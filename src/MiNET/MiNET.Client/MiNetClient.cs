@@ -149,7 +149,7 @@ namespace MiNET.Client
 
 				Task.Run(ProcessQueue);
 
-				Session = new PlayerNetworkSession(null, _clientEndpoint, _mtuSize);
+				Session = new PlayerNetworkSession(null, null, _clientEndpoint, _mtuSize);
 
 				UdpClient.BeginReceive(ReceiveCallback, UdpClient);
 				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
@@ -585,7 +585,6 @@ namespace MiNET.Client
 					Log.Error("Error during split message parsing", e);
 					if (Log.IsDebugEnabled)
 						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-					playerSession.Player?.Disconnect("Bad package received from client.");
 				}
 			}
 		}

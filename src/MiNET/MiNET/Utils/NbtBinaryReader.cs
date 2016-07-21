@@ -170,7 +170,7 @@ namespace MiNET.Utils
 		{
 			get
 			{
-				UpdateChecksum(_buffer.ToArray(), 0, _buffer.Length);
+				UpdateChecksum(_buffer.GetBuffer(), 0, _buffer.Length);
 				return ((adler32B*65536) + adler32A);
 			}
 		}
@@ -197,6 +197,12 @@ namespace MiNET.Utils
 //			UpdateChecksum(array, offset, count);
 			_buffer.Write(array, offset, count);
 			base.Write(array, offset, count);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			_buffer.Dispose();
 		}
 	}
 }

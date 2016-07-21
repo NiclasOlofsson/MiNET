@@ -95,6 +95,25 @@ namespace MiNET.Net
 			_writer.Write(value);
 		}
 
+		public void Write(PrefixedArray value)
+		{
+			if (value == null)
+			{
+				Log.Warn("Trying to write null PrefixedArray");
+				return;
+			}
+			
+			Write(value.Length);
+			_writer.Write(value.Array, 0, value.Length);
+		}
+
+		public PrefixedArray ReadPrefixedArray()
+		{
+			var len = ReadInt();
+			var bytes = ReadBytes(len);
+			return new PrefixedArray(bytes, len);
+		}
+
 		public byte[] ReadBytes(int count)
 		{
 			if (count == 0)

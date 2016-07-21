@@ -816,13 +816,9 @@ namespace TestPlugin.NiceLobby
 			MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
 			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 			memStream.Write(bytes, 0, bytes.Length);
-
-			McpeBatch batch = McpeBatch.CreateObject();
-			byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
+            
+			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
 			batch.MarkPermanent();
-			batch.payloadSize = buffer.Length;
-			batch.payload = buffer;
-			batch.Encode();
 			return batch;
 		}
 

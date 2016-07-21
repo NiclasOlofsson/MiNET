@@ -7,7 +7,7 @@ namespace MiNET
 {
 	public class ServerInfo
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ServerInfo));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ServerInfo));
 
 		private LevelManager _levelManager;
 		public ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> PlayerSessions { get; private set; }
@@ -39,7 +39,7 @@ namespace MiNET
 			_levelManager = levelManager;
 			PlayerSessions = playerSessions;
 			{
-				ThroughPut = new Timer(delegate(object state)
+				ThroughPut = new Timer(delegate (object state)
 				{
 					NumberOfPlayers = PlayerSessions.Count;
 
@@ -56,7 +56,7 @@ namespace MiNET
 						0 /*_level.LastTickProcessingTime*/,
 						NumberOfPlayers,
 						Latency,
-						kbitPerSecondIn, 
+						kbitPerSecondIn,
 						AvailableBytes / 1000,
 						threads,
 						portThreads,

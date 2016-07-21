@@ -268,16 +268,14 @@ namespace MiNET.Worlds
 				byte[] bytes = fullChunkData.Encode();
 				fullChunkData.PutPool();
 
-				MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
-				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-				memStream.Write(bytes, 0, bytes.Length);
-
-				McpeBatch batch = McpeBatch.CreateObject();
-				byte[] buffer = Player.CompressBytes(memStream.ToArray(), CompressionLevel.Optimal);
-				batch.payloadSize = buffer.Length;
-				batch.payload = buffer;
-				batch.Encode();
-				batch.MarkPermanent();
+				McpeBatch batch;
+				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+				{
+					memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+					memStream.Write(bytes, 0, bytes.Length);
+					batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
+					batch.MarkPermanent();
+				}
 
 				_cachedBatch = batch;
 				_cache = null;
@@ -389,7 +387,6 @@ namespace MiNET.Worlds
 
 			//private McpeBatch _cachedBatch = null;
 			McpeBatch batch = McpeBatch.CreateObject();
-			batch.payloadSize = _cachedBatch.payloadSize;
 			batch.payload = _cachedBatch.payload;
 			batch.Encode();
 			batch.MarkPermanent();

@@ -1793,9 +1793,10 @@ namespace MiNET
 			}
 		}
 
-		public static byte[] CompressBytes(byte[] input, CompressionLevel compressionLevel, bool writeLen = false)
+		private static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel,
+			bool writeLen = false)
 		{
-			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
+			var stream = MiNetServer.MemoryStreamManager.GetStream();
 			stream.WriteByte(0x78);
 			switch (compressionLevel)
 			{
@@ -1812,27 +1813,34 @@ namespace MiNET
 			int checksum;
 			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 			{
-				byte[] lenBytes = BitConverter.GetBytes(input.Length);
+				var lenBytes = BitConverter.GetBytes(length);
 				Array.Reverse(lenBytes);
 				if (writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
-				compressStream.Write(input, 0, input.Length);
+				compressStream.Write(input, offset, length);
 				checksum = compressStream.Checksum;
 			}
 
-			byte[] checksumBytes = BitConverter.GetBytes(checksum);
+			var checksumBytes = BitConverter.GetBytes(checksum);
 			if (BitConverter.IsLittleEndian)
 			{
 				// Adler32 checksum is big-endian
 				Array.Reverse(checksumBytes);
 			}
 			stream.Write(checksumBytes, 0, checksumBytes.Length);
-
-			var bytes = stream.ToArray();
-			stream.Close();
-
-			return bytes;
+			return stream;
 		}
 
+		public static McpeBatch CreateBatchPacket(byte[] input, int offset, int length, CompressionLevel compressionLevel,
+			bool writeLen = false)
+		{
+			using (var stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
+			{
+				var batch = McpeBatch.CreateObject();
+				batch.payload = new PrefixedArray(stream.GetBuffer(), (int)stream.Length);
+				batch.Encode();
+				return batch;
+			}
+		}
 
 		public virtual void SendUpdateAttributes()
 		{

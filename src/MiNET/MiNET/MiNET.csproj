@@ -538,6 +538,7 @@
     <Compile Include="Utils\MetadataIntCoordinates.cs" />
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
+    <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
     <Compile Include="Utils\TextUtils.cs" />

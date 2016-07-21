@@ -147,8 +147,7 @@
 	</pdu>
 
 	<pdu id="0x06" online="false" client="false" server="true" name="MCPE_BATCH">
-		<field name="Payload size" type="int" />
-		<field name="Payload" type="byte[]" size="0" />
+    <field name="Payload" type="PrefixedArray" />
 	</pdu>
 
 	<!-- 

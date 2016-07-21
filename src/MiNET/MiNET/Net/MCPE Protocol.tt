@@ -141,17 +141,10 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	{
 		if(field.NodeType != XmlNodeType.Element) continue;
 
-		if (CodeName(field.Attributes["name"].Value) == "payload" && CodeTypeName(pdu.Attributes["name"].Value) == "McpeBatch")
-		{
-			WriteLine(string.Format("\t\t\tWrite({0}, payloadSize);", CodeName(field.Attributes["name"].Value)));
-		}
-		else
-		{
-			WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
-		}
+		WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
 
-			
 	} // foreach
+
 #>
 
 			AfterEncode();

@@ -311,7 +311,7 @@ namespace MiNET
 				var messages = new List<Package>();
 
 				// Get bytes
-				byte[] payload = batch.payload;
+				byte[] payload = batch.payload.Array;
 				// Decompress bytes
 
 				MemoryStream stream = new MemoryStream(payload);

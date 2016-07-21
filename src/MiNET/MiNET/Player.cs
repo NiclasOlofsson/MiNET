@@ -1836,8 +1836,7 @@ namespace MiNET
 			using (var stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
 			{
 				var batch = McpeBatch.CreateObject();
-				batch.payload = stream.GetBuffer();
-				batch.payloadSize = (int) stream.Length;
+				batch.payload = new PrefixedArray(stream.GetBuffer(), (int)stream.Length);
 				batch.Encode();
 				return batch;
 			}

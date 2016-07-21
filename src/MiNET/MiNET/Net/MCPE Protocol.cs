@@ -1356,8 +1356,7 @@ namespace MiNET.Net
 
 	public partial class McpeBatch : Package<McpeBatch>
 	{
-		public int payloadSize; // = null;
-		public byte[] payload; // = null;
+		public PrefixedArray payload; // = null;
 		public McpeBatch()
 		{
 			Id = 0x06;
@@ -1369,8 +1368,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(payloadSize);
-			Write(payload, payloadSize);
+			Write(payload);
 
 			AfterEncode();
 		}
@@ -1384,8 +1382,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			payloadSize = ReadInt();
-			payload = ReadBytes(0);
+			payload = ReadPrefixedArray();
 
 			AfterDecode();
 		}

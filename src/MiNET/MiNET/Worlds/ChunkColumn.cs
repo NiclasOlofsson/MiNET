@@ -387,7 +387,6 @@ namespace MiNET.Worlds
 
 			//private McpeBatch _cachedBatch = null;
 			McpeBatch batch = McpeBatch.CreateObject();
-			batch.payloadSize = _cachedBatch.payloadSize;
 			batch.payload = _cachedBatch.payload;
 			batch.Encode();
 			batch.MarkPermanent();

@@ -46,8 +46,8 @@ namespace MiNET
 					int threads;
 					int portThreads;
 					ThreadPool.GetAvailableThreads(out threads, out portThreads);
-					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8 / 1000000D;
-					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8 / 1000000D;
+					double kbitPerSecondOut = Interlocked.Exchange(ref TotalPacketSizeOut, 0) * 8/1000000D;
+					double kbitPerSecondIn = Interlocked.Exchange(ref TotalPacketSizeIn, 0) * 8/1000000D;
 					Log.WarnFormat("TT {4:00}ms Ly {6:00}ms {5} Pl(s) Pkt(#/s) (Out={0} In={2}) ACK/NAK/RESD/FTO(#/s) {1}/{11}/{12}/{13} Tput(Mbit/s) ({3:F} {7:F}) Avail {8}kb Threads {9} Compl.ports {10}",
 						Interlocked.Exchange(ref NumberOfPacketsOutPerSecond, 0),
 						Interlocked.Exchange(ref NumberOfAckReceive, 0),

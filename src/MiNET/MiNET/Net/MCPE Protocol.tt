@@ -143,8 +143,8 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 
 		WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
 
+			
 	} // foreach
-
 #>
 
 			AfterEncode();

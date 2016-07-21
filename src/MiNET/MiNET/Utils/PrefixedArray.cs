@@ -2,20 +2,17 @@
 {
 	public sealed class PrefixedArray
 	{
-		private readonly byte[] _array;
-		private readonly int _length;
-
 		public PrefixedArray(byte[] array) : this(array, array.Length)
 		{
 		}
 
 		public PrefixedArray(byte[] array, int length)
 		{
-			_array = array;
-			_length = length;
+			Array = array;
+			Length = length;
 		}
 
-		public byte[] Array => _array;
-		public int Length => _length;
+		public byte[] Array { get; }
+		public int Length { get; }
 	}
 }

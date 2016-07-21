@@ -1,3 +1,4 @@
+using System.Net;
 using MiNET.Net;
 
 namespace MiNET
@@ -8,5 +9,6 @@ namespace MiNET
 
 		void SendPackage(Package package);
 		void SendDirectPackage(Package package);
+		IPEndPoint GetClientEndPoint();
 	}
 }

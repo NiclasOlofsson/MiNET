@@ -756,6 +756,11 @@ namespace MiNET
 		{
 			Server.SendPackage(this, package);
 		}
+
+		public IPEndPoint GetClientEndPoint()
+		{
+			return EndPoint;
+		}
 	}
 
 	public class PlayerInfo

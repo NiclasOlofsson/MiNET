@@ -754,12 +754,6 @@ namespace TestPlugin
 				{
 					Priority = 100, MessageType = MessageType.Popup, Message = "Transfering all players!", Duration = 20*10,
 				});
-
-				Thread.Sleep(1500);
-
-				IPHostEntry host = Dns.GetHostEntry("test.inpvp.net");
-				Context.Server.ForwardTarget = new IPEndPoint(host.AddressList[0], 19132);
-				Context.Server.ForwardAllPlayers = true;
 			}
 		}
 

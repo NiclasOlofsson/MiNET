@@ -578,4 +578,12 @@
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>
 
+	<pdu namespace="ftl" id="0x01" online="false" client="false" server="true" name="FTL_CREATE_PLAYER">
+		<field name="Username" type="string"  />
+		<field name="ClientUuid" type="UUID"  />
+		<field name="Server Address" type="string"  />
+		<field name="Client Id" type="long"  />
+		<field name="Skin" type="Skin"  />
+	</pdu>
+
 </protocol>

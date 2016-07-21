@@ -138,6 +138,15 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 				}
+			} else if(ns == "ftl") {
+				switch (messageId)
+				{
+					case 0x01:
+						package = FtlCreatePlayer.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+				}
 			} else {
 
 				switch (messageId)
@@ -4087,6 +4096,56 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			payload = ReadBytes(0);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class FtlCreatePlayer : Package<FtlCreatePlayer>
+	{
+		public string username; // = null;
+		public UUID clientuuid; // = null;
+		public string serverAddress; // = null;
+		public long clientId; // = null;
+		public Skin skin; // = null;
+		public FtlCreatePlayer()
+		{
+			Id = 0x01;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(username);
+			Write(clientuuid);
+			Write(serverAddress);
+			Write(clientId);
+			Write(skin);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			username = ReadString();
+			clientuuid = ReadUUID();
+			serverAddress = ReadString();
+			clientId = ReadLong();
+			skin = ReadSkin();
 
 			AfterDecode();
 		}

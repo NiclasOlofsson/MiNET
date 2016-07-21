@@ -30,9 +30,6 @@ namespace MiNET
 		private UdpClient _listener;
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 
-		public bool ForwardAllPlayers { get; set; }
-		public IPEndPoint ForwardTarget { get; set; }
-
 		public MotdProvider MotdProvider { get; set; }
 
 		public bool IsSecurityEnabled { get; private set; }
@@ -41,7 +38,7 @@ namespace MiNET
 
 		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
 
-		public ServerManager ServerManager { get; set; }
+		public IServerManager ServerManager { get; set; }
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
@@ -56,6 +53,8 @@ namespace MiNET
 		public int InacvitityTimeout { get; private set; }
 
 		public ServerInfo ServerInfo { get; set; }
+
+		public ServerRole ServerRole { get; set; } = ServerRole.Full;
 
 		internal static DedicatedThreadPool FastThreadPool { get; set; }
 
@@ -82,13 +81,13 @@ namespace MiNET
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
 
-			if (confMinWorkerThreads != -1) threads = confMinWorkerThreads;
-			else threads *= 4;
+			//if (confMinWorkerThreads != -1) threads = confMinWorkerThreads;
+			//else threads *= 4;
 
-			if (confMinCompletionPortThreads != -1) iothreads = confMinCompletionPortThreads;
-			else iothreads *= 4;
+			//if (confMinCompletionPortThreads != -1) iothreads = confMinCompletionPortThreads;
+			//else iothreads *= 4;
 
-			ThreadPool.SetMinThreads(threads, iothreads);
+			//ThreadPool.SetMinThreads(threads, iothreads);
 			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(threads));
 
 			if (_listener != null) return false; // Already started
@@ -99,87 +98,80 @@ namespace MiNET
 
 				InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
 
-				if (Endpoint == null)
+				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
-					var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
-					int port = Config.GetProperty("port", 19132);
-					Endpoint = new IPEndPoint(ip, port);
+					if (Endpoint == null)
+					{
+						var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
+						int port = Config.GetProperty("port", 19132);
+						Endpoint = new IPEndPoint(ip, port);
+					}
 				}
 
-				ForwardAllPlayers = Config.GetProperty("ForwardAllPlayers", false);
-				if (ForwardAllPlayers)
+				ServerManager = ServerManager ?? new DefualtServerManager(this);
+
+				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Node)
 				{
-					var ip = IPAddress.Parse(Config.GetProperty("ForwardIP", "127.0.0.1"));
-					int port = Config.GetProperty("ForwardPort", 19132);
-					ForwardTarget = new IPEndPoint(ip, port);
-				}
+					Log.Info("Loading plugins...");
+					PluginManager = new PluginManager();
+					PluginManager.LoadPlugins();
+					Log.Info("Plugins loaded!");
 
-				ServerManager = new ServerManager();
+					// Bootstrap server
+					PluginManager.ExecuteStartup(this);
 
-				Log.Info("Loading plugins...");
-				PluginManager = new PluginManager();
-				PluginManager.LoadPlugins();
-				Log.Info("Plugins loaded!");
+					GreylistManager = GreylistManager ?? new GreylistManager(this);
+					SessionManager = SessionManager ?? new SessionManager();
+					LevelManager = LevelManager ?? new LevelManager();
+					PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
-				// Bootstrap server
-				PluginManager.ExecuteStartup(this);
+					PluginManager.EnablePlugins(this, LevelManager);
 
-				MotdProvider = MotdProvider ?? new MotdProvider();
-
-				IsSecurityEnabled = Config.GetProperty("EnableSecurity", false);
-				if (IsSecurityEnabled)
-				{
-					// http://www.asp.net/identity/overview/extensibility/overview-of-custom-storage-providers-for-aspnet-identity
-					UserManager = UserManager ?? new UserManager<User>(new DefaultUserStore());
-					RoleManager = RoleManager ?? new RoleManager<Role>(new DefaultRoleStore());
+					// Cache - remove
+					LevelManager.GetLevel(null, "Default");
 				}
 
 				GreylistManager = GreylistManager ?? new GreylistManager(this);
-				SessionManager = SessionManager ?? new SessionManager();
-				LevelManager = LevelManager ?? new LevelManager();
-				PlayerFactory = PlayerFactory ?? new PlayerFactory();
+				MotdProvider = MotdProvider ?? new MotdProvider();
 
-				PluginManager.EnablePlugins(this, LevelManager);
-
-				// Cache - remove
-				LevelManager.GetLevel(null, "Default");
-
-				_listener = new UdpClient(Endpoint);
-
-				if (IsRunningOnMono())
+				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
-					_listener.Client.ReceiveBufferSize = 1024*1024*3;
-					_listener.Client.SendBufferSize = 4096;
+					_listener = new UdpClient(Endpoint);
+
+					if (IsRunningOnMono())
+					{
+						_listener.Client.ReceiveBufferSize = 1024*1024*3;
+						_listener.Client.SendBufferSize = 4096;
+					}
+					else
+					{
+						//_listener.Client.ReceiveBufferSize = 1600*40000;
+						_listener.Client.ReceiveBufferSize = int.MaxValue;
+						//_listener.Client.SendBufferSize = 1600*40000;
+						_listener.Client.SendBufferSize = int.MaxValue;
+						_listener.DontFragment = false;
+						_listener.EnableBroadcast = false;
+
+						// SIO_UDP_CONNRESET (opcode setting: I, T==3)
+						// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+						// - Set to TRUE to enable reporting.
+						// - Set to FALSE to disable reporting.
+
+						uint IOC_IN = 0x80000000;
+						uint IOC_VENDOR = 0x18000000;
+						uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+						_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+
+						//
+						//WARNING: We need to catch errors here to remove the code above.
+						//
+					}
+
+					_ackTimer = new Timer(SendAckQueue, null, 0, 10);
+					_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
+
+					_listener.BeginReceive(ReceiveCallback, _listener);
 				}
-				else
-				{
-					//_listener.Client.ReceiveBufferSize = 1600*40000;
-					_listener.Client.ReceiveBufferSize = int.MaxValue;
-					//_listener.Client.SendBufferSize = 1600*40000;
-					_listener.Client.SendBufferSize = int.MaxValue;
-					_listener.DontFragment = false;
-					_listener.EnableBroadcast = false;
-
-					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-					// - Set to TRUE to enable reporting.
-					// - Set to FALSE to disable reporting.
-
-					uint IOC_IN = 0x80000000;
-					uint IOC_VENDOR = 0x18000000;
-					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-					_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
-
-					//
-					//WARNING: We need to catch errors here to remove the code above.
-					//
-				}
-
-				_ackTimer = new Timer(SendAckQueue, null, 0, 10);
-				_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
-
-				_listener.BeginReceive(ReceiveCallback, _listener);
-
 				// Measure latency through system
 				//_internalPingTimer = new Timer(delegate(object state)
 				//{
@@ -198,7 +190,7 @@ namespace MiNET
 				};
 				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
-				Log.Info("Server open for business on port " + Endpoint.Port + " ...");
+				Log.Info("Server open for business on port " + Endpoint?.Port + " ...");
 
 				return true;
 			}
@@ -383,7 +375,7 @@ namespace MiNET
 					//	)
 					{
 						EnqueueAck(playerSession, package._datagramSequenceNumber);
-						if(Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
+						if (Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
 					}
 
 					HandleConnectedPackage(playerSession, package);
@@ -821,7 +813,7 @@ namespace MiNET
 
 						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
 						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						session.Rto = session.Rtt + 4* session.RttVar + 100; // SYNC time in the end
+						session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
 
 						FastThreadPool.QueueUserWorkItem(delegate
 						{
@@ -877,7 +869,7 @@ namespace MiNET
 
 						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
 						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						session.Rto = session.Rtt + 4* session.RttVar + 100; // SYNC time in the end
+						session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
 
 						datagram.PutPool();
 					}
@@ -1182,5 +1174,12 @@ namespace MiNET
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}
+	}
+
+	public enum ServerRole
+	{
+		Node,
+		Proxy,
+		Full,
 	}
 }

@@ -321,8 +321,8 @@ namespace MiNET
 
 		public void HandleMcpeClientMagic(McpeClientMagic message)
 		{
-			ServerManager serverManager = _session.Server.ServerManager;
-			Server server = serverManager.GetServer();
+			IServerManager serverManager = _session.Server.ServerManager;
+			IServer server = serverManager.GetServer();
 
 			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
 			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
@@ -411,21 +411,54 @@ namespace MiNET
 		}
 	}
 
-	public class ServerManager
+	public interface IServerManager
 	{
-		private Server _getServer = new Server();
+		IServer GetServer();
+	}
 
-		public virtual Server GetServer()
+	public interface IServer
+	{
+		IMcpeMessageHandler CreatePlayer(INetworkHandler session, PlayerInfo playerInfo);
+	}
+
+	public class DefualtServerManager: IServerManager
+	{
+		private readonly MiNetServer _miNetServer;
+		private IServer _getServer;
+
+		protected DefualtServerManager()
+		{
+			
+		}
+
+		public DefualtServerManager(MiNetServer miNetServer)
+		{
+			_miNetServer = miNetServer;
+			_getServer = new DefaultServer(miNetServer);
+		}
+
+		public virtual IServer GetServer()
 		{
 			return _getServer;
 		}
 	}
 
-	public class Server
+	public class DefaultServer: IServer
 	{
-		public virtual IMcpeMessageHandler CreatePlayer(PlayerNetworkSession session, PlayerInfo playerInfo)
+		private readonly MiNetServer _server;
+
+		protected DefaultServer()
 		{
-			Player player = session.Server.PlayerFactory.CreatePlayer(session.Server, session.EndPoint);
+		}
+
+		public DefaultServer(MiNetServer server)
+		{
+			_server = server;
+		}
+
+		public virtual IMcpeMessageHandler CreatePlayer(INetworkHandler session, PlayerInfo playerInfo)
+		{
+			Player player = _server.PlayerFactory.CreatePlayer(_server, session.GetClientEndPoint());
 			player.NetworkHandler = session;
 			player.CertificateData = playerInfo.CertificateData;
 			player.Username = playerInfo.Username;

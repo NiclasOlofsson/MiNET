@@ -64,13 +64,29 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='raknet']"))
 } // foreach
 #>
 				}
+			} else if(ns == "ftl") {
+				switch (messageId)
+				{
+<#	
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='ftl']"))
+{
+#>
+					case <#= pdu.Attributes["id"].Value #>:
+						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+<#	
+} // foreach
+#>
+				}
 			} else {
 
 				switch (messageId)
 				{
 <#	
 
-foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet')]"))
+foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and not(@namespace='ftl')]"))
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:

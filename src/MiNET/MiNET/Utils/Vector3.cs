@@ -16,14 +16,14 @@ namespace MiNET.Utils
 			return ToDegrees(Math.Atan2(vector.Y, distance));
 		}
 
-		public static float ToRadians(this float angle)
+		public static double ToRadians(this float angle)
 		{
-			return (float) ((Math.PI/180)*angle);
+			return (Math.PI/180.0f)*angle;
 		}
 
-		public static float ToDegrees(this double angle)
+		public static double ToDegrees(this double angle)
 		{
-			return (float) (angle*(180.0/Math.PI));
+			return angle*(180.0f/Math.PI);
 		}
 	}
 

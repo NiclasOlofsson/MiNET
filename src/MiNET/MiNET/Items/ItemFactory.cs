@@ -95,6 +95,7 @@ namespace MiNET.Items
 			else if (id == 323) item = new ItemSign();
 			else if (id == 324) item = new ItemDoor();
 			else if (id == 325) item = new ItemBucket(metadata);
+			else if (id == 331) item = new ItemRedstone();
 			else if (id == 332) item = new ItemSnowball();
 			else if (id == 344) item = new ItemEgg();
 			else if (id == 345) item = new ItemCompass();

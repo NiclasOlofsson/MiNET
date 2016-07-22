@@ -60,9 +60,11 @@ namespace MiNET
 
 		public MiNetServer()
 		{
+			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
+			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
 		}
 
-		public MiNetServer(IPEndPoint endpoint)
+		public MiNetServer(IPEndPoint endpoint): base()
 		{
 			Endpoint = endpoint;
 		}
@@ -95,8 +97,6 @@ namespace MiNET
 			try
 			{
 				Log.Info("Initializing...");
-
-				InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{

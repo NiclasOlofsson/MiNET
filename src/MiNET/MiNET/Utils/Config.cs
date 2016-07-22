@@ -43,6 +43,27 @@ namespace MiNET.Utils
 			}
 		}
 
+		public static ServerRole GetProperty(string property, ServerRole defaultValue)
+		{
+			string value = ReadString(property);
+			if (value == null) return defaultValue;
+
+			switch (value.ToLower())
+			{
+				case "1":
+				case "node":
+					return ServerRole.Node;
+				case "0":
+				case "proxy":
+					return ServerRole.Proxy;
+				case "2":
+				case "full":
+					return ServerRole.Full;
+				default:
+					return defaultValue;
+			}
+		}
+
 		public static GameMode GetProperty(string property, GameMode defaultValue)
 		{
 			string value = ReadString(property);

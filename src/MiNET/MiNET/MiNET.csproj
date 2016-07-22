@@ -401,6 +401,7 @@
     <Compile Include="Items\ItemPotato.cs" />
     <Compile Include="Items\ItemPotion.cs" />
     <Compile Include="Items\ItemPumpkinPie.cs" />
+    <Compile Include="Items\ItemRedstone.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemShovel.cs" />
     <Compile Include="Items\ItemSlab.cs" />

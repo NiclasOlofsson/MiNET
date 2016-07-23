@@ -1086,11 +1086,7 @@ namespace MiNET
 				SendDatagram(session, datagram);
 			}
 
-			TraceSend(message);
-
 			message.PutPool();
-
-			//Thread.Sleep(5); // Really important to slow down speed a bit
 		}
 
 		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
@@ -1167,7 +1163,7 @@ namespace MiNET
 			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
 		}
 
-		private static void TraceSend(Package message)
+		public static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
 			//if (!Debugger.IsAttached) return;

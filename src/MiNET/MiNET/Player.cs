@@ -1793,10 +1793,10 @@ namespace MiNET
 			}
 		}
 
-		private static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel,
-			bool writeLen = false)
+		private static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)
 		{
 			var stream = MiNetServer.MemoryStreamManager.GetStream();
+			
 			stream.WriteByte(0x78);
 			switch (compressionLevel)
 			{
@@ -1830,13 +1830,13 @@ namespace MiNET
 			return stream;
 		}
 
-		public static McpeBatch CreateBatchPacket(byte[] input, int offset, int length, CompressionLevel compressionLevel,
-			bool writeLen = false)
+		public static McpeBatch CreateBatchPacket(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)
 		{
 			using (var stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
 			{
 				var batch = McpeBatch.CreateObject();
-				batch.payload = new PrefixedArray(stream.GetBuffer(), (int)stream.Length);
+				//batch.payload = new PrefixedArray(stream.GetBuffer(), (int)stream.Length);
+				batch.payload = new PrefixedArray(stream.ToArray(), (int)stream.Length);
 				batch.Encode();
 				return batch;
 			}

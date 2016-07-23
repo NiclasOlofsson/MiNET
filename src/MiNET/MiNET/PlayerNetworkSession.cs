@@ -610,6 +610,8 @@ namespace MiNET
 
 		public void SendPackage(Package package)
 		{
+			MiNetServer.TraceSend(package);
+
 			if (package == null) return;
 
 			if (State == ConnectionState.Unconnected)

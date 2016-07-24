@@ -529,6 +529,7 @@ namespace MiNET.Worlds
 			if (count == 0) return;
 
 			McpeBatch batch = Player.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal);
+			batch.AddReferences(players.Length - 1);
 			foreach (var player in players)
 			{
 				Task sendTask = new Task(obj => ((Player) obj).SendMoveList(batch, now), player);

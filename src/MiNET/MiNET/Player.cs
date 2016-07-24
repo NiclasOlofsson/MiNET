@@ -892,19 +892,22 @@ namespace MiNET
 		{
 			if (!IsSpawned || HealthManager.IsDead) return;
 
-			lock (_moveSyncLock)
+			if (Server.ServerRole != ServerRole.Node)
 			{
-				if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
+				lock (_moveSyncLock)
 				{
-					return;
-				}
-				_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
+					if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
+					{
+						return;
+					}
+					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
-				if (_lastOrderingIndex > message.OrderingIndex)
-				{
-					return;
+					if (_lastOrderingIndex > message.OrderingIndex)
+					{
+						return;
+					}
+					_lastOrderingIndex = message.OrderingIndex;
 				}
-				_lastOrderingIndex = message.OrderingIndex;
 			}
 
 			Vector3 origin = KnownPosition.ToVector3();
@@ -1796,7 +1799,7 @@ namespace MiNET
 		private static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)
 		{
 			var stream = MiNetServer.MemoryStreamManager.GetStream();
-			
+
 			stream.WriteByte(0x78);
 			switch (compressionLevel)
 			{
@@ -1836,7 +1839,7 @@ namespace MiNET
 			{
 				var batch = McpeBatch.CreateObject();
 				//batch.payload = new PrefixedArray(stream.GetBuffer(), (int)stream.Length);
-				batch.payload = new PrefixedArray(stream.ToArray(), (int)stream.Length);
+				batch.payload = new PrefixedArray(stream.ToArray(), (int) stream.Length);
 				batch.Encode();
 				return batch;
 			}

@@ -737,7 +737,7 @@ namespace MiNET
 			//byte[] bufferNoComp = CompressBytes(array, CompressionLevel.NoCompression);
 			//byte[] bufferOptimal = CompressBytes(array, CompressionLevel.Optimal);
 			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Fastest);
-			
+			batch.Encode();
 			memStream.Position = 0;
 			memStream.SetLength(0);
 

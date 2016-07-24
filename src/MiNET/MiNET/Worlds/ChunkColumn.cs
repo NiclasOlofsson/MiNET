@@ -275,6 +275,7 @@ namespace MiNET.Worlds
 					memStream.Write(bytes, 0, bytes.Length);
 					batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
 					batch.MarkPermanent();
+					batch.Encode();
 				}
 
 				_cachedBatch = batch;

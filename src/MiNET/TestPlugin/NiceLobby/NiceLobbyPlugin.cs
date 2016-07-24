@@ -819,6 +819,7 @@ namespace TestPlugin.NiceLobby
             
 			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
 			batch.MarkPermanent();
+			batch.Encode();
 			return batch;
 		}
 

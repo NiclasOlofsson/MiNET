@@ -884,6 +884,7 @@ McpeSetTime:
             
 			var encodedLoginPacket = loginPacket.Encode();
 			McpeBatch batch = Player.CreateBatchPacket(encodedLoginPacket, 0, encodedLoginPacket.Length, CompressionLevel.Fastest, true);
+			batch.Encode();
 
 			Session.CryptoContext = new CryptoContext()
 			{
@@ -968,6 +969,7 @@ McpeSetTime:
 
 				var encodedMagic = magic.Encode();
 				var batch = Player.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
+				batch.Encode();
 				SendPackage(batch);
 			}
 		}

@@ -589,7 +589,7 @@ namespace MiNET
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			MessageHandler.Disconnect(reason, sendDisconnect);
+			MessageHandler?.Disconnect(reason, sendDisconnect);
 		}
 
 		public void DetectLostConnection()

@@ -639,7 +639,7 @@ namespace MiNET
 
 		private void SendTick(object state)
 		{
-			Update();
+			MiNetServer.FastThreadPool?.QueueUserWorkItem(Update);
 			SendAckQueue();
 			SendQueue();
 		}
@@ -652,110 +652,101 @@ namespace MiNET
 		{
 			if (Server == null) return; // MiNET Client
 
+			if (Evicted) return;
+
 			if (!Monitor.TryEnter(_updateSync)) return;
 			_forceQuitTimer.Restart();
 
 			try
 			{
+				if (Evicted) return;
+
 				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
+				long lastUpdate = LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
+				bool serverHasNoLag = Server.ServerInfo.AvailableBytes < 1000;
+
+				if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout + 3000 < now)
 				{
-					PlayerNetworkSession session = this;
-
-					if (session.Evicted) return;
-
-					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-					bool serverHasNoLag = Server.ServerInfo.AvailableBytes < 1000;
-
-					if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout + 3000 < now)
+					Evicted = true;
+					// Disconnect user
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 					{
-						session.Evicted = true;
-						// Disconnect user
-						ThreadPool.QueueUserWorkItem(delegate(object o)
-						{
-							if (session != null)
-							{
-								session.Disconnect("You've been kicked with reason: Network timeout.");
+						Disconnect("You've been kicked with reason: Network timeout.");
+						Close();
+					});
 
-								if (Server.ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
-								{
-									session.Close();
-								}
-							}
-						}, session);
+					return;
+				}
 
-						return;
+
+				if (serverHasNoLag && State != ConnectionState.Connected && MessageHandler != null && lastUpdate + 3000 < now)
+				{
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Disconnect("You've been kicked with reason: Lost connection."); });
+
+					return;
+				}
+
+				if (MessageHandler == null) return;
+
+				if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout < now && !WaitForAck)
+				{
+					DetectLostConnection();
+					WaitForAck = true;
+				}
+
+				if (Rto == 0) return;
+
+				long rto = Math.Max(100, Rto);
+				var queue = WaitingForAcksQueue;
+
+				foreach (KeyValuePair<int, Datagram> datagramPair in queue)
+				{
+					if (Evicted) return;
+
+					var datagram = datagramPair.Value;
+
+					if (!datagram.Timer.IsRunning)
+					{
+						Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
+						datagram.Timer.Restart();
+						continue;
 					}
 
+					if (Rtt == -1) return;
 
-					if (serverHasNoLag && session.State != ConnectionState.Connected && session.MessageHandler != null && lastUpdate + 3000 < now)
+					//if (session.WaitForAck) return;
+
+					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
+					long datagramTimout = rto*(datagram.TransmissionCount + ResendCount + 1);
+					datagramTimout = Math.Min(datagramTimout, 3000);
+					datagramTimout = Math.Max(datagramTimout, 100);
+
+					if (serverHasNoLag && elapsedTime >= datagramTimout)
 					{
-						ThreadPool.QueueUserWorkItem(delegate(object o) { session.Disconnect("You've been kicked with reason: Lost connection."); }, session);
-
-						return;
-					}
-
-					if (session.MessageHandler == null) return;
-
-					if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout < now && !session.WaitForAck)
-					{
-						session.DetectLostConnection();
-						session.WaitForAck = true;
-					}
-
-					if (session.Rto == 0) return;
-
-					long rto = Math.Max(100, session.Rto);
-					var queue = session.WaitingForAcksQueue;
-
-					foreach (KeyValuePair<int, Datagram> datagramPair in queue)
-					{
-						if (!session.Evicted) return;
-
-						var datagram = datagramPair.Value;
-
-						if (!datagram.Timer.IsRunning)
-						{
-							Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
-							datagram.Timer.Restart();
-							continue;
-						}
-
-						if (session.Rtt == -1) return;
-
 						//if (session.WaitForAck) return;
 
-						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
-						datagramTimout = Math.Min(datagramTimout, 3000);
-						datagramTimout = Math.Max(datagramTimout, 100);
+						//session.WaitForAck = session.ResendCount++ > 3;
 
-						if (serverHasNoLag && elapsedTime >= datagramTimout)
+						Datagram deleted;
+						if (!Evicted && queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
-							//if (session.WaitForAck) return;
+							ErrorCount++;
 
-							//session.WaitForAck = session.ResendCount++ > 3;
-
-							Datagram deleted;
-							if (!session.Evicted && queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+							MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
 							{
-								session.ErrorCount++;
-
-								MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
-								{
-									var dtgram = deleted;
-									if (Log.IsDebugEnabled)
-										Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
-											deleted.Header.datagramSequenceNumber.IntValue(),
-											session.Username,
-											deleted.FirstMessageId,
-											elapsedTime,
-											datagramTimout,
-											session.Rto);
-									Server.SendDatagram(session, (Datagram) dtgram);
-									Interlocked.Increment(ref Server.ServerInfo.NumberOfResends);
-								});
-							}
+								var dtgram = deleted;
+								if (Log.IsDebugEnabled)
+									Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
+										deleted.Header.datagramSequenceNumber.IntValue(),
+										Username,
+										deleted.FirstMessageId,
+										elapsedTime,
+										datagramTimout,
+										Rto);
+								Server.SendDatagram(this, (Datagram) dtgram);
+								Interlocked.Increment(ref Server.ServerInfo.NumberOfResends);
+							});
 						}
 					}
 				}

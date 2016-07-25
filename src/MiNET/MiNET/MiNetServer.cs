@@ -1,15 +1,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using log4net;
 using Microsoft.AspNet.Identity;
 using Microsoft.IO;
@@ -47,7 +44,6 @@ namespace MiNET
 		public SessionManager SessionManager { get; set; }
 
 		private Timer _internalPingTimer;
-		private Timer _ackTimer;
 		private Timer _cleanerTimer;
 
 		public int InacvitityTimeout { get; private set; }
@@ -64,7 +60,7 @@ namespace MiNET
 			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
 		}
 
-		public MiNetServer(IPEndPoint endpoint): base()
+		public MiNetServer(IPEndPoint endpoint) : base()
 		{
 			Endpoint = endpoint;
 		}
@@ -167,8 +163,7 @@ namespace MiNET
 						//
 					}
 
-					_ackTimer = new Timer(SendAckQueue, null, 0, 10);
-					_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
+					//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
 
 					_listener.BeginReceive(ReceiveCallback, _listener);
 				}
@@ -839,8 +834,8 @@ namespace MiNET
 		{
 			if (session == null) return;
 
-			//Ack ack = Ack.CreateObject();
-			Ack ack = new Ack();
+			Ack ack = Ack.CreateObject();
+			//Ack ack = new Ack();
 			//ack.Reset();
 			ack.Decode(receiveBytes);
 
@@ -881,7 +876,7 @@ namespace MiNET
 				}
 			}
 
-			//ack.PutPool();
+			ack.PutPool();
 
 			session.ResendCount = 0;
 			session.WaitForAck = false;
@@ -917,168 +912,6 @@ namespace MiNET
 			session.PlayerAckQueue.Enqueue(sequenceNumber);
 		}
 
-		private void SendAckQueue(object state)
-		{
-			var sessions = _playerSessions.Values.ToArray();
-
-			foreach (var s in sessions)
-			{
-				FastThreadPool.QueueUserWorkItem(delegate
-				{
-					PlayerNetworkSession session = (PlayerNetworkSession) s;
-					var queue = session.PlayerAckQueue;
-					int lenght = queue.Count;
-
-					if (lenght == 0) return;
-
-					Acks acks = Acks.CreateObject();
-					for (int i = 0; i < lenght; i++)
-					{
-						int ack;
-						if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
-
-						acks.acks.Add(ack);
-					}
-
-					if (acks.acks.Count > 0)
-					{
-						byte[] data = acks.Encode();
-						SendData(data, session.EndPoint);
-					}
-
-					acks.PutPool();
-				});
-			}
-		}
-
-		private object _updateGlobalLock = new object();
-
-		private Stopwatch _forceQuitTimer = new Stopwatch();
-
-		private void Update(object state)
-		{
-			if (!Monitor.TryEnter(_updateGlobalLock)) return;
-			_forceQuitTimer.Restart();
-
-			try
-			{
-				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
-
-				Parallel.ForEach(_playerSessions, delegate(KeyValuePair<IPEndPoint, PlayerNetworkSession> pair)
-				{
-					PlayerNetworkSession session = pair.Value;
-
-					if (session == null) return;
-					if (session.Evicted) return;
-
-					long lastUpdate = session.LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-					bool serverHasNoLag = ServerInfo.AvailableBytes < 1000;
-
-					if (serverHasNoLag && lastUpdate + InacvitityTimeout + 3000 < now)
-					{
-						session.Evicted = true;
-						// Disconnect user
-						ThreadPool.QueueUserWorkItem(delegate(object o)
-						{
-							if (session != null)
-							{
-								session.Disconnect("You've been kicked with reason: Network timeout.");
-
-								if (ServerInfo.PlayerSessions.TryRemove(session.EndPoint, out session))
-								{
-									session.Close();
-								}
-							}
-						}, session);
-
-						return;
-					}
-
-
-					if (serverHasNoLag && session.State != ConnectionState.Connected && session.MessageHandler != null && lastUpdate + 3000 < now)
-					{
-						ThreadPool.QueueUserWorkItem(delegate(object o) { session.Disconnect("You've been kicked with reason: Lost connection."); }, session);
-
-						return;
-					}
-
-					if (session.MessageHandler == null) return;
-
-					if (serverHasNoLag && lastUpdate + InacvitityTimeout < now && !session.WaitForAck)
-					{
-						session.DetectLostConnection();
-						session.WaitForAck = true;
-					}
-
-					if (session.Rto == 0) return;
-
-					long rto = Math.Max(100, session.Rto);
-					var queue = session.WaitingForAcksQueue;
-
-					foreach (KeyValuePair<int, Datagram> datagramPair in queue)
-					{
-						if (!session.Evicted) return;
-
-						var datagram = datagramPair.Value;
-
-						if (!datagram.Timer.IsRunning)
-						{
-							Log.ErrorFormat("Timer not running for #{0}", datagram.Header.datagramSequenceNumber);
-							datagram.Timer.Restart();
-							continue;
-						}
-
-						if (session.Rtt == -1) return;
-
-						//if (session.WaitForAck) return;
-
-						long elapsedTime = datagram.Timer.ElapsedMilliseconds;
-						long datagramTimout = rto*(datagram.TransmissionCount + session.ResendCount + 1);
-						datagramTimout = Math.Min(datagramTimout, 3000);
-						datagramTimout = Math.Max(datagramTimout, 100);
-
-						if (serverHasNoLag && elapsedTime >= datagramTimout)
-						{
-							//if (session.WaitForAck) return;
-
-							//session.WaitForAck = session.ResendCount++ > 3;
-
-							Datagram deleted;
-							if (!session.Evicted && queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
-							{
-								session.ErrorCount++;
-
-								FastThreadPool.QueueUserWorkItem(delegate()
-								{
-									var dtgram = deleted;
-									if (Log.IsDebugEnabled)
-										Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
-											deleted.Header.datagramSequenceNumber.IntValue(),
-											session.Username,
-											deleted.FirstMessageId,
-											elapsedTime,
-											datagramTimout,
-											session.Rto);
-									SendDatagram(session, (Datagram) dtgram);
-									Interlocked.Increment(ref ServerInfo.NumberOfResends);
-								});
-							}
-						}
-					}
-				});
-			}
-			finally
-			{
-				if (_forceQuitTimer.ElapsedMilliseconds > 100)
-				{
-					Log.WarnFormat("Update took unexpected long time: {0}", _forceQuitTimer.ElapsedMilliseconds);
-				}
-
-				Monitor.Exit(_updateGlobalLock);
-				_cleanerTimer.Change(10, Timeout.Infinite);
-			}
-		}
-
 		public void SendPackage(PlayerNetworkSession session, Package message)
 		{
 			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
@@ -1089,7 +922,7 @@ namespace MiNET
 			message.PutPool();
 		}
 
-		private void SendDatagram(PlayerNetworkSession session, Datagram datagram)
+		internal void SendDatagram(PlayerNetworkSession session, Datagram datagram)
 		{
 			if (datagram.MessageParts.Count == 0)
 			{
@@ -1137,7 +970,7 @@ namespace MiNET
 		}
 
 
-		private void SendData(byte[] data, IPEndPoint targetEndPoint)
+		internal void SendData(byte[] data, IPEndPoint targetEndPoint)
 		{
 			try
 			{

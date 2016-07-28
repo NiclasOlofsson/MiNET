@@ -32,6 +32,8 @@ namespace MiNET.Entities.Projectiles
 			Ttl = 0;
 			DespawnOnImpact = true;
 			BroadcastMovement = false;
+			CollideEntity = null;
+			CollideBlock = null;
 		}
 
 		private object _spawnSync = new object();
@@ -230,6 +232,8 @@ namespace MiNET.Entities.Projectiles
 
 		protected virtual Entity CheckEntityCollide(Vector3 position, Vector3 direction)
 		{
+			if (CollideEntity != null) return CollideEntity;
+
 			Ray2 ray = new Ray2
 			{
 				x = position,
@@ -275,6 +279,8 @@ namespace MiNET.Entities.Projectiles
 
 		protected virtual bool CheckBlockCollide(PlayerLocation location)
 		{
+			if (CollideBlock != null) return true;
+
 			var bbox = GetBoundingBox();
 			var pos = location.ToVector3();
 

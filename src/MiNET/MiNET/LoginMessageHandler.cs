@@ -49,7 +49,7 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			if (message.protocolVersion != 81)
+			if (message.protocolVersion < 81)
 			{
 				_session.Disconnect($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, please upgrade.");
 				return;
@@ -191,6 +191,8 @@ namespace MiNET
 								}
 								else
 								{
+									if (data.ExtraData == null) continue;
+
 									// Self signed, make sure they don't fake XUID
 									if (data.ExtraData.Xuid != null)
 									{

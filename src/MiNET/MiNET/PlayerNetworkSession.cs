@@ -60,8 +60,7 @@ namespace MiNET
 			MtuSize = mtuSize;
 
 			_cancellationToken = new CancellationTokenSource();
-			//_sendTicker = new Timer(SendTick, null, 10, 10); // RakNet send tick-time
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick);
+			_sendTicker = new Timer(SendTick, null, 10, 10); // RakNet send tick-time
 		}
 
 		public ConcurrentDictionary<int, SplitPartPackage[]> Splits
@@ -99,11 +98,6 @@ namespace MiNET
 				_sendTicker.Dispose(waitHandle);
 				WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
 				_sendTicker = null;
-			}
-
-			if(_tickerHighPrecisionTimer != null)
-			{
-				_tickerHighPrecisionTimer.Dispose();
 			}
 
 			State = ConnectionState.Unconnected;
@@ -170,7 +164,7 @@ namespace MiNET
 			{
 				if (_cancellationToken.Token.IsCancellationRequested) return;
 
-				bool forceOrder = Server.ForceOrderingForAll;
+				bool forceOrder = Config.GetProperty("ForceOrderingForAll", false);
 
 				if (!forceOrder)
 				{
@@ -380,10 +374,12 @@ namespace MiNET
 
 		private void HandlePackage(IMcpeMessageHandler handler, Package message)
 		{
-			//var result = Server.PluginManager.PluginPacketHandler(message, true, Player);
-			////if (result != message) message.PutPool();
-			//message = result;
-
+			if(handler is Player){
+				var result = Server.PluginManager.PluginPacketHandler(message, true, (Player) handler);
+				if (result != message) message.PutPool();
+				message = result;
+			}
+			
 			if (message == null)
 			{
 				return;
@@ -630,11 +626,13 @@ namespace MiNET
 
 			if (!isBatch)
 			{
-				//var result = Server.PluginManager.PluginPacketHandler(package, false, Player);
-				//if (result != package) package.PutPool();
-				//package = result;
+				if(MessageHandler is Player){
+					var result = Server.PluginManager.PluginPacketHandler(package, false, (Player) MessageHandler);
+					if (result != package) package.PutPool();
+					package = result;
 
-				//if (package == null) return;
+					if (package == null) return;
+				}
 			}
 
 			lock (_queueSync)
@@ -643,23 +641,16 @@ namespace MiNET
 			}
 		}
 
-		private int i = 0;
 		private void SendTick(object state)
 		{
+			MiNetServer.FastThreadPool?.QueueUserWorkItem(Update);
 			SendAckQueue();
 			SendQueue();
-			if(i++ >= 5)
-			{
-				i = 0;
-				if(!_isRunning) Update();
-			}
 		}
 
 
 		private object _updateSync = new object();
 		private Stopwatch _forceQuitTimer = new Stopwatch();
-
-		private bool _isRunning = false;
 
 		private void Update()
 		{
@@ -667,10 +658,7 @@ namespace MiNET
 
 			if (Evicted) return;
 
-			if (MiNetServer.FastThreadPool == null) return;
-
 			if (!Monitor.TryEnter(_updateSync)) return;
-			_isRunning = true;
 			_forceQuitTimer.Restart();
 
 			try
@@ -731,6 +719,8 @@ namespace MiNET
 
 					if (Rtt == -1) return;
 
+					//if (session.WaitForAck) return;
+
 					long elapsedTime = datagram.Timer.ElapsedMilliseconds;
 					long datagramTimout = rto*(datagram.TransmissionCount + ResendCount + 1);
 					datagramTimout = Math.Min(datagramTimout, 3000);
@@ -743,7 +733,7 @@ namespace MiNET
 						//session.WaitForAck = session.ResendCount++ > 3;
 
 						Datagram deleted;
-						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+						if (!Evicted && queue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
 							ErrorCount++;
 
@@ -769,10 +759,9 @@ namespace MiNET
 			{
 				if (_forceQuitTimer.ElapsedMilliseconds > 100)
 				{
-					Log.Warn($"Update took unexpected long time={_forceQuitTimer.ElapsedMilliseconds}, Count={WaitingForAcksQueue.Count}");
+					Log.WarnFormat("Update took unexpected long time: {0}", _forceQuitTimer.ElapsedMilliseconds);
 				}
 
-				_isRunning = false;
 				Monitor.Exit(_updateSync);
 			}
 		}
@@ -786,13 +775,11 @@ namespace MiNET
 			if (lenght == 0) return;
 
 			Acks acks = Acks.CreateObject();
-			//Acks acks = new Acks();
 			for (int i = 0; i < lenght; i++)
 			{
 				int ack;
 				if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
 
-				Interlocked.Increment(ref Server.ServerInfo.NumberOfAckSent);
 				acks.acks.Add(ack);
 			}
 
@@ -806,7 +793,7 @@ namespace MiNET
 		}
 
 		private object _syncHack = new object();
-		private HighPrecisionTimer _tickerHighPrecisionTimer;
+		private MemoryStream memStream = new MemoryStream();
 
 		private void SendQueue()
 		{
@@ -814,94 +801,83 @@ namespace MiNET
 
 			try
 			{
-				using(MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+				Queue<Package> queue = _sendQueueNotConcurrent;
+
+				int messageCount = 0;
+
+				int lenght = queue.Count;
+				for (int i = 0; i < lenght; i++)
 				{
-					var now = DateTime.UtcNow;
-
-					Queue<Package> queue = _sendQueueNotConcurrent;
-
-					int messageCount = 0;
-
-					int lenght = queue.Count;
-					for (int i = 0; i < lenght; i++)
+					Package package = null;
+					lock (_queueSync)
 					{
-						Package package = null;
-						lock (_queueSync)
+						if (queue.Count == 0) break;
+						try
 						{
-							if (queue.Count == 0) break;
-							try
-							{
-								package = queue.Dequeue();
-							}
-							catch (Exception e)
-							{
-							}
+							package = queue.Dequeue();
 						}
-
-						if (package == null) continue;
-
-						if (State == ConnectionState.Unconnected)
+						catch (Exception e)
 						{
-							package.PutPool();
-							continue;
-						}
-
-						if (package.ValidUntil != null && now > package.ValidUntil.Value)
-						{
-							package.PutPool();
-							continue;
-						}
-
-						if (lenght == 1)
-						{
-							Server.SendPackage(this, package);
-						}
-						else if (package is McpeBatch)
-						{
-							SendBuffered(messageCount, memStream);
-							messageCount = 0;
-							Server.SendPackage(this, package);
-							Thread.Sleep(1); // Really important to slow down speed a bit
-						}
-						else if (package.NoBatch)
-						{
-							SendBuffered(messageCount, memStream);
-							messageCount = 0;
-							Server.SendPackage(this, package);
-						}
-						//else if (!IsSpawned)
-						//{
-						//	SendBuffered(messageCount);
-						//	messageCount = 0;
-						//	Server.SendPackage(this, package);
-						//}
-						else
-						{
-							if (messageCount == 0)
-							{
-								memStream.Position = 0;
-								memStream.SetLength(0);
-							}
-
-							byte[] bytes = package.Encode();
-							if (bytes != null)
-							{
-								messageCount++;
-								memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-								memStream.Write(bytes, 0, bytes.Length);
-							}
-
-							package.PutPool();
 						}
 					}
+
+					if (package == null) continue;
 
 					if (State == ConnectionState.Unconnected)
 					{
-						return;
+						package.PutPool();
+						continue;
 					}
 
-					SendBuffered(messageCount, memStream);
+					if (lenght == 1)
+					{
+						Server.SendPackage(this, package);
+					}
+					else if (package is McpeBatch)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
+						Server.SendPackage(this, package);
+						Thread.Sleep(1); // Really important to slow down speed a bit
+					}
+					else if (package.NoBatch)
+					{
+						SendBuffered(messageCount);
+						messageCount = 0;
+						Server.SendPackage(this, package);
+					}
+					//else if (!IsSpawned)
+					//{
+					//	SendBuffered(messageCount);
+					//	messageCount = 0;
+					//	Server.SendPackage(this, package);
+					//}
+					else
+					{
+						if (messageCount == 0)
+						{
+							memStream.Position = 0;
+							memStream.SetLength(0);
+						}
+
+						byte[] bytes = package.Encode();
+						if (bytes != null)
+						{
+							messageCount++;
+							memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+							memStream.Write(bytes, 0, bytes.Length);
+						}
+
+						package.PutPool();
+					}
 				}
+
+				if (State == ConnectionState.Unconnected)
+				{
+					return;
+				}
+
+				SendBuffered(messageCount);
 			}
 			finally
 			{
@@ -909,7 +885,7 @@ namespace MiNET
 			}
 		}
 
-		private void SendBuffered(int messageCount, MemoryStream memStream)
+		private void SendBuffered(int messageCount)
 		{
 			if (messageCount == 0) return;
 

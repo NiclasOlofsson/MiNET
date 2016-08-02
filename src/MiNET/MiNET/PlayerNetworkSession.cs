@@ -380,9 +380,11 @@ namespace MiNET
 
 		private void HandlePackage(IMcpeMessageHandler handler, Package message)
 		{
-			//var result = Server.PluginManager.PluginPacketHandler(message, true, Player);
-			////if (result != message) message.PutPool();
-			//message = result;
+			if(handler is Player){
+ 				var result = Server.PluginManager.PluginPacketHandler(message, true, (Player) handler);
+ 				if (result != message) message.PutPool();
+ 				message = result;
+ 			}
 
 			if (message == null)
 			{
@@ -630,11 +632,12 @@ namespace MiNET
 
 			if (!isBatch)
 			{
-				//var result = Server.PluginManager.PluginPacketHandler(package, false, Player);
-				//if (result != package) package.PutPool();
-				//package = result;
-
-				//if (package == null) return;
+				if(MessageHandler is Player){
+					var result = Server.PluginManager.PluginPacketHandler(package, false, (Player) MessageHandler);
+					if (result != package) package.PutPool();
+					package = result;
+					if (package == null) return;
+				}
 			}
 
 			lock (_queueSync)

@@ -21,10 +21,9 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		//private const int TimeBetweenSpawns = 280;
 		private const int TimeBetweenSpawns = 350;
-		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(60);
-		private const int NumberOfBots = 2000;
+		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromMinutes(30);
+		private const int NumberOfBots = 200;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 5;
@@ -45,14 +44,16 @@ namespace MiNET.ServiceKiller
 				Console.WriteLine("Press <Enter> to start emulation...");
 				Console.ReadLine();
 
-				int threads;
-				int iothreads;
-				ThreadPool.GetMinThreads(out threads, out iothreads);
+				//int threads;
+				//int iothreads;
 
-				DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(threads));
+				//ThreadPool.GetMaxThreads(out threads, out iothreads);
+				//ThreadPool.SetMaxThreads(threads, 4000);
 
-				ThreadPool.SetMinThreads(32000, 4000);
-				ThreadPool.SetMaxThreads(32000, 4000);
+				//ThreadPool.GetMinThreads(out threads, out iothreads);
+				//ThreadPool.SetMinThreads(4000, 4000);
+
+				DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
 
 				Emulator emulator = new Emulator {Running = true};
 				Stopwatch watch = new Stopwatch();
@@ -60,7 +61,6 @@ namespace MiNET.ServiceKiller
 
 				long start = DateTime.UtcNow.Ticks;
 
-				//IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
 				IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
 
 				for (int j = 0; j < NumberOfBots; j++)
@@ -72,7 +72,6 @@ namespace MiNET.ServiceKiller
 						RanSleepMin, RanSleepMax, RequestChunkRadius);
 
 					new Thread(o => { client.EmulateClient(); }) {IsBackground = true}.Start();
-					//ThreadPool.QueueUserWorkItem(delegate { client.EmulateClient(); });
 
 					Thread.Sleep(TimeBetweenSpawns);
 				}
@@ -198,7 +197,14 @@ namespace MiNET.ServiceKiller
 
 						client.CurrentLocation = new PlayerLocation(x, y, z);
 						client.SendMcpeMovePlayer();
-						Thread.Sleep(Random.Next(RanMin, RanMax));
+
+						int timeout;
+						if (RanMax == RanMax)
+							timeout = RanMin;
+						else
+							timeout = Random.Next(RanMin, RanMax);
+
+						if(timeout > 0) Thread.Sleep(timeout);
 						angle += angleStepsize;
 					}
 				}

@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -76,7 +77,7 @@ namespace MiNET.Client
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
 
-			var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(threads)));
+			var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("pe.mineplex.com").AddressList[0], 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey");
@@ -147,11 +148,13 @@ namespace MiNET.Client
 				////WARNING: We need to catch errors here to remove the code above.
 				////
 
-				Task.Run(ProcessQueue);
+				//Task.Run(ProcessQueue);
 
 				Session = new PlayerNetworkSession(null, null, _clientEndpoint, _mtuSize);
 
-				UdpClient.BeginReceive(ReceiveCallback, UdpClient);
+				//UdpClient.BeginReceive(ReceiveCallback, UdpClient);
+				new Thread(ProcessDatagrams) {IsBackground = true}.Start(UdpClient);
+
 				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
 
 				Log.InfoFormat("Server open for business for {0}", Username);
@@ -190,6 +193,64 @@ namespace MiNET.Client
 
 			return false;
 		}
+
+		private void ProcessDatagrams(object state)
+		{
+			while (true)
+			{
+				UdpClient listener = (UdpClient) state;
+
+
+				// Check if we already closed the server
+				if (listener.Client == null) return;
+
+				// WSAECONNRESET:
+				// The virtual circuit was reset by the remote side executing a hard or abortive close. 
+				// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
+				// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
+				// Note the spocket settings on creation of the server. It makes us ignore these resets.
+				IPEndPoint senderEndpoint = null;
+				Byte[] receiveBytes = null;
+				try
+				{
+					//var result = listener.ReceiveAsync().Result;
+					//senderEndpoint = result.RemoteEndPoint;
+					//receiveBytes = result.Buffer;
+					receiveBytes = listener.Receive(ref senderEndpoint);
+
+					if (receiveBytes.Length != 0)
+					{
+						_threadPool.QueueUserWorkItem(() =>
+						{
+							try
+							{
+								ProcessMessage(receiveBytes, senderEndpoint);
+							}
+							catch (Exception e)
+							{
+								Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
+							}
+						});
+					}
+					else
+					{
+						Log.Error("Unexpected end of transmission?");
+						return;
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Error("Unexpected end of transmission?", e);
+					if (listener.Client != null)
+					{
+						continue;
+					}
+
+					return;
+				}
+			}
+		}
+
 
 		/// <summary>
 		///     Handles the callback.
@@ -405,6 +466,9 @@ namespace MiNET.Client
 				HandlePackage(message);
 				return;
 			}
+
+			Log.Error("DO NOT USE THIS");
+			throw new Exception("DO NOT USE THIS");
 
 			lock (_eventSync)
 			{
@@ -881,7 +945,7 @@ McpeSetTime:
 				payloadLenght = data.Length,
 				payload = data
 			};
-            
+
 			var encodedLoginPacket = loginPacket.Encode();
 			McpeBatch batch = Player.CreateBatchPacket(encodedLoginPacket, 0, encodedLoginPacket.Length, CompressionLevel.Fastest, true);
 			batch.Encode();
@@ -1700,13 +1764,20 @@ StartGame:
 		{
 			var packet = new UnconnectedPing
 			{
-				pingId = DateTime.UtcNow.Ticks /*incoming.pingId*/,
+				pingId = Stopwatch.GetTimestamp() /*incoming.pingId*/,
 			};
 
 			var data = packet.Encode();
 			TraceSend(packet);
 			//SendData(data);
-			SendData(data, new IPEndPoint(IPAddress.Broadcast, 19132));
+			if (_serverEndpoint != null)
+			{
+				SendData(data, _serverEndpoint);
+			}
+			else
+			{
+				SendData(data, new IPEndPoint(IPAddress.Broadcast, 19132));
+			}
 		}
 
 		public void SendConnectedPing()

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -74,4 +76,62 @@ namespace MiNET
 			LevelCreated?.Invoke(this, e);
 		}
 	}
+
+	public class SpreadLevelManager : LevelManager
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SpreadLevelManager));
+
+		private readonly int _numberOfLevels;
+
+		public SpreadLevelManager(int numberOfLevels)
+		{
+			Log.Warn($"Creating and caching {numberOfLevels} levels");
+
+			//Level template = CreateLevel("Default", null);
+
+			_numberOfLevels = numberOfLevels;
+			Levels = new List<Level>();
+			Parallel.For(0, numberOfLevels, i =>
+			{
+				var name = "Default" + i;
+				//Levels.Add(CreateLevel(name, template._worldProvider));
+				Levels.Add(CreateLevel(name, null));
+				Log.Warn($"Created level {name}");
+			});
+
+			Log.Warn("DONE Creating and caching worlds");
+		}
+
+		public override Level GetLevel(Player player, string name)
+		{
+			Random rand = new Random();
+
+			return Levels[rand.Next(0, _numberOfLevels)];
+		}
+
+		public virtual Level CreateLevel(string name, IWorldProvider provider)
+		{
+			GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
+			Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Peaceful);
+			int viewDistance = Config.GetProperty("ViewDistance", 11);
+
+			IWorldProvider worldProvider = null;
+			worldProvider = provider ?? new FlatlandWorldProvider();
+
+			var level = new Level(name, worldProvider, gameMode, difficulty, viewDistance);
+			level.Initialize();
+
+			OnLevelCreated(new LevelEventArgs(null, level));
+
+			return level;
+		}
+
+		public event EventHandler<LevelEventArgs> LevelCreated;
+
+		protected virtual void OnLevelCreated(LevelEventArgs e)
+		{
+			LevelCreated?.Invoke(this, e);
+		}
+	}
+
 }

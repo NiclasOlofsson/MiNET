@@ -42,6 +42,8 @@ namespace MiNET
 		public PlayerLocation SpawnPosition { get; set; }
 
 		public int MaxViewDistance { get; set; } = 22;
+		public int MoveRenderDistance { get; set; } = 1;
+
 		public GameMode GameMode { get; set; }
 		public bool UseCreativeInventory { get; set; } = true;
 		public bool IsConnected { get; set; }
@@ -94,7 +96,7 @@ namespace MiNET
 			var serverInfo = Server.ServerInfo;
 			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-			new Thread(Start) {IsBackground = true}.Start();
+			MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
 		public virtual void HandleMcpePlayerInput(McpePlayerInput message)
@@ -284,7 +286,6 @@ namespace MiNET
 				{
 					IsSprinting = false;
 					MovementSpeed = _baseSpeed;
-					SendUpdateAttributes();
 				}
 
 				SendUpdateAttributes();
@@ -493,7 +494,8 @@ namespace MiNET
 
 			_completedStartSequence = true;
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
+			SendChunksForKnownPosition();
+			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
@@ -941,7 +943,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var chunkPosition = new ChunkCoordinates(KnownPosition);
-			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= Config.GetProperty("MoveRenderDistance", 1))
+			if (_currentChunkPosition != chunkPosition && _currentChunkPosition.DistanceTo(chunkPosition) >= MoveRenderDistance)
 			{
 				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
@@ -1762,7 +1764,7 @@ namespace MiNET
 				var chunkPosition = new ChunkCoordinates(KnownPosition);
 				if (IsSpawned && _currentChunkPosition == chunkPosition) return;
 
-				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < Config.GetProperty("MoveRenderDistance", 1))
+				if (IsSpawned && _currentChunkPosition.DistanceTo(chunkPosition) < MoveRenderDistance)
 				{
 					return;
 				}
@@ -1885,13 +1887,13 @@ namespace MiNET
 				Name = "generic.absorption", MinValue = 0, MaxValue = float.MaxValue, Value = Absorption
 			};
 
+			// Workaround, bad design.
+			attributes = HungerManager.AddHungerAttributes(attributes);
+
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.entityId = 0;
 			attributesPackate.attributes = attributes;
 			SendPackage(attributesPackate);
-
-			// Workaround, bad design.
-			HungerManager.SendHungerAttributes();
 		}
 
 		public virtual void SendSetTime()
@@ -2137,7 +2139,14 @@ namespace MiNET
 		/// </summary>
 		public void SendPackage(Package package)
 		{
-			NetworkHandler?.SendPackage(package);
+			if(NetworkHandler == null)
+			{
+				package.PutPool();
+			}
+			else
+			{
+				NetworkHandler?.SendPackage(package);
+			}
 		}
 
 		private object _sendMoveListSync = new object();

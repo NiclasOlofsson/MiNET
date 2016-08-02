@@ -123,6 +123,7 @@ namespace MiNET.Blocks
 			else if (blockId == 101) block = new IronBars();
 			else if (blockId == 102) block = new GlassPane();
 			else if (blockId == 103) block = new Melon();
+			else if (blockId == 105) block = new MelonStem();
 			else if (blockId == 106) block = new Vine();
 			else if (blockId == 107) block = new FenceGate();
 			else if (blockId == 108) block = new BrickStairs();
@@ -184,6 +185,11 @@ namespace MiNET.Blocks
 			else if (blockId == 185) block = new JungleFenceGate();
 			else if (blockId == 186) block = new DarkOakFenceGate();
 			else if (blockId == 187) block = new AcaciaFenceGate();
+			else if (blockId == 193) block = new SpruceDoor();
+			else if (blockId == 194) block = new BirchDoor();
+			else if (blockId == 195) block = new JungleDoor();
+			else if (blockId == 196) block = new AcaciaDoor();
+			else if (blockId == 197) block = new DarkOakDoor();
 			else if (blockId == 198) block = new GrassPath();
 			else if (blockId == 199) block = new ItemFrame();
 			else if (blockId == 243) block = new Podzol();

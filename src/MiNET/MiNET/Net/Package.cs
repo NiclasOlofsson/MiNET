@@ -27,6 +27,8 @@ namespace MiNET.Net
 
 		public bool NoBatch { get; set; }
 
+		public DateTime? ValidUntil { get; set; }
+
 		public Reliability Reliability = Reliability.Unreliable;
 		public int ReliableMessageNumber = 0;
 		public byte OrderingChannel = 0;
@@ -1088,6 +1090,8 @@ namespace MiNET.Net
 			NoBatch = false;
 			ForceClear = false;
 
+			ValidUntil = null;
+
 			_encodedMessage = null;
 			_writer.Flush();
 			_buffer.SetLength(0);
@@ -1261,13 +1265,13 @@ namespace MiNET.Net
 		//}
 
 
-		//~Package()
-		//{
-		//	if (IsPooled)
-		//	{
-		//		Log.Warn($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
-		//	}
-		//}
+		~Package()
+		{
+			if (_isPooled)
+			{
+				Log.Error($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={_isPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
+			}
+		}
 
 		public override void PutPool()
 		{
@@ -1278,9 +1282,8 @@ namespace MiNET.Net
 
 			if(_referenceCounter < 0)
 			{
+				Log.Error($"Pooling error. Added pooled object too many times. 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
 				return;
-				//Log.Warn($"Pooling error. Added pooled object too many times. 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
-				//throw new Exception("Pooling error. Added pooled object too many times.");
 			}
 
 			Reset();

@@ -10,6 +10,7 @@ namespace MiNET
 		{
 			var player = new Player(server, endPoint);
 			player.MaxViewDistance = Config.GetProperty("MaxViewDistance", 22);
+			player.MoveRenderDistance = Config.GetProperty("MoveRenderDistance", 1);
 			OnPlayerCreated(new PlayerEventArgs(player));
 			return player;
 		}

@@ -27,6 +27,7 @@ namespace MiNET.Service
 		{
 			Log.Info("Starting MiNET");
 			_server = new MiNetServer();
+			//_server.LevelManager = new SpreadLevelManager(Environment.ProcessorCount * 4);
 			_server.StartServer();
 		}
 

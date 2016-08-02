@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -52,26 +53,17 @@ namespace MiNET
 
 		public ServerRole ServerRole { get; set; } = ServerRole.Full;
 
+		public bool ForceOrderingForAll { get; set; }
+
 		internal static DedicatedThreadPool FastThreadPool { get; set; }
+		internal static DedicatedThreadPool LevelThreadPool { get; set; }
 
 		public MiNetServer()
 		{
 			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
 			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
-		}
+			ForceOrderingForAll = Config.GetProperty("ForceOrderingForAll", false);
 
-		public MiNetServer(IPEndPoint endpoint) : base()
-		{
-			Endpoint = endpoint;
-		}
-
-		public static bool IsRunningOnMono()
-		{
-			return Type.GetType("Mono.Runtime") != null;
-		}
-
-		public bool StartServer()
-		{
 			int confMinWorkerThreads = Config.GetProperty("MinWorkerThreads", -1);
 			int confMinCompletionPortThreads = Config.GetProperty("MinCompletionPortThreads", -1);
 
@@ -86,7 +78,44 @@ namespace MiNET
 			//else iothreads *= 4;
 
 			//ThreadPool.SetMinThreads(threads, iothreads);
-			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(threads));
+			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+			LevelThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+			_receiveThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+		}
+
+		public MiNetServer(IPEndPoint endpoint) : base()
+		{
+			Endpoint = endpoint;
+		}
+
+		public static bool IsRunningOnMono()
+		{
+			return Type.GetType("Mono.Runtime") != null;
+		}
+
+		public static void DisplayTimerProperties()
+		{
+			// Display the timer frequency and resolution.
+			if (Stopwatch.IsHighResolution)
+			{
+				Console.WriteLine("Operations timed using the system's high-resolution performance counter.");
+			}
+			else
+			{
+				Console.WriteLine("Operations timed using the DateTime class.");
+			}
+
+			long frequency = Stopwatch.Frequency;
+			Console.WriteLine("  Timer frequency in ticks per second = {0}",
+				frequency);
+			long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+			Console.WriteLine("  Timer is accurate within {0} nanoseconds",
+				nanosecPerTick);
+		}
+
+		public bool StartServer()
+		{
+			DisplayTimerProperties();
 
 			if (_listener != null) return false; // Already started
 
@@ -132,52 +161,10 @@ namespace MiNET
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
-					_listener = new UdpClient(Endpoint);
+					_listener = CreateListener();
 
-					if (IsRunningOnMono())
-					{
-						_listener.Client.ReceiveBufferSize = 1024*1024*3;
-						_listener.Client.SendBufferSize = 4096;
-					}
-					else
-					{
-						//_listener.Client.ReceiveBufferSize = 1600*40000;
-						_listener.Client.ReceiveBufferSize = int.MaxValue;
-						//_listener.Client.SendBufferSize = 1600*40000;
-						_listener.Client.SendBufferSize = int.MaxValue;
-						_listener.DontFragment = false;
-						_listener.EnableBroadcast = false;
-
-						// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-						// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-						// - Set to TRUE to enable reporting.
-						// - Set to FALSE to disable reporting.
-
-						uint IOC_IN = 0x80000000;
-						uint IOC_VENDOR = 0x18000000;
-						uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-						_listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
-
-						//
-						//WARNING: We need to catch errors here to remove the code above.
-						//
-					}
-
-					//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
-
-					_listener.BeginReceive(ReceiveCallback, _listener);
+					new Thread(ProcessDatagrams) {IsBackground = true}.Start(_listener);
 				}
-				// Measure latency through system
-				//_internalPingTimer = new Timer(delegate(object state)
-				//{
-				//	var playerSession = _playerSessions.Values.FirstOrDefault();
-				//	if (playerSession != null)
-				//	{
-				//		var ping = new InternalPing();
-				//		ping.Timer.Start();
-				//		HandlePackage(ping, playerSession);
-				//	}
-				//}, null, 1000, 1000);
 
 				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
 				{
@@ -196,6 +183,43 @@ namespace MiNET
 			}
 
 			return false;
+		}
+
+		private UdpClient CreateListener()
+		{
+			var listener = new UdpClient(Endpoint);
+
+			if (IsRunningOnMono())
+			{
+				listener.Client.ReceiveBufferSize = 1024*1024*3;
+				listener.Client.SendBufferSize = 4096;
+			}
+			else
+			{
+				//_listener.Client.ReceiveBufferSize = 1600*40000;
+				listener.Client.ReceiveBufferSize = int.MaxValue;
+				//_listener.Client.SendBufferSize = 1600*40000;
+				listener.Client.SendBufferSize = int.MaxValue;
+				listener.DontFragment = false;
+				listener.EnableBroadcast = false;
+
+				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
+				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+				// - Set to TRUE to enable reporting.
+				// - Set to FALSE to disable reporting.
+
+				uint IOC_IN = 0x80000000;
+				uint IOC_VENDOR = 0x18000000;
+				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+				listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+
+				//
+				//WARNING: We need to catch errors here to remove the code above.
+				//
+			}
+
+			//_cleanerTimer = new Timer(Update, null, 10, Timeout.Infinite);
+			return listener;
 		}
 
 		public bool StopServer()
@@ -221,64 +245,65 @@ namespace MiNET
 			return false;
 		}
 
-		private void ReceiveCallback(IAsyncResult ar)
+		private void ProcessDatagrams(object state)
 		{
-			UdpClient listener = (UdpClient) ar.AsyncState;
+			UdpClient listener = (UdpClient) state;
 
-			// Check if we already closed the server
-			if (listener.Client == null) return;
-
-			// WSAECONNRESET:
-			// The virtual circuit was reset by the remote side executing a hard or abortive close. 
-			// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
-			// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
-			// Note the spocket settings on creation of the server. It makes us ignore these resets.
-			IPEndPoint senderEndpoint = new IPEndPoint(0, 0);
-			Byte[] receiveBytes = null;
-			try
+			while (true)
 			{
-				receiveBytes = listener.EndReceive(ar, ref senderEndpoint);
-			}
-			catch (Exception e)
-			{
-				Log.Error("Unexpected end of transmission?", e);
-				if (listener.Client != null)
-				{
-					try
-					{
-						listener.BeginReceive(ReceiveCallback, listener);
-					}
-					catch (ObjectDisposedException dex)
-					{
-						Log.Error("Unexpected end of transmission?", dex);
-					}
-				}
+				// Check if we already closed the server
+				if (listener.Client == null) return;
 
-				return;
-			}
-
-			if (receiveBytes.Length != 0)
-			{
-				listener.BeginReceive(ReceiveCallback, listener);
-
-				Interlocked.Exchange(ref ServerInfo.AvailableBytes, listener.Available);
-				Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
-				Interlocked.Add(ref ServerInfo.TotalPacketSizeIn, receiveBytes.Length);
-
+				// WSAECONNRESET:
+				// The virtual circuit was reset by the remote side executing a hard or abortive close. 
+				// The application should close the socket; it is no longer usable. On a UDP-datagram socket 
+				// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
+				// Note the spocket settings on creation of the server. It makes us ignore these resets.
+				IPEndPoint senderEndpoint = null;
+				Byte[] receiveBytes = null;
 				try
 				{
-					if (!GreylistManager.IsWhitelisted(senderEndpoint.Address) && GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
-					if (GreylistManager.IsGreylisted(senderEndpoint.Address)) return;
-					ProcessMessage(receiveBytes, senderEndpoint);
+					//var result = listener.ReceiveAsync().Result;
+					//senderEndpoint = result.RemoteEndPoint;
+					//receiveBytes = result.Buffer;
+					receiveBytes = listener.Receive(ref senderEndpoint);
+
+					Interlocked.Exchange(ref ServerInfo.AvailableBytes, listener.Available);
+					Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
+					Interlocked.Add(ref ServerInfo.TotalPacketSizeIn, receiveBytes.Length);
+
+					if (receiveBytes.Length != 0)
+					{
+						_receiveThreadPool.QueueUserWorkItem(() =>
+						{
+							try
+							{
+								if (!GreylistManager.IsWhitelisted(senderEndpoint.Address) && GreylistManager.IsBlacklisted(senderEndpoint.Address)) return;
+								if (GreylistManager.IsGreylisted(senderEndpoint.Address)) return;
+								ProcessMessage(receiveBytes, senderEndpoint);
+							}
+							catch (Exception e)
+							{
+								Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
+							}
+						});
+					}
+					else
+					{
+						Log.Error("Unexpected end of transmission?");
+						return;
+					}
 				}
 				catch (Exception e)
 				{
-					Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
+					Log.Error("Unexpected end of transmission?", e);
+					if (listener.Client != null)
+					{
+						continue;
+					}
+
+					return;
 				}
-			}
-			else
-			{
-				Log.Error("Unexpected end of transmission?");
 			}
 		}
 
@@ -392,6 +417,7 @@ namespace MiNET
 		}
 
 		private ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttemps = new ConcurrentDictionary<IPEndPoint, DateTime>();
+		private DedicatedThreadPool _receiveThreadPool;
 
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
@@ -834,8 +860,8 @@ namespace MiNET
 		{
 			if (session == null) return;
 
-			Ack ack = Ack.CreateObject();
-			//Ack ack = new Ack();
+			//Ack ack = Ack.CreateObject();
+			Ack ack = new Ack();
 			//ack.Reset();
 			ack.Decode(receiveBytes);
 
@@ -876,7 +902,7 @@ namespace MiNET
 				}
 			}
 
-			ack.PutPool();
+			//ack.PutPool();
 
 			session.ResendCount = 0;
 			session.WaitForAck = false;
@@ -891,7 +917,7 @@ namespace MiNET
 
 			if (message.Reliability == Reliability.ReliableOrdered)
 			{
-				if (Config.GetProperty("ForceOrderingForAll", false) == false && (playerSession.CryptoContext == null || playerSession.CryptoContext.UseEncryption == false))
+				if (ForceOrderingForAll == false && (playerSession.CryptoContext == null || playerSession.CryptoContext.UseEncryption == false))
 				{
 					playerSession.AddToProcessing(message);
 				}
@@ -908,7 +934,6 @@ namespace MiNET
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
 		{
-			Interlocked.Increment(ref ServerInfo.NumberOfAckSent);
 			session.PlayerAckQueue.Enqueue(sequenceNumber);
 		}
 
@@ -959,12 +984,6 @@ namespace MiNET
 
 			lock (session.SyncRoot)
 			{
-				//if (new Random().Next(5) == 0)
-				//{
-				//	Log.Warn("Skip message #" + datagram.Header.datagramSequenceNumber.IntValue());
-				//	return;
-				//}
-
 				SendData(data, session.EndPoint);
 			}
 		}

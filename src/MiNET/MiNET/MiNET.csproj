@@ -83,6 +83,7 @@
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="BlockEntities\SkullBlockEntity.cs" />
     <Compile Include="BlockFace.cs" />
+    <Compile Include="Blocks\AcaciaDoor.cs" />
     <Compile Include="Blocks\AcaciaFenceGate.cs" />
     <Compile Include="Blocks\AcaciaLeaves.cs" />
     <Compile Include="Blocks\AcaciaLog.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Blocks\Anvil.cs" />
     <Compile Include="Blocks\Bed.cs" />
     <Compile Include="Blocks\Beetroot.cs" />
+    <Compile Include="Blocks\BirchDoor.cs" />
     <Compile Include="Blocks\BirchFenceGate.cs" />
     <Compile Include="Blocks\BirchWoodStairs.cs" />
     <Compile Include="Blocks\BlockStairs.cs" />
@@ -109,7 +111,11 @@
     <Compile Include="Blocks\CobblestoneWall.cs" />
     <Compile Include="Blocks\Cobweb.cs" />
     <Compile Include="Blocks\Cocoa.cs" />
+    <Compile Include="Blocks\DarkOakDoor.cs" />
+    <Compile Include="Blocks\JungleDoor.cs" />
     <Compile Include="Blocks\LitRedstoneOre.cs" />
+    <Compile Include="Blocks\MelonStem.cs" />
+    <Compile Include="Blocks\SpruceDoor.cs" />
     <Compile Include="Blocks\Wheat.cs" />
     <Compile Include="Blocks\RedMushroom.cs" />
     <Compile Include="Blocks\YellowFlower.cs" />

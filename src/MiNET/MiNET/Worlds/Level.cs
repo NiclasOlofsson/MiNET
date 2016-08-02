@@ -106,7 +106,9 @@ namespace MiNET.Worlds
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
-			//_levelTicker = new Timer(WorldTick, null, 0, _worldTickTime); // MC worlds tick-time
+			_tickTimer = new Stopwatch();
+			_tickTimer.Restart();
+			//_levelTicker = new Timer(WorldTick, null, 50, _worldTickTime); // MC worlds tick-time
 
 			//_tickerThread = new Thread(RunWorldTick);
 			//_tickerThread.Priority = ThreadPriority.Highest;
@@ -114,11 +116,10 @@ namespace MiNET.Worlds
 			//_tickerThread.Start();
 			//_tickerThreadTimer.Start();
 
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(50);
-			_tickerHighPrecisionTimer.Tick += _tickerHighPrecisionTimer_Tick;
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(50, WorldTick);
 		}
 
-		private void _tickerHighPrecisionTimer_Tick(object sender, HighPrecisionTimer.TickEventArgs e)
+		private void _tickerHighPrecisionTimer_Tick()
 		{
 			WorldTick(null);
 		}
@@ -353,16 +354,20 @@ namespace MiNET.Worlds
 		}
 
 		private object _tickSync = new object();
-		private Stopwatch _tickTimer = new Stopwatch();
+		private Stopwatch _tickTimer = Stopwatch.StartNew();
 		public long LastTickProcessingTime = 0;
 		public long AvarageTickProcessingTime = 50;
 		public int PlayerCount { get; private set; }
 
 		private void WorldTick(object sender)
 		{
-			if (!Monitor.TryEnter(_tickSync)) return;
+			if (_tickTimer.ElapsedMilliseconds < 40)
+			{
+				if (Log.IsDebugEnabled) Log.Warn($"World tick came too fast: {_tickTimer.ElapsedMilliseconds} ms");
+				return;
+			}
 
-			//if (_tickTimer.ElapsedMilliseconds > 51) Log.Warn($"World tick late: {_tickTimer.ElapsedMilliseconds} ms");
+			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 100) Log.Error($"Time between World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
 
 			_tickTimer.Restart();
 			try
@@ -430,14 +435,16 @@ namespace MiNET.Worlds
 				//	}
 				//}
 
-				//if (_tickTimer.ElapsedMilliseconds >= 50) Log.Error($"World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
+				if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 50) Log.Error($"World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
+			}
+			catch (Exception e)
+			{
+				Log.Error("World ticking", e);
 			}
 			finally
 			{
 				LastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
 				AvarageTickProcessingTime = ((AvarageTickProcessingTime*9) + _tickTimer.ElapsedMilliseconds)/10L;
-
-				Monitor.Exit(_tickSync);
 			}
 		}
 
@@ -465,18 +472,25 @@ namespace MiNET.Worlds
 		}
 
 		private DateTime _lastSendTime = DateTime.UtcNow;
+		private DateTime _lastBroadcast = DateTime.UtcNow;
 
 		protected virtual void BroadCastMovement(Player[] players, Entity[] entities)
 		{
+			DateTime now = DateTime.UtcNow;
+
 			if (players.Length == 0) return;
+
+			if (players.Length <= 1 && entities.Length == 0) return;
+
+			if (now - _lastBroadcast < TimeSpan.FromMilliseconds(50)) return;
 
 			DateTime tickTime = _lastSendTime;
 			_lastSendTime = DateTime.UtcNow;
-			DateTime now = DateTime.UtcNow;
 
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				int count = 0;
+				int playerMoveCount = 0;
+				int entiyMoveCount = 0;
 
 				foreach (var player in players)
 				{
@@ -497,7 +511,7 @@ namespace MiNET.Worlds
 						stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 						stream.Write(bytes, 0, bytes.Length);
 						move.PutPool();
-						count++;
+						playerMoveCount++;
 					}
 				}
 
@@ -523,20 +537,24 @@ namespace MiNET.Worlds
 							stream.Write(bytes, 0, bytes.Length);
 							entityMotion.PutPool();
 						}
-						count++;
+						entiyMoveCount++;
 					}
 				}
 
-				if (count == 0) return;
+				if (playerMoveCount == 0 && entiyMoveCount == 0) return;
+
+				if (players.Length == 1 && entiyMoveCount == 0) return;
 
 				McpeBatch batch = Player.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal);
 				batch.AddReferences(players.Length - 1);
 				batch.Encode();
+				batch.ValidUntil = now + TimeSpan.FromMilliseconds(50);
 				foreach (var player in players)
 				{
-					Task sendTask = new Task(obj => ((Player) obj).SendMoveList(batch, now), player);
-					sendTask.Start();
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPackage(batch));
+
 				}
+				_lastBroadcast = DateTime.UtcNow;
 			}
 		}
 

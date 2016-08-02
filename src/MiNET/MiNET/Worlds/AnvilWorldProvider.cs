@@ -60,17 +60,17 @@ namespace MiNET.Worlds
 				{36, air}, // minecraft:piston_extension		=> Air
 				{84, air}, // minecraft:jukebox		=> Air
 				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
-				{90, air}, // Nether Portal	=> Air
+				//{90, air}, // Nether Portal	=> Air
 				{93, air}, // minecraft:unpowered_repeater	=> Air
 				{94, air}, // minecraft:powered_repeater	=> Air
 				{95, new NoDataMapper(20)}, // minecraft:stained_glass	=> Glass
 				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
-				{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
-				{118, air}, // minecraft:cauldron		=> Air
+				//{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
+				//{118, air}, // minecraft:cauldron		=> Air
 				{119, air}, // minecraft:end_portal		=> Air
 				{122, air}, // Dragon Egg		=> Air
-				{123, new NoDataMapper(122)}, // Redstone Lamp O	=> Glowstone
-				{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
+				//{123, new NoDataMapper(122)}, // Redstone Lamp O	=> Glowstone
+				//{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
 				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
 				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
 				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
@@ -122,11 +122,11 @@ namespace MiNET.Worlds
 				}, // Trapdoor Fix
 				{149, air}, // minecraft:unpowered_comparator		=> Air
 				{150, air}, // minecraft:powered_comparator		=> Air
-				{154, air}, // minecraft:hopper		=> Air
+				//{154, air}, // minecraft:hopper		=> Air
 				{157, new NoDataMapper(126)}, // minecraft:activator_rail	=> minecraft:activator_rail
-				{158, air}, // minecraft:dropper		=> Air
+				{158, new NoDataMapper(125)}, // minecraft:dropper		=> Air
 				{160, new NoDataMapper(102)}, // minecraft:stained_glass_pane	=> Glass Pane
-				{165, air}, // Slime Block		=> Air
+				//{165, air}, // Slime Block		=> Air
 				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
 				{168, air}, // minecraft:prismarine		=> Air
 				{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
@@ -144,6 +144,7 @@ namespace MiNET.Worlds
 				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
 				{198, air}, // minecraft:end_rod		=> Air
+				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
 			};
 		}
 
@@ -326,9 +327,21 @@ namespace MiNET.Worlds
 									dataConverter = Convert[blockId].Item2;
 									blockId = Convert[blockId].Item1;
 								}
+								else
+								{
+									if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
+									{
+										Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
+										//blockId = 57;
+									}
+								}
 
 								chunk.isAllAir = chunk.isAllAir && blockId == 0;
-								if (blockId > 255) blockId = 41;
+								if (blockId > 255)
+								{
+									Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
+									blockId = 41;
+								}
 
 								//if (yi == 127 && blockId != 0) blockId = 30;
 								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
@@ -398,15 +411,18 @@ namespace MiNET.Worlds
 							{
 								NbtList items = (NbtList) blockEntityTag["Items"];
 
-								for (byte i = 0; i < items.Count; i++)
+								if(items != null)
 								{
-									NbtCompound item = (NbtCompound) items[i];
+									for (byte i = 0; i < items.Count; i++)
+									{
+										NbtCompound item = (NbtCompound) items[i];
 
-									item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
+										item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
 
-									byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
-									item.Remove("Damage");
-									item.Add(new NbtByte("Damage", metadata));
+										byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
+										item.Remove("Damage");
+										item.Add(new NbtByte("Damage", metadata));
+									}
 								}
 							}
 
@@ -426,9 +442,9 @@ namespace MiNET.Worlds
 
 		private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
 		{
-			//var text = blockEntityTag[tagName].StringValue;
-			//var replace = Regex.Unescape(_regex.Replace(text, "$3"));
-			//blockEntityTag[tagName] = new NbtString(tagName, replace);
+			var text = blockEntityTag[tagName].StringValue;
+			var replace = Regex.Unescape(_regex.Replace(text, "$3"));
+			blockEntityTag[tagName] = new NbtString(tagName, replace);
 		}
 
 		private static byte Nibble4(byte[] arr, int index)

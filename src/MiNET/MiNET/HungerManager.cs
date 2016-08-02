@@ -161,9 +161,8 @@ namespace MiNET
 			}
 		}
 
-		public virtual void SendHungerAttributes()
+		public virtual PlayerAttributes AddHungerAttributes(PlayerAttributes attributes)
 		{
-			var attributes = new PlayerAttributes();
 			attributes["player.hunger"] = new PlayerAttribute
 			{
 				Name = "player.hunger", MinValue = MinHunger, MaxValue = MaxHunger, Value = Hunger
@@ -176,6 +175,14 @@ namespace MiNET
 			{
 				Name = "player.exhaustion", MinValue = 0, MaxValue = 5, Value = (float) Exhaustion
 			};
+
+			return attributes;
+		}
+
+
+		public virtual void SendHungerAttributes()
+		{
+			var attributes = AddHungerAttributes(new PlayerAttributes());
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.entityId = 0;

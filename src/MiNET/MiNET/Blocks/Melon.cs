@@ -7,13 +7,13 @@ namespace MiNET.Blocks
 	{
 		public Melon() : base(103)
 		{
-			BlastResistance = 5;
 			Hardness = 1;
+			IsTransparent = true;
 		}
 
 		public override Item[] GetDrops()
 		{
-			var rnd = new Random((int)DateTime.UtcNow.Ticks);
+			var rnd = new Random((int) DateTime.UtcNow.Ticks);
 			return new[] {ItemFactory.GetItem(360, 0, (byte) (3 + rnd.Next(5)))};
 		}
 	}

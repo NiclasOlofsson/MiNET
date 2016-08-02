@@ -10,23 +10,13 @@ namespace MiNET.Utils
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (HighPrecisionTimer));
 
-		public class TickEventArgs : EventArgs
-		{
-			public TimeSpan Duration { get; private set; }
-			public long TotalTicks { get; private set; }
+		public Action<object> Action { get; set; }
 
-			public TickEventArgs(TimeSpan totalDuration, long totalTicks)
-			{
-				Duration = totalDuration;
-				TotalTicks = totalTicks;
-			}
-		}
-
-		public event EventHandler<TickEventArgs> Tick;
 		protected CancellationTokenSource CancelSource;
 
-		public HighPrecisionTimer(int interval)
+		public HighPrecisionTimer(int interval, Action<object> action)
 		{
+			Action = action;
 			Log.Debug($"Starting HighPrecisionTimer with {interval} ms interval");
 
 			if (interval < 1)
@@ -36,39 +26,38 @@ namespace MiNET.Utils
 			CancelSource = new CancellationTokenSource();
 
 			var watch = Stopwatch.StartNew();
-			long durationMs = 0;
-			long totalTicks = 0;
 			long nextStop = interval;
-			long lastReport = 0;
 
 			var task = new Task(() =>
 			{
+				Thread.CurrentThread.Priority = ThreadPriority.AboveNormal;
+
 				while (!CancelSource.IsCancellationRequested)
 				{
 					long msLeft = nextStop - watch.ElapsedMilliseconds;
 					if (msLeft <= 0)
 					{
-						durationMs = watch.ElapsedMilliseconds;
-						totalTicks = durationMs/interval;
-
-						if (durationMs - lastReport >= 1000)
-						{
-							lastReport = durationMs;
-						}
-
-						Tick?.Invoke(this, new TickEventArgs(TimeSpan.FromMilliseconds(durationMs), totalTicks));
+						Action(this);
 
 						// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
-						nextStop = interval*(watch.ElapsedMilliseconds/interval + 1);
+						nextStop = (long) (interval*(watch.ElapsedMilliseconds/(float) interval + 1f));
+						continue;
 					}
-					else if (msLeft < 16)
+					if (msLeft < 16)
 					{
-						SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= nextStop);
+						var stop = nextStop;
+						SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
+						//long t = nextStop - watch.ElapsedMilliseconds;
+						//if(t < -5) Log.Warn($"We overslept {t}ms in spin wait");
 						continue;
 					}
 
-					Thread.Sleep(1);
-					//Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
+					//Thread.Sleep(1);
+					Thread.Sleep(Math.Max(1, (int)(msLeft - 16)));
+					{
+						//long t = nextStop - watch.ElapsedMilliseconds;
+						//if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
+					}
 				}
 			}, CancelSource.Token, TaskCreationOptions.LongRunning);
 

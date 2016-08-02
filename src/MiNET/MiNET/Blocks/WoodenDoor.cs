@@ -14,6 +14,13 @@ namespace MiNET.Blocks
 			Hardness = 3;
 		}
 
+		protected WoodenDoor(byte id) : base(id)
+		{
+			IsTransparent = true;
+			BlastResistance = 15;
+			Hardness = 3;
+		}
+
 		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;

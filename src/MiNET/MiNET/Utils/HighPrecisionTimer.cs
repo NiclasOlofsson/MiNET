@@ -21,7 +21,6 @@ namespace MiNET.Utils
 
 			if (interval < 1)
 				throw new ArgumentOutOfRangeException();
-			//Trace.Assert(interval >= 10, "Not reliable/tested, may use too much CPU");
 
 			CancelSource = new CancellationTokenSource();
 

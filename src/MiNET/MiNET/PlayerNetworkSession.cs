@@ -29,9 +29,6 @@ namespace MiNET
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
 
-		private ConcurrentQueue<int> _playerAckQueue = new ConcurrentQueue<int>();
-		private ConcurrentDictionary<int, Datagram> _waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
-		private ConcurrentDictionary<int, SplitPartPackage[]> _splits = new ConcurrentDictionary<int, SplitPartPackage[]>();
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
 		public int OrderingIndex = -1;
@@ -48,6 +45,10 @@ namespace MiNET
 		public long RttVar { get; set; }
 		public long Rto { get; set; }
 
+		public ConcurrentDictionary<int, SplitPartPackage[]> Splits { get; } = new ConcurrentDictionary<int, SplitPartPackage[]>();
+		public ConcurrentQueue<int> PlayerAckQueue { get; } = new ConcurrentQueue<int>();
+		public ConcurrentDictionary<int, Datagram> WaitingForAcksQueue { get; } = new ConcurrentDictionary<int, Datagram>();
+
 		public CryptoContext CryptoContext { get; set; }
 
 		public PlayerNetworkSession(MiNetServer server, Player player, IPEndPoint endPoint, short mtuSize)
@@ -60,23 +61,7 @@ namespace MiNET
 			MtuSize = mtuSize;
 
 			_cancellationToken = new CancellationTokenSource();
-			//_sendTicker = new Timer(SendTick, null, 10, 10); // RakNet send tick-time
 			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick);
-		}
-
-		public ConcurrentDictionary<int, SplitPartPackage[]> Splits
-		{
-			get { return _splits; }
-		}
-
-		public ConcurrentQueue<int> PlayerAckQueue
-		{
-			get { return _playerAckQueue; }
-		}
-
-		public ConcurrentDictionary<int, Datagram> WaitingForAcksQueue
-		{
-			get { return _waitingForAcksQueue; }
 		}
 
 		public void Close()
@@ -92,16 +77,7 @@ namespace MiNET
 				Thread.Sleep(50);
 			}
 
-			if (_sendTicker != null)
-			{
-				_sendTicker.Change(Timeout.Infinite, Timeout.Infinite);
-				WaitHandle waitHandle = new AutoResetEvent(false);
-				_sendTicker.Dispose(waitHandle);
-				WaitHandle.WaitAll(new[] {waitHandle}, TimeSpan.FromMinutes(2));
-				_sendTicker = null;
-			}
-
-			if(_tickerHighPrecisionTimer != null)
+			if (_tickerHighPrecisionTimer != null)
 			{
 				_tickerHighPrecisionTimer.Dispose();
 			}
@@ -596,6 +572,7 @@ namespace MiNET
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
 			MessageHandler?.Disconnect(reason, sendDisconnect);
+			Close();
 		}
 
 		public void DetectLostConnection()
@@ -611,8 +588,6 @@ namespace MiNET
 
 		private Queue<Package> _sendQueueNotConcurrent = new Queue<Package>();
 		private object _queueSync = new object();
-		// ReSharper disable once NotAccessedField.Local
-		private Timer _sendTicker;
 
 		public void SendPackage(Package package)
 		{
@@ -644,14 +619,15 @@ namespace MiNET
 		}
 
 		private int i = 0;
+
 		private void SendTick(object state)
 		{
 			SendAckQueue();
 			SendQueue();
-			if(i++ >= 5)
+			if (i++ >= 5)
 			{
 				i = 0;
-				if(!_isRunning) Update();
+				if (!_isRunning) Update();
 			}
 		}
 
@@ -814,7 +790,7 @@ namespace MiNET
 
 			try
 			{
-				using(MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
 				{
 					var now = DateTime.UtcNow;
 

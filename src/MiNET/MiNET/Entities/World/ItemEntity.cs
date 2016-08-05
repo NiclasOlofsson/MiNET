@@ -1,9 +1,6 @@
-﻿using log4net.Core;
-using MiNET.Items;
+﻿using MiNET.Items;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Worlds;
-using Level = MiNET.Worlds.Level;
 
 namespace MiNET.Entities.World
 {

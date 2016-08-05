@@ -66,7 +66,7 @@ namespace MiNET.Entities
 			metadata[8] = new MetadataByte(0); // Potion Ambient
 			metadata[15] = new MetadataByte(NoAi);
 			metadata[16] = new MetadataByte(0); // Player flags
-			metadata[17] = new MetadataIntCoordinates(0, 0, 0);
+			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 			metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			metadata[24] = new MetadataByte(0); // Leads on/off
 			return metadata;

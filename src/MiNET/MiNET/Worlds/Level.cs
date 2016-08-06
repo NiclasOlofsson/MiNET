@@ -110,6 +110,7 @@ namespace MiNET.Worlds
 			_tickTimer.Restart();
 			//_levelTicker = new Timer(WorldTick, null, 50, _worldTickTime); // MC worlds tick-time
 
+
 			//_tickerThread = new Thread(RunWorldTick);
 			//_tickerThread.Priority = ThreadPriority.Highest;
 			//_tickerThread.IsBackground = true;
@@ -117,6 +118,13 @@ namespace MiNET.Worlds
 			//_tickerThreadTimer.Start();
 
 			_tickerHighPrecisionTimer = new HighPrecisionTimer(50, WorldTick);
+			//_mmTickTimer = new MultiMediaTimer();
+			//_mmTickTimer.Mode = TimerMode.Periodic;
+			//_mmTickTimer.Period = 50;
+			//_mmTickTimer.Resolution = 1;
+			//_mmTickTimer.SynchronizingObject = null;
+			//_mmTickTimer.Tick += WorldTick;
+			//_mmTickTimer.Start();
 		}
 
 		private void _tickerHighPrecisionTimer_Tick()
@@ -125,6 +133,7 @@ namespace MiNET.Worlds
 		}
 
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
+		private MultiMediaTimer _mmTickTimer = null;
 
 		public void Close()
 		{
@@ -359,6 +368,11 @@ namespace MiNET.Worlds
 		public long AvarageTickProcessingTime = 50;
 		public int PlayerCount { get; private set; }
 
+		private void WorldTick(object sender, EventArgs e)
+		{
+			WorldTick(null);
+		}
+
 		private void WorldTick(object sender)
 		{
 			if (_tickTimer.ElapsedMilliseconds < 40)
@@ -552,7 +566,6 @@ namespace MiNET.Worlds
 				foreach (var player in players)
 				{
 					MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPackage(batch));
-
 				}
 				_lastBroadcast = DateTime.UtcNow;
 			}

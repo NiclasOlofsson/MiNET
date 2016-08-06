@@ -1269,7 +1269,7 @@ namespace MiNET.Net
 		{
 			if (_isPooled)
 			{
-				Log.Error($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={_isPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
+				Log.Error($"Unexpected dispose 0x{Id:x2} {GetType().Name}, IsPooled={_isPooled}, IsPermanent={_isPermanent}, Refs={_referenceCounter}");
 			}
 		}
 

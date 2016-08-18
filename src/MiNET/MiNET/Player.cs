@@ -631,7 +631,7 @@ namespace MiNET
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
 		}
 
-		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null, Action postAction = null)
 		{
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
@@ -738,6 +738,12 @@ namespace MiNET
 					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 					SendSetTime();
+					
+					if (postAction != null)
+                    			{
+				        	postAction();
+				    	}
+					
 				});
 			});
 		}

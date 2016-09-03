@@ -14,6 +14,9 @@ Port: **19132**
 IP: **play.inpvp.net**    
 Port: **19132** 
 
+IP: **trial.darkhammer.net**
+Port: **19132**
+
 IP: **yodamine.com**    
 Port: **19132/19134**    
 

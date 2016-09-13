@@ -149,7 +149,7 @@ namespace MiNET.Blocks
 		{
 		}
 
-		public BoundingBox GetBoundingBox()
+		public virtual BoundingBox GetBoundingBox()
 		{
 			return new BoundingBox(Coordinates, Coordinates + 1);
 		}

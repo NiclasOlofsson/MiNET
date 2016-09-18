@@ -481,7 +481,7 @@ namespace TestPlugin
 			//}
 
 			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
-			//inventory.Slots[c++] = new ItemBlock(new WoodenPlanks(), 0) { Count = 64 };
+			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) { Count = 64 };
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword

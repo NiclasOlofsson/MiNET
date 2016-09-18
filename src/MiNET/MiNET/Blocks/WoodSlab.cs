@@ -1,3 +1,6 @@
+using System.Numerics;
+using MiNET.Utils;
+
 namespace MiNET.Blocks
 {
 	public class WoodSlab : Block
@@ -8,5 +11,10 @@ namespace MiNET.Blocks
 			Hardness = 2;
 			IsFlammable = true;
 		}
+
+	    public override BoundingBox GetBoundingBox()
+	    {
+            return new BoundingBox(Coordinates, (Vector3) Coordinates + new Vector3(1f, 0.5f, 1f));
+	    }
 	}
 }

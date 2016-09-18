@@ -195,7 +195,7 @@ namespace MiNET.Entities.Projectiles
 
 					BlockCoordinates coord = new BlockCoordinates(nextPos);
 					Block block = Level.GetBlock(coord);
-					collided = block.Id != 0 && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+					collided = block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
 					if (collided)
 					{
 						SetIntersectLocation(block.GetBoundingBox(), KnownPosition);

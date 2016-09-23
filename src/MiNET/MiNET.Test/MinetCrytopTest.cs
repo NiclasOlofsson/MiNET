@@ -430,7 +430,7 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			var messages = new List<Package>();
 
 			// Get bytes
-			byte[] payload = batch.payload.Array;
+			byte[] payload = batch.payload;
 			// Decompress bytes
 
 			Console.WriteLine("Package:\n" + Package.HexDump(payload));

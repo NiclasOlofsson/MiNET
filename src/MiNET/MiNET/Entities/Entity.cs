@@ -58,17 +58,20 @@ namespace MiNET.Entities
 		public virtual MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataByte(GetDataValue());
-			metadata[2] = new MetadataString(NameTag ?? string.Empty);
+			metadata[0] = new MetadataInt(GetDataValue());
+			metadata[1] = new MetadataInt(1);
+			metadata[2] = new MetadataInt(0);
 			metadata[3] = new MetadataByte(!HideNameTag);
-			metadata[4] = new MetadataByte(Silent);
-			metadata[7] = new MetadataInt(0); // Potion Color
-			metadata[8] = new MetadataByte(0); // Potion Ambient
-			metadata[15] = new MetadataByte(NoAi);
-			metadata[16] = new MetadataByte(0); // Player flags
-			//metadata[17] = new MetadataIntCoordinates(0, 0, 0);
-			metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
-			metadata[24] = new MetadataByte(0); // Leads on/off
+			metadata[4] = new MetadataString(NameTag ?? string.Empty);
+			//metadata[4] = new MetadataByte(Silent);
+			//metadata[7] = new MetadataInt(0); // Potion Color
+			//metadata[8] = new MetadataByte(0); // Potion Ambient
+			//metadata[15] = new MetadataByte(NoAi);
+			//metadata[16] = new MetadataByte(0); // Player flags
+			////metadata[17] = new MetadataIntCoordinates(0, 0, 0);
+			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
+			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
+			//metadata[24] = new MetadataByte(0); // Leads on/off
 			return metadata;
 		}
 
@@ -78,9 +81,9 @@ namespace MiNET.Entities
 		public bool IsInAction { get; set; }
 		public bool IsInvisible { get; set; }
 
-		public byte GetDataValue()
+		public int GetDataValue()
 		{
-			BitArray bits = new BitArray(8);
+			BitArray bits = new BitArray(32);
 			bits[0] = HealthManager.IsOnFire;
 			bits[1] = IsSneaking; // Sneaking
 			bits[2] = IsRiding; // Riding
@@ -89,10 +92,14 @@ namespace MiNET.Entities
 			bits[5] = IsInvisible; // Invisible
 			bits[6] = false; // Unused
 			bits[7] = false; // Unused
+			bits[14] = true; // Unused
 
-			byte[] bytes = new byte[1];
+			byte[] bytes = new byte[4];
 			bits.CopyTo(bytes, 0);
-			return bytes[0];
+
+			var dataValue = BitConverter.ToInt32(bytes, 0);
+			Log.Error($"Bit-array: 0x{bytes:x2} datavalue=0x{dataValue:x2} ");
+			return dataValue;
 		}
 
 		public virtual void OnTick()

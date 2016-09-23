@@ -25,22 +25,23 @@ namespace MiNET.Utils
 			Value = new BlockCoordinates(x, y, z);
 		}
 
-		public override void FromStream(BinaryReader stream)
+		public override void FromStream(BinaryReader reader)
 		{
+			Stream stream = reader.BaseStream;
 			Value = new BlockCoordinates
 			{
-				X = stream.ReadInt32(),
-				Y = stream.ReadInt32(),
-				Z = stream.ReadInt32(),
+				X = VarInt.ReadInt32(stream),
+				Y = VarInt.ReadInt32(stream),
+				Z = VarInt.ReadInt32(stream),
 			};
 		}
 
-		public override void WriteTo(BinaryWriter stream, byte index)
+		public override void WriteTo(BinaryWriter reader)
 		{
-			stream.Write(GetKey(index));
-			stream.Write(Value.X);
-			stream.Write(Value.Y);
-			stream.Write(Value.Z);
+			Stream stream = reader.BaseStream;
+			VarInt.WriteInt32(stream, Value.X);
+			VarInt.WriteInt32(stream, Value.Y);
+			VarInt.WriteInt32(stream, Value.Z);
 		}
 
 		public override string ToString()

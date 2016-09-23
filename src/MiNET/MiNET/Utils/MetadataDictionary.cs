@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using log4net;
 using MiNET.Items;
 
 namespace MiNET.Utils
@@ -11,6 +12,8 @@ namespace MiNET.Utils
 	/// </summary>
 	public class MetadataDictionary
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MetadataDictionary));
+
 		private readonly Dictionary<int, MetadataEntry> _entries;
 
 		public MetadataDictionary()
@@ -39,38 +42,44 @@ namespace MiNET.Utils
 			return _entries.ContainsKey(index);
 		}
 
-		public static MetadataDictionary FromStream(BinaryReader stream)
+		public static MetadataDictionary FromStream(BinaryReader reader)
 		{
+			Stream stream = reader.BaseStream;
 			MetadataDictionary metadata = new MetadataDictionary();
-			while (true)
+
 			{
-				byte key = stream.ReadByte();
-				if (key == 0x7F) break;
+				var count = VarInt.ReadInt32(stream);
 
-				byte type = (byte) ((key & 0xE0) >> 5);
-				byte index = (byte) (key & 0x1F);
+				for (int i = 0; i < count; i++)
+				{
+					int index = VarInt.ReadInt32(stream);
+					int type = VarInt.ReadInt32(stream);
 
-				var entry = EntryTypes[type]();
-				//if (index == 17 && type != 6)
-				//{
-				//	entry = new MetadataLong {id = type};
-				//}
+					var entry = EntryTypes[type]();
 
-				entry.FromStream(stream);
-				entry.Index = index;
+					entry.FromStream(reader);
+					entry.Index = (byte) index;
 
-				metadata[index] = entry;
+					metadata[index] = entry;
+				}
 			}
+
 			return metadata;
+
+			return null;
 		}
 
-		public void WriteTo(BinaryWriter stream)
+		public void WriteTo(BinaryWriter writer)
 		{
+			Stream stream = writer.BaseStream;
+
+			VarInt.WriteInt32(stream, _entries.Count);
 			foreach (var entry in _entries)
 			{
-				entry.Value.WriteTo(stream, (byte) entry.Key);
+				VarInt.WriteInt32(stream, entry.Key);
+				VarInt.WriteInt32(stream, entry.Value.Identifier);
+				entry.Value.WriteTo(writer);
 			}
-			stream.Write((byte) 0x7F);
 		}
 
 		public delegate MetadataEntry CreateEntryInstance();
@@ -141,17 +150,16 @@ namespace MiNET.Utils
 			Value = value;
 		}
 
-		public override void FromStream(BinaryReader stream)
+		public override void FromStream(BinaryReader reader)
 		{
-			var id = stream.ReadInt16();
-			var count = stream.ReadByte();
-			var metadata = stream.ReadInt16();
+			var id = reader.ReadInt16();
+			var count = reader.ReadByte();
+			var metadata = reader.ReadInt16();
 			Value = new Item(id, metadata, count);
 		}
 
-		public override void WriteTo(BinaryWriter stream, byte index)
+		public override void WriteTo(BinaryWriter stream)
 		{
-			stream.Write(GetKey(index));
 			stream.Write(Value.Id);
 			stream.Write(Value.Count);
 			stream.Write(Value.Metadata);

@@ -48,7 +48,6 @@ namespace MiNET.Crafting
 					}),
 				new ShapedRecipe(1, 3, new Item(269, 0, 1),
 					new Item[]
-
 					{
 						new Item(5, -1),
 						new Item(280, 0),
@@ -726,6 +725,19 @@ namespace MiNET.Crafting
 						new Item(1, 5),
 						new Item(1, 5),
 					}),
+				new ShapedRecipe(3, 3, new Item(138, 0, 1),
+					new Item[]
+					{
+						new Item(20, 0),
+						new Item(20, 0),
+						new Item(49, 0),
+						new Item(20, 0),
+						new Item(399, 0),
+						new Item(49, 0),
+						new Item(20, 0),
+						new Item(20, 0),
+						new Item(49, 0),
+					}),
 				new ShapedRecipe(3, 2, new Item(298, 0, 1),
 					new Item[]
 					{
@@ -1063,13 +1075,6 @@ namespace MiNET.Crafting
 						new Item(351, 15, 1),
 						new Item(351, 15, 1),
 					}),
-				new ShapelessRecipe(new Item(351, 3, 2),
-					new List<Item>
-					{
-						new Item(351, 0, 1),
-						new Item(351, 1, 1),
-						new Item(351, 11, 1),
-					}),
 				new ShapelessRecipe(new Item(351, 12, 2),
 					new List<Item>
 					{
@@ -1168,6 +1173,11 @@ namespace MiNET.Crafting
 					new Item[]
 					{
 						new Item(175, 5),
+					}),
+				new ShapedRecipe(1, 1, new Item(351, 1, 1),
+					new Item[]
+					{
+						new Item(457, 0),
 					}),
 				new ShapedRecipe(3, 3, new Item(395, 1, 1),
 					new Item[]
@@ -1456,9 +1466,9 @@ namespace MiNET.Crafting
 				new ShapedRecipe(3, 1, new Item(44, 0, 6),
 					new Item[]
 					{
-						new Item(1, -1),
-						new Item(1, -1),
-						new Item(1, -1),
+						new Item(1, 0),
+						new Item(1, 0),
+						new Item(1, 0),
 					}),
 				new ShapedRecipe(3, 1, new Item(44, 1, 6),
 					new Item[]
@@ -2289,10 +2299,10 @@ namespace MiNET.Crafting
 					{
 						new Item(76, -1),
 						new Item(76, -1),
-						new Item(1, -1),
+						new Item(1, 0),
 						new Item(331, 0),
-						new Item(1, -1),
-						new Item(1, -1),
+						new Item(1, 0),
+						new Item(1, 0),
 					}),
 				new ShapedRecipe(3, 3, new Item(123, 0, 1),
 					new Item[]
@@ -2863,31 +2873,53 @@ namespace MiNET.Crafting
 						new Item(334, 0),
 						new Item(334, 0),
 					}),
-				new SmeltingRecipe(new Item(1, 0, 1), new Item(4, 0)),
-				new SmeltingRecipe(new Item(20, 0, 1), new Item(12, 0)),
-				new SmeltingRecipe(new Item(266, 0, 1), new Item(14, 0)),
-				new SmeltingRecipe(new Item(265, 0, 1), new Item(15, 0)),
-				new SmeltingRecipe(new Item(263, 0, 1), new Item(16, 0)),
-				new SmeltingRecipe(new Item(263, 1, 1), new Item(17, 0)),
-				new SmeltingRecipe(new Item(351, 4, 1), new Item(21, 0)),
-				new SmeltingRecipe(new Item(264, 0, 1), new Item(56, 0)),
-				new SmeltingRecipe(new Item(331, 0, 1), new Item(73, 0)),
-				new SmeltingRecipe(new Item(351, 2, 1), new Item(81, 0)),
-				new SmeltingRecipe(new Item(172, 0, 1), new Item(82, 0)),
-				new SmeltingRecipe(new Item(405, 0, 1), new Item(87, 0)),
-				new SmeltingRecipe(new Item(388, 0, 1), new Item(129, 0)),
-				new SmeltingRecipe(new Item(406, 0, 1), new Item(153, 0)),
-				new SmeltingRecipe(new Item(263, 1, 1), new Item(162, 0)),
-				new SmeltingRecipe(new Item(320, 0, 1), new Item(319, 0)),
-				new SmeltingRecipe(new Item(336, 0, 1), new Item(337, 0)),
-				new SmeltingRecipe(new Item(350, 0, 1), new Item(349, 0)),
-				new SmeltingRecipe(new Item(364, 0, 1), new Item(363, 0)),
-				new SmeltingRecipe(new Item(366, 0, 1), new Item(365, 0)),
-				new SmeltingRecipe(new Item(393, 0, 1), new Item(392, 0)),
-				new SmeltingRecipe(new Item(412, 0, 1), new Item(411, 0)),
-				new SmeltingRecipe(new Item(424, 0, 1), new Item(423, 0)),
-				new SmeltingRecipe(new Item(463, 0, 1), new Item(460, 0)),
-				new SmeltingRecipe(new Item(98, 2, 1), new Item(98, 0)),
+				new ShapedRecipe(2, 2, new Item(168, 0, 1),
+					new Item[]
+					{
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+					}),
+				new ShapedRecipe(3, 3, new Item(168, 2, 1),
+					new Item[]
+					{
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+					}),
+				new ShapedRecipe(3, 3, new Item(168, 1, 1),
+					new Item[]
+					{
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(351, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+						new Item(409, 0),
+					}),
+				new ShapedRecipe(3, 3, new Item(169, 0, 1),
+					new Item[]
+					{
+						new Item(409, 0),
+						new Item(422, 0),
+						new Item(409, 0),
+						new Item(422, 0),
+						new Item(422, 0),
+						new Item(422, 0),
+						new Item(409, 0),
+						new Item(422, 0),
+						new Item(409, 0),
+					}),
 			};
 		}
 

@@ -66,6 +66,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors" />
+    <Reference Include="System.VarintBitConverter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VarintBitConverter.1.0.0.0\lib\Net40\System.VarintBitConverter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -436,7 +440,6 @@
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\ItemSigner.cs" />
     <Compile Include="Net\McpeText.cs" />
-    <Compile Include="Net\McpeWriter.cs" />
     <Compile Include="Net\PlayerAction.cs" />
     <Compile Include="Net\SplitPartPackage.cs" />
     <Compile Include="Net\UUID.cs" />
@@ -533,6 +536,7 @@
     <Compile Include="Sounds\ShootSound.cs" />
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Sounds\ClickSound.cs" />
+    <Compile Include="Utils\BatchUtils.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\ConcurrentPriorityQueue.cs" />
@@ -548,6 +552,7 @@
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />
+    <Compile Include="Utils\VarInt.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\Vector3.cs" />

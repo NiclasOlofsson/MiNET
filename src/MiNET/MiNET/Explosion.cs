@@ -134,9 +134,7 @@ namespace MiNET
 			new Task(() =>
 			{
 				var mcpeExplode = McpeExplode.CreateObject();
-				mcpeExplode.x = _centerCoordinates.X;
-				mcpeExplode.y = _centerCoordinates.Y;
-				mcpeExplode.z = _centerCoordinates.Z;
+				mcpeExplode.position = _centerCoordinates;
 				mcpeExplode.radius = _size;
 				mcpeExplode.records = records;
 				_world.RelayBroadcast(mcpeExplode);

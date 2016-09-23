@@ -205,7 +205,6 @@ namespace TestPlugin
 			{
 				// 128 = 32 + 32 + 32
 				var msg = McpeSpawnExperienceOrb.CreateObject();
-				msg.entityId = player.EntityId;
 				msg.x = (int) (player1.KnownPosition.X + 1);
 				msg.y = (int) (player1.KnownPosition.Y + 2);
 				msg.z = (int) (player1.KnownPosition.Z + 1);

@@ -133,6 +133,34 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
 			WriteLine(string.Format("\t\tpublic readonly {0} {1} = new {0}{2}; // = {2};", type, CodeName(field.Attributes["name"].Value), value));
 		} 
+		else if(field.Attributes["type"].Value == "VarInt")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "int", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarInt")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "uint", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "SignedVarInt")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "int", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "VarLong")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "long", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "Lenght")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "int", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "ByteArray")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "byte[]", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "FixedString")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "string", CodeName(field.Attributes["name"].Value), "null"));
+		}
 		else 
 		{
 			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", field.Attributes["type"].Value, CodeName(field.Attributes["name"].Value), "null"));
@@ -157,7 +185,40 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	{
 		if(field.NodeType != XmlNodeType.Element) continue;
 
-		WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
+		if(field.Attributes["type"].Value == "VarInt")
+		{
+			WriteLine(string.Format("\t\t\tWriteVarInt({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarInt")
+		{
+			WriteLine(string.Format("\t\t\tWriteUnsignedVarInt({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "SignedVarInt")
+		{
+			WriteLine(string.Format("\t\t\tWriteSignedVarInt({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "VarLong")
+		{
+			WriteLine(string.Format("\t\t\tWriteVarLong({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "Lenght")
+		{
+			WriteLine(string.Format("\t\t\tWriteLenght({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "ByteArray")
+		{
+			WriteLine(string.Format("\t\t\tWriteByteArray({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "FixedString")
+		{
+			WriteLine(string.Format("\t\t\tWriteFixedString({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else
+		{
+			WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
+		}
+		
 
 			
 	} // foreach
@@ -186,6 +247,30 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			string value = constantsLoopup[field.Attributes["type"].Value].Item2;
 			WriteLine(string.Format("\t\t\tRead{1}({0}.Length);", CodeFieldName(field.Attributes["name"].Value), CodeTypeName(type)));
 		} 
+		else if(field.Attributes["type"].Value == "VarInt")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "VarInt", SafeToString(field.Attributes["size"])));
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarInt")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "UnsignedVarInt", SafeToString(field.Attributes["size"])));
+		}
+		else if(field.Attributes["type"].Value == "SignedVarInt")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "SignedVarInt", SafeToString(field.Attributes["size"])));
+		}
+		else if(field.Attributes["type"].Value == "VarLong")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "VarLong", SafeToString(field.Attributes["size"])));
+		}
+		else if(field.Attributes["type"].Value == "ByteArray")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "ByteArray", SafeToString(field.Attributes["size"])));
+		}
+		else if(field.Attributes["type"].Value == "FixedString")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "FixedString", SafeToString(field.Attributes["size"])));
+		}
 		else 
 		{
 			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), UpperInitial(field.Attributes["type"].Value), SafeToString(field.Attributes["size"])));

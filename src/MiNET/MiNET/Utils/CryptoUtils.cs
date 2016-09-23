@@ -230,10 +230,12 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
+	""AdRole"": 2,
 	""ClientRandomId"": {new Random().Next()},
 	""ServerAddress"": ""pe.mineplex.com:19132"",
 	""SkinData"": ""{skin64}"",
-	""SkinId"": ""{skin.SkinType}""
+	""SkinId"": ""{skin.SkinType}"",
+	""TenantId"": """"
 }}";
 
 			string val = JWT.Encode(skinData, tk, JwsAlgorithm.ES384, new Dictionary<string, object> { { "x5u", b64Key } });

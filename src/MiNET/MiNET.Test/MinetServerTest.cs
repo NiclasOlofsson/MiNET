@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net;
-using System.Numerics;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using fNbt;
@@ -19,6 +18,52 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void TestCustomVarInt()
+		{
+
+			{
+				var stream = new MemoryStream();
+				var bytes = GetBytes("ff ff ff ff 0f");
+				stream.Write(bytes, 0, bytes.Length);
+				stream.Position = 0;
+				int result = VarInt.ReadInt32(stream);
+				Assert.AreEqual(-1, result);
+
+				int t = (int) 0x7fffffff;
+				t |= 0xff << 1;
+				Assert.AreEqual(t | 0x0f << 4*7, result);
+				Assert.AreEqual(-1, result);
+
+				MemoryStream outstream = new MemoryStream();
+				VarInt.WriteInt32(outstream, -1);
+				Assert.AreEqual(bytes, outstream.ToArray());
+			}
+			{
+				var stream = new MemoryStream();
+				var bytes = GetBytes("ff ff ff ff ff ff ff ff ff 01");
+				stream.Write(bytes, 0, bytes.Length);
+				stream.Position = 0;
+				long result = VarInt.ReadInt64(stream);
+				Assert.AreEqual(-1, result);
+
+				MemoryStream outstream = new MemoryStream();
+				VarInt.WriteInt64(outstream, -1);
+				Assert.AreEqual(bytes, outstream.ToArray());
+			}
+		}
+
+		private static byte[] GetBytes(string input)
+		{
+			var strings = input.Split(' ');
+			byte[] bytes = new byte[strings.Length];
+			for (int i = 0; i < bytes.Length; i++)
+			{
+				bytes[i] = byte.Parse(strings[i], NumberStyles.AllowHexSpecifier);
+			}
+			return bytes;
+		}
+
 		[Test]
 		public void TestForce()
 		{
@@ -206,9 +251,7 @@ namespace MiNET
 			Nbt nbt = new Nbt();
 			nbt.NbtFile = file;
 			McpeBlockEntityData message = McpeBlockEntityData.CreateObject();
-			message.x = 6;
-			message.y = 6;
-			message.z = 6;
+			message.coordinates = new BlockCoordinates(6, 6, 6);
 			message.namedtag = nbt;
 
 			Assert.NotNull(message.Encode());

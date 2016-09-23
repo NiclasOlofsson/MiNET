@@ -30,14 +30,13 @@ namespace MiNET.Utils
 			Value = value;
 		}
 
-		public override void FromStream(BinaryReader stream)
+		public override void FromStream(BinaryReader reader)
 		{
-			Value = stream.ReadInt16();
+			Value = reader.ReadInt16();
 		}
 
-		public override void WriteTo(BinaryWriter stream, byte index)
+		public override void WriteTo(BinaryWriter stream)
 		{
-			stream.Write(GetKey(index));
 			stream.Write(Value);
 		}
 

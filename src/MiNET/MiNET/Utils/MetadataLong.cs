@@ -5,6 +5,7 @@ namespace MiNET.Utils
 	public class MetadataLong : MetadataEntry
 	{
 		public byte id = 7;
+
 		public override byte Identifier
 		{
 			get { return id; }
@@ -31,15 +32,14 @@ namespace MiNET.Utils
 			Value = value;
 		}
 
-		public override void FromStream(BinaryReader stream)
+		public override void FromStream(BinaryReader reader)
 		{
-			Value = stream.ReadInt64();
+			Value = VarInt.ReadInt64(reader.BaseStream);
 		}
 
-		public override void WriteTo(BinaryWriter stream, byte index)
+		public override void WriteTo(BinaryWriter stream)
 		{
-			stream.Write(GetKey(index));
-			stream.Write(Value);
+			VarInt.WriteInt64(stream.BaseStream, Value);
 		}
 
 		public override string ToString()

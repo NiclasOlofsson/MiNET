@@ -181,12 +181,7 @@ namespace MiNET.Worlds
 
 		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
 		{
-			using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
-			{
-				memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-				memStream.Write(bytes, 0, bytes.Length);
-				return Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
-			}
+			return BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
 		}
 
 		private object _playerWriteLock = new object();
@@ -522,7 +517,7 @@ namespace MiNET.Worlds
 						move.headYaw = knownPosition.HeadYaw;
 						move.mode = 0;
 						byte[] bytes = move.Encode();
-						stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+						BatchUtils.WriteLenght(stream, bytes.Length);
 						stream.Write(bytes, 0, bytes.Length);
 						move.PutPool();
 						playerMoveCount++;
@@ -538,7 +533,7 @@ namespace MiNET.Worlds
 							moveEntity.entityId = entity.EntityId;
 							moveEntity.position = entity.KnownPosition;
 							byte[] bytes = moveEntity.Encode();
-							stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+							BatchUtils.WriteLenght(stream, bytes.Length);
 							stream.Write(bytes, 0, bytes.Length);
 							moveEntity.PutPool();
 						}
@@ -547,7 +542,7 @@ namespace MiNET.Worlds
 							entityMotion.entityId = entity.EntityId;
 							entityMotion.velocity = entity.Velocity;
 							byte[] bytes = entityMotion.Encode();
-							stream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
+							BatchUtils.WriteLenght(stream, bytes.Length);
 							stream.Write(bytes, 0, bytes.Length);
 							entityMotion.PutPool();
 						}
@@ -559,7 +554,7 @@ namespace MiNET.Worlds
 
 				if (players.Length == 1 && entiyMoveCount == 0) return;
 
-				McpeBatch batch = Player.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal);
+				McpeBatch batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal, false);
 				batch.AddReferences(players.Length - 1);
 				batch.Encode();
 				batch.ValidUntil = now + TimeSpan.FromMilliseconds(50);
@@ -741,9 +736,7 @@ namespace MiNET.Worlds
 
 			var message = McpeUpdateBlock.CreateObject();
 			message.blockId = block.Id;
-			message.x = block.Coordinates.X;
-			message.y = (byte) block.Coordinates.Y;
-			message.z = block.Coordinates.Z;
+			message.coordinates = block.Coordinates;
 			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 			RelayBroadcast(message);
 		}
@@ -807,9 +800,7 @@ namespace MiNET.Worlds
 
 			var entityData = McpeBlockEntityData.CreateObject();
 			entityData.namedtag = nbt;
-			entityData.x = blockEntity.Coordinates.X;
-			entityData.y = (byte) blockEntity.Coordinates.Y;
-			entityData.z = blockEntity.Coordinates.Z;
+			entityData.coordinates = blockEntity.Coordinates;
 
 			RelayBroadcast(entityData);
 		}
@@ -872,9 +863,7 @@ namespace MiNET.Worlds
 
 					var message = McpeUpdateBlock.CreateObject();
 					message.blockId = block.Id;
-					message.x = block.Coordinates.X;
-					message.y = (byte) block.Coordinates.Y;
-					message.z = block.Coordinates.Z;
+					message.coordinates = block.Coordinates;
 					message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 					player.SendPackage(message);
 
@@ -908,9 +897,7 @@ namespace MiNET.Worlds
 
 				var message = McpeUpdateBlock.CreateObject();
 				message.blockId = block.Id;
-				message.x = block.Coordinates.X;
-				message.y = (byte) block.Coordinates.Y;
-				message.z = block.Coordinates.Z;
+				message.coordinates = block.Coordinates;
 				message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 				player.SendPackage(message);
 
@@ -928,9 +915,7 @@ namespace MiNET.Worlds
 
 					var entityData = McpeBlockEntityData.CreateObject();
 					entityData.namedtag = nbt;
-					entityData.x = blockEntity.Coordinates.X;
-					entityData.y = (byte) blockEntity.Coordinates.Y;
-					entityData.z = blockEntity.Coordinates.Z;
+					entityData.coordinates = blockEntity.Coordinates;
 
 					player.SendPackage(entityData);
 				}

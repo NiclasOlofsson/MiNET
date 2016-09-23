@@ -7,8 +7,8 @@ namespace MiNET.Utils
 		public abstract byte Identifier { get; }
 		public abstract string FriendlyName { get; }
 
-		public abstract void FromStream(BinaryReader stream);
-		public abstract void WriteTo(BinaryWriter stream, byte index);
+		public abstract void FromStream(BinaryReader reader);
+		public abstract void WriteTo(BinaryWriter stream);
 
 		internal byte Index { get; set; }
 
@@ -41,12 +41,5 @@ namespace MiNET.Utils
 		{
 			return new MetadataLong(value);
 		}
-
-		protected byte GetKey(byte index)
-		{
-			Index = index; // Cheat to get this for ToString
-			return (byte) ((Identifier << 5) | (index & 0x1F));
-		}
-
 	}
 }

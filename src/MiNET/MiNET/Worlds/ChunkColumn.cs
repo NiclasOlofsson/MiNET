@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
-using Microsoft.IO;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -264,19 +263,12 @@ namespace MiNET.Worlds
 				fullChunkData.chunkZ = z;
 				fullChunkData.order = 0;
 				fullChunkData.chunkData = GetBytes();
-				fullChunkData.chunkDataLength = fullChunkData.chunkData.Length;
 				byte[] bytes = fullChunkData.Encode();
 				fullChunkData.PutPool();
 
-				McpeBatch batch;
-				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
-				{
-					memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-					memStream.Write(bytes, 0, bytes.Length);
-					batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
-					batch.MarkPermanent();
-					batch.Encode();
-				}
+				var batch = BatchUtils.CreateBatchPacket(bytes, 0, bytes.Length, CompressionLevel.Optimal, true);
+				batch.MarkPermanent();
+				batch.Encode();
 
 				_cachedBatch = batch;
 				_cache = null;

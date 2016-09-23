@@ -939,6 +939,7 @@ namespace MiNET
 
 		public void SendPackage(PlayerNetworkSession session, Package message)
 		{
+			Log.Debug("Sending package "  + message.GetType().Name);
 			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 			{
 				SendDatagram(session, datagram);
@@ -985,6 +986,7 @@ namespace MiNET
 			lock (session.SyncRoot)
 			{
 				SendData(data, session.EndPoint);
+				Thread.Sleep(12);
 			}
 		}
 

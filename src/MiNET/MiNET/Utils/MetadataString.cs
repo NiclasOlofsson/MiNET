@@ -1,10 +1,14 @@
+using System;
 using System.IO;
 using System.Text;
+using log4net;
 
 namespace MiNET.Utils
 {
 	public class MetadataString : MetadataEntry
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MetadataString));
+
 		public override byte Identifier
 		{
 			get { return 4; }
@@ -31,18 +35,27 @@ namespace MiNET.Utils
 			Value = value;
 		}
 
-		public override void FromStream(BinaryReader stream)
+		public override void FromStream(BinaryReader reader)
 		{
-			short len = stream.ReadInt16();
-			Value = Encoding.UTF8.GetString(stream.ReadBytes(len));
+			try
+			{
+				var len = VarInt.ReadInt32(reader.BaseStream);
+
+				byte[] bytes = new byte[len];
+				reader.BaseStream.Read(bytes, 0, len);
+				Value = Encoding.UTF8.GetString(bytes);
+			}
+			catch (Exception e)
+			{
+				Log.Error(e);
+			}
 		}
 
-		public override void WriteTo(BinaryWriter stream, byte index)
+		public override void WriteTo(BinaryWriter stream)
 		{
-			stream.Write(GetKey(index));
-
 			byte[] bytes = Encoding.UTF8.GetBytes(Value);
-			stream.Write((short) bytes.Length);
+			VarInt.WriteInt32(stream.BaseStream, bytes.Length);
+
 			stream.Write(bytes);
 		}
 

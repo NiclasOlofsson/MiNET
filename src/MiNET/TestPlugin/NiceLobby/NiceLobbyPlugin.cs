@@ -138,9 +138,7 @@ namespace TestPlugin.NiceLobby
 
 						{
 							var mcpeExplode = McpeExplode.CreateObject();
-							mcpeExplode.x = point1.X;
-							mcpeExplode.y = point1.Y;
-							mcpeExplode.z = point1.Z;
+							mcpeExplode.position = point1.ToVector3();
 							mcpeExplode.radius = 100;
 							mcpeExplode.records = new Records();
 							level.RelayBroadcast(mcpeExplode);
@@ -149,9 +147,7 @@ namespace TestPlugin.NiceLobby
 						Thread.Sleep(250);
 						{
 							var mcpeExplode = McpeExplode.CreateObject();
-							mcpeExplode.x = point2.X;
-							mcpeExplode.y = point2.Y;
-							mcpeExplode.z = point2.Z;
+							mcpeExplode.position = point2.ToVector3();
 							mcpeExplode.radius = 100;
 							mcpeExplode.records = new Records();
 							level.RelayBroadcast(mcpeExplode);
@@ -159,9 +155,7 @@ namespace TestPlugin.NiceLobby
 						Thread.Sleep(250);
 						{
 							var mcpeExplode = McpeExplode.CreateObject();
-							mcpeExplode.x = point3.X;
-							mcpeExplode.y = point3.Y;
-							mcpeExplode.z = point3.Z;
+							mcpeExplode.position = point3.ToVector3();
 							mcpeExplode.radius = 100;
 							mcpeExplode.records = new Records();
 							level.RelayBroadcast(mcpeExplode);
@@ -813,11 +807,7 @@ namespace TestPlugin.NiceLobby
 
 		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
 		{
-			MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream();
-			memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
-			memStream.Write(bytes, 0, bytes.Length);
-            
-			var batch = Player.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Optimal);
+			McpeBatch batch = BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
 			batch.MarkPermanent();
 			batch.Encode();
 			return batch;

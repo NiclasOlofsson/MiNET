@@ -49,8 +49,9 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			if (message.protocolVersion < 81)
+			if (message.protocolVersion < 90)
 			{
+				Log.Warn($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, client need an upgrade.");
 				_session.Disconnect($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, please upgrade.");
 				return;
 			}
@@ -94,10 +95,16 @@ namespace MiNET
 			// Get bytes
 			byte[] buffer = message.payload;
 
-			if (message.payloadLenght != buffer.Length) throw new Exception($"Wrong lenght {message.payloadLenght} != {message.payload.Length}");
+			//Log.Debug($"Unknown byte in login packet is: {message.unknown}");
+
+			if (message.payload.Length != buffer.Length)
+			{
+				Log.Debug($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
+				throw new Exception($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
+			}
 			// Decompress bytes
 
-			Log.Debug("Lenght: " + message.payloadLenght + ", Message: " + Convert.ToBase64String(buffer));
+			Log.Debug("Lenght: " + message.payload.Length + ", Message: " + Convert.ToBase64String(buffer));
 
 			MemoryStream stream = new MemoryStream(buffer);
 			if (stream.ReadByte() != 0x78)

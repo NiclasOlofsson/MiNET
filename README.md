@@ -70,5 +70,5 @@ For a windows installation you can choose to download the binary from the build 
 When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
 
 ### Mono (Linux & Mac)
-0.15 introduced a lot of chrypto, and that is not nearly implemented on Mono. So until another solution comes along, Mono support is not possible.
+0.15 introduced a lot of crypto, and that is not nearly implemented on Mono. So until another solution comes along, Mono support is not possible.
 ~~[Mono Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)~~

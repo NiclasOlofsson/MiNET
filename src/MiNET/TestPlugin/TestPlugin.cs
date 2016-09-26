@@ -2,7 +2,7 @@
 
 namespace TestPlugin
 {
-	public class Sh it
+	public class Shit
 	{
 	}
 

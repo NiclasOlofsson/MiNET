@@ -433,6 +433,7 @@ namespace TestPlugin.NiceLobby
 		{
 			player.Level.BroadcastMessage(string.Format(ChatColors.Gold + "{0} tried to kick {1} but kicked self instead!!", player.Username, otherUser), type: MessageType.Raw);
 			player.Disconnect("You kicked yourself :-)");
+			player.
 		}
 
 		[Command]

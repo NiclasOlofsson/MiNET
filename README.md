@@ -65,10 +65,10 @@ No, but you can answer questions on [stack**overflow**](http://stackoverflow.com
 
 For a 30 seconds quick start check this video [MiNET quick windows tutorial](https://www.youtube.com/watch?v=AOgZx2vaIyw) by [Bamuel](https://github.com/Bamuel).
 
-For a windows installation you can choose to download the binary from the build server or fetch the code and compile from Visual Studio. Note that MiNET require .NET 4.6
+For a windows installation you can choose to download the binary from the build server or fetch the code and compile from Visual Studio. Note that MiNET requires .NET 4.6.
 
 When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
 
 ### Mono (Linux & Mac)
-0.15 introduced a lot of chrypto, and that is not nearly implemented on Mono. So until another solution comes along, Mono support is not possible.
+MCPE 0.15 introduced a lot of crypto, which is not implemented on Mono. So until another solution comes along, Mono support is not possible.
 ~~[Mono Installation](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)~~

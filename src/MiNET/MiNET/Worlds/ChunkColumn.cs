@@ -319,7 +319,7 @@ namespace MiNET.Worlds
 				{
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
-						NbtFile file = new NbtFile(blockEntity) {BigEndian = false};
+						NbtFile file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
 						file.SaveToStream(writer.BaseStream, NbtCompression.None);
 					}
 				}

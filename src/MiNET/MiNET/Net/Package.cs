@@ -285,14 +285,14 @@ namespace MiNET.Net
 
 		public void Write(BlockCoordinates coord)
 		{
-			WriteVarInt(coord.X);
-			Write((byte) coord.Y);
-			WriteVarInt(coord.Z);
+			WriteSignedVarInt(coord.X);
+			WriteUnsignedVarInt((uint) coord.Y);
+			WriteSignedVarInt(coord.Z);
 		}
 
 		public BlockCoordinates ReadBlockCoordinates()
 		{
-			return new BlockCoordinates(ReadVarInt(), ReadVarInt(), ReadVarInt());
+			return new BlockCoordinates(ReadSignedVarInt(), (int) ReadUnsignedVarInt(), ReadSignedVarInt());
 		}
 
 		public void Write(PlayerRecords records)

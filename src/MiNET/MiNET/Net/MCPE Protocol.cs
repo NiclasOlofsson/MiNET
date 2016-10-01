@@ -2693,7 +2693,7 @@ namespace MiNET.Net
 	public partial class McpeUseItem : Package<McpeUseItem>
 	{
 		public BlockCoordinates blockcoordinates; // = null;
-		public byte face; // = null;
+		public int face; // = null;
 		public Vector3 facecoordinates; // = null;
 		public Vector3 playerposition; // = null;
 		public byte unknown; // = null;
@@ -2710,7 +2710,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(blockcoordinates);
-			Write(face);
+			WriteSignedVarInt(face);
 			Write(facecoordinates);
 			Write(playerposition);
 			Write(unknown);
@@ -2729,7 +2729,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			blockcoordinates = ReadBlockCoordinates();
-			face = ReadByte();
+			face = ReadSignedVarInt();
 			facecoordinates = ReadVector3();
 			playerposition = ReadVector3();
 			unknown = ReadByte();
@@ -2761,9 +2761,9 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteVarLong(entityId);
-			WriteVarInt(actionId);
+			WriteSignedVarInt(actionId);
 			Write(coordinates);
-			WriteVarInt(face);
+			WriteSignedVarInt(face);
 
 			AfterEncode();
 		}
@@ -2778,9 +2778,9 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			entityId = ReadVarLong();
-			actionId = ReadVarInt();
+			actionId = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
-			face = ReadVarInt();
+			face = ReadSignedVarInt();
 
 			AfterDecode();
 		}

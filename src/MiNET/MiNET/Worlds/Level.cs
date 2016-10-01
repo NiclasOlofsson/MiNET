@@ -223,7 +223,6 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 				List<Player> spawnedPlayers = players.ToList();
-				spawnedPlayers.Add(newPlayer);
 
 				Player[] sendList = spawnedPlayers.ToArray();
 

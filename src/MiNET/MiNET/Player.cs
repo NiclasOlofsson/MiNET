@@ -798,6 +798,13 @@ namespace MiNET
 			armorContent.slotData = Inventory.GetArmor();
 			armorContent.hotbarData = null;
 			SendPackage(armorContent);
+
+			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
+			mobEquipment.entityId = 0;
+			mobEquipment.item = Inventory.GetItemInHand();
+			mobEquipment.slot = 0;
+			SendPackage(mobEquipment);
+
 		}
 
 		public virtual void SendCreativeInventory()
@@ -1614,7 +1621,7 @@ namespace MiNET
 			Item itemInHand = Inventory.GetItemInHand();
 			if (itemInHand == null || itemInHand.Id != message.item.Id)
 			{
-				if (GameMode != GameMode.Creative) Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
+				/*if (GameMode != GameMode.Creative) */Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
 				return; // Cheat(?)
 			}
 
@@ -1836,7 +1843,7 @@ namespace MiNET
 			//[minecraft: player.exhaustion, Name: minecraft:player.exhaustion, MinValue: 0, MaxValue: 5, Value: 0, Unknown: 0]
 
 			// Second update changes
-			//[minecraft: movement, Name: minecraft:movement, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0, 1, Unknown: 0, 1]
+			//[minecraft: movement, Name: minecraft:movement, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0, 1, Unknown: 0, 1]
 
 
 			var attributes = new PlayerAttributes();
@@ -2285,6 +2292,7 @@ namespace MiNET
 			mcpeAddPlayer.uuid = ClientUuid;
 			mcpeAddPlayer.username = Username;
 			mcpeAddPlayer.entityId = EntityId;
+			mcpeAddPlayer.runtimeEntityId = EntityId;
 			mcpeAddPlayer.x = KnownPosition.X;
 			mcpeAddPlayer.y = KnownPosition.Y;
 			mcpeAddPlayer.z = KnownPosition.Z;

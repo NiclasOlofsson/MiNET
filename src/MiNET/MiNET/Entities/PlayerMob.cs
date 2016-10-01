@@ -56,6 +56,7 @@ namespace MiNET.Entities
 				message.uuid = Uuid;
 				message.username = NameTag;
 				message.entityId = EntityId;
+				message.runtimeEntityId = EntityId;
 				message.x = KnownPosition.X;
 				message.y = KnownPosition.Y;
 				message.z = KnownPosition.Z;

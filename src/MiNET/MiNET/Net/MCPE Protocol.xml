@@ -151,13 +151,12 @@
 	</pdu>
 
 	<!-- 
-		The three types are:
+		The chat types are:
 		0: Raw
 		1: Chat
 		2: Translation
 		3: Popup
-
-		TODO: Parameters
+		4: Tip
 		-->
 	<pdu id="0x07" online="false" client="true" server="true" name="MCPE_TEXT">
 		<field name="Type" type="byte" />
@@ -385,7 +384,7 @@
 
 	<pdu id="0x20" online="false" client="true" server="true" name="MCPE_USE_ITEM">
 		<field name="BlockCoordinates" type="BlockCoordinates" />
-		<field name="Face" type="byte" />
+		<field name="Face" type="SignedVarInt" />
 		<field name="FaceCoordinates" type="Vector3" />
 		<field name="PlayerPosition" type="Vector3" />
 		<field name="Unknown" type="byte"/>
@@ -394,9 +393,9 @@
 
 	<pdu id="0x21" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">
 		<field name="Entity ID" type="VarLong" />
-		<field name="Action ID" type="VarInt" />
+		<field name="Action ID" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Face" type="VarInt" />
+		<field name="Face" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x22" online="false" client="false" server="true" name="MCPE_HURT_ARMOR">

@@ -469,13 +469,12 @@ The three type of status are:
 **Packet size:** 
 
  
-The three types are:
+The chat types are:
 0: Raw
 1: Chat
 2: Translation
 3: Popup
-
-TODO: Parameters
+4: Tip
 
 
 ####Fields
@@ -953,7 +952,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |BlockCoordinates | BlockCoordinates |  |
-|Face | byte |  |
+|Face | SignedVarInt |  |
 |FaceCoordinates | Vector3 |  |
 |PlayerPosition | Vector3 |  |
 |Unknown | byte |  |
@@ -972,9 +971,9 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Entity ID | VarLong |  |
-|Action ID | VarInt |  |
+|Action ID | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
-|Face | VarInt |  |
+|Face | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Hurt Armor (0x22)
 

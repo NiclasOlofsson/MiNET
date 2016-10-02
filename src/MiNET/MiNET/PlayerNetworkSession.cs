@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using fNbt;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;

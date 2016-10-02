@@ -461,7 +461,9 @@ namespace MiNET.Net
 		{
 			NbtFile file = nbt.NbtFile;
 			file.BigEndian = false;
+		    file.UseVarInt = true;
 
+		    NbtCompound cm;
 			Write(file.SaveToBuffer(NbtCompression.None));
 		}
 
@@ -470,7 +472,8 @@ namespace MiNET.Net
 			Nbt nbt = new Nbt();
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-			nbt.NbtFile = file;
+            file.UseVarInt = true;
+            nbt.NbtFile = file;
 			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
 
 			return nbt;

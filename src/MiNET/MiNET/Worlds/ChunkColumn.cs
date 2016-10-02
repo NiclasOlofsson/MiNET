@@ -324,11 +324,7 @@ namespace MiNET.Worlds
 					}
 				}
 
-				writer.Flush();
-
 				_cache = stream.ToArray();
-
-				writer.Close();
 			}
 
 			stream.Close();

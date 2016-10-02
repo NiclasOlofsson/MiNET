@@ -122,7 +122,7 @@ namespace MiNET
 				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
 				defStream2.CopyTo(destination);
 				destination.Position = 0;
-				NbtBinaryReader reader = new NbtBinaryReader(destination, false);
+				fNbt.NbtBinaryReader reader = new fNbt.NbtBinaryReader(destination, false);
 
 				try
 				{

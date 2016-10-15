@@ -313,7 +313,7 @@ namespace MiNET
 			Assert.AreEqual(true, header.needsBAndAs);
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void LabTest()
 		{
 			// x = 8, z = 9
@@ -380,7 +380,7 @@ namespace MiNET
 				Assert.AreEqual(8, chunk.x);
 				Assert.AreEqual(9, chunk.z);
 				byte[] data = chunk.GetBytes();
-				Assert.AreEqual(83208, data.Length); // Expected uncompressed length
+				Assert.AreEqual(83202, data.Length); // Expected uncompressed length
 			}
 		}
 

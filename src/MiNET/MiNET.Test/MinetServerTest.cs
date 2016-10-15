@@ -313,7 +313,7 @@ namespace MiNET
 			Assert.AreEqual(true, header.needsBAndAs);
 		}
 
-		[Test]
+		[Test, Ignore]
 		public void LabTest()
 		{
 			// x = 8, z = 9

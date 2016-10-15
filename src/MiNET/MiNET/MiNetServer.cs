@@ -108,7 +108,7 @@ namespace MiNET
 			long frequency = Stopwatch.Frequency;
 			Console.WriteLine("  Timer frequency in ticks per second = {0}",
 				frequency);
-			long nanosecPerTick = (1000L * 1000L * 1000L) / frequency;
+			long nanosecPerTick = (1000L*1000L*1000L)/frequency;
 			Console.WriteLine("  Timer is accurate within {0} nanoseconds",
 				nanosecPerTick);
 		}
@@ -360,16 +360,6 @@ namespace MiNET
 					try
 					{
 						package.Decode(receiveBytes);
-						if (Log.IsDebugEnabled)
-						{
-							if (package.Messages.Count > 2)
-							{
-								foreach (var message in package.Messages)
-								{
-									Log.Warn($"Received Dgrm with more than 2 messages ({package.Messages.Count}): #{package._datagramSequenceNumber} {message.Reliability} message #{message.ReliableMessageNumber}, Chan: #{message.OrderingChannel}, OrdIdx: #{message.OrderingIndex}");
-								}
-							}
-						}
 					}
 					catch (Exception e)
 					{
@@ -395,7 +385,7 @@ namespace MiNET
 					//	)
 					{
 						EnqueueAck(playerSession, package._datagramSequenceNumber);
-						if (Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
+						//if (Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
 					}
 
 					HandleConnectedPackage(playerSession, package);
@@ -502,9 +492,9 @@ namespace MiNET
 			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
 
 			var packet = UnconnectedPong.CreateObject();
-			packet.serverId = 22345;
+			packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;
 			packet.pingId = incoming.pingId;
-			packet.serverName = MotdProvider.GetMotd(ServerInfo);
+			packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint);
 			var data = packet.Encode();
 			packet.PutPool();
 
@@ -633,18 +623,30 @@ namespace MiNET
 			Int24 orderingIndex = splitMessage.OrderingIndex;
 			byte orderingChannel = splitMessage.OrderingChannel;
 
-			if (!playerSession.Splits.ContainsKey(spId))
-			{
-				playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
-			}
-
-			SplitPartPackage[] spPackets = playerSession.Splits[spId];
-			spPackets[spIdx] = splitMessage;
-
+			SplitPartPackage[] spPackets;
 			bool haveEmpty = false;
-			for (int i = 0; i < spPackets.Length; i++)
+
+			// Need sync for this part since they come very fast, and very close in time. 
+			// If no synk, will often detect complete message two times (or more).
+			lock (playerSession.Splits)
 			{
-				haveEmpty = haveEmpty || spPackets[i] == null;
+				if (!playerSession.Splits.ContainsKey(spId))
+				{
+					playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
+				}
+
+				spPackets = playerSession.Splits[spId];
+				if (spPackets[spIdx] != null)
+				{
+					Log.Debug("Already had splitpart (resent). Ignore this part.");
+					return;
+				}
+				spPackets[spIdx] = splitMessage;
+
+				for (int i = 0; i < spPackets.Length; i++)
+				{
+					haveEmpty = haveEmpty || spPackets[i] == null;
+				}
 			}
 
 			if (!haveEmpty)
@@ -754,7 +756,7 @@ namespace MiNET
 					//	stream.Write(bytes, 0, bytes.Length);
 					//}
 
-					MotdProvider.GetMotd(ServerInfo); // Force update the player counts :-)
+					MotdProvider.GetMotd(ServerInfo, senderEndpoint); // Force update the player counts :-)
 
 					var data = new Dictionary<string, string>
 					{
@@ -939,7 +941,6 @@ namespace MiNET
 
 		public void SendPackage(PlayerNetworkSession session, Package message)
 		{
-			Log.Debug("Sending package "  + message.GetType().Name);
 			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 			{
 				SendDatagram(session, datagram);

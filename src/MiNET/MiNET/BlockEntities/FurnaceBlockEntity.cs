@@ -38,7 +38,7 @@ namespace MiNET.BlockEntities
 					new NbtByte("Count", 0),
 					new NbtByte("Slot", i),
 					new NbtShort("id", 0),
-					new NbtByte("Damage", 0),
+					new NbtShort("Damage", 0),
 				});
 			}
 		}
@@ -66,7 +66,7 @@ namespace MiNET.BlockEntities
 						new NbtByte("Count", 0),
 						new NbtByte("Slot", i),
 						new NbtShort("id", 0),
-						new NbtByte("Damage", 0),
+						new NbtShort("Damage", 0),
 					});
 				}
 				Compound["Items"] = items;

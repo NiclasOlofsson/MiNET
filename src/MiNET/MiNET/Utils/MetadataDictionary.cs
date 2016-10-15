@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using log4net;
-using MiNET.Items;
 
 namespace MiNET.Utils
 {
@@ -14,7 +13,7 @@ namespace MiNET.Utils
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MetadataDictionary));
 
-		private readonly Dictionary<int, MetadataEntry> _entries;
+		public readonly Dictionary<int, MetadataEntry> _entries;
 
 		public MetadataDictionary()
 		{
@@ -54,7 +53,6 @@ namespace MiNET.Utils
 				{
 					int index = VarInt.ReadInt32(stream);
 					int type = VarInt.ReadInt32(stream);
-
 					var entry = EntryTypes[type]();
 
 					entry.FromStream(reader);
@@ -94,6 +92,7 @@ namespace MiNET.Utils
 			() => new MetadataSlot(), // 5 - Should be MetadataSlot() but I don't want it :-(
 			() => new MetadataIntCoordinates(), // 6
 			() => new MetadataLong(), // 7
+			() => new MetadataVector3(), // 8
 		};
 
 		public override string ToString()
@@ -107,7 +106,7 @@ namespace MiNET.Utils
 				else
 					sb = new StringBuilder();
 
-				sb.Append("[" + entry.Key + "] ");
+				sb.Append("[" + entry.Key + "]");
 				sb.Append(entry.Value.ToString());
 			}
 
@@ -124,45 +123,6 @@ namespace MiNET.Utils
 			WriteTo(writer);
 			writer.Flush();
 			return stream.ToArray();
-		}
-	}
-
-	public class MetadataSlot : MetadataEntry
-	{
-		public override byte Identifier
-		{
-			get { return 5; }
-		}
-
-		public override string FriendlyName
-		{
-			get { return "slot"; }
-		}
-
-		public Item Value { get; set; }
-
-		public MetadataSlot()
-		{
-		}
-
-		public MetadataSlot(Item value)
-		{
-			Value = value;
-		}
-
-		public override void FromStream(BinaryReader reader)
-		{
-			var id = reader.ReadInt16();
-			var count = reader.ReadByte();
-			var metadata = reader.ReadInt16();
-			Value = new Item(id, metadata, count);
-		}
-
-		public override void WriteTo(BinaryWriter stream)
-		{
-			stream.Write(Value.Id);
-			stream.Write(Value.Count);
-			stream.Write(Value.Metadata);
 		}
 	}
 }

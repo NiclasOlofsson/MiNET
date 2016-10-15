@@ -413,16 +413,16 @@ namespace MiNET.Worlds
 
 								if(items != null)
 								{
-									for (byte i = 0; i < items.Count; i++)
-									{
-										NbtCompound item = (NbtCompound) items[i];
+									//for (byte i = 0; i < items.Count; i++)
+									//{
+									//	NbtCompound item = (NbtCompound) items[i];
 
-										item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
+									//	item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
 
-										byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
-										item.Remove("Damage");
-										item.Add(new NbtByte("Damage", metadata));
-									}
+									//	byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
+									//	item.Remove("Damage");
+									//	item.Add(new NbtByte("Damage", metadata));
+									//}
 								}
 							}
 

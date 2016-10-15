@@ -58,11 +58,12 @@ namespace MiNET.Entities
 		public virtual MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataInt(GetDataValue());
+			metadata[0] = new MetadataLong(GetDataValue());
 			metadata[1] = new MetadataInt(1);
 			metadata[2] = new MetadataInt(0);
 			metadata[3] = new MetadataByte(!HideNameTag);
 			metadata[4] = new MetadataString(NameTag ?? string.Empty);
+			metadata[7] = new MetadataShort(400); // Potion Color
 			//metadata[4] = new MetadataByte(Silent);
 			//metadata[7] = new MetadataInt(0); // Potion Color
 			//metadata[8] = new MetadataByte(0); // Potion Ambient
@@ -72,6 +73,9 @@ namespace MiNET.Entities
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[24] = new MetadataByte(0); // Leads on/off
+			//metadata[39] = new MetadataFloat(0.4f); // Scale
+			//metadata[53] = new MetadataFloat(1.99f); // Collision box width
+			//metadata[54] = new MetadataFloat(1.99f); // Collision box height
 			return metadata;
 		}
 
@@ -81,24 +85,59 @@ namespace MiNET.Entities
 		public bool IsInAction { get; set; }
 		public bool IsInvisible { get; set; }
 
-		public int GetDataValue()
-		{
-			BitArray bits = new BitArray(32);
-			bits[0] = HealthManager.IsOnFire;
-			bits[1] = IsSneaking; // Sneaking
-			bits[2] = IsRiding; // Riding
-			bits[3] = IsSprinting; // Sprinting
-			bits[4] = IsInAction; // Action
-			bits[5] = IsInvisible; // Invisible
-			bits[6] = false; // Unused
-			bits[7] = false; // Unused
-			bits[14] = true; // Unused
 
-			byte[] bytes = new byte[4];
+		public enum DataFlags
+		{
+			IsOnFire = 0,
+			IsSneaking = 1,
+			IsRiding = 2,
+			IsSprinting = 3,
+			IsInAction = 4,
+			IsInvisible = 5,
+			IsInLove = 8,
+			IsPowered = 9,
+			IsBaby = 12,
+			IsNameTagVisible = 15,
+			IsSitting = 21,
+			IsAngry = 22,
+			IsInAttention = 23,
+			IsTamed = 25,
+			IsSheared = 26,
+			IsElderGuardian = 29,
+			IsChested = 30,
+			IsOutOfWater = 31,
+		}
+
+		public virtual long GetDataValue()
+		{
+			//Player: 10000000000000011001000000000000
+			// 12, 15, 16, 31
+
+			BitArray bits = new BitArray(64);
+			bits[(int) DataFlags.IsOnFire] = HealthManager.IsOnFire;
+			bits[(int) DataFlags.IsSneaking] = IsSneaking;
+			bits[(int) DataFlags.IsRiding] = IsRiding;
+			bits[(int) DataFlags.IsSprinting] = IsSprinting;
+			bits[(int) DataFlags.IsInAction] = IsInAction;
+			bits[(int) DataFlags.IsInvisible] = IsInvisible;
+			bits[(int) DataFlags.IsInLove] = false;
+			bits[(int) DataFlags.IsPowered] = false;
+			bits[(int) DataFlags.IsBaby] = false;
+			bits[(int) DataFlags.IsNameTagVisible] = !HideNameTag;
+			bits[(int) DataFlags.IsSitting] = true;
+			bits[(int) DataFlags.IsAngry] = false;
+			bits[(int) DataFlags.IsInAttention] = false;
+			bits[(int) DataFlags.IsTamed] = true;
+			bits[(int) DataFlags.IsSheared] = false;
+			bits[(int) DataFlags.IsElderGuardian] = false;
+			bits[(int) DataFlags.IsChested] = false;
+			bits[(int) DataFlags.IsOutOfWater] = true;
+
+			byte[] bytes = new byte[8];
 			bits.CopyTo(bytes, 0);
 
 			var dataValue = BitConverter.ToInt32(bytes, 0);
-			Log.Error($"Bit-array: 0x{bytes:x2} datavalue=0x{dataValue:x2} ");
+			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
 			return dataValue;
 		}
 

@@ -271,6 +271,17 @@ namespace MiNET.Net
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
+		public void Write(Vector2 vec)
+		{
+			Write((float) vec.X);
+			Write((float) vec.Y);
+		}
+
+		public Vector2 ReadVector2()
+		{
+			return new Vector2(ReadFloat(), ReadFloat());
+		}
+
 		public void Write(Vector3 vec)
 		{
 			Write((float) vec.X);
@@ -282,6 +293,7 @@ namespace MiNET.Net
 		{
 			return new Vector3(ReadFloat(), ReadFloat(), ReadFloat());
 		}
+
 
 		public void Write(BlockCoordinates coord)
 		{
@@ -386,7 +398,6 @@ namespace MiNET.Net
 			Write((byte) (location.Pitch*0.71)); // 256/360
 			Write((byte) (location.HeadYaw*0.71)); // 256/360
 			Write((byte) (location.Yaw*0.71)); // 256/360
-			Write((byte) 0); // Unknown
 		}
 
 		public PlayerLocation ReadPlayerLocation()
@@ -398,7 +409,6 @@ namespace MiNET.Net
 			location.Pitch = ReadByte()*1f/0.71f;
 			location.HeadYaw = ReadByte()*1f/0.71f;
 			location.Yaw = ReadByte()*1f/0.71f;
-			ReadByte(); // Unknown
 
 			return location;
 		}
@@ -461,9 +471,8 @@ namespace MiNET.Net
 		{
 			NbtFile file = nbt.NbtFile;
 			file.BigEndian = false;
-		    file.UseVarInt = true;
+			file.UseVarInt = true;
 
-		    NbtCompound cm;
 			Write(file.SaveToBuffer(NbtCompression.None));
 		}
 
@@ -472,8 +481,8 @@ namespace MiNET.Net
 			Nbt nbt = new Nbt();
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-            file.UseVarInt = true;
-            nbt.NbtFile = file;
+			file.UseVarInt = false;
+			nbt.NbtFile = file;
 			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
 
 			return nbt;
@@ -535,7 +544,7 @@ namespace MiNET.Net
 		{
 			ItemStacks metadata = new ItemStacks();
 
-			var count = ReadVarInt();
+			var count = ReadUnsignedVarInt();
 
 			for (int i = 0; i < count; i++)
 			{
@@ -586,14 +595,11 @@ namespace MiNET.Net
 			byte count = (byte) (tmp & 0xff);
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
 
-			//Log.Error($"Read Item={id}, Meta={metadata}, Count={count}, TMP={tmp}");
-
 			int nbtLen = (int) _reader.ReadInt16(); // NbtLen
-			//int nbtLen = (int) _reader.ReadSingle(); // NbtLen
 			if (nbtLen > 0)
 			{
-				//Log.Error($"Read NBT lenght={nbtLen}");
-				//_reader.ReadBytes(nbtLen);
+				//var bytes = _reader.ReadBytes(nbtLen);
+				//Log.Debug($"Read NBT lenght={nbtLen}\n{Package.HexDump(bytes)}");
 
 				stack.ExtraData = ReadNbt().NbtFile.RootTag;
 				//Log.Debug($"Read Item wiht NBT: {stack.ToString()}");
@@ -695,6 +701,97 @@ namespace MiNET.Net
 			}
 
 			return attributes;
+		}
+
+		public void Write(Rules rules)
+		{
+			_writer.Write(rules.Count); // LE
+			foreach (var rule in rules)
+			{
+				Write(rule.Name);
+				Write(rule.Unknown1);
+				Write(rule.Unknown2);
+			}
+		}
+
+		public Rules ReadRules()
+		{
+			int count = _reader.ReadInt32(); // LE
+
+			var rules = new Rules();
+			for (int i = 0; i < count; i++)
+			{
+				RuleData rule = new RuleData();
+				rule.Name = ReadString();
+				rule.Unknown1 = ReadBool();
+				rule.Unknown2 = ReadBool();
+				rules.Add(rule);
+			}
+
+			return rules;
+		}
+
+		public void Write(ResourcePackInfos packInfos)
+		{
+			if (packInfos == null)
+			{
+				_writer.Write((short)0); // LE
+				return;
+			}
+
+			_writer.Write((short) packInfos.Count); // LE
+			foreach (var info in packInfos)
+			{
+				Write(info.PackIdVersion.Id);
+				Write(info.PackIdVersion.Version);
+				Write(info.Unknown);
+			}
+		}
+
+		public ResourcePackInfos ReadResourcePackInfos()
+		{
+			int count = _reader.ReadInt16(); // LE
+
+			var packInfos = new ResourcePackInfos();
+			for (int i = 0; i < count; i++)
+			{
+				var info = new ResourcePackInfo();
+				info.PackIdVersion = new PackIdVersion() {Id = ReadString(), Version = ReadString()};
+				info.Unknown = ReadLong();
+				packInfos.Add(info);
+			}
+
+			return packInfos;
+		}
+
+		public void Write(ResourcePackIdVersions packInfos)
+		{
+			if(packInfos == null)
+			{
+				_writer.Write((short)0); // LE
+				return;
+			}
+
+			_writer.Write((short) packInfos.Count); // LE
+			foreach (var info in packInfos)
+			{
+				Write(info.Id);
+				Write(info.Version);
+			}
+		}
+
+		public ResourcePackIdVersions ReadResourcePackIdVersions()
+		{
+			int count = _reader.ReadInt16(); // LE
+
+			var packInfos = new ResourcePackIdVersions();
+			for (int i = 0; i < count; i++)
+			{
+				var info = new PackIdVersion() {Id = ReadString(), Version = ReadString()};
+				packInfos.Add(info);
+			}
+
+			return packInfos;
 		}
 
 		public void Write(Skin skin)

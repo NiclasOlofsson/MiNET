@@ -12,6 +12,10 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemSpawnEgg));
 
+		public ItemSpawnEgg(EntityType type) : this((short)type)
+		{
+		}
+
 		public ItemSpawnEgg(short metadata) : base(383, metadata)
 		{
 			MaxStackSize = 1;
@@ -39,7 +43,7 @@ namespace MiNET.Items
 					mob = new Sheep(world);
 					break;
 				case EntityType.Wolf:
-					mob = new Wolf(world);
+					mob = new Wolf(world) {Owner = player};
 					break;
 				case EntityType.Npc:
 					mob = new Villager(world);
@@ -107,6 +111,22 @@ namespace MiNET.Items
 				case EntityType.Witch:
 					mob = new Witch(world);
 					break;
+				case EntityType.Stray:
+					mob = new Stray(world);
+					break;
+				case EntityType.Husk:
+					mob = new Husk(world);
+					break;
+				case EntityType.WitherSkeleton:
+					mob = new WitherSkeleton(world);
+					break;
+				case EntityType.Guardian:
+					mob = new Guardian(world);
+					break;
+				case EntityType.ElderGuardian:
+					mob = new ElderGuardian(world);
+					break;
+
 			}
 
 			if (mob == null) return;

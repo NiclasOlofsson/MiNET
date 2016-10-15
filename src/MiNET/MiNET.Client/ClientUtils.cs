@@ -1,20 +1,21 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using fNbt;
-using MiNET.Utils;
+using log4net;
+using MiNET.Net;
 using MiNET.Worlds;
 
 namespace MiNET.Client
 {
 	public class ClientUtils
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ClientUtils));
+
 		private static int _waterOffsetY = 0;
 		private static string _basePath = @"D:\Temp\MCPEWorldStore";
 
 		public static ChunkColumn DecocedChunkColumn(byte[] buffer)
 		{
-			return null;
 			MemoryStream stream = new MemoryStream(buffer);
 			{
 				NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
@@ -29,17 +30,45 @@ namespace MiNET.Client
 				defStream.Read(chunk.skylight.Data, 0, chunkSize/2);
 				defStream.Read(chunk.blocklight.Data, 0, chunkSize/2);
 
+				//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");
+				//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
+
 				defStream.Read(chunk.height, 0, 256);
+				//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
 
 				byte[] ints = new byte[256*4];
 				defStream.Read(ints, 0, ints.Length);
+				//Log.Debug($"biomeColor (pre):\n{Package.HexDump(ints)}");
 				int j = 0;
 				for (int i = 0; i < ints.Length; i = i + 4)
 				{
-					chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {ints[i], ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
+					chunk.biomeId[j] = ints[i];
+					chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {(byte) 0, ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
+				}
+				//Log.Debug($"biomeId (post):\n{Package.HexDump(chunk.biomeId)}");
+
+				if (stream.Position >= stream.Length - 1) return chunk;
+
+				//return chunk;
+
+				int extraSize = defStream.ReadInt16();
+				if (extraSize != 0)
+				{
+					Log.Warn($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
 				}
 
-				int extraSize = defStream.ReadInt32();
+				if (stream.Position >= stream.Length - 1) return chunk;
+
+				Log.Warn($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+
+				while (stream.Position < stream.Length)
+				{
+					NbtFile file = new NbtFile() {BigEndian = false, UseVarInt = true};
+
+					file.LoadFromStream(stream, NbtCompression.None);
+
+					//Log.Debug($"Blockentity: {file.RootTag}");
+				}
 
 				return chunk;
 			}

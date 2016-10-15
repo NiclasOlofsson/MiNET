@@ -80,6 +80,17 @@ namespace MiNET.Utils
 			return vector;
 		}
 
+		public static PlayerLocation operator +(PlayerLocation b, Vector3 a)
+		{
+			return new PlayerLocation(
+				a.X + b.X,
+				a.Y + b.Y,
+				a.Z + b.Z,
+				b.HeadYaw,
+				b.Yaw,
+				b.Pitch);
+		}
+
 		public object Clone()
 		{
 			return MemberwiseClone();

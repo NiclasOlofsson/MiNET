@@ -339,6 +339,10 @@ namespace MiNET
 			_session.MessageHandler.HandleMcpeClientMagic(null);
 		}
 
+		public void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
+		{
+		}
+
 		public void HandleMcpeText(McpeText message)
 		{
 		}

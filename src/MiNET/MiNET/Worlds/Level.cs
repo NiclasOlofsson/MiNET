@@ -788,11 +788,12 @@ namespace MiNET.Worlds
 
 			if (!broadcast) return;
 
-			Nbt nbt = new Nbt
-			{
-				NbtFile = new NbtFile
-				{
-					BigEndian = false,
+            Nbt nbt = new Nbt
+            {
+                NbtFile = new NbtFile
+                {
+                    BigEndian = false,
+                    UseVarInt = true,
 					RootTag = blockEntity.GetCompound()
 				}
 			};

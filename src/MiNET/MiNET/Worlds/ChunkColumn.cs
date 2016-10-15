@@ -73,22 +73,27 @@ namespace MiNET.Worlds
 
 		public void SetHeight(int bx, int bz, byte h)
 		{
-			height[(bx << 4) + (bz)] = h;
+			height[(bz << 4) + (bx)] = h;
+		}
+
+		public byte GetHeight(int bx, int bz)
+		{
+			return height[(bz << 4) + (bx)];
 		}
 
 		public void SetBiome(int bx, int bz, byte biome)
 		{
-			biomeId[(bx << 4) + (bz)] = biome;
+			biomeId[(bz << 4) + (bx)] = biome;
 		}
 
 		public byte GetBiome(int bx, int bz)
 		{
-			return biomeId[(bx << 4) + (bz)];
+			return biomeId[(bz << 4) + (bx)];
 		}
 
 		public void SetBiomeColor(int bx, int bz, int color)
 		{
-			biomeColor[(bx << 4) + (bz)] = (color & 0x00ffffff);
+			biomeColor[(bz << 4) + (bx)] = (color & 0x00ffffff);
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
@@ -244,7 +249,7 @@ namespace MiNET.Worlds
 					{
 						if (GetBlock(x, y, z) != 0)
 						{
-							SetHeight(x, z, y);
+							SetHeight(x, z, (byte) (y + 1));
 							break;
 						}
 					}
@@ -283,7 +288,7 @@ namespace MiNET.Worlds
 		{
 			if (_cache != null) return _cache;
 
-			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
+			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
@@ -307,13 +312,13 @@ namespace MiNET.Worlds
 					writer.Write((color & 0x00ffffff) | biome << 24);
 				}
 
-				int extraSize = 0;
+				short extraSize = 0;
 				writer.Write(extraSize); // No extra data
 
 				if (BlockEntities.Count == 0)
 				{
-					NbtFile file = new NbtFile(new NbtCompound(string.Empty)) {BigEndian = false};
-					file.SaveToStream(writer.BaseStream, NbtCompression.None);
+					//NbtFile file = new NbtFile(new NbtCompound(string.Empty)) {BigEndian = false, UseVarInt = true};
+					//file.SaveToStream(writer.BaseStream, NbtCompression.None);
 				}
 				else
 				{
@@ -326,8 +331,6 @@ namespace MiNET.Worlds
 
 				_cache = stream.ToArray();
 			}
-
-			stream.Close();
 
 			return _cache;
 		}

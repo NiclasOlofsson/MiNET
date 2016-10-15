@@ -392,6 +392,12 @@ namespace MiNET
 				handler.HandleMcpeClientMagic((McpeClientMagic) message);
 			}
 
+			else if (typeof(McpeResourcePackClientResponse) == message.GetType())
+			{
+				// Start encrypotion
+				handler.	HandleMcpeResourcePackClientResponse((McpeResourcePackClientResponse)message);
+			}
+
 			else if (typeof (McpeUpdateBlock) == message.GetType())
 			{
 				// DO NOT USE. Will dissapear from MCPE any release. 
@@ -512,6 +518,7 @@ namespace MiNET
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
+				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
 				return;
 			}
 
@@ -831,14 +838,12 @@ namespace MiNET
 
 						if (lenght == 1)
 						{
-							Log.Debug("Sending single packet");
 							Server.SendPackage(this, package);
 						}
 						else if (package is McpeBatch)
 						{
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
-							Log.Debug("Sending one batch packet");
 							Server.SendPackage(this, package);
 							Thread.Sleep(1); // Really important to slow down speed a bit
 						}
@@ -893,7 +898,6 @@ namespace MiNET
 		{
 			if (messageCount == 0) return;
 
-			Log.Debug("Sending batched packets");
 			var batch = BatchUtils.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Fastest, false);
 			batch.Encode();
 			memStream.Position = 0;

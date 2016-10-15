@@ -163,18 +163,31 @@ namespace MiNET
 
 		public virtual PlayerAttributes AddHungerAttributes(PlayerAttributes attributes)
 		{
-			//attributes["player.hunger"] = new PlayerAttribute
-			//{
-			//	Name = "player.hunger", MinValue = MinHunger, MaxValue = MaxHunger, Value = Hunger
-			//};
-			//attributes["player.saturation"] = new PlayerAttribute
-			//{
-			//	Name = "player.saturation", MinValue = 0, MaxValue = Hunger, Value = (float) Saturation
-			//};
-			//attributes["player.exhaustion"] = new PlayerAttribute
-			//{
-			//	Name = "player.exhaustion", MinValue = 0, MaxValue = 5, Value = (float) Exhaustion
-			//};
+			attributes["minecraft:player.hunger"] = new PlayerAttribute
+			{
+				Name = "minecraft:player.hunger",
+				MinValue = MinHunger,
+				MaxValue = MaxHunger,
+				Value = Hunger,
+				Unknown = Hunger,
+			};
+
+			attributes["minecraft:player.saturation"] = new PlayerAttribute
+			{
+				Name = "minecraft:player.saturation",
+				MinValue = 0,
+				MaxValue = Hunger,
+				Value = (float) Saturation,
+				Unknown = (float) Saturation,
+			};
+			attributes["minecraft:player.exhaustion"] = new PlayerAttribute
+			{
+				Name = "minecraft:player.exhaustion",
+				MinValue = 0,
+				MaxValue = 5,
+				Value = (float) Exhaustion,
+				Unknown = (float) Exhaustion,
+			};
 
 			return attributes;
 		}

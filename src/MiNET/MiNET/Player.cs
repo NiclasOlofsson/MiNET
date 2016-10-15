@@ -92,7 +92,53 @@ namespace MiNET
 			var serverInfo = Server.ServerInfo;
 			Interlocked.Increment(ref serverInfo.ConnectionsInConnectPhase);
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+			SendPlayerStatus(0);
+
+			{
+				SendResourcePacksInfo();
+			}
+
+			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+		}
+
+		private bool _sentAlready = false;
+
+		public void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
+		{
+			if (Log.IsDebugEnabled) Log.Debug($"Handled package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
+
+			if (_sentAlready)
+			{
+				MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+				return;
+			}
+
+			_sentAlready = true;
+
+			SendResourcePackStack();
+		}
+
+		private void SendResourcePacksInfo()
+		{
+			McpeResourcePacksInfo packInfo = McpeResourcePacksInfo.CreateObject();
+			//packInfo.mustAccept = true;
+			//packInfo.resourcepackinfos = new ResourcePackInfos
+			//{
+			//	new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "69afd52e-1e29-4617-81a9-44ce1157ce8a", Version = "0.0.1"}}
+			//};
+			SendPackage(packInfo);
+		}
+
+		private void SendResourcePackStack()
+		{
+			McpeResourcePackStack packStack = McpeResourcePackStack.CreateObject();
+			//packStack.mustAccept = true;
+			//packStack.resourcepackidversions = new ResourcePackIdVersions
+			//{
+			//	new PackIdVersion() {Id = "69afd52e-1e29-4617-81a9-44ce1157ce8a", Version = "0.0.1"}
+			//};
+
+			SendPackage(packStack);
 		}
 
 		public virtual void HandleMcpePlayerInput(McpePlayerInput message)
@@ -440,8 +486,6 @@ namespace MiNET
 				// Start game - spawn sequence starts here
 				//
 
-				SendPlayerStatus(0);
-
 				// Vanilla 1st player list here
 
 				//Level.AddPlayer(this, false);
@@ -787,6 +831,12 @@ namespace MiNET
 
 		public virtual void SendPlayerInventory()
 		{
+			McpeContainerSetContent strangeContent = McpeContainerSetContent.CreateObject();
+			strangeContent.windowId = (byte) 0x7b;
+			strangeContent.slotData = new ItemStacks();
+			strangeContent.hotbarData = new MetadataInts();
+			SendPackage(strangeContent);
+
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
 			inventoryContent.windowId = (byte) 0x00;
 			inventoryContent.slotData = Inventory.GetSlots();
@@ -804,7 +854,6 @@ namespace MiNET
 			mobEquipment.item = Inventory.GetItemInHand();
 			mobEquipment.slot = 0;
 			SendPackage(mobEquipment);
-
 		}
 
 		public virtual void SendCreativeInventory()
@@ -1166,15 +1215,14 @@ namespace MiNET
 				// open inventory
 
 				var containerOpen = McpeContainerOpen.CreateObject();
-				containerOpen.NoBatch = true;
 				containerOpen.windowId = inventory.WindowsId;
 				containerOpen.type = inventory.Type;
 				containerOpen.slotCount = inventory.Size;
 				containerOpen.coordinates = inventoryCoord;
+				containerOpen.unownEntityId = 1;
 				SendPackage(containerOpen);
 
 				var containerSetContent = McpeContainerSetContent.CreateObject();
-				containerSetContent.NoBatch = true;
 				containerSetContent.windowId = inventory.WindowsId;
 				containerSetContent.slotData = inventory.Slots;
 				SendPackage(containerSetContent);
@@ -1602,6 +1650,7 @@ namespace MiNET
 			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);
 			Log.DebugFormat("face:  {0}", message.face);
 			Log.DebugFormat("Facecoordinates:  {0}", message.facecoordinates);
+			Log.DebugFormat("Unknown (byte):  {0}", message.unknown);
 			Log.DebugFormat("Player position:  {0}", message.playerposition);
 
 			if (message.item == null)
@@ -1621,7 +1670,8 @@ namespace MiNET
 			Item itemInHand = Inventory.GetItemInHand();
 			if (itemInHand == null || itemInHand.Id != message.item.Id)
 			{
-				/*if (GameMode != GameMode.Creative) */Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
+				/*if (GameMode != GameMode.Creative) */
+				Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
 				return; // Cheat(?)
 			}
 
@@ -1675,12 +1725,13 @@ namespace MiNET
 			mcpeStartGame.x = (int) SpawnPosition.X;
 			mcpeStartGame.y = (int) (SpawnPosition.Y + Height);
 			mcpeStartGame.z = (int) SpawnPosition.Z;
-			mcpeStartGame.isLoadedInCreative = GameMode == GameMode.Creative;
+			mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative;
 			mcpeStartGame.dayCycleStopTime = -1;
 			mcpeStartGame.eduMode = false;
 			mcpeStartGame.rainLevel = 0;
 			mcpeStartGame.lightnigLevel = 0;
 			mcpeStartGame.enableCommands = false;
+			mcpeStartGame.isTexturepacksRequired = false;
 			mcpeStartGame.secret = "SECRET";
 			mcpeStartGame.worldName = "test";
 
@@ -1828,31 +1879,13 @@ namespace MiNET
 
 		public virtual void SendUpdateAttributes()
 		{
-			//[minecraft: attack_damage, Name: minecraft:attack_damage, MinValue: 1, MaxValue: 1, Value: 1, Unknown: 1]
-			//[minecraft: absorption, Name: minecraft:absorption, MinValue: 0, MaxValue: 3,402823E+38, Value: 0, Unknown: 0]
-			//[minecraft: health, Name: minecraft:health, MinValue: 0, MaxValue: 20, Value: 20, Unknown: 20]
-			//[minecraft: movement, Name: minecraft:movement, MinValue: 0, MaxValue: 3,402823E+38, Value: 0,7, Unknown: 0,7]
-			//[minecraft: knockback_resistance, Name: minecraft:knockback_resistance, MinValue: 0, MaxValue: 1, Value: 0, Unknown: 0]
-			//[minecraft: player.saturation, Name: minecraft:player.saturation, MinValue: 0, MaxValue: 20, Value: 5, Unknown: 5]
-			//[minecraft: luck, Name: minecraft:luck, MinValue: -1024, MaxValue: 1024, Value: 0, Unknown: 0]
-			//[minecraft: fall_damage, Name: minecraft:fall_damage, MinValue: 0, MaxValue: 3,402823E+38, Value: 1, Unknown: 1]
-			//[minecraft: player.experience, Name: minecraft:player.experience, MinValue: 0, MaxValue: 1, Value: 0, Unknown: 0]
-			//[minecraft: player.hunger, Name: minecraft:player.hunger, MinValue: 0, MaxValue: 20, Value: 20, Unknown: 20]
-			//[minecraft: follow_range, Name: minecraft:follow_range, MinValue: 0, MaxValue: 2048, Value: 16, Unknown: 16]
-			//[minecraft: player.level, Name: minecraft:player.level, MinValue: 0, MaxValue: 24791, Value: 0, Unknown: 0]
-			//[minecraft: player.exhaustion, Name: minecraft:player.exhaustion, MinValue: 0, MaxValue: 5, Value: 0, Unknown: 0]
-
-			// Second update changes
-			//[minecraft: movement, Name: minecraft:movement, MinValue: 0, MaxValue: 3, 402823E+38, Value: 0, 1, Unknown: 0, 1]
-
-
 			var attributes = new PlayerAttributes();
 			attributes["minecraft:attack_damage"] = new PlayerAttribute
 			{
 				Name = "minecraft:attack_damage",
 				MinValue = 1,
 				MaxValue = 1,
-				Value = HealthManager.Hearts,
+				Value = 1,
 				Unknown = 1,
 			};
 			attributes["minecraft:absorption"] = new PlayerAttribute
@@ -1863,9 +1896,9 @@ namespace MiNET
 				Value = Absorption,
 				Unknown = 0,
 			};
-			attributes["minecraft.health"] = new PlayerAttribute
+			attributes["minecraft:health"] = new PlayerAttribute
 			{
-				Name = "minecraft.health",
+				Name = "minecraft:health",
 				MinValue = 0,
 				MaxValue = 20,
 				Value = HealthManager.Hearts,
@@ -1875,7 +1908,7 @@ namespace MiNET
 			{
 				Name = "minecraft:movement",
 				MinValue = 0,
-				MaxValue = float.MaxValue,
+				MaxValue = 0.5f,
 				Value = MovementSpeed,
 				Unknown = MovementSpeed,
 			};
@@ -1886,14 +1919,6 @@ namespace MiNET
 				MaxValue = 1,
 				Value = 0,
 				Unknown = 0,
-			};
-			attributes["minecraft:player.saturation"] = new PlayerAttribute
-			{
-				Name = "minecraft:player.saturation",
-				MinValue = 0,
-				MaxValue = HungerManager.Hunger,
-				Value = (float) HungerManager.Saturation,
-				Unknown = (float) HungerManager.Saturation,
 			};
 			attributes["minecraft:luck"] = new PlayerAttribute
 			{
@@ -1919,14 +1944,6 @@ namespace MiNET
 				Value = Experience,
 				Unknown = 0,
 			};
-			attributes["minecraft:player.hunger"] = new PlayerAttribute
-			{
-				Name = "minecraft:player.hunger",
-				MinValue = HungerManager.MinHunger,
-				MaxValue = HungerManager.MaxHunger,
-				Value = HungerManager.Hunger,
-				Unknown = HungerManager.Hunger,
-			};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
 				Name = "minecraft:follow_range",
@@ -1943,19 +1960,6 @@ namespace MiNET
 				Value = ExperienceLevel,
 				Unknown = 0,
 			};
-			attributes["minecraft:player.exhaustion"] = new PlayerAttribute
-			{
-				Name = "minecraft:player.exhaustion",
-				MinValue = 0,
-				MaxValue = 5,
-				Value = (float) HungerManager.Exhaustion,
-				Unknown = 0,
-			};
-
-			//attributes["generic.movementSpeed"] = new PlayerAttribute
-			//{
-			//	Name = "generic.movementSpeed", MinValue = 0, MaxValue = 24791, Value = MovementSpeed
-			//};
 
 			// Workaround, bad design.
 			attributes = HungerManager.AddHungerAttributes(attributes);

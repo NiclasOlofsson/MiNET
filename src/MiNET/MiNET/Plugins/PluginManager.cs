@@ -51,12 +51,15 @@ namespace MiNET.Plugins
 
 				string pluginDirectory = Path.GetFullPath(dirPath);
 
+				if (!Directory.Exists(pluginDirectory)) continue;
+
 				_currentPath = pluginDirectory;
 
 				AppDomain currentDomain = AppDomain.CurrentDomain;
 				currentDomain.AssemblyResolve += MyResolveEventHandler;
 
 				List<string> pluginPaths = new List<string>();
+
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories));
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.exe", SearchOption.AllDirectories));
 

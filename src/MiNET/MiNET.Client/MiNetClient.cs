@@ -3,6 +3,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace MiNET.Client
 		private short _mtuSize = 1192;
 		private int _reliableMessageNumber = -1;
 		private Vector3 _spawn;
-		private long _entityId;
+		public long EntityId { get; private set; }
 		public PlayerNetworkSession Session { get; set; }
 		public int ChunkRadius { get; set; } = 5;
 
@@ -117,10 +118,52 @@ namespace MiNET.Client
 			//	client.SendChat("/server lobby-1");
 			//});
 
+
+			//{
+			//	McpeAnimate message = new McpeAnimate();
+			//	message.actionId = 2;
+			//	message.entityId = client._entityId;
+			//	client.SendPackage(message);
+			//}
+			//{
+			//	McpeUseItem message = new McpeUseItem();
+			//	message.blockcoordinates = new BlockCoordinates(53, 4, 17);
+			//	message.face = 4;
+			//	message.facecoordinates = new Vector3(0.1f, 0.1f, 0.1f);
+			//	message.playerposition = client.CurrentLocation.ToVector3();
+			//	message.item = new ItemBlock(new Stone(), 0) {Count = 1};
+			//	client.SendPackage(message);
+			//}
+
+			Action<Task, Item, BlockCoordinates> doUseItem = BotHelpers.DoUseItem(client);
+			Action<Task, PlayerLocation> doMoveTo = BotHelpers.DoMoveTo(client);
+
+			//.ContinueWith(t => doMovePlayer(t, client.CurrentLocation + new Vector3(0, 1.62f, 0)))
+			//.ContinueWith(t => doMoveTo(t, client.CurrentLocation + new Vector3(10, 1.62f, 10)))
+
+			Task.Run(BotHelpers.DoWaitForSpawn(client))
+				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Stone(), 0) {Count = 64}, 0))
+				.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
+				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
+				.ContinueWith(t =>
+				{
+					Random rnd = new Random();
+					while (true)
+					{
+						doMoveTo(t, new PlayerLocation(rnd.Next(10, 40), 5.62f, rnd.Next(-50, -10), 180, 180, 180));
+						//doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180));
+						doMoveTo(t, new PlayerLocation(rnd.Next(40, 50), 5.62f, rnd.Next(0, 20), 180, 180, 180));
+					}
+				})
+				;
+
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();
 			client.StopClient();
 		}
+
 
 		public void StartClient()
 		{
@@ -707,9 +750,21 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof (McpeResourcePacksInfo) == message.GetType())
+			{
+				OnMcpeResourcePacksInfo((McpeResourcePacksInfo) message);
+				return;
+			}
+
+			else if (typeof (McpeResourcePackStack) == message.GetType())
+			{
+				OnMcpeResourcePackStack((McpeResourcePackStack) message);
+				return;
+			}
+
 			else if (typeof (McpeFullChunkData) == message.GetType())
 			{
-				OnFullChunkData(message);
+				OnFullChunkData((McpeFullChunkData) message);
 				return;
 			}
 
@@ -722,6 +777,13 @@ namespace MiNET.Client
 			else if (typeof (McpeSetSpawnPosition) == message.GetType())
 			{
 				OnMcpeSetSpawnPosition(message);
+
+				return;
+			}
+
+			else if (typeof (McpeGameRulesChanged) == message.GetType())
+			{
+				OnMcpeGameRulesChanged((McpeGameRulesChanged) message);
 
 				return;
 			}
@@ -739,16 +801,22 @@ namespace MiNET.Client
 
 				return;
 			}
+			else if (typeof (McpeRespawn) == message.GetType())
+			{
+				OnMcpeRespawn((McpeRespawn) message);
+
+				return;
+			}
 
 			else if (typeof (McpeBlockEvent) == message.GetType())
 			{
-				OnMcpeTileEvent(message);
+				OnMcpeBlockEvent(message);
 				return;
 			}
 
 			else if (typeof (McpeBlockEntityData) == message.GetType())
 			{
-				OnMcpeTileEntityData((McpeBlockEntityData) message);
+				OnMcpeBlockEntityData((McpeBlockEntityData) message);
 				return;
 			}
 
@@ -820,6 +888,12 @@ namespace MiNET.Client
 			else if (typeof (McpeMobEquipment) == message.GetType())
 			{
 				OnMcpePlayerEquipment((McpeMobEquipment) message);
+				return;
+			}
+
+			else if (typeof (McpeContainerOpen) == message.GetType())
+			{
+				OnMcpeContainerOpen((McpeContainerOpen) message);
 				return;
 			}
 
@@ -901,6 +975,11 @@ namespace MiNET.Client
 				OnMcpeInteract((McpeInteract) message);
 			}
 
+			else if (typeof (McpeLevelSoundEvent) == message.GetType())
+			{
+				OnMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
+			}
+
 			else if (typeof (McpeAvailableCommands) == message.GetType())
 			{
 				OnMcpeAvailableCommands((McpeAvailableCommands) message);
@@ -917,6 +996,86 @@ namespace MiNET.Client
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 			}
+		}
+
+
+		private void OnMcpeRespawn(McpeRespawn message)
+		{
+			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
+		}
+
+		private void OnMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		{
+			Log.Debug($"SoundId: {message.soundId}, Position: {message.position}, Volume: {message.volume}, Pitch: {message.pitch}, unknown1: {message.unknown1}, unknown2: {message.unknown2}");
+		}
+
+		private void OnMcpeGameRulesChanged(McpeGameRulesChanged message)
+		{
+			var rules = message.rules;
+			foreach (var rule in rules)
+			{
+				Log.Debug($"Rule: {rule}");
+			}
+		}
+
+		private void OnMcpeResourcePacksInfo(McpeResourcePacksInfo message)
+		{
+			Log.Debug($"HEX: \n{Package.HexDump(message.Bytes)}");
+
+			var sb = new StringBuilder();
+			sb.AppendLine();
+
+			sb.AppendLine("Resource packs:");
+			foreach (ResourcePackInfo info in message.resourcepackinfos)
+			{
+				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}");
+			}
+
+			sb.AppendLine("Behavior packs:");
+			foreach (ResourcePackInfo info in message.behahaviorpackinfos)
+			{
+				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}");
+			}
+
+			Log.Debug(sb.ToString());
+
+			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+			response.unknownbyte = 3;
+			SendPackage(response);
+		}
+
+		private void OnMcpeResourcePackStack(McpeResourcePackStack message)
+		{
+			Log.Debug($"HEX: \n{Package.HexDump(message.Bytes)}");
+
+			var sb = new StringBuilder();
+			sb.AppendLine();
+
+			sb.AppendLine("Resource pack stacks:");
+			foreach (var info in message.resourcepackidversions)
+			{
+				sb.AppendLine($"ID={info.Id}, Version={info.Version}");
+			}
+
+			sb.AppendLine("Behavior pack stacks:");
+			foreach (var info in message.behaviorpackidversions)
+			{
+				sb.AppendLine($"ID={info.Id}, Version={info.Version}");
+			}
+
+			Log.Debug(sb.ToString());
+
+			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+			response.unknownbyte = 4;
+			SendPackage(response);
+		}
+
+		private void OnMcpeContainerOpen(McpeContainerOpen message)
+		{
+			var stringWriter = new StringWriter();
+			ObjectDumper.Write(message, 1, stringWriter);
+
+			Log.Debug($"Handled chest for {EntityId} 0x{message.Id:x2} {message.GetType().Name}:\n{stringWriter} ");
 		}
 
 		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
@@ -1135,17 +1294,22 @@ Adventure settings
 		}
 
 		public AutoResetEvent PlayerStatusChangedWaitHandle = new AutoResetEvent(false);
+		public bool HasSpawned { get; set; }
 
 		private void OnMcpePlayerStatus(McpePlayerStatus message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Player status={message.status}");
 			PlayerStatus = message.status;
 
-			if (PlayerStatus == 3 && IsEmulator)
+			if (PlayerStatus == 3)
 			{
-				PlayerStatusChangedWaitHandle.Set();
+				HasSpawned = true;
+				if (IsEmulator)
+				{
+					PlayerStatusChangedWaitHandle.Set();
 
-				SendMcpeMovePlayer();
+					SendMcpeMovePlayer();
+				}
 			}
 		}
 
@@ -1205,7 +1369,7 @@ Adventure settings
 
 					{
 						McpeMobEquipment eq = McpeMobEquipment.CreateObject();
-						eq.entityId = _entityId;
+						eq.entityId = EntityId;
 						eq.slot = 9;
 						eq.selectedSlot = 0;
 						eq.item = recipe.Input[0];
@@ -1254,7 +1418,7 @@ Adventure settings
 				}
 				{
 					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
-					eq.entityId = _entityId;
+					eq.entityId = EntityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
 					eq.item = new ItemBlock(new Block(17), 0) {Count = 1};
@@ -1289,7 +1453,7 @@ Adventure settings
 
 				{
 					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
-					eq.entityId = _entityId;
+					eq.entityId = EntityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
 					eq.item = new ItemBlock(new Block(5), 0) {Count = 1};
@@ -1398,11 +1562,11 @@ Adventure settings
 		private void OnMcpeContainerSetContent(Package message)
 		{
 			McpeContainerSetContent msg = (McpeContainerSetContent) message;
-			Log.Debug($"Set container content on Window ID: 0x{msg.windowId:x2}, Count: {msg.slotData.Count}");
+			Log.Debug($"Set container content on Window ID: 0x{msg.windowId:x2}, {msg.hotbarData.Count}, Count: {msg.slotData.Count}");
 
 			if (IsEmulator) return;
 
-			var slots = msg.slotData;
+			ItemStacks slots = msg.slotData;
 
 			if (msg.windowId == 0x79)
 			{
@@ -1418,7 +1582,18 @@ Adventure settings
 				foreach (MetadataEntry entry in hotbar)
 				{
 					MetadataInt val = (MetadataInt) entry;
-					Log.Error($"Hotbar slot: {i} val: {val.Value}");
+					Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
+					i++;
+				}
+			}
+			else if (msg.windowId == 0x7b)
+			{
+				var hotbar = msg.hotbarData.GetValues();
+				int i = 0;
+				foreach (MetadataEntry entry in hotbar)
+				{
+					MetadataInt val = (MetadataInt) entry;
+					Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
 					i++;
 				}
 			}
@@ -1501,14 +1676,14 @@ Adventure settings
 
 		private void OnMcpeUpdateBlock(McpeUpdateBlock message)
 		{
-			Log.Debug($"Blocks ID={message.blockId}, Metadata={message.blockMetaAndPriority}");
+			Log.Debug($"Block Coordinates={message.coordinates}, Block ID={message.blockId}, Metadata={message.blockMetaAndPriority & 0xf}");
 		}
 
 		private void OnMcpeMovePlayer(McpeMovePlayer message)
 		{
 			Log.DebugFormat("McpeMovePlayer Entity ID: {0}", message.entityId);
 
-			if (message.entityId != _entityId) return;
+			if (message.entityId != EntityId) return;
 
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
 			SendMcpeMovePlayer();
@@ -1517,8 +1692,88 @@ Adventure settings
 		private static void OnMcpeSetEntityData(Package message)
 		{
 			McpeSetEntityData msg = (McpeSetEntityData) message;
-			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", msg.entityId, msg.metadata);
+			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", msg.entityId, MetadataToCode(msg.metadata));
 			//Log.Debug($"Package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
+		}
+
+		public static string MetadataToCode(MetadataDictionary metadata)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine();
+			sb.AppendLine("MetadataDictionary metadata = new MetadataDictionary();");
+
+			foreach (var kvp in metadata._entries)
+			{
+				int idx = kvp.Key;
+				MetadataEntry entry = kvp.Value;
+
+				sb.Append($"metadata[{idx}] = new ");
+				switch (entry.Identifier)
+				{
+					case 0:
+					{
+						var e = (MetadataByte) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 1:
+					{
+						var e = (MetadataShort) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 2:
+					{
+						var e = (MetadataInt) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 3:
+					{
+						var e = (MetadataFloat) entry;
+						sb.Append($"{e.GetType().Name}({e.Value.ToString(NumberFormatInfo.InvariantInfo)}f);");
+						break;
+					}
+					case 4:
+					{
+						var e = (MetadataString) entry;
+						sb.Append($"{e.GetType().Name}(\"{e.Value}\");");
+						break;
+					}
+					case 5:
+					{
+						var e = (MetadataSlot) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 6:
+					{
+						var e = (MetadataIntCoordinates) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 7:
+					{
+						var e = (MetadataLong) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						if (idx == 0)
+						{
+							sb.Append($" // {Convert.ToString(e.Value, 2)}");
+						}
+						break;
+					}
+					case 8:
+					{
+						var e = (MetadataVector3) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+				}
+				sb.AppendLine();
+			}
+
+			return sb.ToString();
 		}
 
 		private void OnMcpeAddPlayer(Package message)
@@ -1535,7 +1790,7 @@ Adventure settings
 			Log.DebugFormat("Velocity X: {0}", msg.speedX);
 			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.DebugFormat("Metadata: {0}", msg.metadata);
+			Log.DebugFormat("Metadata: {0}", MetadataToCode(msg.metadata));
 			//Log.DebugFormat("Links count: {0}", msg.links);
 		}
 
@@ -1545,6 +1800,7 @@ Adventure settings
 
 			McpeAddEntity msg = (McpeAddEntity) message;
 			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", msg.runtimeEntityId);
 			Log.DebugFormat("Entity Type: {0}", msg.entityType);
 			Log.DebugFormat("X: {0}", msg.x);
 			Log.DebugFormat("Y: {0}", msg.y);
@@ -1554,7 +1810,15 @@ Adventure settings
 			Log.DebugFormat("Velocity X: {0}", msg.speedX);
 			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.DebugFormat("Metadata: {0}", msg.metadata);
+			Log.DebugFormat("Metadata: {0}", MetadataToCode(msg.metadata));
+
+			long? value = ((MetadataLong) msg.metadata[0])?.Value;
+			if (value != null)
+			{
+				long dataValue = (long) value;
+				Log.Error($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+			}
+
 			if (Log.IsDebugEnabled)
 			{
 				foreach (var attribute in msg.attributes)
@@ -1580,15 +1844,15 @@ Adventure settings
 			Log.Info($"Item {msg.item}");
 		}
 
-		private static void OnMcpeTileEntityData(McpeBlockEntityData message)
+		private static void OnMcpeBlockEntityData(McpeBlockEntityData message)
 		{
 			Log.DebugFormat("X: {0}", message.coordinates.X);
 			Log.DebugFormat("Y: {0}", message.coordinates.Y);
 			Log.DebugFormat("Z: {0}", message.coordinates.Z);
-			Log.DebugFormat("NBT: {0}", message.namedtag.NbtFile);
+			Log.DebugFormat("NBT:\n{0}", message.namedtag.NbtFile.RootTag);
 		}
 
-		private static void OnMcpeTileEvent(Package message)
+		private static void OnMcpeBlockEvent(Package message)
 		{
 			McpeBlockEvent msg = (McpeBlockEvent) message;
 			Log.DebugFormat("Coord: {0}", msg.coordinates);
@@ -1598,24 +1862,27 @@ Adventure settings
 
 		private void OnMcpeStartGame(McpeStartGame message)
 		{
-			_entityId = message.entityId;
+			EntityId = message.runtimeEntityId;
 			_spawn = new Vector3(message.x, message.y, message.z);
 
 			Log.Debug($@"
 StartGame:
 	entityId: {message.entityId}	
 	runtimeEntityId: {message.runtimeEntityId}	
-	seed: {message.seed}	
+	spawn: {message.spawn}	
+	unknown1: {message.unknown1}	
 	dimension: {message.dimension}	
 	generator: {message.generator}	
 	gamemode: {message.gamemode}	
 	difficulty: {message.difficulty}	
-	isLoadedInCreative: {message.isLoadedInCreative}	
+	hasAchievementsDisabled: {message.hasAchievementsDisabled}	
 	dayCycleStopTime: {message.dayCycleStopTime}	
 	eduMode: {message.eduMode}	
 	rainLevel: {message.rainLevel}	
 	lightnigLevel: {message.lightnigLevel}	
 	enableCommands: {message.enableCommands}	
+	isTexturepacksRequired: {message.isTexturepacksRequired}	
+	secret: {message.secret}	
 	worldName: {message.worldName}	
 ");
 
@@ -1658,23 +1925,33 @@ StartGame:
 
 		private ConcurrentDictionary<Tuple<int, int>, bool> _chunks = new ConcurrentDictionary<Tuple<int, int>, bool>();
 
-		private void OnFullChunkData(Package message)
+		private void OnFullChunkData(McpeFullChunkData msg)
 		{
 			if (IsEmulator) return;
 
-			McpeFullChunkData msg = (McpeFullChunkData) message;
 			if (_chunks.TryAdd(new Tuple<int, int>(msg.chunkX, msg.chunkZ), true))
 			{
-				Log.Debug($"Chunk X={msg.chunkX}, Z={msg.chunkZ}, size={msg.chunkData.Length}, Count={++_numberOfChunks}");
+				//Log.Debug($"Chunk X={msg.chunkX}, Z={msg.chunkZ}, size={msg.chunkData.Length}, Count={++_numberOfChunks}");
 
-				ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
-				if (chunk != null)
+				try
 				{
-					chunk.x = msg.chunkX;
-					chunk.z = msg.chunkZ;
-					Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
+					ChunkColumn chunk = ClientUtils.DecocedChunkColumn(msg.chunkData);
+					if (chunk != null)
+					{
+						chunk.x = msg.chunkX;
+						chunk.z = msg.chunkZ;
+						Log.DebugFormat("Chunk X={0}, Z={1}", chunk.x, chunk.z);
+						foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntity in chunk.BlockEntities)
+						{
+							Log.Debug($"Blockentity: {blockEntity.Value}");
+						}
 
-					//ClientUtils.SaveChunkToAnvil(chunk);
+						//ClientUtils.SaveChunkToAnvil(chunk);
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Error("Reading chunk", e);
 				}
 			}
 		}
@@ -1800,9 +2077,9 @@ StartGame:
 				//|| message is McpeClientboundMapItemData
 				//|| message is McpeMovePlayer
 				//|| message is McpeSetEntityMotion
-				//|| message is McpeBatch
+			    || message is McpeBatch
 				//|| message is McpeFullChunkData
-				//|| message is McpeWrapper
+			    || message is McpeWrapper
 			    || message is ConnectedPing) return;
 
 			//var stringWriter = new StringWriter();
@@ -1911,7 +2188,7 @@ StartGame:
 			SendPackage(packet);
 		}
 
-		private void SendPackage(Package package)
+		public void SendPackage(Package package)
 		{
 			SendPackage(package, _mtuSize, ref _reliableMessageNumber);
 			package.PutPool();
@@ -1934,6 +2211,7 @@ StartGame:
 		public void SendChat(string text)
 		{
 			var packet = McpeText.CreateObject();
+			packet.type = (byte) MessageType.Chat;
 			packet.source = Username;
 			packet.message = text;
 
@@ -1942,8 +2220,10 @@ StartGame:
 
 		public void SendMcpeMovePlayer()
 		{
+			SendChat($"Moving Entity ID: {EntityId}  to {CurrentLocation}");
+
 			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
-			movePlayerPacket.entityId = _entityId;
+			movePlayerPacket.entityId = EntityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;
 			movePlayerPacket.z = CurrentLocation.Z;
@@ -1952,8 +2232,6 @@ StartGame:
 			movePlayerPacket.headYaw = 91;
 
 			SendPackage(movePlayerPacket);
-
-			//SendChat("Movin " + CurrentLocation);
 		}
 
 

@@ -36,7 +36,7 @@ namespace MiNET
 			{
 				NbtCompound item = (NbtCompound) slots[i];
 
-				Slots[item["Slot"].ByteValue] = ItemFactory.GetItem(item["id"].ShortValue, item["Damage"].ByteValue, item["Count"].ByteValue);
+				Slots[item["Slot"].ByteValue] = ItemFactory.GetItem(item["id"].ShortValue, item["Damage"].ShortValue, item["Count"].ByteValue);
 			}
 		}
 
@@ -106,7 +106,7 @@ namespace MiNET
 					new NbtByte("Count", slot.Count),
 					new NbtByte("Slot", i),
 					new NbtShort("id", slot.Id),
-					new NbtByte("Damage", (byte) slot.Metadata),
+					new NbtShort("Damage", slot.Metadata),
 				});
 			}
 

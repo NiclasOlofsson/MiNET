@@ -2,11 +2,13 @@
 {
 	public enum EntityType
 	{
-		DroppedItem = 0x40,
+		DroppedItem = 64,
+		ExperienceOrb = 69,
 
 		PrimedTnt = 65,
 		FallingBlock = 66,
 
+		Camera = 62,
 		ThrownBottleoEnchanting = 68,
 		FishingRodHook = 77,
 		ShotArrow = 80,
@@ -16,6 +18,8 @@
 		Minecart = 84,
 		GhastFireball = 85,
 		ThrownSpashPotion = 86,
+		ThrownEnderPerl = 87,
+		LeashKnot = 88,
 		Boat = 90,
 		LightningBolt = 93,
 		BlazeFireball = 94,
@@ -37,12 +41,18 @@
 		Blaze = 43,
 		ZombieVillager = 44,
 		Witch = 45,
+		Stray = 46,
+		Husk = 47,
+		WitherSkeleton = 48,
+		Guardian = 49,
+		ElderGuardian = 50,
 
 		Chicken = 10,
 		Cow = 11,
 		Pig = 12,
 		Sheep = 13,
 		Wolf = 14,
+		Villager = 15,
 		MushroomCow = 16,
 		Squid = 17,
 		Rabbit = 18,
@@ -50,7 +60,12 @@
 		IronGolem = 20,
 		SnowGolem = 21,
 		Ocelot = 22,
-		
+		Horse = 23,
+		Donkey = 24,
+		Mule = 25,
+		SkeletonHorse = 26,
+		ZombieHorse = 27,
+
 		Npc = 15,
 
 		Player = 63

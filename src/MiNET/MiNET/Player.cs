@@ -1386,10 +1386,37 @@ namespace MiNET
 		{
 			Entity target = Level.GetEntity(message.targetEntityId);
 
-			Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-			Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
+			if (message.actionId != 4)
+			{
+				Log.DebugFormat("Interact Action ID: {0}", message.actionId);
+				Log.DebugFormat("Interact Target Entity ID: {0}", message.targetEntityId);
+			}
 
 			if (target == null) return;
+			switch (message.actionId)
+			{
+				case 1:
+					// Button pressed
+
+					McpeAnimate animate = McpeAnimate.CreateObject();
+					animate.entityId = target.EntityId;
+					animate.actionId = 4;
+					Level.RelayBroadcast(animate);
+
+					DoInteraction(message.actionId, this);
+					target.DoInteraction(message.actionId, this);
+
+					break;
+				case 4:
+					// Mouse over
+
+					DoMouseOverInteraction(message.actionId, this);
+					target.DoMouseOverInteraction(message.actionId, this);
+					break;
+			}
+
+
+			// Old code...
 			if (message.actionId != 2) return;
 
 			Player player = target as Player;
@@ -1429,6 +1456,14 @@ namespace MiNET
 			}
 
 			HungerManager.IncreaseExhaustion(0.3f);
+		}
+
+		public override void DoMouseOverInteraction(byte actionId, Player player)
+		{
+		}
+
+		public override void DoInteraction(byte actionId, Player player)
+		{
 		}
 
 		protected virtual double CalculateDamageIncreaseFromEnchantments(Item tool)
@@ -2040,15 +2075,20 @@ namespace MiNET
 
 					if (popup.CurrentTick >= popup.DisplayDelay)
 					{
-						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
-						{
-							if (popup.CurrentTick%10 == 0 || popup.CurrentTick == popup.Duration - 20) SendMessage(popup.Message, type: popup.MessageType);
-							hasDisplayedPopup = true;
-						}
+						// Tip is ontop
 						if (popup.MessageType == MessageType.Tip && !hasDisplayedTip)
 						{
-							if (popup.CurrentTick%10 == 0 || popup.CurrentTick == popup.Duration - 10) SendMessage(popup.Message, type: popup.MessageType);
+							if (popup.CurrentTick <= popup.Duration + popup.DisplayDelay - 30)
+								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30) SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedTip = true;
+						}
+
+						// Popup is below
+						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
+						{
+							if (popup.CurrentTick <= popup.Duration + popup.DisplayDelay - 30)
+								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30) SendMessage(popup.Message, type: popup.MessageType);
+							hasDisplayedPopup = true;
 						}
 					}
 
@@ -2084,13 +2124,74 @@ namespace MiNET
 			}
 		}
 
+		public string ButtonText { get; set; }
+
 		public override MetadataDictionary GetMetadata()
 		{
-			MetadataDictionary metadata = base.GetMetadata();
+			var metadata = base.GetMetadata();
 			metadata[4] = new MetadataString(NameTag ?? Username);
+
+			//MetadataDictionary metadata = new MetadataDictionary();
+			//metadata[0] = new MetadataLong(GetDataValue()); // 10000000000000011000000000000000
+			//metadata[1] = new MetadataInt(1);
+			//metadata[2] = new MetadataInt(0);
+			//metadata[3] = new MetadataByte(0);
+			//metadata[4] = new MetadataString(NameTag ?? Username);
+			//metadata[5] = new MetadataLong(1);
+			//metadata[7] = new MetadataShort(400);
+			//metadata[8] = new MetadataInt(0);
+			//metadata[9] = new MetadataByte(0);
+			//metadata[27] = new MetadataByte(0);
+			//metadata[28] = new MetadataInt(1);
+			////metadata[29] = new MetadataIntCoordinates(X = 0, Y = 0, Z = 0);
+			//metadata[38] = new MetadataLong(0);
+			//metadata[39] = new MetadataFloat(1f);
+			//metadata[40] = new MetadataString(ButtonText ?? string.Empty);
+			//metadata[41] = new MetadataLong(0);
+			//metadata[44] = new MetadataShort(400);
+			//metadata[45] = new MetadataInt(0);
+			//metadata[46] = new MetadataByte(0);
+			//metadata[47] = new MetadataInt(0);
+			//metadata[53] = new MetadataFloat(0.8f);
+			//metadata[54] = new MetadataFloat(1.8f);
+			////metadata[56] = new MetadataVector3(< 0 0 0 >);
+			//metadata[57] = new MetadataByte(0);
+			//metadata[58] = new MetadataFloat(0f);
+			//metadata[59] = new MetadataFloat(0f);
 
 			return metadata;
 		}
+
+		//public override long GetDataValue()
+		//{
+		//	BitArray bits = new BitArray(64);
+		//	bits[(int) DataFlags.IsOnFire] = HealthManager.IsOnFire;
+		//	bits[(int) DataFlags.IsSneaking] = IsSneaking;
+		//	bits[(int) DataFlags.IsRiding] = IsRiding;
+		//	bits[(int) DataFlags.IsSprinting] = IsSprinting;
+		//	bits[(int) DataFlags.IsInAction] = IsInAction;
+		//	bits[(int) DataFlags.IsInvisible] = IsInvisible;
+		//	bits[(int) DataFlags.IsInLove] = false;
+		//	bits[(int) DataFlags.IsPowered] = false;
+		//	bits[(int) DataFlags.IsBaby] = false;
+		//	bits[(int) DataFlags.IsNameTagVisible] = !HideNameTag;
+		//	bits[(int) DataFlags.IsAlwaysShowNameTag] = !HideNameTag;
+		//	bits[(int) DataFlags.IsSitting] = true;
+		//	bits[(int) DataFlags.IsAngry] = false;
+		//	bits[(int) DataFlags.IsInAttention] = false;
+		//	bits[(int) DataFlags.IsTamed] = true;
+		//	bits[(int) DataFlags.IsSheared] = false;
+		//	bits[(int) DataFlags.IsElderGuardian] = false;
+		//	bits[(int) DataFlags.IsChested] = false;
+		//	bits[(int) DataFlags.IsOutOfWater] = true;
+
+		//	byte[] bytes = new byte[8];
+		//	bits.CopyTo(bytes, 0);
+
+		//	var dataValue = BitConverter.ToInt32(bytes, 0);
+		//	//Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+		//	return dataValue;
+		//}
 
 		[Wired]
 		public void SetNoAi(bool noAi)

@@ -46,6 +46,7 @@
 		WitherSkeleton = 48,
 		Guardian = 49,
 		ElderGuardian = 50,
+		Wither = 52,
 
 		Chicken = 10,
 		Cow = 11,
@@ -66,7 +67,7 @@
 		SkeletonHorse = 26,
 		ZombieHorse = 27,
 
-		Npc = 15,
+		Npc = 51,
 
 		Player = 63
 	}

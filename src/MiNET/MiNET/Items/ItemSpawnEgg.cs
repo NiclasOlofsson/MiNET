@@ -23,6 +23,8 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			Log.WarnFormat("Player {0} trying to spawn Mob #{1}.", player.Username, Metadata);
+
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 
 			Mob mob = null;
@@ -45,7 +47,7 @@ namespace MiNET.Items
 				case EntityType.Wolf:
 					mob = new Wolf(world) {Owner = player};
 					break;
-				case EntityType.Npc:
+				case EntityType.Villager:
 					mob = new Villager(world);
 					break;
 				case EntityType.MushroomCow:
@@ -125,6 +127,12 @@ namespace MiNET.Items
 					break;
 				case EntityType.ElderGuardian:
 					mob = new ElderGuardian(world);
+					break;
+				case EntityType.Wither:
+					mob = new Mob(EntityType.Wither, world);
+					break;
+				case EntityType.Npc:
+					mob = new PlayerMob("test", world);
 					break;
 
 			}

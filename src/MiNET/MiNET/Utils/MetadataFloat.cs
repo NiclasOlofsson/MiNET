@@ -30,6 +30,11 @@ namespace MiNET.Utils
 			Value = value;
 		}
 
+		public MetadataFloat(double value)
+		{
+			Value = (float) value;
+		}
+
 		public override void FromStream(BinaryReader reader)
 		{
 			Value = reader.ReadSingle();

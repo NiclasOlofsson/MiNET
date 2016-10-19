@@ -371,6 +371,19 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void SpawnHologram(Player player, byte id)
+		{
+			Level level = player.Level;
+
+			Mob entity = new Mob(id, level)
+			{
+				KnownPosition = player.KnownPosition,
+				//Data = -(blockId | 0 << 0x10)
+			};
+			entity.SpawnEntity();
+		}
+
+		[Command]
 		public void Doit(Player player, bool isAngry, byte data)
 		{
 			Level level = player.Level;
@@ -405,6 +418,8 @@ namespace TestPlugin
 			player.SendSetSpawnPosition();
 			player.Level.BroadcastMessage($"{player.Username} set new spawn position.", type: MessageType.Raw);
 			player.HealthManager.Kill();
+			player.SendStartGame();
+			player.SendPlayerInventory();
 		}
 
 		[Command]

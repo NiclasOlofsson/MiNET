@@ -33,6 +33,19 @@ namespace MiNET.Entities
 			Skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
 
 			ItemInHand = new ItemAir();
+
+			HideNameTag = false;
+			AlwaysSHowNameTag = true;
+			//IsInvisible = true;
+			NoAi = false;
+			HealthManager.IsOnFire = true;
+		}
+
+		public override MetadataDictionary GetMetadata()
+		{
+			var metadata = base.GetMetadata();
+
+			return metadata;
 		}
 
 		public override void SpawnToPlayers(Player[] players)

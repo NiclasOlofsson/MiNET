@@ -30,24 +30,21 @@ namespace MiNET.Entities
 
 		public bool NoAi { get; set; }
 		public bool HideNameTag { get; set; }
+		public bool AlwaysSHowNameTag { get; set; }
 		public bool Silent { get; set; }
+		public bool IsInWater { get; set; } = false;
 
 		public long Age { get; set; }
-		public double Height { get; set; } = 1.80;
-		public double Width { get; set; } = 0.6;
-		public double Length { get; set; } = 0.6;
-		public double Drag { get; set; }
-		public double Gravity { get; set; }
+		public double Scale { get; set; } = 1.0;
+		public double Height { get; set; } = 1;
+		public double Width { get; set; } = 1;
+		public double Length { get; set; } = 1;
+		public double Drag { get; set; } = 0.02;
+		public double Gravity { get; set; } = 0.08;
 		public int Data { get; set; }
 
 		public Entity(int entityTypeId, Level level)
 		{
-			Height = 1;
-			Width = 1;
-			Length = 1;
-			Gravity = 0.08;
-			Drag = 0.02;
-
 			EntityId = EntityManager.EntityIdUndefined;
 			Level = level;
 			EntityTypeId = entityTypeId;
@@ -63,19 +60,20 @@ namespace MiNET.Entities
 			metadata[2] = new MetadataInt(0);
 			metadata[3] = new MetadataByte(!HideNameTag);
 			metadata[4] = new MetadataString(NameTag ?? string.Empty);
-			metadata[7] = new MetadataShort(400); // Potion Color
+			metadata[7] = new MetadataShort(HealthManager.Air);
 			//metadata[4] = new MetadataByte(Silent);
 			//metadata[7] = new MetadataInt(0); // Potion Color
 			//metadata[8] = new MetadataByte(0); // Potion Ambient
-			//metadata[15] = new MetadataByte(NoAi);
+			metadata[15] = new MetadataByte(NoAi);
 			//metadata[16] = new MetadataByte(0); // Player flags
 			////metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[24] = new MetadataByte(0); // Leads on/off
-			//metadata[39] = new MetadataFloat(0.4f); // Scale
-			//metadata[53] = new MetadataFloat(1.99f); // Collision box width
-			//metadata[54] = new MetadataFloat(1.99f); // Collision box height
+			metadata[39] = new MetadataFloat(Scale); // Scale
+			metadata[44] = new MetadataShort(HealthManager.MaxAir);
+			metadata[53] = new MetadataFloat(Height); // Collision box width
+			metadata[54] = new MetadataFloat(Width); // Collision box height
 			return metadata;
 		}
 
@@ -88,16 +86,18 @@ namespace MiNET.Entities
 
 		public enum DataFlags
 		{
-			IsOnFire = 0,
-			IsSneaking = 1,
-			IsRiding = 2,
-			IsSprinting = 3,
-			IsInAction = 4,
-			IsInvisible = 5,
+			IsOnFire = 1,
+			IsSneaking = 2,
+			IsRiding = 3,
+			IsSprinting = 4,
+			IsInAction = 5,
+			IsInvisible = 6,
 			IsInLove = 8,
 			IsPowered = 9,
 			IsBaby = 12,
 			IsNameTagVisible = 15,
+			IsAlwaysShowNameTag = 16,
+			IsWithoutAi = 17,
 			IsSitting = 21,
 			IsAngry = 22,
 			IsInAttention = 23,
@@ -124,20 +124,22 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.IsPowered] = false;
 			bits[(int) DataFlags.IsBaby] = false;
 			bits[(int) DataFlags.IsNameTagVisible] = !HideNameTag;
-			bits[(int) DataFlags.IsSitting] = true;
+			bits[(int) DataFlags.IsAlwaysShowNameTag] = AlwaysSHowNameTag;
+			bits[(int) DataFlags.IsWithoutAi] = NoAi;
+			bits[(int) DataFlags.IsSitting] = false;
 			bits[(int) DataFlags.IsAngry] = false;
 			bits[(int) DataFlags.IsInAttention] = false;
 			bits[(int) DataFlags.IsTamed] = true;
 			bits[(int) DataFlags.IsSheared] = false;
 			bits[(int) DataFlags.IsElderGuardian] = false;
 			bits[(int) DataFlags.IsChested] = false;
-			bits[(int) DataFlags.IsOutOfWater] = true;
+			bits[(int) DataFlags.IsOutOfWater] = !IsInWater;
 
 			byte[] bytes = new byte[8];
 			bits.CopyTo(bytes, 0);
 
 			var dataValue = BitConverter.ToInt32(bytes, 0);
-			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+			//Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
 			return dataValue;
 		}
 
@@ -236,6 +238,23 @@ namespace MiNET.Entities
 		public virtual Item[] GetDrops()
 		{
 			return new Item[] {};
+		}
+
+		public virtual void DoInteraction(byte actionId, Player player)
+		{
+			PlayerMob target = this as PlayerMob;
+			if(target != null)
+			{
+				Level.BroadcastMessage(target.NameTag + "> Hi dude", MessageType.Chat);
+			}
+			else
+			{
+				Level.BroadcastMessage("Stop poking me dude!", MessageType.Chat);
+			}
+		}
+
+		public virtual void DoMouseOverInteraction(byte actionId, Player player)
+		{
 		}
 	}
 }

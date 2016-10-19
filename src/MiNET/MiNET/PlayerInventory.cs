@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using log4net;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -31,6 +32,10 @@ namespace MiNET
 			Player = player;
 
 			Slots = Enumerable.Repeat((Item) new ItemAir(), InventorySize).ToList();
+			//Slots[0] = new ItemCompass(); // test with y=-1
+			//Slots[0] = new ItemSpawnEgg(EntityType.Wither);
+			//Slots[1] = new ItemSpawnEgg(EntityType.Npc);
+
 
 			ItemHotbar = new int[HotbarSize];
 			for (byte i = 0; i < ItemHotbar.Length; i++)

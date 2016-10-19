@@ -24,6 +24,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json.Linq;
 
 [assembly: XmlConfigurator(Watch = true)]
 // This will cause log4net to look for a configuration file
@@ -146,17 +147,17 @@ namespace MiNET.Client
 				.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
-				.ContinueWith(t =>
-				{
-					Random rnd = new Random();
-					while (true)
-					{
-						doMoveTo(t, new PlayerLocation(rnd.Next(10, 40), 5.62f, rnd.Next(-50, -10), 180, 180, 180));
-						//doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180));
-						doMoveTo(t, new PlayerLocation(rnd.Next(40, 50), 5.62f, rnd.Next(0, 20), 180, 180, 180));
-					}
-				})
+				//.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
+				//.ContinueWith(t =>
+				//{
+				//	Random rnd = new Random();
+				//	while (true)
+				//	{
+				//		doMoveTo(t, new PlayerLocation(rnd.Next(10, 40), 5.62f, rnd.Next(-50, -10), 180, 180, 180));
+				//		//doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180));
+				//		doMoveTo(t, new PlayerLocation(rnd.Next(40, 50), 5.62f, rnd.Next(0, 20), 180, 180, 180));
+				//	}
+				//})
 				;
 
 			Console.WriteLine("<Enter> to exit!");
@@ -1080,16 +1081,16 @@ namespace MiNET.Client
 
 		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
 		{
-			//{
-			//	dynamic json = JObject.Parse(message.commands);
+			{
+				dynamic json = JObject.Parse(message.commands);
 
-			//	if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
-			//}
-			//{
-			//	dynamic json = JObject.Parse(message.unknown);
+				if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+			}
+			{
+				dynamic json = JObject.Parse(message.unknown);
 
-			//	if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
-			//}
+				if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
+			}
 		}
 
 		private void OnMcpeSetTime(McpeSetTime message)
@@ -1166,7 +1167,7 @@ McpeSetTime:
 			{
 				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
 				Log.Debug("ServerKey (b64):\n" + serverKey);
-				Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+				//Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
 				Log.Debug($"RANDOM TOKEN (raw):\n{randomKeyToken}");
 

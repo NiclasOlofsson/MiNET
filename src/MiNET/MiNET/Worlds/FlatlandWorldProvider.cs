@@ -65,33 +65,33 @@ namespace MiNET.Worlds
 				//var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
 				//chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
-				//if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
-				//{
-				//	for (int x = 0; x < 10; x++)
-				//	{
-				//		for (int z = 0; z < 10; z++)
-				//		{
-				//			for (int y = h - 2; y < h; y++)
-				//			{
-				//				chunk.SetBlock(x, y, z, 8);
-				//			}
-				//		}
-				//	}
-				//}
+				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
+				{
+					for (int x = 0; x < 10; x++)
+					{
+						for (int z = 0; z < 10; z++)
+						{
+							for (int y = h - 2; y < h; y++)
+							{
+								chunk.SetBlock(x, y, z, 8);
+							}
+						}
+					}
+				}
 
-				//if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
-				//{
-				//	for (int x = 0; x < 10; x++)
-				//	{
-				//		for (int z = 0; z < 10; z++)
-				//		{
-				//			for (int y = h - 1; y < h; y++)
-				//			{
-				//				chunk.SetBlock(x, y, z, 10);
-				//			}
-				//		}
-				//	}
-				//}
+				if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+				{
+					for (int x = 0; x < 10; x++)
+					{
+						for (int z = 0; z < 10; z++)
+						{
+							for (int y = h - 1; y < h; y++)
+							{
+								chunk.SetBlock(x, y, z, 10);
+							}
+						}
+					}
+				}
 
 				for (int x = 0; x < 16; x++)
 				{

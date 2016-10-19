@@ -337,15 +337,15 @@ namespace TestPlugin.NiceLobby
 					{
 						MessageType = MessageType.Tip,
 						Message = $"{ChatFormatting.Bold}This is a MiNET development server",
-						Duration = 20*4
+						Duration = 20 * 4
 					});
 
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
-						Message = "\nRestarts without notice frequently",
-						Duration = 20*5,
-						DisplayDelay = 20*1
+						Message = "Restarts without notice frequently",
+						Duration = 20 * 5,
+						DisplayDelay = 20 * 1
 					});
 				}
 			}

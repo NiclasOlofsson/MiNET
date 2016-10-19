@@ -36,8 +36,9 @@ namespace MiNET
 
 		private int _hearts;
 		public Entity Entity { get; set; }
-		public int MaxHealth { get; set; }
+		public int MaxHealth { get; set; } = 200;
 		public int Health { get; set; }
+		public short MaxAir { get; set; } = 400;
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
 		public int FireTick { get; set; }
@@ -52,7 +53,6 @@ namespace MiNET
 		public HealthManager(Entity entity)
 		{
 			Entity = entity;
-			MaxHealth = 200;
 			ResetHealth();
 		}
 
@@ -209,7 +209,7 @@ namespace MiNET
 		{
 			IsInvulnerable = false;
 			Health = MaxHealth;
-			Air = 300;
+			Air = MaxAir;
 			IsOnFire = false;
 			FireTick = 0;
 			SuffocationTicks = 10;
@@ -245,6 +245,10 @@ namespace MiNET
 
 			if (IsInWater(Entity.KnownPosition))
 			{
+				//if (!Entity.IsInWater)
+
+				Entity.IsInWater = true;
+
 				Air--;
 				if (Air <= 0)
 				{
@@ -255,6 +259,8 @@ namespace MiNET
 					}
 				}
 
+				Entity.BroadcastSetEntityData();
+
 				if (IsOnFire)
 				{
 					IsOnFire = false;
@@ -264,7 +270,14 @@ namespace MiNET
 			}
 			else
 			{
-				Air = 300;
+				Air = MaxAir;
+
+				if (Entity.IsInWater)
+				{
+					Entity.IsInWater = false;
+					Entity.BroadcastSetEntityData();
+				}
+
 			}
 
 			if (IsInSolid(Entity.KnownPosition))

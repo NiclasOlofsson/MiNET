@@ -6,9 +6,9 @@ namespace MiNET.Entities.Projectiles
 	{
 		public Arrow(Player shooter, Level level, bool isCritical = false) : base(shooter, 80, level, 2, isCritical)
 		{
-			Width = 0.5;
-			Length = 0.5;
-			Height = 0.0;
+			Width = 0.15;
+			Length = 0.15;
+			Height = 0.15;
 
 			Gravity = 0.05;
 			Drag = 0.01;

@@ -994,6 +994,7 @@ namespace MiNET
 				}
 			}
 
+
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
@@ -1020,7 +1021,10 @@ namespace MiNET
 				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
 			};
 
-			IsFalling = verticalMove < 0 && !IsOnGround;
+
+            Log.Debug($"Move: Yaw={KnownPosition.Yaw}, HeadYaw={KnownPosition.HeadYaw}");
+
+            IsFalling = verticalMove < 0 && !IsOnGround;
 
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -1254,7 +1258,7 @@ namespace MiNET
 
 		public virtual void HandleMcpeCraftingEvent(McpeCraftingEvent message)
 		{
-			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType} DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType}");
 		}
 
 		/// <summary>
@@ -1710,7 +1714,7 @@ namespace MiNET
 				return; // Cheat(?)
 			}
 
-			if (message.face <= 5)
+			if (message.face >= 0 && message.face <= 5)
 			{
 				// Right click
 
@@ -1718,6 +1722,8 @@ namespace MiNET
 			}
 			else
 			{
+			    Log.Debug("Begin non-block action");
+
 				// Snowballs and shit
 
 				_itemUseTimer = Level.TickTime;

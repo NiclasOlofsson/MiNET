@@ -21,6 +21,7 @@ namespace MiNET.Entities.Passive
 			CollarColor = 14;
 			HealthManager.MaxHealth = 80;
 			HealthManager.ResetHealth();
+			NoAi = true;
 		}
 
 		public override MetadataDictionary GetMetadata()

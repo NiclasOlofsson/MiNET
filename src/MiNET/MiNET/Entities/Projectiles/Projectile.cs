@@ -19,7 +19,6 @@ namespace MiNET.Entities.Projectiles
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
 		public int Damage { get; set; }
-		public bool IsCritical { get; set; }
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
@@ -44,94 +43,95 @@ namespace MiNET.Entities.Projectiles
 
 				IsSpawned = true;
 
-				if (Shooter == null)
-				{
-					var addEntity = McpeAddEntity.CreateObject();
-					addEntity.entityType = (byte) EntityTypeId;
-					addEntity.entityId = EntityId;
-					addEntity.x = KnownPosition.X;
-					addEntity.y = KnownPosition.Y;
-					addEntity.z = KnownPosition.Z;
-					addEntity.yaw = KnownPosition.Yaw;
-					addEntity.pitch = KnownPosition.Pitch;
-					addEntity.metadata = GetMetadata();
-					addEntity.speedX = (float) Velocity.X;
-					addEntity.speedY = (float) Velocity.Y;
-					addEntity.speedZ = (float) Velocity.Z;
+				//if (Shooter == null)
+				//{
+				//	var addEntity = McpeAddEntity.CreateObject();
+				//	addEntity.entityType = (byte) EntityTypeId;
+				//	addEntity.entityId = EntityId;
+				//	addEntity.runtimeEntityId = EntityId;
+				//	addEntity.x = KnownPosition.X;
+				//	addEntity.y = KnownPosition.Y;
+				//	addEntity.z = KnownPosition.Z;
+				//	addEntity.yaw = KnownPosition.Yaw;
+				//	addEntity.pitch = KnownPosition.Pitch;
+				//	addEntity.metadata = GetMetadata();
+				//	addEntity.speedX = (float) Velocity.X;
+				//	addEntity.speedY = (float) Velocity.Y;
+				//	addEntity.speedZ = (float) Velocity.Z;
 
-					Level.RelayBroadcast(addEntity);
+				//	Level.RelayBroadcast(addEntity);
 
-					McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-					mcpeSetEntityData.entityId = EntityId;
-					mcpeSetEntityData.metadata = GetMetadata();
-					Level.RelayBroadcast(mcpeSetEntityData);
-				}
-				else
-				{
-					{
-						var addEntity = McpeAddEntity.CreateObject();
-						addEntity.entityType = (byte) EntityTypeId;
-						addEntity.entityId = EntityId;
-						addEntity.x = KnownPosition.X;
-						addEntity.y = KnownPosition.Y;
-						addEntity.z = KnownPosition.Z;
-						addEntity.yaw = KnownPosition.Yaw;
-						addEntity.pitch = KnownPosition.Pitch;
-						addEntity.metadata = GetMetadata();
-						addEntity.speedX = (float) Velocity.X;
-						addEntity.speedY = (float) Velocity.Y;
-						addEntity.speedZ = (float) Velocity.Z;
+				//	McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+				//	mcpeSetEntityData.entityId = EntityId;
+				//	mcpeSetEntityData.metadata = GetMetadata();
+				//	Level.RelayBroadcast(mcpeSetEntityData);
+				//}
+				//else
+				//{
+				//	//{
+				//	//	var addEntity = McpeAddEntity.CreateObject();
+				//	//	addEntity.entityType = (byte) EntityTypeId;
+				//	//	addEntity.entityId = EntityId;
+				//	//	addEntity.runtimeEntityId = EntityId;
+				//	//	addEntity.x = KnownPosition.X;
+				//	//	addEntity.y = KnownPosition.Y;
+				//	//	addEntity.z = KnownPosition.Z;
+				//	//	addEntity.yaw = KnownPosition.Yaw;
+				//	//	addEntity.pitch = KnownPosition.Pitch;
+				//	//	addEntity.metadata = GetMetadata();
+				//	//	addEntity.speedX = (float) Velocity.X;
+				//	//	addEntity.speedY = (float) Velocity.Y;
+				//	//	addEntity.speedZ = (float) Velocity.Z;
 
-						Level.RelayBroadcast(Shooter, addEntity);
+				//	//	Level.RelayBroadcast(Shooter, addEntity);
 
-						McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-						mcpeSetEntityData.entityId = EntityId;
-						mcpeSetEntityData.metadata = GetMetadata();
-						Level.RelayBroadcast(Shooter, mcpeSetEntityData);
-					}
-					{
-						MetadataDictionary metadata = GetMetadata();
-						metadata[17] = new MetadataLong(0);
+				//	//	//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+				//	//	//mcpeSetEntityData.entityId = EntityId;
+				//	//	//mcpeSetEntityData.metadata = GetMetadata();
+				//	//	//Level.RelayBroadcast(Shooter, mcpeSetEntityData);
+				//	//}
+				//	{
+				//		MetadataDictionary metadata = GetMetadata();
+				//		//metadata[17] = new MetadataLong(0);
 
-						var addEntity = McpeAddEntity.CreateObject();
-						addEntity.entityType = (byte) EntityTypeId;
-						addEntity.entityId = EntityId;
-						addEntity.x = KnownPosition.X;
-						addEntity.y = KnownPosition.Y;
-						addEntity.z = KnownPosition.Z;
-						addEntity.yaw = KnownPosition.Yaw;
-						addEntity.pitch = KnownPosition.Pitch;
-						addEntity.metadata = metadata;
-						addEntity.speedX = (float) Velocity.X;
-						addEntity.speedY = (float) Velocity.Y;
-						addEntity.speedZ = (float) Velocity.Z;
+				//		var addEntity = McpeAddEntity.CreateObject();
+				//		addEntity.entityType = (byte) EntityTypeId;
+				//		addEntity.entityId = EntityId;
+    //                    addEntity.runtimeEntityId = EntityId;
+    //                    addEntity.x = KnownPosition.X;
+				//		addEntity.y = KnownPosition.Y;
+				//		addEntity.z = KnownPosition.Z;
+				//		addEntity.yaw = KnownPosition.Yaw;
+				//		addEntity.pitch = KnownPosition.Pitch;
+				//		addEntity.metadata = metadata;
+				//		addEntity.speedX = (float) Velocity.X;
+				//		addEntity.speedY = (float) Velocity.Y;
+				//		addEntity.speedZ = (float) Velocity.Z;
+				//		//Shooter.SendPackage(addEntity);
 
-						Shooter.SendPackage(addEntity);
-
-						McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-						mcpeSetEntityData.entityId = EntityId;
-						mcpeSetEntityData.metadata = metadata;
-						Shooter.SendPackage(mcpeSetEntityData);
-					}
-				}
+				//		//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+				//		//mcpeSetEntityData.entityId = EntityId;
+				//		//mcpeSetEntityData.metadata = metadata;
+				//		//Shooter.SendPackage(mcpeSetEntityData);
+				//	}
+				//}
 			}
 		}
 
 		public override MetadataDictionary GetMetadata()
 		{
-			var metadata = base.GetMetadata();
+            IsInWater = true;
+		    IsInAction = false;
 
-			if (IsCritical)
-			{
-				metadata[16] = new MetadataByte(1);
-			}
+            var metadata = base.GetMetadata();
+            if (Shooter != null)
+            {
+                metadata[5] = new MetadataLong(Shooter.EntityId);
+            }
 
-			if (Shooter != null)
-			{
-				metadata[17] = new MetadataLong(Shooter.EntityId);
-			}
+            Log.Debug($"Projectile metadata: \n{MetadataDictionary.MetadataToCode(metadata)}");
 
-			return metadata;
+            return metadata;
 		}
 
 		public override void OnTick()

@@ -128,7 +128,14 @@ namespace MiNET.Items
 				case EntityType.ElderGuardian:
 					mob = new ElderGuardian(world);
 					break;
+				case EntityType.Horse:
+					mob = new Horse(world);
+					break;
+				case EntityType.SkeletonHorse:
+					mob = new SkeletonHorse(world);
+					break;
 				case EntityType.Wither:
+
 					mob = new Mob(EntityType.Wither, world);
 					break;
 				case EntityType.Npc:

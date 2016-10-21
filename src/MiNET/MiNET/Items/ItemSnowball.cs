@@ -20,7 +20,7 @@ namespace MiNET.Items
 			snowBall.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			snowBall.KnownPosition.Y += 1.62f;
 			snowBall.Velocity = snowBall.KnownPosition.GetDirection()*(force);
-			snowBall.BroadcastMovement = false;
+			snowBall.BroadcastMovement = true;
 			snowBall.DespawnOnImpact = true;
 			snowBall.SpawnEntity();
 		}

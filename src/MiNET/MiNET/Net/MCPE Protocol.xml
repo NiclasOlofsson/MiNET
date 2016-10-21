@@ -301,9 +301,9 @@
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
-		<field name="Yaw" type="float" />
-		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
+		<field name="Head Yaw" type="float" />
+		<field name="Yaw" type="float" />
 		<field name="Mode" type="byte" />
 		<field name="On Ground" type="bool" />
 	</pdu>

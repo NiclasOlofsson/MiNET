@@ -2175,9 +2175,9 @@ namespace MiNET.Net
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
-		public float yaw; // = null;
-		public float headYaw; // = null;
 		public float pitch; // = null;
+		public float headYaw; // = null;
+		public float yaw; // = null;
 		public byte mode; // = null;
 		public bool onGround; // = null;
 		public McpeMovePlayer()
@@ -2195,9 +2195,9 @@ namespace MiNET.Net
 			Write(x);
 			Write(y);
 			Write(z);
-			Write(yaw);
-			Write(headYaw);
 			Write(pitch);
+			Write(headYaw);
+			Write(yaw);
 			Write(mode);
 			Write(onGround);
 
@@ -2217,9 +2217,9 @@ namespace MiNET.Net
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
-			yaw = ReadFloat();
-			headYaw = ReadFloat();
 			pitch = ReadFloat();
+			headYaw = ReadFloat();
+			yaw = ReadFloat();
 			mode = ReadByte();
 			onGround = ReadBool();
 

@@ -755,9 +755,9 @@ MODE_ROTATION = 2;
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
-|Yaw | float |  |
-|Head Yaw | float |  |
 |Pitch | float |  |
+|Head Yaw | float |  |
+|Yaw | float |  |
 |Mode | byte |  |
 |On Ground | bool |  |
 -----------------------------------------------------------------------

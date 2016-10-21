@@ -245,8 +245,6 @@ namespace MiNET
 
 			if (IsInWater(Entity.KnownPosition))
 			{
-				//if (!Entity.IsInWater)
-
 				Entity.IsInWater = true;
 
 				Air--;

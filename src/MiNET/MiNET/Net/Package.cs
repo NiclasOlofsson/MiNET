@@ -12,6 +12,7 @@ using log4net;
 using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Utils;
+using Newtonsoft.Json;
 
 namespace MiNET.Net
 {
@@ -22,27 +23,39 @@ namespace MiNET.Net
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
 
+        [JsonIgnore]
 		public int DatagramSequenceNumber = 0;
 
-		public bool NoBatch { get; set; }
+        [JsonIgnore]
+        public bool NoBatch { get; set; }
 
+        [JsonIgnore]
 		public DateTime? ValidUntil { get; set; }
 
-		public Reliability Reliability = Reliability.Unreliable;
-		public int ReliableMessageNumber = 0;
-		public byte OrderingChannel = 0;
-		public int OrderingIndex = 0;
+        [JsonIgnore]
+        public Reliability Reliability = Reliability.Unreliable;
+        [JsonIgnore]
+        public int ReliableMessageNumber = 0;
+        [JsonIgnore]
+        public byte OrderingChannel = 0;
+        [JsonIgnore]
+        public int OrderingIndex = 0;
 
-		public bool ForceClear = false;
+        [JsonIgnore]
+        public bool ForceClear = false;
 
-		public byte Id;
+        [JsonIgnore]
+        public byte Id;
 
 		protected MemoryStream _buffer;
 		private BinaryWriter _writer;
 		private BinaryReader _reader;
 		private Stopwatch _timer = new Stopwatch();
 
-		public Package()
+        [JsonIgnore]
+        public byte[] Bytes { get; private set; }
+
+        public Package()
 		{
 			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
@@ -50,7 +63,8 @@ namespace MiNET.Net
 			Timer.Start();
 		}
 
-		public Stopwatch Timer
+        [JsonIgnore]
+        public Stopwatch Timer
 		{
 			get { return _timer; }
 		}
@@ -395,22 +409,22 @@ namespace MiNET.Net
 			Write(location.X);
 			Write(location.Y);
 			Write(location.Z);
-			Write((byte) (location.Pitch*0.71)); // 256/360
-			Write((byte) (location.HeadYaw*0.71)); // 256/360
+            Write((byte)(location.Pitch * 0.71)); // 256/360
+            Write((byte) (location.HeadYaw*0.71)); // 256/360
 			Write((byte) (location.Yaw*0.71)); // 256/360
-		}
+        }
 
-		public PlayerLocation ReadPlayerLocation()
+        public PlayerLocation ReadPlayerLocation()
 		{
 			PlayerLocation location = new PlayerLocation();
 			location.X = ReadFloat();
 			location.Y = ReadFloat();
 			location.Z = ReadFloat();
-			location.Pitch = ReadByte()*1f/0.71f;
-			location.HeadYaw = ReadByte()*1f/0.71f;
+            location.Pitch = ReadByte() * 1f / 0.71f;
+            location.HeadYaw = ReadByte()*1f/0.71f;
 			location.Yaw = ReadByte()*1f/0.71f;
 
-			return location;
+            return location;
 		}
 
 		public void Write(IPEndPoint endpoint)
@@ -1169,8 +1183,6 @@ namespace MiNET.Net
 			}
 		}
 
-		public byte[] Bytes { get; private set; }
-
 		public void CloneReset()
 		{
 			_buffer = MiNetServer.MemoryStreamManager.GetStream();
@@ -1222,12 +1234,14 @@ namespace MiNET.Net
 		private bool _isPooled;
 		private long _referenceCounter;
 
-		public bool IsPooled
+        [JsonIgnore]
+        public bool IsPooled
 		{
 			get { return _isPooled; }
 		}
 
-		public long ReferenceCounter
+        [JsonIgnore]
+        public long ReferenceCounter
 		{
 			get { return _referenceCounter; }
 			set { _referenceCounter = value; }

@@ -1,5 +1,4 @@
 ﻿using MiNET.Worlds;
-using MiNET.Items;
 
 namespace MiNET.Entities.Hostile
 {

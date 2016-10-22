@@ -163,13 +163,5 @@ namespace MiNET.Entities
 			armorEquipment.boots = ItemFactory.GetItem(Boots);
 			Level.RelayBroadcast(armorEquipment);
 		}
-
-	    public override void OnTick()
-	    {
-	        base.OnTick();
-
-	        KnownPosition.HeadYaw += 1f;
-            LastUpdatedTime = DateTime.UtcNow;
-	    }
 	}
 }

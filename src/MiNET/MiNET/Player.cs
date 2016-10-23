@@ -117,8 +117,9 @@ namespace MiNET
 			var content = File.ReadAllBytes(@"D:\Temp\ResourcePackChunkData_8f760cf7-2ca4-44ab-ab60-9be2469b9777.zip");
 			McpeResourcePackChunkData chunkData = McpeResourcePackChunkData.CreateObject();
 			chunkData.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
+			chunkData.unknown1 = 0; // Package index ?
+			chunkData.unknown3 = 0; // Long, maybe timestamp?
 			chunkData.lenght = (uint) content.Length;
-			Log.Debug($"Resource pack content lenght={content.Length}");
 			chunkData.payload = content;
 			SendPackage(chunkData);
 		}
@@ -135,8 +136,8 @@ namespace MiNET
 				dataInfo.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
 				dataInfo.unknown1 = 1048576;
 				dataInfo.unknown2 = 1;
-				dataInfo.unknown3 = 359901;
-				dataInfo.unknown4 = "9&\r2'ëX•;\u001bð—Ð‹\u0006´6\u0007TÞ/[Üx…x*\u0005h\u0002à\u0012";
+				dataInfo.unknown3 = 359901; // Lenght of data
+				dataInfo.unknown4 = "9&\r2'ëX•;\u001bð—Ð‹\u0006´6\u0007TÞ/[Üx…x*\u0005h\u0002à\u0012"; //TODO: Fix encoding for this. Right now, must be Default :-(
 				SendPackage(dataInfo);
 				return;
 			}
@@ -160,8 +161,7 @@ namespace MiNET
 				packInfo.mustAccept = false;
 				packInfo.resourcepackinfos = new ResourcePackInfos
 				{
-					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Unknown = 837839},
-					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Unknown = 837839}
+					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Unknown = 359901},
 				};
 			}
 			SendPackage(packInfo);
@@ -176,7 +176,6 @@ namespace MiNET
 				packStack.resourcepackidversions = new ResourcePackIdVersions
 				{
 					new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"},
-					new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}
 				};
 			}
 			SendPackage(packStack);
@@ -1799,6 +1798,7 @@ namespace MiNET
 			mcpeStartGame.entityId = EntityId;
 			mcpeStartGame.runtimeEntityId = 0;
 			mcpeStartGame.spawn = KnownPosition.ToVector3();
+			mcpeStartGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			mcpeStartGame.seed = 12345;
 			mcpeStartGame.dimension = 0;
 			mcpeStartGame.generator = 1;

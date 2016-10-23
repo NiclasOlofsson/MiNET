@@ -1796,9 +1796,9 @@ namespace MiNET.Net
 		public float speedX; // = null;
 		public float speedY; // = null;
 		public float speedZ; // = null;
-		public float yaw; // = null;
-		public float headYaw; // = null;
 		public float pitch; // = null;
+		public float headYaw; // = null;
+		public float yaw; // = null;
 		public Item item; // = null;
 		public MetadataDictionary metadata; // = null;
 		public McpeAddPlayer()
@@ -1822,9 +1822,9 @@ namespace MiNET.Net
 			Write(speedX);
 			Write(speedY);
 			Write(speedZ);
-			Write(yaw);
-			Write(headYaw);
 			Write(pitch);
+			Write(headYaw);
+			Write(yaw);
 			Write(item);
 			Write(metadata);
 
@@ -1850,9 +1850,9 @@ namespace MiNET.Net
 			speedX = ReadFloat();
 			speedY = ReadFloat();
 			speedZ = ReadFloat();
-			yaw = ReadFloat();
-			headYaw = ReadFloat();
 			pitch = ReadFloat();
+			headYaw = ReadFloat();
+			yaw = ReadFloat();
 			item = ReadItem();
 			metadata = ReadMetadataDictionary();
 

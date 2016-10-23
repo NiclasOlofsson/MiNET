@@ -220,10 +220,10 @@
 		<field name="Speed X" type="float" />
 		<field name="Speed Y" type="float" />
 		<field name="Speed Z" type="float" />
-		<field name="Yaw" type="float" />
-		<field name="Head Yaw" type="float" />
-		<field name="Pitch" type="float" />
-		<field name="Item" type="Item" />
+    <field name="Pitch" type="float" />
+    <field name="Head Yaw" type="float" />
+    <field name="Yaw" type="float" />
+    <field name="Item" type="Item" />
 		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 

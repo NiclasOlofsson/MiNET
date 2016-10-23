@@ -607,9 +607,9 @@ The chat types are:
 |Speed X | float |  |
 |Speed Y | float |  |
 |Speed Z | float |  |
-|Yaw | float |  |
-|Head Yaw | float |  |
 |Pitch | float |  |
+|Head Yaw | float |  |
+|Yaw | float |  |
 |Item | Item |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------

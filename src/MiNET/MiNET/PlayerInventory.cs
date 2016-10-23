@@ -40,6 +40,8 @@ namespace MiNET
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.Horse);
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.SkeletonHorse);
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.Npc);
+			//Slots[idx++] = new ItemSpawnEgg(EntityType.Zombie);
+			//Slots[idx++] = new ItemSpawnEgg(EntityType.IronGolem);
 			//Slots[idx++] = new ItemSnowball();
 			//Slots[idx++] = new ItemBow();
 			//Slots[idx++] = new ItemArrow() {Count = 64};

@@ -298,7 +298,7 @@ namespace MiNET.Net
 				return;
 			}
 
-			byte[] bytes = Encoding.Default.GetBytes(value);
+			byte[] bytes = Encoding.UTF8.GetBytes(value);
 
 			WriteLenght(bytes.Length);
 			Write(bytes);
@@ -309,7 +309,7 @@ namespace MiNET.Net
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
 			int len = ReadLenght();
 			if (len <= 0) return string.Empty;
-			return Encoding.Default.GetString(ReadBytes(len));
+			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
 
 		public void WriteFixedString(string value)

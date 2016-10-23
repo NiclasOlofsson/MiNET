@@ -286,15 +286,6 @@ namespace MiNET.Entities
 
 		public virtual void DoInteraction(byte actionId, Player player)
 		{
-			PlayerMob target = this as PlayerMob;
-			if (target != null)
-			{
-				Level.BroadcastMessage(target.NameTag + "> Hi dude", MessageType.Chat);
-			}
-			else
-			{
-				Level.BroadcastMessage("Stop poking me dude!", MessageType.Chat);
-			}
 		}
 
 		public virtual void DoMouseOverInteraction(byte actionId, Player player)

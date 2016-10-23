@@ -290,7 +290,6 @@ namespace MiNET.Entities
 
 		public virtual void DoMouseOverInteraction(byte actionId, Player player)
 		{
-			player.ButtonText = "Poke da dude!";
 		}
 	}
 }

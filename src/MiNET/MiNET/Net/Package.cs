@@ -131,12 +131,27 @@ namespace MiNET.Net
 			return bytes;
 		}
 
-		public void Write(short value)
+		public void Write(short value, bool bigEndian = false)
+		{
+			if(bigEndian) _writer.Write(Endian.SwapInt16(value));
+			else _writer.Write(value);
+		}
+
+		public short ReadShort(bool bigEndian = false)
+		{
+			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
+
+			if(bigEndian) return Endian.SwapInt16(_reader.ReadInt16());
+
+			return _reader.ReadInt16();
+		}
+
+		public void WriteBe(short value)
 		{
 			_writer.Write(Endian.SwapInt16(value));
 		}
 
-		public short ReadShort()
+		public short ReadShortBe()
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
 
@@ -153,15 +168,39 @@ namespace MiNET.Net
 			return new Int24(_reader.ReadBytes(3));
 		}
 
-		public void Write(int value)
+		public void Write(int value, bool bigEndian = false)
+		{
+			if(bigEndian) _writer.Write(Endian.SwapInt32(value));
+			else _writer.Write(value);
+		}
+
+		public int ReadInt(bool bigEndian = false)
+		{
+			if(bigEndian) return Endian.SwapInt32(_reader.ReadInt32());
+
+			return _reader.ReadInt32();
+		}
+
+		public void WriteBe(int value)
 		{
 			_writer.Write(Endian.SwapInt32(value));
 		}
 
-		public int ReadInt()
+		public int ReadIntBe()
 		{
 			return Endian.SwapInt32(_reader.ReadInt32());
 		}
+
+		public void Write(uint value)
+		{
+			_writer.Write(value);
+		}
+
+		public uint ReadUint()
+		{
+			return _reader.ReadUInt32();
+		}
+
 
 		public void WriteVarInt(int value)
 		{
@@ -223,6 +262,16 @@ namespace MiNET.Net
 			return Endian.SwapInt64(_reader.ReadInt64());
 		}
 
+		public void Write(ulong value)
+		{
+			_writer.Write(value);
+		}
+
+		public ulong ReadUlong()
+		{
+			return _reader.ReadUInt64();
+		}
+
 		public void Write(float value)
 		{
 			byte[] bytes = BitConverter.GetBytes(value);
@@ -249,7 +298,7 @@ namespace MiNET.Net
 				return;
 			}
 
-			byte[] bytes = Encoding.UTF8.GetBytes(value);
+			byte[] bytes = Encoding.Default.GetBytes(value);
 
 			WriteLenght(bytes.Length);
 			Write(bytes);
@@ -260,27 +309,27 @@ namespace MiNET.Net
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
 			int len = ReadLenght();
 			if (len <= 0) return string.Empty;
-			return Encoding.UTF8.GetString(ReadBytes(len));
+			return Encoding.Default.GetString(ReadBytes(len));
 		}
 
 		public void WriteFixedString(string value)
 		{
 			if (string.IsNullOrEmpty(value))
 			{
-				Write((short) 0);
+				Write((short) 0, true);
 				return;
 			}
 
 			byte[] bytes = Encoding.UTF8.GetBytes(value);
 
-			Write((short) bytes.Length);
+			Write((short) bytes.Length, true);
 			Write(bytes);
 		}
 
 		public string ReadFixedString()
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
-			short len = ReadShort();
+			short len = ReadShort(true);
 			if (len <= 0) return string.Empty;
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}
@@ -437,7 +486,7 @@ namespace MiNET.Net
 				{
 					Write((byte) byte.Parse(part));
 				}
-				Write((short) endpoint.Port);
+				Write((short) endpoint.Port, true);
 			}
 		}
 
@@ -445,7 +494,7 @@ namespace MiNET.Net
 		{
 			byte ipVersion = ReadByte();
 			string ipAddress = $"{ReadByte()}.{ReadByte()}.{ReadByte()}.{ReadByte()}";
-			int port = ReadShort();
+			int port = ReadShort(true);
 
 			return new IPEndPoint(IPAddress.Parse(ipAddress), 19132);
 		}
@@ -495,7 +544,7 @@ namespace MiNET.Net
 			Nbt nbt = new Nbt();
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-			file.UseVarInt = false;
+			file.UseVarInt = true;
 			nbt.NbtFile = file;
 			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
 
@@ -717,6 +766,36 @@ namespace MiNET.Net
 			return attributes;
 		}
 
+		public void Write(Links links)
+		{
+			if(links == null)
+			{
+				WriteUnsignedVarInt(0); // LE
+				return;
+			}
+			WriteUnsignedVarInt((uint) links.Count); // LE
+			foreach (var link in links)
+			{
+				WriteVarLong(link.Item1);
+				WriteVarLong(link.Item2);
+				_writer.Write((short)1); // LE
+			}
+		}
+
+		public Links ReadLinks()
+		{
+			int count = (int) ReadUnsignedVarInt(); // LE
+
+			var links = new Links();
+			for (int i = 0; i < count; i++)
+			{
+				Tuple<long, long> link = new Tuple<long, long>(ReadVarLong(), ReadVarLong());
+				_reader.ReadInt16();
+			}
+
+			return links;
+		}
+
 		public void Write(Rules rules)
 		{
 			_writer.Write(rules.Count); // LE
@@ -771,7 +850,7 @@ namespace MiNET.Net
 			{
 				var info = new ResourcePackInfo();
 				info.PackIdVersion = new PackIdVersion() {Id = ReadString(), Version = ReadString()};
-				info.Unknown = ReadLong();
+				info.Unknown = ReadUlong();
 				packInfos.Add(info);
 			}
 

@@ -23,7 +23,7 @@ namespace MiNET.Net
 			if (Id != 0xa0) throw new Exception("Not NAK");
 			ranges.Clear();
 
-			short count = ReadShort();
+			short count = ReadShort(true);
 			for (int i = 0; i < count; i++)
 			{
 				var onlyOneSequence = ReadByte();

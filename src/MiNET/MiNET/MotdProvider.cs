@@ -25,7 +25,7 @@ namespace MiNET
 			NumberOfPlayers = serverInfo.NumberOfPlayers;
 			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
 
-			return string.Format($"MCPE;{Motd};90;0.16;{NumberOfPlayers};{MaxNumberOfPlayers};{caller.Address.Address + caller.Port};{SecondLine};Survival;");
+			return string.Format($"MCPE;{Motd};91;0.16;{NumberOfPlayers};{MaxNumberOfPlayers};{caller.Address.Address + caller.Port};{SecondLine};Survival;");
 		}
 	}
 }

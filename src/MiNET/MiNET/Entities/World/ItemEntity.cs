@@ -45,6 +45,7 @@ namespace MiNET.Entities.World
 		{
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
 			mcpeAddItemEntity.entityId = EntityId;
+			mcpeAddItemEntity.runtimeEntityId = EntityId;
 			mcpeAddItemEntity.item = GetItemStack();
 			mcpeAddItemEntity.x = KnownPosition.X;
 			mcpeAddItemEntity.y = KnownPosition.Y;

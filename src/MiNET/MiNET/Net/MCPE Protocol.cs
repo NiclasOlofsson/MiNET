@@ -43,6 +43,7 @@ namespace MiNET.Net
 		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
 		void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message);
 		void HandleMcpeItemFramDropItem(McpeItemFramDropItem message);
+		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 	}
 
 	public class PackageFactory
@@ -820,7 +821,7 @@ namespace MiNET.Net
 			Write(offlineMessageDataId);
 			Write(serverGuid);
 			Write(serverHasSecurity);
-			Write(mtuSize);
+			WriteBe(mtuSize);
 
 			AfterEncode();
 		}
@@ -837,7 +838,7 @@ namespace MiNET.Net
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
 			serverHasSecurity = ReadByte();
-			mtuSize = ReadShort();
+			mtuSize = ReadShortBe();
 
 			AfterDecode();
 		}
@@ -866,7 +867,7 @@ namespace MiNET.Net
 
 			Write(offlineMessageDataId);
 			Write(remoteBindingAddress);
-			Write(mtuSize);
+			WriteBe(mtuSize);
 			Write(clientGuid);
 
 			AfterEncode();
@@ -883,7 +884,7 @@ namespace MiNET.Net
 
 			ReadBytes(offlineMessageDataId.Length);
 			remoteBindingAddress = ReadIPEndPoint();
-			mtuSize = ReadShort();
+			mtuSize = ReadShortBe();
 			clientGuid = ReadLong();
 
 			AfterDecode();
@@ -915,7 +916,7 @@ namespace MiNET.Net
 			Write(offlineMessageDataId);
 			Write(serverGuid);
 			Write(clientEndpoint);
-			Write(mtuSize);
+			WriteBe(mtuSize);
 			Write(doSecurityAndHandshake);
 
 			AfterEncode();
@@ -933,7 +934,7 @@ namespace MiNET.Net
 			ReadBytes(offlineMessageDataId.Length);
 			serverGuid = ReadLong();
 			clientEndpoint = ReadIPEndPoint();
-			mtuSize = ReadShort();
+			mtuSize = ReadShortBe();
 			doSecurityAndHandshake = ReadBytes(0);
 
 			AfterDecode();
@@ -1007,7 +1008,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(systemAddress);
-			Write(systemIndex);
+			WriteBe(systemIndex);
 			Write(systemAddresses);
 			Write(incomingTimestamp);
 			Write(serverTimestamp);
@@ -1025,7 +1026,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			systemAddress = ReadIPEndPoint();
-			systemIndex = ReadShort();
+			systemIndex = ReadShortBe();
 			systemAddresses = ReadIPEndPoints(10);
 			incomingTimestamp = ReadLong();
 			serverTimestamp = ReadLong();
@@ -1256,7 +1257,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(protocolVersion);
+			WriteBe(protocolVersion);
 			Write(edition);
 			WriteByteArray(payload);
 
@@ -1272,7 +1273,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			protocolVersion = ReadInt();
+			protocolVersion = ReadIntBe();
 			edition = ReadByte();
 			payload = ReadByteArray();
 
@@ -1298,7 +1299,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(status);
+			WriteBe(status);
 
 			AfterEncode();
 		}
@@ -1312,7 +1313,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			status = ReadInt();
+			status = ReadIntBe();
 
 			AfterDecode();
 		}
@@ -1567,8 +1568,8 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackClientResponse : Package<McpeResourcePackClientResponse>
 	{
-		public byte unknownbyte; // = null;
-		public short unknownshort1; // = null;
+		public byte responseStatus; // = null;
+		public ResourcePackIdVersions resourcepackidversions; // = null;
 		public McpeResourcePackClientResponse()
 		{
 			Id = 0x09;
@@ -1580,8 +1581,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(unknownbyte);
-			Write(unknownshort1);
+			Write(responseStatus);
+			Write(resourcepackidversions);
 
 			AfterEncode();
 		}
@@ -1595,8 +1596,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			unknownbyte = ReadByte();
-			unknownshort1 = ReadShort();
+			responseStatus = ReadByte();
+			resourcepackidversions = ReadResourcePackIdVersions();
 
 			AfterDecode();
 		}
@@ -1878,7 +1879,7 @@ namespace MiNET.Net
 		public float pitch; // = null;
 		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
-		public int links; // = null;
+		public Links links; // = null;
 		public McpeAddEntity()
 		{
 			Id = 0x0e;
@@ -1903,7 +1904,7 @@ namespace MiNET.Net
 			Write(pitch);
 			Write(attributes);
 			Write(metadata);
-			WriteVarInt(links);
+			Write(links);
 
 			AfterEncode();
 		}
@@ -1930,7 +1931,7 @@ namespace MiNET.Net
 			pitch = ReadFloat();
 			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
-			links = ReadVarInt();
+			links = ReadLinks();
 
 			AfterDecode();
 		}
@@ -3778,7 +3779,8 @@ namespace MiNET.Net
 	{
 		public float motionX; // = null;
 		public float motionZ; // = null;
-		public short flags; // = null;
+		public bool flag1; // = null;
+		public bool flag2; // = null;
 		public McpePlayerInput()
 		{
 			Id = 0x38;
@@ -3792,7 +3794,8 @@ namespace MiNET.Net
 
 			Write(motionX);
 			Write(motionZ);
-			Write(flags);
+			Write(flag1);
+			Write(flag2);
 
 			AfterEncode();
 		}
@@ -3808,7 +3811,8 @@ namespace MiNET.Net
 
 			motionX = ReadFloat();
 			motionZ = ReadFloat();
-			flags = ReadShort();
+			flag1 = ReadBool();
+			flag2 = ReadBool();
 
 			AfterDecode();
 		}
@@ -4598,6 +4602,11 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackDataInfo : Package<McpeResourcePackDataInfo>
 	{
+		public string packageId; // = null;
+		public uint unknown1; // = null;
+		public uint unknown2; // = null;
+		public ulong unknown3; // = null;
+		public string unknown4; // = null;
 		public McpeResourcePackDataInfo()
 		{
 			Id = 0x4d;
@@ -4609,6 +4618,11 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(packageId);
+			Write(unknown1);
+			Write(unknown2);
+			Write(unknown3);
+			Write(unknown4);
 
 			AfterEncode();
 		}
@@ -4622,6 +4636,11 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			packageId = ReadString();
+			unknown1 = ReadUint();
+			unknown2 = ReadUint();
+			unknown3 = ReadUlong();
+			unknown4 = ReadString();
 
 			AfterDecode();
 		}
@@ -4633,6 +4652,11 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackChunkData : Package<McpeResourcePackChunkData>
 	{
+		public string packageId; // = null;
+		public uint unknown1; // = null;
+		public ulong unknown3; // = null;
+		public uint lenght; // = null;
+		public byte[] payload; // = null;
 		public McpeResourcePackChunkData()
 		{
 			Id = 0x4e;
@@ -4644,6 +4668,11 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(packageId);
+			Write(unknown1);
+			Write(unknown3);
+			Write(lenght);
+			Write(payload);
 
 			AfterEncode();
 		}
@@ -4657,6 +4686,11 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			packageId = ReadString();
+			unknown1 = ReadUint();
+			unknown3 = ReadUlong();
+			lenght = ReadUint();
+			payload = ReadBytes(0);
 
 			AfterDecode();
 		}
@@ -4668,6 +4702,8 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackChunkRequest : Package<McpeResourcePackChunkRequest>
 	{
+		public string packageId; // = null;
+		public int chunkIndex; // = null;
 		public McpeResourcePackChunkRequest()
 		{
 			Id = 0x4f;
@@ -4679,6 +4715,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(packageId);
+			Write(chunkIndex);
 
 			AfterEncode();
 		}
@@ -4692,6 +4730,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			packageId = ReadString();
+			chunkIndex = ReadInt();
 
 			AfterDecode();
 		}

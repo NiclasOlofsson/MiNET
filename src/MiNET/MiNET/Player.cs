@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Numerics;
@@ -20,6 +21,7 @@ using MiNET.Net;
 using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json;
 
 namespace MiNET
 {
@@ -101,43 +103,82 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
-		private bool _sentAlready = false;
+		public void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
+		{
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.None,
+				Formatting = Formatting.Indented,
+			};
+
+			string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+			Log.Debug($"{message.GetType().Name}\n{result}");
+
+			var content = File.ReadAllBytes(@"D:\Temp\ResourcePackChunkData_8f760cf7-2ca4-44ab-ab60-9be2469b9777.zip");
+			McpeResourcePackChunkData chunkData = McpeResourcePackChunkData.CreateObject();
+			chunkData.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
+			chunkData.lenght = (uint) content.Length;
+			Log.Debug($"Resource pack content lenght={content.Length}");
+			chunkData.payload = content;
+			SendPackage(chunkData);
+		}
+
+		private bool _serverHaveResources = false;
 
 		public void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Handled package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
 
-			if (_sentAlready)
+			if (message.responseStatus == 2)
+			{
+				McpeResourcePackDataInfo dataInfo = McpeResourcePackDataInfo.CreateObject();
+				dataInfo.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
+				dataInfo.unknown1 = 1048576;
+				dataInfo.unknown2 = 1;
+				dataInfo.unknown3 = 359901;
+				dataInfo.unknown4 = "9&\r2'ëX•;\u001bð—Ð‹\u0006´6\u0007TÞ/[Üx…x*\u0005h\u0002à\u0012";
+				SendPackage(dataInfo);
+				return;
+			}
+			else if (message.responseStatus == 3)
+			{
+				SendResourcePackStack();
+				return;
+			}
+			else if (message.responseStatus == 4)
 			{
 				MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 				return;
 			}
-
-			_sentAlready = true;
-
-			SendResourcePackStack();
 		}
 
 		private void SendResourcePacksInfo()
 		{
 			McpeResourcePacksInfo packInfo = McpeResourcePacksInfo.CreateObject();
-			//packInfo.mustAccept = true;
-			//packInfo.resourcepackinfos = new ResourcePackInfos
-			//{
-			//	new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "69afd52e-1e29-4617-81a9-44ce1157ce8a", Version = "0.0.1"}}
-			//};
+			if (_serverHaveResources)
+			{
+				packInfo.mustAccept = false;
+				packInfo.resourcepackinfos = new ResourcePackInfos
+				{
+					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Unknown = 837839},
+					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Unknown = 837839}
+				};
+			}
 			SendPackage(packInfo);
 		}
 
 		private void SendResourcePackStack()
 		{
 			McpeResourcePackStack packStack = McpeResourcePackStack.CreateObject();
-			//packStack.mustAccept = true;
-			//packStack.resourcepackidversions = new ResourcePackIdVersions
-			//{
-			//	new PackIdVersion() {Id = "69afd52e-1e29-4617-81a9-44ce1157ce8a", Version = "0.0.1"}
-			//};
-
+			if (_serverHaveResources)
+			{
+				packStack.mustAccept = false;
+				packStack.resourcepackidversions = new ResourcePackIdVersions
+				{
+					new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"},
+					new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}
+				};
+			}
 			SendPackage(packStack);
 		}
 
@@ -1022,9 +1063,9 @@ namespace MiNET
 			};
 
 
-            Log.Debug($"Move: Yaw={KnownPosition.Yaw}, HeadYaw={KnownPosition.HeadYaw}");
+			Log.Debug($"Move: Yaw={KnownPosition.Yaw}, HeadYaw={KnownPosition.HeadYaw}");
 
-            IsFalling = verticalMove < 0 && !IsOnGround;
+			IsFalling = verticalMove < 0 && !IsOnGround;
 
 			LastUpdatedTime = DateTime.UtcNow;
 
@@ -1722,7 +1763,7 @@ namespace MiNET
 			}
 			else
 			{
-			    Log.Debug("Begin non-block action");
+				Log.Debug("Begin non-block action");
 
 				// Snowballs and shit
 
@@ -2136,6 +2177,8 @@ namespace MiNET
 		{
 			var metadata = base.GetMetadata();
 			metadata[4] = new MetadataString(NameTag ?? Username);
+			metadata[40] = new MetadataString(ButtonText ?? string.Empty);
+			Log.Warn($"Button text={ButtonText}");
 
 			//MetadataDictionary metadata = new MetadataDictionary();
 			//metadata[0] = new MetadataLong(GetDataValue()); // 10000000000000011000000000000000
@@ -2167,37 +2210,6 @@ namespace MiNET
 
 			return metadata;
 		}
-
-		//public override long GetDataValue()
-		//{
-		//	BitArray bits = new BitArray(64);
-		//	bits[(int) DataFlags.IsOnFire] = HealthManager.IsOnFire;
-		//	bits[(int) DataFlags.IsSneaking] = IsSneaking;
-		//	bits[(int) DataFlags.IsRiding] = IsRiding;
-		//	bits[(int) DataFlags.IsSprinting] = IsSprinting;
-		//	bits[(int) DataFlags.IsInAction] = IsInAction;
-		//	bits[(int) DataFlags.IsInvisible] = IsInvisible;
-		//	bits[(int) DataFlags.IsInLove] = false;
-		//	bits[(int) DataFlags.IsPowered] = false;
-		//	bits[(int) DataFlags.IsBaby] = false;
-		//	bits[(int) DataFlags.IsNameTagVisible] = !HideNameTag;
-		//	bits[(int) DataFlags.IsAlwaysShowNameTag] = !HideNameTag;
-		//	bits[(int) DataFlags.IsSitting] = true;
-		//	bits[(int) DataFlags.IsAngry] = false;
-		//	bits[(int) DataFlags.IsInAttention] = false;
-		//	bits[(int) DataFlags.IsTamed] = true;
-		//	bits[(int) DataFlags.IsSheared] = false;
-		//	bits[(int) DataFlags.IsElderGuardian] = false;
-		//	bits[(int) DataFlags.IsChested] = false;
-		//	bits[(int) DataFlags.IsOutOfWater] = true;
-
-		//	byte[] bytes = new byte[8];
-		//	bits.CopyTo(bytes, 0);
-
-		//	var dataValue = BitConverter.ToInt32(bytes, 0);
-		//	//Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
-		//	return dataValue;
-		//}
 
 		[Wired]
 		public void SetNoAi(bool noAi)

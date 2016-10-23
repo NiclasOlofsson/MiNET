@@ -35,7 +35,7 @@ namespace MiNET.Net
 
 			byte flags = (byte) Header.Reliability;
 			Write((byte) ((flags << 5) | (Header.HasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
-			Write((short) (encodedMessage.Length*8)); // length
+			Write((short) (encodedMessage.Length*8), true); // length
 
 			if (Header.Reliability == Reliability.Reliable
 			    || Header.Reliability == Reliability.ReliableOrdered
@@ -59,9 +59,9 @@ namespace MiNET.Net
 
 			if (Header.HasSplit)
 			{
-				Write(Header.PartCount);
-				Write(Header.PartId);
-				Write(Header.PartIndex);
+				Write(Header.PartCount, true);
+				Write(Header.PartId, true);
+				Write(Header.PartIndex, true);
 			}
 
 			// Message body

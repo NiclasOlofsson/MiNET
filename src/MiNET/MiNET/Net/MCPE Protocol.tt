@@ -214,6 +214,10 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		{
 			WriteLine(string.Format("\t\t\tWriteFixedString({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
 		}
+		else if(field.Attributes["endianess"] != null && field.Attributes["endianess"].Value == "BE")
+		{
+			WriteLine(string.Format("\t\t\tWriteBe({0});", CodeName(field.Attributes["name"].Value)));
+		}
 		else
 		{
 			WriteLine(string.Format("\t\t\tWrite({0});", CodeName(field.Attributes["name"].Value)));
@@ -270,6 +274,10 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		else if(field.Attributes["type"].Value == "FixedString")
 		{
 			WriteLine(string.Format("\t\t\t{0} = Read{1}({2});", CodeFieldName(field.Attributes["name"].Value), "FixedString", SafeToString(field.Attributes["size"])));
+		}
+		else if(field.Attributes["endianess"] != null && field.Attributes["endianess"].Value == "BE")
+		{
+			WriteLine(string.Format("\t\t\t{0} = Read{1}Be({2});", CodeFieldName(field.Attributes["name"].Value), UpperInitial(field.Attributes["type"].Value), SafeToString(field.Attributes["size"])));
 		}
 		else 
 		{

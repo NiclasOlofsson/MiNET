@@ -512,8 +512,8 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|UnknownByte | byte |  |
-|UnknownShort1 | short |  |
+|Response status | byte |  |
+|ResourcePackIdVersions | ResourcePackIdVersions |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Text (0x0a)
 
@@ -650,7 +650,7 @@ val2 float
 |Pitch | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
-|Links | VarInt |  |
+|Links | Links |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Remove Entity (0x0f)
 
@@ -1342,7 +1342,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Motion X | float |  |
 |Motion Z | float |  |
-|Flags | short |  |
+|Flag1 | bool |  |
+|Flag2 | bool |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Full Chunk Data (0x39)
 
@@ -1645,6 +1646,11 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Package ID | string |  |
+|Unknown1 | uint |  |
+|Unknown2 | uint |  |
+|Unknown3 | ulong |  |
+|Unknown4 | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Resource Pack Chunk Data (0x4e)
 
@@ -1658,11 +1664,16 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Package ID | string |  |
+|Unknown1 | uint |  |
+|Unknown3 | ulong |  |
+|Lenght | uint |  |
+|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Resource Pack Chunk Request (0x4f)
 
-**Sent from server:** true
-**Sent from client:** false
+**Sent from server:** false
+**Sent from client:** true
 **Packet size:** 
 
 
@@ -1671,6 +1682,8 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Package ID | string |  |
+|Chunk index | int |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Wrapper (0xfe)
 

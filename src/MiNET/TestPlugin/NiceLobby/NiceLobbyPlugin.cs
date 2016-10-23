@@ -62,6 +62,17 @@ namespace TestPlugin.NiceLobby
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 		}
 
+		private void OnPlayerJoin(object o, PlayerEventArgs eventArgs)
+		{
+			Level level = eventArgs.Level;
+			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
+
+			Player player = eventArgs.Player;
+			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
+
+			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+		}
+
 		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)
 		{
 			Level level = eventArgs.Level;
@@ -71,17 +82,6 @@ namespace TestPlugin.NiceLobby
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
-		}
-
-		private void OnPlayerJoin(object o, PlayerEventArgs eventArgs)
-		{
-			Level level = eventArgs.Level;
-			if (level == null) throw new ArgumentNullException(nameof(eventArgs.Level));
-
-			Player player = eventArgs.Player;
-			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
-
-			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} {DateTime.UtcNow.Ticks}");
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)

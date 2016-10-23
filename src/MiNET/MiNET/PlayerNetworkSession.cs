@@ -357,9 +357,12 @@ namespace MiNET
 
 		private void HandlePackage(IMcpeMessageHandler handler, Package message)
 		{
-			//var result = Server.PluginManager.PluginPacketHandler(message, true, Player);
-			////if (result != message) message.PutPool();
-			//message = result;
+			if (handler is Player)
+			{
+				var result = Server.PluginManager.PluginPacketHandler(message, true, (Player) handler);
+				if (result != message) message.PutPool();
+				message = result;
+			}
 
 			if (message == null)
 			{
@@ -394,8 +397,12 @@ namespace MiNET
 
 			else if (typeof(McpeResourcePackClientResponse) == message.GetType())
 			{
-				// Start encrypotion
-				handler.	HandleMcpeResourcePackClientResponse((McpeResourcePackClientResponse)message);
+				handler.HandleMcpeResourcePackClientResponse((McpeResourcePackClientResponse)message);
+			}
+
+			else if (typeof(McpeResourcePackChunkRequest) == message.GetType())
+			{
+				handler.HandleMcpeResourcePackChunkRequest((McpeResourcePackChunkRequest)message);
 			}
 
 			else if (typeof (McpeUpdateBlock) == message.GetType())

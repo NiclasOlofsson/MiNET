@@ -422,6 +422,10 @@ namespace MiNET
 		public void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
 		{
 		}
+
+		public void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
+		{
+		}
 	}
 
 	public interface IServerManager

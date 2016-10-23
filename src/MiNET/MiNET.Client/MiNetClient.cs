@@ -88,7 +88,9 @@ namespace MiNET.Client
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
 			// 157.7.202.57:29473
@@ -766,6 +768,18 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof(McpeResourcePackDataInfo) == message.GetType())
+			{
+				OnMcpeResourcePackDataInfo((McpeResourcePackDataInfo)message);
+				return;
+			}
+
+			else if (typeof(McpeResourcePackChunkData) == message.GetType())
+			{
+				OnMcpeResourcePackChunkData((McpeResourcePackChunkData)message);
+				return;
+			}
+
 			else if (typeof (McpeFullChunkData) == message.GetType())
 			{
 				OnFullChunkData((McpeFullChunkData) message);
@@ -1062,7 +1076,7 @@ namespace MiNET.Client
 			sb.AppendLine("Resource packs:");
 			foreach (ResourcePackInfo info in message.resourcepackinfos)
 			{
-				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}");
+				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}, Unknown={info.Unknown}");
 			}
 
 			sb.AppendLine("Behavior packs:");
@@ -1073,9 +1087,29 @@ namespace MiNET.Client
 
 			Log.Debug(sb.ToString());
 
-			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
-			response.unknownbyte = 3;
-			SendPackage(response);
+			//McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+			//response.responseStatus = 3;
+			//SendPackage(response);
+
+			if (message.resourcepackinfos.Count != 0)
+			{
+				ResourcePackIdVersions resourceInfos = new ResourcePackIdVersions();
+				foreach (var packInfo in message.resourcepackinfos)
+				{
+					resourceInfos.Add(packInfo.PackIdVersion);
+				}
+
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 2;
+				response.resourcepackidversions = resourceInfos;
+				SendPackage(response);
+			}
+			else
+			{
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 3;
+				SendPackage(response);
+			}
 		}
 
 		private void OnMcpeResourcePackStack(McpeResourcePackStack message)
@@ -1099,8 +1133,47 @@ namespace MiNET.Client
 
 			Log.Debug(sb.ToString());
 
+			//if (message.resourcepackidversions.Count != 0)
+			//{
+			//	McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+			//	response.responseStatus = 2;
+			//	response.resourcepackidversions = message.resourcepackidversions;
+			//	SendPackage(response);
+			//}
+			//else
+			{
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 4;
+				SendPackage(response);
+			}
+
+		}
+
+		private void OnMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
+		{
+			var packageId = message.packageId;
+			McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
+			request.packageId = packageId;
+			request.chunkIndex = 0;
+			SendPackage(request);
+		}
+
+		private void OnMcpeResourcePackChunkData(McpeResourcePackChunkData message)
+		{
+			//string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + Guid.NewGuid() + ".zip";
+			//Log.Info("Writing ResourcePackChunkData to filename: " + fileName);
+			//FileStream file = File.OpenWrite(fileName);
+			//file.Write(message.payload, 0, message.payload.Length);
+			//file.Close();
+
+			Log.Debug($"packageId={message.packageId}");
+			Log.Debug($"unknown1={message.unknown1}");
+			Log.Debug($"unknown3={message.unknown3}");
+			Log.Debug($"Reported Lenght={message.lenght}");
+			Log.Debug($"Actual Lenght={message.payload.Length}");
+
 			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
-			response.unknownbyte = 4;
+			response.responseStatus = 3;
 			SendPackage(response);
 		}
 
@@ -1161,7 +1234,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 90,
+				protocolVersion = 91,
 				edition = 0,
 				payload = data
 			};

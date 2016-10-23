@@ -30,19 +30,7 @@ namespace MiNET
 		public PlayerInventory(Player player)
 		{
 			Player = player;
-
-		    int idx = 1;
 			Slots = Enumerable.Repeat((Item) new ItemAir(), InventorySize).ToList();
-            //Slots[idx++] = new ItemCompass(); // test with y=-1
-            //Slots[idx++] = new ItemSpawnEgg(EntityType.Wither);
-            //Slots[idx++] = new ItemSpawnEgg(EntityType.Wolf);
-            //Slots[idx++] = new ItemSpawnEgg(EntityType.Pig);
-            Slots[idx++] = new ItemSpawnEgg(EntityType.Horse);
-            Slots[idx++] = new ItemSpawnEgg(EntityType.SkeletonHorse);
-            Slots[idx++] = new ItemSpawnEgg(EntityType.Npc);
-            Slots[idx++] = new ItemSnowball();
-			Slots[idx++] = new ItemBow();
-			Slots[idx++] = new ItemArrow() {Count = 64};
 
 			ItemHotbar = new int[HotbarSize];
 			for (byte i = 0; i < ItemHotbar.Length; i++)

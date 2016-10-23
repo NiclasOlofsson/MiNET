@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
 using log4net;
@@ -11,36 +13,63 @@ namespace MiNET.Utils
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Config));
 
 		public static string ConfigFileName = "server.conf";
-		private static string FileContents = string.Empty;
+		private static IReadOnlyDictionary<string, string> KeyValues { get; set; }
 
 		static Config()
 		{
 			try
 			{
+				string fileContents = string.Empty;
 				if (!MiNetServer.IsRunningOnMono()) //Fix issue on linux/mono.
 				{
 					var assembly = Assembly.GetExecutingAssembly().GetName().CodeBase;
-					var path = new Uri(Path.GetDirectoryName(assembly)).LocalPath;
-
-					var configFilePath = Path.Combine(path, ConfigFileName);
-
-					if (File.Exists(configFilePath))
+					string rawPath = Path.GetDirectoryName(assembly);
+					if (rawPath != null)
 					{
-						FileContents = File.ReadAllText(configFilePath);
+						var path = new Uri(rawPath).LocalPath;
+
+						var configFilePath = Path.Combine(path, ConfigFileName);
+
+						if (File.Exists(configFilePath))
+						{
+							fileContents = File.ReadAllText(configFilePath);
+						}
 					}
 				}
 				else
 				{
 					if (File.Exists(ConfigFileName))
 					{
-						FileContents = File.ReadAllText(ConfigFileName);
+						fileContents = File.ReadAllText(ConfigFileName);
 					}
 				}
+				LoadValues(fileContents);
 			}
 			catch (Exception e)
 			{
 				Log.Warn("Error configuring parser", e);
 			}
+		}
+
+		private static void LoadValues(string data)
+		{
+			Dictionary<string, string> newDictionairy = new Dictionary<string, string>();
+			foreach (
+				string rawLine in data.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+			{
+				string line = rawLine.Trim().ToLower();
+				if (line.StartsWith("#") || !line.Contains("=")) continue; //It's a comment or not a key value pair.
+
+				string[] splitLine = line.Split('=');
+
+				string key = splitLine[0];
+				string value = splitLine[1];
+				if (!newDictionairy.ContainsKey(key))
+				{
+					newDictionairy.Add(key, value);
+				}
+			}
+			KeyValues = new ReadOnlyDictionary<string, string>(newDictionairy);
 		}
 
 		public static ServerRole GetProperty(string property, ServerRole defaultValue)
@@ -71,12 +100,12 @@ namespace MiNET.Utils
 
 			switch (value.ToLower())
 			{
-				case "1":
-				case "creative":
-					return GameMode.Creative;
 				case "0":
 				case "survival":
 					return GameMode.Survival;
+				case "1":
+				case "creative":
+					return GameMode.Creative;
 				case "2":
 				case "adventure":
 					return GameMode.Adventure;
@@ -126,14 +155,18 @@ namespace MiNET.Utils
 
 			switch (df.ToLower())
 			{
-				case "easy":
-					return Difficulty.Easy;
-				case "normal":
-					return Difficulty.Normal;
-				case "hard":
-					return Difficulty.Hard;
+				case "0":
 				case "peaceful":
 					return Difficulty.Peaceful;
+				case "1":
+				case "easy":
+					return Difficulty.Easy;
+				case "2":
+				case "normal":
+					return Difficulty.Normal;
+				case "3":
+				case "hard":
+					return Difficulty.Hard;
 				default:
 					return defaultValue;
 			}
@@ -146,16 +179,9 @@ namespace MiNET.Utils
 
 		private static string ReadString(string property)
 		{
-			foreach (string line in FileContents.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-			{
-				if (line.ToLower().StartsWith(property.ToLower() + "="))
-				{
-					string value = line.Split('=')[1];
-					return value;
-				}
-			}
-
-			return null;
+			property = property.ToLower();
+			if (!KeyValues.ContainsKey(property)) return null;
+			return KeyValues[property];
 		}
 	}
 }

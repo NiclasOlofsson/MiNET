@@ -72,7 +72,7 @@ namespace MiNET.Net
 
 			byte rely = (byte) _reliability;
 			Write((byte) ((rely << 5) | (_hasSplit ? Convert.ToByte("00010000", 2) : 0x00)));
-			Write((short) (MessageLength*8)); // length
+			Write((short) (MessageLength*8), true); // length
 
 			if (_reliability == Reliability.Reliable
 			    || _reliability == Reliability.ReliableOrdered
@@ -96,9 +96,9 @@ namespace MiNET.Net
 
 			if (_hasSplit)
 			{
-				Write(_splitPacketCount);
-				Write(_splitPacketId);
-				Write(_splitPacketIndex);
+				Write(_splitPacketCount, true);
+				Write(_splitPacketId, true);
+				Write(_splitPacketIndex, true);
 			}
 
 			// Message body
@@ -125,7 +125,7 @@ namespace MiNET.Net
 				_reliability = (Reliability) ((flags & Convert.ToByte("011100000", 2)) >> 5);
 				_hasSplit = ((flags & Convert.ToByte("00010000", 2)) > 0);
 
-				short dataBitLength = ReadShort();
+				short dataBitLength = ReadShort(true);
 
 				if (_reliability == Reliability.Reliable
 				    || _reliability == Reliability.ReliableSequenced
@@ -167,9 +167,9 @@ namespace MiNET.Net
 
 				if (_hasSplit)
 				{
-					_splitPacketCount = ReadInt();
-					_splitPacketId = ReadShort();
-					_splitPacketIndex = ReadInt();
+					_splitPacketCount = ReadInt(true);
+					_splitPacketId = ReadShort(true);
+					_splitPacketIndex = ReadInt(true);
 				}
 				else
 				{

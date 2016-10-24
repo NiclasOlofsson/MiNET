@@ -54,12 +54,12 @@ namespace MiNET.Client
 				int extraSize = defStream.ReadInt16();
 				if (extraSize != 0)
 				{
-					Log.Warn($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
+					Log.Debug($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
 				}
 
 				if (stream.Position >= stream.Length - 1) return chunk;
 
-				Log.Warn($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+				//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
 
 				while (stream.Position < stream.Length)
 				{

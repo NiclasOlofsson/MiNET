@@ -25,7 +25,7 @@ namespace MiNET.Net
 
 			List<Tuple<int, int>> ranges = Slize(acks);
 
-			Write((short) ranges.Count);
+			Write((short) ranges.Count, true);
 
 			foreach (var range in ranges)
 			{
@@ -118,7 +118,7 @@ namespace MiNET.Net
 
 			ranges.Clear();
 
-			short count = ReadShort();
+			short count = ReadShort(true);
 			for (int i = 0; i < count; i++)
 			{
 				var onlyOneSequence = ReadByte();

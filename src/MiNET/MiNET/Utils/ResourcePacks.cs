@@ -9,7 +9,7 @@ namespace MiNET.Utils
 	public class ResourcePackInfo
 	{
 		public PackIdVersion PackIdVersion { get; set; }
-		public long Unknown { get; set; }
+		public ulong Unknown { get; set; }
 	}
 
 	public class ResourcePackIdVersions : List<PackIdVersion>

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -124,5 +126,86 @@ namespace MiNET.Utils
 			writer.Flush();
 			return stream.ToArray();
 		}
-	}
+
+        public static string MetadataToCode(MetadataDictionary metadata)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine("MetadataDictionary metadata = new MetadataDictionary();");
+
+            foreach (var kvp in metadata._entries)
+            {
+                int idx = kvp.Key;
+                MetadataEntry entry = kvp.Value;
+
+                sb.Append($"metadata[{idx}] = new ");
+                switch (entry.Identifier)
+                {
+                    case 0:
+                        {
+                            var e = (MetadataByte)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            break;
+                        }
+                    case 1:
+                        {
+                            var e = (MetadataShort)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            break;
+                        }
+                    case 2:
+                        {
+                            var e = (MetadataInt)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            break;
+                        }
+                    case 3:
+                        {
+                            var e = (MetadataFloat)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value.ToString(NumberFormatInfo.InvariantInfo)}f);");
+                            break;
+                        }
+                    case 4:
+                        {
+                            var e = (MetadataString)entry;
+                            sb.Append($"{e.GetType().Name}(\"{e.Value}\");");
+                            break;
+                        }
+                    case 5:
+                        {
+                            var e = (MetadataSlot)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            break;
+                        }
+                    case 6:
+                        {
+                            var e = (MetadataIntCoordinates)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            break;
+                        }
+                    case 7:
+                        {
+                            var e = (MetadataLong)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            if (idx == 0)
+                            {
+                                sb.Append($" // {Convert.ToString(e.Value, 2)}");
+                            }
+                            break;
+                        }
+                    case 8:
+                        {
+                            var e = (MetadataVector3)entry;
+                            sb.Append($"{e.GetType().Name}({e.Value});");
+                            break;
+                        }
+                }
+                sb.AppendLine();
+            }
+
+            return sb.ToString();
+        }
+
+    }
 }

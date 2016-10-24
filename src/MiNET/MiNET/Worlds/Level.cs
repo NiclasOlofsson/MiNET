@@ -530,7 +530,8 @@ namespace MiNET.Worlds
 						{
 							McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 							moveEntity.entityId = entity.EntityId;
-							moveEntity.position = entity.KnownPosition;
+							moveEntity.position = (PlayerLocation) entity.KnownPosition.Clone();
+						    moveEntity.position.Y += entity.PositionOffset;
 							byte[] bytes = moveEntity.Encode();
 							BatchUtils.WriteLenght(stream, bytes.Length);
 							stream.Write(bytes, 0, bytes.Length);

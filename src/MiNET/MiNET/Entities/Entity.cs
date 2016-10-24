@@ -23,16 +23,18 @@ namespace MiNET.Entities
 		public DateTime LastUpdatedTime { get; set; }
 		public PlayerLocation KnownPosition { get; set; }
 		public Vector3 Velocity { get; set; }
+		public float PositionOffset { get; set; }
 
 		public HealthManager HealthManager { get; set; }
 
 		public string NameTag { get; set; }
 
 		public bool NoAi { get; set; }
-		public bool HideNameTag { get; set; }
+		public bool HideNameTag { get; set; } = true;
 		public bool AlwaysSHowNameTag { get; set; }
 		public bool Silent { get; set; }
 		public bool IsInWater { get; set; } = false;
+		public bool IsOutOfWater => !IsInWater;
 
 		public long Age { get; set; }
 		public double Scale { get; set; } = 1.0;
@@ -52,28 +54,44 @@ namespace MiNET.Entities
 			HealthManager = new HealthManager(this);
 		}
 
+		public enum MetadataFlags
+		{
+			EntityFlags = 0,
+			HideNameTag = 3,
+			NameTag = 4,
+			AvailableAir = 7,
+			EatingHaystack = 16,
+			MaybeAge = 25,
+			Scale = 39,
+			MaxAir = 44,
+			CollisionBoxHeight = 53,
+			CollisionBoxWidth = 54,
+		}
+
+
 		public virtual MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataLong(GetDataValue());
+			metadata[(int) MetadataFlags.EntityFlags] = new MetadataLong(GetDataValue());
 			metadata[1] = new MetadataInt(1);
 			metadata[2] = new MetadataInt(0);
-			metadata[3] = new MetadataByte(!HideNameTag);
-			metadata[4] = new MetadataString(NameTag ?? string.Empty);
-			metadata[7] = new MetadataShort(HealthManager.Air);
+			metadata[(int) MetadataFlags.HideNameTag] = new MetadataByte(!HideNameTag);
+			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? string.Empty);
+			metadata[(int) MetadataFlags.AvailableAir] = new MetadataShort(HealthManager.Air);
 			//metadata[4] = new MetadataByte(Silent);
 			//metadata[7] = new MetadataInt(0); // Potion Color
 			//metadata[8] = new MetadataByte(0); // Potion Ambient
-			metadata[15] = new MetadataByte(NoAi);
+			//metadata[15] = new MetadataByte(NoAi);
 			//metadata[16] = new MetadataByte(0); // Player flags
 			////metadata[17] = new MetadataIntCoordinates(0, 0, 0);
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[24] = new MetadataByte(0); // Leads on/off
-			metadata[39] = new MetadataFloat(Scale); // Scale
-			metadata[44] = new MetadataShort(HealthManager.MaxAir);
-			metadata[53] = new MetadataFloat(Height); // Collision box width
-			metadata[54] = new MetadataFloat(Width); // Collision box height
+			metadata[(int) MetadataFlags.MaybeAge] = new MetadataInt(0); // Scale
+			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(Scale); // Scale
+			metadata[(int) MetadataFlags.MaxAir] = new MetadataShort(HealthManager.MaxAir);
+			metadata[(int) MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
+			metadata[(int) MetadataFlags.CollisionBoxWidth] = new MetadataFloat(Width); // Collision box height
 			return metadata;
 		}
 
@@ -82,6 +100,9 @@ namespace MiNET.Entities
 		public bool IsSprinting { get; set; }
 		public bool IsInAction { get; set; }
 		public bool IsInvisible { get; set; }
+		public bool IsCritical { get; set; }
+		public bool IsTamed { get; set; }
+		public bool IsChestedHorse { get; set; }
 
 
 		public enum DataFlags
@@ -95,6 +116,7 @@ namespace MiNET.Entities
 			IsInLove = 8,
 			IsPowered = 9,
 			IsBaby = 12,
+			IsCritcal = 14,
 			IsNameTagVisible = 15,
 			IsAlwaysShowNameTag = 16,
 			IsWithoutAi = 17,
@@ -104,8 +126,8 @@ namespace MiNET.Entities
 			IsTamed = 25,
 			IsSheared = 26,
 			IsElderGuardian = 29,
-			IsChested = 30,
 			IsOutOfWater = 31,
+			IsChestedHorse = 32,
 		}
 
 		public virtual long GetDataValue()
@@ -113,6 +135,18 @@ namespace MiNET.Entities
 			//Player: 10000000000000011001000000000000
 			// 12, 15, 16, 31
 
+			var bits = GetFlags();
+
+			byte[] bytes = new byte[8];
+			bits.CopyTo(bytes, 0);
+
+			long dataValue = BitConverter.ToInt64(bytes, 0);
+			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+			return dataValue;
+		}
+
+		protected virtual BitArray GetFlags()
+		{
 			BitArray bits = new BitArray(64);
 			bits[(int) DataFlags.IsOnFire] = HealthManager.IsOnFire;
 			bits[(int) DataFlags.IsSneaking] = IsSneaking;
@@ -123,24 +157,19 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.IsInLove] = false;
 			bits[(int) DataFlags.IsPowered] = false;
 			bits[(int) DataFlags.IsBaby] = false;
+			bits[(int) DataFlags.IsCritcal] = IsCritical;
 			bits[(int) DataFlags.IsNameTagVisible] = !HideNameTag;
 			bits[(int) DataFlags.IsAlwaysShowNameTag] = AlwaysSHowNameTag;
 			bits[(int) DataFlags.IsWithoutAi] = NoAi;
 			bits[(int) DataFlags.IsSitting] = false;
 			bits[(int) DataFlags.IsAngry] = false;
 			bits[(int) DataFlags.IsInAttention] = false;
-			bits[(int) DataFlags.IsTamed] = true;
+			bits[(int) DataFlags.IsTamed] = IsTamed;
 			bits[(int) DataFlags.IsSheared] = false;
 			bits[(int) DataFlags.IsElderGuardian] = false;
-			bits[(int) DataFlags.IsChested] = false;
 			bits[(int) DataFlags.IsOutOfWater] = !IsInWater;
-
-			byte[] bytes = new byte[8];
-			bits.CopyTo(bytes, 0);
-
-			var dataValue = BitConverter.ToInt32(bytes, 0);
-			//Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
-			return dataValue;
+			bits[(int) DataFlags.IsChestedHorse] = IsChestedHorse;
+			return bits;
 		}
 
 		public virtual void OnTick()
@@ -167,6 +196,7 @@ namespace MiNET.Entities
 			var addEntity = McpeAddEntity.CreateObject();
 			addEntity.entityType = (byte) EntityTypeId;
 			addEntity.entityId = EntityId;
+			addEntity.runtimeEntityId = EntityId;
 			addEntity.x = KnownPosition.X;
 			addEntity.y = KnownPosition.Y;
 			addEntity.z = KnownPosition.Z;
@@ -177,6 +207,20 @@ namespace MiNET.Entities
 			addEntity.speedY = (float) Velocity.Y;
 			addEntity.speedZ = (float) Velocity.Z;
 			Level.RelayBroadcast(players, addEntity);
+
+			var msg = addEntity;
+			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", msg.runtimeEntityId);
+			Log.DebugFormat("Entity Type: {0}", msg.entityType);
+			Log.DebugFormat("X: {0}", msg.x);
+			Log.DebugFormat("Y: {0}", msg.y);
+			Log.DebugFormat("Z: {0}", msg.z);
+			Log.DebugFormat("Yaw: {0}", msg.yaw);
+			Log.DebugFormat("Pitch: {0}", msg.pitch);
+			Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			Log.DebugFormat("Metadata: {0}", MetadataDictionary.MetadataToCode(msg.metadata));
 		}
 
 		public virtual void DespawnEntity()
@@ -242,15 +286,6 @@ namespace MiNET.Entities
 
 		public virtual void DoInteraction(byte actionId, Player player)
 		{
-			PlayerMob target = this as PlayerMob;
-			if(target != null)
-			{
-				Level.BroadcastMessage(target.NameTag + "> Hi dude", MessageType.Chat);
-			}
-			else
-			{
-				Level.BroadcastMessage("Stop poking me dude!", MessageType.Chat);
-			}
 		}
 
 		public virtual void DoMouseOverInteraction(byte actionId, Player player)

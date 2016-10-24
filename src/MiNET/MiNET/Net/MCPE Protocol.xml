@@ -59,13 +59,13 @@
 		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
 		<field name="Server Has Security" type="byte" />
 		<!--<field name="Cookie" type="Int32" />-->
-		<field name="MTU Size" type="short" />
+		<field name="MTU Size" type="short" endianess="BE" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x07" client="true" server="false" name="ID_OPEN_CONNECTION_REQUEST_2" size="34">
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 		<field name="Remote Binding Address" type="IPEndPoint" />
-		<field name="MTU Size" type="short" />
+		<field name="MTU Size" type="short" endianess="BE"/>
 		<field name="Client GUID" type="long" />
 	</pdu>
 
@@ -73,7 +73,7 @@
 		<field name="Offline Message Data ID" type="OFFLINE_MESSAGE_DATA_ID" />
 		<field name="Server GUID" type="long" exampleData="0x00000000372cdc9e" />
 		<field name="Client Endpoint" type="IPEndPoint" />
-		<field name="MTU Size" type="short" />
+		<field name="MTU Size" type="short" endianess="BE" />
 		<field name="Do security and handshake" type="byte[]" size="0" note="Ignored" />
 	</pdu>
 
@@ -86,7 +86,7 @@
 
 	<pdu namespace="raknet" id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
 		<field name="System Address" type="IPEndPoint" />
-		<field name="System Index" type="short" />
+		<field name="System Index" type="short" endianess="BE"/>
 		<field name="System Addresses" type="IPEndPoint[]" size="10" />
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
@@ -117,7 +117,7 @@
 	</pdu>
 
 	<pdu id="0x01" online="false" client="true" server="false" name="MCPE_LOGIN">
-		<field name="Protocol Version" type="int" />
+		<field name="Protocol Version" type="int" endianess="BE"/>
 		<field name="Edition" type="byte" />
 		<field name="Payload" type="ByteArray"/>
 	</pdu>
@@ -130,7 +130,7 @@
 		3: If the player is sapwned.
 		-->
 	<pdu id="0x02" online="false" client="false" server="true" name="MCPE_PLAYER_STATUS">
-		<field name="Status" type="int" />
+		<field name="Status" type="int" endianess="BE"/>
 	</pdu>
 
 	<pdu id="0x03" online="false" client="false" server="true" name="MCPE_SERVER_EXCHANGE">
@@ -163,9 +163,9 @@
 	</pdu>
 
 	<pdu id="0x09" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CLIENT_RESPONSE">
-		<field name="UnknownByte" type="byte" />
-		<field name="UnknownShort1" type="short" />
-	</pdu>
+		<field name="Response status" type="byte" />
+    <field name="ResourcePackIdVersions" type="ResourcePackIdVersions" />
+  </pdu>
 
 	<!-- 
 		The chat types are:
@@ -220,10 +220,10 @@
 		<field name="Speed X" type="float" />
 		<field name="Speed Y" type="float" />
 		<field name="Speed Z" type="float" />
-		<field name="Yaw" type="float" />
-		<field name="Head Yaw" type="float" />
-		<field name="Pitch" type="float" />
-		<field name="Item" type="Item" />
+    <field name="Pitch" type="float" />
+    <field name="Head Yaw" type="float" />
+    <field name="Yaw" type="float" />
+    <field name="Item" type="Item" />
 		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
@@ -255,7 +255,7 @@
 		<field name="Pitch" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary"/>
-		<field name="Links" type="VarInt" />
+		<field name="Links" type="Links" />
 	</pdu>
 
 	<pdu id="0x0f" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">
@@ -301,9 +301,9 @@
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
-		<field name="Yaw" type="float" />
-		<field name="Head Yaw" type="float" />
 		<field name="Pitch" type="float" />
+		<field name="Head Yaw" type="float" />
+		<field name="Yaw" type="float" />
 		<field name="Mode" type="byte" />
 		<field name="On Ground" type="bool" />
 	</pdu>
@@ -530,7 +530,8 @@
 	<pdu id="0x38" online="false" client="true" server="false" name="MCPE_PLAYER_INPUT">
 		<field name="Motion X" type="float" />
 		<field name="Motion Z" type="float" />
-		<field name="Flags" type="short"/>
+		<field name="Flag1" type="bool"/>
+		<field name="Flag2" type="bool"/>
 	</pdu>
 	<!-- 	
 		ORDER_COLUMNS = 0;
@@ -623,13 +624,25 @@
 	</pdu>
 
 	<pdu id="0x4d" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
-	</pdu>
+    <field name="Package ID" type="string"  />
+    <field name="Unknown1" type="uint"  />
+    <field name="Unknown2" type="uint"  />
+    <field name="Unknown3" type="ulong"  />
+    <field name="Unknown4" type="string"  />
+  </pdu>
 
 	<pdu id="0x4e" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
-	</pdu>
+    <field name="Package ID" type="string"  />
+    <field name="Unknown1" type="uint"  />
+    <field name="Unknown3" type="ulong"  />
+    <field name="Lenght" type="uint"  />
+    <field name="Payload" type="byte[]" size="0" />
+  </pdu>
 
-	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
-	</pdu>
+	<pdu id="0x4f" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
+    <field name="Package ID" type="string"  />
+    <field name="Chunk index" type="int"  />
+  </pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0" />

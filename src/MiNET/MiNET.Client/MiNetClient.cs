@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
@@ -20,10 +21,12 @@ using log4net;
 using log4net.Config;
 using MiNET.Blocks;
 using MiNET.Crafting;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 [assembly: XmlConfigurator(Watch = true)]
@@ -85,7 +88,9 @@ namespace MiNET.Client
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
 			// 157.7.202.57:29473
@@ -763,6 +768,18 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof(McpeResourcePackDataInfo) == message.GetType())
+			{
+				OnMcpeResourcePackDataInfo((McpeResourcePackDataInfo)message);
+				return;
+			}
+
+			else if (typeof(McpeResourcePackChunkData) == message.GetType())
+			{
+				OnMcpeResourcePackChunkData((McpeResourcePackChunkData)message);
+				return;
+			}
+
 			else if (typeof (McpeFullChunkData) == message.GetType())
 			{
 				OnFullChunkData((McpeFullChunkData) message);
@@ -829,10 +846,17 @@ namespace MiNET.Client
 			}
 			else if (typeof (McpeAddEntity) == message.GetType())
 			{
-				OnMcpeAddEntity(message);
+				OnMcpeAddEntity((McpeAddEntity) message);
 
 				return;
 			}
+			else if (typeof (McpeRemoveEntity) == message.GetType())
+			{
+				OnMcpeRemoveEntity((McpeRemoveEntity) message);
+
+				return;
+			}
+
 			else if (typeof (McpeAddItemEntity) == message.GetType())
 			{
 				OnMcpeAddItemEntity(message);
@@ -850,6 +874,14 @@ namespace MiNET.Client
 				OnMcpeMovePlayer((McpeMovePlayer) message);
 				return;
 			}
+
+			else if (typeof (McpeMobArmorEquipment) == message.GetType())
+			{
+				OnMcpeMobArmorEquipment((McpeMobArmorEquipment) message);
+
+				return;
+			}
+
 			else if (typeof (McpeSetEntityData) == message.GetType())
 			{
 				OnMcpeSetEntityData(message);
@@ -931,6 +963,8 @@ namespace MiNET.Client
 
 			else if (typeof (McpeMoveEntity) == message.GetType())
 			{
+				OnMcpeMoveEntity((McpeMoveEntity) message);
+				return;
 			}
 
 			else if (typeof (McpeSetEntityMotion) == message.GetType())
@@ -992,11 +1026,24 @@ namespace MiNET.Client
 				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Bytes)}");
 			}
 
-
 			else
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 			}
+		}
+
+		private void OnMcpeMobArmorEquipment(McpeMobArmorEquipment message)
+		{
+		}
+
+		private void OnMcpeMoveEntity(McpeMoveEntity message)
+		{
+			//if (Entities.ContainsKey(message.entityId))
+			//{
+			//    Entity entity = Entities[message.entityId];
+
+			//    Log.Debug($"Entity move: Id={message.entityId}, Type={entity.EntityTypeId} - 0x{entity.EntityTypeId:x2}");
+			//}
 		}
 
 
@@ -1029,7 +1076,7 @@ namespace MiNET.Client
 			sb.AppendLine("Resource packs:");
 			foreach (ResourcePackInfo info in message.resourcepackinfos)
 			{
-				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}");
+				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}, Unknown={info.Unknown}");
 			}
 
 			sb.AppendLine("Behavior packs:");
@@ -1040,9 +1087,29 @@ namespace MiNET.Client
 
 			Log.Debug(sb.ToString());
 
-			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
-			response.unknownbyte = 3;
-			SendPackage(response);
+			//McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+			//response.responseStatus = 3;
+			//SendPackage(response);
+
+			if (message.resourcepackinfos.Count != 0)
+			{
+				ResourcePackIdVersions resourceInfos = new ResourcePackIdVersions();
+				foreach (var packInfo in message.resourcepackinfos)
+				{
+					resourceInfos.Add(packInfo.PackIdVersion);
+				}
+
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 2;
+				response.resourcepackidversions = resourceInfos;
+				SendPackage(response);
+			}
+			else
+			{
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 3;
+				SendPackage(response);
+			}
 		}
 
 		private void OnMcpeResourcePackStack(McpeResourcePackStack message)
@@ -1066,8 +1133,47 @@ namespace MiNET.Client
 
 			Log.Debug(sb.ToString());
 
+			//if (message.resourcepackidversions.Count != 0)
+			//{
+			//	McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+			//	response.responseStatus = 2;
+			//	response.resourcepackidversions = message.resourcepackidversions;
+			//	SendPackage(response);
+			//}
+			//else
+			{
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 4;
+				SendPackage(response);
+			}
+
+		}
+
+		private void OnMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
+		{
+			var packageId = message.packageId;
+			McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
+			request.packageId = packageId;
+			request.chunkIndex = 0;
+			SendPackage(request);
+		}
+
+		private void OnMcpeResourcePackChunkData(McpeResourcePackChunkData message)
+		{
+			//string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + Guid.NewGuid() + ".zip";
+			//Log.Info("Writing ResourcePackChunkData to filename: " + fileName);
+			//FileStream file = File.OpenWrite(fileName);
+			//file.Write(message.payload, 0, message.payload.Length);
+			//file.Close();
+
+			Log.Debug($"packageId={message.packageId}");
+			Log.Debug($"unknown1={message.unknown1}");
+			Log.Debug($"unknown3={message.unknown3}");
+			Log.Debug($"Reported Lenght={message.lenght}");
+			Log.Debug($"Actual Lenght={message.payload.Length}");
+
 			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
-			response.unknownbyte = 4;
+			response.responseStatus = 3;
 			SendPackage(response);
 		}
 
@@ -1095,11 +1201,6 @@ namespace MiNET.Client
 
 		private void OnMcpeSetTime(McpeSetTime message)
 		{
-			Log.Debug($@"
-McpeSetTime:
-	started: {message.started}	
-	time: {message.time}	
-");
 		}
 
 		private void OnNoFreeIncomingConnections(NoFreeIncomingConnections message)
@@ -1133,7 +1234,7 @@ McpeSetTime:
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 90,
+				protocolVersion = 91,
 				edition = 0,
 				payload = data
 			};
@@ -1682,8 +1783,6 @@ Adventure settings
 
 		private void OnMcpeMovePlayer(McpeMovePlayer message)
 		{
-			Log.DebugFormat("McpeMovePlayer Entity ID: {0}", message.entityId);
-
 			if (message.entityId != EntityId) return;
 
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
@@ -1795,39 +1894,59 @@ Adventure settings
 			//Log.DebugFormat("Links count: {0}", msg.links);
 		}
 
-		private void OnMcpeAddEntity(Package message)
+		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
+
+		private void OnMcpeAddEntity(McpeAddEntity message)
 		{
 			if (IsEmulator) return;
 
-			McpeAddEntity msg = (McpeAddEntity) message;
-			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
-			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", msg.runtimeEntityId);
-			Log.DebugFormat("Entity Type: {0}", msg.entityType);
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("Yaw: {0}", msg.yaw);
-			Log.DebugFormat("Pitch: {0}", msg.pitch);
-			Log.DebugFormat("Velocity X: {0}", msg.speedX);
-			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.DebugFormat("Metadata: {0}", MetadataToCode(msg.metadata));
+			if (!Entities.ContainsKey(message.entityId))
+			{
+				Entity entity = new Entity((int) message.entityType, null);
+				entity.EntityId = message.runtimeEntityId;
+				entity.KnownPosition = new PlayerLocation(message.x, message.y, message.z, message.yaw, message.yaw, message.pitch);
+				entity.Velocity = new Vector3(message.speedX, message.speedY, message.speedZ);
+				Entities.TryAdd(entity.EntityId, entity);
+			}
 
-			long? value = ((MetadataLong) msg.metadata[0])?.Value;
+			byte[] typeBytes = BitConverter.GetBytes(message.entityType);
+
+			Log.DebugFormat("McpeAddEntity Entity ID: {0}", message.entityId);
+			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", message.runtimeEntityId);
+			Log.DebugFormat("Entity Type: {0} - 0x{0:x2}", message.entityType);
+			Log.DebugFormat("Entity Family: {0} - 0x{0:x2}", typeBytes[1]);
+			Log.DebugFormat("Entity Type ID: {0} - 0x{0:x2} {1}", typeBytes[0], (EntityType)typeBytes[0]);
+			Log.DebugFormat("X: {0}", message.x);
+			Log.DebugFormat("Y: {0}", message.y);
+			Log.DebugFormat("Z: {0}", message.z);
+			Log.DebugFormat("Yaw: {0}", message.yaw);
+			Log.DebugFormat("Pitch: {0}", message.pitch);
+			Log.DebugFormat("Velocity X: {0}", message.speedX);
+			Log.DebugFormat("Velocity Y: {0}", message.speedY);
+			Log.DebugFormat("Velocity Z: {0}", message.speedZ);
+			Log.DebugFormat("Metadata: {0}", MetadataToCode(message.metadata));
+
+			long? value = ((MetadataLong) message.metadata[0])?.Value;
 			if (value != null)
 			{
 				long dataValue = (long) value;
-				Log.Error($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+				Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
 			}
 
 			if (Log.IsDebugEnabled)
 			{
-				foreach (var attribute in msg.attributes)
+				foreach (var attribute in message.attributes)
 				{
 					Log.Debug($"Entity attribute {attribute}");
 				}
 			}
-			Log.DebugFormat("Links count: {0}", msg.links);
+			Log.DebugFormat("Links count: {0}", message.links);
+		}
+
+		private void OnMcpeRemoveEntity(McpeRemoveEntity message)
+		{
+			Entity value;
+			Entities.TryRemove(message.entityId, out value);
 		}
 
 		private void OnMcpeAddItemEntity(Package message)
@@ -2070,31 +2189,64 @@ StartGame:
 		{
 			if (!Log.IsDebugEnabled) return;
 
-			if (message is McpeMoveEntity
-				//|| message is McpeAddEntity
-				//|| message is McpeCraftingData
-				//|| message is McpeContainerSetContent
-				//|| message is McpeMobArmorEquipment
-				//|| message is McpeClientboundMapItemData
-				//|| message is McpeMovePlayer
-				//|| message is McpeSetEntityMotion
-			    || message is McpeBatch
-				//|| message is McpeFullChunkData
-			    || message is McpeWrapper
-			    || message is ConnectedPing) return;
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.None,
+				Formatting = Formatting.Indented,
+			};
 
-			//var stringWriter = new StringWriter();
-			//ObjectDumper.Write(message, 1, stringWriter);
+			string typeName = message.GetType().Name;
 
-			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
-			//Log.Debug($"Package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
+			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+			string excludePattern = Config.GetProperty("TracePackets.Exclude", "");
+			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
 
-			//Log.DebugFormat("> Receive: {0} (0x{0:x2}) {1}:\n{2} ", message.Id, message.GetType().Name, stringWriter.ToString());
+
+			if (!Regex.IsMatch(typeName, includePattern))
+			{
+				return;
+			}
+			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+			{
+				return;
+			}
+
+			if (verbosity == 0)
+			{
+				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+			}
+			else if (verbosity == 1)
+			{
+				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+			}
+			else if (verbosity == 2)
+			{
+				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+			}
 		}
 
 		private void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
+
+			string typeName = message.GetType().Name;
+
+			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+			string excludePattern = Config.GetProperty("TracePackets.Exclude", "");
+			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+
+
+			if (!Regex.IsMatch(typeName, includePattern))
+			{
+				return;
+			}
+			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+			{
+				return;
+			}
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		}

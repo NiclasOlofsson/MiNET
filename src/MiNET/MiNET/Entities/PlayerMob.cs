@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using System.Text;
 using MiNET.Items;
 using MiNET.Net;
@@ -37,13 +38,17 @@ namespace MiNET.Entities
 			HideNameTag = false;
 			AlwaysSHowNameTag = true;
 			//IsInvisible = true;
-			NoAi = false;
-			HealthManager.IsOnFire = true;
+			IsInWater = true;
+			NoAi = true;
+			HealthManager.IsOnFire = false;
+            Velocity = Vector3.Zero;
+		    PositionOffset = 1.62f;
 		}
 
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
+			//metadata[0] = new MetadataLong(0);
 
 			return metadata;
 		}

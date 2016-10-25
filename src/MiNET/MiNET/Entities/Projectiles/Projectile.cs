@@ -121,7 +121,7 @@ namespace MiNET.Entities.Projectiles
 		public override MetadataDictionary GetMetadata()
 		{
             IsInWater = true;
-		    IsInAction = false;
+		    IsUsingItem = false;
 
             var metadata = base.GetMetadata();
             if (Shooter != null)

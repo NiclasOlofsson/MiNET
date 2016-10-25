@@ -337,7 +337,7 @@ namespace MiNET
 					throw new ArgumentOutOfRangeException(nameof(message.actionId));
 			}
 
-			IsInAction = false;
+			IsUsingItem = false;
 			MetadataDictionary metadata = new MetadataDictionary
 			{
 				[0] = GetDataValue()
@@ -1770,7 +1770,7 @@ namespace MiNET
 
 				itemInHand.UseItem(Level, this, message.blockcoordinates);
 
-				IsInAction = true;
+				IsUsingItem = true;
 				MetadataDictionary metadata = new MetadataDictionary
 				{
 					[0] = GetDataValue()

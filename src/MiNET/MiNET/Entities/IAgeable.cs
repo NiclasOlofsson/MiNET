@@ -2,6 +2,5 @@
 {
 	public interface IAgeable
 	{
-		bool IsBaby { get; set; }
 	}
 }

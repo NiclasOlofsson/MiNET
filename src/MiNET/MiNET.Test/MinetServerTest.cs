@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -18,6 +19,37 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void TestBitArray()
+		{
+			BitArray bits = new BitArray(64);
+			bits[0] = true;
+			bits[63] = true;
+			byte[] bytes = new byte[8];
+			bits.CopyTo(bytes, 0);
+
+			ulong dataValue = BitConverter.ToUInt64(bytes, 0) << 1;
+
+			Console.WriteLine($"{dataValue:x2}");
+			Console.WriteLine($"{Convert.ToString((long)dataValue, 2)}");
+
+			var stream = new MemoryStream();
+
+			VarInt.WriteUInt64(stream, dataValue);
+
+			byte[] array = stream.ToArray();
+			Console.WriteLine($"{Package.HexDump(array)}");
+
+
+			var result = VarInt.ReadUInt64(new MemoryStream(array));
+
+			Assert.AreEqual(dataValue, result);
+			Console.WriteLine($"{dataValue:x2}");
+
+			//81808080808080808001                    .
+
+		}
+
 		[Test]
 		public void TestCustomVarInt()
 		{

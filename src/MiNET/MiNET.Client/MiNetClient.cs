@@ -1859,7 +1859,7 @@ Adventure settings
 						sb.Append($"{e.GetType().Name}({e.Value});");
 						if (idx == 0)
 						{
-							sb.Append($" // {Convert.ToString(e.Value, 2)}");
+							sb.Append($" // {Convert.ToString((long) e.Value, 2)}");
 						}
 						break;
 					}

@@ -14,9 +14,8 @@ namespace MiNET.Entities.Hostile
 		{
 			Width = Length = 1.9;
 			Height = 1.9;
+			IsElder = true;
 		}
-
-		public bool IsBaby { get; set; }
 
 		// Metadata: 
 		//[0] long 7 536870912, 
@@ -56,19 +55,6 @@ namespace MiNET.Entities.Hostile
 			metadata[59] = new MetadataFloat(0);
 
 			return metadata;
-		}
-
-		public new long GetDataValue()
-		{
-			BitArray bits = new BitArray(64);
-			bits[29] = true;
-
-			byte[] bytes = new byte[8];
-			bits.CopyTo(bytes, 0);
-
-			var dataValue = BitConverter.ToInt64(bytes, 0);
-			Log.Error($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
-			return dataValue;
 		}
 	}
 }

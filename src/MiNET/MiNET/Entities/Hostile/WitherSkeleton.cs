@@ -9,7 +9,5 @@ namespace MiNET.Entities.Hostile
 			Width = Length = 0.7;
 			Height = 2.4;
 		}
-
-		public bool IsBaby { get; set; }
 	}
 }

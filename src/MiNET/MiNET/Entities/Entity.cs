@@ -95,80 +95,128 @@ namespace MiNET.Entities
 			return metadata;
 		}
 
-		public bool IsSneaking { get; set; }
-		public bool IsRiding { get; set; }
-		public bool IsSprinting { get; set; }
-		public bool IsInAction { get; set; }
-		public bool IsInvisible { get; set; }
-		public bool IsCritical { get; set; }
-		public bool IsTamed { get; set; }
-		public bool IsChestedHorse { get; set; }
-
-
-		public enum DataFlags
-		{
-			IsOnFire = 1,
-			IsSneaking = 2,
-			IsRiding = 3,
-			IsSprinting = 4,
-			IsInAction = 5,
-			IsInvisible = 6,
-			IsInLove = 8,
-			IsPowered = 9,
-			IsBaby = 12,
-			IsCritcal = 14,
-			IsNameTagVisible = 15,
-			IsAlwaysShowNameTag = 16,
-			IsWithoutAi = 17,
-			IsSitting = 21,
-			IsAngry = 22,
-			IsInAttention = 23,
-			IsTamed = 25,
-			IsSheared = 26,
-			IsElderGuardian = 29,
-			IsOutOfWater = 31,
-			IsChestedHorse = 32,
-		}
-
 		public virtual long GetDataValue()
 		{
 			//Player: 10000000000000011001000000000000
 			// 12, 15, 16, 31
 
-			var bits = GetFlags();
+			BitArray bits = GetFlags();
 
 			byte[] bytes = new byte[8];
 			bits.CopyTo(bytes, 0);
 
 			long dataValue = BitConverter.ToInt64(bytes, 0);
-			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long)dataValue, 2)}b ");
 			return dataValue;
+		}
+
+		public bool IsSneaking { get; set; }
+		public bool IsRiding { get; set; }
+		public bool IsSprinting { get; set; }
+		public bool IsUsingItem { get; set; }
+		public bool IsInvisible { get; set; }
+		public bool IsTempted { get; set; }
+		public bool IsInLove { get; set; }
+		public bool IsSaddled { get; set; }
+		public bool IsPowered { get; set; }
+		public bool IsIgnited { get; set; }
+		public bool IsBaby { get; set; }
+		public bool IsConverting { get; set; }
+		public bool IsCritical { get; set; }
+		public bool IsShowName => !HideNameTag;
+		public bool IsAlwaysShowName => AlwaysSHowNameTag;
+		public bool IsNoAi => NoAi;
+		public bool IsSilent { get; set; }
+		public bool IsWallClimbing { get; set; }
+		public bool IsResting { get; set; }
+		public bool IsSitting { get; set; }
+		public bool IsAngry { get; set; }
+		public bool IsInterested { get; set; }
+		public bool IsCharged { get; set; }
+		public bool IsTamed { get; set; }
+		public bool IsLeashed { get; set; }
+		public bool IsSheared { get; set; }
+		public bool IsFlagAllFlying { get; set; }
+		public bool IsElder { get; set; }
+		public bool IsMoving { get; set; }
+		public bool IsBreathing => !IsInWater;
+		public bool IsChested { get; set; }
+		public bool IsStackable { get; set; }
+
+		public enum DataFlags
+		{
+			OnFire = 1,
+			Sneaking,
+			Riding,
+			Sprinting,
+			UsingItem,
+			Invisible,
+			Tempted,
+			InLove,
+			Saddled,
+			Powered,
+			Ignited,
+			Baby,
+			Converting,
+			Critcal,
+			ShowName,
+			AlwaysShowName,
+			NoAi,
+			Silent,
+			WallClimbing,
+			Resting,
+			Sitting,
+			Angry,
+			Interested,
+			Charged,
+			Tamed,
+			Leashed,
+			Sheared,
+			FlagAllFlying,
+			Elder,
+			Moving,
+			Breathing,
+			Chested,
+			Stackable,
 		}
 
 		protected virtual BitArray GetFlags()
 		{
 			BitArray bits = new BitArray(64);
-			bits[(int) DataFlags.IsOnFire] = HealthManager.IsOnFire;
-			bits[(int) DataFlags.IsSneaking] = IsSneaking;
-			bits[(int) DataFlags.IsRiding] = IsRiding;
-			bits[(int) DataFlags.IsSprinting] = IsSprinting;
-			bits[(int) DataFlags.IsInAction] = IsInAction;
-			bits[(int) DataFlags.IsInvisible] = IsInvisible;
-			bits[(int) DataFlags.IsInLove] = false;
-			bits[(int) DataFlags.IsPowered] = false;
-			bits[(int) DataFlags.IsBaby] = false;
-			bits[(int) DataFlags.IsCritcal] = IsCritical;
-			bits[(int) DataFlags.IsNameTagVisible] = !HideNameTag;
-			bits[(int) DataFlags.IsAlwaysShowNameTag] = AlwaysSHowNameTag;
-			bits[(int) DataFlags.IsWithoutAi] = NoAi;
-			bits[(int) DataFlags.IsSitting] = false;
-			bits[(int) DataFlags.IsAngry] = false;
-			bits[(int) DataFlags.IsInAttention] = false;
-			bits[(int) DataFlags.IsTamed] = IsTamed;
-			bits[(int) DataFlags.IsSheared] = false;
-			bits[(int) DataFlags.IsElderGuardian] = false;
-			bits[(int) DataFlags.IsOutOfWater] = !IsInWater;
-			bits[(int) DataFlags.IsChestedHorse] = IsChestedHorse;
+			bits[(int) DataFlags.OnFire] = HealthManager.IsOnFire;
+			bits[(int) DataFlags.Sneaking] = IsSneaking;
+			bits[(int)DataFlags.Riding] = IsRiding;
+			bits[(int)DataFlags.Sprinting] = IsSprinting;
+			bits[(int)DataFlags.UsingItem] = IsUsingItem;
+			bits[(int)DataFlags.Invisible] = IsInvisible;
+			bits[(int)DataFlags.Tempted] = IsTempted;
+			bits[(int)DataFlags.InLove] = IsInLove;
+			bits[(int)DataFlags.Saddled] = IsSaddled;
+			bits[(int)DataFlags.Powered] = IsPowered;
+			bits[(int)DataFlags.Ignited] = IsIgnited;
+			bits[(int)DataFlags.Baby] = IsBaby;
+			bits[(int)DataFlags.Converting] = IsConverting;
+			bits[(int)DataFlags.Critcal] = IsCritical;
+			bits[(int)DataFlags.ShowName] = IsShowName;
+			bits[(int)DataFlags.AlwaysShowName] = IsAlwaysShowName;
+			bits[(int)DataFlags.NoAi] = IsNoAi;
+			bits[(int)DataFlags.Silent] = IsSilent;
+			bits[(int)DataFlags.WallClimbing] = IsWallClimbing;
+			bits[(int)DataFlags.Resting] = IsResting;
+			bits[(int)DataFlags.Sitting] = IsSitting;
+			bits[(int)DataFlags.Angry] = IsAngry;
+			bits[(int)DataFlags.Interested] = IsInterested;
+			bits[(int)DataFlags.Charged] = IsCharged;
+			bits[(int)DataFlags.Tamed] = IsTamed;
+			bits[(int)DataFlags.Leashed] = IsLeashed;
+			bits[(int)DataFlags.Sheared] = IsSheared;
+			bits[(int)DataFlags.FlagAllFlying] = IsFlagAllFlying;
+			bits[(int)DataFlags.Elder] = IsElder;
+			bits[(int)DataFlags.Moving] = IsMoving;
+			bits[(int)DataFlags.Breathing] = IsBreathing;
+			bits[(int)DataFlags.Chested] = IsChested;
+			bits[(int)DataFlags.Stackable] = IsStackable;
+
 			return bits;
 		}
 

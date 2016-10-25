@@ -15,7 +15,6 @@ namespace TestPlugin.Pets
 		public Player Owner { get; set; }
 		public Player AttackTarget { get; set; }
 		public int Age { get; set; }
-		public bool IsBaby { get; set; }
 		public bool IsInRage { get; set; }
 		public int RageTick { get; set; }
 

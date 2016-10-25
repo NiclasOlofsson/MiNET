@@ -13,8 +13,6 @@ namespace MiNET.Entities.Passive
 			HealthManager.ResetHealth();
 		}
 
-		public bool IsBaby { get; set; }
-
 		public override Item[] GetDrops()
 		{
 			return new []

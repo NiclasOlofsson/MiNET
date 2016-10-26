@@ -534,7 +534,7 @@ namespace MiNET.Net
 		{
 			NbtFile file = nbt.NbtFile;
 			file.BigEndian = false;
-			file.UseVarInt = true;
+			file.UseVarInt = this is McpeBlockEntityData;
 
 			Write(file.SaveToBuffer(NbtCompression.None));
 		}
@@ -544,7 +544,7 @@ namespace MiNET.Net
 			Nbt nbt = new Nbt();
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-			file.UseVarInt = true;
+			file.UseVarInt = this is McpeBlockEntityData;
 			nbt.NbtFile = file;
 			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
 

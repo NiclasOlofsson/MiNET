@@ -39,7 +39,7 @@ namespace MiNET
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.Pig);
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.Horse);
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.SkeletonHorse);
-			Slots[idx++] = new ItemSpawnEgg(EntityType.Npc);
+			//Slots[idx++] = new ItemSpawnEgg(EntityType.Npc);
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.Zombie);
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.IronGolem);
 			//Slots[idx++] = new ItemSnowball();

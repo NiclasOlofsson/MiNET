@@ -36,8 +36,8 @@ namespace MiNET.Entities
 			ItemInHand = new ItemAir();
 
 			HideNameTag = false;
-			AlwaysSHowNameTag = true;
-			//IsInvisible = true;
+			IsAlwaysShowName = true;
+
 			IsInWater = true;
 			NoAi = true;
 			HealthManager.IsOnFire = false;

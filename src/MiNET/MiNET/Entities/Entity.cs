@@ -31,7 +31,6 @@ namespace MiNET.Entities
 
 		public bool NoAi { get; set; }
 		public bool HideNameTag { get; set; } = true;
-		public bool AlwaysSHowNameTag { get; set; }
 		public bool Silent { get; set; }
 		public bool IsInWater { get; set; } = false;
 		public bool IsOutOfWater => !IsInWater;
@@ -106,7 +105,7 @@ namespace MiNET.Entities
 			bits.CopyTo(bytes, 0);
 
 			long dataValue = BitConverter.ToInt64(bytes, 0);
-			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long)dataValue, 2)}b ");
+			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long) dataValue, 2)}b ");
 			return dataValue;
 		}
 
@@ -124,7 +123,7 @@ namespace MiNET.Entities
 		public bool IsConverting { get; set; }
 		public bool IsCritical { get; set; }
 		public bool IsShowName => !HideNameTag;
-		public bool IsAlwaysShowName => AlwaysSHowNameTag;
+		public bool IsAlwaysShowName { get; set; }
 		public bool IsNoAi => NoAi;
 		public bool IsSilent { get; set; }
 		public bool IsWallClimbing { get; set; }
@@ -153,6 +152,7 @@ namespace MiNET.Entities
 			Invisible,
 			Tempted,
 			InLove,
+
 			Saddled,
 			Powered,
 			Ignited,
@@ -161,6 +161,7 @@ namespace MiNET.Entities
 			Critcal,
 			ShowName,
 			AlwaysShowName,
+
 			NoAi,
 			Silent,
 			WallClimbing,
@@ -169,6 +170,7 @@ namespace MiNET.Entities
 			Angry,
 			Interested,
 			Charged,
+
 			Tamed,
 			Leashed,
 			Sheared,
@@ -177,45 +179,48 @@ namespace MiNET.Entities
 			Moving,
 			Breathing,
 			Chested,
+
 			Stackable,
 		}
 
 		protected virtual BitArray GetFlags()
 		{
+			IsFlagAllFlying = false;
+
 			BitArray bits = new BitArray(64);
 			bits[(int) DataFlags.OnFire] = HealthManager.IsOnFire;
 			bits[(int) DataFlags.Sneaking] = IsSneaking;
-			bits[(int)DataFlags.Riding] = IsRiding;
-			bits[(int)DataFlags.Sprinting] = IsSprinting;
-			bits[(int)DataFlags.UsingItem] = IsUsingItem;
-			bits[(int)DataFlags.Invisible] = IsInvisible;
-			bits[(int)DataFlags.Tempted] = IsTempted;
-			bits[(int)DataFlags.InLove] = IsInLove;
-			bits[(int)DataFlags.Saddled] = IsSaddled;
-			bits[(int)DataFlags.Powered] = IsPowered;
-			bits[(int)DataFlags.Ignited] = IsIgnited;
-			bits[(int)DataFlags.Baby] = IsBaby;
-			bits[(int)DataFlags.Converting] = IsConverting;
-			bits[(int)DataFlags.Critcal] = IsCritical;
-			bits[(int)DataFlags.ShowName] = IsShowName;
-			bits[(int)DataFlags.AlwaysShowName] = IsAlwaysShowName;
-			bits[(int)DataFlags.NoAi] = IsNoAi;
-			bits[(int)DataFlags.Silent] = IsSilent;
-			bits[(int)DataFlags.WallClimbing] = IsWallClimbing;
-			bits[(int)DataFlags.Resting] = IsResting;
-			bits[(int)DataFlags.Sitting] = IsSitting;
-			bits[(int)DataFlags.Angry] = IsAngry;
-			bits[(int)DataFlags.Interested] = IsInterested;
-			bits[(int)DataFlags.Charged] = IsCharged;
-			bits[(int)DataFlags.Tamed] = IsTamed;
-			bits[(int)DataFlags.Leashed] = IsLeashed;
-			bits[(int)DataFlags.Sheared] = IsSheared;
-			bits[(int)DataFlags.FlagAllFlying] = IsFlagAllFlying;
-			bits[(int)DataFlags.Elder] = IsElder;
-			bits[(int)DataFlags.Moving] = IsMoving;
-			bits[(int)DataFlags.Breathing] = IsBreathing;
-			bits[(int)DataFlags.Chested] = IsChested;
-			bits[(int)DataFlags.Stackable] = IsStackable;
+			bits[(int) DataFlags.Riding] = IsRiding;
+			bits[(int) DataFlags.Sprinting] = IsSprinting;
+			bits[(int) DataFlags.UsingItem] = IsUsingItem;
+			bits[(int) DataFlags.Invisible] = IsInvisible;
+			bits[(int) DataFlags.Tempted] = IsTempted;
+			bits[(int) DataFlags.InLove] = IsInLove;
+			bits[(int) DataFlags.Saddled] = IsSaddled;
+			bits[(int) DataFlags.Powered] = IsPowered;
+			bits[(int) DataFlags.Ignited] = IsIgnited;
+			bits[(int) DataFlags.Baby] = IsBaby;
+			bits[(int) DataFlags.Converting] = IsConverting;
+			bits[(int) DataFlags.Critcal] = IsCritical;
+			bits[(int) DataFlags.ShowName] = IsShowName;
+			bits[(int) DataFlags.AlwaysShowName] = IsAlwaysShowName;
+			bits[(int) DataFlags.NoAi] = IsNoAi;
+			bits[(int) DataFlags.Silent] = IsSilent;
+			bits[(int) DataFlags.WallClimbing] = IsWallClimbing;
+			bits[(int) DataFlags.Resting] = IsResting;
+			bits[(int) DataFlags.Sitting] = IsSitting;
+			bits[(int) DataFlags.Angry] = IsAngry;
+			bits[(int) DataFlags.Interested] = IsInterested;
+			bits[(int) DataFlags.Charged] = IsCharged;
+			bits[(int) DataFlags.Tamed] = IsTamed;
+			bits[(int) DataFlags.Leashed] = IsLeashed;
+			bits[(int) DataFlags.Sheared] = IsSheared;
+			bits[(int) DataFlags.FlagAllFlying] = IsFlagAllFlying;
+			bits[(int) DataFlags.Elder] = IsElder;
+			bits[(int) DataFlags.Moving] = IsMoving;
+			bits[(int) DataFlags.Breathing] = IsBreathing;
+			bits[(int) DataFlags.Chested] = IsChested;
+			bits[(int) DataFlags.Stackable] = IsStackable;
 
 			return bits;
 		}

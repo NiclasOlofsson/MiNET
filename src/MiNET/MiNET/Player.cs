@@ -85,6 +85,9 @@ namespace MiNET
 			IsConnected = endPoint != null; // Can't connect if there is no endpoint
 
 			Height = 1.85;
+
+			HideNameTag = false;
+			IsAlwaysShowName = true;
 		}
 
 		public void HandleMcpeClientMagic(McpeClientMagic message)

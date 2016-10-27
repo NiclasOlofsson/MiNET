@@ -1,11 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using log4net;
+using MiNET.Net;
 using ByteArray = System.Array;
 
 namespace MiNET.Utils
 {
 	public static class VarInt
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (VarInt));
+
 		private static uint EncodeZigZag32(int n)
 		{
 			// Note:  the right-shift must be arithmetic
@@ -49,8 +54,10 @@ namespace MiNET.Utils
 			return result;
 		}
 
-		private static ulong ReadRawVarInt64(Stream buf, int maxSize)
+		private static ulong ReadRawVarInt64(Stream buf, int maxSize, bool printBytes = false)
 		{
+			List<byte> bytes = new List<byte>();
+
 			ulong result = 0;
 			int j = 0;
 			int b0;
@@ -58,6 +65,7 @@ namespace MiNET.Utils
 			do
 			{
 				b0 = buf.ReadByte(); // -1 if EOS
+				bytes.Add((byte) b0);
 				if (b0 < 0) throw new EndOfStreamException("Not enough bytes for VarInt");
 
 				result |= (ulong) (b0 & 0x7f) << j++*7;
@@ -67,6 +75,10 @@ namespace MiNET.Utils
 					throw new OverflowException("VarInt too big");
 				}
 			} while ((b0 & 0x80) == 0x80);
+
+			byte[] byteArray = bytes.ToArray();
+
+			if(printBytes) Log.Debug($"Long bytes: {Package.HexDump(byteArray)} ");
 
 			return result;
 		}
@@ -132,9 +144,9 @@ namespace MiNET.Utils
 			WriteRawVarInt64(stream, (ulong) value);
 		}
 
-		public static long ReadInt64(Stream stream)
+		public static long ReadInt64(Stream stream, bool printBytes = false)
 		{
-			return (long) ReadRawVarInt64(stream, 10);
+			return (long) ReadRawVarInt64(stream, 10, printBytes);
 		}
 
 		public static void WriteSInt64(Stream stream, long value)

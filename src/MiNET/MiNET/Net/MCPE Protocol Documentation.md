@@ -563,8 +563,8 @@ The chat types are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
-|Runtime Entity ID | VarLong |  |
+|Entity ID | SignedVarLong |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 |Spawn | Vector3 |  |
 |Unknown 1 | Vector2 |  |
 |Seed | SignedVarInt |  |
@@ -599,8 +599,8 @@ The chat types are:
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Entity ID | VarLong |  |
-|Runtime Entity ID | VarLong |  |
+|Entity ID | SignedVarLong |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -637,8 +637,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
-|Runtime Entity ID | VarLong |  |
+|Entity ID | SignedVarLong |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 |Entity Type | UnsignedVarInt |  |
 |X | float |  |
 |Y | float |  |
@@ -664,7 +664,7 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Item Entity (0x10)
 
@@ -678,8 +678,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
-|Runtime Entity ID | VarLong |  |
+|Entity ID | SignedVarLong |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 |Item | Item |  |
 |X | float |  |
 |Y | float |  |
@@ -700,8 +700,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
-|Runtime Entity ID | VarLong |  |
+|Entity ID | SignedVarLong |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 |Coordinates | BlockCoordinates |  |
 |Unknown | VarInt |  |
 -----------------------------------------------------------------------
@@ -717,8 +717,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Target | VarLong |  |
-|Entity Id | VarLong |  |
+|Target | UnsignedVarLong |  |
+|Entity Id | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Move Entity (0x13)
 
@@ -732,7 +732,7 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity Id | VarLong |  |
+|Entity Id | UnsignedVarLong |  |
 |Position | PlayerLocation |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Move Player (0x14)
@@ -751,7 +751,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -822,8 +822,8 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
-|Runtime Entity ID | VarLong |  |
+|Entity ID | SignedVarLong |  |
+|Runtime Entity ID | UnsignedVarLong |  |
 |Coordinates | BlockCoordinates |  |
 |Direction | VarInt |  |
 |Title | string |  |
@@ -909,7 +909,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Event ID | byte |  |
 |Unknown | VarInt |  |
 -----------------------------------------------------------------------
@@ -925,7 +925,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Event ID | byte |  |
 |Effect ID | VarInt |  |
 |Amplifier | VarInt |  |
@@ -944,7 +944,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Mob Equipment (0x20)
@@ -959,7 +959,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Item | Item |  |
 |Slot | byte |  |
 |Selected Slot | byte |  |
@@ -977,7 +977,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Helmet | Item |  |
 |Chestplate | Item |  |
 |Leggings | Item |  |
@@ -996,7 +996,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Action ID | byte |  |
-|Target Entity ID | VarLong |  |
+|Target Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Use Item (0x23)
 
@@ -1029,7 +1029,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Action ID | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
 |Face | SignedVarInt |  |
@@ -1060,7 +1060,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Motion (0x27)
@@ -1075,7 +1075,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 |Velocity | Vector3 |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Link (0x28)
@@ -1090,8 +1090,8 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Rider ID | VarLong |  |
-|Ridden ID | VarLong |  |
+|Rider ID | UnsignedVarLong |  |
+|Ridden ID | UnsignedVarLong |  |
 |Link Type | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Health (0x29)
@@ -1137,7 +1137,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Action ID | VarInt |  |
-|Entity ID | VarLong |  |
+|Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Respawn (0x2c)
 
@@ -1201,7 +1201,7 @@ MODE_ROTATION = 2;
 |Type | byte |  |
 |Slot Count | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
-|Unown Entity ID | VarLong |  |
+|Unown Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Close (0x30)
 
@@ -1495,7 +1495,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Map ID | VarLong |  |
+|Map ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Request Chunk Radius (0x43)
 

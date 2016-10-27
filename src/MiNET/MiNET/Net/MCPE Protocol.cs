@@ -1720,8 +1720,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
-			WriteVarLong(runtimeEntityId);
+			WriteSignedVarLong(entityId);
+			WriteUnsignedVarLong(runtimeEntityId);
 			Write(spawn);
 			Write(unknown1);
 			WriteSignedVarInt(seed);
@@ -1754,8 +1754,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
-			runtimeEntityId = ReadVarLong();
+			entityId = ReadSignedVarLong();
+			runtimeEntityId = ReadUnsignedVarLong();
 			spawn = ReadVector3();
 			unknown1 = ReadVector2();
 			seed = ReadSignedVarInt();
@@ -1814,8 +1814,8 @@ namespace MiNET.Net
 
 			Write(uuid);
 			Write(username);
-			WriteVarLong(entityId);
-			WriteVarLong(runtimeEntityId);
+			WriteSignedVarLong(entityId);
+			WriteUnsignedVarLong(runtimeEntityId);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -1842,8 +1842,8 @@ namespace MiNET.Net
 
 			uuid = ReadUUID();
 			username = ReadString();
-			entityId = ReadVarLong();
-			runtimeEntityId = ReadVarLong();
+			entityId = ReadSignedVarLong();
+			runtimeEntityId = ReadUnsignedVarLong();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -1891,8 +1891,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
-			WriteVarLong(runtimeEntityId);
+			WriteSignedVarLong(entityId);
+			WriteUnsignedVarLong(runtimeEntityId);
 			WriteUnsignedVarInt(entityType);
 			Write(x);
 			Write(y);
@@ -1918,8 +1918,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
-			runtimeEntityId = ReadVarLong();
+			entityId = ReadSignedVarLong();
+			runtimeEntityId = ReadUnsignedVarLong();
 			entityType = ReadUnsignedVarInt();
 			x = ReadFloat();
 			y = ReadFloat();
@@ -1955,7 +1955,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 
 			AfterEncode();
 		}
@@ -1969,7 +1969,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -2001,8 +2001,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
-			WriteVarLong(runtimeEntityId);
+			WriteSignedVarLong(entityId);
+			WriteUnsignedVarLong(runtimeEntityId);
 			Write(item);
 			Write(x);
 			Write(y);
@@ -2023,8 +2023,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
-			runtimeEntityId = ReadVarLong();
+			entityId = ReadSignedVarLong();
+			runtimeEntityId = ReadUnsignedVarLong();
 			item = ReadItem();
 			x = ReadFloat();
 			y = ReadFloat();
@@ -2058,8 +2058,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
-			WriteVarLong(runtimeEntityId);
+			WriteSignedVarLong(entityId);
+			WriteUnsignedVarLong(runtimeEntityId);
 			Write(coordinates);
 			WriteVarInt(unknown);
 
@@ -2075,8 +2075,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
-			runtimeEntityId = ReadVarLong();
+			entityId = ReadSignedVarLong();
+			runtimeEntityId = ReadUnsignedVarLong();
 			coordinates = ReadBlockCoordinates();
 			unknown = ReadVarInt();
 
@@ -2103,8 +2103,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(target);
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(target);
+			WriteUnsignedVarLong(entityId);
 
 			AfterEncode();
 		}
@@ -2118,8 +2118,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			target = ReadVarLong();
-			entityId = ReadVarLong();
+			target = ReadUnsignedVarLong();
+			entityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -2144,7 +2144,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(position);
 
 			AfterEncode();
@@ -2159,7 +2159,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			position = ReadPlayerLocation();
 
 			AfterDecode();
@@ -2192,7 +2192,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -2214,7 +2214,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -2367,8 +2367,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
-			WriteVarLong(runtimeEntityId);
+			WriteSignedVarLong(entityId);
+			WriteUnsignedVarLong(runtimeEntityId);
 			Write(coordinates);
 			WriteVarInt(direction);
 			Write(title);
@@ -2385,8 +2385,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
-			runtimeEntityId = ReadVarLong();
+			entityId = ReadSignedVarLong();
+			runtimeEntityId = ReadUnsignedVarLong();
 			coordinates = ReadBlockCoordinates();
 			direction = ReadVarInt();
 			title = ReadString();
@@ -2606,7 +2606,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(eventId);
 			WriteVarInt(unknown);
 
@@ -2622,7 +2622,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			eventId = ReadByte();
 			unknown = ReadVarInt();
 
@@ -2653,7 +2653,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(eventId);
 			WriteVarInt(effectId);
 			WriteVarInt(amplifier);
@@ -2672,7 +2672,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			eventId = ReadByte();
 			effectId = ReadVarInt();
 			amplifier = ReadVarInt();
@@ -2702,7 +2702,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(attributes);
 
 			AfterEncode();
@@ -2717,7 +2717,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			attributes = ReadPlayerAttributes();
 
 			AfterDecode();
@@ -2746,7 +2746,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(item);
 			Write(slot);
 			Write(selectedSlot);
@@ -2764,7 +2764,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			item = ReadItem();
 			slot = ReadByte();
 			selectedSlot = ReadByte();
@@ -2796,7 +2796,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(helmet);
 			Write(chestplate);
 			Write(leggings);
@@ -2814,7 +2814,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			helmet = ReadItem();
 			chestplate = ReadItem();
 			leggings = ReadItem();
@@ -2844,7 +2844,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(actionId);
-			WriteVarLong(targetEntityId);
+			WriteUnsignedVarLong(targetEntityId);
 
 			AfterEncode();
 		}
@@ -2859,7 +2859,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			actionId = ReadByte();
-			targetEntityId = ReadVarLong();
+			targetEntityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -2939,7 +2939,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			WriteSignedVarInt(actionId);
 			Write(coordinates);
 			WriteSignedVarInt(face);
@@ -2956,7 +2956,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			actionId = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
 			face = ReadSignedVarInt();
@@ -3022,7 +3022,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(metadata);
 
 			AfterEncode();
@@ -3037,7 +3037,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			metadata = ReadMetadataDictionary();
 
 			AfterDecode();
@@ -3063,7 +3063,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 			Write(velocity);
 
 			AfterEncode();
@@ -3078,7 +3078,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 			velocity = ReadVector3();
 
 			AfterDecode();
@@ -3105,8 +3105,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(riderId);
-			WriteVarLong(riddenId);
+			WriteUnsignedVarLong(riderId);
+			WriteUnsignedVarLong(riddenId);
 			Write(linkType);
 
 			AfterEncode();
@@ -3121,8 +3121,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			riderId = ReadVarLong();
-			riddenId = ReadVarLong();
+			riderId = ReadUnsignedVarLong();
+			riddenId = ReadUnsignedVarLong();
 			linkType = ReadByte();
 
 			AfterDecode();
@@ -3231,7 +3231,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteVarInt(actionId);
-			WriteVarLong(entityId);
+			WriteUnsignedVarLong(entityId);
 
 			AfterEncode();
 		}
@@ -3246,7 +3246,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			actionId = ReadVarInt();
-			entityId = ReadVarLong();
+			entityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -3404,7 +3404,7 @@ namespace MiNET.Net
 			Write(type);
 			WriteSignedVarInt(slotCount);
 			Write(coordinates);
-			WriteVarLong(unownEntityId);
+			WriteUnsignedVarLong(unownEntityId);
 
 			AfterEncode();
 		}
@@ -3422,7 +3422,7 @@ namespace MiNET.Net
 			type = ReadByte();
 			slotCount = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
-			unownEntityId = ReadVarLong();
+			unownEntityId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}
@@ -4205,7 +4205,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarLong(mapId);
+			WriteUnsignedVarLong(mapId);
 
 			AfterEncode();
 		}
@@ -4219,7 +4219,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			mapId = ReadVarLong();
+			mapId = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}

@@ -24,14 +24,15 @@ namespace MiNET
 		{
 			BitArray bits = new BitArray(64);
 			bits[0] = true;
-			bits[63] = true;
+			bits[21] = true;
 			byte[] bytes = new byte[8];
 			bits.CopyTo(bytes, 0);
 
-			ulong dataValue = BitConverter.ToUInt64(bytes, 0) << 1;
+			//ulong dataValue = BitConverter.ToUInt64(bytes, 0) << 0;
+			ulong dataValue = 1 << 20;
 
 			Console.WriteLine($"{dataValue:x2}");
-			Console.WriteLine($"{Convert.ToString((long)dataValue, 2)}");
+			Console.WriteLine($"{Convert.ToString((long) dataValue, 2)}");
 
 			var stream = new MemoryStream();
 
@@ -41,13 +42,14 @@ namespace MiNET
 			Console.WriteLine($"{Package.HexDump(array)}");
 
 
-			var result = VarInt.ReadUInt64(new MemoryStream(array));
+			//var result = VarInt.ReadUInt64(new MemoryStream(array));
+			var result = VarInt.ReadUInt64(new MemoryStream(new byte[] { 0x80, 0x80, 0x80, 0x11 }));
+			Console.WriteLine($"{Convert.ToString((long) result, 2)}");
 
-			Assert.AreEqual(dataValue, result);
+			//Assert.AreEqual(dataValue, result);
 			Console.WriteLine($"{dataValue:x2}");
 
 			//81808080808080808001                    .
-
 		}
 
 		[Test]

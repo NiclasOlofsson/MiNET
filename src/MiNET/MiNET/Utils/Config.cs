@@ -43,6 +43,7 @@ namespace MiNET.Utils
 						fileContents = File.ReadAllText(ConfigFileName);
 					}
 				}
+
 				LoadValues(fileContents);
 			}
 			catch (Exception e)
@@ -57,13 +58,14 @@ namespace MiNET.Utils
 			foreach (
 				string rawLine in data.Split(new[] {"\r\n", "\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
 			{
-				string line = rawLine.Trim().ToLower();
+				string line = rawLine.Trim();
 				if (line.StartsWith("#") || !line.Contains("=")) continue; //It's a comment or not a key value pair.
 
 				string[] splitLine = line.Split('=');
 
-				string key = splitLine[0];
+				string key = splitLine[0].ToLower();
 				string value = splitLine[1];
+				Log.Debug($"{key}={value}");
 				if (!newDictionairy.ContainsKey(key))
 				{
 					newDictionairy.Add(key, value);

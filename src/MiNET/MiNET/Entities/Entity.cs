@@ -117,7 +117,8 @@ namespace MiNET.Entities
 		public bool IsTempted { get; set; }
 		public bool IsInLove { get; set; }
 		public bool IsSaddled { get; set; }
-		public bool IsPowered { get; set; }
+		public bool 
+			IsPowered { get; set; }
 		public bool IsIgnited { get; set; }
 		public bool IsBaby { get; set; }
 		public bool IsConverting { get; set; }
@@ -144,7 +145,7 @@ namespace MiNET.Entities
 
 		public enum DataFlags
 		{
-			OnFire = 1,
+			OnFire = 0,
 			Sneaking,
 			Riding,
 			Sprinting,

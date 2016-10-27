@@ -34,12 +34,12 @@ namespace MiNET.Utils
 
 		public override void FromStream(BinaryReader reader)
 		{
-			Value = VarInt.ReadInt64(reader.BaseStream);
+			Value = VarInt.ReadSInt64(reader.BaseStream);
 		}
 
 		public override void WriteTo(BinaryWriter stream)
 		{
-			VarInt.WriteInt64(stream.BaseStream, Value);
+			VarInt.WriteSInt64(stream.BaseStream, Value);
 		}
 
 		public override string ToString()

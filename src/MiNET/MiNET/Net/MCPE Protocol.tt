@@ -149,6 +149,14 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		{
 			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "long", CodeName(field.Attributes["name"].Value), "null"));
 		}
+		else if(field.Attributes["type"].Value == "SignedVarLong")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "long", CodeName(field.Attributes["name"].Value), "null"));
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarLong")
+		{
+			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "long", CodeName(field.Attributes["name"].Value), "null"));
+		}
 		else if(field.Attributes["type"].Value == "Lenght")
 		{
 			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "int", CodeName(field.Attributes["name"].Value), "null"));
@@ -201,6 +209,14 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		else if(field.Attributes["type"].Value == "VarLong")
 		{
 			WriteLine(string.Format("\t\t\tWriteVarLong({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "SignedVarLong")
+		{
+			WriteLine(string.Format("\t\t\tWriteSignedVarLong({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarLong")
+		{
+			WriteLine(string.Format("\t\t\tWriteUnsignedVarLong({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
 		}
 		else if(field.Attributes["type"].Value == "Lenght")
 		{

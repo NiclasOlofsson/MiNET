@@ -252,6 +252,28 @@ namespace MiNET.Net
 			return VarInt.ReadInt64(_buffer);
 		}
 
+		public void WriteSignedVarLong(long value)
+		{
+			VarInt.WriteSInt64(_buffer, value);
+		}
+
+		public long ReadSignedVarLong()
+		{
+			return VarInt.ReadSInt64(_buffer);
+		}
+
+		public void WriteUnsignedVarLong(long value)
+		{
+			// Need to fix this to ulong later
+			VarInt.WriteUInt64(_buffer, (ulong) value);
+		}
+
+		public long ReadUnsignedVarLong()
+		{
+			// Need to fix this to ulong later
+			return (long) VarInt.ReadUInt64(_buffer);
+		}
+
 		public void Write(long value)
 		{
 			_writer.Write(Endian.SwapInt64(value));

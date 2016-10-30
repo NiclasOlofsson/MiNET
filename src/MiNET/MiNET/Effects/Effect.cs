@@ -50,10 +50,10 @@ namespace MiNET.Effects
 			var message = McpeMobEffect.CreateObject();
 			message.entityId = 0;
 			message.eventId = 1;
-			message.effectId = (byte) EffectId;
+			message.effectId = (int) EffectId;
 			message.duration = Duration;
-			message.amplifier = (byte) Level;
-			message.particles = (byte) (Particles ? 1 : 0);
+			message.amplifier = Level;
+			message.particles = Particles;
 			player.SendPackage(message);
 
 			player.BroadcastSetEntityData();
@@ -64,10 +64,10 @@ namespace MiNET.Effects
 			var message = McpeMobEffect.CreateObject();
 			message.entityId = 0;
 			message.eventId = 2;
-			message.effectId = (byte) EffectId;
+			message.effectId = (int) EffectId;
 			message.duration = Duration;
-			message.amplifier = (byte) Level;
-			message.particles = (byte) (Particles ? 1 : 0);
+			message.amplifier = Level;
+			message.particles = Particles;
 			player.SendPackage(message);
 		}
 
@@ -76,7 +76,7 @@ namespace MiNET.Effects
 			var message = McpeMobEffect.CreateObject();
 			message.entityId = 0;
 			message.eventId = 3;
-			message.effectId = (byte) EffectId;
+			message.effectId = (int) EffectId;
 			player.SendPackage(message);
 		}
 

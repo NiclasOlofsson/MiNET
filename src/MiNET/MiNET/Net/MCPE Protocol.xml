@@ -374,10 +374,10 @@
 	<pdu id="0x1e" online="false" client="false" server="true" name="MCPE_MOB_EFFECT">
 		<field name="Entity ID" type="UnsignedVarLong" />
 		<field name="Event ID" type="byte" />
-		<field name="Effect ID" type="VarInt" />
-		<field name="Amplifier" type="VarInt" />
-		<field name="Particles" type="byte" note="particles == true ? 1 : 0" />
-		<field name="Duration" type="VarInt" />
+		<field name="Effect ID" type="SignedVarInt" />
+		<field name="Amplifier" type="SignedVarInt" />
+		<field name="Particles" type="bool" />
+		<field name="Duration" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x1f" online="false" client="false" server="true" name="MCPE_UPDATE_ATTRIBUTES">

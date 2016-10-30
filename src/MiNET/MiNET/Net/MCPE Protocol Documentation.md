@@ -927,10 +927,10 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Entity ID | UnsignedVarLong |  |
 |Event ID | byte |  |
-|Effect ID | VarInt |  |
-|Amplifier | VarInt |  |
-|Particles | byte |  |
-|Duration | VarInt |  |
+|Effect ID | SignedVarInt |  |
+|Amplifier | SignedVarInt |  |
+|Particles | bool |  |
+|Duration | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Update Attributes (0x1f)
 

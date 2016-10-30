@@ -2641,7 +2641,7 @@ namespace MiNET.Net
 		public byte eventId; // = null;
 		public int effectId; // = null;
 		public int amplifier; // = null;
-		public byte particles; // = null;
+		public bool particles; // = null;
 		public int duration; // = null;
 		public McpeMobEffect()
 		{
@@ -2656,10 +2656,10 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(entityId);
 			Write(eventId);
-			WriteVarInt(effectId);
-			WriteVarInt(amplifier);
+			WriteSignedVarInt(effectId);
+			WriteSignedVarInt(amplifier);
 			Write(particles);
-			WriteVarInt(duration);
+			WriteSignedVarInt(duration);
 
 			AfterEncode();
 		}
@@ -2675,10 +2675,10 @@ namespace MiNET.Net
 
 			entityId = ReadUnsignedVarLong();
 			eventId = ReadByte();
-			effectId = ReadVarInt();
-			amplifier = ReadVarInt();
-			particles = ReadByte();
-			duration = ReadVarInt();
+			effectId = ReadSignedVarInt();
+			amplifier = ReadSignedVarInt();
+			particles = ReadBool();
+			duration = ReadSignedVarInt();
 
 			AfterDecode();
 		}

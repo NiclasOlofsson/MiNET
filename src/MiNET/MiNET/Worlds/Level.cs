@@ -956,9 +956,9 @@ namespace MiNET.Worlds
 			{
 				KnownPosition =
 				{
-					X = (float) coordinates.X,
-					Y = (float) coordinates.Y,
-					Z = (float) coordinates.Z
+					X = (float) coordinates.X + 0.5f,
+					Y = (float) coordinates.Y + 0.5f,
+					Z = (float) coordinates.Z + 0.5f
 				},
 				Velocity = new Vector3((float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3))
 			};

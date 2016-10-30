@@ -407,17 +407,20 @@ namespace MiNET
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 
-			if (IsWorldImmutable || IsAdventure || GameMode == GameMode.Adventure) mcpeAdventureSettings.flags |= 0x01; // Immutable World (Remove hit markers client-side).
-			if (IsNoPvp || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x02; // No PvP (Remove hit markers client-side).
-			if (IsNoPvm || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x04; // No PvM (Remove hit markers client-side).
-			if (IsNoMvp || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x08;
+			uint flags = 0;
 
-			if (IsAutoJump) mcpeAdventureSettings.flags |= 0x20;
+			if (IsWorldImmutable || IsAdventure || GameMode == GameMode.Adventure) flags |= 0x01; // Immutable World (Remove hit markers client-side).
+			if (IsNoPvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x02; // No PvP (Remove hit markers client-side).
+			if (IsNoPvm || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x04; // No PvM (Remove hit markers client-side).
+			if (IsNoMvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x08;
 
-			if (AllowFly || GameMode == GameMode.Creative) mcpeAdventureSettings.flags |= 0x40;
+			if (IsAutoJump) flags |= 0x20;
 
-			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x80; // No clip			
+			if (AllowFly || GameMode == GameMode.Creative) flags |= 0x40;
 
+			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x80; // No clip
+
+			mcpeAdventureSettings.flags = flags;
 			mcpeAdventureSettings.userPermission = (uint) PermissionLevel;
 
 			SendPackage(mcpeAdventureSettings);
@@ -460,7 +463,6 @@ namespace MiNET
 			AllowFly = allowFly;
 			if (!AllowFly)
 			{
-				SendStartGame();
 				SendAdventureSettings();
 			}
 			else

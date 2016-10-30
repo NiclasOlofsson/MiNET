@@ -548,8 +548,8 @@ The chat types are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Time | VarInt |  |
-|Started | byte |  |
+|Time | SignedVarInt |  |
+|Started | bool |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Start Game (0x0c)
 
@@ -703,7 +703,7 @@ val2 float
 |Entity ID | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Coordinates | BlockCoordinates |  |
-|Unknown | VarInt |  |
+|Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Take Item Entity (0x12)
 
@@ -825,7 +825,7 @@ MODE_ROTATION = 2;
 |Entity ID | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Coordinates | BlockCoordinates |  |
-|Direction | VarInt |  |
+|Direction | SignedVarInt |  |
 |Title | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Explode (0x19)
@@ -911,7 +911,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Entity ID | UnsignedVarLong |  |
 |Event ID | byte |  |
-|Unknown | VarInt |  |
+|Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Mob Effect (0x1e)
 
@@ -1046,7 +1046,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Health | VarInt |  |
+|Health | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Entity Data (0x26)
 
@@ -1106,7 +1106,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Health | VarInt |  |
+|Health | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Spawn Position (0x2a)
 
@@ -1135,7 +1135,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Action ID | VarInt |  |
+|Action ID | SignedVarInt |  |
 |Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Respawn (0x2c)
@@ -1181,7 +1181,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown | VarInt |  |
+|Unknown | UnsignedVarInt |  |
 |Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Open (0x2f)
@@ -1292,7 +1292,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Window ID | byte |  |
-|Recipe Type | VarInt |  |
+|Recipe Type | SignedVarInt |  |
 |Recipe ID | UUID |  |
 |Input | ItemStacks |  |
 |Result | ItemStacks |  |
@@ -1463,10 +1463,8 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|X | float |  |
-|Y | float |  |
-|Z | float |  |
-|Count | VarInt |  |
+|Position | Vector3 |  |
+|Count | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Clientbound Map Item Data  (0x41)
 
@@ -1508,7 +1506,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Chunk Radius | VarInt |  |
+|Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Chunk Radius Update (0x44)
 
@@ -1522,7 +1520,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Chunk Radius | VarInt |  |
+|Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Item Fram Drop Item (0x45)
 

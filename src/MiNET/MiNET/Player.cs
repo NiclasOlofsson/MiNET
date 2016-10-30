@@ -2086,9 +2086,8 @@ namespace MiNET
 		public virtual void SendSetTime()
 		{
 			McpeSetTime message = McpeSetTime.CreateObject();
-			//message.NoBatch = true;
 			message.time = (int) Level.CurrentWorldTime;
-			message.started = (byte) (Level.IsWorldTimeStarted ? 1 : 0);
+			message.started = Level.IsWorldTimeStarted;
 			SendPackage(message);
 		}
 

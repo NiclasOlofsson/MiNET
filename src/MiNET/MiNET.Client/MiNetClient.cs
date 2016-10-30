@@ -1772,11 +1772,6 @@ Adventure settings
 
 		private void OnMcpeSpawnExperienceOrb(Package message)
 		{
-			McpeSpawnExperienceOrb msg = (McpeSpawnExperienceOrb) message;
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("count: {0}", msg.count);
 		}
 
 		private void OnMcpeMobEffect(Package message)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -205,9 +206,7 @@ namespace TestPlugin
 			{
 				// 128 = 32 + 32 + 32
 				var msg = McpeSpawnExperienceOrb.CreateObject();
-				msg.x = (int) (player1.KnownPosition.X + 1);
-				msg.y = (int) (player1.KnownPosition.Y + 2);
-				msg.z = (int) (player1.KnownPosition.Z + 1);
+				msg.position = player1.KnownPosition.ToVector3() + new Vector3(1,2,1);
 				msg.count = 10;
 				player.Level.RelayBroadcast(msg);
 			}

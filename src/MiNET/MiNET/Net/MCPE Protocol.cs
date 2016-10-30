@@ -1649,7 +1649,7 @@ namespace MiNET.Net
 	public partial class McpeSetTime : Package<McpeSetTime>
 	{
 		public int time; // = null;
-		public byte started; // = null;
+		public bool started; // = null;
 		public McpeSetTime()
 		{
 			Id = 0x0b;
@@ -1661,7 +1661,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(time);
+			WriteSignedVarInt(time);
 			Write(started);
 
 			AfterEncode();
@@ -1676,8 +1676,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			time = ReadVarInt();
-			started = ReadByte();
+			time = ReadSignedVarInt();
+			started = ReadBool();
 
 			AfterDecode();
 		}
@@ -2062,7 +2062,7 @@ namespace MiNET.Net
 			WriteSignedVarLong(entityId);
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(coordinates);
-			WriteVarInt(unknown);
+			WriteSignedVarInt(unknown);
 
 			AfterEncode();
 		}
@@ -2079,7 +2079,7 @@ namespace MiNET.Net
 			entityId = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
 			coordinates = ReadBlockCoordinates();
-			unknown = ReadVarInt();
+			unknown = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -2371,7 +2371,7 @@ namespace MiNET.Net
 			WriteSignedVarLong(entityId);
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(coordinates);
-			WriteVarInt(direction);
+			WriteSignedVarInt(direction);
 			Write(title);
 
 			AfterEncode();
@@ -2389,7 +2389,7 @@ namespace MiNET.Net
 			entityId = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
 			coordinates = ReadBlockCoordinates();
-			direction = ReadVarInt();
+			direction = ReadSignedVarInt();
 			title = ReadString();
 
 			AfterDecode();
@@ -2609,7 +2609,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(entityId);
 			Write(eventId);
-			WriteVarInt(unknown);
+			WriteSignedVarInt(unknown);
 
 			AfterEncode();
 		}
@@ -2625,7 +2625,7 @@ namespace MiNET.Net
 
 			entityId = ReadUnsignedVarLong();
 			eventId = ReadByte();
-			unknown = ReadVarInt();
+			unknown = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -2984,7 +2984,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(health);
+			WriteSignedVarInt(health);
 
 			AfterEncode();
 		}
@@ -2998,7 +2998,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			health = ReadVarInt();
+			health = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -3148,7 +3148,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(health);
+			WriteSignedVarInt(health);
 
 			AfterEncode();
 		}
@@ -3162,7 +3162,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			health = ReadVarInt();
+			health = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -3228,7 +3228,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(actionId);
+			WriteSignedVarInt(actionId);
 			WriteUnsignedVarLong(entityId);
 
 			AfterEncode();
@@ -3243,7 +3243,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			actionId = ReadVarInt();
+			actionId = ReadSignedVarInt();
 			entityId = ReadUnsignedVarLong();
 
 			AfterDecode();
@@ -3341,7 +3341,7 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryAction : Package<McpeInventoryAction>
 	{
-		public int unknown; // = null;
+		public uint unknown; // = null;
 		public Item item; // = null;
 		public McpeInventoryAction()
 		{
@@ -3354,7 +3354,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(unknown);
+			WriteUnsignedVarInt(unknown);
 			Write(item);
 
 			AfterEncode();
@@ -3369,7 +3369,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			unknown = ReadVarInt();
+			unknown = ReadUnsignedVarInt();
 			item = ReadItem();
 
 			AfterDecode();
@@ -3660,7 +3660,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(windowId);
-			WriteVarInt(recipeType);
+			WriteSignedVarInt(recipeType);
 			Write(recipeId);
 			Write(input);
 			Write(result);
@@ -3678,7 +3678,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			windowId = ReadByte();
-			recipeType = ReadVarInt();
+			recipeType = ReadSignedVarInt();
 			recipeId = ReadUUID();
 			input = ReadItemStacks();
 			result = ReadItemStacks();
@@ -4106,9 +4106,7 @@ namespace MiNET.Net
 
 	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
 	{
-		public float x; // = null;
-		public float y; // = null;
-		public float z; // = null;
+		public Vector3 position; // = null;
 		public int count; // = null;
 		public McpeSpawnExperienceOrb()
 		{
@@ -4121,10 +4119,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(x);
-			Write(y);
-			Write(z);
-			WriteVarInt(count);
+			Write(position);
+			WriteSignedVarInt(count);
 
 			AfterEncode();
 		}
@@ -4138,10 +4134,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			x = ReadFloat();
-			y = ReadFloat();
-			z = ReadFloat();
-			count = ReadVarInt();
+			position = ReadVector3();
+			count = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -4241,7 +4235,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(chunkRadius);
+			WriteSignedVarInt(chunkRadius);
 
 			AfterEncode();
 		}
@@ -4255,7 +4249,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			chunkRadius = ReadVarInt();
+			chunkRadius = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -4279,7 +4273,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(chunkRadius);
+			WriteSignedVarInt(chunkRadius);
 
 			AfterEncode();
 		}
@@ -4293,7 +4287,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			chunkRadius = ReadVarInt();
+			chunkRadius = ReadSignedVarInt();
 
 			AfterDecode();
 		}

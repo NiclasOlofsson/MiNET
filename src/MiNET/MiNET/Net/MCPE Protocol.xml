@@ -180,8 +180,8 @@
 	</pdu>
 
 	<pdu id="0x0b" online="false" client="false" server="true" name="MCPE_SET_TIME">
-		<field name="Time" type="VarInt" />
-		<field name="Started" type="byte" note="started == true ? 0x80 : 0x00" />
+		<field name="Time" type="SignedVarInt" />
+		<field name="Started" type="bool" />
 	</pdu>
 
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_START_GAME">
@@ -278,7 +278,7 @@
 		<field name="Entity ID" type="SignedVarLong" />
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Unknown" type="VarInt" />
+		<field name="Unknown" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x12" online="false" client="false" server="true" name="MCPE_TAKE_ITEM_ENTITY">
@@ -332,7 +332,7 @@
 		<field name="Entity ID" type="SignedVarLong" />
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Direction" type="VarInt" />
+		<field name="Direction" type="SignedVarInt" />
 		<field name="Title" type="string" />
 	</pdu>
 
@@ -368,7 +368,7 @@
 	<pdu id="0x1d" online="false" client="true" server="true" name="MCPE_ENTITY_EVENT">
 		<field name="Entity ID" type="UnsignedVarLong" />
 		<field name="Event ID" type="byte" />
-		<field name="Unknown" type="VarInt" />
+		<field name="Unknown" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x1e" online="false" client="false" server="true" name="MCPE_MOB_EFFECT">
@@ -423,7 +423,7 @@
 	</pdu>
 
 	<pdu id="0x25" online="false" client="false" server="true" name="MCPE_HURT_ARMOR">
-		<field name="Health" type="VarInt" />
+		<field name="Health" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x26" online="false" client="false" server="true" name="MCPE_SET_ENTITY_DATA">
@@ -443,7 +443,7 @@
 	</pdu>
 
 	<pdu id="0x29" online="false" client="false" server="true" name="MCPE_SET_HEALTH">
-		<field name="Health" type="VarInt" />
+		<field name="Health" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x2a" online="false" client="false" server="true" name="MCPE_SET_SPAWN_POSITION">
@@ -452,7 +452,7 @@
 	</pdu>
 
 	<pdu id="0x2b" online="false" client="true" server="true" name="MCPE_ANIMATE">
-		<field name="Action ID" type="VarInt" />
+		<field name="Action ID" type="SignedVarInt" />
 		<field name="Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
@@ -468,7 +468,7 @@
 	</pdu>
 
 	<pdu id="0x2e" online="false" client="false" server="true" name="MCPE_INVENTORY_ACTION">
-		<field name="Unknown" type="VarInt" />
+		<field name="Unknown" type="UnsignedVarInt" />
 		<field name="Item" type="Item" />
 	</pdu>
 
@@ -509,7 +509,7 @@
 
 	<pdu id="0x35" online="false" client="true" server="true" name="MCPE_CRAFTING_EVENT">
 		<field name="Window ID" type="byte" />
-		<field name="Recipe Type" type="VarInt" />
+		<field name="Recipe Type" type="SignedVarInt" />
 		<field name="Recipe ID" type="UUID" />
 		<field name="Input" type="ItemStacks" />
 		<field name="Result" type="ItemStacks" />
@@ -571,10 +571,8 @@
 	</pdu>
 
 	<pdu id="0x40" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">
-		<field name="X" type="float" />
-		<field name="Y" type="float" />
-		<field name="Z" type="float" />
-		<field name="Count" type="VarInt" />
+		<field name="Position" type="Vector3" />
+		<field name="Count" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_CLIENTBOUND_MAP_ITEM_DATA ">
@@ -586,11 +584,11 @@
 	</pdu>
 
 	<pdu id="0x43" online="false" client="true" server="true" name="MCPE_REQUEST_CHUNK_RADIUS">
-		<field name="Chunk Radius" type="VarInt" />
+		<field name="Chunk Radius" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x44" online="false" client="false" server="true" name="MCPE_CHUNK_RADIUS_UPDATE">
-		<field name="Chunk Radius" type="VarInt" />
+		<field name="Chunk Radius" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x45" online="false" client="true" server="true" name="MCPE_ITEM_FRAM_DROP_ITEM">

@@ -127,7 +127,7 @@ namespace TestPlugin.NiceLobby
 				{
 					McpeSetTime timeDay = McpeSetTime.CreateObject();
 					timeDay.time = 0;
-					timeDay.started = 1;
+					timeDay.started = true;
 					level.RelayBroadcast(timeDay);
 
 					ThreadPool.QueueUserWorkItem(delegate(object o)
@@ -136,7 +136,7 @@ namespace TestPlugin.NiceLobby
 
 						McpeSetTime timeReset = McpeSetTime.CreateObject();
 						timeReset.time = (int) level.CurrentWorldTime;
-						timeReset.started = (byte) (level.IsWorldTimeStarted ? 1 : 0);
+						timeReset.started = level.IsWorldTimeStarted;
 						level.RelayBroadcast(timeDay);
 
 						Thread.Sleep(200);

@@ -43,6 +43,7 @@ namespace MiNET.Net
 		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
 		void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message);
 		void HandleMcpeItemFramDropItem(McpeItemFramDropItem message);
+		void HandleMcpeCommandStep(McpeCommandStep message);
 		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 	}
 
@@ -1955,7 +1956,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarLong(entityId);
+			WriteSignedVarLong(entityId);
 
 			AfterEncode();
 		}
@@ -1969,7 +1970,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			entityId = ReadUnsignedVarLong();
+			entityId = ReadSignedVarLong();
 
 			AfterDecode();
 		}
@@ -3175,7 +3176,6 @@ namespace MiNET.Net
 	{
 		public int unknown1; // = null;
 		public BlockCoordinates coordinates; // = null;
-		public bool unknown2; // = null;
 		public McpeSetSpawnPosition()
 		{
 			Id = 0x2a;
@@ -3187,9 +3187,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(unknown1);
+			WriteSignedVarInt(unknown1);
 			Write(coordinates);
-			Write(unknown2);
 
 			AfterEncode();
 		}
@@ -3203,9 +3202,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			unknown1 = ReadVarInt();
+			unknown1 = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
-			unknown2 = ReadBool();
 
 			AfterDecode();
 		}
@@ -4567,6 +4565,17 @@ namespace MiNET.Net
 
 	public partial class McpeCommandStep : Package<McpeCommandStep>
 	{
+		public string commandName; // = null;
+		public string commandOverload; // = null;
+		public uint unknown1; // = null;
+		public uint unknown2; // = null;
+		public bool isOutput; // = null;
+		public long unknown5; // = null;
+		public string commandInputJson; // = null;
+		public string commandOutputJson; // = null;
+		public byte unknown7; // = null;
+		public byte unknown8; // = null;
+		public long entityId; // = null;
 		public McpeCommandStep()
 		{
 			Id = 0x4c;
@@ -4578,6 +4587,17 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(commandName);
+			Write(commandOverload);
+			WriteUnsignedVarInt(unknown1);
+			WriteUnsignedVarInt(unknown2);
+			Write(isOutput);
+			WriteUnsignedVarLong(unknown5);
+			Write(commandInputJson);
+			Write(commandOutputJson);
+			Write(unknown7);
+			Write(unknown8);
+			WriteSignedVarLong(entityId);
 
 			AfterEncode();
 		}
@@ -4591,6 +4611,17 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			commandName = ReadString();
+			commandOverload = ReadString();
+			unknown1 = ReadUnsignedVarInt();
+			unknown2 = ReadUnsignedVarInt();
+			isOutput = ReadBool();
+			unknown5 = ReadUnsignedVarLong();
+			commandInputJson = ReadString();
+			commandOutputJson = ReadString();
+			unknown7 = ReadByte();
+			unknown8 = ReadByte();
+			entityId = ReadSignedVarLong();
 
 			AfterDecode();
 		}

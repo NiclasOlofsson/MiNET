@@ -423,6 +423,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeCommandStep(McpeCommandStep message)
+		{
+		}
+
 		public void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
 		{
 		}

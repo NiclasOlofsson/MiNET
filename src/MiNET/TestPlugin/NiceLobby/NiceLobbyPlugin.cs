@@ -70,6 +70,11 @@ namespace TestPlugin.NiceLobby
 			Player player = eventArgs.Player;
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
+
+			int idx = 1;
+			player.Inventory.Slots[idx++] = new ItemCompass();
+			player.SendPlayerInventory();
+
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}
 

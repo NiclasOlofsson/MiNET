@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using log4net;
-using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;

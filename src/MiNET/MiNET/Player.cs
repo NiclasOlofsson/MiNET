@@ -397,43 +397,33 @@ namespace MiNET
 		}
 
 
+		public bool IsWorldImmutable { get; private set; }
+		public bool IsNoPvp { get; private set; }
+		public bool IsNoPvm { get; private set; }
+		public bool IsNoMvp { get; private set; }
+		public bool IsNoClip { get; private set; }
+
 		private void SendAdventureSettings()
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 
-			//mcpeAdventureSettings.flags |= 0x01; // Immutable World (Remove hit markers client-side).
-			//mcpeAdventureSettings.flags |= 0x02; // No PvP (Remove hit markers client-side).
-			//mcpeAdventureSettings.flags |= 0x04; // No PvM (Remove hit markers client-side).
-			//mcpeAdventureSettings.flags |= 0x08; // No PvE (Remove hit markers client-side).
+			if (IsWorldImmutable || IsAdventure || GameMode == GameMode.Adventure) mcpeAdventureSettings.flags |= 0x01; // Immutable World (Remove hit markers client-side).
+			if (IsNoPvp || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x02; // No PvP (Remove hit markers client-side).
+			if (IsNoPvm || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x04; // No PvM (Remove hit markers client-side).
+			if (IsNoMvp || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x08;
 
-			if (IsAutoJump)
-			{
-				mcpeAdventureSettings.flags |= 0x20;
-			}
+			if (IsAutoJump) mcpeAdventureSettings.flags |= 0x20;
 
-			if (AllowFly || GameMode == GameMode.Creative)
-			{
-				mcpeAdventureSettings.flags |= 0x40;
-			}
+			if (AllowFly || GameMode == GameMode.Creative) mcpeAdventureSettings.flags |= 0x40;
 
-			if (IsSpectator)
-			{
-				mcpeAdventureSettings.flags |= 0x80;
-			}
+			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) mcpeAdventureSettings.flags |= 0x80; // No clip			
 
-
-			// Needs checking, not correct anymore I believe
-			// 00 - Can Fly - NO Place/Break)
-			// 01 - Can Fly - NO Place/Break)
-			// 02 - NO FLY - Can Place/Break
-			// 03 - Can Fly - Can Place/Break
-			mcpeAdventureSettings.userPermission = 0x00;
-			//mcpeAdventureSettings.globalPermission = 0x02;
-
-			//mcpeAdventureSettings.userPermission = 0x00;
+			mcpeAdventureSettings.userPermission = (uint) PermissionLevel;
 
 			SendPackage(mcpeAdventureSettings);
 		}
+
+		public UserPermission PermissionLevel { get; set; } = UserPermission.Any;
 
 		public bool IsAdventure { get; set; }
 
@@ -470,6 +460,7 @@ namespace MiNET
 			AllowFly = allowFly;
 			if (!AllowFly)
 			{
+				SendStartGame();
 				SendAdventureSettings();
 			}
 			else
@@ -549,7 +540,7 @@ namespace MiNET
 					SendPackage(setCmdEnabled);
 				}
 
-				//SetPosition(SpawnPosition); not really here
+				SendSetCommandsEnabled();
 
 				SendAdventureSettings();
 
@@ -562,6 +553,8 @@ namespace MiNET
 				Level.AddPlayer(this, false);
 
 				// Send McpeAvailableCommands
+
+				SendAvailableCommands();
 
 				SendUpdateAttributes();
 
@@ -609,6 +602,40 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
+		}
+
+		public bool EnableCommands { get; set; } = false;
+
+		protected virtual void SendSetCommandsEnabled()
+		{
+			McpeSetCommandsEnabled enabled = McpeSetCommandsEnabled.CreateObject();
+			enabled.enabled = EnableCommands;
+			SendPackage(enabled);
+		}
+
+		protected virtual void SendAvailableCommands()
+		{
+			//var content = File.ReadAllText(@"D:\Development\Repos\MiNET\src\MiNET\MiNET.Test\test_commands_1.json");
+			//McpeAvailableCommands commands = McpeAvailableCommands.CreateObject();
+			//commands.commands = content;
+			//commands.unknown = "{}";
+			//SendPackage(commands);
+		}
+
+		public void HandleMcpeCommandStep(McpeCommandStep message)
+		{
+			Log.Error($"Entity ID={EntityId}\n{Package.HexDump(message.Bytes)}");
+
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.None,
+				Formatting = Formatting.Indented,
+			};
+			string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+			Log.Debug($"{message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+
+			var commanJson = JsonConvert.DeserializeObject(message.commandInputJson);
+			Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commanJson, jsonSerializerSettings)}");
 		}
 
 		public virtual void InitializePlayer()
@@ -1806,18 +1833,18 @@ namespace MiNET
 			mcpeStartGame.dimension = 0;
 			mcpeStartGame.generator = 1;
 			mcpeStartGame.gamemode = (int) GameMode;
-			mcpeStartGame.dimension = 0;
 			mcpeStartGame.x = (int) SpawnPosition.X;
 			mcpeStartGame.y = (int) (SpawnPosition.Y + Height);
 			mcpeStartGame.z = (int) SpawnPosition.Z;
-			mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative;
+			//mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative || EnableCommands;
+			mcpeStartGame.hasAchievementsDisabled = true;
 			mcpeStartGame.dayCycleStopTime = -1;
 			mcpeStartGame.eduMode = false;
 			mcpeStartGame.rainLevel = 0;
 			mcpeStartGame.lightnigLevel = 0;
-			mcpeStartGame.enableCommands = false;
+			mcpeStartGame.enableCommands = EnableCommands;
 			mcpeStartGame.isTexturepacksRequired = false;
-			mcpeStartGame.secret = "SECRET";
+			mcpeStartGame.secret = "1m0AAMIFIgA=";
 			mcpeStartGame.worldName = "test";
 
 			SendPackage(mcpeStartGame);
@@ -1829,6 +1856,7 @@ namespace MiNET
 		public void SendSetSpawnPosition()
 		{
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
+			mcpeSetSpawnPosition.unknown1 = 1;
 			mcpeSetSpawnPosition.coordinates = (BlockCoordinates) SpawnPosition;
 			SendPackage(mcpeSetSpawnPosition);
 		}
@@ -2181,7 +2209,6 @@ namespace MiNET
 			var metadata = base.GetMetadata();
 			metadata[4] = new MetadataString(NameTag ?? Username);
 			metadata[40] = new MetadataString(ButtonText ?? string.Empty);
-			Log.Warn($"Button text={ButtonText}");
 
 			//MetadataDictionary metadata = new MetadataDictionary();
 			//metadata[0] = new MetadataLong(GetDataValue()); // 10000000000000011000000000000000
@@ -2195,7 +2222,7 @@ namespace MiNET
 			//metadata[9] = new MetadataByte(0);
 			//metadata[27] = new MetadataByte(0);
 			//metadata[28] = new MetadataInt(1);
-			////metadata[29] = new MetadataIntCoordinates(X = 0, Y = 0, Z = 0);
+			//metadata[29] = new MetadataIntCoordinates((int) SpawnPosition.X, (int) SpawnPosition.Y, (int) SpawnPosition.Z);
 			//metadata[38] = new MetadataLong(0);
 			//metadata[39] = new MetadataFloat(1f);
 			//metadata[40] = new MetadataString(ButtonText ?? string.Empty);
@@ -2476,6 +2503,15 @@ namespace MiNET
 		{
 			PlayerLeave?.Invoke(this, e);
 		}
+	}
+
+	public enum UserPermission
+	{
+		Any = 0,
+		Op = 1,
+		Host = 2,
+		Automation = 3,
+		Admin = 4,
 	}
 
 	public class PlayerEventArgs : CancelEventArgs

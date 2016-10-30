@@ -452,6 +452,11 @@ namespace MiNET
 				handler.HandleMcpeMovePlayer((McpeMovePlayer) message);
 			}
 
+			else if (typeof(McpeCommandStep) == message.GetType())
+			{
+				handler.HandleMcpeCommandStep((McpeCommandStep)message);
+			}
+
 			else if (typeof (McpeInteract) == message.GetType())
 			{
 				handler.HandleMcpeInteract((McpeInteract) message);

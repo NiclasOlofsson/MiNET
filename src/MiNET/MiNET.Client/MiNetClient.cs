@@ -48,6 +48,7 @@ namespace MiNET.Client
 		private int _reliableMessageNumber = -1;
 		private Vector3 _spawn;
 		public long EntityId { get; private set; }
+		public long NetworkEntityId { get; private set; }
 		public PlayerNetworkSession Session { get; set; }
 		public int ChunkRadius { get; set; } = 5;
 
@@ -145,15 +146,17 @@ namespace MiNET.Client
 
 			Action<Task, Item, BlockCoordinates> doUseItem = BotHelpers.DoUseItem(client);
 			Action<Task, PlayerLocation> doMoveTo = BotHelpers.DoMoveTo(client);
+			Action<Task, string> doSendCommand = BotHelpers.DoSendCommand(client);
 
 			//.ContinueWith(t => doMovePlayer(t, client.CurrentLocation + new Vector3(0, 1.62f, 0)))
 			//.ContinueWith(t => doMoveTo(t, client.CurrentLocation + new Vector3(10, 1.62f, 10)))
 
 			Task.Run(BotHelpers.DoWaitForSpawn(client))
 				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Stone(), 0) {Count = 64}, 0))
-				.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
+				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
+				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
+				.ContinueWith(t => doSendCommand(t, "/test"))
 				//.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
 				//.ContinueWith(t =>
 				//{
@@ -1021,6 +1024,10 @@ namespace MiNET.Client
 			{
 				OnMcpeAvailableCommands((McpeAvailableCommands) message);
 			}
+			else if (typeof(McpeCommandStep) == message.GetType())
+			{
+				OnMcpeCommandStep((McpeCommandStep)message);
+			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -1189,16 +1196,28 @@ namespace MiNET.Client
 
 		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
 		{
-			{
-				dynamic json = JObject.Parse(message.commands);
+			//{
+			//	dynamic json = JObject.Parse(message.commands);
 
-				if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
-			}
-			{
-				dynamic json = JObject.Parse(message.unknown);
+			//	if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+			//}
+			//{
+			//	dynamic json = JObject.Parse(message.unknown);
 
-				if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
-			}
+			//	if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
+			//}
+		}
+
+		private void OnMcpeCommandStep(McpeCommandStep message)
+		{
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.None,
+				Formatting = Formatting.Indented,
+			};
+
+			var commanJson = JsonConvert.DeserializeObject(message.commandOutputJson);
+			Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commanJson, jsonSerializerSettings)}");
 		}
 
 		private void OnMcpeSetTime(McpeSetTime message)
@@ -1373,6 +1392,8 @@ namespace MiNET.Client
 			//Task.Run(() => { HandlePackage(newMessage); });
 		}
 
+		public UserPermission UserPermission { get; set; }
+
 		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
 		{
 			Log.Debug($@"
@@ -1380,6 +1401,7 @@ Adventure settings
 	flags: 0x{message.flags:X2} - {Convert.ToString(message.flags, 2)}
 	flags: 0x{message.userPermission:X2} - {Convert.ToString(message.userPermission, 2)}
 ");
+			UserPermission = (UserPermission) message.userPermission;
 		}
 
 		private void OnMcpeInteract(McpeInteract message)
@@ -1986,6 +2008,7 @@ Adventure settings
 		private void OnMcpeStartGame(McpeStartGame message)
 		{
 			EntityId = message.runtimeEntityId;
+			NetworkEntityId = message.entityId;
 			_spawn = new Vector3(message.x, message.y, message.z);
 
 			Log.Debug($@"

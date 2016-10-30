@@ -259,7 +259,7 @@
 	</pdu>
 
 	<pdu id="0x0f" online="false" client="false" server="true" name="MCPE_REMOVE_ENTITY">
-		<field name="Entity ID" type="UnsignedVarLong" />
+		<field name="Entity ID" type="SignedVarLong" />
 	</pdu>
 
 	<pdu id="0x10" online="false" client="false" server="true" name="MCPE_ADD_ITEM_ENTITY">
@@ -447,9 +447,8 @@
 	</pdu>
 
 	<pdu id="0x2a" online="false" client="false" server="true" name="MCPE_SET_SPAWN_POSITION">
-		<field name="Unknown 1" type="VarInt" />
+		<field name="Unknown 1" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Unknown 2" type="bool" />
 	</pdu>
 
 	<pdu id="0x2b" online="false" client="true" server="true" name="MCPE_ANIMATE">
@@ -620,8 +619,19 @@
 		<field name="Unknown" type="string"  />
 	</pdu>
 
-	<pdu id="0x4c" online="false" client="false" server="true" name="MCPE_COMMAND_STEP">
-	</pdu>
+	<pdu id="0x4c" online="false" client="true" server="false" name="MCPE_COMMAND_STEP">
+    <field name="Command name" type="string"  />
+    <field name="Command overload" type="string"  />
+    <field name="Unknown 1" type="UnsignedVarInt"  />
+    <field name="Unknown 2" type="UnsignedVarInt"  />
+    <field name="Is Output" type="bool"  />
+    <field name="Unknown 5" type="UnsignedVarLong"  />
+    <field name="Command Input Json" type="string"  />
+    <field name="Command Output Json" type="string"  />
+    <field name="Unknown 7" type="byte"  />
+    <field name="Unknown 8" type="byte"  />
+    <field name="Entity ID" type="SignedVarLong"  />
+  </pdu>
 
 	<pdu id="0x4d" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
     <field name="Package ID" type="string"  />

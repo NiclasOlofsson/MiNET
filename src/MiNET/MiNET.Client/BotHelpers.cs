@@ -87,6 +87,31 @@ namespace MiNET.Client
 			return doUseItem;
 		}
 
+		public static Action<Task, string> DoSendCommand(MiNetClient client)
+		{
+			Action<Task, string> doUseItem = (t, command) =>
+			{
+				McpeCommandStep commandStep = McpeCommandStep.CreateObject();
+				commandStep.commandName = "help";
+				commandStep.commandOverload = "byPage";
+				commandStep.unknown1 = 0;
+				commandStep.unknown2 = 0;
+				commandStep.isOutput = false;
+				commandStep.unknown5 = -1;
+				//commandStep.commandJson = @"{}";
+				//commandStep.unkown6 = @"{}";
+				commandStep.commandInputJson = "null\n";
+				commandStep.commandOutputJson = "null\n";
+				commandStep.unknown7 = 0;
+				commandStep.unknown8 = 0;
+				commandStep.entityId = client.NetworkEntityId;
+				Log.Error($"Entity ID used={client.EntityId}\n{Package.HexDump(commandStep.Encode())}");
+
+				client.SendPackage(commandStep);
+			};
+			return doUseItem;
+		}
+
 		public static Action<Task, PlayerLocation> DoMoveTo(MiNetClient client)
 		{
 			Action<Task, PlayerLocation> doMoveTo = (t, loc) =>

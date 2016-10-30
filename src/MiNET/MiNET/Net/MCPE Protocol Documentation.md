@@ -664,7 +664,7 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Entity ID | UnsignedVarLong |  |
+|Entity ID | SignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Add Item Entity (0x10)
 
@@ -1120,9 +1120,8 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown 1 | VarInt |  |
+|Unknown 1 | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
-|Unknown 2 | bool |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Animate (0x2b)
 
@@ -1623,8 +1622,8 @@ ORDER_LAYERED = 1;
 -----------------------------------------------------------------------
 ###Package: Mcpe Command Step (0x4c)
 
-**Sent from server:** true
-**Sent from client:** false
+**Sent from server:** false
+**Sent from client:** true
 **Packet size:** 
 
 
@@ -1633,6 +1632,17 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Command name | string |  |
+|Command overload | string |  |
+|Unknown 1 | UnsignedVarInt |  |
+|Unknown 2 | UnsignedVarInt |  |
+|Is Output | bool |  |
+|Unknown 5 | UnsignedVarLong |  |
+|Command Input Json | string |  |
+|Command Output Json | string |  |
+|Unknown 7 | byte |  |
+|Unknown 8 | byte |  |
+|Entity ID | SignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Resource Pack Data Info (0x4d)
 

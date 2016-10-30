@@ -397,13 +397,13 @@ namespace MiNET
 		}
 
 
-		public bool IsWorldImmutable { get; private set; }
-		public bool IsNoPvp { get; private set; }
-		public bool IsNoPvm { get; private set; }
-		public bool IsNoMvp { get; private set; }
-		public bool IsNoClip { get; private set; }
+		public bool IsWorldImmutable { get; set; }
+		public bool IsNoPvp { get; set; }
+		public bool IsNoPvm { get; set; }
+		public bool IsNoMvp { get; set; }
+		public bool IsNoClip { get; set; }
 
-		private void SendAdventureSettings()
+		public virtual void SendAdventureSettings()
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 
@@ -461,14 +461,7 @@ namespace MiNET
 		public void SetAllowFly(bool allowFly)
 		{
 			AllowFly = allowFly;
-			if (!AllowFly)
-			{
-				SendAdventureSettings();
-			}
-			else
-			{
-				SendAdventureSettings();
-			}
+			SendAdventureSettings();
 		}
 
 		private object _loginSyncLock = new object();
@@ -1472,23 +1465,30 @@ namespace MiNET
 			switch (message.actionId)
 			{
 				case 1:
+				{
 					// Button pressed
 
-					McpeAnimate animate = McpeAnimate.CreateObject();
-					animate.entityId = target.EntityId;
-					animate.actionId = 4;
-					Level.RelayBroadcast(animate);
+					//McpeAnimate animate = McpeAnimate.CreateObject();
+					//animate.entityId = target.EntityId;
+					//animate.actionId = 4;
+					//Level.RelayBroadcast(animate);
 
 					DoInteraction(message.actionId, this);
 					target.DoInteraction(message.actionId, this);
-
 					break;
+				}
 				case 4:
+				{
 					// Mouse over
+					//McpeAnimate animate = McpeAnimate.CreateObject();
+					//animate.entityId = target.EntityId;
+					//animate.actionId = 4;
+					//Level.RelayBroadcast(animate);
 
 					DoMouseOverInteraction(message.actionId, this);
 					target.DoMouseOverInteraction(message.actionId, this);
 					break;
+				}
 			}
 
 
@@ -1532,14 +1532,6 @@ namespace MiNET
 			}
 
 			HungerManager.IncreaseExhaustion(0.3f);
-		}
-
-		public override void DoMouseOverInteraction(byte actionId, Player player)
-		{
-		}
-
-		public override void DoInteraction(byte actionId, Player player)
-		{
 		}
 
 		protected virtual double CalculateDamageIncreaseFromEnchantments(Item tool)

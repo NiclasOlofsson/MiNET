@@ -74,6 +74,12 @@ namespace TestPlugin.NiceLobby
 			int idx = 1;
 			player.Inventory.Slots[idx++] = new ItemCompass();
 			player.SendPlayerInventory();
+			//player.HealthManager = new NoDamageHealthManager(player);
+			//player.IsNoPvp = true;
+			//player.IsNoPvm = true;
+			//player.IsNoMvp = true;
+			//player.AllowFly = true;
+			//player.SendAdventureSettings();
 
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}

@@ -1,62 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace MiNET.Plugins
 {
+	public class Commands : Dictionary<string, Command>
+	{
+	}
+
 	public class Command
 	{
-		public List<Version> Versions { get; set; }
+		public Version[] Versions { get; set; }
 	}
 
 	public class Version
 	{
+		[JsonProperty(propertyName: "version")]
+		public int CommandVersion { get; set; }
+
+		public string[] Aliases { get; set; }
 		public string Description { get; set; }
+		public string Permission { get; set; }
+		public bool RequiresChatPerms { get; set; }
+
+		[JsonProperty(propertyName: "requires_edu")]
+		public bool RequiresEdu { get; set; }
+
 		public Dictionary<string, Overload> Overloads { get; set; }
 	}
 
 
 	public class Overload
 	{
-		//[JsonProperty(ItemConverterType = typeof(ParameterConverter))]
-		public Dictionary<string, List<Parameter>> Input { get; set; }
-
-		[JsonProperty(ItemConverterType = typeof(ParameterConverter))]
-		public Dictionary<string, List<IParameter>> Output { get; set; }
+		public Input Input { get; set; }
+		public Output Output { get; set; }
+		public Parser Parser { get; set; }
 	}
 
-
-	public interface IParameter
+	public class Input
 	{
-		//public string Name { get; set; }
-		//public string Type { get; set; }
+		public Parameter[] Parameters { get; set; }
 	}
 
-	public class Parameter: IParameter
+	public class Output
 	{
-		//public string Name { get; set; }
-		//public string Type { get; set; }
+		[JsonProperty(propertyName: "format_strings")]
+		public string[] FormatStrings { get; set; }
+
+		public Parameter[] Parameters { get; set; }
 	}
 
-	public class ParameterConverter : CustomCreationConverter<Dictionary<string, List<IParameter>>>
+	public class Parser
 	{
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-		{
-			Console.WriteLine($"Converter read: {objectType}, {reader.ValueType}");
-			return base.ReadJson(reader, objectType, existingValue, serializer);
-		}
+		public string Tokens { get; set; }
+	}
 
-		public override bool CanConvert(Type objectType)
-		{
-			Console.WriteLine($"Can convert: {objectType}={base.CanConvert(objectType)}");
-			return base.CanConvert(objectType);
-		}
+	public class Parameter
+	{
+		public string Name { get; set; }
+		public string Type { get; set; }
 
-		public override Dictionary<string, List<IParameter>> Create(Type objectType)
-		{
-			Console.WriteLine($"{objectType}");
-			return new Dictionary<string, List<IParameter>>();
-		}
+		[JsonProperty(propertyName: "enum_type")]
+		public string EnumType { get; set; }
+
+		[JsonProperty(propertyName: "enum_values")]
+		public string[] WnumValues { get; set; }
+
+		public bool Optional { get; set; }
 	}
 }

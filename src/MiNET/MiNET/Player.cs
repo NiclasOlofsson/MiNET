@@ -106,7 +106,7 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
-		public void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
+		public virtual void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
@@ -129,7 +129,7 @@ namespace MiNET
 
 		private bool _serverHaveResources = false;
 
-		public void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
+		public virtual void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Handled package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
 
@@ -617,7 +617,7 @@ namespace MiNET
 			//SendPackage(commands);
 		}
 
-		public void HandleMcpeCommandStep(McpeCommandStep message)
+		public virtual void HandleMcpeCommandStep(McpeCommandStep message)
 		{
 			Log.Error($"Entity ID={EntityId}\n{Package.HexDump(message.Bytes)}");
 

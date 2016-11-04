@@ -71,9 +71,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="server.nicke_000.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="server.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

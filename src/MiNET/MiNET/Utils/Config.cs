@@ -19,6 +19,8 @@ namespace MiNET.Utils
 		{
 			try
 			{
+				string username = Environment.UserName;
+
 				string fileContents = string.Empty;
 				if (!MiNetServer.IsRunningOnMono()) //Fix issue on linux/mono.
 				{
@@ -28,11 +30,19 @@ namespace MiNET.Utils
 					{
 						var path = new Uri(rawPath).LocalPath;
 
-						var configFilePath = Path.Combine(path, ConfigFileName);
-
+						string configFilePath;
+						configFilePath = Path.Combine(path, $"server.{username}.config");
 						if (File.Exists(configFilePath))
 						{
 							fileContents = File.ReadAllText(configFilePath);
+						}
+						else
+						{
+							configFilePath = Path.Combine(path, ConfigFileName);
+							if (File.Exists(configFilePath))
+							{
+								fileContents = File.ReadAllText(configFilePath);
+							}
 						}
 					}
 				}

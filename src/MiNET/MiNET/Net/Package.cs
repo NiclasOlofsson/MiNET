@@ -512,13 +512,50 @@ namespace MiNET.Net
 			}
 		}
 
-		public IPEndPoint ReadIPEndPoint()
+
+
+//typedef struct sockaddr_in6
+//{
+//	ADDRESS_FAMILY sin6_family; // AF_INET6.
+//	USHORT sin6_port;           // Transport level port number.
+//	ULONG sin6_flowinfo;       // IPv6 flow information.
+//	IN6_ADDR sin6_addr;         // IPv6 address.
+//	union {
+//ULONG sin6_scope_id;     // Set of interfaces for a scope.
+//	SCOPE_ID sin6_scope_struct;
+//};
+//}
+//SOCKADDR_IN6_LH, * PSOCKADDR_IN6_LH, FAR * LPSOCKADDR_IN6_LH;
+
+	public IPEndPoint ReadIPEndPoint()
 		{
 			byte ipVersion = ReadByte();
-			string ipAddress = $"{ReadByte()}.{ReadByte()}.{ReadByte()}.{ReadByte()}";
-			int port = ReadShort(true);
 
-			return new IPEndPoint(IPAddress.Parse(ipAddress), port);
+			IPAddress address = IPAddress.Any;
+			int port = 0;
+
+			if (ipVersion == 4)
+			{
+				string ipAddress = $"{ReadByte()}.{ReadByte()}.{ReadByte()}.{ReadByte()}";
+				address = IPAddress.Parse(ipAddress);
+				port = (ushort)ReadShort(true);
+			}
+			else if (ipVersion == 6)
+			{
+				ReadShort(); // Address family
+				port = (ushort)ReadShort(true); // Port
+				ReadLong(); // Flow info
+				var addressBytes = ReadBytes(16);
+				address = new IPAddress(addressBytes);
+			}
+			else
+			{
+				Log.Error($"Wrong IP version. Expected IPv4 or IPv6 but was IPv{ipVersion}");
+			}
+
+			Log.Warn($"IP={address}, Port={port}");
+
+			return new IPEndPoint(address, port);
 		}
 
 		public void Write(IPEndPoint[] endpoints)

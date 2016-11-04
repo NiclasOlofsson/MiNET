@@ -364,10 +364,8 @@ namespace MiNET
 					catch (Exception e)
 					{
 						playerSession.Disconnect("Bad package received from client.");
-						//if (Log.IsDebugEnabled)
-						{
-							Log.Warn("Bad packet " + receiveBytes[0], e);
-						}
+
+						Log.Warn($"Bad packet {receiveBytes[0]}\n{Package.HexDump(receiveBytes)}", e);
 
 						GreylistManager.Blacklist(senderEndpoint.Address);
 

@@ -518,7 +518,7 @@ namespace MiNET.Net
 			string ipAddress = $"{ReadByte()}.{ReadByte()}.{ReadByte()}.{ReadByte()}";
 			int port = ReadShort(true);
 
-			return new IPEndPoint(IPAddress.Parse(ipAddress), 19132);
+			return new IPEndPoint(IPAddress.Parse(ipAddress), port);
 		}
 
 		public void Write(IPEndPoint[] endpoints)

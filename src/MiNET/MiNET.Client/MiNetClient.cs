@@ -1178,7 +1178,7 @@ namespace MiNET.Client
 			Log.Debug($"packageId={message.packageId}");
 			Log.Debug($"unknown1={message.unknown1}");
 			Log.Debug($"unknown3={message.unknown3}");
-			Log.Debug($"Reported Lenght={message.lenght}");
+			Log.Debug($"Reported Lenght={message.length}");
 			Log.Debug($"Actual Lenght={message.payload.Length}");
 
 			McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();

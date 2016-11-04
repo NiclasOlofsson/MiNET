@@ -516,7 +516,7 @@ namespace MiNET.Worlds
 						move.headYaw = knownPosition.HeadYaw;
 						move.mode = 0;
 						byte[] bytes = move.Encode();
-						BatchUtils.WriteLenght(stream, bytes.Length);
+						BatchUtils.WriteLength(stream, bytes.Length);
 						stream.Write(bytes, 0, bytes.Length);
 						move.PutPool();
 						playerMoveCount++;
@@ -533,7 +533,7 @@ namespace MiNET.Worlds
 							moveEntity.position = (PlayerLocation) entity.KnownPosition.Clone();
 						    moveEntity.position.Y += entity.PositionOffset;
 							byte[] bytes = moveEntity.Encode();
-							BatchUtils.WriteLenght(stream, bytes.Length);
+							BatchUtils.WriteLength(stream, bytes.Length);
 							stream.Write(bytes, 0, bytes.Length);
 							moveEntity.PutPool();
 						}
@@ -542,7 +542,7 @@ namespace MiNET.Worlds
 							entityMotion.entityId = entity.EntityId;
 							entityMotion.velocity = entity.Velocity;
 							byte[] bytes = entityMotion.Encode();
-							BatchUtils.WriteLenght(stream, bytes.Length);
+							BatchUtils.WriteLength(stream, bytes.Length);
 							stream.Write(bytes, 0, bytes.Length);
 							entityMotion.PutPool();
 						}

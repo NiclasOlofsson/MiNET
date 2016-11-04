@@ -455,7 +455,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x3d:
-						package = McpeSetPlayerGaneType.CreateObject();
+						package = McpeSetPlayerGameType.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -1327,7 +1327,7 @@ namespace MiNET.Net
 	public partial class McpeServerExchange : Package<McpeServerExchange>
 	{
 		public string serverPublicKey; // = null;
-		public int tokenLenght; // = null;
+		public int tokenLength; // = null;
 		public byte[] token; // = null;
 		public McpeServerExchange()
 		{
@@ -1341,7 +1341,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(serverPublicKey);
-			WriteLenght(tokenLenght);
+			WriteLength(tokenLength);
 			Write(token);
 
 			AfterEncode();
@@ -1357,7 +1357,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			serverPublicKey = ReadString();
-			tokenLenght = ReadLenght();
+			tokenLength = ReadLength();
 			token = ReadBytes(0);
 
 			AfterDecode();
@@ -3945,11 +3945,9 @@ namespace MiNET.Net
 
 	public partial class McpeChangeDimension : Package<McpeChangeDimension>
 	{
-		public byte dimension; // = null;
-		public float x; // = null;
-		public float y; // = null;
-		public float z; // = null;
-		public byte unknown; // = null;
+		public int dimension; // = null;
+		public Vector3 position; // = null;
+		public bool unknown; // = null;
 		public McpeChangeDimension()
 		{
 			Id = 0x3c;
@@ -3961,10 +3959,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(dimension);
-			Write(x);
-			Write(y);
-			Write(z);
+			WriteSignedVarInt(dimension);
+			Write(position);
 			Write(unknown);
 
 			AfterEncode();
@@ -3979,11 +3975,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			dimension = ReadByte();
-			x = ReadFloat();
-			y = ReadFloat();
-			z = ReadFloat();
-			unknown = ReadByte();
+			dimension = ReadSignedVarInt();
+			position = ReadVector3();
+			unknown = ReadBool();
 
 			AfterDecode();
 		}
@@ -3993,10 +3987,10 @@ namespace MiNET.Net
 
 	}
 
-	public partial class McpeSetPlayerGaneType : Package<McpeSetPlayerGaneType>
+	public partial class McpeSetPlayerGameType : Package<McpeSetPlayerGameType>
 	{
 		public int unknown; // = null;
-		public McpeSetPlayerGaneType()
+		public McpeSetPlayerGameType()
 		{
 			Id = 0x3d;
 		}
@@ -4680,7 +4674,7 @@ namespace MiNET.Net
 		public string packageId; // = null;
 		public uint unknown1; // = null;
 		public ulong unknown3; // = null;
-		public uint lenght; // = null;
+		public uint length; // = null;
 		public byte[] payload; // = null;
 		public McpeResourcePackChunkData()
 		{
@@ -4696,7 +4690,7 @@ namespace MiNET.Net
 			Write(packageId);
 			Write(unknown1);
 			Write(unknown3);
-			Write(lenght);
+			Write(length);
 			Write(payload);
 
 			AfterEncode();
@@ -4714,7 +4708,7 @@ namespace MiNET.Net
 			packageId = ReadString();
 			unknown1 = ReadUint();
 			unknown3 = ReadUlong();
-			lenght = ReadUint();
+			length = ReadUint();
 			payload = ReadBytes(0);
 
 			AfterDecode();

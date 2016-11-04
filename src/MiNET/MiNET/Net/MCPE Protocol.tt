@@ -157,7 +157,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		{
 			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "long", CodeName(field.Attributes["name"].Value), "null"));
 		}
-		else if(field.Attributes["type"].Value == "Lenght")
+		else if(field.Attributes["type"].Value == "Length")
 		{
 			WriteLine(string.Format("\t\tpublic {0} {1}; // = {2};", "int", CodeName(field.Attributes["name"].Value), "null"));
 		}
@@ -218,9 +218,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		{
 			WriteLine(string.Format("\t\t\tWriteUnsignedVarLong({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
 		}
-		else if(field.Attributes["type"].Value == "Lenght")
+		else if(field.Attributes["type"].Value == "Length")
 		{
-			WriteLine(string.Format("\t\t\tWriteLenght({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
+			WriteLine(string.Format("\t\t\tWriteLength({0});", CodeName(field.Attributes["name"].Value), field.Attributes["type"].Value));
 		}
 		else if(field.Attributes["type"].Value == "ByteArray")
 		{

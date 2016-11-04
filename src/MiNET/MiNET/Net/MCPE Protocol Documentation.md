@@ -82,7 +82,7 @@
 | Mcpe Set Commands Enabled | 0x3a | 58 |   
 | Mcpe Set Difficulty | 0x3b | 59 |   
 | Mcpe Change Dimension | 0x3c | 60 |   
-| Mcpe Set Player Gane Type | 0x3d | 61 |   
+| Mcpe Set Player Game Type | 0x3d | 61 |   
 | Mcpe Player List | 0x3e | 62 |   
 | Mcpe Event | 0x3f | 63 |   
 | Mcpe Spawn Experience Orb | 0x40 | 64 |   
@@ -424,7 +424,7 @@ The three type of status are:
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Server Public Key | string |  |
-|Token Lenght | Lenght |  |
+|Token Length | Length |  |
 |Token | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Client Magic (0x04)
@@ -1404,13 +1404,11 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Dimension | byte |  |
-|X | float |  |
-|Y | float |  |
-|Z | float |  |
-|Unknown | byte |  |
+|Dimension | SignedVarInt |  |
+|Position | Vector3 |  |
+|Unknown | bool |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Set Player Gane Type (0x3d)
+###Package: Mcpe Set Player Game Type (0x3d)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1675,7 +1673,7 @@ ORDER_LAYERED = 1;
 |Package ID | string |  |
 |Unknown1 | uint |  |
 |Unknown3 | ulong |  |
-|Lenght | uint |  |
+|Length | uint |  |
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ###Package: Mcpe Resource Pack Chunk Request (0x4f)

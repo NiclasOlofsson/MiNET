@@ -14,7 +14,7 @@ namespace MiNET.Utils
 				foreach (var package in packages)
 				{
 					byte[] bytes = package.Encode();
-					WriteLenght(stream, bytes.Length);
+					WriteLength(stream, bytes.Length);
 					stream.Write(bytes, 0, bytes.Length);
 					package.PutPool();
 				}
@@ -57,7 +57,7 @@ namespace MiNET.Utils
 			{
 				if (writeLen)
 				{
-					WriteLenght(compressStream, length);
+					WriteLength(compressStream, length);
 				}
 
 				//var lenBytes = BitConverter.GetBytes(length);
@@ -77,12 +77,12 @@ namespace MiNET.Utils
 			return stream;
 		}
 
-		public static void WriteLenght(Stream stream, int lenght)
+		public static void WriteLength(Stream stream, int lenght)
 		{
 			VarInt.WriteUInt32(stream, (uint) lenght);
 		}
 
-		public static int ReadLenght(Stream stream)
+		public static int ReadLength(Stream stream)
 		{
 			return (int) VarInt.ReadUInt32(stream);
 		}

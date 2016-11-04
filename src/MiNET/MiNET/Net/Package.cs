@@ -120,13 +120,13 @@ namespace MiNET.Net
 				return;
 			}
 
-			WriteLenght(value.Length);
+			WriteLength(value.Length);
 			_writer.Write(value, 0, value.Length);
 		}
 
 		public byte[] ReadByteArray()
 		{
-			var len = ReadLenght();
+			var len = ReadLength();
 			var bytes = ReadBytes(len);
 			return bytes;
 		}
@@ -232,12 +232,12 @@ namespace MiNET.Net
 			return VarInt.ReadUInt32(_buffer);
 		}
 
-		public int ReadLenght()
+		public int ReadLength()
 		{
 			return (int) VarInt.ReadUInt32(_buffer);
 		}
 
-		public void WriteLenght(int value)
+		public void WriteLength(int value)
 		{
 			VarInt.WriteUInt32(_buffer, (uint) value);
 		}
@@ -316,20 +316,20 @@ namespace MiNET.Net
 		{
 			if (string.IsNullOrEmpty(value))
 			{
-				WriteLenght(0);
+				WriteLength(0);
 				return;
 			}
 
 			byte[] bytes = Encoding.UTF8.GetBytes(value);
 
-			WriteLenght(bytes.Length);
+			WriteLength(bytes.Length);
 			Write(bytes);
 		}
 
 		public string ReadString()
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return string.Empty;
-			int len = ReadLenght();
+			int len = ReadLength();
 			if (len <= 0) return string.Empty;
 			return Encoding.UTF8.GetString(ReadBytes(len));
 		}

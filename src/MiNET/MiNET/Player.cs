@@ -122,7 +122,7 @@ namespace MiNET
 			chunkData.packageId = "5abdb963-4f3f-4d97-8482-88e2049ab149";
 			chunkData.unknown1 = 0; // Package index ?
 			chunkData.unknown3 = 0; // Long, maybe timestamp?
-			chunkData.lenght = (uint) content.Length;
+			chunkData.length = (uint) content.Length;
 			chunkData.payload = content;
 			SendPackage(chunkData);
 		}

@@ -73,7 +73,7 @@ namespace TestPlugin
 		{
 			McpeChangeDimension change = McpeChangeDimension.CreateObject();
 			change.dimension = 1;
-			change.unknown = 0;
+			change.unknown = false;
 			player.SendPackage(change);
 		}
 

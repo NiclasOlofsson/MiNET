@@ -280,7 +280,7 @@ namespace MiNET
 							response.NoBatch = true;
 							response.ForceClear = true;
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-							response.tokenLenght = (short) ecKey.SecretPrepend.Length;
+							response.tokenLength = (short) ecKey.SecretPrepend.Length;
 							response.token = ecKey.SecretPrepend;
 
 							_session.SendPackage(response);

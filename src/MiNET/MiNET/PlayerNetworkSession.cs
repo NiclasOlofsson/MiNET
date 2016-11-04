@@ -313,7 +313,7 @@ namespace MiNET
 					while (destination.Position < destination.Length)
 					{
 						//int len = reader.ReadInt32();
-						int len = BatchUtils.ReadLenght(destination);
+						int len = BatchUtils.ReadLength(destination);
 						byte[] internalBuffer = reader.ReadBytes(len);
 
 						//if (Log.IsDebugEnabled)
@@ -883,7 +883,7 @@ namespace MiNET
 							if (bytes != null)
 							{
 								messageCount++;
-								BatchUtils.WriteLenght(memStream, bytes.Length);
+								BatchUtils.WriteLength(memStream, bytes.Length);
 								//memStream.Write(BitConverter.GetBytes(Endian.SwapInt32(bytes.Length)), 0, 4);
 								memStream.Write(bytes, 0, bytes.Length);
 							}

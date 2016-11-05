@@ -23,7 +23,7 @@ namespace MiNET.ServiceKiller
 
 		private const int TimeBetweenSpawns = 350;
 		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromMinutes(30);
-		private const int NumberOfBots = 200;
+		private const int NumberOfBots = 20;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 5;
@@ -157,6 +157,7 @@ namespace MiNET.ServiceKiller
 
 				Thread.Sleep(3000);
 
+				client.SendChat(".tp test");
 				//client.SendChat("/join bb");
 				//client.SendChat("/join skywars");
 

@@ -89,7 +89,9 @@ namespace MiNET.Client
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
 
+			//var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.255"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
@@ -100,6 +102,7 @@ namespace MiNET.Client
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("157.7.202.57"), 19132), "TheGrey");
 
 			client.StartClient();
+			Log.Warn("Client listening for connecting on: " + client._clientEndpoint);
 			Console.WriteLine("Server started.");
 
 			if (client._serverEndpoint != null)
@@ -2394,7 +2397,7 @@ StartGame:
 
 		public void SendMcpeMovePlayer()
 		{
-			SendChat($"Moving Entity ID: {EntityId}  to {CurrentLocation}");
+			//SendChat($"Moving Entity ID: {EntityId}  to {CurrentLocation}");
 
 			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
 			movePlayerPacket.entityId = EntityId;

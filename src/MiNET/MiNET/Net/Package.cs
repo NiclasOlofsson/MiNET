@@ -553,8 +553,6 @@ namespace MiNET.Net
 				Log.Error($"Wrong IP version. Expected IPv4 or IPv6 but was IPv{ipVersion}");
 			}
 
-			Log.Warn($"IP={address}, Port={port}");
-
 			return new IPEndPoint(address, port);
 		}
 

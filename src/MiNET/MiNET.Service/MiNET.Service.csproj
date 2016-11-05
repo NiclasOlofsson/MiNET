@@ -74,6 +74,7 @@
     <None Include="server.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="server.nicke_000.conf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiNET\MiNET.csproj">

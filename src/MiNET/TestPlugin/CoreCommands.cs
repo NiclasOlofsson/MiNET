@@ -270,19 +270,29 @@ namespace TestPlugin
 
 				if (levels != null)
 				{
-					player.SpawnLevel(null, null, true, delegate
+					//player.SpawnLevel(null, null, true, delegate
+					//{
+					//	Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+
+					//	if (nextLevel == null)
+					//	{
+					//		nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
+					//		nextLevel.Initialize();
+					//		Context.LevelManager.Levels.Add(nextLevel);
+					//	}
+
+					//	return nextLevel;
+					//});
+
+					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+					if (nextLevel == null)
 					{
-						Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+						nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
+						nextLevel.Initialize();
+						Context.LevelManager.Levels.Add(nextLevel);
+					}
 
-						if (nextLevel == null)
-						{
-							nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
-							nextLevel.Initialize();
-							Context.LevelManager.Levels.Add(nextLevel);
-						}
-
-						return nextLevel;
-					});
+					player.SpawnLevel(nextLevel);
 
 					oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 

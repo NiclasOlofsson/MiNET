@@ -557,7 +557,7 @@ namespace MiNET.Worlds
 				McpeBatch batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal, false);
 				batch.AddReferences(players.Length - 1);
 				batch.Encode();
-				batch.ValidUntil = now + TimeSpan.FromMilliseconds(50);
+				//batch.ValidUntil = now + TimeSpan.FromMilliseconds(50);
 				foreach (var player in players)
 				{
 					MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPackage(batch));

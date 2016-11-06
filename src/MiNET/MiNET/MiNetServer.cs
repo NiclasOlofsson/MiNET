@@ -987,7 +987,6 @@ namespace MiNET
 			lock (session.SyncRoot)
 			{
 				SendData(data, session.EndPoint);
-				Thread.Sleep(12);
 			}
 		}
 

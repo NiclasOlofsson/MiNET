@@ -150,7 +150,7 @@ namespace MiNET
 					{
 						Popup popup = new Popup
 						{
-							Duration = 1,
+							Duration = 20*2,
 							MessageType = MessageType.Tip,
 							Message = $"Saturation={Saturation}, Exhaustion={Exhaustion:F3}"
 						};
@@ -169,16 +169,16 @@ namespace MiNET
 				MinValue = MinHunger,
 				MaxValue = MaxHunger,
 				Value = Hunger,
-				Unknown = Hunger,
+				Unknown = MaxHunger,
 			};
 
 			attributes["minecraft:player.saturation"] = new PlayerAttribute
 			{
 				Name = "minecraft:player.saturation",
 				MinValue = 0,
-				MaxValue = Hunger,
+				MaxValue = MaxHunger,
 				Value = (float) Saturation,
-				Unknown = (float) Saturation,
+				Unknown = MaxHunger,
 			};
 			attributes["minecraft:player.exhaustion"] = new PlayerAttribute
 			{
@@ -186,7 +186,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 5,
 				Value = (float) Exhaustion,
-				Unknown = (float) Exhaustion,
+				Unknown = 5,
 			};
 
 			return attributes;
@@ -206,7 +206,7 @@ namespace MiNET
 		public virtual void ResetHunger()
 		{
 			Hunger = MaxHunger;
-			Saturation = Hunger;
+			Saturation = MaxHunger;
 			Exhaustion = 0;
 		}
 	}

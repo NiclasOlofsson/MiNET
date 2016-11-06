@@ -507,7 +507,7 @@ namespace MiNET
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
 
-				Level.EntityManager.AddEntity(null, this);
+				Level.EntityManager.AddEntity(this);
 
 				GameMode = Level.GameMode;
 
@@ -833,7 +833,7 @@ namespace MiNET
 			}
 
 			Level.RemovePlayer(this, true);
-			Level.EntityManager.RemoveEntity(null, this);
+			//Level.EntityManager.RemoveEntity(null, this);
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
@@ -1017,6 +1017,7 @@ namespace MiNET
 			}
 		}
 
+		private string _prevText = null;
 		public virtual void HandleMcpeText(McpeText message)
 		{
 			string text = message.message;
@@ -1025,6 +1026,9 @@ namespace MiNET
 
 			if (text.StartsWith("/") || text.StartsWith("."))
 			{
+				if (string.Equals(_prevText, text)) return;
+				_prevText = text;
+
 				Server.PluginManager.HandleCommand(Server.UserManager, text, this);
 			}
 			else
@@ -1085,9 +1089,6 @@ namespace MiNET
 			{
 				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
 			};
-
-
-			Log.Debug($"Move: Yaw={KnownPosition.Yaw}, HeadYaw={KnownPosition.HeadYaw}");
 
 			IsFalling = verticalMove < 0 && !IsOnGround;
 
@@ -1832,7 +1833,7 @@ namespace MiNET
 			mcpeStartGame.z = (int) SpawnPosition.Z;
 			//mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative || EnableCommands;
 			mcpeStartGame.hasAchievementsDisabled = true;
-			mcpeStartGame.dayCycleStopTime = -1;
+			mcpeStartGame.dayCycleStopTime = (int) Level.CurrentWorldTime;
 			mcpeStartGame.eduMode = false;
 			mcpeStartGame.rainLevel = 0;
 			mcpeStartGame.lightnigLevel = 0;

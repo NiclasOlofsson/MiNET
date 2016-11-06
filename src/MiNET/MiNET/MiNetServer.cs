@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
 using Microsoft.AspNet.Identity;
@@ -15,6 +16,7 @@ using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Security;
 using MiNET.Utils;
+using Newtonsoft.Json;
 
 namespace MiNET
 {
@@ -1008,12 +1010,45 @@ namespace MiNET
 			}
 		}
 
-		internal static void TraceReceive(Package message, int refNumber = 0)
+		internal static void TraceReceive(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
-			//if (!Debugger.IsAttached) return;
 
-			Log.DebugFormat("> Receive: {0}: {1} (0x{0:x2}) #{2}", message.Id, message.GetType().Name, refNumber);
+			string typeName = message.GetType().Name;
+
+			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+			string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
+			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+
+			if (!Regex.IsMatch(typeName, includePattern))
+			{
+				return;
+			}
+
+			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+			{
+				return;
+			}
+
+			if (verbosity == 0)
+			{
+				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+			}
+			else if (verbosity == 1)
+			{
+				var jsonSerializerSettings = new JsonSerializerSettings
+				{
+					PreserveReferencesHandling = PreserveReferencesHandling.None,
+					Formatting = Formatting.Indented,
+				};
+				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+			}
+			else if (verbosity == 2)
+			{
+				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+			}
 		}
 
 		public static void TraceSend(Package message)

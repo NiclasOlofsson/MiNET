@@ -21,9 +21,9 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 350;
-		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromMinutes(30);
-		private const int NumberOfBots = 20;
+		private const int TimeBetweenSpawns = 750;
+		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(45);
+		private const int NumberOfBots = 50;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 5;
@@ -212,6 +212,9 @@ namespace MiNET.ServiceKiller
 
 				if (client.UdpClient != null)
 				{
+					client.SendChat(".tp");
+					Thread.Sleep(1000);
+
 					//client.SendChat("Shadow gov agent BREXITING!");
 					client.SendDisconnectionNotification();
 				}

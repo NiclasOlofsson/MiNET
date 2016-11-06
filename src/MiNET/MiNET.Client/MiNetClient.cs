@@ -2213,12 +2213,6 @@ StartGame:
 		{
 			if (!Log.IsDebugEnabled) return;
 
-			var jsonSerializerSettings = new JsonSerializerSettings
-			{
-				PreserveReferencesHandling = PreserveReferencesHandling.None,
-				Formatting = Formatting.Indented,
-			};
-
 			string typeName = message.GetType().Name;
 
 			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
@@ -2242,6 +2236,11 @@ StartGame:
 			}
 			else if (verbosity == 1)
 			{
+				var jsonSerializerSettings = new JsonSerializerSettings
+				{
+					PreserveReferencesHandling = PreserveReferencesHandling.None,
+					Formatting = Formatting.Indented,
+				};
 				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 			}

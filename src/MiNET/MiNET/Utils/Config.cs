@@ -30,8 +30,8 @@ namespace MiNET.Utils
 					{
 						var path = new Uri(rawPath).LocalPath;
 
-						string configFilePath;
-						configFilePath = Path.Combine(path, $"server.{username}.config");
+						var configFilePath = Path.Combine(path, $"server.{username}.conf");
+						Log.Info($"Trying to load config-file {configFilePath}");
 						if (File.Exists(configFilePath))
 						{
 							fileContents = File.ReadAllText(configFilePath);
@@ -39,11 +39,15 @@ namespace MiNET.Utils
 						else
 						{
 							configFilePath = Path.Combine(path, ConfigFileName);
+
+							Log.Info($"Trying to load config-file {configFilePath}");
+
 							if (File.Exists(configFilePath))
 							{
 								fileContents = File.ReadAllText(configFilePath);
 							}
 						}
+						Log.Info($"Loading config-file {configFilePath}");
 					}
 				}
 				else

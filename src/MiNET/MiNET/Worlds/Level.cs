@@ -65,11 +65,11 @@ namespace MiNET.Worlds
 
 		public Random Random { get; private set; }
 
-		public Level(string levelId, IWorldProvider worldProvider, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
+		public Level(string levelId, IWorldProvider worldProvider, EntityManager entityManager, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
 		{
 			Random = new Random();
 
-			EntityManager = new EntityManager();
+			EntityManager = entityManager;
 			InventoryManager = new InventoryManager(this);
 			SpawnPoint = null;
 			Players = new ConcurrentDictionary<long, Player>();
@@ -190,7 +190,7 @@ namespace MiNET.Worlds
 		{
 			if (newPlayer.Username == null) throw new ArgumentNullException(nameof(newPlayer.Username));
 
-			EntityManager.AddEntity(null, newPlayer);
+			EntityManager.AddEntity(newPlayer);
 
 			lock (_playerWriteLock)
 			{
@@ -299,7 +299,7 @@ namespace MiNET.Worlds
 		{
 			lock (Entities)
 			{
-				EntityManager.AddEntity(null, entity);
+				EntityManager.AddEntity(entity);
 
 				if (Entities.TryAdd(entity.EntityId, entity))
 				{

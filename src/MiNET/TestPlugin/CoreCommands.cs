@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
@@ -206,7 +205,7 @@ namespace TestPlugin
 			{
 				// 128 = 32 + 32 + 32
 				var msg = McpeSpawnExperienceOrb.CreateObject();
-				msg.position = player1.KnownPosition.ToVector3() + new Vector3(1,2,1);
+				msg.position = player1.KnownPosition.ToVector3() + new Vector3(1, 2, 1);
 				msg.count = 10;
 				player.Level.RelayBroadcast(msg);
 			}
@@ -248,6 +247,8 @@ namespace TestPlugin
 			Teleport(player, "Default");
 		}
 
+		private object _levelSync = new object();
+
 		[Command(Command = "tp")]
 		public void Teleport(Player player, string world)
 		{
@@ -266,38 +267,35 @@ namespace TestPlugin
 
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				Level[] levels = state as Level[];
+				LevelManager levelManager = state as LevelManager;
+				if (levelManager == null) return;
+
+				Level[] levels = levelManager.Levels.ToArray();
 
 				if (levels != null)
 				{
-					//player.SpawnLevel(null, null, true, delegate
-					//{
-					//	Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
-
-					//	if (nextLevel == null)
-					//	{
-					//		nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
-					//		nextLevel.Initialize();
-					//		Context.LevelManager.Levels.Add(nextLevel);
-					//	}
-
-					//	return nextLevel;
-					//});
-
-					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
-					if (nextLevel == null)
+					player.SpawnLevel(null, null, true, delegate
 					{
-						nextLevel = new Level(world, new FlatlandWorldProvider(), player.GameMode, Difficulty.Normal);
-						nextLevel.Initialize();
-						Context.LevelManager.Levels.Add(nextLevel);
-					}
+						lock (levelManager.Levels)
+						{
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
 
-					player.SpawnLevel(nextLevel);
+							if (nextLevel == null)
+							{
+								nextLevel = new Level(world, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel.Initialize();
+								Context.LevelManager.Levels.Add(nextLevel);
+							}
 
-					oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 
+							return nextLevel;
+						}
+					});
 				}
-			}, Context.LevelManager.Levels.ToArray());
+
+				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
+
+			}, Context.LevelManager);
 		}
 
 		[Command]
@@ -501,7 +499,7 @@ namespace TestPlugin
 			//}
 
 			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
-			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) { Count = 64 };
+			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
@@ -808,7 +806,7 @@ namespace TestPlugin
 			for (int i = 0; i < 10; i++)
 			{
 				Pig pig = new Pig(player.Level);
-				pig.KnownPosition = (PlayerLocation)player.KnownPosition.Clone();
+				pig.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 				pig.SpawnEntity();
 				pigs.Add(pig);
 			}
@@ -816,7 +814,7 @@ namespace TestPlugin
 
 			Thread.Sleep(4000);
 
-			PlayerLocation loc = (PlayerLocation)player.KnownPosition.Clone();
+			PlayerLocation loc = (PlayerLocation) player.KnownPosition.Clone();
 			loc.Y = loc.Y + 10;
 			loc.X = loc.X + 10;
 			loc.Z = loc.Z + 10;
@@ -827,7 +825,7 @@ namespace TestPlugin
 
 			foreach (var pig in pigs)
 			{
-				pig.KnownPosition = (PlayerLocation)loc.Clone();
+				pig.KnownPosition = (PlayerLocation) loc.Clone();
 				pig.LastUpdatedTime = DateTime.UtcNow;
 			}
 
@@ -837,7 +835,7 @@ namespace TestPlugin
 		[Command]
 		public void Test2(Player player)
 		{
-			PlayerLocation pos = (PlayerLocation)player.KnownPosition.Clone();
+			PlayerLocation pos = (PlayerLocation) player.KnownPosition.Clone();
 			Task.Run(() =>
 			{
 				for (int i = 0; i < 100; i++)
@@ -848,8 +846,6 @@ namespace TestPlugin
 					Thread.Sleep(100);
 				}
 			});
-
-
 		}
 
 		[Command]
@@ -867,6 +863,5 @@ namespace TestPlugin
 
 			player.SendMessage($"There are {users.Count} of players online.");
 		}
-
 	}
 }

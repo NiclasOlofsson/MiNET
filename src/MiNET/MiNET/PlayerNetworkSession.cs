@@ -338,7 +338,7 @@ namespace MiNET
 				return;
 			}
 
-			MiNetServer.TraceReceive(message, message.OrderingIndex);
+			MiNetServer.TraceReceive(message);
 
 			if (CryptoContext != null && CryptoContext.UseEncryption)
 			{

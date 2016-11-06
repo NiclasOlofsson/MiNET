@@ -21,7 +21,7 @@ namespace MiNET.Entities.World
 			}
 			else
 			{
-				EntityId = level.EntityManager.AddEntity(null, this) + 0xFFFF;
+				EntityId = level.EntityManager.AddEntity(this) + 0xFFFF;
 			}
 
 			ImageProvider = new MapImageProvider();

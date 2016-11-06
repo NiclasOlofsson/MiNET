@@ -10,11 +10,12 @@ namespace MiNET
 {
 	public class LevelManager
 	{
-		public List<Level> Levels { get; set; }
+		public List<Level> Levels { get; set; } = new List<Level>();
+
+		public EntityManager EntityManager { get; set; } = new EntityManager();
 
 		public LevelManager()
 		{
-			Levels = new List<Level>();
 		}
 
 		public virtual Level GetLevel(Player player, string name)
@@ -48,7 +49,7 @@ namespace MiNET
 						break;
 				}
 
-				level = new Level(name, worldProvider, gameMode, difficulty, viewDistance);
+				level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 				level.Initialize();
 				Levels.Add(level);
 
@@ -118,7 +119,7 @@ namespace MiNET
 			IWorldProvider worldProvider = null;
 			worldProvider = provider ?? new FlatlandWorldProvider();
 
-			var level = new Level(name, worldProvider, gameMode, difficulty, viewDistance);
+			var level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 			level.Initialize();
 
 			OnLevelCreated(new LevelEventArgs(null, level));

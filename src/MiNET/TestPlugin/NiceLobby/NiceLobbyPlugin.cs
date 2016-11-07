@@ -72,14 +72,9 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 1;
-			player.Inventory.Slots[idx++] = new ItemCompass();
+			player.Inventory.Slots[idx++] = new ItemDiamondSword();
+			player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
 			player.SendPlayerInventory();
-			//player.HealthManager = new NoDamageHealthManager(player);
-			//player.IsNoPvp = true;
-			//player.IsNoPvm = true;
-			//player.IsNoMvp = true;
-			//player.AllowFly = true;
-			//player.SendAdventureSettings();
 
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}
@@ -348,15 +343,15 @@ namespace TestPlugin.NiceLobby
 					{
 						MessageType = MessageType.Tip,
 						Message = $"{ChatFormatting.Bold}This is a MiNET development server",
-						Duration = 20 * 4
+						Duration = 20*4
 					});
 
 					player.AddPopup(new Popup()
 					{
 						MessageType = MessageType.Popup,
 						Message = "Restarts without notice frequently",
-						Duration = 20 * 5,
-						DisplayDelay = 20 * 1
+						Duration = 20*5,
+						DisplayDelay = 20*1
 					});
 				}
 			}

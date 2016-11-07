@@ -230,10 +230,6 @@ namespace MiNET
 			}
 		}
 
-		private void Callback(object state)
-		{
-		}
-
 		public virtual void SendMapInfo(MapInfo mapInfo)
 		{
 			McpeClientboundMapItemData packet = McpeClientboundMapItemData.CreateObject();
@@ -1018,6 +1014,7 @@ namespace MiNET
 		}
 
 		private string _prevText = null;
+
 		public virtual void HandleMcpeText(McpeText message)
 		{
 			string text = message.message;

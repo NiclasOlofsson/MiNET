@@ -452,6 +452,7 @@ The three type of status are:
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Hide disconnect reason | bool |  |
 |Message | string |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Batch (0x06)

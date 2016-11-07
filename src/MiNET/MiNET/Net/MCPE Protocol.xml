@@ -143,6 +143,7 @@
 	</pdu>
 
 	<pdu id="0x05" online="false" client="false" server="true" name="MCPE_DISCONNECT">
+		<field name="Hide disconnect reason" type="bool" />
 		<field name="Message" type="string" />
 	</pdu>
 

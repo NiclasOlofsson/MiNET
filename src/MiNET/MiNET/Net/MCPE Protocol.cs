@@ -1405,6 +1405,7 @@ namespace MiNET.Net
 
 	public partial class McpeDisconnect : Package<McpeDisconnect>
 	{
+		public bool hideDisconnectReason; // = null;
 		public string message; // = null;
 		public McpeDisconnect()
 		{
@@ -1417,6 +1418,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(hideDisconnectReason);
 			Write(message);
 
 			AfterEncode();
@@ -1431,6 +1433,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			hideDisconnectReason = ReadBool();
 			message = ReadString();
 
 			AfterDecode();

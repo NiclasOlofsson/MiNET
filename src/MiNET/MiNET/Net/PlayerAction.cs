@@ -16,5 +16,6 @@ namespace MiNET.Net
 		StopSneak = 12,
 		DimensionChange = 13,
 		AbortDimensionChange = 14,
+		WorldImmutable = 15
 	}
 }

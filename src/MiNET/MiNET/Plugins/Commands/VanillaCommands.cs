@@ -17,7 +17,7 @@ namespace MiNET.Plugins.Commands
 			public string Body { get; set; }
 		}
 
-		[Command(Command = "op")]
+		[Command(Name = "op")]
 		public SimpleResponse MakeOperator(Player commander, Target player)
 		{
 			string body = player.Selector;

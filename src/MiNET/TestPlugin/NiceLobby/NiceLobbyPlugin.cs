@@ -493,7 +493,7 @@ namespace TestPlugin.NiceLobby
 			mob.SpawnEntity();
 		}
 
-		[Command(Command = "sp")]
+		[Command(Name = "sp")]
 		public void SpawnPlayer(Player player, string name)
 		{
 			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
@@ -567,7 +567,7 @@ namespace TestPlugin.NiceLobby
 			return packet; // Process
 		}
 
-		[Command(Command = "w")]
+		[Command(Name = "w")]
 		public void Warp(Player player, string warp)
 		{
 			float x;

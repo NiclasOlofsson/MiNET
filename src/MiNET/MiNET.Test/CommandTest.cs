@@ -127,8 +127,7 @@ namespace MiNET
 		[Test]
 		public void DeserializeObjectModelTest()
 		{
-			CommandSet commandSet = new CommandSet();
-			PluginManager.GetCommandsJson(ref commandSet, typeof (CoreCommands));
+			CommandSet commandSet = PluginManager.GenerateCommandSet(typeof (CoreCommands).GetMethods());
 
 			string json =
 				@"
@@ -184,7 +183,7 @@ namespace MiNET
 			Assert.True(PluginManager.HasProperty(dyn, "page"));
 		}
 
-		[Command(Command = "tp", Description = "Teleports player to given coordinates")]
+		[Command(Name = "tp", Description = "Teleports player to given coordinates")]
 		public void Teleport(Player player, int x, int y, int z)
 		{
 		}
@@ -192,8 +191,7 @@ namespace MiNET
 		[Test]
 		public void CommandUsageTest()
 		{
-			CommandSet commandSetIn = new CommandSet();
-			PluginManager.GetCommandsJson(ref commandSetIn, typeof (HelpCommand));
+			CommandSet commandSetIn = PluginManager.GenerateCommandSet(typeof (HelpCommand).GetMethods());
 
 			int page = 2;
 			var commands = commandSetIn;

@@ -52,7 +52,7 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
-		[Command(Command = "dim")]
+		[Command(Name = "dim")]
 		public void ChangeDimension(Player player)
 		{
 			McpeChangeDimension change = McpeChangeDimension.CreateObject();
@@ -61,13 +61,13 @@ namespace TestPlugin
 			player.SendPackage(change);
 		}
 
-		[Command(Command = "le")]
+		[Command(Name = "le")]
 		public void LevelEvent(Player player, short value)
 		{
 			LevelEvent(player, value, 0);
 		}
 
-		[Command(Command = "le")]
+		[Command(Name = "le")]
 		public void LevelEvent(Player player, short value, int data)
 		{
 			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
@@ -81,7 +81,7 @@ namespace TestPlugin
 			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
 		}
 
-		[Command(Command = "td")]
+		[Command(Name = "td")]
 		public void ToggleDownfall(Player player, int value)
 		{
 			{
@@ -196,7 +196,7 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Command = "gm")]
+		[Command(Name = "gm")]
 		//[Authorize(Users = "gurun")]
 		//[Authorize(Users = "gurunx")]
 		public void GameMode(Player player, int gameMode)
@@ -207,7 +207,7 @@ namespace TestPlugin
 		}
 
 
-		[Command(Command = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
 		public void Teleport(Player player, int x, int y, int z)
 		{
 			ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -226,7 +226,7 @@ namespace TestPlugin
 			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
-		[Command(Command = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void Teleport(Player player)
 		{
 			Teleport(player, "Default");
@@ -234,7 +234,7 @@ namespace TestPlugin
 
 		private object _levelSync = new object();
 
-		[Command(Command = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given world. Creates world if not exist.")]
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given world. Creates world if not exist.")]
 		public void Teleport(Player player, string world)
 		{
 			Level oldLevel = player.Level;
@@ -294,27 +294,27 @@ namespace TestPlugin
 			Clear(target);
 		}
 
-		[Command(Command = "vd")]
+		[Command(Name = "vd")]
 		public void ViewDistance(Player player)
 		{
 			player.Level.BroadcastMessage(string.Format("Current view distance set to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
-		[Command(Command = "vd")]
+		[Command(Name = "vd")]
 		public void ViewDistance(Player player, int viewDistance)
 		{
 			player.Level.ViewDistance = viewDistance;
 			player.Level.BroadcastMessage(string.Format("View distance changed to {0}.", player.Level.ViewDistance), type: MessageType.Raw);
 		}
 
-		[Command(Command = "twitter")]
+		[Command(Name = "twitter")]
 		public void Twitter(Player player)
 		{
 			player.Level.BroadcastMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
 			player.Level.BroadcastMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
 		}
 
-		[Command(Command = "pi")]
+		[Command(Name = "pi")]
 		public void PlayerInfo(Player player)
 		{
 			player.SendMessage(string.Format("Username={0}", player.Username), type: MessageType.Raw);
@@ -323,7 +323,7 @@ namespace TestPlugin
 			player.SendMessage(string.Format("Client ID={0}", player.ClientUuid), type: MessageType.Raw);
 		}
 
-		[Command(Command = "pos")]
+		[Command(Name = "pos")]
 		public void Position(Player player)
 		{
 			BlockCoordinates position = new BlockCoordinates(player.KnownPosition);
@@ -396,13 +396,13 @@ namespace TestPlugin
 			player.StrikeLightning();
 		}
 
-		[Command(Command = "si")]
+		[Command(Name = "si")]
 		public void SendInventory(Player player)
 		{
 			player.SendPlayerInventory();
 		}
 
-		[Command(Command = "sp")]
+		[Command(Name = "sp")]
 		public void SetSpawn(Player player)
 		{
 			player.SpawnPosition = (PlayerLocation) player.KnownPosition.Clone();
@@ -623,7 +623,7 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Command = "xporb")]
+		[Command(Name = "xporb")]
 		public void ExperienceOrb(Player player)
 		{
 			Mob xpOrb = new Mob(69, player.Level);
@@ -631,7 +631,7 @@ namespace TestPlugin
 			xpOrb.SpawnEntity();
 		}
 
-		[Command(Command = "e")]
+		[Command(Name = "e")]
 		public void Effect(Player player, string effect)
 		{
 			if ("clear".Equals(effect, StringComparison.InvariantCultureIgnoreCase))
@@ -641,13 +641,13 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Command = "e")]
+		[Command(Name = "e")]
 		public void Effect(Player player, string effect, int level)
 		{
 			Effect(player, effect, level, MiNET.Effects.Effect.MaxDuration);
 		}
 
-		[Command(Command = "e")]
+		[Command(Name = "e")]
 		public void Effect(Player player, string effect, int level, int duration)
 		{
 			if ("clear".Equals(effect, StringComparison.InvariantCultureIgnoreCase))
@@ -746,7 +746,7 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Command = "nd")]
+		[Command(Name = "nd")]
 		public void NoDamage(Player player)
 		{
 			player.HealthManager = player.HealthManager is NoDamageHealthManager ? new HealthManager(player) : new NoDamageHealthManager(player);
@@ -754,7 +754,7 @@ namespace TestPlugin
 			player.SendMessage($"{player.Username} set NoDamage={player.HealthManager is NoDamageHealthManager}", type: McpeText.TypeRaw);
 		}
 
-		[Command(Command = "r")]
+		[Command(Name = "r")]
 		[Authorize(Users = "gurun")]
 		[Authorize(Users = "gurunx")]
 		public void DisplayRestartNotice(Player currentPlayer)
@@ -776,7 +776,7 @@ namespace TestPlugin
 
 		private byte _invId = 0;
 
-		[Command(Command = "oi")]
+		[Command(Name = "oi")]
 		public void OpenInventory(Player player)
 		{
 			BlockCoordinates coor = new BlockCoordinates(player.KnownPosition);

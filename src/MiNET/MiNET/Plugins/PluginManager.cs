@@ -62,8 +62,6 @@ namespace MiNET.Plugins
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories));
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.exe", SearchOption.AllDirectories));
 
-				//AddHelpCommand(Commands);
-
 				foreach (string pluginPath in pluginPaths)
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
@@ -89,8 +87,7 @@ namespace MiNET.Plugins
 								var plugin = ctor.Invoke(null);
 								_plugins.Add(plugin);
 								LoadCommands(type);
-								var commands = Commands;
-								GetCommandsJson(ref commands, type);
+								Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
 								LoadPacketHandlers(type);
 							}
 						}
@@ -135,8 +132,7 @@ namespace MiNET.Plugins
 		{
 			if (!_plugins.Contains(instance)) _plugins.Add(instance);
 			LoadCommands(instance.GetType());
-			var commands = Commands;
-			GetCommandsJson(ref commands, instance.GetType());
+			Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
 
 			DebugPrintCommands();
 		}
@@ -165,49 +161,30 @@ namespace MiNET.Plugins
 				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof (CommandAttribute), false) as CommandAttribute;
 				if (commandAttribute == null) continue;
 
-				if (string.IsNullOrEmpty(commandAttribute.Command))
+				if (string.IsNullOrEmpty(commandAttribute.Name))
 				{
-					commandAttribute.Command = method.Name;
+					commandAttribute.Name = method.Name;
 				}
-
-				StringBuilder sb = new StringBuilder();
-				sb.Append("/");
-				sb.Append(commandAttribute.Command);
-				var parameters = method.GetParameters();
-				if (parameters.Length > 0) sb.Append(" ");
-				bool isFirstParam = true;
-				foreach (var parameter in parameters)
-				{
-					if (isFirstParam && parameter.ParameterType == typeof (Player))
-					{
-						continue;
-					}
-					isFirstParam = false;
-
-					sb.AppendFormat("<{0}> ", parameter.Name);
-				}
-				commandAttribute.Usage = sb.ToString().Trim();
 
 				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof (DescriptionAttribute), false) as DescriptionAttribute;
 				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
 
 				_pluginCommands.Add(method, commandAttribute);
-				Log.Debug($"Loaded command {commandAttribute.Usage}");
 			}
 		}
 
-		public static CommandSet GetCommandsJson(ref CommandSet commands, Type type)
+		public static CommandSet GenerateCommandSet(MethodInfo[] methods)
 		{
-			var methods = type.GetMethods();
+			CommandSet commands = new CommandSet();
 
 			foreach (MethodInfo method in methods)
 			{
 				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof (CommandAttribute), false) as CommandAttribute;
 				if (commandAttribute == null) continue;
 
-				if (string.IsNullOrEmpty(commandAttribute.Command))
+				if (string.IsNullOrEmpty(commandAttribute.Name))
 				{
-					commandAttribute.Command = method.Name;
+					commandAttribute.Name = method.Name;
 				}
 
 				var overload = new Overload
@@ -229,11 +206,11 @@ namespace MiNET.Plugins
 					}
 				};
 
-				string commandName = commandAttribute.Command.ToLowerInvariant();
+				string commandName = commandAttribute.Name.ToLowerInvariant();
 				if (commands.ContainsKey(commandName))
 				{
 					Command command = commands[commandName];
-					command.Versions.First().Overloads.Add(Guid.NewGuid().ToString(), overload);
+					command.Versions.First().Overloads.Add(commandAttribute.Overload??Guid.NewGuid().ToString(), overload);
 				}
 				else
 				{
@@ -258,11 +235,7 @@ namespace MiNET.Plugins
 				}
 
 
-				StringBuilder sb = new StringBuilder();
-				sb.Append("/");
-				sb.Append(commandAttribute.Command);
 				var parameters = method.GetParameters();
-				if (parameters.Length > 0) sb.Append(" ");
 				bool isFirstParam = true;
 				List<Parameter> inputParams = new List<Parameter>();
 				foreach (var parameter in parameters)
@@ -282,12 +255,9 @@ namespace MiNET.Plugins
 						string typeName = parameter.ParameterType.Name;
 						typeName = typeName.Replace("Enum", "");
 						typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
-						Log.Debug("TypeNAme: " + typeName);
 						param.EnumType = typeName;
 					}
 					inputParams.Add(param);
-
-					sb.AppendFormat("<{0}> ", parameter.Name);
 				}
 
 				if (inputParams.Count == 0)
@@ -319,17 +289,12 @@ namespace MiNET.Plugins
 				{
 					overload.Output.FormatStrings = commandAttribute.OutputFormatStrings;
 				}
-
-				commandAttribute.Usage = sb.ToString().Trim();
-
-				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof (DescriptionAttribute), false) as DescriptionAttribute;
-				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
 			}
 
 			return commands;
 		}
 
-		public static string ToCamelCase(string s)
+		private static string ToCamelCase(string s)
 		{
 			if (string.IsNullOrEmpty(s) || !char.IsUpper(s[0]))
 				return s;
@@ -415,6 +380,8 @@ namespace MiNET.Plugins
 			{
 				_pluginCommands.Remove(method);
 			}
+
+			Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
 		}
 
 		public void LoadPacketHandlers(object instance)
@@ -518,7 +485,7 @@ namespace MiNET.Plugins
 
 		public object HandleCommand(Player player, string commandName, string commandOverload, dynamic commandInputJson)
 		{
-			Log.Info($"HandleCommand {commandName}");
+			Log.Debug($"HandleCommand {commandName}");
 
 			try
 			{

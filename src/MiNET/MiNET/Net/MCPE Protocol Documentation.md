@@ -1015,7 +1015,7 @@ MODE_ROTATION = 2;
 |Face | SignedVarInt |  |
 |FaceCoordinates | Vector3 |  |
 |PlayerPosition | Vector3 |  |
-|Unknown | byte |  |
+|Slot | SignedVarInt |  |
 |Item | Item |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Player Action (0x24)

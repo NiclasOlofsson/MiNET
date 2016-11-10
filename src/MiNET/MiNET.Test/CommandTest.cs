@@ -1,11 +1,14 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using MiNET.Plugins;
+using MiNET.Plugins.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
+using TestPlugin;
 using Version = MiNET.Plugins.Version;
 
 namespace MiNET
@@ -96,7 +99,7 @@ namespace MiNET
 		}
 
 		[Test]
-		public void SerialzeObjectModelTest()
+		public void SerializeObjectModelRoundtripTest()
 		{
 			string commandJson = File.ReadAllText("test_commands_1.json");
 
@@ -118,6 +121,103 @@ namespace MiNET
 
 			var output = JsonConvert.SerializeObject(toSerialize, settings);
 			Console.WriteLine($"{output}");
+		}
+
+		[Test]
+		public void DeserializeObjectModelTest()
+		{
+			Commands commands = new Commands();
+			PluginManager.GetCommandsJson(ref commands, typeof (CoreCommands));
+
+			string json =
+				@"
+{
+  ""x"": 1,
+  ""y"": 2,
+  ""z"": 3
+}
+";
+
+			var commandJson = JsonConvert.DeserializeObject<dynamic>(json);
+
+			PluginManager pm = new PluginManager();
+			pm.Commands = commands;
+			pm.HandleCommand(null, "tp", "default", commandJson);
+
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+			var output = JsonConvert.SerializeObject(commands, settings);
+			Console.WriteLine($"{output}");
+		}
+
+
+		[Test]
+		public void SerializeTest()
+		{
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+			StringBuilder sb = new StringBuilder();
+			sb.Append("test\n");
+			sb.Append("tes2");
+
+			var output = JsonConvert.SerializeObject(new HelpCommand.HelpResponseByPage() {Body = sb.ToString()}, settings);
+			Console.WriteLine($"{output}");
+			string test =
+				@"
+			{
+				""page"": 10,
+			}";
+
+			JObject dyn = (JObject) JsonConvert.DeserializeObject(test);
+
+			Assert.True(PluginManager.HasProperty(dyn, "page"));
+		}
+
+		[Command(Command = "tp", Description = "Teleports player to given coordinates")]
+		public void Teleport(Player player, int x, int y, int z)
+		{
+		}
+
+		[Test]
+		public void CommandUsageTest()
+		{
+			Commands commandsIn = new Commands();
+			PluginManager.GetCommandsJson(ref commandsIn, typeof (HelpCommand));
+
+			int page = 2;
+			var commands = commandsIn;
+			//var commands = commandsIn.Skip(page*7);
+			int i = 0;
+			foreach (var command in commands)
+			{
+				string result = PluginManager.GetUsage(command.Value).Replace("\n", "\\n") + "\\n";
+				Console.Write(result);
+				if (i++ >= 6) break;
+			}
+
+			//Console.WriteLine("Commands:");
+			//foreach (var command in commands)
+			//{
+			//	string result = PluginManager.GetUsage(command.Key, command.Value);
+			//	Console.WriteLine(result);
+			//}
+			//{
+			//	string result = PluginManager.GetUsage("help", commands["help"]);
+
+			//	//Assert.AreEqual("/help", result.Split('\n')[0]);
+			//	Console.WriteLine(result);
+
+			//}
 		}
 	}
 }

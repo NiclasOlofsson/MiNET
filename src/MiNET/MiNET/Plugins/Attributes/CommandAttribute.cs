@@ -6,8 +6,10 @@ namespace MiNET.Plugins.Attributes
 	public class CommandAttribute : Attribute
 	{
 		public string Command;
+		public string[] Aliases;
 		public string Permission;
 		public string Usage;
 		public string Description;
+		public string[] OutputFormatStrings;
 	}
 }

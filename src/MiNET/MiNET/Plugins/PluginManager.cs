@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,10 @@ using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Security;
 using MiNET.Utils;
+using MiNET.Worlds;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace MiNET.Plugins
 {
@@ -33,6 +38,8 @@ namespace MiNET.Plugins
 		{
 			get { return _pluginCommands.Values.ToList(); }
 		}
+
+		public Commands Commands { get; set; } = new Commands();
 
 		private string _currentPath = null;
 
@@ -63,6 +70,8 @@ namespace MiNET.Plugins
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories));
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.exe", SearchOption.AllDirectories));
 
+				//AddHelpCommand(Commands);
+
 				foreach (string pluginPath in pluginPaths)
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
@@ -88,6 +97,8 @@ namespace MiNET.Plugins
 								var plugin = ctor.Invoke(null);
 								_plugins.Add(plugin);
 								LoadCommands(type);
+								var commands = Commands;
+								GetCommandsJson(ref commands, type);
 								LoadPacketHandlers(type);
 							}
 						}
@@ -99,6 +110,17 @@ namespace MiNET.Plugins
 					}
 				}
 			}
+
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+			var content = JsonConvert.SerializeObject(Commands, settings);
+
+			Log.Debug($"Commmands\n{content}");
 		}
 
 		private Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
@@ -130,9 +152,22 @@ namespace MiNET.Plugins
 		{
 			if (!_plugins.Contains(instance)) _plugins.Add(instance);
 			LoadCommands(instance.GetType());
+			var commands = Commands;
+			GetCommandsJson(ref commands, instance.GetType());
+
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+			var content = JsonConvert.SerializeObject(Commands, settings);
+
+			Log.Debug($"Commmands\n{content}");
 		}
 
-		private void LoadCommands(Type type)
+		public void LoadCommands(Type type)
 		{
 			var methods = type.GetMethods();
 			foreach (MethodInfo method in methods)
@@ -171,6 +206,215 @@ namespace MiNET.Plugins
 			}
 		}
 
+		public static Commands GetCommandsJson(ref Commands commands, Type type)
+		{
+			var methods = type.GetMethods();
+
+			foreach (MethodInfo method in methods)
+			{
+				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof (CommandAttribute), false) as CommandAttribute;
+				if (commandAttribute == null) continue;
+
+				if (string.IsNullOrEmpty(commandAttribute.Command))
+				{
+					commandAttribute.Command = method.Name;
+				}
+
+				var overload = new Overload
+				{
+					Description = commandAttribute.Description,
+					Method = method,
+					Input = new Input(),
+					Output = new Output()
+					{
+						FormatStrings = new[] {"{0}"},
+						Parameters = new[]
+						{
+							new Parameter
+							{
+								Name = "result",
+								Type = "string"
+							},
+						}
+					}
+				};
+
+				string commandName = commandAttribute.Command.ToLowerInvariant();
+				if (commands.ContainsKey(commandName))
+				{
+					Command command = commands[commandName];
+					command.Versions.First().Overloads.Add(Guid.NewGuid().ToString(), overload);
+				}
+				else
+				{
+					commands.Add(commandName, new Command
+					{
+						Name = commandName,
+						Versions = new[]
+						{
+							new Version
+							{
+								Aliases = commandAttribute.Aliases,
+								Description = commandAttribute.Description,
+								Overloads = new Dictionary<string, Overload>
+								{
+									{
+										"default", overload
+									},
+								}
+							},
+						}
+					});
+				}
+
+
+				StringBuilder sb = new StringBuilder();
+				sb.Append("/");
+				sb.Append(commandAttribute.Command);
+				var parameters = method.GetParameters();
+				if (parameters.Length > 0) sb.Append(" ");
+				bool isFirstParam = true;
+				List<Parameter> inputParams = new List<Parameter>();
+				foreach (var parameter in parameters)
+				{
+					if (isFirstParam && parameter.ParameterType == typeof (Player))
+					{
+						continue;
+					}
+					isFirstParam = false;
+
+					Parameter param = new Parameter();
+					param.Name = ToCamelCase(parameter.Name);
+					param.Type = GetParameterType(parameter);
+					param.Optional = parameter.IsOptional;
+					if (param.Type.Equals("stringenum"))
+					{
+						string typeName = parameter.ParameterType.Name;
+						typeName = typeName.Replace("Enum", "");
+						typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
+						Log.Debug("TypeNAme: " + typeName);
+						param.EnumType = typeName;
+					}
+					inputParams.Add(param);
+
+					sb.AppendFormat("<{0}> ", parameter.Name);
+				}
+
+				if (inputParams.Count == 0)
+				{
+					overload.Input.Parameters = null;
+				}
+				else
+				{
+					overload.Input.Parameters = inputParams.ToArray();
+				}
+
+				// Output objects
+				if (method.ReturnType != typeof (void))
+				{
+					var properties = method.ReturnType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+					List<Parameter> outputParams = new List<Parameter>();
+					foreach (PropertyInfo property in properties)
+					{
+						Parameter param = new Parameter();
+						param.Name = ToCamelCase(property.Name);
+						param.Type = GetPropertyType(property);
+						outputParams.Add(param);
+					}
+
+					overload.Output.Parameters = outputParams.ToArray();
+				}
+
+				if (commandAttribute.OutputFormatStrings != null)
+				{
+					overload.Output.FormatStrings = commandAttribute.OutputFormatStrings;
+				}
+
+				commandAttribute.Usage = sb.ToString().Trim();
+
+				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof (DescriptionAttribute), false) as DescriptionAttribute;
+				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
+			}
+
+			return commands;
+		}
+
+		public static string ToCamelCase(string s)
+		{
+			if (string.IsNullOrEmpty(s) || !char.IsUpper(s[0]))
+				return s;
+			char[] chArray = s.ToCharArray();
+			for (int index = 0; index < chArray.Length && (index != 1 || char.IsUpper(chArray[index])); ++index)
+			{
+				bool flag = index + 1 < chArray.Length;
+				if (!(index > 0 & flag) || char.IsUpper(chArray[index + 1]))
+				{
+					char ch = char.ToLower(chArray[index], CultureInfo.InvariantCulture);
+					chArray[index] = ch;
+				}
+				else
+					break;
+			}
+			return new string(chArray);
+		}
+
+
+		private static string GetPropertyType(PropertyInfo parameter)
+		{
+			string value = parameter.PropertyType.ToString();
+
+			if (parameter.PropertyType == typeof (int))
+				value = "int";
+			else if (parameter.PropertyType == typeof (short))
+				value = "int";
+			else if (parameter.PropertyType == typeof (byte))
+				value = "int";
+			else if (parameter.PropertyType == typeof (bool))
+				value = "bool";
+			else if (parameter.PropertyType == typeof (string))
+				value = "string";
+			else if (parameter.PropertyType == typeof (string[]))
+				value = "rawtext";
+			else
+			{
+				Console.Write("No mapping for type: " + parameter.PropertyType.ToString());
+			}
+
+			return value;
+		}
+
+		private static string GetParameterType(ParameterInfo parameter)
+		{
+			string value = parameter.ParameterType.ToString();
+
+			if (parameter.ParameterType == typeof (int))
+				value = "int";
+			else if (parameter.ParameterType == typeof (short))
+				value = "int";
+			else if (parameter.ParameterType == typeof (byte))
+				value = "int";
+			else if (parameter.ParameterType == typeof (bool))
+				value = "bool";
+			else if (parameter.ParameterType == typeof (string))
+				value = "string";
+			else if (parameter.ParameterType == typeof (string[]))
+				value = "rawtext";
+			else if (parameter.ParameterType == typeof (Target))
+				value = "target";
+			else if (parameter.ParameterType == typeof(BlockPos))
+				value = "blockpos";
+			else if (parameter.ParameterType.BaseType == typeof (EnumBase))
+			{
+				value = "stringenum";
+			}
+			else
+			{
+				Console.Write("No mapping for type: " + parameter.ParameterType.ToString());
+			}
+
+			return value;
+		}
+
 		public void UnloadCommands(object instance)
 		{
 			if (!_plugins.Contains(instance)) return;
@@ -200,7 +444,7 @@ namespace MiNET.Plugins
 					{
 						ParameterInfo[] parameters = method.GetParameters();
 						if (parameters.Length < 1) continue;
-						if (!typeof(Package).IsAssignableFrom(parameters[0].ParameterType)) continue;
+						if (!typeof (Package).IsAssignableFrom(parameters[0].ParameterType)) continue;
 						if (packetHandlerAttribute.PacketType == null) packetHandlerAttribute.PacketType = parameters[0].ParameterType;
 
 						if (Attribute.GetCustomAttribute(method, typeof (SendAttribute), false) != null)
@@ -282,6 +526,46 @@ namespace MiNET.Plugins
 			}
 		}
 
+		public object HandleCommand(Player player, string commandName, string commandOverload, dynamic commandInputJson)
+		{
+			Log.Info($"HandleCommand {commandName}");
+
+			try
+			{
+				var command = Commands[commandName];
+				var overload = command.Versions.First().Overloads[commandOverload];
+				MethodInfo method = overload.Method;
+
+				List<string> strings = new List<string>();
+				if (commandInputJson != null)
+				{
+					foreach (ParameterInfo parameter in method.GetParameters())
+					{
+						if (parameter.ParameterType == typeof (Player)) continue;
+
+						if (HasProperty(commandInputJson, parameter.Name))
+						{
+							Log.Debug($"Parameter: {commandInputJson[ToCamelCase(parameter.Name)].ToString()}");
+							strings.Add(commandInputJson[ToCamelCase(parameter.Name)].ToString());
+						}
+					}
+				}
+				if (player != null) return ExecuteCommand(method, player, strings.ToArray());
+			}
+			catch (Exception e)
+			{
+				Log.Error("Handle JSON command", e);
+			}
+
+			return null;
+		}
+
+		public static bool HasProperty(dynamic obj, string name)
+		{
+			JObject tobj = obj;
+			return tobj.Property(name) != null;
+		}
+
 		public void HandleCommand(UserManager<User> userManager, string message, Player player)
 		{
 			try
@@ -327,7 +611,7 @@ namespace MiNET.Plugins
 						}
 					}
 
-					if (ExecuteCommand(method, player, arguments)) return;
+					//if (ExecuteCommand(method, player, arguments)) return;
 				}
 
 				foreach (var commandAttribute in foundCommands)
@@ -346,7 +630,7 @@ namespace MiNET.Plugins
 			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
 		}
 
-		private bool ExecuteCommand(MethodInfo method, Player player, string[] args)
+		private object ExecuteCommand(MethodInfo method, Player player, string[] args)
 		{
 			Log.Info($"Execute command {method}");
 
@@ -358,17 +642,17 @@ namespace MiNET.Plugins
 				addLenght = 1;
 			}
 
-			if (IsParams(parameters.Last()))
-			{
-				// method params ex: int int params int[] 
-				// input ex:           1  1  1 1 1 
-				// so arguments in must be at least the lenght of method arguments
-				if (parameters.Length - 1 > args.Length + addLenght) return false;
-			}
-			else
-			{
-				if (parameters.Length != args.Length + addLenght) return false;
-			}
+			//if (IsParams(parameters.Last()))
+			//{
+			//	// method params ex: int int params int[] 
+			//	// input ex:           1  1  1 1 1 
+			//	// so arguments in must be at least the lenght of method arguments
+			//	if (parameters.Length - 1 > args.Length + addLenght) return null;
+			//}
+			//else
+			//{
+			//	if (parameters.Length != args.Length + addLenght) return null;
+			//}
 
 			object[] objectArgs = new object[parameters.Length];
 
@@ -384,7 +668,37 @@ namespace MiNET.Plugins
 						continue;
 					}
 					Log.WarnFormat("Command method {0} missing Player as first argument.", method.Name);
-					return false;
+					return null;
+				}
+
+				if (parameter.IsOptional && args.Length <= i)
+				{
+					Log.Warn($"Break on optional where args.Len={args.Length} and i={i}");
+					break;
+				}
+
+				if (parameter.ParameterType.BaseType == typeof (EnumBase))
+				{
+					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+					EnumBase instance = (EnumBase) ctor.Invoke(null);
+					instance.Value = args[i];
+					objectArgs[k] = instance;
+					continue;
+				}
+
+				if (parameter.ParameterType == typeof (Target))
+				{
+					var target = JsonConvert.DeserializeObject<Target>(args[i]);
+					target = FillTargets(player, player.Level, target);
+					objectArgs[k] = target;
+					continue;
+				}
+
+				if (parameter.ParameterType == typeof(BlockPos))
+				{
+					var blockpos = JsonConvert.DeserializeObject<BlockPos>(args[i]);
+					objectArgs[k] = blockpos;
+					continue;
 				}
 
 				if (parameter.ParameterType == typeof (string))
@@ -395,42 +709,42 @@ namespace MiNET.Plugins
 				if (parameter.ParameterType == typeof (byte))
 				{
 					byte value;
-					if (!byte.TryParse(args[i], out value)) return false;
+					if (!byte.TryParse(args[i], out value)) return null;
 					objectArgs[k] = value;
 					continue;
 				}
 				if (parameter.ParameterType == typeof (short))
 				{
 					short value;
-					if (!short.TryParse(args[i], out value)) return false;
+					if (!short.TryParse(args[i], out value)) return null;
 					objectArgs[k] = value;
 					continue;
 				}
 				if (parameter.ParameterType == typeof (int))
 				{
 					int value;
-					if (!int.TryParse(args[i], out value)) return false;
+					if (!int.TryParse(args[i], out value)) return null;
 					objectArgs[k] = value;
 					continue;
 				}
 				if (parameter.ParameterType == typeof (bool))
 				{
 					bool value;
-					if (!bool.TryParse(args[i], out value)) return false;
+					if (!bool.TryParse(args[i], out value)) return null;
 					objectArgs[k] = value;
 					continue;
 				}
 				if (parameter.ParameterType == typeof (float))
 				{
 					float value;
-					if (!float.TryParse(args[i], out value)) return false;
+					if (!float.TryParse(args[i], out value)) return null;
 					objectArgs[k] = value;
 					continue;
 				}
 				if (parameter.ParameterType == typeof (double))
 				{
 					double value;
-					if (!double.TryParse(args[i], out value)) return false;
+					if (!double.TryParse(args[i], out value)) return null;
 					objectArgs[k] = value;
 					continue;
 				}
@@ -446,31 +760,62 @@ namespace MiNET.Plugins
 					continue;
 				}
 
-				return false;
+				return null;
 			}
 
+			object result = null;
+
 			object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
-			if (pluginInstance == null) return false;
+			if (pluginInstance == null) return null;
 
 			if (method.IsStatic)
 			{
-				method.Invoke(null, objectArgs);
+				result = method.Invoke(null, objectArgs);
 			}
 			else
 			{
 				if (method.DeclaringType == null) return false;
 
-				method.Invoke(pluginInstance, objectArgs);
+				result = method.Invoke(pluginInstance, objectArgs);
 			}
 
-			return true;
+			return result;
+		}
+
+		private Target FillTargets(Player commander, Level level, Target target)
+		{
+			if (target.Selector == "nearestPlayer" && target.Rules == null)
+			{
+				target.Players = new[] {commander};
+			}
+			else if (target.Selector == "nearestPlayer" && target.Rules != null)
+			{
+				string username = target.Rules.First().Value;
+				var players = level.GetSpawnedPlayers().Where(p => p.Username == username);
+				target.Players = players.ToArray();
+			}
+			else if (target.Selector == "allPlayers")
+			{
+				target.Players = level.GetSpawnedPlayers();
+			}
+			else if (target.Selector == "allEntities")
+			{
+				target.Entities = level.GetEntites();
+			}
+			else if (target.Selector == "randomPlayer")
+			{
+				Player[] players = level.GetSpawnedPlayers();
+				target.Players = new[] {players[new Random().Next(players.Length)]};
+			}
+
+			return target;
 		}
 
 		internal Package PluginPacketHandler(Package message, bool isReceiveHandler, Player player)
 		{
-            if(message == null) return null;
+			if (message == null) return null;
 
-            Package currentPackage = message;
+			Package currentPackage = message;
 			Package returnPacket = currentPackage;
 
 			try
@@ -495,15 +840,15 @@ namespace MiNET.Plugins
 					PacketHandlerAttribute atrib = handler.Value;
 					if (atrib.PacketType == null) continue;
 
-                    if (!atrib.PacketType.IsInstanceOfType(currentPackage) && atrib.PacketType != currentPackage.GetType())
-                    {
-                        //Log.Warn($"No assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
-                        continue;
-                    }
+					if (!atrib.PacketType.IsInstanceOfType(currentPackage) && atrib.PacketType != currentPackage.GetType())
+					{
+						//Log.Warn($"No assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
+						continue;
+					}
 
-                    //Log.Warn($"IS assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
+					//Log.Warn($"IS assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
 
-                    MethodInfo method = handler.Key;
+					MethodInfo method = handler.Key;
 					if (method == null) continue;
 					if (method.IsStatic)
 					{
@@ -551,6 +896,40 @@ namespace MiNET.Plugins
 			}
 
 			return returnPacket;
+		}
+
+		public static string GetUsage(Command command, bool includeDescription = false, string prepend = "", string postpend = "")
+		{
+			StringBuilder sb = new StringBuilder();
+			bool isFirst = true;
+			foreach (var overload in command.Versions.First().Overloads.Values)
+			{
+				if (!isFirst) sb.Append("\n");
+				isFirst = false;
+
+				sb.Append(prepend);
+				sb.Append("/");
+				sb.Append(command.Name);
+				sb.Append(" ");
+
+				if (overload.Input.Parameters != null)
+				{
+					foreach (var parameter in overload.Input.Parameters)
+					{
+						sb.Append(parameter.Optional ? "[" : "<");
+						sb.Append(parameter.Name);
+						sb.Append(": ");
+						sb.Append(parameter.Type);
+						sb.Append(parameter.Optional ? "]" : ">");
+						sb.Append(" ");
+					}
+				}
+				sb.Append(ChatFormatting.Reset);
+				if (includeDescription && !string.IsNullOrEmpty(overload.Description)) sb.Append($" - {overload.Description}");
+				sb.Append(postpend);
+			}
+
+			return sb.ToString();
 		}
 	}
 }

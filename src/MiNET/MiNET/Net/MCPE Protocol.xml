@@ -412,7 +412,7 @@
 		<field name="Face" type="SignedVarInt" />
 		<field name="FaceCoordinates" type="Vector3" />
 		<field name="PlayerPosition" type="Vector3" />
-		<field name="Unknown" type="byte"/>
+		<field name="Slot" type="SignedVarInt"/>
 		<field name="Item" type="Item" />
 	</pdu>
 

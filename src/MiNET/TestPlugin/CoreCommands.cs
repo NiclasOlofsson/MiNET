@@ -24,16 +24,6 @@ using MiNET.Worlds;
 
 namespace TestPlugin
 {
-	public class TestStandaloneHandler
-	{
-		[Command]
-		public void Version2(Player player)
-		{
-			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
-			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
-		}
-	}
-
 	[Plugin(PluginName = "CoreCommands", Description = "The core commands for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class CoreCommands : Plugin
 	{
@@ -43,14 +33,9 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-			var instance = new TestStandaloneHandler();
-			Context.PluginManager.LoadCommands(instance);
-			Context.PluginManager.UnloadCommands(instance);
-
-			Context.PluginManager.LoadPacketHandlers(instance);
-			Context.PluginManager.UnloadPacketHandlers(instance);
+			Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
+			Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
 		}
-
 
 		//[PacketHandler, Receive, UsedImplicitly]
 		//public Package ReceivePacketHandler(Package packet, Player player)
@@ -65,7 +50,6 @@ namespace TestPlugin
 		//    Log.Warn($"Sent packet: {packet.GetType().Name}");
 		//    return packet;
 		//}
-
 
 		[Command(Command = "dim")]
 		public void ChangeDimension(Player player)
@@ -222,7 +206,7 @@ namespace TestPlugin
 		}
 
 
-		[Command(Command = "tp")]
+		[Command(Command = "tp", Aliases = new[] { "teleport" }, Description = "Teleports player to given coordinates.")]
 		public void Teleport(Player player, int x, int y, int z)
 		{
 			ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -241,7 +225,7 @@ namespace TestPlugin
 			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
 		}
 
-		[Command(Command = "tp")]
+		[Command(Command = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void Teleport(Player player)
 		{
 			Teleport(player, "Default");
@@ -249,7 +233,7 @@ namespace TestPlugin
 
 		private object _levelSync = new object();
 
-		[Command(Command = "tp")]
+		[Command(Command = "tp", Aliases = new[] { "teleport" }, Description = "Teleports player to given world. Creates world if not exist.")]
 		public void Teleport(Player player, string world)
 		{
 			Level oldLevel = player.Level;
@@ -294,7 +278,6 @@ namespace TestPlugin
 				}
 
 				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
-
 			}, Context.LevelManager);
 		}
 
@@ -610,6 +593,21 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void StringTest(Player player, string str1, string str2)
+		{
+		}
+
+		[Command]
+		public void OptionalTest(Player player, int x, int y, int z, int rot = 0)
+		{
+		}
+
+		[Command]
+		public void EnumTestTest(Player player, CommandNameEnum commandName, EntityTypeEnum entityType, BlockTypeEnum blockType)
+		{
+		}
+
+		[Command(Description = "Fly command")]
 		public void Fly(Player player)
 		{
 			if (player.AllowFly)

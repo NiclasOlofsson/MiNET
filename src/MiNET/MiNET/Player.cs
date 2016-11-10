@@ -22,6 +22,7 @@ using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace MiNET
 {
@@ -595,7 +596,7 @@ namespace MiNET
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
 		}
 
-		public bool EnableCommands { get; set; } = false;
+		public bool EnableCommands { get; set; } = Config.GetProperty("EnableCommands", false);
 
 		protected virtual void SendSetCommandsEnabled()
 		{
@@ -606,27 +607,54 @@ namespace MiNET
 
 		protected virtual void SendAvailableCommands()
 		{
-			//var content = File.ReadAllText(@"D:\Development\Repos\MiNET\src\MiNET\MiNET.Test\test_commands_1.json");
-			//McpeAvailableCommands commands = McpeAvailableCommands.CreateObject();
-			//commands.commands = content;
-			//commands.unknown = "{}";
-			//SendPackage(commands);
+			var settings = new JsonSerializerSettings();
+			settings.NullValueHandling = NullValueHandling.Ignore;
+			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			settings.MissingMemberHandling = MissingMemberHandling.Error;
+			settings.Formatting = Formatting.Indented;
+			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+			var content = JsonConvert.SerializeObject(Server.PluginManager.Commands, settings);
+
+			McpeAvailableCommands commands = McpeAvailableCommands.CreateObject();
+			commands.commands = content;
+			commands.unknown = "{}";
+			SendPackage(commands);
 		}
 
 		public virtual void HandleMcpeCommandStep(McpeCommandStep message)
 		{
-			Log.Error($"Entity ID={EntityId}\n{Package.HexDump(message.Bytes)}");
-
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
 				PreserveReferencesHandling = PreserveReferencesHandling.None,
 				Formatting = Formatting.Indented,
 			};
-			string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-			Log.Debug($"{message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 
-			var commanJson = JsonConvert.DeserializeObject(message.commandInputJson);
-			Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commanJson, jsonSerializerSettings)}");
+			var commandJson = JsonConvert.DeserializeObject<dynamic>(message.commandInputJson);
+			Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commandJson, jsonSerializerSettings)}");
+			object result = Server.PluginManager.HandleCommand(this, message.commandName, message.commandOverload, commandJson);
+			if (result != null)
+			{
+				var settings = new JsonSerializerSettings();
+				settings.NullValueHandling = NullValueHandling.Ignore;
+				settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+				settings.MissingMemberHandling = MissingMemberHandling.Error;
+				settings.Formatting = Formatting.Indented;
+				settings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
+				settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+
+				var content = JsonConvert.SerializeObject(result, settings);
+				McpeCommandStep commandResult = McpeCommandStep.CreateObject();
+				commandResult.commandName = message.commandName;
+				commandResult.commandOverload = message.commandOverload;
+				commandResult.isOutput = true;
+				commandResult.commandInputJson = "null\n";
+				commandResult.commandOutputJson = content;
+				commandResult.entityId = EntityId;
+				SendPackage(commandResult);
+
+				Log.Debug($"Command Respone Json\n{content}");
+			}
 		}
 
 		public virtual void InitializePlayer()
@@ -1019,19 +1047,9 @@ namespace MiNET
 		{
 			string text = message.message;
 
-			if (text == null) return;
+			if (string.IsNullOrEmpty(text)) return;
 
-			if (text.StartsWith("/") || text.StartsWith("."))
-			{
-				if (string.Equals(_prevText, text)) return;
-				_prevText = text;
-
-				Server.PluginManager.HandleCommand(Server.UserManager, text, this);
-			}
-			else
-			{
-				Level.BroadcastMessage(text, sender: this);
-			}
+			Level.BroadcastMessage(text, sender: this);
 		}
 
 		private int _lastPlayerMoveSequenceNUmber;
@@ -1751,7 +1769,7 @@ namespace MiNET
 			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);
 			Log.DebugFormat("face:  {0}", message.face);
 			Log.DebugFormat("Facecoordinates:  {0}", message.facecoordinates);
-			Log.DebugFormat("Unknown (byte):  {0}", message.unknown);
+			Log.DebugFormat("Slot:  {0}", message.slot);
 			Log.DebugFormat("Player position:  {0}", message.playerposition);
 
 			if (message.item == null)

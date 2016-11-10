@@ -332,6 +332,8 @@ namespace MiNET
 					break;
 				case PlayerAction.AbortDimensionChange:
 					break;
+				case PlayerAction.WorldImmutable:
+					break;
 				default:
 					Log.Warn($"Unhandled action ID={message.actionId}");
 					throw new ArgumentOutOfRangeException(nameof(message.actionId));

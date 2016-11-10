@@ -495,8 +495,12 @@ namespace MiNET.Plugins
 				var command = Commands[commandName];
 				var overload = command.Versions.First().Overloads[commandOverload];
 
-				UserPermission permission = (UserPermission) Enum.Parse(typeof (UserPermission), command.Versions.First().Permission, true);
-				if (permission >= player.PermissionLevel) return null;
+				UserPermission requiredPermission = (UserPermission) Enum.Parse(typeof (UserPermission), command.Versions.First().Permission, true);
+				if (player.PermissionLevel < requiredPermission) 
+				{
+					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.PermissionLevel}");
+					return null;
+				}
 
 				MethodInfo method = overload.Method;
 
@@ -514,7 +518,8 @@ namespace MiNET.Plugins
 						}
 					}
 				}
-				if (player != null) return ExecuteCommand(method, player, strings.ToArray());
+
+				return ExecuteCommand(method, player, strings.ToArray());
 			}
 			catch (Exception e)
 			{

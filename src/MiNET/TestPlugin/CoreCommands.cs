@@ -52,6 +52,11 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
+		[Command]
+		public void Minet(Player player, string commands, string done, string gurun, string made, string it)
+		{
+		}
+
 		[Command(Name = "dim")]
 		public void ChangeDimension(Player player)
 		{

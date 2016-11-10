@@ -19,6 +19,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -206,7 +207,7 @@ namespace TestPlugin
 		}
 
 
-		[Command(Command = "tp", Aliases = new[] { "teleport" }, Description = "Teleports player to given coordinates.")]
+		[Command(Command = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
 		public void Teleport(Player player, int x, int y, int z)
 		{
 			ThreadPool.QueueUserWorkItem(delegate(object state)
@@ -233,7 +234,7 @@ namespace TestPlugin
 
 		private object _levelSync = new object();
 
-		[Command(Command = "tp", Aliases = new[] { "teleport" }, Description = "Teleports player to given world. Creates world if not exist.")]
+		[Command(Command = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given world. Creates world if not exist.")]
 		public void Teleport(Player player, string world)
 		{
 			Level oldLevel = player.Level;

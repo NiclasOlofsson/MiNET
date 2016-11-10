@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
 using System.Text;
-using MiNET;
-using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 
-namespace TestPlugin
+namespace MiNET.Plugins.Commands
 {
 	public class HelpCommand
 	{
@@ -60,7 +58,7 @@ namespace TestPlugin
 
 			StringBuilder sb = new StringBuilder();
 
-			var commands = _pluginManager.Commands.Values.Skip(page*7);
+			var commands = Enumerable.Skip<Command>(_pluginManager.Commands.Values, page*7);
 			int i = 0;
 			foreach (var command in commands)
 			{

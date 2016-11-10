@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace MiNET.Plugins
 {
-	public class Commands : Dictionary<string, Command>
+	public class CommandSet : Dictionary<string, Command>
 	{
 	}
 

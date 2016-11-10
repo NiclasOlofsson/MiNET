@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -48,7 +49,7 @@ namespace MiNET
 				var settings = new JsonSerializerSettings();
 				return settings;
 			};
-			var commands = JsonConvert.DeserializeObject<Commands>(commandJson /*, new ParameterConverter()*/);
+			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson /*, new ParameterConverter()*/);
 
 			Assert.AreEqual(36, commands.Count);
 
@@ -110,13 +111,13 @@ namespace MiNET
 			settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-			var commands = JsonConvert.DeserializeObject<Commands>(commandJson, settings);
+			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson, settings);
 			Assert.AreEqual("ability", commands.First().Key);
 
 			Command command = commands["help"];
 			Assert.NotNull(command);
 
-			Commands toSerialize = new Commands();
+			CommandSet toSerialize = new CommandSet();
 			toSerialize["help"] = command;
 
 			var output = JsonConvert.SerializeObject(toSerialize, settings);
@@ -126,8 +127,8 @@ namespace MiNET
 		[Test]
 		public void DeserializeObjectModelTest()
 		{
-			Commands commands = new Commands();
-			PluginManager.GetCommandsJson(ref commands, typeof (CoreCommands));
+			CommandSet commandSet = new CommandSet();
+			PluginManager.GetCommandsJson(ref commandSet, typeof (CoreCommands));
 
 			string json =
 				@"
@@ -141,7 +142,7 @@ namespace MiNET
 			var commandJson = JsonConvert.DeserializeObject<dynamic>(json);
 
 			PluginManager pm = new PluginManager();
-			pm.Commands = commands;
+			pm.Commands = commandSet;
 			pm.HandleCommand(null, "tp", "default", commandJson);
 
 			var settings = new JsonSerializerSettings();
@@ -151,7 +152,7 @@ namespace MiNET
 			settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-			var output = JsonConvert.SerializeObject(commands, settings);
+			var output = JsonConvert.SerializeObject(commandSet, settings);
 			Console.WriteLine($"{output}");
 		}
 
@@ -191,11 +192,11 @@ namespace MiNET
 		[Test]
 		public void CommandUsageTest()
 		{
-			Commands commandsIn = new Commands();
-			PluginManager.GetCommandsJson(ref commandsIn, typeof (HelpCommand));
+			CommandSet commandSetIn = new CommandSet();
+			PluginManager.GetCommandsJson(ref commandSetIn, typeof (HelpCommand));
 
 			int page = 2;
-			var commands = commandsIn;
+			var commands = commandSetIn;
 			//var commands = commandsIn.Skip(page*7);
 			int i = 0;
 			foreach (var command in commands)

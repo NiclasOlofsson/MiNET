@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using MiNET;
-using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 
-namespace TestPlugin
+namespace MiNET.Plugins.Commands
 {
 	public class VanillaCommands
 	{

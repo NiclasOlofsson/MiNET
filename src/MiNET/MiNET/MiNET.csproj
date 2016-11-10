@@ -491,6 +491,8 @@
     <Compile Include="PlayerNetworkSession.cs" />
     <Compile Include="Plugins\Attributes\AuthorizeAttribute.cs" />
     <Compile Include="Plugins\Command.cs" />
+    <Compile Include="Plugins\Commands\HelpCommand.cs" />
+    <Compile Include="Plugins\Commands\VanillaCommands.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />

@@ -5,13 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security.Principal;
 using System.Text;
 using log4net;
-using Microsoft.AspNet.Identity;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
-using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -34,12 +31,7 @@ namespace MiNET.Plugins
 			get { return _plugins; }
 		}
 
-		public List<CommandAttribute> PluginCommands
-		{
-			get { return _pluginCommands.Values.ToList(); }
-		}
-
-		public Commands Commands { get; set; } = new Commands();
+		public CommandSet Commands { get; set; } = new CommandSet();
 
 		private string _currentPath = null;
 
@@ -111,16 +103,7 @@ namespace MiNET.Plugins
 				}
 			}
 
-			var settings = new JsonSerializerSettings();
-			settings.NullValueHandling = NullValueHandling.Ignore;
-			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
-			settings.MissingMemberHandling = MissingMemberHandling.Error;
-			settings.Formatting = Formatting.Indented;
-			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
-			var content = JsonConvert.SerializeObject(Commands, settings);
-
-			Log.Debug($"Commmands\n{content}");
+			DebugPrintCommands();
 		}
 
 		private Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
@@ -154,6 +137,13 @@ namespace MiNET.Plugins
 			LoadCommands(instance.GetType());
 			var commands = Commands;
 			GetCommandsJson(ref commands, instance.GetType());
+
+			DebugPrintCommands();
+		}
+
+		private void DebugPrintCommands()
+		{
+			if (!Log.IsDebugEnabled) return;
 
 			var settings = new JsonSerializerSettings();
 			settings.NullValueHandling = NullValueHandling.Ignore;
@@ -206,7 +196,7 @@ namespace MiNET.Plugins
 			}
 		}
 
-		public static Commands GetCommandsJson(ref Commands commands, Type type)
+		public static CommandSet GetCommandsJson(ref CommandSet commands, Type type)
 		{
 			var methods = type.GetMethods();
 
@@ -401,7 +391,7 @@ namespace MiNET.Plugins
 				value = "rawtext";
 			else if (parameter.ParameterType == typeof (Target))
 				value = "target";
-			else if (parameter.ParameterType == typeof(BlockPos))
+			else if (parameter.ParameterType == typeof (BlockPos))
 				value = "blockpos";
 			else if (parameter.ParameterType.BaseType == typeof (EnumBase))
 			{
@@ -566,65 +556,6 @@ namespace MiNET.Plugins
 			return tobj.Property(name) != null;
 		}
 
-		public void HandleCommand(UserManager<User> userManager, string message, Player player)
-		{
-			try
-			{
-				string commandText = message.Split(' ')[0];
-				message = message.Replace(commandText, "").Trim();
-				commandText = commandText.Replace("/", "").Replace(".", "");
-
-				string[] arguments = message.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
-
-				List<CommandAttribute> foundCommands = new List<CommandAttribute>();
-				foreach (var handlerEntry in _pluginCommands)
-				{
-					CommandAttribute commandAttribute = handlerEntry.Value;
-					if (!commandText.Equals(commandAttribute.Command, StringComparison.InvariantCultureIgnoreCase)) continue;
-
-					MethodInfo method = handlerEntry.Key;
-					if (method == null) return;
-
-					foundCommands.Add(commandAttribute);
-
-					var authorizationAttributes = method.GetCustomAttributes<AuthorizeAttribute>(true);
-					foreach (AuthorizeAttribute authorizationAttribute in authorizationAttributes)
-					{
-						if (userManager == null)
-						{
-							player.SendMessage($"UserManager not found. You are not permitted to use this command!");
-							return;
-						}
-
-						User user = userManager.FindByName(player.Username);
-						if (user == null)
-						{
-							player.SendMessage($"No registered user '{player.Username}' found. You are not permitted to use this command!");
-							return;
-						}
-
-						var userIdentity = userManager.CreateIdentity(user, "none");
-						if (!authorizationAttribute.OnAuthorization(new GenericPrincipal(userIdentity, new string[0])))
-						{
-							player.SendMessage("You are not permitted to use this command!");
-							return;
-						}
-					}
-
-					//if (ExecuteCommand(method, player, arguments)) return;
-				}
-
-				foreach (var commandAttribute in foundCommands)
-				{
-					player.SendMessage($"Usage: {commandAttribute.Usage}");
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Warn(ex);
-			}
-		}
-
 		private static bool IsParams(ParameterInfo param)
 		{
 			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
@@ -641,18 +572,6 @@ namespace MiNET.Plugins
 			{
 				addLenght = 1;
 			}
-
-			//if (IsParams(parameters.Last()))
-			//{
-			//	// method params ex: int int params int[] 
-			//	// input ex:           1  1  1 1 1 
-			//	// so arguments in must be at least the lenght of method arguments
-			//	if (parameters.Length - 1 > args.Length + addLenght) return null;
-			//}
-			//else
-			//{
-			//	if (parameters.Length != args.Length + addLenght) return null;
-			//}
 
 			object[] objectArgs = new object[parameters.Length];
 
@@ -694,7 +613,7 @@ namespace MiNET.Plugins
 					continue;
 				}
 
-				if (parameter.ParameterType == typeof(BlockPos))
+				if (parameter.ParameterType == typeof (BlockPos))
 				{
 					var blockpos = JsonConvert.DeserializeObject<BlockPos>(args[i]);
 					objectArgs[k] = blockpos;

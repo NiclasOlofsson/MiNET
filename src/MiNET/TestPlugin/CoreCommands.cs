@@ -755,8 +755,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "r")]
-		[Authorize(Users = "gurun")]
-		[Authorize(Users = "gurunx")]
+		[Authorize(Permission = UserPermission.Op)]
 		public void DisplayRestartNotice(Player currentPlayer)
 		{
 			var players = currentPlayer.Level.GetSpawnedPlayers();

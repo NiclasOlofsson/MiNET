@@ -612,8 +612,7 @@ namespace TestPlugin.NiceLobby
 
 
 		[Command]
-		[Authorize(Users = "gurun")]
-		[Authorize(Users = "gurunx")]
+		[Authorize(Permission = UserPermission.Op)]
 		public void VideoX(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
@@ -686,8 +685,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
-		[Authorize(Users = "gurun")]
-		[Authorize(Users = "gurunx")]
+		[Authorize(Permission = UserPermission.Op)]
 		public void Video2X(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate

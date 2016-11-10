@@ -182,6 +182,8 @@ namespace MiNET.Plugins
 				CommandAttribute commandAttribute = Attribute.GetCustomAttribute(method, typeof (CommandAttribute), false) as CommandAttribute;
 				if (commandAttribute == null) continue;
 
+				AuthorizeAttribute authorizeAttribute = Attribute.GetCustomAttribute(method, typeof (AuthorizeAttribute), false) as AuthorizeAttribute ?? new AuthorizeAttribute();
+
 				if (string.IsNullOrEmpty(commandAttribute.Name))
 				{
 					commandAttribute.Name = method.Name;
@@ -210,7 +212,7 @@ namespace MiNET.Plugins
 				if (commands.ContainsKey(commandName))
 				{
 					Command command = commands[commandName];
-					command.Versions.First().Overloads.Add(commandAttribute.Overload??Guid.NewGuid().ToString(), overload);
+					command.Versions.First().Overloads.Add(commandAttribute.Overload ?? Guid.NewGuid().ToString(), overload);
 				}
 				else
 				{
@@ -221,6 +223,7 @@ namespace MiNET.Plugins
 						{
 							new Version
 							{
+								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
 								Aliases = commandAttribute.Aliases,
 								Description = commandAttribute.Description,
 								Overloads = new Dictionary<string, Overload>
@@ -491,6 +494,10 @@ namespace MiNET.Plugins
 			{
 				var command = Commands[commandName];
 				var overload = command.Versions.First().Overloads[commandOverload];
+
+				UserPermission permission = (UserPermission) Enum.Parse(typeof (UserPermission), command.Versions.First().Permission, true);
+				if (permission >= player.PermissionLevel) return null;
+
 				MethodInfo method = overload.Method;
 
 				List<string> strings = new List<string>();

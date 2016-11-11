@@ -232,18 +232,5 @@ namespace MiNET
 			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
 		}
 
-		[Test]
-		public void CoordinateStorageTest()
-		{
-			int bx = 1;
-			int by = 1;
-			int bz = 1;
-			int t = (bx*2048) + (bz*128) + by;
-			int t2 = bx << 10 | bz << 6 | by >> 1;
-
-			Assert.AreEqual(t, t2);
-
-		}
-
 	}
 }

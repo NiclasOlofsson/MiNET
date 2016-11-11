@@ -53,6 +53,20 @@ namespace TestPlugin
 		//}
 
 		[Command]
+		public void Relight(Player player)
+		{
+			BlockCoordinates pos = player.KnownPosition.GetCoordinates3D();
+			pos.Y -= 1;
+
+			var block = player.Level.GetBlock(pos);
+			Glowstone gold = new Glowstone();
+			gold.Coordinates = block.Coordinates;
+			player.Level.SetBlock(gold);
+			Thread.Sleep(100);
+			player.Level.SetBlock(block);
+		}
+
+		[Command]
 		public void Minet(Player player, string commands, string done, string gurun, string made, string it)
 		{
 		}

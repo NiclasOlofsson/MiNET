@@ -58,7 +58,7 @@ namespace TestPlugin.NiceLobby
 				player.PlayerLeave += OnPlayerLeave;
 			};
 
-			_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 		}
 

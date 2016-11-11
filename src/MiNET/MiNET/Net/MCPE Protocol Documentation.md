@@ -96,11 +96,11 @@
 | Mcpe Camera | 0x48 | 72 |   
 | Mcpe Add Item | 0x49 | 73 |   
 | Mcpe Boss Event | 0x4a | 74 |   
-| Mcpe Available Commands | 0x4b | 75 |   
-| Mcpe Command Step | 0x4c | 76 |   
-| Mcpe Resource Pack Data Info | 0x4d | 77 |   
-| Mcpe Resource Pack Chunk Data | 0x4e | 78 |   
-| Mcpe Resource Pack Chunk Request | 0x4f | 79 |   
+| Mcpe Available Commands | 0x4c | 76 |   
+| Mcpe Command Step | 0x4d | 77 |   
+| Mcpe Resource Pack Data Info | 0x4e | 78 |   
+| Mcpe Resource Pack Chunk Data | 0x4f | 79 |   
+| Mcpe Resource Pack Chunk Request | 0x50 | 80 |   
 | Mcpe Wrapper | 0xfe | 254 |   
 
 
@@ -1362,7 +1362,6 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |Chunk X | SignedVarInt |  |
 |Chunk Z | SignedVarInt |  |
-|Order | byte |  |
 |Chunk Data | ByteArray |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Set Commands Enabled (0x3a)
@@ -1602,7 +1601,7 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-###Package: Mcpe Available Commands (0x4b)
+###Package: Mcpe Available Commands (0x4c)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1617,7 +1616,7 @@ ORDER_LAYERED = 1;
 |Commands | string |  |
 |Unknown | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Command Step (0x4c)
+###Package: Mcpe Command Step (0x4d)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1641,7 +1640,7 @@ ORDER_LAYERED = 1;
 |Unknown 8 | byte |  |
 |Entity ID | SignedVarLong |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Resource Pack Data Info (0x4d)
+###Package: Mcpe Resource Pack Data Info (0x4e)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1659,7 +1658,7 @@ ORDER_LAYERED = 1;
 |Unknown3 | ulong |  |
 |Unknown4 | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Resource Pack Chunk Data (0x4e)
+###Package: Mcpe Resource Pack Chunk Data (0x4f)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1677,7 +1676,7 @@ ORDER_LAYERED = 1;
 |Length | uint |  |
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Resource Pack Chunk Request (0x4f)
+###Package: Mcpe Resource Pack Chunk Request (0x50)
 
 **Sent from server:** false
 **Sent from client:** true

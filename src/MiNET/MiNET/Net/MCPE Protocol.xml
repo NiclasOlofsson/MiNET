@@ -540,7 +540,6 @@
 	<pdu id="0x39" online="false" client="false" server="true" name="MCPE_FULL_CHUNK_DATA">
 		<field name="Chunk X" type="SignedVarInt" />
 		<field name="Chunk Z" type="SignedVarInt" />
-		<field name="Order" type="byte" />
 		<field name="Chunk Data" type="ByteArray" />
 	</pdu>
 
@@ -611,12 +610,12 @@
 	<pdu id="0x4a" online="false" client="false" server="true" name="MCPE_BOSS_EVENT">
 	</pdu>
 
-	<pdu id="0x4b" online="false" client="false" server="true" name="MCPE_AVAILABLE_COMMANDS">
+	<pdu id="0x4c" online="false" client="false" server="true" name="MCPE_AVAILABLE_COMMANDS">
 		<field name="Commands" type="string"  />
 		<field name="Unknown" type="string"  />
 	</pdu>
 
-	<pdu id="0x4c" online="false" client="true" server="false" name="MCPE_COMMAND_STEP">
+	<pdu id="0x4d" online="false" client="true" server="false" name="MCPE_COMMAND_STEP">
     <field name="Command name" type="string"  />
     <field name="Command overload" type="string"  />
     <field name="Unknown 1" type="UnsignedVarInt"  />
@@ -630,7 +629,7 @@
     <field name="Entity ID" type="SignedVarLong"  />
   </pdu>
 
-	<pdu id="0x4d" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
+	<pdu id="0x4e" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
     <field name="Package ID" type="string"  />
     <field name="Unknown1" type="uint"  />
     <field name="Unknown2" type="uint"  />
@@ -638,7 +637,7 @@
     <field name="Unknown4" type="string"  />
   </pdu>
 
-	<pdu id="0x4e" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
+	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
     <field name="Package ID" type="string"  />
     <field name="Unknown1" type="uint"  />
     <field name="Unknown3" type="ulong"  />
@@ -646,7 +645,7 @@
     <field name="Payload" type="byte[]" size="0" />
   </pdu>
 
-	<pdu id="0x4f" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
+	<pdu id="0x50" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
     <field name="Package ID" type="string"  />
     <field name="Chunk index" type="int"  />
   </pdu>

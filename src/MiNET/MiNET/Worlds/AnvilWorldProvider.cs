@@ -35,15 +35,15 @@ namespace MiNET.Worlds
 
 		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
-	    public IWorldProvider MissingChunkProvider { get; set; }
+		public IWorldProvider MissingChunkProvider { get; set; }
 
-	    public LevelInfo LevelInfo { get; private set; }
+		public LevelInfo LevelInfo { get; private set; }
 
-	    public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 
-	    public string BasePath { get; private set; }
+		public string BasePath { get; private set; }
 
-	    public bool IsCaching { get; private set; }
+		public bool IsCaching { get; private set; }
 
 		public byte WaterOffsetY { get; set; }
 
@@ -314,7 +314,7 @@ namespace MiNET.Worlds
 							for (int y = 0; y < 16; y++)
 							{
 								int yi = sy + y - yoffset;
-								if (yi < 0 || yi >= 128) continue;
+								if (yi < 0 || yi >= 256) continue;
 
 								int anvilIndex = y*16*16 + z*16 + x;
 								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
@@ -443,7 +443,7 @@ namespace MiNET.Worlds
 		private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
 		{
 			var text = blockEntityTag[tagName].StringValue;
-			var replace = Regex.Unescape(_regex.Replace(text, "$3"));
+			var replace = /*Regex.Unescape*/(_regex.Replace(text, "$3"));
 			blockEntityTag[tagName] = new NbtString(tagName, replace);
 		}
 

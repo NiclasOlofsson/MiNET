@@ -19,6 +19,7 @@ namespace MiNET.Worlds
 
 		public int x;
 		public int z;
+
 		public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
@@ -43,7 +44,7 @@ namespace MiNET.Worlds
 		public byte GetBlock(int bx, int by, int bz)
 		{
 			Chunk chunk = chunks[by >> 4];
-			return chunk.GetBlock(bx, by - 16 * (by >> 4), bz);
+			return chunk.GetBlock(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetBlock(int bx, int by, int bz, byte bid)
@@ -84,13 +85,13 @@ namespace MiNET.Worlds
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
 			Chunk chunk = chunks[by >> 4];
-			return chunk.GetBlocklight(bx, by - 16 * (by >> 4), bz);
+			return chunk.GetBlocklight(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			Chunk chunk = chunks[by >> 4];
-			chunk.SetBlocklight(bx, by - 16 * (by >> 4), bz, data);
+			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
 			_cache = null;
 			isDirty = true;
 		}
@@ -98,13 +99,13 @@ namespace MiNET.Worlds
 		public byte GetMetadata(int bx, int by, int bz)
 		{
 			Chunk chunk = chunks[by >> 4];
-			return chunk.GetMetadata(bx, by - 16 * (by >> 4), bz);
+			return chunk.GetMetadata(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			Chunk chunk = chunks[by >> 4];
-			chunk.SetMetadata(bx, by - 16 * (by >> 4), bz, data);
+			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
 			_cache = null;
 			isDirty = true;
 		}
@@ -112,13 +113,13 @@ namespace MiNET.Worlds
 		public byte GetSkylight(int bx, int by, int bz)
 		{
 			Chunk chunk = chunks[by >> 4];
-			return chunk.GetSkylight(bx, by - 16 * (by >> 4), bz);
+			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
 			Chunk chunk = chunks[by >> 4];
-			chunk.SetSkylight(bx, by - 16 * (by >> 4), bz, data);
+			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
 			_cache = null;
 			isDirty = true;
 		}
@@ -289,8 +290,8 @@ namespace MiNET.Worlds
 					else break;
 				}
 
-				writer.Write((byte)topEmpty);
-				Log.Debug($"Saved sending {16-topEmpty} chunks");
+				writer.Write((byte) topEmpty);
+				Log.Debug($"Saved sending {16 - topEmpty} chunks");
 
 				for (int ci = 0; ci < topEmpty; ci++)
 				{
@@ -327,7 +328,7 @@ namespace MiNET.Worlds
 				{
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
-						NbtFile file = new NbtFile(blockEntity) { BigEndian = false, UseVarInt = true };
+						NbtFile file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
 						file.SaveToStream(writer.BaseStream, NbtCompression.None);
 					}
 				}
@@ -338,66 +339,47 @@ namespace MiNET.Worlds
 			return _cache;
 		}
 
-		public object Clone()
-		{
-			return null;
-		}
-
 		//public object Clone()
 		//{
-		//	ChunkColumn cc = (ChunkColumn) MemberwiseClone();
-
-		//	//public int x;
-		//	//public int z;
-		//	//public bool isDirty;
-
-		//	//public byte[] biomeId = ArrayOf<byte>.Create(256, 2);
-		//	cc.biomeId = (byte[]) biomeId.Clone();
-
-		//	//public int[] biomeColor = ArrayOf<int>.Create(256, 1);
-		//	cc.biomeColor = (int[]) biomeColor.Clone();
-
-		//	//public byte[] height = ArrayOf<byte>.Create(256, 0);
-		//	cc.height = (byte[]) height.Clone();
-
-		//	//public byte[] blocks = new byte[16 * 16 * 128];
-		//	cc.blocks = (byte[]) blocks.Clone();
-
-		//	//public NibbleArray metadata = new NibbleArray(16 * 16 * 128);
-		//	cc.metadata = (NibbleArray) metadata.Clone();
-
-		//	//public NibbleArray blocklight = new NibbleArray(16 * 16 * 128);
-		//	cc.blocklight = (NibbleArray) blocklight.Clone();
-
-		//	//public NibbleArray skylight = new NibbleArray(16 * 16 * 128);
-		//	cc.skylight = (NibbleArray) skylight.Clone();
-
-		//	//public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
-		//	cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
-		//	foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
-		//	{
-		//		cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
-		//	}
-
-		//	//private byte[] _cache;
-		//	if (_cache != null)
-		//	{
-		//		cc._cache = (byte[]) _cache.Clone();
-		//	}
-
-		//	//private McpeBatch _cachedBatch = null;
-		//	McpeBatch batch = McpeBatch.CreateObject();
-		//	batch.payload = _cachedBatch.payload;
-		//	batch.Encode();
-		//	batch.MarkPermanent();
-
-		//	cc._cachedBatch = batch;
-
-		//	//private object _cacheSync = new object();
-		//	_cacheSync = new object();
-
-		//	return cc;
+		//	return null;
 		//}
+
+		public object Clone()
+		{
+			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
+
+			cc.chunks = new Chunk[16];
+			for (int i = 0; i < chunks.Length; i++)
+			{
+				cc.chunks[i] = (Chunk) chunks.Clone();
+			}
+
+			cc.biomeId = (byte[]) biomeId.Clone();
+			cc.biomeColor = (int[]) biomeColor.Clone();
+			cc.height = (byte[]) height.Clone();
+
+			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
+			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
+			{
+				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
+			}
+
+			if (_cache != null)
+			{
+				cc._cache = (byte[]) _cache.Clone();
+			}
+
+			McpeBatch batch = McpeBatch.CreateObject();
+			batch.payload = _cachedBatch.payload;
+			batch.Encode();
+			batch.MarkPermanent();
+
+			cc._cachedBatch = batch;
+
+			_cacheSync = new object();
+
+			return cc;
+		}
 	}
 
 

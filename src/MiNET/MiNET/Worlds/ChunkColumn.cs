@@ -339,11 +339,6 @@ namespace MiNET.Worlds
 			return _cache;
 		}
 
-		//public object Clone()
-		//{
-		//	return null;
-		//}
-
 		public object Clone()
 		{
 			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
@@ -351,7 +346,7 @@ namespace MiNET.Worlds
 			cc.chunks = new Chunk[16];
 			for (int i = 0; i < chunks.Length; i++)
 			{
-				cc.chunks[i] = (Chunk) chunks.Clone();
+				cc.chunks[i] = (Chunk) chunks[i].Clone();
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();

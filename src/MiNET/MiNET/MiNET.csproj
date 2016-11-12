@@ -301,9 +301,11 @@
     <Compile Include="Entities\Hostile\ElderGuardian.cs" />
     <Compile Include="Entities\Hostile\Guardian.cs" />
     <Compile Include="Entities\Hostile\Husk.cs" />
+    <Compile Include="Entities\Hostile\Shulker.cs" />
     <Compile Include="Entities\Hostile\SkeletonHorse.cs" />
     <Compile Include="Entities\Hostile\Stray.cs" />
     <Compile Include="Entities\Hostile\WitherSkeleton.cs" />
+    <Compile Include="Entities\Passive\PolarBear.cs" />
     <Compile Include="Entities\Projectiles\Arrow.cs" />
     <Compile Include="Entities\Projectiles\Egg.cs" />
     <Compile Include="Entities\Entity.cs" />

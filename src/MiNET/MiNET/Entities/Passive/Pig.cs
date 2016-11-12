@@ -15,7 +15,7 @@ namespace MiNET.Entities.Passive
 
 		public override Item[] GetDrops()
 		{
-			return new []
+			return new[]
 			{
 				ItemFactory.GetItem(319, 0, 2)
 			};

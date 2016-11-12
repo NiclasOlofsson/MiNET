@@ -1,17 +1,18 @@
 using System;
 using log4net;
+using MiNET.Entities.Passive;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
 {
-	public class Horse : HostileMob
+	public class Horse : PassiveMob
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Horse));
 
 		private Random _random;
 
-		public Horse(Level level) : base((int) EntityType.Horse, level)
+		public Horse(Level level) : base(EntityType.Horse, level)
 		{
 			Width = Length = 1.4;
 			Height = 1.6;
@@ -40,7 +41,7 @@ namespace MiNET.Entities.Hostile
 
 		private Random _random;
 
-		public SkeletonHorse(Level level) : base((int) EntityType.SkeletonHorse, level)
+		public SkeletonHorse(Level level) : base(EntityType.SkeletonHorse, level)
 		{
 			Width = Length = 1.4;
 			Height = 1.6;

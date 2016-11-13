@@ -1199,16 +1199,16 @@ namespace MiNET.Client
 
 		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
 		{
-			//{
-			//	dynamic json = JObject.Parse(message.commands);
+			{
+				dynamic json = JObject.Parse(message.commands);
 
-			//	if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
-			//}
-			//{
-			//	dynamic json = JObject.Parse(message.unknown);
+				if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+			}
+			{
+				dynamic json = JObject.Parse(message.unknown);
 
-			//	if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
-			//}
+				if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
+			}
 		}
 
 		private void OnMcpeCommandStep(McpeCommandStep message)

@@ -137,6 +137,9 @@ namespace MiNET.Items
 				case EntityType.Shulker:
 					mob = new Shulker(world);
 					break;
+				case EntityType.Dragon:
+					mob = new Dragon(world);
+					break;
 				case EntityType.SkeletonHorse:
 					mob = new SkeletonHorse(world);
 					break;

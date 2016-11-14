@@ -51,7 +51,7 @@ namespace MiNET
 			};
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson /*, new ParameterConverter()*/);
 
-			Assert.AreEqual(36, commands.Count);
+			Assert.AreEqual(56, commands.Count);
 
 			Assert.AreEqual("ability", commands.First().Key);
 

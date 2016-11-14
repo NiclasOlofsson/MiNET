@@ -29,6 +29,8 @@ namespace MiNET.Plugins
 
 		[JsonProperty(propertyName: "requires_edu")]
 		public bool RequiresEdu { get; set; }
+		[JsonProperty(propertyName: "is_automation")]
+		public bool IsAutomation { get; set; }
 
 		public Dictionary<string, Overload> Overloads { get; set; }
 	}

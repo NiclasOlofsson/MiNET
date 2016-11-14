@@ -47,6 +47,35 @@
 			}
 		]
 	},
+	"attack": {
+		"versions": [
+			{
+				"description": "commands.ltc.attack.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.attack.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"clearfixedinv": {
 		"versions": [
 			{
@@ -137,6 +166,61 @@
 			}
 		]
 	},
+	"collect": {
+		"versions": [
+			{
+				"description": "commands.ltc.collect.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "item",
+									"type": "string"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.collect.success"
+							]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"createmascot": {
+		"versions": [
+			{
+				"description": "commands.ltc.createmascot.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [ ]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.createmascot.success"
+							],
+							"parameters": [
+								{
+									"name": "wasSpawned",
+									"type": "bool"
+								}
+							]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"deop": {
 		"versions": [
 			{
@@ -170,6 +254,159 @@
 					}
 				},
 				"permission": "op"
+			}
+		]
+	},
+	"destroy": {
+		"versions": [
+			{
+				"description": "commands.ltc.destroy.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.destroy.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"detect": {
+		"versions": [
+			{
+				"description": "commands.ltc.detect.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.detect.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"detectredstone": {
+		"versions": [
+			{
+				"description": "commands.ltc.detectredstone.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.detectredstone.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"drop": {
+		"versions": [
+			{
+				"description": "commands.ltc.drop.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "slotNum",
+									"type": "int"
+								},
+								{
+									"name": "quantity",
+									"type": "int"
+								},
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.drop.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"dropall": {
+		"versions": [
+			{
+				"description": "commands.ltc.dropall.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.dropall.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
 			}
 		]
 	},
@@ -271,20 +508,6 @@
 							"parameters": [ ]
 						}
 					},
-					"asSelf": {
-						"input": {
-							"parameters": [
-								{
-									"name": "command",
-									"type": "rawtext"
-								}
-							]
-						},
-						"output": {
-							"format_strings": [ ],
-							"parameters": [ ]
-						}
-					},
 					"detect": {
 						"input": {
 							"parameters": [
@@ -329,6 +552,31 @@
 					}
 				},
 				"permission": "op"
+			}
+		]
+	},
+	"executeasself": {
+		"versions": [
+			{
+				"description": "commands.execute.usage",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "command",
+									"type": "rawtext"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [ ],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any"
 			}
 		]
 	},
@@ -556,6 +804,7 @@
 		"versions": [
 			{
 				"description": "commands.getchunkdata.description",
+				"is_automation": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -592,7 +841,7 @@
 						}
 					}
 				},
-				"permission": "automation",
+				"permission": "host",
 				"requires_edu": true
 			}
 		]
@@ -601,6 +850,7 @@
 		"versions": [
 			{
 				"description": "commands.getchunks.description",
+				"is_automation": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -625,7 +875,86 @@
 						}
 					}
 				},
-				"permission": "automation",
+				"permission": "host",
+				"requires_edu": true
+			}
+		]
+	},
+	"getitemcount": {
+		"versions": [
+			{
+				"description": "commands.ltc.getitemcount.description",
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "slotNum",
+									"type": "int"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.getitemcount.success"
+							]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"getitemdetail": {
+		"versions": [
+			{
+				"description": "commands.ltc.getitemdetail.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "slotNum",
+									"type": "int"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.getitemdetail.success"
+							]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"getitemspace": {
+		"versions": [
+			{
+				"description": "commands.ltc.getitemspace.description",
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "slotNum",
+									"type": "int"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.getitemspace.success"
+							]
+						}
+					}
+				},
+				"permission": "any",
 				"requires_edu": true
 			}
 		]
@@ -634,6 +963,7 @@
 		"versions": [
 			{
 				"description": "commands.getspawnpoint.description",
+				"is_automation": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -657,7 +987,7 @@
 						}
 					}
 				},
-				"permission": "automation",
+				"permission": "host",
 				"requires_edu": true
 			}
 		]
@@ -716,6 +1046,50 @@
 			}
 		]
 	},
+	"globalpause": {
+		"versions": [
+			{
+				"description": "commands.globalpause.description",
+				"is_automation": true,
+				"overloads": {
+					"getter": {
+						"input": {
+							"parameters": [ ]
+						},
+						"output": {
+							"format_strings": [
+								"commands.globalpause.success"
+							],
+							"parameters": [
+								{
+									"name": "isPaused",
+									"type": "bool"
+								}
+							]
+						}
+					},
+					"setter": {
+						"input": {
+							"parameters": [
+								{
+									"name": "isPaused",
+									"type": "bool"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.globalpause.success"
+							]
+						}
+					}
+				},
+				"permission": "host",
+				"requires_edu": true,
+				"version": 1
+			}
+		]
+	},
 	"help": {
 		"versions": [
 			{
@@ -732,7 +1106,6 @@
 									"name": "command",
 									"type": "stringenum"
 								}
-
 							]
 						},
 						"output": {
@@ -781,6 +1154,35 @@
 					}
 				},
 				"permission": "any"
+			}
+		]
+	},
+	"inspect": {
+		"versions": [
+			{
+				"description": "commands.ltc.inspect.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.inspect.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
 			}
 		]
 	},
@@ -866,6 +1268,7 @@
 		"versions": [
 			{
 				"description": "commands.list.description",
+				"is_automation": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -909,7 +1312,72 @@
 						}
 					}
 				},
-				"permission": "automation"
+				"permission": "host"
+			}
+		]
+	},
+	"locate": {
+		"versions": [
+			{
+				"description": "commands.locate.description",
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "featureType",
+									"name": "feature",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.locate.success"
+							],
+							"parameters": [
+								{
+									"name": "feature",
+									"type": "string"
+								},
+								{
+									"name": "destination",
+									"type": "blockpos"
+								}
+							]
+						}
+					}
+				},
+				"permission": "op"
+			}
+		]
+	},
+	"move": {
+		"versions": [
+			{
+				"description": "commands.ltc.move.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.move.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
 			}
 		]
 	},
@@ -949,10 +1417,43 @@
 			}
 		]
 	},
+	"place": {
+		"versions": [
+			{
+				"description": "commands.ltc.place.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "slotNum",
+									"type": "int"
+								},
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.place.success"
+							]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"querytarget": {
 		"versions": [
 			{
 				"description": "commands.querytarget.description",
+				"is_automation": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -976,7 +1477,7 @@
 						}
 					}
 				},
-				"permission": "automation",
+				"permission": "host",
 				"requires_edu": true
 			}
 		]
@@ -1366,6 +1867,35 @@
 			}
 		]
 	},
+	"till": {
+		"versions": [
+			{
+				"description": "commands.ltc.till.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.till.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"time add": {
 		"versions": [
 			{
@@ -1656,6 +2186,71 @@
 			}
 		]
 	},
+	"transfer": {
+		"versions": [
+			{
+				"description": "commands.ltc.transfer.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "srcSlotNum",
+									"type": "int"
+								},
+								{
+									"name": "quantity",
+									"type": "int"
+								},
+								{
+									"name": "dstSlotNum",
+									"type": "int"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.transfer.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
+	"turn": {
+		"versions": [
+			{
+				"description": "commands.ltc.turn.description",
+				"is_automation": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_type": "turtleCommandTurnDirection",
+									"name": "direction",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.turn.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"weather": {
 		"versions": [
 			{
@@ -1700,6 +2295,9 @@
 	"wsserver": {
 		"versions": [
 			{
+				"aliases": [
+					"connect"
+				],
 				"description": "commands.wsserver.description",
 				"overloads": {
 					"default": {
@@ -1724,7 +2322,7 @@
 						}
 					}
 				},
-				"permission": "host"
+				"permission": "any"
 			}
 		]
 	},

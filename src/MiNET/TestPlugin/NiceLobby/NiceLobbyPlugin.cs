@@ -72,7 +72,8 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 1;
-			player.Inventory.Slots[idx++] = new ItemDiamondSword();
+			player.Inventory.Slots[idx++] = new ItemEnderChest() { Count = 20 };
+			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe();
 			player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
 			player.SendPlayerInventory();
 

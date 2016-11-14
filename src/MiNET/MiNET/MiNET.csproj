@@ -78,6 +78,7 @@
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
     <Compile Include="BlockEntities\EnchantingTableBlockEntity.cs" />
+    <Compile Include="BlockEntities\EnderChestBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\ItemFrameBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Blocks\DarkOakDoor.cs" />
     <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
     <Compile Include="Blocks\Dropper.cs" />
+    <Compile Include="Blocks\EnderChest.cs" />
     <Compile Include="Blocks\JungleDoor.cs" />
     <Compile Include="Blocks\LitRedstoneOre.cs" />
     <Compile Include="Blocks\MelonStem.cs" />
@@ -393,6 +395,7 @@
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemEmptyMap.cs" />
     <Compile Include="Items\ItemEnchantingTable.cs" />
+    <Compile Include="Items\ItemEnderChest.cs" />
     <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldAxe.cs" />
     <Compile Include="Items\ItemGoldenApple.cs" />

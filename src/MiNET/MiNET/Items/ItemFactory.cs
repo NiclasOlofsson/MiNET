@@ -35,6 +35,7 @@ namespace MiNET.Items
 			else if (id == 63) item = new ItemSign();
 			else if (id == 68) item = new ItemSign();
 			else if (id == 116) item = new ItemEnchantingTable();
+			else if (id == 130) item = new ItemEnderChest();
 			else if (id == 158) item = new ItemSlab(id, metadata);
 			else if (id == 199) item = new ItemItemFrame();
 			else if (id == 256) item = new ItemIronShovel();

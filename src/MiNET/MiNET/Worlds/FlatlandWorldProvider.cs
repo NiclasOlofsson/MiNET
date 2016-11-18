@@ -181,7 +181,6 @@ namespace MiNET.Worlds
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 2); // Grass
-					chunk.SetBlock(x, h++, z, 41); // Grass
 				}
 			}
 

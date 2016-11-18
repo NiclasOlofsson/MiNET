@@ -298,86 +298,7 @@ namespace MiNET.Worlds
 				// This will turn into a full chunk column
 				foreach (NbtTag sectionTag in sections)
 				{
-					int sy = sectionTag["Y"].ByteValue*16;
-					byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
-					byte[] data = sectionTag["Data"].ByteArrayValue;
-					NbtTag addTag = sectionTag["Add"];
-					byte[] adddata = new byte[2048];
-					if (addTag != null) adddata = addTag.ByteArrayValue;
-					byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
-					byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
-
-					for (int x = 0; x < 16; x++)
-					{
-						for (int z = 0; z < 16; z++)
-						{
-							for (int y = 0; y < 16; y++)
-							{
-								int yi = sy + y - yoffset;
-								if (yi < 0 || yi >= 256) continue;
-
-								int anvilIndex = y*16*16 + z*16 + x;
-								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
-
-								// Anvil to PE friendly converstion
-
-								Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
-								if (Convert.ContainsKey(blockId))
-								{
-									dataConverter = Convert[blockId].Item2;
-									blockId = Convert[blockId].Item1;
-								}
-								else
-								{
-									if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
-									{
-										Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
-										//blockId = 57;
-									}
-								}
-
-								chunk.isAllAir = chunk.isAllAir && blockId == 0;
-								if (blockId > 255)
-								{
-									Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
-									blockId = 41;
-								}
-
-								//if (yi == 127 && blockId != 0) blockId = 30;
-								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
-
-								chunk.SetBlock(x, yi, z, (byte) blockId);
-								byte metadata = Nibble4(data, anvilIndex);
-								metadata = dataConverter(blockId, metadata);
-
-								chunk.SetMetadata(x, yi, z, metadata);
-								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
-
-								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-								if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
-								{
-									chunk.SetSkylight(x, yi, z, 0xff);
-								}
-
-								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
-								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
-								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
-								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
-								{
-									// Dirt Course => (Grass Path)
-									chunk.SetBlock(x, yi, z, 198);
-									chunk.SetMetadata(x, yi, z, 0);
-								}
-								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
-								{
-									// Dirt Podzol => (Podzol)
-									chunk.SetBlock(x, yi, z, 243);
-									chunk.SetMetadata(x, yi, z, 0);
-								}
-							}
-						}
-					}
+					ReadSection(yoffset, sectionTag, chunk);
 				}
 
 				NbtList entities = dataTag["Entities"] as NbtList;
@@ -435,6 +356,90 @@ namespace MiNET.Worlds
 
 				chunk.isDirty = false;
 				return chunk;
+			}
+		}
+
+		private static void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk)
+		{
+			int sy = sectionTag["Y"].ByteValue*16;
+			byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
+			byte[] data = sectionTag["Data"].ByteArrayValue;
+			NbtTag addTag = sectionTag["Add"];
+			byte[] adddata = new byte[2048];
+			if (addTag != null) adddata = addTag.ByteArrayValue;
+			byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
+			byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
+
+			for (int x = 0; x < 16; x++)
+			{
+				for (int z = 0; z < 16; z++)
+				{
+					for (int y = 0; y < 16; y++)
+					{
+						int yi = sy + y - yoffset;
+						if (yi < 0 || yi >= 256) continue;
+
+						int anvilIndex = y*16*16 + z*16 + x;
+						int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
+
+						// Anvil to PE friendly converstion
+
+						Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
+						if (Convert.ContainsKey(blockId))
+						{
+							dataConverter = Convert[blockId].Item2;
+							blockId = Convert[blockId].Item1;
+						}
+						else
+						{
+							if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
+							{
+								Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
+								//blockId = 57;
+							}
+						}
+
+						chunk.isAllAir = chunk.isAllAir && blockId == 0;
+						if (blockId > 255)
+						{
+							Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
+							blockId = 41;
+						}
+
+						//if (yi == 127 && blockId != 0) blockId = 30;
+						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
+
+						chunk.SetBlock(x, yi, z, (byte) blockId);
+						byte metadata = Nibble4(data, anvilIndex);
+						metadata = dataConverter(blockId, metadata);
+
+						chunk.SetMetadata(x, yi, z, metadata);
+						chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
+						chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+
+						var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
+						if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
+						{
+							chunk.SetSkylight(x, yi, z, 0xff);
+						}
+
+						if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
+						else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
+						else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
+						else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
+						{
+							// Dirt Course => (Grass Path)
+							chunk.SetBlock(x, yi, z, 198);
+							chunk.SetMetadata(x, yi, z, 0);
+						}
+						else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
+						{
+							// Dirt Podzol => (Podzol)
+							chunk.SetBlock(x, yi, z, 243);
+							chunk.SetMetadata(x, yi, z, 0);
+						}
+					}
+				}
 			}
 		}
 

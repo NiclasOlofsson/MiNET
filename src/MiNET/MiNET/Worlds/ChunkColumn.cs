@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -25,8 +26,8 @@ namespace MiNET.Worlds
 
 		public byte[] blocks = new byte[16*16*128];
 		public NibbleArray metadata = new NibbleArray(16*16*128);
-		public NibbleArray blocklight = new NibbleArray(16*16*128);
-		public NibbleArray skylight = new NibbleArray(16*16*128);
+		public NibbleArray blockLight = new NibbleArray(16*16*128);
+		public NibbleArray skyLight = new NibbleArray(16*16*128);
 
 		//TODO: This dictionary need to be concurent. Investigate performance before changing.
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
@@ -71,9 +72,16 @@ namespace MiNET.Worlds
 			isDirty = true;
 		}
 
-		public void SetHeight(int bx, int bz, byte h)
+		public byte GetMetadata(int bx, int by, int bz)
 		{
-			height[(bz << 4) + (bx)] = h;
+			return metadata[(bx * 2048) + (bz * 128) + by];
+		}
+
+		public void SetMetadata(int bx, int by, int bz, byte data)
+		{
+			metadata[(bx * 2048) + (bz * 128) + by] = data;
+			_cache = null;
+			isDirty = true;
 		}
 
 		public byte GetHeight(int bx, int bz)
@@ -81,9 +89,11 @@ namespace MiNET.Worlds
 			return height[(bz << 4) + (bx)];
 		}
 
-		public void SetBiome(int bx, int bz, byte biome)
+		public void SetHeight(int bx, int bz, byte h)
 		{
-			biomeId[(bz << 4) + (bx)] = biome;
+			height[(bz << 4) + (bx)] = h;
+			_cache = null;
+			isDirty = true;
 		}
 
 		public byte GetBiome(int bx, int bz)
@@ -91,43 +101,40 @@ namespace MiNET.Worlds
 			return biomeId[(bz << 4) + (bx)];
 		}
 
+		public void SetBiome(int bx, int bz, byte biome)
+		{
+			biomeId[(bz << 4) + (bx)] = biome;
+			_cache = null;
+			isDirty = true;
+		}
+
 		public void SetBiomeColor(int bx, int bz, int color)
 		{
 			biomeColor[(bz << 4) + (bx)] = (color & 0x00ffffff);
-		}
-
-		public byte GetBlocklight(int bx, int by, int bz)
-		{
-			return blocklight[(bx*2048) + (bz*128) + by];
-		}
-
-		public void SetBlocklight(int bx, int by, int bz, byte data)
-		{
-			blocklight[(bx*2048) + (bz*128) + by] = data;
 			_cache = null;
 			isDirty = true;
 		}
 
-		public byte GetMetadata(int bx, int by, int bz)
+		public byte GetBlockLight(int bx, int by, int bz)
 		{
-			return metadata[(bx*2048) + (bz*128) + by];
+			return blockLight[(bx * 2048) + (bz * 128) + by];
 		}
 
-		public void SetMetadata(int bx, int by, int bz, byte data)
+		public void SetBlockLight(int bx, int by, int bz, byte data)
 		{
-			metadata[(bx*2048) + (bz*128) + by] = data;
+			blockLight[(bx * 2048) + (bz * 128) + by] = data;
 			_cache = null;
 			isDirty = true;
 		}
 
-		public byte GetSkylight(int bx, int by, int bz)
+		public byte GetSkyLight(int bx, int by, int bz)
 		{
-			return skylight[(bx*2048) + (bz*128) + by];
+			return skyLight[(bx * 2048) + (bz * 128) + by];
 		}
 
-		public void SetSkylight(int bx, int by, int bz, byte data)
+		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
-			skylight[(bx*2048) + (bz*128) + by] = data;
+			skyLight[(bx*2048) + (bz*128) + by] = data;
 			_cache = null;
 			isDirty = true;
 		}
@@ -245,12 +252,26 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					for (byte y = 127; y > 0; y--)
+					bool isInLight = true;
+
+					for (int y = 127; y >= 0; y--)
 					{
-						if (GetBlock(x, y, z) != 0)
+						if (isInLight)
 						{
-							SetHeight(x, z, (byte) (y + 1));
-							break;
+							if (GetBlock(x, y, z) != 0)
+							{
+								SetHeight(x, z, (byte)(y + 1));
+								SetSkyLight(x, y, z, 0);
+								isInLight = false;
+							}
+							else
+							{
+								SetSkyLight(x, y, z, 15);
+							}
+						}
+						else
+						{
+							SetSkyLight(x, y, z, 0);
 						}
 					}
 				}
@@ -294,10 +315,8 @@ namespace MiNET.Worlds
 
 				writer.Write(blocks);
 				writer.Write(metadata.Data);
-				writer.Write(skylight.Data);
-				writer.Write(blocklight.Data);
-
-				//RecalcHeight();
+				writer.Write(skyLight.Data);
+				writer.Write(blockLight.Data);
 				writer.Write(height);
 
 				BiomeUtils utils = new BiomeUtils();
@@ -359,10 +378,10 @@ namespace MiNET.Worlds
 			cc.metadata = (NibbleArray) metadata.Clone();
 
 			//public NibbleArray blocklight = new NibbleArray(16 * 16 * 128);
-			cc.blocklight = (NibbleArray) blocklight.Clone();
+			cc.blockLight = (NibbleArray) blockLight.Clone();
 
 			//public NibbleArray skylight = new NibbleArray(16 * 16 * 128);
-			cc.skylight = (NibbleArray) skylight.Clone();
+			cc.skyLight = (NibbleArray) skyLight.Clone();
 
 			//public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();

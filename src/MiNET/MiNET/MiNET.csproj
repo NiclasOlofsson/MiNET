@@ -60,6 +60,10 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpAvi, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpAvi.2.1.0\lib\net45\SharpAvi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -602,6 +606,7 @@
     <Compile Include="Utils\Records.cs" />
     <Compile Include="Worlds\AnvilWorldProvider.cs" />
     <Compile Include="Worlds\BiomeUtils.cs" />
+    <Compile Include="Worlds\BlockLightCalculations.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
@@ -613,6 +618,7 @@
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
     <Compile Include="Worlds\LevelInfo.cs" />
+    <Compile Include="Worlds\SkyLightCalculations.cs" />
     <Compile Include="Worlds\Structures\AcaciaTree.cs" />
     <Compile Include="Worlds\Structures\BirchTree.cs" />
     <Compile Include="Worlds\Structures\JungleTree.cs" />

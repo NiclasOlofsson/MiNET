@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using log4net;
 
 namespace MiNET.Blocks
@@ -12,6 +13,29 @@ namespace MiNET.Blocks
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
+
+		public static List<int> TransparentBlocks { get; private set; } 
+
+		static BlockFactory()
+		{
+			TransparentBlocks = GetTransparentBlocks();
+		}
+
+		private static List<int> GetTransparentBlocks()
+		{
+			List<int> transparent = new List<int>();
+			for (byte i = 0; i < byte.MaxValue; i++)
+			{
+				var block = GetBlockById(i);
+				if (block != null && block.IsTransparent)
+				{
+					transparent.Add(block.Id);
+				}
+			}
+
+			return transparent;
+		}
+
 
 		public static Block GetBlockById(byte blockId)
 		{

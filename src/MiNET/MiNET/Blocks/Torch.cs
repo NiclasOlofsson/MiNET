@@ -1,4 +1,5 @@
 using System.Numerics;
+using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -6,6 +7,8 @@ namespace MiNET.Blocks
 {
 	public class Torch : Block
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Torch));
+
 		public Torch() : base(50)
 		{
 			IsTransparent = true;
@@ -13,22 +16,27 @@ namespace MiNET.Blocks
 			LightLevel = 14;
 		}
 
-		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
-		{
-			Block block = world.GetBlock(blockCoordinates);
-			if (block is Farmland
-			    || block is Ice
-				/*|| block is Glowstone || block is Leaves  */
-			    || block is Tnt
-			    || block is BlockStairs
-			    || block is StoneSlab
-			    || block is WoodSlab) return true;
+		//protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
+		//{
+		//	Log.Debug("1");
 
-			//TODO: More checks here, but PE blocks it pretty good right now
-			if (block is Glass && face == BlockFace.Up) return true;
+		//	Block block = world.GetBlock(blockCoordinates);
+		//	if (block is Farmland
+		//	    || block is Ice
+		//		/*|| block is Glowstone || block is Leaves  */
+		//	    || block is Tnt
+		//	    || block is BlockStairs
+		//	    || block is StoneSlab
+		//	    || block is WoodSlab) return false;
+		//	Log.Debug("2");
 
-			return !block.IsTransparent;
-		}
+		//	//TODO: More checks here, but PE blocks it pretty good right now
+		//	if (block is Glass && face == BlockFace.Up) return true;
+
+		//	Log.Debug($"3 {block.Id} {!block.IsTransparent}");
+
+		//	return !block.IsTransparent;
+		//}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
@@ -53,8 +61,9 @@ namespace MiNET.Blocks
 					break;
 			}
 
-			world.SetBlock(this);
-			return true;
+			//world.SetBlock(this);
+			//return true;
+			return false;
 		}
 	}
 }

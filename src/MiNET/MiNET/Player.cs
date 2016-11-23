@@ -1924,7 +1924,7 @@ namespace MiNET
 			}
 		}
 
-		private void ForcedSendChunks(Action postAction = null)
+		public void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
 			try

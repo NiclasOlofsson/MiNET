@@ -9,6 +9,7 @@ namespace MiNET.Blocks
 		protected BlockStairs(byte id) : base(id)
 		{
 			FuelEfficiency = 15;
+			IsTransparent = true;
 		}
 
 		// 000 001 010 011 100

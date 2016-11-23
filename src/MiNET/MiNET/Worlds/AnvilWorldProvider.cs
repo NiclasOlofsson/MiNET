@@ -35,15 +35,15 @@ namespace MiNET.Worlds
 
 		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
-	    public IWorldProvider MissingChunkProvider { get; set; }
+		public IWorldProvider MissingChunkProvider { get; set; }
 
-	    public LevelInfo LevelInfo { get; private set; }
+		public LevelInfo LevelInfo { get; private set; }
 
-	    public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+		public ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 
-	    public string BasePath { get; private set; }
+		public string BasePath { get; private set; }
 
-	    public bool IsCaching { get; private set; }
+		public bool IsCaching { get; private set; }
 
 		public byte WaterOffsetY { get; set; }
 
@@ -201,28 +201,19 @@ namespace MiNET.Worlds
 
 		public ChunkColumn[] GetCachedChunks()
 		{
-			lock (_chunkCache)
-			{
-				return _chunkCache.Values.Where(column => column != null).ToArray();
-			}
+			return _chunkCache.Values.Where(column => column != null).ToArray();
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-			lock (_chunkCache)
-			{
-				ChunkColumn cachedChunk;
-				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
-
-				ChunkColumn chunk = GetChunk(chunkCoordinates, BasePath, MissingChunkProvider, WaterOffsetY);
-
-				_chunkCache[chunkCoordinates] = chunk;
-
-				return chunk;
-			}
+			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate
+			// if called in rapid succession. However, for the scenario of the provider, this is highly unlikely.
+			return _chunkCache.GetOrAdd(chunkCoordinates, coordinates => GetChunk(coordinates, BasePath, MissingChunkProvider, WaterOffsetY));
 		}
 
-		public static ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator, int yoffset)
+		public Queue<Block> LightSources { get; set; } = new Queue<Block>();
+
+		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator, int yoffset)
 		{
 			int width = 32;
 			int depth = 32;
@@ -351,14 +342,14 @@ namespace MiNET.Worlds
 								metadata = dataConverter(blockId, metadata);
 
 								chunk.SetMetadata(x, yi, z, metadata);
-								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+								//chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
+								//chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+								//chunk.SetSkylight(x, yi, z, 0xff);
 
-								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-								if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
-								{
-									chunk.SetSkylight(x, yi, z, 0xff);
-								}
+								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
+								//{
+								//	chunk.SetSkylight(x, yi, z, 0xff);
+								//}
 
 								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
 								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
@@ -374,6 +365,13 @@ namespace MiNET.Worlds
 									// Dirt Podzol => (Podzol)
 									chunk.SetBlock(x, yi, z, 243);
 									chunk.SetMetadata(x, yi, z, 0);
+								}
+
+								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
+								if (block.LightLevel > 0)
+								{
+									block.Coordinates = new BlockCoordinates(x + (16*coordinates.X), yi, z + (16*coordinates.Z));
+									LightSources.Enqueue(block);
 								}
 							}
 						}
@@ -411,7 +409,7 @@ namespace MiNET.Worlds
 							{
 								NbtList items = (NbtList) blockEntityTag["Items"];
 
-								if(items != null)
+								if (items != null)
 								{
 									//for (byte i = 0; i < items.Count; i++)
 									//{
@@ -475,7 +473,8 @@ namespace MiNET.Worlds
 
 		public long GetTime()
 		{
-			return LevelInfo.Time;
+			return 6000;
+			//return LevelInfo.Time;
 		}
 
 		public void SaveChunks()
@@ -620,8 +619,8 @@ namespace MiNET.Worlds
 
 							blocks[anvilIndex] = blockId;
 							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
-							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
-							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
+							SetNibble4(blockLight, anvilIndex, chunk.GetBlockLight(x, yi, z));
+							SetNibble4(skyLight, anvilIndex, chunk.GetSkyLight(x, yi, z));
 						}
 					}
 				}

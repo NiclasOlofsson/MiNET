@@ -19,13 +19,16 @@ namespace MiNET.Blocks
 		public float BlastResistance { get; protected set; }
 		public short FuelEfficiency { get; protected set; }
 		public float FrictionFactor { get; protected set; }
-		public int LightLevel { get; protected set; }
+		public int LightLevel { get; set; }
 
 		public bool IsReplacible { get; protected set; }
 		public bool IsSolid { get; protected set; }
 		public bool IsBuildable { get; protected set; }
 		public bool IsTransparent { get; protected set; }
 		public bool IsFlammable { get; protected set; }
+
+		public byte BlockLight { get; set; }
+		public byte SkyLight { get; set; }
 
 		public Block(byte id)
 		{

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.Net;
@@ -27,14 +28,20 @@ namespace MiNET.Client
 				int chunkSize = 16*16*128;
 				defStream.Read(chunk.blocks, 0, chunkSize);
 				defStream.Read(chunk.metadata.Data, 0, chunkSize/2);
-				defStream.Read(chunk.skylight.Data, 0, chunkSize/2);
-				defStream.Read(chunk.blocklight.Data, 0, chunkSize/2);
+				defStream.Read(chunk.skyLight.Data, 0, chunkSize/2);
+				defStream.Read(chunk.blockLight.Data, 0, chunkSize/2);
 
-				//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");
+				//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skyLight.Data, 64)}");
 				//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
 
 				defStream.Read(chunk.height, 0, 256);
 				//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
+
+				if (chunk.height.Where(b => b != 0x4).Count() != 0)
+				{
+					Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
+					Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skyLight.Data, 64)}");
+				}
 
 				byte[] ints = new byte[256*4];
 				defStream.Read(ints, 0, ints.Length);
@@ -151,8 +158,8 @@ namespace MiNET.Client
 
 							blocks[anvilIndex] = blockId;
 							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
-							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
-							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
+							SetNibble4(blockLight, anvilIndex, chunk.GetBlockLight(x, yi, z));
+							SetNibble4(skyLight, anvilIndex, chunk.GetSkyLight(x, yi, z));
 						}
 					}
 				}

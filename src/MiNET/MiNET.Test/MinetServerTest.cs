@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -8,7 +9,9 @@ using System.IO.Compression;
 using System.Net;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
+using System.Threading.Tasks;
 using fNbt;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -43,7 +46,7 @@ namespace MiNET
 
 
 			//var result = VarInt.ReadUInt64(new MemoryStream(array));
-			var result = VarInt.ReadUInt64(new MemoryStream(new byte[] { 0x80, 0x80, 0x80, 0x11 }));
+			var result = VarInt.ReadUInt64(new MemoryStream(new byte[] {0x80, 0x80, 0x80, 0x11}));
 			Console.WriteLine($"{Convert.ToString((long) result, 2)}");
 
 			//Assert.AreEqual(dataValue, result);
@@ -388,8 +391,8 @@ namespace MiNET
 				int chunkSize = 16*16*128;
 				Assert.AreEqual(chunkSize, defStream.Read(chunk.blocks, 0, chunkSize));
 				Assert.AreEqual(chunkSize/2, defStream.Read(chunk.metadata.Data, 0, chunkSize/2));
-				Assert.AreEqual(chunkSize/2, defStream.Read(chunk.skylight.Data, 0, chunkSize/2));
-				Assert.AreEqual(chunkSize/2, defStream.Read(chunk.blocklight.Data, 0, chunkSize/2));
+				Assert.AreEqual(chunkSize/2, defStream.Read(chunk.skyLight.Data, 0, chunkSize/2));
+				Assert.AreEqual(chunkSize/2, defStream.Read(chunk.blockLight.Data, 0, chunkSize/2));
 
 				Assert.AreEqual(256, defStream.Read(chunk.biomeId, 0, 256));
 
@@ -427,5 +430,62 @@ namespace MiNET
 			hex.Append("}");
 			return hex.ToString();
 		}
+
+		[Test]
+		public void MemoryTest2()
+		{
+			System.GC.Collect();
+			var memoryStart = System.GC.GetTotalMemory(false);
+
+			Console.WriteLine($"Memory={memoryStart:N}");
+
+			Parallel.For(0, 6000000, (i) =>
+			{
+				Datagram pkt = new Datagram();
+				//move.Encode();
+			});
+
+			var memoryStop = System.GC.GetTotalMemory(false);
+			Console.WriteLine($"Memory={memoryStop:N}");
+
+			var size = McpeMovePlayer.PoolSize();
+
+			Console.WriteLine($"Pool size={size}, Memory delta={(memoryStop - memoryStart):N}");
+		}
+
+		[Test]
+		public void MemoryTest()
+		{
+			System.GC.Collect();
+			var memoryStart = System.GC.GetTotalMemory(false);
+
+			ConcurrentDictionary<Datagram, int> list = new ConcurrentDictionary<Datagram, int>();
+			Console.WriteLine($"Memory={memoryStart :N}");
+			Parallel.For(0, 6000000, (i) =>
+			{
+				Datagram pkt  = Datagram.CreateObject();
+				//move.Encode();
+				pkt.PutPool();
+			});
+
+
+			var memoryStop = System.GC.GetTotalMemory(false);
+			Console.WriteLine($"Memory={memoryStop :N}");
+
+			var size = McpeMovePlayer.PoolSize();
+
+			Console.WriteLine($"Pool size={size}, Memory delta={(memoryStop - memoryStart) :N}");
+		}
+
+		[Test]
+		public void CreateBlockTest()
+		{
+			for (int i = 0; i < 6000000; i++)
+			{
+				Block b = BlockFactory.GetBlockById(0);
+			}
+		}
+
+
 	}
 }

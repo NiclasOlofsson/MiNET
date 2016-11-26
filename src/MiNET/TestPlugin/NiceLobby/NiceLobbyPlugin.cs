@@ -75,6 +75,7 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new StoneBrick(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondSword();
+			player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemStick().Id);
 			player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
 		    for (short i = 0; i < 16; i++)
 		    {

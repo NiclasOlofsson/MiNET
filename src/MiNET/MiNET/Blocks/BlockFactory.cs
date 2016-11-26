@@ -14,11 +14,33 @@ namespace MiNET.Blocks
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
-		public static List<int> TransparentBlocks { get; private set; } 
+		public static List<int> TransparentBlocks { get; private set; }
+		public static Dictionary<string, byte> NameToId { get; private set; }
 
 		static BlockFactory()
 		{
 			TransparentBlocks = GetTransparentBlocks();
+			NameToId = BuildNameToId();
+		}
+
+		private static Dictionary<string, byte> BuildNameToId()
+		{
+			var nameToId = new Dictionary<string, byte>();
+			for (byte idx = 0; idx < byte.MaxValue; idx++)
+			{
+				Block block = GetBlockById(idx);
+				string name = block.GetType().Name.ToLowerInvariant();
+
+				if (name.Equals("block"))
+				{
+					Log.Debug($"Missing implementation for block ID={idx}");
+					continue;
+				}
+
+				nameToId.Add(name, idx);
+			}
+
+			return nameToId;
 		}
 
 		private static List<int> GetTransparentBlocks()
@@ -36,6 +58,31 @@ namespace MiNET.Blocks
 			return transparent;
 		}
 
+		public static byte GetBlockIdByName(string blockName)
+		{
+			blockName = blockName.ToLowerInvariant();
+			blockName = blockName.Replace("_", "");
+
+			if (NameToId.ContainsKey(blockName))
+			{
+				return NameToId[blockName];
+			}
+
+			return 0;
+		}
+
+		public static Block GetBlockByName(string blockName)
+		{
+			blockName = blockName.ToLowerInvariant();
+			blockName = blockName.Replace("_", "");
+
+			if (NameToId.ContainsKey(blockName))
+			{
+				return GetBlockById(NameToId[blockName]);
+			}
+
+			return null;
+		}
 
 		public static Block GetBlockById(byte blockId)
 		{

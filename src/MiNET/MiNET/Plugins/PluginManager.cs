@@ -492,11 +492,22 @@ namespace MiNET.Plugins
 
 			try
 			{
-				var command = Commands[commandName];
-				var overload = command.Versions.First().Overloads[commandOverload];
+				Command command = null;
+				if (Commands.ContainsKey(commandName))
+				{
+					command = Commands[commandName];
+				}
+				else
+				{
+					command = Commands.Values.FirstOrDefault(cmd => cmd.Versions.Any(version => version.Aliases != null && version.Aliases.Any(s => s == commandName)));
+				}
+
+				if (command == null) return null;
+
+				Overload overload = command.Versions.First().Overloads[commandOverload];
 
 				UserPermission requiredPermission = (UserPermission) Enum.Parse(typeof (UserPermission), command.Versions.First().Permission, true);
-				if (player.PermissionLevel < requiredPermission) 
+				if (player.PermissionLevel < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.PermissionLevel}");
 					return null;
@@ -571,8 +582,8 @@ namespace MiNET.Plugins
 
 				if (parameter.IsOptional && args.Length <= i)
 				{
-					Log.Warn($"Break on optional where args.Len={args.Length} and i={i}");
-					break;
+					objectArgs[k] = parameter.DefaultValue;
+					continue;
 				}
 
 				if (parameter.ParameterType.BaseType == typeof (EnumBase))
@@ -674,7 +685,9 @@ namespace MiNET.Plugins
 			{
 				if (method.DeclaringType == null) return false;
 
+				Plugin.CurrentPlayer = player; // Setting thread local for call
 				result = method.Invoke(pluginInstance, objectArgs);
+				Plugin.CurrentPlayer = null; // Done with thread local, we using pool to make sure it's reset.
 			}
 
 			return result;

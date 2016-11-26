@@ -52,7 +52,7 @@ namespace MiNET.Particles
 		{
 		}
 
-		protected Particle(int id, Level level)
+		public Particle(int id, Level level)
 		{
 			Id = id;
 			Level = level;
@@ -67,6 +67,17 @@ namespace MiNET.Particles
 			particleEvent.z = (float) Position.Z;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(particleEvent);
+		}
+
+		public virtual void Spawn(Player[] players)
+		{
+			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+			particleEvent.eventId = (short)(0x4000 | Id);
+			particleEvent.x = (float)Position.X;
+			particleEvent.y = (float)Position.Y;
+			particleEvent.z = (float)Position.Z;
+			particleEvent.data = Data;
+			Level.RelayBroadcast(players, particleEvent);
 		}
 	}
 }

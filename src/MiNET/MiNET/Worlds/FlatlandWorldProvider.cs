@@ -184,7 +184,7 @@ namespace MiNET.Worlds
 
 		public long GetTime()
 		{
-			return 6000;
+			return 0;
 		}
 
 		public int PopulateChunk(ChunkColumn chunk)

@@ -29,8 +29,8 @@ namespace MiNET.Worlds
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
 		public static readonly BlockCoordinates East = new BlockCoordinates(0, 0, -1);
 		public static readonly BlockCoordinates West = new BlockCoordinates(0, 0, 1);
-		public static readonly BlockCoordinates North = new BlockCoordinates(1, 0, 0);
-		public static readonly BlockCoordinates South = new BlockCoordinates(-1, 0, 0);
+		public static readonly BlockCoordinates North = new BlockCoordinates(-1, 0, 0);
+		public static readonly BlockCoordinates South = new BlockCoordinates(1, 0, 0);
 
 		public IWorldProvider _worldProvider;
 		// ReSharper disable once NotAccessedField.Local
@@ -809,6 +809,11 @@ namespace MiNET.Worlds
 			chunk?.SetSkyLight(coordinates.X & 0x0f, coordinates.Y & 0x7f, coordinates.Z & 0x0f, skyLight);
 		}
 
+		public void SetAir(BlockCoordinates blockCoordinates, bool broadcast = true)
+		{
+			SetAir(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z, broadcast);
+		}
+
 		public void SetAir(int x, int y, int z, bool broadcast = true)
 		{
 			Block air = BlockFactory.GetBlockById(0);
@@ -960,7 +965,11 @@ namespace MiNET.Worlds
 			Block block = GetBlock(blockCoordinates);
 			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
 			drops.AddRange(block.GetDrops());
-			if (!AllowBreak || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
+
+			Item inHand = player.Inventory.GetItemInHand();
+			bool canBreak = inHand.BreakBlock(this, player, block, blockEntity);
+
+			if (!canBreak || !AllowBreak || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
 			{
 				// Revert
 

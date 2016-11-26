@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
 using fNbt;
+using MiNET.BlockEntities;
+using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -41,6 +43,12 @@ namespace MiNET.Items
 		{
 		}
 
+		public virtual bool BreakBlock(Level world, Player player, Block block, BlockEntity blockEntity)
+		{
+			return true;
+		}
+
+
 		public BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{
 			switch (face)
@@ -54,9 +62,9 @@ namespace MiNET.Items
 				case BlockFace.West:
 					return target + Level.West;
 				case BlockFace.North:
-					return target + Level.South;
-				case BlockFace.South:
 					return target + Level.North;
+				case BlockFace.South:
+					return target + Level.South;
 				default:
 					return target;
 			}

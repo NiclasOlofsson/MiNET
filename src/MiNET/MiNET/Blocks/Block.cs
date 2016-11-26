@@ -130,9 +130,9 @@ namespace MiNET.Blocks
 				case BlockFace.West:
 					return target + Level.West;
 				case BlockFace.North:
-					return target + Level.South;
-				case BlockFace.South:
 					return target + Level.North;
+				case BlockFace.South:
+					return target + Level.South;
 				default:
 					return target;
 			}

@@ -124,5 +124,37 @@ namespace MiNET.BuilderBase.Commands
 
 			new EditHelper(player.Level).Stack(selector, count, dir, skipAir);
 		}
+
+		[Command(Description = "Generates a hollow sphere")]
+		public void Hsphere(Player player, int radius, BlockTypeEnum tileName = null, int tileData = 0)
+		{
+			Sphere(player, radius, radius, radius, tileName, tileData, false);
+		}
+
+		[Command(Description = "Generates a hollow sphere")]
+		public void Hsphere(Player player, int radiusX, int radiusY = 0, int radiusZ = 0, BlockTypeEnum tileName = null, int tileData = 0)
+		{
+			Sphere(player, radiusX, radiusY, radiusZ, tileName, tileData, false);
+		}
+
+		[Command(Description = "Generates a filled sphere")]
+		public void Sphere(Player player, int radius, BlockTypeEnum tileName = null, int tileData = 0, bool filled = true)
+		{
+			Sphere(player, radius, radius, radius, tileName, tileData, filled);
+		}
+
+		[Command(Description = "Generates a filled sphere")]
+		public void Sphere(Player player, int radiusX, int radiusY = 0, int radiusZ = 0, BlockTypeEnum tileName = null, int tileData = 0, bool filled = true)
+		{
+			if (tileName == null) tileName = new BlockTypeEnum {Value = "stone"};
+			if (radiusY == 0) radiusY = radiusX;
+			if (radiusZ == 0) radiusZ = radiusX;
+
+			var id = BlockFactory.GetBlockIdByName(tileName.Value);
+
+			var pattern = new Pattern(id, tileData);
+
+			new EditHelper(player.Level).MakeSphere((BlockCoordinates) player.KnownPosition, pattern, radiusX, radiusY, radiusZ, filled);
+		}
 	}
 }

@@ -43,7 +43,7 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set position 1 to targeted block")]
 		public void Hpos1(Player player)
 		{
-			var target = GetBlockInLineOfSight(player.Level, player.KnownPosition);
+			var target = new EditHelper(player.Level).GetBlockInLineOfSight(player.Level, player.KnownPosition);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");
@@ -62,7 +62,7 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set position 2 to targeted block")]
 		public void Hpos2(Player player)
 		{
-			var target = GetBlockInLineOfSight(player.Level, player.KnownPosition);
+			var target = new EditHelper(player.Level).GetBlockInLineOfSight(player.Level, player.KnownPosition);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");
@@ -478,33 +478,6 @@ namespace MiNET.BuilderBase.Commands
 			StackFrame sf = st.GetFrame(1);
 
 			return sf.GetMethod().Name;
-		}
-
-		private Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition)
-		{
-			var origin = knownPosition;
-			origin.Y += 1.62f;
-			Vector3 velocity2 = knownPosition.GetHeadDirection();
-			double distance = 300;
-			velocity2 = Vector3.Normalize(velocity2)/2;
-
-			for (int i = 0; i < Math.Ceiling(distance)*2; i++)
-			{
-				PlayerLocation nextPos = (PlayerLocation) origin.Clone();
-				nextPos.X += (float) velocity2.X*i;
-				nextPos.Y += (float) velocity2.Y*i;
-				nextPos.Z += (float) velocity2.Z*i;
-
-				BlockCoordinates coord = new BlockCoordinates(nextPos);
-				Block block = level.GetBlock(coord);
-				bool collided = block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
-				if (collided)
-				{
-					return block;
-				}
-			}
-
-			return null;
 		}
 
 		private BlockCoordinates Convert(BlockPos blockPos, BlockCoordinates playerPos)

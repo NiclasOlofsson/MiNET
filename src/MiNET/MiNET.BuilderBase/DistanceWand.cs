@@ -8,7 +8,7 @@ using MiNET.Worlds;
 
 namespace MiNET.BuilderBase
 {
-	public class DistanceWand : ItemStick
+	public class DistanceWand : ItemWoodenAxe
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (DistanceWand));
 

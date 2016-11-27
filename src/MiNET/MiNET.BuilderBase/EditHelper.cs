@@ -17,10 +17,39 @@ namespace MiNET.BuilderBase
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EditHelper));
 
 		private readonly Level _level;
+		private readonly Mask _mask;
 
-		public EditHelper(Level level)
+		public EditHelper(Level level, Mask mask = null)
 		{
 			_level = level;
+			_mask = mask;
+		}
+
+		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition)
+		{
+			var origin = knownPosition;
+			origin.Y += 1.62f;
+			Vector3 velocity2 = knownPosition.GetHeadDirection();
+			double distance = 300;
+			velocity2 = Vector3.Normalize(velocity2)/2;
+
+			for (int i = 0; i < Math.Ceiling(distance)*2; i++)
+			{
+				PlayerLocation nextPos = (PlayerLocation) origin.Clone();
+				nextPos.X += (float) velocity2.X*i;
+				nextPos.Y += (float) velocity2.Y*i;
+				nextPos.Z += (float) velocity2.Z*i;
+
+				BlockCoordinates coord = new BlockCoordinates(nextPos);
+				Block block = level.GetBlock(coord);
+				bool collided = block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+				if (collided)
+				{
+					return block;
+				}
+			}
+
+			return null;
 		}
 
 		public static BlockCoordinates GetDirectionVector(Player player, string direction)
@@ -178,6 +207,11 @@ namespace MiNET.BuilderBase
 
 		public bool SetBlock(BlockCoordinates position, Pattern pattern)
 		{
+			if(_mask != null)
+			{
+				if (!_mask.Test(position)) return false;
+			}
+
 			return SetBlock(pattern.Next(position));
 		}
 
@@ -343,6 +377,128 @@ namespace MiNET.BuilderBase
 			selector.Select(selector.Position1 + (dir*size*count), selector.Position2 + (dir*size*count));
 
 			history.Snapshot(false);
+		}
+
+		///**
+		//   * Makes a sphere or ellipsoid.
+		//   *
+		//   * @param pos Center of the sphere or ellipsoid
+		//   * @param block The block pattern to use
+		//   * @param radiusX The sphere/ellipsoid's largest north/south extent
+		//   * @param radiusY The sphere/ellipsoid's largest up/down extent
+		//   * @param radiusZ The sphere/ellipsoid's largest east/west extent
+		//   * @param filled If false, only a shell will be generated.
+		//   * @return number of blocks changed
+		//   * @throws MaxChangedBlocksException thrown if too many blocks are changed
+		//   */
+		public int MakeSphere(Vector3 pos, Pattern block, double radiusX, double radiusY, double radiusZ, bool filled)
+		{
+			int affected = 0;
+
+			radiusX += 0.5;
+			radiusY += 0.5;
+			radiusZ += 0.5;
+
+			double invRadiusX = 1/radiusX;
+			double invRadiusY = 1/radiusY;
+			double invRadiusZ = 1/radiusZ;
+
+			int ceilRadiusX = (int) Math.Ceiling(radiusX);
+			int ceilRadiusY = (int) Math.Ceiling(radiusY);
+			int ceilRadiusZ = (int) Math.Ceiling(radiusZ);
+
+			bool breakX = false;
+
+			double nextXn = 0;
+			forX:
+			for (int x = 0; x <= ceilRadiusX && !breakX; ++x)
+			{
+				double xn = nextXn;
+				nextXn = (x + 1)*invRadiusX;
+				double nextYn = 0;
+				bool breakY = false;
+				forY:
+				for (int y = 0; y <= ceilRadiusY && !breakY; ++y)
+				{
+					double yn = nextYn;
+					nextYn = (y + 1)*invRadiusY;
+					double nextZn = 0;
+					bool breakZ = false;
+					forZ:
+					for (int z = 0; z <= ceilRadiusZ && !breakZ; ++z)
+					{
+						double zn = nextZn;
+						nextZn = (z + 1)*invRadiusZ;
+
+						double distanceSq = LengthSq(xn, yn, zn);
+						if (distanceSq > 1)
+						{
+							if (z == 0)
+							{
+								if (y == 0)
+								{
+									breakX = true;
+									goto forX;
+								}
+
+								breakY = true;
+								goto forY;
+							}
+
+							breakZ = true;
+							goto forZ;
+						}
+
+						if (!filled)
+						{
+							if (LengthSq(nextXn, yn, zn) <= 1 && LengthSq(xn, nextYn, zn) <= 1 && LengthSq(xn, yn, nextZn) <= 1)
+							{
+								continue;
+							}
+						}
+
+						if (SetBlock(pos + new Vector3(x, y, z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(-x, y, z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(x, -y, z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(x, y, -z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(-x, -y, z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(x, -y, -z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(-x, y, -z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(-x, -y, -z), block))
+						{
+							++affected;
+						}
+					}
+				}
+			}
+
+			return affected;
+		}
+
+		private static double LengthSq(double x, double y, double z)
+		{
+			return (x*x) + (y*y) + (z*z);
 		}
 	}
 }

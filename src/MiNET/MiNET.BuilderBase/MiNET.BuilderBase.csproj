@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="fNbt, Version=0.6.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MiNET.fnbt.0.6.9\lib\net35-client\fNbt.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
@@ -47,9 +51,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrushTool.cs" />
     <Compile Include="BuilderBaseItemFactory.cs" />
     <Compile Include="BuilderBasePlugin.cs" />
     <Compile Include="Clipboard.cs" />
+    <Compile Include="Commands\BrushCommands.cs" />
     <Compile Include="HistoryEntry.cs" />
     <Compile Include="Commands\ClipboardCommands.cs" />
     <Compile Include="Commands\HistoryCommands.cs" />

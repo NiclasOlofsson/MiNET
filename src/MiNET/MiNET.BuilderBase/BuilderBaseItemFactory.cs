@@ -1,3 +1,4 @@
+using fNbt;
 using MiNET.Items;
 
 namespace MiNET.BuilderBase
@@ -6,7 +7,11 @@ namespace MiNET.BuilderBase
 	{
 		public Item GetItem(short id, short metadata, byte count)
 		{
-			if (id == new ItemStick().Id)
+			if (id == new BrushTool().Id)
+			{
+				return new BrushTool();
+			}
+			else if (id == new DistanceWand().Id)
 			{
 				return new DistanceWand();
 			}

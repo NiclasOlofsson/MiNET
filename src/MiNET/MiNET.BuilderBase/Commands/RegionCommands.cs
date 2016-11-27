@@ -1,5 +1,7 @@
 using System;
 using MiNET.Blocks;
+using MiNET.BuilderBase.Masks;
+using MiNET.BuilderBase.Patterns;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -11,11 +13,8 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set all blocks within selection")]
 		public void Set(Player player, BlockTypeEnum tileName, int tileData = 0)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
 			var id = BlockFactory.GetBlockIdByName(tileName.Value);
-			var pattern = new Pattern(id, tileData);
-			new DrawHelper(player.Level).SetBlocks(selector, pattern);
+			Set(player, id, tileData);
 		}
 
 		[Command(Description = "Set all blocks within selection")]
@@ -23,13 +22,14 @@ namespace MiNET.BuilderBase.Commands
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 			var pattern = new Pattern(tileId, tileData);
-			new DrawHelper(player.Level).SetBlocks(selector, pattern);
+			new EditHelper(player.Level).SetBlocks(selector, pattern);
 		}
 
-
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
-		public void Line(Player player, BlockTypeEnum tileName, int tileData = 0, int thickness = 1)
+		public void Line(Player player, BlockTypeEnum tileName, int tileData = 0, int thickness = 1, bool shell = false)
 		{
+			var id = BlockFactory.GetBlockIdByName(tileName.Value);
+			Line(player, id, tileData, thickness, shell);
 		}
 
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
@@ -38,23 +38,43 @@ namespace MiNET.BuilderBase.Commands
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
 			var pattern = new Pattern(tileId, tileData);
-			new DrawHelper(player.Level).DrawLine(selector, pattern, selector.Position1, selector.Position2, thickness, !shell);
+			new EditHelper(player.Level).DrawLine(selector, pattern, selector.Position1, selector.Position2, thickness, !shell);
 		}
 
-		//[Command(Description = "Replace all blocks in the selection with another")]
-		//public void Replace(Player player, string toBlock)
-		//{
-		//	Replace(player, null, toBlock);
-		//}
+		[Command(Description = "Replace all blocks in the selection with another")]
+		public void Replace(Player player, BlockTypeEnum to, int toData = 0)
+		{
+			var toId = BlockFactory.GetBlockIdByName(to.Value);
+			Replace(player, toId, toData);
+		}
 
 		[Command(Description = "Replace all blocks in the selection with another")]
-		public void Replace(Player player, int tileId, int tileData = 0)
+		public void Replace(Player player, BlockTypeEnum from, int fromData, BlockTypeEnum to, int toData)
+		{
+			RegionSelector selector = RegionSelector.GetSelector(player);
+			var fromId = BlockFactory.GetBlockIdByName(from.Value);
+			var toId = BlockFactory.GetBlockIdByName(to.Value);
+			Replace(player, fromId, fromData, toId, toData);
+		}
+
+		[Command(Description = "Replace all blocks in the selection with another")]
+		public void Replace(Player player, int toId, int toData)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
-			var pattern = new Pattern(tileId, tileData);
+			var pattern = new Pattern(toId, toData);
 
-			new DrawHelper(player.Level).ReplaceBlocks(selector, new AllBlocksMask(player.Level), pattern);
+			new EditHelper(player.Level).ReplaceBlocks(selector, new NotAirBlocksMask(player.Level), pattern);
+		}
+
+		[Command(Description = "Replace all blocks in the selection with another")]
+		public void Replace(Player player, int fromId, int fromData, int toId, int toData)
+		{
+			RegionSelector selector = RegionSelector.GetSelector(player);
+
+			var pattern = new Pattern(toId, toData);
+
+			new EditHelper(player.Level).ReplaceBlocks(selector, new BlockMask(player.Level, new Block((byte) fromId) {Metadata = (byte) fromData}), pattern);
 		}
 
 		[Command(Description = "Set the center block(s)")]
@@ -64,7 +84,7 @@ namespace MiNET.BuilderBase.Commands
 
 			var pattern = new Pattern(tileId, tileData);
 
-			new DrawHelper(player.Level).Center(selector, pattern);
+			new EditHelper(player.Level).Center(selector, pattern);
 		}
 
 		[Command(Description = "Move the contents of the selection")]
@@ -73,7 +93,7 @@ namespace MiNET.BuilderBase.Commands
 			BlockCoordinates dir;
 			try
 			{
-				dir = DrawHelper.GetDirectionVector(player, direction);
+				dir = EditHelper.GetDirectionVector(player, direction);
 			}
 			catch (Exception e)
 			{
@@ -83,16 +103,16 @@ namespace MiNET.BuilderBase.Commands
 
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
-			new DrawHelper(player.Level).Move(selector, count, dir);
+			new EditHelper(player.Level).Move(selector, count, dir);
 		}
 
 		[Command(Description = "Repeat the contents of the selection")]
-		public void Stack(Player player, int count = 1, string direction = "me")
+		public void Stack(Player player, int count = 1, string direction = "me", bool skipAir = false)
 		{
 			BlockCoordinates dir;
 			try
 			{
-				dir = DrawHelper.GetDirectionVector(player, direction);
+				dir = EditHelper.GetDirectionVector(player, direction);
 			}
 			catch (Exception e)
 			{
@@ -102,7 +122,7 @@ namespace MiNET.BuilderBase.Commands
 
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
-			new DrawHelper(player.Level).Stack(selector, count, dir);
+			new EditHelper(player.Level).Stack(selector, count, dir, skipAir);
 		}
 	}
 }

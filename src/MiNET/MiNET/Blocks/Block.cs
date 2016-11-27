@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -9,7 +10,7 @@ namespace MiNET.Blocks
 	///     Blocks are the basic units of structure in Minecraft. Together, they build up the in-game environment and can be
 	///     mined and utilized in various fashions.
 	/// </summary>
-	public class Block
+	public class Block: ICloneable
 	{
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; protected set; }
@@ -155,6 +156,12 @@ namespace MiNET.Blocks
 		public virtual BoundingBox GetBoundingBox()
 		{
 			return new BoundingBox(Coordinates, Coordinates + 1);
+		}
+
+
+		public object Clone()
+		{
+			return MemberwiseClone();
 		}
 	}
 }

@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
+using MiNET.BuilderBase.Commands;
+using MiNET.BuilderBase.Masks;
+using MiNET.BuilderBase.Patterns;
 using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.BuilderBase.Commands
+namespace MiNET.BuilderBase
 {
-	public class DrawHelper
+	public class EditHelper
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (DrawHelper));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (EditHelper));
 
 		private readonly Level _level;
 
-		public DrawHelper(Level level)
+		public EditHelper(Level level)
 		{
 			_level = level;
 		}
@@ -80,7 +83,7 @@ namespace MiNET.BuilderBase.Commands
 
 		public int DrawLine(RegionSelector selector, Pattern pattern, BlockCoordinates pos1, BlockCoordinates pos2, double radius, bool filled)
 		{
-			var clipboard = selector.CreateSnapshot();
+			HistoryEntry history = selector.CreateSnapshot();
 
 			HashSet<BlockCoordinates> vset = new HashSet<BlockCoordinates>();
 			bool notdrawn = true;
@@ -143,15 +146,15 @@ namespace MiNET.BuilderBase.Commands
 
 			var drawLine = SetBlocks(vset, pattern);
 
-			clipboard.Snapshot(false);
+			history.Snapshot(false);
 			return drawLine;
 		}
 
 		public void SetBlocks(RegionSelector selector, Pattern pattern)
 		{
-			var clipboard = selector.CreateSnapshot();
+			HistoryEntry history = selector.CreateSnapshot();
 			SetBlocks(selector.GetSelectedBlocks(), pattern);
-			clipboard.Snapshot(false);
+			history.Snapshot(false);
 		}
 
 		private void SetBlocks(BlockCoordinates[] selected, Pattern pattern)
@@ -240,9 +243,9 @@ namespace MiNET.BuilderBase.Commands
 			return Math.Sqrt(sum);
 		}
 
-		public void ReplaceBlocks(RegionSelector selector, AllBlocksMask mask, Pattern pattern)
+		public void ReplaceBlocks(RegionSelector selector, Mask mask, Pattern pattern)
 		{
-			var clipboard = selector.CreateSnapshot();
+			HistoryEntry history = selector.CreateSnapshot();
 
 			var selected = selector.GetSelectedBlocks();
 			foreach (BlockCoordinates coordinates in selected)
@@ -254,7 +257,7 @@ namespace MiNET.BuilderBase.Commands
 				}
 			}
 
-			clipboard.Snapshot(false);
+			history.Snapshot(false);
 		}
 
 		public void Center(RegionSelector selector, Pattern pattern)
@@ -266,16 +269,16 @@ namespace MiNET.BuilderBase.Commands
 			centerRegion.SelectPrimary(center);
 			centerRegion.SelectSecondary(centerVec);
 
-			var clipboard = selector.CreateSnapshot(center, centerVec);
+			HistoryEntry history = selector.CreateSnapshot(center, centerVec);
 
 			SetBlocks(centerRegion.GetSelectedBlocks(), pattern);
 
-			clipboard.Snapshot(false);
+			history.Snapshot(false);
 		}
 
 		public void Move(RegionSelector selector, int count, BlockCoordinates dir)
 		{
-			var clipboard = selector.CreateSnapshot(selector.GetMin(), selector.GetMax() + (dir*count));
+			HistoryEntry history = selector.CreateSnapshot(selector.GetMin(), selector.GetMax() + (dir*count));
 
 			var selected = new List<BlockCoordinates>(selector.GetSelectedBlocks());
 
@@ -305,10 +308,10 @@ namespace MiNET.BuilderBase.Commands
 			// Move selection too
 			selector.Select(selector.Position1 + (dir*count), selector.Position2 + (dir*count));
 
-			clipboard.Snapshot(false);
+			history.Snapshot(false);
 		}
 
-		public void Stack(RegionSelector selector, int count, BlockCoordinates dir)
+		public void Stack(RegionSelector selector, int count, BlockCoordinates dir, bool skipAir)
 		{
 			BlockCoordinates size = selector.GetMax() - selector.GetMin() + BlockCoordinates.One;
 
@@ -316,7 +319,7 @@ namespace MiNET.BuilderBase.Commands
 
 			// Save old blocks with new coordinates so we don't overwrite while traverse
 
-			var clipboard = selector.CreateSnapshot(selector.GetMin(), selector.GetMax() + (dir*size*count));
+			HistoryEntry history = selector.CreateSnapshot(selector.GetMin(), selector.GetMax() + (dir*size*count));
 
 			List<Block> movedBlocks = new List<Block>();
 			for (int i = 1; i <= count; i++)
@@ -332,13 +335,14 @@ namespace MiNET.BuilderBase.Commands
 			// Actually stack them
 			foreach (var block in movedBlocks)
 			{
+				if (skipAir && block is Air) continue;
 				_level.SetBlock(block);
 			}
 
 			// Move selection too last stack
 			selector.Select(selector.Position1 + (dir*size*count), selector.Position2 + (dir*size*count));
 
-			clipboard.Snapshot(false);
+			history.Snapshot(false);
 		}
 	}
 }

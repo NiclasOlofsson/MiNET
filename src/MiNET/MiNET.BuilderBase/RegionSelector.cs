@@ -25,8 +25,8 @@ namespace MiNET.BuilderBase
 
 		public Player Player { get; set; }
 		public bool ShowSelection { get; set; } = true;
-		public Dictionary<long, ClipboardEntry> History { get; private set; } = new Dictionary<long, ClipboardEntry>();
-		public Dictionary<long, ClipboardEntry> RedoBuffer { get; private set; } = new Dictionary<long, ClipboardEntry>();
+		public Dictionary<long, HistoryEntry> History { get; private set; } = new Dictionary<long, HistoryEntry>();
+		public Dictionary<long, HistoryEntry> RedoBuffer { get; private set; } = new Dictionary<long, HistoryEntry>();
 
 		public RegionSelector(Player player)
 		{
@@ -35,6 +35,7 @@ namespace MiNET.BuilderBase
 
 		public BlockCoordinates Position1 { get; private set; }
 		public BlockCoordinates Position2 { get; private set; }
+		public Clipboard Clipboard { get; set; }
 
 		public BoundingBox GetSelection()
 		{
@@ -93,24 +94,24 @@ namespace MiNET.BuilderBase
 			DisplaySelection(true);
 		}
 
-		public ClipboardEntry CreateSnapshot()
+		public HistoryEntry CreateSnapshot()
 		{
 			return CreateSnapshot(Position1, Position2);
 		}
 
-		public ClipboardEntry CreateSnapshot(BlockCoordinates pos1, BlockCoordinates pos2, bool keepRedoBuffer = false)
+		public HistoryEntry CreateSnapshot(BlockCoordinates pos1, BlockCoordinates pos2, bool keepRedoBuffer = false)
 		{
 			long time = DateTime.UtcNow.Ticks;
 
 			// Should add block-entities here too
-			ClipboardEntry clipboard = new ClipboardEntry(Player.Level, pos1, pos2);
+			HistoryEntry history = new HistoryEntry(Player.Level, pos1, pos2);
 
-			History.Add(time, clipboard);
+			History.Add(time, history);
 			if (!keepRedoBuffer) RedoBuffer.Clear();
 
-			clipboard.Snapshot();
+			history.Snapshot();
 
-			return clipboard;
+			return history;
 		}
 
 		public void Undo()
@@ -125,11 +126,11 @@ namespace MiNET.BuilderBase
 			RedoBuffer.Add(last.Key, last.Value);
 
 			// Undo
-			var clipboard = last.Value;
-			var restore = clipboard.Presnapshot;
+			HistoryEntry historyEntry = last.Value;
+			var restore = historyEntry.Presnapshot;
 			foreach (Block block in restore)
 			{
-				clipboard.Level.SetBlock(block);
+				historyEntry.Level.SetBlock(block);
 			}
 		}
 
@@ -143,16 +144,16 @@ namespace MiNET.BuilderBase
 			var last = RedoBuffer.OrderByDescending(kvp => kvp.Key).Last();
 			RedoBuffer.Remove(last.Key);
 
-			var clipboard = CreateSnapshot(last.Value.Position1, last.Value.Position2, true);
+			HistoryEntry historyEntry = CreateSnapshot(last.Value.Position1, last.Value.Position2, true);
 
 			// Redo
 			var restore = last.Value.Postsnapshot;
 			foreach (Block block in restore)
 			{
-				clipboard.Level.SetBlock(block);
+				historyEntry.Level.SetBlock(block);
 			}
 
-			clipboard.Snapshot(false);
+			historyEntry.Snapshot(false);
 		}
 
 		public void ClearHistory()

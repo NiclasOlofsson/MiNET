@@ -7,7 +7,7 @@ using MiNET.Worlds;
 
 namespace MiNET.BuilderBase
 {
-	public class ClipboardEntry
+	public class HistoryEntry
 	{
 		public Level Level { get; set; }
 		public BlockCoordinates Position1 { get; set; }
@@ -15,7 +15,7 @@ namespace MiNET.BuilderBase
 		public List<Block> Presnapshot { get; set; }
 		public List<Block> Postsnapshot { get; set; }
 
-		public ClipboardEntry(Level level, BlockCoordinates position1, BlockCoordinates position2)
+		public HistoryEntry(Level level, BlockCoordinates position1, BlockCoordinates position2)
 		{
 			Level = level;
 			Position1 = position1;

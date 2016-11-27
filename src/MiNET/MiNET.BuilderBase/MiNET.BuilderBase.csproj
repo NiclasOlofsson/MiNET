@@ -49,14 +49,19 @@
   <ItemGroup>
     <Compile Include="BuilderBaseItemFactory.cs" />
     <Compile Include="BuilderBasePlugin.cs" />
-    <Compile Include="ClipboardEntry.cs" />
-    <Compile Include="Commands\AllBlocksMask.cs" />
-    <Compile Include="Commands\DrawHelper.cs" />
+    <Compile Include="Clipboard.cs" />
+    <Compile Include="HistoryEntry.cs" />
+    <Compile Include="Commands\ClipboardCommands.cs" />
     <Compile Include="Commands\HistoryCommands.cs" />
-    <Compile Include="Commands\Pattern.cs" />
     <Compile Include="Commands\RegionCommands.cs" />
     <Compile Include="Commands\SelectionCommands.cs" />
     <Compile Include="DistanceWand.cs" />
+    <Compile Include="EditHelper.cs" />
+    <Compile Include="Masks\AllBlocksMask.cs" />
+    <Compile Include="Masks\BlockMask.cs" />
+    <Compile Include="Masks\Mask.cs" />
+    <Compile Include="Masks\NotAirBlocksMask.cs" />
+    <Compile Include="Patterns\Pattern.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionSelector.cs" />
   </ItemGroup>

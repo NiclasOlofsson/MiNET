@@ -1,7 +1,7 @@
 using MiNET.Blocks;
 using MiNET.Utils;
 
-namespace MiNET.BuilderBase.Commands
+namespace MiNET.BuilderBase.Patterns
 {
 	public class Pattern
 	{

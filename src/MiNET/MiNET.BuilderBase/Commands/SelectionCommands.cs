@@ -81,7 +81,7 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set the selection to your current chunk")]
 		public void Chunk(Player player)
 		{
-			BlockCoordinates blockCoordinates = player.KnownPosition.GetCoordinates3D();
+			BlockCoordinates blockCoordinates = (BlockCoordinates) player.KnownPosition;
 			ChunkCoordinates chunk = new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4);
 
 			RegionSelector selector = RegionSelector.GetSelector(player);

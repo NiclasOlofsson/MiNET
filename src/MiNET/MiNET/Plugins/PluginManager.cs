@@ -674,22 +674,28 @@ namespace MiNET.Plugins
 
 			object result = null;
 
-			object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
-			if (pluginInstance == null) return null;
-
-			if (method.IsStatic)
+			try
 			{
-				result = method.Invoke(null, objectArgs);
+				object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
+				if (pluginInstance == null) return null;
+
+				if (method.IsStatic)
+				{
+					result = method.Invoke(null, objectArgs);
+				}
+				else
+				{
+					if (method.DeclaringType == null) return false;
+
+					Plugin.CurrentPlayer = player; // Setting thread local for call
+					result = method.Invoke(pluginInstance, objectArgs);
+					Plugin.CurrentPlayer = null; // Done with thread local, we using pool to make sure it's reset.
+				}
 			}
-			else
+			catch (Exception e)
 			{
-				if (method.DeclaringType == null) return false;
-
-				Plugin.CurrentPlayer = player; // Setting thread local for call
-				result = method.Invoke(pluginInstance, objectArgs);
-				Plugin.CurrentPlayer = null; // Done with thread local, we using pool to make sure it's reset.
+				Log.Error($"Error while executing command {method}", e);
 			}
-
 			return result;
 		}
 

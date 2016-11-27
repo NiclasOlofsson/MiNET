@@ -1,4 +1,5 @@
 using System.Numerics;
+using log4net;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Items;
@@ -9,7 +10,10 @@ namespace MiNET.BuilderBase
 {
 	public class BrushTool : ItemWoodenShovel
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (BrushTool));
+
 		public int Radius { get; set; } = 4;
+		public int Range { get; set; } = 300;
 		public Pattern Pattern { get; set; } = new Pattern(1, 0);
 		public Mask Mask { get; set; } = new AllBlocksMask();
 		public bool Filled { get; set; } = true;

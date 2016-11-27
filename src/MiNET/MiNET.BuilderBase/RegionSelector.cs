@@ -186,7 +186,7 @@ namespace MiNET.BuilderBase
 						var maxX = Math.Max(box.Min.X, box.Max.X);
 
 						var minY = Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
-						var maxY = Math.Min(127, Math.Max(box.Min.Y, box.Max.Y));
+						var maxY = Math.Min(127, Math.Max(box.Min.Y, box.Max.Y)) + 1;
 
 						var minZ = Math.Min(box.Min.Z, box.Max.Z);
 						var maxZ = Math.Max(box.Min.Z, box.Max.Z);
@@ -200,26 +200,28 @@ namespace MiNET.BuilderBase
 								{
 									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
-									var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+									//var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+									var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z)};
 									particle.Spawn(new[] {Player});
 								}
 							}
 						}
 
 						// x/z
-						for (float x = minX; x <= maxX; x++)
-						{
-							foreach (var y in new float[] {minY, maxY})
-							{
-								for (float z = minZ; z <= maxZ; z++)
-								{
-									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
+						//for (float x = minX; x <= maxX; x++)
+						//{
+						//	foreach (var y in new float[] {minY, maxY})
+						//	{
+						//		for (float z = minZ; z <= maxZ; z++)
+						//		{
+						//			if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
-									var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									particle.Spawn(new[] {Player});
-								}
-							}
-						}
+						//			//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+						//			var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z)};
+						//			particle.Spawn(new[] {Player});
+						//		}
+						//	}
+						//}
 
 						// z/y
 						foreach (var x in new float[] {minX, maxX})
@@ -230,7 +232,8 @@ namespace MiNET.BuilderBase
 								{
 									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
-									var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+									//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+									var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z)};
 									particle.Spawn(new[] {Player});
 								}
 							}

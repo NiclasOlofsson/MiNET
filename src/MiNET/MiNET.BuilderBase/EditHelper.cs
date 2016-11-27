@@ -25,12 +25,12 @@ namespace MiNET.BuilderBase
 			_mask = mask;
 		}
 
-		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition)
+		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition, int range = 300)
 		{
 			var origin = knownPosition;
 			origin.Y += 1.62f;
 			Vector3 velocity2 = knownPosition.GetHeadDirection();
-			double distance = 300;
+			double distance = range;
 			velocity2 = Vector3.Normalize(velocity2)/2;
 
 			for (int i = 0; i < Math.Ceiling(distance)*2; i++)

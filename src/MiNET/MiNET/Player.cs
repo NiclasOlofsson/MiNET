@@ -1392,10 +1392,12 @@ namespace MiNET
 				switch (message.windowId)
 				{
 					case 0:
-						Inventory.Slots[message.slot] = itemStack;
+						Inventory.UpdateInventorySlot(message.slot, itemStack);
+						//Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x79:
-						Inventory.Slots[message.slot] = itemStack;
+						Inventory.UpdateInventorySlot(message.slot, itemStack);
+						//Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x78:
 

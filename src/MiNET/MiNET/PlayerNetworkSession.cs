@@ -850,26 +850,26 @@ namespace MiNET
 
 						if (lenght == 1)
 						{
-							Server.SendPackage(this, package);
+							SendDirectPackage(package);
 						}
 						else if (package is McpeBatch)
 						{
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
-							Server.SendPackage(this, package);
+							SendDirectPackage(package);
 							Thread.Sleep(1); // Really important to slow down speed a bit
 						}
 						else if (package.NoBatch)
 						{
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
-							Server.SendPackage(this, package);
+							SendDirectPackage(package);
 						}
 						//else if (!IsSpawned)
 						//{
 						//	SendBuffered(messageCount);
 						//	messageCount = 0;
-						//	Server.SendPackage(this, package);
+						//	SendDirectPackage(package);
 						//}
 						else
 						{
@@ -915,7 +915,7 @@ namespace MiNET
 			memStream.Position = 0;
 			memStream.SetLength(0);
 
-			Server.SendPackage(this, batch);
+			SendDirectPackage(batch);
 		}
 
 		public void SendDirectPackage(Package package)

@@ -4,6 +4,7 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Client
@@ -175,6 +176,93 @@ namespace MiNET.Client
 			levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
 
 			return nbt;
+		}
+
+		public static void SaveChunk(ChunkColumn chunk, string basePath, int yoffset)
+		{
+			Log.Debug($"Save chunk X={chunk.x}, Z={chunk.z} to {basePath}");
+
+			chunk.NeedSave = false;
+
+			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
+
+			int width = 32;
+			int depth = 32;
+
+			int rx = coordinates.X >> 5;
+			int rz = coordinates.Z >> 5;
+
+			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
+
+			if (!File.Exists(filePath))
+			{
+				// Make sure directory exist
+				Directory.CreateDirectory(Path.Combine(basePath, "region"));
+
+				// Create empty region file
+				using (var regionFile = File.Open(filePath, FileMode.CreateNew))
+				{
+					byte[] buffer = new byte[8192];
+					regionFile.Write(buffer, 0, buffer.Length);
+				}
+
+				return;
+			}
+
+			using (var regionFile = File.Open(filePath, FileMode.Open))
+			{
+				byte[] buffer = new byte[8192];
+
+				regionFile.Read(buffer, 0, buffer.Length);
+
+				int xi = (coordinates.X%width);
+				if (xi < 0) xi += 32;
+				int zi = (coordinates.Z%depth);
+				if (zi < 0) zi += 32;
+				int tableOffset = (xi + zi*width)*4;
+
+				regionFile.Seek(tableOffset, SeekOrigin.Begin);
+
+				byte[] offsetBuffer = new byte[4];
+				regionFile.Read(offsetBuffer, 0, 3);
+				Array.Reverse(offsetBuffer);
+				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
+
+				int length = regionFile.ReadByte();
+
+				if (offset == 0 || length == 0)
+				{
+					regionFile.Seek(0, SeekOrigin.End);
+					offset = (int) regionFile.Position;
+
+					regionFile.Seek(tableOffset, SeekOrigin.Begin);
+
+					byte[] bytes = BitConverter.GetBytes(offset >> 4);
+					Array.Reverse(bytes);
+					regionFile.Write(bytes, 0, 3);
+					regionFile.WriteByte(1);
+				}
+
+				// Write NBT
+				NbtFile nbt = AnvilWorldProvider.CreateNbtFromChunkColumn(chunk, yoffset);
+				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
+
+				int nbtLength = nbtBuf.Length;
+				byte[] lenghtBytes = BitConverter.GetBytes(nbtLength + 1);
+				Array.Reverse(lenghtBytes);
+
+				regionFile.Seek(offset, SeekOrigin.Begin);
+				regionFile.Write(lenghtBytes, 0, 4); // Lenght
+				regionFile.WriteByte(0x02); // Compression mode
+
+				regionFile.Write(nbtBuf, 0, nbtBuf.Length);
+
+				int reminder;
+				Math.DivRem(nbtLength + 4, 4096, out reminder);
+
+				byte[] padding = new byte[4096 - reminder];
+				if (padding.Length > 0) regionFile.Write(padding, 0, padding.Length);
+			}
 		}
 	}
 }

@@ -72,8 +72,10 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 1;
-			player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemWoodenShovel().Id);
-			player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemWoodenAxe().Id);
+			player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronShovel().Id);
+			player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronAxe().Id);
+			player.Inventory.Slots[idx++] = new ItemBlock(new Sand(), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new StoneBrick(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondSword();

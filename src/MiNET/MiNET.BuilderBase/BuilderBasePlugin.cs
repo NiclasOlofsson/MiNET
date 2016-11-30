@@ -17,6 +17,7 @@ namespace MiNET.BuilderBase
 		protected override void OnEnable()
 		{
 			Context.PluginManager.LoadCommands(new HelpCommand(Context.PluginManager));
+			Context.PluginManager.LoadCommands(new UtilsCommands());
 			Context.PluginManager.LoadCommands(new SelectionCommands());
 			Context.PluginManager.LoadCommands(new RegionCommands());
 			Context.PluginManager.LoadCommands(new HistoryCommands());

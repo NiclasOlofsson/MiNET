@@ -19,6 +19,7 @@ namespace MiNET.Worlds
 		public FlatlandWorldProvider()
 		{
 			IsCaching = true;
+			_spawnPoint = new Vector3(0, 0, 0);
 		}
 
 		public void Initialize()
@@ -26,6 +27,7 @@ namespace MiNET.Worlds
 		}
 
 		Random rand = new Random();
+		private Vector3 _spawnPoint;
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
@@ -116,6 +118,10 @@ namespace MiNET.Worlds
 					}
 				}
 
+				chunk.RecalcHeight();
+
+				_spawnPoint.Y = h + 2;
+
 				// Cache
 				chunk.GetBatch();
 				_chunkCache[chunkCoordinates] = chunk;
@@ -179,7 +185,7 @@ namespace MiNET.Worlds
 
 		public Vector3 GetSpawnPoint()
 		{
-			return new Vector3(0, 12, 0);
+			return _spawnPoint;
 		}
 
 		public long GetTime()
@@ -199,6 +205,10 @@ namespace MiNET.Worlds
 				h = 1;
 
 				stones[i] = 7; // Bedrock
+				for (int s = 0; s < 40; s++)
+				{
+					stones[i + h++] = 1; // Stone
+				}
 
 				//stones[i + h++] = 1; // Stone
 				//stones[i + h++] = 1; // Stone
@@ -244,8 +254,9 @@ namespace MiNET.Worlds
 			return h;
 		}
 
-		public void SaveChunks()
+		public int SaveChunks()
 		{
+			return 0;
 		}
 
 		public ChunkColumn[] GetCachedChunks()

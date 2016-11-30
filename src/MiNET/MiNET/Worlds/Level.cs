@@ -27,10 +27,10 @@ namespace MiNET.Worlds
 
 		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
-		public static readonly BlockCoordinates East = new BlockCoordinates(0, 0, -1);
 		public static readonly BlockCoordinates West = new BlockCoordinates(0, 0, 1);
-		public static readonly BlockCoordinates North = new BlockCoordinates(-1, 0, 0);
+		public static readonly BlockCoordinates East = new BlockCoordinates(0, 0, -1);
 		public static readonly BlockCoordinates South = new BlockCoordinates(1, 0, 0);
+		public static readonly BlockCoordinates North = new BlockCoordinates(-1, 0, 0);
 
 		public IWorldProvider _worldProvider;
 		// ReSharper disable once NotAccessedField.Local
@@ -102,6 +102,17 @@ namespace MiNET.Worlds
 					if (chunk != null) i++;
 				}
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
+			}
+
+			if(Config.GetProperty("CheckForSafeSpawn", false))
+			{
+
+				var chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(SpawnPoint));
+				chunk.RecalcHeight();
+
+				var height = GetHeight((BlockCoordinates) SpawnPoint);
+				if (height > SpawnPoint.Y) SpawnPoint.Y = height + 2;
+				Log.Debug("Checking for safe spawn");
 			}
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
@@ -396,6 +407,7 @@ namespace MiNET.Worlds
 				// Block updates
 				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks)
 				{
+					Log.Debug($"Have block tick for {blockEvent.Key}");
 					if (blockEvent.Value <= TickTime)
 					{
 						GetBlock(blockEvent.Key).OnTick(this);
@@ -770,9 +782,24 @@ namespace MiNET.Worlds
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
 		{
+			if (block.Coordinates.Y < 0) return;
+
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
+			var bid = chunk.GetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f);
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
+
+			//if (bid != 0)
+			//{
+			//	long test;
+			//	if(BlockWithTicks.TryGetValue(block.Coordinates, out test))
+			//	{
+
+			//	}
+
+			//	long waste;
+			//	BlockWithTicks.TryRemove(block.Coordinates, out waste);
+			//}
 
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
 			if (block.LightLevel > 0)

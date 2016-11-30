@@ -45,7 +45,7 @@ namespace MiNET
                         worldProvider = new ExperimentalWorldProvider();
                         break;
                     case "anvil":
-                        worldProvider = new AnvilWorldProvider();
+                        worldProvider = new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()};
                         break;
                     default:
                         worldProvider = new FlatlandWorldProvider();

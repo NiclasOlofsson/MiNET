@@ -336,6 +336,7 @@
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
     <Compile Include="Entities\Vehicles\Vehicle.cs" />
+    <Compile Include="Entities\World\FallingSand.cs" />
     <Compile Include="Entities\World\Lightning.cs" />
     <Compile Include="Entities\World\MapEntity.cs" />
     <Compile Include="Entities\EntityType.cs" />
@@ -497,6 +498,7 @@
     <Compile Include="Plugins\Command.cs" />
     <Compile Include="Plugins\Commands\HelpCommand.cs" />
     <Compile Include="Plugins\Commands\VanillaCommands.cs" />
+    <Compile Include="Plugins\IParameterSerializer.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />

@@ -139,6 +139,7 @@ namespace MiNET.Plugins
 
 		private void DebugPrintCommands()
 		{
+			return;
 			if (!Log.IsDebugEnabled) return;
 
 			var settings = new JsonSerializerSettings();
@@ -335,7 +336,7 @@ namespace MiNET.Plugins
 				value = "rawtext";
 			else
 			{
-				Console.Write("No mapping for type: " + parameter.PropertyType.ToString());
+				Log.Warn("No property type mapping for type: " + parameter.PropertyType.ToString());
 			}
 
 			return value;
@@ -365,9 +366,14 @@ namespace MiNET.Plugins
 			{
 				value = "stringenum";
 			}
+			else if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+			{
+				// Custom serialization
+				value = "string";
+			}
 			else
 			{
-				Console.Write("No mapping for type: " + parameter.ParameterType.ToString());
+				Log.Warn("No parameter type mapping for type: " + parameter.ParameterType.ToString());
 			}
 
 			return value;
@@ -583,6 +589,17 @@ namespace MiNET.Plugins
 				if (parameter.IsOptional && args.Length <= i)
 				{
 					objectArgs[k] = parameter.DefaultValue;
+					continue;
+				}
+
+				if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+				{
+					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+					IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
+					defaultValue?.Deserialize(player, args[i]);
+
+					objectArgs[k] = defaultValue;
+
 					continue;
 				}
 

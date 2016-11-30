@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
@@ -22,6 +23,31 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void RandomDistributionTest()
+		{
+			var random = new Random((int)DateTime.UtcNow.Ticks);
+			//var random = new CryptoRandom();
+			//var random = new WannabeRandom();
+			List<int> values = new List<int>();
+			for (int i = 0; i < 20*20; i++)
+			{
+				values.Add(random.Next(4));
+			}
+
+			Dictionary<int, int> dist = new Dictionary<int, int>();
+			foreach (var v in values)
+			{
+				if (dist.ContainsKey(v)) dist[v] = dist[v] + 1;
+				else dist.Add(v, 1);
+			}
+
+			foreach (KeyValuePair<int, int> val in dist.OrderByDescending(pair => pair.Value))
+			{
+				Console.WriteLine($"No {val.Key}, #{val.Value}");
+			}
+		}
+
 		[Test]
 		public void TestBitArray()
 		{
@@ -434,8 +460,8 @@ namespace MiNET
 		[Test]
 		public void MemoryTest2()
 		{
-			System.GC.Collect();
-			var memoryStart = System.GC.GetTotalMemory(false);
+			GC.Collect();
+			var memoryStart = GC.GetTotalMemory(false);
 
 			Console.WriteLine($"Memory={memoryStart:N}");
 
@@ -445,7 +471,7 @@ namespace MiNET
 				//move.Encode();
 			});
 
-			var memoryStop = System.GC.GetTotalMemory(false);
+			var memoryStop = GC.GetTotalMemory(false);
 			Console.WriteLine($"Memory={memoryStop:N}");
 
 			var size = McpeMovePlayer.PoolSize();
@@ -456,20 +482,20 @@ namespace MiNET
 		[Test]
 		public void MemoryTest()
 		{
-			System.GC.Collect();
-			var memoryStart = System.GC.GetTotalMemory(false);
+			GC.Collect();
+			var memoryStart = GC.GetTotalMemory(false);
 
 			ConcurrentDictionary<Datagram, int> list = new ConcurrentDictionary<Datagram, int>();
 			Console.WriteLine($"Memory={memoryStart :N}");
 			Parallel.For(0, 6000000, (i) =>
 			{
-				Datagram pkt  = Datagram.CreateObject();
+				Datagram pkt = Datagram.CreateObject();
 				//move.Encode();
 				pkt.PutPool();
 			});
 
 
-			var memoryStop = System.GC.GetTotalMemory(false);
+			var memoryStop = GC.GetTotalMemory(false);
 			Console.WriteLine($"Memory={memoryStop :N}");
 
 			var size = McpeMovePlayer.PoolSize();
@@ -485,7 +511,5 @@ namespace MiNET
 				Block b = BlockFactory.GetBlockById(0);
 			}
 		}
-
-
 	}
 }

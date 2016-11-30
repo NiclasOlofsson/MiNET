@@ -16,16 +16,19 @@ namespace MiNET.BuilderBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EditHelper));
 
-		private readonly Level _level;
-		private readonly Mask _mask;
+		private Level _level;
+		private Mask _mask;
+		private bool _randomizeGeneration = false;
+		private Random _random = new Random((int) DateTime.UtcNow.Ticks);
 
-		public EditHelper(Level level, Mask mask = null)
+		public EditHelper(Level level, Mask mask = null, bool randomizeGeneration = false)
 		{
 			_level = level;
 			_mask = mask;
+			_randomizeGeneration = randomizeGeneration;
 		}
 
-		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition, int range = 300)
+		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition, int range = 300, bool returnLastAir = false)
 		{
 			var origin = knownPosition;
 			origin.Y += 1.62f;
@@ -33,6 +36,7 @@ namespace MiNET.BuilderBase
 			double distance = range;
 			velocity2 = Vector3.Normalize(velocity2)/2;
 
+			Block lastAir = null;
 			for (int i = 0; i < Math.Ceiling(distance)*2; i++)
 			{
 				PlayerLocation nextPos = (PlayerLocation) origin.Clone();
@@ -47,9 +51,11 @@ namespace MiNET.BuilderBase
 				{
 					return block;
 				}
+
+				if (block is Air) lastAir = block;
 			}
 
-			return null;
+			return returnLastAir ? lastAir : null;
 		}
 
 		public static BlockCoordinates GetDirectionVector(Player player, string direction)
@@ -190,8 +196,7 @@ namespace MiNET.BuilderBase
 		{
 			foreach (BlockCoordinates coordinates in selected)
 			{
-				Block block = pattern.Next(coordinates);
-				_level.SetBlock(block);
+				SetBlock(coordinates, pattern);
 			}
 		}
 
@@ -207,16 +212,23 @@ namespace MiNET.BuilderBase
 
 		public bool SetBlock(BlockCoordinates position, Pattern pattern)
 		{
-			if(_mask != null)
+			if (_mask != null)
 			{
 				if (!_mask.Test(position)) return false;
 			}
+
+			//if (_randomizeGeneration)
+			//{
+			//	if (_random.Next(10) == 0) return false;
+			//}
 
 			return SetBlock(pattern.Next(position));
 		}
 
 		public bool SetBlock(Block block)
 		{
+			if (block.PlaceBlock(_level, null, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
+
 			_level.SetBlock(block);
 
 			return true;
@@ -286,8 +298,7 @@ namespace MiNET.BuilderBase
 			{
 				if (mask.Test(coordinates))
 				{
-					Block block = pattern.Next(coordinates);
-					_level.SetBlock(block);
+					SetBlock(coordinates, pattern);
 				}
 			}
 
@@ -379,18 +390,6 @@ namespace MiNET.BuilderBase
 			history.Snapshot(false);
 		}
 
-		///**
-		//   * Makes a sphere or ellipsoid.
-		//   *
-		//   * @param pos Center of the sphere or ellipsoid
-		//   * @param block The block pattern to use
-		//   * @param radiusX The sphere/ellipsoid's largest north/south extent
-		//   * @param radiusY The sphere/ellipsoid's largest up/down extent
-		//   * @param radiusZ The sphere/ellipsoid's largest east/west extent
-		//   * @param filled If false, only a shell will be generated.
-		//   * @return number of blocks changed
-		//   * @throws MaxChangedBlocksException thrown if too many blocks are changed
-		//   */
 		public int MakeSphere(Vector3 pos, Pattern block, double radiusX, double radiusY, double radiusZ, bool filled)
 		{
 			int affected = 0;
@@ -496,9 +495,151 @@ namespace MiNET.BuilderBase
 			return affected;
 		}
 
+		public int MakeCylinder(Vector3 pos, Pattern block, double radiusX, double radiusZ, int height, bool filled)
+		{
+			int affected = 0;
+
+			radiusX += 0.5;
+			radiusZ += 0.5;
+
+			if (height == 0)
+			{
+				return 0;
+			}
+			else if (height < 0)
+			{
+				height = -height;
+				pos = pos - new Vector3(0, height, 0);
+			}
+
+			if (pos.Y < 0)
+			{
+				pos = new Vector3(pos.X, 0, pos.Z);
+			}
+			else if (pos.Y + height - 1 > 127)
+			{
+				height = (int) (127 - pos.Y + 1);
+			}
+
+			double invRadiusX = 1/radiusX;
+			double invRadiusZ = 1/radiusZ;
+
+			int ceilRadiusX = (int) Math.Ceiling(radiusX);
+			int ceilRadiusZ = (int) Math.Ceiling(radiusZ);
+
+			double nextXn = 0;
+			bool breakX = false;
+			forX:
+			for (int x = 0; x <= ceilRadiusX && !breakX; ++x)
+			{
+				double xn = nextXn;
+				nextXn = (x + 1)*invRadiusX;
+				double nextZn = 0;
+				bool breakZ = false;
+				forZ:
+				for (int z = 0; z <= ceilRadiusZ && !breakZ; ++z)
+				{
+					double zn = nextZn;
+					nextZn = (z + 1)*invRadiusZ;
+
+					double distanceSq = LengthSq(xn, zn);
+					if (distanceSq > 1)
+					{
+						if (z == 0)
+						{
+							breakX = true;
+							goto forX;
+						}
+
+						breakZ = true;
+						goto forZ;
+					}
+
+					if (!filled)
+					{
+						if (LengthSq(nextXn, zn) <= 1 && LengthSq(xn, nextZn) <= 1)
+						{
+							continue;
+						}
+					}
+
+					for (int y = 0; y < height; ++y)
+					{
+						if (SetBlock(pos + new Vector3(x, y, z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(-x, y, z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(x, y, -z), block))
+						{
+							++affected;
+						}
+						if (SetBlock(pos + new Vector3(-x, y, -z), block))
+						{
+							++affected;
+						}
+					}
+				}
+			}
+
+			return affected;
+		}
+
 		private static double LengthSq(double x, double y, double z)
 		{
 			return (x*x) + (y*y) + (z*z);
+		}
+
+		private static double LengthSq(double x, double z)
+		{
+			return (x*x) + (z*z);
+		}
+
+
+		public void Naturalize(Player player, RegionSelector selector)
+		{
+			var history = selector.CreateSnapshot();
+
+			var min = selector.GetMin();
+			var max = selector.GetMax();
+
+			var level = player.Level;
+			for (int x = min.X; x <= max.X; x++)
+			{
+				for (int z = min.Z; z <= max.Z; z++)
+				{
+					int depth = 0;
+					for (int y = Math.Min(127, max.Y); y >= min.Y; y--)
+					{
+						var coordinates = new BlockCoordinates(x, y, z);
+						if (level.IsAir(coordinates))
+						{
+							if (depth != 0) depth = 4;
+							continue;
+						}
+
+						switch (depth++)
+						{
+							case 0:
+								level.SetBlock(new Grass() {Coordinates = coordinates});
+								break;
+							case 1:
+							case 2:
+							case 3:
+								level.SetBlock(new Dirt() {Coordinates = coordinates});
+								break;
+							default:
+								level.SetBlock(new Stone() {Coordinates = coordinates});
+								break;
+						}
+					}
+				}
+			}
+
+			history.Snapshot(false);
 		}
 	}
 }

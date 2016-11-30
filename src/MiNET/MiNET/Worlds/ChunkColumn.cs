@@ -34,6 +34,8 @@ namespace MiNET.Worlds
 
 		private byte[] _cache;
 		public bool isDirty;
+		public bool IsLoaded = false;
+		public bool NeedSave = true;
 		private McpeBatch _cachedBatch = null;
 		private object _cacheSync = new object();
 
@@ -60,6 +62,13 @@ namespace MiNET.Worlds
 			utils.PrecomputeBiomeColors();
 		}
 
+		private void SetDirty()
+		{
+			_cache = null;
+			isDirty = true;
+			NeedSave = true;
+		}
+
 		public byte GetBlock(int bx, int by, int bz)
 		{
 			return blocks[(bx*2048) + (bz*128) + by];
@@ -68,8 +77,7 @@ namespace MiNET.Worlds
 		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
 			blocks[(bx*2048) + (bz*128) + by] = bid;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -80,8 +88,7 @@ namespace MiNET.Worlds
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
 			metadata[(bx * 2048) + (bz * 128) + by] = data;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetHeight(int bx, int bz)
@@ -92,8 +99,7 @@ namespace MiNET.Worlds
 		public void SetHeight(int bx, int bz, byte h)
 		{
 			height[(bz << 4) + (bx)] = h;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetBiome(int bx, int bz)
@@ -104,15 +110,13 @@ namespace MiNET.Worlds
 		public void SetBiome(int bx, int bz, byte biome)
 		{
 			biomeId[(bz << 4) + (bx)] = biome;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public void SetBiomeColor(int bx, int bz, int color)
 		{
 			biomeColor[(bz << 4) + (bx)] = (color & 0x00ffffff);
-			_cache = null;
-			isDirty = true;
+			//SetDirty();
 		}
 
 		public byte GetBlockLight(int bx, int by, int bz)
@@ -123,8 +127,7 @@ namespace MiNET.Worlds
 		public void SetBlockLight(int bx, int by, int bz, byte data)
 		{
 			blockLight[(bx * 2048) + (bz * 128) + by] = data;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetSkyLight(int bx, int by, int bz)
@@ -135,8 +138,7 @@ namespace MiNET.Worlds
 		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
 			skyLight[(bx*2048) + (bz*128) + by] = data;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
@@ -152,15 +154,13 @@ namespace MiNET.Worlds
 		{
 			NbtCompound blockEntity = (NbtCompound) nbt.Clone();
 			BlockEntities[coordinates] = blockEntity;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public void RemoveBlockEntity(BlockCoordinates coordinates)
 		{
 			BlockEntities.Remove(coordinates);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 

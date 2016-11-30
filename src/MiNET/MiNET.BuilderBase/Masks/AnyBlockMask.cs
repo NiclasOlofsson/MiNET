@@ -2,9 +2,9 @@ using MiNET.Utils;
 
 namespace MiNET.BuilderBase.Masks
 {
-	public class AllBlocksMask : Mask
+	public class AnyBlockMask : Mask
 	{
-		public AllBlocksMask()
+		public AnyBlockMask()
 		{
 		}
 

@@ -8,8 +8,10 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using fNbt;
 using log4net;
+using log4net.Appender;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -225,7 +227,13 @@ namespace MiNET.Worlds
 
 			if (!File.Exists(filePath))
 			{
-				return generator?.GenerateChunkColumn(coordinates);
+				var chunkColumn = generator?.GenerateChunkColumn(coordinates);
+				if (chunkColumn != null)
+				{
+					chunkColumn.NeedSave = true;
+				}
+
+				return chunkColumn;
 				//return new ChunkColumn
 				//{
 				//	x = coordinates.X,
@@ -252,11 +260,24 @@ namespace MiNET.Worlds
 				Array.Reverse(offsetBuffer);
 				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
 
+				byte[] bytes = BitConverter.GetBytes(offset >> 4);
+				Array.Reverse(bytes);
+				if (offset != 0 && offsetBuffer[0] != bytes[0] && offsetBuffer[1] != bytes[1] && offsetBuffer[2] != bytes[2])
+				{
+					throw new Exception($"Not the same buffer\n{Package.HexDump(offsetBuffer)}\n{Package.HexDump(bytes)}");
+				}
+
 				int length = regionFile.ReadByte();
 
 				if (offset == 0 || length == 0)
 				{
-					return generator?.GenerateChunkColumn(coordinates);
+					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
+					if (chunkColumn != null)
+					{
+						chunkColumn.NeedSave = true;
+					}
+
+					return chunkColumn;
 					//return new ChunkColumn
 					//{
 					//	x = coordinates.X,
@@ -268,6 +289,9 @@ namespace MiNET.Worlds
 				byte[] waste = new byte[4];
 				regionFile.Read(waste, 0, 4);
 				int compressionMode = regionFile.ReadByte();
+
+				if (compressionMode != 0x02) throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode :X2}. " +
+				                                                 $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
 
 				var nbt = new NbtFile();
 				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
@@ -342,8 +366,8 @@ namespace MiNET.Worlds
 								metadata = dataConverter(blockId, metadata);
 
 								chunk.SetMetadata(x, yi, z, metadata);
-								//chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-								//chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+								chunk.SetBlockLight(x, yi, z, Nibble4(blockLight, anvilIndex));
+								chunk.SetSkyLight(x, yi, z, Nibble4(skyLight, anvilIndex));
 								//chunk.SetSkylight(x, yi, z, 0xff);
 
 								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
@@ -431,7 +455,9 @@ namespace MiNET.Worlds
 
 				//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
+				chunk.NeedSave = false;
 				chunk.isDirty = false;
+				chunk.IsLoaded = true;
 				return chunk;
 			}
 		}
@@ -477,19 +503,58 @@ namespace MiNET.Worlds
 			//return LevelInfo.Time;
 		}
 
-		public void SaveChunks()
+		public void SaveLevelInfo(LevelInfo level)
 		{
-			lock (_chunkCache)
+			if (!Directory.Exists(BasePath))
+				Directory.CreateDirectory(BasePath);
+			else
+				return;
+
+			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 127;
+
+			NbtFile file = new NbtFile();
+			NbtTag dataTag = file.RootTag["Data"] = new NbtCompound("Data");
+			level.SaveToNbt(dataTag);
+			file.SaveToFile(Path.Combine(BasePath, "level.dat"), NbtCompression.ZLib);
+		}
+
+		public int SaveChunks()
+		{
+			int count = 0;
+			try
 			{
-				foreach (var chunkColumn in _chunkCache)
+				lock (_chunkCache)
 				{
-					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
+					SaveLevelInfo(new LevelInfo());
+
+					foreach (var chunkColumn in _chunkCache)
+					{
+						if (chunkColumn.Value.NeedSave)
+						{
+							SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
+							count++;
+						}
+					}
 				}
 			}
+			catch (Exception e)
+			{
+				Log.Error("saving chunks", e);
+			}
+
+			return count;
 		}
 
 		public static void SaveChunk(ChunkColumn chunk, string basePath, int yoffset)
 		{
+			// WARNING: This method does not consider growing size of the chunks. Needs refactoring to find
+			// free sectors and clear up old ones. It works fine as long as no dynamic data is written
+			// like block entity data (signs etc).
+
+			Log.Debug($"Save chunk X={chunk.x}, Z={chunk.z} to {basePath}");
+
+			chunk.NeedSave = false;
+
 			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
 
 			int width = 32;
@@ -532,13 +597,20 @@ namespace MiNET.Worlds
 				regionFile.Read(offsetBuffer, 0, 3);
 				Array.Reverse(offsetBuffer);
 				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
-
 				int length = regionFile.ReadByte();
 
-				if (offset == 0 || length == 0)
+				// Seriaize NBT to get lenght
+				NbtFile nbt = CreateNbtFromChunkColumn(chunk, yoffset);
+				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
+				int nbtLength = nbtBuf.Length;
+				// Don't write yet, just use the lenght
+
+				if (offset == 0 || length == 0 || nbtLength < length)
 				{
+					if(length != 0) Log.Debug("Creating new sectors for this chunk even tho it existed");
+
 					regionFile.Seek(0, SeekOrigin.End);
-					offset = (int) regionFile.Position;
+					offset = (int) ((int) regionFile.Position & 0xfffffff0);
 
 					regionFile.Seek(tableOffset, SeekOrigin.Begin);
 
@@ -548,12 +620,7 @@ namespace MiNET.Worlds
 					regionFile.WriteByte(1);
 				}
 
-				// Write NBT
-				NbtFile nbt = CreateNbtFromChunkColumn(chunk, yoffset);
-				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
-
-				int lenght = nbtBuf.Length;
-				byte[] lenghtBytes = BitConverter.GetBytes(lenght + 1);
+				byte[] lenghtBytes = BitConverter.GetBytes(nbtLength + 1);
 				Array.Reverse(lenghtBytes);
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
@@ -563,14 +630,14 @@ namespace MiNET.Worlds
 				regionFile.Write(nbtBuf, 0, nbtBuf.Length);
 
 				int reminder;
-				Math.DivRem(lenght + 4, 4096, out reminder);
+				Math.DivRem(nbtLength + 4, 4096, out reminder);
 
 				byte[] padding = new byte[4096 - reminder];
 				if (padding.Length > 0) regionFile.Write(padding, 0, padding.Length);
 			}
 		}
 
-		private static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk, int yoffset)
+		public static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk, int yoffset)
 		{
 			var nbt = new NbtFile();
 

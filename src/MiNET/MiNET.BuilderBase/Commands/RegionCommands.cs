@@ -1,4 +1,5 @@
 using System;
+using log4net;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
@@ -10,8 +11,10 @@ namespace MiNET.BuilderBase.Commands
 {
 	public class RegionCommands
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (RegionCommands));
+
 		[Command(Description = "Set all blocks within selection")]
-		public void Set(Player player, BlockTypeEnum tileName, int tileData = 0)
+		public void SetBlock(Player player, BlockTypeEnum tileName, int tileData = 0)
 		{
 			var id = BlockFactory.GetBlockIdByName(tileName.Value);
 			Set(player, id, tileData);
@@ -22,6 +25,13 @@ namespace MiNET.BuilderBase.Commands
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 			var pattern = new Pattern(tileId, tileData);
+			new EditHelper(player.Level).SetBlocks(selector, pattern);
+		}
+
+		[Command(Description = "Set all blocks within selection")]
+		public void Set(Player player, Pattern pattern)
+		{
+			RegionSelector selector = RegionSelector.GetSelector(player);
 			new EditHelper(player.Level).SetBlocks(selector, pattern);
 		}
 
@@ -42,39 +52,11 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Replace all blocks in the selection with another")]
-		public void Replace(Player player, BlockTypeEnum to, int toData = 0)
-		{
-			var toId = BlockFactory.GetBlockIdByName(to.Value);
-			Replace(player, toId, toData);
-		}
-
-		[Command(Description = "Replace all blocks in the selection with another")]
-		public void Replace(Player player, BlockTypeEnum from, int fromData, BlockTypeEnum to, int toData)
-		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-			var fromId = BlockFactory.GetBlockIdByName(from.Value);
-			var toId = BlockFactory.GetBlockIdByName(to.Value);
-			Replace(player, fromId, fromData, toId, toData);
-		}
-
-		[Command(Description = "Replace all blocks in the selection with another")]
-		public void Replace(Player player, int toId, int toData)
+		public void Replace(Player player, Mask mask, Pattern pattern)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
 
-			var pattern = new Pattern(toId, toData);
-
-			new EditHelper(player.Level).ReplaceBlocks(selector, new NotAirBlocksMask(player.Level), pattern);
-		}
-
-		[Command(Description = "Replace all blocks in the selection with another")]
-		public void Replace(Player player, int fromId, int fromData, int toId, int toData)
-		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
-			var pattern = new Pattern(toId, toData);
-
-			new EditHelper(player.Level).ReplaceBlocks(selector, new BlockMask(player.Level, new Block((byte) fromId) {Metadata = (byte) fromData}), pattern);
+			new EditHelper(player.Level).ReplaceBlocks(selector, mask, pattern);
 		}
 
 		[Command(Description = "Set the center block(s)")]
@@ -155,6 +137,13 @@ namespace MiNET.BuilderBase.Commands
 			var pattern = new Pattern(id, tileData);
 
 			new EditHelper(player.Level).MakeSphere((BlockCoordinates) player.KnownPosition, pattern, radiusX, radiusY, radiusZ, filled);
+		}
+
+		[Command(Description = "Grass, 2 layers of dirt, then rock below")]
+		public void Naturalize(Player player)
+		{
+			RegionSelector selector = RegionSelector.GetSelector(player);
+			new EditHelper(player.Level).Naturalize(player, selector);
 		}
 	}
 }

@@ -63,7 +63,7 @@
     <Compile Include="Commands\SelectionCommands.cs" />
     <Compile Include="DistanceWand.cs" />
     <Compile Include="EditHelper.cs" />
-    <Compile Include="Masks\AllBlocksMask.cs" />
+    <Compile Include="Masks\AnyBlockMask.cs" />
     <Compile Include="Masks\BlockMask.cs" />
     <Compile Include="Masks\Mask.cs" />
     <Compile Include="Masks\NotAirBlocksMask.cs" />

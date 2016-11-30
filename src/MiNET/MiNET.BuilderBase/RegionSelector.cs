@@ -178,18 +178,16 @@ namespace MiNET.BuilderBase
 				{
 					Level level = Player.Level;
 
-					if ((Math.Abs(box.Width) > 0) || (Math.Abs(box.Height) > 0) || (Math.Abs(box.Depth) > 0))
+					//if ((Math.Abs(box.Width) > 0) || (Math.Abs(box.Height) > 0) || (Math.Abs(box.Depth) > 0))
 					{
-						Log.Debug($"Have selection {box}");
-
 						var minX = Math.Min(box.Min.X, box.Max.X);
-						var maxX = Math.Max(box.Min.X, box.Max.X);
+						var maxX = Math.Max(box.Min.X, box.Max.X) +1;
 
 						var minY = Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
 						var maxY = Math.Min(127, Math.Max(box.Min.Y, box.Max.Y)) + 1;
 
 						var minZ = Math.Min(box.Min.Z, box.Max.Z);
-						var maxZ = Math.Max(box.Min.Z, box.Max.Z);
+						var maxZ = Math.Max(box.Min.Z, box.Max.Z) +1;
 
 						// x/y
 						for (float x = minX; x <= maxX; x++)

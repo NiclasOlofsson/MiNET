@@ -35,6 +35,7 @@ namespace MiNET.BuilderBase
 				{
 					if (!SourceMask.Test(coordinate)) continue;
 				}
+
 				_buffer.Add(_level.GetBlock(coordinate));
 				SourceFuncion?.Invoke(coordinate);
 			}

@@ -20,7 +20,7 @@ namespace MiNET.BuilderBase.Commands
 			Clipboard clipboard = new Clipboard(player.Level);
 			clipboard.OriginPosition1 = selector.Position1;
 			clipboard.OriginPosition2 = selector.Position2;
-			clipboard.SourceMask = new AllBlocksMask();
+			clipboard.SourceMask = new AnyBlockMask();
 			clipboard.Origin = (BlockCoordinates) player.KnownPosition;
 			clipboard.Fill(selector.GetSelectedBlocks());
 			selector.Clipboard = clipboard;
@@ -38,7 +38,7 @@ namespace MiNET.BuilderBase.Commands
 			Clipboard clipboard = new Clipboard(player.Level);
 			clipboard.OriginPosition1 = selector.Position1;
 			clipboard.OriginPosition2 = selector.Position2;
-			clipboard.SourceMask = new AllBlocksMask();
+			clipboard.SourceMask = new AnyBlockMask();
 			clipboard.SourceFuncion = coordinates =>
 			{
 				var block = BlockFactory.GetBlockById((byte) leaveId);

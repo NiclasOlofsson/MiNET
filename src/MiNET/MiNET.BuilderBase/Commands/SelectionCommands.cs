@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using log4net;
 using MiNET.Blocks;
@@ -416,30 +415,31 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Counts the number of a certain type of block")]
-		public void Count(Player player, int tileId, int tileData = 0)
+		public void Count(Player player, int tileId, int tileData = 0, bool separateByData = false)
 		{
 			var selector = RegionSelector.GetSelector(player);
 
 			var selection = selector.GetSelectedBlocks().Where(coord =>
 			{
 				var block = player.Level.GetBlock(coord);
-				return block.Id == tileId && block.Metadata == tileData;
+				return block.Id == tileId && (!separateByData || block.Metadata == tileData);
 			}).ToArray();
 
 			player.SendMessage($"Counted: {selection.Length}");
 		}
 
 		[Command(Description = "Get the distribution of blocks in the selection")]
-		public void Distribution(Player player)
+		public void Distribution(Player player, bool separateByData = false)
 		{
 			var selector = RegionSelector.GetSelector(player);
 
 			var selection = selector.GetSelectedBlocks().Select(coord => player.Level.GetBlock(coord)).ToArray();
-			Dictionary<int, int> dist = new Dictionary<int, int>();
+			Dictionary<Tuple<byte, int>, int> dist = new Dictionary<Tuple<byte, int>, int>();
 			foreach (var block in selection)
 			{
-				if (dist.ContainsKey(block.Id)) dist[block.Id] = dist[block.Id] + 1;
-				else dist.Add(block.Id, 1);
+				Tuple<byte, int> tuple = Tuple.Create(block.Id, separateByData ? block.Metadata : 0);
+				if (dist.ContainsKey(tuple)) dist[tuple] = dist[tuple] + 1;
+				else dist.Add(tuple, 1);
 			}
 
 			player.SendMessage($"# total blocks {selection.Length}");
@@ -447,9 +447,9 @@ namespace MiNET.BuilderBase.Commands
 			dist = dist.OrderByDescending(kvp => kvp.Value).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 			foreach (var kvp in dist)
 			{
-				Block block = BlockFactory.GetBlockById((byte) kvp.Key);
+				Block block = BlockFactory.GetBlockById(kvp.Key.Item1);
 				double pct = ((float) kvp.Value)/selection.Length*100f;
-				player.SendMessage($"{kvp.Value}, ({pct :F3}%), {block.GetType().Name} Id={kvp.Key}");
+				player.SendMessage($"{kvp.Value}, ({pct :F3}%), {block.GetType().Name} Id={kvp.Key.Item1}, Metadata={kvp.Key.Item2}");
 			}
 		}
 

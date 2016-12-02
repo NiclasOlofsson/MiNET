@@ -641,5 +641,36 @@ namespace MiNET.BuilderBase
 
 			history.Snapshot(false);
 		}
+
+		public void Fill(BlockCoordinates origin, Pattern pattern, Mask mask, int radius, int depth, bool fillUp = false)
+		{
+			Queue<BlockCoordinates> visits = new Queue<BlockCoordinates>();
+
+			visits.Enqueue(origin); // Kick it off with some good stuff
+
+			while (visits.Count > 0)
+			{
+				var coordinates = visits.Dequeue();
+
+				if (origin.DistanceTo(coordinates) > radius) continue;
+				if (depth != -1 && coordinates.Y <= origin.Y - depth) continue;
+
+				if (!mask.Test(coordinates)) continue;
+
+				Visit(coordinates, pattern);
+
+				visits.Enqueue(coordinates + Level.South);
+				visits.Enqueue(coordinates + Level.North);
+				visits.Enqueue(coordinates + Level.East);
+				visits.Enqueue(coordinates + Level.West);
+				visits.Enqueue(coordinates + Level.Down);
+				if (fillUp) visits.Enqueue(coordinates + Level.Up);
+			}
+		}
+
+		private void Visit(BlockCoordinates coordinates, Pattern pattern)
+		{
+			SetBlock(coordinates, pattern);
+		}
 	}
 }

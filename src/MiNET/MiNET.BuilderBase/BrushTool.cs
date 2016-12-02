@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
@@ -38,29 +37,36 @@ namespace MiNET.BuilderBase
 				return;
 			}
 
-			switch (BrushType)
+			try
 			{
-				case 0:
-					new EditHelper(player.Level, Mask, true).MakeSphere(target.Coordinates, Pattern, Radius, Radius, Radius, Filled);
-					break;
-				case 1:
-					new EditHelper(player.Level, Mask, true).MakeCylinder(target.Coordinates, Pattern, Radius, Radius, Height, Filled);
-					break;
-				case 2:
+				switch (BrushType)
+				{
+					case 0:
+						new EditHelper(player.Level, Mask, true).MakeSphere(target.Coordinates, Pattern, Radius, Radius, Radius, Filled);
+						break;
+					case 1:
+						new EditHelper(player.Level, Mask, true).MakeCylinder(target.Coordinates, Pattern, Radius, Radius, Height, Filled);
+						break;
+					case 2:
 
-					// public ErosionParameters(final int erosionFaces, final int erosionRecursion, final int fillFaces, final int fillRecursion) {
-					//MELT(new ErosionParameters(2, 1, 5, 1)),
-					//FILL(new ErosionParameters(5, 1, 2, 1)),
-					//SMOOTH(new ErosionParameters(3, 1, 3, 1)),
-					//LIFT(new ErosionParameters(6, 0, 1, 1)),
-					//FLOATCLEAN(new ErosionParameters(6, 1, 6, 1));
+						// public ErosionParameters(final int erosionFaces, final int erosionRecursion, final int fillFaces, final int fillRecursion) {
+						//MELT(new ErosionParameters(2, 1, 5, 1)),
+						//FILL(new ErosionParameters(5, 1, 2, 1)),
+						//SMOOTH(new ErosionParameters(3, 1, 3, 1)),
+						//LIFT(new ErosionParameters(6, 0, 1, 1)),
+						//FLOATCLEAN(new ErosionParameters(6, 1, 6, 1));
 
-					Erosion(Radius, 2, 1, 5, 1, world, target.Coordinates); // melt
-					break;
-				case 3:
+						Erosion(Radius, 2, 1, 5, 1, world, target.Coordinates); // melt
+						break;
+					case 3:
 
-					Erosion(Radius, 5, 1, 2, 1, world, target.Coordinates); // fill
-					break;
+						Erosion(Radius, 5, 1, 2, 1, world, target.Coordinates); // fill
+						break;
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Error("Brush use item", e);
 			}
 		}
 
@@ -68,7 +74,7 @@ namespace MiNET.BuilderBase
 		{
 		}
 
-		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.West, Level.East, Level.Up, Level.Down, Level.South, Level.North};
+		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.West, Level.East, Level.South, Level.North, Level.Up, Level.Down};
 
 		protected void Erosion(int brushSize, int erodeFaces, int erodeRec, int fillFaces, int fillRec, Level level, BlockCoordinates targetBlock)
 		{
@@ -90,15 +96,12 @@ namespace MiNET.BuilderBase
 					for (int z = -brushSize - 1; z <= brushSize + 1; z++)
 					{
 						int z0 = z + tz;
-						buffer1[new BlockCoordinates(x, y, z)] = level.GetBlock(new BlockCoordinates(x0, y0, z0));
-						buffer1[new BlockCoordinates(x, y, z)].Coordinates = BlockCoordinates.Zero;
-						buffer2[new BlockCoordinates(x, y, z)] = level.GetBlock(new BlockCoordinates(x0, y0, z0));
-						buffer2[new BlockCoordinates(x, y, z)].Coordinates = BlockCoordinates.Zero;
+						var block = level.GetBlock(new BlockCoordinates(x0, y0, z0));
+						buffer1[new BlockCoordinates(x, y, z)] = block;
+						buffer2[new BlockCoordinates(x, y, z)] = block;
 					}
 				}
 			}
-
-			int inLen = buffer1.Count;
 
 			int swap = 0;
 			for (int i = 0; i < erodeRec; ++i)
@@ -114,7 +117,6 @@ namespace MiNET.BuilderBase
 			}
 
 			BlockBuffer finalBuffer = swap%2 == 0 ? buffer1 : buffer2;
-			//this.undo = new Undo(finalBuffer.getBlockCount());
 
 			// apply the buffer to the world
 			for (int x = -brushSize; x <= brushSize; x++)
@@ -133,26 +135,20 @@ namespace MiNET.BuilderBase
 							block.Coordinates = new BlockCoordinates(x0, y0, z0);
 							Block old = level.GetBlock(block.Coordinates);
 
+							if (block.Id == old.Id && block.Metadata == old.Metadata) continue;
+
 							level.SetBlock(block);
-							Log.Debug($"Set block {block.Coordinates}, Old Block={old}, New Block={block} Type={block.GetType().Name}");
-							if (block.Id != old.Id) Log.Warn("YEAH!");
 						}
 					}
 				}
 			}
-
-			if (finalBuffer.Count != inLen) Log.Warn("Not same lenght");
-
-			//v.owner().storeUndo(this.undo);
-			//this.undo = null;
 		}
 
-
-		private void FillIteration(int brushSize, int fillFaces, BlockBuffer current, BlockBuffer target)
+		private void FillIteration(int inbrushSize, int fillFaces, BlockBuffer current, BlockBuffer target)
 		{
-			double brushSizeSquared = brushSize*brushSize;
-			brushSize = brushSize + 1;
-			Dictionary<Block, int> frequency = new Dictionary<Block, int>();
+			double brushSizeSquared = inbrushSize*inbrushSize;
+			int brushSize = inbrushSize + 1;
+			Dictionary<int, int> frequency = new Dictionary<int, int>();
 
 			for (int x = -brushSize; x <= brushSize; x++)
 			{
@@ -161,14 +157,14 @@ namespace MiNET.BuilderBase
 					for (int z = -brushSize; z <= brushSize; z++)
 					{
 						BlockCoordinates coord = new BlockCoordinates(x, y, z);
-						target[coord] = (Block) current[coord].Clone();
+						target[coord] = current[coord];
 						if (x*x + y*y + z*z >= brushSizeSquared)
 						{
 							continue;
 						}
 
 						Block state = current[coord];
-						if (!(state is Air))
+						if (state.IsSolid)
 						{
 							continue;
 						}
@@ -180,7 +176,7 @@ namespace MiNET.BuilderBase
 						foreach (var offs in FACES_TO_CHECK)
 						{
 							Block next = current[coord + offs];
-							if (next is Air)
+							if (!next.IsSolid)
 							{
 								continue;
 							}
@@ -188,39 +184,38 @@ namespace MiNET.BuilderBase
 							total++;
 
 							int count;
-							var inf = frequency.Keys.FirstOrDefault(pair => pair.Id == next.Id && pair.Metadata == next.Metadata);
-							if (inf == null)
+							if (!frequency.ContainsKey(next.Id))
 							{
-								inf = next;
 								count = 1;
 							}
 							else
 							{
-								count = frequency[inf];
+								count = frequency[next.Id];
 								count++;
 							}
-							if (count > highest)
+
+							if (count >= highest)
 							{
-								Log.Warn("Set something");
 								highest = count;
 								highestState = next;
 							}
-							frequency[inf] = count;
+							frequency[next.Id] = count;
 						}
-						if (total > fillFaces)
+
+						if (total >= fillFaces)
 						{
-							target[coord] = (Block) highestState.Clone();
+							target[coord] = highestState;
 						}
 					}
 				}
 			}
 		}
 
-		private void ErosionIteration(int brushSize, int erodeFaces, BlockBuffer current, BlockBuffer target)
+		private void ErosionIteration(int inbrushSize, int erodeFaces, BlockBuffer current, BlockBuffer target)
 		{
-			double brushSizeSquared = brushSize*brushSize;
-			brushSize = brushSize + 1;
-			Dictionary<Type, int> frequency = new Dictionary<Type, int>();
+			double brushSizeSquared = inbrushSize*inbrushSize;
+			int brushSize = inbrushSize + 1;
+			Dictionary<byte, int> frequency = new Dictionary<byte, int>();
 
 			for (int x = -brushSize; x <= brushSize; x++)
 			{
@@ -229,7 +224,7 @@ namespace MiNET.BuilderBase
 					for (int z = -brushSize; z <= brushSize; z++)
 					{
 						BlockCoordinates coord = new BlockCoordinates(x, y, z);
-						target[coord] = (Block) current[coord].Clone();
+						target[coord] = (Block) current[coord];
 
 						if (x*x + y*y + z*z >= brushSizeSquared)
 						{
@@ -242,7 +237,7 @@ namespace MiNET.BuilderBase
 						}
 						int total = 0;
 						int highest = 1;
-						Type highestState = state.GetType();
+						byte highestState = state.Id;
 						frequency.Clear();
 						foreach (var offs in FACES_TO_CHECK)
 						{
@@ -254,26 +249,26 @@ namespace MiNET.BuilderBase
 							total++;
 
 							int count;
-							if (!frequency.ContainsKey(next.GetType()))
+							if (!frequency.ContainsKey(next.Id))
 							{
 								count = 1;
 							}
 							else
 							{
-								count = frequency[next.GetType()];
+								count = frequency[next.Id];
 								count++;
 							}
 
 							if (count > highest)
 							{
 								highest = count;
-								highestState = next.GetType();
+								highestState = next.Id;
 							}
-							frequency[next.GetType()] = count;
+							frequency[next.Id] = count;
 						}
 						if (total > erodeFaces)
 						{
-							target[coord] = Default(highestState);
+							target[coord] = BlockFactory.GetBlockById(highestState);
 						}
 					}
 				}

@@ -584,7 +584,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 
-			ChunkRadius = 5;
+			if(ChunkRadius == -1) ChunkRadius = 5;
 
 			SendChunkRadiusUpdate();
 
@@ -961,8 +961,7 @@ namespace MiNET
 		private void SendChunkRadiusUpdate()
 		{
 			McpeChunkRadiusUpdate package = McpeChunkRadiusUpdate.CreateObject();
-			//package.chunkRadius = ChunkRadius;
-			package.chunkRadius = 8;
+			package.chunkRadius = ChunkRadius;
 
 			SendPackage(package);
 		}

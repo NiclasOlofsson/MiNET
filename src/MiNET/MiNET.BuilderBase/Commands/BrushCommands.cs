@@ -2,26 +2,18 @@ using log4net;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Plugins.Attributes;
-using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands
 {
-	public class UtilsCommands
-	{
-		[Command(Description = "Save world")]
-		public void Save(Player player)
-		{
-			AnvilWorldProvider provider = player.Level._worldProvider as AnvilWorldProvider;
-			if (provider != null)
-			{
-				provider.SaveChunks();
-			}
-		}
-	}
-
 	public class BrushCommands
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BrushCommands));
+
+		//[Command(Description = "Only for command completion, does nothing")]
+		//public void Brush(Player player)
+		//{
+		//	// Intentionally left empty
+		//}
 
 		[Command(Name = "brush sphere", Aliases = new[] {"br s", "sphere", "s"}, Description = "Choose the sphere brush")]
 		public void BrushSphere(Player player, Pattern pattern, int radius = 2, bool hollow = false)
@@ -64,7 +56,7 @@ namespace MiNET.BuilderBase.Commands
 			player.SendMessage($"{op} {(!hollow ? "filling" : "hollow")} sphere cylinder with radius={radius}");
 		}
 
-		[Command(Name = "brush fill", Aliases = new[] { "br f", "fill", "f" }, Description = "Choose the fill brush")]
+		[Command(Name = "brush fill", Aliases = new[] {"br f"}, Description = "Choose the fill brush")]
 		public void BrushFill(Player player, int radius = 2)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;
@@ -82,7 +74,7 @@ namespace MiNET.BuilderBase.Commands
 			player.SendMessage($"{op} fill brush with radius={radius}");
 		}
 
-		[Command(Name = "brush melt", Aliases = new[] { "br m", "melt", "m" }, Description = "Choose the melt brush")]
+		[Command(Name = "brush melt", Aliases = new[] {"br m", "melt", "m"}, Description = "Choose the melt brush")]
 		public void BrushMelt(Player player, int radius = 2)
 		{
 			BrushTool brush = player.Inventory.GetItemInHand() as BrushTool;

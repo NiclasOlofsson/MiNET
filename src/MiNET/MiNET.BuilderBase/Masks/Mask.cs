@@ -27,6 +27,16 @@ namespace MiNET.BuilderBase.Masks
 		{
 		}
 
+		public Mask(Level level, List<Block> blocks, bool ignoreMetadata)
+		{
+			Level = level;
+
+			foreach (var block in blocks)
+			{
+				_blockList.Add(new BlockDataEntry() {Id = block.Id, Metadata = block.Metadata, IgnoreMetadata = ignoreMetadata});
+			}
+		}
+
 		public virtual bool Test(BlockCoordinates coordinates)
 		{
 			if (Level == null) return true;

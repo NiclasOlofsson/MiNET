@@ -785,21 +785,8 @@ namespace MiNET.Worlds
 			if (block.Coordinates.Y < 0) return;
 
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
-			var bid = chunk.GetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f);
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.Metadata);
-
-			//if (bid != 0)
-			//{
-			//	long test;
-			//	if(BlockWithTicks.TryGetValue(block.Coordinates, out test))
-			//	{
-
-			//	}
-
-			//	long waste;
-			//	BlockWithTicks.TryRemove(block.Coordinates, out waste);
-			//}
 
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
 			if (block.LightLevel > 0)

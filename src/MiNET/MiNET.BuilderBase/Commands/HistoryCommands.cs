@@ -2,26 +2,20 @@ using MiNET.Plugins.Attributes;
 
 namespace MiNET.BuilderBase.Commands
 {
-	public class HistoryCommands
+	public class HistoryCommands // MUST NOT EXTEND RedoableCommand base.
 	{
 		[Command(Description = "Undo the last action")]
-		public void Undo(Player player)
+		public void Undo(Player player, int numberOfUndo = 1)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
-			selector.Undo();
+			selector.Undo(numberOfUndo);
 		}
 
 		[Command(Description = "Redo the last action (from history)")]
-		public void Redo(Player player)
+		public void Redo(Player player, int numberOfRedo = 1)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
-			selector.Redo();
-		}
-		[Command(Description = "Redo the last action (from history)")]
-		public void Speed(Player player, int speed = 1)
-		{
-			player.MovementSpeed = speed / 10f;
-			player.SendUpdateAttributes();
+			selector.Redo(numberOfRedo);
 		}
 	}
 }

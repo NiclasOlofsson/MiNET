@@ -6,6 +6,7 @@ using System.Numerics;
 using System.Threading;
 using log4net;
 using MiNET.Blocks;
+using MiNET.BuilderBase.Commands;
 using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -28,14 +29,15 @@ namespace MiNET.BuilderBase
 		public Dictionary<long, HistoryEntry> History { get; private set; } = new Dictionary<long, HistoryEntry>();
 		public Dictionary<long, HistoryEntry> RedoBuffer { get; private set; } = new Dictionary<long, HistoryEntry>();
 
-		public RegionSelector(Player player)
-		{
-			Player = player;
-		}
 
 		public BlockCoordinates Position1 { get; private set; }
 		public BlockCoordinates Position2 { get; private set; }
 		public Clipboard Clipboard { get; set; }
+
+		public RegionSelector(Player player)
+		{
+			Player = player;
+		}
 
 		public BoundingBox GetSelection()
 		{
@@ -94,66 +96,57 @@ namespace MiNET.BuilderBase
 			DisplaySelection(true);
 		}
 
-		public HistoryEntry CreateSnapshot()
-		{
-			return CreateSnapshot(Position1, Position2);
-		}
-
-		public HistoryEntry CreateSnapshot(BlockCoordinates pos1, BlockCoordinates pos2, bool keepRedoBuffer = false)
+		public void AddHistory(HistoryEntry history, bool keepRedoBuffer = false)
 		{
 			long time = DateTime.UtcNow.Ticks;
 
-			// Should add block-entities here too
-			HistoryEntry history = new HistoryEntry(Player.Level, pos1, pos2);
-
 			History.Add(time, history);
 			if (!keepRedoBuffer) RedoBuffer.Clear();
-
-			history.Snapshot();
-
-			return history;
 		}
 
-		public void Undo()
+		public void Undo(int numberOfUndo = 1)
 		{
-			if (History.Count == 0) return;
-
-			// No selection
-			Select(new BlockCoordinates(), new BlockCoordinates());
-
-			var last = History.OrderBy(kvp => kvp.Key).Last();
-			History.Remove(last.Key);
-			RedoBuffer.Add(last.Key, last.Value);
-
-			// Undo
-			HistoryEntry historyEntry = last.Value;
-			var restore = historyEntry.Presnapshot;
-			foreach (Block block in restore)
+			for (int i = 0; i < numberOfUndo; i++)
 			{
-				historyEntry.Level.SetBlock(block);
+				if (History.Count == 0) return;
+
+				var last = History.OrderBy(kvp => kvp.Key).Last();
+				History.Remove(last.Key);
+				RedoBuffer.Add(last.Key, last.Value);
+
+				// Undo
+				HistoryEntry historyEntry = last.Value;
+				var restore = historyEntry.Presnapshot;
+				foreach (Block block in restore)
+				{
+					historyEntry.Level.SetBlock(block);
+				}
 			}
 		}
 
-		public void Redo()
+		public void Redo(int numberOfRedo = 1)
 		{
-			if (RedoBuffer.Count == 0) return;
-
-			// No selection
-			Select(new BlockCoordinates(), new BlockCoordinates());
-
-			var last = RedoBuffer.OrderByDescending(kvp => kvp.Key).Last();
-			RedoBuffer.Remove(last.Key);
-
-			HistoryEntry historyEntry = CreateSnapshot(last.Value.Position1, last.Value.Position2, true);
-
-			// Redo
-			var restore = last.Value.Postsnapshot;
-			foreach (Block block in restore)
+			for (int i = 0; i < numberOfRedo; i++)
 			{
-				historyEntry.Level.SetBlock(block);
-			}
+				if (RedoBuffer.Count == 0) return;
 
-			historyEntry.Snapshot(false);
+				var last = RedoBuffer.OrderByDescending(kvp => kvp.Key).Last();
+				RedoBuffer.Remove(last.Key);
+
+				var level = last.Value.Level;
+				var undoRecorder = new UndoRecorder(level, false);
+				var editSession = new EditHelper(level, undoRecorder: undoRecorder);
+
+				// Redo
+				var restore = last.Value.Postsnapshot;
+				foreach (Block block in restore)
+				{
+					editSession.SetBlock(block);
+				}
+
+				var history = undoRecorder.CreateHistory();
+				AddHistory(history, true);
+			}
 		}
 
 		public void ClearHistory()
@@ -181,13 +174,13 @@ namespace MiNET.BuilderBase
 					//if ((Math.Abs(box.Width) > 0) || (Math.Abs(box.Height) > 0) || (Math.Abs(box.Depth) > 0))
 					{
 						var minX = Math.Min(box.Min.X, box.Max.X);
-						var maxX = Math.Max(box.Min.X, box.Max.X) +1;
+						var maxX = Math.Max(box.Min.X, box.Max.X) + 1;
 
 						var minY = Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
 						var maxY = Math.Min(127, Math.Max(box.Min.Y, box.Max.Y)) + 1;
 
 						var minZ = Math.Min(box.Min.Z, box.Max.Z);
-						var maxZ = Math.Max(box.Min.Z, box.Max.Z) +1;
+						var maxZ = Math.Max(box.Min.Z, box.Max.Z) + 1;
 
 						// x/y
 						for (float x = minX; x <= maxX; x++)

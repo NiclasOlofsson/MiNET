@@ -498,6 +498,7 @@
     <Compile Include="Plugins\Command.cs" />
     <Compile Include="Plugins\Commands\HelpCommand.cs" />
     <Compile Include="Plugins\Commands\VanillaCommands.cs" />
+    <Compile Include="Plugins\ICommandFilter.cs" />
     <Compile Include="Plugins\IParameterSerializer.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />

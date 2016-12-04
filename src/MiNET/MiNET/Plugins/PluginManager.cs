@@ -696,6 +696,12 @@ namespace MiNET.Plugins
 				object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
 				if (pluginInstance == null) return null;
 
+				ICommandFilter filter = pluginInstance as ICommandFilter;
+				if (filter != null)
+				{
+					filter.OnCommandExecuting(player);
+				}
+
 				if (method.IsStatic)
 				{
 					result = method.Invoke(null, objectArgs);
@@ -708,6 +714,12 @@ namespace MiNET.Plugins
 					result = method.Invoke(pluginInstance, objectArgs);
 					Plugin.CurrentPlayer = null; // Done with thread local, we using pool to make sure it's reset.
 				}
+
+				if (filter != null)
+				{
+					filter.OnCommandExecuted();
+				}
+
 			}
 			catch (Exception e)
 			{

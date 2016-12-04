@@ -22,6 +22,9 @@ namespace MiNET.Utils
 			X = x;
 			Y = y;
 			Z = z;
+			HeadYaw = headYaw;
+			Yaw = yaw;
+			Pitch = pitch;
 		}
 
 		public PlayerLocation(double x, double y, double z, float headYaw = 0f, float yaw = 0f, float pitch = 0f) : this((float) x, (float) y, (float) z, headYaw, yaw, pitch)
@@ -98,7 +101,7 @@ namespace MiNET.Utils
 
 		public override string ToString()
 		{
-			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pich={Pitch}, ";
+			return $"X={X}, Y={Y}, Z={Z}, HeadYaw={HeadYaw}, Yaw={Yaw}, Pich={Pitch}";
 		}
 	}
 }

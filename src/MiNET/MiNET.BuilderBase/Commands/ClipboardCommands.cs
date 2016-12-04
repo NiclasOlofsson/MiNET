@@ -8,7 +8,7 @@ using MiNET.Utils;
 
 namespace MiNET.BuilderBase.Commands
 {
-	public class ClipboardCommands
+	public class ClipboardCommands: UndoableCommand
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ClipboardCommands));
 
@@ -24,16 +24,12 @@ namespace MiNET.BuilderBase.Commands
 			clipboard.Origin = (BlockCoordinates) player.KnownPosition;
 			clipboard.Fill(selector.GetSelectedBlocks());
 			selector.Clipboard = clipboard;
-
-			player.Level.SetBlock(new GoldBlock {Coordinates = (BlockCoordinates) (player.KnownPosition + BlockCoordinates.Down)});
 		}
 
 		[Command(Description = "Cut the selection to the clipboard")]
 		public void Cut(Player player, int leaveId = 0, int leaveData = 0)
 		{
 			RegionSelector selector = RegionSelector.GetSelector(player);
-
-			HistoryEntry history = selector.CreateSnapshot();
 
 			Clipboard clipboard = new Clipboard(player.Level);
 			clipboard.OriginPosition1 = selector.Position1;
@@ -44,14 +40,12 @@ namespace MiNET.BuilderBase.Commands
 				var block = BlockFactory.GetBlockById((byte) leaveId);
 				block.Metadata = (byte) leaveData;
 				block.Coordinates = coordinates;
-				player.Level.SetBlock(block);
+				EditSession.SetBlock(block);
 				return true;
 			};
 			clipboard.Origin = (BlockCoordinates) player.KnownPosition;
 			clipboard.Fill(selector.GetSelectedBlocks());
 			selector.Clipboard = clipboard;
-
-			history.Snapshot(false);
 		}
 
 		[Command(Description = "Copy the selection to the clipboard")]
@@ -72,8 +66,6 @@ namespace MiNET.BuilderBase.Commands
 				var realTo = to + Vector3.Transform(clipOffset, rotateY);
 				var max = realTo + Vector3.Transform(clipboard.GetMax() - clipboard.GetMin(), rotateY);
 
-				HistoryEntry history = selector.CreateSnapshot(realTo, max);
-
 				var blocks = clipboard.GetBuffer();
 				foreach (Block block in blocks)
 				{
@@ -82,15 +74,13 @@ namespace MiNET.BuilderBase.Commands
 					Vector3 vec = Vector3.Transform(block.Coordinates - clipboard.Origin, rotateY);
 
 					block.Coordinates = vec + to;
-					player.Level.SetBlock(block);
+					EditSession.SetBlock(block);
 				}
 
 				if (selectAfter)
 				{
 					selector.Select(realTo, max);
 				}
-
-				history.Snapshot(false);
 			}
 			catch (Exception e)
 			{

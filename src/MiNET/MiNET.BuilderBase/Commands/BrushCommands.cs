@@ -1,6 +1,7 @@
 using log4net;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
+using MiNET.BuilderBase.Tools;
 using MiNET.Plugins.Attributes;
 
 namespace MiNET.BuilderBase.Commands

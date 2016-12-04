@@ -9,7 +9,7 @@ using MiNET.Utils;
 
 namespace MiNET.BuilderBase.Commands
 {
-	public class RegionCommands
+	public class RegionCommands : UndoableCommand
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (RegionCommands));
 
@@ -23,16 +23,14 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set all blocks within selection")]
 		public void Set(Player player, int tileId, int tileData = 0)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
 			var pattern = new Pattern(tileId, tileData);
-			new EditHelper(player.Level).SetBlocks(selector, pattern);
+			EditSession.SetBlocks(Selector, pattern);
 		}
 
 		[Command(Description = "Set all blocks within selection")]
 		public void Set(Player player, Pattern pattern)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-			new EditHelper(player.Level).SetBlocks(selector, pattern);
+			EditSession.SetBlocks(Selector, pattern);
 		}
 
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
@@ -45,28 +43,22 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Draws a line segment between cuboid selection corners")]
 		public void Line(Player player, int tileId, int tileData = 0, int thickness = 0, bool shell = false)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
 			var pattern = new Pattern(tileId, tileData);
-			new EditHelper(player.Level).DrawLine(selector, pattern, selector.Position1, selector.Position2, thickness, !shell);
+			EditSession.DrawLine(Selector, pattern, Selector.Position1, Selector.Position2, thickness, !shell);
 		}
 
 		[Command(Description = "Replace all blocks in the selection with another")]
 		public void Replace(Player player, Mask mask, Pattern pattern)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
-			new EditHelper(player.Level).ReplaceBlocks(selector, mask, pattern);
+			EditSession.ReplaceBlocks(Selector, mask, pattern);
 		}
 
 		[Command(Description = "Set the center block(s)")]
 		public void Center(Player player, int tileId = 1, int tileData = 0)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
 			var pattern = new Pattern(tileId, tileData);
 
-			new EditHelper(player.Level).Center(selector, pattern);
+			EditSession.Center(Selector, pattern);
 		}
 
 		[Command(Description = "Move the contents of the selection")]
@@ -83,13 +75,11 @@ namespace MiNET.BuilderBase.Commands
 				return;
 			}
 
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
-			new EditHelper(player.Level).Move(selector, count, dir);
+			EditSession.Move(Selector, count, dir);
 		}
 
 		[Command(Description = "Repeat the contents of the selection")]
-		public void Stack(Player player, int count = 1, string direction = "me", bool skipAir = false)
+		public void Stack(Player player, int count = 1, string direction = "me", bool skipAir = false, bool moveSelection = false)
 		{
 			BlockCoordinates dir;
 			try
@@ -102,9 +92,7 @@ namespace MiNET.BuilderBase.Commands
 				return;
 			}
 
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
-			new EditHelper(player.Level).Stack(selector, count, dir, skipAir);
+			EditSession.Stack(Selector, count, dir, skipAir, moveSelection);
 		}
 
 		[Command(Description = "Generates a hollow sphere")]
@@ -136,14 +124,14 @@ namespace MiNET.BuilderBase.Commands
 
 			var pattern = new Pattern(id, tileData);
 
-			new EditHelper(player.Level).MakeSphere((BlockCoordinates) player.KnownPosition, pattern, radiusX, radiusY, radiusZ, filled);
+			EditSession.MakeSphere((BlockCoordinates) player.KnownPosition, pattern, radiusX, radiusY, radiusZ, filled);
 		}
 
 		[Command(Description = "Grass, 2 layers of dirt, then rock below")]
 		public void Naturalize(Player player)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-			new EditHelper(player.Level).Naturalize(player, selector);
+			UndoRecorder.CheckForDuplicates = false;
+			EditSession.Naturalize(player, Selector);
 		}
 	}
 }

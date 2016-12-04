@@ -52,18 +52,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrushTool.cs" />
     <Compile Include="BuilderBaseItemFactory.cs" />
     <Compile Include="BuilderBasePlugin.cs" />
     <Compile Include="Clipboard.cs" />
     <Compile Include="Commands\BrushCommands.cs" />
     <Compile Include="Commands\MiscCommands.cs" />
+    <Compile Include="Commands\UndoableCommand.cs" />
     <Compile Include="HistoryEntry.cs" />
     <Compile Include="Commands\ClipboardCommands.cs" />
     <Compile Include="Commands\HistoryCommands.cs" />
     <Compile Include="Commands\RegionCommands.cs" />
     <Compile Include="Commands\SelectionCommands.cs" />
-    <Compile Include="DistanceWand.cs" />
     <Compile Include="EditHelper.cs" />
     <Compile Include="Masks\AnyBlockMask.cs" />
     <Compile Include="Masks\BlockMask.cs" />
@@ -72,6 +71,9 @@
     <Compile Include="Patterns\Pattern.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegionSelector.cs" />
+    <Compile Include="Tools\BrushTool.cs" />
+    <Compile Include="Tools\DistanceWand.cs" />
+    <Compile Include="Tools\TeleportTool.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiNET\MiNET.csproj">

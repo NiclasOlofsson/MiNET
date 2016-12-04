@@ -15,6 +15,13 @@ namespace MiNET.BuilderBase
 		public List<Block> Presnapshot { get; set; }
 		public List<Block> Postsnapshot { get; set; }
 
+		public HistoryEntry(Level level, List<Block> presnapshot, List<Block> postsnapshot)
+		{
+			Level = level;
+			Presnapshot = presnapshot;
+			Postsnapshot = postsnapshot;
+		}
+
 		public HistoryEntry(Level level, BlockCoordinates position1, BlockCoordinates position2)
 		{
 			Level = level;

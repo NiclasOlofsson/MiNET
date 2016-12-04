@@ -48,6 +48,10 @@ namespace MiNET.Items
 			return true;
 		}
 
+		public virtual bool Animate(Level world, Player player)
+		{
+			return false;
+		}
 
 		public BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{

@@ -265,6 +265,13 @@ namespace MiNET
 
 			Log.DebugFormat("HandleAnimate Action: {0}", message.actionId);
 
+			var itemInHand = Inventory.GetItemInHand();
+			if (itemInHand != null)
+			{
+				bool isHandled = itemInHand.Animate(Level, this);
+				if (isHandled) return; // Handled, return
+			}
+
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.entityId = EntityId;
 			msg.actionId = message.actionId;
@@ -584,7 +591,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 
-			if(ChunkRadius == -1) ChunkRadius = 5;
+			if (ChunkRadius == -1) ChunkRadius = 5;
 
 			SendChunkRadiusUpdate();
 

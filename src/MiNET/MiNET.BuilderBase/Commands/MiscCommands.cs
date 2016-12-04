@@ -11,20 +11,20 @@ using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands
 {
-	public class MiscCommands
+	public class MiscCommands : UndoableCommand
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiscCommands));
 
 		[Command(Description = "Fill a hole")]
 		public void Fill(Player player, Pattern pattern, int radius, int depth = -1)
 		{
-			new EditHelper(player.Level).Fill((BlockCoordinates) player.KnownPosition, pattern, new AirBlocksMask(player.Level), radius, depth);
+			EditSession.Fill((BlockCoordinates) player.KnownPosition, pattern, new AirBlocksMask(player.Level), radius, depth);
 		}
 
 		[Command(Description = "Fill a hole")]
 		public void Drain(Player player, int radius)
 		{
-			new EditHelper(player.Level).Fill((BlockCoordinates) player.KnownPosition,
+			EditSession.Fill((BlockCoordinates) player.KnownPosition,
 				new Pattern(0, 0),
 				new Mask(player.Level, new List<Block> {new FlowingWater(), new StationaryWater(), new StationaryLava(), new FlowingLava()}, true),
 				radius,
@@ -44,8 +44,6 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Grass, 2 layers of dirt, then rock below")]
 		public void Text(Player player, string text, string fontName = "Arial", int pxSize = 10)
 		{
-			RegionSelector selector = RegionSelector.GetSelector(player);
-
 			var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
 
 			SizeF size;
@@ -82,7 +80,7 @@ namespace MiNET.BuilderBase.Commands
 						{
 							var block = new Sand {Coordinates = tc + coords};
 							Log.Debug($"Pixel at {tc + coords}, {color}");
-							player.Level.SetBlock(block);
+							EditSession.SetBlock(block);
 						}
 						else
 						{
@@ -92,6 +90,13 @@ namespace MiNET.BuilderBase.Commands
 					i++;
 				}
 			}
+		}
+
+		[Command(Description = "Redo the last action (from history)")]
+		public void Speed(Player player, int speed = 1)
+		{
+			player.MovementSpeed = speed/10f;
+			player.SendUpdateAttributes();
 		}
 	}
 }

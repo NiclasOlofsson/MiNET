@@ -1,5 +1,7 @@
 ﻿using log4net;
 using MiNET.BuilderBase.Commands;
+using MiNET.BuilderBase.Patterns;
+using MiNET.BuilderBase.Tools;
 using MiNET.Items;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -68,6 +70,18 @@ namespace MiNET.BuilderBase
 		private void OnPlayerJoin(object sender, PlayerEventArgs e)
 		{
 			RegionSelector.RegionSelectors.TryAdd(e.Player, new RegionSelector(e.Player));
+			SetInventory(e.Player);
+		}
+
+		public void SetInventory(Player player)
+		{
+			int idx = 0;
+			player.Inventory.Slots[idx++] = new DistanceWand();
+			player.Inventory.Slots[idx++] = new TeleportTool();
+			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 0, Radius = 5};
+			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 2, Radius = 5};
+			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 3, Radius = 5};
+			player.SendPlayerInventory();
 		}
 
 		private void OnPlayerLeave(object sender, PlayerEventArgs e)

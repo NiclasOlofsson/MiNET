@@ -19,16 +19,18 @@ namespace MiNET.BuilderBase
 		private Level _level;
 		private Mask _mask;
 		private bool _randomizeGeneration = false;
+		private readonly UndoRecorder _undoRecorder;
 		private Random _random = new Random((int) DateTime.UtcNow.Ticks);
 
-		public EditHelper(Level level, Mask mask = null, bool randomizeGeneration = false)
+		public EditHelper(Level level, Mask mask = null, bool randomizeGeneration = false, UndoRecorder undoRecorder = null)
 		{
 			_level = level;
 			_mask = mask;
 			_randomizeGeneration = randomizeGeneration;
+			_undoRecorder = undoRecorder;
 		}
 
-		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition, int range = 300, bool returnLastAir = false)
+		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition, int range = 300, bool returnLastAir = false, bool limitHeight = true)
 		{
 			var origin = knownPosition;
 			origin.Y += 1.62f;
@@ -46,10 +48,16 @@ namespace MiNET.BuilderBase
 
 				BlockCoordinates coord = new BlockCoordinates(nextPos);
 				Block block = level.GetBlock(coord);
-				bool collided = block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
-				if (collided)
+
+				if (!limitHeight && coord.Y >= 127) block = new Air {Coordinates = block.Coordinates};
+
+				bool lookingDownFromHeaven = (origin.Y > coord.Y && coord.Y > 127);
+				bool lookingUpAtHeaven = (origin.Y < coord.Y);
+
+				bool collided = !lookingDownFromHeaven && block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+				if (collided || (lookingUpAtHeaven && coord.Y > 150))
 				{
-					return block;
+					return limitHeight ? lastAir : block;
 				}
 
 				if (block is Air) lastAir = block;
@@ -118,8 +126,6 @@ namespace MiNET.BuilderBase
 
 		public int DrawLine(RegionSelector selector, Pattern pattern, BlockCoordinates pos1, BlockCoordinates pos2, double radius, bool filled)
 		{
-			HistoryEntry history = selector.CreateSnapshot();
-
 			HashSet<BlockCoordinates> vset = new HashSet<BlockCoordinates>();
 			bool notdrawn = true;
 
@@ -181,15 +187,12 @@ namespace MiNET.BuilderBase
 
 			var drawLine = SetBlocks(vset, pattern);
 
-			history.Snapshot(false);
 			return drawLine;
 		}
 
 		public void SetBlocks(RegionSelector selector, Pattern pattern)
 		{
-			HistoryEntry history = selector.CreateSnapshot();
 			SetBlocks(selector.GetSelectedBlocks(), pattern);
-			history.Snapshot(false);
 		}
 
 		private void SetBlocks(BlockCoordinates[] selected, Pattern pattern)
@@ -217,11 +220,6 @@ namespace MiNET.BuilderBase
 				if (!_mask.Test(position)) return false;
 			}
 
-			//if (_randomizeGeneration)
-			//{
-			//	if (_random.Next(10) == 0) return false;
-			//}
-
 			return SetBlock(pattern.Next(position));
 		}
 
@@ -229,7 +227,10 @@ namespace MiNET.BuilderBase
 		{
 			if (block.PlaceBlock(_level, null, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
 
+
+			_undoRecorder.RecordUndo(_level.GetBlock(block.Coordinates));
 			_level.SetBlock(block);
+			_undoRecorder.RecordRedo(block);
 
 			return true;
 		}
@@ -291,8 +292,6 @@ namespace MiNET.BuilderBase
 
 		public void ReplaceBlocks(RegionSelector selector, Mask mask, Pattern pattern)
 		{
-			HistoryEntry history = selector.CreateSnapshot();
-
 			var selected = selector.GetSelectedBlocks();
 			foreach (BlockCoordinates coordinates in selected)
 			{
@@ -301,8 +300,6 @@ namespace MiNET.BuilderBase
 					SetBlock(coordinates, pattern);
 				}
 			}
-
-			history.Snapshot(false);
 		}
 
 		public void Center(RegionSelector selector, Pattern pattern)
@@ -313,18 +310,11 @@ namespace MiNET.BuilderBase
 			RegionSelector centerRegion = new RegionSelector(selector.Player);
 			centerRegion.SelectPrimary(center);
 			centerRegion.SelectSecondary(centerVec);
-
-			HistoryEntry history = selector.CreateSnapshot(center, centerVec);
-
 			SetBlocks(centerRegion.GetSelectedBlocks(), pattern);
-
-			history.Snapshot(false);
 		}
 
 		public void Move(RegionSelector selector, int count, BlockCoordinates dir)
 		{
-			HistoryEntry history = selector.CreateSnapshot(selector.GetMin(), selector.GetMax() + (dir*count));
-
 			var selected = new List<BlockCoordinates>(selector.GetSelectedBlocks());
 
 			// Save old blocks with new coordinates so we don't overwrite while traverse
@@ -341,30 +331,26 @@ namespace MiNET.BuilderBase
 			// Actually move them
 			foreach (var block in movedBlocks)
 			{
-				_level.SetBlock(block);
+				SetBlock(block);
 			}
 
 			// Set the left-overs (gap) to air
 			foreach (var coord in selected)
 			{
-				_level.SetAir(coord);
+				SetBlock(new Air {Coordinates = coord});
 			}
 
 			// Move selection too
 			selector.Select(selector.Position1 + (dir*count), selector.Position2 + (dir*count));
-
-			history.Snapshot(false);
 		}
 
-		public void Stack(RegionSelector selector, int count, BlockCoordinates dir, bool skipAir)
+		public void Stack(RegionSelector selector, int count, BlockCoordinates dir, bool skipAir, bool moveSelection)
 		{
 			BlockCoordinates size = selector.GetMax() - selector.GetMin() + BlockCoordinates.One;
 
 			var selected = new List<BlockCoordinates>(selector.GetSelectedBlocks());
 
 			// Save old blocks with new coordinates so we don't overwrite while traverse
-
-			HistoryEntry history = selector.CreateSnapshot(selector.GetMin(), selector.GetMax() + (dir*size*count));
 
 			List<Block> movedBlocks = new List<Block>();
 			for (int i = 1; i <= count; i++)
@@ -381,13 +367,11 @@ namespace MiNET.BuilderBase
 			foreach (var block in movedBlocks)
 			{
 				if (skipAir && block is Air) continue;
-				_level.SetBlock(block);
+				SetBlock(block);
 			}
 
 			// Move selection too last stack
-			selector.Select(selector.Position1 + (dir*size*count), selector.Position2 + (dir*size*count));
-
-			history.Snapshot(false);
+			if (moveSelection) selector.Select(selector.Position1 + (dir*size*count), selector.Position2 + (dir*size*count));
 		}
 
 		public int MakeSphere(Vector3 pos, Pattern block, double radiusX, double radiusY, double radiusZ, bool filled)
@@ -601,8 +585,6 @@ namespace MiNET.BuilderBase
 
 		public void Naturalize(Player player, RegionSelector selector)
 		{
-			var history = selector.CreateSnapshot();
-
 			var min = selector.GetMin();
 			var max = selector.GetMax();
 
@@ -615,7 +597,7 @@ namespace MiNET.BuilderBase
 					for (int y = Math.Min(127, max.Y); y >= min.Y; y--)
 					{
 						var coordinates = new BlockCoordinates(x, y, z);
-						if (level.IsAir(coordinates))
+						if (level.IsAir(coordinates) || !level.GetBlock(coordinates).IsSolid)
 						{
 							if (depth != 0) depth = 4;
 							continue;
@@ -624,22 +606,20 @@ namespace MiNET.BuilderBase
 						switch (depth++)
 						{
 							case 0:
-								level.SetBlock(new Grass() {Coordinates = coordinates});
+								SetBlock(new Grass() {Coordinates = coordinates});
 								break;
 							case 1:
 							case 2:
 							case 3:
-								level.SetBlock(new Dirt() {Coordinates = coordinates});
+								SetBlock(new Dirt() {Coordinates = coordinates});
 								break;
 							default:
-								level.SetBlock(new Stone() {Coordinates = coordinates});
+								SetBlock(new Stone() {Coordinates = coordinates});
 								break;
 						}
 					}
 				}
 			}
-
-			history.Snapshot(false);
 		}
 
 		public void Fill(BlockCoordinates origin, Pattern pattern, Mask mask, int radius, int depth, bool fillUp = false)

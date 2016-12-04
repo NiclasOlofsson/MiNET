@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
+using MiNET.BuilderBase.Commands;
 using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.BuilderBase
+namespace MiNET.BuilderBase.Tools
 {
 	public class BrushTool : ItemIronShovel
 	{
@@ -30,7 +31,11 @@ namespace MiNET.BuilderBase
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			var target = new EditHelper(world).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
+			var selector = RegionSelector.GetSelector(player);
+			var undoRecorder = new UndoRecorder(player.Level);
+			var editSession = new EditHelper(player.Level, Mask, undoRecorder: undoRecorder);
+
+			var target = new EditHelper(world, Mask).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");
@@ -42,10 +47,10 @@ namespace MiNET.BuilderBase
 				switch (BrushType)
 				{
 					case 0:
-						new EditHelper(player.Level, Mask, true).MakeSphere(target.Coordinates, Pattern, Radius, Radius, Radius, Filled);
+						editSession.MakeSphere(target.Coordinates, Pattern, Radius, Radius, Radius, Filled);
 						break;
 					case 1:
-						new EditHelper(player.Level, Mask, true).MakeCylinder(target.Coordinates, Pattern, Radius, Radius, Height, Filled);
+						editSession.MakeCylinder(target.Coordinates, Pattern, Radius, Radius, Height, Filled);
 						break;
 					case 2:
 
@@ -56,11 +61,11 @@ namespace MiNET.BuilderBase
 						//LIFT(new ErosionParameters(6, 0, 1, 1)),
 						//FLOATCLEAN(new ErosionParameters(6, 1, 6, 1));
 
-						Erosion(Radius, 2, 1, 5, 1, world, target.Coordinates); // melt
+						Erosion(editSession, Radius, 2, 1, 5, 1, world, target.Coordinates); // melt
 						break;
 					case 3:
 
-						Erosion(Radius, 5, 1, 2, 1, world, target.Coordinates); // fill
+						Erosion(editSession, Radius, 5, 1, 2, 1, world, target.Coordinates); // fill
 						break;
 				}
 			}
@@ -68,6 +73,60 @@ namespace MiNET.BuilderBase
 			{
 				Log.Error("Brush use item", e);
 			}
+
+			var history = undoRecorder.CreateHistory();
+			selector.AddHistory(history);
+		}
+
+		public override bool Animate(Level world, Player player)
+		{
+			var selector = RegionSelector.GetSelector(player);
+			var undoRecorder = new UndoRecorder(player.Level);
+			var editSession = new EditHelper(player.Level, Mask, undoRecorder: undoRecorder);
+
+			var target = new EditHelper(world).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
+			if (target == null)
+			{
+				player.SendMessage("No block in range");
+				return false;
+			}
+
+			try
+			{
+				switch (BrushType)
+				{
+					case 0:
+						editSession.MakeSphere(target.Coordinates, Pattern, Radius, Radius, Radius, Filled);
+						break;
+					case 1:
+						editSession.MakeCylinder(target.Coordinates, Pattern, Radius, Radius, Height, Filled);
+						break;
+					case 3:
+
+						// public ErosionParameters(final int erosionFaces, final int erosionRecursion, final int fillFaces, final int fillRecursion) {
+						//MELT(new ErosionParameters(2, 1, 5, 1)),
+						//FILL(new ErosionParameters(5, 1, 2, 1)),
+						//SMOOTH(new ErosionParameters(3, 1, 3, 1)),
+						//LIFT(new ErosionParameters(6, 0, 1, 1)),
+						//FLOATCLEAN(new ErosionParameters(6, 1, 6, 1));
+
+						Erosion(editSession, Radius, 2, 1, 5, 1, world, target.Coordinates); // melt
+						break;
+					case 2:
+
+						Erosion(editSession, Radius, 5, 1, 2, 1, world, target.Coordinates); // fill
+						break;
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Error("Brush use item", e);
+			}
+
+			var history = undoRecorder.CreateHistory();
+			selector.AddHistory(history);
+
+			return true;
 		}
 
 		private class BlockBuffer : Dictionary<BlockCoordinates, Block>
@@ -76,7 +135,7 @@ namespace MiNET.BuilderBase
 
 		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.West, Level.East, Level.South, Level.North, Level.Up, Level.Down};
 
-		protected void Erosion(int brushSize, int erodeFaces, int erodeRec, int fillFaces, int fillRec, Level level, BlockCoordinates targetBlock)
+		protected void Erosion(EditHelper editSession, int brushSize, int erodeFaces, int erodeRec, int fillFaces, int fillRec, Level level, BlockCoordinates targetBlock)
 		{
 			double brushSizeSquared = brushSize*brushSize;
 
@@ -137,7 +196,7 @@ namespace MiNET.BuilderBase
 
 							if (block.Id == old.Id && block.Metadata == old.Metadata) continue;
 
-							level.SetBlock(block);
+							editSession.SetBlock(block);
 						}
 					}
 				}

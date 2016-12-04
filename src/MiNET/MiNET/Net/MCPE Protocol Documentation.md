@@ -1012,6 +1012,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |BlockCoordinates | BlockCoordinates |  |
+|Unknown | UnsignedVarInt |  |
 |Face | SignedVarInt |  |
 |FaceCoordinates | Vector3 |  |
 |PlayerPosition | Vector3 |  |
@@ -1233,6 +1234,7 @@ MODE_ROTATION = 2;
 |Slot | SignedVarInt |  |
 |Unknown | SignedVarInt |  |
 |Item | Item |  |
+|Unknown2 | byte |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Set Data (0x32)
 

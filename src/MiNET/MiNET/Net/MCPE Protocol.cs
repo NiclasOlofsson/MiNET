@@ -2876,6 +2876,7 @@ namespace MiNET.Net
 	public partial class McpeUseItem : Package<McpeUseItem>
 	{
 		public BlockCoordinates blockcoordinates; // = null;
+		public uint unknown; // = null;
 		public int face; // = null;
 		public Vector3 facecoordinates; // = null;
 		public Vector3 playerposition; // = null;
@@ -2893,6 +2894,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(blockcoordinates);
+			WriteUnsignedVarInt(unknown);
 			WriteSignedVarInt(face);
 			Write(facecoordinates);
 			Write(playerposition);
@@ -2912,6 +2914,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			blockcoordinates = ReadBlockCoordinates();
+			unknown = ReadUnsignedVarInt();
 			face = ReadSignedVarInt();
 			facecoordinates = ReadVector3();
 			playerposition = ReadVector3();
@@ -3477,6 +3480,7 @@ namespace MiNET.Net
 		public int slot; // = null;
 		public int unknown; // = null;
 		public Item item; // = null;
+		public byte unknown2; // = null;
 		public McpeContainerSetSlot()
 		{
 			Id = 0x31;
@@ -3492,6 +3496,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(slot);
 			WriteSignedVarInt(unknown);
 			Write(item);
+			Write(unknown2);
 
 			AfterEncode();
 		}
@@ -3509,6 +3514,7 @@ namespace MiNET.Net
 			slot = ReadSignedVarInt();
 			unknown = ReadSignedVarInt();
 			item = ReadItem();
+			unknown2 = ReadByte();
 
 			AfterDecode();
 		}

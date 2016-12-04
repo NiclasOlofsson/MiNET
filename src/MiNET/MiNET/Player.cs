@@ -1350,6 +1350,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeContainerSetSlot(McpeContainerSetSlot message)
 		{
+			Log.Debug($"Handle slot unknown={message.unknown}, unknown2={message.unknown2}");
 			lock (Inventory)
 			{
 				if (HealthManager.IsDead) return;
@@ -1769,6 +1770,7 @@ namespace MiNET
 		{
 			Log.DebugFormat("Use item: {0}", message.item);
 			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);
+			Log.DebugFormat("Unknown:  {0}", message.unknown);
 			Log.DebugFormat("face:  {0}", message.face);
 			Log.DebugFormat("Facecoordinates:  {0}", message.facecoordinates);
 			Log.DebugFormat("Slot:  {0}", message.slot);

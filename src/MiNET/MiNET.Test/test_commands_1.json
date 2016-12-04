@@ -51,7 +51,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.attack.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -170,7 +170,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.collect.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -197,7 +197,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.createmascot.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -261,7 +261,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.destroy.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -290,7 +290,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.detect.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -319,7 +319,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.detectredstone.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -348,7 +348,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.drop.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -385,7 +385,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.dropall.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -484,7 +484,7 @@
 	"execute": {
 		"versions": [
 			{
-				"description": "commands.execute.usage",
+				"description": "commands.execute.description",
 				"overloads": {
 					"asOther": {
 						"input": {
@@ -558,8 +558,8 @@
 	"executeasself": {
 		"versions": [
 			{
-				"description": "commands.execute.usage",
-				"is_automation": true,
+				"description": "commands.execute.description",
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -783,10 +783,12 @@
 							]
 						},
 						"output": {
-							"format_strings": [
-								"commands.gamerule.success"
-							],
+							"format_strings": [ ],
 							"parameters": [
+								{
+									"name": "name",
+									"type": "string"
+								},
 								{
 									"name": "value",
 									"type": "bool"
@@ -804,7 +806,7 @@
 		"versions": [
 			{
 				"description": "commands.getchunkdata.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -850,7 +852,7 @@
 		"versions": [
 			{
 				"description": "commands.getchunks.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -884,6 +886,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.getitemcount.description",
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -910,7 +913,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.getitemdetail.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -937,6 +940,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.getitemspace.description",
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -963,7 +967,7 @@
 		"versions": [
 			{
 				"description": "commands.getspawnpoint.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1050,7 +1054,7 @@
 		"versions": [
 			{
 				"description": "commands.globalpause.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"getter": {
 						"input": {
@@ -1161,7 +1165,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.inspect.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1225,19 +1229,12 @@
 				"overloads": {
 					"default": {
 						"input": {
-							"parameters": [
-								{
-									"name": "details",
-									"optional": true,
-									"type": "string"
-								}
-							]
+							"parameters": [ ]
 						},
 						"output": {
 							"format_strings": [
 								"commands.players.list",
-								"{2}",
-								"{3}"
+								"{2}"
 							],
 							"parameters": [
 								{
@@ -1250,10 +1247,6 @@
 								},
 								{
 									"name": "players",
-									"type": "string"
-								},
-								{
-									"name": "details",
 									"type": "string"
 								}
 							]
@@ -1268,7 +1261,7 @@
 		"versions": [
 			{
 				"description": "commands.list.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1356,7 +1349,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.move.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1421,7 +1414,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.place.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1453,7 +1446,7 @@
 		"versions": [
 			{
 				"description": "commands.querytarget.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1486,6 +1479,7 @@
 		"versions": [
 			{
 				"description": "commands.say.description",
+				"outputToSpeech": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1605,6 +1599,37 @@
 			}
 		]
 	},
+	"setmascotspeed": {
+		"versions": [
+			{
+				"description": "commands.ltc.setmascotspeed.description",
+				"is_hidden": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"enum_values": [
+										"normal",
+										"fast"
+									],
+									"name": "speed",
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.setmascotspeed.success"
+							]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"setworldspawn": {
 		"versions": [
 			{
@@ -1697,6 +1722,7 @@
 								},
 								{
 									"name": "spawnPos",
+									"optional": true,
 									"type": "blockpos"
 								}
 							]
@@ -1734,6 +1760,7 @@
 					"msg"
 				],
 				"description": "commands.tell.description",
+				"outputToSpeech": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -1871,7 +1898,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.till.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -2186,11 +2213,34 @@
 			}
 		]
 	},
+	"tpmascot": {
+		"versions": [
+			{
+				"description": "commands.ltc.tpmascot.description",
+				"is_hidden": true,
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [ ]
+						},
+						"output": {
+							"format_strings": [
+								"commands.ltc.tpmascot.success"
+							],
+							"parameters": [ ]
+						}
+					}
+				},
+				"permission": "any",
+				"requires_edu": true
+			}
+		]
+	},
 	"transfer": {
 		"versions": [
 			{
 				"description": "commands.ltc.transfer.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -2226,7 +2276,7 @@
 		"versions": [
 			{
 				"description": "commands.ltc.turn.description",
-				"is_automation": true,
+				"is_hidden": true,
 				"overloads": {
 					"default": {
 						"input": {
@@ -2305,7 +2355,7 @@
 							"parameters": [
 								{
 									"name": "serverUri",
-									"type": "string"
+									"type": "rawtext"
 								}
 							]
 						},

@@ -26,11 +26,12 @@ namespace MiNET.Plugins
 		public string Description { get; set; }
 		public string Permission { get; set; }
 		public bool RequiresChatPerms { get; set; }
+		public bool OutputToSpeech { get; set; }
 
 		[JsonProperty(propertyName: "requires_edu")]
 		public bool RequiresEdu { get; set; }
-		[JsonProperty(propertyName: "is_automation")]
-		public bool IsAutomation { get; set; }
+		[JsonProperty(propertyName: "is_hidden")]
+		public bool IsHidden { get; set; }
 
 		public Dictionary<string, Overload> Overloads { get; set; }
 	}

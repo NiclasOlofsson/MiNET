@@ -23,7 +23,7 @@ namespace MiNET.Client
 				{
 					NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
 
-					Log.Warn("New chunk column");
+					Log.Debug("New chunk column");
 
 					int count = defStream.ReadByte();
 					if (count < 1)
@@ -102,7 +102,7 @@ namespace MiNET.Client
 
 					if (stream.Position < stream.Length - 1)
 					{
-						//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+						Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
 
 						while (stream.Position < stream.Length)
 						{
@@ -112,12 +112,10 @@ namespace MiNET.Client
 
 							Log.Debug($"Blockentity: {file.RootTag}");
 						}
-
-
-						if (stream.Position < stream.Length - 1)
-						{
-							Log.Debug($"Got data to read\n{Package.HexDump(defStream.ReadBytes((int)(stream.Length - stream.Position)))}");
-						}
+					}
+					if (stream.Position < stream.Length - 1)
+					{
+						Log.Warn($"Still have data to read\n{Package.HexDump(defStream.ReadBytes((int)(stream.Length - stream.Position)))}");
 					}
 				}
 

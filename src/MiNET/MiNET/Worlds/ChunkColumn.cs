@@ -316,8 +316,21 @@ namespace MiNET.Worlds
 				//	writer.Write((int) (color & 0x00ffffff) /*| biome << 24*/);
 				//}
 
-				short extraSize = 0;
-				writer.Write(extraSize); // No extra data
+				//short extraSize = 0;
+				//writer.Write(extraSize); // No extra data
+
+				// Count = SignedVarInt (zigzag)
+				// Each entry
+				// - Hash SignedVarint x << 12, z << 8, y
+				// - Block data short
+
+				writer.Write((byte)0); // Border blocks - nope
+
+				VarInt.WriteSInt32(stream, 0); // Block extradata count
+				//VarInt.WriteSInt32(stream, 2);
+				//VarInt.WriteSInt32(stream, 1 << 12 | 1 << 8 | 4);
+				//writer.Write((byte)31);
+				//writer.Write((byte)0);
 
 				if (BlockEntities.Count == 0)
 				{

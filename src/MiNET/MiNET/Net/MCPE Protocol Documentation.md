@@ -1232,7 +1232,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 |Slot | SignedVarInt |  |
-|Unknown | SignedVarInt |  |
+|HotbarSlot | SignedVarInt |  |
 |Item | Item |  |
 |Unknown2 | byte |  |
 -----------------------------------------------------------------------

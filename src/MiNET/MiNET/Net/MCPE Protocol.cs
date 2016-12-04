@@ -3478,7 +3478,7 @@ namespace MiNET.Net
 	{
 		public byte windowId; // = null;
 		public int slot; // = null;
-		public int unknown; // = null;
+		public int hotbarslot; // = null;
 		public Item item; // = null;
 		public byte unknown2; // = null;
 		public McpeContainerSetSlot()
@@ -3494,7 +3494,7 @@ namespace MiNET.Net
 
 			Write(windowId);
 			WriteSignedVarInt(slot);
-			WriteSignedVarInt(unknown);
+			WriteSignedVarInt(hotbarslot);
 			Write(item);
 			Write(unknown2);
 
@@ -3512,7 +3512,7 @@ namespace MiNET.Net
 
 			windowId = ReadByte();
 			slot = ReadSignedVarInt();
-			unknown = ReadSignedVarInt();
+			hotbarslot = ReadSignedVarInt();
 			item = ReadItem();
 			unknown2 = ReadByte();
 

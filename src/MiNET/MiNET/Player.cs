@@ -1350,7 +1350,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeContainerSetSlot(McpeContainerSetSlot message)
 		{
-			Log.Debug($"Handle slot unknown={message.unknown}, unknown2={message.unknown2}");
+			Log.Debug($"Handle slot unknown={message.hotbarslot}, unknown2={message.unknown2}");
 			lock (Inventory)
 			{
 				if (HealthManager.IsDead) return;
@@ -1368,7 +1368,7 @@ namespace MiNET
 				}
 
 				if (Log.IsDebugEnabled)
-					Log.Debug($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} and item: {itemStack}");
+					Log.Debug($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.hotbarslot} and item: {itemStack}");
 
 				if (_openInventory != null)
 				{

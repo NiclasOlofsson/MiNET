@@ -32,6 +32,7 @@ namespace MiNET.Net
 		void HandleMcpeInteract(McpeInteract message);
 		void HandleMcpeUseItem(McpeUseItem message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
+		void HandleMcpePlayerFall(McpePlayerFall message);
 		void HandleMcpeAnimate(McpeAnimate message);
 		void HandleMcpeRespawn(McpeRespawn message);
 		void HandleMcpeDropItem(McpeDropItem message);
@@ -331,6 +332,11 @@ namespace MiNET.Net
 						return package;
 					case 0x24:
 						package = McpePlayerAction.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x25:
+						package = McpePlayerFall.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
@@ -2967,6 +2973,41 @@ namespace MiNET.Net
 			actionId = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
 			face = ReadSignedVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpePlayerFall : Package<McpePlayerFall>
+	{
+		public McpePlayerFall()
+		{
+			Id = 0x25;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
 
 			AfterDecode();
 		}

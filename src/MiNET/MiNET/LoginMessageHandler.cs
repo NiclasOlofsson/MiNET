@@ -49,7 +49,7 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			if (message.protocolVersion < 92)
+			if (message.protocolVersion < 100)
 			{
 				Log.Warn($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, client need an upgrade.");
 				_session.Disconnect($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, please upgrade.");
@@ -376,6 +376,10 @@ namespace MiNET
 		}
 
 		public void HandleMcpePlayerAction(McpePlayerAction message)
+		{
+		}
+
+		public void HandleMcpePlayerFall(McpePlayerFall message)
 		{
 		}
 

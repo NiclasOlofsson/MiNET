@@ -255,6 +255,10 @@ namespace MiNET
 		}
 
 
+		public virtual void HandleMcpePlayerFall(McpePlayerFall message)
+		{
+		}
+
 		/// <summary>
 		///     Handles an animate packet.
 		/// </summary>

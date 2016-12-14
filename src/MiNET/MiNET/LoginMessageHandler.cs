@@ -379,6 +379,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpePlayerFall(McpePlayerFall message)
+		{
+		}
+
 		public void HandleMcpeAnimate(McpeAnimate message)
 		{
 		}

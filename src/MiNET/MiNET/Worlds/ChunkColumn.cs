@@ -249,11 +249,27 @@ namespace MiNET.Worlds
 			}
 		}
 
+		internal void ClearCache()
+		{
+			lock (_cacheSync)
+			{
+				if (_cachedBatch != null)
+				{
+					_cachedBatch.MarkPermanent(false);
+					_cachedBatch.PutPool();
+
+					_cachedBatch = null;
+				}
+			}
+		}
+
 		public McpeBatch GetBatch()
 		{
 			lock (_cacheSync)
 			{
 				if (!isDirty && _cachedBatch != null) return _cachedBatch;
+
+				ClearCache();
 
 				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 				fullChunkData.chunkX = x;

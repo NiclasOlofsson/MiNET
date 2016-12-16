@@ -305,24 +305,27 @@ namespace MiNET
 				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 				{
 					// Get actual package out of bytes
-					MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
-					defStream2.CopyTo(destination);
-					destination.Position = 0;
-					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-
-					while (destination.Position < destination.Length)
+					using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
 					{
-						//int len = reader.ReadInt32();
-						int len = BatchUtils.ReadLength(destination);
-						byte[] internalBuffer = reader.ReadBytes(len);
+						defStream2.CopyTo(destination);
+						destination.Position = 0;
+						NbtBinaryReader reader = new NbtBinaryReader(destination, true);
 
-						//if (Log.IsDebugEnabled)
-						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+						while (destination.Position < destination.Length)
+						{
+							//int len = reader.ReadInt32();
+							int len = BatchUtils.ReadLength(destination);
+							byte[] internalBuffer = reader.ReadBytes(len);
 
-						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+							//if (Log.IsDebugEnabled)
+							//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+
+							messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
+							             new UnknownPackage(internalBuffer[0], internalBuffer));
+						}
+
+						if (destination.Length > destination.Position) throw new Exception("Have more data");
 					}
-
-					if (destination.Length > destination.Position) throw new Exception("Have more data");
 				}
 				foreach (var msg in messages)
 				{

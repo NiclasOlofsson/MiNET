@@ -170,8 +170,10 @@ namespace MiNET.Worlds
 			AnvilWorldProvider provider = _worldProvider as AnvilWorldProvider;
 			if (provider != null)
 			{
-				AnvilWorldProvider anvil = provider;
-				anvil._chunkCache.Clear();
+				foreach (var chunk in provider._chunkCache)
+				{
+					chunk.Value?.ClearCache();
+				}
 			}
 
 			_worldProvider = null;

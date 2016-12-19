@@ -25,6 +25,7 @@ namespace MiNET.BuilderBase
 			Context.PluginManager.LoadCommands(new HistoryCommands());
 			Context.PluginManager.LoadCommands(new ClipboardCommands());
 			Context.PluginManager.LoadCommands(new BrushCommands());
+			Context.PluginManager.LoadCommands(new SchematicsCommands());
 
 			ItemFactory.CustomItemFactory = new BuilderBaseItemFactory();
 

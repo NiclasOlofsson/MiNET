@@ -225,13 +225,18 @@ namespace MiNET.BuilderBase
 
 		public bool SetBlock(Block block)
 		{
-			if (block.PlaceBlock(_level, null, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
-
-
 			_undoRecorder.RecordUndo(_level.GetBlock(block.Coordinates));
-			_level.SetBlock(block);
-			_undoRecorder.RecordRedo(block);
+			try
+			{
+				if (block.PlaceBlock(_level, null, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
 
+
+				_level.SetBlock(block);
+			}
+			finally
+			{
+				_undoRecorder.RecordRedo(block);
+			}
 			return true;
 		}
 

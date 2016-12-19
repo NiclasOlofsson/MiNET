@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MiNET.Blocks;
 using MiNET.Plugins;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands
@@ -30,8 +31,8 @@ namespace MiNET.BuilderBase.Commands
 	{
 		private readonly Level _level;
 		public bool CheckForDuplicates { get; set; }
-		public List<Block> UndoBuffer { get; set; } = new List<Block>();
-		public List<Block> RedoBuffer { get; set; } = new List<Block>();
+		public Dictionary<BlockCoordinates, Block> UndoBuffer { get; set; } = new Dictionary<BlockCoordinates, Block>();
+		public Dictionary<BlockCoordinates, Block> RedoBuffer { get; set; } = new Dictionary<BlockCoordinates, Block>();
 
 		public UndoRecorder(Level level, bool checkForDuplicates = true)
 		{
@@ -41,18 +42,21 @@ namespace MiNET.BuilderBase.Commands
 
 		public void RecordUndo(Block block)
 		{
-			if (CheckForDuplicates && UndoBuffer.Any(b => b.Coordinates == block.Coordinates)) return;
-			UndoBuffer.Add(block);
+			//if (CheckForDuplicates && UndoBuffer.ContainsKey(block.Coordinates))
+			//{
+			//	return;
+			//}
+			UndoBuffer[block.Coordinates] = block;
 		}
 
 		public void RecordRedo(Block block)
 		{
-			RedoBuffer.Add(block);
+			RedoBuffer[block.Coordinates] = block;
 		}
 
 		public HistoryEntry CreateHistory()
 		{
-			return new HistoryEntry(_level, UndoBuffer, RedoBuffer);
+			return new HistoryEntry(_level, UndoBuffer.Values.ToList(), RedoBuffer.Values.ToList());
 		}
 	}
 }

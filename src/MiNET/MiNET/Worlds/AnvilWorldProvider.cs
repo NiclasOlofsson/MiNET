@@ -35,7 +35,7 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
-		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
+		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
 		public IWorldProvider MissingChunkProvider { get; set; }
 

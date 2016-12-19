@@ -38,7 +38,7 @@ namespace MiNET
 				//file.RootTag["Data"] = (NbtTag) dataTag.Clone();
 				file.RootTag["Data"] = new NbtCompound("Data");
 				level.SaveToNbt(file.RootTag);
-				file.SaveToFile(Path.Combine($@"D:\Temp\TestSave", "output.dat"),NbtCompression.None);
+				file.SaveToFile(Path.Combine($@"D:\Temp\TestSave", "output.dat"), NbtCompression.None);
 			}
 		}
 

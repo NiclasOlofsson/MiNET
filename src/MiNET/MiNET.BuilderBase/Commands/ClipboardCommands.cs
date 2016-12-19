@@ -1,14 +1,16 @@
 using System;
 using System.Numerics;
+using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.BuilderBase.Commands
 {
-	public class ClipboardCommands: UndoableCommand
+	public class ClipboardCommands : UndoableCommand
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ClipboardCommands));
 
@@ -46,6 +48,17 @@ namespace MiNET.BuilderBase.Commands
 			clipboard.Origin = (BlockCoordinates) player.KnownPosition;
 			clipboard.Fill(selector.GetSelectedBlocks());
 			selector.Clipboard = clipboard;
+
+			Task.Run(() =>
+			{
+				SkyLightCalculations.Calculate(player.Level);
+				player.CleanCache();
+				player.ForcedSendChunks(() =>
+				{
+					player.SendMessage("Calculated skylights and resent chunks.");
+				});
+			});
+
 		}
 
 		[Command(Description = "Copy the selection to the clipboard")]
@@ -56,7 +69,11 @@ namespace MiNET.BuilderBase.Commands
 				RegionSelector selector = RegionSelector.GetSelector(player);
 
 				Clipboard clipboard = selector.Clipboard;
-				if (clipboard == null) return;
+				if (clipboard == null)
+				{
+					player.SendMessage("Nothing in clipboard");
+					return;
+				}
 
 				Vector3 to = pastAtOrigin ? clipboard.Origin : (BlockCoordinates) player.KnownPosition;
 
@@ -71,9 +88,22 @@ namespace MiNET.BuilderBase.Commands
 				{
 					if (skipAir && block is Air) continue;
 
-					Vector3 vec = Vector3.Transform(block.Coordinates - clipboard.Origin, rotateY);
+					if (rotateY != Matrix4x4.Identity)
+					{
+						Vector3 vec = Vector3.Transform(block.Coordinates - clipboard.Origin, rotateY);
+						block.Coordinates = vec + to;
+					}
+					else
+					{
+						//Vector3 vec = (block.Coordinates - clipboard.Origin);
+						Vector3 vec = new Vector3(
+							block.Coordinates.X - clipboard.Origin.X + to.X,
+							block.Coordinates.Y - clipboard.Origin.Y + to.Y,
+							block.Coordinates.Z - clipboard.Origin.Z + to.Z);
 
-					block.Coordinates = vec + to;
+						block.Coordinates = vec;
+					}
+
 					EditSession.SetBlock(block);
 				}
 
@@ -81,6 +111,16 @@ namespace MiNET.BuilderBase.Commands
 				{
 					selector.Select(realTo, max);
 				}
+
+				Task.Run(() =>
+				{
+					SkyLightCalculations.Calculate(player.Level);
+					player.CleanCache();
+					player.ForcedSendChunks(() =>
+					{
+						player.SendMessage("Calculated skylights and resent chunks.");
+					});
+				});
 			}
 			catch (Exception e)
 			{

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Masks;
 using MiNET.Utils;
@@ -20,9 +21,10 @@ namespace MiNET.BuilderBase
 		public BlockCoordinates OriginPosition2 { get; set; }
 		public Matrix4x4 Transform { get; set; } = Matrix4x4.Identity;
 
-		public Clipboard(Level level)
+		public Clipboard(Level level, List<Block> buffer = null)
 		{
 			_level = level;
+			_buffer = buffer;
 		}
 
 		public void Fill(BlockCoordinates[] selected)

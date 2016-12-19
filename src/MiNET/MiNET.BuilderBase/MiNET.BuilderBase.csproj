@@ -57,6 +57,7 @@
     <Compile Include="Clipboard.cs" />
     <Compile Include="Commands\BrushCommands.cs" />
     <Compile Include="Commands\MiscCommands.cs" />
+    <Compile Include="Commands\SchematicsCommands.cs" />
     <Compile Include="Commands\UndoableCommand.cs" />
     <Compile Include="HistoryEntry.cs" />
     <Compile Include="Commands\ClipboardCommands.cs" />

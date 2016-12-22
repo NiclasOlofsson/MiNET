@@ -6,7 +6,6 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -24,7 +23,6 @@ namespace MiNET.Worlds
 		public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
-		public int[] biomeColor = ArrayOf<int>.Create(256, 0);
 		public byte[] height = ArrayOf<byte>.Create(256*2, 0);
 
 		//TODO: This dictionary need to be concurent. Investigate performance before changing.
@@ -63,13 +61,13 @@ namespace MiNET.Worlds
 
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetBlock(bx, by - 16*(by >> 4), bz, bid);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public void SetHeight(int bx, int bz, byte h)
 		{
 			height[(bz << 4) + (bx)] = h;
+			SetDirty();
 		}
 
 		public byte GetHeight(int bx, int bz)
@@ -88,11 +86,6 @@ namespace MiNET.Worlds
 			return biomeId[(bz << 4) + (bx)];
 		}
 
-		public void SetBiomeColor(int bx, int bz, int color)
-		{
-			biomeColor[(bz << 4) + (bx)] = (color & 0x00ffffff);
-		}
-
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
 			Chunk chunk = chunks[by >> 4];
@@ -103,8 +96,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -117,8 +109,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
@@ -131,8 +122,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
@@ -208,7 +198,7 @@ namespace MiNET.Worlds
 						GetBiomeColor(bx - 1, bz + 1),
 						GetBiomeColor(bx + 1, bz - 1)
 						);
-					SetBiomeColor(bx, bz, c.ToArgb());
+					//SetBiomeColor(bx, bz, c.ToArgb());
 				}
 			}
 
@@ -254,7 +244,7 @@ namespace MiNET.Worlds
 						{
 							if (GetBlock(x, y, z) != 0)
 							{
-								SetHeight(x, z, (byte)(y + 1));
+								SetHeight(x, z, (byte) (y + 1));
 								SetSkyLight(x, y, z, 0);
 								isInLight = false;
 							}
@@ -363,7 +353,7 @@ namespace MiNET.Worlds
 				// - Hash SignedVarint x << 12, z << 8, y
 				// - Block data short
 
-				writer.Write((byte)0); // Border blocks - nope
+				writer.Write((byte) 0); // Border blocks - nope
 
 				VarInt.WriteSInt32(stream, 0); // Block extradata count
 				//VarInt.WriteSInt32(stream, 2);
@@ -402,7 +392,6 @@ namespace MiNET.Worlds
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();
-			cc.biomeColor = (int[]) biomeColor.Clone();
 			cc.height = (byte[]) height.Clone();
 
 			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();

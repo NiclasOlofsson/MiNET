@@ -374,7 +374,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk)
+		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk)
 		{
 			int sy = sectionTag["Y"].ByteValue*16;
 			byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
@@ -430,7 +430,7 @@ namespace MiNET.Worlds
 
 						chunk.SetMetadata(x, yi, z, metadata);
 						chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-						chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
+						chunk.SetSkyLight(x, yi, z, Nibble4(skyLight, anvilIndex));
 
 								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
 								//{
@@ -455,7 +455,7 @@ namespace MiNET.Worlds
 						var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
 						if (block.LightLevel > 0)
 						{
-							block.Coordinates = new BlockCoordinates(x + (16 * coordinates.X), yi, z + (16 * coordinates.Z));
+							block.Coordinates = new BlockCoordinates(x + (16 * block.Coordinates.X), yi, z + (16 * block.Coordinates.Z));
 							LightSources.Enqueue(block);
 						}
 
@@ -688,8 +688,8 @@ namespace MiNET.Worlds
 
 							blocks[anvilIndex] = blockId;
 							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
-							SetNibble4(blockLight, anvilIndex, chunk.GetBlockLight(x, yi, z));
-							SetNibble4(skyLight, anvilIndex, chunk.GetSkyLight(x, yi, z));
+							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
+							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
 						}
 					}
 				}

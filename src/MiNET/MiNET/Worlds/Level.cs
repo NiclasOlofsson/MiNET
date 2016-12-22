@@ -730,8 +730,8 @@ namespace MiNET.Worlds
 
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
-			byte blockLight = chunk.GetBlockLight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
-			byte skyLight = chunk.GetSkyLight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 
 			Block block = BlockFactory.GetBlockById(bid);
 			block.Coordinates = blockCoordinates;
@@ -774,7 +774,7 @@ namespace MiNET.Worlds
 
 			if (chunk == null) return 15;
 
-			return chunk.GetSkyLight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
+			return chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0x7f, blockCoordinates.Z & 0x0f);
 		}
 
 		private ChunkColumn GetChunk(BlockCoordinates blockCoordinates)
@@ -794,7 +794,7 @@ namespace MiNET.Worlds
 			if (block.LightLevel > 0)
 			{
 				block.BlockLight = (byte) block.LightLevel;
-				chunk.SetBlockLight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
+				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
 				BlockLightCalculations.Calculate(this, block);
 			}
 
@@ -810,7 +810,7 @@ namespace MiNET.Worlds
 		public void SetBlockLight(Block block)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
-			chunk.SetBlockLight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.BlockLight);
+			chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0x7f, block.Coordinates.Z & 0x0f, block.BlockLight);
 		}
 
 		public void SetSkyLight(Block block)

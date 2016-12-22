@@ -704,7 +704,7 @@ namespace MiNET.Worlds
 				{
 					for (byte y = 127; y > 0; y--)
 					{
-						if (chunk.GetSkyLight(x, y, z) == 0)
+						if (chunk.GetSkylight(x, y, z) == 0)
 						{
 							chunk.SetBlock(x, y, z, 41);
 						}

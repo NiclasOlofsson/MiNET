@@ -455,7 +455,7 @@ namespace MiNET.Worlds
 						var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
 						if (block.LightLevel > 0)
 						{
-							block.Coordinates = new BlockCoordinates(x + (16 * block.Coordinates.X), yi, z + (16 * block.Coordinates.Z));
+							block.Coordinates = new BlockCoordinates(x + (16 * chunk.x), yi, z + (16 * chunk.z));
 							LightSources.Enqueue(block);
 						}
 

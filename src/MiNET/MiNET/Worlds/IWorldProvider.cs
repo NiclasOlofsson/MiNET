@@ -15,6 +15,6 @@ namespace MiNET.Worlds
 
 		long GetTime();
 
-		void SaveChunks();
+		int SaveChunks();
 	}
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.BlockEntities;
@@ -11,13 +12,14 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (FlatlandWorldProvider));
 
-		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
+		public readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 
 		public bool IsCaching { get; private set; }
 
 		public FlatlandWorldProvider()
 		{
 			IsCaching = true;
+			_spawnPoint = new Vector3(0, 0, 0);
 		}
 
 		public void Initialize()
@@ -25,6 +27,7 @@ namespace MiNET.Worlds
 		}
 
 		Random rand = new Random();
+		private Vector3 _spawnPoint;
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
@@ -42,6 +45,9 @@ namespace MiNET.Worlds
 				//chunk.biomeId = ArrayOf<byte>.Create(256, (byte) rand.Next(0, 37));
 
 				int h = PopulateChunk(chunk);
+
+				//BuildStructures(chunk);
+
 
 				//chunk.SetBlock(0, h + 1, 0, 7);
 				//chunk.SetBlock(1, h + 1, 0, 41);
@@ -112,6 +118,10 @@ namespace MiNET.Worlds
 				//	}
 				//}
 
+				chunk.RecalcHeight();
+
+				_spawnPoint.Y = h + 2;
+
 				// Cache
 				chunk.GetBatch();
 				_chunkCache[chunkCoordinates] = chunk;
@@ -120,9 +130,62 @@ namespace MiNET.Worlds
 			}
 		}
 
+		private void BuildStructures(ChunkColumn chunk)
+		{
+			if (chunk.x == 0 && chunk.z == 1)
+			{
+				for (int x = 3; x < 6; x++)
+				{
+					for (int y = 4; y < 7; y++)
+					{
+						if (x == 4 && y < 6) continue;
+
+						for (int z = 1; z < 15; z++)
+						{
+							chunk.SetBlock(x, y, z, 3);
+						}
+					}
+				}
+				chunk.SetBlock(4, 4, 14, 3);
+				chunk.SetBlock(4, 5, 14, 3);
+			}
+
+			//if (chunk.x == 0 && chunk.z == 0)
+			//{
+			//	for (int x = 1; x < 16; x++)
+			//	{
+			//		for (int z = 0; z < 16; z++)
+			//		{
+			//			chunk.SetBlock(x, 8, z, 3);
+			//		}
+			//	}
+			//}
+			//if (chunk.x == 1 && chunk.z == 0)
+			//{
+			//	for (int x = 0; x < 15; x++)
+			//	{
+			//		for (int z = 0; z < 16; z++)
+			//		{
+			//			chunk.SetBlock(x, 8, z, 3);
+			//		}
+			//	}
+			//}
+
+			if (chunk.x == -1 && chunk.z == 0)
+			{
+				for (int x = 1; x < 15; x++)
+				{
+					for (int z = 1; z < 15; z++)
+					{
+						chunk.SetBlock(x, 8, z, 3);
+					}
+				}
+			}
+		}
+
 		public Vector3 GetSpawnPoint()
 		{
-			return new Vector3(0, 12 + 16, 0);
+			return _spawnPoint;
 		}
 
 		public long GetTime()
@@ -187,9 +250,16 @@ namespace MiNET.Worlds
 			return h;
 		}
 
-		public void SaveChunks()
+		public int SaveChunks()
 		{
+			return 0;
 		}
+
+		public ChunkColumn[] GetCachedChunks()
+		{
+			return _chunkCache.Values.Where(column => column != null).ToArray();
+		}
+
 
 		private Sign GetBlockEntity(int x, int y, int z)
 		{

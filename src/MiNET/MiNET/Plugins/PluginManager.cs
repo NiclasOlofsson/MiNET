@@ -139,6 +139,7 @@ namespace MiNET.Plugins
 
 		private void DebugPrintCommands()
 		{
+			return;
 			if (!Log.IsDebugEnabled) return;
 
 			var settings = new JsonSerializerSettings();
@@ -335,7 +336,7 @@ namespace MiNET.Plugins
 				value = "rawtext";
 			else
 			{
-				Console.Write("No mapping for type: " + parameter.PropertyType.ToString());
+				Log.Warn("No property type mapping for type: " + parameter.PropertyType.ToString());
 			}
 
 			return value;
@@ -365,9 +366,14 @@ namespace MiNET.Plugins
 			{
 				value = "stringenum";
 			}
+			else if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+			{
+				// Custom serialization
+				value = "string";
+			}
 			else
 			{
-				Console.Write("No mapping for type: " + parameter.ParameterType.ToString());
+				Log.Warn("No parameter type mapping for type: " + parameter.ParameterType.ToString());
 			}
 
 			return value;
@@ -492,11 +498,22 @@ namespace MiNET.Plugins
 
 			try
 			{
-				var command = Commands[commandName];
-				var overload = command.Versions.First().Overloads[commandOverload];
+				Command command = null;
+				if (Commands.ContainsKey(commandName))
+				{
+					command = Commands[commandName];
+				}
+				else
+				{
+					command = Commands.Values.FirstOrDefault(cmd => cmd.Versions.Any(version => version.Aliases != null && version.Aliases.Any(s => s == commandName)));
+				}
+
+				if (command == null) return null;
+
+				Overload overload = command.Versions.First().Overloads[commandOverload];
 
 				UserPermission requiredPermission = (UserPermission) Enum.Parse(typeof (UserPermission), command.Versions.First().Permission, true);
-				if (player.PermissionLevel < requiredPermission) 
+				if (player.PermissionLevel < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.PermissionLevel}");
 					return null;
@@ -571,8 +588,19 @@ namespace MiNET.Plugins
 
 				if (parameter.IsOptional && args.Length <= i)
 				{
-					Log.Warn($"Break on optional where args.Len={args.Length} and i={i}");
-					break;
+					objectArgs[k] = parameter.DefaultValue;
+					continue;
+				}
+
+				if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+				{
+					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+					IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
+					defaultValue?.Deserialize(player, args[i]);
+
+					objectArgs[k] = defaultValue;
+
+					continue;
 				}
 
 				if (parameter.ParameterType.BaseType == typeof (EnumBase))
@@ -663,20 +691,40 @@ namespace MiNET.Plugins
 
 			object result = null;
 
-			object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
-			if (pluginInstance == null) return null;
-
-			if (method.IsStatic)
+			try
 			{
-				result = method.Invoke(null, objectArgs);
+				object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
+				if (pluginInstance == null) return null;
+
+				ICommandFilter filter = pluginInstance as ICommandFilter;
+				if (filter != null)
+				{
+					filter.OnCommandExecuting(player);
+				}
+
+				if (method.IsStatic)
+				{
+					result = method.Invoke(null, objectArgs);
+				}
+				else
+				{
+					if (method.DeclaringType == null) return false;
+
+					Plugin.CurrentPlayer = player; // Setting thread local for call
+					result = method.Invoke(pluginInstance, objectArgs);
+					Plugin.CurrentPlayer = null; // Done with thread local, we using pool to make sure it's reset.
+				}
+
+				if (filter != null)
+				{
+					filter.OnCommandExecuted();
+				}
+
 			}
-			else
+			catch (Exception e)
 			{
-				if (method.DeclaringType == null) return false;
-
-				result = method.Invoke(pluginInstance, objectArgs);
+				Log.Error($"Error while executing command {method}", e);
 			}
-
 			return result;
 		}
 

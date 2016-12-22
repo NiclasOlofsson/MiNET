@@ -269,6 +269,13 @@ namespace MiNET
 
 			Log.DebugFormat("HandleAnimate Action: {0}", message.actionId);
 
+			var itemInHand = Inventory.GetItemInHand();
+			if (itemInHand != null)
+			{
+				bool isHandled = itemInHand.Animate(Level, this);
+				if (isHandled) return; // Handled, return
+			}
+
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.entityId = EntityId;
 			msg.actionId = message.actionId;
@@ -588,7 +595,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 
-			ChunkRadius = 5;
+			if (ChunkRadius == -1) ChunkRadius = 5;
 
 			SendChunkRadiusUpdate();
 
@@ -965,8 +972,7 @@ namespace MiNET
 		private void SendChunkRadiusUpdate()
 		{
 			McpeChunkRadiusUpdate package = McpeChunkRadiusUpdate.CreateObject();
-			//package.chunkRadius = ChunkRadius;
-			package.chunkRadius = 8;
+			package.chunkRadius = ChunkRadius;
 
 			SendPackage(package);
 		}
@@ -1087,6 +1093,7 @@ namespace MiNET
 
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
+
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			bool isOnGround = IsOnGround;
@@ -1396,10 +1403,12 @@ namespace MiNET
 				switch (message.windowId)
 				{
 					case 0:
-						Inventory.Slots[message.slot] = itemStack;
+						Inventory.UpdateInventorySlot(message.slot, itemStack);
+						//Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x79:
-						Inventory.Slots[message.slot] = itemStack;
+						Inventory.UpdateInventorySlot(message.slot, itemStack);
+						//Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x78:
 
@@ -1930,7 +1939,7 @@ namespace MiNET
 			}
 		}
 
-		private void ForcedSendChunks(Action postAction = null)
+		public void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
 			try

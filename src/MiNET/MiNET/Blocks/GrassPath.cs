@@ -8,6 +8,7 @@ namespace MiNET.Blocks
 		{
 			BlastResistance = 3.25f;
 			Hardness = 0.6f;
+		    IsTransparent = true; // Partial
 		}
 
 		public override Item[] GetDrops()

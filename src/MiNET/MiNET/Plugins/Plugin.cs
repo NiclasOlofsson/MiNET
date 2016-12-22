@@ -1,8 +1,12 @@
-﻿namespace MiNET.Plugins
+﻿using System;
+
+namespace MiNET.Plugins
 {
 	public abstract class Plugin : IPlugin
 	{
 		protected PluginContext Context { get; set; }
+
+		[ThreadStatic] public static Player CurrentPlayer = null;
 
 		public void OnEnable(PluginContext context)
 		{

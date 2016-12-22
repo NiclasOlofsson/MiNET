@@ -1451,9 +1451,10 @@ namespace MiNET.Net
 			if (_isPermanent) return;
 			if (!IsPooled) return;
 
-			if (Interlocked.Decrement(ref _referenceCounter) > 0) return;
+		    var counter = Interlocked.Decrement(ref _referenceCounter);
+		    if (counter > 0) return;
 
-			if (_referenceCounter < 0)
+			if (counter < 0)
 			{
 				Log.Error($"Pooling error. Added pooled object too many times. 0x{Id:x2} {GetType().Name}, IsPooled={IsPooled}, IsPooled={_isPermanent}, Refs={_referenceCounter}");
 				return;
@@ -1464,6 +1465,11 @@ namespace MiNET.Net
 			_isPooled = false;
 
 			Pool.PutObject((T) this);
+		}
+
+		public static int PoolSize()
+		{
+			return Pool.Size;
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace MiNET.Blocks
 			BlastResistance = 15;
 			Hardness = 2;
 			IsFlammable = true;
+			IsTransparent = true;
 		}
 
 	    public override BoundingBox GetBoundingBox()

@@ -93,6 +93,11 @@ namespace MiNET.Plugins
 
 		public int Z { get; set; }
 		public bool ZRelative { get; set; }
+
+		public override string ToString()
+		{
+			return $"X: {X}, XRelative: {XRelative}, Y: {Y}, YRelative: {YRelative}, Z: {Z}, ZRelative: {ZRelative}";
+		}
 	}
 
 	public class Target

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -31,6 +32,8 @@ namespace MiNET.Worlds
 
 		private byte[] _cache;
 		public bool isDirty;
+		public bool IsLoaded = false;
+		public bool NeedSave = true;
 		private McpeBatch _cachedBatch = null;
 		private object _cacheSync = new object();
 
@@ -39,6 +42,13 @@ namespace MiNET.Worlds
 			isDirty = false;
 			//BiomeUtils utils = new BiomeUtils();
 			//utils.PrecomputeBiomeColors();
+		}
+
+		private void SetDirty()
+		{
+			_cache = null;
+			isDirty = true;
+			NeedSave = true;
 		}
 
 		public byte GetBlock(int bx, int by, int bz)
@@ -70,6 +80,7 @@ namespace MiNET.Worlds
 		public void SetBiome(int bx, int bz, byte biome)
 		{
 			biomeId[(bz << 4) + (bx)] = biome;
+			SetDirty();
 		}
 
 		public byte GetBiome(int bx, int bz)
@@ -116,7 +127,7 @@ namespace MiNET.Worlds
 			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
 		}
 
-		public void SetSkylight(int bx, int by, int bz, byte data)
+		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
@@ -137,15 +148,13 @@ namespace MiNET.Worlds
 		{
 			NbtCompound blockEntity = (NbtCompound) nbt.Clone();
 			BlockEntities[coordinates] = blockEntity;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public void RemoveBlockEntity(BlockCoordinates coordinates)
 		{
 			BlockEntities.Remove(coordinates);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 
@@ -237,12 +246,26 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					for (byte y = 127; y > 0; y--)
+					bool isInLight = true;
+
+					for (int y = 127; y >= 0; y--)
 					{
-						if (GetBlock(x, y, z) != 0)
+						if (isInLight)
 						{
-							SetHeight(x, z, (byte) (y + 1));
-							break;
+							if (GetBlock(x, y, z) != 0)
+							{
+								SetHeight(x, z, (byte)(y + 1));
+								SetSkyLight(x, y, z, 0);
+								isInLight = false;
+							}
+							else
+							{
+								SetSkyLight(x, y, z, 15);
+							}
+						}
+						else
+						{
+							SetSkyLight(x, y, z, 0);
 						}
 					}
 				}

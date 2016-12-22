@@ -9,11 +9,14 @@ namespace MiNET.Blocks
 		protected BlockStairs(byte id) : base(id)
 		{
 			FuelEfficiency = 15;
+			IsTransparent = true;
 		}
 
 		// 000 001 010 011 100
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			if (player == null) return false;
+
 			byte direction = player.GetDirection();
 
 			byte upper = (byte) ((faceCoords.Y > 0.5 && face != BlockFace.Up) || face == BlockFace.Down ? 0x04 : 0x00);

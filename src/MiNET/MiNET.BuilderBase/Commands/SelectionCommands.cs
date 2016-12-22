@@ -84,7 +84,7 @@ namespace MiNET.BuilderBase.Commands
 			ChunkCoordinates chunk = new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4);
 
 			RegionSelector selector = RegionSelector.GetSelector(player);
-			selector.Select(new BlockCoordinates(chunk.X << 4, 0, chunk.Z << 4), new BlockCoordinates(16 + (chunk.X << 4), 127, 16 + (chunk.Z << 4)));
+			selector.Select(new BlockCoordinates(chunk.X << 4, 0, chunk.Z << 4), new BlockCoordinates(16 + (chunk.X << 4), 255, 16 + (chunk.Z << 4)));
 		}
 
 		[Command(Description = "Expand the selection area")]
@@ -100,7 +100,7 @@ namespace MiNET.BuilderBase.Commands
 				}
 
 				var selector = RegionSelector.GetSelector(player);
-				selector.Select(new BlockCoordinates(selector.Position1.X, 0, selector.Position1.Z), new BlockCoordinates(selector.Position2.X, 127, selector.Position2.Z));
+				selector.Select(new BlockCoordinates(selector.Position1.X, 0, selector.Position1.Z), new BlockCoordinates(selector.Position2.X, 255, selector.Position2.Z));
 			}
 		}
 

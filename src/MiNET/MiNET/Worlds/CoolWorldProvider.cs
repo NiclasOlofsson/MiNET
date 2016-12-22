@@ -167,7 +167,7 @@ namespace MiNET.Worlds
 
 					maxHeight = Math.Max(1, maxHeight);
 
-					for (int y = 0; y < maxHeight && y < 128; y++)
+					for (int y = 0; y < maxHeight && y < 255; y++)
 					{
 						if (y <= 1)
 						{
@@ -192,7 +192,7 @@ namespace MiNET.Worlds
 					chunk.SetBlock(x, bottomHeight - 1, z, (byte)Material.Dirt);
 					chunk.SetBlock(x, bottomHeight - 2, z, (byte)Material.Dirt);
 
-					for (int y = bottomHeight + 1; y > bottomHeight && y < maxHeight && y < 127; y++)
+					for (int y = bottomHeight + 1; y > bottomHeight && y < maxHeight && y < 255; y++)
 					{
 						//the overhang
 						byte thisblock = chunk.GetBlock(x, y, z);
@@ -228,7 +228,7 @@ namespace MiNET.Worlds
 						}
 					}
 
-					for (int y = 0; y < 127; y++)
+					for (int y = 0; y < 255; y++)
 					{
 						byte thisblock = chunk.GetBlock(x, y, z);
 						byte blockabove = chunk.GetBlock(x, y + 1, z);

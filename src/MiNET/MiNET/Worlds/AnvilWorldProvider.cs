@@ -494,7 +494,7 @@ namespace MiNET.Worlds
 		{
 			var spawnPoint = new Vector3(LevelInfo.SpawnX, LevelInfo.SpawnY + 2 /* + WaterOffsetY*/, LevelInfo.SpawnZ);
 
-			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
+			if (spawnPoint.Y > 256) spawnPoint.Y = 255;
 
 			return spawnPoint;
 		}
@@ -512,7 +512,7 @@ namespace MiNET.Worlds
 			else
 				return;
 
-			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 127;
+			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 256;
 
 			NbtFile file = new NbtFile();
 			NbtTag dataTag = file.RootTag["Data"] = new NbtCompound("Data");

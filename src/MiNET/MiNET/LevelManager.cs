@@ -73,7 +73,7 @@ namespace MiNET
 							RecalculateLight(level, wp);
 
 							var chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*128} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
+							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
 						}
 					}
 

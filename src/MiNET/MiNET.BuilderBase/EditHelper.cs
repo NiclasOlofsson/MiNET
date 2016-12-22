@@ -49,9 +49,9 @@ namespace MiNET.BuilderBase
 				BlockCoordinates coord = new BlockCoordinates(nextPos);
 				Block block = level.GetBlock(coord);
 
-				if (!limitHeight && coord.Y >= 127) block = new Air {Coordinates = block.Coordinates};
+				if (!limitHeight && coord.Y >= 255) block = new Air {Coordinates = block.Coordinates};
 
-				bool lookingDownFromHeaven = (origin.Y > coord.Y && coord.Y > 127);
+				bool lookingDownFromHeaven = (origin.Y > coord.Y && coord.Y > 255);
 				bool lookingUpAtHeaven = (origin.Y < coord.Y);
 
 				bool collided = !lookingDownFromHeaven && block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
@@ -505,9 +505,9 @@ namespace MiNET.BuilderBase
 			{
 				pos = new Vector3(pos.X, 0, pos.Z);
 			}
-			else if (pos.Y + height - 1 > 127)
+			else if (pos.Y + height - 1 > 255)
 			{
-				height = (int) (127 - pos.Y + 1);
+				height = (int) (255 - pos.Y + 1);
 			}
 
 			double invRadiusX = 1/radiusX;
@@ -599,7 +599,7 @@ namespace MiNET.BuilderBase
 				for (int z = min.Z; z <= max.Z; z++)
 				{
 					int depth = 0;
-					for (int y = Math.Min(127, max.Y); y >= min.Y; y--)
+					for (int y = Math.Min(255, max.Y); y >= min.Y; y--)
 					{
 						var coordinates = new BlockCoordinates(x, y, z);
 						if (level.IsAir(coordinates) || !level.GetBlock(coordinates).IsSolid)

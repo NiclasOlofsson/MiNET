@@ -7,14 +7,12 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
 using SharpAvi;
 using SharpAvi.Output;
-using Timer = System.Timers.Timer;
 
 namespace MiNET.Worlds
 {
@@ -52,7 +50,7 @@ namespace MiNET.Worlds
 			{
 				pair.RecalcHeight();
 			}
-			Log.Debug($"Recalc height for {_chunkCount} chunks, {_chunkCount*16*16*128} blocks. Time {sw.ElapsedMilliseconds}ms");
+			Log.Debug($"Recalc height for {_chunkCount} chunks, {_chunkCount*16*16*256} blocks. Time {sw.ElapsedMilliseconds}ms");
 
 
 			SkyLightCalculations calculator = new SkyLightCalculations(Config.GetProperty("CalculateLights.MakeMovie", false));
@@ -104,7 +102,7 @@ namespace MiNET.Worlds
 
 			Task.WaitAll(t0, t1, t2, t3, t4, t5);
 
-			Log.Debug($"Recalc skylight for {_chunkCount}({_chunkCount}) chunks, {_chunkCount*16*16*128 :N0} blocks. Time {sw.ElapsedMilliseconds}ms");
+			Log.Debug($"Recalc skylight for {_chunkCount}({_chunkCount}) chunks, {_chunkCount*16*16*256:N0} blocks. Time {sw.ElapsedMilliseconds}ms");
 
 			Task.Run(() =>
 			{
@@ -231,7 +229,7 @@ namespace MiNET.Worlds
 			byte currentSkyLight = level.GetSkyLight(coordinates);
 
 			byte maxSkyLight = currentSkyLight;
-			if (coordinates.Y < 127)
+			if (coordinates.Y < 255)
 			{
 				var up = coordinates + BlockCoordinates.Up;
 				maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, lightBfsQueue, up, currentSkyLight, up: true));
@@ -440,7 +438,7 @@ namespace MiNET.Worlds
 
 						using (Graphics g = Graphics.FromImage(bitmap))
 						{
-							g.DrawString($"MiNET skylight calculation\nTime (ms): {fileId - StartTimeInMilliseconds :N0}\n{_chunkCount :N0} chunks with {(_chunkCount*16*16*128) :N0} blocks\n{visits.Sum(pair => pair.Value):N0} visits", new Font("Arial", 8), new SolidBrush(Color.White), 1, 0); // requires font, brush etc
+							g.DrawString($"MiNET skylight calculation\nTime (ms): {fileId - StartTimeInMilliseconds :N0}\n{_chunkCount :N0} chunks with {(_chunkCount*16*16*256) :N0} blocks\n{visits.Sum(pair => pair.Value):N0} visits", new Font("Arial", 8), new SolidBrush(Color.White), 1, 0); // requires font, brush etc
 						}
 
 						//Directory.CreateDirectory(@"D:\Temp\Light\");
@@ -657,7 +655,7 @@ namespace MiNET.Worlds
 		private static int GetHigestSurrounding(int x, int z, ChunkColumn chunk, Level level)
 		{
 			int h = chunk.GetHeight(x, z);
-			if (h == 127) return h;
+			if (h == 255) return h;
 
 			if (x == 0 || x == 15 || z == 0 || z == 15)
 			{
@@ -668,7 +666,7 @@ namespace MiNET.Worlds
 				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.East));
 				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.North));
 				h = Math.Max(h, level.GetHeight(coords + BlockCoordinates.South));
-				if (h > 127) h = 127;
+				if (h > 255) h = 255;
 				if (h < 0) h = 0;
 				return h;
 			}
@@ -702,7 +700,7 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					for (byte y = 127; y > 0; y--)
+					for (byte y = 255; y > 0; y--)
 					{
 						if (chunk.GetSkylight(x, y, z) == 0)
 						{

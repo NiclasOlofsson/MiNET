@@ -177,7 +177,7 @@ namespace MiNET.BuilderBase
 						var maxX = Math.Max(box.Min.X, box.Max.X) + 1;
 
 						var minY = Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
-						var maxY = Math.Min(127, Math.Max(box.Min.Y, box.Max.Y)) + 1;
+						var maxY = Math.Min(255, Math.Max(box.Min.Y, box.Max.Y)) + 1;
 
 						var minZ = Math.Min(box.Min.Z, box.Max.Z);
 						var maxZ = Math.Max(box.Min.Z, box.Max.Z) + 1;

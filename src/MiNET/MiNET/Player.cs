@@ -683,9 +683,9 @@ namespace MiNET
 			SetPosition(SpawnPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;
+			if(!_haveJoined)
+				OnPlayerJoin(new PlayerEventArgs(this));
 			_haveJoined = true;
-
-			OnPlayerJoin(new PlayerEventArgs(this));
 		}
 
 		public virtual void HandleMcpeRespawn()

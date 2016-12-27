@@ -255,6 +255,8 @@ namespace MiNET.Blocks
 			else if (blockId == 164) block = new DarkOakStairs();
 			else if (blockId == 165) block = new Slime();
 			else if (blockId == 167) block = new IronTrapdoor();
+			else if (blockId == 168) block = new Prismarine();
+			else if (blockId == 169) block = new SeaLantern();
 			else if (blockId == 170) block = new HayBlock();
 			else if (blockId == 171) block = new Carpet();
 			else if (blockId == 172) block = new HardenedClay();
@@ -279,6 +281,8 @@ namespace MiNET.Blocks
 			else if (blockId == 197) block = new DarkOakDoor();
 			else if (blockId == 198) block = new GrassPath();
 			else if (blockId == 199) block = new ItemFrame();
+			else if (blockId == 201) block = new PurPur();
+			else if (blockId == 206) block = new EndBrick();
 			else if (blockId == 243) block = new Podzol();
 			else if (blockId == 244) block = new Beetroot();
 			else if (blockId == 245) block = new Stonecutter();

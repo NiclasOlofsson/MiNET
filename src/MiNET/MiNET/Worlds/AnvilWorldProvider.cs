@@ -55,29 +55,30 @@ namespace MiNET.Worlds
 
 			Convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
 			{
-				{23, air}, // minecraft:dispenser	=> Air
-				{29, air}, // minecraft:sticky_piston	=> Air
-				{33, air}, // minecraft:piston		=> Air
-				{34, air}, // minecraft:piston_head		=> Air
-				{36, air}, // minecraft:piston_extension		=> Air
+				//{23, air}, // minecraft:dispenser	=> Air
+				//{29, air}, // minecraft:sticky_piston	=> Air
+				//{33, air}, // minecraft:piston		=> Air
+				//{34, air}, // minecraft:piston_head		=> Air
+				{36, new NoDataMapper(250)}, // minecraft:piston_extension		=> MovingBlock
 				{84, air}, // minecraft:jukebox		=> Air
 				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
 				//{90, air}, // Nether Portal	=> Air
-				{93, air}, // minecraft:unpowered_repeater	=> Air
-				{94, air}, // minecraft:powered_repeater	=> Air
+				//{93, air}, // minecraft:unpowered_repeater	=> Air
+				//{94, air}, // minecraft:powered_repeater	=> Air
 				{95, new NoDataMapper(20)}, // minecraft:stained_glass	=> Glass
 				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
+				{167, new Mapper(167, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, //Fix iron_trapdoor
 				//{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
 				//{118, air}, // minecraft:cauldron		=> Air
-				{119, air}, // minecraft:end_portal		=> Air
-				{122, air}, // Dragon Egg		=> Air
+				//{119, air}, // minecraft:end_portal		=> Air
+				//{122, air}, // Dragon Egg		=> Air
 				//{123, new NoDataMapper(122)}, // Redstone Lamp O	=> Glowstone
 				//{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
 				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
 				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
 				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
 				{137, air}, // Command Block	=> Air
-				{138, air}, // Beacon		=> Air
+				//{138, air}, // Beacon		=> Air
 				{
 					143, new Mapper(143, delegate(int i, byte b)
 					{
@@ -122,16 +123,18 @@ namespace MiNET.Worlds
 						return 0;
 					})
 				}, // Trapdoor Fix
-				{149, air}, // minecraft:unpowered_comparator		=> Air
-				{150, air}, // minecraft:powered_comparator		=> Air
+
+				//{149, air}, // minecraft:unpowered_comparator		=> Air
+				//{150, air}, // minecraft:powered_comparator		=> Air
+
 				//{154, air}, // minecraft:hopper		=> Air
 				{157, new NoDataMapper(126)}, // minecraft:activator_rail	=> minecraft:activator_rail
 				{158, new NoDataMapper(125)}, // minecraft:dropper		=> Air
 				{160, new NoDataMapper(102)}, // minecraft:stained_glass_pane	=> Glass Pane
 				//{165, air}, // Slime Block		=> Air
 				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
-				{168, air}, // minecraft:prismarine		=> Air
-				{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
+				//{168, air}, // minecraft:prismarine		=> Air
+				//{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
 				{176, air}, // minecraft:standing_banner		=> Air
 				{177, air}, // minecraft:wall_banner		=> Air
 				// 179-182 Need mapping (Red Sandstone)
@@ -145,7 +148,9 @@ namespace MiNET.Worlds
 				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
 				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
-				{198, air}, // minecraft:end_rod		=> Air
+				{198, new NoDataMapper(208)}, // minecraft:end_rod	=> EndRod
+				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
+				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
 				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
 			};
 		}

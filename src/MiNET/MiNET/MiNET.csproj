@@ -119,6 +119,7 @@
     <Compile Include="Blocks\DarkOakDoor.cs" />
     <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
     <Compile Include="Blocks\Dropper.cs" />
+    <Compile Include="Blocks\EndBrick.cs" />
     <Compile Include="Blocks\JungleDoor.cs" />
     <Compile Include="Blocks\LitRedstoneOre.cs" />
     <Compile Include="Blocks\MelonStem.cs" />
@@ -126,10 +127,13 @@
     <Compile Include="Blocks\Piston.cs" />
     <Compile Include="Blocks\PistonHead.cs" />
     <Compile Include="Blocks\PoweredComparator.cs" />
+    <Compile Include="Blocks\Prismarine.cs" />
+    <Compile Include="Blocks\PurPur.cs" />
     <Compile Include="Blocks\PumpkinStem.cs" />
     <Compile Include="Blocks\RedSandstone.cs" />
     <Compile Include="Blocks\RedSandstoneSlab.cs" />
     <Compile Include="Blocks\RedSandstoneStairs.cs" />
+    <Compile Include="Blocks\SeaLantern.cs" />
     <Compile Include="Blocks\Slime.cs" />
     <Compile Include="Blocks\SpruceDoor.cs" />
     <Compile Include="Blocks\StickyPiston.cs" />

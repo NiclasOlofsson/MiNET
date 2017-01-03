@@ -23,10 +23,16 @@ namespace MiNET.Utils
 			Z = v.Z;
 		}
 
+		public ChunkCoordinates(BlockCoordinates coordinates)
+		{
+			X = coordinates.X >> 4;
+			Z = coordinates.Z >> 4;
+		}
+
 		public ChunkCoordinates(PlayerLocation location)
 		{
-			X = ((int)Math.Floor(location.X)) >> 4;
-			Z = ((int)Math.Floor(location.Z)) >> 4;
+			X = ((int) Math.Floor(location.X)) >> 4;
+			Z = ((int) Math.Floor(location.Z)) >> 4;
 		}
 
 		/// <summary>

@@ -11,6 +11,7 @@ namespace MiNET.Net
 		private ConcurrentQueue<T> _objects;
 		//private ConcurrentBag<T> _objects;
 		private Func<T> _objectGenerator;
+		public int Size => _objects.Count;
 
 		public void FillPool(int count)
 		{

@@ -263,6 +263,10 @@ namespace MiNET
 		}
 
 
+		public virtual void HandleMcpePlayerFall(McpePlayerFall message)
+		{
+		}
+
 		/// <summary>
 		///     Handles an animate packet.
 		/// </summary>
@@ -272,6 +276,13 @@ namespace MiNET
 			if (Level == null) return;
 
 			Log.DebugFormat("HandleAnimate Action: {0}", message.actionId);
+
+			var itemInHand = Inventory.GetItemInHand();
+			if (itemInHand != null)
+			{
+				bool isHandled = itemInHand.Animate(Level, this);
+				if (isHandled) return; // Handled, return
+			}
 
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.entityId = EntityId;
@@ -592,7 +603,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 
-			ChunkRadius = 5;
+			if (ChunkRadius == -1) ChunkRadius = 5;
 
 			SendChunkRadiusUpdate();
 
@@ -969,8 +980,7 @@ namespace MiNET
 		private void SendChunkRadiusUpdate()
 		{
 			McpeChunkRadiusUpdate package = McpeChunkRadiusUpdate.CreateObject();
-			//package.chunkRadius = ChunkRadius;
-			package.chunkRadius = 8;
+			package.chunkRadius = ChunkRadius;
 
 			SendPackage(package);
 		}
@@ -1091,6 +1101,7 @@ namespace MiNET
 
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
+
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			bool isOnGround = IsOnGround;
@@ -1363,6 +1374,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeContainerSetSlot(McpeContainerSetSlot message)
 		{
+			Log.Debug($"Handle slot unknown={message.hotbarslot}, unknown2={message.unknown2}");
 			lock (Inventory)
 			{
 				if (HealthManager.IsDead) return;
@@ -1380,7 +1392,7 @@ namespace MiNET
 				}
 
 				if (Log.IsDebugEnabled)
-					Log.Debug($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} and item: {itemStack}");
+					Log.Debug($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.hotbarslot} and item: {itemStack}");
 
 				if (_openInventory != null)
 				{
@@ -1404,10 +1416,12 @@ namespace MiNET
 				switch (message.windowId)
 				{
 					case 0:
-						Inventory.Slots[message.slot] = itemStack;
+						Inventory.UpdateInventorySlot(message.slot, itemStack);
+						//Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x79:
-						Inventory.Slots[message.slot] = itemStack;
+						Inventory.UpdateInventorySlot(message.slot, itemStack);
+						//Inventory.Slots[message.slot] = itemStack;
 						break;
 					case 0x78:
 
@@ -1787,6 +1801,7 @@ namespace MiNET
 		{
 			Log.DebugFormat("Use item: {0}", message.item);
 			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);
+			Log.DebugFormat("Unknown:  {0}", message.unknown);
 			Log.DebugFormat("face:  {0}", message.face);
 			Log.DebugFormat("Facecoordinates:  {0}", message.facecoordinates);
 			Log.DebugFormat("Slot:  {0}", message.slot);
@@ -1942,7 +1957,7 @@ namespace MiNET
 			}
 		}
 
-		private void ForcedSendChunks(Action postAction = null)
+		public void ForcedSendChunks(Action postAction = null)
 		{
 			Monitor.Enter(_sendChunkSync);
 			try

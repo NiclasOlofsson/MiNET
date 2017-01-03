@@ -8,8 +8,10 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using fNbt;
 using log4net;
+using log4net.Appender;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -33,7 +35,7 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
-		private static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
+		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
 		public IWorldProvider MissingChunkProvider { get; set; }
 
@@ -53,29 +55,30 @@ namespace MiNET.Worlds
 
 			Convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
 			{
-				{23, air}, // minecraft:dispenser	=> Air
-				{29, air}, // minecraft:sticky_piston	=> Air
-				{33, air}, // minecraft:piston		=> Air
-				{34, air}, // minecraft:piston_head		=> Air
-				{36, air}, // minecraft:piston_extension		=> Air
+				//{23, air}, // minecraft:dispenser	=> Air
+				//{29, air}, // minecraft:sticky_piston	=> Air
+				//{33, air}, // minecraft:piston		=> Air
+				//{34, air}, // minecraft:piston_head		=> Air
+				{36, new NoDataMapper(250)}, // minecraft:piston_extension		=> MovingBlock
 				{84, air}, // minecraft:jukebox		=> Air
 				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
 				//{90, air}, // Nether Portal	=> Air
-				{93, air}, // minecraft:unpowered_repeater	=> Air
-				{94, air}, // minecraft:powered_repeater	=> Air
+				//{93, air}, // minecraft:unpowered_repeater	=> Air
+				//{94, air}, // minecraft:powered_repeater	=> Air
 				{95, new NoDataMapper(20)}, // minecraft:stained_glass	=> Glass
 				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
+				{167, new Mapper(167, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, //Fix iron_trapdoor
 				//{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
 				//{118, air}, // minecraft:cauldron		=> Air
-				{119, air}, // minecraft:end_portal		=> Air
-				{122, air}, // Dragon Egg		=> Air
+				//{119, air}, // minecraft:end_portal		=> Air
+				//{122, air}, // Dragon Egg		=> Air
 				//{123, new NoDataMapper(122)}, // Redstone Lamp O	=> Glowstone
 				//{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
 				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
 				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
 				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
 				{137, air}, // Command Block	=> Air
-				{138, air}, // Beacon		=> Air
+				//{138, air}, // Beacon		=> Air
 				{
 					143, new Mapper(143, delegate(int i, byte b)
 					{
@@ -120,16 +123,18 @@ namespace MiNET.Worlds
 						return 0;
 					})
 				}, // Trapdoor Fix
-				{149, air}, // minecraft:unpowered_comparator		=> Air
-				{150, air}, // minecraft:powered_comparator		=> Air
+
+				//{149, air}, // minecraft:unpowered_comparator		=> Air
+				//{150, air}, // minecraft:powered_comparator		=> Air
+
 				//{154, air}, // minecraft:hopper		=> Air
 				{157, new NoDataMapper(126)}, // minecraft:activator_rail	=> minecraft:activator_rail
 				{158, new NoDataMapper(125)}, // minecraft:dropper		=> Air
 				{160, new NoDataMapper(102)}, // minecraft:stained_glass_pane	=> Glass Pane
 				//{165, air}, // Slime Block		=> Air
 				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
-				{168, air}, // minecraft:prismarine		=> Air
-				{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
+				//{168, air}, // minecraft:prismarine		=> Air
+				//{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
 				{176, air}, // minecraft:standing_banner		=> Air
 				{177, air}, // minecraft:wall_banner		=> Air
 				// 179-182 Need mapping (Red Sandstone)
@@ -143,7 +148,9 @@ namespace MiNET.Worlds
 				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
 				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
-				{198, air}, // minecraft:end_rod		=> Air
+				{198, new NoDataMapper(208)}, // minecraft:end_rod	=> EndRod
+				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
+				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
 				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
 			};
 		}
@@ -201,28 +208,19 @@ namespace MiNET.Worlds
 
 		public ChunkColumn[] GetCachedChunks()
 		{
-			lock (_chunkCache)
-			{
-				return _chunkCache.Values.Where(column => column != null).ToArray();
-			}
+			return _chunkCache.Values.Where(column => column != null).ToArray();
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-			lock (_chunkCache)
-			{
-				ChunkColumn cachedChunk;
-				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
-
-				ChunkColumn chunk = GetChunk(chunkCoordinates, BasePath, MissingChunkProvider, WaterOffsetY);
-
-				_chunkCache[chunkCoordinates] = chunk;
-
-				return chunk;
-			}
+			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate
+			// if called in rapid succession. However, for the scenario of the provider, this is highly unlikely.
+			return _chunkCache.GetOrAdd(chunkCoordinates, coordinates => GetChunk(coordinates, BasePath, MissingChunkProvider, WaterOffsetY));
 		}
 
-		public static ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator, int yoffset)
+		public Queue<Block> LightSources { get; set; } = new Queue<Block>();
+
+		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator, int yoffset)
 		{
 			int width = 32;
 			int depth = 32;
@@ -234,7 +232,13 @@ namespace MiNET.Worlds
 
 			if (!File.Exists(filePath))
 			{
-				return generator?.GenerateChunkColumn(coordinates);
+				var chunkColumn = generator?.GenerateChunkColumn(coordinates);
+				if (chunkColumn != null)
+				{
+					chunkColumn.NeedSave = true;
+				}
+
+				return chunkColumn;
 				//return new ChunkColumn
 				//{
 				//	x = coordinates.X,
@@ -261,11 +265,24 @@ namespace MiNET.Worlds
 				Array.Reverse(offsetBuffer);
 				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
 
+				byte[] bytes = BitConverter.GetBytes(offset >> 4);
+				Array.Reverse(bytes);
+				if (offset != 0 && offsetBuffer[0] != bytes[0] && offsetBuffer[1] != bytes[1] && offsetBuffer[2] != bytes[2])
+				{
+					throw new Exception($"Not the same buffer\n{Package.HexDump(offsetBuffer)}\n{Package.HexDump(bytes)}");
+				}
+
 				int length = regionFile.ReadByte();
 
 				if (offset == 0 || length == 0)
 				{
-					return generator?.GenerateChunkColumn(coordinates);
+					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
+					if (chunkColumn != null)
+					{
+						chunkColumn.NeedSave = true;
+					}
+
+					return chunkColumn;
 					//return new ChunkColumn
 					//{
 					//	x = coordinates.X,
@@ -277,6 +294,9 @@ namespace MiNET.Worlds
 				byte[] waste = new byte[4];
 				regionFile.Read(waste, 0, 4);
 				int compressionMode = regionFile.ReadByte();
+
+				if (compressionMode != 0x02) throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode :X2}. " +
+				                                                 $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
 
 				var nbt = new NbtFile();
 				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
@@ -298,86 +318,7 @@ namespace MiNET.Worlds
 				// This will turn into a full chunk column
 				foreach (NbtTag sectionTag in sections)
 				{
-					int sy = sectionTag["Y"].ByteValue*16;
-					byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
-					byte[] data = sectionTag["Data"].ByteArrayValue;
-					NbtTag addTag = sectionTag["Add"];
-					byte[] adddata = new byte[2048];
-					if (addTag != null) adddata = addTag.ByteArrayValue;
-					byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
-					byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
-
-					for (int x = 0; x < 16; x++)
-					{
-						for (int z = 0; z < 16; z++)
-						{
-							for (int y = 0; y < 16; y++)
-							{
-								int yi = sy + y - yoffset;
-								if (yi < 0 || yi >= 256) continue;
-
-								int anvilIndex = y*16*16 + z*16 + x;
-								int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
-
-								// Anvil to PE friendly converstion
-
-								Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
-								if (Convert.ContainsKey(blockId))
-								{
-									dataConverter = Convert[blockId].Item2;
-									blockId = Convert[blockId].Item1;
-								}
-								else
-								{
-									if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
-									{
-										Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
-										//blockId = 57;
-									}
-								}
-
-								chunk.isAllAir = chunk.isAllAir && blockId == 0;
-								if (blockId > 255)
-								{
-									Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
-									blockId = 41;
-								}
-
-								//if (yi == 127 && blockId != 0) blockId = 30;
-								if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
-
-								chunk.SetBlock(x, yi, z, (byte) blockId);
-								byte metadata = Nibble4(data, anvilIndex);
-								metadata = dataConverter(blockId, metadata);
-
-								chunk.SetMetadata(x, yi, z, metadata);
-								chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-								chunk.SetSkylight(x, yi, z, Nibble4(skyLight, anvilIndex));
-
-								var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-								if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
-								{
-									chunk.SetSkylight(x, yi, z, 0xff);
-								}
-
-								if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
-								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
-								else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
-								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
-								{
-									// Dirt Course => (Grass Path)
-									chunk.SetBlock(x, yi, z, 198);
-									chunk.SetMetadata(x, yi, z, 0);
-								}
-								else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
-								{
-									// Dirt Podzol => (Podzol)
-									chunk.SetBlock(x, yi, z, 243);
-									chunk.SetMetadata(x, yi, z, 0);
-								}
-							}
-						}
-					}
+					ReadSection(yoffset, sectionTag, chunk);
 				}
 
 				NbtList entities = dataTag["Entities"] as NbtList;
@@ -438,6 +379,96 @@ namespace MiNET.Worlds
 			}
 		}
 
+		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk)
+		{
+			int sy = sectionTag["Y"].ByteValue*16;
+			byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
+			byte[] data = sectionTag["Data"].ByteArrayValue;
+			NbtTag addTag = sectionTag["Add"];
+			byte[] adddata = new byte[2048];
+			if (addTag != null) adddata = addTag.ByteArrayValue;
+			byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
+			byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
+
+			for (int x = 0; x < 16; x++)
+			{
+				for (int z = 0; z < 16; z++)
+				{
+					for (int y = 0; y < 16; y++)
+					{
+						int yi = sy + y - yoffset;
+						if (yi < 0 || yi >= 256) continue;
+
+						int anvilIndex = y*16*16 + z*16 + x;
+						int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
+
+						// Anvil to PE friendly converstion
+
+						Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
+						if (Convert.ContainsKey(blockId))
+						{
+							dataConverter = Convert[blockId].Item2;
+							blockId = Convert[blockId].Item1;
+						}
+						else
+						{
+							if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
+							{
+								Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
+								//blockId = 57;
+							}
+						}
+
+						chunk.isAllAir = chunk.isAllAir && blockId == 0;
+						if (blockId > 255)
+						{
+							Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
+							blockId = 41;
+						}
+
+						//if (yi == 127 && blockId != 0) blockId = 30;
+						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
+
+						chunk.SetBlock(x, yi, z, (byte) blockId);
+						byte metadata = Nibble4(data, anvilIndex);
+						metadata = dataConverter(blockId, metadata);
+
+						chunk.SetMetadata(x, yi, z, metadata);
+						chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
+						chunk.SetSkyLight(x, yi, z, Nibble4(skyLight, anvilIndex));
+
+								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
+								//{
+								//	chunk.SetSkylight(x, yi, z, 0xff);
+								//}
+
+						if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
+						else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
+						else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
+						else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
+						{
+							// Dirt Course => (Grass Path)
+							chunk.SetBlock(x, yi, z, 198);
+							chunk.SetMetadata(x, yi, z, 0);
+						}
+						else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
+						{
+							// Dirt Podzol => (Podzol)
+							chunk.SetBlock(x, yi, z, 243);
+							chunk.SetMetadata(x, yi, z, 0);
+						}
+						var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
+						if (block.LightLevel > 0)
+						{
+							block.Coordinates = new BlockCoordinates(x + (16 * chunk.x), yi, z + (16 * chunk.z));
+							LightSources.Enqueue(block);
+						}
+
+					}
+				}
+			}
+		}
+
 		private static Regex _regex = new Regex(@"^((\{""extra"":\[)?)""(.*?)""(],""text"":""""})?$");
 
 		private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
@@ -468,29 +499,69 @@ namespace MiNET.Worlds
 		{
 			var spawnPoint = new Vector3(LevelInfo.SpawnX, LevelInfo.SpawnY + 2 /* + WaterOffsetY*/, LevelInfo.SpawnZ);
 
-			if (spawnPoint.Y > 127) spawnPoint.Y = 127;
+			if (spawnPoint.Y > 256) spawnPoint.Y = 255;
 
 			return spawnPoint;
 		}
 
 		public long GetTime()
 		{
-			return LevelInfo.Time;
+			return 6000;
+			//return LevelInfo.Time;
 		}
 
-		public void SaveChunks()
+		public void SaveLevelInfo(LevelInfo level)
 		{
-			lock (_chunkCache)
+			if (!Directory.Exists(BasePath))
+				Directory.CreateDirectory(BasePath);
+			else
+				return;
+
+			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 256;
+
+			NbtFile file = new NbtFile();
+			NbtTag dataTag = file.RootTag["Data"] = new NbtCompound("Data");
+			level.SaveToNbt(dataTag);
+			file.SaveToFile(Path.Combine(BasePath, "level.dat"), NbtCompression.ZLib);
+		}
+
+		public int SaveChunks()
+		{
+			int count = 0;
+			try
 			{
-				foreach (var chunkColumn in _chunkCache)
+				lock (_chunkCache)
 				{
-					if (chunkColumn.Value.isDirty) SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
+					SaveLevelInfo(new LevelInfo());
+
+					foreach (var chunkColumn in _chunkCache)
+					{
+						if (chunkColumn.Value.NeedSave)
+						{
+							SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
+							count++;
+						}
+					}
 				}
 			}
+			catch (Exception e)
+			{
+				Log.Error("saving chunks", e);
+			}
+
+			return count;
 		}
 
 		public static void SaveChunk(ChunkColumn chunk, string basePath, int yoffset)
 		{
+			// WARNING: This method does not consider growing size of the chunks. Needs refactoring to find
+			// free sectors and clear up old ones. It works fine as long as no dynamic data is written
+			// like block entity data (signs etc).
+
+			Log.Debug($"Save chunk X={chunk.x}, Z={chunk.z} to {basePath}");
+
+			chunk.NeedSave = false;
+
 			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
 
 			int width = 32;
@@ -533,13 +604,20 @@ namespace MiNET.Worlds
 				regionFile.Read(offsetBuffer, 0, 3);
 				Array.Reverse(offsetBuffer);
 				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
-
 				int length = regionFile.ReadByte();
 
-				if (offset == 0 || length == 0)
+				// Seriaize NBT to get lenght
+				NbtFile nbt = CreateNbtFromChunkColumn(chunk, yoffset);
+				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
+				int nbtLength = nbtBuf.Length;
+				// Don't write yet, just use the lenght
+
+				if (offset == 0 || length == 0 || nbtLength < length)
 				{
+					if(length != 0) Log.Debug("Creating new sectors for this chunk even tho it existed");
+
 					regionFile.Seek(0, SeekOrigin.End);
-					offset = (int) regionFile.Position;
+					offset = (int) ((int) regionFile.Position & 0xfffffff0);
 
 					regionFile.Seek(tableOffset, SeekOrigin.Begin);
 
@@ -549,12 +627,7 @@ namespace MiNET.Worlds
 					regionFile.WriteByte(1);
 				}
 
-				// Write NBT
-				NbtFile nbt = CreateNbtFromChunkColumn(chunk, yoffset);
-				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
-
-				int lenght = nbtBuf.Length;
-				byte[] lenghtBytes = BitConverter.GetBytes(lenght + 1);
+				byte[] lenghtBytes = BitConverter.GetBytes(nbtLength + 1);
 				Array.Reverse(lenghtBytes);
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
@@ -564,14 +637,14 @@ namespace MiNET.Worlds
 				regionFile.Write(nbtBuf, 0, nbtBuf.Length);
 
 				int reminder;
-				Math.DivRem(lenght + 4, 4096, out reminder);
+				Math.DivRem(nbtLength + 4, 4096, out reminder);
 
 				byte[] padding = new byte[4096 - reminder];
 				if (padding.Length > 0) regionFile.Write(padding, 0, padding.Length);
 			}
 		}
 
-		private static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk, int yoffset)
+		public static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk, int yoffset)
 		{
 			var nbt = new NbtFile();
 

@@ -49,7 +49,7 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			if (message.protocolVersion < 90)
+			if (message.protocolVersion < 100)
 			{
 				Log.Warn($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, client need an upgrade.");
 				_session.Disconnect($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, please upgrade.");
@@ -119,27 +119,29 @@ namespace MiNET
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
-				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
-				defStream2.CopyTo(destination);
-				destination.Position = 0;
-				fNbt.NbtBinaryReader reader = new fNbt.NbtBinaryReader(destination, false);
-
-				try
+				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
 				{
-					var countCertData = reader.ReadInt32();
-					Log.Debug("Count cert: " + countCertData);
-					certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(countCertData));
-					Log.Debug("Decompressed certificateChain " + certificateChain);
+					defStream2.CopyTo(destination);
+					destination.Position = 0;
+					fNbt.NbtBinaryReader reader = new fNbt.NbtBinaryReader(destination, false);
 
-					var countSkinData = reader.ReadInt32();
-					Log.Debug("Count skin: " + countSkinData);
-					skinData = Encoding.UTF8.GetString(reader.ReadBytes(countSkinData));
-					Log.Debug("Decompressed skinData" + skinData);
-				}
-				catch (Exception e)
-				{
-					Log.Error("Parsing login", e);
-					return;
+					try
+					{
+						var countCertData = reader.ReadInt32();
+						Log.Debug("Count cert: " + countCertData);
+						certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(countCertData));
+						Log.Debug("Decompressed certificateChain " + certificateChain);
+
+						var countSkinData = reader.ReadInt32();
+						Log.Debug("Count skin: " + countSkinData);
+						skinData = Encoding.UTF8.GetString(reader.ReadBytes(countSkinData));
+						Log.Debug("Decompressed skinData" + skinData);
+					}
+					catch (Exception e)
+					{
+						Log.Error("Parsing login", e);
+						return;
+					}
 				}
 			}
 
@@ -376,6 +378,10 @@ namespace MiNET
 		}
 
 		public void HandleMcpePlayerAction(McpePlayerAction message)
+		{
+		}
+
+		public void HandleMcpePlayerFall(McpePlayerFall message)
 		{
 		}
 

@@ -163,74 +163,74 @@ namespace MiNET
 			Assert.AreEqual("WesterosCraft", levelFromNbt.LevelName);
 		}
 
-		[Test, Ignore]
-		public void LoadAnvilChunkLoadTest()
-		{
-			int width = 32;
-			int depth = 32;
+		//[Test, Ignore]
+		//public void LoadAnvilChunkLoadTest()
+		//{
+		//	int width = 32;
+		//	int depth = 32;
 
-			int cx = (width*4) + 3;
-			int cz = (depth*25) + 0;
+		//	int cx = (width*4) + 3;
+		//	int cz = (depth*25) + 0;
 
-			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+		//	ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
 
-			int rx = coordinates.X >> 5;
-			int rz = coordinates.Z >> 5;
+		//	int rx = coordinates.X >> 5;
+		//	int rz = coordinates.Z >> 5;
 
-			Assert.AreEqual(4, rx);
-			Assert.AreEqual(25, rz);
+		//	Assert.AreEqual(4, rx);
+		//	Assert.AreEqual(25, rz);
 
-			string basePath = @"D:\Downloads\KingsLanding1";
-			var generator = new FlatlandWorldProvider();
+		//	string basePath = @"D:\Downloads\KingsLanding1";
+		//	var generator = new FlatlandWorldProvider();
 
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
+		//	Stopwatch sw = new Stopwatch();
+		//	sw.Start();
 
-			int iterations = 1024;
-			for (int i = 0; i < iterations; i++)
-			{
-				AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
-			}
+		//	int iterations = 1024;
+		//	for (int i = 0; i < iterations; i++)
+		//	{
+		//		AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
+		//	}
 
-			long ticks = sw.ElapsedTicks;
-			long ms = sw.ElapsedMilliseconds;
+		//	long ticks = sw.ElapsedTicks;
+		//	long ms = sw.ElapsedMilliseconds;
 
-			//Assert.Less(ticks/iterations, 100);
+		//	//Assert.Less(ticks/iterations, 100);
 
-			Console.WriteLine("Read {0} chunk-columns in {1}ns ({3}ms) at a rate of {2}ns/col", iterations, ticks, ticks/iterations, ms);
-		}
+		//	Console.WriteLine("Read {0} chunk-columns in {1}ns ({3}ms) at a rate of {2}ns/col", iterations, ticks, ticks/iterations, ms);
+		//}
 
 
-		[Test, Ignore]
-		public void LoadFullAnvilRegionLoadTest()
-		{
-			int width = 32;
-			int depth = 32;
+		//[Test, Ignore]
+		//public void LoadFullAnvilRegionLoadTest()
+		//{
+		//	int width = 32;
+		//	int depth = 32;
 
-			int regionX = 5;
-			int regionZ = 24;
+		//	int regionX = 5;
+		//	int regionZ = 24;
 
-			string basePath = @"D:\Downloads\KingsLanding1";
-			var generator = new FlatlandWorldProvider();
+		//	string basePath = @"D:\Downloads\KingsLanding1";
+		//	var generator = new FlatlandWorldProvider();
 
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			int noChunksRead = 0;
-			for (int x = 0; x < 32; x++)
-			{
-				for (int z = 0; z < 32; z++)
-				{
-					noChunksRead++;
-					int cx = (width*regionX) + x;
-					int cz = (depth*regionZ) + z;
+		//	Stopwatch sw = new Stopwatch();
+		//	sw.Start();
+		//	int noChunksRead = 0;
+		//	for (int x = 0; x < 32; x++)
+		//	{
+		//		for (int z = 0; z < 32; z++)
+		//		{
+		//			noChunksRead++;
+		//			int cx = (width*regionX) + x;
+		//			int cz = (depth*regionZ) + z;
 
-					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-					ChunkColumn chunk = AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
-					Assert.NotNull(chunk);
-				}
-			}
-			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
-		}
+		//			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+		//			ChunkColumn chunk = AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
+		//			Assert.NotNull(chunk);
+		//		}
+		//	}
+		//	Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
+		//}
 
 	}
 }

@@ -71,6 +71,20 @@ namespace TestPlugin
 		{
 		}
 
+		[Command(Aliases = new []{"csk"})]
+		public void CalculateSkyLight(Player player)
+		{
+			Task.Run(() =>
+			{
+				SkyLightCalculations.Calculate(player.Level);
+				player.CleanCache();
+				player.ForcedSendChunks(() =>
+				{
+					player.SendMessage("Calculated skylights and resent chunks.");
+				});
+			});
+		}
+
 		[Command(Name = "dim")]
 		public void ChangeDimension(Player player)
 		{
@@ -350,17 +364,15 @@ namespace TestPlugin
 			int chunkX = position.X >> 4;
 			int chunkZ = position.Z >> 4;
 
-			int xi = (chunkX%32);
-			if (xi < 0) xi += 32;
-			int zi = (chunkZ%32);
-			if (zi < 0) zi += 32;
+			int xi = position.X & 0x0f;
+			int zi = position.Z & 0x0f;
 
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(string.Format("Region X:{0} Z:{1}", chunkX >> 5, chunkZ >> 5));
-			sb.AppendLine(string.Format("Local chunk X:{0} Z:{1}", xi, zi));
-			sb.AppendLine(string.Format("Chunk X:{0} Z:{1}", chunkX, chunkZ));
-			sb.AppendLine(string.Format("Position X:{0:F1} Y:{1:F1} Z:{2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
-			sb.AppendLine(string.Format("Direction Yaw:{0:F1} HeadYap:{1:F1} Pitch:{2:F1}", player.KnownPosition.Yaw, player.KnownPosition.HeadYaw, player.KnownPosition.Pitch));
+			sb.AppendLine(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
+			sb.AppendLine(string.Format("Direction Yaw={0:F1} HeadYap={1:F1} Pitch={2:F1}", player.KnownPosition.Yaw, player.KnownPosition.HeadYaw, player.KnownPosition.Pitch));
+			sb.AppendLine(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
+			sb.AppendLine(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ));
+			sb.AppendLine(string.Format("Local coordinates X={0} Z={1}", xi, zi));
 			string text = sb.ToString();
 
 			player.SendMessage(text, type: MessageType.Raw);

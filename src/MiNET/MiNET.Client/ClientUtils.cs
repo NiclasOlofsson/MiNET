@@ -2,6 +2,7 @@
 using fNbt;
 using log4net;
 using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Client
@@ -23,7 +24,7 @@ namespace MiNET.Client
 				{
 					NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
 
-					Log.Warn("New chunk column");
+					Log.Debug("New chunk column");
 
 					int count = defStream.ReadByte();
 					if (count < 1)
@@ -32,7 +33,7 @@ namespace MiNET.Client
 						return null;
 					}
 
-					if (count > 1) Log.Warn($"Reading {count} sections");
+					if (count > 1) Log.Debug($"Reading {count} sections");
 					else Log.Debug($"Reading {count} sections");
 
 					ChunkColumn chunkColumn = new ChunkColumn();
@@ -94,10 +95,22 @@ namespace MiNET.Client
 
 					//if (stream.Position >= stream.Length - 1) continue;
 
-					int extraSize = defStream.ReadInt16();
-					if (extraSize != 0)
+					int borderBlock = VarInt.ReadSInt32(stream);
+					if (borderBlock != 0)
 					{
-						Log.Debug($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
+						Log.Warn($"??? Got borderblock {borderBlock}");
+					}
+
+					int extraCount = VarInt.ReadSInt32(stream);
+					if (extraCount != 0)
+					{
+						//Log.Warn($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraCount*10))}");
+						for (int i = 0; i < extraCount; i++)
+						{
+							var hash = VarInt.ReadSInt32(stream);
+							var blockData = defStream.ReadInt16();
+							Log.Warn($"Got extradata: hash=0x{hash:X2}, blockdata=0x{blockData:X2}");
+						}
 					}
 
 					if (stream.Position < stream.Length - 1)
@@ -112,12 +125,10 @@ namespace MiNET.Client
 
 							Log.Debug($"Blockentity: {file.RootTag}");
 						}
-
-
-						if (stream.Position < stream.Length - 1)
-						{
-							Log.Debug($"Got data to read\n{Package.HexDump(defStream.ReadBytes((int)(stream.Length - stream.Position)))}");
-						}
+					}
+					if (stream.Position < stream.Length - 1)
+					{
+						Log.Warn($"Still have data to read\n{Package.HexDump(defStream.ReadBytes((int)(stream.Length - stream.Position)))}");
 					}
 				}
 

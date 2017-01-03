@@ -103,7 +103,7 @@ namespace MiNET.Worlds
 			return (T) propertyInfo.GetValue(target);
 		}
 
-		public T SetPropertyValue<T>(NbtTag tag, Expression<Func<T>> property, bool upperFirst = true)
+		public void SetPropertyValue<T>(NbtTag tag, Expression<Func<T>> property, bool upperFirst = true)
 		{
 			var propertyInfo = ((MemberExpression) property.Body).Member as PropertyInfo;
 			if (propertyInfo == null)
@@ -117,7 +117,45 @@ namespace MiNET.Worlds
 				nbtTag = tag[LowercaseFirst(propertyInfo.Name)];
 			}
 
-			if (nbtTag == null) return default(T);
+			if (nbtTag == null)
+			{
+				if (propertyInfo.PropertyType == typeof (bool))
+				{
+					nbtTag = new NbtByte(propertyInfo.Name);
+				}
+				else if (propertyInfo.PropertyType == typeof(byte))
+				{
+					nbtTag = new NbtByte(LowercaseFirst(propertyInfo.Name));
+				}
+				else if (propertyInfo.PropertyType == typeof(short))
+				{
+					nbtTag = new NbtShort(LowercaseFirst(propertyInfo.Name));
+				}
+				else if (propertyInfo.PropertyType == typeof (int))
+				{
+					nbtTag = new NbtInt(LowercaseFirst(propertyInfo.Name));
+				}
+				else if (propertyInfo.PropertyType == typeof(long))
+				{
+					nbtTag = new NbtLong(LowercaseFirst(propertyInfo.Name));
+				}
+				else if (propertyInfo.PropertyType == typeof(float))
+				{
+					nbtTag = new NbtFloat(LowercaseFirst(propertyInfo.Name));
+				}
+				else if (propertyInfo.PropertyType == typeof(double))
+				{
+					nbtTag = new NbtDouble(LowercaseFirst(propertyInfo.Name));
+				}
+				else if (propertyInfo.PropertyType == typeof(string))
+				{
+					nbtTag = new NbtString(LowercaseFirst(propertyInfo.Name), "");
+				}
+				else
+				{
+					return;
+				}
+			}
 
 			var mex = property.Body as MemberExpression;
 			var target = Expression.Lambda(mex.Expression).Compile().DynamicInvoke();
@@ -130,46 +168,46 @@ namespace MiNET.Worlds
 					break;
 				case NbtTagType.Byte:
 					if (propertyInfo.PropertyType == typeof (bool))
-						tag[nbtTag.Name] = new NbtByte((byte) ((bool) propertyInfo.GetValue(target) ? 1 : 0));
+						tag[nbtTag.Name] = new NbtByte(nbtTag.Name,(byte) ((bool) propertyInfo.GetValue(target) ? 1 : 0));
 					else
-						tag[nbtTag.Name] = new NbtByte((byte) propertyInfo.GetValue(target));
+						tag[nbtTag.Name] = new NbtByte(nbtTag.Name, (byte) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.Short:
-					tag[nbtTag.Name] = new NbtShort((short) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtShort(nbtTag.Name, (short) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.Int:
 					if (propertyInfo.PropertyType == typeof (bool))
-						tag[nbtTag.Name] = new NbtInt((bool) propertyInfo.GetValue(target) ? 1 : 0);
+						tag[nbtTag.Name] = new NbtInt(nbtTag.Name, (bool) propertyInfo.GetValue(target) ? 1 : 0);
 					else
-						tag[nbtTag.Name] = new NbtInt((int) propertyInfo.GetValue(target));
+						tag[nbtTag.Name] = new NbtInt(nbtTag.Name, (int) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.Long:
-					tag[nbtTag.Name] = new NbtLong((long) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtLong(nbtTag.Name, (long) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.Float:
-					tag[nbtTag.Name] = new NbtFloat((float) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtFloat(nbtTag.Name, (float) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.Double:
-					tag[nbtTag.Name] = new NbtDouble((double) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtDouble(nbtTag.Name, (double) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.ByteArray:
-					tag[nbtTag.Name] = new NbtByteArray((byte[]) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtByteArray(nbtTag.Name, (byte[]) propertyInfo.GetValue(target));
 					break;
 				case NbtTagType.String:
-					tag[nbtTag.Name] = new NbtString((string) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtString(nbtTag.Name, (string) propertyInfo.GetValue(target)??"");
 					break;
 				case NbtTagType.List:
 					break;
 				case NbtTagType.Compound:
 					break;
 				case NbtTagType.IntArray:
-					tag[nbtTag.Name] = new NbtIntArray((int[]) propertyInfo.GetValue(target));
+					tag[nbtTag.Name] = new NbtIntArray(nbtTag.Name, (int[]) propertyInfo.GetValue(target));
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 
-			return (T) propertyInfo.GetValue(target);
+			//return (T) propertyInfo.GetValue(target);
 		}
 
 

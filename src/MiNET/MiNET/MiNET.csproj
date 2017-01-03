@@ -60,6 +60,10 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="SharpAvi, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpAvi.2.1.0\lib\net45\SharpAvi.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -116,7 +120,11 @@
     <Compile Include="Blocks\DarkOakDoor.cs" />
     <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
     <Compile Include="Blocks\Dropper.cs" />
+<<<<<<< HEAD
     <Compile Include="Blocks\EnderChest.cs" />
+=======
+    <Compile Include="Blocks\EndBrick.cs" />
+>>>>>>> ab181a853395ab16194d10ac5471ad6176097d5e
     <Compile Include="Blocks\JungleDoor.cs" />
     <Compile Include="Blocks\LitRedstoneOre.cs" />
     <Compile Include="Blocks\MelonStem.cs" />
@@ -124,10 +132,13 @@
     <Compile Include="Blocks\Piston.cs" />
     <Compile Include="Blocks\PistonHead.cs" />
     <Compile Include="Blocks\PoweredComparator.cs" />
+    <Compile Include="Blocks\Prismarine.cs" />
+    <Compile Include="Blocks\PurPur.cs" />
     <Compile Include="Blocks\PumpkinStem.cs" />
     <Compile Include="Blocks\RedSandstone.cs" />
     <Compile Include="Blocks\RedSandstoneSlab.cs" />
     <Compile Include="Blocks\RedSandstoneStairs.cs" />
+    <Compile Include="Blocks\SeaLantern.cs" />
     <Compile Include="Blocks\Slime.cs" />
     <Compile Include="Blocks\SpruceDoor.cs" />
     <Compile Include="Blocks\StickyPiston.cs" />
@@ -337,6 +348,7 @@
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
     <Compile Include="Entities\Vehicles\Vehicle.cs" />
+    <Compile Include="Entities\World\FallingSand.cs" />
     <Compile Include="Entities\World\Lightning.cs" />
     <Compile Include="Entities\World\MapEntity.cs" />
     <Compile Include="Entities\EntityType.cs" />
@@ -499,6 +511,8 @@
     <Compile Include="Plugins\Command.cs" />
     <Compile Include="Plugins\Commands\HelpCommand.cs" />
     <Compile Include="Plugins\Commands\VanillaCommands.cs" />
+    <Compile Include="Plugins\ICommandFilter.cs" />
+    <Compile Include="Plugins\IParameterSerializer.cs" />
     <Compile Include="Plugins\IStartup.cs" />
     <Compile Include="Plugins\Plugin.cs" />
     <Compile Include="Plugins\Attributes\CommandAttribute.cs" />
@@ -609,6 +623,7 @@
     <Compile Include="Worlds\AnvilWorldProvider.cs" />
     <Compile Include="Worlds\BiomeUtils.cs" />
     <Compile Include="Worlds\Chunk.cs" />
+    <Compile Include="Worlds\BlockLightCalculations.cs" />
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
@@ -620,6 +635,7 @@
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
     <Compile Include="Worlds\LevelInfo.cs" />
+    <Compile Include="Worlds\SkyLightCalculations.cs" />
     <Compile Include="Worlds\Structures\AcaciaTree.cs" />
     <Compile Include="Worlds\Structures\BirchTree.cs" />
     <Compile Include="Worlds\Structures\JungleTree.cs" />

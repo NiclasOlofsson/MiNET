@@ -46,8 +46,9 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
-		public void SaveChunks()
+		public int SaveChunks()
 		{
+			return 0;
 		}
 
 		private float stoneBaseHeight = 0;

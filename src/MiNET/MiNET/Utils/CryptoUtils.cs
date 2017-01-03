@@ -245,50 +245,51 @@ namespace MiNET.Utils
 
 		public static byte[] CompressJwtBytes(byte[] certChain, byte[] skinData, CompressionLevel compressionLevel)
 		{
-			MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream();
-			stream.WriteByte(0x78);
-			int checksum;
-			switch (compressionLevel)
+			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
-				case CompressionLevel.Optimal:
-					stream.WriteByte(0xda);
-					break;
-				case CompressionLevel.Fastest:
-					stream.WriteByte(0x9c);
-					break;
-				case CompressionLevel.NoCompression:
-					stream.WriteByte(0x01);
-					break;
-			}
-			using (var compressStream = new ZLibStream(stream, compressionLevel, true))
-			{
+				stream.WriteByte(0x78);
+				int checksum;
+				switch (compressionLevel)
 				{
-					byte[] lenBytes = BitConverter.GetBytes(certChain.Length);
-					//Array.Reverse(lenBytes);
-					compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
-					compressStream.Write(certChain, 0, certChain.Length);
+					case CompressionLevel.Optimal:
+						stream.WriteByte(0xda);
+						break;
+					case CompressionLevel.Fastest:
+						stream.WriteByte(0x9c);
+						break;
+					case CompressionLevel.NoCompression:
+						stream.WriteByte(0x01);
+						break;
 				}
+				using (var compressStream = new ZLibStream(stream, compressionLevel, true))
 				{
-					byte[] lenBytes = BitConverter.GetBytes(skinData.Length);
-					//Array.Reverse(lenBytes);
-					compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
-					compressStream.Write(skinData, 0, skinData.Length);
+					{
+						byte[] lenBytes = BitConverter.GetBytes(certChain.Length);
+						//Array.Reverse(lenBytes);
+						compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
+						compressStream.Write(certChain, 0, certChain.Length);
+					}
+					{
+						byte[] lenBytes = BitConverter.GetBytes(skinData.Length);
+						//Array.Reverse(lenBytes);
+						compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
+						compressStream.Write(skinData, 0, skinData.Length);
+					}
+					checksum = compressStream.Checksum;
 				}
-				checksum = compressStream.Checksum;
+
+				byte[] checksumBytes = BitConverter.GetBytes(checksum);
+				if (BitConverter.IsLittleEndian)
+				{
+					// Adler32 checksum is big-endian
+					Array.Reverse(checksumBytes);
+				}
+				stream.Write(checksumBytes, 0, checksumBytes.Length);
+
+				var bytes = stream.ToArray();
+
+				return bytes;
 			}
-
-			byte[] checksumBytes = BitConverter.GetBytes(checksum);
-			if (BitConverter.IsLittleEndian)
-			{
-				// Adler32 checksum is big-endian
-				Array.Reverse(checksumBytes);
-			}
-			stream.Write(checksumBytes, 0, checksumBytes.Length);
-
-			var bytes = stream.ToArray();
-			stream.Close();
-
-			return bytes;
 		}
 
 	}

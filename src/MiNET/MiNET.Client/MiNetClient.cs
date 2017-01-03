@@ -158,8 +158,8 @@ namespace MiNET.Client
 				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Stone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				.ContinueWith(t => doSendCommand(t, "/test"))
+				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
+				//.ContinueWith(t => doSendCommand(t, "/test"))
 				//.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
 				//.ContinueWith(t =>
 				//{
@@ -1258,7 +1258,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 91,
+				protocolVersion = 92,
 				edition = 0,
 				payload = data
 			};
@@ -1685,7 +1685,7 @@ Adventure settings
 		{
 			McpeContainerSetSlot message = (McpeContainerSetSlot) msg;
 			Item itemStack = message.item;
-			if (Log.IsDebugEnabled) Log.Debug($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+			if (Log.IsDebugEnabled) Log.Debug($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.hotbarslot} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 		}
 
 		private void OnMcpeContainerSetContent(Package message)
@@ -2119,34 +2119,37 @@ StartGame:
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
-				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
-				defStream2.CopyTo(destination);
-				destination.Position = 0;
-				byte[] internalBuffer = null;
-				do
-				{
-					try
+				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream()) {
+
+					defStream2.CopyTo(destination);
+					destination.Position = 0;
+					byte[] internalBuffer = null;
+					do
 					{
-						var len = VarInt.ReadUInt32(destination);
-						internalBuffer = new byte[len];
-						destination.Read(internalBuffer, 0, (int) len);
+						try
+						{
+							var len = VarInt.ReadUInt32(destination);
+							internalBuffer = new byte[len];
+							destination.Read(internalBuffer, 0, (int) len);
 
-						if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
+							if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
 
-						var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer);
-						messages.Add(package);
+							var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
+							              new UnknownPackage(internalBuffer[0], internalBuffer);
+							messages.Add(package);
 
-						//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
-						//if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
-					}
-					catch (Exception e)
-					{
-						if (internalBuffer != null)
-							Log.Error($"Batch error while reading:\n{Package.HexDump(internalBuffer)}");
-						Log.Error("Batch processing", e);
-						//throw;
-					}
-				} while (destination.Position < destination.Length);
+							//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
+							//if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
+						}
+						catch (Exception e)
+						{
+							if (internalBuffer != null)
+								Log.Error($"Batch error while reading:\n{Package.HexDump(internalBuffer)}");
+							Log.Error("Batch processing", e);
+							//throw;
+						}
+					} while (destination.Position < destination.Length);
+				}
 			}
 
 			//Log.Error($"Batch had {messages.Count} packets.");

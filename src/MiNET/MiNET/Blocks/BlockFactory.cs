@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using log4net;
 
 namespace MiNET.Blocks
@@ -12,6 +13,76 @@ namespace MiNET.Blocks
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
+
+		public static List<int> TransparentBlocks { get; private set; }
+		public static Dictionary<string, byte> NameToId { get; private set; }
+
+		static BlockFactory()
+		{
+			TransparentBlocks = GetTransparentBlocks();
+			NameToId = BuildNameToId();
+		}
+
+		private static Dictionary<string, byte> BuildNameToId()
+		{
+			var nameToId = new Dictionary<string, byte>();
+			for (byte idx = 0; idx < byte.MaxValue; idx++)
+			{
+				Block block = GetBlockById(idx);
+				string name = block.GetType().Name.ToLowerInvariant();
+
+				if (name.Equals("block"))
+				{
+					Log.Debug($"Missing implementation for block ID={idx}");
+					continue;
+				}
+
+				nameToId.Add(name, idx);
+			}
+
+			return nameToId;
+		}
+
+		private static List<int> GetTransparentBlocks()
+		{
+			List<int> transparent = new List<int>();
+			for (byte i = 0; i < byte.MaxValue; i++)
+			{
+				var block = GetBlockById(i);
+				if (block != null && block.IsTransparent)
+				{
+					transparent.Add(block.Id);
+				}
+			}
+
+			return transparent;
+		}
+
+		public static byte GetBlockIdByName(string blockName)
+		{
+			blockName = blockName.ToLowerInvariant();
+			blockName = blockName.Replace("_", "");
+
+			if (NameToId.ContainsKey(blockName))
+			{
+				return NameToId[blockName];
+			}
+
+			return 0;
+		}
+
+		public static Block GetBlockByName(string blockName)
+		{
+			blockName = blockName.ToLowerInvariant();
+			blockName = blockName.Replace("_", "");
+
+			if (NameToId.ContainsKey(blockName))
+			{
+				return GetBlockById(NameToId[blockName]);
+			}
+
+			return null;
+		}
 
 		public static Block GetBlockById(byte blockId)
 		{
@@ -185,6 +256,8 @@ namespace MiNET.Blocks
 			else if (blockId == 164) block = new DarkOakStairs();
 			else if (blockId == 165) block = new Slime();
 			else if (blockId == 167) block = new IronTrapdoor();
+			else if (blockId == 168) block = new Prismarine();
+			else if (blockId == 169) block = new SeaLantern();
 			else if (blockId == 170) block = new HayBlock();
 			else if (blockId == 171) block = new Carpet();
 			else if (blockId == 172) block = new HardenedClay();
@@ -209,6 +282,8 @@ namespace MiNET.Blocks
 			else if (blockId == 197) block = new DarkOakDoor();
 			else if (blockId == 198) block = new GrassPath();
 			else if (blockId == 199) block = new ItemFrame();
+			else if (blockId == 201) block = new PurPur();
+			else if (blockId == 206) block = new EndBrick();
 			else if (blockId == 243) block = new Podzol();
 			else if (blockId == 244) block = new Beetroot();
 			else if (blockId == 245) block = new Stonecutter();

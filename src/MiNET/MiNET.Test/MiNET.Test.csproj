@@ -89,6 +89,7 @@
     <Compile Include="CommandTest.cs" />
     <Compile Include="MinetAnvilTest.cs" />
     <Compile Include="MinetCrytopTest.cs" />
+    <Compile Include="MinetSchematicsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MinetServerTest.cs" />
   </ItemGroup>

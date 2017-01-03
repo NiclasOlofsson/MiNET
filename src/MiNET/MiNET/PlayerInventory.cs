@@ -75,6 +75,20 @@ namespace MiNET
 			SendSetSlot(slot);
 		}
 
+		public void UpdateInventorySlot(int slot, Item item)
+		{
+			var existing = Slots[slot];
+			if (existing.Id != item.Id)
+			{
+				Slots[slot] = item;
+				existing = item;
+			}
+
+			existing.Count = item.Count;
+			existing.Metadata = item.Metadata;
+			existing.ExtraData = item.ExtraData;
+		}
+
 		public MetadataInts GetHotbar()
 		{
 			MetadataInts metadata = new MetadataInts();

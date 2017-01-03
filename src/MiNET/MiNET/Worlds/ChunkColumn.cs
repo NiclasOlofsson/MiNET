@@ -23,7 +23,6 @@ namespace MiNET.Worlds
 		public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
-		public int[] biomeColor = ArrayOf<int>.Create(256, 0);
 		public byte[] height = ArrayOf<byte>.Create(256*2, 0);
 
 		//TODO: This dictionary need to be concurent. Investigate performance before changing.
@@ -31,6 +30,8 @@ namespace MiNET.Worlds
 
 		private byte[] _cache;
 		public bool isDirty;
+		public bool IsLoaded = false;
+		public bool NeedSave = true;
 		private McpeBatch _cachedBatch = null;
 		private object _cacheSync = new object();
 
@@ -39,6 +40,13 @@ namespace MiNET.Worlds
 			isDirty = false;
 			//BiomeUtils utils = new BiomeUtils();
 			//utils.PrecomputeBiomeColors();
+		}
+
+		private void SetDirty()
+		{
+			_cache = null;
+			isDirty = true;
+			NeedSave = true;
 		}
 
 		public byte GetBlock(int bx, int by, int bz)
@@ -53,13 +61,13 @@ namespace MiNET.Worlds
 
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetBlock(bx, by - 16*(by >> 4), bz, bid);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public void SetHeight(int bx, int bz, byte h)
 		{
 			height[(bz << 4) + (bx)] = h;
+			SetDirty();
 		}
 
 		public byte GetHeight(int bx, int bz)
@@ -70,16 +78,12 @@ namespace MiNET.Worlds
 		public void SetBiome(int bx, int bz, byte biome)
 		{
 			biomeId[(bz << 4) + (bx)] = biome;
+			SetDirty();
 		}
 
 		public byte GetBiome(int bx, int bz)
 		{
 			return biomeId[(bz << 4) + (bx)];
-		}
-
-		public void SetBiomeColor(int bx, int bz, int color)
-		{
-			biomeColor[(bz << 4) + (bx)] = (color & 0x00ffffff);
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
@@ -92,8 +96,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -106,8 +109,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
@@ -116,12 +118,11 @@ namespace MiNET.Worlds
 			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
 		}
 
-		public void SetSkylight(int bx, int by, int bz, byte data)
+		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)
@@ -137,15 +138,13 @@ namespace MiNET.Worlds
 		{
 			NbtCompound blockEntity = (NbtCompound) nbt.Clone();
 			BlockEntities[coordinates] = blockEntity;
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 		public void RemoveBlockEntity(BlockCoordinates coordinates)
 		{
 			BlockEntities.Remove(coordinates);
-			_cache = null;
-			isDirty = true;
+			SetDirty();
 		}
 
 
@@ -199,7 +198,7 @@ namespace MiNET.Worlds
 						GetBiomeColor(bx - 1, bz + 1),
 						GetBiomeColor(bx + 1, bz - 1)
 						);
-					SetBiomeColor(bx, bz, c.ToArgb());
+					//SetBiomeColor(bx, bz, c.ToArgb());
 				}
 			}
 
@@ -237,14 +236,42 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					for (byte y = 127; y > 0; y--)
+					bool isInLight = true;
+
+					for (int y = 255; y >= 0; y--)
 					{
-						if (GetBlock(x, y, z) != 0)
+						if (isInLight)
 						{
-							SetHeight(x, z, (byte) (y + 1));
-							break;
+							if (GetBlock(x, y, z) != 0)
+							{
+								SetHeight(x, z, (byte) (y + 1));
+								SetSkyLight(x, y, z, 0);
+								isInLight = false;
+							}
+							else
+							{
+								SetSkyLight(x, y, z, 15);
+							}
+						}
+						else
+						{
+							SetSkyLight(x, y, z, 0);
 						}
 					}
+				}
+			}
+		}
+
+		internal void ClearCache()
+		{
+			lock (_cacheSync)
+			{
+				if (_cachedBatch != null)
+				{
+					_cachedBatch.MarkPermanent(false);
+					_cachedBatch.PutPool();
+
+					_cachedBatch = null;
 				}
 			}
 		}
@@ -254,6 +281,8 @@ namespace MiNET.Worlds
 			lock (_cacheSync)
 			{
 				if (!isDirty && _cachedBatch != null) return _cachedBatch;
+
+				ClearCache();
 
 				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 				fullChunkData.chunkX = x;
@@ -316,8 +345,21 @@ namespace MiNET.Worlds
 				//	writer.Write((int) (color & 0x00ffffff) /*| biome << 24*/);
 				//}
 
-				short extraSize = 0;
-				writer.Write(extraSize); // No extra data
+				//short extraSize = 0;
+				//writer.Write(extraSize); // No extra data
+
+				// Count = SignedVarInt (zigzag)
+				// Each entry
+				// - Hash SignedVarint x << 12, z << 8, y
+				// - Block data short
+
+				writer.Write((byte) 0); // Border blocks - nope
+
+				VarInt.WriteSInt32(stream, 0); // Block extradata count
+				//VarInt.WriteSInt32(stream, 2);
+				//VarInt.WriteSInt32(stream, 1 << 12 | 1 << 8 | 4);
+				//writer.Write((byte)31);
+				//writer.Write((byte)0);
 
 				if (BlockEntities.Count == 0)
 				{
@@ -350,7 +392,6 @@ namespace MiNET.Worlds
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();
-			cc.biomeColor = (int[]) biomeColor.Clone();
 			cc.height = (byte[]) height.Clone();
 
 			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();

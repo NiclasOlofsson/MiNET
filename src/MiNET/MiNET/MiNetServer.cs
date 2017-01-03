@@ -656,52 +656,56 @@ namespace MiNET
 				SplitPartPackage[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
-				MemoryStream stream = MemoryStreamManager.GetStream();
-				for (int i = 0; i < spPackets.Length; i++)
+				using (MemoryStream stream = MemoryStreamManager.GetStream())
 				{
-					SplitPartPackage splitPartPackage = spPackets[i];
-					byte[] buf = splitPartPackage.Message;
-					if (buf == null)
+					for (int i = 0; i < spPackets.Length; i++)
 					{
-						Log.Error("Expected bytes in splitpart, but got none");
-						continue;
+						SplitPartPackage splitPartPackage = spPackets[i];
+						byte[] buf = splitPartPackage.Message;
+						if (buf == null)
+						{
+							Log.Error("Expected bytes in splitpart, but got none");
+							continue;
+						}
+
+						stream.Write(buf, 0, buf.Length);
+						splitPartPackage.PutPool();
 					}
 
-					stream.Write(buf, 0, buf.Length);
-					splitPartPackage.PutPool();
-				}
+					byte[] buffer = stream.ToArray();
+					try
+					{
+						ConnectedPackage newPackage = ConnectedPackage.CreateObject();
+						newPackage._datagramSequenceNumber = sequenceNumber;
+						newPackage._reliability = reliability;
+						newPackage._reliableMessageNumber = reliableMessageNumber;
+						newPackage._orderingIndex = orderingIndex;
+						newPackage._orderingChannel = (byte) orderingChannel;
+						newPackage._hasSplit = false;
 
-				byte[] buffer = stream.ToArray();
-				try
-				{
-					ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-					newPackage._datagramSequenceNumber = sequenceNumber;
-					newPackage._reliability = reliability;
-					newPackage._reliableMessageNumber = reliableMessageNumber;
-					newPackage._orderingIndex = orderingIndex;
-					newPackage._orderingChannel = (byte) orderingChannel;
-					newPackage._hasSplit = false;
+						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ??
+						                      new UnknownPackage(buffer[0], buffer);
+						fullMessage.DatagramSequenceNumber = sequenceNumber;
+						fullMessage.Reliability = reliability;
+						fullMessage.ReliableMessageNumber = reliableMessageNumber;
+						fullMessage.OrderingIndex = orderingIndex;
+						fullMessage.OrderingChannel = orderingChannel;
 
-					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
-					fullMessage.DatagramSequenceNumber = sequenceNumber;
-					fullMessage.Reliability = reliability;
-					fullMessage.ReliableMessageNumber = reliableMessageNumber;
-					fullMessage.OrderingIndex = orderingIndex;
-					fullMessage.OrderingChannel = orderingChannel;
+						newPackage.Messages = new List<Package>();
+						newPackage.Messages.Add(fullMessage);
 
-					newPackage.Messages = new List<Package>();
-					newPackage.Messages.Add(fullMessage);
-
-					Log.Debug($"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
-					HandleConnectedPackage(playerSession, newPackage);
-					newPackage.PutPool();
-				}
-				catch (Exception e)
-				{
-					Log.Error("Error during split message parsing", e);
-					if (Log.IsDebugEnabled)
-						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-					playerSession.Disconnect("Bad package received from client.", false);
+						Log.Debug(
+							$"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
+						HandleConnectedPackage(playerSession, newPackage);
+						newPackage.PutPool();
+					}
+					catch (Exception e)
+					{
+						Log.Error("Error during split message parsing", e);
+						if (Log.IsDebugEnabled)
+							Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
+						playerSession.Disconnect("Bad package received from client.", false);
+					}
 				}
 			}
 		}
@@ -736,62 +740,64 @@ namespace MiNET
 				}
 				case 0x00:
 				{
-					var stream = MemoryStreamManager.GetStream();
-
-					bool isFullStatRequest = receiveBytes.Length == 15;
-					if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
-
-					// ID
-					stream.WriteByte(0x00);
-
-					// Sequence number
-					stream.WriteByte(receiveBytes[3]);
-					stream.WriteByte(receiveBytes[4]);
-					stream.WriteByte(receiveBytes[5]);
-					stream.WriteByte(receiveBytes[6]);
-
-					//{
-					//	string str = "splitnum\0";
-					//	byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
-					//	stream.Write(bytes, 0, bytes.Length);
-					//}
-
-					MotdProvider.GetMotd(ServerInfo, senderEndpoint); // Force update the player counts :-)
-
-					var data = new Dictionary<string, string>
+					using (var stream = MemoryStreamManager.GetStream())
 					{
-						{"splitnum", "" + (char) 128},
-						{"hostname", "Minecraft PE Server"},
-						{"gametype", "SMP"},
-						{"game_id", "MINECRAFTPE"},
-						{"version", "0.15.0"},
-						{"server_engine", "MiNET v1.0.0"},
-						{"plugins", "MiNET v1.0.0"},
-						{"map", "world"},
-						{"numplayers", MotdProvider.NumberOfPlayers.ToString()},
-						{"maxplayers", MotdProvider.MaxNumberOfPlayers.ToString()},
-						{"whitelist", "off"},
-						//{"hostip", "192.168.0.1"},
-						//{"hostport", "19132"}
-					};
 
-					foreach (KeyValuePair<string, string> valuePair in data)
-					{
-						string key = valuePair.Key + "\x00" + valuePair.Value + "\x00";
-						byte[] bytes = Encoding.ASCII.GetBytes(key.ToCharArray());
-						stream.Write(bytes, 0, bytes.Length);
+						bool isFullStatRequest = receiveBytes.Length == 15;
+						if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
+
+						// ID
+						stream.WriteByte(0x00);
+
+						// Sequence number
+						stream.WriteByte(receiveBytes[3]);
+						stream.WriteByte(receiveBytes[4]);
+						stream.WriteByte(receiveBytes[5]);
+						stream.WriteByte(receiveBytes[6]);
+
+						//{
+						//	string str = "splitnum\0";
+						//	byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
+						//	stream.Write(bytes, 0, bytes.Length);
+						//}
+
+						MotdProvider.GetMotd(ServerInfo, senderEndpoint); // Force update the player counts :-)
+
+						var data = new Dictionary<string, string>
+						{
+							{"splitnum", "" + (char) 128},
+							{"hostname", "Minecraft PE Server"},
+							{"gametype", "SMP"},
+							{"game_id", "MINECRAFTPE"},
+							{"version", "0.15.0"},
+							{"server_engine", "MiNET v1.0.0"},
+							{"plugins", "MiNET v1.0.0"},
+							{"map", "world"},
+							{"numplayers", MotdProvider.NumberOfPlayers.ToString()},
+							{"maxplayers", MotdProvider.MaxNumberOfPlayers.ToString()},
+							{"whitelist", "off"},
+							//{"hostip", "192.168.0.1"},
+							//{"hostport", "19132"}
+						};
+
+						foreach (KeyValuePair<string, string> valuePair in data)
+						{
+							string key = valuePair.Key + "\x00" + valuePair.Value + "\x00";
+							byte[] bytes = Encoding.ASCII.GetBytes(key.ToCharArray());
+							stream.Write(bytes, 0, bytes.Length);
+						}
+
+						{
+							string str = "\x00\x01player_\x00\x00";
+							byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
+							stream.Write(bytes, 0, bytes.Length);
+						}
+
+						// End the stream with 0 byte
+						stream.WriteByte(0);
+						var buffer = stream.ToArray();
+						_listener.Send(buffer, buffer.Length, senderEndpoint);
 					}
-
-					{
-						string str = "\x00\x01player_\x00\x00";
-						byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
-						stream.Write(bytes, 0, bytes.Length);
-					}
-
-					// End the stream with 0 byte
-					stream.WriteByte(0);
-					var buffer = stream.ToArray();
-					_listener.Send(buffer, buffer.Length, senderEndpoint);
 					break;
 				}
 				default:

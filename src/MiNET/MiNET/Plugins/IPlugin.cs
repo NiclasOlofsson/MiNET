@@ -1,4 +1,6 @@
-﻿namespace MiNET.Plugins
+﻿using System;
+
+namespace MiNET.Plugins
 {
 	public interface IPlugin
 	{

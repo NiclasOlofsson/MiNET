@@ -7,7 +7,7 @@ namespace MiNET.Blocks
 	{
 		public Glowstone() : base(89)
 		{
-			IsTransparent = true;
+			//IsTransparent = true;
 			LightLevel = 15;
 			BlastResistance = 1.5f;
 			Hardness = 0.3f;

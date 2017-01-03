@@ -22,14 +22,14 @@ namespace MiNET.Blocks
 					direction = Level.East;
 					break; // West
 				case 1:
-					direction = Level.North;
-					break; // North
+					direction = Level.South;
+					break; // South
 				case 2:
 					direction = Level.West;
 					break; // East
 				case 3:
-					direction = Level.South;
-					break; // South 
+					direction = Level.North;
+					break; // North 
 			}
 
 			// Remove bed

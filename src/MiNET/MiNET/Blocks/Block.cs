@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -9,7 +10,7 @@ namespace MiNET.Blocks
 	///     Blocks are the basic units of structure in Minecraft. Together, they build up the in-game environment and can be
 	///     mined and utilized in various fashions.
 	/// </summary>
-	public class Block
+	public class Block: ICloneable
 	{
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; protected set; }
@@ -19,13 +20,16 @@ namespace MiNET.Blocks
 		public float BlastResistance { get; protected set; }
 		public short FuelEfficiency { get; protected set; }
 		public float FrictionFactor { get; protected set; }
-		public int LightLevel { get; protected set; }
+		public int LightLevel { get; set; }
 
 		public bool IsReplacible { get; protected set; }
 		public bool IsSolid { get; protected set; }
 		public bool IsBuildable { get; protected set; }
 		public bool IsTransparent { get; protected set; }
 		public bool IsFlammable { get; protected set; }
+
+		public byte BlockLight { get; set; }
+		public byte SkyLight { get; set; }
 
 		public Block(byte id)
 		{
@@ -127,9 +131,9 @@ namespace MiNET.Blocks
 				case BlockFace.West:
 					return target + Level.West;
 				case BlockFace.North:
-					return target + Level.South;
-				case BlockFace.South:
 					return target + Level.North;
+				case BlockFace.South:
+					return target + Level.South;
 				default:
 					return target;
 			}
@@ -152,6 +156,12 @@ namespace MiNET.Blocks
 		public virtual BoundingBox GetBoundingBox()
 		{
 			return new BoundingBox(Coordinates, Coordinates + 1);
+		}
+
+
+		public object Clone()
+		{
+			return MemberwiseClone();
 		}
 	}
 }

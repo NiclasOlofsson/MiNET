@@ -26,11 +26,12 @@ namespace MiNET.Plugins
 		public string Description { get; set; }
 		public string Permission { get; set; }
 		public bool RequiresChatPerms { get; set; }
+		public bool OutputToSpeech { get; set; }
 
 		[JsonProperty(propertyName: "requires_edu")]
 		public bool RequiresEdu { get; set; }
-		[JsonProperty(propertyName: "is_automation")]
-		public bool IsAutomation { get; set; }
+		[JsonProperty(propertyName: "is_hidden")]
+		public bool IsHidden { get; set; }
 
 		public Dictionary<string, Overload> Overloads { get; set; }
 	}
@@ -92,6 +93,11 @@ namespace MiNET.Plugins
 
 		public int Z { get; set; }
 		public bool ZRelative { get; set; }
+
+		public override string ToString()
+		{
+			return $"X: {X}, XRelative: {XRelative}, Y: {Y}, YRelative: {YRelative}, Z: {Z}, ZRelative: {ZRelative}";
+		}
 	}
 
 	public class Target

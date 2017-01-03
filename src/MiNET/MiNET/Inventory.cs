@@ -40,17 +40,17 @@ namespace MiNET
 			}
 		}
 
-	    public void SetSlot(Player player, byte slot, Item itemStack)
-	    {
-	            Slots[slot] = itemStack;
+		public void SetSlot(Player player, byte slot, Item itemStack)
+		{
+				Slots[slot] = itemStack;
 
-	            NbtCompound compound = BlockEntity.GetCompound();
-	            compound["Items"] = GetSlots();
+				NbtCompound compound = BlockEntity.GetCompound();
+				compound["Items"] = GetSlots();
 
-	            OnInventoryChange(player, slot, itemStack);
-	    }
+				OnInventoryChange(player, slot, itemStack);
+		}
 
-	    public Item GetSlot(byte slot)
+		public Item GetSlot(byte slot)
 		{
 			return Slots[slot];
 		}

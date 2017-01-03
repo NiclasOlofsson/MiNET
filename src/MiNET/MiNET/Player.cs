@@ -46,7 +46,7 @@ namespace MiNET
 		public int MaxViewDistance { get; set; } = 22;
 		public int MoveRenderDistance { get; set; } = 1;
 
-        public ItemStacks EnderChestSlots { get; set; } = new ItemStacks();
+		public ItemStacks EnderChestSlots { get; set; } = new ItemStacks();
 
 		public GameMode GameMode { get; set; }
 		public bool UseCreativeInventory { get; set; } = true;
@@ -93,11 +93,11 @@ namespace MiNET
 			HideNameTag = false;
 			IsAlwaysShowName = true;
 
-            for (byte i = 0; i < 27; i++)
-            {
-                EnderChestSlots.Add(new ItemAir());
-            }
-        }
+			for (byte i = 0; i < 27; i++)
+			{
+				EnderChestSlots.Add(new ItemAir());
+			}
+		}
 
 		public void HandleMcpeClientMagic(McpeClientMagic message)
 		{
@@ -1289,10 +1289,10 @@ namespace MiNET
 					return;
 				}
 
-                if (inventory.BlockEntity is EnderChestBlockEntity)
-			    {
-			        inventory.Slots = EnderChestSlots;
-			    }
+				if (inventory.BlockEntity is EnderChestBlockEntity)
+				{
+					inventory.Slots = EnderChestSlots;
+				}
 
 				// get inventory # from inventory manager
 				// set inventory as active on player
@@ -1460,10 +1460,10 @@ namespace MiNET
 
 				if (inventory == null) return;
 
-			    if (inventory.BlockEntity is EnderChestBlockEntity)
-			    {
-			        EnderChestSlots = inventory.Slots;
-			    }
+				if (inventory.BlockEntity is EnderChestBlockEntity)
+				{
+					EnderChestSlots = inventory.Slots;
+				}
 
 				// unsubscribe to inventory changes
 				inventory.InventoryChange -= OnInventoryChange;

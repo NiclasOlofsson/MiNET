@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using fNbt;
@@ -50,16 +49,16 @@ namespace MiNET
 
 				Inventory inventory;
 				
-                if (blockEntity is EnderChestBlockEntity)
-                {
-                    return new Inventory(GetInventoryId(), blockEntity, 27, (NbtList)comp["Items"])
-                    {
-                        Type = 0,
-                        WindowsId = 13,
-                    };
-                }
+				if (blockEntity is EnderChestBlockEntity)
+				{
+					return new Inventory(GetInventoryId(), blockEntity, 27, (NbtList)comp["Items"])
+					{
+						Type = 0,
+						WindowsId = 13,
+					};
+				}
 
-                if (blockEntity is ChestBlockEntity)
+				if (blockEntity is ChestBlockEntity)
 				{
 					inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
 					{

@@ -15,7 +15,7 @@ namespace MiNET.Blocks
 
 		public override Item[] GetDrops()
 		{
-			return Enumerable.Repeat<Item>(new ItemBlock(new Obsidian(), 0), 8).ToArray();
+			return new[] {ItemFactory.GetItem(49, 0, 8)};
 		}
 	}
 }

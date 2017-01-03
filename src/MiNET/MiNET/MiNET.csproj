@@ -120,11 +120,8 @@
     <Compile Include="Blocks\DarkOakDoor.cs" />
     <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
     <Compile Include="Blocks\Dropper.cs" />
-<<<<<<< HEAD
     <Compile Include="Blocks\EnderChest.cs" />
-=======
     <Compile Include="Blocks\EndBrick.cs" />
->>>>>>> ab181a853395ab16194d10ac5471ad6176097d5e
     <Compile Include="Blocks\JungleDoor.cs" />
     <Compile Include="Blocks\LitRedstoneOre.cs" />
     <Compile Include="Blocks\MelonStem.cs" />

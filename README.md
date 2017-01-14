@@ -1,8 +1,5 @@
 In case you don't find the information your are looking for in the README. Do try the [wiki](https://github.com/NiclasOlofsson/MiNET/wiki)
 
-# HELP! MiNET NEEDS AN INSTALLER!
-MiNET is in dire need of a WiX-based installer. If you **already know** WiX and want to contribute, please contact me on gitter.
-
 MiNET
 =====
 

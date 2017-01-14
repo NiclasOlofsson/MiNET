@@ -327,7 +327,7 @@ namespace MiNET
 				LavaTicks = 0;
 			}
 
-			if (!IsInLava(Entity.KnownPosition) && IsOnFire)
+			if (!IsInFireOrLava(Entity.KnownPosition) && IsOnFire)
 			{
 				FireTick--;
 				if (FireTick <= 0)
@@ -361,11 +361,11 @@ namespace MiNET
 			return y < Math.Floor(y) + 1 - ((1/9) - 0.1111111);
 		}
 
-		private bool IsInLava(PlayerLocation playerPosition)
+		private bool IsInFireOrLava(PlayerLocation playerPosition)
 		{
 			var block = Entity.Level.GetBlock(playerPosition);
 
-			if (block == null || (block.Id != 10 && block.Id != 11)) return false;
+			if (block == null || (block.Id != 10 && block.Id != 11 && block.Id != 51)) return false;
 
 			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1/9) - 0.1111111);
 		}

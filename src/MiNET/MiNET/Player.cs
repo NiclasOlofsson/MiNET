@@ -835,11 +835,12 @@ namespace MiNET
 			}
 
 			// send teleport straight up, no chunk loading
+			// +1000000 on X/Z axis is to unload the previously loaded chunks (https://bugs.mojang.com/browse/MCPE-19818)
 			SetPosition(new PlayerLocation
 			{
-				X = KnownPosition.X,
+				X = KnownPosition.X + 1000000,
 				Y = 4000,
-				Z = KnownPosition.Z,
+				Z = KnownPosition.Z + 1000000,
 				Yaw = 91,
 				Pitch = 28,
 				HeadYaw = 91,

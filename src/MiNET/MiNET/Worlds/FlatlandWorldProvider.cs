@@ -8,7 +8,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class FlatlandWorldProvider : IWorldProvider
+	public class FlatlandWorldProvider : IWorldProvider, ICachingWorldProvider
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (FlatlandWorldProvider));
 
@@ -260,6 +260,10 @@ namespace MiNET.Worlds
 			return _chunkCache.Values.Where(column => column != null).ToArray();
 		}
 
+		public void ClearCachedChunks()
+		{
+			_chunkCache.Clear();
+		}
 
 		private Sign GetBlockEntity(int x, int y, int z)
 		{

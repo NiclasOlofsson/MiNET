@@ -31,7 +31,7 @@ namespace MiNET.Worlds
 		}
 	}
 
-	public class AnvilWorldProvider : IWorldProvider, ICloneable
+	public class AnvilWorldProvider : IWorldProvider, ICachingWorldProvider, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
 
@@ -209,6 +209,11 @@ namespace MiNET.Worlds
 		public ChunkColumn[] GetCachedChunks()
 		{
 			return _chunkCache.Values.Where(column => column != null).ToArray();
+		}
+
+		public void ClearCachedChunks()
+	    {
+			_chunkCache.Clear();
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)

@@ -1099,39 +1099,21 @@ namespace MiNET.Worlds
 
 		public ChunkColumn[] GetLoadedChunks()
 		{
-			{
-				var provider = _worldProvider as AnvilWorldProvider;
-				if (provider != null)
-				{
-					return provider.GetCachedChunks();
-				}
-			}
-			{
-				var provider = _worldProvider as FlatlandWorldProvider;
-				if (provider != null)
-				{
-					return provider.GetCachedChunks();
-				}
+			var cacheProvider = _worldProvider as ICachingWorldProvider;
+			if (cacheProvider != null)
+		    {
+				return cacheProvider.GetCachedChunks();
 			}
 
 			return new ChunkColumn[0];
 		}
 
 		public void ClearLoadedChunks()
-		{
+        {
+			var cacheProvider = _worldProvider as ICachingWorldProvider;
+			if (cacheProvider != null)
 			{
-				var provider = _worldProvider as AnvilWorldProvider;
-				if (provider != null)
-				{
-					provider._chunkCache.Clear();
-				}
-			}
-			{
-				var provider = _worldProvider as FlatlandWorldProvider;
-				if (provider != null)
-				{
-					provider._chunkCache.Clear();
-				}
+				cacheProvider.ClearCachedChunks();
 			}
 		}
 

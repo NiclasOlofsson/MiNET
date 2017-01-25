@@ -1109,7 +1109,7 @@ namespace MiNET.Worlds
 		}
 
 		public void ClearLoadedChunks()
-        {
+		{
 			var cacheProvider = _worldProvider as ICachingWorldProvider;
 			if (cacheProvider != null)
 			{

@@ -212,7 +212,7 @@ namespace MiNET.Worlds
 		}
 
 		public void ClearCachedChunks()
-	    {
+		{
 			_chunkCache.Clear();
 		}
 

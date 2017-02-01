@@ -626,6 +626,7 @@
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
     <Compile Include="Worlds\GameMode.cs" />
+    <Compile Include="Worlds\ICachingWorldProvider.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
     <Compile Include="Worlds\LevelInfo.cs" />

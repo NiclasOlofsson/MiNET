@@ -150,7 +150,7 @@
 	<pdu id="0x06" online="false" client="false" server="true" name="MCPE_BATCH">
 		<field name="Payload" type="ByteArray" />
 	</pdu>
-	
+
 	<pdu id="0x07" online="false" client="false" server="true" name="MCPE_RESOURCE_PACKS_INFO">
 		<field name="Must accept" type="bool" />
 		<field name="BehahaviorPackInfos" type="ResourcePackInfos" />
@@ -165,8 +165,8 @@
 
 	<pdu id="0x09" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CLIENT_RESPONSE">
 		<field name="Response status" type="byte" />
-    <field name="ResourcePackIdVersions" type="ResourcePackIdVersions" />
-  </pdu>
+		<field name="ResourcePackIdVersions" type="ResourcePackIdVersions" />
+	</pdu>
 
 	<!-- 
 		The chat types are:
@@ -221,10 +221,10 @@
 		<field name="Speed X" type="float" />
 		<field name="Speed Y" type="float" />
 		<field name="Speed Z" type="float" />
-    <field name="Pitch" type="float" />
-    <field name="Head Yaw" type="float" />
-    <field name="Yaw" type="float" />
-    <field name="Item" type="Item" />
+		<field name="Pitch" type="float" />
+		<field name="Head Yaw" type="float" />
+		<field name="Yaw" type="float" />
+		<field name="Item" type="Item" />
 		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
@@ -621,39 +621,39 @@
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_STEP">
-    <field name="Command name" type="string"  />
-    <field name="Command overload" type="string"  />
-    <field name="Unknown 1" type="UnsignedVarInt"  />
-    <field name="Unknown 2" type="UnsignedVarInt"  />
-    <field name="Is Output" type="bool"  />
-    <field name="Unknown 5" type="UnsignedVarLong"  />
-    <field name="Command Input Json" type="string"  />
-    <field name="Command Output Json" type="string"  />
-    <field name="Unknown 7" type="byte"  />
-    <field name="Unknown 8" type="byte"  />
-    <field name="Entity ID" type="SignedVarLong"  />
-  </pdu>
+		<field name="Command name" type="string"  />
+		<field name="Command overload" type="string"  />
+		<field name="Unknown 1" type="UnsignedVarInt"  />
+		<field name="Unknown 2" type="UnsignedVarInt"  />
+		<field name="Is Output" type="bool"  />
+		<field name="Unknown 5" type="UnsignedVarLong"  />
+		<field name="Command Input Json" type="string"  />
+		<field name="Command Output Json" type="string"  />
+		<field name="Unknown 7" type="byte"  />
+		<field name="Unknown 8" type="byte"  />
+		<field name="Entity ID" type="SignedVarLong"  />
+	</pdu>
 
 	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
-    <field name="Package ID" type="string"  />
-    <field name="Unknown1" type="uint"  />
-    <field name="Unknown2" type="uint"  />
-    <field name="Unknown3" type="ulong"  />
-    <field name="Unknown4" type="string"  />
-  </pdu>
+		<field name="Package ID" type="string"  />
+		<field name="Unknown1" type="uint"  />
+		<field name="Unknown2" type="uint"  />
+		<field name="Unknown3" type="ulong"  />
+		<field name="Unknown4" type="string"  />
+	</pdu>
 
 	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
-    <field name="Package ID" type="string"  />
-    <field name="Unknown1" type="uint"  />
-    <field name="Unknown3" type="ulong"  />
-    <field name="Length" type="uint"  />
-    <field name="Payload" type="byte[]" size="0" />
-  </pdu>
+		<field name="Package ID" type="string"  />
+		<field name="Unknown1" type="uint"  />
+		<field name="Unknown3" type="ulong"  />
+		<field name="Length" type="uint"  />
+		<field name="Payload" type="byte[]" size="0" />
+	</pdu>
 
 	<pdu id="0x51" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
-    <field name="Package ID" type="string"  />
-    <field name="Chunk index" type="int"  />
-  </pdu>
+		<field name="Package ID" type="string"  />
+		<field name="Chunk index" type="int"  />
+	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0" />

@@ -292,7 +292,7 @@ namespace TestPlugin
 
 				if (levels != null)
 				{
-					player.SpawnLevel(null, null, true, delegate
+					player.SpawnLevel(null, null, false, delegate
 					{
 						lock (levelManager.Levels)
 						{

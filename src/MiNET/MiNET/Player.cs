@@ -807,6 +807,11 @@ namespace MiNET
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
 
+			if (toLevel == null && levelFunc != null)
+			{
+				toLevel = levelFunc();
+			}
+
 			if (useLoadingScreen)
 			{
 				{

@@ -555,6 +555,11 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
+					case 0x52:
+						package = McpeTransfer.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
 				}
 			}
 
@@ -4798,6 +4803,47 @@ namespace MiNET.Net
 
 			packageId = ReadString();
 			chunkIndex = ReadInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
+	public partial class McpeTransfer : Package<McpeTransfer>
+	{
+		public string serverAddress; // = null;
+		public ushort port; // = null;
+		public McpeTransfer()
+		{
+			Id = 0x52;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(serverAddress);
+			Write(port);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			serverAddress = ReadString();
+			port = ReadUshort();
 
 			AfterDecode();
 		}

@@ -102,6 +102,7 @@
 | Mcpe Resource Pack Data Info | 0x4f | 79 |   
 | Mcpe Resource Pack Chunk Data | 0x50 | 80 |   
 | Mcpe Resource Pack Chunk Request | 0x51 | 81 |   
+| Mcpe Transfer | 0x52 | 82 |   
 | Mcpe Wrapper | 0xfe | 254 |   
 
 
@@ -1706,6 +1707,21 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |Package ID | string |  |
 |Chunk index | int |  |
+-----------------------------------------------------------------------
+###Package: Mcpe Transfer (0x52)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Server Address | string |  |
+|Port | ushort |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Wrapper (0xfe)
 

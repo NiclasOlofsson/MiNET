@@ -146,6 +146,21 @@ namespace MiNET.Net
 			return _reader.ReadInt16();
 		}
 
+		public void Write(ushort value, bool bigEndian = false)
+		{
+			if (bigEndian) _writer.Write(Endian.SwapUInt16(value));
+			else _writer.Write(value);
+		}
+
+		public ushort ReadUshort(bool bigEndian = false)
+		{
+			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
+
+			if (bigEndian) return Endian.SwapUInt16(_reader.ReadUInt16());
+
+			return _reader.ReadUInt16();
+		}
+
 		public void WriteBe(short value)
 		{
 			_writer.Write(Endian.SwapInt16(value));

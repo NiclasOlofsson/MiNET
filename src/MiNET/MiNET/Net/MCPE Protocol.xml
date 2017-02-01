@@ -655,6 +655,11 @@
 		<field name="Chunk index" type="int"  />
 	</pdu>
 
+	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_TRANSFER">
+		<field name="Server Address" type="string"  />
+		<field name="Port" type="ushort"  />
+	</pdu>
+
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>

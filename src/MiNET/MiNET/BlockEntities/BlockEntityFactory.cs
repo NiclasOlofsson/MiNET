@@ -8,6 +8,7 @@
 
 			if (blockEntityId == "Sign") blockEntity = new Sign();
 			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
+			else if (blockEntityId == "EnderChest") blockEntity = new EnderChestBlockEntity();
 			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
 			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
 			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();

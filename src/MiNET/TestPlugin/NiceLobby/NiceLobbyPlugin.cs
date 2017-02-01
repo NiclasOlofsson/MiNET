@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -71,21 +71,11 @@ namespace TestPlugin.NiceLobby
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 
-			//int idx = 1;
-			//player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronShovel().Id);
-			//player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronAxe().Id);
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Sand(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemBlock(new StoneBrick(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemDiamondSword();
-			//player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
-		 //   for (short i = 0; i < 16; i++)
-		 //   {
-   //             player.Inventory.Slots[idx++] = new ItemBlock(new Glass(), i) { Count = 20 };
-   //         }
-
-			//player.SendPlayerInventory();
+			int idx = 1;
+			player.Inventory.Slots[idx++] = new ItemEnderChest() { Count = 20 };
+			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe();
+			player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
+			player.SendPlayerInventory();
 
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
 		}

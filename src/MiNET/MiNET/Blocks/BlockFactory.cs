@@ -223,6 +223,7 @@ namespace MiNET.Blocks
 			else if (blockId == 127) block = new Cocoa();
 			else if (blockId == 128) block = new SandStoneStairs();
 			else if (blockId == 129) block = new EmeraldOre();
+			else if (blockId == 130) block = new EnderChest();
 			else if (blockId == 131) block = new TripwireHook();
 			else if (blockId == 132) block = new Tripwire();
 			else if (blockId == 133) block = new EmeraldBlock();

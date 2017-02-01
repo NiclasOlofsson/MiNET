@@ -614,11 +614,11 @@ namespace MiNET
 
 		public void SendPackage(Package package)
 		{
-			MiNetServer.TraceSend(package);
-
 			if (package == null) return;
 
-			if (State == ConnectionState.Unconnected)
+            MiNetServer.TraceSend(package);
+
+            if (State == ConnectionState.Unconnected)
 			{
 				package.PutPool();
 				return;

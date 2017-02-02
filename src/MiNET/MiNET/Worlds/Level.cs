@@ -348,25 +348,12 @@ namespace MiNET.Worlds
 
 		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null)
 		{
-			if (type == MessageType.Chat || type == MessageType.Raw)
-			{
-				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
-				{
-					McpeText message = McpeText.CreateObject();
-					message.type = (byte) type;
-					message.source = sender == null ? "" : sender.Username;
-					message.message = line;
-					RelayBroadcast(sendList, message);
-				}
-			}
-			else
-			{
-				McpeText message = McpeText.CreateObject();
-				message.type = (byte) type;
-				message.source = sender == null ? "" : sender.Username;
-				message.message = text;
-				RelayBroadcast(sendList, message);
-			}
+
+			McpeText message = McpeText.CreateObject();
+			message.type = (byte) type;
+			message.source = sender == null ? "" : sender.Username;
+			message.message = text;
+			RelayBroadcast(sendList, message);
 		}
 
 		private object _tickSync = new object();

@@ -65,7 +65,7 @@ namespace MiNET.Worlds
 				//{90, air}, // Nether Portal	=> Air
 				//{93, air}, // minecraft:unpowered_repeater	=> Air
 				//{94, air}, // minecraft:powered_repeater	=> Air
-				{95, new NoDataMapper(20)}, // minecraft:stained_glass	=> Glass
+				{95, new NoDataMapper(241)}, // minecraft:stained_glass	=> Stained Glass
 				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
 				{167, new Mapper(167, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, //Fix iron_trapdoor
 				//{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
@@ -76,7 +76,7 @@ namespace MiNET.Worlds
 				//{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
 				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
 				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
-				{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
+				//{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
 				{137, air}, // Command Block	=> Air
 				//{138, air}, // Beacon		=> Air
 				{
@@ -130,7 +130,7 @@ namespace MiNET.Worlds
 				//{154, air}, // minecraft:hopper		=> Air
 				{157, new NoDataMapper(126)}, // minecraft:activator_rail	=> minecraft:activator_rail
 				{158, new NoDataMapper(125)}, // minecraft:dropper		=> Air
-				{160, new NoDataMapper(102)}, // minecraft:stained_glass_pane	=> Glass Pane
+				//{160, new NoDataMapper(160)}, // minecraft:stained_glass_pane	=> Glass Pane
 				//{165, air}, // Slime Block		=> Air
 				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
 				//{168, air}, // minecraft:prismarine		=> Air
@@ -149,9 +149,12 @@ namespace MiNET.Worlds
 				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
 				{198, new NoDataMapper(208)}, // minecraft:end_rod	=> EndRod
+				{199, new NoDataMapper(140)}, // minecraft:chorus_plant => ChorusPlant
 				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
 				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
+				{209, new NoDataMapper(209)}, // minecraft:end_gateway => EndGateway
 				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
+				{218, new NoDataMapper(251)} // minecraft:observer => Observer
 			};
 		}
 

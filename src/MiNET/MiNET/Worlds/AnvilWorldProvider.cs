@@ -150,6 +150,8 @@ namespace MiNET.Worlds
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
 				{198, new NoDataMapper(208)}, // minecraft:end_rod	=> EndRod
 				{199, new NoDataMapper(140)}, // minecraft:chorus_plant => ChorusPlant
+				{202, new Mapper(201, (i, b) => 2) }, // minecraft:purpur_pillar => PurpurBlock:2 (idk why)
+				{205, new Mapper(182, (i, b) => 1) }, // minecraft:purpur_slab => RedSandstoneSlab:1 (idk why)
 				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
 				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
 				{209, new NoDataMapper(209)}, // minecraft:end_gateway => EndGateway

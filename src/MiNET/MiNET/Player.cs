@@ -2356,7 +2356,11 @@ namespace MiNET
 
 		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)
 		{
-			Level.BroadcastMessage(text, type, sender, new[] {this});
+			McpeText message = McpeText.CreateObject();
+			message.type = (byte) type;
+			message.source = sender == null ? "" : sender.Username;
+			message.message = text;
+			SendPackage(message);
 		}
 
 		public virtual void BroadcastEntityEvent()

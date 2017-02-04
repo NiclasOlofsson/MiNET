@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -1017,6 +1017,16 @@ namespace MiNET.Worlds
 			else
 			{
 				block.BreakBlock(this);
+				
+				var lvlEvent = new McpeLevelEvent
+                {
+                    eventId = (short) LevelEventType.ParticleDestroy,
+                    data = block.Id,
+                    x = blockCoordinates.X,
+                    y = blockCoordinates.Y,
+                    z = blockCoordinates.Z,
+                };
+                player.SendPackage(lvlEvent);
 
 				if (blockEntity != null)
 				{

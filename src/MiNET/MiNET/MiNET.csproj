@@ -386,6 +386,8 @@
     <Compile Include="InventoryManager.cs" />
     <Compile Include="InventoryUtils.cs" />
     <Compile Include="INetworkHandler.cs" />
+    <Compile Include="IO\PackageAssembler.cs" />
+    <Compile Include="IO\PackageAssembledEventArgs.cs" />
     <Compile Include="Items\FoodItem.cs" />
     <Compile Include="Items\ItemAir.cs" />
     <Compile Include="Items\ItemApple.cs" />
@@ -562,6 +564,13 @@
     <Compile Include="Plugins\PluginContext.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Popup.cs" />
+    <Compile Include="IO\ClientConnectingEventArgs.cs" />
+    <Compile Include="IO\ConnectedPackageReceivedEventArgs.cs" />
+    <Compile Include="IO\ReceivedDataEventArgs.cs" />
+    <Compile Include="IO\QueryHandler.cs" />
+    <Compile Include="IO\IOClient.cs" />
+    <Compile Include="IO\ClientConnectionHandler.cs" />
+    <Compile Include="IO\DatagramProcessor.cs" />
     <Compile Include="Security\DefaultRoleStore.cs" />
     <Compile Include="Security\DefaultUserStore.cs" />
     <Compile Include="Security\Role.cs" />

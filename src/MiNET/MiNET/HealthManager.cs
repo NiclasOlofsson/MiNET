@@ -80,6 +80,8 @@ namespace MiNET
 
 
 			if (CooldownTick > 0) return;
+		
+			if (source.KnownPosition.DistanceTo(Entity.KnownPosition) > 4) return;//Cheat against cheaters that hit from a distance.
 
 			LastDamageSource = source;
 			LastDamageCause = cause;

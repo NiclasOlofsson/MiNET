@@ -112,9 +112,9 @@ namespace MiNET.Net
 
 		protected override void DecodePackage()
 		{
-            base.DecodePackage();
+			base.DecodePackage();
 
-			if (Id != 0xc0) throw new Exception("Not NAK");
+			if (Id != 0xc0) throw new Exception("Not ACK");
 
 			ranges.Clear();
 

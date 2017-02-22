@@ -280,6 +280,7 @@ namespace MiNET.Entities
 		public virtual void DespawnEntity()
 		{
 			Level.RemoveEntity(this);
+			IsSpawned = false;
 		}
 
 		public virtual void DespawnFromPlayers(Player[] players)

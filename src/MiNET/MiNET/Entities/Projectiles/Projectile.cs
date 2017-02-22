@@ -171,7 +171,7 @@ namespace MiNET.Entities.Projectiles
 
 				if (player != null)
 				{
-					damage = player.CalculatePlayerDamage(player, damage);
+					damage = player.DamageCalculator.CalculatePlayerDamage(player, damage);
 				}
 
 				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);

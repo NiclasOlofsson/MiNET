@@ -294,6 +294,7 @@
     <Compile Include="CertificateData.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="Crafting\Recipe.cs" />
+    <Compile Include="DamageCalculator.cs" />
     <Compile Include="Effects\Absorption.cs" />
     <Compile Include="Effects\Blindness.cs" />
     <Compile Include="Effects\Effect.cs" />

@@ -292,8 +292,8 @@ namespace MiNET
 					}
 					else
 					{
-						Log.Error("Unexpected end of transmission?");
-						return;
+						Log.Warn("Unexpected end of transmission?");
+						continue;
 					}
 				}
 				catch (Exception e)

@@ -312,21 +312,24 @@ namespace MiNET.Worlds
 			{
 				NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
-				int topEmpty = 0;
-				for (int ci = 15; ci > 0; ci--)
+				int topEmpty = 16;
+				for (int ci = 15; ci >= 0; ci--)
 				{
-					if (chunks[ci].IsAllAir()) topEmpty = ci + 1;
+					if (chunks[ci].IsAllAir()) topEmpty = ci;
 					else break;
 				}
 
 				writer.Write((byte) topEmpty);
-				Log.Debug($"Saved sending {16 - topEmpty} chunks");
 
+				int sent = 0;
 				for (int ci = 0; ci < topEmpty; ci++)
 				{
 					writer.Write((byte) 0);
 					writer.Write(chunks[ci].GetBytes());
+					sent++;
 				}
+
+				Log.Debug($"Saved sending {16 - sent} chunks");
 
 				//RecalcHeight();
 				writer.Write(height);

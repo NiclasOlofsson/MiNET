@@ -170,7 +170,14 @@ namespace MiNET.Plugins
 				DescriptionAttribute descriptionAttribute = Attribute.GetCustomAttribute(method, typeof (DescriptionAttribute), false) as DescriptionAttribute;
 				if (descriptionAttribute != null) commandAttribute.Description = descriptionAttribute.Description;
 
-				_pluginCommands.Add(method, commandAttribute);
+				try
+				{
+					_pluginCommands.Add(method, commandAttribute);
+				}
+				catch (ArgumentException e)
+				{
+					Log.Error($"Command already exist {method.Name}, {method}", e);
+				}
 			}
 		}
 

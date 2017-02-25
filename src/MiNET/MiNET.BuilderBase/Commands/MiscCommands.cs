@@ -21,7 +21,7 @@ namespace MiNET.BuilderBase.Commands
 			EditSession.Fill((BlockCoordinates) player.KnownPosition, pattern, new AirBlocksMask(player.Level), radius, depth);
 		}
 
-		[Command(Description = "Fill a hole")]
+		[Command(Description = "Drain lava and water")]
 		public void Drain(Player player, int radius)
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition,
@@ -41,10 +41,11 @@ namespace MiNET.BuilderBase.Commands
 			}
 		}
 
-		[Command(Description = "Grass, 2 layers of dirt, then rock below")]
-		public void Text(Player player, string text, string fontName = "Arial", int pxSize = 10)
+		[Command(Description = "Render block-text of any font and size.")]
+		public void Text(Player player, string text, string fontName = "Minecraft", int pxSize = 10)
 		{
-			var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
+			//var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
+			var font = new Font(fontName, pxSize, GraphicsUnit.Pixel);
 
 			SizeF size;
 			// First measure the size of the text
@@ -78,7 +79,8 @@ namespace MiNET.BuilderBase.Commands
 						BlockCoordinates tc = new BlockCoordinates(0, i, w);
 						if (color.A == 255)
 						{
-							var block = new Sand {Coordinates = tc + coords};
+							var block = new Stone {Coordinates = tc + coords};
+							//var block = new Sand {Coordinates = tc + coords};
 							Log.Debug($"Pixel at {tc + coords}, {color}");
 							EditSession.SetBlock(block);
 						}

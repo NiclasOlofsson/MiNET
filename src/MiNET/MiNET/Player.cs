@@ -85,7 +85,8 @@ namespace MiNET
 
 			IsSpawned = false;
 			IsConnected = endPoint != null; // Can't connect if there is no endpoint
-
+			Width = 0.6;
+			Length = 0.6;
 			Height = 1.85;
 
 			HideNameTag = false;

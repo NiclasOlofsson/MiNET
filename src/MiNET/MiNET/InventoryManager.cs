@@ -60,7 +60,7 @@ namespace MiNET
 				{
 					inventory = new Inventory(GetInventoryId(), blockEntity, 2, (NbtList)comp["Items"])
 					{
-						Type = 4,
+						Type = 3,
 						WindowsId = 12,
 					};
 				}

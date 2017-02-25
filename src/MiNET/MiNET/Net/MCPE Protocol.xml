@@ -482,7 +482,7 @@
 		<field name="Type" type="byte" />
 		<field name="Slot Count" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Unown Entity ID" type="UnsignedVarLong" />
+		<field name="Unknown Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_CONTAINER_CLOSE">
@@ -583,7 +583,7 @@
 	</pdu>
 
 	<pdu id="0x43" online="false" client="true" server="true" name="MCPE_MAP_INFO_REQUEST">
-		<field name="Map ID" type="UnsignedVarLong" />
+		<field name="Map ID" type="SignedVarLong" />
 	</pdu>
 
 	<pdu id="0x44" online="false" client="true" server="true" name="MCPE_REQUEST_CHUNK_RADIUS">

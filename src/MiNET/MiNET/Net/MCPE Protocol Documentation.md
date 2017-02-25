@@ -1217,7 +1217,7 @@ MODE_ROTATION = 2;
 |Type | byte |  |
 |Slot Count | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
-|Unown Entity ID | UnsignedVarLong |  |
+|Unknown Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Close (0x31)
 
@@ -1507,7 +1507,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Map ID | UnsignedVarLong |  |
+|Map ID | SignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Request Chunk Radius (0x44)
 

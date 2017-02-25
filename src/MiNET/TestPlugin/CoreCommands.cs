@@ -514,6 +514,8 @@ namespace TestPlugin
 			//}
 
 			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
+			inventory.Slots[c++] = new ItemEnchantingTable();
+			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
@@ -783,16 +785,6 @@ namespace TestPlugin
 			player.Experience += 0.1f;
 			player.ExperienceLevel += 1;
 			player.SendUpdateAttributes();
-		}
-
-		[PacketHandler, Receive]
-		public Package OnUse(McpeUseItem package, Player player)
-		{
-			Log.Error("Handle McpeUseItem packet");
-			player.Experience = 0.0f;
-			player.ExperienceLevel += 1;
-			player.SendUpdateAttributes();
-			return package;
 		}
 
 		[Command(Name = "nd")]

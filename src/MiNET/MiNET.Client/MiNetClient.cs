@@ -148,6 +148,7 @@ namespace MiNET.Client
 			//}
 
 			Action<Task, Item, BlockCoordinates> doUseItem = BotHelpers.DoUseItem(client);
+			Action<Task, int, Item, int> doSetSlot = BotHelpers.DoContainerSetSlot(client);
 			Action<Task, PlayerLocation> doMoveTo = BotHelpers.DoMoveTo(client);
 			Action<Task, string> doSendCommand = BotHelpers.DoSendCommand(client);
 
@@ -155,12 +156,16 @@ namespace MiNET.Client
 			//.ContinueWith(t => doMoveTo(t, client.CurrentLocation + new Vector3(10, 1.62f, 10)))
 
 			Task.Run(BotHelpers.DoWaitForSpawn(client))
-				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Stone(), 0) {Count = 64}, 0))
+				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180+45, 180+45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
 				//.ContinueWith(t => doSendCommand(t, "/test"))
-				//.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
+				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) { Count = 1 }, new BlockCoordinates(22, 4, 42)))
+				.ContinueWith(t => Task.Delay(5000).Wait())
+				.ContinueWith(t => doSetSlot(t, 2, new ItemIronSword() { Count = 1 }, 0))
+				.ContinueWith(t => doSetSlot(t, 2, ItemFactory.GetItem(351, 4, 64), 1))
 				//.ContinueWith(t =>
 				//{
 				//	Random rnd = new Random();
@@ -1258,7 +1263,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 92,
+				protocolVersion = 101,
 				edition = 0,
 				payload = data
 			};

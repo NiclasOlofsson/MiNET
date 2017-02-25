@@ -1324,7 +1324,7 @@ namespace MiNET
 				containerOpen.type = inventory.Type;
 				containerOpen.slotCount = inventory.Size;
 				containerOpen.coordinates = inventoryCoord;
-				containerOpen.unownEntityId = 1;
+				containerOpen.unknownEntityId = 1;
 				SendPackage(containerOpen);
 
 				var containerSetContent = McpeContainerSetContent.CreateObject();
@@ -1392,7 +1392,7 @@ namespace MiNET
 				{
 					if (_openInventory.WindowsId == message.windowId)
 					{
-						if (_openInventory.Type == 4)
+						if (_openInventory.Type == 3)
 						{
 							Recipes recipes = new Recipes();
 							recipes.Add(new EnchantingRecipe());

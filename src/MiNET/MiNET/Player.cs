@@ -536,17 +536,16 @@ namespace MiNET
 
 				SendStartGame();
 
+				if (ChunkRadius == -1) ChunkRadius = 5;
+
+				SendChunkRadiusUpdate();
+
 				//SendSetSpawnPosition();
 
 				SendSetTime();
 
 				SendSetDificulty();
 
-				{
-					var setCmdEnabled = McpeSetCommandsEnabled.CreateObject();
-					setCmdEnabled.enabled = false;
-					SendPackage(setCmdEnabled);
-				}
 
 				SendSetCommandsEnabled();
 
@@ -559,8 +558,6 @@ namespace MiNET
 				// Vanilla 2nd player list here
 
 				Level.AddPlayer(this, false);
-
-				// Send McpeAvailableCommands
 
 				SendAvailableCommands();
 
@@ -580,11 +577,6 @@ namespace MiNET
 
 				BroadcastSetEntityData();
 
-				// Vanilla sends chunks here
-
-				//SendRespawn();
-
-				//SendPlayerStatus(3);
 			}
 			catch (Exception e)
 			{
@@ -597,15 +589,10 @@ namespace MiNET
 
 			LastUpdatedTime = DateTime.UtcNow;
 
-
-			if (ChunkRadius == -1) ChunkRadius = 5;
-
-			//SendChunkRadiusUpdate();
-
 			_completedStartSequence = true;
 
-			ForcedSendChunk(KnownPosition);
-			SendChunksForKnownPosition();
+			//ForcedSendChunk(KnownPosition);
+			//SendChunksForKnownPosition();
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;

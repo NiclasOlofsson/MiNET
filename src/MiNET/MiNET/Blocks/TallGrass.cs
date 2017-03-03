@@ -1,5 +1,7 @@
 using System;
 using MiNET.Items;
+using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -20,6 +22,15 @@ namespace MiNET.Blocks
 			IsSolid = false;
 			IsReplacible = true;
 			IsTransparent = true;
+		}
+
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			{
+				level.SetAir(Coordinates);
+				UpdateBlocks(level);
+			}
 		}
 
 		public override Item[] GetDrops()

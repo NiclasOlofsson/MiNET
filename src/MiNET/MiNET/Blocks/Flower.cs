@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -12,6 +9,15 @@ namespace MiNET.Blocks
 		{
 			IsSolid = false;
 			IsTransparent = true;
+		}
+
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			{
+				level.SetAir(Coordinates);
+				UpdateBlocks(level);
+			}
 		}
 	}
 }

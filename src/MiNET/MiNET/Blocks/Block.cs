@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 	///     Blocks are the basic units of structure in Minecraft. Together, they build up the in-game environment and can be
 	///     mined and utilized in various fashions.
 	/// </summary>
-	public class Block: ICloneable
+	public class Block : ICloneable
 	{
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; protected set; }
@@ -134,7 +134,7 @@ namespace MiNET.Blocks
 
 		public virtual Item[] GetDrops()
 		{
-			return new Item[] { new ItemBlock(this, Metadata) {Count = 1} };
+			return new Item[] {new ItemBlock(this, Metadata) {Count = 1}};
 		}
 
 		public virtual Item GetSmelt()

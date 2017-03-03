@@ -107,7 +107,7 @@ namespace MiNET
 				SendResourcePacksInfo();
 			}
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
 		public virtual void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
@@ -150,12 +150,22 @@ namespace MiNET
 			}
 			else if (message.responseStatus == 3)
 			{
-				SendResourcePackStack();
+				if (_serverHaveResources)
+				{
+					SendResourcePackStack();
+				}
+				else
+				{
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+				}
 				return;
 			}
 			else if (message.responseStatus == 4)
 			{
-				//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+				if (_serverHaveResources)
+				{
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+				}
 				return;
 			}
 		}
@@ -590,12 +600,12 @@ namespace MiNET
 
 			if (ChunkRadius == -1) ChunkRadius = 5;
 
-			SendChunkRadiusUpdate();
+			//SendChunkRadiusUpdate();
 
 			_completedStartSequence = true;
 
-			//ForcedSendChunk(KnownPosition);
-			//SendChunksForKnownPosition();
+			ForcedSendChunk(KnownPosition);
+			SendChunksForKnownPosition();
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;

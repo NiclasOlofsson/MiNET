@@ -32,8 +32,10 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override void OnTick(Level level)
+		public override void OnTick(Level level, bool isRandom)
 		{
+			if (isRandom) return;
+
 			Metadata = (byte) (Metadata & (0x7));
 			level.SetBlock(this);
 		}

@@ -816,7 +816,7 @@ namespace TestPlugin
 			foreach (var player in players)
 			{
 				McpeTransfer transfer = McpeTransfer.CreateObject();
-				transfer.serverAddress = "play.lbsg.net";
+				transfer.serverAddress = "yodamine.com";
 				transfer.port = 19132;
 				player.SendPackage(transfer);
 			}

@@ -54,6 +54,7 @@ namespace MiNET.Worlds
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; }
+		public bool EnableBlockTicking { get; set; } = false;
 
 		public bool AllowBuild { get; set; } = true;
 		public bool AllowBreak { get; set; } = true;
@@ -104,9 +105,8 @@ namespace MiNET.Worlds
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
 			}
 
-			if(Config.GetProperty("CheckForSafeSpawn", false))
+			if (Config.GetProperty("CheckForSafeSpawn", false))
 			{
-
 				var chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(SpawnPoint));
 				chunk.RecalcHeight();
 
@@ -406,13 +406,44 @@ namespace MiNET.Worlds
 					//RelayBroadcast(players, message);
 				}
 
+				Player[] players = GetSpawnedPlayers();
+				if (EnableBlockTicking)
+				{
+					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();
+					foreach (var player in players)
+					{
+						BlockCoordinates bCoord = (BlockCoordinates) player.KnownPosition;
+
+						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 8);
+					}
+
+					foreach (var coord in chunksWithinRadiusOfPlayer)
+					{
+						for (int s = 0; s < 16; s++)
+						{
+							for (int i = 0; i < 3; i++)
+							{
+								int x = Random.Next(16);
+								int y = Random.Next(16);
+								int z = Random.Next(16);
+
+								var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
+								var height = GetHeight(blockCoordinates);
+								if (height > 0 && s*16 > height) continue;
+
+								if (IsAir(blockCoordinates)) continue;
+
+								GetBlock(blockCoordinates).OnTick(this, true);
+							}
+						}
+					}
+				}
 				// Block updates
 				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks)
 				{
-					Log.Debug($"Have block tick for {blockEvent.Key}");
 					if (blockEvent.Value <= TickTime)
 					{
-						GetBlock(blockEvent.Key).OnTick(this);
+						GetBlock(blockEvent.Key).OnTick(this, false);
 						long value;
 						BlockWithTicks.TryRemove(blockEvent.Key, out value);
 					}
@@ -431,7 +462,6 @@ namespace MiNET.Worlds
 					entity.OnTick();
 				}
 
-				Player[] players = GetSpawnedPlayers();
 				PlayerCount = players.Length;
 
 				// Player tick
@@ -649,6 +679,36 @@ namespace MiNET.Worlds
 			return chunk;
 		}
 
+		public List<Tuple<int, int>> GetChunkCoordinatesForTick(ChunkCoordinates chunkPosition, List<Tuple<int, int>> chunksUsed, double radius)
+		{
+			{
+				List<Tuple<int, int>> newOrders = new List<Tuple<int, int>>();
+
+				double radiusSquared = Math.Pow(radius, 2);
+
+				int centerX = chunkPosition.X;
+				int centerZ = chunkPosition.Z;
+
+				for (double x = -radius; x <= radius; ++x)
+				{
+					for (double z = -radius; z <= radius; ++z)
+					{
+						var distance = (x*x) + (z*z);
+						if (distance > radiusSquared)
+						{
+							continue;
+						}
+						int chunkX = (int) (x + centerX);
+						int chunkZ = (int) (z + centerZ);
+						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
+						newOrders.Add(index);
+					}
+				}
+
+				return newOrders.Union(chunksUsed).ToList();
+			}
+		}
+
 		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed, double radius)
 		{
 			lock (chunksUsed)
@@ -667,7 +727,7 @@ namespace MiNET.Worlds
 						var distance = (x*x) + (z*z);
 						if (distance > radiusSquared)
 						{
-							//continue;
+							continue;
 						}
 						int chunkX = (int) (x + centerX);
 						int chunkZ = (int) (z + centerZ);
@@ -944,7 +1004,12 @@ namespace MiNET.Worlds
 
 			if (itemInHand is ItemBlock)
 			{
-				Block block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
+				Block block = GetBlock(blockCoordinates);
+				if (!block.IsReplacible)
+				{
+					block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
+				}
+
 				if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
 				{
 					// Revert
@@ -1101,7 +1166,7 @@ namespace MiNET.Worlds
 		{
 			var cacheProvider = _worldProvider as ICachingWorldProvider;
 			if (cacheProvider != null)
-		    {
+			{
 				return cacheProvider.GetCachedChunks();
 			}
 

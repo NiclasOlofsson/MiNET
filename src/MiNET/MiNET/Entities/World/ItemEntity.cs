@@ -1,4 +1,6 @@
-﻿using MiNET.Items;
+﻿using System.Numerics;
+using log4net;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Worlds;
 
@@ -6,6 +8,8 @@ namespace MiNET.Entities.World
 {
 	public class ItemEntity : Mob
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemEntity));
+
 		public Item Item { get; private set; }
 		public int PickupDelay { get; set; }
 		public int TimeToLive { get; set; }
@@ -20,6 +24,8 @@ namespace MiNET.Entities.World
 
 			PickupDelay = 10;
 			TimeToLive = 6000;
+
+			HealthManager.IsInvulnerable = true;
 
 			NoAi = true;
 		}
@@ -60,6 +66,19 @@ namespace MiNET.Entities.World
 
 		public override void OnTick()
 		{
+			if (Velocity == Vector3.Zero)
+			{
+				if (IsInGround(KnownPosition))
+				{
+					Velocity += new Vector3(0, (float)Gravity, 0);
+				}
+				else
+				{
+					bool onGround = IsOnGround(KnownPosition);
+					if (!onGround) Velocity -= new Vector3(0, (float)Gravity, 0);
+				}
+			}
+
 			base.OnTick();
 
 			TimeToLive--;
@@ -83,18 +102,21 @@ namespace MiNET.Entities.World
 				{
 					if (player.GameMode == GameMode.Survival)
 					{
-						//Add the items to the inventory if posible
-						if (player.Inventory.SetFirstEmptySlot(Item, true, false))
 						{
-							//BUG: If this is sent, the client crashes for some unknown reason.
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();
 							takeItemEntity.entityId = EntityId;
 							takeItemEntity.target = player.EntityId;
-							Level.RelayBroadcast(takeItemEntity);
-
-							DespawnEntity();
-							break;
+							Level.RelayBroadcast(player, takeItemEntity);
 						}
+						{
+							var takeItemEntity = McpeTakeItemEntity.CreateObject();
+							takeItemEntity.entityId = EntityId;
+							takeItemEntity.target = 0;
+							player.SendPackage(takeItemEntity);
+						}
+
+						DespawnEntity();
+						break;
 					}
 				}
 			}

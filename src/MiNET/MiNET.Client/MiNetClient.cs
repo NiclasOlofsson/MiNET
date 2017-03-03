@@ -1981,15 +1981,15 @@ Adventure settings
 		{
 			if (IsEmulator) return;
 
-			McpeAddItemEntity msg = (McpeAddItemEntity) message;
-			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("Velocity X: {0}", msg.speedX);
-			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.Info($"Item {msg.item}");
+			//McpeAddItemEntity msg = (McpeAddItemEntity) message;
+			//Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
+			//Log.DebugFormat("X: {0}", msg.x);
+			//Log.DebugFormat("Y: {0}", msg.y);
+			//Log.DebugFormat("Z: {0}", msg.z);
+			//Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			//Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			//Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			//Log.Info($"Item {msg.item}");
 		}
 
 		private static void OnMcpeBlockEntityData(McpeBlockEntityData message)

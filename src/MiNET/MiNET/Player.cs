@@ -86,6 +86,8 @@ namespace MiNET
 			IsSpawned = false;
 			IsConnected = endPoint != null; // Can't connect if there is no endpoint
 
+			Width = 0.6f;
+			Length = Width;
 			Height = 1.85;
 
 			HideNameTag = false;
@@ -105,7 +107,7 @@ namespace MiNET
 				SendResourcePacksInfo();
 			}
 
-			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+			MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
 		public virtual void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
@@ -153,7 +155,7 @@ namespace MiNET
 			}
 			else if (message.responseStatus == 4)
 			{
-				MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+				//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 				return;
 			}
 		}
@@ -249,7 +251,7 @@ namespace MiNET
 
 			SendChunkRadiusUpdate();
 
-			if (_completedStartSequence)
+			//if (_completedStartSequence)
 			{
 				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
@@ -267,8 +269,6 @@ namespace MiNET
 		public virtual void HandleMcpeAnimate(McpeAnimate message)
 		{
 			if (Level == null) return;
-
-			Log.DebugFormat("HandleAnimate Action: {0}", message.actionId);
 
 			var itemInHand = Inventory.GetItemInHand();
 			if (itemInHand != null)
@@ -290,14 +290,6 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpePlayerAction(McpePlayerAction message)
 		{
-			Log.DebugFormat("Player action: {0}", message.actionId);
-			Log.DebugFormat("Entity ID: {0}", message.entityId);
-			Log.DebugFormat("Action ID:  {0}", message.actionId);
-			Log.DebugFormat("x:  {0}", message.coordinates.X);
-			Log.DebugFormat("y:  {0}", message.coordinates.Y);
-			Log.DebugFormat("z:  {0}", message.coordinates.Z);
-			Log.DebugFormat("Face:  {0}", message.face);
-
 			switch ((PlayerAction) message.actionId)
 			{
 				case PlayerAction.StartBreak:
@@ -602,8 +594,8 @@ namespace MiNET
 
 			_completedStartSequence = true;
 
-			ForcedSendChunk(KnownPosition);
-			SendChunksForKnownPosition();
+			//ForcedSendChunk(KnownPosition);
+			//SendChunksForKnownPosition();
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;
@@ -1181,6 +1173,10 @@ namespace MiNET
 		public virtual void HandleMcpeRemoveBlock(McpeRemoveBlock message)
 		{
 			Level.BreakBlock(this, message.coordinates);
+		}
+
+		public void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		{
 		}
 
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)

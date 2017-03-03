@@ -381,6 +381,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
+		{
+		}
+
 		public void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 		}

@@ -14,6 +14,9 @@ namespace MiNET.Blocks
 
 		public TallGrass() : base(31)
 		{
+			BlastResistance = 3;
+			Hardness = 0.6f;
+
 			IsSolid = false;
 			IsReplacible = true;
 			IsTransparent = true;

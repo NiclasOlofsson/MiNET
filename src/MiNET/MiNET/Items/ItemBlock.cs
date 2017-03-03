@@ -45,7 +45,9 @@ namespace MiNET.Items
 			//	}
 			//}
 
-			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
+			Block block = world.GetBlock(targetCoordinates);
+			_block.Coordinates = block.IsReplacible ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
+
 			_block.Metadata = (byte) Metadata;
 
 			if ((player.GetBoundingBox() - 0.01f).Intersects(_block.GetBoundingBox()))

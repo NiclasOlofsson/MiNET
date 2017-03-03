@@ -176,7 +176,7 @@ namespace MiNET.Plugins
 				}
 				catch (ArgumentException e)
 				{
-					Log.Error($"Command already exist {method.Name}, {method}", e);
+					Log.Debug($"Command already exist {method.Name}, {method}", e);
 				}
 			}
 		}

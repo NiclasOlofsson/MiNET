@@ -223,7 +223,7 @@
     <Compile Include="Blocks\Stonecutter.cs" />
     <Compile Include="Blocks\StonePressurePlate.cs" />
     <Compile Include="Blocks\Reeds.cs" />
-    <Compile Include="Blocks\Sunflower.cs" />
+    <Compile Include="Blocks\DoublePlant.cs" />
     <Compile Include="Blocks\SnowLayer.cs" />
     <Compile Include="Blocks\Trapdoor.cs" />
     <Compile Include="Blocks\TrappedChest.cs" />

@@ -372,14 +372,8 @@ namespace MiNET
 
 		private bool IsInSolid(PlayerLocation playerPosition)
 		{
-			float y = playerPosition.Y + 1.62f;
-
-			BlockCoordinates solidPos = new BlockCoordinates
-			{
-				X = (int) Math.Floor(playerPosition.X),
-				Y = (int) Math.Floor(y),
-				Z = (int) Math.Floor(playerPosition.Z)
-			};
+			BlockCoordinates solidPos = (BlockCoordinates) playerPosition;
+			solidPos.Y += 1;
 
 			var block = Entity.Level.GetBlock(solidPos);
 

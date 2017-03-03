@@ -54,13 +54,22 @@ namespace MiNET.Entities
 			}
 		}
 
-		private bool IsOnGround(PlayerLocation position)
+		protected bool IsOnGround(PlayerLocation position)
 		{
 			PlayerLocation pos = (PlayerLocation) position.Clone();
 			pos.Y -= 0.1f;
 			Block block = Level.GetBlock(new BlockCoordinates(pos));
 
-			return block.Id != 0; // Should probably test for solid
+			return block.IsSolid;
 		}
+
+		protected bool IsInGround(PlayerLocation position)
+		{
+			PlayerLocation pos = (PlayerLocation)position.Clone();
+			Block block = Level.GetBlock(new BlockCoordinates(pos));
+
+			return block.IsSolid;
+		}
+
 	}
 }

@@ -720,8 +720,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Target | UnsignedVarLong |  |
 |Entity Id | UnsignedVarLong |  |
+|Target | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Move Entity (0x13)
 
@@ -850,7 +850,7 @@ MODE_ROTATION = 2;
 ###Package: Mcpe Level Sound Event (0x1a)
 
 **Sent from server:** true
-**Sent from client:** false
+**Sent from client:** true
 **Packet size:** 
 
 

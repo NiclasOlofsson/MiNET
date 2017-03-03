@@ -61,7 +61,17 @@ namespace MiNET.Blocks
 		public virtual void BreakBlock(Level world)
 		{
 			world.SetBlock(new Air {Coordinates = Coordinates});
-			BlockUpdate(world, Coordinates);
+			UpdateBlocks(world);
+		}
+
+		protected void UpdateBlocks(Level world)
+		{
+			world.GetBlock(Coordinates + BlockCoordinates.Up).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.Down).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.West).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.East).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.South).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.North).BlockUpdate(world, Coordinates);
 		}
 
 		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
@@ -82,29 +92,12 @@ namespace MiNET.Blocks
 			return Interact(world, player, blockCoordinates, face);
 		}
 
-		public virtual void OnTick(Level level)
+		public virtual void OnTick(Level level, bool isRandom)
 		{
 		}
 
-
-		public virtual void BlockUpdate(Level world, BlockCoordinates blockCoordinates)
+		public virtual void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
-			/*BlockCoordinates up = new BlockCoordinates() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
-			/*BlockCoordinates down = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
-			BlockCoordinates left = new BlockCoordinates() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
-			BlockCoordinates right = new BlockCoordinates() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
-			BlockCoordinates zplus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z + 1 };
-			BlockCoordinates zminus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z - 1 };
-			
-			//All other directions are in here too, however currently we only use this to update fire so we only check the block above.
-
-			if (world.GetBlock(up).Id == 51)
-			{
-				world.SetBlock(new Air {Coordinates = up});
-			}*/
-
-
-			//This code is really not something we wanna keep :-(
 		}
 
 		public float GetHardness()

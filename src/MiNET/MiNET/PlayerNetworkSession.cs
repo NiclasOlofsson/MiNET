@@ -32,6 +32,7 @@ namespace MiNET
 
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
+		public int SplitPartId = 0;
 		public int OrderingIndex = -1;
 		public int ErrorCount { get; set; }
 
@@ -417,6 +418,11 @@ namespace MiNET
 			else if (typeof (McpeRemoveBlock) == message.GetType())
 			{
 				handler.HandleMcpeRemoveBlock((McpeRemoveBlock) message);
+			}
+
+			else if (typeof(McpeLevelSoundEvent) == message.GetType())
+			{
+				handler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent)message);
 			}
 
 			else if (typeof (McpeAnimate) == message.GetType())

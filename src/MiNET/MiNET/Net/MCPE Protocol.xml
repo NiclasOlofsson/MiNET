@@ -283,8 +283,8 @@
 	</pdu>
 
 	<pdu id="0x12" online="false" client="false" server="true" name="MCPE_TAKE_ITEM_ENTITY">
-		<field name="Target" type="UnsignedVarLong" />
 		<field name="Entity Id" type="UnsignedVarLong" />
+		<field name="Target" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x13" online="false" client="false" server="true" name="MCPE_MOVE_ENTITY">
@@ -343,7 +343,7 @@
 		<field name="Records" type="Records" />
 	</pdu>
 
-	<pdu id="0x1a" online="false" client="false" server="true" name="MCPE_LEVEL_SOUND_EVENT">
+	<pdu id="0x1a" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
 		<field name="Sound ID" type="byte" />
 		<field name="Position" type="Vector3" />
 		<field name="Volume" type="SignedVarInt" />

@@ -35,13 +35,12 @@ namespace MiNET.Blocks
 			level.ScheduleBlockTick(this, _tickRate);
 		}
 
-		public override void OnTick(Level level)
+		public override void OnTick(Level level, bool isRandom)
 		{
-			Log.Debug("Block tick for sand");
+			if (isRandom) return;
+
 			if (!level.GetBlock(Coordinates + Level.Down).IsSolid)
 			{
-				Log.Debug("DROOOOPING");
-
 				level.SetBlock(new Air {Coordinates = Coordinates});
 				new FallingSand(level)
 				{

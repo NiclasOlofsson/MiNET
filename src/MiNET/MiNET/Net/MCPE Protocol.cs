@@ -26,6 +26,7 @@ namespace MiNET.Net
 		void HandleMcpeText(McpeText message);
 		void HandleMcpeMovePlayer(McpeMovePlayer message);
 		void HandleMcpeRemoveBlock(McpeRemoveBlock message);
+		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
 		void HandleMcpeMobEquipment(McpeMobEquipment message);
 		void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message);
@@ -2105,8 +2106,8 @@ namespace MiNET.Net
 
 	public partial class McpeTakeItemEntity : Package<McpeTakeItemEntity>
 	{
-		public long target; // = null;
 		public long entityId; // = null;
+		public long target; // = null;
 		public McpeTakeItemEntity()
 		{
 			Id = 0x12;
@@ -2118,8 +2119,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarLong(target);
 			WriteUnsignedVarLong(entityId);
+			WriteUnsignedVarLong(target);
 
 			AfterEncode();
 		}
@@ -2133,8 +2134,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			target = ReadUnsignedVarLong();
 			entityId = ReadUnsignedVarLong();
+			target = ReadUnsignedVarLong();
 
 			AfterDecode();
 		}

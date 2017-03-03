@@ -29,6 +29,7 @@ namespace MiNET
                 GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
                 Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Normal);
                 int viewDistance = Config.GetProperty("ViewDistance", 11);
+                bool enableBlockTicking = Config.GetProperty("EnableBlockTicking", false);
 
                 IWorldProvider worldProvider = null;
 
@@ -52,7 +53,7 @@ namespace MiNET
                         break;
                 }
 
-                level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
+                level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance) {EnableBlockTicking = enableBlockTicking};
                 level.Initialize();
 
 				if(Config.GetProperty("CalculateLights", false))

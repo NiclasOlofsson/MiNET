@@ -32,8 +32,10 @@ namespace MiNET.Blocks
 			level.ScheduleBlockTick(this, TickRate());
 		}
 
-		public override void OnTick(Level world)
+		public override void OnTick(Level world, bool isRandom)
 		{
+			if (isRandom) return;
+
 			Random random = new Random();
 
 			int x = Coordinates.X;

@@ -1850,7 +1850,7 @@ namespace MiNET
 				MinValue = 1,
 				MaxValue = 1,
 				Value = 1,
-				Unknown = 1,
+				Default = 1,
 			};
 			attributes["minecraft:absorption"] = new PlayerAttribute
 			{
@@ -1858,7 +1858,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = float.MaxValue,
 				Value = Absorption,
-				Unknown = 0,
+				Default = 0,
 			};
 			attributes["minecraft:health"] = new PlayerAttribute
 			{
@@ -1866,7 +1866,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 20,
 				Value = HealthManager.Hearts,
-				Unknown = 20,
+				Default = 20,
 			};
 			attributes["minecraft:movement"] = new PlayerAttribute
 			{
@@ -1874,7 +1874,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 0.5f,
 				Value = MovementSpeed,
-				Unknown = MovementSpeed,
+				Default = MovementSpeed,
 			};
 			attributes["minecraft:knockback_resistance"] = new PlayerAttribute
 			{
@@ -1882,7 +1882,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 1,
 				Value = 0,
-				Unknown = 0,
+				Default = 0,
 			};
 			attributes["minecraft:luck"] = new PlayerAttribute
 			{
@@ -1890,7 +1890,7 @@ namespace MiNET
 				MinValue = -1025,
 				MaxValue = 1024,
 				Value = 0,
-				Unknown = 0,
+				Default = 0,
 			};
 			attributes["minecraft:fall_damage"] = new PlayerAttribute
 			{
@@ -1898,7 +1898,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = float.MaxValue,
 				Value = 1,
-				Unknown = 1,
+				Default = 1,
 			};
 			attributes["minecraft:player.experience"] = new PlayerAttribute
 			{
@@ -1906,7 +1906,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 1,
 				Value = Experience,
-				Unknown = 0,
+				Default = 0,
 			};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
@@ -1914,7 +1914,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 2048,
 				Value = 16,
-				Unknown = 16,
+				Default = 16,
 			};
 			attributes["minecraft:player.level"] = new PlayerAttribute
 			{
@@ -1922,7 +1922,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 24791,
 				Value = ExperienceLevel,
-				Unknown = 0,
+				Default = 0,
 			};
 
 			// Workaround, bad design.

@@ -776,7 +776,7 @@ namespace MiNET.Net
 				Write(attribute.MinValue);
 				Write(attribute.MaxValue);
 				Write(attribute.Value);
-				Write(attribute.Unknown); // unknown
+				Write(attribute.Default); // unknown
 				Write(attribute.Name);
 			}
 		}
@@ -792,7 +792,7 @@ namespace MiNET.Net
 					MinValue = ReadFloat(),
 					MaxValue = ReadFloat(),
 					Value = ReadFloat(),
-					Unknown = ReadFloat(),
+					Default = ReadFloat(),
 					Name = ReadString(),
 				};
 

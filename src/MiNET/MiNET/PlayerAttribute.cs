@@ -6,11 +6,11 @@ namespace MiNET
 		public float MinValue { get; set; }
 		public float MaxValue { get; set; }
 		public float Value { get; set; }
-		public float Unknown { get; set; }
+		public float Default { get; set; }
 
 		public override string ToString()
 		{
-			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}, Unknown: {Unknown}";
+			return $"Name: {Name}, MinValue: {MinValue}, MaxValue: {MaxValue}, Value: {Value}, Default: {Default}";
 		}
 	}
 

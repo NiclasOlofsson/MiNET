@@ -169,7 +169,7 @@ namespace MiNET
 				MinValue = MinHunger,
 				MaxValue = MaxHunger,
 				Value = Hunger,
-				Unknown = MaxHunger,
+				Default = MaxHunger,
 			};
 
 			attributes["minecraft:player.saturation"] = new PlayerAttribute
@@ -178,7 +178,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = MaxHunger,
 				Value = (float) Saturation,
-				Unknown = MaxHunger,
+				Default = MaxHunger,
 			};
 			attributes["minecraft:player.exhaustion"] = new PlayerAttribute
 			{
@@ -186,7 +186,7 @@ namespace MiNET
 				MinValue = 0,
 				MaxValue = 5,
 				Value = (float) Exhaustion,
-				Unknown = 5,
+				Default = 5,
 			};
 
 			return attributes;

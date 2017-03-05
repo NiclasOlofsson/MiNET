@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using log4net;
 using MiNET.Blocks;
 
 namespace MiNET.Items
@@ -14,8 +17,57 @@ namespace MiNET.Items
 
 	public class ItemFactory
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFactory));
+
 		public static ICustomItemFactory CustomItemFactory { get; set; }
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
+
+		public static Dictionary<string, short> NameToId { get; private set; }
+
+		static ItemFactory()
+		{
+			NameToId = BuildNameToId();
+		}
+
+		private static Dictionary<string, short> BuildNameToId()
+		{
+			var nameToId = new Dictionary<string, short>();
+			for (short idx = 256; idx < 500; idx++)
+			{
+				Item item = GetItem(idx);
+				string name = item.GetType().Name.ToLowerInvariant();
+
+				if (name.Equals("item"))
+				{
+					Log.Debug($"Missing implementation for item ID={idx}");
+					continue;
+				}
+
+				try
+				{
+					nameToId.Add(name, idx);
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Tried to add duplicate item for {name} {idx}");
+				}
+			}
+
+			return nameToId;
+		}
+
+		public static short GetItemIdByName(string itemName)
+		{
+			itemName = itemName.ToLowerInvariant();
+			itemName = itemName.Replace("_", "");
+
+			if (NameToId.ContainsKey(itemName))
+			{
+				return NameToId[itemName];
+			}
+
+			return BlockFactory.GetBlockIdByName(itemName);
+		}
 
 		public static Item GetItem(short id, short metadata = 0, byte count = 1)
 		{

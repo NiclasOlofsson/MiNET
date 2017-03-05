@@ -23,39 +23,32 @@ namespace MiNET.Net
 		private bool _isEncoded = false;
 		private byte[] _encodedMessage;
 
-        [JsonIgnore]
-		public int DatagramSequenceNumber = 0;
+		[JsonIgnore] public int DatagramSequenceNumber = 0;
 
-        [JsonIgnore]
-        public bool NoBatch { get; set; }
+		[JsonIgnore]
+		public bool NoBatch { get; set; }
 
-        [JsonIgnore]
+		[JsonIgnore]
 		public DateTime? ValidUntil { get; set; }
 
-        [JsonIgnore]
-        public Reliability Reliability = Reliability.Unreliable;
-        [JsonIgnore]
-        public int ReliableMessageNumber = 0;
-        [JsonIgnore]
-        public byte OrderingChannel = 0;
-        [JsonIgnore]
-        public int OrderingIndex = 0;
+		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
+		[JsonIgnore] public int ReliableMessageNumber = 0;
+		[JsonIgnore] public byte OrderingChannel = 0;
+		[JsonIgnore] public int OrderingIndex = 0;
 
-        [JsonIgnore]
-        public bool ForceClear = false;
+		[JsonIgnore] public bool ForceClear = false;
 
-        [JsonIgnore]
-        public byte Id;
+		[JsonIgnore] public byte Id;
 
 		protected MemoryStream _buffer;
 		private BinaryWriter _writer;
 		private BinaryReader _reader;
 		private Stopwatch _timer = new Stopwatch();
 
-        [JsonIgnore]
-        public byte[] Bytes { get; private set; }
+		[JsonIgnore]
+		public byte[] Bytes { get; private set; }
 
-        public Package()
+		public Package()
 		{
 			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
@@ -63,8 +56,8 @@ namespace MiNET.Net
 			Timer.Start();
 		}
 
-        [JsonIgnore]
-        public Stopwatch Timer
+		[JsonIgnore]
+		public Stopwatch Timer
 		{
 			get { return _timer; }
 		}
@@ -133,7 +126,7 @@ namespace MiNET.Net
 
 		public void Write(short value, bool bigEndian = false)
 		{
-			if(bigEndian) _writer.Write(Endian.SwapInt16(value));
+			if (bigEndian) _writer.Write(Endian.SwapInt16(value));
 			else _writer.Write(value);
 		}
 
@@ -141,7 +134,7 @@ namespace MiNET.Net
 		{
 			if (_reader.BaseStream.Position == _reader.BaseStream.Length) return 0;
 
-			if(bigEndian) return Endian.SwapInt16(_reader.ReadInt16());
+			if (bigEndian) return Endian.SwapInt16(_reader.ReadInt16());
 
 			return _reader.ReadInt16();
 		}
@@ -185,13 +178,13 @@ namespace MiNET.Net
 
 		public void Write(int value, bool bigEndian = false)
 		{
-			if(bigEndian) _writer.Write(Endian.SwapInt32(value));
+			if (bigEndian) _writer.Write(Endian.SwapInt32(value));
 			else _writer.Write(value);
 		}
 
 		public int ReadInt(bool bigEndian = false)
 		{
-			if(bigEndian) return Endian.SwapInt32(_reader.ReadInt32());
+			if (bigEndian) return Endian.SwapInt32(_reader.ReadInt32());
 
 			return _reader.ReadInt32();
 		}
@@ -267,6 +260,11 @@ namespace MiNET.Net
 			return VarInt.ReadInt64(_buffer);
 		}
 
+		public void WriteEntityId(long value)
+		{
+			WriteSignedVarLong(value);
+		}
+
 		public void WriteSignedVarLong(long value)
 		{
 			VarInt.WriteSInt64(_buffer, value);
@@ -275,6 +273,11 @@ namespace MiNET.Net
 		public long ReadSignedVarLong()
 		{
 			return VarInt.ReadSInt64(_buffer);
+		}
+
+		public void WriteRuntimeEntityId(long value)
+		{
+			WriteUnsignedVarLong(value);
 		}
 
 		public void WriteUnsignedVarLong(long value)
@@ -495,22 +498,22 @@ namespace MiNET.Net
 			Write(location.X);
 			Write(location.Y);
 			Write(location.Z);
-            Write((byte)(location.Pitch * 0.71)); // 256/360
-            Write((byte) (location.HeadYaw*0.71)); // 256/360
+			Write((byte) (location.Pitch*0.71)); // 256/360
+			Write((byte) (location.HeadYaw*0.71)); // 256/360
 			Write((byte) (location.Yaw*0.71)); // 256/360
-        }
+		}
 
-        public PlayerLocation ReadPlayerLocation()
+		public PlayerLocation ReadPlayerLocation()
 		{
 			PlayerLocation location = new PlayerLocation();
 			location.X = ReadFloat();
 			location.Y = ReadFloat();
 			location.Z = ReadFloat();
-            location.Pitch = ReadByte() * 1f / 0.71f;
-            location.HeadYaw = ReadByte()*1f/0.71f;
+			location.Pitch = ReadByte()*1f/0.71f;
+			location.HeadYaw = ReadByte()*1f/0.71f;
 			location.Yaw = ReadByte()*1f/0.71f;
 
-            return location;
+			return location;
 		}
 
 		public void Write(IPEndPoint endpoint)
@@ -528,7 +531,6 @@ namespace MiNET.Net
 		}
 
 
-
 //typedef struct sockaddr_in6
 //{
 //	ADDRESS_FAMILY sin6_family; // AF_INET6.
@@ -542,7 +544,7 @@ namespace MiNET.Net
 //}
 //SOCKADDR_IN6_LH, * PSOCKADDR_IN6_LH, FAR * LPSOCKADDR_IN6_LH;
 
-	public IPEndPoint ReadIPEndPoint()
+		public IPEndPoint ReadIPEndPoint()
 		{
 			byte ipVersion = ReadByte();
 
@@ -553,12 +555,12 @@ namespace MiNET.Net
 			{
 				string ipAddress = $"{ReadByte()}.{ReadByte()}.{ReadByte()}.{ReadByte()}";
 				address = IPAddress.Parse(ipAddress);
-				port = (ushort)ReadShort(true);
+				port = (ushort) ReadShort(true);
 			}
 			else if (ipVersion == 6)
 			{
 				ReadShort(); // Address family
-				port = (ushort)ReadShort(true); // Port
+				port = (ushort) ReadShort(true); // Port
 				ReadLong(); // Flow info
 				var addressBytes = ReadBytes(16);
 				address = new IPAddress(addressBytes);
@@ -840,7 +842,7 @@ namespace MiNET.Net
 
 		public void Write(Links links)
 		{
-			if(links == null)
+			if (links == null)
 			{
 				WriteUnsignedVarInt(0); // LE
 				return;
@@ -850,7 +852,7 @@ namespace MiNET.Net
 			{
 				WriteVarLong(link.Item1);
 				WriteVarLong(link.Item2);
-				_writer.Write((short)1); // LE
+				_writer.Write((short) 1); // LE
 			}
 		}
 
@@ -900,7 +902,7 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				_writer.Write((short)0); // LE
+				_writer.Write((short) 0); // LE
 				return;
 			}
 
@@ -931,9 +933,9 @@ namespace MiNET.Net
 
 		public void Write(ResourcePackIdVersions packInfos)
 		{
-			if(packInfos == null)
+			if (packInfos == null)
 			{
-				_writer.Write((short)0); // LE
+				_writer.Write((short) 0); // LE
 				return;
 			}
 
@@ -1177,33 +1179,59 @@ namespace MiNET.Net
 			return recipes;
 		}
 
+		const int BITFLAG_TEXTURE_UPDATE = 0x02;
+		const int BITFLAG_DECORATION_UPDATE = 0x04;
+		const int BITFLAG_ENTITY_UPDATE = 0x08;
+
 		public void Write(MapInfo map)
 		{
-			Write(map.MapId);
-			Write(new byte[3]);
-			Write(map.UpdateType);
-			Write(new byte[4]);
-			Write((byte) 1);
-			Write((byte) 0);
-			Write(map.Direction);
-			Write(map.X);
-			Write(map.Z);
-			if (map.UpdateType == 0x06)
+			WriteSignedVarLong(map.MapId);
+			WriteUnsignedVarInt(map.UpdateType);
+
+			//if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
+			//{
+			//}
+
+			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE || (map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
 			{
-				// Full map
-				Write(map.Col);
-				Write(map.Row);
-				Write(map.XOffset);
-				Write(map.ZOffset);
-				Write(map.Data);
+				Write((byte) map.Scale);
 			}
-			else if (map.UpdateType == 0x04)
+
+			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
 			{
-				// Map update
+				var count = map.Decorators.Length;
+				WriteUnsignedVarInt((uint) count);
+				foreach (var decorator in map.Decorators)
+				{
+					WriteSignedVarInt((decorator.Rotation & 0x0f) | (decorator.Icon << 4));
+					Write((byte) decorator.X);
+					Write((byte) decorator.Z);
+					Write(decorator.Label);
+					Write(decorator.Color);
+				}
 			}
-			else
+
+			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE)
 			{
-				Log.Warn($"Tried to send unknown map-type 0x{map.UpdateType:X2}");
+				WriteSignedVarInt(map.Col);
+				WriteSignedVarInt(map.Row);
+
+				WriteSignedVarInt(map.XOffset);
+				WriteSignedVarInt(map.ZOffset);
+
+				int i = 0;
+				for (int col = 0; col < map.Col; col++)
+				{
+					for (int row = 0; row < map.Row; row++)
+					{
+						byte r = map.Data[i++];
+						byte g = map.Data[i++];
+						byte b = map.Data[i++];
+						byte a = map.Data[i++];
+						uint color = BitConverter.ToUInt32(new byte[] {r, g, b, 0xff}, 0);
+						WriteUnsignedVarInt(color);
+					}
+				}
 			}
 		}
 
@@ -1211,31 +1239,71 @@ namespace MiNET.Net
 		{
 			MapInfo map = new MapInfo();
 
-			map.MapId = ReadLong();
-			var readBytes = ReadBytes(3);
-			//Log.Warn($"{HexDump(readBytes)}");
-			map.UpdateType = ReadByte(); //
-			var bytes = ReadBytes(6);
-			//Log.Warn($"{HexDump(bytes)}");
+			map.MapId = ReadSignedVarLong();
+			map.UpdateType = (byte) ReadUnsignedVarInt();
 
-			map.Direction = ReadByte(); //
-			map.X = ReadByte(); //
-			map.Z = ReadByte(); //
+			if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
+			{
+				// Entities
+				var count = ReadUnsignedVarInt();
+				for (int i = 0; i < count - 1; i++) // This is some weird shit vanilla is doing with counting.
+				{
+					var eid = ReadSignedVarLong();
+				}
+			}
 
-			if (map.UpdateType == 0x06)
+			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE || (map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
+			{
+				map.Scale = ReadByte();
+				//Log.Warn($"Reading scale {map.Scale}");
+			}
+
+			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
+			{
+				// Decorations
+				//Log.Warn("Got decoration update, reading it");
+
+				try
+				{
+					var count = ReadUnsignedVarInt();
+					map.Decorators = new MapDecorator[count];
+					for (int i = 0; i < count; i++)
+					{
+						MapDecorator decorator = new MapDecorator();
+						var si = ReadSignedVarInt(); // some stuff
+						decorator.Rotation = (byte) (si & 0x0f);
+						decorator.Icon = (byte) ((si & 0xf0) >> 4);
+
+						decorator.X = ReadByte();
+						decorator.X = ReadByte();
+						decorator.Label = ReadString();
+						decorator.Color = ReadUint();
+						map.Decorators[i] = decorator;
+					}
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Errror while reading decorations for map={map}", e);
+				}
+			}
+
+			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE)
 			{
 				// Full map
 				try
 				{
-					if (bytes[4] == 1)
+					map.Col = ReadSignedVarInt();
+					map.Row = ReadSignedVarInt(); //
+
+					map.XOffset = ReadSignedVarInt(); //
+					map.ZOffset = ReadSignedVarInt(); //
+
+					for (int col = 0; col < map.Col; col++)
 					{
-						map.Col = ReadInt();
-						map.Row = ReadInt(); //
-
-						map.XOffset = ReadInt(); //
-						map.ZOffset = ReadInt(); //
-
-						map.Data = ReadBytes(map.Col*map.Row*4);
+						for (int row = 0; row < map.Row; row++)
+						{
+							ReadUnsignedVarInt();
+						}
 					}
 				}
 				catch (Exception e)
@@ -1243,14 +1311,52 @@ namespace MiNET.Net
 					Log.Error($"Errror while reading map data for map={map}", e);
 				}
 			}
-			else if (map.UpdateType == 0x04)
-			{
-				// Map update
-			}
-			else
-			{
-				Log.Warn($"Unknown map-type 0x{map.UpdateType:X2}");
-			}
+
+			//else
+			//{
+			//	Log.Warn($"Unknown map-type 0x{map.UpdateType:X2}");
+			//}
+
+			//map.MapId = ReadLong();
+			//var readBytes = ReadBytes(3);
+			////Log.Warn($"{HexDump(readBytes)}");
+			//map.UpdateType = ReadByte(); //
+			//var bytes = ReadBytes(6);
+			////Log.Warn($"{HexDump(bytes)}");
+
+			//map.Direction = ReadByte(); //
+			//map.X = ReadByte(); //
+			//map.Z = ReadByte(); //
+
+			//if (map.UpdateType == 0x06)
+			//{
+			//	// Full map
+			//	try
+			//	{
+			//		if (bytes[4] == 1)
+			//		{
+			//			map.Col = ReadInt();
+			//			map.Row = ReadInt(); //
+
+			//			map.XOffset = ReadInt(); //
+			//			map.ZOffset = ReadInt(); //
+
+			//			map.Data = ReadBytes(map.Col*map.Row*4);
+			//		}
+			//	}
+			//	catch (Exception e)
+			//	{
+			//		Log.Error($"Errror while reading map data for map={map}", e);
+			//	}
+			//}
+			//else if (map.UpdateType == 0x04)
+			//{
+			//	// Map update
+			//}
+			//else
+			//{
+			//	Log.Warn($"Unknown map-type 0x{map.UpdateType:X2}");
+			//}
 
 			return map;
 		}
@@ -1385,14 +1491,14 @@ namespace MiNET.Net
 		private bool _isPooled;
 		private long _referenceCounter;
 
-        [JsonIgnore]
-        public bool IsPooled
+		[JsonIgnore]
+		public bool IsPooled
 		{
 			get { return _isPooled; }
 		}
 
-        [JsonIgnore]
-        public long ReferenceCounter
+		[JsonIgnore]
+		public long ReferenceCounter
 		{
 			get { return _referenceCounter; }
 			set { _referenceCounter = value; }
@@ -1466,8 +1572,8 @@ namespace MiNET.Net
 			if (_isPermanent) return;
 			if (!IsPooled) return;
 
-		    var counter = Interlocked.Decrement(ref _referenceCounter);
-		    if (counter > 0) return;
+			var counter = Interlocked.Decrement(ref _referenceCounter);
+			if (counter > 0) return;
 
 			if (counter < 0)
 			{

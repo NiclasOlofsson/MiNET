@@ -1018,6 +1018,16 @@ namespace MiNET.Client
 				OnMcpeAnimate((McpeAnimate) message);
 			}
 
+			else if (typeof(McpeMapInfoRequest) == message.GetType())
+			{
+				OnMcpeMapInfoRequest((McpeMapInfoRequest)message);
+			}
+
+			else if (typeof(McpeClientboundMapItemData) == message.GetType())
+			{
+				OnMcpeClientboundMapItemData((McpeClientboundMapItemData)message);
+			}
+
 			else if (typeof (McpeInteract) == message.GetType())
 			{
 				OnMcpeInteract((McpeInteract) message);
@@ -1047,6 +1057,14 @@ namespace MiNET.Client
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 			}
+		}
+
+		private void OnMcpeClientboundMapItemData(McpeClientboundMapItemData message)
+		{
+		}
+
+		private void OnMcpeMapInfoRequest(McpeMapInfoRequest message)
+		{
 		}
 
 		private void OnMcpeMobArmorEquipment(McpeMobArmorEquipment message)
@@ -2247,6 +2265,7 @@ StartGame:
 				var jsonSerializerSettings = new JsonSerializerSettings
 				{
 					PreserveReferencesHandling = PreserveReferencesHandling.None,
+					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 					Formatting = Formatting.Indented,
 				};
 				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using MiNET.Items;
 using MiNET.Plugins.Attributes;
 
 namespace MiNET.Plugins.Commands
@@ -49,5 +50,29 @@ namespace MiNET.Plugins.Commands
 		{
 			return new SimpleResponse {Body = $"Set block complete. {position.XRelative} {tileName.Value}"};
 		}
+
+		[Command]
+		public SimpleResponse Give(Player commander, Target player, ItemTypeEnum itemName, int amount = 1, int data = 0)
+		{
+			string body = player.Selector;
+
+			if (player.Players != null)
+			{
+				List<string> names = new List<string>();
+				foreach (var p in player.Players)
+				{
+					names.Add(p.Username);
+
+					Item item = ItemFactory.GetItem(ItemFactory.GetItemIdByName(itemName.Value), (short)data, (byte)amount);
+
+					var inventory = p.Inventory.SetFirstEmptySlot(item, true, false);
+				}
+				body = string.Join(", ", names);
+			}
+
+
+			return new SimpleResponse { Body = $"Gave {body} {amount} of {itemName.Value}." };
+		}
+
 	}
 }

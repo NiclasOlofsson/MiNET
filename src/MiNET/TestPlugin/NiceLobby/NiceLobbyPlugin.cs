@@ -623,7 +623,7 @@ namespace TestPlugin.NiceLobby
 
 
 		[Command]
-		[Authorize(Permission = UserPermission.Op)]
+		//[Authorize(Permission = UserPermission.Op)]
 		public void VideoX(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
@@ -696,7 +696,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
-		[Authorize(Permission = UserPermission.Op)]
+		//[Authorize(Permission = UserPermission.Op)]
 		public void Video2X(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
@@ -802,8 +802,8 @@ namespace TestPlugin.NiceLobby
 			MapInfo mapInfo = new MapInfo
 			{
 				MapId = mapId,
-				UpdateType = 6,
-				Direction = 0,
+				UpdateType = 2,
+				Scale = 0,
 				X = 0,
 				Z = 0,
 				Col = 128,

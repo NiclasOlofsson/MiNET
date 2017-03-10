@@ -1,3 +1,4 @@
+using System.Numerics;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -16,7 +17,7 @@ namespace MiNET.Blocks
 			IsFlammable = true; // Only in PE!!
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			return true;
 		}

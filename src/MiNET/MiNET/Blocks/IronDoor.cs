@@ -1,4 +1,5 @@
-﻿using MiNET.Utils;
+﻿using System.Numerics;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
@@ -32,7 +33,7 @@ namespace MiNET.Blocks
 			level.SetBlock(new Air { Coordinates = Coordinates });
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			Block block = this;
 			// Remove door

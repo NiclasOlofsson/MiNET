@@ -1225,12 +1225,12 @@ namespace MiNET.Client
 			{
 				dynamic json = JObject.Parse(message.commands);
 
-				if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+				//if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
 			}
 			{
 				dynamic json = JObject.Parse(message.unknown);
 
-				if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
+				//if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
 			}
 		}
 
@@ -1260,7 +1260,7 @@ namespace MiNET.Client
 		{
 			foreach (var playerRecord in message.records)
 			{
-				Log.Debug($"Added player: {playerRecord.DisplayName}");
+				Log.Warn($"{playerRecord.GetType()} Player: {playerRecord.DisplayName}, {playerRecord.EntityId}, {playerRecord.ClientUuid}");
 			}
 
 			//Log.Debug($"\n{Package.HexDump(message.Bytes)}");
@@ -1281,7 +1281,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 101,
+				protocolVersion = 102,
 				edition = 0,
 				payload = data
 			};

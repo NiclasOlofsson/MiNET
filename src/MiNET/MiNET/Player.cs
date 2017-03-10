@@ -1230,7 +1230,7 @@ namespace MiNET
 				byte selectedHotbarSlot = message.selectedSlot;
 				int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
 
-				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} and Item ID: {message.item.Id} with count item count: {message.item.Count}");
+				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} with item {message.item}");
 
 				// 255 indicates empty hmmm
 				if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
@@ -1621,7 +1621,7 @@ namespace MiNET
 
 			if (GameMode != GameMode.Creative && !VerifyItemStack(message.item))
 			{
-				Log.Error($"Kicked {Username} for use item hacking.");
+				Log.Warn($"Kicked {Username} for use item hacking.");
 				Disconnect("Error #324. Please report this error.");
 				return;
 			}
@@ -1630,8 +1630,13 @@ namespace MiNET
 			Item itemInHand = Inventory.GetItemInHand();
 			if (itemInHand == null || itemInHand.Id != message.item.Id)
 			{
-				/*if (GameMode != GameMode.Creative) */
-				Log.Error($"Use item detected difference between server and client. Expected item {message.item.Id} but server had item {itemInHand?.Id}");
+				Log.Warn($"Use item detected difference between server and client. Expected item {message.item} but server had item {itemInHand}");
+				return; // Cheat(?)
+			}
+
+			if (itemInHand.GetType() == typeof(Item))
+			{
+				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {message.item} and item in hand is {itemInHand}");
 				return; // Cheat(?)
 			}
 
@@ -1639,7 +1644,7 @@ namespace MiNET
 			{
 				// Right click
 
-				Level.Interact(Level, this, message.item.Id, message.blockcoordinates, message.item.Metadata, (BlockFace) message.face, message.facecoordinates);
+				Level.Interact(this, itemInHand, message.blockcoordinates, (BlockFace) message.face, message.facecoordinates);
 			}
 			else
 			{

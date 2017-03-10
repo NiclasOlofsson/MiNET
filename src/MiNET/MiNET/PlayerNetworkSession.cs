@@ -239,9 +239,9 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
+				Log.Error($"Exit receive handler task for player", e);
 			}
 
-			//Log.Warn($"Exit receive handler task for {Player.Username}");
 			return Task.CompletedTask;
 		}
 

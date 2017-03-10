@@ -80,16 +80,10 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
-		{
-			// No default interaction. Return unhandled.
-			return false;
-		}
-
 		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			// No default interaction. Return unhandled.
-			return Interact(world, player, blockCoordinates, face);
+			return false;
 		}
 
 		public virtual void OnTick(Level level, bool isRandom)

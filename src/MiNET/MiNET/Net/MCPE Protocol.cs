@@ -1087,7 +1087,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			clientendpoint = ReadIPEndPoint();
-			systemAddresses = ReadIPEndPoints(10);
+			systemAddresses = ReadIPEndPoints(20);
 			incomingTimestamp = ReadLong();
 			serverTimestamp = ReadLong();
 

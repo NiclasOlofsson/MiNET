@@ -37,7 +37,7 @@ namespace MiNET.Items
 				Item item = GetItem(idx);
 				string name = item.GetType().Name.ToLowerInvariant();
 
-				if (name.Equals("item"))
+				if (Log.IsDebugEnabled && name.Equals("item"))
 				{
 					Log.Debug($"Missing implementation for item ID={idx}");
 					continue;
@@ -45,7 +45,7 @@ namespace MiNET.Items
 
 				try
 				{
-					nameToId.Add(name, idx);
+					nameToId.Add(name.Substring(4), idx);
 				}
 				catch (Exception e)
 				{

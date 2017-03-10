@@ -24,7 +24,7 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			Metadata = (byte) (Metadata | (0x8));
 			world.SetBlock(this);

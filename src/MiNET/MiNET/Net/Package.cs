@@ -419,7 +419,7 @@ namespace MiNET.Net
 				foreach (var record in records)
 				{
 					Write(record.ClientUuid);
-					WriteVarLong(record.EntityId);
+					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
 					Write(record.Skin);
 				}
@@ -452,10 +452,11 @@ namespace MiNET.Net
 						try
 						{
 							player.ClientUuid = ReadUUID();
-							player.EntityId = ReadVarLong();
+							player.EntityId = ReadSignedVarLong();
 							player.DisplayName = ReadString();
 							player.Skin = ReadSkin();
 							records.Add(player);
+							Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 						}
 						catch (Exception e)
 						{
@@ -1022,7 +1023,7 @@ namespace MiNET.Net
 					}
 					WriteVarInt(1);
 					Write(rec.Result);
-					Write(new UUID(Guid.NewGuid()));
+					Write(new UUID(Guid.NewGuid().ToString()));
 				}
 				else if (recipe is ShapedRecipe)
 				{
@@ -1041,7 +1042,7 @@ namespace MiNET.Net
 					}
 					WriteVarInt(1);
 					Write(rec.Result);
-					Write(new UUID(Guid.NewGuid()));
+					Write(new UUID(Guid.NewGuid().ToString()));
 				}
 				else if (recipe is SmeltingRecipe)
 				{

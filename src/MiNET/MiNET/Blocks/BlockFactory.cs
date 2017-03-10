@@ -14,12 +14,26 @@ namespace MiNET.Blocks
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
-		public static List<int> TransparentBlocks { get; private set; }
+		public static List<int> TransparentBlocks { get; private set; } = new List<int>();
+		public static Dictionary<int, int> LuminousBlocks { get; private set; } = new Dictionary<int, int>();
 		public static Dictionary<string, byte> NameToId { get; private set; }
 
 		static BlockFactory()
 		{
-			TransparentBlocks = GetTransparentBlocks();
+			for (byte i = 0; i < byte.MaxValue; i++)
+			{
+				var block = GetBlockById(i);
+				if (block != null && block.IsTransparent)
+				{
+					TransparentBlocks.Add(block.Id);
+				}
+				if (block != null && block.LightLevel > 0)
+				{
+					LuminousBlocks.Add(block.Id, block.LightLevel);
+				}
+
+			}
+
 			NameToId = BuildNameToId();
 		}
 
@@ -31,7 +45,7 @@ namespace MiNET.Blocks
 				Block block = GetBlockById(idx);
 				string name = block.GetType().Name.ToLowerInvariant();
 
-				if (name.Equals("block"))
+				if (Log.IsDebugEnabled && name.Equals("block"))
 				{
 					Log.Debug($"Missing implementation for block ID={idx}");
 					continue;
@@ -41,21 +55,6 @@ namespace MiNET.Blocks
 			}
 
 			return nameToId;
-		}
-
-		private static List<int> GetTransparentBlocks()
-		{
-			List<int> transparent = new List<int>();
-			for (byte i = 0; i < byte.MaxValue; i++)
-			{
-				var block = GetBlockById(i);
-				if (block != null && block.IsTransparent)
-				{
-					transparent.Add(block.Id);
-				}
-			}
-
-			return transparent;
 		}
 
 		public static byte GetBlockIdByName(string blockName)

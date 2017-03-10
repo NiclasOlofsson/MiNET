@@ -981,26 +981,10 @@ namespace MiNET.Worlds
 			return !e.Cancel;
 		}
 
-		public void Interact(Level world, Player player, short itemId, BlockCoordinates blockCoordinates, short metadata, BlockFace face, Vector3 faceCoords)
+		public void Interact(Player player, Item itemInHand, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			// Make sure we are holding the item we claim to be using
-
 			Block target = GetBlock(blockCoordinates);
-			if (target.Interact(world, player, blockCoordinates, face, faceCoords)) return; // Handled in block interaction
-
-			Item itemInHand = player.Inventory.GetItemInHand();
-
-			if (itemInHand.GetType() == typeof (Item))
-			{
-				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {itemId} and item in hand is {itemInHand?.Id}");
-				return; // Cheat(?)
-			}
-
-			if (itemInHand == null || itemInHand.Id != itemId)
-			{
-				if (player.GameMode != GameMode.Creative) Log.Error($"Wrong item in hand when placing block. Expected item {itemId} but had item {itemInHand?.Id}");
-				return; // Cheat(?)
-			}
+			if (target.Interact(this, player, blockCoordinates, face, faceCoords)) return; // Handled in block interaction
 
 			if (itemInHand is ItemBlock)
 			{
@@ -1026,7 +1010,7 @@ namespace MiNET.Worlds
 				}
 			}
 
-			itemInHand.UseItem(world, player, blockCoordinates, face, faceCoords);
+			itemInHand.UseItem(this, player, blockCoordinates, face, faceCoords);
 		}
 
 		public event EventHandler<BlockBreakEventArgs> BlockBreak;

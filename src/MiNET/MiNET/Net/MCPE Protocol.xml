@@ -87,14 +87,14 @@
 	<pdu namespace="raknet" id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
 		<field name="System Address" type="IPEndPoint" />
 		<field name="System Index" type="short" endianess="BE"/>
-		<field name="System Addresses" type="IPEndPoint[]" size="10" />
+		<field name="System Addresses" type="IPEndPoint[]" size="20" />
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x13" online="false" client="true" server="false" name="ID_NEW_INCOMING_CONNECTION">
 		<field name="ClientEndpoint" type="IPEndPoint" />
-		<field name="System Addresses" type="IPEndPoint[]" size="10"/>
+		<field name="System Addresses" type="IPEndPoint[]" size="20"/>
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>
@@ -634,7 +634,10 @@
 		<field name="Entity ID" type="SignedVarLong"  />
 	</pdu>
 
-	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
+	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_UPDATE_TRADE">
+	</pdu>
+
+	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
 		<field name="Package ID" type="string"  />
 		<field name="Unknown1" type="uint"  />
 		<field name="Unknown2" type="uint"  />
@@ -642,7 +645,7 @@
 		<field name="Unknown4" type="string"  />
 	</pdu>
 
-	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
+	<pdu id="0x51" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
 		<field name="Package ID" type="string"  />
 		<field name="Unknown1" type="uint"  />
 		<field name="Unknown3" type="ulong"  />
@@ -650,12 +653,12 @@
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>
 
-	<pdu id="0x51" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
+	<pdu id="0x52" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
 		<field name="Package ID" type="string"  />
 		<field name="Chunk index" type="int"  />
 	</pdu>
 
-	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_TRANSFER">
+	<pdu id="0x53" online="false" client="false" server="true" name="MCPE_TRANSFER">
 		<field name="Server Address" type="string"  />
 		<field name="Port" type="ushort"  />
 	</pdu>

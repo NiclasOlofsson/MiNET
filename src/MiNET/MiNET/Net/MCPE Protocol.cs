@@ -542,21 +542,26 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x4f:
-						package = McpeResourcePackDataInfo.CreateObject();
+						package = McpeUpdateTrade.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 					case 0x50:
-						package = McpeResourcePackChunkData.CreateObject();
+						package = McpeResourcePackDataInfo.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 					case 0x51:
-						package = McpeResourcePackChunkRequest.CreateObject();
+						package = McpeResourcePackChunkData.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 					case 0x52:
+						package = McpeResourcePackChunkRequest.CreateObject();
+						//package.Timer.Start();
+						package.Decode(buffer);
+						return package;
+					case 0x53:
 						package = McpeTransfer.CreateObject();
 						//package.Timer.Start();
 						package.Decode(buffer);
@@ -1040,7 +1045,7 @@ namespace MiNET.Net
 
 			systemAddress = ReadIPEndPoint();
 			systemIndex = ReadShortBe();
-			systemAddresses = ReadIPEndPoints(10);
+			systemAddresses = ReadIPEndPoints(20);
 			incomingTimestamp = ReadLong();
 			serverTimestamp = ReadLong();
 
@@ -4672,6 +4677,41 @@ namespace MiNET.Net
 
 	}
 
+	public partial class McpeUpdateTrade : Package<McpeUpdateTrade>
+	{
+		public McpeUpdateTrade()
+		{
+			Id = 0x4f;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+	}
+
 	public partial class McpeResourcePackDataInfo : Package<McpeResourcePackDataInfo>
 	{
 		public string packageId; // = null;
@@ -4681,7 +4721,7 @@ namespace MiNET.Net
 		public string unknown4; // = null;
 		public McpeResourcePackDataInfo()
 		{
-			Id = 0x4f;
+			Id = 0x50;
 		}
 
 		protected override void EncodePackage()
@@ -4731,7 +4771,7 @@ namespace MiNET.Net
 		public byte[] payload; // = null;
 		public McpeResourcePackChunkData()
 		{
-			Id = 0x50;
+			Id = 0x51;
 		}
 
 		protected override void EncodePackage()
@@ -4778,7 +4818,7 @@ namespace MiNET.Net
 		public int chunkIndex; // = null;
 		public McpeResourcePackChunkRequest()
 		{
-			Id = 0x51;
+			Id = 0x52;
 		}
 
 		protected override void EncodePackage()
@@ -4819,7 +4859,7 @@ namespace MiNET.Net
 		public ushort port; // = null;
 		public McpeTransfer()
 		{
-			Id = 0x52;
+			Id = 0x53;
 		}
 
 		protected override void EncodePackage()

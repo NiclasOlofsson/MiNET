@@ -597,6 +597,7 @@
     <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataVector3.cs" />
     <Compile Include="Utils\MultiMediaTimer.cs" />
+    <Compile Include="Utils\NbtStringConverter.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />

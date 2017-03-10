@@ -736,11 +736,7 @@ namespace MiNET.Net
 			int nbtLen = (int) _reader.ReadInt16(); // NbtLen
 			if (nbtLen > 0)
 			{
-				//var bytes = _reader.ReadBytes(nbtLen);
-				//Log.Debug($"Read NBT lenght={nbtLen}\n{Package.HexDump(bytes)}");
-
 				stack.ExtraData = ReadNbt().NbtFile.RootTag;
-				//Log.Debug($"Read Item wiht NBT: {stack.ToString()}");
 			}
 
 			return stack;

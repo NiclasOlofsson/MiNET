@@ -380,19 +380,6 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void Spawn(Player player, byte id)
-		{
-			Level level = player.Level;
-
-			Mob entity = new Mob(id, level)
-			{
-				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
-			};
-			entity.SpawnEntity();
-		}
-
-		[Command]
 		public void SpawnHologram(Player player, byte id)
 		{
 			Level level = player.Level;

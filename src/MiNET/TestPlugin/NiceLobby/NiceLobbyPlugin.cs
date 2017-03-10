@@ -497,13 +497,6 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-		[Command]
-		public void Spawn(Player player, int mobTypeId)
-		{
-			Mob mob = new Mob(mobTypeId, player.Level);
-			mob.SpawnEntity();
-		}
-
 		[Command(Name = "sp")]
 		public void SpawnPlayer(Player player, string name)
 		{
@@ -514,13 +507,7 @@ namespace TestPlugin.NiceLobby
 
 			PlayerMob fake = new PlayerMob("§6§lBot: " + name + "", player.Level)
 			{
-				Skin = new Skin {Slim = false, Texture = bytes},
-				KnownPosition = player.KnownPosition,
-				ItemInHand = new ItemDiamondSword(),
-				Helmet = 302,
-				Chest = 303,
-				Leggings = 304,
-				Boots = 305,
+				Skin = new Skin {Slim = false, Texture = bytes}, KnownPosition = player.KnownPosition, ItemInHand = new ItemDiamondSword(), Helmet = 302, Chest = 303, Leggings = 304, Boots = 305,
 			};
 
 			fake.SpawnEntity();
@@ -547,9 +534,7 @@ namespace TestPlugin.NiceLobby
 
 			Mob entity = new Mob(mobType, level)
 			{
-				KnownPosition = player.KnownPosition,
-				HealthManager = player.HealthManager,
-				NameTag = player.NameTag,
+				KnownPosition = player.KnownPosition, HealthManager = player.HealthManager, NameTag = player.NameTag,
 			};
 			entity.SpawnEntity();
 
@@ -608,12 +593,7 @@ namespace TestPlugin.NiceLobby
 
 			var playerLocation = new PlayerLocation
 			{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
+				X = x, Y = y, Z = z, Yaw = 91, Pitch = 28, HeadYaw = 91
 			};
 
 			ThreadPool.QueueUserWorkItem(delegate(object state) { player.SpawnLevel(player.Level, playerLocation); }, null);
@@ -801,16 +781,7 @@ namespace TestPlugin.NiceLobby
 		{
 			MapInfo mapInfo = new MapInfo
 			{
-				MapId = mapId,
-				UpdateType = 2,
-				Scale = 0,
-				X = 0,
-				Z = 0,
-				Col = 128,
-				Row = 128,
-				XOffset = 0,
-				ZOffset = 0,
-				Data = bitmapToBytes,
+				MapId = mapId, UpdateType = 2, Scale = 0, X = 0, Z = 0, Col = 128, Row = 128, XOffset = 0, ZOffset = 0, Data = bitmapToBytes,
 			};
 
 			McpeClientboundMapItemData packet = McpeClientboundMapItemData.CreateObject();

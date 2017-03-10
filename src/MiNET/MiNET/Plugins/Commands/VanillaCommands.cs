@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
+using MiNET.Entities;
+using MiNET.Entities.Hostile;
+using MiNET.Entities.Passive;
 using MiNET.Items;
 using MiNET.Plugins.Attributes;
+using MiNET.Utils;
 
 namespace MiNET.Plugins.Commands
 {
@@ -63,7 +68,7 @@ namespace MiNET.Plugins.Commands
 				{
 					names.Add(p.Username);
 
-					Item item = ItemFactory.GetItem(ItemFactory.GetItemIdByName(itemName.Value), (short)data, (byte)amount);
+					Item item = ItemFactory.GetItem(ItemFactory.GetItemIdByName(itemName.Value), (short) data, (byte) amount);
 
 					var inventory = p.Inventory.SetFirstEmptySlot(item, true, false);
 				}
@@ -71,8 +76,177 @@ namespace MiNET.Plugins.Commands
 			}
 
 
-			return new SimpleResponse { Body = $"Gave {body} {amount} of {itemName.Value}." };
+			return new SimpleResponse {Body = $"Gave {body} {amount} of {itemName.Value}."};
 		}
 
+		[Command]
+		public void Summon(Player player, EntityTypeEnum entityType, BlockPos spawnPos = null)
+		{
+			EntityType petType;
+			try
+			{
+				petType = (EntityType) Enum.Parse(typeof (EntityType), entityType.Value, true);
+			}
+			catch (ArgumentException e)
+			{
+				return;
+			}
+
+			if (!Enum.IsDefined(typeof (EntityType), petType))
+			{
+				player.SendMessage("No entity found");
+				return;
+			}
+
+			var coordinates = player.KnownPosition.GetCoordinates3D();
+			if (spawnPos != null)
+			{
+				if (spawnPos.XRelative)
+					coordinates.X += spawnPos.X;
+				else
+					coordinates.X = spawnPos.X;
+
+				if (spawnPos.YRelative)
+					coordinates.Y += spawnPos.Y;
+				else
+					coordinates.Y = spawnPos.Y;
+
+				if (spawnPos.ZRelative)
+					coordinates.Z += spawnPos.Z;
+				else
+					coordinates.Z = spawnPos.Z;
+			}
+
+			var world = player.Level;
+
+			Mob mob = null;
+
+			EntityType type = (EntityType) (int) petType;
+			switch (type)
+			{
+				case EntityType.Chicken:
+					mob = new Chicken(world);
+					break;
+				case EntityType.Cow:
+					mob = new Cow(world);
+					break;
+				case EntityType.Pig:
+					mob = new Pig(world);
+					break;
+				case EntityType.Sheep:
+					mob = new Sheep(world);
+					break;
+				case EntityType.Wolf:
+					mob = new Wolf(world) {Owner = player};
+					break;
+				case EntityType.Villager:
+					mob = new Villager(world);
+					break;
+				case EntityType.MushroomCow:
+					mob = new MushroomCow(world);
+					break;
+				case EntityType.Squid:
+					mob = new Squid(world);
+					break;
+				case EntityType.Rabbit:
+					mob = new Rabbit(world);
+					break;
+				case EntityType.Bat:
+					mob = new Bat(world);
+					break;
+				case EntityType.IronGolem:
+					mob = new IronGolem(world);
+					break;
+				case EntityType.SnowGolem:
+					mob = new SnowGolem(world);
+					break;
+				case EntityType.Ocelot:
+					mob = new Ocelot(world);
+					break;
+				case EntityType.Zombie:
+					mob = new Zombie(world);
+					break;
+				case EntityType.Creeper:
+					mob = new Creeper(world);
+					break;
+				case EntityType.Skeleton:
+					mob = new Skeleton(world);
+					break;
+				case EntityType.Spider:
+					mob = new Spider(world);
+					break;
+				case EntityType.ZombiePigman:
+					mob = new ZombiePigman(world);
+					break;
+				case EntityType.Slime:
+					mob = new Slime(world);
+					break;
+				case EntityType.Enderman:
+					mob = new Enderman(world);
+					break;
+				case EntityType.Silverfish:
+					mob = new Silverfish(world);
+					break;
+				case EntityType.CaveSpider:
+					mob = new CaveSpider(world);
+					break;
+				case EntityType.Ghast:
+					mob = new Ghast(world);
+					break;
+				case EntityType.MagmaCube:
+					mob = new MagmaCube(world);
+					break;
+				case EntityType.Blaze:
+					mob = new Blaze(world);
+					break;
+				case EntityType.ZombieVillager:
+					mob = new ZombieVillager(world);
+					break;
+				case EntityType.Witch:
+					mob = new Witch(world);
+					break;
+				case EntityType.Stray:
+					mob = new Stray(world);
+					break;
+				case EntityType.Husk:
+					mob = new Husk(world);
+					break;
+				case EntityType.WitherSkeleton:
+					mob = new WitherSkeleton(world);
+					break;
+				case EntityType.Guardian:
+					mob = new Guardian(world);
+					break;
+				case EntityType.ElderGuardian:
+					mob = new ElderGuardian(world);
+					break;
+				case EntityType.Horse:
+					mob = new Horse(world);
+					break;
+				case EntityType.PolarBear:
+					mob = new PolarBear(world);
+					break;
+				case EntityType.Shulker:
+					mob = new Shulker(world);
+					break;
+				case EntityType.Dragon:
+					mob = new Dragon(world);
+					break;
+				case EntityType.SkeletonHorse:
+					mob = new SkeletonHorse(world);
+					break;
+				case EntityType.Wither:
+					mob = new Mob(EntityType.Wither, world);
+					break;
+				case EntityType.Npc:
+					mob = new PlayerMob("test", world);
+					break;
+			}
+
+			if (mob == null) return;
+
+			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
+			mob.SpawnEntity();
+		}
 	}
 }

@@ -1545,7 +1545,7 @@ namespace MiNET
 
 				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
 
-				player.HealthManager.TakeHit(this, (int) DamageCalculator.CalculatePlayerDamage(player, damage), DamageCause.EntityAttack);
+				player.HealthManager.TakeHit(this, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage), DamageCause.EntityAttack);
 			}
 			else
 			{

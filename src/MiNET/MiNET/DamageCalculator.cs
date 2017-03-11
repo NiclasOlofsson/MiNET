@@ -2,6 +2,7 @@ using System;
 using fNbt;
 using log4net;
 using MiNET.Effects;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 
@@ -11,7 +12,7 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (DamageCalculator));
 
-		public double CalculateItemDamage(Player player, Item item, Player target)
+		public virtual double CalculateItemDamage(Player player, Item item, Player target)
 		{
 			return item.GetDamage(); //Item Damage.
 		}
@@ -68,7 +69,7 @@ namespace MiNET
 			return increase;
 		}
 
-		public virtual double CalculatePlayerDamage(Player target, double damage)
+		public virtual double CalculatePlayerDamage(Entity source, Player target, Item tool, double damage)
 		{
 			double originalDamage = damage;
 			double armorValue = 0;

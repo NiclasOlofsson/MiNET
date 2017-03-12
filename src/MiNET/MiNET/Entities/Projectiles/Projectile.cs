@@ -5,6 +5,7 @@ using System.Numerics;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -66,7 +67,15 @@ namespace MiNET.Entities.Projectiles
 			    || (Velocity.Length() <= 0 && DespawnOnImpact)
 			    || (Velocity.Length() <= 0 && !DespawnOnImpact && Ttl <= 0))
 			{
-				DespawnEntity();
+				if (DespawnOnImpact || (!DespawnOnImpact && Ttl <= 0))
+				{
+					DespawnEntity();
+					return;
+				}
+				else
+				{
+					IsCritical = false;
+				}
 				return;
 			}
 
@@ -282,7 +291,6 @@ namespace MiNET.Entities.Projectiles
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
-			//Log.Debug($"Entity ID: {EntityId}, Velocity: {Velocity}");
 			//McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 			//motions.entityId = EntityId;
 			//motions.velocity = Velocity;
@@ -294,6 +302,13 @@ namespace MiNET.Entities.Projectiles
 			moveEntity.position = KnownPosition;
 			//new Task(() => Level.RelayBroadcast(moveEntity)).Start();
 			Level.RelayBroadcast(moveEntity);
+
+			if(Shooter != null && IsCritical)
+			{
+				var particle = new CriticalParticle(Level);
+				particle.Position = KnownPosition.ToVector3();
+				particle.Spawn(new []{Shooter});
+			}
 		}
 
 		public bool BroadcastMovement { get; set; }

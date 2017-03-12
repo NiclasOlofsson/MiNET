@@ -45,9 +45,10 @@ namespace MiNET.Blocks
 				Block block = GetBlockById(idx);
 				string name = block.GetType().Name.ToLowerInvariant();
 
-				if (Log.IsDebugEnabled && name.Equals("block"))
+				if (name.Equals("block"))
 				{
-					Log.Debug($"Missing implementation for block ID={idx}");
+					if(Log.IsDebugEnabled)
+						Log.Debug($"Missing implementation for block ID={idx}");
 					continue;
 				}
 

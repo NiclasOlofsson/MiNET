@@ -252,8 +252,8 @@
 		<field name="Speed X" type="float" />
 		<field name="Speed Y" type="float" />
 		<field name="Speed Z" type="float" />
-		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
+		<field name="Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary"/>
 		<field name="Links" type="Links" />

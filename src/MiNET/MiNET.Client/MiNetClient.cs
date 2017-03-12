@@ -1312,6 +1312,7 @@ namespace MiNET.Client
 
 		private void InitiateEncryption(string serverKey, byte[] randomKeyToken)
 		{
+			try
 			{
 				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
 				Log.Debug("ServerKey (b64):\n" + serverKey);
@@ -1374,6 +1375,10 @@ namespace MiNET.Client
 				McpeBatch batch = BatchUtils.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
 				batch.Encode();
 				SendPackage(batch);
+			}
+			catch (Exception e)
+			{
+				Log.Error("Initiate encryption", e);
 			}
 		}
 

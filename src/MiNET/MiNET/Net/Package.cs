@@ -807,7 +807,7 @@ namespace MiNET.Net
 				return;
 			}
 
-			WriteVarInt(attributes.Count);
+			WriteUnsignedVarInt((uint) attributes.Count);
 			foreach (EntityAttribute attribute in attributes.Values)
 			{
 				Write(attribute.Name);
@@ -820,7 +820,7 @@ namespace MiNET.Net
 		public EntityAttributes ReadEntityAttributes()
 		{
 			var attributes = new EntityAttributes();
-			int count = ReadVarInt();
+			uint count = ReadUnsignedVarInt();
 			for (int i = 0; i < count; i++)
 			{
 				EntityAttribute attribute = new EntityAttribute

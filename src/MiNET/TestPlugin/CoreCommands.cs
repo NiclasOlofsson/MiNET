@@ -500,7 +500,7 @@ namespace TestPlugin
 			//	TAG_String("map_uuid"): "-4294967268"
 			//}
 
-			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
+			inventory.Slots[c++] = new ItemBow() { ExtraData = new NbtCompound { new NbtList("ench") { new NbtCompound { new NbtShort("id", 19), new NbtShort("lvl", 4) } } } }; // Bow
 			inventory.Slots[c++] = new ItemEnchantingTable();
 			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
@@ -510,7 +510,6 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
-			inventory.Slots[c++] = new ItemBow(); // Bow
 			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows
 			inventory.Slots[c++] = new ItemEgg {Count = 64}; // Eggs
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs

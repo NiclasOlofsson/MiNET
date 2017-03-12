@@ -1896,8 +1896,8 @@ namespace MiNET.Net
 		public float speedX; // = null;
 		public float speedY; // = null;
 		public float speedZ; // = null;
-		public float yaw; // = null;
 		public float pitch; // = null;
+		public float yaw; // = null;
 		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
 		public Links links; // = null;
@@ -1921,8 +1921,8 @@ namespace MiNET.Net
 			Write(speedX);
 			Write(speedY);
 			Write(speedZ);
-			Write(yaw);
 			Write(pitch);
+			Write(yaw);
 			Write(attributes);
 			Write(metadata);
 			Write(links);
@@ -1948,8 +1948,8 @@ namespace MiNET.Net
 			speedX = ReadFloat();
 			speedY = ReadFloat();
 			speedZ = ReadFloat();
-			yaw = ReadFloat();
 			pitch = ReadFloat();
+			yaw = ReadFloat();
 			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
 			links = ReadLinks();

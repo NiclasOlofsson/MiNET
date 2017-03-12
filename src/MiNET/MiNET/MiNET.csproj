@@ -588,6 +588,7 @@
     <Compile Include="Utils\ConcurrentPriorityQueue.cs" />
     <Compile Include="Utils\CryptoContext.cs" />
     <Compile Include="Utils\CryptoUtils.cs" />
+    <Compile Include="Utils\EnchantingExtensions.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
     <Compile Include="Utils\DedicatedThreadPool.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />

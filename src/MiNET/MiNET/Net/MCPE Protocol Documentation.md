@@ -650,8 +650,8 @@ val2 float
 |Speed X | float |  |
 |Speed Y | float |  |
 |Speed Z | float |  |
-|Yaw | float |  |
 |Pitch | float |  |
+|Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | Links |  |

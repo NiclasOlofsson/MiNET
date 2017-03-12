@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
@@ -19,6 +18,7 @@ namespace MiNET.Entities.Projectiles
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
 		public int Damage { get; set; }
+		public int PowerLevel { get; set; } = 0;
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
@@ -43,100 +43,24 @@ namespace MiNET.Entities.Projectiles
 
 				IsSpawned = true;
 
-				//if (Shooter == null)
-				//{
-				//	var addEntity = McpeAddEntity.CreateObject();
-				//	addEntity.entityType = (byte) EntityTypeId;
-				//	addEntity.entityId = EntityId;
-				//	addEntity.runtimeEntityId = EntityId;
-				//	addEntity.x = KnownPosition.X;
-				//	addEntity.y = KnownPosition.Y;
-				//	addEntity.z = KnownPosition.Z;
-				//	addEntity.yaw = KnownPosition.Yaw;
-				//	addEntity.pitch = KnownPosition.Pitch;
-				//	addEntity.metadata = GetMetadata();
-				//	addEntity.speedX = (float) Velocity.X;
-				//	addEntity.speedY = (float) Velocity.Y;
-				//	addEntity.speedZ = (float) Velocity.Z;
-
-				//	Level.RelayBroadcast(addEntity);
-
-				//	McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				//	mcpeSetEntityData.entityId = EntityId;
-				//	mcpeSetEntityData.metadata = GetMetadata();
-				//	Level.RelayBroadcast(mcpeSetEntityData);
-				//}
-				//else
-				//{
-				//	//{
-				//	//	var addEntity = McpeAddEntity.CreateObject();
-				//	//	addEntity.entityType = (byte) EntityTypeId;
-				//	//	addEntity.entityId = EntityId;
-				//	//	addEntity.runtimeEntityId = EntityId;
-				//	//	addEntity.x = KnownPosition.X;
-				//	//	addEntity.y = KnownPosition.Y;
-				//	//	addEntity.z = KnownPosition.Z;
-				//	//	addEntity.yaw = KnownPosition.Yaw;
-				//	//	addEntity.pitch = KnownPosition.Pitch;
-				//	//	addEntity.metadata = GetMetadata();
-				//	//	addEntity.speedX = (float) Velocity.X;
-				//	//	addEntity.speedY = (float) Velocity.Y;
-				//	//	addEntity.speedZ = (float) Velocity.Z;
-
-				//	//	Level.RelayBroadcast(Shooter, addEntity);
-
-				//	//	//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				//	//	//mcpeSetEntityData.entityId = EntityId;
-				//	//	//mcpeSetEntityData.metadata = GetMetadata();
-				//	//	//Level.RelayBroadcast(Shooter, mcpeSetEntityData);
-				//	//}
-				//	{
-				//		MetadataDictionary metadata = GetMetadata();
-				//		//metadata[17] = new MetadataLong(0);
-
-				//		var addEntity = McpeAddEntity.CreateObject();
-				//		addEntity.entityType = (byte) EntityTypeId;
-				//		addEntity.entityId = EntityId;
-    //                    addEntity.runtimeEntityId = EntityId;
-    //                    addEntity.x = KnownPosition.X;
-				//		addEntity.y = KnownPosition.Y;
-				//		addEntity.z = KnownPosition.Z;
-				//		addEntity.yaw = KnownPosition.Yaw;
-				//		addEntity.pitch = KnownPosition.Pitch;
-				//		addEntity.metadata = metadata;
-				//		addEntity.speedX = (float) Velocity.X;
-				//		addEntity.speedY = (float) Velocity.Y;
-				//		addEntity.speedZ = (float) Velocity.Z;
-				//		//Shooter.SendPackage(addEntity);
-
-				//		//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				//		//mcpeSetEntityData.entityId = EntityId;
-				//		//mcpeSetEntityData.metadata = metadata;
-				//		//Shooter.SendPackage(mcpeSetEntityData);
-				//	}
-				//}
 			}
 		}
 
 		public override MetadataDictionary GetMetadata()
 		{
-            IsInWater = true;
-		    IsUsingItem = false;
+			var metadata = base.GetMetadata();
 
-            var metadata = base.GetMetadata();
-            if (Shooter != null)
-            {
-                metadata[5] = new MetadataLong(Shooter.EntityId);
-            }
+			if (Shooter != null)
+			{
+				metadata[5] = new MetadataLong(Shooter.EntityId);
+			}
 
-            Log.Debug($"Projectile metadata: \n{MetadataDictionary.MetadataToCode(metadata)}");
-
-            return metadata;
+			return metadata;
 		}
 
 		public override void OnTick()
 		{
-			base.OnTick();
+			//base.OnTick();
 
 			if (KnownPosition.Y <= 0
 			    || (Velocity.Length() <= 0 && DespawnOnImpact)
@@ -165,6 +89,11 @@ namespace MiNET.Entities.Projectiles
 					animate.entityId = entityCollided.EntityId;
 					animate.actionId = 4;
 					Level.RelayBroadcast(animate);
+				}
+
+				if (PowerLevel > 0)
+				{
+					damage = damage + ((PowerLevel + 1)*0.25);
 				}
 
 				Player player = entityCollided as Player;
@@ -353,15 +282,18 @@ namespace MiNET.Entities.Projectiles
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
-			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entityId = EntityId;
-			motions.velocity = Velocity;
-			new Task(() => Level.RelayBroadcast(motions)).Start();
+			//Log.Debug($"Entity ID: {EntityId}, Velocity: {Velocity}");
+			//McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			//motions.entityId = EntityId;
+			//motions.velocity = Velocity;
+			//////new Task(() => Level.RelayBroadcast(motions)).Start();
+			//Level.RelayBroadcast(motions);
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 			moveEntity.entityId = EntityId;
 			moveEntity.position = KnownPosition;
-			new Task(() => Level.RelayBroadcast(moveEntity)).Start();
+			//new Task(() => Level.RelayBroadcast(moveEntity)).Start();
+			Level.RelayBroadcast(moveEntity);
 		}
 
 		public bool BroadcastMovement { get; set; }
@@ -376,18 +308,6 @@ namespace MiNET.Entities.Projectiles
 		{
 			return bbox.Max;
 		}
-
-		//public static Vector3 getRandom(AxisAlignedBB aabb)
-		//{
-		//	Vector min = getMinimum(aabb), max = getMaximum(aabb);
-		//	Random random = GameManager.getInstance().getRandom();
-		//	return new Vector(
-		//			random.nextFloat() * (max.getX() - min.getX()) + min.getX(),
-		//			random.nextFloat() * (max.getY() - min.getY()) + min.getY(),
-		//			random.nextFloat() * (max.getZ() - min.getZ()) + min.getZ()
-		//	);
-		//}
-
 
 		public static bool Intersect(BoundingBox aabb, Ray2 ray)
 		{

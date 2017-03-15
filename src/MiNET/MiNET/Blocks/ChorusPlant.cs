@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 			BlastResistance = 2;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random((int)DateTime.UtcNow.Ticks);
 			if (rnd.Next(2) > 0) // Note that random.Next EXCLUDES the parameter so this is 50/50

@@ -12,7 +12,7 @@ namespace MiNET.Blocks
 			Hardness = 0.3f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random((int)DateTime.UtcNow.Ticks);
 			return new[] { ItemFactory.GetItem(409, 0, (byte)(rnd.Next(2, 3))) }; //drop prismarine_shard

@@ -2520,9 +2520,7 @@ namespace MiNET.Net
 	public partial class McpeLevelEvent : Package<McpeLevelEvent>
 	{
 		public int eventId; // = null;
-		public float x; // = null;
-		public float y; // = null;
-		public float z; // = null;
+		public Vector3 position; // = null;
 		public int data; // = null;
 		public McpeLevelEvent()
 		{
@@ -2536,9 +2534,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteSignedVarInt(eventId);
-			Write(x);
-			Write(y);
-			Write(z);
+			Write(position);
 			WriteSignedVarInt(data);
 
 			AfterEncode();
@@ -2554,9 +2550,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			eventId = ReadSignedVarInt();
-			x = ReadFloat();
-			y = ReadFloat();
-			z = ReadFloat();
+			position = ReadVector3();
 			data = ReadSignedVarInt();
 
 			AfterDecode();
@@ -2995,6 +2989,7 @@ namespace MiNET.Net
 
 	public partial class McpePlayerFall : Package<McpePlayerFall>
 	{
+		public float fallDistance; // = null;
 		public McpePlayerFall()
 		{
 			Id = 0x25;
@@ -3006,6 +3001,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(fallDistance);
 
 			AfterEncode();
 		}
@@ -3019,6 +3015,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			fallDistance = ReadFloat();
 
 			AfterDecode();
 		}

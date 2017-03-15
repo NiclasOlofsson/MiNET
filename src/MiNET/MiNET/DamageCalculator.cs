@@ -3,8 +3,10 @@ using fNbt;
 using log4net;
 using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Entities.Projectiles;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Utils;
 
 namespace MiNET
 {
@@ -14,7 +16,59 @@ namespace MiNET
 
 		public virtual double CalculateItemDamage(Player player, Item item, Player target)
 		{
-			return item.GetDamage(); //Item Damage.
+			double damage = item.GetDamage();
+
+			var enchantings = item.GetEnchantings();
+
+			double increase = 0;
+			
+			foreach (var enchanting in enchantings)
+			{
+				EnchantingType enchantingType = enchanting.Id;
+				switch (enchantingType)
+				{
+					case EnchantingType.Sharpness:
+						increase = 1 + (enchanting.Level*0.5);
+						break;
+					case EnchantingType.Smite:
+						break;
+					case EnchantingType.BaneOfArthropods:
+						break;
+					case EnchantingType.Knockback:
+						// Need to deal with for all knockbacks
+						break;
+					case EnchantingType.FireAspect:
+						// Set target on fire. Need to deal with in "take hit" perhaps?
+						break;
+					case EnchantingType.Looting:
+						break;
+					case EnchantingType.Efficiency:
+						break;
+					case EnchantingType.SilkTouch:
+						break;
+					case EnchantingType.Durability:
+						break;
+					case EnchantingType.Fortune:
+						break;
+					case EnchantingType.Power:
+						break;
+					case EnchantingType.Punch:
+						break;
+					case EnchantingType.Flame:
+						break;
+					case EnchantingType.Infinity:
+						break;
+					case EnchantingType.LuckOfTheSea:
+						break;
+					case EnchantingType.Lure:
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+
+
+			return damage + increase; //Item Damage.
 		}
 
 		public virtual double CalculateFallDamage(Player player, double damage, Player target)
@@ -69,7 +123,7 @@ namespace MiNET
 			return increase;
 		}
 
-		public virtual double CalculatePlayerDamage(Entity source, Player target, Item tool, double damage)
+		public virtual double CalculatePlayerDamage(Entity source, Player target, Item tool, double damage, DamageCause cause)
 		{
 			double originalDamage = damage;
 			double armorValue = 0;
@@ -96,7 +150,7 @@ namespace MiNET
 							armorValue += 3;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
+					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
 				}
 
 				{
@@ -119,7 +173,7 @@ namespace MiNET
 							armorValue += 8;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
+					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
 				}
 
 				{
@@ -142,7 +196,7 @@ namespace MiNET
 							armorValue += 6;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
+					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
 				}
 
 				{
@@ -165,7 +219,7 @@ namespace MiNET
 							armorValue += 3;
 							break;
 					}
-					epfValue += CalculateDamageReducationFromEnchantments(armorPiece);
+					epfValue += CalculateDamageReducationFromEnchantments(source, armorPiece, tool, cause);
 				}
 			}
 
@@ -182,28 +236,94 @@ namespace MiNET
 			//return (int) Math.Floor(damage*(1.0 - armorValue));
 		}
 
-		protected virtual double CalculateDamageReducationFromEnchantments(Item armor)
+		protected virtual double CalculateDamageReducationFromEnchantments(Entity source, Item armor, Item tool, DamageCause cause)
 		{
 			if (armor == null) return 0;
 			if (armor.ExtraData == null) return 0;
 
-			NbtList enchantings;
-			if (!armor.ExtraData.TryGet("ench", out enchantings)) return 0;
-
 			double reduction = 0;
-			foreach (NbtCompound enchanting in enchantings)
 			{
-				short level = enchanting["lvl"].ShortValue;
+				var enchantings = armor.GetEnchantings();
+				foreach (var enchanting in enchantings)
+				{
+					double typeModifier = 0;
 
-				double typeModifier = 0;
-				short id = enchanting["id"].ShortValue;
-				if (id == 0) typeModifier = 1;
-				else if (id == 1) typeModifier = 2;
-				else if (id == 2) typeModifier = 2;
-				else if (id == 3) typeModifier = 2;
-				else if (id == 4) typeModifier = 3;
+					EnchantingType enchantingType = enchanting.Id;
+					switch (enchantingType)
+					{
+						case EnchantingType.Protection:
+							typeModifier = 1;
+							break;
+						case EnchantingType.FireProtection:
+							// Deal with in HealthManager fireticks
+							//typeModifier = 2;
+							break;
+						case EnchantingType.FeatherFalling:
+							if (cause == DamageCause.Fall)
+							{
+								typeModifier = 2;
+							}
+							break;
+						case EnchantingType.BlastProtection:
+							// Not handled right now
+							//typeModifier = 2;
+							break;
+						case EnchantingType.ProjectileProtection:
+							if (source is Arrow)
+							{
+								typeModifier = 3;
+							}
+							break;
+						case EnchantingType.Thorns:
+							// Refactor: Make damage to the attacker (!)
+							break;
+						case EnchantingType.Respiration:
+							// HealthManager air-ticks
+							break;
+						case EnchantingType.DepthStrider:
+							break;
+						case EnchantingType.AquaAffinity:
+							break;
+						case EnchantingType.Sharpness:
+							break;
+						case EnchantingType.Smite:
+							break;
+						case EnchantingType.BaneOfArthropods:
+							break;
+						case EnchantingType.Knockback:
+							// Need to deal with for all knockbacks
+							break;
+						case EnchantingType.FireAspect:
+							// Set target on fire. Need to deal with in "take hit" perhaps?
+							break;
+						case EnchantingType.Looting:
+							break;
+						case EnchantingType.Efficiency:
+							break;
+						case EnchantingType.SilkTouch:
+							break;
+						case EnchantingType.Durability:
+							break;
+						case EnchantingType.Fortune:
+							break;
+						case EnchantingType.Power:
+							break;
+						case EnchantingType.Punch:
+							break;
+						case EnchantingType.Flame:
+							break;
+						case EnchantingType.Infinity:
+							break;
+						case EnchantingType.LuckOfTheSea:
+							break;
+						case EnchantingType.Lure:
+							break;
+						default:
+							throw new ArgumentOutOfRangeException();
+					}
 
-				reduction += level*typeModifier;
+					reduction += enchanting.Level*typeModifier;
+				}
 			}
 
 			return reduction;

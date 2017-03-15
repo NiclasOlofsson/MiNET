@@ -263,10 +263,17 @@ namespace MiNET.Plugins
 					param.Optional = parameter.IsOptional;
 					if (param.Type.Equals("stringenum"))
 					{
-						string typeName = parameter.ParameterType.Name;
-						typeName = typeName.Replace("Enum", "");
-						typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
-						param.EnumType = typeName;
+						if (parameter.ParameterType.IsEnum)
+						{
+							param.EnumValues = parameter.ParameterType.GetEnumNames().Select(s => s.ToLowerInvariant()).ToArray();
+						}
+						else
+						{
+							string typeName = parameter.ParameterType.Name;
+							typeName = typeName.Replace("Enum", "");
+							typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
+							param.EnumType = typeName;
+						}
 					}
 					inputParams.Add(param);
 				}
@@ -369,19 +376,15 @@ namespace MiNET.Plugins
 				value = "target";
 			else if (parameter.ParameterType == typeof (BlockPos))
 				value = "blockpos";
-			else if (parameter.ParameterType.BaseType == typeof (EnumBase))
-			{
+			else if (parameter.ParameterType.IsEnum)
 				value = "stringenum";
-			}
+			else if (parameter.ParameterType.BaseType == typeof (EnumBase))
+				value = "stringenum";
 			else if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
-			{
 				// Custom serialization
 				value = "string";
-			}
 			else
-			{
 				Log.Warn("No parameter type mapping for type: " + parameter.ParameterType.ToString());
-			}
 
 			return value;
 		}
@@ -678,6 +681,18 @@ namespace MiNET.Plugins
 				{
 					double value;
 					if (!double.TryParse(args[i], out value)) return null;
+					objectArgs[k] = value;
+					continue;
+				}
+				if (parameter.ParameterType.IsEnum)
+				{
+					Enum value = Enum.Parse(parameter.ParameterType, args[i], true) as Enum;
+					if (value == null)
+					{
+						Log.Error($"Could not convert to valid enum value: {args[i]}");
+						continue;
+					}
+
 					objectArgs[k] = value;
 					continue;
 				}

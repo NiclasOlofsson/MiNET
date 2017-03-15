@@ -430,6 +430,11 @@ namespace MiNET
 				handler.HandleMcpeAnimate((McpeAnimate) message);
 			}
 
+			else if (typeof(McpePlayerFall) == message.GetType())
+			{
+				handler.HandleMcpePlayerFall((McpePlayerFall)message);
+			}
+
 			else if (typeof (McpeUseItem) == message.GetType())
 			{
 				handler.HandleMcpeUseItem((McpeUseItem) message);

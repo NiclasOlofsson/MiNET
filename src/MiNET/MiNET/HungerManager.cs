@@ -2,6 +2,7 @@ using System;
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -108,7 +109,7 @@ namespace MiNET
 
 				if (_ticker%80 == 0)
 				{
-					Player.HealthManager.TakeHit(null, 1, DamageCause.Unknown);
+					Player.HealthManager.TakeHit(null, 1, DamageCause.Starving);
 				}
 			}
 			else if (Hunger > 18 && Player.HealthManager.Hearts < 20)
@@ -119,16 +120,22 @@ namespace MiNET
 				{
 					if (_ticker%10 == 0)
 					{
-						IncreaseExhaustion(4);
-						Player.HealthManager.Regen(1);
+						if(Player.Level.Difficulty != Difficulty.Hardcore)
+						{
+							IncreaseExhaustion(4);
+							Player.HealthManager.Regen(1);
+						}
 					}
 				}
 				else
 				{
 					if (_ticker%80 == 0)
 					{
-						IncreaseExhaustion(4);
-						Player.HealthManager.Regen(1);
+						if (Player.Level.Difficulty != Difficulty.Hardcore)
+						{
+							IncreaseExhaustion(4);
+							Player.HealthManager.Regen(1);
+						}
 					}
 				}
 			}

@@ -25,7 +25,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			if ((Metadata & 0x08) == 0x08)
 			{

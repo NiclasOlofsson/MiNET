@@ -27,6 +27,7 @@ namespace MiNET
 		[Description("{0} fell out of the world")] Void,
 		[Description("{0} died")] Suicide,
 		[Description("{0} was killed by magic")] Magic,
+		[Description("{0} starved to death")] Starving,
 		[Description("{0} died a customized death")] Custom
 	}
 
@@ -34,10 +35,10 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (HealthManager));
 
-		private int _hearts;
 		public Entity Entity { get; set; }
 		public int MaxHealth { get; set; } = 200;
 		public int Health { get; set; }
+		public float Absorption { get; set; }
 		public short MaxAir { get; set; } = 400;
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
@@ -83,6 +84,27 @@ namespace MiNET
 
 			LastDamageSource = source;
 			LastDamageCause = cause;
+			if (Absorption > 0)
+			{
+				float abs = Absorption*10;
+				abs = abs - damage;
+				if (abs < 0)
+				{
+					Absorption = 0;
+					damage = Math.Abs((int)Math.Floor(abs));
+				}
+				else
+				{
+					Absorption = abs/10f;
+					damage = 0;
+				}
+			}
+
+			if (cause == DamageCause.Starving)
+			{
+				if (Entity.Level.Difficulty <= Difficulty.Easy && Hearts <= 10) return;
+				if (Entity.Level.Difficulty <= Difficulty.Normal && Hearts <= 1) return;
+			}
 
 			Health -= damage*10;
 			if (Health < 0)

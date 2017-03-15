@@ -10,8 +10,10 @@ namespace MiNET.Blocks
 			Hardness = 3;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
+			if (tool.ItemMaterial < ItemMaterial.Stone) return new Item[0];
+
 			return new[] {ItemFactory.GetItem(388, 0, 1)};
 		}
 	}

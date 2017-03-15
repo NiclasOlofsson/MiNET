@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 			Hardness = 0.6f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random((int)DateTime.UtcNow.Ticks);
 			if (rnd.NextDouble() <= 0.1)
@@ -19,7 +19,7 @@ namespace MiNET.Blocks
 				return new[] {ItemFactory.GetItem(318)};
 			}
 
-			return base.GetDrops();
+			return base.GetDrops(tool);
 		}
 	}
 }

@@ -1071,6 +1071,8 @@ namespace MiNET
 		public static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
+			if (message is McpeBatch) return;
+			if (message is UnconnectedPong) return;
 			//if (!Debugger.IsAttached) return;
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);

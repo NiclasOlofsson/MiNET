@@ -44,7 +44,7 @@ namespace MiNET.Blocks
 				return;
 			}
 
-			Log.Debug("Checking decay");
+			//Log.Debug("Checking decay");
 
 			if (FindLog(level, Coordinates, new List<BlockCoordinates>(), 0))
 			{
@@ -53,24 +53,25 @@ namespace MiNET.Blocks
 				return;
 			}
 
-			Log.Warn("Decay leaf");
+			Log.Debug("Decay leaf");
 
-			level.SetAir(Coordinates);
-			foreach (var drop in GetDrops())
+			var drops = GetDrops(null);
+			BreakBlock(level, drops.Length == 0);
+			foreach (var drop in drops)
 			{
 				level.DropItem(Coordinates, drop);
 			}
-
-			UpdateBlocks(level);
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
+
 			var rnd = new Random((int) DateTime.UtcNow.Ticks);
-			if (Metadata == 0) // Oak drops apple
+			if ((Metadata & 0x03) == 0) // Oak and dark oak drops apple
 			{
 				if (rnd.Next(200) == 0)
 				{
+					Log.Error($"Drop APPLE: Metadata={Metadata}, Metadata={Metadata & 0x03}");
 					// Apple
 					return new Item[] {ItemFactory.GetItem(260, 0, 1)};
 				}

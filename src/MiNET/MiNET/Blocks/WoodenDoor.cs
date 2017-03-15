@@ -27,7 +27,7 @@ namespace MiNET.Blocks
 			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;
 		}
 
-		public override void BreakBlock(Level level)
+		public override void BreakBlock(Level level, bool silent = false)
 		{
 			// Remove door
 			if ((Metadata & 0x08) == 0x08) // Is Upper?

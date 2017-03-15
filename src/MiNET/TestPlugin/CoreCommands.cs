@@ -106,9 +106,7 @@ namespace TestPlugin
 			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			levelEvent.eventId = value;
 			levelEvent.data = data;
-			levelEvent.x = player.KnownPosition.X;
-			levelEvent.y = player.KnownPosition.Y;
-			levelEvent.z = player.KnownPosition.Z;
+			levelEvent.position = player.KnownPosition.ToVector3();
 			player.Level.RelayBroadcast(levelEvent);
 
 			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
@@ -439,44 +437,44 @@ namespace TestPlugin
 		{
 			var inventory = player.Inventory;
 
-			switch (kitId)
-			{
-				case 0:
-					// Kit leather tier
-					inventory.Boots = new ItemLeatherBoots();
-					inventory.Leggings = new ItemLeatherLeggings();
-					inventory.Chest = new ItemLeatherChestplate();
-					inventory.Helmet = new ItemLeatherHelmet();
-					break;
-				case 1:
-					// Kit gold tier
-					inventory.Boots = new ItemGoldBoots();
-					inventory.Leggings = new ItemGoldLeggings();
-					inventory.Chest = new ItemGoldChestplate();
-					inventory.Helmet = new ItemGoldHelmet();
-					break;
-				case 2:
-					// Kit chain tier
-					inventory.Boots = new ItemChainmailBoots();
-					inventory.Leggings = new ItemChainmailLeggings();
-					inventory.Chest = new ItemChainmailChestplate();
-					inventory.Helmet = new ItemChainmailHelmet();
-					break;
-				case 3:
-					// Kit iron tier
-					inventory.Boots = new ItemIronBoots();
-					inventory.Leggings = new ItemIronLeggings();
-					inventory.Chest = new ItemIronChestplate();
-					inventory.Helmet = new ItemIronHelmet();
-					break;
-				case 4:
-					// Kit diamond tier
-					inventory.Boots = new ItemDiamondBoots();
-					inventory.Leggings = new ItemDiamondLeggings();
-					inventory.Chest = new ItemDiamondChestplate();
-					inventory.Helmet = new ItemDiamondHelmet();
-					break;
-			}
+			//switch (kitId)
+			//{
+			//	case 0:
+			//		// Kit leather tier
+			//		inventory.Boots = new ItemLeatherBoots();
+			//		inventory.Leggings = new ItemLeatherLeggings();
+			//		inventory.Chest = new ItemLeatherChestplate();
+			//		inventory.Helmet = new ItemLeatherHelmet();
+			//		break;
+			//	case 1:
+			//		// Kit gold tier
+			//		inventory.Boots = new ItemGoldBoots();
+			//		inventory.Leggings = new ItemGoldLeggings();
+			//		inventory.Chest = new ItemGoldChestplate();
+			//		inventory.Helmet = new ItemGoldHelmet();
+			//		break;
+			//	case 2:
+			//		// Kit chain tier
+			//		inventory.Boots = new ItemChainmailBoots();
+			//		inventory.Leggings = new ItemChainmailLeggings();
+			//		inventory.Chest = new ItemChainmailChestplate();
+			//		inventory.Helmet = new ItemChainmailHelmet();
+			//		break;
+			//	case 3:
+			//		// Kit iron tier
+			//		inventory.Boots = new ItemIronBoots();
+			//		inventory.Leggings = new ItemIronLeggings();
+			//		inventory.Chest = new ItemIronChestplate();
+			//		inventory.Helmet = new ItemIronHelmet();
+			//		break;
+			//	case 4:
+			//		// Kit diamond tier
+			//		inventory.Boots = new ItemDiamondBoots();
+			//		inventory.Leggings = new ItemDiamondLeggings();
+			//		inventory.Chest = new ItemDiamondChestplate();
+			//		inventory.Helmet = new ItemDiamondHelmet();
+			//		break;
+			//}
 
 			// 0 = protection
 			// 1 = Fire protection
@@ -485,8 +483,7 @@ namespace TestPlugin
 			// 4 = Projectile protection
 			// 5 = Thorns
 
-
-			EnchantArmor(player.Inventory, 0, 2);
+			//EnchantArmor(player.Inventory, 0, 2);
 
 
 			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
@@ -763,14 +760,6 @@ namespace TestPlugin
 					player.Level.BroadcastMessage($"{player.Username} added effect {effectType} with strenght {level}", MessageType.Raw);
 				}
 			}
-		}
-
-		[Command(Name = "xp")]
-		public void Xp(Player player)
-		{
-			player.Experience += 0.1f;
-			player.ExperienceLevel += 1;
-			player.SendUpdateAttributes();
 		}
 
 		[Command(Name = "nd")]

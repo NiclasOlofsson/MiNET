@@ -354,9 +354,7 @@
 
 	<pdu id="0x1b" online="false" client="false" server="true" name="MCPE_LEVEL_EVENT">
 		<field name="Event ID" type="SignedVarInt" />
-		<field name="X" type="float" />
-		<field name="Y" type="float" />
-		<field name="Z" type="float" />
+		<field name="Position" type="Vector3" />
 		<field name="Data" type="SignedVarInt" />
 	</pdu>
 
@@ -425,6 +423,7 @@
 	</pdu>
 
 	<pdu id="0x25" online="false" client="true" server="false" name="MCPE_PLAYER_FALL">
+		<field name="Fall distance" type="float" />
 	</pdu>
 
 	<pdu id="0x26" online="false" client="false" server="true" name="MCPE_HURT_ARMOR">

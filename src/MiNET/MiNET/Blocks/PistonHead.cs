@@ -12,7 +12,7 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0];
 		}

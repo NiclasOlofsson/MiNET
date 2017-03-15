@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using MiNET.Items;
+using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -58,9 +60,16 @@ namespace MiNET.Blocks
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
 
-		public virtual void BreakBlock(Level world)
+		public virtual void BreakBlock(Level world, bool silent = false)
 		{
 			world.SetBlock(new Air {Coordinates = Coordinates});
+
+			if(!silent)
+			{
+				DestroyBlockParticle particle = new DestroyBlockParticle(world, this);
+				particle.Spawn();
+			}
+
 			UpdateBlocks(world);
 		}
 
@@ -99,11 +108,11 @@ namespace MiNET.Blocks
 			return Hardness/5.0F;
 		}
 
-		public double GetMineTime(Item miningTool)
-		{
-			int multiplier = (int) miningTool.ItemMaterial;
-			return Hardness*(1.5*multiplier);
-		}
+		//public double GetMineTime(Item miningTool)
+		//{
+		//	int multiplier = (int) miningTool.ItemMaterial;
+		//	return Hardness*(1.5*multiplier);
+		//}
 
 		protected BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{
@@ -126,7 +135,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public virtual Item[] GetDrops()
+		public virtual Item[] GetDrops(Item tool)
 		{
 			return new Item[] {new ItemBlock(this, Metadata) {Count = 1}};
 		}

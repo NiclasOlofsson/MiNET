@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
@@ -44,6 +45,12 @@ namespace MiNET.Entities.Projectiles
 
 				IsSpawned = true;
 
+				if (BroadcastMovement)
+				{
+					//LastUpdatedTime = DateTime.UtcNow;
+
+					BroadcastMoveAndMotion();
+				}
 			}
 		}
 
@@ -109,7 +116,7 @@ namespace MiNET.Entities.Projectiles
 
 				if (player != null)
 				{
-					damage = player.DamageCalculator.CalculatePlayerDamage(this, player, null, damage);
+					damage = player.DamageCalculator.CalculatePlayerDamage(this, player, null, damage, DamageCause.Projectile);
 				}
 
 				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);
@@ -160,7 +167,12 @@ namespace MiNET.Entities.Projectiles
 			}
 
 			// For debugging of flight-path
-			if (BroadcastMovement) BroadcastMoveAndMotion();
+			if (BroadcastMovement)
+			{
+				//LastUpdatedTime = DateTime.UtcNow;
+
+				BroadcastMoveAndMotion();
+			}
 		}
 
 		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
@@ -291,23 +303,25 @@ namespace MiNET.Entities.Projectiles
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
-			//McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			//motions.entityId = EntityId;
-			//motions.velocity = Velocity;
-			//////new Task(() => Level.RelayBroadcast(motions)).Start();
-			//Level.RelayBroadcast(motions);
+			if (new Random().Next(5) == 0)
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entityId = EntityId;
+				motions.velocity = Velocity;
+				//new Task(() => Level.RelayBroadcast(motions)).Start();
+				Level.RelayBroadcast(motions);
+			}
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 			moveEntity.entityId = EntityId;
 			moveEntity.position = KnownPosition;
-			//new Task(() => Level.RelayBroadcast(moveEntity)).Start();
 			Level.RelayBroadcast(moveEntity);
 
-			if(Shooter != null && IsCritical)
+			if (Shooter != null && IsCritical)
 			{
 				var particle = new CriticalParticle(Level);
 				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn(new []{Shooter});
+				particle.Spawn(new[] { Shooter });
 			}
 		}
 

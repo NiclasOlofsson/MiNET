@@ -165,16 +165,16 @@ namespace MiNET.Items
 
 	public enum ItemMaterial
 	{
-		None = 1,
-		Wood = 2,
-		Stone = 4,
-		Iron = 6,
-		Diamond = 8,
-		Gold = 12,
-
 		//Armor Only
 		Leather = -2,
 		Chain = -1,
+
+		None = 0,
+		Wood = 1,
+		Stone = 2,
+		Gold = 3,
+		Iron = 4,
+		Diamond = 5,
 	}
 
 	public enum ItemType

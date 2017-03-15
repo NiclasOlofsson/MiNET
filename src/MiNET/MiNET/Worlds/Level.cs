@@ -49,7 +49,7 @@ namespace MiNET.Worlds
 		public GameMode GameMode { get; private set; }
 		public bool IsSurvival => GameMode == GameMode.Survival;
 		public bool HaveDownfall { get; set; }
-		public Difficulty Difficulty { get; private set; }
+		public Difficulty Difficulty { get; set; }
 		public double CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
@@ -389,7 +389,7 @@ namespace MiNET.Worlds
 				return;
 			}
 
-			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 100) Log.Error($"Time between World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
+			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 55) Log.Error($"Time between World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
 
 			_tickTimer.Restart();
 			try
@@ -472,7 +472,6 @@ namespace MiNET.Worlds
 				}
 
 				// Send player movements
-				//if (TickTime % 2 == 0)
 				BroadCastMovement(players, entities);
 
 				//if (TickTime%100 == 0) // Every 5 seconds
@@ -535,7 +534,7 @@ namespace MiNET.Worlds
 
 			if (players.Length <= 1 && entities.Length == 0) return;
 
-			if (now - _lastBroadcast < TimeSpan.FromMilliseconds(50)) return;
+			//if (now - _lastBroadcast < TimeSpan.FromMilliseconds(50)) return;
 
 			DateTime tickTime = _lastSendTime;
 			_lastSendTime = DateTime.UtcNow;
@@ -1030,7 +1029,7 @@ namespace MiNET.Worlds
 
 			Block block = GetBlock(blockCoordinates);
 			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
-			drops.AddRange(block.GetDrops());
+			drops.AddRange(block.GetDrops(player.Inventory.GetItemInHand()));
 
 			Item inHand = player.Inventory.GetItemInHand();
 			bool canBreak = inHand.BreakBlock(this, player, block, blockEntity);
@@ -1103,7 +1102,7 @@ namespace MiNET.Worlds
 					Y = (float) coordinates.Y + 0.5f,
 					Z = (float) coordinates.Z + 0.5f
 				},
-				Velocity = new Vector3((float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3), (float) (random.NextDouble()*0.3))
+				Velocity = new Vector3((float) (random.NextDouble()*0.005), (float) (random.NextDouble()*0.20), (float) (random.NextDouble()*0.005))
 			};
 
 			itemEntity.SpawnEntity();

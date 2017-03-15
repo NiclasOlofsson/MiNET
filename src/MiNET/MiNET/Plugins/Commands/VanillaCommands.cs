@@ -6,6 +6,7 @@ using MiNET.Entities.Passive;
 using MiNET.Items;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Plugins.Commands
 {
@@ -248,5 +249,40 @@ namespace MiNET.Plugins.Commands
 			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
 			mob.SpawnEntity();
 		}
+
+		[Command]
+		public SimpleResponse Xp(Player commander, int levels, Target player)
+		{
+			string body = player.Selector;
+
+			if (player.Players != null)
+			{
+				List<string> names = new List<string>();
+				foreach (var p in player.Players)
+				{
+					names.Add(p.Username);
+					p.ExperienceLevel += levels;
+					p.SendUpdateAttributes();
+				}
+
+				body = string.Join(", ", names);
+			}
+
+			return new SimpleResponse {Body = $"Gave {body} {levels} levels of XP"};
+		}
+
+		[Command]
+		public SimpleResponse Difficulty(Player commander, Difficulty difficulty)
+		{
+			Level level = commander.Level;
+			level.Difficulty = difficulty;
+			foreach (var player in level.GetSpawnedPlayers())
+			{
+				player.SendSetDificulty();
+			}
+
+			return new SimpleResponse { Body = $"{commander.Username} set difficulty to {difficulty}" };
+		}
+
 	}
 }

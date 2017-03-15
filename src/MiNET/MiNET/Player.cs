@@ -59,7 +59,6 @@ namespace MiNET
 		public float ExperienceLevel { get; set; } = 0f;
 		public float Experience { get; set; } = 0f;
 		public float MovementSpeed { get; set; } = 0.1f;
-		public float Absorption { get; set; } = 0;
 		public ConcurrentDictionary<EffectType, Effect> Effects { get; set; } = new ConcurrentDictionary<EffectType, Effect>();
 
 		public HungerManager HungerManager { get; set; }
@@ -150,19 +149,19 @@ namespace MiNET
 			}
 			else if (message.responseStatus == 3)
 			{
-				if (_serverHaveResources)
+				//if (_serverHaveResources)
 				{
 					SendResourcePackStack();
 				}
-				else
-				{
-					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
-				}
+				//else
+				//{
+				//	MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
+				//}
 				return;
 			}
 			else if (message.responseStatus == 4)
 			{
-				if (_serverHaveResources)
+				//if (_serverHaveResources)
 				{
 					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 				}
@@ -270,6 +269,11 @@ namespace MiNET
 
 		public virtual void HandleMcpePlayerFall(McpePlayerFall message)
 		{
+			double damage = message.fallDistance - 3;
+			if(damage > 0)
+			{
+				HealthManager.TakeHit(this, (int)DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
+			}
 		}
 
 		/// <summary>
@@ -303,9 +307,7 @@ namespace MiNET
 			switch ((PlayerAction) message.actionId)
 			{
 				case PlayerAction.StartBreak:
-					break;
 				case PlayerAction.AbortBreak:
-					break;
 				case PlayerAction.StopBreak:
 					break;
 				case PlayerAction.ReleaseItem:
@@ -1174,6 +1176,14 @@ namespace MiNET
 
 		public void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
+			McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+			sound.soundId = message.soundId;
+			sound.position = message.position;
+			sound.volume = message.volume;
+			sound.pitch = message.pitch;
+			sound.unknown1 = message.unknown1;
+			sound.unknown2 = message.unknown2;
+			Level.RelayBroadcast(sound);
 		}
 
 		public virtual void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message)
@@ -1545,7 +1555,7 @@ namespace MiNET
 
 				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
 
-				player.HealthManager.TakeHit(this, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage), DamageCause.EntityAttack);
+				player.HealthManager.TakeHit(this, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
 			}
 			else
 			{
@@ -1605,14 +1615,6 @@ namespace MiNET
 
 		public virtual void HandleMcpeUseItem(McpeUseItem message)
 		{
-			Log.DebugFormat("Use item: {0}", message.item);
-			Log.DebugFormat("BlockCoordinates:  {0}", message.blockcoordinates);
-			Log.DebugFormat("Unknown:  {0}", message.unknown);
-			Log.DebugFormat("face:  {0}", message.face);
-			Log.DebugFormat("Facecoordinates:  {0}", message.facecoordinates);
-			Log.DebugFormat("Slot:  {0}", message.slot);
-			Log.DebugFormat("Player position:  {0}", message.playerposition);
-
 			if (message.item == null)
 			{
 				Log.Warn($"{Username} sent us a use item message with no item (null).");
@@ -1637,7 +1639,6 @@ namespace MiNET
 			if (itemInHand.GetType() == typeof(Item))
 			{
 				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {message.item} and item in hand is {itemInHand}");
-				return; // Cheat(?)
 			}
 
 			if (message.face >= 0 && message.face <= 5)
@@ -1862,7 +1863,7 @@ namespace MiNET
 				Name = "minecraft:absorption",
 				MinValue = 0,
 				MaxValue = float.MaxValue,
-				Value = Absorption,
+				Value = HealthManager.Absorption,
 				Default = 0,
 			};
 			attributes["minecraft:health"] = new PlayerAttribute
@@ -2088,7 +2089,7 @@ namespace MiNET
 			//metadata[47] = new MetadataInt(0);
 			//metadata[53] = new MetadataFloat(0.8f);
 			//metadata[54] = new MetadataFloat(1.8f);
-			////metadata[56] = new MetadataVector3(< 0 0 0 >);
+			//metadata[56] = new MetadataVector3(10, 50, 10);
 			//metadata[57] = new MetadataByte(0);
 			//metadata[58] = new MetadataFloat(0f);
 			//metadata[59] = new MetadataFloat(0f);
@@ -2304,6 +2305,9 @@ namespace MiNET
 			mcpeAddPlayer.x = KnownPosition.X;
 			mcpeAddPlayer.y = KnownPosition.Y;
 			mcpeAddPlayer.z = KnownPosition.Z;
+			mcpeAddPlayer.speedX = Velocity.X;
+			mcpeAddPlayer.speedY = Velocity.Y;
+			mcpeAddPlayer.speedZ = Velocity.Z;
 			mcpeAddPlayer.yaw = KnownPosition.Yaw;
 			mcpeAddPlayer.headYaw = KnownPosition.HeadYaw;
 			mcpeAddPlayer.pitch = KnownPosition.Pitch;

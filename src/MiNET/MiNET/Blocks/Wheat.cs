@@ -13,7 +13,7 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			if (Metadata == 0x7)
 			{

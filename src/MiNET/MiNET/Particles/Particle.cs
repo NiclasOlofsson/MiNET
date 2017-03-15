@@ -62,9 +62,7 @@ namespace MiNET.Particles
 		{
 			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
 			particleEvent.eventId = (short) (0x4000 | Id);
-			particleEvent.x = (float) Position.X;
-			particleEvent.y = (float) Position.Y;
-			particleEvent.z = (float) Position.Z;
+			particleEvent.position = Position;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(particleEvent);
 		}
@@ -73,9 +71,7 @@ namespace MiNET.Particles
 		{
 			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
 			particleEvent.eventId = (short)(0x4000 | Id);
-			particleEvent.x = (float)Position.X;
-			particleEvent.y = (float)Position.Y;
-			particleEvent.z = (float)Position.Z;
+			particleEvent.position = Position;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(players, particleEvent);
 		}

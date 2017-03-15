@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 		}
 
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0]; //Drop nothing
 		}

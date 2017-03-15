@@ -41,7 +41,7 @@ namespace MiNET.Utils
 
 	public static class EnchantingExtensions
 	{
-		public static List<Enchanting> GetEnchanting(this Item tool)
+		public static List<Enchanting> GetEnchantings(this Item tool)
 		{
 			var enchantings = new List<Enchanting>();
 

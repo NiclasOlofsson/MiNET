@@ -1807,23 +1807,18 @@ Adventure settings
 
 		private void OnMcpeMobEffect(Package message)
 		{
-			McpeMobEffect msg = (McpeMobEffect) message;
-			Log.DebugFormat("operation: {0}", msg.eventId);
-			Log.DebugFormat("entity id: {0}", msg.entityId);
-			Log.DebugFormat("effectId: {0}", msg.effectId);
-			Log.DebugFormat("amplifier: {0}", msg.amplifier);
-			Log.DebugFormat("duration: {0}", msg.duration);
-			Log.DebugFormat("particles: {0}", msg.particles);
 		}
 
 		private void OnMcpeLevelEvent(Package message)
 		{
 			McpeLevelEvent msg = (McpeLevelEvent) message;
-			Log.DebugFormat("Event ID: {0}", msg.eventId);
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("Data: {0}", msg.data);
+			int data = msg.data;
+			if(msg.eventId == 2001)
+			{
+				int blockId = data & 0xff;
+				int metadata = data >> 12;
+				Log.Debug($"BlockID={blockId}, Metadata={metadata}");
+			}
 		}
 
 		private void OnMcpeUpdateBlock(McpeUpdateBlock message)

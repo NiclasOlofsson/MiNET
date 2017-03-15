@@ -33,7 +33,7 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			// 50% chance to drop seeds.
 			var rnd = new Random((int) DateTime.UtcNow.Ticks);

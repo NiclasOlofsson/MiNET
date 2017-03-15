@@ -13,7 +13,7 @@ namespace MiNET.Blocks
 			//IsFlammable = true; // It can catch fire from lava, but not other means.
 		}
 
-		public override void BreakBlock(Level level)
+		public override void BreakBlock(Level level, bool silent = false)
 		{
 			BlockCoordinates direction = new BlockCoordinates();
 			switch (Metadata & 0x07)

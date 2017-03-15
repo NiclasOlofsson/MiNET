@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 			Hardness = 0.5f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			if (Metadata == 0) return new Item[] { ItemFactory.GetItem(354, 0, 1) };
 			return new Item[0];

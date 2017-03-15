@@ -22,6 +22,9 @@ namespace MiNET.Entities.World
 			Width = 0.25;
 			Length = 0.25;
 
+			Gravity = 0.04;
+			Drag = 0.02;
+
 			PickupDelay = 10;
 			TimeToLive = 6000;
 

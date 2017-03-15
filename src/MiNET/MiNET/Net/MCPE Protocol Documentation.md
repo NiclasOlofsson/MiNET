@@ -880,9 +880,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Event ID | SignedVarInt |  |
-|X | float |  |
-|Y | float |  |
-|Z | float |  |
+|Position | Vector3 |  |
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Block Event (0x1c)
@@ -1051,6 +1049,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Fall distance | float |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Hurt Armor (0x26)
 

@@ -12,7 +12,7 @@ namespace MiNET.Blocks
 			Hardness = 22.5f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[] {ItemFactory.GetItem(49, 0, 8)}; // 8 Obsidian
 		}

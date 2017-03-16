@@ -30,7 +30,7 @@ namespace MiNET.Entities.World
 
 			HealthManager.IsInvulnerable = true;
 
-			NoAi = true;
+			NoAi = false;
 		}
 
 		public Item GetItemStack()

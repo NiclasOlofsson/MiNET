@@ -21,7 +21,7 @@ namespace MiNET
 			var enchantings = item.GetEnchantings();
 
 			double increase = 0;
-			
+
 			foreach (var enchanting in enchantings)
 			{
 				EnchantingType enchantingType = enchanting.Id;
@@ -255,11 +255,7 @@ namespace MiNET
 							typeModifier = 1;
 							break;
 						case EnchantingType.FireProtection:
-							// Deal with in HealthManager fireticks
-							//typeModifier = 2;
-							break;
-						case EnchantingType.FeatherFalling:
-							if (cause == DamageCause.Fall)
+							if (cause == DamageCause.FireTick)
 							{
 								typeModifier = 2;
 							}
@@ -270,6 +266,12 @@ namespace MiNET
 							break;
 						case EnchantingType.ProjectileProtection:
 							if (source is Arrow)
+							{
+								typeModifier = 2;
+							}
+							break;
+						case EnchantingType.FeatherFalling:
+							if (cause == DamageCause.Fall)
 							{
 								typeModifier = 3;
 							}
@@ -327,6 +329,17 @@ namespace MiNET
 			}
 
 			return reduction;
+		}
+
+		public int CalculateFireTickReduction(Player target)
+		{
+			int reduction = 0;
+			reduction = Math.Max(reduction, target.Inventory.Helmet.GetEnchantingLevel(EnchantingType.FireProtection)*15);
+			reduction = Math.Max(reduction, target.Inventory.Chest.GetEnchantingLevel(EnchantingType.FireProtection)*15);
+			reduction = Math.Max(reduction, target.Inventory.Leggings.GetEnchantingLevel(EnchantingType.FireProtection)*15);
+			reduction = Math.Max(reduction, target.Inventory.Boots.GetEnchantingLevel(EnchantingType.FireProtection)*15);
+
+			return (int) Math.Ceiling(reduction/100f);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using fNbt;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -160,6 +161,11 @@ namespace MiNET.Items
 		public override string ToString()
 		{
 			return $"Type={GetType().Name}, Id={Id}, Metadata={Metadata}, Count={Count}, ExtraData={ExtraData}";
+		}
+
+		public bool Interact(Level level, Player player, Entity target)
+		{
+			return false; // Not handled
 		}
 	}
 

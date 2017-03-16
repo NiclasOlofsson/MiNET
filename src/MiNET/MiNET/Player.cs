@@ -1556,6 +1556,11 @@ namespace MiNET
 				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
 
 				player.HealthManager.TakeHit(this, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
+				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
+				if (fireAspectLevel > 0)
+				{
+					player.HealthManager.Ignite(fireAspectLevel * 80);
+				}
 			}
 			else
 			{
@@ -1649,7 +1654,7 @@ namespace MiNET
 			}
 			else
 			{
-				Log.Debug("Begin non-block action");
+				Log.Debug($"Begin non-block action with {itemInHand}");
 
 				// Snowballs and shit
 

@@ -36,6 +36,7 @@ namespace MiNET.Entities
 				{
 					KnownPosition.Y = (float) Math.Floor(oldPosition.Y);
 					Velocity = Vector3.Zero;
+					LastUpdatedTime = DateTime.UtcNow;
 				}
 				else
 				{
@@ -43,9 +44,9 @@ namespace MiNET.Entities
 					if (!onGround)
 					{
 						Velocity -= new Vector3(0, (float) Gravity, 0);
+						if (NoAi) LastUpdatedTime = DateTime.UtcNow;
 					}
 				}
-				LastUpdatedTime = DateTime.UtcNow;
 			}
 			else if (Velocity != Vector3.Zero)
 			{

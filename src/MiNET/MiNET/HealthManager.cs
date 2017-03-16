@@ -179,16 +179,19 @@ namespace MiNET
 
 		public virtual void Ignite(int ticks = 300)
 		{
-			Ignite(Entity, ticks);
-		}
-
-		public virtual void Ignite(Entity entity, int ticks = 300)
-		{
 			if (IsDead) return;
+
+			Player player = Entity as Player;
+			if(player != null)
+			{
+				ticks -= ticks * player.DamageCalculator.CalculateFireTickReduction(player);
+			}
+
+			ticks = Math.Max(0, ticks);
 
 			FireTick = ticks;
 			IsOnFire = true;
-			entity.BroadcastSetEntityData();
+			Entity.BroadcastSetEntityData();
 		}
 
 		public virtual void Kill()
@@ -327,9 +330,7 @@ namespace MiNET
 				}
 				else
 				{
-					FireTick = 300;
-					IsOnFire = true;
-					Entity.BroadcastSetEntityData();
+					Ignite(300);
 				}
 
 				if (LavaTicks <= 0)
@@ -355,11 +356,21 @@ namespace MiNET
 				if (FireTick <= 0)
 				{
 					IsOnFire = false;
+					Entity.BroadcastSetEntityData();
 				}
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					TakeHit(null, 1, DamageCause.FireTick);
+					if(Entity is Player)
+					{
+						Player player = (Player) Entity;
+						player.DamageCalculator.CalculatePlayerDamage(null, player, null, 1, DamageCause.FireTick);
+						TakeHit(null, 1, DamageCause.FireTick);
+					}
+					else
+					{
+						TakeHit(null, 1, DamageCause.FireTick);
+					}
 					Entity.BroadcastSetEntityData();
 				}
 			}

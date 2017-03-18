@@ -1586,6 +1586,7 @@ namespace MiNET
 		{
 			Log.Debug("Entity Id:" + message.entityId);
 			Log.Debug("Entity Event:" + message.eventId);
+			Log.Debug("Entity Event:" + message.unknown);
 
 			//if (message.eventId != 0) return; // Should probably broadcast?!
 
@@ -1613,6 +1614,9 @@ namespace MiNET
 							SendPlayerInventory();
 						}
 					}
+					break;
+				case 34:
+					RemoveExperienceLevels(message.unknown);
 					break;
 			}
 		}
@@ -1948,6 +1952,38 @@ namespace MiNET
 
 		private float CalculateXp()
 		{
+			var xpToNextLevel = GetXpToNextLevel();
+
+			return Experience/xpToNextLevel;
+		}
+
+		public void RemoveExperienceLevels(float levels)
+		{
+			var currentXp = CalculateXp();
+			ExperienceLevel = Experience - Math.Abs(levels);
+			var xpToNextLevel = GetXpToNextLevel();
+			Experience = xpToNextLevel*currentXp;
+		}
+
+		public void AddExperience(float xp, bool send = true)
+		{
+			var xpToNextLevel = GetXpToNextLevel();
+
+			if (xpToNextLevel - (xp + Experience) > 0)
+			{
+				Experience += xp;
+			}
+			else
+			{
+				ExperienceLevel++;
+				AddExperience(Experience + xp - xpToNextLevel, false);
+			}
+
+			if(send) SendUpdateAttributes();
+		}
+
+		private float GetXpToNextLevel()
+		{
 			float xpToNextLevel = 0;
 			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
 			{
@@ -1961,37 +1997,7 @@ namespace MiNET
 			{
 				xpToNextLevel = 9 * ExperienceLevel - 158;
 			}
-
-			return Experience/xpToNextLevel;
-		}
-
-		public void AddExperience(float xp, bool send = true)
-		{
-			float xpToNextLevel = 0;
-			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
-			{
-				xpToNextLevel = 2*ExperienceLevel + 7;
-			}
-			else if (ExperienceLevel > 15 && ExperienceLevel <= 30)
-			{
-				xpToNextLevel = 5*ExperienceLevel - 38;
-			}
-			else if (ExperienceLevel > 30)
-			{
-				xpToNextLevel = 9*ExperienceLevel - 158;
-			}
-
-			if (xpToNextLevel - (xp + Experience) > 0)
-			{
-				Experience += xp;
-			}
-			else
-			{
-				ExperienceLevel++;
-				AddExperience(Experience + xp - xpToNextLevel, false);
-			}
-
-			if(send) SendUpdateAttributes();
+			return xpToNextLevel;
 		}
 
 		public virtual void SendSetTime()

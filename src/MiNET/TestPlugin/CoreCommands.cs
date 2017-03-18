@@ -342,7 +342,7 @@ namespace TestPlugin
 		public void Twitter(Player player)
 		{
 			player.Level.BroadcastMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§5twitch.tv/gurunx", type: MessageType.Raw);
 		}
 
 		[Command(Name = "pi")]

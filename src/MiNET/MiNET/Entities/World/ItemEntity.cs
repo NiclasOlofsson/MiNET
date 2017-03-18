@@ -1,7 +1,10 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.World
@@ -71,6 +74,8 @@ namespace MiNET.Entities.World
 		{
 			if (Velocity == Vector3.Zero)
 			{
+				// Object was resting and now someone removed the block on which it was resting
+				// or someone places a block over it.
 				if (IsInGround(KnownPosition))
 				{
 					Velocity += new Vector3(0, (float)Gravity, 0);
@@ -82,7 +87,79 @@ namespace MiNET.Entities.World
 				}
 			}
 
-			base.OnTick();
+			if (Velocity.Length() > 0.01)
+			{
+				bool onGroundBefore = IsOnGround(KnownPosition);
+
+				if (IsInGround(KnownPosition))
+				{
+					Velocity += new Vector3(0, (float)Gravity, 0);
+					KnownPosition.X += Velocity.X;
+					KnownPosition.Y += Velocity.Y;
+					KnownPosition.Z += Velocity.Z;
+					BroadcastMove();
+					BroadcastMotion();
+					return;
+				}
+
+				Vector3 adjustedVelocity = GetAdjustedLengthFromCollision(Velocity);
+
+				KnownPosition.X += adjustedVelocity.X;
+				KnownPosition.Y += adjustedVelocity.Y;
+				KnownPosition.Z += adjustedVelocity.Z;
+
+				BroadcastMove();
+				BroadcastMotion();
+
+				bool adjustAngle = adjustedVelocity != Velocity;
+				if (adjustAngle)
+				{
+					CheckBlockAhead();
+				}
+
+				bool onGround = IsOnGround(KnownPosition);
+
+				if (!onGroundBefore && onGround)
+				{
+					Log.Warn("On ground first time");
+					//while (!Level.IsAir(KnownPosition.GetCoordinates3D()))
+					//{
+					//	KnownPosition.Y++;
+					//}
+					//KnownPosition.Y = (float)Math.Floor(KnownPosition.Y);
+					float ff = 0.6f*0.98f;
+					Velocity *= new Vector3(ff, 0, ff);
+					//BroadcastMove(_doAi);
+					//BroadcastMotion(_doAi);
+				}
+				else
+				{
+					Velocity *= (float) (1.0 - Drag);
+
+					if (!onGround)
+					{
+						Velocity -= new Vector3(0, (float) Gravity, 0);
+					}
+					else
+					{
+						float ff = 0.6f*0.98f;
+						Velocity *= new Vector3(ff, 0, ff);
+					}
+				}
+			}
+			else if (Velocity != Vector3.Zero)
+			{
+				KnownPosition.X += (float) Velocity.X;
+				KnownPosition.Y += (float) Velocity.Y;
+				KnownPosition.Z += (float) Velocity.Z;
+
+				Log.Warn("Velocity 0");
+				Velocity = Vector3.Zero;
+				LastUpdatedTime = DateTime.UtcNow;
+				NoAi = true;
+				BroadcastMove(true);
+				BroadcastMotion(true);
+			}
 
 			TimeToLive--;
 			PickupDelay--;
@@ -120,6 +197,88 @@ namespace MiNET.Entities.World
 
 						DespawnEntity();
 						break;
+					}
+				}
+			}
+		}
+
+		private Vector3 GetAdjustedLengthFromCollision(Vector3 velocity)
+		{
+			var length = Length/2;
+			var direction = Vector3.Normalize(Velocity*1.00000101f);
+			var position = KnownPosition.ToVector3();
+			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
+			for (int i = 0; i < count; i++)
+			{
+				var distVec = direction*(float) length*i;
+				BlockCoordinates blockPos = position + distVec;
+				Block block = Level.GetBlock(blockPos);
+				if (block.IsSolid)
+				{
+					Ray ray = new Ray(position, direction);
+					var distance = ray.Intersects(block.GetBoundingBox());
+					if (distance.HasValue)
+					{
+						float dist = (float) ((float) distance - (Length/4));
+						return ray.Direction*new Vector3(dist);
+					}
+				}
+			}
+
+			return velocity;
+		}
+
+		private void AdjustForCollision()
+		{
+			var length = Length/2;
+			var direction = Vector3.Normalize(Velocity*1.00000101f);
+			var position = KnownPosition.ToVector3();
+			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
+			for (int i = 0; i < count; i++)
+			{
+				var distVec = direction*(float) length*i;
+				BlockCoordinates blockPos = position + distVec;
+				Block block = Level.GetBlock(blockPos);
+				if (block.IsSolid)
+				{
+					var yaw = (Math.Atan2(direction.X, direction.Z)*180.0D/Math.PI) + 180;
+					//Log.Warn($"Will hit block {block} at angle of {yaw}");
+
+					Ray ray = new Ray(position, direction);
+					if (ray.Intersects(block.GetBoundingBox()).HasValue)
+					{
+						int face = IntersectSides(block.GetBoundingBox(), ray);
+
+						//Log.Warn($"Hit block {block} at angle of {yaw} on face {face}");
+						if (face == -1) continue;
+						switch (face)
+						{
+							case 0:
+								Velocity *= new Vector3(1, 1, 0);
+								break;
+							case 1:
+								Velocity *= new Vector3(0, 1, 1);
+								break;
+							case 2:
+								Velocity *= new Vector3(1, 1, 0);
+								break;
+							case 3:
+								Velocity *= new Vector3(0, 1, 1);
+								break;
+							case 4: // Under
+								Velocity *= new Vector3(1, 0, 1);
+								break;
+							//case 5:
+							//	float ff = 0.6f * 0.98f;
+							//	Velocity *= new Vector3(ff, 0.0f, ff);
+							//	break;
+						}
+						return;
+					}
+					else
+					{
+						//Log.Warn($"Hit block {block} at angle of {yaw} had no intersection (strange)");
+						Velocity *= new Vector3(0, 0, 0);
 					}
 				}
 			}

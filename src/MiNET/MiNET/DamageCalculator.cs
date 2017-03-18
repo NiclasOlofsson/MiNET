@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using fNbt;
 using log4net;
 using MiNET.Effects;
@@ -341,5 +342,12 @@ namespace MiNET
 
 			return (int) Math.Ceiling(reduction/100f);
 		}
+
+		public int CalculateKnockback(Item tool)
+		{
+			return tool.GetEnchantingLevel(EnchantingType.Knockback);
+		}
+
+
 	}
 }

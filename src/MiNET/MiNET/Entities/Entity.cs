@@ -117,8 +117,7 @@ namespace MiNET.Entities
 		public bool IsTempted { get; set; }
 		public bool IsInLove { get; set; }
 		public bool IsSaddled { get; set; }
-		public bool 
-			IsPowered { get; set; }
+		public bool IsPowered { get; set; }
 		public bool IsIgnited { get; set; }
 		public bool IsBaby { get; set; }
 		public bool IsConverting { get; set; }
@@ -126,6 +125,7 @@ namespace MiNET.Entities
 		public bool IsShowName => !HideNameTag;
 		public bool IsAlwaysShowName { get; set; }
 		public bool IsNoAi => NoAi;
+		public bool HaveAi => !NoAi;
 		public bool IsSilent { get; set; }
 		public bool IsWallClimbing { get; set; }
 		public bool IsResting { get; set; }
@@ -331,6 +331,30 @@ namespace MiNET.Entities
 		public virtual void Knockback(Vector3 velocity)
 		{
 			Velocity += velocity;
+			BroadcastMotion(!NoAi);
+		}
+
+		public void BroadcastMotion(bool forceMove = false)
+		{
+			if (NoAi || forceMove)
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entityId = EntityId;
+				motions.velocity = Velocity;
+				Level.RelayBroadcast(motions);
+			}
+		}
+
+		public void BroadcastMove(bool forceMove = false)
+		{
+			if (NoAi || forceMove)
+			{
+				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+				moveEntity.entityId = EntityId;
+				moveEntity.position = KnownPosition;
+				Level.RelayBroadcast(moveEntity);
+				
+			}
 		}
 
 

@@ -121,7 +121,9 @@ namespace MiNET.Entities.Projectiles
 
 				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);
 				entityCollided.HealthManager.LastDamageSource = Shooter;
-				collided = true;
+
+				DespawnEntity();
+				return;
 			}
 			else
 			{
@@ -133,17 +135,16 @@ namespace MiNET.Entities.Projectiles
 
 				for (int i = 0; i < Math.Ceiling(distance)*2; i++)
 				{
-					PlayerLocation nextPos = (PlayerLocation) KnownPosition.Clone();
+					Vector3 nextPos = KnownPosition.ToVector3();
 					nextPos.X += (float) velocity2.X*i;
 					nextPos.Y += (float) velocity2.Y*i;
 					nextPos.Z += (float) velocity2.Z*i;
 
-					BlockCoordinates coord = new BlockCoordinates(nextPos);
-					Block block = Level.GetBlock(coord);
-					collided = block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+					Block block = Level.GetBlock(nextPos);
+					collided = block.IsSolid && block.GetBoundingBox().Contains(nextPos);
 					if (collided)
 					{
-						SetIntersectLocation(block.GetBoundingBox(), KnownPosition);
+						SetIntersectLocation(block.GetBoundingBox(), KnownPosition.ToVector3());
 						break;
 					}
 				}
@@ -266,7 +267,7 @@ namespace MiNET.Entities.Projectiles
 			var firstBlock = blocks.OrderBy(pair => pair.Key).First().Value;
 
 			BoundingBox boundingBox = firstBlock.GetBoundingBox();
-			if (!SetIntersectLocation(boundingBox, KnownPosition))
+			if (!SetIntersectLocation(boundingBox, KnownPosition.ToVector3()))
 			{
 				// No real hit
 				return false;
@@ -281,9 +282,9 @@ namespace MiNET.Entities.Projectiles
 			return true;
 		}
 
-		public bool SetIntersectLocation(BoundingBox bbox, PlayerLocation location)
+		public bool SetIntersectLocation(BoundingBox bbox, Vector3 location)
 		{
-			Ray ray = new Ray(location.ToVector3() - Velocity, Vector3.Normalize(Velocity));
+			Ray ray = new Ray(location - Velocity, Vector3.Normalize(Velocity));
 			double? distance = ray.Intersects(bbox);
 			if (distance != null)
 			{

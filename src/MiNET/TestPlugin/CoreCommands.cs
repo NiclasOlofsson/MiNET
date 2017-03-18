@@ -498,6 +498,46 @@ namespace TestPlugin
 			//}
 
 			inventory.Slots[c++] = new ItemBow() { ExtraData = new NbtCompound { new NbtList("ench") { new NbtCompound { new NbtShort("id", 19), new NbtShort("lvl", 4) } } } }; // Bow
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 2)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 3)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 4)}
+					}
+				}
+			};
 			inventory.Slots[c++] = new ItemEnchantingTable();
 			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
@@ -512,7 +552,14 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
 			inventory.Slots[c++] = new ItemIronSword
 			{
-				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", (short) EnchantingType.FireAspect), new NbtShort("lvl", 1)}}}
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.FireAspect), new NbtShort("lvl", 1)},
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+					}
+				}
 			};
 
 			inventory.Slots[c++] = new ItemIronSword

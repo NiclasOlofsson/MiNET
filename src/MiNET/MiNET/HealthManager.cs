@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Reflection;
 using log4net;
 using MiNET.Entities;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -76,6 +77,11 @@ namespace MiNET
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
+			TakeHit(source, null, damage, cause);
+		}
+
+		public virtual void TakeHit(Entity source, Item tool, int damage = 1, DamageCause cause = DamageCause.Unknown)
+		{
 			var player = Entity as Player;
 			if (player != null && player.GameMode != GameMode.Survival) return;
 
@@ -91,7 +97,7 @@ namespace MiNET
 				if (abs < 0)
 				{
 					Absorption = 0;
-					damage = Math.Abs((int)Math.Floor(abs));
+					damage = Math.Abs((int) Math.Floor(abs));
 				}
 				else
 				{
@@ -132,7 +138,7 @@ namespace MiNET
 
 			if (source != null)
 			{
-				DoKnockback(source);
+				DoKnockback(source, tool);
 			}
 
 			CooldownTick = 10;
@@ -140,7 +146,7 @@ namespace MiNET
 			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
 		}
 
-		protected virtual void DoKnockback(Entity source)
+		protected virtual void DoKnockback(Entity source, Item tool)
 		{
 			double dx = source.KnownPosition.X - Entity.KnownPosition.X;
 
@@ -166,7 +172,17 @@ namespace MiNET
 			{
 				motY = 0.4;
 			}
-			Entity.Knockback(new Vector3((float) motX, (float) motY, (float) motZ));
+
+			var velocity = new Vector3((float) motX, (float) motY + 0.0f, (float) motZ);
+
+			Player player = source as Player;
+			if (player != null)
+			{
+				var knockback = player.DamageCalculator.CalculateKnockback(tool);
+				velocity += Vector3.Normalize(velocity) * new Vector3(knockback * 0.5f, 0.1f, knockback * 0.5f);
+			}
+
+			Entity.Knockback(velocity);
 		}
 
 		public event EventHandler<HealthEventArgs> PlayerTakeHit;
@@ -182,9 +198,9 @@ namespace MiNET
 			if (IsDead) return;
 
 			Player player = Entity as Player;
-			if(player != null)
+			if (player != null)
 			{
-				ticks -= ticks * player.DamageCalculator.CalculateFireTickReduction(player);
+				ticks -= ticks*player.DamageCalculator.CalculateFireTickReduction(player);
 			}
 
 			ticks = Math.Max(0, ticks);
@@ -300,7 +316,6 @@ namespace MiNET
 					Entity.IsInWater = false;
 					Entity.BroadcastSetEntityData();
 				}
-
 			}
 
 			if (IsInSolid(Entity.KnownPosition))
@@ -361,7 +376,7 @@ namespace MiNET
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					if(Entity is Player)
+					if (Entity is Player)
 					{
 						Player player = (Player) Entity;
 						player.DamageCalculator.CalculatePlayerDamage(null, player, null, 1, DamageCause.FireTick);

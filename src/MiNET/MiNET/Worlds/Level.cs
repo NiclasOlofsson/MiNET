@@ -536,7 +536,7 @@ namespace MiNET.Worlds
 
 			//if (now - _lastBroadcast < TimeSpan.FromMilliseconds(50)) return;
 
-			DateTime tickTime = _lastSendTime;
+			DateTime lastSendTime = _lastSendTime;
 			_lastSendTime = DateTime.UtcNow;
 
 			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
@@ -546,7 +546,7 @@ namespace MiNET.Worlds
 
 				foreach (var player in players)
 				{
-					if (now - player.LastUpdatedTime <= now - tickTime)
+					if (now - player.LastUpdatedTime <= now - lastSendTime)
 					{
 						PlayerLocation knownPosition = player.KnownPosition;
 
@@ -569,29 +569,29 @@ namespace MiNET.Worlds
 
 				foreach (var entity in entities)
 				{
-					if (now - entity.LastUpdatedTime <= now - tickTime)
-					{
-						{
-							McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-							moveEntity.entityId = entity.EntityId;
-							moveEntity.position = (PlayerLocation) entity.KnownPosition.Clone();
-							moveEntity.position.Y += entity.PositionOffset;
-							byte[] bytes = moveEntity.Encode();
-							BatchUtils.WriteLength(stream, bytes.Length);
-							stream.Write(bytes, 0, bytes.Length);
-							moveEntity.PutPool();
-						}
-						{
-							McpeSetEntityMotion entityMotion = McpeSetEntityMotion.CreateObject();
-							entityMotion.entityId = entity.EntityId;
-							entityMotion.velocity = entity.Velocity;
-							byte[] bytes = entityMotion.Encode();
-							BatchUtils.WriteLength(stream, bytes.Length);
-							stream.Write(bytes, 0, bytes.Length);
-							entityMotion.PutPool();
-						}
-						entiyMoveCount++;
-					}
+					//if (entity.LastUpdatedTime >= lastSendTime)
+					//{
+					//	{
+					//		McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+					//		moveEntity.entityId = entity.EntityId;
+					//		moveEntity.position = (PlayerLocation)entity.KnownPosition.Clone();
+					//		moveEntity.position.Y += entity.PositionOffset;
+					//		byte[] bytes = moveEntity.Encode();
+					//		BatchUtils.WriteLength(stream, bytes.Length);
+					//		stream.Write(bytes, 0, bytes.Length);
+					//		moveEntity.PutPool();
+					//	}
+					//	{
+					//		McpeSetEntityMotion entityMotion = McpeSetEntityMotion.CreateObject();
+					//		entityMotion.entityId = entity.EntityId;
+					//		entityMotion.velocity = entity.Velocity;
+					//		byte[] bytes = entityMotion.Encode();
+					//		BatchUtils.WriteLength(stream, bytes.Length);
+					//		stream.Write(bytes, 0, bytes.Length);
+					//		entityMotion.PutPool();
+					//	}
+					//	entiyMoveCount++;
+					//}
 				}
 
 				if (playerMoveCount == 0 && entiyMoveCount == 0) return;

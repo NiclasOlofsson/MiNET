@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
@@ -81,7 +82,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
-		public void Summon(Player player, EntityTypeEnum entityType, BlockPos spawnPos = null)
+		public void Summon(Player player, EntityTypeEnum entityType, bool noAi=false, BlockPos spawnPos = null)
 		{
 			EntityType petType;
 			try
@@ -99,7 +100,7 @@ namespace MiNET.Plugins.Commands
 				return;
 			}
 
-			var coordinates = player.KnownPosition.GetCoordinates3D();
+			var coordinates = player.KnownPosition;
 			if (spawnPos != null)
 			{
 				if (spawnPos.XRelative)
@@ -245,8 +246,9 @@ namespace MiNET.Plugins.Commands
 			}
 
 			if (mob == null) return;
-
-			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
+			mob.NoAi = noAi;
+			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
+			mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
 			mob.SpawnEntity();
 		}
 

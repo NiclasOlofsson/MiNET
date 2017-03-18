@@ -272,7 +272,7 @@ namespace MiNET
 			double damage = message.fallDistance - 3;
 			if(damage > 0)
 			{
-				HealthManager.TakeHit(this, (int)DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
+				HealthManager.TakeHit(null, (int)DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
 			}
 		}
 
@@ -1537,10 +1537,11 @@ namespace MiNET
 			// Old code...
 			if (message.actionId != 2) return;
 
+			Item itemInHand = Inventory.GetItemInHand();
+
 			Player player = target as Player;
 			if (player != null)
 			{
-				Item itemInHand = Inventory.GetItemInHand();
 
 				double damage = DamageCalculator.CalculateItemDamage(this, itemInHand, player);
 
@@ -1555,7 +1556,7 @@ namespace MiNET
 
 				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
 
-				player.HealthManager.TakeHit(this, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
+				player.HealthManager.TakeHit(this, itemInHand, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
 				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
 				if (fireAspectLevel > 0)
 				{
@@ -1565,7 +1566,7 @@ namespace MiNET
 			else
 			{
 				// This is totally wrong. Need to merge with the above damage calculation
-				target.HealthManager.TakeHit(this, CalculateDamage(target), DamageCause.EntityAttack);
+				target.HealthManager.TakeHit(this, itemInHand, CalculateDamage(target), DamageCause.EntityAttack);
 			}
 
 			HungerManager.IncreaseExhaustion(0.3f);
@@ -2055,12 +2056,10 @@ namespace MiNET
 
 		public override void Knockback(Vector3 velocity)
 		{
-			{
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entityId = 0;
-				motions.velocity = velocity;
-				SendPackage(motions);
-			}
+			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			motions.entityId = 0;
+			motions.velocity = velocity;
+			SendPackage(motions);
 		}
 
 		public string ButtonText { get; set; }

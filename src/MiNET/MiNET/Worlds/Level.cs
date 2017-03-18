@@ -1082,6 +1082,7 @@ namespace MiNET.Worlds
 				}
 
 				player.HungerManager.IncreaseExhaustion(0.025f);
+				player.AddExperience(block.GetExperiencePoints());
 			}
 		}
 

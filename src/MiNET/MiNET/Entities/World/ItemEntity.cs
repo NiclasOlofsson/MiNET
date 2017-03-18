@@ -121,16 +121,8 @@ namespace MiNET.Entities.World
 
 				if (!onGroundBefore && onGround)
 				{
-					Log.Warn("On ground first time");
-					//while (!Level.IsAir(KnownPosition.GetCoordinates3D()))
-					//{
-					//	KnownPosition.Y++;
-					//}
-					//KnownPosition.Y = (float)Math.Floor(KnownPosition.Y);
 					float ff = 0.6f*0.98f;
 					Velocity *= new Vector3(ff, 0, ff);
-					//BroadcastMove(_doAi);
-					//BroadcastMotion(_doAi);
 				}
 				else
 				{

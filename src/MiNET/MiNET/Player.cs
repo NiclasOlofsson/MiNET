@@ -1912,14 +1912,6 @@ namespace MiNET
 				Value = 1,
 				Default = 1,
 			};
-			attributes["minecraft:player.experience"] = new PlayerAttribute
-			{
-				Name = "minecraft:player.experience",
-				MinValue = 0,
-				MaxValue = 1,
-				Value = Experience,
-				Default = 0,
-			};
 			attributes["minecraft:follow_range"] = new PlayerAttribute
 			{
 				Name = "minecraft:follow_range",
@@ -1927,6 +1919,14 @@ namespace MiNET
 				MaxValue = 2048,
 				Value = 16,
 				Default = 16,
+			};
+			attributes["minecraft:player.experience"] = new PlayerAttribute
+			{
+				Name = "minecraft:player.experience",
+				MinValue = 0,
+				MaxValue = 1,
+				Value = CalculateXp(),
+				Default = 0,
 			};
 			attributes["minecraft:player.level"] = new PlayerAttribute
 			{
@@ -1944,6 +1944,54 @@ namespace MiNET
 			attributesPackate.entityId = 0;
 			attributesPackate.attributes = attributes;
 			SendPackage(attributesPackate);
+		}
+
+		private float CalculateXp()
+		{
+			float xpToNextLevel = 0;
+			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
+			{
+				xpToNextLevel = 2 * ExperienceLevel + 7;
+			}
+			else if (ExperienceLevel > 15 && ExperienceLevel <= 30)
+			{
+				xpToNextLevel = 5 * ExperienceLevel - 38;
+			}
+			else if (ExperienceLevel > 30)
+			{
+				xpToNextLevel = 9 * ExperienceLevel - 158;
+			}
+
+			return Experience/xpToNextLevel;
+		}
+
+		public void AddExperience(float xp, bool send = true)
+		{
+			float xpToNextLevel = 0;
+			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
+			{
+				xpToNextLevel = 2*ExperienceLevel + 7;
+			}
+			else if (ExperienceLevel > 15 && ExperienceLevel <= 30)
+			{
+				xpToNextLevel = 5*ExperienceLevel - 38;
+			}
+			else if (ExperienceLevel > 30)
+			{
+				xpToNextLevel = 9*ExperienceLevel - 158;
+			}
+
+			if (xpToNextLevel - (xp + Experience) > 0)
+			{
+				Experience += xp;
+			}
+			else
+			{
+				ExperienceLevel++;
+				AddExperience(Experience + xp - xpToNextLevel, false);
+			}
+
+			if(send) SendUpdateAttributes();
 		}
 
 		public virtual void SendSetTime()

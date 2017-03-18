@@ -20,5 +20,12 @@ namespace MiNET.Blocks
 			var plus = rnd.Next(4);
 			return new[] {ItemFactory.GetItem(351, 4, (byte) (4 + plus))};
 		}
+
+		public override float GetExperiencePoints()
+		{
+			Random random = new Random();
+			return random.Next(2, 6);
+		}
+
 	}
 }

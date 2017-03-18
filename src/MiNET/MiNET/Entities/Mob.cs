@@ -85,14 +85,14 @@ namespace MiNET.Entities
 				if (block.IsSolid)
 				{
 					var yaw = (Math.Atan2(direction.X, direction.Z) * 180.0D / Math.PI) + 180;
-					Log.Warn($"Will hit block {block} at angle of {yaw}");
+					//Log.Warn($"Will hit block {block} at angle of {yaw}");
 
 					Ray ray = new Ray(position, direction);
 					if (ray.Intersects(block.GetBoundingBox()).HasValue)
 					{
 						int face = IntersectSides(block.GetBoundingBox(), ray);
 
-						Log.Warn($"Hit block {block} at angle of {yaw} on face {face}");
+						//Log.Warn($"Hit block {block} at angle of {yaw} on face {face}");
 						if (face == -1) continue;
 						switch (face)
 						{
@@ -120,7 +120,7 @@ namespace MiNET.Entities
 					}
 					else
 					{
-						Log.Warn($"Hit block {block} at angle of {yaw} had no intersection (strange)");
+						//Log.Warn($"Hit block {block} at angle of {yaw} had no intersection (strange)");
 						Velocity *= new Vector3(0, 0, 0);
 					}
 				}

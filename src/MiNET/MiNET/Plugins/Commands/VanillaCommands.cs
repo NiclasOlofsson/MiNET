@@ -253,7 +253,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
-		public SimpleResponse Xp(Player commander, int levels, Target player)
+		public SimpleResponse Xp(Player commander, int experience, Target player)
 		{
 			string body = player.Selector;
 
@@ -263,14 +263,14 @@ namespace MiNET.Plugins.Commands
 				foreach (var p in player.Players)
 				{
 					names.Add(p.Username);
-					p.ExperienceLevel += levels;
+					p.AddExperience(experience);
 					p.SendUpdateAttributes();
 				}
 
 				body = string.Join(", ", names);
 			}
 
-			return new SimpleResponse {Body = $"Gave {body} {levels} levels of XP"};
+			return new SimpleResponse {Body = $"Gave {body} {experience} experience points."};
 		}
 
 		[Command]

@@ -1,4 +1,5 @@
-﻿using MiNET.Items;
+﻿using System;
+using MiNET.Items;
 
 namespace MiNET.Blocks
 {
@@ -15,6 +16,12 @@ namespace MiNET.Blocks
 			if (tool.ItemMaterial < ItemMaterial.Stone) return new Item[0];
 
 			return new[] {ItemFactory.GetItem(388, 0, 1)};
+		}
+
+		public override float GetExperiencePoints()
+		{
+			Random random = new Random();
+			return random.Next(3, 8);
 		}
 	}
 }

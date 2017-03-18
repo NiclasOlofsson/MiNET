@@ -1,4 +1,5 @@
-﻿using MiNET.Items;
+﻿using System;
+using MiNET.Items;
 
 namespace MiNET.Blocks
 {
@@ -13,6 +14,12 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			return new[] {ItemFactory.GetItem(406, 0, 1)};
+		}
+
+		public override float GetExperiencePoints()
+		{
+			Random random = new Random();
+			return random.Next(2, 6);
 		}
 	}
 }

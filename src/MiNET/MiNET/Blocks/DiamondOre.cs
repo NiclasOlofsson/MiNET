@@ -1,3 +1,4 @@
+using System;
 using MiNET.Items;
 
 namespace MiNET.Blocks
@@ -20,6 +21,12 @@ namespace MiNET.Blocks
 		public override Item GetSmelt()
 		{
 			return ItemFactory.GetItem(264, 0);
+		}
+
+		public override float GetExperiencePoints()
+		{
+			Random random = new Random();
+			return random.Next(3, 8);
 		}
 	}
 }

@@ -145,6 +145,11 @@ namespace MiNET.Blocks
 			return null;
 		}
 
+		public virtual float GetExperiencePoints()
+		{
+			return 0;
+		}
+
 		public virtual void DoPhysics(Level level)
 		{
 		}

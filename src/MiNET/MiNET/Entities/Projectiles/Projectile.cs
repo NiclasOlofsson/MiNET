@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
@@ -21,6 +20,7 @@ namespace MiNET.Entities.Projectiles
 		public bool DespawnOnImpact { get; set; }
 		public int Damage { get; set; }
 		public int PowerLevel { get; set; } = 0;
+		public float HitBoxPrecision { get; set; } = 0.3f;
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
@@ -90,7 +90,7 @@ namespace MiNET.Entities.Projectiles
 
 			if (KnownPosition.Y <= 0 || Velocity.Length() <= 0) return;
 
-			Entity entityCollided = CheckEntityCollide(KnownPosition.ToVector3(), Velocity);
+			Entity entityCollided = CheckEntityCollide(KnownPosition, Velocity);
 
 			bool collided = false;
 			if (entityCollided != null)
@@ -189,7 +189,7 @@ namespace MiNET.Entities.Projectiles
 			{
 				if (entity == Shooter) continue;
 
-				if (Intersect(entity.GetBoundingBox(), ray))
+				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{
 					if (ray.tNear > direction.Length()) break;
 
@@ -206,7 +206,7 @@ namespace MiNET.Entities.Projectiles
 				if (entity == this) continue;
 				if (entity is Projectile) continue;
 
-				if (Intersect(entity.GetBoundingBox(), ray))
+				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{
 					if (ray.tNear > direction.Length()) break;
 
@@ -322,7 +322,7 @@ namespace MiNET.Entities.Projectiles
 			{
 				var particle = new CriticalParticle(Level);
 				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn(new[] { Shooter });
+				particle.Spawn(new[] {Shooter});
 			}
 		}
 

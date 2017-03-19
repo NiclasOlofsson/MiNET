@@ -53,7 +53,7 @@ namespace MiNET.Worlds
 		public double CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
-		public bool IsWorldTimeStarted { get; set; }
+		public bool IsWorldTimeStarted { get; set; } = false;
 		public bool EnableBlockTicking { get; set; } = false;
 
 		public bool AllowBuild { get; set; } = true;
@@ -396,18 +396,19 @@ namespace MiNET.Worlds
 			{
 				TickTime++;
 
+				Player[] players = GetSpawnedPlayers();
+
 				if (IsWorldTimeStarted) CurrentWorldTime += 1.25;
 				if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
-				if (TickTime%100 == 0)
+				if (IsWorldTimeStarted && TickTime%100 == 0)
 				{
-					//McpeSetTime message = McpeSetTime.CreateObject();
-					//message.time = (int)CurrentWorldTime;
-					//message.started = (byte)(IsWorldTimeStarted ? 0x80 : 0x00);
+					McpeSetTime message = McpeSetTime.CreateObject();
+					message.time = (int)CurrentWorldTime;
+					message.started = IsWorldTimeStarted;
 
-					//RelayBroadcast(players, message);
+					RelayBroadcast(message);
 				}
 
-				Player[] players = GetSpawnedPlayers();
 				if (EnableBlockTicking)
 				{
 					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();

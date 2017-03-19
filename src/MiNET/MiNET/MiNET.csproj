@@ -319,9 +319,11 @@
     <Compile Include="Effects\WaterBreathing.cs" />
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
+    <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
     <Compile Include="Entities\Hostile\ElderGuardian.cs" />
     <Compile Include="Entities\Hostile\Guardian.cs" />
+    <Compile Include="Entities\Hostile\Horse.cs" />
     <Compile Include="Entities\Hostile\Husk.cs" />
     <Compile Include="Entities\Hostile\Shulker.cs" />
     <Compile Include="Entities\Hostile\SkeletonHorse.cs" />

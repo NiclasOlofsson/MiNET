@@ -30,6 +30,7 @@ namespace MiNET
                 Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Normal);
                 int viewDistance = Config.GetProperty("ViewDistance", 11);
                 bool enableBlockTicking = Config.GetProperty("EnableBlockTicking", false);
+                bool enableChunkTicking = Config.GetProperty("EnableChunkTicking", false);
                 bool isWorldTimeStarted = Config.GetProperty("IsWorldTimeStarted", false);
 
                 IWorldProvider worldProvider = null;
@@ -57,6 +58,7 @@ namespace MiNET
                 level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
                 {
 	                EnableBlockTicking = enableBlockTicking,
+					EnableChunkTicking = enableChunkTicking,
 					IsWorldTimeStarted = isWorldTimeStarted
 
                 };

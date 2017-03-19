@@ -36,7 +36,8 @@ namespace MiNET.Worlds
 		// ReSharper disable once NotAccessedField.Local
 		private Timer _levelTicker;
 		private int _worldTickTime = 50;
-		private int _worldDayCycleTime = 19200;
+		private int _worldDayCycleTime = 24000;
+		//private int _worldDayCycleTime = 19200;
 		//private int _worldDayCycleTime = 14400;
 
 		public PlayerLocation SpawnPoint { get; set; }
@@ -55,12 +56,14 @@ namespace MiNET.Worlds
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; } = false;
 		public bool EnableBlockTicking { get; set; } = false;
+		public bool EnableChunkTicking { get; set; } = false;
 
 		public bool AllowBuild { get; set; } = true;
 		public bool AllowBreak { get; set; } = true;
 
 		public EntityManager EntityManager { get; private set; }
 		public InventoryManager InventoryManager { get; private set; }
+		public EntitySpawnManager EntitySpawnManager { get; private set; }
 
 		public int ViewDistance { get; set; }
 
@@ -72,6 +75,7 @@ namespace MiNET.Worlds
 
 			EntityManager = entityManager;
 			InventoryManager = new InventoryManager(this);
+			EntitySpawnManager = new EntitySpawnManager(this);
 			SpawnPoint = null;
 			Players = new ConcurrentDictionary<long, Player>();
 			Entities = new ConcurrentDictionary<long, Entity>();
@@ -398,7 +402,7 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 
-				if (IsWorldTimeStarted) CurrentWorldTime += 1.25;
+				if (IsWorldTimeStarted) CurrentWorldTime ++;
 				if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
 				if (IsWorldTimeStarted && TickTime%100 == 0)
 				{
@@ -409,7 +413,7 @@ namespace MiNET.Worlds
 					RelayBroadcast(message);
 				}
 
-				if (EnableBlockTicking)
+				if (EnableChunkTicking || EnableChunkTicking)
 				{
 					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();
 					foreach (var player in players)
@@ -433,9 +437,22 @@ namespace MiNET.Worlds
 								var height = GetHeight(blockCoordinates);
 								if (height > 0 && s*16 > height) continue;
 
-								if (IsAir(blockCoordinates)) continue;
+								if (IsAir(blockCoordinates))
+								{
+									if (i == 0 && EnableChunkTicking)
+									{
+										// Entity spawning, only one attempt per chunk
+										EntitySpawnManager.AttemptHostileMobSpawn(TickTime, blockCoordinates);
+										EntitySpawnManager.AttemptPassiveMobSpawn(TickTime, blockCoordinates, chunksWithinRadiusOfPlayer.Count);
+									}
 
-								GetBlock(blockCoordinates).OnTick(this, true);
+									continue;
+								}
+
+								if (EnableBlockTicking)
+								{
+									GetBlock(blockCoordinates).OnTick(this, true);
+								}
 							}
 						}
 					}
@@ -793,12 +810,14 @@ namespace MiNET.Worlds
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			byte biomeId = chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
 
 			Block block = BlockFactory.GetBlockById(bid);
 			block.Coordinates = blockCoordinates;
 			block.Metadata = metadata;
 			block.BlockLight = blockLight;
 			block.SkyLight = skyLight;
+			block.BiomeId = biomeId;
 
 			return block;
 		}

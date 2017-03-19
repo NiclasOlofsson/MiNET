@@ -2,6 +2,8 @@
 {
 	public enum EntityType
 	{
+		None = 0,
+
 		DroppedItem = 64,
 		ExperienceOrb = 69,
 

@@ -33,6 +33,8 @@ namespace MiNET.Blocks
 		public byte BlockLight { get; set; }
 		public byte SkyLight { get; set; }
 
+		public byte BiomeId { get; set; }
+
 		public Block(byte id)
 		{
 			Id = id;

@@ -286,5 +286,14 @@ namespace MiNET.Plugins.Commands
 			return new SimpleResponse { Body = $"{commander.Username} set difficulty to {difficulty}" };
 		}
 
+		[Command(Name = "time set")]
+		public SimpleResponse TimeSet(Player commander, int amount)
+		{
+			Level level = commander.Level;
+			level.CurrentWorldTime = amount;
+
+			return new SimpleResponse { Body = $"{commander.Username} sets time to {amount}" };
+		}
+
 	}
 }

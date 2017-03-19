@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
@@ -353,7 +354,6 @@ namespace MiNET.Entities
 				moveEntity.entityId = EntityId;
 				moveEntity.position = KnownPosition;
 				Level.RelayBroadcast(moveEntity);
-				
 			}
 		}
 

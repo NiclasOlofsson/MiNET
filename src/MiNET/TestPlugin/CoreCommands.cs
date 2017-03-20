@@ -71,17 +71,14 @@ namespace TestPlugin
 		{
 		}
 
-		[Command(Aliases = new []{"csk"})]
+		[Command(Aliases = new[] {"csk"})]
 		public void CalculateSkyLight(Player player)
 		{
 			Task.Run(() =>
 			{
 				SkyLightCalculations.Calculate(player.Level);
 				player.CleanCache();
-				player.ForcedSendChunks(() =>
-				{
-					player.SendMessage("Calculated skylights and resent chunks.");
-				});
+				player.ForcedSendChunks(() => { player.SendMessage("Calculated skylights and resent chunks."); });
 			});
 		}
 
@@ -433,6 +430,29 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void FarmingKit(Player player)
+		{
+			var inventory = player.Inventory;
+
+			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
+
+			byte c = 0;
+			inventory.Slots[c++] = new ItemDiamondHoe();
+			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
+			inventory.Slots[c++] = new ItemWheatSeeds() {Count = 64};
+			inventory.Slots[c++] = new ItemBeetrootSeeds() {Count = 64};
+			inventory.Slots[c++] = new ItemCarrot() {Count = 64};
+			inventory.Slots[c++] = new ItemPotato() {Count = 64};
+
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Kit(Player player, int kitId)
 		{
 			var inventory = player.Inventory;
@@ -497,7 +517,7 @@ namespace TestPlugin
 			//	TAG_String("map_uuid"): "-4294967268"
 			//}
 
-			inventory.Slots[c++] = new ItemBow() { ExtraData = new NbtCompound { new NbtList("ench") { new NbtCompound { new NbtShort("id", 19), new NbtShort("lvl", 4) } } } }; // Bow
+			inventory.Slots[c++] = new ItemBow() {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 4)}}}}; // Bow
 			inventory.Slots[c++] = new ItemIronSword
 			{
 				ExtraData = new NbtCompound
@@ -842,7 +862,6 @@ namespace TestPlugin
 				transfer.port = 19132;
 				player.SendPackage(transfer);
 			}
-
 		}
 
 		private byte _invId = 0;

@@ -193,6 +193,11 @@ namespace MiNET.Worlds
 			return 6000;
 		}
 
+		public string GetName()
+		{
+			return "Flatland";
+		}
+
 		public int PopulateChunk(ChunkColumn chunk)
 		{
 			//var random = new CryptoRandom();

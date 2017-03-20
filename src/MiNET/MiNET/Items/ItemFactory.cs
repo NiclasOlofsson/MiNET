@@ -121,6 +121,8 @@ namespace MiNET.Items
 			else if (id == 292) item = new ItemIronHoe();
 			else if (id == 293) item = new ItemDiamondHoe();
 			else if (id == 294) item = new ItemGoldHoe();
+			else if (id == 295) item = new ItemWheatSeeds();
+			else if (id == 296) item = new ItemWheat();
 			else if (id == 297) item = new ItemBread();
 			else if (id == 298) item = new ItemLeatherHelmet();
 			else if (id == 299) item = new ItemLeatherChestplate();
@@ -168,6 +170,8 @@ namespace MiNET.Items
 			else if (id == 395) item = new ItemEmptyMap();
 			else if (id == 397) item = new ItemMobHead(metadata);
 			else if (id == 400) item = new ItemPumpkinPie();
+			else if (id == 457) item = new ItemBeetroot();
+			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{
 				Block block = BlockFactory.GetBlockById((byte) id);

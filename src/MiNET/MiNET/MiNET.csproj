@@ -119,6 +119,7 @@
     <Compile Include="Blocks\CobblestoneWall.cs" />
     <Compile Include="Blocks\Cobweb.cs" />
     <Compile Include="Blocks\Cocoa.cs" />
+    <Compile Include="Blocks\Crops.cs" />
     <Compile Include="Blocks\DarkOakDoor.cs" />
     <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
     <Compile Include="Blocks\DragonEgg.cs" />
@@ -358,7 +359,7 @@
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
     <Compile Include="Entities\Vehicles\Vehicle.cs" />
-    <Compile Include="Entities\World\FallingSand.cs" />
+    <Compile Include="Entities\World\FallingBlock.cs" />
     <Compile Include="Entities\World\Lightning.cs" />
     <Compile Include="Entities\World\MapEntity.cs" />
     <Compile Include="Entities\EntityType.cs" />
@@ -395,6 +396,8 @@
     <Compile Include="Items\ItemArrow.cs" />
     <Compile Include="Items\ItemBakedPotato.cs" />
     <Compile Include="Items\ItemBed.cs" />
+    <Compile Include="Items\ItemBeetroot.cs" />
+    <Compile Include="Items\ItemBeetrootSeeds.cs" />
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemBread.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
@@ -467,6 +470,8 @@
     <Compile Include="Items\ItemStonePickaxe.cs" />
     <Compile Include="Items\ItemStoneShovel.cs" />
     <Compile Include="Items\ItemStoneSword.cs" />
+    <Compile Include="Items\ItemWheat.cs" />
+    <Compile Include="Items\ItemWheatSeeds.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />
     <Compile Include="Items\ItemWoodenHoe.cs" />
     <Compile Include="Items\ItemWoodenPickaxe.cs" />

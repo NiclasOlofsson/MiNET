@@ -1712,7 +1712,7 @@ namespace MiNET
 			mcpeStartGame.enableCommands = EnableCommands;
 			mcpeStartGame.isTexturepacksRequired = false;
 			mcpeStartGame.secret = "1m0AAMIFIgA=";
-			mcpeStartGame.worldName = "test";
+			mcpeStartGame.worldName = Level.LevelName;
 
 			SendPackage(mcpeStartGame);
 		}

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
@@ -11,6 +12,8 @@ namespace MiNET.Entities
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Mob));
 
+		public DateTime LastSeenPlayeTimer { get; set; }
+
 		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
 		{
 			Width = Length = 0.6;
@@ -21,9 +24,33 @@ namespace MiNET.Entities
 		{
 		}
 
+		public override void SpawnEntity()
+		{
+			LastSeenPlayeTimer = DateTime.UtcNow;
+			base.SpawnEntity();
+		}
+
 		public override void OnTick()
 		{
 			base.OnTick();
+
+			if (DateTime.UtcNow - LastSeenPlayeTimer > TimeSpan.FromSeconds(30))
+			{
+				if (Level.GetSpawnedPlayers().Count(e => Vector3.Distance(KnownPosition, e.KnownPosition) < 32) == 0)
+				{
+					if (Level.Random.Next(800) == 0)
+					{
+						Log.Warn($"Despawn because didn't see any players within 32 blocks for 30s or longer. Last seen {LastSeenPlayeTimer}");
+						DespawnEntity();
+						return;
+					}
+				}
+				else
+				{
+					LastSeenPlayeTimer = DateTime.UtcNow;
+				}
+			}
+
 
 			if (Velocity.Length() > 0.01)
 			{
@@ -74,7 +101,7 @@ namespace MiNET.Entities
 		protected void CheckBlockAhead()
 		{
 			var length = Length/2;
-			var direction = Vector3.Normalize(Velocity * 1.00000101f);
+			var direction = Vector3.Normalize(Velocity*1.00000101f);
 			var position = KnownPosition.ToVector3();
 			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
 			for (int i = 0; i < count; i++)
@@ -84,7 +111,7 @@ namespace MiNET.Entities
 				Block block = Level.GetBlock(blockPos);
 				if (block.IsSolid)
 				{
-					var yaw = (Math.Atan2(direction.X, direction.Z) * 180.0D / Math.PI) + 180;
+					var yaw = (Math.Atan2(direction.X, direction.Z)*180.0D/Math.PI) + 180;
 					//Log.Warn($"Will hit block {block} at angle of {yaw}");
 
 					Ray ray = new Ray(position, direction);
@@ -194,7 +221,7 @@ namespace MiNET.Entities
 
 		protected bool IsOnGround(Vector3 pos)
 		{
-			Block block = Level.GetBlock((BlockCoordinates)(pos - new Vector3(0, 0.1f, 0)));
+			Block block = Level.GetBlock((BlockCoordinates) (pos - new Vector3(0, 0.1f, 0)));
 
 			return block.IsSolid;
 			//return block.IsSolid && block.GetBoundingBox().Contains(GetBoundingBox().OffsetBy(new Vector3(0, -0.1f, 0))) == ContainmentType.Intersects;

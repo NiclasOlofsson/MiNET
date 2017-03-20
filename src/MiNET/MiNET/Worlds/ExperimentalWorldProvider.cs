@@ -46,6 +46,11 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
+		public string GetName()
+		{
+			return "Experimental";
+		}
+
 		public int SaveChunks()
 		{
 			return 0;

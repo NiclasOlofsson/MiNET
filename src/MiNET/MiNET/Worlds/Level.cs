@@ -46,6 +46,7 @@ namespace MiNET.Worlds
 		public List<BlockEntity> BlockEntities { get; private set; } //TODO: Need to protect this, not threadsafe
 		public ConcurrentDictionary<BlockCoordinates, long> BlockWithTicks { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
+		public string LevelName { get; private set; }
 
 		public GameMode GameMode { get; private set; }
 		public bool IsSurvival => GameMode == GameMode.Survival;
@@ -95,6 +96,7 @@ namespace MiNET.Worlds
 
 			SpawnPoint = SpawnPoint ?? new PlayerLocation(_worldProvider.GetSpawnPoint());
 			CurrentWorldTime = _worldProvider.GetTime();
+			LevelName = _worldProvider.GetName();
 
 			if (_worldProvider.IsCaching)
 			{

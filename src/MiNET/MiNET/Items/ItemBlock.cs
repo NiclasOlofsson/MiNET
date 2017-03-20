@@ -33,18 +33,6 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			//if (player.GameMode != GameMode.Creative)
-			//{
-			//	Item itemStackInHand = player.Inventory.GetItemInHand();
-			//	itemStackInHand.Count--;
-
-			//	if (itemStackInHand.Count <= 0)
-			//	{
-			//		// set empty
-			//		player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemAir();
-			//	}
-			//}
-
 			Block block = world.GetBlock(targetCoordinates);
 			_block.Coordinates = block.IsReplacible ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
 

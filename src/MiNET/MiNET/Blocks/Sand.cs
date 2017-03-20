@@ -10,7 +10,8 @@ namespace MiNET.Blocks
 	public class Sand : Block
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Sand));
-		private int _tickRate = 0;
+
+		private int _tickRate = 1;
 
 		public Sand() : base(12)
 		{
@@ -20,7 +21,6 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Log.Debug("Scheduled block tick for sand");
 			world.ScheduleBlockTick(this, _tickRate);
 			return false;
 		}
@@ -41,10 +41,14 @@ namespace MiNET.Blocks
 
 			if (!level.GetBlock(Coordinates + Level.Down).IsSolid)
 			{
-				level.SetBlock(new Air {Coordinates = Coordinates});
-				new FallingSand(level)
+				level.SetAir(Coordinates);
+
+				var bbox = GetBoundingBox();
+				var d = (bbox.Max - bbox.Min)/2;
+
+				new FallingBlock(level, this)
 				{
-					KnownPosition = new PlayerLocation(Coordinates.X, Coordinates.Y, Coordinates.Z)
+					KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.01f, Coordinates.Z + d.Z)
 				}.SpawnEntity();
 			}
 		}

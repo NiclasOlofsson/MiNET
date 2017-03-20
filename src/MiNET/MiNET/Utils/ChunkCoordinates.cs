@@ -41,7 +41,7 @@ namespace MiNET.Utils
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return string.Format("<{0},{1}>", X, Z);
+			return $"X: {X}, Z: {Z}";
 		}
 
 		#region Math
@@ -220,5 +220,7 @@ namespace MiNET.Utils
 				return (X*397) ^ Z;
 			}
 		}
+
+
 	}
 }

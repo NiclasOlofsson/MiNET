@@ -329,7 +329,7 @@ namespace MiNET.Worlds
 					sent++;
 				}
 
-				Log.Debug($"Saved sending {16 - sent} chunks");
+				//Log.Debug($"Saved sending {16 - sent} chunks");
 
 				//RecalcHeight();
 				writer.Write(height);

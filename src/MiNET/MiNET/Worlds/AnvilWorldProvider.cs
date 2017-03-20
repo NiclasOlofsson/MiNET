@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using fNbt;
@@ -240,6 +241,8 @@ namespace MiNET.Worlds
 			int rx = coordinates.X >> 5;
 			int rz = coordinates.Z >> 5;
 
+			Log.Debug($"Generating chunk @{coordinates}");
+
 			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
 			if (!File.Exists(filePath))
@@ -381,6 +384,11 @@ namespace MiNET.Worlds
 
 							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
 						}
+						else
+						{
+							if(Log.IsDebugEnabled)
+								Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
+						}
 					}
 				}
 
@@ -515,6 +523,11 @@ namespace MiNET.Worlds
 		{
 			return 6000;
 			//return LevelInfo.Time;
+		}
+
+		public string GetName()
+		{
+			return LevelInfo.LevelName;
 		}
 
 		public void SaveLevelInfo(LevelInfo level)

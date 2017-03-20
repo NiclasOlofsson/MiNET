@@ -124,6 +124,11 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
+		public string GetName()
+		{
+			return "Cool world";
+		}
+
 		public int SaveChunks()
 		{
 			return 0;

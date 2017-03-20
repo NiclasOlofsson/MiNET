@@ -16,7 +16,7 @@ namespace MiNET.Entities
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EntitySpawnManager));
 
 		public const int CapHostile = 70;
-		public const int CapPassive = 30; // 10
+		public const int CapPassive = 10; // 10
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 
@@ -74,9 +74,17 @@ namespace MiNET.Entities
 				{
 					if (entityType == EntityType.None)
 					{
-						entityType = SelectEntityType(spawnBlock);
+						if (Level.CurrentWorldTime < 450 || Level.CurrentWorldTime > 11615)
+						{
+							entityType = EntityType.Spider;
+						}
+						else
+						{
+							entityType = SelectEntityType(spawnBlock);
+							if (entityType == EntityType.None) return;
+						}
+
 						maxPackSize = entityType == EntityType.Wolf ? 8 : 4;
-						if (entityType == EntityType.None) return;
 					}
 
 					var firstBlock = Level.GetBlock(x, y + 1, z);
@@ -179,6 +187,9 @@ namespace MiNET.Entities
 				case EntityType.Rabbit:
 					mob = new Rabbit(world);
 					break;
+				case EntityType.Spider:
+					mob = new Spider(world);
+					break;
 			}
 
 			if (mob == null) return false;
@@ -200,11 +211,13 @@ namespace MiNET.Entities
 
 		private bool SpawnAreaClear(BoundingBox bbox)
 		{
-			for (int x = (int) bbox.Min.X; x < bbox.Max.X; x++)
+			BlockCoordinates min = bbox.Min;
+			BlockCoordinates max = bbox.Max;
+			for (int x = min.X; x < max.X; x++)
 			{
-				for (int y = (int) bbox.Min.Y; y < bbox.Max.Y; y++)
+				for (int y = min.Y; y < max.Y; y++)
 				{
-					for (int z = (int) bbox.Min.Z; z < bbox.Max.Z; z++)
+					for (int z = min.Z; z < max.Z; z++)
 					{
 						if (!Level.IsAir(new BlockCoordinates(x, y, z))) return false;
 					}

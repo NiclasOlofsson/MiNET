@@ -1,5 +1,7 @@
 using System;
 using MiNET.Items;
+using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -14,12 +16,24 @@ namespace MiNET.Blocks
 
 		public TallGrass() : base(31)
 		{
+			BlastResistance = 3;
+			Hardness = 0.6f;
+
 			IsSolid = false;
 			IsReplacible = true;
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops()
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			{
+				level.SetAir(Coordinates);
+				UpdateBlocks(level);
+			}
+		}
+
+		public override Item[] GetDrops(Item tool)
 		{
 			// 50% chance to drop seeds.
 			var rnd = new Random((int) DateTime.UtcNow.Ticks);

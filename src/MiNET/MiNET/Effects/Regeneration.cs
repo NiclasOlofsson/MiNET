@@ -1,7 +1,11 @@
-﻿namespace MiNET.Effects
+﻿using log4net;
+
+namespace MiNET.Effects
 {
 	public class Regeneration : Effect
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Regeneration));
+
 		public Regeneration() : base(EffectType.Regeneration)
 		{
 		}

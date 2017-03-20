@@ -15,10 +15,10 @@ namespace MiNET.Blocks
 			Hardness = 3.5f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			// TODO: Needs Dispenser TileEntity.
-			return base.GetDrops();
+			return base.GetDrops(tool);
 		}
 	}
 }

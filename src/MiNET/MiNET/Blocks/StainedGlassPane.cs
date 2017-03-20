@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 			BlastResistance = 1.5f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0]; // No drops
 		}

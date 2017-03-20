@@ -4,14 +4,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Net;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Text;
 using fNbt;
 using MiNET.Net;
 using MiNET.Utils;
-using MiNET.Worlds;
 using NUnit.Framework;
 
 namespace MiNET
@@ -19,6 +16,32 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		//[Test]
+		//public void TestUuid()
+		//{
+		//	string uuidString = "4ff749d0-1344-1cea-5929-2c63def056b4";
+		//	var uuid = new UUID(new Guid(uuidString));
+		//	//var uuid = new UUID(Guid.NewGuid());
+		//	var uuidBytes = uuid.GetBytes();
+		//	var newUuid = new UUID(uuidBytes);
+		//	Assert.AreEqual(uuid.Id, newUuid.Id);
+		//	Assert.AreEqual(uuidString, newUuid.ToString());
+		//}
+
+		[Test]
+		public void TestUuid()
+		{
+			string uuidString = "a821263b-0df8-44ed-87b7-d57a23fdccfc";
+			var inputBytes = new byte[] { 0xed ,0x44, 0xf8, 0x0d, 0x3b, 0x26, 0x21, 0xa8, 0xfc, 0xcc, 0xfd, 0x23, 0x7a, 0xd5, 0xb7, 0x87 };
+			var uuid = new UUID(inputBytes);
+			Assert.AreEqual(uuidString, uuid.ToString());
+			Assert.AreEqual(inputBytes, uuid.GetBytes());
+
+			uuid = new UUID(uuidString);
+			Assert.AreEqual(uuidString, uuid.ToString());
+			Assert.AreEqual(inputBytes, uuid.GetBytes());
+		}
+
 		[Test]
 		public void TestBitArray()
 		{
@@ -43,7 +66,7 @@ namespace MiNET
 
 
 			//var result = VarInt.ReadUInt64(new MemoryStream(array));
-			var result = VarInt.ReadUInt64(new MemoryStream(new byte[] { 0x80, 0x80, 0x80, 0x11 }));
+			var result = VarInt.ReadUInt64(new MemoryStream(new byte[] {0x80, 0x80, 0x80, 0x11}));
 			Console.WriteLine($"{Convert.ToString((long) result, 2)}");
 
 			//Assert.AreEqual(dataValue, result);

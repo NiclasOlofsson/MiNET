@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -19,6 +19,8 @@ namespace MiNET.Entities.Projectiles
 		public int Ttl { get; set; }
 		public bool DespawnOnImpact { get; set; }
 		public int Damage { get; set; }
+		public int PowerLevel { get; set; } = 0;
+		public float HitBoxPrecision { get; set; } = 0.3f;
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
@@ -43,106 +45,44 @@ namespace MiNET.Entities.Projectiles
 
 				IsSpawned = true;
 
-				//if (Shooter == null)
-				//{
-				//	var addEntity = McpeAddEntity.CreateObject();
-				//	addEntity.entityType = (byte) EntityTypeId;
-				//	addEntity.entityId = EntityId;
-				//	addEntity.runtimeEntityId = EntityId;
-				//	addEntity.x = KnownPosition.X;
-				//	addEntity.y = KnownPosition.Y;
-				//	addEntity.z = KnownPosition.Z;
-				//	addEntity.yaw = KnownPosition.Yaw;
-				//	addEntity.pitch = KnownPosition.Pitch;
-				//	addEntity.metadata = GetMetadata();
-				//	addEntity.speedX = (float) Velocity.X;
-				//	addEntity.speedY = (float) Velocity.Y;
-				//	addEntity.speedZ = (float) Velocity.Z;
+				if (BroadcastMovement)
+				{
+					//LastUpdatedTime = DateTime.UtcNow;
 
-				//	Level.RelayBroadcast(addEntity);
-
-				//	McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				//	mcpeSetEntityData.entityId = EntityId;
-				//	mcpeSetEntityData.metadata = GetMetadata();
-				//	Level.RelayBroadcast(mcpeSetEntityData);
-				//}
-				//else
-				//{
-				//	//{
-				//	//	var addEntity = McpeAddEntity.CreateObject();
-				//	//	addEntity.entityType = (byte) EntityTypeId;
-				//	//	addEntity.entityId = EntityId;
-				//	//	addEntity.runtimeEntityId = EntityId;
-				//	//	addEntity.x = KnownPosition.X;
-				//	//	addEntity.y = KnownPosition.Y;
-				//	//	addEntity.z = KnownPosition.Z;
-				//	//	addEntity.yaw = KnownPosition.Yaw;
-				//	//	addEntity.pitch = KnownPosition.Pitch;
-				//	//	addEntity.metadata = GetMetadata();
-				//	//	addEntity.speedX = (float) Velocity.X;
-				//	//	addEntity.speedY = (float) Velocity.Y;
-				//	//	addEntity.speedZ = (float) Velocity.Z;
-
-				//	//	Level.RelayBroadcast(Shooter, addEntity);
-
-				//	//	//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				//	//	//mcpeSetEntityData.entityId = EntityId;
-				//	//	//mcpeSetEntityData.metadata = GetMetadata();
-				//	//	//Level.RelayBroadcast(Shooter, mcpeSetEntityData);
-				//	//}
-				//	{
-				//		MetadataDictionary metadata = GetMetadata();
-				//		//metadata[17] = new MetadataLong(0);
-
-				//		var addEntity = McpeAddEntity.CreateObject();
-				//		addEntity.entityType = (byte) EntityTypeId;
-				//		addEntity.entityId = EntityId;
-    //                    addEntity.runtimeEntityId = EntityId;
-    //                    addEntity.x = KnownPosition.X;
-				//		addEntity.y = KnownPosition.Y;
-				//		addEntity.z = KnownPosition.Z;
-				//		addEntity.yaw = KnownPosition.Yaw;
-				//		addEntity.pitch = KnownPosition.Pitch;
-				//		addEntity.metadata = metadata;
-				//		addEntity.speedX = (float) Velocity.X;
-				//		addEntity.speedY = (float) Velocity.Y;
-				//		addEntity.speedZ = (float) Velocity.Z;
-				//		//Shooter.SendPackage(addEntity);
-
-				//		//McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-				//		//mcpeSetEntityData.entityId = EntityId;
-				//		//mcpeSetEntityData.metadata = metadata;
-				//		//Shooter.SendPackage(mcpeSetEntityData);
-				//	}
-				//}
+					BroadcastMoveAndMotion();
+				}
 			}
 		}
 
 		public override MetadataDictionary GetMetadata()
 		{
-            IsInWater = true;
-		    IsUsingItem = false;
+			var metadata = base.GetMetadata();
 
-            var metadata = base.GetMetadata();
-            if (Shooter != null)
-            {
-                metadata[5] = new MetadataLong(Shooter.EntityId);
-            }
+			if (Shooter != null)
+			{
+				metadata[5] = new MetadataLong(Shooter.EntityId);
+			}
 
-            Log.Debug($"Projectile metadata: \n{MetadataDictionary.MetadataToCode(metadata)}");
-
-            return metadata;
+			return metadata;
 		}
 
 		public override void OnTick()
 		{
-			base.OnTick();
+			//base.OnTick();
 
 			if (KnownPosition.Y <= 0
 			    || (Velocity.Length() <= 0 && DespawnOnImpact)
 			    || (Velocity.Length() <= 0 && !DespawnOnImpact && Ttl <= 0))
 			{
-				DespawnEntity();
+				if (DespawnOnImpact || (!DespawnOnImpact && Ttl <= 0))
+				{
+					DespawnEntity();
+					return;
+				}
+				else
+				{
+					IsCritical = false;
+				}
 				return;
 			}
 
@@ -150,7 +90,7 @@ namespace MiNET.Entities.Projectiles
 
 			if (KnownPosition.Y <= 0 || Velocity.Length() <= 0) return;
 
-			Entity entityCollided = CheckEntityCollide(KnownPosition.ToVector3(), Velocity);
+			Entity entityCollided = CheckEntityCollide(KnownPosition, Velocity);
 
 			bool collided = false;
 			if (entityCollided != null)
@@ -167,16 +107,23 @@ namespace MiNET.Entities.Projectiles
 					Level.RelayBroadcast(animate);
 				}
 
+				if (PowerLevel > 0)
+				{
+					damage = damage + ((PowerLevel + 1)*0.25);
+				}
+
 				Player player = entityCollided as Player;
 
 				if (player != null)
 				{
-					damage = player.CalculatePlayerDamage(player, damage);
+					damage = player.DamageCalculator.CalculatePlayerDamage(this, player, null, damage, DamageCause.Projectile);
 				}
 
 				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);
 				entityCollided.HealthManager.LastDamageSource = Shooter;
-				collided = true;
+
+				DespawnEntity();
+				return;
 			}
 			else
 			{
@@ -188,17 +135,16 @@ namespace MiNET.Entities.Projectiles
 
 				for (int i = 0; i < Math.Ceiling(distance)*2; i++)
 				{
-					PlayerLocation nextPos = (PlayerLocation) KnownPosition.Clone();
+					Vector3 nextPos = KnownPosition.ToVector3();
 					nextPos.X += (float) velocity2.X*i;
 					nextPos.Y += (float) velocity2.Y*i;
 					nextPos.Z += (float) velocity2.Z*i;
 
-					BlockCoordinates coord = new BlockCoordinates(nextPos);
-					Block block = Level.GetBlock(coord);
-					collided = block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
+					Block block = Level.GetBlock(nextPos);
+					collided = block.IsSolid && block.GetBoundingBox().Contains(nextPos);
 					if (collided)
 					{
-						SetIntersectLocation(block.GetBoundingBox(), KnownPosition);
+						SetIntersectLocation(block.GetBoundingBox(), KnownPosition.ToVector3());
 						break;
 					}
 				}
@@ -222,7 +168,12 @@ namespace MiNET.Entities.Projectiles
 			}
 
 			// For debugging of flight-path
-			if (BroadcastMovement) BroadcastMoveAndMotion();
+			if (BroadcastMovement)
+			{
+				//LastUpdatedTime = DateTime.UtcNow;
+
+				BroadcastMoveAndMotion();
+			}
 		}
 
 		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
@@ -238,7 +189,7 @@ namespace MiNET.Entities.Projectiles
 			{
 				if (entity == Shooter) continue;
 
-				if (Intersect(entity.GetBoundingBox(), ray))
+				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{
 					if (ray.tNear > direction.Length()) break;
 
@@ -255,7 +206,7 @@ namespace MiNET.Entities.Projectiles
 				if (entity == this) continue;
 				if (entity is Projectile) continue;
 
-				if (Intersect(entity.GetBoundingBox(), ray))
+				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{
 					if (ray.tNear > direction.Length()) break;
 
@@ -316,7 +267,7 @@ namespace MiNET.Entities.Projectiles
 			var firstBlock = blocks.OrderBy(pair => pair.Key).First().Value;
 
 			BoundingBox boundingBox = firstBlock.GetBoundingBox();
-			if (!SetIntersectLocation(boundingBox, KnownPosition))
+			if (!SetIntersectLocation(boundingBox, KnownPosition.ToVector3()))
 			{
 				// No real hit
 				return false;
@@ -331,9 +282,9 @@ namespace MiNET.Entities.Projectiles
 			return true;
 		}
 
-		public bool SetIntersectLocation(BoundingBox bbox, PlayerLocation location)
+		public bool SetIntersectLocation(BoundingBox bbox, Vector3 location)
 		{
-			Ray ray = new Ray(location.ToVector3() - Velocity, Vector3.Normalize(Velocity));
+			Ray ray = new Ray(location - Velocity, Vector3.Normalize(Velocity));
 			double? distance = ray.Intersects(bbox);
 			if (distance != null)
 			{
@@ -353,15 +304,26 @@ namespace MiNET.Entities.Projectiles
 		/// </summary>
 		private void BroadcastMoveAndMotion()
 		{
-			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entityId = EntityId;
-			motions.velocity = Velocity;
-			new Task(() => Level.RelayBroadcast(motions)).Start();
+			if (new Random().Next(5) == 0)
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entityId = EntityId;
+				motions.velocity = Velocity;
+				//new Task(() => Level.RelayBroadcast(motions)).Start();
+				Level.RelayBroadcast(motions);
+			}
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 			moveEntity.entityId = EntityId;
 			moveEntity.position = KnownPosition;
-			new Task(() => Level.RelayBroadcast(moveEntity)).Start();
+			Level.RelayBroadcast(moveEntity);
+
+			if (Shooter != null && IsCritical)
+			{
+				var particle = new CriticalParticle(Level);
+				particle.Position = KnownPosition.ToVector3();
+				particle.Spawn(new[] {Shooter});
+			}
 		}
 
 		public bool BroadcastMovement { get; set; }
@@ -376,18 +338,6 @@ namespace MiNET.Entities.Projectiles
 		{
 			return bbox.Max;
 		}
-
-		//public static Vector3 getRandom(AxisAlignedBB aabb)
-		//{
-		//	Vector min = getMinimum(aabb), max = getMaximum(aabb);
-		//	Random random = GameManager.getInstance().getRandom();
-		//	return new Vector(
-		//			random.nextFloat() * (max.getX() - min.getX()) + min.getX(),
-		//			random.nextFloat() * (max.getY() - min.getY()) + min.getY(),
-		//			random.nextFloat() * (max.getZ() - min.getZ()) + min.getZ()
-		//	);
-		//}
-
 
 		public static bool Intersect(BoundingBox aabb, Ray2 ray)
 		{

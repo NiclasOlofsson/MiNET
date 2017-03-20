@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using MiNET.Items;
+using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -10,7 +12,7 @@ namespace MiNET.Blocks
 	///     Blocks are the basic units of structure in Minecraft. Together, they build up the in-game environment and can be
 	///     mined and utilized in various fashions.
 	/// </summary>
-	public class Block: ICloneable
+	public class Block : ICloneable
 	{
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; protected set; }
@@ -30,6 +32,8 @@ namespace MiNET.Blocks
 
 		public byte BlockLight { get; set; }
 		public byte SkyLight { get; set; }
+
+		public byte BiomeId { get; set; }
 
 		public Block(byte id)
 		{
@@ -58,10 +62,27 @@ namespace MiNET.Blocks
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
 
-		public virtual void BreakBlock(Level world)
+		public virtual void BreakBlock(Level world, bool silent = false)
 		{
 			world.SetBlock(new Air {Coordinates = Coordinates});
-			BlockUpdate(world, Coordinates);
+
+			if(!silent)
+			{
+				DestroyBlockParticle particle = new DestroyBlockParticle(world, this);
+				particle.Spawn();
+			}
+
+			UpdateBlocks(world);
+		}
+
+		protected void UpdateBlocks(Level world)
+		{
+			world.GetBlock(Coordinates + BlockCoordinates.Up).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.Down).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.West).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.East).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.South).BlockUpdate(world, Coordinates);
+			world.GetBlock(Coordinates + BlockCoordinates.North).BlockUpdate(world, Coordinates);
 		}
 
 		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
@@ -70,41 +91,18 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			// No default interaction. Return unhandled.
 			return false;
 		}
 
-		public virtual bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
-		{
-			// No default interaction. Return unhandled.
-			return Interact(world, player, blockCoordinates, face);
-		}
-
-		public virtual void OnTick(Level level)
+		public virtual void OnTick(Level level, bool isRandom)
 		{
 		}
 
-
-		public virtual void BlockUpdate(Level world, BlockCoordinates blockCoordinates)
+		public virtual void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
-			/*BlockCoordinates up = new BlockCoordinates() {X = blockCoordinates.X, Y = blockCoordinates.Y + 1, Z = blockCoordinates.Z};
-			/*BlockCoordinates down = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y - 1, Z = blockCoordinates.Z };
-			BlockCoordinates left = new BlockCoordinates() { X = blockCoordinates.X - 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
-			BlockCoordinates right = new BlockCoordinates() { X = blockCoordinates.X + 1, Y = blockCoordinates.Y, Z = blockCoordinates.Z };
-			BlockCoordinates zplus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z + 1 };
-			BlockCoordinates zminus = new BlockCoordinates() { X = blockCoordinates.X, Y = blockCoordinates.Y, Z = blockCoordinates.Z - 1 };
-			
-			//All other directions are in here too, however currently we only use this to update fire so we only check the block above.
-
-			if (world.GetBlock(up).Id == 51)
-			{
-				world.SetBlock(new Air {Coordinates = up});
-			}*/
-
-
-			//This code is really not something we wanna keep :-(
 		}
 
 		public float GetHardness()
@@ -112,11 +110,11 @@ namespace MiNET.Blocks
 			return Hardness/5.0F;
 		}
 
-		public double GetMineTime(Item miningTool)
-		{
-			int multiplier = (int) miningTool.ItemMaterial;
-			return Hardness*(1.5*multiplier);
-		}
+		//public double GetMineTime(Item miningTool)
+		//{
+		//	int multiplier = (int) miningTool.ItemMaterial;
+		//	return Hardness*(1.5*multiplier);
+		//}
 
 		protected BlockCoordinates GetNewCoordinatesFromFace(BlockCoordinates target, BlockFace face)
 		{
@@ -139,14 +137,19 @@ namespace MiNET.Blocks
 			}
 		}
 
-		public virtual Item[] GetDrops()
+		public virtual Item[] GetDrops(Item tool)
 		{
-			return new Item[] { new ItemBlock(this, Metadata) {Count = 1} };
+			return new Item[] {new ItemBlock(this, Metadata) {Count = 1}};
 		}
 
 		public virtual Item GetSmelt()
 		{
 			return null;
+		}
+
+		public virtual float GetExperiencePoints()
+		{
+			return 0;
 		}
 
 		public virtual void DoPhysics(Level level)
@@ -162,6 +165,11 @@ namespace MiNET.Blocks
 		public object Clone()
 		{
 			return MemberwiseClone();
+		}
+
+		public override string ToString()
+		{
+			return $"Id: {Id}, Metadata: {Metadata}, Coordinates: {Coordinates}";
 		}
 	}
 }

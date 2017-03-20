@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 			Hardness = 0.6f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new[] {new ItemBlock(new Dirt(), 0)};
 		}

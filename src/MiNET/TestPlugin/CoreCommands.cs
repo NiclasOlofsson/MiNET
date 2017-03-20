@@ -71,17 +71,14 @@ namespace TestPlugin
 		{
 		}
 
-		[Command(Aliases = new []{"csk"})]
+		[Command(Aliases = new[] {"csk"})]
 		public void CalculateSkyLight(Player player)
 		{
 			Task.Run(() =>
 			{
 				SkyLightCalculations.Calculate(player.Level);
 				player.CleanCache();
-				player.ForcedSendChunks(() =>
-				{
-					player.SendMessage("Calculated skylights and resent chunks.");
-				});
+				player.ForcedSendChunks(() => { player.SendMessage("Calculated skylights and resent chunks."); });
 			});
 		}
 
@@ -106,9 +103,7 @@ namespace TestPlugin
 			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			levelEvent.eventId = value;
 			levelEvent.data = data;
-			levelEvent.x = player.KnownPosition.X;
-			levelEvent.y = player.KnownPosition.Y;
-			levelEvent.z = player.KnownPosition.Z;
+			levelEvent.position = player.KnownPosition.ToVector3();
 			player.Level.RelayBroadcast(levelEvent);
 
 			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
@@ -344,7 +339,7 @@ namespace TestPlugin
 		public void Twitter(Player player)
 		{
 			player.Level.BroadcastMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§5twitch.tv/gurunx", type: MessageType.Raw);
 		}
 
 		[Command(Name = "pi")]
@@ -377,19 +372,6 @@ namespace TestPlugin
 
 			player.SendMessage(text, type: MessageType.Raw);
 			Log.Info(text);
-		}
-
-		[Command]
-		public void Spawn(Player player, byte id)
-		{
-			Level level = player.Level;
-
-			Mob entity = new Mob(id, level)
-			{
-				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
-			};
-			entity.SpawnEntity();
 		}
 
 		[Command]
@@ -448,6 +430,29 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void FarmingKit(Player player)
+		{
+			var inventory = player.Inventory;
+
+			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
+
+			byte c = 0;
+			inventory.Slots[c++] = new ItemDiamondHoe();
+			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
+			inventory.Slots[c++] = new ItemWheatSeeds() {Count = 64};
+			inventory.Slots[c++] = new ItemBeetrootSeeds() {Count = 64};
+			inventory.Slots[c++] = new ItemCarrot() {Count = 64};
+			inventory.Slots[c++] = new ItemPotato() {Count = 64};
+
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Kit(Player player, int kitId)
 		{
 			var inventory = player.Inventory;
@@ -498,8 +503,7 @@ namespace TestPlugin
 			// 4 = Projectile protection
 			// 5 = Thorns
 
-
-			EnchantArmor(player.Inventory, 0, 2);
+			EnchantArmor(player.Inventory, (short) EnchantingType.FireProtection, 7);
 
 
 			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
@@ -513,7 +517,49 @@ namespace TestPlugin
 			//	TAG_String("map_uuid"): "-4294967268"
 			//}
 
-			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
+			inventory.Slots[c++] = new ItemBow() {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 4)}}}}; // Bow
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 2)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 3)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 4)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemEnchantingTable();
+			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
@@ -521,13 +567,19 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
-			inventory.Slots[c++] = new ItemBow(); // Bow
 			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows
 			inventory.Slots[c++] = new ItemEgg {Count = 64}; // Eggs
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
 			inventory.Slots[c++] = new ItemIronSword
 			{
-				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1)}}}
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.FireAspect), new NbtShort("lvl", 1)},
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+					}
+				}
 			};
 
 			inventory.Slots[c++] = new ItemIronSword
@@ -786,7 +838,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "r")]
-		[Authorize(Permission = UserPermission.Op)]
+		//[Authorize(Permission = UserPermission.Op)]
 		public void DisplayRestartNotice(Player currentPlayer)
 		{
 			var players = currentPlayer.Level.GetSpawnedPlayers();
@@ -801,6 +853,14 @@ namespace TestPlugin
 				{
 					Priority = 100, MessageType = MessageType.Popup, Message = "Transfering all players!", Duration = 20*10,
 				});
+			}
+
+			foreach (var player in players)
+			{
+				McpeTransfer transfer = McpeTransfer.CreateObject();
+				transfer.serverAddress = "yodamine.com";
+				transfer.port = 19132;
+				player.SendPackage(transfer);
 			}
 		}
 

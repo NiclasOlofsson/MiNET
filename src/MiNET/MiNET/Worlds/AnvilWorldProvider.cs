@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management.Instrumentation;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using fNbt;
@@ -60,6 +61,8 @@ namespace MiNET.Worlds
 				//{33, air}, // minecraft:piston		=> Air
 				//{34, air}, // minecraft:piston_head		=> Air
 				{36, new NoDataMapper(250)}, // minecraft:piston_extension		=> MovingBlock
+				{43, new Mapper(43, (i, b) => (byte) (b == 6 ? 7 : b == 6 ? 7 : b))}, // Fence		=> Fence
+				{44, new Mapper(44, (i, b) => (byte) (b == 6 ? 7 : b == 6 ? 7 : b == 14 ? 15 : b == 15 ? 14 : b))}, // Fence		=> Fence
 				{84, air}, // minecraft:jukebox		=> Air
 				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
 				//{90, air}, // Nether Portal	=> Air
@@ -238,6 +241,8 @@ namespace MiNET.Worlds
 			int rx = coordinates.X >> 5;
 			int rz = coordinates.Z >> 5;
 
+			Log.Debug($"Generating chunk @{coordinates}");
+
 			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
 			if (!File.Exists(filePath))
@@ -379,6 +384,11 @@ namespace MiNET.Worlds
 
 							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
 						}
+						else
+						{
+							if(Log.IsDebugEnabled)
+								Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
+						}
 					}
 				}
 
@@ -436,7 +446,6 @@ namespace MiNET.Worlds
 							blockId = 41;
 						}
 
-						//if (yi == 127 && blockId != 0) blockId = 30;
 						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
 						chunk.SetBlock(x, yi, z, (byte) blockId);
@@ -447,33 +456,29 @@ namespace MiNET.Worlds
 						chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 						chunk.SetSkyLight(x, yi, z, Nibble4(skyLight, anvilIndex));
 
-								//if (block is BlockStairs || block is StoneSlab || block is WoodSlab)
-								//{
-								//	chunk.SetSkylight(x, yi, z, 0xff);
-								//}
+						if(blockId == 0) continue;
 
-						if (blockId == 43 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
-						else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 7) chunk.SetMetadata(x, yi, z, 6);
-						else if (blockId == 44 && chunk.GetMetadata(x, yi, z) == 15) chunk.SetMetadata(x, yi, z, 14);
-						else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 1)
+						if (blockId == 3 && metadata == 1)
 						{
 							// Dirt Course => (Grass Path)
 							chunk.SetBlock(x, yi, z, 198);
 							chunk.SetMetadata(x, yi, z, 0);
+							blockId = 198;
 						}
-						else if (blockId == 3 && chunk.GetMetadata(x, yi, z) == 2)
+						else if (blockId == 3 && metadata == 2)
 						{
 							// Dirt Podzol => (Podzol)
 							chunk.SetBlock(x, yi, z, 243);
 							chunk.SetMetadata(x, yi, z, 0);
+							blockId = 243;
 						}
-						var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-						if (block.LightLevel > 0)
+
+						if (BlockFactory.LuminousBlocks.ContainsKey(blockId))
 						{
+							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
 							block.Coordinates = new BlockCoordinates(x + (16 * chunk.x), yi, z + (16 * chunk.z));
 							LightSources.Enqueue(block);
 						}
-
 					}
 				}
 			}
@@ -518,6 +523,11 @@ namespace MiNET.Worlds
 		{
 			return 6000;
 			//return LevelInfo.Time;
+		}
+
+		public string GetName()
+		{
+			return LevelInfo.LevelName;
 		}
 
 		public void SaveLevelInfo(LevelInfo level)

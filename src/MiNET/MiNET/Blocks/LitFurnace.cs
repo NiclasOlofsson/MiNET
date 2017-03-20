@@ -9,7 +9,7 @@ namespace MiNET.Blocks
 			LightLevel = 13;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new[] {new ItemBlock(new Furnace(), 0)};
 		}

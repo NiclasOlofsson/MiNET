@@ -1,6 +1,8 @@
+using System.Numerics;
 using MiNET;
 using MiNET.Entities;
 using MiNET.Net;
+using MiNET.Particles;
 
 namespace TestPlugin.Pets
 {
@@ -47,13 +49,9 @@ namespace TestPlugin.Pets
 						return;
 					}
 
-					var msg = McpeLevelEvent.CreateObject();
-					msg.eventId = 0x4000 | 15;
-					msg.x = Entity.KnownPosition.X;
-					msg.y = (float) (Entity.KnownPosition.Y + Entity.Height + 0.85d);
-					msg.z = Entity.KnownPosition.Z;
-					msg.data = size;
-					pet.Level.RelayBroadcast(msg);
+					Particle particle = new HeartParticle(pet.Level, size);
+					particle.Position = Entity.KnownPosition.ToVector3() + new Vector3(0, (float) (Entity.Height + 0.85d), 0);
+					particle.Spawn();
 				}
 				else
 				{

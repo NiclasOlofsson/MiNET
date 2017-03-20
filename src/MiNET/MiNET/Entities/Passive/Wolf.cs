@@ -14,14 +14,13 @@ namespace MiNET.Entities.Passive
 
 		public Wolf(Level level) : base(EntityType.Wolf, level)
 		{
-			NameTag = "Steve The Dog";
 			Width = Length = 0.6;
 			Height = 0.8;
-			IsAngry = true;
+			IsAngry = false;
 			CollarColor = 14;
 			HealthManager.MaxHealth = 80;
 			HealthManager.ResetHealth();
-			NoAi = true;
+			NoAi = false;
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -30,8 +29,11 @@ namespace MiNET.Entities.Passive
 			metadata[1] = new MetadataInt(12);
 			metadata[2] = new MetadataInt(0);
 			metadata[3] = new MetadataByte(CollarColor);
-			metadata[4] = new MetadataString("Testing");
-			metadata[5] = new MetadataLong(Owner.EntityId);
+			//metadata[4] = new MetadataString("Testing");
+			if (Owner != null)
+			{
+				metadata[5] = new MetadataLong(Owner.EntityId);
+			}
 			metadata[7] = new MetadataShort(300);
 			metadata[8] = new MetadataInt(0);
 			metadata[9] = new MetadataByte(0);

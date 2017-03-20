@@ -14,12 +14,26 @@ namespace MiNET.Blocks
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
-		public static List<int> TransparentBlocks { get; private set; }
+		public static List<int> TransparentBlocks { get; private set; } = new List<int>();
+		public static Dictionary<int, int> LuminousBlocks { get; private set; } = new Dictionary<int, int>();
 		public static Dictionary<string, byte> NameToId { get; private set; }
 
 		static BlockFactory()
 		{
-			TransparentBlocks = GetTransparentBlocks();
+			for (byte i = 0; i < byte.MaxValue; i++)
+			{
+				var block = GetBlockById(i);
+				if (block != null && block.IsTransparent)
+				{
+					TransparentBlocks.Add(block.Id);
+				}
+				if (block != null && block.LightLevel > 0)
+				{
+					LuminousBlocks.Add(block.Id, block.LightLevel);
+				}
+
+			}
+
 			NameToId = BuildNameToId();
 		}
 
@@ -33,7 +47,8 @@ namespace MiNET.Blocks
 
 				if (name.Equals("block"))
 				{
-					Log.Debug($"Missing implementation for block ID={idx}");
+					if(Log.IsDebugEnabled)
+						Log.Debug($"Missing implementation for block ID={idx}");
 					continue;
 				}
 
@@ -41,21 +56,6 @@ namespace MiNET.Blocks
 			}
 
 			return nameToId;
-		}
-
-		private static List<int> GetTransparentBlocks()
-		{
-			List<int> transparent = new List<int>();
-			for (byte i = 0; i < byte.MaxValue; i++)
-			{
-				var block = GetBlockById(i);
-				if (block != null && block.IsTransparent)
-				{
-					transparent.Add(block.Id);
-				}
-			}
-
-			return transparent;
 		}
 
 		public static byte GetBlockIdByName(string blockName)
@@ -269,7 +269,7 @@ namespace MiNET.Blocks
 			else if (blockId == 172) block = new HardenedClay();
 			else if (blockId == 173) block = new CoalBlock();
 			else if (blockId == 174) block = new PackedIce();
-			else if (blockId == 175) block = new Sunflower();
+			else if (blockId == 175) block = new DoublePlant();
 			else if (blockId == 178) block = new DaylightDetectorInverted();
 			else if (blockId == 179) block = new RedSandstone();
 			else if (blockId == 180) block = new RedSandstoneStairs();

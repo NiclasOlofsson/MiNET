@@ -87,14 +87,14 @@
 	<pdu namespace="raknet" id="0x10" online="false" client="false" server="true" name="ID_CONNECTION_REQUEST_ACCEPTED">
 		<field name="System Address" type="IPEndPoint" />
 		<field name="System Index" type="short" endianess="BE"/>
-		<field name="System Addresses" type="IPEndPoint[]" size="10" />
+		<field name="System Addresses" type="IPEndPoint[]" size="20" />
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0x13" online="false" client="true" server="false" name="ID_NEW_INCOMING_CONNECTION">
 		<field name="ClientEndpoint" type="IPEndPoint" />
-		<field name="System Addresses" type="IPEndPoint[]" size="10"/>
+		<field name="System Addresses" type="IPEndPoint[]" size="20"/>
 		<field name="Incoming Timestamp" type="long" />
 		<field name="Server Timestamp" type="long" />
 	</pdu>
@@ -252,8 +252,8 @@
 		<field name="Speed X" type="float" />
 		<field name="Speed Y" type="float" />
 		<field name="Speed Z" type="float" />
-		<field name="Yaw" type="float" />
 		<field name="Pitch" type="float" />
+		<field name="Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary"/>
 		<field name="Links" type="Links" />
@@ -283,8 +283,8 @@
 	</pdu>
 
 	<pdu id="0x12" online="false" client="false" server="true" name="MCPE_TAKE_ITEM_ENTITY">
-		<field name="Target" type="UnsignedVarLong" />
 		<field name="Entity Id" type="UnsignedVarLong" />
+		<field name="Target" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x13" online="false" client="false" server="true" name="MCPE_MOVE_ENTITY">
@@ -343,7 +343,7 @@
 		<field name="Records" type="Records" />
 	</pdu>
 
-	<pdu id="0x1a" online="false" client="false" server="true" name="MCPE_LEVEL_SOUND_EVENT">
+	<pdu id="0x1a" online="false" client="true" server="true" name="MCPE_LEVEL_SOUND_EVENT">
 		<field name="Sound ID" type="byte" />
 		<field name="Position" type="Vector3" />
 		<field name="Volume" type="SignedVarInt" />
@@ -354,9 +354,7 @@
 
 	<pdu id="0x1b" online="false" client="false" server="true" name="MCPE_LEVEL_EVENT">
 		<field name="Event ID" type="SignedVarInt" />
-		<field name="X" type="float" />
-		<field name="Y" type="float" />
-		<field name="Z" type="float" />
+		<field name="Position" type="Vector3" />
 		<field name="Data" type="SignedVarInt" />
 	</pdu>
 
@@ -425,6 +423,7 @@
 	</pdu>
 
 	<pdu id="0x25" online="false" client="true" server="false" name="MCPE_PLAYER_FALL">
+		<field name="Fall distance" type="float" />
 	</pdu>
 
 	<pdu id="0x26" online="false" client="false" server="true" name="MCPE_HURT_ARMOR">
@@ -482,7 +481,7 @@
 		<field name="Type" type="byte" />
 		<field name="Slot Count" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Unown Entity ID" type="UnsignedVarLong" />
+		<field name="Unknown Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_CONTAINER_CLOSE">
@@ -583,7 +582,7 @@
 	</pdu>
 
 	<pdu id="0x43" online="false" client="true" server="true" name="MCPE_MAP_INFO_REQUEST">
-		<field name="Map ID" type="UnsignedVarLong" />
+		<field name="Map ID" type="SignedVarLong" />
 	</pdu>
 
 	<pdu id="0x44" online="false" client="true" server="true" name="MCPE_REQUEST_CHUNK_RADIUS">
@@ -634,7 +633,10 @@
 		<field name="Entity ID" type="SignedVarLong"  />
 	</pdu>
 
-	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
+	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_UPDATE_TRADE">
+	</pdu>
+
+	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
 		<field name="Package ID" type="string"  />
 		<field name="Unknown1" type="uint"  />
 		<field name="Unknown2" type="uint"  />
@@ -642,7 +644,7 @@
 		<field name="Unknown4" type="string"  />
 	</pdu>
 
-	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
+	<pdu id="0x51" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_CHUNK_DATA">
 		<field name="Package ID" type="string"  />
 		<field name="Unknown1" type="uint"  />
 		<field name="Unknown3" type="ulong"  />
@@ -650,12 +652,12 @@
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>
 
-	<pdu id="0x51" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
+	<pdu id="0x52" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CHUNK_REQUEST">
 		<field name="Package ID" type="string"  />
 		<field name="Chunk index" type="int"  />
 	</pdu>
 
-	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_TRANSFER">
+	<pdu id="0x53" online="false" client="false" server="true" name="MCPE_TRANSFER">
 		<field name="Server Address" type="string"  />
 		<field name="Port" type="ushort"  />
 	</pdu>

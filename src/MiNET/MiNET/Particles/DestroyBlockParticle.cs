@@ -9,15 +9,14 @@ namespace MiNET.Particles
 		public DestroyBlockParticle(Level level, Block block) : base(0, level)
 		{
 			Data = block.Id + (block.Metadata << 12);
+			Position = block.Coordinates;
 		}
 
 		public override void Spawn()
 		{
 			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
 			particleEvent.eventId = 2001;
-			particleEvent.x = (float) Position.X;
-			particleEvent.y = (float) Position.Y;
-			particleEvent.z = (float) Position.Z;
+			particleEvent.position = Position;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(particleEvent);
 		}

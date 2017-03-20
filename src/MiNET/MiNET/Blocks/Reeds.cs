@@ -1,4 +1,6 @@
 ﻿using MiNET.Items;
+using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
@@ -10,7 +12,15 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops()
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
+			{
+				level.BreakBlock(this, null);
+			}
+		}
+
+		public override Item[] GetDrops(Item tool)
 		{
 			return new[] {ItemFactory.GetItem(338, 0, 1)};
 		}

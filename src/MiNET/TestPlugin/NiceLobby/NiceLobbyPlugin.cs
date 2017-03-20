@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -21,6 +22,7 @@ using MiNET.Net;
 using MiNET.Particles;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Worlds;
 using TestPlugin.Annotations;
@@ -47,8 +49,8 @@ namespace TestPlugin.NiceLobby
 				//level.AllowBuild = false;
 				//level.AllowBreak = false;
 
-				level.BlockBreak += LevelOnBlockBreak;
-				level.BlockPlace += LevelOnBlockPlace;
+				//level.BlockBreak += LevelOnBlockBreak;
+				//level.BlockPlace += LevelOnBlockPlace;
 			};
 
 			server.PlayerFactory.PlayerCreated += (sender, args) =>
@@ -60,7 +62,110 @@ namespace TestPlugin.NiceLobby
 
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
+			//_tickTimer = new Timer(SkinTick, null, 0, 150);
 		}
+
+		private object _skinSynk = new object();
+
+		private int _image = 0;
+
+		private void SkinTick(object state)
+		{
+			if (!Monitor.TryEnter(_skinSynk)) return;
+
+			try
+			{
+				foreach (var player in _players.Values)
+				{
+					{
+						if (!player.Username.Equals("gurun")) continue;
+
+						if (_image >= 9) _image = 0;
+
+						_image++;
+
+						Level level = player.Level;
+						//if (level.TickTime%3 != 0) return;
+						//player.SetNameTag(player.Username + " " + level.TickTime + " testing");
+						//player.SetDisplayName(player.Username + " " + level.TickTime + " testing");
+
+						Skin skin = player.Skin;
+						var texture = skin.Texture;
+						byte[] smiley = GetTextureFromFile(@"D:\Temp\Smiley\big_smile0" + _image + ".png");
+						if (smiley.Length != 8*8*4) return;
+						int s = 0;
+						int br = 8;
+						int bc = 8;
+						for (int r = 0; r < 8; r++)
+						{
+							for (int c = 0; c < 8; c++)
+							{
+								int i = ((c + bc)*4) + ((r + br)*64*4);
+								int j = ((c)*4) + ((r)*8*4);
+
+								texture[(i) + 0] = smiley[j + 0];
+								texture[(i) + 1] = smiley[j + 1];
+								texture[(i) + 2] = smiley[j + 2];
+								texture[(i) + 3] = smiley[j + 3];
+							}
+						}
+
+						{
+							player.SpawnPosition = player.KnownPosition;
+
+							//level.DespawnFromAll(player);
+							//level.SpawnToAll(player);
+
+							var players = level.GetSpawnedPlayers();
+
+							McpePlayerList playerList = McpePlayerList.CreateObject();
+							playerList.records = new PlayerAddRecords {player};
+							level.RelayBroadcast(player, players, CreateMcpeBatch(playerList.Encode()));
+							playerList.records = null;
+							playerList.PutPool();
+
+							//player.IsInvisible = true;
+							player.HideNameTag = true;
+							//player.BroadcastSetEntityData();
+
+							player.SpawnToPlayers(players);
+
+							//Thread.Sleep(100);
+							//player.HideNameTag = false;
+							//player.IsInvisible = false;
+							//player.BroadcastSetEntityData();
+						}
+					}
+				}
+			}
+			finally
+			{
+				Monitor.Exit(_skinSynk);
+			}
+		}
+
+		public static byte[] GetTextureFromFile(string filename)
+		{
+			Bitmap bitmap = new Bitmap(filename);
+			byte[] bytes = new byte[bitmap.Height*bitmap.Width*4];
+
+			int i = 0;
+			for (int y = 0; y < bitmap.Height; y++)
+			{
+				for (int x = 0; x < bitmap.Width; x++)
+				{
+					Color color = bitmap.GetPixel(x, y);
+					bytes[i++] = color.R;
+					bytes[i++] = color.G;
+					bytes[i++] = color.B;
+					bytes[i++] = color.A;
+				}
+			}
+
+			return bytes;
+		}
+
+		private ConcurrentDictionary<string, Player> _players = new ConcurrentDictionary<string, Player>();
 
 		private void OnPlayerJoin(object o, PlayerEventArgs eventArgs)
 		{
@@ -80,14 +185,18 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new StoneBrick(), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemDiamondSword();
 			//player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
-		 //   for (short i = 0; i < 16; i++)
-		 //   {
-   //             player.Inventory.Slots[idx++] = new ItemBlock(new Glass(), i) { Count = 20 };
-   //         }
+			//   for (short i = 0; i < 16; i++)
+			//   {
+			//             player.Inventory.Slots[idx++] = new ItemBlock(new Glass(), i) { Count = 20 };
+			//         }
 
 			//player.SendPlayerInventory();
 
+			_players.TryAdd(player.Username, player);
+
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+			var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
+			joinSound.Spawn(level);
 		}
 
 		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)
@@ -98,7 +207,12 @@ namespace TestPlugin.NiceLobby
 			Player player = eventArgs.Player;
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
+			Player trash;
+			_players.TryRemove(player.Username, out trash);
+
 			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+			var leaveSound = new AnvilBreakSound(level.SpawnPoint.ToVector3());
+			leaveSound.Spawn(level);
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
@@ -208,9 +322,7 @@ namespace TestPlugin.NiceLobby
 
 			McpeLevelEvent mobParticles = McpeLevelEvent.CreateObject();
 			mobParticles.eventId = (short) (0x4000 | GetParticle(random.Next(0, m < 1 ? 2 : 5)));
-			mobParticles.x = point.X + vx;
-			mobParticles.y = (point.Y - 2) + yoffset + vy;
-			mobParticles.z = point.Z + vz;
+			mobParticles.position = new Vector3(point.X + vx, (point.Y - 2) + yoffset + vy, point.Z + vz);
 			level.RelayBroadcast(mobParticles);
 		}
 
@@ -338,6 +450,9 @@ namespace TestPlugin.NiceLobby
 
 			text = TextUtils.RemoveFormatting(text);
 			player.Level.BroadcastMessage($"{GetNameTag(player)}:{ChatColors.White} {text}", MessageType.Raw);
+
+			var leaveSound = new AnvilFallSound(player.Level.SpawnPoint.ToVector3());
+			leaveSound.Spawn(player.Level);
 
 			return null;
 		}
@@ -497,13 +612,6 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-		[Command]
-		public void Spawn(Player player, int mobTypeId)
-		{
-			Mob mob = new Mob(mobTypeId, player.Level);
-			mob.SpawnEntity();
-		}
-
 		[Command(Name = "sp")]
 		public void SpawnPlayer(Player player, string name)
 		{
@@ -514,13 +622,7 @@ namespace TestPlugin.NiceLobby
 
 			PlayerMob fake = new PlayerMob("§6§lBot: " + name + "", player.Level)
 			{
-				Skin = new Skin {Slim = false, Texture = bytes},
-				KnownPosition = player.KnownPosition,
-				ItemInHand = new ItemDiamondSword(),
-				Helmet = 302,
-				Chest = 303,
-				Leggings = 304,
-				Boots = 305,
+				Skin = new Skin {Slim = false, Texture = bytes}, KnownPosition = player.KnownPosition, ItemInHand = new ItemDiamondSword(), Helmet = 302, Chest = 303, Leggings = 304, Boots = 305,
 			};
 
 			fake.SpawnEntity();
@@ -547,9 +649,7 @@ namespace TestPlugin.NiceLobby
 
 			Mob entity = new Mob(mobType, level)
 			{
-				KnownPosition = player.KnownPosition,
-				HealthManager = player.HealthManager,
-				NameTag = player.NameTag,
+				KnownPosition = player.KnownPosition, HealthManager = player.HealthManager, NameTag = player.NameTag,
 			};
 			entity.SpawnEntity();
 
@@ -608,12 +708,7 @@ namespace TestPlugin.NiceLobby
 
 			var playerLocation = new PlayerLocation
 			{
-				X = x,
-				Y = y,
-				Z = z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91
+				X = x, Y = y, Z = z, Yaw = 91, Pitch = 28, HeadYaw = 91
 			};
 
 			ThreadPool.QueueUserWorkItem(delegate(object state) { player.SpawnLevel(player.Level, playerLocation); }, null);
@@ -623,7 +718,7 @@ namespace TestPlugin.NiceLobby
 
 
 		[Command]
-		[Authorize(Permission = UserPermission.Op)]
+		//[Authorize(Permission = UserPermission.Op)]
 		public void VideoX(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
@@ -696,7 +791,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[Command]
-		[Authorize(Permission = UserPermission.Op)]
+		//[Authorize(Permission = UserPermission.Op)]
 		public void Video2X(Player player, int numberOfFrames, bool color)
 		{
 			Task.Run(delegate
@@ -801,16 +896,7 @@ namespace TestPlugin.NiceLobby
 		{
 			MapInfo mapInfo = new MapInfo
 			{
-				MapId = mapId,
-				UpdateType = 6,
-				Direction = 0,
-				X = 0,
-				Z = 0,
-				Col = 128,
-				Row = 128,
-				XOffset = 0,
-				ZOffset = 0,
-				Data = bitmapToBytes,
+				MapId = mapId, UpdateType = 2, Scale = 0, X = 0, Z = 0, Col = 128, Row = 128, XOffset = 0, ZOffset = 0, Data = bitmapToBytes,
 			};
 
 			McpeClientboundMapItemData packet = McpeClientboundMapItemData.CreateObject();

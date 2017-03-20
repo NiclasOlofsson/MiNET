@@ -23,9 +23,7 @@ namespace MiNET.Sounds
 			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			levelEvent.eventId = Id;
 			levelEvent.data = Pitch;
-			levelEvent.x = (float) Position.X;
-			levelEvent.y = (float) Position.Y;
-			levelEvent.z = (float) Position.Z;
+			levelEvent.position = Position;
 
 			level.RelayBroadcast(levelEvent);
 		}

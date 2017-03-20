@@ -21,7 +21,7 @@ namespace MiNET.BuilderBase.Commands
 			EditSession.Fill((BlockCoordinates) player.KnownPosition, pattern, new AirBlocksMask(player.Level), radius, depth);
 		}
 
-		[Command(Description = "Fill a hole")]
+		[Command(Description = "Drain lava and water")]
 		public void Drain(Player player, int radius)
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition,
@@ -41,10 +41,11 @@ namespace MiNET.BuilderBase.Commands
 			}
 		}
 
-		[Command(Description = "Grass, 2 layers of dirt, then rock below")]
-		public void Text(Player player, string text, string fontName = "Arial", int pxSize = 10)
+		[Command(Description = "Render block-text of any font and size.")]
+		public void Text(Player player, string text, Pattern pattern, string fontName = "Minecraft", int pxSize = 20)
 		{
-			var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
+			//var font = new Font("SketchFlow Print", 20, GraphicsUnit.Pixel);
+			var font = new Font(fontName, pxSize, GraphicsUnit.Pixel);
 
 			SizeF size;
 			// First measure the size of the text
@@ -60,39 +61,33 @@ namespace MiNET.BuilderBase.Commands
 			using (Graphics g = Graphics.FromImage(bitmap))
 			{
 				g.SmoothingMode = SmoothingMode.None;
-
-				//g.SmoothingMode = SmoothingMode.AntiAlias;
-				//g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-				//g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				g.DrawString(text, font, Brushes.Black, rectf);
 				g.Flush();
 
-				BlockCoordinates coords = (BlockCoordinates) player.KnownPosition;
+				BlockCoordinates coords = player.KnownPosition.ToVector3();
 
-				int i = 0;
-				for (int h = bitmap.Height - 1; h > 0; h--)
+				for (int h = 0; h < bitmap.Height; h++)
 				{
 					for (int w = 0; w < bitmap.Width; w++)
 					{
 						Color color = bitmap.GetPixel(w, h);
-						BlockCoordinates tc = new BlockCoordinates(0, i, w);
+						var y = bitmap.Height - 1 - h;
+						BlockCoordinates tc = new BlockCoordinates(0, y, w);
 						if (color.A == 255)
 						{
-							var block = new Sand {Coordinates = tc + coords};
-							Log.Debug($"Pixel at {tc + coords}, {color}");
-							EditSession.SetBlock(block);
+							EditSession.SetBlock(tc + coords, pattern);
 						}
-						else
-						{
-							//Log.Debug($"NO Pixel at {tc + coords}, {color}");
-						}
+						//else
+						//{
+						//	var block = new DiamondBlock {Coordinates = tc + coords};
+						//	EditSession.SetBlock(block);
+						//}
 					}
-					i++;
 				}
 			}
 		}
 
-		[Command(Description = "Redo the last action (from history)")]
+		[Command(Description = "Set speed")]
 		public void Speed(Player player, int speed = 1)
 		{
 			player.MovementSpeed = speed/10f;

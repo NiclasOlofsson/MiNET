@@ -17,6 +17,7 @@ using MiNET.Plugins;
 using MiNET.Security;
 using MiNET.Utils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
@@ -292,8 +293,8 @@ namespace MiNET
 					}
 					else
 					{
-						Log.Error("Unexpected end of transmission?");
-						return;
+						Log.Warn("Unexpected end of transmission?");
+						continue;
 					}
 				}
 				catch (Exception e)
@@ -1019,46 +1020,59 @@ namespace MiNET
 		{
 			if (!Log.IsDebugEnabled) return;
 
-			string typeName = message.GetType().Name;
-
-			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-			string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
-			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
-
-			if (!Regex.IsMatch(typeName, includePattern))
+			try
 			{
-				return;
-			}
+				string typeName = message.GetType().Name;
 
-			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
-			{
-				return;
-			}
+				string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+				string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
+				int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+				verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
 
-			if (verbosity == 0)
-			{
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
-			}
-			else if (verbosity == 1)
-			{
-				var jsonSerializerSettings = new JsonSerializerSettings
+				if (!Regex.IsMatch(typeName, includePattern))
 				{
-					PreserveReferencesHandling = PreserveReferencesHandling.None,
-					Formatting = Formatting.Indented,
-				};
-				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					return;
+				}
+
+				if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+				{
+					return;
+				}
+
+				if (verbosity == 0)
+				{
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+				}
+				else if (verbosity == 1)
+				{
+					var jsonSerializerSettings = new JsonSerializerSettings
+					{
+						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+						
+						Formatting = Formatting.Indented,
+					};
+					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
+					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+				}
+				else if (verbosity == 2)
+				{
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+				}
 			}
-			else if (verbosity == 2)
+			catch (Exception e)
 			{
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+				Log.Error("Error when printing trace", e);
 			}
 		}
 
 		public static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
+			if (message is McpeBatch) return;
+			if (message is UnconnectedPong) return;
 			//if (!Debugger.IsAttached) return;
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);

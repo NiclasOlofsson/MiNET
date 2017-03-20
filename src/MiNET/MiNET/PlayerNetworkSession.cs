@@ -32,6 +32,7 @@ namespace MiNET
 
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
+		public int SplitPartId = 0;
 		public int OrderingIndex = -1;
 		public int ErrorCount { get; set; }
 
@@ -238,9 +239,9 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
+				Log.Error($"Exit receive handler task for player", e);
 			}
 
-			//Log.Warn($"Exit receive handler task for {Player.Username}");
 			return Task.CompletedTask;
 		}
 
@@ -419,9 +420,19 @@ namespace MiNET
 				handler.HandleMcpeRemoveBlock((McpeRemoveBlock) message);
 			}
 
+			else if (typeof(McpeLevelSoundEvent) == message.GetType())
+			{
+				handler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent)message);
+			}
+
 			else if (typeof (McpeAnimate) == message.GetType())
 			{
 				handler.HandleMcpeAnimate((McpeAnimate) message);
+			}
+
+			else if (typeof(McpePlayerFall) == message.GetType())
+			{
+				handler.HandleMcpePlayerFall((McpePlayerFall)message);
 			}
 
 			else if (typeof (McpeUseItem) == message.GetType())

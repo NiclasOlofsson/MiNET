@@ -119,6 +119,7 @@
     <Compile Include="Blocks\CobblestoneWall.cs" />
     <Compile Include="Blocks\Cobweb.cs" />
     <Compile Include="Blocks\Cocoa.cs" />
+    <Compile Include="Blocks\Crops.cs" />
     <Compile Include="Blocks\DarkOakDoor.cs" />
     <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
     <Compile Include="Blocks\DragonEgg.cs" />
@@ -223,7 +224,7 @@
     <Compile Include="Blocks\Stonecutter.cs" />
     <Compile Include="Blocks\StonePressurePlate.cs" />
     <Compile Include="Blocks\Reeds.cs" />
-    <Compile Include="Blocks\Sunflower.cs" />
+    <Compile Include="Blocks\DoublePlant.cs" />
     <Compile Include="Blocks\SnowLayer.cs" />
     <Compile Include="Blocks\Trapdoor.cs" />
     <Compile Include="Blocks\TrappedChest.cs" />
@@ -294,6 +295,7 @@
     <Compile Include="CertificateData.cs" />
     <Compile Include="ConnectionState.cs" />
     <Compile Include="Crafting\Recipe.cs" />
+    <Compile Include="DamageCalculator.cs" />
     <Compile Include="Effects\Absorption.cs" />
     <Compile Include="Effects\Blindness.cs" />
     <Compile Include="Effects\Effect.cs" />
@@ -318,9 +320,11 @@
     <Compile Include="Effects\WaterBreathing.cs" />
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
+    <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
     <Compile Include="Entities\Hostile\ElderGuardian.cs" />
     <Compile Include="Entities\Hostile\Guardian.cs" />
+    <Compile Include="Entities\Hostile\Horse.cs" />
     <Compile Include="Entities\Hostile\Husk.cs" />
     <Compile Include="Entities\Hostile\Shulker.cs" />
     <Compile Include="Entities\Hostile\SkeletonHorse.cs" />
@@ -355,7 +359,7 @@
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
     <Compile Include="Entities\Vehicles\Vehicle.cs" />
-    <Compile Include="Entities\World\FallingSand.cs" />
+    <Compile Include="Entities\World\FallingBlock.cs" />
     <Compile Include="Entities\World\Lightning.cs" />
     <Compile Include="Entities\World\MapEntity.cs" />
     <Compile Include="Entities\EntityType.cs" />
@@ -392,6 +396,8 @@
     <Compile Include="Items\ItemArrow.cs" />
     <Compile Include="Items\ItemBakedPotato.cs" />
     <Compile Include="Items\ItemBed.cs" />
+    <Compile Include="Items\ItemBeetroot.cs" />
+    <Compile Include="Items\ItemBeetrootSeeds.cs" />
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemBread.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
@@ -464,6 +470,8 @@
     <Compile Include="Items\ItemStonePickaxe.cs" />
     <Compile Include="Items\ItemStoneShovel.cs" />
     <Compile Include="Items\ItemStoneSword.cs" />
+    <Compile Include="Items\ItemWheat.cs" />
+    <Compile Include="Items\ItemWheatSeeds.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />
     <Compile Include="Items\ItemWoodenHoe.cs" />
     <Compile Include="Items\ItemWoodenPickaxe.cs" />
@@ -587,6 +595,7 @@
     <Compile Include="Utils\ConcurrentPriorityQueue.cs" />
     <Compile Include="Utils\CryptoContext.cs" />
     <Compile Include="Utils\CryptoUtils.cs" />
+    <Compile Include="Utils\EnchantingExtensions.cs" />
     <Compile Include="Utils\EntityLocations.cs" />
     <Compile Include="Utils\DedicatedThreadPool.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />
@@ -596,6 +605,7 @@
     <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataVector3.cs" />
     <Compile Include="Utils\MultiMediaTimer.cs" />
+    <Compile Include="Utils\NbtStringConverter.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />

@@ -94,6 +94,16 @@ namespace MiNET.Utils
 				b.Pitch);
 		}
 
+		public static implicit operator Vector3(PlayerLocation a)
+		{
+			return new Vector3(a.X, a.Y, a.Z);
+		}
+
+		public static implicit operator PlayerLocation(BlockCoordinates v)
+		{
+			return new PlayerLocation(v.X, v.Y, v.Z);
+		}
+
 		public object Clone()
 		{
 			return MemberwiseClone();

@@ -184,8 +184,8 @@ namespace MiNET.Utils
 
 		public static implicit operator BlockCoordinates(Vector3 a)
 		{
-			return new BlockCoordinates((int)(a.X), (int)(a.Y), (int)(a.Z));
-			//return new BlockCoordinates((int)Math.Floor(a.X), (int)Math.Floor(a.Y), (int)Math.Floor(a.Z));
+			//return new BlockCoordinates((int)(a.X), (int)(a.Y), (int)(a.Z));
+			return new BlockCoordinates((int)Math.Floor(a.X), (int)Math.Floor(a.Y), (int)Math.Floor(a.Z));
 		}
 
 		public static explicit operator BlockCoordinates(PlayerLocation a)

@@ -2,6 +2,7 @@
 using fNbt;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -161,20 +162,25 @@ namespace MiNET.Items
 		{
 			return $"Type={GetType().Name}, Id={Id}, Metadata={Metadata}, Count={Count}, ExtraData={ExtraData}";
 		}
+
+		public bool Interact(Level level, Player player, Entity target)
+		{
+			return false; // Not handled
+		}
 	}
 
 	public enum ItemMaterial
 	{
-		None = 1,
-		Wood = 2,
-		Stone = 4,
-		Iron = 6,
-		Diamond = 8,
-		Gold = 12,
-
 		//Armor Only
 		Leather = -2,
 		Chain = -1,
+
+		None = 0,
+		Wood = 1,
+		Stone = 2,
+		Gold = 3,
+		Iron = 4,
+		Diamond = 5,
 	}
 
 	public enum ItemType

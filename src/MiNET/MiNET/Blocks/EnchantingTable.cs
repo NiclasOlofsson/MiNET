@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 		}
 
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			player.OpenInventory(blockCoordinates);
 

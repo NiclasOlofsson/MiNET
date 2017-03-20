@@ -99,10 +99,11 @@
 | Mcpe Boss Event | 0x4b | 75 |   
 | Mcpe Available Commands | 0x4d | 77 |   
 | Mcpe Command Step | 0x4e | 78 |   
-| Mcpe Resource Pack Data Info | 0x4f | 79 |   
-| Mcpe Resource Pack Chunk Data | 0x50 | 80 |   
-| Mcpe Resource Pack Chunk Request | 0x51 | 81 |   
-| Mcpe Transfer | 0x52 | 82 |   
+| Mcpe Update Trade | 0x4f | 79 |   
+| Mcpe Resource Pack Data Info | 0x50 | 80 |   
+| Mcpe Resource Pack Chunk Data | 0x51 | 81 |   
+| Mcpe Resource Pack Chunk Request | 0x52 | 82 |   
+| Mcpe Transfer | 0x53 | 83 |   
 | Mcpe Wrapper | 0xfe | 254 |   
 
 
@@ -299,7 +300,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |:-----|:-----|:-----|
 |System Address | IPEndPoint |  |
 |System Index | short |  |
-|System Addresses | IPEndPoint[] | 10 |
+|System Addresses | IPEndPoint[] | 20 |
 |Incoming Timestamp | long |  |
 |Server Timestamp | long |  |
 -----------------------------------------------------------------------
@@ -316,7 +317,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |ClientEndpoint | IPEndPoint |  |
-|System Addresses | IPEndPoint[] | 10 |
+|System Addresses | IPEndPoint[] | 20 |
 |Incoming Timestamp | long |  |
 |Server Timestamp | long |  |
 -----------------------------------------------------------------------
@@ -649,8 +650,8 @@ val2 float
 |Speed X | float |  |
 |Speed Y | float |  |
 |Speed Z | float |  |
-|Yaw | float |  |
 |Pitch | float |  |
+|Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | Links |  |
@@ -720,8 +721,8 @@ val2 float
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Target | UnsignedVarLong |  |
 |Entity Id | UnsignedVarLong |  |
+|Target | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Move Entity (0x13)
 
@@ -850,7 +851,7 @@ MODE_ROTATION = 2;
 ###Package: Mcpe Level Sound Event (0x1a)
 
 **Sent from server:** true
-**Sent from client:** false
+**Sent from client:** true
 **Packet size:** 
 
 
@@ -879,9 +880,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Event ID | SignedVarInt |  |
-|X | float |  |
-|Y | float |  |
-|Z | float |  |
+|Position | Vector3 |  |
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Block Event (0x1c)
@@ -1050,6 +1049,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Fall distance | float |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Hurt Armor (0x26)
 
@@ -1217,7 +1217,7 @@ MODE_ROTATION = 2;
 |Type | byte |  |
 |Slot Count | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
-|Unown Entity ID | UnsignedVarLong |  |
+|Unknown Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Container Close (0x31)
 
@@ -1507,7 +1507,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Map ID | UnsignedVarLong |  |
+|Map ID | SignedVarLong |  |
 -----------------------------------------------------------------------
 ###Package: Mcpe Request Chunk Radius (0x44)
 
@@ -1657,7 +1657,20 @@ ORDER_LAYERED = 1;
 |Unknown 8 | byte |  |
 |Entity ID | SignedVarLong |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Resource Pack Data Info (0x4f)
+###Package: Mcpe Update Trade (0x4f)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+####Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+###Package: Mcpe Resource Pack Data Info (0x50)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1675,7 +1688,7 @@ ORDER_LAYERED = 1;
 |Unknown3 | ulong |  |
 |Unknown4 | string |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Resource Pack Chunk Data (0x50)
+###Package: Mcpe Resource Pack Chunk Data (0x51)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1693,7 +1706,7 @@ ORDER_LAYERED = 1;
 |Length | uint |  |
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
-###Package: Mcpe Resource Pack Chunk Request (0x51)
+###Package: Mcpe Resource Pack Chunk Request (0x52)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1708,7 +1721,7 @@ ORDER_LAYERED = 1;
 |Package ID | string |  |
 |Chunk index | int |  |
 -----------------------------------------------------------------------
-###Package: Mcpe Transfer (0x52)
+###Package: Mcpe Transfer (0x53)
 
 **Sent from server:** true
 **Sent from client:** false

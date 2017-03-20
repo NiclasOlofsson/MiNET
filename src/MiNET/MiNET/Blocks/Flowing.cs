@@ -32,8 +32,10 @@ namespace MiNET.Blocks
 			level.ScheduleBlockTick(this, TickRate());
 		}
 
-		public override void OnTick(Level world)
+		public override void OnTick(Level world, bool isRandom)
 		{
+			if (isRandom) return;
+
 			Random random = new Random();
 
 			int x = Coordinates.X;
@@ -449,7 +451,7 @@ namespace MiNET.Blocks
 			return block is FlowingWater || block is StationaryWater;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0];
 		}

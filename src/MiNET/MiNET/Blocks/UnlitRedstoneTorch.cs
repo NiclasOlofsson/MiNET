@@ -61,7 +61,7 @@ namespace MiNET.Blocks
 			return true;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new[] {new ItemBlock(new RedstoneTorch(), 0)};
 		}

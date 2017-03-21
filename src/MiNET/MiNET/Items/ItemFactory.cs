@@ -163,6 +163,7 @@ namespace MiNET.Items
 			else if (id == 365) item = new ItemRawChicken();
 			else if (id == 366) item = new ItemCoockedChicken();
 			else if (id == 373) item = new ItemPotion(metadata);
+			else if (id == 380) item = new ItemCauldron();
 			else if (id == 383) item = new ItemSpawnEgg(metadata);
 			else if (id == 391) item = new ItemCarrot();
 			else if (id == 392) item = new ItemPotato();

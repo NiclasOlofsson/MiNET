@@ -13,7 +13,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBlock));
 
-		protected readonly Block _block;
+		protected Block _block;
 
 		protected ItemBlock(short id, short metadata) : base(id, metadata)
 		{

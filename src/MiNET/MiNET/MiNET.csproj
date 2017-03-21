@@ -401,6 +401,7 @@
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemBread.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
+    <Compile Include="Items\ItemCauldron.cs" />
     <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
     <Compile Include="Items\ItemCommand.cs" />

@@ -1141,11 +1141,16 @@ namespace MiNET.Worlds
 			itemEntity.SpawnEntity();
 		}
 
-		public void SetData(int x, int y, int z, byte meta)
+		public void SetData(BlockCoordinates coordinates, byte meta)
 		{
-			Block block = GetBlock(new BlockCoordinates(x, y, z));
+			Block block = GetBlock(coordinates);
 			block.Metadata = meta;
 			SetBlock(block, applyPhysics: false);
+		}
+
+		public void SetData(int x, int y, int z, byte meta)
+		{
+			SetData(new BlockCoordinates(x, y, z), meta);
 		}
 
 		public void ApplyPhysics(int x, int y, int z)

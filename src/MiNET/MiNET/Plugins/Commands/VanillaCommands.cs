@@ -289,12 +289,27 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command(Name = "time set")]
-		public SimpleResponse TimeSet(Player commander, int amount)
+		public SimpleResponse TimeSet(Player commander, int time)
 		{
 			Level level = commander.Level;
-			level.CurrentWorldTime = amount;
+			level.CurrentWorldTime = time;
 
-			return new SimpleResponse {Body = $"{commander.Username} sets time to {amount}"};
+			return new SimpleResponse {Body = $"{commander.Username} sets time to {time}"};
+		}
+
+		public enum DayNight
+		{
+			Day = 1000,
+			Night = 13000
+		}
+
+		[Command(Name = "time set")]
+		public SimpleResponse TimeSet(Player commander, DayNight time)
+		{
+			Level level = commander.Level;
+			level.CurrentWorldTime = (int)time;
+
+			return new SimpleResponse { Body = $"{commander.Username} sets time to {time}" };
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to given position.")]

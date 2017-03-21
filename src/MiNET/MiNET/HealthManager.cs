@@ -211,12 +211,15 @@ namespace MiNET
 			Entity.BroadcastSetEntityData();
 		}
 
+		private object _killSync = new object();
 		public virtual void Kill()
 		{
-			Log.Warn($"Killed entity: {Entity.EntityTypeId}");
-			if (IsDead) return;
+			lock (_killSync)
+			{
+				if (IsDead) return;
+				IsDead = true;
+			}
 
-			IsDead = true;
 			Health = 0;
 			var player = Entity as Player;
 			if (player != null)
@@ -233,14 +236,20 @@ namespace MiNET
 
 			if (player != null)
 			{
-				despawn();
-				player.DropInventory();
+				player.BroadcastEntityEvent();
 
-				var mcpeRespawn = McpeRespawn.CreateObject();
-				mcpeRespawn.x = player.SpawnPosition.X;
-				mcpeRespawn.y = player.SpawnPosition.Y;
-				mcpeRespawn.z = player.SpawnPosition.Z;
-				player.SendPackage(mcpeRespawn);
+				Task.Delay(2000).ContinueWith(task =>
+				{
+					despawn();
+					player.DropInventory();
+
+					var mcpeRespawn = McpeRespawn.CreateObject();
+					mcpeRespawn.x = player.SpawnPosition.X;
+					mcpeRespawn.y = player.SpawnPosition.Y;
+					mcpeRespawn.z = player.SpawnPosition.Z;
+					player.SendPackage(mcpeRespawn);
+
+				}).Start();
 			}
 			else
 			{

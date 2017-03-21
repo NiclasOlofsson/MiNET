@@ -74,7 +74,7 @@ namespace MiNET.Blocks
 			double chance = 1/(Math.Floor(25/points) + 1);
 
 			var calculateGrowthChance = level.Random.NextDouble() <= chance;
-			Log.Warn($"Calculated growth chance. Will grow={calculateGrowthChance} on a chance score of {chance}");
+			//Log.Debug($"Calculated growth chance. Will grow={calculateGrowthChance} on a chance score of {chance}");
 			return calculateGrowthChance;
 		}
 

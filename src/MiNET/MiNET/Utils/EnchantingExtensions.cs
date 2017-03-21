@@ -91,5 +91,28 @@ namespace MiNET.Utils
 
 			return 0;
 		}
+
+		public static void SetEnchantings(this Item tool, List<Enchanting> enchantings)
+		{
+			if (tool == null) return;
+			if (tool.ExtraData == null)
+			{
+				if (tool.ExtraData == null)
+				{
+					tool.ExtraData = new NbtCompound("tag");
+				}
+			}
+
+			tool.ExtraData.Remove("ench");
+
+			var nbtList = new NbtList("ench");
+
+			foreach (var enchanting in enchantings)
+			{
+				nbtList.Add(new NbtCompound {new NbtShort("id", (short) enchanting.Id), new NbtShort("lvl", enchanting.Level)});
+			}
+
+			tool.ExtraData.Add(nbtList);
+		}
 	}
 }

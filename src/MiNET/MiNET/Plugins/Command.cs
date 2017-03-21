@@ -136,7 +136,7 @@ namespace MiNET.Plugins
 	}
 
 	// enchantmentType
-	public class EnchantmentEnum : EnumBase
+	public class EnchantmentTypeEnum : EnumBase
 	{
 	}
 

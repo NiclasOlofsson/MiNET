@@ -6,7 +6,7 @@ namespace MiNET.BuilderBase
 {
 	public class BuilderBaseItemFactory : ICustomItemFactory
 	{
-		public Item GetItem(short id, short metadata, byte count)
+		public Item GetItem(short id, short metadata, int count)
 		{
 			if (id == new BrushTool().Id)
 			{

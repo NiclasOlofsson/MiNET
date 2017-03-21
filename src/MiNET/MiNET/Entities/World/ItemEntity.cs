@@ -78,12 +78,12 @@ namespace MiNET.Entities.World
 				// or someone places a block over it.
 				if (IsInGround(KnownPosition))
 				{
-					Velocity += new Vector3(0, (float)Gravity, 0);
+					Velocity += new Vector3(0, (float) Gravity, 0);
 				}
 				else
 				{
 					bool onGround = IsOnGround(KnownPosition);
-					if (!onGround) Velocity -= new Vector3(0, (float)Gravity, 0);
+					if (!onGround) Velocity -= new Vector3(0, (float) Gravity, 0);
 				}
 			}
 
@@ -93,7 +93,7 @@ namespace MiNET.Entities.World
 
 				if (IsInGround(KnownPosition))
 				{
-					Velocity += new Vector3(0, (float)Gravity, 0);
+					Velocity += new Vector3(0, (float) Gravity, 0);
 					KnownPosition.X += Velocity.X;
 					KnownPosition.Y += Velocity.Y;
 					KnownPosition.Z += Velocity.Z;
@@ -145,7 +145,6 @@ namespace MiNET.Entities.World
 				KnownPosition.Y += (float) Velocity.Y;
 				KnownPosition.Z += (float) Velocity.Z;
 
-				Log.Warn("Velocity 0");
 				Velocity = Vector3.Zero;
 				LastUpdatedTime = DateTime.UtcNow;
 				NoAi = true;
@@ -172,24 +171,21 @@ namespace MiNET.Entities.World
 			{
 				if (KnownPosition.DistanceTo(player.KnownPosition) <= 2)
 				{
-					if (player.GameMode == GameMode.Survival)
 					{
-						{
-							var takeItemEntity = McpeTakeItemEntity.CreateObject();
-							takeItemEntity.entityId = EntityId;
-							takeItemEntity.target = player.EntityId;
-							Level.RelayBroadcast(player, takeItemEntity);
-						}
-						{
-							var takeItemEntity = McpeTakeItemEntity.CreateObject();
-							takeItemEntity.entityId = EntityId;
-							takeItemEntity.target = 0;
-							player.SendPackage(takeItemEntity);
-						}
-
-						DespawnEntity();
-						break;
+						var takeItemEntity = McpeTakeItemEntity.CreateObject();
+						takeItemEntity.entityId = EntityId;
+						takeItemEntity.target = player.EntityId;
+						Level.RelayBroadcast(player, takeItemEntity);
 					}
+					{
+						var takeItemEntity = McpeTakeItemEntity.CreateObject();
+						takeItemEntity.entityId = EntityId;
+						takeItemEntity.target = 0;
+						player.SendPackage(takeItemEntity);
+					}
+
+					DespawnEntity();
+					break;
 				}
 			}
 		}

@@ -17,7 +17,7 @@ namespace MiNET
 
 		public GreylistManager(MiNetServer server)
 		{
-			//_blacklist.Add(IPAddress.Parse("166.176.186.43"));
+			_blacklist.Add(IPAddress.Parse("86.126.166.61"));
 			//_blacklist.Add(IPAddress.Parse("185.89.216.247"));
 			//_blacklist.Add(IPAddress.Parse("66.176.197.86"));
 			//_blacklist.Add(IPAddress.Parse("78.197.138.50"));

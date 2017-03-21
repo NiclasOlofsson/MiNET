@@ -29,11 +29,11 @@ namespace MiNET.Items
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }
 
-		protected internal Item(short id, short metadata = 0, byte count = 1)
+		protected internal Item(short id, short metadata = 0, int count = 1)
 		{
 			Id = id;
 			Metadata = metadata;
-			Count = count;
+			Count = (byte) count;
 		}
 
 		public virtual void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

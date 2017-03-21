@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Threading;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
@@ -82,7 +84,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
-		public void Summon(Player player, EntityTypeEnum entityType, bool noAi=false, BlockPos spawnPos = null)
+		public void Summon(Player player, EntityTypeEnum entityType, bool noAi = false, BlockPos spawnPos = null)
 		{
 			EntityType petType;
 			try
@@ -247,7 +249,7 @@ namespace MiNET.Plugins.Commands
 
 			if (mob == null) return;
 			mob.NoAi = noAi;
-			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
+			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
 			mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
 			mob.SpawnEntity();
 		}
@@ -283,7 +285,7 @@ namespace MiNET.Plugins.Commands
 				player.SendSetDificulty();
 			}
 
-			return new SimpleResponse { Body = $"{commander.Username} set difficulty to {difficulty}" };
+			return new SimpleResponse {Body = $"{commander.Username} set difficulty to {difficulty}"};
 		}
 
 		[Command(Name = "time set")]
@@ -292,8 +294,176 @@ namespace MiNET.Plugins.Commands
 			Level level = commander.Level;
 			level.CurrentWorldTime = amount;
 
-			return new SimpleResponse { Body = $"{commander.Username} sets time to {amount}" };
+			return new SimpleResponse {Body = $"{commander.Username} sets time to {amount}"};
 		}
 
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to given position.")]
+		public SimpleResponse Teleport(Player commander, BlockPos destination, int yrot = 90, int xrot = 0)
+		{
+			var coordinates = commander.KnownPosition;
+			if (destination != null)
+			{
+				if (destination.XRelative)
+					coordinates.X += destination.X;
+				else
+					coordinates.X = destination.X;
+
+				if (destination.YRelative)
+					coordinates.Y += destination.Y;
+				else
+					coordinates.Y = destination.Y;
+
+				if (destination.ZRelative)
+					coordinates.Z += destination.Z;
+				else
+					coordinates.Z = destination.Z;
+			}
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				commander.Teleport(new PlayerLocation
+				{
+					X = coordinates.X,
+					Y = coordinates.Y,
+					Z = coordinates.Z,
+					Yaw = yrot,
+					Pitch = xrot,
+					HeadYaw = yrot
+				});
+			}, null);
+
+			return new SimpleResponse {Body = $"{commander.Username} teleported to coordinates {coordinates.X},{coordinates.Y},{coordinates.Z}."};
+		}
+
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
+		public SimpleResponse Teleport(Player commander, Target victim, BlockPos destination, int yrot = 90, int xrot = 0)
+		{
+			string body = victim.Selector;
+
+			if (victim.Players != null)
+			{
+				List<string> names = new List<string>();
+				foreach (var p in victim.Players)
+				{
+					names.Add(p.Username);
+
+					ThreadPool.QueueUserWorkItem(delegate(object state)
+					{
+						var coordinates = p.KnownPosition;
+						if (destination != null)
+						{
+							if (destination.XRelative)
+								coordinates.X += destination.X;
+							else
+								coordinates.X = destination.X;
+
+							if (destination.YRelative)
+								coordinates.Y += destination.Y;
+							else
+								coordinates.Y = destination.Y;
+
+							if (destination.ZRelative)
+								coordinates.Z += destination.Z;
+							else
+								coordinates.Z = destination.Z;
+						}
+
+						p.Teleport(new PlayerLocation
+						{
+							X = coordinates.X,
+							Y = coordinates.Y,
+							Z = coordinates.Z,
+							Yaw = yrot,
+							Pitch = xrot,
+							HeadYaw = yrot
+						});
+					}, null);
+				}
+				body = string.Join(", ", names);
+			}
+
+			return new SimpleResponse {Body = $"{body} teleported to new coordinates."};
+		}
+
+
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to other player.")]
+		public SimpleResponse Teleport(Player commander, Target victim, Target target)
+		{
+			string body = victim.Selector;
+
+			if (target.Players == null || target.Players.Length != 1) return new SimpleResponse {Body = "Found not target for teleport"};
+
+			Player targetPlayer = target.Players.First();
+
+			if (victim.Players != null)
+			{
+				List<string> names = new List<string>();
+				foreach (var p in victim.Players)
+				{
+					names.Add(p.Username);
+
+					ThreadPool.QueueUserWorkItem(delegate(object state)
+					{
+						var coordinates = targetPlayer.KnownPosition;
+						p.Teleport(new PlayerLocation
+						{
+							X = coordinates.X,
+							Y = coordinates.Y,
+							Z = coordinates.Z,
+							Yaw = coordinates.Yaw,
+							Pitch = coordinates.Pitch,
+							HeadYaw = coordinates.HeadYaw
+						});
+					}, null);
+				}
+				body = string.Join(", ", names);
+			}
+
+
+			return new SimpleResponse {Body = $"Teleported {body} to {targetPlayer.Username}."};
+		}
+
+		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to other player.")]
+		public SimpleResponse Teleport(Player commander, Target target)
+		{
+			if (target.Players == null || target.Players.Length != 1) return new SimpleResponse {Body = "Found not target for teleport"};
+
+			Player targetPlayer = target.Players.First();
+
+			var coordinates = targetPlayer.KnownPosition;
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				commander.Teleport(new PlayerLocation
+				{
+					X = coordinates.X,
+					Y = coordinates.Y,
+					Z = coordinates.Z,
+					Yaw = coordinates.Yaw,
+					Pitch = coordinates.Pitch,
+					HeadYaw = coordinates.HeadYaw
+				});
+			}, null);
+
+
+			return new SimpleResponse {Body = $"Teleported to {targetPlayer.Username}."};
+		}
+
+		[Command]
+		public void Enchant(Player commander, Target target, EnchantmentTypeEnum enchantmentTypeName, int level = 1)
+		{
+			Player targetPlayer = target.Players.First();
+			Item item = targetPlayer.Inventory.GetItemInHand();
+			if (item is ItemAir) return;
+
+			EnchantingType enchanting;
+			if (!Enum.TryParse(enchantmentTypeName.Value.Replace("_", ""), true, out enchanting)) return;
+
+			var enchanings = item.GetEnchantings();
+			enchanings.RemoveAll(ench => ench.Id == enchanting);
+			enchanings.Add(new Enchanting() {Id = enchanting, Level = (short) level});
+			item.SetEnchantings(enchanings);
+			targetPlayer.Inventory.SendSetSlot(targetPlayer.Inventory.InHandSlot);
+		}
 	}
 }

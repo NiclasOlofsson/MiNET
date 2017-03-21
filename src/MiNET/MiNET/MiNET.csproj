@@ -454,6 +454,8 @@
     <Compile Include="Items\ItemMap.cs" />
     <Compile Include="Items\ItemMelonSlice.cs" />
     <Compile Include="Items\ItemMobHead.cs" />
+    <Compile Include="Items\ItemMuttonCooked.cs" />
+    <Compile Include="Items\ItemMuttonRaw.cs" />
     <Compile Include="Items\ItemPotato.cs" />
     <Compile Include="Items\ItemPotion.cs" />
     <Compile Include="Items\ItemPumpkinPie.cs" />
@@ -477,7 +479,7 @@
     <Compile Include="Items\ItemWoodenPickaxe.cs" />
     <Compile Include="Items\ItemWoodenShovel.cs" />
     <Compile Include="Items\ItemWoodenSword.cs" />
-    <Compile Include="Items\ItemRawBeef.cs" />
+    <Compile Include="Items\ItemBeef.cs" />
     <Compile Include="Items\ItemRawChicken.cs" />
     <Compile Include="Items\ItemRawPorkchop.cs" />
     <Compile Include="LevelEventType.cs" />

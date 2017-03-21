@@ -7,12 +7,12 @@ namespace MiNET.Items
 {
 	public interface ICustomItemFactory
 	{
-		Item GetItem(short id, short metadata, byte count);
+		Item GetItem(short id, short metadata, int count);
 	}
 
 	public interface ICustomBlockItemFactory
 	{
-		ItemBlock GetBlockItem(Block block, short metadata, byte count);
+		ItemBlock GetBlockItem(Block block, short metadata, int count);
 	}
 
 	public class ItemFactory
@@ -70,7 +70,7 @@ namespace MiNET.Items
 			return BlockFactory.GetBlockIdByName(itemName);
 		}
 
-		public static Item GetItem(short id, short metadata = 0, byte count = 1)
+		public static Item GetItem(short id, short metadata = 0, int count = 1)
 		{
 			Item item = null;
 
@@ -158,7 +158,7 @@ namespace MiNET.Items
 			else if (id == 357) item = new ItemCookie();
 			else if (id == 358) item = new ItemMap();
 			else if (id == 360) item = new ItemMelonSlice();
-			else if (id == 363) item = new ItemRawBeef();
+			else if (id == 363) item = new ItemBeef();
 			else if (id == 364) item = new ItemSteak();
 			else if (id == 365) item = new ItemRawChicken();
 			else if (id == 366) item = new ItemCoockedChicken();
@@ -170,7 +170,8 @@ namespace MiNET.Items
 			else if (id == 395) item = new ItemEmptyMap();
 			else if (id == 397) item = new ItemMobHead(metadata);
 			else if (id == 400) item = new ItemPumpkinPie();
-			else if (id == 457) item = new ItemBeetroot();
+			else if (id == 423) item = new ItemMuttonRaw();
+			else if (id == 424) item = new ItemMuttonCooked();
 			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{
@@ -189,7 +190,7 @@ namespace MiNET.Items
 			// This might now be a good idea if the constructor changes these
 			// properties for custom items.
 			item.Metadata = metadata;
-			item.Count = count;
+			item.Count = (byte) count;
 
 			return item;
 		}

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Numerics;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
 using MiNET.Entities;
 using MiNET.Items;
@@ -179,7 +180,7 @@ namespace MiNET
 			if (player != null)
 			{
 				var knockback = player.DamageCalculator.CalculateKnockback(tool);
-				velocity += Vector3.Normalize(velocity) * new Vector3(knockback * 0.5f, 0.1f, knockback * 0.5f);
+				velocity += Vector3.Normalize(velocity)*new Vector3(knockback*0.5f, 0.1f, knockback*0.5f);
 			}
 
 			Entity.Knockback(velocity);
@@ -212,6 +213,7 @@ namespace MiNET
 
 		public virtual void Kill()
 		{
+			Log.Warn($"Killed entity: {Entity.EntityTypeId}");
 			if (IsDead) return;
 
 			IsDead = true;
@@ -223,11 +225,15 @@ namespace MiNET
 				player.BroadcastEntityEvent();
 			}
 
-			Entity.BroadcastSetEntityData();
-			Entity.DespawnEntity();
+			Action despawn = delegate
+			{
+				Entity.BroadcastSetEntityData();
+				Entity.DespawnEntity();
+			};
 
 			if (player != null)
 			{
+				despawn();
 				player.DropInventory();
 
 				var mcpeRespawn = McpeRespawn.CreateObject();
@@ -238,11 +244,22 @@ namespace MiNET
 			}
 			else
 			{
-				var drops = Entity.GetDrops();
-				foreach (var drop in drops)
+				var msg = McpeEntityEvent.CreateObject();
+				msg.entityId = Entity.EntityId;
+				msg.eventId = 3;
+				Entity.Level.RelayBroadcast(msg);
+
+				// This is semi-good, but we need to give the death-animation time to play.
+				Task.Delay(2000).ContinueWith(task =>
 				{
-					Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
-				}
+					despawn();
+
+					var drops = Entity.GetDrops();
+					foreach (var drop in drops)
+					{
+						Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
+					}
+				}).Start();
 			}
 		}
 

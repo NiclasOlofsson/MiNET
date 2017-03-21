@@ -462,11 +462,18 @@ namespace MiNET.Worlds
 				// Block updates
 				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks)
 				{
-					if (blockEvent.Value <= TickTime)
+					try
 					{
-						GetBlock(blockEvent.Key).OnTick(this, false);
-						long value;
-						BlockWithTicks.TryRemove(blockEvent.Key, out value);
+						if (blockEvent.Value <= TickTime)
+						{
+							long value;
+							BlockWithTicks.TryRemove(blockEvent.Key, out value);
+							GetBlock(blockEvent.Key).OnTick(this, false);
+						}
+					}
+					catch (Exception e)
+					{
+						Log.Warn("Block ticking", e);
 					}
 				}
 

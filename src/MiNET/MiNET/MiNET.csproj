@@ -547,7 +547,7 @@
     <Compile Include="PlayerInventory.cs" />
     <Compile Include="Items\Item.cs" />
     <Compile Include="Items\ItemBlock.cs" />
-    <Compile Include="Items\ItemDoor.cs" />
+    <Compile Include="Items\ItemWoodenDoor.cs" />
     <Compile Include="Items\ItemFactory.cs" />
     <Compile Include="Items\ItemFlintAndSteel.cs" />
     <Compile Include="Net\Ack.cs" />

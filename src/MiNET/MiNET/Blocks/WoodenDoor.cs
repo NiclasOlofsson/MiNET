@@ -8,11 +8,8 @@ namespace MiNET.Blocks
 	// and its facing and opened status in the block data of its lower block
 	public class WoodenDoor : Block
 	{
-		public WoodenDoor() : base(64)
+		public WoodenDoor() : this(64)
 		{
-			IsTransparent = true;
-			BlastResistance = 15;
-			Hardness = 3;
 		}
 
 		protected WoodenDoor(byte id) : base(id)

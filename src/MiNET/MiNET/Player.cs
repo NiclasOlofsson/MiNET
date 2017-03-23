@@ -270,9 +270,9 @@ namespace MiNET
 		public virtual void HandleMcpePlayerFall(McpePlayerFall message)
 		{
 			double damage = message.fallDistance - 3;
-			if(damage > 0)
+			if (damage > 0)
 			{
-				HealthManager.TakeHit(null, (int)DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
+				HealthManager.TakeHit(null, (int) DamageCalculator.CalculatePlayerDamage(null, this, null, damage, DamageCause.Fall), DamageCause.Fall);
 			}
 		}
 
@@ -578,7 +578,6 @@ namespace MiNET
 				// More Send Attributes here (have to check)
 
 				BroadcastSetEntityData();
-
 			}
 			catch (Exception e)
 			{
@@ -1542,7 +1541,6 @@ namespace MiNET
 			Player player = target as Player;
 			if (player != null)
 			{
-
 				double damage = DamageCalculator.CalculateItemDamage(this, itemInHand, player);
 
 				if (IsFalling)
@@ -1560,7 +1558,7 @@ namespace MiNET
 				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
 				if (fireAspectLevel > 0)
 				{
-					player.HealthManager.Ignite(fireAspectLevel * 80);
+					player.HealthManager.Ignite(fireAspectLevel*80);
 				}
 			}
 			else
@@ -1646,7 +1644,7 @@ namespace MiNET
 				return; // Cheat(?)
 			}
 
-			if (itemInHand.GetType() == typeof(Item))
+			if (itemInHand.GetType() == typeof (Item))
 			{
 				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {message.item} and item in hand is {itemInHand}");
 			}
@@ -1979,7 +1977,7 @@ namespace MiNET
 				AddExperience(Experience + xp - xpToNextLevel, false);
 			}
 
-			if(send) SendUpdateAttributes();
+			if (send) SendUpdateAttributes();
 		}
 
 		private float GetXpToNextLevel()
@@ -1987,15 +1985,15 @@ namespace MiNET
 			float xpToNextLevel = 0;
 			if (ExperienceLevel >= 0 && ExperienceLevel <= 15)
 			{
-				xpToNextLevel = 2 * ExperienceLevel + 7;
+				xpToNextLevel = 2*ExperienceLevel + 7;
 			}
 			else if (ExperienceLevel > 15 && ExperienceLevel <= 30)
 			{
-				xpToNextLevel = 5 * ExperienceLevel - 38;
+				xpToNextLevel = 5*ExperienceLevel - 38;
 			}
 			else if (ExperienceLevel > 30)
 			{
-				xpToNextLevel = 9 * ExperienceLevel - 158;
+				xpToNextLevel = 9*ExperienceLevel - 158;
 			}
 			return xpToNextLevel;
 		}
@@ -2241,7 +2239,7 @@ namespace MiNET
 			Level.BroadcastMessage(text, type, sender, new[] {this});
 		}
 
-		public virtual void BroadcastEntityEvent()
+		public override void BroadcastEntityEvent()
 		{
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();

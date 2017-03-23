@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
@@ -297,6 +296,14 @@ namespace MiNET.Entities
 			mcpeSetEntityData.entityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
 			Level?.RelayBroadcast(mcpeSetEntityData);
+		}
+
+		public virtual void BroadcastEntityEvent()
+		{
+			var entityEvent = McpeEntityEvent.CreateObject();
+			entityEvent.entityId = EntityId;
+			entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
+			Level.RelayBroadcast(entityEvent);
 		}
 
 		public BoundingBox GetBoundingBox()

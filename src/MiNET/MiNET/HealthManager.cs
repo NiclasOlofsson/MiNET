@@ -127,15 +127,9 @@ namespace MiNET
 				player.HungerManager.IncreaseExhaustion(0.3f);
 
 				player.SendUpdateAttributes();
-				player.BroadcastEntityEvent();
 			}
-			else
-			{
-				var msg = McpeEntityEvent.CreateObject();
-				msg.entityId = Entity.EntityId;
-				msg.eventId = (byte) (Health <= 0 ? 3 : 2);
-				Entity.Level.RelayBroadcast(msg);
-			}
+
+			Entity.BroadcastEntityEvent();
 
 			if (source != null)
 			{
@@ -212,35 +206,32 @@ namespace MiNET
 		}
 
 		private object _killSync = new object();
+
 		public virtual void Kill()
 		{
 			lock (_killSync)
 			{
 				if (IsDead) return;
 				IsDead = true;
+
+				Health = 0;
 			}
 
-			Health = 0;
 			var player = Entity as Player;
 			if (player != null)
 			{
 				player.SendUpdateAttributes();
-				player.BroadcastEntityEvent();
 			}
 
-			Action despawn = delegate
-			{
-				Entity.BroadcastSetEntityData();
-				Entity.DespawnEntity();
-			};
+			Entity.BroadcastEntityEvent();
 
 			if (player != null)
 			{
-				player.BroadcastEntityEvent();
-
-				Task.Delay(2000).ContinueWith(task =>
+				SendWithDelay(2000, () =>
 				{
-					despawn();
+					Entity.BroadcastSetEntityData();
+					Entity.DespawnEntity();
+
 					player.DropInventory();
 
 					var mcpeRespawn = McpeRespawn.CreateObject();
@@ -248,28 +239,30 @@ namespace MiNET
 					mcpeRespawn.y = player.SpawnPosition.Y;
 					mcpeRespawn.z = player.SpawnPosition.Z;
 					player.SendPackage(mcpeRespawn);
-
-				}).Start();
+				});
 			}
 			else
 			{
-				var msg = McpeEntityEvent.CreateObject();
-				msg.entityId = Entity.EntityId;
-				msg.eventId = 3;
-				Entity.Level.RelayBroadcast(msg);
-
 				// This is semi-good, but we need to give the death-animation time to play.
-				Task.Delay(2000).ContinueWith(task =>
+
+				SendWithDelay(2000, () =>
 				{
-					despawn();
+					Entity.BroadcastSetEntityData();
+					Entity.DespawnEntity();
 
 					var drops = Entity.GetDrops();
 					foreach (var drop in drops)
 					{
 						Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
 					}
-				}).Start();
+				});
 			}
+		}
+
+		private async Task SendWithDelay(int delay, Action action)
+		{
+			await Task.Delay(delay);
+			action();
 		}
 
 		public virtual void ResetHealth()

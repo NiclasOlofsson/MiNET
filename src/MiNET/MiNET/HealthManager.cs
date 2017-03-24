@@ -318,13 +318,6 @@ namespace MiNET
 				}
 
 				Entity.BroadcastSetEntityData();
-
-				if (IsOnFire)
-				{
-					IsOnFire = false;
-					FireTick = 0;
-					Entity.BroadcastSetEntityData();
-				}
 			}
 			else
 			{
@@ -335,6 +328,13 @@ namespace MiNET
 					Entity.IsInWater = false;
 					Entity.BroadcastSetEntityData();
 				}
+			}
+
+			if (IsOnFire && (Entity.IsInWater || IsStandingInWater(Entity.KnownPosition)))
+			{
+				IsOnFire = false;
+				FireTick = 0;
+				Entity.BroadcastSetEntityData();
 			}
 
 			if (IsInSolid(Entity.KnownPosition))
@@ -426,6 +426,15 @@ namespace MiNET
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
 			return y < Math.Floor(y) + 1 - ((1/9) - 0.1111111);
+		}
+
+		private bool IsStandingInWater(PlayerLocation playerPosition)
+		{
+			var block = Entity.Level.GetBlock(playerPosition);
+
+			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
+
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1 / 9) - 0.1111111);
 		}
 
 		private bool IsInLava(PlayerLocation playerPosition)

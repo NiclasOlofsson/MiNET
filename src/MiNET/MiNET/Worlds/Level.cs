@@ -52,6 +52,7 @@ namespace MiNET.Worlds
 		public bool IsSurvival => GameMode == GameMode.Survival;
 		public bool HaveDownfall { get; set; }
 		public Difficulty Difficulty { get; set; }
+		public bool AutoSmelt { get; set; } = false;
 		public double CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
@@ -1125,6 +1126,8 @@ namespace MiNET.Worlds
 			if (drop == null) return;
 			if (drop.Id == 0) return;
 			if (drop.Count == 0) return;
+
+			if(AutoSmelt) drop = drop.GetSmelt() ?? drop;
 
 			Random random = new Random();
 			var itemEntity = new ItemEntity(this, drop)

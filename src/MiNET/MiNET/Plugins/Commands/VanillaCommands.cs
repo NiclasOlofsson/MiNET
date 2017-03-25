@@ -250,7 +250,7 @@ namespace MiNET.Plugins.Commands
 			if (mob == null) return;
 			mob.NoAi = noAi;
 			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
-			mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
+			mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw, coordinates.Yaw);
 			mob.SpawnEntity();
 		}
 
@@ -307,9 +307,9 @@ namespace MiNET.Plugins.Commands
 		public SimpleResponse TimeSet(Player commander, DayNight time)
 		{
 			Level level = commander.Level;
-			level.CurrentWorldTime = (int)time;
+			level.CurrentWorldTime = (int) time;
 
-			return new SimpleResponse { Body = $"{commander.Username} sets time to {time}" };
+			return new SimpleResponse {Body = $"{commander.Username} sets time to {time}"};
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to given position.")]

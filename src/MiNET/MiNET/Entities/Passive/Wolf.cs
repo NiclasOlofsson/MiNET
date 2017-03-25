@@ -1,4 +1,5 @@
 ﻿using log4net;
+using MiNET.Entities.Behaviors;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -20,7 +21,8 @@ namespace MiNET.Entities.Passive
 			CollarColor = 14;
 			HealthManager.MaxHealth = 80;
 			HealthManager.ResetHealth();
-			NoAi = false;
+
+			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
 		}
 
 		public override MetadataDictionary GetMetadata()

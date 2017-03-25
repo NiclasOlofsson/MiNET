@@ -416,7 +416,7 @@ namespace MiNET.Worlds
 					RelayBroadcast(message);
 				}
 
-				if (EnableChunkTicking || EnableChunkTicking)
+				if (EnableChunkTicking || EnableBlockTicking)
 				{
 					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();
 					foreach (var player in players)

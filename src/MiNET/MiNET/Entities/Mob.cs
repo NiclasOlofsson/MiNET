@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Entities.Behaviors;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -12,7 +14,14 @@ namespace MiNET.Entities
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Mob));
 
-		public DateTime LastSeenPlayeTimer { get; set; }
+		public bool DespawnIfNotSeenPlayer { get; set; }
+		public DateTime LastSeenPlayerTimer { get; set; }
+
+		public List<IBehavior> Behaviors { get; } = new List<IBehavior>();
+		private IBehavior _currentBehavior = null;
+
+
+		public double Speed { get; set; } = 0.25f;
 
 		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
 		{
@@ -26,7 +35,7 @@ namespace MiNET.Entities
 
 		public override void SpawnEntity()
 		{
-			LastSeenPlayeTimer = DateTime.UtcNow;
+			LastSeenPlayerTimer = DateTime.UtcNow;
 			base.SpawnEntity();
 		}
 
@@ -34,68 +43,108 @@ namespace MiNET.Entities
 		{
 			base.OnTick();
 
-			if (DateTime.UtcNow - LastSeenPlayeTimer > TimeSpan.FromSeconds(30))
+			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer && DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
 			{
 				if (Level.GetSpawnedPlayers().Count(e => Vector3.Distance(KnownPosition, e.KnownPosition) < 32) == 0)
 				{
 					if (Level.Random.Next(800) == 0)
 					{
-						Log.Warn($"Despawn because didn't see any players within 32 blocks for 30s or longer. Last seen {LastSeenPlayeTimer}");
+						if (Log.IsDebugEnabled)
+							Log.Warn($"Despawn because didn't see any players within 32 blocks for 30s or longer. Last seen {LastSeenPlayerTimer}");
+
 						DespawnEntity();
 						return;
 					}
 				}
 				else
 				{
-					LastSeenPlayeTimer = DateTime.UtcNow;
+					LastSeenPlayerTimer = DateTime.UtcNow;
 				}
 			}
 
-
-			if (Velocity.Length() > 0.01)
+			_currentBehavior = GetBehavior();
+			if (_currentBehavior != null)
 			{
-				PlayerLocation oldPosition = (PlayerLocation) KnownPosition.Clone();
-				bool onGroundBefore = IsOnGround(KnownPosition);
+				if (_currentBehavior.OnTick(this))
+				{
+					_currentBehavior = null;
+				}
+			}
 
-				KnownPosition.X += (float) Velocity.X;
-				KnownPosition.Y += (float) Velocity.Y;
-				KnownPosition.Z += (float) Velocity.Z;
+			// Execute move
+			bool onGroundBefore = IsMobOnGround(KnownPosition);
+
+			Vector3 prevPos = KnownPosition;
+
+			KnownPosition.X += (float) Velocity.X;
+			KnownPosition.Y += (float) Velocity.Y;
+			KnownPosition.Z += (float) Velocity.Z;
+
+			// Fix potential fall through ground because of speed
+			bool onGround = IsMobOnGround(KnownPosition);
+			if (!onGroundBefore && onGround)
+			{
+				while (Level.GetBlock(KnownPosition).IsSolid)
+				{
+					KnownPosition.Y = (float) Math.Floor(KnownPosition.Y + 1);
+				}
+			}
+			Vector3 currPos = KnownPosition;
+			if ((prevPos - currPos).Length() > 0.01)
+			{
 				BroadcastMove();
 				BroadcastMotion();
-
-				bool onGround = IsOnGround(KnownPosition);
-				if (!onGroundBefore && onGround)
-				{
-					while (!Level.IsAir(KnownPosition.GetCoordinates3D()))
-					{
-						KnownPosition.Y++;
-					}
-					KnownPosition.Y = (float) Math.Floor(KnownPosition.Y);
-					Velocity = Vector3.Zero;
-					BroadcastMove();
-					BroadcastMotion();
-				}
-				else
-				{
-					if (!onGround)
-					{
-						Velocity -= new Vector3(0, 0.08f, 0);
-					}
-
-					Velocity *= new Vector3(0.86f, 1, 0.86f);
-				}
 			}
-			else if (Velocity != Vector3.Zero)
+
+			// Calculate velocity for next move
+			if (_currentBehavior != null)
 			{
-				KnownPosition.X += (float) Velocity.X;
-				KnownPosition.Y += (float) Velocity.Y;
-				KnownPosition.Z += (float) Velocity.Z;
-
-				Velocity = Vector3.Zero;
-				LastUpdatedTime = DateTime.UtcNow;
-				BroadcastMove(true);
-				BroadcastMotion(true);
+				if (_currentBehavior.CalculateNextMove(this))
+				{
+					_currentBehavior = null;
+				}
 			}
+
+			bool inWater = IsMobInFluid(KnownPosition);
+
+			if (inWater && Level.Random.NextDouble() < 0.8)
+			{
+				Velocity += new Vector3(0, 0.039f, 0);
+			}
+			else if (onGround)
+			{
+				if (Velocity.Y < 0) Velocity *= new Vector3(1, 0, 1);
+			}
+			else
+			{
+				Velocity -= new Vector3(0, (float) Gravity, 0);
+			}
+
+			float drag = (float) (1 - Drag);
+			if (inWater)
+			{
+				drag = 0.8F;
+			}
+
+			Velocity *= drag;
+		}
+
+		private IBehavior GetBehavior()
+		{
+			foreach (var behavior in Behaviors)
+			{
+				if (behavior == _currentBehavior) return behavior;
+
+				if (behavior.ShouldStart(this))
+				{
+					if (_currentBehavior == null || Behaviors.IndexOf(_currentBehavior) > Behaviors.IndexOf(behavior))
+					{
+						return behavior;
+					}
+				}
+			}
+
+			return null;
 		}
 
 		protected void CheckBlockAhead()
@@ -219,15 +268,44 @@ namespace MiNET.Entities
 			return null;
 		}
 
-		protected bool IsOnGround(Vector3 pos)
+		private bool IsMobInFluid(Vector3 position)
 		{
-			Block block = Level.GetBlock((BlockCoordinates) (pos - new Vector3(0, 0.1f, 0)));
+			float y = (float) (position.Y + Height*0.7);
+
+			BlockCoordinates waterPos = new BlockCoordinates
+			{
+				X = (int) Math.Floor(position.X),
+				Y = (int) Math.Floor(y),
+				Z = (int) Math.Floor(position.Z)
+			};
+
+			var block = Level.GetBlock(waterPos);
+
+			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
+
+			return y < Math.Floor(y) + 1 - ((1f/9f) - 0.1111111);
+		}
+
+		private bool IsMobStandingInFluid(Vector3 position)
+		{
+			Block block = Level.GetBlock(position);
+
+			return block is FlowingWater || block is StationaryWater || block is FlowingLava || block is StationaryLava;
+		}
+
+		protected bool IsMobOnGround(Vector3 pos)
+		{
+			if (pos.Y - Math.Truncate(pos.Y) > 0.1)
+				return IsMobInGround(pos);
+
+			BlockCoordinates coord = pos;
+			Block block = Level.GetBlock(coord + BlockCoordinates.Down);
 
 			return block.IsSolid;
 			//return block.IsSolid && block.GetBoundingBox().Contains(GetBoundingBox().OffsetBy(new Vector3(0, -0.1f, 0))) == ContainmentType.Intersects;
 		}
 
-		protected bool IsInGround(Vector3 position)
+		protected bool IsMobInGround(Vector3 position)
 		{
 			Block block = Level.GetBlock(position);
 

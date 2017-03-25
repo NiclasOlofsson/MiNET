@@ -282,7 +282,14 @@ namespace MiNET
 
 		public virtual void OnTick()
 		{
-			if (CooldownTick > 0) CooldownTick--;
+			if (CooldownTick > 0)
+			{
+				CooldownTick--;
+			}
+			else
+			{
+				LastDamageSource = null;
+			}
 
 			if (!Entity.IsSpawned) return;
 
@@ -410,7 +417,7 @@ namespace MiNET
 			}
 		}
 
-		private bool IsInWater(PlayerLocation playerPosition)
+		public bool IsInWater(PlayerLocation playerPosition)
 		{
 			float y = playerPosition.Y + 1.62f;
 
@@ -425,16 +432,16 @@ namespace MiNET
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return y < Math.Floor(y) + 1 - ((1/9) - 0.1111111);
+			return y < Math.Floor(y) + 1 - ((1f/9f) - 0.1111111);
 		}
 
-		private bool IsStandingInWater(PlayerLocation playerPosition)
+		public bool IsStandingInWater(PlayerLocation playerPosition)
 		{
 			var block = Entity.Level.GetBlock(playerPosition);
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1 / 9) - 0.1111111);
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f/9f) - 0.1111111);
 		}
 
 		private bool IsInLava(PlayerLocation playerPosition)
@@ -443,7 +450,7 @@ namespace MiNET
 
 			if (block == null || (block.Id != 10 && block.Id != 11)) return false;
 
-			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1/9) - 0.1111111);
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f/9f) - 0.1111111);
 		}
 
 		private bool IsInSolid(PlayerLocation playerPosition)

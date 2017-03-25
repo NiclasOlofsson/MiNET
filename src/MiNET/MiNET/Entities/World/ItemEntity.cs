@@ -76,22 +76,22 @@ namespace MiNET.Entities.World
 			{
 				// Object was resting and now someone removed the block on which it was resting
 				// or someone places a block over it.
-				if (IsInGround(KnownPosition))
+				if (IsMobInGround(KnownPosition))
 				{
 					Velocity += new Vector3(0, (float) Gravity, 0);
 				}
 				else
 				{
-					bool onGround = IsOnGround(KnownPosition);
+					bool onGround = IsMobOnGround(KnownPosition);
 					if (!onGround) Velocity -= new Vector3(0, (float) Gravity, 0);
 				}
 			}
 
 			if (Velocity.Length() > 0.01)
 			{
-				bool onGroundBefore = IsOnGround(KnownPosition);
+				bool onGroundBefore = IsMobOnGround(KnownPosition);
 
-				if (IsInGround(KnownPosition))
+				if (IsMobInGround(KnownPosition))
 				{
 					Velocity += new Vector3(0, (float) Gravity, 0);
 					KnownPosition.X += Velocity.X;
@@ -117,7 +117,7 @@ namespace MiNET.Entities.World
 					CheckBlockAhead();
 				}
 
-				bool onGround = IsOnGround(KnownPosition);
+				bool onGround = IsMobOnGround(KnownPosition);
 
 				if (!onGroundBefore && onGround)
 				{

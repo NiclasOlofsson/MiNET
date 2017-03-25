@@ -16,7 +16,7 @@ namespace MiNET.Entities
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EntitySpawnManager));
 
 		public const int CapHostile = 70;
-		public const int CapPassive = 10; // 10
+		public const int CapPassive = 30; // 10
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 
@@ -41,7 +41,8 @@ namespace MiNET.Entities
 			{
 				if (Level.GetSpawnedPlayers().Count(e => Vector3.Distance(entity.KnownPosition, e.KnownPosition) < 128) == 0)
 				{
-					Log.Warn($"Despawned entity because no players within 128 blocks distance");
+					if (Log.IsDebugEnabled)
+						Log.Warn($"Despawned entity because no players within 128 blocks distance");
 
 					entity.DespawnEntity();
 					return;
@@ -55,6 +56,14 @@ namespace MiNET.Entities
 				//Log.Warn($"Reached mob cap at {entityCount}, skipping");
 				return;
 			}
+
+			if (Level.GetSpawnedPlayers().Count(e => Vector3.Distance(blockCoordinates, e.KnownPosition) < 32) != 0)
+			{
+				if(Log.IsDebugEnabled)
+					Log.Warn($"Can't spawn entity because players within 32 blocks distance");
+				return;
+			}
+
 
 			var random = Level.Random;
 
@@ -101,7 +110,8 @@ namespace MiNET.Entities
 							}
 							else
 							{
-								Log.Warn($"Failed to spawn {entityType} because area not clear");
+								if (Log.IsDebugEnabled)
+									Log.Warn($"Failed to spawn {entityType} because area not clear");
 							}
 						}
 					}
@@ -165,21 +175,27 @@ namespace MiNET.Entities
 			{
 				case EntityType.Chicken:
 					mob = new Chicken(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Cow:
 					mob = new Cow(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Pig:
 					mob = new Pig(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Sheep:
 					mob = new Sheep(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Wolf:
 					mob = new Wolf(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Horse:
 					mob = new Horse(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Ocelot:
 					mob = new Ocelot(world);
@@ -194,6 +210,7 @@ namespace MiNET.Entities
 
 			if (mob == null) return false;
 
+			mob.DespawnIfNotSeenPlayer = true;
 			mob.KnownPosition = position;
 			var bbox = mob.GetBoundingBox();
 			if (!SpawnAreaClear(bbox))
@@ -205,7 +222,8 @@ namespace MiNET.Entities
 			mob.SpawnEntity();
 
 
-			Log.Warn($"Spawn friendly {entityType}");
+			if (Log.IsDebugEnabled)
+				Log.Warn($"Spawn friendly {entityType}");
 			return true;
 		}
 

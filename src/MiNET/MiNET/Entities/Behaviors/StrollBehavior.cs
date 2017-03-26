@@ -1,26 +1,11 @@
 using System.Numerics;
 using log4net;
-using log4net.Util;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class PanicBehavior : StrollBehavior
-	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (PanicBehavior));
-
-		public PanicBehavior(int duration, double speed, double speedMultiplier) : base(duration, speed, speedMultiplier)
-		{
-		}
-
-		public override bool ShouldStart(Entity entity)
-		{
-			return entity.HealthManager.LastDamageSource != null;
-		}
-	}
-
 	public class StrollBehavior : IBehavior
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (StrollBehavior));
@@ -28,18 +13,13 @@ namespace MiNET.Entities.Behaviors
 		private int _duration;
 		private double _speed;
 		private double _speedMultiplier;
-		private int _minDistance;
-		private int _maxDistance;
 		private int _timeLeft;
-		private double _distanceTraveled;
 
-		public StrollBehavior(int duration, double speed, double speedMultiplier, int minDistance = 4, int maxDistance = 10)
+		public StrollBehavior(int duration, double speed, double speedMultiplier)
 		{
 			_duration = duration;
 			_speed = speed;
 			_speedMultiplier = speedMultiplier;
-			_minDistance = minDistance;
-			_maxDistance = maxDistance;
 			_timeLeft = duration;
 		}
 
@@ -55,11 +35,8 @@ namespace MiNET.Entities.Behaviors
 
 		public virtual bool CalculateNextMove(Entity entity)
 		{
-			if (_timeLeft-- <= 0 || _distanceTraveled >= entity.Level.Random.Next(_minDistance, _maxDistance + 1))
+			if (_timeLeft-- <= 0)
 			{
-				_timeLeft = _duration;
-				_distanceTraveled = 0;
-				entity.Velocity *= new Vector3(0, 1, 0);
 				return true;
 			}
 
@@ -136,8 +113,6 @@ namespace MiNET.Entities.Behaviors
 				}
 			}
 
-			_distanceTraveled += (entity.Velocity*new Vector3(1, 0, 1)).Length();
-
 			return false;
 		}
 
@@ -162,9 +137,7 @@ namespace MiNET.Entities.Behaviors
 		public void OnEnd(Entity entity)
 		{
 			_timeLeft = _duration;
-			_distanceTraveled = 0;
 			entity.Velocity *= new Vector3(0, 1, 0);
 		}
-
 	}
 }

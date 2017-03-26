@@ -23,6 +23,8 @@ namespace MiNET.Entities.Passive
 			HealthManager.ResetHealth();
 
 			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
+			Behaviors.Add(new LookAtPlayerBehavior(8.0));
+			Behaviors.Add(new RandomLookaroundBehavior());
 		}
 
 		public override MetadataDictionary GetMetadata()

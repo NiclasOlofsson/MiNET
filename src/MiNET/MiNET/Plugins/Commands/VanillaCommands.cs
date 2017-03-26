@@ -84,7 +84,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
-		public void Summon(Player player, EntityTypeEnum entityType, bool noAi = false, BlockPos spawnPos = null)
+		public void Summon(Player player, EntityTypeEnum entityType, bool noAi = true, BlockPos spawnPos = null)
 		{
 			EntityType petType;
 			try

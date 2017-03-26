@@ -28,6 +28,13 @@ namespace MiNET.Entities.Behaviors
 
 			_duration = 40;
 
+			entity.Velocity *= new Vector3(0, 1, 0);
+
+			McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
+			entityEvent.entityId = entity.EntityId;
+			entityEvent.eventId = 10;
+			entity.Level.RelayBroadcast(entityEvent);
+
 			return true;
 		}
 
@@ -38,22 +45,7 @@ namespace MiNET.Entities.Behaviors
 
 		public bool CalculateNextMove(Entity entity)
 		{
-			if (_duration == 40)
-			{
-				entity.Velocity *= new Vector3(0, 1, 0);
-
-				McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
-				entityEvent.entityId = entity.EntityId;
-				entityEvent.eventId = 10;
-				entity.Level.RelayBroadcast(entityEvent);
-			}
-
-			if (_duration-- < 0)
-			{
-				return true;
-			}
-
-			return false;
+			return _duration-- < 0;
 		}
 
 		public void OnEnd(Entity entity)

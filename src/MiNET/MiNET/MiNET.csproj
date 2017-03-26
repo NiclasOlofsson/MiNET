@@ -324,6 +324,7 @@
     <Compile Include="Entities\Behaviors\HorseEatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\IBehavior.cs" />
     <Compile Include="Entities\Behaviors\LookAtPlayerBehavior.cs" />
+    <Compile Include="Entities\Behaviors\PanicBehavior.cs" />
     <Compile Include="Entities\Behaviors\RandomLookaroundBehavior.cs" />
     <Compile Include="Entities\Behaviors\StrollBehavior.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />

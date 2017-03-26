@@ -6,11 +6,13 @@ namespace MiNET.Entities.Behaviors
 {
 	public class LookAtPlayerBehavior : IBehavior
 	{
+		private readonly double _lookDistance;
 		private int _duration = 0;
 		private Player _player;
 
-		public LookAtPlayerBehavior()
+		public LookAtPlayerBehavior(double lookDistance = 6.0)
 		{
+			_lookDistance = lookDistance;
 		}
 
 		public bool ShouldStart(Entity entity)
@@ -19,7 +21,7 @@ namespace MiNET.Entities.Behaviors
 			if (!shouldStart) return false;
 
 			Player player = entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(entity.KnownPosition, p.KnownPosition.ToVector3()))
-				.FirstOrDefault(p => Vector3.Distance(entity.KnownPosition, p.KnownPosition) < 6);
+				.FirstOrDefault(p => Vector3.Distance(entity.KnownPosition, p.KnownPosition) < _lookDistance);
 
 			if (player == null) return false;
 

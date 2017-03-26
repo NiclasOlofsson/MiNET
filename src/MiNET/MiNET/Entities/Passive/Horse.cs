@@ -21,8 +21,11 @@ namespace MiNET.Entities.Passive
 			var random = new Random((int) DateTime.UtcNow.Ticks);
 			_type = random.Next(7);
 
-			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
+			Behaviors.Add(new PanicBehavior(60, Speed, 1.2));
 			Behaviors.Add(new HorseEatBlockBehavior(100));
+			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
+			Behaviors.Add(new LookAtPlayerBehavior());
+			Behaviors.Add(new RandomLookaroundBehavior());
 		}
 
 		public override MetadataDictionary GetMetadata()

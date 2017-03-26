@@ -14,6 +14,7 @@ namespace MiNET.Entities.Passive
 			Height = 1.3;
 			HealthManager.MaxHealth = 80;
 			HealthManager.ResetHealth();
+
 			Behaviors.Add(new PanicBehavior(60, Speed, 1.25));
 			Behaviors.Add(new EatBlockBehavior());
 			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));

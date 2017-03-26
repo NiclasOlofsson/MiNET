@@ -36,7 +36,6 @@ namespace MiNET.Blocks
 
 		private void CheckForHarden(Level world, int x, int y, int z)
 		{
-			Log.Warn("Check for hardening");
 			Block block = world.GetBlock(x, y, z);
 			{
 				bool harden = false;
@@ -69,7 +68,6 @@ namespace MiNET.Blocks
 
 					if (harden)
 					{
-						Log.Warn("Do hardening");
 						int meta = block.Metadata;
 
 						if (meta == 0)
@@ -80,10 +78,6 @@ namespace MiNET.Blocks
 						{
 							world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
 						}
-					}
-					else
-					{
-						Log.Warn("No hardening");
 					}
 				}
 			}

@@ -323,6 +323,8 @@
     <Compile Include="Entities\Behaviors\EatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\HorseEatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\IBehavior.cs" />
+    <Compile Include="Entities\Behaviors\LookAtPlayerBehavior.cs" />
+    <Compile Include="Entities\Behaviors\RandomLookaroundBehavior.cs" />
     <Compile Include="Entities\Behaviors\StrollBehavior.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
@@ -410,7 +412,7 @@
     <Compile Include="Items\ItemCoal.cs" />
     <Compile Include="Items\ItemCommand.cs" />
     <Compile Include="Items\ItemCompass.cs" />
-    <Compile Include="Items\ItemCoockedChicken.cs" />
+    <Compile Include="Items\ItemCookedChicken.cs" />
     <Compile Include="Items\ItemCookedPorkshop.cs" />
     <Compile Include="Items\ItemCookie.cs" />
     <Compile Include="Items\ItemDiamond.cs" />
@@ -470,7 +472,7 @@
     <Compile Include="Items\ItemSlab.cs" />
     <Compile Include="Items\ItemSnowball.cs" />
     <Compile Include="Items\ItemSpawnEgg.cs" />
-    <Compile Include="Items\ItemSteak.cs" />
+    <Compile Include="Items\ItemCookedBeef.cs" />
     <Compile Include="Items\ItemStick.cs" />
     <Compile Include="Items\ItemStoneAxe.cs" />
     <Compile Include="Items\ItemStoneHoe.cs" />

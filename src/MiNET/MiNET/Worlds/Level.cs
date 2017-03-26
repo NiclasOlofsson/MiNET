@@ -244,7 +244,7 @@ namespace MiNET.Worlds
 				Player[] players = GetSpawnedPlayers();
 				List<Player> spawnedPlayers = players.ToList();
 				spawnedPlayers.Add(newPlayer);
-				
+
 				Player[] sendList = spawnedPlayers.ToArray();
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
@@ -410,7 +410,7 @@ namespace MiNET.Worlds
 				if (IsWorldTimeStarted && TickTime%100 == 0)
 				{
 					McpeSetTime message = McpeSetTime.CreateObject();
-					message.time = (int)CurrentWorldTime;
+					message.time = (int) CurrentWorldTime;
 					message.started = IsWorldTimeStarted;
 
 					RelayBroadcast(message);
@@ -418,6 +418,8 @@ namespace MiNET.Worlds
 
 				if (EnableChunkTicking || EnableBlockTicking)
 				{
+					if (EnableChunkTicking) EntitySpawnManager.DespawnMobs(TickTime);
+
 					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();
 					foreach (var player in players)
 					{
@@ -426,40 +428,48 @@ namespace MiNET.Worlds
 						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 8);
 					}
 
-					foreach (var coord in chunksWithinRadiusOfPlayer)
+					ThreadPool.QueueUserWorkItem(state =>
 					{
-						for (int s = 0; s < 16; s++)
+						Parallel.ForEach((List<Tuple<int, int>>)state, coord =>
 						{
-							for (int i = 0; i < 3; i++)
+							var random = new Random();
+							//foreach (var coord in chunksWithinRadiusOfPlayer)
 							{
-								int x = Random.Next(16);
-								int y = Random.Next(16);
-								int z = Random.Next(16);
-
-								var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
-								var height = GetHeight(blockCoordinates);
-								if (height > 0 && s*16 > height) continue;
-
-								if (IsAir(blockCoordinates))
+								for (int s = 0; s < 16; s++)
 								{
-									if (i == 0 && EnableChunkTicking)
+									for (int i = 0; i < 3; i++)
 									{
-										// Entity spawning, only one attempt per chunk
-										EntitySpawnManager.AttemptHostileMobSpawn(TickTime, blockCoordinates);
-										EntitySpawnManager.AttemptPassiveMobSpawn(TickTime, blockCoordinates, chunksWithinRadiusOfPlayer.Count);
+										int x = random.Next(16);
+										int y = random.Next(16);
+										int z = random.Next(16);
+
+										var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
+										var height = GetHeight(blockCoordinates);
+										if (height > 0 && s*16 > height) continue;
+
+										if (IsAir(blockCoordinates))
+										{
+											if (i == 0 && EnableChunkTicking)
+											{
+												// Entity spawning, only one attempt per chunk
+												EntitySpawnManager.AttemptHostileMobSpawn(TickTime, blockCoordinates);
+												EntitySpawnManager.AttemptPassiveMobSpawn(TickTime, blockCoordinates, ((List<Tuple<int, int>>)state).Count);
+											}
+
+											continue;
+										}
+
+										if (EnableBlockTicking)
+										{
+											GetBlock(blockCoordinates).OnTick(this, true);
+										}
 									}
-
-									continue;
-								}
-
-								if (EnableBlockTicking)
-								{
-									GetBlock(blockCoordinates).OnTick(this, true);
 								}
 							}
-						}
-					}
+						});
+					}, chunksWithinRadiusOfPlayer);
 				}
+
 				// Block updates
 				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks)
 				{
@@ -1055,7 +1065,6 @@ namespace MiNET.Worlds
 
 		public void BreakBlock(Player player, BlockCoordinates blockCoordinates)
 		{
-
 			Block block = GetBlock(blockCoordinates);
 			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
 
@@ -1127,7 +1136,7 @@ namespace MiNET.Worlds
 			if (drop.Id == 0) return;
 			if (drop.Count == 0) return;
 
-			if(AutoSmelt) drop = drop.GetSmelt() ?? drop;
+			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;
 
 			Random random = new Random();
 			var itemEntity = new ItemEntity(this, drop)

@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using fNbt;
 using log4net;
 using MiNET.Effects;
@@ -74,7 +73,7 @@ namespace MiNET
 
 		public virtual double CalculateFallDamage(Player player, double damage, Player target)
 		{
-			var fallDamage = player.Level.Random.Next((int) (damage/2 + 2));
+			var fallDamage = new Random().Next((int) (damage/2 + 2));
 
 			McpeAnimate animate = McpeAnimate.CreateObject();
 			animate.entityId = target.EntityId;
@@ -347,7 +346,5 @@ namespace MiNET
 		{
 			return tool.GetEnchantingLevel(EnchantingType.Knockback);
 		}
-
-
 	}
 }

@@ -1,5 +1,6 @@
 using System.Numerics;
 using log4net;
+using log4net.Util;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -27,13 +28,18 @@ namespace MiNET.Entities.Behaviors
 		private int _duration;
 		private double _speed;
 		private double _speedMultiplier;
+		private int _minDistance;
+		private int _maxDistance;
 		private int _timeLeft;
+		private double _distanceTraveled;
 
-		public StrollBehavior(int duration, double speed, double speedMultiplier)
+		public StrollBehavior(int duration, double speed, double speedMultiplier, int minDistance = 4, int maxDistance = 10)
 		{
 			_duration = duration;
 			_speed = speed;
 			_speedMultiplier = speedMultiplier;
+			_minDistance = minDistance;
+			_maxDistance = maxDistance;
 			_timeLeft = duration;
 		}
 
@@ -49,9 +55,11 @@ namespace MiNET.Entities.Behaviors
 
 		public virtual bool CalculateNextMove(Entity entity)
 		{
-			if (_timeLeft-- <= 0)
+			if (_timeLeft-- <= 0 || _distanceTraveled >= entity.Level.Random.Next(_minDistance, _maxDistance + 1))
 			{
 				_timeLeft = _duration;
+				_distanceTraveled = 0;
+				entity.Velocity *= new Vector3(0, 1, 0);
 				return true;
 			}
 
@@ -103,7 +111,7 @@ namespace MiNET.Entities.Behaviors
 			if (!colliding && !entityCollide)
 			{
 				var velocity = direction*speedFactor;
-				Log.Debug($"Moving sheep: {velocity}");
+				//Log.Debug($"Moving sheep: {velocity}");
 				if (entity.Velocity.Length() < velocity.Length())
 				{
 					entity.Velocity += velocity - entity.Velocity;
@@ -113,18 +121,22 @@ namespace MiNET.Entities.Behaviors
 			{
 				if (!entityCollide && !blockUp.IsSolid && level.Random.Next(4) != 0)
 				{
-					Log.Debug($"Block ahead: {block}, jumping");
+					//Log.Debug($"Block ahead: {block}, jumping");
 					entity.Velocity = new Vector3(0, 0.42f, 0);
 				}
 				else
 				{
-					Log.Debug($"Block ahead: {block}, turning");
+					//if(blockUp.IsSolid) level.SetBlock(new GoldBlock() {Coordinates = coordUp});
+
+					//Log.Debug($"Block ahead: {block}, turning");
 					int rot = level.Random.Next(2) == 0 ? level.Random.Next(45, 180) : level.Random.Next(-180, -45);
 					entity.KnownPosition.HeadYaw += rot;
 					entity.KnownPosition.Yaw += rot;
 					entity.Velocity *= new Vector3(0, 1, 0);
 				}
 			}
+
+			_distanceTraveled += (entity.Velocity*new Vector3(1, 0, 1)).Length();
 
 			return false;
 		}
@@ -146,5 +158,13 @@ namespace MiNET.Entities.Behaviors
 
 			return true;
 		}
+
+		public void OnEnd(Entity entity)
+		{
+			_timeLeft = _duration;
+			_distanceTraveled = 0;
+			entity.Velocity *= new Vector3(0, 1, 0);
+		}
+
 	}
 }

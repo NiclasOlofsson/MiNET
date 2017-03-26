@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
@@ -932,6 +931,48 @@ namespace TestPlugin
 			}
 
 			player.SendMessage($"There are {users.Count} of players online.");
+		}
+
+		[Command]
+		public VanillaCommands.SimpleResponse Worldborder(Player player, int radius = 200, bool centerOnPlayer = false)
+		{
+			Level level = player.Level;
+
+			BlockCoordinates center = (BlockCoordinates) level.SpawnPoint;
+			if (centerOnPlayer) center = (BlockCoordinates) player.KnownPosition;
+			center.Y = 0;
+
+			var players = level.GetSpawnedPlayers();
+
+			for (int y = 0; y < 256; y++)
+			{
+				for (int x = -radius; x <= radius; x++)
+				{
+					for (int z = -radius; z <= radius; z++)
+					{
+						if (x != -radius && x != radius && z != -radius && z != radius) continue;
+
+						var block = new Glass() {Coordinates = center + new BlockCoordinates(x, y, z)};
+						level.SetBlock(block, false, false, false);
+
+						List<Player> sendList = new List<Player>();
+						foreach (var p in players)
+						{
+							if (p.KnownPosition.DistanceTo(center + new BlockCoordinates(x, (int) p.KnownPosition.Y, z)) > p.ChunkRadius*16) continue;
+
+							sendList.Add(p);
+						}
+
+						var message = McpeUpdateBlock.CreateObject();
+						message.blockId = block.Id;
+						message.coordinates = block.Coordinates;
+						message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+
+						level.RelayBroadcast(sendList.ToArray(), message);
+					}
+				}
+			}
+			return new VanillaCommands.SimpleResponse() {Body = $"Added world border with radius of {radius} around {center}"};
 		}
 	}
 }

@@ -82,5 +82,12 @@ namespace MiNET.Entities.Behaviors
 			horse.IsEating = isEating;
 			horse.BroadcastSetEntityData();
 		}
+
+		public void OnEnd(Entity entity)
+		{
+			SetEating((Horse) entity, false);
+			_timeLeft = _duration;
+		}
+
 	}
 }

@@ -250,10 +250,13 @@ namespace MiNET
 					Entity.BroadcastSetEntityData();
 					Entity.DespawnEntity();
 
-					var drops = Entity.GetDrops();
-					foreach (var drop in drops)
+					if (LastDamageSource is Player)
 					{
-						Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
+						var drops = Entity.GetDrops();
+						foreach (var drop in drops)
+						{
+							Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
+						}
 					}
 				});
 			}
@@ -456,7 +459,10 @@ namespace MiNET
 		private bool IsInSolid(PlayerLocation playerPosition)
 		{
 			BlockCoordinates solidPos = (BlockCoordinates) playerPosition;
-			solidPos.Y += 1;
+			if(Entity.Height >= 1)
+			{
+				solidPos.Y += 1;
+			}
 
 			var block = Entity.Level.GetBlock(solidPos);
 

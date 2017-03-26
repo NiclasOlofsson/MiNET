@@ -1,7 +1,7 @@
-using System;
 using System.Numerics;
 using MiNET.Blocks;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -9,26 +9,24 @@ namespace MiNET.Entities.Behaviors
 	public class EatBlockBehavior : IBehavior
 	{
 		private int _duration;
-		private int _timeLeft;
 
-		public EatBlockBehavior(int duration)
+		public EatBlockBehavior()
 		{
-			_duration = Math.Max(40, duration);
-			_timeLeft = _duration;
 		}
 
 		public bool ShouldStart(Entity entity)
 		{
+			if (entity.Level.Random.Next(1000) != 0) return false;
+
 			var coordinates = entity.KnownPosition;
 			var direction = Vector3.Normalize(coordinates.GetHeadDirection());
 
 			BlockCoordinates coord = new Vector3(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
-			coord += BlockCoordinates.Down;
 
-			if (!(entity.Level.GetBlock(coord) is Grass))
-			{
-				return false;
-			}
+			var shouldStart = entity.Level.GetBlock(coord + BlockCoordinates.Down) is Grass || entity.Level.GetBlock(coord) is TallGrass;
+			if (!shouldStart) return false;
+
+			_duration = 40;
 
 			return true;
 		}
@@ -40,50 +38,45 @@ namespace MiNET.Entities.Behaviors
 
 		public bool CalculateNextMove(Entity entity)
 		{
-			var coordinates = entity.KnownPosition;
-			var direction = Vector3.Normalize(coordinates.GetHeadDirection());
-
-			BlockCoordinates coord = new Vector3(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
-			coord += BlockCoordinates.Down;
-
-			if (_timeLeft == _duration)
+			if (_duration == 40)
 			{
 				entity.Velocity *= new Vector3(0, 1, 0);
+
 				McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
 				entityEvent.entityId = entity.EntityId;
 				entityEvent.eventId = 10;
 				entity.Level.RelayBroadcast(entityEvent);
-
-				//entity.NoAi = false;
-				//entity.BroadcastSetEntityData();
 			}
 
-			if (_timeLeft == _duration - 40)
+			if (_duration-- < 0)
 			{
-				McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
-				levelEvent.position = coord;
-				levelEvent.eventId = 2001;
-				levelEvent.data = 2;
-				entity.Level.RelayBroadcast(levelEvent);
-
-				entity.Level.SetBlock(new Dirt() {Coordinates = coord});
-
-				//entity.NoAi = true;
-				//entity.BroadcastSetEntityData();
-				//entity.IsSheared = true;
-				//entity.IsFlagAllFlying = true;
-				//entity.IsElder = true;
-				//entity.IsMoving = true;
-				//entity.BroadcastSetEntityData();
-			}
-
-			if (_timeLeft-- <= 0)
-			{
-				_timeLeft = _duration;
 				return true;
 			}
 
 			return false;
+		}
+
+		public void OnEnd(Entity entity)
+		{
+			var coordinates = entity.KnownPosition;
+			var direction = Vector3.Normalize(coordinates.GetHeadDirection());
+
+			BlockCoordinates coord = new Vector3(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z);
+
+			Block broken = null;
+			if (entity.Level.GetBlock(coord) is TallGrass)
+			{
+				broken = entity.Level.GetBlock(coord);
+				entity.Level.SetAir(coord);
+			}
+			else
+			{
+				coord += BlockCoordinates.Down;
+				broken = entity.Level.GetBlock(coord);
+				entity.Level.SetBlock(new Dirt {Coordinates = coord});
+			}
+			DestroyBlockParticle particle = new DestroyBlockParticle(entity.Level, broken);
+			particle.Spawn();
 		}
 	}
 }

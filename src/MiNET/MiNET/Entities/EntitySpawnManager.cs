@@ -33,9 +33,9 @@ namespace MiNET.Entities
 		{
 		}
 
-		public virtual void AttemptPassiveMobSpawn(long tickTime, BlockCoordinates blockCoordinates, int numberOfLoadedChunks)
+		public virtual void DespawnMobs(long tickTime)
 		{
-			if (tickTime%400 != 0) return;
+			if (tickTime % 400 != 0) return;
 
 			foreach (var entity in Level.GetEntites())
 			{
@@ -48,6 +48,11 @@ namespace MiNET.Entities
 					return;
 				}
 			}
+		}
+
+		public virtual void AttemptPassiveMobSpawn(long tickTime, BlockCoordinates blockCoordinates, int numberOfLoadedChunks)
+		{
+			if (tickTime % 400 != 0) return;
 
 			var effectiveChunkCount = Math.Max(17*17, numberOfLoadedChunks);
 			int entityCount = Level.GetEntites().Count(entity => Vector3.Distance(blockCoordinates, entity.KnownPosition) < effectiveChunkCount);
@@ -65,7 +70,7 @@ namespace MiNET.Entities
 			}
 
 
-			var random = Level.Random;
+			var random = new Random();
 
 			int maxPackSize = 0;
 			int numberOfSpawnedMobs = 0;
@@ -89,7 +94,7 @@ namespace MiNET.Entities
 						}
 						else
 						{
-							entityType = SelectEntityType(spawnBlock);
+							entityType = SelectEntityType(spawnBlock, random);
 							if (entityType == EntityType.None) return;
 						}
 
@@ -119,7 +124,7 @@ namespace MiNET.Entities
 			}
 		}
 
-		private EntityType SelectEntityType(Block spawnBlock)
+		private EntityType SelectEntityType(Block spawnBlock, Random random)
 		{
 			// Only choose from the ones that fits the location. Need to implement that filtering.
 			// For now, just use all general friendly/passive mobs.
@@ -162,7 +167,7 @@ namespace MiNET.Entities
 				possibleMobs.Add(EntityType.None);
 			}
 
-			EntityType entityType = possibleMobs[Level.Random.Next(possibleMobs.Count)];
+			EntityType entityType = possibleMobs[random.Next(possibleMobs.Count)];
 
 			return entityType;
 		}

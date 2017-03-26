@@ -67,6 +67,7 @@ namespace MiNET.Entities
 			{
 				if (_currentBehavior.OnTick(this))
 				{
+					_currentBehavior.OnEnd(this);
 					_currentBehavior = null;
 				}
 			}
@@ -74,7 +75,7 @@ namespace MiNET.Entities
 			// Execute move
 			bool onGroundBefore = IsMobOnGround(KnownPosition);
 
-			Vector3 prevPos = KnownPosition;
+			PlayerLocation prevPos = (PlayerLocation) KnownPosition.Clone();
 
 			KnownPosition.X += (float) Velocity.X;
 			KnownPosition.Y += (float) Velocity.Y;
@@ -101,6 +102,7 @@ namespace MiNET.Entities
 			{
 				if (_currentBehavior.CalculateNextMove(this))
 				{
+					_currentBehavior.OnEnd(this);
 					_currentBehavior = null;
 				}
 			}
@@ -139,6 +141,7 @@ namespace MiNET.Entities
 				{
 					if (_currentBehavior == null || Behaviors.IndexOf(_currentBehavior) > Behaviors.IndexOf(behavior))
 					{
+						_currentBehavior?.OnEnd(this);
 						return behavior;
 					}
 				}

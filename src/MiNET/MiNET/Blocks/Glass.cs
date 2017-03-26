@@ -2,7 +2,7 @@
 {
 	public class Glass : Block
 	{
-		internal Glass() : this(20)
+		public Glass() : this(20)
 		{
 			
 		}

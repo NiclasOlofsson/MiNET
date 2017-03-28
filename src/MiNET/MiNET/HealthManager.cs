@@ -227,19 +227,20 @@ namespace MiNET
 
 			if (player != null)
 			{
-				SendWithDelay(2000, () =>
-				{
-					Entity.BroadcastSetEntityData();
-					Entity.DespawnEntity();
+				//SendWithDelay(2000, () =>
+				//{
+				//});
 
-					player.DropInventory();
+				Entity.BroadcastSetEntityData();
+				Entity.DespawnEntity();
 
-					var mcpeRespawn = McpeRespawn.CreateObject();
-					mcpeRespawn.x = player.SpawnPosition.X;
-					mcpeRespawn.y = player.SpawnPosition.Y;
-					mcpeRespawn.z = player.SpawnPosition.Z;
-					player.SendPackage(mcpeRespawn);
-				});
+				player.DropInventory();
+
+				var mcpeRespawn = McpeRespawn.CreateObject();
+				mcpeRespawn.x = player.SpawnPosition.X;
+				mcpeRespawn.y = player.SpawnPosition.Y;
+				mcpeRespawn.z = player.SpawnPosition.Z;
+				player.SendPackage(mcpeRespawn);
 			}
 			else
 			{
@@ -285,6 +286,10 @@ namespace MiNET
 
 		public virtual void OnTick()
 		{
+			if (!Entity.IsSpawned) return;
+
+			if (IsDead) return;
+
 			if (CooldownTick > 0)
 			{
 				CooldownTick--;
@@ -293,10 +298,6 @@ namespace MiNET
 			{
 				LastDamageSource = null;
 			}
-
-			if (!Entity.IsSpawned) return;
-
-			if (IsDead) return;
 
 			if (IsInvulnerable) Health = MaxHealth;
 
@@ -422,6 +423,8 @@ namespace MiNET
 
 		public bool IsInWater(PlayerLocation playerPosition)
 		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
 			float y = playerPosition.Y + 1.62f;
 
 			BlockCoordinates waterPos = new BlockCoordinates
@@ -440,6 +443,8 @@ namespace MiNET
 
 		public bool IsStandingInWater(PlayerLocation playerPosition)
 		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
 			var block = Entity.Level.GetBlock(playerPosition);
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
@@ -449,6 +454,8 @@ namespace MiNET
 
 		private bool IsInLava(PlayerLocation playerPosition)
 		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
 			var block = Entity.Level.GetBlock(playerPosition);
 
 			if (block == null || (block.Id != 10 && block.Id != 11)) return false;
@@ -458,6 +465,8 @@ namespace MiNET
 
 		private bool IsInSolid(PlayerLocation playerPosition)
 		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
 			BlockCoordinates solidPos = (BlockCoordinates) playerPosition;
 			if(Entity.Height >= 1)
 			{

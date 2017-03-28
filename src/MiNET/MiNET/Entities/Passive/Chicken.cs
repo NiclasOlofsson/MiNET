@@ -1,4 +1,5 @@
-﻿using MiNET.Entities.Behaviors;
+﻿using System;
+using MiNET.Entities.Behaviors;
 using MiNET.Items;
 using MiNET.Worlds;
 
@@ -22,9 +23,11 @@ namespace MiNET.Entities.Passive
 
 		public override Item[] GetDrops()
 		{
+			Random random = new Random();
 			return new[]
 			{
-				ItemFactory.GetItem(365)
+				ItemFactory.GetItem(365),
+				ItemFactory.GetItem(288, 0, random.Next(1, 3)),
 			};
 		}
 	}

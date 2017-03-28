@@ -974,5 +974,139 @@ namespace TestPlugin
 			}
 			return new VanillaCommands.SimpleResponse() {Body = $"Added world border with radius of {radius} around {center}"};
 		}
+
+		[Command]
+		public void GeneratePath(Player player)
+		{
+			Level level = player.Level;
+			Vector3 pos = player.KnownPosition;
+
+			int n = 20;
+
+			RandomCurve ycurve = new RandomCurve(n, 0, 80, 0.1);
+			RandomCurve zcurve = new RandomCurve(n, 0, 100, 0.1);
+
+			bool first = true;
+			for (int x = 0; x < n; x++)
+			{
+				var y = ycurve.GetY(x);
+				var z = zcurve.GetY(x);
+
+				GeneratePortal(level, pos + new Vector3(x*42, (float) y, (float) z), first, x == n - 1);
+				first = false;
+			}
+		}
+
+		private void GeneratePortal(Level level, BlockCoordinates coord, bool isStart = false, bool isLast = false)
+		{
+			Block block = isStart ? (Block) new DiamondBlock() : isLast ? (Block) new EmeraldBlock() : new GoldBlock();
+
+			int[,] coords = new[,]
+			{
+				{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 0},
+				{1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 5},
+				{2, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2, 5},
+				{3, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {3, 5},
+				{4, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {4, 5},
+				{5, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {5, 5},
+				{0, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5},
+			};
+
+			for (int i = 0; i < coords.Length/2; i++)
+			{
+				Log.Warn($"Lenght {coords.Length}");
+				block.Coordinates = coord + new BlockCoordinates(0, coords[i, 0], coords[i, 1]);
+				level.SetBlock(block);
+			}
+		}
+	}
+
+
+	internal struct SineWave
+	{
+		internal readonly double Amplitude;
+		internal readonly double OrdinaryFrequency;
+		internal readonly double AngularFrequency;
+		internal readonly double Phase;
+		internal readonly double ShiftY;
+
+		internal SineWave(double amplitude, double ordinaryFrequency, double phase, double shiftY)
+		{
+			Amplitude = amplitude;
+			OrdinaryFrequency = ordinaryFrequency;
+			AngularFrequency = 2*Math.PI*ordinaryFrequency;
+			Phase = phase;
+			ShiftY = shiftY;
+		}
+	}
+
+	public class RandomCurve
+	{
+		private SineWave[] m_sineWaves;
+
+		public RandomCurve(int components, double minY, double maxY, double flatness)
+		{
+			m_sineWaves = new SineWave[components];
+
+			double totalPeakToPeakAmplitude = maxY - minY;
+			double averagePeakToPeakAmplitude = totalPeakToPeakAmplitude/components;
+
+			int prime = 1;
+			Random r = new Random();
+			for (int i = 0; i < components; i++)
+			{
+				// from 0.5 to 1.5 of averagePeakToPeakAmplitude 
+				double peakToPeakAmplitude = averagePeakToPeakAmplitude*(r.NextDouble() + 0.5d);
+
+				// peak amplitude is a hald of peak-to-peak amplitude
+				double amplitude = peakToPeakAmplitude/2d;
+
+				// period should be a multiple of the prime number to avoid regularities
+				prime = Utils.GetNextPrime(prime);
+				double period = flatness*prime;
+
+				// ordinary frequency is reciprocal of period
+				double ordinaryFrequency = 1d/period;
+
+				// random phase
+				double phase = 2*Math.PI*(r.NextDouble() + 0.5d);
+
+				// shiftY is the same as amplitude
+				double shiftY = amplitude;
+
+				m_sineWaves[i] =
+					new SineWave(amplitude, ordinaryFrequency, phase, shiftY);
+			}
+		}
+
+		public double GetY(double x)
+		{
+			double y = 0;
+			for (int i = 0; i < m_sineWaves.Length; i++)
+				y += m_sineWaves[i].Amplitude*Math.Sin(m_sineWaves[i].AngularFrequency*x + m_sineWaves[i].Phase) + m_sineWaves[i].ShiftY;
+
+			return y;
+		}
+	}
+
+	internal static class Utils
+	{
+		internal static int GetNextPrime(int i)
+		{
+			int nextPrime = i + 1;
+			for (; !IsPrime(nextPrime); nextPrime++) ;
+			return nextPrime;
+		}
+
+		private static bool IsPrime(int number)
+		{
+			if (number == 1) return false;
+			if (number == 2) return true;
+
+			for (int i = 2; i < number; ++i)
+				if (number%i == 0) return false;
+
+			return true;
+		}
 	}
 }

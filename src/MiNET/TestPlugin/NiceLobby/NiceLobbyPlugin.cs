@@ -176,7 +176,11 @@ namespace TestPlugin.NiceLobby
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 
-			//int idx = 1;
+			int idx = 0;
+			player.Inventory.Slots[idx++] = new ItemStick() { Count = 1 };
+			//player.Inventory.Slots[idx++] = new ItemElytra() { Count = 1 };
+			player.Inventory.Chest = new ItemElytra() {Count = 1};
+
 			//player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronShovel().Id);
 			//player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronAxe().Id);
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Sand(), 0) {Count = 64};
@@ -190,7 +194,7 @@ namespace TestPlugin.NiceLobby
 			//             player.Inventory.Slots[idx++] = new ItemBlock(new Glass(), i) { Count = 20 };
 			//         }
 
-			//player.SendPlayerInventory();
+			player.SendPlayerInventory();
 
 			_players.TryAdd(player.Username, player);
 

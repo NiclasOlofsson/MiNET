@@ -63,10 +63,9 @@ namespace MiNET.Entities
 			MaybeAge = 25,
 			Scale = 39,
 			MaxAir = 44,
-			CollisionBoxHeight = 53,
+			CollisionBoxHeight = 55,
 			CollisionBoxWidth = 54,
 		}
-
 
 		public virtual MetadataDictionary GetMetadata()
 		{
@@ -136,7 +135,7 @@ namespace MiNET.Entities
 		public bool IsTamed { get; set; }
 		public bool IsLeashed { get; set; }
 		public bool IsSheared { get; set; }
-		public bool IsFlagAllFlying { get; set; }
+		public bool IsGliding { get; set; }
 		public bool IsElder { get; set; }
 		public bool IsMoving { get; set; }
 		public bool IsBreathing => !IsInWater;
@@ -186,8 +185,6 @@ namespace MiNET.Entities
 
 		protected virtual BitArray GetFlags()
 		{
-			IsFlagAllFlying = false;
-
 			BitArray bits = new BitArray(64);
 			bits[(int) DataFlags.OnFire] = HealthManager.IsOnFire;
 			bits[(int) DataFlags.Sneaking] = IsSneaking;
@@ -216,7 +213,7 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Tamed] = IsTamed;
 			bits[(int) DataFlags.Leashed] = IsLeashed;
 			bits[(int) DataFlags.Sheared] = IsSheared;
-			bits[(int) DataFlags.FlagAllFlying] = IsFlagAllFlying;
+			bits[(int) DataFlags.FlagAllFlying] = IsGliding;
 			bits[(int) DataFlags.Elder] = IsElder;
 			bits[(int) DataFlags.Moving] = IsMoving;
 			bits[(int) DataFlags.Breathing] = IsBreathing;

@@ -405,6 +405,7 @@
     <Compile Include="Items\ItemBed.cs" />
     <Compile Include="Items\ItemBeetroot.cs" />
     <Compile Include="Items\ItemBeetrootSeeds.cs" />
+    <Compile Include="Items\ItemBone.cs" />
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemBread.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
@@ -427,6 +428,7 @@
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
     <Compile Include="Items\ItemEgg.cs" />
+    <Compile Include="Items\ItemElytra.cs" />
     <Compile Include="Items\ItemEmptyMap.cs" />
     <Compile Include="Items\ItemEnchantingTable.cs" />
     <Compile Include="Items\ItemFurnace.cs" />

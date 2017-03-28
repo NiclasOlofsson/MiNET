@@ -16,6 +16,8 @@ namespace MiNET.Net
 		StopSneak = 12,
 		DimensionChange = 13,
 		AbortDimensionChange = 14,
+		StartGlide = 15,
+		StopGlide = 16,
 		WorldImmutable = 17
 	}
 }

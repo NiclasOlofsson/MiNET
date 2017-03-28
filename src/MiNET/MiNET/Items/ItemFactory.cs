@@ -72,6 +72,8 @@ namespace MiNET.Items
 
 		public static Item GetItem(short id, short metadata = 0, int count = 1)
 		{
+			if (count == 0) return null;
+
 			Item item = null;
 
 			if (CustomItemFactory != null)
@@ -154,6 +156,7 @@ namespace MiNET.Items
 			else if (id == 332) item = new ItemSnowball();
 			else if (id == 344) item = new ItemEgg();
 			else if (id == 345) item = new ItemCompass();
+			else if (id == 352) item = new ItemBone();
 			else if (id == 355) item = new ItemBed();
 			else if (id == 357) item = new ItemCookie();
 			else if (id == 358) item = new ItemMap();
@@ -178,6 +181,7 @@ namespace MiNET.Items
 			else if (id == 429) item = new ItemJungleDoor();
 			else if (id == 430) item = new ItemAcaciaDoor();
 			else if (id == 431) item = new ItemDarkOakDoor();
+			else if (id == 444) item = new ItemElytra();
 			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{

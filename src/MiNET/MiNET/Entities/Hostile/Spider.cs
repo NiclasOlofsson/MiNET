@@ -12,5 +12,11 @@ namespace MiNET.Entities.Hostile
 			HealthManager.MaxHealth = 160;
 			HealthManager.ResetHealth();
 		}
+
+		public override Item[] GetDrops()
+		{
+			return base.GetDrops();
+		}
+
 	}
 }

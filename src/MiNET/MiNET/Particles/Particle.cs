@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using MiNET.Net;
-using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Particles
@@ -8,37 +7,46 @@ namespace MiNET.Particles
 	public enum ParticleType
 	{
 		Bubble = 1,
-		Critical = 2,
-		Smoke = 3,
-		Explode = 4,
-		WhiteSmoke = 5,
-		Flame = 6,
-		Lava = 7,
-		LargeSmoke = 8,
-		Redstone = 9,
-		ItemBreak = 10,
-		SnowballPoof = 11,
-		LargeExplode = 12,
-		HugeExplode = 13,
-		MobFlame = 14,
-		Heart = 15,
-		Terrain = 16,
-		TownAura = 17,
-		Portal = 18,
-		WaterSplash = 19,
-		WaterWake = 20,
-		DripWater = 21,
-		DripLava = 22,
-		Dust = 23,
-		MobSpell = 24,
-		MobSpellAmbient = 25,
-		MobSpellInstantaneous = 26,
-		Ink = 27,
-		Slime = 28,
-		RainSplash = 29,
-		VillagerAngry = 30,
-		VillagerHappy = 31,
-		EnchantmentTable = 32,
+		Critical,
+		BlockForceField,
+		Smoke,
+		Explode,
+		WhiteSmoke,
+		Flame,
+		Lava,
+		LargeSmoke,
+		Redstone,
+		RisingRedDust,
+		ItemBreak,
+		SnowballPoof,
+		LargeExplode,
+		HugeExplode,
+		MobFlame,
+		Heart,
+		Terrain,
+		TownAura,
+		Portal,
+		WaterSplash,
+		WaterWake,
+		DripWater,
+		DripLava,
+		Dust,
+		MobSpell,
+		MobSpellAmbient,
+		MobSpellInstantaneous,
+		Ink,
+		Slime,
+		RainSplash,
+		VillagerAngry,
+		VillagerHappy,
+		EnchantmentTable,
+		TrackingEmitter,
+		Note,
+		WitchSpell,
+		Carrot,
+		Unknown39,
+		EndRod,
+		DragonsBreath
 	}
 
 	public class Particle
@@ -70,7 +78,7 @@ namespace MiNET.Particles
 		public virtual void Spawn(Player[] players)
 		{
 			McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
-			particleEvent.eventId = (short)(0x4000 | Id);
+			particleEvent.eventId = (short) (0x4000 | Id);
 			particleEvent.position = Position;
 			particleEvent.data = Data;
 			Level.RelayBroadcast(players, particleEvent);

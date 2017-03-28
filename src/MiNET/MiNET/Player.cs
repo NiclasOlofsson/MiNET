@@ -17,6 +17,7 @@ using MiNET.Entities;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -87,7 +88,7 @@ namespace MiNET
 
 			Width = 0.6f;
 			Length = Width;
-			Height = 1.85;
+			Height = 1.80;
 
 			HideNameTag = false;
 			IsAlwaysShowName = true;
@@ -350,21 +351,37 @@ namespace MiNET
 					break;
 				case PlayerAction.WorldImmutable:
 					break;
+				case PlayerAction.StartGlide:
+					IsGliding = true;
+					Height = 0.6;
+
+					var particle = new WhiteSmokeParticle(Level);
+					particle.Position = KnownPosition.ToVector3();
+					particle.Spawn();
+
+					break;
+				case PlayerAction.StopGlide:
+					IsGliding = false;
+					Height = 1.8;
+					break;
 				default:
 					Log.Warn($"Unhandled action ID={message.actionId}");
 					throw new ArgumentOutOfRangeException(nameof(message.actionId));
 			}
 
 			IsUsingItem = false;
-			MetadataDictionary metadata = new MetadataDictionary
-			{
-				[0] = GetDataValue()
-			};
 
-			var setEntityData = McpeSetEntityData.CreateObject();
-			setEntityData.entityId = EntityId;
-			setEntityData.metadata = metadata;
-			Level?.RelayBroadcast(this, setEntityData);
+			BroadcastSetEntityData();
+
+			//MetadataDictionary metadata = new MetadataDictionary
+			//{
+			//	[0] = GetDataValue()
+			//};
+
+			//var setEntityData = McpeSetEntityData.CreateObject();
+			//setEntityData.entityId = EntityId;
+			//setEntityData.metadata = metadata;
+			//Level?.RelayBroadcast(this, setEntityData);
 		}
 
 		private float _baseSpeed;
@@ -1091,6 +1108,8 @@ namespace MiNET
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 
+			CurrentSpeed = distanceTo/((double) (DateTime.UtcNow - LastUpdatedTime).Ticks/TimeSpan.TicksPerSecond);
+
 			double verticalMove = message.y - 1.62 - KnownPosition.Y;
 
 			bool isOnGround = IsOnGround;
@@ -1101,14 +1120,13 @@ namespace MiNET
 				isFlyingHorizontally = DetectSimpleFly(message, isOnGround);
 			}
 
-
 			if (!AcceptPlayerMove(message, isOnGround, isFlyingHorizontally)) return;
 
 			IsFlyingHorizontally = isFlyingHorizontally;
 			IsOnGround = isOnGround;
 
 			// Hunger management
-			HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
+			if(!IsGliding) HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
 
 			KnownPosition = new PlayerLocation
 			{
@@ -1125,6 +1143,8 @@ namespace MiNET
 				MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 			}
 		}
+
+		public double CurrentSpeed { get; private set; } = 0;
 
 		protected virtual bool AcceptPlayerMove(McpeMovePlayer message, bool isOnGround, bool isFlyingHorizontally)
 		{
@@ -2027,6 +2047,24 @@ namespace MiNET
 			HungerManager.OnTick();
 
 			base.OnTick();
+
+			if (IsGliding && CurrentSpeed > 30)
+			{
+				var particle = new CriticalParticle(Level);
+				particle.Position = KnownPosition.ToVector3();
+				particle.Spawn();
+			}
+
+			if (Log.IsDebugEnabled && Level.TickTime%10 == 0)
+			{
+				AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = $"Speed: {CurrentSpeed:F2}m/s",
+					Duration = 20*5,
+				});
+			}
 
 			foreach (var effect in Effects)
 			{

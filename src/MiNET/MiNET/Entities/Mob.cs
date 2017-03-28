@@ -43,6 +43,8 @@ namespace MiNET.Entities
 		{
 			base.OnTick();
 
+			if (HealthManager.IsDead) return;
+
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer && DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
 			{
 				if (Level.GetSpawnedPlayers().Count(e => Vector3.Distance(KnownPosition, e.KnownPosition) < 32) == 0)

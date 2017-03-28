@@ -1,5 +1,9 @@
-﻿using log4net;
+﻿using System;
+using System.Numerics;
+using log4net;
 using MiNET.Entities.Behaviors;
+using MiNET.Items;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -21,10 +25,65 @@ namespace MiNET.Entities.Passive
 			CollarColor = 14;
 			HealthManager.MaxHealth = 80;
 			HealthManager.ResetHealth();
+			Speed = 0.3;
 
+			Behaviors.Add(new SittingBehavior());
 			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(8.0));
 			Behaviors.Add(new RandomLookaroundBehavior());
+		}
+
+		public override void DoInteraction(byte actionId, Player player)
+		{
+			if (IsTamed)
+			{
+				if (Owner == player)
+				{
+					IsSitting = !IsSitting;
+					BroadcastSetEntityData();
+				}
+				else
+				{
+					// Hmm?
+				}
+			}
+			else
+			{
+				if (player.Inventory.GetItemInHand() is ItemBone)
+				{
+					Log.Warn($"Wolf taming attempt by {player.Username}");
+
+					player.Inventory.RemoveItems(new ItemBone().Id, 1);
+
+					var random = new Random();
+					if (random.Next(3) == 0)
+					{
+						Owner = player;
+						IsTamed = true;
+						IsSitting = true;
+						BroadcastSetEntityData();
+
+						for (int i = 0; i < 7; ++i)
+						{
+							Particle particle = new HeartParticle(Level, random.Next(3));
+							particle.Position = KnownPosition + new Vector3(0, (float) (Height + 0.85d), 0);
+							particle.Spawn();
+						}
+
+
+						Log.Warn($"Wolf is now tamed by {player.Username}");
+					}
+					else
+					{
+						for (int i = 0; i < 7; ++i)
+						{
+							Particle particle = new SmokeParticle(Level);
+							particle.Position = KnownPosition + new Vector3(0, (float) (Height + 0.85d), 0);
+							particle.Spawn();
+						}
+					}
+				}
+			}
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -55,6 +114,48 @@ namespace MiNET.Entities.Passive
 			metadata[59] = new MetadataFloat(0f);
 
 			return metadata;
+		}
+	}
+
+	public class SittingBehavior : IBehavior
+	{
+		public bool ShouldStart(Entity entity)
+		{
+			if (!entity.IsTamed)
+			{
+				return false;
+			}
+			else if (entity.IsInWater)
+			{
+				return false;
+			}
+			else
+			{
+				Player owner = ((Wolf) entity).Owner as Player;
+
+				var shouldStart = owner == null || ((!(entity.KnownPosition.DistanceTo(owner.KnownPosition) < 144.0) || entity.HealthManager.LastDamageSource == null) && entity.IsSitting);
+				if (!shouldStart) return false;
+
+				entity.Velocity *= new Vector3(0, 1, 0);
+
+				return true;
+			}
+		}
+
+		public bool OnTick(Entity entity)
+		{
+			return !entity.IsSitting;
+		}
+
+		public bool CalculateNextMove(Entity entity)
+		{
+			return !entity.IsSitting;
+		}
+
+		public void OnEnd(Entity entity)
+		{
+			entity.IsSitting = false;
+			entity.BroadcastSetEntityData();
 		}
 	}
 }

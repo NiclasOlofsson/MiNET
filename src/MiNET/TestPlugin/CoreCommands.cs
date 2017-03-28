@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Text;
@@ -234,61 +235,61 @@ namespace TestPlugin
 		}
 
 
-		//[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
-		//public void Teleport(Player player)
-		//{
-		//	Teleport(player, "Default");
-		//}
+		[Command(Name = "tpw", Aliases = new[] { "teleport" }, Description = "Teleports player to default world.")]
+		public void TeleportWorld(Player player)
+		{
+			TeleportWorld(player, "Default");
+		}
 
 		private object _levelSync = new object();
 
-		//[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given world. Creates world if not exist.")]
-		//public void Teleport(Player player, string world)
-		//{
-		//	Level oldLevel = player.Level;
+		[Command(Name = "tpw", Aliases = new[] { "teleport" }, Description = "Teleports player to given world. Creates world if not exist.")]
+		public void TeleportWorld(Player player, string world)
+		{
+			Level oldLevel = player.Level;
 
-		//	if (player.Level.LevelId.Equals(world))
-		//	{
-		//		Teleport(player, (int) player.SpawnPosition.X, (int) player.SpawnPosition.Y, (int) player.SpawnPosition.Z);
-		//		return;
-		//	}
+			if (player.Level.LevelId.Equals(world))
+			{
+				player.Teleport(player.SpawnPosition);
+				return;
+			}
 
-		//	if (!Context.LevelManager.Levels.Contains(player.Level))
-		//	{
-		//		Context.LevelManager.Levels.Add(player.Level);
-		//	}
+			if (!Context.LevelManager.Levels.Contains(player.Level))
+			{
+				Context.LevelManager.Levels.Add(player.Level);
+			}
 
-		//	ThreadPool.QueueUserWorkItem(delegate(object state)
-		//	{
-		//		LevelManager levelManager = state as LevelManager;
-		//		if (levelManager == null) return;
+			ThreadPool.QueueUserWorkItem(delegate (object state)
+			{
+				LevelManager levelManager = state as LevelManager;
+				if (levelManager == null) return;
 
-		//		Level[] levels = levelManager.Levels.ToArray();
+				Level[] levels = levelManager.Levels.ToArray();
 
-		//		if (levels != null)
-		//		{
-		//			player.SpawnLevel(null, null, false, delegate
-		//			{
-		//				lock (levelManager.Levels)
-		//				{
-		//					Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
+				if (levels != null)
+				{
+					player.SpawnLevel(null, null, false, delegate
+					{
+						lock (levelManager.Levels)
+						{
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(world));
 
-		//					if (nextLevel == null)
-		//					{
-		//						nextLevel = new Level(world, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
-		//						nextLevel.Initialize();
-		//						Context.LevelManager.Levels.Add(nextLevel);
-		//					}
+							if (nextLevel == null)
+							{
+								nextLevel = new Level(world, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel.Initialize();
+								Context.LevelManager.Levels.Add(nextLevel);
+							}
 
 
-		//					return nextLevel;
-		//				}
-		//			});
-		//		}
+							return nextLevel;
+						}
+					});
+				}
 
-		//		oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
-		//	}, Context.LevelManager);
-		//}
+				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
+			}, Context.LevelManager);
+		}
 
 		[Command]
 		public void Clear(Player player)

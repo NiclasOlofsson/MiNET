@@ -8,4 +8,14 @@ namespace MiNET
 		Popup = 3,
 		Tip = 4
 	}
+
+	public enum TitleType
+	{
+		Clear = 0,
+		Reset = 1,
+		Title = 2,
+		SubTitle = 3,
+		ActionBar = 4,
+		AnimationTimes = 5
+	}
 }

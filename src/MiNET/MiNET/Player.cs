@@ -110,6 +110,10 @@ namespace MiNET
 			//MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Start(null); });
 		}
 
+		public void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
+		{
+		}
+
 		public virtual void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
@@ -1126,7 +1130,7 @@ namespace MiNET
 			IsOnGround = isOnGround;
 
 			// Hunger management
-			if(!IsGliding) HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
+			if (!IsGliding) HungerManager.Move(Vector3.Distance(new Vector3(KnownPosition.X, 0, KnownPosition.Z), new Vector3(message.x, 0, message.z)));
 
 			KnownPosition = new PlayerLocation
 			{
@@ -1588,6 +1592,10 @@ namespace MiNET
 			}
 
 			HungerManager.IncreaseExhaustion(0.3f);
+		}
+
+		public void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)
+		{
 		}
 
 		protected virtual int CalculateDamage(Entity target)
@@ -2270,6 +2278,11 @@ namespace MiNET
 		{
 			IsSpawned = false;
 			Level.DespawnFromAll(this);
+		}
+
+		public virtual void SendTitle(string text, TitleType type = TitleType.Title, int fadeIn = 300, int fadeOut = 300, int stayTime = 1000, Player sender = null)
+		{
+			Level.BroadcastTitle(text, type, fadeIn, fadeOut, stayTime, sender, new[] {this});
 		}
 
 		public virtual void SendMessage(string text, MessageType type = MessageType.Chat, Player sender = null)

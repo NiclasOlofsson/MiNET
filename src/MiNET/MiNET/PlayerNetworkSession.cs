@@ -541,6 +541,15 @@ namespace MiNET
 				handler.HandleMcpePlayerInput((McpePlayerInput) message);
 			}
 
+			else if (typeof(McpeBlockPickRequest) == message.GetType())
+			{
+				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest)message);
+			}
+			else if (typeof(McpeCommandBlockUpdate) == message.GetType())
+			{
+				handler.HandleMcpeCommandBlockUpdate((McpeCommandBlockUpdate)message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");

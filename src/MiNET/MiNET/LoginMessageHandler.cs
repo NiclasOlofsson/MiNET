@@ -402,6 +402,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)
+		{
+		}
+
 		public void HandleMcpeUseItem(McpeUseItem message)
 		{
 		}
@@ -459,6 +463,10 @@ namespace MiNET
 		}
 
 		public void HandleMcpeCommandStep(McpeCommandStep message)
+		{
+		}
+
+		public void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message)
 		{
 		}
 

@@ -354,6 +354,18 @@ namespace MiNET.Worlds
 			//}
 		}
 
+		public virtual void BroadcastTitle(string text, TitleType type = TitleType.Title, int fadeIn = 300, int fadeOut = 300, int stayTime = 1000, Player sender = null, Player[] sendList = null)
+		{
+			var mcpeSetTitle = McpeSetTitle.CreateObject();
+			mcpeSetTitle.fadeInTime = fadeIn;
+			mcpeSetTitle.stayTime = stayTime;
+			mcpeSetTitle.fadeOutTime = fadeOut;
+			mcpeSetTitle.type = (int)type;
+			mcpeSetTitle.text = text;
+
+			RelayBroadcast(sender, sendList, mcpeSetTitle);
+		}
+
 		public virtual void BroadcastMessage(string text, MessageType type = MessageType.Chat, Player sender = null, Player[] sendList = null)
 		{
 			if (type == MessageType.Chat || type == MessageType.Raw)

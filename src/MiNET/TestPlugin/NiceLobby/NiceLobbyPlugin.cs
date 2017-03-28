@@ -178,29 +178,23 @@ namespace TestPlugin.NiceLobby
 
 			int idx = 0;
 			player.Inventory.Slots[idx++] = new ItemStick() { Count = 1 };
-			//player.Inventory.Slots[idx++] = new ItemElytra() { Count = 1 };
 			player.Inventory.Chest = new ItemElytra() {Count = 1};
-
-			//player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronShovel().Id);
-			//player.Inventory.Slots[idx++] = ItemFactory.GetItem(new ItemIronAxe().Id);
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Sand(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
-			//player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemBlock(new StoneBrick(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemDiamondSword();
-			//player.Inventory.Slots[idx++] = new ItemBread {Count = 20};
-			//   for (short i = 0; i < 16; i++)
-			//   {
-			//             player.Inventory.Slots[idx++] = new ItemBlock(new Glass(), i) { Count = 20 };
-			//         }
 
 			player.SendPlayerInventory();
 
 			_players.TryAdd(player.Username, player);
 
-			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
-			var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
-			joinSound.Spawn(level);
+			ThreadPool.QueueUserWorkItem(state =>
+			{
+				Thread.Sleep(2000);
+				level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+				var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
+				joinSound.Spawn(level);
+
+				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
+				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+			});
 		}
 
 		private void OnPlayerLeave(object o, PlayerEventArgs eventArgs)

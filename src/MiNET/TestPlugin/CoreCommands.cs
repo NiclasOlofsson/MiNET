@@ -919,6 +919,13 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Title(Player player, string text, TitleType type)
+		{
+			player.SendTitle(text, type);
+		}
+
+
+		[Command]
 		public void Count(Player player)
 		{
 			List<string> users = new List<string>();

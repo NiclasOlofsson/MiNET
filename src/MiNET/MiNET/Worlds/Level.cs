@@ -354,7 +354,7 @@ namespace MiNET.Worlds
 			//}
 		}
 
-		public virtual void BroadcastTitle(string text, TitleType type = TitleType.Title, int fadeIn = 300, int fadeOut = 300, int stayTime = 1000, Player sender = null, Player[] sendList = null)
+		public virtual void BroadcastTitle(string text, TitleType type = TitleType.Title, int fadeIn = 6, int fadeOut = 6, int stayTime = 20, Player sender = null, Player[] sendList = null)
 		{
 			var mcpeSetTitle = McpeSetTitle.CreateObject();
 			mcpeSetTitle.fadeInTime = fadeIn;

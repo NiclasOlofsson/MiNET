@@ -2063,7 +2063,7 @@ namespace MiNET
 				particle.Spawn();
 			}
 
-			if (Log.IsDebugEnabled && Level.TickTime%10 == 0)
+			if (Log.IsDebugEnabled && IsGliding && Level.TickTime%10 == 0)
 			{
 				AddPopup(new Popup()
 				{
@@ -2280,7 +2280,7 @@ namespace MiNET
 			Level.DespawnFromAll(this);
 		}
 
-		public virtual void SendTitle(string text, TitleType type = TitleType.Title, int fadeIn = 300, int fadeOut = 300, int stayTime = 1000, Player sender = null)
+		public virtual void SendTitle(string text, TitleType type = TitleType.Title, int fadeIn = 6, int fadeOut = 6, int stayTime = 20, Player sender = null)
 		{
 			Level.BroadcastTitle(text, type, fadeIn, fadeOut, stayTime, sender, new[] {this});
 		}

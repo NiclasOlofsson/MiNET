@@ -556,7 +556,7 @@ namespace MiNET.Worlds
 
 					foreach (var chunkColumn in _chunkCache)
 					{
-						if (chunkColumn.Value.NeedSave)
+						if (chunkColumn.Value != null && chunkColumn.Value.NeedSave)
 						{
 							SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
 							count++;

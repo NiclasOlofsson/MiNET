@@ -234,7 +234,10 @@ namespace MiNET
 				Entity.BroadcastSetEntityData();
 				Entity.DespawnEntity();
 
-				player.DropInventory();
+				if (!Config.GetProperty("KeepInventory", false))
+				{
+					player.DropInventory();
+				}
 
 				var mcpeRespawn = McpeRespawn.CreateObject();
 				mcpeRespawn.x = player.SpawnPosition.X;

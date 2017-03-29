@@ -382,14 +382,6 @@ namespace TestPlugin.NiceLobby
 			//player.SetEffect(new Blindness { Level = 20, Duration = 20 * 10 });
 			//player.SetAutoJump(true);
 
-			if (player.Level.LevelId.Equals("Default"))
-			{
-				player.Level.CurrentWorldTime = 6000;
-				player.Level.IsWorldTimeStarted = false;
-			}
-
-			player.SendSetTime();
-
 			return packet;
 		}
 

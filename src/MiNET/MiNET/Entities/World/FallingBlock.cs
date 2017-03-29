@@ -22,6 +22,9 @@ namespace MiNET.Entities.World
 			Height = Width = Length = 0.98;
 			Velocity = new Vector3(0, (float) -Gravity, 0);
 			NoAi = false;
+
+			Gravity = 0.04;
+			Drag = 0.02;
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -31,8 +34,7 @@ namespace MiNET.Entities.World
 			//MetadataDictionary metadata = new MetadataDictionary();
 			//metadata[0] = new MetadataLong(0); // 0
 			//metadata[1] = new MetadataInt(1);
-			metadata[2] = new MetadataInt(_original.Id);
-			//metadata[3] = new MetadataByte(0);
+			metadata[2] = new MetadataInt(_original.Id | (_original.Metadata << 8));
 			//metadata[4] = new MetadataString("");
 			//metadata[5] = new MetadataLong(-1);
 			//metadata[7] = new MetadataShort(300);
@@ -65,6 +67,7 @@ namespace MiNET.Entities.World
 				DespawnEntity();
 
 				var block = BlockFactory.GetBlockById(_original.Id);
+				block.Metadata = _original.Metadata;
 				block.Coordinates = new BlockCoordinates(KnownPosition);
 				Level.SetBlock(block);
 			}
@@ -72,18 +75,20 @@ namespace MiNET.Entities.World
 
 		private void PositionCheck()
 		{
-			int distance = (int) Math.Ceiling(Velocity.Length());
-			for (int i = 0; i < distance; i++)
+			if (Velocity.Y < -0.1)
 			{
-				BlockCoordinates check = new BlockCoordinates(KnownPosition) + (BlockCoordinates.Down*i);
-				if (Level.GetBlock(check).IsSolid)
+				int distance = (int) Math.Ceiling(Velocity.Length());
+				for (int i = 0; i < distance; i++)
 				{
-					_checkPosition = false;
-					KnownPosition = check + BlockCoordinates.Up;
-					return;
+					BlockCoordinates check = new BlockCoordinates(KnownPosition) + (BlockCoordinates.Down*i);
+					if (Level.GetBlock(check).IsSolid)
+					{
+						_checkPosition = false;
+						KnownPosition = check + BlockCoordinates.Up;
+						return;
+					}
 				}
 			}
-
 			KnownPosition.X += (float) Velocity.X;
 			KnownPosition.Y += (float) Velocity.Y;
 			KnownPosition.Z += (float) Velocity.Z;

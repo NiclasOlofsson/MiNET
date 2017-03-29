@@ -2056,43 +2056,31 @@ namespace MiNET
 
 			base.OnTick();
 
-			if (IsGliding && CurrentSpeed > 30)
+			if (IsGliding)
 			{
-				var particle = new CriticalParticle(Level);
-				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn();
-			}
-
-			if (Log.IsDebugEnabled && IsGliding && Level.TickTime%10 == 0)
-			{
-				AddPopup(new Popup()
+				if (CurrentSpeed > 30)
 				{
-					Id = 10,
-					MessageType = MessageType.Tip,
-					Message = $"Speed: {CurrentSpeed:F2}m/s",
-					Duration = 20*5,
-				});
+					var particle = new CriticalParticle(Level);
+					particle.Position = KnownPosition.ToVector3();
+					particle.Spawn();
+				}
+
+				if (Level.TickTime % 10 == 0)
+				{
+					AddPopup(new Popup()
+					{
+						Id = 10,
+						MessageType = MessageType.Tip,
+						Message = $"Speed: {CurrentSpeed:F2}m/s",
+						Duration = 20 * 5,
+					});
+				}
 			}
 
 			foreach (var effect in Effects)
 			{
 				effect.Value.OnTick(this);
 			}
-
-			//if (Level.TickTime%30 == 0)
-			//{
-			//	if (Username.Equals("gurun"))
-			//	{
-			//		Popup popup = new Popup
-			//		{
-			//			Duration = 1,
-			//			MessageType = MessageType.Tip,
-			//			Message = string.Format("TT: {0}ms AvgTT: {1}ms", Level.LastTickProcessingTime, Level.AvarageTickProcessingTime)
-			//		};
-
-			//		AddPopup(popup);
-			//	}
-			//}
 
 			bool hasDisplayedPopup = false;
 			bool hasDisplayedTip = false;

@@ -1,35 +1,33 @@
 ﻿using System;
+using log4net;
 using MiNET.Items;
-using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Wheat : Block
+	public class Wheat : Crops
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Wheat));
+
 		public Wheat() : base(59)
 		{
-			IsSolid = false;
-			IsTransparent = true;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
-			if (Metadata == 0x7)
+			if (Metadata == 7)
 			{
 				// Can also return 0-3 seeds at random.
-				var rnd = new Random((int)DateTime.UtcNow.Ticks);
+				var rnd = new Random();
 				var count = rnd.Next(4);
 				if (count > 0)
 				{
 					return new[]
 					{
 						ItemFactory.GetItem(296, 0, 1),
-						ItemFactory.GetItem(295, 0, (byte)count)
+						ItemFactory.GetItem(295, 0, (byte) count)
 					};
 				}
-				return new[] { ItemFactory.GetItem(296, 0, 1) };
-
+				return new[] {ItemFactory.GetItem(296, 0, 1)};
 			}
 
 			return new[] {ItemFactory.GetItem(295, 0, 1)};

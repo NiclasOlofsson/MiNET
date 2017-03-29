@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MiNET.Items;
 
 namespace MiNET.Blocks
@@ -17,9 +13,15 @@ namespace MiNET.Blocks
 			Hardness = 5;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0];
+		}
+
+		public override float GetExperiencePoints()
+		{
+			Random random = new Random();
+			return random.Next(15, 44);
 		}
 	}
 }

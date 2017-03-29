@@ -14,5 +14,12 @@ namespace MiNET.Blocks
 		{
 			return ItemFactory.GetItem(265, 0);
 		}
+
+		public override Item[] GetDrops(Item tool)
+		{
+			if (tool.ItemMaterial < ItemMaterial.Stone) return new Item[0];
+
+			return base.GetDrops(tool);
+		}
 	}
 }

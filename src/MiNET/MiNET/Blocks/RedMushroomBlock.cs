@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 			Hardness = 0.2f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			var rnd = new Random((int)DateTime.UtcNow.Ticks);
 			var next = rnd.Next(3);

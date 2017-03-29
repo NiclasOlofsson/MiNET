@@ -1,24 +1,79 @@
+using System;
+using System.Collections.Generic;
+using log4net;
 using MiNET.Blocks;
 
 namespace MiNET.Items
 {
 	public interface ICustomItemFactory
 	{
-		Item GetItem(short id, short metadata, byte count);
+		Item GetItem(short id, short metadata, int count);
 	}
 
 	public interface ICustomBlockItemFactory
 	{
-		ItemBlock GetBlockItem(Block block, short metadata, byte count);
+		ItemBlock GetBlockItem(Block block, short metadata, int count);
 	}
 
 	public class ItemFactory
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFactory));
+
 		public static ICustomItemFactory CustomItemFactory { get; set; }
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
 
-		public static Item GetItem(short id, short metadata = 0, byte count = 1)
+		public static Dictionary<string, short> NameToId { get; private set; }
+
+		static ItemFactory()
 		{
+			NameToId = BuildNameToId();
+		}
+
+		private static Dictionary<string, short> BuildNameToId()
+		{
+			var nameToId = new Dictionary<string, short>();
+			for (short idx = 256; idx < 500; idx++)
+			{
+				Item item = GetItem(idx);
+				string name = item.GetType().Name.ToLowerInvariant();
+
+				if (name.Equals("item"))
+				{
+					if (Log.IsDebugEnabled)
+						Log.Debug($"Missing implementation for item ID={idx}");
+					continue;
+				}
+
+				try
+				{
+					nameToId.Add(name.Substring(4), idx);
+				}
+				catch (Exception e)
+				{
+					Log.Error($"Tried to add duplicate item for {name} {idx}");
+				}
+			}
+
+			return nameToId;
+		}
+
+		public static short GetItemIdByName(string itemName)
+		{
+			itemName = itemName.ToLowerInvariant();
+			itemName = itemName.Replace("_", "");
+
+			if (NameToId.ContainsKey(itemName))
+			{
+				return NameToId[itemName];
+			}
+
+			return BlockFactory.GetBlockIdByName(itemName);
+		}
+
+		public static Item GetItem(short id, short metadata = 0, int count = 1)
+		{
+			if (count == 0) return null;
+
 			Item item = null;
 
 			if (CustomItemFactory != null)
@@ -68,6 +123,8 @@ namespace MiNET.Items
 			else if (id == 292) item = new ItemIronHoe();
 			else if (id == 293) item = new ItemDiamondHoe();
 			else if (id == 294) item = new ItemGoldHoe();
+			else if (id == 295) item = new ItemWheatSeeds();
+			else if (id == 296) item = new ItemWheat();
 			else if (id == 297) item = new ItemBread();
 			else if (id == 298) item = new ItemLeatherHelmet();
 			else if (id == 299) item = new ItemLeatherChestplate();
@@ -93,21 +150,23 @@ namespace MiNET.Items
 			else if (id == 320) item = new ItemCookedPorkshop();
 			else if (id == 322) item = new ItemGoldenApple();
 			else if (id == 323) item = new ItemSign();
-			else if (id == 324) item = new ItemDoor();
+			else if (id == 324) item = new ItemWoodenDoor();
 			else if (id == 325) item = new ItemBucket(metadata);
 			else if (id == 331) item = new ItemRedstone();
 			else if (id == 332) item = new ItemSnowball();
 			else if (id == 344) item = new ItemEgg();
 			else if (id == 345) item = new ItemCompass();
+			else if (id == 352) item = new ItemBone();
 			else if (id == 355) item = new ItemBed();
 			else if (id == 357) item = new ItemCookie();
 			else if (id == 358) item = new ItemMap();
 			else if (id == 360) item = new ItemMelonSlice();
-			else if (id == 363) item = new ItemRawBeef();
-			else if (id == 364) item = new ItemSteak();
+			else if (id == 363) item = new ItemBeef();
+			else if (id == 364) item = new ItemCookedBeef();
 			else if (id == 365) item = new ItemRawChicken();
-			else if (id == 366) item = new ItemCoockedChicken();
+			else if (id == 366) item = new ItemCookedChicken();
 			else if (id == 373) item = new ItemPotion(metadata);
+			else if (id == 380) item = new ItemCauldron();
 			else if (id == 383) item = new ItemSpawnEgg(metadata);
 			else if (id == 391) item = new ItemCarrot();
 			else if (id == 392) item = new ItemPotato();
@@ -115,6 +174,15 @@ namespace MiNET.Items
 			else if (id == 395) item = new ItemEmptyMap();
 			else if (id == 397) item = new ItemMobHead(metadata);
 			else if (id == 400) item = new ItemPumpkinPie();
+			else if (id == 423) item = new ItemMuttonRaw();
+			else if (id == 424) item = new ItemMuttonCooked();
+			else if (id == 427) item = new ItemSpruceDoor();
+			else if (id == 428) item = new ItemBirchDoor();
+			else if (id == 429) item = new ItemJungleDoor();
+			else if (id == 430) item = new ItemAcaciaDoor();
+			else if (id == 431) item = new ItemDarkOakDoor();
+			else if (id == 444) item = new ItemElytra();
+			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{
 				Block block = BlockFactory.GetBlockById((byte) id);
@@ -132,7 +200,7 @@ namespace MiNET.Items
 			// This might now be a good idea if the constructor changes these
 			// properties for custom items.
 			item.Metadata = metadata;
-			item.Count = count;
+			item.Count = (byte) count;
 
 			return item;
 		}

@@ -26,9 +26,13 @@ namespace MiNET.Plugins
 		public string Description { get; set; }
 		public string Permission { get; set; }
 		public bool RequiresChatPerms { get; set; }
+		public bool OutputToSpeech { get; set; }
 
 		[JsonProperty(propertyName: "requires_edu")]
 		public bool RequiresEdu { get; set; }
+
+		[JsonProperty(propertyName: "is_hidden")]
+		public bool IsHidden { get; set; }
 
 		public Dictionary<string, Overload> Overloads { get; set; }
 	}
@@ -77,6 +81,18 @@ namespace MiNET.Plugins
 		public string[] EnumValues { get; set; }
 
 		public bool Optional { get; set; }
+
+		[JsonProperty(propertyName: "target_data")]
+		public TargetData TargetData { get; set; }
+	}
+
+	public class TargetData
+	{
+		[JsonProperty(propertyName: "players_only")]
+		public bool PlayersOnly { get; set; }
+
+		[JsonProperty(propertyName: "main_target")]
+		public bool MainTarget { get; set; }
 	}
 
 
@@ -120,7 +136,7 @@ namespace MiNET.Plugins
 	}
 
 	// enchantmentType
-	public class EnchantmentEnum : EnumBase
+	public class EnchantmentTypeEnum : EnumBase
 	{
 	}
 

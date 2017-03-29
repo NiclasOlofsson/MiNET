@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Items
 {
-	public class ItemRawBeef : FoodItem
+	public class ItemBone : Item
 	{
-		public ItemRawBeef() : base(363, 0, 3, 1.8)
+		public ItemBone() : base(352)
 		{
 		}
 

@@ -20,6 +20,7 @@ namespace MiNET.Items
 		{
 			var inventory = player.Inventory;
 			bool haveArrows = player.GameMode == GameMode.Creative;
+			haveArrows = haveArrows || this.GetEnchantingLevel(EnchantingType.Infinity) > 0;
 			if (!haveArrows)
 			{
 				for (byte i = 0; i < inventory.Slots.Count; i++)
@@ -43,17 +44,16 @@ namespace MiNET.Items
 			float force = CalculateForce(timeUsed);
 			if (force < 0.1D) return;
 
-			Arrow arrow = new Arrow(player, world, !(force < 1.0));
+			Arrow arrow = new Arrow(player, world, 2, !(force < 1.0));
+			arrow.PowerLevel = this.GetEnchantingLevel(EnchantingType.Power);
 			arrow.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			arrow.KnownPosition.Y += 1.62f;
 
-			arrow.Velocity = arrow.KnownPosition.GetHeadDirection()*(force*2.0f*1.5f);
+			arrow.Velocity = arrow.KnownPosition.GetHeadDirection() * (force * 2.0f * 1.5f);
 			arrow.KnownPosition.Yaw = (float) arrow.Velocity.GetYaw();
 			arrow.KnownPosition.Pitch = (float) arrow.Velocity.GetPitch();
 			arrow.BroadcastMovement = true;
 			arrow.DespawnOnImpact = false;
-			//arrow.BroadcastMovement = true;
-			//arrow.DespawnOnImpact = false;
 			arrow.SpawnEntity();
 		}
 

@@ -32,6 +32,7 @@ namespace MiNET
 
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
+		public int SplitPartId = 0;
 		public int OrderingIndex = -1;
 		public int ErrorCount { get; set; }
 
@@ -238,9 +239,9 @@ namespace MiNET
 			}
 			catch (Exception e)
 			{
+				Log.Error($"Exit receive handler task for player", e);
 			}
 
-			//Log.Warn($"Exit receive handler task for {Player.Username}");
 			return Task.CompletedTask;
 		}
 
@@ -305,24 +306,27 @@ namespace MiNET
 				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 				{
 					// Get actual package out of bytes
-					MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
-					defStream2.CopyTo(destination);
-					destination.Position = 0;
-					NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-
-					while (destination.Position < destination.Length)
+					using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
 					{
-						//int len = reader.ReadInt32();
-						int len = BatchUtils.ReadLength(destination);
-						byte[] internalBuffer = reader.ReadBytes(len);
+						defStream2.CopyTo(destination);
+						destination.Position = 0;
+						NbtBinaryReader reader = new NbtBinaryReader(destination, true);
 
-						//if (Log.IsDebugEnabled)
-						//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+						while (destination.Position < destination.Length)
+						{
+							//int len = reader.ReadInt32();
+							int len = BatchUtils.ReadLength(destination);
+							byte[] internalBuffer = reader.ReadBytes(len);
 
-						messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer));
+							//if (Log.IsDebugEnabled)
+							//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+
+							messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
+							             new UnknownPackage(internalBuffer[0], internalBuffer));
+						}
+
+						if (destination.Length > destination.Position) throw new Exception("Have more data");
 					}
-
-					if (destination.Length > destination.Position) throw new Exception("Have more data");
 				}
 				foreach (var msg in messages)
 				{
@@ -416,9 +420,19 @@ namespace MiNET
 				handler.HandleMcpeRemoveBlock((McpeRemoveBlock) message);
 			}
 
+			else if (typeof(McpeLevelSoundEvent) == message.GetType())
+			{
+				handler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent)message);
+			}
+
 			else if (typeof (McpeAnimate) == message.GetType())
 			{
 				handler.HandleMcpeAnimate((McpeAnimate) message);
+			}
+
+			else if (typeof(McpePlayerFall) == message.GetType())
+			{
+				handler.HandleMcpePlayerFall((McpePlayerFall)message);
 			}
 
 			else if (typeof (McpeUseItem) == message.GetType())
@@ -525,6 +539,15 @@ namespace MiNET
 			else if (typeof (McpeItemFramDropItem) == message.GetType())
 			{
 				handler.HandleMcpePlayerInput((McpePlayerInput) message);
+			}
+
+			else if (typeof(McpeBlockPickRequest) == message.GetType())
+			{
+				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest)message);
+			}
+			else if (typeof(McpeCommandBlockUpdate) == message.GetType())
+			{
+				handler.HandleMcpeCommandBlockUpdate((McpeCommandBlockUpdate)message);
 			}
 
 			else
@@ -937,5 +960,12 @@ namespace MiNET
 		public string ServerAddress { get; set; }
 		public long ClientId { get; set; }
 		public Skin Skin { get; set; }
+		public int CurrentInputMode { get; set; }
+		public int DefaultInputMode { get; set; }
+		public string DeviceModel { get; set; }
+		public string GameVersion { get; set; }
+		public int DeviceOS { get; set; }
+		public int GuiScale { get; set; }
+		public int UIProfile { get; set; }
 	}
 }

@@ -162,7 +162,13 @@ namespace MiNET.Net
 			int datagramHeaderSize = 100;
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
 			int index = 0;
-			short splitId = (short) (DateTime.UtcNow.Ticks%short.MaxValue);
+			if (session.SplitPartId > short.MaxValue - 100)
+			{
+				Interlocked.CompareExchange(ref session.SplitPartId, 0, short.MaxValue);
+			}
+
+			short splitId = (short)Interlocked.Increment(ref session.SplitPartId);
+
 			if (count <= 1)
 			{
 				MessagePart messagePart = MessagePart.CreateObject();

@@ -8,7 +8,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class FlatlandWorldProvider : IWorldProvider
+	public class FlatlandWorldProvider : IWorldProvider, ICachingWorldProvider
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (FlatlandWorldProvider));
 
@@ -72,51 +72,51 @@ namespace MiNET.Worlds
 				//var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
 				//chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
-				if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
-				{
-					for (int x = 0; x < 10; x++)
-					{
-						for (int z = 0; z < 10; z++)
-						{
-							for (int y = h - 2; y < h; y++)
-							{
-								chunk.SetBlock(x, y, z, 8);
-							}
-						}
-					}
-				}
+				//if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
+				//{
+				//	for (int x = 0; x < 10; x++)
+				//	{
+				//		for (int z = 0; z < 10; z++)
+				//		{
+				//			for (int y = h - 2; y < h; y++)
+				//			{
+				//				chunk.SetBlock(x, y, z, 8);
+				//			}
+				//		}
+				//	}
+				//}
 
-				if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
-				{
-					for (int x = 0; x < 10; x++)
-					{
-						for (int z = 0; z < 10; z++)
-						{
-							for (int y = h - 1; y < h; y++)
-							{
-								chunk.SetBlock(x, y, z, 10);
-							}
-						}
-					}
-				}
+				//if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+				//{
+				//	for (int x = 0; x < 10; x++)
+				//	{
+				//		for (int z = 0; z < 10; z++)
+				//		{
+				//			for (int y = h - 1; y < h; y++)
+				//			{
+				//				chunk.SetBlock(x, y, z, 10);
+				//			}
+				//		}
+				//	}
+				//}
 
-				for (int x = 0; x < 16; x++)
-				{
-					for (int z = 0; z < 16; z++)
-					{
-						for (int y = 127; y > 0; y--)
-						{
-							if (chunk.GetBlock(x, y, z) == 0x00)
-							{
-								chunk.SetSkyLight(x, y, z, 0xff);
-							}
-							else
-							{
-								chunk.SetSkyLight(x, y, z, 0x00);
-							}
-						}
-					}
-				}
+				//for (int x = 0; x < 16; x++)
+				//{
+				//	for (int z = 0; z < 16; z++)
+				//	{
+				//		for (int y = 15; y > 0; y--)
+				//		{
+				//			if (chunk.GetBlock(x, y, z) == 0x00)
+				//			{
+				//				//chunk.SetSkylight(x, y, z, 0xff);
+				//			}
+				//			else
+				//			{
+				//				//chunk.SetSkylight(x, y, z, 0x00);
+				//			}
+				//		}
+				//	}
+				//}
 
 				chunk.RecalcHeight();
 
@@ -190,66 +190,67 @@ namespace MiNET.Worlds
 
 		public long GetTime()
 		{
-			return 0;
+			return 6000;
+		}
+
+		public string GetName()
+		{
+			return "Flatland";
 		}
 
 		public int PopulateChunk(ChunkColumn chunk)
 		{
+			//var random = new CryptoRandom();
+			//var stones = new byte[16*16*16];
 			int h = 0;
 
-			var random = new CryptoRandom();
-			var stones = new byte[16*16*128];
-
-			for (int i = 0; i < stones.Length; i = i + 128)
+			for (int x = 0; x < 16; x++)
 			{
-				h = 1;
-
-				stones[i] = 7; // Bedrock
-				for (int s = 0; s < 40; s++)
+				for (int z = 0; z < 16; z++)
 				{
-					stones[i + h++] = 1; // Stone
+					h = 0;
+
+					chunk.SetBlock(x, h++, z, 7); // Bedrock
+
+					//stones[i + h++] = 1; // Stone
+					//stones[i + h++] = 1; // Stone
+
+					//switch (random.Next(0, 20))
+					//{
+					//	case 0:
+					//		stones[i + h++] = 3; // Dirt
+					//		stones[i + h++] = 3;
+					//		break;
+					//	case 1:
+					//		stones[i + h++] = 1; // Stone
+					//		stones[i + h++] = 1; // Stone
+					//		break;
+					//	case 2:
+					//		stones[i + h++] = 13; // Gravel
+					//		stones[i + h++] = 13; // Gravel
+					//		break;
+					//	case 3:
+					//		stones[i + h++] = 14; // Gold
+					//		stones[i + h++] = 14; // Gold
+					//		break;
+					//	case 4:
+					//		stones[i + h++] = 16; // Cole
+					//		stones[i + h++] = 16; // Cole
+					//		break;
+					//	case 5:
+					//		stones[i + h++] = 56; // Dimond
+					//		stones[i + h++] = 56; // Dimond
+					//		break;
+					//	default:
+					//		stones[i + h++] = 1; // Stone
+					//		stones[i + h++] = 1; // Stone
+					//		break;
+					//}
+					chunk.SetBlock(x, h++, z, 3); // Dirt
+					chunk.SetBlock(x, h++, z, 3); // Dirt
+					chunk.SetBlock(x, h++, z, 2); // Grass
 				}
-
-				//stones[i + h++] = 1; // Stone
-				//stones[i + h++] = 1; // Stone
-
-				//switch (random.Next(0, 20))
-				//{
-				//	case 0:
-				//		stones[i + h++] = 3; // Dirt
-				//		stones[i + h++] = 3;
-				//		break;
-				//	case 1:
-				//		stones[i + h++] = 1; // Stone
-				//		stones[i + h++] = 1; // Stone
-				//		break;
-				//	case 2:
-				//		stones[i + h++] = 13; // Gravel
-				//		stones[i + h++] = 13; // Gravel
-				//		break;
-				//	case 3:
-				//		stones[i + h++] = 14; // Gold
-				//		stones[i + h++] = 14; // Gold
-				//		break;
-				//	case 4:
-				//		stones[i + h++] = 16; // Cole
-				//		stones[i + h++] = 16; // Cole
-				//		break;
-				//	case 5:
-				//		stones[i + h++] = 56; // Dimond
-				//		stones[i + h++] = 56; // Dimond
-				//		break;
-				//	default:
-				//		stones[i + h++] = 1; // Stone
-				//		stones[i + h++] = 1; // Stone
-				//		break;
-				//}
-				stones[i + h++] = 3; // Dirt
-				stones[i + h++] = 3; // Dirt
-				stones[i + h++] = 2; // Grass
 			}
-
-			chunk.blocks = stones;
 
 			return h;
 		}
@@ -264,6 +265,10 @@ namespace MiNET.Worlds
 			return _chunkCache.Values.Where(column => column != null).ToArray();
 		}
 
+		public void ClearCachedChunks()
+		{
+			_chunkCache.Clear();
+		}
 
 		private Sign GetBlockEntity(int x, int y, int z)
 		{

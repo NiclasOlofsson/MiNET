@@ -183,6 +183,8 @@ namespace MiNET.Utils
 				case "3":
 				case "hard":
 					return Difficulty.Hard;
+				case "hardcore":
+					return Difficulty.Hardcore;
 				default:
 					return defaultValue;
 			}

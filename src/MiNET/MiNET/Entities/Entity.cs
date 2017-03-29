@@ -63,10 +63,9 @@ namespace MiNET.Entities
 			MaybeAge = 25,
 			Scale = 39,
 			MaxAir = 44,
-			CollisionBoxHeight = 53,
+			CollisionBoxHeight = 55,
 			CollisionBoxWidth = 54,
 		}
-
 
 		public virtual MetadataDictionary GetMetadata()
 		{
@@ -105,7 +104,7 @@ namespace MiNET.Entities
 			bits.CopyTo(bytes, 0);
 
 			long dataValue = BitConverter.ToInt64(bytes, 0);
-			Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long) dataValue, 2)}b ");
+			//Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long) dataValue, 2)}b ");
 			return dataValue;
 		}
 
@@ -117,8 +116,7 @@ namespace MiNET.Entities
 		public bool IsTempted { get; set; }
 		public bool IsInLove { get; set; }
 		public bool IsSaddled { get; set; }
-		public bool 
-			IsPowered { get; set; }
+		public bool IsPowered { get; set; }
 		public bool IsIgnited { get; set; }
 		public bool IsBaby { get; set; }
 		public bool IsConverting { get; set; }
@@ -126,6 +124,7 @@ namespace MiNET.Entities
 		public bool IsShowName => !HideNameTag;
 		public bool IsAlwaysShowName { get; set; }
 		public bool IsNoAi => NoAi;
+		public bool HaveAi => !NoAi;
 		public bool IsSilent { get; set; }
 		public bool IsWallClimbing { get; set; }
 		public bool IsResting { get; set; }
@@ -136,7 +135,7 @@ namespace MiNET.Entities
 		public bool IsTamed { get; set; }
 		public bool IsLeashed { get; set; }
 		public bool IsSheared { get; set; }
-		public bool IsFlagAllFlying { get; set; }
+		public bool IsGliding { get; set; }
 		public bool IsElder { get; set; }
 		public bool IsMoving { get; set; }
 		public bool IsBreathing => !IsInWater;
@@ -186,8 +185,6 @@ namespace MiNET.Entities
 
 		protected virtual BitArray GetFlags()
 		{
-			IsFlagAllFlying = false;
-
 			BitArray bits = new BitArray(64);
 			bits[(int) DataFlags.OnFire] = HealthManager.IsOnFire;
 			bits[(int) DataFlags.Sneaking] = IsSneaking;
@@ -216,7 +213,7 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Tamed] = IsTamed;
 			bits[(int) DataFlags.Leashed] = IsLeashed;
 			bits[(int) DataFlags.Sheared] = IsSheared;
-			bits[(int) DataFlags.FlagAllFlying] = IsFlagAllFlying;
+			bits[(int) DataFlags.FlagAllFlying] = IsGliding;
 			bits[(int) DataFlags.Elder] = IsElder;
 			bits[(int) DataFlags.Moving] = IsMoving;
 			bits[(int) DataFlags.Breathing] = IsBreathing;
@@ -280,6 +277,7 @@ namespace MiNET.Entities
 		public virtual void DespawnEntity()
 		{
 			Level.RemoveEntity(this);
+			IsSpawned = false;
 		}
 
 		public virtual void DespawnFromPlayers(Player[] players)
@@ -295,6 +293,14 @@ namespace MiNET.Entities
 			mcpeSetEntityData.entityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
 			Level?.RelayBroadcast(mcpeSetEntityData);
+		}
+
+		public virtual void BroadcastEntityEvent()
+		{
+			var entityEvent = McpeEntityEvent.CreateObject();
+			entityEvent.entityId = EntityId;
+			entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
+			Level.RelayBroadcast(entityEvent);
 		}
 
 		public BoundingBox GetBoundingBox()
@@ -330,6 +336,29 @@ namespace MiNET.Entities
 		public virtual void Knockback(Vector3 velocity)
 		{
 			Velocity += velocity;
+			BroadcastMotion(!NoAi);
+		}
+
+		public void BroadcastMotion(bool forceMove = false)
+		{
+			if (NoAi || forceMove)
+			{
+				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+				motions.entityId = EntityId;
+				motions.velocity = Velocity;
+				Level.RelayBroadcast(motions);
+			}
+		}
+
+		public void BroadcastMove(bool forceMove = false)
+		{
+			if (NoAi || forceMove)
+			{
+				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+				moveEntity.entityId = EntityId;
+				moveEntity.position = KnownPosition;
+				Level.RelayBroadcast(moveEntity);
+			}
 		}
 
 

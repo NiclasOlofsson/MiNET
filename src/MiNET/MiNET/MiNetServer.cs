@@ -17,6 +17,7 @@ using MiNET.Plugins;
 using MiNET.Security;
 using MiNET.Utils;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
@@ -292,8 +293,8 @@ namespace MiNET
 					}
 					else
 					{
-						Log.Error("Unexpected end of transmission?");
-						return;
+						Log.Warn("Unexpected end of transmission?");
+						continue;
 					}
 				}
 				catch (Exception e)
@@ -656,52 +657,56 @@ namespace MiNET
 				SplitPartPackage[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
-				MemoryStream stream = MemoryStreamManager.GetStream();
-				for (int i = 0; i < spPackets.Length; i++)
+				using (MemoryStream stream = MemoryStreamManager.GetStream())
 				{
-					SplitPartPackage splitPartPackage = spPackets[i];
-					byte[] buf = splitPartPackage.Message;
-					if (buf == null)
+					for (int i = 0; i < spPackets.Length; i++)
 					{
-						Log.Error("Expected bytes in splitpart, but got none");
-						continue;
+						SplitPartPackage splitPartPackage = spPackets[i];
+						byte[] buf = splitPartPackage.Message;
+						if (buf == null)
+						{
+							Log.Error("Expected bytes in splitpart, but got none");
+							continue;
+						}
+
+						stream.Write(buf, 0, buf.Length);
+						splitPartPackage.PutPool();
 					}
 
-					stream.Write(buf, 0, buf.Length);
-					splitPartPackage.PutPool();
-				}
+					byte[] buffer = stream.ToArray();
+					try
+					{
+						ConnectedPackage newPackage = ConnectedPackage.CreateObject();
+						newPackage._datagramSequenceNumber = sequenceNumber;
+						newPackage._reliability = reliability;
+						newPackage._reliableMessageNumber = reliableMessageNumber;
+						newPackage._orderingIndex = orderingIndex;
+						newPackage._orderingChannel = (byte) orderingChannel;
+						newPackage._hasSplit = false;
 
-				byte[] buffer = stream.ToArray();
-				try
-				{
-					ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-					newPackage._datagramSequenceNumber = sequenceNumber;
-					newPackage._reliability = reliability;
-					newPackage._reliableMessageNumber = reliableMessageNumber;
-					newPackage._orderingIndex = orderingIndex;
-					newPackage._orderingChannel = (byte) orderingChannel;
-					newPackage._hasSplit = false;
+						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ??
+						                      new UnknownPackage(buffer[0], buffer);
+						fullMessage.DatagramSequenceNumber = sequenceNumber;
+						fullMessage.Reliability = reliability;
+						fullMessage.ReliableMessageNumber = reliableMessageNumber;
+						fullMessage.OrderingIndex = orderingIndex;
+						fullMessage.OrderingChannel = orderingChannel;
 
-					Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ?? new UnknownPackage(buffer[0], buffer);
-					fullMessage.DatagramSequenceNumber = sequenceNumber;
-					fullMessage.Reliability = reliability;
-					fullMessage.ReliableMessageNumber = reliableMessageNumber;
-					fullMessage.OrderingIndex = orderingIndex;
-					fullMessage.OrderingChannel = orderingChannel;
+						newPackage.Messages = new List<Package>();
+						newPackage.Messages.Add(fullMessage);
 
-					newPackage.Messages = new List<Package>();
-					newPackage.Messages.Add(fullMessage);
-
-					Log.Debug($"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
-					HandleConnectedPackage(playerSession, newPackage);
-					newPackage.PutPool();
-				}
-				catch (Exception e)
-				{
-					Log.Error("Error during split message parsing", e);
-					if (Log.IsDebugEnabled)
-						Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-					playerSession.Disconnect("Bad package received from client.", false);
+						Log.Debug(
+							$"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
+						HandleConnectedPackage(playerSession, newPackage);
+						newPackage.PutPool();
+					}
+					catch (Exception e)
+					{
+						Log.Error("Error during split message parsing", e);
+						if (Log.IsDebugEnabled)
+							Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
+						playerSession.Disconnect("Bad package received from client.", false);
+					}
 				}
 			}
 		}
@@ -736,62 +741,64 @@ namespace MiNET
 				}
 				case 0x00:
 				{
-					var stream = MemoryStreamManager.GetStream();
-
-					bool isFullStatRequest = receiveBytes.Length == 15;
-					if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
-
-					// ID
-					stream.WriteByte(0x00);
-
-					// Sequence number
-					stream.WriteByte(receiveBytes[3]);
-					stream.WriteByte(receiveBytes[4]);
-					stream.WriteByte(receiveBytes[5]);
-					stream.WriteByte(receiveBytes[6]);
-
-					//{
-					//	string str = "splitnum\0";
-					//	byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
-					//	stream.Write(bytes, 0, bytes.Length);
-					//}
-
-					MotdProvider.GetMotd(ServerInfo, senderEndpoint); // Force update the player counts :-)
-
-					var data = new Dictionary<string, string>
+					using (var stream = MemoryStreamManager.GetStream())
 					{
-						{"splitnum", "" + (char) 128},
-						{"hostname", "Minecraft PE Server"},
-						{"gametype", "SMP"},
-						{"game_id", "MINECRAFTPE"},
-						{"version", "0.15.0"},
-						{"server_engine", "MiNET v1.0.0"},
-						{"plugins", "MiNET v1.0.0"},
-						{"map", "world"},
-						{"numplayers", MotdProvider.NumberOfPlayers.ToString()},
-						{"maxplayers", MotdProvider.MaxNumberOfPlayers.ToString()},
-						{"whitelist", "off"},
-						//{"hostip", "192.168.0.1"},
-						//{"hostport", "19132"}
-					};
 
-					foreach (KeyValuePair<string, string> valuePair in data)
-					{
-						string key = valuePair.Key + "\x00" + valuePair.Value + "\x00";
-						byte[] bytes = Encoding.ASCII.GetBytes(key.ToCharArray());
-						stream.Write(bytes, 0, bytes.Length);
+						bool isFullStatRequest = receiveBytes.Length == 15;
+						if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
+
+						// ID
+						stream.WriteByte(0x00);
+
+						// Sequence number
+						stream.WriteByte(receiveBytes[3]);
+						stream.WriteByte(receiveBytes[4]);
+						stream.WriteByte(receiveBytes[5]);
+						stream.WriteByte(receiveBytes[6]);
+
+						//{
+						//	string str = "splitnum\0";
+						//	byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
+						//	stream.Write(bytes, 0, bytes.Length);
+						//}
+
+						MotdProvider.GetMotd(ServerInfo, senderEndpoint); // Force update the player counts :-)
+
+						var data = new Dictionary<string, string>
+						{
+							{"splitnum", "" + (char) 128},
+							{"hostname", "Minecraft PE Server"},
+							{"gametype", "SMP"},
+							{"game_id", "MINECRAFTPE"},
+							{"version", "0.15.0"},
+							{"server_engine", "MiNET v1.0.0"},
+							{"plugins", "MiNET v1.0.0"},
+							{"map", "world"},
+							{"numplayers", MotdProvider.NumberOfPlayers.ToString()},
+							{"maxplayers", MotdProvider.MaxNumberOfPlayers.ToString()},
+							{"whitelist", "off"},
+							//{"hostip", "192.168.0.1"},
+							//{"hostport", "19132"}
+						};
+
+						foreach (KeyValuePair<string, string> valuePair in data)
+						{
+							string key = valuePair.Key + "\x00" + valuePair.Value + "\x00";
+							byte[] bytes = Encoding.ASCII.GetBytes(key.ToCharArray());
+							stream.Write(bytes, 0, bytes.Length);
+						}
+
+						{
+							string str = "\x00\x01player_\x00\x00";
+							byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
+							stream.Write(bytes, 0, bytes.Length);
+						}
+
+						// End the stream with 0 byte
+						stream.WriteByte(0);
+						var buffer = stream.ToArray();
+						_listener.Send(buffer, buffer.Length, senderEndpoint);
 					}
-
-					{
-						string str = "\x00\x01player_\x00\x00";
-						byte[] bytes = Encoding.ASCII.GetBytes(str.ToCharArray());
-						stream.Write(bytes, 0, bytes.Length);
-					}
-
-					// End the stream with 0 byte
-					stream.WriteByte(0);
-					var buffer = stream.ToArray();
-					_listener.Send(buffer, buffer.Length, senderEndpoint);
 					break;
 				}
 				default:
@@ -1013,46 +1020,64 @@ namespace MiNET
 		{
 			if (!Log.IsDebugEnabled) return;
 
-			string typeName = message.GetType().Name;
-
-			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-			string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
-			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
-
-			if (!Regex.IsMatch(typeName, includePattern))
+			try
 			{
-				return;
-			}
+				string typeName = message.GetType().Name;
 
-			if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
-			{
-				return;
-			}
+				string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+				string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
+				int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+				verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
 
-			if (verbosity == 0)
-			{
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
-			}
-			else if (verbosity == 1)
-			{
-				var jsonSerializerSettings = new JsonSerializerSettings
+				if (!Regex.IsMatch(typeName, includePattern))
 				{
-					PreserveReferencesHandling = PreserveReferencesHandling.None,
-					Formatting = Formatting.Indented,
-				};
-				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+					return;
+				}
+
+				if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+				{
+					return;
+				}
+
+				if (verbosity == 0)
+				{
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+				}
+				else if (verbosity == 1)
+				{
+					var jsonSerializerSettings = new JsonSerializerSettings
+					{
+						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+						
+						Formatting = Formatting.Indented,
+					};
+					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
+					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+				}
+				else if (verbosity == 2)
+				{
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+				}
 			}
-			else if (verbosity == 2)
+			catch (Exception e)
 			{
-				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+				Log.Error("Error when printing trace", e);
 			}
 		}
 
 		public static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
+			if (message is McpeBatch) return;
+			if (message is UnconnectedPong) return;
+			if (message is McpeMovePlayer) return;
+			if (message is McpeSetEntityMotion) return;
+			if (message is McpeMoveEntity) return;
+			if (message is McpeSetEntityData) return;
+			if (message is McpeUpdateBlock) return;
 			//if (!Debugger.IsAttached) return;
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);

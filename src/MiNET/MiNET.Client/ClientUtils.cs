@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using fNbt;
 using log4net;
 using MiNET.Net;
@@ -16,71 +14,187 @@ namespace MiNET.Client
 		private static int _waterOffsetY = 0;
 		private static string _basePath = @"D:\Temp\MCPEWorldStore";
 
+		private static object _chunkRead = new object();
+
 		public static ChunkColumn DecocedChunkColumn(byte[] buffer)
 		{
-			MemoryStream stream = new MemoryStream(buffer);
+			lock (_chunkRead)
 			{
-				NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
-				ChunkColumn chunk = new ChunkColumn();
-
-				//chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
-				//chunk.z = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
-
-				int chunkSize = 16*16*128;
-				defStream.Read(chunk.blocks, 0, chunkSize);
-				defStream.Read(chunk.metadata.Data, 0, chunkSize/2);
-				defStream.Read(chunk.skyLight.Data, 0, chunkSize/2);
-				defStream.Read(chunk.blockLight.Data, 0, chunkSize/2);
-
-				//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skyLight.Data, 64)}");
-				//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
-
-				defStream.Read(chunk.height, 0, 256);
-				//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
-
-				if (chunk.height.Where(b => b != 0x4).Count() != 0)
+				MemoryStream stream = new MemoryStream(buffer);
 				{
-					Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
-					Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skyLight.Data, 64)}");
+					NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
+
+					Log.Debug("New chunk column");
+
+					int count = defStream.ReadByte();
+					if (count < 1)
+					{
+						Log.Warn("Nothing to read");
+						return null;
+					}
+
+					if (count > 1) Log.Debug($"Reading {count} sections");
+					else Log.Debug($"Reading {count} sections");
+
+					ChunkColumn chunkColumn = new ChunkColumn();
+
+					for (int s = 0; s < count; s++)
+					{
+						int idx = defStream.ReadByte();
+
+						Log.Debug($"New section {s}, index={idx}");
+						Chunk chunk = chunkColumn.chunks[s];
+
+						int chunkSize = 16*16*16;
+						defStream.Read(chunk.blocks, 0, chunkSize);
+						//Log.Debug($"Blocks1:\n{Package.HexDump(chunk.blocks)}");
+
+						if (defStream.Read(chunk.metadata.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: metadata");
+
+						//Log.Debug($"metadata:\n{Package.HexDump(chunk.metadata.Data)}");
+
+						if (defStream.Read(chunk.skylight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: skylight");
+						//Log.Debug($"skylight:\n{Package.HexDump(chunk.skylight.Data)}");
+
+						if (defStream.Read(chunk.blocklight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: blocklight");
+						//Log.Debug($"blocklight:\n{Package.HexDump(chunk.blocklight.Data)}");
+
+						//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");
+						//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
+
+						//byte[] ints = new byte[256*4];
+						//var readLen = defStream.Read(ints, 0, ints.Length);
+						//if (readLen != ints.Length) Log.Error($"Out of data biomeColors, read lenght {readLen}");
+						//Log.Debug($"biomeColor (pre):\n{Package.HexDump(ints)}");
+
+						//return null;
+						//int j = 0;
+						//for (int i = 0; i < ints.Length; i = i + 4)
+						//{
+						//	chunk.biomeId[j] = ints[i];
+						//	chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {(byte) 0, ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
+						//}
+						//Log.Debug($"biomeId (post):\n{Package.HexDump(chunk.biomeId)}");
+
+						//if (stream.Position >= stream.Length - 1) return chunk;
+
+						////return chunk;
+
+						//return chunk;
+					}
+
+					//if (stream.Position >= stream.Length - 1) continue;
+
+					if (defStream.Read(chunkColumn.height, 0, 256 * 2) != 256 * 2) Log.Error($"Out of data height");
+					//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
+
+					//if (stream.Position >= stream.Length - 1) continue;
+
+					if (defStream.Read(chunkColumn.biomeId, 0, 256) != 256) Log.Error($"Out of data biomeId");
+					//Log.Debug($"biomeId:\n{Package.HexDump(chunk.biomeId)}");
+
+					//if (stream.Position >= stream.Length - 1) continue;
+
+					int borderBlock = VarInt.ReadSInt32(stream);
+					if (borderBlock != 0)
+					{
+						Log.Warn($"??? Got borderblock {borderBlock}");
+					}
+
+					int extraCount = VarInt.ReadSInt32(stream);
+					if (extraCount != 0)
+					{
+						//Log.Warn($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraCount*10))}");
+						for (int i = 0; i < extraCount; i++)
+						{
+							var hash = VarInt.ReadSInt32(stream);
+							var blockData = defStream.ReadInt16();
+							Log.Warn($"Got extradata: hash=0x{hash:X2}, blockdata=0x{blockData:X2}");
+						}
+					}
+
+					if (stream.Position < stream.Length - 1)
+					{
+						//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+
+						while (stream.Position < stream.Length)
+						{
+							NbtFile file = new NbtFile() { BigEndian = false, UseVarInt = true };
+
+							file.LoadFromStream(stream, NbtCompression.None);
+
+							Log.Debug($"Blockentity: {file.RootTag}");
+						}
+					}
+					if (stream.Position < stream.Length - 1)
+					{
+						Log.Warn($"Still have data to read\n{Package.HexDump(defStream.ReadBytes((int)(stream.Length - stream.Position)))}");
+					}
 				}
 
-				byte[] ints = new byte[256*4];
-				defStream.Read(ints, 0, ints.Length);
-				//Log.Debug($"biomeColor (pre):\n{Package.HexDump(ints)}");
-				int j = 0;
-				for (int i = 0; i < ints.Length; i = i + 4)
-				{
-					chunk.biomeId[j] = ints[i];
-					chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {(byte) 0, ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
-				}
-				//Log.Debug($"biomeId (post):\n{Package.HexDump(chunk.biomeId)}");
-
-				if (stream.Position >= stream.Length - 1) return chunk;
-
-				//return chunk;
-
-				int extraSize = defStream.ReadInt16();
-				if (extraSize != 0)
-				{
-					Log.Debug($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
-				}
-
-				if (stream.Position >= stream.Length - 1) return chunk;
-
-				//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
-
-				while (stream.Position < stream.Length)
-				{
-					NbtFile file = new NbtFile() {BigEndian = false, UseVarInt = true};
-
-					file.LoadFromStream(stream, NbtCompression.None);
-
-					//Log.Debug($"Blockentity: {file.RootTag}");
-				}
-
-				return chunk;
+				return new ChunkColumn();
 			}
 		}
+
+		//public static ChunkColumn DecocedOldChunkColumn(byte[] buffer)
+		//{
+		//	MemoryStream stream = new MemoryStream(buffer);
+		//	{
+		//		NbtBinaryReader defStream = new NbtBinaryReader(stream, true);
+		//		ChunkColumn chunk = new ChunkColumn();
+
+		//		//chunk.x = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
+		//		//chunk.z = IPAddress.NetworkToHostOrder(defStream.ReadInt32());
+
+		//		int chunkSize = 16*16*128;
+		//		defStream.Read(chunk.blocks, 0, chunkSize);
+		//		defStream.Read(chunk.metadata.Data, 0, chunkSize/2);
+		//		defStream.Read(chunk.skylight.Data, 0, chunkSize/2);
+		//		defStream.Read(chunk.blocklight.Data, 0, chunkSize/2);
+
+		//		//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");
+		//		//Log.Debug($"blocklight.Data:\n{Package.HexDump(chunk.blocklight.Data)}");
+
+		//		defStream.Read(chunk.height, 0, 256);
+		//		//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
+
+		//		byte[] ints = new byte[256*4];
+		//		defStream.Read(ints, 0, ints.Length);
+		//		//Log.Debug($"biomeColor (pre):\n{Package.HexDump(ints)}");
+		//		int j = 0;
+		//		for (int i = 0; i < ints.Length; i = i + 4)
+		//		{
+		//			chunk.biomeId[j] = ints[i];
+		//			chunk.biomeColor[j++] = BitConverter.ToInt32(new[] {(byte) 0, ints[i + 1], ints[i + 2], ints[i + 3]}, 0);
+		//		}
+		//		//Log.Debug($"biomeId (post):\n{Package.HexDump(chunk.biomeId)}");
+
+		//		if (stream.Position >= stream.Length - 1) return chunk;
+
+		//		//return chunk;
+
+		//		int extraSize = defStream.ReadInt16();
+		//		if (extraSize != 0)
+		//		{
+		//			Log.Debug($"Got extradata\n{Package.HexDump(defStream.ReadBytes(extraSize))}");
+		//		}
+
+		//		if (stream.Position >= stream.Length - 1) return chunk;
+
+		//		//Log.Debug($"Got NBT data\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+
+		//		while (stream.Position < stream.Length)
+		//		{
+		//			NbtFile file = new NbtFile() {BigEndian = false, UseVarInt = true};
+
+		//			file.LoadFromStream(stream, NbtCompression.None);
+
+		//			//Log.Debug($"Blockentity: {file.RootTag}");
+		//		}
+
+		//		return chunk;
+		//	}
+		//}
 
 		private static void SetNibble4(byte[] arr, int index, byte value)
 		{
@@ -159,8 +273,8 @@ namespace MiNET.Client
 
 							blocks[anvilIndex] = blockId;
 							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
-							SetNibble4(blockLight, anvilIndex, chunk.GetBlockLight(x, yi, z));
-							SetNibble4(skyLight, anvilIndex, chunk.GetSkyLight(x, yi, z));
+							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
+							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
 						}
 					}
 				}
@@ -176,93 +290,6 @@ namespace MiNET.Client
 			levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
 
 			return nbt;
-		}
-
-		public static void SaveChunk(ChunkColumn chunk, string basePath, int yoffset)
-		{
-			Log.Debug($"Save chunk X={chunk.x}, Z={chunk.z} to {basePath}");
-
-			chunk.NeedSave = false;
-
-			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
-
-			int width = 32;
-			int depth = 32;
-
-			int rx = coordinates.X >> 5;
-			int rz = coordinates.Z >> 5;
-
-			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
-
-			if (!File.Exists(filePath))
-			{
-				// Make sure directory exist
-				Directory.CreateDirectory(Path.Combine(basePath, "region"));
-
-				// Create empty region file
-				using (var regionFile = File.Open(filePath, FileMode.CreateNew))
-				{
-					byte[] buffer = new byte[8192];
-					regionFile.Write(buffer, 0, buffer.Length);
-				}
-
-				return;
-			}
-
-			using (var regionFile = File.Open(filePath, FileMode.Open))
-			{
-				byte[] buffer = new byte[8192];
-
-				regionFile.Read(buffer, 0, buffer.Length);
-
-				int xi = (coordinates.X%width);
-				if (xi < 0) xi += 32;
-				int zi = (coordinates.Z%depth);
-				if (zi < 0) zi += 32;
-				int tableOffset = (xi + zi*width)*4;
-
-				regionFile.Seek(tableOffset, SeekOrigin.Begin);
-
-				byte[] offsetBuffer = new byte[4];
-				regionFile.Read(offsetBuffer, 0, 3);
-				Array.Reverse(offsetBuffer);
-				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
-
-				int length = regionFile.ReadByte();
-
-				if (offset == 0 || length == 0)
-				{
-					regionFile.Seek(0, SeekOrigin.End);
-					offset = (int) regionFile.Position;
-
-					regionFile.Seek(tableOffset, SeekOrigin.Begin);
-
-					byte[] bytes = BitConverter.GetBytes(offset >> 4);
-					Array.Reverse(bytes);
-					regionFile.Write(bytes, 0, 3);
-					regionFile.WriteByte(1);
-				}
-
-				// Write NBT
-				NbtFile nbt = AnvilWorldProvider.CreateNbtFromChunkColumn(chunk, yoffset);
-				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
-
-				int nbtLength = nbtBuf.Length;
-				byte[] lenghtBytes = BitConverter.GetBytes(nbtLength + 1);
-				Array.Reverse(lenghtBytes);
-
-				regionFile.Seek(offset, SeekOrigin.Begin);
-				regionFile.Write(lenghtBytes, 0, 4); // Lenght
-				regionFile.WriteByte(0x02); // Compression mode
-
-				regionFile.Write(nbtBuf, 0, nbtBuf.Length);
-
-				int reminder;
-				Math.DivRem(nbtLength + 4, 4096, out reminder);
-
-				byte[] padding = new byte[4096 - reminder];
-				if (padding.Length > 0) regionFile.Write(padding, 0, padding.Length);
-			}
 		}
 	}
 }

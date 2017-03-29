@@ -1,5 +1,5 @@
-﻿using MiNET.Items;
-using MiNET.Utils;
+﻿using MiNET.Entities.Behaviors;
+using MiNET.Items;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Passive
@@ -12,11 +12,16 @@ namespace MiNET.Entities.Passive
 			Height = 1.4;
 			HealthManager.MaxHealth = 100;
 			HealthManager.ResetHealth();
+
+			Behaviors.Add(new PanicBehavior(60, Speed, 2.0));
+			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
+			Behaviors.Add(new LookAtPlayerBehavior());
+			Behaviors.Add(new RandomLookaroundBehavior());
 		}
 
 		public override Item[] GetDrops()
 		{
-			return new []
+			return new[]
 			{
 				ItemFactory.GetItem(363, 0, 2),
 				ItemFactory.GetItem(334, 0, 2)

@@ -5,6 +5,7 @@ namespace MiNET.Worlds
 		Peaceful,
 		Easy,
 		Normal,
-		Hard
+		Hard,
+		Hardcore
 	}
 }

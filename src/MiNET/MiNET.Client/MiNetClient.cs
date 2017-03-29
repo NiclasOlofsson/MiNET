@@ -148,6 +148,7 @@ namespace MiNET.Client
 			//}
 
 			Action<Task, Item, BlockCoordinates> doUseItem = BotHelpers.DoUseItem(client);
+			Action<Task, int, Item, int> doSetSlot = BotHelpers.DoContainerSetSlot(client);
 			Action<Task, PlayerLocation> doMoveTo = BotHelpers.DoMoveTo(client);
 			Action<Task, string> doSendCommand = BotHelpers.DoSendCommand(client);
 
@@ -155,12 +156,16 @@ namespace MiNET.Client
 			//.ContinueWith(t => doMoveTo(t, client.CurrentLocation + new Vector3(10, 1.62f, 10)))
 
 			Task.Run(BotHelpers.DoWaitForSpawn(client))
-				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Stone(), 0) {Count = 64}, 0))
+				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				.ContinueWith(t => doSendCommand(t, "/test"))
-				//.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(53, 4, 18)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180+45, 180+45, 180)))
+				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
+				//.ContinueWith(t => doSendCommand(t, "/test"))
+				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) { Count = 1 }, new BlockCoordinates(22, 4, 42)))
+				.ContinueWith(t => Task.Delay(5000).Wait())
+				.ContinueWith(t => doSetSlot(t, 2, new ItemIronSword() { Count = 1 }, 0))
+				.ContinueWith(t => doSetSlot(t, 2, ItemFactory.GetItem(351, 4, 64), 1))
 				//.ContinueWith(t =>
 				//{
 				//	Random rnd = new Random();
@@ -1013,6 +1018,16 @@ namespace MiNET.Client
 				OnMcpeAnimate((McpeAnimate) message);
 			}
 
+			else if (typeof(McpeMapInfoRequest) == message.GetType())
+			{
+				OnMcpeMapInfoRequest((McpeMapInfoRequest)message);
+			}
+
+			else if (typeof(McpeClientboundMapItemData) == message.GetType())
+			{
+				OnMcpeClientboundMapItemData((McpeClientboundMapItemData)message);
+			}
+
 			else if (typeof (McpeInteract) == message.GetType())
 			{
 				OnMcpeInteract((McpeInteract) message);
@@ -1042,6 +1057,14 @@ namespace MiNET.Client
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 			}
+		}
+
+		private void OnMcpeClientboundMapItemData(McpeClientboundMapItemData message)
+		{
+		}
+
+		private void OnMcpeMapInfoRequest(McpeMapInfoRequest message)
+		{
 		}
 
 		private void OnMcpeMobArmorEquipment(McpeMobArmorEquipment message)
@@ -1199,16 +1222,16 @@ namespace MiNET.Client
 
 		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
 		{
-			//{
-			//	dynamic json = JObject.Parse(message.commands);
+			{
+				dynamic json = JObject.Parse(message.commands);
 
-			//	if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
-			//}
-			//{
-			//	dynamic json = JObject.Parse(message.unknown);
+				//if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+			}
+			{
+				dynamic json = JObject.Parse(message.unknown);
 
-			//	if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
-			//}
+				//if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
+			}
 		}
 
 		private void OnMcpeCommandStep(McpeCommandStep message)
@@ -1237,7 +1260,7 @@ namespace MiNET.Client
 		{
 			foreach (var playerRecord in message.records)
 			{
-				Log.Debug($"Added player: {playerRecord.DisplayName}");
+				Log.Warn($"{playerRecord.GetType()} Player: {playerRecord.DisplayName}, {playerRecord.EntityId}, {playerRecord.ClientUuid}");
 			}
 
 			//Log.Debug($"\n{Package.HexDump(message.Bytes)}");
@@ -1258,7 +1281,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 91,
+				protocolVersion = 102,
 				edition = 0,
 				payload = data
 			};
@@ -1289,6 +1312,7 @@ namespace MiNET.Client
 
 		private void InitiateEncryption(string serverKey, byte[] randomKeyToken)
 		{
+			try
 			{
 				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
 				Log.Debug("ServerKey (b64):\n" + serverKey);
@@ -1351,6 +1375,10 @@ namespace MiNET.Client
 				McpeBatch batch = BatchUtils.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
 				batch.Encode();
 				SendPackage(batch);
+			}
+			catch (Exception e)
+			{
+				Log.Error("Initiate encryption", e);
 			}
 		}
 
@@ -1685,7 +1713,7 @@ Adventure settings
 		{
 			McpeContainerSetSlot message = (McpeContainerSetSlot) msg;
 			Item itemStack = message.item;
-			if (Log.IsDebugEnabled) Log.Debug($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.unknown} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
+			if (Log.IsDebugEnabled) Log.Debug($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.hotbarslot} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
 		}
 
 		private void OnMcpeContainerSetContent(Package message)
@@ -1779,23 +1807,18 @@ Adventure settings
 
 		private void OnMcpeMobEffect(Package message)
 		{
-			McpeMobEffect msg = (McpeMobEffect) message;
-			Log.DebugFormat("operation: {0}", msg.eventId);
-			Log.DebugFormat("entity id: {0}", msg.entityId);
-			Log.DebugFormat("effectId: {0}", msg.effectId);
-			Log.DebugFormat("amplifier: {0}", msg.amplifier);
-			Log.DebugFormat("duration: {0}", msg.duration);
-			Log.DebugFormat("particles: {0}", msg.particles);
 		}
 
 		private void OnMcpeLevelEvent(Package message)
 		{
 			McpeLevelEvent msg = (McpeLevelEvent) message;
-			Log.DebugFormat("Event ID: {0}", msg.eventId);
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("Data: {0}", msg.data);
+			int data = msg.data;
+			if(msg.eventId == 2001)
+			{
+				int blockId = data & 0xff;
+				int metadata = data >> 12;
+				Log.Debug($"BlockID={blockId}, Metadata={metadata}");
+			}
 		}
 
 		private void OnMcpeUpdateBlock(McpeUpdateBlock message)
@@ -1976,15 +1999,15 @@ Adventure settings
 		{
 			if (IsEmulator) return;
 
-			McpeAddItemEntity msg = (McpeAddItemEntity) message;
-			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("Velocity X: {0}", msg.speedX);
-			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.Info($"Item {msg.item}");
+			//McpeAddItemEntity msg = (McpeAddItemEntity) message;
+			//Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
+			//Log.DebugFormat("X: {0}", msg.x);
+			//Log.DebugFormat("Y: {0}", msg.y);
+			//Log.DebugFormat("Z: {0}", msg.z);
+			//Log.DebugFormat("Velocity X: {0}", msg.speedX);
+			//Log.DebugFormat("Velocity Y: {0}", msg.speedY);
+			//Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
+			//Log.Info($"Item {msg.item}");
 		}
 
 		private static void OnMcpeBlockEntityData(McpeBlockEntityData message)
@@ -2119,34 +2142,37 @@ StartGame:
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
-				MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream();
-				defStream2.CopyTo(destination);
-				destination.Position = 0;
-				byte[] internalBuffer = null;
-				do
-				{
-					try
+				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream()) {
+
+					defStream2.CopyTo(destination);
+					destination.Position = 0;
+					byte[] internalBuffer = null;
+					do
 					{
-						var len = VarInt.ReadUInt32(destination);
-						internalBuffer = new byte[len];
-						destination.Read(internalBuffer, 0, (int) len);
+						try
+						{
+							var len = VarInt.ReadUInt32(destination);
+							internalBuffer = new byte[len];
+							destination.Read(internalBuffer, 0, (int) len);
 
-						if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
+							if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
 
-						var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ?? new UnknownPackage(internalBuffer[0], internalBuffer);
-						messages.Add(package);
+							var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
+							              new UnknownPackage(internalBuffer[0], internalBuffer);
+							messages.Add(package);
 
-						//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
-						//if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
-					}
-					catch (Exception e)
-					{
-						if (internalBuffer != null)
-							Log.Error($"Batch error while reading:\n{Package.HexDump(internalBuffer)}");
-						Log.Error("Batch processing", e);
-						//throw;
-					}
-				} while (destination.Position < destination.Length);
+							//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
+							//if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
+						}
+						catch (Exception e)
+						{
+							if (internalBuffer != null)
+								Log.Error($"Batch error while reading:\n{Package.HexDump(internalBuffer)}");
+							Log.Error("Batch processing", e);
+							//throw;
+						}
+					} while (destination.Position < destination.Length);
+				}
 			}
 
 			//Log.Error($"Batch had {messages.Count} packets.");
@@ -2239,6 +2265,7 @@ StartGame:
 				var jsonSerializerSettings = new JsonSerializerSettings
 				{
 					PreserveReferencesHandling = PreserveReferencesHandling.None,
+					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
 					Formatting = Formatting.Indented,
 				};
 				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);

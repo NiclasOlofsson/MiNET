@@ -27,6 +27,18 @@ namespace MiNET.Items
 				world.SetBlock(block);
 				block.PlaceBlock(world, player, block.Coordinates, face, faceCoords);
 			}
+			else if(Metadata == 0) // Empty bucket
+			{
+				// Pick up water/lava
+				var block = world.GetBlock(blockCoordinates);
+				if (block is Stationary || block is Flowing)
+				{
+					if (block.Metadata == 0) // Only source blocks
+					{
+						world.SetAir(blockCoordinates);
+					}
+				}
+			}
 
 			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
 		}

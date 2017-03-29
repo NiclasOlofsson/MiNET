@@ -12,7 +12,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemSpawnEgg));
 
-		public ItemSpawnEgg(EntityType type) : this((short)type)
+		public ItemSpawnEgg(EntityType type) : this((short) type)
 		{
 		}
 
@@ -131,17 +131,24 @@ namespace MiNET.Items
 				case EntityType.Horse:
 					mob = new Horse(world);
 					break;
+				case EntityType.PolarBear:
+					mob = new PolarBear(world);
+					break;
+				case EntityType.Shulker:
+					mob = new Shulker(world);
+					break;
+				case EntityType.Dragon:
+					mob = new Dragon(world);
+					break;
 				case EntityType.SkeletonHorse:
 					mob = new SkeletonHorse(world);
 					break;
 				case EntityType.Wither:
-
 					mob = new Mob(EntityType.Wither, world);
 					break;
 				case EntityType.Npc:
 					mob = new PlayerMob("test", world);
 					break;
-
 			}
 
 			if (mob == null) return;

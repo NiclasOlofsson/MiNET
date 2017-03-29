@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using log4net;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -8,6 +9,8 @@ namespace MiNET.Blocks
 {
 	public abstract class Flowing : Block
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Flowing));
+
 		private int _adjacentSources;
 		private int[] _flowCost = new int[4];
 		private bool[] _optimalFlowDirections = new bool[4];
@@ -32,8 +35,10 @@ namespace MiNET.Blocks
 			level.ScheduleBlockTick(this, TickRate());
 		}
 
-		public override void OnTick(Level world)
+		public override void OnTick(Level world, bool isRandom)
 		{
+			if (isRandom) return;
+
 			Random random = new Random();
 
 			int x = Coordinates.X;
@@ -432,11 +437,11 @@ namespace MiNET.Blocks
 
 						if (meta == 0)
 						{
-							world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(x, y, z)});
+							world.SetBlock(new Obsidian { Coordinates = new BlockCoordinates(x, y, z) }, true, false);
 						}
 						else if (meta <= 4)
 						{
-							world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)});
+							world.SetBlock(new Cobblestone { Coordinates = new BlockCoordinates(x, y, z) }, true, false);
 						}
 					}
 				}
@@ -449,7 +454,7 @@ namespace MiNET.Blocks
 			return block is FlowingWater || block is StationaryWater;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0];
 		}

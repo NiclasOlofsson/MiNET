@@ -2,7 +2,11 @@
 {
 	public class Glass : Block
 	{
-		public Glass() : base(20)
+		public Glass() : this(20)
+		{
+			
+		}
+		public Glass(byte id) : base(id)
 		{
 			IsTransparent = true;
 			BlastResistance = 1.5f;

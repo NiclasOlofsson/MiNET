@@ -12,99 +12,6 @@ namespace MiNET
 	public class MinetAnvilTest
 	{
 		[Test, Ignore]
-		public void LevelInfoWriteTest()
-		{
-			LevelInfo level;
-			NbtTag dataTag = null;
-
-			{
-				NbtFile file = new NbtFile();
-				file.LoadFromFile(Path.Combine($@"D:\Temp\TestSave", "level.dat"));
-				dataTag = file.RootTag["Data"];
-				level = new LevelInfo(dataTag);
-			}
-
-			{
-				var basePath = $@"D:\Temp\TestSave\World{Guid.NewGuid()}";
-				if (!Directory.Exists(basePath))
-					Directory.CreateDirectory(basePath);
-
-				//LevelInfo level = new LevelInfo();
-				//level.LevelName = "";
-				//level.GeneratorName = "";
-
-				NbtFile file = new NbtFile();
-				//NbtTag dataTag = file.RootTag["Data"] = new NbtCompound("Data");
-				//file.RootTag["Data"] = (NbtTag) dataTag.Clone();
-				file.RootTag["Data"] = new NbtCompound("Data");
-				level.SaveToNbt(file.RootTag);
-				file.SaveToFile(Path.Combine($@"D:\Temp\TestSave", "output.dat"), NbtCompression.None);
-			}
-		}
-
-		[Test, Ignore]
-		public void AnvilRoundtripWriteReadTest()
-		{
-			int width = 32;
-			int depth = 32;
-
-			int regionX = 5;
-			int regionZ = 24;
-
-			var basePath = $@"D:\Temp\TestSave\World{Guid.NewGuid()}";
-
-			{
-				AnvilWorldProvider anvil = new AnvilWorldProvider(basePath);
-				anvil.SaveLevelInfo(new LevelInfo());
-				anvil.MissingChunkProvider = new FlatlandWorldProvider();
-
-				anvil.Initialize();
-
-				Stopwatch sw = new Stopwatch();
-				sw.Start();
-				int count = 0;
-				for (int x = 0; x < 32; x++)
-				{
-					for (int z = 0; z < 32; z++)
-					{
-						int cx = (width*regionX) + x;
-						int cz = (depth*regionZ) + z;
-
-						ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-						ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates);
-						Assert.NotNull(chunk);
-						count++;
-					}
-				}
-				Console.WriteLine($"Generated {count} chunks in {sw.ElapsedMilliseconds}ms at rate of {sw.ElapsedMilliseconds/count:D}ms per chunk");
-
-				sw.Restart();
-				count = anvil.SaveChunks();
-
-				Console.WriteLine($"Saved {count} chunks in {sw.ElapsedMilliseconds}ms at rate of {sw.ElapsedMilliseconds/count :D}ms per chunk");
-			}
-
-			//{
-			//	AnvilWorldProvider anvil = new AnvilWorldProvider(basePath);
-			//	anvil.MissingChunkProvider = new FlatlandWorldProvider();
-			//	anvil.Initialize();
-
-			//	for (int x = 0; x < 32; x++)
-			//	{
-			//		for (int z = 0; z < 32; z++)
-			//		{
-			//			int cx = (width*regionX) + x;
-			//			int cz = (depth*regionZ) + z;
-
-			//			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-			//			ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates);
-			//			//Assert.NotNull(chunk);
-			//		}
-			//	}
-			//}
-		}
-
-		[Test, Ignore]
 		public void OffsetFileExistPerformance()
 		{
 			var basePath = @"D:\Development\Repos\MapsPE\hub";
@@ -324,5 +231,6 @@ namespace MiNET
 		//	}
 		//	Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
 		//}
+
 	}
 }

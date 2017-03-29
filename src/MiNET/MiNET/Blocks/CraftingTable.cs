@@ -1,3 +1,4 @@
+using System.Numerics;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -13,7 +14,7 @@ namespace MiNET.Blocks
 			//IsFlammable = true; // Only from lava.
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			return true;
 		}

@@ -1,3 +1,4 @@
+using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -5,6 +6,8 @@ namespace MiNET.Blocks
 {
 	public class Stationary : Block
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Stationary));
+
 		internal Stationary(byte id) : base(id)
 		{
 			IsSolid = false;
@@ -38,7 +41,7 @@ namespace MiNET.Blocks
 				bool harden = false;
 				if (block is FlowingLava || block is StationaryLava)
 				{
-					if (IsWater(world, x, y, z))
+					if (IsWater(world, x, y, z - 1))
 					{
 						harden = true;
 					}
@@ -69,11 +72,11 @@ namespace MiNET.Blocks
 
 						if (meta == 0)
 						{
-							world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(x, y, z)});
+							world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
 						}
 						else if (meta <= 4)
 						{
-							world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)});
+							world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
 						}
 					}
 				}
@@ -82,7 +85,7 @@ namespace MiNET.Blocks
 
 		private bool IsWater(Level world, int x, int y, int z)
 		{
-			Block block = world.GetBlock(x, y, z - 1);
+			Block block = world.GetBlock(x, y, z);
 			return block is FlowingWater || block is StationaryWater;
 		}
 	}

@@ -29,6 +29,9 @@ namespace MiNET
                 GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
                 Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Normal);
                 int viewDistance = Config.GetProperty("ViewDistance", 11);
+                bool enableBlockTicking = Config.GetProperty("EnableBlockTicking", false);
+                bool enableChunkTicking = Config.GetProperty("EnableChunkTicking", false);
+                bool isWorldTimeStarted = Config.GetProperty("IsWorldTimeStarted", false);
 
                 IWorldProvider worldProvider = null;
 
@@ -52,7 +55,13 @@ namespace MiNET
                         break;
                 }
 
-                level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
+                level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
+                {
+	                EnableBlockTicking = enableBlockTicking,
+					EnableChunkTicking = enableChunkTicking,
+					IsWorldTimeStarted = isWorldTimeStarted
+
+                };
                 level.Initialize();
 
 				if(Config.GetProperty("CalculateLights", false))
@@ -73,7 +82,7 @@ namespace MiNET
 							RecalculateLight(level, wp);
 
 							var chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*128} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
+							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
 						}
 					}
 

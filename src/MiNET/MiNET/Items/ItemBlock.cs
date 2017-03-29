@@ -13,7 +13,7 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBlock));
 
-		protected readonly Block _block;
+		protected Block _block;
 
 		protected ItemBlock(short id, short metadata) : base(id, metadata)
 		{
@@ -33,19 +33,9 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			//if (player.GameMode != GameMode.Creative)
-			//{
-			//	Item itemStackInHand = player.Inventory.GetItemInHand();
-			//	itemStackInHand.Count--;
+			Block block = world.GetBlock(targetCoordinates);
+			_block.Coordinates = block.IsReplacible ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
 
-			//	if (itemStackInHand.Count <= 0)
-			//	{
-			//		// set empty
-			//		player.Inventory.Slots[player.Inventory.Slots.IndexOf(itemStackInHand)] = new ItemAir();
-			//	}
-			//}
-
-			_block.Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
 			_block.Metadata = (byte) Metadata;
 
 			if ((player.GetBoundingBox() - 0.01f).Intersects(_block.GetBoundingBox()))

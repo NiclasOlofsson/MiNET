@@ -2,6 +2,8 @@
 {
 	public enum EntityType
 	{
+		None = 0,
+
 		DroppedItem = 64,
 		ExperienceOrb = 69,
 
@@ -47,6 +49,8 @@
 		Guardian = 49,
 		ElderGuardian = 50,
 		Wither = 52,
+		Dragon = 53,
+		Shulker = 54,
 
 		Chicken = 10,
 		Cow = 11,
@@ -66,6 +70,7 @@
 		Mule = 25,
 		SkeletonHorse = 26,
 		ZombieHorse = 27,
+		PolarBear = 28,
 
 		Npc = 51,
 

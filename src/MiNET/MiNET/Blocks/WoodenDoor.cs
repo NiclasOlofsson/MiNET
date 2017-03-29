@@ -1,4 +1,5 @@
-﻿using MiNET.Utils;
+﻿using System.Numerics;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
@@ -7,11 +8,8 @@ namespace MiNET.Blocks
 	// and its facing and opened status in the block data of its lower block
 	public class WoodenDoor : Block
 	{
-		public WoodenDoor() : base(64)
+		public WoodenDoor() : this(64)
 		{
-			IsTransparent = true;
-			BlastResistance = 15;
-			Hardness = 3;
 		}
 
 		protected WoodenDoor(byte id) : base(id)
@@ -26,7 +24,7 @@ namespace MiNET.Blocks
 			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;
 		}
 
-		public override void BreakBlock(Level level)
+		public override void BreakBlock(Level level, bool silent = false)
 		{
 			// Remove door
 			if ((Metadata & 0x08) == 0x08) // Is Upper?
@@ -41,7 +39,7 @@ namespace MiNET.Blocks
 			level.SetBlock(new Air {Coordinates = Coordinates});
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face)
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			Block block = this;
 			// Remove door

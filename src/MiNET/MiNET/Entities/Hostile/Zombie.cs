@@ -8,6 +8,9 @@ namespace MiNET.Entities.Hostile
 		{
 			Width = Length = 0.6;
 			Height = 1.8;
+			NoAi = true;
+			Drag = 0.09;
+			Gravity = 0.02;
 		}
 	}
 }

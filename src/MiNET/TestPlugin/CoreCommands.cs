@@ -53,21 +53,32 @@ namespace TestPlugin
 		//}
 
 		[Command]
+		public void Relight(Player player)
+		{
+			BlockCoordinates pos = player.KnownPosition.GetCoordinates3D();
+			pos.Y -= 1;
+
+			var block = player.Level.GetBlock(pos);
+			Glowstone gold = new Glowstone();
+			gold.Coordinates = block.Coordinates;
+			player.Level.SetBlock(gold);
+			Thread.Sleep(100);
+			player.Level.SetBlock(block);
+		}
+
+		[Command]
 		public void Minet(Player player, string commands, string done, string gurun, string made, string it)
 		{
 		}
 
-		[Command(Aliases = new []{"csk"})]
+		[Command(Aliases = new[] {"csk"})]
 		public void CalculateSkyLight(Player player)
 		{
 			Task.Run(() =>
 			{
 				SkyLightCalculations.Calculate(player.Level);
 				player.CleanCache();
-				player.ForcedSendChunks(() =>
-				{
-					player.SendMessage("Calculated skylights and resent chunks.");
-				});
+				player.ForcedSendChunks(() => { player.SendMessage("Calculated skylights and resent chunks."); });
 			});
 		}
 
@@ -92,9 +103,7 @@ namespace TestPlugin
 			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			levelEvent.eventId = value;
 			levelEvent.data = data;
-			levelEvent.x = player.KnownPosition.X;
-			levelEvent.y = player.KnownPosition.Y;
-			levelEvent.z = player.KnownPosition.Z;
+			levelEvent.position = player.KnownPosition.ToVector3();
 			player.Level.RelayBroadcast(levelEvent);
 
 			player.Level.BroadcastMessage($"Sent level event {value}", type: MessageType.Raw);
@@ -226,41 +235,22 @@ namespace TestPlugin
 		}
 
 
-		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
-		public void Teleport(Player player, int x, int y, int z)
+		[Command(Name = "tpw", Aliases = new[] { "teleport" }, Description = "Teleports player to default world.")]
+		public void TeleportWorld(Player player)
 		{
-			ThreadPool.QueueUserWorkItem(delegate(object state)
-			{
-				player.Teleport(new PlayerLocation
-				{
-					X = x,
-					Y = y,
-					Z = z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91
-				});
-			}, null);
-
-			player.Level.BroadcastMessage(string.Format("{0} teleported to coordinates {1},{2},{3}.", player.Username, x, y, z), type: MessageType.Raw);
-		}
-
-		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
-		public void Teleport(Player player)
-		{
-			Teleport(player, "Default");
+			TeleportWorld(player, "Default");
 		}
 
 		private object _levelSync = new object();
 
-		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given world. Creates world if not exist.")]
-		public void Teleport(Player player, string world)
+		[Command(Name = "tpw", Aliases = new[] { "teleport" }, Description = "Teleports player to given world. Creates world if not exist.")]
+		public void TeleportWorld(Player player, string world)
 		{
 			Level oldLevel = player.Level;
 
 			if (player.Level.LevelId.Equals(world))
 			{
-				Teleport(player, (int) player.SpawnPosition.X, (int) player.SpawnPosition.Y, (int) player.SpawnPosition.Z);
+				player.Teleport(player.SpawnPosition);
 				return;
 			}
 
@@ -269,7 +259,7 @@ namespace TestPlugin
 				Context.LevelManager.Levels.Add(player.Level);
 			}
 
-			ThreadPool.QueueUserWorkItem(delegate(object state)
+			ThreadPool.QueueUserWorkItem(delegate (object state)
 			{
 				LevelManager levelManager = state as LevelManager;
 				if (levelManager == null) return;
@@ -278,7 +268,7 @@ namespace TestPlugin
 
 				if (levels != null)
 				{
-					player.SpawnLevel(null, null, true, delegate
+					player.SpawnLevel(null, null, false, delegate
 					{
 						lock (levelManager.Levels)
 						{
@@ -330,7 +320,7 @@ namespace TestPlugin
 		public void Twitter(Player player)
 		{
 			player.Level.BroadcastMessage("§6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastMessage("§5twitch.tv/niclasolofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("§5twitch.tv/gurunx", type: MessageType.Raw);
 		}
 
 		[Command(Name = "pi")]
@@ -363,19 +353,6 @@ namespace TestPlugin
 
 			player.SendMessage(text, type: MessageType.Raw);
 			Log.Info(text);
-		}
-
-		[Command]
-		public void Spawn(Player player, byte id)
-		{
-			Level level = player.Level;
-
-			Mob entity = new Mob(id, level)
-			{
-				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
-			};
-			entity.SpawnEntity();
 		}
 
 		[Command]
@@ -434,6 +411,29 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void FarmingKit(Player player)
+		{
+			var inventory = player.Inventory;
+
+			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
+
+			byte c = 0;
+			inventory.Slots[c++] = new ItemDiamondHoe();
+			inventory.Slots[c++] = new ItemBucket(8) {Count = 1};
+			inventory.Slots[c++] = new ItemWheatSeeds() {Count = 64};
+			inventory.Slots[c++] = new ItemBeetrootSeeds() {Count = 64};
+			inventory.Slots[c++] = new ItemCarrot() {Count = 64};
+			inventory.Slots[c++] = new ItemPotato() {Count = 64};
+
+
+			player.SendPlayerInventory();
+			SendEquipmentForPlayer(player);
+			SendArmorForPlayer(player);
+
+			player.Level.BroadcastMessage(string.Format("Player {0} changed kit.", player.Username), type: MessageType.Raw);
+		}
+
+		[Command]
 		public void Kit(Player player, int kitId)
 		{
 			var inventory = player.Inventory;
@@ -484,8 +484,7 @@ namespace TestPlugin
 			// 4 = Projectile protection
 			// 5 = Thorns
 
-
-			EnchantArmor(player.Inventory, 0, 2);
+			EnchantArmor(player.Inventory, (short) EnchantingType.FireProtection, 7);
 
 
 			var command = new ItemCommand(41, 0, delegate(ItemCommand itemCommand, Level level, Player arg3, BlockCoordinates arg4) { Log.Info("Clicked on command"); });
@@ -499,7 +498,49 @@ namespace TestPlugin
 			//	TAG_String("map_uuid"): "-4294967268"
 			//}
 
-			//inventory.Slots[c++] = new ItemItemFrame() { Count = 64 };
+			inventory.Slots[c++] = new ItemBow() {ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 19), new NbtShort("lvl", 4)}}}}; // Bow
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 2)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 3)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemIronSword
+			{
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 4)}
+					}
+				}
+			};
+			inventory.Slots[c++] = new ItemEnchantingTable();
+			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
@@ -507,13 +548,19 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
-			inventory.Slots[c++] = new ItemBow(); // Bow
 			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows
 			inventory.Slots[c++] = new ItemEgg {Count = 64}; // Eggs
 			inventory.Slots[c++] = new ItemSnowball {Count = 64}; // Snowballs
 			inventory.Slots[c++] = new ItemIronSword
 			{
-				ExtraData = new NbtCompound {new NbtList("ench") {new NbtCompound {new NbtShort("id", 9), new NbtShort("lvl", 1)}}}
+				ExtraData = new NbtCompound
+				{
+					new NbtList("ench")
+					{
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.FireAspect), new NbtShort("lvl", 1)},
+						new NbtCompound {new NbtShort("id", (short) EnchantingType.Knockback), new NbtShort("lvl", 1)}
+					}
+				}
 			};
 
 			inventory.Slots[c++] = new ItemIronSword
@@ -772,7 +819,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "r")]
-		[Authorize(Permission = UserPermission.Op)]
+		//[Authorize(Permission = UserPermission.Op)]
 		public void DisplayRestartNotice(Player currentPlayer)
 		{
 			var players = currentPlayer.Level.GetSpawnedPlayers();
@@ -787,6 +834,14 @@ namespace TestPlugin
 				{
 					Priority = 100, MessageType = MessageType.Popup, Message = "Transfering all players!", Duration = 20*10,
 				});
+			}
+
+			foreach (var player in players)
+			{
+				McpeTransfer transfer = McpeTransfer.CreateObject();
+				transfer.serverAddress = "yodamine.com";
+				transfer.port = 19132;
+				player.SendPackage(transfer);
 			}
 		}
 
@@ -864,6 +919,13 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Title(Player player, string text, TitleType type)
+		{
+			player.SendTitle(text, type);
+		}
+
+
+		[Command]
 		public void Count(Player player)
 		{
 			List<string> users = new List<string>();
@@ -877,6 +939,182 @@ namespace TestPlugin
 			}
 
 			player.SendMessage($"There are {users.Count} of players online.");
+		}
+
+		[Command]
+		public VanillaCommands.SimpleResponse Worldborder(Player player, int radius = 200, bool centerOnPlayer = false)
+		{
+			Level level = player.Level;
+
+			BlockCoordinates center = (BlockCoordinates) level.SpawnPoint;
+			if (centerOnPlayer) center = (BlockCoordinates) player.KnownPosition;
+			center.Y = 0;
+
+			var players = level.GetSpawnedPlayers();
+
+			for (int y = 0; y < 256; y++)
+			{
+				for (int x = -radius; x <= radius; x++)
+				{
+					for (int z = -radius; z <= radius; z++)
+					{
+						if (x != -radius && x != radius && z != -radius && z != radius) continue;
+
+						var block = new Glass() {Coordinates = center + new BlockCoordinates(x, y, z)};
+						level.SetBlock(block, false, false, false);
+
+						List<Player> sendList = new List<Player>();
+						foreach (var p in players)
+						{
+							if (p.KnownPosition.DistanceTo(center + new BlockCoordinates(x, (int) p.KnownPosition.Y, z)) > p.ChunkRadius*16) continue;
+
+							sendList.Add(p);
+						}
+
+						var message = McpeUpdateBlock.CreateObject();
+						message.blockId = block.Id;
+						message.coordinates = block.Coordinates;
+						message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+
+						level.RelayBroadcast(sendList.ToArray(), message);
+					}
+				}
+			}
+			return new VanillaCommands.SimpleResponse() {Body = $"Added world border with radius of {radius} around {center}"};
+		}
+
+		[Command]
+		public void GeneratePath(Player player)
+		{
+			Level level = player.Level;
+			Vector3 pos = player.KnownPosition;
+
+			int n = 20;
+
+			RandomCurve ycurve = new RandomCurve(n, 0, 80, 0.1);
+			RandomCurve zcurve = new RandomCurve(n, 0, 100, 0.1);
+
+			bool first = true;
+			for (int x = 0; x < n; x++)
+			{
+				var y = ycurve.GetY(x);
+				var z = zcurve.GetY(x);
+
+				GeneratePortal(level, pos + new Vector3(x*42, (float) y, (float) z), first, x == n - 1);
+				first = false;
+			}
+		}
+
+		private void GeneratePortal(Level level, BlockCoordinates coord, bool isStart = false, bool isLast = false)
+		{
+			Block block = isStart ? (Block) new DiamondBlock() : isLast ? (Block) new EmeraldBlock() : new GoldBlock();
+
+			int[,] coords = new[,]
+			{
+				{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 0},
+				{1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {1, 5},
+				{2, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {2, 5},
+				{3, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {3, 5},
+				{4, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {4, 5},
+				{5, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {5, 5},
+				{0, 0}, {6, 1}, {6, 2}, {6, 3}, {6, 4}, {6, 5},
+			};
+
+			for (int i = 0; i < coords.Length/2; i++)
+			{
+				Log.Warn($"Lenght {coords.Length}");
+				block.Coordinates = coord + new BlockCoordinates(0, coords[i, 0], coords[i, 1]);
+				level.SetBlock(block);
+			}
+		}
+	}
+
+
+	internal struct SineWave
+	{
+		internal readonly double Amplitude;
+		internal readonly double OrdinaryFrequency;
+		internal readonly double AngularFrequency;
+		internal readonly double Phase;
+		internal readonly double ShiftY;
+
+		internal SineWave(double amplitude, double ordinaryFrequency, double phase, double shiftY)
+		{
+			Amplitude = amplitude;
+			OrdinaryFrequency = ordinaryFrequency;
+			AngularFrequency = 2*Math.PI*ordinaryFrequency;
+			Phase = phase;
+			ShiftY = shiftY;
+		}
+	}
+
+	public class RandomCurve
+	{
+		private SineWave[] m_sineWaves;
+
+		public RandomCurve(int components, double minY, double maxY, double flatness)
+		{
+			m_sineWaves = new SineWave[components];
+
+			double totalPeakToPeakAmplitude = maxY - minY;
+			double averagePeakToPeakAmplitude = totalPeakToPeakAmplitude/components;
+
+			int prime = 1;
+			Random r = new Random();
+			for (int i = 0; i < components; i++)
+			{
+				// from 0.5 to 1.5 of averagePeakToPeakAmplitude 
+				double peakToPeakAmplitude = averagePeakToPeakAmplitude*(r.NextDouble() + 0.5d);
+
+				// peak amplitude is a hald of peak-to-peak amplitude
+				double amplitude = peakToPeakAmplitude/2d;
+
+				// period should be a multiple of the prime number to avoid regularities
+				prime = Utils.GetNextPrime(prime);
+				double period = flatness*prime;
+
+				// ordinary frequency is reciprocal of period
+				double ordinaryFrequency = 1d/period;
+
+				// random phase
+				double phase = 2*Math.PI*(r.NextDouble() + 0.5d);
+
+				// shiftY is the same as amplitude
+				double shiftY = amplitude;
+
+				m_sineWaves[i] =
+					new SineWave(amplitude, ordinaryFrequency, phase, shiftY);
+			}
+		}
+
+		public double GetY(double x)
+		{
+			double y = 0;
+			for (int i = 0; i < m_sineWaves.Length; i++)
+				y += m_sineWaves[i].Amplitude*Math.Sin(m_sineWaves[i].AngularFrequency*x + m_sineWaves[i].Phase) + m_sineWaves[i].ShiftY;
+
+			return y;
+		}
+	}
+
+	internal static class Utils
+	{
+		internal static int GetNextPrime(int i)
+		{
+			int nextPrime = i + 1;
+			for (; !IsPrime(nextPrime); nextPrime++) ;
+			return nextPrime;
+		}
+
+		private static bool IsPrime(int number)
+		{
+			if (number == 1) return false;
+			if (number == 2) return true;
+
+			for (int i = 2; i < number; ++i)
+				if (number%i == 0) return false;
+
+			return true;
 		}
 	}
 }

@@ -2,8 +2,10 @@
 using System.ComponentModel;
 using System.Numerics;
 using System.Reflection;
+using System.Threading.Tasks;
 using log4net;
 using MiNET.Entities;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -27,6 +29,7 @@ namespace MiNET
 		[Description("{0} fell out of the world")] Void,
 		[Description("{0} died")] Suicide,
 		[Description("{0} was killed by magic")] Magic,
+		[Description("{0} starved to death")] Starving,
 		[Description("{0} died a customized death")] Custom
 	}
 
@@ -34,10 +37,10 @@ namespace MiNET
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (HealthManager));
 
-		private int _hearts;
 		public Entity Entity { get; set; }
 		public int MaxHealth { get; set; } = 200;
 		public int Health { get; set; }
+		public float Absorption { get; set; }
 		public short MaxAir { get; set; } = 400;
 		public short Air { get; set; }
 		public bool IsDead { get; set; }
@@ -75,6 +78,11 @@ namespace MiNET
 
 		public virtual void TakeHit(Entity source, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
+			TakeHit(source, null, damage, cause);
+		}
+
+		public virtual void TakeHit(Entity source, Item tool, int damage = 1, DamageCause cause = DamageCause.Unknown)
+		{
 			var player = Entity as Player;
 			if (player != null && player.GameMode != GameMode.Survival) return;
 
@@ -83,6 +91,27 @@ namespace MiNET
 
 			LastDamageSource = source;
 			LastDamageCause = cause;
+			if (Absorption > 0)
+			{
+				float abs = Absorption*10;
+				abs = abs - damage;
+				if (abs < 0)
+				{
+					Absorption = 0;
+					damage = Math.Abs((int) Math.Floor(abs));
+				}
+				else
+				{
+					Absorption = abs/10f;
+					damage = 0;
+				}
+			}
+
+			if (cause == DamageCause.Starving)
+			{
+				if (Entity.Level.Difficulty <= Difficulty.Easy && Hearts <= 10) return;
+				if (Entity.Level.Difficulty <= Difficulty.Normal && Hearts <= 1) return;
+			}
 
 			Health -= damage*10;
 			if (Health < 0)
@@ -98,19 +127,13 @@ namespace MiNET
 				player.HungerManager.IncreaseExhaustion(0.3f);
 
 				player.SendUpdateAttributes();
-				player.BroadcastEntityEvent();
 			}
-			else
-			{
-				var msg = McpeEntityEvent.CreateObject();
-				msg.entityId = Entity.EntityId;
-				msg.eventId = (byte) (Health <= 0 ? 3 : 2);
-				Entity.Level.RelayBroadcast(msg);
-			}
+
+			Entity.BroadcastEntityEvent();
 
 			if (source != null)
 			{
-				DoKnockback(source);
+				DoKnockback(source, tool);
 			}
 
 			CooldownTick = 10;
@@ -118,7 +141,7 @@ namespace MiNET
 			OnPlayerTakeHit(new HealthEventArgs(this, source, Entity));
 		}
 
-		protected virtual void DoKnockback(Entity source)
+		protected virtual void DoKnockback(Entity source, Item tool)
 		{
 			double dx = source.KnownPosition.X - Entity.KnownPosition.X;
 
@@ -144,7 +167,17 @@ namespace MiNET
 			{
 				motY = 0.4;
 			}
-			Entity.Knockback(new Vector3((float) motX, (float) motY, (float) motZ));
+
+			var velocity = new Vector3((float) motX, (float) motY + 0.0f, (float) motZ);
+
+			Player player = source as Player;
+			if (player != null)
+			{
+				var knockback = player.DamageCalculator.CalculateKnockback(tool);
+				velocity += Vector3.Normalize(velocity)*new Vector3(knockback*0.5f, 0.1f, knockback*0.5f);
+			}
+
+			Entity.Knockback(velocity);
 		}
 
 		public event EventHandler<HealthEventArgs> PlayerTakeHit;
@@ -157,37 +190,54 @@ namespace MiNET
 
 		public virtual void Ignite(int ticks = 300)
 		{
-			Ignite(Entity, ticks);
-		}
-
-		public virtual void Ignite(Entity entity, int ticks = 300)
-		{
 			if (IsDead) return;
+
+			Player player = Entity as Player;
+			if (player != null)
+			{
+				ticks -= ticks*player.DamageCalculator.CalculateFireTickReduction(player);
+			}
+
+			ticks = Math.Max(0, ticks);
 
 			FireTick = ticks;
 			IsOnFire = true;
-			entity.BroadcastSetEntityData();
+			Entity.BroadcastSetEntityData();
 		}
+
+		private object _killSync = new object();
 
 		public virtual void Kill()
 		{
-			if (IsDead) return;
+			lock (_killSync)
+			{
+				if (IsDead) return;
+				IsDead = true;
 
-			IsDead = true;
-			Health = 0;
+				Health = 0;
+			}
+
 			var player = Entity as Player;
 			if (player != null)
 			{
 				player.SendUpdateAttributes();
-				player.BroadcastEntityEvent();
 			}
 
-			Entity.BroadcastSetEntityData();
-			Entity.DespawnEntity();
+			Entity.BroadcastEntityEvent();
 
 			if (player != null)
 			{
-				player.DropInventory();
+				//SendWithDelay(2000, () =>
+				//{
+				//});
+
+				Entity.BroadcastSetEntityData();
+				Entity.DespawnEntity();
+
+				if (!Config.GetProperty("KeepInventory", false))
+				{
+					player.DropInventory();
+				}
 
 				var mcpeRespawn = McpeRespawn.CreateObject();
 				mcpeRespawn.x = player.SpawnPosition.X;
@@ -197,12 +247,29 @@ namespace MiNET
 			}
 			else
 			{
-				var drops = Entity.GetDrops();
-				foreach (var drop in drops)
+				// This is semi-good, but we need to give the death-animation time to play.
+
+				SendWithDelay(2000, () =>
 				{
-					Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
-				}
+					Entity.BroadcastSetEntityData();
+					Entity.DespawnEntity();
+
+					if (LastDamageSource is Player)
+					{
+						var drops = Entity.GetDrops();
+						foreach (var drop in drops)
+						{
+							Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
+						}
+					}
+				});
 			}
+		}
+
+		private async Task SendWithDelay(int delay, Action action)
+		{
+			await Task.Delay(delay);
+			action();
 		}
 
 		public virtual void ResetHealth()
@@ -222,11 +289,18 @@ namespace MiNET
 
 		public virtual void OnTick()
 		{
-			if (CooldownTick > 0) CooldownTick--;
-
 			if (!Entity.IsSpawned) return;
 
 			if (IsDead) return;
+
+			if (CooldownTick > 0)
+			{
+				CooldownTick--;
+			}
+			else
+			{
+				LastDamageSource = null;
+			}
 
 			if (IsInvulnerable) Health = MaxHealth;
 
@@ -258,13 +332,6 @@ namespace MiNET
 				}
 
 				Entity.BroadcastSetEntityData();
-
-				if (IsOnFire)
-				{
-					IsOnFire = false;
-					FireTick = 0;
-					Entity.BroadcastSetEntityData();
-				}
 			}
 			else
 			{
@@ -275,7 +342,13 @@ namespace MiNET
 					Entity.IsInWater = false;
 					Entity.BroadcastSetEntityData();
 				}
+			}
 
+			if (IsOnFire && (Entity.IsInWater || IsStandingInWater(Entity.KnownPosition)))
+			{
+				IsOnFire = false;
+				FireTick = 0;
+				Entity.BroadcastSetEntityData();
 			}
 
 			if (IsInSolid(Entity.KnownPosition))
@@ -305,9 +378,7 @@ namespace MiNET
 				}
 				else
 				{
-					FireTick = 300;
-					IsOnFire = true;
-					Entity.BroadcastSetEntityData();
+					Ignite(300);
 				}
 
 				if (LavaTicks <= 0)
@@ -333,18 +404,30 @@ namespace MiNET
 				if (FireTick <= 0)
 				{
 					IsOnFire = false;
+					Entity.BroadcastSetEntityData();
 				}
 
 				if (Math.Abs(FireTick)%20 == 0)
 				{
-					TakeHit(null, 1, DamageCause.FireTick);
+					if (Entity is Player)
+					{
+						Player player = (Player) Entity;
+						player.DamageCalculator.CalculatePlayerDamage(null, player, null, 1, DamageCause.FireTick);
+						TakeHit(null, 1, DamageCause.FireTick);
+					}
+					else
+					{
+						TakeHit(null, 1, DamageCause.FireTick);
+					}
 					Entity.BroadcastSetEntityData();
 				}
 			}
 		}
 
-		private bool IsInWater(PlayerLocation playerPosition)
+		public bool IsInWater(PlayerLocation playerPosition)
 		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
 			float y = playerPosition.Y + 1.62f;
 
 			BlockCoordinates waterPos = new BlockCoordinates
@@ -358,28 +441,40 @@ namespace MiNET
 
 			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
 
-			return y < Math.Floor(y) + 1 - ((1/9) - 0.1111111);
+			return y < Math.Floor(y) + 1 - ((1f/9f) - 0.1111111);
+		}
+
+		public bool IsStandingInWater(PlayerLocation playerPosition)
+		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
+			var block = Entity.Level.GetBlock(playerPosition);
+
+			if (block == null || (block.Id != 8 && block.Id != 9)) return false;
+
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f/9f) - 0.1111111);
 		}
 
 		private bool IsInLava(PlayerLocation playerPosition)
 		{
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
+
 			var block = Entity.Level.GetBlock(playerPosition);
 
 			if (block == null || (block.Id != 10 && block.Id != 11)) return false;
 
-			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1/9) - 0.1111111);
+			return playerPosition.Y < Math.Floor(playerPosition.Y) + 1 - ((1f/9f) - 0.1111111);
 		}
 
 		private bool IsInSolid(PlayerLocation playerPosition)
 		{
-			float y = playerPosition.Y + 1.62f;
+			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
 
-			BlockCoordinates solidPos = new BlockCoordinates
+			BlockCoordinates solidPos = (BlockCoordinates) playerPosition;
+			if(Entity.Height >= 1)
 			{
-				X = (int) Math.Floor(playerPosition.X),
-				Y = (int) Math.Floor(y),
-				Z = (int) Math.Floor(playerPosition.Z)
-			};
+				solidPos.Y += 1;
+			}
 
 			var block = Entity.Level.GetBlock(solidPos);
 

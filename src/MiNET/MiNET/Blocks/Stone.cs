@@ -10,7 +10,7 @@ namespace MiNET.Blocks
 			Hardness = 1.5f;
 		}
 
-		public override Item[] GetDrops()
+		public override Item[] GetDrops(Item tool)
 		{
 			return new[] {new ItemBlock(new Cobblestone(), 0) {Count = 1}}; // Drop cobblestone
 		}

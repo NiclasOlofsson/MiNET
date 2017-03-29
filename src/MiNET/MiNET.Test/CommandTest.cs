@@ -24,7 +24,7 @@ namespace MiNET
 
 			dynamic dynaCommands = JObject.Parse(commandJson);
 
-			var t = dynaCommands.ability.versions[0].overloads["default"].output.format_strings;
+			var t = dynaCommands.help.versions[0].overloads["byName"].output.format_strings;
 
 			foreach (var te in dynaCommands)
 			{
@@ -51,9 +51,9 @@ namespace MiNET
 			};
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson /*, new ParameterConverter()*/);
 
-			Assert.AreEqual(36, commands.Count);
+			Assert.AreEqual(42, commands.Count);
 
-			Assert.AreEqual("ability", commands.First().Key);
+			Assert.AreEqual("help", commands.First().Key);
 
 			Command command = commands["help"];
 			Assert.NotNull(command);
@@ -112,7 +112,7 @@ namespace MiNET
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson, settings);
-			Assert.AreEqual("ability", commands.First().Key);
+			Assert.AreEqual("help", commands.First().Key);
 
 			Command command = commands["help"];
 			Assert.NotNull(command);

@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -10,7 +8,7 @@ namespace MiNET.Entities.Hostile
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ElderGuardian));
 
-		public ElderGuardian(Level level) : base((int) 50, level)
+		public ElderGuardian(Level level) : base(EntityType.ElderGuardian, level)
 		{
 			Width = Length = 1.9;
 			Height = 1.9;

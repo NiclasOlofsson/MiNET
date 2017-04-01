@@ -5,7 +5,11 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Numerics;
 using System.Text;
+using AStarNavigator;
+using AStarNavigator.Algorithms;
+using AStarNavigator.Providers;
 using fNbt;
 using MiNET.Net;
 using MiNET.Utils;
@@ -16,6 +20,22 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void TestPathFinder()
+		{
+			var navigator = new TileNavigator(
+				new EmptyBlockedProvider(), // Instance of: IBockedProvider
+				new DiagonalNeighborProvider(), // Instance of: INeighborProvider
+				new PythagorasAlgorithm(), // Instance of: IDistanceAlgorithm
+				new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
+				);
+
+			var from = new Tile(-100.5, -102.5);
+			var to = new Tile(120.5, 122.5);
+
+			navigator.Navigate(from, to);
+		}
+
 		//[Test]
 		//public void TestUuid()
 		//{
@@ -32,7 +52,7 @@ namespace MiNET
 		public void TestUuid()
 		{
 			string uuidString = "a821263b-0df8-44ed-87b7-d57a23fdccfc";
-			var inputBytes = new byte[] { 0xed ,0x44, 0xf8, 0x0d, 0x3b, 0x26, 0x21, 0xa8, 0xfc, 0xcc, 0xfd, 0x23, 0x7a, 0xd5, 0xb7, 0x87 };
+			var inputBytes = new byte[] {0xed, 0x44, 0xf8, 0x0d, 0x3b, 0x26, 0x21, 0xa8, 0xfc, 0xcc, 0xfd, 0x23, 0x7a, 0xd5, 0xb7, 0x87};
 			var uuid = new UUID(inputBytes);
 			Assert.AreEqual(uuidString, uuid.ToString());
 			Assert.AreEqual(inputBytes, uuid.GetBytes());

@@ -4,15 +4,17 @@ namespace MiNET.Entities.Behaviors
 {
 	public class PanicBehavior : StrollBehavior
 	{
+		private readonly Mob _entity;
 		private static readonly ILog Log = LogManager.GetLogger(typeof (PanicBehavior));
 
-		public PanicBehavior(int duration, double speed, double speedMultiplier) : base(duration, speed, speedMultiplier)
+		public PanicBehavior(Mob entity, int duration, double speed, double speedMultiplier) : base(entity, duration, speed, speedMultiplier)
 		{
+			_entity = entity;
 		}
 
-		public override bool ShouldStart(Entity entity)
+		public override bool ShouldStart()
 		{
-			return entity.HealthManager.LastDamageSource != null;
+			return _entity.HealthManager.LastDamageSource != null;
 		}
 	}
 }

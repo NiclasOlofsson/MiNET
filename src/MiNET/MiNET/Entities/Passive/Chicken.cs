@@ -15,10 +15,11 @@ namespace MiNET.Entities.Passive
 			Drag = 0.2;
 			HealthManager.ResetHealth();
 
-			Behaviors.Add(new PanicBehavior(60, Speed, 1.4));
-			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
-			Behaviors.Add(new LookAtPlayerBehavior());
-			Behaviors.Add(new RandomLookaroundBehavior());
+			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.4));
+			Behaviors.Add(new TemptedBehavior(this, typeof(ItemWheatSeeds), 10, 1.0));
+			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
+			Behaviors.Add(new LookAtPlayerBehavior(this));
+			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
 		public override Item[] GetDrops()

@@ -4,37 +4,45 @@ namespace MiNET.Entities.Behaviors
 {
 	public class RandomLookaroundBehavior : IBehavior
 	{
+		private readonly Mob _entity;
 		private double _rotation = 0;
 		private int _duration = 0;
 
-		public bool ShouldStart(Entity entity)
+		public RandomLookaroundBehavior(Mob entity)
 		{
-			var shouldStart = entity.Level.Random.NextDouble() < 0.02;
+			this._entity = entity;
+		}
+
+		public bool ShouldStart()
+		{
+			var shouldStart = _entity.Level.Random.NextDouble() < 0.02;
 			if (!shouldStart) return false;
 
-			_duration = 20 + entity.Level.Random.Next(20);
-			_rotation = entity.Level.Random.Next(-180, 180);
+			_duration = 20 + _entity.Level.Random.Next(20);
+			_rotation = _entity.Level.Random.Next(-180, 180);
 
 			return true;
 		}
 
-		public bool OnTick(Entity entity)
+		public bool CanContinue()
 		{
-			return false;
+			return _duration-- > 0 && Math.Abs(_rotation) > 0;
 		}
 
-		public bool CalculateNextMove(Entity entity)
+		public void OnTick()
 		{
-			entity.KnownPosition.HeadYaw += (float) Math.Sign(_rotation)*10;
-			entity.KnownPosition.Yaw += (float) Math.Sign(_rotation)*10;
-			entity.BroadcastMove();
+		}
+
+		public void CalculateNextMove()
+		{
+			_entity.KnownPosition.HeadYaw += (float) Math.Sign(_rotation)*10;
+			_entity.KnownPosition.Yaw += (float) Math.Sign(_rotation)*10;
+			_entity.BroadcastMove();
 
 			_rotation -= 10;
-
-			return _duration-- < 0 || Math.Abs(_rotation) < 0;
 		}
 
-		public void OnEnd(Entity entity)
+		public void OnEnd()
 		{
 		}
 	}

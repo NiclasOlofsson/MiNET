@@ -3,7 +3,6 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -22,7 +21,7 @@ namespace MiNET.Client
 			var pos = new PlayerLocation(sourceLocation.X, sourceLocation.Y, sourceLocation.Z);
 			if (dx > 0 || dz > 0)
 			{
-				double tanOutput = 90 - RadianToDegree(Math.Atan(dx / (dz)));
+				double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
 				double thetaOffset = 270d;
 				if (dz < 0)
 				{
@@ -30,13 +29,13 @@ namespace MiNET.Client
 				}
 				var yaw = thetaOffset + tanOutput;
 
-				double bDiff = Math.Sqrt((dx * dx) + (dz * dz));
+				double bDiff = Math.Sqrt((dx*dx) + (dz*dz));
 				var dy = (sourceLocation.Y) - (targetLocation.Y);
-				double pitch = RadianToDegree(Math.Atan(dy / (bDiff)));
+				double pitch = RadianToDegree(Math.Atan(dy/(bDiff)));
 
-				pos.Yaw = (float)yaw;
-				pos.HeadYaw = (float)yaw;
-				pos.Pitch = (float)pitch;
+				pos.Yaw = (float) yaw;
+				pos.HeadYaw = (float) yaw;
+				pos.Pitch = (float) pitch;
 			}
 
 			return pos;

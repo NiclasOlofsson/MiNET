@@ -177,7 +177,10 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 0;
-			player.Inventory.Slots[idx++] = new ItemStick() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			player.Inventory.Chest = new ItemElytra() {Count = 1};
 
 			player.SendPlayerInventory();
@@ -191,9 +194,10 @@ namespace TestPlugin.NiceLobby
 				var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
 				joinSound.Spawn(level);
 
+				player.SendTitle(null, TitleType.Clear);
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
-				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
 				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
 			});
 		}
 

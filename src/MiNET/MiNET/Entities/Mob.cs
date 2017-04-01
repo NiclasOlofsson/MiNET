@@ -19,6 +19,7 @@ namespace MiNET.Entities
 
 		public List<IBehavior> Behaviors { get; } = new List<IBehavior>();
 		private IBehavior _currentBehavior = null;
+		public MobController Controller { get; private set; }
 
 
 		public double Speed { get; set; } = 0.25f;
@@ -27,6 +28,7 @@ namespace MiNET.Entities
 		{
 			Width = Length = 0.6;
 			Height = 1.80;
+			Controller = new MobController(this);
 		}
 
 		public Mob(EntityType mobTypes, Level level) : this((int) mobTypes, level)
@@ -65,14 +67,7 @@ namespace MiNET.Entities
 			}
 
 			_currentBehavior = GetBehavior();
-			if (_currentBehavior != null)
-			{
-				if (_currentBehavior.OnTick(this))
-				{
-					_currentBehavior.OnEnd(this);
-					_currentBehavior = null;
-				}
-			}
+			_currentBehavior?.OnTick();
 
 			// Execute move
 			bool onGroundBefore = IsMobOnGround(KnownPosition);
@@ -100,14 +95,7 @@ namespace MiNET.Entities
 			}
 
 			// Calculate velocity for next move
-			if (_currentBehavior != null)
-			{
-				if (_currentBehavior.CalculateNextMove(this))
-				{
-					_currentBehavior.OnEnd(this);
-					_currentBehavior = null;
-				}
-			}
+			_currentBehavior?.CalculateNextMove();
 
 			bool inWater = IsMobInFluid(KnownPosition);
 
@@ -137,13 +125,22 @@ namespace MiNET.Entities
 		{
 			foreach (var behavior in Behaviors)
 			{
-				if (behavior == _currentBehavior) return behavior;
+				if (behavior == _currentBehavior)
+				{
+					if (behavior.CanContinue())
+					{
+						return behavior;
+					}
 
-				if (behavior.ShouldStart(this))
+					behavior.OnEnd();
+					_currentBehavior = null;
+				}
+
+				if (behavior.ShouldStart())
 				{
 					if (_currentBehavior == null || Behaviors.IndexOf(_currentBehavior) > Behaviors.IndexOf(behavior))
 					{
-						_currentBehavior?.OnEnd(this);
+						_currentBehavior?.OnEnd();
 						return behavior;
 					}
 				}

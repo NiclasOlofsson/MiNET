@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AStarNavigator, Version=1.0.63.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AStarNavigator.1.0.63\lib\net35\AStarNavigator.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="fNbt, Version=0.6.9.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MiNET.fnbt.0.6.9\lib\net35-client\fNbt.dll</HintPath>
       <Private>True</Private>
@@ -324,9 +328,13 @@
     <Compile Include="Entities\Behaviors\HorseEatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\IBehavior.cs" />
     <Compile Include="Entities\Behaviors\LookAtPlayerBehavior.cs" />
+    <Compile Include="Entities\Behaviors\MobController.cs" />
     <Compile Include="Entities\Behaviors\PanicBehavior.cs" />
+    <Compile Include="Entities\Behaviors\PathFinder.cs" />
     <Compile Include="Entities\Behaviors\RandomLookaroundBehavior.cs" />
+    <Compile Include="Entities\Behaviors\SittingBehavior.cs" />
     <Compile Include="Entities\Behaviors\StrollBehavior.cs" />
+    <Compile Include="Entities\Behaviors\TemptedBehavior.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
     <Compile Include="Entities\Hostile\ElderGuardian.cs" />

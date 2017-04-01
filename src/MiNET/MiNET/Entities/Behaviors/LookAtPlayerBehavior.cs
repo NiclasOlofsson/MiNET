@@ -6,40 +6,46 @@ namespace MiNET.Entities.Behaviors
 {
 	public class LookAtPlayerBehavior : IBehavior
 	{
+		private readonly Mob _entity;
 		private readonly double _lookDistance;
 		private int _duration = 0;
 		private Player _player;
 
-		public LookAtPlayerBehavior(double lookDistance = 6.0)
+		public LookAtPlayerBehavior(Mob entity, double lookDistance = 6.0)
 		{
+			this._entity = entity;
 			_lookDistance = lookDistance;
 		}
 
-		public bool ShouldStart(Entity entity)
+		public bool ShouldStart()
 		{
-			var shouldStart = entity.Level.Random.NextDouble() < 0.02;
+			var shouldStart = _entity.Level.Random.NextDouble() < 0.02;
 			if (!shouldStart) return false;
 
-			Player player = entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(entity.KnownPosition, p.KnownPosition.ToVector3()))
-				.FirstOrDefault(p => Vector3.Distance(entity.KnownPosition, p.KnownPosition) < _lookDistance);
+			Player player = _entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition.ToVector3()))
+				.FirstOrDefault(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition) < _lookDistance);
 
 			if (player == null) return false;
 
 			_player = player;
-			_duration = 40 + entity.Level.Random.Next(40);
+			_duration = 40 + _entity.Level.Random.Next(40);
 
 			return true;
 		}
 
-		public bool OnTick(Entity entity)
+		public bool CanContinue()
 		{
-			return false;
+			return _duration-- > 0;
 		}
 
-		public bool CalculateNextMove(Entity entity)
+		public void OnTick()
 		{
-			var dx = _player.KnownPosition.X - entity.KnownPosition.X;
-			var dz = _player.KnownPosition.Z - entity.KnownPosition.Z;
+		}
+
+		public void CalculateNextMove()
+		{
+			var dx = _player.KnownPosition.X - _entity.KnownPosition.X;
+			var dz = _player.KnownPosition.Z - _entity.KnownPosition.Z;
 
 			double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
 			double thetaOffset = 270d;
@@ -50,22 +56,20 @@ namespace MiNET.Entities.Behaviors
 			var yaw = thetaOffset + tanOutput;
 
 			double bDiff = Math.Sqrt((dx*dx) + (dz*dz));
-			var dy = (entity.KnownPosition.Y + entity.Height) - (_player.KnownPosition.Y + 1.62);
+			var dy = (_entity.KnownPosition.Y + _entity.Height) - (_player.KnownPosition.Y + 1.62);
 			double pitch = RadianToDegree(Math.Atan(dy/(bDiff)));
 
-			entity.KnownPosition.Yaw = (float) yaw;
-			entity.KnownPosition.HeadYaw = (float) yaw;
-			entity.KnownPosition.Pitch = (float) pitch;
-			entity.BroadcastMove();
-
-			return _duration-- < 0;
+			_entity.KnownPosition.Yaw = (float) yaw;
+			_entity.KnownPosition.HeadYaw = (float) yaw;
+			_entity.KnownPosition.Pitch = (float) pitch;
+			_entity.BroadcastMove();
 		}
 
-		public void OnEnd(Entity entity)
+		public void OnEnd()
 		{
 			_player = null;
-			entity.KnownPosition.Pitch = 0;
-			entity.BroadcastMove();
+			_entity.KnownPosition.Pitch = 0;
+			_entity.BroadcastMove();
 		}
 
 		private double RadianToDegree(double angle)

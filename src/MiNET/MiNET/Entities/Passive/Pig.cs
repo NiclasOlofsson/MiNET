@@ -13,10 +13,12 @@ namespace MiNET.Entities.Passive
 			HealthManager.MaxHealth = 100;
 			HealthManager.ResetHealth();
 
-			Behaviors.Add(new PanicBehavior(60, Speed, 1.25));
-			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
-			Behaviors.Add(new LookAtPlayerBehavior());
-			Behaviors.Add(new RandomLookaroundBehavior());
+			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.25));
+			Behaviors.Add(new TemptedBehavior(this, typeof(ItemCarrot), 10, 1.2));
+			//Behaviors.Add(new TemptedBehavior(this, typeof(ItemCarrotStick), 10, 1.2));
+			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
+			Behaviors.Add(new LookAtPlayerBehavior(this));
+			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
 		public override Item[] GetDrops()

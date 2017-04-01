@@ -27,10 +27,10 @@ namespace MiNET.Entities.Passive
 			HealthManager.ResetHealth();
 			Speed = 0.3;
 
-			Behaviors.Add(new SittingBehavior());
-			Behaviors.Add(new StrollBehavior(60, Speed, 0.7));
-			Behaviors.Add(new LookAtPlayerBehavior(8.0));
-			Behaviors.Add(new RandomLookaroundBehavior());
+			Behaviors.Add(new SittingBehavior(this));
+			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
+			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
+			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
 		public override void DoInteraction(byte actionId, Player player)
@@ -114,48 +114,6 @@ namespace MiNET.Entities.Passive
 			metadata[59] = new MetadataFloat(0f);
 
 			return metadata;
-		}
-	}
-
-	public class SittingBehavior : IBehavior
-	{
-		public bool ShouldStart(Entity entity)
-		{
-			if (!entity.IsTamed)
-			{
-				return false;
-			}
-			else if (entity.IsInWater)
-			{
-				return false;
-			}
-			else
-			{
-				Player owner = ((Wolf) entity).Owner as Player;
-
-				var shouldStart = owner == null || ((!(entity.KnownPosition.DistanceTo(owner.KnownPosition) < 144.0) || entity.HealthManager.LastDamageSource == null) && entity.IsSitting);
-				if (!shouldStart) return false;
-
-				entity.Velocity *= new Vector3(0, 1, 0);
-
-				return true;
-			}
-		}
-
-		public bool OnTick(Entity entity)
-		{
-			return !entity.IsSitting;
-		}
-
-		public bool CalculateNextMove(Entity entity)
-		{
-			return !entity.IsSitting;
-		}
-
-		public void OnEnd(Entity entity)
-		{
-			entity.IsSitting = false;
-			entity.BroadcastSetEntityData();
 		}
 	}
 }

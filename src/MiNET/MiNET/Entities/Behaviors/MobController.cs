@@ -1,0 +1,179 @@
+using System;
+using System.Numerics;
+using log4net;
+using MiNET.Utils;
+
+namespace MiNET.Entities.Behaviors
+{
+	public class MobController
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MobController));
+
+		private readonly Mob _entity;
+
+		public MobController(Mob entity)
+		{
+			_entity = entity;
+		}
+
+		public void LookAt(Player player, bool headOnly = true)
+		{
+			if (player == null)
+			{
+				//_entity.KnownPosition.Pitch = 0;
+				//_entity.BroadcastMove();
+
+				return;
+			}
+
+			Vector3 playerPosition = player.KnownPosition + new Vector3(0, 1.62f, 0);
+			Vector3 entityPosition = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0);
+			var d = Vector3.Normalize(playerPosition - entityPosition);
+
+			var dx = d.X;
+			var dy = d.Y;
+			var dz = d.Z;
+
+			double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
+			double thetaOffset = 270d;
+			if (dz < 0)
+			{
+				thetaOffset = 90;
+			}
+			var yaw = ClampDegrees(thetaOffset + tanOutput);
+
+			double pitch = RadianToDegree(-Math.Asin(dy));
+
+			if (!headOnly) _entity.KnownPosition.Yaw = (float) yaw;
+			_entity.KnownPosition.HeadYaw = (float) yaw;
+			_entity.KnownPosition.Pitch = (float) pitch;
+			_entity.BroadcastMove();
+		}
+
+		public void RotateTowards(Vector3 targetPosition)
+		{
+			Vector3 entityPosition = _entity.KnownPosition;
+			var d = Vector3.Normalize(targetPosition - entityPosition);
+
+			var dx = d.X;
+			var dy = d.Y;
+			var dz = d.Z;
+
+			double tanOutput = 90 - RadianToDegree(Math.Atan(dx/(dz)));
+			double thetaOffset = 270d;
+			if (dz < 0)
+			{
+				thetaOffset = 90;
+			}
+			var yaw = ClampDegrees(thetaOffset + tanOutput);
+
+			_entity.KnownPosition.Yaw = (float) yaw;
+			_entity.BroadcastMove();
+		}
+
+
+		private double ClampDegrees(double degrees)
+		{
+			return (degrees%360 + 360)%360;
+		}
+
+		public void MoveForward(double speedMultiplier)
+		{
+			float speedFactor = (float) (_entity.Speed*speedMultiplier);
+			var level = _entity.Level;
+			var coordinates = _entity.KnownPosition;
+			var direction = Vector3.Normalize(coordinates.GetDirection()*new Vector3(1, 0, 1));
+
+			var blockDown = level.GetBlock(coordinates + BlockCoordinates.Down);
+			if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)
+			{
+				Log.Debug($"Falling sheep: {_entity.Velocity}");
+				return;
+			}
+
+			BlockCoordinates coord = (BlockCoordinates) (coordinates + (direction*speedFactor) + (direction*(float) _entity.Length/2));
+
+			bool entityCollide = false;
+			var boundingBox = _entity.GetBoundingBox().OffsetBy(direction*speedFactor);
+
+			var players = level.GetSpawnedPlayers();
+			foreach (var player in players)
+			{
+				if (player.GetBoundingBox().Intersects(boundingBox))
+				{
+					entityCollide = true;
+					break;
+				}
+			}
+
+			if (!entityCollide)
+			{
+				var entities = level.GetEntites();
+				foreach (var ent in entities)
+				{
+					if (ent == _entity) continue;
+
+					if (ent.GetBoundingBox().Intersects(boundingBox) && ent.EntityId > _entity.EntityId)
+					{
+						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
+						{
+							break;
+						}
+						entityCollide = true;
+						break;
+					}
+				}
+			}
+
+			var block = level.GetBlock(coord);
+			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
+			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
+
+			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
+			if (!colliding && !entityCollide)
+			{
+				var velocity = direction*speedFactor;
+				//Log.Debug($"Moving sheep ({_entity.KnownPosition.Yaw}: {velocity}, {_entity.Velocity}");
+				if ((_entity.Velocity*new Vector3(1, 0, 1)).Length() < velocity.Length())
+				{
+					_entity.Velocity += velocity - _entity.Velocity;
+				}
+				else
+				{
+					_entity.Velocity = velocity;
+				}
+			}
+			else
+			{
+				if (!entityCollide && !blockUp.IsSolid && (_entity.Height > 1 && !blockUpUp.IsSolid) && level.Random.Next(4) != 0)
+				{
+					//Log.Debug($"Block ahead: {block}, jumping");
+					_entity.Velocity = new Vector3(0, 0.42f, 0);
+				}
+				else
+				{
+					if (entityCollide)
+					{
+						//Log.Debug($"Entity ahead: {block}, stopping");
+						_entity.Velocity *= new Vector3(0, 1, 0);
+					}
+					else
+					{
+						//Log.Debug($"Block ahead: {block}, ignoring");
+						var velocity = direction*speedFactor;
+						_entity.Velocity = velocity;
+					}
+				}
+			}
+		}
+
+		public void Jump()
+		{
+		}
+
+		private double RadianToDegree(double angle)
+		{
+			return angle*(180.0/Math.PI);
+		}
+	}
+}

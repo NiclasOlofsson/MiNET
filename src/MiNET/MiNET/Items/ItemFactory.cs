@@ -72,7 +72,7 @@ namespace MiNET.Items
 
 		public static Item GetItem(short id, short metadata = 0, int count = 1)
 		{
-			if (count == 0) return null;
+			if (id != 0 && count == 0) return null;
 
 			Item item = null;
 

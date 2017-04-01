@@ -984,6 +984,12 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public VanillaCommands.SimpleResponse Test()
+		{
+			return new VanillaCommands.SimpleResponse() {Body = "Test"};
+		}
+
+		[Command]
 		public void GeneratePath(Player player)
 		{
 			Level level = player.Level;

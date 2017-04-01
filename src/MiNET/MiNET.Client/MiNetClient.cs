@@ -53,7 +53,8 @@ namespace MiNET.Client
 		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
-		private long _clientGuid = new Random().Next();
+		//private long _clientGuid = new Random().Next();
+		private long _clientGuid = 1111111;
 		private Timer _connectedPingTimer;
 		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
@@ -161,7 +162,7 @@ namespace MiNET.Client
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180+45, 180+45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				//.ContinueWith(t => doSendCommand(t, "/test"))
+				.ContinueWith(t => doSendCommand(t, "/test"))
 				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) { Count = 1 }, new BlockCoordinates(22, 4, 42)))
 				.ContinueWith(t => Task.Delay(5000).Wait())
 				.ContinueWith(t => doSetSlot(t, 2, new ItemIronSword() { Count = 1 }, 0))
@@ -424,7 +425,7 @@ namespace MiNET.Client
 					{
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
 						if (incoming.mtuSize != _mtuSize) Log.Warn("Error:" + incoming.mtuSize);
-						Log.Warn("Server Has Security" + incoming.serverHasSecurity);
+						Log.Warn($"Server with ID {incoming.serverGuid} security={incoming.serverHasSecurity}");
 						_mtuSize = incoming.mtuSize;
 						SendOpenConnectionRequest2();
 						break;
@@ -1281,7 +1282,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 102,
+				protocolVersion = 105,
 				edition = 0,
 				payload = data
 			};

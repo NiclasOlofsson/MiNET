@@ -10,5 +10,6 @@ namespace MiNET
 		void SendPackage(Package package);
 		void SendDirectPackage(Package package);
 		IPEndPoint GetClientEndPoint();
+		long GetNetworkNetworkIdentifier();
 	}
 }

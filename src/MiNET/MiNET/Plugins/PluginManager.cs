@@ -204,7 +204,13 @@ namespace MiNET.Plugins
 					Input = new Input(),
 					Output = new Output()
 					{
-						FormatStrings = new[] {"{0}"},
+						FormatStrings = new[]
+						{
+							new FormatString()
+							{
+								Format = "{0}"
+							},
+						},
 						Parameters = new[]
 						{
 							new Parameter
@@ -294,6 +300,9 @@ namespace MiNET.Plugins
 					List<Parameter> outputParams = new List<Parameter>();
 					foreach (PropertyInfo property in properties)
 					{
+						if (property.Name.Equals("StatusCode")) continue;
+						if (property.Name.Equals("SuccessCount")) continue;
+
 						Parameter param = new Parameter();
 						param.Name = ToCamelCase(property.Name);
 						param.Type = GetPropertyType(property);
@@ -305,7 +314,13 @@ namespace MiNET.Plugins
 
 				if (commandAttribute.OutputFormatStrings != null)
 				{
-					overload.Output.FormatStrings = commandAttribute.OutputFormatStrings;
+					overload.Output.FormatStrings = new FormatString[commandAttribute.OutputFormatStrings.Length];
+					int i = 0;
+					foreach (var formatString in commandAttribute.OutputFormatStrings)
+					{
+						overload.Output.FormatStrings[i] = new FormatString() {Format = commandAttribute.OutputFormatStrings[i]};
+						i++;
+					}
 				}
 			}
 

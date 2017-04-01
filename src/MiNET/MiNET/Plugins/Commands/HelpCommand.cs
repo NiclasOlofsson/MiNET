@@ -49,6 +49,7 @@ namespace MiNET.Plugins.Commands
 			public int PageCount { get; set; }
 			public string Body { get; set; }
 			public int StatusCode { get; set; }
+			public int SuccessCount { get; set; } = 1;
 		}
 
 		[Command(Description = "commands.help.description", OutputFormatStrings = new[] {"commands.help.header", "{2}", "commands.help.footer"})]

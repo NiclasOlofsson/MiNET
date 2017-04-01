@@ -1475,6 +1475,21 @@ namespace MiNET.Net
 			}
 			return sb.ToString();
 		}
+
+		public static string ToJson(Package message)
+		{
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+
+				Formatting = Formatting.Indented,
+			};
+			jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+			jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
+			return JsonConvert.SerializeObject(message, jsonSerializerSettings);
+		}
+
 	}
 
 	/// Base package class

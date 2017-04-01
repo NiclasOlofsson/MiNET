@@ -59,9 +59,27 @@ namespace MiNET.Plugins
 	public class Output
 	{
 		[JsonProperty(propertyName: "format_strings")]
-		public string[] FormatStrings { get; set; }
+		public FormatString[] FormatStrings { get; set; }
 
 		public Parameter[] Parameters { get; set; }
+	}
+
+	public class FormatString
+	{
+		public string Color { get; set; }
+		public string Format { get; set; }
+
+		[JsonProperty(propertyName: "params_to_use")]
+		public string[] ParamsToUse { get; set; }
+
+		[JsonProperty(propertyName: "should_show")]
+		public FormatRule ShouldShow { get; set; }
+	}
+
+	public class FormatRule
+	{
+		[JsonProperty(propertyName: "not_empty")]
+		public string[] NotEmpty { get; set; }
 	}
 
 	public class Parser

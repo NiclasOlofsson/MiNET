@@ -25,6 +25,8 @@ namespace MiNET.Plugins.Commands
 		public class SimpleResponse
 		{
 			public string Body { get; set; }
+			public int StatusCode { get; set; }
+			public int SuccessCount { get; set; } = 1;
 		}
 
 		[Command(Name = "op")]

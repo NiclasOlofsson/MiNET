@@ -662,7 +662,7 @@ namespace MiNET
 			{
 				var settings = new JsonSerializerSettings();
 				settings.NullValueHandling = NullValueHandling.Ignore;
-				settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+				settings.DefaultValueHandling = DefaultValueHandling.Include;
 				settings.MissingMemberHandling = MissingMemberHandling.Error;
 				settings.Formatting = Formatting.Indented;
 				settings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
@@ -673,12 +673,13 @@ namespace MiNET
 				commandResult.commandName = message.commandName;
 				commandResult.commandOverload = message.commandOverload;
 				commandResult.isOutput = true;
+				commandResult.unknown5 = NetworkHandler.GetNetworkNetworkIdentifier();
 				commandResult.commandInputJson = "null\n";
 				commandResult.commandOutputJson = content;
 				commandResult.entityId = EntityId;
 				SendPackage(commandResult);
 
-				Log.Debug($"Command Respone Json\n{content}");
+				if (Log.IsDebugEnabled) Log.Debug($"NetworkId={commandResult.unknown5}, Command Respone\n{Package.ToJson(commandResult)}\nJSON:\n{content}");
 			}
 		}
 

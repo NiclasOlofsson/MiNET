@@ -572,7 +572,8 @@ namespace MiNET
 				{
 					State = ConnectionState.Connecting,
 					LastUpdatedTime = DateTime.UtcNow,
-					MtuSize = incoming.mtuSize
+					MtuSize = incoming.mtuSize,
+					NetworkIdentifier = incoming.clientGuid
 				};
 
 				_playerSessions.TryAdd(senderEndpoint, session);

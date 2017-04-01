@@ -29,6 +29,7 @@ namespace MiNET
 
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
+		public long NetworkIdentifier { get; set; }
 
 		public int DatagramSequenceNumber = -1;
 		public int ReliableMessageNumber = 0;
@@ -949,6 +950,11 @@ namespace MiNET
 		public IPEndPoint GetClientEndPoint()
 		{
 			return EndPoint;
+		}
+
+		public long GetNetworkNetworkIdentifier()
+		{
+			return NetworkIdentifier;
 		}
 	}
 

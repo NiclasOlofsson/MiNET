@@ -51,9 +51,9 @@ namespace MiNET
 			};
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson /*, new ParameterConverter()*/);
 
-			Assert.AreEqual(42, commands.Count);
+			Assert.AreEqual(51, commands.Count);
 
-			Assert.AreEqual("help", commands.First().Key);
+			Assert.AreEqual("help", commands.First(pair => pair.Key == "help").Key);
 
 			Command command = commands["help"];
 			Assert.NotNull(command);
@@ -87,7 +87,7 @@ namespace MiNET
 
 			Assert.NotNull(output.FormatStrings);
 			Assert.AreEqual(1, output.FormatStrings.Length);
-			Assert.AreEqual("{0}", output.FormatStrings[0]);
+			Assert.AreEqual("{0}", output.FormatStrings[0].Format);
 			Assert.NotNull(output.Parameters);
 			Assert.AreEqual(1, output.Parameters.Length);
 
@@ -112,7 +112,7 @@ namespace MiNET
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson, settings);
-			Assert.AreEqual("help", commands.First().Key);
+			Assert.AreEqual("help", commands.First(pair => pair.Key == "help").Key);
 
 			Command command = commands["help"];
 			Assert.NotNull(command);

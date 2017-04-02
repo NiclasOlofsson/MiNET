@@ -21,6 +21,7 @@ namespace MiNET.Entities
 		private IBehavior _currentBehavior = null;
 		public MobController Controller { get; private set; }
 
+		public double Direction { get; set; }
 
 		public double Speed { get; set; } = 0.25f;
 
@@ -35,11 +36,29 @@ namespace MiNET.Entities
 		{
 		}
 
+		public Vector3 GetHorizDir()
+		{
+			Vector3 vector = new Vector3();
+
+			double pitch = 0;
+			double yaw = Direction.ToRadians();
+			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
+			vector.Y = (float) -Math.Sin(pitch);
+			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
+
+			return Vector3.Normalize(vector);
+		}
+
 		public override void SpawnEntity()
 		{
 			LastSeenPlayerTimer = DateTime.UtcNow;
 			base.SpawnEntity();
 		}
+
+
+		public double _lastSentDir = 0;
+		public double _lastSentHeadYaw = 0;
+		public Vector3 _lastSentPos = new Vector3();
 
 		public override void OnTick()
 		{
@@ -72,8 +91,6 @@ namespace MiNET.Entities
 			// Execute move
 			bool onGroundBefore = IsMobOnGround(KnownPosition);
 
-			PlayerLocation prevPos = (PlayerLocation) KnownPosition.Clone();
-
 			KnownPosition.X += (float) Velocity.X;
 			KnownPosition.Y += (float) Velocity.Y;
 			KnownPosition.Z += (float) Velocity.Z;
@@ -86,10 +103,19 @@ namespace MiNET.Entities
 				{
 					KnownPosition.Y = (float) Math.Floor(KnownPosition.Y + 1);
 				}
+
+				KnownPosition.Y = (float) Math.Floor(KnownPosition.Y);
 			}
-			Vector3 currPos = KnownPosition;
-			if ((prevPos - currPos).Length() > 0.01)
+
+			//if (Math.Abs(_lastSentDir - Direction) < 1.1) Direction = _lastSentDir;
+			//if (Math.Abs(_lastSentHeadYaw - KnownPosition.HeadYaw) < 1.1) KnownPosition.HeadYaw = (float) _lastSentHeadYaw;
+
+			if ((_lastSentPos - KnownPosition).Length() > 0.01 || Math.Abs(_lastSentHeadYaw - KnownPosition.HeadYaw) > 0.01 || Math.Abs(_lastSentDir - Direction) > 0.01)
 			{
+				_lastSentDir = Direction;
+				_lastSentPos = KnownPosition;
+				_lastSentHeadYaw = KnownPosition.HeadYaw;
+
 				BroadcastMove();
 				BroadcastMotion();
 			}
@@ -153,7 +179,7 @@ namespace MiNET.Entities
 		{
 			var length = Length/2;
 			var direction = Vector3.Normalize(Velocity*1.00000101f);
-			var position = KnownPosition.ToVector3();
+			Vector3 position = KnownPosition;
 			int count = (int) (Math.Ceiling(Velocity.Length()/length) + 2);
 			for (int i = 0; i < count; i++)
 			{

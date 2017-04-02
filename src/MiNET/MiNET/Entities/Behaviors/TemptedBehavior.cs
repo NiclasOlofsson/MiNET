@@ -4,8 +4,6 @@ using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
-using MiNET.Blocks;
-using MiNET.Particles;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -62,23 +60,22 @@ namespace MiNET.Entities.Behaviors
 		public void CalculateNextMove()
 		{
 			if (_player == null) return;
+			var distanceToPlayer = _entity.KnownPosition.DistanceTo(_player.KnownPosition);
 
-			// Look at player
-			_entity.Controller.LookAt(_player, _entity.Velocity != Vector3.Zero);
-
-			if (_entity.KnownPosition.DistanceTo(_player.KnownPosition) < 1.75)
+			if (distanceToPlayer < 1.75)
 			{
 				// if within 6m stop following (walking)
 				_entity.Velocity = Vector3.Zero;
+				_entity.Controller.LookAt(_player, true);
 				return;
 			}
 
 			BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
-			if (_currentPath == null || !_lastTile.HasValue || ((int) _lastTile.Value.X != currPos.X && (int) _lastTile.Value.Y != currPos.Z))
+			if (_currentPath == null || !_lastTile.HasValue || (((int) _lastTile.Value.X != currPos.X && (int) _lastTile.Value.Y != currPos.Z) && _currentPath.Count == 0))
 			{
 				Log.Debug($"Search new solution");
 				var pathFinder = new PathFinder();
-				_currentPath = pathFinder.FindPath(_entity, _player, _lookDistance);
+				_currentPath = pathFinder.FindPath(_entity, _player, distanceToPlayer + 1);
 				//foreach (var next in _currentPath)
 				//{
 				//	//Log.Debug($"Steps to: {next.X}, {next.Y}");
@@ -99,9 +96,10 @@ namespace MiNET.Entities.Behaviors
 					{
 						_currentPath = null;
 						_lastTile = null;
+						Log.Warn($"Skipping one tick because no path");
 						return;
 					}
-					Log.Warn($"Using second tile in solution");
+					//Log.Warn($"Using second tile in solution");
 					_currentPath.Remove(next);
 					next = _currentPath.FirstOrDefault();
 				}
@@ -111,7 +109,8 @@ namespace MiNET.Entities.Behaviors
 				_entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, _entity.KnownPosition.Y, (float) next.Y + 0.5f));
 				//Log.Warn($"Rotate to: {next.X}, {next.Y}, {_entity.KnownPosition.Yaw}");
 
-				if (_entity.KnownPosition.DistanceTo(_player.KnownPosition) < 1.25)
+
+				if (distanceToPlayer < 1.75)
 				{
 					// if within 6m stop following (walking)
 					_entity.Velocity = Vector3.Zero;
@@ -119,7 +118,18 @@ namespace MiNET.Entities.Behaviors
 				else
 				{
 					// else find path to player
-					_entity.Controller.MoveForward(_speedMultiplier);
+
+					var m = 2.5 - distanceToPlayer;
+					if (m <= 0)
+					{
+						m = 1;
+					}
+					else
+					{
+						m = m / 2.5;
+					}
+					//double m = 1;
+					_entity.Controller.MoveForward(_speedMultiplier*m);
 				}
 			}
 			else
@@ -130,6 +140,21 @@ namespace MiNET.Entities.Behaviors
 
 				_entity.Velocity = Vector3.Zero;
 			}
+
+			_entity.Controller.LookAt(_player, true);
+		}
+
+		private void GetNext(BlockCoordinates currPos)
+		{
+			bool generate = _currentPath == null;
+			generate = generate || _currentPath.Count == 0;
+		}
+
+		public double Distance(Player player, Tile tile)
+		{
+			Vector2 pos1 = new Vector2(player.KnownPosition.X, player.KnownPosition.Z);
+			Vector2 pos2 = new Vector2((float) tile.X, (float) tile.Y);
+			return (pos1 - pos2).Length();
 		}
 
 		public void OnEnd()
@@ -138,7 +163,6 @@ namespace MiNET.Entities.Behaviors
 			_entity.Velocity = Vector3.Zero;
 			_player = null;
 			_entity.KnownPosition.Pitch = 0;
-			_entity.BroadcastMove();
 		}
 	}
 }

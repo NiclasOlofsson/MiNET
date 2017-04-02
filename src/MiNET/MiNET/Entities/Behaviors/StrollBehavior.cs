@@ -44,7 +44,7 @@ namespace MiNET.Entities.Behaviors
 			float speedFactor = (float) (_speed*_speedMultiplier);
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
-			var direction = Vector3.Normalize(coordinates.GetHeadDirection()*new Vector3(1, 0, 1));
+			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
 
 			var blockDown = level.GetBlock(coordinates + BlockCoordinates.Down);
 			if (_entity.Velocity.Y < 0 && blockDown is Air)

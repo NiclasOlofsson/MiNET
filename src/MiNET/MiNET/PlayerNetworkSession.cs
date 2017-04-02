@@ -400,14 +400,14 @@ namespace MiNET
 				handler.HandleMcpeClientMagic((McpeClientMagic) message);
 			}
 
-			else if (typeof(McpeResourcePackClientResponse) == message.GetType())
+			else if (typeof (McpeResourcePackClientResponse) == message.GetType())
 			{
-				handler.HandleMcpeResourcePackClientResponse((McpeResourcePackClientResponse)message);
+				handler.HandleMcpeResourcePackClientResponse((McpeResourcePackClientResponse) message);
 			}
 
-			else if (typeof(McpeResourcePackChunkRequest) == message.GetType())
+			else if (typeof (McpeResourcePackChunkRequest) == message.GetType())
 			{
-				handler.HandleMcpeResourcePackChunkRequest((McpeResourcePackChunkRequest)message);
+				handler.HandleMcpeResourcePackChunkRequest((McpeResourcePackChunkRequest) message);
 			}
 
 			else if (typeof (McpeUpdateBlock) == message.GetType())
@@ -421,9 +421,9 @@ namespace MiNET
 				handler.HandleMcpeRemoveBlock((McpeRemoveBlock) message);
 			}
 
-			else if (typeof(McpeLevelSoundEvent) == message.GetType())
+			else if (typeof (McpeLevelSoundEvent) == message.GetType())
 			{
-				handler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent)message);
+				handler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
 			}
 
 			else if (typeof (McpeAnimate) == message.GetType())
@@ -431,9 +431,9 @@ namespace MiNET
 				handler.HandleMcpeAnimate((McpeAnimate) message);
 			}
 
-			else if (typeof(McpePlayerFall) == message.GetType())
+			else if (typeof (McpePlayerFall) == message.GetType())
 			{
-				handler.HandleMcpePlayerFall((McpePlayerFall)message);
+				handler.HandleMcpePlayerFall((McpePlayerFall) message);
 			}
 
 			else if (typeof (McpeUseItem) == message.GetType())
@@ -467,9 +467,9 @@ namespace MiNET
 				handler.HandleMcpeMovePlayer((McpeMovePlayer) message);
 			}
 
-			else if (typeof(McpeCommandStep) == message.GetType())
+			else if (typeof (McpeCommandStep) == message.GetType())
 			{
-				handler.HandleMcpeCommandStep((McpeCommandStep)message);
+				handler.HandleMcpeCommandStep((McpeCommandStep) message);
 			}
 
 			else if (typeof (McpeInteract) == message.GetType())
@@ -542,13 +542,13 @@ namespace MiNET
 				handler.HandleMcpePlayerInput((McpePlayerInput) message);
 			}
 
-			else if (typeof(McpeBlockPickRequest) == message.GetType())
+			else if (typeof (McpeBlockPickRequest) == message.GetType())
 			{
-				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest)message);
+				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest) message);
 			}
-			else if (typeof(McpeCommandBlockUpdate) == message.GetType())
+			else if (typeof (McpeCommandBlockUpdate) == message.GetType())
 			{
-				handler.HandleMcpeCommandBlockUpdate((McpeCommandBlockUpdate)message);
+				handler.HandleMcpeCommandBlockUpdate((McpeCommandBlockUpdate) message);
 			}
 
 			else
@@ -836,8 +836,6 @@ namespace MiNET
 			{
 				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
 				{
-					var now = DateTime.UtcNow;
-
 					Queue<Package> queue = _sendQueueNotConcurrent;
 
 					int messageCount = 0;
@@ -866,12 +864,6 @@ namespace MiNET
 							continue;
 						}
 
-						if (package.ValidUntil != null && now > package.ValidUntil.Value)
-						{
-							package.PutPool();
-							continue;
-						}
-
 						if (lenght == 1)
 						{
 							Server.SendPackage(this, package);
@@ -889,12 +881,6 @@ namespace MiNET
 							messageCount = 0;
 							Server.SendPackage(this, package);
 						}
-						//else if (!IsSpawned)
-						//{
-						//	SendBuffered(messageCount);
-						//	messageCount = 0;
-						//	Server.SendPackage(this, package);
-						//}
 						else
 						{
 							if (messageCount == 0)

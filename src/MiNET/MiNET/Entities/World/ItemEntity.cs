@@ -180,7 +180,7 @@ namespace MiNET.Entities.World
 					{
 						var takeItemEntity = McpeTakeItemEntity.CreateObject();
 						takeItemEntity.entityId = EntityId;
-						takeItemEntity.target = 0;
+						takeItemEntity.target = EntityManager.EntityIdSelf;
 						player.SendPackage(takeItemEntity);
 					}
 

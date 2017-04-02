@@ -62,14 +62,14 @@ namespace MiNET.Entities.Behaviors
 			_entity.KnownPosition.Yaw = (float) yaw;
 			_entity.KnownPosition.HeadYaw = (float) yaw;
 			_entity.KnownPosition.Pitch = (float) pitch;
-			_entity.BroadcastMove();
+			_entity.BroadcastMove(true);
 		}
 
 		public void OnEnd()
 		{
 			_player = null;
 			_entity.KnownPosition.Pitch = 0;
-			_entity.BroadcastMove();
+			_entity.BroadcastMove(true);
 		}
 
 		private double RadianToDegree(double angle)

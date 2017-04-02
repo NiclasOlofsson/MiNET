@@ -346,6 +346,7 @@ namespace MiNET.Entities
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 				motions.entityId = EntityId;
 				motions.velocity = Velocity;
+				motions.Encode();
 				Level.RelayBroadcast(motions);
 			}
 		}
@@ -357,6 +358,7 @@ namespace MiNET.Entities
 				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 				moveEntity.entityId = EntityId;
 				moveEntity.position = KnownPosition;
+				moveEntity.Encode();
 				Level.RelayBroadcast(moveEntity);
 			}
 		}

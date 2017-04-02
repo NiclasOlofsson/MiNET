@@ -16,7 +16,7 @@ namespace MiNET.Entities.Passive
 			HealthManager.ResetHealth();
 
 			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.25));
-			Behaviors.Add(new TemptedBehavior(this, typeof (ItemWheat), 10, 1.1));
+			Behaviors.Add(new TemptedBehavior(this, typeof(ItemWheat), 10, 1.1));
 			Behaviors.Add(new EatBlockBehavior(this));
 			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(this));

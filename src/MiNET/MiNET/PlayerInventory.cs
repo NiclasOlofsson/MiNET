@@ -4,6 +4,7 @@ using log4net;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET
 {
@@ -179,7 +180,7 @@ namespace MiNET
 			if (sendToPlayer)
 			{
 				McpeMobEquipment order = McpeMobEquipment.CreateObject();
-				order.entityId = 0;
+				order.entityId = EntityManager.EntityIdSelf;
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) selectedHotbarSlot;
 				order.slot = (byte) ItemHotbar[InHandSlot];
@@ -242,7 +243,7 @@ namespace MiNET
 				Player.SendPlayerInventory();
 
 				McpeMobEquipment order = McpeMobEquipment.CreateObject();
-				order.entityId = 0;
+				order.entityId = EntityManager.EntityIdSelf;
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) slot; // Selected hotbar slot
 				Player.SendPackage(order);

@@ -27,7 +27,7 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			Vector3 playerPosition = player.KnownPosition + new Vector3(0, 1.62f, 0);
-			Vector3 entityPosition = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0);
+			Vector3 entityPosition = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
 			var d = Vector3.Normalize(playerPosition - entityPosition);
 
 			var dx = d.X;
@@ -40,14 +40,15 @@ namespace MiNET.Entities.Behaviors
 			{
 				thetaOffset = 90;
 			}
-			var yaw = ClampDegrees(thetaOffset + tanOutput);
+			var yaw = /*ClampDegrees*/(thetaOffset + tanOutput);
 
 			double pitch = RadianToDegree(-Math.Asin(dy));
 
-			if (!headOnly) _entity.KnownPosition.Yaw = (float) yaw;
+			if(Math.Abs(_entity.KnownPosition.HeadYaw - yaw) > 90) Log.Warn($"Big change of YAW from {_entity.KnownPosition.HeadYaw} to {yaw}");
+			/*if (!headOnly) */_entity.KnownPosition.Yaw = (float) yaw;
 			_entity.KnownPosition.HeadYaw = (float) yaw;
 			_entity.KnownPosition.Pitch = (float) pitch;
-			_entity.BroadcastMove();
+			//_entity.BroadcastMove();
 		}
 
 		public void RotateTowards(Vector3 targetPosition)
@@ -65,16 +66,15 @@ namespace MiNET.Entities.Behaviors
 			{
 				thetaOffset = 90;
 			}
-			var yaw = ClampDegrees(thetaOffset + tanOutput);
+			var yaw = /*ClampDegrees*/(thetaOffset + tanOutput);
 
-			_entity.KnownPosition.Yaw = (float) yaw;
-			_entity.BroadcastMove();
+			_entity.Direction = (float) yaw;
 		}
 
 
 		private double ClampDegrees(double degrees)
 		{
-			return (degrees%360 + 360)%360;
+			return Math.Floor((degrees%360 + 360)%360);
 		}
 
 		public void MoveForward(double speedMultiplier)
@@ -82,7 +82,7 @@ namespace MiNET.Entities.Behaviors
 			float speedFactor = (float) (_entity.Speed*speedMultiplier);
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
-			var direction = Vector3.Normalize(coordinates.GetDirection()*new Vector3(1, 0, 1));
+			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
 
 			var blockDown = level.GetBlock(coordinates + BlockCoordinates.Down);
 			if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)

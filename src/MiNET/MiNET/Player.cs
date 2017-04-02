@@ -761,7 +761,7 @@ namespace MiNET
 			LastUpdatedTime = DateTime.UtcNow;
 
 			var package = McpeMovePlayer.CreateObject();
-			package.entityId = 0;
+			package.entityId = EntityManager.EntityIdSelf;
 			package.x = position.X;
 			package.y = position.Y + 1.62f;
 			package.z = position.Z;
@@ -935,7 +935,7 @@ namespace MiNET
 		public override void BroadcastSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = 0;
+			mcpeSetEntityData.entityId = EntityManager.EntityIdSelf;
 			mcpeSetEntityData.metadata = GetMetadata();
 			mcpeSetEntityData.Encode();
 			SendPackage(mcpeSetEntityData);
@@ -971,7 +971,7 @@ namespace MiNET
 			SendPackage(armorContent);
 
 			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
-			mobEquipment.entityId = 0;
+			mobEquipment.entityId = EntityManager.EntityIdSelf;
 			mobEquipment.item = Inventory.GetItemInHand();
 			mobEquipment.slot = 0;
 			SendPackage(mobEquipment);
@@ -1720,7 +1720,7 @@ namespace MiNET
 		{
 			McpeStartGame mcpeStartGame = McpeStartGame.CreateObject();
 			mcpeStartGame.entityId = EntityId;
-			mcpeStartGame.runtimeEntityId = 0;
+			mcpeStartGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeStartGame.spawn = KnownPosition.ToVector3();
 			mcpeStartGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			mcpeStartGame.seed = 12345;
@@ -1972,7 +1972,7 @@ namespace MiNET
 			attributes = HungerManager.AddHungerAttributes(attributes);
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
-			attributesPackate.entityId = 0;
+			attributesPackate.entityId = EntityManager.EntityIdSelf;
 			attributesPackate.attributes = attributes;
 			SendPackage(attributesPackate);
 		}
@@ -2038,7 +2038,7 @@ namespace MiNET
 		public virtual void SendMovePlayer(bool teleport = false)
 		{
 			var package = McpeMovePlayer.CreateObject();
-			package.entityId = 0;
+			package.entityId = EntityManager.EntityIdSelf;
 			package.x = KnownPosition.X;
 			package.y = KnownPosition.Y + 1.62f;
 			package.z = KnownPosition.Z;
@@ -2144,7 +2144,7 @@ namespace MiNET
 		public override void Knockback(Vector3 velocity)
 		{
 			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-			motions.entityId = 0;
+			motions.entityId = EntityManager.EntityIdSelf;
 			motions.velocity = velocity;
 			SendPackage(motions);
 		}
@@ -2283,7 +2283,7 @@ namespace MiNET
 		{
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();
-				entityEvent.entityId = 0;
+				entityEvent.entityId = EntityManager.EntityIdSelf;
 				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
 				SendPackage(entityEvent);
 			}

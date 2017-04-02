@@ -28,9 +28,6 @@ namespace MiNET.Net
 		[JsonIgnore]
 		public bool NoBatch { get; set; }
 
-		[JsonIgnore]
-		public DateTime? ValidUntil { get; set; }
-
 		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
 		[JsonIgnore] public int ReliableMessageNumber = 0;
 		[JsonIgnore] public byte OrderingChannel = 0;
@@ -499,9 +496,10 @@ namespace MiNET.Net
 			Write(location.X);
 			Write(location.Y);
 			Write(location.Z);
-			Write((byte) (location.Pitch*0.71)); // 256/360
-			Write((byte) (location.HeadYaw*0.71)); // 256/360
-			Write((byte) (location.Yaw*0.71)); // 256/360
+			var d = 256f/360f;
+			Write((byte) Math.Round(location.Pitch*d)); // 256/360
+			Write((byte) Math.Round(location.HeadYaw*d)); // 256/360
+			Write((byte) Math.Round(location.Yaw*d)); // 256/360
 		}
 
 		public PlayerLocation ReadPlayerLocation()
@@ -1380,8 +1378,6 @@ namespace MiNET.Net
 
 			NoBatch = false;
 			ForceClear = false;
-
-			ValidUntil = null;
 
 			_encodedMessage = null;
 			_writer.Flush();

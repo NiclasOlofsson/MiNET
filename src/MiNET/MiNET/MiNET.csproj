@@ -616,7 +616,6 @@
     <Compile Include="Utils\CryptoContext.cs" />
     <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\EnchantingExtensions.cs" />
-    <Compile Include="Utils\EntityLocations.cs" />
     <Compile Include="Utils\DedicatedThreadPool.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />
     <Compile Include="Utils\MapInfo.cs" />
@@ -635,7 +634,7 @@
     <Compile Include="Utils\VarInt.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
     <Compile Include="Utils\TextUtils.cs" />
-    <Compile Include="Utils\Vector3.cs" />
+    <Compile Include="Utils\VectorHelpers.cs" />
     <Compile Include="Utils\Compression.cs" />
     <Compile Include="Utils\BlockCoordinates.cs" />
     <Compile Include="Utils\Endian.cs" />

@@ -89,8 +89,9 @@ namespace MiNET.Entities.Behaviors
 
 			var block = level.GetBlock(coord);
 			var blockUp = level.GetBlock(coordUp);
+			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
 
-			var colliding = block.IsSolid || blockUp.IsSolid;
+			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)
 			{
 				var velocity = direction*speedFactor;
@@ -102,7 +103,7 @@ namespace MiNET.Entities.Behaviors
 			}
 			else
 			{
-				if (!entityCollide && !blockUp.IsSolid && level.Random.Next(4) != 0)
+				if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) && level.Random.Next(4) != 0)
 				{
 					//Log.Debug($"Block ahead: {block}, jumping");
 					_entity.Velocity = new Vector3(0, 0.42f, 0);

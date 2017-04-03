@@ -1140,7 +1140,7 @@ namespace MiNET.Worlds
 		}
 
 
-		public void DropItem(Vector3 coordinates, Item drop)
+		public virtual void DropItem(Vector3 coordinates, Item drop)
 		{
 			if (GameMode == GameMode.Creative) return;
 

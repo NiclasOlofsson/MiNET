@@ -7,9 +7,9 @@ namespace MiNET.Worlds
 	public class EntityManager
 	{
 		public const long EntityIdUndefined = -1;
-		public const long EntityIdSelf = -2;
+		public const long EntityIdSelf = 2;
 
-		private long _entityId = 1;
+		private long _entityId = EntityIdSelf + 1;
 
 		public long AddEntity(Entity entity)
 		{

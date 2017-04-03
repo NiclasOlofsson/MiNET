@@ -169,7 +169,7 @@ namespace MiNET.Entities.World
 			var players = Level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
-				if (KnownPosition.DistanceTo(player.KnownPosition) <= 2)
+				if (player.GameMode != GameMode.Spectator && KnownPosition.DistanceTo(player.KnownPosition) <= 2)
 				{
 					{
 						var takeItemEntity = McpeTakeItemEntity.CreateObject();

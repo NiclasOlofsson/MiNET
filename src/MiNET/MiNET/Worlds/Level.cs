@@ -360,7 +360,7 @@ namespace MiNET.Worlds
 			mcpeSetTitle.fadeInTime = fadeIn;
 			mcpeSetTitle.stayTime = stayTime;
 			mcpeSetTitle.fadeOutTime = fadeOut;
-			mcpeSetTitle.type = (int)type;
+			mcpeSetTitle.type = (int) type;
 			mcpeSetTitle.text = text;
 
 			RelayBroadcast(sender, sendList, mcpeSetTitle);
@@ -442,7 +442,7 @@ namespace MiNET.Worlds
 
 					ThreadPool.QueueUserWorkItem(state =>
 					{
-						Parallel.ForEach((List<Tuple<int, int>>)state, coord =>
+						Parallel.ForEach((List<Tuple<int, int>>) state, coord =>
 						{
 							var random = new Random();
 							//foreach (var coord in chunksWithinRadiusOfPlayer)
@@ -465,7 +465,7 @@ namespace MiNET.Worlds
 											{
 												// Entity spawning, only one attempt per chunk
 												EntitySpawnManager.AttemptHostileMobSpawn(TickTime, blockCoordinates);
-												EntitySpawnManager.AttemptPassiveMobSpawn(TickTime, blockCoordinates, ((List<Tuple<int, int>>)state).Count);
+												EntitySpawnManager.AttemptPassiveMobSpawn(TickTime, blockCoordinates, ((List<Tuple<int, int>>) state).Count);
 											}
 
 											continue;
@@ -1046,7 +1046,7 @@ namespace MiNET.Worlds
 					block = GetBlock(itemInHand.GetNewCoordinatesFromFace(blockCoordinates, face));
 				}
 
-				if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
+				if (!AllowBuild || player.GameMode == GameMode.Spectator || !OnBlockPlace(new BlockPlaceEventArgs(player, this, target, block)))
 				{
 					// Revert
 
@@ -1083,7 +1083,7 @@ namespace MiNET.Worlds
 			Item inHand = player.Inventory.GetItemInHand();
 			bool canBreak = inHand.BreakBlock(this, player, block, blockEntity);
 
-			if (!canBreak || !AllowBreak || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
+			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
 			{
 				// Revert
 

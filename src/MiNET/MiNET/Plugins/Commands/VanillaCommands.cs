@@ -482,5 +482,25 @@ namespace MiNET.Plugins.Commands
 			item.SetEnchantings(enchanings);
 			targetPlayer.Inventory.SendSetSlot(targetPlayer.Inventory.InHandSlot);
 		}
+
+		[Command]
+		public void GameMode(Player commander, GameMode gameMode, Target target = null)
+		{
+			Player targetPlayer = commander;
+			if (target != null) targetPlayer = target.Players.First();
+
+			switch (gameMode)
+			{
+				case Worlds.GameMode.Adventure:
+					targetPlayer.SetAdventure(true);
+					break;
+				case Worlds.GameMode.Spectator:
+					targetPlayer.SetSpectator(true);
+					break;
+				default:
+					targetPlayer.SetGameMode(gameMode);
+					break;
+			}
+		}
 	}
 }

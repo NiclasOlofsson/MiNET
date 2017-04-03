@@ -188,6 +188,7 @@ namespace MiNET.Entities.Projectiles
 			foreach (var entity in players)
 			{
 				if (entity == Shooter) continue;
+				if (entity.GameMode == GameMode.Spectator) continue;
 
 				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{

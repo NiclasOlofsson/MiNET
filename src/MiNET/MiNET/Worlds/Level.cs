@@ -706,8 +706,10 @@ namespace MiNET.Worlds
 				message.AddReferences(sendList.Length - 1);
 			}
 
-			Parallel.ForEach(sendList, player =>
+			if (sendList.Length == 1)
 			{
+				Player player = sendList.First();
+
 				if (source != null && player == source)
 				{
 					message.PutPool();
@@ -715,7 +717,20 @@ namespace MiNET.Worlds
 				}
 
 				player.SendPackage(message);
-			});
+			}
+			else
+			{
+				Parallel.ForEach(sendList, player =>
+				{
+					if (source != null && player == source)
+					{
+						message.PutPool();
+						return;
+					}
+
+					player.SendPackage(message);
+				});
+			}
 		}
 
 		public McpeBatch GenerateChunk(ChunkCoordinates chunkPosition)

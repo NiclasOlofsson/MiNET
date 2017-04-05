@@ -14,25 +14,17 @@ namespace MiNET.Entities.Behaviors
 
 		public bool ShouldStart()
 		{
-			if (!_entity.IsTamed)
-			{
-				return false;
-			}
-			else if (_entity.IsInWater)
-			{
-				return false;
-			}
-			else
-			{
-				Player owner = ((Wolf) _entity).Owner as Player;
+			if (!_entity.IsTamed) return false;
+			if (_entity.IsInWater) return false;
 
-				var shouldStart = owner == null || ((!(_entity.KnownPosition.DistanceTo(owner.KnownPosition) < 144.0) || _entity.HealthManager.LastDamageSource == null) && _entity.IsSitting);
-				if (!shouldStart) return false;
+			Player owner = ((Wolf) _entity).Owner as Player;
 
-				_entity.Velocity *= new Vector3(0, 1, 0);
+			var shouldStart = owner == null || ((!(_entity.KnownPosition.DistanceTo(owner.KnownPosition) < 144.0) || _entity.HealthManager.LastDamageSource == null) && _entity.IsSitting);
+			if (!shouldStart) return false;
 
-				return true;
-			}
+			_entity.Velocity *= new Vector3(0, 1, 0);
+
+			return true;
 		}
 
 		public bool CanContinue()
@@ -42,10 +34,6 @@ namespace MiNET.Entities.Behaviors
 
 
 		public void OnTick()
-		{
-		}
-
-		public void CalculateNextMove()
 		{
 		}
 

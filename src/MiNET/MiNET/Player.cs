@@ -68,6 +68,8 @@ namespace MiNET
 		public bool IsFalling { get; set; }
 		public bool IsFlyingHorizontally { get; set; }
 
+		public Entity LastAttackTarget { get; set; }
+
 		public List<Popup> Popups { get; set; } = new List<Popup>();
 
 		public User User { get; set; }
@@ -1563,6 +1565,8 @@ namespace MiNET
 
 			Item itemInHand = Inventory.GetItemInHand();
 
+			LastAttackTarget = target;
+
 			Player player = target as Player;
 			if (player != null)
 			{
@@ -2057,6 +2061,11 @@ namespace MiNET
 
 			base.OnTick();
 
+			if (LastAttackTarget != null && LastAttackTarget.HealthManager.IsDead)
+			{
+				LastAttackTarget = null;
+			}
+
 			if (IsGliding)
 			{
 				if (CurrentSpeed > 30)
@@ -2066,14 +2075,14 @@ namespace MiNET
 					particle.Spawn();
 				}
 
-				if (Level.TickTime % 10 == 0)
+				if (Level.TickTime%10 == 0)
 				{
 					AddPopup(new Popup()
 					{
 						Id = 10,
 						MessageType = MessageType.Tip,
 						Message = $"Speed: {CurrentSpeed:F2}m/s",
-						Duration = 20 * 5,
+						Duration = 20*5,
 					});
 				}
 			}

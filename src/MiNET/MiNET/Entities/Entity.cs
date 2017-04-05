@@ -311,6 +311,12 @@ namespace MiNET.Entities
 			return new BoundingBox(new Vector3((float) (pos.X - halfWidth), pos.Y, (float) (pos.Z - halfWidth)), new Vector3((float) (pos.X + halfWidth), (float) (pos.Y + Height), (float) (pos.Z + halfWidth)));
 		}
 
+		public double DistanceTo(Entity entity)
+		{
+			if (entity == null) return -1;
+			return Vector3.Distance(KnownPosition, entity.KnownPosition);
+		}
+
 		public byte GetDirection()
 		{
 			return DirectionByRotationFlat(KnownPosition.Yaw);

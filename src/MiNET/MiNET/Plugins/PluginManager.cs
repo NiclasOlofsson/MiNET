@@ -774,12 +774,12 @@ namespace MiNET.Plugins
 			else if (target.Selector == "nearestPlayer" && target.Rules != null)
 			{
 				string username = target.Rules.First().Value;
-				var players = level.GetSpawnedPlayers().Where(p => p.Username == username);
+				var players = level.GetAllPlayers().Where(p => p.Username == username);
 				target.Players = players.ToArray();
 			}
 			else if (target.Selector == "allPlayers")
 			{
-				target.Players = level.GetSpawnedPlayers();
+				target.Players = level.GetAllPlayers();
 			}
 			else if (target.Selector == "allEntities")
 			{
@@ -787,7 +787,7 @@ namespace MiNET.Plugins
 			}
 			else if (target.Selector == "randomPlayer")
 			{
-				Player[] players = level.GetSpawnedPlayers();
+				Player[] players = level.GetAllPlayers();
 				target.Players = new[] {players[new Random().Next(players.Length)]};
 			}
 

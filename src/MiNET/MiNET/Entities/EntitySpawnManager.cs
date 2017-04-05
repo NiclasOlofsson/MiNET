@@ -62,7 +62,7 @@ namespace MiNET.Entities
 				return;
 			}
 
-			if (Level.GetSpawnedPlayers().Count(e => Vector3.Distance(blockCoordinates, e.KnownPosition) < 32) != 0)
+			if (Level.GetSpawnedPlayers().Count(player => Vector3.Distance(blockCoordinates, player.KnownPosition) < 32) != 0)
 			{
 				if (Log.IsDebugEnabled)
 					Log.Warn($"Can't spawn entity because players within 32 blocks distance");

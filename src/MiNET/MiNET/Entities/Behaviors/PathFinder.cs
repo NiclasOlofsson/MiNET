@@ -258,7 +258,7 @@ namespace MiNET.Entities.Behaviors
 
 			BlockCoordinates blockCoordinates = block.Coordinates;
 
-			if (_level.GetBlock(blockCoordinates + BlockCoordinates.Up).IsSolid)
+			if (_entity.Height > 1 && _level.GetBlock(blockCoordinates + BlockCoordinates.Up).IsSolid)
 			{
 				//_level.SetBlock(new GoldBlock() {Coordinates = blockCoordinates + BlockCoordinates.Up});
 				return true;

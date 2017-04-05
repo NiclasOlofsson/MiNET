@@ -282,7 +282,7 @@ namespace MiNET.Plugins.Commands
 		{
 			Level level = commander.Level;
 			level.Difficulty = difficulty;
-			foreach (var player in level.GetSpawnedPlayers())
+			foreach (var player in level.GetAllPlayers())
 			{
 				player.SendSetDificulty();
 			}

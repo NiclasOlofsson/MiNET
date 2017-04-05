@@ -31,10 +31,7 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnTick()
 		{
-		}
-
-		public void CalculateNextMove()
-		{
+			_entity.Direction += (float) Math.Sign(_rotation)*10;
 			_entity.KnownPosition.HeadYaw += (float) Math.Sign(_rotation)*10;
 			_entity.KnownPosition.Yaw += (float) Math.Sign(_rotation)*10;
 			_entity.BroadcastMove();

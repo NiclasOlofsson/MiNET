@@ -49,10 +49,6 @@ namespace MiNET.Entities.Behaviors
 		{
 		}
 
-		public void CalculateNextMove()
-		{
-		}
-
 		public void OnEnd()
 		{
 			var coordinates = _entity.KnownPosition;

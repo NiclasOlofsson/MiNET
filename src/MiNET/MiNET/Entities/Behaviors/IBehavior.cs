@@ -5,7 +5,6 @@ namespace MiNET.Entities.Behaviors
 		bool ShouldStart();
 		bool CanContinue();
 		void OnTick();
-		void CalculateNextMove();
 		void OnEnd();
 	}
 }

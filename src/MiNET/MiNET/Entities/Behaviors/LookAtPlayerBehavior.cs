@@ -40,10 +40,6 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnTick()
 		{
-		}
-
-		public void CalculateNextMove()
-		{
 			var dx = _player.KnownPosition.X - _entity.KnownPosition.X;
 			var dz = _player.KnownPosition.Z - _entity.KnownPosition.Z;
 
@@ -59,6 +55,7 @@ namespace MiNET.Entities.Behaviors
 			var dy = (_entity.KnownPosition.Y + _entity.Height) - (_player.KnownPosition.Y + 1.62);
 			double pitch = RadianToDegree(Math.Atan(dy/(bDiff)));
 
+			_entity.Direction = (float) yaw;
 			_entity.KnownPosition.Yaw = (float) yaw;
 			_entity.KnownPosition.HeadYaw = (float) yaw;
 			_entity.KnownPosition.Pitch = (float) pitch;

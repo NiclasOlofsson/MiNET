@@ -181,6 +181,7 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
 			player.Inventory.Chest = new ItemElytra() {Count = 1};
 
 			player.SendPlayerInventory();

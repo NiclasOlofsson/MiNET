@@ -1,46 +1,32 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
+using MiNET.Entities.Passive;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class TemptedBehavior : IBehavior
+	public class FollowOwnerBehavior : IBehavior
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (TemptedBehavior));
 
-		private readonly Mob _entity;
-		private readonly Type _temptingItem;
+		private readonly Wolf _entity;
 		private readonly double _lookDistance;
 		private readonly double _speedMultiplier;
-		private Player _player;
-		private int _cooldown = 0;
 
-		public TemptedBehavior(Mob entity, Type temptingItem, double lookDistance, double speedMultiplier)
+		public FollowOwnerBehavior(Wolf entity, double lookDistance, double speedMultiplier)
 		{
-			this._entity = entity;
-			_temptingItem = temptingItem;
+			_entity = entity;
 			_lookDistance = lookDistance;
 			_speedMultiplier = speedMultiplier;
 		}
 
 		public bool ShouldStart()
 		{
-			if (_cooldown > 0)
-			{
-				_cooldown--;
-				return false;
-			}
-
-			Player player = _entity.Level.GetSpawnedPlayers().OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition.ToVector3()))
-				.FirstOrDefault(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition) < _lookDistance && p.Inventory.GetItemInHand()?.GetType() == _temptingItem);
-
-			if (player == null) return false;
-
-			_player = player;
+			if (!_entity.IsTamed) return false;
+			if (_entity.Owner == null) return false;
 
 			return true;
 		}
@@ -54,14 +40,16 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnTick()
 		{
-			if (_player == null) return;
-			var distanceToPlayer = _entity.KnownPosition.DistanceTo(_player.KnownPosition);
+			if (_entity.Owner == null) return;
+			Player player = (Player) _entity.Owner;
+
+			var distanceToPlayer = _entity.KnownPosition.DistanceTo(player.KnownPosition);
 
 			if (distanceToPlayer < 1.75)
 			{
 				// if within 6m stop following (walking)
 				_entity.Velocity = Vector3.Zero;
-				_entity.Controller.LookAt(_player);
+				_entity.Controller.LookAt(player);
 				return;
 			}
 
@@ -69,10 +57,10 @@ namespace MiNET.Entities.Behaviors
 			{
 				Log.Debug($"Search new solution");
 				var pathFinder = new PathFinder();
-				_currentPath = pathFinder.FindPath(_entity, _player, distanceToPlayer + 1);
+				_currentPath = pathFinder.FindPath(_entity, player, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
-					_currentPath = pathFinder.FindPath(_entity, _player, _lookDistance);
+					_currentPath = pathFinder.FindPath(_entity, player, _lookDistance);
 				}
 			}
 
@@ -113,7 +101,7 @@ namespace MiNET.Entities.Behaviors
 				_currentPath = null;
 			}
 
-			_entity.Controller.LookAt(_player, true);
+			_entity.Controller.LookAt(player, true);
 		}
 
 		private bool GetNextTile(out Tile next)
@@ -143,9 +131,7 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnEnd()
 		{
-			_cooldown = 100;
 			_entity.Velocity = Vector3.Zero;
-			_player = null;
 			_entity.KnownPosition.Pitch = 0;
 		}
 	}

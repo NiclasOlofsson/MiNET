@@ -13,9 +13,9 @@ namespace MiNET.Entities.Passive
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Wolf));
 
-		public bool IsAngry { get; set; }
 		public byte CollarColor { get; set; }
 		public Entity Owner { get; set; }
+		public Entity Target { get; private set; }
 
 		public Wolf(Level level) : base(EntityType.Wolf, level)
 		{
@@ -28,9 +28,29 @@ namespace MiNET.Entities.Passive
 			Speed = 0.3;
 
 			Behaviors.Add(new SittingBehavior(this));
+			Behaviors.Add(new JumpAttackBehavior(this, 1.0));
+			Behaviors.Add(new MeeleAttackBehavior(this, 1.0));
+			Behaviors.Add(new OwnerHurtByTargetBehavior(this));
+			Behaviors.Add(new OwnerHurtTargetBehavior(this));
+			Behaviors.Add(new HurtByTargetBehavior(this));
+			Behaviors.Add(new FollowOwnerBehavior(this, 20, 1.0));
 			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
+		}
+
+		public void SetTarget(Entity target)
+		{
+			if (Target == target) return;
+
+			Target = target;
+
+			if (target != null && !IsTamed && !target.HealthManager.IsDead)
+				IsAngry = true;
+			else
+				IsAngry = false;
+
+			BroadcastSetEntityData();
 		}
 
 		public override void DoInteraction(byte actionId, Player player)
@@ -51,7 +71,7 @@ namespace MiNET.Entities.Passive
 			{
 				if (player.Inventory.GetItemInHand() is ItemBone)
 				{
-					Log.Warn($"Wolf taming attempt by {player.Username}");
+					Log.Debug($"Wolf taming attempt by {player.Username}");
 
 					player.Inventory.RemoveItems(new ItemBone().Id, 1);
 
@@ -61,6 +81,7 @@ namespace MiNET.Entities.Passive
 						Owner = player;
 						IsTamed = true;
 						IsSitting = true;
+						IsAngry = false;
 						BroadcastSetEntityData();
 
 						for (int i = 0; i < 7; ++i)
@@ -71,7 +92,7 @@ namespace MiNET.Entities.Passive
 						}
 
 
-						Log.Warn($"Wolf is now tamed by {player.Username}");
+						Log.Debug($"Wolf is now tamed by {player.Username}");
 					}
 					else
 					{

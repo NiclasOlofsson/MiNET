@@ -84,7 +84,7 @@ namespace MiNET
 		public virtual void TakeHit(Entity source, Item tool, int damage = 1, DamageCause cause = DamageCause.Unknown)
 		{
 			var player = Entity as Player;
-			if (player == null || player.GameMode != GameMode.Survival || player.GameMode == GameMode.Spectator) return;
+			if (player != null && player.GameMode != GameMode.Survival) return;
 
 
 			if (CooldownTick > 0) return;
@@ -471,7 +471,7 @@ namespace MiNET
 			if (playerPosition.Y < 0 || playerPosition.Y > 255) return false;
 
 			BlockCoordinates solidPos = (BlockCoordinates) playerPosition;
-			if(Entity.Height >= 1)
+			if (Entity.Height >= 1)
 			{
 				solidPos.Y += 1;
 			}

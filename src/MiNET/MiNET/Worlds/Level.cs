@@ -241,7 +241,7 @@ namespace MiNET.Worlds
 				// The player list keeps us from moving this completely to player.
 				// It's simply to slow and bad.
 
-				Player[] players = GetSpawnedPlayers();
+				Player[] players = GetAllPlayers();
 				List<Player> spawnedPlayers = players.ToList();
 				spawnedPlayers.Add(newPlayer);
 
@@ -293,7 +293,7 @@ namespace MiNET.Worlds
 		{
 			lock (_playerWriteLock)
 			{
-				var spawnedPlayers = GetSpawnedPlayers();
+				var spawnedPlayers = GetAllPlayers();
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
@@ -324,7 +324,7 @@ namespace MiNET.Worlds
 
 				if (Entities.TryAdd(entity.EntityId, entity))
 				{
-					entity.SpawnToPlayers(GetSpawnedPlayers());
+					entity.SpawnToPlayers(GetAllPlayers());
 				}
 				else
 				{
@@ -338,7 +338,7 @@ namespace MiNET.Worlds
 			lock (Entities)
 			{
 				if (!Entities.TryRemove(entity.EntityId, out entity)) return; // It's ok. Holograms destroy this play..
-				entity.DespawnFromPlayers(GetSpawnedPlayers());
+				entity.DespawnFromPlayers(GetAllPlayers());
 			}
 		}
 
@@ -394,11 +394,6 @@ namespace MiNET.Worlds
 		public long LastTickProcessingTime = 0;
 		public long AvarageTickProcessingTime = 50;
 		public int PlayerCount { get; private set; }
-
-		private void WorldTick(object sender, EventArgs e)
-		{
-			WorldTick(null);
-		}
 
 		private void WorldTick(object sender)
 		{
@@ -557,6 +552,13 @@ namespace MiNET.Worlds
 			return Players.Values.Where(player => player.IsSpawned).ToArray();
 		}
 
+		public Player[] GetAllPlayers()
+		{
+			if (Players == null) return new Player[0]; // HACK
+
+			return Players.Values.ToArray();
+		}
+
 		public Entity[] GetEntites()
 		{
 			lock (Entities)
@@ -662,17 +664,17 @@ namespace MiNET.Worlds
 
 		public void RelayBroadcast<T>(T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, GetSpawnedPlayers(), message);
+			RelayBroadcast(null, GetAllPlayers(), message);
 		}
 
 		public void RelayBroadcast<T>(Player source, T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(source, GetSpawnedPlayers(), message);
+			RelayBroadcast(source, GetAllPlayers(), message);
 		}
 
 		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Package<T>, new()
 		{
-			RelayBroadcast(null, sendList ?? GetSpawnedPlayers(), message);
+			RelayBroadcast(null, sendList ?? GetAllPlayers(), message);
 		}
 
 		public void RelayBroadcast<T>(Player source, Player[] sendList, T message) where T : Package<T>, new()

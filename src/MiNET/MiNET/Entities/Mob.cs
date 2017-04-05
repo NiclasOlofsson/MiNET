@@ -22,8 +22,9 @@ namespace MiNET.Entities
 		public MobController Controller { get; private set; }
 
 		public double Direction { get; set; }
-
 		public double Speed { get; set; } = 0.25f;
+
+		public bool IsOnGround { get; set; }
 
 		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
 		{
@@ -56,8 +57,7 @@ namespace MiNET.Entities
 		}
 
 
-		public double _lastSentDir = 0;
-		public double _lastSentHeadYaw = 0;
+		public Vector3 _lastSentRotation = Vector3.Zero;
 		public Vector3 _lastSentPos = new Vector3();
 
 		public override void OnTick()
@@ -86,7 +86,6 @@ namespace MiNET.Entities
 			}
 
 			_currentBehavior = GetBehavior();
-			_currentBehavior?.OnTick();
 
 			// Execute move
 			bool onGroundBefore = IsMobOnGround(KnownPosition);
@@ -96,8 +95,8 @@ namespace MiNET.Entities
 			KnownPosition.Z += (float) Velocity.Z;
 
 			// Fix potential fall through ground because of speed
-			bool onGround = IsMobOnGround(KnownPosition);
-			if (!onGroundBefore && onGround)
+			IsOnGround = IsMobOnGround(KnownPosition);
+			if (!onGroundBefore && IsOnGround)
 			{
 				while (Level.GetBlock(KnownPosition).IsSolid)
 				{
@@ -110,18 +109,17 @@ namespace MiNET.Entities
 			//if (Math.Abs(_lastSentDir - Direction) < 1.1) Direction = _lastSentDir;
 			//if (Math.Abs(_lastSentHeadYaw - KnownPosition.HeadYaw) < 1.1) KnownPosition.HeadYaw = (float) _lastSentHeadYaw;
 
-			if ((_lastSentPos - KnownPosition).Length() > 0.01 || Math.Abs(_lastSentHeadYaw - KnownPosition.HeadYaw) > 0.01 || Math.Abs(_lastSentDir - Direction) > 0.01)
+			if ((_lastSentPos - KnownPosition).Length() > 0.01 || KnownPosition.GetDirection() != _lastSentRotation)
 			{
-				_lastSentDir = Direction;
 				_lastSentPos = KnownPosition;
-				_lastSentHeadYaw = KnownPosition.HeadYaw;
+				_lastSentRotation = KnownPosition.GetDirection();
 
 				BroadcastMove();
 				BroadcastMotion();
 			}
 
 			// Calculate velocity for next move
-			_currentBehavior?.CalculateNextMove();
+			_currentBehavior?.OnTick();
 
 			bool inWater = IsMobInFluid(KnownPosition);
 
@@ -129,7 +127,7 @@ namespace MiNET.Entities
 			{
 				Velocity += new Vector3(0, 0.039f, 0);
 			}
-			else if (onGround)
+			else if (IsOnGround)
 			{
 				if (Velocity.Y < 0) Velocity *= new Vector3(1, 0, 1);
 			}

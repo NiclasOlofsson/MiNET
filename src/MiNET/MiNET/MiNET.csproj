@@ -325,10 +325,16 @@
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
     <Compile Include="Entities\Behaviors\EatBlockBehavior.cs" />
+    <Compile Include="Entities\Behaviors\FollowOwnerBehavior.cs" />
     <Compile Include="Entities\Behaviors\HorseEatBlockBehavior.cs" />
+    <Compile Include="Entities\Behaviors\HurtByTargetBehavior.cs" />
     <Compile Include="Entities\Behaviors\IBehavior.cs" />
+    <Compile Include="Entities\Behaviors\JumpAttackBehavior.cs" />
     <Compile Include="Entities\Behaviors\LookAtPlayerBehavior.cs" />
+    <Compile Include="Entities\Behaviors\MeeleAttackBehavior.cs" />
     <Compile Include="Entities\Behaviors\MobController.cs" />
+    <Compile Include="Entities\Behaviors\OwnerHurtByTargetBehavior.cs" />
+    <Compile Include="Entities\Behaviors\OwnerHurtTargetBehavior.cs" />
     <Compile Include="Entities\Behaviors\PanicBehavior.cs" />
     <Compile Include="Entities\Behaviors\PathFinder.cs" />
     <Compile Include="Entities\Behaviors\RandomLookaroundBehavior.cs" />

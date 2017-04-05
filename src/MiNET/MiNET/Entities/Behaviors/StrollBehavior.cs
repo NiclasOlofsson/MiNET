@@ -37,10 +37,6 @@ namespace MiNET.Entities.Behaviors
 
 		public virtual void OnTick()
 		{
-		}
-
-		public virtual void CalculateNextMove()
-		{
 			float speedFactor = (float) (_speed*_speedMultiplier);
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
@@ -54,7 +50,6 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			BlockCoordinates coord = (BlockCoordinates) (coordinates + (direction*speedFactor) + (direction*(float) _entity.Length/2));
-			BlockCoordinates coordUp = coord + BlockCoordinates.Up;
 
 			var players = level.GetSpawnedPlayers();
 			bool entityCollide = false;
@@ -88,7 +83,7 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			var block = level.GetBlock(coord);
-			var blockUp = level.GetBlock(coordUp);
+			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
 			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
 
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
@@ -96,9 +91,13 @@ namespace MiNET.Entities.Behaviors
 			{
 				var velocity = direction*speedFactor;
 				//Log.Debug($"Moving sheep: {velocity}");
-				if (_entity.Velocity.Length() < velocity.Length())
+				if ((_entity.Velocity*new Vector3(1, 0, 1)).Length() < velocity.Length())
 				{
 					_entity.Velocity += velocity - _entity.Velocity;
+				}
+				else
+				{
+					_entity.Velocity = velocity;
 				}
 			}
 			else
@@ -112,6 +111,7 @@ namespace MiNET.Entities.Behaviors
 				{
 					//Log.Debug($"Block ahead: {block}, turning");
 					int rot = level.Random.Next(2) == 0 ? level.Random.Next(45, 180) : level.Random.Next(-180, -45);
+					_entity.Direction += rot;
 					_entity.KnownPosition.HeadYaw += rot;
 					_entity.KnownPosition.Yaw += rot;
 					_entity.Velocity *= new Vector3(0, 1, 0);

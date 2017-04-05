@@ -117,6 +117,7 @@ namespace MiNET.Entities.Projectiles
 				if (player != null)
 				{
 					damage = player.DamageCalculator.CalculatePlayerDamage(this, player, null, damage, DamageCause.Projectile);
+					player.LastAttackTarget = entityCollided;
 				}
 
 				entityCollided.HealthManager.TakeHit(this, (int) damage, DamageCause.Projectile);

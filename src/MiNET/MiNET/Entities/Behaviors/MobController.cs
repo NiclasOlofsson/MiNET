@@ -16,17 +16,16 @@ namespace MiNET.Entities.Behaviors
 			_entity = entity;
 		}
 
-		public void LookAt(Player player, bool headOnly = true)
+		public void LookAt(Entity target, bool headOnly = true)
 		{
-			if (player == null)
+			if (target == null)
 			{
-				//_entity.KnownPosition.Pitch = 0;
-				//_entity.BroadcastMove();
+				_entity.KnownPosition.Pitch = 0;
 
 				return;
 			}
 
-			Vector3 playerPosition = player.KnownPosition + new Vector3(0, 1.62f, 0);
+			Vector3 playerPosition = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
 			Vector3 entityPosition = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
 			var d = Vector3.Normalize(playerPosition - entityPosition);
 
@@ -40,15 +39,13 @@ namespace MiNET.Entities.Behaviors
 			{
 				thetaOffset = 90;
 			}
-			var yaw = /*ClampDegrees*/(thetaOffset + tanOutput);
+			var yaw = /*ClampDegrees*/ (thetaOffset + tanOutput);
 
 			double pitch = RadianToDegree(-Math.Asin(dy));
 
-			if(Math.Abs(_entity.KnownPosition.HeadYaw - yaw) > 90) Log.Warn($"Big change of YAW from {_entity.KnownPosition.HeadYaw} to {yaw}");
-			/*if (!headOnly) */_entity.KnownPosition.Yaw = (float) yaw;
+			_entity.KnownPosition.Yaw = (float) yaw;
 			_entity.KnownPosition.HeadYaw = (float) yaw;
 			_entity.KnownPosition.Pitch = (float) pitch;
-			//_entity.BroadcastMove();
 		}
 
 		public void RotateTowards(Vector3 targetPosition)
@@ -66,7 +63,7 @@ namespace MiNET.Entities.Behaviors
 			{
 				thetaOffset = 90;
 			}
-			var yaw = /*ClampDegrees*/(thetaOffset + tanOutput);
+			var yaw = /*ClampDegrees*/ (thetaOffset + tanOutput);
 
 			_entity.Direction = (float) yaw;
 		}

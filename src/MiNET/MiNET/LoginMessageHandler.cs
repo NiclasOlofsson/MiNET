@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using fNbt;
 using Jose;
 using log4net;
 using MiNET.Net;
@@ -123,7 +124,7 @@ namespace MiNET
 				{
 					defStream2.CopyTo(destination);
 					destination.Position = 0;
-					fNbt.NbtBinaryReader reader = new fNbt.NbtBinaryReader(destination, false);
+					NbtBinaryReader reader = new NbtBinaryReader(destination, false);
 
 					try
 					{
@@ -175,23 +176,23 @@ namespace MiNET
 					//	"UIProfile": 1
 					//}
 
-					_playerInfo.ServerAddress = payload.ServerAddress;
-					_playerInfo.ClientId = payload.ClientRandomId;
-
 					try
 					{
+						_playerInfo.ADRole = payload.ADRole;
+						_playerInfo.ClientId = payload.ClientRandomId;
 						_playerInfo.CurrentInputMode = payload.CurrentInputMode;
 						_playerInfo.DefaultInputMode = payload.DefaultInputMode;
 						_playerInfo.DeviceModel = payload.DeviceModel;
 						_playerInfo.DeviceOS = payload.DeviceOS;
 						_playerInfo.GameVersion = payload.GameVersion;
 						_playerInfo.GuiScale = payload.GuiScale;
+						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
 
 						_playerInfo.Skin = new Skin()
 						{
 							SkinType = payload.SkinId,
-							Texture = Convert.FromBase64String((string)payload.SkinData),
+							Texture = Convert.FromBase64String((string) payload.SkinData),
 						};
 					}
 					catch (Exception e)
@@ -485,17 +486,16 @@ namespace MiNET
 		IMcpeMessageHandler CreatePlayer(INetworkHandler session, PlayerInfo playerInfo);
 	}
 
-	public class DefualtServerManager: IServerManager
+	public class DefaultServerManager : IServerManager
 	{
 		private readonly MiNetServer _miNetServer;
 		private IServer _getServer;
 
-		protected DefualtServerManager()
+		protected DefaultServerManager()
 		{
-			
 		}
 
-		public DefualtServerManager(MiNetServer miNetServer)
+		public DefaultServerManager(MiNetServer miNetServer)
 		{
 			_miNetServer = miNetServer;
 			_getServer = new DefaultServer(miNetServer);
@@ -507,7 +507,7 @@ namespace MiNET
 		}
 	}
 
-	public class DefaultServer: IServer
+	public class DefaultServer : IServer
 	{
 		private readonly MiNetServer _server;
 
@@ -530,6 +530,7 @@ namespace MiNET
 			player.ServerAddress = playerInfo.ServerAddress;
 			player.ClientId = playerInfo.ClientId;
 			player.Skin = playerInfo.Skin;
+			player.PlayerInfo = playerInfo;
 
 			return player;
 		}

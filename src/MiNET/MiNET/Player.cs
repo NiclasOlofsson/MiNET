@@ -54,6 +54,7 @@ namespace MiNET
 		public long ClientId { get; set; }
 		public UUID ClientUuid { get; set; }
 		public string ServerAddress { get; set; }
+		public PlayerInfo PlayerInfo { get; set; }
 
 		public Skin Skin { get; set; }
 

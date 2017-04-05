@@ -136,7 +136,7 @@ namespace MiNET
 					}
 				}
 
-				ServerManager = ServerManager ?? new DefualtServerManager(this);
+				ServerManager = ServerManager ?? new DefaultServerManager(this);
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Node)
 				{

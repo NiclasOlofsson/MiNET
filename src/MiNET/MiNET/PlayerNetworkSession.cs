@@ -946,6 +946,7 @@ namespace MiNET
 
 	public class PlayerInfo
 	{
+		public int ADRole { get; set; }
 		public CertificateData CertificateData { get; set; }
 		public string Username { get; set; }
 		public UUID ClientUuid { get; set; }

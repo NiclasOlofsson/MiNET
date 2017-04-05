@@ -257,7 +257,7 @@ namespace MiNET.Plugins
 				List<Parameter> inputParams = new List<Parameter>();
 				foreach (var parameter in parameters)
 				{
-					if (isFirstParam && parameter.ParameterType == typeof (Player))
+					if (isFirstParam && parameter.ParameterType.IsAssignableFrom(typeof (Player)))
 					{
 						continue;
 					}
@@ -551,7 +551,7 @@ namespace MiNET.Plugins
 				{
 					foreach (ParameterInfo parameter in method.GetParameters())
 					{
-						if (parameter.ParameterType == typeof (Player)) continue;
+						if (parameter.ParameterType.IsAssignableFrom(typeof (Player))) continue;
 
 						if (HasProperty(commandInputJson, parameter.Name))
 						{
@@ -589,7 +589,7 @@ namespace MiNET.Plugins
 			var parameters = method.GetParameters();
 
 			int addLenght = 0;
-			if (parameters.Length > 0 && parameters[0].ParameterType == typeof (Player))
+			if (parameters.Length > 0 && parameters[0].ParameterType.IsAssignableFrom(typeof (Player)))
 			{
 				addLenght = 1;
 			}
@@ -602,7 +602,7 @@ namespace MiNET.Plugins
 				int i = k - addLenght;
 				if (k == 0 && addLenght == 1)
 				{
-					if (parameter.ParameterType == typeof (Player))
+					if (parameter.ParameterType.IsAssignableFrom(typeof (Player)))
 					{
 						objectArgs[k] = player;
 						continue;
@@ -850,7 +850,7 @@ namespace MiNET.Plugins
 							{
 								method.Invoke(pluginInstance, new object[] {currentPackage});
 							}
-							else if (parameters.Length == 2 && parameters[1].ParameterType == typeof (Player))
+							else if (parameters.Length == 2 && parameters[1].ParameterType.IsAssignableFrom(typeof (Player)))
 							{
 								method.Invoke(pluginInstance, new object[] {currentPackage, player});
 							}
@@ -862,7 +862,7 @@ namespace MiNET.Plugins
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage}) as Package;
 							}
-							else if (parameters.Length == 2 && parameters[1].ParameterType == typeof (Player))
+							else if (parameters.Length == 2 && parameters[1].ParameterType.IsAssignableFrom(typeof (Player)))
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage, player}) as Package;
 							}

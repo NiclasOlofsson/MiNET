@@ -257,7 +257,7 @@ namespace MiNET.Plugins
 				List<Parameter> inputParams = new List<Parameter>();
 				foreach (var parameter in parameters)
 				{
-					if (isFirstParam && parameter.ParameterType.IsAssignableFrom(typeof (Player)))
+					if (isFirstParam && typeof (Player).IsAssignableFrom(parameter.ParameterType))
 					{
 						continue;
 					}
@@ -551,7 +551,7 @@ namespace MiNET.Plugins
 				{
 					foreach (ParameterInfo parameter in method.GetParameters())
 					{
-						if (parameter.ParameterType.IsAssignableFrom(typeof (Player))) continue;
+						if (typeof (Player).IsAssignableFrom(parameter.ParameterType)) continue;
 
 						if (HasProperty(commandInputJson, parameter.Name))
 						{
@@ -589,7 +589,7 @@ namespace MiNET.Plugins
 			var parameters = method.GetParameters();
 
 			int addLenght = 0;
-			if (parameters.Length > 0 && parameters[0].ParameterType.IsAssignableFrom(typeof (Player)))
+			if (parameters.Length > 0 && typeof (Player).IsAssignableFrom(parameters[0].ParameterType))
 			{
 				addLenght = 1;
 			}
@@ -602,7 +602,7 @@ namespace MiNET.Plugins
 				int i = k - addLenght;
 				if (k == 0 && addLenght == 1)
 				{
-					if (parameter.ParameterType.IsAssignableFrom(typeof (Player)))
+					if (typeof (Player).IsAssignableFrom(parameter.ParameterType))
 					{
 						objectArgs[k] = player;
 						continue;
@@ -756,7 +756,6 @@ namespace MiNET.Plugins
 				{
 					filter.OnCommandExecuted();
 				}
-
 			}
 			catch (Exception e)
 			{
@@ -850,7 +849,7 @@ namespace MiNET.Plugins
 							{
 								method.Invoke(pluginInstance, new object[] {currentPackage});
 							}
-							else if (parameters.Length == 2 && parameters[1].ParameterType.IsAssignableFrom(typeof (Player)))
+							else if (parameters.Length == 2 && typeof (Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
 								method.Invoke(pluginInstance, new object[] {currentPackage, player});
 							}
@@ -862,7 +861,7 @@ namespace MiNET.Plugins
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage}) as Package;
 							}
-							else if (parameters.Length == 2 && parameters[1].ParameterType.IsAssignableFrom(typeof (Player)))
+							else if (parameters.Length == 2 && typeof (Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
 								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage, player}) as Package;
 							}

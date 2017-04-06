@@ -84,7 +84,7 @@ namespace MiNET.Entities.Behaviors
 			var blockDown = level.GetBlock(coordinates + BlockCoordinates.Down);
 			if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)
 			{
-				Log.Debug($"Falling sheep: {_entity.Velocity}");
+				Log.Debug($"Falling mob: {_entity.Velocity}");
 				return;
 			}
 
@@ -129,6 +129,8 @@ namespace MiNET.Entities.Behaviors
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)
 			{
+				if (!_entity.IsOnGround) return;
+
 				var velocity = direction*speedFactor;
 				//Log.Debug($"Moving sheep ({_entity.KnownPosition.Yaw}: {velocity}, {_entity.Velocity}");
 				if ((_entity.Velocity*new Vector3(1, 0, 1)).Length() < velocity.Length())

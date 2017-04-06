@@ -103,6 +103,8 @@ namespace MiNET.Entities
 					int z = random.Next(20) + blockCoordinates.Z;
 
 					var spawnBlock = Level.GetBlock(x, y, z);
+					//FIXME: The following is wrong. It shouldn't be the same for all mobs and need to be moved into some sort of
+					// entity-based "CanSpawn()" method. But performance need to be handled too, and this is way faster right now.
 					if (spawnBlock is Grass || spawnBlock is Sand || spawnBlock is Gravel || (doSpawnHostile && spawnBlock.IsSolid && !spawnBlock.IsTransparent))
 					{
 						if (entityType == EntityType.None)
@@ -113,7 +115,7 @@ namespace MiNET.Entities
 								break;
 							}
 
-							maxPackSize = entityType == EntityType.Wolf ? 8 : 4;
+							maxPackSize = entityType == EntityType.Wolf ? 8 : entityType == EntityType.Horse ? 2 + random.Next(5) : entityType == EntityType.Enderman ? 1 + random.Next(4) : 4;
 						}
 
 						var firstBlock = Level.GetBlock(x, y + 1, z);

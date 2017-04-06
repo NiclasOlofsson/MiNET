@@ -15,7 +15,6 @@ namespace MiNET.Entities.Passive
 
 		public byte CollarColor { get; set; }
 		public Entity Owner { get; set; }
-		public Entity Target { get; private set; }
 
 		public Wolf(Level level) : base(EntityType.Wolf, level)
 		{
@@ -37,20 +36,6 @@ namespace MiNET.Entities.Passive
 			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
-		}
-
-		public void SetTarget(Entity target)
-		{
-			if (Target == target) return;
-
-			Target = target;
-
-			if (target != null && !IsTamed && !target.HealthManager.IsDead)
-				IsAngry = true;
-			else
-				IsAngry = false;
-
-			BroadcastSetEntityData();
 		}
 
 		public override void DoInteraction(byte actionId, Player player)

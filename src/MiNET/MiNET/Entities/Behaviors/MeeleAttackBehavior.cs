@@ -3,7 +3,6 @@ using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
-using MiNET.Entities.Passive;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -12,24 +11,25 @@ namespace MiNET.Entities.Behaviors
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MeeleAttackBehavior));
 
-		private readonly Wolf _wolf;
+		private readonly Mob _entity;
 		private double _speedMultiplier;
+		private int _cooldown;
 
-		public MeeleAttackBehavior(Wolf wolf, double speedMultiplier)
+		public MeeleAttackBehavior(Mob entity, double speedMultiplier)
 		{
-			_wolf = wolf;
+			_entity = entity;
 			_speedMultiplier = speedMultiplier;
 		}
 
 		public bool ShouldStart()
 		{
-			if (_wolf.Target == null) return false;
-			if (_wolf.Target.HealthManager.IsDead) return false;
+			if (_entity.Target == null) return false;
+			if (_entity.Target.HealthManager.IsDead) return false;
 
-			var currentPath = new PathFinder().FindPath(_wolf, _wolf.Target, 16);
+			var currentPath = new PathFinder().FindPath(_entity, _entity.Target, 16);
 			if (currentPath.Count == 0) return false;
 
-			_lastPlayerPos = _wolf.Target.KnownPosition;
+			_lastPlayerPos = _entity.Target.KnownPosition;
 
 			return true;
 		}
@@ -45,8 +45,11 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnTick()
 		{
-			Wolf entity = _wolf;
-			Entity target = _wolf.Target;
+			if (_cooldown-- > 0) return;
+			_cooldown = 0;
+
+			Mob entity = _entity;
+			Entity target = _entity.Target;
 
 			if (target == null) return;
 
@@ -83,7 +86,8 @@ namespace MiNET.Entities.Behaviors
 
 			if ((entity.GetBoundingBox() + 0.3f).Intersects(target.GetBoundingBox()))
 			{
-				target.HealthManager.TakeHit(_wolf, _wolf.IsTamed ? 4 : 2, DamageCause.EntityAttack);
+				target.HealthManager.TakeHit(_entity, _entity.IsTamed ? 4 : 2, DamageCause.EntityAttack);
+				_cooldown = 10;
 			}
 		}
 
@@ -94,7 +98,7 @@ namespace MiNET.Entities.Behaviors
 
 			next = _currentPath.First();
 
-			BlockCoordinates currPos = (BlockCoordinates) _wolf.KnownPosition;
+			BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
 			if ((int) next.X == currPos.X && (int) next.Y == currPos.Z)
 			{
 				_currentPath.Remove(next);
@@ -107,10 +111,10 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnEnd()
 		{
-			if (_wolf.Target == null) return;
-			if (_wolf.Target.HealthManager.IsDead) _wolf.SetTarget(null);
-			_wolf.Velocity = Vector3.Zero;
-			_wolf.KnownPosition.Pitch = 0;
+			if (_entity.Target == null) return;
+			if (_entity.Target.HealthManager.IsDead) _entity.SetTarget(null);
+			_entity.Velocity = Vector3.Zero;
+			_entity.KnownPosition.Pitch = 0;
 		}
 	}
 }

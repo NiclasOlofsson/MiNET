@@ -325,6 +325,7 @@
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
     <Compile Include="Entities\Behaviors\EatBlockBehavior.cs" />
+    <Compile Include="Entities\Behaviors\FindAttackableTargetBehavior.cs" />
     <Compile Include="Entities\Behaviors\FollowOwnerBehavior.cs" />
     <Compile Include="Entities\Behaviors\HorseEatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\HurtByTargetBehavior.cs" />

@@ -12,6 +12,8 @@ namespace MiNET.Entities.Hostile
 			Height = 1.8;
 			NoAi = true;
 
+			Behaviors.Add(new MeeleAttackBehavior(this, 1.0));
+			Behaviors.Add(new FindAttackableTargetBehavior(this, 40));
 			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));

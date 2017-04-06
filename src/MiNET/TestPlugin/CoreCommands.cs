@@ -53,6 +53,16 @@ namespace TestPlugin
 		//}
 
 		[Command]
+		public VanillaCommands.SimpleResponse Info(Player player)
+		{
+			var level = player.Level;
+			int entityCount = level.Entities.Count;
+
+			string body = $"Entity #{entityCount}";
+			return new VanillaCommands.SimpleResponse() {Body = body};
+		}
+
+		[Command]
 		public void Relight(Player player)
 		{
 			BlockCoordinates pos = player.KnownPosition.GetCoordinates3D();

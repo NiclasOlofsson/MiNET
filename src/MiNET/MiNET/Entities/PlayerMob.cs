@@ -41,8 +41,8 @@ namespace MiNET.Entities
 			IsInWater = true;
 			NoAi = true;
 			HealthManager.IsOnFire = false;
-            Velocity = Vector3.Zero;
-		    PositionOffset = 1.62f;
+			Velocity = Vector3.Zero;
+			PositionOffset = 1.62f;
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -142,6 +142,11 @@ namespace MiNET.Entities
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
 			mcpeRemovePlayer.entityId = EntityId;
 			Level.RelayBroadcast(players, mcpeRemovePlayer);
+		}
+
+		public override void OnTick()
+		{
+			// Do nothing of the mob stuff
 		}
 
 		protected virtual void SendEquipment()

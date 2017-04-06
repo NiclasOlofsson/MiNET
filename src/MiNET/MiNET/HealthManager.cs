@@ -407,11 +407,11 @@ namespace MiNET
 					Entity.BroadcastSetEntityData();
 				}
 
-				if (Math.Abs(FireTick)%20 == 0)
+				if (FireTick%20 == 0)
 				{
-					if (Entity is Player)
+					var player = Entity as Player;
+					if (player != null)
 					{
-						Player player = (Player) Entity;
 						player.DamageCalculator.CalculatePlayerDamage(null, player, null, 1, DamageCause.FireTick);
 						TakeHit(null, 1, DamageCause.FireTick);
 					}

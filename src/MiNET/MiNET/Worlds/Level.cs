@@ -412,7 +412,7 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 
-				if (IsWorldTimeStarted) CurrentWorldTime ++;
+				if (IsWorldTimeStarted) CurrentWorldTime++;
 				if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
 				if (IsWorldTimeStarted && TickTime%100 == 0)
 				{
@@ -432,7 +432,7 @@ namespace MiNET.Worlds
 					{
 						BlockCoordinates bCoord = (BlockCoordinates) player.KnownPosition;
 
-						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 8);
+						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 8); // Should actually be 15
 					}
 
 					ThreadPool.QueueUserWorkItem(state =>
@@ -459,8 +459,8 @@ namespace MiNET.Worlds
 											if (i == 0 && EnableChunkTicking)
 											{
 												// Entity spawning, only one attempt per chunk
-												EntitySpawnManager.AttemptHostileMobSpawn(TickTime, blockCoordinates);
-												EntitySpawnManager.AttemptPassiveMobSpawn(TickTime, blockCoordinates, ((List<Tuple<int, int>>) state).Count);
+												var numberOfLoadedChunks = ((List<Tuple<int, int>>) state).Count;
+												EntitySpawnManager.AttemptMobSpawn(TickTime, blockCoordinates, numberOfLoadedChunks);
 											}
 
 											continue;

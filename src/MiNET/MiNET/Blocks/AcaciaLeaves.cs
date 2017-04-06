@@ -13,6 +13,7 @@ namespace MiNET.Blocks
 
 		public AcaciaLeaves() : base(161)
 		{
+			IsTransparent = true;
 			BlastResistance = 1;
 			Hardness = 0.2f;
 			IsFlammable = true;

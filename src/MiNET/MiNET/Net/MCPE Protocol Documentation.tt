@@ -20,7 +20,7 @@ exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Te
 #>
 **WARNING: T4 GENERATED MARKUP - DO NOT EDIT**
 
-##ALL PACKAGES
+## ALL PACKAGES
 
 | ID  | ID (hex) | ID (dec) | 
 |:--- |:---------|---------:| 
@@ -51,7 +51,7 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 }
 
 #>
-##Constants
+## Constants
 <#	
 
 foreach (XmlNode constant in doc.SelectNodes("//constant"))
@@ -65,7 +65,7 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 }
 #>
 
-##Packages
+## Packages
 
 <#	
 
@@ -81,7 +81,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	string isServer = pdu.Attributes["server"].Value;
 	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;
 #>
-###Package: <#= typeIdName #> (<#= typeId #>)
+### Package: <#= typeIdName #> (<#= typeId #>)
 
 **Sent from server:** <#= isServer #>
 **Sent from client:** <#= isClient #>
@@ -91,7 +91,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 
 <#	
 #>
-####Fields
+#### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|

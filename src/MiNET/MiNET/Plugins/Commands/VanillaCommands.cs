@@ -7,6 +7,7 @@ using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
 using MiNET.Items;
+using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -296,6 +297,12 @@ namespace MiNET.Plugins.Commands
 			Level level = commander.Level;
 			level.CurrentWorldTime = time;
 
+			McpeSetTime message = McpeSetTime.CreateObject();
+			message.time = (int) level.CurrentWorldTime;
+			message.started = level.IsWorldTimeStarted;
+
+			level.RelayBroadcast(message);
+
 			return new SimpleResponse {Body = $"{commander.Username} sets time to {time}"};
 		}
 
@@ -310,6 +317,12 @@ namespace MiNET.Plugins.Commands
 		{
 			Level level = commander.Level;
 			level.CurrentWorldTime = (int) time;
+
+			McpeSetTime message = McpeSetTime.CreateObject();
+			message.time = (int)level.CurrentWorldTime;
+			message.started = level.IsWorldTimeStarted;
+
+			level.RelayBroadcast(message);
 
 			return new SimpleResponse {Body = $"{commander.Username} sets time to {time}"};
 		}

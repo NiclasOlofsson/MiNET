@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
+using MiNET.Entities.Passive;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -13,12 +15,17 @@ namespace MiNET.Entities.Behaviors
 
 		private readonly Mob _entity;
 		private double _speedMultiplier;
-		private int _cooldown;
+		private readonly double _followRange;
 
-		public MeeleAttackBehavior(Mob entity, double speedMultiplier)
+		private int _cooldown;
+		private List<Tile> _currentPath;
+		private Vector3 _lastPlayerPos;
+
+		public MeeleAttackBehavior(Mob entity, double speedMultiplier, double followRange = 16)
 		{
 			_entity = entity;
 			_speedMultiplier = speedMultiplier;
+			_followRange = followRange;
 		}
 
 		public bool ShouldStart()
@@ -26,8 +33,11 @@ namespace MiNET.Entities.Behaviors
 			if (_entity.Target == null) return false;
 			if (_entity.Target.HealthManager.IsDead) return false;
 
-			var currentPath = new PathFinder().FindPath(_entity, _entity.Target, 16);
-			if (currentPath.Count == 0) return false;
+			//var currentPath = new PathFinder().FindPath(_entity, _entity.Target, _followRange);
+			//if (currentPath.Count == 0)
+			//{
+			//	return false;
+			//}
 
 			_lastPlayerPos = _entity.Target.KnownPosition;
 
@@ -36,12 +46,17 @@ namespace MiNET.Entities.Behaviors
 
 		public bool CanContinue()
 		{
-			return ShouldStart();
+			if (_entity.Target == null) return false;
+			if (_entity.Target.HealthManager.IsDead) return false;
+
+			if (_entity.DistanceTo(_entity.Target) > _followRange*_followRange || Math.Abs(_entity.KnownPosition.Y - _entity.Target.KnownPosition.Y) > _entity.Height + 1)
+			{
+				_entity.SetTarget(null);
+				return false;
+			}
+
+			return true;
 		}
-
-		private List<Tile> _currentPath = null;
-
-		private Vector3 _lastPlayerPos;
 
 		public void OnTick()
 		{
@@ -55,16 +70,20 @@ namespace MiNET.Entities.Behaviors
 
 			var distanceToPlayer = entity.KnownPosition.DistanceTo(target.KnownPosition);
 
-			if (_currentPath == null || _currentPath.Count == 0 || Vector3.Distance(_lastPlayerPos, target.KnownPosition) > 0.01)
+			var haveNoPath = (_currentPath == null || _currentPath.Count == 0);
+			if (haveNoPath || Vector3.Distance(_lastPlayerPos, target.KnownPosition) > 0.01)
 			{
-				Log.Debug($"Search new solution");
+				Log.Debug($"Search new solution. Have no path={haveNoPath}");
 				var pathFinder = new PathFinder();
 				_currentPath = pathFinder.FindPath(entity, target, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
-					_currentPath = pathFinder.FindPath(entity, target, 16);
+					Log.Debug($"Found no solution, trying a search at full distance");
+					_currentPath = pathFinder.FindPath(entity, target, _followRange);
 				}
 			}
+
+			_lastPlayerPos = target.KnownPosition;
 
 			if (_currentPath.Count > 0)
 			{
@@ -86,7 +105,8 @@ namespace MiNET.Entities.Behaviors
 
 			if ((entity.GetBoundingBox() + 0.3f).Intersects(target.GetBoundingBox()))
 			{
-				target.HealthManager.TakeHit(_entity, _entity.IsTamed ? 4 : 2, DamageCause.EntityAttack);
+				var damage = !(_entity is Wolf) ? 0 : _entity.IsTamed ? 4 : 2;
+				target.HealthManager.TakeHit(_entity, damage, DamageCause.EntityAttack);
 				_cooldown = 10;
 			}
 		}

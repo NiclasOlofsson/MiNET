@@ -252,16 +252,31 @@ namespace MiNET.Entities.Behaviors
 				return true;
 			}
 
+			if (Math.Abs(_entity.KnownPosition.Y - block.Coordinates.Y) > _entity.Height + 1) return true;
+
 			Vector2 entityPos = new Vector2(_entity.KnownPosition.X, _entity.KnownPosition.Z);
 			Vector2 tilePos = new Vector2((float) coord.X, (float) coord.Y);
+
 			if ((entityPos - tilePos).Length() > _distance) return true;
 
 			BlockCoordinates blockCoordinates = block.Coordinates;
 
-			if (_entity.Height > 1 && _level.GetBlock(blockCoordinates + BlockCoordinates.Up).IsSolid)
+			if (_entity.Height > 1)
 			{
-				//_level.SetBlock(new GoldBlock() {Coordinates = blockCoordinates + BlockCoordinates.Up});
-				return true;
+				var coordUp = blockCoordinates + BlockCoordinates.Up;
+				var tileUp = new Tile(coordUp.X, coordUp.Z);
+				Block blockUp = null;
+				if (!_blockCache.TryGetValue(tileUp, out block))
+				{
+					blockUp = _level.GetBlock(coordUp);
+					_blockCache.Add(tileUp, block);
+				}
+
+				if (blockUp != null && blockUp.IsSolid)
+				{
+					//_level.SetBlock(new GoldBlock() {Coordinates = blockCoordinates + BlockCoordinates.Up});
+					return true;
+				}
 			}
 
 			return false;

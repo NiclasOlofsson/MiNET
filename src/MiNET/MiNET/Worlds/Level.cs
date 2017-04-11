@@ -37,8 +37,6 @@ namespace MiNET.Worlds
 		private Timer _levelTicker;
 		private int _worldTickTime = 50;
 		private int _worldDayCycleTime = 24000;
-		//private int _worldDayCycleTime = 19200;
-		//private int _worldDayCycleTime = 14400;
 
 		public PlayerLocation SpawnPoint { get; set; }
 		public ConcurrentDictionary<long, Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
@@ -440,36 +438,33 @@ namespace MiNET.Worlds
 						Parallel.ForEach((List<Tuple<int, int>>) state, coord =>
 						{
 							var random = new Random();
-							//foreach (var coord in chunksWithinRadiusOfPlayer)
+							for (int s = 0; s < 16; s++)
 							{
-								for (int s = 0; s < 16; s++)
+								for (int i = 0; i < 3; i++)
 								{
-									for (int i = 0; i < 3; i++)
+									int x = random.Next(16);
+									int y = random.Next(16);
+									int z = random.Next(16);
+
+									var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
+									var height = GetHeight(blockCoordinates);
+									if (height > 0 && s*16 > height) continue;
+
+									if (IsAir(blockCoordinates))
 									{
-										int x = random.Next(16);
-										int y = random.Next(16);
-										int z = random.Next(16);
-
-										var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
-										var height = GetHeight(blockCoordinates);
-										if (height > 0 && s*16 > height) continue;
-
-										if (IsAir(blockCoordinates))
+										if (i == 0 && EnableChunkTicking)
 										{
-											if (i == 0 && EnableChunkTicking)
-											{
-												// Entity spawning, only one attempt per chunk
-												var numberOfLoadedChunks = ((List<Tuple<int, int>>) state).Count;
-												EntitySpawnManager.AttemptMobSpawn(TickTime, blockCoordinates, numberOfLoadedChunks);
-											}
-
-											continue;
+											// Entity spawning, only one attempt per chunk
+											var numberOfLoadedChunks = ((List<Tuple<int, int>>) state).Count;
+											EntitySpawnManager.AttemptMobSpawn(TickTime, blockCoordinates, numberOfLoadedChunks);
 										}
 
-										if (EnableBlockTicking)
-										{
-											GetBlock(blockCoordinates).OnTick(this, true);
-										}
+										continue;
+									}
+
+									if (EnableBlockTicking)
+									{
+										GetBlock(blockCoordinates).OnTick(this, true);
 									}
 								}
 							}

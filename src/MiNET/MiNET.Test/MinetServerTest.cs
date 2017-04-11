@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Numerics;
 using System.Text;
 using AStarNavigator;
 using AStarNavigator.Algorithms;
@@ -28,7 +27,7 @@ namespace MiNET
 				new DiagonalNeighborProvider(), // Instance of: INeighborProvider
 				new PythagorasAlgorithm(), // Instance of: IDistanceAlgorithm
 				new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
-				);
+			);
 
 			var from = new Tile(-100.5, -102.5);
 			var to = new Tile(120.5, 122.5);

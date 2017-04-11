@@ -70,6 +70,11 @@ namespace MiNET.Items
 			return BlockFactory.GetBlockIdByName(itemName);
 		}
 
+		public static Item GetItem(string name, short metadata = 0, int count = 1)
+		{
+			return GetItem(GetItemIdByName(name), metadata, count);
+		}
+
 		public static Item GetItem(short id, short metadata = 0, int count = 1)
 		{
 			if (id != 0 && count == 0) return null;

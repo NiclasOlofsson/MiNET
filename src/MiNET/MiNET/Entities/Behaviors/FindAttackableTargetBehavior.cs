@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Numerics;
 
@@ -17,13 +18,15 @@ namespace MiNET.Entities.Behaviors
 
 		public bool ShouldStart()
 		{
-			Player player = _entity.Level.GetSpawnedPlayers()
-				.OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition.ToVector3()))
-				.FirstOrDefault(p => Vector3.Distance(_entity.KnownPosition, p.KnownPosition) < _targetDistance);
+			var player = _entity.Level.Players
+				.OrderBy(p => Vector3.Distance(_entity.KnownPosition, p.Value.KnownPosition))
+				.FirstOrDefault(p => p.Value.IsSpawned && _entity.DistanceTo(p.Value) < _targetDistance);
 
-			if (player == null) return false;
+			if (player.Value == null) return false;
 
-			_target = player;
+			if (Math.Abs(_entity.KnownPosition.Y - player.Value.KnownPosition.Y) > _entity.Height + 1) return false;
+
+			_target = player.Value;
 
 			return true;
 		}

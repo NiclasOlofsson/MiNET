@@ -66,7 +66,10 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {fake};
-				Level.RelayBroadcast(players, playerList);
+				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+				playerList.records = null;
+				playerList.PutPool();
+
 			}
 
 			{
@@ -112,7 +115,9 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {fake};
-				Level.RelayBroadcast(players, playerList);
+				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+				playerList.records = null;
+				playerList.PutPool();
 			}
 
 			{
@@ -136,7 +141,9 @@ namespace MiNET.Entities
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {fake};
-				Level.RelayBroadcast(players, playerList);
+				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+				playerList.records = null;
+				playerList.PutPool();
 			}
 
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();

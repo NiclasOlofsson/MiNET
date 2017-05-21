@@ -2228,12 +2228,16 @@ namespace MiNET
 			{
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerRemoveRecords {this};
-				Level.RelayBroadcast(playerList);
+				Level.RelayBroadcast(Level.CreateMcpeBatch(playerList.Encode()));
+				playerList.records = null;
+				playerList.PutPool();
 			}
 			{
 				McpePlayerList playerList = McpePlayerList.CreateObject();
 				playerList.records = new PlayerAddRecords {this};
-				Level.RelayBroadcast(playerList);
+				Level.RelayBroadcast(Level.CreateMcpeBatch(playerList.Encode()));
+				playerList.records = null;
+				playerList.PutPool();
 			}
 		}
 

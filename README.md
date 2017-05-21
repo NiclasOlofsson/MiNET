@@ -17,6 +17,9 @@ Port: **19132**
 IP: **trial.darkhammer.net (test/dev server)**    
 Port: **19132**
 
+IP: **pepirates.ru**    
+Port: **19132** 
+
 IP: **yodamine.com (dev server)**    
 Port: **19132/19134**    
 

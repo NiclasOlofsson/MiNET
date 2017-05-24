@@ -601,6 +601,7 @@
     <Compile Include="Security\DefaultUserStore.cs" />
     <Compile Include="Security\Role.cs" />
     <Compile Include="Security\User.cs" />
+    <Compile Include="Security\UserRole.cs" />
     <Compile Include="ServerInfo.cs" />
     <Compile Include="SessionManager.cs" />
     <Compile Include="Sounds\AnvilBreakSound.cs" />

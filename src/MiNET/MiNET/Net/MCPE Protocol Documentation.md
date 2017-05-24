@@ -124,7 +124,7 @@
 
 **Sent from server:** true
 **Sent from client:** true
-**Packet size:** 
+**Packet size:** 9 Bytes 
 
 
 
@@ -138,7 +138,7 @@
 
 **Sent from server:** false
 **Sent from client:** true
-**Packet size:** 
+**Packet size:** 25 Bytes 
 
 
 Send a ping to the specified unconnected system.
@@ -158,7 +158,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 **Sent from server:** true
 **Sent from client:** true
-**Packet size:** 
+**Packet size:** 9 Bytes
 
 
 
@@ -213,7 +213,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 **Sent from server:** false
 **Sent from client:** true
-**Packet size:** 
+**Packet size:** 18 Bytes + length of Null Payload 
 
 
 
@@ -296,7 +296,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 **Sent from server:** true
 **Sent from client:** false
-**Packet size:** 
+**Packet size:** 96 Bytes 
 
 
 
@@ -314,7 +314,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 **Sent from server:** false
 **Sent from client:** true
-**Packet size:** 
+**Packet size:** 94 Bytes 
 
 
 
@@ -374,7 +374,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 **Sent from server:** true
 **Sent from client:** true
-**Packet size:** 
+**Packet size:** 1 Byte 
 
 
 

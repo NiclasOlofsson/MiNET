@@ -4,6 +4,7 @@ using log4net;
 using MiNET.Entities.Projectiles;
 using MiNET.Utils;
 using MiNET.Worlds;
+using fNbt;
 
 namespace MiNET.Items
 {

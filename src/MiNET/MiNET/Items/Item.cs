@@ -24,7 +24,7 @@ namespace MiNET.Items
 
 		public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
 		public ItemType ItemType { get; set; } = ItemType.Item;
-		public int MaxStackSize { get; set; } = 64;
+		public byte MaxStackSize { get; set; } = 64;
 		public bool IsStackable => MaxStackSize > 1;
 		public int Durability { get; set; }
 		public int FuelEfficiency { get; set; }

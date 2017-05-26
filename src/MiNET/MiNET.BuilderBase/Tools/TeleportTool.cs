@@ -1,4 +1,5 @@
 using System.Numerics;
+using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
@@ -11,6 +12,36 @@ namespace MiNET.BuilderBase.Tools
 	public class TeleportTool : ItemCompass
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (DistanceWand));
+
+		private NbtCompound _extraData;
+
+		public override NbtCompound ExtraData
+		{
+			get
+			{
+				UpdateExtraData();
+				return _extraData;
+			}
+			set { _extraData = value; }
+		}
+
+		private void UpdateExtraData()
+		{
+			_extraData = new NbtCompound
+			{
+				{
+					new NbtCompound("display")
+					{
+						new NbtString("Name", ChatFormatting.Reset + ChatColors.Blue + $"Teleport tool"),
+						new NbtList("Lore")
+						{
+							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.White + $"Left click to teleport."),
+							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.White + $"Right teleport but stay on same Y."),
+						}
+					}
+				}
+			};
+		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

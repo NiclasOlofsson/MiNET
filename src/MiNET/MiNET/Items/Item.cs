@@ -20,7 +20,7 @@ namespace MiNET.Items
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }
-		public NbtCompound ExtraData { get; set; }
+		public virtual NbtCompound ExtraData { get; set; }
 
 		public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
 		public ItemType ItemType { get; set; } = ItemType.Item;

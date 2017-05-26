@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Commands;
@@ -25,12 +26,64 @@ namespace MiNET.BuilderBase.Tools
 
 		public int BrushType { get; set; } = 0;
 
+
+		private NbtCompound _extraData;
+
+		public override NbtCompound ExtraData
+		{
+			get
+			{
+				UpdateExtraData();
+				return _extraData;
+			}
+			set { _extraData = value; }
+		}
+
+		private void UpdateExtraData()
+		{
+			string s = string.Empty;
+			switch (BrushType)
+			{
+				case 0:
+					s = "Sphere";
+					break;
+				case 1:
+					s = "Cylinder";
+					break;
+				case 2:
+					s = "Melt";
+					break;
+				case 3:
+					s = "Fill";
+					break;
+			}
+			_extraData = new NbtCompound
+			{
+				{
+					new NbtCompound("display")
+					{
+						new NbtString("Name", ChatFormatting.Reset + ChatColors.Blue + $"{s} Brush"),
+						new NbtList("Lore")
+						{
+							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.White + $"A {s.ToLower()} brush."),
+							new NbtString(ChatFormatting.Reset + ChatColors.Green + "Pattern: " + Pattern.OriginalPattern),
+							new NbtString(ChatFormatting.Reset + ChatColors.Green + "Radius: " + Radius),
+						}
+					}
+				}
+			};
+		}
+
+
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
+			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
+
 			var selector = RegionSelector.GetSelector(player);
 			var undoRecorder = new UndoRecorder(player.Level);
 			var editSession = new EditHelper(player.Level, Mask, undoRecorder: undoRecorder);
@@ -80,6 +133,8 @@ namespace MiNET.BuilderBase.Tools
 
 		public override bool Animate(Level world, Player player)
 		{
+			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
+
 			var selector = RegionSelector.GetSelector(player);
 			var undoRecorder = new UndoRecorder(player.Level);
 			var editSession = new EditHelper(player.Level, Mask, undoRecorder: undoRecorder);

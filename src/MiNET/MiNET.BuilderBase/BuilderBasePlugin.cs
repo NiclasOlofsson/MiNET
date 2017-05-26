@@ -1,4 +1,5 @@
-﻿using log4net;
+﻿using fNbt;
+using log4net;
 using MiNET.BuilderBase.Commands;
 using MiNET.BuilderBase.Patterns;
 using MiNET.BuilderBase.Tools;
@@ -77,6 +78,10 @@ namespace MiNET.BuilderBase
 		public void SetInventory(Player player)
 		{
 			int idx = 0;
+			//player.Inventory.Slots[idx++] = new ItemIronSword
+			//{
+			//	ExtraData = new NbtCompound { { new NbtCompound("display") { new NbtString("Name", "test") } } }
+			//};
 			player.Inventory.Slots[idx++] = new DistanceWand();
 			player.Inventory.Slots[idx++] = new TeleportTool();
 			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 0, Radius = 5};

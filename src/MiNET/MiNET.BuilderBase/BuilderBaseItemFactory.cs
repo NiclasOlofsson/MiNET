@@ -16,6 +16,10 @@ namespace MiNET.BuilderBase
 			{
 				return new DistanceWand();
 			}
+			else if (id == new TeleportTool().Id)
+			{
+				return new TeleportTool();
+			}
 
 			return null;
 		}

@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
@@ -12,6 +13,42 @@ namespace MiNET.BuilderBase.Tools
 	public class DistanceWand : ItemIronAxe
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (DistanceWand));
+		private NbtCompound _extraData;
+
+		public override NbtCompound ExtraData
+		{
+			get { return _extraData; }
+			set { _extraData = value; }
+		}
+
+		private void UpdateExtraData(Player player)
+		{
+			RegionSelector selector = RegionSelector.GetSelector(player);
+
+			_extraData = new NbtCompound
+			{
+				{
+					new NbtCompound("display")
+					{
+						new NbtString("Name", ChatFormatting.Reset + ChatColors.Blue + "Distance Wand"),
+						new NbtList("Lore")
+						{
+							new NbtString(ChatFormatting.Reset + ChatFormatting.Italic + ChatColors.White + "Wand that selects all blocks between pos1 and pos2."),
+							new NbtString(ChatFormatting.Reset + ChatColors.Yellow + "Pos1: " + selector.Position1),
+							new NbtString(ChatFormatting.Reset + ChatColors.Green + "Pos2: " + selector.Position2),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Gold + "Lore3"),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Yellow + "Lore4"),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Green + "Lore5"),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Gold + "Lore6"),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Yellow + "Lore7"),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Green + "Lore8"),
+							//new NbtString(ChatFormatting.Reset + ChatColors.Gold + "Lore9"),
+						}
+					}
+				}
+			};
+		}
+
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
@@ -67,6 +104,8 @@ namespace MiNET.BuilderBase.Tools
 			selector.SelectPrimary(pos);
 
 			player.SendMessage($"First position set to {pos}");
+			UpdateExtraData(player);
+			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
 		}
 
 		public void SetPosition2(Player player, BlockCoordinates pos)
@@ -80,6 +119,8 @@ namespace MiNET.BuilderBase.Tools
 			selector.SelectSecondary(pos);
 
 			player.SendMessage($"Second position set to {pos}");
+			UpdateExtraData(player);
+			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
 		}
 	}
 }

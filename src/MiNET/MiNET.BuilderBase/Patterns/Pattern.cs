@@ -22,6 +22,7 @@ namespace MiNET.BuilderBase.Patterns
 
 		private List<BlockDataEntry> _blockList = new List<BlockDataEntry>();
 		private Random _random;
+		public string OriginalPattern { get; private set; }
 
 		// Used by command handler
 		public Pattern()
@@ -32,6 +33,7 @@ namespace MiNET.BuilderBase.Patterns
 		public Pattern(int blockId, int metadata)
 		{
 			_blockList.Add(new BlockDataEntry() {Id = (byte) blockId, Metadata = (byte) metadata});
+			OriginalPattern = $"{blockId}:{metadata}";
 		}
 
 		//BlockDataEntry GetRandomBlock(Random random, List<BlockDataEntry> blocksa)
@@ -73,6 +75,8 @@ namespace MiNET.BuilderBase.Patterns
 			// x<weight>%<blockId>:<blockData>,<weight>%<blockId>:<blockData> .. <weight>%<blockId>:<blockData>
 
 			if (input.StartsWith("x")) input = input.Remove(0, 1); // remove starting x
+
+			OriginalPattern = input;
 
 			var patterns = input.Split(',');
 

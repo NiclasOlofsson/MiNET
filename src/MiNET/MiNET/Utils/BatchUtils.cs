@@ -26,10 +26,11 @@ namespace MiNET.Utils
 
 		public static McpeBatch CreateBatchPacket(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen)
 		{
-			using (var stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
+			//using (var stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
 			{
 				var batch = McpeBatch.CreateObject();
-				batch.payload = stream.ToArray();
+				//batch.payload = stream.ToArray();
+				batch.payload = input;
 				batch.Encode();
 				return batch;
 			}

@@ -33,7 +33,7 @@ namespace MiNET.Entities.Behaviors
 			_entity.Velocity *= new Vector3(0, 1, 0);
 
 			McpeEntityEvent entityEvent = McpeEntityEvent.CreateObject();
-			entityEvent.entityId = _entity.EntityId;
+			entityEvent.runtimeEntityId = _entity.EntityId;
 			entityEvent.eventId = 10;
 			_entity.Level.RelayBroadcast(entityEvent);
 

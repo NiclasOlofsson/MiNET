@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 			containerOpen.type = 5;
 			containerOpen.slotCount = 3;
 			containerOpen.coordinates = blockCoordinates;
-			containerOpen.unknownEntityId = 1;
+			containerOpen.unknownRuntimeEntityId = 1;
 			player.SendPackage(containerOpen);
 
 			return true;

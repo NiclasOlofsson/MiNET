@@ -426,7 +426,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_OPEN_CONNECTION_REPLY_1:
 					{
 						OpenConnectionReply1 incoming = (OpenConnectionReply1) message;
-						if (incoming.mtuSize != _mtuSize) Log.Warn("Error:" + incoming.mtuSize);
+						if (incoming.mtuSize != _mtuSize) Log.Warn("Error, mtu differ from what we sent:" + incoming.mtuSize);
 						Log.Warn($"Server with ID {incoming.serverGuid} security={incoming.serverHasSecurity}");
 						_mtuSize = incoming.mtuSize;
 						SendOpenConnectionRequest2();
@@ -1139,7 +1139,7 @@ namespace MiNET.Client
 
 				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
 				response.responseStatus = 2;
-				response.resourcepackidversions = resourceInfos;
+				//response.resourcepackidversions = resourceInfos;
 				SendPackage(response);
 			}
 			else
@@ -1229,6 +1229,9 @@ namespace MiNET.Client
 				dynamic json = JObject.Parse(message.commands);
 
 				//if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+				string fileName = Path.GetTempPath() + "AvailableCommands_" + Guid.NewGuid() + ".json";
+				Log.Info($"Writing commands to filename: {fileName}");
+				File.WriteAllText(fileName, message.commands);
 			}
 			{
 				dynamic json = JObject.Parse(message.unknown);
@@ -1284,7 +1287,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 105,
+				protocolVersion = 110,
 				edition = 0,
 				payload = data
 			};
@@ -1374,10 +1377,10 @@ namespace MiNET.Client
 
 				Thread.Sleep(1250);
 				McpeClientMagic magic = new McpeClientMagic();
-				byte[] encodedMagic = magic.Encode();
-				McpeBatch batch = BatchUtils.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
-				batch.Encode();
-				SendPackage(batch);
+				//byte[] encodedMagic = magic.Encode();
+				//McpeBatch batch = BatchUtils.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
+				//batch.Encode();
+				SendPackage(magic);
 			}
 			catch (Exception e)
 			{
@@ -1395,33 +1398,48 @@ namespace MiNET.Client
 
 			// Get bytes
 			byte[] payload = message.payload;
+
 			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
 			{
 				FirstEncryptedPacketWaitHandle.Set();
 				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
 			}
 
+			McpeBatch batch = McpeBatch.CreateObject();
+			batch.payload = payload;
+
+			if (_processingThread == null)
+			{
+				HandlePackage(batch);
+			}
+			else
+			{
+				_threadPool.QueueUserWorkItem(() => HandlePackage(batch));
+			}
+
+			//payload = Compression.Decompress(payload);
+
 			//if (Log.IsDebugEnabled)
-			//Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
+			//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
 
-			try
-			{
-				Package newMessage = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
-				//TraceReceive(newMessage);
+			//try
+			//{
+			//	Package newMessage = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
+			//	//TraceReceive(newMessage);
 
-				if (_processingThread == null)
-				{
-					HandlePackage(newMessage);
-				}
-				else
-				{
-					_threadPool.QueueUserWorkItem(() => HandlePackage(newMessage));
-				}
-			}
-			catch (Exception e)
-			{
-				Log.Error("Wrapper", e);
-			}
+			//	if (_processingThread == null)
+			//	{
+			//		HandlePackage(newMessage);
+			//	}
+			//	else
+			//	{
+			//		_threadPool.QueueUserWorkItem(() => HandlePackage(newMessage));
+			//	}
+			//}
+			//catch (Exception e)
+			//{
+			//	Log.Error("Wrapper", e);
+			//}
 
 			//Task.Run(() => { HandlePackage(newMessage); });
 		}
@@ -1440,12 +1458,12 @@ Adventure settings
 
 		private void OnMcpeInteract(McpeInteract message)
 		{
-			Log.Debug($"Interact: EID={message.targetEntityId}, Action ID={message.actionId}");
+			Log.Debug($"Interact: EID={message.targetRuntimeEntityId}, Action ID={message.actionId}");
 		}
 
 		private void OnMcpeAnimate(McpeAnimate message)
 		{
-			Log.Debug($"Animate: EID={message.entityId}, Action ID={message.actionId}");
+			Log.Debug($"Animate: EID={message.runtimeEntityId}, Action ID={message.actionId}");
 		}
 
 		private void OnMcpeHurtArmor(McpeHurtArmor message)
@@ -1494,7 +1512,7 @@ Adventure settings
 
 		private void OnMcpePlayerEquipment(McpeMobEquipment message)
 		{
-			if (Log.IsDebugEnabled) Log.Debug($"PlayerEquipment: Entity ID: {message.entityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Id}");
+			if (Log.IsDebugEnabled) Log.Debug($"PlayerEquipment: Entity ID: {message.runtimeEntityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Id}");
 		}
 
 		private ShapedRecipe _recipeToSend = null;
@@ -1529,7 +1547,7 @@ Adventure settings
 
 					{
 						McpeMobEquipment eq = McpeMobEquipment.CreateObject();
-						eq.entityId = EntityId;
+						eq.runtimeEntityId = EntityId;
 						eq.slot = 9;
 						eq.selectedSlot = 0;
 						eq.item = recipe.Input[0];
@@ -1578,7 +1596,7 @@ Adventure settings
 				}
 				{
 					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
-					eq.entityId = EntityId;
+					eq.runtimeEntityId = EntityId;
 					eq.slot = 9;
 					eq.selectedSlot = 0;
 					eq.item = new ItemBlock(new Block(17), 0) {Count = 1};
@@ -1613,7 +1631,7 @@ Adventure settings
 
 				{
 					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
-					eq.entityId = EntityId;
+					eq.runtimeEntityId = EntityId;
 					eq.slot = 10;
 					eq.selectedSlot = 1;
 					eq.item = new ItemBlock(new Block(5), 0) {Count = 1};
@@ -1831,7 +1849,7 @@ Adventure settings
 
 		private void OnMcpeMovePlayer(McpeMovePlayer message)
 		{
-			if (message.entityId != EntityId) return;
+			if (message.runtimeEntityId != EntityId) return;
 
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
 			SendMcpeMovePlayer();
@@ -1840,7 +1858,7 @@ Adventure settings
 		private static void OnMcpeSetEntityData(Package message)
 		{
 			McpeSetEntityData msg = (McpeSetEntityData) message;
-			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", msg.entityId, MetadataToCode(msg.metadata));
+			Log.DebugFormat("McpeSetEntityData Entity ID: {0}, Metadata: {1}", msg.runtimeEntityId, MetadataToCode(msg.metadata));
 			//Log.Debug($"Package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
 		}
 
@@ -1929,7 +1947,7 @@ Adventure settings
 			if (IsEmulator) return;
 
 			McpeAddPlayer msg = (McpeAddPlayer) message;
-			Log.DebugFormat("McpeAddPlayer Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeAddPlayer Entity ID: {0}", msg.entityIdSelf);
 			Log.DebugFormat("McpeAddPlayer Runtime Entity ID: {0}", msg.runtimeEntityId);
 			Log.DebugFormat("X: {0}", msg.x);
 			Log.DebugFormat("Y: {0}", msg.y);
@@ -1949,7 +1967,7 @@ Adventure settings
 		{
 			if (IsEmulator) return;
 
-			if (!Entities.ContainsKey(message.entityId))
+			if (!Entities.ContainsKey(message.entityIdSelf))
 			{
 				Entity entity = new Entity((int) message.entityType, null);
 				entity.EntityId = message.runtimeEntityId;
@@ -1960,7 +1978,7 @@ Adventure settings
 
 			byte[] typeBytes = BitConverter.GetBytes(message.entityType);
 
-			Log.DebugFormat("McpeAddEntity Entity ID: {0}", message.entityId);
+			Log.DebugFormat("McpeAddEntity Entity ID: {0}", message.entityIdSelf);
 			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", message.runtimeEntityId);
 			Log.DebugFormat("Entity Type: {0} - 0x{0:x2}", message.entityType);
 			Log.DebugFormat("Entity Family: {0} - 0x{0:x2}", typeBytes[1]);
@@ -1995,7 +2013,7 @@ Adventure settings
 		private void OnMcpeRemoveEntity(McpeRemoveEntity message)
 		{
 			Entity value;
-			Entities.TryRemove(message.entityId, out value);
+			Entities.TryRemove(message.entityIdSelf, out value);
 		}
 
 		private void OnMcpeAddItemEntity(Package message)
@@ -2032,12 +2050,12 @@ Adventure settings
 		private void OnMcpeStartGame(McpeStartGame message)
 		{
 			EntityId = message.runtimeEntityId;
-			NetworkEntityId = message.entityId;
+			NetworkEntityId = message.entityIdSelf;
 			_spawn = new Vector3(message.x, message.y, message.z);
 
 			Log.Debug($@"
 StartGame:
-	entityId: {message.entityId}	
+	entityId: {message.entityIdSelf}	
 	runtimeEntityId: {message.runtimeEntityId}	
 	spawn: {message.spawn}	
 	unknown1: {message.unknown1}	
@@ -2267,10 +2285,13 @@ StartGame:
 			{
 				var jsonSerializerSettings = new JsonSerializerSettings
 				{
-					PreserveReferencesHandling = PreserveReferencesHandling.None,
-					ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+					PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+
 					Formatting = Formatting.Indented,
 				};
+				jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+				jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
 				string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 				Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 			}
@@ -2359,7 +2380,7 @@ StartGame:
 
 			// 1446 - 1464
 			// 1087 1447
-			byte[] data2 = new byte[_mtuSize - data.Length + 18];
+			byte[] data2 = new byte[_mtuSize - data.Length - 10];
 			Buffer.BlockCopy(data, 0, data2, 0, data.Length);
 
 			SendData(data2);
@@ -2429,7 +2450,7 @@ StartGame:
 			//SendChat($"Moving Entity ID: {EntityId}  to {CurrentLocation}");
 
 			McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
-			movePlayerPacket.entityId = EntityId;
+			movePlayerPacket.runtimeEntityId = EntityId;
 			movePlayerPacket.x = CurrentLocation.X;
 			movePlayerPacket.y = CurrentLocation.Y;
 			movePlayerPacket.z = CurrentLocation.Z;

@@ -107,22 +107,24 @@ namespace MiNET
 
 			Log.Debug("Lenght: " + message.payload.Length + ", Message: " + Convert.ToBase64String(buffer));
 
-			MemoryStream stream = new MemoryStream(buffer);
-			if (stream.ReadByte() != 0x78)
-			{
-				throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-			}
-			stream.ReadByte();
+			//MemoryStream stream = new MemoryStream(buffer);
+			//if (stream.ReadByte() != 0x78)
+			//{
+			//	throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+			//}
+			//stream.ReadByte();
 
 			string certificateChain;
 			string skinData;
 
-			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+			//using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
-				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
+				//using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
 				{
-					defStream2.CopyTo(destination);
+					//defStream2.CopyTo(destination);
+
+					var destination = new MemoryStream(buffer);
 					destination.Position = 0;
 					NbtBinaryReader reader = new NbtBinaryReader(destination, false);
 

@@ -39,7 +39,7 @@ namespace MiNET.Entities.Hostile
 		protected virtual void SendEquipment()
 		{
 			McpeMobEquipment message = McpeMobEquipment.CreateObject();
-			message.entityId = EntityId;
+			message.runtimeEntityId = EntityId;
 			message.item = ItemInHand;
 			message.slot = 0;
 			Level.RelayBroadcast(message);
@@ -48,7 +48,7 @@ namespace MiNET.Entities.Hostile
 		protected virtual void SendArmor()
 		{
 			McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
-			armorEquipment.entityId = EntityId;
+			armorEquipment.runtimeEntityId = EntityId;
 			armorEquipment.helmet = ItemFactory.GetItem(Helmet);
 			armorEquipment.chestplate = ItemFactory.GetItem(Chest);
 			armorEquipment.leggings = ItemFactory.GetItem(Leggings);

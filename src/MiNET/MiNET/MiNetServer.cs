@@ -17,7 +17,6 @@ using MiNET.Plugins;
 using MiNET.Security;
 using MiNET.Utils;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace MiNET
 {
@@ -744,7 +743,6 @@ namespace MiNET
 				{
 					using (var stream = MemoryStreamManager.GetStream())
 					{
-
 						bool isFullStatRequest = receiveBytes.Length == 15;
 						if (Log.IsInfoEnabled) Log.InfoFormat("Full request: {0}", isFullStatRequest);
 
@@ -1049,7 +1047,7 @@ namespace MiNET
 					var jsonSerializerSettings = new JsonSerializerSettings
 					{
 						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
-						
+
 						Formatting = Formatting.Indented,
 					};
 					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
@@ -1075,8 +1073,8 @@ namespace MiNET
 			if (message is McpeBatch) return;
 			if (message is UnconnectedPong) return;
 			if (message is McpeMovePlayer) return;
-			if (message is McpeSetEntityMotion) return;
-			if (message is McpeMoveEntity) return;
+			//if (message is McpeSetEntityMotion) return;
+			//if (message is McpeMoveEntity) return;
 			if (message is McpeSetEntityData) return;
 			if (message is McpeUpdateBlock) return;
 			//if (!Debugger.IsAttached) return;

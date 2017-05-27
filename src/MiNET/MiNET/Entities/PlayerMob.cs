@@ -76,7 +76,7 @@ namespace MiNET.Entities
 				McpeAddPlayer message = McpeAddPlayer.CreateObject();
 				message.uuid = Uuid;
 				message.username = NameTag;
-				message.entityId = EntityId;
+				message.entityIdSelf = EntityId;
 				message.runtimeEntityId = EntityId;
 				message.x = KnownPosition.X;
 				message.y = KnownPosition.Y;
@@ -89,14 +89,14 @@ namespace MiNET.Entities
 			}
 			{
 				McpeMobEquipment message = McpeMobEquipment.CreateObject();
-				message.entityId = EntityId;
+				message.runtimeEntityId = EntityId;
 				message.item = ItemInHand;
 				message.slot = 0;
 				Level.RelayBroadcast(players, message);
 			}
 			{
 				McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
-				armorEquipment.entityId = EntityId;
+				armorEquipment.runtimeEntityId = EntityId;
 				armorEquipment.helmet = ItemFactory.GetItem(Helmet);
 				armorEquipment.chestplate = ItemFactory.GetItem(Chest);
 				armorEquipment.leggings = ItemFactory.GetItem(Leggings);
@@ -122,7 +122,7 @@ namespace MiNET.Entities
 
 			{
 				McpeSetEntityData setEntityData = McpeSetEntityData.CreateObject();
-				setEntityData.entityId = EntityId;
+				setEntityData.runtimeEntityId = EntityId;
 				setEntityData.metadata = GetMetadata();
 				Level?.RelayBroadcast(players, setEntityData);
 			}
@@ -147,7 +147,7 @@ namespace MiNET.Entities
 			}
 
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
-			mcpeRemovePlayer.entityId = EntityId;
+			mcpeRemovePlayer.entityIdSelf = EntityId;
 			Level.RelayBroadcast(players, mcpeRemovePlayer);
 		}
 
@@ -159,7 +159,7 @@ namespace MiNET.Entities
 		protected virtual void SendEquipment()
 		{
 			McpeMobEquipment message = McpeMobEquipment.CreateObject();
-			message.entityId = EntityId;
+			message.runtimeEntityId = EntityId;
 			message.item = ItemInHand;
 			message.slot = 0;
 			Level.RelayBroadcast(message);
@@ -168,7 +168,7 @@ namespace MiNET.Entities
 		protected virtual void SendArmor()
 		{
 			McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
-			armorEquipment.entityId = EntityId;
+			armorEquipment.runtimeEntityId = EntityId;
 			armorEquipment.helmet = ItemFactory.GetItem(Helmet);
 			armorEquipment.chestplate = ItemFactory.GetItem(Chest);
 			armorEquipment.leggings = ItemFactory.GetItem(Leggings);

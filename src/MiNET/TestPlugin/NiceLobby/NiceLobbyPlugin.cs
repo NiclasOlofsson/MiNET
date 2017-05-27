@@ -256,7 +256,7 @@ namespace TestPlugin.NiceLobby
 				{
 					McpeSetTime timeDay = McpeSetTime.CreateObject();
 					timeDay.time = 0;
-					timeDay.started = true;
+					//timeDay.started = true;
 					level.RelayBroadcast(timeDay);
 
 					ThreadPool.QueueUserWorkItem(delegate(object o)
@@ -265,7 +265,7 @@ namespace TestPlugin.NiceLobby
 
 						McpeSetTime timeReset = McpeSetTime.CreateObject();
 						timeReset.time = (int) level.CurrentWorldTime;
-						timeReset.started = level.IsWorldTimeStarted;
+						//timeReset.started = level.IsWorldTimeStarted;
 						level.RelayBroadcast(timeDay);
 
 						Thread.Sleep(200);
@@ -393,7 +393,7 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Send, UsedImplicitly]
 		public Package AddPlayerHandler(McpeAddPlayer packet, Player player)
 		{
-			if (_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityId) != null)
+			if (_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityIdSelf) != null)
 			{
 				return null;
 			}
@@ -649,7 +649,7 @@ namespace TestPlugin.NiceLobby
 			entity.SpawnEntity();
 
 			var remove = McpeRemoveEntity.CreateObject();
-			remove.entityId = entity.EntityId;
+			remove.entityIdSelf = entity.EntityId;
 			player.SendPackage(remove);
 
 			_playerEntities[player] = entity;
@@ -665,7 +665,7 @@ namespace TestPlugin.NiceLobby
 				var entity = _playerEntities[player];
 				entity.KnownPosition = player.KnownPosition;
 				var message = McpeMoveEntity.CreateObject();
-				message.entityId = entity.EntityId;
+				message.runtimeEntityId = entity.EntityId;
 				message.position = entity.KnownPosition;
 				player.Level.RelayBroadcast(message);
 			}

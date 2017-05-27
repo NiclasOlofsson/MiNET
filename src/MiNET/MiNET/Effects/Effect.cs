@@ -49,7 +49,7 @@ namespace MiNET.Effects
 		public virtual void SendAdd(Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
-			message.entityId = EntityManager.EntityIdSelf;
+			message.runtimeEntityId = EntityManager.EntityIdSelf;
 			message.eventId = 1;
 			message.effectId = (int) EffectId;
 			message.duration = Duration;
@@ -63,7 +63,7 @@ namespace MiNET.Effects
 		public virtual void SendUpdate(Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
-			message.entityId = EntityManager.EntityIdSelf;
+			message.runtimeEntityId = EntityManager.EntityIdSelf;
 			message.eventId = 2;
 			message.effectId = (int) EffectId;
 			message.duration = Duration;
@@ -75,7 +75,7 @@ namespace MiNET.Effects
 		public virtual void SendRemove(Player player)
 		{
 			var message = McpeMobEffect.CreateObject();
-			message.entityId = EntityManager.EntityIdSelf;
+			message.runtimeEntityId = EntityManager.EntityIdSelf;
 			message.eventId = 3;
 			message.effectId = (int) EffectId;
 			player.SendPackage(message);

@@ -79,7 +79,7 @@ namespace MiNET
 
 							int count = wp.LightSources.Count;
 							sw.Restart();
-							RecalculateLight(level, wp);
+							RecalculateBlockLight(level, wp);
 
 							var chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
 							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
@@ -103,7 +103,7 @@ namespace MiNET
             return level;
         }
 
-        public void RecalculateLight(Level level, AnvilWorldProvider wp)
+        public void RecalculateBlockLight(Level level, AnvilWorldProvider wp)
         {
             while (wp.LightSources.Count > 0)
             {

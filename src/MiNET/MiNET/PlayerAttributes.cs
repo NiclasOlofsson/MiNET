@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 
 namespace MiNET
 {
@@ -14,7 +13,9 @@ namespace MiNET
 
 	public class Links : List<Tuple<long, long>>
 	{
-		
 	}
 
+	public class GameRules : Dictionary<string, GameRule>
+	{
+	}
 }

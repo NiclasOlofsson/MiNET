@@ -165,6 +165,11 @@ namespace MiNET.Entities
 			NoAi,
 			Silent,
 			WallClimbing,
+
+			Unk1,
+			Unk2,
+			Unk3,
+
 			Resting,
 			Sitting,
 			Angry,
@@ -246,7 +251,7 @@ namespace MiNET.Entities
 		{
 			var addEntity = McpeAddEntity.CreateObject();
 			addEntity.entityType = (byte) EntityTypeId;
-			addEntity.entityId = EntityId;
+			addEntity.entityIdSelf = EntityId;
 			addEntity.runtimeEntityId = EntityId;
 			addEntity.x = KnownPosition.X;
 			addEntity.y = KnownPosition.Y;
@@ -260,7 +265,7 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(players, addEntity);
 
 			var msg = addEntity;
-			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityId);
+			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityIdSelf);
 			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", msg.runtimeEntityId);
 			Log.DebugFormat("Entity Type: {0}", msg.entityType);
 			Log.DebugFormat("X: {0}", msg.x);
@@ -283,14 +288,14 @@ namespace MiNET.Entities
 		public virtual void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
-			mcpeRemoveEntity.entityId = EntityId;
+			mcpeRemoveEntity.entityIdSelf = EntityId;
 			Level.RelayBroadcast(players, mcpeRemoveEntity);
 		}
 
 		public virtual void BroadcastSetEntityData()
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
-			mcpeSetEntityData.entityId = EntityId;
+			mcpeSetEntityData.runtimeEntityId = EntityId;
 			mcpeSetEntityData.metadata = GetMetadata();
 			Level?.RelayBroadcast(mcpeSetEntityData);
 		}
@@ -298,7 +303,7 @@ namespace MiNET.Entities
 		public virtual void BroadcastEntityEvent()
 		{
 			var entityEvent = McpeEntityEvent.CreateObject();
-			entityEvent.entityId = EntityId;
+			entityEvent.runtimeEntityId = EntityId;
 			entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
 			Level.RelayBroadcast(entityEvent);
 		}
@@ -350,7 +355,7 @@ namespace MiNET.Entities
 			if (NoAi || forceMove)
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entityId = EntityId;
+				motions.runtimeEntityId = EntityId;
 				motions.velocity = Velocity;
 				motions.Encode();
 				Level.RelayBroadcast(motions);
@@ -362,7 +367,7 @@ namespace MiNET.Entities
 			if (NoAi || forceMove)
 			{
 				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-				moveEntity.entityId = EntityId;
+				moveEntity.runtimeEntityId = EntityId;
 				moveEntity.position = KnownPosition;
 				moveEntity.Encode();
 				Level.RelayBroadcast(moveEntity);

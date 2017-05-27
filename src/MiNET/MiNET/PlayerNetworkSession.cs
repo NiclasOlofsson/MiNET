@@ -248,115 +248,131 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
-			if (message == null)
+			try
 			{
-				return;
-			}
-
-			if (typeof (McpeWrapper) == message.GetType())
-			{
-				McpeWrapper wrapper = (McpeWrapper) message;
-
-				// Get bytes
-				byte[] payload = wrapper.payload;
-				if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
+				if (message == null)
 				{
-					payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+					return;
 				}
 
-				//if (Log.IsDebugEnabled)
-				//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
-
-				var msg = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
-				msg.DatagramSequenceNumber = wrapper.DatagramSequenceNumber;
-				msg.Reliability = wrapper.Reliability;
-				msg.ReliableMessageNumber = wrapper.ReliableMessageNumber;
-				msg.OrderingChannel = wrapper.OrderingChannel;
-				msg.OrderingIndex = wrapper.OrderingIndex;
-				HandlePackage(msg, playerSession);
-
-				message.PutPool();
-				return;
-			}
-
-			if (typeof (UnknownPackage) == message.GetType())
-			{
-				UnknownPackage packet = (UnknownPackage) message;
-				if (Log.IsDebugEnabled) Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
-
-				message.PutPool();
-				return;
-			}
-
-			if (typeof (McpeBatch) == message.GetType())
-			{
-				McpeBatch batch = (McpeBatch) message;
-
-				var messages = new List<Package>();
-
-				// Get bytes
-				byte[] payload = batch.payload;
-				// Decompress bytes
-
-				MemoryStream stream = new MemoryStream(payload);
-				if (stream.ReadByte() != 0x78)
+				if (typeof (McpeWrapper) == message.GetType())
 				{
-					throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-				}
-				stream.ReadByte();
-				using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
-				{
-					// Get actual package out of bytes
-					using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
+					McpeWrapper wrapper = (McpeWrapper) message;
+
+					// Get bytes
+					byte[] payload = wrapper.payload;
+					//if (Log.IsDebugEnabled) Log.Debug($"Received package 0x{message.Id:X2}\n{Package.HexDump(payload)}");
+
+					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
 					{
-						defStream2.CopyTo(destination);
-						destination.Position = 0;
-						NbtBinaryReader reader = new NbtBinaryReader(destination, true);
-
-						while (destination.Position < destination.Length)
-						{
-							//int len = reader.ReadInt32();
-							int len = BatchUtils.ReadLength(destination);
-							byte[] internalBuffer = reader.ReadBytes(len);
-
-							//if (Log.IsDebugEnabled)
-							//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
-
-							messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
-							             new UnknownPackage(internalBuffer[0], internalBuffer));
-						}
-
-						if (destination.Length > destination.Position) throw new Exception("Have more data");
+						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
 					}
-				}
-				foreach (var msg in messages)
-				{
-					msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
-					msg.Reliability = batch.Reliability;
-					msg.ReliableMessageNumber = batch.ReliableMessageNumber;
-					msg.OrderingChannel = batch.OrderingChannel;
-					msg.OrderingIndex = batch.OrderingIndex;
-					HandlePackage(msg, playerSession);
-				}
 
-				message.PutPool();
-				return;
-			}
+					McpeBatch batch = McpeBatch.CreateObject();
+					batch.payload = payload;
 
-			MiNetServer.TraceReceive(message);
+					HandlePackage(batch, playerSession);
 
-			if (CryptoContext != null && CryptoContext.UseEncryption)
-			{
-				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
-				{
-					HandlePackage(MessageHandler, message as Package);
+					//if (Log.IsDebugEnabled)
+					//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
+
+					//var msg = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
+					//msg.DatagramSequenceNumber = wrapper.DatagramSequenceNumber;
+					//msg.Reliability = wrapper.Reliability;
+					//msg.ReliableMessageNumber = wrapper.ReliableMessageNumber;
+					//msg.OrderingChannel = wrapper.OrderingChannel;
+					//msg.OrderingIndex = wrapper.OrderingIndex;
+					//HandlePackage(msg, playerSession);
+
 					message.PutPool();
-				});
+					return;
+				}
+
+				if (typeof (UnknownPackage) == message.GetType())
+				{
+					UnknownPackage packet = (UnknownPackage) message;
+					if (Log.IsDebugEnabled) Log.Warn($"Received unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
+
+					message.PutPool();
+					return;
+				}
+
+				if (typeof (McpeBatch) == message.GetType())
+				{
+					McpeBatch batch = (McpeBatch) message;
+
+					var messages = new List<Package>();
+
+					// Get bytes
+					byte[] payload = batch.payload;
+					// Decompress bytes
+
+					MemoryStream stream = new MemoryStream(payload);
+					if (stream.ReadByte() != 0x78)
+					{
+						throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
+					}
+					stream.ReadByte();
+					using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+					{
+						// Get actual package out of bytes
+						using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
+						{
+							defStream2.CopyTo(destination);
+							destination.Position = 0;
+							NbtBinaryReader reader = new NbtBinaryReader(destination, true);
+
+							while (destination.Position < destination.Length)
+							{
+								//int len = reader.ReadInt32();
+								int len = BatchUtils.ReadLength(destination);
+								byte[] internalBuffer = reader.ReadBytes(len);
+
+								//if (Log.IsDebugEnabled)
+								//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
+
+								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
+								             new UnknownPackage(internalBuffer[0], internalBuffer));
+							}
+
+							if (destination.Length > destination.Position) throw new Exception("Have more data");
+						}
+					}
+					foreach (var msg in messages)
+					{
+						msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
+						msg.Reliability = batch.Reliability;
+						msg.ReliableMessageNumber = batch.ReliableMessageNumber;
+						msg.OrderingChannel = batch.OrderingChannel;
+						msg.OrderingIndex = batch.OrderingIndex;
+						HandlePackage(msg, playerSession);
+					}
+
+					message.PutPool();
+					return;
+				}
+
+				MiNetServer.TraceReceive(message);
+
+				if (CryptoContext != null && CryptoContext.UseEncryption)
+				{
+					MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
+					{
+						HandlePackage(MessageHandler, message as Package);
+						message.PutPool();
+					});
+				}
+				else
+				{
+					HandlePackage(MessageHandler, message);
+					message.PutPool();
+				}
+
 			}
-			else
+			catch (Exception e)
 			{
-				HandlePackage(MessageHandler, message);
-				message.PutPool();
+				Log.Error("Package handling", e);
+				throw;
 			}
 		}
 
@@ -656,10 +672,11 @@ namespace MiNET
 				//if (package == null) return;
 			}
 
-			lock (_queueSync)
-			{
-				_sendQueueNotConcurrent.Enqueue(package);
-			}
+			Server.SendPackage(this, package);
+			//lock (_queueSync)
+			//{
+			//	_sendQueueNotConcurrent.Enqueue(package);
+			//}
 		}
 
 		private int i = 0;

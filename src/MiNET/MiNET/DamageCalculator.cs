@@ -76,7 +76,7 @@ namespace MiNET
 			var fallDamage = new Random().Next((int) (damage/2 + 2));
 
 			McpeAnimate animate = McpeAnimate.CreateObject();
-			animate.entityId = target.EntityId;
+			animate.runtimeEntityId = target.EntityId;
 			animate.actionId = 4;
 			player.Level.RelayBroadcast(animate);
 			return fallDamage;

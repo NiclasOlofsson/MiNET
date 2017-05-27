@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 
 namespace MiNET.Utils
 {
-	class NbtStringConverter : JsonConverter
+	public class NbtStringConverter : JsonConverter
 	{
 		public override bool CanConvert(Type objectType)
 		{
@@ -23,7 +23,7 @@ namespace MiNET.Utils
 		}
 	}
 
-	class NbtIntConverter : JsonConverter
+	public class NbtIntConverter : JsonConverter
 	{
 		public override bool CanConvert(Type objectType)
 		{

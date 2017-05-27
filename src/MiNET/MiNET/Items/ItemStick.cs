@@ -36,7 +36,7 @@ namespace MiNET.Items
 				}
 
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entityId = EntityManager.EntityIdSelf;
+				motions.runtimeEntityId = EntityManager.EntityIdSelf;
 				motions.velocity = velocity;
 
 				player.SendPackage(motions);
@@ -44,7 +44,7 @@ namespace MiNET.Items
 			else if (player.Inventory.Chest is ItemElytra)
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entityId = EntityManager.EntityIdSelf;
+				motions.runtimeEntityId = EntityManager.EntityIdSelf;
 				Vector3 velocity = new Vector3(0, 2, 0);
 				motions.velocity = velocity;
 				player.SendPackage(motions);

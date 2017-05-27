@@ -62,7 +62,7 @@ namespace MiNET.Client
 			Action<Task, Item, int> doMobEquipmentTask = (t, item, selectedSlot) =>
 			{
 				McpeMobEquipment message = new McpeMobEquipment();
-				message.entityId = client.EntityId;
+				message.runtimeEntityId = client.EntityId;
 				message.item = item;
 				message.selectedSlot = (byte) selectedSlot;
 				message.slot = (byte) (selectedSlot + 9);
@@ -117,7 +117,7 @@ namespace MiNET.Client
 				commandStep.commandOutputJson = "null\n";
 				commandStep.unknown7 = 0;
 				commandStep.unknown8 = 0;
-				commandStep.entityId = client.NetworkEntityId;
+				commandStep.entityIdSelf = client.NetworkEntityId;
 				Log.Error($"Entity ID used={client.EntityId}\n{Package.HexDump(commandStep.Encode())}");
 
 				client.SendPackage(commandStep);
@@ -137,7 +137,7 @@ namespace MiNET.Client
 				{
 					// First just rotate towards target pos
 					McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
-					movePlayerPacket.entityId = client.EntityId;
+					movePlayerPacket.runtimeEntityId = client.EntityId;
 					movePlayerPacket.x = client.CurrentLocation.X;
 					movePlayerPacket.y = client.CurrentLocation.Y;
 					movePlayerPacket.z = client.CurrentLocation.Z;
@@ -160,7 +160,7 @@ namespace MiNET.Client
 						client.CurrentLocation = new PlayerLocation(Vector3.Lerp(originalPosition, targetPosition, 1 - weight));
 
 						McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
-						movePlayerPacket.entityId = client.EntityId;
+						movePlayerPacket.runtimeEntityId = client.EntityId;
 						movePlayerPacket.x = client.CurrentLocation.X;
 						movePlayerPacket.y = client.CurrentLocation.Y;
 						movePlayerPacket.z = client.CurrentLocation.Z;
@@ -177,7 +177,7 @@ namespace MiNET.Client
 						client.CurrentLocation = new PlayerLocation(targetPosition);
 
 						McpeMovePlayer movePlayerPacket = McpeMovePlayer.CreateObject();
-						movePlayerPacket.entityId = client.EntityId;
+						movePlayerPacket.runtimeEntityId = client.EntityId;
 						movePlayerPacket.x = client.CurrentLocation.X;
 						movePlayerPacket.y = client.CurrentLocation.Y;
 						movePlayerPacket.z = client.CurrentLocation.Z;

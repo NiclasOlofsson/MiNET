@@ -180,7 +180,7 @@ namespace MiNET
 			if (sendToPlayer)
 			{
 				McpeMobEquipment order = McpeMobEquipment.CreateObject();
-				order.entityId = EntityManager.EntityIdSelf;
+				order.runtimeEntityId = EntityManager.EntityIdSelf;
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) selectedHotbarSlot;
 				order.slot = (byte) ItemHotbar[InHandSlot];
@@ -188,7 +188,7 @@ namespace MiNET
 			}
 
 			McpeMobEquipment broadcast = McpeMobEquipment.CreateObject();
-			broadcast.entityId = Player.EntityId;
+			broadcast.runtimeEntityId = Player.EntityId;
 			broadcast.item = GetItemInHand();
 			broadcast.selectedSlot = (byte) selectedHotbarSlot;
 			broadcast.slot = (byte) ItemHotbar[InHandSlot];
@@ -243,7 +243,7 @@ namespace MiNET
 				Player.SendPlayerInventory();
 
 				McpeMobEquipment order = McpeMobEquipment.CreateObject();
-				order.entityId = EntityManager.EntityIdSelf;
+				order.runtimeEntityId = EntityManager.EntityIdSelf;
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) slot; // Selected hotbar slot
 				Player.SendPackage(order);

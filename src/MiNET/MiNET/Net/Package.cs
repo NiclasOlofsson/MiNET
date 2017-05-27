@@ -664,11 +664,11 @@ namespace MiNET.Net
 
 			if (metadata == null)
 			{
-				WriteVarInt(0);
+				WriteUnsignedVarInt(0);
 				return;
 			}
 
-			WriteVarInt(metadata.Count);
+			WriteUnsignedVarInt((uint) metadata.Count);
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
@@ -699,7 +699,9 @@ namespace MiNET.Net
 			}
 
 			WriteSignedVarInt(stack.Id);
-			WriteSignedVarInt((stack.Metadata << 8) + (stack.Count & 0xff));
+			short metadata = stack.Metadata;
+			if (metadata == -1) metadata = short.MaxValue;
+			WriteSignedVarInt((metadata << 8) + (stack.Count & 0xff));
 
 			if (signItem)
 			{
@@ -716,25 +718,40 @@ namespace MiNET.Net
 			{
 				Write((short) 0);
 			}
+
+			WriteSignedVarInt(0);
+			WriteSignedVarInt(0);
 		}
 
 		public Item ReadItem()
 		{
-			int id = (int) ReadSignedVarInt();
+			int id = ReadSignedVarInt();
 			if (id <= 0)
 			{
 				return new ItemAir();
 			}
 
-			int tmp = (int) ReadSignedVarInt();
+			int tmp = ReadSignedVarInt();
 			short metadata = (short) (tmp >> 8);
+			if (metadata == short.MaxValue) metadata = -1;
 			byte count = (byte) (tmp & 0xff);
 			Item stack = ItemFactory.GetItem((short) id, metadata, count);
 
-			int nbtLen = (int) _reader.ReadInt16(); // NbtLen
+			int nbtLen = _reader.ReadInt16(); // NbtLen
 			if (nbtLen > 0)
 			{
 				stack.ExtraData = ReadNbt().NbtFile.RootTag;
+			}
+
+			var canPlace = ReadSignedVarInt();
+			for (int i = 0; i < canPlace; i++)
+			{
+				ReadString();
+			}
+			var canBreak = ReadSignedVarInt();
+			for (int i = 0; i < canBreak; i++)
+			{
+				ReadString();
 			}
 
 			return stack;
@@ -773,6 +790,79 @@ namespace MiNET.Net
 				Write(attribute.Value);
 				Write(attribute.Default); // unknown
 				Write(attribute.Name);
+			}
+		}
+
+
+		public GameRules ReadGameRules()
+		{
+			GameRules gameRules = new GameRules();
+
+			int count = ReadVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				string name = _reader.ReadString();
+				byte type = _reader.ReadByte();
+				switch (type)
+				{
+					case 1:
+					{
+						GameRule<bool> rule = new GameRule<bool>();
+						rule.Name = name;
+						rule.Value = _reader.ReadBoolean();
+						gameRules.Add(rule.Name, rule);
+						break;
+					}
+					case 2:
+					{
+						GameRule<int> rule = new GameRule<int>();
+						rule.Name = name;
+						rule.Value = ReadVarInt();
+						gameRules.Add(rule.Name, rule);
+						break;
+					}
+					case 3:
+					{
+						GameRule<float> rule = new GameRule<float>();
+						rule.Name = name;
+						rule.Value = _reader.ReadSingle();
+						gameRules.Add(rule.Name, rule);
+						break;
+					}
+				}
+			}
+
+			return gameRules;
+		}
+
+		public void Write(GameRules gameRules)
+		{
+			if (gameRules == null)
+			{
+				WriteVarInt(0);
+				return;
+			}
+
+			WriteVarInt(gameRules.Count);
+			foreach (var rule in gameRules.Values)
+			{
+				_writer.Write(rule.Name);
+				if (rule is GameRule<bool>)
+				{
+					_writer.Write((byte) 1);
+					_writer.Write(((GameRule<bool>) rule).Value);
+				}
+				else if (rule is GameRule<int>)
+				{
+					_writer.Write((byte) 2);
+					WriteVarInt(((GameRule<int>) rule).Value);
+					//_writer.Write(((GameRule<int>) rule).Value);
+				}
+				else if (rule is GameRule<float>)
+				{
+					_writer.Write((byte) 3);
+					_writer.Write(((GameRule<float>) rule).Value);
+				}
 			}
 		}
 
@@ -897,11 +987,13 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				_writer.Write((short) 0); // LE
+				_writer.Write((short)0); // LE
+				//WriteVarInt(0);
 				return;
 			}
 
-			_writer.Write((short) packInfos.Count); // LE
+			_writer.Write((short)packInfos.Count); // LE
+			//WriteVarInt(packInfos.Count);
 			foreach (var info in packInfos)
 			{
 				Write(info.PackIdVersion.Id);
@@ -912,7 +1004,8 @@ namespace MiNET.Net
 
 		public ResourcePackInfos ReadResourcePackInfos()
 		{
-			int count = _reader.ReadInt16(); // LE
+ 			int count = _reader.ReadInt16(); // LE
+			//int count = ReadVarInt(); // LE
 
 			var packInfos = new ResourcePackInfos();
 			for (int i = 0; i < count; i++)
@@ -930,11 +1023,12 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				_writer.Write((short) 0); // LE
+				//_writer.Write((short)0); // LE
+				WriteVarInt(0);
 				return;
 			}
-
-			_writer.Write((short) packInfos.Count); // LE
+			//_writer.Write((short)packInfos.Count); // LE
+			WriteVarInt(packInfos.Count);
 			foreach (var info in packInfos)
 			{
 				Write(info.Id);
@@ -944,7 +1038,8 @@ namespace MiNET.Net
 
 		public ResourcePackIdVersions ReadResourcePackIdVersions()
 		{
-			int count = _reader.ReadInt16(); // LE
+			//int count = _reader.ReadInt16(); // LE
+			int count = ReadVarInt(); // LE
 
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)
@@ -1463,7 +1558,8 @@ namespace MiNET.Net
 				byte[] lineBytes = bytes.Skip(line).Take(bytesPerLine).ToArray();
 				if (printLineCount) sb.AppendFormat("{0:x8} ", line);
 				sb.Append(string.Join(" ", lineBytes.Select(b => b.ToString("x2"))
-					.ToArray()).PadRight(bytesPerLine*3));
+						.ToArray())
+					.PadRight(bytesPerLine*3));
 				sb.Append(" ");
 				sb.Append(new string(lineBytes.Select(b => b < 32 ? '.' : (char) b)
 					.ToArray()));
@@ -1485,7 +1581,6 @@ namespace MiNET.Net
 
 			return JsonConvert.SerializeObject(message, jsonSerializerSettings);
 		}
-
 	}
 
 	/// Base package class

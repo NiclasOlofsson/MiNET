@@ -18,6 +18,7 @@ namespace MiNET.Net
 		AbortDimensionChange = 14,
 		StartGlide = 15,
 		StopGlide = 16,
-		WorldImmutable = 17
+		WorldImmutable = 17,
+		Unknown = 18,
 	}
 }

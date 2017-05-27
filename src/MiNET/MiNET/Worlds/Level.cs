@@ -416,7 +416,7 @@ namespace MiNET.Worlds
 				{
 					McpeSetTime message = McpeSetTime.CreateObject();
 					message.time = (int) CurrentWorldTime;
-					message.started = IsWorldTimeStarted;
+					//message.started = IsWorldTimeStarted;
 
 					RelayBroadcast(message);
 				}
@@ -598,7 +598,7 @@ namespace MiNET.Worlds
 						PlayerLocation knownPosition = player.KnownPosition;
 
 						McpeMovePlayer move = McpeMovePlayer.CreateObject();
-						move.entityId = player.EntityId;
+						move.runtimeEntityId = player.EntityId;
 						move.x = knownPosition.X;
 						move.y = knownPosition.Y + 1.62f;
 						move.z = knownPosition.Z;

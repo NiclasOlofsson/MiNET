@@ -127,6 +127,8 @@ namespace MiNET.Net
 			var messageParts = new List<MessagePart>();
 
 			byte[] encodedMessage = message.Encode();
+			//if (Log.IsDebugEnabled && message is McpeBatch)
+			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
 
 			int orderingIndex = 0;
 
@@ -141,11 +143,14 @@ namespace MiNET.Net
 
 					if (!message.ForceClear && session.CryptoContext.UseEncryption)
 					{
+						var isBatch = message is McpeBatch;
+						encodedMessage = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
 						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
 					}
 					else
 					{
-						wrapper.payload = encodedMessage;
+						var isBatch = message is McpeBatch;
+						wrapper.payload = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
 					}
 
 					encodedMessage = wrapper.Encode();

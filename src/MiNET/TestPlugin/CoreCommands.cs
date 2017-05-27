@@ -35,7 +35,7 @@ namespace TestPlugin
 		protected override void OnEnable()
 		{
 			Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
-			Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
+			//Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
 		}
 
 		//[PacketHandler, Receive, UsedImplicitly]
@@ -650,7 +650,7 @@ namespace TestPlugin
 		private void SendEquipmentForPlayer(Player player)
 		{
 			var msg = McpeMobEquipment.CreateObject();
-			msg.entityId = player.EntityId;
+			msg.runtimeEntityId = player.EntityId;
 			msg.item = player.Inventory.GetItemInHand();
 			msg.slot = 0;
 			player.Level.RelayBroadcast(msg);
@@ -659,7 +659,7 @@ namespace TestPlugin
 		private void SendArmorForPlayer(Player player)
 		{
 			var armorEquipment = McpeMobArmorEquipment.CreateObject();
-			armorEquipment.entityId = player.EntityId;
+			armorEquipment.runtimeEntityId = player.EntityId;
 			armorEquipment.helmet = player.Inventory.Helmet;
 			armorEquipment.chestplate = player.Inventory.Chest;
 			armorEquipment.leggings = player.Inventory.Leggings;

@@ -205,7 +205,7 @@ namespace MiNET
 			var attributes = AddHungerAttributes(new PlayerAttributes());
 
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
-			attributesPackate.entityId = EntityManager.EntityIdSelf;
+			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
 			attributesPackate.attributes = attributes;
 			Player.SendPackage(attributesPackate);
 		}

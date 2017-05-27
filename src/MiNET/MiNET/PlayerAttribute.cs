@@ -27,4 +27,14 @@ namespace MiNET
 		}
 	}
 
+	public abstract class GameRule
+	{
+		public string Name { get; set; }
+	}
+
+	public class GameRule<T>: GameRule
+	{
+		public T Value { get; set; }
+	}
+
 }

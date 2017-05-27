@@ -199,7 +199,7 @@ namespace MiNET.Plugins
 
 				var overload = new Overload
 				{
-					Description = commandAttribute.Description,
+					Description = commandAttribute.Description??"Bullshit",
 					Method = method,
 					Input = new Input(),
 					Output = new Output()
@@ -239,7 +239,7 @@ namespace MiNET.Plugins
 							{
 								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
 								Aliases = commandAttribute.Aliases,
-								Description = commandAttribute.Description,
+								Description = commandAttribute.Description??"Bullshit",
 								Overloads = new Dictionary<string, Overload>
 								{
 									{

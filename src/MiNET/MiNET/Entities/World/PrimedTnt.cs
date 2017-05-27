@@ -45,7 +45,7 @@ namespace MiNET.Entities.World
 			else
 			{
 				var entityData = McpeSetEntityData.CreateObject();
-				entityData.entityId = EntityId;
+				entityData.runtimeEntityId = EntityId;
 				entityData.metadata = GetMetadata();
 				Level.RelayBroadcast(entityData);
 				if (CheckPosition) PositionCheck();

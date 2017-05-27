@@ -299,7 +299,7 @@ namespace MiNET.Plugins.Commands
 
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = (int) level.CurrentWorldTime;
-			message.started = level.IsWorldTimeStarted;
+			//message.started = level.IsWorldTimeStarted;
 
 			level.RelayBroadcast(message);
 
@@ -320,7 +320,7 @@ namespace MiNET.Plugins.Commands
 
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = (int)level.CurrentWorldTime;
-			message.started = level.IsWorldTimeStarted;
+			//message.started = level.IsWorldTimeStarted;
 
 			level.RelayBroadcast(message);
 

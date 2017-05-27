@@ -102,7 +102,7 @@ namespace MiNET.Entities.Projectiles
 					damage += Level.Random.Next((int) (damage/2 + 2));
 
 					McpeAnimate animate = McpeAnimate.CreateObject();
-					animate.entityId = entityCollided.EntityId;
+					animate.runtimeEntityId = entityCollided.EntityId;
 					animate.actionId = 4;
 					Level.RelayBroadcast(animate);
 				}
@@ -309,14 +309,14 @@ namespace MiNET.Entities.Projectiles
 			if (new Random().Next(5) == 0)
 			{
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.entityId = EntityId;
+				motions.runtimeEntityId = EntityId;
 				motions.velocity = Velocity;
 				//new Task(() => Level.RelayBroadcast(motions)).Start();
 				Level.RelayBroadcast(motions);
 			}
 
 			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-			moveEntity.entityId = EntityId;
+			moveEntity.runtimeEntityId = EntityId;
 			moveEntity.position = KnownPosition;
 			Level.RelayBroadcast(moveEntity);
 

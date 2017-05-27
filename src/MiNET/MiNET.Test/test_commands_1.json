@@ -12,10 +12,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"worldbuilder",
-										"mayfly"
-									],
+									"enum_type": "abilityTypes",
 									"name": "ability",
 									"type": "stringenum"
 								},
@@ -39,6 +36,39 @@
 								{
 									"name": "player",
 									"type": "result_list"
+								}
+							]
+						}
+					},
+					"getter": {
+						"input": {
+							"parameters": [
+								{
+									"name": "player",
+									"type": "target"
+								},
+								{
+									"enum_type": "abilityTypes",
+									"name": "ability",
+									"optional": true,
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								{
+									"format": "{0}"
+								}
+							],
+							"parameters": [
+								{
+									"name": "displayString",
+									"type": "string"
+								},
+								{
+									"name": "details",
+									"type": "string"
 								}
 							]
 						}
@@ -84,26 +114,16 @@
 							"format_strings": [
 								{
 									"format": "commands.clear.success",
-									"params_to_use": [
-										"player",
-										"itemsRemoved"
-									],
+									"params_to_use": [ "player", "itemsRemoved" ],
 									"should_show": {
-										"not_empty": [
-											"player",
-											"itemsRemoved"
-										]
+										"not_empty": [ "player", "itemsRemoved" ]
 									}
 								},
 								{
 									"format": "commands.clear.testing",
-									"params_to_use": [
-										"playerTest"
-									],
+									"params_to_use": [ "playerTest" ],
 									"should_show": {
-										"not_empty": [
-											"playerTest"
-										]
+										"not_empty": [ "playerTest" ]
 									}
 								}
 							],
@@ -171,21 +191,13 @@
 									"type": "blockpos"
 								},
 								{
-									"enum_values": [
-										"replace",
-										"masked",
-										"filtered"
-									],
+									"enum_values": [ "replace", "masked", "filtered" ],
 									"name": "maskMode",
 									"optional": true,
 									"type": "stringenum"
 								},
 								{
-									"enum_values": [
-										"normal",
-										"move",
-										"force"
-									],
+									"enum_values": [ "normal", "move", "force" ],
 									"name": "cloneMode",
 									"optional": true,
 									"type": "stringenum"
@@ -222,6 +234,28 @@
 			}
 		]
 	},
+	"daylock": {
+		"versions": [
+			{
+				"aliases": [ "alwaysday" ],
+				"description": "commands.daylock.description",
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "lock",
+									"optional": true,
+									"type": "bool"
+								}
+							]
+						}
+					}
+				},
+				"permission": "internal"
+			}
+		]
+	},
 	"deop": {
 		"versions": [
 			{
@@ -244,25 +278,17 @@
 							"format_strings": [
 								{
 									"format": "commands.deop.success",
-									"params_to_use": [
-										"playersSuccess"
-									],
+									"params_to_use": [ "playersSuccess" ],
 									"should_show": {
-										"not_empty": [
-											"playersSuccess"
-										]
+										"not_empty": [ "playersSuccess" ]
 									}
 								},
 								{
 									"color": "red",
 									"format": "commands.deop.failed",
-									"params_to_use": [
-										"playersFailed"
-									],
+									"params_to_use": [ "playersFailed" ],
 									"should_show": {
-										"not_empty": [
-											"playersFailed"
-										]
+										"not_empty": [ "playersFailed" ]
 									}
 								}
 							],
@@ -315,16 +341,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"peaceful",
-										"easy",
-										"normal",
-										"hard",
-										"p",
-										"e",
-										"n",
-										"h"
-									],
+									"enum_values": [ "peaceful", "easy", "normal", "hard", "p", "e", "n", "h" ],
 									"name": "difficulty",
 									"type": "stringenum"
 								}
@@ -423,9 +440,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"clear"
-									],
+									"enum_values": [ "clear" ],
 									"name": "clear",
 									"type": "stringenum"
 								}
@@ -478,27 +493,21 @@
 								{
 									"format": "%commands.enchant.success: {0}",
 									"should_show": {
-										"not_empty": [
-											"playerNames"
-										]
+										"not_empty": [ "playerNames" ]
 									}
 								},
 								{
 									"color": "red",
 									"format": "%commands.enchant.noItem: {1}",
 									"should_show": {
-										"not_empty": [
-											"noItemNames"
-										]
+										"not_empty": [ "noItemNames" ]
 									}
 								},
 								{
 									"color": "red",
 									"format": "%commands.enchant.cantEnchant: {2}",
 									"should_show": {
-										"not_empty": [
-											"failedNames"
-										]
+										"not_empty": [ "failedNames" ]
 									}
 								}
 							],
@@ -542,27 +551,21 @@
 								{
 									"format": "%commands.enchant.success: {0}",
 									"should_show": {
-										"not_empty": [
-											"playerNames"
-										]
+										"not_empty": [ "playerNames" ]
 									}
 								},
 								{
 									"color": "red",
 									"format": "%commands.enchant.noItem: {1}",
 									"should_show": {
-										"not_empty": [
-											"noItemNames"
-										]
+										"not_empty": [ "noItemNames" ]
 									}
 								},
 								{
 									"color": "red",
 									"format": "%commands.enchant.cantEnchant: {2}",
 									"should_show": {
-										"not_empty": [
-											"failedNames"
-										]
+										"not_empty": [ "failedNames" ]
 									}
 								}
 							],
@@ -618,9 +621,7 @@
 									"color": "red",
 									"format": "commands.execute.failed",
 									"should_show": {
-										"not_empty": [
-											"failedEntities"
-										]
+										"not_empty": [ "failedEntities" ]
 									}
 								}
 							],
@@ -651,9 +652,7 @@
 									"type": "blockpos"
 								},
 								{
-									"enum_values": [
-										"detect"
-									],
+									"enum_values": [ "detect" ],
 									"name": "detect",
 									"type": "stringenum"
 								},
@@ -682,9 +681,7 @@
 									"color": "red",
 									"format": "commands.execute.failed",
 									"should_show": {
-										"not_empty": [
-											"failedEntities"
-										]
+										"not_empty": [ "failedEntities" ]
 									}
 								}
 							],
@@ -757,26 +754,63 @@
 									"type": "int"
 								},
 								{
-									"enum_values": [
-										"destroy",
-										"hollow",
-										"keep",
-										"outline",
-										"replace"
-									],
+									"enum_values": [ "destroy", "hollow", "keep", "outline" ],
 									"name": "oldBlockHandling",
 									"optional": true,
+									"type": "stringenum"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								{
+									"format": "commands.fill.success"
+								}
+							],
+							"parameters": [
+								{
+									"name": "fillCount",
+									"type": "int"
+								},
+								{
+									"name": "blockName",
+									"type": "string"
+								}
+							]
+						}
+					},
+					"replace": {
+						"input": {
+							"parameters": [
+								{
+									"name": "from",
+									"type": "blockpos"
+								},
+								{
+									"name": "to",
+									"type": "blockpos"
+								},
+								{
+									"enum_type": "blockType",
+									"name": "tileName",
+									"type": "stringenum"
+								},
+								{
+									"name": "tileData",
+									"type": "int"
+								},
+								{
+									"enum_values": [ "replace" ],
+									"name": "oldBlockHandling",
 									"type": "stringenum"
 								},
 								{
 									"enum_type": "blockType",
 									"name": "replaceTileName",
-									"optional": true,
 									"type": "stringenum"
 								},
 								{
 									"name": "replaceDataValue",
-									"optional": true,
 									"type": "int"
 								}
 							]
@@ -849,12 +883,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"survival",
-										"creative",
-										"s",
-										"c"
-									],
+									"enum_values": [ "survival", "creative", "adventure", "s", "c", "a" ],
 									"name": "gameMode",
 									"type": "stringenum"
 								},
@@ -941,7 +970,6 @@
 							]
 						},
 						"output": {
-							"format_strings": [ ],
 							"parameters": [
 								{
 									"name": "name",
@@ -1135,6 +1163,11 @@
 									"name": "data",
 									"optional": true,
 									"type": "int"
+								},
+								{
+									"name": "components",
+									"optional": true,
+									"type": "components"
 								}
 							]
 						},
@@ -1210,173 +1243,6 @@
 				"permission": "host",
 				"requires_edu": true,
 				"version": 1
-			}
-		]
-	},
-	"help": {
-		"versions": [
-			{
-				"aliases": [
-					"?"
-				],
-				"description": "commands.help.description",
-				"overloads": {
-					"byName": {
-						"input": {
-							"parameters": [
-								{
-									"enum_type": "commandName",
-									"name": "command",
-									"type": "stringenum"
-								}
-							]
-						},
-						"output": {
-							"format_strings": [
-								{
-									"format": "{0}"
-								}
-							],
-							"parameters": [
-								{
-									"name": "body",
-									"type": "string"
-								}
-							]
-						}
-					},
-					"byPage": {
-						"input": {
-							"parameters": [
-								{
-									"name": "page",
-									"optional": true,
-									"type": "int"
-								}
-							]
-						},
-						"output": {
-							"format_strings": [
-								{
-									"color": "dark_green",
-									"format": "commands.help.header"
-								},
-								{
-									"format": "{2}"
-								},
-								{
-									"color": "dark_green",
-									"format": "commands.help.footer"
-								}
-							],
-							"parameters": [
-								{
-									"name": "page",
-									"type": "int"
-								},
-								{
-									"name": "pageCount",
-									"type": "int"
-								},
-								{
-									"name": "body",
-									"type": "string"
-								}
-							]
-						}
-					}
-				},
-				"permission": "any"
-			},
-			{
-				"aliases": [
-					"?"
-				],
-				"description": "commands.help.description",
-				"overloads": {
-					"byName": {
-						"input": {
-							"parameters": [
-								{
-									"enum_type": "commandName",
-									"name": "command",
-									"type": "stringenum"
-								}
-							]
-						},
-						"output": {
-							"format_strings": [
-								{
-									"format": "{0}"
-								},
-								{
-									"format": "{1}"
-								},
-								{
-									"format": "commands.generic.usage.noparam"
-								},
-								{
-									"format": "{2}"
-								}
-							],
-							"parameters": [
-								{
-									"name": "command",
-									"type": "string"
-								},
-								{
-									"name": "description",
-									"type": "string"
-								},
-								{
-									"name": "usage",
-									"type": "string"
-								}
-							]
-						}
-					},
-					"byPage": {
-						"input": {
-							"parameters": [
-								{
-									"name": "page",
-									"optional": true,
-									"type": "int"
-								}
-							]
-						},
-						"output": {
-							"format_strings": [
-								{
-									"color": "dark_green",
-									"format": "commands.help.header"
-								},
-								{
-									"format": "{2}"
-								},
-								{
-									"color": "dark_green",
-									"format": "commands.help.footer"
-								}
-							],
-							"parameters": [
-								{
-									"name": "page",
-									"type": "int"
-								},
-								{
-									"name": "pageCount",
-									"type": "int"
-								},
-								{
-									"name": "body",
-									"type": "string"
-								}
-							]
-						}
-					}
-				},
-				"permission": "any"
 			}
 		]
 	},
@@ -1501,11 +1367,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"ids",
-										"stats",
-										"uuids"
-									],
+									"enum_values": [ "ids", "stats", "uuids" ],
 									"name": "details",
 									"optional": true,
 									"type": "stringenum"
@@ -1635,25 +1497,17 @@
 							"format_strings": [
 								{
 									"format": "commands.op.success",
-									"params_to_use": [
-										"playersSuccess"
-									],
+									"params_to_use": [ "playersSuccess" ],
 									"should_show": {
-										"not_empty": [
-											"playersSuccess"
-										]
+										"not_empty": [ "playersSuccess" ]
 									}
 								},
 								{
 									"color": "red",
 									"format": "commands.op.failed",
-									"params_to_use": [
-										"playersFailed"
-									],
+									"params_to_use": [ "playersFailed" ],
 									"should_show": {
-										"not_empty": [
-											"playersFailed"
-										]
+										"not_empty": [ "playersFailed" ]
 									}
 								}
 							],
@@ -1725,7 +1579,7 @@
 								},
 								{
 									"name": "player",
-									"type": "string"
+									"type": "result_list"
 								}
 							]
 						}
@@ -1782,9 +1636,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"block"
-									],
+									"enum_values": [ "block" ],
 									"name": "block",
 									"type": "stringenum"
 								},
@@ -1815,6 +1667,11 @@
 									"name": "data",
 									"optional": true,
 									"type": "int"
+								},
+								{
+									"name": "components",
+									"optional": true,
+									"type": "components"
 								}
 							]
 						},
@@ -1848,9 +1705,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"entity"
-									],
+									"enum_values": [ "entity" ],
 									"name": "entity",
 									"type": "stringenum"
 								},
@@ -1884,6 +1739,11 @@
 									"name": "data",
 									"optional": true,
 									"type": "int"
+								},
+								{
+									"name": "components",
+									"optional": true,
+									"type": "components"
 								}
 							]
 						},
@@ -1934,7 +1794,6 @@
 							]
 						},
 						"output": {
-							"format_strings": [ ],
 							"parameters": [
 								{
 									"name": "message",
@@ -1972,11 +1831,7 @@
 									"type": "int"
 								},
 								{
-									"enum_values": [
-										"destroy",
-										"keep",
-										"replace"
-									],
+									"enum_values": [ "destroy", "keep", "replace" ],
 									"name": "oldBlockHandling",
 									"optional": true,
 									"type": "stringenum"
@@ -2043,6 +1898,49 @@
 				"permission": "admin",
 				"requires_edu": true,
 				"version": 1
+			}
+		]
+	},
+	"setmaxplayers": {
+		"versions": [
+			{
+				"description": "commands.setmaxplayers.description",
+				"overloads": {
+					"default": {
+						"input": {
+							"parameters": [
+								{
+									"name": "maxPlayers",
+									"type": "int"
+								}
+							]
+						},
+						"output": {
+							"format_strings": [
+								{
+									"format": "commands.setmaxplayers.success"
+								},
+								{
+									"format": "{1}",
+									"should_show": {
+										"not_empty": [ "boundNote" ]
+									}
+								}
+							],
+							"parameters": [
+								{
+									"name": "count",
+									"type": "int"
+								},
+								{
+									"name": "boundNote",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				"permission": "host"
 			}
 		]
 	},
@@ -2210,13 +2108,36 @@
 						"output": {
 							"format_strings": [
 								{
-									"format": "{0}"
+									"format": "commands.stopsound.success",
+									"params_to_use": [ "sound", "player" ],
+									"should_show": {
+										"is_true": [ "one_sound" ]
+									}
+								},
+								{
+									"format": "commands.stopsound.success.all",
+									"params_to_use": [ "player" ],
+									"should_show": {
+										"is_true": [ "all_sounds" ]
+									}
 								}
 							],
 							"parameters": [
 								{
-									"name": "body",
+									"name": "sound",
 									"type": "string"
+								},
+								{
+									"name": "player",
+									"type": "result_list"
+								},
+								{
+									"name": "one_sound",
+									"type": "bool"
+								},
+								{
+									"name": "all_sounds",
+									"type": "bool"
 								}
 							]
 						}
@@ -2276,10 +2197,7 @@
 	"tell": {
 		"versions": [
 			{
-				"aliases": [
-					"w",
-					"msg"
-				],
+				"aliases": [ "w", "msg" ],
 				"description": "commands.tell.description",
 				"outputToSpeech": true,
 				"overloads": {
@@ -2288,6 +2206,9 @@
 							"parameters": [
 								{
 									"name": "recipient",
+									"target_data": {
+										"allow_dead_players": true
+									},
 									"type": "target"
 								},
 								{
@@ -2316,7 +2237,7 @@
 					}
 				},
 				"permission": "any",
-				"requiresChatPerms": true
+				"requiresTellPerms": true
 			}
 		]
 	},
@@ -2424,10 +2345,7 @@
 									"type": "blockpos"
 								},
 								{
-									"enum_values": [
-										"all",
-										"masked"
-									],
+									"enum_values": [ "all", "masked" ],
 									"name": "mode",
 									"optional": true,
 									"type": "stringenum"
@@ -2499,11 +2417,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"daytime",
-										"gametime",
-										"day"
-									],
+									"enum_values": [ "daytime", "gametime", "day" ],
 									"name": "time",
 									"type": "stringenum"
 								}
@@ -2512,13 +2426,13 @@
 						"output": {
 							"format_strings": [
 								{
-									"format": "commands.time.query"
+									"format": "{0}"
 								}
 							],
 							"parameters": [
 								{
-									"name": "time",
-									"type": "int"
+									"name": "body",
+									"type": "string"
 								}
 							]
 						}
@@ -2537,10 +2451,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"night",
-										"day"
-									],
+									"enum_values": [ "night", "day" ],
 									"name": "time",
 									"type": "stringenum"
 								}
@@ -2601,9 +2512,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"actionbar"
-									],
+									"enum_values": [ "actionbar" ],
 									"name": "actionbar",
 									"type": "stringenum"
 								},
@@ -2630,9 +2539,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"clear"
-									],
+									"enum_values": [ "clear" ],
 									"name": "clear",
 									"type": "stringenum"
 								}
@@ -2655,9 +2562,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"reset"
-									],
+									"enum_values": [ "reset" ],
 									"name": "reset",
 									"type": "stringenum"
 								}
@@ -2680,9 +2585,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"subtitle"
-									],
+									"enum_values": [ "subtitle" ],
 									"name": "subtitle",
 									"type": "stringenum"
 								},
@@ -2709,9 +2612,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"times"
-									],
+									"enum_values": [ "times" ],
 									"name": "times",
 									"type": "stringenum"
 								},
@@ -2746,9 +2647,7 @@
 									"type": "target"
 								},
 								{
-									"enum_values": [
-										"title"
-									],
+									"enum_values": [ "title" ],
 									"name": "title",
 									"type": "stringenum"
 								},
@@ -2803,9 +2702,7 @@
 	"tp": {
 		"versions": [
 			{
-				"aliases": [
-					"teleport"
-				],
+				"aliases": [ "teleport" ],
 				"description": "commands.tp.description",
 				"overloads": {
 					"selfToPos": {
@@ -2962,9 +2859,7 @@
 				"permission": "gamemasters"
 			},
 			{
-				"aliases": [
-					"teleport"
-				],
+				"aliases": [ "teleport" ],
 				"description": "commands.tp.description",
 				"overloads": {
 					"selfToPos": {
@@ -3162,11 +3057,7 @@
 						"input": {
 							"parameters": [
 								{
-									"enum_values": [
-										"clear",
-										"rain",
-										"thunder"
-									],
+									"enum_values": [ "clear", "rain", "thunder" ],
 									"name": "type",
 									"type": "stringenum"
 								},
@@ -3196,12 +3087,38 @@
 			}
 		]
 	},
+	"worldbuilder": {
+		"versions": [
+			{
+				"aliases": [ "wb" ],
+				"description": "commands.worldbuilder.description",
+				"overloads": {
+					"default": {
+						"input": { },
+						"output": {
+							"format_strings": [
+								{
+									"format": "commands.worldbuilder.success"
+								}
+							],
+							"parameters": [
+								{
+									"name": "newValueString",
+									"type": "string"
+								}
+							]
+						}
+					}
+				},
+				"permission": "gamemasters",
+				"requires_edu": true
+			}
+		]
+	},
 	"wsserver": {
 		"versions": [
 			{
-				"aliases": [
-					"connect"
-				],
+				"aliases": [ "connect" ],
 				"description": "commands.wsserver.description",
 				"overloads": {
 					"default": {

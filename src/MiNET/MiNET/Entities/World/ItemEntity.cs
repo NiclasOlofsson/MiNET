@@ -56,7 +56,7 @@ namespace MiNET.Entities.World
 		public override void SpawnToPlayers(Player[] players)
 		{
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-			mcpeAddItemEntity.entityId = EntityId;
+			mcpeAddItemEntity.entityIdSelf = EntityId;
 			mcpeAddItemEntity.runtimeEntityId = EntityId;
 			mcpeAddItemEntity.item = GetItemStack();
 			mcpeAddItemEntity.x = KnownPosition.X;
@@ -173,13 +173,13 @@ namespace MiNET.Entities.World
 				{
 					{
 						var takeItemEntity = McpeTakeItemEntity.CreateObject();
-						takeItemEntity.entityId = EntityId;
+						takeItemEntity.runtimeEntityId = EntityId;
 						takeItemEntity.target = player.EntityId;
 						Level.RelayBroadcast(player, takeItemEntity);
 					}
 					{
 						var takeItemEntity = McpeTakeItemEntity.CreateObject();
-						takeItemEntity.entityId = EntityId;
+						takeItemEntity.runtimeEntityId = EntityId;
 						takeItemEntity.target = EntityManager.EntityIdSelf;
 						player.SendPackage(takeItemEntity);
 					}

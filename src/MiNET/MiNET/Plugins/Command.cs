@@ -25,6 +25,7 @@ namespace MiNET.Plugins
 		public string[] Aliases { get; set; }
 		public string Description { get; set; }
 		public string Permission { get; set; }
+		public bool RequiresTellPerms { get; set; }
 		public bool RequiresChatPerms { get; set; }
 		public bool OutputToSpeech { get; set; }
 
@@ -80,6 +81,8 @@ namespace MiNET.Plugins
 	{
 		[JsonProperty(propertyName: "not_empty")]
 		public string[] NotEmpty { get; set; }
+		[JsonProperty(propertyName: "is_true")]
+		public string[] IsTrue { get; set; }
 	}
 
 	public class Parser
@@ -111,6 +114,9 @@ namespace MiNET.Plugins
 
 		[JsonProperty(propertyName: "main_target")]
 		public bool MainTarget { get; set; }
+
+		[JsonProperty(propertyName: "allow_dead_players")]
+		public bool AllowDeadPlayers { get; set; }
 	}
 
 

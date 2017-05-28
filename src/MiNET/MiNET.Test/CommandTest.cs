@@ -24,7 +24,7 @@ namespace MiNET
 
 			dynamic dynaCommands = JObject.Parse(commandJson);
 
-			var t = dynaCommands.help.versions[0].overloads["byName"].output.format_strings;
+			var t = dynaCommands.difficulty.versions[0].overloads["byName"].output.format_strings;
 
 			foreach (var te in dynaCommands)
 			{
@@ -51,15 +51,15 @@ namespace MiNET
 			};
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson /*, new ParameterConverter()*/);
 
-			Assert.AreEqual(51, commands.Count);
+			Assert.AreEqual(53, commands.Count);
 
-			Assert.AreEqual("help", commands.First(pair => pair.Key == "help").Key);
+			Assert.AreEqual("difficulty", commands.First(pair => pair.Key == "difficulty").Key);
 
-			Command command = commands["help"];
+			Command command = commands["difficulty"];
 			Assert.NotNull(command);
 
 			Version version = command.Versions[0];
-			Assert.AreEqual("commands.help.description", version.Description);
+			Assert.AreEqual("commands.difficulty.usage", version.Description);
 
 			Assert.AreEqual(2, version.Overloads.Count);
 
@@ -77,9 +77,9 @@ namespace MiNET
 			Parameter inputParameter = input.Parameters[0];
 
 			Assert.NotNull(inputParameter);
-			Assert.AreEqual("command", inputParameter.Name);
+			Assert.AreEqual("difficulty", inputParameter.Name);
 			Assert.AreEqual("stringenum", inputParameter.Type);
-			Assert.AreEqual("commandName", inputParameter.EnumType);
+			//Assert.AreEqual("commandName", inputParameter.EnumType);
 			Assert.IsFalse(inputParameter.Optional);
 
 			// Output
@@ -87,13 +87,13 @@ namespace MiNET
 
 			Assert.NotNull(output.FormatStrings);
 			Assert.AreEqual(1, output.FormatStrings.Length);
-			Assert.AreEqual("{0}", output.FormatStrings[0].Format);
+			Assert.AreEqual("commands.difficulty.success", output.FormatStrings[0].Format);
 			Assert.NotNull(output.Parameters);
 			Assert.AreEqual(1, output.Parameters.Length);
 
 			Parameter outputParameter = output.Parameters[0];
 
-			Assert.AreEqual("body", outputParameter.Name);
+			Assert.AreEqual("difficulty", outputParameter.Name);
 			Assert.AreEqual("string", outputParameter.Type);
 			Assert.IsNullOrEmpty(outputParameter.EnumType);
 			Assert.IsFalse(outputParameter.Optional);
@@ -112,13 +112,13 @@ namespace MiNET
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
 			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson, settings);
-			Assert.AreEqual("help", commands.First(pair => pair.Key == "help").Key);
+			Assert.AreEqual("difficulty", commands.First(pair => pair.Key == "difficulty").Key);
 
-			Command command = commands["help"];
+			Command command = commands["difficulty"];
 			Assert.NotNull(command);
 
 			CommandSet toSerialize = new CommandSet();
-			toSerialize["help"] = command;
+			toSerialize["difficulty"] = command;
 
 			var output = JsonConvert.SerializeObject(toSerialize, settings);
 			Console.WriteLine($"{output}");

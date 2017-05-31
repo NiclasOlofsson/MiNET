@@ -19,7 +19,7 @@ namespace MiNET.Worlds
 		public FlatlandWorldProvider()
 		{
 			IsCaching = true;
-			_spawnPoint = new Vector3(0, 0, 0);
+			_spawnPoint = new Vector3(0, 4, 0);
 		}
 
 		public void Initialize()

@@ -1227,7 +1227,6 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 |Type | byte |  |
-|Slot Count | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
 |Unknown Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------

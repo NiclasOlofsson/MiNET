@@ -36,7 +36,6 @@ namespace MiNET.Blocks
 			var containerOpen = McpeContainerOpen.CreateObject();
 			containerOpen.windowId = 5 + 9;
 			containerOpen.type = 5;
-			containerOpen.slotCount = 3;
 			containerOpen.coordinates = blockCoordinates;
 			containerOpen.unknownRuntimeEntityId = 1;
 			player.SendPackage(containerOpen);

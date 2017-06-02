@@ -1357,7 +1357,6 @@ namespace MiNET
 				var containerOpen = McpeContainerOpen.CreateObject();
 				containerOpen.windowId = inventory.WindowsId;
 				containerOpen.type = inventory.Type;
-				containerOpen.slotCount = inventory.Size;
 				containerOpen.coordinates = inventoryCoord;
 				containerOpen.unknownRuntimeEntityId = 1;
 				SendPackage(containerOpen);

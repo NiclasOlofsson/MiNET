@@ -482,7 +482,6 @@
 	<pdu id="0x30" online="false" client="false" server="true" name="MCPE_CONTAINER_OPEN">
 		<field name="Window ID" type="byte" />
 		<field name="Type" type="byte" />
-		<field name="Slot Count" type="SignedVarInt" />
 		<field name="Coordinates" type="BlockCoordinates" />
 		<field name="Unknown Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>

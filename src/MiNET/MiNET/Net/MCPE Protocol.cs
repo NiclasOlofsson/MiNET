@@ -3497,7 +3497,6 @@ namespace MiNET.Net
 	{
 		public byte windowId; // = null;
 		public byte type; // = null;
-		public int slotCount; // = null;
 		public BlockCoordinates coordinates; // = null;
 		public long unknownRuntimeEntityId; // = null;
 		public McpeContainerOpen()
@@ -3513,7 +3512,6 @@ namespace MiNET.Net
 
 			Write(windowId);
 			Write(type);
-			WriteSignedVarInt(slotCount);
 			Write(coordinates);
 			WriteUnsignedVarLong(unknownRuntimeEntityId);
 
@@ -3531,7 +3529,6 @@ namespace MiNET.Net
 
 			windowId = ReadByte();
 			type = ReadByte();
-			slotCount = ReadSignedVarInt();
 			coordinates = ReadBlockCoordinates();
 			unknownRuntimeEntityId = ReadUnsignedVarLong();
 

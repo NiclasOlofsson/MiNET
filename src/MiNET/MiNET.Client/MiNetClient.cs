@@ -759,9 +759,9 @@ namespace MiNET.Client
 				StopClient();
 				return;
 			}
-			else if (typeof (McpeServerExchange) == message.GetType())
+			else if (typeof (McpeServerToClientHandshake) == message.GetType())
 			{
-				OnMcpeServerExchange((McpeServerExchange) message);
+				OnMcpeServerToClientHandshake((McpeServerToClientHandshake) message);
 
 				return;
 			}
@@ -1001,9 +1001,9 @@ namespace MiNET.Client
 				OnMcpeText((McpeText) message);
 			}
 
-			else if (typeof (McpePlayerStatus) == message.GetType())
+			else if (typeof (McpePlayStatus) == message.GetType())
 			{
-				OnMcpePlayerStatus((McpePlayerStatus) message);
+				OnMcpePlayStatus((McpePlayStatus) message);
 			}
 
 			else if (typeof (McpeClientboundMapItemData) == message.GetType())
@@ -1092,7 +1092,7 @@ namespace MiNET.Client
 
 		private void OnMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
-			Log.Debug($"SoundId: {message.soundId}, Position: {message.position}, Volume: {message.volume}, Pitch: {message.pitch}, unknown1: {message.unknown1}, unknown2: {message.unknown2}");
+			Log.Debug($"SoundId: {message.soundId}, Position: {message.position}, ExtraData: {message.extraData}, Pitch: {message.pitch}, unknown1: {message.unknown1}, disableRelativeVolume: {message.disableRelativeVolume}");
 		}
 
 		private void OnMcpeGameRulesChanged(McpeGameRulesChanged message)
@@ -1114,7 +1114,7 @@ namespace MiNET.Client
 			sb.AppendLine("Resource packs:");
 			foreach (ResourcePackInfo info in message.resourcepackinfos)
 			{
-				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}, Unknown={info.Unknown}");
+				sb.AppendLine($"ID={info.PackIdVersion.Id}, Version={info.PackIdVersion.Version}, Unknown={info.Size}");
 			}
 
 			sb.AppendLine("Behavior packs:");
@@ -1205,8 +1205,8 @@ namespace MiNET.Client
 			//file.Close();
 
 			Log.Debug($"packageId={message.packageId}");
-			Log.Debug($"unknown1={message.unknown1}");
-			Log.Debug($"unknown3={message.unknown3}");
+			Log.Debug($"unknown1={message.chunkIndex}");
+			Log.Debug($"unknown3={message.progress}");
 			Log.Debug($"Reported Lenght={message.length}");
 			Log.Debug($"Actual Lenght={message.payload.Length}");
 
@@ -1306,7 +1306,7 @@ namespace MiNET.Client
 			//SendPackage(batch);
 		}
 
-		private void OnMcpeServerExchange(McpeServerExchange message)
+		private void OnMcpeServerToClientHandshake(McpeServerToClientHandshake message)
 		{
 			string serverKey = message.serverPublicKey;
 			byte[] randomKeyToken = message.token;
@@ -1376,7 +1376,7 @@ namespace MiNET.Client
 				}
 
 				Thread.Sleep(1250);
-				McpeClientMagic magic = new McpeClientMagic();
+				McpeClientToServerHandshake magic = new McpeClientToServerHandshake();
 				//byte[] encodedMagic = magic.Encode();
 				//McpeBatch batch = BatchUtils.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
 				//batch.Encode();
@@ -1474,7 +1474,7 @@ Adventure settings
 		public AutoResetEvent PlayerStatusChangedWaitHandle = new AutoResetEvent(false);
 		public bool HasSpawned { get; set; }
 
-		private void OnMcpePlayerStatus(McpePlayerStatus message)
+		private void OnMcpePlayStatus(McpePlayStatus message)
 		{
 			if (Log.IsDebugEnabled) Log.Debug($"Player status={message.status}");
 			PlayerStatus = message.status;
@@ -2070,7 +2070,7 @@ StartGame:
 	lightnigLevel: {message.lightnigLevel}	
 	enableCommands: {message.enableCommands}	
 	isTexturepacksRequired: {message.isTexturepacksRequired}	
-	secret: {message.secret}	
+	secret: {message.levelId}	
 	worldName: {message.worldName}	
 ");
 

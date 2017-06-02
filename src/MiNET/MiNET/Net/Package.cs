@@ -480,9 +480,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) records.Count);
 			foreach (BlockCoordinates coord in records)
 			{
-				WriteVarInt(coord.X);
-				WriteVarInt(coord.Y);
-				WriteVarInt(coord.Z);
+				Write(coord);
 			}
 		}
 
@@ -998,7 +996,7 @@ namespace MiNET.Net
 			{
 				Write(info.PackIdVersion.Id);
 				Write(info.PackIdVersion.Version);
-				Write(info.Unknown);
+				Write(info.Size);
 			}
 		}
 
@@ -1011,8 +1009,11 @@ namespace MiNET.Net
 			for (int i = 0; i < count; i++)
 			{
 				var info = new ResourcePackInfo();
-				info.PackIdVersion = new PackIdVersion() {Id = ReadString(), Version = ReadString()};
-				info.Unknown = ReadUlong();
+				var id = ReadString();
+				var version = ReadString();
+				var size = ReadUlong();
+				info.PackIdVersion = new PackIdVersion {Id = id, Version = version};
+				info.Size = size;
 				packInfos.Add(info);
 			}
 
@@ -1044,7 +1045,9 @@ namespace MiNET.Net
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)
 			{
-				var info = new PackIdVersion() {Id = ReadString(), Version = ReadString()};
+				var id = ReadString();
+				var version = ReadString();
+				var info = new PackIdVersion {Id = id, Version = version};
 				packInfos.Add(info);
 			}
 

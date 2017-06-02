@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using MiNET.Net;
+using MiNET.Plugins;
 
 namespace MiNET.Utils
 {
@@ -26,14 +27,26 @@ namespace MiNET.Utils
 
 		public static McpeBatch CreateBatchPacket(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen)
 		{
+			var batch = McpeBatch.CreateObject();
+
 			//using (var stream = CompressIntoStream(input, offset, length, compressionLevel, writeLen))
+
+			if (writeLen)
 			{
-				var batch = McpeBatch.CreateObject();
-				//batch.payload = stream.ToArray();
-				batch.payload = input;
-				batch.Encode();
-				return batch;
+				var stream = MiNetServer.MemoryStreamManager.GetStream();
+				WriteLength(stream, length);
+				stream.Write(input, offset, length);
+				batch.payload = stream.ToArray();
 			}
+			else
+			{
+				byte[] target = new byte[length];
+				Buffer.BlockCopy(input, offset, target, 0, length);
+				batch.payload = target;
+			}
+
+			batch.Encode();
+			return batch;
 		}
 
 		private static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)

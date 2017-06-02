@@ -9,11 +9,11 @@
 | Unconnected Ping | 0x01 | 1 |   
 | Mcpe Login | 0x01 | 1 |   
 | Ftl Create Player | 0x01 | 1 |   
-| Mcpe Player Status | 0x02 | 2 |   
+| Mcpe Play Status | 0x02 | 2 |   
 | Connected Pong | 0x03 | 3 |   
-| Mcpe Server Exchange | 0x03 | 3 |   
+| Mcpe Server To Client Handshake | 0x03 | 3 |   
 | Detect Lost Connections | 0x04 | 4 |   
-| Mcpe Client Magic | 0x04 | 4 |   
+| Mcpe Client To Server Handshake | 0x04 | 4 |   
 | Open Connection Request 1 | 0x05 | 5 |   
 | Mcpe Disconnect | 0x05 | 5 |   
 | Open Connection Reply 1 | 0x06 | 6 |   
@@ -58,7 +58,7 @@
 | Mcpe Block Pick Request | 0x22 | 34 |   
 | Mcpe Use Item | 0x23 | 35 |   
 | Mcpe Player Action | 0x24 | 36 |   
-| Mcpe Player Fall | 0x25 | 37 |   
+| Mcpe Entity Fall | 0x25 | 37 |   
 | Mcpe Hurt Armor | 0x26 | 38 |   
 | Mcpe Set Entity Data | 0x27 | 39 |   
 | Mcpe Set Entity Motion | 0x28 | 40 |   
@@ -92,7 +92,7 @@
 | Mcpe Map Info Request | 0x44 | 68 |   
 | Mcpe Request Chunk Radius | 0x45 | 69 |   
 | Mcpe Chunk Radius Update | 0x46 | 70 |   
-| Mcpe Item Fram Drop Item | 0x47 | 71 |   
+| Mcpe Item Frame Drop Item | 0x47 | 71 |   
 | Mcpe Replace Selected Item | 0x48 | 72 |   
 | Mcpe Game Rules Changed | 0x49 | 73 |   
 | Mcpe Camera | 0x4a | 74 |   
@@ -404,7 +404,7 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Edition | byte |  |
 |Payload | ByteArray |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Player Status (0x02)
+### Package: Mcpe Play Status (0x02)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -412,10 +412,14 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 
 
 The three type of status are:
-0: Everything is good.
-1: If the server is outdated.
-2: If the game is outdated.
-3: If the player is sapwned.
+
+LOGIN_SUCCESS = 0;
+LOGIN_FAILED_CLIENT = 1;
+LOGIN_FAILED_SERVER = 2;
+PLAYER_SPAWN = 3;
+LOGIN_FAILED_INVALID_TENANT = 4;
+LOGIN_FAILED_VANILLA_EDU = 5;
+LOGIN_FAILED_EDU_VANILLA = 6;
 
 
 #### Fields
@@ -424,7 +428,7 @@ The three type of status are:
 |:-----|:-----|:-----|
 |Status | int |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Server Exchange (0x03)
+### Package: Mcpe Server To Client Handshake (0x03)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -440,7 +444,7 @@ The three type of status are:
 |Token Length | Length |  |
 |Token | byte[] | 0 |
 -----------------------------------------------------------------------
-### Package: Mcpe Client Magic (0x04)
+### Package: Mcpe Client To Server Handshake (0x04)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -521,13 +525,6 @@ The three type of status are:
 **Sent from client:** true
 **Packet size:** 
 
- 
-The chat types are:
-0: Raw
-1: Chat
-2: Translation
-3: Popup
-4: Tip
 
 
 #### Fields
@@ -583,8 +580,11 @@ The chat types are:
 |Enable commands | bool |  |
 |Is texturepacks required | bool |  |
 |GameRules | GameRules |  |
-|Secret | string |  |
+|Level ID | string |  |
 |World name | string |  |
+|Premium World Template Id | string |  |
+|Unknown0 | bool |  |
+|Current Tick | long |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Add Player (0x0c)
 
@@ -688,6 +688,7 @@ val2 float
 |Speed X | float |  |
 |Speed Y | float |  |
 |Speed Z | float |  |
+|Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Add Hanging Entity (0x10)
 
@@ -736,6 +737,7 @@ val2 float
 |Runtime Entity ID | UnsignedVarLong |  |
 |Position | PlayerLocation |  |
 |On Ground | bool |  |
+|Teleport | bool |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Move Player (0x13)
 
@@ -776,6 +778,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Remove Block (0x15)
 
@@ -797,12 +800,6 @@ MODE_ROTATION = 2;
 **Sent from client:** false
 **Packet size:** 
 
-
-0x00: None
-0x01: Neighbours
-0x02: Network
-0x04: No Graphic
-0x08: Priority
 
 
 #### Fields
@@ -861,10 +858,10 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Sound ID | byte |  |
 |Position | Vector3 |  |
-|Volume | SignedVarInt |  |
+|Extra Data | SignedVarInt |  |
 |Pitch | SignedVarInt |  |
 |Unknown1 | bool |  |
-|Unknown2 | bool |  |
+|Disable Relative Volume | bool |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Level Event (0x1a)
 
@@ -1011,6 +1008,10 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|X | SignedVarInt |  |
+|Y | SignedVarInt |  |
+|Z | SignedVarInt |  |
+|Selected Slot | byte |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Use Item (0x23)
 
@@ -1025,7 +1026,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |BlockCoordinates | BlockCoordinates |  |
-|Unknown | UnsignedVarInt |  |
+|Block ID | UnsignedVarInt |  |
 |Face | SignedVarInt |  |
 |FaceCoordinates | Vector3 |  |
 |PlayerPosition | Vector3 |  |
@@ -1049,7 +1050,7 @@ MODE_ROTATION = 2;
 |Coordinates | BlockCoordinates |  |
 |Face | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Player Fall (0x25)
+### Package: Mcpe Entity Fall (0x25)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1061,7 +1062,9 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Runtime Entity ID | UnsignedVarLong |  |
 |Fall distance | float |  |
+|Unknown | bool |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Hurt Armor (0x26)
 
@@ -1149,8 +1152,9 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown 1 | SignedVarInt |  |
+|Spawn Type | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
+|Forced | bool |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Animate (0x2c)
 
@@ -1210,8 +1214,10 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown | UnsignedVarInt |  |
+|Unknown0 | UnsignedVarInt |  |
 |Item | Item |  |
+|Unknown1 | SignedVarInt |  |
+|Unknown2 | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Container Open (0x30)
 
@@ -1227,7 +1233,6 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 |Type | byte |  |
-|Slot Count | SignedVarInt |  |
 |Coordinates | BlockCoordinates |  |
 |Unknown Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
@@ -1261,7 +1266,7 @@ MODE_ROTATION = 2;
 |Slot | SignedVarInt |  |
 |HotbarSlot | SignedVarInt |  |
 |Item | Item |  |
-|Unknown2 | byte |  |
+|Selected Slot | byte |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Container Set Data (0x33)
 
@@ -1381,9 +1386,6 @@ MODE_ROTATION = 2;
 **Sent from client:** false
 **Packet size:** 
 
- 
-ORDER_COLUMNS = 0;
-ORDER_LAYERED = 1;
 
 
 #### Fields
@@ -1450,7 +1452,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown | SignedVarInt |  |
+|Gamemode | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Player List (0x3f)
 
@@ -1563,7 +1565,7 @@ ORDER_LAYERED = 1;
 |:-----|:-----|:-----|
 |Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Item Fram Drop Item (0x47)
+### Package: Mcpe Item Frame Drop Item (0x47)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1576,7 +1578,6 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Coordinates | BlockCoordinates |  |
-|Item | Item |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Replace Selected Item (0x48)
 
@@ -1590,6 +1591,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Item | Item |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Game Rules Changed (0x49)
 
@@ -1630,6 +1632,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Item | Item |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Boss Event (0x4c)
 
@@ -1643,6 +1646,8 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Boss Entity ID | SignedVarLong |  |
+|Event Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Show Credits (0x4d)
 
@@ -1656,6 +1661,8 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Runtime Entity ID | UnsignedVarLong |  |
+|Status | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Available Commands (0x4e)
 
@@ -1687,9 +1694,9 @@ ORDER_LAYERED = 1;
 |Command name | string |  |
 |Command overload | string |  |
 |Unknown 1 | UnsignedVarInt |  |
-|Unknown 2 | UnsignedVarInt |  |
+|Current Step  | UnsignedVarInt |  |
 |Is Output | bool |  |
-|Unknown 5 | UnsignedVarLong |  |
+|Client ID | UnsignedVarLong |  |
 |Command Input Json | string |  |
 |Command Output Json | string |  |
 |Unknown 7 | byte |  |
@@ -1748,10 +1755,10 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Package ID | string |  |
-|Unknown1 | uint |  |
-|Unknown2 | uint |  |
-|Unknown3 | ulong |  |
-|Unknown4 | string |  |
+|Max Chunk Size  | uint |  |
+|Chunk Count  | uint |  |
+|Compressed Package Size  | ulong |  |
+|Hash  | string |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Resource Pack Chunk Data (0x54)
 
@@ -1766,8 +1773,8 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Package ID | string |  |
-|Unknown1 | uint |  |
-|Unknown3 | ulong |  |
+|Chunk Index | uint |  |
+|Progress | ulong |  |
 |Length | uint |  |
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
@@ -1784,7 +1791,7 @@ ORDER_LAYERED = 1;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Package ID | string |  |
-|Chunk index | int |  |
+|Chunk Index | uint |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Transfer (0x56)
 
@@ -1813,6 +1820,10 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Name | string |  |
+|Coordinates | BlockCoordinates |  |
+|Volume | float |  |
+|Pitch | float |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Stop Sound (0x58)
 
@@ -1826,6 +1837,8 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Name | string |  |
+|Stop All | bool |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Set Title (0x59)
 
@@ -1883,7 +1896,7 @@ ORDER_LAYERED = 1;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Payload | ByteArray |  |
+|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ### Package: Mcpe Wrapper (0xfe)
 

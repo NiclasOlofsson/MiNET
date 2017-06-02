@@ -333,7 +333,7 @@ namespace MiNET
 								_session.CryptoContext.CryptoStreamOut = cryptoStreamOut;
 							}
 
-							var response = McpeServerExchange.CreateObject();
+							var response = McpeServerToClientHandshake.CreateObject();
 							response.NoBatch = true;
 							response.ForceClear = true;
 							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
@@ -349,7 +349,7 @@ namespace MiNET
 
 				if (!_session.CryptoContext.UseEncryption)
 				{
-					_session.MessageHandler.HandleMcpeClientMagic(null);
+					_session.MessageHandler.HandleMcpeClientToServerHandshake(null);
 				}
 			}
 			catch (Exception e)
@@ -358,7 +358,7 @@ namespace MiNET
 			}
 		}
 
-		public void HandleMcpeClientMagic(McpeClientMagic message)
+		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
 		{
 			IServerManager serverManager = _session.Server.ServerManager;
 			IServer server = serverManager.GetServer();
@@ -366,7 +366,7 @@ namespace MiNET
 			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
 			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
 
-			_session.MessageHandler.HandleMcpeClientMagic(null);
+			_session.MessageHandler.HandleMcpeClientToServerHandshake(null);
 		}
 
 		public void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
@@ -417,7 +417,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpePlayerFall(McpePlayerFall message)
+		public void HandleMcpeEntityFall(McpeEntityFall message)
 		{
 		}
 
@@ -461,7 +461,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeItemFramDropItem(McpeItemFramDropItem message)
+		public void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message)
 		{
 		}
 

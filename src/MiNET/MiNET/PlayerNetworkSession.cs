@@ -410,10 +410,10 @@ namespace MiNET
 				HandleDisconnectionNotification();
 			}
 
-			else if (typeof (McpeClientMagic) == message.GetType())
+			else if (typeof (McpeClientToServerHandshake) == message.GetType())
 			{
 				// Start encrypotion
-				handler.HandleMcpeClientMagic((McpeClientMagic) message);
+				handler.HandleMcpeClientToServerHandshake((McpeClientToServerHandshake) message);
 			}
 
 			else if (typeof (McpeResourcePackClientResponse) == message.GetType())
@@ -447,9 +447,9 @@ namespace MiNET
 				handler.HandleMcpeAnimate((McpeAnimate) message);
 			}
 
-			else if (typeof (McpePlayerFall) == message.GetType())
+			else if (typeof (McpeEntityFall) == message.GetType())
 			{
-				handler.HandleMcpePlayerFall((McpePlayerFall) message);
+				handler.HandleMcpeEntityFall((McpeEntityFall) message);
 			}
 
 			else if (typeof (McpeUseItem) == message.GetType())
@@ -548,12 +548,12 @@ namespace MiNET
 				handler.HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
 			}
 
-			else if (typeof (McpeItemFramDropItem) == message.GetType())
+			else if (typeof (McpeItemFrameDropItem) == message.GetType())
 			{
-				handler.HandleMcpeItemFramDropItem((McpeItemFramDropItem) message);
+				handler.HandleMcpeItemFrameDropItem((McpeItemFrameDropItem) message);
 			}
 
-			else if (typeof (McpeItemFramDropItem) == message.GetType())
+			else if (typeof (McpePlayerInput) == message.GetType())
 			{
 				handler.HandleMcpePlayerInput((McpePlayerInput) message);
 			}

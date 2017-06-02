@@ -91,7 +91,7 @@ namespace MiNET.Client
 				McpeUseItem message = new McpeUseItem();
 				message.blockcoordinates = coords /* - new BlockCoordinates(0, 1, 0)*/;
 				message.face = 1;
-				message.unknown = 116;
+				message.blockId = 116;
 				message.facecoordinates = new Vector3(0.1f, 0.1f, 0.1f);
 				message.playerposition = client.CurrentLocation.ToVector3();
 				message.item = item;
@@ -108,9 +108,9 @@ namespace MiNET.Client
 				commandStep.commandName = "help";
 				commandStep.commandOverload = "byPage";
 				commandStep.unknown1 = 0;
-				commandStep.unknown2 = 0;
+				commandStep.currentStep = 0;
 				commandStep.isOutput = false;
-				commandStep.unknown5 = -1;
+				commandStep.clientId = -1;
 				//commandStep.commandJson = @"{}";
 				//commandStep.unkown6 = @"{}";
 				commandStep.commandInputJson = "null\n";

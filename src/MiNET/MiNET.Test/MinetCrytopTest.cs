@@ -408,8 +408,8 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 						Assert.AreEqual(typeof (McpeBatch), message.GetType());
 
 						List<Package> messages = HandleBatch((McpeBatch) message);
-						McpeClientMagic magic = (McpeClientMagic) messages.FirstOrDefault();
-						Assert.AreEqual(typeof (McpeClientMagic), magic?.GetType());
+						McpeClientToServerHandshake magic = (McpeClientToServerHandshake) messages.FirstOrDefault();
+						Assert.AreEqual(typeof (McpeClientToServerHandshake), magic?.GetType());
 
 						//Hashing - Checksum - Validation
 						MemoryStream hashStream = new MemoryStream();

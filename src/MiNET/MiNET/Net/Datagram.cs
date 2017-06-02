@@ -141,15 +141,14 @@ namespace MiNET.Net
 					reliability = Reliability.ReliableOrdered;
 					orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 
+					var isBatch = message is McpeBatch;
 					if (!message.ForceClear && session.CryptoContext.UseEncryption)
 					{
-						var isBatch = message is McpeBatch;
 						encodedMessage = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
 						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
 					}
 					else
 					{
-						var isBatch = message is McpeBatch;
 						wrapper.payload = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
 					}
 

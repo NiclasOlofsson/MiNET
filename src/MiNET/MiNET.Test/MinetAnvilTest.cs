@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -201,36 +226,57 @@ namespace MiNET
 		//}
 
 
-		//[Test, Ignore]
-		//public void LoadFullAnvilRegionLoadTest()
-		//{
-		//	int width = 32;
-		//	int depth = 32;
+		[Test, Ignore]
+		public void LoadFullAnvilRegionLoadTest()
+		{
+			int width = 32;
+			int depth = 32;
 
-		//	int regionX = 5;
-		//	int regionZ = 24;
+			int regionX = 5;
+			int regionZ = 25;
 
-		//	string basePath = @"D:\Downloads\KingsLanding1";
-		//	var generator = new FlatlandWorldProvider();
+			string basePath = @"D:\Downloads\KingsLanding1\KingsLanding1";
+			var generator = new FlatlandWorldProvider();
 
-		//	Stopwatch sw = new Stopwatch();
-		//	sw.Start();
-		//	int noChunksRead = 0;
-		//	for (int x = 0; x < 32; x++)
-		//	{
-		//		for (int z = 0; z < 32; z++)
-		//		{
-		//			noChunksRead++;
-		//			int cx = (width*regionX) + x;
-		//			int cz = (depth*regionZ) + z;
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			int noChunksRead = 0;
+			for (int x = 1; x < 32; x++)
+			{
+				for (int z = 1; z < 32; z++)
+				{
+					noChunksRead++;
+					int cx = (width*regionX) + x;
+					int cz = (depth*regionZ) + z;
 
-		//			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-		//			ChunkColumn chunk = AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
-		//			Assert.NotNull(chunk);
-		//		}
-		//	}
-		//	Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
-		//}
+					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+					ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null, 0);
+					Assert.NotNull(chunk, $"Expected chunk at {x}, {z}");
+				}
+			}
+			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
+		}
 
+		[Test, Ignore]
+		public void CompressionTests()
+		{
+			string basePath = @"D:\Downloads\KingsLanding1\KingsLanding1";
+
+			int cx = (32*5) + 1;
+			int cz = (32*25) + 1;
+
+			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+			ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null, 0);
+			var bytes = chunk.GetBytes();
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			var noChunksCompressed = 10000;
+			for (int i = 0; i < noChunksCompressed; i++)
+			{
+				Compression.Compress(bytes, 0, bytes.Length, true);
+			}
+			Console.WriteLine("Compressed {2} bytes {0} times in {1}ms", noChunksCompressed, sw.ElapsedMilliseconds, bytes.Length);
+		}
 	}
 }

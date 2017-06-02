@@ -103,8 +103,13 @@ namespace MiNET.Plugins
 			DebugPrintCommands();
 		}
 
+		public event ResolveEventHandler AssemblyResolve;
+
 		private Assembly MyResolveEventHandler(object sender, ResolveEventArgs args)
 		{
+			var assembly = AssemblyResolve?.Invoke(sender, args);
+
+			if (assembly != null) return assembly;
 			if (_currentPath == null) return null;
 
 			try

@@ -349,7 +349,17 @@ namespace MiNET.Worlds
 						int z = blockEntityTag["z"].IntValue;
 						blockEntityTag["y"] = new NbtInt("y", y);
 
+						if (entityId.StartsWith("minecraft:"))
+						{
+							var id = entityId.Split(':')[1];
+
+							entityId = id.First().ToString().ToUpper() + id.Substring(1);
+
+							blockEntityTag["id"] = new NbtString("id", entityId);
+						}
+
 						BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
+
 						if (blockEntity != null)
 						{
 							blockEntityTag.Name = string.Empty;

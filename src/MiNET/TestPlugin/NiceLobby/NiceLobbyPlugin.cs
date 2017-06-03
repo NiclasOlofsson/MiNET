@@ -177,6 +177,7 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 0;
+			player.Inventory.Slots[idx++] = new ItemBlock(new PurpleGlazedTerracotta(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};

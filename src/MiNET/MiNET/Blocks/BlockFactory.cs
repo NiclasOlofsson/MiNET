@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System.Collections.Generic;
 using log4net;
 
@@ -31,7 +56,6 @@ namespace MiNET.Blocks
 				{
 					LuminousBlocks.Add(block.Id, block.LightLevel);
 				}
-
 			}
 
 			NameToId = BuildNameToId();
@@ -47,7 +71,7 @@ namespace MiNET.Blocks
 
 				if (name.Equals("block"))
 				{
-					if(Log.IsDebugEnabled)
+					if (Log.IsDebugEnabled)
 						Log.Debug($"Missing implementation for block ID={idx}");
 					continue;
 				}
@@ -293,6 +317,22 @@ namespace MiNET.Blocks
 			else if (blockId == 206) block = new EndBrick();
 			else if (blockId == 208) block = new EndRod();
 			else if (blockId == 209) block = new EndGateway();
+			else if (blockId == 219) block = new PurpleGlazedTerracotta();
+			else if (blockId == 220) block = new WhiteGlazedTerracotta();
+			else if (blockId == 221) block = new OrangeGlazedTerracotta();
+			else if (blockId == 222) block = new MagentaGlazedTerracotta();
+			else if (blockId == 223) block = new LightBlueGlazedTerracotta();
+			else if (blockId == 224) block = new YellowGlazedTerracotta();
+			else if (blockId == 225) block = new LimeGlazedTerracotta();
+			else if (blockId == 226) block = new PinkGlazedTerracotta();
+			else if (blockId == 227) block = new GrayGlazedTerracotta();
+			else if (blockId == 228) block = new SilverGlazedTerracotta();
+			else if (blockId == 229) block = new CyanGlazedTerracotta();
+			else if (blockId == 231) block = new BlueGlazedTerracotta();
+			else if (blockId == 232) block = new BrownGlazedTerracotta();
+			else if (blockId == 233) block = new GreenGlazedTerracotta();
+			else if (blockId == 234) block = new RedGlazedTerracotta();
+			else if (blockId == 235) block = new BlackGlazedTerracotta();
 			else if (blockId == 240) block = new ChorusPlant();
 			else if (blockId == 241) block = new StainedGlass();
 			else if (blockId == 243) block = new Podzol();

@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
+using System.Threading.Tasks;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
@@ -49,10 +51,21 @@ namespace MiNET.Items
 				motions.velocity = velocity;
 				player.SendPackage(motions);
 
-				player.IsGliding = true;
-				player.Height = 0.6;
-				player.BroadcastSetEntityData();
+				SendWithDelay(200, () =>
+				{
+					player.IsGliding = true;
+					player.Height = 0.6;
+					player.BroadcastSetEntityData();
+				});
 			}
 		}
+
+		private async Task SendWithDelay(int delay, Action action)
+		{
+			await Task.Delay(delay);
+			action();
+		}
+
 	}
+
 }

@@ -1097,6 +1097,13 @@ namespace MiNET.Net
 			return skin;
 		}
 
+		const byte Shapeless = 0;
+		const byte Shaped = 1;
+		const byte Furnace = 2;
+		const byte FurnaceData = 3;
+		const byte Multi = 4;
+		const byte ShulkerBox = 5;
+
 		public void Write(Recipes recipes)
 		{
 			WriteUnsignedVarInt((uint) recipes.Count);
@@ -1188,9 +1195,8 @@ namespace MiNET.Net
 					break;
 				}
 
-				if (recipeType == 0)
+				if (recipeType == Shapeless || recipeType == ShulkerBox)
 				{
-					//const ENTRY_SHAPELESS = 0;
 					ShapelessRecipe recipe = new ShapelessRecipe();
 					int ingrediensCount = ReadVarInt(); // 
 					for (int j = 0; j < ingrediensCount; j++)
@@ -1203,9 +1209,8 @@ namespace MiNET.Net
 					recipes.Add(recipe);
 					//Log.Error("Read shapeless recipe");
 				}
-				else if (recipeType == 1)
+				else if (recipeType == Shaped)
 				{
-					//const ENTRY_SHAPED = 1;
 					int width = ReadSignedVarInt(); // Width
 					int height = ReadSignedVarInt(); // Height
 					ShapedRecipe recipe = new ShapedRecipe(width, height);
@@ -1227,9 +1232,8 @@ namespace MiNET.Net
 					recipes.Add(recipe);
 					//Log.Error("Read shaped recipe");
 				}
-				else if (recipeType == 2)
+				else if (recipeType == Furnace)
 				{
-					//const ENTRY_FURNACE = 2;
 					SmeltingRecipe recipe = new SmeltingRecipe();
 					//short meta = (short) ReadVarInt(); // input (with metadata) 
 					short id = (short) ReadSignedVarInt(); // input (with metadata) 
@@ -1240,7 +1244,7 @@ namespace MiNET.Net
 					//Log.Error("Read furnace recipe");
 					//Log.Error($"Input={id}, meta={""} Item={result.Id}, Meta={result.Metadata}");
 				}
-				else if (recipeType == 3)
+				else if (recipeType == FurnaceData)
 				{
 					//const ENTRY_FURNACE_DATA = 3;
 					SmeltingRecipe recipe = new SmeltingRecipe();
@@ -1253,10 +1257,9 @@ namespace MiNET.Net
 					//Log.Error("Read smelting recipe");
 					//Log.Error($"Input={id}, meta={meta} Item={result.Id}, Meta={result.Metadata}");
 				}
-				else if (recipeType == 4)
+				else if (recipeType == Multi)
 				{
-					//const ENTRY_ENCHANT_LIST = 4;
-					Log.Error("Reading ENCHANT_LIST");
+					Log.Error("Reading MULTI");
 
 					ReadUUID();
 				}

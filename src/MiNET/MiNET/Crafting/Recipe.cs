@@ -296,72 +296,7 @@ namespace MiNET.Crafting
 						new Item(280, 0),
 						new Item(288, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 0, 8),
-					new Item[]
-					{
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(441, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-					}),
-				new ShapedRecipe(3, 3, new Item(262, 1, 8),
-					new Item[]
-					{
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(441, 1),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-					}),
-				new ShapedRecipe(3, 3, new Item(262, 2, 8),
-					new Item[]
-					{
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(441, 2),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-					}),
-				new ShapedRecipe(3, 3, new Item(262, 3, 8),
-					new Item[]
-					{
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(441, 3),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-					}),
-				new ShapedRecipe(3, 3, new Item(262, 4, 8),
-					new Item[]
-					{
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(441, 4),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-						new Item(262, 0),
-					}),
-				new ShapedRecipe(3, 3, new Item(262, 5, 8),
+				new ShapedRecipe(3, 3, new Item(262, 6, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -374,7 +309,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 6, 8),
+				new ShapedRecipe(3, 3, new Item(262, 7, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -387,7 +322,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 7, 8),
+				new ShapedRecipe(3, 3, new Item(262, 8, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -400,7 +335,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 8, 8),
+				new ShapedRecipe(3, 3, new Item(262, 9, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -413,7 +348,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 9, 8),
+				new ShapedRecipe(3, 3, new Item(262, 10, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -426,7 +361,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 10, 8),
+				new ShapedRecipe(3, 3, new Item(262, 11, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -439,7 +374,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 11, 8),
+				new ShapedRecipe(3, 3, new Item(262, 12, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -452,7 +387,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 12, 8),
+				new ShapedRecipe(3, 3, new Item(262, 13, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -465,7 +400,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 13, 8),
+				new ShapedRecipe(3, 3, new Item(262, 14, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -478,7 +413,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 14, 8),
+				new ShapedRecipe(3, 3, new Item(262, 15, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -491,7 +426,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 15, 8),
+				new ShapedRecipe(3, 3, new Item(262, 16, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -504,7 +439,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 16, 8),
+				new ShapedRecipe(3, 3, new Item(262, 17, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -517,7 +452,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 17, 8),
+				new ShapedRecipe(3, 3, new Item(262, 18, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -530,7 +465,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 18, 8),
+				new ShapedRecipe(3, 3, new Item(262, 19, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -543,7 +478,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 19, 8),
+				new ShapedRecipe(3, 3, new Item(262, 20, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -556,7 +491,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 20, 8),
+				new ShapedRecipe(3, 3, new Item(262, 21, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -569,7 +504,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 21, 8),
+				new ShapedRecipe(3, 3, new Item(262, 22, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -582,7 +517,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 22, 8),
+				new ShapedRecipe(3, 3, new Item(262, 23, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -595,7 +530,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 23, 8),
+				new ShapedRecipe(3, 3, new Item(262, 24, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -608,7 +543,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 24, 8),
+				new ShapedRecipe(3, 3, new Item(262, 25, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -621,7 +556,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 25, 8),
+				new ShapedRecipe(3, 3, new Item(262, 26, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -634,7 +569,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 26, 8),
+				new ShapedRecipe(3, 3, new Item(262, 27, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -647,7 +582,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 27, 8),
+				new ShapedRecipe(3, 3, new Item(262, 28, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -660,7 +595,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 28, 8),
+				new ShapedRecipe(3, 3, new Item(262, 29, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -673,7 +608,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 29, 8),
+				new ShapedRecipe(3, 3, new Item(262, 30, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -686,7 +621,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 30, 8),
+				new ShapedRecipe(3, 3, new Item(262, 31, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -699,7 +634,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 31, 8),
+				new ShapedRecipe(3, 3, new Item(262, 32, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -712,7 +647,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 32, 8),
+				new ShapedRecipe(3, 3, new Item(262, 33, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -725,7 +660,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 33, 8),
+				new ShapedRecipe(3, 3, new Item(262, 34, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -738,7 +673,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 34, 8),
+				new ShapedRecipe(3, 3, new Item(262, 35, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -751,7 +686,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 35, 8),
+				new ShapedRecipe(3, 3, new Item(262, 36, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -764,7 +699,7 @@ namespace MiNET.Crafting
 						new Item(262, 0),
 						new Item(262, 0),
 					}),
-				new ShapedRecipe(3, 3, new Item(262, 36, 8),
+				new ShapedRecipe(3, 3, new Item(262, 37, 8),
 					new Item[]
 					{
 						new Item(262, 0),
@@ -939,6 +874,24 @@ namespace MiNET.Crafting
 					{
 						new Item(266, 0),
 					}),
+				new ShapedRecipe(3, 3, new Item(265, 0, 1),
+					new Item[]
+					{
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+						new Item(452, 0),
+					}),
+				new ShapedRecipe(1, 1, new Item(452, 0, 9),
+					new Item[]
+					{
+						new Item(265, 0),
+					}),
 				new ShapelessRecipe(new Item(282, 0, 1),
 					new List<Item>
 					{
@@ -978,6 +931,11 @@ namespace MiNET.Crafting
 						new Item(360, 0),
 						new Item(360, 0),
 						new Item(360, 0),
+					}),
+				new ShapedRecipe(1, 1, new Item(360, 0, 9),
+					new Item[]
+					{
+						new Item(103, -1),
 					}),
 				new ShapedRecipe(1, 1, new Item(362, 0, 1),
 					new Item[]
@@ -1215,15 +1173,15 @@ namespace MiNET.Crafting
 				new ShapedRecipe(3, 3, new Item(138, 0, 1),
 					new Item[]
 					{
-						new Item(20, 0),
-						new Item(20, 0),
-						new Item(49, 0),
-						new Item(20, 0),
+						new Item(20, -1),
+						new Item(20, -1),
+						new Item(49, -1),
+						new Item(20, -1),
 						new Item(399, 0),
-						new Item(49, 0),
-						new Item(20, 0),
-						new Item(20, 0),
-						new Item(49, 0),
+						new Item(49, -1),
+						new Item(20, -1),
+						new Item(20, -1),
+						new Item(49, -1),
 					}),
 				new ShapedRecipe(3, 3, new Item(130, 0, 1),
 					new Item[]
@@ -1237,6 +1195,317 @@ namespace MiNET.Crafting
 						new Item(49, -1),
 						new Item(49, -1),
 						new Item(49, -1),
+					}),
+				new ShapedRecipe(1, 3, new Item(218, 10, 1),
+					new Item[]
+					{
+						new Item(445, 0),
+						new Item(54, -1),
+						new Item(445, 0),
+					}),
+				new ShapelessRecipe(new Item(218, 15, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 0, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 14, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 1, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 13, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 2, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 12, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 3, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 11, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 4, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 10, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 5, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 9, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 6, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 8, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 7, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 7, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 8, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 6, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 9, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 5, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 10, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 4, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 11, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 3, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 12, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 2, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 13, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 1, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 14, 1),
+					}),
+				new ShapelessRecipe(new Item(218, 0, 1),
+					new List<Item>
+					{
+						new Item(218, -1, 1),
+						new Item(351, 15, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 0, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 15, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 1, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 14, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 2, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 13, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 3, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 12, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 4, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 11, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 5, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 10, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 6, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 9, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 7, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 8, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 8, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 7, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 9, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 6, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 10, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 5, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 11, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 4, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 12, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 3, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 13, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 2, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 14, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 1, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+					}),
+				new ShapelessRecipe(new Item(237, 15, 8),
+					new List<Item>
+					{
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(351, 0, 0),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
+						new Item(12, -1, 1),
+						new Item(13, -1, 1),
 					}),
 				new ShapedRecipe(3, 2, new Item(298, 0, 1),
 					new Item[]
@@ -2492,7 +2761,7 @@ namespace MiNET.Crafting
 						new Item(5, 0),
 						new Item(5, 0),
 						new Item(5, 0),
-						new Item(269, 0),
+						new Item(269, -1),
 						new Item(5, 0),
 						new Item(5, 0),
 					}),
@@ -2502,7 +2771,7 @@ namespace MiNET.Crafting
 						new Item(5, 1),
 						new Item(5, 1),
 						new Item(5, 1),
-						new Item(269, 0),
+						new Item(269, -1),
 						new Item(5, 1),
 						new Item(5, 1),
 					}),
@@ -2512,7 +2781,7 @@ namespace MiNET.Crafting
 						new Item(5, 2),
 						new Item(5, 2),
 						new Item(5, 2),
-						new Item(269, 0),
+						new Item(269, -1),
 						new Item(5, 2),
 						new Item(5, 2),
 					}),
@@ -2522,7 +2791,7 @@ namespace MiNET.Crafting
 						new Item(5, 3),
 						new Item(5, 3),
 						new Item(5, 3),
-						new Item(269, 0),
+						new Item(269, -1),
 						new Item(5, 3),
 						new Item(5, 3),
 					}),
@@ -2532,7 +2801,7 @@ namespace MiNET.Crafting
 						new Item(5, 4),
 						new Item(5, 4),
 						new Item(5, 4),
-						new Item(269, 0),
+						new Item(269, -1),
 						new Item(5, 4),
 						new Item(5, 4),
 					}),
@@ -2542,7 +2811,7 @@ namespace MiNET.Crafting
 						new Item(5, 5),
 						new Item(5, 5),
 						new Item(5, 5),
-						new Item(269, 0),
+						new Item(269, -1),
 						new Item(5, 5),
 						new Item(5, 5),
 					}),
@@ -2926,7 +3195,7 @@ namespace MiNET.Crafting
 						new Item(4, -1),
 						new Item(4, -1),
 						new Item(4, -1),
-						new Item(261, 0),
+						new Item(261, -1),
 						new Item(331, 0),
 						new Item(4, -1),
 						new Item(4, -1),
@@ -2993,12 +3262,258 @@ namespace MiNET.Crafting
 				new ShapedRecipe(3, 2, new Item(355, 0, 1),
 					new Item[]
 					{
-						new Item(35, -1),
-						new Item(35, -1),
+						new Item(35, 0),
+						new Item(35, 0),
 						new Item(5, -1),
-						new Item(35, -1),
+						new Item(35, 0),
 						new Item(5, -1),
 						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 0, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 15, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 1, 1),
+					new Item[]
+					{
+						new Item(35, 1),
+						new Item(35, 1),
+						new Item(5, -1),
+						new Item(35, 1),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 1, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 14, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 2, 1),
+					new Item[]
+					{
+						new Item(35, 2),
+						new Item(35, 2),
+						new Item(5, -1),
+						new Item(35, 2),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 2, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 13, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 3, 1),
+					new Item[]
+					{
+						new Item(35, 3),
+						new Item(35, 3),
+						new Item(5, -1),
+						new Item(35, 3),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 3, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 12, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 4, 1),
+					new Item[]
+					{
+						new Item(35, 4),
+						new Item(35, 4),
+						new Item(5, -1),
+						new Item(35, 4),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 4, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 11, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 5, 1),
+					new Item[]
+					{
+						new Item(35, 5),
+						new Item(35, 5),
+						new Item(5, -1),
+						new Item(35, 5),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 5, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 10, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 6, 1),
+					new Item[]
+					{
+						new Item(35, 6),
+						new Item(35, 6),
+						new Item(5, -1),
+						new Item(35, 6),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 6, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 9, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 7, 1),
+					new Item[]
+					{
+						new Item(35, 7),
+						new Item(35, 7),
+						new Item(5, -1),
+						new Item(35, 7),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 7, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 8, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 8, 1),
+					new Item[]
+					{
+						new Item(35, 8),
+						new Item(35, 8),
+						new Item(5, -1),
+						new Item(35, 8),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 8, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 7, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 9, 1),
+					new Item[]
+					{
+						new Item(35, 9),
+						new Item(35, 9),
+						new Item(5, -1),
+						new Item(35, 9),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 9, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 6, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 10, 1),
+					new Item[]
+					{
+						new Item(35, 10),
+						new Item(35, 10),
+						new Item(5, -1),
+						new Item(35, 10),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 10, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 5, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 11, 1),
+					new Item[]
+					{
+						new Item(35, 11),
+						new Item(35, 11),
+						new Item(5, -1),
+						new Item(35, 11),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 11, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 4, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 12, 1),
+					new Item[]
+					{
+						new Item(35, 12),
+						new Item(35, 12),
+						new Item(5, -1),
+						new Item(35, 12),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 12, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 3, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 13, 1),
+					new Item[]
+					{
+						new Item(35, 13),
+						new Item(35, 13),
+						new Item(5, -1),
+						new Item(35, 13),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 13, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 2, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 14, 1),
+					new Item[]
+					{
+						new Item(35, 14),
+						new Item(35, 14),
+						new Item(5, -1),
+						new Item(35, 14),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 14, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 1, 1),
+					}),
+				new ShapedRecipe(3, 2, new Item(355, 15, 1),
+					new Item[]
+					{
+						new Item(35, 15),
+						new Item(35, 15),
+						new Item(5, -1),
+						new Item(35, 15),
+						new Item(5, -1),
+						new Item(5, -1),
+					}),
+				new ShapelessRecipe(new Item(355, 15, 1),
+					new List<Item>
+					{
+						new Item(355, -1, 1),
+						new Item(351, 0, 1),
 					}),
 				new ShapedRecipe(3, 3, new Item(116, 0, 1),
 					new Item[]
@@ -3455,6 +3970,11 @@ namespace MiNET.Crafting
 						new Item(409, 0),
 						new Item(409, 0),
 					}),
+				new ShapedRecipe(1, 1, new Item(287, 0, 9),
+					new Item[]
+					{
+						new Item(30, -1),
+					}),
 				new ShapedRecipe(3, 3, new Item(168, 1, 1),
 					new Item[]
 					{
@@ -3496,6 +4016,28 @@ namespace MiNET.Crafting
 				new SmeltingRecipe(new Item(388, 0, 1), new Item(129, 0)),
 				new SmeltingRecipe(new Item(406, 0, 1), new Item(153, 0)),
 				new SmeltingRecipe(new Item(263, 1, 1), new Item(162, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(256, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(257, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(258, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(267, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(283, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(284, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(285, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(286, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(292, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(294, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(302, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(303, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(304, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(305, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(306, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(307, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(308, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(309, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(314, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(315, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(316, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(317, 0)),
 				new SmeltingRecipe(new Item(320, 0, 1), new Item(319, 0)),
 				new SmeltingRecipe(new Item(336, 0, 1), new Item(337, 0)),
 				new SmeltingRecipe(new Item(350, 0, 1), new Item(349, 0)),
@@ -3503,11 +4045,29 @@ namespace MiNET.Crafting
 				new SmeltingRecipe(new Item(366, 0, 1), new Item(365, 0)),
 				new SmeltingRecipe(new Item(393, 0, 1), new Item(392, 0)),
 				new SmeltingRecipe(new Item(412, 0, 1), new Item(411, 0)),
+				new SmeltingRecipe(new Item(452, 0, 1), new Item(417, 0)),
+				new SmeltingRecipe(new Item(371, 0, 1), new Item(418, 0)),
 				new SmeltingRecipe(new Item(424, 0, 1), new Item(423, 0)),
 				new SmeltingRecipe(new Item(433, 0, 1), new Item(432, 0)),
 				new SmeltingRecipe(new Item(463, 0, 1), new Item(460, 0)),
 				new SmeltingRecipe(new Item(19, 0, 1), new Item(19, 1)),
 				new SmeltingRecipe(new Item(98, 2, 1), new Item(98, 0)),
+				new SmeltingRecipe(new Item(220, 0, 1), new Item(159, 0)),
+				new SmeltingRecipe(new Item(221, 0, 1), new Item(159, 1)),
+				new SmeltingRecipe(new Item(222, 0, 1), new Item(159, 2)),
+				new SmeltingRecipe(new Item(223, 0, 1), new Item(159, 3)),
+				new SmeltingRecipe(new Item(224, 0, 1), new Item(159, 4)),
+				new SmeltingRecipe(new Item(225, 0, 1), new Item(159, 5)),
+				new SmeltingRecipe(new Item(226, 0, 1), new Item(159, 6)),
+				new SmeltingRecipe(new Item(227, 0, 1), new Item(159, 7)),
+				new SmeltingRecipe(new Item(228, 0, 1), new Item(159, 8)),
+				new SmeltingRecipe(new Item(229, 0, 1), new Item(159, 9)),
+				new SmeltingRecipe(new Item(219, 0, 1), new Item(159, 10)),
+				new SmeltingRecipe(new Item(231, 0, 1), new Item(159, 11)),
+				new SmeltingRecipe(new Item(232, 0, 1), new Item(159, 12)),
+				new SmeltingRecipe(new Item(233, 0, 1), new Item(159, 13)),
+				new SmeltingRecipe(new Item(234, 0, 1), new Item(159, 14)),
+				new SmeltingRecipe(new Item(235, 0, 1), new Item(159, 15)),
 			};
 		}
 

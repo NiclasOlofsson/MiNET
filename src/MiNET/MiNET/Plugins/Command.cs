@@ -32,6 +32,9 @@ namespace MiNET.Plugins
 		[JsonProperty(propertyName: "requires_edu")]
 		public bool RequiresEdu { get; set; }
 
+		[JsonProperty(propertyName: "allows_indirect_exec")]
+		public bool AllowsIndirectExec { get; set; }
+
 		[JsonProperty(propertyName: "is_hidden")]
 		public bool IsHidden { get; set; }
 

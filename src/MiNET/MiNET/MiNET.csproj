@@ -343,6 +343,7 @@
     <Compile Include="Entities\Behaviors\StrollBehavior.cs" />
     <Compile Include="Entities\Behaviors\TemptedBehavior.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />
+    <Compile Include="Entities\Hologram.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
     <Compile Include="Entities\Hostile\ElderGuardian.cs" />
     <Compile Include="Entities\Hostile\Guardian.cs" />

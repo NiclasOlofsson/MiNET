@@ -366,14 +366,14 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void SpawnHologram(Player player, byte id)
+		public void SpawnHologram(Player player, string text)
 		{
 			Level level = player.Level;
 
-			Mob entity = new Mob(id, level)
+			var entity = new Hologram(level)
 			{
 				KnownPosition = player.KnownPosition,
-				//Data = -(blockId | 0 << 0x10)
+				NameTag = text
 			};
 			entity.SpawnEntity();
 		}

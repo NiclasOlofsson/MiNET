@@ -87,6 +87,7 @@
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
     <Compile Include="BlockEntities\EnchantingTableBlockEntity.cs" />
+    <Compile Include="BlockEntities\FlowerPotBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\ItemFrameBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />

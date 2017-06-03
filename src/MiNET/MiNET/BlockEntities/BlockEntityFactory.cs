@@ -12,6 +12,7 @@
 			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
 			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
 			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
+            else if (blockEntityId == "FlowerPot") blockEntity = new FlowerPotBlockEntity();
 
 			return blockEntity;
 		}

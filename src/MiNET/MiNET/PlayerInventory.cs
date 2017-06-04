@@ -31,7 +31,7 @@ namespace MiNET
 		{
 			Player = player;
 
-			int idx = 1;
+			//int idx = 1;
 			Slots = Enumerable.Repeat((Item) new ItemAir(), InventorySize).ToList();
 			//Slots[idx++] = new ItemCompass(); // test with y=-1
 			//Slots[idx++] = new ItemSpawnEgg(EntityType.Wither);

@@ -913,9 +913,12 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Metadata);
-
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
-			if (block.LightLevel > 0)
+			Log.Debug($"Set block {block.Coordinates}");
+			chunk.RecalcHeight();
+			new SkyLightCalculations(true).CalculateSkyLights(this, new[] {chunk});
+			//CalculateSkyLight(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
+			if (calculateLight && block.LightLevel > 0)
 			{
 				block.BlockLight = (byte) block.LightLevel;
 				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
@@ -929,6 +932,26 @@ namespace MiNET.Worlds
 			message.coordinates = block.Coordinates;
 			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 			RelayBroadcast(message);
+		}
+
+		private void CalculateSkyLight(int x, int y, int z)
+		{
+			DoLight(x, y, z);
+			DoLight(x - 1, y, z);
+			DoLight(x + 1, y, z);
+			DoLight(x, y, z - 1);
+			DoLight(x, y, z + 1);
+			DoLight(x - 1, y, z - 1);
+			DoLight(x - 1, y, z + 1);
+			DoLight(x + 1, y, z - 1);
+			DoLight(x + 1, y, z + 1);
+		}
+
+		private void DoLight(int x, int y, int z)
+		{
+			Block block = GetBlock(x, y, z);
+			//if (block is Air) return;
+			new SkyLightCalculations().Calculate(this, block);
 		}
 
 		public void SetBlockLight(Block block)

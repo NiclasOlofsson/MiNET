@@ -1,5 +1,31 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.CodeDom.Compiler;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -53,8 +79,10 @@ namespace MiNET.Client
 		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
+
 		//private long _clientGuid = new Random().Next();
 		private long _clientGuid = 1111111;
+
 		private Timer _connectedPingTimer;
 		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
@@ -162,12 +190,12 @@ namespace MiNET.Client
 				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180+45, 180+45, 180)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
 				.ContinueWith(t => doSendCommand(t, "/test"))
-				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) { Count = 1 }, new BlockCoordinates(22, 4, 42)))
+				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(22, 4, 42)))
 				.ContinueWith(t => Task.Delay(5000).Wait())
-				.ContinueWith(t => doSetSlot(t, 2, new ItemIronSword() { Count = 1 }, 0))
+				.ContinueWith(t => doSetSlot(t, 2, new ItemIronSword() {Count = 1}, 0))
 				.ContinueWith(t => doSetSlot(t, 2, ItemFactory.GetItem(351, 4, 64), 1))
 				//.ContinueWith(t =>
 				//{
@@ -784,15 +812,15 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof(McpeResourcePackDataInfo) == message.GetType())
+			else if (typeof (McpeResourcePackDataInfo) == message.GetType())
 			{
-				OnMcpeResourcePackDataInfo((McpeResourcePackDataInfo)message);
+				OnMcpeResourcePackDataInfo((McpeResourcePackDataInfo) message);
 				return;
 			}
 
-			else if (typeof(McpeResourcePackChunkData) == message.GetType())
+			else if (typeof (McpeResourcePackChunkData) == message.GetType())
 			{
-				OnMcpeResourcePackChunkData((McpeResourcePackChunkData)message);
+				OnMcpeResourcePackChunkData((McpeResourcePackChunkData) message);
 				return;
 			}
 
@@ -1021,14 +1049,14 @@ namespace MiNET.Client
 				OnMcpeAnimate((McpeAnimate) message);
 			}
 
-			else if (typeof(McpeMapInfoRequest) == message.GetType())
+			else if (typeof (McpeMapInfoRequest) == message.GetType())
 			{
-				OnMcpeMapInfoRequest((McpeMapInfoRequest)message);
+				OnMcpeMapInfoRequest((McpeMapInfoRequest) message);
 			}
 
-			else if (typeof(McpeClientboundMapItemData) == message.GetType())
+			else if (typeof (McpeClientboundMapItemData) == message.GetType())
 			{
-				OnMcpeClientboundMapItemData((McpeClientboundMapItemData)message);
+				OnMcpeClientboundMapItemData((McpeClientboundMapItemData) message);
 			}
 
 			else if (typeof (McpeInteract) == message.GetType())
@@ -1045,9 +1073,9 @@ namespace MiNET.Client
 			{
 				OnMcpeAvailableCommands((McpeAvailableCommands) message);
 			}
-			else if (typeof(McpeCommandStep) == message.GetType())
+			else if (typeof (McpeCommandStep) == message.GetType())
 			{
-				OnMcpeCommandStep((McpeCommandStep)message);
+				OnMcpeCommandStep((McpeCommandStep) message);
 			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
@@ -1184,7 +1212,6 @@ namespace MiNET.Client
 				response.responseStatus = 4;
 				SendPackage(response);
 			}
-
 		}
 
 		private void OnMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
@@ -1281,7 +1308,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = 113,
+				protocolVersion = 111,
 				edition = 0,
 				payload = data
 			};
@@ -1824,7 +1851,7 @@ Adventure settings
 		{
 			McpeLevelEvent msg = (McpeLevelEvent) message;
 			int data = msg.data;
-			if(msg.eventId == 2001)
+			if (msg.eventId == 2001)
 			{
 				int blockId = data & 0xff;
 				int metadata = data >> 12;
@@ -1915,7 +1942,7 @@ Adventure settings
 						sb.Append($"{e.GetType().Name}({e.Value});");
 						if (idx == 0)
 						{
-							sb.Append($" // {Convert.ToString((long) e.Value, 2)}");
+							sb.Append($" // {Convert.ToString((long) e.Value, 2)}; {FlagsToString(e.Value)}");
 						}
 						break;
 					}
@@ -1930,6 +1957,23 @@ Adventure settings
 			}
 
 			return sb.ToString();
+		}
+
+		private static string FlagsToString(long input)
+		{
+			BitArray bits = new BitArray(BitConverter.GetBytes(input));
+
+			byte[] bytes = new byte[8];
+			bits.CopyTo(bytes, 0);
+
+			List<Entity.DataFlags> flags = new List<Entity.DataFlags>();
+			foreach (var val in Enum.GetValues(typeof (Entity.DataFlags)))
+			{
+				if (bits[(int) val]) flags.Add((Entity.DataFlags) val);
+			}
+
+			StringBuilder sb = new StringBuilder();
+			return sb.Append(string.Join(", ", flags)).ToString();
 		}
 
 		private void OnMcpeAddPlayer(Package message)
@@ -1972,7 +2016,7 @@ Adventure settings
 			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", message.runtimeEntityId);
 			Log.DebugFormat("Entity Type: {0} - 0x{0:x2}", message.entityType);
 			Log.DebugFormat("Entity Family: {0} - 0x{0:x2}", typeBytes[1]);
-			Log.DebugFormat("Entity Type ID: {0} - 0x{0:x2} {1}", typeBytes[0], (EntityType)typeBytes[0]);
+			Log.DebugFormat("Entity Type ID: {0} - 0x{0:x2} {1}", typeBytes[0], (EntityType) typeBytes[0]);
 			Log.DebugFormat("X: {0}", message.x);
 			Log.DebugFormat("Y: {0}", message.y);
 			Log.DebugFormat("Z: {0}", message.z);
@@ -2153,8 +2197,8 @@ StartGame:
 			using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
 			{
 				// Get actual package out of bytes
-				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream()) {
-
+				using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
+				{
 					defStream2.CopyTo(destination);
 					destination.Position = 0;
 					byte[] internalBuffer = null;

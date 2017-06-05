@@ -134,7 +134,7 @@ namespace MiNET.Worlds
 			//}
 		}
 
-		private int CalculateSkyLights(Level level, ChunkColumn[] chunks)
+		public int CalculateSkyLights(Level level, ChunkColumn[] chunks)
 		{
 			int calcCount = 0;
 			Stopwatch calcTime = new Stopwatch();
@@ -154,13 +154,13 @@ namespace MiNET.Worlds
 
 					var elapsedMilliseconds = calcTime.ElapsedMilliseconds;
 					var c = Visits.Sum(pair => pair.Value);
-					if (elapsedMilliseconds > 0) Log.Debug($"Recalc skylight for #{calcCount} (air={chunk.isAllAir}) chunks. Time {elapsedMilliseconds}ms and {c - lastCount} visits");
+					if (elapsedMilliseconds > 0) Log.Debug($"Recalc skylight chunk {chunk.x}, {chunk.z}, count #{calcCount} (air={chunk.isAllAir}) chunks. Time {elapsedMilliseconds}ms and {c - lastCount} visits");
 					lastCount = c;
 					//PrintVisits();
 				}
 			}
 
-			Log.Debug($"Recalc skylight for #{calcCount} chunk.");
+			Log.Debug($"Recalc skylight for #{calcCount} chunk. Made {lastCount} visits.");
 
 			return calcCount;
 		}
@@ -200,7 +200,7 @@ namespace MiNET.Worlds
 			return true;
 		}
 
-		private void Calculate(Level level, Block block)
+		public void Calculate(Level level, Block block)
 		{
 			try
 			{

@@ -672,11 +672,11 @@ namespace MiNET
 				//if (package == null) return;
 			}
 
-			Server.SendPackage(this, package);
-			//lock (_queueSync)
-			//{
-			//	_sendQueueNotConcurrent.Enqueue(package);
-			//}
+			//Server.SendPackage(this, package);
+			lock (_queueSync)
+			{
+				_sendQueueNotConcurrent.Enqueue(package);
+			}
 		}
 
 		private int i = 0;

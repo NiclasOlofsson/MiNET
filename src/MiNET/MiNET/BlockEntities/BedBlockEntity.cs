@@ -49,5 +49,12 @@ namespace MiNET.BlockEntities
 
 			return compound;
 		}
+
+		public override void SetCompound(NbtCompound compound)
+		{
+			NbtByte color;
+			compound.TryGet("color", out color);
+			Color = color.ByteValue;
+		}
 	}
 }

@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +35,7 @@ using AStarNavigator;
 using AStarNavigator.Algorithms;
 using AStarNavigator.Providers;
 using fNbt;
+using MiNET.Entities;
 using MiNET.Net;
 using MiNET.Utils;
 using NUnit.Framework;
@@ -97,7 +123,6 @@ namespace MiNET
 		[Test]
 		public void TestCustomVarInt()
 		{
-
 			{
 				var stream = new MemoryStream();
 				var bytes = GetBytes("ff ff ff ff 0f");
@@ -468,6 +493,36 @@ namespace MiNET
 				hex.AppendFormat("0x{0:x2},", b);
 			hex.Append("}");
 			return hex.ToString();
+		}
+
+		[Test, Ignore]
+		public void FlagToStringTest()
+		{
+			long value = new MetadataLong(8590508032).Value; // 1000000000000010001100000000000000
+
+			BitArray bits = new BitArray(BitConverter.GetBytes(value));
+
+			byte[] bytes = new byte[8];
+			bits.CopyTo(bytes, 0);
+
+			long dataValue = BitConverter.ToInt64(bytes, 0);
+
+			Assert.AreEqual(value, dataValue);
+
+			Assert.IsTrue(bits[14]);
+			Assert.IsTrue(bits[15]);
+
+			List<Entity.DataFlags> flags = new List<Entity.DataFlags>();
+			foreach (var val in Enum.GetValues(typeof (Entity.DataFlags)))
+			{
+				if (bits[(int) val]) flags.Add((Entity.DataFlags) val);
+			}
+
+			Assert.AreEqual(4, flags.Count);
+
+			StringBuilder sb = new StringBuilder();
+			sb.Append(string.Join(", ", flags));
+			Assert.AreEqual("", sb.ToString());
 		}
 	}
 }

@@ -468,7 +468,7 @@ namespace MiNET
 			SendPackage(mcpeAdventureSettings);
 		}
 
-		public UserPermission PermissionLevel { get; set; } = UserPermission.Any;
+		public UserPermission PermissionLevel { get; set; } = UserPermission.Admin;
 
 		public bool IsAdventure { get; set; }
 
@@ -1741,7 +1741,7 @@ namespace MiNET
 			//mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative || EnableCommands;
 			mcpeStartGame.hasAchievementsDisabled = true;
 			mcpeStartGame.dayCycleStopTime = (int) Level.CurrentWorldTime;
-			mcpeStartGame.eduMode = false;
+			mcpeStartGame.eduMode = true;
 			mcpeStartGame.rainLevel = 0;
 			mcpeStartGame.lightnigLevel = 0;
 			mcpeStartGame.enableCommands = EnableCommands;

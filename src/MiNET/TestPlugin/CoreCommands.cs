@@ -35,7 +35,7 @@ namespace TestPlugin
 		protected override void OnEnable()
 		{
 			Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
-			//Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
+			Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
 		}
 
 		//[PacketHandler, Receive, UsedImplicitly]
@@ -366,15 +366,23 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void SpawnHologram(Player player, string text)
+		public void Permission(Player player, int permission)
+		{
+			player.PermissionLevel = (UserPermission) permission;
+			player.SendAdventureSettings();
+		}
+
+
+		[Command]
+		public void Spawn(Player player, int entityId)
 		{
 			Level level = player.Level;
 
-			var entity = new Hologram(level)
+			var entity = new Entity(entityId, level)
 			{
 				KnownPosition = player.KnownPosition,
-				NameTag = text
 			};
+
 			entity.SpawnEntity();
 		}
 

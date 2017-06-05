@@ -166,9 +166,9 @@ namespace MiNET.Entities
 			Silent,
 			WallClimbing,
 
-			Unk1,
-			Unk2,
-			Unk3,
+			CanClimb,
+			CanSwim,
+			CanFly,
 
 			Resting,
 			Sitting,

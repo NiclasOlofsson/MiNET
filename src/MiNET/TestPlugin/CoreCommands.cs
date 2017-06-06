@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -51,6 +76,25 @@ namespace TestPlugin
 		//    Log.Warn($"Sent packet: {packet.GetType().Name}");
 		//    return packet;
 		//}
+
+		[Command]
+		public void SpawnAgent(Player player, string text)
+		{
+			Agent agent = new Agent(player.Level);
+			agent.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
+			agent.Owner = player;
+			agent.NameTag = text;
+			agent.SpawnEntity();
+		}
+
+		[Command]
+		public void SpawnNpc(Player player, string text)
+		{
+			Npc npc = new Npc(player.Level);
+			npc.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
+			npc.NameTag = text;
+			npc.SpawnEntity();
+		}
 
 		[Command]
 		public VanillaCommands.SimpleResponse Info(Player player)
@@ -245,7 +289,7 @@ namespace TestPlugin
 		}
 
 
-		[Command(Name = "tpw", Aliases = new[] { "teleport" }, Description = "Teleports player to default world.")]
+		[Command(Name = "tpw", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void TeleportWorld(Player player)
 		{
 			TeleportWorld(player, "Default");
@@ -253,7 +297,7 @@ namespace TestPlugin
 
 		private object _levelSync = new object();
 
-		[Command(Name = "tpw", Aliases = new[] { "teleport" }, Description = "Teleports player to given world. Creates world if not exist.")]
+		[Command(Name = "tpw", Aliases = new[] {"teleport"}, Description = "Teleports player to given world. Creates world if not exist.")]
 		public void TeleportWorld(Player player, string world)
 		{
 			Level oldLevel = player.Level;
@@ -269,7 +313,7 @@ namespace TestPlugin
 				Context.LevelManager.Levels.Add(player.Level);
 			}
 
-			ThreadPool.QueueUserWorkItem(delegate (object state)
+			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
 				LevelManager levelManager = state as LevelManager;
 				if (levelManager == null) return;
@@ -845,12 +889,18 @@ namespace TestPlugin
 			{
 				player.AddPopup(new Popup()
 				{
-					Priority = 100, MessageType = MessageType.Tip, Message = "SERVER WILL RESTART!", Duration = 20*10,
+					Priority = 100,
+					MessageType = MessageType.Tip,
+					Message = "SERVER WILL RESTART!",
+					Duration = 20*10,
 				});
 
 				player.AddPopup(new Popup()
 				{
-					Priority = 100, MessageType = MessageType.Popup, Message = "Transfering all players!", Duration = 20*10,
+					Priority = 100,
+					MessageType = MessageType.Popup,
+					Message = "Transfering all players!",
+					Duration = 20*10,
 				});
 			}
 
@@ -871,7 +921,8 @@ namespace TestPlugin
 			BlockCoordinates coor = new BlockCoordinates(player.KnownPosition);
 			Chest chest = new Chest
 			{
-				Coordinates = coor, Metadata = 0
+				Coordinates = coor,
+				Metadata = 0
 			};
 			player.Level.SetBlock(chest, true);
 

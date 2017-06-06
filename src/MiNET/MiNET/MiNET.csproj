@@ -342,6 +342,7 @@
     <Compile Include="Effects\WaterBreathing.cs" />
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
+    <Compile Include="Entities\Agent.cs" />
     <Compile Include="Entities\Behaviors\EatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\FindAttackableTargetBehavior.cs" />
     <Compile Include="Entities\Behaviors\FollowOwnerBehavior.cs" />
@@ -371,6 +372,7 @@
     <Compile Include="Entities\Hostile\SkeletonHorse.cs" />
     <Compile Include="Entities\Hostile\Stray.cs" />
     <Compile Include="Entities\Hostile\WitherSkeleton.cs" />
+    <Compile Include="Entities\Npc.cs" />
     <Compile Include="Entities\Passive\Horse.cs" />
     <Compile Include="Entities\Passive\PolarBear.cs" />
     <Compile Include="Entities\Projectiles\Arrow.cs" />

@@ -72,6 +72,7 @@
 		ZombieHorse = 27,
 		PolarBear = 28,
 
+		Agent = 56,
 		Npc = 51,
 
 		Player = 63

@@ -516,11 +516,12 @@ namespace MiNET
 			//response.sendpingtime = msg.sendpingtime;
 			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
 
+			if (Config.GetProperty("EnableEdu", false))
 			{
 				var packet = UnconnectedPong.CreateObject();
 				packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;
 				packet.pingId = incoming.pingId;
-				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint);
+				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint, true);
 				var data = packet.Encode();
 				packet.PutPool();
 
@@ -529,12 +530,11 @@ namespace MiNET
 				SendData(data, senderEndpoint);
 			}
 
-			if (Config.GetProperty("EnableEdu", false))
 			{
 				var packet = UnconnectedPong.CreateObject();
 				packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;
 				packet.pingId = incoming.pingId;
-				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint, true);
+				packet.serverName = MotdProvider.GetMotd(ServerInfo, senderEndpoint);
 				var data = packet.Encode();
 				packet.PutPool();
 

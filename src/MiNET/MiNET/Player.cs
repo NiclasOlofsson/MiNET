@@ -462,6 +462,10 @@ namespace MiNET
 
 			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x80; // No clip
 
+			flags |= 0x100; // Worldbuilder
+			//flags |= 0x200; // Flying
+			//flags |= 0x400; // Mute
+
 			mcpeAdventureSettings.flags = flags;
 			mcpeAdventureSettings.userPermission = (uint) PermissionLevel;
 

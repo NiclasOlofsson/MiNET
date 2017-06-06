@@ -71,12 +71,13 @@ namespace TestPlugin.NiceLobby
 			server.LevelManager.LevelCreated += (sender, args) =>
 			{
 				Level level = args.Level;
+
 				BossBar bossBar = new BossBar(level)
 				{
-					Animate = true,
+					Animate = false,
 					MaxProgress = 10,
 					Progress = 10,
-					NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} test server"
+					NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
 				};
 				bossBar.SpawnEntity();
 

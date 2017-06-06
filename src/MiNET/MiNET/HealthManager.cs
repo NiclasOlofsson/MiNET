@@ -274,7 +274,6 @@ namespace MiNET
 
 		public virtual void ResetHealth()
 		{
-			IsInvulnerable = false;
 			Health = MaxHealth;
 			Air = MaxAir;
 			IsOnFire = false;

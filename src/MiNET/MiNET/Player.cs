@@ -1741,7 +1741,7 @@ namespace MiNET
 			//mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative || EnableCommands;
 			mcpeStartGame.hasAchievementsDisabled = true;
 			mcpeStartGame.dayCycleStopTime = (int) Level.CurrentWorldTime;
-			mcpeStartGame.eduMode = true;
+			mcpeStartGame.eduMode = PlayerInfo.Edition == 1;
 			mcpeStartGame.rainLevel = 0;
 			mcpeStartGame.lightnigLevel = 0;
 			mcpeStartGame.enableCommands = EnableCommands;

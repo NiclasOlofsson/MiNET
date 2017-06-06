@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -46,6 +71,15 @@ namespace TestPlugin.NiceLobby
 			server.LevelManager.LevelCreated += (sender, args) =>
 			{
 				Level level = args.Level;
+				BossBar bossBar = new BossBar(level)
+				{
+					Animate = true,
+					MaxProgress = 10,
+					Progress = 10,
+					NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} test server"
+				};
+				bossBar.SpawnEntity();
+
 				//level.AllowBuild = false;
 				//level.AllowBreak = false;
 
@@ -623,7 +657,13 @@ namespace TestPlugin.NiceLobby
 
 			PlayerMob fake = new PlayerMob("§6§lBot: " + name + "", player.Level)
 			{
-				Skin = new Skin {Slim = false, Texture = bytes}, KnownPosition = player.KnownPosition, ItemInHand = new ItemDiamondSword(), Helmet = 302, Chest = 303, Leggings = 304, Boots = 305,
+				Skin = new Skin {Slim = false, Texture = bytes},
+				KnownPosition = player.KnownPosition,
+				ItemInHand = new ItemDiamondSword(),
+				Helmet = 302,
+				Chest = 303,
+				Leggings = 304,
+				Boots = 305,
 			};
 
 			fake.SpawnEntity();
@@ -650,7 +690,9 @@ namespace TestPlugin.NiceLobby
 
 			Mob entity = new Mob(mobType, level)
 			{
-				KnownPosition = player.KnownPosition, HealthManager = player.HealthManager, NameTag = player.NameTag,
+				KnownPosition = player.KnownPosition,
+				HealthManager = player.HealthManager,
+				NameTag = player.NameTag,
 			};
 			entity.SpawnEntity();
 
@@ -709,7 +751,12 @@ namespace TestPlugin.NiceLobby
 
 			var playerLocation = new PlayerLocation
 			{
-				X = x, Y = y, Z = z, Yaw = 91, Pitch = 28, HeadYaw = 91
+				X = x,
+				Y = y,
+				Z = z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91
 			};
 
 			ThreadPool.QueueUserWorkItem(delegate(object state) { player.SpawnLevel(player.Level, playerLocation); }, null);
@@ -897,7 +944,16 @@ namespace TestPlugin.NiceLobby
 		{
 			MapInfo mapInfo = new MapInfo
 			{
-				MapId = mapId, UpdateType = 2, Scale = 0, X = 0, Z = 0, Col = 128, Row = 128, XOffset = 0, ZOffset = 0, Data = bitmapToBytes,
+				MapId = mapId,
+				UpdateType = 2,
+				Scale = 0,
+				X = 0,
+				Z = 0,
+				Col = 128,
+				Row = 128,
+				XOffset = 0,
+				ZOffset = 0,
+				Data = bitmapToBytes,
 			};
 
 			McpeClientboundMapItemData packet = McpeClientboundMapItemData.CreateObject();

@@ -61,6 +61,7 @@ namespace MiNET
 			// attempts during startup (normally).
 
 			DecodeCert(message);
+			_playerInfo.Edition = message.edition;
 
 			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
 			//{

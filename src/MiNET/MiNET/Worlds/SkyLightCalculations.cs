@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -438,7 +463,7 @@ namespace MiNET.Worlds
 
 						using (Graphics g = Graphics.FromImage(bitmap))
 						{
-							g.DrawString($"MiNET skylight calculation\nTime (ms): {fileId - StartTimeInMilliseconds :N0}\n{_chunkCount :N0} chunks with {(_chunkCount*16*16*256) :N0} blocks\n{visits.Sum(pair => pair.Value):N0} visits", new Font("Arial", 8), new SolidBrush(Color.White), 1, 0); // requires font, brush etc
+							g.DrawString($"MiNET skylight calculation\nTime (ms): {fileId - StartTimeInMilliseconds:N0}\n{_chunkCount:N0} chunks with {(_chunkCount*16*16*256):N0} blocks\n{visits.Sum(pair => pair.Value):N0} visits", new Font("Arial", 8), new SolidBrush(Color.White), 1, 0); // requires font, brush etc
 						}
 
 						//Directory.CreateDirectory(@"D:\Temp\Light\");
@@ -456,7 +481,7 @@ namespace MiNET.Worlds
 						//	Log.Debug($"Visit {visit.Key} {visit.Value} times");
 						//}
 
-						Log.Debug($"Made a total of {visits.Sum(pair => pair.Value) :N0} visits");
+						Log.Debug($"Made a total of {visits.Sum(pair => pair.Value):N0} visits");
 						return bitmap;
 					}
 					catch (Exception e)
@@ -587,7 +612,7 @@ namespace MiNET.Worlds
 							imageData, // array with frame data
 							0, // starting index in the array
 							imageData.Length // length of the data
-							);
+						);
 					}
 				}
 
@@ -700,13 +725,16 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					for (byte y = 255; y > 0; y--)
-					{
-						if (chunk.GetSkylight(x, y, z) == 0)
-						{
-							chunk.SetBlock(x, y, z, 41);
-						}
-					}
+					var y = chunk.GetHeight(x, z);
+					chunk.SetBlock(x, y, z, 41);
+					//for (byte y = 255; y > 0; y--)
+					//{
+					//	if (chunk.GetSkylight(x, y, z) == 0)
+					//	{
+					//		chunk.SetBlock(x, y, z, 41);
+					//		break;
+					//	}
+					//}
 				}
 			}
 		}

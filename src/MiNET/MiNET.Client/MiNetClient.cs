@@ -1309,7 +1309,7 @@ namespace MiNET.Client
 			McpeLogin loginPacket = new McpeLogin
 			{
 				protocolVersion = 111,
-				edition = 0,
+				edition = (byte) (Config.GetProperty("EnableEdu", false)?1:0),
 				payload = data
 			};
 

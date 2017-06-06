@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -206,7 +231,7 @@ namespace MiNET.Utils
 
 			//val = "eyJhbGciOiJFUzM4NCIsIng1dSI6Ik1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFREVLck5xdk93Y25iV3I5aUtVQ0MyeklFRmZ6Q0VnUEhQdG5Kd3VEdnZ3VjVtd1E3QzNkWmhqd0g0amxWc2RDVTlNdVl2QllQRktCTEJkWU52K09ZeW1MTFJGTU9odVFuSDhuZFRRQVV6VjJXRTF4dHdlVG1wSVFzdXdmVzRIdzAifQo.eyJleHAiOjE0Njc1MDg0NDksImV4dHJhRGF0YSI6eyJkaXNwbGF5TmFtZSI6Imd1cnVueHgiLCJpZGVudGl0eSI6IjRlMDE5OWM2LTdjZmQtMzU1MC1iNjc2LTc0Mzk4ZTBhNWYxYSJ9LCJpZGVudGl0eVB1YmxpY0tleSI6Ik1IWXdFQVlIS29aSXpqMENBUVlGSzRFRUFDSURZZ0FFREVLck5xdk93Y25iV3I5aUtVQ0MyeklFRmZ6Q0VnUEhQdG5Kd3VEdnZ3VjVtd1E3QzNkWmhqd0g0amxWc2RDVTlNdVl2QllQRktCTEJkWU52K09ZeW1MTFJGTU9odVFuSDhuZFRRQVV6VjJXRTF4dHdlVG1wSVFzdXdmVzRIdzAiLCJuYmYiOjE0Njc1MDg0NDh9Cg.jpCqzTo8nNVEW8ArK1NFBaqLx6kyJV6wPF8cAU6UGav6cfMc60o3m5DjwspN-JcyC14AlcNiPdWX8TEm1QFhtScb-bXo4WOJ0dNYXV8iI_eCTCcXMFjX4vgIHpb9xfjv";
 			val = $@"{{ ""chain"": [""{val}""] }}";
-			
+
 			return Encoding.UTF8.GetBytes(val);
 		}
 
@@ -223,7 +248,8 @@ namespace MiNET.Utils
 
 			Skin skin = new Skin
 			{
-				Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192)),
+				Slim = false,
+				Texture = Encoding.Default.GetBytes(new string('Z', 8192)),
 				SkinType = "Standard_Custom"
 			};
 
@@ -249,23 +275,23 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
-	""AdRole"": 2,
+	""AdRole"": 0,
 	""ClientRandomId"": {new Random().Next()},
-	""CurrentInputMode"": 2,
-	""DefaultInputMode"": 2,
+	""CurrentInputMode"": 1,
+	""DefaultInputMode"": 1,
 	""DeviceModel"": ""MINET CLIENT"",
-	""DeviceOS"": 1,
+	""DeviceOS"": 7,
 	""GameVersion"": ""1.1.0.4"",
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
 	""SkinId"": ""{skin.SkinType}"",
-	""TenantId"": """",
-	""UIProfile"": 1
+	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
+	""UIProfile"": 0
 }}";
 
-			string val = JWT.Encode(skinData, tk, JwsAlgorithm.ES384, new Dictionary<string, object> { { "x5u", b64Key } });
+			string val = JWT.Encode(skinData, tk, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
 
 			return Encoding.UTF8.GetBytes(val);
 		}
@@ -294,6 +320,5 @@ namespace MiNET.Utils
 				return bytes;
 			}
 		}
-
 	}
 }

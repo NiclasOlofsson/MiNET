@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -242,15 +243,16 @@ namespace MiNET.Worlds
 					{
 						if (isInLight)
 						{
-							if (GetBlock(x, y, z) != 0)
+							byte block = GetBlock(x, y, z);
+							if (block == 0 || block == 20 || block == 241)
+							{
+								SetSkyLight(x, y, z, 15);
+							}
+							else
 							{
 								SetHeight(x, z, (byte) (y + 1));
 								SetSkyLight(x, y, z, 0);
 								isInLight = false;
-							}
-							else
-							{
-								SetSkyLight(x, y, z, 15);
 							}
 						}
 						else

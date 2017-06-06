@@ -20,12 +20,23 @@ namespace MiNET
 			SecondLine = Config.GetProperty("motd-2nd", "MiNET");
 		}
 
-		public virtual string GetMotd(ServerInfo serverInfo, IPEndPoint caller)
+		public virtual string GetMotd(ServerInfo serverInfo, IPEndPoint caller, bool eduMotd = false)
 		{
 			NumberOfPlayers = serverInfo.NumberOfPlayers;
 			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
 
-			return string.Format($"MCPE;{Motd};113;1.1.0;{NumberOfPlayers};{MaxNumberOfPlayers};{Motd.GetHashCode() + caller.Address.Address + caller.Port};{SecondLine};Survival;");
+			var protocolVersion = "113";
+			var clientVersion = "1.1.0";
+			var edition = "MCPE";
+
+			if (eduMotd)
+			{
+				protocolVersion = "111";
+				clientVersion = "1.0.17";
+				edition = "MCEE";
+			}
+
+			return string.Format($"{edition};{Motd};{protocolVersion};{clientVersion};{NumberOfPlayers};{MaxNumberOfPlayers};{Motd.GetHashCode() + caller.Address.Address + caller.Port};{SecondLine};Survival;");
 		}
 	}
 }

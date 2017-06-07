@@ -997,6 +997,7 @@ namespace MiNET.Net
 				Write(info.PackIdVersion.Id);
 				Write(info.PackIdVersion.Version);
 				Write(info.Size);
+                Write("");
 			}
 		}
 
@@ -1012,6 +1013,7 @@ namespace MiNET.Net
 				var id = ReadString();
 				var version = ReadString();
 				var size = ReadUlong();
+                var unknown = ReadString();
 				info.PackIdVersion = new PackIdVersion {Id = id, Version = version};
 				info.Size = size;
 				packInfos.Add(info);
@@ -1024,12 +1026,10 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				//_writer.Write((short)0); // LE
-				WriteVarInt(0);
+				Write((short)0); // LE
 				return;
 			}
-			//_writer.Write((short)packInfos.Count); // LE
-			WriteVarInt(packInfos.Count);
+			Write((short)packInfos.Count); // LE
 			foreach (var info in packInfos)
 			{
 				Write(info.Id);
@@ -1040,7 +1040,7 @@ namespace MiNET.Net
 		public ResourcePackIdVersions ReadResourcePackIdVersions()
 		{
 			//int count = _reader.ReadInt16(); // LE
-			int count = ReadVarInt(); // LE
+			int count = ReadShort(); // LE
 
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)

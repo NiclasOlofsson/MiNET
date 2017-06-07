@@ -997,13 +997,13 @@ namespace MiNET.Net
 				Write(info.PackIdVersion.Id);
 				Write(info.PackIdVersion.Version);
 				Write(info.Size);
-                Write("");
+				Write("");
 			}
 		}
 
 		public ResourcePackInfos ReadResourcePackInfos()
 		{
- 			int count = _reader.ReadInt16(); // LE
+			int count = _reader.ReadInt16(); // LE
 			//int count = ReadVarInt(); // LE
 
 			var packInfos = new ResourcePackInfos();
@@ -1013,7 +1013,7 @@ namespace MiNET.Net
 				var id = ReadString();
 				var version = ReadString();
 				var size = ReadUlong();
-                var unknown = ReadString();
+				var unknown = ReadString();
 				info.PackIdVersion = new PackIdVersion {Id = id, Version = version};
 				info.Size = size;
 				packInfos.Add(info);

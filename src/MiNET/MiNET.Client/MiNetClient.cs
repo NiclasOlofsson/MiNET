@@ -1207,54 +1207,54 @@ namespace MiNET.Client
 			}
 		}
 
-        private Dictionary<string, uint> resourcePackDataInfos = new Dictionary<string, uint>();
+		private Dictionary<string, uint> resourcePackDataInfos = new Dictionary<string, uint>();
 
 		private void OnMcpeResourcePackDataInfo(McpeResourcePackDataInfo message)
 		{
-            var packageId = message.packageId;
-            McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
-            request.packageId = packageId;
-            request.chunkIndex = 0;
-            SendPackage(request);
-            resourcePackDataInfos.Add(message.packageId, message.chunkCount);
+			var packageId = message.packageId;
+			McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
+			request.packageId = packageId;
+			request.chunkIndex = 0;
+			SendPackage(request);
+			resourcePackDataInfos.Add(message.packageId, message.chunkCount);
 		}
 
-        private void OnMcpeResourcePackChunkData(McpeResourcePackChunkData message)
-        {
-            string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + message.packageId + ".zip";
-            Log.Warn("Writing ResourcePackChunkData part " + message.chunkIndex.ToString() + " to filename: " + fileName);
+		private void OnMcpeResourcePackChunkData(McpeResourcePackChunkData message)
+		{
+			string fileName = Path.GetTempPath() + "ResourcePackChunkData_" + message.packageId + ".zip";
+			Log.Warn("Writing ResourcePackChunkData part " + message.chunkIndex.ToString() + " to filename: " + fileName);
 
-            FileStream file = File.OpenWrite(fileName);
-            file.Seek((long) message.progress, SeekOrigin.Begin);
+			FileStream file = File.OpenWrite(fileName);
+			file.Seek((long) message.progress, SeekOrigin.Begin);
 
-            file.Write(message.payload, 0, message.payload.Length);
-            file.Close();
+			file.Write(message.payload, 0, message.payload.Length);
+			file.Close();
 
-            Log.Debug($"packageId={message.packageId}");
-            Log.Debug($"unknown1={message.chunkIndex}");
-            Log.Debug($"unknown3={message.progress}");
-            Log.Debug($"Reported Lenght={message.length}");
-            Log.Debug($"Actual Lenght={message.payload.Length}");
+			Log.Debug($"packageId={message.packageId}");
+			Log.Debug($"unknown1={message.chunkIndex}");
+			Log.Debug($"unknown3={message.progress}");
+			Log.Debug($"Reported Lenght={message.length}");
+			Log.Debug($"Actual Lenght={message.payload.Length}");
 
-            if (message.chunkIndex + 1 < resourcePackDataInfos[message.packageId])
-            {
-                var packageId = message.packageId;
-                McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
-                request.packageId = packageId;
-                request.chunkIndex = message.chunkIndex + 1;
-                SendPackage(request);
-            }
-            else
-            {
-                resourcePackDataInfos.Remove(message.packageId);
-            }
+			if (message.chunkIndex + 1 < resourcePackDataInfos[message.packageId])
+			{
+				var packageId = message.packageId;
+				McpeResourcePackChunkRequest request = new McpeResourcePackChunkRequest();
+				request.packageId = packageId;
+				request.chunkIndex = message.chunkIndex + 1;
+				SendPackage(request);
+			}
+			else
+			{
+				resourcePackDataInfos.Remove(message.packageId);
+			}
 
-            if (resourcePackDataInfos.Count == 0)
-            {
-                McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
-                response.responseStatus = 3;
-                SendPackage(response);
-            }
+			if (resourcePackDataInfos.Count == 0)
+			{
+				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
+				response.responseStatus = 3;
+				SendPackage(response);
+			}
 		}
 
 		private void OnMcpeContainerOpen(McpeContainerOpen message)

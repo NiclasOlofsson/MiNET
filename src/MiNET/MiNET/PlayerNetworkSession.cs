@@ -57,7 +57,7 @@ namespace MiNET
 		public long NetworkIdentifier { get; set; }
 
 		public int DatagramSequenceNumber = -1;
-		public int ReliableMessageNumber = 0;
+		public int ReliableMessageNumber = -1;
 		public int SplitPartId = 0;
 		public int OrderingIndex = -1;
 		public int ErrorCount { get; set; }

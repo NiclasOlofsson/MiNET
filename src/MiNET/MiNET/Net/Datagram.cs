@@ -157,13 +157,17 @@ namespace MiNET.Net
 
 			int orderingIndex = 0;
 
+			if (!(message is ConnectedPong) && !(message is DetectLostConnections))
+			{
+				reliability = Reliability.ReliableOrdered;
+			}
+
 			CryptoContext cryptoContext = session.CryptoContext;
 			if (cryptoContext != null && !(message is ConnectedPong) && !(message is DetectLostConnections))
 			{
 				lock (session.EncodeSync)
 				{
 					reliability = Reliability.ReliableOrdered;
-					orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 
 					var isBatch = message is McpeWrapper;
 
@@ -198,6 +202,11 @@ namespace MiNET.Net
 			}
 			//if (Log.IsDebugEnabled)
 			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
+
+			if (reliability == Reliability.ReliableOrdered)
+			{
+				orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
+			}
 
 			if (encodedMessage == null) return messageParts;
 

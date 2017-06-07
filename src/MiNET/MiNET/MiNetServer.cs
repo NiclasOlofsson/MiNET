@@ -1112,7 +1112,7 @@ namespace MiNET
 		public static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
-			if (message is McpeBatch) return;
+			if (message is McpeWrapper) return;
 			if (message is UnconnectedPong) return;
 			if (message is McpeMovePlayer) return;
 			//if (message is McpeSetEntityMotion) return;

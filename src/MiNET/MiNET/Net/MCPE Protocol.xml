@@ -766,10 +766,6 @@
 	<pdu id="0x5b" online="false" client="false" server="true" name="MCPE_STRUCTURE_BLOCK_UPDATE_PACKET">
 	</pdu>
 
-	<pdu id="0x99" online="false" client="false" server="true" name="MCPE_BATCH">
-		<field name="Payload" type="byte[]" size="0" />
-	</pdu>
-
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0" />
 	</pdu>

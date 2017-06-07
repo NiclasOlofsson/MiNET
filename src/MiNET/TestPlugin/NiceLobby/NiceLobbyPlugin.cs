@@ -941,7 +941,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 
-		private McpeBatch CreateCachedPacket(long mapId, byte[] bitmapToBytes)
+		private McpeWrapper CreateCachedPacket(long mapId, byte[] bitmapToBytes)
 		{
 			MapInfo mapInfo = new MapInfo
 			{
@@ -964,9 +964,9 @@ namespace TestPlugin.NiceLobby
 			return batch;
 		}
 
-		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
+		internal static McpeWrapper CreateMcpeBatch(byte[] bytes)
 		{
-			McpeBatch batch = BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
+			McpeWrapper batch = BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
 			batch.MarkPermanent();
 			batch.Encode();
 			return batch;

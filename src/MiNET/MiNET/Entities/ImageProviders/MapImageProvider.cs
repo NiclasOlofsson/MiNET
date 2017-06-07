@@ -9,7 +9,7 @@ namespace MiNET.Entities.ImageProviders
 
 		public byte[] MapData { get; set; }
 		public McpeClientboundMapItemData ClientboundMapItemData { get; set; }
-		public McpeBatch Batch { get; set; }
+		public McpeWrapper Batch { get; set; }
 
 		public MapImageProvider()
 		{
@@ -50,7 +50,7 @@ namespace MiNET.Entities.ImageProviders
 			return null;
 		}
 
-		public virtual McpeBatch GetBatch(MapInfo mapInfo, bool forced)
+		public virtual McpeWrapper GetBatch(MapInfo mapInfo, bool forced)
 		{
 			return forced ? Batch : null;
 		}

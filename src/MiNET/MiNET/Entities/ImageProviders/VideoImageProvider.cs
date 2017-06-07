@@ -60,7 +60,7 @@ namespace MiNET.Entities.ImageProviders
 
 	public class VideoImageProvider : IMapImageProvider
 	{
-		public List<McpeBatch> Frames { get; set; } = new List<McpeBatch>();
+		public List<McpeWrapper> Frames { get; set; } = new List<McpeWrapper>();
 
 		public FrameTicker FrameTicker { get; set; }
 
@@ -81,7 +81,7 @@ namespace MiNET.Entities.ImageProviders
 			return null;
 		}
 
-		public McpeBatch GetBatch(MapInfo mapInfo, bool forced)
+		public McpeWrapper GetBatch(MapInfo mapInfo, bool forced)
 		{
 			if (Frames.Count == 0) return null;
 

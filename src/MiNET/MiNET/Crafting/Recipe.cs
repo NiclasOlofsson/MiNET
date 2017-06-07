@@ -12,9 +12,9 @@ namespace MiNET.Crafting
 
 		public static Recipes Recipes { get; private set; }
 
-		private static McpeBatch _craftingData;
+		private static McpeWrapper _craftingData;
 
-		public static McpeBatch GetCraftingData()
+		public static McpeWrapper GetCraftingData()
 		{
 			if (_craftingData == null)
 			{

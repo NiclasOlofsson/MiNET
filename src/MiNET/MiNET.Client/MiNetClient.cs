@@ -766,13 +766,6 @@ namespace MiNET.Client
 
 			if (typeof (McpeWrapper) == message.GetType())
 			{
-				OnWrapper((McpeWrapper) message);
-
-				return;
-			}
-
-			if (typeof (McpeBatch) == message.GetType())
-			{
 				OnBatch(message);
 				return;
 			}
@@ -1309,7 +1302,7 @@ namespace MiNET.Client
 			McpeLogin loginPacket = new McpeLogin
 			{
 				protocolVersion = 111,
-				edition = (byte) (Config.GetProperty("EnableEdu", false)?1:0),
+				edition = (byte) (Config.GetProperty("EnableEdu", false) ? 1 : 0),
 				payload = data
 			};
 
@@ -1408,58 +1401,6 @@ namespace MiNET.Client
 		public AutoResetEvent FirstEncryptedPacketWaitHandle = new AutoResetEvent(false);
 
 		public AutoResetEvent FirstPacketWaitHandle = new AutoResetEvent(false);
-
-		private void OnWrapper(McpeWrapper message)
-		{
-			FirstPacketWaitHandle.Set();
-
-			// Get bytes
-			byte[] payload = message.payload;
-
-			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
-			{
-				FirstEncryptedPacketWaitHandle.Set();
-				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
-			}
-
-			McpeBatch batch = McpeBatch.CreateObject();
-			batch.payload = payload;
-
-			if (_processingThread == null)
-			{
-				HandlePackage(batch);
-			}
-			else
-			{
-				_threadPool.QueueUserWorkItem(() => HandlePackage(batch));
-			}
-
-			//payload = Compression.Decompress(payload);
-
-			//if (Log.IsDebugEnabled)
-			//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
-
-			//try
-			//{
-			//	Package newMessage = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
-			//	//TraceReceive(newMessage);
-
-			//	if (_processingThread == null)
-			//	{
-			//		HandlePackage(newMessage);
-			//	}
-			//	else
-			//	{
-			//		_threadPool.QueueUserWorkItem(() => HandlePackage(newMessage));
-			//	}
-			//}
-			//catch (Exception e)
-			//{
-			//	Log.Error("Wrapper", e);
-			//}
-
-			//Task.Run(() => { HandlePackage(newMessage); });
-		}
 
 		public UserPermission UserPermission { get; set; }
 
@@ -2180,13 +2121,21 @@ StartGame:
 
 		private void OnBatch(Package message)
 		{
-			McpeBatch batch = (McpeBatch) message;
+			FirstPacketWaitHandle.Set();
+
+			McpeWrapper batch = (McpeWrapper) message;
 
 			var messages = new List<Package>();
 
+
 			// Get bytes
 			byte[] payload = batch.payload;
-			// Decompress bytes
+
+			if (Session.CryptoContext != null && Session.CryptoContext.UseEncryption)
+			{
+				FirstEncryptedPacketWaitHandle.Set();
+				payload = CryptoUtils.Decrypt(payload, Session.CryptoContext);
+			}
 
 			MemoryStream stream = new MemoryStream(payload);
 			if (stream.ReadByte() != 0x78)
@@ -2459,7 +2408,7 @@ StartGame:
 		{
 			Random rand = new Random();
 			var packet = NewIncomingConnection.CreateObject();
-			packet.clientendpoint = _clientEndpoint;
+			packet.clientendpoint = _serverEndpoint;
 			packet.systemAddresses = new IPEndPoint[10];
 			for (int i = 0; i < 10; i++)
 			{

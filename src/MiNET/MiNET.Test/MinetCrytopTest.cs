@@ -405,9 +405,9 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 
 						Package message = PackageFactory.CreatePackage(clearBytes[0], clearBytes, "mcpe");
 						Assert.NotNull(message);
-						Assert.AreEqual(typeof (McpeBatch), message.GetType());
+						Assert.AreEqual(typeof (McpeWrapper), message.GetType());
 
-						List<Package> messages = HandleBatch((McpeBatch) message);
+						List<Package> messages = HandleBatch((McpeWrapper) message);
 						McpeClientToServerHandshake magic = (McpeClientToServerHandshake) messages.FirstOrDefault();
 						Assert.AreEqual(typeof (McpeClientToServerHandshake), magic?.GetType());
 
@@ -426,7 +426,7 @@ PU9A3CHMdEcdw/MEAjBBO1lId8KOCh9UZunsSMfqXiVurpzmhWd6VYZ/32G+M+Mh
 			}
 		}
 
-		private List<Package> HandleBatch(McpeBatch batch)
+		private List<Package> HandleBatch(McpeWrapper batch)
 		{
 			var messages = new List<Package>();
 

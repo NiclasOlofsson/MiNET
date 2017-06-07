@@ -33,7 +33,7 @@ namespace MiNET.Worlds
 		public bool isDirty;
 		public bool IsLoaded = false;
 		public bool NeedSave = true;
-		private McpeBatch _cachedBatch = null;
+		private McpeWrapper _cachedBatch = null;
 		private object _cacheSync = new object();
 
 		public ChunkColumn()
@@ -278,7 +278,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public McpeBatch GetBatch()
+		public McpeWrapper GetBatch()
 		{
 			lock (_cacheSync)
 			{
@@ -410,7 +410,7 @@ namespace MiNET.Worlds
 				cc._cache = (byte[]) _cache.Clone();
 			}
 
-			McpeBatch batch = McpeBatch.CreateObject();
+			McpeWrapper batch = McpeWrapper.CreateObject();
 			batch.payload = _cachedBatch.payload;
 			batch.Encode();
 			batch.MarkPermanent();

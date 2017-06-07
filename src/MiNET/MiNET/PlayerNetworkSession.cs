@@ -280,39 +280,6 @@ namespace MiNET
 					return;
 				}
 
-				if (typeof (McpeWrapper) == message.GetType())
-				{
-					McpeWrapper wrapper = (McpeWrapper) message;
-
-					// Get bytes
-					byte[] payload = wrapper.payload;
-					//if (Log.IsDebugEnabled) Log.Debug($"Received package 0x{message.Id:X2}\n{Package.HexDump(payload)}");
-
-					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
-					{
-						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
-					}
-
-					McpeBatch batch = McpeBatch.CreateObject();
-					batch.payload = payload;
-
-					HandlePackage(batch, playerSession);
-
-					//if (Log.IsDebugEnabled)
-					//	Log.Debug($"0x{payload[0]:x2}\n{Package.HexDump(payload)}");
-
-					//var msg = PackageFactory.CreatePackage(payload[0], payload, "mcpe") ?? new UnknownPackage(payload[0], payload);
-					//msg.DatagramSequenceNumber = wrapper.DatagramSequenceNumber;
-					//msg.Reliability = wrapper.Reliability;
-					//msg.ReliableMessageNumber = wrapper.ReliableMessageNumber;
-					//msg.OrderingChannel = wrapper.OrderingChannel;
-					//msg.OrderingIndex = wrapper.OrderingIndex;
-					//HandlePackage(msg, playerSession);
-
-					message.PutPool();
-					return;
-				}
-
 				if (typeof (UnknownPackage) == message.GetType())
 				{
 					UnknownPackage packet = (UnknownPackage) message;
@@ -322,14 +289,18 @@ namespace MiNET
 					return;
 				}
 
-				if (typeof (McpeBatch) == message.GetType())
+				if (typeof (McpeWrapper) == message.GetType())
 				{
-					McpeBatch batch = (McpeBatch) message;
-
+					McpeWrapper batch = (McpeWrapper) message;
 					var messages = new List<Package>();
 
 					// Get bytes
 					byte[] payload = batch.payload;
+					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
+					{
+						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+					}
+
 					// Decompress bytes
 
 					MemoryStream stream = new MemoryStream(payload);
@@ -685,7 +656,7 @@ namespace MiNET
 				return;
 			}
 
-			bool isBatch = package is McpeBatch;
+			bool isBatch = package is McpeWrapper;
 
 			if (!isBatch)
 			{
@@ -909,7 +880,7 @@ namespace MiNET
 						{
 							Server.SendPackage(this, package);
 						}
-						else if (package is McpeBatch)
+						else if (package is McpeWrapper)
 						{
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;

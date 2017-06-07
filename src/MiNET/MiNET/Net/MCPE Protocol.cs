@@ -613,11 +613,6 @@ namespace MiNET.Net
 						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
-					case 0x99:
-						package = McpeBatch.CreateObject();
-						//package.Timer.Start();
-						package.Decode(buffer);
-						return package;
 				}
 			}
 
@@ -5348,44 +5343,6 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-	}
-
-	public partial class McpeBatch : Package<McpeBatch>
-	{
-		public byte[] payload; // = null;
-		public McpeBatch()
-		{
-			Id = 0x99;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(payload);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			payload = ReadBytes(0);
 
 			AfterDecode();
 		}

@@ -113,7 +113,6 @@
 | Mcpe Set Title | 0x59 | 89 |   
 | Mcpe Add Behavior Tree Packet | 0x5a | 90 |   
 | Mcpe Structure Block Update Packet | 0x5b | 91 |   
-| Mcpe Batch | 0x99 | 153 |   
 | Mcpe Wrapper | 0xfe | 254 |   
 
 
@@ -1883,20 +1882,6 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Package: Mcpe Batch (0x99)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ### Package: Mcpe Wrapper (0xfe)
 

@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -137,25 +162,32 @@ namespace MiNET.Net
 			{
 				lock (session.EncodeSync)
 				{
-					McpeWrapper wrapper = McpeWrapper.CreateObject();
 					reliability = Reliability.ReliableOrdered;
 					orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 
-					var isBatch = message is McpeBatch;
-					if (!message.ForceClear && session.CryptoContext.UseEncryption)
+					var isBatch = message is McpeWrapper;
+					if (!isBatch)
 					{
-						encodedMessage = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
-						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
+						McpeWrapper wrapper = McpeWrapper.CreateObject();
+						if (!message.ForceClear && session.CryptoContext.UseEncryption)
+						{
+							encodedMessage = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
+							wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
+						}
+						else
+						{
+							wrapper.payload = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
+						}
+
+						encodedMessage = wrapper.Encode();
+						wrapper.PutPool();
 					}
 					else
 					{
-						wrapper.payload = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
+						encodedMessage = message.Encode();
 					}
-
-					encodedMessage = wrapper.Encode();
 					//if (Log.IsDebugEnabled)
 					//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
-					wrapper.PutPool();
 				}
 			}
 			//if (Log.IsDebugEnabled)
@@ -171,7 +203,7 @@ namespace MiNET.Net
 				Interlocked.CompareExchange(ref session.SplitPartId, 0, short.MaxValue);
 			}
 
-			short splitId = (short)Interlocked.Increment(ref session.SplitPartId);
+			short splitId = (short) Interlocked.Increment(ref session.SplitPartId);
 
 			if (count <= 1)
 			{

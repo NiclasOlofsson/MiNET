@@ -39,7 +39,7 @@ namespace MiNET.Entities.ImageProviders
 			return null;
 		}
 
-		public virtual McpeBatch GetBatch(MapInfo mapInfo, bool forced)
+		public virtual McpeWrapper GetBatch(MapInfo mapInfo, bool forced)
 		{
 			return null;
 		}

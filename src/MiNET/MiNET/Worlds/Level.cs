@@ -130,7 +130,7 @@ namespace MiNET.Worlds
 				chunkLoading.Start();
 				// Pre-cache chunks for spawn coordinates
 				int i = 0;
-				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeBatch>(), ViewDistance))
+				foreach (var chunk in GenerateChunks(new ChunkCoordinates(SpawnPoint), new Dictionary<Tuple<int, int>, McpeWrapper>(), ViewDistance))
 				{
 					if (chunk != null) i++;
 				}
@@ -224,7 +224,7 @@ namespace MiNET.Worlds
 			Log.Info("Closed level: " + LevelId);
 		}
 
-		internal static McpeBatch CreateMcpeBatch(byte[] bytes)
+		internal static McpeWrapper CreateMcpeBatch(byte[] bytes)
 		{
 			return BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
 		}
@@ -672,7 +672,7 @@ namespace MiNET.Worlds
 
 				if (players.Length == 1 && entiyMoveCount == 0) return;
 
-				McpeBatch batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal, false);
+				McpeWrapper batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal, false);
 				batch.AddReferences(players.Length - 1);
 				batch.Encode();
 				//batch.ValidUntil = now + TimeSpan.FromMilliseconds(50);
@@ -755,14 +755,14 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public McpeBatch GenerateChunk(ChunkCoordinates chunkPosition)
+		public McpeWrapper GenerateChunk(ChunkCoordinates chunkPosition)
 		{
 			if (_worldProvider == null) return null;
 
 			ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(chunkPosition);
 			if (chunkColumn == null) return null;
 
-			McpeBatch chunk = chunkColumn.GetBatch();
+			McpeWrapper chunk = chunkColumn.GetBatch();
 			if (chunk == null) return null;
 
 			return chunk;
@@ -798,7 +798,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public IEnumerable<McpeBatch> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeBatch> chunksUsed, double radius)
+		public IEnumerable<McpeWrapper> GenerateChunks(ChunkCoordinates chunkPosition, Dictionary<Tuple<int, int>, McpeWrapper> chunksUsed, double radius)
 		{
 			lock (chunksUsed)
 			{
@@ -849,7 +849,7 @@ namespace MiNET.Worlds
 					if (_worldProvider == null) continue;
 
 					ChunkColumn chunkColumn = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(pair.Key.Item1, pair.Key.Item2));
-					McpeBatch chunk = null;
+					McpeWrapper chunk = null;
 					if (chunkColumn != null)
 					{
 						chunk = chunkColumn.GetBatch();

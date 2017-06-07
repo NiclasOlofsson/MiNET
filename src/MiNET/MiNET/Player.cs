@@ -34,7 +34,7 @@ namespace MiNET
 		public IPEndPoint EndPoint { get; private set; }
 		public INetworkHandler NetworkHandler { get; set; }
 
-		private Dictionary<Tuple<int, int>, McpeBatch> _chunksUsed = new Dictionary<Tuple<int, int>, McpeBatch>();
+		private Dictionary<Tuple<int, int>, McpeWrapper> _chunksUsed = new Dictionary<Tuple<int, int>, McpeWrapper>();
 		private ChunkCoordinates _currentChunkPosition;
 
 		private Inventory _openInventory;
@@ -213,7 +213,7 @@ namespace MiNET
 		private object _mapInfoSync = new object();
 
 		private Timer _mapSender;
-		private ConcurrentQueue<McpeBatch> _mapBatches = new ConcurrentQueue<McpeBatch>();
+		private ConcurrentQueue<McpeWrapper> _mapBatches = new ConcurrentQueue<McpeWrapper>();
 
 		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
@@ -1775,7 +1775,7 @@ namespace MiNET
 			{
 				var chunkPosition = new ChunkCoordinates(position);
 
-				McpeBatch chunk = Level.GenerateChunk(chunkPosition);
+				McpeWrapper chunk = Level.GenerateChunk(chunkPosition);
 				var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
 				if (!_chunksUsed.ContainsKey(key))
 				{
@@ -1830,7 +1830,7 @@ namespace MiNET
 				if (Level == null) return;
 
 				int packetCount = 0;
-				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
+				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk != null) SendPackage(chunk);
 
@@ -1875,7 +1875,7 @@ namespace MiNET
 
 				if (Level == null) return;
 
-				foreach (McpeBatch chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
+				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk != null) SendPackage(chunk);
 
@@ -2350,7 +2350,7 @@ namespace MiNET
 		private object _sendMoveListSync = new object();
 		private DateTime _lastMoveListSendTime = DateTime.UtcNow;
 
-		public void SendMoveList(McpeBatch batch, DateTime sendTime)
+		public void SendMoveList(McpeWrapper batch, DateTime sendTime)
 		{
 			if (sendTime < _lastMoveListSendTime || !Monitor.TryEnter(_sendMoveListSync))
 			{

@@ -1152,15 +1152,16 @@ namespace MiNET.Client
 
 			if (message.resourcepackinfos.Count != 0)
 			{
-				ResourcePackIdVersions resourceInfos = new ResourcePackIdVersions();
+				ResourcePackIds resourcePackIds = new ResourcePackIds();
+
 				foreach (var packInfo in message.resourcepackinfos)
 				{
-					resourceInfos.Add(packInfo.PackIdVersion);
+					resourcePackIds.Add(packInfo.PackIdVersion.Id);
 				}
 
 				McpeResourcePackClientResponse response = new McpeResourcePackClientResponse();
 				response.responseStatus = 2;
-				response.resourcepackidversions = resourceInfos;
+				response.resourcepackids = resourcePackIds;
 				SendPackage(response);
 			}
 			else

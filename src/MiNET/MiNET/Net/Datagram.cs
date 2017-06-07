@@ -166,25 +166,31 @@ namespace MiNET.Net
 					orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 
 					var isBatch = message is McpeWrapper;
-					if (!isBatch)
+
+					if (!message.ForceClear && session.CryptoContext.UseEncryption)
 					{
 						McpeWrapper wrapper = McpeWrapper.CreateObject();
-						if (!message.ForceClear && session.CryptoContext.UseEncryption)
+						if (isBatch)
 						{
-							encodedMessage = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
-							wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
+							byte[] tmp = new byte[encodedMessage.Length - 1];
+							Buffer.BlockCopy(encodedMessage, 1, tmp, 0, encodedMessage.Length - 1);
+							encodedMessage = tmp;
 						}
 						else
 						{
-							wrapper.payload = Compression.Compress(encodedMessage, isBatch ? 1 : 0, encodedMessage.Length - (isBatch ? 1 : 0), !isBatch);
+							encodedMessage = Compression.Compress(encodedMessage, 0, encodedMessage.Length, true);
 						}
 
+						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
 					}
-					else
+					else if (!isBatch)
 					{
-						encodedMessage = message.Encode();
+						McpeWrapper wrapper = McpeWrapper.CreateObject();
+						wrapper.payload = Compression.Compress(encodedMessage, 0, encodedMessage.Length, true);
+						encodedMessage = wrapper.Encode();
+						wrapper.PutPool();
 					}
 					//if (Log.IsDebugEnabled)
 					//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");

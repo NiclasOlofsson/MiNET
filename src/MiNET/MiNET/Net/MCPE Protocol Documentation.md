@@ -516,7 +516,7 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Response status | byte |  |
-|ResourcePackIdVersions | ResourcePackIdVersions |  |
+|ResourcePackIds | ResourcePackIds |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Text (0x09)
 

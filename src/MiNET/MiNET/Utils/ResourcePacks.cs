@@ -21,4 +21,8 @@ namespace MiNET.Utils
 		public string Id { get; set; }
 		public string Version { get; set; }
 	}
+
+    public class ResourcePackIds : List<string>
+    {
+    }
 }

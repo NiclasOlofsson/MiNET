@@ -1599,7 +1599,7 @@ namespace MiNET.Net
 	public partial class McpeResourcePackClientResponse : Package<McpeResourcePackClientResponse>
 	{
 		public byte responseStatus; // = null;
-		public ResourcePackIdVersions resourcepackidversions; // = null;
+		public ResourcePackIds resourcepackids; // = null;
 		public McpeResourcePackClientResponse()
 		{
 			Id = 0x08;
@@ -1612,7 +1612,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(responseStatus);
-			Write(resourcepackidversions);
+			Write(resourcepackids);
 
 			AfterEncode();
 		}
@@ -1627,7 +1627,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			responseStatus = ReadByte();
-			resourcepackidversions = ReadResourcePackIdVersions();
+			resourcepackids = ReadResourcePackIds();
 
 			AfterDecode();
 		}

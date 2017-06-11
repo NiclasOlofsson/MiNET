@@ -1054,6 +1054,35 @@ namespace MiNET.Net
 			return packInfos;
 		}
 
+		public void Write(ResourcePackIds ids)
+		{
+			if(ids == null)
+			{
+				Write((short)0);
+				return;
+			}
+			Write((short)ids.Count);
+
+			foreach(var id in ids)
+			{
+				Write(id);
+			}
+		}
+
+		public ResourcePackIds ReadResourcePackIds()
+		{
+			int count = ReadShort();
+
+			var ids = new ResourcePackIds();
+			for(int i = 0; i < count; i++)
+			{
+				var id = ReadString();
+				ids.Add(id);
+			}
+
+			return ids;
+		}
+
 		public void Write(Skin skin)
 		{
 			if (skin.Texture != null)

@@ -158,8 +158,10 @@ namespace MiNET.Worlds
 				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
 				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
 				{209, new NoDataMapper(209)}, // minecraft:end_gateway => EndGateway
-				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
-				{218, new NoDataMapper(251)} // minecraft:observer => Observer
+				{212, new NoDataMapper(207)}, // Frosted Ice => Frosted Ice
+				{218, new NoDataMapper(251)}, // minecraft:observer => Observer
+				{251, new NoDataMapper(236)},
+				{252, new NoDataMapper(237)}
 			};
 		}
 

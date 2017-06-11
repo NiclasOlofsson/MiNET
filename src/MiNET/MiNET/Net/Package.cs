@@ -486,7 +486,15 @@ namespace MiNET.Net
 
 		public Records ReadRecords()
 		{
-			return new Records();
+			var records = new Records();
+			uint count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				var coord = ReadBlockCoordinates();
+				records.Add(coord);
+			}
+
+			return records;
 		}
 
 		public void Write(PlayerLocation location)
@@ -778,6 +786,27 @@ namespace MiNET.Net
 			return MetadataDictionary.FromStream(_reader);
 		}
 
+		public PlayerAttributes ReadPlayerAttributes()
+		{
+			var attributes = new PlayerAttributes();
+			uint count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				PlayerAttribute attribute = new PlayerAttribute
+				{
+					MinValue = ReadFloat(),
+					MaxValue = ReadFloat(),
+					Value = ReadFloat(),
+					Default = ReadFloat(),
+					Name = ReadString(),
+				};
+
+				attributes[attribute.Name] = attribute;
+			}
+
+			return attributes;
+		}
+
 		public void Write(PlayerAttributes attributes)
 		{
 			WriteUnsignedVarInt((uint) attributes.Count);
@@ -864,32 +893,11 @@ namespace MiNET.Net
 			}
 		}
 
-		public PlayerAttributes ReadPlayerAttributes()
-		{
-			var attributes = new PlayerAttributes();
-			uint count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				PlayerAttribute attribute = new PlayerAttribute
-				{
-					MinValue = ReadFloat(),
-					MaxValue = ReadFloat(),
-					Value = ReadFloat(),
-					Default = ReadFloat(),
-					Name = ReadString(),
-				};
-
-				attributes[attribute.Name] = attribute;
-			}
-
-			return attributes;
-		}
-
 		public void Write(EntityAttributes attributes)
 		{
 			if (attributes == null)
 			{
-				WriteVarInt(0);
+				WriteUnsignedVarInt(0);
 				return;
 			}
 

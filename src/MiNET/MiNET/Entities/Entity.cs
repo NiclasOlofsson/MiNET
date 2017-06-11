@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections;
 using System.Numerics;
 using log4net;
@@ -62,9 +87,9 @@ namespace MiNET.Entities
 			EatingHaystack = 16,
 			MaybeAge = 25,
 			Scale = 39,
-			MaxAir = 44,
-			CollisionBoxHeight = 55,
+			MaxAir = 43,
 			CollisionBoxWidth = 54,
+			CollisionBoxHeight = 55,
 		}
 
 		public virtual MetadataDictionary GetMetadata()
@@ -85,7 +110,7 @@ namespace MiNET.Entities
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
 			//metadata[24] = new MetadataByte(0); // Leads on/off
-			metadata[(int) MetadataFlags.MaybeAge] = new MetadataInt(0); // Scale
+			//metadata[(int)MetadataFlags.MaybeAge] = new MetadataInt(0); // Scale
 			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(Scale); // Scale
 			metadata[(int) MetadataFlags.MaxAir] = new MetadataShort(HealthManager.MaxAir);
 			metadata[(int) MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
@@ -262,6 +287,8 @@ namespace MiNET.Entities
 			addEntity.speedX = (float) Velocity.X;
 			addEntity.speedY = (float) Velocity.Y;
 			addEntity.speedZ = (float) Velocity.Z;
+			addEntity.attributes = GetEntityAttributes();
+
 			Level.RelayBroadcast(players, addEntity);
 
 			var msg = addEntity;
@@ -278,6 +305,63 @@ namespace MiNET.Entities
 			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
 			Log.DebugFormat("Metadata: {0}", MetadataDictionary.MetadataToCode(msg.metadata));
 		}
+
+		public virtual EntityAttributes GetEntityAttributes()
+		{
+			var attributes = new EntityAttributes();
+			attributes["minecraft:attack_damage"] = new EntityAttribute
+			{
+				Name = "minecraft:attack_damage",
+				MinValue = 1,
+				MaxValue = 1,
+				Value = 1,
+			};
+			attributes["minecraft:absorption"] = new EntityAttribute
+			{
+				Name = "minecraft:absorption",
+				MinValue = 0,
+				MaxValue = float.MaxValue,
+				Value = HealthManager.Absorption,
+			};
+			attributes["minecraft:health"] = new EntityAttribute
+			{
+				Name = "minecraft:health",
+				MinValue = 0,
+				MaxValue = 20,
+				Value = HealthManager.Hearts,
+			};
+			attributes["minecraft:knockback_resistance"] = new EntityAttribute
+			{
+				Name = "minecraft:knockback_resistance",
+				MinValue = 0,
+				MaxValue = 1,
+				Value = 0,
+			};
+			attributes["minecraft:luck"] = new EntityAttribute
+			{
+				Name = "minecraft:luck",
+				MinValue = -1025,
+				MaxValue = 1024,
+				Value = 0,
+			};
+			attributes["minecraft:fall_damage"] = new EntityAttribute
+			{
+				Name = "minecraft:fall_damage",
+				MinValue = 0,
+				MaxValue = float.MaxValue,
+				Value = 1,
+			};
+			attributes["minecraft:follow_range"] = new EntityAttribute
+			{
+				Name = "minecraft:follow_range",
+				MinValue = 0,
+				MaxValue = 2048,
+				Value = 16,
+			};
+
+			return attributes;
+		}
+
 
 		public virtual void DespawnEntity()
 		{
@@ -377,7 +461,7 @@ namespace MiNET.Entities
 
 		public virtual Item[] GetDrops()
 		{
-			return new Item[] {};
+			return new Item[] { };
 		}
 
 		public virtual void DoInteraction(byte actionId, Player player)

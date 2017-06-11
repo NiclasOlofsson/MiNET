@@ -11,6 +11,7 @@
 			IsTransparent = true;
 			BlastResistance = 1.5f;
 			Hardness = 0.3f;
+			IsBlockingSkylight = false;
 		}
 	}
 }

@@ -357,7 +357,7 @@
 
 	<pdu id="0x18" online="false" client="false" server="true" name="MCPE_EXPLODE">
 		<field name="Position" type="Vector3" />
-		<field name="Radius" type="float" />
+		<field name="Radius" type="SignedVarInt" />
 		<field name="Records" type="Records" />
 	</pdu>
 

@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,19 +23,34 @@
 
 #endregion
 
+using System;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Passive
 {
-	public class Bat : PassiveMob
+	public class Llama : PassiveMob
 	{
-		public Bat(Level level) : base(EntityType.Bat, level)
+		private int _type = 0;
+
+		public Llama(Level level) : base(EntityType.Llama, level)
 		{
-			Width = Length = 0.5;
-			Height = 0.9;
-			HealthManager.MaxHealth = 60;
-			Drag = 0.2;
-			Speed = 1.1;
+			Width = Length = 0.9;
+			Height = 1.87;
+
+			var random = new Random((int) DateTime.UtcNow.Ticks);
+			_type = random.Next(4);
+		}
+
+		public override MetadataDictionary GetMetadata()
+		{
+			var metadata = base.GetMetadata();
+			metadata[2] = new MetadataInt(_type);
+			return metadata;
+		}
+
+		public override void OnTick()
+		{
 		}
 	}
 }

@@ -840,7 +840,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Position | Vector3 |  |
-|Radius | float |  |
+|Radius | SignedVarInt |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Level Sound Event (0x19)

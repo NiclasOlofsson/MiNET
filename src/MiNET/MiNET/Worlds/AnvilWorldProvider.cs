@@ -241,8 +241,6 @@ namespace MiNET.Worlds
 			int rx = coordinates.X >> 5;
 			int rz = coordinates.Z >> 5;
 
-			Log.Debug($"Generating chunk @{coordinates}");
-
 			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
 			if (!File.Exists(filePath))

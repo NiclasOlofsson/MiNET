@@ -278,17 +278,6 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Name = "gm")]
-		//[Authorize(Users = "gurun")]
-		//[Authorize(Users = "gurunx")]
-		public void GameMode(Player player, int gameMode)
-		{
-			player.SetGameMode((GameMode) gameMode);
-
-			player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode) gameMode}.", type: MessageType.Raw);
-		}
-
-
 		[Command(Name = "tpw", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void TeleportWorld(Player player)
 		{
@@ -386,7 +375,7 @@ namespace TestPlugin
 			player.SendMessage(string.Format("Client ID={0}", player.ClientUuid), type: MessageType.Raw);
 		}
 
-		[Command(Name = "position")]
+		[Command(Name = "pos")]
 		public void Position(Player player)
 		{
 			BlockCoordinates position = new BlockCoordinates(player.KnownPosition);

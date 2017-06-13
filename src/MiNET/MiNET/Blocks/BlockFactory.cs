@@ -71,8 +71,8 @@ namespace MiNET.Blocks
 
 				if (name.Equals("block"))
 				{
-					if (Log.IsDebugEnabled)
-						Log.Debug($"Missing implementation for block ID={idx}");
+					//if (Log.IsDebugEnabled)
+					//	Log.Debug($"Missing implementation for block ID={idx}");
 					continue;
 				}
 

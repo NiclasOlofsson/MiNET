@@ -1,15 +1,38 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management.Instrumentation;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using fNbt;
 using log4net;
-using log4net.Appender;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Net;
@@ -70,7 +93,6 @@ namespace MiNET.Worlds
 				//{94, air}, // minecraft:powered_repeater	=> Air
 				{95, new NoDataMapper(241)}, // minecraft:stained_glass	=> Stained Glass
 				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
-				{167, new Mapper(167, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03)))) }, //Fix iron_trapdoor
 				//{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
 				//{118, air}, // minecraft:cauldron		=> Air
 				//{119, air}, // minecraft:end_portal		=> Air
@@ -136,6 +158,7 @@ namespace MiNET.Worlds
 				//{160, new NoDataMapper(160)}, // minecraft:stained_glass_pane	=> Glass Pane
 				//{165, air}, // Slime Block		=> Air
 				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
+				{167, new Mapper(167, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, //Fix iron_trapdoor
 				//{168, air}, // minecraft:prismarine		=> Air
 				//{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
 				{176, air}, // minecraft:standing_banner		=> Air
@@ -153,13 +176,53 @@ namespace MiNET.Worlds
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
 				{198, new NoDataMapper(208)}, // minecraft:end_rod	=> EndRod
 				{199, new NoDataMapper(140)}, // minecraft:chorus_plant => ChorusPlant
-				{202, new Mapper(201, (i, b) => 2) }, // minecraft:purpur_pillar => PurpurBlock:2 (idk why)
-				{205, new Mapper(182, (i, b) => 1) }, // minecraft:purpur_slab => RedSandstoneSlab:1 (idk why)
+				{202, new Mapper(201, (i, b) => 2)}, // minecraft:purpur_pillar => PurpurBlock:2 (idk why)
+				{204, new NoDataMapper(0)}, // minecraft:purpur_double_slab => air
+				{205, new Mapper(182, (i, b) => 1)}, // minecraft:purpur_slab => RedSandstoneSlab:1 (idk why)
 				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
 				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
 				{209, new NoDataMapper(209)}, // minecraft:end_gateway => EndGateway
 				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
-				{218, new NoDataMapper(251)} // minecraft:observer => Observer
+				{213, new NoDataMapper(87)}, //minecraft:magma => netherrack
+				{214, new NoDataMapper(112)}, //nether_wart_block => nether_brick
+				{215, new NoDataMapper(112)}, //red_nether_brick => nether_brick
+				{216, new NoDataMapper(0)}, //bone => air
+				{218, new NoDataMapper(251)}, // minecraft:observer => Observer
+				{219, new NoDataMapper(218)}, // =>
+				{220, new NoDataMapper(218)}, // =>
+				{221, new NoDataMapper(218)}, // =>
+				{222, new NoDataMapper(218)}, // =>
+				{223, new NoDataMapper(218)}, // =>
+				{224, new NoDataMapper(218)}, // =>
+				{225, new NoDataMapper(218)}, // =>
+				{226, new NoDataMapper(218)}, // =>
+				{227, new NoDataMapper(218)}, // =>
+				{228, new NoDataMapper(218)}, // =>
+				{229, new NoDataMapper(218)}, // =>
+				{230, new NoDataMapper(218)}, // =>
+				{231, new NoDataMapper(218)}, // =>
+				{232, new NoDataMapper(218)}, // =>
+				{233, new NoDataMapper(218)}, // =>
+				{234, new NoDataMapper(218)}, // =>
+
+				{235, new NoDataMapper(235)}, // =>
+				{236, new NoDataMapper(235)}, // =>
+				{237, new NoDataMapper(235)}, // =>
+				{238, new NoDataMapper(235)}, // =>
+				{239, new NoDataMapper(235)}, // =>
+				{240, new NoDataMapper(235)}, // =>
+				{241, new NoDataMapper(235)}, // =>
+				{242, new NoDataMapper(235)}, // =>
+				{243, new NoDataMapper(235)}, // =>
+				{244, new NoDataMapper(235)}, // =>
+				{245, new NoDataMapper(235)}, // =>
+				{246, new NoDataMapper(235)}, // =>
+				{247, new NoDataMapper(235)}, // =>
+				{248, new NoDataMapper(235)}, // =>
+				{249, new NoDataMapper(235)}, // =>
+				{250, new NoDataMapper(235)}, // =>
+				{251, new NoDataMapper(235)}, // =>
+				{252, new NoDataMapper(237)}, // concrete_powder => concrete_powder
 			};
 		}
 
@@ -308,8 +371,9 @@ namespace MiNET.Worlds
 				regionFile.Read(waste, 0, 4);
 				int compressionMode = regionFile.ReadByte();
 
-				if (compressionMode != 0x02) throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode :X2}. " +
-				                                                 $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
+				if (compressionMode != 0x02)
+					throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode:X2}. " +
+					                    $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
 
 				var nbt = new NbtFile();
 				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
@@ -375,7 +439,7 @@ namespace MiNET.Worlds
 							{
 								NbtList items = (NbtList) blockEntityTag["Items"];
 
-								if(items != null)
+								if (items != null)
 								{
 									//for (byte i = 0; i < items.Count; i++)
 									//{
@@ -394,7 +458,7 @@ namespace MiNET.Worlds
 						}
 						else
 						{
-							if(Log.IsDebugEnabled)
+							if (Log.IsDebugEnabled)
 								Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
 						}
 					}
@@ -464,7 +528,7 @@ namespace MiNET.Worlds
 						chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
 						chunk.SetSkyLight(x, yi, z, Nibble4(skyLight, anvilIndex));
 
-						if(blockId == 0) continue;
+						if (blockId == 0) continue;
 
 						if (blockId == 3 && metadata == 1)
 						{
@@ -484,7 +548,7 @@ namespace MiNET.Worlds
 						if (BlockFactory.LuminousBlocks.ContainsKey(blockId))
 						{
 							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-							block.Coordinates = new BlockCoordinates(x + (16 * chunk.x), yi, z + (16 * chunk.z));
+							block.Coordinates = new BlockCoordinates(x + (16*chunk.x), yi, z + (16*chunk.z));
 							LightSources.Enqueue(block);
 						}
 					}
@@ -562,7 +626,7 @@ namespace MiNET.Worlds
 				{
 					SaveLevelInfo(new LevelInfo());
 
-					foreach (var chunkColumn in _chunkCache)
+					foreach (var chunkColumn in _chunkCache.OrderBy(pair => pair.Key.X >> 5).ThenBy(pair => pair.Key.Z >> 5))
 					{
 						if (chunkColumn.Value != null && chunkColumn.Value.NeedSave)
 						{
@@ -586,8 +650,6 @@ namespace MiNET.Worlds
 			// free sectors and clear up old ones. It works fine as long as no dynamic data is written
 			// like block entity data (signs etc).
 
-			Log.Debug($"Save chunk X={chunk.x}, Z={chunk.z} to {basePath}");
-
 			chunk.NeedSave = false;
 
 			var coordinates = new ChunkCoordinates(chunk.x, chunk.z);
@@ -600,6 +662,8 @@ namespace MiNET.Worlds
 
 			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
+			Log.Debug($"Save chunk X={chunk.x}, Z={chunk.z} to {filePath}");
+
 			if (!File.Exists(filePath))
 			{
 				// Make sure directory exist
@@ -611,8 +675,6 @@ namespace MiNET.Worlds
 					byte[] buffer = new byte[8192];
 					regionFile.Write(buffer, 0, buffer.Length);
 				}
-
-				return;
 			}
 
 			using (var regionFile = File.Open(filePath, FileMode.Open))
@@ -642,7 +704,7 @@ namespace MiNET.Worlds
 
 				if (offset == 0 || length == 0 || nbtLength < length)
 				{
-					if(length != 0) Log.Debug("Creating new sectors for this chunk even tho it existed");
+					if (length != 0) Log.Debug("Creating new sectors for this chunk even tho it existed");
 
 					regionFile.Seek(0, SeekOrigin.End);
 					offset = (int) ((int) regionFile.Position & 0xfffffff0);

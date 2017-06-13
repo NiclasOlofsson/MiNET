@@ -3488,10 +3488,10 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryAction : Package<McpeInventoryAction>
 	{
-		public uint unknown0; // = null;
+		public uint actionId; // = null;
 		public Item item; // = null;
-		public int unknown1; // = null;
-		public int unknown2; // = null;
+		public int enchantmentId; // = null;
+		public int enchantmentLevel; // = null;
 		public McpeInventoryAction()
 		{
 			Id = 0x2f;
@@ -3503,10 +3503,10 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarInt(unknown0);
+			WriteUnsignedVarInt(actionId);
 			Write(item);
-			WriteSignedVarInt(unknown1);
-			WriteSignedVarInt(unknown2);
+			WriteSignedVarInt(enchantmentId);
+			WriteSignedVarInt(enchantmentLevel);
 
 			AfterEncode();
 		}
@@ -3520,10 +3520,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			unknown0 = ReadUnsignedVarInt();
+			actionId = ReadUnsignedVarInt();
 			item = ReadItem();
-			unknown1 = ReadSignedVarInt();
-			unknown2 = ReadSignedVarInt();
+			enchantmentId = ReadSignedVarInt();
+			enchantmentLevel = ReadSignedVarInt();
 
 			AfterDecode();
 		}

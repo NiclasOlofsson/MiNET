@@ -154,6 +154,23 @@ namespace MiNET.Plugins
 
 		public Player[] Players { get; set; }
 		public Entity[] Entities { get; set; }
+
+		public override string ToString()
+		{
+			string body = string.Empty;
+
+			if (Players != null)
+			{
+				List<string> names = new List<string>();
+				foreach (var p in Players)
+				{
+					names.Add(p.Username);
+				}
+				body = string.Join(", ", names);
+			}
+
+			return body;
+		}
 	}
 
 

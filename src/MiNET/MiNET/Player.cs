@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -451,7 +476,7 @@ namespace MiNET
 
 			uint flags = 0;
 
-			if (IsWorldImmutable || IsAdventure || GameMode == GameMode.Adventure) flags |= 0x01; // Immutable World (Remove hit markers client-side).
+			if (IsWorldImmutable || GameMode == GameMode.Adventure) flags |= 0x01; // Immutable World (Remove hit markers client-side).
 			if (IsNoPvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x02; // No PvP (Remove hit markers client-side).
 			if (IsNoPvm || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x04; // No PvM (Remove hit markers client-side).
 			if (IsNoMvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x08;
@@ -473,15 +498,6 @@ namespace MiNET
 		}
 
 		public UserPermission PermissionLevel { get; set; } = UserPermission.Admin;
-
-		public bool IsAdventure { get; set; }
-
-		[Wired]
-		public void SetAdventure(bool isAdventure)
-		{
-			IsAdventure = isAdventure;
-			SendAdventureSettings();
-		}
 
 		public bool IsSpectator { get; set; }
 
@@ -967,7 +983,7 @@ namespace MiNET
 			SendPackage(strangeContent);
 
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			inventoryContent.windowId = (byte)0x00;
+			inventoryContent.windowId = (byte) 0x00;
 			inventoryContent.entityIdSelf = EntityId;
 			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
@@ -1018,9 +1034,16 @@ namespace MiNET
 		{
 			GameMode = gameMode;
 
-			SendStartGame();
+			SendSetPlayerGameType();
 		}
 
+
+		public void SendSetPlayerGameType()
+		{
+			McpeSetPlayerGameType gametype = McpeSetPlayerGameType.CreateObject();
+			gametype.gamemode = (int) GameMode;
+			SendPackage(gametype);
+		}
 
 		[Wired]
 		public void StrikeLightning()
@@ -1119,8 +1142,6 @@ namespace MiNET
 				}
 			}
 
-			Log.Debug($"Handle move player: {message.x}, {message.y}, {message.z}");
-
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
 
@@ -1146,7 +1167,12 @@ namespace MiNET
 
 			KnownPosition = new PlayerLocation
 			{
-				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
+				X = message.x,
+				Y = message.y - 1.62f,
+				Z = message.z,
+				Pitch = message.pitch,
+				Yaw = message.yaw,
+				HeadYaw = message.headYaw
 			};
 
 			IsFalling = verticalMove < 0 && !IsOnGround;
@@ -1750,11 +1776,34 @@ namespace MiNET
 			mcpeStartGame.lightnigLevel = 0;
 			mcpeStartGame.enableCommands = EnableCommands;
 			mcpeStartGame.isTexturepacksRequired = false;
+			mcpeStartGame.gamerules = GetGameRules();
 			mcpeStartGame.levelId = "1m0AAMIFIgA=";
 			mcpeStartGame.worldName = Level.LevelName;
 
 			SendPackage(mcpeStartGame);
 		}
+
+		public virtual GameRules GetGameRules()
+		{
+			GameRules rules = new GameRules();
+			rules.Add("drowningdamage", new GameRule<bool>(true));
+			rules.Add("dotiledrops", new GameRule<bool>(true));
+			rules.Add("commandblockoutput", new GameRule<bool>(true));
+			rules.Add("domobloot", new GameRule<bool>(true));
+			rules.Add("dodaylightcycle", new GameRule<bool>(true));
+			rules.Add("keepinventory", new GameRule<bool>(false));
+			rules.Add("domobspawning", new GameRule<bool>(false));
+			rules.Add("doentitydrops", new GameRule<bool>(true));
+			rules.Add("dofiretick", new GameRule<bool>(false));
+			rules.Add("doweathercycle", new GameRule<bool>(false));
+			rules.Add("falldamage", new GameRule<bool>(true));
+			rules.Add("pvp", new GameRule<bool>(true));
+			rules.Add("firedamage", new GameRule<bool>(true));
+			rules.Add("mobgriefing", new GameRule<bool>(true));
+			rules.Add("sendcommandfeedback", new GameRule<bool>(true));
+			return rules;
+		}
+
 
 		/// <summary>
 		///     Sends the set spawn position packet.
@@ -2280,7 +2329,7 @@ namespace MiNET
 		[Wired]
 		public void RemoveAllEffects()
 		{
-			foreach (var effect	 in Effects)
+			foreach (var effect in Effects)
 			{
 				RemoveEffect(effect.Value);
 			}

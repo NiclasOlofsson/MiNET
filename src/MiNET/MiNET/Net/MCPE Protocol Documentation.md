@@ -1213,10 +1213,10 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown0 | UnsignedVarInt |  |
+|Action ID | UnsignedVarInt |  |
 |Item | Item |  |
-|Unknown1 | SignedVarInt |  |
-|Unknown2 | SignedVarInt |  |
+|Enchantment Id | SignedVarInt |  |
+|Enchantment Level | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Container Open (0x30)
 

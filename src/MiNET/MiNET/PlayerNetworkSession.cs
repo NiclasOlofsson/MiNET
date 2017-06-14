@@ -600,12 +600,12 @@ namespace MiNET
 			var response = ConnectionRequestAccepted.CreateObject();
 			response.NoBatch = true;
 			response.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
-			response.systemAddresses = new IPEndPoint[10];
+			response.systemAddresses = new IPEndPoint[20];
 			response.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
 			response.incomingTimestamp = message.timestamp;
 			response.serverTimestamp = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
-			for (int i = 1; i < 10; i++)
+			for (int i = 1; i < 20; i++)
 			{
 				response.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
 			}

@@ -120,6 +120,7 @@ namespace MiNET
 
 			HideNameTag = false;
 			IsAlwaysShowName = true;
+			CanClimb = true;
 		}
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)

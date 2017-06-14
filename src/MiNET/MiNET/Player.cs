@@ -798,31 +798,42 @@ namespace MiNET
 			SendPackage(package);
 		}
 
+		private object _teleportSync = new object();
+
 		public virtual void Teleport(PlayerLocation newPosition)
 		{
-			bool oldNoAi = NoAi;
-			SetNoAi(true);
+			if (!Monitor.TryEnter(_teleportSync)) return;
 
-			if (!IsChunkInCache(newPosition))
+			try
 			{
-				// send teleport straight up, no chunk loading
-				SetPosition(new PlayerLocation
+				bool oldNoAi = NoAi;
+				SetNoAi(true);
+
+				if (!IsChunkInCache(newPosition))
 				{
-					X = KnownPosition.X,
-					Y = 4000,
-					Z = KnownPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
-				});
+					// send teleport straight up, no chunk loading
+					SetPosition(new PlayerLocation
+					{
+						X = KnownPosition.X,
+						Y = 4000,
+						Z = KnownPosition.Z,
+						Yaw = 91,
+						Pitch = 28,
+						HeadYaw = 91,
+					});
 
-				ForcedSendChunk(newPosition);
+					ForcedSendChunk(newPosition);
+				}
+
+				// send teleport to spawn
+				SetPosition(newPosition);
+
+				SetNoAi(oldNoAi);
 			}
-
-			// send teleport to spawn
-			SetPosition(newPosition);
-
-			SetNoAi(oldNoAi);
+			finally
+			{
+				Monitor.Exit(_teleportSync);
+			}
 
 			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 		}

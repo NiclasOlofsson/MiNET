@@ -118,11 +118,13 @@ namespace MiNET.Worlds
 				//	}
 				//}
 
-				chunk.RecalcHeight(); // Enable this if you add structures and stuff.
+				//chunk.RecalcHeight(); // Enable this if you add structures and stuff.
 				_spawnPoint.Y = h + 2;
 
 				// Cache
 				chunk.GetBatch();
+				chunk.isGenerated = true;
+				chunk.NeedSave = false;
 				_chunkCache[chunkCoordinates] = chunk;
 
 				return chunk;

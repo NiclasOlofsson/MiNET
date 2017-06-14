@@ -311,15 +311,10 @@ namespace MiNET.Worlds
 				var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 				if (chunkColumn != null)
 				{
-					chunkColumn.NeedSave = true;
+					//chunkColumn.NeedSave = true;
 				}
 
 				return chunkColumn;
-				//return new ChunkColumn
-				//{
-				//	x = coordinates.X,
-				//	z = coordinates.Z,
-				//};
 			}
 
 			using (var regionFile = File.OpenRead(filePath))
@@ -355,15 +350,10 @@ namespace MiNET.Worlds
 					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 					if (chunkColumn != null)
 					{
-						chunkColumn.NeedSave = true;
+						//chunkColumn.NeedSave = true;
 					}
 
 					return chunkColumn;
-					//return new ChunkColumn
-					//{
-					//	x = coordinates.X,
-					//	z = coordinates.Z,
-					//};
 				}
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
@@ -379,7 +369,6 @@ namespace MiNET.Worlds
 				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
 
 				NbtCompound dataTag = (NbtCompound) nbt.RootTag["Level"];
-
 				
 				bool isPocketEdition = false;
 				if (dataTag.Contains("MCPE BID"))
@@ -474,6 +463,7 @@ namespace MiNET.Worlds
 				//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
 				chunk.isDirty = false;
+				chunk.NeedSave = false;
 				return chunk;
 			}
 		}
@@ -809,13 +799,14 @@ namespace MiNET.Worlds
 			levelTag.Add(entitiesTag);
 
 			NbtList blockEntitiesTag = new NbtList("TileEntities", NbtTagType.Compound);
-			levelTag.Add(blockEntitiesTag);
 			foreach (NbtCompound blockEntityNbt in chunk.BlockEntities.Values)
 			{
 				NbtCompound nbtClone = (NbtCompound) blockEntityNbt.Clone();
 				nbtClone.Name = null;
 				blockEntitiesTag.Add(nbtClone);
 			}
+
+			levelTag.Add(blockEntitiesTag);
 
 			levelTag.Add(new NbtList("TileTicks", NbtTagType.Compound));
 

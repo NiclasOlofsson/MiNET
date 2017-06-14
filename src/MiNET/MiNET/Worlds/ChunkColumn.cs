@@ -55,8 +55,9 @@ namespace MiNET.Worlds
 
 		private byte[] _cache;
 		public bool isDirty;
+		public bool isGenerated;
 		public bool IsLoaded = false;
-		public bool NeedSave = true;
+		public bool NeedSave = false;
 		private McpeWrapper _cachedBatch = null;
 		private object _cacheSync = new object();
 

@@ -469,6 +469,7 @@ namespace MiNET
 		public bool IsNoPvm { get; set; }
 		public bool IsNoMvp { get; set; }
 		public bool IsNoClip { get; set; }
+		public bool IsFlying { get; set; };
 
 		public virtual void SendAdventureSettings()
 		{
@@ -488,7 +489,8 @@ namespace MiNET
 			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x80; // No clip
 
 			flags |= 0x100; // Worldbuilder
-			//flags |= 0x200; // Flying
+
+			if (IsFlying) flags |= 0x200;
 			//flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;

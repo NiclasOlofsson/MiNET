@@ -378,7 +378,14 @@ namespace MiNET.Worlds
 				var nbt = new NbtFile();
 				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
 
-				NbtTag dataTag = nbt.RootTag["Level"];
+				NbtCompound dataTag = (NbtCompound) nbt.RootTag["Level"];
+
+				
+				bool isPocketEdition = false;
+				if (dataTag.Contains("MCPE BID"))
+				{
+					isPocketEdition = dataTag["MCPE BID"].ByteValue == 1;
+				}
 
 				NbtList sections = dataTag["Sections"] as NbtList;
 
@@ -395,7 +402,7 @@ namespace MiNET.Worlds
 				// This will turn into a full chunk column
 				foreach (NbtTag sectionTag in sections)
 				{
-					ReadSection(yoffset, sectionTag, chunk);
+					ReadSection(yoffset, sectionTag, chunk, isPocketEdition);
 				}
 
 				NbtList entities = dataTag["Entities"] as NbtList;
@@ -471,7 +478,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk)
+		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk, bool convertBid = false)
 		{
 			int sy = sectionTag["Y"].ByteValue*16;
 			byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
@@ -497,7 +504,7 @@ namespace MiNET.Worlds
 						// Anvil to PE friendly converstion
 
 						Func<int, byte, byte> dataConverter = (i, b) => b; // Default no-op converter
-						if (Convert.ContainsKey(blockId))
+						if (convertBid && Convert.ContainsKey(blockId))
 						{
 							dataConverter = Convert[blockId].Item2;
 							blockId = Convert[blockId].Item1;
@@ -741,6 +748,8 @@ namespace MiNET.Worlds
 			NbtCompound levelTag = new NbtCompound("Level");
 			nbt.RootTag.Add(levelTag);
 
+			levelTag.Add(new NbtByte("MCPE BID", 1)); // Indicate that the chunks contain PE block ID's.
+
 			levelTag.Add(new NbtInt("xPos", chunk.x));
 			levelTag.Add(new NbtInt("zPos", chunk.z));
 			levelTag.Add(new NbtByteArray("Biomes", chunk.biomeId));
@@ -748,7 +757,7 @@ namespace MiNET.Worlds
 			NbtList sectionsTag = new NbtList("Sections");
 			levelTag.Add(sectionsTag);
 
-			for (int i = 0; i < 8; i++)
+			for (int i = 0; i < 16; i++)
 			{
 				NbtCompound sectionTag = new NbtCompound();
 				sectionsTag.Add(sectionTag);

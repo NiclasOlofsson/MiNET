@@ -18,7 +18,8 @@ namespace MiNET.Entities.World
 		public override MetadataDictionary GetMetadata()
 		{
 			MetadataDictionary metadata = new MetadataDictionary();
-			metadata[16] = new MetadataByte(Fuse);
+			metadata[56] = new MetadataInt(Fuse);
+			IsIgnited = true;
 
 			return metadata;
 		}

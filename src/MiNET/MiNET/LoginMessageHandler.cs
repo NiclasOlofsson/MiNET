@@ -551,7 +551,7 @@ namespace MiNET
 
 		public virtual IMcpeMessageHandler CreatePlayer(INetworkHandler session, PlayerInfo playerInfo)
 		{
-			Player player = _server.PlayerFactory.CreatePlayer(_server, session.GetClientEndPoint());
+			Player player = _server.PlayerFactory.CreatePlayer(_server, session.GetClientEndPoint(), playerInfo);
 			player.NetworkHandler = session;
 			player.CertificateData = playerInfo.CertificateData;
 			player.Username = playerInfo.Username;

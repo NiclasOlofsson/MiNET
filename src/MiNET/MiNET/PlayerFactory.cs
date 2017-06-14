@@ -6,7 +6,7 @@ namespace MiNET
 {
 	public class PlayerFactory
 	{
-		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint)
+		public virtual Player CreatePlayer(MiNetServer server, IPEndPoint endPoint, PlayerInfo playerInfo)
 		{
 			var player = new Player(server, endPoint);
 			player.MaxViewDistance = Config.GetProperty("MaxViewDistance", 22);

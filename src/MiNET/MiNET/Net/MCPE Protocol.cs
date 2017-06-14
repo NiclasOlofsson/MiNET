@@ -41,6 +41,7 @@ namespace MiNET.Net
 		void HandleMcpeContainerClose(McpeContainerClose message);
 		void HandleMcpeContainerSetSlot(McpeContainerSetSlot message);
 		void HandleMcpeCraftingEvent(McpeCraftingEvent message);
+		void HandleMcpeAdventureSettings(McpeAdventureSettings message);
 		void HandleMcpeBlockEntityData(McpeBlockEntityData message);
 		void HandleMcpePlayerInput(McpePlayerInput message);
 		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);

@@ -1335,7 +1335,7 @@ MODE_ROTATION = 2;
 ### Package: Mcpe Adventure Settings (0x37)
 
 **Sent from server:** true
-**Sent from client:** false
+**Sent from client:** true
 **Packet size:** 
 
 

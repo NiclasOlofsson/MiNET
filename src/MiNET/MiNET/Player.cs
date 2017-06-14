@@ -469,7 +469,14 @@ namespace MiNET
 		public bool IsNoPvm { get; set; }
 		public bool IsNoMvp { get; set; }
 		public bool IsNoClip { get; set; }
-		public bool IsFlying { get; set; };
+		public bool IsFlying { get; set; }
+
+		public virtual void HandleMcpeAdventureSettings(McpeAdventureSettings message)
+		{
+			var flags = message.flags;
+			IsAutoJump = (flags & 0x20) == 0x20;
+			IsFlying = (flags & 0x200) == 0x200;
+		}
 
 		public virtual void SendAdventureSettings()
 		{

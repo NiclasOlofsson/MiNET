@@ -564,7 +564,7 @@
 		<field name="Result" type="ItemStacks" />
 	</pdu>
 
-	<pdu id="0x37" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">
+	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">
 		<field name="Flags" type="UnsignedVarInt" />
 		<!--
 		PERMISSION_NORMAL = 0;

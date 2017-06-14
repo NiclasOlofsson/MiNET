@@ -498,6 +498,11 @@ namespace MiNET
 				handler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
 			}
 
+			else if (typeof(McpeAdventureSettings) == message.GetType())
+			{
+				handler.HandleMcpeAdventureSettings((McpeAdventureSettings)message);
+			}
+
 			else if (typeof (McpePlayerAction) == message.GetType())
 			{
 				handler.HandleMcpePlayerAction((McpePlayerAction) message);

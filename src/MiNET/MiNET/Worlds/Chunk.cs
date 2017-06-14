@@ -11,7 +11,7 @@ namespace MiNET.Worlds
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
 
-		public bool isAllAir = false;
+		private bool _isAllAir = true;
 
 		public byte[] blocks = new byte[16*16*16];
 		public NibbleArray metadata = new NibbleArray(16*16*16);
@@ -19,20 +19,26 @@ namespace MiNET.Worlds
 		public NibbleArray skylight = new NibbleArray(16*16*16);
 
 		private byte[] _cache;
-		public bool isDirty;
+		private bool _isDirty;
 		private object _cacheSync = new object();
 
 		public Chunk()
 		{
-			isDirty = false;
-
+			ChunkColumn.Fill<byte>(skylight.Data, 0xff);
 			//BiomeUtils utils = new BiomeUtils();
 			//utils.PrecomputeBiomeColors();
 		}
 
+		public bool IsDirty => _isDirty;
+
 		public bool IsAllAir()
 		{
-			return blocks.All(b => b == 0);
+			if (_isDirty)
+			{
+				_isAllAir = blocks.All(b => b == 0);
+				_isDirty = false;
+			}
+			return _isAllAir;
 		}
 
 		private static int GetIndex(int bx, int by, int bz)
@@ -49,7 +55,7 @@ namespace MiNET.Worlds
 		{
 			blocks[GetIndex(bx, by, bz)] = bid;
 			_cache = null;
-			isDirty = true;
+			_isDirty = true;
 		}
 
 		public byte GetBlocklight(int bx, int by, int bz)
@@ -61,7 +67,7 @@ namespace MiNET.Worlds
 		{
 			blocklight[GetIndex(bx, by, bz)] = data;
 			_cache = null;
-			isDirty = true;
+			_isDirty = true;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -73,7 +79,7 @@ namespace MiNET.Worlds
 		{
 			metadata[GetIndex(bx, by, bz)] = data;
 			_cache = null;
-			isDirty = true;
+			_isDirty = true;
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
@@ -85,7 +91,7 @@ namespace MiNET.Worlds
 		{
 			skylight[GetIndex(bx, by, bz)] = data;
 			_cache = null;
-			isDirty = true;
+			_isDirty = true;
 		}
 
 		public byte[] GetBytes()

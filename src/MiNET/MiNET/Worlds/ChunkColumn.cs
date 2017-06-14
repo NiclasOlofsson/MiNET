@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -6,7 +31,6 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -24,7 +48,7 @@ namespace MiNET.Worlds
 		public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
-		public byte[] height = ArrayOf<byte>.Create(256*2, 0);
+		public short[] height = new short[256];
 
 		//TODO: This dictionary need to be concurent. Investigate performance before changing.
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
@@ -65,15 +89,15 @@ namespace MiNET.Worlds
 			SetDirty();
 		}
 
-		public void SetHeight(int bx, int bz, byte h)
+		public void SetHeight(int bx, int bz, short h)
 		{
-			height[(bz << 4) + (bx)] = h;
+			height[((bz << 4) + (bx))] = h;
 			SetDirty();
 		}
 
 		public byte GetHeight(int bx, int bz)
 		{
-			return height[(bz << 4) + (bx)];
+			return (byte) height[((bz << 4) + (bx))];
 		}
 
 		public void SetBiome(int bx, int bz, byte biome)
@@ -198,7 +222,7 @@ namespace MiNET.Worlds
 						GetBiomeColor(bx, bz + 1),
 						GetBiomeColor(bx - 1, bz + 1),
 						GetBiomeColor(bx + 1, bz - 1)
-						);
+					);
 					//SetBiomeColor(bx, bz, c.ToArgb());
 				}
 			}
@@ -231,6 +255,32 @@ namespace MiNET.Worlds
 			return Color.FromArgb(color);
 		}
 
+		public static void Fill<T>(T[] destinationArray, params T[] value)
+		{
+			if (destinationArray == null)
+			{
+				throw new ArgumentNullException(nameof(destinationArray));
+			}
+
+			if (value.Length >= destinationArray.Length)
+			{
+				throw new ArgumentException("Length of value array must be less than length of destination");
+			}
+
+			// set the initial array value
+			Array.Copy(value, destinationArray, value.Length);
+
+			int arrayToFillHalfLength = destinationArray.Length/2;
+			int copyLength;
+
+			for (copyLength = value.Length; copyLength < arrayToFillHalfLength; copyLength <<= 1)
+			{
+				Array.Copy(destinationArray, 0, destinationArray, copyLength, copyLength);
+			}
+
+			Array.Copy(destinationArray, 0, destinationArray, copyLength, destinationArray.Length - copyLength);
+		}
+
 		public void RecalcHeight()
 		{
 			for (int x = 0; x < 16; x++)
@@ -238,26 +288,37 @@ namespace MiNET.Worlds
 				for (int z = 0; z < 16; z++)
 				{
 					bool isInLight = true;
+					bool isInAir = true;
 
 					for (int y = 255; y >= 0; y--)
 					{
 						if (isInLight)
 						{
-							byte block = GetBlock(x, y, z);
-							if (block == 0 || block == 20 || block == 241)
+							Chunk chunk = chunks[y >> 4];
+							if (isInAir && chunk.IsAllAir())
 							{
-								SetSkyLight(x, y, z, 15);
+								if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
+								y -= 15;
+								continue;
 							}
-							else
-							{
-								SetHeight(x, z, (byte) (y + 1));
-								SetSkyLight(x, y, z, 0);
-								isInLight = false;
-							}
+
+							isInAir = false;
+
+							//byte block = GetBlock(x, y, z);
+							//if (block == 0 || block == 20 || block == 241)
+							//{
+							//	SetSkyLight(x, y, z, 15);
+							//}
+							//else
+							//{
+							//	SetHeight(x, z, (short) (y + 1));
+							//	SetSkyLight(x, y, z, 0);
+							//	isInLight = false;
+							//}
 						}
 						else
 						{
-							SetSkyLight(x, y, z, 0);
+							//SetSkyLight(x, y, z, 0);
 						}
 					}
 				}
@@ -301,7 +362,7 @@ namespace MiNET.Worlds
 				_cache = null;
 				isDirty = false;
 
-				return batch;
+				return _cachedBatch;
 			}
 		}
 
@@ -334,7 +395,11 @@ namespace MiNET.Worlds
 				//Log.Debug($"Saved sending {16 - sent} chunks");
 
 				//RecalcHeight();
-				writer.Write(height);
+
+				byte[] ba = new byte[512];
+				Buffer.BlockCopy(height, 0, ba, 0, 512);
+				writer.Write(ba);
+				//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
 
 				//BiomeUtils utils = new BiomeUtils();
 				//utils.PrecomputeBiomeColors();
@@ -397,7 +462,7 @@ namespace MiNET.Worlds
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();
-			cc.height = (byte[]) height.Clone();
+			cc.height = (short[]) height.Clone();
 
 			cc.BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)

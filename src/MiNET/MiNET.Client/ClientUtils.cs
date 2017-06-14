@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 using fNbt;
 using log4net;
@@ -58,8 +59,7 @@ namespace MiNET.Client
 						return null;
 					}
 
-					if (count > 1) Log.Debug($"Reading {count} sections");
-					else Log.Debug($"Reading {count} sections");
+					Log.Debug($"Reading {count} sections");
 
 					ChunkColumn chunkColumn = new ChunkColumn();
 
@@ -110,8 +110,12 @@ namespace MiNET.Client
 
 					//if (stream.Position >= stream.Length - 1) continue;
 
-					if (defStream.Read(chunkColumn.height, 0, 256*2) != 256*2) Log.Error($"Out of data height");
-					//Log.Debug($"Heights:\n{Package.HexDump(chunk.height)}");
+
+					byte[] ba = new byte[512];
+					if (defStream.Read(ba, 0, 256*2) != 256*2) Log.Error($"Out of data height");
+
+					Buffer.BlockCopy(ba, 0, chunkColumn.height, 0, 512);
+					//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
 
 					//if (stream.Position >= stream.Length - 1) continue;
 
@@ -165,9 +169,9 @@ namespace MiNET.Client
 					{
 						Log.Warn($"Still have data to read\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
 					}
-				}
 
-				return new ChunkColumn();
+					return chunkColumn;
+				}
 			}
 		}
 
@@ -256,7 +260,10 @@ namespace MiNET.Client
 
 		public static void SaveChunkToAnvil(ChunkColumn chunk)
 		{
-			AnvilWorldProvider.SaveChunk(chunk, _basePath, 0);
+			lock (_basePath)
+			{
+				AnvilWorldProvider.SaveChunk(chunk, _basePath, 0);
+			}
 		}
 
 		private static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk)

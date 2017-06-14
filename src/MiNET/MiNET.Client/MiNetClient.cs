@@ -122,6 +122,7 @@ namespace MiNET.Client
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.255"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("true-games.org").AddressList[0], 2222), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
@@ -1992,13 +1993,16 @@ Adventure settings
 			Log.DebugFormat("Velocity Z: {0}", message.speedZ);
 			Log.DebugFormat("Metadata: {0}", MetadataToCode(message.metadata));
 
-			long? value = ((MetadataLong) message.metadata[0])?.Value;
-			if (value != null)
+			if (message.metadata.Contains(0))
 			{
-				long dataValue = (long) value;
-				Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+				long? value = ((MetadataLong) message.metadata[0])?.Value;
+				if (value != null)
+				{
+					long dataValue = (long) value;
+					Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+				}
+				
 			}
-
 			if (Log.IsDebugEnabled)
 			{
 				foreach (var attribute in message.attributes)
@@ -2433,8 +2437,8 @@ StartGame:
 			Random rand = new Random();
 			var packet = NewIncomingConnection.CreateObject();
 			packet.clientendpoint = _serverEndpoint;
-			packet.systemAddresses = new IPEndPoint[10];
-			for (int i = 0; i < 10; i++)
+			packet.systemAddresses = new IPEndPoint[20];
+			for (int i = 0; i < 20; i++)
 			{
 				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
 			}

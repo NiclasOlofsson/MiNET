@@ -118,8 +118,7 @@ namespace MiNET.Worlds
 				//	}
 				//}
 
-				chunk.RecalcHeight();
-
+				chunk.RecalcHeight(); // Enable this if you add structures and stuff.
 				_spawnPoint.Y = h + 2;
 
 				// Cache
@@ -249,6 +248,7 @@ namespace MiNET.Worlds
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 2); // Grass
+					chunk.SetHeight(x, z, (short) h);
 				}
 			}
 

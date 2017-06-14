@@ -120,7 +120,7 @@ namespace MiNET.Client
 				commandStep.unknown7 = 0;
 				commandStep.unknown8 = 0;
 				commandStep.entityIdSelf = client.NetworkEntityId;
-				Log.Error($"Entity ID used={commandStep.entityIdSelf}\n{Package.HexDump(commandStep.Encode())}");
+				//Log.Error($"Entity ID used={commandStep.entityIdSelf}\n{Package.HexDump(commandStep.Encode())}");
 				client.SendPackage(commandStep);
 			};
 			return doUseItem;

@@ -127,6 +127,8 @@
     <Compile Include="Blocks\CobblestoneWall.cs" />
     <Compile Include="Blocks\Cobweb.cs" />
     <Compile Include="Blocks\Cocoa.cs" />
+    <Compile Include="Blocks\Concrete.cs" />
+    <Compile Include="Blocks\ConcretePowder.cs" />
     <Compile Include="Blocks\Crops.cs" />
     <Compile Include="Blocks\CyanGlazedTerracotta.cs" />
     <Compile Include="Blocks\DarkOakDoor.cs" />
@@ -138,6 +140,7 @@
     <Compile Include="Blocks\EndGateway.cs" />
     <Compile Include="Blocks\EndPortal.cs" />
     <Compile Include="Blocks\EndRod.cs" />
+    <Compile Include="Blocks\FrostedIce.cs" />
     <Compile Include="Blocks\GlazedTerracotta.cs" />
     <Compile Include="Blocks\GrayGlazedTerracotta.cs" />
     <Compile Include="Blocks\GreenGlazedTerracotta.cs" />
@@ -161,7 +164,7 @@
     <Compile Include="Blocks\PurPurStairs.cs" />
     <Compile Include="Blocks\RedGlazedTerracotta.cs" />
     <Compile Include="Blocks\RedSandstone.cs" />
-    <Compile Include="Blocks\RedSandstoneSlab.cs" />
+    <Compile Include="Blocks\StoneSlab2.cs" />
     <Compile Include="Blocks\RedSandstoneStairs.cs" />
     <Compile Include="Blocks\SeaLantern.cs" />
     <Compile Include="Blocks\SilverGlazedTerracotta.cs" />

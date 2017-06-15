@@ -79,55 +79,11 @@ namespace MiNET.Worlds
 
 			Convert = new Dictionary<int, Tuple<int, Func<int, byte, byte>>>
 			{
-				//{23, air}, // minecraft:dispenser	=> Air
-				//{29, air}, // minecraft:sticky_piston	=> Air
-				//{33, air}, // minecraft:piston		=> Air
-				//{34, air}, // minecraft:piston_head		=> Air
 				{36, new NoDataMapper(250)}, // minecraft:piston_extension		=> MovingBlock
 				{43, new Mapper(43, (i, b) => (byte) (b == 6 ? 7 : b == 7 ? 6 : b))}, // Fence		=> Fence
 				{44, new Mapper(44, (i, b) => (byte) (b == 6 ? 7 : b == 7 ? 6 : b == 14 ? 15 : b == 15 ? 14 : b))}, // Fence		=> Fence
-				{84, air}, // minecraft:jukebox		=> Air
-				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
-				//{90, air}, // Nether Portal	=> Air
-				//{93, air}, // minecraft:unpowered_repeater	=> Air
-				//{94, air}, // minecraft:powered_repeater	=> Air
-				{95, new NoDataMapper(241)}, // minecraft:stained_glass	=> Stained Glass
-				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
-				//{113, new NoDataMapper(85)}, // Nether Fence		=> Fence
-				//{118, air}, // minecraft:cauldron		=> Air
-				//{119, air}, // minecraft:end_portal		=> Air
-				//{122, air}, // Dragon Egg		=> Air
-				//{123, new NoDataMapper(122)}, // Redstone Lamp O	=> Glowstone
-				//{124, new NoDataMapper(123)}, // Redstone Lamp O	=> Glowstone
-				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
-				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
-				//{130, new NoDataMapper(54)}, // Ender Chest		=> Chest
-				{137, air}, // Command Block	=> Air
-				//{138, air}, // Beacon		=> Air
 				{
-					143, new Mapper(143, delegate(int i, byte b)
-					{
-						switch (b & 0x7f)
-						{
-							case 0:
-								return (byte) BlockFace.Down; // 0
-							case 1:
-								return (byte) BlockFace.South; // 5
-							case 2:
-								return (byte) BlockFace.North; // 4
-							case 3:
-								return (byte) BlockFace.West; // 3
-							case 4:
-								return (byte) BlockFace.East; // 2
-							case 5:
-								return (byte) BlockFace.Up; // 1
-						}
-
-						return 0;
-					})
-				}, // Trapdoor Fix
-				{
-					77, new Mapper(77, delegate(int i, byte b)
+					77, new Mapper(77, delegate(int i, byte b) // stone_button
 					{
 						switch (b & 0x7f)
 						{
@@ -147,82 +103,97 @@ namespace MiNET.Worlds
 
 						return 0;
 					})
-				}, // Trapdoor Fix
+				},
+				{84, new NoDataMapper(25)}, // minecraft:jukebox		=> noteblock
+				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
+				{95, new NoDataMapper(241)}, // minecraft:stained_glass	=> Stained Glass
+				{96, new Mapper(96, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, // Trapdoor Fix
+				{125, new NoDataMapper(157)}, // minecraft:double_wooden_slab	=> minecraft:double_wooden_slab
+				{126, new NoDataMapper(158)}, // minecraft:wooden_slab		=> minecraft:wooden_slab
+				{
+					143, new Mapper(143, delegate(int i, byte b) // wooden_button
+					{
+						switch (b & 0x7f)
+						{
+							case 0:
+								return (byte) BlockFace.Down; // 0
+							case 1:
+								return (byte) BlockFace.South; // 5
+							case 2:
+								return (byte) BlockFace.North; // 4
+							case 3:
+								return (byte) BlockFace.West; // 3
+							case 4:
+								return (byte) BlockFace.East; // 2
+							case 5:
+								return (byte) BlockFace.Up; // 1
+						}
 
-				//{149, air}, // minecraft:unpowered_comparator		=> Air
-				//{150, air}, // minecraft:powered_comparator		=> Air
-
-				//{154, air}, // minecraft:hopper		=> Air
-				{157, new NoDataMapper(126)}, // minecraft:activator_rail	=> minecraft:activator_rail
-				{158, new NoDataMapper(125)}, // minecraft:dropper		=> Air
-				//{160, new NoDataMapper(160)}, // minecraft:stained_glass_pane	=> Glass Pane
-				//{165, air}, // Slime Block		=> Air
+						return 0;
+					})
+				},
+				{157, new NoDataMapper(126)}, // minecraft:activator_rail
+				{158, new NoDataMapper(125)}, // minecraft:dropper
 				{166, new NoDataMapper(95)}, // minecraft:barrier		=> (Invisible Bedrock)
 				{167, new Mapper(167, (i, b) => (byte) (((b & 0x04) << 1) | ((b & 0x08) >> 1) | (3 - (b & 0x03))))}, //Fix iron_trapdoor
-				//{168, air}, // minecraft:prismarine		=> Air
-				//{169, new NoDataMapper(89)}, // minecraft:sea_lantern		=> Glowstone
 				{176, air}, // minecraft:standing_banner		=> Air
 				{177, air}, // minecraft:wall_banner		=> Air
-				// 179-182 Need mapping (Red Sandstone)
-				{183, new NoDataMapper(183)}, // Spruce Gate		=> Gate
-				{184, new NoDataMapper(184)}, // Birch Gate		=> Gate
-				{185, new NoDataMapper(185)}, // Jungle Gate		=> Gate
-				{186, new NoDataMapper(186)}, // Dark Oak Gate	=> Gate
-				{187, new NoDataMapper(187)}, // Acacia Gate		=> Gate
 				{188, new Mapper(85, (i, b) => 1)}, // Spruce Fence		=> Fence
 				{189, new Mapper(85, (i, b) => 2)}, // Birch Fence		=> Fence
 				{190, new Mapper(85, (i, b) => 3)}, // Jungle Fence		=> Fence
 				{191, new Mapper(85, (i, b) => 5)}, // Dark Oak Fence	=> Fence
 				{192, new Mapper(85, (i, b) => 4)}, // Acacia Fence		=> Fence
 				{198, new NoDataMapper(208)}, // minecraft:end_rod	=> EndRod
-				{199, new NoDataMapper(140)}, // minecraft:chorus_plant => ChorusPlant
+				{199, new NoDataMapper(240)}, // minecraft:chorus_plant
 				{202, new Mapper(201, (i, b) => 2)}, // minecraft:purpur_pillar => PurpurBlock:2 (idk why)
-				{204, new NoDataMapper(0)}, // minecraft:purpur_double_slab => air
-				{205, new Mapper(182, (i, b) => 1)}, // minecraft:purpur_slab => RedSandstoneSlab:1 (idk why)
-				{207, new NoDataMapper(244)}, // minecraft:beetroot_block => beetroot
-				{208, new NoDataMapper(198)}, // minecraft:grass_path => grass_path
-				{209, new NoDataMapper(209)}, // minecraft:end_gateway => EndGateway
-				{212, new NoDataMapper(174)}, // Frosted Ice => Packed Ice
+				{204, new Mapper(181, (i, b) => 1)}, // minecraft:purpur_double_slab
+				{205, new Mapper(182, (i, b) => 1)}, // minecraft:purpur_slab
+				{207, new NoDataMapper(244)}, // minecraft:beetroot_block
+				{208, new NoDataMapper(198)}, // minecraft:grass_path
+				{210, new NoDataMapper(188)}, // repeating_command_block
+				{211, new NoDataMapper(189)}, // minecraft:chain_command_block
+				{212, new NoDataMapper(297)}, // Frosted Ice
 				{213, new NoDataMapper(87)}, //minecraft:magma => netherrack
 				{214, new NoDataMapper(112)}, //nether_wart_block => nether_brick
-				{215, new NoDataMapper(112)}, //red_nether_brick => nether_brick
-				{216, new NoDataMapper(0)}, //bone => air
+				{215, new NoDataMapper(112)}, //red_nether_brick
+				{216, new NoDataMapper(172)}, //bone => white hardened stained clay
 				{218, new NoDataMapper(251)}, // minecraft:observer => Observer
-				{219, new NoDataMapper(218)}, // =>
-				{220, new NoDataMapper(218)}, // =>
-				{221, new NoDataMapper(218)}, // =>
-				{222, new NoDataMapper(218)}, // =>
-				{223, new NoDataMapper(218)}, // =>
-				{224, new NoDataMapper(218)}, // =>
-				{225, new NoDataMapper(218)}, // =>
-				{226, new NoDataMapper(218)}, // =>
-				{227, new NoDataMapper(218)}, // =>
-				{228, new NoDataMapper(218)}, // =>
-				{229, new NoDataMapper(218)}, // =>
-				{230, new NoDataMapper(218)}, // =>
-				{231, new NoDataMapper(218)}, // =>
-				{232, new NoDataMapper(218)}, // =>
-				{233, new NoDataMapper(218)}, // =>
-				{234, new NoDataMapper(218)}, // =>
+				{219, new Mapper(201, (i, b) => 0)}, // => minecraft:white_shulker_box
+				{220, new Mapper(201, (i, b) => 1)}, // => minecraft:orange_shulker_box
+				{221, new Mapper(201, (i, b) => 2)}, // => minecraft:magenta_shulker_box
+				{222, new Mapper(201, (i, b) => 3)}, // => minecraft:light_blue_shulker_box 
+				{223, new Mapper(201, (i, b) => 4)}, // => minecraft:yellow_shulker_box 
+				{224, new Mapper(201, (i, b) => 5)}, // => minecraft:lime_shulker_box 
+				{225, new Mapper(201, (i, b) => 6)}, // => minecraft:pink_shulker_box 
+				{226, new Mapper(201, (i, b) => 7)}, // => minecraft:gray_shulker_box 
+				{227, new Mapper(201, (i, b) => 8)}, // => minecraft:light_gray_shulker_box 
+				{228, new Mapper(201, (i, b) => 9)}, // => minecraft:cyan_shulker_box 
+				{229, new Mapper(201, (i, b) => 10)}, // => minecraft:purple_shulker_box 
+				{230, new Mapper(201, (i, b) => 11)}, // => minecraft:blue_shulker_box 
+				{231, new Mapper(201, (i, b) => 12)}, // => minecraft:brown_shulker_box 
+				{232, new Mapper(201, (i, b) => 13)}, // => minecraft:green_shulker_box 
+				{233, new Mapper(201, (i, b) => 14)}, // => minecraft:red_shulker_box 
+				{234, new Mapper(201, (i, b) => 15)}, // => minecraft:black_shulker_box 
 
-				{235, new NoDataMapper(235)}, // =>
-				{236, new NoDataMapper(235)}, // =>
-				{237, new NoDataMapper(235)}, // =>
-				{238, new NoDataMapper(235)}, // =>
-				{239, new NoDataMapper(235)}, // =>
-				{240, new NoDataMapper(235)}, // =>
-				{241, new NoDataMapper(235)}, // =>
-				{242, new NoDataMapper(235)}, // =>
-				{243, new NoDataMapper(235)}, // =>
-				{244, new NoDataMapper(235)}, // =>
-				{245, new NoDataMapper(235)}, // =>
-				{246, new NoDataMapper(235)}, // =>
-				{247, new NoDataMapper(235)}, // =>
-				{248, new NoDataMapper(235)}, // =>
-				{249, new NoDataMapper(235)}, // =>
-				{250, new NoDataMapper(235)}, // =>
-				{251, new NoDataMapper(235)}, // =>
-				{252, new NoDataMapper(237)}, // concrete_powder => concrete_powder
+				{235, new NoDataMapper(220)}, // => minecraft:white_glazed_terracotta
+				{236, new NoDataMapper(221)}, // => minecraft:orange_glazed_terracotta
+				{237, new NoDataMapper(222)}, // => minecraft:magenta_glazed_terracotta
+				{238, new NoDataMapper(223)}, // => minecraft:light_blue_glazed_terracotta
+				{239, new NoDataMapper(224)}, // => minecraft:yellow_glazed_terracotta
+				{240, new NoDataMapper(225)}, // => minecraft:lime_glazed_terracotta
+				{241, new NoDataMapper(226)}, // => minecraft:pink_glazed_terracotta
+				{242, new NoDataMapper(227)}, // => minecraft:gray_glazed_terracotta
+				{243, new NoDataMapper(228)}, // => minecraft:light_gray_glazed_terracotta
+				{244, new NoDataMapper(229)}, // => minecraft:cyan_glazed_terracotta
+				{245, new NoDataMapper(219)}, // => minecraft:purple_glazed_terracotta
+				{246, new NoDataMapper(231)}, // => minecraft:blue_glazed_terracotta
+				{247, new NoDataMapper(232)}, // => minecraft:brown_glazed_terracotta
+				{248, new NoDataMapper(233)}, // => minecraft:green_glazed_terracotta
+				{249, new NoDataMapper(234)}, // => minecraft:red_glazed_terracotta
+				{250, new NoDataMapper(235)}, // => minecraft:black_glazed_terracotta
+
+				{251, new NoDataMapper(236)}, // => minecraft:concrete
+				{252, new NoDataMapper(237)}, // => minecraft:concrete_powder
 			};
 		}
 

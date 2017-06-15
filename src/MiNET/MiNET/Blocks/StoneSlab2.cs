@@ -5,9 +5,9 @@ using MiNET.Utils;
 
 namespace MiNET.Blocks
 {
-	public class RedSandstoneSlab : Block
+	public class StoneSlab2 : Block
 	{
-		public RedSandstoneSlab() : base(182)
+		public StoneSlab2() : base(182)
 		{
 
 		}

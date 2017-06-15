@@ -305,21 +305,21 @@ namespace MiNET.Worlds
 
 							isInAir = false;
 
-							//byte block = GetBlock(x, y, z);
-							//if (block == 0 || block == 20 || block == 241)
-							//{
-							//	SetSkyLight(x, y, z, 15);
-							//}
-							//else
-							//{
-							//	SetHeight(x, z, (short) (y + 1));
-							//	SetSkyLight(x, y, z, 0);
-							//	isInLight = false;
-							//}
+							byte block = GetBlock(x, y, z);
+							if (block == 0 || block == 20 || block == 241)
+							{
+								SetSkyLight(x, y, z, 15);
+							}
+							else
+							{
+								SetHeight(x, z, (short)(y + 1));
+								SetSkyLight(x, y, z, 0);
+								isInLight = false;
+							}
 						}
 						else
 						{
-							//SetSkyLight(x, y, z, 0);
+							SetSkyLight(x, y, z, 0);
 						}
 					}
 				}

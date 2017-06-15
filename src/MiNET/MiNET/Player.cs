@@ -1803,6 +1803,13 @@ namespace MiNET
 			SendPackage(mcpeStartGame);
 		}
 
+		public virtual void SendGameRules()
+		{
+			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
+			gameRulesChanged.rules = GetGameRules();
+			SendPackage(gameRulesChanged);
+		}
+
 		public virtual GameRules GetGameRules()
 		{
 			GameRules rules = new GameRules();

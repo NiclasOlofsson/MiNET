@@ -84,8 +84,8 @@ namespace MiNET.Worlds
 				//{33, air}, // minecraft:piston		=> Air
 				//{34, air}, // minecraft:piston_head		=> Air
 				{36, new NoDataMapper(250)}, // minecraft:piston_extension		=> MovingBlock
-				{43, new Mapper(43, (i, b) => (byte) (b == 6 ? 7 : b == 6 ? 7 : b))}, // Fence		=> Fence
-				{44, new Mapper(44, (i, b) => (byte) (b == 6 ? 7 : b == 6 ? 7 : b == 14 ? 15 : b == 15 ? 14 : b))}, // Fence		=> Fence
+				{43, new Mapper(43, (i, b) => (byte) (b == 6 ? 7 : b == 7 ? 6 : b))}, // Fence		=> Fence
+				{44, new Mapper(44, (i, b) => (byte) (b == 6 ? 7 : b == 7 ? 6 : b == 14 ? 15 : b == 15 ? 14 : b))}, // Fence		=> Fence
 				{84, air}, // minecraft:jukebox		=> Air
 				{85, new Mapper(85, (i, b) => 0)}, // Fence		=> Fence
 				//{90, air}, // Nether Portal	=> Air
@@ -468,7 +468,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk, bool convertBid = false)
+		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk, bool convertBid = true)
 		{
 			int sy = sectionTag["Y"].ByteValue*16;
 			byte[] blocks = sectionTag["Blocks"].ByteArrayValue;

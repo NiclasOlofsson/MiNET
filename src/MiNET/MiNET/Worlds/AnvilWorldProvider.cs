@@ -391,7 +391,7 @@ namespace MiNET.Worlds
 				// This will turn into a full chunk column
 				foreach (NbtTag sectionTag in sections)
 				{
-					ReadSection(yoffset, sectionTag, chunk, isPocketEdition);
+					ReadSection(yoffset, sectionTag, chunk, !isPocketEdition);
 				}
 
 				NbtList entities = dataTag["Entities"] as NbtList;

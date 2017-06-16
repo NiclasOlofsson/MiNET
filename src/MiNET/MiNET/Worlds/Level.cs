@@ -1155,7 +1155,15 @@ namespace MiNET.Worlds
 			Item inHand = player.Inventory.GetItemInHand();
 			bool canBreak = inHand.BreakBlock(this, player, block, blockEntity);
 
-			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
+			List<Item> drops = new List<Item>();
+			drops.AddRange(block.GetDrops(inHand));
+
+			if (blockEntity != null)
+			{
+				drops.AddRange(blockEntity.GetDrops());
+			}
+
+			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, drops)))
 			{
 				// Revert
 
@@ -1186,31 +1194,30 @@ namespace MiNET.Worlds
 			}
 			else
 			{
-				BreakBlock(block, blockEntity, inHand);
+				BreakBlock(block, blockEntity, drops);
 
 				player.HungerManager.IncreaseExhaustion(0.025f);
 				player.AddExperience(block.GetExperiencePoints());
 			}
 		}
 
-		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
+		public void BreakBlock(Block block, BlockEntity blockEntity = null, List<Item> drops = null)
 		{
 			block.BreakBlock(this);
-			List<Item> drops = new List<Item>();
-			drops.AddRange(block.GetDrops(tool ?? new ItemAir()));
 
 			if (blockEntity != null)
 			{
 				RemoveBlockEntity(block.Coordinates);
-				drops.AddRange(blockEntity.GetDrops());
 			}
 
-			foreach (Item drop in drops)
+			if (drops != null)
 			{
-				DropItem(block.Coordinates, drop);
+				foreach (Item drop in drops)
+				{
+					DropItem(block.Coordinates, drop);
+				}
 			}
 		}
-
 
 		public virtual void DropItem(Vector3 coordinates, Item drop)
 		{

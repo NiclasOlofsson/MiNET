@@ -369,12 +369,14 @@
     <Compile Include="Entities\Hologram.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
     <Compile Include="Entities\Hostile\ElderGuardian.cs" />
+    <Compile Include="Entities\Hostile\Evoker.cs" />
     <Compile Include="Entities\Hostile\Guardian.cs" />
     <Compile Include="Entities\Hostile\Husk.cs" />
     <Compile Include="Entities\Hostile\Shulker.cs" />
     <Compile Include="Entities\Hostile\SkeletonHorse.cs" />
     <Compile Include="Entities\Hostile\Stray.cs" />
     <Compile Include="Entities\Hostile\Vex.cs" />
+    <Compile Include="Entities\Hostile\Vindicator.cs" />
     <Compile Include="Entities\Hostile\Wither.cs" />
     <Compile Include="Entities\Hostile\WitherSkeleton.cs" />
     <Compile Include="Entities\Npc.cs" />

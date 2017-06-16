@@ -741,16 +741,6 @@ namespace MiNET.Worlds
 
 							int anvilIndex = (y + yoffset)*16*16 + z*16 + x;
 							byte blockId = chunk.GetBlock(x, yi, z);
-
-							// PE to Anvil friendly converstion
-							if (blockId == 5) blockId = 125;
-							else if (blockId == 158) blockId = 126;
-							else if (blockId == 50) blockId = 75;
-							else if (blockId == 50) blockId = 76;
-							else if (blockId == 89) blockId = 123;
-							else if (blockId == 89) blockId = 124;
-							else if (blockId == 73) blockId = 152;
-
 							blocks[anvilIndex] = blockId;
 							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
 							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));

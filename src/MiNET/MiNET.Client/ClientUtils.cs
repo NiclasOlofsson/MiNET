@@ -262,7 +262,7 @@ namespace MiNET.Client
 		{
 			lock (_basePath)
 			{
-				AnvilWorldProvider.SaveChunk(chunk, _basePath, 0);
+				AnvilWorldProvider.SaveChunk(chunk, _basePath);
 			}
 		}
 

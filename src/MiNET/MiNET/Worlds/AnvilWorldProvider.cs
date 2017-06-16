@@ -340,7 +340,7 @@ namespace MiNET.Worlds
 				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
 
 				NbtCompound dataTag = (NbtCompound) nbt.RootTag["Level"];
-				
+
 				bool isPocketEdition = false;
 				if (dataTag.Contains("MCPE BID"))
 				{
@@ -598,7 +598,7 @@ namespace MiNET.Worlds
 					{
 						if (chunkColumn.Value != null && chunkColumn.Value.NeedSave)
 						{
-							SaveChunk(chunkColumn.Value, BasePath, WaterOffsetY);
+							SaveChunk(chunkColumn.Value, BasePath);
 							count++;
 						}
 					}
@@ -612,11 +612,14 @@ namespace MiNET.Worlds
 			return count;
 		}
 
-		public static void SaveChunk(ChunkColumn chunk, string basePath, int yoffset)
+		public static void SaveChunk(ChunkColumn chunk, string basePath)
 		{
 			// WARNING: This method does not consider growing size of the chunks. Needs refactoring to find
 			// free sectors and clear up old ones. It works fine as long as no dynamic data is written
 			// like block entity data (signs etc).
+
+			Stopwatch time = new Stopwatch();
+			time.Restart();
 
 			chunk.NeedSave = false;
 
@@ -645,6 +648,8 @@ namespace MiNET.Worlds
 				}
 			}
 
+			Stopwatch testTime = new Stopwatch();
+
 			using (var regionFile = File.Open(filePath, FileMode.Open))
 			{
 				byte[] buffer = new byte[8192];
@@ -664,8 +669,13 @@ namespace MiNET.Worlds
 				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
 				int length = regionFile.ReadByte();
 
+				testTime.Restart(); // RESTART
+
 				// Seriaize NBT to get lenght
-				NbtFile nbt = CreateNbtFromChunkColumn(chunk, yoffset);
+				NbtFile nbt = CreateNbtFromChunkColumn(chunk);
+
+				testTime.Stop();
+
 				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
 				int nbtLength = nbtBuf.Length;
 				// Don't write yet, just use the lenght
@@ -699,10 +709,14 @@ namespace MiNET.Worlds
 
 				byte[] padding = new byte[4096 - reminder];
 				if (padding.Length > 0) regionFile.Write(padding, 0, padding.Length);
+
+				testTime.Stop(); // STOP
+
+				Log.Warn($"Took {time.ElapsedMilliseconds}ms to save. And {testTime.ElapsedMilliseconds}ms to generate bytes from NBT");
 			}
 		}
 
-		public static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk, int yoffset)
+		public static NbtFile CreateNbtFromChunkColumn(ChunkColumn chunk)
 		{
 			var nbt = new NbtFile();
 
@@ -723,30 +737,34 @@ namespace MiNET.Worlds
 				NbtCompound sectionTag = new NbtCompound();
 				sectionsTag.Add(sectionTag);
 				sectionTag.Add(new NbtByte("Y", (byte) i));
-				int sy = i*16;
 
+				var section = chunk.chunks[i];
 				byte[] blocks = new byte[4096];
 				byte[] data = new byte[2048];
 				byte[] blockLight = new byte[2048];
 				byte[] skyLight = new byte[2048];
 
-				for (int x = 0; x < 16; x++)
+				if (!section.IsAllAir())
 				{
-					for (int z = 0; z < 16; z++)
+					for (int x = 0; x < 16; x++)
 					{
-						for (int y = 0; y < 16; y++)
+						for (int z = 0; z < 16; z++)
 						{
-							int yi = sy + y;
-							if (yi < 0 || yi >= 256) continue; // ?
-
-							int anvilIndex = (y + yoffset)*16*16 + z*16 + x;
-							byte blockId = chunk.GetBlock(x, yi, z);
-							blocks[anvilIndex] = blockId;
-							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
-							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
-							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));
+							for (int y = 0; y < 16; y++)
+							{
+								int anvilIndex = y*16*16 + z*16 + x;
+								byte blockId = section.GetBlock(x, y, z);
+								blocks[anvilIndex] = blockId;
+								SetNibble4(data, anvilIndex, section.GetMetadata(x, y, z));
+								SetNibble4(blockLight, anvilIndex, section.GetBlocklight(x, y, z));
+								SetNibble4(skyLight, anvilIndex, section.GetSkylight(x, y, z));
+							}
 						}
 					}
+				}
+				else
+				{
+					ChunkColumn.Fill<byte>(skyLight, 0xff);
 				}
 
 				sectionTag.Add(new NbtByteArray("Blocks", blocks));

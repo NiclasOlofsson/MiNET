@@ -8,6 +8,9 @@ MiNET
 ## Can I test this before I download it?
 Yes, you can. Some of the below are professional networks, and at times there are dev servers running and you might be lucky enough to get in..<br>
 
+IP: **pe.mineplex.com**    
+Port: **19132**    
+
 IP: **trial.darkhammer.net (test/dev server)**    
 Port: **19132**
 

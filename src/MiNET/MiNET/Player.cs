@@ -396,8 +396,8 @@ namespace MiNET
 					IsGliding = false;
 					Height = 1.8;
 					break;
-				case PlayerAction.Unknown:
-					Log.Warn($"Unhandled UNKNOWN action ID={message.actionId}");
+				case PlayerAction.Breaking:
+
 					break;
 				default:
 					Log.Warn($"Unhandled action ID={message.actionId}");

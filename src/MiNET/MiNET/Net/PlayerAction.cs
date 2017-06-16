@@ -19,6 +19,6 @@ namespace MiNET.Net
 		StartGlide = 15,
 		StopGlide = 16,
 		WorldImmutable = 17,
-		Unknown = 18,
+		Breaking = 18,
 	}
 }

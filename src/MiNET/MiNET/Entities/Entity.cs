@@ -152,6 +152,7 @@ namespace MiNET.Entities
 		public bool HaveAi => !NoAi;
 		public bool IsSilent { get; set; }
 		public bool IsWallClimbing { get; set; }
+		public bool CanClimb { get; set; }
 		public bool IsResting { get; set; }
 		public bool IsSitting { get; set; }
 		public bool IsAngry { get; set; }
@@ -235,6 +236,7 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.NoAi] = IsNoAi;
 			bits[(int) DataFlags.Silent] = IsSilent;
 			bits[(int) DataFlags.WallClimbing] = IsWallClimbing;
+			bits[(int) DataFlags.CanClimb] = CanClimb;
 			bits[(int) DataFlags.Resting] = IsResting;
 			bits[(int) DataFlags.Sitting] = IsSitting;
 			bits[(int) DataFlags.Angry] = IsAngry;

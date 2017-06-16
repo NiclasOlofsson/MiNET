@@ -811,7 +811,7 @@ namespace MiNET
 							{"hostname", "Minecraft PE Server"},
 							{"gametype", "SMP"},
 							{"game_id", "MINECRAFTPE"},
-							{"version", "0.15.0"},
+							{"version", "1.1.0"},
 							{"server_engine", "MiNET v1.0.0"},
 							{"plugins", "MiNET v1.0.0"},
 							{"map", "world"},

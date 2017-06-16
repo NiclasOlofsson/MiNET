@@ -48,7 +48,7 @@ namespace MiNET.Worlds
 {
 	public class Level
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Level));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Level));
 
 		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
@@ -142,7 +142,7 @@ namespace MiNET.Worlds
 				//var chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(SpawnPoint));
 				//chunk.RecalcHeight();
 
-				var height = GetHeight((BlockCoordinates) SpawnPoint);
+				var height = GetHeight((BlockCoordinates)SpawnPoint);
 				if (height > SpawnPoint.Y) SpawnPoint.Y = height + 2;
 				Log.Debug("Checking for safe spawn");
 			}
@@ -226,7 +226,7 @@ namespace MiNET.Worlds
 
 		internal static McpeWrapper CreateMcpeBatch(byte[] bytes)
 		{
-			return BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
+			return BatchUtils.CreateBatchPacket(bytes, 0, (int)bytes.Length, CompressionLevel.Optimal, true);
 		}
 
 		private object _playerWriteLock = new object();
@@ -251,7 +251,7 @@ namespace MiNET.Worlds
 
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
-						entity.SpawnToPlayers(new[] {newPlayer});
+						entity.SpawnToPlayers(new[] { newPlayer });
 					}
 				}
 
@@ -279,7 +279,7 @@ namespace MiNET.Worlds
 				playerListMessage.PutPool();
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerAddRecords {newPlayer};
+				playerList.records = new PlayerAddRecords { newPlayer };
 				RelayBroadcast(newPlayer, sendList, CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
 				playerList.PutPool();
@@ -288,7 +288,7 @@ namespace MiNET.Worlds
 
 				foreach (Player spawnedPlayer in players)
 				{
-					spawnedPlayer.SpawnToPlayers(new[] {newPlayer});
+					spawnedPlayer.SpawnToPlayers(new[] { newPlayer });
 				}
 			}
 		}
@@ -308,7 +308,7 @@ namespace MiNET.Worlds
 
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
-						entity.DespawnFromPlayers(new[] {removed});
+						entity.DespawnFromPlayers(new[] { removed });
 					}
 				}
 			}
@@ -322,7 +322,7 @@ namespace MiNET.Worlds
 
 				foreach (Player spawnedPlayer in spawnedPlayers)
 				{
-					spawnedPlayer.DespawnFromPlayers(new[] {player});
+					spawnedPlayer.DespawnFromPlayers(new[] { player });
 				}
 
 				player.DespawnFromPlayers(spawnedPlayers);
@@ -334,7 +334,7 @@ namespace MiNET.Worlds
 				playerListMessage.PutPool();
 
 				McpePlayerList playerList = McpePlayerList.CreateObject();
-				playerList.records = new PlayerRemoveRecords {player};
+				playerList.records = new PlayerRemoveRecords { player };
 				RelayBroadcast(player, CreateMcpeBatch(playerList.Encode()));
 				playerList.records = null;
 				playerList.PutPool();
@@ -385,7 +385,7 @@ namespace MiNET.Worlds
 			mcpeSetTitle.fadeInTime = fadeIn;
 			mcpeSetTitle.stayTime = stayTime;
 			mcpeSetTitle.fadeOutTime = fadeOut;
-			mcpeSetTitle.type = (int) type;
+			mcpeSetTitle.type = (int)type;
 			mcpeSetTitle.text = text;
 
 			RelayBroadcast(sender, sendList, mcpeSetTitle);
@@ -395,10 +395,10 @@ namespace MiNET.Worlds
 		{
 			if (type == MessageType.Chat || type == MessageType.Raw)
 			{
-				foreach (var line in text.Split(new string[] {"\n", Environment.NewLine}, StringSplitOptions.RemoveEmptyEntries))
+				foreach (var line in text.Split(new string[] { "\n", Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries))
 				{
 					McpeText message = McpeText.CreateObject();
-					message.type = (byte) type;
+					message.type = (byte)type;
 					message.source = sender == null ? "" : sender.Username;
 					message.message = line;
 					RelayBroadcast(sendList, message);
@@ -407,7 +407,7 @@ namespace MiNET.Worlds
 			else
 			{
 				McpeText message = McpeText.CreateObject();
-				message.type = (byte) type;
+				message.type = (byte)type;
 				message.source = sender == null ? "" : sender.Username;
 				message.message = text;
 				RelayBroadcast(sendList, message);
@@ -439,10 +439,10 @@ namespace MiNET.Worlds
 
 				if (IsWorldTimeStarted) CurrentWorldTime++;
 				if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
-				if (IsWorldTimeStarted && TickTime%100 == 0)
+				if (IsWorldTimeStarted && TickTime % 100 == 0)
 				{
 					McpeSetTime message = McpeSetTime.CreateObject();
-					message.time = (int) CurrentWorldTime;
+					message.time = (int)CurrentWorldTime;
 					//message.started = IsWorldTimeStarted;
 
 					RelayBroadcast(message);
@@ -455,47 +455,47 @@ namespace MiNET.Worlds
 					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();
 					foreach (var player in players)
 					{
-						BlockCoordinates bCoord = (BlockCoordinates) player.KnownPosition;
+						BlockCoordinates bCoord = (BlockCoordinates)player.KnownPosition;
 
 						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 8); // Should actually be 15
 					}
 
 					ThreadPool.QueueUserWorkItem(state =>
 					{
-						Parallel.ForEach((List<Tuple<int, int>>) state, coord =>
-						{
-							var random = new Random();
-							for (int s = 0; s < 16; s++)
-							{
-								for (int i = 0; i < 3; i++)
-								{
-									int x = random.Next(16);
-									int y = random.Next(16);
-									int z = random.Next(16);
+						Parallel.ForEach((List<Tuple<int, int>>)state, coord =>
+					   {
+						   var random = new Random();
+						   for (int s = 0; s < 16; s++)
+						   {
+							   for (int i = 0; i < 3; i++)
+							   {
+								   int x = random.Next(16);
+								   int y = random.Next(16);
+								   int z = random.Next(16);
 
-									var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
-									var height = GetHeight(blockCoordinates);
-									if (height > 0 && s*16 > height) continue;
+								   var blockCoordinates = new BlockCoordinates(x + coord.Item1 * 16, y + s * 16, z + coord.Item2 * 16);
+								   var height = GetHeight(blockCoordinates);
+								   if (height > 0 && s * 16 > height) continue;
 
-									if (IsAir(blockCoordinates))
-									{
-										if (i == 0 && EnableChunkTicking)
-										{
+								   if (IsAir(blockCoordinates))
+								   {
+									   if (i == 0 && EnableChunkTicking)
+									   {
 											// Entity spawning, only one attempt per chunk
-											var numberOfLoadedChunks = ((List<Tuple<int, int>>) state).Count;
-											EntitySpawnManager.AttemptMobSpawn(TickTime, blockCoordinates, numberOfLoadedChunks);
-										}
+											var numberOfLoadedChunks = ((List<Tuple<int, int>>)state).Count;
+										   EntitySpawnManager.AttemptMobSpawn(TickTime, blockCoordinates, numberOfLoadedChunks);
+									   }
 
-										continue;
-									}
+									   continue;
+								   }
 
-									if (EnableBlockTicking)
-									{
-										GetBlock(blockCoordinates).OnTick(this, true);
-									}
-								}
-							}
-						});
+								   if (EnableBlockTicking)
+								   {
+									   GetBlock(blockCoordinates).OnTick(this, true);
+								   }
+							   }
+						   }
+					   });
 					}, chunksWithinRadiusOfPlayer);
 				}
 
@@ -563,7 +563,7 @@ namespace MiNET.Worlds
 			finally
 			{
 				LastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
-				AvarageTickProcessingTime = ((AvarageTickProcessingTime*9) + _tickTimer.ElapsedMilliseconds)/10L;
+				AvarageTickProcessingTime = ((AvarageTickProcessingTime * 9) + _tickTimer.ElapsedMilliseconds) / 10L;
 			}
 		}
 
@@ -672,7 +672,7 @@ namespace MiNET.Worlds
 
 				if (players.Length == 1 && entiyMoveCount == 0) return;
 
-				McpeWrapper batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal, false);
+				McpeWrapper batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int)stream.Length, CompressionLevel.Optimal, false);
 				batch.AddReferences(players.Length - 1);
 				batch.Encode();
 				//batch.ValidUntil = now + TimeSpan.FromMilliseconds(50);
@@ -782,13 +782,13 @@ namespace MiNET.Worlds
 				{
 					for (double z = -radius; z <= radius; ++z)
 					{
-						var distance = (x*x) + (z*z);
+						var distance = (x * x) + (z * z);
 						if (distance > radiusSquared)
 						{
 							continue;
 						}
-						int chunkX = (int) (x + centerX);
-						int chunkZ = (int) (z + centerZ);
+						int chunkX = (int)(x + centerX);
+						int chunkZ = (int)(z + centerZ);
 						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
 						newOrders.Add(index);
 					}
@@ -813,13 +813,13 @@ namespace MiNET.Worlds
 				{
 					for (double z = -radius; z <= radius; ++z)
 					{
-						var distance = (x*x) + (z*z);
+						var distance = (x * x) + (z * z);
 						if (distance > radiusSquared)
 						{
 							continue;
 						}
-						int chunkX = (int) (x + centerX);
-						int chunkZ = (int) (z + centerZ);
+						int chunkX = (int)(x + centerX);
+						int chunkZ = (int)(z + centerZ);
 						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
 						newOrders[index] = distance;
 					}
@@ -864,7 +864,7 @@ namespace MiNET.Worlds
 
 		public Block GetBlock(PlayerLocation location)
 		{
-			return GetBlock(new BlockCoordinates((int) Math.Floor(location.X), (int) Math.Floor(location.Y), (int) Math.Floor(location.Z)));
+			return GetBlock(new BlockCoordinates((int)Math.Floor(location.X), (int)Math.Floor(location.Y), (int)Math.Floor(location.Z)));
 		}
 
 		public Block GetBlock(int x, int y, int z)
@@ -875,7 +875,7 @@ namespace MiNET.Worlds
 		public Block GetBlock(BlockCoordinates blockCoordinates)
 		{
 			ChunkColumn chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
-			if (chunk == null) return new Air() {Coordinates = blockCoordinates, SkyLight = 15};
+			if (chunk == null) return new Air() { Coordinates = blockCoordinates, SkyLight = 15 };
 
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
@@ -957,8 +957,8 @@ namespace MiNET.Worlds
 			//CalculateSkyLight(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
 			if (calculateLight && block.LightLevel > 0)
 			{
-				block.BlockLight = (byte) block.LightLevel;
-				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
+				block.BlockLight = (byte)block.LightLevel;
+				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, (byte)block.LightLevel);
 				BlockLightCalculations.Calculate(this, block);
 			}
 
@@ -967,7 +967,7 @@ namespace MiNET.Worlds
 			var message = McpeUpdateBlock.CreateObject();
 			message.blockId = block.Id;
 			message.coordinates = block.Coordinates;
-			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+			message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
 			RelayBroadcast(message);
 		}
 
@@ -1127,7 +1127,7 @@ namespace MiNET.Worlds
 					var message = McpeUpdateBlock.CreateObject();
 					message.blockId = block.Id;
 					message.coordinates = block.Coordinates;
-					message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+					message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
 					player.SendPackage(message);
 
 					return;
@@ -1162,7 +1162,7 @@ namespace MiNET.Worlds
 				var message = McpeUpdateBlock.CreateObject();
 				message.blockId = block.Id;
 				message.coordinates = block.Coordinates;
-				message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+				message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
 				player.SendPackage(message);
 
 				// Revert block entity if exists
@@ -1231,7 +1231,7 @@ namespace MiNET.Worlds
 					Y = (float) coordinates.Y + 0.5f,
 					Z = (float) coordinates.Z + 0.5f
 				},
-				Velocity = new Vector3((float) (random.NextDouble()*0.005), (float) (random.NextDouble()*0.20), (float) (random.NextDouble()*0.005))
+				Velocity = new Vector3((float)(random.NextDouble() * 0.005), (float)(random.NextDouble() * 0.20), (float)(random.NextDouble() * 0.005))
 			};
 
 			itemEntity.SpawnEntity();
@@ -1294,15 +1294,15 @@ namespace MiNET.Worlds
 		public void ClearLoadedChunks()
 		{
 			var cacheProvider = _worldProvider as ICachingWorldProvider;
-		    cacheProvider?.ClearCachedChunks();
+			cacheProvider?.ClearCachedChunks();
 		}
 
 		public void StrikeLightning(Vector3 position)
 		{
-		    new Lightning(this)
-		    {
-		        KnownPosition = new PlayerLocation(position)
-		    }.SpawnEntity();
+			new Lightning(this)
+			{
+				KnownPosition = new PlayerLocation(position)
+			}.SpawnEntity();
 		}
 
 		public void MakeSound(Sound sound)

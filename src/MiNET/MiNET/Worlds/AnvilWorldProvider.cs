@@ -31,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
@@ -594,14 +595,47 @@ namespace MiNET.Worlds
 				{
 					SaveLevelInfo(new LevelInfo());
 
+					Dictionary<Tuple<int, int>, List<ChunkColumn>> regions = new Dictionary<Tuple<int, int>, List<ChunkColumn>>();
 					foreach (var chunkColumn in _chunkCache.OrderBy(pair => pair.Key.X >> 5).ThenBy(pair => pair.Key.Z >> 5))
 					{
-						if (chunkColumn.Value != null && chunkColumn.Value.NeedSave)
+						var regionKey = new Tuple<int, int>(chunkColumn.Key.X >> 5, chunkColumn.Key.Z >> 5);
+						if (!regions.ContainsKey(regionKey))
 						{
-							SaveChunk(chunkColumn.Value, BasePath);
-							count++;
+							regions.Add(regionKey, new List<ChunkColumn>());
 						}
+
+						regions[regionKey].Add(chunkColumn.Value);
 					}
+
+					List<Task> tasks = new List<Task>();
+					foreach (var region in regions.OrderBy(pair => pair.Key.Item1).ThenBy(pair => pair.Key.Item2))
+					{
+						Task task = new Task(delegate
+						{
+							List<ChunkColumn> chunks = region.Value;
+							foreach (var chunkColumn in chunks)
+							{
+								if (chunkColumn != null && chunkColumn.NeedSave)
+								{
+									SaveChunk(chunkColumn, BasePath);
+									count++;
+								}
+							}
+						});
+						task.Start();
+						tasks.Add(task);
+					}
+
+					Task.WaitAll(tasks.ToArray());
+
+					//foreach (var chunkColumn in _chunkCache.OrderBy(pair => pair.Key.X >> 5).ThenBy(pair => pair.Key.Z >> 5))
+					//{
+					//	if (chunkColumn.Value != null && chunkColumn.Value.NeedSave)
+					//	{
+					//		SaveChunk(chunkColumn.Value, BasePath);
+					//		count++;
+					//	}
+					//}
 				}
 			}
 			catch (Exception e)

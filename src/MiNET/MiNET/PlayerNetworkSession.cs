@@ -336,6 +336,10 @@ namespace MiNET
 					}
 					foreach (var msg in messages)
 					{
+						// Temp fix for performance, take 1.
+						var interact = msg as McpeInteract;
+						if(interact?.actionId == 4 && interact.targetRuntimeEntityId == 0) continue;
+
 						msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
 						msg.Reliability = batch.Reliability;
 						msg.ReliableMessageNumber = batch.ReliableMessageNumber;

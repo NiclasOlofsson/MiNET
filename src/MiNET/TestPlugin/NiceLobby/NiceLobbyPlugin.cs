@@ -211,7 +211,7 @@ namespace TestPlugin.NiceLobby
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 
-			int idx = 0;
+			int idx = 4;
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(212), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};

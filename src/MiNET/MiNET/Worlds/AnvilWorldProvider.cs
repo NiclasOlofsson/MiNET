@@ -763,22 +763,23 @@ namespace MiNET.Worlds
 			levelTag.Add(new NbtInt("zPos", chunk.z));
 			levelTag.Add(new NbtByteArray("Biomes", chunk.biomeId));
 
-			NbtList sectionsTag = new NbtList("Sections");
+			NbtList sectionsTag = new NbtList("Sections", NbtTagType.Compound);
 			levelTag.Add(sectionsTag);
 
 			for (int i = 0; i < 16; i++)
 			{
+				var section = chunk.chunks[i];
+				if (section.IsAllAir()) continue;
+
 				NbtCompound sectionTag = new NbtCompound();
 				sectionsTag.Add(sectionTag);
 				sectionTag.Add(new NbtByte("Y", (byte) i));
 
-				var section = chunk.chunks[i];
 				byte[] blocks = new byte[4096];
 				byte[] data = new byte[2048];
 				byte[] blockLight = new byte[2048];
 				byte[] skyLight = new byte[2048];
 
-				if (!section.IsAllAir())
 				{
 					for (int x = 0; x < 16; x++)
 					{
@@ -796,11 +797,6 @@ namespace MiNET.Worlds
 						}
 					}
 				}
-				else
-				{
-					ChunkColumn.Fill<byte>(skyLight, 0xff);
-				}
-
 				sectionTag.Add(new NbtByteArray("Blocks", blocks));
 				sectionTag.Add(new NbtByteArray("Data", data));
 				sectionTag.Add(new NbtByteArray("BlockLight", blockLight));

@@ -72,8 +72,6 @@ namespace MiNET.Worlds
 
 		public bool IsCaching { get; private set; }
 
-		public byte WaterOffsetY { get; set; }
-
 		static AnvilWorldProvider()
 		{
 			var air = new Mapper(0, (i, b) => 0);
@@ -201,7 +199,6 @@ namespace MiNET.Worlds
 		public AnvilWorldProvider()
 		{
 			IsCaching = true;
-			//_flatland = new FlatlandWorldProvider();
 		}
 
 		public AnvilWorldProvider(string basePath) : this()
@@ -209,12 +206,11 @@ namespace MiNET.Worlds
 			BasePath = basePath;
 		}
 
-		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, byte waterOffsetY, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
+		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
 		{
 			IsCaching = true;
 			BasePath = basePath;
 			LevelInfo = levelInfo;
-			WaterOffsetY = waterOffsetY;
 			_chunkCache = chunkCache;
 			_isInitialized = true;
 			//_flatland = new FlatlandWorldProvider();
@@ -237,8 +233,6 @@ namespace MiNET.Worlds
 				file.LoadFromFile(Path.Combine(BasePath, "level.dat"));
 				NbtTag dataTag = file.RootTag["Data"];
 				LevelInfo = new LevelInfo(dataTag);
-
-				WaterOffsetY = WaterOffsetY == 0 ? (byte) Config.GetProperty("PCWaterOffset", 0) : WaterOffsetY;
 
 				_isInitialized = true;
 			}
@@ -263,12 +257,12 @@ namespace MiNET.Worlds
 		{
 			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate
 			// if called in rapid succession. However, for the scenario of the provider, this is highly unlikely.
-			return _chunkCache.GetOrAdd(chunkCoordinates, coordinates => GetChunk(coordinates, BasePath, MissingChunkProvider, WaterOffsetY));
+			return _chunkCache.GetOrAdd(chunkCoordinates, coordinates => GetChunk(coordinates, BasePath, MissingChunkProvider));
 		}
 
 		public Queue<Block> LightSources { get; set; } = new Queue<Block>();
 
-		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator, int yoffset)
+		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator)
 		{
 			int width = 32;
 			int depth = 32;
@@ -363,7 +357,7 @@ namespace MiNET.Worlds
 				// This will turn into a full chunk column
 				foreach (NbtTag sectionTag in sections)
 				{
-					ReadSection(yoffset, sectionTag, chunk, !isPocketEdition);
+					ReadSection(sectionTag, chunk, !isPocketEdition);
 				}
 
 				NbtList entities = dataTag["Entities"] as NbtList;
@@ -375,9 +369,8 @@ namespace MiNET.Worlds
 						var blockEntityTag = (NbtCompound) nbtTag.Clone();
 						string entityId = blockEntityTag["id"].StringValue;
 						int x = blockEntityTag["x"].IntValue;
-						int y = blockEntityTag["y"].IntValue - yoffset;
+						int y = blockEntityTag["y"].IntValue;
 						int z = blockEntityTag["z"].IntValue;
-						blockEntityTag["y"] = new NbtInt("y", y);
 
 						if (entityId.StartsWith("minecraft:"))
 						{
@@ -440,9 +433,9 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private void ReadSection(int yoffset, NbtTag sectionTag, ChunkColumn chunk, bool convertBid = true)
+		private void ReadSection(NbtTag sectionTag, ChunkColumn chunkColumn, bool convertBid = true)
 		{
-			int sy = sectionTag["Y"].ByteValue*16;
+			int sectionIndex = sectionTag["Y"].ByteValue;
 			byte[] blocks = sectionTag["Blocks"].ByteArrayValue;
 			byte[] data = sectionTag["Data"].ByteArrayValue;
 			NbtTag addTag = sectionTag["Add"];
@@ -451,14 +444,15 @@ namespace MiNET.Worlds
 			byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
 			byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
 
+			var chunk = chunkColumn.chunks[sectionIndex];
+
 			for (int x = 0; x < 16; x++)
 			{
 				for (int z = 0; z < 16; z++)
 				{
 					for (int y = 0; y < 16; y++)
 					{
-						int yi = sy + y - yoffset;
-						if (yi < 0 || yi >= 256) continue;
+						int yi = sectionIndex*16 + y;
 
 						int anvilIndex = y*16*16 + z*16 + x;
 						int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
@@ -480,7 +474,7 @@ namespace MiNET.Worlds
 							}
 						}
 
-						chunk.isAllAir = chunk.isAllAir && blockId == 0;
+						chunkColumn.isAllAir = chunkColumn.isAllAir && blockId == 0;
 						if (blockId > 255)
 						{
 							Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
@@ -489,35 +483,35 @@ namespace MiNET.Worlds
 
 						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
 
-						chunk.SetBlock(x, yi, z, (byte) blockId);
+						chunk.SetBlock(x, y, z, (byte) blockId);
 						byte metadata = Nibble4(data, anvilIndex);
 						metadata = dataConverter(blockId, metadata);
 
-						chunk.SetMetadata(x, yi, z, metadata);
-						chunk.SetBlocklight(x, yi, z, Nibble4(blockLight, anvilIndex));
-						chunk.SetSkyLight(x, yi, z, Nibble4(skyLight, anvilIndex));
+						chunk.SetMetadata(x, y, z, metadata);
+						chunk.SetBlocklight(x, y, z, Nibble4(blockLight, anvilIndex));
+						chunk.SetSkylight(x, y, z, Nibble4(skyLight, anvilIndex));
 
 						if (blockId == 0) continue;
 
 						if (blockId == 3 && metadata == 1)
 						{
 							// Dirt Course => (Grass Path)
-							chunk.SetBlock(x, yi, z, 198);
-							chunk.SetMetadata(x, yi, z, 0);
+							chunk.SetBlock(x, y, z, 198);
+							chunk.SetMetadata(x, y, z, 0);
 							blockId = 198;
 						}
 						else if (blockId == 3 && metadata == 2)
 						{
 							// Dirt Podzol => (Podzol)
-							chunk.SetBlock(x, yi, z, 243);
-							chunk.SetMetadata(x, yi, z, 0);
+							chunk.SetBlock(x, y, z, 243);
+							chunk.SetMetadata(x, y, z, 0);
 							blockId = 243;
 						}
 
 						if (BlockFactory.LuminousBlocks.ContainsKey(blockId))
 						{
-							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, yi, z));
-							block.Coordinates = new BlockCoordinates(x + (16*chunk.x), yi, z + (16*chunk.z));
+							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, y, z));
+							block.Coordinates = new BlockCoordinates(x + (16*chunkColumn.x), yi, z + (16*chunkColumn.z));
 							LightSources.Enqueue(block);
 						}
 					}
@@ -835,7 +829,7 @@ namespace MiNET.Worlds
 				chunkCache.TryAdd(valuePair.Key, (ChunkColumn) valuePair.Value?.Clone());
 			}
 
-			AnvilWorldProvider provider = new AnvilWorldProvider(BasePath, (LevelInfo) LevelInfo.Clone(), WaterOffsetY, chunkCache);
+			AnvilWorldProvider provider = new AnvilWorldProvider(BasePath, (LevelInfo) LevelInfo.Clone(), chunkCache);
 			return provider;
 		}
 

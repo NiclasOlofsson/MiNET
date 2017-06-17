@@ -250,7 +250,7 @@ namespace MiNET
 					int cz = (depth*regionZ) + z;
 
 					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-					ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null, 0);
+					ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null);
 					Assert.NotNull(chunk, $"Expected chunk at {x}, {z}");
 				}
 			}
@@ -266,7 +266,7 @@ namespace MiNET
 			int cz = (32*25) + 1;
 
 			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-			ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null, 0);
+			ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null);
 			var bytes = chunk.GetBytes();
 
 			Stopwatch sw = new Stopwatch();

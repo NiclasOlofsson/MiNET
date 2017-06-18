@@ -126,7 +126,7 @@ namespace MiNET.Worlds
 				cc._cache = (byte[]) _cache.Clone();
 			}
 
-			_cacheSync = new object();
+			cc._cacheSync = new object();
 
 			return cc;
 		}

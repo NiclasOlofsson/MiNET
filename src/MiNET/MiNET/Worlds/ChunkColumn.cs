@@ -483,7 +483,7 @@ namespace MiNET.Worlds
 
 			cc._cachedBatch = batch;
 
-			_cacheSync = new object();
+			cc._cacheSync = new object();
 
 			return cc;
 		}

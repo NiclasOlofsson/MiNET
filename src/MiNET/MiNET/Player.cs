@@ -1149,17 +1149,17 @@ namespace MiNET
 			{
 				lock (_moveSyncLock)
 				{
-					//if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
-					//{
-					//	return;
-					//}
-					//_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
+					if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
+					{
+						return;
+					}
+					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
-					//if (_lastOrderingIndex > message.OrderingIndex)
-					//{
-					//	return;
-					//}
-					//_lastOrderingIndex = message.OrderingIndex;
+					if (_lastOrderingIndex > message.OrderingIndex)
+					{
+						return;
+					}
+					_lastOrderingIndex = message.OrderingIndex;
 				}
 			}
 

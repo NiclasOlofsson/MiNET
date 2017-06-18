@@ -20,6 +20,7 @@ namespace MiNET.Blocks
 			IsSolid = false;
 			IsBuildable = false;
 			IsReplacible = true;
+			IsTransparent = true;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

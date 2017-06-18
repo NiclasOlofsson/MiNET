@@ -428,7 +428,7 @@ namespace MiNET.Worlds
 				return;
 			}
 
-			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 65) Log.Error($"Time between World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
+			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 65) Log.Error($"Time between World tick took too long: {_tickTimer.ElapsedMilliseconds} ms");
 
 			_tickTimer.Restart();
 			try
@@ -1294,16 +1294,15 @@ namespace MiNET.Worlds
 		public void ClearLoadedChunks()
 		{
 			var cacheProvider = _worldProvider as ICachingWorldProvider;
-			if (cacheProvider != null)
-			{
-				cacheProvider.ClearCachedChunks();
-			}
+		    cacheProvider?.ClearCachedChunks();
 		}
 
 		public void StrikeLightning(Vector3 position)
 		{
-			Lightning lightning = new Lightning(this);
-			lightning.SpawnEntity();
+			new Lightning(this)
+			{
+				KnownPosition = new PlayerLocation(position)
+			}.SpawnEntity();
 		}
 
 		public void MakeSound(Sound sound)

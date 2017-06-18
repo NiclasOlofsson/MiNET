@@ -2,6 +2,7 @@
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Entities.World;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -19,6 +20,8 @@ namespace MiNET.Items
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
+			Log.Warn("Player " + player.Username + " should be banned for hacking!");
+
 			var block = world.GetBlock(blockCoordinates);
 			if (block is Tnt)
 			{

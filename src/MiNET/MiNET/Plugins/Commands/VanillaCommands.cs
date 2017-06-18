@@ -268,16 +268,7 @@ namespace MiNET.Plugins.Commands
 					mob = new SkeletonHorse(world);
 					break;
 				case EntityType.Wither:
-					mob = new Wither(world);
-					break;
-				case EntityType.Evoker:
-					mob = new Evoker(world);
-					break;
-				case EntityType.Vindicator:
-					mob = new Vindicator(world);
-					break;
-				case EntityType.Vex:
-					mob = new Vex(world);
+					mob = new Mob(EntityType.Wither, world);
 					break;
 				case EntityType.Npc:
 					mob = new PlayerMob("test", world);

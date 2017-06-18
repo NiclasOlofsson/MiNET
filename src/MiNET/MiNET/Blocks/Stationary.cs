@@ -13,7 +13,6 @@ namespace MiNET.Blocks
 			IsSolid = false;
 			IsBuildable = false;
 			IsReplacible = true;
-			IsTransparent = true;
 		}
 
 		public override void DoPhysics(Level level)

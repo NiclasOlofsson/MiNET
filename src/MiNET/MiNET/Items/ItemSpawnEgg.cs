@@ -144,16 +144,7 @@ namespace MiNET.Items
 					mob = new SkeletonHorse(world);
 					break;
 				case EntityType.Wither:
-					mob = new Wither(world);
-					break;
-				case EntityType.Evoker:
-					mob = new Evoker(world);
-					break;
-				case EntityType.Vindicator:
-					mob = new Vindicator(world);
-					break;
-				case EntityType.Vex:
-					mob = new Vex(world);
+					mob = new Mob(EntityType.Wither, world);
 					break;
 				case EntityType.Npc:
 					mob = new PlayerMob("test", world);
@@ -162,7 +153,7 @@ namespace MiNET.Items
 
 			if (mob == null) return;
 
-			mob.KnownPosition = new PlayerLocation(coordinates.X + 0.5f, coordinates.Y, coordinates.Z + 0.5f);
+			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
 			mob.SpawnEntity();
 
 			Log.WarnFormat("Player {0} spawned Mob #{1}.", player.Username, Metadata);

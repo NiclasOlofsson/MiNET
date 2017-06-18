@@ -25,9 +25,15 @@ namespace MiNET.Utils
 			get { return (byte) (Data[index/2] >> ((index)%2*4) & 0xF); }
 			set
 			{
-				value &= 0xF;
-				Data[index/2] &= (byte) (0xF << ((index + 1)%2*4));
-				Data[index/2] |= (byte) (value << (index%2*4));
+				var idx = index >> 1;
+				if ((index & 1) == 0)
+				{
+					Data[idx] |= (byte) (value & 0x0F);
+				}
+				else
+				{
+					Data[idx] |= (byte) ((value << 4) & 0xF0);
+				}
 			}
 		}
 

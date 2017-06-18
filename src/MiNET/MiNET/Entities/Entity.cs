@@ -454,7 +454,7 @@ namespace MiNET.Entities
 			{
 				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 				moveEntity.runtimeEntityId = EntityId;
-				moveEntity.position = KnownPosition;
+				moveEntity.position = (PlayerLocation) KnownPosition.Clone();
 				moveEntity.Encode();
 				Level.RelayBroadcast(moveEntity);
 			}

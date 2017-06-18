@@ -27,6 +27,7 @@ using System;
 using System.Numerics;
 using System.Threading;
 using MiNET;
+using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
 using MiNET.Plugins;
@@ -201,5 +202,46 @@ namespace TestPlugin
 				radius -= 4;
 			} while (radius > 7);
 		}
+
+		[Command]
+		public void SpawnPlayers(Player player, int numberOfEntities = 100, BlockPos spawnPos = null)
+		{
+			var coordinates = player.KnownPosition;
+			if (spawnPos != null)
+			{
+				if (spawnPos.XRelative)
+					coordinates.X += spawnPos.X;
+				else
+					coordinates.X = spawnPos.X;
+
+				if (spawnPos.YRelative)
+					coordinates.Y += spawnPos.Y;
+				else
+					coordinates.Y = spawnPos.Y;
+
+				if (spawnPos.ZRelative)
+					coordinates.Z += spawnPos.Z;
+				else
+					coordinates.Z = spawnPos.Z;
+			}
+
+			int limit = (int)Math.Sqrt(numberOfEntities);
+			for (int x = 0; x < limit; x++)
+			{
+				for (int z = 0; z < limit; z++)
+				{
+					var entity = new PlayerMob($"TheGrey {z + (x*limit)}", player.Level)
+					{
+						NoAi = true,
+						KnownPosition = coordinates + new Vector3(x, 3.5f, z),
+						IsAlwaysShowName = false,
+						HideNameTag = false,
+					};
+					entity.SpawnEntity();
+					//Thread.Sleep(50);
+				}
+			}
+		}
+
 	}
 }

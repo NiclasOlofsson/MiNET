@@ -465,14 +465,14 @@ namespace MiNET.Worlds
 							dataConverter = Convert[blockId].Item2;
 							blockId = Convert[blockId].Item1;
 						}
-						else
-						{
-							if (BlockFactory.GetBlockById((byte) blockId).GetType() == typeof (Block))
-							{
-								Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
-								//blockId = 57;
-							}
-						}
+						//else
+						//{
+						//	if (BlockFactory.GetBlockById((byte)blockId).GetType() == typeof(Block))
+						//	{
+						//		Log.Warn($"No block implemented for block ID={blockId}, Meta={data}");
+						//		//blockId = 57;
+						//	}
+						//}
 
 						chunkColumn.isAllAir = chunkColumn.isAllAir && blockId == 0;
 						if (blockId > 255)
@@ -530,18 +530,19 @@ namespace MiNET.Worlds
 
 		private static byte Nibble4(byte[] arr, int index)
 		{
-			return (byte) (index%2 == 0 ? arr[index/2] & 0x0F : (arr[index/2] >> 4) & 0x0F);
+			return (byte) ((index & 1) == 0 ? arr[index >> 1] & 0x0F : (arr[index >> 1] >> 4) & 0x0F);
 		}
 
 		private static void SetNibble4(byte[] arr, int index, byte value)
 		{
-			if (index%2 == 0)
+			var idx = index >> 1;
+			if ((index & 1) == 0)
 			{
-				arr[index/2] = (byte) ((value & 0x0F) | arr[index/2]);
+				arr[idx] |= (byte) (value & 0x0F);
 			}
 			else
 			{
-				arr[index/2] = (byte) (((value << 4) & 0xF0) | arr[index/2]);
+				arr[idx] |= (byte) ((value << 4) & 0xF0);
 			}
 		}
 

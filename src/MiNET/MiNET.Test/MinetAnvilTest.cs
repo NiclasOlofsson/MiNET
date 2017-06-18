@@ -37,6 +37,15 @@ namespace MiNET
 	public class MinetAnvilTest
 	{
 		[Test, Ignore]
+		public void ChunkCoordTest()
+		{
+			int by = 30;
+			var a = 16*(by >> 4);
+			var b = by & 0xfffffff0;
+			Assert.AreEqual(a, b);
+		}
+
+		[Test, Ignore]
 		public void OffsetFileExistPerformance()
 		{
 			var basePath = @"D:\Development\Repos\MapsPE\hub";
@@ -232,15 +241,15 @@ namespace MiNET
 			int width = 32;
 			int depth = 32;
 
-			int regionX = 5;
-			int regionZ = 25;
+			int regionX = -1;
+			int regionZ = 0;
 
-			string basePath = @"D:\Downloads\KingsLanding1\KingsLanding1";
-			var generator = new FlatlandWorldProvider();
+			string basePath = @"D:\Development\Worlds\UHC\UHCr1000";
 
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			int noChunksRead = 0;
+			var anvilWorldProvider = new AnvilWorldProvider();
 			for (int x = 1; x < 32; x++)
 			{
 				for (int z = 1; z < 32; z++)
@@ -250,10 +259,11 @@ namespace MiNET
 					int cz = (depth*regionZ) + z;
 
 					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-					ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null);
+					ChunkColumn chunk = anvilWorldProvider.GetChunk(coordinates, basePath, null);
 					Assert.NotNull(chunk, $"Expected chunk at {x}, {z}");
 				}
 			}
+			sw.Stop();
 			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
 		}
 

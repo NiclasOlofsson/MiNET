@@ -530,20 +530,15 @@ namespace MiNET.Worlds
 
 		private static byte Nibble4(byte[] arr, int index)
 		{
-			return (byte) ((index & 1) == 0 ? arr[index >> 1] & 0x0F : (arr[index >> 1] >> 4) & 0x0F);
+			return (byte) (arr[index >> 1] >> ((index & 1)*4) & 0xF);
 		}
 
 		private static void SetNibble4(byte[] arr, int index, byte value)
 		{
+			value &= 0xF;
 			var idx = index >> 1;
-			if ((index & 1) == 0)
-			{
-				arr[idx] |= (byte) (value & 0x0F);
-			}
-			else
-			{
-				arr[idx] |= (byte) ((value << 4) & 0xF0);
-			}
+			arr[idx] &= (byte) (0xF << (((index + 1) & 1)*4));
+			arr[idx] |= (byte) (value << ((index & 1)*4));
 		}
 
 		public Vector3 GetSpawnPoint()

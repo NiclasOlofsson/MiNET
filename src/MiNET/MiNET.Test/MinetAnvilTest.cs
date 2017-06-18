@@ -45,6 +45,89 @@ namespace MiNET
 			Assert.AreEqual(a, b);
 		}
 
+		[Test]
+		public void NibbleTest()
+		{
+			byte[] a = {0, 0, 0, 0};
+			byte[] b = {0xf, 0x0f, 0, 0xf0};
+
+			SetNibble4OtherNew(a, 0, 0xff);
+			SetNibble4OtherNew(a, 2, 0xff);
+			//SetNibble4OtherNew(a, 3, 0xff);
+			SetNibble4OtherNew(a, 7, 0xff);
+
+			Assert.AreEqual(b, a);
+
+			byte c = Nibble4Other(b, 0);
+			byte d = Nibble4Other(b, 0);
+
+			Assert.AreEqual(0xf, c);
+			Assert.AreEqual(0xf, d);
+		}
+
+		private static void SetNibble4OtherNew(byte[] Data, int index, byte value)
+		{
+			var idx = index >> 1;
+			if ((index & 1) == 0)
+			{
+				Data[idx] |= (byte) (value & 0x0F);
+			}
+			else
+			{
+				Data[idx] |= (byte) ((value << 4) & 0xF0);
+			}
+		}
+
+		private static void SetNibble4Other(byte[] Data, int index, byte value)
+		{
+			value &= 0xF;
+			var idx = index >> 1;
+			Data[idx] &= (byte)(0xF << (((index + 1) & 1) * 4));
+			Data[idx] |= (byte)(value << ((index & 1) * 4));
+		}
+
+		private static byte Nibble4Other(byte[] Data, int index)
+		{
+			return (byte)(Data[index / 2] >> ((index) % 2 * 4) & 0xF); ;
+		}
+
+
+		private static byte Nibble4New(byte[] arr, int index)
+		{
+			return (byte) ((index & 1) == 0 ? arr[index >> 1] & 0x0F : (arr[index >> 1] >> 4) & 0x0F);
+		}
+
+		private static void SetNibble4New(byte[] arr, int index, byte value)
+		{
+			var idx = index >> 1;
+			if ((index & 1) == 0)
+			{
+				arr[idx] |= (byte) (value & 0x0F);
+			}
+			else
+			{
+				arr[idx] |= (byte) ((value << 4) & 0xF0);
+			}
+		}
+
+		private static byte Nibble4(byte[] arr, int index)
+		{
+			return (byte) (index%2 == 0 ? arr[index/2] & 0x0F : (arr[index/2] >> 4) & 0x0F);
+		}
+
+		private static void SetNibble4(byte[] arr, int index, byte value)
+		{
+			if (index%2 == 0)
+			{
+				arr[index/2] = (byte) ((value & 0x0F) | arr[index/2]);
+			}
+			else
+			{
+				arr[index/2] = (byte) (((value << 4) & 0xF0) | arr[index/2]);
+			}
+		}
+
+
 		[Test, Ignore]
 		public void OffsetFileExistPerformance()
 		{

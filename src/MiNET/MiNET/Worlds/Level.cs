@@ -1299,10 +1299,10 @@ namespace MiNET.Worlds
 
 		public void StrikeLightning(Vector3 position)
 		{
-		    new Lightning(this)
-		    {
-		        KnownPosition = new PlayerLocation(position)
-		    }.SpawnEntity();
+			new Lightning(this)
+			{
+				KnownPosition = new PlayerLocation(position)
+			}.SpawnEntity();
 		}
 
 		public void MakeSound(Sound sound)

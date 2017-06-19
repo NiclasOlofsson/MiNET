@@ -20,7 +20,7 @@ namespace MiNET
 		[Test]
 		public void ParseTest()
 		{
-			string commandJson = File.ReadAllText("test_commands_1.json");
+			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
 
 			dynamic dynaCommands = JObject.Parse(commandJson);
 
@@ -42,7 +42,7 @@ namespace MiNET
 		[Test]
 		public void ParseObjectModelTest()
 		{
-			string commandJson = File.ReadAllText("test_commands_1.json");
+			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
 
 			JsonConvert.DefaultSettings = () =>
 			{
@@ -102,7 +102,7 @@ namespace MiNET
 		[Test]
 		public void SerializeObjectModelRoundtripTest()
 		{
-			string commandJson = File.ReadAllText("test_commands_1.json");
+			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
 
 			var settings = new JsonSerializerSettings();
 			settings.NullValueHandling = NullValueHandling.Ignore;

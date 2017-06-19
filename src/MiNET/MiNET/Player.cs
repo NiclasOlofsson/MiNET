@@ -34,7 +34,6 @@ using System.Net;
 using System.Numerics;
 using System.Threading;
 using log4net;
-using Microsoft.AspNet.Identity;
 using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
@@ -43,7 +42,6 @@ using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
-using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -98,7 +96,6 @@ namespace MiNET
 
 		public List<Popup> Popups { get; set; } = new List<Popup>();
 
-		public User User { get; set; }
 		public Session Session { get; set; }
 
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
@@ -555,11 +552,6 @@ namespace MiNET
 			try
 			{
 				Session = Server.SessionManager.CreateSession(this);
-
-				if (Server.IsSecurityEnabled)
-				{
-					User = User ?? Server.UserManager.FindByName(Username);
-				}
 
 				lock (_disconnectSync)
 				{

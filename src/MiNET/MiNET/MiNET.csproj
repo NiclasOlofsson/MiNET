@@ -52,10 +52,6 @@
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.IO.RecyclableMemoryStream, Version=1.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.IO.RecyclableMemoryStream.1.2.2\lib\net45\Microsoft.IO.RecyclableMemoryStream.dll</HintPath>
       <Private>True</Private>
@@ -629,10 +625,6 @@
     <Compile Include="Plugins\PluginContext.cs" />
     <Compile Include="Plugins\PluginManager.cs" />
     <Compile Include="Popup.cs" />
-    <Compile Include="Security\DefaultRoleStore.cs" />
-    <Compile Include="Security\DefaultUserStore.cs" />
-    <Compile Include="Security\Role.cs" />
-    <Compile Include="Security\User.cs" />
     <Compile Include="ServerInfo.cs" />
     <Compile Include="SessionManager.cs" />
     <Compile Include="Sounds\AnvilBreakSound.cs" />

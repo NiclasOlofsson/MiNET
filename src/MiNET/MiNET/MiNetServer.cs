@@ -35,11 +35,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
-using Microsoft.AspNet.Identity;
 using Microsoft.IO;
 using MiNET.Net;
 using MiNET.Plugins;
-using MiNET.Security;
 using MiNET.Utils;
 using Newtonsoft.Json;
 
@@ -56,10 +54,6 @@ namespace MiNET
 		private ConcurrentDictionary<IPEndPoint, PlayerNetworkSession> _playerSessions = new ConcurrentDictionary<IPEndPoint, PlayerNetworkSession>();
 
 		public MotdProvider MotdProvider { get; set; }
-
-		public bool IsSecurityEnabled { get; private set; }
-		public UserManager<User> UserManager { get; set; }
-		public RoleManager<Role> RoleManager { get; set; }
 
 		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
 

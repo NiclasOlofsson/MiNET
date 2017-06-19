@@ -452,9 +452,9 @@ namespace MiNET.Worlds
 				{
 					for (int y = 0; y < 16; y++)
 					{
-						int yi = sectionIndex*16 + y;
+						int yi = (sectionIndex << 4) + y;
 
-						int anvilIndex = y*16*16 + z*16 + x;
+						int anvilIndex = (y << 8) + (z << 4) + x;
 						int blockId = blocks[anvilIndex] + (Nibble4(adddata, anvilIndex) << 8);
 
 						// Anvil to PE friendly converstion
@@ -474,14 +474,14 @@ namespace MiNET.Worlds
 						//	}
 						//}
 
-						chunkColumn.isAllAir = chunkColumn.isAllAir && blockId == 0;
+						chunkColumn.isAllAir &= blockId == 0;
 						if (blockId > 255)
 						{
 							Log.Warn($"Failed mapping for block ID={blockId}, Meta={data}");
 							blockId = 41;
 						}
 
-						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7;
+						if (yi == 0 && (blockId == 8 || blockId == 9)) blockId = 7; // Bedrock under water
 
 						chunk.SetBlock(x, y, z, (byte) blockId);
 						byte metadata = Nibble4(data, anvilIndex);
@@ -511,7 +511,7 @@ namespace MiNET.Worlds
 						if (BlockFactory.LuminousBlocks.ContainsKey(blockId))
 						{
 							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, y, z));
-							block.Coordinates = new BlockCoordinates(x + (16*chunkColumn.x), yi, z + (16*chunkColumn.z));
+							block.Coordinates = new BlockCoordinates(x + (chunkColumn.x << 4), yi, z + (chunkColumn.z << 4));
 							LightSources.Enqueue(block);
 						}
 					}

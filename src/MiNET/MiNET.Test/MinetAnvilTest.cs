@@ -48,6 +48,12 @@ namespace MiNET
 		[Test]
 		public void NibbleTest()
 		{
+			Assert.AreEqual(16, 1 << 4);
+			Assert.AreEqual(15 * 256, 15 << 8);
+			Assert.AreEqual(4095, (15 * 256) + (15 * 16) + 15);
+			Assert.AreEqual((15 * 256) + (15 * 16) + 15, (15 << 8) + (15 << 4) + 15);
+
+
 			byte[] a = {0, 0, 0, 0};
 			byte[] b = {0xf, 0x0f, 0, 0xf0};
 

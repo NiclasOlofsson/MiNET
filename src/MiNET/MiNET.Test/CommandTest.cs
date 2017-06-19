@@ -95,7 +95,7 @@ namespace MiNET
 
 			Assert.AreEqual("difficulty", outputParameter.Name);
 			Assert.AreEqual("string", outputParameter.Type);
-			Assert.IsNullOrEmpty(outputParameter.EnumType);
+			Assert.That(outputParameter.EnumType, Is.Null.Or.Empty);
 			Assert.IsFalse(outputParameter.Optional);
 		}
 

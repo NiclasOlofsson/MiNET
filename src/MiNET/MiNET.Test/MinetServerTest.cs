@@ -185,7 +185,7 @@ namespace MiNET
 			Assert.AreEqual(1, f);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void ChunkLoadTest()
 		{
 			{
@@ -495,7 +495,7 @@ namespace MiNET
 			return hex.ToString();
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void FlagToStringTest()
 		{
 			long value = new MetadataLong(8590508032).Value; // 1000000000000010001100000000000000

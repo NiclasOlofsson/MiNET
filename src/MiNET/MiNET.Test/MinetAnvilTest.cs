@@ -36,7 +36,7 @@ namespace MiNET
 	[TestFixture]
 	public class MinetAnvilTest
 	{
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void ChunkCoordTest()
 		{
 			int by = 30;
@@ -134,7 +134,7 @@ namespace MiNET
 		}
 
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void OffsetFileExistPerformance()
 		{
 			var basePath = @"D:\Development\Repos\MapsPE\hub";
@@ -160,7 +160,7 @@ namespace MiNET
 			}
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void OffsetIntTest()
 		{
 			//int original = (4096 * 2) - 10;
@@ -188,7 +188,7 @@ namespace MiNET
 			//Assert.AreEqual(offset, BitConverter.ToInt32(bytes, 0) << 4);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void SaveAnvilChunkTest()
 		{
 			int width = 32;
@@ -235,7 +235,7 @@ namespace MiNET
 			}
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void SaveOneAnvilChunkTest()
 		{
 			int width = 32;
@@ -259,7 +259,7 @@ namespace MiNET
 			Assert.Less(sw.ElapsedMilliseconds, 1);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void LoadAnvilLevelLoadTest()
 		{
 			NbtFile file = new NbtFile();
@@ -324,7 +324,7 @@ namespace MiNET
 		//}
 
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void LoadFullAnvilRegionLoadTest()
 		{
 			int width = 32;
@@ -356,7 +356,7 @@ namespace MiNET
 			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void CompressionTests()
 		{
 			string basePath = @"D:\Downloads\KingsLanding1\KingsLanding1";

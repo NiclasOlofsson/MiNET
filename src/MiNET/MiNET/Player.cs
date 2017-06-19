@@ -874,27 +874,15 @@ namespace MiNET
 			if (useLoadingScreen)
 			{
 				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 0;
-					SendPackage(dimension);
+					SendChangeDimension(0);
 
 					if (toLevel == null && levelFunc != null)
 					{
 						toLevel = levelFunc();
 					}
-
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
 				}
 				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 1;
-					SendPackage(dimension);
-
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
+					SendChangeDimension(1);
 				}
 			}
 
@@ -912,33 +900,14 @@ namespace MiNET
 			{
 				ForcedSendEmptyChunks();
 
-				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 1;
-					SendPackage(dimension);
-
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
-				}
-				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 0;
-					SendPackage(dimension);
-
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
-				}
+				SendChangeDimension(1);
+				SendChangeDimension(0);
 			}
 
 			Level.RemovePlayer(this, true);
-			//Level.EntityManager.RemoveEntity(null, this);
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-			//Level.AddPlayer(this, "", false);
-			// reset all health states
 
 			HungerManager.ResetHunger();
 
@@ -974,6 +943,13 @@ namespace MiNET
 					SendSetTime();
 				});
 			});
+		}
+
+		protected virtual void SendChangeDimension(int dimension)
+		{
+			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
+			changeDimension.dimension = dimension;
+			SendPackage(changeDimension);
 		}
 
 		public override void BroadcastSetEntityData()
@@ -1877,9 +1853,9 @@ namespace MiNET
 
 				if (Level == null) return;
 
-				for (int x = -3; x < 3; x++)
+				for (int x = -1; x <= 1; x++)
 				{
-					for (int z = -3; z < 3; z++)
+					for (int z = -1; z <= 1; z++)
 					{
 						McpeFullChunkData chunk = new McpeFullChunkData();
 						chunk.chunkX = chunkPosition.X + x;

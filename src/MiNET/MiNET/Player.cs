@@ -949,6 +949,7 @@ namespace MiNET
 		{
 			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
 			changeDimension.dimension = dimension;
+			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
 			SendPackage(changeDimension);
 		}
 

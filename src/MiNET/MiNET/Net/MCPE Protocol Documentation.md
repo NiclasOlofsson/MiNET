@@ -1492,6 +1492,9 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entity ID Self | SignedVarLong |  |
+|Unk1 | SignedVarInt |  |
+|Unk2 | byte |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Spawn Experience Orb (0x42)
 

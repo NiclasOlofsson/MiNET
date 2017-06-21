@@ -136,15 +136,6 @@ namespace TestPlugin
 			});
 		}
 
-		[Command(Name = "dim")]
-		public void ChangeDimension(Player player)
-		{
-			McpeChangeDimension change = McpeChangeDimension.CreateObject();
-			change.dimension = 1;
-			change.unknown = false;
-			player.SendPackage(change);
-		}
-
 		[Command(Name = "le")]
 		public void LevelEvent(Player player, short value)
 		{
@@ -278,6 +269,70 @@ namespace TestPlugin
 			}
 		}
 
+		[Command(Name = "dim", Aliases = new[] {"dimension"}, Description = "Change dimension. Creates world if not exist.")]
+		public void ChangeDimenion(Player player, DimensionTypesEnum dimType)
+		{
+			int dimension;
+			switch (dimType.Value)
+			{
+				case "overworld":
+					dimension = 0;
+					break;
+				case "nether":
+					dimension = 1;
+					break;
+				case "the_end":
+					dimension = 2;
+					break;
+				default:
+					return;
+			}
+
+			Level oldLevel = player.Level;
+
+			if (player.Level.LevelId.Equals("" + dimension))
+			{
+				player.Teleport(player.SpawnPosition);
+				return;
+			}
+
+			if (!Context.LevelManager.Levels.Contains(player.Level))
+			{
+				Context.LevelManager.Levels.Add(player.Level);
+			}
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				LevelManager levelManager = state as LevelManager;
+				if (levelManager == null) return;
+
+				Level[] levels = levelManager.Levels.ToArray();
+
+				if (levels != null)
+				{
+					player.ChangeDimension(null, null, dimension, delegate
+					{
+						lock (levelManager.Levels)
+						{
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals("" + dimension));
+
+							if (nextLevel == null)
+							{
+								nextLevel = new Level("" + dimension, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel.Initialize();
+								Context.LevelManager.Levels.Add(nextLevel);
+							}
+
+
+							return nextLevel;
+						}
+					});
+				}
+
+				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
+			}, Context.LevelManager);
+		}
+
 		[Command(Name = "tpw", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void TeleportWorld(Player player)
 		{
@@ -324,13 +379,13 @@ namespace TestPlugin
 								Context.LevelManager.Levels.Add(nextLevel);
 							}
 
+							oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 
 							return nextLevel;
 						}
 					});
 				}
 
-				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 			}, Context.LevelManager);
 		}
 

@@ -4254,6 +4254,9 @@ namespace MiNET.Net
 
 	public partial class McpeEvent : Package<McpeEvent>
 	{
+		public long entityIdSelf; // = null;
+		public int unk1; // = null;
+		public byte unk2; // = null;
 		public McpeEvent()
 		{
 			Id = 0x41;
@@ -4265,6 +4268,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			WriteSignedVarLong(entityIdSelf);
+			WriteSignedVarInt(unk1);
+			Write(unk2);
 
 			AfterEncode();
 		}
@@ -4278,6 +4284,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			entityIdSelf = ReadSignedVarLong();
+			unk1 = ReadSignedVarInt();
+			unk2 = ReadByte();
 
 			AfterDecode();
 		}

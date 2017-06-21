@@ -98,6 +98,7 @@
     <Compile Include="MinetSchematicsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MinetServerTest.cs" />
+    <Compile Include="ResourceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MiNET\MiNET.csproj">

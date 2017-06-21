@@ -951,7 +951,6 @@ namespace MiNET.Worlds
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Metadata);
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
-			Log.Debug($"Set block {block.Coordinates}");
 			//chunk.RecalcHeight();
 			//new SkyLightCalculations(true).CalculateSkyLights(this, new[] {chunk});
 			//CalculateSkyLight(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);

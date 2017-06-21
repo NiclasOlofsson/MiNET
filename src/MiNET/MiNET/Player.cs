@@ -329,6 +329,8 @@ namespace MiNET
 			Level.RelayBroadcast(this, msg);
 		}
 
+		Action _dimensionFunc = null;
+
 		/// <summary>
 		///     Handles the player action.
 		/// </summary>
@@ -375,9 +377,17 @@ namespace MiNET
 					SetSprinting(false);
 					IsSneaking = false;
 					break;
-				case PlayerAction.DimensionChange:
-					break;
 				case PlayerAction.AbortDimensionChange:
+					Log.Warn("AbortDimensionChange");
+					break;
+				case PlayerAction.DimensionChange:
+					Log.Warn("DimensionChange");
+					if (_dimensionFunc != null)
+					{
+						Log.Warn("Hello!");
+						_dimensionFunc();
+						_dimensionFunc = null;
+					}
 					break;
 				case PlayerAction.WorldImmutable:
 					break;
@@ -848,6 +858,79 @@ namespace MiNET
 			return _chunksUsed.ContainsKey(key);
 		}
 
+		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, int dimension, Func<Level> levelFunc = null)
+		{
+			//bool oldNoAi = NoAi;
+			//SetNoAi(true);
+
+			if (toLevel == null && levelFunc != null)
+			{
+				toLevel = levelFunc();
+			}
+
+			SendChangeDimension(dimension);
+
+			if (toLevel == null && levelFunc != null)
+			{
+				toLevel = levelFunc();
+			}
+
+
+			SetPosition(new PlayerLocation
+			{
+				X = KnownPosition.X,
+				Y = 4000,
+				Z = KnownPosition.Z,
+				Yaw = 91,
+				Pitch = 28,
+				HeadYaw = 91,
+			});
+
+			//_dimensionFunc = delegate
+			{
+				Level.RemovePlayer(this, true);
+
+				Level = toLevel; // Change level
+				SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+
+				//HungerManager.ResetHunger();
+
+				//HealthManager.ResetHealth();
+
+				BroadcastSetEntityData();
+
+				SendUpdateAttributes();
+
+				//SendSetSpawnPosition();
+
+				//SendAdventureSettings();
+
+				//SendPlayerInventory();
+
+				CleanCache();
+
+				ForcedSendChunk(SpawnPosition);
+
+				// send teleport to spawn
+				SetPosition(SpawnPosition);
+
+				//SetNoAi(oldNoAi);
+
+				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				{
+					Level.AddPlayer(this, true);
+
+					ForcedSendChunks(() =>
+					{
+						Log.WarnFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+						SendSetTime();
+					});
+				});
+			};
+		}
+
+
 		public void SpawnLevel(Level toLevel)
 		{
 			SpawnLevel(toLevel, toLevel.SpawnPoint);
@@ -865,17 +948,7 @@ namespace MiNET
 
 			if (useLoadingScreen)
 			{
-				{
-					SendChangeDimension(0);
-
-					if (toLevel == null && levelFunc != null)
-					{
-						toLevel = levelFunc();
-					}
-				}
-				{
-					SendChangeDimension(1);
-				}
+				SendChangeDimension(1);
 			}
 
 			SetPosition(new PlayerLocation
@@ -888,53 +961,64 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
+			Action transferFunc = delegate
+			{
+				if (useLoadingScreen)
+				{
+					SendChangeDimension(0);
+				}
+
+				Level.RemovePlayer(this, true);
+
+				Level = toLevel; // Change level
+				SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+
+				HungerManager.ResetHunger();
+
+				HealthManager.ResetHealth();
+
+				BroadcastSetEntityData();
+
+				SendUpdateAttributes();
+
+				SendSetSpawnPosition();
+
+				SendAdventureSettings();
+
+				SendPlayerInventory();
+
+				CleanCache();
+
+				ForcedSendChunk(SpawnPosition);
+
+				// send teleport to spawn
+				SetPosition(SpawnPosition);
+
+				SetNoAi(oldNoAi);
+
+				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				{
+					Level.AddPlayer(this, true);
+
+					ForcedSendChunks(() =>
+					{
+						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+						SendSetTime();
+					});
+				});
+			};
+
 			if (useLoadingScreen)
 			{
+				_dimensionFunc = transferFunc;
 				ForcedSendEmptyChunks();
-
-				SendChangeDimension(1);
-				SendChangeDimension(0);
+			}
+			else
+			{
+				transferFunc();
 			}
 
-			Level.RemovePlayer(this, true);
-
-			Level = toLevel; // Change level
-			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-
-			HungerManager.ResetHunger();
-
-			HealthManager.ResetHealth();
-
-			BroadcastSetEntityData();
-
-			SendUpdateAttributes();
-
-			SendSetSpawnPosition();
-
-			SendAdventureSettings();
-
-			SendPlayerInventory();
-
-			CleanCache();
-
-			ForcedSendChunk(SpawnPosition);
-
-			// send teleport to spawn
-			SetPosition(SpawnPosition);
-
-			SetNoAi(oldNoAi);
-
-			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
-			{
-				Level.AddPlayer(this, true);
-
-				ForcedSendChunks(() =>
-				{
-					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-					SendSetTime();
-				});
-			});
 		}
 
 		protected virtual void SendChangeDimension(int dimension)

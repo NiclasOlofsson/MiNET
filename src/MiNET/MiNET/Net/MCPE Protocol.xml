@@ -620,6 +620,9 @@
 	</pdu>
 
 	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_EVENT">
+		<field name="Entity ID Self" type="SignedVarLong" />
+		<field name="Unk1" type="SignedVarInt" />
+		<field name="Unk2" type="byte" />
 	</pdu>
 
 	<pdu id="0x42" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">

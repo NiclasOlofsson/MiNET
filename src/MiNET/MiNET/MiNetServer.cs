@@ -69,6 +69,7 @@ namespace MiNET
 		private Timer _cleanerTimer;
 
 		public int InacvitityTimeout { get; private set; }
+		public int ResendThreshold { get; private set; }
 
 		public ServerInfo ServerInfo { get; set; }
 
@@ -83,6 +84,7 @@ namespace MiNET
 		{
 			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
 			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
+			ResendThreshold = Config.GetProperty("ResendThreshold", 10);
 			ForceOrderingForAll = Config.GetProperty("ForceOrderingForAll", false);
 
 			int confMinWorkerThreads = Config.GetProperty("MinWorkerThreads", -1);

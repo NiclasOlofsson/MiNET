@@ -1072,6 +1072,10 @@ namespace MiNET.Client
 			{
 				OnMcpeCommandStep((McpeCommandStep) message);
 			}
+			else if (typeof(McpeChangeDimension) == message.GetType())
+			{
+				OnMcpeChangeDimension((McpeChangeDimension)message);
+			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -1083,6 +1087,15 @@ namespace MiNET.Client
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 			}
+		}
+
+		private void OnMcpeChangeDimension(McpeChangeDimension message)
+		{
+			Thread.Sleep(3000);
+			McpePlayerAction action = McpePlayerAction.CreateObject();
+			action.runtimeEntityId = EntityId;
+			action.actionId = (int) PlayerAction.DimensionChange;
+			SendPackage(action);
 		}
 
 		private void OnMcpeClientboundMapItemData(McpeClientboundMapItemData message)

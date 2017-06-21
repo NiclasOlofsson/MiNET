@@ -721,9 +721,8 @@ namespace MiNET
 				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
 				long lastUpdate = LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-				bool serverHasNoLag = Server.ServerInfo.AvailableBytes < 1000;
 
-				if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout + 3000 < now)
+				if (lastUpdate + Server.InacvitityTimeout + 3000 < now)
 				{
 					Evicted = true;
 					// Disconnect user
@@ -737,7 +736,7 @@ namespace MiNET
 				}
 
 
-				if (serverHasNoLag && State != ConnectionState.Connected && MessageHandler != null && lastUpdate + 3000 < now)
+				if (State != ConnectionState.Connected && MessageHandler != null && lastUpdate + 3000 < now)
 				{
 					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Disconnect("You've been kicked with reason: Lost connection."); });
 
@@ -746,11 +745,15 @@ namespace MiNET
 
 				if (MessageHandler == null) return;
 
-				if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout < now && !WaitForAck)
+				if (!WaitForAck && (ResendCount > Server.ResendThreshold || lastUpdate + Server.InacvitityTimeout < now))
 				{
+					//TODO: Seems to have lost code here. This should actually count the resends too.
+					// Spam is a bit too much. The Russians have trouble with bad connections.
 					DetectLostConnection();
 					WaitForAck = true;
 				}
+
+				if (WaitForAck) return;
 
 				if (Rto == 0) return;
 
@@ -777,7 +780,7 @@ namespace MiNET
 					datagramTimout = Math.Min(datagramTimout, 3000);
 					datagramTimout = Math.Max(datagramTimout, 100);
 
-					if (serverHasNoLag && elapsedTime >= datagramTimout)
+					if (elapsedTime >= datagramTimout)
 					{
 						//if (session.WaitForAck) return;
 

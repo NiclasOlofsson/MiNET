@@ -860,9 +860,6 @@ namespace MiNET
 
 		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, int dimension, Func<Level> levelFunc = null)
 		{
-			//bool oldNoAi = NoAi;
-			//SetNoAi(true);
-
 			if (toLevel == null && levelFunc != null)
 			{
 				toLevel = levelFunc();
@@ -870,70 +867,33 @@ namespace MiNET
 
 			SendChangeDimension(dimension);
 
-			if (toLevel == null && levelFunc != null)
+			Level.RemovePlayer(this, true);
+
+			Level = toLevel; // Change level
+			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+
+			BroadcastSetEntityData();
+
+			SendUpdateAttributes();
+
+			CleanCache();
+
+			ForcedSendChunk(SpawnPosition);
+
+			// send teleport to spawn
+			SetPosition(SpawnPosition);
+
+			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
 			{
-				toLevel = levelFunc();
-			}
+				Level.AddPlayer(this, true);
 
-
-			SetPosition(new PlayerLocation
-			{
-				X = KnownPosition.X,
-				Y = 4000,
-				Z = KnownPosition.Z,
-				Yaw = 91,
-				Pitch = 28,
-				HeadYaw = 91,
-			});
-
-			//_dimensionFunc = delegate
-			{
-				Level.RemovePlayer(this, true);
-
-				Level = toLevel; // Change level
-				SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-
-				//HungerManager.ResetHunger();
-
-				//HealthManager.ResetHealth();
-
-				BroadcastSetEntityData();
-
-				SendUpdateAttributes();
-
-				//SendSetSpawnPosition();
-
-				//SendAdventureSettings();
-
-				//SendPlayerInventory();
-
-				CleanCache();
-
-				ForcedSendChunk(SpawnPosition);
-
-				// send teleport to spawn
-				SetPosition(SpawnPosition);
-
-				//SetNoAi(oldNoAi);
-
-				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				ForcedSendChunks(() =>
 				{
-					Level.AddPlayer(this, true);
+					Log.WarnFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
-					ForcedSendChunks(() =>
-					{
-						Log.WarnFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-						SendSetTime();
-					});
+					SendSetTime();
 				});
-			};
-		}
-
-
-		public void SpawnLevel(Level toLevel)
-		{
-			SpawnLevel(toLevel, toLevel.SpawnPoint);
+			});
 		}
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
@@ -1018,7 +978,6 @@ namespace MiNET
 			{
 				transferFunc();
 			}
-
 		}
 
 		protected virtual void SendChangeDimension(int dimension)

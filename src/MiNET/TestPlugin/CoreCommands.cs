@@ -125,7 +125,7 @@ namespace TestPlugin
 		{
 		}
 
-		[Command(Aliases = new[] {"csk"})]
+		[Command(Aliases = new[] {"csl"})]
 		public void CalculateSkyLight(Player player)
 		{
 			Task.Run(() =>
@@ -135,6 +135,18 @@ namespace TestPlugin
 				player.ForcedSendChunks(() => { player.SendMessage("Calculated skylights and resent chunks."); });
 			});
 		}
+
+		[Command(Aliases = new[] { "cbl" })]
+		public void CalculateBlockLight(Player player)
+		{
+			Task.Run(() =>
+			{
+				new LevelManager().RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level._worldProvider);
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage("Calculated blocklights and resent chunks."); });
+			});
+		}
+
 
 		[Command(Name = "le")]
 		public void LevelEvent(Player player, short value)

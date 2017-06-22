@@ -336,9 +336,9 @@ namespace MiNET.Net
 
 		public void Write(float value)
 		{
-			byte[] bytes = BitConverter.GetBytes(value);
-
 			_writer.Write(value);
+
+			//byte[] bytes = BitConverter.GetBytes(value);
 			//_writer.Write(bytes[3]);
 			//_writer.Write(bytes[2]);
 			//_writer.Write(bytes[1]);
@@ -896,24 +896,24 @@ namespace MiNET.Net
 			}
 
 			WriteVarInt(gameRules.Count);
-			foreach (var rule in gameRules.Values)
+			foreach (var rule in gameRules)
 			{
-				Write(rule.Name);
-				if (rule is GameRule<bool>)
+				var value = rule.Value;
+				Write(rule.Key);
+				if (value is GameRule<bool>)
 				{
 					Write((byte) 1);
-					Write(((GameRule<bool>) rule).Value);
+					Write(((GameRule<bool>) value).Value);
 				}
-				else if (rule is GameRule<int>)
+				else if (value is GameRule<int>)
 				{
 					Write((byte) 2);
-					WriteVarInt(((GameRule<int>) rule).Value);
-					//_writer.Write(((GameRule<int>) rule).Value);
+					WriteVarInt(((GameRule<int>) value).Value);
 				}
-				else if (rule is GameRule<float>)
+				else if (value is GameRule<float>)
 				{
 					Write((byte) 3);
-					Write(((GameRule<float>) rule).Value);
+					Write(((GameRule<float>) value).Value);
 				}
 			}
 		}

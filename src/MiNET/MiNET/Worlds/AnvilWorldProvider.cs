@@ -72,6 +72,10 @@ namespace MiNET.Worlds
 
 		public bool IsCaching { get; private set; }
 
+		public bool ReadSkyLight { get; set; } = true;
+
+		public bool ReadBlockLight { get; set; } = true;
+
 		static AnvilWorldProvider()
 		{
 			var air = new Mapper(0, (i, b) => 0);
@@ -488,8 +492,14 @@ namespace MiNET.Worlds
 						metadata = dataConverter(blockId, metadata);
 
 						chunk.SetMetadata(x, y, z, metadata);
-						chunk.SetBlocklight(x, y, z, Nibble4(blockLight, anvilIndex));
-						chunk.SetSkylight(x, y, z, Nibble4(skyLight, anvilIndex));
+						if (ReadBlockLight)
+						{
+							chunk.SetBlocklight(x, y, z, Nibble4(blockLight, anvilIndex));
+						}
+						if (ReadSkyLight)
+						{
+							chunk.SetSkylight(x, y, z, Nibble4(skyLight, anvilIndex));
+						}
 
 						if (blockId == 0) continue;
 

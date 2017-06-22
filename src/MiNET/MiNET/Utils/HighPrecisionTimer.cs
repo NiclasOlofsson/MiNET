@@ -14,7 +14,9 @@ namespace MiNET.Utils
 
 		protected CancellationTokenSource CancelSource;
 
-		public HighPrecisionTimer(int interval, Action<object> action)
+		public AutoResetEvent AutoReset = new AutoResetEvent(true);
+
+		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false)
 		{
 			Action = action;
 			Log.Debug($"Starting HighPrecisionTimer with {interval} ms interval");
@@ -37,15 +39,30 @@ namespace MiNET.Utils
 					if (msLeft <= 0)
 					{
 						Action(this);
+						AutoReset.Reset();
 
 						// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
-						nextStop = (long) (interval*(watch.ElapsedMilliseconds/(float) interval + 1f));
+						nextStop = (long)(interval * (watch.ElapsedMilliseconds / (float)interval + 1f));
+
 						continue;
 					}
 					if (msLeft < 16)
 					{
 						var stop = nextStop;
-						SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
+
+						if (useSignaling)
+						{
+							if (!AutoReset.WaitOne(500))
+							{
+								Log.Error("No signal received");
+							}
+						}
+
+
+						if(watch.ElapsedMilliseconds < stop)
+						{
+							SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
+						}
 						//long t = nextStop - watch.ElapsedMilliseconds;
 						//if(t < -5) Log.Warn($"We overslept {t}ms in spin wait");
 						continue;

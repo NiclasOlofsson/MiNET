@@ -170,7 +170,8 @@ namespace MiNET
 
 					GreylistManager = GreylistManager ?? new GreylistManager(this);
 					SessionManager = SessionManager ?? new SessionManager();
-					LevelManager = LevelManager ?? new LevelManager();
+					//LevelManager = LevelManager ?? new LevelManager();
+					LevelManager = LevelManager ?? new SpreadLevelManager(1);
 					PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);
@@ -981,6 +982,7 @@ namespace MiNET
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
 		{
 			session.PlayerAckQueue.Enqueue(sequenceNumber);
+			session.SignalTick();
 		}
 
 		public void SendPackage(PlayerNetworkSession session, Package message)

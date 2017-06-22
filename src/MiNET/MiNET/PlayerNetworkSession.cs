@@ -89,11 +89,21 @@ namespace MiNET
 			MtuSize = mtuSize;
 
 			_cancellationToken = new CancellationTokenSource();
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick);
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
 		}
 
 		public void Close()
 		{
+			if (Server == null) // EMULATOR
+			{
+				if (_tickerHighPrecisionTimer != null)
+				{
+					_tickerHighPrecisionTimer.Dispose();
+				}
+
+				return;
+			}
+
 			PlayerNetworkSession session;
 			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 			{
@@ -273,6 +283,8 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
+			//SignalTick();
+
 			try
 			{
 				if (message == null)
@@ -655,8 +667,6 @@ namespace MiNET
 
 		public void SendPackage(Package package)
 		{
-			MiNetServer.TraceSend(package);
-
 			if (package == null) return;
 
 			if (State == ConnectionState.Unconnected)
@@ -664,6 +674,8 @@ namespace MiNET
 				package.PutPool();
 				return;
 			}
+
+			MiNetServer.TraceSend(package);
 
 			bool isBatch = package is McpeWrapper;
 
@@ -680,6 +692,7 @@ namespace MiNET
 			lock (_queueSync)
 			{
 				_sendQueueNotConcurrent.Enqueue(package);
+				SignalTick();
 			}
 		}
 
@@ -709,6 +722,8 @@ namespace MiNET
 			if (Evicted) return;
 
 			if (MiNetServer.FastThreadPool == null) return;
+
+			if (WaitingForAcksQueue.Count == 0) return;
 
 			if (!Monitor.TryEnter(_updateSync)) return;
 			_isRunning = true;
@@ -822,6 +837,13 @@ namespace MiNET
 			}
 		}
 
+		public void SignalTick()
+		{
+			//Log.Warn("Signal timer");
+			_tickerHighPrecisionTimer.AutoReset.Set();
+		}
+
+
 		private void SendAckQueue()
 		{
 			PlayerNetworkSession session = this;
@@ -855,6 +877,8 @@ namespace MiNET
 
 		private void SendQueue()
 		{
+			if (_sendQueueNotConcurrent.Count == 0) return;
+
 			if (!Monitor.TryEnter(_syncHack)) return;
 
 			try

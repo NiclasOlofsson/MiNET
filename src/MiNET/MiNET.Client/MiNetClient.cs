@@ -76,6 +76,7 @@ namespace MiNET.Client
 		public long EntityId { get; private set; }
 		public long NetworkEntityId { get; private set; }
 		public PlayerNetworkSession Session { get; set; }
+		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
@@ -83,7 +84,6 @@ namespace MiNET.Client
 		//private long _clientGuid = new Random().Next();
 		private long _clientGuid = 1111111;
 
-		private Timer _connectedPingTimer;
 		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
 
@@ -121,7 +121,7 @@ namespace MiNET.Client
 			//var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.255"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("173.208.195.250"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("true-games.org").AddressList[0], 2222), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
@@ -259,7 +259,8 @@ namespace MiNET.Client
 				Session = new PlayerNetworkSession(null, null, _clientEndpoint, _mtuSize);
 
 				//UdpClient.BeginReceive(ReceiveCallback, UdpClient);
-				new Thread(ProcessDatagrams) {IsBackground = true}.Start(UdpClient);
+				_mainProcessingThread = new Thread(ProcessDatagrams) {IsBackground = true};
+				_mainProcessingThread.Start(UdpClient);
 
 				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
 
@@ -283,11 +284,14 @@ namespace MiNET.Client
 			//Environment.Exit(0);
 			try
 			{
+				Session?.Close();
+				_mainProcessingThread?.Abort();
+				_mainProcessingThread = null;
+
 				if (UdpClient == null) return true; // Already stopped. It's ok.
 
 				UdpClient.Close();
 				UdpClient = null;
-
 				Log.InfoFormat("Client closed for business {0}", Username);
 
 				return true;

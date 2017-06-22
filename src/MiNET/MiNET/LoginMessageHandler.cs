@@ -188,7 +188,7 @@ namespace MiNET
 					// Skin JWT Payload: 
 
 					//{
-					//"ADRole": 2,
+					//  "ADRole": 2,
 					//	"ClientRandomId": 1423700530444426768,
 					//	"CurrentInputMode": 1,
 					//	"DefaultInputMode": 1,

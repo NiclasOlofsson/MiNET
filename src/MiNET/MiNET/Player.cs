@@ -329,7 +329,7 @@ namespace MiNET
 			Level.RelayBroadcast(this, msg);
 		}
 
-		Action _dimensionFunc = null;
+		Action _dimensionFunc;
 
 		/// <summary>
 		///     Handles the player action.
@@ -980,10 +980,11 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void SendChangeDimension(int dimension)
+		protected virtual void SendChangeDimension(int dimension, bool flag = false)
 		{
 			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
 			changeDimension.dimension = dimension;
+			changeDimension.unknown = flag;
 			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
 			SendPackage(changeDimension);
 		}

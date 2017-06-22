@@ -275,7 +275,7 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
-	""AdRole"": 0,
+	""ADRole"": 0,
 	""ClientRandomId"": {new Random().Next()},
 	""CurrentInputMode"": 1,
 	""DefaultInputMode"": 1,

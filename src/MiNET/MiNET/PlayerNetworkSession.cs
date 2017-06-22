@@ -790,6 +790,7 @@ namespace MiNET
 						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
 							ErrorCount++;
+							ResendCount++;
 
 							MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
 							{

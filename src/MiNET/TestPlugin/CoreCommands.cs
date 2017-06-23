@@ -137,7 +137,7 @@ namespace TestPlugin
 			});
 		}
 
-		[Command(Aliases = new[] { "cbl" })]
+		[Command(Aliases = new[] {"cbl"})]
 		public void CalculateBlockLight(Player player)
 		{
 			Task.Run(() =>
@@ -270,6 +270,30 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Portal(Player player)
+		{
+			int width = 4;
+			int height = 5;
+
+			int z = (int) player.KnownPosition.Z + 2;
+			int xOffset = (int) player.KnownPosition.X - width/2;
+			int yOffset = (int) player.KnownPosition.Y;
+
+			Level level = player.Level;
+			for (int x = 0; x < width; x++)
+			{
+				for (int y = 0; y < height; y++)
+				{
+					if ((x == 0 || x == width - 1) || (y == 0 || y == height - 1))
+					{
+						level.SetBlock(new Obsidian() {Coordinates = new BlockCoordinates(x + xOffset, y + yOffset, z)});
+					}
+				}
+			}
+		}
+
+
+		[Command]
 		public void Orb(Player player1)
 		{
 			foreach (Player player in player1.Level.Players.Values)
@@ -332,7 +356,7 @@ namespace TestPlugin
 							if (nextLevel == null)
 							{
 								var existingWp = player.Level._worldProvider as AnvilWorldProvider;
-								if(existingWp != null)
+								if (existingWp != null)
 								{
 									DirectoryInfo dir = new DirectoryInfo(existingWp.BasePath);
 									//var path = Directory.GetParent(existingWp.BasePath).FullName + @"\_" + dimType.Value;
@@ -414,7 +438,6 @@ namespace TestPlugin
 						}
 					});
 				}
-
 			}, Context.LevelManager);
 		}
 

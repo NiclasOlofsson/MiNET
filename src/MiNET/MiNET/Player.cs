@@ -567,7 +567,7 @@ namespace MiNET
 				{
 					if (!IsConnected) return;
 
-					Level = Server.LevelManager.GetLevel(this, "Default");
+					Level = Server.LevelManager.GetLevel(this, "overworld");
 				}
 				if (Level == null)
 				{
@@ -860,12 +860,12 @@ namespace MiNET
 
 		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, int dimension, Func<Level> levelFunc = null)
 		{
+			SendChangeDimension(dimension);
+
 			if (toLevel == null && levelFunc != null)
 			{
 				toLevel = levelFunc();
 			}
-
-			SendChangeDimension(dimension);
 
 			Level.RemovePlayer(this, true);
 
@@ -901,14 +901,14 @@ namespace MiNET
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
 
-			if (toLevel == null && levelFunc != null)
-			{
-				toLevel = levelFunc();
-			}
-
 			if (useLoadingScreen)
 			{
 				SendChangeDimension(1);
+			}
+
+			if (toLevel == null && levelFunc != null)
+			{
+				toLevel = levelFunc();
 			}
 
 			SetPosition(new PlayerLocation

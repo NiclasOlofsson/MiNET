@@ -70,6 +70,8 @@ namespace MiNET.Worlds
 
 		public string BasePath { get; private set; }
 
+		public int Dimension { get; set; }
+
 		public bool IsCaching { get; private set; }
 
 		public bool ReadSkyLight { get; set; } = true;
@@ -237,6 +239,18 @@ namespace MiNET.Worlds
 				file.LoadFromFile(Path.Combine(BasePath, "level.dat"));
 				NbtTag dataTag = file.RootTag["Data"];
 				LevelInfo = new LevelInfo(dataTag);
+
+				switch (Dimension)
+				{
+					case 0:
+						break;
+					case 1:
+						BasePath = Path.Combine(BasePath, @"DIM-1");
+						break;
+					case 2:
+						BasePath = Path.Combine(BasePath, @"DIM1");
+						break;
+				}
 
 				_isInitialized = true;
 			}

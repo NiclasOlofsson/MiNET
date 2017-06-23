@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -326,13 +327,29 @@ namespace TestPlugin
 					{
 						lock (levelManager.Levels)
 						{
-							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals("" + dimension));
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(dimType.Value));
 
 							if (nextLevel == null)
 							{
-								nextLevel = new Level("" + dimension, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
-								nextLevel.Initialize();
-								Context.LevelManager.Levels.Add(nextLevel);
+								var existingWp = player.Level._worldProvider as AnvilWorldProvider;
+								if(existingWp != null)
+								{
+									DirectoryInfo dir = new DirectoryInfo(existingWp.BasePath);
+									//var path = Directory.GetParent(existingWp.BasePath).FullName + @"\_" + dimType.Value;
+									var path = dir.FullName + @"_" + dimType.Value;
+									Log.Warn($"Path: {path}");
+									var worldProvider = new AnvilWorldProvider(path);
+									worldProvider.Dimension = dimension;
+									nextLevel = new Level(dimType.Value, worldProvider, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+									nextLevel.Initialize();
+									Context.LevelManager.Levels.Add(nextLevel);
+								}
+								else
+								{
+									nextLevel = new Level(dimType.Value, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+									nextLevel.Initialize();
+									Context.LevelManager.Levels.Add(nextLevel);
+								}
 							}
 
 

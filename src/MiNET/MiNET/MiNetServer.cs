@@ -170,14 +170,14 @@ namespace MiNET
 
 					GreylistManager = GreylistManager ?? new GreylistManager(this);
 					SessionManager = SessionManager ?? new SessionManager();
-					//LevelManager = LevelManager ?? new LevelManager();
-					LevelManager = LevelManager ?? new SpreadLevelManager(1);
+					LevelManager = LevelManager ?? new LevelManager();
+					//LevelManager = LevelManager ?? new SpreadLevelManager(1);
 					PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);
 
 					// Cache - remove
-					LevelManager.GetLevel(null, "Default");
+					LevelManager.GetLevel(null, "overworld");
 				}
 
 				GreylistManager = GreylistManager ?? new GreylistManager(this);

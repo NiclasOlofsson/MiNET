@@ -37,6 +37,9 @@ namespace MiNET.Items
 {
 	public class ItemFlintAndSteel : Item
 	{
+		public static int MaxPortalHeight = 30;
+		public static int MaxPortalWidth = 30;
+
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFlintAndSteel));
 
 		public ItemFlintAndSteel() : base(259)
@@ -61,25 +64,15 @@ namespace MiNET.Items
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, face));
 				if (affectedBlock.Id == 0)
 				{
-					List<Portal> blocks = new List<Portal>();
-					int count = Fill(world, affectedBlock, 0, BlockFace.North, blocks);
-					if (count < 6 || count > 23*23)
+					var blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.North);
+					if (blocks.Count == 0)
 					{
-						blocks.Clear();
-						count = Fill(world, affectedBlock, 0, BlockFace.East, blocks);
-						if (count < 6 || count > 23*23)
-						{
-							blocks.Clear();
-						}
+						blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.East);
 					}
-					//foreach (var portal in blocks)
-					//{
-					//	world.SetBlock(portal);
-					//}
 
 					if (blocks.Count > 0)
 					{
-						foreach (var portal in blocks)
+						foreach (var portal in blocks.FindAll(b => b is Portal))
 						{
 							world.SetBlock(portal);
 						}
@@ -115,59 +108,57 @@ namespace MiNET.Items
 			}
 		}
 
-		private int Fill(Level level, Block currentBlock, int count, BlockFace direction, List<Portal> blocks)
+		public List<Block> Fill(Level level, BlockCoordinates origin, int radius, BlockFace direction)
 		{
-			if (count > 23*23) return count;
+			var blocks = new List<Block>();
+			var length = new Vector2(MaxPortalHeight, MaxPortalWidth).Length();
 
-			if (IsValid(level, currentBlock.Coordinates, blocks) != 0) return count;
+			Queue<BlockCoordinates> visits = new Queue<BlockCoordinates>();
 
-			count++;
+			visits.Enqueue(origin); // Kick it off with some good stuff
 
-			if (!(currentBlock is Air))
+			while (visits.Count > 0)
 			{
-				return count + 23*23;
+				var coordinates = visits.Dequeue();
+
+				if (origin.DistanceTo(coordinates) >= length) return new List<Block>();
+
+				if (level.IsAir(coordinates) && blocks.FirstOrDefault(b => b.Coordinates.Equals(coordinates)) == null)
+				{
+					Visit(coordinates, blocks);
+
+					if (direction == BlockFace.North)
+					{
+						visits.Enqueue(coordinates + Level.East);
+						visits.Enqueue(coordinates + Level.West);
+					}
+					else if (direction == BlockFace.East)
+					{
+						visits.Enqueue(coordinates + Level.North);
+						visits.Enqueue(coordinates + Level.South);
+					}
+
+					visits.Enqueue(coordinates + Level.Up);
+					visits.Enqueue(coordinates + Level.Down);
+				}
+				else
+				{
+					var block = level.GetBlock(coordinates);
+					if (!IsValid(block, blocks)) return new List<Block>();
+				}
 			}
 
-			blocks.Add(new Portal {Coordinates = currentBlock.Coordinates, Metadata = (byte) (direction - 2)});
-
-			int c = 0;
-			c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.Up, blocks);
-			c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.Down, blocks);
-			if (direction == BlockFace.East)
-			{
-				c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.West, blocks);
-				c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.East, blocks);
-			}
-			else
-			{
-				c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.South, blocks);
-				c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.North, blocks);
-			}
-
-			if (c == 0 || c >= 30)
-			{
-				return count + 23*23;
-			}
-
-			count = Fill(level, level.GetBlock(currentBlock.Coordinates + BlockCoordinates.Up), count, direction, blocks);
-			count = Fill(level, level.GetBlock(currentBlock.Coordinates + BlockCoordinates.Down), count, direction, blocks);
-			if (direction == BlockFace.East)
-			{
-				count = Fill(level, level.GetBlock(currentBlock.Coordinates + BlockCoordinates.West), count, direction, blocks);
-				count = Fill(level, level.GetBlock(currentBlock.Coordinates + BlockCoordinates.East), count, direction, blocks);
-			}
-			else
-			{
-				count = Fill(level, level.GetBlock(currentBlock.Coordinates + BlockCoordinates.South), count, direction, blocks);
-				count = Fill(level, level.GetBlock(currentBlock.Coordinates + BlockCoordinates.North), count, direction, blocks);
-			}
-			return count;
+			return blocks;
 		}
 
-		private int IsValid(Level level, BlockCoordinates coord, List<Portal> portals)
+		private void Visit(BlockCoordinates coordinates, List<Block> blocks)
 		{
-			Block block = level.GetBlock(coord);
-			return block is Obsidian ? 10 : portals.FirstOrDefault(b => b.Coordinates.Equals(coord)) != null ? 1 : 0;
+			blocks.Add(new Portal {Coordinates = coordinates});
+		}
+
+		private bool IsValid(Block block, List<Block> portals)
+		{
+			return block is Obsidian || portals.FirstOrDefault(b => b.Coordinates.Equals(block.Coordinates) && b is Portal) != null;
 		}
 	}
 }

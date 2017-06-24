@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -272,8 +271,8 @@ namespace TestPlugin
 		[Command]
 		public void Portal(Player player)
 		{
-			int width = 4;
-			int height = 5;
+			int width = 30;
+			int height = 30;
 
 			int z = (int) player.KnownPosition.Z + 2;
 			int xOffset = (int) player.KnownPosition.X - width/2;
@@ -361,7 +360,7 @@ namespace TestPlugin
 								if (existingWp != null)
 								{
 									var worldProvider = new AnvilWorldProvider(existingWp.BasePath);
-									worldProvider.MissingChunkProvider = new  FlatlandWorldProvider();
+									worldProvider.MissingChunkProvider = new FlatlandWorldProvider();
 									worldProvider.Dimension = dimension;
 
 									nextLevel = new Level(dimension.ToString(), worldProvider, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);

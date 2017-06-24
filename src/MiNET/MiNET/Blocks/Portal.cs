@@ -23,6 +23,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -58,7 +59,7 @@ namespace MiNET.Blocks
 
 			if (!shouldKeep)
 			{
-				level.BreakBlock(this);
+				Fill(level, Coordinates);
 			}
 		}
 
@@ -70,6 +71,37 @@ namespace MiNET.Blocks
 		public override Item[] GetDrops(Item tool)
 		{
 			return new Item[0];
+		}
+
+
+		public void Fill(Level level, BlockCoordinates origin)
+		{
+			Queue<BlockCoordinates> visits = new Queue<BlockCoordinates>();
+
+			visits.Enqueue(origin); // Kick it off with some good stuff
+
+			while (visits.Count > 0)
+			{
+				var coordinates = visits.Dequeue();
+
+				if (!(level.GetBlock(coordinates) is Portal)) continue;
+
+				level.SetAir(coordinates);
+
+				if (Metadata == 0)
+				{
+					visits.Enqueue(coordinates + Level.South);
+					visits.Enqueue(coordinates + Level.North);
+				}
+				else
+				{
+					visits.Enqueue(coordinates + Level.East);
+					visits.Enqueue(coordinates + Level.West);
+				}
+
+				visits.Enqueue(coordinates + Level.Down);
+				visits.Enqueue(coordinates + Level.Up);
+			}
 		}
 	}
 }

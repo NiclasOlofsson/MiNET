@@ -105,7 +105,7 @@ namespace MiNET.Items
 				return count + 23*23;
 			}
 
-			blocks.Add(new Portal {Coordinates = currentBlock.Coordinates});
+			blocks.Add(new Portal {Coordinates = currentBlock.Coordinates, Metadata = (byte) (direction - 2)});
 
 			int c = 0;
 			c += IsValid(level, currentBlock.Coordinates + BlockCoordinates.Up, blocks);

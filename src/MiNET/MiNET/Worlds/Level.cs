@@ -1018,7 +1018,7 @@ namespace MiNET.Worlds
 			Block air = BlockFactory.GetBlockById(0);
 			air.Metadata = 0;
 			air.Coordinates = new BlockCoordinates(x, y, z);
-			SetBlock(air, broadcast, applyPhysics: true);
+			SetBlock(air, broadcast);
 		}
 
 		public BlockEntity GetBlockEntity(BlockCoordinates blockCoordinates)

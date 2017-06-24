@@ -70,7 +70,7 @@ namespace MiNET.Worlds
 
 		public string BasePath { get; private set; }
 
-		public int Dimension { get; set; }
+		public Dimension Dimension { get; set; }
 
 		public bool IsCaching { get; private set; }
 
@@ -251,12 +251,12 @@ namespace MiNET.Worlds
 
 				switch (Dimension)
 				{
-					case 0:
+					case Dimension.Overworld:
 						break;
-					case 1:
+					case Dimension.Nether:
 						BasePath = Path.Combine(BasePath, @"DIM-1");
 						break;
-					case 2:
+					case Dimension.TheEnd:
 						BasePath = Path.Combine(BasePath, @"DIM1");
 						break;
 				}
@@ -577,6 +577,14 @@ namespace MiNET.Worlds
 		public Vector3 GetSpawnPoint()
 		{
 			var spawnPoint = new Vector3(LevelInfo.SpawnX, LevelInfo.SpawnY + 2 /* + WaterOffsetY*/, LevelInfo.SpawnZ);
+			if (Dimension == Dimension.TheEnd)
+			{
+				spawnPoint = new Vector3(100, 49, 0);
+			}
+			else if (Dimension == Dimension.Nether)
+			{
+				spawnPoint = new Vector3(0, 80, 0);
+			}
 
 			if (spawnPoint.Y > 256) spawnPoint.Y = 255;
 

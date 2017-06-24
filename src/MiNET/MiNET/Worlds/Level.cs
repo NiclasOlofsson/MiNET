@@ -72,7 +72,7 @@ namespace MiNET.Worlds
 		public ConcurrentDictionary<BlockCoordinates, long> BlockWithTicks { get; private set; } //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 		public string LevelName { get; private set; }
-		public Dimension Dimension { get; private set; } = Dimension.Overworld;
+		public Dimension Dimension { get; set; } = Dimension.Overworld;
 
 		public GameMode GameMode { get; private set; }
 		public bool IsSurvival => GameMode == GameMode.Survival;

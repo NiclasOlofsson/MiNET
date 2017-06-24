@@ -576,7 +576,7 @@ namespace MiNET
 				{
 					if (!IsConnected) return;
 
-					Level = Server.LevelManager.GetLevel(this, "overworld");
+					Level = Server.LevelManager.GetLevel(this, Dimension.Overworld.ToString());
 				}
 				if (Level == null)
 				{
@@ -867,25 +867,54 @@ namespace MiNET
 			return _chunksUsed.ContainsKey(key);
 		}
 
-		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, int dimension, Func<Level> levelFunc = null)
+		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, Dimension dimension, Func<Level> levelFunc = null)
 		{
 			SendChangeDimension(dimension);
+
+			Level.RemovePlayer(this);
 
 			if (toLevel == null && levelFunc != null)
 			{
 				toLevel = levelFunc();
 			}
 
-			Level.RemovePlayer(this, true);
-
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+			Log.Warn($"Spawn point: {SpawnPosition}");
 
 			BroadcastSetEntityData();
 
 			SendUpdateAttributes();
 
 			CleanCache();
+
+			// Check if we need to generate a platform
+			if (dimension == Dimension.TheEnd)
+			{
+				BlockCoordinates platformPosition = (BlockCoordinates)(SpawnPosition + BlockCoordinates.Down);
+				if (!(Level.GetBlock(platformPosition) is Obsidian))
+				{
+					Log.Warn($"Building platform at {platformPosition}");
+					for (int x = 0; x < 5; x++)
+					{
+						for (int z = 0; z < 5; z++)
+						{
+							for (int y = 0; y < 5; y++)
+							{
+								var coordinates = new BlockCoordinates(x, y, z) + platformPosition + new BlockCoordinates(-2, 0, -2);
+								if (y == 0)
+								{
+									Level.SetBlock(new Obsidian() { Coordinates = coordinates });
+								}
+								else
+								{
+									Level.SetAir(coordinates);
+								}
+							}
+						}
+					}
+				}
+			}
 
 			ForcedSendChunk(SpawnPosition);
 
@@ -912,7 +941,7 @@ namespace MiNET
 
 			if (useLoadingScreen)
 			{
-				SendChangeDimension(1);
+				SendChangeDimension(Dimension.Nether);
 			}
 
 			if (toLevel == null && levelFunc != null)
@@ -934,7 +963,7 @@ namespace MiNET
 			{
 				if (useLoadingScreen)
 				{
-					SendChangeDimension(0);
+					SendChangeDimension(Dimension.Overworld);
 				}
 
 				Level.RemovePlayer(this, true);
@@ -989,10 +1018,11 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void SendChangeDimension(int dimension, bool flag = false)
+		protected virtual void SendChangeDimension(Dimension dimension, bool flag = false, Vector3 position = new Vector3())
 		{
 			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
-			changeDimension.dimension = dimension;
+			changeDimension.dimension = (int) dimension;
+			changeDimension.position = position;
 			changeDimension.unknown = flag;
 			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
 			SendPackage(changeDimension);
@@ -2169,35 +2199,37 @@ namespace MiNET
 			{
 				if (PortalDetected + (4*20) == Level.TickTime)
 				{
+					Dimension dimension = Dimension.Overworld;
+
 					// Teleport
-					int dimension = 1;
+					if (Level.Dimension == Dimension.Overworld) dimension = Dimension.Nether;
+					else if (Level.Dimension == Dimension.Nether) dimension = Dimension.Overworld;
+
 					ChangeDimension(null, null, dimension, delegate
 					{
 						lock (Server.LevelManager.Levels)
 						{
 							Level[] levels = Server.LevelManager.Levels.ToArray();
 
-							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals("nether"));
+							string dimType = dimension.ToString();
+
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(dimType));
 
 							if (nextLevel == null)
 							{
 								var existingWp = Level._worldProvider as AnvilWorldProvider;
-								string dimType = "nether";
 								if (existingWp != null)
 								{
-									DirectoryInfo dir = new DirectoryInfo(existingWp.BasePath);
-									//var path = Directory.GetParent(existingWp.BasePath).FullName + @"\_" + dimType.Value;
-									var path = dir.FullName + @"_nether";
-									Log.Warn($"Path: {path}");
-									var worldProvider = new AnvilWorldProvider(path);
+									var worldProvider = new AnvilWorldProvider(existingWp.BasePath);
 									worldProvider.Dimension = dimension;
 									nextLevel = new Level(dimType, worldProvider, Level.EntityManager, GameMode, Difficulty.Normal);
+									nextLevel.Dimension = dimension;
 									nextLevel.Initialize();
 									Server.LevelManager.Levels.Add(nextLevel);
 								}
 								else
 								{
-									nextLevel = new Level(dimType, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Server.LevelManager.EntityManager, GameMode, Difficulty.Normal);
+									nextLevel = new Level(dimType, new AnvilWorldProvider {MissingChunkProvider = new FlatlandWorldProvider()}, Server.LevelManager.EntityManager, GameMode, Difficulty.Normal);
 									nextLevel.Initialize();
 									Server.LevelManager.Levels.Add(nextLevel);
 								}

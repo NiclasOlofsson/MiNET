@@ -309,17 +309,17 @@ namespace TestPlugin
 		[Command(Name = "dim", Aliases = new[] {"dimension"}, Description = "Change dimension. Creates world if not exist.")]
 		public void ChangeDimenion(Player player, DimensionTypesEnum dimType)
 		{
-			int dimension;
+			Dimension dimension;
 			switch (dimType.Value)
 			{
 				case "overworld":
-					dimension = 0;
+					dimension = Dimension.Overworld;
 					break;
 				case "nether":
-					dimension = 1;
+					dimension = Dimension.Nether;
 					break;
 				case "the_end":
-					dimension = 2;
+					dimension = Dimension.TheEnd;
 					break;
 				default:
 					return;
@@ -327,11 +327,13 @@ namespace TestPlugin
 
 			Level oldLevel = player.Level;
 
-			if (player.Level.LevelId.Equals("" + dimension))
+			if (player.Level.LevelId.Equals(dimension.ToString()))
 			{
 				player.Teleport(player.SpawnPosition);
 				return;
 			}
+
+			if (oldLevel.Dimension == dimension) return;
 
 			if (!Context.LevelManager.Levels.Contains(player.Level))
 			{
@@ -351,26 +353,25 @@ namespace TestPlugin
 					{
 						lock (levelManager.Levels)
 						{
-							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(dimType.Value));
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(dimension.ToString()));
 
 							if (nextLevel == null)
 							{
 								var existingWp = player.Level._worldProvider as AnvilWorldProvider;
 								if (existingWp != null)
 								{
-									DirectoryInfo dir = new DirectoryInfo(existingWp.BasePath);
-									//var path = Directory.GetParent(existingWp.BasePath).FullName + @"\_" + dimType.Value;
-									var path = dir.FullName + @"_" + dimType.Value;
-									Log.Warn($"Path: {path}");
-									var worldProvider = new AnvilWorldProvider(path);
+									var worldProvider = new AnvilWorldProvider(existingWp.BasePath);
+									worldProvider.MissingChunkProvider = new  FlatlandWorldProvider();
 									worldProvider.Dimension = dimension;
-									nextLevel = new Level(dimType.Value, worldProvider, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+
+									nextLevel = new Level(dimension.ToString(), worldProvider, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+									nextLevel.Dimension = dimension;
 									nextLevel.Initialize();
 									Context.LevelManager.Levels.Add(nextLevel);
 								}
 								else
 								{
-									nextLevel = new Level(dimType.Value, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+									nextLevel = new Level(dimension.ToString(), new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 									nextLevel.Initialize();
 									Context.LevelManager.Levels.Add(nextLevel);
 								}

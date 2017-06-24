@@ -39,6 +39,7 @@ using Microsoft.IO;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Utils;
+using MiNET.Worlds;
 using Newtonsoft.Json;
 
 namespace MiNET
@@ -177,7 +178,7 @@ namespace MiNET
 					PluginManager.EnablePlugins(this, LevelManager);
 
 					// Cache - remove
-					LevelManager.GetLevel(null, "overworld");
+					LevelManager.GetLevel(null, Dimension.Overworld.ToString());
 				}
 
 				GreylistManager = GreylistManager ?? new GreylistManager(this);

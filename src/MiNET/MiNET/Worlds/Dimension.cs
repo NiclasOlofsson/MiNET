@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,31 +23,12 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.Utils;
-
 namespace MiNET.Worlds
 {
-	public interface IWorldProvider
+	public enum Dimension
 	{
-		bool IsCaching { get; }
-
-		void Initialize();
-
-		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates);
-
-		Vector3 GetSpawnPoint();
-		string GetName();
-
-		long GetTime();
-
-		int SaveChunks();
-	}
-
-	public interface IWorldGenerator
-	{
-		void Initialize();
-
-		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates);
+		Overworld = 0,
+		Nether = 1,
+		TheEnd = 2
 	}
 }

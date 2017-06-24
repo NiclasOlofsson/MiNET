@@ -62,10 +62,6 @@ namespace MiNET
 
 				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
 				{
-					case "flat":
-					case "flatland":
-						worldProvider = new FlatlandWorldProvider();
-						break;
 					case "cool":
 						worldProvider = new CoolWorldProvider();
 						break;
@@ -73,15 +69,15 @@ namespace MiNET
 						worldProvider = new ExperimentalWorldProvider();
 						break;
 					case "anvil":
-						worldProvider = new AnvilWorldProvider()
+					case "flat":
+					case "flatland":
+					default:
+						worldProvider = new AnvilWorldProvider
 						{
 							MissingChunkProvider = new FlatlandWorldProvider(),
 							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
 							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
 						};
-						break;
-					default:
-						worldProvider = new FlatlandWorldProvider();
 						break;
 				}
 
@@ -114,15 +110,8 @@ namespace MiNET
 							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
 						}
 					}
-
-					{
-						FlatlandWorldProvider wp = level._worldProvider as FlatlandWorldProvider;
-						if (wp != null)
-						{
-							SkyLightCalculations.Calculate(level);
-						}
-					}
 				}
+
 				Levels.Add(level);
 
 				OnLevelCreated(new LevelEventArgs(null, level));
@@ -198,7 +187,7 @@ namespace MiNET
 			int viewDistance = Config.GetProperty("ViewDistance", 11);
 
 			IWorldProvider worldProvider = null;
-			worldProvider = provider ?? new FlatlandWorldProvider();
+			worldProvider = provider ?? new AnvilWorldProvider {MissingChunkProvider = new FlatlandWorldProvider()};
 
 			var level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 			level.Initialize();

@@ -340,6 +340,15 @@ namespace MiNET
 			switch ((PlayerAction) message.actionId)
 			{
 				case PlayerAction.StartBreak:
+					if (message.face == (int) BlockFace.Up)
+					{
+						Block block = Level.GetBlock(message.coordinates + BlockCoordinates.Up);
+						if (block is Fire)
+						{
+							Level.BreakBlock(this, message.coordinates + BlockCoordinates.Up);
+						}
+					}
+					break;
 				case PlayerAction.AbortBreak:
 				case PlayerAction.StopBreak:
 					break;
@@ -2154,9 +2163,60 @@ namespace MiNET
 			SendPackage(package);
 		}
 
-
 		public override void OnTick()
 		{
+			if (DetectInPortal())
+			{
+				if (PortalDetected + (4*20) == Level.TickTime)
+				{
+					// Teleport
+					int dimension = 1;
+					ChangeDimension(null, null, dimension, delegate
+					{
+						lock (Server.LevelManager.Levels)
+						{
+							Level[] levels = Server.LevelManager.Levels.ToArray();
+
+							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals("nether"));
+
+							if (nextLevel == null)
+							{
+								var existingWp = Level._worldProvider as AnvilWorldProvider;
+								string dimType = "nether";
+								if (existingWp != null)
+								{
+									DirectoryInfo dir = new DirectoryInfo(existingWp.BasePath);
+									//var path = Directory.GetParent(existingWp.BasePath).FullName + @"\_" + dimType.Value;
+									var path = dir.FullName + @"_nether";
+									Log.Warn($"Path: {path}");
+									var worldProvider = new AnvilWorldProvider(path);
+									worldProvider.Dimension = dimension;
+									nextLevel = new Level(dimType, worldProvider, Level.EntityManager, GameMode, Difficulty.Normal);
+									nextLevel.Initialize();
+									Server.LevelManager.Levels.Add(nextLevel);
+								}
+								else
+								{
+									nextLevel = new Level(dimType, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Server.LevelManager.EntityManager, GameMode, Difficulty.Normal);
+									nextLevel.Initialize();
+									Server.LevelManager.Levels.Add(nextLevel);
+								}
+							}
+
+							return nextLevel;
+						}
+					});
+				}
+				else if (PortalDetected == 0)
+				{
+					PortalDetected = Level.TickTime;
+				}
+			}
+			else
+			{
+				PortalDetected = 0;
+			}
+
 			HungerManager.OnTick();
 
 			base.OnTick();

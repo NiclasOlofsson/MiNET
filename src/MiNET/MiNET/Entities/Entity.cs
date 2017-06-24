@@ -27,6 +27,7 @@ using System;
 using System.Collections;
 using System.Numerics;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -68,6 +69,8 @@ namespace MiNET.Entities
 		public double Drag { get; set; } = 0.02;
 		public double Gravity { get; set; } = 0.08;
 		public int Data { get; set; }
+
+		public long PortalDetected { get; set; }
 
 		public Entity(int entityTypeId, Level level)
 		{
@@ -253,6 +256,11 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Stackable] = IsStackable;
 
 			return bits;
+		}
+
+		protected virtual bool DetectInPortal()
+		{
+			return Level.GetBlock(KnownPosition) is Portal;
 		}
 
 		public virtual void OnTick()

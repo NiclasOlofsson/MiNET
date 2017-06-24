@@ -62,7 +62,7 @@ namespace MiNET.Worlds
 
 		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
-		public IWorldProvider MissingChunkProvider { get; set; }
+		public IWorldGenerator MissingChunkProvider { get; set; }
 
 		public LevelInfo LevelInfo { get; private set; }
 
@@ -236,9 +236,18 @@ namespace MiNET.Worlds
 				BasePath = BasePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
 
 				NbtFile file = new NbtFile();
-				file.LoadFromFile(Path.Combine(BasePath, "level.dat"));
-				NbtTag dataTag = file.RootTag["Data"];
-				LevelInfo = new LevelInfo(dataTag);
+				var levelFileName = Path.Combine(BasePath, "level.dat");
+				if (File.Exists(levelFileName))
+				{
+					file.LoadFromFile(levelFileName);
+					NbtTag dataTag = file.RootTag["Data"];
+					LevelInfo = new LevelInfo(dataTag);
+				}
+				else
+				{
+					Log.Warn($"No level.dat found at {levelFileName}. Creating empty.");
+					LevelInfo = new LevelInfo();
+				}
 
 				switch (Dimension)
 				{
@@ -280,7 +289,7 @@ namespace MiNET.Worlds
 
 		public Queue<Block> LightSources { get; set; } = new Queue<Block>();
 
-		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldProvider generator)
+		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldGenerator generator)
 		{
 			int width = 32;
 			int depth = 32;

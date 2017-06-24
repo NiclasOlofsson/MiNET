@@ -72,9 +72,32 @@ namespace MiNET.Items
 							blocks.Clear();
 						}
 					}
-					foreach (var portal in blocks)
+					//foreach (var portal in blocks)
+					//{
+					//	world.SetBlock(portal);
+					//}
+
+					if (blocks.Count > 0)
 					{
-						world.SetBlock(portal);
+						foreach (var portal in blocks)
+						{
+							world.SetBlock(portal);
+						}
+					}
+					else
+					{
+						if (face == BlockFace.Up)
+						{
+							affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, BlockFace.Up));
+							if (affectedBlock.Id == 0)
+							{
+								var fire = new Fire
+								{
+									Coordinates = affectedBlock.Coordinates
+								};
+								world.SetBlock(fire);
+							}
+						}
 					}
 				}
 			}

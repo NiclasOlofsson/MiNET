@@ -370,7 +370,7 @@ namespace TestPlugin
 								}
 								else
 								{
-									nextLevel = new Level(dimType.Value, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+									nextLevel = new Level(dimType.Value, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 									nextLevel.Initialize();
 									Context.LevelManager.Levels.Add(nextLevel);
 								}
@@ -427,7 +427,7 @@ namespace TestPlugin
 
 							if (nextLevel == null)
 							{
-								nextLevel = new Level(world, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel = new Level(world, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 								nextLevel.Initialize();
 								Context.LevelManager.Levels.Add(nextLevel);
 							}

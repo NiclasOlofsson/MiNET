@@ -695,6 +695,7 @@
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
     <Compile Include="Worlds\Difficulty.cs" />
+    <Compile Include="Worlds\Dimension.cs" />
     <Compile Include="Worlds\EntityManager.cs" />
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />

@@ -140,11 +140,8 @@ namespace MiNET.Worlds
 
 			if (Config.GetProperty("CheckForSafeSpawn", false))
 			{
-				//var chunk = _worldProvider.GenerateChunkColumn(new ChunkCoordinates(SpawnPoint));
-				//chunk.RecalcHeight();
-
 				var height = GetHeight((BlockCoordinates) SpawnPoint);
-				if (height > SpawnPoint.Y) SpawnPoint.Y = height + 2;
+				if (height > SpawnPoint.Y) SpawnPoint.Y = height;
 				Log.Debug("Checking for safe spawn");
 			}
 

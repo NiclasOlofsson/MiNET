@@ -125,7 +125,7 @@ namespace MiNET.Items
 
 				if (level.IsAir(coordinates) && blocks.FirstOrDefault(b => b.Coordinates.Equals(coordinates)) == null)
 				{
-					Visit(coordinates, blocks);
+					Visit(coordinates, blocks, direction);
 
 					if (direction == BlockFace.North)
 					{
@@ -151,9 +151,9 @@ namespace MiNET.Items
 			return blocks;
 		}
 
-		private void Visit(BlockCoordinates coordinates, List<Block> blocks)
+		private void Visit(BlockCoordinates coordinates, List<Block> blocks, BlockFace direction)
 		{
-			blocks.Add(new Portal {Coordinates = coordinates});
+			blocks.Add(new Portal {Coordinates = coordinates, Metadata = (byte) (direction - 2)});
 		}
 
 		private bool IsValid(Block block, List<Block> portals)

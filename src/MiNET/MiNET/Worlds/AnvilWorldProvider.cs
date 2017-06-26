@@ -381,6 +381,16 @@ namespace MiNET.Worlds
 
 				if (chunk.biomeId.Length > 256) throw new Exception();
 
+				NbtTag heights = dataTag["HeightMap"] as NbtIntArray;
+				if(heights != null)
+				{
+					int[] intHeights = heights.IntArrayValue;
+					for (int i = 0; i < 256; i++)
+					{
+						chunk.height[i] = (short) intHeights[i];
+					}
+				}
+
 				// This will turn into a full chunk column
 				foreach (NbtTag sectionTag in sections)
 				{

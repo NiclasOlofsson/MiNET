@@ -873,6 +873,8 @@ namespace MiNET
 
 			Level.RemovePlayer(this);
 
+			Dimension fromDimension = Level.Dimension;
+
 			if (toLevel == null && levelFunc != null)
 			{
 				toLevel = levelFunc();
@@ -880,7 +882,6 @@ namespace MiNET
 
 			Level = toLevel; // Change level
 			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-			Log.Warn($"Spawn point: {SpawnPosition}");
 
 			BroadcastSetEntityData();
 
@@ -894,7 +895,6 @@ namespace MiNET
 				BlockCoordinates platformPosition = (BlockCoordinates) (SpawnPosition + BlockCoordinates.Down);
 				if (!(Level.GetBlock(platformPosition) is Obsidian))
 				{
-					Log.Warn($"Building platform at {platformPosition}");
 					for (int x = 0; x < 5; x++)
 					{
 						for (int z = 0; z < 5; z++)
@@ -915,6 +915,32 @@ namespace MiNET
 					}
 				}
 			}
+			else if (dimension == Dimension.Overworld && fromDimension == Dimension.TheEnd)
+			{
+				// Spawn on player home spawn
+			}
+			else if (dimension == Dimension.Nether)
+			{
+				// Find closes portal or spawn new
+				// coordinate translation x/8
+				PlayerLocation pos = FindNetherSpawn(Level);
+				if (pos != null)
+				{
+					SpawnPosition = pos;
+				}
+			}
+			else if (dimension == Dimension.Overworld && fromDimension == Dimension.Nether)
+			{
+				// Find closes portal or spawn new
+				// coordinate translation x * 8
+				PlayerLocation pos = FindNetherSpawn(Level);
+				if (pos != null)
+				{
+					SpawnPosition = pos;
+				}
+			}
+
+			Log.Debug($"Spawn point: {SpawnPosition}");
 
 			ForcedSendChunk(SpawnPosition);
 
@@ -932,6 +958,74 @@ namespace MiNET
 					SendSetTime();
 				});
 			});
+		}
+
+		private PlayerLocation FindNetherSpawn(Level level)
+		{
+			int width = 128;
+			int height = Level.Dimension == Dimension.Overworld ? 256 : 128;
+
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			int portalId = new Portal().Id;
+			int obsidionId = new Obsidian().Id;
+			BlockCoordinates start = (BlockCoordinates)KnownPosition;
+			if (Level.Dimension == Dimension.Nether)
+			{
+				start /= 8;
+			}
+			else
+			{
+				start *= 8;
+			}
+
+			Log.Debug($"Starting point: {start}");
+
+			BlockCoordinates? closestPortal = null;
+			int closestDistance = int.MaxValue;
+			for (int x = start.X - width; x < start.X + width; x++)
+			{
+				for (int z = start.Z - width; z < start.Z + width; z++)
+				{
+					if (level.Dimension == Dimension.Overworld)
+					{
+						height = level.GetHeight(new BlockCoordinates(x, 0, z)) + 10;
+					}
+
+					for (int y = height - 1; y >= 0; y--)
+					{
+						var coord = new BlockCoordinates(x, y, z);
+						if (coord.DistanceTo(start) > closestDistance) continue;
+
+						bool b = level.IsBlock(coord, portalId);
+						b &= level.IsBlock(coord + BlockCoordinates.Down, obsidionId);
+						if (b)
+						{
+							Portal portal = (Portal) level.GetBlock(coord);
+							if (portal.Metadata >= 2)
+							{
+								b &= level.IsBlock(coord + BlockCoordinates.North, portalId);
+							}
+							else
+							{
+								b &= level.IsBlock(coord + BlockCoordinates.East, portalId);
+							}
+
+							Log.Debug($"Found portal block at {coord}, direction={portal.Metadata}");
+							if (b && coord.DistanceTo(start) < closestDistance)
+							{
+								Log.Debug($"Found a closer portal at {coord}");
+								closestPortal = coord;
+								closestDistance = (int) coord.DistanceTo(start);
+							}
+						}
+					}
+				}
+			}
+			sw.Stop();
+
+			return closestPortal;
 		}
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
@@ -2205,12 +2299,15 @@ namespace MiNET
 					if (Level.Dimension == Dimension.Overworld) dimension = Dimension.Nether;
 					else if (Level.Dimension == Dimension.Nether) dimension = Dimension.Overworld;
 
-					Level oldLevel = Level;
-
-					ChangeDimension(null, null, dimension, delegate
+					ThreadPool.QueueUserWorkItem(delegate
 					{
-						Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
-						return nextLevel;
+						Level oldLevel = Level;
+
+						ChangeDimension(null, null, dimension, delegate
+						{
+							Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
+							return nextLevel;
+						});
 					});
 				}
 				else if (PortalDetected == 0)

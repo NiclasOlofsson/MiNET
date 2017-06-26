@@ -485,11 +485,13 @@ namespace TestPlugin
 			int zi = position.Z & 0x0f;
 
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
-			sb.AppendLine(string.Format("Direction Yaw={0:F1} HeadYap={1:F1} Pitch={2:F1}", player.KnownPosition.Yaw, player.KnownPosition.HeadYaw, player.KnownPosition.Pitch));
-			sb.AppendLine(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
-			sb.AppendLine(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ));
-			sb.AppendLine(string.Format("Local coordinates X={0} Z={1}", xi, zi));
+			sb.AppendLine($"Position X={player.KnownPosition.X:F1} Y={player.KnownPosition.Y:F1} Z={player.KnownPosition.Z:F1}");
+			sb.AppendLine($"Direction Yaw={player.KnownPosition.Yaw:F1} HeadYap={player.KnownPosition.HeadYaw:F1} Pitch={player.KnownPosition.Pitch:F1}");
+			sb.AppendLine($"Region X={chunkX >> 5} Z={chunkZ >> 5}");
+			sb.AppendLine($"Chunk X={chunkX} Z={chunkZ}");
+			sb.AppendLine($"Local coordinates X={xi} Z={zi}");
+			sb.AppendLine($"Local coordinates X={xi} Z={zi}");
+			sb.AppendLine($"Height={player.Level.GetHeight(position)}");
 			string text = sb.ToString();
 
 			player.SendMessage(text, type: MessageType.Raw);

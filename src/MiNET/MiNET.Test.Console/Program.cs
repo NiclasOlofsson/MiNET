@@ -10,8 +10,11 @@ namespace MiNET.Test.Console
 	{
 		static void Main(string[] args)
 		{
-			MinetAnvilTest test = new MinetAnvilTest();
-			test.LoadFullAnvilRegionLoadTest();
+			//MinetAnvilTest test = new MinetAnvilTest();
+			//test.LoadFullAnvilRegionLoadTest();
+
+			MinetServerTest tests = new MinetServerTest();
+			tests.HighPrecTimeLoadTest();
 
 			System.Console.ReadLine();
 

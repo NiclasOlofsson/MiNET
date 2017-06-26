@@ -65,8 +65,8 @@ namespace MiNET.Net
 			}
 			if (messagePart.Header.HasSplit && MessageParts.Count > 0)
 			{
-				if (Log.IsDebugEnabled)
-					Log.Warn($"Message has split and count > 0: {MessageParts.Count}, MTU: {mtuSize}");
+				//if (Log.IsDebugEnabled)
+				//	Log.Warn($"Message has split and count > 0: {MessageParts.Count}, MTU: {mtuSize}");
 				return false;
 			}
 			//if (Header.isContinuousSend) return false;
@@ -138,8 +138,9 @@ namespace MiNET.Net
 
 					if (!datagram.TryAddMessagePart(messagePart, mtuSize))
 					{
-						Log.Warn(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
-						throw new Exception(string.Format("Message part too big for a single datagram. Size: {0}, MTU: {1}", messagePart.Encode().Length, mtuSize));
+						string error = $"Message part too big for a single datagram. Size: {messagePart.Encode().Length}, MTU: {mtuSize}";
+						Log.Error(error);
+						throw new Exception(error);
 					}
 				}
 			}

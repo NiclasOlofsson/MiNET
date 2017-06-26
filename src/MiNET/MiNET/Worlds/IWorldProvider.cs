@@ -42,6 +42,8 @@ namespace MiNET.Worlds
 		long GetTime();
 
 		int SaveChunks();
+		bool HaveNether();
+		bool HaveTheEnd();
 	}
 
 	public interface IWorldGenerator

@@ -14,6 +14,11 @@ namespace MiNET.Utils
 
 		protected CancellationTokenSource CancelSource;
 
+		public long Spins = 0;
+		public long Sleeps = 0;
+		public long Misses = 0;
+		public long Yields = 0;
+
 		public AutoResetEvent AutoReset = new AutoResetEvent(true);
 
 		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false)
@@ -38,6 +43,8 @@ namespace MiNET.Utils
 					long msLeft = nextStop - watch.ElapsedMilliseconds;
 					if (msLeft <= 0)
 					{
+						if (msLeft < -1) Misses++;
+
 						Action(this);
 						AutoReset.Reset();
 
@@ -46,8 +53,9 @@ namespace MiNET.Utils
 
 						continue;
 					}
-					if (msLeft < 16)
+					if (msLeft < 5)
 					{
+						Spins++;
 						var stop = nextStop;
 
 						if (useSignaling)
@@ -59,7 +67,7 @@ namespace MiNET.Utils
 						}
 
 
-						if(watch.ElapsedMilliseconds < stop)
+						if (watch.ElapsedMilliseconds < stop)
 						{
 							SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
 						}
@@ -68,7 +76,16 @@ namespace MiNET.Utils
 						continue;
 					}
 
-					//Thread.Sleep(1);
+					if (msLeft < 16)
+					{
+						if (Thread.Yield()) Yields++;
+
+						Sleeps++;
+						Thread.Sleep(1);
+						continue;
+					}
+
+					Sleeps++;
 					Thread.Sleep(Math.Max(1, (int)(msLeft - 16)));
 					{
 						//long t = nextStop - watch.ElapsedMilliseconds;

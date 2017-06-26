@@ -677,6 +677,16 @@ namespace MiNET.Worlds
 			return count;
 		}
 
+		public bool HaveNether()
+		{
+			return Directory.Exists(Path.Combine(BasePath, @"DIM-1"));
+		}
+
+		public bool HaveTheEnd()
+		{
+			return Directory.Exists(Path.Combine(BasePath, @"DIM1"));
+		}
+
 		public static void SaveChunk(ChunkColumn chunk, string basePath)
 		{
 			// WARNING: This method does not consider growing size of the chunks. Needs refactoring to find

@@ -31,6 +31,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using AStarNavigator;
 using AStarNavigator.Algorithms;
 using AStarNavigator.Providers;
@@ -45,6 +46,46 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void HighPrecTimeLoadTest()
+		{
+			Stopwatch sw = new Stopwatch();
+			List<HighPrecisionTimer> timers = new List<HighPrecisionTimer>();
+			for (int i = 0; i < 100; i++)
+			{
+				timers.Add(new HighPrecisionTimer(10, SendTick, false));
+			}
+
+			Console.WriteLine($"Created {timers.Count} timers, sleeping");
+
+			Thread.Sleep(10000);
+
+			Console.WriteLine($"Done with {timers.Count} timers. Disposing");
+
+			long spins = 0;
+			long sleeps = 0;
+			long misses = 0;
+			long yields = 0;
+			foreach (var timer in timers)
+			{
+				spins += timer.Spins;
+				sleeps += timer.Sleeps;
+				misses += timer.Misses;
+				yields += timer.Yields;
+				timer.Dispose();
+			}
+
+			Console.WriteLine($"End {timers.Count} timers. " +
+			                  $"\nSpins/timer={spins/timers.Count}, " +
+			                  $"\nSleeps/timer={sleeps/timers.Count}, " +
+			                  $"\nMisses/timer={misses/timers.Count}, " +
+			                  $"\nYields/timer={yields/timers.Count} ");
+		}
+
+		private void SendTick(object obj)
+		{
+		}
+
 		[Test]
 		public void TestPathFinder()
 		{

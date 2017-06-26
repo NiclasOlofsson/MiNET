@@ -29,6 +29,18 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
+	public class AirWorldGenerator : IWorldGenerator
+	{
+		public void Initialize()
+		{
+		}
+
+		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
+		{
+			return new ChunkColumn() {x = chunkCoordinates.X, z = chunkCoordinates.Z};
+		}
+	}
+
 	public class FlatlandWorldProvider : IWorldGenerator
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (FlatlandWorldProvider));

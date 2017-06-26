@@ -537,7 +537,7 @@ namespace TestPlugin.NiceLobby
 
 			lock (level.Players)
 			{
-				AnvilWorldProvider worldProvider = level._worldProvider as AnvilWorldProvider;
+				AnvilWorldProvider worldProvider = level.WorldProvider as AnvilWorldProvider;
 				if (worldProvider == null) return;
 
 				level.BroadcastMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);

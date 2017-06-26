@@ -141,7 +141,7 @@ namespace TestPlugin
 		{
 			Task.Run(() =>
 			{
-				new LevelManager().RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level._worldProvider);
+				new LevelManager().RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level.WorldProvider);
 				player.CleanCache();
 				player.ForcedSendChunks(() => { player.SendMessage("Calculated blocklights and resent chunks."); });
 			});
@@ -271,8 +271,8 @@ namespace TestPlugin
 		[Command]
 		public void Portal(Player player)
 		{
-			int width = 30;
-			int height = 30;
+			int width = 4;
+			int height = 5;
 
 			int z = (int) player.KnownPosition.Z + 2;
 			int xOffset = (int) player.KnownPosition.X - width/2;
@@ -289,6 +289,34 @@ namespace TestPlugin
 					}
 				}
 			}
+		}
+
+		[Command]
+		public void ReadTest(Player player)
+		{
+			int width = 128;
+			int height = player.Level.Dimension == Dimension.Overworld ? 256 : 128;
+
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			Level level = player.Level;
+			int blockId = new Portal().Id;
+			BlockCoordinates start = (BlockCoordinates) player.KnownPosition;
+			for (int x = start.X - width; x < start.X + width; x++)
+			{
+				for (int z = start.Z - width; z < start.Z + width; z++)
+				{
+					for (int y = height - 1; y >= 0; y--)
+					{
+						var b = level.IsBlock(new BlockCoordinates(x, y, z), blockId);
+						if (b) Log.Warn("Found portal block");
+					}
+				}
+			}
+			sw.Stop();
+
+			player.SendMessage($"Read blocks in {sw.ElapsedMilliseconds}ms");
 		}
 
 
@@ -326,13 +354,11 @@ namespace TestPlugin
 
 			Level oldLevel = player.Level;
 
-			if (player.Level.LevelId.Equals(dimension.ToString()))
+			if (player.Level.Dimension == dimension)
 			{
 				player.Teleport(player.SpawnPosition);
 				return;
 			}
-
-			if (oldLevel.Dimension == dimension) return;
 
 			if (!Context.LevelManager.Levels.Contains(player.Level))
 			{
@@ -341,46 +367,11 @@ namespace TestPlugin
 
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
-				LevelManager levelManager = state as LevelManager;
-				if (levelManager == null) return;
-
-				Level[] levels = levelManager.Levels.ToArray();
-
-				if (levels != null)
+				player.ChangeDimension(null, null, dimension, delegate
 				{
-					player.ChangeDimension(null, null, dimension, delegate
-					{
-						lock (levelManager.Levels)
-						{
-							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(dimension.ToString()));
-
-							if (nextLevel == null)
-							{
-								var existingWp = player.Level._worldProvider as AnvilWorldProvider;
-								if (existingWp != null)
-								{
-									var worldProvider = new AnvilWorldProvider(existingWp.BasePath);
-									worldProvider.MissingChunkProvider = new FlatlandWorldProvider();
-									worldProvider.Dimension = dimension;
-
-									nextLevel = new Level(dimension.ToString(), worldProvider, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
-									nextLevel.Dimension = dimension;
-									nextLevel.Initialize();
-									Context.LevelManager.Levels.Add(nextLevel);
-								}
-								else
-								{
-									nextLevel = new Level(dimension.ToString(), new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
-									nextLevel.Initialize();
-									Context.LevelManager.Levels.Add(nextLevel);
-								}
-							}
-
-
-							return nextLevel;
-						}
-					});
-				}
+					Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
+					return nextLevel;
+				});
 
 				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 			}, Context.LevelManager);
@@ -427,7 +418,7 @@ namespace TestPlugin
 
 							if (nextLevel == null)
 							{
-								nextLevel = new Level(world, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel = new Level(levelManager, world, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 								nextLevel.Initialize();
 								Context.LevelManager.Levels.Add(nextLevel);
 							}

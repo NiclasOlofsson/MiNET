@@ -56,6 +56,16 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
+		public bool HaveNether()
+		{
+			return false;
+		}
+
+		public bool HaveTheEnd()
+		{
+			return false;
+		}
+
 		private float stoneBaseHeight = 0;
 		private float stoneBaseNoise = 0.05f;
 		private float stoneBaseNoiseHeight = 4;

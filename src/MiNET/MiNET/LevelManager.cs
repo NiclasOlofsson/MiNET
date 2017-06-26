@@ -81,7 +81,7 @@ namespace MiNET
 						break;
 				}
 
-				level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
+				level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
 				{
 					EnableBlockTicking = enableBlockTicking,
 					EnableChunkTicking = enableChunkTicking,
@@ -92,7 +92,7 @@ namespace MiNET
 				if (Config.GetProperty("CalculateLights", false))
 				{
 					{
-						AnvilWorldProvider wp = level._worldProvider as AnvilWorldProvider;
+						AnvilWorldProvider wp = level.WorldProvider as AnvilWorldProvider;
 						if (wp != null)
 						{
 							wp.PruneAir();
@@ -146,6 +146,35 @@ namespace MiNET
 		{
 			LevelCreated?.Invoke(this, e);
 		}
+
+		public virtual Level GetDimension(Level level, Dimension dimension)
+		{
+			if (dimension == Dimension.Overworld) throw new Exception($"Can not get level for '{dimension}' from the LevelManager");
+			if (dimension == Dimension.Nether && !level.WorldProvider.HaveNether()) return null;
+			if (dimension == Dimension.TheEnd && !level.WorldProvider.HaveTheEnd()) return null;
+
+			AnvilWorldProvider overworld = level.WorldProvider as AnvilWorldProvider;
+			if (overworld == null) return null;
+
+			IWorldProvider worldProvider = new AnvilWorldProvider(overworld.BasePath)
+			{
+				Dimension = dimension,
+				MissingChunkProvider = new AirWorldGenerator(),
+			};
+
+			Level newLevel = new Level(level.LevelManager, level.LevelId, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
+			{
+				OverworldLevel = level,
+				Dimension = dimension,
+				EnableBlockTicking = level.EnableBlockTicking,
+				EnableChunkTicking = level.EnableChunkTicking,
+				IsWorldTimeStarted = level.IsWorldTimeStarted
+			};
+
+			newLevel.Initialize();
+
+			return newLevel;
+		}
 	}
 
 	public class SpreadLevelManager : LevelManager
@@ -189,7 +218,7 @@ namespace MiNET
 			IWorldProvider worldProvider = null;
 			worldProvider = provider ?? new AnvilWorldProvider {MissingChunkProvider = new FlatlandWorldProvider()};
 
-			var level = new Level(name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
+			var level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 			level.Initialize();
 
 			OnLevelCreated(new LevelEventArgs(null, level));

@@ -891,7 +891,7 @@ namespace MiNET
 			// Check if we need to generate a platform
 			if (dimension == Dimension.TheEnd)
 			{
-				BlockCoordinates platformPosition = (BlockCoordinates)(SpawnPosition + BlockCoordinates.Down);
+				BlockCoordinates platformPosition = (BlockCoordinates) (SpawnPosition + BlockCoordinates.Down);
 				if (!(Level.GetBlock(platformPosition) is Obsidian))
 				{
 					Log.Warn($"Building platform at {platformPosition}");
@@ -904,7 +904,7 @@ namespace MiNET
 								var coordinates = new BlockCoordinates(x, y, z) + platformPosition + new BlockCoordinates(-2, 0, -2);
 								if (y == 0)
 								{
-									Level.SetBlock(new Obsidian() { Coordinates = coordinates });
+									Level.SetBlock(new Obsidian() {Coordinates = coordinates});
 								}
 								else
 								{
@@ -1904,7 +1904,7 @@ namespace MiNET
 			{
 				var chunkPosition = new ChunkCoordinates(position);
 
-				McpeWrapper chunk = Level.GenerateChunk(chunkPosition);
+				McpeWrapper chunk = Level.GetChunk(chunkPosition)?.GetBatch();
 				var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
 				if (!_chunksUsed.ContainsKey(key))
 				{
@@ -2205,38 +2205,12 @@ namespace MiNET
 					if (Level.Dimension == Dimension.Overworld) dimension = Dimension.Nether;
 					else if (Level.Dimension == Dimension.Nether) dimension = Dimension.Overworld;
 
+					Level oldLevel = Level;
+
 					ChangeDimension(null, null, dimension, delegate
 					{
-						lock (Server.LevelManager.Levels)
-						{
-							Level[] levels = Server.LevelManager.Levels.ToArray();
-
-							string dimType = dimension.ToString();
-
-							Level nextLevel = levels.FirstOrDefault(l => l.LevelId != null && l.LevelId.Equals(dimType));
-
-							if (nextLevel == null)
-							{
-								var existingWp = Level._worldProvider as AnvilWorldProvider;
-								if (existingWp != null)
-								{
-									var worldProvider = new AnvilWorldProvider(existingWp.BasePath);
-									worldProvider.Dimension = dimension;
-									nextLevel = new Level(dimType, worldProvider, Level.EntityManager, GameMode, Difficulty.Normal);
-									nextLevel.Dimension = dimension;
-									nextLevel.Initialize();
-									Server.LevelManager.Levels.Add(nextLevel);
-								}
-								else
-								{
-									nextLevel = new Level(dimType, new AnvilWorldProvider {MissingChunkProvider = new FlatlandWorldProvider()}, Server.LevelManager.EntityManager, GameMode, Difficulty.Normal);
-									nextLevel.Initialize();
-									Server.LevelManager.Levels.Add(nextLevel);
-								}
-							}
-
-							return nextLevel;
-						}
+						Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
+						return nextLevel;
 					});
 				}
 				else if (PortalDetected == 0)

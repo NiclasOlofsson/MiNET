@@ -162,7 +162,7 @@ namespace MiNET
 				MissingChunkProvider = new AirWorldGenerator(),
 			};
 
-			Level newLevel = new Level(level.LevelManager, level.LevelId, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
+			Level newLevel = new Level(level.LevelManager, level.LevelId + "_" + dimension, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)
 			{
 				OverworldLevel = level,
 				Dimension = dimension,

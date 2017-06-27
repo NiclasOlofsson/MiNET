@@ -923,20 +923,36 @@ namespace MiNET
 			{
 				// Find closes portal or spawn new
 				// coordinate translation x/8
-				PlayerLocation pos = FindNetherSpawn(Level);
+
+				BlockCoordinates start = (BlockCoordinates) KnownPosition;
+				start /= new BlockCoordinates(8, 1, 8);
+
+				PlayerLocation pos = FindNetherSpawn(Level, start);
 				if (pos != null)
 				{
 					SpawnPosition = pos;
+				}
+				else
+				{
+					SpawnPosition = CreateNetherPortal(Level);
 				}
 			}
 			else if (dimension == Dimension.Overworld && fromDimension == Dimension.Nether)
 			{
 				// Find closes portal or spawn new
 				// coordinate translation x * 8
-				PlayerLocation pos = FindNetherSpawn(Level);
+
+				BlockCoordinates start = (BlockCoordinates) KnownPosition;
+				start *= new BlockCoordinates(8, 1, 8);
+
+				PlayerLocation pos = FindNetherSpawn(Level, start);
 				if (pos != null)
 				{
 					SpawnPosition = pos;
+				}
+				else
+				{
+					SpawnPosition = CreateNetherPortal(Level);
 				}
 			}
 
@@ -960,25 +976,14 @@ namespace MiNET
 			});
 		}
 
-		private PlayerLocation FindNetherSpawn(Level level)
+		private PlayerLocation FindNetherSpawn(Level level, BlockCoordinates start)
 		{
 			int width = 128;
 			int height = Level.Dimension == Dimension.Overworld ? 256 : 128;
 
 
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
 			int portalId = new Portal().Id;
 			int obsidionId = new Obsidian().Id;
-			BlockCoordinates start = (BlockCoordinates)KnownPosition;
-			if (Level.Dimension == Dimension.Nether)
-			{
-				start /= 8;
-			}
-			else
-			{
-				start *= 8;
-			}
 
 			Log.Debug($"Starting point: {start}");
 
@@ -1023,10 +1028,195 @@ namespace MiNET
 					}
 				}
 			}
-			sw.Stop();
 
 			return closestPortal;
 		}
+
+		private PlayerLocation CreateNetherPortal(Level level)
+		{
+			int width = 16;
+			int height = Level.Dimension == Dimension.Overworld ? 256 : 128;
+
+
+			BlockCoordinates start = (BlockCoordinates) KnownPosition;
+			if (Level.Dimension == Dimension.Nether)
+			{
+				start /= new BlockCoordinates(8, 1, 8);
+			}
+			else
+			{
+				start *= new BlockCoordinates(8, 1, 8);
+			}
+
+			Log.Debug($"Starting point: {start}");
+
+			PortalInfo closestPortal = null;
+			int closestPortalDistance = int.MaxValue;
+			for (int x = start.X - width; x < start.X + width; x++)
+			{
+				for (int z = start.Z - width; z < start.Z + width; z++)
+				{
+					if (level.Dimension == Dimension.Overworld)
+					{
+						height = level.GetHeight(new BlockCoordinates(x, 0, z)) + 10;
+					}
+
+					for (int y = height - 1; y >= 0; y--)
+					{
+						var coord = new BlockCoordinates(x, y, z);
+						if (coord.DistanceTo(start) > closestPortalDistance) continue;
+
+						if (!(!level.IsAir(coord) && level.IsAir(coord + BlockCoordinates.Up))) continue;
+
+						var bbox = new BoundingBox(coord, coord + new BlockCoordinates(3, 5, 4));
+						if (!SpawnAreaClear(bbox))
+						{
+							bbox = new BoundingBox(coord, coord + new BlockCoordinates(4, 5, 3));
+							if (!SpawnAreaClear(bbox))
+							{
+								bbox = new BoundingBox(coord, coord + new BlockCoordinates(1, 5, 4));
+								if (!SpawnAreaClear(bbox))
+								{
+									bbox = new BoundingBox(coord, coord + new BlockCoordinates(4, 5, 1));
+									if (!SpawnAreaClear(bbox))
+									{
+										continue;
+									}
+								}
+							}
+						}
+
+						//coord += BlockCoordinates.Up;
+
+						Log.Debug($"Found portal location at {coord}");
+						if (coord.DistanceTo(start) < closestPortalDistance)
+						{
+							Log.Debug($"Found a closer portal location at {coord}");
+							closestPortal = new PortalInfo() {Coordinates = coord, Size = bbox};
+							closestPortalDistance = (int) coord.DistanceTo(start);
+						}
+					}
+				}
+			}
+
+			if (closestPortal == null)
+			{
+				// Force create between Y=YMAX - (10 to 70)
+				int y = (int) Math.Max(Height - 70, start.Y);
+				y = (int) Math.Min(Height - 10, y);
+				start.Y = y;
+
+				Log.Debug($"Force portal location at {start}");
+
+				closestPortal = new PortalInfo();
+				closestPortal.HasPlatform = true;
+				closestPortal.Coordinates = start;
+				closestPortal.Size = new BoundingBox(start, start + new BlockCoordinates(4, 5, 3));
+			}
+
+
+			if (closestPortal != null)
+			{
+				BuildPortal(level, closestPortal);
+			}
+
+
+			return closestPortal?.Coordinates;
+		}
+
+		public static void BuildPortal(Level level, PortalInfo portalInfo)
+		{
+			var bbox = portalInfo.Size;
+
+			Log.Debug($"Building portal from BBOX: {bbox}");
+
+			int minX = (int) (bbox.Min.X);
+			int minZ = (int) (bbox.Min.Z);
+			int width = (int) (bbox.Width);
+			int depth = (int) (bbox.Depth);
+			int height = (int) (bbox.Height);
+
+			int midPoint = depth > 2? depth/2: 0;
+
+			bool haveSetCoordinate = false;
+			for (int x = 0; x < width; x++)
+			{
+				for (int z = 0; z < depth; z++)
+				{
+					for (int y = 0; y < height; y++)
+					{
+						var coordinates = new BlockCoordinates(x + minX, (int) (y + bbox.Min.Y), z + minZ);
+						Log.Debug($"Place: {coordinates}");
+
+						if (width > depth && z == midPoint)
+						{
+							if ((x == 0 || x == width - 1) || (y == 0 || y == height - 1))
+							{
+								level.SetBlock(new Obsidian {Coordinates = coordinates});
+							}
+							else
+							{
+								level.SetBlock(new Portal {Coordinates = coordinates});
+								if (!haveSetCoordinate)
+								{
+									haveSetCoordinate = true;
+									portalInfo.Coordinates = coordinates;
+								}
+							}
+						}
+						else if (width <= depth && x == midPoint)
+						{
+							if ((z == 0 || z == depth - 1) || (y == 0 || y == height - 1))
+							{
+								level.SetBlock(new Obsidian {Coordinates = coordinates});
+							}
+							else
+							{
+								level.SetBlock(new Portal {Coordinates = coordinates, Metadata = 2});
+								if (!haveSetCoordinate)
+								{
+									haveSetCoordinate = true;
+									portalInfo.Coordinates = coordinates;
+								}
+							}
+						}
+
+						if (portalInfo.HasPlatform && y == 0)
+						{
+							level.SetBlock(new Obsidian { Coordinates = coordinates });
+						}
+					}
+				}
+			}
+		}
+
+
+		private bool SpawnAreaClear(BoundingBox bbox)
+		{
+			BlockCoordinates min = bbox.Min;
+			BlockCoordinates max = bbox.Max;
+			for (int x = min.X; x < max.X; x++)
+			{
+				for (int z = min.Z; z < max.Z; z++)
+				{
+					for (int y = min.Y; y < max.Y; y++)
+					{
+						//if (z == min.Z) if (!Level.GetBlock(new BlockCoordinates(x, y, z)).IsBuildable) return false;
+						if (y == min.Y)
+						{
+							if (!Level.GetBlock(new BlockCoordinates(x, y, z)).IsBuildable) return false;
+						}
+						else
+						{
+							if (!Level.IsAir(new BlockCoordinates(x, y, z))) return false;
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
 
 		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
 		{
@@ -2291,13 +2481,12 @@ namespace MiNET
 		{
 			if (DetectInPortal())
 			{
-				if (PortalDetected + (4*20) == Level.TickTime)
+				if (PortalDetected == Level.TickTime)
 				{
-					Dimension dimension = Dimension.Overworld;
+					PortalDetected = -1;
 
-					// Teleport
-					if (Level.Dimension == Dimension.Overworld) dimension = Dimension.Nether;
-					else if (Level.Dimension == Dimension.Nether) dimension = Dimension.Overworld;
+					Dimension dimension = Level.Dimension == Dimension.Overworld ? Dimension.Nether : Dimension.Overworld;
+					Log.Debug($"Dimension change to {dimension} from {Level.Dimension} initiated, Game mode={GameMode}");
 
 					ThreadPool.QueueUserWorkItem(delegate
 					{
@@ -2312,11 +2501,12 @@ namespace MiNET
 				}
 				else if (PortalDetected == 0)
 				{
-					PortalDetected = Level.TickTime;
+					PortalDetected = Level.TickTime + (GameMode == GameMode.Creative ? 1 : 4 * 20);
 				}
 			}
 			else
 			{
+				if (PortalDetected != 0) Log.Debug($"Reset portal detected");
 				PortalDetected = 0;
 			}
 

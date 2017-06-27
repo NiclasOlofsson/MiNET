@@ -30,6 +30,13 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
+	public class PortalInfo
+	{
+		public BlockCoordinates Coordinates { get; set; }
+		public bool HasPlatform { get; set; }
+		public BoundingBox Size { get; set; }
+	}
+
 	public class Portal : Block
 	{
 		public Portal() : base(90)

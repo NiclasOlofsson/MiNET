@@ -274,21 +274,14 @@ namespace TestPlugin
 			int width = 4;
 			int height = 5;
 
-			int z = (int) player.KnownPosition.Z + 2;
-			int xOffset = (int) player.KnownPosition.X - width/2;
-			int yOffset = (int) player.KnownPosition.Y;
+			int x = (int)player.KnownPosition.X - width / 2;
+			int y = (int)player.KnownPosition.Y - 1;
+			int z = (int) player.KnownPosition.Z + 1;
 
-			Level level = player.Level;
-			for (int x = 0; x < width; x++)
-			{
-				for (int y = 0; y < height; y++)
-				{
-					if ((x == 0 || x == width - 1) || (y == 0 || y == height - 1))
-					{
-						level.SetBlock(new Obsidian() {Coordinates = new BlockCoordinates(x + xOffset, y + yOffset, z)});
-					}
-				}
-			}
+			PortalInfo portal = new PortalInfo();
+			portal.Coordinates = new BlockCoordinates(x, y, z);
+			portal.Size = new BoundingBox(portal.Coordinates, portal.Coordinates + new BlockCoordinates(4, 5, 3));
+			Player.BuildPortal(player.Level, portal);
 		}
 
 		[Command]

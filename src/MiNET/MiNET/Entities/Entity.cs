@@ -260,7 +260,10 @@ namespace MiNET.Entities
 
 		protected virtual bool DetectInPortal()
 		{
-			return Level.GetBlock(KnownPosition) is Portal;
+			if (Level.Dimension == Dimension.Overworld && Level.NetherLevel == null) return false;
+			if (Level.Dimension == Dimension.Nether && Level.OverworldLevel == null) return false;
+
+			return Level.GetBlock(KnownPosition + new Vector3(0, 0.3f, 0)) is Portal;
 		}
 
 		public virtual void OnTick()

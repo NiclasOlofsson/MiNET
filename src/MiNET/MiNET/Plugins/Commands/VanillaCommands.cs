@@ -50,6 +50,11 @@ namespace MiNET.Plugins.Commands
 
 		public class SimpleResponse
 		{
+			public SimpleResponse(string body = null)
+			{
+				Body = body;
+			}
+
 			public string Body { get; set; }
 			public int StatusCode { get; set; }
 			public int SuccessCount { get; set; } = 1;

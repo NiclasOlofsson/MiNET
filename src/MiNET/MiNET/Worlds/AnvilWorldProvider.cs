@@ -72,7 +72,7 @@ namespace MiNET.Worlds
 
 		public Dimension Dimension { get; set; }
 
-		public bool IsCaching { get; private set; }
+		public bool IsCaching { get; private set; } = true;
 
 		public bool ReadSkyLight { get; set; } = true;
 
@@ -204,7 +204,6 @@ namespace MiNET.Worlds
 
 		public AnvilWorldProvider()
 		{
-			IsCaching = true;
 		}
 
 		public AnvilWorldProvider(string basePath) : this()
@@ -214,7 +213,6 @@ namespace MiNET.Worlds
 
 		protected AnvilWorldProvider(string basePath, LevelInfo levelInfo, ConcurrentDictionary<ChunkCoordinates, ChunkColumn> chunkCache)
 		{
-			IsCaching = true;
 			BasePath = basePath;
 			LevelInfo = levelInfo;
 			_chunkCache = chunkCache;

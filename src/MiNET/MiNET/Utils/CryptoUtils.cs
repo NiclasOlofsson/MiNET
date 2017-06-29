@@ -203,8 +203,8 @@ namespace MiNET.Utils
 				ExtraData = new ExtraData
 				{
 					DisplayName = username,
-					Identity = "85e4febd-3d33-4008-b044-1ad9fb85b26c",
-					//Identity = Guid.NewGuid().ToString(),
+					//Identity = "85e4febd-3d33-4008-b044-1ad9fb85b26c",
+					Identity = Guid.NewGuid().ToString(),
 				},
 				Iss = "self",
 				IdentityPublicKey = b64Key,

@@ -380,7 +380,7 @@ namespace MiNET.Worlds
 				if (chunk.biomeId.Length > 256) throw new Exception();
 
 				NbtTag heights = dataTag["HeightMap"] as NbtIntArray;
-				if(heights != null)
+				if (heights != null)
 				{
 					int[] intHeights = heights.IntArrayValue;
 					for (int i = 0; i < 256; i++)
@@ -735,6 +735,8 @@ namespace MiNET.Worlds
 
 			using (var regionFile = File.Open(filePath, FileMode.Open))
 			{
+				// Region files begin with an 8kiB header containing information about which chunks are present in the region file, 
+				// when they were last updated, and where they can be found.
 				byte[] buffer = new byte[8192];
 				regionFile.Read(buffer, 0, buffer.Length);
 
@@ -746,11 +748,13 @@ namespace MiNET.Worlds
 
 				regionFile.Seek(tableOffset, SeekOrigin.Begin);
 
+				// Location information for a chunk consists of four bytes split into two fields: the first three bytes are a(big - endian) offset in 4KiB sectors 
+				// from the start of the file, and a remaining byte which gives the length of the chunk(also in 4KiB sectors, rounded up).
 				byte[] offsetBuffer = new byte[4];
 				regionFile.Read(offsetBuffer, 0, 3);
 				Array.Reverse(offsetBuffer);
 				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
-				int length = regionFile.ReadByte();
+				byte sectorCount = (byte) regionFile.ReadByte();
 
 				testTime.Restart(); // RESTART
 
@@ -761,11 +765,13 @@ namespace MiNET.Worlds
 
 				byte[] nbtBuf = nbt.SaveToBuffer(NbtCompression.ZLib);
 				int nbtLength = nbtBuf.Length;
+				byte nbtSectorCount = (byte) Math.Ceiling(nbtLength/4096d);
+
 				// Don't write yet, just use the lenght
 
-				if (offset == 0 || length == 0 || nbtLength < length)
+				if (offset == 0 || sectorCount == 0 || nbtSectorCount > sectorCount)
 				{
-					if (length != 0) Log.Debug("Creating new sectors for this chunk even tho it existed");
+					if (Log.IsDebugEnabled) if (sectorCount != 0) Log.Warn($"Creating new sectors for this chunk even tho it existed. Old sector count={sectorCount}, new sector count={nbtSectorCount} (lenght={nbtLength})");
 
 					regionFile.Seek(0, SeekOrigin.End);
 					offset = (int) ((int) regionFile.Position & 0xfffffff0);
@@ -775,7 +781,7 @@ namespace MiNET.Worlds
 					byte[] bytes = BitConverter.GetBytes(offset >> 4);
 					Array.Reverse(bytes);
 					regionFile.Write(bytes, 0, 3);
-					regionFile.WriteByte(1);
+					regionFile.WriteByte(nbtSectorCount);
 				}
 
 				byte[] lenghtBytes = BitConverter.GetBytes(nbtLength + 1);
@@ -851,6 +857,13 @@ namespace MiNET.Worlds
 				sectionTag.Add(new NbtByteArray("BlockLight", blockLight));
 				sectionTag.Add(new NbtByteArray("SkyLight", skyLight));
 			}
+
+			int[] heights = new int[256];
+			for (int h = 0; h < heights.Length; h++)
+			{
+				heights[h] = chunk.height[h];
+			}
+			levelTag.Add(new NbtIntArray("HeightMap", heights));
 
 			// TODO: Save entities
 			NbtList entitiesTag = new NbtList("Entities", NbtTagType.Compound);

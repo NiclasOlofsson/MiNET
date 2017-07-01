@@ -13,12 +13,6 @@ Yes, you can. Some of the below are professional networks, and at times there ar
 IP: **play.infinite.pe**    
 Port: **19132**    
 
-IP: **pe.mineplex.com**    
-Port: **19132**    
-
-IP: **trial.darkhammer.net (test/dev server)**    
-Port: **19132**
-
 IP: **pepirates.ru**    
 Port: **19132** 
 

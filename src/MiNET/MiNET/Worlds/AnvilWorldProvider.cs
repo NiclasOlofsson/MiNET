@@ -289,54 +289,17 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GetChunk(ChunkCoordinates coordinates, string basePath, IWorldGenerator generator)
 		{
-			int width = 32;
-			int depth = 32;
-
-			int rx = coordinates.X >> 5;
-			int rz = coordinates.Z >> 5;
-
-			string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
-
-			if (!File.Exists(filePath))
+			try
 			{
-				var chunkColumn = generator?.GenerateChunkColumn(coordinates);
-				if (chunkColumn != null)
-				{
-					//chunkColumn.NeedSave = true;
-				}
+				int width = 32;
+				int depth = 32;
 
-				return chunkColumn;
-			}
+				int rx = coordinates.X >> 5;
+				int rz = coordinates.Z >> 5;
 
-			using (var regionFile = File.OpenRead(filePath))
-			{
-				byte[] buffer = new byte[8192];
+				string filePath = Path.Combine(basePath, string.Format(@"region{2}r.{0}.{1}.mca", rx, rz, Path.DirectorySeparatorChar));
 
-				regionFile.Read(buffer, 0, 8192);
-
-				int xi = (coordinates.X%width);
-				if (xi < 0) xi += 32;
-				int zi = (coordinates.Z%depth);
-				if (zi < 0) zi += 32;
-				int tableOffset = (xi + zi*width)*4;
-
-				regionFile.Seek(tableOffset, SeekOrigin.Begin);
-
-				byte[] offsetBuffer = new byte[4];
-				regionFile.Read(offsetBuffer, 0, 3);
-				Array.Reverse(offsetBuffer);
-				int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
-
-				byte[] bytes = BitConverter.GetBytes(offset >> 4);
-				Array.Reverse(bytes);
-				if (offset != 0 && offsetBuffer[0] != bytes[0] && offsetBuffer[1] != bytes[1] && offsetBuffer[2] != bytes[2])
-				{
-					throw new Exception($"Not the same buffer\n{Package.HexDump(offsetBuffer)}\n{Package.HexDump(bytes)}");
-				}
-
-				int length = regionFile.ReadByte();
-
-				if (offset == 0 || length == 0)
+				if (!File.Exists(filePath))
 				{
 					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 					if (chunkColumn != null)
@@ -347,124 +310,176 @@ namespace MiNET.Worlds
 					return chunkColumn;
 				}
 
-				regionFile.Seek(offset, SeekOrigin.Begin);
-				byte[] waste = new byte[4];
-				regionFile.Read(waste, 0, 4);
-				int compressionMode = regionFile.ReadByte();
-
-				if (compressionMode != 0x02)
-					throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode:X2}. " +
-					                    $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
-
-				var nbt = new NbtFile();
-				nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
-
-				NbtCompound dataTag = (NbtCompound) nbt.RootTag["Level"];
-
-				bool isPocketEdition = false;
-				if (dataTag.Contains("MCPE BID"))
+				using (var regionFile = File.OpenRead(filePath))
 				{
-					isPocketEdition = dataTag["MCPE BID"].ByteValue == 1;
-				}
+					byte[] buffer = new byte[8192];
 
-				NbtList sections = dataTag["Sections"] as NbtList;
+					regionFile.Read(buffer, 0, 8192);
 
-				ChunkColumn chunk = new ChunkColumn
-				{
-					x = coordinates.X,
-					z = coordinates.Z,
-					biomeId = dataTag["Biomes"].ByteArrayValue,
-					isAllAir = true
-				};
+					int xi = (coordinates.X%width);
+					if (xi < 0) xi += 32;
+					int zi = (coordinates.Z%depth);
+					if (zi < 0) zi += 32;
+					int tableOffset = (xi + zi*width)*4;
 
-				if (chunk.biomeId.Length > 256) throw new Exception();
+					regionFile.Seek(tableOffset, SeekOrigin.Begin);
 
-				NbtTag heights = dataTag["HeightMap"] as NbtIntArray;
-				if (heights != null)
-				{
-					int[] intHeights = heights.IntArrayValue;
-					for (int i = 0; i < 256; i++)
+					byte[] offsetBuffer = new byte[4];
+					regionFile.Read(offsetBuffer, 0, 3);
+					Array.Reverse(offsetBuffer);
+					int offset = BitConverter.ToInt32(offsetBuffer, 0) << 4;
+
+					byte[] bytes = BitConverter.GetBytes(offset >> 4);
+					Array.Reverse(bytes);
+					if (offset != 0 && offsetBuffer[0] != bytes[0] && offsetBuffer[1] != bytes[1] && offsetBuffer[2] != bytes[2])
 					{
-						chunk.height[i] = (short) intHeights[i];
+						throw new Exception($"Not the same buffer\n{Package.HexDump(offsetBuffer)}\n{Package.HexDump(bytes)}");
 					}
-				}
 
-				// This will turn into a full chunk column
-				foreach (NbtTag sectionTag in sections)
-				{
-					ReadSection(sectionTag, chunk, !isPocketEdition);
-				}
+					int length = regionFile.ReadByte();
 
-				NbtList entities = dataTag["Entities"] as NbtList;
-				NbtList blockEntities = dataTag["TileEntities"] as NbtList;
-				if (blockEntities != null)
-				{
-					foreach (var nbtTag in blockEntities)
+					if (offset == 0 || length == 0)
 					{
-						var blockEntityTag = (NbtCompound) nbtTag.Clone();
-						string entityId = blockEntityTag["id"].StringValue;
-						int x = blockEntityTag["x"].IntValue;
-						int y = blockEntityTag["y"].IntValue;
-						int z = blockEntityTag["z"].IntValue;
-
-						if (entityId.StartsWith("minecraft:"))
+						var chunkColumn = generator?.GenerateChunkColumn(coordinates);
+						if (chunkColumn != null)
 						{
-							var id = entityId.Split(':')[1];
-
-							entityId = id.First().ToString().ToUpper() + id.Substring(1);
-
-							blockEntityTag["id"] = new NbtString("id", entityId);
+							//chunkColumn.NeedSave = true;
 						}
 
-						BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
+						return chunkColumn;
+					}
 
-						if (blockEntity != null)
+					regionFile.Seek(offset, SeekOrigin.Begin);
+					byte[] waste = new byte[4];
+					regionFile.Read(waste, 0, 4);
+					int compressionMode = regionFile.ReadByte();
+
+					if (compressionMode != 0x02)
+						throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode:X2}. " +
+						                    $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
+
+					var nbt = new NbtFile();
+					nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
+
+					NbtCompound dataTag = (NbtCompound) nbt.RootTag["Level"];
+
+					bool isPocketEdition = false;
+					if (dataTag.Contains("MCPE BID"))
+					{
+						isPocketEdition = dataTag["MCPE BID"].ByteValue == 1;
+					}
+
+					NbtList sections = dataTag["Sections"] as NbtList;
+
+					ChunkColumn chunk = new ChunkColumn
+					{
+						x = coordinates.X,
+						z = coordinates.Z,
+						biomeId = dataTag["Biomes"].ByteArrayValue,
+						isAllAir = true
+					};
+
+					if (chunk.biomeId.Length > 256) throw new Exception();
+
+					NbtTag heights = dataTag["HeightMap"] as NbtIntArray;
+					if (heights != null)
+					{
+						int[] intHeights = heights.IntArrayValue;
+						for (int i = 0; i < 256; i++)
 						{
-							blockEntityTag.Name = string.Empty;
+							chunk.height[i] = (short) intHeights[i];
+						}
+					}
 
-							if (blockEntity is Sign)
+					// This will turn into a full chunk column
+					foreach (NbtTag sectionTag in sections)
+					{
+						ReadSection(sectionTag, chunk, !isPocketEdition);
+					}
+
+					NbtList entities = dataTag["Entities"] as NbtList;
+					NbtList blockEntities = dataTag["TileEntities"] as NbtList;
+					if (blockEntities != null)
+					{
+						foreach (var nbtTag in blockEntities)
+						{
+							var blockEntityTag = (NbtCompound) nbtTag.Clone();
+							string entityId = blockEntityTag["id"].StringValue;
+							int x = blockEntityTag["x"].IntValue;
+							int y = blockEntityTag["y"].IntValue;
+							int z = blockEntityTag["z"].IntValue;
+
+							if (entityId.StartsWith("minecraft:"))
 							{
-								// Remove the JSON stuff and get the text out of extra data.
-								// TAG_String("Text2"): "{"extra":["10c a loaf!"],"text":""}"
-								CleanSignText(blockEntityTag, "Text1");
-								CleanSignText(blockEntityTag, "Text2");
-								CleanSignText(blockEntityTag, "Text3");
-								CleanSignText(blockEntityTag, "Text4");
+								var id = entityId.Split(':')[1];
+
+								entityId = id.First().ToString().ToUpper() + id.Substring(1);
+
+								blockEntityTag["id"] = new NbtString("id", entityId);
 							}
-							else if (blockEntity is ChestBlockEntity)
-							{
-								NbtList items = (NbtList) blockEntityTag["Items"];
 
-								if (items != null)
+							BlockEntity blockEntity = BlockEntityFactory.GetBlockEntityById(entityId);
+
+							if (blockEntity != null)
+							{
+								blockEntityTag.Name = string.Empty;
+
+								if (blockEntity is Sign)
 								{
-									//for (byte i = 0; i < items.Count; i++)
-									//{
-									//	NbtCompound item = (NbtCompound) items[i];
-
-									//	item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
-
-									//	byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
-									//	item.Remove("Damage");
-									//	item.Add(new NbtByte("Damage", metadata));
-									//}
+									// Remove the JSON stuff and get the text out of extra data.
+									// TAG_String("Text2"): "{"extra":["10c a loaf!"],"text":""}"
+									CleanSignText(blockEntityTag, "Text1");
+									CleanSignText(blockEntityTag, "Text2");
+									CleanSignText(blockEntityTag, "Text3");
+									CleanSignText(blockEntityTag, "Text4");
 								}
-							}
+								else if (blockEntity is ChestBlockEntity)
+								{
+									NbtList items = (NbtList) blockEntityTag["Items"];
 
-							chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
-						}
-						else
-						{
-							if (Log.IsDebugEnabled)
-								Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
+									if (items != null)
+									{
+										//for (byte i = 0; i < items.Count; i++)
+										//{
+										//	NbtCompound item = (NbtCompound) items[i];
+
+										//	item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
+
+										//	byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
+										//	item.Remove("Damage");
+										//	item.Add(new NbtByte("Damage", metadata));
+										//}
+									}
+								}
+
+								chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
+							}
+							else
+							{
+								if (Log.IsDebugEnabled)
+									Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
+							}
 						}
 					}
+
+					//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
+
+					chunk.isDirty = false;
+					chunk.NeedSave = false;
+					return chunk;
 				}
 
-				//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
+			}
+			catch (Exception e)
+			{
+				Log.Error($"Loading chunk {coordinates}", e);
+				var chunkColumn = generator?.GenerateChunkColumn(coordinates);
+				if (chunkColumn != null)
+				{
+					//chunkColumn.NeedSave = true;
+				}
 
-				chunk.isDirty = false;
-				chunk.NeedSave = false;
-				return chunk;
+				return chunkColumn;
 			}
 		}
 
@@ -534,14 +549,14 @@ namespace MiNET.Worlds
 
 						if (blockId == 0) continue;
 
-						if (blockId == 3 && metadata == 1)
+						if (convertBid && blockId == 3 && metadata == 1)
 						{
 							// Dirt Course => (Grass Path)
 							chunk.SetBlock(x, y, z, 198);
 							chunk.SetMetadata(x, y, z, 0);
 							blockId = 198;
 						}
-						else if (blockId == 3 && metadata == 2)
+						else if (convertBid && blockId == 3 && metadata == 2)
 						{
 							// Dirt Podzol => (Podzol)
 							chunk.SetBlock(x, y, z, 243);

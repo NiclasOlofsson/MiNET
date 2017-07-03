@@ -120,8 +120,8 @@ namespace MiNET.Utils
 
 		public void Dispose()
 		{
-			AutoReset.Set();
 			CancelSource.Cancel();
+			AutoReset.Set();
 
 			var reset = AutoReset;
 			AutoReset = null;

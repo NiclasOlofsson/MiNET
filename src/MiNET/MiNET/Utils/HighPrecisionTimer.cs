@@ -113,6 +113,14 @@ namespace MiNET.Utils
 						//if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");
 					}
 				}
+
+				CancelSource.Dispose();
+				CancelSource = null;
+
+				var reset = AutoReset;
+				AutoReset = null;
+				reset.Dispose();
+
 			}, CancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
@@ -121,14 +129,10 @@ namespace MiNET.Utils
 		public void Dispose()
 		{
 			CancelSource.Cancel();
-			AutoReset.Set();
-
-			var reset = AutoReset;
-			AutoReset = null;
-			reset.Dispose();
-
-			CancelSource.Dispose();
-			CancelSource = null;
+			while (AutoReset != null)
+			{
+				AutoReset?.Set();
+			}
 		}
 	}
 }

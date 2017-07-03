@@ -52,15 +52,16 @@ namespace MiNET.Utils
 			{
 				value &= 0xF;
 				var idx = index >> 1;
-				Data[idx] &= (byte)(0xF << (((index + 1) & 1) * 4));
-				Data[idx] |= (byte)(value << ((index & 1) * 4));
+				Data[idx] &= (byte) (0xF << (((index + 1) & 1)*4));
+				Data[idx] |= (byte) (value << ((index & 1)*4));
 			}
 		}
 
 		public object Clone()
 		{
-			// BUG sinec this creates a shallow copy, not what we want.
-			return MemberwiseClone();
+			NibbleArray nibbleArray = (NibbleArray) MemberwiseClone();
+			nibbleArray.Data = (byte[]) Data.Clone();
+			return nibbleArray;
 		}
 	}
 }

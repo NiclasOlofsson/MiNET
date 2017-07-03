@@ -10,6 +10,9 @@ MiNET
 ## Can I test this before I download it?
 Yes, you can. Some of the below are professional networks, and at times there are dev servers running and you might be lucky enough to get in..<br>
 
+IP: **CRISTALIX.PE**    
+Port: **19132**  
+
 IP: **play.infinite.pe**    
 Port: **19132**    
 

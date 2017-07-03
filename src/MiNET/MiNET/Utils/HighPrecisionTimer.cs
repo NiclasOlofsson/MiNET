@@ -49,7 +49,6 @@ namespace MiNET.Utils
 		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false)
 		{
 			Action = action;
-			Log.Debug($"Starting HighPrecisionTimer with {interval} ms interval");
 
 			if (interval < 1)
 				throw new ArgumentOutOfRangeException();
@@ -85,10 +84,7 @@ namespace MiNET.Utils
 
 						if (useSignaling)
 						{
-							if (!AutoReset.WaitOne(500))
-							{
-								Log.Error("No signal received");
-							}
+							AutoReset.WaitOne(500);
 						}
 
 
@@ -126,7 +122,13 @@ namespace MiNET.Utils
 		{
 			AutoReset.Set();
 			CancelSource.Cancel();
-			AutoReset.Dispose();
+
+			var reset = AutoReset;
+			AutoReset = null;
+			reset.Dispose();
+
+			CancelSource.Dispose();
+			CancelSource = null;
 		}
 	}
 }

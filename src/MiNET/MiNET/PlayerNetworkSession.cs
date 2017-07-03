@@ -350,7 +350,7 @@ namespace MiNET
 					{
 						// Temp fix for performance, take 1.
 						var interact = msg as McpeInteract;
-						if(interact?.actionId == 4 && interact.targetRuntimeEntityId == 0) continue;
+						if (interact?.actionId == 4 && interact.targetRuntimeEntityId == 0) continue;
 
 						msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
 						msg.Reliability = batch.Reliability;
@@ -514,9 +514,9 @@ namespace MiNET
 				handler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
 			}
 
-			else if (typeof(McpeAdventureSettings) == message.GetType())
+			else if (typeof (McpeAdventureSettings) == message.GetType())
 			{
-				handler.HandleMcpeAdventureSettings((McpeAdventureSettings)message);
+				handler.HandleMcpeAdventureSettings((McpeAdventureSettings) message);
 			}
 
 			else if (typeof (McpePlayerAction) == message.GetType())
@@ -688,7 +688,6 @@ namespace MiNET
 				//if (package == null) return;
 			}
 
-			//Server.SendPackage(this, package);
 			lock (_queueSync)
 			{
 				_sendQueueNotConcurrent.Enqueue(package);
@@ -839,8 +838,13 @@ namespace MiNET
 
 		public void SignalTick()
 		{
-			//Log.Warn("Signal timer");
-			_tickerHighPrecisionTimer.AutoReset.Set();
+			try
+			{
+				_tickerHighPrecisionTimer.AutoReset?.Set();
+			}
+			catch (ObjectDisposedException)
+			{
+			}
 		}
 
 

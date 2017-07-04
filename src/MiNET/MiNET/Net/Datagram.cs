@@ -53,7 +53,7 @@ namespace MiNET.Net
 				needsBAndAs = true,
 				//datagramSequenceNumber = datagramSequenceNumber
 			};
-			_buf = new MemoryStream(new byte[1600]);
+			_buf = new MemoryStream(new byte[1600], 0, 1600, true, true);
 		}
 
 		public bool TryAddMessagePart(MessagePart messagePart, int mtuSize)
@@ -85,7 +85,7 @@ namespace MiNET.Net
 
 		public override void Reset()
 		{
-			//base.Reset();
+			base.Reset();
 
 			Header.Reset();
 			RetransmissionTimeOut = 0;
@@ -129,6 +129,36 @@ namespace MiNET.Net
 
 			return _buf.ToArray();
 		}
+
+		public long GetEncoded(out byte[] buffer)
+		{
+			//TODO: This is a qick-fix to lower the impact of resends. I want to do this
+			// as standard, just need to refactor a bit of this stuff first.
+			if (_buf.Length != 0 && _buf.Length != 1600)
+			{
+				_buf.Position = 1;
+				_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+			}
+			else
+			{
+				_buf.SetLength(0);
+
+				// Header
+				_buf.WriteByte((byte) (Header.isContinuousSend ? 0x8c : 0x84));
+				_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+
+				// Message (Payload)
+				foreach (MessagePart messagePart in MessageParts)
+				{
+					byte[] bytes = messagePart.Encode();
+					_buf.Write(bytes, 0, bytes.Length);
+				}
+			}
+
+			buffer = _buf.GetBuffer();
+			return _buf.Length;
+		}
+
 
 		public static IEnumerable<Datagram> CreateDatagrams(Package message, int mtuSize, PlayerNetworkSession session)
 		{

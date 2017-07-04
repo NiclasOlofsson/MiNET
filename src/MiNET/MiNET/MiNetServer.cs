@@ -1022,7 +1022,9 @@ namespace MiNET
 			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 			datagram.TransmissionCount++;
 
-			byte[] data = datagram.Encode();
+			//byte[] data = datagram.Encode();
+			byte[] data;
+			var lenght = (int) datagram.GetEncoded(out data);
 
 			datagram.Timer.Restart();
 
@@ -1033,7 +1035,27 @@ namespace MiNET
 
 			lock (session.SyncRoot)
 			{
-				SendData(data, session.EndPoint);
+				SendData(data, lenght, session.EndPoint);
+			}
+		}
+
+		internal void SendData(byte[] data, int lenght, IPEndPoint targetEndPoint)
+		{
+			try
+			{
+				_listener.Send(data, lenght, targetEndPoint); // Less thread-issues it seems
+
+				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeOut, lenght);
+			}
+			catch (ObjectDisposedException e)
+			{
+				Log.Warn(e);
+			}
+			catch (Exception e)
+			{
+				Log.Warn(e);
+				//if (_listener == null || _listener.Client != null) Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
 			}
 		}
 

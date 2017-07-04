@@ -14,10 +14,17 @@ namespace MiNET.Test.Console
 			//test.LoadFullAnvilRegionLoadTest();
 
 			MinetServerTest tests = new MinetServerTest();
-			tests.HighPrecTimeLoadTest();
+			tests.HighPrecTimerSignalingLoadTest();
+			System.Console.WriteLine("Running ...");
 
+			System.Console.WriteLine("<Enter> to ABORT");
 			System.Console.ReadLine();
+			tests.cancel.Cancel();
 
+			tests.PrintResults();
+
+			System.Console.WriteLine("<Enter> to exit");
+			System.Console.ReadLine();
 		}
 	}
 }

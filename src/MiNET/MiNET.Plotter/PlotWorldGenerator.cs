@@ -42,6 +42,7 @@ namespace MiNET.Plotter
 		public const int PlotAreaDepth = PlotDepth + RoadWidth;
 
 		private Pattern RoadPattern { get; set; }
+		private Pattern PlotPattern { get; set; }
 
 		public PlotWorldGenerator()
 		{
@@ -57,6 +58,21 @@ namespace MiNET.Plotter
 			RoadPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 20, Id = stone.Id, Metadata = stone.Metadata});
 			RoadPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 40, Id = grass.Id, Metadata = grass.Metadata});
 			RoadPattern.Order();
+
+			PlotPattern = new Pattern();
+			PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 70, Id = 0, Metadata = 0});
+			PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 27, Id = 31, Metadata = 1});
+			PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 1, Id = 37, Metadata = 0});
+			PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 1, Id = 38, Metadata = 0});
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 1 });
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 2 });
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 3 });
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 4 });
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 5 });
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 6 });
+			//PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() { Weight = 5, Id = 38, Metadata = 7 });
+			PlotPattern.BlockList.Add(new Pattern.BlockDataEntry() {Weight = 1, Id = 38, Metadata = 8});
+			PlotPattern.Order();
 		}
 
 		public void Initialize()
@@ -76,10 +92,22 @@ namespace MiNET.Plotter
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					for (int y = 0; y < PlotHeight; y++)
+					for (int y = 0; y < PlotHeight + 1; y++)
 					{
 						if (y == 0) chunk.SetBlock(x, y, z, 7); // Bedrock
 						else if (y == PlotHeight - 1) chunk.SetBlock(x, y, z, 2); // grass
+						else if (y == PlotHeight)
+						{
+							if (!IsZRoad(z + zOffset, true) && !IsXRoad(x + xOffset, true))
+							{
+								var block = PlotPattern.Next(new BlockCoordinates(x, PlotHeight, z));
+								chunk.SetBlock(x, y, z, block.Id); // grass
+								if (block.Metadata != 0)
+								{
+									chunk.SetMetadata(x, y, z, block.Metadata); // grass
+								}
+							}
+						}
 						else if (y > PlotHeight - 4) chunk.SetBlock(x, y, z, 3); // dirt
 						else chunk.SetBlock(x, y, z, 1); // stone
 					}
@@ -87,31 +115,41 @@ namespace MiNET.Plotter
 				}
 			}
 
-			for (int x = xOffset; x < 16 + xOffset; x++)
+
+			var leaves = new Leaves();
+
+			//if (xOffset < 0) xOffset -= PlotAreaWidth;
+			//if (zOffset < 0) zOffset -= PlotAreaDepth;
+
+			for (int x = xOffset; x < xOffset + 16; x++)
 			{
-				for (int z = zOffset; z < 16 + zOffset; z++)
+				for (int z = zOffset; z < zOffset + 16; z++)
 				{
 					for (int i = 1; i < RoadWidth - 1; i++)
 					{
 						var block = RoadPattern.Next(new BlockCoordinates(x, PlotHeight, z));
-						if ((x + i)%PlotAreaWidth == 0)
+						if ((x - i)%PlotAreaWidth == 0)
 						{
-							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id); // stone
+							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id);
 							if (block.Metadata != 0)
-								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata); // stone
+								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata);
 						}
-						if ((z + i)%PlotAreaWidth == 0)
+						if ((z - i)%PlotAreaDepth == 0)
 						{
-							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id); // stone
+							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id);
 							if (block.Metadata != 0)
-								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata); // stone
+								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata);
 						}
 					}
-					if (x%PlotAreaWidth == 0 && !IsZRoad(z)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, 18); // stone
-					if ((x + RoadWidth - 1)%PlotAreaWidth == 0 && !IsZRoad(z)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, 18); // stone
 
-					if (z%PlotAreaDepth == 0 && !IsXRoad(x)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, 18); // stone
-					if ((z + RoadWidth - 1)%PlotAreaWidth == 0 && !IsXRoad(x)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, 18); // stone
+					if (x%PlotAreaWidth == 0 && !IsZRoad(z)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, leaves.Id);
+					if ((x - RoadWidth + 1)%PlotAreaWidth == 0 && !IsZRoad(z)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, leaves.Id);
+
+					if (z%PlotAreaDepth == 0 && !IsXRoad(x)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, leaves.Id);
+					if ((z - RoadWidth + 1)%PlotAreaDepth == 0 && !IsXRoad(x)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, leaves.Id);
+
+					if (x%PlotAreaWidth == 0 && z%PlotAreaDepth == 0) chunk.SetBlock(x - xOffset, PlotHeight + 1, z - zOffset, new RedstoneBlock().Id);
+					if (x%PlotAreaWidth == PlotAreaWidth - 1 && z%PlotAreaDepth == PlotAreaDepth - 1) chunk.SetBlock(x - xOffset, PlotHeight + 1, z - zOffset, new LapisBlock().Id); // stone
 				}
 			}
 
@@ -123,7 +161,7 @@ namespace MiNET.Plotter
 			bool result = false;
 			for (int i = all ? 0 : 1; i < RoadWidth - (all ? 0 : 1); i++)
 			{
-				result |= ((x + i)%PlotAreaWidth == 0);
+				result |= (x - i)%PlotAreaWidth == 0;
 			}
 
 			return result;
@@ -134,7 +172,7 @@ namespace MiNET.Plotter
 			bool result = false;
 			for (int i = (all ? 0 : 1); i < RoadWidth - (all ? 0 : 1); i++)
 			{
-				result |= ((z + i)%PlotAreaDepth == 0);
+				result |= (z - i)%PlotAreaDepth == 0;
 			}
 
 			return result;

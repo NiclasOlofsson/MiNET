@@ -96,11 +96,16 @@
     <Compile Include="MinetAnvilTest.cs" />
     <Compile Include="MinetCrytopTest.cs" />
     <Compile Include="MinetSchematicsTest.cs" />
+    <Compile Include="PlotterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MinetServerTest.cs" />
     <Compile Include="ResourceTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MiNET.Plotter\MiNET.Plotter.csproj">
+      <Project>{0D536AD6-6003-45FF-BFBA-8CB17595D4C5}</Project>
+      <Name>MiNET.Plotter</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MiNET\MiNET.csproj">
       <Project>{B7049BF1-2DB0-435D-9791-09AB61018685}</Project>
       <Name>MiNET</Name>

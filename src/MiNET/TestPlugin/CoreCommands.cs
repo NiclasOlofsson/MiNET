@@ -77,6 +77,16 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
+		[Command(Description = "Save world")]
+		public void Save(Player player)
+		{
+			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
+			if (provider != null)
+			{
+				provider.SaveChunks();
+			}
+		}
+
 		[Command]
 		public void SpawnAgent(Player player, string text)
 		{

@@ -43,11 +43,11 @@ using NUnit.Framework;
 
 namespace MiNET
 {
-	[TestFixture]
+	[TestFixture, Ignore("")]
 	public class MinetServerTest
 	{
-		[Test]
-		public void HighPrecTimeLoadTest()
+		[Test, Ignore("")]
+		public void HighPrecTimerLoadTest()
 		{
 			Stopwatch sw = new Stopwatch();
 			List<HighPrecisionTimer> timers = new List<HighPrecisionTimer>();
@@ -82,11 +82,83 @@ namespace MiNET
 			                  $"\nYields/timer={yields/timers.Count} ");
 		}
 
+		[Test, Ignore("")]
+		public void HighPrecTimerSignalingLoadTest()
+		{
+			List<Thread> threads = new List<Thread>();
+			for (int i = 0; i < 1000; i++)
+			{
+				threads.Add(new Thread(Runner));
+			}
+
+			threads.ForEach(t => t.Start());
+
+			var timer = new HighPrecisionTimer(TIME/2, Interrupt, false);
+		}
+
+		private const int TIME = 200;
+
+		ManualResetEvent signal = new ManualResetEvent(false);
+		public CancellationTokenSource cancel = new CancellationTokenSource();
+
+
+		int _count = 0;
+		int _interrupts = 0;
+		long _timeWaiting = 0;
+		long _errors = 0;
+
+		public void PrintResults()
+		{
+			signal.Set();
+			Thread.Sleep(4000);
+			Console.WriteLine($"Interrupted {_interrupts} times. ");
+			Console.WriteLine($"Ticked {_count} times. ");
+			Console.WriteLine($"Errors {_errors}. ");
+			Console.WriteLine($"Avg {_timeWaiting/_count} wait. ");
+		}
+
+		private void Runner()
+		{
+			Stopwatch sw = new Stopwatch();
+			int count = 0;
+			int errors = 0;
+			long timeWaiting = 0;
+			while (!cancel.IsCancellationRequested)
+			{
+				sw.Restart();
+				signal.WaitOne();
+				var elapsedMilliseconds = sw.ElapsedMilliseconds;
+				if (elapsedMilliseconds < TIME - 5) errors++;
+				if (elapsedMilliseconds > TIME + 5) errors++;
+				timeWaiting += elapsedMilliseconds;
+				count++;
+				//Console.WriteLine($"Tick. ");
+			}
+
+			Interlocked.Add(ref _count, count);
+			Interlocked.Add(ref _timeWaiting, timeWaiting);
+			Interlocked.Add(ref _errors, errors);
+		}
+
+		private void Interrupt(object obj)
+		{
+			if(signal.WaitOne(0))
+			{
+				signal.Reset();
+			}
+			else
+			{
+				_interrupts++;
+				signal.Set();
+			}
+		}
+
+
 		private void SendTick(object obj)
 		{
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void TestPathFinder()
 		{
 			var navigator = new TileNavigator(

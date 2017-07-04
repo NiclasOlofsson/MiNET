@@ -52,6 +52,17 @@ namespace MiNET.Plotter
 			return new VanillaCommands.SimpleResponse($"Claimed plot {plotX}:{plotZ} at {coords}");
 		}
 
+		[Command(Name = "plot claim")]
+		public VanillaCommands.SimpleResponse PlotClaim(Player player)
+		{
+			PlotCoordinates coords = _plotManager.ConvertToPlotCoordinates(player.KnownPosition);
+			if (coords == null) return new VanillaCommands.SimpleResponse() {Body = "Not able to claim plot at this position."};
+
+			Plot plot;
+			if (!_plotManager.TryClaim(coords, player, out plot)) return new VanillaCommands.SimpleResponse() {Body = "Not able to claim plot at this position."};
+
+			return new VanillaCommands.SimpleResponse($"Claimed plot {plot.Coordinates.X}:{plot.Coordinates.Z} at {coords}");
+		}
 
 		[Command(Name = "plot home")]
 		public VanillaCommands.SimpleResponse PlotHome(Player player)

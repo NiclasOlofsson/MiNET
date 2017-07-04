@@ -777,8 +777,8 @@ namespace TestPlugin.NiceLobby
 				{
 					Dictionary<Tuple<int, int>, MapEntity> entities = new Dictionary<Tuple<int, int>, MapEntity>();
 
-					int width = 1;
-					int height = 1;
+					int width = 2;
+					int height = 2;
 					int frameCount = numberOfFrames;
 					//int frameOffset = 0;
 					int frameOffset = 120;
@@ -850,8 +850,8 @@ namespace TestPlugin.NiceLobby
 				{
 					Dictionary<Tuple<int, int>, List<MapEntity>> entities = new Dictionary<Tuple<int, int>, List<MapEntity>>();
 
-					int width = 3;
-					int height = 2;
+					int width = 6;
+					int height = 3;
 					int frameCount = numberOfFrames;
 					//int frameOffset = 0;
 					int frameOffset = 120;

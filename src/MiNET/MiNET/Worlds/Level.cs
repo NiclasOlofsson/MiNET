@@ -168,7 +168,7 @@ namespace MiNET.Worlds
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 		private MultiMediaTimer _mmTickTimer = null;
 
-		public void Close()
+		public virtual void Close()
 		{
 			NetherLevel?.Close();
 			TheEndLevel?.Close();

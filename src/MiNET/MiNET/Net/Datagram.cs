@@ -104,6 +104,16 @@ namespace MiNET.Net
 
 		public override byte[] Encode()
 		{
+			//TODO: This is a qick-fix to lower the impact of resends. I want to do this
+			// as standard, just need to refactor a bit of this stuff first.
+			if (_buf.Length != 0 && _buf.Length != 1600)
+			{
+				_buf.Position = 1;
+				_buf.Write(Header.datagramSequenceNumber.GetBytes(), 0, 3);
+
+				return _buf.ToArray();
+			}
+
 			_buf.SetLength(0);
 
 			// Header

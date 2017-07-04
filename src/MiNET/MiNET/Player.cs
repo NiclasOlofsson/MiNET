@@ -1136,7 +1136,7 @@ namespace MiNET
 			int depth = (int) (bbox.Depth);
 			int height = (int) (bbox.Height);
 
-			int midPoint = depth > 2? depth/2: 0;
+			int midPoint = depth > 2 ? depth/2 : 0;
 
 			bool haveSetCoordinate = false;
 			for (int x = 0; x < width; x++)
@@ -1183,7 +1183,7 @@ namespace MiNET
 
 						if (portalInfo.HasPlatform && y == 0)
 						{
-							level.SetBlock(new Obsidian { Coordinates = coordinates });
+							level.SetBlock(new Obsidian {Coordinates = coordinates});
 						}
 					}
 				}
@@ -1243,53 +1243,7 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
-			Action transferFunc = delegate
-			{
-				if (useLoadingScreen)
-				{
-					SendChangeDimension(Dimension.Overworld);
-				}
-
-				Level.RemovePlayer(this, true);
-
-				Level = toLevel; // Change level
-				SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-
-				HungerManager.ResetHunger();
-
-				HealthManager.ResetHealth();
-
-				BroadcastSetEntityData();
-
-				SendUpdateAttributes();
-
-				SendSetSpawnPosition();
-
-				SendAdventureSettings();
-
-				SendPlayerInventory();
-
-				CleanCache();
-
-				ForcedSendChunk(SpawnPosition);
-
-				// send teleport to spawn
-				SetPosition(SpawnPosition);
-
-				SetNoAi(oldNoAi);
-
-				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
-				{
-					Level.AddPlayer(this, true);
-
-					ForcedSendChunks(() =>
-					{
-						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-						SendSetTime();
-					});
-				});
-			};
+			Action transferFunc = () => Transfer(useLoadingScreen, toLevel, spawnPoint, oldNoAi);
 
 			if (useLoadingScreen)
 			{
@@ -1300,6 +1254,54 @@ namespace MiNET
 			{
 				transferFunc();
 			}
+		}
+
+		protected virtual void Transfer(bool useLoadingScreen, Level toLevel, PlayerLocation spawnPoint, bool oldNoAi)
+		{
+			if (useLoadingScreen)
+			{
+				SendChangeDimension(Dimension.Overworld);
+			}
+
+			Level.RemovePlayer(this, true);
+
+			Level = toLevel; // Change level
+			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+
+			HungerManager.ResetHunger();
+
+			HealthManager.ResetHealth();
+
+			BroadcastSetEntityData();
+
+			SendUpdateAttributes();
+
+			SendSetSpawnPosition();
+
+			SendAdventureSettings();
+
+			SendPlayerInventory();
+
+			CleanCache();
+
+			ForcedSendChunk(SpawnPosition);
+
+			// send teleport to spawn
+			SetPosition(SpawnPosition);
+
+			SetNoAi(oldNoAi);
+
+			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+			{
+				Level.AddPlayer(this, true);
+
+				ForcedSendChunks(() =>
+				{
+					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+					SendSetTime();
+				});
+			});
 		}
 
 		protected virtual void SendChangeDimension(Dimension dimension, bool flag = false, Vector3 position = new Vector3())
@@ -2501,7 +2503,7 @@ namespace MiNET
 				}
 				else if (PortalDetected == 0)
 				{
-					PortalDetected = Level.TickTime + (GameMode == GameMode.Creative ? 1 : 4 * 20);
+					PortalDetected = Level.TickTime + (GameMode == GameMode.Creative ? 1 : 4*20);
 				}
 			}
 			else

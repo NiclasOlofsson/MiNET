@@ -387,13 +387,10 @@ namespace MiNET
 					IsSneaking = false;
 					break;
 				case PlayerAction.AbortDimensionChange:
-					Log.Warn("AbortDimensionChange");
 					break;
 				case PlayerAction.DimensionChange:
-					Log.Warn("DimensionChange");
 					if (_dimensionFunc != null)
 					{
-						Log.Warn("Hello!");
 						_dimensionFunc();
 						_dimensionFunc = null;
 					}

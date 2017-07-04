@@ -1339,7 +1339,7 @@ namespace MiNET.Client
 			JWT.JsonMapper = new NewtonsoftMapper();
 
 			CngKey clientKey = CryptoUtils.GenerateClientKey();
-			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(Username, clientKey), CryptoUtils.EncodeSkinJwt(clientKey), CompressionLevel.Fastest);
+			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(Username, clientKey, IsEmulator), CryptoUtils.EncodeSkinJwt(clientKey), CompressionLevel.Fastest);
 
 			McpeLogin loginPacket = new McpeLogin
 			{

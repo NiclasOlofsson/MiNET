@@ -498,7 +498,10 @@ namespace MiNET
 					}
 					default:
 						GreylistManager.Blacklist(senderEndpoint.Address);
-						Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+						if (Log.IsInfoEnabled)
+						{
+							Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+						}
 						break;
 				}
 			}

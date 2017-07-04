@@ -84,7 +84,7 @@ namespace MiNET.Utils
 
 						if (useSignaling)
 						{
-							AutoReset.WaitOne(500);
+							AutoReset.WaitOne(50);
 						}
 
 

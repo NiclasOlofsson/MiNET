@@ -117,10 +117,8 @@ namespace MiNET.Utils
 				CancelSource.Dispose();
 				CancelSource = null;
 
-				var reset = AutoReset;
+				AutoReset.Dispose();
 				AutoReset = null;
-				reset.Dispose();
-
 			}, CancelSource.Token, TaskCreationOptions.LongRunning);
 
 			task.Start();
@@ -129,10 +127,7 @@ namespace MiNET.Utils
 		public void Dispose()
 		{
 			CancelSource.Cancel();
-			while (AutoReset != null)
-			{
-				AutoReset?.Set();
-			}
+			AutoReset?.Set();
 		}
 	}
 }

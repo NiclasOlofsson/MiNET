@@ -1076,9 +1076,9 @@ namespace MiNET.Client
 			{
 				OnMcpeCommandStep((McpeCommandStep) message);
 			}
-			else if (typeof(McpeChangeDimension) == message.GetType())
+			else if (typeof (McpeChangeDimension) == message.GetType())
 			{
-				OnMcpeChangeDimension((McpeChangeDimension)message);
+				OnMcpeChangeDimension((McpeChangeDimension) message);
 			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
@@ -1852,6 +1852,9 @@ Adventure settings
 			if (message.runtimeEntityId != EntityId) return;
 
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
+			Level.SpawnX = (int) message.x;
+			Level.SpawnY = (int) message.y;
+			Level.SpawnZ = (int) message.z;
 			SendMcpeMovePlayer();
 		}
 
@@ -2018,7 +2021,6 @@ Adventure settings
 					long dataValue = (long) value;
 					Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
 				}
-				
 			}
 			if (Log.IsDebugEnabled)
 			{
@@ -2072,7 +2074,7 @@ Adventure settings
 			EntityId = message.runtimeEntityId;
 			NetworkEntityId = message.entityIdSelf;
 			_spawn = new Vector3(message.x, message.y, message.z);
-
+			CurrentLocation = new PlayerLocation(_spawn);
 			Log.Debug($@"
 StartGame:
 	entityId: {message.entityIdSelf}	
@@ -2117,7 +2119,7 @@ StartGame:
 			Level.SpawnY = (int) _spawn.Y;
 			Level.SpawnZ = (int) _spawn.Z;
 			Log.Info($"Spawn position: {msg.coordinates}");
-			Log.Debug($"\n{Package.HexDump(message.Bytes)}");
+			if (Log.IsDebugEnabled) Log.Debug($"\n{Package.HexDump(message.Bytes)}");
 		}
 
 		private void OnConnectionRequestAccepted()

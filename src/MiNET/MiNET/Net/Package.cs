@@ -478,7 +478,7 @@ namespace MiNET.Net
 							player.DisplayName = ReadString();
 							player.Skin = ReadSkin();
 							records.Add(player);
-							Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
+							//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 						}
 						catch (Exception e)
 						{

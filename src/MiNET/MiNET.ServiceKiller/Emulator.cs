@@ -21,7 +21,7 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 750;
+		private const int TimeBetweenSpawns = 350;
 		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(60);
 		private const int NumberOfBots = 200;
 		private const int RanSleepMin = 150;
@@ -178,7 +178,7 @@ namespace MiNET.ServiceKiller
 				{
 					if (client.UdpClient == null) break;
 
-					float y = Random.Next(7, 10) + /*24*/ 55;
+					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 55;
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;

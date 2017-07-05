@@ -352,18 +352,18 @@ namespace MiNET
 				case PlayerAction.AbortBreak:
 				case PlayerAction.StopBreak:
 					break;
-				case PlayerAction.ReleaseItem:
-					if (_itemUseTimer <= 0) return;
+				//case PlayerAction.ReleaseItem:
+				//	if (_itemUseTimer <= 0) return;
 
-					Item itemInHand = Inventory.GetItemInHand();
+				//	Item itemInHand = Inventory.GetItemInHand();
 
-					if (itemInHand == null) return; // Cheat(?)
+				//	if (itemInHand == null) return; // Cheat(?)
 
-					itemInHand.Release(Level, this, new BlockCoordinates(message.coordinates.X, message.coordinates.Y, message.coordinates.Z), Level.TickTime - _itemUseTimer);
+				//	itemInHand.Release(Level, this, new BlockCoordinates(message.coordinates.X, message.coordinates.Y, message.coordinates.Z), Level.TickTime - _itemUseTimer);
 
-					_itemUseTimer = 0;
+				//	_itemUseTimer = 0;
 
-					break;
+				//	break;
 				case PlayerAction.StopSleeping:
 					break;
 				case PlayerAction.Respawn:
@@ -386,9 +386,9 @@ namespace MiNET
 					SetSprinting(false);
 					IsSneaking = false;
 					break;
-				case PlayerAction.AbortDimensionChange:
-					break;
 				case PlayerAction.DimensionChange:
+					break;
+				case PlayerAction.DimensionChangeAck:
 					if (_dimensionFunc != null)
 					{
 						_dimensionFunc();

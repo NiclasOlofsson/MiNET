@@ -1066,7 +1066,7 @@ namespace MiNET.Client
 			Thread.Sleep(3000);
 			McpePlayerAction action = McpePlayerAction.CreateObject();
 			action.runtimeEntityId = EntityId;
-			action.actionId = (int) PlayerAction.DimensionChange;
+			action.actionId = (int) PlayerAction.DimensionChangeAck;
 			SendPackage(action);
 		}
 

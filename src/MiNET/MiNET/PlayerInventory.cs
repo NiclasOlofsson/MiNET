@@ -250,11 +250,11 @@ namespace MiNET
 			}
 			else
 			{
-				//McpeContainerSetSlot sendSlot = McpeContainerSetSlot.CreateObject();
-				//sendSlot.windowId = 0;
-				//sendSlot.slot = (short) slot;
-				//sendSlot.item = Slots[slot];
-				//Player.SendPackage(sendSlot);
+				McpeInventorySlotPacket sendSlot = McpeInventorySlotPacket.CreateObject();
+				sendSlot.inventoryId = 0;
+				sendSlot.slot = slot;
+				sendSlot.item = GetItemInHand();
+				Player.SendPackage(sendSlot);
 			}
 		}
 

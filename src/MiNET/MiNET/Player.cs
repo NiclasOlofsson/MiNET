@@ -619,8 +619,6 @@ namespace MiNET
 
 				// Send McpeGameRulesChanged
 
-				//McpeContainerSetContent Window ID: 0x7b lenght 0
-
 				// Vanilla 2nd player list here
 
 				Level.AddPlayer(this, false);
@@ -1316,26 +1314,20 @@ namespace MiNET
 
 		public virtual void SendPlayerInventory()
 		{
-			//McpeContainerSetContent strangeContent = McpeContainerSetContent.CreateObject();
-			//strangeContent.windowId = (byte) 0x7b;
-			//strangeContent.entityIdSelf = EntityId;
-			//strangeContent.slotData = new ItemStacks();
-			//strangeContent.hotbarData = new MetadataInts();
-			//SendPackage(strangeContent);
+			McpeInventoryContentPacket strangeContent = McpeInventoryContentPacket.CreateObject();
+			strangeContent.inventoryId = (byte) 0x7b;
+			strangeContent.input = new ItemStacks();
+			SendPackage(strangeContent);
 
-			//McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			//inventoryContent.windowId = (byte) 0x00;
-			//inventoryContent.entityIdSelf = EntityId;
-			//inventoryContent.slotData = Inventory.GetSlots();
-			//inventoryContent.hotbarData = Inventory.GetHotbar();
-			//SendPackage(inventoryContent);
+			McpeInventoryContentPacket inventoryContent = McpeInventoryContentPacket.CreateObject();
+			inventoryContent.inventoryId = (byte) 0x00;
+			inventoryContent.input = Inventory.GetSlots();
+			SendPackage(inventoryContent);
 
-			//McpeContainerSetContent armorContent = McpeContainerSetContent.CreateObject();
-			//armorContent.windowId = 0x78;
-			//armorContent.entityIdSelf = EntityId;
-			//armorContent.slotData = Inventory.GetArmor();
-			//armorContent.hotbarData = new MetadataInts();
-			//SendPackage(armorContent);
+			McpeInventoryContentPacket armorContent = McpeInventoryContentPacket.CreateObject();
+			armorContent.inventoryId = 0x78;
+			armorContent.input = Inventory.GetArmor();
+			SendPackage(armorContent);
 
 			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
 			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
@@ -1355,11 +1347,10 @@ namespace MiNET
 		{
 			if (!UseCreativeInventory) return;
 
-			//McpeContainerSetContent creativeContent = McpeContainerSetContent.CreateObject();
-			//creativeContent.windowId = (byte) 0x79;
-			//creativeContent.slotData = InventoryUtils.GetCreativeMetadataSlots();
-			//creativeContent.hotbarData = Inventory.GetHotbar();
-			//SendPackage(creativeContent);
+			McpeInventoryContentPacket creativeContent = McpeInventoryContentPacket.CreateObject();
+			creativeContent.inventoryId = (byte) 0x79;
+			creativeContent.input = InventoryUtils.GetCreativeMetadataSlots();
+			SendPackage(creativeContent);
 		}
 
 		private void SendChunkRadiusUpdate()
@@ -1731,10 +1722,10 @@ namespace MiNET
 				containerOpen.unknownRuntimeEntityId = 1;
 				SendPackage(containerOpen);
 
-				//var containerSetContent = McpeContainerSetContent.CreateObject();
-				//containerSetContent.windowId = inventory.WindowsId;
-				//containerSetContent.slotData = inventory.Slots;
-				//SendPackage(containerSetContent);
+				McpeInventoryContentPacket containerSetContent = McpeInventoryContentPacket.CreateObject();
+				containerSetContent.inventoryId = inventory.WindowsId;
+				containerSetContent.input = inventory.Slots;
+				SendPackage(containerSetContent);
 			}
 		}
 
@@ -1747,11 +1738,11 @@ namespace MiNET
 			}
 			else
 			{
-				//var containerSetSlot = McpeContainerSetSlot.CreateObject();
-				//containerSetSlot.windowId = inventory.WindowsId;
-				//containerSetSlot.slot = slot;
-				//containerSetSlot.item = itemStack;
-				//SendPackage(containerSetSlot);
+				McpeInventorySlotPacket sendSlot = McpeInventorySlotPacket.CreateObject();
+				sendSlot.inventoryId = 0;
+				sendSlot.slot = slot;
+				sendSlot.item = itemStack;
+				SendPackage(sendSlot);
 			}
 
 			//if(inventory.BlockEntity != null)

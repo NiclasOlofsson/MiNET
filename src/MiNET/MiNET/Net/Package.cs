@@ -714,8 +714,8 @@ namespace MiNET.Net
 
 		public void Write(ItemStacks metadata)
 		{
-			//McpeContainerSetContent msg = this as McpeContainerSetContent;
-			//bool signItems = msg == null || msg.windowId != 0x79;
+			McpeInventoryContentPacket msg = this as McpeInventoryContentPacket;
+			bool signItems = msg == null || msg.inventoryId != 0x79;
 
 			if (metadata == null)
 			{
@@ -727,7 +727,7 @@ namespace MiNET.Net
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
-				Write(metadata[i], false);
+				Write(metadata[i], signItems);
 			}
 		}
 

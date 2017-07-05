@@ -1199,7 +1199,7 @@ namespace MiNET
 		}
 
 
-		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null, Action callback = null)
 		{
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
@@ -1224,7 +1224,7 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
-			Action transferFunc = () => Transfer(useLoadingScreen, toLevel, spawnPoint, oldNoAi);
+			Action transferFunc = () => Transfer(useLoadingScreen, toLevel, spawnPoint, oldNoAi, callback);
 
 			if (useLoadingScreen)
 			{
@@ -1237,7 +1237,7 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void Transfer(bool useLoadingScreen, Level toLevel, PlayerLocation spawnPoint, bool oldNoAi)
+		protected virtual void Transfer(bool useLoadingScreen, Level toLevel, PlayerLocation spawnPoint, bool oldNoAi, Action callback = null)
 		{
 			if (useLoadingScreen)
 			{
@@ -1281,6 +1281,8 @@ namespace MiNET
 					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
 
 					SendSetTime();
+
+					callback?.Invoke();
 				});
 			});
 		}

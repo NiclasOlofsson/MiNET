@@ -745,10 +745,6 @@ namespace MiNET.Net
 			return metadata;
 		}
 
-		public void Write(TransactionRecords records)
-		{
-		}
-
 		const int InvSourceTypeContainer = 0;
 		const int InvSourceTypeGlobal = 1;
 		const int InvSourceTypeWorldInteraction = 2;
@@ -761,12 +757,76 @@ namespace MiNET.Net
 		const int TransactionTypeItemUseOnEntity = 3;
 		const int TransactionTypeItemRelease = 4;
 
+		public void Write(TransactionRecords trans)
+		{
+			WriteVarInt(trans.TransactionType);
+			WriteUnsignedVarInt((uint) trans.Count);
+			foreach (var record in trans)
+			{
+				if (record is ContainerTransactionRecord)
+				{
+					var r = record as ContainerTransactionRecord;
+					WriteSignedVarInt(r.InventoryId);
+				}
+				else if (record is GlobalTransactionRecord)
+				{
+				}
+				else if (record is WorldInteractionTransactionRecord)
+				{
+					var r = record as WorldInteractionTransactionRecord;
+					WriteVarInt(r.Flags);
+				}
+				else if (record is CreativeTransactionRecord)
+				{
+				}
+				else if (record is CraftTransactionRecord)
+				{
+					var r = record as CraftTransactionRecord;
+					WriteVarInt(r.Action);
+				}
+
+				WriteVarInt(record.Slot);
+				Write(record.OldItem);
+				Write(record.NewItem);
+			}
+
+			switch (trans.TransactionType)
+			{
+				case TransactionTypeNormal:
+				case TransactionTypeInventoryMismatch:
+					break;
+				case TransactionTypeItemUse:
+					WriteVarInt(trans.ActionType);
+					Write(trans.Position);
+					WriteSignedVarInt(trans.Face);
+					WriteSignedVarInt(trans.Slot);
+					Write(trans.Item);
+					Write(trans.FromPosition);
+					Write(trans.ClickPosition);
+					break;
+				case TransactionTypeItemUseOnEntity:
+					WriteVarLong(trans.EntityId);
+					WriteVarInt(trans.ActionType);
+					WriteSignedVarInt(trans.Slot);
+					Write(trans.Item);
+					Write(trans.FromPosition);
+					break;
+				case TransactionTypeItemRelease:
+					WriteVarInt(trans.ActionType);
+					WriteSignedVarInt(trans.Slot);
+					Write(trans.Item);
+					Write(trans.FromPosition);
+					break;
+				default:
+					break;
+			}
+		}
 
 		public TransactionRecords ReadTransactionRecords()
 		{
 			var trans = new TransactionRecords();
 
-			int transactionType = ReadVarInt();
+			trans.TransactionType = ReadVarInt();
 
 			var count = ReadUnsignedVarInt();
 			for (int i = 0; i < count; i++)
@@ -813,7 +873,7 @@ namespace MiNET.Net
 				trans.Add(record);
 			}
 
-			switch (transactionType)
+			switch (trans.TransactionType)
 			{
 				case TransactionTypeNormal:
 				case TransactionTypeInventoryMismatch:

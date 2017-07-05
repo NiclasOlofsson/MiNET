@@ -556,8 +556,6 @@ namespace MiNET
 			// Do nothing
 		}
 
-		private bool _completedStartSequence = false;
-
 		public void Start(object o)
 		{
 			Stopwatch watch = new Stopwatch();
@@ -651,14 +649,6 @@ namespace MiNET
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
-
-			LastUpdatedTime = DateTime.UtcNow;
-
-			_completedStartSequence = true;
-
-			//ForcedSendChunk(KnownPosition);
-			//SendChunksForKnownPosition();
-			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
@@ -2115,7 +2105,7 @@ namespace MiNET
 			mcpeStartGame.entityIdSelf = EntityId;
 			mcpeStartGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeStartGame.playerGamemode = (int) GameMode;
-			mcpeStartGame.spawn = KnownPosition.ToVector3();
+			mcpeStartGame.spawn = SpawnPosition;
 			mcpeStartGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			mcpeStartGame.seed = 12345;
 			mcpeStartGame.dimension = 0;

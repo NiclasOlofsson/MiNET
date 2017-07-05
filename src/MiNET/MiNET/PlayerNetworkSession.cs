@@ -722,8 +722,6 @@ namespace MiNET
 
 			if (MiNetServer.FastThreadPool == null) return;
 
-			if (WaitingForAcksQueue.Count == 0) return;
-
 			if (!Monitor.TryEnter(_updateSync)) return;
 			_isRunning = true;
 			_forceQuitTimer.Restart();
@@ -766,6 +764,8 @@ namespace MiNET
 					DetectLostConnection();
 					WaitForAck = true;
 				}
+
+				if (WaitingForAcksQueue.Count == 0) return;
 
 				if (WaitForAck) return;
 

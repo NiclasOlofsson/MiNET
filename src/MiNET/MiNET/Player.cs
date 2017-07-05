@@ -1199,7 +1199,7 @@ namespace MiNET
 		}
 
 
-		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null, Action postSpawnAction = null)
 		{
 			bool oldNoAi = NoAi;
 			SetNoAi(true);
@@ -1224,7 +1224,56 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
-			Action transferFunc = () => Transfer(useLoadingScreen, toLevel, spawnPoint, oldNoAi);
+			Action transferFunc = delegate
+			{
+				if (useLoadingScreen)
+				{
+					SendChangeDimension(Dimension.Overworld);
+				}
+
+				Level.RemovePlayer(this, true);
+
+				Level = toLevel; // Change level
+				SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+
+				HungerManager.ResetHunger();
+
+				HealthManager.ResetHealth();
+
+				BroadcastSetEntityData();
+
+				SendUpdateAttributes();
+
+				SendSetSpawnPosition();
+
+				SendAdventureSettings();
+
+				SendPlayerInventory();
+
+				CleanCache();
+
+				ForcedSendChunk(SpawnPosition);
+
+				// send teleport to spawn
+				SetPosition(SpawnPosition);
+
+				SetNoAi(oldNoAi);
+
+				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				{
+					Level.AddPlayer(this, true);
+
+					ForcedSendChunks(() =>
+					{
+						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+						SendSetTime();
+
+						postSpawnAction?.Invoke();
+					});
+				});
+			};
+
 
 			if (useLoadingScreen)
 			{
@@ -1235,54 +1284,6 @@ namespace MiNET
 			{
 				transferFunc();
 			}
-		}
-
-		protected virtual void Transfer(bool useLoadingScreen, Level toLevel, PlayerLocation spawnPoint, bool oldNoAi)
-		{
-			if (useLoadingScreen)
-			{
-				SendChangeDimension(Dimension.Overworld);
-			}
-
-			Level.RemovePlayer(this, true);
-
-			Level = toLevel; // Change level
-			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-
-			HungerManager.ResetHunger();
-
-			HealthManager.ResetHealth();
-
-			BroadcastSetEntityData();
-
-			SendUpdateAttributes();
-
-			SendSetSpawnPosition();
-
-			SendAdventureSettings();
-
-			SendPlayerInventory();
-
-			CleanCache();
-
-			ForcedSendChunk(SpawnPosition);
-
-			// send teleport to spawn
-			SetPosition(SpawnPosition);
-
-			SetNoAi(oldNoAi);
-
-			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
-			{
-				Level.AddPlayer(this, true);
-
-				ForcedSendChunks(() =>
-				{
-					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-					SendSetTime();
-				});
-			});
 		}
 
 		protected virtual void SendChangeDimension(Dimension dimension, bool flag = false, Vector3 position = new Vector3())

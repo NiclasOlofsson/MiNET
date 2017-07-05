@@ -757,11 +757,11 @@ namespace MiNET.Net
 		const int TransactionTypeItemUseOnEntity = 3;
 		const int TransactionTypeItemRelease = 4;
 
-		public void Write(TransactionRecords trans)
+		public void Write(Transaction trans)
 		{
 			WriteVarInt(trans.TransactionType);
-			WriteVarInt(trans.Count);
-			foreach (var record in trans)
+			WriteVarInt(trans.Transactions.Count);
+			foreach (var record in trans.Transactions)
 			{
 				if (record is ContainerTransactionRecord)
 				{
@@ -822,9 +822,9 @@ namespace MiNET.Net
 			}
 		}
 
-		public TransactionRecords ReadTransactionRecords()
+		public Transaction ReadTransaction()
 		{
-			var trans = new TransactionRecords();
+			var trans = new Transaction();
 
 			trans.TransactionType = ReadVarInt();
 
@@ -870,7 +870,7 @@ namespace MiNET.Net
 				record.Slot = ReadVarInt();
 				record.OldItem = ReadItem();
 				record.NewItem = ReadItem();
-				trans.Add(record);
+				trans.Transactions.Add(record);
 			}
 
 			switch (trans.TransactionType)

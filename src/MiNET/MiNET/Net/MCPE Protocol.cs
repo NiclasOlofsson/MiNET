@@ -2703,7 +2703,7 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryTransactionPacket : Package<McpeInventoryTransactionPacket>
 	{
-		public TransactionRecords transactions; // = null;
+		public Transaction transaction; // = null;
 		public McpeInventoryTransactionPacket()
 		{
 			Id = 0x1e;
@@ -2715,7 +2715,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(transactions);
+			Write(transaction);
 
 			AfterEncode();
 		}
@@ -2729,7 +2729,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			transactions = ReadTransactionRecords();
+			transaction = ReadTransaction();
 
 			AfterDecode();
 		}
@@ -3525,7 +3525,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteSignedVarInt(inventoryId);
+			WriteVarInt(inventoryId);
 			Write(input);
 
 			AfterEncode();
@@ -3540,7 +3540,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			inventoryId = ReadSignedVarInt();
+			inventoryId = ReadVarInt();
 			input = ReadItemStacks();
 
 			AfterDecode();

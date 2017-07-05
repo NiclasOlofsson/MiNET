@@ -925,7 +925,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Transactions | TransactionRecords |  |
+|Transaction | Transaction |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Mob Equipment (0x1f)
 
@@ -1220,7 +1220,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Inventory Id | SignedVarInt |  |
+|Inventory Id | VarInt |  |
 |Input | ItemStacks |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Inventory Slot Packet (0x32)

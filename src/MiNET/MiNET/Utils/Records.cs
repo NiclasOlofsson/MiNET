@@ -29,9 +29,11 @@ using MiNET.Items;
 
 namespace MiNET.Utils
 {
-	public class TransactionRecords : List<TransactionRecord>
+	public class Transaction
 	{
 		public int TransactionType { get; set; }
+
+		public List<TransactionRecord> Transactions { get; set; } = new List<TransactionRecord>();
 
 		public int ActionType { get; set; }
 		public BlockCoordinates Position { get; set; }
@@ -42,11 +44,7 @@ namespace MiNET.Utils
 		public Vector3 ClickPosition { get; set; }
 		public long EntityId { get; set; }
 
-		public TransactionRecords()
-		{
-		}
-
-		public TransactionRecords(IEnumerable<TransactionRecord> records) : base(records)
+		public Transaction()
 		{
 		}
 	}

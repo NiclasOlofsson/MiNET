@@ -479,6 +479,8 @@ namespace MiNET
 
 
 		public bool IsWorldImmutable { get; set; }
+		public bool IsWorldBuilder { get; set; }
+		public bool IsMuted { get; set; }
 		public bool IsNoPvp { get; set; }
 		public bool IsNoPvm { get; set; }
 		public bool IsNoMvp { get; set; }
@@ -509,10 +511,10 @@ namespace MiNET
 
 			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x80; // No clip
 
-			flags |= 0x100; // Worldbuilder
+			if (IsWorldBuilder) flags |= 0x100; // Worldbuilder
 
 			if (IsFlying) flags |= 0x200;
-			//flags |= 0x400; // Mute
+			if (IsMuted) flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;
 			mcpeAdventureSettings.userPermission = (uint) PermissionLevel;
@@ -2917,7 +2919,7 @@ namespace MiNET
 	public enum UserPermission
 	{
 		Any = 0,
-		Op = 1,
+		Gamemasters = 1,
 		Host = 2,
 		Automation = 3,
 		Admin = 4,

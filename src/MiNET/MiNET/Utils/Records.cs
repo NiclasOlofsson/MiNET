@@ -34,7 +34,7 @@ namespace MiNET.Utils
 		public int TransactionType { get; set; }
 
 		public int ActionType { get; set; }
-		public Vector3 Position { get; set; }
+		public BlockCoordinates Position { get; set; }
 		public int Face { get; set; }
 		public int Slot { get; set; }
 		public Item Item { get; set; }

@@ -760,7 +760,7 @@ namespace MiNET.Net
 		public void Write(TransactionRecords trans)
 		{
 			WriteVarInt(trans.TransactionType);
-			WriteUnsignedVarInt((uint) trans.Count);
+			WriteVarInt(trans.Count);
 			foreach (var record in trans)
 			{
 				if (record is ContainerTransactionRecord)
@@ -828,7 +828,7 @@ namespace MiNET.Net
 
 			trans.TransactionType = ReadVarInt();
 
-			var count = ReadUnsignedVarInt();
+			var count = ReadVarInt();
 			for (int i = 0; i < count; i++)
 			{
 				TransactionRecord record = null;
@@ -864,7 +864,7 @@ namespace MiNET.Net
 						break;
 					default:
 						Log.Error($"Unknown inventory source type={sourceType}");
-						return null;
+						continue;
 				}
 
 				record.Slot = ReadVarInt();
@@ -880,7 +880,7 @@ namespace MiNET.Net
 					break;
 				case TransactionTypeItemUse:
 					trans.ActionType = ReadVarInt();
-					trans.Position = ReadVector3();
+					trans.Position = ReadBlockCoordinates();
 					trans.Face = ReadSignedVarInt();
 					trans.Slot = ReadSignedVarInt();
 					trans.Item = ReadItem();

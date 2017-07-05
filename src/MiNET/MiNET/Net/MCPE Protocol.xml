@@ -526,7 +526,7 @@
 	</pdu>
 	
 	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_INVENTORY_CONTENT_PACKET">
-		<field name="Inventory Id" type="SignedVarInt" />
+		<field name="Inventory Id" type="SignedInt" />
 		<field name="Input" type="ItemStacks" />
 	</pdu>
 	

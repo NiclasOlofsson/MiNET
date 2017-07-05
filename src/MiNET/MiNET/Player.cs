@@ -631,15 +631,7 @@ namespace MiNET
 
 				SendCreativeInventory();
 
-				//{
-				//	McpeCraftingData craftingData = McpeCraftingData.CreateObject();
-				//	craftingData.recipes = RecipeManager.Recipes;
-				//	SendPackage(craftingData);
-				//}
-
-				// More Send Attributes here (have to check)
-
-				//BroadcastSetEntityData();
+				SendCraftingRecipes();
 			}
 			catch (Exception e)
 			{
@@ -1347,6 +1339,13 @@ namespace MiNET
 			mobEquipment.item = Inventory.GetItemInHand();
 			mobEquipment.slot = 0;
 			SendPackage(mobEquipment);
+		}
+
+		public virtual void SendCraftingRecipes()
+		{
+			McpeCraftingData craftingData = McpeCraftingData.CreateObject();
+			craftingData.recipes = RecipeManager.Recipes;
+			SendPackage(craftingData);
 		}
 
 		public virtual void SendCreativeInventory()

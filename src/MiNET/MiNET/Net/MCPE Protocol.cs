@@ -27,6 +27,7 @@ namespace MiNET.Net
 		void HandleMcpeMovePlayer(McpeMovePlayer message);
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
+		void HandleMcpeInventoryTransactionPacket(McpeInventoryTransactionPacket message);
 		void HandleMcpeMobEquipment(McpeMobEquipment message);
 		void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message);
 		void HandleMcpeInteract(McpeInteract message);
@@ -2702,9 +2703,7 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryTransactionPacket : Package<McpeInventoryTransactionPacket>
 	{
-		public int transactionType; // = null;
 		public TransactionRecords transactions; // = null;
-		public ComplexTransactionRecords complexTransactions; // = null;
 		public McpeInventoryTransactionPacket()
 		{
 			Id = 0x1e;
@@ -2716,9 +2715,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(transactionType);
 			Write(transactions);
-			Write(complexTransactions);
 
 			AfterEncode();
 		}
@@ -2732,9 +2729,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			transactionType = ReadVarInt();
 			transactions = ReadTransactionRecords();
-			complexTransactions = ReadComplexTransactionRecords();
 
 			AfterDecode();
 		}

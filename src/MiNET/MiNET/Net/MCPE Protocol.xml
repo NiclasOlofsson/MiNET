@@ -389,7 +389,7 @@
 		<field name="Attributes" type="PlayerAttributes" />
 	</pdu>
 	
-	<pdu id="0x1e" online="false" client="false" server="true" name="MCPE_INVENTORY_TRANSACTION_PACKET">
+	<pdu id="0x1e" online="false" client="true" server="true" name="MCPE_INVENTORY_TRANSACTION_PACKET">
 		<!--
 		TRANSACTION_TYPE_NORMAL = 0;
 		TRANSACTION_TYPE_INVENTORY_MISMATCH = 1;
@@ -415,9 +415,7 @@
 		ITEM_USE_ON_ENTITY_ACTION_ITEM_INTERACT = 2;
 		-->
 		
-		<field name="Transaction type" type="VarInt" />
 		<field name="Transactions" type="TransactionRecords" />
-		<field name="Complex transactions" type="ComplexTransactionRecords" />
 	</pdu>
 
 	<pdu id="0x1f" online="false" client="true" server="true" name="MCPE_MOB_EQUIPMENT">

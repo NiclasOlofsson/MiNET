@@ -503,7 +503,7 @@ namespace MiNET.Net
 
 		public void Write(BlockUpdateRecords records)
 		{
-			WriteUnsignedVarInt((uint)records.Count);
+			WriteUnsignedVarInt((uint) records.Count);
 			foreach (var coord in records)
 			{
 				//Write(coord);
@@ -749,20 +749,103 @@ namespace MiNET.Net
 		{
 		}
 
+		const int InvSourceTypeContainer = 0;
+		const int InvSourceTypeGlobal = 1;
+		const int InvSourceTypeWorldInteraction = 2;
+		const int InvSourceTypeCreative = 3;
+		const int InvSourceTypeCraft = 99999;
+
+		const int TransactionTypeNormal = 0;
+		const int TransactionTypeInventoryMismatch = 1;
+		const int TransactionTypeItemUse = 2;
+		const int TransactionTypeItemUseOnEntity = 3;
+		const int TransactionTypeItemRelease = 4;
+
+
 		public TransactionRecords ReadTransactionRecords()
 		{
-			return new TransactionRecords();
-		}
+			var trans = new TransactionRecords();
 
-		public void Write(ComplexTransactionRecords records)
-		{
-		}
+			int transactionType = ReadVarInt();
 
-		public ComplexTransactionRecords ReadComplexTransactionRecords()
-		{
-			return new ComplexTransactionRecords();
-		}
+			var count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				TransactionRecord record = null;
+				int sourceType = ReadVarInt();
+				switch (sourceType)
+				{
+					case InvSourceTypeContainer:
+						record = new ContainerTransactionRecord()
+						{
+							InventoryId = ReadSignedVarInt()
+						};
+						break;
+					case InvSourceTypeGlobal:
+						record = new GlobalTransactionRecord();
+						break;
+					case InvSourceTypeWorldInteraction:
+						record = new WorldInteractionTransactionRecord()
+						{
+							Flags = ReadVarInt()
+						};
+						break;
+					case InvSourceTypeCreative:
+						record = new CreativeTransactionRecord()
+						{
+							InventoryId = 0x79
+						};
+						break;
+					case InvSourceTypeCraft:
+						record = new CraftTransactionRecord()
+						{
+							Action = ReadVarInt()
+						};
+						break;
+					default:
+						Log.Error($"Unknown inventory source type={sourceType}");
+						return null;
+				}
 
+				record.Slot = ReadVarInt();
+				record.OldItem = ReadItem();
+				record.NewItem = ReadItem();
+				trans.Add(record);
+			}
+
+			switch (transactionType)
+			{
+				case TransactionTypeNormal:
+				case TransactionTypeInventoryMismatch:
+					break;
+				case TransactionTypeItemUse:
+					trans.ActionType = ReadVarInt();
+					trans.Position = ReadVector3();
+					trans.Face = ReadSignedVarInt();
+					trans.Slot = ReadSignedVarInt();
+					trans.Item = ReadItem();
+					trans.FromPosition = ReadVector3();
+					trans.ClickPosition = ReadVector3();
+					break;
+				case TransactionTypeItemUseOnEntity:
+					trans.EntityId = ReadVarLong();
+					trans.ActionType = ReadVarInt();
+					trans.Slot = ReadSignedVarInt();
+					trans.Item = ReadItem();
+					trans.FromPosition = ReadVector3();
+					break;
+				case TransactionTypeItemRelease:
+					trans.ActionType = ReadVarInt();
+					trans.Slot = ReadSignedVarInt();
+					trans.Item = ReadItem();
+					trans.FromPosition = ReadVector3();
+					break;
+				default:
+					break;
+			}
+
+			return trans;
+		}
 
 		public void Write(Item stack, bool signItem = true)
 		{

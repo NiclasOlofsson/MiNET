@@ -1761,6 +1761,10 @@ namespace MiNET
 			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType}");
 		}
 
+		public void HandleMcpeInventoryTransactionPacket(McpeInventoryTransactionPacket message)
+		{
+		}
+
 		/// <summary>
 		///     Handles the container set slot.
 		/// </summary>

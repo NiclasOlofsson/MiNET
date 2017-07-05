@@ -916,7 +916,7 @@ MODE_ROTATION = 2;
 ### Package: Mcpe Inventory Transaction Packet (0x1e)
 
 **Sent from server:** true
-**Sent from client:** false
+**Sent from client:** true
 **Packet size:** 
 
 
@@ -925,9 +925,7 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Transaction type | VarInt |  |
 |Transactions | TransactionRecords |  |
-|Complex transactions | ComplexTransactionRecords |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Mob Equipment (0x1f)
 

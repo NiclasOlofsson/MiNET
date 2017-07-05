@@ -179,8 +179,6 @@ namespace MiNET.Client
 			//	client.SendPackage(message);
 			//}
 
-			Action<Task, Item, BlockCoordinates> doUseItem = BotHelpers.DoUseItem(client);
-			Action<Task, int, Item, int> doSetSlot = BotHelpers.DoContainerSetSlot(client);
 			Action<Task, PlayerLocation> doMoveTo = BotHelpers.DoMoveTo(client);
 			Action<Task, string> doSendCommand = BotHelpers.DoSendCommand(client);
 
@@ -195,10 +193,7 @@ namespace MiNET.Client
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
 				.ContinueWith(t => doSendCommand(t, "/test"))
-				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(22, 4, 42)))
 				.ContinueWith(t => Task.Delay(5000).Wait())
-				.ContinueWith(t => doSetSlot(t, 2, new ItemIronSword() {Count = 1}, 0))
-				.ContinueWith(t => doSetSlot(t, 2, ItemFactory.GetItem(351, 4, 64), 1))
 				//.ContinueWith(t =>
 				//{
 				//	Random rnd = new Random();
@@ -931,12 +926,6 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof (McpeUpdateBlock) == message.GetType())
-			{
-				OnMcpeUpdateBlock((McpeUpdateBlock) message);
-				return;
-			}
-
 			else if (typeof (McpeMovePlayer) == message.GetType())
 			{
 				OnMcpeMovePlayer((McpeMovePlayer) message);
@@ -970,18 +959,6 @@ namespace MiNET.Client
 			else if (typeof (McpeContainerOpen) == message.GetType())
 			{
 				OnMcpeContainerOpen((McpeContainerOpen) message);
-				return;
-			}
-
-			else if (typeof (McpeContainerSetContent) == message.GetType())
-			{
-				OnMcpeContainerSetContent(message);
-				return;
-			}
-
-			else if (typeof (McpeContainerSetSlot) == message.GetType())
-			{
-				OnMcpeContainerSetSlot(message);
 				return;
 			}
 
@@ -1063,18 +1040,9 @@ namespace MiNET.Client
 				OnMcpeInteract((McpeInteract) message);
 			}
 
-			else if (typeof (McpeLevelSoundEvent) == message.GetType())
-			{
-				OnMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
-			}
-
 			else if (typeof (McpeAvailableCommands) == message.GetType())
 			{
 				OnMcpeAvailableCommands((McpeAvailableCommands) message);
-			}
-			else if (typeof (McpeCommandStep) == message.GetType())
-			{
-				OnMcpeCommandStep((McpeCommandStep) message);
 			}
 			else if (typeof (McpeChangeDimension) == message.GetType())
 			{
@@ -1128,11 +1096,6 @@ namespace MiNET.Client
 		private void OnMcpeRespawn(McpeRespawn message)
 		{
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
-		}
-
-		private void OnMcpeLevelSoundEvent(McpeLevelSoundEvent message)
-		{
-			Log.Debug($"SoundId: {message.soundId}, Position: {message.position}, ExtraData: {message.extraData}, Pitch: {message.pitch}, unknown1: {message.unknown1}, disableRelativeVolume: {message.disableRelativeVolume}");
 		}
 
 		private void OnMcpeGameRulesChanged(McpeGameRulesChanged message)
@@ -1302,18 +1265,6 @@ namespace MiNET.Client
 			}
 		}
 
-		private void OnMcpeCommandStep(McpeCommandStep message)
-		{
-			var jsonSerializerSettings = new JsonSerializerSettings
-			{
-				PreserveReferencesHandling = PreserveReferencesHandling.None,
-				Formatting = Formatting.Indented,
-			};
-
-			var commanJson = JsonConvert.DeserializeObject(message.commandOutputJson);
-			Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commanJson, jsonSerializerSettings)}");
-		}
-
 		private void OnMcpeSetTime(McpeSetTime message)
 		{
 		}
@@ -1344,7 +1295,6 @@ namespace MiNET.Client
 			McpeLogin loginPacket = new McpeLogin
 			{
 				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 113,
-				edition = (byte) (Config.GetProperty("EnableEdu", false) ? 1 : 0),
 				payload = data
 			};
 
@@ -1536,12 +1486,12 @@ Adventure settings
 					{
 						slotData.Add(recipe.Input[i]);
 
-						McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
-						setSlot.item = recipe.Input[i];
-						setSlot.windowId = 0;
-						setSlot.slot = (short) (i);
-						SendPackage(setSlot);
-						Log.Error("Set set slot");
+						//McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
+						//setSlot.item = recipe.Input[i];
+						//setSlot.windowId = 0;
+						//setSlot.slot = (short) (i);
+						//SendPackage(setSlot);
+						//Log.Error("Set set slot");
 					}
 					crafting.input = slotData;
 
@@ -1588,11 +1538,11 @@ Adventure settings
 			if (recipe != null)
 			{
 				{
-					McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
-					setSlot.item = new ItemBlock(new Block(17), 0) {Count = 1};
-					setSlot.windowId = 0;
-					setSlot.slot = 0;
-					SendPackage(setSlot);
+					//McpeContainerSetSlot setSlot = McpeContainerSetSlot.CreateObject();
+					//setSlot.item = new ItemBlock(new Block(17), 0) {Count = 1};
+					//setSlot.windowId = 0;
+					//setSlot.slot = 0;
+					//SendPackage(setSlot);
 				}
 				{
 					McpeMobEquipment eq = McpeMobEquipment.CreateObject();
@@ -1730,52 +1680,45 @@ Adventure settings
 			if (Log.IsDebugEnabled) Log.Debug($"Set container data window 0x{message.windowId:X2} with property ID: {message.property} value: {message.value}");
 		}
 
-		private void OnMcpeContainerSetSlot(Package msg)
-		{
-			McpeContainerSetSlot message = (McpeContainerSetSlot) msg;
-			Item itemStack = message.item;
-			if (Log.IsDebugEnabled) Log.Debug($"Set inventory slot on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.hotbarslot} Item ID: {itemStack.Id} Item Count: {itemStack.Count} Meta: {itemStack.Metadata}: DatagramSequenceNumber: {message.DatagramSequenceNumber}, ReliableMessageNumber: {message.ReliableMessageNumber}, OrderingIndex: {message.OrderingIndex}");
-		}
+		//private void OnMcpeContainerSetContent(Package message)
+		//{
+		//	McpeContainerSetContent msg = (McpeContainerSetContent) message;
+		//	Log.Debug($"Set container content on Window ID: 0x{msg.windowId:x2}, {msg.hotbarData.Count}, Count: {msg.slotData.Count}");
 
-		private void OnMcpeContainerSetContent(Package message)
-		{
-			McpeContainerSetContent msg = (McpeContainerSetContent) message;
-			Log.Debug($"Set container content on Window ID: 0x{msg.windowId:x2}, {msg.hotbarData.Count}, Count: {msg.slotData.Count}");
+		//	if (IsEmulator) return;
 
-			if (IsEmulator) return;
+		//	ItemStacks slots = msg.slotData;
 
-			ItemStacks slots = msg.slotData;
-
-			if (msg.windowId == 0x79)
-			{
-				string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
-				WriteInventoryToFile(fileName, slots);
-			}
-			else if (msg.windowId == 0x00)
-			{
-				string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
-				WriteInventoryToFile(fileName, slots);
-				var hotbar = msg.hotbarData.GetValues();
-				int i = 0;
-				foreach (MetadataEntry entry in hotbar)
-				{
-					MetadataInt val = (MetadataInt) entry;
-					Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
-					i++;
-				}
-			}
-			else if (msg.windowId == 0x7b)
-			{
-				var hotbar = msg.hotbarData.GetValues();
-				int i = 0;
-				foreach (MetadataEntry entry in hotbar)
-				{
-					MetadataInt val = (MetadataInt) entry;
-					Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
-					i++;
-				}
-			}
-		}
+		//	if (msg.windowId == 0x79)
+		//	{
+		//		string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
+		//		WriteInventoryToFile(fileName, slots);
+		//	}
+		//	else if (msg.windowId == 0x00)
+		//	{
+		//		string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
+		//		WriteInventoryToFile(fileName, slots);
+		//		var hotbar = msg.hotbarData.GetValues();
+		//		int i = 0;
+		//		foreach (MetadataEntry entry in hotbar)
+		//		{
+		//			MetadataInt val = (MetadataInt) entry;
+		//			Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
+		//			i++;
+		//		}
+		//	}
+		//	else if (msg.windowId == 0x7b)
+		//	{
+		//		var hotbar = msg.hotbarData.GetValues();
+		//		int i = 0;
+		//		foreach (MetadataEntry entry in hotbar)
+		//		{
+		//			MetadataInt val = (MetadataInt) entry;
+		//			Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
+		//			i++;
+		//		}
+		//	}
+		//}
 
 		private void WriteInventoryToFile(string fileName, ItemStacks slots)
 		{
@@ -1840,11 +1783,6 @@ Adventure settings
 				int metadata = data >> 12;
 				Log.Debug($"BlockID={blockId}, Metadata={metadata}");
 			}
-		}
-
-		private void OnMcpeUpdateBlock(McpeUpdateBlock message)
-		{
-			Log.Debug($"Block Coordinates={message.coordinates}, Block ID={message.blockId}, Metadata={message.blockMetaAndPriority & 0xf}");
 		}
 
 		private void OnMcpeMovePlayer(McpeMovePlayer message)

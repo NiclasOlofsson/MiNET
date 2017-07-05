@@ -500,6 +500,30 @@ namespace MiNET.Net
 			return records;
 		}
 
+
+		public void Write(BlockUpdateRecords records)
+		{
+			WriteUnsignedVarInt((uint)records.Count);
+			foreach (var coord in records)
+			{
+				//Write(coord);
+			}
+		}
+
+		public BlockUpdateRecords ReadBlockUpdateRecords()
+		{
+			var records = new BlockUpdateRecords();
+			uint count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				var coord = ReadBlockCoordinates();
+				//records.Add(coord);
+			}
+
+			return records;
+		}
+
+
 		public void Write(Records records)
 		{
 			WriteUnsignedVarInt((uint) records.Count);
@@ -690,8 +714,8 @@ namespace MiNET.Net
 
 		public void Write(ItemStacks metadata)
 		{
-			McpeContainerSetContent msg = this as McpeContainerSetContent;
-			bool signItems = msg == null || msg.windowId != 0x79;
+			//McpeContainerSetContent msg = this as McpeContainerSetContent;
+			//bool signItems = msg == null || msg.windowId != 0x79;
 
 			if (metadata == null)
 			{
@@ -703,7 +727,7 @@ namespace MiNET.Net
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
-				Write(metadata[i], signItems);
+				Write(metadata[i], false);
 			}
 		}
 
@@ -720,6 +744,25 @@ namespace MiNET.Net
 
 			return metadata;
 		}
+
+		public void Write(TransactionRecords records)
+		{
+		}
+
+		public TransactionRecords ReadTransactionRecords()
+		{
+			return new TransactionRecords();
+		}
+
+		public void Write(ComplexTransactionRecords records)
+		{
+		}
+
+		public ComplexTransactionRecords ReadComplexTransactionRecords()
+		{
+			return new ComplexTransactionRecords();
+		}
+
 
 		public void Write(Item stack, bool signItem = true)
 		{

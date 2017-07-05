@@ -1132,12 +1132,11 @@ namespace TestPlugin
 							sendList.Add(p);
 						}
 
-						var message = McpeUpdateBlock.CreateObject();
-						message.blockId = block.Id;
-						message.coordinates = block.Coordinates;
-						message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-
-						level.RelayBroadcast(sendList.ToArray(), message);
+						//var message = McpeUpdateBlock.CreateObject();
+						//message.blockId = block.Id;
+						//message.coordinates = block.Coordinates;
+						//message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+						//level.RelayBroadcast(sendList.ToArray(), message);
 					}
 				}
 			}

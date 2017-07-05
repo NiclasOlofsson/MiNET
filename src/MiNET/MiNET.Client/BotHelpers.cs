@@ -71,40 +71,11 @@ namespace MiNET.Client
 			return doMobEquipmentTask;
 		}
 
-		public static Action<Task, int, Item, int> DoContainerSetSlot(MiNetClient client)
-		{
-			Action<Task, int, Item, int> doMobEquipmentTask = (t, windowId, item, selectedSlot) =>
-			{
-				McpeContainerSetSlot message = new McpeContainerSetSlot();
-				message.windowId = (byte) windowId;
-				message.slot = selectedSlot;
-				message.item = item;
-				client.SendPackage(message);
-			};
-			return doMobEquipmentTask;
-		}
-
-		public static Action<Task, Item, BlockCoordinates> DoUseItem(MiNetClient client)
-		{
-			Action<Task, Item, BlockCoordinates> doUseItem = (t, item, coords) =>
-			{
-				McpeUseItem message = new McpeUseItem();
-				message.blockcoordinates = coords /* - new BlockCoordinates(0, 1, 0)*/;
-				message.face = 1;
-				message.blockId = 116;
-				message.facecoordinates = new Vector3(0.1f, 0.1f, 0.1f);
-				message.playerposition = client.CurrentLocation.ToVector3();
-				message.item = item;
-				client.SendPackage(message);
-			};
-			return doUseItem;
-		}
-
 		public static Action<Task, string> DoSendCommand(MiNetClient client)
 		{
 			Action<Task, string> doUseItem = (t, command) =>
 			{
-				McpeCommandStep commandStep = McpeCommandStep.CreateObject();
+				McpeCommandRequestPacket commandStep = McpeCommandRequestPacket.CreateObject();
 				commandStep.commandName = "fill";
 				commandStep.commandOverload = "replace";
 				commandStep.unknown1 = 0;

@@ -31,7 +31,6 @@
 | Mcpe Remove Entity | 0x0e | 14 |   
 | Mcpe Add Item Entity | 0x0f | 15 |   
 | Connection Request Accepted | 0x10 | 16 |   
-| Mcpe Add Hanging Entity | 0x10 | 16 |   
 | Mcpe Take Item Entity | 0x11 | 17 |   
 | Mcpe Move Entity | 0x12 | 18 |   
 | New Incoming Connection | 0x13 | 19 |   
@@ -39,24 +38,24 @@
 | No Free Incoming Connections | 0x14 | 20 |   
 | Mcpe Rider Jump | 0x14 | 20 |   
 | Disconnection Notification | 0x15 | 21 |   
-| Mcpe Remove Block | 0x15 | 21 |   
-| Mcpe Update Block | 0x16 | 22 |   
+| Mcpe Update Block | 0x15 | 21 |   
+| Mcpe Add Painting | 0x16 | 22 |   
 | Connection Banned | 0x17 | 23 |   
-| Mcpe Add Painting | 0x17 | 23 |   
-| Mcpe Explode | 0x18 | 24 |   
-| Mcpe Level Sound Event | 0x19 | 25 |   
-| Mcpe Level Event | 0x1a | 26 |   
+| Mcpe Explode | 0x17 | 23 |   
+| Mcpe Level Sound Event | 0x18 | 24 |   
+| Mcpe Level Event | 0x19 | 25 |   
+| Mcpe Block Event | 0x1a | 26 |   
 | Ip Recently Connected | 0x1A | 26 |   
-| Mcpe Block Event | 0x1b | 27 |   
+| Mcpe Entity Event | 0x1b | 27 |   
 | Unconnected Pong | 0x1c | 28 |   
-| Mcpe Entity Event | 0x1c | 28 |   
-| Mcpe Mob Effect | 0x1d | 29 |   
-| Mcpe Update Attributes | 0x1e | 30 |   
+| Mcpe Mob Effect | 0x1c | 28 |   
+| Mcpe Update Attributes | 0x1d | 29 |   
+| Mcpe Inventory Transaction Packet | 0x1e | 30 |   
 | Mcpe Mob Equipment | 0x1f | 31 |   
 | Mcpe Mob Armor Equipment | 0x20 | 32 |   
 | Mcpe Interact | 0x21 | 33 |   
 | Mcpe Block Pick Request | 0x22 | 34 |   
-| Mcpe Use Item | 0x23 | 35 |   
+| Mcpe Entity Pick Request Packet | 0x23 | 35 |   
 | Mcpe Player Action | 0x24 | 36 |   
 | Mcpe Entity Fall | 0x25 | 37 |   
 | Mcpe Hurt Armor | 0x26 | 38 |   
@@ -67,15 +66,15 @@
 | Mcpe Set Spawn Position | 0x2b | 43 |   
 | Mcpe Animate | 0x2c | 44 |   
 | Mcpe Respawn | 0x2d | 45 |   
-| Mcpe Drop Item | 0x2e | 46 |   
-| Mcpe Inventory Action | 0x2f | 47 |   
-| Mcpe Container Open | 0x30 | 48 |   
-| Mcpe Container Close | 0x31 | 49 |   
-| Mcpe Container Set Slot | 0x32 | 50 |   
+| Mcpe Container Open | 0x2e | 46 |   
+| Mcpe Container Close | 0x2f | 47 |   
+| Mcpe Player Hotbar Packet | 0x30 | 48 |   
+| Mcpe Inventory Content Packet | 0x31 | 49 |   
+| Mcpe Inventory Slot Packet | 0x32 | 50 |   
 | Mcpe Container Set Data | 0x33 | 51 |   
-| Mcpe Container Set Content | 0x34 | 52 |   
-| Mcpe Crafting Data | 0x35 | 53 |   
-| Mcpe Crafting Event | 0x36 | 54 |   
+| Mcpe Crafting Data | 0x34 | 52 |   
+| Mcpe Crafting Event | 0x35 | 53 |   
+| Mcpe Gui Data Pick Item Packet | 0x36 | 54 |   
 | Mcpe Adventure Settings | 0x37 | 55 |   
 | Mcpe Block Entity Data | 0x38 | 56 |   
 | Mcpe Player Input | 0x39 | 57 |   
@@ -86,33 +85,37 @@
 | Mcpe Set Player Game Type | 0x3e | 62 |   
 | Mcpe Player List | 0x3f | 63 |   
 | Mcpe Simple Event | 0x40 | 64 |   
-| Mcpe Event | 0x41 | 65 |   
+| Mcpe Telemetry Event Packet | 0x41 | 65 |   
 | Mcpe Spawn Experience Orb | 0x42 | 66 |   
 | Mcpe Clientbound Map Item Data  | 0x43 | 67 |   
 | Mcpe Map Info Request | 0x44 | 68 |   
 | Mcpe Request Chunk Radius | 0x45 | 69 |   
 | Mcpe Chunk Radius Update | 0x46 | 70 |   
 | Mcpe Item Frame Drop Item | 0x47 | 71 |   
-| Mcpe Replace Selected Item | 0x48 | 72 |   
-| Mcpe Game Rules Changed | 0x49 | 73 |   
-| Mcpe Camera | 0x4a | 74 |   
-| Mcpe Add Item | 0x4b | 75 |   
-| Mcpe Boss Event | 0x4c | 76 |   
-| Mcpe Show Credits | 0x4d | 77 |   
-| Mcpe Available Commands | 0x4e | 78 |   
-| Mcpe Command Step | 0x4f | 79 |   
-| Mcpe Command Block Update | 0x50 | 80 |   
-| Mcpe Update Trade | 0x51 | 81 |   
-| Mcpe Update Equip | 0x52 | 82 |   
-| Mcpe Resource Pack Data Info | 0x53 | 83 |   
-| Mcpe Resource Pack Chunk Data | 0x54 | 84 |   
-| Mcpe Resource Pack Chunk Request | 0x55 | 85 |   
-| Mcpe Transfer | 0x56 | 86 |   
-| Mcpe Play Sound | 0x57 | 87 |   
-| Mcpe Stop Sound | 0x58 | 88 |   
-| Mcpe Set Title | 0x59 | 89 |   
-| Mcpe Add Behavior Tree Packet | 0x5a | 90 |   
-| Mcpe Structure Block Update Packet | 0x5b | 91 |   
+| Mcpe Game Rules Changed | 0x48 | 72 |   
+| Mcpe Camera | 0x49 | 73 |   
+| Mcpe Boss Event | 0x4a | 74 |   
+| Mcpe Show Credits | 0x4b | 75 |   
+| Mcpe Available Commands | 0x4c | 76 |   
+| Mcpe Command Request Packet | 0x4d | 77 |   
+| Mcpe Command Block Update | 0x4e | 78 |   
+| Mcpe Update Trade | 0x50 | 80 |   
+| Mcpe Update Equipment Packet | 0x51 | 81 |   
+| Mcpe Resource Pack Data Info | 0x52 | 82 |   
+| Mcpe Resource Pack Chunk Data | 0x53 | 83 |   
+| Mcpe Resource Pack Chunk Request | 0x54 | 84 |   
+| Mcpe Transfer | 0x55 | 85 |   
+| Mcpe Play Sound | 0x56 | 86 |   
+| Mcpe Stop Sound | 0x57 | 87 |   
+| Mcpe Set Title | 0x58 | 88 |   
+| Mcpe Add Behavior Tree Packet | 0x59 | 89 |   
+| Mcpe Structure Block Update Packet | 0x5a | 90 |   
+| Mcpe Player Skin Packet | 0x5d | 93 |   
+| Mcpe Sub Client Login Packet | 0x5e | 94 |   
+| Mcpe Initiate Web Socket Connection Packet | 0x5f | 95 |   
+| Mcpe Set Last Hurt By Packet | 0x60 | 96 |   
+| Mcpe Book Edit Packet | 0x61 | 97 |   
+| Mcpe Npc Request Packet | 0x62 | 98 |   
 | Mcpe Wrapper | 0xfe | 254 |   
 
 
@@ -400,7 +403,6 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Protocol Version | int |  |
-|Edition | byte |  |
 |Payload | ByteArray |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Play Status (0x02)
@@ -689,23 +691,6 @@ val2 float
 |Speed Z | float |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Hanging Entity (0x10)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Entity ID Self | SignedVarLong |  |
-|Runtime Entity ID | UnsignedVarLong |  |
-|Coordinates | BlockCoordinates |  |
-|Unknown | SignedVarInt |  |
------------------------------------------------------------------------
 ### Package: Mcpe Take Item Entity (0x11)
 
 **Sent from server:** true
@@ -779,21 +764,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Remove Block (0x15)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Coordinates | BlockCoordinates |  |
------------------------------------------------------------------------
-### Package: Mcpe Update Block (0x16)
+### Package: Mcpe Update Block (0x15)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -805,11 +776,9 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Coordinates | BlockCoordinates |  |
-|Block ID | UnsignedVarInt |  |
-|Block Meta And Priority | UnsignedVarInt |  |
+|Records | BlockUpdateRecords |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Painting (0x17)
+### Package: Mcpe Add Painting (0x16)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -827,7 +796,7 @@ MODE_ROTATION = 2;
 |Direction | SignedVarInt |  |
 |Title | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Explode (0x18)
+### Package: Mcpe Explode (0x17)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -843,7 +812,7 @@ MODE_ROTATION = 2;
 |Radius | SignedVarInt |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Level Sound Event (0x19)
+### Package: Mcpe Level Sound Event (0x18)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -857,12 +826,12 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Sound ID | byte |  |
 |Position | Vector3 |  |
-|Extra Data | SignedVarInt |  |
-|Pitch | SignedVarInt |  |
-|Unknown1 | bool |  |
-|Disable Relative Volume | bool |  |
+|Block Id | SignedVarInt |  |
+|Entity Type | SignedVarInt |  |
+|Is baby mob | bool |  |
+|Is global | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Level Event (0x1a)
+### Package: Mcpe Level Event (0x19)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -878,7 +847,7 @@ MODE_ROTATION = 2;
 |Position | Vector3 |  |
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Block Event (0x1b)
+### Package: Mcpe Block Event (0x1a)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -894,7 +863,7 @@ MODE_ROTATION = 2;
 |Case 1 | SignedVarInt |  |
 |Case 2 | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Entity Event (0x1c)
+### Package: Mcpe Entity Event (0x1b)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -910,7 +879,7 @@ MODE_ROTATION = 2;
 |Event ID | byte |  |
 |Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Mob Effect (0x1d)
+### Package: Mcpe Mob Effect (0x1c)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -929,7 +898,7 @@ MODE_ROTATION = 2;
 |Particles | bool |  |
 |Duration | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Update Attributes (0x1e)
+### Package: Mcpe Update Attributes (0x1d)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -943,6 +912,22 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Attributes | PlayerAttributes |  |
+-----------------------------------------------------------------------
+### Package: Mcpe Inventory Transaction Packet (0x1e)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Transaction type | VarInt |  |
+|Transactions | TransactionRecords |  |
+|Complex transactions | ComplexTransactionRecords |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Mob Equipment (0x1f)
 
@@ -960,7 +945,7 @@ MODE_ROTATION = 2;
 |Item | Item |  |
 |Slot | byte |  |
 |Selected Slot | byte |  |
-|Unknown | byte |  |
+|Windows Id | byte |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Mob Armor Equipment (0x20)
 
@@ -1012,10 +997,10 @@ MODE_ROTATION = 2;
 |Z | SignedVarInt |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Use Item (0x23)
+### Package: Mcpe Entity Pick Request Packet (0x23)
 
 **Sent from server:** true
-**Sent from client:** true
+**Sent from client:** false
 **Packet size:** 
 
 
@@ -1024,13 +1009,6 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|BlockCoordinates | BlockCoordinates |  |
-|Block ID | UnsignedVarInt |  |
-|Face | SignedVarInt |  |
-|FaceCoordinates | Vector3 |  |
-|PlayerPosition | Vector3 |  |
-|Slot | SignedVarInt |  |
-|Item | Item |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Player Action (0x24)
 
@@ -1186,39 +1164,7 @@ MODE_ROTATION = 2;
 |Y | float |  |
 |Z | float |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Drop Item (0x2e)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|ItemType | byte |  |
-|Item | Item |  |
------------------------------------------------------------------------
-### Package: Mcpe Inventory Action (0x2f)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Action ID | UnsignedVarInt |  |
-|Item | Item |  |
-|Enchantment Id | SignedVarInt |  |
-|Enchantment Level | SignedVarInt |  |
------------------------------------------------------------------------
-### Package: Mcpe Container Open (0x30)
+### Package: Mcpe Container Open (0x2e)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1235,7 +1181,7 @@ MODE_ROTATION = 2;
 |Coordinates | BlockCoordinates |  |
 |Unknown Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Container Close (0x31)
+### Package: Mcpe Container Close (0x2f)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1249,7 +1195,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Container Set Slot (0x32)
+### Package: Mcpe Player Hotbar Packet (0x30)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1261,11 +1207,39 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Window ID | byte |  |
-|Slot | SignedVarInt |  |
-|HotbarSlot | SignedVarInt |  |
-|Item | Item |  |
 |Selected Slot | byte |  |
+|Hotbar Data | MetadataInts |  |
+-----------------------------------------------------------------------
+### Package: Mcpe Inventory Content Packet (0x31)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Inventory Id | SignedVarInt |  |
+|Input | ItemStacks |  |
+-----------------------------------------------------------------------
+### Package: Mcpe Inventory Slot Packet (0x32)
+
+**Sent from server:** true
+**Sent from client:** true
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Inventory Id | SignedVarInt |  |
+|Slot | SignedVarInt |  |
+|Item | Item |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Container Set Data (0x33)
 
@@ -1283,24 +1257,7 @@ MODE_ROTATION = 2;
 |Property | SignedVarInt |  |
 |Value | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Container Set Content (0x34)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Window ID | UnsignedVarInt |  |
-|Entity ID Self | SignedVarLong |  |
-|Slot Data | ItemStacks |  |
-|Hotbar Data | MetadataInts |  |
------------------------------------------------------------------------
-### Package: Mcpe Crafting Data (0x35)
+### Package: Mcpe Crafting Data (0x34)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1314,7 +1271,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Recipes | Recipes |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Crafting Event (0x36)
+### Package: Mcpe Crafting Event (0x35)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1331,6 +1288,19 @@ MODE_ROTATION = 2;
 |Recipe ID | UUID |  |
 |Input | ItemStacks |  |
 |Result | ItemStacks |  |
+-----------------------------------------------------------------------
+### Package: Mcpe Gui Data Pick Item Packet (0x36)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Mcpe Adventure Settings (0x37)
 
@@ -1480,7 +1450,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Event (0x41)
+### Package: Mcpe Telemetry Event Packet (0x41)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1581,21 +1551,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Coordinates | BlockCoordinates |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Replace Selected Item (0x48)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Item | Item |  |
------------------------------------------------------------------------
-### Package: Mcpe Game Rules Changed (0x49)
+### Package: Mcpe Game Rules Changed (0x48)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1609,7 +1565,7 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Rules | GameRules |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Camera (0x4a)
+### Package: Mcpe Camera (0x49)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1622,21 +1578,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Add Item (0x4b)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Item | Item |  |
------------------------------------------------------------------------
-### Package: Mcpe Boss Event (0x4c)
+### Package: Mcpe Boss Event (0x4a)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1651,7 +1593,7 @@ MODE_ROTATION = 2;
 |Boss Entity ID | SignedVarLong |  |
 |Event Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Show Credits (0x4d)
+### Package: Mcpe Show Credits (0x4b)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1666,7 +1608,7 @@ MODE_ROTATION = 2;
 |Runtime Entity ID | UnsignedVarLong |  |
 |Status | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Available Commands (0x4e)
+### Package: Mcpe Available Commands (0x4c)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1681,7 +1623,7 @@ MODE_ROTATION = 2;
 |Commands | string |  |
 |Unknown | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Command Step (0x4f)
+### Package: Mcpe Command Request Packet (0x4d)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1705,7 +1647,7 @@ MODE_ROTATION = 2;
 |Unknown 8 | byte |  |
 |Entity ID Self | SignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Command Block Update (0x50)
+### Package: Mcpe Command Block Update (0x4e)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1718,7 +1660,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Update Trade (0x51)
+### Package: Mcpe Update Trade (0x50)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1731,7 +1673,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Update Equip (0x52)
+### Package: Mcpe Update Equipment Packet (0x51)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1744,7 +1686,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Data Info (0x53)
+### Package: Mcpe Resource Pack Data Info (0x52)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1762,7 +1704,7 @@ MODE_ROTATION = 2;
 |Compressed Package Size  | ulong |  |
 |Hash  | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Chunk Data (0x54)
+### Package: Mcpe Resource Pack Chunk Data (0x53)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1780,7 +1722,7 @@ MODE_ROTATION = 2;
 |Length | uint |  |
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Chunk Request (0x55)
+### Package: Mcpe Resource Pack Chunk Request (0x54)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1795,7 +1737,7 @@ MODE_ROTATION = 2;
 |Package ID | string |  |
 |Chunk Index | uint |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Transfer (0x56)
+### Package: Mcpe Transfer (0x55)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1810,7 +1752,7 @@ MODE_ROTATION = 2;
 |Server Address | string |  |
 |Port | ushort |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Play Sound (0x57)
+### Package: Mcpe Play Sound (0x56)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1827,7 +1769,7 @@ MODE_ROTATION = 2;
 |Volume | float |  |
 |Pitch | float |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Stop Sound (0x58)
+### Package: Mcpe Stop Sound (0x57)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1842,7 +1784,7 @@ MODE_ROTATION = 2;
 |Name | string |  |
 |Stop All | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Title (0x59)
+### Package: Mcpe Set Title (0x58)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1860,7 +1802,7 @@ MODE_ROTATION = 2;
 |Stay Time | SignedVarInt |  |
 |Fade Out Time | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Behavior Tree Packet (0x5a)
+### Package: Mcpe Add Behavior Tree Packet (0x59)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1873,7 +1815,85 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Structure Block Update Packet (0x5b)
+### Package: Mcpe Structure Block Update Packet (0x5a)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Package: Mcpe Player Skin Packet (0x5d)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Package: Mcpe Sub Client Login Packet (0x5e)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Package: Mcpe Initiate Web Socket Connection Packet (0x5f)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Package: Mcpe Set Last Hurt By Packet (0x60)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Package: Mcpe Book Edit Packet (0x61)
+
+**Sent from server:** true
+**Sent from client:** false
+**Packet size:** 
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Package: Mcpe Npc Request Packet (0x62)
 
 **Sent from server:** true
 **Sent from client:** false

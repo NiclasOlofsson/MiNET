@@ -443,11 +443,6 @@ namespace MiNET
 				// It is a bug that it leaks these messages.
 			}
 
-			else if (typeof (McpeRemoveBlock) == message.GetType())
-			{
-				handler.HandleMcpeRemoveBlock((McpeRemoveBlock) message);
-			}
-
 			else if (typeof (McpeLevelSoundEvent) == message.GetType())
 			{
 				handler.HandleMcpeLevelSoundEvent((McpeLevelSoundEvent) message);
@@ -461,11 +456,6 @@ namespace MiNET
 			else if (typeof (McpeEntityFall) == message.GetType())
 			{
 				handler.HandleMcpeEntityFall((McpeEntityFall) message);
-			}
-
-			else if (typeof (McpeUseItem) == message.GetType())
-			{
-				handler.HandleMcpeUseItem((McpeUseItem) message);
 			}
 
 			else if (typeof (McpeEntityEvent) == message.GetType())
@@ -494,11 +484,6 @@ namespace MiNET
 				handler.HandleMcpeMovePlayer((McpeMovePlayer) message);
 			}
 
-			else if (typeof (McpeCommandStep) == message.GetType())
-			{
-				handler.HandleMcpeCommandStep((McpeCommandStep) message);
-			}
-
 			else if (typeof (McpeInteract) == message.GetType())
 			{
 				handler.HandleMcpeInteract((McpeInteract) message);
@@ -522,16 +507,6 @@ namespace MiNET
 			else if (typeof (McpePlayerAction) == message.GetType())
 			{
 				handler.HandleMcpePlayerAction((McpePlayerAction) message);
-			}
-
-			else if (typeof (McpeDropItem) == message.GetType())
-			{
-				handler.HandleMcpeDropItem((McpeDropItem) message);
-			}
-
-			else if (typeof (McpeContainerSetSlot) == message.GetType())
-			{
-				handler.HandleMcpeContainerSetSlot((McpeContainerSetSlot) message);
 			}
 
 			else if (typeof (McpeContainerClose) == message.GetType())

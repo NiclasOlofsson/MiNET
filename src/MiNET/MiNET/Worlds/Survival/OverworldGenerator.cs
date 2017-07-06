@@ -1,46 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Security.Principal;
 using LibNoise;
-using LibNoise.Combiner;
 using LibNoise.Filter;
-using LibNoise.Modifier;
 using LibNoise.Primitive;
 using LibNoise.Transformer;
 using MiNET.Utils;
 using MiNET.Worlds.Decorators;
 
-namespace MiNET.Worlds
+namespace MiNET.Worlds.Survival
 {
-	internal sealed class ScaleableNoise : IModule, IModule2D, IModule3D
-	{
-		public IModule2D Primitive2D { get; set; }
-		public IModule3D Primitive3D { get; set; }
-
-		public float XScale { get; set; } = 1f;
-		public float YScale { get; set; } = 1f;
-		public float ZScale { get; set; } = 1f;
-
-		public ScaleableNoise()
-		{
-			
-		}
-
-		public float GetValue(float x, float y)
-		{
-			return Primitive2D.GetValue(x * XScale, y * ZScale);
-		}
-
-		public float GetValue(float x, float y, float z)
-		{
-			return Primitive3D.GetValue(x*XScale, y*YScale, z*ZScale);
-		}
-	}
-
-	public class SurvivalWorldProvider : IWorldProvider, ICachingWorldProvider
+	public class OverworldGenerator : IWorldGenerator
 	{
 		private IModule3D RainNoise { get; }
 		private IModule3D TempNoise { get; }
@@ -50,9 +19,9 @@ namespace MiNET.Worlds
 		private readonly ScalePoint _depthNoise;
 
 		private int Seed { get; }
-		public SurvivalWorldProvider()
+
+		public OverworldGenerator()
 		{
-			IsCaching = true;
 			int seed = Config.GetProperty("seed", "gottaloveMiNET").GetHashCode();
 			Seed = seed;
 
@@ -71,8 +40,8 @@ namespace MiNET.Worlds
 			tempNoise.Distance = false;
 			tempNoise.Frequency = TemperatureFrequency;
 			tempNoise.OctaveCount = 2;
-		//	tempNoise.Displacement = 0.5f;
-		//	tempNoise.Lacunarity = 4.2f;
+			//	tempNoise.Displacement = 0.5f;
+			//	tempNoise.Lacunarity = 4.2f;
 
 			TempNoise = tempNoise;
 
@@ -81,7 +50,7 @@ namespace MiNET.Worlds
 			//var mainLimitNoise = new CLSimplexPerlin();
 			var mainLimitFractal = new SumFractal()
 			{
-			//	Primitive4D = mainLimitNoise,
+				//	Primitive4D = mainLimitNoise,
 				Primitive3D = mainLimitNoise,
 				Primitive2D = mainLimitNoise,
 				//Primitive1D = mainLimitNoise,
@@ -90,7 +59,7 @@ namespace MiNET.Worlds
 				OctaveCount = 8,
 				Lacunarity = 3.5f,
 				Offset = 0.312f,
-		//		Gain = 12
+				//		Gain = 12
 			};
 			var mainScaler = new ScaleableNoise()
 			{
@@ -103,7 +72,7 @@ namespace MiNET.Worlds
 			_mainNoise = mainScaler;
 
 			var groundGradient = new ImprovedPerlin(seed * 2, NoiseQuality.Fast);
-			
+
 			var mountainTerrain = new SumFractal()
 			{
 				Primitive3D = groundGradient,
@@ -121,8 +90,8 @@ namespace MiNET.Worlds
 
 			ScalePoint scaling = new ScalePoint(mountainTerrain);
 			scaling.YScale = 1f / HeightScale;
-			scaling.XScale = 1f/DepthNoiseScaleX;
-			scaling.ZScale = 1f/DepthNoiseScaleZ;
+			scaling.XScale = 1f / DepthNoiseScaleX;
+			scaling.ZScale = 1f / DepthNoiseScaleZ;
 
 			_depthNoise = scaling;
 			//groundShape.Primitive2D = groundGradient;
@@ -130,20 +99,13 @@ namespace MiNET.Worlds
 			//RidgedMultiFractal mountainTerrain = new RidgedMultiFractal();
 		}
 
-		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache =
-			new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-
-		public bool IsCaching { get; private set; }
-
 		public void Initialize()
 		{
+			
 		}
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-			ChunkColumn cachedChunk;
-			if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk)) return cachedChunk;
-
 			ChunkColumn chunk = new ChunkColumn
 			{
 				x = chunkCoordinates.X,
@@ -176,29 +138,8 @@ namespace MiNET.Worlds
 						chunk.SetSkyLight(x, y, z, 255);
 				}
 			}
-			_chunkCache[chunkCoordinates] = chunk;
 
 			return chunk;
-		}
-
-		public Vector3 GetSpawnPoint()
-		{
-			return new Vector3(50, 256f, 50);
-		}
-
-		public long GetTime()
-		{
-			return 0;
-		}
-
-		public string GetName()
-		{
-			return "Survival";
-		}
-
-		public int SaveChunks()
-		{
-			return 0;
 		}
 
 		private const float TemperatureFrequency = 0.0083f;
@@ -230,9 +171,9 @@ namespace MiNET.Worlds
 
 		private Biome GetBiome(int x, int z)
 		{
-			float temp = TempNoise.GetValue(x/BiomeNoiseScale, 0, z/BiomeNoiseScale).Normalize(1, -1f, 2f, -1f);
+			float temp = TempNoise.GetValue(x / BiomeNoiseScale, 0, z / BiomeNoiseScale).Normalize(1, -1f, 2f, -1f);
 
-			float rain = RainNoise.GetValue(x/BiomeNoiseScale, 0, z/BiomeNoiseScale) /2f + 0.5f;
+			float rain = RainNoise.GetValue(x / BiomeNoiseScale, 0, z / BiomeNoiseScale) / 2f + 0.5f;
 
 			var biomes = BiomeUtils.GetBiomes(temp, rain);
 			return biomes[0];
@@ -243,7 +184,7 @@ namespace MiNET.Worlds
 			cx *= 16;
 			cz *= 16;
 
-			Biome[] rb = new Biome[16*16];
+			Biome[] rb = new Biome[16 * 16];
 
 			for (int x = 0; x < 16; x++)
 			{
@@ -262,21 +203,21 @@ namespace MiNET.Worlds
 		{
 			cx *= 16;
 			cz *= 16;
-/*
-				float q11 = _mainNoise.GetValue(cx, cz).Normalize(-1f, 1f, biomes[0].MinHeight, biomes[0].MaxHeight);
-				float q12 = _mainNoise.GetValue(cx, cz + 16).Normalize(-1f, 1f, biomes[15].MinHeight, biomes[15].MaxHeight);
+			/*
+							float q11 = _mainNoise.GetValue(cx, cz).Normalize(-1f, 1f, biomes[0].MinHeight, biomes[0].MaxHeight);
+							float q12 = _mainNoise.GetValue(cx, cz + 16).Normalize(-1f, 1f, biomes[15].MinHeight, biomes[15].MaxHeight);
 
-				float q21 = _mainNoise.GetValue(cx + 16, cz).Normalize(-1f, 1f, biomes[240].MinHeight, biomes[240].MaxHeight);
-				float q22 = _mainNoise.GetValue(cx + 16, cz + 16).Normalize(-1f, 1f, biomes[255].MinHeight, biomes[255].MaxHeight);*/
-			
+							float q21 = _mainNoise.GetValue(cx + 16, cz).Normalize(-1f, 1f, biomes[240].MinHeight, biomes[240].MaxHeight);
+							float q22 = _mainNoise.GetValue(cx + 16, cz + 16).Normalize(-1f, 1f, biomes[255].MinHeight, biomes[255].MaxHeight);*/
 
-				float q11 = WaterLevel + (128f * biomes[0].MaxHeight) *  _mainNoise.GetValue(cx, cz) ;
-				float q12 = WaterLevel + (128f * biomes[15].MaxHeight) * _mainNoise.GetValue(cx, cz + 16);
 
-				float q21 = WaterLevel + (128f * biomes[240].MaxHeight) * _mainNoise.GetValue(cx + 16, cz);
-				float q22 = WaterLevel + (128f * biomes[255].MaxHeight) * _mainNoise.GetValue(cx + 16, cz + 16); 
+			float q11 = WaterLevel + (128f * biomes[0].MaxHeight) * _mainNoise.GetValue(cx, cz);
+			float q12 = WaterLevel + (128f * biomes[15].MaxHeight) * _mainNoise.GetValue(cx, cz + 16);
 
-			float[] heightMap = new float[16*16];
+			float q21 = WaterLevel + (128f * biomes[240].MaxHeight) * _mainNoise.GetValue(cx + 16, cz);
+			float q22 = WaterLevel + (128f * biomes[255].MaxHeight) * _mainNoise.GetValue(cx + 16, cz + 16);
+
+			float[] heightMap = new float[16 * 16];
 
 			for (int x = 0; x < 16; x++)
 			{
@@ -287,7 +228,7 @@ namespace MiNET.Worlds
 					int rz = cz + z;
 
 					var baseNoise = Interpolation.Interpolate(
-						InterpolationMethod.Cubic, 
+						InterpolationMethod.Cubic,
 						rx, rz,
 						q11,
 						q12,
@@ -298,7 +239,7 @@ namespace MiNET.Worlds
 					heightMap[(x << 4) + z] = baseNoise;
 				}
 
-				
+
 			}
 			return heightMap;
 		}
@@ -318,7 +259,7 @@ namespace MiNET.Worlds
 					float rz = cz + z;
 					for (int y = 255; y > 0; y--)
 					{
-						thresholdMap[x + 16*(y + 256*z)] = _depthNoise.GetValue(rx, y, rz);
+						thresholdMap[x + 16 * (y + 256 * z)] = _depthNoise.GetValue(rx, y, rz);
 					}
 				}
 			}
@@ -334,9 +275,9 @@ namespace MiNET.Worlds
 				for (int z = 0; z < 16; z++)
 				{
 					Biome biome = biomes[(x << 4) + z];
-					chunk.SetBiome(x, z, (byte) biome.Id);
+					chunk.SetBiome(x, z, (byte)biome.Id);
 
-					float stoneHeight =  heightMap[(x << 4) + z];
+					float stoneHeight = heightMap[(x << 4) + z];
 					//var modifier = Math.Abs(biome.MaxHeight - biome.MinHeight);
 
 					var maxY = 0;
@@ -364,7 +305,7 @@ namespace MiNET.Worlds
 
 					chunk.SetBlock(x, 0, z, 7); //Bedrock
 					heightMap[(x << 4) + z] = maxY;
-					chunk.SetHeight(x,z, (byte) maxY);
+					chunk.SetHeight(x, z, (byte)maxY);
 				}
 			}
 
@@ -377,12 +318,12 @@ namespace MiNET.Worlds
 
 					for (int y = 0; y < 256; y++)
 					{
-					//	float density = thresholdMap[x + 16 * (y + 256 * z)];
+						//	float density = thresholdMap[x + 16 * (y + 256 * z)];
 
 						bool isSurface = false;
 						if (y <= height)
 						{
-							if (/*density > 0 &&*/ y < 255 && chunk.GetBlock(x,y,z) == 1 && chunk.GetBlock(x, y + 1, z) == 0)
+							if (/*density > 0 &&*/ y < 255 && chunk.GetBlock(x, y, z) == 1 && chunk.GetBlock(x, y + 1, z) == 0)
 							{
 								isSurface = true;
 							}
@@ -407,15 +348,6 @@ namespace MiNET.Worlds
 					}
 				}
 			}
-		}
-		public ChunkColumn[] GetCachedChunks()
-		{
-			return _chunkCache.Values.ToArray();
-		}
-
-		public void ClearCachedChunks()
-		{
-			_chunkCache.Clear();
 		}
 	}
 }

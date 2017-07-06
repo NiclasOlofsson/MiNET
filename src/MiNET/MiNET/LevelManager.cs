@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Survival;
 
 namespace MiNET
 {
@@ -62,26 +63,32 @@ namespace MiNET
 
                 switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
                 {
-                    case "flat":
-                    case "flatland":
-                        worldProvider = new FlatlandWorldProvider();
-                        break;
-                    case "cool":
-                        worldProvider = new CoolWorldProvider();
-                        break;
-                    case "experimental":
-                        worldProvider = new ExperimentalWorldProvider();
-                        break;
 					case "survival":
-						worldProvider = new SurvivalWorldProvider();
-		                break;
-                    case "anvil":
-                        worldProvider = new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()};
-                        break;
-                    default:
-                        worldProvider = new FlatlandWorldProvider();
-                        break;
-                }
+						worldProvider = new AnvilWorldProvider
+						{
+							MissingChunkProvider = new OverworldGenerator(),
+							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
+							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
+						};
+						break;
+					case "cool":
+						worldProvider = new CoolWorldProvider();
+						break;
+					case "experimental":
+						worldProvider = new ExperimentalWorldProvider();
+						break;
+					case "anvil":
+					case "flat":
+					case "flatland":
+					default:
+						worldProvider = new AnvilWorldProvider
+						{
+							MissingChunkProvider = new FlatlandWorldProvider(),
+							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
+							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
+						};
+						break;
+				}
 
 				level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
 				{

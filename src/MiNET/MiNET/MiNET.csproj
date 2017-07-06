@@ -667,6 +667,7 @@
     <Compile Include="Utils\Ray.cs" />
     <Compile Include="Utils\ResourcePacks.cs" />
     <Compile Include="Utils\RuleData.cs" />
+    <Compile Include="Utils\ScaleableNoise.cs" />
     <Compile Include="Utils\StreamExtensions.cs" />
     <Compile Include="Utils\VarInt.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
@@ -724,7 +725,7 @@
     <Compile Include="Worlds\Structures\PineTree.cs" />
     <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
-    <Compile Include="Worlds\SurvivalWorldProvider.cs" />
+    <Compile Include="Worlds\Survival\OverworldGenerator.cs" />
     <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
     </None>

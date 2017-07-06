@@ -1,4 +1,5 @@
 ﻿using System;
+using MiNET.Worlds.Survival;
 
 namespace MiNET.Worlds.Decorators
 {
@@ -11,7 +12,7 @@ namespace MiNET.Worlds.Decorators
 
 		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface, bool highestStoneLevel)
 		{
-			if (y > SurvivalWorldProvider.WaterLevel && y > 32) return;
+			if (y > OverworldGenerator.WaterLevel && y > 32) return;
 
 			var density = thresholdMap[x + 16*(y + 256*z)];
 			var bid = column.GetBlock(x, y, z);

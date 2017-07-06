@@ -4,6 +4,7 @@ using LibNoise.Primitive;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds.Structures;
+using MiNET.Worlds.Survival;
 
 namespace MiNET.Worlds.Decorators
 {
@@ -23,7 +24,7 @@ namespace MiNET.Worlds.Decorators
 			int rz = column.z*16 + z;
 
 			bool generated = false;
-			if (surface && y >= SurvivalWorldProvider.WaterLevel)
+			if (surface && y >= OverworldGenerator.WaterLevel)
 			{
 				var noise = Simplex.Noise(rx, rz, biome.Downfall, 0.5, true);
 				if (x >= 3 && x <= 13 && z >= 3 && z <= 13)

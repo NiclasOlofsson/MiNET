@@ -1,5 +1,6 @@
 ﻿using System;
 using MiNET.Utils;
+using MiNET.Worlds.Survival;
 
 namespace MiNET.Worlds.Decorators
 {
@@ -45,10 +46,10 @@ namespace MiNET.Worlds.Decorators
 		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface, bool highestStoneLevel)
 		{
 			if (surface) return;
-			if (thresholdMap[GetIndex(x - 1, y, z)] < SurvivalWorldProvider.Threshold) return;
-			if (thresholdMap[GetIndex(x + 1, y, z)] < SurvivalWorldProvider.Threshold) return;
-			if (thresholdMap[GetIndex(x, y, z - 1)] < SurvivalWorldProvider.Threshold) return;
-			if (thresholdMap[GetIndex(x, y, z + 1)] < SurvivalWorldProvider.Threshold) return;
+			if (thresholdMap[GetIndex(x - 1, y, z)] < OverworldGenerator.Threshold) return;
+			if (thresholdMap[GetIndex(x + 1, y, z)] < OverworldGenerator.Threshold) return;
+			if (thresholdMap[GetIndex(x, y, z - 1)] < OverworldGenerator.Threshold) return;
+			if (thresholdMap[GetIndex(x, y, z + 1)] < OverworldGenerator.Threshold) return;
 
 			int rx = column.x * 16 + x;
 			int rz = column.z * 16 + z;

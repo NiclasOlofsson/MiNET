@@ -37,6 +37,7 @@ namespace MiNET.Worlds.Decorators
 			new OreData(73, 1, 16, 4, 6, 1.13f) //Redstone
 		};
 
+		private IModule3D _simplex;
 		private Random _random;
 		protected override void InitSeed(int seed)
 		{

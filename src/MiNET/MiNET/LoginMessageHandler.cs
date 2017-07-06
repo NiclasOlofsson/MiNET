@@ -237,163 +237,33 @@ namespace MiNET
 					if (Log.IsDebugEnabled) Log.Debug($"JSON:\n{json}");
 
 					string validationKey = null;
+
 					foreach (dynamic o in json.chain)
 					{
 						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
 
-#if __MonoCS__
 						dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
-#endif
 
 						if (Log.IsDebugEnabled)
 						{
 							Log.Debug("Raw chain element:\n" + o.ToString());
 							Log.Debug($"JWT Header: {string.Join(";", headers)}");
 
-#if !__MonoCS__
-							dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
-#endif
 							Log.Debug($"JWT Payload:\n{jsonPayload}");
 						}
 
-#if __MonoCS__
 						_playerInfo.Username = jsonPayload["extraData"]["displayName"];
-						_session.Username = _playerInfo[_playerInfo.Username];
+						_session.Username = _playerInfo.Username;
 
 						string identity = jsonPayload["extraData"]["identity"];
 
-						_playerInfo.ClientUuid = new UUID(new Guid(identity));
+						_playerInfo.ClientUuid = new UUID(new Guid(identity).ToByteArray());
 
 						_session.CryptoContext = new CryptoContext
 						{
 							UseEncryption = false
 						};
 					}
-				}
-#else
-
-						// x5u cert (string): MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
-						if (headers.ContainsKey("x5u"))
-						{
-							string certString = headers["x5u"];
-
-							if (Log.IsDebugEnabled)
-							{
-								Log.Debug($"x5u cert (string): {certString}");
-								ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
-								Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
-							}
-
-							// Validate
-							CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
-							CertificateData data = JWT.Decode<CertificateData>(o.ToString(), newKey);
-
-							if (data != null)
-							{
-								if (Log.IsDebugEnabled) Log.Debug("Decoded token success");
-
-								if (CertificateData.MojangRootKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
-								{
-									Log.Debug("Got Mojang key. Is valid = " + data.CertificateAuthority);
-									validationKey = data.IdentityPublicKey;
-								}
-								else if (validationKey != null && validationKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
-								{
-									_playerInfo.CertificateData = data;
-								}
-								else
-								{
-									if (data.ExtraData == null) continue;
-
-									// Self signed, make sure they don't fake XUID
-									if (data.ExtraData.Xuid != null)
-									{
-										Log.Warn("Received fake XUID from " + data.ExtraData.DisplayName);
-										data.ExtraData.Xuid = null;
-									}
-
-									_playerInfo.CertificateData = data;
-								}
-							}
-							else
-							{
-								Log.Error("Not a valid Identity Public Key for decoding");
-							}
-						}
-					}
-
-					//TODO: Implement disconnect here
-
-					{
-						_playerInfo.Username = _playerInfo.CertificateData.ExtraData.DisplayName;
-						_session.Username = _playerInfo.Username;
-						string identity = _playerInfo.CertificateData.ExtraData.Identity;
-
-						if (Log.IsDebugEnabled) Log.Debug($"Connecting user {_playerInfo.Username} with identity={identity}");
-						_playerInfo.ClientUuid = new UUID(identity);
-
-						_session.CryptoContext = new CryptoContext
-						{
-							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(_playerInfo.CertificateData.ExtraData.Xuid)),
-						};
-
-						if (_session.CryptoContext.UseEncryption)
-						{
-							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(_playerInfo.CertificateData.IdentityPublicKey);
-							if (Log.IsDebugEnabled) Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
-
-							// Create shared shared secret
-							ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
-							ecKey.HashAlgorithm = CngAlgorithm.Sha256;
-							ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
-							ecKey.SecretPrepend = Encoding.UTF8.GetBytes("RANDOM SECRET"); // Server token
-
-							byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
-
-							if (Log.IsDebugEnabled) Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
-
-							{
-								RijndaelManaged rijAlg = new RijndaelManaged
-								{
-									BlockSize = 128,
-									Padding = PaddingMode.None,
-									Mode = CipherMode.CFB,
-									FeedbackSize = 8,
-									Key = secret,
-									IV = secret.Take(16).ToArray(),
-								};
-
-								// Create a decrytor to perform the stream transform.
-								ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
-								MemoryStream inputStream = new MemoryStream();
-								CryptoStream cryptoStreamIn = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
-
-								ICryptoTransform encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
-								MemoryStream outputStream = new MemoryStream();
-								CryptoStream cryptoStreamOut = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
-
-								_session.CryptoContext.Algorithm = rijAlg;
-								_session.CryptoContext.Decryptor = decryptor;
-								_session.CryptoContext.Encryptor = encryptor;
-								_session.CryptoContext.InputStream = inputStream;
-								_session.CryptoContext.OutputStream = outputStream;
-								_session.CryptoContext.CryptoStreamIn = cryptoStreamIn;
-								_session.CryptoContext.CryptoStreamOut = cryptoStreamOut;
-							}
-
-							var response = McpeServerToClientHandshake.CreateObject();
-							response.NoBatch = true;
-							response.ForceClear = true;
-							response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-							response.tokenLength = (short) ecKey.SecretPrepend.Length;
-							response.token = ecKey.SecretPrepend;
-
-							_session.SendPackage(response);
-
-							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
-						}
-					}
-#endif
 				}
 
 				if (!_session.CryptoContext.UseEncryption)

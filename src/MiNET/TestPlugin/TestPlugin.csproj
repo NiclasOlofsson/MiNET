@@ -74,6 +74,7 @@
     <Compile Include="Pets\PetsPlugin.cs" />
     <Compile Include="Pets\PetTypes.cs" />
     <Compile Include="Properties\Annotations.cs" />
+    <Compile Include="PushToTheLimitCommands.cs" />
     <Compile Include="TestPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

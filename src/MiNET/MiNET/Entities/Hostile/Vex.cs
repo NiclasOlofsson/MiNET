@@ -23,37 +23,23 @@
 
 #endregion
 
-using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
 {
-	public class Dragon : HostileMob, IAgeable
+	public class Vex : HostileMob
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ElderGuardian));
-
-		public Dragon(Level level) : base(EntityType.Dragon, level)
+		public Vex(Level level) : base(EntityType.Vex, level)
 		{
-			Width = Length = 13;
-			Height = 4;
-			IsSitting = true;
-			HealthManager.MaxHealth = 200;
-			HealthManager.Health = 200;
-			HealthManager.ResetHealth();
-			NoAi = true;
+			Width = Length = 0.4;
+			Height = 0.8;
 		}
 
 		public override MetadataDictionary GetMetadata()
 		{
-			Log.Warn("Metadata");
 			MetadataDictionary metadata = new MetadataDictionary();
-			//metadata[38] = new MetadataLong(0);
-			//metadata[39] = new MetadataFloat(1f);
-			//metadata[44] = new MetadataShort(300);
-
-			//MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataLong(8388608); // 100000000000000000000000; Sitting
+			metadata[0] = new MetadataLong(4398046511104); // 1000000000000000000000000000000000000000000; 
 			metadata[1] = new MetadataInt(1);
 			metadata[2] = new MetadataInt(0);
 			metadata[3] = new MetadataByte(0);
@@ -71,8 +57,8 @@ namespace MiNET.Entities.Hostile
 			metadata[45] = new MetadataByte(0);
 			metadata[46] = new MetadataInt(0);
 			metadata[47] = new MetadataInt(0);
-			metadata[54] = new MetadataFloat(13f);
-			metadata[55] = new MetadataFloat(4f);
+			metadata[54] = new MetadataFloat(0.4f);
+			metadata[55] = new MetadataFloat(0.8f);
 			metadata[58] = new MetadataByte(0);
 			metadata[59] = new MetadataFloat(0f);
 			metadata[60] = new MetadataFloat(0f);

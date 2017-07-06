@@ -280,7 +280,7 @@ namespace MiNET.Worlds
 			var north = coordinates + BlockCoordinates.North;
 			maxSkyLight = Math.Max(maxSkyLight, SetLightLevel(level, lightBfsQueue, north, currentSkyLight));
 
-			if (level.IsAir(coordinates) && currentSkyLight != 15)
+			if (level.IsNotBlockingSkylight(coordinates) && currentSkyLight != 15)
 			{
 				maxSkyLight = (byte) Math.Max(currentSkyLight, maxSkyLight - 1);
 

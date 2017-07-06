@@ -73,8 +73,8 @@ namespace MiNET
 						AnvilWorldProvider wp = level._worldProvider as AnvilWorldProvider;
 						if (wp != null)
 						{
-							//wp.PruneAir();
-							//wp.MakeAirChunksAroundWorldToCompensateForBadRendering();
+							wp.PruneAir();
+							wp.MakeAirChunksAroundWorldToCompensateForBadRendering();
 
 							SkyLightCalculations.Calculate(level);
 

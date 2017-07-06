@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,19 +23,75 @@
 
 #endregion
 
-using MiNET.Worlds;
-
-namespace MiNET.Entities.Passive
+namespace MiNET.Net
 {
-	public class Bat : PassiveMob
+	public partial class McpeBossEvent
 	{
-		public Bat(Level level) : base(EntityType.Bat, level)
+		partial void AfterEncode()
 		{
-			Width = Length = 0.5;
-			Height = 0.9;
-			HealthManager.MaxHealth = 60;
-			Drag = 0.2;
-			Speed = 1.1;
+			switch (eventType)
+			{
+				case 1:
+				case 3:
+					// Entity Unique ID
+					break;
+				case 4:
+					// float
+					break;
+				case 5:
+					// string
+					break;
+				case 0:
+					// string
+					// float
+					break;
+				case 6:
+					// ushort?
+					break;
+				case 7:
+					// NOOP
+					break;
+			}
+		}
+
+		public override void Reset()
+		{
+			base.Reset();
+		}
+
+		partial void AfterDecode()
+		{
+			switch (eventType)
+			{
+				case 1:
+				case 3:
+					// Entity Unique ID
+					ReadSignedVarLong();
+					break;
+				case 4:
+					// float
+					ReadFloat();
+					break;
+				case 5:
+					// string
+					ReadString();
+					break;
+				case 0:
+					// string
+					ReadString();
+					// float
+					ReadFloat();
+					goto case 6;
+				case 6:
+					// ushort?
+					ReadShort();
+					goto case 7;
+				case 7:
+					// NOOP
+					ReadUnsignedVarInt();
+					ReadUnsignedVarInt();
+					break;
+			}
 		}
 	}
 }

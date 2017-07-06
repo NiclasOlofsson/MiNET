@@ -516,7 +516,7 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Response status | byte |  |
-|ResourcePackIdVersions | ResourcePackIdVersions |  |
+|ResourcePackIds | ResourcePackIds |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Text (0x09)
 
@@ -840,7 +840,7 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Position | Vector3 |  |
-|Radius | float |  |
+|Radius | SignedVarInt |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Level Sound Event (0x19)

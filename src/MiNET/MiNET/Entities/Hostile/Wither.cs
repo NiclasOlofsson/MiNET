@@ -23,37 +23,34 @@
 
 #endregion
 
+using System;
 using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
 {
-	public class Dragon : HostileMob, IAgeable
+	public class Wither : HostileMob, IAgeable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ElderGuardian));
 
-		public Dragon(Level level) : base(EntityType.Dragon, level)
+		public int AnimationStep { get; set; } = 0;
+		public bool ShowAuora { get; set; } = true;
+
+		public Wither(Level level) : base(EntityType.Wither, level)
 		{
-			Width = Length = 13;
-			Height = 4;
-			IsSitting = true;
-			HealthManager.MaxHealth = 200;
-			HealthManager.Health = 200;
-			HealthManager.ResetHealth();
+			Width = Length = 1;
+			Height = 3.5;
+			HealthManager.MaxHealth = 400;
+			HealthManager.Health = 4;
+			//HealthManager.ResetHealth();
 			NoAi = true;
 		}
 
 		public override MetadataDictionary GetMetadata()
 		{
-			Log.Warn("Metadata");
 			MetadataDictionary metadata = new MetadataDictionary();
-			//metadata[38] = new MetadataLong(0);
-			//metadata[39] = new MetadataFloat(1f);
-			//metadata[44] = new MetadataShort(300);
-
-			//MetadataDictionary metadata = new MetadataDictionary();
-			metadata[0] = new MetadataLong(8388608); // 100000000000000000000000; Sitting
+			metadata[0] = new MetadataLong(8592556032); // 1000000000001010000000000000000000; CanClimb, CanFly, Breathing
 			metadata[1] = new MetadataInt(1);
 			metadata[2] = new MetadataInt(0);
 			metadata[3] = new MetadataByte(0);
@@ -71,8 +68,13 @@ namespace MiNET.Entities.Hostile
 			metadata[45] = new MetadataByte(0);
 			metadata[46] = new MetadataInt(0);
 			metadata[47] = new MetadataInt(0);
-			metadata[54] = new MetadataFloat(13f);
-			metadata[55] = new MetadataFloat(4f);
+			metadata[49] = new MetadataInt(AnimationStep);
+			metadata[50] = new MetadataLong(-1);
+			metadata[51] = new MetadataLong(-1);
+			metadata[52] = new MetadataLong(-1);
+			metadata[53] = new MetadataShort((short) (ShowAuora ? 0 : 1));
+			metadata[54] = new MetadataFloat(1f);
+			metadata[55] = new MetadataFloat(3f);
 			metadata[58] = new MetadataByte(0);
 			metadata[59] = new MetadataFloat(0f);
 			metadata[60] = new MetadataFloat(0f);
@@ -86,7 +88,44 @@ namespace MiNET.Entities.Hostile
 			metadata[77] = new MetadataInt(0);
 			metadata[78] = new MetadataInt(-1);
 
+			//metadata[49] = new MetadataInt(0);
+			//metadata[53] = new MetadataShort(0);
+
 			return metadata;
+		}
+
+		private bool _isDead = false;
+
+		private long _tick = 0;
+		private CooldownTimer cooldown = new CooldownTimer(TimeSpan.FromMilliseconds(10000));
+
+		public override void OnTick()
+		{
+			//base.OnTick();
+
+			if (cooldown.Execute())
+			{
+				_tick = 2;
+				ShowAuora = false;
+				BroadcastSetEntityData();
+				//ShowAuora = false;
+				//BroadcastSetEntityData();
+			}
+
+			if (_tick-- >= 0)
+			{
+				if (_tick == 1)
+				{
+					ShowAuora = true;
+				}
+				else
+				{
+					ShowAuora = false;
+				}
+
+				AnimationStep = (int) _tick;
+				BroadcastSetEntityData();
+			}
 		}
 	}
 }

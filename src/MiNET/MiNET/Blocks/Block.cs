@@ -29,6 +29,7 @@ namespace MiNET.Blocks
 		public bool IsBuildable { get; protected set; }
 		public bool IsTransparent { get; protected set; }
 		public bool IsFlammable { get; protected set; }
+		public bool IsBlockingSkylight { get; protected set; } = true;
 
 		public byte BlockLight { get; set; }
 		public byte SkyLight { get; set; }

@@ -1599,7 +1599,7 @@ namespace MiNET.Net
 	public partial class McpeResourcePackClientResponse : Package<McpeResourcePackClientResponse>
 	{
 		public byte responseStatus; // = null;
-		public ResourcePackIdVersions resourcepackidversions; // = null;
+		public ResourcePackIds resourcepackids; // = null;
 		public McpeResourcePackClientResponse()
 		{
 			Id = 0x08;
@@ -1612,7 +1612,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(responseStatus);
-			Write(resourcepackidversions);
+			Write(resourcepackids);
 
 			AfterEncode();
 		}
@@ -1627,7 +1627,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			responseStatus = ReadByte();
-			resourcepackidversions = ReadResourcePackIdVersions();
+			resourcepackids = ReadResourcePackIds();
 
 			AfterDecode();
 		}
@@ -2459,7 +2459,7 @@ namespace MiNET.Net
 	public partial class McpeExplode : Package<McpeExplode>
 	{
 		public Vector3 position; // = null;
-		public float radius; // = null;
+		public int radius; // = null;
 		public Records records; // = null;
 		public McpeExplode()
 		{
@@ -2473,7 +2473,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(position);
-			Write(radius);
+			WriteSignedVarInt(radius);
 			Write(records);
 
 			AfterEncode();
@@ -2489,7 +2489,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			position = ReadVector3();
-			radius = ReadFloat();
+			radius = ReadSignedVarInt();
 			records = ReadRecords();
 
 			AfterDecode();

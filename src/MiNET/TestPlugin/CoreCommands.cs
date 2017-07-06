@@ -386,7 +386,7 @@ namespace TestPlugin
 			player.SendMessage(string.Format("Client ID={0}", player.ClientUuid), type: MessageType.Raw);
 		}
 
-		[Command(Name = "pos")]
+		[Command(Name = "position")]
 		public void Position(Player player)
 		{
 			BlockCoordinates position = new BlockCoordinates(player.KnownPosition);

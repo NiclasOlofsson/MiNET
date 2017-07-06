@@ -11,14 +11,15 @@ string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
 doc.Load(path + @"\MCPE Protocol.xml");
 
-
-XmlNodeList pdus = doc.SelectNodes("//pdu");
+XmlNodeList pdus = doc.SelectNodes("//pdu[not(@namespace='raknet') and not(@namespace='ftl')]");
 XPathNavigator nav = pdus.Item(0).OwnerDocument.CreateNavigator();
-XPathExpression exp = nav.Compile("//pdu");
+XPathExpression exp = nav.Compile("//pdu[not(@namespace='raknet') and not(@namespace='ftl')]");
 exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Text);
 
 #>
 **WARNING: T4 GENERATED MARKUP - DO NOT EDIT**
+
+Read more about packets and this specification on the [Protocol Wiki](https://github.com/NiclasOlofsson/MiNET/wiki//ref-protocol)
 
 ## ALL PACKAGES
 
@@ -70,7 +71,7 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 <#	
 
 
-foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
+foreach (XmlNode pdu in pdus)
 {
 	string pduComment = (pdu.PreviousSibling == null? null: pdu.PreviousSibling.Value)??"";
 	string typeIdName = CodeName(pdu.Attributes["name"].Value, true);
@@ -82,6 +83,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;
 #>
 ### Package: <#= typeIdName #> (<#= typeId #>)
+Wiki: [Package-<#= typeIdName #>](https://github.com/NiclasOlofsson/MiNET/wiki//ref-<#= typeIdName.Replace(" ", "") #>)
 
 **Sent from server:** <#= isServer #>
 **Sent from client:** <#= isClient #>
@@ -154,6 +156,7 @@ private string CodeFieldName(string name)
 private string CodeName(string name, bool firstUpper = false)
 {
 	if(name.StartsWith("ID_")) name = name.Replace("ID_", "");
+	if(name.StartsWith("MCPE_")) name = name.Replace("MCPE_", "");
     name = name.ToLowerInvariant();
 
     string result = name;

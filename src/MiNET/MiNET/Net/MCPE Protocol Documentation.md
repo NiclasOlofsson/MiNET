@@ -1,122 +1,106 @@
 ﻿
 **WARNING: T4 GENERATED MARKUP - DO NOT EDIT**
 
+Read more about packets and this specification on the [Protocol Wiki](https://github.com/NiclasOlofsson/MiNET/wiki//ref-protocol)
+
 ## ALL PACKAGES
 
 | ID  | ID (hex) | ID (dec) | 
 |:--- |:---------|---------:| 
-| Connected Ping | 0x00 | 0 |   
-| Unconnected Ping | 0x01 | 1 |   
-| Mcpe Login | 0x01 | 1 |   
-| Ftl Create Player | 0x01 | 1 |   
-| Mcpe Play Status | 0x02 | 2 |   
-| Connected Pong | 0x03 | 3 |   
-| Mcpe Server To Client Handshake | 0x03 | 3 |   
-| Detect Lost Connections | 0x04 | 4 |   
-| Mcpe Client To Server Handshake | 0x04 | 4 |   
-| Open Connection Request 1 | 0x05 | 5 |   
-| Mcpe Disconnect | 0x05 | 5 |   
-| Open Connection Reply 1 | 0x06 | 6 |   
-| Mcpe Resource Packs Info | 0x06 | 6 |   
-| Open Connection Request 2 | 0x07 | 7 |   
-| Mcpe Resource Pack Stack | 0x07 | 7 |   
-| Open Connection Reply 2 | 0x08 | 8 |   
-| Mcpe Resource Pack Client Response | 0x08 | 8 |   
-| Connection Request | 0x09 | 9 |   
-| Mcpe Text | 0x09 | 9 |   
-| Mcpe Set Time | 0x0a | 10 |   
-| Mcpe Start Game | 0x0b | 11 |   
-| Mcpe Add Player | 0x0c | 12 |   
-| Mcpe Add Entity | 0x0d | 13 |   
-| Mcpe Remove Entity | 0x0e | 14 |   
-| Mcpe Add Item Entity | 0x0f | 15 |   
-| Connection Request Accepted | 0x10 | 16 |   
-| Mcpe Take Item Entity | 0x11 | 17 |   
-| Mcpe Move Entity | 0x12 | 18 |   
-| New Incoming Connection | 0x13 | 19 |   
-| Mcpe Move Player | 0x13 | 19 |   
-| No Free Incoming Connections | 0x14 | 20 |   
-| Mcpe Rider Jump | 0x14 | 20 |   
-| Disconnection Notification | 0x15 | 21 |   
-| Mcpe Update Block | 0x15 | 21 |   
-| Mcpe Add Painting | 0x16 | 22 |   
-| Connection Banned | 0x17 | 23 |   
-| Mcpe Explode | 0x17 | 23 |   
-| Mcpe Level Sound Event | 0x18 | 24 |   
-| Mcpe Level Event | 0x19 | 25 |   
-| Mcpe Block Event | 0x1a | 26 |   
-| Ip Recently Connected | 0x1A | 26 |   
-| Mcpe Entity Event | 0x1b | 27 |   
-| Unconnected Pong | 0x1c | 28 |   
-| Mcpe Mob Effect | 0x1c | 28 |   
-| Mcpe Update Attributes | 0x1d | 29 |   
-| Mcpe Inventory Transaction Packet | 0x1e | 30 |   
-| Mcpe Mob Equipment | 0x1f | 31 |   
-| Mcpe Mob Armor Equipment | 0x20 | 32 |   
-| Mcpe Interact | 0x21 | 33 |   
-| Mcpe Block Pick Request | 0x22 | 34 |   
-| Mcpe Entity Pick Request Packet | 0x23 | 35 |   
-| Mcpe Player Action | 0x24 | 36 |   
-| Mcpe Entity Fall | 0x25 | 37 |   
-| Mcpe Hurt Armor | 0x26 | 38 |   
-| Mcpe Set Entity Data | 0x27 | 39 |   
-| Mcpe Set Entity Motion | 0x28 | 40 |   
-| Mcpe Set Entity Link | 0x29 | 41 |   
-| Mcpe Set Health | 0x2a | 42 |   
-| Mcpe Set Spawn Position | 0x2b | 43 |   
-| Mcpe Animate | 0x2c | 44 |   
-| Mcpe Respawn | 0x2d | 45 |   
-| Mcpe Container Open | 0x2e | 46 |   
-| Mcpe Container Close | 0x2f | 47 |   
-| Mcpe Player Hotbar Packet | 0x30 | 48 |   
-| Mcpe Inventory Content Packet | 0x31 | 49 |   
-| Mcpe Inventory Slot Packet | 0x32 | 50 |   
-| Mcpe Container Set Data | 0x33 | 51 |   
-| Mcpe Crafting Data | 0x34 | 52 |   
-| Mcpe Crafting Event | 0x35 | 53 |   
-| Mcpe Gui Data Pick Item Packet | 0x36 | 54 |   
-| Mcpe Adventure Settings | 0x37 | 55 |   
-| Mcpe Block Entity Data | 0x38 | 56 |   
-| Mcpe Player Input | 0x39 | 57 |   
-| Mcpe Full Chunk Data | 0x3a | 58 |   
-| Mcpe Set Commands Enabled | 0x3b | 59 |   
-| Mcpe Set Difficulty | 0x3c | 60 |   
-| Mcpe Change Dimension | 0x3d | 61 |   
-| Mcpe Set Player Game Type | 0x3e | 62 |   
-| Mcpe Player List | 0x3f | 63 |   
-| Mcpe Simple Event | 0x40 | 64 |   
-| Mcpe Telemetry Event Packet | 0x41 | 65 |   
-| Mcpe Spawn Experience Orb | 0x42 | 66 |   
-| Mcpe Clientbound Map Item Data  | 0x43 | 67 |   
-| Mcpe Map Info Request | 0x44 | 68 |   
-| Mcpe Request Chunk Radius | 0x45 | 69 |   
-| Mcpe Chunk Radius Update | 0x46 | 70 |   
-| Mcpe Item Frame Drop Item | 0x47 | 71 |   
-| Mcpe Game Rules Changed | 0x48 | 72 |   
-| Mcpe Camera | 0x49 | 73 |   
-| Mcpe Boss Event | 0x4a | 74 |   
-| Mcpe Show Credits | 0x4b | 75 |   
-| Mcpe Available Commands | 0x4c | 76 |   
-| Mcpe Command Request Packet | 0x4d | 77 |   
-| Mcpe Command Block Update | 0x4e | 78 |   
-| Mcpe Update Trade | 0x50 | 80 |   
-| Mcpe Update Equipment Packet | 0x51 | 81 |   
-| Mcpe Resource Pack Data Info | 0x52 | 82 |   
-| Mcpe Resource Pack Chunk Data | 0x53 | 83 |   
-| Mcpe Resource Pack Chunk Request | 0x54 | 84 |   
-| Mcpe Transfer | 0x55 | 85 |   
-| Mcpe Play Sound | 0x56 | 86 |   
-| Mcpe Stop Sound | 0x57 | 87 |   
-| Mcpe Set Title | 0x58 | 88 |   
-| Mcpe Add Behavior Tree Packet | 0x59 | 89 |   
-| Mcpe Structure Block Update Packet | 0x5a | 90 |   
-| Mcpe Player Skin Packet | 0x5d | 93 |   
-| Mcpe Sub Client Login Packet | 0x5e | 94 |   
-| Mcpe Initiate Web Socket Connection Packet | 0x5f | 95 |   
-| Mcpe Set Last Hurt By Packet | 0x60 | 96 |   
-| Mcpe Book Edit Packet | 0x61 | 97 |   
-| Mcpe Npc Request Packet | 0x62 | 98 |   
-| Mcpe Wrapper | 0xfe | 254 |   
+| Login | 0x01 | 1 |   
+| Play Status | 0x02 | 2 |   
+| Server To Client Handshake | 0x03 | 3 |   
+| Client To Server Handshake | 0x04 | 4 |   
+| Disconnect | 0x05 | 5 |   
+| Resource Packs Info | 0x06 | 6 |   
+| Resource Pack Stack | 0x07 | 7 |   
+| Resource Pack Client Response | 0x08 | 8 |   
+| Text | 0x09 | 9 |   
+| Set Time | 0x0a | 10 |   
+| Start Game | 0x0b | 11 |   
+| Add Player | 0x0c | 12 |   
+| Add Entity | 0x0d | 13 |   
+| Remove Entity | 0x0e | 14 |   
+| Add Item Entity | 0x0f | 15 |   
+| Take Item Entity | 0x11 | 17 |   
+| Move Entity | 0x12 | 18 |   
+| Move Player | 0x13 | 19 |   
+| Rider Jump | 0x14 | 20 |   
+| Update Block | 0x15 | 21 |   
+| Add Painting | 0x16 | 22 |   
+| Explode | 0x17 | 23 |   
+| Level Sound Event | 0x18 | 24 |   
+| Level Event | 0x19 | 25 |   
+| Block Event | 0x1a | 26 |   
+| Entity Event | 0x1b | 27 |   
+| Mob Effect | 0x1c | 28 |   
+| Update Attributes | 0x1d | 29 |   
+| Inventory Transaction Packet | 0x1e | 30 |   
+| Mob Equipment | 0x1f | 31 |   
+| Mob Armor Equipment | 0x20 | 32 |   
+| Interact | 0x21 | 33 |   
+| Block Pick Request | 0x22 | 34 |   
+| Entity Pick Request Packet | 0x23 | 35 |   
+| Player Action | 0x24 | 36 |   
+| Entity Fall | 0x25 | 37 |   
+| Hurt Armor | 0x26 | 38 |   
+| Set Entity Data | 0x27 | 39 |   
+| Set Entity Motion | 0x28 | 40 |   
+| Set Entity Link | 0x29 | 41 |   
+| Set Health | 0x2a | 42 |   
+| Set Spawn Position | 0x2b | 43 |   
+| Animate | 0x2c | 44 |   
+| Respawn | 0x2d | 45 |   
+| Container Open | 0x2e | 46 |   
+| Container Close | 0x2f | 47 |   
+| Player Hotbar Packet | 0x30 | 48 |   
+| Inventory Content Packet | 0x31 | 49 |   
+| Inventory Slot Packet | 0x32 | 50 |   
+| Container Set Data | 0x33 | 51 |   
+| Crafting Data | 0x34 | 52 |   
+| Crafting Event | 0x35 | 53 |   
+| Gui Data Pick Item Packet | 0x36 | 54 |   
+| Adventure Settings | 0x37 | 55 |   
+| Block Entity Data | 0x38 | 56 |   
+| Player Input | 0x39 | 57 |   
+| Full Chunk Data | 0x3a | 58 |   
+| Set Commands Enabled | 0x3b | 59 |   
+| Set Difficulty | 0x3c | 60 |   
+| Change Dimension | 0x3d | 61 |   
+| Set Player Game Type | 0x3e | 62 |   
+| Player List | 0x3f | 63 |   
+| Simple Event | 0x40 | 64 |   
+| Telemetry Event Packet | 0x41 | 65 |   
+| Spawn Experience Orb | 0x42 | 66 |   
+| Clientbound Map Item Data  | 0x43 | 67 |   
+| Map Info Request | 0x44 | 68 |   
+| Request Chunk Radius | 0x45 | 69 |   
+| Chunk Radius Update | 0x46 | 70 |   
+| Item Frame Drop Item | 0x47 | 71 |   
+| Game Rules Changed | 0x48 | 72 |   
+| Camera | 0x49 | 73 |   
+| Boss Event | 0x4a | 74 |   
+| Show Credits | 0x4b | 75 |   
+| Available Commands | 0x4c | 76 |   
+| Command Request Packet | 0x4d | 77 |   
+| Command Block Update | 0x4e | 78 |   
+| Update Trade | 0x50 | 80 |   
+| Update Equipment Packet | 0x51 | 81 |   
+| Resource Pack Data Info | 0x52 | 82 |   
+| Resource Pack Chunk Data | 0x53 | 83 |   
+| Resource Pack Chunk Request | 0x54 | 84 |   
+| Transfer | 0x55 | 85 |   
+| Play Sound | 0x56 | 86 |   
+| Stop Sound | 0x57 | 87 |   
+| Set Title | 0x58 | 88 |   
+| Add Behavior Tree Packet | 0x59 | 89 |   
+| Structure Block Update Packet | 0x5a | 90 |   
+| Player Skin Packet | 0x5d | 93 |   
+| Sub Client Login Packet | 0x5e | 94 |   
+| Initiate Web Socket Connection Packet | 0x5f | 95 |   
+| Set Last Hurt By Packet | 0x60 | 96 |   
+| Book Edit Packet | 0x61 | 97 |   
+| Npc Request Packet | 0x62 | 98 |   
 
 
 ## Constants
@@ -126,271 +110,8 @@
 
 ## Packages
 
-### Package: Connected Ping (0x00)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|SendPingTime | long |  |
------------------------------------------------------------------------
-### Package: Unconnected Ping (0x01)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-
-Send a ping to the specified unconnected system.
-The remote system, if it is Initialized, will respond with ID_UNCONNECTED_PONG.
-The final ping time will be encoded in the following sizeof(RakNet::TimeMS) bytes.  (Default is 4 bytes - See __GET_TIME_64BIT in RakNetTypes.h
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Ping Id | long |  |
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|GUID | long |  |
------------------------------------------------------------------------
-### Package: Connected Pong (0x03)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|SendPingTime | long |  |
-|SendPongTime | long |  |
------------------------------------------------------------------------
-### Package: Detect Lost Connections (0x04)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
------------------------------------------------------------------------
-### Package: Unconnected Pong (0x1c)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-<pdu id="0xc0" online="false" client="true" server="true" name="ACK">
-<field name="Count" type="short" />
-<field name="Only One Sequence" type="byte" />
-<field name="Sequence Number" type="little" />
-</pdu>
-
-<pdu id="0xa0" online="false" client="true" server="true" name="NAK">
-<field name="Count" type="short" />
-<field name="Only One Sequence" type="byte" />
-<field name="Sequence Number" type="little" />
-</pdu>
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Ping Id | long |  |
-|Server ID | long |  |
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Server Name | FixedString |  |
------------------------------------------------------------------------
-### Package: Open Connection Request 1 (0x05)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|RakNet Protocol Version | byte |  |
------------------------------------------------------------------------
-### Package: Open Connection Reply 1 (0x06)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 28
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Server GUID | long |  |
-|Server Has Security | byte |  |
-|MTU Size | short |  |
------------------------------------------------------------------------
-### Package: Open Connection Request 2 (0x07)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 34
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Remote Binding Address | IPEndPoint |  |
-|MTU Size | short |  |
-|Client GUID | long |  |
------------------------------------------------------------------------
-### Package: Open Connection Reply 2 (0x08)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 30
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Server GUID | long |  |
-|Client Endpoint | IPEndPoint |  |
-|MTU Size | short |  |
-|Do security and handshake | byte[] | 0 |
------------------------------------------------------------------------
-### Package: Connection Request (0x09)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 33
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Client GUID | long |  |
-|Timestamp | long |  |
-|Do Security | byte |  |
------------------------------------------------------------------------
-### Package: Connection Request Accepted (0x10)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|System Address | IPEndPoint |  |
-|System Index | short |  |
-|System Addresses | IPEndPoint[] | 20 |
-|Incoming Timestamp | long |  |
-|Server Timestamp | long |  |
------------------------------------------------------------------------
-### Package: New Incoming Connection (0x13)
-
-**Sent from server:** false
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|ClientEndpoint | IPEndPoint |  |
-|System Addresses | IPEndPoint[] | 20 |
-|Incoming Timestamp | long |  |
-|Server Timestamp | long |  |
------------------------------------------------------------------------
-### Package: No Free Incoming Connections (0x14)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Server GUID | long |  |
------------------------------------------------------------------------
-### Package: Disconnection Notification (0x15)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
------------------------------------------------------------------------
-### Package: Connection Banned (0x17)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
-|Server GUID | long |  |
------------------------------------------------------------------------
-### Package: Ip Recently Connected (0x1A)
-
-**Sent from server:** true
-**Sent from client:** true
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Offline Message Data ID | OFFLINE_MESSAGE_DATA_ID |  |
------------------------------------------------------------------------
-### Package: Mcpe Login (0x01)
+### Package: Login (0x01)
+Wiki: [Package-Login](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Login)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -405,7 +126,8 @@ The final ping time will be encoded in the following sizeof(RakNet::TimeMS) byte
 |Protocol Version | int |  |
 |Payload | ByteArray |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Play Status (0x02)
+### Package: Play Status (0x02)
+Wiki: [Package-Play Status](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayStatus)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -429,7 +151,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |:-----|:-----|:-----|
 |Status | int |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Server To Client Handshake (0x03)
+### Package: Server To Client Handshake (0x03)
+Wiki: [Package-Server To Client Handshake](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ServerToClientHandshake)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -445,7 +168,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |Token Length | Length |  |
 |Token | byte[] | 0 |
 -----------------------------------------------------------------------
-### Package: Mcpe Client To Server Handshake (0x04)
+### Package: Client To Server Handshake (0x04)
+Wiki: [Package-Client To Server Handshake](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ClientToServerHandshake)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -458,7 +182,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Disconnect (0x05)
+### Package: Disconnect (0x05)
+Wiki: [Package-Disconnect](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Disconnect)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -473,7 +198,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |Hide disconnect reason | bool |  |
 |Message | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Packs Info (0x06)
+### Package: Resource Packs Info (0x06)
+Wiki: [Package-Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePacksInfo)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -489,7 +215,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |BehahaviorPackInfos | ResourcePackInfos |  |
 |ResourcePackInfos | ResourcePackInfos |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Stack (0x07)
+### Package: Resource Pack Stack (0x07)
+Wiki: [Package-Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackStack)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -505,7 +232,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |BehaviorPackIdVersions | ResourcePackIdVersions |  |
 |ResourcePackIdVersions | ResourcePackIdVersions |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Client Response (0x08)
+### Package: Resource Pack Client Response (0x08)
+Wiki: [Package-Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackClientResponse)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -520,7 +248,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |Response status | byte |  |
 |ResourcePackIds | ResourcePackIds |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Text (0x09)
+### Package: Text (0x09)
+Wiki: [Package-Text](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Text)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -534,7 +263,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |:-----|:-----|:-----|
 |Type | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Time (0x0a)
+### Package: Set Time (0x0a)
+Wiki: [Package-Set Time](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetTime)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -548,7 +278,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |:-----|:-----|:-----|
 |Time | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Start Game (0x0b)
+### Package: Start Game (0x0b)
+Wiki: [Package-Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//ref-StartGame)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -587,7 +318,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |Unknown0 | bool |  |
 |Current Tick | long |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Player (0x0c)
+### Package: Add Player (0x0c)
+Wiki: [Package-Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddPlayer)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -615,7 +347,8 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |Item | Item |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Entity (0x0d)
+### Package: Add Entity (0x0d)
+Wiki: [Package-Add Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -654,7 +387,8 @@ val2 float
 |Metadata | MetadataDictionary |  |
 |Links | Links |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Remove Entity (0x0e)
+### Package: Remove Entity (0x0e)
+Wiki: [Package-Remove Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-RemoveEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -668,7 +402,8 @@ val2 float
 |:-----|:-----|:-----|
 |Entity ID Self | SignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Item Entity (0x0f)
+### Package: Add Item Entity (0x0f)
+Wiki: [Package-Add Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddItemEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -691,7 +426,8 @@ val2 float
 |Speed Z | float |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Take Item Entity (0x11)
+### Package: Take Item Entity (0x11)
+Wiki: [Package-Take Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-TakeItemEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -706,7 +442,8 @@ val2 float
 |Runtime Entity ID | UnsignedVarLong |  |
 |Target | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Move Entity (0x12)
+### Package: Move Entity (0x12)
+Wiki: [Package-Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MoveEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -723,7 +460,8 @@ val2 float
 |On Ground | bool |  |
 |Teleport | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Move Player (0x13)
+### Package: Move Player (0x13)
+Wiki: [Package-Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MovePlayer)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -750,7 +488,8 @@ MODE_ROTATION = 2;
 |On Ground | bool |  |
 |Other Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Rider Jump (0x14)
+### Package: Rider Jump (0x14)
+Wiki: [Package-Rider Jump](https://github.com/NiclasOlofsson/MiNET/wiki//ref-RiderJump)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -764,7 +503,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Update Block (0x15)
+### Package: Update Block (0x15)
+Wiki: [Package-Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateBlock)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -778,7 +518,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Records | BlockUpdateRecords |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Painting (0x16)
+### Package: Add Painting (0x16)
+Wiki: [Package-Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddPainting)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -796,7 +537,8 @@ MODE_ROTATION = 2;
 |Direction | SignedVarInt |  |
 |Title | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Explode (0x17)
+### Package: Explode (0x17)
+Wiki: [Package-Explode](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Explode)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -812,7 +554,8 @@ MODE_ROTATION = 2;
 |Radius | SignedVarInt |  |
 |Records | Records |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Level Sound Event (0x18)
+### Package: Level Sound Event (0x18)
+Wiki: [Package-Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-LevelSoundEvent)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -831,7 +574,8 @@ MODE_ROTATION = 2;
 |Is baby mob | bool |  |
 |Is global | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Level Event (0x19)
+### Package: Level Event (0x19)
+Wiki: [Package-Level Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-LevelEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -847,7 +591,8 @@ MODE_ROTATION = 2;
 |Position | Vector3 |  |
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Block Event (0x1a)
+### Package: Block Event (0x1a)
+Wiki: [Package-Block Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BlockEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -863,7 +608,8 @@ MODE_ROTATION = 2;
 |Case 1 | SignedVarInt |  |
 |Case 2 | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Entity Event (0x1b)
+### Package: Entity Event (0x1b)
+Wiki: [Package-Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-EntityEvent)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -879,7 +625,8 @@ MODE_ROTATION = 2;
 |Event ID | byte |  |
 |Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Mob Effect (0x1c)
+### Package: Mob Effect (0x1c)
+Wiki: [Package-Mob Effect](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MobEffect)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -898,7 +645,8 @@ MODE_ROTATION = 2;
 |Particles | bool |  |
 |Duration | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Update Attributes (0x1d)
+### Package: Update Attributes (0x1d)
+Wiki: [Package-Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateAttributes)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -913,7 +661,8 @@ MODE_ROTATION = 2;
 |Runtime Entity ID | UnsignedVarLong |  |
 |Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Inventory Transaction Packet (0x1e)
+### Package: Inventory Transaction Packet (0x1e)
+Wiki: [Package-Inventory Transaction Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InventoryTransactionPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -927,7 +676,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Transaction | Transaction |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Mob Equipment (0x1f)
+### Package: Mob Equipment (0x1f)
+Wiki: [Package-Mob Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MobEquipment)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -945,7 +695,8 @@ MODE_ROTATION = 2;
 |Selected Slot | byte |  |
 |Windows Id | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Mob Armor Equipment (0x20)
+### Package: Mob Armor Equipment (0x20)
+Wiki: [Package-Mob Armor Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MobArmorEquipment)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -963,7 +714,8 @@ MODE_ROTATION = 2;
 |Leggings | Item |  |
 |Boots | Item |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Interact (0x21)
+### Package: Interact (0x21)
+Wiki: [Package-Interact](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Interact)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -978,7 +730,8 @@ MODE_ROTATION = 2;
 |Action ID | byte |  |
 |Target Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Block Pick Request (0x22)
+### Package: Block Pick Request (0x22)
+Wiki: [Package-Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BlockPickRequest)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -995,7 +748,8 @@ MODE_ROTATION = 2;
 |Z | SignedVarInt |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Entity Pick Request Packet (0x23)
+### Package: Entity Pick Request Packet (0x23)
+Wiki: [Package-Entity Pick Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-EntityPickRequestPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1008,7 +762,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Player Action (0x24)
+### Package: Player Action (0x24)
+Wiki: [Package-Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerAction)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1025,7 +780,8 @@ MODE_ROTATION = 2;
 |Coordinates | BlockCoordinates |  |
 |Face | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Entity Fall (0x25)
+### Package: Entity Fall (0x25)
+Wiki: [Package-Entity Fall](https://github.com/NiclasOlofsson/MiNET/wiki//ref-EntityFall)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1041,7 +797,8 @@ MODE_ROTATION = 2;
 |Fall distance | float |  |
 |Unknown | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Hurt Armor (0x26)
+### Package: Hurt Armor (0x26)
+Wiki: [Package-Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//ref-HurtArmor)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1055,7 +812,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Health | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Entity Data (0x27)
+### Package: Set Entity Data (0x27)
+Wiki: [Package-Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetEntityData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1070,7 +828,8 @@ MODE_ROTATION = 2;
 |Runtime Entity ID | UnsignedVarLong |  |
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Entity Motion (0x28)
+### Package: Set Entity Motion (0x28)
+Wiki: [Package-Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetEntityMotion)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1085,7 +844,8 @@ MODE_ROTATION = 2;
 |Runtime Entity ID | UnsignedVarLong |  |
 |Velocity | Vector3 |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Entity Link (0x29)
+### Package: Set Entity Link (0x29)
+Wiki: [Package-Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetEntityLink)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1101,7 +861,8 @@ MODE_ROTATION = 2;
 |Ridden ID | UnsignedVarLong |  |
 |Link Type | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Health (0x2a)
+### Package: Set Health (0x2a)
+Wiki: [Package-Set Health](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetHealth)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1115,7 +876,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Health | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Spawn Position (0x2b)
+### Package: Set Spawn Position (0x2b)
+Wiki: [Package-Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetSpawnPosition)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1131,7 +893,8 @@ MODE_ROTATION = 2;
 |Coordinates | BlockCoordinates |  |
 |Forced | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Animate (0x2c)
+### Package: Animate (0x2c)
+Wiki: [Package-Animate](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Animate)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1146,7 +909,8 @@ MODE_ROTATION = 2;
 |Action ID | SignedVarInt |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Respawn (0x2d)
+### Package: Respawn (0x2d)
+Wiki: [Package-Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Respawn)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1162,7 +926,8 @@ MODE_ROTATION = 2;
 |Y | float |  |
 |Z | float |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Container Open (0x2e)
+### Package: Container Open (0x2e)
+Wiki: [Package-Container Open](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ContainerOpen)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1179,7 +944,8 @@ MODE_ROTATION = 2;
 |Coordinates | BlockCoordinates |  |
 |Unknown Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Container Close (0x2f)
+### Package: Container Close (0x2f)
+Wiki: [Package-Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ContainerClose)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1193,7 +959,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Player Hotbar Packet (0x30)
+### Package: Player Hotbar Packet (0x30)
+Wiki: [Package-Player Hotbar Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerHotbarPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1208,7 +975,8 @@ MODE_ROTATION = 2;
 |Selected Slot | byte |  |
 |Hotbar Data | MetadataInts |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Inventory Content Packet (0x31)
+### Package: Inventory Content Packet (0x31)
+Wiki: [Package-Inventory Content Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InventoryContentPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1223,7 +991,8 @@ MODE_ROTATION = 2;
 |Inventory Id | VarInt |  |
 |Input | ItemStacks |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Inventory Slot Packet (0x32)
+### Package: Inventory Slot Packet (0x32)
+Wiki: [Package-Inventory Slot Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InventorySlotPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1239,7 +1008,8 @@ MODE_ROTATION = 2;
 |Slot | SignedVarInt |  |
 |Item | Item |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Container Set Data (0x33)
+### Package: Container Set Data (0x33)
+Wiki: [Package-Container Set Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ContainerSetData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1255,7 +1025,8 @@ MODE_ROTATION = 2;
 |Property | SignedVarInt |  |
 |Value | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Crafting Data (0x34)
+### Package: Crafting Data (0x34)
+Wiki: [Package-Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CraftingData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1269,7 +1040,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Recipes | Recipes |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Crafting Event (0x35)
+### Package: Crafting Event (0x35)
+Wiki: [Package-Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CraftingEvent)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1287,7 +1059,8 @@ MODE_ROTATION = 2;
 |Input | ItemStacks |  |
 |Result | ItemStacks |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Gui Data Pick Item Packet (0x36)
+### Package: Gui Data Pick Item Packet (0x36)
+Wiki: [Package-Gui Data Pick Item Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-GuiDataPickItemPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1300,7 +1073,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Adventure Settings (0x37)
+### Package: Adventure Settings (0x37)
+Wiki: [Package-Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AdventureSettings)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1315,7 +1089,8 @@ MODE_ROTATION = 2;
 |Flags | UnsignedVarInt |  |
 |User Permission | UnsignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Block Entity Data (0x38)
+### Package: Block Entity Data (0x38)
+Wiki: [Package-Block Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BlockEntityData)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1330,7 +1105,8 @@ MODE_ROTATION = 2;
 |Coordinates | BlockCoordinates |  |
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Player Input (0x39)
+### Package: Player Input (0x39)
+Wiki: [Package-Player Input](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerInput)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1347,7 +1123,8 @@ MODE_ROTATION = 2;
 |Flag1 | bool |  |
 |Flag2 | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Full Chunk Data (0x3a)
+### Package: Full Chunk Data (0x3a)
+Wiki: [Package-Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-FullChunkData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1363,7 +1140,8 @@ MODE_ROTATION = 2;
 |Chunk Z | SignedVarInt |  |
 |Chunk Data | ByteArray |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Commands Enabled (0x3b)
+### Package: Set Commands Enabled (0x3b)
+Wiki: [Package-Set Commands Enabled](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetCommandsEnabled)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1377,7 +1155,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Enabled | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Difficulty (0x3c)
+### Package: Set Difficulty (0x3c)
+Wiki: [Package-Set Difficulty](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetDifficulty)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1391,7 +1170,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Difficulty | UnsignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Change Dimension (0x3d)
+### Package: Change Dimension (0x3d)
+Wiki: [Package-Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ChangeDimension)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1407,7 +1187,8 @@ MODE_ROTATION = 2;
 |Position | Vector3 |  |
 |Unknown | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Player Game Type (0x3e)
+### Package: Set Player Game Type (0x3e)
+Wiki: [Package-Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetPlayerGameType)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1421,7 +1202,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Gamemode | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Player List (0x3f)
+### Package: Player List (0x3f)
+Wiki: [Package-Player List](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerList)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1435,7 +1217,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Records | PlayerRecords |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Simple Event (0x40)
+### Package: Simple Event (0x40)
+Wiki: [Package-Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SimpleEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1448,7 +1231,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Telemetry Event Packet (0x41)
+### Package: Telemetry Event Packet (0x41)
+Wiki: [Package-Telemetry Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-TelemetryEventPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1464,7 +1248,8 @@ MODE_ROTATION = 2;
 |Unk1 | SignedVarInt |  |
 |Unk2 | byte |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Spawn Experience Orb (0x42)
+### Package: Spawn Experience Orb (0x42)
+Wiki: [Package-Spawn Experience Orb](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SpawnExperienceOrb)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1479,7 +1264,8 @@ MODE_ROTATION = 2;
 |Position | Vector3 |  |
 |Count | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Clientbound Map Item Data  (0x43)
+### Package: Clientbound Map Item Data  (0x43)
+Wiki: [Package-Clientbound Map Item Data ](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ClientboundMapItemData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1493,7 +1279,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |MapInfo | MapInfo |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Map Info Request (0x44)
+### Package: Map Info Request (0x44)
+Wiki: [Package-Map Info Request](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MapInfoRequest)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1507,7 +1294,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Map ID | SignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Request Chunk Radius (0x45)
+### Package: Request Chunk Radius (0x45)
+Wiki: [Package-Request Chunk Radius](https://github.com/NiclasOlofsson/MiNET/wiki//ref-RequestChunkRadius)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1521,7 +1309,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Chunk Radius Update (0x46)
+### Package: Chunk Radius Update (0x46)
+Wiki: [Package-Chunk Radius Update](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ChunkRadiusUpdate)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1535,7 +1324,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Item Frame Drop Item (0x47)
+### Package: Item Frame Drop Item (0x47)
+Wiki: [Package-Item Frame Drop Item](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ItemFrameDropItem)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1549,7 +1339,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Coordinates | BlockCoordinates |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Game Rules Changed (0x48)
+### Package: Game Rules Changed (0x48)
+Wiki: [Package-Game Rules Changed](https://github.com/NiclasOlofsson/MiNET/wiki//ref-GameRulesChanged)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1563,7 +1354,8 @@ MODE_ROTATION = 2;
 |:-----|:-----|:-----|
 |Rules | GameRules |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Camera (0x49)
+### Package: Camera (0x49)
+Wiki: [Package-Camera](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Camera)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1576,7 +1368,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Boss Event (0x4a)
+### Package: Boss Event (0x4a)
+Wiki: [Package-Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BossEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1591,7 +1384,8 @@ MODE_ROTATION = 2;
 |Boss Entity ID | SignedVarLong |  |
 |Event Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Show Credits (0x4b)
+### Package: Show Credits (0x4b)
+Wiki: [Package-Show Credits](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ShowCredits)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1606,7 +1400,8 @@ MODE_ROTATION = 2;
 |Runtime Entity ID | UnsignedVarLong |  |
 |Status | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Available Commands (0x4c)
+### Package: Available Commands (0x4c)
+Wiki: [Package-Available Commands](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AvailableCommands)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1621,7 +1416,8 @@ MODE_ROTATION = 2;
 |Commands | string |  |
 |Unknown | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Command Request Packet (0x4d)
+### Package: Command Request Packet (0x4d)
+Wiki: [Package-Command Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CommandRequestPacket)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1645,7 +1441,8 @@ MODE_ROTATION = 2;
 |Unknown 8 | byte |  |
 |Entity ID Self | SignedVarLong |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Command Block Update (0x4e)
+### Package: Command Block Update (0x4e)
+Wiki: [Package-Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CommandBlockUpdate)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1658,7 +1455,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Update Trade (0x50)
+### Package: Update Trade (0x50)
+Wiki: [Package-Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateTrade)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1671,7 +1469,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Update Equipment Packet (0x51)
+### Package: Update Equipment Packet (0x51)
+Wiki: [Package-Update Equipment Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateEquipmentPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1684,7 +1483,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Data Info (0x52)
+### Package: Resource Pack Data Info (0x52)
+Wiki: [Package-Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackDataInfo)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1702,7 +1502,8 @@ MODE_ROTATION = 2;
 |Compressed Package Size  | ulong |  |
 |Hash  | string |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Chunk Data (0x53)
+### Package: Resource Pack Chunk Data (0x53)
+Wiki: [Package-Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackChunkData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1720,7 +1521,8 @@ MODE_ROTATION = 2;
 |Length | uint |  |
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
-### Package: Mcpe Resource Pack Chunk Request (0x54)
+### Package: Resource Pack Chunk Request (0x54)
+Wiki: [Package-Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackChunkRequest)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1735,7 +1537,8 @@ MODE_ROTATION = 2;
 |Package ID | string |  |
 |Chunk Index | uint |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Transfer (0x55)
+### Package: Transfer (0x55)
+Wiki: [Package-Transfer](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Transfer)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1750,7 +1553,8 @@ MODE_ROTATION = 2;
 |Server Address | string |  |
 |Port | ushort |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Play Sound (0x56)
+### Package: Play Sound (0x56)
+Wiki: [Package-Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlaySound)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1767,7 +1571,8 @@ MODE_ROTATION = 2;
 |Volume | float |  |
 |Pitch | float |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Stop Sound (0x57)
+### Package: Stop Sound (0x57)
+Wiki: [Package-Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//ref-StopSound)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1782,7 +1587,8 @@ MODE_ROTATION = 2;
 |Name | string |  |
 |Stop All | bool |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Set Title (0x58)
+### Package: Set Title (0x58)
+Wiki: [Package-Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetTitle)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1800,7 +1606,8 @@ MODE_ROTATION = 2;
 |Stay Time | SignedVarInt |  |
 |Fade Out Time | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Package: Mcpe Add Behavior Tree Packet (0x59)
+### Package: Add Behavior Tree Packet (0x59)
+Wiki: [Package-Add Behavior Tree Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddBehaviorTreePacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1813,7 +1620,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Structure Block Update Packet (0x5a)
+### Package: Structure Block Update Packet (0x5a)
+Wiki: [Package-Structure Block Update Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-StructureBlockUpdatePacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1826,7 +1634,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Player Skin Packet (0x5d)
+### Package: Player Skin Packet (0x5d)
+Wiki: [Package-Player Skin Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerSkinPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1839,7 +1648,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Sub Client Login Packet (0x5e)
+### Package: Sub Client Login Packet (0x5e)
+Wiki: [Package-Sub Client Login Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SubClientLoginPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1852,7 +1662,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Initiate Web Socket Connection Packet (0x5f)
+### Package: Initiate Web Socket Connection Packet (0x5f)
+Wiki: [Package-Initiate Web Socket Connection Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InitiateWebSocketConnectionPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1865,7 +1676,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Set Last Hurt By Packet (0x60)
+### Package: Set Last Hurt By Packet (0x60)
+Wiki: [Package-Set Last Hurt By Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetLastHurtByPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1878,7 +1690,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Book Edit Packet (0x61)
+### Package: Book Edit Packet (0x61)
+Wiki: [Package-Book Edit Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BookEditPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1891,7 +1704,8 @@ MODE_ROTATION = 2;
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Package: Mcpe Npc Request Packet (0x62)
+### Package: Npc Request Packet (0x62)
+Wiki: [Package-Npc Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-NpcRequestPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1903,38 +1717,6 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
------------------------------------------------------------------------
-### Package: Mcpe Wrapper (0xfe)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Payload | byte[] | 0 |
------------------------------------------------------------------------
-### Package: Ftl Create Player (0x01)
-
-**Sent from server:** true
-**Sent from client:** false
-**Packet size:** 
-
-
-
-#### Fields
-
-| Name | Type | Size |
-|:-----|:-----|:-----|
-|Username | string |  |
-|ClientUuid | UUID |  |
-|Server Address | string |  |
-|Client Id | long |  |
-|Skin | Skin |  |
 -----------------------------------------------------------------------
 
 

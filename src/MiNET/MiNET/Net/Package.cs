@@ -45,22 +45,23 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		private bool _isEncoded = false;
+		private bool _isEncoded;
 		private byte[] _encodedMessage;
 
-		[JsonIgnore] public int DatagramSequenceNumber = 0;
+		[JsonIgnore] public int DatagramSequenceNumber;
 
 		[JsonIgnore]
 		public bool NoBatch { get; set; }
 
 		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
-		[JsonIgnore] public int ReliableMessageNumber = 0;
-		[JsonIgnore] public byte OrderingChannel = 0;
-		[JsonIgnore] public int OrderingIndex = 0;
+		[JsonIgnore] public int ReliableMessageNumber;
+		[JsonIgnore] public byte OrderingChannel;
+		[JsonIgnore] public int OrderingIndex;
 
-		[JsonIgnore] public bool ForceClear = false;
+		[JsonIgnore] public bool ForceClear;
 
 		[JsonIgnore] public byte Id;
+		[JsonIgnore] public bool IsMcpe;
 
 		protected MemoryStream _buffer;
 		private BinaryWriter _writer;
@@ -756,6 +757,18 @@ namespace MiNET.Net
 		const int TransactionTypeItemUse = 2;
 		const int TransactionTypeItemUseOnEntity = 3;
 		const int TransactionTypeItemRelease = 4;
+
+		const int ItemReleaseActionRelease = 0;
+		const int ItemReleaseActionUse = 1;
+
+		const int ItemUseActionPlace = 0;
+		const int ItemUseActionUse = 1;
+		const int ItemUseActionDestroy = 2;
+
+		const int ItemUseOnEntityActionInteract = 0;
+		const int ItemUseOnEntityActionAttack = 1;
+		const int ItemUseOnEntityActionItemInteract = 2;
+
 
 		public void Write(Transaction trans)
 		{
@@ -1714,6 +1727,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Write(Id);
+			if (IsMcpe) Write((short)0);
 		}
 
 		public virtual void Reset()
@@ -1766,6 +1780,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
+			if(IsMcpe) ReadShort();
 		}
 
 		public virtual void Decode(byte[] buffer)

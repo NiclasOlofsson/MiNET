@@ -310,7 +310,11 @@ namespace MiNET
 					byte[] payload = batch.payload;
 					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
 					{
+#if __MonoCS__
+						throw new Exception("Turn off encryption");
+#else
 						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+#endif
 					}
 
 					// Decompress bytes

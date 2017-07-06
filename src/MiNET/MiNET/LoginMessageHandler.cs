@@ -252,6 +252,8 @@ namespace MiNET
 							Log.Debug($"JWT Payload:\n{jsonPayload}");
 						}
 
+						if (jsonPayload["extraData"] == null) continue;
+
 						_playerInfo.Username = jsonPayload["extraData"]["displayName"];
 						_session.Username = _playerInfo.Username;
 

@@ -35,12 +35,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using log4net;
-using Microsoft.AspNet.Identity;
 using Microsoft.IO;
 using MiNET.Net;
 using MiNET.Plugins;
-using MiNET.Security;
 using MiNET.Utils;
+using MiNET.Worlds;
 using Newtonsoft.Json;
 
 namespace MiNET
@@ -57,10 +56,6 @@ namespace MiNET
 
 		public MotdProvider MotdProvider { get; set; }
 
-		public bool IsSecurityEnabled { get; private set; }
-		public UserManager<User> UserManager { get; set; }
-		public RoleManager<Role> RoleManager { get; set; }
-
 		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
 
 		public IServerManager ServerManager { get; set; }
@@ -75,6 +70,7 @@ namespace MiNET
 		private Timer _cleanerTimer;
 
 		public int InacvitityTimeout { get; private set; }
+		public int ResendThreshold { get; private set; }
 
 		public ServerInfo ServerInfo { get; set; }
 
@@ -89,6 +85,7 @@ namespace MiNET
 		{
 			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
 			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
+			ResendThreshold = Config.GetProperty("ResendThreshold", 10);
 			ForceOrderingForAll = Config.GetProperty("ForceOrderingForAll", false);
 
 			int confMinWorkerThreads = Config.GetProperty("MinWorkerThreads", -1);
@@ -175,12 +172,13 @@ namespace MiNET
 					GreylistManager = GreylistManager ?? new GreylistManager(this);
 					SessionManager = SessionManager ?? new SessionManager();
 					LevelManager = LevelManager ?? new LevelManager();
+					//LevelManager = LevelManager ?? new SpreadLevelManager(1);
 					PlayerFactory = PlayerFactory ?? new PlayerFactory();
 
 					PluginManager.EnablePlugins(this, LevelManager);
 
 					// Cache - remove
-					LevelManager.GetLevel(null, "Default");
+					LevelManager.GetLevel(null, Dimension.Overworld.ToString());
 				}
 
 				GreylistManager = GreylistManager ?? new GreylistManager(this);
@@ -500,7 +498,10 @@ namespace MiNET
 					}
 					default:
 						GreylistManager.Blacklist(senderEndpoint.Address);
-						Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+						if (Log.IsInfoEnabled)
+						{
+							Log.ErrorFormat("Receive unexpected packet with ID: {0} (0x{0:x2}) {2} from {1}", msgId, senderEndpoint.Address, (DefaultMessageIdTypes) msgId);
+						}
 						break;
 				}
 			}
@@ -985,6 +986,7 @@ namespace MiNET
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
 		{
 			session.PlayerAckQueue.Enqueue(sequenceNumber);
+			session.SignalTick();
 		}
 
 		public void SendPackage(PlayerNetworkSession session, Package message)
@@ -1023,7 +1025,9 @@ namespace MiNET
 			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 			datagram.TransmissionCount++;
 
-			byte[] data = datagram.Encode();
+			//byte[] data = datagram.Encode();
+			byte[] data;
+			var lenght = (int) datagram.GetEncoded(out data);
 
 			datagram.Timer.Restart();
 
@@ -1034,7 +1038,27 @@ namespace MiNET
 
 			lock (session.SyncRoot)
 			{
-				SendData(data, session.EndPoint);
+				SendData(data, lenght, session.EndPoint);
+			}
+		}
+
+		internal void SendData(byte[] data, int lenght, IPEndPoint targetEndPoint)
+		{
+			try
+			{
+				_listener.Send(data, lenght, targetEndPoint); // Less thread-issues it seems
+
+				Interlocked.Increment(ref ServerInfo.NumberOfPacketsOutPerSecond);
+				Interlocked.Add(ref ServerInfo.TotalPacketSizeOut, lenght);
+			}
+			catch (ObjectDisposedException e)
+			{
+				Log.Warn(e);
+			}
+			catch (Exception e)
+			{
+				Log.Warn(e);
+				//if (_listener == null || _listener.Client != null) Log.Error(string.Format("Send data lenght: {0}", data.Length), e);
 			}
 		}
 

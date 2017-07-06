@@ -27,6 +27,7 @@ using System;
 using System.Collections;
 using System.Numerics;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -68,6 +69,8 @@ namespace MiNET.Entities
 		public double Drag { get; set; } = 0.02;
 		public double Gravity { get; set; } = 0.08;
 		public int Data { get; set; }
+
+		public long PortalDetected { get; set; }
 
 		public Entity(int entityTypeId, Level level)
 		{
@@ -152,6 +155,7 @@ namespace MiNET.Entities
 		public bool HaveAi => !NoAi;
 		public bool IsSilent { get; set; }
 		public bool IsWallClimbing { get; set; }
+		public bool CanClimb { get; set; }
 		public bool IsResting { get; set; }
 		public bool IsSitting { get; set; }
 		public bool IsAngry { get; set; }
@@ -235,6 +239,7 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.NoAi] = IsNoAi;
 			bits[(int) DataFlags.Silent] = IsSilent;
 			bits[(int) DataFlags.WallClimbing] = IsWallClimbing;
+			bits[(int) DataFlags.CanClimb] = CanClimb;
 			bits[(int) DataFlags.Resting] = IsResting;
 			bits[(int) DataFlags.Sitting] = IsSitting;
 			bits[(int) DataFlags.Angry] = IsAngry;
@@ -251,6 +256,14 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Stackable] = IsStackable;
 
 			return bits;
+		}
+
+		protected virtual bool DetectInPortal()
+		{
+			if (Level.Dimension == Dimension.Overworld && Level.NetherLevel == null) return false;
+			if (Level.Dimension == Dimension.Nether && Level.OverworldLevel == null) return false;
+
+			return Level.GetBlock(KnownPosition + new Vector3(0, 0.3f, 0)) is Portal;
 		}
 
 		public virtual void OnTick()
@@ -452,7 +465,7 @@ namespace MiNET.Entities
 			{
 				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 				moveEntity.runtimeEntityId = EntityId;
-				moveEntity.position = KnownPosition;
+				moveEntity.position = (PlayerLocation) KnownPosition.Clone();
 				moveEntity.Encode();
 				Level.RelayBroadcast(moveEntity);
 			}

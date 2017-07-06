@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,7 +34,6 @@ using System.Net;
 using System.Numerics;
 using System.Threading;
 using log4net;
-using Microsoft.AspNet.Identity;
 using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
@@ -18,7 +42,6 @@ using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
-using MiNET.Security;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -73,7 +96,6 @@ namespace MiNET
 
 		public List<Popup> Popups { get; set; } = new List<Popup>();
 
-		public User User { get; set; }
 		public Session Session { get; set; }
 
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
@@ -95,6 +117,7 @@ namespace MiNET
 
 			HideNameTag = false;
 			IsAlwaysShowName = true;
+			CanClimb = true;
 		}
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
@@ -306,6 +329,8 @@ namespace MiNET
 			Level.RelayBroadcast(this, msg);
 		}
 
+		Action _dimensionFunc;
+
 		/// <summary>
 		///     Handles the player action.
 		/// </summary>
@@ -315,6 +340,15 @@ namespace MiNET
 			switch ((PlayerAction) message.actionId)
 			{
 				case PlayerAction.StartBreak:
+					if (message.face == (int) BlockFace.Up)
+					{
+						Block block = Level.GetBlock(message.coordinates + BlockCoordinates.Up);
+						if (block is Fire)
+						{
+							Level.BreakBlock(this, message.coordinates + BlockCoordinates.Up);
+						}
+					}
+					break;
 				case PlayerAction.AbortBreak:
 				case PlayerAction.StopBreak:
 					break;
@@ -352,9 +386,14 @@ namespace MiNET
 					SetSprinting(false);
 					IsSneaking = false;
 					break;
-				case PlayerAction.DimensionChange:
-					break;
 				case PlayerAction.AbortDimensionChange:
+					break;
+				case PlayerAction.DimensionChange:
+					if (_dimensionFunc != null)
+					{
+						_dimensionFunc();
+						_dimensionFunc = null;
+					}
 					break;
 				case PlayerAction.WorldImmutable:
 					break;
@@ -371,8 +410,8 @@ namespace MiNET
 					IsGliding = false;
 					Height = 1.8;
 					break;
-				case PlayerAction.Unknown:
-					Log.Warn($"Unhandled UNKNOWN action ID={message.actionId}");
+				case PlayerAction.Breaking:
+
 					break;
 				default:
 					Log.Warn($"Unhandled action ID={message.actionId}");
@@ -440,10 +479,20 @@ namespace MiNET
 
 
 		public bool IsWorldImmutable { get; set; }
+		public bool IsWorldBuilder { get; set; }
+		public bool IsMuted { get; set; }
 		public bool IsNoPvp { get; set; }
 		public bool IsNoPvm { get; set; }
 		public bool IsNoMvp { get; set; }
 		public bool IsNoClip { get; set; }
+		public bool IsFlying { get; set; }
+
+		public virtual void HandleMcpeAdventureSettings(McpeAdventureSettings message)
+		{
+			var flags = message.flags;
+			IsAutoJump = (flags & 0x20) == 0x20;
+			IsFlying = (flags & 0x200) == 0x200;
+		}
 
 		public virtual void SendAdventureSettings()
 		{
@@ -451,7 +500,7 @@ namespace MiNET
 
 			uint flags = 0;
 
-			if (IsWorldImmutable || IsAdventure || GameMode == GameMode.Adventure) flags |= 0x01; // Immutable World (Remove hit markers client-side).
+			if (IsWorldImmutable || GameMode == GameMode.Adventure) flags |= 0x01; // Immutable World (Remove hit markers client-side).
 			if (IsNoPvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x02; // No PvP (Remove hit markers client-side).
 			if (IsNoPvm || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x04; // No PvM (Remove hit markers client-side).
 			if (IsNoMvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x08;
@@ -462,9 +511,10 @@ namespace MiNET
 
 			if (IsNoClip || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x80; // No clip
 
-			flags |= 0x100; // Worldbuilder
-			//flags |= 0x200; // Flying
-			//flags |= 0x400; // Mute
+			if (IsWorldBuilder) flags |= 0x100; // Worldbuilder
+
+			if (IsFlying) flags |= 0x200;
+			if (IsMuted) flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;
 			mcpeAdventureSettings.userPermission = (uint) PermissionLevel;
@@ -473,15 +523,6 @@ namespace MiNET
 		}
 
 		public UserPermission PermissionLevel { get; set; } = UserPermission.Admin;
-
-		public bool IsAdventure { get; set; }
-
-		[Wired]
-		public void SetAdventure(bool isAdventure)
-		{
-			IsAdventure = isAdventure;
-			SendAdventureSettings();
-		}
 
 		public bool IsSpectator { get; set; }
 
@@ -517,8 +558,6 @@ namespace MiNET
 			// Do nothing
 		}
 
-		private bool _completedStartSequence = false;
-
 		public void Start(object o)
 		{
 			Stopwatch watch = new Stopwatch();
@@ -530,16 +569,11 @@ namespace MiNET
 			{
 				Session = Server.SessionManager.CreateSession(this);
 
-				if (Server.IsSecurityEnabled)
-				{
-					User = User ?? Server.UserManager.FindByName(Username);
-				}
-
 				lock (_disconnectSync)
 				{
 					if (!IsConnected) return;
 
-					Level = Server.LevelManager.GetLevel(this, "Default");
+					Level = Server.LevelManager.GetLevel(this, Dimension.Overworld.ToString());
 				}
 				if (Level == null)
 				{
@@ -599,15 +633,7 @@ namespace MiNET
 
 				SendCreativeInventory();
 
-				//{
-				//	McpeCraftingData craftingData = McpeCraftingData.CreateObject();
-				//	craftingData.recipes = RecipeManager.Recipes;
-				//	SendPackage(craftingData);
-				//}
-
-				// More Send Attributes here (have to check)
-
-				//BroadcastSetEntityData();
+				SendCraftingRecipes();
 			}
 			catch (Exception e)
 			{
@@ -617,14 +643,6 @@ namespace MiNET
 			{
 				Interlocked.Decrement(ref serverInfo.ConnectionsInConnectPhase);
 			}
-
-			LastUpdatedTime = DateTime.UtcNow;
-
-			_completedStartSequence = true;
-
-			//ForcedSendChunk(KnownPosition);
-			//SendChunksForKnownPosition();
-			//MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 
 			LastUpdatedTime = DateTime.UtcNow;
 			Log.InfoFormat("Login complete by: {0} from {2} in {1}ms", Username, watch.ElapsedMilliseconds, EndPoint);
@@ -782,31 +800,42 @@ namespace MiNET
 			SendPackage(package);
 		}
 
+		private object _teleportSync = new object();
+
 		public virtual void Teleport(PlayerLocation newPosition)
 		{
-			bool oldNoAi = NoAi;
-			SetNoAi(true);
+			if (!Monitor.TryEnter(_teleportSync)) return;
 
-			if (!IsChunkInCache(newPosition))
+			try
 			{
-				// send teleport straight up, no chunk loading
-				SetPosition(new PlayerLocation
+				bool oldNoAi = NoAi;
+				SetNoAi(true);
+
+				if (!IsChunkInCache(newPosition))
 				{
-					X = KnownPosition.X,
-					Y = 4000,
-					Z = KnownPosition.Z,
-					Yaw = 91,
-					Pitch = 28,
-					HeadYaw = 91,
-				});
+					// send teleport straight up, no chunk loading
+					SetPosition(new PlayerLocation
+					{
+						X = KnownPosition.X,
+						Y = 4000,
+						Z = KnownPosition.Z,
+						Yaw = 91,
+						Pitch = 28,
+						HeadYaw = 91,
+					});
 
-				ForcedSendChunk(newPosition);
+					ForcedSendChunk(newPosition);
+				}
+
+				// send teleport to spawn
+				SetPosition(newPosition);
+
+				SetNoAi(oldNoAi);
 			}
-
-			// send teleport to spawn
-			SetPosition(newPosition);
-
-			SetNoAi(oldNoAi);
+			finally
+			{
+				Monitor.Exit(_teleportSync);
+			}
 
 			MiNetServer.FastThreadPool.QueueUserWorkItem(SendChunksForKnownPosition);
 		}
@@ -819,46 +848,370 @@ namespace MiNET
 			return _chunksUsed.ContainsKey(key);
 		}
 
-		public void SpawnLevel(Level toLevel)
+		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, Dimension dimension, Func<Level> levelFunc = null)
 		{
-			SpawnLevel(toLevel, toLevel.SpawnPoint);
-		}
+			SendChangeDimension(dimension);
 
-		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null)
-		{
-			bool oldNoAi = NoAi;
-			SetNoAi(true);
+			Level.RemovePlayer(this);
+
+			Dimension fromDimension = Level.Dimension;
 
 			if (toLevel == null && levelFunc != null)
 			{
 				toLevel = levelFunc();
 			}
 
-			if (useLoadingScreen)
-			{
-				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 0;
-					SendPackage(dimension);
+			Level = toLevel; // Change level
+			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
 
-					if (toLevel == null && levelFunc != null)
+			BroadcastSetEntityData();
+
+			SendUpdateAttributes();
+
+			CleanCache();
+
+			// Check if we need to generate a platform
+			if (dimension == Dimension.TheEnd)
+			{
+				BlockCoordinates platformPosition = (BlockCoordinates) (SpawnPosition + BlockCoordinates.Down);
+				if (!(Level.GetBlock(platformPosition) is Obsidian))
+				{
+					for (int x = 0; x < 5; x++)
 					{
-						toLevel = levelFunc();
+						for (int z = 0; z < 5; z++)
+						{
+							for (int y = 0; y < 5; y++)
+							{
+								var coordinates = new BlockCoordinates(x, y, z) + platformPosition + new BlockCoordinates(-2, 0, -2);
+								if (y == 0)
+								{
+									Level.SetBlock(new Obsidian() {Coordinates = coordinates});
+								}
+								else
+								{
+									Level.SetAir(coordinates);
+								}
+							}
+						}
+					}
+				}
+			}
+			else if (dimension == Dimension.Overworld && fromDimension == Dimension.TheEnd)
+			{
+				// Spawn on player home spawn
+			}
+			else if (dimension == Dimension.Nether)
+			{
+				// Find closes portal or spawn new
+				// coordinate translation x/8
+
+				BlockCoordinates start = (BlockCoordinates) KnownPosition;
+				start /= new BlockCoordinates(8, 1, 8);
+
+				PlayerLocation pos = FindNetherSpawn(Level, start);
+				if (pos != null)
+				{
+					SpawnPosition = pos;
+				}
+				else
+				{
+					SpawnPosition = CreateNetherPortal(Level);
+				}
+			}
+			else if (dimension == Dimension.Overworld && fromDimension == Dimension.Nether)
+			{
+				// Find closes portal or spawn new
+				// coordinate translation x * 8
+
+				BlockCoordinates start = (BlockCoordinates) KnownPosition;
+				start *= new BlockCoordinates(8, 1, 8);
+
+				PlayerLocation pos = FindNetherSpawn(Level, start);
+				if (pos != null)
+				{
+					SpawnPosition = pos;
+				}
+				else
+				{
+					SpawnPosition = CreateNetherPortal(Level);
+				}
+			}
+
+			Log.Debug($"Spawn point: {SpawnPosition}");
+
+			ForcedSendChunk(SpawnPosition);
+
+			// send teleport to spawn
+			SetPosition(SpawnPosition);
+
+			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+			{
+				Level.AddPlayer(this, true);
+
+				ForcedSendChunks(() =>
+				{
+					Log.WarnFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+					SendSetTime();
+				});
+			});
+		}
+
+		private PlayerLocation FindNetherSpawn(Level level, BlockCoordinates start)
+		{
+			int width = 128;
+			int height = Level.Dimension == Dimension.Overworld ? 256 : 128;
+
+
+			int portalId = new Portal().Id;
+			int obsidionId = new Obsidian().Id;
+
+			Log.Debug($"Starting point: {start}");
+
+			BlockCoordinates? closestPortal = null;
+			int closestDistance = int.MaxValue;
+			for (int x = start.X - width; x < start.X + width; x++)
+			{
+				for (int z = start.Z - width; z < start.Z + width; z++)
+				{
+					if (level.Dimension == Dimension.Overworld)
+					{
+						height = level.GetHeight(new BlockCoordinates(x, 0, z)) + 10;
 					}
 
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
-				}
-				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 1;
-					SendPackage(dimension);
+					for (int y = height - 1; y >= 0; y--)
+					{
+						var coord = new BlockCoordinates(x, y, z);
+						if (coord.DistanceTo(start) > closestDistance) continue;
 
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
+						bool b = level.IsBlock(coord, portalId);
+						b &= level.IsBlock(coord + BlockCoordinates.Down, obsidionId);
+						if (b)
+						{
+							Portal portal = (Portal) level.GetBlock(coord);
+							if (portal.Metadata >= 2)
+							{
+								b &= level.IsBlock(coord + BlockCoordinates.North, portalId);
+							}
+							else
+							{
+								b &= level.IsBlock(coord + BlockCoordinates.East, portalId);
+							}
+
+							Log.Debug($"Found portal block at {coord}, direction={portal.Metadata}");
+							if (b && coord.DistanceTo(start) < closestDistance)
+							{
+								Log.Debug($"Found a closer portal at {coord}");
+								closestPortal = coord;
+								closestDistance = (int) coord.DistanceTo(start);
+							}
+						}
+					}
 				}
+			}
+
+			return closestPortal;
+		}
+
+		private PlayerLocation CreateNetherPortal(Level level)
+		{
+			int width = 16;
+			int height = Level.Dimension == Dimension.Overworld ? 256 : 128;
+
+
+			BlockCoordinates start = (BlockCoordinates) KnownPosition;
+			if (Level.Dimension == Dimension.Nether)
+			{
+				start /= new BlockCoordinates(8, 1, 8);
+			}
+			else
+			{
+				start *= new BlockCoordinates(8, 1, 8);
+			}
+
+			Log.Debug($"Starting point: {start}");
+
+			PortalInfo closestPortal = null;
+			int closestPortalDistance = int.MaxValue;
+			for (int x = start.X - width; x < start.X + width; x++)
+			{
+				for (int z = start.Z - width; z < start.Z + width; z++)
+				{
+					if (level.Dimension == Dimension.Overworld)
+					{
+						height = level.GetHeight(new BlockCoordinates(x, 0, z)) + 10;
+					}
+
+					for (int y = height - 1; y >= 0; y--)
+					{
+						var coord = new BlockCoordinates(x, y, z);
+						if (coord.DistanceTo(start) > closestPortalDistance) continue;
+
+						if (!(!level.IsAir(coord) && level.IsAir(coord + BlockCoordinates.Up))) continue;
+
+						var bbox = new BoundingBox(coord, coord + new BlockCoordinates(3, 5, 4));
+						if (!SpawnAreaClear(bbox))
+						{
+							bbox = new BoundingBox(coord, coord + new BlockCoordinates(4, 5, 3));
+							if (!SpawnAreaClear(bbox))
+							{
+								bbox = new BoundingBox(coord, coord + new BlockCoordinates(1, 5, 4));
+								if (!SpawnAreaClear(bbox))
+								{
+									bbox = new BoundingBox(coord, coord + new BlockCoordinates(4, 5, 1));
+									if (!SpawnAreaClear(bbox))
+									{
+										continue;
+									}
+								}
+							}
+						}
+
+						//coord += BlockCoordinates.Up;
+
+						Log.Debug($"Found portal location at {coord}");
+						if (coord.DistanceTo(start) < closestPortalDistance)
+						{
+							Log.Debug($"Found a closer portal location at {coord}");
+							closestPortal = new PortalInfo() {Coordinates = coord, Size = bbox};
+							closestPortalDistance = (int) coord.DistanceTo(start);
+						}
+					}
+				}
+			}
+
+			if (closestPortal == null)
+			{
+				// Force create between Y=YMAX - (10 to 70)
+				int y = (int) Math.Max(Height - 70, start.Y);
+				y = (int) Math.Min(Height - 10, y);
+				start.Y = y;
+
+				Log.Debug($"Force portal location at {start}");
+
+				closestPortal = new PortalInfo();
+				closestPortal.HasPlatform = true;
+				closestPortal.Coordinates = start;
+				closestPortal.Size = new BoundingBox(start, start + new BlockCoordinates(4, 5, 3));
+			}
+
+
+			if (closestPortal != null)
+			{
+				BuildPortal(level, closestPortal);
+			}
+
+
+			return closestPortal?.Coordinates;
+		}
+
+		public static void BuildPortal(Level level, PortalInfo portalInfo)
+		{
+			var bbox = portalInfo.Size;
+
+			Log.Debug($"Building portal from BBOX: {bbox}");
+
+			int minX = (int) (bbox.Min.X);
+			int minZ = (int) (bbox.Min.Z);
+			int width = (int) (bbox.Width);
+			int depth = (int) (bbox.Depth);
+			int height = (int) (bbox.Height);
+
+			int midPoint = depth > 2 ? depth/2 : 0;
+
+			bool haveSetCoordinate = false;
+			for (int x = 0; x < width; x++)
+			{
+				for (int z = 0; z < depth; z++)
+				{
+					for (int y = 0; y < height; y++)
+					{
+						var coordinates = new BlockCoordinates(x + minX, (int) (y + bbox.Min.Y), z + minZ);
+						Log.Debug($"Place: {coordinates}");
+
+						if (width > depth && z == midPoint)
+						{
+							if ((x == 0 || x == width - 1) || (y == 0 || y == height - 1))
+							{
+								level.SetBlock(new Obsidian {Coordinates = coordinates});
+							}
+							else
+							{
+								level.SetBlock(new Portal {Coordinates = coordinates});
+								if (!haveSetCoordinate)
+								{
+									haveSetCoordinate = true;
+									portalInfo.Coordinates = coordinates;
+								}
+							}
+						}
+						else if (width <= depth && x == midPoint)
+						{
+							if ((z == 0 || z == depth - 1) || (y == 0 || y == height - 1))
+							{
+								level.SetBlock(new Obsidian {Coordinates = coordinates});
+							}
+							else
+							{
+								level.SetBlock(new Portal {Coordinates = coordinates, Metadata = 2});
+								if (!haveSetCoordinate)
+								{
+									haveSetCoordinate = true;
+									portalInfo.Coordinates = coordinates;
+								}
+							}
+						}
+
+						if (portalInfo.HasPlatform && y == 0)
+						{
+							level.SetBlock(new Obsidian {Coordinates = coordinates});
+						}
+					}
+				}
+			}
+		}
+
+
+		private bool SpawnAreaClear(BoundingBox bbox)
+		{
+			BlockCoordinates min = bbox.Min;
+			BlockCoordinates max = bbox.Max;
+			for (int x = min.X; x < max.X; x++)
+			{
+				for (int z = min.Z; z < max.Z; z++)
+				{
+					for (int y = min.Y; y < max.Y; y++)
+					{
+						//if (z == min.Z) if (!Level.GetBlock(new BlockCoordinates(x, y, z)).IsBuildable) return false;
+						if (y == min.Y)
+						{
+							if (!Level.GetBlock(new BlockCoordinates(x, y, z)).IsBuildable) return false;
+						}
+						else
+						{
+							if (!Level.IsAir(new BlockCoordinates(x, y, z))) return false;
+						}
+					}
+				}
+			}
+
+			return true;
+		}
+
+
+		public virtual void SpawnLevel(Level toLevel, PlayerLocation spawnPoint, bool useLoadingScreen = false, Func<Level> levelFunc = null, Action postSpawnAction = null)
+		{
+			bool oldNoAi = NoAi;
+			SetNoAi(true);
+
+			if (useLoadingScreen)
+			{
+				SendChangeDimension(Dimension.Nether);
+			}
+
+			if (toLevel == null && levelFunc != null)
+			{
+				toLevel = levelFunc();
 			}
 
 			SetPosition(new PlayerLocation
@@ -871,72 +1224,76 @@ namespace MiNET
 				HeadYaw = 91,
 			});
 
+			Action transferFunc = delegate
+			{
+				if (useLoadingScreen)
+				{
+					SendChangeDimension(Dimension.Overworld);
+				}
+
+				Level.RemovePlayer(this, true);
+
+				Level = toLevel; // Change level
+				SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
+
+				HungerManager.ResetHunger();
+
+				HealthManager.ResetHealth();
+
+				BroadcastSetEntityData();
+
+				SendUpdateAttributes();
+
+				SendSetSpawnPosition();
+
+				SendAdventureSettings();
+
+				SendPlayerInventory();
+
+				CleanCache();
+
+				ForcedSendChunk(SpawnPosition);
+
+				// send teleport to spawn
+				SetPosition(SpawnPosition);
+
+				SetNoAi(oldNoAi);
+
+				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				{
+					Level.AddPlayer(this, true);
+
+					ForcedSendChunks(() =>
+					{
+						Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
+
+						SendSetTime();
+
+						postSpawnAction?.Invoke();
+					});
+				});
+			};
+
+
 			if (useLoadingScreen)
 			{
+				_dimensionFunc = transferFunc;
 				ForcedSendEmptyChunks();
-
-				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 1;
-					SendPackage(dimension);
-
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
-				}
-				{
-					McpeChangeDimension dimension = McpeChangeDimension.CreateObject();
-					dimension.dimension = 0;
-					SendPackage(dimension);
-
-					McpePlayStatus status = McpePlayStatus.CreateObject();
-					status.status = 3;
-					SendPackage(status);
-				}
 			}
-
-			Level.RemovePlayer(this, true);
-			//Level.EntityManager.RemoveEntity(null, this);
-
-			Level = toLevel; // Change level
-			SpawnPosition = spawnPoint ?? Level?.SpawnPoint;
-			//Level.AddPlayer(this, "", false);
-			// reset all health states
-
-			HungerManager.ResetHunger();
-
-			HealthManager.ResetHealth();
-
-			BroadcastSetEntityData();
-
-			SendUpdateAttributes();
-
-			SendSetSpawnPosition();
-
-			SendAdventureSettings();
-
-			SendPlayerInventory();
-
-			CleanCache();
-
-			ForcedSendChunk(SpawnPosition);
-
-			// send teleport to spawn
-			SetPosition(SpawnPosition);
-
-			SetNoAi(oldNoAi);
-
-			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+			else
 			{
-				Level.AddPlayer(this, true);
+				transferFunc();
+			}
+		}
 
-				ForcedSendChunks(() =>
-				{
-					Log.InfoFormat("Respawn player {0} on level {1}", Username, Level.LevelId);
-
-					SendSetTime();
-				});
-			});
+		protected virtual void SendChangeDimension(Dimension dimension, bool flag = false, Vector3 position = new Vector3())
+		{
+			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
+			changeDimension.dimension = (int) dimension;
+			changeDimension.position = position;
+			changeDimension.unknown = flag;
+			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
+			SendPackage(changeDimension);
 		}
 
 		public override void BroadcastSetEntityData()
@@ -967,7 +1324,7 @@ namespace MiNET
 			SendPackage(strangeContent);
 
 			McpeContainerSetContent inventoryContent = McpeContainerSetContent.CreateObject();
-			inventoryContent.windowId = (byte)0x00;
+			inventoryContent.windowId = (byte) 0x00;
 			inventoryContent.entityIdSelf = EntityId;
 			inventoryContent.slotData = Inventory.GetSlots();
 			inventoryContent.hotbarData = Inventory.GetHotbar();
@@ -985,6 +1342,13 @@ namespace MiNET
 			mobEquipment.item = Inventory.GetItemInHand();
 			mobEquipment.slot = 0;
 			SendPackage(mobEquipment);
+		}
+
+		public virtual void SendCraftingRecipes()
+		{
+			McpeCraftingData craftingData = McpeCraftingData.CreateObject();
+			craftingData.recipes = RecipeManager.Recipes;
+			SendPackage(craftingData);
 		}
 
 		public virtual void SendCreativeInventory()
@@ -1018,9 +1382,16 @@ namespace MiNET
 		{
 			GameMode = gameMode;
 
-			SendStartGame();
+			SendSetPlayerGameType();
 		}
 
+
+		public void SendSetPlayerGameType()
+		{
+			McpeSetPlayerGameType gametype = McpeSetPlayerGameType.CreateObject();
+			gametype.gamemode = (int) GameMode;
+			SendPackage(gametype);
+		}
 
 		[Wired]
 		public void StrikeLightning()
@@ -1105,21 +1476,19 @@ namespace MiNET
 			{
 				lock (_moveSyncLock)
 				{
-					//if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
-					//{
-					//	return;
-					//}
-					//_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
+					if (_lastPlayerMoveSequenceNUmber > message.DatagramSequenceNumber)
+					{
+						return;
+					}
+					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
-					//if (_lastOrderingIndex > message.OrderingIndex)
-					//{
-					//	return;
-					//}
-					//_lastOrderingIndex = message.OrderingIndex;
+					if (_lastOrderingIndex > message.OrderingIndex)
+					{
+						return;
+					}
+					_lastOrderingIndex = message.OrderingIndex;
 				}
 			}
-
-			Log.Debug($"Handle move player: {message.x}, {message.y}, {message.z}");
 
 			Vector3 origin = KnownPosition.ToVector3();
 			double distanceTo = Vector3.Distance(origin, new Vector3(message.x, message.y - 1.62f, message.z));
@@ -1146,7 +1515,12 @@ namespace MiNET
 
 			KnownPosition = new PlayerLocation
 			{
-				X = message.x, Y = message.y - 1.62f, Z = message.z, Pitch = message.pitch, Yaw = message.yaw, HeadYaw = message.headYaw
+				X = message.x,
+				Y = message.y - 1.62f,
+				Z = message.z,
+				Pitch = message.pitch,
+				Yaw = message.yaw,
+				HeadYaw = message.headYaw
 			};
 
 			IsFalling = verticalMove < 0 && !IsOnGround;
@@ -1733,7 +2107,7 @@ namespace MiNET
 			mcpeStartGame.entityIdSelf = EntityId;
 			mcpeStartGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeStartGame.playerGamemode = (int) GameMode;
-			mcpeStartGame.spawn = KnownPosition.ToVector3();
+			mcpeStartGame.spawn = SpawnPosition;
 			mcpeStartGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
 			mcpeStartGame.seed = 12345;
 			mcpeStartGame.dimension = 0;
@@ -1750,11 +2124,41 @@ namespace MiNET
 			mcpeStartGame.lightnigLevel = 0;
 			mcpeStartGame.enableCommands = EnableCommands;
 			mcpeStartGame.isTexturepacksRequired = false;
+			mcpeStartGame.gamerules = GetGameRules();
 			mcpeStartGame.levelId = "1m0AAMIFIgA=";
 			mcpeStartGame.worldName = Level.LevelName;
 
 			SendPackage(mcpeStartGame);
 		}
+
+		public virtual void SendGameRules()
+		{
+			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
+			gameRulesChanged.rules = GetGameRules();
+			SendPackage(gameRulesChanged);
+		}
+
+		public virtual GameRules GetGameRules()
+		{
+			GameRules rules = new GameRules();
+			rules.Add("drowningdamage", new GameRule<bool>(true));
+			rules.Add("dotiledrops", new GameRule<bool>(true));
+			rules.Add("commandblockoutput", new GameRule<bool>(true));
+			rules.Add("domobloot", new GameRule<bool>(true));
+			rules.Add("dodaylightcycle", new GameRule<bool>(true));
+			rules.Add("keepinventory", new GameRule<bool>(false));
+			rules.Add("domobspawning", new GameRule<bool>(false));
+			rules.Add("doentitydrops", new GameRule<bool>(true));
+			rules.Add("dofiretick", new GameRule<bool>(false));
+			rules.Add("doweathercycle", new GameRule<bool>(false));
+			rules.Add("falldamage", new GameRule<bool>(true));
+			rules.Add("pvp", new GameRule<bool>(true));
+			rules.Add("firedamage", new GameRule<bool>(true));
+			rules.Add("mobgriefing", new GameRule<bool>(true));
+			rules.Add("sendcommandfeedback", new GameRule<bool>(true));
+			return rules;
+		}
+
 
 		/// <summary>
 		///     Sends the set spawn position packet.
@@ -1775,7 +2179,7 @@ namespace MiNET
 			{
 				var chunkPosition = new ChunkCoordinates(position);
 
-				McpeWrapper chunk = Level.GenerateChunk(chunkPosition);
+				McpeWrapper chunk = Level.GetChunk(chunkPosition)?.GetBatch();
 				var key = new Tuple<int, int>(chunkPosition.X, chunkPosition.Z);
 				if (!_chunksUsed.ContainsKey(key))
 				{
@@ -1800,9 +2204,9 @@ namespace MiNET
 
 				if (Level == null) return;
 
-				for (int x = -3; x < 3; x++)
+				for (int x = -1; x <= 1; x++)
 				{
-					for (int z = -3; z < 3; z++)
+					for (int z = -1; z <= 1; z++)
 					{
 						McpeFullChunkData chunk = new McpeFullChunkData();
 						chunk.chunkX = chunkPosition.X + x;
@@ -2064,9 +2468,39 @@ namespace MiNET
 			SendPackage(package);
 		}
 
-
 		public override void OnTick()
 		{
+			if (DetectInPortal())
+			{
+				if (PortalDetected == Level.TickTime)
+				{
+					PortalDetected = -1;
+
+					Dimension dimension = Level.Dimension == Dimension.Overworld ? Dimension.Nether : Dimension.Overworld;
+					Log.Debug($"Dimension change to {dimension} from {Level.Dimension} initiated, Game mode={GameMode}");
+
+					ThreadPool.QueueUserWorkItem(delegate
+					{
+						Level oldLevel = Level;
+
+						ChangeDimension(null, null, dimension, delegate
+						{
+							Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
+							return nextLevel;
+						});
+					});
+				}
+				else if (PortalDetected == 0)
+				{
+					PortalDetected = Level.TickTime + (GameMode == GameMode.Creative ? 1 : 4*20);
+				}
+			}
+			else
+			{
+				if (PortalDetected != 0) Log.Debug($"Reset portal detected");
+				PortalDetected = 0;
+			}
+
 			HungerManager.OnTick();
 
 			base.OnTick();
@@ -2280,7 +2714,7 @@ namespace MiNET
 		[Wired]
 		public void RemoveAllEffects()
 		{
-			foreach (var effect	 in Effects)
+			foreach (var effect in Effects)
 			{
 				RemoveEffect(effect.Value);
 			}
@@ -2486,7 +2920,7 @@ namespace MiNET
 	public enum UserPermission
 	{
 		Any = 0,
-		Op = 1,
+		Gamemasters = 1,
 		Host = 2,
 		Automation = 3,
 		Admin = 4,

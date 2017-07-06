@@ -76,6 +76,7 @@ namespace MiNET.Client
 		public long EntityId { get; private set; }
 		public long NetworkEntityId { get; private set; }
 		public PlayerNetworkSession Session { get; set; }
+		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
 
 		public LevelInfo Level { get; } = new LevelInfo();
@@ -83,7 +84,6 @@ namespace MiNET.Client
 		//private long _clientGuid = new Random().Next();
 		private long _clientGuid = 1111111;
 
-		private Timer _connectedPingTimer;
 		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
 
@@ -121,7 +121,8 @@ namespace MiNET.Client
 			//var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.255"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("173.208.195.250"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("true-games.org").AddressList[0], 2222), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
@@ -190,7 +191,8 @@ namespace MiNET.Client
 				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
+				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
 				.ContinueWith(t => doSendCommand(t, "/test"))
 				.ContinueWith(t => doUseItem(t, new ItemBlock(new Stone(), 0) {Count = 1}, new BlockCoordinates(22, 4, 42)))
@@ -257,7 +259,8 @@ namespace MiNET.Client
 				Session = new PlayerNetworkSession(null, null, _clientEndpoint, _mtuSize);
 
 				//UdpClient.BeginReceive(ReceiveCallback, UdpClient);
-				new Thread(ProcessDatagrams) {IsBackground = true}.Start(UdpClient);
+				_mainProcessingThread = new Thread(ProcessDatagrams) {IsBackground = true};
+				_mainProcessingThread.Start(UdpClient);
 
 				_clientEndpoint = (IPEndPoint) UdpClient.Client.LocalEndPoint;
 
@@ -281,11 +284,14 @@ namespace MiNET.Client
 			//Environment.Exit(0);
 			try
 			{
+				Session?.Close();
+				_mainProcessingThread?.Abort();
+				_mainProcessingThread = null;
+
 				if (UdpClient == null) return true; // Already stopped. It's ok.
 
 				UdpClient.Close();
 				UdpClient = null;
-
 				Log.InfoFormat("Client closed for business {0}", Username);
 
 				return true;
@@ -1070,6 +1076,10 @@ namespace MiNET.Client
 			{
 				OnMcpeCommandStep((McpeCommandStep) message);
 			}
+			else if (typeof (McpeChangeDimension) == message.GetType())
+			{
+				OnMcpeChangeDimension((McpeChangeDimension) message);
+			}
 
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
@@ -1081,6 +1091,15 @@ namespace MiNET.Client
 			{
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled package 0x{message.Id:X2} {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 			}
+		}
+
+		private void OnMcpeChangeDimension(McpeChangeDimension message)
+		{
+			Thread.Sleep(3000);
+			McpePlayerAction action = McpePlayerAction.CreateObject();
+			action.runtimeEntityId = EntityId;
+			action.actionId = (int) PlayerAction.DimensionChange;
+			SendPackage(action);
 		}
 
 		private void OnMcpeClientboundMapItemData(McpeClientboundMapItemData message)
@@ -1320,7 +1339,7 @@ namespace MiNET.Client
 			JWT.JsonMapper = new NewtonsoftMapper();
 
 			CngKey clientKey = CryptoUtils.GenerateClientKey();
-			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(Username, clientKey), CryptoUtils.EncodeSkinJwt(clientKey), CompressionLevel.Fastest);
+			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(Username, clientKey, IsEmulator), CryptoUtils.EncodeSkinJwt(clientKey), CompressionLevel.Fastest);
 
 			McpeLogin loginPacket = new McpeLogin
 			{
@@ -1833,6 +1852,9 @@ Adventure settings
 			if (message.runtimeEntityId != EntityId) return;
 
 			CurrentLocation = new PlayerLocation(message.x, message.y, message.z);
+			Level.SpawnX = (int) message.x;
+			Level.SpawnY = (int) message.y;
+			Level.SpawnZ = (int) message.z;
 			SendMcpeMovePlayer();
 		}
 
@@ -1991,13 +2013,15 @@ Adventure settings
 			Log.DebugFormat("Velocity Z: {0}", message.speedZ);
 			Log.DebugFormat("Metadata: {0}", MetadataToCode(message.metadata));
 
-			long? value = ((MetadataLong) message.metadata[0])?.Value;
-			if (value != null)
+			if (message.metadata.Contains(0))
 			{
-				long dataValue = (long) value;
-				Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+				long? value = ((MetadataLong) message.metadata[0])?.Value;
+				if (value != null)
+				{
+					long dataValue = (long) value;
+					Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
+				}
 			}
-
 			if (Log.IsDebugEnabled)
 			{
 				foreach (var attribute in message.attributes)
@@ -2050,7 +2074,7 @@ Adventure settings
 			EntityId = message.runtimeEntityId;
 			NetworkEntityId = message.entityIdSelf;
 			_spawn = new Vector3(message.x, message.y, message.z);
-
+			CurrentLocation = new PlayerLocation(_spawn);
 			Log.Debug($@"
 StartGame:
 	entityId: {message.entityIdSelf}	
@@ -2095,7 +2119,7 @@ StartGame:
 			Level.SpawnY = (int) _spawn.Y;
 			Level.SpawnZ = (int) _spawn.Z;
 			Log.Info($"Spawn position: {msg.coordinates}");
-			Log.Debug($"\n{Package.HexDump(message.Bytes)}");
+			if (Log.IsDebugEnabled) Log.Debug($"\n{Package.HexDump(message.Bytes)}");
 		}
 
 		private void OnConnectionRequestAccepted()
@@ -2432,8 +2456,8 @@ StartGame:
 			Random rand = new Random();
 			var packet = NewIncomingConnection.CreateObject();
 			packet.clientendpoint = _serverEndpoint;
-			packet.systemAddresses = new IPEndPoint[10];
-			for (int i = 0; i < 10; i++)
+			packet.systemAddresses = new IPEndPoint[20];
+			for (int i = 0; i < 20; i++)
 			{
 				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
 			}

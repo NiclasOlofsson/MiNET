@@ -36,7 +36,105 @@ namespace MiNET
 	[TestFixture]
 	public class MinetAnvilTest
 	{
-		[Test, Ignore]
+		[Test, Ignore("")]
+		public void ChunkCoordTest()
+		{
+			int by = 30;
+			var a = 16*(by >> 4);
+			var b = by & 0xfffffff0;
+			Assert.AreEqual(a, b);
+		}
+
+		[Test]
+		public void NibbleTest()
+		{
+			Assert.AreEqual(16, 1 << 4);
+			Assert.AreEqual(15 * 256, 15 << 8);
+			Assert.AreEqual(4095, (15 * 256) + (15 * 16) + 15);
+			Assert.AreEqual((15 * 256) + (15 * 16) + 15, (15 << 8) + (15 << 4) + 15);
+
+
+			byte[] a = {0, 0, 0, 0};
+			byte[] b = {0xf, 0x0f, 0, 0xf0};
+
+			SetNibble4OtherNew(a, 0, 0xff);
+			SetNibble4OtherNew(a, 2, 0xff);
+			//SetNibble4OtherNew(a, 3, 0xff);
+			SetNibble4OtherNew(a, 7, 0xff);
+
+			Assert.AreEqual(b, a);
+
+			byte c = Nibble4Other(b, 0);
+			byte d = Nibble4Other(b, 0);
+
+			Assert.AreEqual(0xf, c);
+			Assert.AreEqual(0xf, d);
+		}
+
+		private static void SetNibble4OtherNew(byte[] Data, int index, byte value)
+		{
+			var idx = index >> 1;
+			if ((index & 1) == 0)
+			{
+				Data[idx] |= (byte) (value & 0x0F);
+			}
+			else
+			{
+				Data[idx] |= (byte) ((value << 4) & 0xF0);
+			}
+		}
+
+		private static void SetNibble4Other(byte[] Data, int index, byte value)
+		{
+			value &= 0xF;
+			var idx = index >> 1;
+			Data[idx] &= (byte)(0xF << (((index + 1) & 1) * 4));
+			Data[idx] |= (byte)(value << ((index & 1) * 4));
+		}
+
+		private static byte Nibble4Other(byte[] Data, int index)
+		{
+			return (byte)(Data[index / 2] >> ((index) % 2 * 4) & 0xF); ;
+		}
+
+
+		private static byte Nibble4New(byte[] arr, int index)
+		{
+			return (byte) ((index & 1) == 0 ? arr[index >> 1] & 0x0F : (arr[index >> 1] >> 4) & 0x0F);
+		}
+
+		private static void SetNibble4New(byte[] arr, int index, byte value)
+		{
+			var idx = index >> 1;
+			if ((index & 1) == 0)
+			{
+				arr[idx] |= (byte) (value & 0x0F);
+			}
+			else
+			{
+				arr[idx] |= (byte) ((value << 4) & 0xF0);
+			}
+		}
+
+		private static byte Nibble4(byte[] arr, int index)
+		{
+			return (byte) (index%2 == 0 ? arr[index/2] & 0x0F : (arr[index/2] >> 4) & 0x0F);
+		}
+
+		private static void SetNibble4(byte[] arr, int index, byte value)
+		{
+			if (index%2 == 0)
+			{
+				arr[index/2] = (byte) ((value & 0x0F) | arr[index/2]);
+			}
+			else
+			{
+				arr[index/2] = (byte) (((value << 4) & 0xF0) | arr[index/2]);
+			}
+		}
+
+
+		[Test, Ignore("")]
 		public void OffsetFileExistPerformance()
 		{
 			var basePath = @"D:\Development\Repos\MapsPE\hub";
@@ -62,7 +160,7 @@ namespace MiNET
 			}
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void OffsetIntTest()
 		{
 			//int original = (4096 * 2) - 10;
@@ -90,7 +188,7 @@ namespace MiNET
 			//Assert.AreEqual(offset, BitConverter.ToInt32(bytes, 0) << 4);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void SaveAnvilChunkTest()
 		{
 			int width = 32;
@@ -137,7 +235,7 @@ namespace MiNET
 			}
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void SaveOneAnvilChunkTest()
 		{
 			int width = 32;
@@ -161,7 +259,7 @@ namespace MiNET
 			Assert.Less(sw.ElapsedMilliseconds, 1);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void LoadAnvilLevelLoadTest()
 		{
 			NbtFile file = new NbtFile();
@@ -226,21 +324,21 @@ namespace MiNET
 		//}
 
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void LoadFullAnvilRegionLoadTest()
 		{
 			int width = 32;
 			int depth = 32;
 
-			int regionX = 5;
-			int regionZ = 25;
+			int regionX = -1;
+			int regionZ = 0;
 
-			string basePath = @"D:\Downloads\KingsLanding1\KingsLanding1";
-			var generator = new FlatlandWorldProvider();
+			string basePath = @"D:\Development\Worlds\UHC\UHCr1000";
 
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			int noChunksRead = 0;
+			var anvilWorldProvider = new AnvilWorldProvider();
 			for (int x = 1; x < 32; x++)
 			{
 				for (int z = 1; z < 32; z++)
@@ -250,14 +348,15 @@ namespace MiNET
 					int cz = (depth*regionZ) + z;
 
 					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-					ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null, 0);
+					ChunkColumn chunk = anvilWorldProvider.GetChunk(coordinates, basePath, null);
 					Assert.NotNull(chunk, $"Expected chunk at {x}, {z}");
 				}
 			}
+			sw.Stop();
 			Console.WriteLine("Read {0} chunks in {1}ms", noChunksRead, sw.ElapsedMilliseconds);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void CompressionTests()
 		{
 			string basePath = @"D:\Downloads\KingsLanding1\KingsLanding1";
@@ -266,7 +365,7 @@ namespace MiNET
 			int cz = (32*25) + 1;
 
 			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-			ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null, 0);
+			ChunkColumn chunk = new AnvilWorldProvider().GetChunk(coordinates, basePath, null);
 			var bytes = chunk.GetBytes();
 
 			Stopwatch sw = new Stopwatch();

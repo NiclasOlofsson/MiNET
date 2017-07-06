@@ -183,7 +183,7 @@ namespace MiNET.Utils
 			return newKey;
 		}
 
-		public static byte[] EncodeJwt(string username, CngKey newKey)
+		public static byte[] EncodeJwt(string username, CngKey newKey, bool isEmulator)
 		{
 			byte[] t = ImportECDsaCngKeyFromCngKey(newKey.Export(CngKeyBlobFormat.EccPrivateBlob));
 			CngKey tk = CngKey.Import(t, CngKeyBlobFormat.EccPrivateBlob);
@@ -203,8 +203,7 @@ namespace MiNET.Utils
 				ExtraData = new ExtraData
 				{
 					DisplayName = username,
-					//Identity = "af6f7c5e-fcea-3e43-bf3a-e005e400e579",
-					Identity = Guid.NewGuid().ToString(),
+					Identity = isEmulator? Guid.NewGuid().ToString():"85e4febd-3d33-4008-b044-1ad9fb85b26c",
 				},
 				Iss = "self",
 				IdentityPublicKey = b64Key,
@@ -275,7 +274,7 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
-	""AdRole"": 0,
+	""ADRole"": 0,
 	""ClientRandomId"": {new Random().Next()},
 	""CurrentInputMode"": 1,
 	""DefaultInputMode"": 1,

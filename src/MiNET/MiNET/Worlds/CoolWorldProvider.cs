@@ -177,6 +177,16 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
+		public bool HaveNether()
+		{
+			return false;
+		}
+
+		public bool HaveTheEnd()
+		{
+			return false;
+		}
+
 		private const int WaterLevel = 50;
 
 		private void PopulateChunk(ChunkColumn chunk)

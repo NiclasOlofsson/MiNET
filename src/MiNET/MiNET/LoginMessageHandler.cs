@@ -188,7 +188,7 @@ namespace MiNET
 					// Skin JWT Payload: 
 
 					//{
-					//"ADRole": 2,
+					//  "ADRole": 2,
 					//	"ClientRandomId": 1423700530444426768,
 					//	"CurrentInputMode": 1,
 					//	"DefaultInputMode": 1,
@@ -472,6 +472,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeAdventureSettings(McpeAdventureSettings message)
+		{
+		}
+
 		public void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
 		}
@@ -551,7 +555,7 @@ namespace MiNET
 
 		public virtual IMcpeMessageHandler CreatePlayer(INetworkHandler session, PlayerInfo playerInfo)
 		{
-			Player player = _server.PlayerFactory.CreatePlayer(_server, session.GetClientEndPoint());
+			Player player = _server.PlayerFactory.CreatePlayer(_server, session.GetClientEndPoint(), playerInfo);
 			player.NetworkHandler = session;
 			player.CertificateData = playerInfo.CertificateData;
 			player.Username = playerInfo.Username;

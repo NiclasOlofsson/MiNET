@@ -21,7 +21,9 @@ namespace MiNET.BuilderBase
 
 		public static RegionSelector GetSelector(Player player)
 		{
-			return RegionSelectors[player];
+			RegionSelector selector;
+			RegionSelectors.TryGetValue(player, out selector);
+			return selector;
 		}
 
 		public Player Player { get; set; }

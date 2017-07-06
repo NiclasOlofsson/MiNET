@@ -31,15 +31,15 @@ namespace MiNET.BuilderBase.Commands
 				-1, true);
 		}
 
-		[Command(Description = "Save world")]
-		public void Save(Player player)
-		{
-			AnvilWorldProvider provider = player.Level._worldProvider as AnvilWorldProvider;
-			if (provider != null)
-			{
-				provider.SaveChunks();
-			}
-		}
+		//[Command(Description = "Save world")]
+		//public void Save(Player player)
+		//{
+		//	AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
+		//	if (provider != null)
+		//	{
+		//		provider.SaveChunks();
+		//	}
+		//}
 
 		[Command(Description = "Render block-text of any font and size.")]
 		public void Text(Player player, string text, Pattern pattern, string fontName = "Minecraft", int pxSize = 20)

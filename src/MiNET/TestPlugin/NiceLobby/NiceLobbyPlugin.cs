@@ -211,14 +211,15 @@ namespace TestPlugin.NiceLobby
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 
-			int idx = 0;
-			player.Inventory.Slots[idx++] = new ItemBlock(new Block(212), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
+			int idx = 4;
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(212), 0) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemFlintAndSteel() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemStick() { Count = 1 };
 			player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemBlock(new PurpleGlazedTerracotta(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
@@ -537,7 +538,7 @@ namespace TestPlugin.NiceLobby
 
 			lock (level.Players)
 			{
-				AnvilWorldProvider worldProvider = level._worldProvider as AnvilWorldProvider;
+				AnvilWorldProvider worldProvider = level.WorldProvider as AnvilWorldProvider;
 				if (worldProvider == null) return;
 
 				level.BroadcastMessage(string.Format("{0} resets the world!", player.Username), type: MessageType.Raw);
@@ -776,8 +777,8 @@ namespace TestPlugin.NiceLobby
 				{
 					Dictionary<Tuple<int, int>, MapEntity> entities = new Dictionary<Tuple<int, int>, MapEntity>();
 
-					int width = 1;
-					int height = 1;
+					int width = 2;
+					int height = 2;
 					int frameCount = numberOfFrames;
 					//int frameOffset = 0;
 					int frameOffset = 120;
@@ -849,8 +850,8 @@ namespace TestPlugin.NiceLobby
 				{
 					Dictionary<Tuple<int, int>, List<MapEntity>> entities = new Dictionary<Tuple<int, int>, List<MapEntity>>();
 
-					int width = 3;
-					int height = 2;
+					int width = 6;
+					int height = 3;
 					int frameCount = numberOfFrames;
 					//int frameOffset = 0;
 					int frameOffset = 120;

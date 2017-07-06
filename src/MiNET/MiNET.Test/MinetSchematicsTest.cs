@@ -6,7 +6,7 @@ namespace MiNET
 	[TestFixture]
 	public class MinetSchematicsTest
 	{
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void ReadSchematicsTest()
 		{
 			NbtFile file = new NbtFile(@"D:\Downloads\schematics\medieval-castle.schematic");

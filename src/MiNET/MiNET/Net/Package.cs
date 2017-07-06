@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -311,9 +336,9 @@ namespace MiNET.Net
 
 		public void Write(float value)
 		{
-			byte[] bytes = BitConverter.GetBytes(value);
-
 			_writer.Write(value);
+
+			//byte[] bytes = BitConverter.GetBytes(value);
 			//_writer.Write(bytes[3]);
 			//_writer.Write(bytes[2]);
 			//_writer.Write(bytes[1]);
@@ -453,7 +478,7 @@ namespace MiNET.Net
 							player.DisplayName = ReadString();
 							player.Skin = ReadSkin();
 							records.Add(player);
-							Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
+							//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 						}
 						catch (Exception e)
 						{
@@ -828,15 +853,15 @@ namespace MiNET.Net
 			int count = ReadVarInt();
 			for (int i = 0; i < count; i++)
 			{
-				string name = _reader.ReadString();
-				byte type = _reader.ReadByte();
+				string name = ReadString();
+				byte type = ReadByte();
 				switch (type)
 				{
 					case 1:
 					{
 						GameRule<bool> rule = new GameRule<bool>();
 						rule.Name = name;
-						rule.Value = _reader.ReadBoolean();
+						rule.Value = ReadBool();
 						gameRules.Add(rule.Name, rule);
 						break;
 					}
@@ -852,7 +877,7 @@ namespace MiNET.Net
 					{
 						GameRule<float> rule = new GameRule<float>();
 						rule.Name = name;
-						rule.Value = _reader.ReadSingle();
+						rule.Value = ReadFloat();
 						gameRules.Add(rule.Name, rule);
 						break;
 					}
@@ -871,24 +896,24 @@ namespace MiNET.Net
 			}
 
 			WriteVarInt(gameRules.Count);
-			foreach (var rule in gameRules.Values)
+			foreach (var rule in gameRules)
 			{
-				_writer.Write(rule.Name);
-				if (rule is GameRule<bool>)
+				var value = rule.Value;
+				Write(rule.Key);
+				if (value is GameRule<bool>)
 				{
-					_writer.Write((byte) 1);
-					_writer.Write(((GameRule<bool>) rule).Value);
+					Write((byte) 1);
+					Write(((GameRule<bool>) value).Value);
 				}
-				else if (rule is GameRule<int>)
+				else if (value is GameRule<int>)
 				{
-					_writer.Write((byte) 2);
-					WriteVarInt(((GameRule<int>) rule).Value);
-					//_writer.Write(((GameRule<int>) rule).Value);
+					Write((byte) 2);
+					WriteVarInt(((GameRule<int>) value).Value);
 				}
-				else if (rule is GameRule<float>)
+				else if (value is GameRule<float>)
 				{
-					_writer.Write((byte) 3);
-					_writer.Write(((GameRule<float>) rule).Value);
+					Write((byte) 3);
+					Write(((GameRule<float>) value).Value);
 				}
 			}
 		}
@@ -993,12 +1018,12 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				_writer.Write((short)0); // LE
+				_writer.Write((short) 0); // LE
 				//WriteVarInt(0);
 				return;
 			}
 
-			_writer.Write((short)packInfos.Count); // LE
+			_writer.Write((short) packInfos.Count); // LE
 			//WriteVarInt(packInfos.Count);
 			foreach (var info in packInfos)
 			{
@@ -1034,10 +1059,10 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				Write((short)0); // LE
+				Write((short) 0); // LE
 				return;
 			}
-			Write((short)packInfos.Count); // LE
+			Write((short) packInfos.Count); // LE
 			foreach (var info in packInfos)
 			{
 				Write(info.Id);
@@ -1064,14 +1089,14 @@ namespace MiNET.Net
 
 		public void Write(ResourcePackIds ids)
 		{
-			if(ids == null)
+			if (ids == null)
 			{
-				Write((short)0);
+				Write((short) 0);
 				return;
 			}
-			Write((short)ids.Count);
+			Write((short) ids.Count);
 
-			foreach(var id in ids)
+			foreach (var id in ids)
 			{
 				Write(id);
 			}
@@ -1082,7 +1107,7 @@ namespace MiNET.Net
 			int count = ReadShort();
 
 			var ids = new ResourcePackIds();
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
 				var id = ReadString();
 				ids.Add(id);

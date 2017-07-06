@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +50,11 @@ namespace MiNET.Plugins.Commands
 
 		public class SimpleResponse
 		{
+			public SimpleResponse(string body = null)
+			{
+				Body = body;
+			}
+
 			public string Body { get; set; }
 			public int StatusCode { get; set; }
 			public int SuccessCount { get; set; } = 1;
@@ -54,7 +84,7 @@ namespace MiNET.Plugins.Commands
 				body = string.Join(", ", names);
 			}
 
-			return new SimpleResponse() {Body = $"Oped: {body}"};
+			return new SimpleResponse {Body = $"Oped: {body}"};
 		}
 
 		[Command]
@@ -243,7 +273,16 @@ namespace MiNET.Plugins.Commands
 					mob = new SkeletonHorse(world);
 					break;
 				case EntityType.Wither:
-					mob = new Mob(EntityType.Wither, world);
+					mob = new Wither(world);
+					break;
+				case EntityType.Evoker:
+					mob = new Evoker(world);
+					break;
+				case EntityType.Vindicator:
+					mob = new Vindicator(world);
+					break;
+				case EntityType.Vex:
+					mob = new Vex(world);
 					break;
 				case EntityType.Npc:
 					mob = new PlayerMob("test", world);
@@ -319,7 +358,7 @@ namespace MiNET.Plugins.Commands
 			level.CurrentWorldTime = (int) time;
 
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.time = (int)level.CurrentWorldTime;
+			message.time = (int) level.CurrentWorldTime;
 			//message.started = level.IsWorldTimeStarted;
 
 			level.RelayBroadcast(message);
@@ -349,7 +388,7 @@ namespace MiNET.Plugins.Commands
 					coordinates.Z = destination.Z;
 			}
 
-			ThreadPool.QueueUserWorkItem(delegate(object state)
+			ThreadPool.QueueUserWorkItem(delegate
 			{
 				commander.Teleport(new PlayerLocation
 				{
@@ -377,7 +416,7 @@ namespace MiNET.Plugins.Commands
 				{
 					names.Add(p.Username);
 
-					ThreadPool.QueueUserWorkItem(delegate(object state)
+					ThreadPool.QueueUserWorkItem(delegate
 					{
 						var coordinates = p.KnownPosition;
 						if (destination != null)
@@ -432,7 +471,7 @@ namespace MiNET.Plugins.Commands
 				{
 					names.Add(p.Username);
 
-					ThreadPool.QueueUserWorkItem(delegate(object state)
+					ThreadPool.QueueUserWorkItem(delegate
 					{
 						var coordinates = targetPlayer.KnownPosition;
 						p.Teleport(new PlayerLocation
@@ -462,7 +501,7 @@ namespace MiNET.Plugins.Commands
 
 			var coordinates = targetPlayer.KnownPosition;
 
-			ThreadPool.QueueUserWorkItem(delegate(object state)
+			ThreadPool.QueueUserWorkItem(delegate
 			{
 				commander.Teleport(new PlayerLocation
 				{
@@ -491,22 +530,19 @@ namespace MiNET.Plugins.Commands
 
 			var enchanings = item.GetEnchantings();
 			enchanings.RemoveAll(ench => ench.Id == enchanting);
-			enchanings.Add(new Enchanting() {Id = enchanting, Level = (short) level});
+			enchanings.Add(new Enchanting {Id = enchanting, Level = (short) level});
 			item.SetEnchantings(enchanings);
 			targetPlayer.Inventory.SendSetSlot(targetPlayer.Inventory.InHandSlot);
 		}
 
 		[Command]
-		public void GameMode(Player commander, GameMode gameMode, Target target = null)
+		public SimpleResponse GameMode(Player commander, GameMode gameMode, Target target = null)
 		{
 			Player targetPlayer = commander;
 			if (target != null) targetPlayer = target.Players.First();
 
 			switch (gameMode)
 			{
-				case Worlds.GameMode.Adventure:
-					targetPlayer.SetAdventure(true);
-					break;
 				case Worlds.GameMode.Spectator:
 					targetPlayer.SetSpectator(true);
 					break;
@@ -514,6 +550,15 @@ namespace MiNET.Plugins.Commands
 					targetPlayer.SetGameMode(gameMode);
 					break;
 			}
+
+			commander.Level.BroadcastMessage($"{targetPlayer.Username} changed to game mode {gameMode}.", type: MessageType.Raw);
+
+			return new SimpleResponse {Body = $"Set {targetPlayer.Username} game mode to {gameMode}."};
+		}
+
+		[Command]
+		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
+		{
 		}
 	}
 }

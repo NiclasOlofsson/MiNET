@@ -21,9 +21,9 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 750;
-		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(45);
-		private const int NumberOfBots = 50;
+		private const int TimeBetweenSpawns = 350;
+		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(60);
+		private const int NumberOfBots = 200;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 5;
@@ -155,9 +155,9 @@ namespace MiNET.ServiceKiller
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
 
-				Thread.Sleep(3000);
+				//Thread.Sleep(3000);
 
-				client.SendChat(".tp test");
+				//client.SendChat(".tp test");
 				//client.SendChat("/join bb");
 				//client.SendChat("/join skywars");
 
@@ -178,7 +178,7 @@ namespace MiNET.ServiceKiller
 				{
 					if (client.UdpClient == null) break;
 
-					float y = Random.Next(7, 10) + /*24*/ 55;
+					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 55;
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;
@@ -212,10 +212,7 @@ namespace MiNET.ServiceKiller
 
 				if (client.UdpClient != null)
 				{
-					client.SendChat(".tp");
-					Thread.Sleep(1000);
-
-					//client.SendChat("Shadow gov agent BREXITING!");
+					client.SendChat("Shadow gov agent BREXITING!");
 					client.SendDisconnectionNotification();
 				}
 

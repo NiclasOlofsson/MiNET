@@ -89,11 +89,21 @@ namespace MiNET
 			MtuSize = mtuSize;
 
 			_cancellationToken = new CancellationTokenSource();
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick);
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
 		}
 
 		public void Close()
 		{
+			if (Server == null) // EMULATOR
+			{
+				if (_tickerHighPrecisionTimer != null)
+				{
+					_tickerHighPrecisionTimer.Dispose();
+				}
+
+				return;
+			}
+
 			PlayerNetworkSession session;
 			if (!Server.ServerInfo.PlayerSessions.TryRemove(EndPoint, out session))
 			{
@@ -273,6 +283,8 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
+			//SignalTick();
+
 			try
 			{
 				if (message == null)
@@ -336,6 +348,10 @@ namespace MiNET
 					}
 					foreach (var msg in messages)
 					{
+						// Temp fix for performance, take 1.
+						var interact = msg as McpeInteract;
+						if (interact?.actionId == 4 && interact.targetRuntimeEntityId == 0) continue;
+
 						msg.DatagramSequenceNumber = batch.DatagramSequenceNumber;
 						msg.Reliability = batch.Reliability;
 						msg.ReliableMessageNumber = batch.ReliableMessageNumber;
@@ -498,6 +514,11 @@ namespace MiNET
 				handler.HandleMcpeBlockEntityData((McpeBlockEntityData) message);
 			}
 
+			else if (typeof (McpeAdventureSettings) == message.GetType())
+			{
+				handler.HandleMcpeAdventureSettings((McpeAdventureSettings) message);
+			}
+
 			else if (typeof (McpePlayerAction) == message.GetType())
 			{
 				handler.HandleMcpePlayerAction((McpePlayerAction) message);
@@ -600,12 +621,12 @@ namespace MiNET
 			var response = ConnectionRequestAccepted.CreateObject();
 			response.NoBatch = true;
 			response.systemAddress = new IPEndPoint(IPAddress.Loopback, 19132);
-			response.systemAddresses = new IPEndPoint[10];
+			response.systemAddresses = new IPEndPoint[20];
 			response.systemAddresses[0] = new IPEndPoint(IPAddress.Loopback, 19132);
 			response.incomingTimestamp = message.timestamp;
 			response.serverTimestamp = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
-			for (int i = 1; i < 10; i++)
+			for (int i = 1; i < 20; i++)
 			{
 				response.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 19132);
 			}
@@ -646,8 +667,6 @@ namespace MiNET
 
 		public void SendPackage(Package package)
 		{
-			MiNetServer.TraceSend(package);
-
 			if (package == null) return;
 
 			if (State == ConnectionState.Unconnected)
@@ -655,6 +674,8 @@ namespace MiNET
 				package.PutPool();
 				return;
 			}
+
+			MiNetServer.TraceSend(package);
 
 			bool isBatch = package is McpeWrapper;
 
@@ -667,10 +688,10 @@ namespace MiNET
 				//if (package == null) return;
 			}
 
-			//Server.SendPackage(this, package);
 			lock (_queueSync)
 			{
 				_sendQueueNotConcurrent.Enqueue(package);
+				SignalTick();
 			}
 		}
 
@@ -712,9 +733,8 @@ namespace MiNET
 				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
 
 				long lastUpdate = LastUpdatedTime.Ticks/TimeSpan.TicksPerMillisecond;
-				bool serverHasNoLag = Server.ServerInfo.AvailableBytes < 1000;
 
-				if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout + 3000 < now)
+				if (lastUpdate + Server.InacvitityTimeout + 3000 < now)
 				{
 					Evicted = true;
 					// Disconnect user
@@ -728,7 +748,7 @@ namespace MiNET
 				}
 
 
-				if (serverHasNoLag && State != ConnectionState.Connected && MessageHandler != null && lastUpdate + 3000 < now)
+				if (State != ConnectionState.Connected && MessageHandler != null && lastUpdate + 3000 < now)
 				{
 					MiNetServer.FastThreadPool.QueueUserWorkItem(() => { Disconnect("You've been kicked with reason: Lost connection."); });
 
@@ -737,11 +757,17 @@ namespace MiNET
 
 				if (MessageHandler == null) return;
 
-				if (serverHasNoLag && lastUpdate + Server.InacvitityTimeout < now && !WaitForAck)
+				if (!WaitForAck && (ResendCount > Server.ResendThreshold || lastUpdate + Server.InacvitityTimeout < now))
 				{
+					//TODO: Seems to have lost code here. This should actually count the resends too.
+					// Spam is a bit too much. The Russians have trouble with bad connections.
 					DetectLostConnection();
 					WaitForAck = true;
 				}
+
+				if (WaitingForAcksQueue.Count == 0) return;
+
+				if (WaitForAck) return;
 
 				if (Rto == 0) return;
 
@@ -768,7 +794,7 @@ namespace MiNET
 					datagramTimout = Math.Min(datagramTimout, 3000);
 					datagramTimout = Math.Max(datagramTimout, 100);
 
-					if (serverHasNoLag && elapsedTime >= datagramTimout)
+					if (elapsedTime >= datagramTimout)
 					{
 						//if (session.WaitForAck) return;
 
@@ -778,6 +804,7 @@ namespace MiNET
 						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
 							ErrorCount++;
+							ResendCount++;
 
 							MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
 							{
@@ -808,6 +835,18 @@ namespace MiNET
 				Monitor.Exit(_updateSync);
 			}
 		}
+
+		public void SignalTick()
+		{
+			try
+			{
+				_tickerHighPrecisionTimer.AutoReset?.Set();
+			}
+			catch (ObjectDisposedException)
+			{
+			}
+		}
+
 
 		private void SendAckQueue()
 		{
@@ -842,6 +881,8 @@ namespace MiNET
 
 		private void SendQueue()
 		{
+			if (_sendQueueNotConcurrent.Count == 0) return;
+
 			if (!Monitor.TryEnter(_syncHack)) return;
 
 			try

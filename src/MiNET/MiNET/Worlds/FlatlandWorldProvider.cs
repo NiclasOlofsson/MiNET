@@ -1,133 +1,139 @@
-using System;
-using System.Collections.Concurrent;
-using System.Linq;
-using System.Numerics;
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class FlatlandWorldProvider : IWorldProvider, ICachingWorldProvider
+	public class AirWorldGenerator : IWorldGenerator
+	{
+		public void Initialize()
+		{
+		}
+
+		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
+		{
+			return new ChunkColumn() {x = chunkCoordinates.X, z = chunkCoordinates.Z};
+		}
+	}
+
+	public class FlatlandWorldProvider : IWorldGenerator
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (FlatlandWorldProvider));
 
-		public readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
-
-		public bool IsCaching { get; private set; }
-
 		public FlatlandWorldProvider()
 		{
-			IsCaching = true;
-			_spawnPoint = new Vector3(0, 4, 0);
 		}
 
 		public void Initialize()
 		{
 		}
 
-		Random rand = new Random();
-		private Vector3 _spawnPoint;
-
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
-			lock (_chunkCache)
-			{
-				ChunkColumn cachedChunk;
-				if (_chunkCache.TryGetValue(chunkCoordinates, out cachedChunk))
-				{
-					return cachedChunk;
-				}
+			ChunkColumn chunk = new ChunkColumn();
+			chunk.x = chunkCoordinates.X;
+			chunk.z = chunkCoordinates.Z;
+			//chunk.biomeId = ArrayOf<byte>.Create(256, (byte) rand.Next(0, 37));
 
-				ChunkColumn chunk = new ChunkColumn();
-				chunk.x = chunkCoordinates.X;
-				chunk.z = chunkCoordinates.Z;
-				//chunk.biomeId = ArrayOf<byte>.Create(256, (byte) rand.Next(0, 37));
+			int h = PopulateChunk(chunk);
 
-				int h = PopulateChunk(chunk);
-
-				//BuildStructures(chunk);
+			//BuildStructures(chunk);
 
 
-				//chunk.SetBlock(0, h + 1, 0, 7);
-				//chunk.SetBlock(1, h + 1, 0, 41);
-				//chunk.SetBlock(2, h + 1, 0, 41);
-				//chunk.SetBlock(3, h + 1, 0, 41);
-				//chunk.SetBlock(3, h + 1, 0, 41);
+			//chunk.SetBlock(0, h + 1, 0, 7);
+			//chunk.SetBlock(1, h + 1, 0, 41);
+			//chunk.SetBlock(2, h + 1, 0, 41);
+			//chunk.SetBlock(3, h + 1, 0, 41);
+			//chunk.SetBlock(3, h + 1, 0, 41);
 
-				////chunk.SetBlock(6, h + 1, 6, 57);
+			////chunk.SetBlock(6, h + 1, 6, 57);
 
-				//chunk.SetBlock(9, h, 3, 31);
-				//chunk.SetBiome(9, 3, 30);
-				//chunk.SetBlock(0, h, 1, 161);
-				//chunk.SetBlock(0, h, 2, 18);
+			//chunk.SetBlock(9, h, 3, 31);
+			//chunk.SetBiome(9, 3, 30);
+			//chunk.SetBlock(0, h, 1, 161);
+			//chunk.SetBlock(0, h, 2, 18);
 
-				//chunk.SetBlock(0, h, 15, 31);
-				//chunk.SetBlock(0, h, 14, 161);
-				//chunk.SetBlock(5, h, 13, 18);
-				//chunk.SetBiome(5, 13, 30);
+			//chunk.SetBlock(0, h, 15, 31);
+			//chunk.SetBlock(0, h, 14, 161);
+			//chunk.SetBlock(5, h, 13, 18);
+			//chunk.SetBiome(5, 13, 30);
 
-				//chunk.SetBlock(6, h, 9, 63);
-				//chunk.SetMetadata(6, h, 9, 12);
-				//var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
-				//chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
+			//chunk.SetBlock(6, h, 9, 63);
+			//chunk.SetMetadata(6, h, 9, 12);
+			//var blockEntity = GetBlockEntity((chunkCoordinates.X*16) + 6, h, (chunkCoordinates.Z*16) + 9);
+			//chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
-				//if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
-				//{
-				//	for (int x = 0; x < 10; x++)
-				//	{
-				//		for (int z = 0; z < 10; z++)
-				//		{
-				//			for (int y = h - 2; y < h; y++)
-				//			{
-				//				chunk.SetBlock(x, y, z, 8);
-				//			}
-				//		}
-				//	}
-				//}
+			//if (chunkCoordinates.X == 1 && chunkCoordinates.Z == 1)
+			//{
+			//	for (int x = 0; x < 10; x++)
+			//	{
+			//		for (int z = 0; z < 10; z++)
+			//		{
+			//			for (int y = h - 2; y < h; y++)
+			//			{
+			//				chunk.SetBlock(x, y, z, 8);
+			//			}
+			//		}
+			//	}
+			//}
 
-				//if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
-				//{
-				//	for (int x = 0; x < 10; x++)
-				//	{
-				//		for (int z = 0; z < 10; z++)
-				//		{
-				//			for (int y = h - 1; y < h; y++)
-				//			{
-				//				chunk.SetBlock(x, y, z, 10);
-				//			}
-				//		}
-				//	}
-				//}
+			//if (chunkCoordinates.X == 3 && chunkCoordinates.Z == 1)
+			//{
+			//	for (int x = 0; x < 10; x++)
+			//	{
+			//		for (int z = 0; z < 10; z++)
+			//		{
+			//			for (int y = h - 1; y < h; y++)
+			//			{
+			//				chunk.SetBlock(x, y, z, 10);
+			//			}
+			//		}
+			//	}
+			//}
 
-				//for (int x = 0; x < 16; x++)
-				//{
-				//	for (int z = 0; z < 16; z++)
-				//	{
-				//		for (int y = 15; y > 0; y--)
-				//		{
-				//			if (chunk.GetBlock(x, y, z) == 0x00)
-				//			{
-				//				//chunk.SetSkylight(x, y, z, 0xff);
-				//			}
-				//			else
-				//			{
-				//				//chunk.SetSkylight(x, y, z, 0x00);
-				//			}
-				//		}
-				//	}
-				//}
-
-				chunk.RecalcHeight();
-
-				_spawnPoint.Y = h + 2;
-
-				// Cache
-				chunk.GetBatch();
-				_chunkCache[chunkCoordinates] = chunk;
-
-				return chunk;
-			}
+			//for (int x = 0; x < 16; x++)
+			//{
+			//	for (int z = 0; z < 16; z++)
+			//	{
+			//		for (int y = 15; y > 0; y--)
+			//		{
+			//			if (chunk.GetBlock(x, y, z) == 0x00)
+			//			{
+			//				//chunk.SetSkylight(x, y, z, 0xff);
+			//			}
+			//			else
+			//			{
+			//				//chunk.SetSkylight(x, y, z, 0x00);
+			//			}
+			//		}
+			//	}
+			//}
+			return chunk;
 		}
 
 		private void BuildStructures(ChunkColumn chunk)
@@ -183,21 +189,6 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public Vector3 GetSpawnPoint()
-		{
-			return _spawnPoint;
-		}
-
-		public long GetTime()
-		{
-			return 6000;
-		}
-
-		public string GetName()
-		{
-			return "Flatland";
-		}
-
 		public int PopulateChunk(ChunkColumn chunk)
 		{
 			//var random = new CryptoRandom();
@@ -249,25 +240,11 @@ namespace MiNET.Worlds
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 2); // Grass
+					chunk.SetHeight(x, z, (short) h);
 				}
 			}
 
 			return h;
-		}
-
-		public int SaveChunks()
-		{
-			return 0;
-		}
-
-		public ChunkColumn[] GetCachedChunks()
-		{
-			return _chunkCache.Values.Where(column => column != null).ToArray();
-		}
-
-		public void ClearCachedChunks()
-		{
-			_chunkCache.Clear();
 		}
 
 		private Sign GetBlockEntity(int x, int y, int z)

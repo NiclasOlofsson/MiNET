@@ -35,9 +35,12 @@ namespace MiNET.Entities
 		PrimedTnt = 65,
 		FallingBlock = 66,
 
-		Camera = 62,
 		ThrownBottleoEnchanting = 68,
+		EnderEye = 70,
+		EnderCrystal = 71,
+		ShulkerBullet = 76,
 		FishingRodHook = 77,
+		DragonFireball = 79,
 		ShotArrow = 80,
 		ThrownSnowball = 81,
 		ThrownEgg = 82,
@@ -47,12 +50,19 @@ namespace MiNET.Entities
 		ThrownSpashPotion = 86,
 		ThrownEnderPerl = 87,
 		LeashKnot = 88,
+		WitherSkull = 89,
 		Boat = 90,
+		WitherSkullDangerous = 91,
 		LightningBolt = 93,
 		BlazeFireball = 94,
+		AreaEffectCloud = 95,
 		HopperMinecart = 96,
 		TntMinecart = 97,
 		ChestMinecart = 98,
+		CommandBlockMinecart = 100,
+		LingeringPotion = 101,
+		LlamaSpit = 102,
+		EvocationFangs = 103,
 
 		Zombie = 32,
 		Creeper = 33,
@@ -76,6 +86,9 @@ namespace MiNET.Entities
 		Wither = 52,
 		Dragon = 53,
 		Shulker = 54,
+		Endermite = 55,
+		Vindicator = 57,
+		Evoker = 104,
 		Vex = 105,
 
 		Chicken = 10,
@@ -99,9 +112,11 @@ namespace MiNET.Entities
 		PolarBear = 28,
 		Llama = 29,
 
-		Agent = 56,
-		Npc = 51,
+		Player = 63,
 
-		Player = 63
+		Npc = 51,
+		Agent = 56,
+		Camera = 62,
+		Chalkboard = 78
 	}
 }

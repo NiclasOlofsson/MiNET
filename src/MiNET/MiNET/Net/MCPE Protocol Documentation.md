@@ -1213,10 +1213,10 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Unknown0 | UnsignedVarInt |  |
+|Action ID | UnsignedVarInt |  |
 |Item | Item |  |
-|Unknown1 | SignedVarInt |  |
-|Unknown2 | SignedVarInt |  |
+|Enchantment Id | SignedVarInt |  |
+|Enchantment Level | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Container Open (0x30)
 
@@ -1335,7 +1335,7 @@ MODE_ROTATION = 2;
 ### Package: Mcpe Adventure Settings (0x37)
 
 **Sent from server:** true
-**Sent from client:** false
+**Sent from client:** true
 **Packet size:** 
 
 
@@ -1492,6 +1492,9 @@ MODE_ROTATION = 2;
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Entity ID Self | SignedVarLong |  |
+|Unk1 | SignedVarInt |  |
+|Unk2 | byte |  |
 -----------------------------------------------------------------------
 ### Package: Mcpe Spawn Experience Orb (0x42)
 

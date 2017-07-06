@@ -41,6 +41,7 @@ namespace MiNET.Net
 		void HandleMcpeContainerClose(McpeContainerClose message);
 		void HandleMcpeContainerSetSlot(McpeContainerSetSlot message);
 		void HandleMcpeCraftingEvent(McpeCraftingEvent message);
+		void HandleMcpeAdventureSettings(McpeAdventureSettings message);
 		void HandleMcpeBlockEntityData(McpeBlockEntityData message);
 		void HandleMcpePlayerInput(McpePlayerInput message);
 		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
@@ -3488,10 +3489,10 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryAction : Package<McpeInventoryAction>
 	{
-		public uint unknown0; // = null;
+		public uint actionId; // = null;
 		public Item item; // = null;
-		public int unknown1; // = null;
-		public int unknown2; // = null;
+		public int enchantmentId; // = null;
+		public int enchantmentLevel; // = null;
 		public McpeInventoryAction()
 		{
 			Id = 0x2f;
@@ -3503,10 +3504,10 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarInt(unknown0);
+			WriteUnsignedVarInt(actionId);
 			Write(item);
-			WriteSignedVarInt(unknown1);
-			WriteSignedVarInt(unknown2);
+			WriteSignedVarInt(enchantmentId);
+			WriteSignedVarInt(enchantmentLevel);
 
 			AfterEncode();
 		}
@@ -3520,10 +3521,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			unknown0 = ReadUnsignedVarInt();
+			actionId = ReadUnsignedVarInt();
 			item = ReadItem();
-			unknown1 = ReadSignedVarInt();
-			unknown2 = ReadSignedVarInt();
+			enchantmentId = ReadSignedVarInt();
+			enchantmentLevel = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -4253,6 +4254,9 @@ namespace MiNET.Net
 
 	public partial class McpeEvent : Package<McpeEvent>
 	{
+		public long entityIdSelf; // = null;
+		public int unk1; // = null;
+		public byte unk2; // = null;
 		public McpeEvent()
 		{
 			Id = 0x41;
@@ -4264,6 +4268,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			WriteSignedVarLong(entityIdSelf);
+			WriteSignedVarInt(unk1);
+			Write(unk2);
 
 			AfterEncode();
 		}
@@ -4277,6 +4284,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			entityIdSelf = ReadSignedVarLong();
+			unk1 = ReadSignedVarInt();
+			unk2 = ReadByte();
 
 			AfterDecode();
 		}

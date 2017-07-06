@@ -506,10 +506,10 @@
 	</pdu>
 
 	<pdu id="0x2f" online="false" client="false" server="true" name="MCPE_INVENTORY_ACTION">
-		<field name="Unknown0" type="UnsignedVarInt" />
+		<field name="Action ID" type="UnsignedVarInt" />
 		<field name="Item" type="Item" />
-		<field name="Unknown1" type="SignedVarInt" />
-		<field name="Unknown2" type="SignedVarInt" />
+		<field name="Enchantment Id" type="SignedVarInt" />
+		<field name="Enchantment Level" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x30" online="false" client="false" server="true" name="MCPE_CONTAINER_OPEN">
@@ -564,7 +564,7 @@
 		<field name="Result" type="ItemStacks" />
 	</pdu>
 
-	<pdu id="0x37" online="false" client="false" server="true" name="MCPE_ADVENTURE_SETTINGS">
+	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">
 		<field name="Flags" type="UnsignedVarInt" />
 		<!--
 		PERMISSION_NORMAL = 0;
@@ -620,6 +620,9 @@
 	</pdu>
 
 	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_EVENT">
+		<field name="Entity ID Self" type="SignedVarLong" />
+		<field name="Unk1" type="SignedVarInt" />
+		<field name="Unk2" type="byte" />
 	</pdu>
 
 	<pdu id="0x42" online="false" client="false" server="true" name="MCPE_SPAWN_EXPERIENCE_ORB">

@@ -77,6 +77,16 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
+		[Command(Description = "Save world")]
+		public void Save(Player player)
+		{
+			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
+			if (provider != null)
+			{
+				provider.SaveChunks();
+			}
+		}
+
 		[Command]
 		public void SpawnAgent(Player player, string text)
 		{
@@ -125,7 +135,7 @@ namespace TestPlugin
 		{
 		}
 
-		[Command(Aliases = new[] {"csk"})]
+		[Command(Aliases = new[] {"csl"})]
 		public void CalculateSkyLight(Player player)
 		{
 			Task.Run(() =>
@@ -136,14 +146,17 @@ namespace TestPlugin
 			});
 		}
 
-		[Command(Name = "dim")]
-		public void ChangeDimension(Player player)
+		[Command(Aliases = new[] {"cbl"})]
+		public void CalculateBlockLight(Player player)
 		{
-			McpeChangeDimension change = McpeChangeDimension.CreateObject();
-			change.dimension = 1;
-			change.unknown = false;
-			player.SendPackage(change);
+			Task.Run(() =>
+			{
+				new LevelManager().RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level.WorldProvider);
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage("Calculated blocklights and resent chunks."); });
+			});
 		}
+
 
 		[Command(Name = "le")]
 		public void LevelEvent(Player player, short value)
@@ -266,6 +279,51 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Portal(Player player)
+		{
+			int width = 4;
+			int height = 5;
+
+			int x = (int)player.KnownPosition.X - width / 2;
+			int y = (int)player.KnownPosition.Y - 1;
+			int z = (int) player.KnownPosition.Z + 1;
+
+			PortalInfo portal = new PortalInfo();
+			portal.Coordinates = new BlockCoordinates(x, y, z);
+			portal.Size = new BoundingBox(portal.Coordinates, portal.Coordinates + new BlockCoordinates(4, 5, 3));
+			Player.BuildPortal(player.Level, portal);
+		}
+
+		[Command]
+		public void ReadTest(Player player)
+		{
+			int width = 128;
+			int height = player.Level.Dimension == Dimension.Overworld ? 256 : 128;
+
+
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
+			Level level = player.Level;
+			int blockId = new Portal().Id;
+			BlockCoordinates start = (BlockCoordinates) player.KnownPosition;
+			for (int x = start.X - width; x < start.X + width; x++)
+			{
+				for (int z = start.Z - width; z < start.Z + width; z++)
+				{
+					for (int y = height - 1; y >= 0; y--)
+					{
+						var b = level.IsBlock(new BlockCoordinates(x, y, z), blockId);
+						if (b) Log.Warn("Found portal block");
+					}
+				}
+			}
+			sw.Stop();
+
+			player.SendMessage($"Read blocks in {sw.ElapsedMilliseconds}ms");
+		}
+
+
+		[Command]
 		public void Orb(Player player1)
 		{
 			foreach (Player player in player1.Level.Players.Values)
@@ -278,16 +336,49 @@ namespace TestPlugin
 			}
 		}
 
-		[Command(Name = "gm")]
-		//[Authorize(Users = "gurun")]
-		//[Authorize(Users = "gurunx")]
-		public void GameMode(Player player, int gameMode)
+		[Command(Name = "dim", Aliases = new[] {"dimension"}, Description = "Change dimension. Creates world if not exist.")]
+		public void ChangeDimenion(Player player, DimensionTypesEnum dimType)
 		{
-			player.SetGameMode((GameMode) gameMode);
+			Dimension dimension;
+			switch (dimType.Value)
+			{
+				case "overworld":
+					dimension = Dimension.Overworld;
+					break;
+				case "nether":
+					dimension = Dimension.Nether;
+					break;
+				case "the_end":
+					dimension = Dimension.TheEnd;
+					break;
+				default:
+					return;
+			}
 
-			player.Level.BroadcastMessage($"{player.Username} changed to game mode {(GameMode) gameMode}.", type: MessageType.Raw);
+			Level oldLevel = player.Level;
+
+			if (player.Level.Dimension == dimension)
+			{
+				player.Teleport(player.SpawnPosition);
+				return;
+			}
+
+			if (!Context.LevelManager.Levels.Contains(player.Level))
+			{
+				Context.LevelManager.Levels.Add(player.Level);
+			}
+
+			ThreadPool.QueueUserWorkItem(delegate(object state)
+			{
+				player.ChangeDimension(null, null, dimension, delegate
+				{
+					Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
+					return nextLevel;
+				});
+
+				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
+			}, Context.LevelManager);
 		}
-
 
 		[Command(Name = "tpw", Aliases = new[] {"teleport"}, Description = "Teleports player to default world.")]
 		public void TeleportWorld(Player player)
@@ -322,7 +413,7 @@ namespace TestPlugin
 
 				if (levels != null)
 				{
-					player.SpawnLevel(null, null, false, delegate
+					player.SpawnLevel(null, null, true, delegate
 					{
 						lock (levelManager.Levels)
 						{
@@ -330,18 +421,17 @@ namespace TestPlugin
 
 							if (nextLevel == null)
 							{
-								nextLevel = new Level(world, new FlatlandWorldProvider(), Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel = new Level(levelManager, world, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 								nextLevel.Initialize();
 								Context.LevelManager.Levels.Add(nextLevel);
 							}
 
+							oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 
 							return nextLevel;
 						}
 					});
 				}
-
-				oldLevel.BroadcastMessage(string.Format("{0} teleported to world {1}.", player.Username, player.Level.LevelId), type: MessageType.Raw);
 			}, Context.LevelManager);
 		}
 
@@ -386,7 +476,7 @@ namespace TestPlugin
 			player.SendMessage(string.Format("Client ID={0}", player.ClientUuid), type: MessageType.Raw);
 		}
 
-		[Command(Name = "position")]
+		[Command(Name = "pos")]
 		public void Position(Player player)
 		{
 			BlockCoordinates position = new BlockCoordinates(player.KnownPosition);
@@ -398,11 +488,13 @@ namespace TestPlugin
 			int zi = position.Z & 0x0f;
 
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(string.Format("Position X={0:F1} Y={1:F1} Z={2:F1}", player.KnownPosition.X, player.KnownPosition.Y, player.KnownPosition.Z));
-			sb.AppendLine(string.Format("Direction Yaw={0:F1} HeadYap={1:F1} Pitch={2:F1}", player.KnownPosition.Yaw, player.KnownPosition.HeadYaw, player.KnownPosition.Pitch));
-			sb.AppendLine(string.Format("Region X={0} Z={1}", chunkX >> 5, chunkZ >> 5));
-			sb.AppendLine(string.Format("Chunk X={0} Z={1}", chunkX, chunkZ));
-			sb.AppendLine(string.Format("Local coordinates X={0} Z={1}", xi, zi));
+			sb.AppendLine($"Position X={player.KnownPosition.X:F1} Y={player.KnownPosition.Y:F1} Z={player.KnownPosition.Z:F1}");
+			sb.AppendLine($"Direction Yaw={player.KnownPosition.Yaw:F1} HeadYap={player.KnownPosition.HeadYaw:F1} Pitch={player.KnownPosition.Pitch:F1}");
+			sb.AppendLine($"Region X={chunkX >> 5} Z={chunkZ >> 5}");
+			sb.AppendLine($"Chunk X={chunkX} Z={chunkZ}");
+			sb.AppendLine($"Local coordinates X={xi} Z={zi}");
+			sb.AppendLine($"Local coordinates X={xi} Z={zi}");
+			sb.AppendLine($"Height={player.Level.GetHeight(position)}");
 			string text = sb.ToString();
 
 			player.SendMessage(text, type: MessageType.Raw);

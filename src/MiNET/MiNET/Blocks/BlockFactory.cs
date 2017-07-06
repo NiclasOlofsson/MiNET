@@ -71,8 +71,8 @@ namespace MiNET.Blocks
 
 				if (name.Equals("block"))
 				{
-					if (Log.IsDebugEnabled)
-						Log.Debug($"Missing implementation for block ID={idx}");
+					//if (Log.IsDebugEnabled)
+					//	Log.Debug($"Missing implementation for block ID={idx}");
 					continue;
 				}
 
@@ -298,7 +298,7 @@ namespace MiNET.Blocks
 			else if (blockId == 179) block = new RedSandstone();
 			else if (blockId == 180) block = new RedSandstoneStairs();
 			else if (blockId == 181) block = new DoubleRedSandstoneSlab();
-			else if (blockId == 182) block = new RedSandstoneSlab();
+			else if (blockId == 182) block = new StoneSlab2();
 			else if (blockId == 183) block = new SpruceFenceGate();
 			else if (blockId == 184) block = new BirchFenceGate();
 			else if (blockId == 185) block = new JungleFenceGate();
@@ -315,6 +315,7 @@ namespace MiNET.Blocks
 			else if (blockId == 201) block = new PurPur();
 			else if (blockId == 203) block = new PurPurStairs();
 			else if (blockId == 206) block = new EndBrick();
+			else if (blockId == 207) block = new FrostedIce();
 			else if (blockId == 208) block = new EndRod();
 			else if (blockId == 209) block = new EndGateway();
 			else if (blockId == 219) block = new PurpleGlazedTerracotta();
@@ -333,6 +334,8 @@ namespace MiNET.Blocks
 			else if (blockId == 233) block = new GreenGlazedTerracotta();
 			else if (blockId == 234) block = new RedGlazedTerracotta();
 			else if (blockId == 235) block = new BlackGlazedTerracotta();
+			else if (blockId == 236) block = new Concrete();
+			else if (blockId == 237) block = new ConcretePowder();
 			else if (blockId == 240) block = new ChorusPlant();
 			else if (blockId == 241) block = new StainedGlass();
 			else if (blockId == 243) block = new Podzol();

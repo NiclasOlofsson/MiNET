@@ -31,6 +31,7 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
 using AStarNavigator;
 using AStarNavigator.Algorithms;
 using AStarNavigator.Providers;
@@ -42,10 +43,122 @@ using NUnit.Framework;
 
 namespace MiNET
 {
-	[TestFixture]
+	[TestFixture, Ignore("")]
 	public class MinetServerTest
 	{
-		[Test]
+		[Test, Ignore("")]
+		public void HighPrecTimerLoadTest()
+		{
+			Stopwatch sw = new Stopwatch();
+			List<HighPrecisionTimer> timers = new List<HighPrecisionTimer>();
+			for (int i = 0; i < 100; i++)
+			{
+				timers.Add(new HighPrecisionTimer(10, SendTick, false));
+			}
+
+			Console.WriteLine($"Created {timers.Count} timers, sleeping");
+
+			Thread.Sleep(10000);
+
+			Console.WriteLine($"Done with {timers.Count} timers. Disposing");
+
+			long spins = 0;
+			long sleeps = 0;
+			long misses = 0;
+			long yields = 0;
+			foreach (var timer in timers)
+			{
+				spins += timer.Spins;
+				sleeps += timer.Sleeps;
+				misses += timer.Misses;
+				yields += timer.Yields;
+				timer.Dispose();
+			}
+
+			Console.WriteLine($"End {timers.Count} timers. " +
+			                  $"\nSpins/timer={spins/timers.Count}, " +
+			                  $"\nSleeps/timer={sleeps/timers.Count}, " +
+			                  $"\nMisses/timer={misses/timers.Count}, " +
+			                  $"\nYields/timer={yields/timers.Count} ");
+		}
+
+		[Test, Ignore("")]
+		public void HighPrecTimerSignalingLoadTest()
+		{
+			List<Thread> threads = new List<Thread>();
+			for (int i = 0; i < 1000; i++)
+			{
+				threads.Add(new Thread(Runner));
+			}
+
+			threads.ForEach(t => t.Start());
+
+			var timer = new HighPrecisionTimer(TIME/2, Interrupt, false);
+		}
+
+		private const int TIME = 200;
+
+		ManualResetEvent signal = new ManualResetEvent(false);
+		public CancellationTokenSource cancel = new CancellationTokenSource();
+
+
+		int _count = 0;
+		int _interrupts = 0;
+		long _timeWaiting = 0;
+		long _errors = 0;
+
+		public void PrintResults()
+		{
+			signal.Set();
+			Thread.Sleep(4000);
+			Console.WriteLine($"Interrupted {_interrupts} times. ");
+			Console.WriteLine($"Ticked {_count} times. ");
+			Console.WriteLine($"Errors {_errors}. ");
+			Console.WriteLine($"Avg {_timeWaiting/_count} wait. ");
+		}
+
+		private void Runner()
+		{
+			Stopwatch sw = new Stopwatch();
+			int count = 0;
+			int errors = 0;
+			long timeWaiting = 0;
+			while (!cancel.IsCancellationRequested)
+			{
+				sw.Restart();
+				signal.WaitOne();
+				var elapsedMilliseconds = sw.ElapsedMilliseconds;
+				if (elapsedMilliseconds < TIME - 5) errors++;
+				if (elapsedMilliseconds > TIME + 5) errors++;
+				timeWaiting += elapsedMilliseconds;
+				count++;
+				//Console.WriteLine($"Tick. ");
+			}
+
+			Interlocked.Add(ref _count, count);
+			Interlocked.Add(ref _timeWaiting, timeWaiting);
+			Interlocked.Add(ref _errors, errors);
+		}
+
+		private void Interrupt(object obj)
+		{
+			if(signal.WaitOne(0))
+			{
+				signal.Reset();
+			}
+			else
+			{
+				_interrupts++;
+				signal.Set();
+			}
+		}
+
+
+		private void SendTick(object obj)
+		{
+		}
+
+		[Test, Ignore("")]
 		public void TestPathFinder()
 		{
 			var navigator = new TileNavigator(
@@ -185,7 +298,7 @@ namespace MiNET
 			Assert.AreEqual(1, f);
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void ChunkLoadTest()
 		{
 			{
@@ -495,7 +608,7 @@ namespace MiNET
 			return hex.ToString();
 		}
 
-		[Test, Ignore]
+		[Test, Ignore("")]
 		public void FlagToStringTest()
 		{
 			long value = new MetadataLong(8590508032).Value; // 1000000000000010001100000000000000

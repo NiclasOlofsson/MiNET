@@ -27,6 +27,8 @@ namespace MiNET.Net
 {
 	public partial class McpeBossEvent
 	{
+		public ushort unknown6;
+
 		partial void AfterEncode()
 		{
 			switch (eventType)
@@ -47,9 +49,12 @@ namespace MiNET.Net
 					break;
 				case 6:
 					// ushort?
-					break;
+					Write(unknown6);
+					goto case 7;
 				case 7:
 					// NOOP
+					WriteUnsignedVarInt(0xff00ff00);
+					WriteUnsignedVarInt(0xff00ff00);
 					break;
 			}
 		}

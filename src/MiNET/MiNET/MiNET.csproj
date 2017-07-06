@@ -647,14 +647,19 @@
     <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\EnchantingExtensions.cs" />
     <Compile Include="Utils\DedicatedThreadPool.cs" />
+    <Compile Include="Utils\FastNoise.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />
+    <Compile Include="Utils\Interpolation.cs" />
     <Compile Include="Utils\MapInfo.cs" />
+    <Compile Include="Utils\MathHelpers.cs" />
     <Compile Include="Utils\MetadataIntCoordinates.cs" />
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataVector3.cs" />
+    <Compile Include="Utils\ModifyNoise.cs" />
     <Compile Include="Utils\MultiMediaTimer.cs" />
     <Compile Include="Utils\NbtStringConverter.cs" />
+    <Compile Include="Utils\NoiseBlend.cs" />
     <Compile Include="Utils\OpenSimplex.cs" />
     <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />
@@ -692,6 +697,11 @@
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
+    <Compile Include="Worlds\Decorators\CaveDecorator.cs" />
+    <Compile Include="Worlds\Decorators\ChunkDecorator.cs" />
+    <Compile Include="Worlds\Decorators\OreDecorator.cs" />
+    <Compile Include="Worlds\Decorators\FoliageDecorator.cs" />
+    <Compile Include="Worlds\Decorators\WaterDecorator.cs" />
     <Compile Include="Worlds\Difficulty.cs" />
     <Compile Include="Worlds\EntityManager.cs" />
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
@@ -704,10 +714,14 @@
     <Compile Include="Worlds\SkyLightCalculations.cs" />
     <Compile Include="Worlds\Structures\AcaciaTree.cs" />
     <Compile Include="Worlds\Structures\BirchTree.cs" />
-    <Compile Include="Worlds\Structures\JungleTree.cs" />
+    <Compile Include="Worlds\Structures\CactusStructure.cs" />
+    <Compile Include="Worlds\Structures\LargeJungleTree.cs" />
+    <Compile Include="Worlds\Structures\SmallJungleTree.cs" />
     <Compile Include="Worlds\Structures\OakTree.cs" />
+    <Compile Include="Worlds\Structures\PineTree.cs" />
     <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
+    <Compile Include="Worlds\SurvivalWorldProvider.cs" />
     <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
     </None>
@@ -739,7 +753,6 @@
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

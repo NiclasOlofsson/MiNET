@@ -47,6 +47,9 @@ namespace MiNET
                     case "experimental":
                         worldProvider = new ExperimentalWorldProvider();
                         break;
+					case "survival":
+						worldProvider = new SurvivalWorldProvider();
+		                break;
                     case "anvil":
                         worldProvider = new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()};
                         break;
@@ -93,7 +96,7 @@ namespace MiNET
 							SkyLightCalculations.Calculate(level);
 						}
 					}
-					
+
 				}
 				Levels.Add(level);
 

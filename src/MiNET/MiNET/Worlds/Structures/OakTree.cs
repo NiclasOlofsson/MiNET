@@ -1,4 +1,6 @@
-﻿using MiNET.Blocks;
+﻿using System;
+using System.Numerics;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Worlds.Structures
@@ -83,6 +85,22 @@ namespace MiNET.Worlds.Structures
                     new Block(18) {Coordinates = new BlockCoordinates(1, 6, 0)},
                 };
 			}
+		}
+
+		private readonly int _leafRadius = 2;
+		public override void Create(ChunkColumn chunk, int x, int y, int z)
+		{
+			var block = chunk.GetBlock(x, y - 1, z);
+			if (block != 2 && block != 3) return;
+
+			var location = new Vector3(x, y, z);
+		//	if (!ValidLocation(new Vector3(x, y, z))) return;
+
+			Random r = new Random();
+			int height = r.Next(4, 5);
+			GenerateColumn(chunk, location, height, 17, 0);
+			Vector3 leafLocation = location + new Vector3(0, height, 0);
+			GenerateVanillaLeaves(chunk, leafLocation, _leafRadius, 18, 0);
 		}
 	}
 }

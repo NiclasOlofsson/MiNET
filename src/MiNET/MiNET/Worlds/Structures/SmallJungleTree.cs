@@ -1,9 +1,11 @@
-﻿using MiNET.Blocks;
+﻿using System;
+using System.Numerics;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Worlds.Structures
 {
-    class JungleTree : Structure
+    class SmallJungleTree : Structure
     {
         public override string Name
         {
@@ -15,7 +17,23 @@ namespace MiNET.Worlds.Structures
             get { return 8; }
         }
 
-        public override Block[] Blocks
+	    public override void Create(ChunkColumn chunk, int x, int y, int z)
+	    {
+			var block = chunk.GetBlock(x, y - 1, z);
+			if (block != 2 && block != 3) return;
+
+			var location = new Vector3(x, y, z);
+
+			int height = Math.Max(4, new Random().Next(6));
+
+			GenerateColumn(chunk, location, height, 17, 3);
+			Vector3 leafLocation = location + new Vector3(0, height, 0);
+			GenerateVanillaLeaves(chunk, leafLocation, 2, 18, 3);
+
+		//	base.Create(chunk, x, y, z);
+	    }
+
+	    public override Block[] Blocks
         {
             get
             {

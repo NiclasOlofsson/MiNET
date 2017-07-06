@@ -265,6 +265,17 @@ namespace MiNET
 						{
 							UseEncryption = false
 						};
+
+						if (jsonPayload["extraData"]["XUID"] != null)
+						{
+							_playerInfo.CertificateData = new CertificateData
+							{
+								ExtraData = new ExtraData
+								{
+									Xuid = jsonPayload["extraData"]["XUID"]
+								}
+							};
+						}
 					}
 				}
 

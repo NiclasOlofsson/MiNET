@@ -111,7 +111,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 ## Packages
 
 ### Package: Login (0x01)
-Wiki: [Package-Login](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Login)
+Wiki: [Package-Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Login)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -127,7 +127,7 @@ Wiki: [Package-Login](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Login)
 |Payload | ByteArray |  |
 -----------------------------------------------------------------------
 ### Package: Play Status (0x02)
-Wiki: [Package-Play Status](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayStatus)
+Wiki: [Package-Play Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayStatus)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -152,7 +152,7 @@ LOGIN_FAILED_EDU_VANILLA = 6;
 |Status | int |  |
 -----------------------------------------------------------------------
 ### Package: Server To Client Handshake (0x03)
-Wiki: [Package-Server To Client Handshake](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ServerToClientHandshake)
+Wiki: [Package-Server To Client Handshake](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ServerToClientHandshake)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -169,7 +169,7 @@ Wiki: [Package-Server To Client Handshake](https://github.com/NiclasOlofsson/MiN
 |Token | byte[] | 0 |
 -----------------------------------------------------------------------
 ### Package: Client To Server Handshake (0x04)
-Wiki: [Package-Client To Server Handshake](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ClientToServerHandshake)
+Wiki: [Package-Client To Server Handshake](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientToServerHandshake)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -183,7 +183,7 @@ Wiki: [Package-Client To Server Handshake](https://github.com/NiclasOlofsson/MiN
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Disconnect (0x05)
-Wiki: [Package-Disconnect](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Disconnect)
+Wiki: [Package-Disconnect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Disconnect)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -199,7 +199,7 @@ Wiki: [Package-Disconnect](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Dis
 |Message | string |  |
 -----------------------------------------------------------------------
 ### Package: Resource Packs Info (0x06)
-Wiki: [Package-Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePacksInfo)
+Wiki: [Package-Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePacksInfo)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -216,7 +216,7 @@ Wiki: [Package-Resource Packs Info](https://github.com/NiclasOlofsson/MiNET/wiki
 |ResourcePackInfos | ResourcePackInfos |  |
 -----------------------------------------------------------------------
 ### Package: Resource Pack Stack (0x07)
-Wiki: [Package-Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackStack)
+Wiki: [Package-Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackStack)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -233,7 +233,7 @@ Wiki: [Package-Resource Pack Stack](https://github.com/NiclasOlofsson/MiNET/wiki
 |ResourcePackIdVersions | ResourcePackIdVersions |  |
 -----------------------------------------------------------------------
 ### Package: Resource Pack Client Response (0x08)
-Wiki: [Package-Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackClientResponse)
+Wiki: [Package-Resource Pack Client Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackClientResponse)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -249,7 +249,7 @@ Wiki: [Package-Resource Pack Client Response](https://github.com/NiclasOlofsson/
 |ResourcePackIds | ResourcePackIds |  |
 -----------------------------------------------------------------------
 ### Package: Text (0x09)
-Wiki: [Package-Text](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Text)
+Wiki: [Package-Text](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Text)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -264,7 +264,7 @@ Wiki: [Package-Text](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Text)
 |Type | byte |  |
 -----------------------------------------------------------------------
 ### Package: Set Time (0x0a)
-Wiki: [Package-Set Time](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetTime)
+Wiki: [Package-Set Time](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetTime)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -279,7 +279,7 @@ Wiki: [Package-Set Time](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetTi
 |Time | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Start Game (0x0b)
-Wiki: [Package-Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//ref-StartGame)
+Wiki: [Package-Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartGame)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -319,7 +319,7 @@ Wiki: [Package-Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Sta
 |Current Tick | long |  |
 -----------------------------------------------------------------------
 ### Package: Add Player (0x0c)
-Wiki: [Package-Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddPlayer)
+Wiki: [Package-Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -348,7 +348,7 @@ Wiki: [Package-Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Add
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ### Package: Add Entity (0x0d)
-Wiki: [Package-Add Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddEntity)
+Wiki: [Package-Add Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -388,7 +388,7 @@ val2 float
 |Links | Links |  |
 -----------------------------------------------------------------------
 ### Package: Remove Entity (0x0e)
-Wiki: [Package-Remove Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-RemoveEntity)
+Wiki: [Package-Remove Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RemoveEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -403,7 +403,7 @@ Wiki: [Package-Remove Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-
 |Entity ID Self | SignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Add Item Entity (0x0f)
-Wiki: [Package-Add Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddItemEntity)
+Wiki: [Package-Add Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddItemEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -427,7 +427,7 @@ Wiki: [Package-Add Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//re
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ### Package: Take Item Entity (0x11)
-Wiki: [Package-Take Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-TakeItemEntity)
+Wiki: [Package-Take Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TakeItemEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -443,7 +443,7 @@ Wiki: [Package-Take Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//r
 |Target | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Move Entity (0x12)
-Wiki: [Package-Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MoveEntity)
+Wiki: [Package-Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveEntity)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -461,7 +461,7 @@ Wiki: [Package-Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Mo
 |Teleport | bool |  |
 -----------------------------------------------------------------------
 ### Package: Move Player (0x13)
-Wiki: [Package-Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MovePlayer)
+Wiki: [Package-Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MovePlayer)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -489,7 +489,7 @@ MODE_ROTATION = 2;
 |Other Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Rider Jump (0x14)
-Wiki: [Package-Rider Jump](https://github.com/NiclasOlofsson/MiNET/wiki//ref-RiderJump)
+Wiki: [Package-Rider Jump](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RiderJump)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -504,7 +504,7 @@ Wiki: [Package-Rider Jump](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Rid
 |Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Update Block (0x15)
-Wiki: [Package-Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateBlock)
+Wiki: [Package-Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateBlock)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -519,7 +519,7 @@ Wiki: [Package-Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//ref-U
 |Records | BlockUpdateRecords |  |
 -----------------------------------------------------------------------
 ### Package: Add Painting (0x16)
-Wiki: [Package-Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddPainting)
+Wiki: [Package-Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPainting)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -538,7 +538,7 @@ Wiki: [Package-Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//ref-A
 |Title | string |  |
 -----------------------------------------------------------------------
 ### Package: Explode (0x17)
-Wiki: [Package-Explode](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Explode)
+Wiki: [Package-Explode](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Explode)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -555,7 +555,7 @@ Wiki: [Package-Explode](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Explod
 |Records | Records |  |
 -----------------------------------------------------------------------
 ### Package: Level Sound Event (0x18)
-Wiki: [Package-Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-LevelSoundEvent)
+Wiki: [Package-Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelSoundEvent)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -575,7 +575,7 @@ Wiki: [Package-Level Sound Event](https://github.com/NiclasOlofsson/MiNET/wiki//
 |Is global | bool |  |
 -----------------------------------------------------------------------
 ### Package: Level Event (0x19)
-Wiki: [Package-Level Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-LevelEvent)
+Wiki: [Package-Level Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LevelEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -592,7 +592,7 @@ Wiki: [Package-Level Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Le
 |Data | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Block Event (0x1a)
-Wiki: [Package-Block Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BlockEvent)
+Wiki: [Package-Block Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BlockEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -609,7 +609,7 @@ Wiki: [Package-Block Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Bl
 |Case 2 | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Entity Event (0x1b)
-Wiki: [Package-Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-EntityEvent)
+Wiki: [Package-Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityEvent)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -626,7 +626,7 @@ Wiki: [Package-Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-E
 |Unknown | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Mob Effect (0x1c)
-Wiki: [Package-Mob Effect](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MobEffect)
+Wiki: [Package-Mob Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MobEffect)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -646,7 +646,7 @@ Wiki: [Package-Mob Effect](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Mob
 |Duration | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Update Attributes (0x1d)
-Wiki: [Package-Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateAttributes)
+Wiki: [Package-Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateAttributes)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -662,7 +662,7 @@ Wiki: [Package-Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//
 |Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
 ### Package: Inventory Transaction Packet (0x1e)
-Wiki: [Package-Inventory Transaction Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InventoryTransactionPacket)
+Wiki: [Package-Inventory Transaction Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryTransactionPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -677,7 +677,7 @@ Wiki: [Package-Inventory Transaction Packet](https://github.com/NiclasOlofsson/M
 |Transaction | Transaction |  |
 -----------------------------------------------------------------------
 ### Package: Mob Equipment (0x1f)
-Wiki: [Package-Mob Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MobEquipment)
+Wiki: [Package-Mob Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MobEquipment)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -696,7 +696,7 @@ Wiki: [Package-Mob Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//ref-
 |Windows Id | byte |  |
 -----------------------------------------------------------------------
 ### Package: Mob Armor Equipment (0x20)
-Wiki: [Package-Mob Armor Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MobArmorEquipment)
+Wiki: [Package-Mob Armor Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MobArmorEquipment)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -715,7 +715,7 @@ Wiki: [Package-Mob Armor Equipment](https://github.com/NiclasOlofsson/MiNET/wiki
 |Boots | Item |  |
 -----------------------------------------------------------------------
 ### Package: Interact (0x21)
-Wiki: [Package-Interact](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Interact)
+Wiki: [Package-Interact](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Interact)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -731,7 +731,7 @@ Wiki: [Package-Interact](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Inter
 |Target Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Block Pick Request (0x22)
-Wiki: [Package-Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BlockPickRequest)
+Wiki: [Package-Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BlockPickRequest)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -749,7 +749,7 @@ Wiki: [Package-Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki/
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
 ### Package: Entity Pick Request Packet (0x23)
-Wiki: [Package-Entity Pick Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-EntityPickRequestPacket)
+Wiki: [Package-Entity Pick Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityPickRequestPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -763,7 +763,7 @@ Wiki: [Package-Entity Pick Request Packet](https://github.com/NiclasOlofsson/MiN
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Player Action (0x24)
-Wiki: [Package-Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerAction)
+Wiki: [Package-Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerAction)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -781,7 +781,7 @@ Wiki: [Package-Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//ref-
 |Face | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Entity Fall (0x25)
-Wiki: [Package-Entity Fall](https://github.com/NiclasOlofsson/MiNET/wiki//ref-EntityFall)
+Wiki: [Package-Entity Fall](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityFall)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -798,7 +798,7 @@ Wiki: [Package-Entity Fall](https://github.com/NiclasOlofsson/MiNET/wiki//ref-En
 |Unknown | bool |  |
 -----------------------------------------------------------------------
 ### Package: Hurt Armor (0x26)
-Wiki: [Package-Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//ref-HurtArmor)
+Wiki: [Package-Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-HurtArmor)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -813,7 +813,7 @@ Wiki: [Package-Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Hur
 |Health | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Set Entity Data (0x27)
-Wiki: [Package-Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetEntityData)
+Wiki: [Package-Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -829,7 +829,7 @@ Wiki: [Package-Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//re
 |Metadata | MetadataDictionary |  |
 -----------------------------------------------------------------------
 ### Package: Set Entity Motion (0x28)
-Wiki: [Package-Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetEntityMotion)
+Wiki: [Package-Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityMotion)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -845,7 +845,7 @@ Wiki: [Package-Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//
 |Velocity | Vector3 |  |
 -----------------------------------------------------------------------
 ### Package: Set Entity Link (0x29)
-Wiki: [Package-Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetEntityLink)
+Wiki: [Package-Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityLink)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -862,7 +862,7 @@ Wiki: [Package-Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//re
 |Link Type | byte |  |
 -----------------------------------------------------------------------
 ### Package: Set Health (0x2a)
-Wiki: [Package-Set Health](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetHealth)
+Wiki: [Package-Set Health](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetHealth)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -877,7 +877,7 @@ Wiki: [Package-Set Health](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Set
 |Health | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Set Spawn Position (0x2b)
-Wiki: [Package-Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetSpawnPosition)
+Wiki: [Package-Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetSpawnPosition)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -894,7 +894,7 @@ Wiki: [Package-Set Spawn Position](https://github.com/NiclasOlofsson/MiNET/wiki/
 |Forced | bool |  |
 -----------------------------------------------------------------------
 ### Package: Animate (0x2c)
-Wiki: [Package-Animate](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Animate)
+Wiki: [Package-Animate](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Animate)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -910,7 +910,7 @@ Wiki: [Package-Animate](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Animat
 |Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Respawn (0x2d)
-Wiki: [Package-Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Respawn)
+Wiki: [Package-Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Respawn)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -927,7 +927,7 @@ Wiki: [Package-Respawn](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Respaw
 |Z | float |  |
 -----------------------------------------------------------------------
 ### Package: Container Open (0x2e)
-Wiki: [Package-Container Open](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ContainerOpen)
+Wiki: [Package-Container Open](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerOpen)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -945,7 +945,7 @@ Wiki: [Package-Container Open](https://github.com/NiclasOlofsson/MiNET/wiki//ref
 |Unknown Runtime Entity ID | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Container Close (0x2f)
-Wiki: [Package-Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ContainerClose)
+Wiki: [Package-Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerClose)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -960,7 +960,7 @@ Wiki: [Package-Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//re
 |Window ID | byte |  |
 -----------------------------------------------------------------------
 ### Package: Player Hotbar Packet (0x30)
-Wiki: [Package-Player Hotbar Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerHotbarPacket)
+Wiki: [Package-Player Hotbar Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerHotbarPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -976,7 +976,7 @@ Wiki: [Package-Player Hotbar Packet](https://github.com/NiclasOlofsson/MiNET/wik
 |Hotbar Data | MetadataInts |  |
 -----------------------------------------------------------------------
 ### Package: Inventory Content Packet (0x31)
-Wiki: [Package-Inventory Content Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InventoryContentPacket)
+Wiki: [Package-Inventory Content Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryContentPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -992,7 +992,7 @@ Wiki: [Package-Inventory Content Packet](https://github.com/NiclasOlofsson/MiNET
 |Input | ItemStacks |  |
 -----------------------------------------------------------------------
 ### Package: Inventory Slot Packet (0x32)
-Wiki: [Package-Inventory Slot Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InventorySlotPacket)
+Wiki: [Package-Inventory Slot Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventorySlotPacket)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1009,7 +1009,7 @@ Wiki: [Package-Inventory Slot Packet](https://github.com/NiclasOlofsson/MiNET/wi
 |Item | Item |  |
 -----------------------------------------------------------------------
 ### Package: Container Set Data (0x33)
-Wiki: [Package-Container Set Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ContainerSetData)
+Wiki: [Package-Container Set Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerSetData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1026,7 +1026,7 @@ Wiki: [Package-Container Set Data](https://github.com/NiclasOlofsson/MiNET/wiki/
 |Value | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Crafting Data (0x34)
-Wiki: [Package-Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CraftingData)
+Wiki: [Package-Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CraftingData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1041,7 +1041,7 @@ Wiki: [Package-Crafting Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-
 |Recipes | Recipes |  |
 -----------------------------------------------------------------------
 ### Package: Crafting Event (0x35)
-Wiki: [Package-Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CraftingEvent)
+Wiki: [Package-Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CraftingEvent)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1060,7 +1060,7 @@ Wiki: [Package-Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref
 |Result | ItemStacks |  |
 -----------------------------------------------------------------------
 ### Package: Gui Data Pick Item Packet (0x36)
-Wiki: [Package-Gui Data Pick Item Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-GuiDataPickItemPacket)
+Wiki: [Package-Gui Data Pick Item Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-GuiDataPickItemPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1074,7 +1074,7 @@ Wiki: [Package-Gui Data Pick Item Packet](https://github.com/NiclasOlofsson/MiNE
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Adventure Settings (0x37)
-Wiki: [Package-Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AdventureSettings)
+Wiki: [Package-Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AdventureSettings)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1090,7 +1090,7 @@ Wiki: [Package-Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki/
 |User Permission | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Block Entity Data (0x38)
-Wiki: [Package-Block Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BlockEntityData)
+Wiki: [Package-Block Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BlockEntityData)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1106,7 +1106,7 @@ Wiki: [Package-Block Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//
 |NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ### Package: Player Input (0x39)
-Wiki: [Package-Player Input](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerInput)
+Wiki: [Package-Player Input](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerInput)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1124,7 +1124,7 @@ Wiki: [Package-Player Input](https://github.com/NiclasOlofsson/MiNET/wiki//ref-P
 |Flag2 | bool |  |
 -----------------------------------------------------------------------
 ### Package: Full Chunk Data (0x3a)
-Wiki: [Package-Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-FullChunkData)
+Wiki: [Package-Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-FullChunkData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1141,7 +1141,7 @@ Wiki: [Package-Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//re
 |Chunk Data | ByteArray |  |
 -----------------------------------------------------------------------
 ### Package: Set Commands Enabled (0x3b)
-Wiki: [Package-Set Commands Enabled](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetCommandsEnabled)
+Wiki: [Package-Set Commands Enabled](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetCommandsEnabled)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1156,7 +1156,7 @@ Wiki: [Package-Set Commands Enabled](https://github.com/NiclasOlofsson/MiNET/wik
 |Enabled | bool |  |
 -----------------------------------------------------------------------
 ### Package: Set Difficulty (0x3c)
-Wiki: [Package-Set Difficulty](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetDifficulty)
+Wiki: [Package-Set Difficulty](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetDifficulty)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1171,7 +1171,7 @@ Wiki: [Package-Set Difficulty](https://github.com/NiclasOlofsson/MiNET/wiki//ref
 |Difficulty | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Change Dimension (0x3d)
-Wiki: [Package-Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ChangeDimension)
+Wiki: [Package-Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ChangeDimension)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1188,7 +1188,7 @@ Wiki: [Package-Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//r
 |Unknown | bool |  |
 -----------------------------------------------------------------------
 ### Package: Set Player Game Type (0x3e)
-Wiki: [Package-Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetPlayerGameType)
+Wiki: [Package-Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetPlayerGameType)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1203,7 +1203,7 @@ Wiki: [Package-Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wik
 |Gamemode | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Player List (0x3f)
-Wiki: [Package-Player List](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerList)
+Wiki: [Package-Player List](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerList)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1218,7 +1218,7 @@ Wiki: [Package-Player List](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Pl
 |Records | PlayerRecords |  |
 -----------------------------------------------------------------------
 ### Package: Simple Event (0x40)
-Wiki: [Package-Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SimpleEvent)
+Wiki: [Package-Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SimpleEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1232,7 +1232,7 @@ Wiki: [Package-Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-S
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Telemetry Event Packet (0x41)
-Wiki: [Package-Telemetry Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-TelemetryEventPacket)
+Wiki: [Package-Telemetry Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TelemetryEventPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1249,7 +1249,7 @@ Wiki: [Package-Telemetry Event Packet](https://github.com/NiclasOlofsson/MiNET/w
 |Unk2 | byte |  |
 -----------------------------------------------------------------------
 ### Package: Spawn Experience Orb (0x42)
-Wiki: [Package-Spawn Experience Orb](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SpawnExperienceOrb)
+Wiki: [Package-Spawn Experience Orb](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SpawnExperienceOrb)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1265,7 +1265,7 @@ Wiki: [Package-Spawn Experience Orb](https://github.com/NiclasOlofsson/MiNET/wik
 |Count | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Clientbound Map Item Data  (0x43)
-Wiki: [Package-Clientbound Map Item Data ](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ClientboundMapItemData)
+Wiki: [Package-Clientbound Map Item Data ](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ClientboundMapItemData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1280,7 +1280,7 @@ Wiki: [Package-Clientbound Map Item Data ](https://github.com/NiclasOlofsson/MiN
 |MapInfo | MapInfo |  |
 -----------------------------------------------------------------------
 ### Package: Map Info Request (0x44)
-Wiki: [Package-Map Info Request](https://github.com/NiclasOlofsson/MiNET/wiki//ref-MapInfoRequest)
+Wiki: [Package-Map Info Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MapInfoRequest)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1295,7 +1295,7 @@ Wiki: [Package-Map Info Request](https://github.com/NiclasOlofsson/MiNET/wiki//r
 |Map ID | SignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Request Chunk Radius (0x45)
-Wiki: [Package-Request Chunk Radius](https://github.com/NiclasOlofsson/MiNET/wiki//ref-RequestChunkRadius)
+Wiki: [Package-Request Chunk Radius](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RequestChunkRadius)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1310,7 +1310,7 @@ Wiki: [Package-Request Chunk Radius](https://github.com/NiclasOlofsson/MiNET/wik
 |Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Chunk Radius Update (0x46)
-Wiki: [Package-Chunk Radius Update](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ChunkRadiusUpdate)
+Wiki: [Package-Chunk Radius Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ChunkRadiusUpdate)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1325,7 +1325,7 @@ Wiki: [Package-Chunk Radius Update](https://github.com/NiclasOlofsson/MiNET/wiki
 |Chunk Radius | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Item Frame Drop Item (0x47)
-Wiki: [Package-Item Frame Drop Item](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ItemFrameDropItem)
+Wiki: [Package-Item Frame Drop Item](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ItemFrameDropItem)
 
 **Sent from server:** true
 **Sent from client:** true
@@ -1340,7 +1340,7 @@ Wiki: [Package-Item Frame Drop Item](https://github.com/NiclasOlofsson/MiNET/wik
 |Coordinates | BlockCoordinates |  |
 -----------------------------------------------------------------------
 ### Package: Game Rules Changed (0x48)
-Wiki: [Package-Game Rules Changed](https://github.com/NiclasOlofsson/MiNET/wiki//ref-GameRulesChanged)
+Wiki: [Package-Game Rules Changed](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-GameRulesChanged)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1355,7 +1355,7 @@ Wiki: [Package-Game Rules Changed](https://github.com/NiclasOlofsson/MiNET/wiki/
 |Rules | GameRules |  |
 -----------------------------------------------------------------------
 ### Package: Camera (0x49)
-Wiki: [Package-Camera](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Camera)
+Wiki: [Package-Camera](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Camera)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1369,7 +1369,7 @@ Wiki: [Package-Camera](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Camera)
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Boss Event (0x4a)
-Wiki: [Package-Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BossEvent)
+Wiki: [Package-Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BossEvent)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1385,7 +1385,7 @@ Wiki: [Package-Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Bos
 |Event Type | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Show Credits (0x4b)
-Wiki: [Package-Show Credits](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ShowCredits)
+Wiki: [Package-Show Credits](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ShowCredits)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1401,7 +1401,7 @@ Wiki: [Package-Show Credits](https://github.com/NiclasOlofsson/MiNET/wiki//ref-S
 |Status | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Available Commands (0x4c)
-Wiki: [Package-Available Commands](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AvailableCommands)
+Wiki: [Package-Available Commands](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AvailableCommands)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1417,7 +1417,7 @@ Wiki: [Package-Available Commands](https://github.com/NiclasOlofsson/MiNET/wiki/
 |Unknown | string |  |
 -----------------------------------------------------------------------
 ### Package: Command Request Packet (0x4d)
-Wiki: [Package-Command Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CommandRequestPacket)
+Wiki: [Package-Command Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandRequestPacket)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1442,7 +1442,7 @@ Wiki: [Package-Command Request Packet](https://github.com/NiclasOlofsson/MiNET/w
 |Entity ID Self | SignedVarLong |  |
 -----------------------------------------------------------------------
 ### Package: Command Block Update (0x4e)
-Wiki: [Package-Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//ref-CommandBlockUpdate)
+Wiki: [Package-Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandBlockUpdate)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1456,7 +1456,7 @@ Wiki: [Package-Command Block Update](https://github.com/NiclasOlofsson/MiNET/wik
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Update Trade (0x50)
-Wiki: [Package-Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateTrade)
+Wiki: [Package-Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateTrade)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1470,7 +1470,7 @@ Wiki: [Package-Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//ref-U
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Update Equipment Packet (0x51)
-Wiki: [Package-Update Equipment Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-UpdateEquipmentPacket)
+Wiki: [Package-Update Equipment Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateEquipmentPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1484,7 +1484,7 @@ Wiki: [Package-Update Equipment Packet](https://github.com/NiclasOlofsson/MiNET/
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Resource Pack Data Info (0x52)
-Wiki: [Package-Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackDataInfo)
+Wiki: [Package-Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackDataInfo)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1503,7 +1503,7 @@ Wiki: [Package-Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/
 |Hash  | string |  |
 -----------------------------------------------------------------------
 ### Package: Resource Pack Chunk Data (0x53)
-Wiki: [Package-Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackChunkData)
+Wiki: [Package-Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkData)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1522,7 +1522,7 @@ Wiki: [Package-Resource Pack Chunk Data](https://github.com/NiclasOlofsson/MiNET
 |Payload | byte[] | 0 |
 -----------------------------------------------------------------------
 ### Package: Resource Pack Chunk Request (0x54)
-Wiki: [Package-Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki//ref-ResourcePackChunkRequest)
+Wiki: [Package-Resource Pack Chunk Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackChunkRequest)
 
 **Sent from server:** false
 **Sent from client:** true
@@ -1538,7 +1538,7 @@ Wiki: [Package-Resource Pack Chunk Request](https://github.com/NiclasOlofsson/Mi
 |Chunk Index | uint |  |
 -----------------------------------------------------------------------
 ### Package: Transfer (0x55)
-Wiki: [Package-Transfer](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Transfer)
+Wiki: [Package-Transfer](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Transfer)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1554,7 +1554,7 @@ Wiki: [Package-Transfer](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Trans
 |Port | ushort |  |
 -----------------------------------------------------------------------
 ### Package: Play Sound (0x56)
-Wiki: [Package-Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlaySound)
+Wiki: [Package-Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlaySound)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1572,7 +1572,7 @@ Wiki: [Package-Play Sound](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Pla
 |Pitch | float |  |
 -----------------------------------------------------------------------
 ### Package: Stop Sound (0x57)
-Wiki: [Package-Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//ref-StopSound)
+Wiki: [Package-Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StopSound)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1588,7 +1588,7 @@ Wiki: [Package-Stop Sound](https://github.com/NiclasOlofsson/MiNET/wiki//ref-Sto
 |Stop All | bool |  |
 -----------------------------------------------------------------------
 ### Package: Set Title (0x58)
-Wiki: [Package-Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetTitle)
+Wiki: [Package-Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetTitle)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1607,7 +1607,7 @@ Wiki: [Package-Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetT
 |Fade Out Time | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Package: Add Behavior Tree Packet (0x59)
-Wiki: [Package-Add Behavior Tree Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-AddBehaviorTreePacket)
+Wiki: [Package-Add Behavior Tree Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddBehaviorTreePacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1621,7 +1621,7 @@ Wiki: [Package-Add Behavior Tree Packet](https://github.com/NiclasOlofsson/MiNET
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Structure Block Update Packet (0x5a)
-Wiki: [Package-Structure Block Update Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-StructureBlockUpdatePacket)
+Wiki: [Package-Structure Block Update Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureBlockUpdatePacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1635,7 +1635,7 @@ Wiki: [Package-Structure Block Update Packet](https://github.com/NiclasOlofsson/
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Player Skin Packet (0x5d)
-Wiki: [Package-Player Skin Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-PlayerSkinPacket)
+Wiki: [Package-Player Skin Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerSkinPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1649,7 +1649,7 @@ Wiki: [Package-Player Skin Packet](https://github.com/NiclasOlofsson/MiNET/wiki/
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Sub Client Login Packet (0x5e)
-Wiki: [Package-Sub Client Login Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SubClientLoginPacket)
+Wiki: [Package-Sub Client Login Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLoginPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1663,7 +1663,7 @@ Wiki: [Package-Sub Client Login Packet](https://github.com/NiclasOlofsson/MiNET/
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Initiate Web Socket Connection Packet (0x5f)
-Wiki: [Package-Initiate Web Socket Connection Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-InitiateWebSocketConnectionPacket)
+Wiki: [Package-Initiate Web Socket Connection Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InitiateWebSocketConnectionPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1677,7 +1677,7 @@ Wiki: [Package-Initiate Web Socket Connection Packet](https://github.com/NiclasO
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Set Last Hurt By Packet (0x60)
-Wiki: [Package-Set Last Hurt By Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-SetLastHurtByPacket)
+Wiki: [Package-Set Last Hurt By Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLastHurtByPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1691,7 +1691,7 @@ Wiki: [Package-Set Last Hurt By Packet](https://github.com/NiclasOlofsson/MiNET/
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Book Edit Packet (0x61)
-Wiki: [Package-Book Edit Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-BookEditPacket)
+Wiki: [Package-Book Edit Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BookEditPacket)
 
 **Sent from server:** true
 **Sent from client:** false
@@ -1705,7 +1705,7 @@ Wiki: [Package-Book Edit Packet](https://github.com/NiclasOlofsson/MiNET/wiki//r
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
 ### Package: Npc Request Packet (0x62)
-Wiki: [Package-Npc Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//ref-NpcRequestPacket)
+Wiki: [Package-Npc Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRequestPacket)
 
 **Sent from server:** true
 **Sent from client:** false

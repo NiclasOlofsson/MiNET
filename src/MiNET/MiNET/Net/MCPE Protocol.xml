@@ -121,18 +121,17 @@
 		<field name="Payload" type="ByteArray"/>
 	</pdu>
 
-	<!--
-		The three type of status are:
-
-	LOGIN_SUCCESS = 0;
-	LOGIN_FAILED_CLIENT = 1;
-	LOGIN_FAILED_SERVER = 2;
-	PLAYER_SPAWN = 3;
-	LOGIN_FAILED_INVALID_TENANT = 4;
-	LOGIN_FAILED_VANILLA_EDU = 5;
-	LOGIN_FAILED_EDU_VANILLA = 6;
-		-->
 	<pdu id="0x02" online="false" client="false" server="true" name="MCPE_PLAY_STATUS">
+		<enums id="Play status">
+			<enum id="Login Success" value="0" />
+			<enum id="Login Failed Client" value="1" />
+			<enum id="Login Failed Server" value="2" />
+			<enum id="Player Spawn" value="3" />
+			<enum id="Login Failed Invalid Tenant" value="4" />
+			<enum id="Login Failed Vanilla Edu" value="5" />
+			<enum id="Login Failed Edu Vanilla" value="6" />
+		</enums>
+
 		<field name="Status" type="int" endianess="BE"/>
 	</pdu>
 
@@ -163,28 +162,29 @@
 	</pdu>
 
 	<pdu id="0x08" online="false" client="true" server="false" name="MCPE_RESOURCE_PACK_CLIENT_RESPONSE">
-		<!--
-		
-		STATUS_REFUSED = 1;
-		STATUS_SEND_PACKS = 2;
-		STATUS_HAVE_ALL_PACKS = 3;
-		STATUS_COMPLETED = 4;
-		-->
+		<enums id="Response status">
+			<enum id="Refused" value="1" />
+			<enum id="Send packs" value="2" />
+			<enum id="Have all packs" value="3" />
+			<enum id="Completed" value="4" />
+		</enums>
+
 		<field name="Response status" type="byte" />
 		<field name="ResourcePackIds" type="ResourcePackIds" />
 	</pdu>
 
 	<pdu id="0x09" online="false" client="true" server="true" name="MCPE_TEXT">
-		<!-- 
-		TYPE_RAW = 0;
-		TYPE_CHAT = 1;
-		TYPE_TRANSLATION = 2;
-		TYPE_POPUP = 3;
-		TYPE_TIP = 4;
-		TYPE_SYSTEM = 5;
-		TYPE_WHISPER = 6;
-		TYPE_ANNOUNCEMENT = 7;
-		-->
+		<enums id="Chat types">
+			<enum id="Raw" value="0" />
+			<enum id="Chat" value="1" />
+			<enum id="Translation" value="2" />
+			<enum id="Popup" value="3" />
+			<enum id="Tip" value="4" />
+			<enum id="System" value="5" />
+			<enum id="Whisper" value="6" />
+			<enum id="Announcement" value="7" />
+		</enums>
+
 		<field name="Type" type="byte" />
 	</pdu>
 
@@ -300,12 +300,14 @@
 		<field name="Teleport" type="bool" />
 	</pdu>
 
-	<!--
-	MODE_NORMAL = 0;
-	MODE_RESET = 1;
-	MODE_ROTATION = 2;
-	-->
 	<pdu id="0x13" online="false" client="true" server="true" name="MCPE_MOVE_PLAYER">
+
+		<enums id="Mode">
+			<enum id="Normal" value="0" />
+			<enum id="Reset" value="1" />
+			<enum id="Rotation" value="2" />
+		</enums>
+		
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="X" type="float" />
 		<field name="Y" type="float" />
@@ -323,14 +325,16 @@
 	</pdu>
 
 	<pdu id="0x15" online="false" client="false" server="true" name="MCPE_UPDATE_BLOCK">
-		<!--
-		0x00: None
-		0x01: Neighbours
-		0x02: Network
-		0x04: No Graphic
-		0x08: Priority
-		-->
+		<enums id="Flags">
+			<enum id="None" value="0" />
+			<enum id="Neighbors" value="1" />
+			<enum id="Network" value="2" />
+			<enum id="Nographic" value="4" />
+			<enum id="Priority" value="8" />
 
+			<enum id="All" value="(Neighbors | Network)" />
+			<enum id="All Priority" value="(All | Priority)" />
+		</enums>
 		<field name="Records" type="BlockUpdateRecords" />
 	</pdu>
 
@@ -388,33 +392,37 @@
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Attributes" type="PlayerAttributes" />
 	</pdu>
-	
+
 	<pdu id="0x1e" online="false" client="true" server="true" name="MCPE_INVENTORY_TRANSACTION_PACKET">
-		<!--
-		TRANSACTION_TYPE_NORMAL = 0;
-		TRANSACTION_TYPE_INVENTORY_MISMATCH = 1;
-		TRANSACTION_TYPE_ITEM_USE = 2;
-		TRANSACTION_TYPE_ITEM_USE_ON_ENTITY = 3;
-		TRANSACTION_TYPE_ITEM_RELEASE = 4;	
-	
-		INV_SOURCE_TYPE_CONTAINER = 0;
-		INV_SOURCE_TYPE_GLOBAL = 1;
-		INV_SOURCE_TYPE_WORLD_INTERACTION = 2;
-		INV_SOURCE_TYPE_CREATIVE = 3;
-		INV_SOURCE_TYPE_CRAFT = 99999;
-	
-		ITEM_RELEASE_ACTION_RELEASE = 0;
-		ITEM_RELEASE_ACTION_USE = 1;
-	
-		ITEM_USE_ACTION_PLACE = 0;
-		ITEM_USE_ACTION_USE = 1;
-		ITEM_USE_ACTION_DESTROY = 2;
-	
-		ITEM_USE_ON_ENTITY_ACTION_INTERACT = 0;
-		ITEM_USE_ON_ENTITY_ACTION_ATTACK = 1;
-		ITEM_USE_ON_ENTITY_ACTION_ITEM_INTERACT = 2;
-		-->
-		
+		<enums id="Transaction types">
+			<enum id="Normal" value="0" />
+			<enum id="Inventory mismatch" value="1" />
+			<enum id="Item use" value="2" />
+			<enum id="Item use on entity" value="3" />
+			<enum id="Item release" value="4" />
+		</enums>
+		<enums id="Inventory source types">
+			<enum id="Container" value="0" />
+			<enum id="Global" value="1" />
+			<enum id="World interaction" value="2" />
+			<enum id="Creative" value="3" />
+			<enum id="Crafting" value="99999" />
+		</enums>
+		<enums id="Item release actions">
+			<enum id="Release" value="0" />
+			<enum id="Use" value="1" />
+		</enums>
+		<enums id="Item use action">
+			<enum id="Place" value="0" />
+			<enum id="Use" value="1" />
+			<enum id="Destroy" value="2" />
+		</enums>
+		<enums id="Item use on entity action">
+			<enum id="Interact" value="0" />
+			<enum id="Attack" value="1" />
+			<enum id="Item interact" value="2" />
+		</enums>
+
 		<field name="Transaction" type="Transaction" />
 	</pdu>
 
@@ -435,12 +443,13 @@
 	</pdu>
 
 	<pdu id="0x21" online="false" client="true" server="true" name="MCPE_INTERACT">
-		<!--
-		ACTION_RIGHT_CLICK = 1;
-		ACTION_LEFT_CLICK = 2;
-		ACTION_LEAVE_VEHICLE = 3;
-		ACTION_MOUSEOVER = 4;
-		-->
+		<enums id="Actions">
+			<enum id="Right click" value="1" />
+			<enum id="Left click" value="2" />
+			<enum id="Leave cehicle" value="3" />
+			<enum id="Mouse over" value="4" />
+		</enums>
+
 		<field name="Action ID" type="byte" />
 		<field name="Target Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
@@ -524,12 +533,12 @@
 		<field name="Selected Slot" type="byte" />
 		<field name="Hotbar Data" type="MetadataInts" />
 	</pdu>
-	
+
 	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_INVENTORY_CONTENT_PACKET">
 		<field name="Inventory Id" type="VarInt" />
 		<field name="Input" type="ItemStacks" />
 	</pdu>
-	
+
 	<pdu id="0x32" online="false" client="true" server="true" name="MCPE_INVENTORY_SLOT_PACKET">
 		<field name="Inventory Id" type="SignedVarInt" />
 		<field name="Slot" type="SignedVarInt" />
@@ -547,15 +556,16 @@
 	</pdu>
 
 	<pdu id="0x35" online="false" client="true" server="true" name="MCPE_CRAFTING_EVENT">
+		<enums id="Recipe Types">
+			<enum id="Shapeless" value="0" />
+			<enum id="Shaped" value="1" />
+			<enum id="Furnace" value="2" />
+			<enum id="Furnace data" value="3" />
+			<enum id="Multi" value="4" />
+			<enum id="Shulker box" value="5" />
+		</enums>
+
 		<field name="Window ID" type="byte" />
-		<!--
-		ENTRY_SHAPELESS = 0;
-		ENTRY_SHAPED = 1;
-		ENTRY_FURNACE = 2;
-		ENTRY_FURNACE_DATA = 3;
-		ENTRY_MULTI = 4;
-		ENTRY_SHULKER_BOX = 5;
-		-->
 		<field name="Recipe Type" type="SignedVarInt" />
 		<field name="Recipe ID" type="UUID" />
 		<field name="Input" type="ItemStacks" />
@@ -563,18 +573,18 @@
 	</pdu>
 
 	<pdu id="0x36" online="false" client="false" server="true" name="MCPE_GUI_DATA_PICK_ITEM_PACKET">
-		
+
 	</pdu>
 
 	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">
+		<enums id="Permissions">
+			<enum id="Normal" value="0" />
+			<enum id="Operator" value="1" />
+			<enum id="Host" value="2" />
+			<enum id="Automation" value="3" />
+			<enum id="Admin" value="4" />
+		</enums>
 		<field name="Flags" type="UnsignedVarInt" />
-		<!--
-		PERMISSION_NORMAL = 0;
-		PERMISSION_OPERATOR = 1;
-		PERMISSION_HOST = 2;
-		PERMISSION_AUTOMATION = 3;
-		PERMISSION_ADMIN = 4;	
-		-->
 		<field name="User Permission" type="UnsignedVarInt" />
 	</pdu>
 
@@ -761,22 +771,22 @@
 
 	<pdu id="0x5a" online="false" client="false" server="true" name="MCPE_STRUCTURE_BLOCK_UPDATE_PACKET">
 	</pdu>
-	
+
 	<pdu id="0x5d" online="false" client="false" server="true" name="MCPE_PLAYER_SKIN_PACKET">
 	</pdu>
 
 	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN_PACKET">
 	</pdu>
-	
+
 	<pdu id="0x5f" online="false" client="false" server="true" name="MCPE_INITIATE_WEB_SOCKET_CONNECTION_PACKET">
 	</pdu>
-	
+
 	<pdu id="0x60" online="false" client="false" server="true" name="MCPE_SET_LAST_HURT_BY_PACKET">
 	</pdu>
-	
+
 	<pdu id="0x61" online="false" client="false" server="true" name="MCPE_BOOK_EDIT_PACKET">
 	</pdu>
-	
+
 	<pdu id="0x62" online="false" client="false" server="true" name="MCPE_NPC_REQUEST_PACKET">
 	</pdu>
 

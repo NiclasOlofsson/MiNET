@@ -549,8 +549,10 @@ namespace MiNET.Net
 		}
 	}
 
+
 	public partial class ConnectedPing : Package<ConnectedPing>
 	{
+
 		public long sendpingtime; // = null;
 
 		public ConnectedPing()
@@ -590,6 +592,7 @@ namespace MiNET.Net
 
 	public partial class UnconnectedPing : Package<UnconnectedPing>
 	{
+
 		public long pingId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long guid; // = null;
@@ -635,6 +638,7 @@ namespace MiNET.Net
 
 	public partial class ConnectedPong : Package<ConnectedPong>
 	{
+
 		public long sendpingtime; // = null;
 		public long sendpongtime; // = null;
 
@@ -678,6 +682,7 @@ namespace MiNET.Net
 	public partial class DetectLostConnections : Package<DetectLostConnections>
 	{
 
+
 		public DetectLostConnections()
 		{
 			Id = 0x04;
@@ -713,6 +718,7 @@ namespace MiNET.Net
 
 	public partial class UnconnectedPong : Package<UnconnectedPong>
 	{
+
 		public long pingId; // = null;
 		public long serverId; // = null;
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
@@ -761,6 +767,7 @@ namespace MiNET.Net
 
 	public partial class OpenConnectionRequest1 : Package<OpenConnectionRequest1>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public byte raknetProtocolVersion; // = null;
 
@@ -803,6 +810,7 @@ namespace MiNET.Net
 
 	public partial class OpenConnectionReply1 : Package<OpenConnectionReply1>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 		public byte serverHasSecurity; // = null;
@@ -851,6 +859,7 @@ namespace MiNET.Net
 
 	public partial class OpenConnectionRequest2 : Package<OpenConnectionRequest2>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public IPEndPoint remoteBindingAddress; // = null;
 		public short mtuSize; // = null;
@@ -899,6 +908,7 @@ namespace MiNET.Net
 
 	public partial class OpenConnectionReply2 : Package<OpenConnectionReply2>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 		public IPEndPoint clientEndpoint; // = null;
@@ -950,6 +960,7 @@ namespace MiNET.Net
 
 	public partial class ConnectionRequest : Package<ConnectionRequest>
 	{
+
 		public long clientGuid; // = null;
 		public long timestamp; // = null;
 		public byte doSecurity; // = null;
@@ -995,6 +1006,7 @@ namespace MiNET.Net
 
 	public partial class ConnectionRequestAccepted : Package<ConnectionRequestAccepted>
 	{
+
 		public IPEndPoint systemAddress; // = null;
 		public short systemIndex; // = null;
 		public IPEndPoint[] systemAddresses; // = null;
@@ -1046,6 +1058,7 @@ namespace MiNET.Net
 
 	public partial class NewIncomingConnection : Package<NewIncomingConnection>
 	{
+
 		public IPEndPoint clientendpoint; // = null;
 		public IPEndPoint[] systemAddresses; // = null;
 		public long incomingTimestamp; // = null;
@@ -1094,6 +1107,7 @@ namespace MiNET.Net
 
 	public partial class NoFreeIncomingConnections : Package<NoFreeIncomingConnections>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 
@@ -1137,6 +1151,7 @@ namespace MiNET.Net
 	public partial class DisconnectionNotification : Package<DisconnectionNotification>
 	{
 
+
 		public DisconnectionNotification()
 		{
 			Id = 0x15;
@@ -1172,6 +1187,7 @@ namespace MiNET.Net
 
 	public partial class ConnectionBanned : Package<ConnectionBanned>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 		public long serverGuid; // = null;
 
@@ -1214,6 +1230,7 @@ namespace MiNET.Net
 
 	public partial class IpRecentlyConnected : Package<IpRecentlyConnected>
 	{
+
 		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
 
 		public IpRecentlyConnected()
@@ -1253,6 +1270,7 @@ namespace MiNET.Net
 
 	public partial class McpeLogin : Package<McpeLogin>
 	{
+
 		public int protocolVersion; // = null;
 		public byte[] payload; // = null;
 
@@ -1295,6 +1313,17 @@ namespace MiNET.Net
 
 	public partial class McpePlayStatus : Package<McpePlayStatus>
 	{
+		public enum PlayStatus
+		{
+			LoginSuccess = 0,
+			LoginFailedClient = 1,
+			LoginFailedServer = 2,
+			PlayerSpawn = 3,
+			LoginFailedInvalidTenant = 4,
+			LoginFailedVanillaEdu = 5,
+			LoginFailedEduVanilla = 6,
+		}
+
 		public int status; // = null;
 
 		public McpePlayStatus()
@@ -1334,6 +1363,7 @@ namespace MiNET.Net
 
 	public partial class McpeServerToClientHandshake : Package<McpeServerToClientHandshake>
 	{
+
 		public string serverPublicKey; // = null;
 		public int tokenLength; // = null;
 		public byte[] token; // = null;
@@ -1380,6 +1410,7 @@ namespace MiNET.Net
 	public partial class McpeClientToServerHandshake : Package<McpeClientToServerHandshake>
 	{
 
+
 		public McpeClientToServerHandshake()
 		{
 			Id = 0x04;
@@ -1415,6 +1446,7 @@ namespace MiNET.Net
 
 	public partial class McpeDisconnect : Package<McpeDisconnect>
 	{
+
 		public bool hideDisconnectReason; // = null;
 		public string message; // = null;
 
@@ -1457,6 +1489,7 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePacksInfo : Package<McpeResourcePacksInfo>
 	{
+
 		public bool mustAccept; // = null;
 		public ResourcePackInfos behahaviorpackinfos; // = null;
 		public ResourcePackInfos resourcepackinfos; // = null;
@@ -1502,6 +1535,7 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackStack : Package<McpeResourcePackStack>
 	{
+
 		public bool mustAccept; // = null;
 		public ResourcePackIdVersions behaviorpackidversions; // = null;
 		public ResourcePackIdVersions resourcepackidversions; // = null;
@@ -1547,6 +1581,14 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackClientResponse : Package<McpeResourcePackClientResponse>
 	{
+		public enum ResponseStatus
+		{
+			Refused = 1,
+			SendPacks = 2,
+			HaveAllPacks = 3,
+			Completed = 4,
+		}
+
 		public byte responseStatus; // = null;
 		public ResourcePackIds resourcepackids; // = null;
 
@@ -1589,6 +1631,18 @@ namespace MiNET.Net
 
 	public partial class McpeText : Package<McpeText>
 	{
+		public enum ChatTypes
+		{
+			Raw = 0,
+			Chat = 1,
+			Translation = 2,
+			Popup = 3,
+			Tip = 4,
+			System = 5,
+			Whisper = 6,
+			Announcement = 7,
+		}
+
 		public byte type; // = null;
 
 		public McpeText()
@@ -1628,6 +1682,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetTime : Package<McpeSetTime>
 	{
+
 		public int time; // = null;
 
 		public McpeSetTime()
@@ -1667,6 +1722,7 @@ namespace MiNET.Net
 
 	public partial class McpeStartGame : Package<McpeStartGame>
 	{
+
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public int playerGamemode; // = null;
@@ -1781,6 +1837,7 @@ namespace MiNET.Net
 
 	public partial class McpeAddPlayer : Package<McpeAddPlayer>
 	{
+
 		public UUID uuid; // = null;
 		public string username; // = null;
 		public long entityIdSelf; // = null;
@@ -1862,6 +1919,7 @@ namespace MiNET.Net
 
 	public partial class McpeAddEntity : Package<McpeAddEntity>
 	{
+
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public uint entityType; // = null;
@@ -1940,6 +1998,7 @@ namespace MiNET.Net
 
 	public partial class McpeRemoveEntity : Package<McpeRemoveEntity>
 	{
+
 		public long entityIdSelf; // = null;
 
 		public McpeRemoveEntity()
@@ -1979,6 +2038,7 @@ namespace MiNET.Net
 
 	public partial class McpeAddItemEntity : Package<McpeAddItemEntity>
 	{
+
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public Item item; // = null;
@@ -2045,6 +2105,7 @@ namespace MiNET.Net
 
 	public partial class McpeTakeItemEntity : Package<McpeTakeItemEntity>
 	{
+
 		public long runtimeEntityId; // = null;
 		public long target; // = null;
 
@@ -2087,6 +2148,7 @@ namespace MiNET.Net
 
 	public partial class McpeMoveEntity : Package<McpeMoveEntity>
 	{
+
 		public long runtimeEntityId; // = null;
 		public PlayerLocation position; // = null;
 		public bool onGround; // = null;
@@ -2135,6 +2197,13 @@ namespace MiNET.Net
 
 	public partial class McpeMovePlayer : Package<McpeMovePlayer>
 	{
+		public enum Mode
+		{
+			Normal = 0,
+			Reset = 1,
+			Rotation = 2,
+		}
+
 		public long runtimeEntityId; // = null;
 		public float x; // = null;
 		public float y; // = null;
@@ -2201,6 +2270,7 @@ namespace MiNET.Net
 
 	public partial class McpeRiderJump : Package<McpeRiderJump>
 	{
+
 		public int unknown; // = null;
 
 		public McpeRiderJump()
@@ -2240,6 +2310,17 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateBlock : Package<McpeUpdateBlock>
 	{
+		public enum Flags
+		{
+			None = 0,
+			Neighbors = 1,
+			Network = 2,
+			Nographic = 4,
+			Priority = 8,
+			All = (Neighbors | Network),
+			AllPriority = (All | Priority),
+		}
+
 		public BlockUpdateRecords records; // = null;
 
 		public McpeUpdateBlock()
@@ -2279,6 +2360,7 @@ namespace MiNET.Net
 
 	public partial class McpeAddPainting : Package<McpeAddPainting>
 	{
+
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public BlockCoordinates coordinates; // = null;
@@ -2330,6 +2412,7 @@ namespace MiNET.Net
 
 	public partial class McpeExplode : Package<McpeExplode>
 	{
+
 		public Vector3 position; // = null;
 		public int radius; // = null;
 		public Records records; // = null;
@@ -2375,6 +2458,7 @@ namespace MiNET.Net
 
 	public partial class McpeLevelSoundEvent : Package<McpeLevelSoundEvent>
 	{
+
 		public byte soundId; // = null;
 		public Vector3 position; // = null;
 		public int blockId; // = null;
@@ -2429,6 +2513,7 @@ namespace MiNET.Net
 
 	public partial class McpeLevelEvent : Package<McpeLevelEvent>
 	{
+
 		public int eventId; // = null;
 		public Vector3 position; // = null;
 		public int data; // = null;
@@ -2474,6 +2559,7 @@ namespace MiNET.Net
 
 	public partial class McpeBlockEvent : Package<McpeBlockEvent>
 	{
+
 		public BlockCoordinates coordinates; // = null;
 		public int case1; // = null;
 		public int case2; // = null;
@@ -2519,6 +2605,7 @@ namespace MiNET.Net
 
 	public partial class McpeEntityEvent : Package<McpeEntityEvent>
 	{
+
 		public long runtimeEntityId; // = null;
 		public byte eventId; // = null;
 		public int unknown; // = null;
@@ -2564,6 +2651,7 @@ namespace MiNET.Net
 
 	public partial class McpeMobEffect : Package<McpeMobEffect>
 	{
+
 		public long runtimeEntityId; // = null;
 		public byte eventId; // = null;
 		public int effectId; // = null;
@@ -2618,6 +2706,7 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateAttributes : Package<McpeUpdateAttributes>
 	{
+
 		public long runtimeEntityId; // = null;
 		public PlayerAttributes attributes; // = null;
 
@@ -2660,6 +2749,40 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryTransactionPacket : Package<McpeInventoryTransactionPacket>
 	{
+		public enum TransactionTypes
+		{
+			Normal = 0,
+			InventoryMismatch = 1,
+			ItemUse = 2,
+			ItemUseOnEntity = 3,
+			ItemRelease = 4,
+		}
+		public enum InventorySourceTypes
+		{
+			Container = 0,
+			Global = 1,
+			WorldInteraction = 2,
+			Creative = 3,
+			Crafting = 99999,
+		}
+		public enum ItemReleaseActions
+		{
+			Release = 0,
+			Use = 1,
+		}
+		public enum ItemUseAction
+		{
+			Place = 0,
+			Use = 1,
+			Destroy = 2,
+		}
+		public enum ItemUseOnEntityAction
+		{
+			Interact = 0,
+			Attack = 1,
+			ItemInteract = 2,
+		}
+
 		public Transaction transaction; // = null;
 
 		public McpeInventoryTransactionPacket()
@@ -2699,6 +2822,7 @@ namespace MiNET.Net
 
 	public partial class McpeMobEquipment : Package<McpeMobEquipment>
 	{
+
 		public long runtimeEntityId; // = null;
 		public Item item; // = null;
 		public byte slot; // = null;
@@ -2750,6 +2874,7 @@ namespace MiNET.Net
 
 	public partial class McpeMobArmorEquipment : Package<McpeMobArmorEquipment>
 	{
+
 		public long runtimeEntityId; // = null;
 		public Item helmet; // = null;
 		public Item chestplate; // = null;
@@ -2801,6 +2926,14 @@ namespace MiNET.Net
 
 	public partial class McpeInteract : Package<McpeInteract>
 	{
+		public enum Actions
+		{
+			RightClick = 1,
+			LeftClick = 2,
+			LeaveCehicle = 3,
+			MouseOver = 4,
+		}
+
 		public byte actionId; // = null;
 		public long targetRuntimeEntityId; // = null;
 
@@ -2843,6 +2976,7 @@ namespace MiNET.Net
 
 	public partial class McpeBlockPickRequest : Package<McpeBlockPickRequest>
 	{
+
 		public int x; // = null;
 		public int y; // = null;
 		public int z; // = null;
@@ -2892,6 +3026,7 @@ namespace MiNET.Net
 	public partial class McpeEntityPickRequestPacket : Package<McpeEntityPickRequestPacket>
 	{
 
+
 		public McpeEntityPickRequestPacket()
 		{
 			Id = 0x23;
@@ -2927,6 +3062,7 @@ namespace MiNET.Net
 
 	public partial class McpePlayerAction : Package<McpePlayerAction>
 	{
+
 		public long runtimeEntityId; // = null;
 		public int actionId; // = null;
 		public BlockCoordinates coordinates; // = null;
@@ -2975,6 +3111,7 @@ namespace MiNET.Net
 
 	public partial class McpeEntityFall : Package<McpeEntityFall>
 	{
+
 		public long runtimeEntityId; // = null;
 		public float fallDistance; // = null;
 		public bool unknown; // = null;
@@ -3020,6 +3157,7 @@ namespace MiNET.Net
 
 	public partial class McpeHurtArmor : Package<McpeHurtArmor>
 	{
+
 		public int health; // = null;
 
 		public McpeHurtArmor()
@@ -3059,6 +3197,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityData : Package<McpeSetEntityData>
 	{
+
 		public long runtimeEntityId; // = null;
 		public MetadataDictionary metadata; // = null;
 
@@ -3101,6 +3240,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityMotion : Package<McpeSetEntityMotion>
 	{
+
 		public long runtimeEntityId; // = null;
 		public Vector3 velocity; // = null;
 
@@ -3143,6 +3283,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityLink : Package<McpeSetEntityLink>
 	{
+
 		public long riderId; // = null;
 		public long riddenId; // = null;
 		public byte linkType; // = null;
@@ -3188,6 +3329,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetHealth : Package<McpeSetHealth>
 	{
+
 		public int health; // = null;
 
 		public McpeSetHealth()
@@ -3227,6 +3369,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetSpawnPosition : Package<McpeSetSpawnPosition>
 	{
+
 		public int spawnType; // = null;
 		public BlockCoordinates coordinates; // = null;
 		public bool forced; // = null;
@@ -3272,6 +3415,7 @@ namespace MiNET.Net
 
 	public partial class McpeAnimate : Package<McpeAnimate>
 	{
+
 		public int actionId; // = null;
 		public long runtimeEntityId; // = null;
 
@@ -3314,6 +3458,7 @@ namespace MiNET.Net
 
 	public partial class McpeRespawn : Package<McpeRespawn>
 	{
+
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -3359,6 +3504,7 @@ namespace MiNET.Net
 
 	public partial class McpeContainerOpen : Package<McpeContainerOpen>
 	{
+
 		public byte windowId; // = null;
 		public byte type; // = null;
 		public BlockCoordinates coordinates; // = null;
@@ -3407,6 +3553,7 @@ namespace MiNET.Net
 
 	public partial class McpeContainerClose : Package<McpeContainerClose>
 	{
+
 		public byte windowId; // = null;
 
 		public McpeContainerClose()
@@ -3446,6 +3593,7 @@ namespace MiNET.Net
 
 	public partial class McpePlayerHotbarPacket : Package<McpePlayerHotbarPacket>
 	{
+
 		public byte selectedSlot; // = null;
 		public MetadataInts hotbarData; // = null;
 
@@ -3488,6 +3636,7 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryContentPacket : Package<McpeInventoryContentPacket>
 	{
+
 		public int inventoryId; // = null;
 		public ItemStacks input; // = null;
 
@@ -3530,6 +3679,7 @@ namespace MiNET.Net
 
 	public partial class McpeInventorySlotPacket : Package<McpeInventorySlotPacket>
 	{
+
 		public int inventoryId; // = null;
 		public int slot; // = null;
 		public Item item; // = null;
@@ -3575,6 +3725,7 @@ namespace MiNET.Net
 
 	public partial class McpeContainerSetData : Package<McpeContainerSetData>
 	{
+
 		public byte windowId; // = null;
 		public int property; // = null;
 		public int value; // = null;
@@ -3620,6 +3771,7 @@ namespace MiNET.Net
 
 	public partial class McpeCraftingData : Package<McpeCraftingData>
 	{
+
 		public Recipes recipes; // = null;
 
 		public McpeCraftingData()
@@ -3659,6 +3811,16 @@ namespace MiNET.Net
 
 	public partial class McpeCraftingEvent : Package<McpeCraftingEvent>
 	{
+		public enum RecipeTypes
+		{
+			Shapeless = 0,
+			Shaped = 1,
+			Furnace = 2,
+			FurnaceData = 3,
+			Multi = 4,
+			ShulkerBox = 5,
+		}
+
 		public byte windowId; // = null;
 		public int recipeType; // = null;
 		public UUID recipeId; // = null;
@@ -3711,6 +3873,7 @@ namespace MiNET.Net
 	public partial class McpeGuiDataPickItemPacket : Package<McpeGuiDataPickItemPacket>
 	{
 
+
 		public McpeGuiDataPickItemPacket()
 		{
 			Id = 0x36;
@@ -3746,6 +3909,15 @@ namespace MiNET.Net
 
 	public partial class McpeAdventureSettings : Package<McpeAdventureSettings>
 	{
+		public enum Permissions
+		{
+			Normal = 0,
+			Operator = 1,
+			Host = 2,
+			Automation = 3,
+			Admin = 4,
+		}
+
 		public uint flags; // = null;
 		public uint userPermission; // = null;
 
@@ -3788,6 +3960,7 @@ namespace MiNET.Net
 
 	public partial class McpeBlockEntityData : Package<McpeBlockEntityData>
 	{
+
 		public BlockCoordinates coordinates; // = null;
 		public Nbt namedtag; // = null;
 
@@ -3830,6 +4003,7 @@ namespace MiNET.Net
 
 	public partial class McpePlayerInput : Package<McpePlayerInput>
 	{
+
 		public float motionX; // = null;
 		public float motionZ; // = null;
 		public bool flag1; // = null;
@@ -3878,6 +4052,7 @@ namespace MiNET.Net
 
 	public partial class McpeFullChunkData : Package<McpeFullChunkData>
 	{
+
 		public int chunkX; // = null;
 		public int chunkZ; // = null;
 		public byte[] chunkData; // = null;
@@ -3923,6 +4098,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetCommandsEnabled : Package<McpeSetCommandsEnabled>
 	{
+
 		public bool enabled; // = null;
 
 		public McpeSetCommandsEnabled()
@@ -3962,6 +4138,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetDifficulty : Package<McpeSetDifficulty>
 	{
+
 		public uint difficulty; // = null;
 
 		public McpeSetDifficulty()
@@ -4001,6 +4178,7 @@ namespace MiNET.Net
 
 	public partial class McpeChangeDimension : Package<McpeChangeDimension>
 	{
+
 		public int dimension; // = null;
 		public Vector3 position; // = null;
 		public bool unknown; // = null;
@@ -4046,6 +4224,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetPlayerGameType : Package<McpeSetPlayerGameType>
 	{
+
 		public int gamemode; // = null;
 
 		public McpeSetPlayerGameType()
@@ -4085,6 +4264,7 @@ namespace MiNET.Net
 
 	public partial class McpePlayerList : Package<McpePlayerList>
 	{
+
 		public PlayerRecords records; // = null;
 
 		public McpePlayerList()
@@ -4125,6 +4305,7 @@ namespace MiNET.Net
 	public partial class McpeSimpleEvent : Package<McpeSimpleEvent>
 	{
 
+
 		public McpeSimpleEvent()
 		{
 			Id = 0x40;
@@ -4160,6 +4341,7 @@ namespace MiNET.Net
 
 	public partial class McpeTelemetryEventPacket : Package<McpeTelemetryEventPacket>
 	{
+
 		public long entityIdSelf; // = null;
 		public int unk1; // = null;
 		public byte unk2; // = null;
@@ -4205,6 +4387,7 @@ namespace MiNET.Net
 
 	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
 	{
+
 		public Vector3 position; // = null;
 		public int count; // = null;
 
@@ -4247,6 +4430,7 @@ namespace MiNET.Net
 
 	public partial class McpeClientboundMapItemData : Package<McpeClientboundMapItemData>
 	{
+
 		public MapInfo mapinfo; // = null;
 
 		public McpeClientboundMapItemData()
@@ -4286,6 +4470,7 @@ namespace MiNET.Net
 
 	public partial class McpeMapInfoRequest : Package<McpeMapInfoRequest>
 	{
+
 		public long mapId; // = null;
 
 		public McpeMapInfoRequest()
@@ -4325,6 +4510,7 @@ namespace MiNET.Net
 
 	public partial class McpeRequestChunkRadius : Package<McpeRequestChunkRadius>
 	{
+
 		public int chunkRadius; // = null;
 
 		public McpeRequestChunkRadius()
@@ -4364,6 +4550,7 @@ namespace MiNET.Net
 
 	public partial class McpeChunkRadiusUpdate : Package<McpeChunkRadiusUpdate>
 	{
+
 		public int chunkRadius; // = null;
 
 		public McpeChunkRadiusUpdate()
@@ -4403,6 +4590,7 @@ namespace MiNET.Net
 
 	public partial class McpeItemFrameDropItem : Package<McpeItemFrameDropItem>
 	{
+
 		public BlockCoordinates coordinates; // = null;
 
 		public McpeItemFrameDropItem()
@@ -4442,6 +4630,7 @@ namespace MiNET.Net
 
 	public partial class McpeGameRulesChanged : Package<McpeGameRulesChanged>
 	{
+
 		public GameRules rules; // = null;
 
 		public McpeGameRulesChanged()
@@ -4482,6 +4671,7 @@ namespace MiNET.Net
 	public partial class McpeCamera : Package<McpeCamera>
 	{
 
+
 		public McpeCamera()
 		{
 			Id = 0x49;
@@ -4517,6 +4707,7 @@ namespace MiNET.Net
 
 	public partial class McpeBossEvent : Package<McpeBossEvent>
 	{
+
 		public long bossEntityId; // = null;
 		public uint eventType; // = null;
 
@@ -4559,6 +4750,7 @@ namespace MiNET.Net
 
 	public partial class McpeShowCredits : Package<McpeShowCredits>
 	{
+
 		public long runtimeEntityId; // = null;
 		public int status; // = null;
 
@@ -4601,6 +4793,7 @@ namespace MiNET.Net
 
 	public partial class McpeAvailableCommands : Package<McpeAvailableCommands>
 	{
+
 		public string commands; // = null;
 		public string unknown; // = null;
 
@@ -4643,6 +4836,7 @@ namespace MiNET.Net
 
 	public partial class McpeCommandRequestPacket : Package<McpeCommandRequestPacket>
 	{
+
 		public string commandName; // = null;
 		public string commandOverload; // = null;
 		public uint unknown1; // = null;
@@ -4713,6 +4907,7 @@ namespace MiNET.Net
 	public partial class McpeCommandBlockUpdate : Package<McpeCommandBlockUpdate>
 	{
 
+
 		public McpeCommandBlockUpdate()
 		{
 			Id = 0x4e;
@@ -4748,6 +4943,7 @@ namespace MiNET.Net
 
 	public partial class McpeUpdateTrade : Package<McpeUpdateTrade>
 	{
+
 
 		public McpeUpdateTrade()
 		{
@@ -4785,6 +4981,7 @@ namespace MiNET.Net
 	public partial class McpeUpdateEquipmentPacket : Package<McpeUpdateEquipmentPacket>
 	{
 
+
 		public McpeUpdateEquipmentPacket()
 		{
 			Id = 0x51;
@@ -4820,6 +5017,7 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackDataInfo : Package<McpeResourcePackDataInfo>
 	{
+
 		public string packageId; // = null;
 		public uint maxChunkSize; // = null;
 		public uint chunkCount; // = null;
@@ -4871,6 +5069,7 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackChunkData : Package<McpeResourcePackChunkData>
 	{
+
 		public string packageId; // = null;
 		public uint chunkIndex; // = null;
 		public ulong progress; // = null;
@@ -4922,6 +5121,7 @@ namespace MiNET.Net
 
 	public partial class McpeResourcePackChunkRequest : Package<McpeResourcePackChunkRequest>
 	{
+
 		public string packageId; // = null;
 		public uint chunkIndex; // = null;
 
@@ -4964,6 +5164,7 @@ namespace MiNET.Net
 
 	public partial class McpeTransfer : Package<McpeTransfer>
 	{
+
 		public string serverAddress; // = null;
 		public ushort port; // = null;
 
@@ -5006,6 +5207,7 @@ namespace MiNET.Net
 
 	public partial class McpePlaySound : Package<McpePlaySound>
 	{
+
 		public string name; // = null;
 		public BlockCoordinates coordinates; // = null;
 		public float volume; // = null;
@@ -5054,6 +5256,7 @@ namespace MiNET.Net
 
 	public partial class McpeStopSound : Package<McpeStopSound>
 	{
+
 		public string name; // = null;
 		public bool stopAll; // = null;
 
@@ -5096,6 +5299,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetTitle : Package<McpeSetTitle>
 	{
+
 		public int type; // = null;
 		public string text; // = null;
 		public int fadeInTime; // = null;
@@ -5148,6 +5352,7 @@ namespace MiNET.Net
 	public partial class McpeAddBehaviorTreePacket : Package<McpeAddBehaviorTreePacket>
 	{
 
+
 		public McpeAddBehaviorTreePacket()
 		{
 			Id = 0x59;
@@ -5183,6 +5388,7 @@ namespace MiNET.Net
 
 	public partial class McpeStructureBlockUpdatePacket : Package<McpeStructureBlockUpdatePacket>
 	{
+
 
 		public McpeStructureBlockUpdatePacket()
 		{
@@ -5220,6 +5426,7 @@ namespace MiNET.Net
 	public partial class McpePlayerSkinPacket : Package<McpePlayerSkinPacket>
 	{
 
+
 		public McpePlayerSkinPacket()
 		{
 			Id = 0x5d;
@@ -5255,6 +5462,7 @@ namespace MiNET.Net
 
 	public partial class McpeSubClientLoginPacket : Package<McpeSubClientLoginPacket>
 	{
+
 
 		public McpeSubClientLoginPacket()
 		{
@@ -5292,6 +5500,7 @@ namespace MiNET.Net
 	public partial class McpeInitiateWebSocketConnectionPacket : Package<McpeInitiateWebSocketConnectionPacket>
 	{
 
+
 		public McpeInitiateWebSocketConnectionPacket()
 		{
 			Id = 0x5f;
@@ -5327,6 +5536,7 @@ namespace MiNET.Net
 
 	public partial class McpeSetLastHurtByPacket : Package<McpeSetLastHurtByPacket>
 	{
+
 
 		public McpeSetLastHurtByPacket()
 		{
@@ -5364,6 +5574,7 @@ namespace MiNET.Net
 	public partial class McpeBookEditPacket : Package<McpeBookEditPacket>
 	{
 
+
 		public McpeBookEditPacket()
 		{
 			Id = 0x61;
@@ -5400,6 +5611,7 @@ namespace MiNET.Net
 	public partial class McpeNpcRequestPacket : Package<McpeNpcRequestPacket>
 	{
 
+
 		public McpeNpcRequestPacket()
 		{
 			Id = 0x62;
@@ -5435,6 +5647,7 @@ namespace MiNET.Net
 
 	public partial class McpeWrapper : Package<McpeWrapper>
 	{
+
 		public byte[] payload; // = null;
 
 		public McpeWrapper()
@@ -5474,6 +5687,7 @@ namespace MiNET.Net
 
 	public partial class FtlCreatePlayer : Package<FtlCreatePlayer>
 	{
+
 		public string username; // = null;
 		public UUID clientuuid; // = null;
 		public string serverAddress; // = null;

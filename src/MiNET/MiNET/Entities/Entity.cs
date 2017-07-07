@@ -303,20 +303,6 @@ namespace MiNET.Entities
 			addEntity.attributes = GetEntityAttributes();
 
 			Level.RelayBroadcast(players, addEntity);
-
-			var msg = addEntity;
-			Log.DebugFormat("McpeAddEntity Entity ID: {0}", msg.entityIdSelf);
-			Log.DebugFormat("McpeAddEntity Runtime Entity ID: {0}", msg.runtimeEntityId);
-			Log.DebugFormat("Entity Type: {0}", msg.entityType);
-			Log.DebugFormat("X: {0}", msg.x);
-			Log.DebugFormat("Y: {0}", msg.y);
-			Log.DebugFormat("Z: {0}", msg.z);
-			Log.DebugFormat("Yaw: {0}", msg.yaw);
-			Log.DebugFormat("Pitch: {0}", msg.pitch);
-			Log.DebugFormat("Velocity X: {0}", msg.speedX);
-			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
-			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
-			Log.DebugFormat("Metadata: {0}", MetadataDictionary.MetadataToCode(msg.metadata));
 		}
 
 		public virtual EntityAttributes GetEntityAttributes()

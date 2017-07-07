@@ -1732,6 +1732,7 @@ namespace MiNET.Net
 
 		public virtual void Reset()
 		{
+			ResetPackage();
 			DatagramSequenceNumber = -1;
 
 			Reliability = Reliability.Unreliable;
@@ -1749,6 +1750,12 @@ namespace MiNET.Net
 			_timer.Restart();
 			_isEncoded = false;
 		}
+
+		protected virtual void ResetPackage()
+		{
+
+		}
+
 
 		public void SetEncodedMessage(byte[] encodedMessage)
 		{

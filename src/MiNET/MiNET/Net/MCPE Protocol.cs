@@ -657,6 +657,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			sendpingtime=default(long);
+		}
+
 	}
 
 	public partial class UnconnectedPing : Package<UnconnectedPing>
@@ -701,6 +708,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			pingId=default(long);
+			guid=default(long);
+		}
+
 	}
 
 	public partial class ConnectedPong : Package<ConnectedPong>
@@ -742,6 +757,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			sendpingtime=default(long);
+			sendpongtime=default(long);
+		}
+
 	}
 
 	public partial class DetectLostConnections : Package<DetectLostConnections>
@@ -776,6 +799,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -824,6 +853,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			pingId=default(long);
+			serverId=default(long);
+			serverName=default(string);
+		}
+
 	}
 
 	public partial class OpenConnectionRequest1 : Package<OpenConnectionRequest1>
@@ -864,6 +902,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			raknetProtocolVersion=default(byte);
+		}
 
 	}
 
@@ -912,6 +957,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			serverGuid=default(long);
+			serverHasSecurity=default(byte);
+			mtuSize=default(short);
+		}
+
 	}
 
 	public partial class OpenConnectionRequest2 : Package<OpenConnectionRequest2>
@@ -958,6 +1012,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			remoteBindingAddress=default(IPEndPoint);
+			mtuSize=default(short);
+			clientGuid=default(long);
+		}
 
 	}
 
@@ -1009,6 +1072,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			serverGuid=default(long);
+			clientEndpoint=default(IPEndPoint);
+			mtuSize=default(short);
+			doSecurityAndHandshake=default(byte[]);
+		}
+
 	}
 
 	public partial class ConnectionRequest : Package<ConnectionRequest>
@@ -1052,6 +1125,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			clientGuid=default(long);
+			timestamp=default(long);
+			doSecurity=default(byte);
+		}
 
 	}
 
@@ -1103,6 +1185,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			systemAddress=default(IPEndPoint);
+			systemIndex=default(short);
+			systemAddresses=default(IPEndPoint[]);
+			incomingTimestamp=default(long);
+			serverTimestamp=default(long);
+		}
+
 	}
 
 	public partial class NewIncomingConnection : Package<NewIncomingConnection>
@@ -1150,6 +1243,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			clientendpoint=default(IPEndPoint);
+			systemAddresses=default(IPEndPoint[]);
+			incomingTimestamp=default(long);
+			serverTimestamp=default(long);
+		}
+
 	}
 
 	public partial class NoFreeIncomingConnections : Package<NoFreeIncomingConnections>
@@ -1191,6 +1294,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			serverGuid=default(long);
+		}
+
 	}
 
 	public partial class DisconnectionNotification : Package<DisconnectionNotification>
@@ -1225,6 +1335,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -1267,6 +1383,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			serverGuid=default(long);
+		}
+
 	}
 
 	public partial class IpRecentlyConnected : Package<IpRecentlyConnected>
@@ -1304,6 +1427,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -1349,6 +1478,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			protocolVersion=default(int);
+			edition=default(byte);
+			payload=default(byte[]);
+		}
+
 	}
 
 	public partial class McpePlayStatus : Package<McpePlayStatus>
@@ -1386,6 +1524,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			status=default(int);
+		}
 
 	}
 
@@ -1431,6 +1576,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			serverPublicKey=default(string);
+			tokenLength=default(int);
+			token=default(byte[]);
+		}
+
 	}
 
 	public partial class McpeClientToServerHandshake : Package<McpeClientToServerHandshake>
@@ -1465,6 +1619,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -1506,6 +1666,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			hideDisconnectReason=default(bool);
+			message=default(string);
+		}
 
 	}
 
@@ -1551,6 +1719,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			mustAccept=default(bool);
+			behahaviorpackinfos=default(ResourcePackInfos);
+			resourcepackinfos=default(ResourcePackInfos);
+		}
+
 	}
 
 	public partial class McpeResourcePackStack : Package<McpeResourcePackStack>
@@ -1595,6 +1772,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			mustAccept=default(bool);
+			behaviorpackidversions=default(ResourcePackIdVersions);
+			resourcepackidversions=default(ResourcePackIdVersions);
+		}
+
 	}
 
 	public partial class McpeResourcePackClientResponse : Package<McpeResourcePackClientResponse>
@@ -1636,6 +1822,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			responseStatus=default(byte);
+			resourcepackids=default(ResourcePackIds);
+		}
+
 	}
 
 	public partial class McpeText : Package<McpeText>
@@ -1674,6 +1868,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			type=default(byte);
+		}
+
 	}
 
 	public partial class McpeSetTime : Package<McpeSetTime>
@@ -1711,6 +1912,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			time=default(int);
+		}
 
 	}
 
@@ -1825,6 +2033,38 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+			runtimeEntityId=default(long);
+			playerGamemode=default(int);
+			spawn=default(Vector3);
+			unknown1=default(Vector2);
+			seed=default(int);
+			dimension=default(int);
+			generator=default(int);
+			gamemode=default(int);
+			difficulty=default(int);
+			x=default(int);
+			y=default(int);
+			z=default(int);
+			hasAchievementsDisabled=default(bool);
+			dayCycleStopTime=default(int);
+			eduMode=default(bool);
+			rainLevel=default(float);
+			lightnigLevel=default(float);
+			enableCommands=default(bool);
+			isTexturepacksRequired=default(bool);
+			gamerules=default(GameRules);
+			levelId=default(string);
+			worldName=default(string);
+			premiumWorldTemplateId=default(string);
+			unknown0=default(bool);
+			currentTick=default(long);
+		}
+
 	}
 
 	public partial class McpeAddPlayer : Package<McpeAddPlayer>
@@ -1905,6 +2145,27 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			uuid=default(UUID);
+			username=default(string);
+			entityIdSelf=default(long);
+			runtimeEntityId=default(long);
+			x=default(float);
+			y=default(float);
+			z=default(float);
+			speedX=default(float);
+			speedY=default(float);
+			speedZ=default(float);
+			pitch=default(float);
+			headYaw=default(float);
+			yaw=default(float);
+			item=default(Item);
+			metadata=default(MetadataDictionary);
+		}
+
 	}
 
 	public partial class McpeAddEntity : Package<McpeAddEntity>
@@ -1982,6 +2243,26 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+			runtimeEntityId=default(long);
+			entityType=default(uint);
+			x=default(float);
+			y=default(float);
+			z=default(float);
+			speedX=default(float);
+			speedY=default(float);
+			speedZ=default(float);
+			pitch=default(float);
+			yaw=default(float);
+			attributes=default(EntityAttributes);
+			metadata=default(MetadataDictionary);
+			links=default(Links);
+		}
+
 	}
 
 	public partial class McpeRemoveEntity : Package<McpeRemoveEntity>
@@ -2019,6 +2300,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+		}
 
 	}
 
@@ -2085,6 +2373,22 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+			runtimeEntityId=default(long);
+			item=default(Item);
+			x=default(float);
+			y=default(float);
+			z=default(float);
+			speedX=default(float);
+			speedY=default(float);
+			speedZ=default(float);
+			metadata=default(MetadataDictionary);
+		}
+
 	}
 
 	public partial class McpeAddHangingEntity : Package<McpeAddHangingEntity>
@@ -2132,6 +2436,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+			runtimeEntityId=default(long);
+			coordinates=default(BlockCoordinates);
+			unknown=default(int);
+		}
+
 	}
 
 	public partial class McpeTakeItemEntity : Package<McpeTakeItemEntity>
@@ -2172,6 +2486,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			target=default(long);
+		}
 
 	}
 
@@ -2219,6 +2541,16 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			position=default(PlayerLocation);
+			onGround=default(bool);
+			teleport=default(bool);
+		}
 
 	}
 
@@ -2285,6 +2617,22 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			x=default(float);
+			y=default(float);
+			z=default(float);
+			pitch=default(float);
+			headYaw=default(float);
+			yaw=default(float);
+			mode=default(byte);
+			onGround=default(bool);
+			otherRuntimeEntityId=default(long);
+		}
+
 	}
 
 	public partial class McpeRiderJump : Package<McpeRiderJump>
@@ -2323,6 +2671,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			unknown=default(int);
+		}
+
 	}
 
 	public partial class McpeRemoveBlock : Package<McpeRemoveBlock>
@@ -2360,6 +2715,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			coordinates=default(BlockCoordinates);
+		}
 
 	}
 
@@ -2404,6 +2766,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			coordinates=default(BlockCoordinates);
+			blockId=default(uint);
+			blockMetaAndPriority=default(uint);
+		}
 
 	}
 
@@ -2455,6 +2826,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+			runtimeEntityId=default(long);
+			coordinates=default(BlockCoordinates);
+			direction=default(int);
+			title=default(string);
+		}
+
 	}
 
 	public partial class McpeExplode : Package<McpeExplode>
@@ -2498,6 +2880,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			position=default(Vector3);
+			radius=default(int);
+			records=default(Records);
+		}
 
 	}
 
@@ -2552,6 +2943,18 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			soundId=default(byte);
+			position=default(Vector3);
+			extraData=default(int);
+			pitch=default(int);
+			unknown1=default(bool);
+			disableRelativeVolume=default(bool);
+		}
+
 	}
 
 	public partial class McpeLevelEvent : Package<McpeLevelEvent>
@@ -2595,6 +2998,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			eventId=default(int);
+			position=default(Vector3);
+			data=default(int);
+		}
 
 	}
 
@@ -2640,6 +3052,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			coordinates=default(BlockCoordinates);
+			case1=default(int);
+			case2=default(int);
+		}
+
 	}
 
 	public partial class McpeEntityEvent : Package<McpeEntityEvent>
@@ -2683,6 +3104,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			eventId=default(byte);
+			unknown=default(int);
+		}
 
 	}
 
@@ -2737,6 +3167,18 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			eventId=default(byte);
+			effectId=default(int);
+			amplifier=default(int);
+			particles=default(bool);
+			duration=default(int);
+		}
+
 	}
 
 	public partial class McpeUpdateAttributes : Package<McpeUpdateAttributes>
@@ -2777,6 +3219,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			attributes=default(PlayerAttributes);
+		}
 
 	}
 
@@ -2828,6 +3278,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			item=default(Item);
+			slot=default(byte);
+			selectedSlot=default(byte);
+			unknown=default(byte);
+		}
+
 	}
 
 	public partial class McpeMobArmorEquipment : Package<McpeMobArmorEquipment>
@@ -2878,6 +3339,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			helmet=default(Item);
+			chestplate=default(Item);
+			leggings=default(Item);
+			boots=default(Item);
+		}
+
 	}
 
 	public partial class McpeInteract : Package<McpeInteract>
@@ -2918,6 +3390,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			actionId=default(byte);
+			targetRuntimeEntityId=default(long);
+		}
 
 	}
 
@@ -2965,6 +3445,16 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			x=default(int);
+			y=default(int);
+			z=default(int);
+			selectedSlot=default(byte);
+		}
 
 	}
 
@@ -3022,6 +3512,19 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			blockcoordinates=default(BlockCoordinates);
+			blockId=default(uint);
+			face=default(int);
+			facecoordinates=default(Vector3);
+			playerposition=default(Vector3);
+			slot=default(int);
+			item=default(Item);
+		}
+
 	}
 
 	public partial class McpePlayerAction : Package<McpePlayerAction>
@@ -3069,6 +3572,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			actionId=default(int);
+			coordinates=default(BlockCoordinates);
+			face=default(int);
+		}
+
 	}
 
 	public partial class McpeEntityFall : Package<McpeEntityFall>
@@ -3113,6 +3626,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			fallDistance=default(float);
+			unknown=default(bool);
+		}
+
 	}
 
 	public partial class McpeHurtArmor : Package<McpeHurtArmor>
@@ -3150,6 +3672,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			health=default(int);
+		}
 
 	}
 
@@ -3192,6 +3721,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			metadata=default(MetadataDictionary);
+		}
+
 	}
 
 	public partial class McpeSetEntityMotion : Package<McpeSetEntityMotion>
@@ -3232,6 +3769,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			velocity=default(Vector3);
+		}
 
 	}
 
@@ -3277,6 +3822,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			riderId=default(long);
+			riddenId=default(long);
+			linkType=default(byte);
+		}
+
 	}
 
 	public partial class McpeSetHealth : Package<McpeSetHealth>
@@ -3314,6 +3868,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			health=default(int);
+		}
 
 	}
 
@@ -3359,6 +3920,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			spawnType=default(int);
+			coordinates=default(BlockCoordinates);
+			forced=default(bool);
+		}
+
 	}
 
 	public partial class McpeAnimate : Package<McpeAnimate>
@@ -3399,6 +3969,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			actionId=default(int);
+			runtimeEntityId=default(long);
+		}
 
 	}
 
@@ -3444,6 +4022,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			x=default(float);
+			y=default(float);
+			z=default(float);
+		}
+
 	}
 
 	public partial class McpeDropItem : Package<McpeDropItem>
@@ -3484,6 +4071,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			itemtype=default(byte);
+			item=default(Item);
+		}
 
 	}
 
@@ -3532,6 +4127,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			actionId=default(uint);
+			item=default(Item);
+			enchantmentId=default(int);
+			enchantmentLevel=default(int);
+		}
+
 	}
 
 	public partial class McpeContainerOpen : Package<McpeContainerOpen>
@@ -3579,6 +4184,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			windowId=default(byte);
+			type=default(byte);
+			coordinates=default(BlockCoordinates);
+			unknownRuntimeEntityId=default(long);
+		}
+
 	}
 
 	public partial class McpeContainerClose : Package<McpeContainerClose>
@@ -3616,6 +4231,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			windowId=default(byte);
+		}
 
 	}
 
@@ -3667,6 +4289,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			windowId=default(byte);
+			slot=default(int);
+			hotbarslot=default(int);
+			item=default(Item);
+			selectedSlot=default(byte);
+		}
+
 	}
 
 	public partial class McpeContainerSetData : Package<McpeContainerSetData>
@@ -3710,6 +4343,15 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			windowId=default(byte);
+			property=default(int);
+			value=default(int);
+		}
 
 	}
 
@@ -3758,6 +4400,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			windowId=default(uint);
+			entityIdSelf=default(long);
+			slotData=default(ItemStacks);
+			hotbarData=default(MetadataInts);
+		}
+
 	}
 
 	public partial class McpeCraftingData : Package<McpeCraftingData>
@@ -3795,6 +4447,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			recipes=default(Recipes);
+		}
 
 	}
 
@@ -3846,6 +4505,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			windowId=default(byte);
+			recipeType=default(int);
+			recipeId=default(UUID);
+			input=default(ItemStacks);
+			result=default(ItemStacks);
+		}
+
 	}
 
 	public partial class McpeAdventureSettings : Package<McpeAdventureSettings>
@@ -3887,6 +4557,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			flags=default(uint);
+			userPermission=default(uint);
+		}
+
 	}
 
 	public partial class McpeBlockEntityData : Package<McpeBlockEntityData>
@@ -3927,6 +4605,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			coordinates=default(BlockCoordinates);
+			namedtag=default(Nbt);
+		}
 
 	}
 
@@ -3975,6 +4661,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			motionX=default(float);
+			motionZ=default(float);
+			flag1=default(bool);
+			flag2=default(bool);
+		}
+
 	}
 
 	public partial class McpeFullChunkData : Package<McpeFullChunkData>
@@ -4019,6 +4715,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			chunkX=default(int);
+			chunkZ=default(int);
+			chunkData=default(byte[]);
+		}
+
 	}
 
 	public partial class McpeSetCommandsEnabled : Package<McpeSetCommandsEnabled>
@@ -4057,6 +4762,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			enabled=default(bool);
+		}
+
 	}
 
 	public partial class McpeSetDifficulty : Package<McpeSetDifficulty>
@@ -4094,6 +4806,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			difficulty=default(uint);
+		}
 
 	}
 
@@ -4139,6 +4858,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			dimension=default(int);
+			position=default(Vector3);
+			unknown=default(bool);
+		}
+
 	}
 
 	public partial class McpeSetPlayerGameType : Package<McpeSetPlayerGameType>
@@ -4176,6 +4904,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			gamemode=default(int);
+		}
 
 	}
 
@@ -4215,6 +4950,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			records=default(PlayerRecords);
+		}
+
 	}
 
 	public partial class McpeSimpleEvent : Package<McpeSimpleEvent>
@@ -4249,6 +4991,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -4294,6 +5042,15 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			entityIdSelf=default(long);
+			unk1=default(int);
+			unk2=default(byte);
+		}
+
 	}
 
 	public partial class McpeSpawnExperienceOrb : Package<McpeSpawnExperienceOrb>
@@ -4335,6 +5092,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			position=default(Vector3);
+			count=default(int);
+		}
+
 	}
 
 	public partial class McpeClientboundMapItemData : Package<McpeClientboundMapItemData>
@@ -4372,6 +5137,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			mapinfo=default(MapInfo);
+		}
 
 	}
 
@@ -4411,6 +5183,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			mapId=default(long);
+		}
+
 	}
 
 	public partial class McpeRequestChunkRadius : Package<McpeRequestChunkRadius>
@@ -4448,6 +5227,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			chunkRadius=default(int);
+		}
 
 	}
 
@@ -4487,6 +5273,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			chunkRadius=default(int);
+		}
+
 	}
 
 	public partial class McpeItemFrameDropItem : Package<McpeItemFrameDropItem>
@@ -4524,6 +5317,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			coordinates=default(BlockCoordinates);
+		}
 
 	}
 
@@ -4563,6 +5363,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			item=default(Item);
+		}
+
 	}
 
 	public partial class McpeGameRulesChanged : Package<McpeGameRulesChanged>
@@ -4601,6 +5408,13 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			rules=default(GameRules);
+		}
+
 	}
 
 	public partial class McpeCamera : Package<McpeCamera>
@@ -4635,6 +5449,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -4673,6 +5493,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			item=default(Item);
+		}
 
 	}
 
@@ -4715,6 +5542,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			bossEntityId=default(long);
+			eventType=default(uint);
+		}
+
 	}
 
 	public partial class McpeShowCredits : Package<McpeShowCredits>
@@ -4756,6 +5591,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			status=default(int);
+		}
+
 	}
 
 	public partial class McpeAvailableCommands : Package<McpeAvailableCommands>
@@ -4796,6 +5639,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			commands=default(string);
+			unknown=default(string);
+		}
 
 	}
 
@@ -4865,6 +5716,23 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			commandName=default(string);
+			commandOverload=default(string);
+			unknown1=default(uint);
+			currentStep=default(uint);
+			isOutput=default(bool);
+			clientId=default(long);
+			commandInputJson=default(string);
+			commandOutputJson=default(string);
+			unknown7=default(byte);
+			unknown8=default(byte);
+			entityIdSelf=default(long);
+		}
+
 	}
 
 	public partial class McpeCommandBlockUpdate : Package<McpeCommandBlockUpdate>
@@ -4899,6 +5767,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -4935,6 +5809,12 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
 	}
 
 	public partial class McpeUpdateEquip : Package<McpeUpdateEquip>
@@ -4969,6 +5849,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -5020,6 +5906,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			packageId=default(string);
+			maxChunkSize=default(uint);
+			chunkCount=default(uint);
+			compressedPackageSize=default(ulong);
+			hash=default(string);
+		}
+
 	}
 
 	public partial class McpeResourcePackChunkData : Package<McpeResourcePackChunkData>
@@ -5070,6 +5967,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			packageId=default(string);
+			chunkIndex=default(uint);
+			progress=default(ulong);
+			length=default(uint);
+			payload=default(byte[]);
+		}
+
 	}
 
 	public partial class McpeResourcePackChunkRequest : Package<McpeResourcePackChunkRequest>
@@ -5111,6 +6019,14 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			packageId=default(string);
+			chunkIndex=default(uint);
+		}
+
 	}
 
 	public partial class McpeTransfer : Package<McpeTransfer>
@@ -5151,6 +6067,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			serverAddress=default(string);
+			port=default(ushort);
+		}
 
 	}
 
@@ -5199,6 +6123,16 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			name=default(string);
+			coordinates=default(BlockCoordinates);
+			volume=default(float);
+			pitch=default(float);
+		}
+
 	}
 
 	public partial class McpeStopSound : Package<McpeStopSound>
@@ -5239,6 +6173,14 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			name=default(string);
+			stopAll=default(bool);
+		}
 
 	}
 
@@ -5290,6 +6232,17 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			type=default(int);
+			text=default(string);
+			fadeInTime=default(int);
+			stayTime=default(int);
+			fadeOutTime=default(int);
+		}
+
 	}
 
 	public partial class McpeAddBehaviorTreePacket : Package<McpeAddBehaviorTreePacket>
@@ -5325,6 +6278,12 @@ namespace MiNET.Net
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
 	}
 
 	public partial class McpeStructureBlockUpdatePacket : Package<McpeStructureBlockUpdatePacket>
@@ -5359,6 +6318,12 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
 
 	}
 
@@ -5397,6 +6362,13 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			payload=default(byte[]);
+		}
 
 	}
 
@@ -5447,6 +6419,17 @@ namespace MiNET.Net
 
 		partial void BeforeDecode();
 		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			username=default(string);
+			clientuuid=default(UUID);
+			serverAddress=default(string);
+			clientId=default(long);
+			skin=default(Skin);
+		}
 
 	}
 

@@ -310,9 +310,74 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+<#
+	foreach (XmlNode field in pdu.SelectNodes("field"))
+	{
+		if(field.NodeType != XmlNodeType.Element) continue;
+
+		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
+		{
+			continue;
+		}
+		
+		Write($"\t\t\t{CodeName(field.Attributes["name"].Value)}=default(");
+		 
+		if(field.Attributes["type"].Value == "VarInt")
+		{
+			Write("int");
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarInt")
+		{
+			Write("uint");
+		}
+		else if(field.Attributes["type"].Value == "SignedVarInt")
+		{
+			Write("int");
+		}
+		else if(field.Attributes["type"].Value == "VarLong")
+		{
+			Write("long");
+		}
+		else if(field.Attributes["type"].Value == "SignedVarLong")
+		{
+			Write("long");
+		}
+		else if(field.Attributes["type"].Value == "UnsignedVarLong")
+		{
+			Write("long");
+		}
+		else if(field.Attributes["type"].Value == "Length")
+		{
+			Write("int");
+		}
+		else if(field.Attributes["type"].Value == "ByteArray")
+		{
+			Write("byte[]");
+		}
+		else if(field.Attributes["type"].Value == "FixedString")
+		{
+			Write("string");
+		}
+		else 
+		{
+			Write($"{field.Attributes["type"].Value}");
+		} 
+
+		WriteLine(");");
+
+	} // foreach
+
+#>
+		}
+
 	}
 
 <#
+
 } // foreach
 #>
 }

@@ -35,12 +35,12 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Entity Event | 0x1b | 27 |   
 | Mob Effect | 0x1c | 28 |   
 | Update Attributes | 0x1d | 29 |   
-| Inventory Transaction Packet | 0x1e | 30 |   
+| Inventory Transaction | 0x1e | 30 |   
 | Mob Equipment | 0x1f | 31 |   
 | Mob Armor Equipment | 0x20 | 32 |   
 | Interact | 0x21 | 33 |   
 | Block Pick Request | 0x22 | 34 |   
-| Entity Pick Request Packet | 0x23 | 35 |   
+| Entity Pick Request | 0x23 | 35 |   
 | Player Action | 0x24 | 36 |   
 | Entity Fall | 0x25 | 37 |   
 | Hurt Armor | 0x26 | 38 |   
@@ -53,13 +53,13 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Respawn | 0x2d | 45 |   
 | Container Open | 0x2e | 46 |   
 | Container Close | 0x2f | 47 |   
-| Player Hotbar Packet | 0x30 | 48 |   
-| Inventory Content Packet | 0x31 | 49 |   
-| Inventory Slot Packet | 0x32 | 50 |   
+| Player Hotbar | 0x30 | 48 |   
+| Inventory Content | 0x31 | 49 |   
+| Inventory Slot | 0x32 | 50 |   
 | Container Set Data | 0x33 | 51 |   
 | Crafting Data | 0x34 | 52 |   
 | Crafting Event | 0x35 | 53 |   
-| Gui Data Pick Item Packet | 0x36 | 54 |   
+| Gui Data Pick Item | 0x36 | 54 |   
 | Adventure Settings | 0x37 | 55 |   
 | Block Entity Data | 0x38 | 56 |   
 | Player Input | 0x39 | 57 |   
@@ -70,7 +70,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Player Game Type | 0x3e | 62 |   
 | Player List | 0x3f | 63 |   
 | Simple Event | 0x40 | 64 |   
-| Telemetry Event Packet | 0x41 | 65 |   
+| Telemetry Event | 0x41 | 65 |   
 | Spawn Experience Orb | 0x42 | 66 |   
 | Clientbound Map Item Data  | 0x43 | 67 |   
 | Map Info Request | 0x44 | 68 |   
@@ -82,10 +82,10 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Boss Event | 0x4a | 74 |   
 | Show Credits | 0x4b | 75 |   
 | Available Commands | 0x4c | 76 |   
-| Command Request Packet | 0x4d | 77 |   
+| Command Request | 0x4d | 77 |   
 | Command Block Update | 0x4e | 78 |   
 | Update Trade | 0x50 | 80 |   
-| Update Equipment Packet | 0x51 | 81 |   
+| Update Equipment | 0x51 | 81 |   
 | Resource Pack Data Info | 0x52 | 82 |   
 | Resource Pack Chunk Data | 0x53 | 83 |   
 | Resource Pack Chunk Request | 0x54 | 84 |   
@@ -93,14 +93,14 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Play Sound | 0x56 | 86 |   
 | Stop Sound | 0x57 | 87 |   
 | Set Title | 0x58 | 88 |   
-| Add Behavior Tree Packet | 0x59 | 89 |   
-| Structure Block Update Packet | 0x5a | 90 |   
-| Player Skin Packet | 0x5d | 93 |   
-| Sub Client Login Packet | 0x5e | 94 |   
-| Initiate Web Socket Connection Packet | 0x5f | 95 |   
-| Set Last Hurt By Packet | 0x60 | 96 |   
-| Book Edit Packet | 0x61 | 97 |   
-| Npc Request Packet | 0x62 | 98 |   
+| Add Behavior Tree | 0x59 | 89 |   
+| Structure Block Update | 0x5a | 90 |   
+| Player Skin | 0x5d | 93 |   
+| Sub Client Login | 0x5e | 94 |   
+| Initiate Web Socket Connection | 0x5f | 95 |   
+| Set Last Hurt By | 0x60 | 96 |   
+| Book Edit | 0x61 | 97 |   
+| Npc Request | 0x62 | 98 |   
 
 
 ## Constants
@@ -701,8 +701,8 @@ Wiki: [Update Attributes](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 |Runtime Entity ID | UnsignedVarLong |  |
 |Attributes | PlayerAttributes |  |
 -----------------------------------------------------------------------
-### Inventory Transaction Packet (0x1e)
-Wiki: [Inventory Transaction Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryTransactionPacket)
+### Inventory Transaction (0x1e)
+Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryTransaction)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -840,8 +840,8 @@ Wiki: [Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |Z | SignedVarInt |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
-### Entity Pick Request Packet (0x23)
-Wiki: [Entity Pick Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityPickRequestPacket)
+### Entity Pick Request (0x23)
+Wiki: [Entity Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityPickRequest)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1051,8 +1051,8 @@ Wiki: [Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-C
 |:-----|:-----|:-----|
 |Window ID | byte |  |
 -----------------------------------------------------------------------
-### Player Hotbar Packet (0x30)
-Wiki: [Player Hotbar Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerHotbarPacket)
+### Player Hotbar (0x30)
+Wiki: [Player Hotbar](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerHotbar)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -1067,8 +1067,8 @@ Wiki: [Player Hotbar Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 |Selected Slot | byte |  |
 |Hotbar Data | MetadataInts |  |
 -----------------------------------------------------------------------
-### Inventory Content Packet (0x31)
-Wiki: [Inventory Content Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryContentPacket)
+### Inventory Content (0x31)
+Wiki: [Inventory Content](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryContent)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -1083,8 +1083,8 @@ Wiki: [Inventory Content Packet](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |Inventory Id | VarInt |  |
 |Input | ItemStacks |  |
 -----------------------------------------------------------------------
-### Inventory Slot Packet (0x32)
-Wiki: [Inventory Slot Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventorySlotPacket)
+### Inventory Slot (0x32)
+Wiki: [Inventory Slot](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventorySlot)
 
 **Sent from server:** true  
 **Sent from client:** true
@@ -1162,8 +1162,8 @@ Wiki: [Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cr
 |Input | ItemStacks |  |
 |Result | ItemStacks |  |
 -----------------------------------------------------------------------
-### Gui Data Pick Item Packet (0x36)
-Wiki: [Gui Data Pick Item Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-GuiDataPickItemPacket)
+### Gui Data Pick Item (0x36)
+Wiki: [Gui Data Pick Item](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-GuiDataPickItem)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1344,8 +1344,8 @@ Wiki: [Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Simp
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Telemetry Event Packet (0x41)
-Wiki: [Telemetry Event Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TelemetryEventPacket)
+### Telemetry Event (0x41)
+Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TelemetryEvent)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1529,8 +1529,8 @@ Wiki: [Available Commands](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |Commands | string |  |
 |Unknown | string |  |
 -----------------------------------------------------------------------
-### Command Request Packet (0x4d)
-Wiki: [Command Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandRequestPacket)
+### Command Request (0x4d)
+Wiki: [Command Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandRequest)
 
 **Sent from server:** false  
 **Sent from client:** true
@@ -1582,8 +1582,8 @@ Wiki: [Update Trade](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Update Equipment Packet (0x51)
-Wiki: [Update Equipment Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateEquipmentPacket)
+### Update Equipment (0x51)
+Wiki: [Update Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateEquipment)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1719,8 +1719,8 @@ Wiki: [Set Title](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetTitl
 |Stay Time | SignedVarInt |  |
 |Fade Out Time | SignedVarInt |  |
 -----------------------------------------------------------------------
-### Add Behavior Tree Packet (0x59)
-Wiki: [Add Behavior Tree Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddBehaviorTreePacket)
+### Add Behavior Tree (0x59)
+Wiki: [Add Behavior Tree](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddBehaviorTree)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1733,8 +1733,8 @@ Wiki: [Add Behavior Tree Packet](https://github.com/NiclasOlofsson/MiNET/wiki//P
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Structure Block Update Packet (0x5a)
-Wiki: [Structure Block Update Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureBlockUpdatePacket)
+### Structure Block Update (0x5a)
+Wiki: [Structure Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StructureBlockUpdate)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1747,8 +1747,8 @@ Wiki: [Structure Block Update Packet](https://github.com/NiclasOlofsson/MiNET/wi
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Player Skin Packet (0x5d)
-Wiki: [Player Skin Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerSkinPacket)
+### Player Skin (0x5d)
+Wiki: [Player Skin](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerSkin)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1761,8 +1761,8 @@ Wiki: [Player Skin Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Sub Client Login Packet (0x5e)
-Wiki: [Sub Client Login Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLoginPacket)
+### Sub Client Login (0x5e)
+Wiki: [Sub Client Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLogin)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1775,8 +1775,8 @@ Wiki: [Sub Client Login Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Initiate Web Socket Connection Packet (0x5f)
-Wiki: [Initiate Web Socket Connection Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InitiateWebSocketConnectionPacket)
+### Initiate Web Socket Connection (0x5f)
+Wiki: [Initiate Web Socket Connection](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InitiateWebSocketConnection)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1789,8 +1789,8 @@ Wiki: [Initiate Web Socket Connection Packet](https://github.com/NiclasOlofsson/
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Set Last Hurt By Packet (0x60)
-Wiki: [Set Last Hurt By Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLastHurtByPacket)
+### Set Last Hurt By (0x60)
+Wiki: [Set Last Hurt By](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetLastHurtBy)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1803,8 +1803,8 @@ Wiki: [Set Last Hurt By Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Pr
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Book Edit Packet (0x61)
-Wiki: [Book Edit Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BookEditPacket)
+### Book Edit (0x61)
+Wiki: [Book Edit](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BookEdit)
 
 **Sent from server:** true  
 **Sent from client:** false
@@ -1817,8 +1817,8 @@ Wiki: [Book Edit Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 | Name | Type | Size |
 |:-----|:-----|:-----|
 -----------------------------------------------------------------------
-### Npc Request Packet (0x62)
-Wiki: [Npc Request Packet](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRequestPacket)
+### Npc Request (0x62)
+Wiki: [Npc Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRequest)
 
 **Sent from server:** true  
 **Sent from client:** false

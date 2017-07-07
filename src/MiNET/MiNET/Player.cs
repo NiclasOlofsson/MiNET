@@ -672,7 +672,7 @@ namespace MiNET
 			SendPackage(commands);
 		}
 
-		public virtual void HandleMcpeCommandRequestPacket(McpeCommandRequestPacket message)
+		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
@@ -694,7 +694,7 @@ namespace MiNET
 				settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
 				var content = JsonConvert.SerializeObject(result, settings);
-				McpeCommandRequestPacket commandResult = McpeCommandRequestPacket.CreateObject();
+				McpeCommandRequest commandResult = McpeCommandRequest.CreateObject();
 				commandResult.commandName = message.commandName;
 				commandResult.commandOverload = message.commandOverload;
 				commandResult.isOutput = true;
@@ -1314,17 +1314,17 @@ namespace MiNET
 
 		public virtual void SendPlayerInventory()
 		{
-			McpeInventoryContentPacket strangeContent = McpeInventoryContentPacket.CreateObject();
+			McpeInventoryContent strangeContent = McpeInventoryContent.CreateObject();
 			strangeContent.inventoryId = (byte) 0x7b;
 			strangeContent.input = new ItemStacks();
 			SendPackage(strangeContent);
 
-			McpeInventoryContentPacket inventoryContent = McpeInventoryContentPacket.CreateObject();
+			McpeInventoryContent inventoryContent = McpeInventoryContent.CreateObject();
 			inventoryContent.inventoryId = (byte) 0x00;
 			inventoryContent.input = Inventory.GetSlots();
 			SendPackage(inventoryContent);
 
-			McpeInventoryContentPacket armorContent = McpeInventoryContentPacket.CreateObject();
+			McpeInventoryContent armorContent = McpeInventoryContent.CreateObject();
 			armorContent.inventoryId = 0x78;
 			armorContent.input = Inventory.GetArmor();
 			SendPackage(armorContent);
@@ -1347,7 +1347,7 @@ namespace MiNET
 		{
 			if (!UseCreativeInventory) return;
 
-			McpeInventoryContentPacket creativeContent = McpeInventoryContentPacket.CreateObject();
+			McpeInventoryContent creativeContent = McpeInventoryContent.CreateObject();
 			creativeContent.inventoryId = (byte) 0x79;
 			creativeContent.input = InventoryUtils.GetCreativeMetadataSlots();
 			SendPackage(creativeContent);
@@ -1722,7 +1722,7 @@ namespace MiNET
 				containerOpen.unknownRuntimeEntityId = 1;
 				SendPackage(containerOpen);
 
-				McpeInventoryContentPacket containerSetContent = McpeInventoryContentPacket.CreateObject();
+				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
 				containerSetContent.inventoryId = inventory.WindowsId;
 				containerSetContent.input = inventory.Slots;
 				SendPackage(containerSetContent);
@@ -1738,7 +1738,7 @@ namespace MiNET
 			}
 			else
 			{
-				McpeInventorySlotPacket sendSlot = McpeInventorySlotPacket.CreateObject();
+				McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
 				sendSlot.inventoryId = 0;
 				sendSlot.slot = slot;
 				sendSlot.item = itemStack;
@@ -1752,7 +1752,7 @@ namespace MiNET
 		}
 
 
-		public void HandleMcpeInventorySlotPacket(McpeInventorySlotPacket message)
+		public void HandleMcpeInventorySlot(McpeInventorySlot message)
 		{
 		}
 
@@ -1761,7 +1761,7 @@ namespace MiNET
 			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType}");
 		}
 
-		public void HandleMcpeInventoryTransactionPacket(McpeInventoryTransactionPacket message)
+		public void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
 		{
 		}
 
@@ -1888,11 +1888,11 @@ namespace MiNET
 			}
 		}
 
-		public void HandleMcpePlayerHotbarPacket(McpePlayerHotbarPacket message)
+		public void HandleMcpePlayerHotbar(McpePlayerHotbar message)
 		{
 		}
 
-		public void HandleMcpeInventoryContentPacket(McpeInventoryContentPacket message)
+		public void HandleMcpeInventoryContent(McpeInventoryContent message)
 		{
 		}
 

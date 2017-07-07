@@ -250,7 +250,7 @@ namespace MiNET
 			}
 			else
 			{
-				McpeInventorySlotPacket sendSlot = McpeInventorySlotPacket.CreateObject();
+				McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
 				sendSlot.inventoryId = 0;
 				sendSlot.slot = slot;
 				sendSlot.item = GetItemInHand();

@@ -1486,7 +1486,7 @@ Adventure settings
 					{
 						slotData.Add(recipe.Input[i]);
 
-						McpeInventorySlotPacket sendSlot = McpeInventorySlotPacket.CreateObject();
+						McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
 						sendSlot.inventoryId = 0;
 						sendSlot.slot = i;
 						sendSlot.item = recipe.Input[i];

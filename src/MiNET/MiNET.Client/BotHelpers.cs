@@ -75,7 +75,7 @@ namespace MiNET.Client
 		{
 			Action<Task, string> doUseItem = (t, command) =>
 			{
-				McpeCommandRequestPacket commandStep = McpeCommandRequestPacket.CreateObject();
+				McpeCommandRequest commandStep = McpeCommandRequest.CreateObject();
 				commandStep.commandName = "fill";
 				commandStep.commandOverload = "replace";
 				commandStep.unknown1 = 0;

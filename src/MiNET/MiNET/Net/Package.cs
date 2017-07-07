@@ -715,7 +715,7 @@ namespace MiNET.Net
 
 		public void Write(ItemStacks metadata)
 		{
-			McpeInventoryContentPacket msg = this as McpeInventoryContentPacket;
+			McpeInventoryContent msg = this as McpeInventoryContent;
 			bool signItems = msg == null || msg.inventoryId != 0x79;
 
 			if (metadata == null)

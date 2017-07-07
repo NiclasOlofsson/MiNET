@@ -50,7 +50,7 @@ namespace MiNET.Net
 		void HandleMcpeMovePlayer(McpeMovePlayer message);
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
-		void HandleMcpeInventoryTransactionPacket(McpeInventoryTransactionPacket message);
+		void HandleMcpeInventoryTransaction(McpeInventoryTransaction message);
 		void HandleMcpeMobEquipment(McpeMobEquipment message);
 		void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message);
 		void HandleMcpeInteract(McpeInteract message);
@@ -60,9 +60,9 @@ namespace MiNET.Net
 		void HandleMcpeAnimate(McpeAnimate message);
 		void HandleMcpeRespawn(McpeRespawn message);
 		void HandleMcpeContainerClose(McpeContainerClose message);
-		void HandleMcpePlayerHotbarPacket(McpePlayerHotbarPacket message);
-		void HandleMcpeInventoryContentPacket(McpeInventoryContentPacket message);
-		void HandleMcpeInventorySlotPacket(McpeInventorySlotPacket message);
+		void HandleMcpePlayerHotbar(McpePlayerHotbar message);
+		void HandleMcpeInventoryContent(McpeInventoryContent message);
+		void HandleMcpeInventorySlot(McpeInventorySlot message);
 		void HandleMcpeCraftingEvent(McpeCraftingEvent message);
 		void HandleMcpeAdventureSettings(McpeAdventureSettings message);
 		void HandleMcpeBlockEntityData(McpeBlockEntityData message);
@@ -70,7 +70,7 @@ namespace MiNET.Net
 		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
 		void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message);
 		void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message);
-		void HandleMcpeCommandRequestPacket(McpeCommandRequestPacket message);
+		void HandleMcpeCommandRequest(McpeCommandRequest message);
 		void HandleMcpeCommandBlockUpdate(McpeCommandBlockUpdate message);
 		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 	}
@@ -279,7 +279,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x1e:
-						package = McpeInventoryTransactionPacket.CreateObject();
+						package = McpeInventoryTransaction.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x1f:
@@ -299,7 +299,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x23:
-						package = McpeEntityPickRequestPacket.CreateObject();
+						package = McpeEntityPickRequest.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x24:
@@ -351,15 +351,15 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x30:
-						package = McpePlayerHotbarPacket.CreateObject();
+						package = McpePlayerHotbar.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x31:
-						package = McpeInventoryContentPacket.CreateObject();
+						package = McpeInventoryContent.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x32:
-						package = McpeInventorySlotPacket.CreateObject();
+						package = McpeInventorySlot.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x33:
@@ -375,7 +375,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x36:
-						package = McpeGuiDataPickItemPacket.CreateObject();
+						package = McpeGuiDataPickItem.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x37:
@@ -419,7 +419,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x41:
-						package = McpeTelemetryEventPacket.CreateObject();
+						package = McpeTelemetryEvent.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x42:
@@ -467,7 +467,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x4d:
-						package = McpeCommandRequestPacket.CreateObject();
+						package = McpeCommandRequest.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x4e:
@@ -479,7 +479,7 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x51:
-						package = McpeUpdateEquipmentPacket.CreateObject();
+						package = McpeUpdateEquipment.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x52:
@@ -511,35 +511,35 @@ namespace MiNET.Net
 						package.Decode(buffer);
 						return package;
 					case 0x59:
-						package = McpeAddBehaviorTreePacket.CreateObject();
+						package = McpeAddBehaviorTree.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x5a:
-						package = McpeStructureBlockUpdatePacket.CreateObject();
+						package = McpeStructureBlockUpdate.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x5d:
-						package = McpePlayerSkinPacket.CreateObject();
+						package = McpePlayerSkin.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x5e:
-						package = McpeSubClientLoginPacket.CreateObject();
+						package = McpeSubClientLogin.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x5f:
-						package = McpeInitiateWebSocketConnectionPacket.CreateObject();
+						package = McpeInitiateWebSocketConnection.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x60:
-						package = McpeSetLastHurtByPacket.CreateObject();
+						package = McpeSetLastHurtBy.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x61:
-						package = McpeBookEditPacket.CreateObject();
+						package = McpeBookEdit.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x62:
-						package = McpeNpcRequestPacket.CreateObject();
+						package = McpeNpcRequest.CreateObject();
 						package.Decode(buffer);
 						return package;
 				}
@@ -2747,7 +2747,7 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeInventoryTransactionPacket : Package<McpeInventoryTransactionPacket>
+	public partial class McpeInventoryTransaction : Package<McpeInventoryTransaction>
 	{
 		public enum TransactionTypes
 		{
@@ -2785,7 +2785,7 @@ namespace MiNET.Net
 
 		public Transaction transaction; // = null;
 
-		public McpeInventoryTransactionPacket()
+		public McpeInventoryTransaction()
 		{
 			Id = 0x1e;
 			IsMcpe = true;
@@ -3023,11 +3023,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeEntityPickRequestPacket : Package<McpeEntityPickRequestPacket>
+	public partial class McpeEntityPickRequest : Package<McpeEntityPickRequest>
 	{
 
 
-		public McpeEntityPickRequestPacket()
+		public McpeEntityPickRequest()
 		{
 			Id = 0x23;
 			IsMcpe = true;
@@ -3591,13 +3591,13 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpePlayerHotbarPacket : Package<McpePlayerHotbarPacket>
+	public partial class McpePlayerHotbar : Package<McpePlayerHotbar>
 	{
 
 		public byte selectedSlot; // = null;
 		public MetadataInts hotbarData; // = null;
 
-		public McpePlayerHotbarPacket()
+		public McpePlayerHotbar()
 		{
 			Id = 0x30;
 			IsMcpe = true;
@@ -3634,13 +3634,13 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeInventoryContentPacket : Package<McpeInventoryContentPacket>
+	public partial class McpeInventoryContent : Package<McpeInventoryContent>
 	{
 
 		public int inventoryId; // = null;
 		public ItemStacks input; // = null;
 
-		public McpeInventoryContentPacket()
+		public McpeInventoryContent()
 		{
 			Id = 0x31;
 			IsMcpe = true;
@@ -3677,14 +3677,14 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeInventorySlotPacket : Package<McpeInventorySlotPacket>
+	public partial class McpeInventorySlot : Package<McpeInventorySlot>
 	{
 
 		public int inventoryId; // = null;
 		public int slot; // = null;
 		public Item item; // = null;
 
-		public McpeInventorySlotPacket()
+		public McpeInventorySlot()
 		{
 			Id = 0x32;
 			IsMcpe = true;
@@ -3870,11 +3870,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeGuiDataPickItemPacket : Package<McpeGuiDataPickItemPacket>
+	public partial class McpeGuiDataPickItem : Package<McpeGuiDataPickItem>
 	{
 
 
-		public McpeGuiDataPickItemPacket()
+		public McpeGuiDataPickItem()
 		{
 			Id = 0x36;
 			IsMcpe = true;
@@ -4339,14 +4339,14 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeTelemetryEventPacket : Package<McpeTelemetryEventPacket>
+	public partial class McpeTelemetryEvent : Package<McpeTelemetryEvent>
 	{
 
 		public long entityIdSelf; // = null;
 		public int unk1; // = null;
 		public byte unk2; // = null;
 
-		public McpeTelemetryEventPacket()
+		public McpeTelemetryEvent()
 		{
 			Id = 0x41;
 			IsMcpe = true;
@@ -4834,7 +4834,7 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeCommandRequestPacket : Package<McpeCommandRequestPacket>
+	public partial class McpeCommandRequest : Package<McpeCommandRequest>
 	{
 
 		public string commandName; // = null;
@@ -4849,7 +4849,7 @@ namespace MiNET.Net
 		public byte unknown8; // = null;
 		public long entityIdSelf; // = null;
 
-		public McpeCommandRequestPacket()
+		public McpeCommandRequest()
 		{
 			Id = 0x4d;
 			IsMcpe = true;
@@ -4978,11 +4978,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeUpdateEquipmentPacket : Package<McpeUpdateEquipmentPacket>
+	public partial class McpeUpdateEquipment : Package<McpeUpdateEquipment>
 	{
 
 
-		public McpeUpdateEquipmentPacket()
+		public McpeUpdateEquipment()
 		{
 			Id = 0x51;
 			IsMcpe = true;
@@ -5349,11 +5349,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeAddBehaviorTreePacket : Package<McpeAddBehaviorTreePacket>
+	public partial class McpeAddBehaviorTree : Package<McpeAddBehaviorTree>
 	{
 
 
-		public McpeAddBehaviorTreePacket()
+		public McpeAddBehaviorTree()
 		{
 			Id = 0x59;
 			IsMcpe = true;
@@ -5386,11 +5386,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeStructureBlockUpdatePacket : Package<McpeStructureBlockUpdatePacket>
+	public partial class McpeStructureBlockUpdate : Package<McpeStructureBlockUpdate>
 	{
 
 
-		public McpeStructureBlockUpdatePacket()
+		public McpeStructureBlockUpdate()
 		{
 			Id = 0x5a;
 			IsMcpe = true;
@@ -5423,11 +5423,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpePlayerSkinPacket : Package<McpePlayerSkinPacket>
+	public partial class McpePlayerSkin : Package<McpePlayerSkin>
 	{
 
 
-		public McpePlayerSkinPacket()
+		public McpePlayerSkin()
 		{
 			Id = 0x5d;
 			IsMcpe = true;
@@ -5460,11 +5460,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeSubClientLoginPacket : Package<McpeSubClientLoginPacket>
+	public partial class McpeSubClientLogin : Package<McpeSubClientLogin>
 	{
 
 
-		public McpeSubClientLoginPacket()
+		public McpeSubClientLogin()
 		{
 			Id = 0x5e;
 			IsMcpe = true;
@@ -5497,11 +5497,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeInitiateWebSocketConnectionPacket : Package<McpeInitiateWebSocketConnectionPacket>
+	public partial class McpeInitiateWebSocketConnection : Package<McpeInitiateWebSocketConnection>
 	{
 
 
-		public McpeInitiateWebSocketConnectionPacket()
+		public McpeInitiateWebSocketConnection()
 		{
 			Id = 0x5f;
 			IsMcpe = true;
@@ -5534,11 +5534,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeSetLastHurtByPacket : Package<McpeSetLastHurtByPacket>
+	public partial class McpeSetLastHurtBy : Package<McpeSetLastHurtBy>
 	{
 
 
-		public McpeSetLastHurtByPacket()
+		public McpeSetLastHurtBy()
 		{
 			Id = 0x60;
 			IsMcpe = true;
@@ -5571,11 +5571,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeBookEditPacket : Package<McpeBookEditPacket>
+	public partial class McpeBookEdit : Package<McpeBookEdit>
 	{
 
 
-		public McpeBookEditPacket()
+		public McpeBookEdit()
 		{
 			Id = 0x61;
 			IsMcpe = true;
@@ -5608,11 +5608,11 @@ namespace MiNET.Net
 		partial void AfterDecode();
 	}
 
-	public partial class McpeNpcRequestPacket : Package<McpeNpcRequestPacket>
+	public partial class McpeNpcRequest : Package<McpeNpcRequest>
 	{
 
 
-		public McpeNpcRequestPacket()
+		public McpeNpcRequest()
 		{
 			Id = 0x62;
 			IsMcpe = true;

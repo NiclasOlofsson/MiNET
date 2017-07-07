@@ -393,7 +393,7 @@
 		<field name="Attributes" type="PlayerAttributes" />
 	</pdu>
 
-	<pdu id="0x1e" online="false" client="true" server="true" name="MCPE_INVENTORY_TRANSACTION_PACKET">
+	<pdu id="0x1e" online="false" client="true" server="true" name="MCPE_INVENTORY_TRANSACTION">
 		<enums id="Transaction types">
 			<enum id="Normal" value="0" />
 			<enum id="Inventory mismatch" value="1" />
@@ -461,7 +461,7 @@
 		<field name="Selected Slot" type="byte" />
 	</pdu>
 
-	<pdu id="0x23" online="false" client="false" server="true" name="MCPE_ENTITY_PICK_REQUEST_PACKET">
+	<pdu id="0x23" online="false" client="false" server="true" name="MCPE_ENTITY_PICK_REQUEST">
 	</pdu>
 
 	<pdu id="0x24" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">
@@ -529,17 +529,17 @@
 		<field name="Window ID" type="byte" />
 	</pdu>
 
-	<pdu id="0x30" online="false" client="true" server="true" name="MCPE_PLAYER_HOTBAR_PACKET">
+	<pdu id="0x30" online="false" client="true" server="true" name="MCPE_PLAYER_HOTBAR">
 		<field name="Selected Slot" type="byte" />
 		<field name="Hotbar Data" type="MetadataInts" />
 	</pdu>
 
-	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_INVENTORY_CONTENT_PACKET">
+	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_INVENTORY_CONTENT">
 		<field name="Inventory Id" type="VarInt" />
 		<field name="Input" type="ItemStacks" />
 	</pdu>
 
-	<pdu id="0x32" online="false" client="true" server="true" name="MCPE_INVENTORY_SLOT_PACKET">
+	<pdu id="0x32" online="false" client="true" server="true" name="MCPE_INVENTORY_SLOT">
 		<field name="Inventory Id" type="SignedVarInt" />
 		<field name="Slot" type="SignedVarInt" />
 		<field name="Item" type="Item" />
@@ -572,7 +572,7 @@
 		<field name="Result" type="ItemStacks" />
 	</pdu>
 
-	<pdu id="0x36" online="false" client="false" server="true" name="MCPE_GUI_DATA_PICK_ITEM_PACKET">
+	<pdu id="0x36" online="false" client="false" server="true" name="MCPE_GUI_DATA_PICK_ITEM">
 
 	</pdu>
 
@@ -631,7 +631,7 @@
 	<pdu id="0x40" online="false" client="false" server="true" name="MCPE_SIMPLE_EVENT">
 	</pdu>
 
-	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_TELEMETRY_EVENT_PACKET">
+	<pdu id="0x41" online="false" client="false" server="true" name="MCPE_TELEMETRY_EVENT">
 		<field name="Entity ID Self" type="SignedVarLong" />
 		<field name="Unk1" type="SignedVarInt" />
 		<field name="Unk2" type="byte" />
@@ -688,7 +688,7 @@
 		<field name="Unknown" type="string"  />
 	</pdu>
 
-	<pdu id="0x4d" online="false" client="true" server="false" name="MCPE_COMMAND_REQUEST_PACKET">
+	<pdu id="0x4d" online="false" client="true" server="false" name="MCPE_COMMAND_REQUEST">
 		<field name="Command name" type="string"  />
 		<field name="Command overload" type="string"  />
 		<field name="Unknown 1" type="UnsignedVarInt"  />
@@ -708,7 +708,7 @@
 	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_UPDATE_TRADE">
 	</pdu>
 
-	<pdu id="0x51" online="false" client="false" server="true" name="MCPE_UPDATE_EQUIPMENT_PACKET">
+	<pdu id="0x51" online="false" client="false" server="true" name="MCPE_UPDATE_EQUIPMENT">
 	</pdu>
 
 	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">
@@ -766,28 +766,28 @@
 		<field name="Fade Out Time" type="SignedVarInt" />
 	</pdu>
 
-	<pdu id="0x59" online="false" client="false" server="true" name="MCPE_ADD_BEHAVIOR_TREE_PACKET">
+	<pdu id="0x59" online="false" client="false" server="true" name="MCPE_ADD_BEHAVIOR_TREE">
 	</pdu>
 
-	<pdu id="0x5a" online="false" client="false" server="true" name="MCPE_STRUCTURE_BLOCK_UPDATE_PACKET">
+	<pdu id="0x5a" online="false" client="false" server="true" name="MCPE_STRUCTURE_BLOCK_UPDATE">
 	</pdu>
 
-	<pdu id="0x5d" online="false" client="false" server="true" name="MCPE_PLAYER_SKIN_PACKET">
+	<pdu id="0x5d" online="false" client="false" server="true" name="MCPE_PLAYER_SKIN">
 	</pdu>
 
-	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN_PACKET">
+	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN">
 	</pdu>
 
-	<pdu id="0x5f" online="false" client="false" server="true" name="MCPE_INITIATE_WEB_SOCKET_CONNECTION_PACKET">
+	<pdu id="0x5f" online="false" client="false" server="true" name="MCPE_INITIATE_WEB_SOCKET_CONNECTION">
 	</pdu>
 
-	<pdu id="0x60" online="false" client="false" server="true" name="MCPE_SET_LAST_HURT_BY_PACKET">
+	<pdu id="0x60" online="false" client="false" server="true" name="MCPE_SET_LAST_HURT_BY">
 	</pdu>
 
-	<pdu id="0x61" online="false" client="false" server="true" name="MCPE_BOOK_EDIT_PACKET">
+	<pdu id="0x61" online="false" client="false" server="true" name="MCPE_BOOK_EDIT">
 	</pdu>
 
-	<pdu id="0x62" online="false" client="false" server="true" name="MCPE_NPC_REQUEST_PACKET">
+	<pdu id="0x62" online="false" client="false" server="true" name="MCPE_NPC_REQUEST">
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

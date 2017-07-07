@@ -276,6 +276,16 @@ namespace MiNET
 								}
 							};
 						}
+						else
+						{
+							_playerInfo.CertificateData = new CertificateData
+							{
+								ExtraData = new ExtraData
+								{
+									Xuid = ""
+								}
+							};
+						}
 					}
 				}
 

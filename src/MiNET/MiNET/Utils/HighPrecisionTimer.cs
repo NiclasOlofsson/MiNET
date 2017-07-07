@@ -77,34 +77,6 @@ namespace MiNET.Utils
 
 						continue;
 					}
-					if (msLeft < 5)
-					{
-						Spins++;
-						var stop = nextStop;
-
-						if (useSignaling)
-						{
-							AutoReset.WaitOne(50);
-						}
-
-
-						if (watch.ElapsedMilliseconds < stop)
-						{
-							SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
-						}
-						//long t = nextStop - watch.ElapsedMilliseconds;
-						//if(t < -5) Log.Warn($"We overslept {t}ms in spin wait");
-						continue;
-					}
-
-					if (msLeft < 16)
-					{
-						if (Thread.Yield()) Yields++;
-
-						Sleeps++;
-						Thread.Sleep(1);
-						continue;
-					}
 
 					Sleeps++;
 					Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));

@@ -82,23 +82,24 @@ foreach (XmlNode pdu in pdus)
 	string isServer = pdu.Attributes["server"].Value;
 	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;
 #>
-### Package: <#= typeIdName #> (<#= typeId #>)
-Wiki: [Package-<#= typeIdName #>](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-<#= typeIdName.Replace(" ", "") #>)
+### <#= typeIdName #> (<#= typeId #>)
+Wiki: [<#= typeIdName #>](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-<#= typeIdName.Replace(" ", "") #>)
 
-**Sent from server:** <#= isServer #>
+**Sent from server:** <#= isServer #>  
 **Sent from client:** <#= isClient #>
-**Packet size:** <#= pduSize #>
 
 <#= pduComment.Replace("\t","") #>
 
 <#	
+	PrintConstants(pdu.SelectNodes("enums"));
 #>
+
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
 <#
-	foreach (XmlNode field in pdu.ChildNodes)
+	foreach (XmlNode field in pdu.SelectNodes("field"))
 	{
 		if(field.NodeType != XmlNodeType.Element) 
 		{
@@ -194,4 +195,23 @@ public string SafeToString(XmlNode node)
 
 	return node.Value;
 }
+private void PrintConstants(XmlNodeList nodes)
+{
+	foreach (XmlNode constants in nodes)
+	{
+		WriteLine($"#### {CodeTypeName(constants.Attributes["id"]?.Value)} constants");
+		WriteLine($"");
+		WriteLine($"| Name | Value |");
+		WriteLine($"|:-----|:-----|");
+
+		foreach (XmlNode constant in constants.ChildNodes)
+		{
+			var attributes = constant.Attributes;
+			WriteLine($"|{CodeTypeName(attributes["id"]?.Value)} | {attributes["value"].Value} |");
+		}
+		WriteLine($"");
+
+	}
+}
+
 #>

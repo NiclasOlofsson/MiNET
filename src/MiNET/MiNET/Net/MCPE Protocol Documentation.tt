@@ -43,15 +43,36 @@ foreach (XPathNavigator pdu in nav.Select(exp))
 
 <#
 
-
-Dictionary<string, Tuple<string, string>> constantsLoopup = new Dictionary<string, Tuple<string, string>>();
-foreach (XmlNode constant in doc.SelectNodes("//constant"))
+List<string> datatypesLookup = new List<string>();
+foreach (XmlNode constant in doc.SelectNodes("//pdu/field"))
 {
-	var attributes = constant.Attributes;
-	constantsLoopup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
+	string dataType = constant.Attributes["type"].Value;
+	if(!datatypesLookup.Contains(dataType))	datatypesLookup.Add(dataType);
 }
 
 #>
+## Data types
+
+| Data type | 
+|:--- |
+<#	
+datatypesLookup.Sort();
+foreach (string dataType in datatypesLookup)
+{
+#>
+| <#= dataType #> [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-<#= dataType.Replace(" ", "") #>) |
+<#	
+}
+
+Dictionary<string, Tuple<string, string>> constantsLookup = new Dictionary<string, Tuple<string, string>>();
+foreach (XmlNode constant in doc.SelectNodes("//constant"))
+{
+	var attributes = constant.Attributes;
+	constantsLookup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
+}
+
+#>
+
 ## Constants
 <#	
 
@@ -114,7 +135,7 @@ Wiki: [<#= typeIdName #>](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 #>
 <#
 
-		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
+		if (constantsLookup.ContainsKey(field.Attributes["type"].Value))
 		{
 			//type = constantsLoopup[field.Attributes["type"].Value].Item1;
 			//string value = constantsLoopup[field.Attributes["type"].Value].Item2;

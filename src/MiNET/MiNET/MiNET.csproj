@@ -711,6 +711,11 @@
     <Compile Include="Worlds\Structures\OakTree.cs" />
     <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
+    <None Include="Net\MCPE Protocol Documentation.md">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
+    </None>
     <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
     </None>
@@ -720,11 +725,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="MiNET.nuspec" />
-    <None Include="Net\MCPE Protocol Documentation.md">
-      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </None>
     <None Include="Net\MCPE Protocol Documentation.tt">
       <DependentUpon>MCPE Protocol.xml</DependentUpon>
       <Generator>TextTemplatingFileGenerator</Generator>

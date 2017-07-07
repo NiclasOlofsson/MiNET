@@ -33,7 +33,7 @@ namespace MiNET.Utils
 {
 	public class HighPrecisionTimer : IDisposable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (HighPrecisionTimer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(HighPrecisionTimer));
 
 		public Action<object> Action { get; set; }
 
@@ -73,13 +73,41 @@ namespace MiNET.Utils
 						AutoReset.Reset();
 
 						// Calculate when the next stop is. If we're too slow on the trigger then we'll skip ticks
-						nextStop = (long) (interval*(watch.ElapsedMilliseconds/(float) interval + 1f));
+						nextStop = (long)(interval * (watch.ElapsedMilliseconds / (float)interval + 1f));
 
+						continue;
+					}
+					if (msLeft < 5)
+					{
+						Spins++;
+						var stop = nextStop;
+
+						if (useSignaling)
+						{
+							AutoReset.WaitOne(50);
+						}
+
+
+						if (watch.ElapsedMilliseconds < stop)
+						{
+							SpinWait.SpinUntil(() => watch.ElapsedMilliseconds >= stop);
+						}
+						//long t = nextStop - watch.ElapsedMilliseconds;
+						//if(t < -5) Log.Warn($"We overslept {t}ms in spin wait");
+						continue;
+					}
+
+					if (msLeft < 16)
+					{
+						if (Thread.Yield()) Yields++;
+
+						Sleeps++;
+						Thread.Sleep(1);
 						continue;
 					}
 
 					Sleeps++;
-					Thread.Sleep(Math.Max(1, (int) (msLeft - 16)));
+					Thread.Sleep(Math.Max(1, (int)(msLeft - 16)));
 					{
 						//long t = nextStop - watch.ElapsedMilliseconds;
 						//if (t < -5) Log.Warn($"We overslept {t}ms in thread sleep");

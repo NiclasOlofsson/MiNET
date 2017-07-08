@@ -2145,7 +2145,7 @@ namespace MiNET
 			rules.Add("dotiledrops", new GameRule<bool>(true));
 			rules.Add("commandblockoutput", new GameRule<bool>(true));
 			rules.Add("domobloot", new GameRule<bool>(true));
-			rules.Add("dodaylightcycle", new GameRule<bool>(true));
+			rules.Add("dodaylightcycle", new GameRule<bool>(Level.IsWorldTimeStarted));
 			rules.Add("keepinventory", new GameRule<bool>(false));
 			rules.Add("domobspawning", new GameRule<bool>(false));
 			rules.Add("doentitydrops", new GameRule<bool>(true));

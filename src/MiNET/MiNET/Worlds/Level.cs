@@ -75,7 +75,7 @@ namespace MiNET.Worlds
 		public bool HaveDownfall { get; set; }
 		public Difficulty Difficulty { get; set; }
 		public bool AutoSmelt { get; set; } = false;
-		public double CurrentWorldTime { get; set; }
+		public long CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; } = false;
@@ -911,6 +911,15 @@ namespace MiNET.Worlds
 		{
 			return WorldProvider.GenerateChunkColumn(chunkCoordinates);
 		}
+
+		public void SetBlock(int x, int y, int z, int blockId, int metadata=0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		{
+			Block block = BlockFactory.GetBlockById((byte) blockId);
+			block.Coordinates = new BlockCoordinates(x, y, z);
+			block.Metadata = (byte) metadata;
+			SetBlock(block, broadcast, applyPhysics, calculateLight);
+		}
+
 
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
 		{

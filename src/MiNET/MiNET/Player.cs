@@ -573,6 +573,8 @@ namespace MiNET
 				{
 					if (!IsConnected) return;
 
+					if (Level != null) return; // Already called this method.
+
 					Level = Server.LevelManager.GetLevel(this, Dimension.Overworld.ToString());
 				}
 				if (Level == null)

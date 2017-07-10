@@ -39,8 +39,8 @@ namespace MiNET.Items
 
 				if (name.Equals("item"))
 				{
-					if (Log.IsDebugEnabled)
-						Log.Debug($"Missing implementation for item ID={idx}");
+					//if (Log.IsDebugEnabled)
+					//	Log.Debug($"Missing implementation for item ID={idx}");
 					continue;
 				}
 

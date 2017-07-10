@@ -38,8 +38,8 @@ namespace MiNET.Blocks
 				direction = direction*-1;
 			}
 
-			level.SetBlock(new Air {Coordinates = Coordinates + direction});
-			level.SetBlock(new Air {Coordinates = Coordinates});
+			level.SetAir(Coordinates + direction);
+		    level.SetAir(Coordinates);
 		}
 	}
 }

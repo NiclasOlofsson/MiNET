@@ -23,14 +23,14 @@ namespace MiNET.Blocks
 			// Remove door
 			if ((Metadata & 0x08) == 0x08) // Is Upper?
 			{
-				level.SetBlock(new Air { Coordinates = Coordinates + Level.Down });
+				level.SetAir(Coordinates + Level.Down);
 			}
 			else
 			{
-				level.SetBlock(new Air { Coordinates = Coordinates + Level.Up });
+				level.SetAir(Coordinates + Level.Up);
 			}
 
-			level.SetBlock(new Air { Coordinates = Coordinates });
+			level.SetAir(Coordinates);
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)

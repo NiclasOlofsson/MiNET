@@ -1132,32 +1132,9 @@ namespace MiNET.Worlds
 
 			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
 			{
-				// Revert
+			    // Revert
 
-				var message = McpeUpdateBlock.CreateObject();
-				message.blockId = block.Id;
-				message.coordinates = block.Coordinates;
-				message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-				player.SendPackage(message);
-
-				// Revert block entity if exists
-				if (blockEntity != null)
-				{
-					Nbt nbt = new Nbt
-					{
-						NbtFile = new NbtFile
-						{
-							BigEndian = false,
-							RootTag = blockEntity.GetCompound()
-						}
-					};
-
-					var entityData = McpeBlockEntityData.CreateObject();
-					entityData.namedtag = nbt;
-					entityData.coordinates = blockEntity.Coordinates;
-
-					player.SendPackage(entityData);
-				}
+			    RevertBlockAction(player, block, blockEntity);
 			}
 			else
 			{
@@ -1168,7 +1145,35 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
+	    private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
+	    {
+	        var message = McpeUpdateBlock.CreateObject();
+	        message.blockId = block.Id;
+	        message.coordinates = block.Coordinates;
+	        message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+	        player.SendPackage(message);
+
+	        // Revert block entity if exists
+	        if (blockEntity != null)
+	        {
+	            Nbt nbt = new Nbt
+	            {
+	                NbtFile = new NbtFile
+	                {
+	                    BigEndian = false,
+	                    RootTag = blockEntity.GetCompound()
+	                }
+	            };
+
+	            var entityData = McpeBlockEntityData.CreateObject();
+	            entityData.namedtag = nbt;
+	            entityData.coordinates = blockEntity.Coordinates;
+
+	            player.SendPackage(entityData);
+	        }
+	    }
+
+	    public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
 		{
 			block.BreakBlock(this);
 			List<Item> drops = new List<Item>();

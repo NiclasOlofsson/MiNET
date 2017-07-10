@@ -143,7 +143,7 @@ namespace MiNET
 			foreach (Block block in _afectedBlocks.Values)
 			{
 				Block block1 = block;
-				_world.SetBlock(new Air {Coordinates = block1.Coordinates});
+				_world.SetAir(block1.Coordinates);
 				//new Task(() => _world.SetBlock(new Air {Coordinates = block1.Coordinates})).Start();
 				//new Task(() => block1.BreakBlock(_world)).Start();
 				if (block is Tnt)

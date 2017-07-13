@@ -65,7 +65,7 @@ namespace MiNET.Blocks
 
 		public virtual void BreakBlock(Level world, bool silent = false)
 		{
-			world.SetBlock(new Air {Coordinates = Coordinates});
+			world.SetAir(Coordinates);
 
 			if(!silent)
 			{

@@ -52,7 +52,7 @@ namespace MiNET.Items
 			var block = world.GetBlock(blockCoordinates);
 			if (block is Tnt)
 			{
-				world.SetBlock(new Air() {Coordinates = block.Coordinates});
+				world.SetAir(block.Coordinates);
 				new PrimedTnt(world)
 				{
 					KnownPosition = new PlayerLocation(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z),

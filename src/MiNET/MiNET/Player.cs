@@ -573,6 +573,8 @@ namespace MiNET
 				{
 					if (!IsConnected) return;
 
+					if (Level != null) return; // Already called this method.
+
 					Level = Server.LevelManager.GetLevel(this, Dimension.Overworld.ToString());
 				}
 				if (Level == null)
@@ -1409,47 +1411,55 @@ namespace MiNET
 
 		public virtual void Disconnect(string reason, bool sendDisconnect = true)
 		{
-			lock (_disconnectSync)
+			try
 			{
-				if (IsConnected)
+				lock (_disconnectSync)
 				{
-					if (Level != null) OnPlayerLeave(new PlayerEventArgs(this));
-
-					if (sendDisconnect)
+					if (IsConnected)
 					{
-						McpeDisconnect disconnect = McpeDisconnect.CreateObject();
-						disconnect.NoBatch = true;
-						disconnect.message = reason;
-						NetworkHandler.SendDirectPackage(disconnect);
+						if (Level != null) OnPlayerLeave(new PlayerEventArgs(this));
+
+						if (sendDisconnect)
+						{
+							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
+							disconnect.NoBatch = true;
+							disconnect.message = reason;
+							NetworkHandler.SendDirectPackage(disconnect);
+						}
+
+						NetworkHandler.Close();
+						NetworkHandler = null;
+
+						IsConnected = false;
 					}
 
-					NetworkHandler.Close();
-					NetworkHandler = null;
+					Level?.RemovePlayer(this);
 
-					IsConnected = false;
+					var playerSession = Session;
+					Session = null;
+					if (playerSession != null)
+					{
+						Server.SessionManager.RemoveSession(playerSession);
+						playerSession.Player = null;
+					}
+
+					string levelId = Level == null ? "Unknown" : Level.LevelId;
+					if (!_haveJoined)
+					{
+						Log.WarnFormat("Disconnected crashed player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
+					}
+					else
+					{
+						Log.Warn(string.Format("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId));
+					}
+
+					CleanCache();
 				}
-
-				Level?.RemovePlayer(this);
-
-				var playerSession = Session;
-				Session = null;
-				if (playerSession != null)
-				{
-					Server.SessionManager.RemoveSession(playerSession);
-					playerSession.Player = null;
-				}
-
-				string levelId = Level == null ? "Unknown" : Level.LevelId;
-				if (!_haveJoined)
-				{
-					Log.WarnFormat("Disconnected crashed player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId);
-				}
-				else
-				{
-					Log.Warn(string.Format("Disconnected player {0}/{1} from level <{3}>, reason: {2}", Username, EndPoint.Address, reason, levelId));
-				}
-
-				CleanCache();
+			}
+			catch (Exception e)
+			{
+				Log.Error("On disconnect player", e);
+				throw;
 			}
 		}
 
@@ -2145,7 +2155,7 @@ namespace MiNET
 			rules.Add("dotiledrops", new GameRule<bool>(true));
 			rules.Add("commandblockoutput", new GameRule<bool>(true));
 			rules.Add("domobloot", new GameRule<bool>(true));
-			rules.Add("dodaylightcycle", new GameRule<bool>(true));
+			rules.Add("dodaylightcycle", new GameRule<bool>(Level.IsWorldTimeStarted));
 			rules.Add("keepinventory", new GameRule<bool>(false));
 			rules.Add("domobspawning", new GameRule<bool>(false));
 			rules.Add("doentitydrops", new GameRule<bool>(true));

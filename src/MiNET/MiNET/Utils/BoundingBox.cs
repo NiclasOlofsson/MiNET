@@ -29,6 +29,19 @@ namespace MiNET.Utils
 			Max = box.Max;
 		}
 
+		public BoundingBox GetAdjustedBoundingBox()
+		{
+			float xMin = Math.Min(Min.X, Max.X);
+			float yMin = Math.Min(Min.Y, Max.Y);
+			float zMin = Math.Min(Min.Z, Max.Z);
+
+			float xMax = Math.Max(Min.X, Max.X);
+			float yMax = Math.Max(Min.Y, Max.Y);
+			float zMax = Math.Max(Min.Z, Max.Z);
+
+			return new BoundingBox(new Vector3(xMin, yMin, zMin), new Vector3(xMax, yMax, zMax));
+		}
+
 		public ContainmentType Contains(BoundingBox box)
 		{
 			//test if all corner is in the same side of a face by just checking min and max

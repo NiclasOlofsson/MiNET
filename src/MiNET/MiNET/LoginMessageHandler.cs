@@ -58,10 +58,6 @@ namespace MiNET
 
 		public virtual void HandleMcpeLogin(McpeLogin message)
 		{
-			//Disconnect("Este servidor ya no existe. Por favor, conecta a " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " para seguir jugando.");
-			////Disconnect("This server is closed. Please connect to " + ChatColors.Aqua + "play.bladestorm.net" + ChatColors.White + " to continue playing.");
-			//return;
-
 			// Only one login!
 			lock (_loginSyncLock)
 			{
@@ -81,33 +77,8 @@ namespace MiNET
 				return;
 			}
 
-			// THIS counter exist to protect the level from being swamped with player list add
-			// attempts during startup (normally).
-
 			DecodeCert(message);
 			_playerInfo.Edition = message.edition;
-
-			//if (!message.username.Equals("gurun") && !message.username.Equals("TruDan") && !message.username.Equals("Morehs"))
-			//{
-			//	if (serverInfo.NumberOfPlayers > serverInfo.MaxNumberOfPlayers)
-			//	{
-			//		Disconnect("Too many players (" + serverInfo.NumberOfPlayers + ") at this time, please try again.");
-			//		return;
-			//	}
-
-			//	// Use for loadbalance only right now.
-			//	if (serverInfo.ConnectionsInConnectPhase > serverInfo.MaxNumberOfConcurrentConnects)
-			//	{
-			//		Disconnect("Too many concurrent logins (" + serverInfo.ConnectionsInConnectPhase + "), please try again.");
-			//		return;
-			//	}
-			//}
-
-			//if (message.username == null || message.username.Trim().Length == 0 || !Regex.IsMatch(message.username, "^[A-Za-z0-9_-]{3,56}$"))
-			//{
-			//	Disconnect("Invalid username.");
-			//	return;
-			//}
 
 			////string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
 			////Log.Info($"Writing skin to filename: {fileName}");

@@ -23,6 +23,8 @@
 
 #endregion
 
+using System;
+using System.Numerics;
 using MiNET.Plotter;
 using MiNET.Utils;
 using NUnit.Framework;
@@ -32,21 +34,30 @@ namespace MiNET
 	[TestFixture]
 	public class PlotterTest
 	{
-		[Test, Ignore("")]
+		[Test , Ignore("")]
 		public void PlotCoordinatesTest()
 		{
-			var plotManager = new PlotManager();
-
-			Assert.AreEqual(new PlotCoordinates(1, 1), plotManager.ConvertToPlotCoordinates(new BlockCoordinates(PlotWorldGenerator.RoadWidth, 0, PlotWorldGenerator.RoadWidth)));
-			Assert.AreEqual(new PlotCoordinates(-1, -1), plotManager.ConvertToPlotCoordinates(new BlockCoordinates(-1, 0, -1)));
+			Assert.AreEqual(new PlotCoordinates(1, 1), PlotManager.ConvertToPlotCoordinates(new BlockCoordinates(PlotWorldGenerator.RoadWidth, 0, PlotWorldGenerator.RoadWidth)));
+			Assert.AreEqual(new PlotCoordinates(-1, -1), PlotManager.ConvertToPlotCoordinates(new BlockCoordinates(-1, 0, -1)));
 
 			Assert.AreEqual(
 				new BlockCoordinates(PlotWorldGenerator.RoadWidth, PlotWorldGenerator.PlotHeight, PlotWorldGenerator.RoadWidth),
-				plotManager.ConvertToBlockCoordinates(new PlotCoordinates(1, 1)));
+				PlotManager.ConvertToBlockCoordinates(new PlotCoordinates(1, 1)));
 
 			Assert.AreEqual(
-				new BlockCoordinates(-PlotWorldGenerator.PlotAreaWidth, PlotWorldGenerator.PlotHeight, -PlotWorldGenerator.PlotAreaWidth),
-				plotManager.ConvertToBlockCoordinates(new PlotCoordinates(-1, -1)));
+				new BlockCoordinates(-PlotWorldGenerator.PlotWidth, PlotWorldGenerator.PlotHeight, -PlotWorldGenerator.PlotWidth),
+				PlotManager.ConvertToBlockCoordinates(new PlotCoordinates(-1, -1)));
+
+
+			//BoundingBox bbox = BoundingBox.CreateFromPoints(new[] {new Vector3(1f, 1f, 1f), new Vector3(-1f, -1f, -1f)});
+			//Assert.AreEqual(-1, bbox.Min.X);
+
+
+			Vector3 offset = new BlockCoordinates(-1, 0, -1);
+			Vector3 to = offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth*Math.Sign(offset.X), 0, PlotWorldGenerator.PlotDepth*Math.Sign(offset.Z));
+			BoundingBox bbox = BoundingBox.CreateFromPoints(new[] {offset, to});
+			Assert.AreEqual(-PlotWorldGenerator.PlotWidth - 1, bbox.Min.X);
+			Assert.AreEqual(-1, bbox.Max.X);
 		}
 	}
 }

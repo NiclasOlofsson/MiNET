@@ -1,6 +1,6 @@
 ﻿using LibNoise;
 
-namespace MiNET.Utils
+namespace MiNET.Utils.Noise
 {
 	public class NoiseBlender : SelectorModule, IModule3D, IModule2D
 	{

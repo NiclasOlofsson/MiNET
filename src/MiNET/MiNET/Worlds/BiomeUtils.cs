@@ -416,7 +416,16 @@ namespace MiNET.Worlds
 			new Biome {Id = 127, Name = "The Void", Temperature = 0.8f, Downfall = 0.4f},
 			new Biome {Id = 128, Name = "Unknown Biome", Temperature = 0.8f, Downfall = 0.4f},
 			new Biome {Id = 129, Name = "Sunflower Plains", Temperature = 0.8f, Downfall = 0.4f},
-			new Biome {Id = 130, Name = "Desert M", Temperature = 2.0f, Downfall = 0.0f},
+			new Biome
+			{
+				Id = 130,
+				Name = "Desert M",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+
+				SurfaceBlock = 12,
+				SoilBlock = 24
+			},
 			new Biome
 			{
 				Id = 131,
@@ -649,15 +658,29 @@ namespace MiNET.Worlds
 			return color;
 		}
 
-		public static Biome[] GetBiomes(double temp, double rain)
+		public static Biome GetEdgeBiome(Biome biome)
+		{
+			if (biome.Id == 21 || biome.Id == 22) //Jungle or Jungle Hills
+			{
+				return GetBiomeById(23); //Return Jungle Edge
+			}
+			else if (biome.MaxHeight >= 0.8f)
+			{
+				return GetBiomeById(20); //Extreme hills edge.
+			}
+
+			return biome;
+		}
+
+		public static Dictionary<Biome, double> GetBiomes(double temp, double rain)
 		{
 			if (temp < -1f || temp > 2f || rain < 0f || rain > 1f)
 				Debug.WriteLine($"Temp: {temp} Rain: {rain}");
 
-			return Biomes.Where(x => x.Id != 8 && x.Id != 9 && x.Id <= 39).OrderBy(x => GetSquaredDistance(x, temp, rain)).Take(3).ToArray();
+			//return Biomes.Where(x => x.Id != 8 && x.Id != 9 && x.Id <= 39).OrderBy(x => GetSquaredDistance(x, temp, rain)).Take(3).ToArray();
 
 		//	Debug.WriteLine($"Temp: {temp} Rain: {rain}");
-			/*double threshold = 1000.0;
+			double threshold = 1000.0;
 			Dictionary<Biome, double> biomes = new Dictionary<Biome, double>(3);
 
 			Biome closestBiome = null, secondClosestBiome = null, thirdClosestBiome = null;
@@ -692,7 +715,7 @@ namespace MiNET.Worlds
 			if (secondClosestBiome != null) biomes.Add(secondClosestBiome,secondClosestDist);
 			if (thirdClosestBiome != null) biomes.Add(thirdClosestBiome, thirdClosestDist);
 
-			return biomes;*/
+			return biomes;
 			
 		}
 

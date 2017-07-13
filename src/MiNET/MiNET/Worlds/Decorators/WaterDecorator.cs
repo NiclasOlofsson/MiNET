@@ -10,7 +10,7 @@ namespace MiNET.Worlds.Decorators
 			
 		}
 
-		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface, bool highestStoneLevel)
+		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface, bool isBelowMaxHeight)
 		{
 			if (y > OverworldGenerator.WaterLevel && y > 32) return;
 

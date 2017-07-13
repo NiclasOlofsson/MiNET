@@ -2,6 +2,9 @@
 using System.Linq;
 using LibNoise;
 using LibNoise.Primitive;
+using MiNET.Utils;
+using MiNET.Utils.Noise;
+using SimplexPerlin = MiNET.Utils.Noise.SimplexPerlin;
 
 namespace MiNET.Worlds.Decorators
 {
@@ -16,12 +19,12 @@ namespace MiNET.Worlds.Decorators
 			public int Abundance;
 			public float Rarity;
 
-			public OreData(byte id, int minY, int maxY, int viens, int abundance, float rarity)
+			public OreData(byte id, int minY, int maxY, int veins, int abundance, float rarity)
 			{
 				ID = id;
 				MinY = minY;
 				MaxY = maxY;
-				Veins = viens;
+				Veins = veins;
 				Abundance = abundance;
 				Rarity = rarity;
 			}
@@ -31,63 +34,80 @@ namespace MiNET.Worlds.Decorators
 		{
 			new OreData(16, 10, 120, 25, 25, 3f), //Coal
 			new OreData(15, 1, 64, 15, 5, 1.9f), //Iron
-			new OreData(21, 10, 25, 7, 4, 1.4f), //Lapis
+			new OreData(21, 10, 25, 7, 4, 1.1f), //Lapis
 			new OreData(14, 1, 32, 6, 4, 1.04f), //Gold
 			new OreData(56, 1, 15, 6, 3, 0.7f), //Diamond
 			new OreData(73, 1, 16, 4, 6, 1.13f) //Redstone
 		};
 
-		private IModule3D _simplex;
-		private Random _random;
-		protected override void InitSeed(int seed)
+		public OreDecorator()
 		{
-			_simplex = new SimplexPerlin(seed / 10, NoiseQuality.Fast);
-			_random = new Random();
+			RunPerBlock = false;
 		}
 
-		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface,
-			bool highestStoneLevel)
+		private IModule3D _simplex;
+		private FastRandom _random;
+		protected override void InitSeed(int seed)
 		{
-			if (surface || column.GetBlock(x, y, z) != 1 && highestStoneLevel) return;
+			_simplex = new OpenSimplex(seed + 666);
+			_random = new FastRandom();
+		}
 
-			if (highestStoneLevel)
+		private static readonly int[] LowWeightOffset = new int[2] { 2, 3 };
+		private static readonly int[] HighWeightOffset = new int[2] { 2, 2 };
+
+		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface,
+			bool isBelowMaxHeight)
+		{
+			if (surface || column.GetBlock(x, y, z) != 1 && isBelowMaxHeight) return;
+
+			if (isBelowMaxHeight)
 			{
 				int rx = column.x*16 + x;
 				int rz = column.z*16 + z;
 
+				var noise = _simplex.GetValue(rx, y, rz);
+
 				foreach (var ore in Ores.Where(o => o.MinY < y && o.MaxY > y))
 				{
-					double weight = 0;
-					for (int i = 0; i < 4; i++)
-					{
-						weight += _random.NextDouble();
-					}
-					weight /= ore.Rarity;
+					var weightOffsets = (ore.MaxY > 30) ? HighWeightOffset : LowWeightOffset;
 
-					if (Math.Abs(_simplex.GetValue(rx*ore.Abundance, y, rz*ore.Abundance))*3 < ore.Rarity &&
-					    _simplex.GetValue(rx, y, rz) > weight)
+					if (Math.Abs(noise) * 3f < ore.Rarity)
 					{
-						int xOffset = 0;
-						int zOffset = 0;
-						int yOffset = 0;
-						for (int i = 0; i < _random.Next(1, ore.Abundance); i++)
+						double weight = 0;
+						for (int i = 0; i < 4; i++)
 						{
-							int offset = _random.Next(0, 3);
-							double offset2 = _random.NextDouble();
-							if (offset.Equals(0) && offset2 < 0.4)
-								xOffset += 1;
-							else if (offset.Equals(1) && offset2 >= 0.4 && offset2 < 0.65)
-								yOffset += 1;
-							else
-								zOffset += 1;
-
-							var mX = Math.Min(x + xOffset, x);
-							var my = Math.Min(y + yOffset, ore.MaxY);
-							var mz = Math.Min(z + zOffset, z);
-							if (column.GetBlock(mX, my, mz) != 1) return;
-
-							column.SetBlock(mX, my, mz, ore.ID);
+							weight += _random.NextDouble();
 						}
+
+						weight /= ore.Rarity;
+						weight = weightOffsets[0] - Math.Abs(weight - weightOffsets[1]);
+
+						if (noise > weight)
+						{
+							int xOffset = 0;
+							int zOffset = 0;
+							int yOffset = 0;
+							for (int i = 0; i < _random.Next(0, ore.Abundance); i++)
+							{
+								int offset = _random.Next(0, 3);
+								double offset2 = _random.NextDouble();
+								if (offset.Equals(0) && offset2 < 0.4)
+									xOffset += 1;
+								else if (offset.Equals(1) && offset2 >= 0.4 && offset2 < 0.65)
+									yOffset += 1;
+								else
+									zOffset += 1;
+
+								var mX = Math.Min(x + xOffset, x);
+								var my = Math.Min(y + yOffset, ore.MaxY);
+								var mz = Math.Min(z + zOffset, z);
+
+								if (column.GetBlock(mX, my, mz) != 1) return;
+								column.SetBlock(mX, my, mz, ore.ID);
+							}
+						}
+
 					}
 				}
 			}

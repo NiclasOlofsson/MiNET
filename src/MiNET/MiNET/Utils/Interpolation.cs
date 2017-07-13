@@ -80,7 +80,7 @@ namespace MiNET.Utils
 			return ((x2 - t) / (x2 - x1)) * q00 + ((t - x1) / (x2 - x1)) * q01;
 		}
 
-		private static float BilinearLerp(float x, float y, float q11, float q12, float q21, float q22, float x1, float x2,
+		public static float BilinearLerp(float x, float y, float q11, float q12, float q21, float q22, float x1, float x2,
 		float y1, float y2)
 		{
 			float r1 = Lerp(x, x1, x2, q11, q21);
@@ -89,7 +89,7 @@ namespace MiNET.Utils
 			return Lerp(y, y1, y2, r1, r2);
 		}
 
-		private static float TrilinearLerp(float x, float y, float z, float q000, float q001, float q010, float q011,
+		public static float TrilinearLerp(float x, float y, float z, float q000, float q001, float q010, float q011,
 			float q100, float q101, float q110, float q111, float x1, float x2, float y1, float y2, float z1, float z2)
 		{
 			float x00 = Lerp(x, x1, x2, q000, q100);
@@ -103,14 +103,16 @@ namespace MiNET.Utils
 
 		private static float Cubic(float n0, float n1, float n2, float n3, float a)
 		{
-			float num1 = n3 - n2 - (n0 - n1);
+			return n1 + 0.5f * a * (n2 - n0 + a * (2.0f * n0 - 5.0f * n1 + 4.0f * n2 - n3 + a * (3.0f * (n1 - n2) + n3 - n0)));
+
+			/*float num1 = n3 - n2 - (n0 - n1);
 			float num2 = n0 - n1 - num1;
 			float num3 = n2 - n0;
 			float num4 = n1;
-			return (num1 * a * a * a + num2 * a * a + num3 * a) + num4;
+			return (num1 * a * a * a + num2 * a * a + num3 * a) + num4;*/
 		}
 
-		private static float BilinearCubic(float x, float y, float q11, float q12, float q21, float q22, float x1, float x2,
+		public static float BilinearCubic(float x, float y, float q11, float q12, float q21, float q22, float x1, float x2,
 	float y1, float y2)
 		{
 			var xAlpha = (x2 - x) / (x2 - x1);
@@ -121,7 +123,7 @@ namespace MiNET.Utils
 			return Cubic(r1, r2, r1, r2, yAlpha);
 		}
 
-		private static float TrilinearCubic(float x, float y, float z, float q000, float q001, float q010, float q011,
+		public static float TrilinearCubic(float x, float y, float z, float q000, float q001, float q010, float q011,
 			float q100, float q101, float q110, float q111, float x1, float x2, float y1, float y2, float z1, float z2)
 		{
 			var xAlpha = (x2 - x) / (x2 - x1);
@@ -138,7 +140,7 @@ namespace MiNET.Utils
 		}
 
 		///Catmull-rom
-		private static float Cmr(float p0, float p1, float p2, float p3, float t)
+		public static float Cmr(float p0, float p1, float p2, float p3, float t)
 		{
 			float a = 2f * p1;
 			float b = p2 - p0;
@@ -151,7 +153,7 @@ namespace MiNET.Utils
 			return pos;
 		}
 
-		private static float BilinearCmr(float x, float y, float q11, float q12, float q21, float q22, float x1,
+		public static float BilinearCmr(float x, float y, float q11, float q12, float q21, float q22, float x1,
 			float x2, float y1, float y2)
 		{
 			var xAlpha = (x2 - x) / (x2 - x1);
@@ -162,7 +164,7 @@ namespace MiNET.Utils
 			return Cmr(r1, r2, r1, r2, yAlpha);
 		}
 
-		private static float TrilinearCmr(float x, float y, float z, float q000, float q001, float q010, float q011,
+		public static float TrilinearCmr(float x, float y, float z, float q000, float q001, float q010, float q011,
 	float q100, float q101, float q110, float q111, float x1, float x2, float y1, float y2, float z1, float z2)
 		{
 			var xAlpha = (x2 - x) / (x2 - x1);

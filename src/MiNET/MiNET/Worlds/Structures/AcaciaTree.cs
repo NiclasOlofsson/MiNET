@@ -3,7 +3,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds.Structures
 {
-    class AcaciaTree : Structure
+    public class AcaciaTree : TreeStructure
     {
         public override string Name
         {

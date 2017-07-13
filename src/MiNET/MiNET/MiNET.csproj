@@ -23,6 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -641,6 +642,7 @@
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Sounds\ClickSound.cs" />
     <Compile Include="Utils\BatchUtils.cs" />
+    <Compile Include="Utils\BitHelper.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\ConcurrentPriorityQueue.cs" />
@@ -649,7 +651,8 @@
     <Compile Include="Utils\CryptoUtils.cs" />
     <Compile Include="Utils\EnchantingExtensions.cs" />
     <Compile Include="Utils\DedicatedThreadPool.cs" />
-    <Compile Include="Utils\FastNoise.cs" />
+    <Compile Include="Utils\FastRandom.cs" />
+    <Compile Include="Utils\Noise\FastNoise.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />
     <Compile Include="Utils\Interpolation.cs" />
     <Compile Include="Utils\MapInfo.cs" />
@@ -658,16 +661,17 @@
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataVector3.cs" />
-    <Compile Include="Utils\ModifyNoise.cs" />
+    <Compile Include="Utils\Noise\ModifyNoise.cs" />
     <Compile Include="Utils\MultiMediaTimer.cs" />
     <Compile Include="Utils\NbtStringConverter.cs" />
-    <Compile Include="Utils\NoiseBlend.cs" />
-    <Compile Include="Utils\OpenSimplex.cs" />
+    <Compile Include="Utils\Noise\NoiseBlend.cs" />
+    <Compile Include="Utils\Noise\OpenSimplex.cs" />
+    <Compile Include="Utils\Noise\SimplexPerlin.cs" />
     <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />
     <Compile Include="Utils\ResourcePacks.cs" />
     <Compile Include="Utils\RuleData.cs" />
-    <Compile Include="Utils\ScaleableNoise.cs" />
+    <Compile Include="Utils\Noise\ScaleableNoise.cs" />
     <Compile Include="Utils\StreamExtensions.cs" />
     <Compile Include="Utils\VarInt.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
@@ -725,6 +729,7 @@
     <Compile Include="Worlds\Structures\PineTree.cs" />
     <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
+    <Compile Include="Worlds\Structures\TreeStructure.cs" />
     <Compile Include="Worlds\Survival\OverworldGenerator.cs" />
     <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
@@ -732,6 +737,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\Config.cs" />
     <Compile Include="Items\ItemBucket.cs" />
+    <Compile Include="Utils\Noise\ModifiedVoronoi.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MiNET.nuspec" />

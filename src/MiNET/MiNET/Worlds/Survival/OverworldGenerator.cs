@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using LibNoise;
 using LibNoise.Filter;
 using LibNoise.Primitive;
 using LibNoise.Transformer;
 using MiNET.Utils;
+using MiNET.Utils.Noise;
 using MiNET.Worlds.Decorators;
+using SimplexPerlin = MiNET.Utils.Noise.SimplexPerlin;
+using Voronoi = MiNET.Utils.Noise.Voronoi;
 
 namespace MiNET.Worlds.Survival
 {
 	public class OverworldGenerator : IWorldGenerator
 	{
-		private IModule3D RainNoise { get; }
-		private IModule3D TempNoise { get; }
+		private IModule2D RainNoise { get; }
+		private IModule2D TempNoise { get; }
+		private IModule2D BiomeSelector { get; }
 
 		//private readonly FastNoise _mainNoise;
 		private readonly IModule2D _mainNoise;
@@ -25,8 +31,11 @@ namespace MiNET.Worlds.Survival
 			int seed = Config.GetProperty("seed", "gottaloveMiNET").GetHashCode();
 			Seed = seed;
 
+			var rainSimplex = new SimplexPerlin(seed);
+		
 			var rainNoise = new Voronoi();
-			rainNoise.Primitive3D = new SimplexPerlin(seed, NoiseQuality.Fast);
+			rainNoise.Primitive3D = rainSimplex;
+			rainNoise.Primitive2D = rainSimplex;
 			rainNoise.Distance = false;
 			rainNoise.Frequency = RainFallFrequency;
 			rainNoise.OctaveCount = 2;
@@ -35,8 +44,10 @@ namespace MiNET.Worlds.Survival
 
 			RainNoise = rainNoise;
 
+			var tempSimplex = new SimplexPerlin(seed + 100);
 			var tempNoise = new Voronoi();
-			tempNoise.Primitive3D = new SimplexPerlin(-seed, NoiseQuality.Fast);
+			tempNoise.Primitive3D = tempSimplex;
+			tempNoise.Primitive2D = tempSimplex;
 			tempNoise.Distance = false;
 			tempNoise.Frequency = TemperatureFrequency;
 			tempNoise.OctaveCount = 2;
@@ -45,15 +56,21 @@ namespace MiNET.Worlds.Survival
 
 			TempNoise = tempNoise;
 
+			var selectorSimplex = new SimplexPerlin(seed + 150);
+			var selectorNoise = new Voronoi();
+			selectorNoise.Primitive2D = selectorSimplex;
+			selectorNoise.Distance = true; 
+			selectorNoise.Frequency = 1.5f;
+			selectorNoise.OctaveCount = 2;
+
+			BiomeSelector = selectorNoise;
+
 			//CLSimplexPerlin.Init();
-			var mainLimitNoise = new SimplexPerlin(seed / 8, NoiseQuality.Fast);
-			//var mainLimitNoise = new CLSimplexPerlin();
+			var mainLimitNoise = new SimplexPerlin(seed + 200);
 			var mainLimitFractal = new SumFractal()
 			{
-				//	Primitive4D = mainLimitNoise,
 				Primitive3D = mainLimitNoise,
 				Primitive2D = mainLimitNoise,
-				//Primitive1D = mainLimitNoise,
 				Frequency = 0.095f,
 				//SpectralExponent = 0.3f,
 				OctaveCount = 8,
@@ -71,22 +88,15 @@ namespace MiNET.Worlds.Survival
 			};
 			_mainNoise = mainScaler;
 
-			var groundGradient = new ImprovedPerlin(seed * 2, NoiseQuality.Fast);
-
+			var mountainNoise = new ImprovedPerlin(seed + 300, NoiseQuality.Fast);
 			var mountainTerrain = new SumFractal()
 			{
-				Primitive3D = groundGradient,
+				Primitive3D = mountainNoise,
 				Frequency = 2.75f,
 				OctaveCount = 2,
 				Lacunarity = 6f,
 				//SpectralExponent = DepthNoiseScaleExponent
 			};
-
-			/*Turbulence groundTurbulence = new Turbulence(groundGradient);
-			groundTurbulence.YDistortModule = mountainTerrain;
-			groundTurbulence.XDistortModule = mountainTerrain;
-			groundTurbulence.ZDistortModule = mountainTerrain;
-			groundTurbulence.Power = 0.056f; */
 
 			ScalePoint scaling = new ScalePoint(mountainTerrain);
 			scaling.YScale = 1f / HeightScale;
@@ -106,17 +116,20 @@ namespace MiNET.Worlds.Survival
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
+		//	Stopwatch sw = Stopwatch.StartNew();
 			ChunkColumn chunk = new ChunkColumn
 			{
 				x = chunkCoordinates.X,
 				z = chunkCoordinates.Z
 			};
 
-			List<ChunkDecorator> chunkDecorators = new List<ChunkDecorator>();
-			chunkDecorators.Add(new WaterDecorator());
-			//chunkDecorators.Add(new CaveDecorator());
-			chunkDecorators.Add(new OreDecorator());
-			chunkDecorators.Add(new FoliageDecorator());
+			Decorators.ChunkDecorator[] chunkDecorators = new ChunkDecorator[]
+			{
+				new WaterDecorator(),
+				//new CaveDecorator(), 
+				new OreDecorator(),
+				new FoliageDecorator(),
+			};
 
 			var biomes = CalculateBiomes(chunk.x, chunk.z);
 
@@ -127,17 +140,27 @@ namespace MiNET.Worlds.Survival
 
 			var heightMap = GenerateHeightMap(biomes, chunk.x, chunk.z);
 			var thresholdMap = GetThresholdMap(chunk.x, chunk.z);
-			PopulateChunk(chunk, heightMap, thresholdMap, biomes, chunkDecorators.ToArray());
+			PopulateChunk(chunk, heightMap, thresholdMap, biomes, chunkDecorators);
 			chunk.isDirty = true;
+			chunk.NeedSave = true;
 
 			for (int x = 0; x < 16; x++)
 			{
 				for (int z = 0; z < 16; z++)
 				{
 					for (int y = 0; y < 256; y++)
+					{
 						chunk.SetSkyLight(x, y, z, 255);
+					}
 				}
 			}
+		//	sw.Stop();
+
+		//	if (sw.ElapsedMilliseconds > previousTime)
+			//{
+			//	Debug.WriteLine("Chunk gen took " + sw.ElapsedMilliseconds + " ms");
+				//previousTime = sw.ElapsedMilliseconds;
+			//}
 
 			return chunk;
 		}
@@ -149,6 +172,7 @@ namespace MiNET.Worlds.Survival
 		private const float RainFallAmplitude = 0.03f;
 
 		private const float BiomeNoiseScale = 6.5f;
+		private const float BiomeNoiseScaleDiv = BiomeNoiseScale / 2f;
 
 		private const float UpperLimitScale = 512F;
 		private const float LowerLimitScale = 512F;
@@ -166,25 +190,25 @@ namespace MiNET.Worlds.Survival
 
 		private const float HeightStretch = 12f;
 
-		private const int DirtBaseHeight = 1;
 		public const int WaterLevel = 64;
 
-		private Biome GetBiome(int x, int z)
+		private Dictionary<Biome, double> GetBiome(int x, int z)
 		{
-			float temp = TempNoise.GetValue(x / BiomeNoiseScale, 0, z / BiomeNoiseScale).Normalize(1, -1f, 2f, -1f);
+			float temp = TempNoise.GetValue(x / BiomeNoiseScale, z / BiomeNoiseScale).Normalize(1, -1f, 2f, -1f);
 
-			float rain = RainNoise.GetValue(x / BiomeNoiseScale, 0, z / BiomeNoiseScale) / 2f + 0.5f;
+			float rain = RainNoise.GetValue(x / BiomeNoiseScale, z / BiomeNoiseScale) / 2f + 0.5f;
 
 			var biomes = BiomeUtils.GetBiomes(temp, rain);
-			return biomes[0];
+			return biomes;
+			//return GetDominantBiome(biomes);
 		}
 
-		private Biome[] CalculateBiomes(int cx, int cz)
+		private Dictionary<Biome, double>[] CalculateBiomes(int cx, int cz)
 		{
 			cx *= 16;
 			cz *= 16;
 
-			Biome[] rb = new Biome[16 * 16];
+			Dictionary<Biome, double>[] rb = new Dictionary<Biome, double>[16 * 16];
 
 			for (int x = 0; x < 16; x++)
 			{
@@ -199,23 +223,58 @@ namespace MiNET.Worlds.Survival
 		}
 
 		//private 
-		private float[] GenerateHeightMap(Biome[] biomes, int cx, int cz)
+		private float[] GenerateHeightMap(Dictionary<Biome, double>[] biomes, int cx, int cz)
 		{
 			cx *= 16;
 			cz *= 16;
-			/*
-							float q11 = _mainNoise.GetValue(cx, cz).Normalize(-1f, 1f, biomes[0].MinHeight, biomes[0].MaxHeight);
-							float q12 = _mainNoise.GetValue(cx, cz + 16).Normalize(-1f, 1f, biomes[15].MinHeight, biomes[15].MaxHeight);
 
-							float q21 = _mainNoise.GetValue(cx + 16, cz).Normalize(-1f, 1f, biomes[240].MinHeight, biomes[240].MaxHeight);
-							float q22 = _mainNoise.GetValue(cx + 16, cz + 16).Normalize(-1f, 1f, biomes[255].MinHeight, biomes[255].MaxHeight);*/
+			/*var b0 = GetBiome(cx, cz).FirstOrDefault().Key;
+			var b1 = GetBiome(cx, cz + 16).FirstOrDefault().Key;
 
+			var b2 = GetBiome(cx + 16, cz).FirstOrDefault().Key;
+			var b3 = GetBiome(cx + 16, cz + 16).FirstOrDefault().Key;
 
-			float q11 = WaterLevel + (128f * biomes[0].MaxHeight) * _mainNoise.GetValue(cx, cz);
-			float q12 = WaterLevel + (128f * biomes[15].MaxHeight) * _mainNoise.GetValue(cx, cz + 16);
+			float q11 = WaterLevel + (128f * b0.MaxHeight) * _mainNoise.GetValue(cx, cz);
+			float q12 = WaterLevel + (128f * b1.MaxHeight) * _mainNoise.GetValue(cx, cz + 16);
 
-			float q21 = WaterLevel + (128f * biomes[240].MaxHeight) * _mainNoise.GetValue(cx + 16, cz);
-			float q22 = WaterLevel + (128f * biomes[255].MaxHeight) * _mainNoise.GetValue(cx + 16, cz + 16);
+			float q21 = WaterLevel + (128f * b2.MaxHeight) * _mainNoise.GetValue(cx + 16, cz);
+			float q22 = WaterLevel + (128f * b3.MaxHeight) * _mainNoise.GetValue(cx + 16, cz + 16); 
+
+			*/
+
+			var b11 = biomes[0].First();
+			//if (b11.Value > 0)
+			//{
+			//	b11 = new KeyValuePair<Biome, double>(BiomeUtils.GetEdgeBiome(b11.Key), b11.Value);
+			//}
+
+			var b12 = biomes[15].First();
+			//if (b12.Value > 0)
+			//{
+			//	b12 = new KeyValuePair<Biome, double>(BiomeUtils.GetEdgeBiome(b12.Key), b12.Value);
+			//}
+
+			var b21 = biomes[240].First();
+			//if (b21.Value > 0)
+			//{
+			//	b21 = new KeyValuePair<Biome, double>(BiomeUtils.GetEdgeBiome(b21.Key), b21.Value);
+			//}
+
+			var b22 = biomes[255].First();
+		//	if (b22.Value > 0)
+		//	{
+			//	b22 = new KeyValuePair<Biome, double>(BiomeUtils.GetEdgeBiome(b22.Key), b22.Value);
+		//	}
+
+			//Stopwatch sw = Stopwatch.StartNew();
+			float q11 = WaterLevel + (128f * b11.Key.MaxHeight) * _mainNoise.GetValue(cx, cz);
+			float q12 = WaterLevel + (128f * b12.Key.MaxHeight) * _mainNoise.GetValue(cx, cz + 16);
+
+			float q21 = WaterLevel + (128f * b21.Key.MaxHeight) * _mainNoise.GetValue(cx + 16, cz);
+			float q22 = WaterLevel + (128f * b22.Key.MaxHeight) * _mainNoise.GetValue(cx + 16, cz + 16);
+
+		//	sw.Stop();
+		//	Debug.WriteLine($"Corners: {sw.ElapsedTicks}ms");
 
 			float[] heightMap = new float[16 * 16];
 
@@ -227,8 +286,8 @@ namespace MiNET.Worlds.Survival
 				{
 					int rz = cz + z;
 
-					var baseNoise = Interpolation.Interpolate(
-						InterpolationMethod.Cubic,
+					var baseNoise = Interpolation.BilinearCubic(
+						//InterpolationMethod.Cubic,
 						rx, rz,
 						q11,
 						q12,
@@ -266,15 +325,15 @@ namespace MiNET.Worlds.Survival
 			return thresholdMap;
 		}
 
-		public const float Threshold = 0f;
-		private void PopulateChunk(ChunkColumn chunk, float[] heightMap, float[] thresholdMap, Biome[] biomes,
+		public const float Threshold = -0.1f;
+		private void PopulateChunk(ChunkColumn chunk, float[] heightMap, float[] thresholdMap, Dictionary<Biome, double>[] biomes,
 			ChunkDecorator[] decorators)
 		{
 			for (int x = 0; x < 16; x++)
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					Biome biome = biomes[(x << 4) + z];
+					Biome biome = biomes[(x << 4) + z].FirstOrDefault().Key;
 					chunk.SetBiome(x, z, (byte)biome.Id);
 
 					float stoneHeight = heightMap[(x << 4) + z];
@@ -293,14 +352,6 @@ namespace MiNET.Worlds.Survival
 								maxY = y;
 							}
 						}
-						/*else if (y > stoneHeight/* && y <= stoneHeight + (modifier * 32f))
-						{
-							if (density > y * 0.002f)
-							{
-								chunk.SetBlock(x,y,z,1);
-								maxY = y;
-							}
-						}*/
 					}
 
 					chunk.SetBlock(x, 0, z, 7); //Bedrock
@@ -314,7 +365,13 @@ namespace MiNET.Worlds.Survival
 				for (int z = 0; z < 16; z++)
 				{
 					var height = heightMap[(x << 4) + z];
-					var biome = biomes[(x << 4) + z];
+					var options = biomes[(x << 4) + z];
+					int idx = Libnoise.FastFloor(BiomeSelector.GetValue((chunk.x + x) / BiomeNoiseScale, (chunk.z + z) / BiomeNoiseScale) * 3);
+					if (idx < 0) idx = -idx;
+					if (idx >= options.Count) idx = options.Count -1;
+
+					var biomeData = biomes[(x << 4) + z].ElementAt(idx);
+					var biome = biomeData.Key;
 
 					for (int y = 0; y < 256; y++)
 					{
@@ -332,18 +389,32 @@ namespace MiNET.Worlds.Survival
 							{
 								if (y >= WaterLevel)
 								{
-									chunk.SetBlock(x, y, z, biome.SurfaceBlock);
-									chunk.SetMetadata(x, y, z, biome.SurfaceMetadata);
+								/*	if (biomeData.Value > 0 && x % 2 == 0)
+									{
+										var edge = BiomeUtils.GetEdgeBiome(biome);
+										chunk.SetBlock(x, y, z, edge.SurfaceBlock);
+										chunk.SetMetadata(x, y, z, edge.SurfaceMetadata);
 
-									chunk.SetBlock(x, y - 1, z, biome.SoilBlock);
-									chunk.SetMetadata(x, y - 1, z, biome.SoilMetadata);
+										chunk.SetBlock(x, y - 1, z, edge.SoilBlock);
+										chunk.SetMetadata(x, y - 1, z, edge.SoilMetadata);
+
+										Debug.WriteLine("Value: " + biomeData.Value);
+									}
+									else*/
+									{
+										chunk.SetBlock(x, y, z, biome.SurfaceBlock);
+										chunk.SetMetadata(x, y, z, biome.SurfaceMetadata);
+
+										chunk.SetBlock(x, y - 1, z, biome.SoilBlock);
+										chunk.SetMetadata(x, y - 1, z, biome.SoilMetadata);
+									}
 								}
 							}
 						}
 
-						foreach (var dec in decorators)
+						for(int i = 0; i < decorators.Length; i++)
 						{
-							dec.Decorate(chunk, biome, thresholdMap, x, y, z, isSurface, y < height - 1);
+							decorators[i].Decorate(chunk, biome, thresholdMap, x, y, z, isSurface, y < height - 1);
 						}
 					}
 				}

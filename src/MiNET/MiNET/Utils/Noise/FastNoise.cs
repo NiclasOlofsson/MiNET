@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
-namespace MiNET.Utils
+namespace MiNET.Utils.Noise
 {
 	// FastNoise.cs
 	//
@@ -42,9 +39,6 @@ using FN_DECIMAL = System.Double;
 #else
 	using FN_DECIMAL = System.Single;
 #endif
-
-	using System;
-	using System.Runtime.CompilerServices;
 
 	public class FastNoise
 	{
@@ -270,22 +264,22 @@ using FN_DECIMAL = System.Double;
 		new Float3(-0.7870349638f, 0.03447489231f, 0.6159443543f), new Float3(-0.2015596421f, 0.6859872284f, 0.6991389226f), new Float3(-0.08581082512f, -0.10920836f, -0.9903080513f), new Float3(0.5532693395f, 0.7325250401f, -0.396610771f), new Float3(-0.1842489331f, -0.9777375055f, -0.1004076743f), new Float3(0.0775473789f, -0.9111505856f, 0.4047110257f), new Float3(0.1399838409f, 0.7601631212f, -0.6344734459f), new Float3(0.4484419361f, -0.845289248f, 0.2904925424f),
 	};
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static int FastFloor(FN_DECIMAL f) { return (f >= 0 ? (int)f : (int)f - 1); }
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static int FastRound(FN_DECIMAL f) { return (f >= 0) ? (int)(f + (FN_DECIMAL)0.5) : (int)(f - (FN_DECIMAL)0.5); }
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL Lerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL t) { return a + t * (b - a); }
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL InterpHermiteFunc(FN_DECIMAL t) { return t * t * (3 - 2 * t); }
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL InterpQuinticFunc(FN_DECIMAL t) { return t * t * t * (t * (t * 6 - 15) + 10); }
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL CubicLerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL c, FN_DECIMAL d, FN_DECIMAL t)
 		{
 			FN_DECIMAL p = (d - c) - (a - b);
@@ -310,7 +304,7 @@ using FN_DECIMAL = System.Double;
 		private const int Z_PRIME = 6971;
 		private const int W_PRIME = 1013;
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static int Hash2D(int seed, int x, int y)
 		{
 			int hash = seed;
@@ -323,7 +317,7 @@ using FN_DECIMAL = System.Double;
 			return hash;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static int Hash3D(int seed, int x, int y, int z)
 		{
 			int hash = seed;
@@ -337,7 +331,7 @@ using FN_DECIMAL = System.Double;
 			return hash;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static int Hash4D(int seed, int x, int y, int z, int w)
 		{
 			int hash = seed;
@@ -352,7 +346,7 @@ using FN_DECIMAL = System.Double;
 			return hash;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL ValCoord2D(int seed, int x, int y)
 		{
 			int n = seed;
@@ -362,7 +356,7 @@ using FN_DECIMAL = System.Double;
 			return (n * n * n * 60493) / (FN_DECIMAL)2147483648.0;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL ValCoord3D(int seed, int x, int y, int z)
 		{
 			int n = seed;
@@ -373,7 +367,7 @@ using FN_DECIMAL = System.Double;
 			return (n * n * n * 60493) / (FN_DECIMAL)2147483648.0;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL ValCoord4D(int seed, int x, int y, int z, int w)
 		{
 			int n = seed;
@@ -385,7 +379,7 @@ using FN_DECIMAL = System.Double;
 			return (n * n * n * 60493) / (FN_DECIMAL)2147483648.0;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL GradCoord2D(int seed, int x, int y, FN_DECIMAL xd, FN_DECIMAL yd)
 		{
 			int hash = seed;
@@ -400,7 +394,7 @@ using FN_DECIMAL = System.Double;
 			return xd * g.x + yd * g.y;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL GradCoord3D(int seed, int x, int y, int z, FN_DECIMAL xd, FN_DECIMAL yd, FN_DECIMAL zd)
 		{
 			int hash = seed;
@@ -416,7 +410,7 @@ using FN_DECIMAL = System.Double;
 			return xd * g.x + yd * g.y + zd * g.z;
 		}
 
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private static FN_DECIMAL GradCoord4D(int seed, int x, int y, int z, int w, FN_DECIMAL xd, FN_DECIMAL yd, FN_DECIMAL zd, FN_DECIMAL wd)
 		{
 			int hash = seed;
@@ -601,7 +595,7 @@ using FN_DECIMAL = System.Double;
 		}
 
 		// White Noise
-		[MethodImplAttribute(FN_INLINE)]
+		[MethodImpl(FN_INLINE)]
 		private int FloatCast2Int(FN_DECIMAL f)
 		{
 			var i = BitConverter.DoubleToInt64Bits(f);

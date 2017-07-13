@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LibNoise;
+﻿using LibNoise;
 
-namespace MiNET.Utils
+namespace MiNET.Utils.Noise
 {
 	public sealed class ScaleableNoise : IModule, IModule2D, IModule3D
 	{

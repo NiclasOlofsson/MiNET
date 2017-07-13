@@ -1,16 +1,20 @@
 ﻿using System;
+using LibNoise;
+using LibNoise.Primitive;
 using MiNET.Utils;
+using MiNET.Utils.Noise;
 using MiNET.Worlds.Survival;
+using SimplexPerlin = MiNET.Utils.Noise.SimplexPerlin;
 
 namespace MiNET.Worlds.Decorators
 {
 	public class CaveDecorator : ChunkDecorator
 	{
-		private OpenSimplexNoise CaveNoise;
+		private SimplexPerlin CaveNoise;
 		private FastNoise BetterCaveNoise1;
 		protected override void InitSeed(int seed)
 		{
-			CaveNoise = new OpenSimplexNoise(seed * 6);
+			CaveNoise = new SimplexPerlin(seed * 6);
 
 			BetterCaveNoise1 = new FastNoise(seed);
 			BetterCaveNoise1.SetCellularJitter(0.3f);
@@ -43,7 +47,7 @@ namespace MiNET.Worlds.Decorators
 			return Math.Max(0, Math.Min(x + 16 * ((y + 1) + 256 * z), 65535));
 		}
 
-		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface, bool highestStoneLevel)
+		public override void Decorate(ChunkColumn column, Biome biome, float[] thresholdMap, int x, int y, int z, bool surface, bool isBelowMaxHeight)
 		{
 			if (surface) return;
 			if (thresholdMap[GetIndex(x - 1, y, z)] < OverworldGenerator.Threshold) return;
@@ -58,7 +62,7 @@ namespace MiNET.Worlds.Decorators
 
 		//	float n1 = BetterCaveNoise2.GetCellular(rx, y, rz);
 
-			if (column.GetBlock(x,y,z) == 1 && highestStoneLevel && Math.Cos(GetCaveNoise(rx, y, rz))*Math.Abs(Math.Cos(y*0.2f + 2)*0.75f) > 0.0055f /*BetterCaveNoise1.GetCellular(rx * 0.1f, y, rz * 0.1f) > 0.5f*/)
+			if (column.GetBlock(x,y,z) == 1 && isBelowMaxHeight && Math.Cos(GetCaveNoise(rx, y, rz))*Math.Abs(Math.Cos(y*0.2f + 2)*0.75f) > 0.0055f /*BetterCaveNoise1.GetCellular(rx * 0.1f, y, rz * 0.1f) > 0.5f*/)
 			{
 				column.SetBlock(x,y,z, 0);
 			}

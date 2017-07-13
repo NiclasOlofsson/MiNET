@@ -1,7 +1,7 @@
 ﻿using System;
 using LibNoise;
 
-namespace MiNET.Utils
+namespace MiNET.Utils.Noise
 {
 	public class ModifyNoise : IModule, IModule3D, IModule2D
 	{

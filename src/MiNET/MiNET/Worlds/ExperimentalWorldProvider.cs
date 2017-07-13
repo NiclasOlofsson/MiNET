@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Numerics;
+using LibNoise;
+using LibNoise.Primitive;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -238,11 +240,11 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private static readonly OpenSimplexNoise OpenNoise = new OpenSimplexNoise("a-seed".GetHashCode());
+		private static readonly SimplexPerlin OpenNoise = new SimplexPerlin("a-seed".GetHashCode(), NoiseQuality.Fast);
 
 		public static int GetNoise(int x, int z, float scale, int max)
 		{
-			return (int) Math.Floor((OpenNoise.Evaluate(x*scale, z*scale) + 1f)*(max/2f));
+			return (int) Math.Floor((OpenNoise.GetValue(x*scale, z*scale) + 1f)*(max/2f));
 		}
 	}
 }

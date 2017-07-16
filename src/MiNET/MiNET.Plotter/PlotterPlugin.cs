@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using log4net;
 using MiNET.Blocks;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
@@ -36,6 +37,8 @@ namespace MiNET.Plotter
 	[Plugin(PluginName = "Plotter", Description = "Basic plot server plugin for MiNET", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class PlotterPlugin : Plugin, IStartup
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (PlotterPlugin));
+
 		public void Configure(MiNetServer server)
 		{
 			server.LevelManager = new PlotterLevelManager();
@@ -52,6 +55,8 @@ namespace MiNET.Plotter
 
 	public class PlotManager
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (PlotManager));
+
 		Dictionary<PlotCoordinates, Plot> _plots = new Dictionary<PlotCoordinates, Plot>();
 
 		public PlotManager()
@@ -83,12 +88,15 @@ namespace MiNET.Plotter
 			});
 
 
-			var to = offset + new BlockCoordinates(PlotWorldGenerator.PlotWidth, 0, PlotWorldGenerator.PlotDepth);
-			BoundingBox bbox = BoundingBox.CreateFromPoints(new List<Vector3> {offset, to});
+			Vector3 to = (Vector3) offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 256, PlotWorldGenerator.PlotDepth - 1);
+			BoundingBox bbox = new BoundingBox(offset, to).GetAdjustedBoundingBox();
 
-			for (int x = (int) bbox.Min.X; x < bbox.Max.X; x++)
+
+			Log.Error($"BBOX={bbox}, Min={bbox.Min}, Max={bbox.Max}");
+
+			for (int x = (int) bbox.Min.X; x <= (int) bbox.Max.X; x++)
 			{
-				for (int z = (int) bbox.Min.Z; z < bbox.Min.Z; z++)
+				for (int z = (int) bbox.Min.Z; z <= (int) bbox.Max.Z; z++)
 				{
 					player.Level.SetAir(x, PlotWorldGenerator.PlotHeight, z);
 				}
@@ -97,12 +105,19 @@ namespace MiNET.Plotter
 			return true;
 		}
 
-		public PlotCoordinates ConvertToPlotCoordinates(PlayerLocation location)
+		public static BoundingBox GetBoundingBoxForPlot(PlotCoordinates coords)
+		{
+			var offset = ConvertToBlockCoordinates(coords);
+			Vector3 to = (Vector3) offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 1, PlotWorldGenerator.PlotDepth - 1);
+			return new BoundingBox(offset, to).GetAdjustedBoundingBox();
+		}
+
+		public static PlotCoordinates ConvertToPlotCoordinates(PlayerLocation location)
 		{
 			return ConvertToPlotCoordinates((BlockCoordinates) location);
 		}
 
-		public PlotCoordinates ConvertToPlotCoordinates(BlockCoordinates coords)
+		public static PlotCoordinates ConvertToPlotCoordinates(BlockCoordinates coords)
 		{
 			if (PlotWorldGenerator.IsXRoad(coords.X, true) || PlotWorldGenerator.IsZRoad(coords.Z, true)) return null;
 
@@ -112,16 +127,21 @@ namespace MiNET.Plotter
 			return new PlotCoordinates(plotX, plotZ);
 		}
 
-		public BlockCoordinates ConvertToBlockCoordinates(PlotCoordinates plotCoordinates)
+		public static BlockCoordinates ConvertToBlockCoordinates(PlotCoordinates plotCoordinates)
 		{
-			int xOffset = (Math.Abs(plotCoordinates.X) - 1)*PlotWorldGenerator.PlotAreaWidth + PlotWorldGenerator.RoadWidth;
-			int zOffset = (Math.Abs(plotCoordinates.Z) - 1)*PlotWorldGenerator.PlotAreaDepth + PlotWorldGenerator.RoadWidth;
+			var xFactor = plotCoordinates.X > 0 ? plotCoordinates.X - 1 : Math.Abs(plotCoordinates.X);
+			var zFactor = plotCoordinates.Z > 0 ? plotCoordinates.Z - 1 : Math.Abs(plotCoordinates.Z);
+
+			int xOffset = xFactor*PlotWorldGenerator.PlotAreaWidth;
+			int zOffset = zFactor*PlotWorldGenerator.PlotAreaDepth;
 			xOffset *= Math.Sign(plotCoordinates.X);
 			zOffset *= Math.Sign(plotCoordinates.Z);
-			if (xOffset < 0) xOffset -= PlotWorldGenerator.PlotWidth;
-			if (zOffset < 0) zOffset -= PlotWorldGenerator.PlotDepth;
+			/*if (xOffset < 0)*/
+			xOffset += PlotWorldGenerator.RoadWidth;
+			/*if (zOffset < 0) */
+			zOffset += PlotWorldGenerator.RoadWidth;
 
-			return new BlockCoordinates(xOffset, PlotWorldGenerator.PlotHeight, zOffset);
+			return new BlockCoordinates(xOffset, 0, zOffset);
 		}
 	}
 

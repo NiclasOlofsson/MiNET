@@ -75,7 +75,7 @@ namespace MiNET.Worlds
 		public bool HaveDownfall { get; set; }
 		public Difficulty Difficulty { get; set; }
 		public bool AutoSmelt { get; set; } = false;
-		public double CurrentWorldTime { get; set; }
+		public long CurrentWorldTime { get; set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; } = false;
@@ -912,6 +912,15 @@ namespace MiNET.Worlds
 			return WorldProvider.GenerateChunkColumn(chunkCoordinates);
 		}
 
+		public void SetBlock(int x, int y, int z, int blockId, int metadata=0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		{
+			Block block = BlockFactory.GetBlockById((byte) blockId);
+			block.Coordinates = new BlockCoordinates(x, y, z);
+			block.Metadata = (byte) metadata;
+			SetBlock(block, broadcast, applyPhysics, calculateLight);
+		}
+
+
 		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
 		{
 			if (block.Coordinates.Y < 0) return;
@@ -932,11 +941,11 @@ namespace MiNET.Worlds
 
 			if (!broadcast) return;
 
-			//var message = McpeUpdateBlock.CreateObject();
-			//message.blockId = block.Id;
-			//message.coordinates = block.Coordinates;
-			//message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-			//RelayBroadcast(message);
+			var message = McpeUpdateBlock.CreateObject();
+			message.blockId = block.Id;
+			message.coordinates = block.Coordinates;
+			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+			RelayBroadcast(message);
 		}
 
 		private void CalculateSkyLight(int x, int y, int z)
@@ -1091,11 +1100,11 @@ namespace MiNET.Worlds
 
 					player.SendPlayerInventory();
 
-					//var message = McpeUpdateBlock.CreateObject();
-					//message.blockId = block.Id;
-					//message.coordinates = block.Coordinates;
-					//message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-					//player.SendPackage(message);
+					var message = McpeUpdateBlock.CreateObject();
+					message.blockId = block.Id;
+					message.coordinates = block.Coordinates;
+					message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+					player.SendPackage(message);
 
 					return;
 				}
@@ -1123,32 +1132,9 @@ namespace MiNET.Worlds
 
 			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
 			{
-				// Revert
+			    // Revert
 
-				//var message = McpeUpdateBlock.CreateObject();
-				//message.blockId = block.Id;
-				//message.coordinates = block.Coordinates;
-				//message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-				//player.SendPackage(message);
-
-				// Revert block entity if exists
-				if (blockEntity != null)
-				{
-					Nbt nbt = new Nbt
-					{
-						NbtFile = new NbtFile
-						{
-							BigEndian = false,
-							RootTag = blockEntity.GetCompound()
-						}
-					};
-
-					var entityData = McpeBlockEntityData.CreateObject();
-					entityData.namedtag = nbt;
-					entityData.coordinates = blockEntity.Coordinates;
-
-					player.SendPackage(entityData);
-				}
+			    RevertBlockAction(player, block, blockEntity);
 			}
 			else
 			{
@@ -1159,7 +1145,35 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
+	    private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
+	    {
+	        var message = McpeUpdateBlock.CreateObject();
+	        message.blockId = block.Id;
+	        message.coordinates = block.Coordinates;
+	        message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+	        player.SendPackage(message);
+
+	        // Revert block entity if exists
+	        if (blockEntity != null)
+	        {
+	            Nbt nbt = new Nbt
+	            {
+	                NbtFile = new NbtFile
+	                {
+	                    BigEndian = false,
+	                    RootTag = blockEntity.GetCompound()
+	                }
+	            };
+
+	            var entityData = McpeBlockEntityData.CreateObject();
+	            entityData.namedtag = nbt;
+	            entityData.coordinates = blockEntity.Coordinates;
+
+	            player.SendPackage(entityData);
+	        }
+	    }
+
+	    public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
 		{
 			block.BreakBlock(this);
 			List<Item> drops = new List<Item>();

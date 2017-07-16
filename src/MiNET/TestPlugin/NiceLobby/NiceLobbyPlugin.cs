@@ -93,12 +93,103 @@ namespace TestPlugin.NiceLobby
 				Player player = args.Player;
 				player.PlayerJoin += OnPlayerJoin;
 				player.PlayerLeave += OnPlayerLeave;
+				player.Ticking += OnTicking;
 			};
 
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
 			//_tickTimer = new Timer(SkinTick, null, 0, 150);
 		}
+
+		private void OnTicking(object sender, PlayerEventArgs e)
+		{
+			var player = e.Player;
+			var level = player.Level;
+
+			if (e.Level.TickTime%2 == 0)
+			{
+				player.AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = GetCompass(player.KnownPosition.HeadYaw),
+					Duration = 20*5,
+				});
+			}
+
+
+			if (player.IsGliding)
+			{
+				if (player.CurrentSpeed > 30)
+				{
+					var particle = new CriticalParticle(level);
+					particle.Position = player.KnownPosition.ToVector3();
+					particle.Spawn();
+				}
+
+				if (level.TickTime%10 == 0)
+				{
+					player.AddPopup(new Popup()
+					{
+						Id = 10,
+						MessageType = MessageType.Tip,
+						Message = $"Speed: {player.CurrentSpeed:F2}m/s",
+						Duration = 20*5,
+					});
+				}
+			}
+		}
+
+		public static float Wrap(float angle)
+		{
+			return (float) (angle + Math.Ceiling(-angle/360)*360);
+		}
+
+		public static string GetCompass(float direction)
+		{
+			direction = Wrap(direction);
+			direction = direction*2/10;
+
+			direction += 72;
+
+			int width = 25;
+
+			var compass = new string('|', 72).ToCharArray();
+			compass[0] = 'S';
+
+			compass[9] = 'S';
+			compass[9 + 1] = 'W';
+
+			compass[(18)] = 'W';
+
+			compass[(18 + 9)] = 'N';
+			compass[(18 + 9 + 1)] = 'W';
+
+			compass[36] = 'N';
+
+			compass[36 + 9] = 'N';
+			compass[36 + 9 + 1] = 'E';
+
+			compass[54] = 'E';
+
+			compass[54 + 9] = 'S';
+			compass[54 + 9 + 1] = 'E';
+
+			compass = compass.Concat(compass).Concat(compass).ToArray();
+
+			return new String(compass.Skip((int) (direction - Math.Floor((double) width/2))).Take(width).ToArray())
+					.Replace("|", "| ")
+					.Replace("| N|", $"| {ChatFormatting.Bold}{ChatColors.Red}N{ChatFormatting.Reset} |")
+					.Replace("| NE|", $"| {ChatFormatting.Bold}{ChatColors.Yellow}NE{ChatFormatting.Reset} |").Trim('N', 'W', 'S', 'E').Trim('N', 'W', 'S', 'E')
+					.Replace("| E|", $"| {ChatFormatting.Bold}{ChatColors.Green}E{ChatFormatting.Reset} |")
+					.Replace("| SE|", $"| {ChatFormatting.Bold}{ChatColors.Green}SE{ChatFormatting.Reset} |")
+					.Replace("| S|", $"| {ChatFormatting.Bold}{ChatColors.Aqua}S{ChatFormatting.Reset} |")
+					.Replace("| SW|", $"| {ChatFormatting.Bold}{ChatColors.Blue}SW{ChatFormatting.Reset} |")
+					.Replace("| W|", $"| {ChatFormatting.Bold}{ChatColors.DarkPurple}W{ChatFormatting.Reset} |")
+					.Replace("| NW|", $"| {ChatFormatting.Bold}{ChatColors.LightPurple}NW{ChatFormatting.Reset} |")
+				;
+		}
+
 
 		private object _skinSynk = new object();
 
@@ -216,9 +307,9 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemFlintAndSteel() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemStick() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};

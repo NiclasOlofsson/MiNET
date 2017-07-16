@@ -55,7 +55,7 @@ namespace MiNET.Plotter
 		[Command(Name = "plot claim")]
 		public VanillaCommands.SimpleResponse PlotClaim(Player player)
 		{
-			PlotCoordinates coords = _plotManager.ConvertToPlotCoordinates(player.KnownPosition);
+			PlotCoordinates coords = PlotManager.ConvertToPlotCoordinates(player.KnownPosition);
 			if (coords == null) return new VanillaCommands.SimpleResponse() {Body = "Not able to claim plot at this position."};
 
 			Plot plot;

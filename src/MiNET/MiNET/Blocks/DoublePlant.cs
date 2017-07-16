@@ -16,6 +16,17 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
+		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
+		{
+			if (base.CanPlace(world, blockCoordinates, face))
+			{
+				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
+				return under is Grass || under is Dirt;
+			}
+
+			return false;
+		}
+
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			if (Coordinates + BlockCoordinates.Down == blockCoordinates)

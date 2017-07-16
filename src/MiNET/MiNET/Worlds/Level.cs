@@ -941,11 +941,11 @@ namespace MiNET.Worlds
 
 			if (!broadcast) return;
 
-			var message = McpeUpdateBlock.CreateObject();
-			message.blockId = block.Id;
-			message.coordinates = block.Coordinates;
-			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-			RelayBroadcast(message);
+			//var message = McpeUpdateBlock.CreateObject();
+			//message.blockId = block.Id;
+			//message.coordinates = block.Coordinates;
+			//message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+			//RelayBroadcast(message);
 		}
 
 		private void CalculateSkyLight(int x, int y, int z)
@@ -1100,11 +1100,11 @@ namespace MiNET.Worlds
 
 					player.SendPlayerInventory();
 
-					var message = McpeUpdateBlock.CreateObject();
-					message.blockId = block.Id;
-					message.coordinates = block.Coordinates;
-					message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-					player.SendPackage(message);
+					//var message = McpeUpdateBlock.CreateObject();
+					//message.blockId = block.Id;
+					//message.coordinates = block.Coordinates;
+					//message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+					//player.SendPackage(message);
 
 					return;
 				}
@@ -1147,11 +1147,11 @@ namespace MiNET.Worlds
 
 	    private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
 	    {
-	        var message = McpeUpdateBlock.CreateObject();
-	        message.blockId = block.Id;
-	        message.coordinates = block.Coordinates;
-	        message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-	        player.SendPackage(message);
+	        //var message = McpeUpdateBlock.CreateObject();
+	        //message.blockId = block.Id;
+	        //message.coordinates = block.Coordinates;
+	        //message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+	        //player.SendPackage(message);
 
 	        // Revert block entity if exists
 	        if (blockEntity != null)

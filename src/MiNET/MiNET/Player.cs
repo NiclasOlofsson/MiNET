@@ -941,6 +941,8 @@ namespace MiNET
 
 			Log.Debug($"Spawn point: {SpawnPosition}");
 
+			SendChunkRadiusUpdate();
+
 			ForcedSendChunk(SpawnPosition);
 
 			// send teleport to spawn
@@ -2480,6 +2482,8 @@ namespace MiNET
 
 		public override void OnTick()
 		{
+			OnTicking(new PlayerEventArgs(this));
+			
 			if (DetectInPortal())
 			{
 				if (PortalDetected == Level.TickTime)
@@ -2518,27 +2522,6 @@ namespace MiNET
 			if (LastAttackTarget != null && LastAttackTarget.HealthManager.IsDead)
 			{
 				LastAttackTarget = null;
-			}
-
-			if (IsGliding)
-			{
-				if (CurrentSpeed > 30)
-				{
-					var particle = new CriticalParticle(Level);
-					particle.Position = KnownPosition.ToVector3();
-					particle.Spawn();
-				}
-
-				if (Level.TickTime%10 == 0)
-				{
-					AddPopup(new Popup()
-					{
-						Id = 10,
-						MessageType = MessageType.Tip,
-						Message = $"Speed: {CurrentSpeed:F2}m/s",
-						Duration = 20*5,
-					});
-				}
 			}
 
 			foreach (var effect in Effects)
@@ -2585,6 +2568,8 @@ namespace MiNET
 					popup.CurrentTick++;
 				}
 			}
+
+			OnTicked(new PlayerEventArgs(this));
 		}
 
 		public void AddPopup(Popup popup)
@@ -2925,6 +2910,21 @@ namespace MiNET
 		{
 			PlayerLeave?.Invoke(this, e);
 		}
+
+		public event EventHandler<PlayerEventArgs> Ticking;
+
+		protected virtual void OnTicking(PlayerEventArgs e)
+		{
+			Ticking?.Invoke(this, e);
+		}
+
+		public event EventHandler<PlayerEventArgs> Ticked;
+
+		protected virtual void OnTicked(PlayerEventArgs e)
+		{
+			Ticked?.Invoke(this, e);
+		}
+
 	}
 
 	public enum UserPermission

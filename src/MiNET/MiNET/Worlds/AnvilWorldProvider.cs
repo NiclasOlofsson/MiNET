@@ -158,27 +158,23 @@ namespace MiNET.Worlds
 				{210, new NoDataMapper(188)}, // repeating_command_block
 				{211, new NoDataMapper(189)}, // minecraft:chain_command_block
 				{212, new NoDataMapper(297)}, // Frosted Ice
-				{213, new NoDataMapper(87)}, //minecraft:magma => netherrack
-				{214, new NoDataMapper(112)}, //nether_wart_block => nether_brick
-				{215, new NoDataMapper(112)}, //red_nether_brick
-				{216, new NoDataMapper(172)}, //bone => white hardened stained clay
 				{218, new NoDataMapper(251)}, // minecraft:observer => Observer
-				{219, new Mapper(201, (i, b) => 0)}, // => minecraft:white_shulker_box
-				{220, new Mapper(201, (i, b) => 1)}, // => minecraft:orange_shulker_box
-				{221, new Mapper(201, (i, b) => 2)}, // => minecraft:magenta_shulker_box
-				{222, new Mapper(201, (i, b) => 3)}, // => minecraft:light_blue_shulker_box 
-				{223, new Mapper(201, (i, b) => 4)}, // => minecraft:yellow_shulker_box 
-				{224, new Mapper(201, (i, b) => 5)}, // => minecraft:lime_shulker_box 
-				{225, new Mapper(201, (i, b) => 6)}, // => minecraft:pink_shulker_box 
-				{226, new Mapper(201, (i, b) => 7)}, // => minecraft:gray_shulker_box 
-				{227, new Mapper(201, (i, b) => 8)}, // => minecraft:light_gray_shulker_box 
-				{228, new Mapper(201, (i, b) => 9)}, // => minecraft:cyan_shulker_box 
-				{229, new Mapper(201, (i, b) => 10)}, // => minecraft:purple_shulker_box 
-				{230, new Mapper(201, (i, b) => 11)}, // => minecraft:blue_shulker_box 
-				{231, new Mapper(201, (i, b) => 12)}, // => minecraft:brown_shulker_box 
-				{232, new Mapper(201, (i, b) => 13)}, // => minecraft:green_shulker_box 
-				{233, new Mapper(201, (i, b) => 14)}, // => minecraft:red_shulker_box 
-				{234, new Mapper(201, (i, b) => 15)}, // => minecraft:black_shulker_box 
+				{219, new Mapper(218, (i, b) => 0)}, // => minecraft:white_shulker_box
+				{220, new Mapper(218, (i, b) => 1)}, // => minecraft:orange_shulker_box
+				{221, new Mapper(218, (i, b) => 2)}, // => minecraft:magenta_shulker_box
+				{222, new Mapper(218, (i, b) => 3)}, // => minecraft:light_blue_shulker_box 
+				{223, new Mapper(218, (i, b) => 4)}, // => minecraft:yellow_shulker_box 
+				{224, new Mapper(218, (i, b) => 5)}, // => minecraft:lime_shulker_box 
+				{225, new Mapper(218, (i, b) => 6)}, // => minecraft:pink_shulker_box 
+				{226, new Mapper(218, (i, b) => 7)}, // => minecraft:gray_shulker_box 
+				{227, new Mapper(218, (i, b) => 8)}, // => minecraft:light_gray_shulker_box 
+				{228, new Mapper(218, (i, b) => 9)}, // => minecraft:cyan_shulker_box 
+				{229, new Mapper(218, (i, b) => 10)}, // => minecraft:purple_shulker_box 
+				{230, new Mapper(218, (i, b) => 11)}, // => minecraft:blue_shulker_box 
+				{231, new Mapper(218, (i, b) => 12)}, // => minecraft:brown_shulker_box 
+				{232, new Mapper(218, (i, b) => 13)}, // => minecraft:green_shulker_box 
+				{233, new Mapper(218, (i, b) => 14)}, // => minecraft:red_shulker_box 
+				{234, new Mapper(218, (i, b) => 15)}, // => minecraft:black_shulker_box 
 
 				{235, new NoDataMapper(220)}, // => minecraft:white_glazed_terracotta
 				{236, new NoDataMapper(221)}, // => minecraft:orange_glazed_terracotta

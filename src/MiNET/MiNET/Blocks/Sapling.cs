@@ -16,9 +16,9 @@ namespace MiNET.Blocks
 		public SaplingType GetSaplingType()
 		{
 			byte result = 0;
-			BitHelper.SetBit(ref result, 0x00, BitHelper.GetBit(Metadata, 0x00));
 			BitHelper.SetBit(ref result, 0x01, BitHelper.GetBit(Metadata, 0x01));
 			BitHelper.SetBit(ref result, 0x02, BitHelper.GetBit(Metadata, 0x02));
+			BitHelper.SetBit(ref result, 0x03, BitHelper.GetBit(Metadata, 0x03));
 
 			return (SaplingType) result;
 		}
@@ -33,7 +33,7 @@ namespace MiNET.Blocks
 
 		//	if (isRandom)
 		//	{
-				const int pos = 0x07;
+				const int pos = 0x08;
 				bool readyToGrow = BitHelper.GetBit(Metadata, pos);
 
 			if (isRandom)

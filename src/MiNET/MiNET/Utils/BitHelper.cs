@@ -14,9 +14,26 @@
 			}
 		}
 
+		public static byte SetBit(byte aByte, int pos, bool value)
+		{
+			if (value)
+			{
+				return (byte)(aByte | (1 << pos));
+			}
+			else
+			{
+				return (byte)(aByte & ~(1 << pos));
+			}
+		}
+
+		public static byte ToggleBit(byte aByte, int pos)
+		{
+			return (byte)(aByte ^ (pos));
+		}
+
 		public static bool GetBit(byte aByte, int pos)
 		{
-			return ((aByte & (1 << pos)) != 0);
+			return (aByte & pos) != 0;
 		}
 	}
 }

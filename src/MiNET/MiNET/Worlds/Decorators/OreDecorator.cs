@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using LibNoise;
+using LibNoise.Filter;
 using LibNoise.Primitive;
 using MiNET.Utils;
 using MiNET.Utils.Noise;
@@ -49,7 +50,14 @@ namespace MiNET.Worlds.Decorators
 		private FastRandom _random;
 		protected override void InitSeed(int seed)
 		{
-			_simplex = new SimplexPerlin(seed + 666);
+			_simplex = new SumFractal()
+			{
+				Primitive3D = new SimplexPerlin(seed + 666),
+				Frequency = 1f,
+				OctaveCount = 2,
+				Lacunarity = 0.65f
+			};
+
 			_random = new FastRandom();
 		}
 
@@ -72,7 +80,7 @@ namespace MiNET.Worlds.Decorators
 				{
 					var weightOffsets = (ore.MaxY > 30) ? HighWeightOffset : LowWeightOffset;
 
-					if (Math.Abs(noise) * 3f < ore.Rarity)
+					if (MathHelpers.Abs(noise) * 3f < ore.Rarity)
 					{
 						double weight = 0;
 						for (int i = 0; i < 4; i++)

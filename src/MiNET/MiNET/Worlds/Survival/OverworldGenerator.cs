@@ -38,8 +38,6 @@ namespace MiNET.Worlds.Survival
 			rainNoise.Distance = false;
 			rainNoise.Frequency = RainFallFrequency;
 			rainNoise.OctaveCount = 2;
-			//rainNoise.Displacement = 0.5f;
-			//rainNoise.Lacunarity = 3;
 
 			RainNoise = rainNoise;
 
@@ -50,8 +48,6 @@ namespace MiNET.Worlds.Survival
 			tempNoise.Distance = false;
 			tempNoise.Frequency = TemperatureFrequency;
 			tempNoise.OctaveCount = 2;
-			//	tempNoise.Displacement = 0.5f;
-			//	tempNoise.Lacunarity = 4.2f;
 
 			TempNoise = tempNoise;
 
@@ -59,7 +55,7 @@ namespace MiNET.Worlds.Survival
 			var selectorNoise = new Voronoi();
 			selectorNoise.Primitive2D = selectorSimplex;
 			selectorNoise.Distance = true; 
-			selectorNoise.Frequency = 1.5f;
+			selectorNoise.Frequency = BiomeSelectorFrequency;
 			selectorNoise.OctaveCount = 2;
 
 			BiomeSelector = selectorNoise;
@@ -70,12 +66,10 @@ namespace MiNET.Worlds.Survival
 			{
 				Primitive3D = mainLimitNoise,
 				Primitive2D = mainLimitNoise,
-				Frequency = 0.095f,
-				//SpectralExponent = 0.3f,
+				Frequency = MainNoiseFrequency,
 				OctaveCount = 8,
-				Lacunarity = 3.5f,
-				Offset = 0.312f,
-				//		Gain = 12
+				Lacunarity = MainNoiseLacunarity,
+				Offset = MainNoiseOffset,
 			};
 			var mainScaler = new ScaleableNoise()
 			{
@@ -91,10 +85,10 @@ namespace MiNET.Worlds.Survival
 			var mountainTerrain = new SumFractal()
 			{
 				Primitive3D = mountainNoise,
-				Frequency = 2.75f,
+				Frequency = DepthFrequency,
 				OctaveCount = 2,
-				Lacunarity = 6f,
-				//SpectralExponent = DepthNoiseScaleExponent
+				Lacunarity = DepthLacunarity,
+				SpectralExponent = DepthNoiseScaleExponent
 			};
 
 			ScalePoint scaling = new ScalePoint(mountainTerrain);
@@ -104,6 +98,32 @@ namespace MiNET.Worlds.Survival
 
 			_depthNoise = scaling;
 		}
+
+		private const float TemperatureFrequency = 0.0083f;
+
+		private const float RainFallFrequency = 0.0083f;
+
+		private const float BiomeSelectorFrequency = 1.5f;
+
+		private const float BiomeNoiseScale = 6.5f;
+
+		private const float MainNoiseScaleX = 80F;
+		private const float MainNoiseScaleY = 160F;
+		private const float MainNoiseScaleZ = 80F;
+		private const float MainNoiseFrequency = 0.095f;
+		private const float MainNoiseLacunarity = 3.5f;
+		private const float MainNoiseOffset = 0.312f;
+
+		private const float DepthNoiseScaleX = 200F;
+		private const float DepthNoiseScaleZ = 200F;
+		private const float DepthNoiseScaleExponent = 0.5F;
+		private const float DepthFrequency = 2.75f;
+		private const float DepthLacunarity = 6f;
+
+		private const float CoordinateScale = 684.412F;
+		private const float HeightScale = 684.412F;
+
+		public const int WaterLevel = 64;
 
 		public void Initialize()
 		{
@@ -162,25 +182,6 @@ namespace MiNET.Worlds.Survival
 
 			return chunk;
 		}
-
-		private const float TemperatureFrequency = 0.0083f;
-
-		private const float RainFallFrequency = 0.0083f;
-
-		private const float BiomeNoiseScale = 6.5f;
-
-		private const float MainNoiseScaleX = 80F;
-		private const float MainNoiseScaleY = 160F;
-		private const float MainNoiseScaleZ = 80F;
-
-		private const float DepthNoiseScaleX = 200F;
-		private const float DepthNoiseScaleZ = 200F;
-		private const float DepthNoiseScaleExponent = 0.5F;
-
-		private const float CoordinateScale = 684.412F;
-		private const float HeightScale = 684.412F;
-
-		public const int WaterLevel = 64;
 
 		private Dictionary<Biome, double> GetBiome(int x, int z)
 		{

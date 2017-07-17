@@ -77,16 +77,14 @@ namespace MiNET.Worlds
 
 		public byte GetBlock(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
-			return chunk.GetBlock(bx, by - 16*(by >> 4), bz);
+			Chunk chunk =chunks[by >> 4];
+			return chunk.GetBlock(bx, by & (16 - 1), bz);
 		}
 
 		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
-			//int i = 30 - (16*(30 >> 4));
-
-			Chunk chunk = chunks[by >> 4];
-			chunk.SetBlock(bx, by - 16*(by >> 4), bz, bid);
+			Chunk chunk =chunks[by >> 4];
+			chunk.SetBlock(bx, by & (16 - 1), bz, bid);
 			SetDirty();
 		}
 
@@ -114,40 +112,40 @@ namespace MiNET.Worlds
 
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
-			return chunk.GetBlocklight(bx, by - 16*(by >> 4), bz);
+			Chunk chunk =chunks[by >> 4];
+			return chunk.GetBlocklight(bx, by & (16 - 1), bz);
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
-			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
+			Chunk chunk =chunks[by >> 4];
+			chunk.SetBlocklight(bx, by & (16 - 1), bz, data);
 			SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
-			return chunk.GetMetadata(bx, by - 16*(by >> 4), bz);
+			Chunk chunk =chunks[by >> 4];
+			return chunk.GetMetadata(bx, by & (16 - 1), bz);
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
-			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
+			Chunk chunk =chunks[by >> 4];
+			chunk.SetMetadata(bx, by & (16 - 1), bz, data);
 			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
-			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
+			Chunk chunk =chunks[by >> 4];
+			return chunk.GetSkylight(bx, by & (16 - 1), bz);
 		}
 
 		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
-			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
+			Chunk chunk =chunks[by >> 4];
+			chunk.SetSkylight(bx, by & (16 - 1), bz, data);
 			SetDirty();
 		}
 

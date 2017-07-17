@@ -3,7 +3,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds.Structures
 {
-    class SpruceTree : Structure
+    public class SpruceTree : TreeStructure
     {
         public override string Name
         {
@@ -15,7 +15,15 @@ namespace MiNET.Worlds.Structures
             get { return 8; }
         }
 
-        public override Block[] Blocks
+	    public override void Create(ChunkColumn chunk, int x, int y, int z)
+	    {
+			var block = chunk.GetBlock(x, y - 1, z);
+			if (block != 2 && block != 3) return;
+
+			base.Create(chunk, x, y, z);
+	    }
+
+	    public override Block[] Blocks
         {
             get
             {

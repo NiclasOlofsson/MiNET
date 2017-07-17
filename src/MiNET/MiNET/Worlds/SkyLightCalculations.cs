@@ -135,12 +135,13 @@ namespace MiNET.Worlds
 				calculator.SnapshotVisits();
 				calculator.SnapshotVisits();
 
-
-				// Start with an end-frame (twitter thumbs)
-				var last = calculator.RenderingTasks.Last();
-				calculator.RenderingTasks.Remove(last);
-				calculator.RenderingTasks.Insert(0, last);
-
+				if (calculator.RenderingTasks.Any())
+				{
+					// Start with an end-frame (twitter thumbs)
+					var last = calculator.RenderingTasks.Last();
+					calculator.RenderingTasks.Remove(last);
+					calculator.RenderingTasks.Insert(0, last);
+				}
 				calculator.RenderVideo();
 
 				Log.Debug($"Movie rendered.");

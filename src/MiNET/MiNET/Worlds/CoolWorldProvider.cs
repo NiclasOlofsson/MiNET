@@ -10,7 +10,7 @@ using MiNET.Worlds.Structures;
 
 namespace MiNET.Worlds
 {
-	internal class SimplexOctaveGenerator
+	public class SimplexOctaveGenerator
 	{
 		private readonly long _seed;
 		private readonly int _octaves;
@@ -29,14 +29,57 @@ namespace MiNET.Worlds
 		}
 
 
-		public double Noise(double x, double y, double frequency, double amplitude)
+		public double Noise(double x, double y, double frequency, double amplitude, bool normalized)
 		{
-			return Noise(x, y, 0, 0, frequency, amplitude, false);
+			double result = 0;
+			double amp = 1;
+			double freq = 1;
+			double max = 0;
+
+			x *= XScale;
+			y *= YScale;
+
+			foreach (var octave in _generators)
+			{
+				result += octave.GetValue((float)(x * freq), (float)(y * freq)) * amp;
+				max += amp;
+				freq *= frequency;
+				amp *= amplitude;
+			}
+
+			if (normalized)
+			{
+				result /= max;
+			}
+
+			return result;
 		}
 
-		public double Noise(double x, double y, double z, double frequency, double amplitude)
+		public double Noise(double x, double y, double z, double frequency, double amplitude, bool normalized)
 		{
-			return Noise(x, y, z, 0, frequency, amplitude, false);
+			double result = 0;
+			double amp = 1;
+			double freq = 1;
+			double max = 0;
+
+			x *= XScale;
+			y *= YScale;
+			z *= ZScale;
+
+			foreach (var octave in _generators)
+			{
+				result += octave.GetValue((float)(x * freq), (float)(y * freq), (float)(z * freq)) * amp;
+				max += amp;
+				freq *= frequency;
+				amp *= amplitude;
+			}
+
+			if (normalized)
+			{
+				result /= max;
+			}
+
+			return result;
 		}
 
 		public double Noise(double x, double y, double z, double w, double frequency, double amplitude)
@@ -175,8 +218,8 @@ namespace MiNET.Worlds
 					float oz = z + chunk.z*16;
 
 
-					int bottomHeight = (int)((bottom.Noise(ox, oz, 0.5, 0.5)*bottomsMagnitude) + 64.0);
-					int maxHeight = (int)((overhang.Noise(ox, oz, 0.5, 0.5)*overhangsMagnitude) + bottomHeight + 32.0);
+					int bottomHeight = (int)((bottom.Noise(ox, oz, 0.5, 0.5, false)*bottomsMagnitude) + 64.0);
+					int maxHeight = (int)((overhang.Noise(ox, oz, 0.5, 0.5, false)*overhangsMagnitude) + bottomHeight + 32.0);
 
 					double threshold = 0.0;
 
@@ -193,7 +236,7 @@ namespace MiNET.Worlds
 						if (y > bottomHeight)
 						{
 							//part where we do the overhangs
-							double density = overhang.Noise(ox, y, oz, 0.5, 0.5);
+							double density = overhang.Noise(ox, y, oz, 0.5, 0.5, false);
 							if (density > threshold) chunk.SetBlock(x, y, z, (byte)Material.Stone);
 						}
 						else

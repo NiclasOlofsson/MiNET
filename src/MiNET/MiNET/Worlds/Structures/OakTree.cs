@@ -1,10 +1,15 @@
-﻿using MiNET.Blocks;
-using MiNET.Utils;
+﻿using System.Numerics;
 
 namespace MiNET.Worlds.Structures
 {
-	class OakTree : Structure
+	public class OakTree : TreeStructure
 	{
+		private bool IsWet { get; }
+		public OakTree(bool isWet = false)
+		{
+			IsWet = isWet;
+		}
+
 		public override string Name
 		{
 			get { return "OakTree"; }
@@ -15,74 +20,29 @@ namespace MiNET.Worlds.Structures
 			get { return 7; }
 		}
 
-		public override Block[] Blocks
+		private readonly int _leafRadius = 2;
+		public override void Create(ChunkColumn chunk, int x, int y, int z)
 		{
-			get
-			{
-                return new Block[]
-                {
-                    new Block(17) {Coordinates = new BlockCoordinates(0, 0, 0)},
-                    new Block(17) {Coordinates = new BlockCoordinates(0, 1, 0)},
-                    new Block(17) {Coordinates = new BlockCoordinates(0, 2, 0)},
-                    new Block(17) {Coordinates = new BlockCoordinates(0, 3, 0)},
-                    new Block(17) {Coordinates = new BlockCoordinates(0, 4, 0)},
-                    new Block(17) {Coordinates = new BlockCoordinates(0, 5, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 3, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 3, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 3, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 3, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 3, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 3, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 3, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 3, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 3, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 3, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 3, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 3, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 3, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 3, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 3, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 3, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 3, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 3, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 3, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 3, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 3, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 3, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 4, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 4, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 4, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-2, 4, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 4, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 4, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 4, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 4, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 4, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 4, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 4, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 4, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 4, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 4, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 4, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 4, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 4, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 4, -2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 4, 2)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 4, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 4, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(2, 4, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 5, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 5, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 5, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 5, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 5, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(-1, 6, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 6, 1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 6, 0)},
-                    new Block(18) {Coordinates = new BlockCoordinates(0, 6, -1)},
-                    new Block(18) {Coordinates = new BlockCoordinates(1, 6, 0)},
-                };
-			}
+			var block = chunk.GetBlock(x, y - 1, z);
+			if (block != 2 && block != 3) return;
+
+			var location = new Vector3(x, y, z);
+			if (!ValidLocation(location, _leafRadius)) return;
+
+			int height = Rnd.Next(4, 5);
+			GenerateColumn(chunk, location, height, 17, 0);
+			Vector3 leafLocation = location + new Vector3(0, height, 0);
+			GenerateVanillaLeaves(chunk, leafLocation, _leafRadius, 18, 0);
+		}
+
+		public override void Create(Level level, int x, int y, int z)
+		{
+			var location = new Vector3(x, y, z);
+
+			int height = Rnd.Next(4, 5);
+			GenerateColumn(level, location, height, 17, 0);
+			Vector3 leafLocation = location + new Vector3(0, height, 0);
+			GenerateVanillaLeaves(level, leafLocation, _leafRadius, 18, 0);
 		}
 	}
 }

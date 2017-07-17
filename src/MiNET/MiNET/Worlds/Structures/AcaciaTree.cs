@@ -3,7 +3,7 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds.Structures
 {
-    class AcaciaTree : Structure
+    public class AcaciaTree : TreeStructure
     {
         public override string Name
         {
@@ -15,7 +15,18 @@ namespace MiNET.Worlds.Structures
             get { return 8; }
         }
 
-        public override Block[] Blocks
+	    public override void Create(ChunkColumn chunk, int x, int y, int z)
+	    {
+		    if (x > 11 || z > 11) return;
+		    if (x < 5 || z < 5) return;
+
+		    var block = chunk.GetBlock(x, y - 1, z);
+			if (block != 2 && block != 3) return;
+
+			base.Create(chunk, x, y, z);
+	    }
+
+	    public override Block[] Blocks
         {
             get
             {

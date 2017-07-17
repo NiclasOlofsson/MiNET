@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Survival;
 
 namespace MiNET
 {
@@ -60,8 +61,16 @@ namespace MiNET
 
 				IWorldProvider worldProvider = null;
 
-				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
-				{
+                switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
+                {
+					case "survival":
+						worldProvider = new AnvilWorldProvider
+						{
+							MissingChunkProvider = new OverworldGenerator(),
+							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
+							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
+						};
+						break;
 					case "cool":
 						worldProvider = new CoolWorldProvider();
 						break;

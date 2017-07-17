@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace MiNET.Worlds
@@ -10,57 +13,428 @@ namespace MiNET.Worlds
 		public float Downfall;
 		public int Grass; // r,g,b, NOT multiplied by alpha
 		public int Foliage; // r,g,b, NOT multiplied by alpha
+
+		public float MinHeight = 0.1f;
+		public float MaxHeight = 0.3f;
+
+		public byte SurfaceBlock = 2;
+		public byte SurfaceMetadata = 0;
+
+		public byte SoilBlock = 3;
+		public byte SoilMetadata = 0;
+		//public float HeightScale = 100;
 	}
 
 	public class BiomeUtils
 	{
 		public static Biome[] Biomes =
 		{
-			new Biome {Id = 0, Name = "Ocean", Temperature = 0.5f, Downfall = 0.5f}, // default values of temp and rain
-			new Biome {Id = 1, Name = "Plains", Temperature = 0.8f, Downfall = 0.4f},
-			new Biome {Id = 2, Name = "Desert", Temperature = 2.0f, Downfall = 0.0f},
-			new Biome {Id = 3, Name = "Extreme Hills", Temperature = 0.2f, Downfall = 0.3f},
-			new Biome {Id = 4, Name = "Forest", Temperature = 0.7f, Downfall = 0.8f},
-			new Biome {Id = 5, Name = "Taiga", Temperature = 0.05f, Downfall = 0.8f},
-			new Biome {Id = 6, Name = "Swampland", Temperature = 0.8f, Downfall = 0.9f},
-			new Biome {Id = 7, Name = "River", Temperature = 0.5f, Downfall = 0.5f}, // default values of temp and rain
-			new Biome {Id = 8, Name = "Nether", Temperature = 2.0f, Downfall = 0.0f},
-			new Biome {Id = 9, Name = "End", Temperature = 0.5f, Downfall = 0.5f}, // default values of temp and rain
-			new Biome {Id = 10, Name = "Frozen Ocean", Temperature = 0.0f, Downfall = 0.5f},
-			new Biome {Id = 11, Name = "Frozen River", Temperature = 0.0f, Downfall = 0.5f},
-			new Biome {Id = 12, Name = "Ice Plains", Temperature = 0.0f, Downfall = 0.5f},
-			new Biome {Id = 13, Name = "Ice Mountains", Temperature = 0.0f, Downfall = 0.5f},
-			new Biome {Id = 14, Name = "Mushroom Island", Temperature = 0.9f, Downfall = 1.0f},
-			new Biome {Id = 15, Name = "Mushroom Island Shore", Temperature = 0.9f, Downfall = 1.0f},
-			new Biome {Id = 16, Name = "Beach", Temperature = 0.8f, Downfall = 0.4f},
-			new Biome {Id = 17, Name = "Desert Hills", Temperature = 2.0f, Downfall = 0.0f},
-			new Biome {Id = 18, Name = "Forest Hills", Temperature = 0.7f, Downfall = 0.8f},
-			new Biome {Id = 19, Name = "Taiga Hills", Temperature = 0.2f, Downfall = 0.7f},
-			new Biome {Id = 20, Name = "Extreme Hills Edge", Temperature = 0.2f, Downfall = 0.3f},
-			new Biome {Id = 21, Name = "Jungle", Temperature = 1.2f, Downfall = 0.9f},
-			new Biome {Id = 22, Name = "Jungle Hills", Temperature = 1.2f, Downfall = 0.9f},
-			new Biome {Id = 23, Name = "Jungle Edge", Temperature = 0.95f, Downfall = 0.8f},
-			new Biome {Id = 24, Name = "Deep Ocean", Temperature = 0.5f, Downfall = 0.5f},
-			new Biome {Id = 25, Name = "Stone Beach", Temperature = 0.2f, Downfall = 0.3f},
-			new Biome {Id = 26, Name = "Cold ", Temperature = 0.05f, Downfall = 0.3f},
-			new Biome {Id = 27, Name = "Birch Forest", Temperature = 0.6f, Downfall = 0.6f},
-			new Biome {Id = 28, Name = "Birch Forest Hills", Temperature = 0.6f, Downfall = 0.6f},
-			new Biome {Id = 29, Name = "Roofed Forest", Temperature = 0.7f, Downfall = 0.8f},
-			new Biome {Id = 30, Name = "Cold Taiga", Temperature = -0.5f, Downfall = 0.4f},
-			new Biome {Id = 31, Name = "Cold Taiga Hills", Temperature = -0.5f, Downfall = 0.4f},
-			new Biome {Id = 32, Name = "Mega Taiga", Temperature = 0.3f, Downfall = 0.8f},
-			new Biome {Id = 33, Name = "Mega Taiga Hills", Temperature = 0.3f, Downfall = 0.8f},
-			new Biome {Id = 34, Name = "Extreme Hills+", Temperature = 0.2f, Downfall = 0.3f},
-			new Biome {Id = 35, Name = "Savanna", Temperature = 1.2f, Downfall = 0.0f},
-			new Biome {Id = 36, Name = "Savanna Plateau", Temperature = 1.0f, Downfall = 0.0f},
-			new Biome {Id = 37, Name = "Mesa", Temperature = 2.0f, Downfall = 0.0f},
-			new Biome {Id = 38, Name = "Mesa Plateau F", Temperature = 2.0f, Downfall = 0.0f},
-			new Biome {Id = 39, Name = "Mesa Plateau", Temperature = 2.0f, Downfall = 0.0f},
+			new Biome
+			{
+				Id = 0,
+				Name = "Ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f,
+				MinHeight = -1f,
+				MaxHeight = 0.4f,
+			//	SurfaceBlock = 12,
+			//	SoilBlock = 24
+			}, // default values of temp and rain
+			new Biome
+			{
+				Id = 1,
+				Name = "Plains",
+				Temperature = 0.8f,
+				Downfall = 0.4f,
+				MinHeight = 0.125f,
+				MaxHeight = 0.05f, //TODO
+			},
+			new Biome
+			{
+				Id = 2,
+				Name = "Desert",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+				MaxHeight = 0.2f,
+				MinHeight = 0.1f,
+				SurfaceBlock = 12,
+				SoilBlock = 24
+			},
+			new Biome
+			{
+				Id = 3,
+				Name = "Extreme Hills",
+				Temperature = 0.2f,
+				Downfall = 0.3f,
+				MinHeight = 0.2f,
+				MaxHeight = 1.3f
+			},
+			new Biome
+			{
+				Id = 4,
+				Name = "Forest",
+				Temperature = 0.7f,
+				Downfall = 0.8f,
+				MinHeight = 0.1f, //TODO
+				MaxHeight = 0.2f,
+			},
+			new Biome
+			{
+				Id = 5,
+				Name = "Taiga",
+				Temperature = 0.05f,
+				Downfall = 0.8f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.4f
+			},
+			new Biome
+			{
+				Id = 6,
+				Name = "Swampland",
+				Temperature = 0.8f,
+				Downfall = 0.9f,
+				MinHeight = -0.2f,
+				MaxHeight = 0.1f
+			},
+			new Biome
+			{
+				Id = 7,
+				Name = "River",
+				Temperature = 0.5f,
+				Downfall = 0.5f,
+				MinHeight = -0.5f,
+				MaxHeight = 0f
+			}, // default values of temp and rain
+			new Biome
+			{
+				Id = 8,
+				Name = "Nether",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.2f, //TODO!
+			},
+			new Biome
+			{
+				Id = 9,
+				Name = "End",
+				Temperature = 0.5f,
+				Downfall = 0.5f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.2f, //TODO!
+			}, // default values of temp and rain
+			new Biome
+			{
+				Id = 10,
+				Name = "Frozen Ocean",
+				Temperature = 0.0f,
+				Downfall = 0.5f,
+				MinHeight = -1f,
+				MaxHeight = 0.5f
+			},
+			new Biome
+			{
+				Id = 11,
+				Name = "Frozen River",
+				Temperature = 0.0f,
+				Downfall = 0.5f,
+				MinHeight = -0.5f,
+				MaxHeight = 0f
+			},
+			new Biome
+			{
+				Id = 12,
+				Name = "Ice Plains",
+				Temperature = 0.0f,
+				Downfall = 0.5f,
+				MinHeight = 0.125f,
+				MaxHeight = 0.05f //TODO
+			},
+			new Biome
+			{
+				Id = 13,
+				Name = "Ice Mountains",
+				Temperature = 0.0f,
+				Downfall = 0.5f,
+				MinHeight = 0.2f,
+				MaxHeight = 1.2f
+			},
+			new Biome
+			{
+				Id = 14,
+				Name = "Mushroom Island",
+				Temperature = 0.9f,
+				Downfall = 1.0f,
+				MinHeight = 0.2f,
+				MaxHeight = 1f
+			},
+			new Biome
+			{
+				Id = 15,
+				Name = "Mushroom Island Shore",
+				Temperature = 0.9f,
+				Downfall = 1.0f,
+				MinHeight = -1f,
+				MaxHeight = 0.1f
+			},
+			new Biome
+			{
+				Id = 16,
+				Name = "Beach",
+				Temperature = 0.8f,
+				Downfall = 0.4f,
+				MinHeight = 0f,
+				MaxHeight = 0.1f
+			},
+			new Biome
+			{
+				Id = 17,
+				Name = "Desert Hills",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.7f,
+
+				SurfaceBlock = 12, //Sand
+				SoilBlock = 24 //Sandstone
+			},
+			new Biome
+			{
+				Id = 18,
+				Name = "Forest Hills",
+				Temperature = 0.7f,
+				Downfall = 0.8f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.6f
+			},
+			new Biome
+			{
+				Id = 19,
+				Name = "Taiga Hills",
+				Temperature = 0.2f,
+				Downfall = 0.7f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.7f,
+			},
+			new Biome
+			{
+				Id = 20,
+				Name = "Extreme Hills Edge",
+				Temperature = 0.2f,
+				Downfall = 0.3f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.8f
+			},
+			new Biome
+			{
+				Id = 21,
+				Name = "Jungle",
+				Temperature = 1.2f,
+				Downfall = 0.9f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.4f
+			},
+			new Biome
+			{
+				Id = 22,
+				Name = "Jungle Hills",
+				Temperature = 1.2f,
+				Downfall = 0.9f,
+				MinHeight = 1.8f,
+				MaxHeight = 0.2f
+			},
+			
+			//TODO: The rest of min/max
+			new Biome
+			{
+				Id = 23,
+				Name = "Jungle Edge",
+				Temperature = 0.95f,
+				Downfall = 0.8f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.2f
+			},
+			new Biome
+			{
+				Id = 24,
+				Name = "Deep Ocean",
+				Temperature = 0.5f,
+				Downfall = 0.5f,
+				MinHeight = -1.8F,
+				MaxHeight = 0.1f
+			},
+			new Biome
+			{
+				Id = 25,
+				Name = "Stone Beach",
+				Temperature = 0.2f,
+				Downfall = 0.3f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.8f
+			},
+			new Biome
+			{
+				Id = 26,
+				Name = "Cold Beach",
+				Temperature = 0.05f,
+				Downfall = 0.3f,
+				MinHeight = 0f,
+				MaxHeight = 0.025f
+			},
+			new Biome
+			{
+				Id = 27,
+				Name = "Birch Forest",
+				Temperature = 0.6f,
+				Downfall = 0.6f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.2f
+			},
+			new Biome
+			{
+				Id = 28,
+				Name = "Birch Forest Hills",
+				Temperature = 0.6f,
+				Downfall = 0.6f,
+				MinHeight = 0.45f,
+				MaxHeight = 0.3f
+			},
+			new Biome
+			{
+				Id = 29,
+				Name = "Roofed Forest",
+				Temperature = 0.7f,
+				Downfall = 0.8f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.2f
+			},
+			new Biome
+			{
+				Id = 30,
+				Name = "Cold Taiga",
+				Temperature = -0.5f,
+				Downfall = 0.4f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.2f
+			},
+			new Biome
+			{
+				Id = 31,
+				Name = "Cold Taiga Hills",
+				Temperature = -0.5f,
+				Downfall = 0.4f,
+				MinHeight = 0.45f,
+				MaxHeight = 0.3f
+			},
+			new Biome
+			{
+				Id = 32,
+				Name = "Mega Taiga",
+				Temperature = 0.3f,
+				Downfall = 0.8f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.2f
+			},
+			new Biome
+			{
+				Id = 33,
+				Name = "Mega Taiga Hills",
+				Temperature = 0.3f,
+				Downfall = 0.8f,
+				MinHeight = 0.45f,
+				MaxHeight = 0.3f
+			},
+			new Biome
+			{
+				Id = 34,
+				Name = "Extreme Hills+",
+				Temperature = 0.2f,
+				Downfall = 0.3f,
+				MinHeight = 1f,
+				MaxHeight = 0.5f
+			},
+			new Biome
+			{
+				Id = 35,
+				Name = "Savanna",
+				Temperature = 1.2f,
+				Downfall = 0.0f,
+				MinHeight = 0.125f,
+				MaxHeight = 0.05f,
+			},
+			new Biome
+			{
+				Id = 36,
+				Name = "Savanna Plateau",
+				Temperature = 1.0f,
+				Downfall = 0.0f,
+				MinHeight = 1.5f,
+				MaxHeight = 0.025f
+			},
+			new Biome
+			{
+				Id = 37,
+				Name = "Mesa",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+				MinHeight = 0.1f,
+				MaxHeight = 0.2f,
+
+				SurfaceBlock = 12, //Surface = Red Sand
+				SurfaceMetadata = 1,
+
+				SoilBlock = 179, //Soil = Red Sandstone
+			},
+			new Biome
+			{
+				Id = 38,
+				Name = "Mesa Plateau F",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+				MinHeight = 1.5f,
+				MaxHeight = 0.25f,
+
+				SurfaceBlock = 12, //Surface = Red Sand
+				SurfaceMetadata = 1,
+
+				SoilBlock = 179, //Soil = Red Sandstone
+			},
+			new Biome
+			{
+				Id = 39,
+				Name = "Mesa Plateau",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+				MinHeight = 1.5f,
+				MaxHeight = 0.025f,
+
+				SurfaceBlock = 12, //Surface = Red Sand
+				SurfaceMetadata = 1,
+
+				SoilBlock = 179, //Soil = Red Sandstone
+			},
 			new Biome {Id = 127, Name = "The Void", Temperature = 0.8f, Downfall = 0.4f},
 			new Biome {Id = 128, Name = "Unknown Biome", Temperature = 0.8f, Downfall = 0.4f},
 			new Biome {Id = 129, Name = "Sunflower Plains", Temperature = 0.8f, Downfall = 0.4f},
-			new Biome {Id = 130, Name = "Desert M", Temperature = 2.0f, Downfall = 0.0f},
-			new Biome {Id = 131, Name = "Extreme Hills M", Temperature = 0.2f, Downfall = 0.3f},
+			new Biome
+			{
+				Id = 130,
+				Name = "Desert M",
+				Temperature = 2.0f,
+				Downfall = 0.0f,
+
+				SurfaceBlock = 12,
+				SoilBlock = 24
+			},
+			new Biome
+			{
+				Id = 131,
+				Name = "Extreme Hills M",
+				Temperature = 0.2f,
+				Downfall = 0.3f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.8f
+			},
 			new Biome {Id = 132, Name = "Flower Forest", Temperature = 0.7f, Downfall = 0.8f},
 			new Biome {Id = 133, Name = "Taiga M", Temperature = 0.05f, Downfall = 0.8f},
 			new Biome {Id = 134, Name = "Swampland M", Temperature = 0.8f, Downfall = 0.9f},
@@ -69,11 +443,28 @@ namespace MiNET.Worlds
 			new Biome {Id = 150, Name = "Unknown Biome", Temperature = 0.8f, Downfall = 0.4f},
 			new Biome {Id = 151, Name = "JungleEdge M", Temperature = 0.95f, Downfall = 0.8f},
 			new Biome {Id = 155, Name = "Birch Forest M", Temperature = 0.6f, Downfall = 0.6f},
-			new Biome {Id = 156, Name = "Birch Forest Hills M", Temperature = 0.6f, Downfall = 0.6f},
+			new Biome
+			{
+				Id = 156,
+				Name = "Birch Forest Hills M",
+				Temperature = 0.6f,
+				Downfall = 0.6f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.8f
+			},
 			new Biome {Id = 157, Name = "Roofed Forest M", Temperature = 0.7f, Downfall = 0.8f},
 			new Biome {Id = 158, Name = "Cold Taiga M", Temperature = -0.5f, Downfall = 0.4f},
-			new Biome {Id = 160, Name = "Mega Spruce Taiga", Temperature = 0.25f, Downfall = 0.8f}, // special exception, temperature not 0.3
-			new Biome {Id = 161, Name = "Mega Spruce Taiga Hills", Temperature = 0.3f, Downfall = 0.8f},
+			new Biome {Id = 160, Name = "Mega Spruce Taiga", Temperature = 0.25f, Downfall = 0.8f},
+			// special exception, temperature not 0.3
+			new Biome
+			{
+				Id = 161,
+				Name = "Mega Spruce Taiga Hills",
+				Temperature = 0.3f,
+				Downfall = 0.8f,
+				MinHeight = 0.2f,
+				MaxHeight = 0.8f
+			},
 			new Biome {Id = 162, Name = "Extreme Hills+ M", Temperature = 0.2f, Downfall = 0.3f},
 			new Biome {Id = 163, Name = "Savanna M", Temperature = 1.2f, Downfall = 0.0f},
 			new Biome {Id = 164, Name = "Savanna Plateau M", Temperature = 1.0f, Downfall = 0.0f},
@@ -247,6 +638,11 @@ namespace MiNET.Worlds
 			return Biomes.FirstOrDefault(biome => biome.Id == biomeId) ?? new Biome {Id = biomeId};
 		}
 
+		public static Biome GetBiomeById(int biomeId)
+		{
+			return Biomes.FirstOrDefault(biome => biome.Id == biomeId) ?? new Biome { Id = biomeId };
+		}
+
 		public int BiomeSwampRiverColor(int color)
 		{
 			int r = (int) ((color >> 16) & 0xff);
@@ -260,6 +656,72 @@ namespace MiNET.Worlds
 			color = (r << 16) | (g << 8) | b;
 
 			return color;
+		}
+
+		public static Biome GetEdgeBiome(Biome biome)
+		{
+			if (biome.Id == 21 || biome.Id == 22) //Jungle or Jungle Hills
+			{
+				return GetBiomeById(23); //Return Jungle Edge
+			}
+			else if (biome.MaxHeight >= 0.8f)
+			{
+				return GetBiomeById(20); //Extreme hills edge.
+			}
+
+			return biome;
+		}
+
+		public static Dictionary<Biome, double> GetBiomes(double temp, double rain)
+		{
+			if (temp < -1f || temp > 2f || rain < 0f || rain > 1f)
+				Debug.WriteLine($"Temp: {temp} Rain: {rain}");
+
+			//return Biomes.Where(x => x.Id != 8 && x.Id != 9 && x.Id <= 39).OrderBy(x => GetSquaredDistance(x, temp, rain)).Take(3).ToArray();
+
+		//	Debug.WriteLine($"Temp: {temp} Rain: {rain}");
+			double threshold = 1000.0;
+			Dictionary<Biome, double> biomes = new Dictionary<Biome, double>(3);
+
+			Biome closestBiome = null, secondClosestBiome = null, thirdClosestBiome = null;
+			double closestDist = 10000000, secondClosestDist = 10000000, thirdClosestDist = 10000000;
+
+			foreach (Biome biome in Biomes.Where(x => x.Id != 8 && x.Id != 9).OrderBy(x => GetSquaredDistance(x, temp, rain)).Take(3))
+			{
+				double dist = GetSquaredDistance(biome, temp, rain);
+
+				if (dist < closestDist)
+				{
+					thirdClosestDist = secondClosestDist; thirdClosestBiome = secondClosestBiome;
+					secondClosestDist = closestDist; secondClosestBiome = closestBiome;
+					closestDist = dist; closestBiome = biome;
+				}
+
+				else if (dist < secondClosestDist)
+				{
+					if (dist >= threshold) continue; //We don't want to calculate the noise values for biomes that have almost no influence
+					thirdClosestDist = secondClosestDist; thirdClosestBiome = secondClosestBiome;
+					secondClosestDist = dist; secondClosestBiome = biome;
+				}
+
+				else if (dist < thirdClosestDist)
+				{
+					if (dist >= threshold) continue;
+					thirdClosestDist = dist; thirdClosestBiome = biome;
+				}
+			}
+
+			biomes.Add(closestBiome, closestDist);
+			if (secondClosestBiome != null) biomes.Add(secondClosestBiome,secondClosestDist);
+			if (thirdClosestBiome != null) biomes.Add(thirdClosestBiome, thirdClosestDist);
+
+			return biomes;
+			
+		}
+
+		private static double GetSquaredDistance(Biome biome, double temp, double rain)
+		{
+			return Math.Abs((biome.Temperature - temp) * (biome.Temperature - temp) + (biome.Downfall - rain) * (biome.Downfall - rain));
 		}
 	}
 }

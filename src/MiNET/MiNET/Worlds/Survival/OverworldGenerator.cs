@@ -310,17 +310,14 @@ namespace MiNET.Worlds.Survival
 					float stoneHeight = heightMap[(x << 4) + z];
 
 					var maxY = 0;
-					for (int y = 0; y < Height; y++)
+					for (int y = 0; y < stoneHeight; y++)
 					{
-						float density = thresholdMap[x + 16 * (y + 256 * z)];
+						float density = thresholdMap[x + 16*(y + 256*z)];
 
-						if (y <= stoneHeight)
+						if (y < WaterLevel || (density > Threshold && y >= WaterLevel))
 						{
-							if (y < WaterLevel || (density > Threshold && y >= WaterLevel))
-							{
-								chunk.SetBlock(x, y, z, 1);
-								maxY = y;
-							}
+							chunk.SetBlock(x, y, z, 1);
+							maxY = y;
 						}
 					}
 

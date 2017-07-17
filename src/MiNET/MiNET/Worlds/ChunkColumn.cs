@@ -77,17 +77,12 @@ namespace MiNET.Worlds
 
 		public byte GetBlock(int bx, int by, int bz)
 		{
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			return chunk.GetBlock(bx, by & (16 - 1), bz);
 		}
 
 		public void SetBlock(int bx, int by, int bz, byte bid)
 		{
-			//int i = 30 - (16*(30 >> 4));
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			chunk.SetBlock(bx, by & (16 - 1), bz, bid);
 			SetDirty();
@@ -117,16 +112,12 @@ namespace MiNET.Worlds
 
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			return chunk.GetBlocklight(bx, by & (16 - 1), bz);
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			chunk.SetBlocklight(bx, by & (16 - 1), bz, data);
 			SetDirty();
@@ -134,16 +125,12 @@ namespace MiNET.Worlds
 
 		public byte GetMetadata(int bx, int by, int bz)
 		{
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			return chunk.GetMetadata(bx, by & (16 - 1), bz);
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			chunk.SetMetadata(bx, by & (16 - 1), bz, data);
 			SetDirty();
@@ -157,8 +144,6 @@ namespace MiNET.Worlds
 
 		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
-			if (by >= 256) by = 255;
-			if (by < 0) by = 0;
 			Chunk chunk =chunks[by >> 4];
 			chunk.SetSkylight(bx, by & (16 - 1), bz, data);
 			SetDirty();

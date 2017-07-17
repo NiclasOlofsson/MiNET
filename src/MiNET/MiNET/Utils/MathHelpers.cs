@@ -171,6 +171,7 @@ namespace MiNET.Utils
 			if (x > 0) return x;
 			return x - 0.9999999999999999f;
 		}
+
 		public static float Ceiling(float x)
 		{
 			if (x < 0) return (int)x;
@@ -247,11 +248,11 @@ namespace MiNET.Utils
 
 		public static float Sin(float x)
 		{
-			if (x < -Math.PI)
+			if (x < -PI)
 			{
 				x += DOUBLE_PI;
 			}
-			else if (x > Math.PI)
+			else if (x > PI)
 			{
 				x -= DOUBLE_PI;
 			}

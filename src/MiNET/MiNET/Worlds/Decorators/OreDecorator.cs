@@ -49,7 +49,7 @@ namespace MiNET.Worlds.Decorators
 		private FastRandom _random;
 		protected override void InitSeed(int seed)
 		{
-			_simplex = new OpenSimplex(seed + 666);
+			_simplex = new SimplexPerlin(seed + 666);
 			_random = new FastRandom();
 		}
 

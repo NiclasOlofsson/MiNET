@@ -171,7 +171,7 @@ namespace MiNET.Utils.Noise
 				float xDist = xCandidate - x;
 				float yDist = yCandidate - y;
 				float zDist = zCandidate - z;
-				value = ((float)Math.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist)
+				value = (MathHelpers.Sqrt(xDist * xDist + yDist * yDist + zDist * zDist)
 					) * Libnoise.Sqrt3 - 1.0f;
 			}
 			else
@@ -179,9 +179,9 @@ namespace MiNET.Utils.Noise
 
 			// Return the calculated distance with the displacement value applied.
 			return value + (_displacement * _source3D.GetValue(
-				(int)(Math.Floor(xCandidate)),
-				(int)(Math.Floor(yCandidate)),
-				(int)(Math.Floor(zCandidate)))
+				Libnoise.FastFloor(xCandidate),
+				Libnoise.FastFloor(yCandidate),
+				Libnoise.FastFloor(zCandidate))
 				);
 		}
 
@@ -235,7 +235,7 @@ namespace MiNET.Utils.Noise
 				// Determine the distance to the nearest seed point.
 				float xDist = xCandidate - x;
 				float yDist = yCandidate - y;
-				value = ((float)Math.Sqrt(xDist * xDist + yDist * yDist)
+				value = (MathHelpers.Sqrt(xDist * xDist + yDist * yDist)
 					) * Libnoise.Sqrt3 - 1.0f;
 			}
 			else
@@ -243,8 +243,8 @@ namespace MiNET.Utils.Noise
 
 			// Return the calculated distance with the displacement value applied.
 			return value + (_displacement * _source2D.GetValue(
-				(int)(Math.Floor(xCandidate)),
-				(int)(Math.Floor(yCandidate)))
+				Libnoise.FastFloor(xCandidate),
+				Libnoise.FastFloor(yCandidate))
 				);
 		}
 

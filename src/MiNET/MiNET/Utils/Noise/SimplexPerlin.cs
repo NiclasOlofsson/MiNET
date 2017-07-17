@@ -204,8 +204,8 @@ namespace MiNET.Utils.Noise
 			// Skew the input space to determine which simplex cell we're in
 			float s = (x + y) * F2; // Hairy factor for 2D
 
-			int i = FastFloor(x + s);
-			int j = FastFloor(y + s);
+			int i = Libnoise.FastFloor(x + s);
+			int j = Libnoise.FastFloor(y + s);
 
 			float t = (i + j) * G2;
 
@@ -297,9 +297,9 @@ namespace MiNET.Utils.Noise
 			float s = (x + y + z) * F3;
 
 			// for 3D
-			int i = FastFloor(x + s);
-			int j = FastFloor(y + s);
-			int k = FastFloor(z + s);
+			int i = Libnoise.FastFloor(x + s);
+			int j = Libnoise.FastFloor(y + s);
+			int k = Libnoise.FastFloor(z + s);
 
 			float t = (i + j + k) * G3;
 
@@ -470,10 +470,10 @@ namespace MiNET.Utils.Noise
 			// Skew the (x,y,z,w) space to determine which cell of 24 simplices
 			float s = (x + y + z + w) * F4; // Factor for 4D skewing
 
-			int i = FastFloor(x + s);
-			int j = FastFloor(y + s);
-			int k = FastFloor(z + s);
-			int l = FastFloor(w + s);
+			int i = Libnoise.FastFloor(x + s);
+			int j = Libnoise.FastFloor(y + s);
+			int k = Libnoise.FastFloor(z + s);
+			int l = Libnoise.FastFloor(w + s);
 
 			float t = (i + j + k + l) * G4; // Factor for 4D unskewing
 
@@ -661,14 +661,6 @@ namespace MiNET.Utils.Noise
 		protected static float Dot(int[] g, float x, float y)
 		{
 			return g[0] * x + g[1] * y;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		protected static int FastFloor(float x)
-		{
-			if (x < 0.0f)
-				return (int)x - 1;
-			return (int)x;
 		}
 	}
 }

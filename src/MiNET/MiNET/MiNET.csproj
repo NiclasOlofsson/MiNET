@@ -654,7 +654,6 @@
     <Compile Include="Utils\EnchantingExtensions.cs" />
     <Compile Include="Utils\DedicatedThreadPool.cs" />
     <Compile Include="Utils\FastRandom.cs" />
-    <Compile Include="Utils\Noise\FastNoise.cs" />
     <Compile Include="Utils\HighPrecisionTimer.cs" />
     <Compile Include="Utils\Interpolation.cs" />
     <Compile Include="Utils\MapInfo.cs" />
@@ -663,11 +662,9 @@
     <Compile Include="Utils\MetadataLong.cs" />
     <Compile Include="Utils\MetadataSlot.cs" />
     <Compile Include="Utils\MetadataVector3.cs" />
-    <Compile Include="Utils\Noise\ModifyNoise.cs" />
     <Compile Include="Utils\MultiMediaTimer.cs" />
     <Compile Include="Utils\NbtStringConverter.cs" />
     <Compile Include="Utils\Noise\NoiseBlend.cs" />
-    <Compile Include="Utils\Noise\OpenSimplex.cs" />
     <Compile Include="Utils\Noise\SimplexPerlin.cs" />
     <Compile Include="Utils\PrefixedArray.cs" />
     <Compile Include="Utils\Ray.cs" />
@@ -706,7 +703,6 @@
     <Compile Include="Worlds\ChunkColumn.cs" />
     <Compile Include="Worlds\CoolWorldProvider.cs" />
     <Compile Include="Worlds\CraftNetAnvilWorldProvider.cs" />
-    <Compile Include="Worlds\Decorators\CaveDecorator.cs" />
     <Compile Include="Worlds\Decorators\ChunkDecorator.cs" />
     <Compile Include="Worlds\Decorators\OreDecorator.cs" />
     <Compile Include="Worlds\Decorators\FoliageDecorator.cs" />

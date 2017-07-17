@@ -244,5 +244,49 @@ namespace MiNET.Utils
 		{
 			return value / 32f;
 		}
+
+		public static float Sin(float x)
+		{
+			if (x < -Math.PI)
+			{
+				x += DOUBLE_PI;
+			}
+			else if (x > Math.PI)
+			{
+				x -= DOUBLE_PI;
+			}
+
+			float sinus;
+
+			if (x < 0f)
+				sinus = 1.27323954f * x + .405284735f * x * x;
+			else
+				sinus = 1.27323954f * x - 0.405284735f * x * x;
+
+			return sinus;
+		}
+
+		public static float Cos(float x)
+		{
+			if (x < -PI)
+			{
+				x += DOUBLE_PI;
+			}
+			else if (x > PI)
+			{
+				x -= DOUBLE_PI;
+			}
+
+			x += HALF_PI;
+
+			float cosinus;
+
+			if (x < 0f)
+				cosinus = 1.27323954f * x + 0.405284735f * x * x;
+			else
+				cosinus = 1.27323954f * x - 0.405284735f * x * x;
+
+			return cosinus;
+		}
 	}
 }

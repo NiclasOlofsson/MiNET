@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MiNET.Utils
 {
-	public static unsafe class MathHelpers
+	public static class MathHelpers
 	{
 		public static float Normalize(this float x, float oldMax, float oldMin, float newMax, float newMin)
 		{
@@ -194,6 +193,7 @@ namespace MiNET.Utils
 		{
 			return (int)((((a / b) - ((int)(a / b))) * b) + 0.5f);
 		}
+
 		public static float RandomPow(float input, float exponent)
 		{
 			float num, original;
@@ -202,19 +202,6 @@ namespace MiNET.Utils
 
 			for (int x = 1; x < exponent; x++) num = num * original;
 			return num;
-		}
-
-		public static float PowFloat2(float x, float y)
-		{
-			long tmp = (BitConverter.DoubleToInt64Bits(x) >> 32);
-			float tmp2 = (y * (tmp - 1072632447F) + 1072632447F);
-			return (float)BitConverter.Int64BitsToDouble(((long)tmp2) << 32);
-		}
-
-		public static float PowFloat(float x, float y)
-		{
-			long temp = ((long)((int)(y * ((int)*(long*)&x - 1072632447) + 1072632447))) << 32;
-			return (float)*(double*)&temp;
 		}
 
 		public static int Pow(int a, int b)
@@ -238,24 +225,24 @@ namespace MiNET.Utils
 			return LongTofloat((long)tmp2 << 32);
 		}
 
-		private static unsafe long DoubleToLong(double value)
+		private static long DoubleToLong(double value)
 		{
-			return *(long*)&value;
+			return (long) (value * 32D);
 		}
 
-		private static unsafe double LongToDouble(long value)
+		private static double LongToDouble(long value)
 		{
-			return *(double*)&value;
+			return value / 32D;
 		}
 
-		private static unsafe long FloatToLong(float value)
+		private static long FloatToLong(float value)
 		{
-			return *(long*)&value;
+			return (long) (value * 32F);
 		}
 
-		private static unsafe float LongTofloat(long value)
+		private static float LongTofloat(long value)
 		{
-			return *(float*)&value;
+			return value / 32f;
 		}
 	}
 }

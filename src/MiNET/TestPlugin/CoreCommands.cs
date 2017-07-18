@@ -151,7 +151,7 @@ namespace TestPlugin
 		{
 			Task.Run(() =>
 			{
-				new LevelManager().RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level.WorldProvider);
+				LevelManager.RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level.WorldProvider);
 				player.CleanCache();
 				player.ForcedSendChunks(() => { player.SendMessage("Calculated blocklights and resent chunks."); });
 			});

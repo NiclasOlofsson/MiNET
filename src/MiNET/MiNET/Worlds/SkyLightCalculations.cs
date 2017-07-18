@@ -43,12 +43,11 @@ namespace MiNET.Worlds
 {
 	public class SkyLightCalculations
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockLightCalculations));
-
+		private static readonly ILog Log = LogManager.GetLogger(typeof (SkyLightCalculations));
 
 		// Debug tracking, don't enable unless you really need to "see it".
 
-		private bool _trackResults;
+		public bool TrackResults { get; }
 		public ConcurrentDictionary<BlockCoordinates, int> Visits { get; } = new ConcurrentDictionary<BlockCoordinates, int>();
 		public long StartTimeInMilliseconds { get; set; }
 
@@ -56,7 +55,7 @@ namespace MiNET.Worlds
 
 		public SkyLightCalculations(bool trackResults = false)
 		{
-			_trackResults = trackResults;
+			TrackResults = trackResults;
 		}
 
 		public static void Calculate(Level level)
@@ -75,7 +74,7 @@ namespace MiNET.Worlds
 			{
 				pair.RecalcHeight();
 			}
-			Log.Debug($"Recalc height for {_chunkCount} chunks, {_chunkCount*16*16*256} blocks. Time {sw.ElapsedMilliseconds}ms");
+			Log.Debug($"Recalc height level {level.LevelName}({level.LevelId}) for {_chunkCount} chunks, {_chunkCount*16*16*256} blocks. Time {sw.ElapsedMilliseconds}ms");
 
 
 			SkyLightCalculations calculator = new SkyLightCalculations(Config.GetProperty("CalculateLights.MakeMovie", false));
@@ -85,7 +84,8 @@ namespace MiNET.Worlds
 
 			sw.Restart();
 
-			var tickerHighPrecisionTimer = new HighPrecisionTimer(100, _ => calculator.SnapshotVisits());
+			HighPrecisionTimer tickerHighPrecisionTimer = null;
+			if (calculator.TrackResults) tickerHighPrecisionTimer = new HighPrecisionTimer(100, _ => calculator.SnapshotVisits());
 
 			calculator.StartTimeInMilliseconds = Environment.TickCount;
 
@@ -129,22 +129,26 @@ namespace MiNET.Worlds
 
 			Log.Debug($"Recalc skylight for {_chunkCount}({_chunkCount}) chunks, {_chunkCount*16*16*256:N0} blocks. Time {sw.ElapsedMilliseconds}ms");
 
-			Task.Run(() =>
+			if (calculator.TrackResults)
 			{
-				tickerHighPrecisionTimer.Dispose();
-				calculator.SnapshotVisits();
-				calculator.SnapshotVisits();
+				Task.Run(() =>
+				{
+					tickerHighPrecisionTimer?.Dispose();
+					calculator.SnapshotVisits();
+					calculator.SnapshotVisits();
 
+					if (calculator.RenderingTasks.Count == 0) return;
 
-				// Start with an end-frame (twitter thumbs)
-				var last = calculator.RenderingTasks.Last();
-				calculator.RenderingTasks.Remove(last);
-				calculator.RenderingTasks.Insert(0, last);
+					// Start with an end-frame (twitter thumbs)
+					var last = calculator.RenderingTasks.Last();
+					calculator.RenderingTasks.Remove(last);
+					calculator.RenderingTasks.Insert(0, last);
 
-				calculator.RenderVideo();
+					calculator.RenderVideo();
 
-				Log.Debug($"Movie rendered.");
-			});
+					Log.Debug($"Movie rendered.");
+				});
+			}
 
 			//foreach (var chunk in chunks)
 			//{
@@ -296,7 +300,7 @@ namespace MiNET.Worlds
 
 		private byte SetLightLevel(Level level, Queue<BlockCoordinates> lightBfsQueue, BlockCoordinates coordinates, byte lightLevel, bool down = false, bool up = false)
 		{
-			if (_trackResults) MakeVisit(coordinates);
+			if (TrackResults) MakeVisit(coordinates);
 
 			if (!down && !up && coordinates.Y >= level.GetHeight(coordinates))
 			{
@@ -374,7 +378,7 @@ namespace MiNET.Worlds
 		{
 			lock (_imageSync)
 			{
-				if (!_trackResults) return;
+				if (!TrackResults) return;
 
 				var visits1 = Visits.ToArray();
 
@@ -497,7 +501,7 @@ namespace MiNET.Worlds
 
 		private int GetMidX(ChunkColumn[] chunks)
 		{
-			if (!_trackResults) return 0;
+			if (!TrackResults) return 0;
 
 			var visits = chunks.ToArray();
 
@@ -510,7 +514,7 @@ namespace MiNET.Worlds
 
 		private int GetWidth(ChunkColumn[] chunks)
 		{
-			if (!_trackResults) return 0;
+			if (!TrackResults) return 0;
 
 			var visits = chunks.ToArray();
 
@@ -523,7 +527,7 @@ namespace MiNET.Worlds
 
 		private int GetWidth()
 		{
-			if (!_trackResults) return 0;
+			if (!TrackResults) return 0;
 
 			var visits = Visits.ToArray();
 
@@ -536,7 +540,7 @@ namespace MiNET.Worlds
 
 		private int GetHeight()
 		{
-			if (!_trackResults) return 0;
+			if (!TrackResults) return 0;
 
 			var visits = Visits.ToArray();
 
@@ -551,7 +555,7 @@ namespace MiNET.Worlds
 		{
 			try
 			{
-				if (!_trackResults) return;
+				if (!TrackResults) return;
 
 
 				Log.Debug($"Generated all images, now rendering movie.");

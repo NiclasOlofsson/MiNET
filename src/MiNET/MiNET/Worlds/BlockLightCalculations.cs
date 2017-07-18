@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using log4net;
 using MiNET.Blocks;
@@ -62,7 +63,7 @@ namespace MiNET.Worlds
 		{
 			if (b1.LightLevel > 0)
 			{
-				b1.BlockLight = (byte) b1.LightLevel;
+				b1.BlockLight = (byte) Math.Max(b1.LightLevel, lightLevel -1);
 				level.SetBlockLight(b1);
 			}
 

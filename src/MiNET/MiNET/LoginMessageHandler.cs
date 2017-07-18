@@ -45,7 +45,7 @@ namespace MiNET
 		private readonly PlayerNetworkSession _session;
 
 		private object _loginSyncLock = new object();
-		private PlayerInfo _playerInfo;
+		private PlayerInfo _playerInfo = new PlayerInfo();
 
 		public LoginMessageHandler(PlayerNetworkSession session)
 		{
@@ -70,10 +70,10 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			DecodeCert(message);
-
 			_playerInfo.ProtocolVersion = message.protocolVersion;
 			_playerInfo.Edition = message.edition;
+
+			DecodeCert(message);
 
 			////string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
 			////Log.Info($"Writing skin to filename: {fileName}");
@@ -82,8 +82,6 @@ namespace MiNET
 
 		protected void DecodeCert(McpeLogin message)
 		{
-			_playerInfo = new PlayerInfo();
-
 			// Get bytes
 			byte[] buffer = message.payload;
 

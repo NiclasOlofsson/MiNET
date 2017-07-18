@@ -1014,6 +1014,7 @@ namespace MiNET
 		public int GuiScale { get; set; }
 		public int UIProfile { get; set; }
 		public int Edition { get; set; }
+		public int ProtocolVersion { get; set; }
 		public string LanguageCode { get; set; }
 	}
 }

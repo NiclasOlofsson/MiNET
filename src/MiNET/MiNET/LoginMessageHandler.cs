@@ -70,14 +70,9 @@ namespace MiNET
 				_session.Username = string.Empty;
 			}
 
-			if (message.protocolVersion < 111)
-			{
-				Log.Warn($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, client need an upgrade.");
-				_session.Disconnect($"Wrong version ({message.protocolVersion}) of Minecraft Pocket Edition, please upgrade.");
-				return;
-			}
-
 			DecodeCert(message);
+
+			_playerInfo.ProtocolVersion = message.protocolVersion;
 			_playerInfo.Edition = message.edition;
 
 			////string fileName = Path.GetTempPath() + "Skin_" + Skin.SkinType + ".png";
@@ -363,6 +358,21 @@ namespace MiNET
 
 			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
 			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
+
+			if (_playerInfo.ProtocolVersion < 111)
+			{
+				Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+				return;
+			}
+
+			if (Config.GetProperty("ForceXBLAuthentication", false) && _playerInfo.CertificateData.ExtraData.Xuid == null)
+			{
+				Log.Warn($"You must authenticate to XBOX Live to join this server.");
+				_session.Disconnect(Config.GetProperty("ForceXBLLogin", "You must authenticate to XBOX Live to join this server."));
+
+				return;
+			}
 
 			_session.MessageHandler.HandleMcpeClientToServerHandshake(null);
 		}

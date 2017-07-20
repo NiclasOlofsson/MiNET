@@ -3,7 +3,6 @@ In case you don't find the information your are looking for in the README. Do tr
 MiNET
 =====
 
-[![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 [![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/xCNrhDd) 
 [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master?svg=true)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master) 
 [![NuGet Version and Downloads count](https://buildstats.info/nuget/MiNET)](https://www.nuget.org/packages/MiNET) 
@@ -58,8 +57,8 @@ Of course you can! We just need you to accept the following:
 2. You do not copy code from anyone or anywhere, unless you have their permissions.
 3. We can always decide not to include your code, and we might make changes to it. So better ask before you do a pull request to the project.
 
-Also, make sure to join our Gitter chat for easy communication.    
-[![Join the chat at https://gitter.im/NiclasOlofsson/MiNET](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/NiclasOlofsson/MiNET?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Also, make sure to join our discord chat for easy communication.    
+[![Chat](https://img.shields.io/badge/chat-on%20discord-7289da.svg)](https://discord.gg/xCNrhDd) 
 
 ## Are there forums for MiNET?
 

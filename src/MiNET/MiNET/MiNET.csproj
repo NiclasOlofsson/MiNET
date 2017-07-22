@@ -642,6 +642,7 @@
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Sounds\ClickSound.cs" />
     <Compile Include="Utils\BatchUtils.cs" />
+    <Compile Include="Utils\BitHelper.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\ConcurrentPriorityQueue.cs" />

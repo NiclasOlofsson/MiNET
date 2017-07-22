@@ -450,6 +450,7 @@
     <Compile Include="Items\ItemBone.cs" />
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemBread.cs" />
+    <Compile Include="Items\ItemCake.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
     <Compile Include="Items\ItemCauldron.cs" />
     <Compile Include="Items\ItemChest.cs" />
@@ -642,7 +643,6 @@
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Sounds\ClickSound.cs" />
     <Compile Include="Utils\BatchUtils.cs" />
-    <Compile Include="Utils\BitHelper.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
     <Compile Include="Utils\ConcurrentPriorityQueue.cs" />

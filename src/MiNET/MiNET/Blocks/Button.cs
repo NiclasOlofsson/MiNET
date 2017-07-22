@@ -18,7 +18,30 @@ namespace MiNET.Blocks
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			Metadata = (byte) face;
+			switch (face)
+			{
+				case BlockFace.Down:
+					Metadata = 0;
+					break;
+				case BlockFace.Up:
+					Metadata = 1;
+					break;
+				case BlockFace.East:
+					Metadata = 2;
+					break;
+				case BlockFace.West:
+					Metadata = 3;
+					break;
+				case BlockFace.North:
+					Metadata = 4;
+					break;
+				case BlockFace.South:
+					Metadata = 5;
+					break;
+				case BlockFace.None:
+
+					break;
+			}
 
 			world.SetBlock(this);
 			return true;

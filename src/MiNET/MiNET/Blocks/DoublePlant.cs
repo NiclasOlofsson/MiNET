@@ -45,5 +45,32 @@ namespace MiNET.Blocks
 
 			return new Item[0];
 		}
+
+		public override Item GetSmelt()
+		{
+			byte meta = 0;
+			switch (Metadata & 0x7)
+			{
+				case 0: //Sunflower
+					meta = 11;
+					break;
+				case 1: //Lilac
+					meta = 13;
+					break;
+
+				case 2: //Double TallGrass
+					return base.GetSmelt();
+				case 3: //Large Fern
+					return base.GetSmelt();
+				case 4: //Rose Bush
+					return base.GetSmelt();
+
+				case 5: //Peony
+					meta = 9;
+					break;
+			}
+
+			return ItemFactory.GetItem(351, meta); //Smelt to proper dye
+		}
 	}
 }

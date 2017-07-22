@@ -77,7 +77,7 @@ namespace MiNET.Blocks
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
-			Metadata = BitHelper.ToggleBit(Metadata, 8);
+			Metadata = (byte)(Metadata ^ (0x8));
 			world.SetBlock(this);
 
 			return true;

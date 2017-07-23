@@ -14,6 +14,32 @@ namespace MiNET.Blocks
 			Hardness = 0.5f;
 		}
 
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			var currentFace = (Metadata & 0x7);
+
+			if (((currentFace == 5 || currentFace == 6)
+				 && Coordinates + BlockCoordinates.Down == blockCoordinates)
+
+			    || ((currentFace == 7 || currentFace == 0)
+					&& Coordinates + BlockCoordinates.Up == blockCoordinates)
+
+			    || (currentFace == 2
+			        && Coordinates + BlockCoordinates.East == blockCoordinates)
+
+			    || (currentFace == 4
+			        && Coordinates + BlockCoordinates.South == blockCoordinates)
+
+			    || (currentFace == 1
+			        && Coordinates + BlockCoordinates.West == blockCoordinates)
+
+			    || (currentFace == 3
+			        && Coordinates + BlockCoordinates.North == blockCoordinates))
+			{
+				level.BreakBlock(this);
+			}
+		}
+
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var playerRotation = player.GetDirection();

@@ -16,32 +16,35 @@ namespace MiNET.Blocks
 			Hardness = 0.5f;
 		}
 
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			var currentFace = (BlockFace) (Metadata & 0x7);
+
+			if ((currentFace == BlockFace.Up
+			     && Coordinates + BlockCoordinates.Down == blockCoordinates)
+
+			    || (currentFace == BlockFace.Down
+			        && Coordinates + BlockCoordinates.Up == blockCoordinates)
+
+			    || (currentFace == BlockFace.North
+			        && Coordinates + BlockCoordinates.East == blockCoordinates)
+
+			    || (currentFace == BlockFace.East
+			        && Coordinates + BlockCoordinates.South == blockCoordinates)
+
+			    || (currentFace == BlockFace.South
+			        && Coordinates + BlockCoordinates.West == blockCoordinates)
+
+			    || (currentFace == BlockFace.West
+			        && Coordinates + BlockCoordinates.North == blockCoordinates))
+			{
+				level.BreakBlock(this);
+			}
+		}
+
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			switch (face)
-			{
-				case BlockFace.Down:
-					Metadata = 0;
-					break;
-				case BlockFace.Up:
-					Metadata = 1;
-					break;
-				case BlockFace.East:
-					Metadata = 2;
-					break;
-				case BlockFace.West:
-					Metadata = 3;
-					break;
-				case BlockFace.North:
-					Metadata = 4;
-					break;
-				case BlockFace.South:
-					Metadata = 5;
-					break;
-				case BlockFace.None:
-
-					break;
-			}
+			Metadata = (byte) face;
 
 			world.SetBlock(this);
 			return true;

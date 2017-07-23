@@ -57,7 +57,7 @@ namespace MiNET.Items
 		private static Dictionary<string, short> BuildNameToId()
 		{
 			var nameToId = new Dictionary<string, short>();
-			for (short idx = 256; idx < 500; idx++)
+			for (short idx = 0; idx < 500; idx++)
 			{
 				Item item = GetItem(idx);
 				string name = item.GetType().Name.ToLowerInvariant();
@@ -69,9 +69,28 @@ namespace MiNET.Items
 					continue;
 				}
 
+				if (name.Equals("itemblock"))
+				{
+					ItemBlock itemBlock = item as ItemBlock;
+					if (itemBlock != null)
+					{
+						Block block = itemBlock.Block;
+						name = block?.GetType().Name.ToLowerInvariant();
+						if (name == null || name.Equals("block"))
+						{
+							continue;
+						}
+					}
+				}
+				else
+				{
+					name = name.Substring(4);
+				}
+
 				try
 				{
-					nameToId.Add(name.Substring(4), idx);
+					nameToId.Remove(name); // This is in case a block was added that have item that should be used.
+					nameToId.Add(name, idx);
 				}
 				catch (Exception e)
 				{
@@ -115,14 +134,14 @@ namespace MiNET.Items
 
 			if (id == 0) item = new ItemAir();
 			else if (id == 54) item = new ItemChest();
-			else if (id == 44) item = new ItemSlab(id, metadata);
+			else if (id == 44) item = new ItemStoneSlab(metadata);
 			else if (id == 61) item = new ItemFurnace();
 			else if (id == 63) item = new ItemSign();
 			else if (id == 68) item = new ItemSign();
 			else if (id == 111) item = new ItemWaterlily();
 			else if (id == 116) item = new ItemEnchantingTable();
-			else if (id == 158) item = new ItemSlab(id, metadata);
-			else if (id == 182) item = new ItemSlab(id, metadata);
+			else if (id == 158) item = new ItemWoodenSlab(metadata);
+			else if (id == 182) item = new ItemStoneSlab2(metadata);
 			else if (id == 199) item = new ItemItemFrame();
 			else if (id == 256) item = new ItemIronShovel();
 			else if (id == 257) item = new ItemIronPickaxe();

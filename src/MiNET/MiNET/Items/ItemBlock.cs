@@ -40,6 +40,8 @@ namespace MiNET.Items
 
 		protected Block _block;
 
+		public Block Block => _block;
+
 		protected ItemBlock(short id, short metadata) : base(id, metadata)
 		{
 		}

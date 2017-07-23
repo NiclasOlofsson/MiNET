@@ -78,6 +78,7 @@ namespace TestPlugin
 		//}
 
 		[Command(Description = "Save world")]
+		[Authorize(Permission = UserPermission.Admin)]
 		public void Save(Player player)
 		{
 			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
@@ -133,6 +134,32 @@ namespace TestPlugin
 		[Command]
 		public void Minet(Player player, string commands, string done, string gurun, string made, string it)
 		{
+		}
+
+		[Command(Aliases = new[] {"resend"})]
+		public void ResendChunks(Player player)
+		{
+			Task.Run(() =>
+			{
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Resent chunks."); });
+			});
+		}
+
+		[Command(Aliases = new[] {"cslc"})]
+		public void CalculateSkyLightForChunk(Player player)
+		{
+			Task.Run(() =>
+			{
+				Stopwatch sw = new Stopwatch();
+				var level = player.Level;
+				ChunkColumn chunk = level.GetChunk((BlockCoordinates) player.KnownPosition);
+				sw.Start();
+				new SkyLightCalculations().RecalcSkyLight(chunk, level);
+				sw.Stop();
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Calculated skylights ({sw.ElapsedMilliseconds}ms) and resent chunks."); });
+			});
 		}
 
 		[Command(Aliases = new[] {"csl"})]
@@ -284,8 +311,8 @@ namespace TestPlugin
 			int width = 4;
 			int height = 5;
 
-			int x = (int)player.KnownPosition.X - width / 2;
-			int y = (int)player.KnownPosition.Y - 1;
+			int x = (int) player.KnownPosition.X - width/2;
+			int y = (int) player.KnownPosition.Y - 1;
 			int z = (int) player.KnownPosition.Z + 1;
 
 			PortalInfo portal = new PortalInfo();

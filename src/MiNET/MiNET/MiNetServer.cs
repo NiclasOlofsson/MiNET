@@ -1143,6 +1143,7 @@ namespace MiNET
 			//if (message is McpeMoveEntity) return;
 			if (message is McpeSetEntityData) return;
 			if (message is McpeUpdateBlock) return;
+			if (message is McpeText) return;
 			//if (!Debugger.IsAttached) return;
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);

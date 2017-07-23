@@ -119,6 +119,7 @@ namespace MiNET.Items
 			else if (id == 61) item = new ItemFurnace();
 			else if (id == 63) item = new ItemSign();
 			else if (id == 68) item = new ItemSign();
+			else if (id == 111) item = new ItemWaterlily();
 			else if (id == 116) item = new ItemEnchantingTable();
 			else if (id == 158) item = new ItemSlab(id, metadata);
 			else if (id == 182) item = new ItemSlab(id, metadata);

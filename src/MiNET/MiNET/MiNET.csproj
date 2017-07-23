@@ -525,6 +525,7 @@
     <Compile Include="Items\ItemStonePickaxe.cs" />
     <Compile Include="Items\ItemStoneShovel.cs" />
     <Compile Include="Items\ItemStoneSword.cs" />
+    <Compile Include="Items\ItemWaterlily.cs" />
     <Compile Include="Items\ItemWheat.cs" />
     <Compile Include="Items\ItemWheatSeeds.cs" />
     <Compile Include="Items\ItemWoodenAxe.cs" />

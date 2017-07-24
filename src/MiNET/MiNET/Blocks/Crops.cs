@@ -121,7 +121,7 @@ namespace MiNET.Blocks
 			return calculateGrowthChance;
 		}
 
-		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			if (base.CanPlace(world, blockCoordinates, face))
 			{

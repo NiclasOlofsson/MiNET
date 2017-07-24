@@ -66,7 +66,7 @@ namespace MiNET.Items
 					break; // South 
 			}
 
-			if (!block.CanPlace(world, face)) return;
+			if (!block.CanPlace(world, blockCoordinates, face)) return;
 
 			BlockFace lowerFace = BlockFace.None;
 			switch (block.Metadata)
@@ -91,7 +91,7 @@ namespace MiNET.Items
 				Metadata = (byte) (block.Metadata | 0x08)
 			};
 
-			if (!blockUpper.CanPlace(world, face)) return;
+			if (!blockUpper.CanPlace(world, blockCoordinates, face)) return;
 
 			//TODO: Check down from both blocks, must be solids
 

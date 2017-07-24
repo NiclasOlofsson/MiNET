@@ -19,7 +19,7 @@ namespace MiNET.Blocks
 			Hardness = 3;
 		}
 
-		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(blockCoordinates + Level.Up).IsReplacible;
 		}

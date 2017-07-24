@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			wheat.Metadata = (byte) Metadata;
 
-			if (!wheat.CanPlace(world, face)) return;
+			if (!wheat.CanPlace(world, targetCoordinates, face)) return;
 
 			if (wheat.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

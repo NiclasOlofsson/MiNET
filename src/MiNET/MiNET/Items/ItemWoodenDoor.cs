@@ -54,7 +54,7 @@ namespace MiNET.Items
 				flag2 = true;
 			}
 
-			if (!block.CanPlace(world, face)) return;
+			if (!block.CanPlace(world, blockCoordinates,  face)) return;
 
 			// The upper doore block, meta marks upper and
 			// sets orientation based on ajecent blocks

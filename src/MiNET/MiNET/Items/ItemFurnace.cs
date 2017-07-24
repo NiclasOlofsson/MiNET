@@ -25,7 +25,7 @@ namespace MiNET.Items
 				Coordinates = coor,
 			};
 
-			if (!furnace.CanPlace(world, face)) return;
+			if (!furnace.CanPlace(world, blockCoordinates, face)) return;
 
 			furnace.PlaceBlock(world, player, coor, face, faceCoords);
 

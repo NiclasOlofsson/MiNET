@@ -70,7 +70,7 @@ namespace MiNET.Items
 				Log.Debug("Can't build where you are standing: " + _block.GetBoundingBox());
 				return;
 			}
-			if (!_block.CanPlace(world, face)) return;
+			if (!_block.CanPlace(world, targetCoordinates, face)) return;
 
 			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

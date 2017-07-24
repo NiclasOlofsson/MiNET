@@ -110,7 +110,7 @@ namespace MiNET.Blocks
 			world.GetBlock(Coordinates + BlockCoordinates.North).BlockUpdate(world, Coordinates);
 		}
 
-		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public virtual bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// No default placement. Return unhandled.
 			return false;

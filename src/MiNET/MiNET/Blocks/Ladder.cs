@@ -15,13 +15,15 @@ namespace MiNET.Blocks
 
 		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
 		{
-			return !world.GetBlock(blockCoordinates).IsTransparent && face != BlockFace.Down && face != BlockFace.Up;
+			return /*!world.GetBlock(blockCoordinates).IsTransparent &&*/ face != BlockFace.Down && face != BlockFace.Up;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Metadata = (byte) face;
-			return base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			world.SetBlock(this);
+
+			return true;
 		}
 	}
 }

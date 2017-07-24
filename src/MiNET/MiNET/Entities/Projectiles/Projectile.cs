@@ -22,6 +22,9 @@ namespace MiNET.Entities.Projectiles
 		public int PowerLevel { get; set; } = 0;
 		public float HitBoxPrecision { get; set; } = 0.3f;
 
+		public Entity CollideEntity { get; protected set; }
+		public Block CollideBlock { get; protected set; }
+
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
@@ -30,6 +33,8 @@ namespace MiNET.Entities.Projectiles
 			Ttl = 0;
 			DespawnOnImpact = true;
 			BroadcastMovement = false;
+			CollideEntity = null;
+			CollideBlock = null;
 		}
 
 		private object _spawnSync = new object();
@@ -177,8 +182,10 @@ namespace MiNET.Entities.Projectiles
 			}
 		}
 
-		private Entity CheckEntityCollide(Vector3 position, Vector3 direction)
+		protected virtual Entity CheckEntityCollide(Vector3 position, Vector3 direction)
 		{
+			if (CollideEntity != null) return CollideEntity;
+
 			Ray2 ray = new Ray2
 			{
 				x = position,
@@ -197,6 +204,7 @@ namespace MiNET.Entities.Projectiles
 
 					Vector3 p = ray.x + new Vector3((float) ray.tNear)*ray.d;
 					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
+					CollideEntity = entity;
 					return entity;
 				}
 			}
@@ -214,6 +222,7 @@ namespace MiNET.Entities.Projectiles
 
 					Vector3 p = ray.x + new Vector3((float) ray.tNear)*ray.d;
 					KnownPosition = new PlayerLocation(p.X, p.Y, p.Z);
+					CollideEntity = entity;
 					return entity;
 				}
 			}
@@ -221,8 +230,10 @@ namespace MiNET.Entities.Projectiles
 			return null;
 		}
 
-		private bool CheckBlockCollide(PlayerLocation location)
+		protected virtual bool CheckBlockCollide(PlayerLocation location)
 		{
+			if (CollideBlock != null) return true;
+
 			var bbox = GetBoundingBox();
 			var pos = location.ToVector3();
 
@@ -281,6 +292,7 @@ namespace MiNET.Entities.Projectiles
 			// End debug block
 
 			Velocity = Vector3.Zero;
+			CollideBlock = firstBlock;
 			return true;
 		}
 

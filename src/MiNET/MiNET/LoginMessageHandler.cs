@@ -202,7 +202,10 @@ namespace MiNET
 					if (Log.IsDebugEnabled) Log.Debug($"JSON:\n{json}");
 
 					string validationKey = null;
-					foreach (dynamic o in json.chain)
+					JArray chain = json.chain;
+					var chainArray = chain.ToArray();
+					string identityPublicKey = null;
+					foreach (dynamic o in chainArray)
 					{
 						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
 
@@ -219,6 +222,26 @@ namespace MiNET
 						if (headers.ContainsKey("x5u"))
 						{
 							string certString = headers["x5u"];
+							if (identityPublicKey == null && CertificateData.MojangRootKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
+							{
+								Log.Debug("Key is ok, and got Mojang root");
+							}
+							else if (identityPublicKey == null)
+							{
+								if (chainArray.Length > 1)
+								{
+									Log.Debug("Got client cert (client root)");
+									continue;
+								}
+								else if (chainArray.Length == 1)
+								{
+									Log.Debug("Selfsigned chain");
+								}
+							}
+							else if (identityPublicKey.Equals(certString))
+							{
+								Log.Debug("Derived Key is ok");
+							}
 
 							if (Log.IsDebugEnabled)
 							{
@@ -233,6 +256,8 @@ namespace MiNET
 
 							if (data != null)
 							{
+								identityPublicKey = data.IdentityPublicKey;
+
 								if (Log.IsDebugEnabled) Log.Debug("Decoded token success");
 
 								if (CertificateData.MojangRootKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
@@ -347,6 +372,11 @@ namespace MiNET
 			{
 				Log.Error("Decrypt", e);
 			}
+		}
+
+		public static string PrintSignature(string input)
+		{
+			return Encoding.UTF8.GetString(Base64Url.Decode(input));
 		}
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)

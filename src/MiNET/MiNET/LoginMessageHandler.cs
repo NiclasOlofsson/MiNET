@@ -365,6 +365,13 @@ namespace MiNET
 				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
 				return;
 			}
+			
+			if (_playerInfo.ProtocolVersion > 113)
+			{
+				Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Downgrade to join this server.");
+				return;
+			}
 
 			if (Config.GetProperty("ForceXBLAuthentication", false) && _playerInfo.CertificateData.ExtraData.Xuid == null)
 			{

@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Xml.Xsl;
 using fNbt;
 using Jose;
 using log4net;
@@ -82,67 +83,42 @@ namespace MiNET
 
 		protected void DecodeCert(McpeLogin message)
 		{
-			// Get bytes
 			byte[] buffer = message.payload;
-
-			//Log.Debug($"Unknown byte in login packet is: {message.unknown}");
 
 			if (message.payload.Length != buffer.Length)
 			{
 				Log.Debug($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
 				throw new Exception($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
 			}
-			// Decompress bytes
 
-			Log.Debug("Lenght: " + message.payload.Length + ", Message: " + Convert.ToBase64String(buffer));
-
-			//MemoryStream stream = new MemoryStream(buffer);
-			//if (stream.ReadByte() != 0x78)
-			//{
-			//	throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
-			//}
-			//stream.ReadByte();
+			if (Log.IsDebugEnabled) Log.Debug("Lenght: " + message.payload.Length + ", Message: " + Convert.ToBase64String(buffer));
 
 			string certificateChain;
 			string skinData;
 
-			//using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+			try
 			{
-				// Get actual package out of bytes
-				//using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
-				{
-					//defStream2.CopyTo(destination);
+				var destination = new MemoryStream(buffer);
+				destination.Position = 0;
+				NbtBinaryReader reader = new NbtBinaryReader(destination, false);
 
-					var destination = new MemoryStream(buffer);
-					destination.Position = 0;
-					NbtBinaryReader reader = new NbtBinaryReader(destination, false);
+				var countCertData = reader.ReadInt32();
+				certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(countCertData));
+				if (Log.IsDebugEnabled) Log.Debug($"Certificate Chain (Lenght={countCertData})\n{certificateChain}");
 
-					try
-					{
-						var countCertData = reader.ReadInt32();
-						Log.Debug("Count cert: " + countCertData);
-						certificateChain = Encoding.UTF8.GetString(reader.ReadBytes(countCertData));
-						Log.Debug("Decompressed certificateChain " + certificateChain);
-
-						var countSkinData = reader.ReadInt32();
-						Log.Debug("Count skin: " + countSkinData);
-						skinData = Encoding.UTF8.GetString(reader.ReadBytes(countSkinData));
-						Log.Debug("Decompressed skinData" + skinData);
-					}
-					catch (Exception e)
-					{
-						Log.Error("Parsing login", e);
-						return;
-					}
-				}
+				var countSkinData = reader.ReadInt32();
+				skinData = Encoding.UTF8.GetString(reader.ReadBytes(countSkinData));
+				if (Log.IsDebugEnabled) Log.Debug($"Skin data (Lenght={countSkinData})\n{skinData}");
 			}
-
+			catch (Exception e)
+			{
+				Log.Error("Parsing login", e);
+				return;
+			}
 
 			try
 			{
 				{
-					if (Log.IsDebugEnabled) Log.Debug("Input SKIN string: " + skinData);
-
 					IDictionary<string, dynamic> headers = JWT.Headers(skinData);
 					dynamic payload = JObject.Parse(JWT.Payload(skinData));
 
@@ -190,103 +166,104 @@ namespace MiNET
 					}
 					catch (Exception e)
 					{
-						Log.Error("Skin info", e);
+						Log.Error("Parsing skin data", e);
 					}
 				}
 
 				{
-					if (Log.IsDebugEnabled) Log.Debug("Input JSON string: " + certificateChain);
-
 					dynamic json = JObject.Parse(certificateChain);
 
-					if (Log.IsDebugEnabled) Log.Debug($"JSON:\n{json}");
+					if (Log.IsDebugEnabled) Log.Debug($"Certificate JSON:\n{json}");
+
+					JArray chain = json.chain;
+					//var chainArray = chain.ToArray();
 
 					string validationKey = null;
-					JArray chain = json.chain;
-					var chainArray = chain.ToArray();
 					string identityPublicKey = null;
-					foreach (dynamic o in chainArray)
+
+					foreach (JToken token in chain)
 					{
-						IDictionary<string, dynamic> headers = JWT.Headers(o.ToString());
+						IDictionary<string, dynamic> headers = JWT.Headers(token.ToString());
 
 						if (Log.IsDebugEnabled)
 						{
-							Log.Debug("Raw chain element:\n" + o.ToString());
+							Log.Debug("Raw chain element:\n" + token.ToString());
 							Log.Debug($"JWT Header: {string.Join(";", headers)}");
 
-							dynamic jsonPayload = JObject.Parse(JWT.Payload(o.ToString()));
+							dynamic jsonPayload = JObject.Parse(JWT.Payload(token.ToString()));
 							Log.Debug($"JWT Payload:\n{jsonPayload}");
 						}
 
-						// x5u cert (string): MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
-						if (headers.ContainsKey("x5u"))
+						// Mojang root x5u cert (string): MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE8ELkixyLcwlZryUQcu1TvPOmI2B7vX83ndnWRUaXm74wFfa5f/lwQNTfrLVHa2PmenpGI6JhIMUJaWZrjmMj90NoKNFSNBuKdm8rYiXsfaz3K36x/1U26HpG0ZxK/V1V
+
+						if (!headers.ContainsKey("x5u")) continue;
+
+						string x5u = headers["x5u"];
+
+						if (identityPublicKey == null)
 						{
-							string certString = headers["x5u"];
-							if (identityPublicKey == null && CertificateData.MojangRootKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
+							if (CertificateData.MojangRootKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
 								Log.Debug("Key is ok, and got Mojang root");
 							}
-							else if (identityPublicKey == null)
+							else if (chain.Count > 1)
 							{
-								if (chainArray.Length > 1)
-								{
-									Log.Debug("Got client cert (client root)");
-									continue;
-								}
-								else if (chainArray.Length == 1)
-								{
-									Log.Debug("Selfsigned chain");
-								}
+								Log.Debug("Got client cert (client root)");
+								continue;
 							}
-							else if (identityPublicKey.Equals(certString))
+							else if (chain.Count == 1)
 							{
-								Log.Debug("Derived Key is ok");
+								Log.Debug("Selfsigned chain");
 							}
+						}
+						else if (identityPublicKey.Equals(x5u))
+						{
+							Log.Debug("Derived Key is ok");
+						}
 
-							if (Log.IsDebugEnabled)
+						if (Log.IsDebugEnabled)
+						{
+							Log.Debug($"x5u cert (string): {x5u}");
+							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(x5u);
+							Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+						}
+
+						// Validate
+						CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(x5u);
+						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), newKey);
+
+						if (data != null)
+						{
+							identityPublicKey = data.IdentityPublicKey;
+
+							if (Log.IsDebugEnabled) Log.Debug("Decoded token success");
+
+							if (CertificateData.MojangRootKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
-								Log.Debug($"x5u cert (string): {certString}");
-								ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(certString);
-								Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+								Log.Debug("Got Mojang key. Is valid = " + data.CertificateAuthority);
+								validationKey = data.IdentityPublicKey;
 							}
-
-							// Validate
-							CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(certString);
-							CertificateData data = JWT.Decode<CertificateData>(o.ToString(), newKey);
-
-							if (data != null)
+							else if (validationKey != null && validationKey.Equals(x5u, StringComparison.InvariantCultureIgnoreCase))
 							{
-								identityPublicKey = data.IdentityPublicKey;
-
-								if (Log.IsDebugEnabled) Log.Debug("Decoded token success");
-
-								if (CertificateData.MojangRootKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
-								{
-									Log.Debug("Got Mojang key. Is valid = " + data.CertificateAuthority);
-									validationKey = data.IdentityPublicKey;
-								}
-								else if (validationKey != null && validationKey.Equals(certString, StringComparison.InvariantCultureIgnoreCase))
-								{
-									_playerInfo.CertificateData = data;
-								}
-								else
-								{
-									if (data.ExtraData == null) continue;
-
-									// Self signed, make sure they don't fake XUID
-									if (data.ExtraData.Xuid != null)
-									{
-										Log.Warn("Received fake XUID from " + data.ExtraData.DisplayName);
-										data.ExtraData.Xuid = null;
-									}
-
-									_playerInfo.CertificateData = data;
-								}
+								_playerInfo.CertificateData = data;
 							}
 							else
 							{
-								Log.Error("Not a valid Identity Public Key for decoding");
+								if (data.ExtraData == null) continue;
+
+								// Self signed, make sure they don't fake XUID
+								if (data.ExtraData.Xuid != null)
+								{
+									Log.Warn("Received fake XUID from " + data.ExtraData.DisplayName);
+									data.ExtraData.Xuid = null;
+								}
+
+								_playerInfo.CertificateData = data;
 							}
+						}
+						else
+						{
+							Log.Error("Not a valid Identity Public Key for decoding");
 						}
 					}
 
@@ -372,11 +349,6 @@ namespace MiNET
 			{
 				Log.Error("Decrypt", e);
 			}
-		}
-
-		public static string PrintSignature(string input)
-		{
-			return Encoding.UTF8.GetString(Base64Url.Decode(input));
 		}
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)

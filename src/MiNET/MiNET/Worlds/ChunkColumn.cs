@@ -31,6 +31,7 @@ using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -305,8 +306,8 @@ namespace MiNET.Worlds
 
 							isInAir = false;
 
-							byte block = GetBlock(x, y, z);
-							if (block == 0 || block == 20 || block == 241)
+							byte bid = GetBlock(x, y, z);
+							if (bid == 0 || (BlockFactory.TransparentBlocksFast[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
 							{
 								SetSkyLight(x, y, z, 15);
 							}
@@ -325,6 +326,37 @@ namespace MiNET.Worlds
 				}
 			}
 		}
+
+		public int GetRecalatedHeight(int x, int z)
+		{
+			bool isInAir = true;
+
+			for (int y = 255; y >= 0; y--)
+			{
+				{
+					Chunk chunk = chunks[y >> 4];
+					if (isInAir && chunk.IsAllAir())
+					{
+						if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
+						y -= 15;
+						continue;
+					}
+
+					isInAir = false;
+
+					byte bid = GetBlock(x, y, z);
+					if (bid == 0 || (BlockFactory.TransparentBlocksFast[bid] == 1 && bid != 18 && bid != 30))
+					{
+						continue;
+					}
+
+					return y + 1;
+				}
+			}
+
+			return 0;
+		}
+
 
 		internal void ClearCache()
 		{

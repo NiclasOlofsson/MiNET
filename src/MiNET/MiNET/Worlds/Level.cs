@@ -140,18 +140,18 @@ namespace MiNET.Worlds
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
 			}
 
-			if (Dimension == Dimension.Overworld)
-			{
-				if (Config.GetProperty("CheckForSafeSpawn", false))
-				{
-					var height = GetHeight((BlockCoordinates) SpawnPoint);
-					if (height > SpawnPoint.Y) SpawnPoint.Y = height;
-					Log.Debug("Checking for safe spawn");
-				}
+			//if (Dimension == Dimension.Overworld)
+			//{
+			//	if (Config.GetProperty("CheckForSafeSpawn", false))
+			//	{
+			//		var height = GetHeight((BlockCoordinates) SpawnPoint);
+			//		if (height > SpawnPoint.Y) SpawnPoint.Y = height;
+			//		Log.Debug("Checking for safe spawn");
+			//	}
 
-				NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
-				TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
-			}
+			//	NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
+			//	TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
+			//}
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
@@ -828,9 +828,19 @@ namespace MiNET.Worlds
 			return GetBlock(new BlockCoordinates(x, y, z));
 		}
 
-		public Block GetBlock(BlockCoordinates blockCoordinates)
+		public Block GetBlock(BlockCoordinates blockCoordinates, ChunkColumn tryChunk = null)
 		{
-			ChunkColumn chunk = WorldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
+			ChunkColumn chunk = null;
+
+			var chunkCoordinates = new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4);
+			if (tryChunk != null && tryChunk.x == chunkCoordinates.X && tryChunk.z == chunkCoordinates.Z)
+			{
+				chunk = tryChunk;
+			}
+			else
+			{
+				chunk = WorldProvider.GenerateChunkColumn(chunkCoordinates);
+			}
 			if (chunk == null) return new Air {Coordinates = blockCoordinates, SkyLight = 15};
 
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
@@ -902,6 +912,15 @@ namespace MiNET.Worlds
 			return chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 		}
 
+		public byte GetBlockLight(BlockCoordinates blockCoordinates)
+		{
+			ChunkColumn chunk = GetChunk(blockCoordinates);
+
+			if (chunk == null) return 15;
+
+			return chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+		}
+
 		public ChunkColumn GetChunk(BlockCoordinates blockCoordinates)
 		{
 			return GetChunk((ChunkCoordinates) blockCoordinates);
@@ -912,7 +931,7 @@ namespace MiNET.Worlds
 			return WorldProvider.GenerateChunkColumn(chunkCoordinates);
 		}
 
-		public void SetBlock(int x, int y, int z, int blockId, int metadata=0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		public void SetBlock(int x, int y, int z, int blockId, int metadata = 0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
 		{
 			Block block = BlockFactory.GetBlockById((byte) blockId);
 			block.Coordinates = new BlockCoordinates(x, y, z);
@@ -928,15 +947,16 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = WorldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Metadata);
+
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
-			//chunk.RecalcHeight();
-			//new SkyLightCalculations(true).CalculateSkyLights(this, new[] {chunk});
-			//CalculateSkyLight(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
-			if (calculateLight && block.LightLevel > 0)
+
+			if (calculateLight /* && block.LightLevel > 0*/)
 			{
+				new SkyLightCalculations().Calculate(this, block.Coordinates);
+
 				block.BlockLight = (byte) block.LightLevel;
 				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);
-				BlockLightCalculations.Calculate(this, block);
+				BlockLightCalculations.Calculate(this, block.Coordinates);
 			}
 
 			if (!broadcast) return;
@@ -963,15 +983,21 @@ namespace MiNET.Worlds
 
 		private void DoLight(int x, int y, int z)
 		{
-			Block block = GetBlock(x, y, z);
+			//Block block = GetBlock(x, y, z);
 			//if (block is Air) return;
-			new SkyLightCalculations().Calculate(this, block);
+			//new SkyLightCalculations().Calculate(this, block);
 		}
 
 		public void SetBlockLight(Block block)
 		{
 			ChunkColumn chunk = WorldProvider.GenerateChunkColumn(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
 			chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.BlockLight);
+		}
+
+		public void SetBlockLight(BlockCoordinates coordinates, byte blockLight)
+		{
+			ChunkColumn chunk = GetChunk(coordinates);
+			chunk?.SetBlocklight(coordinates.X & 0x0f, coordinates.Y & 0xff, coordinates.Z & 0x0f, blockLight);
 		}
 
 		public void SetSkyLight(Block block)
@@ -1132,9 +1158,9 @@ namespace MiNET.Worlds
 
 			if (!canBreak || !AllowBreak || player.GameMode == GameMode.Spectator || !OnBlockBreak(new BlockBreakEventArgs(player, this, block, null)))
 			{
-			    // Revert
+				// Revert
 
-			    RevertBlockAction(player, block, blockEntity);
+				RevertBlockAction(player, block, blockEntity);
 			}
 			else
 			{
@@ -1153,27 +1179,27 @@ namespace MiNET.Worlds
 	        //message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 	        //player.SendPackage(message);
 
-	        // Revert block entity if exists
-	        if (blockEntity != null)
-	        {
-	            Nbt nbt = new Nbt
-	            {
-	                NbtFile = new NbtFile
-	                {
-	                    BigEndian = false,
-	                    RootTag = blockEntity.GetCompound()
-	                }
-	            };
+			// Revert block entity if exists
+			if (blockEntity != null)
+			{
+				Nbt nbt = new Nbt
+				{
+					NbtFile = new NbtFile
+					{
+						BigEndian = false,
+						RootTag = blockEntity.GetCompound()
+					}
+				};
 
-	            var entityData = McpeBlockEntityData.CreateObject();
-	            entityData.namedtag = nbt;
-	            entityData.coordinates = blockEntity.Coordinates;
+				var entityData = McpeBlockEntityData.CreateObject();
+				entityData.namedtag = nbt;
+				entityData.coordinates = blockEntity.Coordinates;
 
-	            player.SendPackage(entityData);
-	        }
-	    }
+				player.SendPackage(entityData);
+			}
+		}
 
-	    public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
+		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
 		{
 			block.BreakBlock(this);
 			List<Item> drops = new List<Item>();

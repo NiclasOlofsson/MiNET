@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			potatos.Metadata = (byte) Metadata;
 
-			if (!potatos.CanPlace(world, face)) return;
+			if (!potatos.CanPlace(world, targetCoordinates, face)) return;
 
 			if (potatos.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

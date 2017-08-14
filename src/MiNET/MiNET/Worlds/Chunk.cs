@@ -50,8 +50,7 @@ namespace MiNET.Worlds
 		public Chunk()
 		{
 			ChunkColumn.Fill<byte>(skylight.Data, 0xff);
-			//BiomeUtils utils = new BiomeUtils();
-			//utils.PrecomputeBiomeColors();
+			//ChunkColumn.Fill<byte>(blocklight.Data, 0x88);
 		}
 
 		public bool IsDirty => _isDirty;

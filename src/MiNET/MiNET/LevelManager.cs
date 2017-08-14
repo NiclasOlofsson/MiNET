@@ -95,19 +95,24 @@ namespace MiNET
 						AnvilWorldProvider wp = level.WorldProvider as AnvilWorldProvider;
 						if (wp != null)
 						{
-							wp.PruneAir();
-							wp.MakeAirChunksAroundWorldToCompensateForBadRendering();
-
-							SkyLightCalculations.Calculate(level);
-
+							wp.Locked = true;
 							Stopwatch sw = new Stopwatch();
+
+							var chunkCount = 0;
+							sw.Restart();
+							SkyLightCalculations.Calculate(level);
+							sw.Stop();
+							chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
+							Log.Debug($"Recalculated sky light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks. Time {sw.ElapsedMilliseconds}ms");
 
 							int count = wp.LightSources.Count;
 							sw.Restart();
 							RecalculateBlockLight(level, wp);
 
-							var chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-							Log.Debug($"Recalc light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
+							chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
+							Log.Debug($"Recalculated sky and block light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms. Touched {BlockLightCalculations.touches}");
+
+							wp.Locked = false;
 						}
 					}
 				}
@@ -120,14 +125,10 @@ namespace MiNET
 			return level;
 		}
 
-		public void RecalculateBlockLight(Level level, AnvilWorldProvider wp)
+		public static void RecalculateBlockLight(Level level, AnvilWorldProvider wp)
 		{
-			while (wp.LightSources.Count > 0)
-			{
-				var block = wp.LightSources.Dequeue();
-				block = level.GetBlock(block.Coordinates);
-				BlockLightCalculations.Calculate(level, block);
-			}
+			var sources = wp.LightSources.ToArray();
+			Parallel.ForEach(sources, block => { BlockLightCalculations.Calculate(level, block.Coordinates); });
 		}
 
 		public void RemoveLevel(Level level)
@@ -156,8 +157,10 @@ namespace MiNET
 			AnvilWorldProvider overworld = level.WorldProvider as AnvilWorldProvider;
 			if (overworld == null) return null;
 
-			IWorldProvider worldProvider = new AnvilWorldProvider(overworld.BasePath)
+			var worldProvider = new AnvilWorldProvider(overworld.BasePath)
 			{
+				ReadBlockLight = overworld.ReadBlockLight,
+				ReadSkyLight = overworld.ReadSkyLight,
 				Dimension = dimension,
 				MissingChunkProvider = new AirWorldGenerator(),
 			};
@@ -172,6 +175,20 @@ namespace MiNET
 			};
 
 			newLevel.Initialize();
+
+			if (Config.GetProperty("CalculateLights", false))
+			{
+				SkyLightCalculations.Calculate(newLevel);
+
+				int count = worldProvider.LightSources.Count;
+				Log.Debug($"Recalculating block light for {count} light sources.");
+				Stopwatch sw = new Stopwatch();
+				sw.Start();
+				RecalculateBlockLight(newLevel, worldProvider);
+
+				var chunkCount = worldProvider._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
+				Log.Debug($"Recalc sky and block light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
+			}
 
 			return newLevel;
 		}

@@ -13,15 +13,17 @@ namespace MiNET.Blocks
 			Hardness = 0.4f;
 		}
 
-		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			return !world.GetBlock(blockCoordinates).IsTransparent && face != BlockFace.Down && face != BlockFace.Up;
+			return !world.GetBlock(targetCoordinates).IsTransparent && face != BlockFace.Down && face != BlockFace.Up;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Metadata = (byte) face;
-			return base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+			world.SetBlock(this);
+
+			return true;
 		}
 	}
 }

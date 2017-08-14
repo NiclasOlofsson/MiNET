@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using log4net;
@@ -32,7 +57,7 @@ namespace MiNET.Items
 		private static Dictionary<string, short> BuildNameToId()
 		{
 			var nameToId = new Dictionary<string, short>();
-			for (short idx = 256; idx < 500; idx++)
+			for (short idx = 0; idx < 500; idx++)
 			{
 				Item item = GetItem(idx);
 				string name = item.GetType().Name.ToLowerInvariant();
@@ -44,9 +69,28 @@ namespace MiNET.Items
 					continue;
 				}
 
+				if (name.Equals("itemblock"))
+				{
+					ItemBlock itemBlock = item as ItemBlock;
+					if (itemBlock != null)
+					{
+						Block block = itemBlock.Block;
+						name = block?.GetType().Name.ToLowerInvariant();
+						if (name == null || name.Equals("block"))
+						{
+							continue;
+						}
+					}
+				}
+				else
+				{
+					name = name.Substring(4);
+				}
+
 				try
 				{
-					nameToId.Add(name.Substring(4), idx);
+					nameToId.Remove(name); // This is in case a block was added that have item that should be used.
+					nameToId.Add(name, idx);
 				}
 				catch (Exception e)
 				{
@@ -90,13 +134,13 @@ namespace MiNET.Items
 
 			if (id == 0) item = new ItemAir();
 			else if (id == 54) item = new ItemChest();
-			else if (id == 44) item = new ItemSlab(id, metadata);
+			else if (id == 44) item = new ItemStoneSlab(metadata);
 			else if (id == 61) item = new ItemFurnace();
 			else if (id == 63) item = new ItemSign();
 			else if (id == 68) item = new ItemSign();
 			else if (id == 116) item = new ItemEnchantingTable();
-			else if (id == 158) item = new ItemSlab(id, metadata);
-			else if (id == 182) item = new ItemSlab(id, metadata);
+			else if (id == 158) item = new ItemWoodenSlab(metadata);
+			else if (id == 182) item = new ItemStoneSlab2(metadata);
 			else if (id == 199) item = new ItemItemFrame();
 			else if (id == 256) item = new ItemIronShovel();
 			else if (id == 257) item = new ItemIronPickaxe();
@@ -162,6 +206,7 @@ namespace MiNET.Items
 			else if (id == 332) item = new ItemSnowball();
 			else if (id == 344) item = new ItemEgg();
 			else if (id == 345) item = new ItemCompass();
+			else if (id == 351) item = new ItemDye();
 			else if (id == 352) item = new ItemBone();
 			else if (id == 355) item = new ItemBed();
 			else if (id == 357) item = new ItemCookie();

@@ -43,7 +43,7 @@ namespace TestPlugin.NiceLobby
 				Coordinates = coor,
 			};
 
-			if (!itemFrame.CanPlace(world, face)) return;
+			if (!itemFrame.CanPlace(world, blockCoordinates, face)) return;
 
 			itemFrame.PlaceBlock(world, player, coor, face, faceCoords);
 

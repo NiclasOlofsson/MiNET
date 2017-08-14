@@ -78,6 +78,8 @@ namespace MiNET.Worlds
 
 		public bool ReadBlockLight { get; set; } = true;
 
+		public bool Locked { get; set; } = false;
+
 		static AnvilWorldProvider()
 		{
 			var air = new Mapper(0, (i, b) => 0);
@@ -276,6 +278,14 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
+			if (Locked)
+			{
+				ChunkColumn chunk;
+				_chunkCache.TryGetValue(chunkCoordinates, out chunk);
+				return chunk;
+			}
+
+
 			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate
 			// if called in rapid succession. However, for the scenario of the provider, this is highly unlikely.
 			return _chunkCache.GetOrAdd(chunkCoordinates, coordinates => GetChunk(coordinates, BasePath, MissingChunkProvider));
@@ -460,6 +470,8 @@ namespace MiNET.Worlds
 
 					//NbtList tileTicks = dataTag["TileTicks"] as NbtList;
 
+					chunk.RecalcHeight();
+
 					chunk.isDirty = false;
 					chunk.NeedSave = false;
 					return chunk;
@@ -538,9 +550,14 @@ namespace MiNET.Worlds
 						{
 							chunk.SetBlocklight(x, y, z, Nibble4(blockLight, anvilIndex));
 						}
+
 						if (ReadSkyLight)
 						{
 							chunk.SetSkylight(x, y, z, Nibble4(skyLight, anvilIndex));
+						}
+						else
+						{
+							chunk.SetSkylight(x, y, z, 0);
 						}
 
 						if (blockId == 0) continue;
@@ -564,7 +581,8 @@ namespace MiNET.Worlds
 						{
 							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, y, z));
 							block.Coordinates = new BlockCoordinates(x + (chunkColumn.x << 4), yi, z + (chunkColumn.z << 4));
-							LightSources.Enqueue(block);
+							chunk.SetBlocklight(x, y, z, (byte) block.LightLevel);
+							lock (LightSources) LightSources.Enqueue(block);
 						}
 					}
 				}
@@ -612,8 +630,7 @@ namespace MiNET.Worlds
 
 		public long GetTime()
 		{
-			return 6000;
-			//return LevelInfo.Time;
+			return LevelInfo.Time;
 		}
 
 		public string GetName()

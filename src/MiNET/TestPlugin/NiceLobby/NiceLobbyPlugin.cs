@@ -108,36 +108,52 @@ namespace TestPlugin.NiceLobby
 
 			if (e.Level.TickTime%2 == 0)
 			{
+				BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
+
 				player.AddPopup(new Popup()
 				{
 					Id = 10,
 					MessageType = MessageType.Tip,
-					Message = GetCompass(player.KnownPosition.HeadYaw),
+					Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}",
 					Duration = 20*5,
 				});
 			}
 
 
-			if (player.IsGliding)
-			{
-				if (player.CurrentSpeed > 30)
-				{
-					var particle = new CriticalParticle(level);
-					particle.Position = player.KnownPosition.ToVector3();
-					particle.Spawn();
-				}
+			// Compass
+			//if (e.Level.TickTime%2 == 0)
+			//{
+			//	player.AddPopup(new Popup()
+			//	{
+			//		Id = 10,
+			//		MessageType = MessageType.Tip,
+			//		Message = GetCompass(player.KnownPosition.HeadYaw),
+			//		Duration = 20*5,
+			//	});
+			//}
 
-				if (level.TickTime%10 == 0)
-				{
-					player.AddPopup(new Popup()
-					{
-						Id = 10,
-						MessageType = MessageType.Tip,
-						Message = $"Speed: {player.CurrentSpeed:F2}m/s",
-						Duration = 20*5,
-					});
-				}
-			}
+
+			// Glide extension
+			//if (player.IsGliding)
+			//{
+			//	if (player.CurrentSpeed > 30)
+			//	{
+			//		var particle = new CriticalParticle(level);
+			//		particle.Position = player.KnownPosition.ToVector3();
+			//		particle.Spawn();
+			//	}
+
+			//	if (level.TickTime%10 == 0)
+			//	{
+			//		player.AddPopup(new Popup()
+			//		{
+			//			Id = 10,
+			//			MessageType = MessageType.Tip,
+			//			Message = $"Speed: {player.CurrentSpeed:F2}m/s",
+			//			Duration = 20*5,
+			//		});
+			//	}
+			//}
 		}
 
 		public static float Wrap(float angle)

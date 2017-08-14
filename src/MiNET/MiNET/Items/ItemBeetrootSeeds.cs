@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			beetroot.Metadata = (byte) Metadata;
 
-			if (!beetroot.CanPlace(world, face)) return;
+			if (!beetroot.CanPlace(world, targetCoordinates, face)) return;
 
 			if (beetroot.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

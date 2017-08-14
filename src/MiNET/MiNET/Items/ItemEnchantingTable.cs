@@ -37,7 +37,7 @@ namespace MiNET.Items
 				Coordinates = coor,
 			};
 
-			if (!table.CanPlace(world, face)) return;
+			if (!table.CanPlace(world, blockCoordinates, face)) return;
 
 			table.PlaceBlock(world, player, coor, face, faceCoords);
 

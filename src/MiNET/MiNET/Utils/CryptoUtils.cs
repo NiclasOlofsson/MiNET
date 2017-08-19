@@ -248,11 +248,11 @@ namespace MiNET.Utils
 			Skin skin = new Skin
 			{
 				Slim = false,
-				Texture = Encoding.Default.GetBytes(new string('Z', 8192)),
-				SkinType = "Standard_Custom"
+				SkinData = Encoding.Default.GetBytes(new string('Z', 8192)),
+				SkinId = "Standard_Custom"
 			};
 
-			string skin64 = Convert.ToBase64String(skin.Texture);
+			string skin64 = Convert.ToBase64String(skin.SkinData);
 
 
 			//{
@@ -280,12 +280,12 @@ namespace MiNET.Utils
 	""DefaultInputMode"": 1,
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
-	""GameVersion"": ""1.1.0.4"",
+	""GameVersion"": ""1.2.0.15"",
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
-	""SkinId"": ""{skin.SkinType}"",
+	""SkinId"": ""{skin.SkinId}"",
 	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
 	""UIProfile"": 0
 }}";

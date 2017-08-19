@@ -153,6 +153,8 @@ namespace MiNET.Worlds
 			//	TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
 			//}
 
+			SpawnPoint.Y = 20;
+
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 
 			_tickTimer = new Stopwatch();

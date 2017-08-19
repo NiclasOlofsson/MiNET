@@ -31,7 +31,7 @@ namespace MiNET.Entities
 			IsSpawned = false;
 
 			NameTag = name;
-			Skin = new Skin {Slim = false, Texture = Encoding.Default.GetBytes(new string('Z', 8192))};
+			Skin = new Skin {Slim = false, SkinData = Encoding.Default.GetBytes(new string('Z', 8192))};
 
 			ItemInHand = new ItemAir();
 

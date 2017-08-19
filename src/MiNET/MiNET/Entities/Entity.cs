@@ -170,6 +170,8 @@ namespace MiNET.Entities
 		public bool IsBreathing => !IsInWater;
 		public bool IsChested { get; set; }
 		public bool IsStackable { get; set; }
+		public bool HasCollision { get; set; }
+		public bool IsAffectedByGravity { get; set; }
 
 		public enum DataFlags
 		{
@@ -215,6 +217,17 @@ namespace MiNET.Entities
 			Chested,
 
 			Stackable,
+			Showbase,
+			Rearing,
+			Vibrating,
+			Idling,
+			EvokerSpell,
+			ChargeAttack,
+			Unknown42,
+			Unknown43,
+			Linger,
+			HasCollision,
+			AffectedByGravity
 		}
 
 		protected virtual BitArray GetFlags()
@@ -254,6 +267,9 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Breathing] = IsBreathing;
 			bits[(int) DataFlags.Chested] = IsChested;
 			bits[(int) DataFlags.Stackable] = IsStackable;
+
+			bits[(int) DataFlags.HasCollision] = HasCollision;
+			bits[(int) DataFlags.AffectedByGravity] = IsAffectedByGravity;
 
 			return bits;
 		}

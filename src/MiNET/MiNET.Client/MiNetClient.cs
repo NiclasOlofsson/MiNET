@@ -192,7 +192,7 @@ namespace MiNET.Client
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				.ContinueWith(t => doSendCommand(t, "/test"))
+				//.ContinueWith(t => doSendCommand(t, "/test"))
 				.ContinueWith(t => Task.Delay(5000).Wait())
 				//.ContinueWith(t =>
 				//{
@@ -968,6 +968,24 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof(McpeInventoryContent) == message.GetType())
+			{
+				OnMcpeInventoryContent((McpeInventoryContent) message);
+				return;
+			}
+
+			else if (typeof(McpeInventoryTransaction) == message.GetType())
+			{
+				OnMcpeInventoryTransaction((McpeInventoryTransaction)message);
+				return;
+			}
+
+			else if (typeof(McpePlayerHotbar) == message.GetType())
+			{
+				OnMcpePlayerHotbar((McpePlayerHotbar)message);
+				return;
+			}
+
 			else if (typeof (McpeCraftingData) == message.GetType())
 			{
 				OnMcpeCraftingData(message);
@@ -1061,6 +1079,14 @@ namespace MiNET.Client
 			}
 		}
 
+		private void OnMcpeInventoryTransaction(McpeInventoryTransaction message)
+		{
+		}
+
+		private void OnMcpePlayerHotbar(McpePlayerHotbar message)
+		{
+		}
+
 		private void OnMcpeChangeDimension(McpeChangeDimension message)
 		{
 			Thread.Sleep(3000);
@@ -1100,10 +1126,25 @@ namespace MiNET.Client
 
 		private void OnMcpeGameRulesChanged(McpeGameRulesChanged message)
 		{
-			var rules = message.rules;
+			GameRules rules = message.rules;
 			foreach (var rule in rules)
 			{
-				Log.Debug($"Rule: {rule}");
+				if (rule.Value is GameRule<bool>)
+				{
+					Log.Debug($"Rule: {rule.Key}={(GameRule<bool>) rule.Value}");
+				}
+				else if (rule.Value is GameRule<int>)
+				{
+					Log.Debug($"Rule: {rule.Key}={(GameRule<int>) rule.Value}");
+				}
+				else if (rule.Value is GameRule<float>)
+				{
+					Log.Debug($"Rule: {rule.Key}={(GameRule<float>) rule.Value}");
+				}
+				else
+				{
+					Log.Warn($"Rule: {rule.Key}={rule.Value}");
+				}
 			}
 		}
 
@@ -1250,19 +1291,19 @@ namespace MiNET.Client
 
 		private void OnMcpeAvailableCommands(McpeAvailableCommands message)
 		{
-			{
-				dynamic json = JObject.Parse(message.commands);
+			//{
+			//	dynamic json = JObject.Parse(message.commands);
 
-				//if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
-				string fileName = Path.GetTempPath() + "AvailableCommands_" + Guid.NewGuid() + ".json";
-				Log.Info($"Writing commands to filename: {fileName}");
-				File.WriteAllText(fileName, message.commands);
-			}
-			{
-				dynamic json = JObject.Parse(message.unknown);
+			//	//if (Log.IsDebugEnabled) Log.Debug($"Command JSON:\n{json}");
+			//	string fileName = Path.GetTempPath() + "AvailableCommands_" + Guid.NewGuid() + ".json";
+			//	Log.Info($"Writing commands to filename: {fileName}");
+			//	File.WriteAllText(fileName, message.commands);
+			//}
+			//{
+			//	dynamic json = JObject.Parse(message.unknown);
 
-				//if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
-			}
+			//	//if (Log.IsDebugEnabled) Log.Debug($"Command (unknown) JSON:\n{json}");
+			//}
 		}
 
 		private void OnMcpeSetTime(McpeSetTime message)
@@ -1294,7 +1335,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 120,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 133,
 				payload = data
 			};
 
@@ -1310,12 +1351,15 @@ namespace MiNET.Client
 
 		private void OnMcpeServerToClientHandshake(McpeServerToClientHandshake message)
 		{
-			string serverKey = message.serverPublicKey;
-			byte[] randomKeyToken = message.token;
+			string token = message.token;
+			Log.Debug("JWT:\n" + token);
 
-			// Initiate encryption
+			IDictionary<string, dynamic> headers = JWT.Headers(token);
+			string x5u = headers["x5u"];
+			CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(x5u);
+			var data = JWT.Decode<HandshakeData>(token, newKey);
 
-			InitiateEncryption(serverKey, randomKeyToken);
+			InitiateEncryption(x5u, Base64Url.Decode(data.Salt));
 		}
 
 		private void InitiateEncryption(string serverKey, byte[] randomKeyToken)
@@ -1324,9 +1368,9 @@ namespace MiNET.Client
 			{
 				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
 				Log.Debug("ServerKey (b64):\n" + serverKey);
-				//Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+				Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
-				Log.Debug($"RANDOM TOKEN (raw):\n{randomKeyToken}");
+				Log.Debug($"RANDOM TOKEN (raw):\n\n{Encoding.UTF8.GetString(randomKeyToken)}");
 
 				if (randomKeyToken.Length != 0)
 				{
@@ -1398,11 +1442,6 @@ namespace MiNET.Client
 
 		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
 		{
-			Log.Debug($@"
-Adventure settings 
-	flags: 0x{message.flags:X2} - {Convert.ToString(message.flags, 2)}
-	flags: 0x{message.userPermission:X2} - {Convert.ToString(message.userPermission, 2)}
-");
 			UserPermission = (UserPermission) message.userPermission;
 		}
 
@@ -1686,45 +1725,25 @@ Adventure settings
 			if (Log.IsDebugEnabled) Log.Debug($"Set container data window 0x{message.windowId:X2} with property ID: {message.property} value: {message.value}");
 		}
 
-		//private void OnMcpeContainerSetContent(Package message)
-		//{
-		//	McpeContainerSetContent msg = (McpeContainerSetContent) message;
-		//	Log.Debug($"Set container content on Window ID: 0x{msg.windowId:x2}, {msg.hotbarData.Count}, Count: {msg.slotData.Count}");
+		private void OnMcpeInventoryContent(McpeInventoryContent msg)
+		{
+			Log.Debug($"Set container content on Window ID: 0x{msg.inventoryId:x2}, Count: {msg.input.Count}");
 
-		//	if (IsEmulator) return;
+			if (IsEmulator) return;
 
-		//	ItemStacks slots = msg.slotData;
+			ItemStacks slots = msg.input;
 
-		//	if (msg.windowId == 0x79)
-		//	{
-		//		string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
-		//		WriteInventoryToFile(fileName, slots);
-		//	}
-		//	else if (msg.windowId == 0x00)
-		//	{
-		//		string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
-		//		WriteInventoryToFile(fileName, slots);
-		//		var hotbar = msg.hotbarData.GetValues();
-		//		int i = 0;
-		//		foreach (MetadataEntry entry in hotbar)
-		//		{
-		//			MetadataInt val = (MetadataInt) entry;
-		//			Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
-		//			i++;
-		//		}
-		//	}
-		//	else if (msg.windowId == 0x7b)
-		//	{
-		//		var hotbar = msg.hotbarData.GetValues();
-		//		int i = 0;
-		//		foreach (MetadataEntry entry in hotbar)
-		//		{
-		//			MetadataInt val = (MetadataInt) entry;
-		//			Log.Error($"{msg.windowId} Hotbar slot: {i} val: {val.Value}");
-		//			i++;
-		//		}
-		//	}
-		//}
+			if (msg.inventoryId == 0x79)
+			{
+				string fileName = Path.GetTempPath() + "Inventory_0x79_" + Guid.NewGuid() + ".txt";
+				WriteInventoryToFile(fileName, slots);
+			}
+			else if (msg.inventoryId == 0x00)
+			{
+				string fileName = Path.GetTempPath() + "Inventory_0x00_" + Guid.NewGuid() + ".txt";
+				WriteInventoryToFile(fileName, slots);
+			}
+		}
 
 		private void WriteInventoryToFile(string fileName, ItemStacks slots)
 		{
@@ -1750,11 +1769,23 @@ Adventure settings
 				}
 				else
 				{
-					NbtList ench = (NbtList) extraData["ench"];
-					NbtCompound enchComp = (NbtCompound) ench[0];
-					var id = enchComp["id"].ShortValue;
-					var lvl = enchComp["lvl"].ShortValue;
-					writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
+					Log.Debug("Extradata: \n" + extraData);
+					if (extraData.Contains("ench"))
+					{
+						NbtList ench = (NbtList)extraData["ench"];
+
+						NbtCompound enchComp = (NbtCompound)ench[0];
+						var id = enchComp["id"].ShortValue;
+						var lvl = enchComp["lvl"].ShortValue;
+						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
+					}
+					else if (extraData.Contains("Fireworks"))
+					{
+						NbtCompound fireworks = (NbtCompound)extraData["Fireworks"];
+						NbtList explosions = (NbtList)fireworks["Explosions"];
+						byte flight = fireworks["Flight"].ByteValue;
+						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtCompound(\"Fireworks\") {{new NbtList {{new NbtList(\"Explosions\"), new NbtByte(\"Flight\", {flight}) }} }} }} }},");
+					}
 				}
 			}
 
@@ -1903,7 +1934,13 @@ Adventure settings
 			}
 
 			StringBuilder sb = new StringBuilder();
-			return sb.Append(string.Join(", ", flags)).ToString();
+			sb.Append(string.Join(", ", flags));
+			for (var i = 0; i < bits.Count; i++)
+			{
+				if (bits[i]) sb.Append($"{i}, ");
+			}
+
+			return sb.ToString();
 		}
 
 		private void OnMcpeAddPlayer(Package message)
@@ -2019,26 +2056,26 @@ Adventure settings
 			NetworkEntityId = message.entityIdSelf;
 			_spawn = new Vector3(message.x, message.y, message.z);
 			CurrentLocation = new PlayerLocation(_spawn);
-			Log.Debug($@"
-StartGame:
-	entityId: {message.entityIdSelf}	
-	runtimeEntityId: {message.runtimeEntityId}	
-	spawn: {message.spawn}	
-	unknown1: {message.unknown1}	
-	dimension: {message.dimension}	
-	generator: {message.generator}	
-	gamemode: {message.gamemode}	
-	difficulty: {message.difficulty}	
-	hasAchievementsDisabled: {message.hasAchievementsDisabled}	
-	dayCycleStopTime: {message.dayCycleStopTime}	
-	eduMode: {message.eduMode}	
-	rainLevel: {message.rainLevel}	
-	lightnigLevel: {message.lightnigLevel}	
-	enableCommands: {message.enableCommands}	
-	isTexturepacksRequired: {message.isTexturepacksRequired}	
-	secret: {message.levelId}	
-	worldName: {message.worldName}	
-");
+//			Log.Debug($@"
+//StartGame:
+//	entityId: {message.entityIdSelf}	
+//	runtimeEntityId: {message.runtimeEntityId}	
+//	spawn: {message.spawn}	
+//	unknown1: {message.unknown1}	
+//	dimension: {message.dimension}	
+//	generator: {message.generator}	
+//	gamemode: {message.gamemode}	
+//	difficulty: {message.difficulty}	
+//	hasAchievementsDisabled: {message.hasAchievementsDisabled}	
+//	dayCycleStopTime: {message.dayCycleStopTime}	
+//	eduMode: {message.eduMode}	
+//	rainLevel: {message.rainLevel}	
+//	lightnigLevel: {message.lightnigLevel}	
+//	enableCommands: {message.enableCommands}	
+//	isTexturepacksRequired: {message.isTexturepacksRequired}	
+//	secret: {message.levelId}	
+//	worldName: {message.worldName}	
+//");
 
 			Level.LevelName = "Default";
 			Level.Version = 19133;
@@ -2063,7 +2100,6 @@ StartGame:
 			Level.SpawnY = (int) _spawn.Y;
 			Level.SpawnZ = (int) _spawn.Z;
 			Log.Info($"Spawn position: {msg.coordinates}");
-			if (Log.IsDebugEnabled) Log.Debug($"\n{Package.HexDump(message.Bytes)}");
 		}
 
 		private void OnConnectionRequestAccepted()

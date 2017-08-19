@@ -116,8 +116,10 @@ namespace MiNET.Net
 			_writer.Write(value);
 		}
 
-		public byte[] ReadBytes(int count)
+		public byte[] ReadBytes(int count, bool slurp = false)
 		{
+			if(!slurp && count == 0) return new byte[0];
+
 			if (count == 0)
 			{
 				count = (int) (_reader.BaseStream.Length - _reader.BaseStream.Position);
@@ -137,13 +139,16 @@ namespace MiNET.Net
 			}
 
 			WriteLength(value.Length);
+
+			if (value.Length == 0) return;
+
 			_writer.Write(value, 0, value.Length);
 		}
 
-		public byte[] ReadByteArray()
+		public byte[] ReadByteArray(bool slurp = false)
 		{
 			var len = ReadLength();
-			var bytes = ReadBytes(len);
+			var bytes = ReadBytes(len, slurp);
 			return bytes;
 		}
 
@@ -444,7 +449,7 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.Skin);
+					Write(record.Skin, record.PlayerInfo.CertificateData.ExtraData.Xuid);
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -464,6 +469,7 @@ namespace MiNET.Net
 			// the client to work.
 			byte recordType = ReadByte();
 			uint count = ReadUnsignedVarInt();
+			Log.Warn($"Reading {count} players");
 			PlayerRecords records = null;
 			switch (recordType)
 			{
@@ -472,19 +478,12 @@ namespace MiNET.Net
 					for (int i = 0; i < count; i++)
 					{
 						var player = new Player(null, null);
-						try
-						{
-							player.ClientUuid = ReadUUID();
-							player.EntityId = ReadSignedVarLong();
-							player.DisplayName = ReadString();
-							player.Skin = ReadSkin();
-							records.Add(player);
-							//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
-						}
-						catch (Exception e)
-						{
-							Log.Error("Player List", e);
-						}
+						player.ClientUuid = ReadUUID();
+						player.EntityId = ReadSignedVarLong();
+						player.DisplayName = ReadString();
+						player.Skin = ReadSkin();
+						records.Add(player);
+						//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 					}
 					break;
 				case 1:
@@ -1173,12 +1172,12 @@ namespace MiNET.Net
 
 		public Links ReadLinks()
 		{
-			int count = (int) ReadUnsignedVarInt(); // LE
+			var count = ReadUnsignedVarInt();
 
 			var links = new Links();
 			for (int i = 0; i < count; i++)
 			{
-				Tuple<long, long> link = new Tuple<long, long>(ReadVarLong(), ReadVarLong());
+				Tuple<long, long> link = new Tuple<long, long>(ReadSignedVarLong(), ReadSignedVarLong());
 				_reader.ReadInt16();
 			}
 
@@ -1315,45 +1314,39 @@ namespace MiNET.Net
 			return ids;
 		}
 
-		public void Write(Skin skin)
+		public void Write(Skin skin, string xuid = null)
 		{
-			if (skin.Texture != null)
-			{
-				var skinType = skin.SkinType;
-				if (string.IsNullOrEmpty(skinType)) skinType = "Standard_Custom";
-				Write(skinType);
-				WriteUnsignedVarInt((uint) skin.Texture.Length);
-				Write(skin.Texture);
-			}
+			//skin.SkinGeometryName = "gurun";
+			//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
+
+			Write(skin.SkinId);
+			WriteByteArray(skin.SkinData);
+			WriteByteArray(skin.CapeData);
+			Write(skin.SkinGeometryName);
+			WriteByteArray(skin.SkinGeometry);
+			Write(xuid);
 		}
 
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
 
-			try
-			{
-				skin.SkinType = ReadString();
-				if (string.IsNullOrEmpty(skin.SkinType)) skin.SkinType = null;
+			skin.SkinId = ReadString();
+			Log.Debug($"SkinId={skin.SkinId}");
+			skin.SkinData = ReadByteArray(false);
+			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
 
-				if (skin.SkinType != null)
-				{
-					int length = (int) ReadUnsignedVarInt();
-					if (length == 64*32*4 || length == 64*64*4)
-					{
-						skin.Texture = ReadBytes(length);
-					}
-					else
-					{
-						skin.SkinType = null;
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				skin.SkinType = null;
-				skin.Texture = null;
-			}
+			skin.CapeData = ReadByteArray(false);
+			Log.Debug($"CapeData lenght={skin.CapeData.Length}");
+			Log.Debug("\n" + HexDump(skin.CapeData));
+
+			skin.SkinGeometryName = ReadString();
+			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
+
+			skin.SkinGeometry = ReadByteArray(false);
+			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
+
+			Log.Debug("XUID=" + ReadString());
 
 			return skin;
 		}

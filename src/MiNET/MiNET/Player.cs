@@ -118,6 +118,8 @@ namespace MiNET
 			HideNameTag = false;
 			IsAlwaysShowName = true;
 			CanClimb = true;
+			HasCollision = true;
+			IsAffectedByGravity = true;
 		}
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
@@ -159,6 +161,22 @@ namespace MiNET
 			chunkData.length = (uint) content.Length;
 			chunkData.payload = content;
 			SendPackage(chunkData);
+		}
+
+		public void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
+		{
+		}
+
+		public void HandleMcpePlayerSkin(McpePlayerSkin message)
+		{
+		}
+
+		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
+		{
+		}
+
+		public void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
+		{
 		}
 
 		private bool _serverHaveResources = false;
@@ -625,7 +643,7 @@ namespace MiNET
 
 				Level.AddPlayer(this, false);
 
-				SendAvailableCommands();
+				//SendAvailableCommands();
 
 				SendUpdateAttributes();
 
@@ -1773,7 +1791,7 @@ namespace MiNET
 			Log.Debug($"Player {Username} crafted item on window 0x{message.windowId:X2} on type: {message.recipeType}");
 		}
 
-		public void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
+		public virtual void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
 		{
 		}
 
@@ -2139,6 +2157,8 @@ namespace MiNET
 			mcpeStartGame.gamerules = GetGameRules();
 			mcpeStartGame.levelId = "1m0AAMIFIgA=";
 			mcpeStartGame.worldName = Level.LevelName;
+			mcpeStartGame.broadcastToLan = true;
+			mcpeStartGame.broadcastToXbl = true;
 
 			SendPackage(mcpeStartGame);
 		}
@@ -2756,7 +2776,7 @@ namespace MiNET
 		public virtual void BroadcastDeathMessage(Player player, DamageCause lastDamageCause)
 		{
 			string deathMessage = string.Format(HealthManager.GetDescription(lastDamageCause), Username, player == null ? "" : player.Username);
-			Level.BroadcastMessage(deathMessage, type: McpeText.TypeRaw);
+			Level.BroadcastMessage(deathMessage, type: MessageType.Raw);
 			Log.Debug(deathMessage);
 		}
 

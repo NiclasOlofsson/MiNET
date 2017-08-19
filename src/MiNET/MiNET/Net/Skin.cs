@@ -6,9 +6,13 @@ namespace MiNET.Net
 	public class Skin
 	{
 		public bool Slim { get; set; }
-		public byte[] Texture { get; set; }
 		public byte Alpha { get; set; }
-		public string SkinType { get; set; }
+
+		public byte[] CapeData { get; set; }
+		public string SkinId { get; set; }
+		public byte[] SkinData { get; set; }
+		public string SkinGeometryName { get; set; }
+		public byte[] SkinGeometry { get; set; }
 
 
 		public static byte[] GetTextureFromFile(string filename)

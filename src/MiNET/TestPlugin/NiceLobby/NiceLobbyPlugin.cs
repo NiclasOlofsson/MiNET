@@ -32,6 +32,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -72,14 +73,14 @@ namespace TestPlugin.NiceLobby
 			{
 				Level level = args.Level;
 
-				BossBar bossBar = new BossBar(level)
-				{
-					Animate = false,
-					MaxProgress = 10,
-					Progress = 10,
-					NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
-				};
-				bossBar.SpawnEntity();
+				//BossBar bossBar = new BossBar(level)
+				//{
+				//	Animate = false,
+				//	MaxProgress = 10,
+				//	Progress = 10,
+				//	NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
+				//};
+				//bossBar.SpawnEntity();
 
 				//level.AllowBuild = false;
 				//level.AllowBreak = false;
@@ -98,7 +99,7 @@ namespace TestPlugin.NiceLobby
 
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			//_tickTimer = new Timer(SkinTick, null, 0, 150);
+			_tickTimer = new Timer(SkinTick, null, 0, 50);
 		}
 
 		private void OnTicking(object sender, PlayerEventArgs e)
@@ -106,31 +107,31 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			if (e.Level.TickTime%2 == 0)
-			{
-				BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
-
-				player.AddPopup(new Popup()
-				{
-					Id = 10,
-					MessageType = MessageType.Tip,
-					Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}",
-					Duration = 20*5,
-				});
-			}
-
-
-			// Compass
 			//if (e.Level.TickTime%2 == 0)
 			//{
+			//	BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
+
 			//	player.AddPopup(new Popup()
 			//	{
 			//		Id = 10,
 			//		MessageType = MessageType.Tip,
-			//		Message = GetCompass(player.KnownPosition.HeadYaw),
+			//		Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}",
 			//		Duration = 20*5,
 			//	});
 			//}
+
+
+			// Compass
+			if (e.Level.TickTime % 2 == 0)
+			{
+				player.AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = GetCompass(player.KnownPosition.HeadYaw),
+					Duration = 20 * 5,
+				});
+			}
 
 
 			// Glide extension
@@ -210,6 +211,7 @@ namespace TestPlugin.NiceLobby
 		private object _skinSynk = new object();
 
 		private int _image = 0;
+		private int _imageCape = 0;
 
 		private void SkinTick(object state)
 		{
@@ -220,19 +222,68 @@ namespace TestPlugin.NiceLobby
 				foreach (var player in _players.Values)
 				{
 					{
-						if (!player.Username.Equals("gurun")) continue;
+						if (!player.Username.Equals("gurunx")) continue;
 
 						if (_image >= 9) _image = 0;
 
 						_image++;
+						_imageCape++;
+
+						Skin skin = player.Skin;
+
+
+						//skin.SkinGeometryName = "";
+						//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
+
+						{
+							string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{_imageCape:D4}.bmp");
+							//string file = @"D:\Temp\Smiley\big_smile0" + _image + ".png";
+							if (!File.Exists(file))
+							{
+								_imageCape = 0;
+								continue;
+							}
+
+							//Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 12, 18);
+							Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 64, 64);
+							int offsetx = 16, offsety = 16;
+							bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
+							byte[] bytes = new byte[32 * 64 * 4];
+
+							int i = 0;
+							for (int y = 0; y < 32; y++)
+							{
+								for (int x = 0; x < 64; x++)
+								{
+									if(y >= bitmap.Height || x >= bitmap.Width)
+									{
+										Color color = Color.Yellow;
+										bytes[i++] = color.R;
+										bytes[i++] = color.G;
+										bytes[i++] = color.B;
+										bytes[i++] = color.A;
+										continue;
+									}
+									else
+									{
+										Color color = bitmap.GetPixel(x, y);
+										bytes[i++] = color.R;
+										bytes[i++] = color.G;
+										bytes[i++] = color.B;
+										bytes[i++] = color.A;
+									}
+								}
+							}
+							skin.CapeData = bytes;
+						}
+
 
 						Level level = player.Level;
 						//if (level.TickTime%3 != 0) return;
 						//player.SetNameTag(player.Username + " " + level.TickTime + " testing");
 						//player.SetDisplayName(player.Username + " " + level.TickTime + " testing");
 
-						Skin skin = player.Skin;
-						var texture = skin.Texture;
+						var texture = skin.SkinData;
 						byte[] smiley = GetTextureFromFile(@"D:\Temp\Smiley\big_smile0" + _image + ".png");
 						if (smiley.Length != 8*8*4) return;
 						int s = 0;
@@ -253,24 +304,35 @@ namespace TestPlugin.NiceLobby
 						}
 
 						{
-							player.SpawnPosition = player.KnownPosition;
+							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+							updateSkin.uuid = player.ClientUuid;
+							updateSkin.skinId = skin.SkinId;
+							updateSkin.skinData = skin.SkinData;
+							updateSkin.capeData = skin.CapeData;
+							updateSkin.geometryModel = skin.SkinGeometryName;
+							updateSkin.geometryData = skin.SkinGeometry;
+							level.RelayBroadcast(updateSkin);
+						}
+
+						{
+							//player.SpawnPosition = player.KnownPosition;
 
 							//level.DespawnFromAll(player);
 							//level.SpawnToAll(player);
 
-							var players = level.GetSpawnedPlayers();
+							//var players = level.GetSpawnedPlayers();
 
-							McpePlayerList playerList = McpePlayerList.CreateObject();
-							playerList.records = new PlayerAddRecords {player};
-							level.RelayBroadcast(player, players, CreateMcpeBatch(playerList.Encode()));
-							playerList.records = null;
-							playerList.PutPool();
+							//McpePlayerList playerList = McpePlayerList.CreateObject();
+							//playerList.records = new PlayerAddRecords {player};
+							//level.RelayBroadcast(player, players, CreateMcpeBatch(playerList.Encode()));
+							//playerList.records = null;
+							//playerList.PutPool();
 
 							//player.IsInvisible = true;
-							player.HideNameTag = true;
+							//player.HideNameTag = true;
 							//player.BroadcastSetEntityData();
 
-							player.SpawnToPlayers(players);
+							//player.SpawnToPlayers(players);
 
 							//Thread.Sleep(100);
 							//player.HideNameTag = false;
@@ -279,6 +341,7 @@ namespace TestPlugin.NiceLobby
 						}
 					}
 				}
+
 			}
 			finally
 			{
@@ -331,7 +394,7 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
-			player.Inventory.Chest = new ItemElytra() {Count = 1};
+			//player.Inventory.Chest = new ItemElytra() {Count = 1};
 
 			player.SendPlayerInventory();
 
@@ -766,7 +829,7 @@ namespace TestPlugin.NiceLobby
 
 			PlayerMob fake = new PlayerMob("§6§lBot: " + name + "", player.Level)
 			{
-				Skin = new Skin {Slim = false, Texture = bytes},
+				Skin = new Skin {Slim = false, SkinData = bytes},
 				KnownPosition = player.KnownPosition,
 				ItemInHand = new ItemDiamondSword(),
 				Helmet = 302,

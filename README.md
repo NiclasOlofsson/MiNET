@@ -16,6 +16,9 @@ Port: **19132**
 IP: **play.infinite.pe**    
 Port: **19132**    
 
+IP: **applecraft.cf**    
+Port: **19132** 
+
 IP: **pepirates.ru**    
 Port: **19132** 
 

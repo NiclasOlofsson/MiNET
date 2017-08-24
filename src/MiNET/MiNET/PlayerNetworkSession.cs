@@ -534,6 +534,16 @@ namespace MiNET
 				handler.HandleMcpeInventoryTransaction((McpeInventoryTransaction)message);
 			}
 
+			else if (typeof(McpePlayerHotbar) == message.GetType())
+			{
+				handler.HandleMcpePlayerHotbar((McpePlayerHotbar)message);
+			}
+
+			else if (typeof(McpeInventoryContent) == message.GetType())
+			{
+				handler.HandleMcpeInventoryContent((McpeInventoryContent)message);
+			}
+
 			else if (typeof (McpeRequestChunkRadius) == message.GetType())
 			{
 				handler.HandleMcpeRequestChunkRadius((McpeRequestChunkRadius) message);

@@ -99,7 +99,7 @@ namespace TestPlugin.NiceLobby
 
 			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
 			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			_tickTimer = new Timer(SkinTick, null, 0, 50);
+			//_tickTimer = new Timer(SkinTick, null, 0, 50);
 		}
 
 		private void OnTicking(object sender, PlayerEventArgs e)

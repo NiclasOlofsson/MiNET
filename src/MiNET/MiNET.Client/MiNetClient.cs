@@ -1335,7 +1335,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 133,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 134,
 				payload = data
 			};
 
@@ -1442,7 +1442,7 @@ namespace MiNET.Client
 
 		private void OnMcpeAdventureSettings(McpeAdventureSettings message)
 		{
-			UserPermission = (UserPermission) message.userPermission;
+			UserPermission = (UserPermission) message.commandPermission;
 		}
 
 		private void OnMcpeInteract(McpeInteract message)

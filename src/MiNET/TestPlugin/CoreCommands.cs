@@ -531,7 +531,7 @@ namespace TestPlugin
 		[Command]
 		public void Permission(Player player, int permission)
 		{
-			player.PermissionLevel = (UserPermission) permission;
+			player.CommadPermission = (Commandpermission) permission;
 			player.SendAdventureSettings();
 		}
 

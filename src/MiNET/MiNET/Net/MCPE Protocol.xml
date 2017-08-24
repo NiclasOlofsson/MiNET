@@ -412,21 +412,21 @@
 	</pdu>
 
 	<pdu id="0x1e" online="false" client="true" server="true" name="MCPE_INVENTORY_TRANSACTION">
-		<enums id="Transaction types">
+		<enums id="Transaction type">
 			<enum id="Normal" value="0" />
 			<enum id="Inventory mismatch" value="1" />
 			<enum id="Item use" value="2" />
 			<enum id="Item use on entity" value="3" />
 			<enum id="Item release" value="4" />
 		</enums>
-		<enums id="Inventory source types">
+		<enums id="Inventory source type">
 			<enum id="Container" value="0" />
 			<enum id="Global" value="1" />
 			<enum id="World interaction" value="2" />
 			<enum id="Creative" value="3" />
 			<enum id="Crafting" value="99999" />
 		</enums>
-		<enums id="Normal actions">
+		<enums id="Normal action">
 			<enum id="Put slot" value="3" />
 			<enum id="Get slot" value="5" />
 			<enum id="Get result" value="7" />
@@ -436,7 +436,7 @@
 			<enum id="Enchant result" value="33" />
 			<enum id="Drop" value="199" />
 		</enums>
-		<enums id="Item release actions">
+		<enums id="Item release action">
 			<enum id="Release" value="0" />
 			<enum id="Use" value="1" />
 		</enums>
@@ -605,44 +605,48 @@
 
 	</pdu>
 
-	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">
-		<enums id="Flags">
-			<enum id="MayFly" value="0x40" />
-			<enum id="NoClip" value="0x80" />
-			<enum id="Muted" value="0x400" />
-			<enum id="WorldBuilder" value="0x100" />
-			<enum id="Flying" value="0x200" />
-		</enums>
-		<enums id="Permissions">
-			<enum id="Normal" value="0" />
-			<enum id="Operator" value="1" />
-			<enum id="Host" value="2" />
-			<enum id="Automation" value="3" />
-			<enum id="Admin" value="4" />
-		</enums>
-		<enums id="PermissionLevels">
-			<enum id="Visitor" value="0" />
-			<enum id="Member" value="1" />
-			<enum id="Operator" value="2" />
-			<enum id="Custom" value="3" />
-		</enums>
-		<enums id="ActionPermissions">
-			<enum id="Build" value="0x1" />
-			<enum id="Doors" value="0x2" />
-			<enum id="Containers" value="0x4" />
-			<enum id="AttackPlayers" value="0x8" />
-			<enum id="AttackMobs" value="0x10" />
-			<enum id="Operator" value="0x20" />
-			<enum id="Teleport" value="0x80" />
+	<enums id="AdventureFlags">
+		<enum id="MayFly" value="0x40" />
+		<enum id="NoClip" value="0x80" />
+		<enum id="WorldBuilder" value="0x100" />
+		<enum id="Flying" value="0x200" />
+		<enum id="Muted" value="0x400" />
+	</enums>
 
-			<enum id="Default" value="(Build | Doors | Containers | Attackplayers | Attackmobs )" />
-			<enum id="All" value="(Build | Doors | Containers | Attackplayers | Attackmobs | Operator | Teleport)" />
-		</enums>
+	<enums id="CommandPermission">
+		<enum id="Normal" value="0" />
+		<enum id="Operator" value="1" />
+		<enum id="Host" value="2" />
+		<enum id="Automation" value="3" />
+		<enum id="Admin" value="4" />
+	</enums>
+
+	<enums id="PermissionLevel">
+		<enum id="Visitor" value="0" />
+		<enum id="Member" value="1" />
+		<enum id="Operator" value="2" />
+		<enum id="Custom" value="3" />
+	</enums>
+
+	<enums id="ActionPermissions">
+ 		<enum id="Build And Mine" value="0x1" />
+		<enum id="Doors And Switches" value="0x2" />
+		<enum id="Open Containers" value="0x4" />
+		<enum id="Attack Players" value="0x8" />
+		<enum id="Attack Mobs" value="0x10" />
+		<enum id="Operator" value="0x20" />
+		<enum id="Teleport" value="0x80" />
+
+		<enum id="Default" value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs )" />
+		<enum id="All" value="(BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport)" />
+	</enums>
+
+	<pdu id="0x37" online="false" client="true" server="true" name="MCPE_ADVENTURE_SETTINGS">
 		<field name="Flags" type="UnsignedVarInt" />
-		<field name="User Permission" type="UnsignedVarInt" />
-		<field name="Action Permissions" type="UnsignedVarInt" />
-		<field name="Permission Level" type="UnsignedVarInt" />
-		<field name="Unknown" type="UnsignedVarInt" />
+		<field name="Command permission" type="UnsignedVarInt" />
+		<field name="Action permissions" type="UnsignedVarInt" />
+		<field name="Permission level" type="UnsignedVarInt" />
+		<field name="Custom stored permissions" type="UnsignedVarInt" />
 		<field name="User Id" type="long" />
 	</pdu>
 

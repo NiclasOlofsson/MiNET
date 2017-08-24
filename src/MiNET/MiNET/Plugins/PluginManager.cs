@@ -542,10 +542,10 @@ namespace MiNET.Plugins
 
 				Overload overload = command.Versions.First().Overloads[commandOverload];
 
-				UserPermission requiredPermission = (UserPermission) Enum.Parse(typeof (UserPermission), command.Versions.First().Permission, true);
-				if (player.PermissionLevel < requiredPermission)
+				Commandpermission requiredPermission = (Commandpermission) Enum.Parse(typeof (Commandpermission), command.Versions.First().Permission, true);
+				if (player.CommadPermission < requiredPermission)
 				{
-					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.PermissionLevel}");
+					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommadPermission}");
 					return null;
 				}
 

@@ -745,33 +745,9 @@ namespace MiNET.Net
 			return metadata;
 		}
 
-		const int InvSourceTypeContainer = 0;
-		const int InvSourceTypeGlobal = 1;
-		const int InvSourceTypeWorldInteraction = 2;
-		const int InvSourceTypeCreative = 3;
-		const int InvSourceTypeCraft = 99999;
-
-		const int TransactionTypeNormal = 0;
-		const int TransactionTypeInventoryMismatch = 1;
-		const int TransactionTypeItemUse = 2;
-		const int TransactionTypeItemUseOnEntity = 3;
-		const int TransactionTypeItemRelease = 4;
-
-		const int ItemReleaseActionRelease = 0;
-		const int ItemReleaseActionUse = 1;
-
-		const int ItemUseActionPlace = 0;
-		const int ItemUseActionUse = 1;
-		const int ItemUseActionDestroy = 2;
-
-		const int ItemUseOnEntityActionInteract = 0;
-		const int ItemUseOnEntityActionAttack = 1;
-		const int ItemUseOnEntityActionItemInteract = 2;
-
-
 		public void Write(Transaction trans)
 		{
-			WriteVarInt(trans.TransactionType);
+			WriteVarInt((int) trans.TransactionType);
 			WriteVarInt(trans.Transactions.Count);
 			foreach (var record in trans.Transactions)
 			{
@@ -804,10 +780,10 @@ namespace MiNET.Net
 
 			switch (trans.TransactionType)
 			{
-				case TransactionTypeNormal:
-				case TransactionTypeInventoryMismatch:
+				case McpeInventoryTransaction.TransactionType.Normal:
+				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
 					break;
-				case TransactionTypeItemUse:
+				case McpeInventoryTransaction.TransactionType.ItemUse:
 					WriteVarInt(trans.ActionType);
 					Write(trans.Position);
 					WriteSignedVarInt(trans.Face);
@@ -816,14 +792,14 @@ namespace MiNET.Net
 					Write(trans.FromPosition);
 					Write(trans.ClickPosition);
 					break;
-				case TransactionTypeItemUseOnEntity:
+				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
 					WriteVarLong(trans.EntityId);
 					WriteVarInt(trans.ActionType);
 					WriteSignedVarInt(trans.Slot);
 					Write(trans.Item);
 					Write(trans.FromPosition);
 					break;
-				case TransactionTypeItemRelease:
+				case McpeInventoryTransaction.TransactionType.ItemRelease:
 					WriteVarInt(trans.ActionType);
 					WriteSignedVarInt(trans.Slot);
 					Write(trans.Item);
@@ -838,39 +814,46 @@ namespace MiNET.Net
 		{
 			var trans = new Transaction();
 
-			trans.TransactionType = ReadVarInt();
+			trans.TransactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
 
 			var count = ReadVarInt();
 			for (int i = 0; i < count; i++)
 			{
 				TransactionRecord record = null;
 				int sourceType = ReadVarInt();
-				switch (sourceType)
+				switch ((McpeInventoryTransaction.InventorySourceType) sourceType)
 				{
-					case InvSourceTypeContainer:
+					case McpeInventoryTransaction.InventorySourceType.Container:
 						record = new ContainerTransactionRecord()
 						{
+							Source = sourceType,
 							InventoryId = ReadSignedVarInt()
 						};
 						break;
-					case InvSourceTypeGlobal:
-						record = new GlobalTransactionRecord();
+					case McpeInventoryTransaction.InventorySourceType.Global:
+						record = new GlobalTransactionRecord()
+						{
+							Source = sourceType,
+						};
 						break;
-					case InvSourceTypeWorldInteraction:
+					case McpeInventoryTransaction.InventorySourceType.WorldInteraction:
 						record = new WorldInteractionTransactionRecord()
 						{
+							Source = sourceType,
 							Flags = ReadVarInt()
 						};
 						break;
-					case InvSourceTypeCreative:
+					case McpeInventoryTransaction.InventorySourceType.Creative:
 						record = new CreativeTransactionRecord()
 						{
+							Source = sourceType,
 							InventoryId = 0x79
 						};
 						break;
-					case InvSourceTypeCraft:
+					case McpeInventoryTransaction.InventorySourceType.Crafting:
 						record = new CraftTransactionRecord()
 						{
+							Source = sourceType,
 							Action = ReadVarInt()
 						};
 						break;
@@ -887,10 +870,10 @@ namespace MiNET.Net
 
 			switch (trans.TransactionType)
 			{
-				case TransactionTypeNormal:
-				case TransactionTypeInventoryMismatch:
+				case McpeInventoryTransaction.TransactionType.Normal:
+				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
 					break;
-				case TransactionTypeItemUse:
+				case McpeInventoryTransaction.TransactionType.ItemUse:
 					trans.ActionType = ReadVarInt();
 					trans.Position = ReadBlockCoordinates();
 					trans.Face = ReadSignedVarInt();
@@ -899,14 +882,14 @@ namespace MiNET.Net
 					trans.FromPosition = ReadVector3();
 					trans.ClickPosition = ReadVector3();
 					break;
-				case TransactionTypeItemUseOnEntity:
+				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
 					trans.EntityId = ReadVarLong();
 					trans.ActionType = ReadVarInt();
 					trans.Slot = ReadSignedVarInt();
 					trans.Item = ReadItem();
 					trans.FromPosition = ReadVector3();
 					break;
-				case TransactionTypeItemRelease:
+				case McpeInventoryTransaction.TransactionType.ItemRelease:
 					trans.ActionType = ReadVarInt();
 					trans.Slot = ReadSignedVarInt();
 					trans.Item = ReadItem();

@@ -26,12 +26,13 @@
 using System.Collections.Generic;
 using System.Numerics;
 using MiNET.Items;
+using MiNET.Net;
 
 namespace MiNET.Utils
 {
 	public class Transaction
 	{
-		public int TransactionType { get; set; }
+		public McpeInventoryTransaction.TransactionType TransactionType { get; set; }
 
 		public List<TransactionRecord> Transactions { get; set; } = new List<TransactionRecord>();
 
@@ -51,6 +52,7 @@ namespace MiNET.Utils
 
 	public abstract class TransactionRecord
 	{
+		public int Source { get; set; }
 		public int Slot { get; set; }
 		public Item OldItem { get; set; }
 		public Item NewItem { get; set; }

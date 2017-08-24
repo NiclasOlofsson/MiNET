@@ -20,12 +20,13 @@ namespace MiNET
 		public int[] ItemHotbar { get; private set; }
 		public int InHandSlot { get; set; }
 
+		public Item Cursor { get; set; } = new ItemAir();
 
 		// Armour
-		public Item Boots { get; set; }
-		public Item Leggings { get; set; }
-		public Item Chest { get; set; }
-		public Item Helmet { get; set; }
+		public Item Boots { get; set; } = new ItemAir();
+		public Item Leggings { get; set; } = new ItemAir();
+		public Item Chest { get; set; } = new ItemAir();
+		public Item Helmet { get; set; } = new ItemAir();
 
 		public PlayerInventory(Player player)
 		{
@@ -53,11 +54,6 @@ namespace MiNET
 			}
 
 			InHandSlot = 0;
-
-			Boots = new ItemAir();
-			Leggings = new ItemAir();
-			Chest = new ItemAir();
-			Helmet = new ItemAir();
 		}
 
 		public virtual Item GetItemInHand()

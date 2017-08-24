@@ -781,7 +781,7 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 
 
 
-#### Transaction Types constants
+#### Transaction Type constants
 
 | Name | Value |
 |:-----|:-----|
@@ -791,7 +791,7 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Item Use On Entity | 3 |
 |Item Release | 4 |
 
-#### Inventory Source Types constants
+#### Inventory Source Type constants
 
 | Name | Value |
 |:-----|:-----|
@@ -801,7 +801,7 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Creative | 3 |
 |Crafting | 99999 |
 
-#### Normal Actions constants
+#### Normal Action constants
 
 | Name | Value |
 |:-----|:-----|
@@ -814,7 +814,7 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Enchant Result | 33 |
 |Drop | 199 |
 
-#### Item Release Actions constants
+#### Item Release Action constants
 
 | Name | Value |
 |:-----|:-----|
@@ -1270,59 +1270,16 @@ Wiki: [Adventure Settings](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 
 
 
-#### Flags constants
-
-| Name | Value |
-|:-----|:-----|
-|Mayfly | 0x40 |
-|Noclip | 0x80 |
-|Muted | 0x400 |
-|Worldbuilder | 0x100 |
-|Flying | 0x200 |
-
-#### Permissions constants
-
-| Name | Value |
-|:-----|:-----|
-|Normal | 0 |
-|Operator | 1 |
-|Host | 2 |
-|Automation | 3 |
-|Admin | 4 |
-
-#### Permissionlevels constants
-
-| Name | Value |
-|:-----|:-----|
-|Visitor | 0 |
-|Member | 1 |
-|Operator | 2 |
-|Custom | 3 |
-
-#### Actionpermissions constants
-
-| Name | Value |
-|:-----|:-----|
-|Build | 0x1 |
-|Doors | 0x2 |
-|Containers | 0x4 |
-|Attackplayers | 0x8 |
-|Attackmobs | 0x10 |
-|Operator | 0x20 |
-|Teleport | 0x80 |
-|Default | (Build | Doors | Containers | Attackplayers | Attackmobs ) |
-|All | (Build | Doors | Containers | Attackplayers | Attackmobs | Operator | Teleport) |
-
 
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Flags | UnsignedVarInt |  |
-|User Permission | UnsignedVarInt |  |
-|Action Permissions | UnsignedVarInt |  |
-|Permission Level | UnsignedVarInt |  |
-|Unknown | UnsignedVarInt |  |
+|Command permission | UnsignedVarInt |  |
+|Action permissions | UnsignedVarInt |  |
+|Permission level | UnsignedVarInt |  |
+|Custom stored permissions | UnsignedVarInt |  |
 |User Id | long |  |
 -----------------------------------------------------------------------
 ### Block Entity Data (0x38)

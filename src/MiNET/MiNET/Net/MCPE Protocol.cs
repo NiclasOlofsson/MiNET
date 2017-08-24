@@ -577,6 +577,41 @@ namespace MiNET.Net
 		}
 	}
 
+	public enum Adventureflags
+	{
+		Mayfly = 0x40,
+		Noclip = 0x80,
+		Worldbuilder = 0x100,
+		Flying = 0x200,
+		Muted = 0x400,
+	}
+	public enum Commandpermission
+	{
+		Normal = 0,
+		Operator = 1,
+		Host = 2,
+		Automation = 3,
+		Admin = 4,
+	}
+	public enum Permissionlevel
+	{
+		Visitor = 0,
+		Member = 1,
+		Operator = 2,
+		Custom = 3,
+	}
+	public enum Actionpermissions
+	{
+		BuildAndMine = 0x1,
+		DoorsAndSwitches = 0x2,
+		OpenContainers = 0x4,
+		AttackPlayers = 0x8,
+		AttackMobs = 0x10,
+		Operator = 0x20,
+		Teleport = 0x80,
+		Default = (BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs ),
+		All = (BuildAndMine | DoorsAndSwitches | OpenContainers | AttackPlayers | AttackMobs | Operator | Teleport),
+	}
 
 	public partial class ConnectedPing : Package<ConnectedPing>
 	{
@@ -3309,7 +3344,7 @@ namespace MiNET.Net
 
 	public partial class McpeInventoryTransaction : Package<McpeInventoryTransaction>
 	{
-		public enum TransactionTypes
+		public enum TransactionType
 		{
 			Normal = 0,
 			InventoryMismatch = 1,
@@ -3317,7 +3352,7 @@ namespace MiNET.Net
 			ItemUseOnEntity = 3,
 			ItemRelease = 4,
 		}
-		public enum InventorySourceTypes
+		public enum InventorySourceType
 		{
 			Container = 0,
 			Global = 1,
@@ -3325,7 +3360,7 @@ namespace MiNET.Net
 			Creative = 3,
 			Crafting = 99999,
 		}
-		public enum NormalActions
+		public enum NormalAction
 		{
 			PutSlot = 3,
 			GetSlot = 5,
@@ -3336,7 +3371,7 @@ namespace MiNET.Net
 			EnchantResult = 33,
 			Drop = 199,
 		}
-		public enum ItemReleaseActions
+		public enum ItemReleaseAction
 		{
 			Release = 0,
 			Use = 1,
@@ -4721,47 +4756,12 @@ namespace MiNET.Net
 
 	public partial class McpeAdventureSettings : Package<McpeAdventureSettings>
 	{
-		public enum Flags
-		{
-			Mayfly = 0x40,
-			Noclip = 0x80,
-			Muted = 0x400,
-			Worldbuilder = 0x100,
-			Flying = 0x200,
-		}
-		public enum Permissions
-		{
-			Normal = 0,
-			Operator = 1,
-			Host = 2,
-			Automation = 3,
-			Admin = 4,
-		}
-		public enum Permissionlevels
-		{
-			Visitor = 0,
-			Member = 1,
-			Operator = 2,
-			Custom = 3,
-		}
-		public enum Actionpermissions
-		{
-			Build = 0x1,
-			Doors = 0x2,
-			Containers = 0x4,
-			Attackplayers = 0x8,
-			Attackmobs = 0x10,
-			Operator = 0x20,
-			Teleport = 0x80,
-			Default = (Build | Doors | Containers | Attackplayers | Attackmobs ),
-			All = (Build | Doors | Containers | Attackplayers | Attackmobs | Operator | Teleport),
-		}
 
 		public uint flags; // = null;
-		public uint userPermission; // = null;
+		public uint commandPermission; // = null;
 		public uint actionPermissions; // = null;
 		public uint permissionLevel; // = null;
-		public uint unknown; // = null;
+		public uint customStoredPermissions; // = null;
 		public long userId; // = null;
 
 		public McpeAdventureSettings()
@@ -4777,10 +4777,10 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteUnsignedVarInt(flags);
-			WriteUnsignedVarInt(userPermission);
+			WriteUnsignedVarInt(commandPermission);
 			WriteUnsignedVarInt(actionPermissions);
 			WriteUnsignedVarInt(permissionLevel);
-			WriteUnsignedVarInt(unknown);
+			WriteUnsignedVarInt(customStoredPermissions);
 			Write(userId);
 
 			AfterEncode();
@@ -4796,10 +4796,10 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			flags = ReadUnsignedVarInt();
-			userPermission = ReadUnsignedVarInt();
+			commandPermission = ReadUnsignedVarInt();
 			actionPermissions = ReadUnsignedVarInt();
 			permissionLevel = ReadUnsignedVarInt();
-			unknown = ReadUnsignedVarInt();
+			customStoredPermissions = ReadUnsignedVarInt();
 			userId = ReadLong();
 
 			AfterDecode();
@@ -4813,10 +4813,10 @@ namespace MiNET.Net
 			base.ResetPackage();
 
 			flags=default(uint);
-			userPermission=default(uint);
+			commandPermission=default(uint);
 			actionPermissions=default(uint);
 			permissionLevel=default(uint);
-			unknown=default(uint);
+			customStoredPermissions=default(uint);
 			userId=default(long);
 		}
 

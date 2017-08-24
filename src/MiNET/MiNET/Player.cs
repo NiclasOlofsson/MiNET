@@ -382,6 +382,8 @@ namespace MiNET
 				//	_itemUseTimer = 0;
 
 				//	break;
+				case PlayerAction.StartSleeping:
+					break;
 				case PlayerAction.StopSleeping:
 					break;
 				case PlayerAction.Respawn:
@@ -535,12 +537,15 @@ namespace MiNET
 			if (IsMuted) flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;
-			mcpeAdventureSettings.userPermission = (uint) PermissionLevel;
+			mcpeAdventureSettings.commandPermission = (uint) Commandpermission.Admin;
+			mcpeAdventureSettings.actionPermissions = (uint) Actionpermissions.All;
+			mcpeAdventureSettings.permissionLevel = (uint) Permissionlevel.Operator;
+			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
 
 			SendPackage(mcpeAdventureSettings);
 		}
 
-		public UserPermission PermissionLevel { get; set; } = UserPermission.Admin;
+		public Commandpermission CommadPermission { get; set; } = Commandpermission.Admin;
 
 		public bool IsSpectator { get; set; }
 
@@ -622,6 +627,8 @@ namespace MiNET
 				SendSetTime();
 
 				SendStartGame();
+
+				BroadcastSetEntityData();
 
 				if (ChunkRadius == -1) ChunkRadius = 5;
 
@@ -731,6 +738,8 @@ namespace MiNET
 		public virtual void InitializePlayer()
 		{
 			// Send set health
+
+			SendSetEntityData();
 
 			SendPlayerStatus(3);
 
@@ -1327,6 +1336,15 @@ namespace MiNET
 			base.BroadcastSetEntityData();
 		}
 
+		public void SendSetEntityData()
+		{
+			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
+			mcpeSetEntityData.runtimeEntityId = EntityManager.EntityIdSelf;
+			mcpeSetEntityData.metadata = GetMetadata();
+			mcpeSetEntityData.Encode();
+			SendPackage(mcpeSetEntityData);
+		}
+
 		public void SendSetDificulty()
 		{
 			McpeSetDifficulty mcpeSetDifficulty = McpeSetDifficulty.CreateObject();
@@ -1793,6 +1811,84 @@ namespace MiNET
 
 		public virtual void HandleMcpeInventoryTransaction(McpeInventoryTransaction message)
 		{
+			switch (message.transaction.TransactionType)
+			{
+				case McpeInventoryTransaction.TransactionType.Normal:
+					HandleTransactionNormal(message.transaction);
+					break;
+				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemUse:
+					var transaction = message.transaction;
+					if(transaction.ActionType == 0)
+					{
+						Level.Interact(this, transaction.Item, transaction.Position, (BlockFace)transaction.Face, transaction.ClickPosition);
+					} else if(transaction.ActionType == 2)
+					{
+						Level.BreakBlock(this, transaction.Position);
+					}
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemRelease:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		protected virtual void HandleTransactionNormal(Transaction transaction)
+		{
+			foreach (var record in transaction.Transactions)
+			{
+				if (record is ContainerTransactionRecord)
+				{
+					var trans = (ContainerTransactionRecord) record;
+					int invId = trans.InventoryId;
+					Item oldItem = trans.OldItem;
+					Item newItem = trans.NewItem;
+
+					if (invId == 0)
+					{
+						// Player inventory
+						Inventory.Slots[trans.Slot] = newItem;
+					}
+					else if (invId == 124)
+					{
+						// Cursor
+						Inventory.Cursor = newItem;
+					}
+				}
+				else if (record is CreativeTransactionRecord)
+				{
+					// 0 delete, 1 create
+				}
+				else if (record is WorldInteractionTransactionRecord)
+				{
+					if (record.Slot == 0)
+					{
+						// Drop
+
+						ItemEntity itemEntity = new ItemEntity(Level, record.NewItem)
+						{
+							Velocity = KnownPosition.GetDirection().Normalize()*0.25f,
+							KnownPosition =
+							{
+								X = KnownPosition.X,
+								Y = KnownPosition.Y + 1.62f,
+								Z = KnownPosition.Z
+							},
+						};
+						itemEntity.SpawnEntity();
+					}
+					else if (record.Slot == 1)
+					{
+						// Pickup
+					}
+				}
+			}
+
+			//SendPlayerInventory();
 		}
 
 		/// <summary>
@@ -2159,6 +2255,7 @@ namespace MiNET
 			mcpeStartGame.worldName = Level.LevelName;
 			mcpeStartGame.broadcastToLan = true;
 			mcpeStartGame.broadcastToXbl = true;
+			mcpeStartGame.permissionLevel = 0;
 
 			SendPackage(mcpeStartGame);
 		}
@@ -2503,7 +2600,7 @@ namespace MiNET
 		public override void OnTick()
 		{
 			OnTicking(new PlayerEventArgs(this));
-			
+
 			if (DetectInPortal())
 			{
 				if (PortalDetected == Level.TickTime)
@@ -2944,7 +3041,6 @@ namespace MiNET
 		{
 			Ticked?.Invoke(this, e);
 		}
-
 	}
 
 	public enum UserPermission

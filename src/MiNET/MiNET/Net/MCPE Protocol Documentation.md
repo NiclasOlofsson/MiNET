@@ -114,7 +114,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Data type | 
 |:--- |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
-| BlockUpdateRecords [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockUpdateRecords) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
@@ -628,7 +627,9 @@ Wiki: [Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Records | BlockUpdateRecords |  |
+|Coordinates | BlockCoordinates |  |
+|Block ID | UnsignedVarInt |  |
+|Block Meta And Priority | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Add Painting (0x16)
 Wiki: [Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPainting)
@@ -1384,7 +1385,7 @@ Wiki: [Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 Wiki: [Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetPlayerGameType)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 

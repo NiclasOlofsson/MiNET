@@ -500,30 +500,6 @@ namespace MiNET.Net
 			return records;
 		}
 
-
-		public void Write(BlockUpdateRecords records)
-		{
-			WriteUnsignedVarInt((uint) records.Count);
-			foreach (var coord in records)
-			{
-				//Write(coord);
-			}
-		}
-
-		public BlockUpdateRecords ReadBlockUpdateRecords()
-		{
-			var records = new BlockUpdateRecords();
-			uint count = ReadUnsignedVarInt();
-			for (int i = 0; i < count; i++)
-			{
-				var coord = ReadBlockCoordinates();
-				//records.Add(coord);
-			}
-
-			return records;
-		}
-
-
 		public void Write(Records records)
 		{
 			WriteUnsignedVarInt((uint) records.Count);
@@ -854,7 +830,7 @@ namespace MiNET.Net
 						record = new CraftTransactionRecord()
 						{
 							Source = sourceType,
-							Action = ReadVarInt()
+							Action = ReadSignedVarInt()
 						};
 						break;
 					default:

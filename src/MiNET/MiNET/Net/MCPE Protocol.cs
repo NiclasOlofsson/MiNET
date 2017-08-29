@@ -67,6 +67,7 @@ namespace MiNET.Net
 		void HandleMcpeAdventureSettings(McpeAdventureSettings message);
 		void HandleMcpeBlockEntityData(McpeBlockEntityData message);
 		void HandleMcpePlayerInput(McpePlayerInput message);
+		void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message);
 		void HandleMcpeMapInfoRequest(McpeMapInfoRequest message);
 		void HandleMcpeRequestChunkRadius(McpeRequestChunkRadius message);
 		void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message);
@@ -2821,7 +2822,9 @@ namespace MiNET.Net
 			AllPriority = (All | Priority),
 		}
 
-		public BlockUpdateRecords records; // = null;
+		public BlockCoordinates coordinates; // = null;
+		public uint blockId; // = null;
+		public uint blockMetaAndPriority; // = null;
 
 		public McpeUpdateBlock()
 		{
@@ -2835,7 +2838,9 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(records);
+			Write(coordinates);
+			WriteUnsignedVarInt(blockId);
+			WriteUnsignedVarInt(blockMetaAndPriority);
 
 			AfterEncode();
 		}
@@ -2849,7 +2854,9 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			records = ReadBlockUpdateRecords();
+			coordinates = ReadBlockCoordinates();
+			blockId = ReadUnsignedVarInt();
+			blockMetaAndPriority = ReadUnsignedVarInt();
 
 			AfterDecode();
 		}
@@ -2861,7 +2868,9 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			records=default(BlockUpdateRecords);
+			coordinates=default(BlockCoordinates);
+			blockId=default(uint);
+			blockMetaAndPriority=default(uint);
 		}
 
 	}
@@ -3362,10 +3371,10 @@ namespace MiNET.Net
 		}
 		public enum NormalAction
 		{
-			PutSlot = 3,
-			GetSlot = 5,
-			GetResult = 7,
-			CraftUse = 9,
+			PutSlot = 0,
+			GetSlot = 1,
+			GetResult = 2,
+			CraftUse = 3,
 			EnchantItem = 29,
 			EnchantLapis = 31,
 			EnchantResult = 33,

@@ -477,6 +477,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
+		{
+		}
+
 		public void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
 		{
 		}

@@ -93,24 +93,6 @@ namespace MiNET.Utils
 		}
 	}
 
-	public class BlockUpdateRecords : List<BlockUpdateRecord>
-	{
-		public BlockUpdateRecords()
-		{
-		}
-
-		public BlockUpdateRecords(IEnumerable<BlockUpdateRecord> records) : base(records)
-		{
-		}
-	}
-
-	public class BlockUpdateRecord
-	{
-		public BlockCoordinates Coordinates { get; set; }
-		public int BlockId { get; set; }
-		public int BlockMetadata { get; set; }
-	}
-
 	public abstract class PlayerRecords : List<Player>
 	{
 		public PlayerRecords()

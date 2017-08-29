@@ -534,6 +534,16 @@ namespace MiNET
 				handler.HandleMcpeInventoryTransaction((McpeInventoryTransaction)message);
 			}
 
+			else if (typeof(McpeServerSettingsRequest) == message.GetType())
+			{
+				handler.HandleMcpeServerSettingsRequest((McpeServerSettingsRequest)message);
+			}
+
+			else if (typeof(McpeSetPlayerGameType) == message.GetType())
+			{
+				handler.HandleMcpeSetPlayerGameType((McpeSetPlayerGameType)message);
+			}
+
 			else if (typeof(McpePlayerHotbar) == message.GetType())
 			{
 				handler.HandleMcpePlayerHotbar((McpePlayerHotbar)message);

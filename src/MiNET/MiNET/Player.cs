@@ -179,6 +179,11 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
+		{
+			SetGameMode((GameMode)message.gamemode);
+		}
+
 		private bool _serverHaveResources = false;
 
 		public virtual void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
@@ -1820,10 +1825,16 @@ namespace MiNET
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUse:
 					var transaction = message.transaction;
-					if(transaction.ActionType == 0)
+					if (transaction.ActionType == 0)
 					{
-						Level.Interact(this, transaction.Item, transaction.Position, (BlockFace)transaction.Face, transaction.ClickPosition);
-					} else if(transaction.ActionType == 2)
+						Level.Interact(this, transaction.Item, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
+					}
+					else if (transaction.ActionType == 1)
+					{
+						// Not sure what to do with this one
+						Log.Warn("Unhandled action type for item use. Should be looked into.");
+					}
+					else if (transaction.ActionType == 2)
 					{
 						Level.BreakBlock(this, transaction.Position);
 					}

@@ -110,11 +110,6 @@ namespace MiNET
 				return;
 			}
 
-			if (PlayerAckQueue.Count > 0)
-			{
-				Thread.Sleep(50);
-			}
-
 			if (_tickerHighPrecisionTimer != null)
 			{
 				_tickerHighPrecisionTimer.Dispose();
@@ -926,7 +921,6 @@ namespace MiNET
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
 							Server.SendPackage(this, package);
-							Thread.Sleep(1); // Really important to slow down speed a bit
 						}
 						else if (package.NoBatch)
 						{

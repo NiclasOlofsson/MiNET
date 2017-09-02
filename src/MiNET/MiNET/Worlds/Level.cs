@@ -828,7 +828,7 @@ namespace MiNET.Worlds
 			return GetBlock(new BlockCoordinates(x, y, z));
 		}
 
-		public Block GetBlock(BlockCoordinates blockCoordinates)
+		public Block GetBlock(BlockCoordinates blockCoordinates, ChunkColumn type = null)
 		{
 			ChunkColumn chunk = WorldProvider.GenerateChunkColumn(new ChunkCoordinates(blockCoordinates.X >> 4, blockCoordinates.Z >> 4));
 			if (chunk == null) return new Air {Coordinates = blockCoordinates, SkyLight = 15};

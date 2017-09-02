@@ -2052,16 +2052,6 @@ namespace MiNET
 
 			// Make sure we are holding the item we claim to be using
 			Item itemInHand = Inventory.GetItemInHand();
-			if (itemInHand == null || itemInHand.Id != message.item.Id)
-			{
-				Log.Warn($"Use item detected difference between server and client. Expected item {message.item} but server had item {itemInHand}");
-				return; // Cheat(?)
-			}
-
-			if (itemInHand.GetType() == typeof (Item))
-			{
-				Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {message.item} and item in hand is {itemInHand}");
-			}
 
 			if (message.face >= 0 && message.face <= 5)
 			{
@@ -2238,7 +2228,7 @@ namespace MiNET
 				{
 					if (chunk != null) SendPackage(chunk);
 
-					if (packetCount > 16) Thread.Sleep(12);
+					if (packetCount > 16) Thread.Sleep(1);
 
 					packetCount++;
 				}

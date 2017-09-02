@@ -110,7 +110,12 @@ namespace MiNET
 				return;
 			}
 
-			if (_tickerHighPrecisionTimer != null)
+            if (PlayerAckQueue.Count > 0)
+            {
+                Thread.Sleep(50);
+            }
+
+            if (_tickerHighPrecisionTimer != null)
 			{
 				_tickerHighPrecisionTimer.Dispose();
 			}
@@ -278,7 +283,7 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
-			SignalTick();
+			//SignalTick();
 
 			try
 			{

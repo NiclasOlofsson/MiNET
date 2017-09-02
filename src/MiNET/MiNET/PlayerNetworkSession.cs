@@ -278,7 +278,7 @@ namespace MiNET
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
 		{
-			//SignalTick();
+			SignalTick();
 
 			try
 			{

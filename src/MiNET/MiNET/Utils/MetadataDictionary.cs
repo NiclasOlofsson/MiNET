@@ -65,8 +65,6 @@ namespace MiNET.Utils
 			}
 
 			return metadata;
-
-			return null;
 		}
 
 		public void WriteTo(BinaryWriter writer)

@@ -144,10 +144,12 @@ namespace MiNET.Plugins
 
 		private void DebugPrintCommands()
 		{
-			return;
-			if (!Log.IsDebugEnabled) return;
+			if (!Log.IsDebugEnabled)
+            {
+                return;
+            }
 
-			var settings = new JsonSerializerSettings();
+            var settings = new JsonSerializerSettings();
 			settings.NullValueHandling = NullValueHandling.Ignore;
 			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
 			settings.MissingMemberHandling = MissingMemberHandling.Error;

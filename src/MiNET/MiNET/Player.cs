@@ -235,7 +235,6 @@ namespace MiNET
 
 		private object _mapInfoSync = new object();
 
-		private Timer _mapSender;
 		private ConcurrentQueue<McpeWrapper> _mapBatches = new ConcurrentQueue<McpeWrapper>();
 
 		public virtual void HandleMcpeMapInfoRequest(McpeMapInfoRequest message)
@@ -1453,8 +1452,6 @@ namespace MiNET
 			}
 		}
 
-		private string _prevText = null;
-
 		public virtual void HandleMcpeText(McpeText message)
 		{
 			string text = message.message;
@@ -2502,24 +2499,10 @@ namespace MiNET
 
 			if (IsGliding)
 			{
-				if (CurrentSpeed > 30)
-				{
-					var particle = new CriticalParticle(Level);
-					particle.Position = KnownPosition.ToVector3();
-					particle.Spawn();
-				}
-
-				if (Level.TickTime%10 == 0)
-				{
-					AddPopup(new Popup()
-					{
-						Id = 10,
-						MessageType = MessageType.Tip,
-						Message = $"Speed: {CurrentSpeed:F2}m/s",
-						Duration = 20*5,
-					});
-				}
-			}
+			    var particle = new CriticalParticle(Level);
+                particle.Position = KnownPosition.ToVector3();
+                particle.Spawn();
+            }
 
 			foreach (var effect in Effects)
 			{

@@ -1150,7 +1150,7 @@ namespace MiNET.Net
 					}
 				}
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 				skin.SkinType = null;
 				skin.Texture = null;

@@ -355,7 +355,7 @@
 		</enums>
 		<field name="Coordinates" type="BlockCoordinates" />
 		<field name="Block ID" type="UnsignedVarInt" />
-		<field name="Block Meta And Priority" type="UnsignedVarInt" />	
+		<field name="Block Meta And Priority" type="UnsignedVarInt" />
 	</pdu>
 
 	<pdu id="0x16" online="false" client="false" server="true" name="MCPE_ADD_PAINTING">
@@ -563,6 +563,7 @@
 		<field name="Selected Slot" type="UnsignedVarInt" />
 		<field name="Window ID" type="byte" />
 		<field name="Hotbar Data" type="MetadataInts" />
+		<field name="Unknown" type="byte" />
 	</pdu>
 
 	<pdu id="0x31" online="false" client="true" server="true" name="MCPE_INVENTORY_CONTENT">
@@ -631,7 +632,7 @@
 	</enums>
 
 	<enums id="ActionPermissions">
- 		<enum id="Build And Mine" value="0x1" />
+		<enum id="Build And Mine" value="0x1" />
 		<enum id="Doors And Switches" value="0x2" />
 		<enum id="Open Containers" value="0x4" />
 		<enum id="Attack Players" value="0x8" />
@@ -748,22 +749,15 @@
 	</pdu>
 
 	<pdu id="0x4c" online="false" client="false" server="true" name="MCPE_AVAILABLE_COMMANDS">
-		<field name="Commands" type="string"  />
-		<field name="Unknown" type="string"  />
+		<!--<field name="CommandData" type="CommandData"  />-->
+		<!--<field name="Unknown" type="string"  />-->
 	</pdu>
 
 	<pdu id="0x4d" online="false" client="true" server="false" name="MCPE_COMMAND_REQUEST">
-		<field name="Command name" type="string"  />
-		<field name="Command overload" type="string"  />
-		<field name="Unknown 1" type="UnsignedVarInt"  />
-		<field name="Current Step " type="UnsignedVarInt"  />
-		<field name="Is Output" type="bool" />
-		<field name="Client ID" type="UnsignedVarLong"  />
-		<field name="Command Input Json" type="string"  />
-		<field name="Command Output Json" type="string"  />
-		<field name="Unknown 7" type="byte"  />
-		<field name="Unknown 8" type="byte"  />
-		<field name="Entity ID Self" type="SignedVarLong"  />
+		<field name="Command" type="string" />
+		<field name="Command type" type="SignedVarInt" />
+		<field name="Request ID" type="string" />
+		<field name="Unknown" type="bool" />
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">

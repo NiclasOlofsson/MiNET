@@ -77,6 +77,11 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
+		[Command(Name="tc", Description = "Test command")]
+		public void TestCommand(Player player, int param)
+		{
+		}
+
 		[Command(Description = "Save world")]
 		[Authorize(Permission = UserPermission.Admin)]
 		public void Save(Player player)

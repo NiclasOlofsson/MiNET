@@ -1153,6 +1153,7 @@ Wiki: [Player Hotbar](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Pla
 |Selected Slot | UnsignedVarInt |  |
 |Window ID | byte |  |
 |Hotbar Data | MetadataInts |  |
+|Unknown | byte |  |
 -----------------------------------------------------------------------
 ### Inventory Content (0x31)
 Wiki: [Inventory Content](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-InventoryContent)
@@ -1607,8 +1608,6 @@ Wiki: [Available Commands](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Commands | string |  |
-|Unknown | string |  |
 -----------------------------------------------------------------------
 ### Command Request (0x4d)
 Wiki: [Command Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandRequest)
@@ -1623,17 +1622,10 @@ Wiki: [Command Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-C
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Command name | string |  |
-|Command overload | string |  |
-|Unknown 1 | UnsignedVarInt |  |
-|Current Step  | UnsignedVarInt |  |
-|Is Output | bool |  |
-|Client ID | UnsignedVarLong |  |
-|Command Input Json | string |  |
-|Command Output Json | string |  |
-|Unknown 7 | byte |  |
-|Unknown 8 | byte |  |
-|Entity ID Self | SignedVarLong |  |
+|Command | string |  |
+|Command type | SignedVarInt |  |
+|Request ID | string |  |
+|Unknown | bool |  |
 -----------------------------------------------------------------------
 ### Command Block Update (0x4e)
 Wiki: [Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandBlockUpdate)

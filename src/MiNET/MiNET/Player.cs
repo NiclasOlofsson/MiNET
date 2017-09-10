@@ -542,7 +542,8 @@ namespace MiNET
 			if (IsMuted) flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;
-			mcpeAdventureSettings.commandPermission = (uint) Commandpermission.Admin;
+			//mcpeAdventureSettings.commandPermission = (uint) Commandpermission.Admin;
+			mcpeAdventureSettings.commandPermission = (uint) 1;
 			mcpeAdventureSettings.actionPermissions = (uint) Actionpermissions.All;
 			mcpeAdventureSettings.permissionLevel = (uint) Permissionlevel.Operator;
 			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
@@ -655,7 +656,7 @@ namespace MiNET
 
 				Level.AddPlayer(this, false);
 
-				//SendAvailableCommands();
+				SendAvailableCommands();
 
 				SendUpdateAttributes();
 
@@ -699,45 +700,46 @@ namespace MiNET
 			var content = JsonConvert.SerializeObject(Server.PluginManager.Commands, settings);
 
 			McpeAvailableCommands commands = McpeAvailableCommands.CreateObject();
-			commands.commands = content;
-			commands.unknown = "{}";
+			commands.CommandSet = Server.PluginManager.Commands;
+			//commands.commands = content;
+			//commands.unknown = "{}";
 			SendPackage(commands);
 		}
 
 		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
 		{
-			var jsonSerializerSettings = new JsonSerializerSettings
-			{
-				PreserveReferencesHandling = PreserveReferencesHandling.None,
-				Formatting = Formatting.Indented,
-			};
+			//var jsonSerializerSettings = new JsonSerializerSettings
+			//{
+			//	PreserveReferencesHandling = PreserveReferencesHandling.None,
+			//	Formatting = Formatting.Indented,
+			//};
 
-			var commandJson = JsonConvert.DeserializeObject<dynamic>(message.commandInputJson);
-			Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commandJson, jsonSerializerSettings)}");
-			object result = Server.PluginManager.HandleCommand(this, message.commandName, message.commandOverload, commandJson);
-			if (result != null)
-			{
-				var settings = new JsonSerializerSettings();
-				settings.NullValueHandling = NullValueHandling.Ignore;
-				settings.DefaultValueHandling = DefaultValueHandling.Include;
-				settings.MissingMemberHandling = MissingMemberHandling.Error;
-				settings.Formatting = Formatting.Indented;
-				settings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
-				settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			//var commandJson = JsonConvert.DeserializeObject<dynamic>(message.commandInputJson);
+			//Log.Debug($"CommandJson\n{JsonConvert.SerializeObject(commandJson, jsonSerializerSettings)}");
+			//object result = Server.PluginManager.HandleCommand(this, message.commandName, message.commandOverload, commandJson);
+			//if (result != null)
+			//{
+			//	var settings = new JsonSerializerSettings();
+			//	settings.NullValueHandling = NullValueHandling.Ignore;
+			//	settings.DefaultValueHandling = DefaultValueHandling.Include;
+			//	settings.MissingMemberHandling = MissingMemberHandling.Error;
+			//	settings.Formatting = Formatting.Indented;
+			//	settings.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
+			//	settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-				var content = JsonConvert.SerializeObject(result, settings);
-				McpeCommandRequest commandResult = McpeCommandRequest.CreateObject();
-				commandResult.commandName = message.commandName;
-				commandResult.commandOverload = message.commandOverload;
-				commandResult.isOutput = true;
-				commandResult.clientId = NetworkHandler.GetNetworkNetworkIdentifier();
-				commandResult.commandInputJson = "null\n";
-				commandResult.commandOutputJson = content;
-				commandResult.entityIdSelf = EntityId;
-				SendPackage(commandResult);
+			//	var content = JsonConvert.SerializeObject(result, settings);
+			//	McpeCommandRequest commandResult = McpeCommandRequest.CreateObject();
+			//	commandResult.commandName = message.commandName;
+			//	commandResult.commandOverload = message.commandOverload;
+			//	commandResult.isOutput = true;
+			//	commandResult.clientId = NetworkHandler.GetNetworkNetworkIdentifier();
+			//	commandResult.commandInputJson = "null\n";
+			//	commandResult.commandOutputJson = content;
+			//	commandResult.entityIdSelf = EntityId;
+			//	SendPackage(commandResult);
 
-				if (Log.IsDebugEnabled) Log.Debug($"NetworkId={commandResult.clientId}, Command Respone\n{Package.ToJson(commandResult)}\nJSON:\n{content}");
-			}
+			//	if (Log.IsDebugEnabled) Log.Debug($"NetworkId={commandResult.clientId}, Command Respone\n{Package.ToJson(commandResult)}\nJSON:\n{content}");
+			//}
 		}
 
 		public virtual void InitializePlayer()

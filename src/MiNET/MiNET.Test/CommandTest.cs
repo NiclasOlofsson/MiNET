@@ -218,5 +218,14 @@ namespace MiNET
 
 			//}
 		}
+
+		[Test]
+		public void NewSendCommands12()
+		{
+			
+		}
+
+
+
 	}
 }

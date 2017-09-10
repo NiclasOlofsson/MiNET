@@ -3371,10 +3371,10 @@ namespace MiNET.Net
 		}
 		public enum NormalAction
 		{
-			PutSlot = 0,
-			GetSlot = 1,
-			GetResult = 2,
-			CraftUse = 3,
+			PutSlot = 3,
+			GetSlot = 5,
+			GetResult = 7,
+			CraftUse = 9,
 			EnchantItem = 29,
 			EnchantLapis = 31,
 			EnchantResult = 33,
@@ -4384,6 +4384,7 @@ namespace MiNET.Net
 		public uint selectedSlot; // = null;
 		public byte windowId; // = null;
 		public MetadataInts hotbarData; // = null;
+		public byte unknown; // = null;
 
 		public McpePlayerHotbar()
 		{
@@ -4400,6 +4401,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt(selectedSlot);
 			Write(windowId);
 			Write(hotbarData);
+			Write(unknown);
 
 			AfterEncode();
 		}
@@ -4416,6 +4418,7 @@ namespace MiNET.Net
 			selectedSlot = ReadUnsignedVarInt();
 			windowId = ReadByte();
 			hotbarData = ReadMetadataInts();
+			unknown = ReadByte();
 
 			AfterDecode();
 		}
@@ -4430,6 +4433,7 @@ namespace MiNET.Net
 			selectedSlot=default(uint);
 			windowId=default(byte);
 			hotbarData=default(MetadataInts);
+			unknown=default(byte);
 		}
 
 	}
@@ -5838,8 +5842,6 @@ namespace MiNET.Net
 	public partial class McpeAvailableCommands : Package<McpeAvailableCommands>
 	{
 
-		public string commands; // = null;
-		public string unknown; // = null;
 
 		public McpeAvailableCommands()
 		{
@@ -5853,7 +5855,57 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			Write(commands);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
+	}
+
+	public partial class McpeCommandRequest : Package<McpeCommandRequest>
+	{
+
+		public string command; // = null;
+		public int commandType; // = null;
+		public string requestId; // = null;
+		public bool unknown; // = null;
+
+		public McpeCommandRequest()
+		{
+			Id = 0x4d;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(command);
+			WriteSignedVarInt(commandType);
+			Write(requestId);
 			Write(unknown);
 
 			AfterEncode();
@@ -5868,8 +5920,10 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			commands = ReadString();
-			unknown = ReadString();
+			command = ReadString();
+			commandType = ReadSignedVarInt();
+			requestId = ReadString();
+			unknown = ReadBool();
 
 			AfterDecode();
 		}
@@ -5881,96 +5935,10 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			commands=default(string);
-			unknown=default(string);
-		}
-
-	}
-
-	public partial class McpeCommandRequest : Package<McpeCommandRequest>
-	{
-
-		public string commandName; // = null;
-		public string commandOverload; // = null;
-		public uint unknown1; // = null;
-		public uint currentStep; // = null;
-		public bool isOutput; // = null;
-		public long clientId; // = null;
-		public string commandInputJson; // = null;
-		public string commandOutputJson; // = null;
-		public byte unknown7; // = null;
-		public byte unknown8; // = null;
-		public long entityIdSelf; // = null;
-
-		public McpeCommandRequest()
-		{
-			Id = 0x4d;
-			IsMcpe = true;
-		}
-
-		protected override void EncodePackage()
-		{
-			base.EncodePackage();
-
-			BeforeEncode();
-
-			Write(commandName);
-			Write(commandOverload);
-			WriteUnsignedVarInt(unknown1);
-			WriteUnsignedVarInt(currentStep);
-			Write(isOutput);
-			WriteUnsignedVarLong(clientId);
-			Write(commandInputJson);
-			Write(commandOutputJson);
-			Write(unknown7);
-			Write(unknown8);
-			WriteSignedVarLong(entityIdSelf);
-
-			AfterEncode();
-		}
-
-		partial void BeforeEncode();
-		partial void AfterEncode();
-
-		protected override void DecodePackage()
-		{
-			base.DecodePackage();
-
-			BeforeDecode();
-
-			commandName = ReadString();
-			commandOverload = ReadString();
-			unknown1 = ReadUnsignedVarInt();
-			currentStep = ReadUnsignedVarInt();
-			isOutput = ReadBool();
-			clientId = ReadUnsignedVarLong();
-			commandInputJson = ReadString();
-			commandOutputJson = ReadString();
-			unknown7 = ReadByte();
-			unknown8 = ReadByte();
-			entityIdSelf = ReadSignedVarLong();
-
-			AfterDecode();
-		}
-
-		partial void BeforeDecode();
-		partial void AfterDecode();
-
-		protected override void ResetPackage()
-		{
-			base.ResetPackage();
-
-			commandName=default(string);
-			commandOverload=default(string);
-			unknown1=default(uint);
-			currentStep=default(uint);
-			isOutput=default(bool);
-			clientId=default(long);
-			commandInputJson=default(string);
-			commandOutputJson=default(string);
-			unknown7=default(byte);
-			unknown8=default(byte);
-			entityIdSelf=default(long);
+			command=default(string);
+			commandType=default(int);
+			requestId=default(string);
+			unknown=default(bool);
 		}
 
 	}

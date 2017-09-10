@@ -60,7 +60,7 @@ namespace MiNET.Plugins.Commands
 			public int SuccessCount { get; set; } = 1;
 		}
 
-		[Command(Name = "op")]
+		[Command(Name = "op", Description = "Make player an operator")]
 		public SimpleResponse MakeOperator(Player commander, Target player)
 		{
 			string body = player.Selector;

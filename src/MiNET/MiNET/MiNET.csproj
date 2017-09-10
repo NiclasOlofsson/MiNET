@@ -542,6 +542,7 @@
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\ItemSigner.cs" />
+    <Compile Include="Net\McpeAvailableCommands.cs" />
     <Compile Include="Net\McpeBossEvent.cs" />
     <Compile Include="Net\McpeText.cs" />
     <Compile Include="Net\PlayerAction.cs" />

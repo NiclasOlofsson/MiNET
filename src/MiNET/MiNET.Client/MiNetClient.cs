@@ -442,7 +442,7 @@ namespace MiNET.Client
 					case DefaultMessageIdTypes.ID_UNCONNECTED_PONG:
 					{
 						UnconnectedPong incoming = (UnconnectedPong) message;
-						Log.Warn($"MOTD {incoming.serverName}");
+						Log.Warn($"MOTD: {incoming.serverName}");
 						if (!HaveServer)
 						{
 							_serverEndpoint = senderEndpoint;
@@ -968,21 +968,21 @@ namespace MiNET.Client
 				return;
 			}
 
-			else if (typeof(McpeInventoryContent) == message.GetType())
+			else if (typeof (McpeInventoryContent) == message.GetType())
 			{
 				OnMcpeInventoryContent((McpeInventoryContent) message);
 				return;
 			}
 
-			else if (typeof(McpeInventoryTransaction) == message.GetType())
+			else if (typeof (McpeInventoryTransaction) == message.GetType())
 			{
-				OnMcpeInventoryTransaction((McpeInventoryTransaction)message);
+				OnMcpeInventoryTransaction((McpeInventoryTransaction) message);
 				return;
 			}
 
-			else if (typeof(McpePlayerHotbar) == message.GetType())
+			else if (typeof (McpePlayerHotbar) == message.GetType())
 			{
-				OnMcpePlayerHotbar((McpePlayerHotbar)message);
+				OnMcpePlayerHotbar((McpePlayerHotbar) message);
 				return;
 			}
 
@@ -1335,7 +1335,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 134,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 136,
 				payload = data
 			};
 
@@ -1772,17 +1772,17 @@ namespace MiNET.Client
 					Log.Debug("Extradata: \n" + extraData);
 					if (extraData.Contains("ench"))
 					{
-						NbtList ench = (NbtList)extraData["ench"];
+						NbtList ench = (NbtList) extraData["ench"];
 
-						NbtCompound enchComp = (NbtCompound)ench[0];
+						NbtCompound enchComp = (NbtCompound) ench[0];
 						var id = enchComp["id"].ShortValue;
 						var lvl = enchComp["lvl"].ShortValue;
 						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtList(\"ench\") {{new NbtCompound {{new NbtShort(\"id\", {id}), new NbtShort(\"lvl\", {lvl}) }} }} }} }},");
 					}
 					else if (extraData.Contains("Fireworks"))
 					{
-						NbtCompound fireworks = (NbtCompound)extraData["Fireworks"];
-						NbtList explosions = (NbtList)fireworks["Explosions"];
+						NbtCompound fireworks = (NbtCompound) extraData["Fireworks"];
+						NbtList explosions = (NbtList) fireworks["Explosions"];
 						byte flight = fireworks["Flight"].ByteValue;
 						writer.WriteLine($"new Item({slot.Id}, {slot.Metadata}, {slot.Count}){{ExtraData = new NbtCompound {{new NbtCompound(\"Fireworks\") {{new NbtList {{new NbtList(\"Explosions\"), new NbtByte(\"Flight\", {flight}) }} }} }} }},");
 					}

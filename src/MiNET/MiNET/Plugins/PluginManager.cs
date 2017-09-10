@@ -277,9 +277,16 @@ namespace MiNET.Plugins
 						if (parameter.ParameterType.IsEnum)
 						{
 							param.EnumValues = parameter.ParameterType.GetEnumNames().Select(s => s.ToLowerInvariant()).ToArray();
+
+							string typeName = parameter.ParameterType.Name;
+							typeName = typeName.Replace("Enum", "");
+							typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
+							param.EnumType = typeName;
 						}
 						else
 						{
+							param.EnumValues = null;
+
 							string typeName = parameter.ParameterType.Name;
 							typeName = typeName.Replace("Enum", "");
 							typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using fNbt;
 using log4net;
 using MiNET.Items;
 using MiNET.Net;
@@ -4104,10 +4105,35 @@ namespace MiNET.Crafting
 
 		public ShapelessRecipe(Item result, List<Item> input) : this()
 		{
-			Result = result;
-			Input = input;
+			Result = CreateItemServer(result);
+            Input = input;
 		}
-	}
+        private Item CreateItemServer(Item item)
+        {
+            if (item.ExtraData == null)
+            {
+                item.ExtraData = new NbtCompound
+                {
+                    new NbtInt("ServerInv", 0)
+                };
+            }
+            else
+            {
+                if (item.ExtraData.Get("ServerInv") != null)
+                {
+                    return item;
+                }
+                else
+                {
+                    item.ExtraData.Add(new NbtCompound
+                    {
+                        new NbtInt("ServerInv", 0)
+                    });
+                }
+            }
+            return item;
+        }
+    }
 
 	public class ShapedRecipe : Recipe
 	{
@@ -4125,10 +4151,41 @@ namespace MiNET.Crafting
 
 		public ShapedRecipe(int width, int height, Item result, Item[] input) : this(width, height)
 		{
-			Result = result;
+			Result = CreateItemServer(result);
 			Input = input;
-		}
-	}
+            /*for (int i = 0; i < input.Length; i++)
+            {
+                string element = input[i];
+                Console.WriteLine(element);
+            }*/
+        }
+
+        private Item CreateItemServer(Item item)
+        {
+            if (item.ExtraData == null)
+            {
+                item.ExtraData = new NbtCompound
+                {
+                    new NbtInt("ServerInv", 0)
+                };
+            }
+            else
+            {
+                if (item.ExtraData.Get("ServerInv") != null)
+                {
+                    return item;
+                }
+                else
+                {
+                    item.ExtraData.Add(new NbtCompound
+                    {
+                        new NbtInt("ServerInv", 0)
+                    });
+                }
+            }
+            return item;
+        }
+    }
 
 	public class SmeltingRecipe : Recipe
 	{
@@ -4141,8 +4198,34 @@ namespace MiNET.Crafting
 
 		public SmeltingRecipe(Item result, Item input) : this()
 		{
-			Result = result;
-			Input = input;
+			Result = CreateItemServer(result);
+			Input = CreateItemServer(input);
 		}
-	}
+
+        private Item CreateItemServer(Item item)
+        {
+            if (item.ExtraData == null)
+            {
+                item.ExtraData = new NbtCompound
+                {
+                    new NbtInt("ServerInv", 0)
+                };
+            }
+            else
+            {
+                if (item.ExtraData.Get("ServerInv") != null)
+                {
+                    return item;
+                }
+                else
+                {
+                    item.ExtraData.Add(new NbtCompound
+                    {
+                        new NbtInt("ServerInv", 0)
+                    });
+                }
+            }
+            return item;
+        }
+    }
 }

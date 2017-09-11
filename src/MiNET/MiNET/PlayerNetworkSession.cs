@@ -578,7 +578,6 @@ namespace MiNET
 
 			else
 			{
-                Disconnect("You've been kicked with reason: Network timeout.");
                 Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
 				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
                 return;
@@ -589,14 +588,12 @@ namespace MiNET
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 				if (elapsedMilliseconds > 1000)
 				{
-                    Disconnect("You've been kicked with reason: Network timeout.");
                     Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
 
                 }
 			}
 			else
 			{
-                Disconnect("You've been kicked with reason: Network timeout.");
                 Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
             }
 		}

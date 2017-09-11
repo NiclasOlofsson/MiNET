@@ -60,7 +60,7 @@ namespace MiNET
 		private Dictionary<Tuple<int, int>, McpeWrapper> _chunksUsed = new Dictionary<Tuple<int, int>, McpeWrapper>();
 		private ChunkCoordinates _currentChunkPosition;
 
-		private Inventory _openInventory;
+        public Inventory _openInventory;
 		public PlayerInventory Inventory { get; private set; }
 
 		public PlayerLocation SpawnPosition { get; set; }

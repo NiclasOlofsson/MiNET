@@ -211,11 +211,45 @@ namespace MiNET.BlockEntities
 			for (byte i = 0; i < items.Count; i++)
 			{
 				NbtCompound itemData = (NbtCompound) items[i];
-				Item item = ItemFactory.GetItem(itemData["id"].ShortValue, itemData["Damage"].ShortValue, itemData["Count"].ByteValue);
+				Item item = CreateItemServer(ItemFactory.GetItem(itemData["id"].ShortValue, itemData["Damage"].ShortValue, itemData["Count"].ByteValue));
 				slots.Add(item);
 			}
 
 			return slots;
 		}
+
+        private Item CreateItemServer(Item item)
+        {
+            if(item == null)
+            {
+                return item;
+            }
+            if(item.Id == 0)
+            {
+                return item;
+            }
+            if (item.ExtraData == null)
+            {
+                item.ExtraData = new NbtCompound
+                {
+                    new NbtInt("ServerInv", 0)
+                };
+            }
+            else
+            {
+                if (item.ExtraData.Get("ServerInv") != null)
+                {
+                    return item;
+                }
+                else
+                {
+                    item.ExtraData.Add(new NbtCompound
+                    {
+                        new NbtInt("ServerInv", 0)
+                    });
+                }
+            }
+            return item;
+        }
 	}
 }

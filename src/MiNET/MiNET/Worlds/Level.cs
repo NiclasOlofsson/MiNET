@@ -120,7 +120,7 @@ namespace MiNET.Worlds
 
 		public void Initialize()
 		{
-			//IsWorldTimeStarted = false;
+			IsWorldTimeStarted = false;
 			WorldProvider.Initialize();
 
 			SpawnPoint = SpawnPoint ?? new PlayerLocation(WorldProvider.GetSpawnPoint());

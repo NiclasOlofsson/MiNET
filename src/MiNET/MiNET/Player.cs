@@ -2225,7 +2225,7 @@ namespace MiNET
 				{
 					if (chunk != null) SendPackage(chunk);
 
-					if (packetCount > 56) Thread.Sleep(1);
+					//if (packetCount > 56) Thread.Sleep(1);
 
 					packetCount++;
 				}
@@ -2279,7 +2279,7 @@ namespace MiNET
 					}
 					else
 					{
-						if (packetCount++ > 56) Thread.Sleep(1);
+						//if (packetCount++ > 56) Thread.Sleep(1);
 					}
 				}
 			}

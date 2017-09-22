@@ -59,7 +59,7 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-			Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
+			//Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
 			Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
 		}
 
@@ -83,7 +83,7 @@ namespace TestPlugin
 		}
 
 		[Command(Description = "Save world")]
-		[Authorize(Permission = UserPermission.Admin)]
+		[Authorize(Permission = CommandPermission.Admin)]
 		public void Save(Player player)
 		{
 			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
@@ -536,7 +536,7 @@ namespace TestPlugin
 		[Command]
 		public void Permission(Player player, int permission)
 		{
-			player.CommadPermission = (Commandpermission) permission;
+			player.CommadPermission = (CommandPermission) permission;
 			player.SendAdventureSettings();
 		}
 
@@ -854,7 +854,12 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void EnumTestTest(Player player, CommandNameEnum commandName, EntityTypeEnum entityType, BlockTypeEnum blockType)
+		public void EnumTest(Player player, ItemTypeEnum itemType, EntityTypeEnum entityType, BlockTypeEnum blockType, CommandNameEnum commandName)
+		{
+		}
+
+		[Command]
+		public void EnumTest2(Player player, EnchantEnum enchant, EffectEnum effect)
 		{
 		}
 

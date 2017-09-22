@@ -574,6 +574,11 @@ namespace MiNET
 				handler.HandleMcpePlayerInput((McpePlayerInput) message);
 			}
 
+			else if (typeof(McpeCommandRequest) == message.GetType())
+			{
+				handler.HandleMcpeCommandRequest((McpeCommandRequest)message);
+			}
+
 			else if (typeof (McpeBlockPickRequest) == message.GetType())
 			{
 				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest) message);

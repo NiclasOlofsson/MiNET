@@ -122,16 +122,16 @@ namespace TestPlugin.NiceLobby
 
 
 			// Compass
-			if (e.Level.TickTime % 2 == 0)
-			{
-				player.AddPopup(new Popup()
-				{
-					Id = 10,
-					MessageType = MessageType.Tip,
-					Message = GetCompass(player.KnownPosition.HeadYaw),
-					Duration = 20 * 5,
-				});
-			}
+			//if (e.Level.TickTime % 2 == 0)
+			//{
+			//	player.AddPopup(new Popup()
+			//	{
+			//		Id = 10,
+			//		MessageType = MessageType.Tip,
+			//		Message = GetCompass(player.KnownPosition.HeadYaw),
+			//		Duration = 20 * 5,
+			//	});
+			//}
 
 
 			// Glide extension

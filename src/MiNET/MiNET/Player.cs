@@ -544,14 +544,14 @@ namespace MiNET
 			mcpeAdventureSettings.flags = flags;
 			//mcpeAdventureSettings.commandPermission = (uint) Commandpermission.Admin;
 			mcpeAdventureSettings.commandPermission = (uint) 1;
-			mcpeAdventureSettings.actionPermissions = (uint) Actionpermissions.All;
-			mcpeAdventureSettings.permissionLevel = (uint) Permissionlevel.Operator;
+			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions.All;
+			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel.Operator;
 			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
 
 			SendPackage(mcpeAdventureSettings);
 		}
 
-		public Commandpermission CommadPermission { get; set; } = Commandpermission.Admin;
+		public CommandPermission CommadPermission { get; set; } = CommandPermission.Admin;
 
 		public bool IsSpectator { get; set; }
 
@@ -708,6 +708,13 @@ namespace MiNET
 
 		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
 		{
+			var result = Server.PluginManager.HandleCommand(this, message.command);
+			if(result is string)
+			{
+				string sRes = result as string;
+				SendMessage(sRes);
+			}
+
 			//var jsonSerializerSettings = new JsonSerializerSettings
 			//{
 			//	PreserveReferencesHandling = PreserveReferencesHandling.None,
@@ -2266,9 +2273,11 @@ namespace MiNET
 			mcpeStartGame.gamerules = GetGameRules();
 			mcpeStartGame.levelId = "1m0AAMIFIgA=";
 			mcpeStartGame.worldName = Level.LevelName;
+			mcpeStartGame.isMultiplayer = true;
 			mcpeStartGame.broadcastToLan = true;
 			mcpeStartGame.broadcastToXbl = true;
-			mcpeStartGame.permissionLevel = 0;
+			mcpeStartGame.gamePublishSetting = 3;
+			mcpeStartGame.permissionLevel = 1;
 
 			SendPackage(mcpeStartGame);
 		}
@@ -3054,15 +3063,6 @@ namespace MiNET
 		{
 			Ticked?.Invoke(this, e);
 		}
-	}
-
-	public enum UserPermission
-	{
-		Any = 0,
-		Gamemasters = 1,
-		Host = 2,
-		Automation = 3,
-		Admin = 4,
 	}
 
 	public class PlayerEventArgs : CancelEventArgs

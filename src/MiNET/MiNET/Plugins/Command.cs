@@ -214,6 +214,14 @@ namespace MiNET.Plugins
 	{
 	}
 
+	public class EffectEnum : EnumBase
+	{
+	}
+
+	public class EnchantEnum : EnumBase
+	{
+	}
+
 
 	//"rules": [
 	//    {

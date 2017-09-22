@@ -199,6 +199,7 @@ namespace MiNET.Net
 
 				//WriteUnsignedVarInt(0); // Enum indexes
 				WriteUnsignedVarInt((uint) enumList.Count); // Enum indexes
+				List<string> writtenEnumList = new List<string>();
 				foreach (var command in commands.Values)
 				{
 					var overloads = command.Versions[0].Overloads;
@@ -212,19 +213,30 @@ namespace MiNET.Net
 							{
 								if (parameter.EnumValues == null) continue;
 
+								if (!enumList.Contains(parameter.EnumType)) continue;
+								if (writtenEnumList.Contains(parameter.EnumType)) continue;
+
+								writtenEnumList.Add(parameter.EnumType);
+
 								Write(parameter.EnumType);
 								WriteUnsignedVarInt((uint) parameter.EnumValues.Length);
 								foreach (var enumValue in parameter.EnumValues)
 								{
-									if (stringList.Count < 256)
+									if (!stringList.Contains(enumValue)) Log.Error($"Expected enum value: {enumValue} in string list, but didn't find it.");
+									if (stringList.Count <= byte.MaxValue)
 									{
 										Write((byte) stringList.IndexOf(enumValue));
+									}
+									else if (stringList.Count <= short.MaxValue)
+									{
+										Write((short) stringList.IndexOf(enumValue));
 									}
 									else
 									{
-										Write((byte) stringList.IndexOf(enumValue));
+										Write((int) stringList.IndexOf(enumValue));
 									}
-									Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {(short) stringList.IndexOf(enumValue)} ");
+
+									Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {stringList.IndexOf(enumValue)} ");
 								}
 							}
 						}
@@ -232,11 +244,8 @@ namespace MiNET.Net
 				}
 
 				WriteUnsignedVarInt((uint) commands.Count);
-
 				foreach (var command in commands.Values)
 				{
-					//if(!command.Name.Equals("op")) continue;
-
 					Write(command.Name);
 					Write(command.Versions[0].Description);
 					Write((byte) 0); // flags
@@ -244,13 +253,13 @@ namespace MiNET.Net
 					Write((int) -1); // Enum index
 
 
-					Log.Warn($"Writing command {command.Name}");
+					//Log.Warn($"Writing command {command.Name}");
 
 					var overloads = command.Versions[0].Overloads;
 					WriteUnsignedVarInt((uint) overloads.Count); // Overloads
 					foreach (var overload in overloads.Values)
 					{
-						Log.Warn($"Writing command overload {command.Name}");
+						Log.Warn($"Writing command: {command.Name}");
 
 						var parameters = overload.Input.Parameters;
 						if (parameters == null)
@@ -258,10 +267,11 @@ namespace MiNET.Net
 							WriteUnsignedVarInt(0); // Parameter count
 							continue;
 						}
+
 						WriteUnsignedVarInt((uint) parameters.Length); // Parameter count
 						foreach (var parameter in parameters)
 						{
-							Log.Warn($"Writing command overload parameter {command.Name}, {parameter.Name}, {parameter.Type}");
+							Log.Debug($"Writing command overload parameter {command.Name}, {parameter.Name}, {parameter.Type}");
 
 							Write(parameter.Name); // parameter name
 							if (parameter.Type == "stringenum" && parameter.EnumValues != null)
@@ -289,15 +299,15 @@ namespace MiNET.Net
 
 		private int GetParameterTypeId(string type)
 		{
-			if (type == "int") return 0x03;
+			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
 			if (type == "target") return 0x04;
+
 			if (type == "string") return 0x0d;
-			if (type == "stringenum") return 0x0d;
 			if (type == "blockpos") return 0x0e;
 
-			return 0x0d;
+			return 0x0;
 		}
 	}
 }

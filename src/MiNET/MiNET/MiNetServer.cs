@@ -1108,7 +1108,7 @@ namespace MiNET
 				{
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
 				}
-				else if (verbosity == 1)
+				else if (verbosity == 1 || verbosity == 3)
 				{
 					var jsonSerializerSettings = new JsonSerializerSettings
 					{
@@ -1122,7 +1122,7 @@ namespace MiNET
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
-				else if (verbosity == 2)
+				else if (verbosity == 2 || verbosity == 3)
 				{
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 				}

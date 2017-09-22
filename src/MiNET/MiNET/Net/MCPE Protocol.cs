@@ -578,7 +578,7 @@ namespace MiNET.Net
 		}
 	}
 
-	public enum Adventureflags
+	public enum AdventureFlags
 	{
 		Mayfly = 0x40,
 		Noclip = 0x80,
@@ -586,7 +586,7 @@ namespace MiNET.Net
 		Flying = 0x200,
 		Muted = 0x400,
 	}
-	public enum Commandpermission
+	public enum CommandPermission
 	{
 		Normal = 0,
 		Operator = 1,
@@ -594,14 +594,14 @@ namespace MiNET.Net
 		Automation = 3,
 		Admin = 4,
 	}
-	public enum Permissionlevel
+	public enum PermissionLevel
 	{
 		Visitor = 0,
 		Member = 1,
 		Operator = 2,
 		Custom = 3,
 	}
-	public enum Actionpermissions
+	public enum ActionPermissions
 	{
 		BuildAndMine = 0x1,
 		DoorsAndSwitches = 0x2,

@@ -6,7 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using log4net;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -291,6 +293,37 @@ namespace MiNET.Plugins
 							typeName = typeName.Replace("Enum", "");
 							typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
 							param.EnumType = typeName;
+
+							if (parameter.ParameterType == typeof(ItemTypeEnum))
+							{
+								param.EnumValues = new string[] { };
+								param.EnumType = "Item";
+							}
+							if (parameter.ParameterType == typeof(BlockTypeEnum))
+							{
+								param.EnumValues = new string[] {};
+								param.EnumType = "Block";
+							}
+							if (parameter.ParameterType == typeof(EntityTypeEnum))
+							{
+								param.EnumValues = new string[] { };
+								param.EnumType = "EntityType";
+							}
+							if (parameter.ParameterType == typeof(CommandNameEnum))
+							{
+								param.EnumValues = new string[] { };
+								param.EnumType = "CommandName";
+							}
+							if (parameter.ParameterType == typeof(EnchantEnum))
+							{
+								param.EnumValues = new string[] {"enchant_test"};
+								param.EnumType = "Enchant";
+							}
+							if (parameter.ParameterType == typeof(EffectEnum))
+							{
+								param.EnumValues = new string[] { "effect_test" };
+								param.EnumType = "Effect";
+							}
 						}
 					}
 					inputParams.Add(param);
@@ -529,6 +562,42 @@ namespace MiNET.Plugins
 			}
 		}
 
+		public object HandleCommand(Player player, string cmdline)
+		{
+			var split = Regex.Split(cmdline, "(?<=^[^\"]*(?:\"[^\"]*\"[^\"]*)*) (?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)").Select(s => s.Trim('"')).ToArray();
+			string commandName = split[0].Trim('/');
+			string[] arguments = split.Skip(1).ToArray();
+
+			Command command = null;
+			if (Commands.ContainsKey(commandName))
+			{
+				command = Commands[commandName];
+			}
+			else
+			{
+				command = Commands.Values.FirstOrDefault(cmd => cmd.Versions.Any(version => version.Aliases != null && version.Aliases.Any(s => s == commandName)));
+			}
+
+			if (command == null) return null;
+
+			foreach (var overload in command.Versions.First().Overloads.Values)
+			{
+				CommandPermission requiredPermission = (CommandPermission)Enum.Parse(typeof(CommandPermission), command.Versions.First().Permission, true);
+				if (player.CommadPermission < requiredPermission)
+				{
+					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommadPermission}");
+					return null;
+				}
+
+				MethodInfo method = overload.Method;
+
+				var retVal = ExecuteCommand(method, player, arguments);
+				if (retVal != null) return retVal;
+			}
+
+			return null;
+		}
+
 		public object HandleCommand(Player player, string commandName, string commandOverload, dynamic commandInputJson)
 		{
 			Log.Debug($"HandleCommand {commandName}");
@@ -549,7 +618,7 @@ namespace MiNET.Plugins
 
 				Overload overload = command.Versions.First().Overloads[commandOverload];
 
-				Commandpermission requiredPermission = (Commandpermission) Enum.Parse(typeof (Commandpermission), command.Versions.First().Permission, true);
+				CommandPermission requiredPermission = (CommandPermission) Enum.Parse(typeof (CommandPermission), command.Versions.First().Permission, true);
 				if (player.CommadPermission < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommadPermission}");

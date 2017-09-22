@@ -608,7 +608,7 @@
 
 	</pdu>
 
-	<enums id="AdventureFlags">
+	<enums id="Adventure Flags">
 		<enum id="MayFly" value="0x40" />
 		<enum id="NoClip" value="0x80" />
 		<enum id="WorldBuilder" value="0x100" />
@@ -616,7 +616,7 @@
 		<enum id="Muted" value="0x400" />
 	</enums>
 
-	<enums id="CommandPermission">
+	<enums id="Command Permission">
 		<enum id="Normal" value="0" />
 		<enum id="Operator" value="1" />
 		<enum id="Host" value="2" />
@@ -624,14 +624,14 @@
 		<enum id="Admin" value="4" />
 	</enums>
 
-	<enums id="PermissionLevel">
+	<enums id="Permission Level">
 		<enum id="Visitor" value="0" />
 		<enum id="Member" value="1" />
 		<enum id="Operator" value="2" />
 		<enum id="Custom" value="3" />
 	</enums>
 
-	<enums id="ActionPermissions">
+	<enums id="Action Permissions">
 		<enum id="Build And Mine" value="0x1" />
 		<enum id="Doors And Switches" value="0x2" />
 		<enum id="Open Containers" value="0x4" />

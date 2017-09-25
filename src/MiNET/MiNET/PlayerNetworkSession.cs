@@ -583,6 +583,10 @@ namespace MiNET
 			{
 				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest) message);
 			}
+			else if (typeof(McpeModalFormResponse) == message.GetType())
+			{
+				handler.HandleMcpeModalFormResponse((McpeModalFormResponse)message);
+			}
 			else if (typeof (McpeCommandBlockUpdate) == message.GetType())
 			{
 				handler.HandleMcpeCommandBlockUpdate((McpeCommandBlockUpdate) message);

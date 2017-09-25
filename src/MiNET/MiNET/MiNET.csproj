@@ -433,6 +433,12 @@
     <Compile Include="Entities\Projectiles\Snowball.cs" />
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
+    <Compile Include="UI\Button.cs" />
+    <Compile Include="UI\CustomElement.cs" />
+    <Compile Include="UI\CustomForm.cs" />
+    <Compile Include="UI\Dropdown.cs" />
+    <Compile Include="UI\Element.cs" />
+    <Compile Include="UI\Form.cs" />
     <Compile Include="GreyListManager.cs" />
     <Compile Include="HungerManager.cs" />
     <Compile Include="Inventory.cs" />
@@ -642,6 +648,13 @@
     <Compile Include="Sounds\ShootSound.cs" />
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Sounds\ClickSound.cs" />
+    <Compile Include="UI\Input.cs" />
+    <Compile Include="UI\Label.cs" />
+    <Compile Include="UI\ModalForm.cs" />
+    <Compile Include="UI\SimpleForm.cs" />
+    <Compile Include="UI\Slider.cs" />
+    <Compile Include="UI\StepSlider.cs" />
+    <Compile Include="UI\Toggle.cs" />
     <Compile Include="Utils\BatchUtils.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />

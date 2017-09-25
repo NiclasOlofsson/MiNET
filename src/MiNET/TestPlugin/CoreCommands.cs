@@ -45,8 +45,10 @@ using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
+using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Input = MiNET.UI.Input;
 
 namespace TestPlugin
 {
@@ -77,7 +79,7 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
-		[Command(Name="tc", Description = "Test command")]
+		[Command(Name = "tc", Description = "Test command")]
 		public void TestCommand(Player player, int param)
 		{
 		}
@@ -134,6 +136,46 @@ namespace TestPlugin
 			player.Level.SetBlock(gold);
 			Thread.Sleep(100);
 			player.Level.SetBlock(block);
+		}
+
+		[Command]
+		public void Form(Player player)
+		{
+			CustomForm customForm = new CustomForm();
+			customForm.Title = "A title";
+			customForm.Content = new List<CustomElement>()
+			{
+				new Label {Text = "A label"},
+				new Input {Text = "", Placeholder = "Placeholder", Default = ""},
+				new Toggle {Text = "A toggler", Default = true},
+				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 2, Default = 3},
+				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Default = 1},
+				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Default = 1},
+			};
+
+			player.CurrentForm = customForm;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = 1234;
+			message.data = customForm.ToJson();
+			player.SendPackage(message);
+		}
+
+		[Command]
+		public void FormModal(Player player)
+		{
+			var modalForm = new ModalForm();
+			modalForm.Title = "A title";
+			modalForm.Content = "A bit of content";
+			modalForm.Button1 = "Button 1";
+			modalForm.Button2 = "Button 2";
+
+			player.CurrentForm = modalForm;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = 1234;
+			message.data = modalForm.ToJson();
+			player.SendPackage(message);
 		}
 
 		[Command]
@@ -536,7 +578,7 @@ namespace TestPlugin
 		[Command]
 		public void Permission(Player player, int permission)
 		{
-			player.CommadPermission = (CommandPermission) permission;
+			player.CommandPermission = (CommandPermission) permission;
 			player.SendAdventureSettings();
 		}
 
@@ -1172,7 +1214,7 @@ namespace TestPlugin
 						var message = McpeUpdateBlock.CreateObject();
 						message.blockId = block.Id;
 						message.coordinates = block.Coordinates;
-						message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
+						message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 						level.RelayBroadcast(sendList.ToArray(), message);
 					}
 				}

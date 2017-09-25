@@ -42,6 +42,7 @@ using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Particles;
+using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
@@ -171,17 +172,40 @@ namespace MiNET
 		{
 		}
 
+		public Form CurrentForm { get; set; }
+
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
+			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
+
+			var form = CurrentForm;
+			CurrentForm = null;
+			form?.FromJson(message.data, this);
 		}
 
 		public void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
 		{
+			CustomForm customForm = new CustomForm();
+			customForm.Title = "A title";
+			customForm.Content = new List<CustomElement>()
+			{
+				new Label {Text = "A label"},
+				new Input {Text = "", Placeholder = "Placeholder", Default = ""},
+				new Toggle {Text = "A toggler", Default = true},
+				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 2, Default = 3},
+				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Default = 1},
+				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Default = 1},
+			};
+
+			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();
+			response.formId = 12345;
+			response.data = customForm.ToJson();
+			SendPackage(response);
 		}
 
 		public void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
 		{
-			SetGameMode((GameMode)message.gamemode);
+			SetGameMode((GameMode) message.gamemode);
 		}
 
 		private bool _serverHaveResources = false;
@@ -551,7 +575,7 @@ namespace MiNET
 			SendPackage(mcpeAdventureSettings);
 		}
 
-		public CommandPermission CommadPermission { get; set; } = CommandPermission.Admin;
+		public CommandPermission CommandPermission { get; set; } = CommandPermission.Admin;
 
 		public bool IsSpectator { get; set; }
 
@@ -709,7 +733,7 @@ namespace MiNET
 		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
 		{
 			var result = Server.PluginManager.HandleCommand(this, message.command);
-			if(result is string)
+			if (result is string)
 			{
 				string sRes = result as string;
 				SendMessage(sRes);

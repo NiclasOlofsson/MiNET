@@ -118,7 +118,7 @@ namespace MiNET.Net
 
 		public byte[] ReadBytes(int count, bool slurp = false)
 		{
-			if(!slurp && count == 0) return new byte[0];
+			if (!slurp && count == 0) return new byte[0];
 
 			if (count == 0)
 			{
@@ -449,7 +449,7 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.Skin, record.PlayerInfo.CertificateData.ExtraData.Xuid);
+					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -1679,7 +1679,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Write(Id);
-			if (IsMcpe) Write((short)0);
+			if (IsMcpe) Write((short) 0);
 		}
 
 		public virtual void Reset()
@@ -1705,7 +1705,6 @@ namespace MiNET.Net
 
 		protected virtual void ResetPackage()
 		{
-
 		}
 
 
@@ -1739,7 +1738,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
-			if(IsMcpe) ReadShort();
+			if (IsMcpe) ReadShort();
 		}
 
 		public virtual void Decode(byte[] buffer)

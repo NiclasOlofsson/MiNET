@@ -7030,7 +7030,7 @@ namespace MiNET.Net
 	public partial class McpeModalFormRequest : Package<McpeModalFormRequest>
 	{
 
-		public int formid; // = null;
+		public long formId; // = null;
 		public string data; // = null;
 
 		public McpeModalFormRequest()
@@ -7045,7 +7045,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(formid);
+			WriteUnsignedVarLong(formId);
 			Write(data);
 
 			AfterEncode();
@@ -7060,7 +7060,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			formid = ReadVarInt();
+			formId = ReadUnsignedVarLong();
 			data = ReadString();
 
 			AfterDecode();
@@ -7073,7 +7073,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			formid=default(int);
+			formId=default(long);
 			data=default(string);
 		}
 
@@ -7082,7 +7082,7 @@ namespace MiNET.Net
 	public partial class McpeModalFormResponse : Package<McpeModalFormResponse>
 	{
 
-		public int formid; // = null;
+		public long formId; // = null;
 		public string data; // = null;
 
 		public McpeModalFormResponse()
@@ -7097,7 +7097,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(formid);
+			WriteUnsignedVarLong(formId);
 			Write(data);
 
 			AfterEncode();
@@ -7112,7 +7112,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			formid = ReadVarInt();
+			formId = ReadUnsignedVarLong();
 			data = ReadString();
 
 			AfterDecode();
@@ -7125,7 +7125,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			formid=default(int);
+			formId=default(long);
 			data=default(string);
 		}
 
@@ -7178,7 +7178,7 @@ namespace MiNET.Net
 	public partial class McpeServerSettingsResponse : Package<McpeServerSettingsResponse>
 	{
 
-		public int formid; // = null;
+		public long formId; // = null;
 		public string data; // = null;
 
 		public McpeServerSettingsResponse()
@@ -7193,7 +7193,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(formid);
+			WriteUnsignedVarLong(formId);
 			Write(data);
 
 			AfterEncode();
@@ -7208,7 +7208,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			formid = ReadVarInt();
+			formId = ReadUnsignedVarLong();
 			data = ReadString();
 
 			AfterDecode();
@@ -7221,7 +7221,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			formid=default(int);
+			formId=default(long);
 			data=default(string);
 		}
 

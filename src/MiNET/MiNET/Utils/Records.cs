@@ -24,64 +24,9 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Numerics;
-using MiNET.Items;
-using MiNET.Net;
 
 namespace MiNET.Utils
 {
-	public class Transaction
-	{
-		public McpeInventoryTransaction.TransactionType TransactionType { get; set; }
-
-		public List<TransactionRecord> Transactions { get; set; } = new List<TransactionRecord>();
-
-		public int ActionType { get; set; }
-		public BlockCoordinates Position { get; set; }
-		public int Face { get; set; }
-		public int Slot { get; set; }
-		public Item Item { get; set; }
-		public Vector3 FromPosition { get; set; }
-		public Vector3 ClickPosition { get; set; }
-		public long EntityId { get; set; }
-
-		public Transaction()
-		{
-		}
-	}
-
-	public abstract class TransactionRecord
-	{
-		public int Source { get; set; }
-		public int Slot { get; set; }
-		public Item OldItem { get; set; }
-		public Item NewItem { get; set; }
-	}
-
-	public class ContainerTransactionRecord : TransactionRecord
-	{
-		public int InventoryId { get; set; }
-	}
-
-	public class GlobalTransactionRecord : TransactionRecord
-	{
-	}
-
-	public class WorldInteractionTransactionRecord : TransactionRecord
-	{
-		public int Flags { get; set; } // NoFlag = 0 WorldInteractionRandom = 1
-	}
-
-	public class CreativeTransactionRecord : TransactionRecord
-	{
-		public int InventoryId { get; set; } = 0x79; // Creative
-	}
-
-	public class CraftTransactionRecord : TransactionRecord
-	{
-		public int Action { get; set; }
-	}
-
 	public class Records : List<BlockCoordinates>
 	{
 		public Records()

@@ -678,6 +678,7 @@
     <Compile Include="Utils\ResourcePacks.cs" />
     <Compile Include="Utils\RuleData.cs" />
     <Compile Include="Utils\StreamExtensions.cs" />
+    <Compile Include="Utils\Transaction.cs" />
     <Compile Include="Utils\VarInt.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
     <Compile Include="Utils\TextUtils.cs" />

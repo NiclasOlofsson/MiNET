@@ -1876,7 +1876,7 @@ Wiki: [Player Skin](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Playe
 |UUID | UUID |  |
 |Skin ID | string |  |
 |Skin Name | string |  |
-|Serialize Name | string |  |
+|Old Skin Name | string |  |
 |Skin Data | ByteArray |  |
 |Cape Data | ByteArray |  |
 |Geometry Model | string |  |

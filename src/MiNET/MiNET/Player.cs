@@ -387,18 +387,56 @@ namespace MiNET
 			switch ((PlayerAction) message.actionId)
 			{
 				case PlayerAction.StartBreak:
+				{
 					if (message.face == (int) BlockFace.Up)
 					{
 						Block block = Level.GetBlock(message.coordinates + BlockCoordinates.Up);
 						if (block is Fire)
 						{
 							Level.BreakBlock(this, message.coordinates + BlockCoordinates.Up);
+							break;
 						}
 					}
+
+
+					if (GameMode == GameMode.Survival)
+					{
+						Block target = Level.GetBlock(message.coordinates);
+						var drops = target.GetDrops(Inventory.GetItemInHand());
+						float tooltypeFactor = drops == null || drops.Length == 0 ? 5f : 1.5f;  // 1.5 if proper tool
+						double breakTime = Math.Ceiling(target.Hardness * tooltypeFactor * 20);
+
+						McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
+						breakEvent.eventId = 3600;
+						breakEvent.position = message.coordinates;
+						breakEvent.data = (int)(65535 / breakTime);
+						Log.Debug("Break speed: " + breakEvent.data);
+						Level.RelayBroadcast(breakEvent);
+					}
+
 					break;
+				}
+				case PlayerAction.Breaking:
+				{
+					Block target = Level.GetBlock(message.coordinates);
+					int data = target.Id | (target.Metadata << 8) | message.face << 16;
+
+					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
+					breakEvent.eventId = 2014;
+					breakEvent.position = message.coordinates;
+					breakEvent.data = data;
+					Level.RelayBroadcast(breakEvent);
+					break;
+				}
 				case PlayerAction.AbortBreak:
 				case PlayerAction.StopBreak:
+				{
+					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
+					breakEvent.eventId = 3601;
+					breakEvent.position = message.coordinates;
+					Level.RelayBroadcast(breakEvent);
 					break;
+				}
 				//case PlayerAction.ReleaseItem:
 				//	if (_itemUseTimer <= 0) return;
 
@@ -458,9 +496,6 @@ namespace MiNET
 				case PlayerAction.StopGlide:
 					IsGliding = false;
 					Height = 1.8;
-					break;
-				case PlayerAction.Breaking:
-
 					break;
 				default:
 					Log.Warn($"Unhandled action ID={message.actionId}");
@@ -1858,16 +1893,19 @@ namespace MiNET
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUse:
 					var transaction = message.transaction;
-					if (transaction.ActionType == 0)
+					if (transaction.ActionType == (int) McpeInventoryTransaction.ItemUseAction.Place)
 					{
 						Level.Interact(this, transaction.Item, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
 					}
-					else if (transaction.ActionType == 1)
+					else if (transaction.ActionType == (int)McpeInventoryTransaction.ItemUseAction.Use)
 					{
 						// Not sure what to do with this one
-						Log.Warn("Unhandled action type for item use. Should be looked into.");
+						Log.Warn("Unfinished action type for item use. Should be looked into.");
+
+						Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
+						SendPlayerInventory();
 					}
-					else if (transaction.ActionType == 2)
+					else if (transaction.ActionType == (int)McpeInventoryTransaction.ItemUseAction.Destroy)
 					{
 						Level.BreakBlock(this, transaction.Position);
 					}

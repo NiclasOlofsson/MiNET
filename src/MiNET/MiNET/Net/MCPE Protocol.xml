@@ -852,7 +852,7 @@
 		<field name="UUID" type="UUID" />
 		<field name="Skin ID" type="string" />
 		<field name="Skin Name" type="string" />
-		<field name="Serialize Name" type="string" />
+		<field name="Old Skin Name" type="string" />
 		<field name="Skin Data" type="ByteArray" />
 		<field name="Cape Data" type="ByteArray" />
 		<field name="Geometry Model" type="string" />

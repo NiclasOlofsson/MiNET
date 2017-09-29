@@ -6713,7 +6713,7 @@ namespace MiNET.Net
 		public UUID uuid; // = null;
 		public string skinId; // = null;
 		public string skinName; // = null;
-		public string serializeName; // = null;
+		public string oldSkinName; // = null;
 		public byte[] skinData; // = null;
 		public byte[] capeData; // = null;
 		public string geometryModel; // = null;
@@ -6734,7 +6734,7 @@ namespace MiNET.Net
 			Write(uuid);
 			Write(skinId);
 			Write(skinName);
-			Write(serializeName);
+			Write(oldSkinName);
 			WriteByteArray(skinData);
 			WriteByteArray(capeData);
 			Write(geometryModel);
@@ -6755,7 +6755,7 @@ namespace MiNET.Net
 			uuid = ReadUUID();
 			skinId = ReadString();
 			skinName = ReadString();
-			serializeName = ReadString();
+			oldSkinName = ReadString();
 			skinData = ReadByteArray();
 			capeData = ReadByteArray();
 			geometryModel = ReadString();
@@ -6774,7 +6774,7 @@ namespace MiNET.Net
 			uuid=default(UUID);
 			skinId=default(string);
 			skinName=default(string);
-			serializeName=default(string);
+			oldSkinName=default(string);
 			skinData=default(byte[]);
 			capeData=default(byte[]);
 			geometryModel=default(string);

@@ -58,8 +58,8 @@ namespace MiNET.UI
 				if (element is Input) ((Input) element).Default = (string) parsedResult[i];
 				else if (element is Toggle) ((Toggle) element).Default = (bool) parsedResult[i];
 				else if (element is Slider) ((Slider) element).Default = (float) parsedResult[i];
-				else if (element is StepSlider) ((StepSlider) element).Default = (int) parsedResult[i];
-				else if (element is Dropdown) ((Dropdown) element).Default = (int) parsedResult[i];
+				else if (element is StepSlider) ((StepSlider) element).Default = (int) (long) parsedResult[i];
+				else if (element is Dropdown) ((Dropdown) element).Default = (int) (long) parsedResult[i];
 			}
 
 			Execute(player);

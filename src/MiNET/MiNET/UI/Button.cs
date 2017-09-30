@@ -31,6 +31,8 @@ namespace MiNET.UI
 	public class Button : Element
 	{
 		public Image Image { get; set; }
+
+		[JsonIgnore]
 		public Action<Player, SimpleForm> ExecuteAction { get; set; }
 
 		public void Execute(Player player, SimpleForm form)

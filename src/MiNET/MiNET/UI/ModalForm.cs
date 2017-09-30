@@ -61,6 +61,7 @@ namespace MiNET.UI
 			}
 		}
 
+		[JsonIgnore]
 		public Action<Player, ModalForm> ExecuteAction { get; set; }
 
 		public void Execute(Player player)

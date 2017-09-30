@@ -65,6 +65,7 @@ namespace MiNET.UI
 			Execute(player);
 		}
 
+		[JsonIgnore]
 		public Action<Player, CustomForm> ExecuteAction { get; set; }
 
 		public void Execute(Player player)

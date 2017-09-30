@@ -233,7 +233,7 @@ namespace TestPlugin
 					var entity = new PlayerMob($"TheGrey {z + (x*limit)}", player.Level)
 					{
 						NoAi = true,
-						KnownPosition = coordinates + new Vector3(x, 3.5f, z),
+						KnownPosition = coordinates + new Vector3(x, 0, z),
 						IsAlwaysShowName = false,
 						HideNameTag = false,
 					};

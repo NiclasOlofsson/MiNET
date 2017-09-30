@@ -403,13 +403,13 @@ namespace MiNET
 					{
 						Block target = Level.GetBlock(message.coordinates);
 						var drops = target.GetDrops(Inventory.GetItemInHand());
-						float tooltypeFactor = drops == null || drops.Length == 0 ? 5f : 1.5f;  // 1.5 if proper tool
-						double breakTime = Math.Ceiling(target.Hardness * tooltypeFactor * 20);
+						float tooltypeFactor = drops == null || drops.Length == 0 ? 5f : 1.5f; // 1.5 if proper tool
+						double breakTime = Math.Ceiling(target.Hardness*tooltypeFactor*20);
 
 						McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 						breakEvent.eventId = 3600;
 						breakEvent.position = message.coordinates;
-						breakEvent.data = (int)(65535 / breakTime);
+						breakEvent.data = (int) (65535/breakTime);
 						Log.Debug("Break speed: " + breakEvent.data);
 						Level.RelayBroadcast(breakEvent);
 					}
@@ -1892,29 +1892,115 @@ namespace MiNET
 				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUse:
-					var transaction = message.transaction;
-					if (transaction.ActionType == (int) McpeInventoryTransaction.ItemUseAction.Place)
-					{
-						Level.Interact(this, transaction.Item, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
-					}
-					else if (transaction.ActionType == (int)McpeInventoryTransaction.ItemUseAction.Use)
-					{
-						// Not sure what to do with this one
-						Log.Warn("Unfinished action type for item use. Should be looked into.");
-
-						Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
-					}
-					else if (transaction.ActionType == (int)McpeInventoryTransaction.ItemUseAction.Destroy)
-					{
-						Level.BreakBlock(this, transaction.Position);
-					}
+					HandleTransactionItemUse(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
+					HandleTransactionItemUseOnEntity(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemRelease:
+					HandleTransactionItemRelease(message.transaction);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		protected virtual void HandleTransactionItemUseOnEntity(Transaction transaction)
+		{
+			switch ((McpeInventoryTransaction.ItemUseOnEntityAction) transaction.ActionType)
+			{
+				case McpeInventoryTransaction.ItemUseOnEntityAction.Interact: // Right click
+					EntityInteract(transaction);
+					break;
+				case McpeInventoryTransaction.ItemUseOnEntityAction.Attack: // Left click
+					EntityAttack(transaction);
+					break;
+				case McpeInventoryTransaction.ItemUseOnEntityAction.ItemInteract:
+					Log.Warn($"Got Entity ItemInteract. Was't sure it existed, but obviously it does :-o");
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		protected virtual void EntityInteract(Transaction transaction)
+		{
+			DoInteraction((byte) transaction.ActionType, this);
+
+			Entity target = Level.GetEntity(transaction.EntityId);
+			target.DoInteraction((byte) transaction.ActionType, this);
+		}
+
+		protected virtual void EntityAttack(Transaction transaction)
+		{
+			Item itemInHand = Inventory.GetItemInHand();
+			if (itemInHand.Id != transaction.Item.Id || itemInHand.Metadata != transaction.Item.Metadata)
+			{
+				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
+			}
+
+			Entity target = Level.GetEntity(transaction.EntityId);
+
+			LastAttackTarget = target;
+
+			Player player = target as Player;
+			if (player != null)
+			{
+				double damage = DamageCalculator.CalculateItemDamage(this, itemInHand, player);
+
+				if (IsFalling)
+				{
+					damage += DamageCalculator.CalculateFallDamage(this, damage, player);
+				}
+
+				damage += DamageCalculator.CalculateEffectDamage(this, damage, player);
+
+				if (damage < 0) damage = 0;
+
+				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
+
+				player.HealthManager.TakeHit(this, itemInHand, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
+				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
+				if (fireAspectLevel > 0)
+				{
+					player.HealthManager.Ignite(fireAspectLevel*80);
+				}
+			}
+			else
+			{
+				// This is totally wrong. Need to merge with the above damage calculation
+				target.HealthManager.TakeHit(this, itemInHand, CalculateDamage(target), DamageCause.EntityAttack);
+			}
+
+			HungerManager.IncreaseExhaustion(0.3f);
+		}
+
+		protected virtual void HandleTransactionItemRelease(Transaction transaction)
+		{
+			switch ((McpeInventoryTransaction.ItemReleaseAction) transaction.ActionType)
+			{
+				case McpeInventoryTransaction.ItemReleaseAction.Release:
+					break;
+				case McpeInventoryTransaction.ItemReleaseAction.Use:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		protected virtual void HandleTransactionItemUse(Transaction transaction)
+		{
+			switch ((McpeInventoryTransaction.ItemUseAction) transaction.ActionType)
+			{
+				case McpeInventoryTransaction.ItemUseAction.Place:
+					Level.Interact(this, transaction.Item, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
+					break;
+				case McpeInventoryTransaction.ItemUseAction.Use:
+					Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
+					break;
+				case McpeInventoryTransaction.ItemUseAction.Destroy:
+					Level.BreakBlock(this, transaction.Position);
+					break;
 			}
 		}
 
@@ -2113,78 +2199,21 @@ namespace MiNET
 
 			if (message.actionId != 4)
 			{
-				Log.DebugFormat("Interact Action ID: {0}", message.actionId);
-				Log.DebugFormat("Interact Target Entity ID: {0}", message.targetRuntimeEntityId);
+				Log.Debug($"Interact Action ID: {message.actionId}");
+				Log.Debug($"Interact Target Entity ID: {message.targetRuntimeEntityId}");
 			}
 
 			if (target == null) return;
 			switch (message.actionId)
 			{
-				case 1:
-				{
-					// Button pressed
-
-					//McpeAnimate animate = McpeAnimate.CreateObject();
-					//animate.entityId = target.EntityId;
-					//animate.actionId = 4;
-					//Level.RelayBroadcast(animate);
-
-					DoInteraction(message.actionId, this);
-					target.DoInteraction(message.actionId, this);
-					break;
-				}
 				case 4:
 				{
 					// Mouse over
-					//McpeAnimate animate = McpeAnimate.CreateObject();
-					//animate.entityId = target.EntityId;
-					//animate.actionId = 4;
-					//Level.RelayBroadcast(animate);
-
 					DoMouseOverInteraction(message.actionId, this);
 					target.DoMouseOverInteraction(message.actionId, this);
 					break;
 				}
 			}
-
-
-			// Old code...
-			if (message.actionId != 2) return;
-
-			Item itemInHand = Inventory.GetItemInHand();
-
-			LastAttackTarget = target;
-
-			Player player = target as Player;
-			if (player != null)
-			{
-				double damage = DamageCalculator.CalculateItemDamage(this, itemInHand, player);
-
-				if (IsFalling)
-				{
-					damage += DamageCalculator.CalculateFallDamage(this, damage, player);
-				}
-
-				damage += DamageCalculator.CalculateEffectDamage(this, damage, player);
-
-				if (damage < 0) damage = 0;
-
-				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
-
-				player.HealthManager.TakeHit(this, itemInHand, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
-				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
-				if (fireAspectLevel > 0)
-				{
-					player.HealthManager.Ignite(fireAspectLevel*80);
-				}
-			}
-			else
-			{
-				// This is totally wrong. Need to merge with the above damage calculation
-				target.HealthManager.TakeHit(this, itemInHand, CalculateDamage(target), DamageCause.EntityAttack);
-			}
-
-			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
 		public void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)

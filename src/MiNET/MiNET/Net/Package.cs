@@ -724,7 +724,7 @@ namespace MiNET.Net
 		public void Write(Transaction trans)
 		{
 			WriteVarInt((int) trans.TransactionType);
-			WriteVarInt(trans.Transactions.Count);
+			WriteUnsignedVarInt((uint) trans.Transactions.Count);
 			foreach (var record in trans.Transactions)
 			{
 				if (record is ContainerTransactionRecord)
@@ -792,7 +792,7 @@ namespace MiNET.Net
 
 			trans.TransactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
 
-			var count = ReadVarInt();
+			var count = ReadUnsignedVarInt();
 			for (int i = 0; i < count; i++)
 			{
 				TransactionRecord record = null;
@@ -864,6 +864,7 @@ namespace MiNET.Net
 					trans.Slot = ReadSignedVarInt();
 					trans.Item = ReadItem();
 					trans.FromPosition = ReadVector3();
+					trans.ClickPosition = ReadVector3();
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemRelease:
 					trans.ActionType = ReadVarInt();

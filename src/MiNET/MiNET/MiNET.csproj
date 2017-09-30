@@ -433,6 +433,7 @@
     <Compile Include="Entities\Projectiles\Snowball.cs" />
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
+    <Compile Include="Net\McpeInteract.cs" />
     <Compile Include="UI\Button.cs" />
     <Compile Include="UI\CustomElement.cs" />
     <Compile Include="UI\CustomForm.cs" />

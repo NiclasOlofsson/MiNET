@@ -485,6 +485,11 @@ namespace MiNET.Entities
 
 		public virtual void DoMouseOverInteraction(byte actionId, Player player)
 		{
+			if(!string.IsNullOrEmpty(player.ButtonText))
+			{
+				player.ButtonText = null;
+				player.SendSetEntityData();
+			}
 		}
 	}
 }

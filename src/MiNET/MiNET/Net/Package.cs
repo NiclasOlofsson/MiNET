@@ -659,18 +659,18 @@ namespace MiNET.Net
 		{
 			if (metadata == null)
 			{
-				WriteVarInt(0);
+				WriteUnsignedVarInt(0);
 				return;
 			}
 
-			WriteVarInt(metadata.Count);
+			WriteUnsignedVarInt((uint) metadata.Count);
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
 				MetadataInt slot = metadata[i] as MetadataInt;
 				if (slot != null)
 				{
-					WriteSignedVarInt(slot.Value);
+					WriteUnsignedVarInt((uint) slot.Value);
 				}
 			}
 		}
@@ -678,11 +678,11 @@ namespace MiNET.Net
 		public MetadataInts ReadMetadataInts()
 		{
 			MetadataInts metadata = new MetadataInts();
-			int count = ReadVarInt();
+			uint count = ReadUnsignedVarInt();
 
 			for (byte i = 0; i < count; i++)
 			{
-				metadata[i] = new MetadataInt(ReadSignedVarInt());
+				metadata[i] = new MetadataInt((int) ReadUnsignedVarInt());
 			}
 
 			return metadata;

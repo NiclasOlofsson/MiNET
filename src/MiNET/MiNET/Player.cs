@@ -1903,7 +1903,6 @@ namespace MiNET
 						Log.Warn("Unfinished action type for item use. Should be looked into.");
 
 						Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
-						SendPlayerInventory();
 					}
 					else if (transaction.ActionType == (int)McpeInventoryTransaction.ItemUseAction.Destroy)
 					{

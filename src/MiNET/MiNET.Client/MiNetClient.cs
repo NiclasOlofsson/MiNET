@@ -1521,7 +1521,7 @@ namespace MiNET.Client
 
 				{
 					ItemStacks slotData = new ItemStacks();
-					for (int i = 0; i < recipe.Input.Length; i++)
+					for (uint i = 0; i < recipe.Input.Length; i++)
 					{
 						slotData.Add(recipe.Input[i]);
 

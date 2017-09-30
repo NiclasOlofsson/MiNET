@@ -4493,8 +4493,8 @@ namespace MiNET.Net
 	public partial class McpeInventorySlot : Package<McpeInventorySlot>
 	{
 
-		public int inventoryId; // = null;
-		public int slot; // = null;
+		public uint inventoryId; // = null;
+		public uint slot; // = null;
 		public Item item; // = null;
 
 		public McpeInventorySlot()
@@ -4509,8 +4509,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteSignedVarInt(inventoryId);
-			WriteSignedVarInt(slot);
+			WriteUnsignedVarInt(inventoryId);
+			WriteUnsignedVarInt(slot);
 			Write(item);
 
 			AfterEncode();
@@ -4525,8 +4525,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			inventoryId = ReadSignedVarInt();
-			slot = ReadSignedVarInt();
+			inventoryId = ReadUnsignedVarInt();
+			slot = ReadUnsignedVarInt();
 			item = ReadItem();
 
 			AfterDecode();
@@ -4539,8 +4539,8 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			inventoryId=default(int);
-			slot=default(int);
+			inventoryId=default(uint);
+			slot=default(uint);
 			item=default(Item);
 		}
 

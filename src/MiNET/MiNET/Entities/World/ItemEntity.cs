@@ -173,21 +173,24 @@ namespace MiNET.Entities.World
 			{
 				if (player.GameMode != GameMode.Spectator && bbox.Intersects(player.GetBoundingBox() + 1))
 				{
+					if(player.Inventory.SetFirstEmptySlot(Item, true, false))
 					{
-						var takeItemEntity = McpeTakeItemEntity.CreateObject();
-						takeItemEntity.runtimeEntityId = EntityId;
-						takeItemEntity.target = player.EntityId;
-						Level.RelayBroadcast(player, takeItemEntity);
-					}
-					{
-						var takeItemEntity = McpeTakeItemEntity.CreateObject();
-						takeItemEntity.runtimeEntityId = EntityId;
-						takeItemEntity.target = EntityManager.EntityIdSelf;
-						player.SendPackage(takeItemEntity);
-					}
+						{
+							var takeItemEntity = McpeTakeItemEntity.CreateObject();
+							takeItemEntity.runtimeEntityId = EntityId;
+							takeItemEntity.target = player.EntityId;
+							Level.RelayBroadcast(player, takeItemEntity);
+						}
+						{
+							var takeItemEntity = McpeTakeItemEntity.CreateObject();
+							takeItemEntity.runtimeEntityId = EntityId;
+							takeItemEntity.target = EntityManager.EntityIdSelf;
+							player.SendPackage(takeItemEntity);
+						}
 
-					DespawnEntity();
-					break;
+						DespawnEntity();
+						break;
+					}
 				}
 			}
 		}

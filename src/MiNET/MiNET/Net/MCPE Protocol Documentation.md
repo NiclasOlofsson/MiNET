@@ -1184,8 +1184,8 @@ Wiki: [Inventory Slot](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-In
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Inventory Id | SignedVarInt |  |
-|Slot | SignedVarInt |  |
+|Inventory Id | UnsignedVarInt |  |
+|Slot | UnsignedVarInt |  |
 |Item | Item |  |
 -----------------------------------------------------------------------
 ### Container Set Data (0x33)

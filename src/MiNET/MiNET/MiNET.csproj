@@ -457,6 +457,7 @@
     <Compile Include="Items\ItemBone.cs" />
     <Compile Include="Items\ItemBow.cs" />
     <Compile Include="Items\ItemBread.cs" />
+    <Compile Include="Items\ItemCake.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
     <Compile Include="Items\ItemCauldron.cs" />
     <Compile Include="Items\ItemChest.cs" />

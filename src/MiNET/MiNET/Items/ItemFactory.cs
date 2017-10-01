@@ -208,6 +208,7 @@ namespace MiNET.Items
 			else if (id == 345) item = new ItemCompass();
 			else if (id == 351) item = new ItemDye();
 			else if (id == 352) item = new ItemBone();
+			else if (id == 354) item = new ItemCake();
 			else if (id == 355) item = new ItemBed();
 			else if (id == 357) item = new ItemCookie();
 			else if (id == 358) item = new ItemMap();

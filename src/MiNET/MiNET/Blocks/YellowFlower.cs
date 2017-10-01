@@ -1,4 +1,5 @@
-﻿using MiNET.Utils;
+﻿using MiNET.Items;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
@@ -29,6 +30,11 @@ namespace MiNET.Blocks
 				level.SetAir(Coordinates);
 				UpdateBlocks(level);
 			}
+		}
+
+		public override Item GetSmelt()
+		{
+			return ItemFactory.GetItem(351, 11); //Dandelion dye
 		}
 	}
 }

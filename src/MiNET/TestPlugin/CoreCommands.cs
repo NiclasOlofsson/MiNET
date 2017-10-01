@@ -48,6 +48,7 @@ using MiNET.Plugins.Commands;
 using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Button = MiNET.UI.Button;
 using Input = MiNET.UI.Input;
 
 namespace TestPlugin
@@ -148,9 +149,9 @@ namespace TestPlugin
 				new Label {Text = "A label"},
 				new Input {Text = "", Placeholder = "Placeholder", Default = ""},
 				new Toggle {Text = "A toggler", Default = true},
-				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 2, Default = 3},
+				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 0.1f, Default = 3},
 				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Default = 1},
-				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Default = 1},
+				new Dropdown {Text = "A dropdown", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Default = 1},
 			};
 
 			player.CurrentForm = customForm;
@@ -175,6 +176,28 @@ namespace TestPlugin
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
 			message.formId = 1234;
 			message.data = modalForm.ToJson();
+			player.SendPackage(message);
+		}
+
+		[Command]
+		public void FormSimple(Player player)
+		{
+			var simpleForm = new SimpleForm();
+			simpleForm.Title = "A title";
+			simpleForm.Content = "A bit of content";
+			simpleForm.Buttons = new List<Button>()
+			{
+				new Button {Text = "Button 1", Image = new Image {Type = "url", Url = "https://i.imgur.com/SedU2Ad.png"}},
+				new Button {Text = "Button 2", Image = new Image {Type = "url", Url = "https://i.imgur.com/oBMg5H3.png"}},
+				new Button {Text = "Button 3", Image = new Image {Type = "url", Url = "https://i.imgur.com/hMAfqQd.png"}},
+				new Button {Text = "Close"},
+			};
+
+			player.CurrentForm = simpleForm;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = 1234;
+			message.data = simpleForm.ToJson();
 			player.SendPackage(message);
 		}
 

@@ -1887,7 +1887,7 @@ namespace MiNET
 			switch (message.transaction.TransactionType)
 			{
 				case McpeInventoryTransaction.TransactionType.Normal:
-					HandleTransactionNormal(message.transaction);
+					HandleTransactions(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
 					break;
@@ -1990,6 +1990,8 @@ namespace MiNET
 
 		protected virtual void HandleTransactionItemUse(Transaction transaction)
 		{
+			HandleTransactions(transaction);
+
 			switch ((McpeInventoryTransaction.ItemUseAction) transaction.ActionType)
 			{
 				case McpeInventoryTransaction.ItemUseAction.Place:
@@ -2004,7 +2006,7 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void HandleTransactionNormal(Transaction transaction)
+		protected virtual void HandleTransactions(Transaction transaction)
 		{
 			foreach (var record in transaction.Transactions)
 			{
@@ -2054,8 +2056,6 @@ namespace MiNET
 					}
 				}
 			}
-
-			//SendPlayerInventory();
 		}
 
 		/// <summary>

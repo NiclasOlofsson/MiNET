@@ -52,6 +52,8 @@ namespace MiNET.UI
 			var parsedResult = JsonConvert.DeserializeObject<List<object>>(json);
 			Log.Debug($"Form JSON\n{JsonConvert.SerializeObject(parsedResult, jsonSerializerSettings)}");
 
+			if (parsedResult == null) return; // Pressed [x]
+
 			for (var i = 0; i < Content.Count; i++)
 			{
 				var element = Content[i];

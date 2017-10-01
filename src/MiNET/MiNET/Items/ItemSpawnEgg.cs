@@ -21,7 +21,7 @@ namespace MiNET.Items
 			MaxStackSize = 1;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Log.WarnFormat("Player {0} trying to spawn Mob #{1}.", player.Username, Metadata);
 

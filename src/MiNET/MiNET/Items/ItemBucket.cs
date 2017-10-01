@@ -16,7 +16,7 @@ namespace MiNET.Items
 			FuelEfficiency = (short) (Metadata == 10 ? 1000 : 0);
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
 			if (Metadata == 8 || Metadata == 10) //Prevent some kind of cheating...

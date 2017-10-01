@@ -41,7 +41,7 @@ namespace MiNET.Items
 			return null;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			// 8 = 1000
 			byte upperBit = 0x08;

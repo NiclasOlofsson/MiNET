@@ -22,7 +22,7 @@ namespace MiNET.Items
 			NeedBlockRevert = realItem is ItemBlock;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (NeedBlockRevert)
 			{

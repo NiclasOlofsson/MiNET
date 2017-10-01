@@ -381,13 +381,16 @@ namespace TestPlugin.NiceLobby
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
 
-			int idx = 4;
+			int idx = 1;
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(212), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemChest() { Count = 64 };
+			//player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) {Count = 64};
@@ -395,7 +398,7 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
-			//player.Inventory.Chest = new ItemElytra() {Count = 1};
+			player.Inventory.Chest = new ItemElytra() { Count = 1 };
 
 			player.SendPlayerInventory();
 

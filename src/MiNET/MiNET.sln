@@ -14,16 +14,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.ServiceKiller", "MiNE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET", "MiNET\MiNET.csproj", "{B7049BF1-2DB0-435D-9791-09AB61018685}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{F6653226-F844-4287-B966-DB9FA32A81FD}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.Test", "MiNET.Test\MiNET.Test.csproj", "{672C13DD-9823-4DF2-9D1B-4895CC6B3CAC}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BC1E3C63-BA78-43B5-983A-F2FCF8664B0C}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{F53DE0D1-333F-42BC-B803-E523CFF0113E}"
 EndProject

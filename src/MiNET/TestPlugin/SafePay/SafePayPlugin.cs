@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -25,7 +25,6 @@
 
 using System.Collections.Generic;
 using MiNET;
-using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.UI;
@@ -55,12 +54,7 @@ namespace TestPlugin.SafePay
 				new Button {Text = "Cancel"},
 			};
 
-			player.CurrentForm = simpleForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = simpleForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(simpleForm);
 		}
 
 		private void ExecuteSelectPaymentMethod(Player player, SimpleForm form)
@@ -76,12 +70,7 @@ namespace TestPlugin.SafePay
 				new Button {Text = "Cancel"},
 			};
 
-			player.CurrentForm = simpleForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = simpleForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(simpleForm);
 		}
 
 		private void ExecutePayVisa(Player player, SimpleForm form)
@@ -101,12 +90,7 @@ namespace TestPlugin.SafePay
 				new Label {Text = "§lWhat happens now?§r\nThis is step 1 of 2. After submitting payment information you will be able to review your order.\nWe will not bill you until confirm the order on next page (step 2)."},
 			};
 
-			player.CurrentForm = customForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = customForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(customForm);
 		}
 
 		private void ExecuteReviewOrder(Player player, CustomForm form)
@@ -118,12 +102,7 @@ namespace TestPlugin.SafePay
 			modalForm.Button1 = "§2§lBuy now";
 			modalForm.Button2 = "Cancel";
 
-			player.CurrentForm = modalForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = modalForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(modalForm);
 		}
 
 		private void ExecutePayment(Player player, ModalForm modal)

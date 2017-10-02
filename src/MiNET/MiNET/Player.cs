@@ -172,14 +172,14 @@ namespace MiNET
 		{
 		}
 
-		public Form CurrentForm { get; set; }
+		private Form _currentForm = null;
 
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
-			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
+			if (_currentForm == null) Log.Warn("No current form set for player when processing response");
 
-			var form = CurrentForm;
-			CurrentForm = null;
+			var form = _currentForm;
+			_currentForm = null;
 			form?.FromJson(message.data, this);
 		}
 
@@ -1840,7 +1840,7 @@ namespace MiNET
 				containerOpen.windowId = inventory.WindowsId;
 				containerOpen.type = inventory.Type;
 				containerOpen.coordinates = inventoryCoord;
-				containerOpen.unknownRuntimeEntityId = 1;
+				containerOpen.unknownRuntimeEntityId = -1;
 				SendPackage(containerOpen);
 
 				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
@@ -2059,6 +2059,23 @@ namespace MiNET
 					{
 						// Cursor
 						Inventory.Cursor = newItem;
+					}
+					else if (_openInventory != null)
+					{
+						if (_openInventory.WindowsId == invId)
+						{
+							//if (_openInventory.Type == 3)
+							//{
+							//	Recipes recipes = new Recipes();
+							//	recipes.Add(new EnchantingRecipe());
+							//	McpeCraftingData crafting = McpeCraftingData.CreateObject();
+							//	crafting.recipes = recipes;
+							//	SendPackage(crafting);
+							//}
+
+							// block inventories of various kinds (chests, furnace, etc)
+							_openInventory.SetSlot(this, (byte) transaction.Slot, newItem);
+						}
 					}
 				}
 				else if (record is CreativeTransactionRecord)
@@ -2692,6 +2709,16 @@ namespace MiNET
 				xpToNextLevel = 9*ExperienceLevel - 158;
 			}
 			return xpToNextLevel;
+		}
+
+		public virtual void SendForm(Form form)
+		{
+			_currentForm = form;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = 1234; // whatever
+			message.data = form.ToJson();
+			SendPackage(message);
 		}
 
 		public virtual void SendSetTime()

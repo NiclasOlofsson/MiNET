@@ -3,6 +3,32 @@
 	
 	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_AROUND_MULTIPLICATIVE_OP/@EntryValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpFormat/SPACE_BEFORE_TYPEOF_PARENTHESES/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderRegionName/@EntryValue">LICENSE</s:String>
+	<s:String x:Key="/Default/CodeStyle/FileHeader/FileHeaderText/@EntryValue">The contents of this file are subject to the Common Public Attribution&#xD;
+License Version 1.0. (the "License"); you may not use this file except in&#xD;
+compliance with the License. You may obtain a copy of the License at&#xD;
+https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. &#xD;
+The License is based on the Mozilla Public License Version 1.1, but Sections 14 &#xD;
+and 15 have been added to cover use of software over a computer network and &#xD;
+provide for limited attribution for the Original Developer. In addition, Exhibit A has &#xD;
+been modified to be consistent with Exhibit B.&#xD;
+&#xD;
+Software distributed under the License is distributed on an "AS IS" basis,&#xD;
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for&#xD;
+the specific language governing rights and limitations under the License.&#xD;
+&#xD;
+The Original Code is MiNET.&#xD;
+&#xD;
+The Original Developer is the Initial Developer.  The Initial Developer of&#xD;
+the Original Code is Niclas Olofsson.&#xD;
+&#xD;
+All portions of the code written by Niclas Olofsson are Copyright (c) 2014-$CURRENT_YEAR$ Niclas Olofsson. &#xD;
+All Rights Reserved.</s:String>
+	
+	
+	
+	
+	
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EAddAccessorOwnerDeclarationBracesMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EMigrateBlankLinesAroundFieldToBlankLinesAroundProperty/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ESettingsUpgrade_002EMigrateThisQualifierSettings/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

@@ -388,6 +388,10 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemBread() { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemSnowball() { Count = 16 };
+			player.Inventory.Slots[idx++] = new ItemBow() { Count = 1 };
+			player.Inventory.Slots[idx++] = new ItemArrow() { Count = 64 };
 			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
 			player.Inventory.Slots[idx++] = new ItemChest() { Count = 64 };
 			//player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};

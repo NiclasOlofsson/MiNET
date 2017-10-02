@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -1445,7 +1445,7 @@ namespace MiNET
 			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
 			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
 			mobEquipment.item = Inventory.GetItemInHand();
-			mobEquipment.slot = 0;
+			mobEquipment.slot = (byte) Inventory.InHandSlot;
 			SendPackage(mobEquipment);
 		}
 
@@ -1977,33 +1977,66 @@ namespace MiNET
 
 		protected virtual void HandleTransactionItemRelease(Transaction transaction)
 		{
+			Item itemInHand = Inventory.GetItemInHand();
+
 			switch ((McpeInventoryTransaction.ItemReleaseAction) transaction.ActionType)
 			{
 				case McpeInventoryTransaction.ItemReleaseAction.Release:
+				{
+					if (_itemUseTimer <= 0) return;
+
+					itemInHand.Release(Level, this, transaction.FromPosition, Level.TickTime - _itemUseTimer);
+
+					_itemUseTimer = 0;
+
 					break;
+				}
 				case McpeInventoryTransaction.ItemReleaseAction.Use:
+				{
+					if (GameMode == GameMode.Survival)
+					{
+						if (itemInHand is FoodItem)
+						{
+							FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
+							foodItem.Consume(this);
+							foodItem.Count--;
+						}
+						else if (itemInHand is ItemPotion)
+						{
+							ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
+							potion.Consume(this);
+							potion.Count--;
+						}
+					}
 					break;
+				}
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+
+			HandleTransactions(transaction);
 		}
 
 		protected virtual void HandleTransactionItemUse(Transaction transaction)
 		{
-			HandleTransactions(transaction);
+			var itemInHand = Inventory.GetItemInHand();
 
 			switch ((McpeInventoryTransaction.ItemUseAction) transaction.ActionType)
 			{
 				case McpeInventoryTransaction.ItemUseAction.Place:
-					Level.Interact(this, transaction.Item, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
+					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Use:
+					_itemUseTimer = Level.TickTime;
+					itemInHand.UseItem(Level, this, transaction.Position);
 					Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 					Level.BreakBlock(this, transaction.Position);
 					break;
 			}
+
+			HandleTransactions(transaction);
 		}
 
 		protected virtual void HandleTransactions(Transaction transaction)
@@ -2233,36 +2266,11 @@ namespace MiNET
 		public virtual void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
 			Log.Debug("Entity Id:" + message.runtimeEntityId);
-			Log.Debug("Entity Event:" + message.eventId);
-			Log.Debug("Entity Event:" + message.unknown);
-
-			//if (message.eventId != 0) return; // Should probably broadcast?!
+			Log.Debug("Entity Event Id:" + message.eventId);
+			Log.Debug("Entity Event unknown:" + message.unknown);
 
 			switch (message.eventId)
 			{
-				case 9:
-					// Eat food
-
-					if (GameMode == GameMode.Survival)
-					{
-						Item itemInHand = Inventory.GetItemInHand();
-
-						if (itemInHand is FoodItem)
-						{
-							FoodItem foodItem = (FoodItem) Inventory.GetItemInHand();
-							foodItem.Consume(this);
-							foodItem.Count--;
-							SendPlayerInventory();
-						}
-						else if (itemInHand is ItemPotion)
-						{
-							ItemPotion potion = (ItemPotion) Inventory.GetItemInHand();
-							potion.Consume(this);
-							potion.Count--;
-							SendPlayerInventory();
-						}
-					}
-					break;
 				case 34:
 					RemoveExperienceLevels(message.unknown);
 					break;

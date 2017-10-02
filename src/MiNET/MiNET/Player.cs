@@ -1840,7 +1840,7 @@ namespace MiNET
 				containerOpen.windowId = inventory.WindowsId;
 				containerOpen.type = inventory.Type;
 				containerOpen.coordinates = inventoryCoord;
-				containerOpen.unknownRuntimeEntityId = -1;
+				containerOpen.unknownRuntimeEntityId = 1;
 				SendPackage(containerOpen);
 
 				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
@@ -2047,6 +2047,7 @@ namespace MiNET
 				{
 					var trans = (ContainerTransactionRecord) record;
 					int invId = trans.InventoryId;
+					int slot = trans.Slot;
 					Item oldItem = trans.OldItem;
 					Item newItem = trans.NewItem;
 
@@ -2064,17 +2065,8 @@ namespace MiNET
 					{
 						if (_openInventory.WindowsId == invId)
 						{
-							//if (_openInventory.Type == 3)
-							//{
-							//	Recipes recipes = new Recipes();
-							//	recipes.Add(new EnchantingRecipe());
-							//	McpeCraftingData crafting = McpeCraftingData.CreateObject();
-							//	crafting.recipes = recipes;
-							//	SendPackage(crafting);
-							//}
-
 							// block inventories of various kinds (chests, furnace, etc)
-							_openInventory.SetSlot(this, (byte) transaction.Slot, newItem);
+							_openInventory.SetSlot(this, (byte) slot, newItem);
 						}
 					}
 				}

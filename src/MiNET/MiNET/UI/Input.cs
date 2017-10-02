@@ -23,6 +23,8 @@
 
 #endregion
 
+using Newtonsoft.Json;
+
 namespace MiNET.UI
 {
 	public class Input : CustomElement
@@ -33,6 +35,8 @@ namespace MiNET.UI
 		}
 
 		public string Placeholder { get; set; }
-		public string Default { get; set; }
+
+		[JsonProperty("default")]
+		public string Value { get; set; }
 	}
 }

@@ -57,11 +57,11 @@ namespace MiNET.UI
 			for (var i = 0; i < Content.Count; i++)
 			{
 				var element = Content[i];
-				if (element is Input) ((Input) element).Default = (string) parsedResult[i];
-				else if (element is Toggle) ((Toggle) element).Default = (bool) parsedResult[i];
-				else if (element is Slider) ((Slider) element).Default = (float) parsedResult[i];
-				else if (element is StepSlider) ((StepSlider) element).Default = (int) (long) parsedResult[i];
-				else if (element is Dropdown) ((Dropdown) element).Default = (int) (long) parsedResult[i];
+				if (element is Input) ((Input) element).Value = (string) parsedResult[i];
+				else if (element is Toggle) ((Toggle) element).Value = (bool) parsedResult[i];
+				else if (element is Slider) ((Slider) element).Value = (float) parsedResult[i];
+				else if (element is StepSlider) ((StepSlider) element).Value = (int) (long) parsedResult[i];
+				else if (element is Dropdown) ((Dropdown) element).Value = (int) (long) parsedResult[i];
 			}
 
 			Execute(player);

@@ -23,6 +23,8 @@
 
 #endregion
 
+using Newtonsoft.Json;
+
 namespace MiNET.UI
 {
 	public class Toggle : CustomElement
@@ -32,6 +34,7 @@ namespace MiNET.UI
 			Type = "toggle";
 		}
 
-		public bool Default { get; set; }
+		[JsonProperty("default")]
+		public bool Value { get; set; }
 	}
 }

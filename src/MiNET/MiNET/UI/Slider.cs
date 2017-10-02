@@ -23,6 +23,8 @@
 
 #endregion
 
+using Newtonsoft.Json;
+
 namespace MiNET.UI
 {
 	public class Slider : CustomElement
@@ -35,6 +37,8 @@ namespace MiNET.UI
 		public float Min { get; set; }
 		public float Max { get; set; }
 		public float Step { get; set; }
-		public float Default { get; set; }
+
+		[JsonProperty("default")]
+		public float Value { get; set; }
 	}
 }

@@ -24,6 +24,7 @@
 #endregion
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace MiNET.UI
 {
@@ -34,7 +35,8 @@ namespace MiNET.UI
 			Type = "dropdown";
 		}
 
-		public int Default { get; set; }
+		[JsonProperty("default")]
+		public int Value { get; set; }
 		public List<string> Options { get; set; } = new List<string>();
 	}
 }

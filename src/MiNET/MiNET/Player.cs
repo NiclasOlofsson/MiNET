@@ -190,11 +190,11 @@ namespace MiNET
 			customForm.Content = new List<CustomElement>()
 			{
 				new Label {Text = "A label"},
-				new Input {Text = "", Placeholder = "Placeholder", Default = ""},
-				new Toggle {Text = "A toggler", Default = true},
-				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 2, Default = 3},
-				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Default = 1},
-				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Default = 1},
+				new Input {Text = "", Placeholder = "Placeholder", Value = ""},
+				new Toggle {Text = "A toggler", Value = true},
+				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 2, Value = 3},
+				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Value = 1},
+				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Value = 1},
 			};
 
 			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();

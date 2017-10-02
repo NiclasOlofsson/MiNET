@@ -92,12 +92,12 @@ namespace TestPlugin.SafePay
 			customForm.Content = new List<CustomElement>()
 			{
 				new Label {Text = "Safe money transfer using your VISA card"},
-				new Input {Text = "", Placeholder = "Name - as it appears on card", Default = "John Doe"},
-				new Input {Text = "", Placeholder = "Credit card number", Default = "4242424242424242"},
-				new Dropdown {Text = "Expiration date (month)", Options = new List<string>() {"01 - January", "02 - February", "03 - March"}, Default = 0},
-				new Dropdown {Text = "Expiration date (year)", Options = new List<string>() {"2017", "2018", "2019"}, Default = 2},
-				new Input {Text = "", Placeholder = "Security code (3 on back)", Default = "111"},
-				new Toggle {Text = "Save payment info (safe)", Default = true},
+				new Input {Text = "", Placeholder = "Name - as it appears on card", Value = "John Doe"},
+				new Input {Text = "", Placeholder = "Credit card number", Value = "4242424242424242"},
+				new Dropdown {Text = "Expiration date (month)", Options = new List<string>() {"01 - January", "02 - February", "03 - March"}, Value = 0},
+				new Dropdown {Text = "Expiration date (year)", Options = new List<string>() {"2017", "2018", "2019"}, Value = 2},
+				new Input {Text = "", Placeholder = "Security code (3 on back)", Value = "111"},
+				new Toggle {Text = "Save payment info (safe)", Value = true},
 				new Label {Text = "§lWhat happens now?§r\nThis is step 1 of 2. After submitting payment information you will be able to review your order.\nWe will not bill you until confirm the order on next page (step 2)."},
 			};
 

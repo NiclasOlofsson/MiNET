@@ -7030,7 +7030,7 @@ namespace MiNET.Net
 	public partial class McpeModalFormRequest : Package<McpeModalFormRequest>
 	{
 
-		public long formId; // = null;
+		public uint formId; // = null;
 		public string data; // = null;
 
 		public McpeModalFormRequest()
@@ -7045,7 +7045,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarLong(formId);
+			WriteUnsignedVarInt(formId);
 			Write(data);
 
 			AfterEncode();
@@ -7060,7 +7060,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			formId = ReadUnsignedVarLong();
+			formId = ReadUnsignedVarInt();
 			data = ReadString();
 
 			AfterDecode();
@@ -7073,7 +7073,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			formId=default(long);
+			formId=default(uint);
 			data=default(string);
 		}
 
@@ -7082,7 +7082,7 @@ namespace MiNET.Net
 	public partial class McpeModalFormResponse : Package<McpeModalFormResponse>
 	{
 
-		public long formId; // = null;
+		public uint formId; // = null;
 		public string data; // = null;
 
 		public McpeModalFormResponse()
@@ -7097,7 +7097,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarLong(formId);
+			WriteUnsignedVarInt(formId);
 			Write(data);
 
 			AfterEncode();
@@ -7112,7 +7112,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			formId = ReadUnsignedVarLong();
+			formId = ReadUnsignedVarInt();
 			data = ReadString();
 
 			AfterDecode();
@@ -7125,7 +7125,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			formId=default(long);
+			formId=default(uint);
 			data=default(string);
 		}
 

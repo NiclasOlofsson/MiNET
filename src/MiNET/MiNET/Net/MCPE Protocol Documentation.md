@@ -1971,7 +1971,7 @@ Wiki: [Modal Form Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Form Id | UnsignedVarLong |  |
+|Form Id | UnsignedVarInt |  |
 |Data | string |  |
 -----------------------------------------------------------------------
 ### Modal Form Response (0x65)
@@ -1987,7 +1987,7 @@ Wiki: [Modal Form Response](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Form Id | UnsignedVarLong |  |
+|Form Id | UnsignedVarInt |  |
 |Data | string |  |
 -----------------------------------------------------------------------
 ### Server Settings Request (0x66)

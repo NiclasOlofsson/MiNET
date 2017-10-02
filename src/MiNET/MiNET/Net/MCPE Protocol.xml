@@ -881,12 +881,12 @@
 	</pdu>
 
 	<pdu id="0x64" online="false" client="false" server="true" name="MCPE_MODAL_FORM_REQUEST">
-		<field name="Form Id" type="UnsignedVarLong" />
+		<field name="Form Id" type="UnsignedVarInt" />
 		<field name="Data" type="string" />
 	</pdu>
 
 	<pdu id="0x65" online="false" client="true" server="false" name="MCPE_MODAL_FORM_RESPONSE">
-		<field name="Form Id" type="UnsignedVarLong" />
+		<field name="Form Id" type="UnsignedVarInt" />
 		<field name="Data" type="string" />
 	</pdu>
 

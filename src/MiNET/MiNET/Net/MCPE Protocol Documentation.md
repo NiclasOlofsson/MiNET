@@ -1168,7 +1168,7 @@ Wiki: [Inventory Content](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Inventory Id | VarInt |  |
+|Inventory Id | UnsignedVarInt |  |
 |Input | ItemStacks |  |
 -----------------------------------------------------------------------
 ### Inventory Slot (0x32)

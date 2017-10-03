@@ -4441,7 +4441,7 @@ namespace MiNET.Net
 	public partial class McpeInventoryContent : Package<McpeInventoryContent>
 	{
 
-		public int inventoryId; // = null;
+		public uint inventoryId; // = null;
 		public ItemStacks input; // = null;
 
 		public McpeInventoryContent()
@@ -4456,7 +4456,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteVarInt(inventoryId);
+			WriteUnsignedVarInt(inventoryId);
 			Write(input);
 
 			AfterEncode();
@@ -4471,7 +4471,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			inventoryId = ReadVarInt();
+			inventoryId = ReadUnsignedVarInt();
 			input = ReadItemStacks();
 
 			AfterDecode();
@@ -4484,7 +4484,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			inventoryId=default(int);
+			inventoryId=default(uint);
 			input=default(ItemStacks);
 		}
 

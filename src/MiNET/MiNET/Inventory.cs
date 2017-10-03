@@ -115,8 +115,7 @@ namespace MiNET
 
 		protected virtual void OnInventoryChange(Player player, byte slot, Item itemStack)
 		{
-			Action<Player, Inventory, byte, Item> handler = InventoryChange;
-			if (handler != null) handler(player, this, slot, itemStack);
+			InventoryChange?.Invoke(player, this, slot, itemStack);
 		}
 
 

@@ -172,14 +172,14 @@ namespace MiNET
 		{
 		}
 
-		public Form CurrentForm { get; set; }
+		private Form _currentForm = null;
 
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
-			if (CurrentForm == null) Log.Warn("No current form set for player when processing response");
+			if (_currentForm == null) Log.Warn("No current form set for player when processing response");
 
-			var form = CurrentForm;
-			CurrentForm = null;
+			var form = _currentForm;
+			_currentForm = null;
 			form?.FromJson(message.data, this);
 		}
 
@@ -2047,6 +2047,7 @@ namespace MiNET
 				{
 					var trans = (ContainerTransactionRecord) record;
 					int invId = trans.InventoryId;
+					int slot = trans.Slot;
 					Item oldItem = trans.OldItem;
 					Item newItem = trans.NewItem;
 
@@ -2059,6 +2060,14 @@ namespace MiNET
 					{
 						// Cursor
 						Inventory.Cursor = newItem;
+					}
+					else if (_openInventory != null)
+					{
+						if (_openInventory.WindowsId == invId)
+						{
+							// block inventories of various kinds (chests, furnace, etc)
+							_openInventory.SetSlot(this, (byte) slot, newItem);
+						}
 					}
 				}
 				else if (record is CreativeTransactionRecord)
@@ -2692,6 +2701,16 @@ namespace MiNET
 				xpToNextLevel = 9*ExperienceLevel - 158;
 			}
 			return xpToNextLevel;
+		}
+
+		public virtual void SendForm(Form form)
+		{
+			_currentForm = form;
+
+			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
+			message.formId = 1234; // whatever
+			message.data = form.ToJson();
+			SendPackage(message);
 		}
 
 		public virtual void SendSetTime()

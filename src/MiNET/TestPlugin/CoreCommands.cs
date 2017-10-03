@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -154,12 +154,7 @@ namespace TestPlugin
 				new Dropdown {Text = "A dropdown", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Value = 1},
 			};
 
-			player.CurrentForm = customForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = customForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(customForm);
 		}
 
 		[Command]
@@ -171,12 +166,7 @@ namespace TestPlugin
 			modalForm.Button1 = "Button 1";
 			modalForm.Button2 = "Button 2";
 
-			player.CurrentForm = modalForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = modalForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(modalForm);
 		}
 
 		[Command]
@@ -193,12 +183,7 @@ namespace TestPlugin
 				new Button {Text = "Close"},
 			};
 
-			player.CurrentForm = simpleForm;
-
-			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234;
-			message.data = simpleForm.ToJson();
-			player.SendPackage(message);
+			player.SendForm(simpleForm);
 		}
 
 		[Command]

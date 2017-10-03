@@ -96,7 +96,8 @@ namespace MiNET.Entities.Projectiles
 				{
 					IsCritical = false;
                     End = true;
-				}
+                    BroadcastSetEntityData();
+                }
 				return;
 			}
 

@@ -227,8 +227,9 @@ namespace MiNET.Entities.Projectiles
 				if (entity == Shooter) continue;
 				if (entity == this) continue;
 				if (entity is Projectile) continue;
+                if(entity.HealthManager.IsInvulnerable) continue;
 
-				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
+                if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{
 					if (ray.tNear > direction.Length()) break;
 

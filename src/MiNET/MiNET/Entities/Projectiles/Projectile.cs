@@ -21,8 +21,10 @@ namespace MiNET.Entities.Projectiles
 		public int Damage { get; set; }
 		public int PowerLevel { get; set; } = 0;
 		public float HitBoxPrecision { get; set; } = 0.3f;
+        public bool End { get; set; }
+        public int EndTick { get; set; }
 
-		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
+        protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
 			Damage = damage;
@@ -30,7 +32,10 @@ namespace MiNET.Entities.Projectiles
 			Ttl = 0;
 			DespawnOnImpact = true;
 			BroadcastMovement = false;
-		}
+            End = false;
+            EndTick = 0;
+
+        }
 
 		private object _spawnSync = new object();
 
@@ -68,7 +73,15 @@ namespace MiNET.Entities.Projectiles
 
 		public override void OnTick()
 		{
-			//base.OnTick();
+            //base.OnTick();
+            if (End)
+            {
+                if(EndTick++ == 100)
+                {
+                    DespawnEntity();
+                }
+                return;
+            }
 
 			if (KnownPosition.Y <= 0
 			    || (Velocity.Length() <= 0 && DespawnOnImpact)
@@ -82,6 +95,7 @@ namespace MiNET.Entities.Projectiles
 				else
 				{
 					IsCritical = false;
+                    End = true;
 				}
 				return;
 			}
@@ -124,7 +138,9 @@ namespace MiNET.Entities.Projectiles
 				entityCollided.HealthManager.LastDamageSource = Shooter;
 
 				DespawnEntity();
-				return;
+                IsCritical = false;
+                BroadcastSetEntityData();
+                return;
 			}
 			else
 			{
@@ -154,7 +170,10 @@ namespace MiNET.Entities.Projectiles
 			if (collided)
 			{
 				Velocity = Vector3.Zero;
-			}
+                IsCritical = false;
+                End = true;
+                BroadcastSetEntityData();
+            }
 			else
 			{
 				KnownPosition.X += (float) Velocity.X;
@@ -281,7 +300,10 @@ namespace MiNET.Entities.Projectiles
 			// End debug block
 
 			Velocity = Vector3.Zero;
-			return true;
+            IsCritical = false;
+            End = true;
+            BroadcastSetEntityData();
+            return true;
 		}
 
 		public bool SetIntersectLocation(BoundingBox bbox, Vector3 location)
@@ -322,9 +344,6 @@ namespace MiNET.Entities.Projectiles
 
 			if (Shooter != null && IsCritical)
 			{
-				var particle = new CriticalParticle(Level);
-				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn(new[] {Shooter});
 			}
 		}
 

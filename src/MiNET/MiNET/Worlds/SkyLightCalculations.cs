@@ -1017,7 +1017,7 @@ namespace MiNET.Worlds
 			{
 				c = Color.FromArgb(Alpha, (byte) R, (byte) G, (byte) B);
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 			}
 			return c;

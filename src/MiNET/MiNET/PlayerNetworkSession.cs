@@ -50,7 +50,7 @@ namespace MiNET
 
 		public string Username { get; set; }
 
-		public IMcpeMessageHandler MessageHandler { get; set; }
+        public IMcpeMessageHandler MessageHandler { get; set; } = null;
 
 		public IPEndPoint EndPoint { get; private set; }
 		public short MtuSize { get; set; }
@@ -89,7 +89,7 @@ namespace MiNET
 			MtuSize = mtuSize;
 
 			_cancellationToken = new CancellationTokenSource();
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+			_tickerHighPrecisionTimer = new HighPrecisionTimer(100, SendTick, true);
 		}
 
 		public void Close()
@@ -110,12 +110,12 @@ namespace MiNET
 				return;
 			}
 
-			if (PlayerAckQueue.Count > 0)
-			{
-				Thread.Sleep(50);
-			}
+            if (PlayerAckQueue.Count > 0)
+            {
+                Thread.Sleep(50);
+            }
 
-			if (_tickerHighPrecisionTimer != null)
+            if (_tickerHighPrecisionTimer != null)
 			{
 				_tickerHighPrecisionTimer.Dispose();
 			}
@@ -162,7 +162,7 @@ namespace MiNET
 				_waitEvent.Close();
 				_mainWaitEvent.Close();
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 			}
 
@@ -216,7 +216,7 @@ namespace MiNET
 					WaitHandle.SignalAndWait(_waitEvent, _mainWaitEvent);
 				}
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
 			}
 		}
@@ -310,7 +310,7 @@ namespace MiNET
 					byte[] payload = batch.payload;
 					if (playerSession.CryptoContext != null && playerSession.CryptoContext.UseEncryption)
 					{
-						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
+						throw new Exception("No crypto enabled");
 					}
 
 					// Decompress bytes
@@ -389,17 +389,10 @@ namespace MiNET
 
 		private void HandlePackage(IMcpeMessageHandler handler, Package message)
 		{
-			if (handler is Player)
-			{
-				var result = Server.PluginManager.PluginPacketHandler(message, true, (Player) handler);
-				if (result != message) message.PutPool();
-				message = result;
-			}
-
-			if (message == null)
-			{
-				return;
-			}
+            if (message == null)
+            {
+                return;
+            }
 
 			else if (typeof (ConnectedPing) == message.GetType())
 			{
@@ -594,9 +587,9 @@ namespace MiNET
 
 			else
 			{
-				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
+                Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");
 				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
-				return;
+                return;
 			}
 
 			if (message.Timer.IsRunning)
@@ -604,13 +597,14 @@ namespace MiNET
 				long elapsedMilliseconds = message.Timer.ElapsedMilliseconds;
 				if (elapsedMilliseconds > 1000)
 				{
-					Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
-				}
+                    Log.WarnFormat("Package (0x{1:x2}) handling too long {0}ms for {2}", elapsedMilliseconds, message.Id, Username);
+
+                }
 			}
 			else
 			{
-				Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
-			}
+                Log.WarnFormat("Package (0x{0:x2}) timer not started for {1}.", message.Id, Username);
+            }
 		}
 
 		protected virtual void HandleConnectedPing(ConnectedPing message)
@@ -913,7 +907,7 @@ namespace MiNET
 							{
 								package = queue.Dequeue();
 							}
-							catch (Exception e)
+							catch (Exception)
 							{
 							}
 						}
@@ -935,7 +929,6 @@ namespace MiNET
 							SendBuffered(messageCount, memStream);
 							messageCount = 0;
 							Server.SendPackage(this, package);
-							Thread.Sleep(1); // Really important to slow down speed a bit
 						}
 						else if (package.NoBatch)
 						{

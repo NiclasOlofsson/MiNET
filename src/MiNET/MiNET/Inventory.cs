@@ -77,7 +77,7 @@ namespace MiNET
 			Item slotData = Slots[slot];
 			if (slotData is ItemAir)
 			{
-				slotData = ItemFactory.GetItem(itemId, metadata, 1);
+				slotData = CreateItemServer(ItemFactory.GetItem(itemId, metadata, 1));
 			}
 			else
 			{
@@ -89,7 +89,41 @@ namespace MiNET
 			OnInventoryChange(null, slot, slotData);
 		}
 
-		public bool IsOpen()
+        private Item CreateItemServer(Item item)
+        {
+            if (item == null)
+            {
+                return item;
+            }
+            if (item.Id == 0)
+            {
+                return item;
+            }
+            if (item.ExtraData == null)
+            {
+                item.ExtraData = new NbtCompound
+                {
+                    new NbtInt("ServerInv", 0)
+                };
+            }
+            else
+            {
+                if (item.ExtraData.Get("ServerInv") != null)
+                {
+                    return item;
+                }
+                else
+                {
+                    item.ExtraData.Add(new NbtCompound
+                    {
+                        new NbtInt("ServerInv", 0)
+                    });
+                }
+            }
+            return item;
+        }
+
+        public bool IsOpen()
 		{
 			return InventoryChange != null;
 		}

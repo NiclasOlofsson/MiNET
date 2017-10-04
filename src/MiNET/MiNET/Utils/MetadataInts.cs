@@ -4,7 +4,7 @@ namespace MiNET.Utils
 {
 	public class MetadataInts : MetadataDictionary
 	{
-		public static MetadataInts FromStream(BinaryReader stream)
+		public new static MetadataInts FromStream(BinaryReader stream)
 		{
 			var value = new MetadataInts();
 			while (true)

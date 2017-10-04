@@ -226,7 +226,8 @@ namespace MiNET.Net
 							encodedMessage = Compression.Compress(encodedMessage, 0, encodedMessage.Length, true);
 						}
 
-						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
+						throw new Exception("No encryption!!!!");
+
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
 					}

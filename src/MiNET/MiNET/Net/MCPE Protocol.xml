@@ -426,13 +426,13 @@
 			<enum id="Global" value="1" />
 			<enum id="World interaction" value="2" />
 			<enum id="Creative" value="3" />
-			<enum id="Crafting" value="99999" />
+			<enum id="Unspecified" value="99999" />
 		</enums>
 		<enums id="Normal action">
-			<enum id="Put slot" value="3" />
-			<enum id="Get slot" value="5" />
-			<enum id="Get result" value="7" />
-			<enum id="Craft use" value="9" />
+			<enum id="Put slot" value="-2" />
+			<enum id="Get slot" value="-3" />
+			<enum id="Get result" value="-4" />
+			<enum id="Craft use" value="-5" />
 			<enum id="Enchant item" value="29" />
 			<enum id="Enchant lapis" value="31" />
 			<enum id="Enchant result" value="33" />

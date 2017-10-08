@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -28,6 +28,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Newtonsoft.Json;
 
 namespace MiNET.Items
 {
@@ -40,6 +41,7 @@ namespace MiNET.Items
 
 		protected Block _block;
 
+		[JsonIgnore]
 		public Block Block => _block;
 
 		protected ItemBlock(short id, short metadata) : base(id, metadata)

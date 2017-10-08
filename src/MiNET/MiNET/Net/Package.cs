@@ -826,7 +826,7 @@ namespace MiNET.Net
 							InventoryId = 0x79
 						};
 						break;
-					case McpeInventoryTransaction.InventorySourceType.Crafting:
+					case McpeInventoryTransaction.InventorySourceType.Unspecified:
 						record = new CraftTransactionRecord()
 						{
 							Source = sourceType,

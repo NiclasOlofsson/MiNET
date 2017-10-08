@@ -316,7 +316,8 @@
     <Compile Include="CertificateChain.cs" />
     <Compile Include="CertificateData.cs" />
     <Compile Include="ConnectionState.cs" />
-    <Compile Include="Crafting\Recipe.cs" />
+    <Compile Include="Crafting\RecipeManager.cs" />
+    <Compile Include="Crafting\Recipes.cs" />
     <Compile Include="DamageCalculator.cs" />
     <Compile Include="Effects\Absorption.cs" />
     <Compile Include="Effects\Blindness.cs" />

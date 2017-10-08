@@ -33,6 +33,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
+using System.Web.Compilation;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
@@ -2039,6 +2040,9 @@ namespace MiNET
 			HandleTransactions(transaction);
 		}
 
+		private List<Item> _craftingInput = new List<Item>(new Item[9]);
+		public bool UsingCraftingTable { get; set; }
+
 		protected virtual void HandleTransactions(Transaction transaction)
 		{
 			foreach (var record in transaction.Transactions)
@@ -2054,20 +2058,51 @@ namespace MiNET
 					if (invId == 0)
 					{
 						// Player inventory
+						if (!oldItem.Equals(Inventory.Slots[trans.Slot])) Log.Warn($"Inventory mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Slots[trans.Slot]}");
 						Inventory.Slots[trans.Slot] = newItem;
 					}
 					else if (invId == 124)
 					{
 						// Cursor
+						if (!oldItem.Equals(Inventory.Cursor)) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Cursor}");
 						Inventory.Cursor = newItem;
 					}
 					else if (_openInventory != null)
 					{
 						if (_openInventory.WindowsId == invId)
 						{
+							if (!oldItem.Equals(_openInventory.GetSlot((byte) slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {_openInventory.GetSlot((byte) slot)}");
+
 							// block inventories of various kinds (chests, furnace, etc)
 							_openInventory.SetSlot(this, (byte) slot, newItem);
 						}
+					}
+				}
+				else if (record is CraftTransactionRecord)
+				{
+					var trans = (CraftTransactionRecord) record;
+					int invId = trans.Action;
+					int slot = trans.Slot;
+					Item oldItem = trans.OldItem;
+					Item newItem = trans.NewItem;
+
+					if (invId == (int) McpeInventoryTransaction.NormalAction.CraftUse)
+					{
+						_craftingInput[slot] = newItem;
+					}
+					else if (invId == (int) McpeInventoryTransaction.NormalAction.GetResult)
+					{
+						if (VerifyRecipe(_craftingInput, oldItem))
+						{
+							Log.Warn("Found matching recipe");
+						}
+						else
+						{
+							Log.Error("Found NO matching recipe");
+						}
+
+						_craftingInput.Clear();
+						_craftingInput.AddRange(new Item[9]);
 					}
 				}
 				else if (record is CreativeTransactionRecord)
@@ -2097,6 +2132,115 @@ namespace MiNET
 						// Pickup
 					}
 				}
+			}
+		}
+
+		private bool VerifyRecipe(List<Item> craftingInput, Item result)
+		{
+			List<Item> shapedInput = new List<Item>();
+			foreach (var item in craftingInput)
+			{
+				shapedInput.Add(item ?? new Item(0));
+			}
+
+			List<Item> shapelessInput = new List<Item>();
+			foreach (var item in craftingInput)
+			{
+				if(item == null) continue;
+				shapelessInput.Add(item);
+			}
+
+			Log.Debug($"Looking for matching recipes with the result {result}");
+			var recipes = RecipeManager.Recipes.Where(r => r is ShapedRecipe).Where(r => ((ShapedRecipe) r).Result.Id == result.Id && ((ShapedRecipe)r).Result.Metadata == result.Metadata).ToList();
+			recipes.AddRange(RecipeManager.Recipes.Where(r => r is ShapelessRecipe).Where(r => ((ShapelessRecipe) r).Result.Id == result.Id && ((ShapelessRecipe)r).Result.Metadata == result.Metadata).ToList());
+			Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
+			foreach (var r in recipes)
+			{
+				if (r is ShapedRecipe)
+				{
+					var recipe = (ShapedRecipe) r;
+					int rowOffset = -1;
+					int colOffset = -1;
+					int dim = UsingCraftingTable ? 3 : 2;
+					for (int row = 0; row < dim; row++)
+					{
+						for (int col = 0; col < dim; col++)
+						{
+							var item = craftingInput[col + (dim*row)];
+							if (item == null) continue;
+
+							if (rowOffset == -1 && item.Id != 0)
+							{
+								rowOffset = row;
+							}
+							if (colOffset == -1 && item.Id != 0)
+							{
+								colOffset = col;
+							}
+						}
+					}
+
+					List<Item> shapedInputSmall = new List<Item>(new Item[recipe.Height*recipe.Width]);
+					for (int row = 0; row < recipe.Height; row++)
+					{
+						for (int col = 0; col < recipe.Width; col++)
+						{
+							shapedInputSmall[col + (recipe.Width*row)] = craftingInput[(colOffset + col) + (dim*(row + rowOffset))];
+						}
+					}
+
+					Log.Debug($"Items input={ToJson(craftingInput)}");
+					Log.Debug($"Items input={ToJson(shapedInputSmall)}");
+					Log.Debug($"Recipe input={ToJson(recipe.Input)}");
+
+					var match = (recipe.Input.Length == shapedInputSmall.Count);
+					Log.Debug($"ShapedRecipe Count match={match}");
+					match = match && !shapedInputSmall.Except(recipe.Input, new ItemCompare()).Any();
+					Log.Debug($"Items match={match}");
+					if (match) return true;
+				}
+				else
+				{
+					var recipe = (ShapelessRecipe)r;
+					var match = (recipe.Input.Count == shapelessInput.Count);
+					Log.Debug($"ShapelessRecipe Count match={match}");
+					match = match && !shapelessInput.Except(recipe.Input, new ItemCompare()).Any();
+					Log.Debug($"Items match={match}");
+					if (match) return true;
+				}
+			}
+
+			return false;
+		}
+
+		private string ToJson(object obj)
+		{
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+
+				Formatting = Formatting.Indented,
+			};
+			jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+			jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
+			return JsonConvert.SerializeObject(obj, jsonSerializerSettings);
+		}
+
+		private class ItemCompare : IEqualityComparer<Item>
+		{
+			public bool Equals(Item x, Item y)
+			{
+				if (ReferenceEquals(null, x)) return false;
+				if (ReferenceEquals(null, y)) return false;
+				if (ReferenceEquals(x, y)) return true;
+
+				return x.Id == y.Id && (x.Metadata == y.Metadata || x.Metadata == -1 || y.Metadata == -1);
+			}
+
+			public int GetHashCode(Item obj)
+			{
+				return 0;
 			}
 		}
 
@@ -2198,6 +2342,8 @@ namespace MiNET
 
 		public virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
+			UsingCraftingTable = false;
+
 			lock (_inventorySync)
 			{
 				var inventory = _openInventory;

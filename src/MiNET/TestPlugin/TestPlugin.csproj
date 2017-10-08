@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code4Fun\Code4FunPlugin.cs" />
     <Compile Include="CoreCommands.cs" />
     <Compile Include="NiceLobby\CustomItemFrame.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />
@@ -85,6 +86,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="geometry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
@@ -92,6 +96,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Char8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test_skin.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="IMG_0220.png">

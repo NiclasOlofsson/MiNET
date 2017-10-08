@@ -140,20 +140,20 @@ namespace MiNET.Worlds
 				Log.InfoFormat("World pre-cache {0} chunks completed in {1}ms", i, chunkLoading.ElapsedMilliseconds);
 			}
 
-			//if (Dimension == Dimension.Overworld)
-			//{
-			//	if (Config.GetProperty("CheckForSafeSpawn", false))
-			//	{
-			//		var height = GetHeight((BlockCoordinates) SpawnPoint);
-			//		if (height > SpawnPoint.Y) SpawnPoint.Y = height;
-			//		Log.Debug("Checking for safe spawn");
-			//	}
+			if (Dimension == Dimension.Overworld)
+			{
+				if (Config.GetProperty("CheckForSafeSpawn", false))
+				{
+					var height = GetHeight((BlockCoordinates)SpawnPoint);
+					if (height > SpawnPoint.Y) SpawnPoint.Y = height;
+					Log.Debug("Checking for safe spawn");
+				}
 
-			//	NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
-			//	TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
-			//}
+				NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
+				TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
+			}
 
-			SpawnPoint.Y = 20;
+			//SpawnPoint.Y = 20;
 
 			StartTimeInTicks = DateTime.UtcNow.Ticks;
 

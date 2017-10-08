@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -5,7 +30,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using MiNET.Blocks;
+using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -23,6 +48,16 @@ namespace MiNET
 	public class CommandTest
 	{
 		[Test]
+		public void GeometryParserTest()
+		{
+			var geometryModel = Skin.ParseGeometry(TestContext.CurrentContext.TestDirectory + "\\geometry.json");
+			Assert.NotNull(geometryModel);
+
+			Assert.NotNull(geometryModel.First().Value.Bones);
+			Assert.AreEqual("head", geometryModel.First().Value.Bones[2].Name);
+		}
+
+		[Test, Ignore("")]
 		public void ParseTest()
 		{
 			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
@@ -44,7 +79,7 @@ namespace MiNET
 			}
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void ParseObjectModelTest()
 		{
 			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
@@ -104,7 +139,7 @@ namespace MiNET
 			Assert.IsFalse(outputParameter.Optional);
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void SerializeObjectModelRoundtripTest()
 		{
 			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
@@ -129,7 +164,7 @@ namespace MiNET
 			Console.WriteLine($"{output}");
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void DeserializeObjectModelTest()
 		{
 			CommandSet commandSet = PluginManager.GenerateCommandSet(typeof (CoreCommands).GetMethods());
@@ -238,8 +273,8 @@ namespace MiNET
 		{
 			string cmd = @"@e[test=123,ugh=456]";
 
-			var split = Regex.Split(cmd, @"^(@[aeprs])\[(\w*?=\w*?,??)*\]$").Where(s => s!=string.Empty).ToArray();
-			Assert.AreEqual(new[] { "@e", "test=123", "ugh=456" }, split);
+			var split = Regex.Split(cmd, @"^(@[aeprs])\[(\w*?=\w*?,??)*\]$").Where(s => s != string.Empty).ToArray();
+			Assert.AreEqual(new[] {"@e", "test=123", "ugh=456"}, split);
 		}
 
 		[Test]
@@ -261,13 +296,10 @@ namespace MiNET
 		public void TestExecuteCommand()
 		{
 			Player player = new Player(null, null);
-			
-			
 		}
 
 		public void TestCommand()
 		{
-			
 		}
 
 		private object ExecuteCommand(MethodInfo method, Player player, string[] args)
@@ -416,14 +448,14 @@ namespace MiNET
 
 		private static bool IsParams(ParameterInfo param)
 		{
-			return Attribute.IsDefined(param, typeof(ParamArrayAttribute));
+			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
 		}
 
 		private Target FillTargets(Player commander, Level level, Target target)
 		{
 			if (target.Selector == "nearestPlayer" && target.Rules == null)
 			{
-				target.Players = new[] { commander };
+				target.Players = new[] {commander};
 			}
 			else if (target.Selector == "nearestPlayer" && target.Rules != null)
 			{
@@ -442,11 +474,10 @@ namespace MiNET
 			else if (target.Selector == "randomPlayer")
 			{
 				Player[] players = level.GetAllPlayers();
-				target.Players = new[] { players[new Random().Next(players.Length)] };
+				target.Players = new[] {players[new Random().Next(players.Length)]};
 			}
 
 			return target;
 		}
-
 	}
 }

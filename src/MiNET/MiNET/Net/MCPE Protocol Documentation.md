@@ -800,16 +800,16 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Global | 1 |
 |World Interaction | 2 |
 |Creative | 3 |
-|Crafting | 99999 |
+|Unspecified | 99999 |
 
 #### Normal Action constants
 
 | Name | Value |
 |:-----|:-----|
-|Put Slot | 3 |
-|Get Slot | 5 |
-|Get Result | 7 |
-|Craft Use | 9 |
+|Put Slot | -2 |
+|Get Slot | -3 |
+|Get Result | -4 |
+|Craft Use | -5 |
 |Enchant Item | 29 |
 |Enchant Lapis | 31 |
 |Enchant Result | 33 |

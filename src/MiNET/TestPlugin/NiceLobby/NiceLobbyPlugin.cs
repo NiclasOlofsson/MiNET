@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -31,8 +31,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
@@ -245,17 +243,17 @@ namespace TestPlugin.NiceLobby
 							}
 
 							//Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 12, 18);
-							Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 64, 64);
+							Bitmap bitmap = new Bitmap((Bitmap) Image.FromFile(file), 64, 64);
 							int offsetx = 16, offsety = 16;
 							bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
-							byte[] bytes = new byte[32 * 64 * 4];
+							byte[] bytes = new byte[32*64*4];
 
 							int i = 0;
 							for (int y = 0; y < 32; y++)
 							{
 								for (int x = 0; x < 64; x++)
 								{
-									if(y >= bitmap.Height || x >= bitmap.Width)
+									if (y >= bitmap.Height || x >= bitmap.Width)
 									{
 										Color color = Color.Yellow;
 										bytes[i++] = color.R;
@@ -341,7 +339,6 @@ namespace TestPlugin.NiceLobby
 						}
 					}
 				}
-
 			}
 			finally
 			{
@@ -386,14 +383,18 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemDiamondShovel() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemBread() { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemSnowball() { Count = 16 };
-			player.Inventory.Slots[idx++] = new ItemBow() { Count = 1 };
-			player.Inventory.Slots[idx++] = new ItemArrow() { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
-			player.Inventory.Slots[idx++] = new ItemChest() { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Planks(), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemCoal() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
+			player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemArrow() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemChest() {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
@@ -402,7 +403,7 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
-			player.Inventory.Chest = new ItemElytra() { Count = 1 };
+			player.Inventory.Chest = new ItemElytra() {Count = 1};
 
 			player.SendPlayerInventory();
 
@@ -827,27 +828,6 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-		[Command(Name = "sp")]
-		public void SpawnPlayer(Player player, string name)
-		{
-			string pluginDirectory = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
-
-			byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "IMG_0220.png"));
-			//byte[] bytes = Skin.GetTextureFromFile(Path.Combine(pluginDirectory, "Char8.png"));
-
-			PlayerMob fake = new PlayerMob("§6§lBot: " + name + "", player.Level)
-			{
-				Skin = new Skin {Slim = false, SkinData = bytes},
-				KnownPosition = player.KnownPosition,
-				ItemInHand = new ItemDiamondSword(),
-				Helmet = 302,
-				Chest = 303,
-				Leggings = 304,
-				Boots = 305,
-			};
-
-			fake.SpawnEntity();
-		}
 
 		private Dictionary<Player, Entity> _playerEntities = new Dictionary<Player, Entity>();
 

@@ -3367,14 +3367,14 @@ namespace MiNET.Net
 			Global = 1,
 			WorldInteraction = 2,
 			Creative = 3,
-			Crafting = 99999,
+			Unspecified = 99999,
 		}
 		public enum NormalAction
 		{
-			PutSlot = 3,
-			GetSlot = 5,
-			GetResult = 7,
-			CraftUse = 9,
+			PutSlot = -2,
+			GetSlot = -3,
+			GetResult = -4,
+			CraftUse = -5,
 			EnchantItem = 29,
 			EnchantLapis = 31,
 			EnchantResult = 33,

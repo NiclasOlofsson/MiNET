@@ -3336,7 +3336,7 @@ namespace MiNET
 		public PlayerEventArgs(Player player)
 		{
 			Player = player;
-			Level = player.Level;
+			Level = player?.Level;
 		}
 	}
 }

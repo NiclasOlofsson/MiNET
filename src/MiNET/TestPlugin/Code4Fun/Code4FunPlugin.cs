@@ -25,10 +25,8 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Threading;
 using log4net;
 using MiNET;
 using MiNET.Entities;
@@ -37,7 +35,6 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
-using MiNET.Worlds;
 
 namespace TestPlugin.Code4Fun
 {
@@ -70,18 +67,18 @@ namespace TestPlugin.Code4Fun
 				File.WriteAllText(fileName, skin.SkinGeometry);
 			}
 
-			StateObject state = new StateObject
-			{
-				Uuid = player.ClientUuid,
-				Level = player.Level,
-				Skin = player.Skin,
-				CurrentModel = Skin.Parse(skin.SkinGeometry),
-				Position = player.KnownPosition,
-				ResetOnEnd = true
-			};
+			//GravityGeometryBehavior state = new GravityGeometryBehavior
+			//{
+			//	Uuid = player.ClientUuid,
+			//	Level = player.Level,
+			//	Skin = player.Skin,
+			//	CurrentModel = Skin.Parse(skin.SkinGeometry),
+			//	Position = player.KnownPosition,
+			//	ResetOnEnd = true
+			//};
 
-			var geometryTimer = new Timer(MeltTick, state, 0, 50);
-			state.Timer = geometryTimer;
+			//var geometryTimer = new Timer(MeltTick, state, 0, 50);
+			//state.Timer = geometryTimer;
 		}
 
 		[Command]
@@ -118,163 +115,39 @@ namespace TestPlugin.Code4Fun
 
 			fake.SpawnEntity();
 
-			StateObject state = new StateObject
-			{
-				Uuid = fake.Uuid,
-				Level = fake.Level,
-				Skin = fake.Skin,
-				CurrentModel = geometryModel,
-				Position = fake.KnownPosition
-			};
-
-			var geometryTimer = new Timer(MeltTick, state, 1000, 50);
-			//var geometryTimer = new Timer(StrikeTick, state, 0, 100);
-			state.Timer = geometryTimer;
+			GravityGeometryBehavior state = new GravityGeometryBehavior(fake, geometryModel);
+			fake.Ticking += state.FakeMeltTicking;
 		}
 
-		private class StateObject
+		public class GravityGeometryBehavior
 		{
-			public Timer Timer { get; set; }
-			public UUID Uuid { get; set; }
-			public Level Level { get; set; }
-			public Skin Skin { get; set; }
-			public GeometryModel CurrentModel { get; set; }
-			public long MaxDuration { get; set; } = 140;
-			public long Tick { get; set; }
-			public PlayerLocation Position { get; set; }
+			private static readonly ILog Log = LogManager.GetLogger(typeof (GravityGeometryBehavior));
+
+			public GeometryModel CurrentModel { get; private set; }
 			public bool ResetOnEnd { get; set; }
-		}
 
-		private void StrikeTick(object state)
-		{
-			if (!Monitor.TryEnter(state)) return;
-
-			try
+			public GravityGeometryBehavior(PlayerMob mob, GeometryModel currentModel)
 			{
-				StateObject signal = state as StateObject;
+				CurrentModel = currentModel;
+				var geometry = CurrentModel.CollapseToDerived(CurrentModel.FindGeometry(mob.Skin.SkinGeometryName));
+				geometry.Subdivide(true, true);
 
-				if (signal == null) return;
-				if (signal.Timer == null) return;
-				if (signal.CurrentModel == null) return;
+				CurrentModel.Clear();
+				CurrentModel.Add(geometry.Name, geometry);
+			}
 
-				if (signal.Tick++ >= signal.MaxDuration)
-				{
-					Log.Warn($"Reached end of animation: {signal.Tick}");
-					signal.Tick = 0;
-					signal.Timer.Dispose();
-					signal.Timer = null;
+			public void FakeMeltTicking(object sender, PlayerEventArgs playerEventArgs)
+			{
+				Log.Debug("Ticking ... ");
 
-					// Reset?
-					if (signal.ResetOnEnd)
-					{
-						Skin skin = signal.Skin;
+				PlayerMob mob = (PlayerMob) sender;
 
-						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-						updateSkin.NoBatch = true;
-						updateSkin.uuid = signal.Uuid;
-						updateSkin.skinId = skin.SkinId;
-						updateSkin.skinData = skin.SkinData;
-						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = skin.SkinGeometryName;
-						updateSkin.geometryData = skin.SkinGeometry;
-						signal.Level.RelayBroadcast(updateSkin);
-					}
-
-					return;
-				}
+				if (CurrentModel == null) return;
 
 				try
 				{
-					if (signal.Tick == 1)
-					{
-						var geometry = signal.CurrentModel.CollapseToDerived(signal.CurrentModel.FindGeometry(signal.Skin.SkinGeometryName));
-						geometry.Subdivide(false, true, false, true);
-						signal.CurrentModel.Clear();
-						signal.CurrentModel.Add(geometry.Name, geometry);
-					}
-
-					int[] flashes = {50, 60, 100, 120, 135, 155, 170, 185, 209, 250, 300, 330, 380, 440};
-
-					if (flashes.Contains((int) signal.Tick + 1))
-					{
-						signal.Level.StrikeLightning(signal.Position);
-					}
-
-
-					if (flashes.Contains((int) signal.Tick) || flashes.Contains((int) signal.Tick - 4))
-					{
-						string fullName = signal.CurrentModel.Keys.First(m => m.StartsWith(signal.Skin.SkinGeometryName));
-						signal.CurrentModel[fullName].AnimationArmsOutFront = true;
-						string skinString = Skin.ToJson(signal.CurrentModel);
-
-						string newName = $"geometry.{DateTime.UtcNow.Ticks}.{signal.Uuid}";
-						skinString = skinString.Replace(fullName, newName);
-
-						Skin skin = signal.Skin;
-
-						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-						updateSkin.NoBatch = true;
-						updateSkin.uuid = signal.Uuid;
-						updateSkin.skinId = skin.SkinId;
-						updateSkin.skinData = skin.SkinData;
-						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = newName;
-						updateSkin.geometryData = skinString;
-						signal.Level.RelayBroadcast(updateSkin);
-					}
-
-					if (flashes.Contains((int) signal.Tick - 2) || flashes.Contains((int) signal.Tick - 6))
-					{
-						Skin skin = signal.Skin;
-
-						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-						updateSkin.NoBatch = true;
-						updateSkin.uuid = signal.Uuid;
-						updateSkin.skinId = skin.SkinId;
-						updateSkin.skinData = skin.SkinData;
-						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = skin.SkinGeometryName;
-						updateSkin.geometryData = skin.SkinGeometry;
-						signal.Level.RelayBroadcast(updateSkin);
-					}
-				}
-				catch (Exception e)
-				{
-					Log.Error(e);
-				}
-			}
-			finally
-			{
-				Monitor.Exit(state);
-			}
-		}
-
-
-		private void MeltTick(object state)
-		{
-			if (!Monitor.TryEnter(state)) return;
-
-			try
-			{
-				StateObject signal = state as StateObject;
-
-				if (signal == null) return;
-				if (signal.Timer == null) return;
-				if (signal.CurrentModel == null) return;
-
-				try
-				{
-					if (signal.Tick++ == 0)
-					{
-						var geometry = signal.CurrentModel.CollapseToDerived(signal.CurrentModel.FindGeometry(signal.Skin.SkinGeometryName));
-						geometry.Subdivide(true, true);
-
-						signal.CurrentModel.Clear();
-						signal.CurrentModel.Add(geometry.Name, geometry);
-					}
-
 					bool stillMoving = false;
-					foreach (var geometry in signal.CurrentModel.Values)
+					foreach (var geometry in CurrentModel.Values)
 					{
 						foreach (var bone in geometry.Bones)
 						{
@@ -305,56 +178,157 @@ namespace TestPlugin.Code4Fun
 
 					if (!stillMoving)
 					{
-						signal.Tick = 0;
-						signal.Timer.Dispose();
-						signal.Timer = null;
+						Log.Warn("Done. De-register tick.");
+						mob.Ticking -= FakeMeltTicking;
 
 						// Reset?
-						if (signal.ResetOnEnd)
+						if (ResetOnEnd)
 						{
-							Skin skin = signal.Skin;
+							Skin skin = mob.Skin;
 
 							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 							updateSkin.NoBatch = true;
-							updateSkin.uuid = signal.Uuid;
+							updateSkin.uuid = mob.Uuid;
 							updateSkin.skinId = skin.SkinId;
 							updateSkin.skinData = skin.SkinData;
 							updateSkin.capeData = skin.CapeData;
 							updateSkin.geometryModel = skin.SkinGeometryName;
 							updateSkin.geometryData = skin.SkinGeometry;
-							signal.Level.RelayBroadcast(updateSkin);
+							mob.Level.RelayBroadcast(updateSkin);
 						}
 					}
 					else
 					{
-						string fullName = signal.CurrentModel.Keys.First(m => m.StartsWith(signal.Skin.SkinGeometryName));
-						string skinString = Skin.ToJson(signal.CurrentModel);
+						Skin skin = mob.Skin;
+						var geometry = CurrentModel.FindGeometry(skin.SkinGeometryName);
+						geometry.Name = $"geometry.{DateTime.UtcNow.Ticks}.{mob.Uuid}";
 
-						string newName = $"geometry.{DateTime.UtcNow.Ticks}.{signal.Uuid}";
-						skinString = skinString.Replace(fullName, newName);
+						CurrentModel.Clear();
+						CurrentModel.Add(geometry.Name, geometry);
 
-						Skin skin = signal.Skin;
+						skin.SkinGeometryName = geometry.Name;
 
 						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 						updateSkin.NoBatch = true;
-						updateSkin.uuid = signal.Uuid;
+						updateSkin.uuid = mob.Uuid;
 						updateSkin.skinId = skin.SkinId;
 						updateSkin.skinData = skin.SkinData;
 						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = newName;
-						updateSkin.geometryData = skinString;
-						signal.Level.RelayBroadcast(updateSkin);
+						updateSkin.geometryModel = skin.SkinGeometryName;
+						updateSkin.geometryData = Skin.ToJson(CurrentModel);
+						mob.Level.RelayBroadcast(updateSkin);
 					}
 				}
 				catch (Exception e)
 				{
+					mob.Ticking -= FakeMeltTicking;
 					Log.Error(e);
 				}
 			}
-			finally
-			{
-				Monitor.Exit(state);
-			}
 		}
+
+		//private void StrikeTick(object state)
+		//{
+		//	if (!Monitor.TryEnter(state)) return;
+
+		//	try
+		//	{
+		//		GravityGeometryBehavior signal = state as GravityGeometryBehavior;
+
+		//		if (signal == null) return;
+		//		if (signal.Timer == null) return;
+		//		if (signal.CurrentModel == null) return;
+
+		//		if (signal.Tick++ >= signal.MaxDuration)
+		//		{
+		//			Log.Warn($"Reached end of animation: {signal.Tick}");
+		//			signal.Tick = 0;
+		//			signal.Timer.Dispose();
+		//			signal.Timer = null;
+
+		//			// Reset?
+		//			if (signal.ResetOnEnd)
+		//			{
+		//				Skin skin = signal.Skin;
+
+		//				McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+		//				updateSkin.NoBatch = true;
+		//				updateSkin.uuid = signal.Uuid;
+		//				updateSkin.skinId = skin.SkinId;
+		//				updateSkin.skinData = skin.SkinData;
+		//				updateSkin.capeData = skin.CapeData;
+		//				updateSkin.geometryModel = skin.SkinGeometryName;
+		//				updateSkin.geometryData = skin.SkinGeometry;
+		//				signal.Level.RelayBroadcast(updateSkin);
+		//			}
+
+		//			return;
+		//		}
+
+		//		try
+		//		{
+		//			if (signal.Tick == 1)
+		//			{
+		//				var geometry = signal.CurrentModel.CollapseToDerived(signal.CurrentModel.FindGeometry(signal.Skin.SkinGeometryName));
+		//				geometry.Subdivide(false, true, false, true);
+		//				signal.CurrentModel.Clear();
+		//				signal.CurrentModel.Add(geometry.Name, geometry);
+		//			}
+
+		//			int[] flashes = {50, 60, 100, 120, 135, 155, 170, 185, 209, 250, 300, 330, 380, 440};
+
+		//			if (flashes.Contains((int) signal.Tick + 1))
+		//			{
+		//				signal.Level.StrikeLightning(signal.Position);
+		//			}
+
+
+		//			if (flashes.Contains((int) signal.Tick) || flashes.Contains((int) signal.Tick - 4))
+		//			{
+		//				string fullName = signal.CurrentModel.Keys.First(m => m.StartsWith(signal.Skin.SkinGeometryName));
+		//				signal.CurrentModel[fullName].AnimationArmsOutFront = true;
+		//				string skinString = Skin.ToJson(signal.CurrentModel);
+
+		//				string newName = $"geometry.{DateTime.UtcNow.Ticks}.{signal.Uuid}";
+		//				skinString = skinString.Replace(fullName, newName);
+
+		//				Skin skin = signal.Skin;
+
+		//				McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+		//				updateSkin.NoBatch = true;
+		//				updateSkin.uuid = signal.Uuid;
+		//				updateSkin.skinId = skin.SkinId;
+		//				updateSkin.skinData = skin.SkinData;
+		//				updateSkin.capeData = skin.CapeData;
+		//				updateSkin.geometryModel = newName;
+		//				updateSkin.geometryData = skinString;
+		//				signal.Level.RelayBroadcast(updateSkin);
+		//			}
+
+		//			if (flashes.Contains((int) signal.Tick - 2) || flashes.Contains((int) signal.Tick - 6))
+		//			{
+		//				Skin skin = signal.Skin;
+
+		//				McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+		//				updateSkin.NoBatch = true;
+		//				updateSkin.uuid = signal.Uuid;
+		//				updateSkin.skinId = skin.SkinId;
+		//				updateSkin.skinData = skin.SkinData;
+		//				updateSkin.capeData = skin.CapeData;
+		//				updateSkin.geometryModel = skin.SkinGeometryName;
+		//				updateSkin.geometryData = skin.SkinGeometry;
+		//				signal.Level.RelayBroadcast(updateSkin);
+		//			}
+		//		}
+		//		catch (Exception e)
+		//		{
+		//			Log.Error(e);
+		//		}
+		//	}
+		//	finally
+		//	{
+		//		Monitor.Exit(state);
+		//	}
+		//}
 	}
 }

@@ -178,8 +178,27 @@ namespace MiNET.Entities
 
 		public override void OnTick()
 		{
+			OnTicking(new PlayerEventArgs(null));
+
 			// Do nothing of the mob stuff
+
+			OnTicked(new PlayerEventArgs(null));
 		}
+
+		public event EventHandler<PlayerEventArgs> Ticking;
+
+		protected virtual void OnTicking(PlayerEventArgs e)
+		{
+			Ticking?.Invoke(this, e);
+		}
+
+		public event EventHandler<PlayerEventArgs> Ticked;
+
+		protected virtual void OnTicked(PlayerEventArgs e)
+		{
+			Ticked?.Invoke(this, e);
+		}
+
 
 		protected virtual void SendEquipment()
 		{

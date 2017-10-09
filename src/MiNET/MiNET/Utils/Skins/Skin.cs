@@ -116,9 +116,9 @@ namespace MiNET.Utils.Skins
 			settings.NullValueHandling = NullValueHandling.Ignore;
 			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
 			settings.MissingMemberHandling = MissingMemberHandling.Error;
-			settings.Formatting = Formatting.Indented;
+			//settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-			settings.Converters.Add(new StringEnumConverter() {CamelCaseText = true});
+			settings.Converters.Add(new StringEnumConverter {CamelCaseText = true});
 
 			return JsonConvert.SerializeObject(geometryModel, settings);
 		}

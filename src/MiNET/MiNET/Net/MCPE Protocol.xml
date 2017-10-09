@@ -856,7 +856,7 @@
 		<field name="Skin Data" type="ByteArray" />
 		<field name="Cape Data" type="ByteArray" />
 		<field name="Geometry Model" type="string" />
-		<field name="Geometry Data" type="ByteArray" />
+		<field name="Geometry Data" type="string" />
 	</pdu>
 
 	<pdu id="0x5e" online="false" client="false" server="true" name="MCPE_SUB_CLIENT_LOGIN">

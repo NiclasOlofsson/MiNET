@@ -33,7 +33,6 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
-using System.Web.Compilation;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
@@ -45,6 +44,7 @@ using MiNET.Net;
 using MiNET.Particles;
 using MiNET.UI;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using MiNET.Worlds;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -2146,13 +2146,13 @@ namespace MiNET
 			List<Item> shapelessInput = new List<Item>();
 			foreach (var item in craftingInput)
 			{
-				if(item == null) continue;
+				if (item == null) continue;
 				shapelessInput.Add(item);
 			}
 
 			Log.Debug($"Looking for matching recipes with the result {result}");
-			var recipes = RecipeManager.Recipes.Where(r => r is ShapedRecipe).Where(r => ((ShapedRecipe) r).Result.Id == result.Id && ((ShapedRecipe)r).Result.Metadata == result.Metadata).ToList();
-			recipes.AddRange(RecipeManager.Recipes.Where(r => r is ShapelessRecipe).Where(r => ((ShapelessRecipe) r).Result.Id == result.Id && ((ShapelessRecipe)r).Result.Metadata == result.Metadata).ToList());
+			var recipes = RecipeManager.Recipes.Where(r => r is ShapedRecipe).Where(r => ((ShapedRecipe) r).Result.Id == result.Id && ((ShapedRecipe) r).Result.Metadata == result.Metadata).ToList();
+			recipes.AddRange(RecipeManager.Recipes.Where(r => r is ShapelessRecipe).Where(r => ((ShapelessRecipe) r).Result.Id == result.Id && ((ShapelessRecipe) r).Result.Metadata == result.Metadata).ToList());
 			Log.Debug($"Found {recipes.Count} matching recipes with the result {result}");
 			foreach (var r in recipes)
 			{
@@ -2201,7 +2201,7 @@ namespace MiNET
 				}
 				else
 				{
-					var recipe = (ShapelessRecipe)r;
+					var recipe = (ShapelessRecipe) r;
 					var match = (recipe.Input.Count == shapelessInput.Count);
 					Log.Debug($"ShapelessRecipe Count match={match}");
 					match = match && !shapelessInput.Except(recipe.Input, new ItemCompare()).Any();

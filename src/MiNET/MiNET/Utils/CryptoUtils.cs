@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -34,7 +34,7 @@ using System.Text;
 using System.Threading;
 using Jose;
 using log4net;
-using MiNET.Net;
+using MiNET.Utils.Skins;
 
 namespace MiNET.Utils
 {
@@ -203,7 +203,7 @@ namespace MiNET.Utils
 				ExtraData = new ExtraData
 				{
 					DisplayName = username,
-					Identity = isEmulator? Guid.NewGuid().ToString():"85e4febd-3d33-4008-b044-1ad9fb85b26c",
+					Identity = isEmulator ? Guid.NewGuid().ToString() : "85e4febd-3d33-4008-b044-1ad9fb85b26c",
 				},
 				Iss = "self",
 				IdentityPublicKey = b64Key,

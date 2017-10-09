@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -29,12 +29,12 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Xsl;
 using fNbt;
 using Jose;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using Newtonsoft.Json.Linq;
 
 namespace MiNET
@@ -166,11 +166,11 @@ namespace MiNET
 
 						_playerInfo.Skin = new Skin()
 						{
-							CapeData = Convert.FromBase64String((string)payload.CapeData),
+							CapeData = Convert.FromBase64String((string) payload.CapeData),
 							SkinId = payload.SkinId,
 							SkinData = Convert.FromBase64String((string) payload.SkinData),
 							SkinGeometryName = payload.SkinGeometryName,
-							SkinGeometry = Convert.FromBase64String((string)payload.SkinGeometry),
+							SkinGeometry = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry)),
 						};
 						Log.Warn($"Cape data lenght={_playerInfo.Skin.CapeData.Length}");
 					}

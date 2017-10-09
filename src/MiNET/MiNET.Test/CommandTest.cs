@@ -30,10 +30,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
+using MiNET.Utils.Skins;
 using MiNET.Worlds;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -50,11 +50,14 @@ namespace MiNET
 		[Test]
 		public void GeometryParserTest()
 		{
-			var geometryModel = Skin.ParseGeometry(TestContext.CurrentContext.TestDirectory + "\\geometry.json");
+			var geometryModel = Skin.ParseGeometry(Path.Combine(TestContext.CurrentContext.TestDirectory, "geometry.json"));
+
 			Assert.NotNull(geometryModel);
 
 			Assert.NotNull(geometryModel.First().Value.Bones);
-			Assert.AreEqual("head", geometryModel.First().Value.Bones[2].Name);
+			Assert.AreEqual(BoneName.Head, geometryModel.First().Value.Bones[2].Name);
+
+			Console.WriteLine(Skin.ToJson(geometryModel));
 		}
 
 		[Test, Ignore("")]

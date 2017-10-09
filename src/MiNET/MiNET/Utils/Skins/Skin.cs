@@ -23,15 +23,14 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Numerics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
-namespace MiNET.Net
+namespace MiNET.Utils.Skins
 {
 	public class Skin
 	{
@@ -42,8 +41,7 @@ namespace MiNET.Net
 		public string SkinId { get; set; }
 		public byte[] SkinData { get; set; }
 		public string SkinGeometryName { get; set; }
-		public byte[] SkinGeometry { get; set; }
-
+		public string SkinGeometry { get; set; }
 
 		public static byte[] GetTextureFromFile(string filename)
 		{
@@ -120,73 +118,9 @@ namespace MiNET.Net
 			settings.MissingMemberHandling = MissingMemberHandling.Error;
 			settings.Formatting = Formatting.Indented;
 			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			settings.Converters.Add(new StringEnumConverter() {CamelCaseText = true});
 
 			return JsonConvert.SerializeObject(geometryModel, settings);
 		}
-	}
-
-	public class GeometryModel : Dictionary<string, Geometry>
-	{
-	}
-
-	public class Geometry
-	{
-		public List<Bone> Bones { get; set; }
-
-		[JsonProperty(PropertyName = "META_BoneType")]
-		public string BoneType { get; set; }
-
-		[JsonProperty(PropertyName = "META_ModelVersion")]
-		public string ModelVersion { get; set; }
-
-		[JsonProperty(PropertyName = "rigtype")]
-		public string RigType { get; set; }
-
-		[JsonProperty(PropertyName = "texturewidth")]
-		public int TextureWidth { get; set; }
-
-		[JsonProperty(PropertyName = "textureheight")]
-		public int TextureHeight { get; set; }
-
-		public bool AnimationArmsDown { get; set; }
-		public bool AnimationArmsOutFront { get; set; }
-		public bool AnimationStatueOfLibertyArms { get; set; }
-		public bool AnimationSingleArmAnimation { get; set; }
-		public bool AnimationStationaryLegs { get; set; }
-		public bool AnimationSingleLegAnimation { get; set; }
-		public bool AnimationNoHeadBob { get; set; }
-		public bool AnimationDontShowArmor { get; set; }
-		public bool AnimationUpsideDown { get; set; }
-		public bool AnimationInvertedCrouch { get; set; }
-	}
-
-	public class Bone
-	{
-		public string Name { get; set; }
-
-		[JsonProperty(PropertyName = "META_BoneType")]
-		public string BoneType { get; set; }
-		public string Material { get; set; }
-
-		public string Parent { get; set; }
-		public float[] Pivot { get; set; } = new float[3];
-		public float[] Pos { get; set; } = new float[3];
-		public float[] Rotation { get; set; } = new float[3];
-		public List<Cube> Cubes { get; set; }
-		public bool NeverRender { get; set; }
-		public bool Reset { get; set; }
-		public bool Mirror { get; set; }
-	}
-
-	public class Cube
-	{
-		public float[] Origin { get; set; } = new float[3];
-		public float[] Size { get; set; } = new float[3];
-		public float[] Uv { get; set; } = new float[3];
-		public float Inflate { get; set; }
-		public bool Mirror { get; set; }
-
-		[JsonIgnore]
-		public Vector3 Velocity { get; set; } = Vector3.Zero;
 	}
 }

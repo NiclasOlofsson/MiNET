@@ -1880,7 +1880,7 @@ Wiki: [Player Skin](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Playe
 |Skin Data | ByteArray |  |
 |Cape Data | ByteArray |  |
 |Geometry Model | string |  |
-|Geometry Data | ByteArray |  |
+|Geometry Data | string |  |
 -----------------------------------------------------------------------
 ### Sub Client Login (0x5e)
 Wiki: [Sub Client Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SubClientLogin)

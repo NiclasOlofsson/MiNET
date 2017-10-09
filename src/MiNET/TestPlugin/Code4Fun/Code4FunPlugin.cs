@@ -24,12 +24,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using log4net;
 using MiNET;
@@ -38,6 +36,7 @@ using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using MiNET.Worlds;
 
 namespace TestPlugin.Code4Fun
@@ -47,9 +46,10 @@ namespace TestPlugin.Code4Fun
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Code4FunPlugin));
 
-		public const float Gravity = 0.01f;
+		public const float Gravity = 0.08f;
 		public const float Drag = 0.02f;
 		public const double CubeFilterFactor = 1.3;
+		public const float ZTearFactor = 0.01f;
 		public static int FakeIndex = 0;
 
 		[Command]
@@ -61,13 +61,13 @@ namespace TestPlugin.Code4Fun
 			if (skin.SkinGeometry == null || skin.SkinGeometry.Length == 0)
 			{
 				string skinString = File.ReadAllText(Path.Combine(pluginDirectory, "geometry.json"));
-				skin.SkinGeometry = Encoding.UTF8.GetBytes(skinString);
+				skin.SkinGeometry = skinString;
 			}
 			else
 			{
 				string fileName = $"{Path.GetTempPath()}Skin_{player.Username}_{skin.SkinGeometryName}.txt";
 				Log.Info($"Writing geometry to filename: {fileName}");
-				File.WriteAllBytes(fileName, skin.SkinGeometry);
+				File.WriteAllText(fileName, skin.SkinGeometry);
 			}
 
 			StateObject state = new StateObject
@@ -75,7 +75,7 @@ namespace TestPlugin.Code4Fun
 				Uuid = player.ClientUuid,
 				Level = player.Level,
 				Skin = player.Skin,
-				CurrentModel = Skin.Parse(Encoding.UTF8.GetString(skin.SkinGeometry)),
+				CurrentModel = Skin.Parse(skin.SkinGeometry),
 				Position = player.KnownPosition,
 				ResetOnEnd = true
 			};
@@ -97,7 +97,6 @@ namespace TestPlugin.Code4Fun
 			var random = new Random();
 			string newName = $"geometry.{DateTime.UtcNow.Ticks}.{random.NextDouble()}";
 			skinString = skinString.Replace("geometry.humanoid", newName);
-			byte[] skinGeometry = Encoding.UTF8.GetBytes(skinString);
 			GeometryModel geometryModel = Skin.Parse(skinString);
 
 			var coordinates = player.KnownPosition;
@@ -112,9 +111,9 @@ namespace TestPlugin.Code4Fun
 					SkinData = bytes,
 					CapeData = new byte[0],
 					SkinGeometryName = newName,
-					SkinGeometry = skinGeometry
+					SkinGeometry = skinString
 				},
-				KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw + 180f, coordinates.Yaw + 180f),
+				KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw + 180f, coordinates.Yaw + 180f)
 			};
 
 			fake.SpawnEntity();
@@ -125,12 +124,10 @@ namespace TestPlugin.Code4Fun
 				Level = fake.Level,
 				Skin = fake.Skin,
 				CurrentModel = geometryModel,
-				//StartDelay = 10,
-				//MaxDuration = 1000,
 				Position = fake.KnownPosition
 			};
 
-			var geometryTimer = new Timer(MeltTick, state, 0, 100);
+			var geometryTimer = new Timer(MeltTick, state, 1000, 50);
 			//var geometryTimer = new Timer(StrikeTick, state, 0, 100);
 			state.Timer = geometryTimer;
 		}
@@ -144,7 +141,6 @@ namespace TestPlugin.Code4Fun
 			public GeometryModel CurrentModel { get; set; }
 			public long MaxDuration { get; set; } = 140;
 			public long Tick { get; set; }
-			public long StartDelay { get; set; } = 40;
 			public PlayerLocation Position { get; set; }
 			public bool ResetOnEnd { get; set; }
 		}
@@ -191,34 +187,10 @@ namespace TestPlugin.Code4Fun
 				{
 					if (signal.Tick == 1)
 					{
-						string fullName = signal.CurrentModel.Keys.First(m => m.StartsWith(signal.Skin.SkinGeometryName));
-						var geometry = signal.CurrentModel[fullName];
-
-						if (fullName.Contains(":"))
-						{
-							Log.Warn($"Inheritance detected for {fullName}");
-
-							var baseGeometry = signal.CurrentModel[fullName.Split(':')[1]];
-							signal.CurrentModel.Remove(fullName.Split(':')[1]);
-							foreach (var bone in baseGeometry.Bones)
-							{
-								if (geometry.Bones.SingleOrDefault(b => b.Name == bone.Name) == null)
-								{
-									geometry.Bones.Add(bone);
-								}
-							}
-						}
-						else
-						{
-							Log.Warn($"NO Inheritance detected for {fullName}");
-						}
-
-						Subdivide(geometry, false, true, false, true);
-
+						var geometry = signal.CurrentModel.CollapseToDerived(signal.CurrentModel.FindGeometry(signal.Skin.SkinGeometryName));
+						geometry.Subdivide(false, true, false, true);
 						signal.CurrentModel.Clear();
-						signal.CurrentModel.Add(fullName, geometry);
-
-						return;
+						signal.CurrentModel.Add(geometry.Name, geometry);
 					}
 
 					int[] flashes = {50, 60, 100, 120, 135, 155, 170, 185, 209, 250, 300, 330, 380, 440};
@@ -237,7 +209,6 @@ namespace TestPlugin.Code4Fun
 
 						string newName = $"geometry.{DateTime.UtcNow.Ticks}.{signal.Uuid}";
 						skinString = skinString.Replace(fullName, newName);
-						byte[] skinGeometry = Encoding.UTF8.GetBytes(skinString);
 
 						Skin skin = signal.Skin;
 
@@ -248,7 +219,7 @@ namespace TestPlugin.Code4Fun
 						updateSkin.skinData = skin.SkinData;
 						updateSkin.capeData = skin.CapeData;
 						updateSkin.geometryModel = newName;
-						updateSkin.geometryData = skinGeometry;
+						updateSkin.geometryData = skinString;
 						signal.Level.RelayBroadcast(updateSkin);
 					}
 
@@ -291,87 +262,15 @@ namespace TestPlugin.Code4Fun
 				if (signal.Timer == null) return;
 				if (signal.CurrentModel == null) return;
 
-				if (signal.Tick++ > signal.MaxDuration + signal.StartDelay)
-				{
-					Log.Warn($"Reached end of animation: {signal.Tick}");
-					signal.Tick = 0;
-					signal.Timer.Dispose();
-					signal.Timer = null;
-
-					// Reset?
-					if (signal.ResetOnEnd)
-					{
-						Skin skin = signal.Skin;
-
-						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-						updateSkin.NoBatch = true;
-						updateSkin.uuid = signal.Uuid;
-						updateSkin.skinId = skin.SkinId;
-						updateSkin.skinData = skin.SkinData;
-						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = skin.SkinGeometryName;
-						updateSkin.geometryData = skin.SkinGeometry;
-						signal.Level.RelayBroadcast(updateSkin);
-					}
-
-					return;
-				}
-
 				try
 				{
-					if (signal.Tick == 1)
+					if (signal.Tick++ == 0)
 					{
-						string fullName = signal.CurrentModel.Keys.First(m => m.StartsWith(signal.Skin.SkinGeometryName));
-						var geometry = signal.CurrentModel[fullName];
-
-						if (fullName.Contains(":"))
-						{
-							Log.Warn($"Inheritance detected for {fullName}");
-
-							var baseGeometry = signal.CurrentModel[fullName.Split(':')[1]];
-							signal.CurrentModel.Remove(fullName.Split(':')[1]);
-							foreach (var bone in baseGeometry.Bones)
-							{
-								if (geometry.Bones.SingleOrDefault(b => b.Name == bone.Name) == null)
-								{
-									geometry.Bones.Add(bone);
-								}
-							}
-						}
-						else
-						{
-							Log.Warn($"NO Inheritance detected for {fullName}");
-						}
-
-						Subdivide(geometry, false, true);
+						var geometry = signal.CurrentModel.CollapseToDerived(signal.CurrentModel.FindGeometry(signal.Skin.SkinGeometryName));
+						geometry.Subdivide(true, true);
 
 						signal.CurrentModel.Clear();
-						signal.CurrentModel.Add(fullName, geometry);
-
-						string skinString = Skin.ToJson(signal.CurrentModel);
-
-						string newName = $"geometry.{DateTime.UtcNow.Ticks}.{signal.Uuid}";
-						skinString = skinString.Replace(fullName, newName);
-						byte[] skinGeometry = Encoding.UTF8.GetBytes(skinString);
-
-						Skin skin = signal.Skin;
-
-						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-						updateSkin.NoBatch = true;
-						updateSkin.uuid = signal.Uuid;
-						updateSkin.skinId = skin.SkinId;
-						updateSkin.skinData = skin.SkinData;
-						updateSkin.capeData = skin.CapeData;
-						updateSkin.geometryModel = newName;
-						updateSkin.geometryData = skinGeometry;
-						signal.Level.RelayBroadcast(updateSkin);
-
-						return;
-					}
-
-					if (signal.Tick < signal.StartDelay)
-					{
-						return;
+						signal.CurrentModel.Add(geometry.Name, geometry);
 					}
 
 					bool stillMoving = false;
@@ -384,7 +283,12 @@ namespace TestPlugin.Code4Fun
 
 							foreach (var cube in bone.Cubes)
 							{
-								if (cube.Velocity == Vector3.Zero) continue;
+								if (cube.Origin[1] <= 0.05f)
+								{
+									cube.Origin[1] = 0f;
+									cube.Velocity = Vector3.Zero;
+									continue;
+								}
 
 								stillMoving = true;
 
@@ -393,23 +297,41 @@ namespace TestPlugin.Code4Fun
 								float z = cube.Origin[2];
 
 								cube.Origin = new[] {x + cube.Velocity.X, Math.Max(0f, y + cube.Velocity.Y), z + cube.Velocity.Z};
-								cube.Velocity -= new Vector3(0, (float) Gravity, 0);
-								float drag = (float) (1 - Drag);
-								cube.Velocity *= drag;
-								if (cube.Origin[1] <= 0.05f) cube.Velocity = Vector3.Zero;
+								cube.Velocity -= new Vector3(0, Gravity, 0);
+								cube.Velocity *= 1 - Drag;
 							}
 						}
 					}
 
-					if (!stillMoving) signal.Tick = 10000;
+					if (!stillMoving)
+					{
+						signal.Tick = 0;
+						signal.Timer.Dispose();
+						signal.Timer = null;
 
+						// Reset?
+						if (signal.ResetOnEnd)
+						{
+							Skin skin = signal.Skin;
+
+							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+							updateSkin.NoBatch = true;
+							updateSkin.uuid = signal.Uuid;
+							updateSkin.skinId = skin.SkinId;
+							updateSkin.skinData = skin.SkinData;
+							updateSkin.capeData = skin.CapeData;
+							updateSkin.geometryModel = skin.SkinGeometryName;
+							updateSkin.geometryData = skin.SkinGeometry;
+							signal.Level.RelayBroadcast(updateSkin);
+						}
+					}
+					else
 					{
 						string fullName = signal.CurrentModel.Keys.First(m => m.StartsWith(signal.Skin.SkinGeometryName));
 						string skinString = Skin.ToJson(signal.CurrentModel);
 
 						string newName = $"geometry.{DateTime.UtcNow.Ticks}.{signal.Uuid}";
 						skinString = skinString.Replace(fullName, newName);
-						byte[] skinGeometry = Encoding.UTF8.GetBytes(skinString);
 
 						Skin skin = signal.Skin;
 
@@ -420,8 +342,8 @@ namespace TestPlugin.Code4Fun
 						updateSkin.skinData = skin.SkinData;
 						updateSkin.capeData = skin.CapeData;
 						updateSkin.geometryModel = newName;
-						updateSkin.geometryData = skinGeometry;
-						//signal.Level.RelayBroadcast(updateSkin);
+						updateSkin.geometryData = skinString;
+						signal.Level.RelayBroadcast(updateSkin);
 					}
 				}
 				catch (Exception e)
@@ -432,348 +354,6 @@ namespace TestPlugin.Code4Fun
 			finally
 			{
 				Monitor.Exit(state);
-			}
-		}
-
-		private void Subdivide(Geometry geometry, bool packInBody = true, bool keepHead = true, bool renderSkin = true, bool renderSkeleton = false)
-		{
-			List<Cube> newCubes = new List<Cube>();
-			var random = new Random();
-
-			foreach (var bone in geometry.Bones)
-			{
-				if (bone.NeverRender) continue;
-				if (bone.Cubes == null || bone.Cubes.Count == 0) continue;
-
-				Log.Warn($"Splitting cubes for {bone.Name}");
-
-				var cubes = bone.Cubes.ToArray();
-				bone.Cubes.Clear();
-				foreach (var cube in cubes)
-				{
-					int width = (int) cube.Size[0];
-					int height = (int) cube.Size[1];
-					int depth = (int) cube.Size[2];
-
-					float u = cube.Uv[0];
-					float v = cube.Uv[1];
-
-					//inside
-					if (renderSkeleton)
-					{
-						for (int w = 0; w < width; w++)
-						{
-							for (int d = 0; d < depth; d++)
-							{
-								for (int h = 0; h < height; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										Cube c = new Cube();
-										var cubeOrigin = cube.Origin;
-										c.Size = new[] {1f, 1f, 1f};
-										c.Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h, cubeOrigin[2] + d};
-										c.Uv = new float[] {20, 4};
-										c.Velocity = Vector3.Zero;
-										{
-											bool isHead = bone.Name == "head";
-											if (packInBody)
-											{
-												if (keepHead && isHead)
-													bone.Cubes.Add(c);
-												else
-													newCubes.Add(c);
-											}
-											else
-											{
-												bone.Cubes.Add(c);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-
-					if (renderSkin)
-					{
-						//front
-						for (int w = 0; w < width; w++)
-						{
-							float uvx = u + depth - 1;
-							if (bone.Mirror)
-								uvx = u + depth + width - 2;
-							for (int d = 0; d < 1; d++)
-							{
-								float uvy = v + depth + height - 2;
-								for (int h = 0; h < height; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										uvy--;
-										continue;
-									}
-
-									Cube c = new Cube();
-									var cubeOrigin = cube.Origin;
-									c.Size = new[] {1f, 1f, 1f};
-									c.Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h, cubeOrigin[2] + d - 0.01f};
-									c.Uv = bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--};
-
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
-									c.Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0);
-									bool isHead = bone.Name == "head";
-									if (isHead || random.NextDouble() < CubeFilterFactor)
-									{
-										if (packInBody)
-										{
-											if (keepHead && isHead)
-											{
-												c.Velocity = Vector3.Zero;
-												bone.Cubes.Add(c);
-											}
-											else
-												newCubes.Add(c);
-										}
-										else
-										{
-											bone.Cubes.Add(c);
-										}
-									}
-								}
-							}
-						}
-
-						//back
-						for (int w = 0; w < width; w++)
-						{
-							float uvx = u + depth + width + depth - 3;
-							if (!bone.Mirror)
-								uvx = u + depth + width + depth + width - 4;
-							for (int d = depth - 1; d < depth; d++)
-							{
-								float uvy = v + depth + height - 2;
-								for (int h = 0; h < height; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										uvy--;
-										continue;
-									}
-
-									Cube c = new Cube();
-									var cubeOrigin = cube.Origin;
-									c.Size = new[] {1f, 1f, 1f};
-									c.Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h, cubeOrigin[2] + d + 0.01f};
-									c.Uv = !bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
-									c.Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0);
-									if (random.NextDouble() < CubeFilterFactor)
-									{
-										bool isHead = bone.Name == "head";
-										if (packInBody)
-										{
-											if (keepHead && isHead)
-												bone.Cubes.Add(c);
-											else
-												newCubes.Add(c);
-										}
-										else
-										{
-											bone.Cubes.Add(c);
-										}
-									}
-								}
-							}
-						}
-						// top
-						for (int w = 0; w < width; w++)
-						{
-							float uvx = u + depth - 1;
-							if (!bone.Mirror)
-								uvx = u + depth + width - 2;
-							float uvy = v + depth - 1;
-							for (int d = 0; d < depth; d++)
-							{
-								for (int h = height - 1; h < height; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										uvy--;
-										continue;
-									}
-
-									Cube c = new Cube();
-									var cubeOrigin = cube.Origin;
-									c.Size = new[] {1f, 1f, 1f};
-									c.Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h + 0.01f, cubeOrigin[2] + d};
-									c.Uv = !bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
-									c.Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0);
-									if (random.NextDouble() < CubeFilterFactor)
-									{
-										bool isHead = bone.Name == "head";
-										if (packInBody)
-										{
-											if (keepHead && isHead)
-												bone.Cubes.Add(c);
-											else
-												newCubes.Add(c);
-										}
-										else
-										{
-											bone.Cubes.Add(c);
-										}
-									}
-								}
-							}
-						}
-						// bottom
-						for (int w = 0; w < width; w++)
-						{
-							float uvx = u + depth + width - 2;
-							float uvy = v + depth - 1;
-							for (int d = 0; d < depth; d++)
-							{
-								for (int h = 0; h < 1; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										uvy--;
-										continue;
-									}
-
-									Cube c = new Cube();
-									var cubeOrigin = cube.Origin;
-									c.Size = new[] {1f, 1f, 1f};
-									c.Origin = new[] {cubeOrigin[0] + w, cubeOrigin[1] + h - 0.01f, cubeOrigin[2] + d};
-									c.Uv = new[] {uvx + w, uvy--};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
-									c.Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0);
-									if (random.NextDouble() < CubeFilterFactor)
-									{
-										bool isHead = bone.Name == "head";
-										if (packInBody)
-										{
-											if (keepHead && isHead)
-												bone.Cubes.Add(c);
-											else
-												newCubes.Add(c);
-										}
-										else
-										{
-											bone.Cubes.Add(c);
-										}
-									}
-								}
-							}
-						}
-						// Right
-						for (int w = 0; w < 1; w++)
-						{
-							float uvx = u;
-							if (!bone.Mirror)
-								uvx = u + depth - 1;
-							for (int d = 0; d < depth; d++)
-							{
-								float uvy = v + depth + height - 2;
-								for (int h = 0; h < height; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										uvy--;
-										continue;
-									}
-
-									Cube c = new Cube();
-									c.Mirror = bone.Mirror;
-									var cubeOrigin = cube.Origin;
-									c.Size = new[] {1f, 1f, 1f};
-									c.Origin = new[] {cubeOrigin[0] + w - 0.01f, cubeOrigin[1] + h, cubeOrigin[2] + d};
-									c.Uv = !bone.Mirror ? new[] {uvx - d, uvy--} : new[] {uvx + d, uvy--};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
-									c.Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0);
-									if (random.NextDouble() < CubeFilterFactor)
-									{
-										bool isHead = bone.Name == "head";
-										if (packInBody)
-										{
-											if (keepHead && isHead)
-												bone.Cubes.Add(c);
-											else
-												newCubes.Add(c);
-										}
-										else
-										{
-											bone.Cubes.Add(c);
-										}
-									}
-								}
-							}
-						}
-						// Left
-						for (int w = width - 1; w < width; w++)
-						{
-							float uvx = u + depth + width - 2;
-							if (bone.Mirror)
-								uvx = u + depth - 1;
-							for (int d = 0; d < depth; d++)
-							{
-								float uvy = v + depth + height - 2;
-								for (int h = 0; h < height; h++)
-								{
-									if ((w > 0 && w < width - 1) && (d > 0 && d < depth - 1) && (h > 0 && h < height - 1))
-									{
-										uvy--;
-										continue;
-									}
-
-									Cube c = new Cube();
-									c.Mirror = bone.Mirror;
-									var cubeOrigin = cube.Origin;
-									c.Size = new[] {1f, 1f, 1f};
-									c.Origin = new[] {cubeOrigin[0] + w + 0.01f, cubeOrigin[1] + h, cubeOrigin[2] + d};
-									c.Uv = bone.Mirror ? new[] {uvx - d, uvy--} : new[] {uvx + d, uvy--};
-									//c.Velocity = new Vector3((float) ((random.NextDouble() - 0.5f)*1.8f), (float) (random.NextDouble()*h/10 + 1.8f), (float) ((random.NextDouble() - 0.5f)*1.8f));
-									c.Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0);
-									if (random.NextDouble() < CubeFilterFactor)
-									{
-										bool isHead = bone.Name == "head";
-										if (packInBody)
-										{
-											if (keepHead && isHead)
-												bone.Cubes.Add(c);
-											else
-												newCubes.Add(c);
-										}
-										else
-										{
-											bone.Cubes.Add(c);
-										}
-									}
-								}
-							}
-						}
-					}
-					// done bones
-				}
-			}
-
-			if (packInBody)
-			{
-				Bone newBone = new Bone();
-				newBone.Name = "body";
-				newBone.Pivot = new float[3];
-				newBone.Cubes = newCubes;
-				Bone head = geometry.Bones.SingleOrDefault(b => b.Name == "head");
-				geometry.Bones = new List<Bone>() {newBone};
-				if (keepHead && head != null)
-				{
-					geometry.Bones.Add(head);
-				}
-			}
-			else
-			{
 			}
 		}
 	}

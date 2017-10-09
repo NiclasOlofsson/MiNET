@@ -32,6 +32,7 @@ using System.Net;
 using System.Numerics;
 using System.Threading;
 using MiNET.Utils; 
+using MiNET.Utils.Skins;
 using MiNET.Items;
 using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
@@ -6717,7 +6718,7 @@ namespace MiNET.Net
 		public byte[] skinData; // = null;
 		public byte[] capeData; // = null;
 		public string geometryModel; // = null;
-		public byte[] geometryData; // = null;
+		public string geometryData; // = null;
 
 		public McpePlayerSkin()
 		{
@@ -6738,7 +6739,7 @@ namespace MiNET.Net
 			WriteByteArray(skinData);
 			WriteByteArray(capeData);
 			Write(geometryModel);
-			WriteByteArray(geometryData);
+			Write(geometryData);
 
 			AfterEncode();
 		}
@@ -6759,7 +6760,7 @@ namespace MiNET.Net
 			skinData = ReadByteArray();
 			capeData = ReadByteArray();
 			geometryModel = ReadString();
-			geometryData = ReadByteArray();
+			geometryData = ReadString();
 
 			AfterDecode();
 		}
@@ -6778,7 +6779,7 @@ namespace MiNET.Net
 			skinData=default(byte[]);
 			capeData=default(byte[]);
 			geometryModel=default(string);
-			geometryData=default(byte[]);
+			geometryData=default(string);
 		}
 
 	}

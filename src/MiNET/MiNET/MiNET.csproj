@@ -434,6 +434,10 @@
     <Compile Include="Entities\Projectiles\Snowball.cs" />
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
+    <Compile Include="Utils\Skins\Bone.cs" />
+    <Compile Include="Utils\Skins\Cube.cs" />
+    <Compile Include="Utils\Skins\Geometry.cs" />
+    <Compile Include="Utils\Skins\GeometryModel.cs" />
     <Compile Include="Net\McpeInteract.cs" />
     <Compile Include="UI\Button.cs" />
     <Compile Include="UI\CustomElement.cs" />
@@ -557,7 +561,7 @@
     <Compile Include="Net\SplitPartPackage.cs" />
     <Compile Include="Net\UUID.cs" />
     <Compile Include="Net\WiredAttribute.cs" />
-    <Compile Include="Net\Skin.cs" />
+    <Compile Include="Utils\Skins\Skin.cs" />
     <Compile Include="Particles\BubbleParticle.cs" />
     <Compile Include="Particles\CriticalParticle.cs" />
     <Compile Include="Particles\DestroyBlockParticle.cs" />

@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -36,6 +36,7 @@ using fNbt;
 using log4net;
 using MiNET.Net;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 
 namespace MiNET
 {
@@ -529,29 +530,29 @@ namespace MiNET
 				handler.HandleMcpeCraftingEvent((McpeCraftingEvent) message);
 			}
 
-			else if (typeof(McpeInventoryTransaction) == message.GetType())
+			else if (typeof (McpeInventoryTransaction) == message.GetType())
 			{
-				handler.HandleMcpeInventoryTransaction((McpeInventoryTransaction)message);
+				handler.HandleMcpeInventoryTransaction((McpeInventoryTransaction) message);
 			}
 
-			else if (typeof(McpeServerSettingsRequest) == message.GetType())
+			else if (typeof (McpeServerSettingsRequest) == message.GetType())
 			{
-				handler.HandleMcpeServerSettingsRequest((McpeServerSettingsRequest)message);
+				handler.HandleMcpeServerSettingsRequest((McpeServerSettingsRequest) message);
 			}
 
-			else if (typeof(McpeSetPlayerGameType) == message.GetType())
+			else if (typeof (McpeSetPlayerGameType) == message.GetType())
 			{
-				handler.HandleMcpeSetPlayerGameType((McpeSetPlayerGameType)message);
+				handler.HandleMcpeSetPlayerGameType((McpeSetPlayerGameType) message);
 			}
 
-			else if (typeof(McpePlayerHotbar) == message.GetType())
+			else if (typeof (McpePlayerHotbar) == message.GetType())
 			{
-				handler.HandleMcpePlayerHotbar((McpePlayerHotbar)message);
+				handler.HandleMcpePlayerHotbar((McpePlayerHotbar) message);
 			}
 
-			else if (typeof(McpeInventoryContent) == message.GetType())
+			else if (typeof (McpeInventoryContent) == message.GetType())
 			{
-				handler.HandleMcpeInventoryContent((McpeInventoryContent)message);
+				handler.HandleMcpeInventoryContent((McpeInventoryContent) message);
 			}
 
 			else if (typeof (McpeRequestChunkRadius) == message.GetType())
@@ -574,18 +575,18 @@ namespace MiNET
 				handler.HandleMcpePlayerInput((McpePlayerInput) message);
 			}
 
-			else if (typeof(McpeCommandRequest) == message.GetType())
+			else if (typeof (McpeCommandRequest) == message.GetType())
 			{
-				handler.HandleMcpeCommandRequest((McpeCommandRequest)message);
+				handler.HandleMcpeCommandRequest((McpeCommandRequest) message);
 			}
 
 			else if (typeof (McpeBlockPickRequest) == message.GetType())
 			{
 				handler.HandleMcpeBlockPickRequest((McpeBlockPickRequest) message);
 			}
-			else if (typeof(McpeModalFormResponse) == message.GetType())
+			else if (typeof (McpeModalFormResponse) == message.GetType())
 			{
-				handler.HandleMcpeModalFormResponse((McpeModalFormResponse)message);
+				handler.HandleMcpeModalFormResponse((McpeModalFormResponse) message);
 			}
 			else if (typeof (McpeCommandBlockUpdate) == message.GetType())
 			{

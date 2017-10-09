@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -37,6 +37,7 @@ using log4net;
 using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using Newtonsoft.Json;
 
 namespace MiNET.Net
@@ -1283,7 +1284,7 @@ namespace MiNET.Net
 			WriteByteArray(skin.SkinData);
 			WriteByteArray(skin.CapeData);
 			Write(skin.SkinGeometryName);
-			WriteByteArray(skin.SkinGeometry);
+			Write(skin.SkinGeometry);
 			Write(xuid);
 		}
 
@@ -1303,7 +1304,7 @@ namespace MiNET.Net
 			skin.SkinGeometryName = ReadString();
 			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
 
-			skin.SkinGeometry = ReadByteArray(false);
+			skin.SkinGeometry = ReadString();
 			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
 
 			Log.Debug("XUID=" + ReadString());

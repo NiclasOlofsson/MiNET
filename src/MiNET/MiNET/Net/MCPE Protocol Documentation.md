@@ -429,8 +429,8 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Speed Y | float |  |
 |Speed Z | float |  |
 |Pitch | float |  |
-|Head Yaw | float |  |
 |Yaw | float |  |
+|Head Yaw | float |  |
 |Item | Item |  |
 |Metadata | MetadataDictionary |  |
 |Flags | UnsignedVarInt |  |
@@ -581,8 +581,8 @@ Wiki: [Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveP
 |Y | float |  |
 |Z | float |  |
 |Pitch | float |  |
-|Head Yaw | float |  |
 |Yaw | float |  |
+|Head Yaw | float |  |
 |Mode | byte |  |
 |On Ground | bool |  |
 |Other Runtime Entity ID | UnsignedVarLong |  |
@@ -1030,6 +1030,14 @@ Wiki: [Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 
 
 
+#### Link Actions constants
+
+| Name | Value |
+|:-----|:-----|
+|Remove | 0 |
+|Ride | 1 |
+|Passenger | 2 |
+
 
 #### Fields
 
@@ -1038,6 +1046,7 @@ Wiki: [Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 |Rider ID | UnsignedVarLong |  |
 |Ridden ID | UnsignedVarLong |  |
 |Link Type | byte |  |
+|Unknown | byte |  |
 -----------------------------------------------------------------------
 ### Set Health (0x2a)
 Wiki: [Set Health](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetHealth)

@@ -243,8 +243,8 @@
 		<field name="Speed Y" type="float" />
 		<field name="Speed Z" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Head Yaw" type="float" />
 		<field name="Yaw" type="float" />
+		<field name="Head Yaw" type="float" />
 		<field name="Item" type="Item" />
 		<field name="Metadata" type="MetadataDictionary"/>
 
@@ -331,8 +331,8 @@
 		<field name="Y" type="float" />
 		<field name="Z" type="float" />
 		<field name="Pitch" type="float" />
-		<field name="Head Yaw" type="float" />
 		<field name="Yaw" type="float" />
+		<field name="Head Yaw" type="float" />
 		<field name="Mode" type="byte" />
 		<field name="On Ground" type="bool" />
 		<field name="Other Runtime Entity ID" type="UnsignedVarLong" />
@@ -522,9 +522,15 @@
 	</pdu>
 
 	<pdu id="0x29" online="false" client="false" server="true" name="MCPE_SET_ENTITY_LINK">
+		<enums id="Link Actions">
+			<enum id="Remove" value="0" />
+			<enum id="Ride" value="1" />
+			<enum id="Passenger" value="2" />
+		</enums>
 		<field name="Rider ID" type="UnsignedVarLong" />
 		<field name="Ridden ID" type="UnsignedVarLong" />
 		<field name="Link Type" type="byte" />
+		<field name="Unknown" type="byte" />
 	</pdu>
 
 	<pdu id="0x2a" online="false" client="false" server="true" name="MCPE_SET_HEALTH">

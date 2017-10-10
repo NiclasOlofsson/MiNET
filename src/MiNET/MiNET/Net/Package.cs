@@ -1127,7 +1127,8 @@ namespace MiNET.Net
 			{
 				WriteVarLong(link.Item1);
 				WriteVarLong(link.Item2);
-				_writer.Write((short) 1); // LE
+				_writer.Write((byte) 1);
+				_writer.Write((byte) 0);
 			}
 		}
 

@@ -2209,8 +2209,8 @@ namespace MiNET.Net
 		public float speedY; // = null;
 		public float speedZ; // = null;
 		public float pitch; // = null;
-		public float headYaw; // = null;
 		public float yaw; // = null;
+		public float headYaw; // = null;
 		public Item item; // = null;
 		public MetadataDictionary metadata; // = null;
 		public uint flags; // = null;
@@ -2244,8 +2244,8 @@ namespace MiNET.Net
 			Write(speedY);
 			Write(speedZ);
 			Write(pitch);
-			Write(headYaw);
 			Write(yaw);
+			Write(headYaw);
 			Write(item);
 			Write(metadata);
 			WriteUnsignedVarInt(flags);
@@ -2279,8 +2279,8 @@ namespace MiNET.Net
 			speedY = ReadFloat();
 			speedZ = ReadFloat();
 			pitch = ReadFloat();
-			headYaw = ReadFloat();
 			yaw = ReadFloat();
+			headYaw = ReadFloat();
 			item = ReadItem();
 			metadata = ReadMetadataDictionary();
 			flags = ReadUnsignedVarInt();
@@ -2312,8 +2312,8 @@ namespace MiNET.Net
 			speedY=default(float);
 			speedZ=default(float);
 			pitch=default(float);
-			headYaw=default(float);
 			yaw=default(float);
+			headYaw=default(float);
 			item=default(Item);
 			metadata=default(MetadataDictionary);
 			flags=default(uint);
@@ -2686,8 +2686,8 @@ namespace MiNET.Net
 		public float y; // = null;
 		public float z; // = null;
 		public float pitch; // = null;
-		public float headYaw; // = null;
 		public float yaw; // = null;
+		public float headYaw; // = null;
 		public byte mode; // = null;
 		public bool onGround; // = null;
 		public long otherRuntimeEntityId; // = null;
@@ -2709,8 +2709,8 @@ namespace MiNET.Net
 			Write(y);
 			Write(z);
 			Write(pitch);
-			Write(headYaw);
 			Write(yaw);
+			Write(headYaw);
 			Write(mode);
 			Write(onGround);
 			WriteUnsignedVarLong(otherRuntimeEntityId);
@@ -2732,8 +2732,8 @@ namespace MiNET.Net
 			y = ReadFloat();
 			z = ReadFloat();
 			pitch = ReadFloat();
-			headYaw = ReadFloat();
 			yaw = ReadFloat();
+			headYaw = ReadFloat();
 			mode = ReadByte();
 			onGround = ReadBool();
 			otherRuntimeEntityId = ReadUnsignedVarLong();
@@ -2753,8 +2753,8 @@ namespace MiNET.Net
 			y=default(float);
 			z=default(float);
 			pitch=default(float);
-			headYaw=default(float);
 			yaw=default(float);
+			headYaw=default(float);
 			mode=default(byte);
 			onGround=default(bool);
 			otherRuntimeEntityId=default(long);
@@ -4005,10 +4005,17 @@ namespace MiNET.Net
 
 	public partial class McpeSetEntityLink : Package<McpeSetEntityLink>
 	{
+		public enum LinkActions
+		{
+			Remove = 0,
+			Ride = 1,
+			Passenger = 2,
+		}
 
 		public long riderId; // = null;
 		public long riddenId; // = null;
 		public byte linkType; // = null;
+		public byte unknown; // = null;
 
 		public McpeSetEntityLink()
 		{
@@ -4025,6 +4032,7 @@ namespace MiNET.Net
 			WriteUnsignedVarLong(riderId);
 			WriteUnsignedVarLong(riddenId);
 			Write(linkType);
+			Write(unknown);
 
 			AfterEncode();
 		}
@@ -4041,6 +4049,7 @@ namespace MiNET.Net
 			riderId = ReadUnsignedVarLong();
 			riddenId = ReadUnsignedVarLong();
 			linkType = ReadByte();
+			unknown = ReadByte();
 
 			AfterDecode();
 		}
@@ -4055,6 +4064,7 @@ namespace MiNET.Net
 			riderId=default(long);
 			riddenId=default(long);
 			linkType=default(byte);
+			unknown=default(byte);
 		}
 
 	}

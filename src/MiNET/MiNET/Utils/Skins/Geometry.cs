@@ -186,7 +186,6 @@ namespace MiNET.Utils.Skins
 										Uv = bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
 									};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
 									bool isHead = bone.Name == BoneName.Head;
 									if (isHead || random.NextDouble() < CubeFilterFactor)
 									{
@@ -236,7 +235,6 @@ namespace MiNET.Utils.Skins
 										Uv = !bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
 									};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
 									if (random.NextDouble() < CubeFilterFactor)
 									{
 										bool isHead = bone.Name == BoneName.Head;
@@ -282,7 +280,6 @@ namespace MiNET.Utils.Skins
 										Uv = !bone.Mirror ? new[] {uvx - w, uvy--} : new[] {uvx + w, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
 									};
-									c.Velocity = new Vector3((float) ((random.NextDouble() - 0.5f)*1.8f), (float) (random.NextDouble()*h/10 + 1.8f), (float) ((random.NextDouble() - 0.5f)*1.8f));
 									if (random.NextDouble() < CubeFilterFactor)
 									{
 										bool isHead = bone.Name == BoneName.Head;
@@ -326,7 +323,6 @@ namespace MiNET.Utils.Skins
 										Uv = new[] {uvx + w, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
 									};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
 									if (random.NextDouble() < CubeFilterFactor)
 									{
 										bool isHead = bone.Name == BoneName.Head;
@@ -373,7 +369,6 @@ namespace MiNET.Utils.Skins
 										Uv = !bone.Mirror ? new[] {uvx - d, uvy--} : new[] {uvx + d, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
 									};
-									//c.Velocity = new Vector3((float)((random.NextDouble() - 0.5f) * 1.8f), (float)(random.NextDouble() * h / 10 + 1.8f), (float)((random.NextDouble() - 0.5f) * 1.8f));
 									if (random.NextDouble() < CubeFilterFactor)
 									{
 										bool isHead = bone.Name == BoneName.Head;
@@ -420,7 +415,6 @@ namespace MiNET.Utils.Skins
 										Uv = bone.Mirror ? new[] {uvx - d, uvy--} : new[] {uvx + d, uvy--},
 										Velocity = new Vector3(0, (float) (random.NextDouble()*-0.01), 0)
 									};
-									//c.Velocity = new Vector3((float) ((random.NextDouble() - 0.5f)*1.8f), (float) (random.NextDouble()*h/10 + 1.8f), (float) ((random.NextDouble() - 0.5f)*1.8f));
 									if (random.NextDouble() < CubeFilterFactor)
 									{
 										bool isHead = bone.Name == BoneName.Head;

@@ -43,8 +43,6 @@ namespace TestPlugin.Code4Fun
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Code4FunPlugin));
 
-		public const float Gravity = 0.08f;
-		public const float Drag = 0.02f;
 		public const double CubeFilterFactor = 1.3;
 		public const float ZTearFactor = 0.01f;
 		public static int FakeIndex = 0;
@@ -110,10 +108,13 @@ namespace TestPlugin.Code4Fun
 					SkinGeometryName = newName,
 					SkinGeometry = skinString
 				},
-				KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw + 180f, coordinates.Yaw + 180f)
+				KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, 0, 0)
+				//KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw + 180f, coordinates.Yaw + 180f)
 			};
 
 			fake.SpawnEntity();
+
+			fake.SetPosition(new PlayerLocation(coordinates.X + direction.X , coordinates.Y, coordinates.Z + direction.Z, 0, 0), true);
 
 			GravityGeometryBehavior state = new GravityGeometryBehavior(fake, geometryModel);
 			fake.Ticking += state.FakeMeltTicking;
@@ -123,24 +124,92 @@ namespace TestPlugin.Code4Fun
 		{
 			private static readonly ILog Log = LogManager.GetLogger(typeof (GravityGeometryBehavior));
 
+			public const float Gravity = 0.20f;
+			public const float Drag = 0.02f;
+
+			public PlayerMob Mob { get; }
 			public GeometryModel CurrentModel { get; private set; }
 			public bool ResetOnEnd { get; set; }
 
 			public GravityGeometryBehavior(PlayerMob mob, GeometryModel currentModel)
 			{
+				Mob = mob;
 				CurrentModel = currentModel;
 				var geometry = CurrentModel.CollapseToDerived(CurrentModel.FindGeometry(mob.Skin.SkinGeometryName));
-				geometry.Subdivide(true, true);
+				geometry.Subdivide(true, false);
+
+				SetVelocity(geometry, new Random());
 
 				CurrentModel.Clear();
 				CurrentModel.Add(geometry.Name, geometry);
 			}
 
+			private void SetVelocity(GeometryModel model, Random random)
+			{
+				foreach (var geometry in model.Values)
+				{
+					SetVelocity(geometry, random);
+				}
+			}
+
+
+			private void SetVelocity(Geometry geometry, Random random1)
+			{
+				Random random = new Random();
+
+				foreach (var bone in geometry.Bones)
+				{
+					SetVelocity(bone, random);
+				}
+			}
+
+			private void SetVelocity(Bone bone, Random random)
+			{
+				if (bone.NeverRender) return;
+				if (bone.Cubes == null || bone.Cubes.Count == 0) return;
+
+				foreach (var cube in bone.Cubes)
+				{
+					SetVelocity(cube, random);
+				}
+			}
+
+			private Vector3 _origin = new Vector3(0, 4, 10);
+
+			private void SetVelocity(Cube cube, Random random)
+			{
+				//Quaternion rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitY, (float) -Math.PI/2);
+
+				var pos = new Vector3(cube.Origin[0]/16f, cube.Origin[1]/16f, cube.Origin[2]/16f) + Mob.KnownPosition;
+				//var dir = _origin - pos;
+				var dir = pos - _origin;
+				float distance = dir.Length();
+				Log.Debug("Position: " + pos);
+
+				distance = Math.Max(1, distance);
+				distance = distance/(distance*distance);
+				if (distance < 0.1) return;
+
+				Log.Debug("Lenght: " + distance);
+				Vector3 force = new Vector3(distance, distance, distance)*5;
+				cube.Velocity = Vector3.Reflect(dir.Normalize() * force, Vector3.UnitZ);
+
+				//+ new Vector3((float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f)*10/distance;
+				Log.Debug("Velocity: " + cube.Velocity);
+				//cube.Velocity = dir.Normalize() + new Vector3((float) random.NextDouble(), (float) random.NextDouble(), (float) random.NextDouble()) * distance;
+				//cube.Velocity = new Vector3((float) ((random.NextDouble() - 0.5f)*1.8f), (float) (random.NextDouble()*cube.Origin[1]/10 + 3.8f), (float) ((random.NextDouble() - 0.5f)*1.8f));
+			}
+
 			public void FakeMeltTicking(object sender, PlayerEventArgs playerEventArgs)
 			{
+
 				Log.Debug("Ticking ... ");
 
 				PlayerMob mob = (PlayerMob) sender;
+
+				//Log.Warn("Done. De-register tick.");
+				//mob.Ticking -= FakeMeltTicking;
+				//return;
 
 				if (CurrentModel == null) return;
 
@@ -156,7 +225,7 @@ namespace TestPlugin.Code4Fun
 
 							foreach (var cube in bone.Cubes)
 							{
-								if (cube.Origin[1] <= 0.05f)
+								if (cube.Origin[1] <= 0.05f && cube.Velocity.Y <= 0.01)
 								{
 									cube.Origin[1] = 0f;
 									cube.Velocity = Vector3.Zero;

@@ -71,6 +71,25 @@ namespace MiNET.Entities
 			PositionOffset = 1.62f;
 		}
 
+		[Wired]
+		public void SetPosition(PlayerLocation position, bool teleport = true)
+		{
+			KnownPosition = position;
+			LastUpdatedTime = DateTime.UtcNow;
+
+			var package = McpeMovePlayer.CreateObject();
+			package.runtimeEntityId = EntityId;
+			package.x = position.X;
+			package.y = position.Y + 1.62f;
+			package.z = position.Z;
+			package.yaw = position.HeadYaw;
+			package.headYaw = position.Yaw;
+			package.pitch = position.Pitch;
+			package.mode = (byte)(teleport ? 1 : 0);
+
+			Level.RelayBroadcast(package);
+		}
+
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();

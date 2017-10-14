@@ -562,14 +562,7 @@ namespace MiNET.Worlds
 
 						if (blockId == 0) continue;
 
-						if (convertBid && blockId == 3 && metadata == 1)
-						{
-							// Dirt Course => (Grass Path)
-							chunk.SetBlock(x, y, z, 198);
-							chunk.SetMetadata(x, y, z, 0);
-							blockId = 198;
-						}
-						else if (convertBid && blockId == 3 && metadata == 2)
+						if (convertBid && blockId == 3 && metadata == 2)
 						{
 							// Dirt Podzol => (Podzol)
 							chunk.SetBlock(x, y, z, 243);

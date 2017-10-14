@@ -148,21 +148,21 @@ namespace MiNET.Entities
 				Level.RelayBroadcast(players, armorEquipment);
 			}
 
-			//{
-			//	Player fake = new Player(null, null)
-			//	{
-			//		ClientUuid = Uuid,
-			//		EntityId = EntityId,
-			//		NameTag = NameTag,
-			//		Skin = Skin
-			//	};
+			{
+				Player fake = new Player(null, null)
+				{
+					ClientUuid = ClientUuid,
+					EntityId = EntityId,
+					NameTag = NameTag,
+					Skin = Skin
+				};
 
-			//	McpePlayerList playerList = McpePlayerList.CreateObject();
-			//	playerList.records = new PlayerRemoveRecords {fake};
-			//	Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
-			//	playerList.records = null;
-			//	playerList.PutPool();
-			//}
+				McpePlayerList playerList = McpePlayerList.CreateObject();
+				playerList.records = new PlayerRemoveRecords { fake };
+				Level.RelayBroadcast(players, Level.CreateMcpeBatch(playerList.Encode()));
+				playerList.records = null;
+				playerList.PutPool();
+			}
 
 			{
 				McpeSetEntityData setEntityData = McpeSetEntityData.CreateObject();

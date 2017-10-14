@@ -115,6 +115,21 @@ namespace TestPlugin
 			npc.SpawnEntity();
 		}
 
+		public static PlayerLocation GetPositionFromPlayer(PlayerLocation coordinates, float distance = 2f, bool facePlayer = true)
+		{
+			var direction = Vector3.Normalize(coordinates.GetHeadDirection()) * distance;
+			return new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, facePlayer ? coordinates.HeadYaw + 180f : coordinates.HeadYaw, facePlayer ? coordinates.Yaw + 180f : coordinates.Yaw);
+		}
+
+		[Command]
+		public void SpawnHologram(Player player, string text)
+		{
+			var hologram = new Hologram(text, player.Level);
+			hologram.KnownPosition = 
+			hologram.KnownPosition = GetPositionFromPlayer(player.KnownPosition);
+			hologram.SpawnEntity();
+		}
+
 		[Command]
 		public VanillaCommands.SimpleResponse Info(Player player)
 		{

@@ -28,13 +28,14 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities
 {
-	public class Hologram : Entity
+	public class Hologram : PlayerMob
 	{
-		public Hologram(Level level) : base((int) EntityType.Slime, level)
+		public Hologram(string text, Level level) : base(text, level)
 		{
 			Width = 0;
 			Length = 0;
 			Height = 0;
+			Scale = 0;
 
 			HideNameTag = false;
 			IsAlwaysShowName = true;

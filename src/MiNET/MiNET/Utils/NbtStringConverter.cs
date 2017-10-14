@@ -27,7 +27,7 @@ namespace MiNET.Utils
 	{
 		public override bool CanConvert(Type objectType)
 		{
-			return objectType == typeof (NbtLong) || objectType == typeof (NbtInt) || objectType == typeof (NbtShort) || objectType == typeof (NbtByte);
+			return objectType == typeof (NbtLong) || objectType == typeof (NbtInt) || objectType == typeof (NbtShort) || objectType == typeof (NbtByte) || objectType == typeof(NbtByteArray);
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -55,6 +55,11 @@ namespace MiNET.Utils
 			if (objectType == typeof (NbtByte))
 			{
 				return token.Value<byte>();
+			}
+
+			if (objectType == typeof(NbtByteArray))
+			{
+				return token.Value<byte[]>();
 			}
 
 			return 0;

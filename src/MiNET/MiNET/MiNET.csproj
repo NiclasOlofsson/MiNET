@@ -434,6 +434,10 @@
     <Compile Include="Entities\Projectiles\Snowball.cs" />
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
+    <Compile Include="Items\ItemGoldIngot.cs" />
+    <Compile Include="Items\ItemGoldNugget.cs" />
+    <Compile Include="Items\ItemIronIngot.cs" />
+    <Compile Include="Items\ItemIronNugget.cs" />
     <Compile Include="Utils\Skins\Bone.cs" />
     <Compile Include="Utils\Skins\Cube.cs" />
     <Compile Include="Utils\Skins\Geometry.cs" />

@@ -309,7 +309,7 @@ namespace MiNET
 		public void TargetWithPlayerParserTest()
 		{
 			Target target = PluginManager.ParseTarget("gurunx");
-			Assert.AreEqual("nearestPlayer", target.Selector);
+			Assert.AreEqual("closestPlayer", target.Selector);
 			Assert.AreEqual("gurunx", target.Rules.First().Value);
 		}
 

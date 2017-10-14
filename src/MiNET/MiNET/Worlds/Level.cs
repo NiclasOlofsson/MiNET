@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -144,13 +144,19 @@ namespace MiNET.Worlds
 			{
 				if (Config.GetProperty("CheckForSafeSpawn", false))
 				{
-					var height = GetHeight((BlockCoordinates)SpawnPoint);
+					var height = GetHeight((BlockCoordinates) SpawnPoint);
 					if (height > SpawnPoint.Y) SpawnPoint.Y = height;
 					Log.Debug("Checking for safe spawn");
 				}
 
-				NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
-				TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
+				if (LevelManager != null && WorldProvider.HaveNether())
+				{
+					NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
+				}
+				if (LevelManager != null && WorldProvider.HaveTheEnd())
+				{
+					TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
+				}
 			}
 
 			//SpawnPoint.Y = 20;
@@ -966,7 +972,7 @@ namespace MiNET.Worlds
 			var message = McpeUpdateBlock.CreateObject();
 			message.blockId = block.Id;
 			message.coordinates = block.Coordinates;
-			message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
+			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 			RelayBroadcast(message);
 		}
 
@@ -1131,7 +1137,7 @@ namespace MiNET.Worlds
 					var message = McpeUpdateBlock.CreateObject();
 					message.blockId = block.Id;
 					message.coordinates = block.Coordinates;
-					message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
+					message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 					player.SendPackage(message);
 
 					return;
@@ -1173,12 +1179,12 @@ namespace MiNET.Worlds
 			}
 		}
 
-	    private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
-	    {
+		private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
+		{
 			var message = McpeUpdateBlock.CreateObject();
 			message.blockId = block.Id;
 			message.coordinates = block.Coordinates;
-			message.blockMetaAndPriority = (byte)(0xb << 4 | (block.Metadata & 0xf));
+			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
 			player.SendPackage(message);
 
 			// Revert block entity if exists

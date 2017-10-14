@@ -184,7 +184,7 @@ namespace MiNET
 			form?.FromJson(message.data, this);
 		}
 
-		public void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
+		public virtual void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
 		{
 			CustomForm customForm = new CustomForm();
 			customForm.Title = "A title";

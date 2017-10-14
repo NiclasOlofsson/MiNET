@@ -47,6 +47,11 @@ namespace TestPlugin.Code4Fun
 		public const float ZTearFactor = 0.01f;
 		public static int FakeIndex = 0;
 
+		protected override void OnEnable()
+		{
+			Context.PluginManager.LoadCommands(new ScreenshotCommand());
+		}
+
 		[Command]
 		public void Melt(Player player)
 		{
@@ -114,7 +119,7 @@ namespace TestPlugin.Code4Fun
 
 			fake.SpawnEntity();
 
-			fake.SetPosition(new PlayerLocation(coordinates.X + direction.X , coordinates.Y, coordinates.Z + direction.Z, 0, 0), true);
+			fake.SetPosition(new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, 0, 0), true);
 
 			GravityGeometryBehavior state = new GravityGeometryBehavior(fake, geometryModel);
 			fake.Ticking += state.FakeMeltTicking;
@@ -192,7 +197,7 @@ namespace TestPlugin.Code4Fun
 
 				Log.Debug("Lenght: " + distance);
 				Vector3 force = new Vector3(distance, distance, distance)*5;
-				cube.Velocity = Vector3.Reflect(dir.Normalize() * force, Vector3.UnitZ);
+				cube.Velocity = Vector3.Reflect(dir.Normalize()*force, Vector3.UnitZ);
 
 				//+ new Vector3((float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f, (float) random.NextDouble() - 0.5f)*10/distance;
 				Log.Debug("Velocity: " + cube.Velocity);
@@ -202,7 +207,6 @@ namespace TestPlugin.Code4Fun
 
 			public void FakeMeltTicking(object sender, PlayerEventArgs playerEventArgs)
 			{
-
 				Log.Debug("Ticking ... ");
 
 				PlayerMob mob = (PlayerMob) sender;
@@ -257,7 +261,7 @@ namespace TestPlugin.Code4Fun
 
 							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 							updateSkin.NoBatch = true;
-							updateSkin.uuid = mob.Uuid;
+							updateSkin.uuid = mob.ClientUuid;
 							updateSkin.skinId = skin.SkinId;
 							updateSkin.skinData = skin.SkinData;
 							updateSkin.capeData = skin.CapeData;
@@ -270,7 +274,7 @@ namespace TestPlugin.Code4Fun
 					{
 						Skin skin = mob.Skin;
 						var geometry = CurrentModel.FindGeometry(skin.SkinGeometryName);
-						geometry.Name = $"geometry.{DateTime.UtcNow.Ticks}.{mob.Uuid}";
+						geometry.Name = $"geometry.{DateTime.UtcNow.Ticks}.{mob.ClientUuid}";
 
 						CurrentModel.Clear();
 						CurrentModel.Add(geometry.Name, geometry);
@@ -279,7 +283,7 @@ namespace TestPlugin.Code4Fun
 
 						McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
 						updateSkin.NoBatch = true;
-						updateSkin.uuid = mob.Uuid;
+						updateSkin.uuid = mob.ClientUuid;
 						updateSkin.skinId = skin.SkinId;
 						updateSkin.skinData = skin.SkinData;
 						updateSkin.capeData = skin.CapeData;

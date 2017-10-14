@@ -1133,7 +1133,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 
-		private static Bitmap CropImage(Bitmap img, Rectangle cropArea)
+		public static Bitmap CropImage(Bitmap img, Rectangle cropArea)
 		{
 			return img.Clone(cropArea, img.PixelFormat);
 		}
@@ -1170,7 +1170,7 @@ namespace TestPlugin.NiceLobby
 			return bmp;
 		}
 
-		private static byte[] BitmapToBytes(Bitmap bitmap, bool useColor = false)
+		public static byte[] BitmapToBytes(Bitmap bitmap, bool useColor = false)
 		{
 			byte[] bytes;
 			bytes = new byte[bitmap.Height*bitmap.Width*4];

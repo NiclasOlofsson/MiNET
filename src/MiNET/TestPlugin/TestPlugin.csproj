@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Code4Fun\Code4FunPlugin.cs" />
+    <Compile Include="Code4Fun\ScreenshotCommand.cs" />
     <Compile Include="CoreCommands.cs" />
     <Compile Include="NiceLobby\CustomItemFrame.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />

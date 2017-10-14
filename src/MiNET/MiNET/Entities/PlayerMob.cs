@@ -36,7 +36,7 @@ namespace MiNET.Entities
 {
 	public class PlayerMob : Mob
 	{
-		public UUID Uuid { get; private set; }
+		public UUID ClientUuid { get; private set; }
 		public Skin Skin { get; set; }
 
 		public short Boots { get; set; }
@@ -48,7 +48,7 @@ namespace MiNET.Entities
 
 		public PlayerMob(string name, Level level) : base(63, level)
 		{
-			Uuid = new UUID(Guid.NewGuid().ToByteArray());
+			ClientUuid = new UUID(Guid.NewGuid().ToByteArray());
 
 			Width = 0.6;
 			Length = 0.6;
@@ -103,7 +103,7 @@ namespace MiNET.Entities
 			{
 				Player fake = new Player(null, null)
 				{
-					ClientUuid = Uuid,
+					ClientUuid = ClientUuid,
 					EntityId = EntityId,
 					NameTag = NameTag,
 					Skin = Skin
@@ -118,7 +118,7 @@ namespace MiNET.Entities
 
 			{
 				McpeAddPlayer message = McpeAddPlayer.CreateObject();
-				message.uuid = Uuid;
+				message.uuid = ClientUuid;
 				message.username = NameTag;
 				message.entityIdSelf = EntityId;
 				message.runtimeEntityId = EntityId;
@@ -177,7 +177,7 @@ namespace MiNET.Entities
 			{
 				Player fake = new Player(null, null)
 				{
-					ClientUuid = Uuid,
+					ClientUuid = ClientUuid,
 					EntityId = EntityId,
 					NameTag = NameTag,
 					Skin = Skin

@@ -84,66 +84,6 @@ namespace MiNET
 		}
 
 		[Test, Ignore("")]
-		public void ParseObjectModelTest()
-		{
-			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");
-
-			JsonConvert.DefaultSettings = () =>
-			{
-				var settings = new JsonSerializerSettings();
-				return settings;
-			};
-			var commands = JsonConvert.DeserializeObject<CommandSet>(commandJson /*, new ParameterConverter()*/);
-
-			Assert.AreEqual(72, commands.Count);
-
-			Assert.AreEqual("difficulty", commands.First(pair => pair.Key == "difficulty").Key);
-
-			Command command = commands["difficulty"];
-			Assert.NotNull(command);
-
-			Version version = command.Versions[0];
-			Assert.AreEqual("commands.difficulty.usage", version.Description);
-
-			Assert.AreEqual(2, version.Overloads.Count);
-
-			Overload overload = version.Overloads["byName"];
-			Assert.NotNull(overload);
-
-			// Input
-			Input input = overload.Input;
-
-			Assert.NotNull(input);
-			Assert.NotNull(input.Parameters);
-			Assert.AreEqual(1, input.Parameters.Length);
-
-			// Input parameters
-			Parameter inputParameter = input.Parameters[0];
-
-			Assert.NotNull(inputParameter);
-			Assert.AreEqual("difficulty", inputParameter.Name);
-			Assert.AreEqual("stringenum", inputParameter.Type);
-			//Assert.AreEqual("commandName", inputParameter.EnumType);
-			Assert.IsFalse(inputParameter.Optional);
-
-			// Output
-			Output output = overload.Output;
-
-			Assert.NotNull(output.FormatStrings);
-			Assert.AreEqual(1, output.FormatStrings.Length);
-			Assert.AreEqual("commands.difficulty.success", output.FormatStrings[0].Format);
-			Assert.NotNull(output.Parameters);
-			Assert.AreEqual(1, output.Parameters.Length);
-
-			Parameter outputParameter = output.Parameters[0];
-
-			Assert.AreEqual("difficulty", outputParameter.Name);
-			Assert.AreEqual("string", outputParameter.Type);
-			Assert.That(outputParameter.EnumType, Is.Null.Or.Empty);
-			Assert.IsFalse(outputParameter.Optional);
-		}
-
-		[Test, Ignore("")]
 		public void SerializeObjectModelRoundtripTest()
 		{
 			string commandJson = File.ReadAllText(TestContext.CurrentContext.TestDirectory + "\\test_commands_1.json");

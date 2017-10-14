@@ -233,24 +233,6 @@ namespace MiNET.Plugins
 					Description = commandAttribute.Description ?? "Bullshit",
 					Method = method,
 					Input = new Input(),
-					Output = new Output()
-					{
-						FormatStrings = new[]
-						{
-							new FormatString()
-							{
-								Format = "{0}"
-							},
-						},
-						Parameters = new[]
-						{
-							new Parameter
-							{
-								Name = "result",
-								Type = "string"
-							},
-						}
-					}
 				};
 
 				string commandName = commandAttribute.Name.ToLowerInvariant();
@@ -360,36 +342,6 @@ namespace MiNET.Plugins
 				else
 				{
 					overload.Input.Parameters = inputParams.ToArray();
-				}
-
-				// Output objects
-				if (method.ReturnType != typeof (void))
-				{
-					var properties = method.ReturnType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-					List<Parameter> outputParams = new List<Parameter>();
-					foreach (PropertyInfo property in properties)
-					{
-						if (property.Name.Equals("StatusCode")) continue;
-						if (property.Name.Equals("SuccessCount")) continue;
-
-						Parameter param = new Parameter();
-						param.Name = ToCamelCase(property.Name);
-						param.Type = GetPropertyType(property);
-						outputParams.Add(param);
-					}
-
-					overload.Output.Parameters = outputParams.ToArray();
-				}
-
-				if (commandAttribute.OutputFormatStrings != null)
-				{
-					overload.Output.FormatStrings = new FormatString[commandAttribute.OutputFormatStrings.Length];
-					int i = 0;
-					foreach (var formatString in commandAttribute.OutputFormatStrings)
-					{
-						overload.Output.FormatStrings[i] = new FormatString() {Format = commandAttribute.OutputFormatStrings[i]};
-						i++;
-					}
 				}
 			}
 

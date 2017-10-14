@@ -51,7 +51,6 @@ namespace MiNET.Plugins
 		public string Description { get; set; }
 
 		public Input Input { get; set; }
-		public Output Output { get; set; }
 		public Parser Parser { get; set; }
 	}
 

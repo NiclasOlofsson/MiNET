@@ -19,7 +19,7 @@ namespace MiNET.Items
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(blockCoordinates);
-			if (block is Grass || block is Dirt || block is GrassPath)
+			if (block is Grass || (block is Dirt && block.Metadata != 1) || block is GrassPath)
 			{
 				Farmland farmland = new Farmland
 				{
@@ -34,6 +34,15 @@ namespace MiNET.Items
 				}
 
 				world.SetBlock(farmland);
+			}
+			else if (block is Dirt && block.Metadata == 1)
+			{
+				Dirt dirt = new Dirt
+				{
+					Coordinates = blockCoordinates
+				};
+					
+				world.SetBlock(dirt);
 			}
 		}
 	}

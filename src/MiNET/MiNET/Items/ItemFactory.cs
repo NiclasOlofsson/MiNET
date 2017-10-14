@@ -150,6 +150,8 @@ namespace MiNET.Items
 			else if (id == 261) item = new ItemBow();
 			else if (id == 262) item = new ItemArrow();
 			else if (id == 263) item = new ItemCoal();
+			else if (id == 265) item = new ItemIronIngot();
+			else if (id == 266) item = new ItemGoldIngot();
 			else if (id == 267) item = new ItemIronSword();
 			else if (id == 268) item = new ItemWoodenSword();
 			else if (id == 269) item = new ItemWoodenShovel();
@@ -216,6 +218,7 @@ namespace MiNET.Items
 			else if (id == 364) item = new ItemCookedBeef();
 			else if (id == 365) item = new ItemRawChicken();
 			else if (id == 366) item = new ItemCookedChicken();
+			else if (id == 371) item = new ItemGoldNugget();
 			else if (id == 373) item = new ItemPotion(metadata);
 			else if (id == 380) item = new ItemCauldron();
 			else if (id == 383) item = new ItemSpawnEgg(metadata);
@@ -233,6 +236,7 @@ namespace MiNET.Items
 			else if (id == 430) item = new ItemAcaciaDoor();
 			else if (id == 431) item = new ItemDarkOakDoor();
 			else if (id == 444) item = new ItemElytra();
+			else if (id == 452) item = new ItemIronNugget();
 			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{

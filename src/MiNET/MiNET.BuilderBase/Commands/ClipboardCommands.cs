@@ -49,15 +49,15 @@ namespace MiNET.BuilderBase.Commands
 			clipboard.Fill(selector.GetSelectedBlocks());
 			selector.Clipboard = clipboard;
 
-			Task.Run(() =>
-			{
-				SkyLightCalculations.Calculate(player.Level);
-				player.CleanCache();
-				player.ForcedSendChunks(() =>
-				{
-					player.SendMessage("Calculated skylights and resent chunks.");
-				});
-			});
+			//Task.Run(() =>
+			//{
+			//	SkyLightCalculations.Calculate(player.Level);
+			//	player.CleanCache();
+			//	player.ForcedSendChunks(() =>
+			//	{
+			//		player.SendMessage("Calculated skylights and resent chunks.");
+			//	});
+			//});
 
 		}
 
@@ -112,15 +112,15 @@ namespace MiNET.BuilderBase.Commands
 					selector.Select(realTo, max);
 				}
 
-				Task.Run(() =>
-				{
-					SkyLightCalculations.Calculate(player.Level);
-					player.CleanCache();
-					player.ForcedSendChunks(() =>
-					{
-						player.SendMessage("Calculated skylights and resent chunks.");
-					});
-				});
+				//Task.Run(() =>
+				//{
+				//	SkyLightCalculations.Calculate(player.Level);
+				//	player.CleanCache();
+				//	player.ForcedSendChunks(() =>
+				//	{
+				//		player.SendMessage("Calculated skylights and resent chunks.");
+				//	});
+				//});
 			}
 			catch (Exception e)
 			{

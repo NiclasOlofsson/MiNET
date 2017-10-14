@@ -958,7 +958,7 @@ namespace MiNET.Worlds
 
 			if (applyPhysics) ApplyPhysics(block.Coordinates.X, block.Coordinates.Y, block.Coordinates.Z);
 
-			if (calculateLight /* && block.LightLevel > 0*/)
+			if (GameMode != GameMode.Creative && calculateLight /* && block.LightLevel > 0*/)
 			{
 				new SkyLightCalculations().Calculate(this, block.Coordinates);
 

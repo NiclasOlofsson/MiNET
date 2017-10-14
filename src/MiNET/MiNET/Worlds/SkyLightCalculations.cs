@@ -339,6 +339,8 @@ namespace MiNET.Worlds
 				{
 					var coordinates = lightBfQueue.Dequeue();
 					lightBfSet.Remove(coordinates);
+					if (coordinates.Y < 0 || coordinates.Y > 255) continue;
+
 					ChunkColumn chunk = level.GetChunk(coordinates);
 					var newChunkCoord = (ChunkCoordinates) coordinates;
 					if (chunk.x != newChunkCoord.X || chunk.z != newChunkCoord.Z)
@@ -363,7 +365,6 @@ namespace MiNET.Worlds
 
 			int sectionIdx = coordinates.Y >> 4;
 			Chunk section = chunk.chunks[sectionIdx];
-
 
 			byte maxSkyLight = currentSkyLight;
 			if (coordinates.Y < 255)

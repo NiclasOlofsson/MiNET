@@ -750,14 +750,14 @@ namespace MiNET
 
 		protected virtual void SendAvailableCommands()
 		{
-			var settings = new JsonSerializerSettings();
-			settings.NullValueHandling = NullValueHandling.Ignore;
-			settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
-			settings.MissingMemberHandling = MissingMemberHandling.Error;
-			settings.Formatting = Formatting.Indented;
-			settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+			//var settings = new JsonSerializerSettings();
+			//settings.NullValueHandling = NullValueHandling.Ignore;
+			//settings.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+			//settings.MissingMemberHandling = MissingMemberHandling.Error;
+			//settings.Formatting = Formatting.Indented;
+			//settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
 
-			var content = JsonConvert.SerializeObject(Server.PluginManager.Commands, settings);
+			//var content = JsonConvert.SerializeObject(Server.PluginManager.Commands, settings);
 
 			McpeAvailableCommands commands = McpeAvailableCommands.CreateObject();
 			commands.CommandSet = Server.PluginManager.Commands;

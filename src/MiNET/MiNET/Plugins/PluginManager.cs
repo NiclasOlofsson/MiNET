@@ -593,16 +593,19 @@ namespace MiNET.Plugins
 			string[] arguments = split.Skip(1).ToArray();
 
 			Command command = null;
-			if (Commands.ContainsKey(commandName))
+			command = GetCommand(commandName);
+			if(arguments.Length > 0 && command == null)
 			{
-				command = Commands[commandName];
-			}
-			else
-			{
-				command = Commands.Values.FirstOrDefault(cmd => cmd.Versions.Any(version => version.Aliases != null && version.Aliases.Any(s => s == commandName)));
+				commandName = commandName + " " + arguments[0];
+				arguments = arguments.Skip(1).ToArray();
+				command = GetCommand(commandName);
 			}
 
-			if (command == null) return null;
+			if (command == null)
+			{
+				Log.Warn($"Found no command {commandName}");
+				return null;
+			}
 
 			foreach (var overload in command.Versions.First().Overloads.Values)
 			{
@@ -620,6 +623,20 @@ namespace MiNET.Plugins
 			}
 
 			return null;
+		}
+
+		private Command GetCommand(string commandName)
+		{
+			Command command;
+			if (Commands.ContainsKey(commandName))
+			{
+				command = Commands[commandName];
+			}
+			else
+			{
+				command = Commands.Values.FirstOrDefault(cmd => cmd.Versions.Any(version => version.Aliases != null && version.Aliases.Any(s => s == commandName)));
+			}
+			return command;
 		}
 
 		public object HandleCommand(Player player, string commandName, string commandOverload, dynamic commandInputJson)

@@ -117,7 +117,7 @@ namespace TestPlugin
 
 		public static PlayerLocation GetPositionFromPlayer(PlayerLocation coordinates, float distance = 2f, bool facePlayer = true)
 		{
-			var direction = Vector3.Normalize(coordinates.GetHeadDirection()) * distance;
+			var direction = Vector3.Normalize(coordinates.GetHeadDirection())*distance;
 			return new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, facePlayer ? coordinates.HeadYaw + 180f : coordinates.HeadYaw, facePlayer ? coordinates.Yaw + 180f : coordinates.Yaw);
 		}
 
@@ -125,19 +125,19 @@ namespace TestPlugin
 		public void SpawnHologram(Player player, string text)
 		{
 			var hologram = new Hologram(text, player.Level);
-			hologram.KnownPosition = 
-			hologram.KnownPosition = GetPositionFromPlayer(player.KnownPosition);
+			hologram.KnownPosition =
+				hologram.KnownPosition = GetPositionFromPlayer(player.KnownPosition);
 			hologram.SpawnEntity();
 		}
 
 		[Command]
-		public VanillaCommands.SimpleResponse Info(Player player)
+		public string Info(Player player)
 		{
 			var level = player.Level;
 			int entityCount = level.Entities.Count;
 
 			string body = $"Entity #{entityCount}";
-			return new VanillaCommands.SimpleResponse() {Body = body};
+			return body;
 		}
 
 		[Command]
@@ -1205,7 +1205,7 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public VanillaCommands.SimpleResponse Worldborder(Player player, int radius = 200, bool centerOnPlayer = false)
+		public string Worldborder(Player player, int radius = 200, bool centerOnPlayer = false)
 		{
 			Level level = player.Level;
 
@@ -1242,13 +1242,13 @@ namespace TestPlugin
 					}
 				}
 			}
-			return new VanillaCommands.SimpleResponse() {Body = $"Added world border with radius of {radius} around {center}"};
+			return $"Added world border with radius of {radius} around {center}";
 		}
 
 		[Command]
-		public VanillaCommands.SimpleResponse Test()
+		public string Test()
 		{
-			return new VanillaCommands.SimpleResponse() {Body = "Test"};
+			return "Test";
 		}
 
 		[Command]

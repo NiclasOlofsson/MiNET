@@ -51,20 +51,8 @@ namespace MiNET.Plugins.Commands
 			_pluginManager = pluginManager;
 		}
 
-		public class SimpleResponse
-		{
-			public SimpleResponse(string body = null)
-			{
-				Body = body;
-			}
-
-			public string Body { get; set; }
-			public int StatusCode { get; set; }
-			public int SuccessCount { get; set; } = 1;
-		}
-
 		[Command(Name = "op", Description = "Make player an operator")]
-		public SimpleResponse MakeOperator(Player commander, Target player)
+		public string MakeOperator(Player commander, Target player)
 		{
 			string body = player.Selector;
 
@@ -87,17 +75,17 @@ namespace MiNET.Plugins.Commands
 				body = string.Join(", ", names);
 			}
 
-			return new SimpleResponse {Body = $"Oped: {body}"};
+			return $"Oped: {body}";
 		}
 
 		[Command]
-		public SimpleResponse SetBlock(Player commander, BlockPos position, BlockTypeEnum tileName, int tileData = 0)
+		public string SetBlock(Player commander, BlockPos position, BlockTypeEnum tileName, int tileData = 0)
 		{
-			return new SimpleResponse {Body = $"Set block complete. {position.XRelative} {tileName.Value}"};
+			return $"Set block complete. {position.XRelative} {tileName.Value}";
 		}
 
 		[Command]
-		public SimpleResponse Give(Player commander, Target player, ItemTypeEnum itemName, int amount = 1, int data = 0)
+		public string Give(Player commander, Target player, ItemTypeEnum itemName, int amount = 1, int data = 0)
 		{
 			string body = player.Selector;
 
@@ -116,7 +104,7 @@ namespace MiNET.Plugins.Commands
 			}
 
 
-			return new SimpleResponse {Body = $"Gave {body} {amount} of {itemName.Value}."};
+			return $"Gave {body} {amount} of {itemName.Value}.";
 		}
 
 		[Command]
@@ -300,7 +288,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
-		public SimpleResponse Xp(Player commander, int experience, Target player)
+		public string Xp(Player commander, int experience, Target player)
 		{
 			string body = player.Selector;
 
@@ -317,11 +305,11 @@ namespace MiNET.Plugins.Commands
 				body = string.Join(", ", names);
 			}
 
-			return new SimpleResponse {Body = $"Gave {body} {experience} experience points."};
+			return $"Gave {body} {experience} experience points.";
 		}
 
 		[Command]
-		public SimpleResponse Difficulty(Player commander, Difficulty difficulty)
+		public string Difficulty(Player commander, Difficulty difficulty)
 		{
 			Level level = commander.Level;
 			level.Difficulty = difficulty;
@@ -330,11 +318,11 @@ namespace MiNET.Plugins.Commands
 				player.SendSetDificulty();
 			}
 
-			return new SimpleResponse {Body = $"{commander.Username} set difficulty to {difficulty}"};
+			return $"{commander.Username} set difficulty to {difficulty}";
 		}
 
 		[Command(Name = "timeset")]
-		public SimpleResponse TimeSet(Player commander, int time)
+		public string TimeSet(Player commander, int time)
 		{
 			Level level = commander.Level;
 			level.CurrentWorldTime = time;
@@ -345,7 +333,7 @@ namespace MiNET.Plugins.Commands
 
 			level.RelayBroadcast(message);
 
-			return new SimpleResponse {Body = $"{commander.Username} sets time to {time}"};
+			return $"{commander.Username} sets time to {time}";
 		}
 
 		public enum DayNight
@@ -355,7 +343,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command(Name = "timeset")]
-		public SimpleResponse TimeSet(Player commander, DayNight time)
+		public string TimeSet(Player commander, DayNight time)
 		{
 			Level level = commander.Level;
 			level.CurrentWorldTime = (int) time;
@@ -366,11 +354,11 @@ namespace MiNET.Plugins.Commands
 
 			level.RelayBroadcast(message);
 
-			return new SimpleResponse {Body = $"{commander.Username} sets time to {time}"};
+			return $"{commander.Username} sets time to {time}";
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to given position.")]
-		public SimpleResponse Teleport(Player commander, BlockPos destination, int yrot = 90, int xrot = 0)
+		public string Teleport(Player commander, BlockPos destination, int yrot = 90, int xrot = 0)
 		{
 			var coordinates = commander.KnownPosition;
 			if (destination != null)
@@ -404,11 +392,11 @@ namespace MiNET.Plugins.Commands
 				});
 			}, null);
 
-			return new SimpleResponse {Body = $"{commander.Username} teleported to coordinates {coordinates.X},{coordinates.Y},{coordinates.Z}."};
+			return $"{commander.Username} teleported to coordinates {coordinates.X},{coordinates.Y},{coordinates.Z}.";
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to given coordinates.")]
-		public SimpleResponse Teleport(Player commander, Target victim, BlockPos destination, int yrot = 90, int xrot = 0)
+		public string Teleport(Player commander, Target victim, BlockPos destination, int yrot = 90, int xrot = 0)
 		{
 			string body = victim.Selector;
 
@@ -454,16 +442,16 @@ namespace MiNET.Plugins.Commands
 				body = string.Join(", ", names);
 			}
 
-			return new SimpleResponse {Body = $"{body} teleported to new coordinates."};
+			return $"{body} teleported to new coordinates.";
 		}
 
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports player to other player.")]
-		public SimpleResponse Teleport(Player commander, Target victim, Target target)
+		public string Teleport(Player commander, Target victim, Target target)
 		{
 			string body = victim.Selector;
 
-			if (target.Players == null || target.Players.Length != 1) return new SimpleResponse {Body = "Found not target for teleport"};
+			if (target.Players == null || target.Players.Length != 1) return "Found not target for teleport";
 
 			Player targetPlayer = target.Players.First();
 
@@ -492,13 +480,13 @@ namespace MiNET.Plugins.Commands
 			}
 
 
-			return new SimpleResponse {Body = $"Teleported {body} to {targetPlayer.Username}."};
+			return $"Teleported {body} to {targetPlayer.Username}.";
 		}
 
 		[Command(Name = "tp", Aliases = new[] {"teleport"}, Description = "Teleports self to other player.")]
-		public SimpleResponse Teleport(Player commander, Target target)
+		public string Teleport(Player commander, Target target)
 		{
-			if (target.Players == null || target.Players.Length != 1) return new SimpleResponse {Body = "Found not target for teleport"};
+			if (target.Players == null || target.Players.Length != 1) return "Found not target for teleport";
 
 			Player targetPlayer = target.Players.First();
 
@@ -518,7 +506,7 @@ namespace MiNET.Plugins.Commands
 			}, null);
 
 
-			return new SimpleResponse {Body = $"Teleported to {targetPlayer.Username}."};
+			return $"Teleported to {targetPlayer.Username}.";
 		}
 
 		[Command]
@@ -539,7 +527,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
-		public SimpleResponse GameMode(Player commander, GameMode gameMode, Target target = null)
+		public string GameMode(Player commander, GameMode gameMode, Target target = null)
 		{
 			Player targetPlayer = commander;
 			if (target != null) targetPlayer = target.Players.First();
@@ -556,7 +544,7 @@ namespace MiNET.Plugins.Commands
 
 			commander.Level.BroadcastMessage($"{targetPlayer.Username} changed to game mode {gameMode}.", type: MessageType.Raw);
 
-			return new SimpleResponse {Body = $"Set {targetPlayer.Username} game mode to {gameMode}."};
+			return $"Set {targetPlayer.Username} game mode to {gameMode}.";
 		}
 
 		[Command]

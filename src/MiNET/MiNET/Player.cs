@@ -1861,7 +1861,7 @@ namespace MiNET
 			else
 			{
 				McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
-				sendSlot.inventoryId = 0;
+				sendSlot.inventoryId = inventory.WindowsId;
 				sendSlot.slot = slot;
 				sendSlot.item = itemStack;
 				SendPackage(sendSlot);

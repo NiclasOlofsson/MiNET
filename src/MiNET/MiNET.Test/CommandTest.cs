@@ -60,6 +60,7 @@ namespace MiNET
 			Console.WriteLine(Skin.ToJson(geometryModel));
 		}
 
+
 		[Test, Ignore("")]
 		public void ParseTest()
 		{
@@ -281,6 +282,15 @@ namespace MiNET
 		}
 
 		[Test]
+		public void ParseCommandSelectorsNoArguments12_2()
+		{
+			string source = @"@e";
+
+			var matches = Regex.Matches(source, @"^(?<selector>@[aeprs])(\[((?<args>(c|dx|dy|dz|l|lm|m|name|r|rm|rx|rxm|rym|type|x|y|z)=.*?)(,*?))*\])*$");
+			Assert.AreEqual("@e", matches[0].Groups["selector"].Captures[0].Value);
+		}
+
+		[Test]
 		public void ParseCommandSelectors12_2()
 		{
 			string cmd = @"@e[test=123,ugh=!456,,bah=~,,,,bah=,,,test=1234,test=""sdff""]";
@@ -296,191 +306,37 @@ namespace MiNET
 		}
 
 		[Test]
-		public void TestExecuteCommand()
+		public void TargetWithPlayerParserTest()
 		{
-			Player player = new Player(null, null);
+			Target target = PluginManager.ParseTarget("gurunx");
+			Assert.AreEqual("nearestPlayer", target.Selector);
+			Assert.AreEqual("gurunx", target.Rules.First().Value);
 		}
 
-		public void TestCommand()
+		[Test]
+		public void TargetWithSelectorsParserTest()
 		{
+			Target target = null;
+
+			target = PluginManager.ParseTarget("@a");
+			Assert.AreEqual("allPlayers", target.Selector);
+			Assert.IsNull(target.Rules);
+
+			target = PluginManager.ParseTarget("@a[name=gurunx,name=oliver]");
+			Assert.AreEqual("allPlayers", target.Selector);
+			Assert.AreEqual(false, target.Rules.First().Inverted);
+			Assert.AreEqual("gurunx", target.Rules.First().Value);
+			Assert.AreEqual(false, target.Rules.Skip(1).First().Inverted);
+			Assert.AreEqual("oliver", target.Rules.Skip(1).First().Value);
+
+			target = PluginManager.ParseTarget("@a[name=!gurunx,name=!oliver]");
+			Assert.AreEqual("allPlayers", target.Selector);
+			Assert.AreEqual(true, target.Rules.First().Inverted);
+			Assert.AreEqual("gurunx", target.Rules.First().Value);
+			Assert.AreEqual(true, target.Rules.Skip(1).First().Inverted);
+			Assert.AreEqual("oliver", target.Rules.Skip(1).First().Value);
+
 		}
 
-		private object ExecuteCommand(MethodInfo method, Player player, string[] args)
-		{
-			var parameters = method.GetParameters();
-
-			int addLenght = 0;
-			if (parameters.Length > 0 && typeof (Player).IsAssignableFrom(parameters[0].ParameterType))
-			{
-				addLenght = 1;
-			}
-
-			object[] objectArgs = new object[parameters.Length];
-
-			for (int k = 0; k < parameters.Length; k++)
-			{
-				var parameter = parameters[k];
-				int i = k - addLenght;
-				if (k == 0 && addLenght == 1)
-				{
-					if (typeof (Player).IsAssignableFrom(parameter.ParameterType))
-					{
-						objectArgs[k] = player;
-						continue;
-					}
-
-					return null;
-				}
-
-				if (parameter.IsOptional && args.Length <= i)
-				{
-					objectArgs[k] = parameter.DefaultValue;
-					continue;
-				}
-
-				if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
-				{
-					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
-					IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
-					defaultValue?.Deserialize(player, args[i]);
-
-					objectArgs[k] = defaultValue;
-
-					continue;
-				}
-
-				if (parameter.ParameterType.BaseType == typeof (EnumBase))
-				{
-					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
-					EnumBase instance = (EnumBase) ctor.Invoke(null);
-					instance.Value = args[i];
-					objectArgs[k] = instance;
-					continue;
-				}
-
-				if (parameter.ParameterType == typeof (Target))
-				{
-					var target = JsonConvert.DeserializeObject<Target>(args[i]);
-					target = FillTargets(player, player.Level, target);
-					objectArgs[k] = target;
-					continue;
-				}
-
-				if (parameter.ParameterType == typeof (BlockPos))
-				{
-					var blockpos = JsonConvert.DeserializeObject<BlockPos>(args[i]);
-					objectArgs[k] = blockpos;
-					continue;
-				}
-
-				if (parameter.ParameterType == typeof (string))
-				{
-					objectArgs[k] = args[i];
-					continue;
-				}
-				if (parameter.ParameterType == typeof (byte))
-				{
-					byte value;
-					if (!byte.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (short))
-				{
-					short value;
-					if (!short.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (int))
-				{
-					int value;
-					if (!int.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (bool))
-				{
-					bool value;
-					if (!bool.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (float))
-				{
-					float value;
-					if (!float.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (double))
-				{
-					double value;
-					if (!double.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType.IsEnum)
-				{
-					Enum value = Enum.Parse(parameter.ParameterType, args[i], true) as Enum;
-					if (value == null)
-					{
-						continue;
-					}
-
-					objectArgs[k] = value;
-					continue;
-				}
-
-				if (IsParams(parameter) && parameter.ParameterType == typeof (string[]))
-				{
-					List<string> strings = new List<string>();
-					for (int j = i; j < args.Length; j++)
-					{
-						strings.Add(args[j]);
-					}
-					objectArgs[k] = strings.ToArray();
-					continue;
-				}
-
-				return null;
-			}
-
-			return null;
-		}
-
-		private static bool IsParams(ParameterInfo param)
-		{
-			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
-		}
-
-		private Target FillTargets(Player commander, Level level, Target target)
-		{
-			if (target.Selector == "nearestPlayer" && target.Rules == null)
-			{
-				target.Players = new[] {commander};
-			}
-			else if (target.Selector == "nearestPlayer" && target.Rules != null)
-			{
-				string username = target.Rules.First().Value;
-				var players = level.GetAllPlayers().Where(p => p.Username == username);
-				target.Players = players.ToArray();
-			}
-			else if (target.Selector == "allPlayers")
-			{
-				target.Players = level.GetAllPlayers();
-			}
-			else if (target.Selector == "allEntities")
-			{
-				target.Entities = level.GetEntites();
-			}
-			else if (target.Selector == "randomPlayer")
-			{
-				Player[] players = level.GetAllPlayers();
-				target.Players = new[] {players[new Random().Next(players.Length)]};
-			}
-
-			return target;
-		}
 	}
 }

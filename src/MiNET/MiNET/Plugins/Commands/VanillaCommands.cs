@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
+using log4net;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
@@ -41,6 +42,8 @@ namespace MiNET.Plugins.Commands
 {
 	public class VanillaCommands
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (VanillaCommands));
+
 		private readonly PluginManager _pluginManager;
 
 		public VanillaCommands(PluginManager pluginManager)

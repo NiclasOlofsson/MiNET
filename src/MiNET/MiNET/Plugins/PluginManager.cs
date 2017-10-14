@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -8,7 +33,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
-using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -206,7 +230,7 @@ namespace MiNET.Plugins
 
 				var overload = new Overload
 				{
-					Description = commandAttribute.Description??"Bullshit",
+					Description = commandAttribute.Description ?? "Bullshit",
 					Method = method,
 					Input = new Input(),
 					Output = new Output()
@@ -246,7 +270,7 @@ namespace MiNET.Plugins
 							{
 								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
 								Aliases = commandAttribute.Aliases,
-								Description = commandAttribute.Description??"Bullshit",
+								Description = commandAttribute.Description ?? "Bullshit",
 								Overloads = new Dictionary<string, Overload>
 								{
 									{
@@ -294,34 +318,34 @@ namespace MiNET.Plugins
 							typeName = typeName.ToLowerInvariant()[0] + typeName.Substring(1);
 							param.EnumType = typeName;
 
-							if (parameter.ParameterType == typeof(ItemTypeEnum))
+							if (parameter.ParameterType == typeof (ItemTypeEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "Item";
 							}
-							if (parameter.ParameterType == typeof(BlockTypeEnum))
+							if (parameter.ParameterType == typeof (BlockTypeEnum))
 							{
-								param.EnumValues = new string[] {};
+								param.EnumValues = new string[] { };
 								param.EnumType = "Block";
 							}
-							if (parameter.ParameterType == typeof(EntityTypeEnum))
+							if (parameter.ParameterType == typeof (EntityTypeEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "EntityType";
 							}
-							if (parameter.ParameterType == typeof(CommandNameEnum))
+							if (parameter.ParameterType == typeof (CommandNameEnum))
 							{
 								param.EnumValues = new string[] { };
 								param.EnumType = "CommandName";
 							}
-							if (parameter.ParameterType == typeof(EnchantEnum))
+							if (parameter.ParameterType == typeof (EnchantEnum))
 							{
 								param.EnumValues = new string[] {"enchant_test"};
 								param.EnumType = "Enchant";
 							}
-							if (parameter.ParameterType == typeof(EffectEnum))
+							if (parameter.ParameterType == typeof (EffectEnum))
 							{
-								param.EnumValues = new string[] { "effect_test" };
+								param.EnumValues = new string[] {"effect_test"};
 								param.EnumType = "Effect";
 							}
 						}
@@ -582,7 +606,7 @@ namespace MiNET.Plugins
 
 			foreach (var overload in command.Versions.First().Overloads.Values)
 			{
-				CommandPermission requiredPermission = (CommandPermission)Enum.Parse(typeof(CommandPermission), command.Versions.First().Permission, true);
+				CommandPermission requiredPermission = (CommandPermission) Enum.Parse(typeof (CommandPermission), command.Versions.First().Permission, true);
 				if (player.CommandPermission < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommandPermission}");
@@ -614,7 +638,11 @@ namespace MiNET.Plugins
 					command = Commands.Values.FirstOrDefault(cmd => cmd.Versions.Any(version => version.Aliases != null && version.Aliases.Any(s => s == commandName)));
 				}
 
-				if (command == null) return null;
+				if (command == null)
+				{
+					Log.Warn($"Found no command handler for {commandName}");
+					return null;
+				}
 
 				Overload overload = command.Versions.First().Overloads[commandOverload];
 
@@ -720,8 +748,7 @@ namespace MiNET.Plugins
 
 				if (parameter.ParameterType == typeof (Target))
 				{
-					var target = JsonConvert.DeserializeObject<Target>(args[i]);
-					target = FillTargets(player, player.Level, target);
+					var target = FillTargets(player, player.Level, args[i]);
 					objectArgs[k] = target;
 					continue;
 				}
@@ -845,13 +872,15 @@ namespace MiNET.Plugins
 			return result;
 		}
 
-		private Target FillTargets(Player commander, Level level, Target target)
+		public Target FillTargets(Player commander, Level level, string source)
 		{
-			if (target.Selector == "nearestPlayer" && target.Rules == null)
+			Target target = ParseTarget(source);
+
+			if (target.Selector == "closestPlayer" && target.Rules == null)
 			{
 				target.Players = new[] {commander};
 			}
-			else if (target.Selector == "nearestPlayer" && target.Rules != null)
+			else if (target.Selector == "closestPlayer" && target.Rules != null)
 			{
 				string username = target.Rules.First().Value;
 				var players = level.GetAllPlayers().Where(p => p.Username == username);
@@ -869,6 +898,67 @@ namespace MiNET.Plugins
 			{
 				Player[] players = level.GetAllPlayers();
 				target.Players = new[] {players[new Random().Next(players.Length)]};
+			}
+
+
+			return target;
+		}
+
+		public static Target ParseTarget(string source)
+		{
+			Target target = new Target();
+			if(!source.StartsWith("@"))
+			{
+				target.Selector = "closestPlayer";
+				target.Rules = new[] {new Target.Rule() {Name = "name", Value = source}};
+			}
+			else
+			{
+				var matches = Regex.Matches(source, @"^(?<selector>@[aeprs])(\[((?<args>(c|dx|dy|dz|l|lm|m|name|r|rm|rx|rxm|rym|type|x|y|z)=.*?)(,*?))*\])*$");
+				var selector = matches[0].Groups["selector"].Captures[0].Value;
+				switch (selector)
+				{
+					case "@a":
+						selector = "allPlayers";
+						break;
+					case "@e":
+						selector = "allEntities";
+						break;
+					case "@p":
+						selector = "closestPlayer";
+						break;
+					case "@r":
+						selector = "randomPlayer";
+						break;
+					case "@s":
+						selector = "yourself";
+						break;
+				}
+				target.Selector = selector;
+				List<Target.Rule> rules = new List<Target.Rule>();
+				foreach (Capture arg in matches[0].Groups["args"].Captures)
+				{
+					string[] split = arg.Value.Split('=');
+					string name = split[0];
+					string value = split[1];
+
+					Target.Rule rule = new Target.Rule();
+					rule.Name = name;
+					if (value.StartsWith("!"))
+					{
+						rule.Inverted = true;
+						rule.Value = value.Substring(1);
+					}
+					else
+					{
+						rule.Value = value;
+					}
+					
+					rules.Add(rule);
+				}
+
+
+				if (rules.Count != 0) target.Rules = rules.ToArray();
 			}
 
 			return target;

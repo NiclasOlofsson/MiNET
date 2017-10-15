@@ -37,7 +37,7 @@ namespace MiNET.Entities.Behaviors
 
 		public virtual void OnTick()
 		{
-			float speedFactor = (float) (_speed*_speedMultiplier);
+			float speedFactor = (float) (_speed*_speedMultiplier*0.7f*(_entity.IsInWater?0.3:1.0)); // 0.7 is a general mob base factor
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
 			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);

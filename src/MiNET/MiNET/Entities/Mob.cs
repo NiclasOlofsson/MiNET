@@ -111,7 +111,8 @@ namespace MiNET.Entities
 			KnownPosition.Z += (float) Velocity.Z;
 
 			// Fix potential fall through ground because of speed
-			IsOnGround = IsMobOnGround(KnownPosition);
+			bool inWater = IsMobInFluid(KnownPosition);
+			IsOnGround = !inWater && IsMobOnGround(KnownPosition);
 			if (!onGroundBefore && IsOnGround)
 			{
 				while (Level.GetBlock(KnownPosition).IsSolid)
@@ -138,11 +139,10 @@ namespace MiNET.Entities
 			// Calculate velocity for next move
 			_currentBehavior?.OnTick();
 
-			bool inWater = IsMobInFluid(KnownPosition);
-
 			if (inWater && Level.Random.NextDouble() < 0.8)
 			{
 				Velocity += new Vector3(0, 0.039f, 0);
+				Velocity *= new Vector3(0.2f, 1.0f, 0.2f);
 			}
 			else if (IsOnGround)
 			{

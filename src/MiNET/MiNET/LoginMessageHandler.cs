@@ -334,20 +334,23 @@ namespace MiNET
 								_session.CryptoContext.OutputStream = outputStream;
 								_session.CryptoContext.CryptoStreamIn = cryptoStreamIn;
 								_session.CryptoContext.CryptoStreamOut = cryptoStreamOut;
+
+								string b64Key = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
+								var handshakeJson = new HandshakeData() {salt = Convert.ToBase64String(ecKey.SecretPrepend)};
+
+								string val = JWT.Encode(handshakeJson, ecKey.Key, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
+								Log.Warn($"Headers: {string.Join(";", JWT.Headers(val))}");
+								Log.Warn($"Return salt:\n{JWT.Payload(val)}");
+
+								var response = McpeServerToClientHandshake.CreateObject();
+								response.NoBatch = true;
+								response.ForceClear = true;
+								response.token = val;
+
+								_session.SendPackage(response);
+
+								if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 							}
-
-							//TODO: JSON now.
-							throw new Exception("JSON!!!");
-							//var response = McpeServerToClientHandshake.CreateObject();
-							//response.NoBatch = true;
-							//response.ForceClear = true;
-							//response.serverPublicKey = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-							//response.tokenLength = (short) ecKey.SecretPrepend.Length;
-							//response.token = ecKey.SecretPrepend;
-
-							//_session.SendPackage(response);
-
-							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 						}
 					}
 				}

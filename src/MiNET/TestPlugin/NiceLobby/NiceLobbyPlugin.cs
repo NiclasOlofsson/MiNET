@@ -106,18 +106,18 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			//if (e.Level.TickTime%2 == 0)
-			//{
-			//	BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
+			if (e.Level.TickTime % 2 == 0)
+			{
+				BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
 
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 10,
-			//		MessageType = MessageType.Tip,
-			//		Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}",
-			//		Duration = 20*5,
-			//	});
-			//}
+				player.AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}",
+					Duration = 20 * 5,
+				});
+			}
 
 
 			// Compass
@@ -414,7 +414,7 @@ namespace TestPlugin.NiceLobby
 			ThreadPool.QueueUserWorkItem(state =>
 			{
 				Thread.Sleep(2000);
-				level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+				level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Green}+{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} joined the server");
 				var joinSound = new AnvilUseSound(level.SpawnPoint.ToVector3());
 				joinSound.Spawn(level);
 
@@ -436,7 +436,7 @@ namespace TestPlugin.NiceLobby
 			Player trash;
 			_players.TryRemove(player.Username, out trash);
 
-			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username}");
+			level.BroadcastMessage($"{ChatColors.Gold}[{ChatColors.Red}-{ChatColors.Gold}]{ChatFormatting.Reset} {player.Username} left the server");
 			var leaveSound = new AnvilBreakSound(level.SpawnPoint.ToVector3());
 			leaveSound.Spawn(level);
 		}
@@ -641,7 +641,8 @@ namespace TestPlugin.NiceLobby
 			//else 
 			if (player.CertificateData.ExtraData.Xuid != null)
 			{
-				rank = $"{ChatColors.Green}[XBOX]";
+				rank = $"{ChatColors.Green}";
+				//rank = $"{ChatColors.Green}[XBOX]";
 			}
 			else
 			{
@@ -667,7 +668,7 @@ namespace TestPlugin.NiceLobby
 			}
 
 			text = TextUtils.RemoveFormatting(text);
-			player.Level.BroadcastMessage($"{GetNameTag(player)}:{ChatColors.White} {text}", MessageType.Raw);
+			player.Level.BroadcastMessage($"{GetNameTag(player)} says:{ChatColors.White} {text}", MessageType.Chat);
 
 			var leaveSound = new AnvilFallSound(player.Level.SpawnPoint.ToVector3());
 			leaveSound.Spawn(player.Level);

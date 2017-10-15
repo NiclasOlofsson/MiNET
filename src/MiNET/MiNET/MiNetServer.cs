@@ -1139,8 +1139,8 @@ namespace MiNET
 			if (message is McpeWrapper) return;
 			if (message is UnconnectedPong) return;
 			if (message is McpeMovePlayer) return;
-			//if (message is McpeSetEntityMotion) return;
-			//if (message is McpeMoveEntity) return;
+			if (message is McpeSetEntityMotion) return;
+			if (message is McpeMoveEntity) return;
 			if (message is McpeSetEntityData) return;
 			if (message is McpeUpdateBlock) return;
 			if (message is McpeText) return;

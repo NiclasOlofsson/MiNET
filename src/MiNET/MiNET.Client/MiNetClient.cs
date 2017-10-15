@@ -1359,7 +1359,7 @@ namespace MiNET.Client
 			CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(x5u);
 			var data = JWT.Decode<HandshakeData>(token, newKey);
 
-			InitiateEncryption(x5u, Base64Url.Decode(data.Salt));
+			InitiateEncryption(x5u, Base64Url.Decode(data.salt));
 		}
 
 		private void InitiateEncryption(string serverKey, byte[] randomKeyToken)

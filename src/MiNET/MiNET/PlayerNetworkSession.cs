@@ -319,6 +319,8 @@ namespace MiNET
 					MemoryStream stream = new MemoryStream(payload);
 					if (stream.ReadByte() != 0x78)
 					{
+						if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Expected 0x78 0x9C 0x{message.Id:X2}\n{Package.HexDump(batch.payload)}");
+						if (Log.IsDebugEnabled) Log.Error($"Incorrect ZLib header. Decrypted 0x{message.Id:X2}\n{Package.HexDump(payload)}");
 						throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
 					}
 					stream.ReadByte();

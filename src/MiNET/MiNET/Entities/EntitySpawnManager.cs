@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -121,8 +146,7 @@ namespace MiNET.Entities
 						var firstBlock = Level.GetBlock(x, y + 1, z);
 						if (!firstBlock.IsSolid)
 						{
-							if (doSpawnPassive
-							    && PassiveMobs.Contains(entityType)
+							if (doSpawnPassive && PassiveMobs.Contains(entityType)
 							    && ((firstBlock.BlockLight >= 9 || firstBlock.SkyLight >= 9) || (Level.CurrentWorldTime > 450 && Level.CurrentWorldTime < 11615)))
 							{
 								var secondBlock = Level.GetBlock(x, y + 2, z);
@@ -132,6 +156,7 @@ namespace MiNET.Entities
 
 									if (Spawn(new PlayerLocation(x, y + 1, z, yaw + 15, yaw), entityType))
 									{
+										//Level.SetBlock(new StainedGlass() { Metadata = (byte)firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 										if (++numberOfSpawnedMobs >= maxPackSize) break;
 									}
 									else
@@ -141,10 +166,8 @@ namespace MiNET.Entities
 									}
 								}
 							}
-							else if (doSpawnHostile
-							         && HostileMobs.Contains(entityType)
-							         && firstBlock.BlockLight <= 7
-							         && (firstBlock.SkyLight <= 7 || Level.CurrentWorldTime < 450 || Level.CurrentWorldTime > 11615))
+							else if (doSpawnHostile && HostileMobs.Contains(entityType) && firstBlock.BlockLight <= 7
+							         && (firstBlock.SkyLight <= 7 || (Level.CurrentWorldTime > 13183 && Level.CurrentWorldTime < 22800)))
 							{
 								var secondBlock = Level.GetBlock(x, y + 2, z);
 								if (!secondBlock.IsSolid)
@@ -153,6 +176,9 @@ namespace MiNET.Entities
 
 									if (Spawn(new PlayerLocation(x, y + 1, z, yaw + 15, yaw), entityType))
 									{
+										//Level.SetBlock(new StainedGlass() { Metadata = (byte) firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
+										//Log.Warn($"Spawned {entityType} at {firstBlock.Coordinates} at light level on bottom={firstBlock.SkyLight} amd top={secondBlock.SkyLight}, world time={Level.CurrentWorldTime}");
+
 										if (++numberOfSpawnedMobs >= maxPackSize) break;
 									}
 									else
@@ -226,9 +252,68 @@ namespace MiNET.Entities
 
 			if (possibleMobs.Count == 0) return EntityType.None;
 
-			EntityType entityType = possibleMobs[random.Next(possibleMobs.Count)];
+			EntityType entityType = GetWeightedRandom(possibleMobs.ToArray(), random);
 
 			return entityType;
+		}
+
+		private EntityType GetWeightedRandom(EntityType[] possiblEntityTypes, Random random)
+		{
+			Tuple<EntityType, int>[] weightedPassiveMobs =
+			{
+				new Tuple<EntityType, int>(EntityType.Sheep, 12),
+				new Tuple<EntityType, int>(EntityType.Chicken, 10),
+				new Tuple<EntityType, int>(EntityType.Pig, 10),
+				new Tuple<EntityType, int>(EntityType.Cow, 8),
+				new Tuple<EntityType, int>(EntityType.Wolf, 5),
+				new Tuple<EntityType, int>(EntityType.Horse, 1)
+			};
+
+			Tuple<EntityType, int>[] weightedHostileMobs =
+			{
+				new Tuple<EntityType, int>(EntityType.Zombie, 100),
+				new Tuple<EntityType, int>(EntityType.Skeleton, 100),
+				new Tuple<EntityType, int>(EntityType.Creeper, 100),
+				new Tuple<EntityType, int>(EntityType.Enderman, 10)
+			};
+
+			List<Tuple<EntityType, int>> coll = new List<Tuple<EntityType, int>>();
+			int totalWeight = 0;
+			foreach (var possiblEntityType in possiblEntityTypes)
+			{
+				if (PassiveMobs.Contains(possiblEntityType))
+				{
+					var tuple = weightedPassiveMobs.First(m => m.Item1 == possiblEntityType);
+					totalWeight += tuple.Item2;
+					coll.Add(tuple);
+				}
+				else if (HostileMobs.Contains(possiblEntityType))
+				{
+					var tuple = weightedHostileMobs.First(m => m.Item1 == possiblEntityType);
+					totalWeight += tuple.Item2;
+					coll.Add(tuple);
+				}
+			}
+
+			coll = coll.OrderByDescending(t => t.Item2).ToList();
+
+			int weight = random.Next(totalWeight);
+
+			int i = 0;
+
+			for (int j = coll.Count; i < j; ++i)
+			{
+				var t = coll[i];
+				weight -= t.Item2;
+
+				if (weight < 0)
+				{
+					return t.Item1;
+				}
+			}
+
+			Log.Warn($"Looking for random entit types, found none");
+			return EntityType.None;
 		}
 
 		private bool Spawn(PlayerLocation position, EntityType entityType)
@@ -263,24 +348,31 @@ namespace MiNET.Entities
 					break;
 				case EntityType.Ocelot:
 					mob = new Ocelot(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Rabbit:
 					mob = new Rabbit(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Spider:
 					mob = new Spider(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Zombie:
 					mob = new Zombie(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Skeleton:
 					mob = new Skeleton(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Enderman:
 					mob = new Enderman(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Creeper:
 					mob = new Creeper(world);
+					mob.NoAi = true;
 					break;
 			}
 

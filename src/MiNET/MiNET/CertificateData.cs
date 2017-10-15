@@ -48,8 +48,7 @@ namespace MiNET
 
 	public class HandshakeData
 	{
-		public string X5U { get; set; }
-		public string Salt { get; set; }
+		public string salt { get; set; }
 	}
 
 	public class CertificateData

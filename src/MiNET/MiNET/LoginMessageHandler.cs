@@ -91,7 +91,7 @@ namespace MiNET
 				throw new Exception($"Wrong lenght {message.payload.Length} != {message.payload.Length}");
 			}
 
-			if (Log.IsDebugEnabled) Log.Debug("Lenght: " + message.payload.Length + ", Message: " + Convert.ToBase64String(buffer));
+			if (Log.IsDebugEnabled) Log.Debug("Lenght: " + message.payload.Length + ", Message: " + buffer.EncodeBase64());
 
 			string certificateChain;
 			string skinData;
@@ -234,13 +234,13 @@ namespace MiNET
 						if (Log.IsDebugEnabled)
 						{
 							Log.Debug($"x5u cert (string): {x5u}");
-							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(x5u);
+							ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
 							Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 						}
 
 						// Validate
-						CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(x5u);
-						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), newKey);
+						ECDiffieHellmanCngPublicKey newKey = (ECDiffieHellmanCngPublicKey) CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
+						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), newKey.Import());
 
 						if (data != null)
 						{
@@ -294,7 +294,7 @@ namespace MiNET
 
 						if (_session.CryptoContext.UseEncryption)
 						{
-							ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(_playerInfo.CertificateData.IdentityPublicKey);
+							ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(_playerInfo.CertificateData.IdentityPublicKey.DecodeBase64Url());
 							if (Log.IsDebugEnabled) Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
 							// Create shared shared secret
@@ -302,10 +302,9 @@ namespace MiNET
 							ecKey.HashAlgorithm = CngAlgorithm.Sha256;
 							ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
 							ecKey.SecretPrepend = Encoding.UTF8.GetBytes("RANDOM SECRET"); // Server token
-
 							byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
 
-							if (Log.IsDebugEnabled) Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
+							if (Log.IsDebugEnabled) Log.Debug($"SECRET KEY (b64):\n{secret.EncodeBase64()}");
 
 							{
 								RijndaelManaged rijAlg = new RijndaelManaged
@@ -335,8 +334,8 @@ namespace MiNET
 								_session.CryptoContext.CryptoStreamIn = cryptoStreamIn;
 								_session.CryptoContext.CryptoStreamOut = cryptoStreamOut;
 
-								string b64Key = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
-								var handshakeJson = new HandshakeData() {salt = Convert.ToBase64String(ecKey.SecretPrepend)};
+								string b64Key = ecKey.PublicKey.ToDerEncoded().EncodeBase64();
+								var handshakeJson = new HandshakeData() {salt = ecKey.SecretPrepend.EncodeBase64()};
 
 								string val = JWT.Encode(handshakeJson, ecKey.Key, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
 								Log.Warn($"Headers: {string.Join(";", JWT.Headers(val))}");

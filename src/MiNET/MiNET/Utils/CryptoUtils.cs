@@ -29,9 +29,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using JetBrains.Annotations;
 using Jose;
 using log4net;
 using MiNET.Utils.Skins;
@@ -42,7 +42,27 @@ namespace MiNET.Utils
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (CryptoUtils));
 
-		public static byte[] GetDerEncoded(this ECDiffieHellmanPublicKey key)
+		public static byte[] DecodeBase64Url(this string input)
+		{
+			return Base64Url.Decode(input);
+		}
+
+		public static string EncodeBase64Url(this byte[] input)
+		{
+			return Base64Url.Encode(input);
+		}
+
+		public static byte[] DecodeBase64(this string input)
+		{
+			return Convert.FromBase64String(input);
+		}
+
+		public static string EncodeBase64(this byte[] input)
+		{
+			return Convert.ToBase64String(input);
+		}
+
+		public static byte[] ToDerEncoded([NotNull] this ECDiffieHellmanPublicKey key)
 		{
 			byte[] asn = new byte[24]
 			{
@@ -53,10 +73,9 @@ namespace MiNET.Utils
 			return asn.Concat(key.ToByteArray().Skip(8)).ToArray();
 		}
 
-		public static ECDiffieHellmanPublicKey CreateEcDiffieHellmanPublicKey(string clientPubKeyString)
+		public static ECDiffieHellmanPublicKey FromDerEncoded(byte[] keyBytes)
 		{
-			byte[] clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
-			clientPublicKeyBlob = FixPublicKey(clientPublicKeyBlob.Skip(23).ToArray());
+			var clientPublicKeyBlob = FixPublicKey(keyBytes.Skip(23).ToArray());
 
 			ECDiffieHellmanPublicKey clientKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
 			return clientKey;
@@ -68,39 +87,6 @@ namespace MiNET.Utils
 			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
 
 			return keyType.Concat(keyLength).Concat(publicKeyBlob.Skip(1)).ToArray();
-		}
-
-		public static ECDiffieHellmanPublicKey ImportEccPublicKeyFromCertificate(X509Certificate2 cert)
-		{
-			var keyType = new byte[] {0x45, 0x43, 0x4b, 0x33};
-			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
-			var key = cert.PublicKey.EncodedKeyValue.RawData.Skip(1);
-			var keyImport = keyType.Concat(keyLength).Concat(key).ToArray();
-
-			//Assert.AreEqual(privateKey, keyImport);
-
-			return ECDiffieHellmanCngPublicKey.FromByteArray(keyImport, CngKeyBlobFormat.EccPublicBlob);
-		}
-
-		/// <summary>
-		/// Used to create a CngKey that can be used to verify JWT content.
-		/// </summary>
-		/// <param name="clientPubKeyString"></param>
-		/// <returns></returns>
-		public static CngKey ImportECDsaCngKeyFromString(string clientPubKeyString)
-		{
-			byte[] clientPublicKeyBlob = Base64Url.Decode(clientPubKeyString);
-			byte[] key = clientPublicKeyBlob.Skip(23).ToArray();
-
-			var keyType = new byte[] {0x45, 0x43, 0x53, 0x33};
-			var keyLength = new byte[] {0x30, 0x00, 0x00, 0x00};
-
-			var keyImport = keyType.Concat(keyLength).Concat(key.Skip(1)).ToArray();
-
-			var cngKey = CngKey.Import(keyImport, CngKeyBlobFormat.EccPublicBlob);
-			var crypto = new ECDsaCng(cngKey);
-
-			return crypto.Key;
 		}
 
 		public static byte[] ImportECDsaCngKeyFromCngKey(byte[] inKey)
@@ -192,7 +178,7 @@ namespace MiNET.Utils
 			ecKey.HashAlgorithm = CngAlgorithm.Sha256;
 			ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
 
-			string b64Key = Convert.ToBase64String(ecKey.PublicKey.GetDerEncoded());
+			string b64Key = Convert.ToBase64String(ecKey.PublicKey.ToDerEncoded());
 
 			long exp = DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeMilliseconds();
 
@@ -243,7 +229,7 @@ namespace MiNET.Utils
 			ecKey.HashAlgorithm = CngAlgorithm.Sha256;
 			ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
 
-			var b64Key = Base64Url.Encode(ecKey.PublicKey.GetDerEncoded());
+			var b64Key = Base64Url.Encode(ecKey.PublicKey.ToDerEncoded());
 
 			Skin skin = new Skin
 			{

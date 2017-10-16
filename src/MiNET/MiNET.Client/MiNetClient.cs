@@ -1356,17 +1356,17 @@ namespace MiNET.Client
 
 			IDictionary<string, dynamic> headers = JWT.Headers(token);
 			string x5u = headers["x5u"];
-			CngKey newKey = CryptoUtils.ImportECDsaCngKeyFromString(x5u);
-			var data = JWT.Decode<HandshakeData>(token, newKey);
+			ECDiffieHellmanCngPublicKey newKey = (ECDiffieHellmanCngPublicKey)CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
+			var data = JWT.Decode<HandshakeData>(token, newKey.Import());
 
-			InitiateEncryption(x5u, Base64Url.Decode(data.salt));
+			InitiateEncryption(Base64Url.Decode(x5u), Base64Url.Decode(data.salt));
 		}
 
-		private void InitiateEncryption(string serverKey, byte[] randomKeyToken)
+		private void InitiateEncryption(byte[] serverKey, byte[] randomKeyToken)
 		{
 			try
 			{
-				ECDiffieHellmanPublicKey publicKey = CryptoUtils.CreateEcDiffieHellmanPublicKey(serverKey);
+				ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(serverKey);
 				Log.Debug("ServerKey (b64):\n" + serverKey);
 				Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 

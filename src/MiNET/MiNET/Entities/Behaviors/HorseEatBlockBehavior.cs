@@ -47,7 +47,7 @@ namespace MiNET.Entities.Behaviors
 			return _duration-- > 0;
 		}
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 		}
 

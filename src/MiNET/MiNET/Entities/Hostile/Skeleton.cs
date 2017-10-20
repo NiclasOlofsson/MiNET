@@ -56,9 +56,9 @@ namespace MiNET.Entities.Hostile
 			Level.RelayBroadcast(armorEquipment);
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
-			base.OnTick();
+			base.OnTick(entities);
 
 			Block block = Level.GetBlock(KnownPosition);
 			if (!(block is StationaryWater) && !(block is FlowingWater) && block.SkyLight > 7 && (Level.CurrentWorldTime < 12566 || Level.CurrentWorldTime > 23450))

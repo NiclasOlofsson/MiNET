@@ -92,7 +92,7 @@ namespace MiNET.Entities
 			Scale = 39,
 			MaxAir = 43,
 			CollisionBoxWidth = 54,
-			CollisionBoxHeight = 55,
+			CollisionBoxHeight = 55
 		}
 
 		public virtual MetadataDictionary GetMetadata()
@@ -282,7 +282,7 @@ namespace MiNET.Entities
 			return Level.GetBlock(KnownPosition + new Vector3(0, 0.3f, 0)) is Portal;
 		}
 
-		public virtual void OnTick()
+		public virtual void OnTick(Entity[] entities)
 		{
 			Age++;
 
@@ -313,9 +313,9 @@ namespace MiNET.Entities
 			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
 			addEntity.metadata = GetMetadata();
-			addEntity.speedX = (float) Velocity.X;
-			addEntity.speedY = (float) Velocity.Y;
-			addEntity.speedZ = (float) Velocity.Z;
+			addEntity.speedX = Velocity.X;
+			addEntity.speedY = Velocity.Y;
+			addEntity.speedZ = Velocity.Z;
 			addEntity.attributes = GetEntityAttributes();
 
 			Level.RelayBroadcast(players, addEntity);
@@ -329,49 +329,49 @@ namespace MiNET.Entities
 				Name = "minecraft:attack_damage",
 				MinValue = 1,
 				MaxValue = 1,
-				Value = 1,
+				Value = 1
 			};
 			attributes["minecraft:absorption"] = new EntityAttribute
 			{
 				Name = "minecraft:absorption",
 				MinValue = 0,
 				MaxValue = float.MaxValue,
-				Value = HealthManager.Absorption,
+				Value = HealthManager.Absorption
 			};
 			attributes["minecraft:health"] = new EntityAttribute
 			{
 				Name = "minecraft:health",
 				MinValue = 0,
 				MaxValue = 20,
-				Value = HealthManager.Hearts,
+				Value = HealthManager.Hearts
 			};
 			attributes["minecraft:knockback_resistance"] = new EntityAttribute
 			{
 				Name = "minecraft:knockback_resistance",
 				MinValue = 0,
 				MaxValue = 1,
-				Value = 0,
+				Value = 0
 			};
 			attributes["minecraft:luck"] = new EntityAttribute
 			{
 				Name = "minecraft:luck",
 				MinValue = -1025,
 				MaxValue = 1024,
-				Value = 0,
+				Value = 0
 			};
 			attributes["minecraft:fall_damage"] = new EntityAttribute
 			{
 				Name = "minecraft:fall_damage",
 				MinValue = 0,
 				MaxValue = float.MaxValue,
-				Value = 1,
+				Value = 1
 			};
 			attributes["minecraft:follow_range"] = new EntityAttribute
 			{
 				Name = "minecraft:follow_range",
 				MinValue = 0,
 				MaxValue = 2048,
-				Value = 16,
+				Value = 16
 			};
 
 			return attributes;
@@ -407,12 +407,50 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(entityEvent);
 		}
 
+
+		public bool IsColliding(Entity other)
+		{
+			return IsColliding(GetBoundingBox(), other);
+		}
+
+		public bool IsColliding(BoundingBox bbox, Entity other)
+		{
+			//if (!Compare((int) KnownPosition.X, (int) other.KnownPosition.X, 5)) return false;
+			//if (!Compare((int) KnownPosition.Z, (int) other.KnownPosition.Z, 5)) return false;
+			if (!Compare((int)KnownPosition.X, (int)other.KnownPosition.X, 4)) return false;
+			if (!Compare((int)KnownPosition.Z, (int)other.KnownPosition.Z, 4)) return false;
+			if (!bbox.Intersects(other.GetBoundingBox())) return false;
+
+			return true;
+		}
+
+
+		private bool Compare(int a, int b, int m)
+		{
+			a = a >> m;
+			b = b >> m;
+			return a == b || a == b - 1 || a == b + 1;
+		}
+
+		private Tuple<Vector3, BoundingBox> _bboxCache = new Tuple<Vector3, BoundingBox>(new Vector3(0, -1000, 0), new BoundingBox());
 		public BoundingBox GetBoundingBox()
 		{
 			var pos = KnownPosition;
-			double halfWidth = Width/2;
+			//if (Math.Abs(pos.X - _bboxCache.Item1.X) < 0.01 && Math.Abs(pos.Y - _bboxCache.Item1.Y) < 0.01 && Math.Abs(pos.Z - _bboxCache.Item1.Z) < 0.01) return _bboxCache.Item2;
 
-			return new BoundingBox(new Vector3((float) (pos.X - halfWidth), pos.Y, (float) (pos.Z - halfWidth)), new Vector3((float) (pos.X + halfWidth), (float) (pos.Y + Height), (float) (pos.Z + halfWidth)));
+			float halfWidth = (float) (Width/2);
+
+			var bbox = new BoundingBox(
+				Vector3.Min(new Vector3(pos.X - halfWidth, pos.Y, pos.Z - halfWidth), new Vector3(pos.X + halfWidth, pos.Y, pos.Z + halfWidth)),
+				Vector3.Max(new Vector3(pos.X - halfWidth, (float) (pos.Y - Height), pos.Z - halfWidth), new Vector3(pos.X + halfWidth, (float) (pos.Y + Height), pos.Z + halfWidth)));
+			//_bboxCache = new Tuple<Vector3, BoundingBox>(KnownPosition, bbox);
+			return bbox;
+		}
+
+		public double DistanceToHorizontal(Entity entity)
+		{
+			if (entity == null) return -1;
+			return Vector2.Distance(KnownPosition, entity.KnownPosition);
 		}
 
 		public double DistanceTo(Entity entity)

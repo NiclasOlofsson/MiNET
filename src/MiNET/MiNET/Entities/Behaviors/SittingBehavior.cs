@@ -33,7 +33,7 @@ namespace MiNET.Entities.Behaviors
 		}
 
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 		}
 

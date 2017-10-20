@@ -37,7 +37,7 @@ namespace MiNET.Entities.World
 			base.SpawnEntity();
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			Fuse--;
 

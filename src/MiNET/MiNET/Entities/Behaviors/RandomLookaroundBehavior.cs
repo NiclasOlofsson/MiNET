@@ -29,7 +29,7 @@ namespace MiNET.Entities.Behaviors
 			return _duration-- > 0 && Math.Abs(_rotation) > 0;
 		}
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 			_entity.Direction += (float) Math.Sign(_rotation)*10;
 			_entity.KnownPosition.HeadYaw += (float) Math.Sign(_rotation)*10;
@@ -41,6 +41,10 @@ namespace MiNET.Entities.Behaviors
 
 		public void OnEnd()
 		{
+			_entity.Direction = Mob.ClampDegrees(_entity.Direction);
+			_entity.KnownPosition.HeadYaw = (float)_entity.Direction;
+			_entity.KnownPosition.Yaw = (float)_entity.Direction;
+			_entity.BroadcastMove(true);
 		}
 	}
 }

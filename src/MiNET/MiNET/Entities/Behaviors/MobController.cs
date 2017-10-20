@@ -50,9 +50,9 @@ namespace MiNET.Entities.Behaviors
 				return;
 			}
 
-			Vector3 playerPosition = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
-			Vector3 entityPosition = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
-			var d = Vector3.Normalize(playerPosition - entityPosition);
+			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
+			Vector3 entityPos = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
+			var d = Vector3.Normalize(targetPos - entityPos);
 
 			var dx = d.X;
 			var dy = d.Y;
@@ -101,7 +101,7 @@ namespace MiNET.Entities.Behaviors
 
 		private int _jumpCooldown = 0;
 
-		public void MoveForward(double speedMultiplier)
+		public void MoveForward(double speedMultiplier, Entity[] entities)
 		{
 			if (_jumpCooldown > 0)
 			{
@@ -129,7 +129,8 @@ namespace MiNET.Entities.Behaviors
 			var players = level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
-				if (player.GetBoundingBox().Intersects(boundingBox))
+				var bbox = boundingBox + 0.15f;
+				if (player.GetBoundingBox().Intersects(bbox))
 				{
 					entityCollide = true;
 					break;
@@ -138,15 +139,28 @@ namespace MiNET.Entities.Behaviors
 
 			if (!entityCollide)
 			{
-				var entities = level.GetEntites();
+				var bbox = boundingBox + 0.3f;
 				foreach (var ent in entities)
 				{
 					if (ent == _entity) continue;
 
-					if (ent.GetBoundingBox().Intersects(boundingBox) && ent.EntityId > _entity.EntityId)
+					if (ent.EntityId < _entity.EntityId && _entity.IsColliding(bbox, ent))
 					{
 						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
 						{
+							_entity.BroadcastEntityEvent();
+							break;
+						}
+						entityCollide = true;
+						break;
+					}
+					else if (ent.EntityId > _entity.EntityId && _entity.IsColliding(bbox, ent))
+					{
+						ent.Velocity += Vector3.Subtract(ent.KnownPosition, _entity.KnownPosition).Normalize()*0.1f;
+
+						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
+						{
+							_entity.BroadcastEntityEvent();
 							break;
 						}
 						entityCollide = true;
@@ -162,7 +176,7 @@ namespace MiNET.Entities.Behaviors
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)
 			{
-				Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
+				//Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
 				//if (!_entity.IsOnGround) return;
 
 				var velocity = direction*speedFactor;
@@ -180,7 +194,7 @@ namespace MiNET.Entities.Behaviors
 			{
 				if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
 				{
-					Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3) _entity.KnownPosition}");
+					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3) _entity.KnownPosition}");
 					if (_entity.IsOnGround)
 					{
 						_jumpCooldown = 5;
@@ -191,14 +205,12 @@ namespace MiNET.Entities.Behaviors
 				{
 					if (entityCollide)
 					{
-						Log.Debug($"Entity ahead: {block}, stopping");
+						//Log.Debug($"Entity ahead: {block}, stopping");
 						_entity.Velocity *= new Vector3(0, 1, 0);
 					}
 					else
 					{
-						Log.Debug($"Block ahead: {block}, ignoring");
-						//var velocity = direction*speedFactor;
-						//_entity.Velocity = velocity;
+						//Log.Debug($"Block ahead: {block}, ignoring");
 						_entity.Velocity *= new Vector3(0, 1, 0);
 					}
 				}

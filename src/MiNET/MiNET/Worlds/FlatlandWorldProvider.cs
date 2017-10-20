@@ -240,7 +240,9 @@ namespace MiNET.Worlds
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 2); // Grass
+
 					chunk.SetHeight(x, z, (short) h);
+					chunk.SetBiome(x, z, 1);
 				}
 			}
 

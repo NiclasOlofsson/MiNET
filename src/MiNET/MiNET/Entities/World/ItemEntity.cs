@@ -70,7 +70,7 @@ namespace MiNET.Entities.World
 			BroadcastSetEntityData();
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			if (Velocity == Vector3.Zero)
 			{

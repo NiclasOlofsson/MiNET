@@ -38,6 +38,11 @@ namespace MiNET.Blocks
 		//	return !block.IsTransparent;
 		//}
 
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			base.BlockUpdate(level, blockCoordinates);
+		}
+
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (face == BlockFace.Down) return true;

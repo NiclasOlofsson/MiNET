@@ -52,7 +52,7 @@ namespace MiNET.Entities.Behaviors
 
 		private List<Tile> _currentPath = null;
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 			if (_player == null) return;
 			var distanceToPlayer = _entity.KnownPosition.DistanceTo(_player.KnownPosition);
@@ -103,7 +103,7 @@ namespace MiNET.Entities.Behaviors
 						m = m/2.0;
 					}
 					//double m = 1;
-					_entity.Controller.MoveForward(_speedMultiplier*m);
+					_entity.Controller.MoveForward(_speedMultiplier*m, entities);
 				}
 			}
 			else

@@ -2882,7 +2882,7 @@ namespace MiNET
 			SendPackage(package);
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			OnTicking(new PlayerEventArgs(this));
 
@@ -2919,7 +2919,7 @@ namespace MiNET
 
 			HungerManager.OnTick();
 
-			base.OnTick();
+			base.OnTick(entities);
 
 			if (LastAttackTarget != null && LastAttackTarget.HealthManager.IsDead)
 			{

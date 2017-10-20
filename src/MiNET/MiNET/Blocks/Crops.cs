@@ -123,7 +123,7 @@ namespace MiNET.Blocks
 
 		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			if (base.CanPlace(world, blockCoordinates, face))
+			if (base.CanPlace(world, blockCoordinates, targetCoordinates, face))
 			{
 				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
 				return under is Farmland;
@@ -136,6 +136,7 @@ namespace MiNET.Blocks
 		{
 			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
 			{
+				Log.Debug($"BlockUpdate {blockCoordinates}");
 				level.BreakBlock(this);
 			}
 		}

@@ -13,16 +13,16 @@ namespace MiNET.Entities.Hostile
 			NoAi = true;
 			Speed = 0.23;
 
-			Behaviors.Add(new MeeleAttackBehavior(this, 1.0, 40));
-			Behaviors.Add(new FindAttackableTargetBehavior(this, 40));
+			Behaviors.Add(new MeeleAttackBehavior(this, 1.0, 35));
+			Behaviors.Add(new FindAttackableTargetBehavior(this, 35));
 			Behaviors.Add(new StrollBehavior(this, 60, Speed, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
-			base.OnTick();
+			base.OnTick(entities);
 
 			Block block = Level.GetBlock(KnownPosition);
 			if (!(block is StationaryWater) && !(block is FlowingWater) && block.SkyLight > 7 && (Level.CurrentWorldTime < 12566 || Level.CurrentWorldTime > 23450))

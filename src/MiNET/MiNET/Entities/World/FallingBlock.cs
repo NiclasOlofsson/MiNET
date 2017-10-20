@@ -53,7 +53,7 @@ namespace MiNET.Entities.World
 			return metadata;
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			PositionCheck();
 

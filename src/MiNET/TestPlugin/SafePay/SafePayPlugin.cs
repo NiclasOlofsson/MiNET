@@ -107,7 +107,7 @@ namespace TestPlugin.SafePay
 
 		private void ExecutePayment(Player player, ModalForm modal)
 		{
-			StripeConfiguration.SetApiKey("sk_test_****************************"); // Add your API key here
+			StripeConfiguration.SetApiKey("sk_test_PnZiNirxxNCSVfnAvdADv85L"); // Add your API key here
 
 			double amount = 1.90;
 

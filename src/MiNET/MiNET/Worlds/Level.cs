@@ -38,6 +38,8 @@ using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Entities;
+using MiNET.Entities.Hostile;
+using MiNET.Entities.Passive;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
@@ -441,23 +443,53 @@ namespace MiNET.Worlds
 					RelayBroadcast(message);
 				}
 
+				Entity[] entities = Entities.Values.OrderBy(e => e.EntityId).ToArray();
 				if (EnableChunkTicking || EnableBlockTicking)
 				{
 					if (EnableChunkTicking) EntitySpawnManager.DespawnMobs(TickTime);
 
-					List<Tuple<int, int>> chunksWithinRadiusOfPlayer = new List<Tuple<int, int>>();
+					List<EntitySpawnManager.SpawnState> chunksWithinRadiusOfPlayer = new List<EntitySpawnManager.SpawnState>();
 					foreach (var player in players)
 					{
 						BlockCoordinates bCoord = (BlockCoordinates) player.KnownPosition;
 
-						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 8); // Should actually be 15
+						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 15, Random); // Should actually be 15
+					}
+
+					bool canSpawnPassive = false;
+					bool canSpawnHostile = false;
+
+					if (EnableChunkTicking)
+					{
+						canSpawnPassive = CurrentWorldTime%400 == 0;
+
+						var effectiveChunkCount = Math.Max(17*17, chunksWithinRadiusOfPlayer.Count);
+						int entityPassiveCount = 0;
+						int entityHostileCount = 0;
+						foreach (var entity in entities)
+						{
+							if (canSpawnPassive && entity is PassiveMob)
+							{
+								entityPassiveCount++;
+							}
+							else if (entity is HostileMob)
+							{
+								entityHostileCount++;
+							}
+						}
+
+						canSpawnPassive = canSpawnPassive && (entityPassiveCount < EntitySpawnManager.CapPassive*effectiveChunkCount/289);
+						canSpawnHostile = (entityHostileCount < EntitySpawnManager.CapHostile*effectiveChunkCount/289);
 					}
 
 					ThreadPool.QueueUserWorkItem(state =>
 					{
-						Parallel.ForEach((List<Tuple<int, int>>) state, coord =>
+						Parallel.ForEach((List<EntitySpawnManager.SpawnState>) state, spawnState =>
 						{
-							var random = new Random();
+							Random random = new Random(spawnState.Seed);
+
+							ChunkColumn chunk = GetChunk(new ChunkCoordinates(spawnState.ChunkX, spawnState.ChunkZ));
+
 							for (int s = 0; s < 16; s++)
 							{
 								for (int i = 0; i < 3; i++)
@@ -466,17 +498,18 @@ namespace MiNET.Worlds
 									int y = random.Next(16);
 									int z = random.Next(16);
 
-									var blockCoordinates = new BlockCoordinates(x + coord.Item1*16, y + s*16, z + coord.Item2*16);
-									var height = GetHeight(blockCoordinates);
+									var height = chunk.GetHeight(x, z);
 									if (height > 0 && s*16 > height) continue;
 
-									if (IsAir(blockCoordinates))
+									var blockCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, y + s*16, z + spawnState.ChunkZ*16);
+
+									var block = GetBlock(blockCoordinates, chunk);
+									if (block.IsTransparent)
 									{
-										if (i == 0 && EnableChunkTicking)
+										if (s == 0 & i == 0 && EnableChunkTicking)
 										{
 											// Entity spawning, only one attempt per chunk
-											var numberOfLoadedChunks = ((List<Tuple<int, int>>) state).Count;
-											EntitySpawnManager.AttemptMobSpawn(TickTime, blockCoordinates, numberOfLoadedChunks);
+											EntitySpawnManager.AttemptMobSpawn(blockCoordinates, random, canSpawnPassive, canSpawnHostile);
 										}
 
 										continue;
@@ -484,7 +517,7 @@ namespace MiNET.Worlds
 
 									if (EnableBlockTicking)
 									{
-										GetBlock(blockCoordinates).OnTick(this, true);
+										block.OnTick(this, true);
 									}
 								}
 							}
@@ -517,10 +550,9 @@ namespace MiNET.Worlds
 				}
 
 				// Entity updates
-				Entity[] entities = Entities.Values.ToArray();
 				foreach (Entity entity in entities)
 				{
-					entity.OnTick();
+					entity.OnTick(entities);
 				}
 
 				PlayerCount = players.Length;
@@ -528,7 +560,7 @@ namespace MiNET.Worlds
 				// Player tick
 				foreach (var player in players)
 				{
-					if (player.IsSpawned) player.OnTick();
+					if (player.IsSpawned) player.OnTick(entities);
 				}
 
 				// Send player movements
@@ -732,10 +764,10 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public List<Tuple<int, int>> GetChunkCoordinatesForTick(ChunkCoordinates chunkPosition, List<Tuple<int, int>> chunksUsed, double radius)
+		public List<EntitySpawnManager.SpawnState> GetChunkCoordinatesForTick(ChunkCoordinates chunkPosition, List<EntitySpawnManager.SpawnState> chunksUsed, double radius, Random random)
 		{
 			{
-				List<Tuple<int, int>> newOrders = new List<Tuple<int, int>>();
+				List<EntitySpawnManager.SpawnState> newOrders = new List<EntitySpawnManager.SpawnState>();
 
 				double radiusSquared = Math.Pow(radius, 2);
 
@@ -753,7 +785,7 @@ namespace MiNET.Worlds
 						}
 						int chunkX = (int) (x + centerX);
 						int chunkZ = (int) (z + centerZ);
-						Tuple<int, int> index = new Tuple<int, int>(chunkX, chunkZ);
+						EntitySpawnManager.SpawnState index = new EntitySpawnManager.SpawnState(chunkX, chunkZ, random.Next());
 						newOrders.Add(index);
 					}
 				}

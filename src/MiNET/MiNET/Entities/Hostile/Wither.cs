@@ -99,7 +99,7 @@ namespace MiNET.Entities.Hostile
 		private long _tick = 0;
 		private CooldownTimer cooldown = new CooldownTimer(TimeSpan.FromMilliseconds(10000));
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			//base.OnTick();
 

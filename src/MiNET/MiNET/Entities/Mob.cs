@@ -53,8 +53,14 @@ namespace MiNET.Entities
 			BroadcastSetEntityData();
 		}
 
+		public static double ClampDegrees(double degrees)
+		{
+			return Math.Floor((degrees % 360 + 360) % 360);
+		}
+
 		public Vector3 GetHorizDir()
 		{
+			Direction = ClampDegrees(Direction);
 			Vector3 vector = new Vector3();
 
 			double pitch = 0;
@@ -76,10 +82,10 @@ namespace MiNET.Entities
 		public Vector3 _lastSentRotation = Vector3.Zero;
 		public Vector3 _lastSentPos = new Vector3();
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
-			base.OnTick();
-
+			base.OnTick(entities);
+			
 			if (HealthManager.IsDead) return;
 
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer && DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
@@ -137,7 +143,7 @@ namespace MiNET.Entities
 			}
 
 			// Calculate velocity for next move
-			_currentBehavior?.OnTick();
+			_currentBehavior?.OnTick(entities);
 
 			if (inWater && Level.Random.NextDouble() < 0.8)
 			{

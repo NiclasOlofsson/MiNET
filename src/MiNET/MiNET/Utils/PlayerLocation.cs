@@ -94,6 +94,11 @@ namespace MiNET.Utils
 				b.Pitch);
 		}
 
+		public static implicit operator Vector2(PlayerLocation a)
+		{
+			return new Vector2(a.X, a.Z);
+		}
+
 		public static implicit operator Vector3(PlayerLocation a)
 		{
 			return new Vector3(a.X, a.Y, a.Z);

@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -47,6 +48,15 @@ namespace MiNET
 	[TestFixture]
 	public class CommandTest
 	{
+		[Test]
+		public void Vector3SubtractionTest()
+		{
+			Vector3 v1 = new Vector3(-1, 3, -1);
+			Assert.AreEqual(new Vector3(-2, 2, -2), Vector3.Min(v1 - new Vector3(1), v1 + new Vector3(1)));
+			Assert.AreEqual(new Vector3(0, 4, 0), Vector3.Max(v1 - new Vector3(1), v1 + new Vector3(1)));
+			//Assert.AreEqual(new Vector3(-2, -2, -2), v1 - new Vector3(-1));
+		}
+
 		[Test]
 		public void GeometryParserTest()
 		{

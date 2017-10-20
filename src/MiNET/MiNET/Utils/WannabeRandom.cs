@@ -1,4 +1,5 @@
 using System;
+using log4net;
 
 namespace MiNET.Utils
 {
@@ -7,6 +8,8 @@ namespace MiNET.Utils
 	// more complete at this point.
 	public class WannabeRandom
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (WannabeRandom));
+
 		private long _seed; // No, you can't harvest the result from this one. Go play Minecraft instead.
 
 		public WannabeRandom():this(DateTime.UtcNow.Ticks) // Yeah this is the way to go.
@@ -18,7 +21,7 @@ namespace MiNET.Utils
 			_seed = seed;
 		}
 
-		protected long Next(int nbits) // This only likes bits, not pieces.
+		protected long NextBits(int nbits) // This only likes bits, not pieces.
 		{
 			long x = _seed;
 			x ^= x << 21;
@@ -28,19 +31,24 @@ namespace MiNET.Utils
 			return x & (1L << nbits) - 1; // In java they actually care about variable assignments..
 		}
 
-		public int NextInt(int bound) // You have to ask slikey about the name of that parameter. Sounds kinky ...
+		public new int Next(int bound) // You have to ask slikey about the name of that parameter. Sounds kinky ...
 		{
-			return (int) Next(31)%bound; // Slikey wanted his random postive, so do I.
+			return (int) NextBits(31)%bound; // Slikey wanted his random postive, so do I.
+		}
+
+		public new int Next(int min, int max) // You have to ask slikey about the name of that parameter. Sounds kinky ...
+		{
+			return (int) (min + NextBits(31))%max; // Slikey wanted his random postive, so do I.
 		}
 
 		public long NextLong() // ... said the girl.
 		{
-			return Next(63); // 64 would give random from - to +. Don't want that.
+			return NextBits(63); // 64 would give random from - to +. Don't want that.
 		}
 
-		public double NextDouble() // .. said I.
+		public new double NextDouble() // .. said I.
 		{
-			return NextInt(32)*(1.0/int.MaxValue);
+			return Next(32)*(1.0/int.MaxValue);
 		}
 	}
 }

@@ -195,7 +195,7 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(players, mcpeRemovePlayer);
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			OnTicking(new PlayerEventArgs(null));
 

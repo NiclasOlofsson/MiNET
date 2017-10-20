@@ -66,7 +66,7 @@ namespace MiNET.Entities.Projectiles
 			return metadata;
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			//base.OnTick();
 

@@ -114,7 +114,7 @@ namespace TestPlugin.NiceLobby
 				{
 					Id = 10,
 					MessageType = MessageType.Tip,
-					Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}",
+					Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
 					Duration = 20 * 5,
 				});
 			}

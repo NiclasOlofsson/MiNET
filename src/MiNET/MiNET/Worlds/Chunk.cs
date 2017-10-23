@@ -90,8 +90,8 @@ namespace MiNET.Worlds
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			blocklight[GetIndex(bx, by, bz)] = data;
-			_cache = null;
-			_isDirty = true;
+			//_cache = null;
+			//_isDirty = true;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -114,8 +114,8 @@ namespace MiNET.Worlds
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
 			skylight[GetIndex(bx, by, bz)] = data;
-			_cache = null;
-			_isDirty = true;
+			//_cache = null;
+			//_isDirty = true;
 		}
 
 		public byte[] GetBytes()

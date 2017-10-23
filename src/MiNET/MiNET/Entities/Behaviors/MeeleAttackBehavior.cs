@@ -1,10 +1,34 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
-using MiNET.Entities.Passive;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -42,6 +66,7 @@ namespace MiNET.Entities.Behaviors
 			//}
 
 			_lastPlayerPos = _entity.Target.KnownPosition;
+			_attackCooldown = 0;
 
 			return true;
 		}
@@ -69,11 +94,7 @@ namespace MiNET.Entities.Behaviors
 		public void OnTick(Entity[] entities)
 		{
 			--_delay;
-			--_attackCooldown;
-
-			if (_attackCooldown > 0) return;
-
-			_attackCooldown = 0;
+			_attackCooldown = Math.Max(_attackCooldown - 1, 0);
 
 			Mob entity = _entity;
 			Entity target = _entity.Target;
@@ -91,7 +112,7 @@ namespace MiNET.Entities.Behaviors
 				_currentPath = _pathFinder.FindPath(entity, target, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
-					Log.Debug($"Found no solution. Trying a search at full follow range ({_followRange})");
+					//Log.Debug($"Found no solution. Trying a search at full follow range ({_followRange})");
 					_currentPath = _pathFinder.FindPath(entity, target, _followRange);
 				}
 			}
@@ -120,7 +141,7 @@ namespace MiNET.Entities.Behaviors
 			}
 			else
 			{
-				Log.Debug($"Found no path solution");
+				//Log.Debug($"Found no path solution");
 				entity.Velocity = Vector3.Zero;
 				_currentPath = null;
 				_delay += 15;
@@ -128,13 +149,19 @@ namespace MiNET.Entities.Behaviors
 
 			entity.Controller.LookAt(target, true);
 
-			if ((entity.GetBoundingBox() + 0.3f).Intersects(target.GetBoundingBox()))
+			if (_attackCooldown <= 0 && distanceToPlayer < GetAttackReach())
 			{
-				var damage = !(_entity is Wolf) ? 0 : _entity.IsTamed ? 4 : 2;
+				var damage = _entity.AttackDamage;
 				target.HealthManager.TakeHit(_entity, damage, DamageCause.EntityAttack);
 				_attackCooldown = 20;
 			}
 		}
+
+		private double GetAttackReach()
+		{
+			return _entity.Width*2.0F + _entity.Target.Width;
+		}
+
 
 		private bool GetNextTile(out Tile next)
 		{
@@ -160,6 +187,7 @@ namespace MiNET.Entities.Behaviors
 			if (_entity.Target.HealthManager.IsDead) _entity.SetTarget(null);
 			_entity.Velocity = Vector3.Zero;
 			_entity.KnownPosition.Pitch = 0;
+			_attackCooldown = 0;
 		}
 	}
 }

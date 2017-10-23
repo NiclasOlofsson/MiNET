@@ -40,7 +40,7 @@ namespace MiNET.Net
 		{
 			{
 				uint count = ReadUnsignedVarInt();
-				Log.Warn($"Enum values {count}");
+				//Log.Warn($"Enum values {count}");
 				for (int i = 0; i < count; i++)
 				{
 					string s = ReadString();
@@ -168,7 +168,7 @@ namespace MiNET.Net
 					foreach (var s in stringList)
 					{
 						Write(s);
-						Log.Debug($"String: {s}, {(short) stringList.IndexOf(s)} ");
+						//Log.Debug($"String: {s}, {(short) stringList.IndexOf(s)} ");
 					}
 				}
 
@@ -236,7 +236,7 @@ namespace MiNET.Net
 										Write((int) stringList.IndexOf(enumValue));
 									}
 
-									Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {stringList.IndexOf(enumValue)} ");
+									//Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {stringList.IndexOf(enumValue)} ");
 								}
 							}
 						}
@@ -259,7 +259,7 @@ namespace MiNET.Net
 					WriteUnsignedVarInt((uint) overloads.Count); // Overloads
 					foreach (var overload in overloads.Values)
 					{
-						Log.Warn($"Writing command: {command.Name}");
+						//Log.Warn($"Writing command: {command.Name}");
 
 						var parameters = overload.Input.Parameters;
 						if (parameters == null)
@@ -271,7 +271,7 @@ namespace MiNET.Net
 						WriteUnsignedVarInt((uint) parameters.Length); // Parameter count
 						foreach (var parameter in parameters)
 						{
-							Log.Debug($"Writing command overload parameter {command.Name}, {parameter.Name}, {parameter.Type}");
+							//Log.Debug($"Writing command overload parameter {command.Name}, {parameter.Name}, {parameter.Type}");
 
 							Write(parameter.Name); // parameter name
 							if (parameter.Type == "stringenum" && parameter.EnumValues != null)

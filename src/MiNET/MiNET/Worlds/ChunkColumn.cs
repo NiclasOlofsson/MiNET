@@ -42,6 +42,7 @@ namespace MiNET.Worlds
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
 
 		public bool isAllAir = false;
+		public bool isNew = true;
 
 		public int x;
 		public int z;
@@ -123,7 +124,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
-			SetDirty();
+			//SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -149,7 +150,7 @@ namespace MiNET.Worlds
 		{
 			Chunk chunk = chunks[by >> 4];
 			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
-			SetDirty();
+			//SetDirty();
 		}
 
 		public NbtCompound GetBlockEntity(BlockCoordinates coordinates)

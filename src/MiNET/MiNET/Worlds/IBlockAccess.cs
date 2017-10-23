@@ -23,25 +23,15 @@
 
 #endregion
 
-using MiNET.Entities.Behaviors;
-using MiNET.Worlds;
+using MiNET.Utils;
 
-namespace MiNET.Entities.Hostile
+namespace MiNET.Worlds
 {
-	public class Creeper : HostileMob
+	public interface IBlockAccess
 	{
-		public Creeper(Level level) : base(EntityType.Creeper, level)
-		{
-			Width = Length = 0.6;
-			Height = 1.7;
-			NoAi = true;
-			Speed = 0.25f;
-
-			Behaviors.Add(new MeeleAttackBehavior(this, 1.0, 16));
-			Behaviors.Add(new FindAttackableTargetBehavior(this, 16));
-			Behaviors.Add(new WanderBehavior(this, Speed, 0.8));
-			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
-			Behaviors.Add(new RandomLookaroundBehavior(this));
-		}
+		ChunkColumn GetChunk(BlockCoordinates coordinates, bool cacheOnly = false);
+		ChunkColumn GetChunk(ChunkCoordinates coordinates, bool cacheOnly = false);
+		void SetSkyLight(BlockCoordinates coordinates, byte skyLight);
+		int GetHeight(BlockCoordinates coordinates);
 	}
 }

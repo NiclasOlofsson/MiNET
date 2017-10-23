@@ -42,7 +42,7 @@ namespace MiNET.Entities
 
 		public Level Level { get; set; }
 
-		public int EntityTypeId { get; private set; }
+		public int EntityTypeId { get; protected set; }
 		public long EntityId { get; set; }
 		public bool IsSpawned { get; set; }
 
@@ -50,6 +50,7 @@ namespace MiNET.Entities
 		public PlayerLocation KnownPosition { get; set; }
 		public Vector3 Velocity { get; set; }
 		public float PositionOffset { get; set; }
+		public bool IsOnGround { get; set; } = true;
 
 		public HealthManager HealthManager { get; set; }
 
@@ -63,11 +64,12 @@ namespace MiNET.Entities
 
 		public long Age { get; set; }
 		public double Scale { get; set; } = 1.0;
-		public double Height { get; set; } = 1;
-		public double Width { get; set; } = 1;
-		public double Length { get; set; } = 1;
+		public virtual double Height { get; set; } = 1;
+		public virtual double Width { get; set; } = 1;
+		public virtual double Length { get; set; } = 1;
 		public double Drag { get; set; } = 0.02;
 		public double Gravity { get; set; } = 0.08;
+		public int AttackDamage { get; set; } = 2;
 		public int Data { get; set; }
 
 		public long PortalDetected { get; set; }
@@ -166,6 +168,8 @@ namespace MiNET.Entities
 		public bool IsSheared { get; set; }
 		public bool IsGliding { get; set; }
 		public bool IsElder { get; set; }
+		public bool IsIdling { get; set; }
+		public bool IsVibrating { get; set; }
 		public bool IsMoving { get; set; }
 		public bool IsBreathing => !IsInWater;
 		public bool IsChested { get; set; }
@@ -267,6 +271,8 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Breathing] = IsBreathing;
 			bits[(int) DataFlags.Chested] = IsChested;
 			bits[(int) DataFlags.Stackable] = IsStackable;
+			bits[(int) DataFlags.Idling] = IsIdling;
+			bits[(int) DataFlags.Vibrating] = IsVibrating;
 
 			bits[(int) DataFlags.HasCollision] = HasCollision;
 			bits[(int) DataFlags.AffectedByGravity] = IsAffectedByGravity;
@@ -327,9 +333,9 @@ namespace MiNET.Entities
 			attributes["minecraft:attack_damage"] = new EntityAttribute
 			{
 				Name = "minecraft:attack_damage",
-				MinValue = 1,
-				MaxValue = 1,
-				Value = 1
+				MinValue = 0,
+				MaxValue = 16,
+				Value = AttackDamage
 			};
 			attributes["minecraft:absorption"] = new EntityAttribute
 			{
@@ -364,7 +370,7 @@ namespace MiNET.Entities
 				Name = "minecraft:fall_damage",
 				MinValue = 0,
 				MaxValue = float.MaxValue,
-				Value = 1
+				Value = 0
 			};
 			attributes["minecraft:follow_range"] = new EntityAttribute
 			{
@@ -506,6 +512,7 @@ namespace MiNET.Entities
 				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
 				moveEntity.runtimeEntityId = EntityId;
 				moveEntity.position = (PlayerLocation) KnownPosition.Clone();
+				moveEntity.onGround = IsOnGround;
 				moveEntity.Encode();
 				Level.RelayBroadcast(moveEntity);
 			}

@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -34,7 +34,7 @@ namespace MiNET.Worlds
 
 		void Initialize();
 
-		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates);
+		ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates, bool cacheOnly = false);
 
 		Vector3 GetSpawnPoint();
 		string GetName();

@@ -5,6 +5,7 @@
 		public RedMushroom() : base(40)
 		{
 			IsSolid = false;
+			IsTransparent = true;
 		}
 	}
 }

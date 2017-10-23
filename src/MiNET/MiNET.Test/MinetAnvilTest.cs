@@ -145,7 +145,7 @@ namespace MiNET
 
 			for (int i = 0; i < 10000; i++)
 			{
-				var chunk = provider.GenerateChunkColumn(coordinates);
+				var chunk = provider.GenerateChunkColumn(coordinates, false);
 
 				int rx = coordinates.X >> 5;
 				int rz = coordinates.Z >> 5;
@@ -209,7 +209,7 @@ namespace MiNET
 					int cz = (depth*regionZ) + z;
 
 					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-					ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates);
+					ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates, false);
 					Assert.NotNull(chunk);
 				}
 			}
@@ -230,7 +230,7 @@ namespace MiNET
 					int cz = (depth*regionZ) + z;
 
 					ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-					anvil.GenerateChunkColumn(coordinates);
+					anvil.GenerateChunkColumn(coordinates, false);
 				}
 			}
 		}
@@ -248,7 +248,7 @@ namespace MiNET
 			anvil.Initialize();
 
 			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
-			ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates);
+			ChunkColumn chunk = anvil.GenerateChunkColumn(coordinates, false);
 			Assert.NotNull(chunk);
 
 			Stopwatch sw = new Stopwatch();

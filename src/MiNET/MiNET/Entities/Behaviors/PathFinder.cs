@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -32,14 +33,15 @@ using AStarNavigator.Algorithms;
 using AStarNavigator.Providers;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class PathFinder
+	public class Pathfinder
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (PathFinder));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Pathfinder));
 		private Dictionary<Tile, Block> _blockCache = new Dictionary<Tile, Block>();
 
 		public List<Tile> FindPath(Entity source, Entity target, double distance)
@@ -52,11 +54,12 @@ namespace MiNET.Entities.Behaviors
 			try
 			{
 				//new EmptyBlockedProvider(), // Instance of: IBockedProvider
+				var blockAccess = new CachedBlockAccess(source.Level);
 
 				var navigator = new TileNavigator(
-					new LevelNavigator(source, source.Level, distance, _blockCache),
-					new BlockDiagonalNeighborProvider(source.Level, (int) source.KnownPosition.Y, _blockCache), // Instance of: INeighborProvider
-					new BlockPythagorasAlgorithm(_blockCache), // Instance of: IDistanceAlgorithm
+					new LevelNavigator(source, blockAccess, distance, _blockCache),
+					new BlockDiagonalNeighborProvider(blockAccess, (int) Math.Truncate(source.KnownPosition.Y), _blockCache, source), // Instance of: INeighborProvider
+					new BlockDistanceAlgorithm(_blockCache), // Instance of: IDistanceAlgorithm
 					new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
 				);
 
@@ -75,6 +78,21 @@ namespace MiNET.Entities.Behaviors
 			return new List<Tile>();
 		}
 
+		public void PrintPath(Level level, List<Tile> currentPath)
+		{
+			if (Config.GetProperty("Pathfinder.PrintPath", false))
+
+				foreach (var tile in currentPath)
+				{
+					//Log.Debug($"Steps to: {next.X}, {next.Y}");
+					Block block = GetBlock(tile);
+					var particle = new RedstoneParticle(level);
+					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
+					particle.Spawn();
+				}
+		}
+
+
 		public Block GetBlock(Tile tile)
 		{
 			Block block;
@@ -88,11 +106,13 @@ namespace MiNET.Entities.Behaviors
 		}
 	}
 
-	public class BlockPythagorasAlgorithm : IDistanceAlgorithm
+	public class BlockDistanceAlgorithm : IDistanceAlgorithm
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockDistanceAlgorithm));
+
 		private readonly Dictionary<Tile, Block> _blockCache;
 
-		public BlockPythagorasAlgorithm(Dictionary<Tile, Block> blockCache)
+		public BlockDistanceAlgorithm(Dictionary<Tile, Block> blockCache)
 		{
 			_blockCache = blockCache;
 		}
@@ -101,7 +121,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			Vector3 vFrom = GetBlock(from).Coordinates;
 			Vector3 vTo = GetBlock(to).Coordinates;
-			return (vFrom - vTo).Length();
+			return Vector3.Distance(vFrom, vTo);
 		}
 
 		public Block GetBlock(Tile tile)
@@ -110,6 +130,8 @@ namespace MiNET.Entities.Behaviors
 			if (!_blockCache.TryGetValue(tile, out block))
 			{
 				// Do something?
+
+				Log.Error("Expected block, had none");
 				return null;
 			}
 
@@ -122,15 +144,17 @@ namespace MiNET.Entities.Behaviors
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockDiagonalNeighborProvider));
 
-		private readonly Level _level;
+		private readonly CachedBlockAccess _level;
 		private readonly int _startY;
-		private readonly Dictionary<Tile, Block> _blocks;
+		private readonly Entity _entity;
+		private readonly Dictionary<Tile, Block> _blockCache;
 
-		public BlockDiagonalNeighborProvider(Level level, int startY, Dictionary<Tile, Block> blocks)
+		public BlockDiagonalNeighborProvider(CachedBlockAccess level, int startY, Dictionary<Tile, Block> blockCache, Entity entity)
 		{
 			_level = level;
 			_startY = startY;
-			_blocks = blocks;
+			_blockCache = blockCache;
+			_entity = entity;
 		}
 
 		private static readonly double[,] Neighbors = new double[,]
@@ -172,14 +196,14 @@ namespace MiNET.Entities.Behaviors
 		public IEnumerable<Tile> GetNeighbors(Tile tile)
 		{
 			Block block;
-			if (!_blocks.TryGetValue(tile, out block))
+			if (!_blockCache.TryGetValue(tile, out block))
 			{
-				block = _level.GetBlock((int) tile.X, _startY, (int) tile.Y);
-				_blocks.Add(tile, block);
+				block = _level.GetBlock(new BlockCoordinates((int) tile.X, _startY, (int) tile.Y));
+				_blockCache.Add(tile, block);
 			}
 
 			List<Tile> list = new List<Tile>();
-			for (int index = 0; (long) index < Neighbors.GetLongLength(0); ++index)
+			for (int index = 0; index < Neighbors.GetLength(0); ++index)
 			{
 				var item = new Tile(tile.X + Neighbors[index, 0], tile.Y + Neighbors[index, 1]);
 
@@ -187,28 +211,37 @@ namespace MiNET.Entities.Behaviors
 				BlockCoordinates coord = new BlockCoordinates((int) item.X, block.Coordinates.Y, (int) item.Y);
 				if (_level.GetBlock(coord).IsSolid)
 				{
-					if (_level.GetBlock(coord + BlockCoordinates.Up).IsSolid)
+					Block blockUp = _level.GetBlock(coord + BlockCoordinates.Up);
+					if (blockUp.IsSolid)
 					{
 						// Can't jump
 						continue;
 					}
 
-					_blocks[item] = _level.GetBlock(coord + BlockCoordinates.Up);
+					if (IsObstructed(blockUp.Coordinates)) continue;
+
+					_blockCache[item] = blockUp;
 				}
 				else
 				{
-					if (!_level.GetBlock(coord + BlockCoordinates.Down).IsSolid)
+					var blockDown = _level.GetBlock(coord + BlockCoordinates.Down);
+					if (!blockDown.IsSolid)
 					{
 						if (!_level.GetBlock(coord + BlockCoordinates.Down + BlockCoordinates.Down).IsSolid)
 						{
 							// Will fall
 							continue;
 						}
-						_blocks[item] = _level.GetBlock(coord + BlockCoordinates.Down);
+
+						if (IsObstructed(blockDown.Coordinates)) continue;
+
+						_blockCache[item] = blockDown;
 					}
 					else
 					{
-						_blocks[item] = _level.GetBlock(coord);
+						if (IsObstructed(coord)) continue;
+
+						_blockCache[item] = _level.GetBlock(coord);
 					}
 				}
 
@@ -218,6 +251,27 @@ namespace MiNET.Entities.Behaviors
 			CheckDiagonals(block, list);
 
 			return list;
+		}
+
+		private bool IsObstructed(BlockCoordinates coord)
+		{
+			for (int i = 1; i < _entity.Height; i++)
+			{
+				if (IsBlocked(coord + (BlockCoordinates.Up*i))) return true;
+			}
+
+			return false;
+		}
+
+		private bool IsBlocked(BlockCoordinates coord)
+		{
+			var block = _level.GetBlock(coord);
+
+			if (block == null || block.IsSolid)
+			{
+				return true;
+			}
+			return false;
 		}
 
 		private void CheckDiagonals(Block block, List<Tile> list)
@@ -261,12 +315,14 @@ namespace MiNET.Entities.Behaviors
 
 	public class LevelNavigator : IBlockedProvider
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (LevelNavigator));
+
 		private readonly Entity _entity;
-		private readonly Level _level;
+		private readonly IBlockAccess _level;
 		private readonly double _distance;
 		private readonly Dictionary<Tile, Block> _blockCache;
 
-		public LevelNavigator(Entity entity, Level level, double distance, Dictionary<Tile, Block> blockCache)
+		public LevelNavigator(Entity entity, IBlockAccess level, double distance, Dictionary<Tile, Block> blockCache)
 		{
 			_entity = entity;
 			_level = level;
@@ -282,39 +338,91 @@ namespace MiNET.Entities.Behaviors
 				return true;
 			}
 
+			if (block.IsSolid) return true;
+
 			if (Math.Abs(_entity.KnownPosition.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
 
 			Vector2 entityPos = new Vector2(_entity.KnownPosition.X, _entity.KnownPosition.Z);
 			Vector2 tilePos = new Vector2((float) coord.X, (float) coord.Y);
 
-			if ((entityPos - tilePos).Length() > _distance) return true;
+			if (Vector2.Distance(entityPos, tilePos) > _distance) return true;
 
 			BlockCoordinates blockCoordinates = block.Coordinates;
 
+			if (IsObstructed(blockCoordinates)) return true;
+
+			return false;
+		}
+
+		private bool IsObstructed(BlockCoordinates coord)
+		{
 			for (int i = 1; i < _entity.Height; i++)
 			{
-				if (IsBlockedUp(blockCoordinates + (BlockCoordinates.Up*i))) return true;
+				if (IsBlocked(coord + (BlockCoordinates.Up*i))) return true;
 			}
 
 			return false;
 		}
 
-		private bool IsBlockedUp(BlockCoordinates coordUp)
+		private bool IsBlocked(BlockCoordinates coord)
 		{
-			var tileUp = new Tile(coordUp.X, coordUp.Z);
-			Block blockUp;
-			if (!_blockCache.TryGetValue(tileUp, out blockUp))
-			{
-				blockUp = _level.GetBlock(coordUp);
-				_blockCache.Add(tileUp, blockUp);
-			}
+			var block = _level.GetBlock(coord);
 
-			if (blockUp != null && blockUp.IsSolid)
+			if (block == null || block.IsSolid)
 			{
-				//_level.SetBlock(new GoldBlock() {Coordinates = blockCoordinates + BlockCoordinates.Up});
 				return true;
 			}
 			return false;
+		}
+	}
+
+	public class CachedBlockAccess : IBlockAccess
+	{
+		private Level _level;
+		private IDictionary<BlockCoordinates, Block> _blockCache = new ConcurrentDictionary<BlockCoordinates, Block>();
+
+		public CachedBlockAccess(Level level)
+		{
+			_level = level;
+		}
+
+		public ChunkColumn GetChunk(BlockCoordinates coordinates, bool cacheOnly = false)
+		{
+			return _level.GetChunk(coordinates, cacheOnly);
+		}
+
+		public ChunkColumn GetChunk(ChunkCoordinates coordinates, bool cacheOnly = false)
+		{
+			return _level.GetChunk(coordinates, cacheOnly);
+		}
+
+		public void SetSkyLight(BlockCoordinates coordinates, byte skyLight)
+		{
+			_blockCache.Remove(coordinates);
+			_level.SetSkyLight(coordinates, skyLight);
+		}
+
+		public int GetHeight(BlockCoordinates coordinates)
+		{
+			return _level.GetHeight(coordinates);
+		}
+
+		public Block GetBlock(BlockCoordinates coord, ChunkColumn tryChunk = null)
+		{
+			Block block;
+			if (!_blockCache.TryGetValue(coord, out block))
+			{
+				block = _level.GetBlock(coord);
+				_blockCache[coord] = block;
+			}
+
+			return block;
+		}
+
+		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		{
+			_blockCache.Remove(block.Coordinates);
+			_level.SetBlock(block, broadcast, applyPhysics, calculateLight);
 		}
 	}
 }

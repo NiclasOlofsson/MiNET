@@ -25,12 +25,31 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 
 namespace MiNET.Utils
 {
+	public static class WinApi
+	{
+		/// <summary>TimeBeginPeriod(). See the Windows API documentation for details.</summary>
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2118:ReviewSuppressUnmanagedCodeSecurityUsage"), SuppressUnmanagedCodeSecurity]
+		[DllImport("winmm.dll", EntryPoint = "timeBeginPeriod", SetLastError = true)]
+
+		public static extern uint TimeBeginPeriod(uint uMilliseconds);
+
+		/// <summary>TimeEndPeriod(). See the Windows API documentation for details.</summary>
+
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2118:ReviewSuppressUnmanagedCodeSecurityUsage"), SuppressUnmanagedCodeSecurity]
+		[DllImport("winmm.dll", EntryPoint = "timeEndPeriod", SetLastError = true)]
+
+		public static extern uint TimeEndPeriod(uint uMilliseconds);
+	}
+
 	public class HighPrecisionTimer : IDisposable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (HighPrecisionTimer));
@@ -49,6 +68,20 @@ namespace MiNET.Utils
 
 		public HighPrecisionTimer(int interval, Action<object> action, bool useSignaling = false, bool skipTicks = true)
 		{
+			// The following is dangerous code. It will increase windows timer frequence to interrupt
+			// every 1ms instead of default 15ms. It is the same tech that games use to increase FPS and
+			// media decoders to increase precision of movies (chrome does this).
+			// We use this here to increase the precision of our thread scheduling, since this will have a big
+			// impact on overall performance of the server. DO note that changing this is a global setting in
+			// Windows and will affect every running process. It will automatically disable itself and reset
+			// to default after closing the process.
+			// It will have a major impact bettery and energy consumption in general. So don't go tell GreenPeace about
+			// this, thanks.
+			//
+			// HERE BE DRAGONS!
+			WinApi.TimeBeginPeriod(1);
+			// END IS HERE. SAFE AGAIN ...
+
 			Avarage = interval;
 			Action = action;
 

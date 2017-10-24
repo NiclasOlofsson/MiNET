@@ -85,6 +85,14 @@ namespace TestPlugin
 		{
 		}
 
+		[Command(Description = "Display metrics")]
+		public string Metrics(Player player, int timespan = 10000)
+		{
+			string results = player.Level._profiler.GetResults(timespan);
+			Log.Debug("\n" + results);
+			return results;
+		}
+
 		[Command(Description = "Save world")]
 		[Authorize(Permission = CommandPermission.Admin)]
 		public void Save(Player player)

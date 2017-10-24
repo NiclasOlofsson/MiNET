@@ -56,7 +56,7 @@ namespace MiNET.Entities.Behaviors
 			if (_currentPath == null || _currentPath.Count == 0)
 			{
 				Log.Debug($"Search new solution");
-				var pathFinder = new PathFinder();
+				var pathFinder = new Pathfinder();
 				_currentPath = pathFinder.FindPath(_entity, player, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{

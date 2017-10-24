@@ -568,8 +568,19 @@ Wiki: [Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveP
 |:-----|:-----|
 |Normal | 0 |
 |Reset | 1 |
-|Rotation | 2 |
-|Pitch | 3 |
+|Teleport | 2 |
+|Rotation | 3 |
+
+#### Teleportcause constants
+
+| Name | Value |
+|:-----|:-----|
+|Unknown | 0 |
+|Projectile | 1 |
+|Chorus Fruit | 2 |
+|Command | 3 |
+|Behavior | 4 |
+|Count | 5 |
 
 
 #### Fields

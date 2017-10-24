@@ -45,7 +45,7 @@ namespace MiNET.Entities.Behaviors
 		private int _delay;
 		private List<Tile> _currentPath;
 		private Vector3 _lastPlayerPos;
-		private PathFinder _pathFinder = new PathFinder();
+		private Pathfinder _pathfinder = new Pathfinder();
 
 		public MeeleAttackBehavior(Mob entity, double speedMultiplier, double followRange)
 		{
@@ -109,11 +109,11 @@ namespace MiNET.Entities.Behaviors
 			if (haveNoPath || Vector3.Distance(_lastPlayerPos, target.KnownPosition) > 0.5)
 			{
 				//Log.Debug($"Search new solution to player (distance={distanceToPlayer + 1}). Have path={!haveNoPath}");
-				_currentPath = _pathFinder.FindPath(entity, target, distanceToPlayer + 1);
+				_currentPath = _pathfinder.FindPath(entity, target, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
 					//Log.Debug($"Found no solution. Trying a search at full follow range ({_followRange})");
-					_currentPath = _pathFinder.FindPath(entity, target, _followRange);
+					_currentPath = _pathfinder.FindPath(entity, target, _followRange);
 				}
 			}
 

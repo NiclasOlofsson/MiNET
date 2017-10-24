@@ -81,6 +81,7 @@ namespace MiNET.Entities.Behaviors
 		}
 
 		private List<Tile> _currentPath = null;
+		private Pathfinder _pathfinder;
 
 		public void OnTick(Entity[] entities)
 		{
@@ -106,11 +107,11 @@ namespace MiNET.Entities.Behaviors
 			if (haveNoPath || deltaDistance > 0)
 			{
 				Log.Debug($"Search new solution");
-				var pathFinder = new PathFinder();
-				_currentPath = pathFinder.FindPath(_entity, _player, distanceToPlayer + 1);
+				_pathfinder = new Pathfinder();
+				_currentPath = _pathfinder.FindPath(_entity, _player, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
-					_currentPath = pathFinder.FindPath(_entity, _player, _lookDistance);
+					_currentPath = _pathfinder.FindPath(_entity, _player, _lookDistance);
 				}
 			}
 
@@ -118,6 +119,9 @@ namespace MiNET.Entities.Behaviors
 
 			if (_currentPath.Count > 0)
 			{
+				// DEBUG
+				_pathfinder?.PrintPath(_entity.Level, _currentPath);
+
 				Tile next;
 				if (!GetNextTile(out next))
 				{

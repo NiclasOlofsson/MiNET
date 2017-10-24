@@ -95,6 +95,19 @@ namespace MiNET.Worlds
 
 			return chunk.GetHeight(coordinates.X & 0x0f, coordinates.Z & 0x0f);
 		}
+
+		public Block GetBlock(BlockCoordinates coord, ChunkColumn tryChunk = null)
+		{
+			return null;
+		}
+
+		public void SetBlock(int x, int y, int z, int blockId, int metadata = 0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		{
+		}
+
+		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		{
+		}
 	}
 
 	public class SkyLightCalculations

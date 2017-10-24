@@ -367,6 +367,8 @@ namespace MiNET
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
 		{
+			Log.Warn($"Connection established with {_playerInfo.Username} using MC version {_playerInfo.GameVersion} with protocol version {_playerInfo.ProtocolVersion}");
+
 			IServerManager serverManager = _session.Server.ServerManager;
 			IServer server = serverManager.GetServer();
 

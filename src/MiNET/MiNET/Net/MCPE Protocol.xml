@@ -322,8 +322,20 @@
 		<enums id="Mode">
 			<enum id="Normal" value="0" />
 			<enum id="Reset" value="1" />
-			<enum id="Rotation" value="2" />
-			<enum id="Pitch" value="3" />
+			<enum id="Teleport" value="2" />
+			<enum id="Rotation" value="3" />
+		</enums>
+
+		<!--
+		These are sent at the end of the packet IF Telport mode is selected.
+		-->
+		<enums id="TeleportCause">
+			<enum id="Unknown" value="0" />
+			<enum id="Projectile" value="1" />
+			<enum id="Chorus Fruit" value="2" />
+			<enum id="Command" value="3" />
+			<enum id="Behavior" value="4" />
+			<enum id="Count" value="5" />
 		</enums>
 
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />

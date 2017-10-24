@@ -439,6 +439,8 @@
     <Compile Include="Items\ItemGoldNugget.cs" />
     <Compile Include="Items\ItemIronIngot.cs" />
     <Compile Include="Items\ItemIronNugget.cs" />
+    <Compile Include="Net\McpeMovePlayer.cs" />
+    <Compile Include="Utils\Diagnostics\Profiler.cs" />
     <Compile Include="Utils\Skins\Bone.cs" />
     <Compile Include="Utils\Skins\Cube.cs" />
     <Compile Include="Utils\Skins\Geometry.cs" />

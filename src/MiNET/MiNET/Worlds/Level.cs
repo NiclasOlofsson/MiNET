@@ -44,6 +44,7 @@ using MiNET.Items;
 using MiNET.Net;
 using MiNET.Sounds;
 using MiNET.Utils;
+using MiNET.Utils.Diagnostics;
 
 namespace MiNET.Worlds
 {
@@ -416,6 +417,8 @@ namespace MiNET.Worlds
 		public long AvarageTickProcessingTime = 50;
 		public int PlayerCount { get; private set; }
 
+		public Profiler _profiler = new Profiler();
+
 		private void WorldTick(object sender)
 		{
 			//if (_tickTimer.ElapsedMilliseconds < 40 && LastTickProcessingTime < 50)
@@ -426,7 +429,10 @@ namespace MiNET.Worlds
 
 			if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 65) Log.Warn($"Time between world tick too long: {_tickTimer.ElapsedMilliseconds} ms. Last processing time={LastTickProcessingTime}, Avarage={AvarageTickProcessingTime}");
 
+			Measurement worldTickMeasurement = _profiler.Begin("World tick");
+
 			_tickTimer.Restart();
+
 			try
 			{
 				TickTime++;
@@ -441,6 +447,8 @@ namespace MiNET.Worlds
 					message.time = (int) CurrentWorldTime;
 					RelayBroadcast(message);
 				}
+
+				var blockAndChunkTickMeasurement = worldTickMeasurement.Begin("Block and chunk tick");
 
 				Entity[] entities = Entities.Values.OrderBy(e => e.EntityId).ToArray();
 				if (EnableChunkTicking || EnableBlockTicking)
@@ -505,8 +513,10 @@ namespace MiNET.Worlds
 									var height = chunk.GetHeight(x, z);
 									if (height > 0 && s*16 > height) continue;
 
-									if (s == 0 & i == 0 && EnableChunkTicking)
+									if (s == 0 && i == 0 && EnableChunkTicking)
 									{
+										var chunkTickMeasurement = blockAndChunkTickMeasurement.Begin("Chunk tick");
+
 										var ySpawn = random.Next((((height + 1) >> 4) + 1)*16 - 1);
 										var spawnCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, ySpawn, z + spawnState.ChunkZ*16);
 										var spawnBlock = GetBlock(spawnCoordinates, chunk);
@@ -515,19 +525,29 @@ namespace MiNET.Worlds
 											// Entity spawning, only one attempt per chunk
 											EntitySpawnManager.AttemptMobSpawn(spawnCoordinates, random, canSpawnPassive, canSpawnHostile);
 										}
+
+										chunkTickMeasurement?.End();
 									}
 
 									if (EnableBlockTicking)
 									{
+										var blockTickMeasurement = blockAndChunkTickMeasurement.Begin("Block tick");
+
 										var blockCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, y + s*16, z + spawnState.ChunkZ*16);
 										var block = GetBlock(blockCoordinates, chunk);
 										block.OnTick(this, true);
+
+										blockTickMeasurement?.End();
 									}
 								}
 							}
 						});
 					}
 				}
+
+				blockAndChunkTickMeasurement?.End();
+
+				var blockUpdateMeasurement = worldTickMeasurement.Begin("Block update tick");
 
 				// Block updates
 				foreach (KeyValuePair<BlockCoordinates, long> blockEvent in BlockWithTicks)
@@ -547,11 +567,18 @@ namespace MiNET.Worlds
 					}
 				}
 
+				blockUpdateMeasurement?.End();
+
+				var blockEntityMeasurement = worldTickMeasurement.Begin("Block entity tick");
 				// Block entity updates
 				foreach (BlockEntity blockEntity in BlockEntities.ToArray())
 				{
 					blockEntity.OnTick(this);
 				}
+
+				blockEntityMeasurement?.End();
+
+				var entityMeasurement = worldTickMeasurement.Begin("Entity tick");
 
 				// Entity updates
 				foreach (Entity entity in entities)
@@ -559,13 +586,19 @@ namespace MiNET.Worlds
 					entity.OnTick(entities);
 				}
 
+				entityMeasurement?.End();
+
 				PlayerCount = players.Length;
 
 				// Player tick
+				var playerMeasurement = worldTickMeasurement.Begin("Player tick");
+
 				foreach (var player in players)
 				{
 					if (player.IsSpawned) player.OnTick(entities);
 				}
+
+				playerMeasurement?.End();
 
 				// Send player movements
 				BroadCastMovement(players, entities);
@@ -580,6 +613,8 @@ namespace MiNET.Worlds
 			{
 				LastTickProcessingTime = _tickTimer.ElapsedMilliseconds;
 				AvarageTickProcessingTime = (AvarageTickProcessingTime*9 + _tickTimer.ElapsedMilliseconds)/10L;
+
+				worldTickMeasurement?.End();
 			}
 		}
 

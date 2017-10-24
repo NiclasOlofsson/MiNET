@@ -32,6 +32,7 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
+using MiNET.Particles;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -45,6 +46,7 @@ namespace MiNET.Entities.Behaviors
 		private readonly double _speedMultiplier;
 		private readonly int _chance;
 		private List<Tile> _currentPath;
+		private Pathfinder _pathfinder;
 
 		public WanderBehavior(Mob entity, double speed, double speedMultiplier, int chance = 120)
 		{
@@ -62,10 +64,10 @@ namespace MiNET.Entities.Behaviors
 
 			if (!pos.HasValue) return false;
 
-			var pathFinder = new PathFinder();
-			_currentPath = pathFinder.FindPath(_entity, pos.Value, pos.Value.DistanceTo((BlockCoordinates) _entity.KnownPosition) + 2);
+			_pathfinder = new Pathfinder();
+			_currentPath = _pathfinder.FindPath(_entity, pos.Value, pos.Value.DistanceTo((BlockCoordinates) _entity.KnownPosition) + 2);
 
-			return _currentPath != null && _currentPath.Count > 0;
+			return _currentPath.Count > 0;
 		}
 
 		public bool CanContinue()
@@ -77,6 +79,9 @@ namespace MiNET.Entities.Behaviors
 		{
 			if (_currentPath.Count > 0)
 			{
+				// DEBUG
+				_pathfinder.PrintPath(_entity.Level, _currentPath);
+
 				Tile next;
 				if (!GetNextTile(out next))
 				{
@@ -90,6 +95,7 @@ namespace MiNET.Entities.Behaviors
 				_entity.KnownPosition.Yaw = (float) _entity.Direction;
 
 				_entity.Controller.MoveForward(_speedMultiplier, entities);
+				if (_entity.Velocity.Length() < 0.01) _currentPath = null;
 			}
 			else
 			{

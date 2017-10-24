@@ -115,7 +115,7 @@ namespace MiNET.Entities.Behaviors
 			var currPosition = _entity.KnownPosition;
 			var direction = Vector3.Normalize(_entity.GetHorizDir()*new Vector3(1, 0, 1));
 
-			var blockDown = level.GetBlock(currPosition + BlockCoordinates.Down);
+			//var blockDown = level.GetBlock(currPosition + BlockCoordinates.Down);
 			//if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)
 			//{
 			//	Log.Debug($"Falling mob: {_entity.Velocity}, Position: {(Vector3)_entity.KnownPosition}");
@@ -155,7 +155,7 @@ namespace MiNET.Entities.Behaviors
 				}
 			}
 
-			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) Math.Max(1, _entity.Length*0.5f)));
+			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) (_entity.Length*0.5f)));
 			var block = level.GetBlock(coord);
 			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
 			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
@@ -182,7 +182,7 @@ namespace MiNET.Entities.Behaviors
 				if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
 				{
 					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3)_entity.KnownPosition}");
-					_entity.Level.SetBlock(new StainedGlass() {Coordinates = block.Coordinates, Metadata = (byte) _entity.Level.Random.Next(16)});
+					//_entity.Level.SetBlock(new StainedGlass() {Coordinates = block.Coordinates, Metadata = (byte) _entity.Level.Random.Next(16)});
 					if (_entity.IsOnGround && _jumpCooldown <= 0)
 					{
 						_jumpCooldown = 10;
@@ -199,6 +199,7 @@ namespace MiNET.Entities.Behaviors
 					else
 					{
 						//Log.Debug($"Block ahead: {block}, ignoring");
+						//_entity.Level.SetBlock(new StainedGlass() { Coordinates = block.Coordinates + BlockCoordinates.Down, Metadata = (byte)_entity.Level.Random.Next(16) });
 						_entity.Velocity *= new Vector3(0, 1, 0);
 					}
 				}

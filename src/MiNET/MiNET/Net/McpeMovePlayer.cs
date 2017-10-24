@@ -25,14 +25,14 @@
 
 namespace MiNET.Net
 {
-	public partial class McpeInteract : Package<McpeInteract>
+	public partial class McpeMovePlayer : Package<McpeMovePlayer>
 	{
 		partial void AfterDecode()
 		{
-			if (actionId == (int) Actions.MouseOver)
+			if (mode == 2)
 			{
-				// TODO: Something useful with this value
-				ReadVector3();
+				ReadInt();
+				ReadInt();
 			}
 		}
 	}

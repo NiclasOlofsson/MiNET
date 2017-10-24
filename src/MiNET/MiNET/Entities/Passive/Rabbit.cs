@@ -41,7 +41,7 @@ namespace MiNET.Entities.Passive
 
 			Behaviors.Add(new PanicBehavior(this, 60, Speed, 2.2));
 			Behaviors.Add(new TemptedBehavior(this, typeof (ItemCarrot), 10, 1.0));
-			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.6));
+			Behaviors.Add(new WanderBehavior(this, Speed, 0.6));
 			Behaviors.Add(new LookAtPlayerBehavior(this));
 		}
 

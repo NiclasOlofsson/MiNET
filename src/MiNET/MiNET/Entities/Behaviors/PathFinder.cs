@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +44,11 @@ namespace MiNET.Entities.Behaviors
 
 		public List<Tile> FindPath(Entity source, Entity target, double distance)
 		{
+			return FindPath(source, (BlockCoordinates) target.KnownPosition, distance);
+		}
+
+		public List<Tile> FindPath(Entity source, BlockCoordinates target, double distance)
+		{
 			try
 			{
 				//new EmptyBlockedProvider(), // Instance of: IBockedProvider
@@ -28,9 +58,9 @@ namespace MiNET.Entities.Behaviors
 					new BlockDiagonalNeighborProvider(source.Level, (int) source.KnownPosition.Y, _blockCache), // Instance of: INeighborProvider
 					new BlockPythagorasAlgorithm(_blockCache), // Instance of: IDistanceAlgorithm
 					new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
-					);
+				);
 
-				BlockCoordinates targetPos = (BlockCoordinates) target.KnownPosition;
+				BlockCoordinates targetPos = target;
 				BlockCoordinates sourcePos = (BlockCoordinates) source.KnownPosition;
 				var from = new Tile(sourcePos.X, sourcePos.Z);
 				var to = new Tile(targetPos.X, targetPos.Z);
@@ -252,7 +282,7 @@ namespace MiNET.Entities.Behaviors
 				return true;
 			}
 
-			if (Math.Abs(_entity.KnownPosition.Y - block.Coordinates.Y) > _entity.Height + 1) return true;
+			if (Math.Abs(_entity.KnownPosition.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
 
 			Vector2 entityPos = new Vector2(_entity.KnownPosition.X, _entity.KnownPosition.Z);
 			Vector2 tilePos = new Vector2((float) coord.X, (float) coord.Y);
@@ -261,24 +291,29 @@ namespace MiNET.Entities.Behaviors
 
 			BlockCoordinates blockCoordinates = block.Coordinates;
 
-			if (_entity.Height > 1)
+			for (int i = 1; i < _entity.Height; i++)
 			{
-				var coordUp = blockCoordinates + BlockCoordinates.Up;
-				var tileUp = new Tile(coordUp.X, coordUp.Z);
-				Block blockUp = null;
-				if (!_blockCache.TryGetValue(tileUp, out block))
-				{
-					blockUp = _level.GetBlock(coordUp);
-					_blockCache.Add(tileUp, block);
-				}
-
-				if (blockUp != null && blockUp.IsSolid)
-				{
-					//_level.SetBlock(new GoldBlock() {Coordinates = blockCoordinates + BlockCoordinates.Up});
-					return true;
-				}
+				if (IsBlockedUp(blockCoordinates + (BlockCoordinates.Up*i))) return true;
 			}
 
+			return false;
+		}
+
+		private bool IsBlockedUp(BlockCoordinates coordUp)
+		{
+			var tileUp = new Tile(coordUp.X, coordUp.Z);
+			Block blockUp;
+			if (!_blockCache.TryGetValue(tileUp, out blockUp))
+			{
+				blockUp = _level.GetBlock(coordUp);
+				_blockCache.Add(tileUp, blockUp);
+			}
+
+			if (blockUp != null && blockUp.IsSolid)
+			{
+				//_level.SetBlock(new GoldBlock() {Coordinates = blockCoordinates + BlockCoordinates.Up});
+				return true;
+			}
 			return false;
 		}
 	}

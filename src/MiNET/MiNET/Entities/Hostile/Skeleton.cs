@@ -21,9 +21,11 @@ namespace MiNET.Entities.Hostile
 			Height = 1.95;
 			NoAi = true;
 
+			AttackDamage = 4;
+
 			ItemInHand = ItemFactory.GetItem("bow");
 
-			Behaviors.Add(new StrollBehavior(this, 60, Speed, 0.7));
+			Behaviors.Add(new WanderBehavior(this, Speed, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}

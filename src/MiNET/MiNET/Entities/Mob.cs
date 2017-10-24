@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -22,9 +47,7 @@ namespace MiNET.Entities
 		public MobController Controller { get; private set; }
 
 		public double Direction { get; set; }
-		public double Speed { get; set; } = 0.25f;
-
-		public bool IsOnGround { get; set; }
+		public virtual double Speed { get; set; } = 0.25f;
 
 		public Entity Target { get; private set; }
 
@@ -55,7 +78,7 @@ namespace MiNET.Entities
 
 		public static double ClampDegrees(double degrees)
 		{
-			return Math.Floor((degrees % 360 + 360) % 360);
+			return Math.Floor((degrees%360 + 360)%360);
 		}
 
 		public Vector3 GetHorizDir()
@@ -85,9 +108,10 @@ namespace MiNET.Entities
 		public override void OnTick(Entity[] entities)
 		{
 			base.OnTick(entities);
-			
+
 			if (HealthManager.IsDead) return;
 
+			bool noPlayersWithing32 = false;
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer && DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
 			{
 				if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(KnownPosition, player.Value.KnownPosition) < 32) == 0)
@@ -100,6 +124,8 @@ namespace MiNET.Entities
 						DespawnEntity();
 						return;
 					}
+
+					noPlayersWithing32 = true;
 				}
 				else
 				{
@@ -142,8 +168,14 @@ namespace MiNET.Entities
 				BroadcastMotion();
 			}
 
+			var oldVelocity = Velocity;
 			// Calculate velocity for next move
 			_currentBehavior?.OnTick(entities);
+
+			if(noPlayersWithing32)
+			{
+				Velocity = oldVelocity;
+			}
 
 			if (inWater && Level.Random.NextDouble() < 0.8)
 			{

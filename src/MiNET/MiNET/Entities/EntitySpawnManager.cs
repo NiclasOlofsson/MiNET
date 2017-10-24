@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -91,11 +90,29 @@ namespace MiNET.Entities
 		public const int CapHostile = 70;
 
 		public const int CapPassive = 10;
+		//public const int CapPassive = 100;
+
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 
-		public static readonly EntityType[] PassiveMobs = {EntityType.Chicken, EntityType.Cow, EntityType.Pig, EntityType.Sheep, EntityType.Wolf, EntityType.Horse};
-		public static readonly EntityType[] HostileMobs = {EntityType.Zombie, EntityType.Skeleton, EntityType.Creeper, EntityType.Enderman};
+		public static readonly EntityType[] PassiveMobs =
+		{
+			EntityType.Chicken,
+			EntityType.Cow,
+			EntityType.Pig,
+			EntityType.Sheep,
+			EntityType.Wolf,
+			EntityType.Rabbit,
+			EntityType.Horse
+		};
+
+		public static readonly EntityType[] HostileMobs =
+		{
+			EntityType.Zombie,
+			EntityType.Skeleton,
+			EntityType.Creeper,
+			EntityType.Enderman
+		};
 
 		public Level Level { get; set; }
 
@@ -179,27 +196,30 @@ namespace MiNET.Entities
 								entityType = SelectEntityType(spawnBlock, random, doSpawnHostile, doSpawnPassive);
 								if (entityType == EntityType.None)
 								{
-									if (Log.IsDebugEnabled)
-										Log.Debug($"Failed to spawn because found no proper entity types");
+									if (Log.IsDebugEnabled && doSpawnHostile)
+										Log.Debug($"Failed to spawn because found no proper entity types for biome {BiomeUtils.GetBiome(spawnBlock.BiomeId).Name}");
 									break;
 								}
 
-								maxPackSize = entityType == EntityType.Wolf ? 8 : entityType == EntityType.Horse ? 2 + random.Next(5) : entityType == EntityType.Enderman ? 1 + random.Next(4) : 4;
+								maxPackSize = entityType == EntityType.Wolf ? 8 : entityType == EntityType.Rabbit ? 2 + random.Next(1) : entityType == EntityType.Horse ? 2 + random.Next(5) : entityType == EntityType.Enderman ? 1 + random.Next(4) : 4;
 							}
 
 							var firstBlock = Level.GetBlock(x, y, z);
-							if (!firstBlock.IsSolid)
+							if (!firstBlock.IsSolid && !(firstBlock is Stationary) && !(firstBlock is Flowing))
 							{
 								if (doSpawnPassive && PassiveMobs.Contains(entityType)
 								    && (firstBlock.BlockLight >= 9 || (firstBlock.SkyLight >= 9 && Level.CurrentWorldTime > 450 && Level.CurrentWorldTime < 11615)))
 								{
 									var secondBlock = Level.GetBlock(x, y + 2, z);
-									if (!secondBlock.IsSolid)
+									if ((spawnBlock is Grass || (entityType == EntityType.Rabbit && spawnBlock is Sand)) && !secondBlock.IsSolid)
 									{
 										var yaw = random.Next(360);
 
-										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType))
+										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
 										{
+											if (Log.IsDebugEnabled)
+												Log.Warn($"Spawned {entityType}");
+											Level.StrikeLightning(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw));
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte)firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											++numberOfSpawnedMobs;
 										}
@@ -219,7 +239,7 @@ namespace MiNET.Entities
 									{
 										var yaw = random.Next(360);
 
-										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType))
+										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
 										{
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte) firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											//Log.Warn($"Spawned {entityType} at {firstBlock.Coordinates} at light level on bottom={firstBlock.SkyLight} amd top={secondBlock.SkyLight}, world time={Level.CurrentWorldTime}");
@@ -312,6 +332,7 @@ namespace MiNET.Entities
 				new Tuple<EntityType, int>(EntityType.Pig, 10),
 				new Tuple<EntityType, int>(EntityType.Cow, 8),
 				new Tuple<EntityType, int>(EntityType.Wolf, 5),
+				new Tuple<EntityType, int>(EntityType.Rabbit, 2),
 				new Tuple<EntityType, int>(EntityType.Horse, 1)
 			};
 
@@ -358,11 +379,11 @@ namespace MiNET.Entities
 				}
 			}
 
-			Log.Warn($"Looking for random entit types, found none");
+			//Log.Warn($"Looking for random entit types, found none");
 			return EntityType.None;
 		}
 
-		private bool Spawn(PlayerLocation position, EntityType entityType)
+		private bool Spawn(PlayerLocation position, EntityType entityType, Random random)
 		{
 			Level world = Level;
 			Mob mob = null;
@@ -381,7 +402,7 @@ namespace MiNET.Entities
 					mob.NoAi = true;
 					break;
 				case EntityType.Sheep:
-					mob = new Sheep(world);
+					mob = new Sheep(world, random);
 					mob.NoAi = true;
 					break;
 				case EntityType.Wolf:
@@ -389,7 +410,8 @@ namespace MiNET.Entities
 					mob.NoAi = true;
 					break;
 				case EntityType.Horse:
-					mob = new Horse(world);
+					mob = new Horse(world, random.NextDouble() < 0.10, random);
+					mob.IsBaby = random.NextDouble() < 0.20;
 					mob.NoAi = true;
 					break;
 				case EntityType.Ocelot:
@@ -406,6 +428,7 @@ namespace MiNET.Entities
 					break;
 				case EntityType.Zombie:
 					mob = new Zombie(world);
+					mob.IsBaby = random.NextDouble() < 0.05;
 					mob.NoAi = true;
 					break;
 				case EntityType.Skeleton:

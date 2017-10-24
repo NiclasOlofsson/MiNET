@@ -90,7 +90,6 @@ namespace MiNET
 
 		public HungerManager HungerManager { get; set; }
 
-		public bool IsOnGround { get; set; }
 		public bool IsFalling { get; set; }
 		public bool IsFlyingHorizontally { get; set; }
 

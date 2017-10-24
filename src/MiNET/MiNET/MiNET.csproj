@@ -362,6 +362,7 @@
     <Compile Include="Entities\Behaviors\SittingBehavior.cs" />
     <Compile Include="Entities\Behaviors\StrollBehavior.cs" />
     <Compile Include="Entities\Behaviors\TemptedBehavior.cs" />
+    <Compile Include="Entities\Behaviors\WanderBehavior.cs" />
     <Compile Include="Entities\BossBar.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hologram.cs" />
@@ -726,6 +727,7 @@
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
     <Compile Include="Worlds\GameMode.cs" />
+    <Compile Include="Worlds\IBlockAccess.cs" />
     <Compile Include="Worlds\ICachingWorldProvider.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />

@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -266,6 +266,11 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
+		public bool CachedChunksContains(ChunkCoordinates chunkCoord)
+		{
+			return _chunkCache.ContainsKey(chunkCoord);
+		}
+
 		public ChunkColumn[] GetCachedChunks()
 		{
 			return _chunkCache.Values.Where(column => column != null).ToArray();
@@ -276,15 +281,14 @@ namespace MiNET.Worlds
 			_chunkCache.Clear();
 		}
 
-		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
+		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)
 		{
-			if (Locked)
+			ChunkColumn chunk;
+			if (Locked || cacheOnly)
 			{
-				ChunkColumn chunk;
 				_chunkCache.TryGetValue(chunkCoordinates, out chunk);
 				return chunk;
 			}
-
 
 			// Warning: The following code MAY execute the GetChunk 2 times for the same coordinate
 			// if called in rapid succession. However, for the scenario of the provider, this is highly unlikely.
@@ -310,7 +314,8 @@ namespace MiNET.Worlds
 					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 					if (chunkColumn != null)
 					{
-						//chunkColumn.NeedSave = true;
+						//SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
+						//new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
 					}
 
 					return chunkColumn;
@@ -474,9 +479,16 @@ namespace MiNET.Worlds
 
 					chunk.isDirty = false;
 					chunk.NeedSave = false;
+
+					if (Config.GetProperty("CalculateLights", false))
+					{
+						SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunk);
+						new SkyLightCalculations().RecalcSkyLight(chunk, blockAccess);
+						//TODO: Block lights.
+					}
+
 					return chunk;
 				}
-
 			}
 			catch (Exception e)
 			{

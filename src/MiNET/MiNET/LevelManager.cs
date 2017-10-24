@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -89,33 +89,33 @@ namespace MiNET
 				};
 				level.Initialize();
 
-				if (Config.GetProperty("CalculateLights", false))
-				{
-					{
-						AnvilWorldProvider wp = level.WorldProvider as AnvilWorldProvider;
-						if (wp != null)
-						{
-							wp.Locked = true;
-							Stopwatch sw = new Stopwatch();
+				//if (Config.GetProperty("CalculateLights", false))
+				//{
+				//	{
+				//		AnvilWorldProvider wp = level.WorldProvider as AnvilWorldProvider;
+				//		if (wp != null)
+				//		{
+				//			wp.Locked = true;
+				//			Stopwatch sw = new Stopwatch();
 
-							var chunkCount = 0;
-							sw.Restart();
-							SkyLightCalculations.Calculate(level);
-							sw.Stop();
-							chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-							Log.Debug($"Recalculated sky light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks. Time {sw.ElapsedMilliseconds}ms");
+				//			var chunkCount = 0;
+				//			sw.Restart();
+				//			SkyLightCalculations.Calculate(level);
+				//			sw.Stop();
+				//			chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
+				//			Log.Debug($"Recalculated sky light for {chunkCount} chunks, {chunkCount*16*16*256} blocks. Time {sw.ElapsedMilliseconds}ms");
 
-							int count = wp.LightSources.Count;
-							sw.Restart();
-							RecalculateBlockLight(level, wp);
+				//			int count = wp.LightSources.Count;
+				//			sw.Restart();
+				//			RecalculateBlockLight(level, wp);
 
-							chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-							Log.Debug($"Recalculated sky and block light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms. Touched {BlockLightCalculations.touches}");
+				//			chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
+				//			Log.Debug($"Recalculated sky and block light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms. Touched {BlockLightCalculations.touches}");
 
-							wp.Locked = false;
-						}
-					}
-				}
+				//			wp.Locked = false;
+				//		}
+				//	}
+				//}
 
 				Levels.Add(level);
 
@@ -176,19 +176,21 @@ namespace MiNET
 
 			newLevel.Initialize();
 
-			if (Config.GetProperty("CalculateLights", false))
-			{
-				SkyLightCalculations.Calculate(newLevel);
+			//if (Config.GetProperty("CalculateLights", false))
+			//{
+			//	worldProvider.Locked = true;
+			//	SkyLightCalculations.Calculate(newLevel);
 
-				int count = worldProvider.LightSources.Count;
-				Log.Debug($"Recalculating block light for {count} light sources.");
-				Stopwatch sw = new Stopwatch();
-				sw.Start();
-				RecalculateBlockLight(newLevel, worldProvider);
+			//	int count = worldProvider.LightSources.Count;
+			//	Log.Debug($"Recalculating block light for {count} light sources.");
+			//	Stopwatch sw = new Stopwatch();
+			//	sw.Start();
+			//	RecalculateBlockLight(newLevel, worldProvider);
 
-				var chunkCount = worldProvider._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-				Log.Debug($"Recalc sky and block light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
-			}
+			//	var chunkCount = worldProvider._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
+			//	Log.Debug($"Recalc sky and block light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms");
+			//	worldProvider.Locked = false;
+			//}
 
 			return newLevel;
 		}

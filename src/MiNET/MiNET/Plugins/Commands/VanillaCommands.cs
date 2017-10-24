@@ -321,7 +321,7 @@ namespace MiNET.Plugins.Commands
 			return $"{commander.Username} set difficulty to {difficulty}";
 		}
 
-		[Command(Name = "timeset")]
+		[Command(Name = "time set")]
 		public string TimeSet(Player commander, int time)
 		{
 			Level level = commander.Level;
@@ -342,7 +342,7 @@ namespace MiNET.Plugins.Commands
 			Night = 13000
 		}
 
-		[Command(Name = "timeset")]
+		[Command(Name = "time set")]
 		public string TimeSet(Player commander, DayNight time)
 		{
 			Level level = commander.Level;

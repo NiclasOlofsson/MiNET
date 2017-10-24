@@ -26,6 +26,7 @@
 using System;
 using System.Numerics;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -106,13 +107,13 @@ namespace MiNET.Entities.Behaviors
 			if (_jumpCooldown > 0)
 			{
 				_jumpCooldown--;
-				return;
+				//return;
 			}
 
 			float speedFactor = (float) (_entity.Speed*speedMultiplier*0.7f);
 			var level = _entity.Level;
 			var currPosition = _entity.KnownPosition;
-			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
+			var direction = Vector3.Normalize(_entity.GetHorizDir()*new Vector3(1, 0, 1));
 
 			var blockDown = level.GetBlock(currPosition + BlockCoordinates.Down);
 			//if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)
@@ -120,8 +121,6 @@ namespace MiNET.Entities.Behaviors
 			//	Log.Debug($"Falling mob: {_entity.Velocity}, Position: {(Vector3)_entity.KnownPosition}");
 			//	return;
 			//}
-
-			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) _entity.Length/2));
 
 			bool entityCollide = false;
 			var boundingBox = _entity.GetBoundingBox().OffsetBy(direction*speedFactor);
@@ -148,19 +147,6 @@ namespace MiNET.Entities.Behaviors
 					{
 						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
 						{
-							_entity.BroadcastEntityEvent();
-							break;
-						}
-						entityCollide = true;
-						break;
-					}
-					else if (ent.EntityId > _entity.EntityId && _entity.IsColliding(bbox, ent))
-					{
-						ent.Velocity += Vector3.Subtract(ent.KnownPosition, _entity.KnownPosition).Normalize()*0.1f;
-
-						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
-						{
-							_entity.BroadcastEntityEvent();
 							break;
 						}
 						entityCollide = true;
@@ -169,6 +155,7 @@ namespace MiNET.Entities.Behaviors
 				}
 			}
 
+			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) Math.Max(1, _entity.Length*0.5f)));
 			var block = level.GetBlock(coord);
 			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
 			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
@@ -194,11 +181,12 @@ namespace MiNET.Entities.Behaviors
 			{
 				if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
 				{
-					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3) _entity.KnownPosition}");
-					if (_entity.IsOnGround)
+					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3)_entity.KnownPosition}");
+					_entity.Level.SetBlock(new StainedGlass() {Coordinates = block.Coordinates, Metadata = (byte) _entity.Level.Random.Next(16)});
+					if (_entity.IsOnGround && _jumpCooldown <= 0)
 					{
-						_jumpCooldown = 5;
-						_entity.Velocity = new Vector3(0, 0.42f, 0);
+						_jumpCooldown = 10;
+						_entity.Velocity += new Vector3(0, 0.42f, 0);
 					}
 				}
 				else

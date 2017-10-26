@@ -252,7 +252,7 @@ namespace MiNET.Plugins
 							{
 								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
 								Aliases = commandAttribute.Aliases,
-								Description = commandAttribute.Description ?? "Bullshit",
+								Description = commandAttribute.Description ?? "",
 								Overloads = new Dictionary<string, Overload>
 								{
 									{

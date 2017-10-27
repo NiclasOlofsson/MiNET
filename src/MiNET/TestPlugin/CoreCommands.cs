@@ -85,8 +85,37 @@ namespace TestPlugin
 		{
 		}
 
+		public enum MetricsOperationsOn
+		{
+			On
+		}
+
+		[Command(Description = "Turn metrics on")]
+		public string Metrics(Player player, MetricsOperationsOn on)
+		{
+			player.Level._profiler.Enabled = true;
+			return "Profiler is now enabled.";
+		}
+
+		public enum MetricsOperationsOff
+		{
+			Off
+		}
+
+		[Command(Description = "Turn metrics off")]
+		public string Metrics(Player player, MetricsOperationsOff off)
+		{
+			player.Level._profiler.Enabled = false;
+			return "Profiler is now disabled.";
+		}
+
+		public enum MetricsOperationsDisplay
+		{
+			Display
+		}
+
 		[Command(Description = "Display metrics")]
-		public string Metrics(Player player, int timespan = 10000)
+		public string Metrics(Player player, MetricsOperationsDisplay display, int timespan = 10000)
 		{
 			string results = player.Level._profiler.GetResults(timespan);
 			Log.Debug("\n" + results);

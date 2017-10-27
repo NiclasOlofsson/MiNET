@@ -30,23 +30,31 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using log4net;
-using log4net.Filter;
 
 namespace MiNET.Utils.Diagnostics
 {
+	/// <summary>
+	/// A general purpose profiler. Profiler is threadsafe in order to be possible to use everywhere independent
+	/// of thread knowledge. Measurements can be collected in a hierarchy, so sub-timers can measure individual sections
+	/// of code, while still getting an overall view of the whole.
+	/// 
+	/// When using measurements, do make sure to check for null in the case profiler is disabled. Check world tick for
+	/// examples of proper use.
+	/// </summary>
 	public class Profiler
 	{
-		private bool _enabled;
+		public bool Enabled { get; set; }
+
 		ConcurrentBag<ProfilerResult> _results = new ConcurrentBag<ProfilerResult>();
 
 		public Profiler()
 		{
-			_enabled = Config.GetProperty("Profiler.Enabled", false);
+			Enabled = Config.GetProperty("Profiler.Enabled", false);
 		}
 
 		public Measurement Begin(string name)
 		{
-			if (!_enabled) return null;
+			if (!Enabled) return null;
 
 			return new Measurement(name, this);
 		}
@@ -55,15 +63,13 @@ namespace MiNET.Utils.Diagnostics
 		{
 			measurement.Timer.Stop();
 
-			if (!_enabled) return;
+			if (!Enabled) return;
 
 			_results.Add(new ProfilerResult(measurement.Name, measurement.Timer.ElapsedMilliseconds, Stopwatch.GetTimestamp()));
 		}
 
 		public string GetResults(long timespan = 10000)
 		{
-			if (!_enabled) return "Profiling is disabled. To enable please add 'Profiler.Enabled=true' to server.config";
-
 			long fromTime = (long) (Stopwatch.GetTimestamp() - ((TimeSpan.FromMilliseconds(timespan).TotalSeconds)*Stopwatch.Frequency));
 
 			ProfilerResult[] filtered = _results.ToArray().Where(o => o.TimeStamp > fromTime).ToArray();

@@ -47,7 +47,6 @@ using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace MiNET
 {
@@ -601,8 +600,7 @@ namespace MiNET
 			if (IsMuted) flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;
-			//mcpeAdventureSettings.commandPermission = (uint) Commandpermission.Admin;
-			mcpeAdventureSettings.commandPermission = (uint) 1;
+			mcpeAdventureSettings.commandPermission = (uint) CommandPermission.Admin;
 			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions.All;
 			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel.Operator;
 			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
@@ -2544,21 +2542,24 @@ namespace MiNET
 		public virtual GameRules GetGameRules()
 		{
 			GameRules rules = new GameRules();
-			rules.Add("drowningdamage", new GameRule<bool>(true));
-			rules.Add("dotiledrops", new GameRule<bool>(true));
-			rules.Add("commandblockoutput", new GameRule<bool>(true));
-			rules.Add("domobloot", new GameRule<bool>(true));
-			rules.Add("dodaylightcycle", new GameRule<bool>(Level.IsWorldTimeStarted));
-			rules.Add("keepinventory", new GameRule<bool>(false));
-			rules.Add("domobspawning", new GameRule<bool>(false));
-			rules.Add("doentitydrops", new GameRule<bool>(true));
-			rules.Add("dofiretick", new GameRule<bool>(false));
-			rules.Add("doweathercycle", new GameRule<bool>(false));
-			rules.Add("falldamage", new GameRule<bool>(true));
-			rules.Add("pvp", new GameRule<bool>(true));
-			rules.Add("firedamage", new GameRule<bool>(true));
-			rules.Add("mobgriefing", new GameRule<bool>(true));
-			rules.Add("sendcommandfeedback", new GameRule<bool>(true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DrowningDamage, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.CommandblockOutput, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoTiledrops, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoMobloot, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.KeepInventory, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoDaylightcycle, Level.IsWorldTimeStarted));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoMobspawning, Config.GetProperty("EnableChunkTicking", false)));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoEntitydrops, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoFiretick, false));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoWeathercycle, false));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Pvp, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Falldamage, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Firedamage, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Mobgriefing, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.ShowCoordinates, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.NaturalRegeneration, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.TntExploads, true));
+			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, true));
 			return rules;
 		}
 

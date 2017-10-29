@@ -91,6 +91,7 @@ namespace TestPlugin
 		}
 
 		[Command(Description = "Turn metrics on")]
+		[Authorize(Permission = CommandPermission.Admin)]
 		public string Metrics(Player player, MetricsOperationsOn on)
 		{
 			player.Level._profiler.Enabled = true;
@@ -103,6 +104,7 @@ namespace TestPlugin
 		}
 
 		[Command(Description = "Turn metrics off")]
+		[Authorize(Permission = CommandPermission.Admin)]
 		public string Metrics(Player player, MetricsOperationsOff off)
 		{
 			player.Level._profiler.Enabled = false;
@@ -115,6 +117,7 @@ namespace TestPlugin
 		}
 
 		[Command(Description = "Display metrics")]
+		[Authorize(Permission = CommandPermission.Admin)]
 		public string Metrics(Player player, MetricsOperationsDisplay display, int timespan = 10000)
 		{
 			string results = player.Level._profiler.GetResults(timespan);

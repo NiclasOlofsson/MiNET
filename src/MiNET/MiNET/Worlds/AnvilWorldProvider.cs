@@ -660,6 +660,8 @@ namespace MiNET.Worlds
 
 		public int SaveChunks()
 		{
+			if (!Config.GetProperty("Save.Enabled", false)) return 0;
+
 			int count = 0;
 			try
 			{

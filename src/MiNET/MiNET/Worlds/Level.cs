@@ -77,7 +77,8 @@ namespace MiNET.Worlds
 		public bool HaveDownfall { get; set; }
 		public Difficulty Difficulty { get; set; }
 		public bool AutoSmelt { get; set; } = false;
-		public long CurrentWorldTime { get; set; }
+		public long WorldTime { get; set; }
+		public long CurrentWorldTime { get; private set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
 		public bool IsWorldTimeStarted { get; set; } = false;
@@ -126,7 +127,7 @@ namespace MiNET.Worlds
 			WorldProvider.Initialize();
 
 			SpawnPoint = SpawnPoint ?? new PlayerLocation(WorldProvider.GetSpawnPoint());
-			CurrentWorldTime = WorldProvider.GetTime();
+			WorldTime = WorldProvider.GetTime();
 			LevelName = WorldProvider.GetName();
 
 			if (WorldProvider.IsCaching)
@@ -439,12 +440,15 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 
-				if (IsWorldTimeStarted) CurrentWorldTime++;
-				if (CurrentWorldTime > _worldDayCycleTime) CurrentWorldTime = 0;
+				if (IsWorldTimeStarted)
+				{
+					WorldTime++;
+					CurrentWorldTime = WorldTime%_worldDayCycleTime;
+				}
 				if (IsWorldTimeStarted && TickTime%100 == 0)
 				{
 					McpeSetTime message = McpeSetTime.CreateObject();
-					message.time = (int) CurrentWorldTime;
+					message.time = (int) WorldTime;
 					RelayBroadcast(message);
 				}
 

@@ -330,7 +330,7 @@ namespace MiNET.Plugins.Commands
 		public string Time(Player commander, TimeSubCommands operation, int time)
 		{
 			Level level = commander.Level;
-			level.CurrentWorldTime = time;
+			level.WorldTime = time;
 
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = (int) level.CurrentWorldTime;
@@ -351,7 +351,7 @@ namespace MiNET.Plugins.Commands
 		public string Time(Player commander, TimeSubCommands operation, DayNight time)
 		{
 			Level level = commander.Level;
-			level.CurrentWorldTime = (int) time;
+			level.WorldTime = (int) time;
 
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = (int) level.CurrentWorldTime;

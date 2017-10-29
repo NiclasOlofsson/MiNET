@@ -249,7 +249,7 @@ namespace MiNET.Net
 					Write(command.Name);
 					Write(command.Versions[0].Description);
 					Write((byte) 0); // flags
-					Write((byte) 0); // permissions
+					Write((byte) command.Versions[0].CommandPermission); // permissions
 					Write((int) -1); // Enum index
 
 

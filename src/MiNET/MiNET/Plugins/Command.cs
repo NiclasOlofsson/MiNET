@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using MiNET.Entities;
+using MiNET.Net;
 using Newtonsoft.Json;
 
 namespace MiNET.Plugins
@@ -25,6 +26,7 @@ namespace MiNET.Plugins
 		public string[] Aliases { get; set; }
 		public string Description { get; set; }
 		public string Permission { get; set; }
+		public CommandPermission CommandPermission { get; set; }
 		public bool RequiresTellPerms { get; set; }
 		public bool RequiresChatPerms { get; set; }
 		public bool OutputToSpeech { get; set; }

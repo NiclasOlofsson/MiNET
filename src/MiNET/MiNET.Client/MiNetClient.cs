@@ -1129,21 +1129,21 @@ namespace MiNET.Client
 			GameRules rules = message.rules;
 			foreach (var rule in rules)
 			{
-				if (rule.Value is GameRule<bool>)
+				if (rule is GameRule<bool>)
 				{
-					Log.Debug($"Rule: {rule.Key}={(GameRule<bool>) rule.Value}");
+					Log.Debug($"Rule: {rule.Name}={(GameRule<bool>) rule}");
 				}
-				else if (rule.Value is GameRule<int>)
+				else if (rule is GameRule<int>)
 				{
-					Log.Debug($"Rule: {rule.Key}={(GameRule<int>) rule.Value}");
+					Log.Debug($"Rule: {rule}={(GameRule<int>) rule}");
 				}
-				else if (rule.Value is GameRule<float>)
+				else if (rule is GameRule<float>)
 				{
-					Log.Debug($"Rule: {rule.Key}={(GameRule<float>) rule.Value}");
+					Log.Debug($"Rule: {rule}={(GameRule<float>) rule}");
 				}
 				else
 				{
-					Log.Warn($"Rule: {rule.Key}={rule.Value}");
+					Log.Warn($"Rule: {rule}={rule}");
 				}
 			}
 		}

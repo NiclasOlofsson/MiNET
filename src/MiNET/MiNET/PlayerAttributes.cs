@@ -15,7 +15,7 @@ namespace MiNET
 	{
 	}
 
-	public class GameRules : Dictionary<string, GameRule>
+	public class GameRules : HashSet<GameRule>
 	{
 	}
 }

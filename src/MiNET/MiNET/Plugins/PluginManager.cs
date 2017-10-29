@@ -251,6 +251,7 @@ namespace MiNET.Plugins
 							new Version
 							{
 								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
+								CommandPermission = authorizeAttribute.Permission,
 								Aliases = commandAttribute.Aliases,
 								Description = commandAttribute.Description ?? "",
 								Overloads = new Dictionary<string, Overload>

@@ -1018,26 +1018,20 @@ namespace MiNET.Net
 				{
 					case 1:
 					{
-						GameRule<bool> rule = new GameRule<bool>();
-						rule.Name = name;
-						rule.Value = ReadBool();
-						gameRules.Add(rule.Name, rule);
+						GameRule<bool> rule = new GameRule<bool>(name, ReadBool());
+						gameRules.Add(rule);
 						break;
 					}
 					case 2:
 					{
-						GameRule<int> rule = new GameRule<int>();
-						rule.Name = name;
-						rule.Value = ReadVarInt();
-						gameRules.Add(rule.Name, rule);
+						GameRule<int> rule = new GameRule<int>(name, ReadVarInt());
+						gameRules.Add(rule);
 						break;
 					}
 					case 3:
 					{
-						GameRule<float> rule = new GameRule<float>();
-						rule.Name = name;
-						rule.Value = ReadFloat();
-						gameRules.Add(rule.Name, rule);
+						GameRule<float> rule = new GameRule<float>(name, ReadFloat());
+						gameRules.Add(rule);
 						break;
 					}
 				}
@@ -1057,22 +1051,21 @@ namespace MiNET.Net
 			WriteVarInt(gameRules.Count);
 			foreach (var rule in gameRules)
 			{
-				var value = rule.Value;
-				Write(rule.Key);
-				if (value is GameRule<bool>)
+				Write(rule.Name);
+				if (rule is GameRule<bool>)
 				{
 					Write((byte) 1);
-					Write(((GameRule<bool>) value).Value);
+					Write(((GameRule<bool>) rule).Value);
 				}
-				else if (value is GameRule<int>)
+				else if (rule is GameRule<int>)
 				{
 					Write((byte) 2);
-					WriteVarInt(((GameRule<int>) value).Value);
+					WriteVarInt(((GameRule<int>) rule).Value);
 				}
-				else if (value is GameRule<float>)
+				else if (rule is GameRule<float>)
 				{
 					Write((byte) 3);
-					Write(((GameRule<float>) value).Value);
+					Write(((GameRule<float>) rule).Value);
 				}
 			}
 		}

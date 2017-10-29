@@ -77,11 +77,29 @@ namespace MiNET
 
 	public abstract class GameRule
 	{
-		public string Name { get; set; }
+		public string Name { get; }
 
 		protected GameRule(string name)
 		{
 			Name = name;
+		}
+
+		protected bool Equals(GameRule other)
+		{
+			return string.Equals(Name, other.Name);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((GameRule) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Name != null ? Name.GetHashCode() : 0);
 		}
 	}
 

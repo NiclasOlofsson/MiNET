@@ -234,7 +234,7 @@ namespace MiNET
 				Entity.BroadcastSetEntityData();
 				Entity.DespawnEntity();
 
-				if (!Config.GetProperty("KeepInventory", false))
+				if (!Entity.Level.KeepInventory)
 				{
 					player.DropInventory();
 				}
@@ -254,7 +254,7 @@ namespace MiNET
 					Entity.BroadcastSetEntityData();
 					Entity.DespawnEntity();
 
-					if (LastDamageSource is Player)
+					if (LastDamageSource is Player && Entity.Level.DoMobloot)
 					{
 						var drops = Entity.GetDrops();
 						foreach (var drop in drops)

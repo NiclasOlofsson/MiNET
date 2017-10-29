@@ -85,7 +85,8 @@ namespace MiNET
 				{
 					EnableBlockTicking = enableBlockTicking,
 					EnableChunkTicking = enableChunkTicking,
-					IsWorldTimeStarted = isWorldTimeStarted
+					IsWorldTimeStarted = isWorldTimeStarted,
+					KeepInventory = Config.GetProperty("KeepInventory", false),
 				};
 				level.Initialize();
 

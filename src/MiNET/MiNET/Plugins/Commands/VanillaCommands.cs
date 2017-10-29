@@ -52,23 +52,23 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command(Name = "op", Description = "Make player an operator")]
-		public string MakeOperator(Player commander, Target player)
+		public string MakeOperator(Player commander, Target target)
 		{
-			string body = player.Selector;
+			string body = target.Selector;
 
-			if (player.Players != null)
+			if (target.Players != null)
 			{
 				List<string> names = new List<string>();
-				foreach (var p in player.Players)
+				foreach (var p in target.Players)
 				{
 					names.Add(p.Username);
 				}
 				body = string.Join(", ", names);
 			}
-			else if (player.Entities != null)
+			else if (target.Entities != null)
 			{
 				List<string> names = new List<string>();
-				foreach (var p in player.Entities)
+				foreach (var p in target.Entities)
 				{
 					names.Add(p.NameTag ?? p.EntityId + "");
 				}

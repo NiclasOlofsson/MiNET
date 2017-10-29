@@ -600,15 +600,19 @@ namespace MiNET
 			if (IsMuted) flags |= 0x400; // Mute
 
 			mcpeAdventureSettings.flags = flags;
-			mcpeAdventureSettings.commandPermission = (uint) CommandPermission.Admin;
-			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions.All;
-			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel.Operator;
+			mcpeAdventureSettings.commandPermission = (uint) CommandPermission;
+			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions;
+			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel;
 			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
 
 			SendPackage(mcpeAdventureSettings);
 		}
 
+		public PermissionLevel PermissionLevel { get; set; } = PermissionLevel.Operator;
+
 		public CommandPermission CommandPermission { get; set; } = CommandPermission.Admin;
+
+		public ActionPermissions ActionPermissions { get; set; } = ActionPermissions.All;
 
 		public bool IsSpectator { get; set; }
 
@@ -2520,7 +2524,7 @@ namespace MiNET
 			mcpeStartGame.lightnigLevel = 0;
 			mcpeStartGame.enableCommands = EnableCommands;
 			mcpeStartGame.isTexturepacksRequired = false;
-			mcpeStartGame.gamerules = GetGameRules();
+			mcpeStartGame.gamerules = Level.GetGameRules();
 			mcpeStartGame.levelId = "1m0AAMIFIgA=";
 			mcpeStartGame.worldName = Level.LevelName;
 			mcpeStartGame.isMultiplayer = true;
@@ -2531,38 +2535,6 @@ namespace MiNET
 
 			SendPackage(mcpeStartGame);
 		}
-
-		public virtual void SendGameRules()
-		{
-			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
-			gameRulesChanged.rules = GetGameRules();
-			SendPackage(gameRulesChanged);
-		}
-
-		public virtual GameRules GetGameRules()
-		{
-			GameRules rules = new GameRules();
-			rules.Add(new GameRule<bool>(GameRulesEnum.DrowningDamage, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.CommandblockOutput, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoTiledrops, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoMobloot, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.KeepInventory, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoDaylightcycle, Level.IsWorldTimeStarted));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoMobspawning, Config.GetProperty("EnableChunkTicking", false)));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoEntitydrops, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoFiretick, false));
-			rules.Add(new GameRule<bool>(GameRulesEnum.DoWeathercycle, false));
-			rules.Add(new GameRule<bool>(GameRulesEnum.Pvp, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.Falldamage, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.Firedamage, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.Mobgriefing, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.ShowCoordinates, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.NaturalRegeneration, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.TntExploads, true));
-			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, true));
-			return rules;
-		}
-
 
 		/// <summary>
 		///     Sends the set spawn position packet.

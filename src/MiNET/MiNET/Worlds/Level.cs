@@ -1399,6 +1399,57 @@ namespace MiNET.Worlds
 		{
 			sound.Spawn(this);
 		}
+
+		public bool DrowningDamage { get; set; } = true;
+		public bool CommandblockOutput { get; set; } = true;
+		public bool DoTiledrops { get; set; } = true;
+		public bool DoMobloot { get; set; } = true;
+		public bool KeepInventory { get; set; } = true;
+		public bool DoDaylightcycle { get; set; } = true;
+		public bool DoMobspawning { get; set; } = true;
+		public bool DoEntitydrops { get; set; } = true;
+		public bool DoFiretick { get; set; } = true;
+		public bool DoWeathercycle { get; set; } = true;
+		public bool Pvp { get; set; } = true;
+		public bool Falldamage { get; set; } = true;
+		public bool Firedamage { get; set; } = true;
+		public bool Mobgriefing { get; set; } = true;
+		public bool ShowCoordinates { get; set; } = true;
+		public bool NaturalRegeneration { get; set; } = true;
+		public bool TntExploads { get; set; } = true;
+		public bool SendCommandfeedback { get; set; } = true;
+
+		public virtual void BroadcastGameRules()
+		{
+			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
+			gameRulesChanged.rules = GetGameRules();
+			RelayBroadcast(gameRulesChanged);
+		}
+
+		public virtual GameRules GetGameRules()
+		{
+			GameRules rules = new GameRules();
+			rules.Add(new GameRule<bool>(GameRulesEnum.DrowningDamage, DrowningDamage));
+			rules.Add(new GameRule<bool>(GameRulesEnum.CommandblockOutput, CommandblockOutput));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoTiledrops, DoTiledrops));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoMobloot, DoMobloot));
+			rules.Add(new GameRule<bool>(GameRulesEnum.KeepInventory, KeepInventory));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoDaylightcycle, DoDaylightcycle));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoMobspawning, DoMobspawning));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoEntitydrops, DoEntitydrops));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoFiretick, DoFiretick));
+			rules.Add(new GameRule<bool>(GameRulesEnum.DoWeathercycle, DoWeathercycle));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Pvp, Pvp));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Falldamage, Falldamage));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Firedamage, Firedamage));
+			rules.Add(new GameRule<bool>(GameRulesEnum.Mobgriefing, Mobgriefing));
+			rules.Add(new GameRule<bool>(GameRulesEnum.ShowCoordinates, ShowCoordinates));
+			rules.Add(new GameRule<bool>(GameRulesEnum.NaturalRegeneration, NaturalRegeneration));
+			rules.Add(new GameRule<bool>(GameRulesEnum.TntExploads, TntExploads));
+			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, SendCommandfeedback));
+			return rules;
+		}
+
 	}
 
 	public class LevelEventArgs : EventArgs

@@ -88,9 +88,9 @@ namespace MiNET.Net
 					int aliasEnumIndex = ReadInt();
 
 					uint overloadCount = ReadUnsignedVarInt();
-					Log.Debug($"{commandName}, {description}, {flags}, {permissions}, {aliasEnumIndex}, {overloadCount}");
 					for (int j = 0; j < overloadCount; j++)
 					{
+						Log.Debug($"{commandName}, {description}, {flags}, {permissions}, {aliasEnumIndex}, {overloadCount}");
 						uint parameterCount = ReadUnsignedVarInt();
 						for (int k = 0; k < parameterCount; k++)
 						{

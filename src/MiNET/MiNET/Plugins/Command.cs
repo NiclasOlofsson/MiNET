@@ -174,7 +174,6 @@ namespace MiNET.Plugins
 		}
 	}
 
-
 	public abstract class EnumBase
 	{
 		public string Value { get; set; }
@@ -182,11 +181,6 @@ namespace MiNET.Plugins
 
 	// enchantmentType
 	public class EnchantmentTypeEnum : EnumBase
-	{
-	}
-
-	// gameRuleTypes
-	public class GameRuleEnum : EnumBase
 	{
 	}
 

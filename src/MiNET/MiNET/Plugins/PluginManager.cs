@@ -281,7 +281,13 @@ namespace MiNET.Plugins
 					param.Name = ToCamelCase(parameter.Name);
 					param.Type = GetParameterType(parameter);
 					param.Optional = parameter.IsOptional;
-					if (param.Type.Equals("stringenum"))
+					if (param.Type.Equals("bool"))
+					{
+						param.Type = "stringenum";
+						param.EnumType = "bool";
+						param.EnumValues = new string[] {"false", "true"};
+					}
+					else if (param.Type.Equals("stringenum"))
 					{
 						if (parameter.ParameterType.IsEnum)
 						{
@@ -403,6 +409,10 @@ namespace MiNET.Plugins
 				value = "int";
 			else if (parameter.ParameterType == typeof (byte))
 				value = "int";
+			else if (parameter.ParameterType == typeof(float))
+				value = "float";
+			else if (parameter.ParameterType == typeof(double))
+				value = "float";
 			else if (parameter.ParameterType == typeof (bool))
 				value = "bool";
 			else if (parameter.ParameterType == typeof (string))
@@ -560,7 +570,7 @@ namespace MiNET.Plugins
 				return null;
 			}
 
-			foreach (var overload in command.Versions.First().Overloads.Values)
+			foreach (var overload in command.Versions.First().Overloads.Values.OrderByDescending(o => o.Input.Parameters.Length))
 			{
 				CommandPermission requiredPermission = (CommandPermission) Enum.Parse(typeof (CommandPermission), command.Versions.First().Permission, true);
 				if (player.CommandPermission < requiredPermission)
@@ -695,6 +705,8 @@ namespace MiNET.Plugins
 					objectArgs[k] = parameter.DefaultValue;
 					continue;
 				}
+
+				if (args.Length < k) return null;
 
 				if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 				{

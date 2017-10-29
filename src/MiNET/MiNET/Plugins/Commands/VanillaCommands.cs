@@ -553,6 +553,31 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
+		public string GameRule(Player player, GameRulesEnum rule)
+		{
+			return $"{rule} is {true}.";
+		}
+
+		[Command]
+		public string GameRule(Player player, GameRulesEnum rule, bool value)
+		{
+			return $"{player.Username} set {rule} to {value}.";
+		}
+
+		[Command]
+		public string GameRule(Player player, GameRulesEnum rule, int value)
+		{
+			return $"{player.Username} set {rule} to {value}.";
+		}
+
+		[Command]
+		public string GameRule(Player player, GameRulesEnum rule, float value)
+		{
+			return $"{player.Username} set {rule} to {value}.";
+		}
+
+
+		[Command]
 		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
 		{
 		}

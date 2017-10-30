@@ -106,16 +106,16 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			if (e.Level.TickTime % 2 == 0)
+			if (e.Level.TickTime%2 == 0)
 			{
-				BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
+				BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
 
 				player.AddPopup(new Popup()
 				{
 					Id = 10,
 					MessageType = MessageType.Tip,
 					Message = $"SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
-					Duration = 20 * 5,
+					Duration = 20*5,
 				});
 			}
 
@@ -487,8 +487,7 @@ namespace TestPlugin.NiceLobby
 						Thread.Sleep(100);
 
 						McpeSetTime timeReset = McpeSetTime.CreateObject();
-						timeReset.time = (int) level.CurrentWorldTime;
-						//timeReset.started = level.IsWorldTimeStarted;
+						timeReset.time = (int) level.WorldTime;
 						level.RelayBroadcast(timeDay);
 
 						Thread.Sleep(200);

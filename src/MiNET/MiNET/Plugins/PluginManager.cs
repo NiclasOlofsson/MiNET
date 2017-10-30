@@ -236,6 +236,17 @@ namespace MiNET.Plugins
 				};
 
 				string commandName = commandAttribute.Name.ToLowerInvariant();
+				var split = commandName.Split(' ');
+				Parameter subCommmandParam = null;
+				if (split.Length > 1)
+				{
+					subCommmandParam = new Parameter();
+					subCommmandParam.Name = "subcommand";
+					subCommmandParam.Type = "stringenum";
+					subCommmandParam.EnumType = "SubCommand" + commandName.Replace(" ", "-");
+					subCommmandParam.EnumValues = new[] {split[1]};
+					commandName = split[0];
+				}
 				if (commands.ContainsKey(commandName))
 				{
 					Command command = commands[commandName];
@@ -266,9 +277,14 @@ namespace MiNET.Plugins
 				}
 
 
+				List<Parameter> inputParams = new List<Parameter>();
+				if (subCommmandParam != null)
+				{
+					inputParams.Add(subCommmandParam);
+				}
+
 				var parameters = method.GetParameters();
 				bool isFirstParam = true;
-				List<Parameter> inputParams = new List<Parameter>();
 				foreach (var parameter in parameters)
 				{
 					if (isFirstParam && typeof (Player).IsAssignableFrom(parameter.ParameterType))
@@ -557,12 +573,13 @@ namespace MiNET.Plugins
 
 			Command command = null;
 			command = GetCommand(commandName);
-			if(arguments.Length > 0 && command == null)
-			{
-				commandName = commandName + " " + arguments[0];
-				arguments = arguments.Skip(1).ToArray();
-				command = GetCommand(commandName);
-			}
+
+			//if (arguments.Length > 0 && command == null)
+			//{
+			//	commandName = commandName + " " + arguments[0];
+			//	arguments = arguments.Skip(1).ToArray();
+			//	command = GetCommand(commandName);
+			//}
 
 			if (command == null)
 			{
@@ -572,6 +589,12 @@ namespace MiNET.Plugins
 
 			foreach (var overload in command.Versions.First().Overloads.Values.OrderByDescending(o => o.Input.Parameters.Length))
 			{
+				var args = arguments;
+				if (args.Length > 0 && overload.Input.Parameters.FirstOrDefault(p => p.Name.Equals("subcommand")) != null)
+				{
+					args = args.Skip(1).ToArray();
+				}
+
 				CommandPermission requiredPermission = (CommandPermission) Enum.Parse(typeof (CommandPermission), command.Versions.First().Permission, true);
 				if (player.CommandPermission < requiredPermission)
 				{
@@ -581,8 +604,10 @@ namespace MiNET.Plugins
 
 				MethodInfo method = overload.Method;
 
-				var retVal = ExecuteCommand(method, player, arguments);
+				var retVal = ExecuteCommand(method, player, args);
 				if (retVal != null) return retVal;
+
+				Log.Debug("No result from execution");
 			}
 
 			return null;

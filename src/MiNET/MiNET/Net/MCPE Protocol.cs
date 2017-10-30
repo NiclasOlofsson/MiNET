@@ -2031,7 +2031,7 @@ namespace MiNET.Net
 		public int dayCycleStopTime; // = null;
 		public bool eduMode; // = null;
 		public float rainLevel; // = null;
-		public float lightnigLevel; // = null;
+		public float lightningLevel; // = null;
 		public bool isMultiplayer; // = null;
 		public bool broadcastToLan; // = null;
 		public bool broadcastToXbl; // = null;
@@ -2079,7 +2079,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(dayCycleStopTime);
 			Write(eduMode);
 			Write(rainLevel);
-			Write(lightnigLevel);
+			Write(lightningLevel);
 			Write(isMultiplayer);
 			Write(broadcastToLan);
 			Write(broadcastToXbl);
@@ -2127,7 +2127,7 @@ namespace MiNET.Net
 			dayCycleStopTime = ReadSignedVarInt();
 			eduMode = ReadBool();
 			rainLevel = ReadFloat();
-			lightnigLevel = ReadFloat();
+			lightningLevel = ReadFloat();
 			isMultiplayer = ReadBool();
 			broadcastToLan = ReadBool();
 			broadcastToXbl = ReadBool();
@@ -2173,7 +2173,7 @@ namespace MiNET.Net
 			dayCycleStopTime=default(int);
 			eduMode=default(bool);
 			rainLevel=default(float);
-			lightnigLevel=default(float);
+			lightningLevel=default(float);
 			isMultiplayer=default(bool);
 			broadcastToLan=default(bool);
 			broadcastToXbl=default(bool);

@@ -2518,10 +2518,10 @@ namespace MiNET
 			mcpeStartGame.z = (int) SpawnPosition.Z;
 			//mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative || EnableCommands;
 			mcpeStartGame.hasAchievementsDisabled = true;
-			mcpeStartGame.dayCycleStopTime = (int) Level.CurrentWorldTime;
+			mcpeStartGame.dayCycleStopTime = (int) Level.WorldTime;
 			mcpeStartGame.eduMode = PlayerInfo.Edition == 1;
 			mcpeStartGame.rainLevel = 0;
-			mcpeStartGame.lightnigLevel = 0;
+			mcpeStartGame.lightningLevel = 0;
 			mcpeStartGame.enableCommands = EnableCommands;
 			mcpeStartGame.isTexturepacksRequired = false;
 			mcpeStartGame.gamerules = Level.GetGameRules();
@@ -2530,8 +2530,10 @@ namespace MiNET
 			mcpeStartGame.isMultiplayer = true;
 			mcpeStartGame.broadcastToLan = true;
 			mcpeStartGame.broadcastToXbl = true;
+			mcpeStartGame.trustPlayers = true;
 			mcpeStartGame.gamePublishSetting = 3;
-			mcpeStartGame.permissionLevel = 1;
+			mcpeStartGame.permissionLevel = (int) PermissionLevel;
+			mcpeStartGame.currentTick = Level.TickTime;
 
 			SendPackage(mcpeStartGame);
 		}
@@ -2834,8 +2836,7 @@ namespace MiNET
 		public virtual void SendSetTime()
 		{
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.time = (int) Level.CurrentWorldTime;
-			//message.started = Level.IsWorldTimeStarted;
+			message.time = (int) Level.WorldTime;
 			SendPackage(message);
 		}
 

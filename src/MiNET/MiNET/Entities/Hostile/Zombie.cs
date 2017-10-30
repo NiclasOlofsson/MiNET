@@ -72,7 +72,7 @@ namespace MiNET.Entities.Hostile
 			base.OnTick(entities);
 
 			Block block = Level.GetBlock(KnownPosition);
-			if (!(block is StationaryWater) && !(block is FlowingWater) && block.SkyLight > 7 && (Level.CurrentWorldTime < 12566 || Level.CurrentWorldTime > 23450))
+			if (!(block is StationaryWater) && !(block is FlowingWater) && block.SkyLight > 7 && (Level.CurrentWorldCycleTime < 12566 || Level.CurrentWorldCycleTime > 23450))
 			{
 				if (!HealthManager.IsOnFire) HealthManager.Ignite(80);
 			}

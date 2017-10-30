@@ -1051,7 +1051,7 @@ namespace MiNET.Net
 			WriteVarInt(gameRules.Count);
 			foreach (var rule in gameRules)
 			{
-				Write(rule.Name);
+				Write(rule.Name.ToLower());
 				if (rule is GameRule<bool>)
 				{
 					Write((byte) 1);
@@ -1360,24 +1360,10 @@ namespace MiNET.Net
 					if (rec.Input.Metadata != 0) WriteSignedVarInt(rec.Input.Metadata);
 					Write(rec.Result);
 				}
-				else if (recipe is EnchantingRecipe)
+				else if (recipe is MultiRecipe)
 				{
-					//var memoryStream = MiNetServer.MemoryStreamManager.GetStream();
-					//McpeWriter writer = new McpeWriter(memoryStream);
-
-					//writer.Write((byte) 3); // Count
-					//{
-					//	writer.Write((int) 1); // Cost
-					//	writer.Write((byte) 1); // Count
-					//	writer.Write((int) 9); // Id
-					//	writer.Write((int) 1); // Level
-					//	writer.Write("Test1"); // Level
-					//}
-
-					//Write(4); // Type
-					//var bytes = memoryStream.ToArray();
-					//Write(bytes.Length);
-					//Write(bytes);
+					WriteSignedVarInt(Multi); // Type
+					Write(recipe.Id);
 				}
 			}
 
@@ -1468,9 +1454,11 @@ namespace MiNET.Net
 				}
 				else if (recipeType == Multi)
 				{
-					Log.Error("Reading MULTI");
+					//Log.Error("Reading MULTI");
 
-					ReadUUID();
+					MultiRecipe recipe = new MultiRecipe();
+					recipe.Id = ReadUUID();
+					recipes.Add(recipe);
 				}
 				else
 				{

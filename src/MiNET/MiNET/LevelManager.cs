@@ -54,9 +54,6 @@ namespace MiNET
 				GameMode gameMode = Config.GetProperty("GameMode", GameMode.Survival);
 				Difficulty difficulty = Config.GetProperty("Difficulty", Difficulty.Normal);
 				int viewDistance = Config.GetProperty("ViewDistance", 11);
-				bool enableBlockTicking = Config.GetProperty("EnableBlockTicking", false);
-				bool enableChunkTicking = Config.GetProperty("EnableChunkTicking", false);
-				bool isWorldTimeStarted = Config.GetProperty("IsWorldTimeStarted", false);
 
 				IWorldProvider worldProvider = null;
 
@@ -83,10 +80,26 @@ namespace MiNET
 
 				level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance)
 				{
-					EnableBlockTicking = enableBlockTicking,
-					EnableChunkTicking = enableChunkTicking,
-					IsWorldTimeStarted = isWorldTimeStarted,
-					KeepInventory = Config.GetProperty("KeepInventory", false),
+					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
+					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
+					DrowningDamage = Config.GetProperty("GameRule.DrowningDamage", true),
+					CommandblockOutput = Config.GetProperty("GameRule.CommandblockOutput", true),
+					DoTiledrops = Config.GetProperty("GameRule.DoTiledrops", true),
+					DoMobloot = Config.GetProperty("GameRule.DoMobloot", true),
+					KeepInventory = Config.GetProperty("GameRule.KeepInventory", true),
+					DoDaylightcycle = Config.GetProperty("GameRule.DoDaylightcycle", true),
+					DoMobspawning = Config.GetProperty("GameRule.DoMobspawning", true),
+					DoEntitydrops = Config.GetProperty("GameRule.DoEntitydrops", true),
+					DoFiretick = Config.GetProperty("GameRule.DoFiretick", true),
+					DoWeathercycle = Config.GetProperty("GameRule.DoWeathercycle", true),
+					Pvp = Config.GetProperty("GameRule.Pvp", true),
+					Falldamage = Config.GetProperty("GameRule.Falldamage", true),
+					Firedamage = Config.GetProperty("GameRule.Firedamage", true),
+					Mobgriefing = Config.GetProperty("GameRule.Mobgriefing", true),
+					ShowCoordinates = Config.GetProperty("GameRule.ShowCoordinates", true),
+					NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
+					TntExploads = Config.GetProperty("GameRule.TntExploads", true),
+					SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
 				};
 				level.Initialize();
 
@@ -172,7 +185,25 @@ namespace MiNET
 				Dimension = dimension,
 				EnableBlockTicking = level.EnableBlockTicking,
 				EnableChunkTicking = level.EnableChunkTicking,
-				IsWorldTimeStarted = level.IsWorldTimeStarted
+
+				DrowningDamage = Config.GetProperty("GameRule.DrowningDamage", true),
+				CommandblockOutput = Config.GetProperty("GameRule.CommandblockOutput", true),
+				DoTiledrops = Config.GetProperty("GameRule.DoTiledrops", true),
+				DoMobloot = Config.GetProperty("GameRule.DoMobloot", true),
+				KeepInventory = Config.GetProperty("GameRule.KeepInventory", true),
+				DoDaylightcycle = Config.GetProperty("GameRule.DoDaylightcycle", true),
+				DoMobspawning = Config.GetProperty("GameRule.DoMobspawning", true),
+				DoEntitydrops = Config.GetProperty("GameRule.DoEntitydrops", true),
+				DoFiretick = Config.GetProperty("GameRule.DoFiretick", true),
+				DoWeathercycle = Config.GetProperty("GameRule.DoWeathercycle", true),
+				Pvp = Config.GetProperty("GameRule.Pvp", true),
+				Falldamage = Config.GetProperty("GameRule.Falldamage", true),
+				Firedamage = Config.GetProperty("GameRule.Firedamage", true),
+				Mobgriefing = Config.GetProperty("GameRule.Mobgriefing", true),
+				ShowCoordinates = Config.GetProperty("GameRule.ShowCoordinates", true),
+				NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
+				TntExploads = Config.GetProperty("GameRule.TntExploads", true),
+				SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
 			};
 
 			newLevel.Initialize();

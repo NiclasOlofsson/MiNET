@@ -321,21 +321,14 @@ namespace MiNET.Plugins.Commands
 			return $"{commander.Username} set difficulty to {difficulty}";
 		}
 
-		public enum TimeSubCommands
-		{
-			Set,
-		}
-
-		[Command]
-		public string Time(Player commander, TimeSubCommands operation, int time)
+		[Command(Name = "time set", Description = "Changes or queries the world's game time")]
+		public string TimeSet(Player commander, int time = 5000)
 		{
 			Level level = commander.Level;
 			level.WorldTime = time;
 
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.time = (int) level.CurrentWorldTime;
-			//message.started = level.IsWorldTimeStarted;
-
+			message.time = (int) level.WorldTime;
 			level.RelayBroadcast(message);
 
 			return $"{commander.Username} sets time to {time}";
@@ -347,16 +340,14 @@ namespace MiNET.Plugins.Commands
 			Night = 13000
 		}
 
-		[Command]
-		public string Time(Player commander, TimeSubCommands operation, DayNight time)
+		[Command(Name = "time set")]
+		public string TimeSet(Player commander, DayNight time)
 		{
 			Level level = commander.Level;
 			level.WorldTime = (int) time;
 
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.time = (int) level.CurrentWorldTime;
-			//message.started = level.IsWorldTimeStarted;
-
+			message.time = (int) level.WorldTime;
 			level.RelayBroadcast(message);
 
 			return $"{commander.Username} sets time to {time}";
@@ -555,27 +546,32 @@ namespace MiNET.Plugins.Commands
 		[Command]
 		public string GameRule(Player player, GameRulesEnum rule)
 		{
-			return $"{rule} is {true}.";
+			return $"{rule.ToString().ToLower()}={player.Level.GetGameRule(rule).ToString().ToLower()}.";
 		}
 
 		[Command]
 		public string GameRule(Player player, GameRulesEnum rule, bool value)
 		{
-			return $"{player.Username} set {rule} to {value}.";
+			player.Level.SetGameRule(rule, value);
+			player.Level.BroadcastGameRules();
+			return $"{player.Username} set {rule.ToString().ToLower()} to {value.ToString().ToLower()}.";
 		}
 
 		[Command]
-		public string GameRule(Player player, GameRulesEnum rule, int value)
+		public string Daylock(Player player, bool value)
 		{
-			return $"{player.Username} set {rule} to {value}.";
-		}
+			Level level = player.Level;
+			level.SetGameRule(GameRulesEnum.DoDaylightcycle, !value);
+			level.BroadcastGameRules();
 
-		[Command]
-		public string GameRule(Player player, GameRulesEnum rule, float value)
-		{
-			return $"{player.Username} set {rule} to {value}.";
-		}
+			level.WorldTime = 5000;
 
+			McpeSetTime message = McpeSetTime.CreateObject();
+			message.time = (int)level.WorldTime;
+			level.RelayBroadcast(message);
+
+			return $"{player.Username} set {GameRulesEnum.DoDaylightcycle.ToString().ToLower()} to {value.ToString().ToLower()}.";
+		}
 
 		[Command]
 		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)

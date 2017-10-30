@@ -1701,10 +1701,18 @@ namespace MiNET.Client
 
 					continue;
 				}
+
 				SmeltingRecipe smeltingRecipe = recipe as SmeltingRecipe;
 				if (smeltingRecipe != null)
 				{
 					writer.WriteLine($"new SmeltingRecipe(new Item({smeltingRecipe.Result.Id}, {smeltingRecipe.Result.Metadata}, {smeltingRecipe.Result.Count}), new Item({smeltingRecipe.Input.Id}, {smeltingRecipe.Input.Metadata})),");
+					continue;
+				}
+
+				MultiRecipe multiRecipe = recipe as MultiRecipe;
+				if (multiRecipe != null)
+				{
+					writer.WriteLine($"new MultiRecipe() {{ Id = new UUID(\"{recipe.Id}\") }}, // {recipe.Id}");
 					continue;
 				}
 			}

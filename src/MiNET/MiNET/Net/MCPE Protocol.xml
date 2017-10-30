@@ -210,7 +210,7 @@
 		<field name="Day cycle stop time" type="SignedVarInt" />
 		<field name="EDU mode" type="bool" />
 		<field name="Rain level" type="float" />
-		<field name="Lightnig level" type="float" />
+		<field name="Lightning level" type="float" />
 		<field name="Is Multiplayer" type="bool" />
 		<field name="Broadcast To LAN" type="bool" />
 		<field name="Broadcast To XBL" type="bool" />

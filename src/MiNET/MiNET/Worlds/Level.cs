@@ -78,10 +78,9 @@ namespace MiNET.Worlds
 		public Difficulty Difficulty { get; set; }
 		public bool AutoSmelt { get; set; } = false;
 		public long WorldTime { get; set; }
-		public long CurrentWorldTime { get; private set; }
+		public long CurrentWorldCycleTime { get; private set; }
 		public long TickTime { get; set; }
 		public long StartTimeInTicks { get; private set; }
-		public bool IsWorldTimeStarted { get; set; } = false;
 		public bool EnableBlockTicking { get; set; } = false;
 		public bool EnableChunkTicking { get; set; } = false;
 
@@ -440,12 +439,13 @@ namespace MiNET.Worlds
 
 				Player[] players = GetSpawnedPlayers();
 
-				if (IsWorldTimeStarted)
+				if (DoDaylightcycle)
 				{
 					WorldTime++;
-					CurrentWorldTime = WorldTime%_worldDayCycleTime;
+					CurrentWorldCycleTime = WorldTime%_worldDayCycleTime;
 				}
-				if (IsWorldTimeStarted && TickTime%100 == 0)
+
+				if (DoDaylightcycle && TickTime%100 == 0)
 				{
 					McpeSetTime message = McpeSetTime.CreateObject();
 					message.time = (int) WorldTime;
@@ -474,7 +474,7 @@ namespace MiNET.Worlds
 
 						if (EnableChunkTicking)
 						{
-							canSpawnPassive = CurrentWorldTime%400 == 0;
+							canSpawnPassive = TickTime%400 == 0;
 
 							var effectiveChunkCount = Math.Max(17*17, chunksWithinRadiusOfPlayer.Count);
 							int entityPassiveCount = 0;
@@ -1426,6 +1426,112 @@ namespace MiNET.Worlds
 			RelayBroadcast(gameRulesChanged);
 		}
 
+		public void SetGameRule(GameRulesEnum rule, bool value)
+		{
+			switch (rule)
+			{
+				case GameRulesEnum.DrowningDamage:
+					DrowningDamage = value;
+					break;
+				case GameRulesEnum.CommandblockOutput:
+					CommandblockOutput = value;
+					break;
+				case GameRulesEnum.DoTiledrops:
+					DoTiledrops = value;
+					break;
+				case GameRulesEnum.DoMobloot:
+					DoMobloot = value;
+					break;
+				case GameRulesEnum.KeepInventory:
+					KeepInventory = value;
+					break;
+				case GameRulesEnum.DoDaylightcycle:
+					DoDaylightcycle = value;
+					break;
+				case GameRulesEnum.DoMobspawning:
+					DoMobspawning = value;
+					break;
+				case GameRulesEnum.DoEntitydrops:
+					DoEntitydrops = value;
+					break;
+				case GameRulesEnum.DoFiretick:
+					DoFiretick = value;
+					break;
+				case GameRulesEnum.DoWeathercycle:
+					DoWeathercycle = value;
+					break;
+				case GameRulesEnum.Pvp:
+					Pvp = value;
+					break;
+				case GameRulesEnum.Falldamage:
+					Falldamage = value;
+					break;
+				case GameRulesEnum.Firedamage:
+					Firedamage = value;
+					break;
+				case GameRulesEnum.Mobgriefing:
+					Mobgriefing = value;
+					break;
+				case GameRulesEnum.ShowCoordinates:
+					ShowCoordinates = value;
+					break;
+				case GameRulesEnum.NaturalRegeneration:
+					NaturalRegeneration = value;
+					break;
+				case GameRulesEnum.TntExploads:
+					TntExploads = value;
+					break;
+				case GameRulesEnum.SendCommandfeedback:
+					SendCommandfeedback = value;
+					break;
+			}
+		}
+
+		public bool GetGameRule(GameRulesEnum rule)
+		{
+			switch (rule)
+			{
+				case GameRulesEnum.DrowningDamage:
+					return DrowningDamage;
+				case GameRulesEnum.CommandblockOutput:
+					return CommandblockOutput;
+				case GameRulesEnum.DoTiledrops:
+					return DoTiledrops;
+				case GameRulesEnum.DoMobloot:
+					return DoMobloot;
+				case GameRulesEnum.KeepInventory:
+					return KeepInventory;
+				case GameRulesEnum.DoDaylightcycle:
+					return DoDaylightcycle;
+				case GameRulesEnum.DoMobspawning:
+					return DoMobspawning;
+				case GameRulesEnum.DoEntitydrops:
+					return DoEntitydrops;
+				case GameRulesEnum.DoFiretick:
+					return DoFiretick;
+				case GameRulesEnum.DoWeathercycle:
+					return DoWeathercycle;
+				case GameRulesEnum.Pvp:
+					return Pvp;
+				case GameRulesEnum.Falldamage:
+					return Falldamage;
+				case GameRulesEnum.Firedamage:
+					return Firedamage;
+				case GameRulesEnum.Mobgriefing:
+					return Mobgriefing;
+				case GameRulesEnum.ShowCoordinates:
+					return ShowCoordinates;
+				case GameRulesEnum.NaturalRegeneration:
+					return NaturalRegeneration;
+				case GameRulesEnum.TntExploads:
+					return TntExploads;
+				case GameRulesEnum.SendCommandfeedback:
+					return SendCommandfeedback;
+			}
+
+			return false;
+		}
+
 		public virtual GameRules GetGameRules()
 		{
 			GameRules rules = new GameRules();
@@ -1449,7 +1555,6 @@ namespace MiNET.Worlds
 			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, SendCommandfeedback));
 			return rules;
 		}
-
 	}
 
 	public class LevelEventArgs : EventArgs

@@ -38,10 +38,9 @@ namespace MiNET.Crafting
 		public UUID Id { get; set; }
 	}
 
-	public class EnchantingRecipe : Recipe
+	public class MultiRecipe: Recipe
 	{
 	}
-
 
 	public class ShapelessRecipe : Recipe
 	{

@@ -386,7 +386,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Day cycle stop time | SignedVarInt |  |
 |EDU mode | bool |  |
 |Rain level | float |  |
-|Lightnig level | float |  |
+|Lightning level | float |  |
 |Is Multiplayer | bool |  |
 |Broadcast To LAN | bool |  |
 |Broadcast To XBL | bool |  |

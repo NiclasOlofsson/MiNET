@@ -3646,6 +3646,7 @@ namespace MiNET.Net
 		public int x; // = null;
 		public int y; // = null;
 		public int z; // = null;
+		public bool addUserData; // = null;
 		public byte selectedSlot; // = null;
 
 		public McpeBlockPickRequest()
@@ -3663,6 +3664,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(x);
 			WriteSignedVarInt(y);
 			WriteSignedVarInt(z);
+			Write(addUserData);
 			Write(selectedSlot);
 
 			AfterEncode();
@@ -3680,6 +3682,7 @@ namespace MiNET.Net
 			x = ReadSignedVarInt();
 			y = ReadSignedVarInt();
 			z = ReadSignedVarInt();
+			addUserData = ReadBool();
 			selectedSlot = ReadByte();
 
 			AfterDecode();
@@ -3695,6 +3698,7 @@ namespace MiNET.Net
 			x=default(int);
 			y=default(int);
 			z=default(int);
+			addUserData=default(bool);
 			selectedSlot=default(byte);
 		}
 

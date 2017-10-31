@@ -46,7 +46,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Plot.cs" />
     <Compile Include="PlotCommands.cs" />
+    <Compile Include="PlotCoordinates.cs" />
+    <Compile Include="PlotManager.cs" />
     <Compile Include="PlotterLevelManager.cs" />
     <Compile Include="PlotterPlugin.cs" />
     <Compile Include="PlotWorldGenerator.cs" />

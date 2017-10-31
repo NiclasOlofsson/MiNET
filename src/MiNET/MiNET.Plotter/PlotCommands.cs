@@ -54,7 +54,7 @@ namespace MiNET.Plotter
 		[Command(Name = "plot claim")]
 		public string PlotClaim(Player player)
 		{
-			PlotCoordinates coords = PlotManager.ConvertToPlotCoordinates(player.KnownPosition);
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to claim plot at this position.";
 
 			Plot plot;

@@ -23,24 +23,13 @@
 
 #endregion
 
-namespace MiNET.BlockEntities
+using System;
+
+namespace MiNET.Plotter
 {
-	public static class BlockEntityFactory
+	public class Plot
 	{
-		public static BlockEntity GetBlockEntityById(string blockEntityId)
-		{
-			BlockEntity blockEntity = null;
-
-			if (blockEntityId == "Sign") blockEntity = new Sign();
-			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
-			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
-			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
-			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
-			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
-			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
-			else if (blockEntityId == "Banner") blockEntity = new BannerBlockEntity();
-
-			return blockEntity;
-		}
+		public PlotCoordinates Coordinates { get; set; }
+		public Guid Owner { get; set; }
 	}
 }

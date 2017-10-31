@@ -32,11 +32,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSign : ItemBlock
+	public class ItemBanner : ItemBlock
 	{
-		public ItemSign() : base(323, 0)
+		public ItemBanner() : base(446, 0)
 		{
-			MaxStackSize = 1;
+			MaxStackSize = 16;
 		}
 
 		public override Item GetSmelt()
@@ -49,12 +49,11 @@ namespace MiNET.Items
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
 			if (face == BlockFace.Up) // On top of block
 			{
-				// Standing Sign
-				var sign = new StandingSign();
-				sign.Coordinates = coor;
-				// metadata for sign is a value 0-15 that signify the orientation of the sign. Same as PC metadata.
-				sign.Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*16/360) + 0.5) & 0x0f);
-				world.SetBlock(sign);
+				var banner = new StandingBanner();
+				banner.Coordinates = coor;
+				// metadata for banner is a value 0-15 that signify the orientation of the banner. Same as PC metadata.
+				banner.Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*16/360) + 0.5) & 0x0f);
+				world.SetBlock(banner);
 			}
 			else if (face == BlockFace.North) // At the bottom of block
 			{
@@ -63,22 +62,22 @@ namespace MiNET.Items
 			}
 			else
 			{
-				// Wall sign
-				var sign = new WallSign();
-				sign.Coordinates = coor;
-				sign.Metadata = (byte) face;
-				world.SetBlock(sign);
+				var banner = new WallBanner();
+				banner.Coordinates = coor;
+				banner.Metadata = (byte) face;
+				world.SetBlock(banner);
 			}
 
-			// Then we create and set the sign block entity that has all the intersting data
+			// Then we create and set the wall block entity that has all the intersting data
 
-			var signBlockEntity = new Sign
+			var bannerBlockEntity = new BannerBlockEntity
 			{
-				Coordinates = coor
+				Coordinates = coor,
+				Base = Metadata,
 			};
+			bannerBlockEntity.SetCompound(ExtraData);
 
-
-			world.SetBlockEntity(signBlockEntity);
+			world.SetBlockEntity(bannerBlockEntity);
 		}
 	}
 }

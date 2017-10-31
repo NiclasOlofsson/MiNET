@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -236,6 +236,7 @@ namespace MiNET.Items
 			else if (id == 430) item = new ItemAcaciaDoor();
 			else if (id == 431) item = new ItemDarkOakDoor();
 			else if (id == 444) item = new ItemElytra();
+			else if (id == 446) item = new ItemBanner();
 			else if (id == 452) item = new ItemIronNugget();
 			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)

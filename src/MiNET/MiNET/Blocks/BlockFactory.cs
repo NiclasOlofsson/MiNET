@@ -298,6 +298,8 @@ namespace MiNET.Blocks
 			else if (blockId == 173) block = new CoalBlock();
 			else if (blockId == 174) block = new PackedIce();
 			else if (blockId == 175) block = new DoublePlant();
+			else if (blockId == 176) block = new StandingBanner();
+			else if (blockId == 177) block = new WallBanner();
 			else if (blockId == 178) block = new DaylightDetectorInverted();
 			else if (blockId == 179) block = new RedSandstone();
 			else if (blockId == 180) block = new RedSandstoneStairs();

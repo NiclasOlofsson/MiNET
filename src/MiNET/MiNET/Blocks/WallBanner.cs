@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,24 +23,12 @@
 
 #endregion
 
-namespace MiNET.BlockEntities
+namespace MiNET.Blocks
 {
-	public static class BlockEntityFactory
+	public class WallBanner : Block
 	{
-		public static BlockEntity GetBlockEntityById(string blockEntityId)
+		public WallBanner() : base(177)
 		{
-			BlockEntity blockEntity = null;
-
-			if (blockEntityId == "Sign") blockEntity = new Sign();
-			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
-			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
-			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
-			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
-			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
-			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
-			else if (blockEntityId == "Banner") blockEntity = new BannerBlockEntity();
-
-			return blockEntity;
 		}
 	}
 }

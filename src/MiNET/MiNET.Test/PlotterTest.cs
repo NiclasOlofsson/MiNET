@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -34,11 +34,11 @@ namespace MiNET
 	[TestFixture]
 	public class PlotterTest
 	{
-		[Test , Ignore("")]
+		[Test, Ignore("")]
 		public void PlotCoordinatesTest()
 		{
-			Assert.AreEqual(new PlotCoordinates(1, 1), PlotManager.ConvertToPlotCoordinates(new BlockCoordinates(PlotWorldGenerator.RoadWidth, 0, PlotWorldGenerator.RoadWidth)));
-			Assert.AreEqual(new PlotCoordinates(-1, -1), PlotManager.ConvertToPlotCoordinates(new BlockCoordinates(-1, 0, -1)));
+			Assert.AreEqual(new PlotCoordinates(1, 1), (PlotCoordinates) new BlockCoordinates(PlotWorldGenerator.RoadWidth, 0, PlotWorldGenerator.RoadWidth));
+			Assert.AreEqual(new PlotCoordinates(-1, -1), (PlotCoordinates) new BlockCoordinates(-1, 0, -1));
 
 			Assert.AreEqual(
 				new BlockCoordinates(PlotWorldGenerator.RoadWidth, PlotWorldGenerator.PlotHeight, PlotWorldGenerator.RoadWidth),

@@ -2414,7 +2414,7 @@ namespace MiNET
 
 			Block block = Level.GetBlock(message.x, message.y, message.z);
 
-			Item item = new ItemBlock(block, block.Metadata);
+			Item item = ItemFactory.GetItem(block.Id, block.Metadata);
 
 			Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 		}
@@ -2428,7 +2428,7 @@ namespace MiNET
 
 			if (Level.Entities.TryGetValue((long)message.runtimeEntityId, out var entity))
 			{
-				Item item = new ItemSpawnEgg((short)entity.EntityTypeId);
+				Item item = ItemFactory.GetItem(383, (short) entity.EntityTypeId);
 
 				Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 			}

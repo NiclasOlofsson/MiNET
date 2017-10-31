@@ -941,8 +941,8 @@ Wiki: [Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 ### Entity Pick Request (0x23)
 Wiki: [Entity Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-EntityPickRequest)
 
-**Sent from server:** true  
-**Sent from client:** false
+**Sent from server:** false  
+**Sent from client:** true
 
 
 
@@ -951,6 +951,8 @@ Wiki: [Entity Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Runtime Entity ID | ulong |  |
+|Selected Slot | byte |  |
 -----------------------------------------------------------------------
 ### Player Action (0x24)
 Wiki: [Player Action](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayerAction)

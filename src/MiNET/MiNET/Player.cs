@@ -2419,6 +2419,21 @@ namespace MiNET
 			Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 		}
 
+		public virtual void HandleMcpeEntityPickRequest(McpeEntityPickRequest message)
+		{
+			if (GameMode != GameMode.Creative)
+			{
+				return;
+			}
+
+			if (Level.Entities.TryGetValue((long)message.runtimeEntityId, out var entity))
+			{
+				Item item = new ItemSpawnEgg((short)entity.EntityTypeId);
+
+				Inventory.SetInventorySlot(Inventory.InHandSlot, item);
+			}
+		}
+
 		protected virtual int CalculateDamage(Entity target)
 		{
 			int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.

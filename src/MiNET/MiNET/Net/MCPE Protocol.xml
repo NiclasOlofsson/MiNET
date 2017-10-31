@@ -504,7 +504,9 @@
 		<field name="Selected Slot" type="byte" />
 	</pdu>
 
-	<pdu id="0x23" online="false" client="false" server="true" name="MCPE_ENTITY_PICK_REQUEST">
+	<pdu id="0x23" online="false" client="true" server="false" name="MCPE_ENTITY_PICK_REQUEST">
+		<field name="Runtime Entity ID" type="ulong" />
+		<field name="Selected Slot" type="byte" />
 	</pdu>
 
 	<pdu id="0x24" online="false" client="true" server="false" name="MCPE_PLAYER_ACTION">

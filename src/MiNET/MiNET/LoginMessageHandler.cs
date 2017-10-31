@@ -433,6 +433,11 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeEntityPickRequest(McpeEntityPickRequest message)
+		{
+			
+		}
+
 		public void HandleMcpePlayerAction(McpePlayerAction message)
 		{
 		}

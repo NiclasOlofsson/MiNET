@@ -242,9 +242,9 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public Biome GetBiome(int biomeId)
+		public static Biome GetBiome(int biomeId)
 		{
-			return Biomes.FirstOrDefault(biome => biome.Id == biomeId) ?? new Biome {Id = biomeId};
+			return Biomes.FirstOrDefault(biome => biome.Id == biomeId) ?? new Biome {Id = biomeId, Name = "" + biomeId};
 		}
 
 		public int BiomeSwampRiverColor(int color)

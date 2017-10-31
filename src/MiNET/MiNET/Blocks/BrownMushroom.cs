@@ -6,6 +6,7 @@
 		{
 			IsSolid = false;
 			LightLevel = 1;
+			IsTransparent = true;
 		}
 	}
 }

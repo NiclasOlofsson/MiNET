@@ -17,7 +17,7 @@ namespace MiNET.Items
 			return null;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			if (player.GameMode != GameMode.Creative)
 			{
@@ -37,7 +37,7 @@ namespace MiNET.Items
 				Coordinates = coor,
 			};
 
-			if (!chest.CanPlace(world, face)) return;
+			if (!chest.CanPlace(world, blockCoordinates, face)) return;
 
 			chest.PlaceBlock(world, player, coor, face, faceCoords);
 

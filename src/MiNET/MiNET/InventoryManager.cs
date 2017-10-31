@@ -43,7 +43,11 @@ namespace MiNET
 
 				BlockEntity blockEntity = _level.GetBlockEntity(inventoryCoord);
 
-				if (blockEntity == null) return null;
+				if (blockEntity == null)
+				{
+					if(Log.IsDebugEnabled) Log.Warn($"No blockentity found at {inventoryCoord}");
+					return null;
+				}
 
 				NbtCompound comp = blockEntity.GetCompound();
 
@@ -77,6 +81,7 @@ namespace MiNET
 				}
 				else
 				{
+					if (Log.IsDebugEnabled) Log.Warn($"Block entity did not have a matching inventory {blockEntity}");
 					return null;
 				}
 

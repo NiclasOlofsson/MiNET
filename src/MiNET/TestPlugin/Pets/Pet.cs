@@ -27,7 +27,7 @@ namespace TestPlugin.Pets
 			Age = 0;
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			if (Age++ < 100) return;
 			if (!IsSpawned) return;
@@ -39,7 +39,7 @@ namespace TestPlugin.Pets
 				return;
 			}
 
-			base.OnTick();
+			base.OnTick(entities);
 
 			if (RageTick > 0)
 			{

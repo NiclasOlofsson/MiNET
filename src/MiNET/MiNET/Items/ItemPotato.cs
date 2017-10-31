@@ -11,7 +11,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block targetBlock = world.GetBlock(targetCoordinates);
 			Block potatos = new Potatoes();
@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			potatos.Metadata = (byte) Metadata;
 
-			if (!potatos.CanPlace(world, face)) return;
+			if (!potatos.CanPlace(world, targetCoordinates, face)) return;
 
 			if (potatos.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

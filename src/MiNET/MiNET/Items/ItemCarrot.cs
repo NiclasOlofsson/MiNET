@@ -11,7 +11,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block targetBlock = world.GetBlock(targetCoordinates);
 			Block carrots = new Carrots();
@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			carrots.Metadata = (byte) Metadata;
 
-			if (!carrots.CanPlace(world, face)) return;
+			if (!carrots.CanPlace(world, targetCoordinates, face)) return;
 
 			if (carrots.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

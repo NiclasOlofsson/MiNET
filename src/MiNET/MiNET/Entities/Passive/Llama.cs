@@ -49,7 +49,7 @@ namespace MiNET.Entities.Passive
 			return metadata;
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 		}
 	}

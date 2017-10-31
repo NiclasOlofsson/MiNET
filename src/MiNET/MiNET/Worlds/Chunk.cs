@@ -50,8 +50,7 @@ namespace MiNET.Worlds
 		public Chunk()
 		{
 			ChunkColumn.Fill<byte>(skylight.Data, 0xff);
-			//BiomeUtils utils = new BiomeUtils();
-			//utils.PrecomputeBiomeColors();
+			//ChunkColumn.Fill<byte>(blocklight.Data, 0x88);
 		}
 
 		public bool IsDirty => _isDirty;
@@ -91,8 +90,8 @@ namespace MiNET.Worlds
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
 			blocklight[GetIndex(bx, by, bz)] = data;
-			_cache = null;
-			_isDirty = true;
+			//_cache = null;
+			//_isDirty = true;
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
@@ -115,8 +114,8 @@ namespace MiNET.Worlds
 		public void SetSkylight(int bx, int by, int bz, byte data)
 		{
 			skylight[GetIndex(bx, by, bz)] = data;
-			_cache = null;
-			_isDirty = true;
+			//_cache = null;
+			//_isDirty = true;
 		}
 
 		public byte[] GetBytes()
@@ -129,8 +128,8 @@ namespace MiNET.Worlds
 
 				writer.Write(blocks);
 				writer.Write(metadata.Data);
-				writer.Write(skylight.Data);
-				writer.Write(blocklight.Data);
+				//writer.Write(skylight.Data);
+				//writer.Write(blocklight.Data);
 				_cache = stream.ToArray();
 			}
 

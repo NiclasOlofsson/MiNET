@@ -3,13 +3,37 @@
 <#@ assembly name="System.Xml"#>
 <#@ import namespace="System.Xml" #>
 <#@ import namespace="System.Collections.Generic" #>
-
 <#
 string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
 doc.Load(path + @"\MCPE Protocol.xml");
 
 #>
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 //
 // WARNING: T4 GENERATED CODE - DO NOT EDIT
 // 
@@ -19,6 +43,7 @@ using System.Net;
 using System.Numerics;
 using System.Threading;
 using MiNET.Utils; 
+using MiNET.Utils.Skins;
 using MiNET.Items;
 using MiNET.Crafting;
 using little = MiNET.Utils.Int24; // friendly name
@@ -28,10 +53,10 @@ namespace MiNET.Net
 {
 	public interface IMcpeMessageHandler
 	{
-
 		void Disconnect(string reason, bool sendDisconnect = true);
 
 <#	
+
 
 foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @client='true']"))
 {
@@ -47,7 +72,8 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @cli
 		public static Package CreatePackage(byte messageId, byte[] buffer, string ns)
 		{
 			Package package = null; 
-			if(ns == "raknet") {
+			if(ns == "raknet") 
+			{
 				switch (messageId)
 				{
 <#	
@@ -57,14 +83,14 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='raknet']"))
 #>
 					case <#= pdu.Attributes["id"].Value #>:
 						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 <#	
 } // foreach
 #>
 				}
-			} else if(ns == "ftl") {
+			} else if(ns == "ftl") 
+			{
 				switch (messageId)
 				{
 <#	
@@ -73,7 +99,6 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='ftl']"))
 #>
 					case <#= pdu.Attributes["id"].Value #>:
 						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 <#	
@@ -85,13 +110,11 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='ftl']"))
 				switch (messageId)
 				{
 <#	
-
 foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and not(@namespace='ftl')]"))
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
 						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						//package.Timer.Start();
 						package.Decode(buffer);
 						return package;
 <#	
@@ -114,6 +137,8 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 	constantsLoopup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
 }
 
+PrintConstants(doc.SelectNodes("/protocol/enums"));
+WriteLine("");
 
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
@@ -123,7 +148,12 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	{
 <#	
 
-	foreach (XmlNode field in pdu.ChildNodes)
+	PushIndent("\t");
+	PrintConstants(pdu.SelectNodes("enums"));
+	WriteLine("");
+	PopIndent();
+
+	foreach (XmlNode field in pdu.SelectNodes("field"))
 	{
 		if(field.NodeType != XmlNodeType.Element) continue;
 
@@ -177,9 +207,11 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	} // foreach
 
 #>
+
 		public <#= CodeTypeName(pdu.Attributes["name"].Value) #>()
 		{
 			Id = <#= CodeName(pdu.Attributes["id"].Value, true) #>;
+			IsMcpe = <#= ("mcpe" == (pdu.Attributes["namespace"]?.Value??"mcpe")).ToString().ToLower() #>;
 		}
 
 		protected override void EncodePackage()
@@ -189,7 +221,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			BeforeEncode();
 
 <#	
-	foreach (XmlNode field in pdu.ChildNodes)
+	foreach (XmlNode field in pdu.SelectNodes("field"))
 	{
 		if(field.NodeType != XmlNodeType.Element) continue;
 
@@ -257,7 +289,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			BeforeDecode();
 
 <#	
-	foreach (XmlNode field in pdu.ChildNodes)
+	foreach (XmlNode field in pdu.SelectNodes("field"))
 	{
 		if(field.NodeType != XmlNodeType.Element) continue;
 
@@ -302,6 +334,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 
 
 	} // foreach
+
 #>
 
 			AfterDecode();
@@ -440,4 +473,29 @@ public string SafeToString(XmlNode node)
 
 	return node.Value;
 }
+
+private void PrintConstants(XmlNodeList nodes)
+{
+	PushIndent("\t");
+
+	foreach (XmlNode constants in nodes)
+	{
+		WriteLine($"public enum {CodeTypeName(constants.Attributes["id"]?.Value)}");
+		WriteLine($"{{");
+		PushIndent("\t");
+
+		foreach (XmlNode constant in constants.ChildNodes)
+		{
+			var attributes = constant.Attributes;
+			WriteLine($"{CodeTypeName(attributes["id"]?.Value)} = {attributes["value"].Value},");
+		}
+
+		PopIndent();
+		WriteLine($"}}");
+	}
+
+	PopIndent();
+
+}
+
 #>

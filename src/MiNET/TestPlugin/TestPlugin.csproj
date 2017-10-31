@@ -49,6 +49,9 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Stripe.net, Version=10.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stripe.net.10.4.0\lib\net45\Stripe.net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -61,6 +64,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Code4Fun\Code4FunPlugin.cs" />
+    <Compile Include="Code4Fun\ScreenshotCommand.cs" />
     <Compile Include="CoreCommands.cs" />
     <Compile Include="NiceLobby\CustomItemFrame.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />
@@ -71,6 +76,7 @@
     <Compile Include="Pets\PetTypes.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="PushToTheLimitCommands.cs" />
+    <Compile Include="SafePay\SafePayPlugin.cs" />
     <Compile Include="TestPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -81,12 +87,19 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="geometry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="app.config" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Char8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="test_skin.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="IMG_0220.png">

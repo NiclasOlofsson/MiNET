@@ -26,11 +26,5 @@ namespace MiNET.Entities.Hostile
 			metadata[16] = new MetadataInt(_random.Next(2) == 1 ? 0 : 32); // 0 or 32?
 			return metadata;
 		}
-
-		public override void OnTick()
-		{
-			base.OnTick();
-			//if (Level.TickTime%20 == 0) BroadcastSetEntityData();
-		}
 	}
 }

@@ -54,7 +54,7 @@ namespace MiNET.Entities.World
 			// This is a server-side only entity
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
 			if (Level.TickTime%2 != 0) return;
 

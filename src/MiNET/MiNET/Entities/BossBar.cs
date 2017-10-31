@@ -131,9 +131,9 @@ namespace MiNET.Entities
 			Level?.RelayBroadcast(players, bossEvent);
 		}
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
-			base.OnTick();
+			base.OnTick(entities);
 
 			if (!Animate) return;
 

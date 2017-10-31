@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -45,8 +45,11 @@ using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
+using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Worlds;
+using Button = MiNET.UI.Button;
+using Input = MiNET.UI.Input;
 
 namespace TestPlugin
 {
@@ -59,7 +62,7 @@ namespace TestPlugin
 
 		protected override void OnEnable()
 		{
-			Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
+			//Context.PluginManager.LoadCommands(new HelpCommand(Context.Server.PluginManager));
 			Context.PluginManager.LoadCommands(new VanillaCommands(Context.Server.PluginManager));
 		}
 
@@ -77,7 +80,53 @@ namespace TestPlugin
 		//    return packet;
 		//}
 
+		[Command(Name = "tc", Description = "Test command")]
+		public void TestCommand(Player player, int param)
+		{
+		}
+
+		public enum MetricsOperationsOn
+		{
+			On
+		}
+
+		[Command(Description = "Turn metrics on")]
+		[Authorize(Permission = CommandPermission.Admin)]
+		public string Metrics(Player player, MetricsOperationsOn on)
+		{
+			player.Level._profiler.Enabled = true;
+			return "Profiler is now enabled.";
+		}
+
+		public enum MetricsOperationsOff
+		{
+			Off
+		}
+
+		[Command(Description = "Turn metrics off")]
+		[Authorize(Permission = CommandPermission.Admin)]
+		public string Metrics(Player player, MetricsOperationsOff off)
+		{
+			player.Level._profiler.Enabled = false;
+			return "Profiler is now disabled.";
+		}
+
+		public enum MetricsOperationsDisplay
+		{
+			Display
+		}
+
+		[Command(Description = "Display metrics")]
+		[Authorize(Permission = CommandPermission.Admin)]
+		public string Metrics(Player player, MetricsOperationsDisplay display, int timespan = 10000)
+		{
+			string results = player.Level._profiler.GetResults(timespan);
+			Log.Debug("\n" + results);
+			return results;
+		}
+
 		[Command(Description = "Save world")]
+		[Authorize(Permission = CommandPermission.Admin)]
 		public void Save(Player player)
 		{
 			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
@@ -106,14 +155,29 @@ namespace TestPlugin
 			npc.SpawnEntity();
 		}
 
+		public static PlayerLocation GetPositionFromPlayer(PlayerLocation coordinates, float distance = 2f, bool facePlayer = true)
+		{
+			var direction = Vector3.Normalize(coordinates.GetHeadDirection())*distance;
+			return new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, facePlayer ? coordinates.HeadYaw + 180f : coordinates.HeadYaw, facePlayer ? coordinates.Yaw + 180f : coordinates.Yaw);
+		}
+
 		[Command]
-		public VanillaCommands.SimpleResponse Info(Player player)
+		public void SpawnHologram(Player player, string text)
+		{
+			var hologram = new Hologram(text, player.Level);
+			hologram.KnownPosition =
+				hologram.KnownPosition = GetPositionFromPlayer(player.KnownPosition);
+			hologram.SpawnEntity();
+		}
+
+		[Command]
+		public string Info(Player player)
 		{
 			var level = player.Level;
 			int entityCount = level.Entities.Count;
 
 			string body = $"Entity #{entityCount}";
-			return new VanillaCommands.SimpleResponse() {Body = body};
+			return body;
 		}
 
 		[Command]
@@ -131,8 +195,81 @@ namespace TestPlugin
 		}
 
 		[Command]
+		public void Form(Player player)
+		{
+			CustomForm customForm = new CustomForm();
+			customForm.Title = "A title";
+			customForm.Content = new List<CustomElement>()
+			{
+				new Label {Text = "A label"},
+				new Input {Text = "", Placeholder = "Placeholder", Value = ""},
+				new Toggle {Text = "A toggler", Value = true},
+				new Slider {Text = "A slider", Min = 0, Max = 10, Step = 0.1f, Value = 3},
+				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Value = 1},
+				new Dropdown {Text = "A dropdown", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Value = 1},
+			};
+
+			player.SendForm(customForm);
+		}
+
+		[Command]
+		public void FormModal(Player player)
+		{
+			var modalForm = new ModalForm();
+			modalForm.Title = "A title";
+			modalForm.Content = "A bit of content";
+			modalForm.Button1 = "Button 1";
+			modalForm.Button2 = "Button 2";
+
+			player.SendForm(modalForm);
+		}
+
+		[Command]
+		public void FormSimple(Player player)
+		{
+			var simpleForm = new SimpleForm();
+			simpleForm.Title = "A title";
+			simpleForm.Content = "A bit of content";
+			simpleForm.Buttons = new List<Button>()
+			{
+				new Button {Text = "Button 1", Image = new Image {Type = "url", Url = "https://i.imgur.com/SedU2Ad.png"}},
+				new Button {Text = "Button 2", Image = new Image {Type = "url", Url = "https://i.imgur.com/oBMg5H3.png"}},
+				new Button {Text = "Button 3", Image = new Image {Type = "url", Url = "https://i.imgur.com/hMAfqQd.png"}},
+				new Button {Text = "Close"},
+			};
+
+			player.SendForm(simpleForm);
+		}
+
+		[Command]
 		public void Minet(Player player, string commands, string done, string gurun, string made, string it)
 		{
+		}
+
+		[Command(Aliases = new[] {"resend"})]
+		public void ResendChunks(Player player)
+		{
+			Task.Run(() =>
+			{
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Resent chunks."); });
+			});
+		}
+
+		[Command(Aliases = new[] {"cslc"})]
+		public void CalculateSkyLightForChunk(Player player)
+		{
+			Task.Run(() =>
+			{
+				Stopwatch sw = new Stopwatch();
+				var level = player.Level;
+				ChunkColumn chunk = level.GetChunk((BlockCoordinates) player.KnownPosition);
+				sw.Start();
+				new SkyLightCalculations().RecalcSkyLight(chunk, level);
+				sw.Stop();
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Calculated skylights ({sw.ElapsedMilliseconds}ms) and resent chunks."); });
+			});
 		}
 
 		[Command(Aliases = new[] {"csl"})]
@@ -151,7 +288,7 @@ namespace TestPlugin
 		{
 			Task.Run(() =>
 			{
-				new LevelManager().RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level.WorldProvider);
+				LevelManager.RecalculateBlockLight(player.Level, (AnvilWorldProvider) player.Level.WorldProvider);
 				player.CleanCache();
 				player.ForcedSendChunks(() => { player.SendMessage("Calculated blocklights and resent chunks."); });
 			});
@@ -284,8 +421,8 @@ namespace TestPlugin
 			int width = 4;
 			int height = 5;
 
-			int x = (int)player.KnownPosition.X - width / 2;
-			int y = (int)player.KnownPosition.Y - 1;
+			int x = (int) player.KnownPosition.X - width/2;
+			int y = (int) player.KnownPosition.Y - 1;
 			int z = (int) player.KnownPosition.Z + 1;
 
 			PortalInfo portal = new PortalInfo();
@@ -504,7 +641,7 @@ namespace TestPlugin
 		[Command]
 		public void Permission(Player player, int permission)
 		{
-			player.PermissionLevel = (UserPermission) permission;
+			player.CommandPermission = (CommandPermission) permission;
 			player.SendAdventureSettings();
 		}
 
@@ -822,7 +959,12 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public void EnumTestTest(Player player, CommandNameEnum commandName, EntityTypeEnum entityType, BlockTypeEnum blockType)
+		public void EnumTest(Player player, ItemTypeEnum itemType, EntityTypeEnum entityType, BlockTypeEnum blockType, CommandNameEnum commandName)
+		{
+		}
+
+		[Command]
+		public void EnumTest2(Player player, EnchantEnum enchant, EffectEnum effect)
 		{
 		}
 
@@ -969,7 +1111,7 @@ namespace TestPlugin
 		{
 			player.HealthManager = player.HealthManager is NoDamageHealthManager ? new HealthManager(player) : new NoDamageHealthManager(player);
 			player.SendUpdateAttributes();
-			player.SendMessage($"{player.Username} set NoDamage={player.HealthManager is NoDamageHealthManager}", type: McpeText.TypeRaw);
+			player.SendMessage($"{player.Username} set NoDamage={player.HealthManager is NoDamageHealthManager}", type: MessageType.Raw);
 		}
 
 		[Command(Name = "r")]
@@ -1103,7 +1245,7 @@ namespace TestPlugin
 		}
 
 		[Command]
-		public VanillaCommands.SimpleResponse Worldborder(Player player, int radius = 200, bool centerOnPlayer = false)
+		public string Worldborder(Player player, int radius = 200, bool centerOnPlayer = false)
 		{
 			Level level = player.Level;
 
@@ -1136,18 +1278,17 @@ namespace TestPlugin
 						message.blockId = block.Id;
 						message.coordinates = block.Coordinates;
 						message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-
 						level.RelayBroadcast(sendList.ToArray(), message);
 					}
 				}
 			}
-			return new VanillaCommands.SimpleResponse() {Body = $"Added world border with radius of {radius} around {center}"};
+			return $"Added world border with radius of {radius} around {center}";
 		}
 
 		[Command]
-		public VanillaCommands.SimpleResponse Test()
+		public string Test()
 		{
-			return new VanillaCommands.SimpleResponse() {Body = "Test"};
+			return "Test";
 		}
 
 		[Command]

@@ -217,6 +217,8 @@ namespace MiNET.Utils
 
 		#region Constants
 
+		public static readonly ChunkCoordinates None = new ChunkCoordinates(Int32.MinValue);
+
 		public static readonly ChunkCoordinates Zero = new ChunkCoordinates(0);
 		public static readonly ChunkCoordinates One = new ChunkCoordinates(1);
 

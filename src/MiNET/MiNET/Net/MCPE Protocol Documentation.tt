@@ -11,14 +11,15 @@ string path = this.Host.ResolvePath("");
 XmlDocument doc = new XmlDocument();
 doc.Load(path + @"\MCPE Protocol.xml");
 
-
-XmlNodeList pdus = doc.SelectNodes("//pdu");
+XmlNodeList pdus = doc.SelectNodes("//pdu[not(@namespace='raknet') and not(@namespace='ftl')]");
 XPathNavigator nav = pdus.Item(0).OwnerDocument.CreateNavigator();
-XPathExpression exp = nav.Compile("//pdu");
+XPathExpression exp = nav.Compile("//pdu[not(@namespace='raknet') and not(@namespace='ftl')]");
 exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Text);
 
 #>
 **WARNING: T4 GENERATED MARKUP - DO NOT EDIT**
+
+Read more about packets and this specification on the [Protocol Wiki](https://github.com/NiclasOlofsson/MiNET/wiki//ref-protocol)
 
 ## ALL PACKAGES
 
@@ -42,15 +43,36 @@ foreach (XPathNavigator pdu in nav.Select(exp))
 
 <#
 
-
-Dictionary<string, Tuple<string, string>> constantsLoopup = new Dictionary<string, Tuple<string, string>>();
-foreach (XmlNode constant in doc.SelectNodes("//constant"))
+List<string> datatypesLookup = new List<string>();
+foreach (XmlNode constant in doc.SelectNodes("//pdu/field"))
 {
-	var attributes = constant.Attributes;
-	constantsLoopup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
+	string dataType = constant.Attributes["type"].Value;
+	if(!datatypesLookup.Contains(dataType))	datatypesLookup.Add(dataType);
 }
 
 #>
+## Data types
+
+| Data type | 
+|:--- |
+<#	
+datatypesLookup.Sort();
+foreach (string dataType in datatypesLookup)
+{
+#>
+| <#= dataType #> [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-<#= dataType.Replace(" ", "") #>) |
+<#	
+}
+
+Dictionary<string, Tuple<string, string>> constantsLookup = new Dictionary<string, Tuple<string, string>>();
+foreach (XmlNode constant in doc.SelectNodes("//constant"))
+{
+	var attributes = constant.Attributes;
+	constantsLookup.Add(attributes["id"].Value, new Tuple<string, string>(attributes["type"].Value, attributes["value"].Value));
+}
+
+#>
+
 ## Constants
 <#	
 
@@ -70,7 +92,7 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 <#	
 
 
-foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
+foreach (XmlNode pdu in pdus)
 {
 	string pduComment = (pdu.PreviousSibling == null? null: pdu.PreviousSibling.Value)??"";
 	string typeIdName = CodeName(pdu.Attributes["name"].Value, true);
@@ -81,22 +103,24 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 	string isServer = pdu.Attributes["server"].Value;
 	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;
 #>
-### Package: <#= typeIdName #> (<#= typeId #>)
+### <#= typeIdName #> (<#= typeId #>)
+Wiki: [<#= typeIdName #>](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-<#= typeIdName.Replace(" ", "") #>)
 
-**Sent from server:** <#= isServer #>
+**Sent from server:** <#= isServer #>  
 **Sent from client:** <#= isClient #>
-**Packet size:** <#= pduSize #>
 
 <#= pduComment.Replace("\t","") #>
 
 <#	
+	PrintConstants(pdu.SelectNodes("enums"));
 #>
+
 #### Fields
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
 <#
-	foreach (XmlNode field in pdu.ChildNodes)
+	foreach (XmlNode field in pdu.SelectNodes("field"))
 	{
 		if(field.NodeType != XmlNodeType.Element) 
 		{
@@ -111,7 +135,7 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 #>
 <#
 
-		if (constantsLoopup.ContainsKey(field.Attributes["type"].Value))
+		if (constantsLookup.ContainsKey(field.Attributes["type"].Value))
 		{
 			//type = constantsLoopup[field.Attributes["type"].Value].Item1;
 			//string value = constantsLoopup[field.Attributes["type"].Value].Item2;
@@ -154,6 +178,7 @@ private string CodeFieldName(string name)
 private string CodeName(string name, bool firstUpper = false)
 {
 	if(name.StartsWith("ID_")) name = name.Replace("ID_", "");
+	if(name.StartsWith("MCPE_")) name = name.Replace("MCPE_", "");
     name = name.ToLowerInvariant();
 
     string result = name;
@@ -191,4 +216,23 @@ public string SafeToString(XmlNode node)
 
 	return node.Value;
 }
+private void PrintConstants(XmlNodeList nodes)
+{
+	foreach (XmlNode constants in nodes)
+	{
+		WriteLine($"#### {CodeTypeName(constants.Attributes["id"]?.Value)} constants");
+		WriteLine($"");
+		WriteLine($"| Name | Value |");
+		WriteLine($"|:-----|:-----|");
+
+		foreach (XmlNode constant in constants.ChildNodes)
+		{
+			var attributes = constant.Attributes;
+			WriteLine($"|{CodeTypeName(attributes["id"]?.Value)} | {attributes["value"].Value} |");
+		}
+		WriteLine($"");
+
+	}
+}
+
 #>

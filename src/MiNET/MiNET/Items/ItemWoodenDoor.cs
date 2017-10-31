@@ -16,7 +16,7 @@ namespace MiNET.Items
 			_blockId = blockId;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			byte direction = player.GetDirection();
 
@@ -54,7 +54,7 @@ namespace MiNET.Items
 				flag2 = true;
 			}
 
-			if (!block.CanPlace(world, face)) return;
+			if (!block.CanPlace(world, blockCoordinates,  face)) return;
 
 			// The upper doore block, meta marks upper and
 			// sets orientation based on ajecent blocks

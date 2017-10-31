@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using MiNET.Entities;
+using MiNET.Net;
 using Newtonsoft.Json;
 
 namespace MiNET.Plugins
@@ -25,6 +26,7 @@ namespace MiNET.Plugins
 		public string[] Aliases { get; set; }
 		public string Description { get; set; }
 		public string Permission { get; set; }
+		public CommandPermission CommandPermission { get; set; }
 		public bool RequiresTellPerms { get; set; }
 		public bool RequiresChatPerms { get; set; }
 		public bool OutputToSpeech { get; set; }
@@ -51,7 +53,6 @@ namespace MiNET.Plugins
 		public string Description { get; set; }
 
 		public Input Input { get; set; }
-		public Output Output { get; set; }
 		public Parser Parser { get; set; }
 	}
 
@@ -173,7 +174,6 @@ namespace MiNET.Plugins
 		}
 	}
 
-
 	public abstract class EnumBase
 	{
 		public string Value { get; set; }
@@ -181,11 +181,6 @@ namespace MiNET.Plugins
 
 	// enchantmentType
 	public class EnchantmentTypeEnum : EnumBase
-	{
-	}
-
-	// gameRuleTypes
-	public class GameRuleEnum : EnumBase
 	{
 	}
 
@@ -211,6 +206,14 @@ namespace MiNET.Plugins
 
 	// blockType
 	public class BlockTypeEnum : EnumBase
+	{
+	}
+
+	public class EffectEnum : EnumBase
+	{
+	}
+
+	public class EnchantEnum : EnumBase
 	{
 	}
 

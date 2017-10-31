@@ -1,6 +1,32 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Numerics;
 using log4net;
+using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -25,9 +51,9 @@ namespace MiNET.Entities.Behaviors
 				return;
 			}
 
-			Vector3 playerPosition = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
-			Vector3 entityPosition = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
-			var d = Vector3.Normalize(playerPosition - entityPosition);
+			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
+			Vector3 entityPos = _entity.KnownPosition + new Vector3(0, (float) _entity.Height, 0) + _entity.GetHorizDir()*(float) _entity.Length/2f;
+			var d = Vector3.Normalize(targetPos - entityPos);
 
 			var dx = d.X;
 			var dy = d.Y;
@@ -76,27 +102,25 @@ namespace MiNET.Entities.Behaviors
 
 		private int _jumpCooldown = 0;
 
-		public void MoveForward(double speedMultiplier)
+		public void MoveForward(double speedMultiplier, Entity[] entities)
 		{
 			if (_jumpCooldown > 0)
 			{
 				_jumpCooldown--;
-				return;
+				//return;
 			}
 
-			float speedFactor = (float) (_entity.Speed*speedMultiplier);
+			float speedFactor = (float) (_entity.Speed*speedMultiplier*0.7f);
 			var level = _entity.Level;
 			var currPosition = _entity.KnownPosition;
-			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
+			var direction = Vector3.Normalize(_entity.GetHorizDir()*new Vector3(1, 0, 1));
 
-			var blockDown = level.GetBlock(currPosition + BlockCoordinates.Down);
+			//var blockDown = level.GetBlock(currPosition + BlockCoordinates.Down);
 			//if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)
 			//{
 			//	Log.Debug($"Falling mob: {_entity.Velocity}, Position: {(Vector3)_entity.KnownPosition}");
 			//	return;
 			//}
-
-			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) _entity.Length/2));
 
 			bool entityCollide = false;
 			var boundingBox = _entity.GetBoundingBox().OffsetBy(direction*speedFactor);
@@ -104,7 +128,8 @@ namespace MiNET.Entities.Behaviors
 			var players = level.GetSpawnedPlayers();
 			foreach (var player in players)
 			{
-				if (player.GetBoundingBox().Intersects(boundingBox))
+				var bbox = boundingBox + 0.15f;
+				if (player.GetBoundingBox().Intersects(bbox))
 				{
 					entityCollide = true;
 					break;
@@ -113,12 +138,12 @@ namespace MiNET.Entities.Behaviors
 
 			if (!entityCollide)
 			{
-				var entities = level.GetEntites();
+				var bbox = boundingBox + 0.3f;
 				foreach (var ent in entities)
 				{
 					if (ent == _entity) continue;
 
-					if (ent.GetBoundingBox().Intersects(boundingBox) && ent.EntityId > _entity.EntityId)
+					if (ent.EntityId < _entity.EntityId && _entity.IsColliding(bbox, ent))
 					{
 						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
 						{
@@ -130,6 +155,7 @@ namespace MiNET.Entities.Behaviors
 				}
 			}
 
+			BlockCoordinates coord = (BlockCoordinates) (currPosition + (direction*speedFactor) + (direction*(float) (_entity.Length*0.5f)));
 			var block = level.GetBlock(coord);
 			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
 			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
@@ -137,7 +163,7 @@ namespace MiNET.Entities.Behaviors
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)
 			{
-				Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
+				//Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
 				//if (!_entity.IsOnGround) return;
 
 				var velocity = direction*speedFactor;
@@ -155,25 +181,25 @@ namespace MiNET.Entities.Behaviors
 			{
 				if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
 				{
-					Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3) _entity.KnownPosition}");
-					if (_entity.IsOnGround)
+					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3)_entity.KnownPosition}");
+					//_entity.Level.SetBlock(new StainedGlass() {Coordinates = block.Coordinates, Metadata = (byte) _entity.Level.Random.Next(16)});
+					if (_entity.IsOnGround && _jumpCooldown <= 0)
 					{
-						_jumpCooldown = 5;
-						_entity.Velocity = new Vector3(0, 0.42f, 0);
+						_jumpCooldown = 10;
+						_entity.Velocity += new Vector3(0, 0.42f, 0);
 					}
 				}
 				else
 				{
 					if (entityCollide)
 					{
-						Log.Debug($"Entity ahead: {block}, stopping");
+						//Log.Debug($"Entity ahead: {block}, stopping");
 						_entity.Velocity *= new Vector3(0, 1, 0);
 					}
 					else
 					{
-						Log.Debug($"Block ahead: {block}, ignoring");
-						//var velocity = direction*speedFactor;
-						//_entity.Velocity = velocity;
+						//Log.Debug($"Block ahead: {block}, ignoring");
+						//_entity.Level.SetBlock(new StainedGlass() { Coordinates = block.Coordinates + BlockCoordinates.Down, Metadata = (byte)_entity.Level.Random.Next(16) });
 						_entity.Velocity *= new Vector3(0, 1, 0);
 					}
 				}

@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -22,9 +47,7 @@ namespace MiNET.Entities
 		public MobController Controller { get; private set; }
 
 		public double Direction { get; set; }
-		public double Speed { get; set; } = 0.25f;
-
-		public bool IsOnGround { get; set; }
+		public virtual double Speed { get; set; } = 0.25f;
 
 		public Entity Target { get; private set; }
 
@@ -53,8 +76,14 @@ namespace MiNET.Entities
 			BroadcastSetEntityData();
 		}
 
+		public static double ClampDegrees(double degrees)
+		{
+			return Math.Floor((degrees%360 + 360)%360);
+		}
+
 		public Vector3 GetHorizDir()
 		{
+			Direction = ClampDegrees(Direction);
 			Vector3 vector = new Vector3();
 
 			double pitch = 0;
@@ -76,12 +105,13 @@ namespace MiNET.Entities
 		public Vector3 _lastSentRotation = Vector3.Zero;
 		public Vector3 _lastSentPos = new Vector3();
 
-		public override void OnTick()
+		public override void OnTick(Entity[] entities)
 		{
-			base.OnTick();
+			base.OnTick(entities);
 
 			if (HealthManager.IsDead) return;
 
+			bool noPlayersWithing32 = false;
 			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer && DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
 			{
 				if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(KnownPosition, player.Value.KnownPosition) < 32) == 0)
@@ -94,6 +124,8 @@ namespace MiNET.Entities
 						DespawnEntity();
 						return;
 					}
+
+					noPlayersWithing32 = true;
 				}
 				else
 				{
@@ -111,7 +143,8 @@ namespace MiNET.Entities
 			KnownPosition.Z += (float) Velocity.Z;
 
 			// Fix potential fall through ground because of speed
-			IsOnGround = IsMobOnGround(KnownPosition);
+			bool inWater = IsMobInFluid(KnownPosition);
+			IsOnGround = !inWater && IsMobOnGround(KnownPosition);
 			if (!onGroundBefore && IsOnGround)
 			{
 				while (Level.GetBlock(KnownPosition).IsSolid)
@@ -135,14 +168,19 @@ namespace MiNET.Entities
 				BroadcastMotion();
 			}
 
+			var oldVelocity = Velocity;
 			// Calculate velocity for next move
-			_currentBehavior?.OnTick();
+			_currentBehavior?.OnTick(entities);
 
-			bool inWater = IsMobInFluid(KnownPosition);
+			if(noPlayersWithing32)
+			{
+				Velocity = oldVelocity;
+			}
 
 			if (inWater && Level.Random.NextDouble() < 0.8)
 			{
 				Velocity += new Vector3(0, 0.039f, 0);
+				Velocity *= new Vector3(0.2f, 1.0f, 0.2f);
 			}
 			else if (IsOnGround)
 			{

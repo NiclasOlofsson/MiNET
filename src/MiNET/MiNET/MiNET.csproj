@@ -316,7 +316,8 @@
     <Compile Include="CertificateChain.cs" />
     <Compile Include="CertificateData.cs" />
     <Compile Include="ConnectionState.cs" />
-    <Compile Include="Crafting\Recipe.cs" />
+    <Compile Include="Crafting\RecipeManager.cs" />
+    <Compile Include="Crafting\Recipes.cs" />
     <Compile Include="DamageCalculator.cs" />
     <Compile Include="Effects\Absorption.cs" />
     <Compile Include="Effects\Blindness.cs" />
@@ -361,6 +362,7 @@
     <Compile Include="Entities\Behaviors\SittingBehavior.cs" />
     <Compile Include="Entities\Behaviors\StrollBehavior.cs" />
     <Compile Include="Entities\Behaviors\TemptedBehavior.cs" />
+    <Compile Include="Entities\Behaviors\WanderBehavior.cs" />
     <Compile Include="Entities\BossBar.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hologram.cs" />
@@ -433,6 +435,23 @@
     <Compile Include="Entities\Projectiles\Snowball.cs" />
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
+    <Compile Include="Items\ItemGoldIngot.cs" />
+    <Compile Include="Items\ItemGoldNugget.cs" />
+    <Compile Include="Items\ItemIronIngot.cs" />
+    <Compile Include="Items\ItemIronNugget.cs" />
+    <Compile Include="Net\McpeMovePlayer.cs" />
+    <Compile Include="Utils\Diagnostics\Profiler.cs" />
+    <Compile Include="Utils\Skins\Bone.cs" />
+    <Compile Include="Utils\Skins\Cube.cs" />
+    <Compile Include="Utils\Skins\Geometry.cs" />
+    <Compile Include="Utils\Skins\GeometryModel.cs" />
+    <Compile Include="Net\McpeInteract.cs" />
+    <Compile Include="UI\Button.cs" />
+    <Compile Include="UI\CustomElement.cs" />
+    <Compile Include="UI\CustomForm.cs" />
+    <Compile Include="UI\Dropdown.cs" />
+    <Compile Include="UI\Element.cs" />
+    <Compile Include="UI\Form.cs" />
     <Compile Include="GreyListManager.cs" />
     <Compile Include="HungerManager.cs" />
     <Compile Include="Inventory.cs" />
@@ -469,6 +488,7 @@
     <Compile Include="Items\ItemDiamondShovel.cs" />
     <Compile Include="Items\ItemDiamondLeggings.cs" />
     <Compile Include="Items\ItemDiamondSword.cs" />
+    <Compile Include="Items\ItemDye.cs" />
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemElytra.cs" />
     <Compile Include="Items\ItemEmptyMap.cs" />
@@ -541,13 +561,14 @@
     <Compile Include="MotdProvider.cs" />
     <Compile Include="Net\InternalPing.cs" />
     <Compile Include="Net\ItemSigner.cs" />
+    <Compile Include="Net\McpeAvailableCommands.cs" />
     <Compile Include="Net\McpeBossEvent.cs" />
     <Compile Include="Net\McpeText.cs" />
     <Compile Include="Net\PlayerAction.cs" />
     <Compile Include="Net\SplitPartPackage.cs" />
     <Compile Include="Net\UUID.cs" />
     <Compile Include="Net\WiredAttribute.cs" />
-    <Compile Include="Net\Skin.cs" />
+    <Compile Include="Utils\Skins\Skin.cs" />
     <Compile Include="Particles\BubbleParticle.cs" />
     <Compile Include="Particles\CriticalParticle.cs" />
     <Compile Include="Particles\DestroyBlockParticle.cs" />
@@ -640,6 +661,13 @@
     <Compile Include="Sounds\ShootSound.cs" />
     <Compile Include="Sounds\Sound.cs" />
     <Compile Include="Sounds\ClickSound.cs" />
+    <Compile Include="UI\Input.cs" />
+    <Compile Include="UI\Label.cs" />
+    <Compile Include="UI\ModalForm.cs" />
+    <Compile Include="UI\SimpleForm.cs" />
+    <Compile Include="UI\Slider.cs" />
+    <Compile Include="UI\StepSlider.cs" />
+    <Compile Include="UI\Toggle.cs" />
     <Compile Include="Utils\BatchUtils.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
     <Compile Include="Utils\ChunkCoordinates.cs" />
@@ -663,6 +691,7 @@
     <Compile Include="Utils\ResourcePacks.cs" />
     <Compile Include="Utils\RuleData.cs" />
     <Compile Include="Utils\StreamExtensions.cs" />
+    <Compile Include="Utils\Transaction.cs" />
     <Compile Include="Utils\VarInt.cs" />
     <Compile Include="Utils\WannabeRandom.cs" />
     <Compile Include="Utils\TextUtils.cs" />
@@ -700,6 +729,7 @@
     <Compile Include="Worlds\ExperimentalWorldProvider.cs" />
     <Compile Include="Worlds\FlatlandWorldProvider.cs" />
     <Compile Include="Worlds\GameMode.cs" />
+    <Compile Include="Worlds\IBlockAccess.cs" />
     <Compile Include="Worlds\ICachingWorldProvider.cs" />
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
@@ -711,6 +741,11 @@
     <Compile Include="Worlds\Structures\OakTree.cs" />
     <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
+    <None Include="Net\MCPE Protocol Documentation.md">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
+    </None>
     <None Include="Net\MCPE Protocol.xml">
       <SubType>Designer</SubType>
     </None>
@@ -720,11 +755,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="MiNET.nuspec" />
-    <None Include="Net\MCPE Protocol Documentation.md">
-      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </None>
     <None Include="Net\MCPE Protocol Documentation.tt">
       <DependentUpon>MCPE Protocol.xml</DependentUpon>
       <Generator>TextTemplatingFileGenerator</Generator>

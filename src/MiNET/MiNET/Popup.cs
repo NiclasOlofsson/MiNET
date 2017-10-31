@@ -2,7 +2,7 @@ namespace MiNET
 {
 	public class Popup
 	{
-		internal long Id { get; set; }
+		public long Id { get; set; }
 		internal long CurrentTick { get; set; }
 		public MessageType MessageType { get; set; }
 		public string Message { get; set; }

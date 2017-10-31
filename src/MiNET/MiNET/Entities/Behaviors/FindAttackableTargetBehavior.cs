@@ -36,7 +36,7 @@ namespace MiNET.Entities.Behaviors
 			return false;
 		}
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 			_entity.SetTarget(_target);
 		}

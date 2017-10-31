@@ -38,7 +38,7 @@ namespace MiNET.Entities.Behaviors
 
 		private List<Tile> _currentPath = null;
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 			if (_entity.Owner == null) return;
 			Player player = (Player) _entity.Owner;
@@ -56,7 +56,7 @@ namespace MiNET.Entities.Behaviors
 			if (_currentPath == null || _currentPath.Count == 0)
 			{
 				Log.Debug($"Search new solution");
-				var pathFinder = new PathFinder();
+				var pathFinder = new Pathfinder();
 				_currentPath = pathFinder.FindPath(_entity, player, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
@@ -91,7 +91,7 @@ namespace MiNET.Entities.Behaviors
 						m = m/2.0;
 					}
 					//double m = 1;
-					_entity.Controller.MoveForward(_speedMultiplier*m);
+					_entity.Controller.MoveForward(_speedMultiplier*m, entities);
 				}
 			}
 			else

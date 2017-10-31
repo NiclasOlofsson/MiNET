@@ -30,7 +30,7 @@ namespace MiNET.Entities.Behaviors
 			return !_wolf.IsOnGround;
 		}
 
-		public void OnTick()
+		public void OnTick(Entity[] entities)
 		{
 			var direction = (Vector3) _wolf.Target.KnownPosition - _wolf.KnownPosition;
 			var distance = _wolf.DistanceTo(_wolf.Target);

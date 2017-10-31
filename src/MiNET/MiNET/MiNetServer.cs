@@ -1108,7 +1108,7 @@ namespace MiNET
 				{
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
 				}
-				else if (verbosity == 1)
+				else if (verbosity == 1 || verbosity == 3)
 				{
 					var jsonSerializerSettings = new JsonSerializerSettings
 					{
@@ -1122,7 +1122,7 @@ namespace MiNET
 					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
 				}
-				else if (verbosity == 2)
+				else if (verbosity == 2 || verbosity == 3)
 				{
 					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
 				}
@@ -1139,10 +1139,11 @@ namespace MiNET
 			if (message is McpeWrapper) return;
 			if (message is UnconnectedPong) return;
 			if (message is McpeMovePlayer) return;
-			//if (message is McpeSetEntityMotion) return;
-			//if (message is McpeMoveEntity) return;
+			if (message is McpeSetEntityMotion) return;
+			if (message is McpeMoveEntity) return;
 			if (message is McpeSetEntityData) return;
 			if (message is McpeUpdateBlock) return;
+			if (message is McpeText) return;
 			//if (!Debugger.IsAttached) return;
 
 			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);

@@ -11,7 +11,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block targetBlock = world.GetBlock(targetCoordinates);
 			Block wheat = new Wheat();
@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			wheat.Metadata = (byte) Metadata;
 
-			if (!wheat.CanPlace(world, face)) return;
+			if (!wheat.CanPlace(world, targetCoordinates, face)) return;
 
 			if (wheat.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

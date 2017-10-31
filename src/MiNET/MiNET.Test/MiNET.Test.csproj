@@ -71,6 +71,9 @@
       <HintPath>..\packages\NUnit.3.7.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Stripe.net, Version=10.4.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stripe.net.10.4.0\lib\net45\Stripe.net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Numerics.Vectors" />
@@ -116,6 +119,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+    <Content Include="geometry.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

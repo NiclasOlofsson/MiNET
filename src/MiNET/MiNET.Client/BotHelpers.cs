@@ -71,57 +71,28 @@ namespace MiNET.Client
 			return doMobEquipmentTask;
 		}
 
-		public static Action<Task, int, Item, int> DoContainerSetSlot(MiNetClient client)
-		{
-			Action<Task, int, Item, int> doMobEquipmentTask = (t, windowId, item, selectedSlot) =>
-			{
-				McpeContainerSetSlot message = new McpeContainerSetSlot();
-				message.windowId = (byte) windowId;
-				message.slot = selectedSlot;
-				message.item = item;
-				client.SendPackage(message);
-			};
-			return doMobEquipmentTask;
-		}
-
-		public static Action<Task, Item, BlockCoordinates> DoUseItem(MiNetClient client)
-		{
-			Action<Task, Item, BlockCoordinates> doUseItem = (t, item, coords) =>
-			{
-				McpeUseItem message = new McpeUseItem();
-				message.blockcoordinates = coords /* - new BlockCoordinates(0, 1, 0)*/;
-				message.face = 1;
-				message.blockId = 116;
-				message.facecoordinates = new Vector3(0.1f, 0.1f, 0.1f);
-				message.playerposition = client.CurrentLocation.ToVector3();
-				message.item = item;
-				client.SendPackage(message);
-			};
-			return doUseItem;
-		}
-
 		public static Action<Task, string> DoSendCommand(MiNetClient client)
 		{
 			Action<Task, string> doUseItem = (t, command) =>
 			{
-				McpeCommandStep commandStep = McpeCommandStep.CreateObject();
-				commandStep.commandName = "fill";
-				commandStep.commandOverload = "replace";
-				commandStep.unknown1 = 0;
-				commandStep.currentStep = 0;
-				commandStep.isOutput = false;
-				commandStep.clientId = client.ClientId;
-				//commandStep.commandInputJson = "{\n   \"tileName\" : \"dirt\",\n   \"from\" : {\n      \"x\" : 0,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 0,\n      \"zrelative\" : false\n   },\n   \"to\" : {\n      \"x\" : 10,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 10,\n      \"zrelative\" : false\n   }\n}\n";
-				commandStep.commandInputJson = "{\n   \"from\" : {\n      \"x\" : 0,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 0,\n      \"zrelative\" : false\n   },\n   \"tileName\" : \"dirt\",\n   \"to\" : {\n      \"x\" : 10,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 10,\n      \"zrelative\" : false\n   }\n}\n";
-				//   "commandInputJson": "{\n   \"from\" : {\n      \"x\" : 0,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 0,\n      \"zrelative\" : false\n   },\n   \"tileName\" : \"dirt\",\n   \"to\" : {\n      \"x\" : 10,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 10,\n      \"zrelative\" : false\n   }\n}\n",
+				//McpeCommandRequest commandStep = McpeCommandRequest.CreateObject();
+				//commandStep.commandName = "fill";
+				//commandStep.commandOverload = "replace";
+				//commandStep.unknown1 = 0;
+				//commandStep.currentStep = 0;
+				//commandStep.isOutput = false;
+				//commandStep.clientId = client.ClientId;
+				////commandStep.commandInputJson = "{\n   \"tileName\" : \"dirt\",\n   \"from\" : {\n      \"x\" : 0,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 0,\n      \"zrelative\" : false\n   },\n   \"to\" : {\n      \"x\" : 10,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 10,\n      \"zrelative\" : false\n   }\n}\n";
+				//commandStep.commandInputJson = "{\n   \"from\" : {\n      \"x\" : 0,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 0,\n      \"zrelative\" : false\n   },\n   \"tileName\" : \"dirt\",\n   \"to\" : {\n      \"x\" : 10,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 10,\n      \"zrelative\" : false\n   }\n}\n";
+				////   "commandInputJson": "{\n   \"from\" : {\n      \"x\" : 0,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 0,\n      \"zrelative\" : false\n   },\n   \"tileName\" : \"dirt\",\n   \"to\" : {\n      \"x\" : 10,\n      \"xrelative\" : false,\n      \"y\" : 10,\n      \"yrelative\" : false,\n      \"z\" : 10,\n      \"zrelative\" : false\n   }\n}\n",
 
-				//commandStep.commandInputJson = "null\n";
-				commandStep.commandOutputJson = "null\n";
-				commandStep.unknown7 = 0;
-				commandStep.unknown8 = 0;
-				commandStep.entityIdSelf = client.NetworkEntityId;
-				//Log.Error($"Entity ID used={commandStep.entityIdSelf}\n{Package.HexDump(commandStep.Encode())}");
-				client.SendPackage(commandStep);
+				////commandStep.commandInputJson = "null\n";
+				//commandStep.commandOutputJson = "null\n";
+				//commandStep.unknown7 = 0;
+				//commandStep.unknown8 = 0;
+				//commandStep.entityIdSelf = client.NetworkEntityId;
+				////Log.Error($"Entity ID used={commandStep.entityIdSelf}\n{Package.HexDump(commandStep.Encode())}");
+				//client.SendPackage(commandStep);
 			};
 			return doUseItem;
 		}

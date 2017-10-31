@@ -23,6 +23,7 @@
 
 #endregion
 
+using System.Collections;
 using System.Collections.Generic;
 using log4net;
 
@@ -39,6 +40,7 @@ namespace MiNET.Blocks
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
+		public static readonly byte[] TransparentBlocksFast = new byte[500];
 		public static List<int> TransparentBlocks { get; private set; } = new List<int>();
 		public static Dictionary<int, int> LuminousBlocks { get; private set; } = new Dictionary<int, int>();
 		public static Dictionary<string, byte> NameToId { get; private set; }
@@ -51,6 +53,8 @@ namespace MiNET.Blocks
 				if (block != null && block.IsTransparent)
 				{
 					TransparentBlocks.Add(block.Id);
+					TransparentBlocks.Sort();
+					TransparentBlocksFast[block.Id] = 1;
 				}
 				if (block != null && block.LightLevel > 0)
 				{

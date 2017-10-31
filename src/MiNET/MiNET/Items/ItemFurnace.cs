@@ -17,7 +17,7 @@ namespace MiNET.Items
 			return null;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
 			Furnace furnace = new Furnace
@@ -25,7 +25,7 @@ namespace MiNET.Items
 				Coordinates = coor,
 			};
 
-			if (!furnace.CanPlace(world, face)) return;
+			if (!furnace.CanPlace(world, blockCoordinates, face)) return;
 
 			furnace.PlaceBlock(world, player, coor, face, faceCoords);
 

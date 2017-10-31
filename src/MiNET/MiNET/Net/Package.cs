@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -37,6 +37,7 @@ using log4net;
 using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Utils;
+using MiNET.Utils.Skins;
 using Newtonsoft.Json;
 
 namespace MiNET.Net
@@ -45,22 +46,23 @@ namespace MiNET.Net
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
 
-		private bool _isEncoded = false;
+		private bool _isEncoded;
 		private byte[] _encodedMessage;
 
-		[JsonIgnore] public int DatagramSequenceNumber = 0;
+		[JsonIgnore] public int DatagramSequenceNumber;
 
 		[JsonIgnore]
 		public bool NoBatch { get; set; }
 
 		[JsonIgnore] public Reliability Reliability = Reliability.Unreliable;
-		[JsonIgnore] public int ReliableMessageNumber = 0;
-		[JsonIgnore] public byte OrderingChannel = 0;
-		[JsonIgnore] public int OrderingIndex = 0;
+		[JsonIgnore] public int ReliableMessageNumber;
+		[JsonIgnore] public byte OrderingChannel;
+		[JsonIgnore] public int OrderingIndex;
 
-		[JsonIgnore] public bool ForceClear = false;
+		[JsonIgnore] public bool ForceClear;
 
 		[JsonIgnore] public byte Id;
+		[JsonIgnore] public bool IsMcpe;
 
 		protected MemoryStream _buffer;
 		private BinaryWriter _writer;
@@ -115,8 +117,10 @@ namespace MiNET.Net
 			_writer.Write(value);
 		}
 
-		public byte[] ReadBytes(int count)
+		public byte[] ReadBytes(int count, bool slurp = false)
 		{
+			if (!slurp && count == 0) return new byte[0];
+
 			if (count == 0)
 			{
 				count = (int) (_reader.BaseStream.Length - _reader.BaseStream.Position);
@@ -136,13 +140,16 @@ namespace MiNET.Net
 			}
 
 			WriteLength(value.Length);
+
+			if (value.Length == 0) return;
+
 			_writer.Write(value, 0, value.Length);
 		}
 
-		public byte[] ReadByteArray()
+		public byte[] ReadByteArray(bool slurp = false)
 		{
 			var len = ReadLength();
-			var bytes = ReadBytes(len);
+			var bytes = ReadBytes(len, slurp);
 			return bytes;
 		}
 
@@ -443,7 +450,7 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.Skin);
+					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -463,6 +470,7 @@ namespace MiNET.Net
 			// the client to work.
 			byte recordType = ReadByte();
 			uint count = ReadUnsignedVarInt();
+			Log.Warn($"Reading {count} players");
 			PlayerRecords records = null;
 			switch (recordType)
 			{
@@ -471,19 +479,12 @@ namespace MiNET.Net
 					for (int i = 0; i < count; i++)
 					{
 						var player = new Player(null, null);
-						try
-						{
-							player.ClientUuid = ReadUUID();
-							player.EntityId = ReadSignedVarLong();
-							player.DisplayName = ReadString();
-							player.Skin = ReadSkin();
-							records.Add(player);
-							//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
-						}
-						catch (Exception e)
-						{
-							Log.Error("Player List", e);
-						}
+						player.ClientUuid = ReadUUID();
+						player.EntityId = ReadSignedVarLong();
+						player.DisplayName = ReadString();
+						player.Skin = ReadSkin();
+						records.Add(player);
+						//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 					}
 					break;
 				case 1:
@@ -659,18 +660,18 @@ namespace MiNET.Net
 		{
 			if (metadata == null)
 			{
-				WriteVarInt(0);
+				WriteUnsignedVarInt(0);
 				return;
 			}
 
-			WriteVarInt(metadata.Count);
+			WriteUnsignedVarInt((uint) metadata.Count);
 
 			for (byte i = 0; i < metadata.Count; i++)
 			{
 				MetadataInt slot = metadata[i] as MetadataInt;
 				if (slot != null)
 				{
-					WriteSignedVarInt(slot.Value);
+					WriteUnsignedVarInt((uint) slot.Value);
 				}
 			}
 		}
@@ -678,11 +679,11 @@ namespace MiNET.Net
 		public MetadataInts ReadMetadataInts()
 		{
 			MetadataInts metadata = new MetadataInts();
-			int count = ReadVarInt();
+			uint count = ReadUnsignedVarInt();
 
 			for (byte i = 0; i < count; i++)
 			{
-				metadata[i] = new MetadataInt(ReadSignedVarInt());
+				metadata[i] = new MetadataInt((int) ReadUnsignedVarInt());
 			}
 
 			return metadata;
@@ -690,8 +691,8 @@ namespace MiNET.Net
 
 		public void Write(ItemStacks metadata)
 		{
-			McpeContainerSetContent msg = this as McpeContainerSetContent;
-			bool signItems = msg == null || msg.windowId != 0x79;
+			McpeInventoryContent msg = this as McpeInventoryContent;
+			bool signItems = msg == null || msg.inventoryId != 0x79;
 
 			if (metadata == null)
 			{
@@ -719,6 +720,164 @@ namespace MiNET.Net
 			}
 
 			return metadata;
+		}
+
+		public void Write(Transaction trans)
+		{
+			WriteVarInt((int) trans.TransactionType);
+			WriteUnsignedVarInt((uint) trans.Transactions.Count);
+			foreach (var record in trans.Transactions)
+			{
+				if (record is ContainerTransactionRecord)
+				{
+					var r = record as ContainerTransactionRecord;
+					WriteSignedVarInt(r.InventoryId);
+				}
+				else if (record is GlobalTransactionRecord)
+				{
+				}
+				else if (record is WorldInteractionTransactionRecord)
+				{
+					var r = record as WorldInteractionTransactionRecord;
+					WriteVarInt(r.Flags);
+				}
+				else if (record is CreativeTransactionRecord)
+				{
+				}
+				else if (record is CraftTransactionRecord)
+				{
+					var r = record as CraftTransactionRecord;
+					WriteVarInt(r.Action);
+				}
+
+				WriteVarInt(record.Slot);
+				Write(record.OldItem);
+				Write(record.NewItem);
+			}
+
+			switch (trans.TransactionType)
+			{
+				case McpeInventoryTransaction.TransactionType.Normal:
+				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemUse:
+					WriteVarInt(trans.ActionType);
+					Write(trans.Position);
+					WriteSignedVarInt(trans.Face);
+					WriteSignedVarInt(trans.Slot);
+					Write(trans.Item);
+					Write(trans.FromPosition);
+					Write(trans.ClickPosition);
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
+					WriteVarLong(trans.EntityId);
+					WriteVarInt(trans.ActionType);
+					WriteSignedVarInt(trans.Slot);
+					Write(trans.Item);
+					Write(trans.FromPosition);
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemRelease:
+					WriteVarInt(trans.ActionType);
+					WriteSignedVarInt(trans.Slot);
+					Write(trans.Item);
+					Write(trans.FromPosition);
+					break;
+				default:
+					break;
+			}
+		}
+
+		public Transaction ReadTransaction()
+		{
+			var trans = new Transaction();
+
+			trans.TransactionType = (McpeInventoryTransaction.TransactionType) ReadVarInt();
+
+			var count = ReadUnsignedVarInt();
+			for (int i = 0; i < count; i++)
+			{
+				TransactionRecord record = null;
+				int sourceType = ReadVarInt();
+				switch ((McpeInventoryTransaction.InventorySourceType) sourceType)
+				{
+					case McpeInventoryTransaction.InventorySourceType.Container:
+						record = new ContainerTransactionRecord()
+						{
+							Source = sourceType,
+							InventoryId = ReadSignedVarInt()
+						};
+						break;
+					case McpeInventoryTransaction.InventorySourceType.Global:
+						record = new GlobalTransactionRecord()
+						{
+							Source = sourceType,
+						};
+						break;
+					case McpeInventoryTransaction.InventorySourceType.WorldInteraction:
+						record = new WorldInteractionTransactionRecord()
+						{
+							Source = sourceType,
+							Flags = ReadVarInt()
+						};
+						break;
+					case McpeInventoryTransaction.InventorySourceType.Creative:
+						record = new CreativeTransactionRecord()
+						{
+							Source = sourceType,
+							InventoryId = 0x79
+						};
+						break;
+					case McpeInventoryTransaction.InventorySourceType.Unspecified:
+						record = new CraftTransactionRecord()
+						{
+							Source = sourceType,
+							Action = ReadSignedVarInt()
+						};
+						break;
+					default:
+						Log.Error($"Unknown inventory source type={sourceType}");
+						continue;
+				}
+
+				record.Slot = ReadVarInt();
+				record.OldItem = ReadItem();
+				record.NewItem = ReadItem();
+				trans.Transactions.Add(record);
+			}
+
+			switch (trans.TransactionType)
+			{
+				case McpeInventoryTransaction.TransactionType.Normal:
+				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemUse:
+					trans.ActionType = ReadVarInt();
+					trans.Position = ReadBlockCoordinates();
+					trans.Face = ReadSignedVarInt();
+					trans.Slot = ReadSignedVarInt();
+					trans.Item = ReadItem();
+					trans.FromPosition = ReadVector3();
+					trans.ClickPosition = ReadVector3();
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
+					trans.EntityId = ReadVarLong();
+					trans.ActionType = ReadVarInt();
+					trans.Slot = ReadSignedVarInt();
+					trans.Item = ReadItem();
+					trans.FromPosition = ReadVector3();
+					trans.ClickPosition = ReadVector3();
+					break;
+				case McpeInventoryTransaction.TransactionType.ItemRelease:
+					trans.ActionType = ReadVarInt();
+					trans.Slot = ReadSignedVarInt();
+					trans.Item = ReadItem();
+					trans.FromPosition = ReadVector3();
+					break;
+				default:
+					break;
+			}
+
+			return trans;
 		}
 
 		public void Write(Item stack, bool signItem = true)
@@ -859,26 +1018,20 @@ namespace MiNET.Net
 				{
 					case 1:
 					{
-						GameRule<bool> rule = new GameRule<bool>();
-						rule.Name = name;
-						rule.Value = ReadBool();
-						gameRules.Add(rule.Name, rule);
+						GameRule<bool> rule = new GameRule<bool>(name, ReadBool());
+						gameRules.Add(rule);
 						break;
 					}
 					case 2:
 					{
-						GameRule<int> rule = new GameRule<int>();
-						rule.Name = name;
-						rule.Value = ReadVarInt();
-						gameRules.Add(rule.Name, rule);
+						GameRule<int> rule = new GameRule<int>(name, ReadVarInt());
+						gameRules.Add(rule);
 						break;
 					}
 					case 3:
 					{
-						GameRule<float> rule = new GameRule<float>();
-						rule.Name = name;
-						rule.Value = ReadFloat();
-						gameRules.Add(rule.Name, rule);
+						GameRule<float> rule = new GameRule<float>(name, ReadFloat());
+						gameRules.Add(rule);
 						break;
 					}
 				}
@@ -898,22 +1051,21 @@ namespace MiNET.Net
 			WriteVarInt(gameRules.Count);
 			foreach (var rule in gameRules)
 			{
-				var value = rule.Value;
-				Write(rule.Key);
-				if (value is GameRule<bool>)
+				Write(rule.Name.ToLower());
+				if (rule is GameRule<bool>)
 				{
 					Write((byte) 1);
-					Write(((GameRule<bool>) value).Value);
+					Write(((GameRule<bool>) rule).Value);
 				}
-				else if (value is GameRule<int>)
+				else if (rule is GameRule<int>)
 				{
 					Write((byte) 2);
-					WriteVarInt(((GameRule<int>) value).Value);
+					WriteVarInt(((GameRule<int>) rule).Value);
 				}
-				else if (value is GameRule<float>)
+				else if (rule is GameRule<float>)
 				{
 					Write((byte) 3);
-					Write(((GameRule<float>) value).Value);
+					Write(((GameRule<float>) rule).Value);
 				}
 			}
 		}
@@ -968,18 +1120,19 @@ namespace MiNET.Net
 			{
 				WriteVarLong(link.Item1);
 				WriteVarLong(link.Item2);
-				_writer.Write((short) 1); // LE
+				_writer.Write((byte) 1);
+				_writer.Write((byte) 0);
 			}
 		}
 
 		public Links ReadLinks()
 		{
-			int count = (int) ReadUnsignedVarInt(); // LE
+			var count = ReadUnsignedVarInt();
 
 			var links = new Links();
 			for (int i = 0; i < count; i++)
 			{
-				Tuple<long, long> link = new Tuple<long, long>(ReadVarLong(), ReadVarLong());
+				Tuple<long, long> link = new Tuple<long, long>(ReadSignedVarLong(), ReadSignedVarLong());
 				_reader.ReadInt16();
 			}
 
@@ -1116,45 +1269,39 @@ namespace MiNET.Net
 			return ids;
 		}
 
-		public void Write(Skin skin)
+		public void Write(Skin skin, string xuid = null)
 		{
-			if (skin.Texture != null)
-			{
-				var skinType = skin.SkinType;
-				if (string.IsNullOrEmpty(skinType)) skinType = "Standard_Custom";
-				Write(skinType);
-				WriteUnsignedVarInt((uint) skin.Texture.Length);
-				Write(skin.Texture);
-			}
+			//skin.SkinGeometryName = "gurun";
+			//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
+
+			Write(skin.SkinId);
+			WriteByteArray(skin.SkinData);
+			WriteByteArray(skin.CapeData);
+			Write(skin.SkinGeometryName);
+			Write(skin.SkinGeometry);
+			Write(xuid);
 		}
 
 		public Skin ReadSkin()
 		{
 			Skin skin = new Skin();
 
-			try
-			{
-				skin.SkinType = ReadString();
-				if (string.IsNullOrEmpty(skin.SkinType)) skin.SkinType = null;
+			skin.SkinId = ReadString();
+			Log.Debug($"SkinId={skin.SkinId}");
+			skin.SkinData = ReadByteArray(false);
+			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
 
-				if (skin.SkinType != null)
-				{
-					int length = (int) ReadUnsignedVarInt();
-					if (length == 64*32*4 || length == 64*64*4)
-					{
-						skin.Texture = ReadBytes(length);
-					}
-					else
-					{
-						skin.SkinType = null;
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				skin.SkinType = null;
-				skin.Texture = null;
-			}
+			skin.CapeData = ReadByteArray(false);
+			Log.Debug($"CapeData lenght={skin.CapeData.Length}");
+			Log.Debug("\n" + HexDump(skin.CapeData));
+
+			skin.SkinGeometryName = ReadString();
+			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
+
+			skin.SkinGeometry = ReadString();
+			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
+
+			Log.Debug("XUID=" + ReadString());
 
 			return skin;
 		}
@@ -1213,24 +1360,10 @@ namespace MiNET.Net
 					if (rec.Input.Metadata != 0) WriteSignedVarInt(rec.Input.Metadata);
 					Write(rec.Result);
 				}
-				else if (recipe is EnchantingRecipe)
+				else if (recipe is MultiRecipe)
 				{
-					//var memoryStream = MiNetServer.MemoryStreamManager.GetStream();
-					//McpeWriter writer = new McpeWriter(memoryStream);
-
-					//writer.Write((byte) 3); // Count
-					//{
-					//	writer.Write((int) 1); // Cost
-					//	writer.Write((byte) 1); // Count
-					//	writer.Write((int) 9); // Id
-					//	writer.Write((int) 1); // Level
-					//	writer.Write("Test1"); // Level
-					//}
-
-					//Write(4); // Type
-					//var bytes = memoryStream.ToArray();
-					//Write(bytes.Length);
-					//Write(bytes);
+					WriteSignedVarInt(Multi); // Type
+					Write(recipe.Id);
 				}
 			}
 
@@ -1321,9 +1454,11 @@ namespace MiNET.Net
 				}
 				else if (recipeType == Multi)
 				{
-					Log.Error("Reading MULTI");
+					//Log.Error("Reading MULTI");
 
-					ReadUUID();
+					MultiRecipe recipe = new MultiRecipe();
+					recipe.Id = ReadUUID();
+					recipes.Add(recipe);
 				}
 				else
 				{
@@ -1528,12 +1663,12 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Write(Id);
+			if (IsMcpe) Write((short) 0);
 		}
 
 		public virtual void Reset()
 		{
 			ResetPackage();
-
 			DatagramSequenceNumber = -1;
 
 			Reliability = Reliability.Unreliable;
@@ -1587,6 +1722,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
+			if (IsMcpe) ReadShort();
 		}
 
 		public virtual void Decode(byte[] buffer)

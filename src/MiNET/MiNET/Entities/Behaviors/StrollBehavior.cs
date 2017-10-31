@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
@@ -35,9 +60,9 @@ namespace MiNET.Entities.Behaviors
 			return _timeLeft-- > 0;
 		}
 
-		public virtual void OnTick()
+		public virtual void OnTick(Entity[] entities)
 		{
-			float speedFactor = (float) (_speed*_speedMultiplier);
+			float speedFactor = (float) (_speed*_speedMultiplier*0.7f*(_entity.IsInWater ? 0.3 : 1.0)); // 0.7 is a general mob base factor
 			var level = _entity.Level;
 			var coordinates = _entity.KnownPosition;
 			var direction = _entity.GetHorizDir()*new Vector3(1, 0, 1);
@@ -65,12 +90,12 @@ namespace MiNET.Entities.Behaviors
 
 			if (!entityCollide)
 			{
-				var entities = level.GetEntites();
+				var bbox = boundingBox;
 				foreach (var ent in entities)
 				{
 					if (ent == _entity) continue;
 
-					if (ent.GetBoundingBox().Intersects(boundingBox) && ent.EntityId > _entity.EntityId)
+					if (ent.EntityId > _entity.EntityId && _entity.IsColliding(bbox, ent))
 					{
 						if (_entity.Velocity == Vector3.Zero && level.Random.Next(1000) == 0)
 						{
@@ -112,8 +137,9 @@ namespace MiNET.Entities.Behaviors
 					//Log.Debug($"Block ahead: {block}, turning");
 					int rot = level.Random.Next(2) == 0 ? level.Random.Next(45, 180) : level.Random.Next(-180, -45);
 					_entity.Direction += rot;
-					_entity.KnownPosition.HeadYaw += rot;
-					_entity.KnownPosition.Yaw += rot;
+					_entity.Direction = Mob.ClampDegrees(_entity.Direction);
+					_entity.KnownPosition.HeadYaw = (float) _entity.Direction;
+					_entity.KnownPosition.Yaw = (float) _entity.Direction;
 					_entity.Velocity *= new Vector3(0, 1, 0);
 				}
 			}

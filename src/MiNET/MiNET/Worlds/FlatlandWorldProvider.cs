@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -61,6 +61,7 @@ namespace MiNET.Worlds
 			//chunk.biomeId = ArrayOf<byte>.Create(256, (byte) rand.Next(0, 37));
 
 			int h = PopulateChunk(chunk);
+			//chunk.RecalcHeight();
 
 			//BuildStructures(chunk);
 
@@ -240,7 +241,14 @@ namespace MiNET.Worlds
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 3); // Dirt
 					chunk.SetBlock(x, h++, z, 2); // Grass
+
 					chunk.SetHeight(x, z, (short) h);
+					for (int i = h - 1; i >= 0; i--)
+					{
+						chunk.SetSkyLight(x, i, z, 0);
+					}
+
+					chunk.SetBiome(x, z, 1);
 				}
 			}
 

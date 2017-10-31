@@ -24,6 +24,16 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
+		public override void OnTick(Level level, bool isRandom)
+		{
+			base.OnTick(level, isRandom);
+
+			if (isRandom)
+			{
+
+			}
+		}
+
 		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
 		{
 			if (Coordinates + BlockCoordinates.Down == blockCoordinates)

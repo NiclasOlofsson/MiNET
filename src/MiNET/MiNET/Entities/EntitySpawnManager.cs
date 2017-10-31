@@ -1,4 +1,29 @@
-﻿using System;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -14,15 +39,80 @@ namespace MiNET.Entities
 {
 	public class EntitySpawnManager
 	{
+		public class SpawnState : IEqualityComparer<SpawnState>
+		{
+			public int ChunkX { get; set; }
+			public int ChunkZ { get; set; }
+			public int Seed { get; set; }
+
+			public SpawnState(int chunkX, int chunkZ, int seed)
+			{
+				ChunkX = chunkX;
+				ChunkZ = chunkZ;
+				Seed = seed;
+			}
+
+			private sealed class ChunkXChunkZEqualityComparer : IEqualityComparer<SpawnState>
+			{
+				public bool Equals(SpawnState x, SpawnState y)
+				{
+					if (ReferenceEquals(x, y)) return true;
+					if (ReferenceEquals(x, null)) return false;
+					if (ReferenceEquals(y, null)) return false;
+					if (x.GetType() != y.GetType()) return false;
+					return x.ChunkX == y.ChunkX && x.ChunkZ == y.ChunkZ;
+				}
+
+				public int GetHashCode(SpawnState obj)
+				{
+					unchecked
+					{
+						return (obj.ChunkX*397) ^ obj.ChunkZ;
+					}
+				}
+			}
+
+			public static IEqualityComparer<SpawnState> ChunkXChunkZComparer { get; } = new ChunkXChunkZEqualityComparer();
+
+			public bool Equals(SpawnState x, SpawnState y)
+			{
+				return ChunkXChunkZComparer.Equals(x, y);
+			}
+
+			public int GetHashCode(SpawnState obj)
+			{
+				return ChunkXChunkZComparer.GetHashCode(obj);
+			}
+		}
+
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EntitySpawnManager));
 
 		public const int CapHostile = 70;
+
 		public const int CapPassive = 10;
+		//public const int CapPassive = 100;
+
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 
-		public static readonly EntityType[] PassiveMobs = {EntityType.Chicken, EntityType.Cow, EntityType.Pig, EntityType.Sheep, EntityType.Wolf, EntityType.Horse};
-		public static readonly EntityType[] HostileMobs = {EntityType.Zombie, EntityType.Skeleton, EntityType.Creeper, EntityType.Enderman};
+		public static readonly EntityType[] PassiveMobs =
+		{
+			EntityType.Chicken,
+			EntityType.Cow,
+			EntityType.Pig,
+			EntityType.Sheep,
+			EntityType.Wolf,
+			EntityType.Rabbit,
+			EntityType.Horse
+		};
+
+		public static readonly EntityType[] HostileMobs =
+		{
+			EntityType.Zombie,
+			EntityType.Skeleton,
+			EntityType.Creeper,
+			EntityType.Enderman
+		};
 
 		public Level Level { get; set; }
 
@@ -30,7 +120,6 @@ namespace MiNET.Entities
 		{
 			Level = level;
 		}
-
 
 		public virtual void DespawnMobs(long tickTime)
 		{
@@ -49,36 +138,24 @@ namespace MiNET.Entities
 			}
 		}
 
-		public virtual void AttemptMobSpawn(long tickTime, BlockCoordinates blockCoordinates, int numberOfLoadedChunks)
+		public virtual void AttemptMobSpawn(BlockCoordinates packCoord, Random random, bool canSpawnPassive, bool canSpawnHostile)
 		{
-			bool canSpawnPassive = tickTime%400 == 0;
-			bool canSpawnHostile = true;
-
-			var entities = Level.Entities;
-			var effectiveChunkCount = Math.Max(17*17, numberOfLoadedChunks);
-			if (canSpawnPassive)
-			{
-				int entityCount = entities.Count(entity => entity.Value is PassiveMob && Vector3.Distance(blockCoordinates, entity.Value.KnownPosition) < effectiveChunkCount);
-				canSpawnPassive = (entityCount < CapPassive*effectiveChunkCount/289);
-			}
-
-			{
-				int entityCount = entities.Count(entity => entity.Value is HostileMob && Vector3.Distance(blockCoordinates, entity.Value.KnownPosition) < effectiveChunkCount);
-				canSpawnHostile = (entityCount < CapHostile*effectiveChunkCount/289);
-			}
-
-			if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(blockCoordinates, player.Value.KnownPosition) < 24) != 0)
+			if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(packCoord, player.Value.KnownPosition) < 24) != 0)
 			{
 				//if (Log.IsDebugEnabled)
 				//	Log.Debug($"Can't spawn entity because players within 24 blocks distance: {blockCoordinates}");
 				return;
 			}
 
-			var random = new Random();
+			if (!canSpawnHostile && !canSpawnPassive)
+			{
+				// Mob cap reached on all creatures
+				return;
+			}
 
 			for (int c = 0; c < 2; c++)
 			{
-				int maxPackSize = 0;
+				int maxPackSize = int.MaxValue;
 				int numberOfSpawnedMobs = 0;
 
 				EntityType entityType = EntityType.None;
@@ -96,69 +173,84 @@ namespace MiNET.Entities
 					doSpawnPassive = true;
 				}
 
-				for (int i = 0; i < 12; i++)
+				for (int j = 0; j < 3; j++)
 				{
-					int x = random.Next(20) + blockCoordinates.X;
-					int y = blockCoordinates.Y;
-					int z = random.Next(20) + blockCoordinates.Z;
+					int x = packCoord.X;
+					int y = packCoord.Y;
+					int z = packCoord.Z;
 
-					var spawnBlock = Level.GetBlock(x, y, z);
-					//FIXME: The following is wrong. It shouldn't be the same for all mobs and need to be moved into some sort of
-					// entity-based "CanSpawn()" method. But performance need to be handled too, and this is way faster right now.
-					if (spawnBlock is Grass || spawnBlock is Sand || spawnBlock is Gravel || (doSpawnHostile && spawnBlock.IsSolid && !spawnBlock.IsTransparent))
+					// The next 3 (k, x and z) random construct heavily weigh the coordinates toward center of pack-origin
+					int k = random.Next(1, 5);
+					for (int i = 0; i < k && numberOfSpawnedMobs < maxPackSize; i++)
 					{
-						if (entityType == EntityType.None)
+						x += random.Next(6) - random.Next(6);
+						z += random.Next(6) - random.Next(6);
+
+						var spawnBlock = Level.GetBlock(x, y - 1, z);
+						//FIXME: The following is wrong. It shouldn't be the same for all mobs and need to be moved into some sort of
+						// entity-based "CanSpawn()" method. But performance need to be handled too, and this is way faster right now.
+						if (spawnBlock is Grass || spawnBlock is Sand || spawnBlock is Gravel || (doSpawnHostile && spawnBlock.IsSolid && !spawnBlock.IsTransparent))
 						{
-							entityType = SelectEntityType(spawnBlock, random, doSpawnHostile, doSpawnPassive);
 							if (entityType == EntityType.None)
 							{
-								break;
+								entityType = SelectEntityType(spawnBlock, random, doSpawnHostile, doSpawnPassive);
+								if (entityType == EntityType.None)
+								{
+									if (Log.IsDebugEnabled && doSpawnHostile)
+										Log.Debug($"Failed to spawn because found no proper entity types for biome {BiomeUtils.GetBiome(spawnBlock.BiomeId).Name}");
+									break;
+								}
+
+								maxPackSize = entityType == EntityType.Wolf ? 8 : entityType == EntityType.Rabbit ? 2 + random.Next(1) : entityType == EntityType.Horse ? 2 + random.Next(5) : entityType == EntityType.Enderman ? 1 + random.Next(4) : 4;
 							}
 
-							maxPackSize = entityType == EntityType.Wolf ? 8 : entityType == EntityType.Horse ? 2 + random.Next(5) : entityType == EntityType.Enderman ? 1 + random.Next(4) : 4;
-						}
-
-						var firstBlock = Level.GetBlock(x, y + 1, z);
-						if (!firstBlock.IsSolid)
-						{
-							if (doSpawnPassive
-							    && PassiveMobs.Contains(entityType)
-							    && ((firstBlock.BlockLight >= 9 || firstBlock.SkyLight >= 9) || (Level.CurrentWorldTime > 450 && Level.CurrentWorldTime < 11615)))
+							var firstBlock = Level.GetBlock(x, y, z);
+							if (!firstBlock.IsSolid && !(firstBlock is Stationary) && !(firstBlock is Flowing))
 							{
-								var secondBlock = Level.GetBlock(x, y + 2, z);
-								if (!secondBlock.IsSolid)
+								if (doSpawnPassive && PassiveMobs.Contains(entityType)
+								    && (firstBlock.BlockLight >= 9 || (firstBlock.SkyLight >= 9 && Level.CurrentWorldCycleTime > 450 && Level.CurrentWorldCycleTime < 11615)))
 								{
-									var yaw = random.Next(360);
+									var secondBlock = Level.GetBlock(x, y + 2, z);
+									if ((spawnBlock is Grass || (entityType == EntityType.Rabbit && spawnBlock is Sand)) && !secondBlock.IsSolid)
+									{
+										var yaw = random.Next(360);
 
-									if (Spawn(new PlayerLocation(x, y + 1, z, yaw + 15, yaw), entityType))
-									{
-										if (++numberOfSpawnedMobs >= maxPackSize) break;
-									}
-									else
-									{
-										if (Log.IsDebugEnabled)
-											Log.Debug($"Failed to spawn {entityType} because area not clear");
+										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
+										{
+											if (Log.IsDebugEnabled)
+												Log.Warn($"Spawned {entityType}");
+											Level.StrikeLightning(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw));
+											//Level.SetBlock(new StainedGlass() { Metadata = (byte)firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
+											++numberOfSpawnedMobs;
+										}
+										else
+										{
+											if (Log.IsDebugEnabled)
+												Log.Debug($"Failed to spawn {entityType} because area not clear");
+										}
 									}
 								}
-							}
-							else if (doSpawnHostile
-							         && HostileMobs.Contains(entityType)
-							         && firstBlock.BlockLight <= 7
-							         && (firstBlock.SkyLight <= 7 || Level.CurrentWorldTime < 450 || Level.CurrentWorldTime > 11615))
-							{
-								var secondBlock = Level.GetBlock(x, y + 2, z);
-								if (!secondBlock.IsSolid)
+								else if (doSpawnHostile && HostileMobs.Contains(entityType)
+								         && firstBlock.BlockLight <= 7
+								         && (firstBlock.SkyLight <= 7 || (Level.CurrentWorldCycleTime > 13183 && Level.CurrentWorldCycleTime < 22800)))
 								{
-									var yaw = random.Next(360);
+									var secondBlock = Level.GetBlock(x, y + 1, z);
+									if (!secondBlock.IsSolid)
+									{
+										var yaw = random.Next(360);
 
-									if (Spawn(new PlayerLocation(x, y + 1, z, yaw + 15, yaw), entityType))
-									{
-										if (++numberOfSpawnedMobs >= maxPackSize) break;
-									}
-									else
-									{
-										if (Log.IsDebugEnabled)
-											Log.Debug($"Failed to spawn {entityType} because area not clear");
+										if (Spawn(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw), entityType, random))
+										{
+											//Level.SetBlock(new StainedGlass() { Metadata = (byte) firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
+											//Log.Warn($"Spawned {entityType} at {firstBlock.Coordinates} at light level on bottom={firstBlock.SkyLight} amd top={secondBlock.SkyLight}, world time={Level.CurrentWorldTime}");
+
+											++numberOfSpawnedMobs;
+										}
+										else
+										{
+											if (Log.IsDebugEnabled)
+												Log.Debug($"Failed to spawn {entityType} because area not clear");
+										}
 									}
 								}
 							}
@@ -226,12 +318,72 @@ namespace MiNET.Entities
 
 			if (possibleMobs.Count == 0) return EntityType.None;
 
-			EntityType entityType = possibleMobs[random.Next(possibleMobs.Count)];
+			EntityType entityType = GetWeightedRandom(possibleMobs.ToArray(), random);
 
 			return entityType;
 		}
 
-		private bool Spawn(PlayerLocation position, EntityType entityType)
+		private EntityType GetWeightedRandom(EntityType[] possiblEntityTypes, Random random)
+		{
+			Tuple<EntityType, int>[] weightedPassiveMobs =
+			{
+				new Tuple<EntityType, int>(EntityType.Sheep, 12),
+				new Tuple<EntityType, int>(EntityType.Chicken, 10),
+				new Tuple<EntityType, int>(EntityType.Pig, 10),
+				new Tuple<EntityType, int>(EntityType.Cow, 8),
+				new Tuple<EntityType, int>(EntityType.Wolf, 5),
+				new Tuple<EntityType, int>(EntityType.Rabbit, 2),
+				new Tuple<EntityType, int>(EntityType.Horse, 1)
+			};
+
+			Tuple<EntityType, int>[] weightedHostileMobs =
+			{
+				new Tuple<EntityType, int>(EntityType.Zombie, 100),
+				new Tuple<EntityType, int>(EntityType.Skeleton, 100),
+				new Tuple<EntityType, int>(EntityType.Creeper, 100),
+				new Tuple<EntityType, int>(EntityType.Enderman, 10)
+			};
+
+			List<Tuple<EntityType, int>> coll = new List<Tuple<EntityType, int>>();
+			int totalWeight = 0;
+			foreach (var possiblEntityType in possiblEntityTypes)
+			{
+				if (PassiveMobs.Contains(possiblEntityType))
+				{
+					var tuple = weightedPassiveMobs.First(m => m.Item1 == possiblEntityType);
+					totalWeight += tuple.Item2;
+					coll.Add(tuple);
+				}
+				else if (HostileMobs.Contains(possiblEntityType))
+				{
+					var tuple = weightedHostileMobs.First(m => m.Item1 == possiblEntityType);
+					totalWeight += tuple.Item2;
+					coll.Add(tuple);
+				}
+			}
+
+			coll = coll.OrderByDescending(t => t.Item2).ToList();
+
+			int weight = random.Next(totalWeight);
+
+			int i = 0;
+
+			for (int j = coll.Count; i < j; ++i)
+			{
+				var t = coll[i];
+				weight -= t.Item2;
+
+				if (weight < 0)
+				{
+					return t.Item1;
+				}
+			}
+
+			//Log.Warn($"Looking for random entit types, found none");
+			return EntityType.None;
+		}
+
+		private bool Spawn(PlayerLocation position, EntityType entityType, Random random)
 		{
 			Level world = Level;
 			Mob mob = null;
@@ -250,7 +402,7 @@ namespace MiNET.Entities
 					mob.NoAi = true;
 					break;
 				case EntityType.Sheep:
-					mob = new Sheep(world);
+					mob = new Sheep(world, random);
 					mob.NoAi = true;
 					break;
 				case EntityType.Wolf:
@@ -258,29 +410,38 @@ namespace MiNET.Entities
 					mob.NoAi = true;
 					break;
 				case EntityType.Horse:
-					mob = new Horse(world);
+					mob = new Horse(world, random.NextDouble() < 0.10, random);
+					mob.IsBaby = random.NextDouble() < 0.20;
 					mob.NoAi = true;
 					break;
 				case EntityType.Ocelot:
 					mob = new Ocelot(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Rabbit:
 					mob = new Rabbit(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Spider:
 					mob = new Spider(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Zombie:
 					mob = new Zombie(world);
+					mob.IsBaby = random.NextDouble() < 0.05;
+					mob.NoAi = true;
 					break;
 				case EntityType.Skeleton:
 					mob = new Skeleton(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Enderman:
 					mob = new Enderman(world);
+					mob.NoAi = true;
 					break;
 				case EntityType.Creeper:
 					mob = new Creeper(world);
+					mob.NoAi = true;
 					break;
 			}
 
@@ -297,7 +458,7 @@ namespace MiNET.Entities
 			ThreadPool.QueueUserWorkItem(state => mob.SpawnEntity());
 
 			if (Log.IsDebugEnabled)
-				Log.Warn($"Spawn mob {entityType}");
+				Log.Debug($"Spawn mob {entityType}");
 			return true;
 		}
 

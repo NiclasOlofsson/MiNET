@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -46,6 +47,21 @@ namespace MiNET
 	[TestFixture, Ignore("")]
 	public class MinetServerTest
 	{
+		[Test/*, Ignore("")*/]
+		public void IntVsInt24PerformanceTest()
+		{
+			ConcurrentDictionary<int, Datagram> waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
+			//ConcurrentDictionary<Int24, Datagram> waitingForAcksQueue = new ConcurrentDictionary<Int24, Datagram>();
+
+			for (int i = 0; i < 1000000; i++)
+			{
+				Datagram dgram = new Datagram();
+				waitingForAcksQueue.TryAdd(i, dgram);
+			}
+
+		}
+
+
 		[Test, Ignore("")]
 		public void HighPrecTimerLoadTest()
 		{
@@ -142,7 +158,7 @@ namespace MiNET
 
 		private void Interrupt(object obj)
 		{
-			if(signal.WaitOne(0))
+			if (signal.WaitOne(0))
 			{
 				signal.Reset();
 			}

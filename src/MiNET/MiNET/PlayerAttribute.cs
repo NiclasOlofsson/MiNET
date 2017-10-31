@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -52,22 +52,68 @@ namespace MiNET
 		}
 	}
 
+
+	public enum GameRulesEnum
+	{
+		DrowningDamage,
+		CommandblockOutput,
+		DoTiledrops,
+		DoMobloot,
+		KeepInventory,
+		DoDaylightcycle,
+		DoMobspawning,
+		DoEntitydrops,
+		DoFiretick,
+		DoWeathercycle,
+		Pvp,
+		Falldamage,
+		Firedamage,
+		Mobgriefing,
+		ShowCoordinates,
+		NaturalRegeneration,
+		TntExploads,
+		SendCommandfeedback
+	}
+
 	public abstract class GameRule
 	{
-		public string Name { get; set; }
+		public string Name { get; }
+
+		protected GameRule(string name)
+		{
+			Name = name;
+		}
+
+		protected bool Equals(GameRule other)
+		{
+			return string.Equals(Name, other.Name);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj)) return false;
+			if (ReferenceEquals(this, obj)) return true;
+			if (obj.GetType() != this.GetType()) return false;
+			return Equals((GameRule) obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Name != null ? Name.GetHashCode() : 0);
+		}
 	}
 
 	public class GameRule<T> : GameRule
 	{
-		public GameRule()
+		public T Value { get; set; }
+
+		public GameRule(GameRulesEnum rule, T value) : this(rule.ToString(), value)
 		{
 		}
 
-		public GameRule(T value)
+		public GameRule(string name, T value) : base(name)
 		{
 			Value = value;
 		}
-
-		public T Value { get; set; }
 	}
 }

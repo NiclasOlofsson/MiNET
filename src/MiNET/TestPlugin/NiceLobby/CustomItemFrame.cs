@@ -27,7 +27,7 @@ namespace TestPlugin.NiceLobby
 			_frameTicker = frameTicker;
 		}
 
-		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Log.Warn("Using custom item frame");
 
@@ -43,7 +43,7 @@ namespace TestPlugin.NiceLobby
 				Coordinates = coor,
 			};
 
-			if (!itemFrame.CanPlace(world, face)) return;
+			if (!itemFrame.CanPlace(world, blockCoordinates, face)) return;
 
 			itemFrame.PlaceBlock(world, player, coor, face, faceCoords);
 

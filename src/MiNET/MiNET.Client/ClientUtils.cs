@@ -78,10 +78,10 @@ namespace MiNET.Client
 
 						//Log.Debug($"metadata:\n{Package.HexDump(chunk.metadata.Data)}");
 
-						if (defStream.Read(chunk.skylight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: skylight");
+						//if (defStream.Read(chunk.skylight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: skylight");
 						//Log.Debug($"skylight:\n{Package.HexDump(chunk.skylight.Data)}");
 
-						if (defStream.Read(chunk.blocklight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: blocklight");
+						//if (defStream.Read(chunk.blocklight.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: blocklight");
 						//Log.Debug($"blocklight:\n{Package.HexDump(chunk.blocklight.Data)}");
 
 						//Log.Debug($"skylight.Data:\n{Package.HexDump(chunk.skylight.Data, 64)}");

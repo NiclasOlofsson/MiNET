@@ -1,4 +1,29 @@
-﻿using System.Collections.Generic;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is Niclas Olofsson.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using MiNET.Items;
@@ -20,12 +45,13 @@ namespace MiNET
 		public int[] ItemHotbar { get; private set; }
 		public int InHandSlot { get; set; }
 
+		public Item Cursor { get; set; } = new ItemAir();
 
 		// Armour
-		public Item Boots { get; set; }
-		public Item Leggings { get; set; }
-		public Item Chest { get; set; }
-		public Item Helmet { get; set; }
+		public Item Boots { get; set; } = new ItemAir();
+		public Item Leggings { get; set; } = new ItemAir();
+		public Item Chest { get; set; } = new ItemAir();
+		public Item Helmet { get; set; } = new ItemAir();
 
 		public PlayerInventory(Player player)
 		{
@@ -53,11 +79,6 @@ namespace MiNET
 			}
 
 			InHandSlot = 0;
-
-			Boots = new ItemAir();
-			Leggings = new ItemAir();
-			Chest = new ItemAir();
-			Helmet = new ItemAir();
 		}
 
 		public virtual Item GetItemInHand()
@@ -158,14 +179,12 @@ namespace MiNET
 			if (existingItem.Id == item.Id && existingItem.Metadata == item.Metadata && existingItem.Count + item.Count <= item.MaxStackSize)
 			{
 				Slots[si].Count += item.Count;
-				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
 				return true;
 			}
 			else if (existingItem is ItemAir || existingItem.Id == -1)
 			{
 				Slots[si] = item;
-				//if (update) Player.SendPlayerInventory();
 				if (update) SendSetSlot(si);
 				return true;
 			}
@@ -237,25 +256,11 @@ namespace MiNET
 
 		public void SendSetSlot(int slot)
 		{
-			if (slot < HotbarSize && (ItemHotbar[slot] == -1 || ItemHotbar[slot] == slot))
-			{
-				ItemHotbar[slot] = slot /* + HotbarSize*/;
-				Player.SendPlayerInventory();
-
-				McpeMobEquipment order = McpeMobEquipment.CreateObject();
-				order.runtimeEntityId = EntityManager.EntityIdSelf;
-				order.item = GetItemInHand();
-				order.selectedSlot = (byte) slot; // Selected hotbar slot
-				Player.SendPackage(order);
-			}
-			else
-			{
-				McpeContainerSetSlot sendSlot = McpeContainerSetSlot.CreateObject();
-				sendSlot.windowId = 0;
-				sendSlot.slot = (short) slot;
-				sendSlot.item = Slots[slot];
-				Player.SendPackage(sendSlot);
-			}
+			McpeInventorySlot sendSlot = McpeInventorySlot.CreateObject();
+			sendSlot.inventoryId = 0;
+			sendSlot.slot = (uint) slot;
+			sendSlot.item = Slots[slot];
+			Player.SendPackage(sendSlot);
 		}
 
 		public void Clear()

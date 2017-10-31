@@ -153,12 +153,18 @@ namespace MiNET.Utils
 
 		public static BoundingBox operator +(BoundingBox a, float b)
 		{
-			return new BoundingBox(a.Min - new Vector3(b), a.Max + new Vector3(b));
+			//Vector3.Min(a.Min - new Vector3(b), a.Min + new Vector3(b))
+			//Vector3.Max(a.Max - new Vector3(b), a.Max + new Vector3(b))
+			return new BoundingBox(
+				Vector3.Min(a.Min - new Vector3(b), a.Min + new Vector3(b)),
+				Vector3.Max(a.Max - new Vector3(b), a.Max + new Vector3(b)));
 		}
 
 		public static BoundingBox operator -(BoundingBox a, float b)
 		{
-			return new BoundingBox(a.Min + new Vector3(b), a.Max - new Vector3(b));
+			return new BoundingBox(
+				Vector3.Max(a.Min - new Vector3(b), a.Min + new Vector3(b)),
+				Vector3.Min(a.Max - new Vector3(b), a.Max + new Vector3(b)));
 		}
 
 		public static bool operator ==(BoundingBox a, BoundingBox b)

@@ -935,6 +935,7 @@ Wiki: [Block Pick Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protoco
 |X | SignedVarInt |  |
 |Y | SignedVarInt |  |
 |Z | SignedVarInt |  |
+|Add User Data | bool |  |
 |Selected Slot | byte |  |
 -----------------------------------------------------------------------
 ### Entity Pick Request (0x23)

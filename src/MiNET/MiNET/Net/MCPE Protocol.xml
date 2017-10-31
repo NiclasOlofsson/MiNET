@@ -500,6 +500,7 @@
 		<field name="X" type="SignedVarInt" />
 		<field name="Y" type="SignedVarInt" />
 		<field name="Z" type="SignedVarInt" />
+		<field name="Add User Data" type="bool" />
 		<field name="Selected Slot" type="byte" />
 	</pdu>
 

@@ -2409,6 +2409,11 @@ namespace MiNET
 		{
 		}
 
+		public virtual void HandleMcpeEntityPickRequest(McpeEntityPickRequest message)
+		{
+			
+		}
+
 		protected virtual int CalculateDamage(Entity target)
 		{
 			int damage = Inventory.GetItemInHand().GetDamage(); //Item Damage.

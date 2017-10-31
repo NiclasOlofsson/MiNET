@@ -56,6 +56,7 @@ namespace MiNET.Net
 		void HandleMcpeMobArmorEquipment(McpeMobArmorEquipment message);
 		void HandleMcpeInteract(McpeInteract message);
 		void HandleMcpeBlockPickRequest(McpeBlockPickRequest message);
+		void HandleMcpeEntityPickRequest(McpeEntityPickRequest message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
 		void HandleMcpeEntityFall(McpeEntityFall message);
 		void HandleMcpeAnimate(McpeAnimate message);
@@ -3703,6 +3704,8 @@ namespace MiNET.Net
 	public partial class McpeEntityPickRequest : Package<McpeEntityPickRequest>
 	{
 
+		public ulong runtimeEntityId; // = null;
+		public byte selectedSlot; // = null;
 
 		public McpeEntityPickRequest()
 		{
@@ -3716,6 +3719,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(runtimeEntityId);
+			Write(selectedSlot);
 
 			AfterEncode();
 		}
@@ -3729,6 +3734,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			runtimeEntityId = ReadUlong();
+			selectedSlot = ReadByte();
 
 			AfterDecode();
 		}
@@ -3740,6 +3747,8 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
+			runtimeEntityId=default(ulong);
+			selectedSlot=default(byte);
 		}
 
 	}

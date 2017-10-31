@@ -70,6 +70,7 @@ namespace MiNET.Plotter
 					NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
 					TntExploads = Config.GetProperty("GameRule.TntExploads", true),
 					SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
+					RandomTickSpeed = Config.GetProperty("GameRule.RandomTickSpeed", 3),
 				};
 				level.Initialize();
 

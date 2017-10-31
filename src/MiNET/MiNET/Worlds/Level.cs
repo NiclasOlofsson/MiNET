@@ -472,7 +472,7 @@ namespace MiNET.Worlds
 						bool canSpawnPassive = false;
 						bool canSpawnHostile = false;
 
-						if (EnableChunkTicking)
+						if (DoMobspawning)
 						{
 							canSpawnPassive = TickTime%400 == 0;
 
@@ -494,7 +494,7 @@ namespace MiNET.Worlds
 
 							var passiveCap = EntitySpawnManager.CapPassive*effectiveChunkCount/289;
 							canSpawnPassive = canSpawnPassive && entityPassiveCount < passiveCap;
-							canSpawnPassive = canSpawnPassive || entityPassiveCount < passiveCap*0.20;
+							canSpawnPassive = canSpawnPassive || entityPassiveCount < passiveCap*0.20; // Custom to get instant spawn when no mobs
 							canSpawnHostile = entityHostileCount < EntitySpawnManager.CapHostile*effectiveChunkCount/289;
 						}
 
@@ -506,35 +506,37 @@ namespace MiNET.Worlds
 
 							ChunkColumn chunk = GetChunk(new ChunkCoordinates(spawnState.ChunkX, spawnState.ChunkZ));
 
-							for (int s = 0; s < 16; s++)
+							if (DoMobspawning)
 							{
-								for (int i = 0; i < 3; i++)
+								int x = random.Next(16);
+								int z = random.Next(16);
+
+								var height = chunk.GetHeight(x, z);
+
+								var chunkTickMeasurement = blockAndChunkTickMeasurement?.Begin("Chunk tick");
+
+								var ySpawn = random.Next((((height + 1) >> 4) + 1)*16 - 1);
+								var spawnCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, ySpawn, z + spawnState.ChunkZ*16);
+								var spawnBlock = GetBlock(spawnCoordinates, chunk);
+								if (spawnBlock.IsTransparent)
 								{
-									int x = random.Next(16);
-									int y = random.Next(16);
-									int z = random.Next(16);
+									// Entity spawning, only one attempt per chunk
+									EntitySpawnManager.AttemptMobSpawn(spawnCoordinates, random, canSpawnPassive, canSpawnHostile);
+								}
 
-									var height = chunk.GetHeight(x, z);
-									if (height > 0 && s*16 > height) continue;
+								chunkTickMeasurement?.End();
+							}
 
-									if (s == 0 && i == 0 && EnableChunkTicking)
+							if (EnableBlockTicking && RandomTickSpeed > 0)
+							{
+								for (int s = 0; s < 16; s++)
+								{
+									for (int i = 0; i < RandomTickSpeed; i++)
 									{
-										var chunkTickMeasurement = blockAndChunkTickMeasurement?.Begin("Chunk tick");
+										int x = random.Next(16);
+										int y = random.Next(16);
+										int z = random.Next(16);
 
-										var ySpawn = random.Next((((height + 1) >> 4) + 1)*16 - 1);
-										var spawnCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, ySpawn, z + spawnState.ChunkZ*16);
-										var spawnBlock = GetBlock(spawnCoordinates, chunk);
-										if (spawnBlock.IsTransparent)
-										{
-											// Entity spawning, only one attempt per chunk
-											EntitySpawnManager.AttemptMobSpawn(spawnCoordinates, random, canSpawnPassive, canSpawnHostile);
-										}
-
-										chunkTickMeasurement?.End();
-									}
-
-									if (EnableBlockTicking)
-									{
 										var blockTickMeasurement = blockAndChunkTickMeasurement?.Begin("Block tick");
 
 										var blockCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, y + s*16, z + spawnState.ChunkZ*16);
@@ -1418,6 +1420,7 @@ namespace MiNET.Worlds
 		public bool NaturalRegeneration { get; set; } = true;
 		public bool TntExploads { get; set; } = true;
 		public bool SendCommandfeedback { get; set; } = true;
+		public int RandomTickSpeed { get; set; } = 3;
 
 		public virtual void BroadcastGameRules()
 		{
@@ -1486,6 +1489,17 @@ namespace MiNET.Worlds
 					break;
 			}
 		}
+
+		public void SetGameRule(GameRulesEnum rule, int value)
+		{
+			switch (rule)
+			{
+				case GameRulesEnum.DrowningDamage:
+					RandomTickSpeed = value;
+					break;
+			}
+		}
+
 
 		public bool GetGameRule(GameRulesEnum rule)
 		{

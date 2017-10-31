@@ -2405,8 +2405,18 @@ namespace MiNET
 			}
 		}
 
-		public void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)
+		public virtual void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)
 		{
+			if (GameMode != GameMode.Creative)
+			{
+				return;
+			}
+
+			Block block = Level.GetBlock(message.x, message.y, message.z);
+
+			Item item = new ItemBlock(block, block.Metadata);
+
+			Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 		}
 
 		protected virtual int CalculateDamage(Entity target)

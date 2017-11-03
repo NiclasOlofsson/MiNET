@@ -93,6 +93,10 @@ namespace MiNET.Client
 				//commandStep.entityIdSelf = client.NetworkEntityId;
 				////Log.Error($"Entity ID used={commandStep.entityIdSelf}\n{Package.HexDump(commandStep.Encode())}");
 				//client.SendPackage(commandStep);
+				McpeCommandRequest request = new McpeCommandRequest();
+				request.command = command;
+				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+				client.SendPackage(request);
 			};
 			return doUseItem;
 		}

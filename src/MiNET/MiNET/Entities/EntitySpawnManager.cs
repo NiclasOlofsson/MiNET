@@ -88,10 +88,7 @@ namespace MiNET.Entities
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EntitySpawnManager));
 
 		public const int CapHostile = 70;
-
 		public const int CapPassive = 10;
-		//public const int CapPassive = 100;
-
 		public const int CapAmbient = 15;
 		public const int CapWater = 5;
 
@@ -123,7 +120,8 @@ namespace MiNET.Entities
 
 		public virtual void DespawnMobs(long tickTime)
 		{
-			if (tickTime%400 != 0) return;
+			//if (tickTime%400 != 0) return;
+			if (tickTime%20 != 0) return;
 
 			foreach (var entity in Level.Entities)
 			{
@@ -133,7 +131,6 @@ namespace MiNET.Entities
 						Log.Debug($"Despawned entity because no players within 128 blocks distance");
 
 					entity.Value.DespawnEntity();
-					return;
 				}
 			}
 		}

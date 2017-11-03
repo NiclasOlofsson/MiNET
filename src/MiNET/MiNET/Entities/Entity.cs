@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -25,11 +25,13 @@
 
 using System;
 using System.Collections;
+using System.Drawing;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -423,8 +425,8 @@ namespace MiNET.Entities
 		{
 			//if (!Compare((int) KnownPosition.X, (int) other.KnownPosition.X, 5)) return false;
 			//if (!Compare((int) KnownPosition.Z, (int) other.KnownPosition.Z, 5)) return false;
-			if (!Compare((int)KnownPosition.X, (int)other.KnownPosition.X, 4)) return false;
-			if (!Compare((int)KnownPosition.Z, (int)other.KnownPosition.Z, 4)) return false;
+			if (!Compare((int) KnownPosition.X, (int) other.KnownPosition.X, 4)) return false;
+			if (!Compare((int) KnownPosition.Z, (int) other.KnownPosition.Z, 4)) return false;
 			if (!bbox.Intersects(other.GetBoundingBox())) return false;
 
 			return true;
@@ -439,6 +441,7 @@ namespace MiNET.Entities
 		}
 
 		private Tuple<Vector3, BoundingBox> _bboxCache = new Tuple<Vector3, BoundingBox>(new Vector3(0, -1000, 0), new BoundingBox());
+
 		public BoundingBox GetBoundingBox()
 		{
 			var pos = KnownPosition;
@@ -530,11 +533,41 @@ namespace MiNET.Entities
 
 		public virtual void DoMouseOverInteraction(byte actionId, Player player)
 		{
-			if(!string.IsNullOrEmpty(player.ButtonText))
+			if (!string.IsNullOrEmpty(player.ButtonText))
 			{
 				player.ButtonText = null;
 				player.SendSetEntityData();
 			}
+		}
+
+		public virtual bool CanSee(Entity target)
+		{
+			Vector3 entityPos = KnownPosition + new Vector3(0, (float) (this is Player ? 1.62f : Height), 0);
+			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
+			float distance = Vector3.Distance(entityPos, targetPos);
+
+			Vector3 rayPos = entityPos;
+			var direction = Vector3.Normalize(targetPos - entityPos);
+
+			if (distance < direction.Length()) return true;
+
+			do
+			{
+				if (Level.GetBlock(rayPos).IsSolid)
+				{
+					Log.Debug($"{GetType()} can not see target");
+					BroadcastEntityEvent();
+					return false;
+				}
+
+				//var particle = new DustParticle(Level, Color.AntiqueWhite);
+				//particle.Position = rayPos;
+				//particle.Spawn();
+
+				rayPos += direction;
+			} while (distance > Vector3.Distance(entityPos, rayPos));
+
+			return true;
 		}
 	}
 }

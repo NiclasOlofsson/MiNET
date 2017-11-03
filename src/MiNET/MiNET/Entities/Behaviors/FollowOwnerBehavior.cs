@@ -43,7 +43,7 @@ namespace MiNET.Entities.Behaviors
 			if (_entity.Owner == null) return;
 			Player player = (Player) _entity.Owner;
 
-			var distanceToPlayer = _entity.KnownPosition.DistanceTo(player.KnownPosition);
+			var distanceToPlayer = _entity.DistanceTo(player);
 
 			if (distanceToPlayer < 1.75)
 			{
@@ -133,6 +133,7 @@ namespace MiNET.Entities.Behaviors
 		{
 			_entity.Velocity = Vector3.Zero;
 			_entity.KnownPosition.Pitch = 0;
+			_currentPath = null;
 		}
 	}
 }

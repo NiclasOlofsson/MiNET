@@ -111,25 +111,39 @@ namespace MiNET.Entities
 
 			if (HealthManager.IsDead) return;
 
-			bool noPlayersWithing32 = false;
-			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer && DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
+			bool noPlayersWithin32 = false;
+			if (Level.EnableChunkTicking && DespawnIfNotSeenPlayer)
 			{
-				if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(KnownPosition, player.Value.KnownPosition) < 32) == 0)
+				if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(KnownPosition, player.Value.KnownPosition) < 128) == 0)
 				{
-					if (Level.Random.Next(800) == 0)
+					if (Log.IsDebugEnabled)
+						Log.Debug($"Despawn because didn't see any players within 128 blocks.");
+
+					DespawnEntity();
+					return;
+				}
+				if (DateTime.UtcNow - LastSeenPlayerTimer > TimeSpan.FromSeconds(30))
+				{
+					if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(KnownPosition, player.Value.KnownPosition) < 32) == 0)
 					{
-						if (Log.IsDebugEnabled)
-							Log.Debug($"Despawn because didn't see any players within 32 blocks for 30s or longer. Last seen {LastSeenPlayerTimer}");
+						if (Level.Random.Next(800) == 0)
+						{
+							if (Log.IsDebugEnabled)
+								Log.Debug($"Despawn because didn't see any players within 32 blocks for 30s or longer. Last seen {LastSeenPlayerTimer}");
 
-						DespawnEntity();
-						return;
+							DespawnEntity();
+							return;
+						}
+
+						noPlayersWithin32 = true;
 					}
-
-					noPlayersWithing32 = true;
+					else
+					{
+						LastSeenPlayerTimer = DateTime.UtcNow;
+					}
 				}
 				else
 				{
-					LastSeenPlayerTimer = DateTime.UtcNow;
 				}
 			}
 
@@ -172,7 +186,7 @@ namespace MiNET.Entities
 			// Calculate velocity for next move
 			_currentBehavior?.OnTick(entities);
 
-			if(noPlayersWithing32)
+			if (noPlayersWithin32)
 			{
 				Velocity = oldVelocity;
 			}

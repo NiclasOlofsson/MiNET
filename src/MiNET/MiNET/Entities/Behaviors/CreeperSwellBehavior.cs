@@ -23,25 +23,55 @@
 
 #endregion
 
-namespace MiNET.BlockEntities
+using MiNET.Entities.Hostile;
+
+namespace MiNET.Entities.Behaviors
 {
-	public static class BlockEntityFactory
+	public class CreeperSwellBehavior : IBehavior
 	{
-		public static BlockEntity GetBlockEntityById(string blockEntityId)
+		private readonly Creeper _entity;
+
+		public CreeperSwellBehavior(Creeper entity)
 		{
-			BlockEntity blockEntity = null;
+			this._entity = entity;
+		}
 
-			if (blockEntityId == "Sign") blockEntity = new Sign();
-			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
-			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
-			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
-			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
-			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
-			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
-			else if (blockEntityId == "Banner") blockEntity = new BannerBlockEntity();
-			else if (blockEntityId == "FlowerPot") blockEntity = new FlowerPotBlockEntity();
+		public bool ShouldStart()
+		{
+			if (_entity.Target == null) return false;
 
-			return blockEntity;
+			return (_entity.IsIgnited || _entity.DistanceTo(_entity.Target) < 3);
+		}
+
+		public bool CanContinue()
+		{
+			return ShouldStart();
+		}
+
+
+		public void OnTick(Entity[] entities)
+		{
+			if (_entity.Target == null)
+			{
+				_entity.Prime(false);
+			}
+			else if (_entity.DistanceTo(_entity.Target) > 7)
+			{
+				_entity.Prime(false);
+			}
+			else if (!_entity.CanSee(_entity.Target))
+			{
+				_entity.Prime(false);
+			}
+			else
+			{
+				_entity.Prime(true);
+			}
+		}
+
+		public void OnEnd()
+		{
+			_entity.SetTarget(null);
 		}
 	}
 }

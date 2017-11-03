@@ -587,11 +587,13 @@ namespace MiNET.Plugins
 				return null;
 			}
 
-			foreach (var overload in command.Versions.First().Overloads.Values.OrderByDescending(o => o.Input.Parameters.Length))
+			foreach (var overload in command.Versions.First().Overloads.Values.OrderByDescending(o => o.Input.Parameters?.Length ?? 0))
 			{
 				var args = arguments;
 				if (args.Length > 0 && overload.Input.Parameters.FirstOrDefault(p => p.Name.Equals("subcommand")) != null)
 				{
+					string subCommand = args[0];
+					if (overload.Input.Parameters.FirstOrDefault(p => p.Name.Equals("subcommand") && p.EnumValues[0] == subCommand) == null) continue;
 					args = args.Skip(1).ToArray();
 				}
 

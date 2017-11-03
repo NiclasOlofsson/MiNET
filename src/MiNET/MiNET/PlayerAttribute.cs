@@ -71,7 +71,7 @@ namespace MiNET
 		Mobgriefing,
 		ShowCoordinates,
 		NaturalRegeneration,
-		TntExploads,
+		TntExplodes,
 		SendCommandfeedback
 	}
 

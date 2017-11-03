@@ -777,11 +777,15 @@
 	<pdu id="0x4d" online="false" client="true" server="false" name="MCPE_COMMAND_REQUEST">
 		<field name="Command" type="string" />
 		<field name="Command type" type="SignedVarInt" />
+		<field name="Unknown UUID" type="UUID" />
 		<field name="Request ID" type="string" />
 		<field name="Unknown" type="bool" />
 	</pdu>
 
 	<pdu id="0x4e" online="false" client="true" server="false" name="MCPE_COMMAND_BLOCK_UPDATE">
+	</pdu>
+
+	<pdu id="0x4f" online="false" client="false" server="true" name="MCPE_COMMAND_OUTPUT">
 	</pdu>
 
 	<pdu id="0x50" online="false" client="false" server="true" name="MCPE_UPDATE_TRADE">

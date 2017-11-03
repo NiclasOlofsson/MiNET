@@ -31,11 +31,13 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -271,6 +273,32 @@ namespace MiNET.Worlds
 			return _chunkCache.ContainsKey(chunkCoord);
 		}
 
+		public int UnloadChunks(Player[] players)
+		{
+			if (players.Length == 0) return 0;
+
+			int removed = 0;
+			List<ChunkCoordinates> coords = new List<ChunkCoordinates>();
+			foreach (var player in players)
+			{
+				coords.Add(new ChunkCoordinates(player.KnownPosition));
+			}
+
+			double maxDistance = Config.GetProperty("MaxViewDistance", 16)*1.5;
+
+			Parallel.ForEach(_chunkCache, (chunkColumn) =>
+			{
+				bool keep = coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxDistance);
+				if (!keep)
+				{
+					_chunkCache.TryRemove(chunkColumn.Key, out var waste);
+					Interlocked.Increment(ref removed);
+				}
+			});
+
+			return removed;
+		}
+
 		public ChunkColumn[] GetCachedChunks()
 		{
 			return _chunkCache.Values.Where(column => column != null).ToArray();
@@ -283,9 +311,9 @@ namespace MiNET.Worlds
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates, bool cacheOnly = false)
 		{
-			ChunkColumn chunk;
 			if (Locked || cacheOnly)
 			{
+				ChunkColumn chunk;
 				_chunkCache.TryGetValue(chunkCoordinates, out chunk);
 				return chunk;
 			}
@@ -425,6 +453,7 @@ namespace MiNET.Worlds
 								var id = entityId.Split(':')[1];
 
 								entityId = id.First().ToString().ToUpper() + id.Substring(1);
+								if (entityId == "Flower_pot") entityId = "FlowerPot";
 
 								blockEntityTag["id"] = new NbtString("id", entityId);
 							}
@@ -450,25 +479,53 @@ namespace MiNET.Worlds
 
 									if (items != null)
 									{
-										//for (byte i = 0; i < items.Count; i++)
-										//{
-										//	NbtCompound item = (NbtCompound) items[i];
+										for (byte i = 0; i < items.Count; i++)
+										{
+											NbtCompound item = (NbtCompound) items[i];
 
-										//	item.Add(new NbtShort("OriginalDamage", item["Damage"].ShortValue));
+											string itemName = item["id"].StringValue;
+											if (itemName.StartsWith("minecraft:"))
+											{
+												var id = itemName.Split(':')[1];
 
-										//	byte metadata = (byte) (item["Damage"].ShortValue & 0xff);
-										//	item.Remove("Damage");
-										//	item.Add(new NbtByte("Damage", metadata));
-										//}
+												itemName = id.First().ToString().ToUpper() + id.Substring(1);
+											}
+
+											short itemId = ItemFactory.GetItemIdByName(itemName);
+											item.Remove("id");
+											item.Add(new NbtShort("id", itemId));
+										}
 									}
+								}
+								else if (blockEntity is FlowerPotBlockEntity)
+								{
+									string itemName = blockEntityTag["Item"].StringValue;
+									if (itemName.StartsWith("minecraft:"))
+									{
+										var id = itemName.Split(':')[1];
+
+										itemName = id.First().ToString().ToUpper() + id.Substring(1);
+									}
+
+									short itemId = ItemFactory.GetItemIdByName(itemName);
+									blockEntityTag.Remove("Item");
+									blockEntityTag.Add(new NbtShort("item", itemId));
+
+									var data = blockEntityTag["Data"].IntValue;
+									blockEntityTag.Remove("Data");
+									blockEntityTag.Add(new NbtInt("mData", data));
+								}
+								else
+								{
+									blockEntity.SetCompound(blockEntityTag);
+									blockEntityTag = blockEntity.GetCompound();
 								}
 
 								chunk.SetBlockEntity(new BlockCoordinates(x, y, z), blockEntityTag);
 							}
 							else
 							{
-								if (Log.IsDebugEnabled)
-									Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
+								if (Log.IsDebugEnabled) Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
 							}
 						}
 					}

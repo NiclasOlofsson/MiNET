@@ -192,7 +192,7 @@ namespace MiNET.Client
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				//.ContinueWith(t => doSendCommand(t, "/test"))
+				.ContinueWith(t => doSendCommand(t, "/testfor gurunx"))
 				.ContinueWith(t => Task.Delay(5000).Wait())
 				//.ContinueWith(t =>
 				//{
@@ -1335,7 +1335,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 140,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 141,
 				payload = data
 			};
 

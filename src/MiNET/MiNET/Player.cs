@@ -769,6 +769,8 @@ namespace MiNET
 
 		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
 		{
+			Log.Debug($"UUID: {message.unknownUuid}");
+
 			var result = Server.PluginManager.HandleCommand(this, message.command);
 			if (result is string)
 			{

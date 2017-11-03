@@ -23,25 +23,29 @@
 
 #endregion
 
+using fNbt;
+using log4net;
+
 namespace MiNET.BlockEntities
 {
-	public static class BlockEntityFactory
+	public class FlowerPotBlockEntity : BlockEntity
 	{
-		public static BlockEntity GetBlockEntityById(string blockEntityId)
+		private static readonly ILog Log = LogManager.GetLogger(typeof (FlowerPotBlockEntity));
+
+		private NbtCompound _compound;
+
+		public FlowerPotBlockEntity() : base("FlowerPot")
 		{
-			BlockEntity blockEntity = null;
+		}
 
-			if (blockEntityId == "Sign") blockEntity = new Sign();
-			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
-			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
-			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
-			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
-			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
-			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
-			else if (blockEntityId == "Banner") blockEntity = new BannerBlockEntity();
-			else if (blockEntityId == "FlowerPot") blockEntity = new FlowerPotBlockEntity();
+		public override NbtCompound GetCompound()
+		{
+			return _compound ?? new NbtCompound();
+		}
 
-			return blockEntity;
+		public override void SetCompound(NbtCompound compound)
+		{
+			_compound = compound;
 		}
 	}
 }

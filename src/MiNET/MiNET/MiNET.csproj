@@ -85,6 +85,7 @@
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />
     <Compile Include="BlockEntities\ChestBlockEntity.cs" />
     <Compile Include="BlockEntities\EnchantingTableBlockEntity.cs" />
+    <Compile Include="BlockEntities\FlowerPotBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\ItemFrameBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
@@ -345,6 +346,7 @@
     <Compile Include="Effects\Weakness.cs" />
     <Compile Include="Effects\Wither.cs" />
     <Compile Include="Entities\Agent.cs" />
+    <Compile Include="Entities\Behaviors\CreeperSwellBehavior.cs" />
     <Compile Include="Entities\Behaviors\EatBlockBehavior.cs" />
     <Compile Include="Entities\Behaviors\FindAttackableTargetBehavior.cs" />
     <Compile Include="Entities\Behaviors\FollowOwnerBehavior.cs" />

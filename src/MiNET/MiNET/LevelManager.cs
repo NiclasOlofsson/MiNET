@@ -98,7 +98,7 @@ namespace MiNET
 					Mobgriefing = Config.GetProperty("GameRule.Mobgriefing", true),
 					ShowCoordinates = Config.GetProperty("GameRule.ShowCoordinates", true),
 					NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
-					TntExploads = Config.GetProperty("GameRule.TntExploads", true),
+					TntExplodes = Config.GetProperty("GameRule.TntExploads", true),
 					SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
 					RandomTickSpeed = Config.GetProperty("GameRule.RandomTickSpeed", 3),
 				};
@@ -203,7 +203,7 @@ namespace MiNET
 				Mobgriefing = Config.GetProperty("GameRule.Mobgriefing", true),
 				ShowCoordinates = Config.GetProperty("GameRule.ShowCoordinates", true),
 				NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
-				TntExploads = Config.GetProperty("GameRule.TntExploads", true),
+				TntExplodes = Config.GetProperty("GameRule.TntExploads", true),
 				SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
 				RandomTickSpeed = Config.GetProperty("GameRule.RandomTickSpeed", 3),
 			};

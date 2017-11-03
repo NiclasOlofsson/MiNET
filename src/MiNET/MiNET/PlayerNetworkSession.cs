@@ -342,8 +342,18 @@ namespace MiNET
 								//if (Log.IsDebugEnabled)
 								//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
 
-								messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
-								             new UnknownPackage(internalBuffer[0], internalBuffer));
+								try
+								{
+									messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
+									             new UnknownPackage(internalBuffer[0], internalBuffer));
+
+								}
+								catch (Exception e)
+								{
+									if (Log.IsDebugEnabled) Log.Warn($"Error parsing package 0x{message.Id:X2}\n{Package.HexDump(internalBuffer)}");
+
+									throw;
+								}
 							}
 
 							if (destination.Length > destination.Position) throw new Exception("Have more data");

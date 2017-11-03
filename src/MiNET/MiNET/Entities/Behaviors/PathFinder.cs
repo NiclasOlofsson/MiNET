@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using AStarNavigator;
@@ -86,7 +87,9 @@ namespace MiNET.Entities.Behaviors
 				{
 					//Log.Debug($"Steps to: {next.X}, {next.Y}");
 					Block block = GetBlock(tile);
-					var particle = new RedstoneParticle(level);
+					//var particle = new RedstoneParticle(level);
+					Color color = Color.FromArgb(Math.Max(0, 255 - currentPath.Count*10), 0, 0);
+					var particle = new DustParticle(level, color);
 					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
 					particle.Spawn();
 				}

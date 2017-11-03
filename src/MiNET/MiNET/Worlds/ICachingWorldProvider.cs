@@ -13,5 +13,6 @@ namespace MiNET.Worlds
 
 		void ClearCachedChunks();
 
+		int UnloadChunks(Player[] players);
 	}
 }

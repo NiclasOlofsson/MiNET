@@ -285,13 +285,12 @@ namespace MiNET
 				// this error indicates a previous send operation resulted in an ICMP Port Unreachable message.
 				// Note the spocket settings on creation of the server. It makes us ignore these resets.
 				IPEndPoint senderEndpoint = null;
-				Byte[] receiveBytes = null;
 				try
 				{
 					//var result = listener.ReceiveAsync().Result;
 					//senderEndpoint = result.RemoteEndPoint;
 					//receiveBytes = result.Buffer;
-					receiveBytes = listener.Receive(ref senderEndpoint);
+					Byte[] receiveBytes = listener.Receive(ref senderEndpoint);
 
 					Interlocked.Exchange(ref ServerInfo.AvailableBytes, listener.Available);
 					Interlocked.Increment(ref ServerInfo.NumberOfPacketsInPerSecond);
@@ -309,7 +308,7 @@ namespace MiNET
 							}
 							catch (Exception e)
 							{
-								Log.Warn(string.Format("Process message error from: {0}", senderEndpoint.Address), e);
+								Log.Warn($"Process message error from: {senderEndpoint.Address}", e);
 							}
 						});
 					}

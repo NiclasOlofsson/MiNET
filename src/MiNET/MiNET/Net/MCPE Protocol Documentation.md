@@ -84,6 +84,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Available Commands | 0x4c | 76 |   
 | Command Request | 0x4d | 77 |   
 | Command Block Update | 0x4e | 78 |   
+| Command Output | 0x4f | 79 |   
 | Update Trade | 0x50 | 80 |   
 | Update Equipment | 0x51 | 81 |   
 | Resource Pack Data Info | 0x52 | 82 |   
@@ -1647,6 +1648,7 @@ Wiki: [Command Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-C
 |:-----|:-----|:-----|
 |Command | string |  |
 |Command type | SignedVarInt |  |
+|Unknown UUID | UUID |  |
 |Request ID | string |  |
 |Unknown | bool |  |
 -----------------------------------------------------------------------
@@ -1655,6 +1657,20 @@ Wiki: [Command Block Update](https://github.com/NiclasOlofsson/MiNET/wiki//Proto
 
 **Sent from server:** false  
 **Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+-----------------------------------------------------------------------
+### Command Output (0x4f)
+Wiki: [Command Output](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-CommandOutput)
+
+**Sent from server:** true  
+**Sent from client:** false
 
 
 

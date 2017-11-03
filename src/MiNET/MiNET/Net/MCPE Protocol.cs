@@ -481,6 +481,10 @@ namespace MiNET.Net
 						package = McpeCommandBlockUpdate.CreateObject();
 						package.Decode(buffer);
 						return package;
+					case 0x4f:
+						package = McpeCommandOutput.CreateObject();
+						package.Decode(buffer);
+						return package;
 					case 0x50:
 						package = McpeUpdateTrade.CreateObject();
 						package.Decode(buffer);
@@ -5921,6 +5925,7 @@ namespace MiNET.Net
 
 		public string command; // = null;
 		public int commandType; // = null;
+		public UUID unknownUuid; // = null;
 		public string requestId; // = null;
 		public bool unknown; // = null;
 
@@ -5938,6 +5943,7 @@ namespace MiNET.Net
 
 			Write(command);
 			WriteSignedVarInt(commandType);
+			Write(unknownUuid);
 			Write(requestId);
 			Write(unknown);
 
@@ -5955,6 +5961,7 @@ namespace MiNET.Net
 
 			command = ReadString();
 			commandType = ReadSignedVarInt();
+			unknownUuid = ReadUUID();
 			requestId = ReadString();
 			unknown = ReadBool();
 
@@ -5970,6 +5977,7 @@ namespace MiNET.Net
 
 			command=default(string);
 			commandType=default(int);
+			unknownUuid=default(UUID);
 			requestId=default(string);
 			unknown=default(bool);
 		}
@@ -5983,6 +5991,50 @@ namespace MiNET.Net
 		public McpeCommandBlockUpdate()
 		{
 			Id = 0x4e;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
+	}
+
+	public partial class McpeCommandOutput : Package<McpeCommandOutput>
+	{
+
+
+		public McpeCommandOutput()
+		{
+			Id = 0x4f;
 			IsMcpe = true;
 		}
 

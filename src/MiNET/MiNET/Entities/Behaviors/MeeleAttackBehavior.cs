@@ -57,13 +57,12 @@ namespace MiNET.Entities.Behaviors
 		public bool ShouldStart()
 		{
 			if (_entity.Target == null) return false;
-			if (_entity.Target.HealthManager.IsDead) return false;
 
-			//var currentPath = new PathFinder().FindPath(_entity, _entity.Target, _followRange);
-			//if (currentPath.Count == 0)
-			//{
-			//	return false;
-			//}
+			if (_entity.Target.HealthManager.IsDead || _entity.DistanceTo(_entity.Target) > _followRange || !_entity.CanSee(_entity.Target))
+			{
+				_entity.SetTarget(null);
+				return false;
+			}
 
 			_lastPlayerPos = _entity.Target.KnownPosition;
 			_attackCooldown = 0;
@@ -74,15 +73,8 @@ namespace MiNET.Entities.Behaviors
 		public bool CanContinue()
 		{
 			if (_entity.Target == null) return false;
-			if (_entity.Target.HealthManager.IsDead) return false;
 
-			//if (_entity.DistanceTo(_entity.Target) > _followRange*_followRange || Math.Abs(_entity.KnownPosition.Y - _entity.Target.KnownPosition.Y) > _entity.Height + 1)
-			//{
-			//	_entity.SetTarget(null);
-			//	return false;
-			//}
-
-			if (_entity.DistanceTo(_entity.Target) > _followRange)
+			if (_entity.Target.HealthManager.IsDead || _entity.DistanceTo(_entity.Target) > _followRange || !_entity.CanSee(_entity.Target))
 			{
 				_entity.SetTarget(null);
 				return false;
@@ -98,21 +90,21 @@ namespace MiNET.Entities.Behaviors
 
 			Mob entity = _entity;
 			Entity target = _entity.Target;
-
 			if (target == null) return;
 
-			double distanceToPlayer = entity.KnownPosition.DistanceTo(target.KnownPosition);
+			double distanceToPlayer = entity.DistanceTo(target);
+			if (distanceToPlayer <= 16) _delay = Math.Min(_delay, 11);
 
 			bool haveNoPath = (_currentPath == null || _currentPath.Count == 0);
 			if (haveNoPath && _delay > 0) return;
 
-			if (haveNoPath || Vector3.Distance(_lastPlayerPos, target.KnownPosition) > 0.5)
+			var deltaDistance = Vector3.Distance(_lastPlayerPos, target.KnownPosition);
+			if (haveNoPath || deltaDistance > 0)
 			{
-				//Log.Debug($"Search new solution to player (distance={distanceToPlayer + 1}). Have path={!haveNoPath}");
+				_pathfinder = new Pathfinder();
 				_currentPath = _pathfinder.FindPath(entity, target, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)
 				{
-					//Log.Debug($"Found no solution. Trying a search at full follow range ({_followRange})");
 					_currentPath = _pathfinder.FindPath(entity, target, _followRange);
 				}
 			}
@@ -123,8 +115,10 @@ namespace MiNET.Entities.Behaviors
 
 			if (_currentPath.Count > 0)
 			{
-				Tile next;
-				if (GetNextTile(out next))
+				// DEBUG
+				_pathfinder.PrintPath(_entity.Level, _currentPath);
+
+				if (GetNextTile(out Tile next))
 				{
 					entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, entity.KnownPosition.Y, (float) next.Y + 0.5f));
 					entity.Controller.MoveForward(_speedMultiplier, entities);
@@ -188,6 +182,8 @@ namespace MiNET.Entities.Behaviors
 			_entity.Velocity = Vector3.Zero;
 			_entity.KnownPosition.Pitch = 0;
 			_attackCooldown = 0;
+			_delay = 0;
+			_currentPath = null;
 		}
 	}
 }

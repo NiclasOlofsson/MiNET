@@ -452,6 +452,13 @@ namespace MiNET.Worlds
 					RelayBroadcast(message);
 				}
 
+				if (TickTime%100 == 0)
+				{
+					var cacheProvider = WorldProvider as ICachingWorldProvider;
+					int removed = cacheProvider?.UnloadChunks(players) ?? 0;
+					if (removed > 0) Log.Warn($"Unloaded {removed} chunks, {cacheProvider?.GetCachedChunks().Length} chunks remain cached");
+				}
+
 				var blockAndChunkTickMeasurement = worldTickMeasurement?.Begin("Block and chunk tick");
 
 				Entity[] entities = Entities.Values.OrderBy(e => e.EntityId).ToArray();
@@ -464,7 +471,7 @@ namespace MiNET.Worlds
 					{
 						BlockCoordinates bCoord = (BlockCoordinates) player.KnownPosition;
 
-						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 15, Random); // Should actually be 15
+						chunksWithinRadiusOfPlayer = GetChunkCoordinatesForTick(new ChunkCoordinates(bCoord), chunksWithinRadiusOfPlayer, 17, Random); // Should actually be 15
 					}
 
 					if (chunksWithinRadiusOfPlayer.Count > 0)
@@ -492,10 +499,10 @@ namespace MiNET.Worlds
 							}
 
 
-							var passiveCap = EntitySpawnManager.CapPassive*effectiveChunkCount/289;
+							var passiveCap = EntitySpawnManager.CapPassive*(effectiveChunkCount/289f);
 							canSpawnPassive = canSpawnPassive && entityPassiveCount < passiveCap;
 							canSpawnPassive = canSpawnPassive || entityPassiveCount < passiveCap*0.20; // Custom to get instant spawn when no mobs
-							canSpawnHostile = entityHostileCount < EntitySpawnManager.CapHostile*effectiveChunkCount/289;
+							canSpawnHostile = entityHostileCount < EntitySpawnManager.CapHostile*(effectiveChunkCount/289f);
 						}
 
 						var state = chunksWithinRadiusOfPlayer;
@@ -504,7 +511,8 @@ namespace MiNET.Worlds
 						{
 							Random random = new Random(spawnState.Seed);
 
-							ChunkColumn chunk = GetChunk(new ChunkCoordinates(spawnState.ChunkX, spawnState.ChunkZ));
+							ChunkColumn chunk = GetChunk(new ChunkCoordinates(spawnState.ChunkX, spawnState.ChunkZ), true);
+							if (chunk == null) return; // Not loaded
 
 							if (DoMobspawning)
 							{
@@ -515,7 +523,8 @@ namespace MiNET.Worlds
 
 								var chunkTickMeasurement = blockAndChunkTickMeasurement?.Begin("Chunk tick");
 
-								var ySpawn = random.Next((((height + 1) >> 4) + 1)*16 - 1);
+								var maxValue = (((height + 1) >> 4) + 1)*16 - 1;
+								var ySpawn = random.Next(maxValue);
 								var spawnCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, ySpawn, z + spawnState.ChunkZ*16);
 								var spawnBlock = GetBlock(spawnCoordinates, chunk);
 								if (spawnBlock.IsTransparent)
@@ -814,20 +823,15 @@ namespace MiNET.Worlds
 			{
 				List<EntitySpawnManager.SpawnState> newOrders = new List<EntitySpawnManager.SpawnState>();
 
-				double radiusSquared = Math.Pow(radius, 2);
-
 				int centerX = chunkPosition.X;
 				int centerZ = chunkPosition.Z;
 
-				for (double x = -radius; x <= radius; ++x)
+				int halfRadius = (int) Math.Floor(radius/2f);
+
+				for (double x = -halfRadius; x <= halfRadius; ++x)
 				{
-					for (double z = -radius; z <= radius; ++z)
+					for (double z = -halfRadius; z <= halfRadius; ++z)
 					{
-						var distance = (x*x) + (z*z);
-						if (distance > radiusSquared)
-						{
-							continue;
-						}
 						int chunkX = (int) (x + centerX);
 						int chunkZ = (int) (z + centerZ);
 						EntitySpawnManager.SpawnState index = new EntitySpawnManager.SpawnState(chunkX, chunkZ, random.Next());
@@ -1418,7 +1422,7 @@ namespace MiNET.Worlds
 		public bool Mobgriefing { get; set; } = true;
 		public bool ShowCoordinates { get; set; } = true;
 		public bool NaturalRegeneration { get; set; } = true;
-		public bool TntExploads { get; set; } = true;
+		public bool TntExplodes { get; set; } = true;
 		public bool SendCommandfeedback { get; set; } = true;
 		public int RandomTickSpeed { get; set; } = 3;
 
@@ -1481,8 +1485,8 @@ namespace MiNET.Worlds
 				case GameRulesEnum.NaturalRegeneration:
 					NaturalRegeneration = value;
 					break;
-				case GameRulesEnum.TntExploads:
-					TntExploads = value;
+				case GameRulesEnum.TntExplodes:
+					TntExplodes = value;
 					break;
 				case GameRulesEnum.SendCommandfeedback:
 					SendCommandfeedback = value;
@@ -1537,8 +1541,8 @@ namespace MiNET.Worlds
 					return ShowCoordinates;
 				case GameRulesEnum.NaturalRegeneration:
 					return NaturalRegeneration;
-				case GameRulesEnum.TntExploads:
-					return TntExploads;
+				case GameRulesEnum.TntExplodes:
+					return TntExplodes;
 				case GameRulesEnum.SendCommandfeedback:
 					return SendCommandfeedback;
 			}
@@ -1565,7 +1569,7 @@ namespace MiNET.Worlds
 			rules.Add(new GameRule<bool>(GameRulesEnum.Mobgriefing, Mobgriefing));
 			rules.Add(new GameRule<bool>(GameRulesEnum.ShowCoordinates, ShowCoordinates));
 			rules.Add(new GameRule<bool>(GameRulesEnum.NaturalRegeneration, NaturalRegeneration));
-			rules.Add(new GameRule<bool>(GameRulesEnum.TntExploads, TntExploads));
+			rules.Add(new GameRule<bool>(GameRulesEnum.TntExplodes, TntExplodes));
 			rules.Add(new GameRule<bool>(GameRulesEnum.SendCommandfeedback, SendCommandfeedback));
 			return rules;
 		}

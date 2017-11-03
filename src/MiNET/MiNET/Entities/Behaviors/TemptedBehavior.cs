@@ -44,6 +44,8 @@ namespace MiNET.Entities.Behaviors
 		private Player _player;
 		private int _cooldown = 0;
 		private Vector3 _lastPlayerPos;
+		private List<Tile> _currentPath = null;
+		private Pathfinder _pathfinder = new Pathfinder();
 
 		public TemptedBehavior(Mob entity, Type temptingItem, double lookDistance, double speedMultiplier)
 		{
@@ -80,9 +82,6 @@ namespace MiNET.Entities.Behaviors
 			return ShouldStart();
 		}
 
-		private List<Tile> _currentPath = null;
-		private Pathfinder _pathfinder;
-
 		public void OnTick(Entity[] entities)
 		{
 			if (_player == null) return;
@@ -95,8 +94,8 @@ namespace MiNET.Entities.Behaviors
 
 				_entity.Controller.RotateTowards(_player.KnownPosition);
 				_entity.Direction = Mob.ClampDegrees(_entity.Direction);
-				_entity.KnownPosition.HeadYaw = (float)_entity.Direction;
-				_entity.KnownPosition.Yaw = (float)_entity.Direction;
+				_entity.KnownPosition.HeadYaw = (float) _entity.Direction;
+				_entity.KnownPosition.Yaw = (float) _entity.Direction;
 				_currentPath = null;
 
 				return;
@@ -106,7 +105,6 @@ namespace MiNET.Entities.Behaviors
 			var deltaDistance = Vector3.Distance(_lastPlayerPos, _player.KnownPosition);
 			if (haveNoPath || deltaDistance > 0)
 			{
-				Log.Debug($"Search new solution");
 				_pathfinder = new Pathfinder();
 				_currentPath = _pathfinder.FindPath(_entity, _player, distanceToPlayer + 1);
 				if (_currentPath.Count == 0)

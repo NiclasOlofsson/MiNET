@@ -201,8 +201,11 @@ namespace MiNET
 			ticks = Math.Max(0, ticks);
 
 			FireTick = ticks;
-			IsOnFire = true;
-			Entity.BroadcastSetEntityData();
+			if (!IsOnFire)
+			{
+				IsOnFire = true;
+				Entity.BroadcastSetEntityData();
+			}
 		}
 
 		private object _killSync = new object();
@@ -399,14 +402,12 @@ namespace MiNET
 
 			if (!IsInLava(Entity.KnownPosition) && IsOnFire)
 			{
-				FireTick--;
 				if (FireTick <= 0)
 				{
 					IsOnFire = false;
 					Entity.BroadcastSetEntityData();
 				}
-
-				if (FireTick%20 == 0)
+				else if (FireTick%20 == 0)
 				{
 					var player = Entity as Player;
 					if (player != null)
@@ -418,8 +419,10 @@ namespace MiNET
 					{
 						TakeHit(null, 1, DamageCause.FireTick);
 					}
-					Entity.BroadcastSetEntityData();
+					//Entity.BroadcastSetEntityData();
 				}
+
+				FireTick--;
 			}
 		}
 

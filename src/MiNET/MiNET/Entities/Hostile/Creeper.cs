@@ -24,12 +24,17 @@
 #endregion
 
 using MiNET.Entities.Behaviors;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities.Hostile
 {
 	public class Creeper : HostileMob
 	{
+		private int _timeSinceIgnition = 0;
+		private int _fuseTime = 30;
+		private bool _isPrimed = false;
+
 		public Creeper(Level level) : base(EntityType.Creeper, level)
 		{
 			Width = Length = 0.6;
@@ -37,11 +42,41 @@ namespace MiNET.Entities.Hostile
 			NoAi = true;
 			Speed = 0.25f;
 
+			Behaviors.Add(new CreeperSwellBehavior(this));
 			Behaviors.Add(new MeeleAttackBehavior(this, 1.0, 16));
 			Behaviors.Add(new FindAttackableTargetBehavior(this, 16));
 			Behaviors.Add(new WanderBehavior(this, Speed, 0.8));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
+		}
+
+		public void Prime(bool state)
+		{
+			_isPrimed = state;
+			IsIgnited = _isPrimed;
+			BroadcastSetEntityData();
+		}
+
+		public override void OnTick(Entity[] entities)
+		{
+			if (HealthManager.IsDead) return;
+
+			if (!_isPrimed)
+			{
+				_timeSinceIgnition = 0;
+			}
+			else
+			{
+				_timeSinceIgnition++;
+				if (_timeSinceIgnition > _fuseTime)
+				{
+					Explosion exp = new Explosion(Level, (BlockCoordinates) KnownPosition, 3);
+					exp.Explode();
+					HealthManager.Kill();
+				}
+			}
+
+			base.OnTick(entities);
 		}
 	}
 }

@@ -29,6 +29,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -85,40 +86,35 @@ namespace TestPlugin
 		{
 		}
 
-		public enum MetricsOperationsOn
+		[Command(Name = "gc", Description = "Force garbage collection to run")]
+		public string GarbageCollect(Player player)
 		{
-			On
+			var workingSet = Environment.WorkingSet;
+			GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+			GC.Collect();
+
+			return $"Run GC reclaimed {workingSet - Environment.WorkingSet:N0} bytes of memory";
 		}
 
-		[Command(Description = "Turn metrics on")]
+		[Command(Name = "metrics on", Description = "Turn metrics on")]
 		[Authorize(Permission = CommandPermission.Admin)]
-		public string Metrics(Player player, MetricsOperationsOn on)
+		public string MetricsOn(Player player)
 		{
 			player.Level._profiler.Enabled = true;
 			return "Profiler is now enabled.";
 		}
 
-		public enum MetricsOperationsOff
-		{
-			Off
-		}
-
-		[Command(Description = "Turn metrics off")]
+		[Command(Name = "metrics off", Description = "Turn metrics off")]
 		[Authorize(Permission = CommandPermission.Admin)]
-		public string Metrics(Player player, MetricsOperationsOff off)
+		public string MetricsOff(Player player)
 		{
 			player.Level._profiler.Enabled = false;
 			return "Profiler is now disabled.";
 		}
 
-		public enum MetricsOperationsDisplay
-		{
-			Display
-		}
-
-		[Command(Description = "Display metrics")]
+		[Command(Name = "metrics display", Description = "Display metrics")]
 		[Authorize(Permission = CommandPermission.Admin)]
-		public string Metrics(Player player, MetricsOperationsDisplay display, int timespan = 10000)
+		public string MetricsDisplay(Player player, int timespan = 10000)
 		{
 			string results = player.Level._profiler.GetResults(timespan);
 			Log.Debug("\n" + results);

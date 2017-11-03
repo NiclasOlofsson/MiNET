@@ -47,7 +47,7 @@ namespace MiNET.Entities.Hostile
 		public Zombie(Level level) : base((int) EntityType.Zombie, level)
 		{
 			Width = Length = 0.6;
-			base.Height = 1.95;
+			Height = 1.95;
 			NoAi = true;
 			Speed = 0.23;
 
@@ -74,11 +74,7 @@ namespace MiNET.Entities.Hostile
 			Block block = Level.GetBlock(KnownPosition);
 			if (!(block is StationaryWater) && !(block is FlowingWater) && block.SkyLight > 7 && (Level.CurrentWorldCycleTime < 12566 || Level.CurrentWorldCycleTime > 23450))
 			{
-				if (!HealthManager.IsOnFire) HealthManager.Ignite(80);
-			}
-			else
-			{
-				if (HealthManager.IsOnFire) HealthManager.Ignite(80); // last kick in the butt
+				HealthManager.Ignite(160);
 			}
 		}
 	}

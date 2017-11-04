@@ -1513,6 +1513,7 @@ namespace MiNET.Net
 				WriteSignedVarInt(map.XOffset);
 				WriteSignedVarInt(map.ZOffset);
 
+				WriteUnsignedVarInt((uint)(map.Col * map.Row));
 				int i = 0;
 				for (int col = 0; col < map.Col; col++)
 				{
@@ -1592,7 +1593,7 @@ namespace MiNET.Net
 
 					map.XOffset = ReadSignedVarInt(); //
 					map.ZOffset = ReadSignedVarInt(); //
-
+					ReadUnsignedVarInt(); // size
 					for (int col = 0; col < map.Col; col++)
 					{
 						for (int row = 0; row < map.Row; row++)

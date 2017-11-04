@@ -1479,7 +1479,8 @@ namespace MiNET.Net
 		public void Write(MapInfo map)
 		{
 			WriteSignedVarLong(map.MapId);
-			WriteUnsignedVarInt(map.UpdateType);
+			WriteUnsignedVarInt((uint) map.UpdateType);
+			Write((byte) 0);
 
 			//if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
 			//{
@@ -1534,6 +1535,7 @@ namespace MiNET.Net
 
 			map.MapId = ReadSignedVarLong();
 			map.UpdateType = (byte) ReadUnsignedVarInt();
+			ReadByte(); // Dimension (waste)
 
 			if ((map.UpdateType & BITFLAG_ENTITY_UPDATE) == BITFLAG_ENTITY_UPDATE)
 			{

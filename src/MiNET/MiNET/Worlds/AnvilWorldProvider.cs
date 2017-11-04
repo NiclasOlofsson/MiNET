@@ -695,6 +695,11 @@ namespace MiNET.Worlds
 			return LevelInfo.Time;
 		}
 
+		public long GetDayTime()
+		{
+			return LevelInfo.DayTime;
+		}
+
 		public string GetName()
 		{
 			return LevelInfo.LevelName;

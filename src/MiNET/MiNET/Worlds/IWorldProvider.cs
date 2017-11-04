@@ -40,6 +40,7 @@ namespace MiNET.Worlds
 		string GetName();
 
 		long GetTime();
+		long GetDayTime();
 
 		int SaveChunks();
 		bool HaveNether();

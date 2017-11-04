@@ -147,6 +147,11 @@ namespace MiNET.Worlds
 			return 0;
 		}
 
+		public long GetDayTime()
+		{
+			return 0;
+		}
+
 		public string GetName()
 		{
 			return "Cool world";

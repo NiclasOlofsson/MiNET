@@ -126,7 +126,8 @@ namespace MiNET.Worlds
 			WorldProvider.Initialize();
 
 			SpawnPoint = SpawnPoint ?? new PlayerLocation(WorldProvider.GetSpawnPoint());
-			WorldTime = WorldProvider.GetTime();
+			TickTime = WorldProvider.GetTime();
+			WorldTime = WorldProvider.GetDayTime();
 			LevelName = WorldProvider.GetName();
 
 			if (WorldProvider.IsCaching)

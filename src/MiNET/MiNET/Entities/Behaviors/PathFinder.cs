@@ -40,9 +40,114 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
+	//public class TileNavigator : ITileNavigator
+	//{
+	//	private readonly IBlockedProvider blockedProvider;
+	//	private readonly INeighborProvider neighborProvider;
+
+	//	private readonly IDistanceAlgorithm distanceAlgorithm;
+	//	private readonly IDistanceAlgorithm heuristicAlgorithm;
+
+	//	public TileNavigator(
+	//		IBlockedProvider blockedProvider,
+	//		INeighborProvider neighborProvider,
+	//		IDistanceAlgorithm distanceAlgorithm,
+	//		IDistanceAlgorithm heuristicAlgorithm)
+	//	{
+	//		this.blockedProvider = blockedProvider;
+	//		this.neighborProvider = neighborProvider;
+
+	//		this.distanceAlgorithm = distanceAlgorithm;
+	//		this.heuristicAlgorithm = heuristicAlgorithm;
+	//	}
+
+	//	public IEnumerable<Tile> Navigate(Tile from, Tile to, int maxAttempts = int.MaxValue)
+	//	{
+	//		var closed = new HashSet<Tile>();
+	//		var open = new HashSet<Tile>() {from};
+	//		var path = new Dictionary<Tile, Tile>();
+
+	//		from.FScore = heuristicAlgorithm.Calculate(from, to);
+
+	//		int noOfAttempts = 0;
+
+	//		Tile highScore = from;
+	//		Tile last = from;
+	//		while (open.Count != 0)
+	//		{
+	//			var current = last;
+	//			if (last != highScore)
+	//			{
+	//				current = open
+	//					.OrderBy(c => c.FScore)
+	//					.First();
+	//			}
+
+	//			last = null;
+
+	//			if (++noOfAttempts > maxAttempts)
+	//			{
+	//				return ReconstructPath(path, highScore);
+	//			}
+	//			if (current.Equals(to))
+	//			{
+	//				return ReconstructPath(path, current);
+	//			}
+
+	//			open.Remove(current);
+	//			closed.Add(current);
+
+	//			foreach (Tile neighbor in neighborProvider.GetNeighbors(current))
+	//			{
+	//				if (closed.Contains(neighbor) || blockedProvider.IsBlocked(neighbor))
+	//				{
+	//					continue;
+	//				}
+
+	//				var tentativeG = current.GScore + distanceAlgorithm.Calculate(current, neighbor);
+
+	//				if (!open.Add(neighbor) && tentativeG >= neighbor.GScore)
+	//				{
+	//					continue;
+	//				}
+
+	//				path[neighbor] = current;
+
+	//				neighbor.GScore = tentativeG;
+	//				neighbor.FScore = neighbor.GScore + heuristicAlgorithm.Calculate(neighbor, to);
+	//				if (neighbor.FScore <= highScore.FScore)
+	//				{
+	//					highScore = neighbor;
+	//					last = neighbor;
+	//				}
+	//			}
+	//		}
+
+	//		return null;
+	//	}
+
+	//	private IEnumerable<Tile> ReconstructPath(
+	//		IDictionary<Tile, Tile> path,
+	//		Tile current)
+	//	{
+	//		List<Tile> totalPath = new List<Tile>() {current};
+
+	//		while (path.ContainsKey(current))
+	//		{
+	//			current = path[current];
+	//			totalPath.Insert(0, current);
+	//		}
+
+	//		totalPath.RemoveAt(0);
+
+	//		return totalPath;
+	//	}
+	//}
+
 	public class Pathfinder
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Pathfinder));
+
 		private Dictionary<Tile, Block> _blockCache = new Dictionary<Tile, Block>();
 
 		public List<Tile> FindPath(Entity source, Entity target, double distance)
@@ -54,7 +159,6 @@ namespace MiNET.Entities.Behaviors
 		{
 			try
 			{
-				//new EmptyBlockedProvider(), // Instance of: IBockedProvider
 				var blockAccess = new CachedBlockAccess(source.Level);
 
 				var navigator = new TileNavigator(
@@ -69,7 +173,11 @@ namespace MiNET.Entities.Behaviors
 				var from = new Tile(sourcePos.X, sourcePos.Z);
 				var to = new Tile(targetPos.X, targetPos.Z);
 
-				return navigator.Navigate(from, to)?.ToList() ?? new List<Tile>();
+				var path = navigator.Navigate(from, to, 200)?.ToList() ?? new List<Tile>();
+
+				//Log.Debug($"{source.GetType()} finding path within {distance} blocks. Did {blockAccess.NumberOfBlockGet} block-gets");
+
+				return path;
 			}
 			catch (Exception e)
 			{
@@ -88,7 +196,7 @@ namespace MiNET.Entities.Behaviors
 					//Log.Debug($"Steps to: {next.X}, {next.Y}");
 					Block block = GetBlock(tile);
 					//var particle = new RedstoneParticle(level);
-					Color color = Color.FromArgb(Math.Max(0, 255 - currentPath.Count*10), 0, 0);
+					Color color = Color.FromArgb(Math.Max(0, 255 - currentPath.Count*10), 50, 50);
 					var particle = new DustParticle(level, color);
 					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
 					particle.Spawn();
@@ -160,39 +268,39 @@ namespace MiNET.Entities.Behaviors
 			_entity = entity;
 		}
 
-		private static readonly double[,] Neighbors = new double[,]
+		private static readonly int[,] Neighbors = new int[,]
 		{
 			{
-				0.0,
-				-1.0
+				0,
+				-1
 			},
 			{
-				1.0,
-				0.0
+				1,
+				0
 			},
 			{
-				0.0,
-				1.0
+				0,
+				1
 			},
 			{
-				-1.0,
-				0.0
+				-1,
+				0
 			},
 			{
-				-1.0,
-				-1.0
+				-1,
+				-1
 			},
 			{
-				1.0,
-				-1.0
+				1,
+				-1
 			},
 			{
-				1.0,
-				1.0
+				1,
+				1
 			},
 			{
-				-1.0,
-				1.0
+				-1,
+				1
 			}
 		};
 
@@ -205,7 +313,7 @@ namespace MiNET.Entities.Behaviors
 				_blockCache.Add(tile, block);
 			}
 
-			List<Tile> list = new List<Tile>();
+			HashSet<Tile> list = new HashSet<Tile>();
 			for (int index = 0; index < Neighbors.GetLength(0); ++index)
 			{
 				var item = new Tile(tile.X + Neighbors[index, 0], tile.Y + Neighbors[index, 1]);
@@ -277,7 +385,7 @@ namespace MiNET.Entities.Behaviors
 			return false;
 		}
 
-		private void CheckDiagonals(Block block, List<Tile> list)
+		private void CheckDiagonals(Block block, HashSet<Tile> list)
 		{
 			// if no north, remove all north
 			if (!list.Contains(TileFromBlock(block.Coordinates + BlockCoordinates.North)))
@@ -321,6 +429,7 @@ namespace MiNET.Entities.Behaviors
 		private static readonly ILog Log = LogManager.GetLogger(typeof (LevelNavigator));
 
 		private readonly Entity _entity;
+		private readonly Vector3 _entityPos;
 		private readonly IBlockAccess _level;
 		private readonly double _distance;
 		private readonly Dictionary<Tile, Block> _blockCache;
@@ -328,6 +437,7 @@ namespace MiNET.Entities.Behaviors
 		public LevelNavigator(Entity entity, IBlockAccess level, double distance, Dictionary<Tile, Block> blockCache)
 		{
 			_entity = entity;
+			_entityPos = entity.KnownPosition;
 			_level = level;
 			_distance = distance;
 			_blockCache = blockCache;
@@ -343,9 +453,9 @@ namespace MiNET.Entities.Behaviors
 
 			if (block.IsSolid) return true;
 
-			if (Math.Abs(_entity.KnownPosition.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
+			//if (Math.Abs(_entityPos.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
 
-			Vector2 entityPos = new Vector2(_entity.KnownPosition.X, _entity.KnownPosition.Z);
+			Vector2 entityPos = new Vector2(_entityPos.X, _entityPos.Z);
 			Vector2 tilePos = new Vector2((float) coord.X, (float) coord.Y);
 
 			if (Vector2.Distance(entityPos, tilePos) > _distance) return true;
@@ -382,6 +492,7 @@ namespace MiNET.Entities.Behaviors
 	public class CachedBlockAccess : IBlockAccess
 	{
 		private Level _level;
+		public int NumberOfBlockGet = 0;
 		private IDictionary<BlockCoordinates, Block> _blockCache = new ConcurrentDictionary<BlockCoordinates, Block>();
 
 		public CachedBlockAccess(Level level)
@@ -391,12 +502,12 @@ namespace MiNET.Entities.Behaviors
 
 		public ChunkColumn GetChunk(BlockCoordinates coordinates, bool cacheOnly = false)
 		{
-			return _level.GetChunk(coordinates, cacheOnly);
+			return _level.GetChunk(coordinates, true);
 		}
 
 		public ChunkColumn GetChunk(ChunkCoordinates coordinates, bool cacheOnly = false)
 		{
-			return _level.GetChunk(coordinates, cacheOnly);
+			return _level.GetChunk(coordinates, true);
 		}
 
 		public void SetSkyLight(BlockCoordinates coordinates, byte skyLight)
@@ -412,6 +523,7 @@ namespace MiNET.Entities.Behaviors
 
 		public Block GetBlock(BlockCoordinates coord, ChunkColumn tryChunk = null)
 		{
+			NumberOfBlockGet++;
 			Block block;
 			if (!_blockCache.TryGetValue(coord, out block))
 			{

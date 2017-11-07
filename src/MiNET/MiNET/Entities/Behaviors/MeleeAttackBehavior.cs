@@ -25,17 +25,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
 using MiNET.Utils;
+using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class MeeleAttackBehavior : IBehavior
+	public class MeleeAttackBehavior : BehaviorBase
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MeeleAttackBehavior));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (MeleeAttackBehavior));
 
 		private readonly Mob _entity;
 		private double _speedMultiplier;
@@ -45,84 +47,67 @@ namespace MiNET.Entities.Behaviors
 		private int _delay;
 		private List<Tile> _currentPath;
 		private Vector3 _lastPlayerPos;
-		private Pathfinder _pathfinder = new Pathfinder();
 
-		public MeeleAttackBehavior(Mob entity, double speedMultiplier, double followRange)
+		public MeleeAttackBehavior(Mob entity, double speedMultiplier, double followRange)
 		{
 			_entity = entity;
 			_speedMultiplier = speedMultiplier;
 			_followRange = followRange;
 		}
 
-		public bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			if (_entity.Target == null) return false;
 
-			if (_entity.Target.HealthManager.IsDead || _entity.DistanceTo(_entity.Target) > _followRange || !_entity.CanSee(_entity.Target))
-			{
-				_entity.SetTarget(null);
-				return false;
-			}
+			var pathfinder = new Pathfinder();
+			_currentPath = pathfinder.FindPath(_entity, _entity.Target, _followRange);
+
+			if (_currentPath.Count == 0) return false;
 
 			_lastPlayerPos = _entity.Target.KnownPosition;
-			_attackCooldown = 0;
 
 			return true;
 		}
 
-		public bool CanContinue()
+		public override void OnStart()
 		{
-			if (_entity.Target == null) return false;
-
-			if (_entity.Target.HealthManager.IsDead || _entity.DistanceTo(_entity.Target) > _followRange || !_entity.CanSee(_entity.Target))
-			{
-				_entity.SetTarget(null);
-				return false;
-			}
-
-			return true;
+			_delay = 0;
 		}
 
-		public void OnTick(Entity[] entities)
+		public override bool CanContinue()
 		{
-			--_delay;
-			_attackCooldown = Math.Max(_attackCooldown - 1, 0);
+			return _entity.Target != null;
+		}
 
-			Mob entity = _entity;
+		public override void OnTick(Entity[] entities)
+		{
 			Entity target = _entity.Target;
 			if (target == null) return;
 
-			double distanceToPlayer = entity.DistanceTo(target);
-			if (distanceToPlayer <= 16) _delay = Math.Min(_delay, 11);
+			double distanceToPlayer = _entity.DistanceTo(target);
 
-			bool haveNoPath = (_currentPath == null || _currentPath.Count == 0);
-			if (haveNoPath && _delay > 0) return;
+			--_delay;
 
-			var deltaDistance = Vector3.Distance(_lastPlayerPos, target.KnownPosition);
-			if (haveNoPath || deltaDistance > 0)
+			float deltaDistance = Vector3.Distance(_lastPlayerPos, target.KnownPosition);
+
+			bool canSee = _entity.CanSee(target);
+
+			if (canSee || _delay <= 0 || deltaDistance > 1 || _entity.Level.Random.NextDouble() < 0.05)
 			{
-				_pathfinder = new Pathfinder();
-				_currentPath = _pathfinder.FindPath(entity, target, distanceToPlayer + 1);
-				if (_currentPath.Count == 0)
+				var pathfinder = new Pathfinder();
+				Stopwatch sw = Stopwatch.StartNew();
+				_currentPath = pathfinder.FindPath(_entity, target, _followRange);
+				if (Log.IsDebugEnabled)
 				{
-					_currentPath = _pathfinder.FindPath(entity, target, _followRange);
+					sw.Stop();
+					if (sw.ElapsedMilliseconds > 5) Log.Warn($"A* search for {_entity.GetType()} on a distance of {_followRange}. Spent {sw.ElapsedMilliseconds}ms and lenght of path is {_currentPath.Count}");
+					// DEBUG
+					pathfinder.PrintPath(_entity.Level, _currentPath);
 				}
-			}
 
-			_lastPlayerPos = target.KnownPosition;
+				_lastPlayerPos = target.KnownPosition;
 
-			_delay = 4 + entity.Level.Random.Next(7);
-
-			if (_currentPath.Count > 0)
-			{
-				// DEBUG
-				_pathfinder.PrintPath(_entity.Level, _currentPath);
-
-				if (GetNextTile(out Tile next))
-				{
-					entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, entity.KnownPosition.Y, (float) next.Y + 0.5f));
-					entity.Controller.MoveForward(_speedMultiplier, entities);
-				}
+				_delay = 4 + _entity.Level.Random.Next(7);
 
 				if (distanceToPlayer > 32)
 				{
@@ -132,17 +117,30 @@ namespace MiNET.Entities.Behaviors
 				{
 					_delay += 5;
 				}
+
+				if (_currentPath.Count > 0)
+				{
+					_delay += 15;
+				}
+			}
+
+			if (_currentPath != null && _currentPath.Count > 0)
+			{
+				if (GetNextTile(out Tile next))
+				{
+					_entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, _entity.KnownPosition.Y, (float) next.Y + 0.5f));
+					_entity.Controller.MoveForward(_speedMultiplier, entities);
+				}
 			}
 			else
 			{
-				//Log.Debug($"Found no path solution");
-				entity.Velocity = Vector3.Zero;
+				_entity.Velocity = Vector3.Zero;
 				_currentPath = null;
-				_delay += 15;
 			}
 
-			entity.Controller.LookAt(target, true);
+			_entity.Controller.LookAt(target, true);
 
+			_attackCooldown = Math.Max(_attackCooldown - 1, 0);
 			if (_attackCooldown <= 0 && distanceToPlayer < GetAttackReach())
 			{
 				var damage = _entity.AttackDamage;
@@ -159,7 +157,7 @@ namespace MiNET.Entities.Behaviors
 
 		private bool GetNextTile(out Tile next)
 		{
-			next = new Tile();
+			next = null;
 			if (_currentPath.Count == 0) return false;
 
 			next = _currentPath.First();
@@ -172,13 +170,48 @@ namespace MiNET.Entities.Behaviors
 				if (!GetNextTile(out next)) return false;
 			}
 
+			foreach (var tile in _currentPath.ToArray())
+			{
+				if (IsClearBetweenPoints(_entity.Level, _entity.KnownPosition, new Vector3(tile.X, currPos.Y, tile.Y)))
+				{
+					Log.Debug($"Pruned tile");
+					next = tile;
+					_currentPath.Remove(tile);
+				}
+			}
+
 			return true;
 		}
 
-		public void OnEnd()
+		public bool IsClearBetweenPoints(Level level, Vector3 from, Vector3 to)
 		{
-			if (_entity.Target == null) return;
-			if (_entity.Target.HealthManager.IsDead) _entity.SetTarget(null);
+			Vector3 entityPos = from;
+			Vector3 targetPos = to;
+			float distance = Vector3.Distance(entityPos, targetPos);
+
+			Vector3 rayPos = entityPos;
+			var direction = Vector3.Normalize(targetPos - entityPos);
+
+			if (distance < direction.Length())
+			{
+				return true;
+			}
+
+			do
+			{
+				if (level.GetBlock(rayPos).IsSolid)
+				{
+					return false;
+				}
+				rayPos += direction;
+			} while (distance > Vector3.Distance(entityPos, rayPos));
+
+			return true;
+		}
+
+
+		public override void OnEnd()
+		{
 			_entity.Velocity = Vector3.Zero;
 			_entity.KnownPosition.Pitch = 0;
 			_attackCooldown = 0;

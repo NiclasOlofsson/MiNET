@@ -25,13 +25,12 @@
 
 using System;
 using System.Collections;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
 using MiNET.Net;
-using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -292,6 +291,8 @@ namespace MiNET.Entities
 
 		public virtual void OnTick(Entity[] entities)
 		{
+			SeenEntities.Clear();
+			UnseenEntities.Clear();
 			Age++;
 
 			HealthManager.OnTick();
@@ -540,8 +541,14 @@ namespace MiNET.Entities
 			}
 		}
 
+		public HashSet<Entity> SeenEntities { get; set; } = new HashSet<Entity>();
+		public HashSet<Entity> UnseenEntities { get; set; } = new HashSet<Entity>();
+
 		public virtual bool CanSee(Entity target)
 		{
+			if (SeenEntities.Contains(target)) return true;
+			if (UnseenEntities.Contains(target)) return false;
+
 			Vector3 entityPos = KnownPosition + new Vector3(0, (float) (this is Player ? 1.62f : Height), 0);
 			Vector3 targetPos = target.KnownPosition + new Vector3(0, (float) (target is Player ? 1.62f : target.Height), 0);
 			float distance = Vector3.Distance(entityPos, targetPos);
@@ -549,14 +556,19 @@ namespace MiNET.Entities
 			Vector3 rayPos = entityPos;
 			var direction = Vector3.Normalize(targetPos - entityPos);
 
-			if (distance < direction.Length()) return true;
+			if (distance < direction.Length())
+			{
+				UnseenEntities.Add(target);
+				return true;
+			}
 
 			do
 			{
 				if (Level.GetBlock(rayPos).IsSolid)
 				{
-					Log.Debug($"{GetType()} can not see target");
-					BroadcastEntityEvent();
+					//Log.Debug($"{GetType()} can not see target");
+					//BroadcastEntityEvent();
+					UnseenEntities.Add(target);
 					return false;
 				}
 
@@ -567,6 +579,7 @@ namespace MiNET.Entities
 				rayPos += direction;
 			} while (distance > Vector3.Distance(entityPos, rayPos));
 
+			SeenEntities.Add(target);
 			return true;
 		}
 	}

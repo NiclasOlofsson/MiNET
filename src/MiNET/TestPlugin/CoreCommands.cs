@@ -112,6 +112,15 @@ namespace TestPlugin
 			return "Profiler is now disabled.";
 		}
 
+		[Command(Name = "metrics reset", Description = "Display metrics")]
+		[Authorize(Permission = CommandPermission.Admin)]
+		public string MetricsReset(Player player)
+		{
+			player.Level._profiler.Reset();
+			Log.Debug("Reset profiler");
+			return "Reset profiler";
+		}
+
 		[Command(Name = "metrics display", Description = "Display metrics")]
 		[Authorize(Permission = CommandPermission.Admin)]
 		public string MetricsDisplay(Player player, int timespan = 10000)

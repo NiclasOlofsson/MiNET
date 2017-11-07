@@ -31,7 +31,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class StrollBehavior : IBehavior
+	public class StrollBehavior : BehaviorBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (StrollBehavior));
 
@@ -50,17 +50,17 @@ namespace MiNET.Entities.Behaviors
 			_timeLeft = duration;
 		}
 
-		public virtual bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			return _entity.Level.Random.Next(120) == 0;
 		}
 
-		public bool CanContinue()
+		public override bool CanContinue()
 		{
 			return _timeLeft-- > 0;
 		}
 
-		public virtual void OnTick(Entity[] entities)
+		public override void OnTick(Entity[] entities)
 		{
 			float speedFactor = (float) (_speed*_speedMultiplier*0.7f*(_entity.IsInWater ? 0.3 : 1.0)); // 0.7 is a general mob base factor
 			var level = _entity.Level;
@@ -145,7 +145,7 @@ namespace MiNET.Entities.Behaviors
 			}
 		}
 
-		public void OnEnd()
+		public override void OnEnd()
 		{
 			_timeLeft = _duration;
 			_entity.Velocity *= new Vector3(0, 1, 0);

@@ -27,7 +27,7 @@ using MiNET.Entities.Hostile;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class CreeperSwellBehavior : IBehavior
+	public class CreeperSwellBehavior : BehaviorBase
 	{
 		private readonly Creeper _entity;
 
@@ -36,20 +36,20 @@ namespace MiNET.Entities.Behaviors
 			this._entity = entity;
 		}
 
-		public bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			if (_entity.Target == null) return false;
 
 			return (_entity.IsIgnited || _entity.DistanceTo(_entity.Target) < 3);
 		}
 
-		public bool CanContinue()
+		public override bool CanContinue()
 		{
 			return ShouldStart();
 		}
 
 
-		public void OnTick(Entity[] entities)
+		public override void OnTick(Entity[] entities)
 		{
 			if (_entity.Target == null)
 			{
@@ -69,7 +69,7 @@ namespace MiNET.Entities.Behaviors
 			}
 		}
 
-		public void OnEnd()
+		public override void OnEnd()
 		{
 			_entity.SetTarget(null);
 		}

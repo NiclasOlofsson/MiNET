@@ -308,7 +308,7 @@ namespace MiNET.Worlds
 							isInAir = false;
 
 							byte bid = GetBlock(x, y, z);
-							if (bid == 0 || (BlockFactory.TransparentBlocksFast[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
+							if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
 							{
 								SetSkyLight(x, y, z, 15);
 							}
@@ -346,7 +346,7 @@ namespace MiNET.Worlds
 					isInAir = false;
 
 					byte bid = GetBlock(x, y, z);
-					if (bid == 0 || (BlockFactory.TransparentBlocksFast[bid] == 1 && bid != 18 && bid != 30))
+					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30))
 					{
 						continue;
 					}

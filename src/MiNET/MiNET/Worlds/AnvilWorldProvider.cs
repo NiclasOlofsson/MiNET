@@ -639,7 +639,7 @@ namespace MiNET.Worlds
 							blockId = 243;
 						}
 
-						if (BlockFactory.LuminousBlocks.ContainsKey(blockId))
+						if (BlockFactory.LuminousBlocks[blockId] != 0)
 						{
 							var block = BlockFactory.GetBlockById(chunk.GetBlock(x, y, z));
 							block.Coordinates = new BlockCoordinates(x + (chunkColumn.x << 4), yi, z + (chunkColumn.z << 4));

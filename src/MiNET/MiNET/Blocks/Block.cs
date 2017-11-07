@@ -39,7 +39,7 @@ namespace MiNET.Blocks
 	public class Block : ICloneable
 	{
 		public BlockCoordinates Coordinates { get; set; }
-		public byte Id { get; protected set; }
+		public byte Id { get; }
 		public byte Metadata { get; set; }
 
 		public float Hardness { get; protected set; }

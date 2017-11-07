@@ -68,6 +68,11 @@ namespace MiNET.Utils.Diagnostics
 			_results.Add(new ProfilerResult(measurement.Name, measurement.Timer.ElapsedMilliseconds, Stopwatch.GetTimestamp()));
 		}
 
+		public void Reset()
+		{
+			if (!Enabled) _results = new ConcurrentBag<ProfilerResult>();
+		}
+
 		public string GetResults(long timespan = 10000)
 		{
 			long fromTime = (long) (Stopwatch.GetTimestamp() - ((TimeSpan.FromMilliseconds(timespan).TotalSeconds)*Stopwatch.Frequency));

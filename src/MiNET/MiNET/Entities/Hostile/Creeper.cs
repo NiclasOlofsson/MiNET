@@ -42,9 +42,9 @@ namespace MiNET.Entities.Hostile
 			NoAi = true;
 			Speed = 0.25f;
 
+			TargetBehaviors.Add(new FindAttackableTargetBehavior(this, 16));
 			Behaviors.Add(new CreeperSwellBehavior(this));
-			Behaviors.Add(new MeeleAttackBehavior(this, 1.0, 16));
-			Behaviors.Add(new FindAttackableTargetBehavior(this, 16));
+			Behaviors.Add(new MeleeAttackBehavior(this, 1.0, 16));
 			Behaviors.Add(new WanderBehavior(this, Speed, 0.8));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));

@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -23,7 +23,6 @@
 
 #endregion
 
-using System.Collections;
 using System.Collections.Generic;
 using log4net;
 
@@ -40,9 +39,8 @@ namespace MiNET.Blocks
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
-		public static readonly byte[] TransparentBlocksFast = new byte[500];
-		public static List<int> TransparentBlocks { get; private set; } = new List<int>();
-		public static Dictionary<int, int> LuminousBlocks { get; private set; } = new Dictionary<int, int>();
+		public static readonly byte[] TransparentBlocks = new byte[500];
+		public static readonly byte[] LuminousBlocks = new byte[500];
 		public static Dictionary<string, byte> NameToId { get; private set; }
 
 		static BlockFactory()
@@ -52,13 +50,11 @@ namespace MiNET.Blocks
 				var block = GetBlockById(i);
 				if (block != null && block.IsTransparent)
 				{
-					TransparentBlocks.Add(block.Id);
-					TransparentBlocks.Sort();
-					TransparentBlocksFast[block.Id] = 1;
+					TransparentBlocks[block.Id] = 1;
 				}
 				if (block != null && block.LightLevel > 0)
 				{
-					LuminousBlocks.Add(block.Id, block.LightLevel);
+					LuminousBlocks[block.Id] = (byte) block.LightLevel;
 				}
 			}
 

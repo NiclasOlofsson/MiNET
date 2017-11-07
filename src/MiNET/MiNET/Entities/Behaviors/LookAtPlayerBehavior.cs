@@ -1,10 +1,35 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Linq;
 using System.Numerics;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class LookAtPlayerBehavior : IBehavior
+	public class LookAtPlayerBehavior : BehaviorBase
 	{
 		private readonly Mob _entity;
 		private readonly double _lookDistance;
@@ -17,7 +42,7 @@ namespace MiNET.Entities.Behaviors
 			_lookDistance = lookDistance;
 		}
 
-		public bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			var shouldStart = _entity.Level.Random.NextDouble() < 0.02;
 			if (!shouldStart) return false;
@@ -33,12 +58,12 @@ namespace MiNET.Entities.Behaviors
 			return true;
 		}
 
-		public bool CanContinue()
+		public override bool CanContinue()
 		{
 			return _duration-- > 0;
 		}
 
-		public void OnTick(Entity[] entities)
+		public override void OnTick(Entity[] entities)
 		{
 			var dx = _player.KnownPosition.X - _entity.KnownPosition.X;
 			var dz = _player.KnownPosition.Z - _entity.KnownPosition.Z;
@@ -62,7 +87,7 @@ namespace MiNET.Entities.Behaviors
 			_entity.BroadcastMove(true);
 		}
 
-		public void OnEnd()
+		public override void OnEnd()
 		{
 			_player = null;
 			_entity.KnownPosition.Pitch = 0;

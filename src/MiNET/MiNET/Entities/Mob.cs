@@ -42,6 +42,8 @@ namespace MiNET.Entities
 		public bool DespawnIfNotSeenPlayer { get; set; }
 		public DateTime LastSeenPlayerTimer { get; set; }
 
+		public List<IBehavior> TargetBehaviors { get; } = new List<IBehavior>();
+		private IBehavior _currentTargetBehavior = null;
 		public List<IBehavior> Behaviors { get; } = new List<IBehavior>();
 		private IBehavior _currentBehavior = null;
 		public MobController Controller { get; private set; }
@@ -147,8 +149,6 @@ namespace MiNET.Entities
 				}
 			}
 
-			_currentBehavior = GetBehavior();
-
 			// Execute move
 			bool onGroundBefore = IsMobOnGround(KnownPosition);
 
@@ -183,7 +183,13 @@ namespace MiNET.Entities
 			}
 
 			var oldVelocity = Velocity;
+
 			// Calculate velocity for next move
+
+			_currentTargetBehavior = GetBehavior(TargetBehaviors, _currentTargetBehavior);
+			_currentBehavior = GetBehavior(Behaviors, _currentBehavior);
+
+			_currentTargetBehavior?.OnTick(entities);
 			_currentBehavior?.OnTick(entities);
 
 			if (noPlayersWithin32)
@@ -214,11 +220,11 @@ namespace MiNET.Entities
 			Velocity *= drag;
 		}
 
-		private IBehavior GetBehavior()
+		private static IBehavior GetBehavior(List<IBehavior> behaviors, IBehavior currentBehavior)
 		{
-			foreach (var behavior in Behaviors)
+			foreach (var behavior in behaviors)
 			{
-				if (behavior == _currentBehavior)
+				if (behavior == currentBehavior)
 				{
 					if (behavior.CanContinue())
 					{
@@ -226,14 +232,15 @@ namespace MiNET.Entities
 					}
 
 					behavior.OnEnd();
-					_currentBehavior = null;
+					currentBehavior = null;
 				}
 
 				if (behavior.ShouldStart())
 				{
-					if (_currentBehavior == null || Behaviors.IndexOf(_currentBehavior) > Behaviors.IndexOf(behavior))
+					if (currentBehavior == null || behaviors.IndexOf(currentBehavior) > behaviors.IndexOf(behavior))
 					{
-						_currentBehavior?.OnEnd();
+						currentBehavior?.OnEnd();
+						behavior.OnStart();
 						return behavior;
 					}
 				}

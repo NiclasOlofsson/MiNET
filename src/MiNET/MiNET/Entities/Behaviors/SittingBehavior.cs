@@ -28,7 +28,7 @@ using MiNET.Entities.Passive;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class SittingBehavior : IBehavior
+	public class SittingBehavior : BehaviorBase
 	{
 		private readonly Mob _entity;
 
@@ -37,7 +37,7 @@ namespace MiNET.Entities.Behaviors
 			this._entity = entity;
 		}
 
-		public bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			if (!_entity.IsTamed) return false;
 			if (_entity.IsInWater) return false;
@@ -52,17 +52,17 @@ namespace MiNET.Entities.Behaviors
 			return true;
 		}
 
-		public bool CanContinue()
+		public override bool CanContinue()
 		{
 			return _entity.IsSitting;
 		}
 
 
-		public void OnTick(Entity[] entities)
+		public override void OnTick(Entity[] entities)
 		{
 		}
 
-		public void OnEnd()
+		public override void OnEnd()
 		{
 			_entity.IsSitting = false;
 			_entity.BroadcastSetEntityData();

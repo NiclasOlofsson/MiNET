@@ -53,8 +53,8 @@ namespace MiNET.Entities.Hostile
 
 			AttackDamage = 3;
 
-			Behaviors.Add(new MeeleAttackBehavior(this, 1.0, 35));
-			Behaviors.Add(new FindAttackableTargetBehavior(this, 35));
+			TargetBehaviors.Add(new FindAttackableTargetBehavior(this, 35));
+			Behaviors.Add(new MeleeAttackBehavior(this, 1.0, 35));
 			Behaviors.Add(new WanderBehavior(this, Speed, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));

@@ -33,7 +33,7 @@ using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class TemptedBehavior : IBehavior
+	public class TemptedBehavior : BehaviorBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (TemptedBehavior));
 
@@ -55,7 +55,7 @@ namespace MiNET.Entities.Behaviors
 			_speedMultiplier = speedMultiplier;
 		}
 
-		public bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			if (_cooldown > 0)
 			{
@@ -77,12 +77,12 @@ namespace MiNET.Entities.Behaviors
 			return true;
 		}
 
-		public bool CanContinue()
+		public override bool CanContinue()
 		{
 			return ShouldStart();
 		}
 
-		public void OnTick(Entity[] entities)
+		public override void OnTick(Entity[] entities)
 		{
 			if (_player == null) return;
 			var distanceToPlayer = _entity.DistanceTo(_player);
@@ -117,8 +117,11 @@ namespace MiNET.Entities.Behaviors
 
 			if (_currentPath.Count > 0)
 			{
-				// DEBUG
-				_pathfinder?.PrintPath(_entity.Level, _currentPath);
+				if (Log.IsDebugEnabled)
+				{
+					// DEBUG
+					_pathfinder?.PrintPath(_entity.Level, _currentPath);
+				}
 
 				Tile next;
 				if (!GetNextTile(out next))
@@ -166,7 +169,7 @@ namespace MiNET.Entities.Behaviors
 
 		private bool GetNextTile(out Tile next)
 		{
-			next = new Tile();
+			next = null;
 			if (_currentPath.Count == 0) return false;
 
 			next = _currentPath.First();
@@ -189,7 +192,7 @@ namespace MiNET.Entities.Behaviors
 			return (pos1 - pos2).Length();
 		}
 
-		public void OnEnd()
+		public override void OnEnd()
 		{
 			_cooldown = 100;
 			_entity.Velocity = Vector3.Zero;

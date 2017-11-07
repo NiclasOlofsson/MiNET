@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -49,9 +49,9 @@ namespace MiNET
 		public void NibbleTest()
 		{
 			Assert.AreEqual(16, 1 << 4);
-			Assert.AreEqual(15 * 256, 15 << 8);
-			Assert.AreEqual(4095, (15 * 256) + (15 * 16) + 15);
-			Assert.AreEqual((15 * 256) + (15 * 16) + 15, (15 << 8) + (15 << 4) + 15);
+			Assert.AreEqual(15*256, 15 << 8);
+			Assert.AreEqual(4095, (15*256) + (15*16) + 15);
+			Assert.AreEqual((15*256) + (15*16) + 15, (15 << 8) + (15 << 4) + 15);
 
 
 			byte[] a = {0, 0, 0, 0};
@@ -88,13 +88,14 @@ namespace MiNET
 		{
 			value &= 0xF;
 			var idx = index >> 1;
-			Data[idx] &= (byte)(0xF << (((index + 1) & 1) * 4));
-			Data[idx] |= (byte)(value << ((index & 1) * 4));
+			Data[idx] &= (byte) (0xF << (((index + 1) & 1)*4));
+			Data[idx] |= (byte) (value << ((index & 1)*4));
 		}
 
 		private static byte Nibble4Other(byte[] Data, int index)
 		{
-			return (byte)(Data[index / 2] >> ((index) % 2 * 4) & 0xF); ;
+			return (byte) (Data[index/2] >> ((index)%2*4) & 0xF);
+			;
 		}
 
 

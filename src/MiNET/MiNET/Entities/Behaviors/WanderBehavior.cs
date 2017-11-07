@@ -32,12 +32,11 @@ using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
-using MiNET.Particles;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class WanderBehavior : IBehavior
+	public class WanderBehavior : BehaviorBase
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (WanderBehavior));
 
@@ -46,7 +45,6 @@ namespace MiNET.Entities.Behaviors
 		private readonly double _speedMultiplier;
 		private readonly int _chance;
 		private List<Tile> _currentPath;
-		private Pathfinder _pathfinder;
 
 		public WanderBehavior(Mob entity, double speed, double speedMultiplier, int chance = 120)
 		{
@@ -56,7 +54,7 @@ namespace MiNET.Entities.Behaviors
 			_chance = chance;
 		}
 
-		public bool ShouldStart()
+		public override bool ShouldStart()
 		{
 			if (_entity.Level.Random.Next(_chance) != 0) return false;
 
@@ -64,23 +62,23 @@ namespace MiNET.Entities.Behaviors
 
 			if (!pos.HasValue) return false;
 
-			_pathfinder = new Pathfinder();
-			_currentPath = _pathfinder.FindPath(_entity, pos.Value, pos.Value.DistanceTo((BlockCoordinates) _entity.KnownPosition) + 2);
+			var pathfinder = new Pathfinder();
+			_currentPath = pathfinder.FindPath(_entity, pos.Value, pos.Value.DistanceTo((BlockCoordinates) _entity.KnownPosition) + 2);
 
 			return _currentPath.Count > 0;
 		}
 
-		public bool CanContinue()
+		public override bool CanContinue()
 		{
 			return _currentPath != null && _currentPath.Count > 0;
 		}
 
-		public void OnTick(Entity[] entities)
+		public override void OnTick(Entity[] entities)
 		{
 			if (_currentPath.Count > 0)
 			{
-				// DEBUG
-				_pathfinder.PrintPath(_entity.Level, _currentPath);
+				//// DEBUG
+				//_pathfinder.PrintPath(_entity.Level, _currentPath);
 
 				Tile next;
 				if (!GetNextTile(out next))
@@ -105,7 +103,7 @@ namespace MiNET.Entities.Behaviors
 
 		private bool GetNextTile(out Tile next)
 		{
-			next = new Tile();
+			next = null;
 			if (_currentPath.Count == 0) return false;
 
 			next = _currentPath.First();
@@ -121,7 +119,7 @@ namespace MiNET.Entities.Behaviors
 			return true;
 		}
 
-		public void OnEnd()
+		public override void OnEnd()
 		{
 			_entity.Velocity *= new Vector3(0, 1, 0);
 		}

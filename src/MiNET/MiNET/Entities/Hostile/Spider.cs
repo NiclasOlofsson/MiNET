@@ -1,4 +1,5 @@
-﻿using MiNET.Worlds;
+﻿using MiNET.Entities.Behaviors;
+using MiNET.Worlds;
 using MiNET.Items;
 
 namespace MiNET.Entities.Hostile
@@ -9,8 +10,17 @@ namespace MiNET.Entities.Hostile
 		{
 			Width = Length = 1.4;
 			Height = 0.9;
+			NoAi = true;
+			Speed = 0.3;
+
 			HealthManager.MaxHealth = 160;
 			HealthManager.ResetHealth();
+
+			AttackDamage = 3;
+
+			Behaviors.Add(new WanderBehavior(this, Speed, 0.8));
+			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
+			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
 
 		public override Item[] GetDrops()

@@ -982,7 +982,7 @@ namespace MiNET.Worlds
 			if (chunk == null) return true;
 
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			return BlockFactory.TransparentBlocks.Contains(bid);
+			return BlockFactory.TransparentBlocks[bid] == 1;
 		}
 
 		public int GetHeight(BlockCoordinates blockCoordinates)

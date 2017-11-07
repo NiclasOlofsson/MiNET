@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -47,7 +47,7 @@ namespace MiNET
 	[TestFixture, Ignore("")]
 	public class MinetServerTest
 	{
-		[Test/*, Ignore("")*/]
+		[Test /*, Ignore("")*/]
 		public void IntVsInt24PerformanceTest()
 		{
 			ConcurrentDictionary<int, Datagram> waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
@@ -58,7 +58,6 @@ namespace MiNET
 				Datagram dgram = new Datagram();
 				waitingForAcksQueue.TryAdd(i, dgram);
 			}
-
 		}
 
 
@@ -184,8 +183,8 @@ namespace MiNET
 				new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
 			);
 
-			var from = new Tile(-100.5, -102.5);
-			var to = new Tile(120.5, 122.5);
+			var from = new Tile(-100, -102);
+			var to = new Tile(120, 122);
 
 			navigator.Navigate(from, to);
 		}

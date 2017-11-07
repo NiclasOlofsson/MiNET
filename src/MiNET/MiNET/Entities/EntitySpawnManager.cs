@@ -105,6 +105,7 @@ namespace MiNET.Entities
 
 		public static readonly EntityType[] HostileMobs =
 		{
+			EntityType.Spider,
 			EntityType.Zombie,
 			EntityType.Skeleton,
 			EntityType.Creeper,
@@ -264,7 +265,7 @@ namespace MiNET.Entities
 			// Only choose from the ones that fits the location. Need to implement that filtering.
 			// For now, just use all general friendly/passive mobs.
 
-			var hostiles = new[] {EntityType.Zombie, EntityType.Skeleton, EntityType.Creeper, EntityType.Enderman};
+			var hostiles = new[] {EntityType.Spider, EntityType.Zombie, EntityType.Skeleton, EntityType.Creeper, EntityType.Enderman};
 
 			List<EntityType> possibleMobs = new List<EntityType>();
 			if (canSpawnPassive) possibleMobs.AddRange(new[] {EntityType.Chicken, EntityType.Cow, EntityType.Pig, EntityType.Sheep});
@@ -335,6 +336,7 @@ namespace MiNET.Entities
 
 			Tuple<EntityType, int>[] weightedHostileMobs =
 			{
+				new Tuple<EntityType, int>(EntityType.Spider, 100),
 				new Tuple<EntityType, int>(EntityType.Zombie, 100),
 				new Tuple<EntityType, int>(EntityType.Skeleton, 100),
 				new Tuple<EntityType, int>(EntityType.Creeper, 100),

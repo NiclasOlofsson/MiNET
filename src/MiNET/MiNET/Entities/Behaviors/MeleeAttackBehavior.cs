@@ -24,9 +24,7 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
@@ -45,7 +43,7 @@ namespace MiNET.Entities.Behaviors
 
 		private int _attackCooldown;
 		private int _delay;
-		private List<Tile> _currentPath;
+		private Path _currentPath;
 		private Vector3 _lastPlayerPos;
 
 		public MeleeAttackBehavior(Mob entity, double speedMultiplier, double followRange)
@@ -62,7 +60,7 @@ namespace MiNET.Entities.Behaviors
 			var pathfinder = new Pathfinder();
 			_currentPath = pathfinder.FindPath(_entity, _entity.Target, _followRange);
 
-			if (_currentPath.Count == 0) return false;
+			if (!_currentPath.HavePath()) return false;
 
 			_lastPlayerPos = _entity.Target.KnownPosition;
 
@@ -100,9 +98,9 @@ namespace MiNET.Entities.Behaviors
 				if (Log.IsDebugEnabled)
 				{
 					sw.Stop();
-					if (sw.ElapsedMilliseconds > 5) Log.Warn($"A* search for {_entity.GetType()} on a distance of {_followRange}. Spent {sw.ElapsedMilliseconds}ms and lenght of path is {_currentPath.Count}");
+					if (sw.ElapsedMilliseconds > 5) Log.Warn($"A* search for {_entity.GetType()} on a distance of {_followRange}. Spent {sw.ElapsedMilliseconds}ms and lenght of path is {_currentPath.Current.Count}");
 					// DEBUG
-					pathfinder.PrintPath(_entity.Level, _currentPath);
+					//_currentPath.PrintPath(_entity.Level);
 				}
 
 				_lastPlayerPos = target.KnownPosition;
@@ -118,13 +116,13 @@ namespace MiNET.Entities.Behaviors
 					_delay += 5;
 				}
 
-				if (_currentPath.Count > 0)
+				if (_currentPath.HavePath())
 				{
 					_delay += 15;
 				}
 			}
 
-			if (_currentPath != null && _currentPath.Count > 0)
+			if (_currentPath != null && _currentPath.HavePath())
 			{
 				if (GetNextTile(out Tile next))
 				{
@@ -158,7 +156,7 @@ namespace MiNET.Entities.Behaviors
 		private bool GetNextTile(out Tile next)
 		{
 			next = null;
-			if (_currentPath.Count == 0) return false;
+			if (_currentPath.NoPath()) return false;
 
 			next = _currentPath.First();
 
@@ -170,15 +168,20 @@ namespace MiNET.Entities.Behaviors
 				if (!GetNextTile(out next)) return false;
 			}
 
-			foreach (var tile in _currentPath.ToArray())
+			foreach (var tile in _currentPath.Current.ToArray())
 			{
 				if (IsClearBetweenPoints(_entity.Level, _entity.KnownPosition, new Vector3(tile.X, currPos.Y, tile.Y)))
 				{
-					Log.Debug($"Pruned tile");
 					next = tile;
 					_currentPath.Remove(tile);
 				}
+				else
+				{
+					break;
+				}
 			}
+
+			_currentPath.PrintPath(_entity.Level);
 
 			return true;
 		}

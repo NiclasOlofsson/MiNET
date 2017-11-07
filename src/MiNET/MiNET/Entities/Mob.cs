@@ -42,8 +42,8 @@ namespace MiNET.Entities
 		public bool DespawnIfNotSeenPlayer { get; set; }
 		public DateTime LastSeenPlayerTimer { get; set; }
 
-		public List<IBehavior> TargetBehaviors { get; } = new List<IBehavior>();
-		private IBehavior _currentTargetBehavior = null;
+		public List<ITargetingBehavior> TargetBehaviors { get; } = new List<ITargetingBehavior>();
+		private ITargetingBehavior _currentTargetBehavior = null;
 		public List<IBehavior> Behaviors { get; } = new List<IBehavior>();
 		private IBehavior _currentBehavior = null;
 		public MobController Controller { get; private set; }
@@ -184,7 +184,7 @@ namespace MiNET.Entities
 
 			var oldVelocity = Velocity;
 
-			// Calculate velocity for next move
+			// Below: Calculate velocity for next move
 
 			_currentTargetBehavior = GetBehavior(TargetBehaviors, _currentTargetBehavior);
 			_currentBehavior = GetBehavior(Behaviors, _currentBehavior);
@@ -220,7 +220,7 @@ namespace MiNET.Entities
 			Velocity *= drag;
 		}
 
-		private static IBehavior GetBehavior(List<IBehavior> behaviors, IBehavior currentBehavior)
+		private static T GetBehavior<T>(List<T> behaviors, T currentBehavior) where T: class, IBehavior
 		{
 			foreach (var behavior in behaviors)
 			{

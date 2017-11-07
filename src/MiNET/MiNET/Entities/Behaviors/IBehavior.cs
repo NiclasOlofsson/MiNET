@@ -34,6 +34,14 @@ namespace MiNET.Entities.Behaviors
 		void OnEnd();
 	}
 
+	/// <summary>
+	/// Marker interface or behavior related to targeting
+	/// </summary>
+	public interface ITargetingBehavior : IBehavior
+	{
+	}
+
+
 	public abstract class BehaviorBase : IBehavior
 	{
 		public abstract bool ShouldStart();

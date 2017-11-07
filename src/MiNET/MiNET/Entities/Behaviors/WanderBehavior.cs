@@ -24,8 +24,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
@@ -44,7 +42,7 @@ namespace MiNET.Entities.Behaviors
 		private readonly double _speed;
 		private readonly double _speedMultiplier;
 		private readonly int _chance;
-		private List<Tile> _currentPath;
+		private Path _currentPath;
 
 		public WanderBehavior(Mob entity, double speed, double speedMultiplier, int chance = 120)
 		{
@@ -65,17 +63,17 @@ namespace MiNET.Entities.Behaviors
 			var pathfinder = new Pathfinder();
 			_currentPath = pathfinder.FindPath(_entity, pos.Value, pos.Value.DistanceTo((BlockCoordinates) _entity.KnownPosition) + 2);
 
-			return _currentPath.Count > 0;
+			return _currentPath.HavePath();
 		}
 
 		public override bool CanContinue()
 		{
-			return _currentPath != null && _currentPath.Count > 0;
+			return _currentPath != null && _currentPath.HavePath();
 		}
 
 		public override void OnTick(Entity[] entities)
 		{
-			if (_currentPath.Count > 0)
+			if (_currentPath.HavePath())
 			{
 				//// DEBUG
 				//_pathfinder.PrintPath(_entity.Level, _currentPath);
@@ -104,7 +102,7 @@ namespace MiNET.Entities.Behaviors
 		private bool GetNextTile(out Tile next)
 		{
 			next = null;
-			if (_currentPath.Count == 0) return false;
+			if (_currentPath.NoPath()) return false;
 
 			next = _currentPath.First();
 

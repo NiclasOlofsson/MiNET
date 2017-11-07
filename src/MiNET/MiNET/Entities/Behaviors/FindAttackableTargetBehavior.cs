@@ -29,7 +29,7 @@ using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
-	public class FindAttackableTargetBehavior : BehaviorBase
+	public class FindAttackableTargetBehavior : BehaviorBase, ITargetingBehavior
 	{
 		private readonly Mob _entity;
 		private readonly double _targetDistance;

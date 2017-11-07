@@ -847,7 +847,7 @@ namespace MiNET.Plugins
 
 			try
 			{
-				object pluginInstance = _plugins.FirstOrDefault(plugin => plugin.GetType() == method.DeclaringType);
+				object pluginInstance = _plugins.FirstOrDefault(plugin => method.DeclaringType.IsInstanceOfType(plugin));
 				if (pluginInstance == null) return null;
 
 				ICommandFilter filter = pluginInstance as ICommandFilter;

@@ -144,18 +144,82 @@ namespace MiNET.Entities.Behaviors
 	//	}
 	//}
 
+	public class Path
+	{
+		public List<Tile> Current { get; set; } = new List<Tile>();
+		private Dictionary<Tile, Block> _blockCache;
+
+		public Path(Dictionary<Tile, Block> blockCache = null)
+		{
+			_blockCache = blockCache;
+		}
+
+		public bool HavePath()
+		{
+			return Current != null && Current.Count > 0;
+		}
+
+		public bool NoPath()
+		{
+			return Current == null || Current.Count == 0;
+		}
+
+		public void Reset()
+		{
+			Current?.Clear();
+		}
+
+		public void PrintPath(Level level)
+		{
+			if (Config.GetProperty("Pathfinder.PrintPath", false))
+
+				foreach (var tile in Current)
+				{
+					//Log.Debug($"Steps to: {next.X}, {next.Y}");
+					Block block = GetBlock(tile);
+					//var particle = new RedstoneParticle(level);
+					Color color = Color.FromArgb(Math.Max(0, 255 - Current.Count*10), 255, 255);
+					var particle = new DustParticle(level, color);
+					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
+					particle.Spawn();
+				}
+		}
+
+		public Block GetBlock(Tile tile)
+		{
+			Block block;
+			if (!_blockCache.TryGetValue(tile, out block))
+			{
+				// Do something?
+				return null;
+			}
+
+			return block;
+		}
+
+		public Tile First()
+		{
+			return Current.First();
+		}
+
+		public void Remove(Tile tile)
+		{
+			Current.Remove(tile);
+		}
+	}
+
 	public class Pathfinder
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Pathfinder));
 
 		private Dictionary<Tile, Block> _blockCache = new Dictionary<Tile, Block>();
 
-		public List<Tile> FindPath(Entity source, Entity target, double distance)
+		public Path FindPath(Entity source, Entity target, double distance)
 		{
 			return FindPath(source, (BlockCoordinates) target.KnownPosition, distance);
 		}
 
-		public List<Tile> FindPath(Entity source, BlockCoordinates target, double distance)
+		public Path FindPath(Entity source, BlockCoordinates target, double distance)
 		{
 			try
 			{
@@ -177,43 +241,14 @@ namespace MiNET.Entities.Behaviors
 
 				//Log.Debug($"{source.GetType()} finding path within {distance} blocks. Did {blockAccess.NumberOfBlockGet} block-gets");
 
-				return path;
+				return new Path(_blockCache) {Current = path};
 			}
 			catch (Exception e)
 			{
 				Log.Error("Navigate", e);
 			}
 
-			return new List<Tile>();
-		}
-
-		public void PrintPath(Level level, List<Tile> currentPath)
-		{
-			if (Config.GetProperty("Pathfinder.PrintPath", false))
-
-				foreach (var tile in currentPath)
-				{
-					//Log.Debug($"Steps to: {next.X}, {next.Y}");
-					Block block = GetBlock(tile);
-					//var particle = new RedstoneParticle(level);
-					Color color = Color.FromArgb(Math.Max(0, 255 - currentPath.Count*10), 50, 50);
-					var particle = new DustParticle(level, color);
-					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
-					particle.Spawn();
-				}
-		}
-
-
-		public Block GetBlock(Tile tile)
-		{
-			Block block;
-			if (!_blockCache.TryGetValue(tile, out block))
-			{
-				// Do something?
-				return null;
-			}
-
-			return block;
+			return new Path();
 		}
 	}
 

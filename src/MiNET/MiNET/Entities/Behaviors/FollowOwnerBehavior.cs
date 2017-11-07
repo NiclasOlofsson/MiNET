@@ -23,8 +23,6 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
@@ -61,7 +59,7 @@ namespace MiNET.Entities.Behaviors
 			return ShouldStart();
 		}
 
-		private List<Tile> _currentPath = null;
+		private Path _currentPath = null;
 
 		public override void OnTick(Entity[] entities)
 		{
@@ -78,18 +76,14 @@ namespace MiNET.Entities.Behaviors
 				return;
 			}
 
-			if (_currentPath == null || _currentPath.Count == 0)
+			if (_currentPath == null || _currentPath.NoPath())
 			{
 				Log.Debug($"Search new solution");
 				var pathFinder = new Pathfinder();
-				_currentPath = pathFinder.FindPath(_entity, player, distanceToPlayer + 1);
-				if (_currentPath.Count == 0)
-				{
-					_currentPath = pathFinder.FindPath(_entity, player, _lookDistance);
-				}
+				_currentPath = pathFinder.FindPath(_entity, player, _lookDistance);
 			}
 
-			if (_currentPath.Count > 0)
+			if (_currentPath.HavePath())
 			{
 				Tile next;
 				if (!GetNextTile(out next)) return;
@@ -132,7 +126,7 @@ namespace MiNET.Entities.Behaviors
 		private bool GetNextTile(out Tile next)
 		{
 			next = null;
-			if (_currentPath.Count == 0) return false;
+			if (_currentPath.NoPath()) return false;
 
 			next = _currentPath.First();
 

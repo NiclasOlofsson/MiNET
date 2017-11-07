@@ -24,7 +24,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using AStarNavigator;
@@ -44,7 +43,7 @@ namespace MiNET.Entities.Behaviors
 		private Player _player;
 		private int _cooldown = 0;
 		private Vector3 _lastPlayerPos;
-		private List<Tile> _currentPath = null;
+		private Path _currentPath = null;
 		private Pathfinder _pathfinder = new Pathfinder();
 
 		public TemptedBehavior(Mob entity, Type temptingItem, double lookDistance, double speedMultiplier)
@@ -101,28 +100,18 @@ namespace MiNET.Entities.Behaviors
 				return;
 			}
 
-			bool haveNoPath = (_currentPath == null || _currentPath.Count == 0);
+			bool haveNoPath = (_currentPath == null || _currentPath.HavePath());
 			var deltaDistance = Vector3.Distance(_lastPlayerPos, _player.KnownPosition);
 			if (haveNoPath || deltaDistance > 0)
 			{
 				_pathfinder = new Pathfinder();
-				_currentPath = _pathfinder.FindPath(_entity, _player, distanceToPlayer + 1);
-				if (_currentPath.Count == 0)
-				{
-					_currentPath = _pathfinder.FindPath(_entity, _player, _lookDistance);
-				}
+				_currentPath = _pathfinder.FindPath(_entity, _player, _lookDistance);
 			}
 
 			_lastPlayerPos = _player.KnownPosition;
 
-			if (_currentPath.Count > 0)
+			if (_currentPath.HavePath())
 			{
-				if (Log.IsDebugEnabled)
-				{
-					// DEBUG
-					_pathfinder?.PrintPath(_entity.Level, _currentPath);
-				}
-
 				Tile next;
 				if (!GetNextTile(out next))
 				{
@@ -170,7 +159,7 @@ namespace MiNET.Entities.Behaviors
 		private bool GetNextTile(out Tile next)
 		{
 			next = null;
-			if (_currentPath.Count == 0) return false;
+			if (!_currentPath.HavePath()) return false;
 
 			next = _currentPath.First();
 

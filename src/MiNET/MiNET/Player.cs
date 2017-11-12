@@ -62,7 +62,7 @@ namespace MiNET
 		private ChunkCoordinates _currentChunkPosition;
 
 		private Inventory _openInventory;
-		public PlayerInventory Inventory { get; private set; }
+		public PlayerInventory Inventory { get; set; }
 
 		public PlayerLocation SpawnPosition { get; set; }
 

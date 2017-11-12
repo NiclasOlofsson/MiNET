@@ -77,12 +77,12 @@ namespace MiNET.BuilderBase.Tools
 
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
+			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
+			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 
 			var selector = RegionSelector.GetSelector(player);
 			var undoRecorder = new UndoRecorder(player.Level);
@@ -133,7 +133,7 @@ namespace MiNET.BuilderBase.Tools
 
 		public override bool Animate(Level world, Player player)
 		{
-			player.Inventory.SendSetSlot(player.Inventory.ItemHotbar[player.Inventory.InHandSlot]);
+			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
 
 			var selector = RegionSelector.GetSelector(player);
 			var undoRecorder = new UndoRecorder(player.Level);

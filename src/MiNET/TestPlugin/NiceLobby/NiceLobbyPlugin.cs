@@ -121,14 +121,14 @@ namespace TestPlugin.NiceLobby
 
 
 			// Compass
-			if (e.Level.TickTime % 2 == 0)
+			if (e.Level.TickTime%2 == 0)
 			{
 				player.AddPopup(new Popup()
 				{
 					Id = 10,
 					MessageType = MessageType.Tip,
 					Message = GetCompass(player.KnownPosition.HeadYaw),
-					Duration = 20 * 5,
+					Duration = 20*5,
 				});
 			}
 
@@ -633,11 +633,11 @@ namespace TestPlugin.NiceLobby
 			string username = player.Username;
 
 			string rank;
-			//if (username.StartsWith("gurun") || username.StartsWith("Oliver"))
-			//{
-			//	rank = $"{ChatColors.Red}[ADMIN]";
-			//}
-			//else 
+			if (username.StartsWith("gurun") || username.StartsWith("Oliver"))
+			{
+				rank = $"{ChatColors.Red}[ADMIN]";
+			}
+			else
 			if (player.CertificateData.ExtraData.Xuid != null)
 			{
 				rank = $"{ChatColors.Green}";
@@ -660,18 +660,8 @@ namespace TestPlugin.NiceLobby
 		[PacketHandler, Receive]
 		public Package MessageHandler(McpeText message, Player player)
 		{
-			string text = message.message;
-			if (text.StartsWith("/") || text.StartsWith("."))
-			{
-				return message;
-			}
-
-			text = TextUtils.RemoveFormatting(text);
+			string text = TextUtils.RemoveFormatting(message.message);
 			player.Level.BroadcastMessage($"{GetNameTag(player)} says:{ChatColors.White} {text}", MessageType.Chat);
-
-			var leaveSound = new AnvilFallSound(player.Level.SpawnPoint.ToVector3());
-			leaveSound.Spawn(player.Level);
-
 			return null;
 		}
 

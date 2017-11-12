@@ -25,7 +25,6 @@
 
 using System;
 using System.Numerics;
-using AStarNavigator;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Hostile;
@@ -39,15 +38,13 @@ namespace MiNET.Entities.Behaviors
 		private static readonly ILog Log = LogManager.GetLogger(typeof (WanderBehavior));
 
 		private readonly Mob _entity;
-		private readonly double _speed;
 		private readonly double _speedMultiplier;
 		private readonly int _chance;
 		private Path _currentPath;
 
-		public WanderBehavior(Mob entity, double speed, double speedMultiplier, int chance = 120)
+		public WanderBehavior(Mob entity, double speedMultiplier, int chance = 120)
 		{
 			_entity = entity;
-			_speed = speed;
 			_speedMultiplier = speedMultiplier;
 			_chance = chance;
 		}
@@ -68,20 +65,15 @@ namespace MiNET.Entities.Behaviors
 
 		public override bool CanContinue()
 		{
-			return _currentPath != null && _currentPath.HavePath();
+			return _currentPath.HavePath();
 		}
 
 		public override void OnTick(Entity[] entities)
 		{
 			if (_currentPath.HavePath())
 			{
-				//// DEBUG
-				//_pathfinder.PrintPath(_entity.Level, _currentPath);
-
-				Tile next;
-				if (!GetNextTile(out next))
+				if (!_currentPath.GetNextTile(_entity, out var next))
 				{
-					_currentPath = null;
 					return;
 				}
 
@@ -91,35 +83,13 @@ namespace MiNET.Entities.Behaviors
 				_entity.KnownPosition.Yaw = (float) _entity.Direction;
 
 				_entity.Controller.MoveForward(_speedMultiplier, entities);
-				if (_entity.Velocity.Length() < 0.01) _currentPath = null;
 			}
-			else
-			{
-				_currentPath = null;
-			}
-		}
-
-		private bool GetNextTile(out Tile next)
-		{
-			next = null;
-			if (_currentPath.NoPath()) return false;
-
-			next = _currentPath.First();
-
-			BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
-			if ((int) next.X == currPos.X && (int) next.Y == currPos.Z)
-			{
-				_currentPath.Remove(next);
-
-				if (!GetNextTile(out next)) return false;
-			}
-
-			return true;
 		}
 
 		public override void OnEnd()
 		{
 			_entity.Velocity *= new Vector3(0, 1, 0);
+			_currentPath = null;
 		}
 
 		private static BlockCoordinates? FindRandomTargetBlock(Entity entity, int dxz, int dy, Vector3? targetDirectinon = null)

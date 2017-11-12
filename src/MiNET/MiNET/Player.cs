@@ -1714,87 +1714,22 @@ namespace MiNET
 			Log.Warn($"Player {Username} drops item frame at {message.coordinates}");
 		}
 
-		//public virtual void HandleMcpeDropItem(McpeDropItem message)
-		//{
-		//	lock (Inventory)
-		//	{
-		//		Item droppedItem = message.item;
-		//		if (Log.IsDebugEnabled) Log.Debug($"Player {Username} drops item {droppedItem} with inv slot {message.itemtype}");
-
-		//		if (droppedItem.Count == 0) return; // 0.15 bug
-
-		//		if (!VerifyItemStack(droppedItem)) return;
-
-		//		// Clear current inventory slot.
-
-		//		ItemEntity itemEntity = new ItemEntity(Level, droppedItem)
-		//		{
-		//			Velocity = KnownPosition.GetDirection()*0.7f,
-		//			KnownPosition =
-		//			{
-		//				X = KnownPosition.X,
-		//				Y = KnownPosition.Y + 1.62f,
-		//				Z = KnownPosition.Z
-		//			},
-		//		};
-
-		//		itemEntity.SpawnEntity();
-		//	}
-		//}
-
 		public virtual void HandleMcpeMobEquipment(McpeMobEquipment message)
 		{
 			if (HealthManager.IsDead) return;
 
-			lock (_inventorySync)
+			byte selectedHotbarSlot = message.selectedSlot;
+
+			if (selectedHotbarSlot > 8)
 			{
-				Item itemStack = message.item;
-				if (GameMode != GameMode.Creative && itemStack != null && !VerifyItemStack(itemStack))
-				{
-					Log.Error($"Kicked {Username} for equipment hacking.");
-					Disconnect("Error #376. Please report this error.");
-				}
-
-				byte selectedHotbarSlot = message.selectedSlot;
-				int selectedInventorySlot = (byte) (message.slot - PlayerInventory.HotbarSize);
-
-				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} called set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {message.selectedSlot} with item {message.item}");
-
-				// 255 indicates empty hmmm
-				if (selectedInventorySlot < 0 || (message.slot != 255 && selectedInventorySlot >= Inventory.Slots.Count))
-				{
-					if (GameMode != GameMode.Creative)
-					{
-						Log.Error($"Player {Username} set equiptment fails with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot} for inventory size: {Inventory.Slots.Count} and Item ID: {message.item?.Id}");
-					}
-					return;
-				}
-
-				if (message.slot == 255)
-				{
-					//Inventory.ItemHotbar[selectedHotbarSlot] = -1;
-					//return;
-					selectedInventorySlot = -1;
-				}
-				else
-				{
-					for (int i = 0; i < Inventory.ItemHotbar.Length; i++)
-					{
-						if (Inventory.ItemHotbar[i] == selectedInventorySlot)
-						{
-							Inventory.ItemHotbar[i] = Inventory.ItemHotbar[selectedHotbarSlot];
-							break;
-						}
-					}
-				}
-
-				Inventory.ItemHotbar[selectedHotbarSlot] = selectedInventorySlot;
-				Inventory.SetHeldItemSlot(selectedHotbarSlot, false);
-
-				if (Log.IsDebugEnabled) Log.Debug($"Player {Username} set equiptment with inv slot: {selectedInventorySlot}({message.slot}) and hotbar slot {selectedHotbarSlot}");
+				Log.Error($"Player {Username} called set equipment with held hotbar slot {message.selectedSlot} with item {message.item}");
+				return;
 			}
-		}
 
+			if (Log.IsDebugEnabled) Log.Debug($"Player {Username} called set equipment with held hotbar slot {message.selectedSlot} with item {message.item}");
+
+			Inventory.SetHeldItemSlot(selectedHotbarSlot, false);
+		}
 
 		private object _inventorySync = new object();
 
@@ -1978,6 +1913,8 @@ namespace MiNET
 
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
+
+		private long _itemUseTimer;
 
 		protected virtual void HandleTransactionItemRelease(Transaction transaction)
 		{
@@ -2247,102 +2184,6 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Handles the container set slot.
-		/// </summary>
-		/// <param name="message">The message.</param>
-		//public virtual void HandleMcpeContainerSetSlot(McpeContainerSetSlot message)
-		//{
-		//	Log.Debug($"Handle slot hotbarslot={message.hotbarslot}, selectedSlot={message.selectedSlot}");
-		//	lock (Inventory)
-		//	{
-		//		if (HealthManager.IsDead) return;
-
-		//		Item itemStack = message.item;
-
-		//		if (GameMode != GameMode.Creative)
-		//		{
-		//			if (!VerifyItemStack(itemStack))
-		//			{
-		//				Log.Error($"Kicked {Username} for inventory hacking.");
-		//				Disconnect("Error #324. Please report this error.");
-		//				return;
-		//			}
-		//		}
-
-		//		if (Log.IsDebugEnabled)
-		//			Log.Debug($"Player {Username} set inventory item on window 0x{message.windowId:X2} with slot: {message.slot} HOTBAR: {message.hotbarslot} and item: {itemStack}");
-
-		//		if (_openInventory != null)
-		//		{
-		//			if (_openInventory.WindowsId == message.windowId)
-		//			{
-		//				if (_openInventory.Type == 3)
-		//				{
-		//					Recipes recipes = new Recipes();
-		//					recipes.Add(new EnchantingRecipe());
-		//					McpeCraftingData crafting = McpeCraftingData.CreateObject();
-		//					crafting.recipes = recipes;
-		//					SendPackage(crafting);
-		//				}
-
-		//				// block inventories of various kinds (chests, furnace, etc)
-		//				_openInventory.SetSlot(this, (byte) message.slot, itemStack);
-		//				return;
-		//			}
-		//		}
-
-		//		switch (message.windowId)
-		//		{
-		//			case 0:
-		//				Inventory.UpdateInventorySlot(message.slot, itemStack);
-		//				//Inventory.Slots[message.slot] = itemStack;
-		//				break;
-		//			case 0x79:
-		//				Inventory.UpdateInventorySlot(message.slot, itemStack);
-		//				//Inventory.Slots[message.slot] = itemStack;
-		//				break;
-		//			case 0x78:
-
-		//				var armorItem = itemStack;
-		//				switch (message.slot)
-		//				{
-		//					case 0:
-		//						Inventory.Helmet = armorItem;
-		//						break;
-		//					case 1:
-		//						Inventory.Chest = armorItem;
-		//						break;
-		//					case 2:
-		//						Inventory.Leggings = armorItem;
-		//						break;
-		//					case 3:
-		//						Inventory.Boots = armorItem;
-		//						break;
-		//				}
-
-		//				McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
-		//				armorEquipment.runtimeEntityId = EntityId;
-		//				armorEquipment.helmet = Inventory.Helmet;
-		//				armorEquipment.chestplate = Inventory.Chest;
-		//				armorEquipment.leggings = Inventory.Leggings;
-		//				armorEquipment.boots = Inventory.Boots;
-		//				Level.RelayBroadcast(this, armorEquipment);
-
-		//				break;
-		//			case 0x7A:
-		//				//Inventory.ItemHotbar[message.unknown] = message.slot/* + PlayerInventory.HotbarSize*/;
-		//				break;
-		//		}
-		//	}
-		//}
-		public virtual bool VerifyItemStack(Item itemStack)
-		{
-			if (ItemSigner.DefaultItemSigner == null) return true;
-
-			return ItemSigner.DefaultItemSigner.VerifyItemStack(this, itemStack);
-		}
-
 		public virtual void HandleMcpeContainerClose(McpeContainerClose message)
 		{
 			UsingCraftingTable = false;
@@ -2428,7 +2269,7 @@ namespace MiNET
 				return;
 			}
 
-			if (Level.Entities.TryGetValue((long)message.runtimeEntityId, out var entity))
+			if (Level.Entities.TryGetValue((long) message.runtimeEntityId, out var entity))
 			{
 				Item item = ItemFactory.GetItem(383, (short) entity.EntityTypeId);
 
@@ -2459,65 +2300,6 @@ namespace MiNET
 					break;
 			}
 		}
-
-		private long _itemUseTimer;
-
-		//public virtual void HandleMcpeUseItem(McpeUseItem message)
-		//{
-		//	if (message.item == null)
-		//	{
-		//		Log.Warn($"{Username} sent us a use item message with no item (null).");
-		//		return;
-		//	}
-
-		//	if (GameMode != GameMode.Creative && !VerifyItemStack(message.item))
-		//	{
-		//		Log.Warn($"Kicked {Username} for use item hacking.");
-		//		Disconnect("Error #324. Please report this error.");
-		//		return;
-		//	}
-
-		//	// Make sure we are holding the item we claim to be using
-		//	Item itemInHand = Inventory.GetItemInHand();
-		//	if (itemInHand == null || itemInHand.Id != message.item.Id)
-		//	{
-		//		Log.Warn($"Use item detected difference between server and client. Expected item {message.item} but server had item {itemInHand}");
-		//		return; // Cheat(?)
-		//	}
-
-		//	if (itemInHand.GetType() == typeof (Item))
-		//	{
-		//		Log.Warn($"Generic item in hand when placing block. Can not complete request. Expected item {message.item} and item in hand is {itemInHand}");
-		//	}
-
-		//	if (message.face >= 0 && message.face <= 5)
-		//	{
-		//		// Right click
-
-		//		Level.Interact(this, itemInHand, message.blockcoordinates, (BlockFace) message.face, message.facecoordinates);
-		//	}
-		//	else
-		//	{
-		//		Log.Debug($"Begin non-block action with {itemInHand}");
-
-		//		// Snowballs and shit
-
-		//		_itemUseTimer = Level.TickTime;
-
-		//		itemInHand.UseItem(Level, this, message.blockcoordinates);
-
-		//		IsUsingItem = true;
-		//		MetadataDictionary metadata = new MetadataDictionary
-		//		{
-		//			[0] = GetDataValue()
-		//		};
-
-		//		var setEntityData = McpeSetEntityData.CreateObject();
-		//		setEntityData.runtimeEntityId = EntityId;
-		//		setEntityData.metadata = metadata;
-		//		Level.RelayBroadcast(this, setEntityData);
-		//	}
-		//}
 
 		public void SendRespawn()
 		{

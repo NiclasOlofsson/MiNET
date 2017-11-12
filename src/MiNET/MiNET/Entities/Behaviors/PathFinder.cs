@@ -172,18 +172,29 @@ namespace MiNET.Entities.Behaviors
 		public void PrintPath(Level level)
 		{
 			if (Config.GetProperty("Pathfinder.PrintPath", false))
-
+			{
 				foreach (var tile in Current)
 				{
-					//Log.Debug($"Steps to: {next.X}, {next.Y}");
 					Block block = GetBlock(tile);
-					//var particle = new RedstoneParticle(level);
 					Color color = Color.FromArgb(Math.Max(0, 255 - Current.Count*10), 255, 255);
 					var particle = new DustParticle(level, color);
 					particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
 					particle.Spawn();
 				}
+			}
 		}
+
+		public void PrintTile(Level level, Tile tile)
+		{
+			if (Config.GetProperty("Pathfinder.PrintPath", false))
+			{
+				Block block = GetBlock(tile);
+				var particle = new RedstoneParticle(level);
+				particle.Position = (Vector3) block.Coordinates + new Vector3(0.5f, 0.5f, 0.5f);
+				particle.Spawn();
+			}
+		}
+
 
 		public Block GetBlock(Tile tile)
 		{
@@ -206,6 +217,73 @@ namespace MiNET.Entities.Behaviors
 		{
 			Current.Remove(tile);
 		}
+
+		public bool GetNextTile(Entity entity, out Tile next, bool compressPath = false)
+		{
+			next = null;
+			if (NoPath()) return false;
+
+			next = First();
+
+			BlockCoordinates currPos = (BlockCoordinates) entity.KnownPosition;
+			if ((int) next.X == currPos.X && (int) next.Y == currPos.Z)
+			{
+				Remove(next);
+
+				if (!GetNextTile(entity, out next)) return false;
+			}
+
+			// Use this to compact path and remove unnecessary points. This
+			// makes the mobs move more direct on target, and also more independently
+			// from each other.
+
+			if (compressPath)
+			{
+				foreach (var tile in Current.ToArray())
+				{
+					if (IsClearBetweenPoints(entity.Level, entity.KnownPosition, new Vector3(tile.X, currPos.Y, tile.Y)))
+					{
+						next = tile;
+						Remove(tile);
+						PrintTile(entity.Level, tile);
+					}
+					else
+					{
+						break;
+					}
+				}
+			}
+
+			PrintPath(entity.Level);
+
+			return true;
+		}
+
+		private bool IsClearBetweenPoints(Level level, Vector3 from, Vector3 to)
+		{
+			Vector3 entityPos = from;
+			Vector3 targetPos = to;
+			float distance = Vector3.Distance(entityPos, targetPos);
+
+			Vector3 rayPos = entityPos;
+			var direction = Vector3.Normalize(targetPos - entityPos);
+
+			if (distance < direction.Length())
+			{
+				return true;
+			}
+
+			do
+			{
+				if (level.GetBlock(rayPos).IsSolid)
+				{
+					return false;
+				}
+				rayPos += direction;
+			} while (distance > Vector3.Distance(entityPos, rayPos));
+
+			return true;
+		}
 	}
 
 	public class Pathfinder
@@ -225,8 +303,14 @@ namespace MiNET.Entities.Behaviors
 			{
 				var blockAccess = new CachedBlockAccess(source.Level);
 
+				var entityCoords = new HashSet<BlockCoordinates>();
+				foreach (var entry in source.Level.GetEntites())
+				{
+					entityCoords.Add((BlockCoordinates) entry.KnownPosition);
+				}
+
 				var navigator = new TileNavigator(
-					new LevelNavigator(source, blockAccess, distance, _blockCache),
+					new LevelNavigator(source, blockAccess, distance, _blockCache, entityCoords),
 					new BlockDiagonalNeighborProvider(blockAccess, (int) Math.Truncate(source.KnownPosition.Y), _blockCache, source), // Instance of: INeighborProvider
 					new BlockDistanceAlgorithm(_blockCache), // Instance of: IDistanceAlgorithm
 					new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
@@ -468,14 +552,16 @@ namespace MiNET.Entities.Behaviors
 		private readonly IBlockAccess _level;
 		private readonly double _distance;
 		private readonly Dictionary<Tile, Block> _blockCache;
+		private readonly HashSet<BlockCoordinates> _entityCoords;
 
-		public LevelNavigator(Entity entity, IBlockAccess level, double distance, Dictionary<Tile, Block> blockCache)
+		public LevelNavigator(Entity entity, IBlockAccess level, double distance, Dictionary<Tile, Block> blockCache, HashSet<BlockCoordinates> entityCoords)
 		{
 			_entity = entity;
 			_entityPos = entity.KnownPosition;
 			_level = level;
 			_distance = distance;
 			_blockCache = blockCache;
+			_entityCoords = entityCoords;
 		}
 
 		public bool IsBlocked(Tile coord)
@@ -487,6 +573,7 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			if (block.IsSolid) return true;
+			if (_entityCoords.Contains(block.Coordinates)) return true;
 
 			//if (Math.Abs(_entityPos.Y - block.Coordinates.Y) > _entity.Height + 3) return true;
 

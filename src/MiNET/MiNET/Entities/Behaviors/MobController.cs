@@ -42,7 +42,7 @@ namespace MiNET.Entities.Behaviors
 			_entity = entity;
 		}
 
-		public void LookAt(Entity target, bool headOnly = true)
+		public void LookAt(Entity target)
 		{
 			if (target == null)
 			{

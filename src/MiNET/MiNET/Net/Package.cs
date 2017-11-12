@@ -691,9 +691,6 @@ namespace MiNET.Net
 
 		public void Write(ItemStacks metadata)
 		{
-			McpeInventoryContent msg = this as McpeInventoryContent;
-			bool signItems = msg == null || msg.inventoryId != 0x79;
-
 			if (metadata == null)
 			{
 				WriteUnsignedVarInt(0);
@@ -704,7 +701,7 @@ namespace MiNET.Net
 
 			for (int i = 0; i < metadata.Count; i++)
 			{
-				Write(metadata[i], signItems);
+				Write(metadata[i]);
 			}
 		}
 
@@ -880,7 +877,7 @@ namespace MiNET.Net
 			return trans;
 		}
 
-		public void Write(Item stack, bool signItem = true)
+		public void Write(Item stack)
 		{
 			if (stack == null || stack.Id <= 0)
 			{
@@ -892,11 +889,6 @@ namespace MiNET.Net
 			short metadata = stack.Metadata;
 			if (metadata == -1) metadata = short.MaxValue;
 			WriteSignedVarInt((metadata << 8) + (stack.Count & 0xff));
-
-			if (signItem)
-			{
-				stack = ItemSigner.DefaultItemSigner?.SignItem(stack);
-			}
 
 			if (stack.ExtraData != null)
 			{
@@ -1513,7 +1505,7 @@ namespace MiNET.Net
 				WriteSignedVarInt(map.XOffset);
 				WriteSignedVarInt(map.ZOffset);
 
-				WriteUnsignedVarInt((uint)(map.Col * map.Row));
+				WriteUnsignedVarInt((uint) (map.Col*map.Row));
 				int i = 0;
 				for (int col = 0; col < map.Col; col++)
 				{
@@ -1571,7 +1563,7 @@ namespace MiNET.Net
 						decorator.Icon = (byte) ((si & 0xf0) >> 4);
 
 						decorator.X = ReadByte();
-						decorator.X = ReadByte();
+						decorator.Z = ReadByte();
 						decorator.Label = ReadString();
 						decorator.Color = ReadUint();
 						map.Decorators[i] = decorator;

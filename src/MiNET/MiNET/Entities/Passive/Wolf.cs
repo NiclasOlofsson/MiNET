@@ -60,7 +60,7 @@ namespace MiNET.Entities.Passive
 			Behaviors.Add(new OwnerHurtTargetBehavior(this));
 			Behaviors.Add(new HurtByTargetBehavior(this));
 			Behaviors.Add(new FollowOwnerBehavior(this, 20, 1.0));
-			Behaviors.Add(new WanderBehavior(this, Speed, 1.0));
+			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}

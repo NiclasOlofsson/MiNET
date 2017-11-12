@@ -49,7 +49,7 @@ namespace MiNET.Entities.Passive
 
 			Behaviors.Add(new PanicBehavior(this, 60, Speed, 1.2));
 			Behaviors.Add(new HorseEatBlockBehavior(this, 100));
-			Behaviors.Add(new WanderBehavior(this, Speed, 0.7));
+			Behaviors.Add(new WanderBehavior(this, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(this));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}
@@ -59,7 +59,7 @@ namespace MiNET.Entities.Passive
 			var metadata = base.GetMetadata();
 			metadata[2] = new MetadataInt(_type);
 			metadata[16] = new MetadataInt(IsEating ? 32 : 0); // 0 or 32?
-			metadata[(int)MetadataFlags.Scale] = new MetadataFloat(IsBaby ? 0.5582917f : 1.0);
+			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(IsBaby ? 0.5582917f : 1.0);
 			return metadata;
 		}
 	}

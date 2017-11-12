@@ -50,7 +50,7 @@ namespace MiNET.Entities.Hostile
 
 			ItemInHand = ItemFactory.GetItem("bow");
 
-			Behaviors.Add(new WanderBehavior(this, Speed, 1.0));
+			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}

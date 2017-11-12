@@ -28,8 +28,6 @@ using System.Diagnostics;
 using System.Numerics;
 using AStarNavigator;
 using log4net;
-using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET.Entities.Behaviors
 {
@@ -55,14 +53,15 @@ namespace MiNET.Entities.Behaviors
 
 		public override bool ShouldStart()
 		{
-			if (_entity.Target == null) return false;
+			var target = _entity.Target;
+			if (target == null) return false;
 
 			var pathfinder = new Pathfinder();
-			_currentPath = pathfinder.FindPath(_entity, _entity.Target, _followRange);
+			_currentPath = pathfinder.FindPath(_entity, target, _followRange);
 
 			if (!_currentPath.HavePath()) return false;
 
-			_lastPlayerPos = _entity.Target.KnownPosition;
+			_lastPlayerPos = target.KnownPosition;
 
 			return true;
 		}
@@ -116,27 +115,27 @@ namespace MiNET.Entities.Behaviors
 					_delay += 5;
 				}
 
-				if (_currentPath.HavePath())
+				if (_currentPath.NoPath())
 				{
 					_delay += 15;
 				}
 			}
 
-			if (_currentPath != null && _currentPath.HavePath())
+			// Movement
+			if (_currentPath.HavePath())
 			{
-				if (GetNextTile(out Tile next))
+				if (_currentPath.GetNextTile(_entity, out Tile next /*, true*/))
 				{
-					_entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, _entity.KnownPosition.Y, (float) next.Y + 0.5f));
+					_entity.Controller.RotateTowards(new Vector3(next.X + 0.5f, _entity.KnownPosition.Y, next.Y + 0.5f));
 					_entity.Controller.MoveForward(_speedMultiplier, entities);
-				}
+				} // else something is really wrong
 			}
 			else
 			{
 				_entity.Velocity = Vector3.Zero;
-				_currentPath = null;
 			}
 
-			_entity.Controller.LookAt(target, true);
+			_entity.Controller.LookAt(target);
 
 			_attackCooldown = Math.Max(_attackCooldown - 1, 0);
 			if (_attackCooldown <= 0 && distanceToPlayer < GetAttackReach())
@@ -151,67 +150,6 @@ namespace MiNET.Entities.Behaviors
 		{
 			return _entity.Width*2.0F + _entity.Target.Width;
 		}
-
-
-		private bool GetNextTile(out Tile next)
-		{
-			next = null;
-			if (_currentPath.NoPath()) return false;
-
-			next = _currentPath.First();
-
-			BlockCoordinates currPos = (BlockCoordinates) _entity.KnownPosition;
-			if ((int) next.X == currPos.X && (int) next.Y == currPos.Z)
-			{
-				_currentPath.Remove(next);
-
-				if (!GetNextTile(out next)) return false;
-			}
-
-			foreach (var tile in _currentPath.Current.ToArray())
-			{
-				if (IsClearBetweenPoints(_entity.Level, _entity.KnownPosition, new Vector3(tile.X, currPos.Y, tile.Y)))
-				{
-					next = tile;
-					_currentPath.Remove(tile);
-				}
-				else
-				{
-					break;
-				}
-			}
-
-			_currentPath.PrintPath(_entity.Level);
-
-			return true;
-		}
-
-		public bool IsClearBetweenPoints(Level level, Vector3 from, Vector3 to)
-		{
-			Vector3 entityPos = from;
-			Vector3 targetPos = to;
-			float distance = Vector3.Distance(entityPos, targetPos);
-
-			Vector3 rayPos = entityPos;
-			var direction = Vector3.Normalize(targetPos - entityPos);
-
-			if (distance < direction.Length())
-			{
-				return true;
-			}
-
-			do
-			{
-				if (level.GetBlock(rayPos).IsSolid)
-				{
-					return false;
-				}
-				rayPos += direction;
-			} while (distance > Vector3.Distance(entityPos, rayPos));
-
-			return true;
-		}
-
 
 		public override void OnEnd()
 		{

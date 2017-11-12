@@ -1335,7 +1335,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 141,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 140,
 				payload = data
 			};
 

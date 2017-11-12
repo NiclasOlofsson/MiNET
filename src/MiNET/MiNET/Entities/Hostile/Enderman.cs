@@ -43,7 +43,7 @@ namespace MiNET.Entities.Hostile
 
 			TargetBehaviors.Add(new FindAttackableTargetBehavior(this, 16));
 			Behaviors.Add(new MeleeAttackBehavior(this, 1.0, 16));
-			Behaviors.Add(new WanderBehavior(this, Speed, 1.0));
+			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
 		}

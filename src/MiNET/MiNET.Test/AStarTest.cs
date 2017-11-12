@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using AStarNavigator;
-using MiNET.Entities.Behaviors;
 using NUnit.Framework;
 
 namespace MiNET

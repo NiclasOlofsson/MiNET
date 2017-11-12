@@ -59,20 +59,19 @@ namespace MiNET.Entities.Behaviors
 			return ShouldStart();
 		}
 
-		private Path _currentPath = null;
+		private Path _currentPath;
 
 		public override void OnTick(Entity[] entities)
 		{
 			if (_entity.Owner == null) return;
-			Player player = (Player) _entity.Owner;
+			Player owner = (Player) _entity.Owner;
 
-			var distanceToPlayer = _entity.DistanceTo(player);
+			var distanceToPlayer = _entity.DistanceTo(owner);
 
 			if (distanceToPlayer < 1.75)
 			{
-				// if within 6m stop following (walking)
 				_entity.Velocity = Vector3.Zero;
-				_entity.Controller.LookAt(player);
+				_entity.Controller.LookAt(owner);
 				return;
 			}
 
@@ -80,19 +79,17 @@ namespace MiNET.Entities.Behaviors
 			{
 				Log.Debug($"Search new solution");
 				var pathFinder = new Pathfinder();
-				_currentPath = pathFinder.FindPath(_entity, player, _lookDistance);
+				_currentPath = pathFinder.FindPath(_entity, owner, _lookDistance);
 			}
 
 			if (_currentPath.HavePath())
 			{
-				Tile next;
-				if (!GetNextTile(out next)) return;
+				if (!_currentPath.GetNextTile(_entity, out Tile next)) return;
 
 				_entity.Controller.RotateTowards(new Vector3((float) next.X + 0.5f, _entity.KnownPosition.Y, (float) next.Y + 0.5f));
 
 				if (distanceToPlayer < 1.75)
 				{
-					// if within 6m stop following (walking)
 					_entity.Velocity = Vector3.Zero;
 					_currentPath = null;
 				}
@@ -120,7 +117,7 @@ namespace MiNET.Entities.Behaviors
 				_currentPath = null;
 			}
 
-			_entity.Controller.LookAt(player, true);
+			_entity.Controller.LookAt(owner);
 		}
 
 		private bool GetNextTile(out Tile next)

@@ -100,20 +100,19 @@ namespace MiNET.Entities.Behaviors
 				return;
 			}
 
-			bool haveNoPath = (_currentPath == null || _currentPath.HavePath());
+			bool haveNoPath = (_currentPath == null || _currentPath.NoPath());
 			var deltaDistance = Vector3.Distance(_lastPlayerPos, _player.KnownPosition);
-			if (haveNoPath || deltaDistance > 0)
+			if (haveNoPath || deltaDistance > 1)
 			{
 				_pathfinder = new Pathfinder();
 				_currentPath = _pathfinder.FindPath(_entity, _player, _lookDistance);
+				_lastPlayerPos = _player.KnownPosition;
 			}
 
-			_lastPlayerPos = _player.KnownPosition;
 
 			if (_currentPath.HavePath())
 			{
-				Tile next;
-				if (!GetNextTile(out next))
+				if (!_currentPath.GetNextTile(_entity, out var next))
 				{
 					_currentPath = null;
 					return;
@@ -153,7 +152,7 @@ namespace MiNET.Entities.Behaviors
 				_currentPath = null;
 			}
 
-			_entity.Controller.LookAt(_player, true);
+			_entity.Controller.LookAt(_player);
 		}
 
 		private bool GetNextTile(out Tile next)

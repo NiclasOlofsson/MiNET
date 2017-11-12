@@ -26,7 +26,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Numerics;
+using System.Text;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Items;
@@ -136,7 +138,112 @@ namespace MiNET.Entities
 
 			long dataValue = BitConverter.ToInt64(bytes, 0);
 			//Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString((long) dataValue, 2)}b ");
+			//if (Log.IsDebugEnabled) Log.Debug($"// {Convert.ToString(dataValue, 2)}; {FlagsToString(dataValue)}");
 			return dataValue;
+		}
+
+		public static string MetadataToCode(MetadataDictionary metadata)
+		{
+			StringBuilder sb = new StringBuilder();
+
+			sb.AppendLine();
+			sb.AppendLine("MetadataDictionary metadata = new MetadataDictionary();");
+
+			foreach (var kvp in metadata._entries)
+			{
+				int idx = kvp.Key;
+				MetadataEntry entry = kvp.Value;
+
+				sb.Append($"metadata[{idx}] = new ");
+				switch (entry.Identifier)
+				{
+					case 0:
+					{
+						var e = (MetadataByte) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 1:
+					{
+						var e = (MetadataShort) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 2:
+					{
+						var e = (MetadataInt) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 3:
+					{
+						var e = (MetadataFloat) entry;
+						sb.Append($"{e.GetType().Name}({e.Value.ToString(NumberFormatInfo.InvariantInfo)}f);");
+						break;
+					}
+					case 4:
+					{
+						var e = (MetadataString) entry;
+						sb.Append($"{e.GetType().Name}(\"{e.Value}\");");
+						break;
+					}
+					case 5:
+					{
+						var e = (MetadataSlot) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 6:
+					{
+						var e = (MetadataIntCoordinates) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+					case 7:
+					{
+						var e = (MetadataLong) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						if (idx == 0)
+						{
+							sb.Append($" // {Convert.ToString((long) e.Value, 2)}; {FlagsToString(e.Value)}");
+						}
+						break;
+					}
+					case 8:
+					{
+						var e = (MetadataVector3) entry;
+						sb.Append($"{e.GetType().Name}({e.Value});");
+						break;
+					}
+				}
+				sb.AppendLine();
+			}
+
+			return sb.ToString();
+		}
+
+		private static string FlagsToString(long input)
+		{
+			BitArray bits = new BitArray(BitConverter.GetBytes(input));
+
+			byte[] bytes = new byte[8];
+			bits.CopyTo(bytes, 0);
+
+			List<DataFlags> flags = new List<DataFlags>();
+			foreach (var val in Enum.GetValues(typeof (DataFlags)))
+			{
+				if (bits[(int) val]) flags.Add((DataFlags) val);
+			}
+
+			StringBuilder sb = new StringBuilder();
+			sb.Append(string.Join(", ", flags));
+			sb.Append("; ");
+			for (var i = 0; i < bits.Count; i++)
+			{
+				if (bits[i]) sb.Append($"{i}, ");
+			}
+
+			return sb.ToString();
 		}
 
 		public bool IsSneaking { get; set; }

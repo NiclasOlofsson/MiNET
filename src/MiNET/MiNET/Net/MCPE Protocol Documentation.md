@@ -748,7 +748,7 @@ Wiki: [Entity Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Enti
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Event ID | byte |  |
-|Unknown | SignedVarInt |  |
+|Data | SignedVarInt |  |
 -----------------------------------------------------------------------
 ### Mob Effect (0x1c)
 Wiki: [Mob Effect](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MobEffect)

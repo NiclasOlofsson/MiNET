@@ -408,7 +408,7 @@
 	<pdu id="0x1b" online="false" client="true" server="true" name="MCPE_ENTITY_EVENT">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Event ID" type="byte" />
-		<field name="Unknown" type="SignedVarInt" />
+		<field name="Data" type="SignedVarInt" />
 	</pdu>
 
 	<pdu id="0x1c" online="false" client="false" server="true" name="MCPE_MOB_EFFECT">

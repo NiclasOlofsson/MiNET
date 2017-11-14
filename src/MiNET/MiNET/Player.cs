@@ -2289,14 +2289,21 @@ namespace MiNET
 
 		public virtual void HandleMcpeEntityEvent(McpeEntityEvent message)
 		{
-			Log.Debug("Entity Id:" + message.runtimeEntityId);
-			Log.Debug("Entity Event Id:" + message.eventId);
-			Log.Debug("Entity Event unknown:" + message.unknown);
+			if (Log.IsDebugEnabled)
+			{
+				Log.Debug("Entity Id:" + message.runtimeEntityId);
+				Log.Debug("Entity Event Id:" + message.eventId);
+				Log.Debug("Entity Event unknown:" + message.data);
+			}
 
 			switch (message.eventId)
 			{
 				case 34:
-					RemoveExperienceLevels(message.unknown);
+					RemoveExperienceLevels(message.data);
+					break;
+				case 57:
+					var data = message.data;
+					if (data != 0) BroadcastEntityEvent(57, data);
 					break;
 			}
 		}
@@ -2917,23 +2924,30 @@ namespace MiNET
 
 		public override void BroadcastEntityEvent()
 		{
-			{
-				var entityEvent = McpeEntityEvent.CreateObject();
-				entityEvent.runtimeEntityId = EntityManager.EntityIdSelf;
-				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
-				SendPackage(entityEvent);
-			}
-			{
-				var entityEvent = McpeEntityEvent.CreateObject();
-				entityEvent.runtimeEntityId = EntityId;
-				entityEvent.eventId = (byte) (HealthManager.Health <= 0 ? 3 : 2);
-				Level.RelayBroadcast(this, entityEvent);
-			}
+			BroadcastEntityEvent(HealthManager.Health <= 0 ? 3 : 2);
 
 			if (HealthManager.IsDead)
 			{
 				Player player = HealthManager.LastDamageSource as Player;
 				BroadcastDeathMessage(player, HealthManager.LastDamageCause);
+			}
+		}
+
+		public void BroadcastEntityEvent(int eventId, int data = 0)
+		{
+			{
+				var entityEvent = McpeEntityEvent.CreateObject();
+				entityEvent.runtimeEntityId = EntityManager.EntityIdSelf;
+				entityEvent.eventId = (byte) eventId;
+				entityEvent.data = data;
+				SendPackage(entityEvent);
+			}
+			{
+				var entityEvent = McpeEntityEvent.CreateObject();
+				entityEvent.runtimeEntityId = EntityId;
+				entityEvent.eventId = (byte) eventId;
+				entityEvent.data = data;
+				Level.RelayBroadcast(this, entityEvent);
 			}
 		}
 

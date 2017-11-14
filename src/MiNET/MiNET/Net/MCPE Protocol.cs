@@ -3195,7 +3195,7 @@ namespace MiNET.Net
 
 		public long runtimeEntityId; // = null;
 		public byte eventId; // = null;
-		public int unknown; // = null;
+		public int data; // = null;
 
 		public McpeEntityEvent()
 		{
@@ -3211,7 +3211,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(eventId);
-			WriteSignedVarInt(unknown);
+			WriteSignedVarInt(data);
 
 			AfterEncode();
 		}
@@ -3227,7 +3227,7 @@ namespace MiNET.Net
 
 			runtimeEntityId = ReadUnsignedVarLong();
 			eventId = ReadByte();
-			unknown = ReadSignedVarInt();
+			data = ReadSignedVarInt();
 
 			AfterDecode();
 		}
@@ -3241,7 +3241,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			eventId=default(byte);
-			unknown=default(int);
+			data=default(int);
 		}
 
 	}

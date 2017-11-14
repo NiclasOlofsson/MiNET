@@ -712,132 +712,173 @@ namespace MiNET.Plugins
 
 			object[] objectArgs = new object[parameters.Length];
 
-			for (int k = 0; k < parameters.Length; k++)
+			try
 			{
-				var parameter = parameters[k];
-				int i = k - addLenght;
-				if (k == 0 && addLenght == 1)
+				int i = 0;
+				for (int k = 0; k < parameters.Length; k++)
 				{
-					if (typeof (Player).IsAssignableFrom(parameter.ParameterType))
+					var parameter = parameters[k];
+					if (k == 0 && addLenght == 1)
 					{
-						objectArgs[k] = player;
+						if (typeof (Player).IsAssignableFrom(parameter.ParameterType))
+						{
+							objectArgs[k] = player;
+							continue;
+						}
+						Log.WarnFormat("Command method {0} missing Player as first argument.", method.Name);
+						return null;
+					}
+
+					if (parameter.IsOptional && args.Length <= i)
+					{
+						objectArgs[k] = parameter.DefaultValue;
 						continue;
 					}
-					Log.WarnFormat("Command method {0} missing Player as first argument.", method.Name);
+
+					if (args.Length < k) return null;
+
+					if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
+					{
+						var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+						IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
+						defaultValue?.Deserialize(player, args[i++]);
+
+						objectArgs[k] = defaultValue;
+
+						continue;
+					}
+
+					if (parameter.ParameterType.BaseType == typeof (EnumBase))
+					{
+						var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
+						EnumBase instance = (EnumBase) ctor.Invoke(null);
+						instance.Value = args[i++];
+						objectArgs[k] = instance;
+						continue;
+					}
+
+					if (parameter.ParameterType == typeof (Target))
+					{
+						var target = FillTargets(player, player.Level, args[i++]);
+						objectArgs[k] = target;
+						continue;
+					}
+
+					if (parameter.ParameterType == typeof (BlockPos))
+					{
+						if (args.Length < i + 3) return null;
+
+						BlockPos blockPos = new BlockPos();
+
+						string val = args[i++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.XRelative = true;
+						}
+						blockPos.X = int.Parse(val);
+
+						val = args[i++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.YRelative = true;
+						}
+						blockPos.Y = int.Parse(val);
+
+						val = args[i++];
+						if (val.StartsWith("~"))
+						{
+							val = val.Substring(1);
+							blockPos.ZRelative = true;
+						}
+						blockPos.Z = int.Parse(val);
+
+						objectArgs[k] = blockPos;
+						continue;
+					}
+
+					if (parameter.ParameterType == typeof (string))
+					{
+						objectArgs[k] = args[i++];
+						continue;
+					}
+					if (parameter.ParameterType == typeof (byte))
+					{
+						byte value;
+						if (!byte.TryParse(args[i++], out value)) return null;
+						objectArgs[k] = value;
+						continue;
+					}
+					if (parameter.ParameterType == typeof (short))
+					{
+						short value;
+						if (!short.TryParse(args[i++], out value)) return null;
+						objectArgs[k] = value;
+						continue;
+					}
+					if (parameter.ParameterType == typeof (int))
+					{
+						int value;
+						if (!int.TryParse(args[i++], out value)) return null;
+						objectArgs[k] = value;
+						continue;
+					}
+					if (parameter.ParameterType == typeof (bool))
+					{
+						bool value;
+						if (!bool.TryParse(args[i++], out value)) return null;
+						objectArgs[k] = value;
+						continue;
+					}
+					if (parameter.ParameterType == typeof (float))
+					{
+						float value;
+						if (!float.TryParse(args[i++], out value)) return null;
+						objectArgs[k] = value;
+						continue;
+					}
+					if (parameter.ParameterType == typeof (double))
+					{
+						double value;
+						if (!double.TryParse(args[i++], out value)) return null;
+						objectArgs[k] = value;
+						continue;
+					}
+					if (parameter.ParameterType.IsEnum)
+					{
+						string val = args[i++];
+						Enum value = Enum.Parse(parameter.ParameterType, val, true) as Enum;
+						if (value == null)
+						{
+							Log.Error($"Could not convert to valid enum value: {val}");
+							continue;
+						}
+
+						objectArgs[k] = value;
+						continue;
+					}
+
+					if (IsParams(parameter) && parameter.ParameterType == typeof (string[]))
+					{
+						List<string> strings = new List<string>();
+						for (int j = i++; j < args.Length; j++)
+						{
+							strings.Add(args[j]);
+						}
+						objectArgs[k] = strings.ToArray();
+						continue;
+					}
+
 					return null;
 				}
 
-				if (parameter.IsOptional && args.Length <= i)
+			}
+			catch (Exception e)
+			{
+				if (Log.IsDebugEnabled)
 				{
-					objectArgs[k] = parameter.DefaultValue;
-					continue;
-				}
-
-				if (args.Length < k) return null;
-
-				if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
-				{
-					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
-					IParameterSerializer defaultValue = ctor.Invoke(null) as IParameterSerializer;
-					defaultValue?.Deserialize(player, args[i]);
-
-					objectArgs[k] = defaultValue;
-
-					continue;
-				}
-
-				if (parameter.ParameterType.BaseType == typeof (EnumBase))
-				{
-					var ctor = parameter.ParameterType.GetConstructor(Type.EmptyTypes);
-					EnumBase instance = (EnumBase) ctor.Invoke(null);
-					instance.Value = args[i];
-					objectArgs[k] = instance;
-					continue;
-				}
-
-				if (parameter.ParameterType == typeof (Target))
-				{
-					var target = FillTargets(player, player.Level, args[i]);
-					objectArgs[k] = target;
-					continue;
-				}
-
-				if (parameter.ParameterType == typeof (BlockPos))
-				{
-					var blockpos = JsonConvert.DeserializeObject<BlockPos>(args[i]);
-					objectArgs[k] = blockpos;
-					continue;
-				}
-
-				if (parameter.ParameterType == typeof (string))
-				{
-					objectArgs[k] = args[i];
-					continue;
-				}
-				if (parameter.ParameterType == typeof (byte))
-				{
-					byte value;
-					if (!byte.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (short))
-				{
-					short value;
-					if (!short.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (int))
-				{
-					int value;
-					if (!int.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (bool))
-				{
-					bool value;
-					if (!bool.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (float))
-				{
-					float value;
-					if (!float.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType == typeof (double))
-				{
-					double value;
-					if (!double.TryParse(args[i], out value)) return null;
-					objectArgs[k] = value;
-					continue;
-				}
-				if (parameter.ParameterType.IsEnum)
-				{
-					Enum value = Enum.Parse(parameter.ParameterType, args[i], true) as Enum;
-					if (value == null)
-					{
-						Log.Error($"Could not convert to valid enum value: {args[i]}");
-						continue;
-					}
-
-					objectArgs[k] = value;
-					continue;
-				}
-
-				if (IsParams(parameter) && parameter.ParameterType == typeof (string[]))
-				{
-					List<string> strings = new List<string>();
-					for (int j = i; j < args.Length; j++)
-					{
-						strings.Add(args[j]);
-					}
-					objectArgs[k] = strings.ToArray();
-					continue;
+					Log.Error("Trying to execute command overload", e);
 				}
 
 				return null;

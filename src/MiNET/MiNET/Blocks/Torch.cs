@@ -1,5 +1,6 @@
 using System.Numerics;
 using log4net;
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -69,6 +70,12 @@ namespace MiNET.Blocks
 			//world.SetBlock(this);
 			//return true;
 			return false;
+		}
+
+		public override Item[] GetDrops(Item tool)
+		{
+			Metadata = 0;
+			return base.GetDrops(tool);
 		}
 	}
 }

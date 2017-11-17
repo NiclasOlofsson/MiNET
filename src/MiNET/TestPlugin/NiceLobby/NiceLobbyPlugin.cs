@@ -406,8 +406,10 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
 			player.Inventory.Chest = new ItemElytra() {Count = 1};
+			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();
+
 
 			_players.TryAdd(player.Username, player);
 
@@ -637,8 +639,7 @@ namespace TestPlugin.NiceLobby
 			{
 				rank = $"{ChatColors.Red}[ADMIN]";
 			}
-			else
-			if (player.CertificateData.ExtraData.Xuid != null)
+			else if (player.CertificateData.ExtraData.Xuid != null)
 			{
 				rank = $"{ChatColors.Green}";
 				//rank = $"{ChatColors.Green}[XBOX]";

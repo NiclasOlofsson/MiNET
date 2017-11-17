@@ -98,7 +98,9 @@ namespace MiNET.Plugins.Commands
 
 					Item item = ItemFactory.GetItem(ItemFactory.GetItemIdByName(itemName.Value), (short) data, (byte) amount);
 
-					var inventory = p.Inventory.SetFirstEmptySlot(item, true, false);
+					if (item.Count > item.MaxStackSize) return $"The number you have entered ({amount}) is too big. It must be at most {item.MaxStackSize}";
+
+					p.Inventory.SetFirstEmptySlot(item, true);
 				}
 				body = string.Join(", ", names);
 			}
@@ -567,7 +569,7 @@ namespace MiNET.Plugins.Commands
 			level.WorldTime = 5000;
 
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.time = (int)level.WorldTime;
+			message.time = (int) level.WorldTime;
 			level.RelayBroadcast(message);
 
 			return $"{player.Username} set {GameRulesEnum.DoDaylightcycle.ToString().ToLower()} to {value.ToString().ToLower()}.";

@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using log4net;
@@ -112,21 +113,28 @@ namespace MiNET
 			};
 		}
 
-		public virtual bool SetFirstEmptySlot(Item item, bool update, bool reverseOrder)
+		public virtual bool SetFirstEmptySlot(Item item, bool update)
 		{
-			if (reverseOrder)
+			for (int si = 0; si < Slots.Count; si++)
 			{
-				for (int si = Slots.Count; si > 0; si--)
+				Item existingItem = Slots[si];
+				if (existingItem.Id == item.Id && existingItem.Metadata == item.Metadata && existingItem.Count < existingItem.MaxStackSize)
 				{
-					if (FirstEmptySlot(item, update, si - 1)) return true;
+					int take = Math.Min(item.Count, existingItem.MaxStackSize - existingItem.Count);
+					existingItem.Count += (byte) take;
+					item.Count -= (byte) take;
+					if (update) SendSetSlot(si);
+
+					if (item.Count <= 0)
+					{
+						return true;
+					}
 				}
 			}
-			else
+
+			for (int si = 0; si < Slots.Count; si++)
 			{
-				for (int si = 0; si < Slots.Count; si++)
-				{
-					if (FirstEmptySlot(item, update, si)) return true;
-				}
+				if (FirstEmptySlot(item, update, si)) return true;
 			}
 
 			return false;
@@ -136,15 +144,10 @@ namespace MiNET
 		{
 			Item existingItem = Slots[si];
 
-			if (existingItem.Id == item.Id && existingItem.Metadata == item.Metadata && existingItem.Count + item.Count <= item.MaxStackSize)
+			if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
 			{
-				Slots[si].Count += item.Count;
-				if (update) SendSetSlot(si);
-				return true;
-			}
-			else if (existingItem is ItemAir || existingItem.Id == -1)
-			{
-				Slots[si] = item;
+				Slots[si] = ItemFactory.GetItem(item.Id, item.Metadata, item.Count);
+				item.Count = 0;
 				if (update) SendSetSlot(si);
 				return true;
 			}

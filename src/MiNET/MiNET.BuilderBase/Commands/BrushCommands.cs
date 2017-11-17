@@ -24,7 +24,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
-				player.Inventory.SetFirstEmptySlot(brush, true, false);
+				player.Inventory.SetFirstEmptySlot(brush, true);
 				op = "Added";
 			}
 
@@ -44,7 +44,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
-				player.Inventory.SetFirstEmptySlot(brush, true, false);
+				player.Inventory.SetFirstEmptySlot(brush, true);
 				op = "Added";
 			}
 
@@ -65,7 +65,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
-				player.Inventory.SetFirstEmptySlot(brush, true, false);
+				player.Inventory.SetFirstEmptySlot(brush, true);
 				op = "Added";
 			}
 
@@ -83,7 +83,7 @@ namespace MiNET.BuilderBase.Commands
 			if (brush == null)
 			{
 				brush = new BrushTool();
-				player.Inventory.SetFirstEmptySlot(brush, true, false);
+				player.Inventory.SetFirstEmptySlot(brush, true);
 				op = "Added";
 			}
 

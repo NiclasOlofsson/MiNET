@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using System.Numerics;
 using fNbt;
 using MiNET.BlockEntities;
@@ -41,7 +42,7 @@ namespace MiNET.Items
 	///     frames, which turn into an entity when placed, and beds, which turn into a group of blocks when placed. When
 	///     equipped, items (and blocks) briefly display their names above the HUD.
 	/// </summary>
-	public class Item
+	public class Item: ICloneable
 	{
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }
@@ -193,6 +194,11 @@ namespace MiNET.Items
 			{
 				return (Id*397) ^ Metadata.GetHashCode();
 			}
+		}
+
+		public object Clone()
+		{
+			return MemberwiseClone();
 		}
 
 		public override string ToString()

@@ -188,7 +188,7 @@ namespace MiNET.Entities.World
 			{
 				if (player.GameMode != GameMode.Spectator && bbox.Intersects(player.GetBoundingBox() + 1))
 				{
-					if (player.Inventory.SetFirstEmptySlot(Item, true, false))
+					if (player.Inventory.SetFirstEmptySlot(Item, true))
 					{
 						{
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();
@@ -204,6 +204,12 @@ namespace MiNET.Entities.World
 						}
 
 						DespawnEntity();
+
+						if(Item.Count > 0)
+						{
+							Level.DropItem(KnownPosition, Item);
+						}
+
 						break;
 					}
 				}

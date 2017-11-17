@@ -22,7 +22,7 @@ namespace MiNET.Items
 
 			// Initialize a new map and add it.
 			ItemMap itemMap = new ItemMap(mapEntity.EntityId);
-			player.Inventory.SetFirstEmptySlot(itemMap, true, false);
+			player.Inventory.SetFirstEmptySlot(itemMap, true);
 		}
 	}
 }

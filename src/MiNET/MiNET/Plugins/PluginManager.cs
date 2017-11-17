@@ -263,7 +263,7 @@ namespace MiNET.Plugins
 							{
 								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
 								CommandPermission = authorizeAttribute.Permission,
-								Aliases = commandAttribute.Aliases,
+								Aliases = commandAttribute.Aliases ?? new string[0],
 								Description = commandAttribute.Description ?? "",
 								Overloads = new Dictionary<string, Overload>
 								{
@@ -590,7 +590,7 @@ namespace MiNET.Plugins
 			foreach (var overload in command.Versions.First().Overloads.Values.OrderByDescending(o => o.Input.Parameters?.Length ?? 0))
 			{
 				var args = arguments;
-				if (args.Length > 0 && overload.Input.Parameters.FirstOrDefault(p => p.Name.Equals("subcommand")) != null)
+				if (args.Length > 0 && overload.Input.Parameters?.FirstOrDefault(p => p.Name.Equals("subcommand")) != null)
 				{
 					string subCommand = args[0];
 					if (overload.Input.Parameters.FirstOrDefault(p => p.Name.Equals("subcommand") && p.EnumValues[0] == subCommand) == null) continue;
@@ -606,8 +606,10 @@ namespace MiNET.Plugins
 
 				MethodInfo method = overload.Method;
 
-				var retVal = ExecuteCommand(method, player, args);
-				if (retVal != null) return retVal;
+				if (ExecuteCommand(method, player, args, out object retVal))
+				{
+					return retVal;
+				}
 
 				Log.Debug("No result from execution");
 			}
@@ -677,7 +679,8 @@ namespace MiNET.Plugins
 					}
 				}
 
-				return ExecuteCommand(method, player, strings.ToArray());
+				ExecuteCommand(method, player, strings.ToArray(), out object retVal);
+				return retVal;
 			}
 			catch (Exception e)
 			{
@@ -698,9 +701,11 @@ namespace MiNET.Plugins
 			return Attribute.IsDefined(param, typeof (ParamArrayAttribute));
 		}
 
-		private object ExecuteCommand(MethodInfo method, Player player, string[] args)
+		private bool ExecuteCommand(MethodInfo method, Player player, string[] args, out object result)
 		{
 			Log.Info($"Execute command {method}");
+
+			result = null;
 
 			var parameters = method.GetParameters();
 
@@ -726,7 +731,7 @@ namespace MiNET.Plugins
 							continue;
 						}
 						Log.WarnFormat("Command method {0} missing Player as first argument.", method.Name);
-						return null;
+						return false;
 					}
 
 					if (parameter.IsOptional && args.Length <= i)
@@ -735,7 +740,7 @@ namespace MiNET.Plugins
 						continue;
 					}
 
-					if (args.Length < k) return null;
+					if (args.Length < k) return false;
 
 					if (typeof (IParameterSerializer).IsAssignableFrom(parameter.ParameterType))
 					{
@@ -766,7 +771,7 @@ namespace MiNET.Plugins
 
 					if (parameter.ParameterType == typeof (BlockPos))
 					{
-						if (args.Length < i + 3) return null;
+						if (args.Length < i + 3) return false;
 
 						BlockPos blockPos = new BlockPos();
 
@@ -806,42 +811,42 @@ namespace MiNET.Plugins
 					if (parameter.ParameterType == typeof (byte))
 					{
 						byte value;
-						if (!byte.TryParse(args[i++], out value)) return null;
+						if (!byte.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof (short))
 					{
 						short value;
-						if (!short.TryParse(args[i++], out value)) return null;
+						if (!short.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof (int))
 					{
 						int value;
-						if (!int.TryParse(args[i++], out value)) return null;
+						if (!int.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof (bool))
 					{
 						bool value;
-						if (!bool.TryParse(args[i++], out value)) return null;
+						if (!bool.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof (float))
 					{
 						float value;
-						if (!float.TryParse(args[i++], out value)) return null;
+						if (!float.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
 					if (parameter.ParameterType == typeof (double))
 					{
 						double value;
-						if (!double.TryParse(args[i++], out value)) return null;
+						if (!double.TryParse(args[i++], out value)) return false;
 						objectArgs[k] = value;
 						continue;
 					}
@@ -870,7 +875,7 @@ namespace MiNET.Plugins
 						continue;
 					}
 
-					return null;
+					return false;
 				}
 
 			}
@@ -881,15 +886,13 @@ namespace MiNET.Plugins
 					Log.Error("Trying to execute command overload", e);
 				}
 
-				return null;
+				return false;
 			}
-
-			object result = null;
 
 			try
 			{
 				object pluginInstance = _plugins.FirstOrDefault(plugin => method.DeclaringType.IsInstanceOfType(plugin));
-				if (pluginInstance == null) return null;
+				if (pluginInstance == null) return false;
 
 				ICommandFilter filter = pluginInstance as ICommandFilter;
 				if (filter != null)
@@ -914,12 +917,15 @@ namespace MiNET.Plugins
 				{
 					filter.OnCommandExecuted();
 				}
+
+				return true;
 			}
 			catch (Exception e)
 			{
 				Log.Error($"Error while executing command {method}", e);
 			}
-			return result;
+
+			return false;
 		}
 
 		public Target FillTargets(Player commander, Level level, string source)

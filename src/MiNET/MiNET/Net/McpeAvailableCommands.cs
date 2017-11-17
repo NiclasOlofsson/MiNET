@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using log4net;
 using MiNET.Plugins;
 
@@ -142,6 +143,15 @@ namespace MiNET.Net
 				{
 					foreach (var command in commands.Values)
 					{
+						var aliases = command.Versions[0].Aliases.Concat(new string[] {command.Name}).ToArray();
+						foreach (var alias in aliases)
+						{
+							if (!stringList.Contains(alias))
+							{
+								stringList.Add(alias);
+							}
+						}
+
 						var overloads = command.Versions[0].Overloads;
 						foreach (var overload in overloads.Values)
 						{
@@ -177,6 +187,15 @@ namespace MiNET.Net
 				List<string> enumList = new List<string>();
 				foreach (var command in commands.Values)
 				{
+					if (command.Versions[0].Aliases.Length > 0)
+					{
+						string aliasEnum = command.Name + "CommandAliases";
+						if (!enumList.Contains(aliasEnum))
+						{
+							enumList.Add(aliasEnum);
+						}
+					}
+
 					var overloads = command.Versions[0].Overloads;
 					foreach (var overload in overloads.Values)
 					{
@@ -202,6 +221,36 @@ namespace MiNET.Net
 				List<string> writtenEnumList = new List<string>();
 				foreach (var command in commands.Values)
 				{
+					if (command.Versions[0].Aliases.Length > 0)
+					{
+						var aliases = command.Versions[0].Aliases.Concat(new string[] {command.Name}).ToArray();
+						string aliasEnum = command.Name + "CommandAliases";
+						if (!enumList.Contains(aliasEnum)) continue;
+						if (writtenEnumList.Contains(aliasEnum)) continue;
+
+						Write(aliasEnum);
+						WriteUnsignedVarInt((uint)aliases.Length);
+						foreach (var enumValue in aliases)
+						{
+							if (!stringList.Contains(enumValue)) Log.Error($"Expected enum value: {enumValue} in string list, but didn't find it.");
+							if (stringList.Count <= byte.MaxValue)
+							{
+								Write((byte)stringList.IndexOf(enumValue));
+							}
+							else if (stringList.Count <= short.MaxValue)
+							{
+								Write((short)stringList.IndexOf(enumValue));
+							}
+							else
+							{
+								Write((int)stringList.IndexOf(enumValue));
+							}
+
+							//Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {stringList.IndexOf(enumValue)} ");
+						}
+
+					}
+
 					var overloads = command.Versions[0].Overloads;
 					foreach (var overload in overloads.Values)
 					{
@@ -250,7 +299,16 @@ namespace MiNET.Net
 					Write(command.Versions[0].Description);
 					Write((byte) 0); // flags
 					Write((byte) command.Versions[0].CommandPermission); // permissions
-					Write((int) -1); // Enum index
+
+					if (command.Versions[0].Aliases.Length > 0)
+					{
+						string aliasEnum = command.Name + "CommandAliases";
+						Write((int) enumList.IndexOf(aliasEnum));
+					}
+					else
+					{
+						Write((int) -1); // Enum index
+					}
 
 
 					//Log.Warn($"Writing command {command.Name}");

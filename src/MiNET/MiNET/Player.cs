@@ -577,6 +577,13 @@ namespace MiNET
 			IsFlying = (flags & 0x200) == 0x200;
 		}
 
+		public virtual void SendGameRules()
+		{
+			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
+			gameRulesChanged.rules = Level.GetGameRules();
+			SendPackage(gameRulesChanged);
+		}
+
 		public virtual void SendAdventureSettings()
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
@@ -603,6 +610,7 @@ namespace MiNET
 			mcpeAdventureSettings.commandPermission = (uint) CommandPermission;
 			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions;
 			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel;
+			mcpeAdventureSettings.customStoredPermissions = (uint) 0;
 			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
 
 			SendPackage(mcpeAdventureSettings);
@@ -691,6 +699,8 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
+				SendAvailableCommands();
+
 				SendSetTime();
 
 				SendStartGame();
@@ -711,13 +721,11 @@ namespace MiNET
 
 				SendAdventureSettings();
 
-				// Send McpeGameRulesChanged
+				SendGameRules();
 
 				// Vanilla 2nd player list here
 
 				Level.AddPlayer(this, false);
-
-				SendAvailableCommands();
 
 				SendUpdateAttributes();
 
@@ -2319,39 +2327,43 @@ namespace MiNET
 
 		public void SendStartGame()
 		{
-			McpeStartGame mcpeStartGame = McpeStartGame.CreateObject();
-			mcpeStartGame.entityIdSelf = EntityId;
-			mcpeStartGame.runtimeEntityId = EntityManager.EntityIdSelf;
-			mcpeStartGame.playerGamemode = (int) GameMode;
-			mcpeStartGame.spawn = SpawnPosition;
-			mcpeStartGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
-			mcpeStartGame.seed = 12345;
-			mcpeStartGame.dimension = 0;
-			mcpeStartGame.generator = 1;
-			mcpeStartGame.gamemode = (int) GameMode;
-			mcpeStartGame.x = (int) SpawnPosition.X;
-			mcpeStartGame.y = (int) (SpawnPosition.Y + Height);
-			mcpeStartGame.z = (int) SpawnPosition.Z;
-			//mcpeStartGame.hasAchievementsDisabled = GameMode == GameMode.Creative || EnableCommands;
-			mcpeStartGame.hasAchievementsDisabled = true;
-			mcpeStartGame.dayCycleStopTime = (int) Level.WorldTime;
-			mcpeStartGame.eduMode = PlayerInfo.Edition == 1;
-			mcpeStartGame.rainLevel = 0;
-			mcpeStartGame.lightningLevel = 0;
-			mcpeStartGame.enableCommands = EnableCommands;
-			mcpeStartGame.isTexturepacksRequired = false;
-			mcpeStartGame.gamerules = Level.GetGameRules();
-			mcpeStartGame.levelId = "1m0AAMIFIgA=";
-			mcpeStartGame.worldName = Level.LevelName;
-			mcpeStartGame.isMultiplayer = true;
-			mcpeStartGame.broadcastToLan = true;
-			mcpeStartGame.broadcastToXbl = true;
-			mcpeStartGame.trustPlayers = true;
-			mcpeStartGame.gamePublishSetting = 3;
-			mcpeStartGame.permissionLevel = (int) PermissionLevel;
-			mcpeStartGame.currentTick = Level.TickTime;
+			McpeStartGame startGame = McpeStartGame.CreateObject();
+			startGame.entityIdSelf = EntityId;
+			startGame.runtimeEntityId = EntityManager.EntityIdSelf;
+			startGame.playerGamemode = (int) GameMode;
+			startGame.spawn = SpawnPosition;
+			startGame.unknown1 = new Vector2(KnownPosition.HeadYaw, KnownPosition.Pitch);
+			startGame.seed = 12345;
+			startGame.dimension = 0;
+			startGame.generator = 1;
+			startGame.gamemode = (int) GameMode;
+			startGame.x = (int) SpawnPosition.X;
+			startGame.y = (int) (SpawnPosition.Y + Height);
+			startGame.z = (int) SpawnPosition.Z;
+			startGame.hasAchievementsDisabled = true;
+			startGame.dayCycleStopTime = (int) Level.WorldTime;
+			startGame.eduMode = PlayerInfo.Edition == 1;
+			startGame.rainLevel = 0;
+			startGame.lightningLevel = 0;
+			startGame.isMultiplayer = true;
+			startGame.broadcastToLan = true;
+			startGame.broadcastToXbl = true;
+			startGame.enableCommands = EnableCommands;
+			startGame.isTexturepacksRequired = false;
+			startGame.gamerules = Level.GetGameRules();
+			startGame.bonusChest = false;
+			startGame.mapEnabled = false;
+			startGame.trustPlayers = false;
+			startGame.permissionLevel = (int) PermissionLevel;
+			startGame.gamePublishSetting = 3;
+			startGame.levelId = "1m0AAMIFIgA=";
+			startGame.worldName = Level.LevelName;
+			startGame.premiumWorldTemplateId = "";
+			startGame.unknown0 = false;
+			startGame.currentTick = Level.TickTime;
+			startGame.enchantmentSeed = 123456;
 
-			SendPackage(mcpeStartGame);
+			SendPackage(startGame);
 		}
 
 		/// <summary>

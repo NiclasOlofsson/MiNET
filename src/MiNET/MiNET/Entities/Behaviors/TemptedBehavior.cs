@@ -38,9 +38,10 @@ namespace MiNET.Entities.Behaviors
 		private readonly Type _temptingItem;
 		private readonly double _lookDistance;
 		private readonly double _speedMultiplier;
-		private Player _player;
+		private Player _temptingPlayer;
 		private int _cooldown = 0;
 		private Vector3 _lastPlayerPos;
+		private Vector3 _originalPos;
 		private Path _currentPath = null;
 		private Pathfinder _pathfinder = new Pathfinder();
 
@@ -65,10 +66,11 @@ namespace MiNET.Entities.Behaviors
 
 			if (player == null) return false;
 
-			if (player != _player)
+			if (player != _temptingPlayer)
 			{
-				_player = player;
-				_lastPlayerPos = _player.KnownPosition;
+				_temptingPlayer = player;
+				_lastPlayerPos = _temptingPlayer.KnownPosition;
+				_originalPos = _entity.KnownPosition;
 			}
 
 			return true;
@@ -76,20 +78,23 @@ namespace MiNET.Entities.Behaviors
 
 		public override bool CanContinue()
 		{
-			return ShouldStart();
+			if (Math.Abs(_originalPos.Y - _entity.KnownPosition.Y) < 0.5)
+				return ShouldStart();
+
+			return false;
 		}
 
 		public override void OnTick(Entity[] entities)
 		{
-			if (_player == null) return;
-			var distanceToPlayer = _entity.DistanceTo(_player);
+			if (_temptingPlayer == null) return;
+			var distanceToPlayer = _entity.DistanceTo(_temptingPlayer);
 
 			if (distanceToPlayer < 1.75)
 			{
 				_entity.Velocity = Vector3.Zero;
-				_entity.Controller.LookAt(_player);
+				_entity.Controller.LookAt(_temptingPlayer);
 
-				_entity.Controller.RotateTowards(_player.KnownPosition);
+				_entity.Controller.RotateTowards(_temptingPlayer.KnownPosition);
 				_entity.Direction = Mob.ClampDegrees(_entity.Direction);
 				_entity.KnownPosition.HeadYaw = (float) _entity.Direction;
 				_entity.KnownPosition.Yaw = (float) _entity.Direction;
@@ -99,18 +104,18 @@ namespace MiNET.Entities.Behaviors
 			}
 
 			bool haveNoPath = (_currentPath == null || _currentPath.NoPath());
-			var deltaDistance = Vector3.Distance(_lastPlayerPos, _player.KnownPosition);
+			var deltaDistance = Vector3.Distance(_lastPlayerPos, _temptingPlayer.KnownPosition);
 			if (haveNoPath || deltaDistance > 1)
 			{
 				_pathfinder = new Pathfinder();
-				_currentPath = _pathfinder.FindPath(_entity, _player, _lookDistance);
-				_lastPlayerPos = _player.KnownPosition;
+				_currentPath = _pathfinder.FindPath(_entity, _temptingPlayer, _lookDistance);
+				_lastPlayerPos = _temptingPlayer.KnownPosition;
 			}
 
 
 			if (_currentPath.HavePath())
 			{
-				if (!_currentPath.GetNextTile(_entity, out var next))
+				if (!_currentPath.GetNextTile(_entity, out var next, true))
 				{
 					_currentPath = null;
 					return;
@@ -150,14 +155,14 @@ namespace MiNET.Entities.Behaviors
 				_currentPath = null;
 			}
 
-			_entity.Controller.LookAt(_player);
+			_entity.Controller.LookAt(_temptingPlayer);
 		}
 
 		public override void OnEnd()
 		{
 			_cooldown = 100;
 			_entity.Velocity = Vector3.Zero;
-			_player = null;
+			_temptingPlayer = null;
 			_entity.KnownPosition.Pitch = 0;
 			_currentPath = null;
 		}

@@ -110,6 +110,8 @@ namespace MiNET.Entities.Behaviors
 				//return;
 			}
 
+			if (!_entity.IsOnGround) return;
+
 			float speedFactor = (float) (_entity.Speed*speedMultiplier*0.7f);
 			var level = _entity.Level;
 			var currPosition = _entity.KnownPosition;
@@ -160,6 +162,9 @@ namespace MiNET.Entities.Behaviors
 			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
 			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
 
+			//var blockDown = level.GetBlock(coord + BlockCoordinates.Down);
+			//if (!blockDown.IsSolid) return; // not on ground
+
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
 			if (!colliding && !entityCollide)
 			{
@@ -183,7 +188,7 @@ namespace MiNET.Entities.Behaviors
 				{
 					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3)_entity.KnownPosition}");
 					//_entity.Level.SetBlock(new StainedGlass() {Coordinates = block.Coordinates, Metadata = (byte) _entity.Level.Random.Next(16)});
-					if (_entity.IsOnGround && _jumpCooldown <= 0)
+					if (/*_entity.IsOnGround && */_jumpCooldown <= 0)
 					{
 						_jumpCooldown = 10;
 						_entity.Velocity += new Vector3(0, 0.42f, 0);

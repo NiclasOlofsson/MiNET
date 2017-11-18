@@ -250,21 +250,21 @@ namespace MiNET
 			}
 			else
 			{
+				if (LastDamageSource is Player && Entity.Level.DoMobloot)
+				{
+					var drops = Entity.GetDrops();
+					foreach (var drop in drops)
+					{
+						Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
+					}
+				}
+
 				// This is semi-good, but we need to give the death-animation time to play.
 
 				SendWithDelay(2000, () =>
 				{
 					Entity.BroadcastSetEntityData();
 					Entity.DespawnEntity();
-
-					if (LastDamageSource is Player && Entity.Level.DoMobloot)
-					{
-						var drops = Entity.GetDrops();
-						foreach (var drop in drops)
-						{
-							Entity.Level.DropItem(Entity.KnownPosition.ToVector3(), drop);
-						}
-					}
 				});
 			}
 		}

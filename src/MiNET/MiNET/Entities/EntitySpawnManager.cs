@@ -138,6 +138,8 @@ namespace MiNET.Entities
 
 		public virtual void AttemptMobSpawn(BlockCoordinates packCoord, Random random, bool canSpawnPassive, bool canSpawnHostile)
 		{
+			if (Level.Dimension != Dimension.Overworld) return;
+
 			if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(packCoord, player.Value.KnownPosition) < 24) != 0)
 			{
 				//if (Log.IsDebugEnabled)
@@ -217,7 +219,7 @@ namespace MiNET.Entities
 										{
 											if (Log.IsDebugEnabled)
 												Log.Warn($"Spawned {entityType}");
-											Level.StrikeLightning(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw));
+											//Level.StrikeLightning(new PlayerLocation(x + 0.5, y, z + 0.5, yaw + 15, yaw)); 
 											//Level.SetBlock(new StainedGlass() { Metadata = (byte)firstBlock.SkyLight, Coordinates = firstBlock.Coordinates + BlockCoordinates.Down });
 											++numberOfSpawnedMobs;
 										}

@@ -306,13 +306,16 @@ namespace MiNET.Entities.Behaviors
 				var entityCoords = new HashSet<BlockCoordinates>();
 				foreach (var entry in source.Level.GetEntites())
 				{
-					entityCoords.Add((BlockCoordinates) entry.KnownPosition);
+					var position = (BlockCoordinates) entry.KnownPosition;
+					if(position == target) continue;
+
+					entityCoords.Add(position);
 				}
 
 				var navigator = new TileNavigator(
 					new LevelNavigator(source, blockAccess, distance, _blockCache, entityCoords),
 					new BlockDiagonalNeighborProvider(blockAccess, (int) Math.Truncate(source.KnownPosition.Y), _blockCache, source), // Instance of: INeighborProvider
-					new BlockDistanceAlgorithm(_blockCache), // Instance of: IDistanceAlgorithm
+					new BlockDistanceAlgorithm(_blockCache, source.CanClimb), // Instance of: IDistanceAlgorithm
 					new ManhattanHeuristicAlgorithm() // Instance of: IDistanceAlgorithm
 				);
 
@@ -341,16 +344,25 @@ namespace MiNET.Entities.Behaviors
 		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockDistanceAlgorithm));
 
 		private readonly Dictionary<Tile, Block> _blockCache;
+		private readonly bool _canClimb;
 
-		public BlockDistanceAlgorithm(Dictionary<Tile, Block> blockCache)
+		public BlockDistanceAlgorithm(Dictionary<Tile, Block> blockCache, bool canClimb = false)
 		{
 			_blockCache = blockCache;
+			_canClimb = canClimb;
 		}
 
 		public double Calculate(Tile from, Tile to)
 		{
 			Vector3 vFrom = GetBlock(from).Coordinates;
 			Vector3 vTo = GetBlock(to).Coordinates;
+
+			if (_canClimb)
+			{
+				vFrom *= new Vector3(1, 0, 1);
+				vTo *= new Vector3(1, 0, 1);
+			}
+
 			return Vector3.Distance(vFrom, vTo);
 		}
 
@@ -441,31 +453,83 @@ namespace MiNET.Entities.Behaviors
 				BlockCoordinates coord = new BlockCoordinates((int) item.X, block.Coordinates.Y, (int) item.Y);
 				if (_level.GetBlock(coord).IsSolid)
 				{
-					Block blockUp = _level.GetBlock(coord + BlockCoordinates.Up);
-					if (blockUp.IsSolid)
+					if (_entity.CanClimb)
 					{
-						// Can't jump
-						continue;
+						Block blockUp = _level.GetBlock(coord + BlockCoordinates.Up);
+						bool canMove = false;
+						for (int i = 0; i < 10; i++)
+						{
+							if (IsBlocked(blockUp.Coordinates))
+							{
+								blockUp = _level.GetBlock(blockUp.Coordinates + BlockCoordinates.Up);
+								continue;
+							}
+
+							canMove = true;
+							break;
+						}
+
+						if (!canMove) continue;
+
+						if (IsObstructed(blockUp.Coordinates)) continue;
+
+						_blockCache[item] = blockUp;
 					}
+					else
+					{
+						Block blockUp = _level.GetBlock(coord + BlockCoordinates.Up);
+						if (blockUp.IsSolid)
+						{
+							// Can't jump
+							continue;
+						}
 
-					if (IsObstructed(blockUp.Coordinates)) continue;
+						if (IsObstructed(blockUp.Coordinates)) continue;
 
-					_blockCache[item] = blockUp;
+						_blockCache[item] = blockUp;
+					}
 				}
 				else
 				{
 					var blockDown = _level.GetBlock(coord + BlockCoordinates.Down);
 					if (!blockDown.IsSolid)
 					{
-						if (!_level.GetBlock(coord + BlockCoordinates.Down + BlockCoordinates.Down).IsSolid)
+						if (_entity.CanClimb)
 						{
-							// Will fall
-							continue;
+							bool canClimb = false;
+							blockDown = _level.GetBlock(blockDown.Coordinates + BlockCoordinates.Down);
+							for (int i = 0; i < 10; i++)
+							{
+								if (!blockDown.IsSolid)
+								{
+									blockDown = _level.GetBlock(blockDown.Coordinates + BlockCoordinates.Down);
+									continue;
+								}
+
+								canClimb = true;
+								break;
+							}
+
+							if (!canClimb) continue;
+
+							blockDown = _level.GetBlock(blockDown.Coordinates + BlockCoordinates.Up);
+
+							if (IsObstructed(blockDown.Coordinates)) continue;
+
+							_blockCache[item] = blockDown;
 						}
+						else
+						{
+							if (!_level.GetBlock(coord + BlockCoordinates.Down + BlockCoordinates.Down).IsSolid)
+							{
+								// Will fall
+								continue;
+							}
 
-						if (IsObstructed(blockDown.Coordinates)) continue;
+							if (IsObstructed(blockDown.Coordinates)) continue;
 
-						_blockCache[item] = blockDown;
+							_blockCache[item] = blockDown;
+						}
 					}
 					else
 					{

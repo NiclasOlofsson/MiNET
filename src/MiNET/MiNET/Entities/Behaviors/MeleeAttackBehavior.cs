@@ -35,7 +35,7 @@ namespace MiNET.Entities.Behaviors
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MeleeAttackBehavior));
 
-		private readonly Mob _entity;
+		protected readonly Mob _entity;
 		private double _speedMultiplier;
 		private readonly double _followRange;
 

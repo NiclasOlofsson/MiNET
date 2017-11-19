@@ -53,12 +53,13 @@ namespace MiNET.Entities.Passive
 
 			AttackDamage = 2;
 
+			TargetBehaviors.Add(new HurtByTargetBehavior(this));
+
 			Behaviors.Add(new SittingBehavior(this));
 			Behaviors.Add(new JumpAttackBehavior(this, 1.0));
 			Behaviors.Add(new MeleeAttackBehavior(this, 1.0, 16));
 			Behaviors.Add(new OwnerHurtByTargetBehavior(this));
 			Behaviors.Add(new OwnerHurtTargetBehavior(this));
-			Behaviors.Add(new HurtByTargetBehavior(this));
 			Behaviors.Add(new FollowOwnerBehavior(this, 20, 1.0));
 			Behaviors.Add(new WanderBehavior(this, 1.0));
 			Behaviors.Add(new LookAtPlayerBehavior(this, 8.0));

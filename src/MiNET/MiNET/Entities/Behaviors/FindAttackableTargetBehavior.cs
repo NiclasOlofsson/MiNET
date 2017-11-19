@@ -31,11 +31,11 @@ namespace MiNET.Entities.Behaviors
 {
 	public class FindAttackableTargetBehavior : BehaviorBase, ITargetingBehavior
 	{
-		private readonly Mob _entity;
+		protected readonly Mob _entity;
 		private readonly double _targetDistance;
 		private int _targetUnseenTicks = 0;
 
-		public FindAttackableTargetBehavior(Mob entity, double targetDistance)
+		public FindAttackableTargetBehavior(Mob entity, double targetDistance = 16)
 		{
 			_entity = entity;
 			_targetDistance = targetDistance;

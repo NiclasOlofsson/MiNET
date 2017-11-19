@@ -551,8 +551,12 @@ namespace MiNET.Worlds
 
 										var blockCoordinates = new BlockCoordinates(x + spawnState.ChunkX*16, y + s*16, z + spawnState.ChunkZ*16);
 										var block = GetBlock(blockCoordinates, chunk);
+										//Stopwatch sw = Stopwatch.StartNew();
 										block.OnTick(this, true);
-
+										//if(sw.ElapsedMilliseconds > 50)
+										//{
+										//	if (Log.IsDebugEnabled) Log.Warn($"Took a long time ({sw.ElapsedMilliseconds}) with block tick on {block}");
+										//}
 										blockTickMeasurement?.End();
 									}
 								}

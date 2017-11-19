@@ -23,31 +23,28 @@
 
 #endregion
 
-using MiNET.Entities.Passive;
-
 namespace MiNET.Entities.Behaviors
 {
-	public class HurtByTargetBehavior : BehaviorBase
+	public class HurtByTargetBehavior : FindAttackableTargetBehavior
 	{
-		private Wolf _wolf;
-
-		public HurtByTargetBehavior(Wolf wolf)
+		public HurtByTargetBehavior(Mob entity) : base(entity)
 		{
-			_wolf = wolf;
 		}
 
 		public override bool ShouldStart()
 		{
-			if (_wolf.HealthManager.LastDamageSource == null) return false;
+			if (_entity.HealthManager.LastDamageSource == null) return false;
 
-			_wolf.SetTarget(_wolf.HealthManager.LastDamageSource);
+			if (!(_entity.HealthManager.LastDamageSource is Player)) return false;
 
 			return true;
 		}
 
-		public override bool CanContinue()
+		public override void OnStart()
 		{
-			return false;
+			_entity.SetTarget(_entity.HealthManager.LastDamageSource);
+
+			base.OnStart();
 		}
 	}
 }

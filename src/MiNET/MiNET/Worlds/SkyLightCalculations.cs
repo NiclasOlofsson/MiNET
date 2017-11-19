@@ -334,6 +334,8 @@ namespace MiNET.Worlds
 
 					visits.Add(coord);
 
+					if (coord.DistanceTo(coordinates) > 16) continue;
+
 					ResetLight(level, resetQueue, sourceQueue, coord);
 					if (!sourceQueue.Contains(coord))
 					{
@@ -365,7 +367,8 @@ namespace MiNET.Worlds
 			Queue<BlockCoordinates> lightBfQueue = new Queue<BlockCoordinates>(sourceQueue);
 			HashSet<BlockCoordinates> lightBfSet = new HashSet<BlockCoordinates>(sourceQueue);
 
-			Calculate(level, lightBfQueue, lightBfSet);
+			SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(level.WorldProvider);
+			Calculate(blockAccess, lightBfQueue, lightBfSet);
 		}
 
 		public void ResetLight(Level level, Queue<BlockCoordinates> resetQueue, Queue<BlockCoordinates> sourceQueue, BlockCoordinates coordinates)

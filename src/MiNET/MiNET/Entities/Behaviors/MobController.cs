@@ -26,7 +26,6 @@
 using System;
 using System.Numerics;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Entities.Behaviors
@@ -110,19 +109,10 @@ namespace MiNET.Entities.Behaviors
 				//return;
 			}
 
-			if (!_entity.IsOnGround) return;
-
 			float speedFactor = (float) (_entity.Speed*speedMultiplier*0.7f);
 			var level = _entity.Level;
 			var currPosition = _entity.KnownPosition;
 			var direction = Vector3.Normalize(_entity.GetHorizDir()*new Vector3(1, 0, 1));
-
-			//var blockDown = level.GetBlock(currPosition + BlockCoordinates.Down);
-			//if (_entity.Velocity.Y < 0 && !blockDown.IsSolid)
-			//{
-			//	Log.Debug($"Falling mob: {_entity.Velocity}, Position: {(Vector3)_entity.KnownPosition}");
-			//	return;
-			//}
 
 			bool entityCollide = false;
 			var boundingBox = _entity.GetBoundingBox().OffsetBy(direction*speedFactor);
@@ -162,12 +152,13 @@ namespace MiNET.Entities.Behaviors
 			var blockUp = level.GetBlock(coord + BlockCoordinates.Up);
 			var blockUpUp = level.GetBlock(coord + BlockCoordinates.Up + BlockCoordinates.Up);
 
-			//var blockDown = level.GetBlock(coord + BlockCoordinates.Down);
-			//if (!blockDown.IsSolid) return; // not on ground
-
 			var colliding = block.IsSolid || (_entity.Height >= 1 && blockUp.IsSolid);
+
 			if (!colliding && !entityCollide)
 			{
+				var blockDown = level.GetBlock(coord + BlockCoordinates.Down);
+				if (!_entity.IsOnGround && !blockDown.IsSolid) return;
+
 				//Log.Debug($"Move forward: {block}, {(_entity.IsOnGround ? "On ground" : "not on ground")}, Position: {(Vector3) _entity.KnownPosition}");
 				//if (!_entity.IsOnGround) return;
 
@@ -184,11 +175,18 @@ namespace MiNET.Entities.Behaviors
 			}
 			else
 			{
-				if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
+				if (_entity.CanClimb && !entityCollide)
 				{
+					_entity.Velocity = new Vector3(0, 0.2f, 0);
+				}
+				else if (!entityCollide && !blockUp.IsSolid && !(_entity.Height > 1 && blockUpUp.IsSolid) /*&& level.Random.Next(4) != 0*/)
+				{
+					// Above is wrong. Checks the wrong block in the wrong way.
+
 					//Log.Debug($"Block ahead: {block}, {(_entity.IsOnGround ? "jumping" : "no jump")}, Position: {(Vector3)_entity.KnownPosition}");
 					//_entity.Level.SetBlock(new StainedGlass() {Coordinates = block.Coordinates, Metadata = (byte) _entity.Level.Random.Next(16)});
-					if (/*_entity.IsOnGround && */_jumpCooldown <= 0)
+
+					if (_entity.IsOnGround && _jumpCooldown <= 0)
 					{
 						_jumpCooldown = 10;
 						_entity.Velocity += new Vector3(0, 0.42f, 0);

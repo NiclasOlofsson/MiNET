@@ -467,12 +467,13 @@ namespace MiNET.Entities
 		{
 			BlockCoordinates min = bbox.Min;
 			BlockCoordinates max = bbox.Max;
-			for (int x = min.X; x < max.X; x++)
+			for (int x = min.X; x <= max.X; x++)
 			{
-				for (int y = min.Y; y < max.Y; y++)
+				for (int y = min.Y; y <= max.Y; y++)
 				{
-					for (int z = min.Z; z < max.Z; z++)
+					for (int z = min.Z; z <= max.Z; z++)
 					{
+						// Check this again. Might be that we want to check solids instead?
 						if (!Level.IsAir(new BlockCoordinates(x, y, z))) return false;
 					}
 				}

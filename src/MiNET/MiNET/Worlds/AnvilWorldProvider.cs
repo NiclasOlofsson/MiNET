@@ -437,6 +437,7 @@ namespace MiNET.Worlds
 					}
 
 					NbtList entities = dataTag["Entities"] as NbtList;
+
 					NbtList blockEntities = dataTag["TileEntities"] as NbtList;
 					if (blockEntities != null)
 					{
@@ -463,6 +464,7 @@ namespace MiNET.Worlds
 							if (blockEntity != null)
 							{
 								blockEntityTag.Name = string.Empty;
+								blockEntity.Coordinates = new BlockCoordinates(x, y, z);
 
 								if (blockEntity is Sign)
 								{
@@ -517,6 +519,7 @@ namespace MiNET.Worlds
 								}
 								else
 								{
+									if (Log.IsDebugEnabled) Log.Debug($"Loaded block entity\n{blockEntityTag}");
 									blockEntity.SetCompound(blockEntityTag);
 									blockEntityTag = blockEntity.GetCompound();
 								}
@@ -525,7 +528,7 @@ namespace MiNET.Worlds
 							}
 							else
 							{
-								if (Log.IsDebugEnabled) Log.Debug($"Loaded unknown block entity: {blockEntityTag}");
+								if (Log.IsDebugEnabled) Log.Debug($"Loaded unknown block entity\n{blockEntityTag}");
 							}
 						}
 					}

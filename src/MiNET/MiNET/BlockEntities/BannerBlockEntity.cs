@@ -25,14 +25,11 @@
 
 using System.Collections.Generic;
 using fNbt;
-using log4net;
 
 namespace MiNET.BlockEntities
 {
 	public class BannerBlockEntity : BlockEntity
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BannerBlockEntity));
-
 		public int Base { get; set; }
 		public List<BannerPattern> Patterns { get; set; } = new List<BannerPattern>();
 
@@ -48,7 +45,6 @@ namespace MiNET.BlockEntities
 				new NbtInt("y", Coordinates.Y),
 				new NbtInt("z", Coordinates.Z),
 				new NbtString("id", Id),
-				new NbtInt("Base", Base),
 			};
 
 			if (Patterns.Count > 0)
@@ -65,7 +61,7 @@ namespace MiNET.BlockEntities
 				compound.Add(items);
 			}
 
-			Log.Debug("\n" + compound);
+			compound.Add(new NbtInt("Base", Base));
 
 			return compound;
 		}

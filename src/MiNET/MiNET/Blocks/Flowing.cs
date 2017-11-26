@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Numerics;
 using log4net;
@@ -23,10 +48,21 @@ namespace MiNET.Blocks
 			IsTransparent = true;
 		}
 
+		public override void BlockAdded(Level level)
+		{
+			if (!CheckForHarden(level, Coordinates.X, Coordinates.Y, Coordinates.Z))
+			{
+				level.ScheduleBlockTick(this, TickRate());
+			}
+		}
+
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			CheckForHarden(world, blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z);
-			world.ScheduleBlockTick(this, TickRate());
+			if (!CheckForHarden(world, blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z))
+			{
+				world.ScheduleBlockTick(this, TickRate());
+			}
+
 			return false;
 		}
 
@@ -400,53 +436,56 @@ namespace MiNET.Blocks
 			return this is FlowingWater ? 5 : (this is FlowingLava ? 30 : 0);
 		}
 
-		private void CheckForHarden(Level world, int x, int y, int z)
+		private bool CheckForHarden(Level world, int x, int y, int z)
 		{
 			Block block = world.GetBlock(x, y, z);
+
+			bool harden = false;
+			if (block is FlowingLava || block is StationaryLava)
 			{
-				bool harden = false;
-				if (block is FlowingLava || block is StationaryLava)
+				if (IsWater(world, x, y, z - 1))
 				{
-					if (IsWater(world, x, y, z - 1))
+					harden = true;
+				}
+
+				if (harden || IsWater(world, x, y, z + 1))
+				{
+					harden = true;
+				}
+
+				if (harden || IsWater(world, x - 1, y, z))
+				{
+					harden = true;
+				}
+
+				if (harden || IsWater(world, x + 1, y, z))
+				{
+					harden = true;
+				}
+
+				if (harden || IsWater(world, x, y + 1, z))
+				{
+					harden = true;
+				}
+
+				if (harden)
+				{
+					int meta = block.Metadata;
+
+					if (meta == 0)
 					{
-						harden = true;
+						world.SetBlock(new Obsidian {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
+					}
+					else if (meta <= 4)
+					{
+						world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y, z)}, true, false);
 					}
 
-					if (harden || IsWater(world, x, y, z + 1))
-					{
-						harden = true;
-					}
-
-					if (harden || IsWater(world, x - 1, y, z))
-					{
-						harden = true;
-					}
-
-					if (harden || IsWater(world, x + 1, y, z))
-					{
-						harden = true;
-					}
-
-					if (harden || IsWater(world, x, y + 1, z))
-					{
-						harden = true;
-					}
-
-					if (harden)
-					{
-						int meta = block.Metadata;
-
-						if (meta == 0)
-						{
-							world.SetBlock(new Obsidian { Coordinates = new BlockCoordinates(x, y, z) }, true, false);
-						}
-						else if (meta <= 4)
-						{
-							world.SetBlock(new Cobblestone { Coordinates = new BlockCoordinates(x, y, z) }, true, false);
-						}
-					}
+					return true;
 				}
 			}
+
+			return false;
 		}
 
 		private bool IsWater(Level world, int x, int y, int z)

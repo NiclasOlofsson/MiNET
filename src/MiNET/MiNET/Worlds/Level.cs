@@ -1054,13 +1054,16 @@ namespace MiNET.Worlds
 				BlockLightCalculations.Calculate(this, block.Coordinates);
 			}
 
-			if (!broadcast) return;
+			if (broadcast)
+			{
+				var message = McpeUpdateBlock.CreateObject();
+				message.blockId = block.Id;
+				message.coordinates = block.Coordinates;
+				message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+				RelayBroadcast(message);
+			}
 
-			var message = McpeUpdateBlock.CreateObject();
-			message.blockId = block.Id;
-			message.coordinates = block.Coordinates;
-			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
-			RelayBroadcast(message);
+			block.BlockAdded(this);
 		}
 
 		private void CalculateSkyLight(int x, int y, int z)
@@ -1369,6 +1372,7 @@ namespace MiNET.Worlds
 
 		public void ScheduleBlockTick(Block block, int tickRate)
 		{
+			if (BlockWithTicks.ContainsKey(block.Coordinates)) return;
 			BlockWithTicks[block.Coordinates] = TickTime + tickRate;
 		}
 

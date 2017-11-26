@@ -1,5 +1,6 @@
 ﻿using System;
 using MiNET.Net;
+using MiNET.Utils;
 
 namespace MiNET.Plugins.Attributes
 {
@@ -7,5 +8,6 @@ namespace MiNET.Plugins.Attributes
 	public class AuthorizeAttribute : Attribute
 	{
 		public CommandPermission Permission { get; set; } = CommandPermission.Normal;
+		public string ErrorMessage { get; set; } = Config.GetProperty("Authorize.ErrorMessage", "§cInsufficient permissions. Requires {1}, but player had {0}");
 	}
 }

@@ -263,6 +263,7 @@ namespace MiNET.Plugins
 							{
 								Permission = authorizeAttribute.Permission.ToString().ToLowerInvariant(),
 								CommandPermission = authorizeAttribute.Permission,
+								ErrorMessage = authorizeAttribute.ErrorMessage,
 								Aliases = commandAttribute.Aliases ?? new string[0],
 								Description = commandAttribute.Description ?? "",
 								Overloads = new Dictionary<string, Overload>
@@ -601,7 +602,7 @@ namespace MiNET.Plugins
 				if (player.CommandPermission < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommandPermission}");
-					return null;
+					return string.Format(command.Versions.First().ErrorMessage, player.CommandPermission.ToString().ToLowerInvariant(), requiredPermission.ToString().ToLowerInvariant());
 				}
 
 				MethodInfo method = overload.Method;

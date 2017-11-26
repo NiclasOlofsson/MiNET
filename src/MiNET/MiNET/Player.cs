@@ -202,7 +202,7 @@ namespace MiNET
 			SendPackage(response);
 		}
 
-		public void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
+		public virtual void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
 		{
 			SetGameMode((GameMode) message.gamemode);
 		}

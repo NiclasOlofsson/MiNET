@@ -1485,15 +1485,18 @@ namespace MiNET.Net
 
 			if ((map.UpdateType & BITFLAG_DECORATION_UPDATE) == BITFLAG_DECORATION_UPDATE)
 			{
+				WriteUnsignedVarInt((uint) 0); //entities
+
 				var count = map.Decorators.Length;
 				WriteUnsignedVarInt((uint) count);
 				foreach (var decorator in map.Decorators)
 				{
-					WriteSignedVarInt((decorator.Rotation & 0x0f) | (decorator.Icon << 4));
+					Write((byte) decorator.Rotation);
+					Write((byte) decorator.Icon);
 					Write((byte) decorator.X);
 					Write((byte) decorator.Z);
 					Write(decorator.Label);
-					Write(decorator.Color);
+					WriteUnsignedVarInt(decorator.Color);
 				}
 			}
 
@@ -1553,25 +1556,29 @@ namespace MiNET.Net
 
 				try
 				{
+					var entityCount = ReadUnsignedVarInt();
+					for (int i = 0; i < entityCount; i++)
+					{
+						ReadSignedVarLong();
+					}
+
 					var count = ReadUnsignedVarInt();
 					map.Decorators = new MapDecorator[count];
 					for (int i = 0; i < count; i++)
 					{
 						MapDecorator decorator = new MapDecorator();
-						var si = ReadSignedVarInt(); // some stuff
-						decorator.Rotation = (byte) (si & 0x0f);
-						decorator.Icon = (byte) ((si & 0xf0) >> 4);
-
+						decorator.Rotation = ReadByte();
+						decorator.Icon = ReadByte();
 						decorator.X = ReadByte();
 						decorator.Z = ReadByte();
 						decorator.Label = ReadString();
-						decorator.Color = ReadUint();
+						decorator.Color = ReadUnsignedVarInt();
 						map.Decorators[i] = decorator;
 					}
 				}
 				catch (Exception e)
 				{
-					Log.Error($"Errror while reading decorations for map={map}", e);
+					Log.Error($"Error while reading decorations for map={map}", e);
 				}
 			}
 

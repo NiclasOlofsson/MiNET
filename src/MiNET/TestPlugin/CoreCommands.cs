@@ -97,7 +97,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "metrics on", Description = "Turn metrics on")]
-		[Authorize(Permission = CommandPermission.Admin)]
+		[Authorize(Permission = (int) CommandPermission.Admin)]
 		public string MetricsOn(Player player)
 		{
 			player.Level._profiler.Enabled = true;
@@ -105,7 +105,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "metrics off", Description = "Turn metrics off")]
-		[Authorize(Permission = CommandPermission.Admin)]
+		[Authorize(Permission = (int) CommandPermission.Admin)]
 		public string MetricsOff(Player player)
 		{
 			player.Level._profiler.Enabled = false;
@@ -113,7 +113,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "metrics reset", Description = "Display metrics")]
-		[Authorize(Permission = CommandPermission.Admin)]
+		[Authorize(Permission = (int) CommandPermission.Admin)]
 		public string MetricsReset(Player player)
 		{
 			player.Level._profiler.Reset();
@@ -122,7 +122,7 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "metrics display", Description = "Display metrics")]
-		[Authorize(Permission = CommandPermission.Admin)]
+		[Authorize(Permission = (int) CommandPermission.Admin)]
 		public string MetricsDisplay(Player player, int timespan = 10000)
 		{
 			string results = player.Level._profiler.GetResults(timespan);
@@ -131,7 +131,7 @@ namespace TestPlugin
 		}
 
 		[Command(Description = "Save world")]
-		[Authorize(Permission = CommandPermission.Admin)]
+		[Authorize(Permission = (int) CommandPermission.Admin)]
 		public void Save(Player player)
 		{
 			AnvilWorldProvider provider = player.Level.WorldProvider as AnvilWorldProvider;
@@ -646,7 +646,7 @@ namespace TestPlugin
 		[Command]
 		public void Permission(Player player, int permission)
 		{
-			player.CommandPermission = (CommandPermission) permission;
+			player.CommandPermission = permission;
 			player.SendAdventureSettings();
 		}
 

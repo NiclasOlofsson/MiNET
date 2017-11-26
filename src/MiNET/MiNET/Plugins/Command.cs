@@ -26,7 +26,7 @@ namespace MiNET.Plugins
 		public string[] Aliases { get; set; }
 		public string Description { get; set; }
 		public string Permission { get; set; }
-		public CommandPermission CommandPermission { get; set; }
+		public int CommandPermission { get; set; }
 		public string ErrorMessage { get; set; }
 		public bool RequiresTellPerms { get; set; }
 		public bool RequiresChatPerms { get; set; }

@@ -598,7 +598,7 @@ namespace MiNET.Plugins
 					args = args.Skip(1).ToArray();
 				}
 
-				CommandPermission requiredPermission = (CommandPermission) Enum.Parse(typeof (CommandPermission), command.Versions.First().Permission, true);
+				int requiredPermission = command.Versions.First().CommandPermission;
 				if (player.CommandPermission < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommandPermission}");
@@ -656,7 +656,7 @@ namespace MiNET.Plugins
 
 				Overload overload = command.Versions.First().Overloads[commandOverload];
 
-				CommandPermission requiredPermission = (CommandPermission) Enum.Parse(typeof (CommandPermission), command.Versions.First().Permission, true);
+				int requiredPermission = command.Versions.First().CommandPermission;
 				if (player.CommandPermission < requiredPermission)
 				{
 					Log.Debug($"Insufficient permissions. Require {requiredPermission} but player had {player.CommandPermission}");

@@ -618,7 +618,7 @@ namespace MiNET
 
 		public PermissionLevel PermissionLevel { get; set; } = PermissionLevel.Operator;
 
-		public CommandPermission CommandPermission { get; set; } = CommandPermission.Admin;
+		public int CommandPermission { get; set; } = (int) Net.CommandPermission.Normal;
 
 		public ActionPermissions ActionPermissions { get; set; } = ActionPermissions.All;
 

@@ -384,6 +384,8 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemEnchantingTable() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemDye() {Metadata = 4, Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
@@ -405,11 +407,17 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
-			player.Inventory.Chest = new ItemElytra() {Count = 1};
+
+			player.Inventory.Helmet = new ItemDiamondHelmet();
+			player.Inventory.Chest = new ItemElytra();
+			player.Inventory.Leggings = new ItemDiamondLeggings();
+			player.Inventory.Boots = new ItemDiamondBoots();
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();
 
+			player.SendArmorForPlayer();
+			player.SendEquipmentForPlayer();
 
 			_players.TryAdd(player.Username, player);
 

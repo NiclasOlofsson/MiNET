@@ -496,6 +496,9 @@ namespace MiNET
 					IsGliding = false;
 					Height = 1.8;
 					break;
+				case PlayerAction.SetEnchantmentSeed:
+					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.coordinates}");
+					break;
 				default:
 					Log.Warn($"Unhandled action ID={message.actionId}");
 					throw new ArgumentOutOfRangeException(nameof(message.actionId));
@@ -588,8 +591,21 @@ namespace MiNET
 		{
 			McpeAdventureSettings mcpeAdventureSettings = McpeAdventureSettings.CreateObject();
 
-			uint flags = 0;
+			var flags = GetAdventureFlags();
 
+			mcpeAdventureSettings.flags = flags;
+			mcpeAdventureSettings.commandPermission = (uint) CommandPermission;
+			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions;
+			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel;
+			mcpeAdventureSettings.customStoredPermissions = (uint) 0;
+			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
+
+			SendPackage(mcpeAdventureSettings);
+		}
+
+		private uint GetAdventureFlags()
+		{
+			uint flags = 0;
 			if (IsWorldImmutable || GameMode == GameMode.Adventure) flags |= 0x01; // Immutable World (Remove hit markers client-side).
 			if (IsNoPvp || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x02; // No PvP (Remove hit markers client-side).
 			if (IsNoPvm || IsSpectator || GameMode == GameMode.Spectator) flags |= 0x04; // No PvM (Remove hit markers client-side).
@@ -605,15 +621,7 @@ namespace MiNET
 
 			if (IsFlying) flags |= 0x200;
 			if (IsMuted) flags |= 0x400; // Mute
-
-			mcpeAdventureSettings.flags = flags;
-			mcpeAdventureSettings.commandPermission = (uint) CommandPermission;
-			mcpeAdventureSettings.actionPermissions = (uint) ActionPermissions;
-			mcpeAdventureSettings.permissionLevel = (uint) PermissionLevel;
-			mcpeAdventureSettings.customStoredPermissions = (uint) 0;
-			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
-
-			SendPackage(mcpeAdventureSettings);
+			return flags;
 		}
 
 		public PermissionLevel PermissionLevel { get; set; } = PermissionLevel.Operator;
@@ -1465,6 +1473,8 @@ namespace MiNET
 		{
 			McpeCraftingData craftingData = McpeCraftingData.CreateObject();
 			craftingData.recipes = RecipeManager.Recipes;
+
+			RecipeManager.Recipes.Add(new ShapelessRecipe(new ItemDiamond(), new List<Item>() {new ItemPotato()}));
 			SendPackage(craftingData);
 		}
 
@@ -2008,6 +2018,33 @@ namespace MiNET
 						// Player inventory
 						if (!oldItem.Equals(Inventory.Slots[trans.Slot])) Log.Warn($"Inventory mismatch. Client reported old item as {oldItem} and it did not match existing the item {Inventory.Slots[trans.Slot]}");
 						Inventory.Slots[trans.Slot] = newItem;
+					}
+					else if (invId == 120)
+					{
+						if (!newItem.Equals(Inventory.Cursor)) Log.Warn($"Cursor mismatch. Client reported new item as {newItem} and it did not match existing the item {Inventory.Cursor}");
+						switch (slot)
+						{
+							case 0:
+								Inventory.Helmet = newItem;
+								break;
+							case 1:
+								Inventory.Chest = newItem;
+								break;
+							case 2:
+								Inventory.Leggings = newItem;
+								break;
+							case 3:
+								Inventory.Boots = newItem;
+								break;
+						}
+
+						McpeMobArmorEquipment mcpePlayerArmorEquipment = McpeMobArmorEquipment.CreateObject();
+						mcpePlayerArmorEquipment.runtimeEntityId = EntityId;
+						mcpePlayerArmorEquipment.helmet = Inventory.Helmet;
+						mcpePlayerArmorEquipment.chestplate = Inventory.Chest;
+						mcpePlayerArmorEquipment.leggings = Inventory.Leggings;
+						mcpePlayerArmorEquipment.boots = Inventory.Boots;
+						Level.RelayBroadcast(this, mcpePlayerArmorEquipment);
 					}
 					else if (invId == 124)
 					{
@@ -3070,6 +3107,12 @@ namespace MiNET
 			mcpeAddPlayer.headYaw = KnownPosition.HeadYaw;
 			mcpeAddPlayer.pitch = KnownPosition.Pitch;
 			mcpeAddPlayer.metadata = GetMetadata();
+			mcpeAddPlayer.flags = GetAdventureFlags();
+			mcpeAddPlayer.commandPermission = (uint) CommandPermission;
+			mcpeAddPlayer.actionPermissions = (uint) ActionPermissions;
+			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
+			mcpeAddPlayer.userId = -1;
+
 			Level.RelayBroadcast(this, players, mcpeAddPlayer);
 
 			SendEquipmentForPlayer(players);
@@ -3077,16 +3120,23 @@ namespace MiNET
 			SendArmorForPlayer(players);
 		}
 
-		public virtual void SendEquipmentForPlayer(Player[] receivers)
+		public virtual void SendEquipmentForPlayer(Player[] receivers = null)
 		{
 			McpeMobEquipment mcpePlayerEquipment = McpeMobEquipment.CreateObject();
 			mcpePlayerEquipment.runtimeEntityId = EntityId;
 			mcpePlayerEquipment.item = Inventory.GetItemInHand();
 			mcpePlayerEquipment.slot = 0;
-			Level.RelayBroadcast(this, receivers, mcpePlayerEquipment);
+			if (receivers == null)
+			{
+				Level.RelayBroadcast(this, mcpePlayerEquipment);
+			}
+			else
+			{
+				Level.RelayBroadcast(this, receivers, mcpePlayerEquipment);
+			}
 		}
 
-		public virtual void SendArmorForPlayer(Player[] receivers)
+		public virtual void SendArmorForPlayer(Player[] receivers = null)
 		{
 			McpeMobArmorEquipment mcpePlayerArmorEquipment = McpeMobArmorEquipment.CreateObject();
 			mcpePlayerArmorEquipment.runtimeEntityId = EntityId;
@@ -3094,7 +3144,14 @@ namespace MiNET
 			mcpePlayerArmorEquipment.chestplate = Inventory.Chest;
 			mcpePlayerArmorEquipment.leggings = Inventory.Leggings;
 			mcpePlayerArmorEquipment.boots = Inventory.Boots;
-			Level.RelayBroadcast(this, receivers, mcpePlayerArmorEquipment);
+			if (receivers == null)
+			{
+				Level.RelayBroadcast(this, mcpePlayerArmorEquipment);
+			}
+			else
+			{
+				Level.RelayBroadcast(this, receivers, mcpePlayerArmorEquipment);
+			}
 		}
 
 		public override void DespawnFromPlayers(Player[] players)

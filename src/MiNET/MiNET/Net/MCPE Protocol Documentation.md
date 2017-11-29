@@ -435,10 +435,10 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Item | Item |  |
 |Metadata | MetadataDictionary |  |
 |Flags | UnsignedVarInt |  |
-|User Permission | UnsignedVarInt |  |
+|Command permission | UnsignedVarInt |  |
 |Action Permissions | UnsignedVarInt |  |
 |Permission Level | UnsignedVarInt |  |
-|Unknown | UnsignedVarInt |  |
+|Custom stored permissions | UnsignedVarInt |  |
 |User Id | long |  |
 |Links | Links |  |
 -----------------------------------------------------------------------

@@ -49,7 +49,6 @@ namespace MiNET
 
 		// Armour
 		public Item Boots { get; set; } = new ItemAir();
-
 		public Item Leggings { get; set; } = new ItemAir();
 		public Item Chest { get; set; } = new ItemAir();
 		public Item Helmet { get; set; } = new ItemAir();

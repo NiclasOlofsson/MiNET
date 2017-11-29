@@ -2219,10 +2219,10 @@ namespace MiNET.Net
 		public Item item; // = null;
 		public MetadataDictionary metadata; // = null;
 		public uint flags; // = null;
-		public uint userPermission; // = null;
+		public uint commandPermission; // = null;
 		public uint actionPermissions; // = null;
 		public uint permissionLevel; // = null;
-		public uint unknown; // = null;
+		public uint customStoredPermissions; // = null;
 		public long userId; // = null;
 		public Links links; // = null;
 
@@ -2254,10 +2254,10 @@ namespace MiNET.Net
 			Write(item);
 			Write(metadata);
 			WriteUnsignedVarInt(flags);
-			WriteUnsignedVarInt(userPermission);
+			WriteUnsignedVarInt(commandPermission);
 			WriteUnsignedVarInt(actionPermissions);
 			WriteUnsignedVarInt(permissionLevel);
-			WriteUnsignedVarInt(unknown);
+			WriteUnsignedVarInt(customStoredPermissions);
 			Write(userId);
 			Write(links);
 
@@ -2289,10 +2289,10 @@ namespace MiNET.Net
 			item = ReadItem();
 			metadata = ReadMetadataDictionary();
 			flags = ReadUnsignedVarInt();
-			userPermission = ReadUnsignedVarInt();
+			commandPermission = ReadUnsignedVarInt();
 			actionPermissions = ReadUnsignedVarInt();
 			permissionLevel = ReadUnsignedVarInt();
-			unknown = ReadUnsignedVarInt();
+			customStoredPermissions = ReadUnsignedVarInt();
 			userId = ReadLong();
 			links = ReadLinks();
 
@@ -2322,10 +2322,10 @@ namespace MiNET.Net
 			item=default(Item);
 			metadata=default(MetadataDictionary);
 			flags=default(uint);
-			userPermission=default(uint);
+			commandPermission=default(uint);
 			actionPermissions=default(uint);
 			permissionLevel=default(uint);
-			unknown=default(uint);
+			customStoredPermissions=default(uint);
 			userId=default(long);
 			links=default(Links);
 		}

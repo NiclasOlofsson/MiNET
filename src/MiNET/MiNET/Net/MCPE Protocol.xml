@@ -249,10 +249,10 @@
 		<field name="Metadata" type="MetadataDictionary"/>
 
 		<field name="Flags" type="UnsignedVarInt" />
-		<field name="User Permission" type="UnsignedVarInt" />
+		<field name="Command permission" type="UnsignedVarInt" />
 		<field name="Action Permissions" type="UnsignedVarInt" />
 		<field name="Permission Level" type="UnsignedVarInt" />
-		<field name="Unknown" type="UnsignedVarInt" />
+		<field name="Custom stored permissions" type="UnsignedVarInt" />
 		<field name="User Id" type="long" />
 		<field name="Links" type="Links" />
 	</pdu>
@@ -445,9 +445,9 @@
 			<enum id="Get slot" value="-3" />
 			<enum id="Get result" value="-4" />
 			<enum id="Craft use" value="-5" />
-			<enum id="Enchant item" value="29" />
-			<enum id="Enchant lapis" value="31" />
-			<enum id="Enchant result" value="33" />
+			<enum id="Enchant item" value="-15" />
+			<enum id="Enchant lapis" value="-16" />
+			<enum id="Enchant result" value="-17" />
 			<enum id="Drop" value="199" />
 		</enums>
 		<enums id="Item release action">

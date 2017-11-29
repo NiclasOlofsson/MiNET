@@ -48,5 +48,6 @@ namespace MiNET.Net
 		WorldImmutable = 17,
 		Breaking = 18,
 		ChangeSkin = 19,
+		SetEnchantmentSeed = 20,
 	}
 }

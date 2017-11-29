@@ -13,11 +13,11 @@ namespace MiNET.Items
 			{
 				if (ExtraData == null) return 0;
 
-				return long.Parse(ExtraData["map_uuid"].StringValue);
+				return ExtraData["map_uuid"].LongValue;
 			}
 			set
 			{
-				ExtraData = new NbtCompound("tag") {new NbtString("map_uuid", value.ToString())};
+				ExtraData = new NbtCompound("tag") {new NbtLong("map_uuid", value)};
 			}
 		}
 

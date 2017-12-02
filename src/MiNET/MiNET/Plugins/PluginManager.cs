@@ -92,36 +92,45 @@ namespace MiNET.Plugins
 				{
 					Assembly newAssembly = Assembly.LoadFile(pluginPath);
 
-					Type[] types = newAssembly.GetExportedTypes();
-					foreach (Type type in types)
+					try
 					{
-						try
+						Type[] types = newAssembly.GetExportedTypes();
+						foreach (Type type in types)
 						{
-							// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
-							if (!type.IsDefined(typeof (PluginAttribute), true) && !typeof (IPlugin).IsAssignableFrom(type)) continue;
-							if (type.IsDefined(typeof (PluginAttribute), true))
+							try
 							{
-								PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
-								if (pluginAttribute != null)
+								// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
+								if (!type.IsDefined(typeof (PluginAttribute), true) && !typeof (IPlugin).IsAssignableFrom(type)) continue;
+								if (type.IsDefined(typeof (PluginAttribute), true))
 								{
-									if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+									PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
+									if (pluginAttribute != null)
+									{
+										if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+									}
+								}
+								var ctor = type.GetConstructor(Type.EmptyTypes);
+								if (ctor != null)
+								{
+									var plugin = ctor.Invoke(null);
+									_plugins.Add(plugin);
+									LoadCommands(type);
+									Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
+									LoadPacketHandlers(type);
 								}
 							}
-							var ctor = type.GetConstructor(Type.EmptyTypes);
-							if (ctor != null)
+							catch (Exception ex)
 							{
-								var plugin = ctor.Invoke(null);
-								_plugins.Add(plugin);
-								LoadCommands(type);
-								Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
-								LoadPacketHandlers(type);
+								Log.WarnFormat("Failed loading plugin type {0} as a plugin.", type);
+								Log.Debug("Plugin loader caught exception, but is moving on.", ex);
 							}
 						}
-						catch (Exception ex)
-						{
-							Log.WarnFormat("Failed loading plugin type {0} as a plugin.", type);
-							Log.Debug("Plugin loader caught exception, but is moving on.", ex);
-						}
+
+					}
+					catch (Exception e)
+					{
+						Log.WarnFormat("Failed loading exported types for assembly {0} as a plugin.", newAssembly.FullName);
+						Log.Debug("Plugin loader caught exception, but is moving on.", e);
 					}
 				}
 			}

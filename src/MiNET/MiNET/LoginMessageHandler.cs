@@ -231,16 +231,21 @@ namespace MiNET
 							Log.Debug("Derived Key is ok");
 						}
 
-						if (Log.IsDebugEnabled)
-						{
-							Log.Debug($"x5u cert (string): {x5u}");
-							ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
-							Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
-						}
+						//if (Log.IsDebugEnabled)
+						//{
+						//	Log.Debug($"x5u cert (string): {x5u}");
+						//	ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
+						//	Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+						//}
 
-						// Validate
+#if LINUX
+						CertificateData data = JWT.Payload<CertificateData>(token.ToString());
+#else
 						ECDiffieHellmanCngPublicKey newKey = (ECDiffieHellmanCngPublicKey) CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
 						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), newKey.Import());
+#endif
+
+						// Validate
 
 						if (data != null)
 						{
@@ -292,6 +297,9 @@ namespace MiNET
 							UseEncryption = Config.GetProperty("UseEncryptionForAll", false) || (Config.GetProperty("UseEncryption", true) && !string.IsNullOrWhiteSpace(_playerInfo.CertificateData.ExtraData.Xuid)),
 						};
 
+#if LINUX
+						_session.CryptoContext.UseEncryption = false;
+#else
 						if (_session.CryptoContext.UseEncryption)
 						{
 							ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(_playerInfo.CertificateData.IdentityPublicKey.DecodeBase64Url());
@@ -351,9 +359,9 @@ namespace MiNET
 								if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 							}
 						}
+#endif
 					}
 				}
-
 				if (!_session.CryptoContext.UseEncryption)
 				{
 					_session.MessageHandler.HandleMcpeClientToServerHandshake(null);

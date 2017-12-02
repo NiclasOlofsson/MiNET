@@ -25,6 +25,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading;
@@ -33,22 +34,20 @@ using log4net;
 
 namespace MiNET.Utils
 {
+#if !LINUX
 	public static class WinApi
 	{
 		/// <summary>TimeBeginPeriod(). See the Windows API documentation for details.</summary>
-
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2118:ReviewSuppressUnmanagedCodeSecurityUsage"), SuppressUnmanagedCodeSecurity]
+		[SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible"), SuppressMessage("Microsoft.Security", "CA2118:ReviewSuppressUnmanagedCodeSecurityUsage"), SuppressUnmanagedCodeSecurity]
 		[DllImport("winmm.dll", EntryPoint = "timeBeginPeriod", SetLastError = true)]
-
 		public static extern uint TimeBeginPeriod(uint uMilliseconds);
 
 		/// <summary>TimeEndPeriod(). See the Windows API documentation for details.</summary>
-
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible"), System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2118:ReviewSuppressUnmanagedCodeSecurityUsage"), SuppressUnmanagedCodeSecurity]
+		[SuppressMessage("Microsoft.Interoperability", "CA1401:PInvokesShouldNotBeVisible"), SuppressMessage("Microsoft.Security", "CA2118:ReviewSuppressUnmanagedCodeSecurityUsage"), SuppressUnmanagedCodeSecurity]
 		[DllImport("winmm.dll", EntryPoint = "timeEndPeriod", SetLastError = true)]
-
 		public static extern uint TimeEndPeriod(uint uMilliseconds);
 	}
+#endif
 
 	public class HighPrecisionTimer : IDisposable
 	{
@@ -79,9 +78,10 @@ namespace MiNET.Utils
 			// this, thanks.
 			//
 			// HERE BE DRAGONS!
+#if !LINUX
 			WinApi.TimeBeginPeriod(1);
 			// END IS HERE. SAFE AGAIN ...
-
+#endif
 			Avarage = interval;
 			Action = action;
 
@@ -127,7 +127,6 @@ namespace MiNET.Utils
 								//Log.Warn($"Skipping ticks because behind {calculatedNextStop - nextStop}ms. Too much");
 								nextStop = calculatedNextStop;
 							}
-
 						}
 
 						// If we can't keep up on execution time, we start skipping ticks until we catch up again.

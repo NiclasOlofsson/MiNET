@@ -80,6 +80,7 @@ namespace MiNET.Worlds
 		public long WorldTime { get; set; }
 		public long CurrentWorldCycleTime { get; private set; }
 		public long TickTime { get; set; }
+		public int SkylightSubtracted { get; set; }
 		public long StartTimeInTicks { get; private set; }
 		public bool EnableBlockTicking { get; set; } = false;
 		public bool EnableChunkTicking { get; set; } = false;
@@ -453,6 +454,8 @@ namespace MiNET.Worlds
 					RelayBroadcast(message);
 				}
 
+				SkylightSubtracted = CalculateSkylightSubtracted(WorldTime);
+
 				if (TickTime%100 == 0)
 				{
 					var cacheProvider = WorldProvider as ICachingWorldProvider;
@@ -636,6 +639,50 @@ namespace MiNET.Worlds
 
 				worldTickMeasurement?.End();
 			}
+		}
+
+		public int GetSubtractedLight(BlockCoordinates coordinates)
+		{
+			return GetSubtractedLight(coordinates, SkylightSubtracted);
+		}
+
+		public int GetSubtractedLight(BlockCoordinates coordinates, int amount)
+		{
+			var skyLight = GetSkyLight(coordinates) - amount;
+			var blockLight = GetBlockLight(coordinates);
+
+			return (int) Math.Max(skyLight, blockLight);
+		}
+
+		public int CalculateSkylightSubtracted(long worldTime)
+		{
+			float f = CalculateCelestialAngle(worldTime);
+			double f1 = 1.0F - (Math.Cos(f * ((float)Math.PI * 2F)) * 2.0F + 0.5F);
+			f1 = BiomeUtils.Clamp((float) f1, 0.0F, 1.0F);
+			f1 = 1.0F - f1;
+			//f1 = (float)((double)f1 * (1.0D - (double)(this.getRainStrength(p_72967_1_) * 5.0F) / 16.0D));
+			//f1 = (float)((double)f1 * (1.0D - (double)(this.getThunderStrength(p_72967_1_) * 5.0F) / 16.0D));
+			f1 = 1.0F - f1;
+			return (int)(f1 * 11.0F);
+		}
+		public float CalculateCelestialAngle(long worldTime)
+		{
+			int i = (int) (worldTime%24000L);
+			float f = ((float) i)/24000.0F - 0.25F;
+
+			if (f < 0.0F)
+			{
+				++f;
+			}
+
+			if (f > 1.0F)
+			{
+				--f;
+			}
+
+			float f1 = 1.0F - (float) ((Math.Cos((double) f*Math.PI) + 1.0D)/2.0D);
+			f = f + (f1 - f)/3.0F;
+			return f;
 		}
 
 		public Player[] GetSpawnedPlayers()

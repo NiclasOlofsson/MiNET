@@ -208,7 +208,7 @@ namespace MiNET.Entities
 							if (!firstBlock.IsSolid && !(firstBlock is Stationary) && !(firstBlock is Flowing))
 							{
 								if (doSpawnPassive && PassiveMobs.Contains(entityType)
-								    && (firstBlock.BlockLight >= 9 || (firstBlock.SkyLight >= 9 && Level.CurrentWorldCycleTime > 450 && Level.CurrentWorldCycleTime < 11615)))
+								    && Level.GetSubtractedLight(firstBlock.Coordinates, 0) >= 9)
 								{
 									var secondBlock = Level.GetBlock(x, y + 2, z);
 									if ((spawnBlock is Grass || (entityType == EntityType.Rabbit && spawnBlock is Sand)) && !secondBlock.IsSolid)
@@ -230,9 +230,7 @@ namespace MiNET.Entities
 										}
 									}
 								}
-								else if (doSpawnHostile && HostileMobs.Contains(entityType)
-								         && firstBlock.BlockLight <= 7
-								         && (firstBlock.SkyLight <= 7 || (Level.CurrentWorldCycleTime > 13183 && Level.CurrentWorldCycleTime < 22800)))
+								else if (doSpawnHostile && HostileMobs.Contains(entityType) && Level.GetSubtractedLight(firstBlock.Coordinates) < random.Next(8))
 								{
 									var secondBlock = Level.GetBlock(x, y + 1, z);
 									if (!secondBlock.IsSolid)

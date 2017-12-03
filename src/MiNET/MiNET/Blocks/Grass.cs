@@ -43,9 +43,7 @@ namespace MiNET.Blocks
 
 		public override void DoPhysics(Level level)
 		{
-			Block up = level.GetBlock(Coordinates + BlockCoordinates.Up);
-
-			if (!up.IsTransparent)
+			if (level.GetSubtractedLight(Coordinates + BlockCoordinates.Up) < 4)
 			{
 				Block dirt = BlockFactory.GetBlockById(3);
 				dirt.Coordinates = Coordinates;
@@ -57,9 +55,8 @@ namespace MiNET.Blocks
 		{
 			if (!isRandom) return;
 
-			Block up = level.GetBlock(Coordinates + BlockCoordinates.Up);
-
-			if (!up.IsTransparent)
+			var lightLevel = level.GetSubtractedLight(Coordinates + BlockCoordinates.Up);
+			if (lightLevel < 4 /* && check opacity */)
 			{
 				Block dirt = BlockFactory.GetBlockById(3);
 				dirt.Coordinates = Coordinates;
@@ -67,7 +64,7 @@ namespace MiNET.Blocks
 			}
 			else
 			{
-				if (up.SkyLight >= 9 || up.BlockLight >= 9)
+				if (lightLevel >= 9)
 				{
 					Random random = new Random();
 					for (int i = 0; i < 4; i++)
@@ -79,7 +76,6 @@ namespace MiNET.Blocks
 							Block nextUp = level.GetBlock(coordinates + BlockCoordinates.Up);
 							if (nextUp.IsTransparent && (nextUp.BlockLight >= 4 || nextUp.SkyLight >= 4))
 							{
-								Log.Debug("Set grass");
 								level.SetBlock(new Grass {Coordinates = coordinates});
 							}
 						}

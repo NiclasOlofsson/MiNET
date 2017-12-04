@@ -106,31 +106,31 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			if (e.Level.TickTime % 2 == 0)
-			{
-				BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
+			//if (e.Level.TickTime % 2 == 0)
+			//{
+			//	BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
 
-				player.AddPopup(new Popup()
-				{
-					Id = 11,
-					MessageType = MessageType.Popup,
-					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
-					Duration = 20 * 5,
-				});
-			}
+			//	player.AddPopup(new Popup()
+			//	{
+			//		Id = 11,
+			//		MessageType = MessageType.Popup,
+			//		Message = $"SkyLight Subtracted={level.SkylightSubtracted}, SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
+			//		Duration = 20 * 5,
+			//	});
+			//}
 
 
-			// Compass
-			if (e.Level.TickTime%2 == 0)
-			{
-				player.AddPopup(new Popup()
-				{
-					Id = 10,
-					MessageType = MessageType.Tip,
-					Message = GetCompass(player.KnownPosition.HeadYaw),
-					Duration = 20*5,
-				});
-			}
+			//// Compass
+			//if (e.Level.TickTime%2 == 0)
+			//{
+			//	player.AddPopup(new Popup()
+			//	{
+			//		Id = 10,
+			//		MessageType = MessageType.Tip,
+			//		Message = GetCompass(player.KnownPosition.HeadYaw),
+			//		Duration = 20*5,
+			//	});
+			//}
 
 
 			// Glide extension
@@ -390,18 +390,62 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemFurnace() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new IronOre(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemCoal() {Count = 64};
+			var fireworks = new ItemFireworks() {Count = 64};
+
+			fireworks.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
+			{
+				Explosions = new List<ItemFireworks.FireworksExplosion>()
+				{
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 0},
+						FireworkFade = new[] {(byte) 1},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 0,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 1},
+						FireworkFade = new[] {(byte) 2},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 1,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 2},
+						FireworkFade = new[] {(byte) 3},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 2,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 3},
+						FireworkFade = new[] {(byte) 4},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 3,
+					},
+					new ItemFireworks.FireworksExplosion()
+					{
+						FireworkColor = new[] {(byte) 4},
+						FireworkFade = new[] {(byte) 5},
+						FireworkFlicker = true,
+						FireworkTrail = false,
+						FireworkType = 4,
+					}
+				},
+				Flight = 2
+			});
+
+			player.Inventory.Slots[idx++] = fireworks;
 			player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
 			player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemArrow() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemChest() {Count = 64};
-			//player.Inventory.Slots[idx++] = new ItemFlintAndSteel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemStick() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};

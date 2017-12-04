@@ -228,6 +228,7 @@ namespace MiNET.Items
 			else if (id == 395) item = new ItemEmptyMap();
 			else if (id == 397) item = new ItemMobHead(metadata);
 			else if (id == 400) item = new ItemPumpkinPie();
+			else if (id == 401) item = new ItemFireworks();
 			else if (id == 423) item = new ItemMuttonRaw();
 			else if (id == 424) item = new ItemMuttonCooked();
 			else if (id == 427) item = new ItemSpruceDoor();

@@ -21,6 +21,7 @@ namespace MiNET.Entities.Projectiles
 		public int Damage { get; set; }
 		public int PowerLevel { get; set; } = 0;
 		public float HitBoxPrecision { get; set; } = 0.3f;
+		public Vector3 Force { get; set; } = new Vector3();
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
@@ -163,6 +164,7 @@ namespace MiNET.Entities.Projectiles
 
 				Velocity *= (float) (1.0 - Drag);
 				Velocity -= new Vector3(0, (float) Gravity, 0);
+				Velocity += Force;
 
 				KnownPosition.Yaw = (float) Velocity.GetYaw();
 				KnownPosition.Pitch = (float) Velocity.GetPitch();

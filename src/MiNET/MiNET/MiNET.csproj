@@ -418,6 +418,7 @@
     <Compile Include="Entities\ImageProviders\RandomColorMapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\TextMapImageProvider.cs" />
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
+    <Compile Include="Entities\Projectiles\FireworksRocket.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
     <Compile Include="Entities\Vehicles\Vehicle.cs" />
     <Compile Include="Entities\World\FallingBlock.cs" />
@@ -446,6 +447,7 @@
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
     <Compile Include="Items\ItemBanner.cs" />
+    <Compile Include="Items\ItemFireworks.cs" />
     <Compile Include="Items\ItemGoldIngot.cs" />
     <Compile Include="Items\ItemGoldNugget.cs" />
     <Compile Include="Items\ItemIronIngot.cs" />

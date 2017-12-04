@@ -38,7 +38,7 @@ namespace MiNET
 		public void PerformanceTestOfTile2()
 		{
 			HashSet<Tile2> list = new HashSet<Tile2>();
-			int n = 5000;
+			int n = 1000;
 			for (int i = 0; i < n; i++)
 			{
 				for (int j = 0; j < n; j++)
@@ -65,7 +65,7 @@ namespace MiNET
 		public void PerformanceTestOfTile()
 		{
 			HashSet<Tile> list = new HashSet<Tile>();
-			int n = 5000;
+			int n = 1000;
 			for (int i = 0; i < n; i++)
 			{
 				for (int j = 0; j < n; j++)

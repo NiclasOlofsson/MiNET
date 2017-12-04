@@ -637,21 +637,33 @@ namespace MiNET.Net
 
 		public void Write(Nbt nbt)
 		{
-			NbtFile file = nbt.NbtFile;
-			file.BigEndian = false;
-			file.UseVarInt = this is McpeBlockEntityData;
-
-			Write(file.SaveToBuffer(NbtCompression.None));
+			Write(nbt, _writer.BaseStream, this is McpeBlockEntityData);
 		}
 
+		public static void Write(Nbt nbt, Stream stream, bool useVarInt)
+		{
+			NbtFile file = nbt.NbtFile;
+			file.BigEndian = false;
+			file.UseVarInt = useVarInt;
+
+			byte[] saveToBuffer = file.SaveToBuffer(NbtCompression.None);
+			stream.Write(saveToBuffer, 0, saveToBuffer.Length);
+		}
+
+
 		public Nbt ReadNbt()
+		{
+			return ReadNbt(_reader.BaseStream, this is McpeBlockEntityData);
+		}
+
+		public static Nbt ReadNbt(Stream stream, bool useVarInt)
 		{
 			Nbt nbt = new Nbt();
 			NbtFile file = new NbtFile();
 			file.BigEndian = false;
-			file.UseVarInt = this is McpeBlockEntityData;
+			file.UseVarInt = useVarInt;
 			nbt.NbtFile = file;
-			file.LoadFromStream(_reader.BaseStream, NbtCompression.None);
+			file.LoadFromStream(stream, NbtCompression.None);
 
 			return nbt;
 		}
@@ -940,7 +952,7 @@ namespace MiNET.Net
 		}
 
 
-		private byte[] GetNbtData(NbtCompound nbtCompound)
+		public static byte[] GetNbtData(NbtCompound nbtCompound)
 		{
 			nbtCompound.Name = string.Empty;
 			var file = new NbtFile(nbtCompound);

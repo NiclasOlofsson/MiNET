@@ -31,6 +31,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using AStarNavigator;
@@ -44,10 +45,10 @@ using NUnit.Framework;
 
 namespace MiNET
 {
-	[TestFixture, Ignore("")]
+	[TestFixture]
 	public class MinetServerTest
 	{
-		[Test /*, Ignore("")*/]
+		[Test , Ignore("")]
 		public void IntVsInt24PerformanceTest()
 		{
 			ConcurrentDictionary<int, Datagram> waitingForAcksQueue = new ConcurrentDictionary<int, Datagram>();
@@ -201,7 +202,7 @@ namespace MiNET
 		//	Assert.AreEqual(uuidString, newUuid.ToString());
 		//}
 
-		[Test]
+		[Test, Ignore("")]
 		public void TestUuid()
 		{
 			string uuidString = "a821263b-0df8-44ed-87b7-d57a23fdccfc";
@@ -215,7 +216,7 @@ namespace MiNET
 			Assert.AreEqual(inputBytes, uuid.GetBytes());
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void TestBitArray()
 		{
 			BitArray bits = new BitArray(64);
@@ -248,7 +249,7 @@ namespace MiNET
 			//81808080808080808001                    .
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void TestCustomVarInt()
 		{
 			{
@@ -293,7 +294,7 @@ namespace MiNET
 			return bytes;
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void TestForce()
 		{
 			int j = 20;
@@ -377,7 +378,7 @@ namespace MiNET
 			}
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void AckSeriesTest()
 		{
 			{
@@ -460,7 +461,7 @@ namespace MiNET
 		}
 
 
-		[Test]
+		[Test, Ignore("")]
 		public void BlockEntityTest()
 		{
 			NbtFile file = new NbtFile();
@@ -501,7 +502,7 @@ namespace MiNET
 		}
 
 
-		[Test]
+		[Test, Ignore("")]
 		public void NetworkToAsciiTest()
 		{
 			IPAddress ip;
@@ -529,7 +530,7 @@ namespace MiNET
 			Console.WriteLine("ip is " + ip.ToString());
 		}
 
-		[Test]
+		[Test, Ignore("")]
 		public void EncapsulatedHeaderTest()
 		{
 			DatagramHeader header = new DatagramHeader(0x8c);
@@ -652,5 +653,6 @@ namespace MiNET
 			sb.Append(string.Join(", ", flags));
 			Assert.AreEqual("", sb.ToString());
 		}
+
 	}
 }

@@ -38,6 +38,7 @@ namespace MiNET.Entities
 		ThrownBottleoEnchanting = 68,
 		EnderEye = 70,
 		EnderCrystal = 71,
+		FireworksRocket = 72,
 		ShulkerBullet = 76,
 		FishingRodHook = 77,
 		DragonFireball = 79,

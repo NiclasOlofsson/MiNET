@@ -67,8 +67,6 @@ namespace MiNET.Blocks
 					break;
 			}
 
-			//world.SetBlock(this);
-			//return true;
 			return false;
 		}
 

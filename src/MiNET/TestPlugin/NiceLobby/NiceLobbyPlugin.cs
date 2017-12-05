@@ -106,31 +106,30 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			//if (e.Level.TickTime % 2 == 0)
-			//{
-			//	BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
-
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 11,
-			//		MessageType = MessageType.Popup,
-			//		Message = $"SkyLight Subtracted={level.SkylightSubtracted}, SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
-			//		Duration = 20 * 5,
-			//	});
-			//}
+			if (e.Level.TickTime%2 == 0)
+			{
+				BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
+				player.AddPopup(new Popup()
+				{
+					Id = 11,
+					MessageType = MessageType.Popup,
+					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
+					Duration = 20*5,
+				});
+			}
 
 
 			//// Compass
-			//if (e.Level.TickTime%2 == 0)
-			//{
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 10,
-			//		MessageType = MessageType.Tip,
-			//		Message = GetCompass(player.KnownPosition.HeadYaw),
-			//		Duration = 20*5,
-			//	});
-			//}
+			if (e.Level.TickTime%2 == 0)
+			{
+				player.AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = GetCompass(player.KnownPosition.HeadYaw),
+					Duration = 20*5,
+				});
+			}
 
 
 			// Glide extension
@@ -390,6 +389,10 @@ namespace TestPlugin.NiceLobby
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Grass(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Lever(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Trapdoor(), 0) { Count = 64 };
+
 			var fireworks = new ItemFireworks() {Count = 64};
 
 			fireworks.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()

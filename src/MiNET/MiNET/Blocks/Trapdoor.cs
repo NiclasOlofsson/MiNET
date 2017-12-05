@@ -64,9 +64,7 @@ namespace MiNET.Blocks
 					break;
 			}
 
-			world.SetBlock(this);
-
-			return true;
+			return false;
 		}
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)

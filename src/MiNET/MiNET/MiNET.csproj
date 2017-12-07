@@ -87,6 +87,7 @@
   <ItemGroup>
     <Compile Include="AlwaysFullHungerManager.cs" />
     <Compile Include="BlockEntities\BannerBlockEntity.cs" />
+    <Compile Include="BlockEntities\BeaconBlockEntity.cs" />
     <Compile Include="BlockEntities\BedBlockEntity.cs" />
     <Compile Include="BlockEntities\BlockEntity.cs" />
     <Compile Include="BlockEntities\BlockEntityFactory.cs" />

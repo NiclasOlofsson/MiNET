@@ -1473,8 +1473,6 @@ namespace MiNET
 		{
 			McpeCraftingData craftingData = McpeCraftingData.CreateObject();
 			craftingData.recipes = RecipeManager.Recipes;
-
-			RecipeManager.Recipes.Add(new ShapelessRecipe(new ItemDiamond(), new List<Item>() {new ItemPotato()}));
 			SendPackage(craftingData);
 		}
 
@@ -2922,10 +2920,12 @@ namespace MiNET
 		}
 
 		[Wired]
-		public void SetEffect(Effect effect)
+		public void SetEffect(Effect effect, bool ignoreIfLowerLevel = false)
 		{
 			if (Effects.ContainsKey(effect.EffectId))
 			{
+				if (ignoreIfLowerLevel && Effects[effect.EffectId].Level > effect.Level) return;
+
 				effect.SendUpdate(this);
 			}
 			else
@@ -2934,16 +2934,21 @@ namespace MiNET
 			}
 
 			Effects[effect.EffectId] = effect;
+
+			UpdatePotionColor();
 		}
 
 		[Wired]
-		public void RemoveEffect(Effect effect)
+		public void RemoveEffect(Effect effect, bool recalcColor = true)
 		{
 			if (Effects.ContainsKey(effect.EffectId))
 			{
 				effect.SendRemove(this);
 				Effects.TryRemove(effect.EffectId, out effect);
 			}
+
+
+			if (recalcColor) UpdatePotionColor();
 		}
 
 		[Wired]
@@ -2951,8 +2956,41 @@ namespace MiNET
 		{
 			foreach (var effect in Effects)
 			{
-				RemoveEffect(effect.Value);
+				RemoveEffect(effect.Value, false);
 			}
+
+			UpdatePotionColor();
+		}
+
+		public virtual void UpdatePotionColor()
+		{
+			if (Effects.Count == 0)
+			{
+				PotionColor = 0;
+			}
+			else
+			{
+				int a = 0xff;
+				int r = 0, g = 0, b = 0;
+				int levels = 0;
+				foreach (var effect in Effects.Values)
+				{
+					var color = effect.ParticleColor;
+					int level = effect.Level + 1;
+					r += color.R*level;
+					g += color.G*level;
+					b += color.B*level;
+					levels += level;
+				}
+
+				r /= levels;
+				g /= levels;
+				b /= levels;
+
+				PotionColor = (int) (0xff000000 | (r << 16) | (g << 8) | b);
+			}
+
+			BroadcastSetEntityData();
 		}
 
 		public override void DespawnEntity()

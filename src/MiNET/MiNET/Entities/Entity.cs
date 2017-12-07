@@ -64,6 +64,7 @@ namespace MiNET.Entities
 		public bool Silent { get; set; }
 		public bool IsInWater { get; set; } = false;
 		public bool IsOutOfWater => !IsInWater;
+		public int PotionColor { get; set; }
 
 		public long Age { get; set; }
 		public double Scale { get; set; } = 1.0;
@@ -110,8 +111,8 @@ namespace MiNET.Entities
 			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? string.Empty);
 			metadata[(int) MetadataFlags.AvailableAir] = new MetadataShort(HealthManager.Air);
 			//metadata[4] = new MetadataByte(Silent);
-			//metadata[7] = new MetadataInt(0); // Potion Color
-			//metadata[8] = new MetadataByte(0); // Potion Ambient
+			metadata[8] = new MetadataInt(PotionColor); // Potion Color
+			//metadata[9] = new MetadataByte(0); // Potion Ambient
 			//metadata[15] = new MetadataByte(NoAi);
 			//metadata[16] = new MetadataByte(0); // Player flags
 			////metadata[17] = new MetadataIntCoordinates(0, 0, 0);

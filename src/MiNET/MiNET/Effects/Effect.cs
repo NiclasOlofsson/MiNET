@@ -1,4 +1,5 @@
-﻿using MiNET.Net;
+﻿using System.Drawing;
+using MiNET.Net;
 using MiNET.Worlds;
 
 namespace MiNET.Effects
@@ -39,6 +40,7 @@ namespace MiNET.Effects
 		public int Duration { get; set; }
 		public int Level { get; set; }
 		public bool Particles { get; set; }
+		public Color ParticleColor { get; set; } = Color.Black;
 
 		protected Effect(EffectType id)
 		{

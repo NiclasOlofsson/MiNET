@@ -1206,7 +1206,11 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(new ChunkCoordinates(blockEntity.Coordinates.X >> 4, blockEntity.Coordinates.Z >> 4));
 			chunk.SetBlockEntity(blockEntity.Coordinates, blockEntity.GetCompound());
 
-			if (blockEntity.UpdatesOnTick) BlockEntities.Add(blockEntity);
+			if (blockEntity.UpdatesOnTick)
+			{
+				BlockEntities.RemoveAll(entity => entity.Coordinates == blockEntity.Coordinates);
+				BlockEntities.Add(blockEntity);
+			}
 
 			if (!broadcast) return;
 

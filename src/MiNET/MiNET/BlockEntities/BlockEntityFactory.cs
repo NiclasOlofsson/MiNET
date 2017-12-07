@@ -40,6 +40,7 @@ namespace MiNET.BlockEntities
 			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
 			else if (blockEntityId == "Banner") blockEntity = new BannerBlockEntity();
 			else if (blockEntityId == "FlowerPot") blockEntity = new FlowerPotBlockEntity();
+			else if (blockEntityId == "Beacon") blockEntity = new BeaconBlockEntity();
 
 			return blockEntity;
 		}

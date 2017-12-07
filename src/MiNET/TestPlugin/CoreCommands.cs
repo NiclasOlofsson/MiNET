@@ -1154,8 +1154,8 @@ namespace TestPlugin
 
 		private byte _invId = 0;
 
-		[Command(Name = "oi")]
-		public void OpenInventory(Player player)
+		[Command(Name = "oci")]
+		public void OpenChestInventory(Player player)
 		{
 			BlockCoordinates coor = new BlockCoordinates(player.KnownPosition);
 			Chest chest = new Chest

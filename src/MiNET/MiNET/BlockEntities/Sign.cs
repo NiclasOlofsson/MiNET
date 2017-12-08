@@ -4,6 +4,7 @@ namespace MiNET.BlockEntities
 {
 	public class Sign : BlockEntity
 	{
+		public string Text { get; set; }
 		public string Text1 { get; set; }
 		public string Text2 { get; set; }
 		public string Text3 { get; set; }
@@ -11,6 +12,7 @@ namespace MiNET.BlockEntities
 
 		public Sign() : base("Sign")
 		{
+			Text = string.Empty;
 			Text1 = string.Empty;
 			Text2 = string.Empty;
 			Text3 = string.Empty;
@@ -22,6 +24,7 @@ namespace MiNET.BlockEntities
 			var compound = new NbtCompound(string.Empty)
 			{
 				new NbtString("id", Id),
+				new NbtString("Text", Text ?? string.Empty),
 				new NbtString("Text1", Text1 ?? string.Empty),
 				new NbtString("Text2", Text2 ?? string.Empty),
 				new NbtString("Text3", Text3 ?? string.Empty),
@@ -36,6 +39,7 @@ namespace MiNET.BlockEntities
 
 		public override void SetCompound(NbtCompound compound)
 		{
+			Text = GetTextValue(compound, "Text");
 			Text1 = GetTextValue(compound, "Text1");
 			Text2 = GetTextValue(compound, "Text2");
 			Text3 = GetTextValue(compound, "Text3");

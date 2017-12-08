@@ -379,10 +379,8 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 1;
-			player.Inventory.Slots[idx++] = new ItemBlock(new StoneSlab(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new StoneSlab2(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new WoodSlab(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Chest(), 0) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemSign() { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) { Count = 64 };
 			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};

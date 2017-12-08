@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -23,12 +23,9 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.Utils;
-
 namespace MiNET.Blocks
 {
-	public class WoodSlab : Block
+	public class WoodSlab : SlabBase
 	{
 		public WoodSlab() : base(158)
 		{
@@ -37,11 +34,6 @@ namespace MiNET.Blocks
 			IsFlammable = true;
 			IsTransparent = true; // Partial - blocks light.
 			IsBlockingSkylight = false; // Partial - blocks light.
-		}
-
-		public override BoundingBox GetBoundingBox()
-		{
-			return new BoundingBox(Coordinates, (Vector3) Coordinates + new Vector3(1f, 0.5f, 1f));
 		}
 	}
 }

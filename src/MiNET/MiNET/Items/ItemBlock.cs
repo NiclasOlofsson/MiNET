@@ -76,11 +76,20 @@ namespace MiNET.Items
 				Log.Debug($"Can't build where you are standing");
 				return;
 			}
-			if (!_block.CanPlace(world, player, targetCoordinates, face)) return;
+			if (!_block.CanPlace(world, player, targetCoordinates, face))
+			{
+				Log.Debug("Could not place block");
+				return;
+			}
 
-			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
+			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
+			{
+				Log.Debug($"Handled placement of {_block}");
+				return; // Handled
+			}
 
 			world.SetBlock(_block);
+			Log.Debug($"Placed {_block}");
 		}
 	}
 }

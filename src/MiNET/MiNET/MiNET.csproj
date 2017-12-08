@@ -171,6 +171,7 @@
     <Compile Include="Blocks\PurPurStairs.cs" />
     <Compile Include="Blocks\RedGlazedTerracotta.cs" />
     <Compile Include="Blocks\RedSandstone.cs" />
+    <Compile Include="Blocks\SlabBase.cs" />
     <Compile Include="Blocks\StoneSlab2.cs" />
     <Compile Include="Blocks\RedSandstoneStairs.cs" />
     <Compile Include="Blocks\SeaLantern.cs" />
@@ -487,7 +488,6 @@
     <Compile Include="Items\ItemBread.cs" />
     <Compile Include="Items\ItemCarrot.cs" />
     <Compile Include="Items\ItemCauldron.cs" />
-    <Compile Include="Items\ItemChest.cs" />
     <Compile Include="Items\ItemCoal.cs" />
     <Compile Include="Items\ItemCommand.cs" />
     <Compile Include="Items\ItemCompass.cs" />
@@ -550,7 +550,6 @@
     <Compile Include="Items\ItemRedstone.cs" />
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemShovel.cs" />
-    <Compile Include="Items\ItemSlab.cs" />
     <Compile Include="Items\ItemSnowball.cs" />
     <Compile Include="Items\ItemSpawnEgg.cs" />
     <Compile Include="Items\ItemCookedBeef.cs" />

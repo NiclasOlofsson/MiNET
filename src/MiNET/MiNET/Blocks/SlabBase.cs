@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -24,69 +24,70 @@
 #endregion
 
 using System.Numerics;
-using MiNET.Blocks;
+using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.Items
+namespace MiNET.Blocks
 {
-	public class ItemSlab : ItemBlock
+	public abstract class SlabBase : Block
 	{
-		public ItemSlab(short id, short metadata) : base(id, metadata)
+		private const byte UpperBit = 0x08; // 8 = 1000
+		private const byte MaterialMask = 0x07; // 7 = 0111
+
+		protected SlabBase(byte id) : base(id)
 		{
 		}
 
-		public override Item GetSmelt()
+		public override BoundingBox GetBoundingBox()
 		{
-			return null;
+			return new BoundingBox(Coordinates, (Vector3) Coordinates + new Vector3(1f, 0.5f, 1f));
 		}
 
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			// 8 = 1000
-			byte upperBit = 0x08;
-			// 7 = 0111
-			byte materialMask = 0x07;
+			return base.CanPlace(world, player, blockCoordinates, targetCoordinates, face) || world.GetBlock(blockCoordinates).Id == Id;
+		}
 
-			Block existingBlock = world.GetBlock(blockCoordinates);
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			Block targetBlock = world.GetBlock(targetCoordinates);
 
-			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
-			Block newBlock = world.GetBlock(coordinates);
-
-			if (face == BlockFace.Up && faceCoords.Y == 0.5 && existingBlock.Id == Id && (existingBlock.Metadata & materialMask) == Metadata)
+			if (face == BlockFace.Up && faceCoords.Y == 0.5 && targetBlock.Id == Id && (targetBlock.Metadata & MaterialMask) == Metadata)
 			{
 				// Replace with double block
-				SetDoubleSlab(world, blockCoordinates);
-				return;
+				SetDoubleSlab(world, targetCoordinates);
+				return true;
 			}
 
-			if (face == BlockFace.Down && faceCoords.Y == 0.5 && (existingBlock.Metadata & materialMask) == Metadata)
+			if (face == BlockFace.Down && faceCoords.Y == 0.5 && (targetBlock.Metadata & MaterialMask) == Metadata)
 			{
 				// Replace with double block
-				SetDoubleSlab(world, blockCoordinates);
-				return;
+				SetDoubleSlab(world, targetCoordinates);
+				return true;
 			}
 
-			if (newBlock.Id != Id || (newBlock.Metadata & materialMask) != Metadata)
+			Block exitstingBlock = world.GetBlock(Coordinates);
+
+			if (exitstingBlock.Id != Id || (exitstingBlock.Metadata & MaterialMask) != Metadata)
 			{
-				Block slab = BlockFactory.GetBlockById((byte) (Id));
-				slab.Coordinates = coordinates;
-				slab.Metadata = (byte) Metadata;
 				if (face != BlockFace.Up && faceCoords.Y > 0.5 || (face == BlockFace.Down && faceCoords.Y == 0.0))
 				{
-					slab.Metadata |= upperBit;
+					Metadata |= UpperBit;
 				}
-				world.SetBlock(slab);
-				return;
+
+				return false;
 			}
 
 			// Same material in existing block, make double slab
+			// Create double slab, replace existing
+			SetDoubleSlab(world, Coordinates);
 
-			{
-				// Create double slab, replace existing
-				SetDoubleSlab(world, coordinates);
-			}
+			return true;
 		}
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof (SlabBase));
+
 
 		private void SetDoubleSlab(Level world, BlockCoordinates coordinates)
 		{
@@ -96,26 +97,4 @@ namespace MiNET.Items
 			world.SetBlock(slab);
 		}
 	}
-
-	public class ItemStoneSlab : ItemSlab
-	{
-		public ItemStoneSlab(short metadata) : base(44, metadata)
-		{
-		}
-	}
-
-	public class ItemWoodenSlab : ItemSlab
-	{
-		public ItemWoodenSlab(short metadata) : base(158, metadata)
-		{
-		}
-	}
-
-	public class ItemStoneSlab2 : ItemSlab
-	{
-		public ItemStoneSlab2(short metadata) : base(182, metadata)
-		{
-		}
-	}
-
 }

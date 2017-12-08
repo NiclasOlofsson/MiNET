@@ -95,6 +95,7 @@ namespace MiNET.Entities
 			AvailableAir = 7,
 			EatingHaystack = 16,
 			MaybeAge = 25,
+			BedPosition = 29,
 			Scale = 39,
 			MaxAir = 43,
 			CollisionBoxWidth = 54,

@@ -65,6 +65,7 @@ namespace MiNET
 		public PlayerInventory Inventory { get; set; }
 
 		public PlayerLocation SpawnPosition { get; set; }
+		public bool IsSleeping { get; set; } = false;
 
 		public int MaxViewDistance { get; set; } = 22;
 		public int MoveRenderDistance { get; set; } = 1;
@@ -451,6 +452,16 @@ namespace MiNET
 				case PlayerAction.StartSleeping:
 					break;
 				case PlayerAction.StopSleeping:
+					IsSleeping = false;
+					Bed bed = Level.GetBlock(SpawnPosition) as Bed;
+					if (bed != null)
+					{
+						bed.SetOccupied(Level, false);
+					}
+					else
+					{
+						Log.Warn($"Did not find a bed at {SpawnPosition}");
+					}
 					break;
 				case PlayerAction.Respawn:
 					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
@@ -2853,9 +2864,9 @@ namespace MiNET
 			//metadata[7] = new MetadataShort(400);
 			//metadata[8] = new MetadataInt(0);
 			//metadata[9] = new MetadataByte(0);
-			//metadata[27] = new MetadataByte(0);
+			metadata[27] = new MetadataByte((byte) (IsSleeping ? 0b10 : 0));
 			//metadata[28] = new MetadataInt(1);
-			//metadata[29] = new MetadataIntCoordinates((int) SpawnPosition.X, (int) SpawnPosition.Y, (int) SpawnPosition.Z);
+			metadata[(int) MetadataFlags.BedPosition] = new MetadataIntCoordinates((int) SpawnPosition.X, (int) SpawnPosition.Y, (int) SpawnPosition.Z);
 			//metadata[38] = new MetadataLong(0);
 			//metadata[39] = new MetadataFloat(1f);
 			//metadata[40] = new MetadataString(ButtonText ?? string.Empty);

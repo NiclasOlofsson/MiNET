@@ -30,18 +30,18 @@ namespace MiNET.Utils
 			Stream stream = reader.BaseStream;
 			Value = new BlockCoordinates
 			{
-				X = VarInt.ReadInt32(stream),
-				Y = VarInt.ReadInt32(stream),
-				Z = VarInt.ReadInt32(stream),
+				X = VarInt.ReadSInt32(stream),
+				Y = VarInt.ReadSInt32(stream),
+				Z = VarInt.ReadSInt32(stream),
 			};
 		}
 
 		public override void WriteTo(BinaryWriter reader)
 		{
 			Stream stream = reader.BaseStream;
-			VarInt.WriteInt32(stream, Value.X);
-			VarInt.WriteInt32(stream, Value.Y);
-			VarInt.WriteInt32(stream, Value.Z);
+			VarInt.WriteSInt32(stream, Value.X);
+			VarInt.WriteSInt32(stream, Value.Y);
+			VarInt.WriteSInt32(stream, Value.Z);
 		}
 
 		public override string ToString()

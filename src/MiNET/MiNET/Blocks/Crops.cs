@@ -121,9 +121,9 @@ namespace MiNET.Blocks
 			return calculateGrowthChance;
 		}
 
-		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			if (base.CanPlace(world, blockCoordinates, targetCoordinates, face))
+			if (base.CanPlace(world, player, blockCoordinates, targetCoordinates, face))
 			{
 				Block under = world.GetBlock(Coordinates + BlockCoordinates.Down);
 				return under is Farmland;

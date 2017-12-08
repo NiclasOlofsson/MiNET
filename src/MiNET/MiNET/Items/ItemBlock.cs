@@ -67,12 +67,16 @@ namespace MiNET.Items
 
 			_block.Metadata = (byte) Metadata;
 
-			if ((player.GetBoundingBox() - 0.01f).Intersects(_block.GetBoundingBox()))
+			var playerBbox = (player.GetBoundingBox() - 0.01f);
+			var blockBbox = _block.GetBoundingBox();
+			var intersects = playerBbox.Intersects(blockBbox);
+			Log.Debug($"Player bbox={playerBbox}, block bbox={blockBbox}, intersects={intersects}");
+			if (intersects)
 			{
-				Log.Debug("Can't build where you are standing: " + _block.GetBoundingBox());
+				Log.Debug($"Can't build where you are standing");
 				return;
 			}
-			if (!_block.CanPlace(world, targetCoordinates, face)) return;
+			if (!_block.CanPlace(world, player, targetCoordinates, face)) return;
 
 			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

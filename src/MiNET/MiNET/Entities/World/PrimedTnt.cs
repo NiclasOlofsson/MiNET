@@ -1,4 +1,30 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
+using System.Numerics;
 using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -14,6 +40,11 @@ namespace MiNET.Entities.World
 		public PrimedTnt(Level level) : base(65, level)
 		{
 			IsIgnited = true;
+			NoAi = false;
+			HasCollision = true;
+
+			Gravity = 0.04;
+			Drag = 0.02;
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -29,10 +60,7 @@ namespace MiNET.Entities.World
 
 		public override void SpawnEntity()
 		{
-			KnownPosition.X += 0.5f;
-			KnownPosition.Y += 0.5f;
-			KnownPosition.Z += 0.5f;
-			Fire = false;
+			Fire = false; // Why false?
 
 			base.SpawnEntity();
 		}
@@ -48,32 +76,49 @@ namespace MiNET.Entities.World
 			}
 			else
 			{
+				PositionCheck();
+
+				if (KnownPosition.Y > -1 && _checkPosition)
+				{
+					Velocity -= new Vector3(0, (float) Gravity, 0);
+					Velocity *= (float) (1.0f - Drag);
+				}
+
 				var entityData = McpeSetEntityData.CreateObject();
 				entityData.runtimeEntityId = EntityId;
 				entityData.metadata = GetMetadata();
 				Level.RelayBroadcast(entityData);
-				if (CheckPosition) PositionCheck();
 			}
 		}
 
+		private bool _checkPosition = true;
+
 		private void PositionCheck()
 		{
-			BlockCoordinates check = KnownPosition.GetCoordinates3D() + Level.Down;
-			if (!Level.GetBlock(check).IsSolid)
+			if (Velocity.Y < -0.1)
 			{
-				KnownPosition.Y -= 1;
+				int distance = (int) Math.Ceiling(Velocity.Length());
+				for (int i = 0; i < distance; i++)
+				{
+					BlockCoordinates check = new BlockCoordinates(KnownPosition) + (BlockCoordinates.Down*i);
+					if (Level.GetBlock(check).IsSolid)
+					{
+						_checkPosition = false;
+						KnownPosition = check + BlockCoordinates.Up;
+						return;
+					}
+				}
 			}
-			else
-			{
-				CheckPosition = false;
-			}
+			KnownPosition.X += (float) Velocity.X;
+			KnownPosition.Y += (float) Velocity.Y;
+			KnownPosition.Z += (float) Velocity.Z;
 		}
 
 		private void Explode()
 		{
 			// Litteral "fire and forget"
 			new Explosion(Level,
-				new BlockCoordinates((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4, Fire)
+					new BlockCoordinates((int) Math.Floor(KnownPosition.X), (int) Math.Floor(KnownPosition.Y), (int) Math.Floor(KnownPosition.Z)), 4, Fire)
 				.Explode();
 		}
 	}

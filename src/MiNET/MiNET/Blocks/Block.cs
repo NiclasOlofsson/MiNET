@@ -65,12 +65,12 @@ namespace MiNET.Blocks
 			Id = id;
 		}
 
-		public bool CanPlace(Level world, BlockCoordinates targetCoordinates, BlockFace face)
+		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			return CanPlace(world, Coordinates, targetCoordinates, face);
+			return CanPlace(world, player, Coordinates, targetCoordinates, face);
 		}
 
-		protected virtual bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected virtual bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}

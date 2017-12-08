@@ -19,7 +19,7 @@ namespace MiNET.Items
 
 			carrots.Metadata = (byte) Metadata;
 
-			if (!carrots.CanPlace(world, targetCoordinates, face)) return;
+			if (!carrots.CanPlace(world, player, targetCoordinates, face)) return;
 
 			if (carrots.PlaceBlock(world, player, targetCoordinates, face, faceCoords)) return; // Handled
 

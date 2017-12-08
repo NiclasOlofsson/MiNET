@@ -383,12 +383,11 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(210), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(211), 0) {Count = 64};
 			//player.Inventory.Slots[idx++] = new ItemBlock(new Block(242), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemEnchantingTable() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemDye() {Metadata = 4, Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBed() {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Beacon(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new IronBlock(), 0) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamond() {Count = 64};

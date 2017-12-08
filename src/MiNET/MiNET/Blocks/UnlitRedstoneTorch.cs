@@ -17,7 +17,7 @@ namespace MiNET.Blocks
 			IsSolid = false;
 		}
 
-		protected override bool CanPlace(Level world, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			Block block = world.GetBlock(blockCoordinates);
 			if (block is Farmland

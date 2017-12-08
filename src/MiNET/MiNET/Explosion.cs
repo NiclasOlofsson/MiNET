@@ -181,9 +181,9 @@ namespace MiNET
 			{
 				KnownPosition = new PlayerLocation
 				{
-					X = blockCoordinates.X,
-					Y = blockCoordinates.Y,
-					Z = blockCoordinates.Z,
+					X = blockCoordinates.X + 0.5f,
+					Y = blockCoordinates.Y + 0.5f,
+					Z = blockCoordinates.Z + 0.5f,
 				},
 				Fuse = (byte) (rand.Next(0, 20) + 10)
 			}.SpawnEntity();

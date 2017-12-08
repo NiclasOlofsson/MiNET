@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -23,91 +23,15 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.BlockEntities;
 using MiNET.Blocks;
-using MiNET.Utils;
-using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemBed : Item
+	public class ItemBed : ItemBlock
 	{
-		public ItemBed() : base(355)
+		public ItemBed() : base(355, 0)
 		{
-		}
-
-		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
-		{
-			byte direction = player.GetDirection();
-
-			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
-
-			// Base block, meta sets orientation
-
-			Bed block = new Bed
-			{
-				Coordinates = coordinates
-			};
-
-			switch (direction)
-			{
-				case 1:
-					block.Metadata = 0;
-					break; // West
-				case 2:
-					block.Metadata = 1;
-					break; // North
-				case 3:
-					block.Metadata = 2;
-					break; // East
-				case 0:
-					block.Metadata = 3;
-					break; // South 
-			}
-
-			if (!block.CanPlace(world, blockCoordinates, face)) return;
-
-			BlockFace lowerFace = BlockFace.None;
-			switch (block.Metadata)
-			{
-				case 0:
-					lowerFace = (BlockFace) 3;
-					break; // West
-				case 1:
-					lowerFace = (BlockFace) 4;
-					break; // North
-				case 2:
-					lowerFace = (BlockFace) 2;
-					break; // East
-				case 3:
-					lowerFace = (BlockFace) 5;
-					break; // South 
-			}
-
-			Bed blockUpper = new Bed
-			{
-				Coordinates = GetNewCoordinatesFromFace(coordinates, lowerFace),
-				Metadata = (byte) (block.Metadata | 0x08)
-			};
-
-			if (!blockUpper.CanPlace(world, blockCoordinates, face)) return;
-
-			//TODO: Check down from both blocks, must be solids
-
-			world.SetBlock(block);
-			world.SetBlockEntity(new BedBlockEntity
-			{
-				Coordinates = block.Coordinates,
-				Color = (byte) Metadata
-			});
-
-			world.SetBlock(blockUpper);
-			world.SetBlockEntity(new BedBlockEntity
-			{
-				Coordinates = blockUpper.Coordinates,
-				Color = (byte)Metadata
-			});
+			_block = new Bed();
 		}
 	}
 }

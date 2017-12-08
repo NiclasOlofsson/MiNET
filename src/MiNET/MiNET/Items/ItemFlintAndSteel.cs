@@ -55,8 +55,13 @@ namespace MiNET.Items
 				world.SetAir(block.Coordinates);
 				new PrimedTnt(world)
 				{
-					KnownPosition = new PlayerLocation(blockCoordinates.X, blockCoordinates.Y, blockCoordinates.Z),
-					Fuse = (byte) (new Random().Next(0, 20) + 10)
+					KnownPosition = new PlayerLocation
+					{
+						X = blockCoordinates.X + 0.5f,
+						Y = blockCoordinates.Y + 0.5f,
+						Z = blockCoordinates.Z + 0.5f,
+					},
+					Fuse = 80
 				}.SpawnEntity();
 			}
 			else if (block is Obsidian)

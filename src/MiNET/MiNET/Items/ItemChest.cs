@@ -37,7 +37,7 @@ namespace MiNET.Items
 				Coordinates = coor,
 			};
 
-			if (!chest.CanPlace(world, blockCoordinates, face)) return;
+			if (!chest.CanPlace(world, player, blockCoordinates, face)) return;
 
 			chest.PlaceBlock(world, player, coor, face, faceCoords);
 

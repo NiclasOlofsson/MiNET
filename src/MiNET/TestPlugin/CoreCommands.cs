@@ -605,8 +605,8 @@ namespace TestPlugin
 		[Command(Name = "twitter")]
 		public void Twitter(Player player)
 		{
-			player.Level.BroadcastMessage("ง6Twitter @NiclasOlofsson", type: MessageType.Raw);
-			player.Level.BroadcastMessage("ง5twitch.tv/gurunx", type: MessageType.Raw);
+			player.Level.BroadcastMessage("ยง6Twitter @NiclasOlofsson", type: MessageType.Raw);
+			player.Level.BroadcastMessage("ยง5twitch.tv/gurunx", type: MessageType.Raw);
 		}
 
 		[Command(Name = "pi")]
@@ -1106,7 +1106,7 @@ namespace TestPlugin
 					eff.Particles = false;
 
 					player.SetEffect(eff);
-					player.Level.BroadcastMessage($"{player.Username} added effect {effectType} with strenght {level}", MessageType.Raw);
+					player.Level.BroadcastMessage($"{player.Username} added effect {effectType} with strength {level}", MessageType.Raw);
 				}
 			}
 		}

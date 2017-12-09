@@ -835,7 +835,7 @@ namespace TestPlugin
 					}
 				}
 			};
-			inventory.Slots[c++] = new ItemEnchantingTable();
+			inventory.Slots[c++] = new ItemBlock(new EnchantingTable(), 0) { Count = 64 };
 			inventory.Slots[c++] = ItemFactory.GetItem(351, 4, 64);
 			inventory.Slots[c++] = new ItemBlock(new Planks(), 0) {Count = 64};
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
@@ -921,8 +921,8 @@ namespace TestPlugin
 			var inventory = player.Inventory;
 
 			byte c = 0;
-			inventory.Slots[c++] = new ItemFurnace() {Count = 64}; // Custom command block
-			inventory.Slots[c++] = new ItemCoal() {Count = 64}; // Custom command block
+			inventory.Slots[c++] = new ItemBlock(new Furnace(), 0) {Count = 64}; // Custom command block
+			inventory.Slots[c++] = new ItemCoal {Count = 64}; // Custom command block
 			inventory.Slots[c++] = new ItemBlock(new IronOre(), 0) {Count = 64}; // Custom command block
 
 			player.SendPlayerInventory();

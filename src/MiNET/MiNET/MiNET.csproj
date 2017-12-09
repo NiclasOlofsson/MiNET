@@ -508,8 +508,6 @@
     <Compile Include="Items\ItemEgg.cs" />
     <Compile Include="Items\ItemElytra.cs" />
     <Compile Include="Items\ItemEmptyMap.cs" />
-    <Compile Include="Items\ItemEnchantingTable.cs" />
-    <Compile Include="Items\ItemFurnace.cs" />
     <Compile Include="Items\ItemGoldAxe.cs" />
     <Compile Include="Items\ItemGoldenApple.cs" />
     <Compile Include="Items\ItemGoldHoe.cs" />

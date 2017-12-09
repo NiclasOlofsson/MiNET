@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
@@ -5,7 +30,6 @@ using log4net;
 using MiNET;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
-using MiNET.Entities;
 using MiNET.Entities.ImageProviders;
 using MiNET.Entities.World;
 using MiNET.Items;
@@ -14,14 +38,14 @@ using MiNET.Worlds;
 
 namespace TestPlugin.NiceLobby
 {
-	public class CustomItemItemFrame : ItemItemFrame
+	public class CustomItemFrame : ItemFrame
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomItemItemFrame));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomItemFrame));
 
 		private readonly List<MapEntity> _frames;
 		private readonly FrameTicker _frameTicker;
 
-		public CustomItemItemFrame(List<MapEntity> frames, FrameTicker frameTicker)
+		public CustomItemFrame(List<MapEntity> frames, FrameTicker frameTicker)
 		{
 			_frames = frames;
 			_frameTicker = frameTicker;
@@ -38,14 +62,14 @@ namespace TestPlugin.NiceLobby
 				Coordinates = coor
 			};
 
-			CustomItemFrame itemFrame = new CustomItemFrame(_frames, itemFrameBlockEntity, world, _frameTicker)
+			CustomFrame frame = new CustomFrame(_frames, itemFrameBlockEntity, world, _frameTicker)
 			{
 				Coordinates = coor,
 			};
 
-			if (!itemFrame.CanPlace(world, player, blockCoordinates, face)) return;
+			if (!frame.CanPlace(world, player, blockCoordinates, face)) return;
 
-			itemFrame.PlaceBlock(world, player, coor, face, faceCoords);
+			frame.PlaceBlock(world, player, coor, face, faceCoords);
 
 			// Then we create and set the sign block entity that has all the intersting data
 
@@ -53,9 +77,9 @@ namespace TestPlugin.NiceLobby
 		}
 	}
 
-	public class CustomItemFrame : ItemFrame
+	public class CustomFrame : Frame
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomItemFrame));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (CustomFrame));
 
 		private readonly List<MapEntity> _frames;
 		private readonly ItemFrameBlockEntity _itemFrameBlockEntity;
@@ -64,7 +88,7 @@ namespace TestPlugin.NiceLobby
 
 		private Timer _timer;
 
-		public CustomItemFrame(List<MapEntity> frames, ItemFrameBlockEntity itemFrameBlockEntity, Level level, FrameTicker frameTicker) : base()
+		public CustomFrame(List<MapEntity> frames, ItemFrameBlockEntity itemFrameBlockEntity, Level level, FrameTicker frameTicker) : base()
 		{
 			Log.Error("Created new Custom Item Frame");
 			_frames = frames;
@@ -103,7 +127,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		private int _frame = 0;
-		
+
 		private object _tickSync = new object();
 
 		private void Tick(object state)
@@ -122,13 +146,13 @@ namespace TestPlugin.NiceLobby
 				ItemFrameBlockEntity blockEntity = _itemFrameBlockEntity;
 				if (blockEntity != null)
 				{
-					blockEntity.SetItem(map);
+					blockEntity.SetItem(map, 0);
 					_level.SetBlockEntity(blockEntity);
 				}
 			}
 			finally
 			{
-				Monitor.Exit(_tickSync);	
+				Monitor.Exit(_tickSync);
 			}
 		}
 	}

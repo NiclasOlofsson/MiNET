@@ -1228,6 +1228,8 @@ namespace MiNET.Worlds
 				}
 			};
 
+			Log.Debug($"Nbt: {nbt.NbtFile.RootTag}");
+	
 			var entityData = McpeBlockEntityData.CreateObject();
 			entityData.namedtag = nbt;
 			entityData.coordinates = blockEntity.Coordinates;

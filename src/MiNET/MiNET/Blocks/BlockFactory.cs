@@ -312,7 +312,7 @@ namespace MiNET.Blocks
 			else if (blockId == 196) block = new AcaciaDoor();
 			else if (blockId == 197) block = new DarkOakDoor();
 			else if (blockId == 198) block = new GrassPath();
-			else if (blockId == 199) block = new ItemFrame();
+			else if (blockId == 199) block = new Frame();
 			else if (blockId == 200) block = new ChorusFlower();
 			else if (blockId == 201) block = new PurPur();
 			else if (blockId == 203) block = new PurPurStairs();

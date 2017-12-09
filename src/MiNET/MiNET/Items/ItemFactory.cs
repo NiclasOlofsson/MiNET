@@ -133,7 +133,6 @@ namespace MiNET.Items
 			if (item != null) return item;
 
 			if (id == 0) item = new ItemAir();
-			else if (id == 199) item = new ItemItemFrame();
 			else if (id == 256) item = new ItemIronShovel();
 			else if (id == 257) item = new ItemIronPickaxe();
 			else if (id == 258) item = new ItemIronAxe();
@@ -215,6 +214,7 @@ namespace MiNET.Items
 			else if (id == 373) item = new ItemPotion(metadata);
 			else if (id == 380) item = new ItemCauldron();
 			else if (id == 383) item = new ItemSpawnEgg(metadata);
+			else if (id == 389) item = new ItemFrame();
 			else if (id == 391) item = new ItemCarrot();
 			else if (id == 392) item = new ItemPotato();
 			else if (id == 393) item = new ItemBakedPotato();

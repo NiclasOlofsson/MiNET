@@ -47,11 +47,17 @@ namespace MiNET.Items
 
 			if (face == BlockFace.Up)
 			{
-				Block = new StandingBanner {ExtraData = ExtraData, Base = Metadata};
+				if (!(BlockFactory.GetBlockById(176) is StandingBanner banner)) return;
+				banner.ExtraData = ExtraData;
+				banner.Base = Metadata;
+				Block = banner;
 			}
 			else
 			{
-				Block = new WallBanner {ExtraData = ExtraData, Base = Metadata};
+				if (!(BlockFactory.GetBlockById(176) is WallBanner banner)) return;
+				banner.ExtraData = ExtraData;
+				banner.Base = Metadata;
+				Block = banner;
 			}
 
 			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);

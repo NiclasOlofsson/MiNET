@@ -27,11 +27,11 @@ using MiNET.Blocks;
 
 namespace MiNET.Items
 {
-	public class ItemBed : ItemBlock
+	public class ItemFrame : ItemBlock
 	{
-		public ItemBed() : base(355, 0)
+		public ItemFrame() : base(389)
 		{
-			Block = BlockFactory.GetBlockById(26);
+			Block = BlockFactory.GetBlockById(199);
 		}
 	}
 }

@@ -42,11 +42,11 @@ namespace MiNET.Items
 		[JsonIgnore]
 		public Block Block { get; protected set; }
 
-		protected ItemBlock(short id, short metadata) : base(id, metadata)
+		protected ItemBlock(short id, short metadata = 0) : base(id, metadata)
 		{
 		}
 
-		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
+		public ItemBlock(Block block, short metadata = 0) : base(block.Id, metadata)
 		{
 			Block = block;
 			FuelEfficiency = Block.FuelEfficiency;

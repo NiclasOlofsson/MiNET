@@ -75,7 +75,7 @@
     <Compile Include="Code4Fun\Code4FunPlugin.cs" />
     <Compile Include="Code4Fun\ScreenshotCommand.cs" />
     <Compile Include="CoreCommands.cs" />
-    <Compile Include="NiceLobby\CustomItemFrame.cs" />
+    <Compile Include="NiceLobby\CustomFrame.cs" />
     <Compile Include="NiceLobby\NiceLobbyPlugin.cs" />
     <Compile Include="NoDamageHealthManager.cs" />
     <Compile Include="Pets\Pet.cs" />

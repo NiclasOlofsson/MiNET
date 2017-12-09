@@ -1025,7 +1025,7 @@ namespace TestPlugin.NiceLobby
 					int i = 0;
 
 					player.Inventory.Slots[i++] = new ItemBlock(new Planks(), 0) {Count = 64};
-					player.Inventory.Slots[i++] = new ItemItemFrame {Count = 64};
+					player.Inventory.Slots[i++] = new ItemFrame {Count = 64};
 
 					foreach (MapEntity entity in entities.Values)
 					{
@@ -1105,7 +1105,7 @@ namespace TestPlugin.NiceLobby
 
 					foreach (var entites in entities.Values)
 					{
-						player.Inventory.Slots[i++] = new CustomItemItemFrame(entites, frameTicker) {Count = 64};
+						player.Inventory.Slots[i++] = new CustomItemFrame(entites, frameTicker) {Count = 64};
 					}
 
 					player.SendPlayerInventory();
@@ -1131,7 +1131,7 @@ namespace TestPlugin.NiceLobby
 								Coordinates = frambc
 							};
 
-							var itemFrame = new CustomItemFrame(frames, itemFrameBlockEntity, level, frameTicker) {Coordinates = frambc, Metadata = 3};
+							var itemFrame = new CustomFrame(frames, itemFrameBlockEntity, level, frameTicker) {Coordinates = frambc, Metadata = 3};
 							level.SetBlock(itemFrame);
 							level.SetBlockEntity(itemFrameBlockEntity);
 						}

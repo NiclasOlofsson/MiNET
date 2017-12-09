@@ -47,12 +47,13 @@ namespace MiNET.Items
 
 			if (face == BlockFace.Up) // On top of block
 			{
-				Block = new StandingSign();
+				// Standing sign
+				Block = BlockFactory.GetBlockById(63);
 			}
 			else
 			{
 				// Wall sign
-				Block = new WallSign();
+				Block = BlockFactory.GetBlockById(68);
 			}
 
 			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);

@@ -126,6 +126,8 @@ namespace MiNET.Entities
 
 			foreach (var entity in Level.Entities)
 			{
+				if(!entity.Value.CanDespawn) continue;
+
 				if (Level.Players.Count(player => player.Value.IsSpawned && Vector3.Distance(entity.Value.KnownPosition, player.Value.KnownPosition) < 128) == 0)
 				{
 					if (Log.IsDebugEnabled)

@@ -48,6 +48,7 @@ namespace MiNET.Entities
 		public int EntityTypeId { get; protected set; }
 		public long EntityId { get; set; }
 		public bool IsSpawned { get; set; }
+		public bool CanDespawn { get; set; } = true;
 
 		public DateTime LastUpdatedTime { get; set; }
 		public PlayerLocation KnownPosition { get; set; }
@@ -552,7 +553,7 @@ namespace MiNET.Entities
 
 		private Tuple<Vector3, BoundingBox> _bboxCache = new Tuple<Vector3, BoundingBox>(new Vector3(0, -1000, 0), new BoundingBox());
 
-		public BoundingBox GetBoundingBox()
+		public virtual BoundingBox GetBoundingBox()
 		{
 			var pos = KnownPosition;
 			//if (Math.Abs(pos.X - _bboxCache.Item1.X) < 0.01 && Math.Abs(pos.Y - _bboxCache.Item1.Y) < 0.01 && Math.Abs(pos.Z - _bboxCache.Item1.Z) < 0.01) return _bboxCache.Item2;
@@ -638,6 +639,10 @@ namespace MiNET.Entities
 		}
 
 		public virtual void DoInteraction(byte actionId, Player player)
+		{
+		}
+
+		public virtual void DoItemInteraction(Player player, Item itemInHand)
 		{
 		}
 

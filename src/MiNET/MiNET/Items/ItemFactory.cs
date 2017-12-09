@@ -192,6 +192,7 @@ namespace MiNET.Items
 			else if (id == 317) item = new ItemGoldBoots();
 			else if (id == 319) item = new ItemRawPorkchop();
 			else if (id == 320) item = new ItemCookedPorkshop();
+			else if (id == 321) item = new ItemPainting();
 			else if (id == 322) item = new ItemGoldenApple();
 			else if (id == 323) item = new ItemSign();
 			else if (id == 324) item = new ItemWoodenDoor();

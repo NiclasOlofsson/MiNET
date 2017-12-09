@@ -1888,10 +1888,23 @@ namespace MiNET
 					break;
 				case McpeInventoryTransaction.ItemUseOnEntityAction.ItemInteract:
 					Log.Warn($"Got Entity ItemInteract. Was't sure it existed, but obviously it does :-o");
+					EntityItemInteract(transaction);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
+		}
+
+		private void EntityItemInteract(Transaction transaction)
+		{
+			Item itemInHand = Inventory.GetItemInHand();
+			if (itemInHand.Id != transaction.Item.Id || itemInHand.Metadata != transaction.Item.Metadata)
+			{
+				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
+			}
+
+			Entity target = Level.GetEntity(transaction.EntityId);
+			target.DoItemInteraction(this, itemInHand);
 		}
 
 		protected virtual void EntityInteract(Transaction transaction)

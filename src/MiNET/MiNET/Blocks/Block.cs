@@ -25,6 +25,7 @@
 
 using System;
 using System.Numerics;
+using log4net;
 using MiNET.Items;
 using MiNET.Particles;
 using MiNET.Utils;
@@ -38,6 +39,8 @@ namespace MiNET.Blocks
 	/// </summary>
 	public class Block : ICloneable
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Block));
+
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; }
 		public byte Metadata { get; set; }
@@ -72,6 +75,15 @@ namespace MiNET.Blocks
 
 		protected virtual bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
+			var playerBbox = (player.GetBoundingBox() - 0.01f);
+			var blockBbox = GetBoundingBox();
+			if (playerBbox.Intersects(blockBbox))
+			{
+				Log.Debug($"Player bbox={playerBbox}, block bbox={blockBbox}, intersects={playerBbox.Intersects(blockBbox)}");
+				Log.Debug($"Can't build where you are standing");
+				return false;
+			}
+
 			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
 

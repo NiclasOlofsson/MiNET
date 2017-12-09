@@ -6,7 +6,7 @@ namespace MiNET.Items
 	{
 		public ItemCauldron() : base(380, 0)
 		{
-			_block = BlockFactory.GetBlockById(118);
+			Block = BlockFactory.GetBlockById(118);
 		}
 	}
 }

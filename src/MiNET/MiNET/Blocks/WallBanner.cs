@@ -23,12 +23,46 @@
 
 #endregion
 
+using System.Numerics;
+using fNbt;
+using MiNET.BlockEntities;
+using MiNET.Utils;
+using MiNET.Worlds;
+
 namespace MiNET.Blocks
 {
 	public class WallBanner : Block
 	{
+		public int Base { get; set; }
+		public NbtCompound ExtraData { get; set; }
+
 		public WallBanner() : base(177)
 		{
+		}
+
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		{
+			return world.GetBlock(blockCoordinates).IsReplacible;
+		}
+
+		public override BoundingBox GetBoundingBox()
+		{
+			return new BoundingBox(Coordinates, Coordinates + new BlockCoordinates(1, 2, 1));
+		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			Metadata = (byte) face;
+
+			var bannerBlockEntity = new BannerBlockEntity
+			{
+				Coordinates = Coordinates,
+				Base = Base,
+			};
+			bannerBlockEntity.SetCompound(ExtraData);
+			world.SetBlockEntity(bannerBlockEntity);
+
+			return false;
 		}
 	}
 }

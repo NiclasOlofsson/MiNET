@@ -23,9 +23,7 @@
 
 #endregion
 
-using System;
 using System.Numerics;
-using MiNET.BlockEntities;
 using MiNET.Blocks;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -39,45 +37,24 @@ namespace MiNET.Items
 			MaxStackSize = 16;
 		}
 
-		public override Item GetSmelt()
-		{
-			return null;
-		}
-
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			var coor = GetNewCoordinatesFromFace(blockCoordinates, face);
-			if (face == BlockFace.Up) // On top of block
-			{
-				var banner = new StandingBanner();
-				banner.Coordinates = coor;
-				// metadata for banner is a value 0-15 that signify the orientation of the banner. Same as PC metadata.
-				banner.Metadata = (byte) ((int) (Math.Floor((player.KnownPosition.Yaw + 180)*16/360) + 0.5) & 0x0f);
-				world.SetBlock(banner);
-			}
-			else if (face == BlockFace.North) // At the bottom of block
+			if (face == BlockFace.Down) // At the bottom of block
 			{
 				// Doesn't work, ignore if that happen. 
 				return;
 			}
+
+			if (face == BlockFace.Up)
+			{
+				Block = new StandingBanner {ExtraData = ExtraData, Base = Metadata};
+			}
 			else
 			{
-				var banner = new WallBanner();
-				banner.Coordinates = coor;
-				banner.Metadata = (byte) face;
-				world.SetBlock(banner);
+				Block = new WallBanner {ExtraData = ExtraData, Base = Metadata};
 			}
 
-			// Then we create and set the wall block entity that has all the intersting data
-
-			var bannerBlockEntity = new BannerBlockEntity
-			{
-				Coordinates = coor,
-				Base = Metadata,
-			};
-			bannerBlockEntity.SetCompound(ExtraData);
-
-			world.SetBlockEntity(bannerBlockEntity);
+			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
 		}
 	}
 }

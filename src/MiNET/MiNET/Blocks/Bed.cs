@@ -43,8 +43,7 @@ namespace MiNET.Blocks
 
 		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
-			// Implement this proper, when we have player in the method.
-			return base.CanPlace(world, player, blockCoordinates, targetCoordinates, face);
+			return world.GetBlock(blockCoordinates).IsReplacible;
 		}
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)

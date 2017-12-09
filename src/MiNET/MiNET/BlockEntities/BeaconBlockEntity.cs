@@ -26,6 +26,7 @@
 using System.Linq;
 using System.Numerics;
 using fNbt;
+using log4net;
 using MiNET.Effects;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -36,8 +37,8 @@ namespace MiNET.BlockEntities
 	{
 		private NbtCompound Compound { get; set; }
 
-		public int Primary { get; set; }
-		public int Secondary { get; set; }
+		public int Primary { get; set; } = 1;
+		public int Secondary { get; set; } = 10;
 
 		public BeaconBlockEntity() : base("Beacon")
 		{
@@ -79,9 +80,11 @@ namespace MiNET.BlockEntities
 		{
 			if (_nextUpdate > level.TickTime) return;
 
-			int pyramidLevels = GetPyramidLevels(level);
-
 			_nextUpdate = level.TickTime + 80;
+
+			if (!HaveSkyLight(level)) return;
+
+			int pyramidLevels = GetPyramidLevels(level);
 
 			int duration = 180 + pyramidLevels*40;
 			int range = 10 + pyramidLevels*10;
@@ -115,6 +118,25 @@ namespace MiNET.BlockEntities
 					}
 				}
 			}
+		}
+
+		private static readonly ILog Log = LogManager.GetLogger(typeof (BeaconBlockEntity));
+
+		private bool HaveSkyLight(Level level)
+		{
+			int height = level.GetHeight(Coordinates);
+
+			if (height == Coordinates.Y + 1) return true;
+
+			for (int y = 1; y < height - Coordinates.Y; y++)
+			{
+				if (level.IsTransparent(Coordinates + (BlockCoordinates.Up*y))) continue;
+				if (level.IsBlock(Coordinates + (BlockCoordinates.Up*y), 7)) continue;
+
+				return false;
+			}
+
+			return true;
 		}
 
 		private static Effect GetEffect(EffectType prim)
@@ -197,15 +219,16 @@ namespace MiNET.BlockEntities
 
 		private int GetPyramidLevels(Level level)
 		{
-			bool allIron = true;
 			for (int i = 1; i < 5; i++)
 			{
 				for (int x = -i; x < i + 1; x++)
 				{
 					for (int z = -i; z < i + 1; z++)
 					{
-						allIron = allIron && level.IsBlock(Coordinates + new BlockCoordinates(x, -i, z), 42);
-						if (!allIron) return i - 1;
+						var block = level.GetBlock(Coordinates + new BlockCoordinates(x, -i, z));
+						if (block.Id == 42 || block.Id == 41 || block.Id == 57 || block.Id == 133) continue;
+
+						return i - 1;
 					}
 				}
 			}

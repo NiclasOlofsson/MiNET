@@ -49,7 +49,7 @@ namespace MiNET.Blocks
 
 			world.SetBlockEntity(blockEntity);
 
-			//BuildPyramidLevels(world, 4);
+			BuildPyramidLevels(world, 4);
 
 			return false;
 		}

@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -290,40 +290,45 @@ namespace MiNET.Worlds
 			{
 				for (int z = 0; z < 16; z++)
 				{
-					bool isInLight = true;
-					bool isInAir = true;
+					RecalcHeight(x, z);
+				}
+			}
+		}
 
-					for (int y = 255; y >= 0; y--)
+		public void RecalcHeight(int x, int z, int startY = 255)
+		{
+			bool isInLight = true;
+			bool isInAir = true;
+
+			for (int y = startY; y >= 0; y--)
+			{
+				if (isInLight)
+				{
+					Chunk chunk = chunks[y >> 4];
+					if (isInAir && chunk.IsAllAir())
 					{
-						if (isInLight)
-						{
-							Chunk chunk = chunks[y >> 4];
-							if (isInAir && chunk.IsAllAir())
-							{
-								if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
-								y -= 15;
-								continue;
-							}
-
-							isInAir = false;
-
-							byte bid = GetBlock(x, y, z);
-							if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
-							{
-								SetSkyLight(x, y, z, 15);
-							}
-							else
-							{
-								SetHeight(x, z, (short)(y + 1));
-								SetSkyLight(x, y, z, 0);
-								isInLight = false;
-							}
-						}
-						else
-						{
-							SetSkyLight(x, y, z, 0);
-						}
+						if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
+						y -= 15;
+						continue;
 					}
+
+					isInAir = false;
+
+					byte bid = GetBlock(x, y, z);
+					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
+					{
+						SetSkyLight(x, y, z, 15);
+					}
+					else
+					{
+						SetHeight(x, z, (short) (y + 1));
+						SetSkyLight(x, y, z, 0);
+						isInLight = false;
+					}
+				}
+				else
+				{
+					SetSkyLight(x, y, z, 0);
 				}
 			}
 		}

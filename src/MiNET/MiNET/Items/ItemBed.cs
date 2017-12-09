@@ -31,7 +31,7 @@ namespace MiNET.Items
 	{
 		public ItemBed() : base(355, 0)
 		{
-			_block = new Bed();
+			Block = new Bed();
 		}
 	}
 }

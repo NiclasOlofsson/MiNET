@@ -39,10 +39,8 @@ namespace MiNET.Items
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBlock));
 
-		protected Block _block;
-
 		[JsonIgnore]
-		public Block Block => _block;
+		public Block Block { get; protected set; }
 
 		protected ItemBlock(short id, short metadata) : base(id, metadata)
 		{
@@ -50,46 +48,37 @@ namespace MiNET.Items
 
 		public ItemBlock(Block block, short metadata) : base(block.Id, metadata)
 		{
-			_block = block;
-			FuelEfficiency = _block.FuelEfficiency;
+			Block = block;
+			FuelEfficiency = Block.FuelEfficiency;
 		}
 
 		public override Item GetSmelt()
 		{
-			return _block.GetSmelt();
+			return Block.GetSmelt();
 		}
 
 
 		public override void PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(targetCoordinates);
-			_block.Coordinates = block.IsReplacible ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
+			Block.Coordinates = block.IsReplacible ? targetCoordinates : GetNewCoordinatesFromFace(targetCoordinates, face);
 
-			_block.Metadata = (byte) Metadata;
+			Block.Metadata = (byte) Metadata;
 
-			var playerBbox = (player.GetBoundingBox() - 0.01f);
-			var blockBbox = _block.GetBoundingBox();
-			var intersects = playerBbox.Intersects(blockBbox);
-			Log.Debug($"Player bbox={playerBbox}, block bbox={blockBbox}, intersects={intersects}");
-			if (intersects)
-			{
-				Log.Debug($"Can't build where you are standing");
-				return;
-			}
-			if (!_block.CanPlace(world, player, targetCoordinates, face))
+			if (!Block.CanPlace(world, player, targetCoordinates, face))
 			{
 				Log.Debug("Could not place block");
 				return;
 			}
 
-			if (_block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
+			if (Block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
 			{
-				Log.Debug($"Handled placement of {_block}");
+				Log.Debug($"Handled placement of {Block}");
 				return; // Handled
 			}
 
-			world.SetBlock(_block);
-			Log.Debug($"Placed {_block}");
+			world.SetBlock(Block);
+			Log.Debug($"Placed {Block}");
 		}
 	}
 }

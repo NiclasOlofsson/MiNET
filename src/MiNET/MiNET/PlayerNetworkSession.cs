@@ -436,7 +436,7 @@ namespace MiNET
 
 			else if (typeof (McpeClientToServerHandshake) == message.GetType())
 			{
-				// Start encrypotion
+				// Start encryption
 				handler.HandleMcpeClientToServerHandshake((McpeClientToServerHandshake) message);
 			}
 

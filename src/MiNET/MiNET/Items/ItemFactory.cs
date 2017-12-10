@@ -215,7 +215,7 @@ namespace MiNET.Items
 			else if (id == 371) item = new ItemGoldNugget();
 			else if (id == 373) item = new ItemPotion(metadata);
 			else if (id == 380) item = new ItemCauldron();
-			else if (id == 383) item = new ItemSpawnEgg(metadata);
+			else if (id == 383) item = new ItemMonsterEgg(metadata);
 			else if (id == 389) item = new ItemFrame();
 			else if (id == 391) item = new ItemCarrot();
 			else if (id == 392) item = new ItemPotato();

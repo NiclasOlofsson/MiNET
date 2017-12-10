@@ -23,61 +23,68 @@
 
 #endregion
 
+using System;
 using System.Numerics;
+using MiNET.BlockEntities;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class SnowLayer : Block
+	public class MobSpawner : Block
 	{
-		public SnowLayer() : base(78)
+		public MobSpawner() : base(52)
 		{
-			IsTransparent = true;
-			BlastResistance = 0.5f;
-			Hardness = 0.1f;
-		}
-
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
-		{
-			if (world.GetBlock(Coordinates + BlockCoordinates.Down) is SnowLayer current)
-			{
-				if (current.Metadata < 7)
-				{
-					return true;
-				}
-			}
-
-			return base.CanPlace(world, player, blockCoordinates, targetCoordinates, face);
-		}
-
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
-		{
-			if (world.GetBlock(Coordinates + BlockCoordinates.Down) is SnowLayer current)
-			{
-				if (current.Metadata < 7)
-				{
-					Coordinates += BlockCoordinates.Down;
-					Metadata = (byte) (current.Metadata + 1);
-				}
-				else
-				{
-					if (BlockFactory.GetBlockById(80) is Snow snow)
-					{
-						snow.Coordinates = Coordinates + BlockCoordinates.Down;
-						world.SetBlock(snow);
-					}
-				}
-			}
-
-			return false;
+			IsTransparent = true; // Doesn't block light
+			LightLevel = 1;
+			BlastResistance = 25;
+			Hardness = 5;
 		}
 
 		public override Item[] GetDrops(Item tool)
 		{
-			// One per layer, plus one.
-			return new[] {ItemFactory.GetItem(332, 0, (byte) (Metadata + 2))};
+			return new Item[0];
+		}
+
+		public override float GetExperiencePoints()
+		{
+			Random random = new Random();
+			return random.Next(15, 44);
+		}
+
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			MobSpawnerBlockEntity blockEntity = new MobSpawnerBlockEntity()
+			{
+				Coordinates = Coordinates
+			};
+			world.SetBlockEntity(blockEntity);
+
+			return false;
+		}
+
+		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		{
+			if (player.Inventory.GetItemInHand() is ItemMonsterEgg monsterEgg)
+			{
+				if (world.GetBlockEntity(Coordinates) is MobSpawnerBlockEntity blockEntity)
+				{
+					Entity entity = monsterEgg.Metadata.CreateEntity(world);
+					if (entity != null)
+					{
+						blockEntity.EntityTypeId = entity.EntityTypeId;
+						blockEntity.DisplayEntityHeight = (float) entity.Height;
+						blockEntity.DisplayEntityWidth = (float) entity.Width;
+						blockEntity.DisplayEntityScale = (float) entity.Scale;
+
+						world.SetBlockEntity(blockEntity);
+					}
+				}
+			}
+
+			return true;
 		}
 	}
 }

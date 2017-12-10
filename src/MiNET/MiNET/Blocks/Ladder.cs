@@ -21,9 +21,7 @@ namespace MiNET.Blocks
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Metadata = (byte) face;
-			world.SetBlock(this);
-
-			return true;
+			return false;
 		}
 	}
 }

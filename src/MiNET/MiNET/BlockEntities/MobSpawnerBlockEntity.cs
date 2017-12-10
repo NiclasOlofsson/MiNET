@@ -27,13 +27,22 @@ using fNbt;
 
 namespace MiNET.BlockEntities
 {
-	public class BedBlockEntity : BlockEntity
+	public class MobSpawnerBlockEntity : BlockEntity
 	{
-		public byte Color { get; set; }
+		public short Delay { get; set; } = 20;
+		public float DisplayEntityHeight { get; set; } = 1.8f;
+		public float DisplayEntityScale { get; set; } = 1.0f;
+		public float DisplayEntityWidth { get; set; } = 0.8f;
+		public int EntityTypeId { get; set; } = 1;
+		public short MaxNearbyEntities { get; set; } = 4;
+		public short MinSpawnDelay { get; set; } = 200;
+		public short MaxSpawnDelay { get; set; } = 800;
+		public short RequiredPlayerRange { get; set; } = 16;
+		public short SpawnCount { get; set; } = 4;
+		public short SpawnRange { get; set; } = 4;
 
-		public BedBlockEntity() : base("Bed")
+		public MobSpawnerBlockEntity() : base("MobSpawner")
 		{
-			Color = 0;
 		}
 
 		public override NbtCompound GetCompound()
@@ -41,10 +50,21 @@ namespace MiNET.BlockEntities
 			var compound = new NbtCompound(string.Empty)
 			{
 				new NbtString("id", Id),
-				new NbtByte("color", Color),
 				new NbtInt("x", Coordinates.X),
 				new NbtInt("y", Coordinates.Y),
-				new NbtInt("z", Coordinates.Z)
+				new NbtInt("z", Coordinates.Z),
+
+				new NbtShort("Delay", Delay),
+				new NbtFloat("DisplayEntityHeight", DisplayEntityHeight),
+				new NbtFloat("DisplayEntityScale", DisplayEntityScale),
+				new NbtFloat("DisplayEntityWidth", DisplayEntityWidth),
+				new NbtInt("EntityId", EntityTypeId),
+				new NbtShort("MaxNearbyEntities", MaxNearbyEntities),
+				new NbtShort("MinSpawnDelay", MinSpawnDelay),
+				new NbtShort("MaxSpawnDelay", MaxSpawnDelay),
+				new NbtShort("RequiredPlayerRange", RequiredPlayerRange),
+				new NbtShort("SpawnCount", SpawnCount),
+				new NbtShort("SpawnRange", SpawnRange),
 			};
 
 			return compound;
@@ -52,9 +72,9 @@ namespace MiNET.BlockEntities
 
 		public override void SetCompound(NbtCompound compound)
 		{
-			NbtByte color;
-			compound.TryGet("color", out color);
-			Color = color.ByteValue;
+			//NbtByte color;
+			//compound.TryGet("color", out color);
+			//Color = color.ByteValue;
 		}
 	}
 }

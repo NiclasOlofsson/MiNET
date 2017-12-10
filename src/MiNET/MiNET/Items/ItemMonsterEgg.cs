@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Numerics;
 using log4net;
@@ -9,15 +34,15 @@ using MiNET.Worlds;
 
 namespace MiNET.Items
 {
-	public class ItemSpawnEgg : Item
+	public class ItemMonsterEgg : Item
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemSpawnEgg));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemMonsterEgg));
 
-		public ItemSpawnEgg(EntityType type) : this((short) type)
+		public ItemMonsterEgg(EntityType type) : this((short) type)
 		{
 		}
 
-		public ItemSpawnEgg(short metadata) : base(383, metadata)
+		public ItemMonsterEgg(short metadata) : base(383, metadata)
 		{
 			MaxStackSize = 1;
 		}
@@ -130,8 +155,8 @@ namespace MiNET.Items
 					mob = new ElderGuardian(world);
 					break;
 				case EntityType.Horse:
-				    var random = new Random();
-				    mob = new Horse(world, random.NextDouble() < 0.10, random);
+					var random = new Random();
+					mob = new Horse(world, random.NextDouble() < 0.10, random);
 					break;
 				case EntityType.PolarBear:
 					mob = new PolarBear(world);

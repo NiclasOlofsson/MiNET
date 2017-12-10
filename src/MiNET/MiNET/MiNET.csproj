@@ -99,6 +99,7 @@
     <Compile Include="BlockEntities\FlowerPotBlockEntity.cs" />
     <Compile Include="BlockEntities\FurnaceBlockEntity.cs" />
     <Compile Include="BlockEntities\ItemFrameBlockEntity.cs" />
+    <Compile Include="BlockEntities\MobSpawnerBlockEntity.cs" />
     <Compile Include="BlockEntities\Sign.cs" />
     <Compile Include="BlockEntities\SkullBlockEntity.cs" />
     <Compile Include="BlockFace.cs" />
@@ -223,7 +224,7 @@
     <Compile Include="Blocks\Melon.cs" />
     <Compile Include="Blocks\Skull.cs" />
     <Compile Include="Blocks\MonsterEgg.cs" />
-    <Compile Include="Blocks\MonsterSpawner.cs" />
+    <Compile Include="Blocks\MobSpawner.cs" />
     <Compile Include="Blocks\MossStone.cs" />
     <Compile Include="Blocks\Mycelium.cs" />
     <Compile Include="Blocks\NetherBrick.cs" />
@@ -555,7 +556,7 @@
     <Compile Include="Items\ItemSign.cs" />
     <Compile Include="Items\ItemShovel.cs" />
     <Compile Include="Items\ItemSnowball.cs" />
-    <Compile Include="Items\ItemSpawnEgg.cs" />
+    <Compile Include="Items\ItemMonsterEgg.cs" />
     <Compile Include="Items\ItemCookedBeef.cs" />
     <Compile Include="Items\ItemStick.cs" />
     <Compile Include="Items\ItemStoneAxe.cs" />

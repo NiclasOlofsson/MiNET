@@ -541,7 +541,7 @@ Wiki: [Take Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 Wiki: [Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveEntity)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -822,9 +822,9 @@ Wiki: [Inventory Transaction](https://github.com/NiclasOlofsson/MiNET/wiki//Prot
 |Get Slot | -3 |
 |Get Result | -4 |
 |Craft Use | -5 |
-|Enchant Item | 29 |
-|Enchant Lapis | 31 |
-|Enchant Result | 33 |
+|Enchant Item | -15 |
+|Enchant Lapis | -16 |
+|Enchant Result | -17 |
 |Drop | 199 |
 
 #### Item Release Action constants
@@ -1025,7 +1025,7 @@ Wiki: [Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 Wiki: [Set Entity Motion](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityMotion)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -1058,8 +1058,8 @@ Wiki: [Set Entity Link](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-S
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
-|Rider ID | UnsignedVarLong |  |
-|Ridden ID | UnsignedVarLong |  |
+|Ridden ID | SignedVarLong |  |
+|Rider ID | SignedVarLong |  |
 |Link Type | byte |  |
 |Unknown | byte |  |
 -----------------------------------------------------------------------

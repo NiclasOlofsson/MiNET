@@ -611,6 +611,21 @@ namespace MiNET
 				handler.HandleMcpeCommandBlockUpdate((McpeCommandBlockUpdate) message);
 			}
 
+			else if (typeof(McpeEntityPickRequest) == message.GetType())
+			{
+				handler.HandleMcpeEntityPickRequest((McpeEntityPickRequest)message);
+			}
+
+			else if (typeof(McpeMoveEntity) == message.GetType())
+			{
+				handler.HandleMcpeMoveEntity((McpeMoveEntity)message);
+			}
+
+			else if (typeof (McpeSetEntityMotion) == message.GetType())
+			{
+				handler.HandleMcpeSetEntityMotion((McpeSetEntityMotion) message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled package: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");

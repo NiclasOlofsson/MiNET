@@ -48,6 +48,7 @@ namespace MiNET.Net
 		void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message);
 		void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message);
 		void HandleMcpeText(McpeText message);
+		void HandleMcpeMoveEntity(McpeMoveEntity message);
 		void HandleMcpeMovePlayer(McpeMovePlayer message);
 		void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message);
 		void HandleMcpeEntityEvent(McpeEntityEvent message);
@@ -59,6 +60,7 @@ namespace MiNET.Net
 		void HandleMcpeEntityPickRequest(McpeEntityPickRequest message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
 		void HandleMcpeEntityFall(McpeEntityFall message);
+		void HandleMcpeSetEntityMotion(McpeSetEntityMotion message);
 		void HandleMcpeAnimate(McpeAnimate message);
 		void HandleMcpeRespawn(McpeRespawn message);
 		void HandleMcpeContainerClose(McpeContainerClose message);
@@ -3390,9 +3392,9 @@ namespace MiNET.Net
 			GetSlot = -3,
 			GetResult = -4,
 			CraftUse = -5,
-			EnchantItem = 29,
-			EnchantLapis = 31,
-			EnchantResult = 33,
+			EnchantItem = -15,
+			EnchantLapis = -16,
+			EnchantResult = -17,
 			Drop = 199,
 		}
 		public enum ItemReleaseAction
@@ -4038,8 +4040,8 @@ namespace MiNET.Net
 			Passenger = 2,
 		}
 
-		public long riderId; // = null;
 		public long riddenId; // = null;
+		public long riderId; // = null;
 		public byte linkType; // = null;
 		public byte unknown; // = null;
 
@@ -4055,8 +4057,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteUnsignedVarLong(riderId);
-			WriteUnsignedVarLong(riddenId);
+			WriteSignedVarLong(riddenId);
+			WriteSignedVarLong(riderId);
 			Write(linkType);
 			Write(unknown);
 
@@ -4072,8 +4074,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			riderId = ReadUnsignedVarLong();
-			riddenId = ReadUnsignedVarLong();
+			riddenId = ReadSignedVarLong();
+			riderId = ReadSignedVarLong();
 			linkType = ReadByte();
 			unknown = ReadByte();
 
@@ -4087,8 +4089,8 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			riderId=default(long);
 			riddenId=default(long);
+			riderId=default(long);
 			linkType=default(byte);
 			unknown=default(byte);
 		}

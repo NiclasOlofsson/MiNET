@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,58 +23,35 @@
 
 #endregion
 
-using MiNET.Items;
-using MiNET.Net;
+using System.Numerics;
+using log4net;
+using MiNET.Entities.Vehicles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
-namespace MiNET.Entities.Vehicles
+namespace MiNET.Items
 {
-	public class Boat : Vehicle
+	public class ItemBoat : Item
 	{
-		public Boat(Level level) : base(EntityType.Boat, level)
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemBoat));
+
+		public ItemBoat(short metadata) : base(333, metadata)
 		{
-			IsStackable = true;
-			HasCollision = true;
-			IsAffectedByGravity = true;
-			Length = 1.4f;
-			Height = 0.455f;
-			NoAi = false;
 		}
 
-		public override Item[] GetDrops()
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
-			return new[]
-			{
-				ItemFactory.GetItem(333)
-			};
+			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
+
+			Boat entity = new Boat(world);
+			entity.KnownPosition = coordinates;
+			entity.SpawnEntity();
 		}
 
-		public override void DoInteraction(byte actionId, Player player)
+		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			player.Vehicle = EntityId;
-
-			McpeSetEntityLink link = McpeSetEntityLink.CreateObject();
-			link.linkType = (byte) McpeSetEntityLink.LinkActions.Ride;
-			link.riderId = player.EntityId;
-			link.riddenId = EntityId;
-			Level.RelayBroadcast(link);
-
-			SendSetEntityData(player);
-		}
-
-		public void SendSetEntityData(Player player)
-		{
-			player.IsRiding = true;
-
-			// FOR PLAYER
-			MetadataDictionary metadata = player.GetMetadata();
-			metadata[57] = new MetadataVector3(0, 1.02001f, 0);
-			metadata[58] = new MetadataByte(1);
-			metadata[59] = new MetadataFloat(90f);
-			metadata[60] = new MetadataFloat(-90f);
-
-			player.BroadcastSetEntityData(metadata);
+			Log.Debug("Use item boat");
+			base.UseItem(world, player, blockCoordinates);
 		}
 	}
 }

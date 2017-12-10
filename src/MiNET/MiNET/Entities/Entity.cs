@@ -512,9 +512,14 @@ namespace MiNET.Entities
 
 		public virtual void BroadcastSetEntityData()
 		{
+			BroadcastSetEntityData(GetMetadata());
+		}
+
+		public virtual void BroadcastSetEntityData(MetadataDictionary metadata)
+		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.runtimeEntityId = EntityId;
-			mcpeSetEntityData.metadata = GetMetadata();
+			mcpeSetEntityData.metadata = metadata;
 			Level?.RelayBroadcast(mcpeSetEntityData);
 		}
 

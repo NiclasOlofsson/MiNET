@@ -409,6 +409,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeMoveEntity(McpeMoveEntity message)
+		{
+		}
+
 		public void HandleMcpeMovePlayer(McpeMovePlayer message)
 		{
 		}
@@ -450,6 +454,10 @@ namespace MiNET
 		}
 
 		public void HandleMcpeEntityFall(McpeEntityFall message)
+		{
+		}
+
+		public void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
 		}
 

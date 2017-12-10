@@ -32,6 +32,7 @@ using log4net;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
+using MiNET.Entities.Vehicles;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
@@ -150,6 +151,7 @@ namespace MiNET.Plugins.Commands
 			var world = player.Level;
 
 			Mob mob = null;
+			Entity entity = null;
 
 			EntityType type = (EntityType) (int) petType;
 			switch (type)
@@ -281,13 +283,26 @@ namespace MiNET.Plugins.Commands
 				case EntityType.Npc:
 					mob = new PlayerMob("test", world);
 					break;
+
+				case EntityType.Boat:
+					entity = new Boat(world);
+					break;
 			}
 
-			if (mob == null) return;
-			mob.NoAi = noAi;
-			var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
-			mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw, coordinates.Yaw);
-			mob.SpawnEntity();
+			if (mob != null)
+			{
+				mob.NoAi = noAi;
+				var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection())*1.5f;
+				mob.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw, coordinates.Yaw);
+				mob.SpawnEntity();
+			}
+			else if (entity != null)
+			{
+				entity.NoAi = noAi;
+				var direction = Vector3.Normalize(player.KnownPosition.GetHeadDirection()) * 1.5f;
+				entity.KnownPosition = new PlayerLocation(coordinates.X + direction.X, coordinates.Y, coordinates.Z + direction.Z, coordinates.HeadYaw, coordinates.Yaw);
+				entity.SpawnEntity();
+			}
 		}
 
 		[Command]

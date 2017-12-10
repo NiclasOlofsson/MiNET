@@ -121,6 +121,7 @@ namespace MiNET
 			CanClimb = true;
 			HasCollision = true;
 			IsAffectedByGravity = true;
+			NoAi = false;
 		}
 
 		public void HandleMcpeClientToServerHandshake(McpeClientToServerHandshake message)
@@ -277,7 +278,7 @@ namespace MiNET
 
 		public virtual void HandleMcpePlayerInput(McpePlayerInput message)
 		{
-			Log.Debug($"Player input: Motion X={message.motionX}, Motion Z={message.motionZ}, Flags=0x{message.motionX:X2}");
+			Log.Debug($"Player input: x={message.motionX}, z={message.motionZ}, flag1={message.flag1}, flag2={message.flag2}");
 		}
 
 		private object _mapInfoSync = new object();
@@ -354,6 +355,16 @@ namespace MiNET
 			}
 		}
 
+		public void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
+		{
+			Level.RelayBroadcast((McpeSetEntityMotion) message.Clone());
+		}
+
+		public void HandleMcpeMoveEntity(McpeMoveEntity message)
+		{
+			Level.RelayBroadcast((McpeMoveEntity) message.Clone());
+		}
+
 		/// <summary>
 		///     Handles an animate packet.
 		/// </summary>
@@ -372,6 +383,7 @@ namespace MiNET
 			McpeAnimate msg = McpeAnimate.CreateObject();
 			msg.runtimeEntityId = EntityId;
 			msg.actionId = message.actionId;
+			msg.unknownFloat = message.unknownFloat;
 
 			Level.RelayBroadcast(this, msg);
 		}
@@ -437,21 +449,12 @@ namespace MiNET
 					Level.RelayBroadcast(breakEvent);
 					break;
 				}
-				//case PlayerAction.ReleaseItem:
-				//	if (_itemUseTimer <= 0) return;
-
-				//	Item itemInHand = Inventory.GetItemInHand();
-
-				//	if (itemInHand == null) return; // Cheat(?)
-
-				//	itemInHand.Release(Level, this, new BlockCoordinates(message.coordinates.X, message.coordinates.Y, message.coordinates.Z), Level.TickTime - _itemUseTimer);
-
-				//	_itemUseTimer = 0;
-
-				//	break;
 				case PlayerAction.StartSleeping:
+				{
 					break;
+				}
 				case PlayerAction.StopSleeping:
+				{
 					IsSleeping = false;
 					Bed bed = Level.GetBlock(SpawnPosition) as Bed;
 					if (bed != null)
@@ -463,38 +466,58 @@ namespace MiNET
 						Log.Warn($"Did not find a bed at {SpawnPosition}");
 					}
 					break;
+				}
 				case PlayerAction.Respawn:
+				{
 					MiNetServer.FastThreadPool.QueueUserWorkItem(HandleMcpeRespawn);
 					break;
+				}
 				case PlayerAction.Jump:
+				{
 					HungerManager.IncreaseExhaustion(IsSprinting ? 0.8f : 0.2f);
 					break;
+				}
 				case PlayerAction.StartSprint:
+				{
 					SetSprinting(true);
 					break;
+				}
 				case PlayerAction.StopSprint:
+				{
 					SetSprinting(false);
 					break;
+				}
 				case PlayerAction.StartSneak:
+				{
 					SetSprinting(false);
 					IsSneaking = true;
 					break;
+				}
 				case PlayerAction.StopSneak:
+				{
 					SetSprinting(false);
 					IsSneaking = false;
 					break;
+				}
 				case PlayerAction.DimensionChange:
+				{
 					break;
+				}
 				case PlayerAction.DimensionChangeAck:
+				{
 					if (_dimensionFunc != null)
 					{
 						_dimensionFunc();
 						_dimensionFunc = null;
 					}
 					break;
+				}
 				case PlayerAction.WorldImmutable:
+				{
 					break;
+				}
 				case PlayerAction.StartGlide:
+				{
 					IsGliding = true;
 					Height = 0.6;
 
@@ -503,31 +526,28 @@ namespace MiNET
 					particle.Spawn();
 
 					break;
+				}
 				case PlayerAction.StopGlide:
+				{
 					IsGliding = false;
 					Height = 1.8;
 					break;
+				}
 				case PlayerAction.SetEnchantmentSeed:
+				{
 					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.coordinates}");
 					break;
+				}
 				default:
+				{
 					Log.Warn($"Unhandled action ID={message.actionId}");
 					throw new ArgumentOutOfRangeException(nameof(message.actionId));
+				}
 			}
 
 			IsUsingItem = false;
 
 			BroadcastSetEntityData();
-
-			//MetadataDictionary metadata = new MetadataDictionary
-			//{
-			//	[0] = GetDataValue()
-			//};
-
-			//var setEntityData = McpeSetEntityData.CreateObject();
-			//setEntityData.entityId = EntityId;
-			//setEntityData.metadata = metadata;
-			//Level?.RelayBroadcast(this, setEntityData);
 		}
 
 		private float _baseSpeed;
@@ -555,16 +575,15 @@ namespace MiNET
 			}
 		}
 
-		/// <summary>
-		///     Handles the entity data.
-		/// </summary>
-		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeBlockEntityData(McpeBlockEntityData message)
 		{
-			Log.DebugFormat("x:  {0}", message.coordinates.X);
-			Log.DebugFormat("y:  {0}", message.coordinates.Y);
-			Log.DebugFormat("z:  {0}", message.coordinates.Z);
-			Log.DebugFormat("NBT {0}", message.namedtag.NbtFile);
+			if (Log.IsDebugEnabled)
+			{
+				Log.DebugFormat("x:  {0}", message.coordinates.X);
+				Log.DebugFormat("y:  {0}", message.coordinates.Y);
+				Log.DebugFormat("z:  {0}", message.coordinates.Z);
+				Log.DebugFormat("NBT {0}", message.namedtag.NbtFile);
+			}
 
 			var blockEntity = Level.GetBlockEntity(message.coordinates);
 
@@ -1429,15 +1448,15 @@ namespace MiNET
 			SendPackage(changeDimension);
 		}
 
-		public override void BroadcastSetEntityData()
+		public override void BroadcastSetEntityData(MetadataDictionary metadata)
 		{
 			McpeSetEntityData mcpeSetEntityData = McpeSetEntityData.CreateObject();
 			mcpeSetEntityData.runtimeEntityId = EntityManager.EntityIdSelf;
-			mcpeSetEntityData.metadata = GetMetadata();
+			mcpeSetEntityData.metadata = metadata;
 			mcpeSetEntityData.Encode();
 			SendPackage(mcpeSetEntityData);
 
-			base.BroadcastSetEntityData();
+			base.BroadcastSetEntityData(metadata);
 		}
 
 		public void SendSetEntityData()
@@ -1739,7 +1758,7 @@ namespace MiNET
 		public virtual void HandleMcpeItemFrameDropItem(McpeItemFrameDropItem message)
 		{
 			Log.Debug($"Drops item frame at {message.coordinates}");
-			if(Level.GetBlock(message.coordinates) is Frame frame)
+			if (Level.GetBlock(message.coordinates) is Frame frame)
 			{
 				Log.Debug($"Drops from frame {frame}");
 				frame.ClearItem(Level);
@@ -2310,6 +2329,22 @@ namespace MiNET
 			if (target == null) return;
 			switch (message.actionId)
 			{
+				case 3:
+				{
+					// Unmount ridden entity
+					IsRiding = false;
+
+					McpeSetEntityLink link = McpeSetEntityLink.CreateObject();
+					link.linkType = (byte) McpeSetEntityLink.LinkActions.Remove;
+					link.riderId = EntityId;
+					link.riddenId = Vehicle;
+					Level.RelayBroadcast(link);
+
+					Vehicle = 0;
+
+					BroadcastSetEntityData();
+					break;
+				}
 				case 4:
 				{
 					// Mouse over
@@ -2319,6 +2354,8 @@ namespace MiNET
 				}
 			}
 		}
+
+		public long Vehicle { get; set; }
 
 		public virtual void HandleMcpeBlockPickRequest(McpeBlockPickRequest message)
 		{

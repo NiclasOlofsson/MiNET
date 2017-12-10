@@ -453,6 +453,7 @@
     <Compile Include="Entities\Projectiles\Projectile.cs" />
     <Compile Include="Entities\Vehicles\Minecart.cs" />
     <Compile Include="Items\ItemBanner.cs" />
+    <Compile Include="Items\ItemBoat.cs" />
     <Compile Include="Items\ItemFireworks.cs" />
     <Compile Include="Items\ItemGoldIngot.cs" />
     <Compile Include="Items\ItemGoldNugget.cs" />

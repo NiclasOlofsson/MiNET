@@ -739,17 +739,19 @@ namespace MiNET.Worlds
 				{
 					if (now - player.LastUpdatedTime <= now - lastSendTime)
 					{
-						PlayerLocation knownPosition = player.KnownPosition;
+						PlayerLocation knownPosition = (PlayerLocation) player.KnownPosition.Clone();
 
 						McpeMovePlayer move = McpeMovePlayer.CreateObject();
 						move.runtimeEntityId = player.EntityId;
 						move.x = knownPosition.X;
 						move.y = knownPosition.Y + 1.62f;
 						move.z = knownPosition.Z;
-						move.yaw = knownPosition.Yaw;
 						move.pitch = knownPosition.Pitch;
+						move.yaw = knownPosition.Yaw;
 						move.headYaw = knownPosition.HeadYaw;
-						move.mode = 0;
+						move.mode = (byte) (player.Vehicle == 0 ? 0 : 3);
+						move.onGround = !player.IsGliding && player.IsOnGround;
+						move.otherRuntimeEntityId = player.Vehicle;
 						byte[] bytes = move.Encode();
 						BatchUtils.WriteLength(stream, bytes.Length);
 						stream.Write(bytes, 0, bytes.Length);

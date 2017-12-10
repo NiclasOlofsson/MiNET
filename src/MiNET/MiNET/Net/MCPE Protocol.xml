@@ -310,7 +310,7 @@
 		<field name="Target" type="UnsignedVarLong" />
 	</pdu>
 
-	<pdu id="0x12" online="false" client="false" server="true" name="MCPE_MOVE_ENTITY">
+	<pdu id="0x12" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Position" type="PlayerLocation" />
 		<field name="On Ground" type="bool" />
@@ -531,7 +531,7 @@
 		<field name="Metadata" type="MetadataDictionary"/>
 	</pdu>
 
-	<pdu id="0x28" online="false" client="false" server="true" name="MCPE_SET_ENTITY_MOTION">
+	<pdu id="0x28" online="false" client="true" server="true" name="MCPE_SET_ENTITY_MOTION">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Velocity" type="Vector3" />
 	</pdu>
@@ -542,8 +542,8 @@
 			<enum id="Ride" value="1" />
 			<enum id="Passenger" value="2" />
 		</enums>
-		<field name="Rider ID" type="UnsignedVarLong" />
-		<field name="Ridden ID" type="UnsignedVarLong" />
+		<field name="Ridden ID" type="SignedVarLong" />
+		<field name="Rider ID" type="SignedVarLong" />
 		<field name="Link Type" type="byte" />
 		<field name="Unknown" type="byte" />
 	</pdu>

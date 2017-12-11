@@ -51,6 +51,8 @@ namespace MiNET.Entities
 		public double Direction { get; set; }
 		public virtual double Speed { get; set; } = 0.25f;
 
+		public bool IsRidden { get; set; }
+
 		public Entity Target { get; private set; }
 
 		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
@@ -101,6 +103,20 @@ namespace MiNET.Entities
 		{
 			LastSeenPlayerTimer = DateTime.UtcNow;
 			base.SpawnEntity();
+		}
+
+		public override EntityAttributes GetEntityAttributes()
+		{
+			var attributes = base.GetEntityAttributes();
+			attributes["minecraft:movement"] = new EntityAttribute
+			{
+				Name = "minecraft:movement",
+				MinValue = 0,
+				MaxValue = float.MaxValue,
+				Value = (float)Speed
+			};
+
+			return attributes;
 		}
 
 
@@ -178,8 +194,11 @@ namespace MiNET.Entities
 				_lastSentPos = KnownPosition;
 				_lastSentRotation = KnownPosition.GetDirection();
 
-				BroadcastMove();
-				BroadcastMotion();
+				if (!IsRidden)
+				{
+					BroadcastMove();
+					BroadcastMotion();
+				}
 			}
 
 			var oldVelocity = Velocity;
@@ -191,6 +210,8 @@ namespace MiNET.Entities
 
 			_currentTargetBehavior?.OnTick(entities);
 			_currentBehavior?.OnTick(entities);
+
+			if (IsRidden) return;
 
 			if (noPlayersWithin32)
 			{

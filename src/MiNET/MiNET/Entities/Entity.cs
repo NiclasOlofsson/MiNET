@@ -280,6 +280,7 @@ namespace MiNET.Entities
 		public bool IsGliding { get; set; }
 		public bool IsElder { get; set; }
 		public bool IsIdling { get; set; }
+		public bool IsRearing { get; set; }
 		public bool IsVibrating { get; set; }
 		public bool IsMoving { get; set; }
 		public bool IsBreathing => !IsInWater;
@@ -287,6 +288,8 @@ namespace MiNET.Entities
 		public bool IsStackable { get; set; }
 		public bool HasCollision { get; set; }
 		public bool IsAffectedByGravity { get; set; }
+		public bool IsWasdControlled { get; set; }
+		public bool CanPowerJump { get; set; }
 
 		public enum DataFlags
 		{
@@ -338,8 +341,8 @@ namespace MiNET.Entities
 			Idling,
 			EvokerSpell,
 			ChargeAttack,
-			Unknown42,
-			Unknown43,
+			WasdControlled,
+			CanPowerJump,
 			Linger,
 			HasCollision,
 			AffectedByGravity
@@ -383,10 +386,14 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Chested] = IsChested;
 			bits[(int) DataFlags.Stackable] = IsStackable;
 			bits[(int) DataFlags.Idling] = IsIdling;
+			bits[(int) DataFlags.Rearing] = IsRearing;
 			bits[(int) DataFlags.Vibrating] = IsVibrating;
 
 			bits[(int) DataFlags.HasCollision] = HasCollision;
 			bits[(int) DataFlags.AffectedByGravity] = IsAffectedByGravity;
+
+			bits[(int) DataFlags.WasdControlled] = IsWasdControlled;
+			bits[(int) DataFlags.CanPowerJump] = CanPowerJump;
 
 			return bits;
 		}
@@ -658,6 +665,14 @@ namespace MiNET.Entities
 				player.ButtonText = null;
 				player.SendSetEntityData();
 			}
+		}
+
+		public virtual void Mount(Entity rider)
+		{
+		}
+
+		public virtual void Unmount(Entity rider)
+		{
 		}
 
 		public HashSet<Entity> SeenEntities { get; set; } = new HashSet<Entity>();

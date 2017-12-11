@@ -657,14 +657,15 @@ namespace MiNET.Worlds
 		public int CalculateSkylightSubtracted(long worldTime)
 		{
 			float f = CalculateCelestialAngle(worldTime);
-			double f1 = 1.0F - (Math.Cos(f * ((float)Math.PI * 2F)) * 2.0F + 0.5F);
+			double f1 = 1.0F - (Math.Cos(f*((float) Math.PI*2F))*2.0F + 0.5F);
 			f1 = BiomeUtils.Clamp((float) f1, 0.0F, 1.0F);
 			f1 = 1.0F - f1;
 			//f1 = (float)((double)f1 * (1.0D - (double)(this.getRainStrength(p_72967_1_) * 5.0F) / 16.0D));
 			//f1 = (float)((double)f1 * (1.0D - (double)(this.getThunderStrength(p_72967_1_) * 5.0F) / 16.0D));
 			f1 = 1.0F - f1;
-			return (int)(f1 * 11.0F);
+			return (int) (f1*11.0F);
 		}
+
 		public float CalculateCelestialAngle(long worldTime)
 		{
 			int i = (int) (worldTime%24000L);
@@ -1231,7 +1232,7 @@ namespace MiNET.Worlds
 			};
 
 			Log.Debug($"Nbt: {nbt.NbtFile.RootTag}");
-	
+
 			var entityData = McpeBlockEntityData.CreateObject();
 			entityData.namedtag = nbt;
 			entityData.coordinates = blockEntity.Coordinates;
@@ -1435,12 +1436,20 @@ namespace MiNET.Worlds
 			BlockWithTicks[block.Coordinates] = TickTime + tickRate;
 		}
 
-		public Entity GetEntity(long targetEntityId)
+		public bool TryGetEntity<T>(long targetEntityId, out T entity) where T : class
 		{
-			Player entity;
-			Players.TryGetValue(targetEntityId, out entity);
+			entity = null;
 
-			return entity ?? Entities.Values.FirstOrDefault(e => e.EntityId == targetEntityId);
+			if (Players.TryGetValue(targetEntityId, out var player))
+			{
+				entity = player as T;
+			}
+			else if (Entities.TryGetValue(targetEntityId, out var ent))
+			{
+				entity = ent as T;
+			}
+
+			return entity != null;
 		}
 
 

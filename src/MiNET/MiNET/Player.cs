@@ -281,6 +281,18 @@ namespace MiNET
 			Log.Debug($"Player input: x={message.motionX}, z={message.motionZ}, flag1={message.flag1}, flag2={message.flag2}");
 		}
 
+		public void HandleMcpeRiderJump(McpeRiderJump message)
+		{
+			if (IsRiding && Vehicle > 0)
+			{
+				if (Level.TryGetEntity(Vehicle, out Mob mob))
+				{
+					mob.IsRearing = true;
+					mob.BroadcastSetEntityData();
+				}
+			}
+		}
+
 		private object _mapInfoSync = new object();
 
 		private Timer _mapSender;
@@ -306,15 +318,14 @@ namespace MiNET
 				}
 				else
 				{
-					MapEntity mapEntity = Level.GetEntity(mapId) as MapEntity;
-					//if (mapEntity == null)
-					//{
-					//	// Create new map entity
-					//	// send map for that entity
-					//	mapEntity = new MapEntity(Level, mapId);
-					//	mapEntity.SpawnEntity();
-					//}
-					//else
+					if (!Level.TryGetEntity(mapId, out MapEntity mapEntity))
+					{
+						// Create new map entity
+						// send map for that entity
+						//mapEntity = new MapEntity(Level, mapId);
+						//mapEntity.SpawnEntity();
+					}
+					else
 					{
 						mapEntity?.AddToMapListeners(this, mapId);
 					}
@@ -363,6 +374,12 @@ namespace MiNET
 		public void HandleMcpeMoveEntity(McpeMoveEntity message)
 		{
 			Level.RelayBroadcast((McpeMoveEntity) message.Clone());
+			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
+			{
+				entity.KnownPosition = message.position;
+				entity.IsOnGround = message.onGround;
+				if(message.onGround) Log.Debug("Horse is on ground");
+			}
 		}
 
 		/// <summary>
@@ -1922,7 +1939,7 @@ namespace MiNET
 				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
 			}
 
-			Entity target = Level.GetEntity(transaction.EntityId);
+			if (!Level.TryGetEntity(transaction.EntityId, out Entity target)) return;
 			target.DoItemInteraction(this, itemInHand);
 		}
 
@@ -1930,7 +1947,7 @@ namespace MiNET
 		{
 			DoInteraction((byte) transaction.ActionType, this);
 
-			Entity target = Level.GetEntity(transaction.EntityId);
+			if (!Level.TryGetEntity(transaction.EntityId, out Entity target)) return;
 			target.DoInteraction((byte) transaction.ActionType, this);
 		}
 
@@ -1942,7 +1959,8 @@ namespace MiNET
 				Log.Warn($"Attack item mismatch. Expected {itemInHand}, but client reported {transaction.Item}");
 			}
 
-			Entity target = Level.GetEntity(transaction.EntityId);
+			if (!Level.TryGetEntity(transaction.EntityId, out Entity target)) return;
+
 
 			LastAttackTarget = target;
 
@@ -2318,7 +2336,7 @@ namespace MiNET
 		/// <param name="message">The message.</param>
 		public virtual void HandleMcpeInteract(McpeInteract message)
 		{
-			Entity target = Level.GetEntity(message.targetRuntimeEntityId);
+			if (!Level.TryGetEntity(message.targetRuntimeEntityId, out Entity target)) return;
 
 			if (message.actionId != 4)
 			{
@@ -2331,18 +2349,10 @@ namespace MiNET
 			{
 				case 3:
 				{
-					// Unmount ridden entity
-					IsRiding = false;
-
-					McpeSetEntityLink link = McpeSetEntityLink.CreateObject();
-					link.linkType = (byte) McpeSetEntityLink.LinkActions.Remove;
-					link.riderId = EntityId;
-					link.riddenId = Vehicle;
-					Level.RelayBroadcast(link);
-
-					Vehicle = 0;
-
-					BroadcastSetEntityData();
+					if (Level.TryGetEntity(Vehicle, out Mob mob))
+					{
+						mob.Unmount(this);
+					}
 					break;
 				}
 				case 4:
@@ -3216,6 +3226,14 @@ namespace MiNET
 			mcpeAddPlayer.actionPermissions = (uint) ActionPermissions;
 			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
 			mcpeAddPlayer.userId = -1;
+
+			if (IsRiding)
+			{
+				mcpeAddPlayer.links = new Links()
+				{
+					new Tuple<long, long>(EntityId, Vehicle)
+				};
+			}
 
 			Level.RelayBroadcast(this, players, mcpeAddPlayer);
 

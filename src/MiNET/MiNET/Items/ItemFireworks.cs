@@ -48,8 +48,8 @@ namespace MiNET.Items
 		{
 			Random random = new Random();
 			var rocket = new FireworksRocket(player, world, this, random);
-			rocket.KnownPosition = blockCoordinates + BlockCoordinates.Up;
-			rocket.KnownPosition += new Vector3(0.5f, 0, 0.5f);
+			rocket.KnownPosition = blockCoordinates;
+			rocket.KnownPosition += faceCoords + new Vector3(0, 0.01f, 0);
 			rocket.KnownPosition.Yaw = random.Next(360);
 			rocket.KnownPosition.Pitch = -1*(float) (90f + (random.NextDouble()*Spread - Spread/2));
 			rocket.BroadcastMovement = true;

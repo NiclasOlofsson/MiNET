@@ -350,7 +350,7 @@
 		<field name="Other Runtime Entity ID" type="UnsignedVarLong" />
 	</pdu>
 
-	<pdu id="0x14" online="false" client="false" server="true" name="MCPE_RIDER_JUMP">
+	<pdu id="0x14" online="false" client="true" server="true" name="MCPE_RIDER_JUMP">
 		<field name="Unknown" type="SignedVarInt" />
 	</pdu>
 

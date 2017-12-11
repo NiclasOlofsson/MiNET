@@ -190,6 +190,7 @@ namespace MiNET.Items
 			if (mob == null) return;
 
 			mob.KnownPosition = new PlayerLocation(coordinates.X, coordinates.Y, coordinates.Z);
+			mob.NoAi = true;
 			mob.SpawnEntity();
 
 			Log.WarnFormat("Player {0} spawned Mob #{1}.", player.Username, Metadata);

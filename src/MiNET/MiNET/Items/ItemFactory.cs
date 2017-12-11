@@ -197,6 +197,7 @@ namespace MiNET.Items
 			else if (id == 323) item = new ItemSign();
 			else if (id == 324) item = new ItemWoodenDoor();
 			else if (id == 325) item = new ItemBucket(metadata);
+			else if (id == 329) item = new ItemSaddle();
 			else if (id == 331) item = new ItemRedstone();
 			else if (id == 332) item = new ItemSnowball();
 			else if (id == 333) item = new ItemBoat(metadata);
@@ -204,6 +205,7 @@ namespace MiNET.Items
 			else if (id == 345) item = new ItemCompass();
 			else if (id == 351) item = new ItemDye();
 			else if (id == 352) item = new ItemBone();
+			else if (id == 352) item = new ItemSugar();
 			else if (id == 355) item = new ItemBed();
 			else if (id == 357) item = new ItemCookie();
 			else if (id == 358) item = new ItemMap();
@@ -221,6 +223,7 @@ namespace MiNET.Items
 			else if (id == 392) item = new ItemPotato();
 			else if (id == 393) item = new ItemBakedPotato();
 			else if (id == 395) item = new ItemEmptyMap();
+			else if (id == 395) item = new ItemGoldenCarrot();
 			else if (id == 397) item = new ItemMobHead(metadata);
 			else if (id == 400) item = new ItemPumpkinPie();
 			else if (id == 401) item = new ItemFireworks();

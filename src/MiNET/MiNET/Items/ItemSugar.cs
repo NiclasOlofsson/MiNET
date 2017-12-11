@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemWheat : Item
+	public class ItemSugar : Item
 	{
-		public ItemWheat() : base(296)
+		public ItemSugar() : base(353)
 		{
 		}
 	}

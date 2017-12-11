@@ -379,7 +379,7 @@ namespace TestPlugin.NiceLobby
 
 
 			int idx = 1;
-			player.Inventory.Slots[idx++] = new ItemBlock(new MobSpawner()) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Horse) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new SnowLayer()) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Stone()) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};

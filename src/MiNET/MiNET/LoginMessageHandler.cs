@@ -417,6 +417,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeRiderJump(McpeRiderJump message)
+		{
+		}
+
 		public void HandleMcpeLevelSoundEvent(McpeLevelSoundEvent message)
 		{
 		}

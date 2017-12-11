@@ -603,7 +603,7 @@ Wiki: [Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveP
 Wiki: [Rider Jump](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RiderJump)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 

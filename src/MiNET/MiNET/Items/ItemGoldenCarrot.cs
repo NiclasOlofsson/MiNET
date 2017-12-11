@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemWheat : Item
+	public class ItemGoldenCarrot : FoodItem
 	{
-		public ItemWheat() : base(296)
+		protected internal ItemGoldenCarrot() : base(395, 0, 6, 14.4)
 		{
 		}
 	}

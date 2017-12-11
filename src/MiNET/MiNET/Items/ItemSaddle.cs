@@ -25,9 +25,9 @@
 
 namespace MiNET.Items
 {
-	public class ItemWheat : Item
+	public class ItemSaddle : Item
 	{
-		public ItemWheat() : base(296)
+		protected internal ItemSaddle() : base(329)
 		{
 		}
 	}

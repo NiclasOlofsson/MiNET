@@ -456,6 +456,7 @@
     <Compile Include="Items\ItemBanner.cs" />
     <Compile Include="Items\ItemBoat.cs" />
     <Compile Include="Items\ItemFireworks.cs" />
+    <Compile Include="Items\ItemGoldenCarrot.cs" />
     <Compile Include="Items\ItemGoldIngot.cs" />
     <Compile Include="Items\ItemGoldNugget.cs" />
     <Compile Include="Items\ItemIronIngot.cs" />
@@ -463,6 +464,8 @@
     <Compile Include="Blocks\StandingBanner.cs" />
     <Compile Include="Blocks\WallBanner.cs" />
     <Compile Include="Items\ItemPainting.cs" />
+    <Compile Include="Items\ItemSaddle.cs" />
+    <Compile Include="Items\ItemSugar.cs" />
     <Compile Include="Net\McpeMovePlayer.cs" />
     <Compile Include="Utils\Diagnostics\Profiler.cs" />
     <Compile Include="Utils\Skins\Bone.cs" />

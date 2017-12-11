@@ -1981,7 +1981,7 @@ namespace MiNET.Client
 			Log.DebugFormat("Velocity Y: {0}", msg.speedY);
 			Log.DebugFormat("Velocity Z: {0}", msg.speedZ);
 			Log.DebugFormat("Metadata: {0}", MetadataToCode(msg.metadata));
-			//Log.DebugFormat("Links count: {0}", msg.links);
+			Log.DebugFormat("Links count: {0}", msg.links?.Count);
 		}
 
 		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
@@ -2015,6 +2015,7 @@ namespace MiNET.Client
 			Log.DebugFormat("Velocity Y: {0}", message.speedY);
 			Log.DebugFormat("Velocity Z: {0}", message.speedZ);
 			Log.DebugFormat("Metadata: {0}", MetadataToCode(message.metadata));
+			Log.DebugFormat("Links count: {0}", message.links?.Count);
 
 			if (message.metadata.Contains(0))
 			{

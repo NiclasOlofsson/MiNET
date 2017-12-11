@@ -21,9 +21,13 @@ namespace MiNET.Utils
 		{
 		}
 
-		public MetadataVector3(float x, float y, float z)
+		public MetadataVector3(float x, float y, float z) : this(new Vector3(x, y, z))
 		{
-			Value = new Vector3(x, y, z);
+		}
+
+		public MetadataVector3(Vector3 value)
+		{
+			Value = value;
 		}
 
 		public override void FromStream(BinaryReader reader)

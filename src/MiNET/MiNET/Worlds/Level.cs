@@ -246,12 +246,12 @@ namespace MiNET.Worlds
 
 				if (Players.TryAdd(newPlayer.EntityId, newPlayer))
 				{
-					SpawnToAll(newPlayer);
-
 					foreach (Entity entity in Entities.Values.ToArray())
 					{
 						entity.SpawnToPlayers(new[] {newPlayer});
 					}
+
+					SpawnToAll(newPlayer);
 				}
 
 				newPlayer.IsSpawned = spawn;

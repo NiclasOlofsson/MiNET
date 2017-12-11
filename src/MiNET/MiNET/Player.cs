@@ -3227,15 +3227,27 @@ namespace MiNET
 			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
 			mcpeAddPlayer.userId = -1;
 
-			if (IsRiding)
-			{
-				mcpeAddPlayer.links = new Links()
-				{
-					new Tuple<long, long>(EntityId, Vehicle)
-				};
-			}
+			//NOT WORKING: Reported to Mojang
+			//if (IsRiding)
+			//{
+			//	mcpeAddPlayer.links = new Links()
+			//	{
+			//		new Tuple<long, long>(Vehicle, EntityId)
+			//	};
+			//}
 
 			Level.RelayBroadcast(this, players, mcpeAddPlayer);
+
+			if (IsRiding)
+			{
+				// This works if entities are spawned before players.
+
+				McpeSetEntityLink link = McpeSetEntityLink.CreateObject();
+				link.linkType = (byte) McpeSetEntityLink.LinkActions.Ride;
+				link.riderId = EntityId;
+				link.riddenId = Vehicle;
+				Level.RelayBroadcast(players, link);
+			}
 
 			SendEquipmentForPlayer(players);
 

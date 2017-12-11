@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using log4net;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
@@ -216,15 +217,11 @@ namespace MiNET.Entities.Passive
 		public void SendSetEntityData(Player player)
 		{
 			player.IsRiding = true;
-
-			// FOR PLAYER
-			MetadataDictionary metadata = player.GetMetadata();
-			metadata[57] = new MetadataVector3(0, 2.32001f, -0.2f);
-			metadata[58] = new MetadataByte(0);
-			metadata[59] = new MetadataFloat(181f);
-			metadata[60] = new MetadataFloat(0f);
-
-			player.BroadcastSetEntityData(metadata);
+			player.RiderSeatPosition = new Vector3(0, 2.32001f, -0.2f);
+			player.RiderRotationLocked = false;
+			player.RiderMaxRotation = 181;
+			player.RiderMinRotation = 0;
+			player.BroadcastSetEntityData();
 		}
 	}
 

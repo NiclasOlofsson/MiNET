@@ -79,6 +79,11 @@ namespace MiNET.Entities
 
 		public long PortalDetected { get; set; }
 
+		public Vector3 RiderSeatPosition { get; set; }
+		public bool RiderRotationLocked { get; set; }
+		public double RiderMaxRotation { get; set; }
+		public double RiderMinRotation { get; set; }
+
 		public Entity(int entityTypeId, Level level)
 		{
 			EntityId = EntityManager.EntityIdUndefined;
@@ -100,7 +105,14 @@ namespace MiNET.Entities
 			Scale = 39,
 			MaxAir = 43,
 			CollisionBoxWidth = 54,
-			CollisionBoxHeight = 55
+			CollisionBoxHeight = 55,
+
+			DataFuseLength = 56,
+
+			RiderSeatPosition = 57,
+			RiderRotationLocked = 58,
+			RiderMaxRotation = 59,
+			RiderMinRotation = 60,
 		}
 
 		public virtual MetadataDictionary GetMetadata()
@@ -124,6 +136,12 @@ namespace MiNET.Entities
 			//metadata[(int)MetadataFlags.MaybeAge] = new MetadataInt(0); // Scale
 			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(Scale); // Scale
 			metadata[(int) MetadataFlags.MaxAir] = new MetadataShort(HealthManager.MaxAir);
+
+			metadata[(int) MetadataFlags.RiderSeatPosition] = new MetadataVector3(RiderSeatPosition);
+			metadata[(int) MetadataFlags.RiderRotationLocked] = new MetadataByte(RiderRotationLocked);
+			metadata[(int) MetadataFlags.RiderMaxRotation] = new MetadataFloat(RiderMaxRotation);
+			metadata[(int) MetadataFlags.RiderMinRotation] = new MetadataFloat(RiderMinRotation);
+
 			metadata[(int) MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
 			metadata[(int) MetadataFlags.CollisionBoxWidth] = new MetadataFloat(Width); // Collision box height
 			return metadata;

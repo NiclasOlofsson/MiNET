@@ -146,6 +146,7 @@ namespace MiNET
 			if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
 			{
 				Slots[si] = ItemFactory.GetItem(item.Id, item.Metadata, item.Count);
+				Slots[si].ExtraData = item.ExtraData;
 				item.Count = 0;
 				if (update) SendSetSlot(si);
 				return true;

@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class PurPur : Block
+	public class PurpurBlock : Block
 	{
-		public PurPur() : base(201)
+		public PurpurBlock() : base(201)
 		{
 			BlastResistance = 30;
 			Hardness = 1.5f;

@@ -3227,6 +3227,8 @@ namespace MiNET
 			mcpeAddPlayer.permissionLevel = (uint) PermissionLevel;
 			mcpeAddPlayer.userId = -1;
 
+			int[] a = new int[5];
+
 			//NOT WORKING: Reported to Mojang
 			//if (IsRiding)
 			//{

@@ -413,7 +413,7 @@ namespace MiNET.Entities
 		{
 			Block block = Level.GetBlock(position);
 
-			return block is FlowingWater || block is StationaryWater || block is FlowingLava || block is StationaryLava;
+			return block is FlowingWater || block is Water || block is FlowingLava || block is Lava;
 		}
 
 		protected bool IsMobOnGround(Vector3 pos)

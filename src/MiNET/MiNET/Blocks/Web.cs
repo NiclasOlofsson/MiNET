@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -23,28 +23,33 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.Utils;
-using MiNET.Worlds;
+using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Waterlily : Block
+	public class Web : Block
 	{
-		public Waterlily() : base(111)
+		public Web() : base(30)
 		{
-			IsTransparent = true;
+			IsSolid = false;
+			IsTransparent = true; // Partial - diffuses sky light
+			BlastResistance = 20;
+			Hardness = 4;
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		public override Item[] GetDrops(Item tool)
 		{
-			return world.GetBlock(targetCoordinates) is Water;
-		}
+			// For PE works differently than this. Need to check enchanting
+			if (tool is ItemShears)
+			{
+				return new[] {ItemFactory.GetItem(30)};
+			}
+			if (tool.ItemType == ItemType.Sword)
+			{
+				return new[] {ItemFactory.GetItem(287)};
+			}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
-		{
-			Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
-			return base.PlaceBlock(world, player, targetCoordinates, face, faceCoords);
+			return new Item[0];
 		}
 	}
 }

@@ -66,6 +66,8 @@ namespace MiNET.Entities
 		public bool IsInWater { get; set; } = false;
 		public bool IsOutOfWater => !IsInWater;
 		public int PotionColor { get; set; }
+		public int Variant { get; set; }
+		public int EatingHaystack { get; set; }
 
 		public long Age { get; set; }
 		public double Scale { get; set; } = 1.0;
@@ -96,10 +98,14 @@ namespace MiNET.Entities
 		public enum MetadataFlags
 		{
 			EntityFlags = 0,
+			Variant = 3,
+			Color = 3,
 			HideNameTag = 3,
 			NameTag = 4,
 			AvailableAir = 7,
+			PotionColor = 8,
 			EatingHaystack = 16,
+			FirworksType = 16,
 			MaybeAge = 25,
 			BedPosition = 29,
 			Scale = 39,
@@ -120,28 +126,16 @@ namespace MiNET.Entities
 			MetadataDictionary metadata = new MetadataDictionary();
 			metadata[(int) MetadataFlags.EntityFlags] = new MetadataLong(GetDataValue());
 			metadata[1] = new MetadataInt(1);
-			metadata[2] = new MetadataInt(0);
 			metadata[(int) MetadataFlags.HideNameTag] = new MetadataByte(!HideNameTag);
 			metadata[(int) MetadataFlags.NameTag] = new MetadataString(NameTag ?? string.Empty);
 			metadata[(int) MetadataFlags.AvailableAir] = new MetadataShort(HealthManager.Air);
-			//metadata[4] = new MetadataByte(Silent);
-			metadata[8] = new MetadataInt(PotionColor); // Potion Color
-			//metadata[9] = new MetadataByte(0); // Potion Ambient
-			//metadata[15] = new MetadataByte(NoAi);
-			//metadata[16] = new MetadataByte(0); // Player flags
-			////metadata[17] = new MetadataIntCoordinates(0, 0, 0);
-			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
-			//metadata[23] = new MetadataLong(-1); // Leads EID (target or holder?)
-			//metadata[24] = new MetadataByte(0); // Leads on/off
-			//metadata[(int)MetadataFlags.MaybeAge] = new MetadataInt(0); // Scale
+			metadata[(int) MetadataFlags.PotionColor] = new MetadataInt(PotionColor);
 			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(Scale); // Scale
 			metadata[(int) MetadataFlags.MaxAir] = new MetadataShort(HealthManager.MaxAir);
-
 			metadata[(int) MetadataFlags.RiderSeatPosition] = new MetadataVector3(RiderSeatPosition);
 			metadata[(int) MetadataFlags.RiderRotationLocked] = new MetadataByte(RiderRotationLocked);
 			metadata[(int) MetadataFlags.RiderMaxRotation] = new MetadataFloat(RiderMaxRotation);
 			metadata[(int) MetadataFlags.RiderMinRotation] = new MetadataFloat(RiderMinRotation);
-
 			metadata[(int) MetadataFlags.CollisionBoxHeight] = new MetadataFloat(Height); // Collision box width
 			metadata[(int) MetadataFlags.CollisionBoxWidth] = new MetadataFloat(Width); // Collision box height
 			return metadata;

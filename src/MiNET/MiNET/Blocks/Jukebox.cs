@@ -25,15 +25,12 @@
 
 namespace MiNET.Blocks
 {
-	public class WoodSlab : SlabBase
+	public class Jukebox : Block
 	{
-		public WoodSlab() : base(158)
+		public Jukebox() : base(84)
 		{
-			BlastResistance = 15;
-			Hardness = 2;
-			IsFlammable = true;
-			IsTransparent = true; // Partial - blocks light.
-			IsBlockingSkylight = false; // Partial - blocks light.
+			BlastResistance = 30;
+			Hardness = 2f;
 		}
 	}
 }

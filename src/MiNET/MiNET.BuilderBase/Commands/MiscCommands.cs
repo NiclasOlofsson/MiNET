@@ -26,7 +26,7 @@ namespace MiNET.BuilderBase.Commands
 		{
 			EditSession.Fill((BlockCoordinates) player.KnownPosition,
 				new Pattern(0, 0),
-				new Mask(player.Level, new List<Block> {new FlowingWater(), new StationaryWater(), new StationaryLava(), new FlowingLava()}, true),
+				new Mask(player.Level, new List<Block> {new FlowingWater(), new Water(), new Lava(), new FlowingLava()}, true),
 				radius,
 				-1, true);
 		}

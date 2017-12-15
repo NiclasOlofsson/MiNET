@@ -1,0 +1,2068 @@
+﻿Entity Type: 4874 - 0x130a
+Entity Family: 19 - 0x13
+Entity Type ID: 10 - 0x0a Chicken
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(0.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 4875 - 0x130b
+Entity Family: 19 - 0x13
+Entity Type ID: 11 - 0x0b Cow
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.9f);
+metadata[55] = new MetadataFloat(1.3f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 4876 - 0x130c
+Entity Family: 19 - 0x13
+Entity Type ID: 12 - 0x0c Pig
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.9f);
+metadata[55] = new MetadataFloat(0.9f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 4877 - 0x130d
+Entity Family: 19 - 0x13
+Entity Type ID: 13 - 0x0d Sheep
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.9f);
+metadata[55] = new MetadataFloat(1.3f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 21262 - 0x530e
+Entity Family: 83 - 0x53
+Entity Type ID: 14 - 0x0e Wolf
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(0.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 783 - 0x30f
+Entity Family: 3 - 0x03
+Entity Type ID: 15 - 0x0f Villager
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(1);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(247);
+metadata[46] = new MetadataInt(8);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[68] = new MetadataLong(0);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 8977 - 0x2311
+Entity Family: 35 - 0x23
+Entity Type ID: 17 - 0x11 Squid
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(299);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.95f);
+metadata[55] = new MetadataFloat(0.95f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 4882 - 0x1312
+Entity Family: 19 - 0x13
+Entity Type ID: 18 - 0x12 Rabbit
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(0.6f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.67f);
+metadata[55] = new MetadataFloat(0.67f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 33043 - 0x8113
+Entity Family: 129 - 0x81
+Entity Type ID: 19 - 0x13 Bat
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561708298240); // 11000000000001000000000001000000000000000000000; CanFly, Breathing, HasCollision, AffectedByGravity; 21, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.5f);
+metadata[55] = new MetadataFloat(0.9f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 788 - 0x314
+Entity Family: 3 - 0x03
+Entity Type ID: 20 - 0x14 IronGolem
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105553116790784); // 11000000000000000000000000010000000000000000000; CanClimb, HasCollision, AffectedByGravity; 19, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(2.9f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 789 - 0x315
+Entity Family: 3 - 0x03
+Entity Type ID: 21 - 0x15 SnowGolem
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.4f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 21270 - 0x5316
+Entity Family: 83 - 0x53
+Entity Type ID: 22 - 0x16 Ocelot
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(0.7f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2118423 - 0x205317
+Entity Family: 83 - 0x53
+Entity Type ID: 23 - 0x17 Horse
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706201088); // 11000000000001000000000000000000000000000000000; Breathing, HasCollision, AffectedByGravity; 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(3);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[16] = new MetadataInt(0);
+metadata[19] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[25] = new MetadataInt(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(3);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(1.6f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2118424 - 0x205318
+Entity Family: 83 - 0x53
+Entity Type ID: 24 - 0x18 Donkey
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706201088); // 11000000000001000000000000000000000000000000000; Breathing, HasCollision, AffectedByGravity; 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(6);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[16] = new MetadataInt(0);
+metadata[19] = new MetadataByte(1);
+metadata[22] = new MetadataByte(0);
+metadata[25] = new MetadataInt(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(1.6f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2118425 - 0x205319
+Entity Family: 83 - 0x53
+Entity Type ID: 25 - 0x19 Mule
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706203136); // 11000000000001000000000000000000000100000000000; Baby, Breathing, HasCollision, AffectedByGravity; 11, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(4);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[16] = new MetadataInt(0);
+metadata[19] = new MetadataByte(2);
+metadata[22] = new MetadataByte(0);
+metadata[25] = new MetadataInt(-23999);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(0.5000209f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(1.6f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2186010 - 0x215b1a
+Entity Family: 91 - 0x5b
+Entity Type ID: 26 - 0x1a SkeletonHorse
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(118755979952128); // 11011000000001000001000000000000000000000000000; Tamed, Breathing, WasdControlled, CanPowerJump, HasCollision, AffectedByGravity; 27, 33, 42, 43, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(4);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[16] = new MetadataInt(0);
+metadata[19] = new MetadataByte(4);
+metadata[22] = new MetadataByte(0);
+metadata[25] = new MetadataInt(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(4);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(1.6f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2186011 - 0x215b1b
+Entity Family: 91 - 0x5b
+Entity Type ID: 27 - 0x1b ZombieHorse
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561840418816); // 11000000000001000001000000000000000000000000000; Tamed, Breathing, HasCollision, AffectedByGravity; 27, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[16] = new MetadataInt(0);
+metadata[19] = new MetadataByte(3);
+metadata[22] = new MetadataByte(0);
+metadata[25] = new MetadataInt(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(1.6f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 4892 - 0x131c
+Entity Family: 19 - 0x13
+Entity Type ID: 28 - 0x1c PolarBear
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706727424); // 11000000000001000000000000010000000100000000000; Baby, CanClimb, Breathing, HasCollision, AffectedByGravity; 11, 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(0.5f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.3f);
+metadata[55] = new MetadataFloat(1.4f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 4893 - 0x131d
+Entity Family: 19 - 0x13
+Entity Type ID: 29 - 0x1d Llama
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706203136); // 11000000000001000000000000000000000100000000000; Baby, Breathing, HasCollision, AffectedByGravity; 11, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(2);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(0.5f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(2);
+metadata[76] = new MetadataInt(5);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 199456 - 0x30b20
+Entity Family: 11 - 0x0b
+Entity Type ID: 32 - 0x20 Zombie
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[37] = new MetadataShort(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2849 - 0xb21
+Entity Family: 11 - 0x0b
+Entity Type ID: 33 - 0x21 Creeper
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 1116962 - 0x110b22
+Entity Family: 11 - 0x0b
+Entity Type ID: 34 - 0x22 Skeleton
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[6] = new MetadataLong(0);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(1.95f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 264995 - 0x40b23
+Entity Family: 11 - 0x0b
+Entity Type ID: 35 - 0x23 Spider
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(0.9f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 68388 - 0x10b24
+Entity Family: 11 - 0x0b
+Entity Type ID: 36 - 0x24 ZombiePigman
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(246299195080704); // 111000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[37] = new MetadataShort(3);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2854 - 0xb26
+Entity Family: 11 - 0x0b
+Entity Type ID: 38 - 0x26 Enderman
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[23] = new MetadataShort(0);
+metadata[24] = new MetadataShort(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(2.9f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 264999 - 0x40b27
+Entity Family: 11 - 0x0b
+Entity Type ID: 39 - 0x27 Silverfish
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.4f);
+metadata[55] = new MetadataFloat(0.3f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 265000 - 0x40b28
+Entity Family: 11 - 0x0b
+Entity Type ID: 40 - 0x28 CaveSpider
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.7f);
+metadata[55] = new MetadataFloat(0.5f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2857 - 0xb29
+Entity Family: 11 - 0x0b
+Entity Type ID: 41 - 0x29 Ghast
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(246299196653568); // 111000000000001000000000001000000000000000000000; CanFly, Breathing, HasCollision, AffectedByGravity; 21, 33, 45, 46, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(4f);
+metadata[55] = new MetadataFloat(4f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2858 - 0xb2a
+Entity Family: 11 - 0x0b
+Entity Type ID: 42 - 0x2a MagmaCube
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(246299195080704); // 111000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(1);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[25] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.52f);
+metadata[55] = new MetadataFloat(0.52f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2859 - 0xb2b
+Entity Family: 11 - 0x0b
+Entity Type ID: 43 - 0x2b Blaze
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(246290607243264); // 111000000000000000000000001010000000000000000000; CanClimb, CanFly, HasCollision, AffectedByGravity; 19, 21, 45, 46, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.5f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 199468 - 0x30b2c
+Entity Family: 11 - 0x0b
+Entity Type ID: 44 - 0x2c ZombieVillager
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(4);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[37] = new MetadataShort(1);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2861 - 0xb2d
+Entity Family: 11 - 0x0b
+Entity Type ID: 45 - 0x2d Witch
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[26] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 1116974 - 0x110b2e
+Entity Family: 11 - 0x0b
+Entity Type ID: 46 - 0x2e Stray
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(2);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[6] = new MetadataLong(0);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(1.95f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 199471 - 0x30b2f
+Entity Family: 11 - 0x0b
+Entity Type ID: 47 - 0x2f Husk
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(2);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[37] = new MetadataShort(2);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1.0625f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 1116976 - 0x110b30
+Entity Family: 11 - 0x0b
+Entity Type ID: 48 - 0x30 WitherSkeleton
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(246299195080704); // 111000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(1);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[6] = new MetadataLong(0);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1.2f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.72f);
+metadata[55] = new MetadataFloat(2f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2865 - 0xb31
+Entity Family: 11 - 0x0b
+Entity Type ID: 49 - 0x31 Guardian
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561707249664); // 11000000000001000000000000100000000000000000000; CanSwim, Breathing, HasCollision, AffectedByGravity; 20, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[6] = new MetadataLong(0);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.85f);
+metadata[55] = new MetadataFloat(0.85f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2866 - 0xb32
+Entity Family: 11 - 0x0b
+Entity Type ID: 50 - 0x32 ElderGuardian
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105563854733312); // 11000000000001010000000000100000000000000000000; CanSwim, Elder, Breathing, HasCollision, AffectedByGravity; 20, 31, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[6] = new MetadataLong(0);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.99f);
+metadata[55] = new MetadataFloat(1.99f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2870 - 0xb36
+Entity Family: 11 - 0x0b
+Entity Type ID: 54 - 0x36 Shulker
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706201088); // 11000000000001000000000000000000000000000000000; Breathing, HasCollision, AffectedByGravity; 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(16);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[64] = new MetadataInt(0);
+metadata[65] = new MetadataByte(5);
+metadata[66] = new MetadataShort(1);
+metadata[67] = new MetadataIntCoordinates(X=6, Y=5, Z=7);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 265015 - 0x40b37
+Entity Family: 11 - 0x0b
+Entity Type ID: 55 - 0x37 Endermite
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706725376); // 11000000000001000000000000010000000000000000000; CanClimb, Breathing, HasCollision, AffectedByGravity; 19, 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.4f);
+metadata[55] = new MetadataFloat(0.3f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2873 - 0xb39
+Entity Family: 11 - 0x0b
+Entity Type ID: 57 - 0x39 Vindicator
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105561706201088); // 11000000000001000000000000000000000000000000000; Breathing, HasCollision, AffectedByGravity; 33, 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.6f);
+metadata[55] = new MetadataFloat(1.95f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 71 - 0x47
+Entity Family: 0 - 0x00
+Entity Type ID: 71 - 0x47 EnderCrystal
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(246290604621824); // 111000000000000000000000000000000000000000000000; HasCollision, AffectedByGravity; 45, 46, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[48] = new MetadataIntCoordinates(X=0, Y=0, Z=0);
+metadata[54] = new MetadataFloat(0.98f);
+metadata[55] = new MetadataFloat(0.98f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+metadata[80] = new MetadataInt(20027);
+
+
+Entity Type: 72 - 0x48
+Entity Family: 0 - 0x00
+Entity Type ID: 72 - 0x48 FireworksRocket
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105553116266496); // 11000000000000000000000000000000000000000000000; HasCollision, AffectedByGravity; 45, 46, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[16] = new MetadataSlot(Type=ItemAir, Id=0, Metadata=0, Count=0, ExtraData=);
+metadata[17] = new MetadataVector3(<0  1  0>);
+metadata[18] = new MetadataLong(-1);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.25f);
+metadata[55] = new MetadataFloat(0.25f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 524372 - 0x80054
+Entity Family: 0 - 0x00
+Entity Type ID: 84 - 0x54 Minecart
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105587476004864); // 11000000000100000000000000000000000000000000000; Stackable, HasCollision, AffectedByGravity; 35, 45, 46, 
+metadata[1] = new MetadataInt(40);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[11] = new MetadataInt(0);
+metadata[12] = new MetadataInt(1);
+metadata[16] = new MetadataInt(0);
+metadata[17] = new MetadataInt(6);
+metadata[18] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.98f);
+metadata[55] = new MetadataFloat(0.7f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 88 - 0x58
+Entity Family: 0 - 0x00
+Entity Type ID: 88 - 0x58 LeashKnot
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(0); // 0; ; 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 90 - 0x5a
+Entity Family: 0 - 0x00
+Entity Type ID: 90 - 0x5a Boat
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105587476004864); // 11000000000100000000000000000000000000000000000; Stackable, HasCollision, AffectedByGravity; 35, 45, 46, 
+metadata[1] = new MetadataInt(40);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[11] = new MetadataInt(0);
+metadata[12] = new MetadataInt(1);
+metadata[13] = new MetadataFloat(0f);
+metadata[14] = new MetadataFloat(0f);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(1.4f);
+metadata[55] = new MetadataFloat(0.455f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 93 - 0x5d
+Entity Family: 0 - 0x00
+Entity Type ID: 93 - 0x5d LightningBolt
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(0); // 0; ; 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.8f);
+metadata[55] = new MetadataFloat(1.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 524384 - 0x80060
+Entity Family: 0 - 0x00
+Entity Type ID: 96 - 0x60 HopperMinecart
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105587476004864); // 11000000000100000000000000000000000000000000000; Stackable, HasCollision, AffectedByGravity; 35, 45, 46, 
+metadata[1] = new MetadataInt(40);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[11] = new MetadataInt(0);
+metadata[12] = new MetadataInt(1);
+metadata[16] = new MetadataInt(0);
+metadata[17] = new MetadataInt(6);
+metadata[18] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(11);
+metadata[46] = new MetadataInt(5);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.98f);
+metadata[55] = new MetadataFloat(0.7f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 524385 - 0x80061
+Entity Family: 0 - 0x00
+Entity Type ID: 97 - 0x61 TntMinecart
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105587476004864); // 11000000000100000000000000000000000000000000000; Stackable, HasCollision, AffectedByGravity; 35, 45, 46, 
+metadata[1] = new MetadataInt(40);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[11] = new MetadataInt(0);
+metadata[12] = new MetadataInt(1);
+metadata[16] = new MetadataInt(0);
+metadata[17] = new MetadataInt(6);
+metadata[18] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.98f);
+metadata[55] = new MetadataFloat(0.7f);
+metadata[56] = new MetadataInt(99);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 524386 - 0x80062
+Entity Family: 0 - 0x00
+Entity Type ID: 98 - 0x62 ChestMinecart
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105587476004864); // 11000000000100000000000000000000000000000000000; Stackable, HasCollision, AffectedByGravity; 35, 45, 46, 
+metadata[1] = new MetadataInt(40);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[11] = new MetadataInt(0);
+metadata[12] = new MetadataInt(1);
+metadata[16] = new MetadataInt(0);
+metadata[17] = new MetadataInt(6);
+metadata[18] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(10);
+metadata[46] = new MetadataInt(27);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.98f);
+metadata[55] = new MetadataFloat(0.7f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 524388 - 0x80064
+Entity Family: 0 - 0x00
+Entity Type ID: 100 - 0x64 CommandBlockMinecart
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(105553116266496); // 11000000000000000000000000000000000000000000000; HasCollision, AffectedByGravity; 45, 46, 
+metadata[1] = new MetadataInt(40);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[11] = new MetadataInt(0);
+metadata[12] = new MetadataInt(1);
+metadata[16] = new MetadataInt(0);
+metadata[17] = new MetadataInt(6);
+metadata[18] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(16);
+metadata[46] = new MetadataInt(1);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.5f);
+metadata[55] = new MetadataFloat(0.9f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(1);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+
+Entity Type: 2921 - 0xb69
+Entity Family: 11 - 0x0b
+Entity Type ID: 105 - 0x69 Vex
+    Metadata: 
+MetadataDictionary metadata = new MetadataDictionary();
+metadata[0] = new MetadataLong(140737488879616); // 100000000000000000000000000010000000000000000000; CanClimb; 19, 47, 
+metadata[1] = new MetadataInt(1);
+metadata[2] = new MetadataInt(0);
+metadata[3] = new MetadataByte(0);
+metadata[4] = new MetadataString("");
+metadata[5] = new MetadataLong(-1);
+metadata[7] = new MetadataShort(300);
+metadata[8] = new MetadataInt(0);
+metadata[9] = new MetadataByte(0);
+metadata[10] = new MetadataByte(0);
+metadata[22] = new MetadataByte(0);
+metadata[38] = new MetadataLong(0);
+metadata[39] = new MetadataFloat(1f);
+metadata[43] = new MetadataShort(300);
+metadata[44] = new MetadataInt(0);
+metadata[45] = new MetadataByte(0);
+metadata[46] = new MetadataInt(0);
+metadata[47] = new MetadataInt(0);
+metadata[54] = new MetadataFloat(0.4f);
+metadata[55] = new MetadataFloat(0.8f);
+metadata[57] = new MetadataVector3(<0  0  0>);
+metadata[58] = new MetadataByte(0);
+metadata[59] = new MetadataFloat(0f);
+metadata[60] = new MetadataFloat(0f);
+metadata[70] = new MetadataByte(0);
+metadata[71] = new MetadataString("");
+metadata[72] = new MetadataString("");
+metadata[73] = new MetadataByte(1);
+metadata[74] = new MetadataByte(0);
+metadata[75] = new MetadataInt(0);
+metadata[76] = new MetadataInt(0);
+metadata[77] = new MetadataInt(0);
+metadata[78] = new MetadataInt(-1);
+
+

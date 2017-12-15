@@ -38,8 +38,6 @@ namespace MiNET.Entities.Passive
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Horse));
 
-		private int _type = 0;
-
 		public bool IsEating { get; set; }
 		public double JumpStrength { get; set; }
 		public int Temper { get; set; }
@@ -51,7 +49,7 @@ namespace MiNET.Entities.Passive
 			Height = 1.6;
 
 			var random = rnd ?? new Random((int) DateTime.UtcNow.Ticks);
-			_type = random.Next(7);
+			Variant = random.Next(7);
 			Speed = (0.45 + random.NextDouble()*0.3D + random.NextDouble()*0.3D + random.NextDouble()*0.3)*0.25D;
 			JumpStrength = 0.4 + random.NextDouble()*0.2 + random.NextDouble()*0.2 + random.NextDouble()*0.2;
 
@@ -69,10 +67,11 @@ namespace MiNET.Entities.Passive
 
 		public override MetadataDictionary GetMetadata()
 		{
+			EatingHaystack = IsEating ? 32 : 0;
+			Scale = IsBaby ? 0.5582917f : 1.0;
 			var metadata = base.GetMetadata();
-			metadata[2] = new MetadataInt(_type);
-			metadata[16] = new MetadataInt(IsEating ? 32 : 0); // 0 or 32?
-			metadata[(int) MetadataFlags.Scale] = new MetadataFloat(IsBaby ? 0.5582917f : 1.0);
+			metadata[(int) MetadataFlags.Variant] = new MetadataInt(Variant);
+			metadata[(int) MetadataFlags.EatingHaystack] = new MetadataInt(EatingHaystack);
 			return metadata;
 		}
 

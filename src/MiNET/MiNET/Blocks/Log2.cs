@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class AcaciaLog : Block
+	public class Log2 : Block
 	{
-		public AcaciaLog() : base(162)
+		public Log2() : base(162)
 		{
 			BlastResistance = 10;
 			Hardness = 2;

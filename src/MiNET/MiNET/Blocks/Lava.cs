@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -13,7 +13,7 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
@@ -23,28 +23,15 @@
 
 #endregion
 
-using System.Numerics;
-using MiNET.Utils;
-using MiNET.Worlds;
-
 namespace MiNET.Blocks
 {
-	public class Waterlily : Block
+	public class Lava : Stationary
 	{
-		public Waterlily() : base(111)
+		public Lava() : base(11)
 		{
-			IsTransparent = true;
-		}
-
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
-		{
-			return world.GetBlock(targetCoordinates) is Water;
-		}
-
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
-		{
-			Coordinates = GetNewCoordinatesFromFace(targetCoordinates, face);
-			return base.PlaceBlock(world, player, targetCoordinates, face, faceCoords);
+			LightLevel = 15;
+			BlastResistance = 500;
+			Hardness = 100;
 		}
 	}
 }

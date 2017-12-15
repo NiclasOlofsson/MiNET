@@ -105,8 +105,9 @@
     <Compile Include="BlockFace.cs" />
     <Compile Include="Blocks\AcaciaDoor.cs" />
     <Compile Include="Blocks\AcaciaFenceGate.cs" />
-    <Compile Include="Blocks\AcaciaLeaves.cs" />
-    <Compile Include="Blocks\AcaciaLog.cs" />
+    <Compile Include="Blocks\Jukebox.cs" />
+    <Compile Include="Blocks\Leaves2.cs" />
+    <Compile Include="Blocks\Log2.cs" />
     <Compile Include="Blocks\AcaciaStairs.cs" />
     <Compile Include="Blocks\ActivatorRail.cs" />
     <Compile Include="Blocks\Anvil.cs" />
@@ -115,13 +116,13 @@
     <Compile Include="Blocks\Beetroot.cs" />
     <Compile Include="Blocks\BirchDoor.cs" />
     <Compile Include="Blocks\BirchFenceGate.cs" />
-    <Compile Include="Blocks\BirchWoodStairs.cs" />
+    <Compile Include="Blocks\BirchStairs.cs" />
     <Compile Include="Blocks\BlackGlazedTerracotta.cs" />
     <Compile Include="Blocks\BlockStairs.cs" />
     <Compile Include="Blocks\BlueGlazedTerracotta.cs" />
     <Compile Include="Blocks\BookShelf.cs" />
     <Compile Include="Blocks\BrewingStand.cs" />
-    <Compile Include="Blocks\Bricks.cs" />
+    <Compile Include="Blocks\BrickBlock.cs" />
     <Compile Include="Blocks\BrickStairs.cs" />
     <Compile Include="Blocks\BrownGlazedTerracotta.cs" />
     <Compile Include="Blocks\BrownMushroom.cs" />
@@ -136,17 +137,17 @@
     <Compile Include="Blocks\ChorusPlant.cs" />
     <Compile Include="Blocks\Clay.cs" />
     <Compile Include="Blocks\CobblestoneWall.cs" />
-    <Compile Include="Blocks\Cobweb.cs" />
+    <Compile Include="Blocks\Web.cs" />
     <Compile Include="Blocks\Cocoa.cs" />
     <Compile Include="Blocks\Concrete.cs" />
     <Compile Include="Blocks\ConcretePowder.cs" />
     <Compile Include="Blocks\Crops.cs" />
     <Compile Include="Blocks\CyanGlazedTerracotta.cs" />
     <Compile Include="Blocks\DarkOakDoor.cs" />
-    <Compile Include="Blocks\DoubleRedSandstoneSlab.cs" />
+    <Compile Include="Blocks\DoubleStoneSlab2.cs" />
     <Compile Include="Blocks\DragonEgg.cs" />
     <Compile Include="Blocks\Dropper.cs" />
-    <Compile Include="Blocks\EndBrick.cs" />
+    <Compile Include="Blocks\EndBricks.cs" />
     <Compile Include="Blocks\EnderChest.cs" />
     <Compile Include="Blocks\EndGateway.cs" />
     <Compile Include="Blocks\EndPortal.cs" />
@@ -170,7 +171,7 @@
     <Compile Include="Blocks\PoweredComparator.cs" />
     <Compile Include="Blocks\Prismarine.cs" />
     <Compile Include="Blocks\PurpleGlazedTerracotta.cs" />
-    <Compile Include="Blocks\PurPur.cs" />
+    <Compile Include="Blocks\PurpurBlock.cs" />
     <Compile Include="Blocks\PumpkinStem.cs" />
     <Compile Include="Blocks\PurPurStairs.cs" />
     <Compile Include="Blocks\RedGlazedTerracotta.cs" />
@@ -186,6 +187,7 @@
     <Compile Include="Blocks\StainedGlassPane.cs" />
     <Compile Include="Blocks\StickyPiston.cs" />
     <Compile Include="Blocks\UnpoweredComparator.cs" />
+    <Compile Include="Blocks\Water.cs" />
     <Compile Include="Blocks\Wheat.cs" />
     <Compile Include="Blocks\RedMushroom.cs" />
     <Compile Include="Blocks\WhiteGlazedTerracotta.cs" />
@@ -201,7 +203,7 @@
     <Compile Include="Blocks\EnchantingTable.cs" />
     <Compile Include="Blocks\EndPortalFrame.cs" />
     <Compile Include="Blocks\EndStone.cs" />
-    <Compile Include="Blocks\Flower.cs" />
+    <Compile Include="Blocks\RedFlower.cs" />
     <Compile Include="Blocks\FlowerPot.cs" />
     <Compile Include="Blocks\GlassPane.cs" />
     <Compile Include="Blocks\GlowingObsidian.cs" />
@@ -221,11 +223,11 @@
     <Compile Include="Blocks\Leaves.cs" />
     <Compile Include="Blocks\Lever.cs" />
     <Compile Include="Blocks\Waterlily.cs" />
-    <Compile Include="Blocks\Melon.cs" />
+    <Compile Include="Blocks\MelonBlock.cs" />
     <Compile Include="Blocks\Skull.cs" />
     <Compile Include="Blocks\MonsterEgg.cs" />
     <Compile Include="Blocks\MobSpawner.cs" />
-    <Compile Include="Blocks\MossStone.cs" />
+    <Compile Include="Blocks\MossyCobblestone.cs" />
     <Compile Include="Blocks\Mycelium.cs" />
     <Compile Include="Blocks\NetherBrick.cs" />
     <Compile Include="Blocks\NetherBrickFence.cs" />
@@ -273,13 +275,13 @@
     <Compile Include="Blocks\CoalBlock.cs" />
     <Compile Include="Blocks\CoalOre.cs" />
     <Compile Include="Blocks\Cobblestone.cs" />
-    <Compile Include="Blocks\CobbleStoneStairs.cs" />
+    <Compile Include="Blocks\StoneStairs.cs" />
     <Compile Include="Blocks\CraftingTable.cs" />
     <Compile Include="Blocks\DarkOakStairs.cs" />
     <Compile Include="Blocks\DiamondOre.cs" />
     <Compile Include="Blocks\Dirt.cs" />
     <Compile Include="Blocks\DoubleStoneSlab.cs" />
-    <Compile Include="Blocks\DoubleWoodSlab.cs" />
+    <Compile Include="Blocks\DoubleWoodenSlab.cs" />
     <Compile Include="Blocks\Farmland.cs" />
     <Compile Include="Blocks\Fence.cs" />
     <Compile Include="Blocks\Fencegate.cs" />
@@ -295,7 +297,7 @@
     <Compile Include="Blocks\Gravel.cs" />
     <Compile Include="Blocks\Ice.cs" />
     <Compile Include="Blocks\IronOre.cs" />
-    <Compile Include="Blocks\JungleWoodStairs.cs" />
+    <Compile Include="Blocks\JungleStairs.cs" />
     <Compile Include="Blocks\LapisBlock.cs" />
     <Compile Include="Blocks\LapisOre.cs" />
     <Compile Include="Blocks\LitFurnace.cs" />
@@ -303,14 +305,14 @@
     <Compile Include="Blocks\Sandstone.cs" />
     <Compile Include="Blocks\Snow.cs" />
     <Compile Include="Blocks\Stationary.cs" />
-    <Compile Include="Blocks\StationaryLava.cs" />
+    <Compile Include="Blocks\Lava.cs" />
     <Compile Include="Blocks\NetherBrickStairs.cs" />
-    <Compile Include="Blocks\OakWoodStairs.cs" />
+    <Compile Include="Blocks\OakStairs.cs" />
     <Compile Include="Blocks\QuartzStairs.cs" />
     <Compile Include="Blocks\Sand.cs" />
     <Compile Include="Blocks\SandStoneStairs.cs" />
     <Compile Include="Blocks\Sapling.cs" />
-    <Compile Include="Blocks\SpruceWoodStairs.cs" />
+    <Compile Include="Blocks\SpruceStairs.cs" />
     <Compile Include="Blocks\StandingSign.cs" />
     <Compile Include="Blocks\Stone.cs" />
     <Compile Include="Blocks\StoneBrick.cs" />
@@ -320,11 +322,10 @@
     <Compile Include="Blocks\GrassPath.cs" />
     <Compile Include="Blocks\Torch.cs" />
     <Compile Include="Blocks\WallSign.cs" />
-    <Compile Include="Blocks\StationaryWater.cs" />
     <Compile Include="Blocks\Log.cs" />
     <Compile Include="Blocks\Planks.cs" />
     <Compile Include="Blocks\WoodenPressurePlate.cs" />
-    <Compile Include="Blocks\WoodSlab.cs" />
+    <Compile Include="Blocks\WoodenSlab.cs" />
     <Compile Include="Blocks\Tnt.cs" />
     <Compile Include="Blocks\Wool.cs" />
     <Compile Include="Blocks\YellowGlazedTerracotta.cs" />
@@ -465,6 +466,7 @@
     <Compile Include="Blocks\WallBanner.cs" />
     <Compile Include="Items\ItemPainting.cs" />
     <Compile Include="Items\ItemSaddle.cs" />
+    <Compile Include="Items\ItemShears.cs" />
     <Compile Include="Items\ItemSugar.cs" />
     <Compile Include="Net\McpeMovePlayer.cs" />
     <Compile Include="Utils\Diagnostics\Profiler.cs" />
@@ -793,6 +795,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Entities\entity_metadata.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

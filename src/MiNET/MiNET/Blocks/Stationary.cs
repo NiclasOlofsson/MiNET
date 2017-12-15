@@ -40,7 +40,7 @@ namespace MiNET.Blocks
 			Block block = world.GetBlock(x, y, z);
 			{
 				bool harden = false;
-				if (block is FlowingLava || block is StationaryLava)
+				if (block is FlowingLava || block is Lava)
 				{
 					if (IsWater(world, x, y, z - 1))
 					{
@@ -87,7 +87,7 @@ namespace MiNET.Blocks
 		private bool IsWater(Level world, int x, int y, int z)
 		{
 			Block block = world.GetBlock(x, y, z);
-			return block is FlowingWater || block is StationaryWater;
+			return block is FlowingWater || block is Water;
 		}
 	}
 }

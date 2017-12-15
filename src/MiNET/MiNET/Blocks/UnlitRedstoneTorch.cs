@@ -26,7 +26,7 @@ namespace MiNET.Blocks
 				|| block is Tnt
 				|| block is BlockStairs
 				|| block is StoneSlab
-				|| block is WoodSlab) return true;
+				|| block is WoodenSlab) return true;
 
 			//TODO: More checks here, but PE blocks it pretty good right now
 			if (block is Glass && face == BlockFace.Up) return true;

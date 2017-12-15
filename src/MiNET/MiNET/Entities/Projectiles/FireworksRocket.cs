@@ -76,7 +76,7 @@ namespace MiNET.Entities.Projectiles
 		public override MetadataDictionary GetMetadata()
 		{
 			var metadata = base.GetMetadata();
-			metadata[16] = new MetadataSlot(Fireworks);
+			metadata[(int) MetadataFlags.FirworksType] = new MetadataSlot(Fireworks);
 			return metadata;
 		}
 

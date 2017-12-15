@@ -3,9 +3,9 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class Flower : Block
+	public class RedFlower : Block
 	{
-		public Flower() : base(38)
+		public RedFlower() : base(38)
 		{
 			IsSolid = false;
 			IsTransparent = true;

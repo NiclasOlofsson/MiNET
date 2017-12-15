@@ -3,9 +3,9 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class Melon : Block
+	public class MelonBlock : Block
 	{
-		public Melon() : base(103)
+		public MelonBlock() : base(103)
 		{
 			Hardness = 1;
 			IsTransparent = true;

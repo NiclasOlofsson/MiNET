@@ -71,7 +71,6 @@ namespace MiNET.Blocks
 			{
 				if (rnd.Next(200) == 0)
 				{
-					Log.Error($"Drop APPLE: Metadata={Metadata}, Metadata={Metadata & 0x03}");
 					// Apple
 					return new Item[] {ItemFactory.GetItem(260, 0, 1)};
 				}

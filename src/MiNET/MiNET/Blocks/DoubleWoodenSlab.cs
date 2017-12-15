@@ -2,9 +2,9 @@ using MiNET.Items;
 
 namespace MiNET.Blocks
 {
-	public class DoubleWoodSlab : Block
+	public class DoubleWoodenSlab : Block
 	{
-		public DoubleWoodSlab() : base(157)
+		public DoubleWoodenSlab() : base(157)
 		{
 			BlastResistance = 15;
 			Hardness = 2;

@@ -26,6 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 using log4net;
 using MiNET.Plugins;
 
@@ -39,6 +42,7 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
+			List<string> enumValues = new List<string>();
 			{
 				uint count = ReadUnsignedVarInt();
 				//Log.Warn($"Enum values {count}");
@@ -46,6 +50,7 @@ namespace MiNET.Net
 				{
 					string s = ReadString();
 					Log.Debug(s);
+					enumValues.Add(s);
 				}
 			}
 
@@ -63,16 +68,53 @@ namespace MiNET.Net
 				uint count = ReadUnsignedVarInt();
 				Log.Warn($"Enum indexes {count}");
 
+				string last = null;
+				StringBuilder sb = new StringBuilder();
+				sb.AppendLine();
+
+				string clazzType = null;
 				for (int i = 0; i < count; i++)
 				{
 					string s = ReadString();
+					if(s != last)
+					{
+						if(last != null)
+						{
+							clazzType = null;
+							sb.AppendLine("}");
+							sb.AppendLine();
+						}
+						last = s;
+						sb.AppendLine($"public enum {s}{{");
+						if ("Block" == s) clazzType = "MiNET.Blocks.{0}";
+					}
 					uint c = ReadUnsignedVarInt();
 					Log.Debug($"{s}:{c}");
 					for (int j = 0; j < c; j++)
 					{
 						int idx = ReadShort();
+
 						Log.Debug($"{s}:{c}:{idx}");
+						string enumValue = enumValues[idx];
+						Type type = null;
+						if (clazzType != null)
+						{
+							var className = string.Format(clazzType, enumValue);
+							className = className.Replace("_", "");
+							type = Assembly.GetExecutingAssembly().GetType(className, false, true);
+							if (type != null)
+							{
+							}
+						}
+						sb.AppendLine($"\t{enumValue}, {(type == null ? "// missing" : "")}");
+
 					}
+				}
+
+				if (last != null) sb.AppendLine("}");
+				if (Log.IsDebugEnabled)
+				{
+					Log.Debug(sb.ToString());
 				}
 			}
 

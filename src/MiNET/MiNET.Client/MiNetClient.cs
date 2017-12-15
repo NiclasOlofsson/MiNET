@@ -192,7 +192,11 @@ namespace MiNET.Client
 				.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				.ContinueWith(t => doSendCommand(t, "/testfor gurunx"))
+				.ContinueWith(t => doSendCommand(t, "/me says -> Hi guys! It is I!!"))
+				//.ContinueWith(t => Task.Delay(500).Wait())
+				//.ContinueWith(t => doSendCommand(t, "/summon sheep"))
+				//.ContinueWith(t => Task.Delay(500).Wait())
+				//.ContinueWith(t => doSendCommand(t, "/kill @e[type=sheep]"))
 				.ContinueWith(t => Task.Delay(5000).Wait())
 				//.ContinueWith(t =>
 				//{
@@ -205,6 +209,50 @@ namespace MiNET.Client
 				//	}
 				//})
 				;
+
+			string fileName = Path.GetTempPath() + "MobSpawns_" + Guid.NewGuid() + ".txt";
+			FileStream file = File.OpenWrite(fileName);
+
+			Log.Info($"Writing mob spawns to file:\n{fileName}");
+			_mobWriter = new IndentedTextWriter(new StreamWriter(file));
+
+			//Task.Run(BotHelpers.DoWaitForSpawn(client))
+			//	.ContinueWith(task =>
+			//	{
+			//		foreach (EntityType entityType in Enum.GetValues(typeof (EntityType)))
+			//		{
+			//			if (entityType == EntityType.Wither) continue;
+			//			if (entityType == EntityType.Dragon) continue;
+			//			if (entityType == EntityType.Slime) continue;
+
+			//			string entityName = entityType.ToString();
+			//			entityName = Regex.Replace(entityName, "([A-Z])", "_$1").TrimStart('_').ToLower();
+			//			{
+			//				string command = $"/summon {entityName}";
+			//				McpeCommandRequest request = new McpeCommandRequest();
+			//				request.command = command;
+			//				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+			//				client.SendPackage(request);
+			//			}
+
+			//			Task.Delay(500).Wait();
+
+			//			{
+			//				McpeCommandRequest request = new McpeCommandRequest();
+			//				request.command = $"/kill @e[type={entityName}]";
+			//				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+			//				client.SendPackage(request);
+			//			}
+			//		}
+
+			//		{
+			//			McpeCommandRequest request = new McpeCommandRequest();
+			//			request.command = $"/kill @e[type=!player]";
+			//			request.unknownUuid = new UUID(Guid.NewGuid().ToString());
+			//			client.SendPackage(request);
+			//		}
+
+			//	});
 
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();
@@ -1335,7 +1383,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 150,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 160,
 				payload = data
 			};
 
@@ -1957,6 +2005,7 @@ namespace MiNET.Client
 
 			StringBuilder sb = new StringBuilder();
 			sb.Append(string.Join(", ", flags));
+			sb.Append("; ");
 			for (var i = 0; i < bits.Count; i++)
 			{
 				if (bits[i]) sb.Append($"{i}, ");
@@ -2034,6 +2083,18 @@ namespace MiNET.Client
 				}
 			}
 			Log.DebugFormat("Links count: {0}", message.links);
+
+			if (Log.IsDebugEnabled && _mobWriter != null)
+			{
+				_mobWriter.WriteLine("Entity Type: {0} - 0x{0:x2}", message.entityType);
+				_mobWriter.WriteLine("Entity Family: {0} - 0x{0:x2}", typeBytes[1]);
+				_mobWriter.WriteLine("Entity Type ID: {0} - 0x{0:x2} {1}", typeBytes[0], (EntityType) typeBytes[0]);
+				_mobWriter.Indent++;
+				_mobWriter.WriteLine("Metadata: {0}", MetadataToCode(message.metadata));
+				_mobWriter.Indent--;
+				_mobWriter.WriteLine();
+				_mobWriter.Flush();
+			}
 		}
 
 		private void OnMcpeRemoveEntity(McpeRemoveEntity message)
@@ -2137,6 +2198,7 @@ namespace MiNET.Client
 		private int _numberOfChunks = 0;
 
 		private ConcurrentDictionary<Tuple<int, int>, bool> _chunks = new ConcurrentDictionary<Tuple<int, int>, bool>();
+		private static IndentedTextWriter _mobWriter;
 
 		private void OnFullChunkData(McpeFullChunkData msg)
 		{

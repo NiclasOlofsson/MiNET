@@ -71,7 +71,7 @@ namespace MiNET.Blocks
 			if (visited.Contains(coord)) return false;
 
 			var block = level.GetBlock(coord);
-			if (block is StationaryWater || block is FlowingWater) return true;
+			if (block is Water || block is FlowingWater) return true;
 
 			visited.Add(coord);
 

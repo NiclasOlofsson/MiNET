@@ -169,7 +169,7 @@ namespace MiNET.Blocks
 
 			if (CanBeFlownInto(world, x, y - 1, z) /* || world.GetBlock(x, y - 1, z) is Flowing*/)
 			{
-				if (this is FlowingLava && (world.GetBlock(x, y - 1, z) is FlowingWater || world.GetBlock(x, y - 1, z) is StationaryWater))
+				if (this is FlowingLava && (world.GetBlock(x, y - 1, z) is FlowingWater || world.GetBlock(x, y - 1, z) is Water))
 				{
 					world.SetBlock(new Cobblestone {Coordinates = new BlockCoordinates(x, y - 1, z)});
 					return;
@@ -367,7 +367,7 @@ namespace MiNET.Blocks
 		{
 			Block block = world.GetBlock(x, y, z);
 
-			return !IsSameMaterial(block) && (!(block is FlowingLava) && !(block is StationaryLava)) && !BlocksFluid(block);
+			return !IsSameMaterial(block) && (!(block is FlowingLava) && !(block is Lava)) && !BlocksFluid(block);
 		}
 
 
@@ -425,8 +425,8 @@ namespace MiNET.Blocks
 
 		private bool IsSameMaterial(Block block)
 		{
-			if (this is FlowingWater && (block is FlowingWater || block is StationaryWater)) return true;
-			if (this is FlowingLava && (block is FlowingLava || block is StationaryLava)) return true;
+			if (this is FlowingWater && (block is FlowingWater || block is Water)) return true;
+			if (this is FlowingLava && (block is FlowingLava || block is Lava)) return true;
 
 			return false;
 		}
@@ -441,7 +441,7 @@ namespace MiNET.Blocks
 			Block block = world.GetBlock(x, y, z);
 
 			bool harden = false;
-			if (block is FlowingLava || block is StationaryLava)
+			if (block is FlowingLava || block is Lava)
 			{
 				if (IsWater(world, x, y, z - 1))
 				{
@@ -491,7 +491,7 @@ namespace MiNET.Blocks
 		private bool IsWater(Level world, int x, int y, int z)
 		{
 			Block block = world.GetBlock(x, y, z);
-			return block is FlowingWater || block is StationaryWater;
+			return block is FlowingWater || block is Water;
 		}
 
 		public override Item[] GetDrops(Item tool)

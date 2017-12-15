@@ -1,8 +1,8 @@
 ﻿namespace MiNET.Blocks
 {
-	public class PurPurStairs : BlockStairs
+	public class PurpurStairs : BlockStairs
 	{
-		public PurPurStairs() : base(203)
+		public PurpurStairs() : base(203)
 		{
 			
 		}

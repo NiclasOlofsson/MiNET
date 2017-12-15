@@ -249,7 +249,7 @@ namespace MiNET.Entities.Projectiles
 						{
 							//if (!blockbox.Contains(KnownPosition.ToVector3())) continue;
 
-							if (block is FlowingLava || block is StationaryLava)
+							if (block is FlowingLava || block is Lava)
 							{
 								HealthManager.Ignite(1200);
 								continue;

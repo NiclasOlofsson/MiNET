@@ -7,11 +7,11 @@ using MiNET.Worlds;
 
 namespace MiNET.Blocks
 {
-	public class AcaciaLeaves : Block
+	public class Leaves2 : Block
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (AcaciaLeaves));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Leaves2));
 
-		public AcaciaLeaves() : base(161)
+		public Leaves2() : base(161)
 		{
 			IsTransparent = true;
 			BlastResistance = 1;
@@ -86,13 +86,13 @@ namespace MiNET.Blocks
 			if (visited.Contains(coord)) return false;
 
 			var block = level.GetBlock(coord);
-			if (block is AcaciaLog) return true;
+			if (block is Log2) return true;
 
 			visited.Add(coord);
 
 			if (distance >= 4) return false;
 
-			if (!(block is AcaciaLeaves)) return false;
+			if (!(block is Leaves2)) return false;
 			if ((block.Metadata & 0x07) != (Metadata & 0x07)) return false;
 
 			// check down

@@ -59,7 +59,6 @@ namespace MiNET.Entities.Passive
 		{
 			var metadata = base.GetMetadata();
 			metadata[3] = new MetadataByte(_color);
-			metadata[16] = new MetadataInt(32);
 			return metadata;
 		}
 

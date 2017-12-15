@@ -33,6 +33,7 @@ using System.IO;
 using System.Net;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using AStarNavigator;
 using AStarNavigator.Algorithms;
@@ -652,6 +653,15 @@ namespace MiNET
 			StringBuilder sb = new StringBuilder();
 			sb.Append(string.Join(", ", flags));
 			Assert.AreEqual("", sb.ToString());
+		}
+
+		[Test]
+		public void EntityNameTranslationTest()
+		{
+			string entityName = EntityType.ElderGuardian.ToString();
+			entityName = Regex.Replace(entityName, "([A-Z])", "_$1").TrimStart('_').ToLower();
+
+			Assert.AreEqual("elder_guardian", entityName);
 		}
 
 	}

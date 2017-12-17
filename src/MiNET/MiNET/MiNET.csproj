@@ -740,6 +740,7 @@
     <Compile Include="Utils\NibbleArray.cs" />
     <Compile Include="Utils\PlayerLocation.cs" />
     <Compile Include="Utils\Records.cs" />
+    <Compile Include="Worlds\AirWorldGenerator.cs" />
     <Compile Include="Worlds\AnvilWorldProvider.cs" />
     <Compile Include="Worlds\BiomeUtils.cs" />
     <Compile Include="Worlds\Chunk.cs" />
@@ -758,6 +759,7 @@
     <Compile Include="Worlds\IWorldProvider.cs" />
     <Compile Include="Worlds\Level.cs" />
     <Compile Include="Worlds\LevelInfo.cs" />
+    <Compile Include="Worlds\SuperflatGenerator.cs" />
     <Compile Include="Worlds\SkyLightCalculations.cs" />
     <Compile Include="Worlds\Structures\AcaciaTree.cs" />
     <Compile Include="Worlds\Structures\BirchTree.cs" />

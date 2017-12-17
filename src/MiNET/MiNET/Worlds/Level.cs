@@ -1101,7 +1101,7 @@ namespace MiNET.Worlds
 
 			if (GameMode != GameMode.Creative && calculateLight /* && block.LightLevel > 0*/)
 			{
-				new SkyLightCalculations().Calculate(this, block.Coordinates);
+				if (Dimension == Dimension.Overworld) new SkyLightCalculations().Calculate(this, block.Coordinates);
 
 				block.BlockLight = (byte) block.LightLevel;
 				chunk.SetBlocklight(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, (byte) block.LightLevel);

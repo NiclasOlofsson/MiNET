@@ -25,7 +25,6 @@
 
 using log4net;
 using MiNET.BlockEntities;
-using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
@@ -253,73 +252,6 @@ namespace MiNET.Worlds
 			};
 
 			return sign;
-		}
-	}
-
-	public class AirWorldGenerator : IWorldGenerator
-	{
-		public void Initialize()
-		{
-		}
-
-		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
-		{
-			return new ChunkColumn() { x = chunkCoordinates.X, z = chunkCoordinates.Z };
-		}
-	}
-
-	public class NetherFlatlandGenerator : IWorldGenerator
-	{
-		public void Initialize()
-		{
-		}
-
-		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
-		{
-			ChunkColumn chunk = new ChunkColumn();
-			chunk.x = chunkCoordinates.X;
-			chunk.z = chunkCoordinates.Z;
-
-			PopulateChunk(chunk);
-
-			return chunk;
-		}
-
-		public void PopulateChunk(ChunkColumn chunk)
-		{
-			var layers = new Block[]
-			{
-				new Bedrock(),
-				new Lava(),
-				new Netherrack(),
-				new Netherrack(),
-				new Air(),
-				new Air(),
-				new Air(),
-				new Air(),
-				new Bedrock(),
-			}; // bottom-up
-
-			for (int x = 0; x < 16; x++)
-			{
-				for (int z = 0; z < 16; z++)
-				{
-					int h = 0;
-
-					foreach (var layer in layers)
-					{
-						chunk.SetBlock(x, h++, z, layer.Id);
-					}
-
-					chunk.SetHeight(x, z, (short) h);
-					for (int i = h; i >= 0; i--)
-					{
-						chunk.SetSkyLight(x, i, z, 0);
-					}
-
-					chunk.SetBiome(x, z, 1);
-				}
-			}
 		}
 	}
 }

@@ -527,6 +527,7 @@ namespace MiNET
 						_dimensionFunc();
 						_dimensionFunc = null;
 					}
+
 					break;
 				}
 				case PlayerAction.WorldImmutable:
@@ -1017,6 +1018,18 @@ namespace MiNET
 
 		public virtual void ChangeDimension(Level toLevel, PlayerLocation spawnPoint, Dimension dimension, Func<Level> levelFunc = null)
 		{
+			switch (dimension)
+			{
+				case Dimension.Overworld:
+					break;
+				case Dimension.Nether:
+					if (!Level.WorldProvider.HaveNether()) return;
+					break;
+				case Dimension.TheEnd:
+					if (!Level.WorldProvider.HaveTheEnd()) return;
+					break;
+			}
+
 			SendChangeDimension(dimension);
 
 			Level.RemovePlayer(this);
@@ -2826,7 +2839,7 @@ namespace MiNET
 			else
 			{
 				if (PortalDetected != 0) Log.Debug($"Reset portal detected");
-				PortalDetected = 0;
+				if (IsSpawned) PortalDetected = 0;
 			}
 
 			HungerManager.OnTick();

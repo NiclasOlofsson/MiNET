@@ -583,6 +583,7 @@ namespace TestPlugin
 
 			ThreadPool.QueueUserWorkItem(delegate(object state)
 			{
+				player.PortalDetected = -1;
 				player.ChangeDimension(null, null, dimension, delegate
 				{
 					Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
@@ -634,7 +635,7 @@ namespace TestPlugin
 
 							if (nextLevel == null)
 							{
-								nextLevel = new Level(levelManager, world, new AnvilWorldProvider() {MissingChunkProvider = new FlatlandWorldProvider()}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
+								nextLevel = new Level(levelManager, world, new AnvilWorldProvider() {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)}, Context.LevelManager.EntityManager, player.GameMode, Difficulty.Normal);
 								nextLevel.Initialize();
 								Context.LevelManager.Levels.Add(nextLevel);
 							}

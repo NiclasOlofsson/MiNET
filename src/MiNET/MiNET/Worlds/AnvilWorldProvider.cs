@@ -258,6 +258,8 @@ namespace MiNET.Worlds
 						break;
 				}
 
+				MissingChunkProvider?.Initialize();
+
 				_isInitialized = true;
 			}
 		}
@@ -794,12 +796,14 @@ namespace MiNET.Worlds
 
 		public bool HaveNether()
 		{
-			return Directory.Exists(Path.Combine(BasePath, @"DIM-1"));
+			return true;
+			//return Directory.Exists(Path.Combine(BasePath, @"DIM-1"));
 		}
 
 		public bool HaveTheEnd()
 		{
-			return Directory.Exists(Path.Combine(BasePath, @"DIM1"));
+			return true;
+			//return Directory.Exists(Path.Combine(BasePath, @"DIM1"));
 		}
 
 		public static void SaveChunk(ChunkColumn chunk, string basePath)

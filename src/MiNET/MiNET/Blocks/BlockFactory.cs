@@ -97,6 +97,9 @@ namespace MiNET.Blocks
 
 		public static Block GetBlockByName(string blockName)
 		{
+			if (string.IsNullOrEmpty(blockName)) return null;
+
+			if (blockName.StartsWith("minecraft:")) blockName = blockName.Substring(10);
 			blockName = blockName.ToLowerInvariant();
 			blockName = blockName.Replace("_", "");
 

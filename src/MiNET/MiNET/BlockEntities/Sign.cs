@@ -24,7 +24,7 @@ namespace MiNET.BlockEntities
 			var compound = new NbtCompound(string.Empty)
 			{
 				new NbtString("id", Id),
-				new NbtString("Text", Text ?? string.Empty),
+				new NbtString("Text", Text1+"\n"+Text2+"\n"+Text3+"\n"+Text4 ?? string.Empty),
 				new NbtString("Text1", Text1 ?? string.Empty),
 				new NbtString("Text2", Text2 ?? string.Empty),
 				new NbtString("Text3", Text3 ?? string.Empty),

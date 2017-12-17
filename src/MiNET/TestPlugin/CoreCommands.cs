@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
@@ -43,6 +44,7 @@ using MiNET.Entities;
 using MiNET.Entities.Passive;
 using MiNET.Items;
 using MiNET.Net;
+using MiNET.Particles;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -139,6 +141,91 @@ namespace TestPlugin
 			{
 				provider.SaveChunks();
 			}
+		}
+
+		[Command]
+		public void TestParticles(Player player, int count = 100)
+		{
+			List<McpeLevelEvent> packets = new List<McpeLevelEvent>();
+			BoundingBox box = player.GetBoundingBox() + count;
+			{
+				Level level = player.Level;
+
+				//if ((Math.Abs(box.Width) > 0) || (Math.Abs(box.Height) > 0) || (Math.Abs(box.Depth) > 0))
+				{
+					var minX = Math.Min(box.Min.X, box.Max.X);
+					var maxX = Math.Max(box.Min.X, box.Max.X) + 1;
+
+					var minY = Math.Max(0, Math.Min(box.Min.Y, box.Max.Y));
+					var maxY = Math.Min(255, Math.Max(box.Min.Y, box.Max.Y)) + 1;
+
+					var minZ = Math.Min(box.Min.Z, box.Max.Z);
+					var maxZ = Math.Max(box.Min.Z, box.Max.Z) + 1;
+
+					// x/y
+					for (float x = minX; x <= maxX; x++)
+					{
+						for (float y = minY; y <= maxY; y++)
+						{
+							foreach (var z in new float[] {minZ, maxZ})
+							{
+								if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
+
+								//var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+								//var particle = new Particle(10, level) {Position = new Vector3(x, y, z)};
+								//particle.Spawn(new[] {player});
+
+								McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+								particleEvent.eventId = (short)(0x4000 | 10);
+								particleEvent.position = new Vector3(x, y, z);
+								particleEvent.data = 0;
+								packets.Add(particleEvent);
+							}
+						}
+					}
+
+					// x/z
+					//for (float x = minX; x <= maxX; x++)
+					//{
+					//	foreach (var y in new float[] {minY, maxY})
+					//	{
+					//		for (float z = minZ; z <= maxZ; z++)
+					//		{
+					//			if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
+
+					//			//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+					//			var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z)};
+					//			particle.Spawn(new[] {Player});
+					//		}
+					//	}
+					//}
+
+					// z/y
+					foreach (var x in new float[] {minX, maxX})
+					{
+						for (float y = minY; y <= maxY; y++)
+						{
+							for (float z = minZ; z <= maxZ; z++)
+							{
+								if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
+
+								//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
+								//var particle = new Particle(10, level) {Position = new Vector3(x, y, z)};
+								//particle.Spawn(new[] {player});
+
+								McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+								particleEvent.eventId = (short)(0x4000 | 10);
+								particleEvent.position = new Vector3(x, y, z);
+								particleEvent.data = 0;
+								packets.Add(particleEvent);
+							}
+						}
+					}
+				}
+			}
+
+			var packet = BatchUtils.CreateBatchPacket(CompressionLevel.Fastest, packets.ToArray());
+			player.SendPackage(packet);
 		}
 
 		[Command]
@@ -479,24 +566,8 @@ namespace TestPlugin
 		}
 
 		[Command(Name = "dim", Aliases = new[] {"dimension"}, Description = "Change dimension. Creates world if not exist.")]
-		public void ChangeDimenion(Player player, DimensionTypesEnum dimType)
+		public void ChangeDimenion(Player player, Dimension dimension)
 		{
-			Dimension dimension;
-			switch (dimType.Value)
-			{
-				case "overworld":
-					dimension = Dimension.Overworld;
-					break;
-				case "nether":
-					dimension = Dimension.Nether;
-					break;
-				case "the_end":
-					dimension = Dimension.TheEnd;
-					break;
-				default:
-					return;
-			}
-
 			Level oldLevel = player.Level;
 
 			if (player.Level.Dimension == dimension)

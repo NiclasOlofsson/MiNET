@@ -44,17 +44,18 @@ namespace MiNET.Worlds
 	public class SkyLightBlockAccess : IBlockAccess
 	{
 		private readonly IWorldProvider _worldProvider;
+		private readonly int _heightForUnloadedChunk;
 		private readonly ChunkCoordinates _coord = ChunkCoordinates.None;
 		private readonly ChunkColumn _chunk = null;
 
-		public SkyLightBlockAccess(IWorldProvider worldProvider)
+		public SkyLightBlockAccess(IWorldProvider worldProvider, int heightForUnloadedChunk = 255)
 		{
 			_worldProvider = worldProvider;
+			_heightForUnloadedChunk = heightForUnloadedChunk;
 		}
 
-		public SkyLightBlockAccess(IWorldProvider worldProvider, ChunkColumn chunk)
+		public SkyLightBlockAccess(IWorldProvider worldProvider, ChunkColumn chunk) : this(worldProvider, -1)
 		{
-			_worldProvider = worldProvider;
 			_chunk = chunk;
 			_coord = new ChunkCoordinates(chunk.x, chunk.z);
 		}
@@ -91,7 +92,7 @@ namespace MiNET.Worlds
 		public int GetHeight(BlockCoordinates coordinates)
 		{
 			ChunkColumn chunk = GetChunk(coordinates, true);
-			if (chunk == null) return 256;
+			if (chunk == null) return _heightForUnloadedChunk;
 
 			return chunk.GetHeight(coordinates.X & 0x0f, coordinates.Z & 0x0f);
 		}

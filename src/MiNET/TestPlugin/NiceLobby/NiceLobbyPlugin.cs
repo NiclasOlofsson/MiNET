@@ -113,7 +113,7 @@ namespace TestPlugin.NiceLobby
 				{
 					Id = 11,
 					MessageType = MessageType.Popup,
-					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, SkyLight Block={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
+					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
 					Duration = 20*5,
 				});
 			}
@@ -377,9 +377,17 @@ namespace TestPlugin.NiceLobby
 			Player player = eventArgs.Player;
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
+			if(player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
+			{
+				player.ActionPermissions = ActionPermissions.Operator;
+				player.CommandPermission = 4;
+				player.PermissionLevel = PermissionLevel.Operator;
+				player.SendAdventureSettings();
+			}
+
 
 			int idx = 1;
-			player.Inventory.Slots[idx++] = new ItemMonsterEgg(EntityType.Horse) {Count = 64};
+			player.Inventory.Slots[idx++] = new ItemBed() {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new SnowLayer()) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemBlock(new Stone()) {Count = 64};
 			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};

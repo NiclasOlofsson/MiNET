@@ -182,19 +182,8 @@ namespace MiNET.Utils
 			return string.Format("{{Min:{0} Max:{1}}}", Min.ToString(), Max.ToString());
 		}
 
-		public double Height
-		{
-			get { return Max.Y - Min.Y; }
-		}
-
-		public double Width
-		{
-			get { return Max.X - Min.X; }
-		}
-
-		public double Depth
-		{
-			get { return Max.Z - Min.Z; }
-		}
+		public double Height => Math.Abs(Max.Y - Min.Y);
+		public double Width => Math.Abs(Max.X - Min.X);
+		public double Depth => Math.Abs(Max.Z - Min.Z);
 	}
 }

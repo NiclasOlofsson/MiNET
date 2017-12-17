@@ -26,6 +26,7 @@
 using System.Numerics;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -41,88 +42,69 @@ namespace MiNET.Blocks
 			//IsFlammable = true; // It can catch fire from lava, but not other means.
 		}
 
-		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		public override Item[] GetDrops(Item tool)
 		{
-			return world.GetBlock(blockCoordinates).IsReplacible;
+			return new[] {ItemFactory.GetItem(355, _color)};
 		}
 
-		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
 		{
+			_color = Metadata; // from item
+
 			byte direction = player.GetDirection();
-
-			var coordinates = GetNewCoordinatesFromFace(blockCoordinates, face);
-
-			// Base block, meta sets orientation
-
-			Bed block = new Bed
-			{
-				Coordinates = coordinates
-			};
 
 			switch (direction)
 			{
 				case 1:
-					block.Metadata = 0;
+					Metadata = 0;
 					break; // West
 				case 2:
-					block.Metadata = 1;
+					Metadata = 1;
 					break; // North
 				case 3:
-					block.Metadata = 2;
+					Metadata = 2;
 					break; // East
 				case 0:
-					block.Metadata = 3;
+					Metadata = 3;
 					break; // South 
 			}
 
-			if (!block.CanPlace(world, player, blockCoordinates, face)) return true;
+			return world.GetBlock(blockCoordinates).IsReplacible && world.GetBlock(GetOtherPart()).IsReplacible;
+		}
 
-			BlockFace lowerFace = BlockFace.None;
-			switch (block.Metadata)
+		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			world.SetBlockEntity(new BedBlockEntity
 			{
-				case 0:
-					lowerFace = (BlockFace) 3;
-					break; // West
-				case 1:
-					lowerFace = (BlockFace) 4;
-					break; // North
-				case 2:
-					lowerFace = (BlockFace) 2;
-					break; // East
-				case 3:
-					lowerFace = (BlockFace) 5;
-					break; // South 
-			}
+				Coordinates = Coordinates,
+				Color = _color
+			});
 
-			Bed blockUpper = new Bed
+			var otherCoord = GetOtherPart();
+
+			Bed blockOther = new Bed
 			{
-				Coordinates = GetNewCoordinatesFromFace(coordinates, lowerFace),
-				Metadata = (byte) (block.Metadata | 0x08)
+				Coordinates = otherCoord,
+				Metadata = (byte) (Metadata | 0x08)
 			};
 
-			if (!blockUpper.CanPlace(world, player, blockCoordinates, face)) return true;
-
-			//TODO: Check down from both blocks, must be solids
-
-			world.SetBlock(block);
+			world.SetBlock(blockOther);
 			world.SetBlockEntity(new BedBlockEntity
 			{
-				Coordinates = block.Coordinates,
-				Color = (byte) Metadata
+				Coordinates = blockOther.Coordinates,
+				Color = _color
 			});
 
-			world.SetBlock(blockUpper);
-			world.SetBlockEntity(new BedBlockEntity
-			{
-				Coordinates = blockUpper.Coordinates,
-				Color = (byte) Metadata
-			});
-
-			return true;
+			return false;
 		}
 
 		public override void BreakBlock(Level level, bool silent = false)
 		{
+			if(level.GetBlockEntity(Coordinates) is BedBlockEntity blockEntiy)
+			{
+				_color = blockEntiy.Color;
+			}
+
 			base.BreakBlock(level, silent);
 
 			var other = GetOtherPart();
@@ -159,6 +141,7 @@ namespace MiNET.Blocks
 		}
 
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Bed));
+		private byte _color;
 
 		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{

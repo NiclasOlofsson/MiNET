@@ -675,7 +675,7 @@ namespace MiNET
 
 		public int CommandPermission { get; set; } = (int) Net.CommandPermission.Normal;
 
-		public ActionPermissions ActionPermissions { get; set; } = ActionPermissions.All;
+		public ActionPermissions ActionPermissions { get; set; } = ActionPermissions.Default;
 
 		public bool IsSpectator { get; set; }
 

@@ -20,8 +20,7 @@ namespace MiNET.Utils
 					package.PutPool();
 				}
 
-				var buffer = stream.GetBuffer();
-				return CreateBatchPacket(buffer, 0, buffer.Length, compressionLevel, false);
+				return CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, compressionLevel, false);
 			}
 		}
 

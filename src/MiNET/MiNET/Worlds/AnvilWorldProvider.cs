@@ -76,6 +76,8 @@ namespace MiNET.Worlds
 
 		public bool IsCaching { get; private set; } = true;
 
+		public bool IsDimensionWithSkyLight { get; set; } = true;
+
 		public bool ReadSkyLight { get; set; } = true;
 
 		public bool ReadBlockLight { get; set; } = true;
@@ -215,7 +217,6 @@ namespace MiNET.Worlds
 			LevelInfo = levelInfo;
 			_chunkCache = chunkCache;
 			_isInitialized = true;
-			//_flatland = new FlatlandWorldProvider();
 		}
 
 		private bool _isInitialized = false;
@@ -340,8 +341,11 @@ namespace MiNET.Worlds
 					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 					if (chunkColumn != null)
 					{
-						//SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
-						//new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
+						if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
+						{
+							SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
+							new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
+						}
 					}
 
 					return chunkColumn;
@@ -380,7 +384,11 @@ namespace MiNET.Worlds
 						var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 						if (chunkColumn != null)
 						{
-							//chunkColumn.NeedSave = true;
+							if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
+							{
+								SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
+								new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
+							}
 						}
 
 						return chunkColumn;
@@ -539,7 +547,7 @@ namespace MiNET.Worlds
 					chunk.isDirty = false;
 					chunk.NeedSave = false;
 
-					if (Config.GetProperty("CalculateLights", false))
+					if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
 					{
 						SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunk);
 						new SkyLightCalculations().RecalcSkyLight(chunk, blockAccess);

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Numerics;
 using System.Threading;
 using log4net;
 using MiNET.Blocks;
 using MiNET.BuilderBase.Commands;
+using MiNET.Net;
 using MiNET.Particles;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -165,14 +167,21 @@ namespace MiNET.BuilderBase
 
 			if (force && ShowSelection) return; // Will be rendered on regular tick instead
 
+			Level level = Player.Level;
+
 			if (!Monitor.TryEnter(_sync)) return;
 
 			try
 			{
 				BoundingBox box = GetSelection();
-				{
-					Level level = Player.Level;
 
+				var numberOfParticles = box.Height*box.Width*2 + box.Height*box.Depth*2;
+
+				bool isBig = numberOfParticles > 500;
+
+				List<McpeLevelEvent> packets = new List<McpeLevelEvent>();
+
+				{
 					//if ((Math.Abs(box.Width) > 0) || (Math.Abs(box.Height) > 0) || (Math.Abs(box.Depth) > 0))
 					{
 						var minX = Math.Min(box.Min.X, box.Max.X);
@@ -191,11 +200,22 @@ namespace MiNET.BuilderBase
 							{
 								foreach (var z in new float[] {minZ, maxZ})
 								{
+									if (isBig)
+									{
+										if (x != minX && x != maxX && y != minY && y != maxY) continue;
+									}
+
 									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
 									//var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									var particle = new Particle(particleId, Player.Level) {Position = new Vector3(x, y, z)};
-									particle.Spawn(new[] {Player});
+									//var particle = new Particle(particleId, Player.Level) { Position = new Vector3(x, y, z) };
+									//particle.Spawn(new[] { Player });
+
+									McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+									particleEvent.eventId = (short)(0x4000 | 10);
+									particleEvent.position = new Vector3(x, y, z);
+									particleEvent.data = 0;
+									packets.Add(particleEvent);
 								}
 							}
 						}
@@ -223,16 +243,44 @@ namespace MiNET.BuilderBase
 							{
 								for (float z = minZ; z <= maxZ; z++)
 								{
+									if (isBig)
+									{
+										if (z != minZ && z != maxZ && y != minY && y != maxY) continue;
+									}
+
 									if (!level.IsAir(new BlockCoordinates((int) x, (int) y, (int) z))) continue;
 
 									//var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z) + new Vector3(0.5f, 0.5f, 0.5f)};
-									var particle = new Particle(10, Player.Level) {Position = new Vector3(x, y, z)};
-									particle.Spawn(new[] {Player});
+									//var particle = new Particle(10, Player.Level) { Position = new Vector3(x, y, z) };
+									//particle.Spawn(new[] { Player });
+
+									McpeLevelEvent particleEvent = McpeLevelEvent.CreateObject();
+									particleEvent.eventId = (short)(0x4000 | 10);
+									particleEvent.position = new Vector3(x, y, z);
+									particleEvent.data = 0;
+									packets.Add(particleEvent);
 								}
 							}
 						}
 					}
+
+					if (packets.Count > 500)
+					{
+						if (force) Log.Warn($"Selection size is {numberOfParticles}. Number of particles is {packets.Count} ");
+
+						return; // too many particles
+					}
+
+
+					if (packets.Count > 0)
+					{
+						var packet = BatchUtils.CreateBatchPacket(CompressionLevel.Optimal, packets.ToArray());
+						Player.SendPackage(packet);
+						//level.RelayBroadcast(new[] { Player }, packet);
+					}
 				}
+
+
 			}
 			catch (Exception e)
 			{

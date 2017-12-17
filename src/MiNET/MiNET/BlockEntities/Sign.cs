@@ -48,8 +48,7 @@ namespace MiNET.BlockEntities
 
 		private string GetTextValue(NbtCompound compound, string key)
 		{
-			NbtString text;
-			compound.TryGet(key, out text);
+			compound.TryGet(key, out NbtString text);
 			return text != null ? (text.StringValue ?? string.Empty) : string.Empty;
 		}
 	}

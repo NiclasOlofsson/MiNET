@@ -177,7 +177,7 @@ namespace MiNET
 				ReadBlockLight = overworld.ReadBlockLight,
 				ReadSkyLight = overworld.ReadSkyLight,
 				Dimension = dimension,
-				MissingChunkProvider = new AirWorldGenerator(),
+				MissingChunkProvider = (dimension == Dimension.Nether ? (IWorldGenerator) new NetherFlatlandGenerator() : new AirWorldGenerator()),
 			};
 
 			Level newLevel = new Level(level.LevelManager, level.LevelId + "_" + dimension, worldProvider, EntityManager, level.GameMode, level.Difficulty, level.ViewDistance)

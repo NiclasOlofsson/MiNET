@@ -117,6 +117,8 @@ namespace MiNET
 			for (int si = 0; si < Slots.Count; si++)
 			{
 				Item existingItem = Slots[si];
+
+				// This needs to also take extradata into account when comparing.
 				if (existingItem.Id == item.Id && existingItem.Metadata == item.Metadata && existingItem.Count < existingItem.MaxStackSize)
 				{
 					int take = Math.Min(item.Count, existingItem.MaxStackSize - existingItem.Count);

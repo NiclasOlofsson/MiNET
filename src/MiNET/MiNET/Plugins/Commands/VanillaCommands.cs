@@ -53,6 +53,7 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command(Name = "op", Description = "Make player an operator")]
+		[Authorize(Permission = 4)]
 		public string MakeOperator(Player commander, Target target)
 		{
 			string body = target.Selector;
@@ -63,6 +64,10 @@ namespace MiNET.Plugins.Commands
 				foreach (var p in target.Players)
 				{
 					names.Add(p.Username);
+					p.ActionPermissions = ActionPermissions.Operator;
+					p.CommandPermission = 4;
+					p.PermissionLevel = PermissionLevel.Operator;
+					p.SendAdventureSettings();
 				}
 				body = string.Join(", ", names);
 			}

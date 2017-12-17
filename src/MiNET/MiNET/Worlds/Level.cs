@@ -1190,16 +1190,9 @@ namespace MiNET.Worlds
 			NbtCompound nbt = chunk?.GetBlockEntity(blockCoordinates);
 			if (nbt == null) return null;
 
-			string id = null;
-			var idTag = nbt.Get("id");
-			if (idTag != null)
-			{
-				id = idTag.StringValue;
-			}
+			if (!nbt.TryGet("id", out NbtString idTag)) return null;
 
-			if (string.IsNullOrEmpty(id)) return null;
-
-			blockEntity = BlockEntityFactory.GetBlockEntityById(id);
+			blockEntity = BlockEntityFactory.GetBlockEntityById(idTag.StringValue);
 			if (blockEntity == null) return null;
 
 			blockEntity.Coordinates = blockCoordinates;
@@ -1231,7 +1224,7 @@ namespace MiNET.Worlds
 				}
 			};
 
-			Log.Debug($"Nbt: {nbt.NbtFile.RootTag}");
+			if (Log.IsDebugEnabled) Log.Debug($"Nbt: {nbt.NbtFile.RootTag}");
 
 			var entityData = McpeBlockEntityData.CreateObject();
 			entityData.namedtag = nbt;

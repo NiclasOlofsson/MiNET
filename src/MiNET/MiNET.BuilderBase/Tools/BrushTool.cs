@@ -86,9 +86,9 @@ namespace MiNET.BuilderBase.Tools
 
 			var selector = RegionSelector.GetSelector(player);
 			var undoRecorder = new UndoRecorder(player.Level);
-			var editSession = new EditHelper(player.Level, Mask, undoRecorder: undoRecorder);
+			var editSession = new EditHelper(player.Level, player, Mask, undoRecorder: undoRecorder);
 
-			var target = new EditHelper(world, Mask).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
+			var target = new EditHelper(world, player, Mask).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");
@@ -137,9 +137,9 @@ namespace MiNET.BuilderBase.Tools
 
 			var selector = RegionSelector.GetSelector(player);
 			var undoRecorder = new UndoRecorder(player.Level);
-			var editSession = new EditHelper(player.Level, Mask, undoRecorder: undoRecorder);
+			var editSession = new EditHelper(player.Level, player, Mask, undoRecorder: undoRecorder);
 
-			var target = new EditHelper(world).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
+			var target = new EditHelper(world, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");

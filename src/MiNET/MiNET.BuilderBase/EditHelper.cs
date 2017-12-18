@@ -17,14 +17,16 @@ namespace MiNET.BuilderBase
 		private static readonly ILog Log = LogManager.GetLogger(typeof (EditHelper));
 
 		private Level _level;
+		private readonly Player _player;
 		private Mask _mask;
 		private bool _randomizeGeneration = false;
 		private readonly UndoRecorder _undoRecorder;
 		private Random _random = new Random((int) DateTime.UtcNow.Ticks);
 
-		public EditHelper(Level level, Mask mask = null, bool randomizeGeneration = false, UndoRecorder undoRecorder = null)
+		public EditHelper(Level level, Player player, Mask mask = null, bool randomizeGeneration = false, UndoRecorder undoRecorder = null)
 		{
 			_level = level;
+			_player = player;
 			_mask = mask;
 			_randomizeGeneration = randomizeGeneration;
 			_undoRecorder = undoRecorder;
@@ -231,7 +233,7 @@ namespace MiNET.BuilderBase
 			{
 				if (block.PlaceBlock(_level, null, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
 
-				if (_level.OnBlockPlace(new BlockPlaceEventArgs(null, _level, block, existing)))
+				if (_level.OnBlockPlace(new BlockPlaceEventArgs(_player, _level, block, existing)))
 				{
 					_level.SetBlock(block);
 				}

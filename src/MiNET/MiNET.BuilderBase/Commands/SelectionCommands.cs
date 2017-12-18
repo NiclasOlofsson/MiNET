@@ -42,7 +42,7 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set position 1 to targeted block")]
 		public void Hpos1(Player player)
 		{
-			var target = new EditHelper(player.Level).GetBlockInLineOfSight(player.Level, player.KnownPosition);
+			var target = new EditHelper(player.Level, player).GetBlockInLineOfSight(player.Level, player.KnownPosition);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");
@@ -61,7 +61,7 @@ namespace MiNET.BuilderBase.Commands
 		[Command(Description = "Set position 2 to targeted block")]
 		public void Hpos2(Player player)
 		{
-			var target = new EditHelper(player.Level).GetBlockInLineOfSight(player.Level, player.KnownPosition);
+			var target = new EditHelper(player.Level, player).GetBlockInLineOfSight(player.Level, player.KnownPosition);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");

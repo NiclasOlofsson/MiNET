@@ -57,7 +57,7 @@ namespace MiNET.BuilderBase.Tools
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
 		{
-			var target = new EditHelper(world).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
+			var target = new EditHelper(world, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");
@@ -71,7 +71,7 @@ namespace MiNET.BuilderBase.Tools
 
 		public override bool Animate(Level world, Player player)
 		{
-			var target = new EditHelper(world).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
+			var target = new EditHelper(world, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true);
 			if (target == null)
 			{
 				player.SendMessage("No block in range");

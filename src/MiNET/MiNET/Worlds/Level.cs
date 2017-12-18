@@ -1100,6 +1100,13 @@ namespace MiNET.Worlds
 			if (block.Coordinates.Y < 0) return;
 
 			ChunkColumn chunk = GetChunk(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
+
+
+			if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(null, this, block, null)))
+			{
+				return;
+			}
+
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Metadata);
 			if (chunk.GetHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f) <= block.Coordinates.Y + 1)

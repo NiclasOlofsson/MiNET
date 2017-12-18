@@ -139,7 +139,7 @@ namespace MiNET.BuilderBase
 
 				var level = last.Value.Level;
 				var undoRecorder = new UndoRecorder(level, false);
-				var editSession = new EditHelper(level, undoRecorder: undoRecorder);
+				var editSession = new EditHelper(level, Player, undoRecorder: undoRecorder);
 
 				// Redo
 				var restore = last.Value.Postsnapshot;

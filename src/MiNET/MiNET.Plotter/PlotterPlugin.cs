@@ -66,14 +66,14 @@ namespace MiNET.Plotter
 			}
 			else
 			{
-				e.Cancel = !_plotManager.HasClaim(coords, e.Player);
+				if (e.Player != null) e.Cancel = !_plotManager.HasClaim(coords, e.Player);
 			}
 			Log.Debug($"Cancel build={e.Cancel}");
 		}
 
 		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
 		{
-			PlotCoordinates coords = (PlotCoordinates) e.ExistingBlock.Coordinates;
+			PlotCoordinates coords = (PlotCoordinates) e.TargetBlock.Coordinates;
 			if (coords == null)
 			{
 				//e.Cancel = e.Player.GameMode != GameMode.Creative;
@@ -81,7 +81,7 @@ namespace MiNET.Plotter
 			}
 			else
 			{
-				e.Cancel = !_plotManager.HasClaim(coords, e.Player);
+				if (e.Player != null) e.Cancel = !_plotManager.HasClaim(coords, e.Player);
 			}
 			Log.Debug($"Cancel build={e.Cancel}");
 		}

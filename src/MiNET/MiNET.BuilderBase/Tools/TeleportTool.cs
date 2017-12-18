@@ -67,7 +67,7 @@ namespace MiNET.BuilderBase.Tools
 
 		private void Teleport(Player player, bool stayOnY)
 		{
-			var target = new EditHelper(player.Level).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true, limitHeight: false);
+			var target = new EditHelper(player.Level, player).GetBlockInLineOfSight(player.Level, player.KnownPosition, returnLastAir: true, limitHeight: false);
 			if (target == null)
 			{
 				player.SendMessage("No position in range");

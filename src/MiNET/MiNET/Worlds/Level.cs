@@ -63,11 +63,16 @@ namespace MiNET.Worlds
 
 		private int _worldDayCycleTime = 24000;
 
-		public PlayerLocation SpawnPoint { get; set; }
-		public ConcurrentDictionary<long, Player> Players { get; private set; } //TODO: Need to protect this, not threadsafe
-		public ConcurrentDictionary<long, Entity> Entities { get; private set; } //TODO: Need to protect this, not threadsafe
-		public List<BlockEntity> BlockEntities { get; private set; } //TODO: Need to protect this, not threadsafe
-		public ConcurrentDictionary<BlockCoordinates, long> BlockWithTicks { get; private set; } //TODO: Need to protect this, not threadsafe
+		public PlayerLocation SpawnPoint { get; set; } = null;
+
+		public ConcurrentDictionary<long, Player> Players { get; private set; } = new ConcurrentDictionary<long, Player>();
+//TODO: Need to protect this, not threadsafe
+		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
+//TODO: Need to protect this, not threadsafe
+		public List<BlockEntity> BlockEntities { get; private set; } = new List<BlockEntity>();
+//TODO: Need to protect this, not threadsafe
+		public ConcurrentDictionary<BlockCoordinates, long> BlockWithTicks { get; private set; } = new ConcurrentDictionary<BlockCoordinates, long>();
+//TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
 		public string LevelName { get; private set; }
 		public Dimension Dimension { get; set; } = Dimension.Overworld;
@@ -96,6 +101,8 @@ namespace MiNET.Worlds
 
 		public Random Random { get; private set; }
 
+		public int SaveInterval { get; set; }
+
 		public Level(LevelManager levelManager, string levelId, IWorldProvider worldProvider, EntityManager entityManager, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
 		{
 			Random = new Random();
@@ -104,11 +111,6 @@ namespace MiNET.Worlds
 			EntityManager = entityManager;
 			InventoryManager = new InventoryManager(this);
 			EntitySpawnManager = new EntitySpawnManager(this);
-			SpawnPoint = null;
-			Players = new ConcurrentDictionary<long, Player>();
-			Entities = new ConcurrentDictionary<long, Entity>();
-			BlockEntities = new List<BlockEntity>();
-			BlockWithTicks = new ConcurrentDictionary<BlockCoordinates, long>();
 			LevelId = levelId;
 			GameMode = gameMode;
 			Difficulty = difficulty;
@@ -456,6 +458,13 @@ namespace MiNET.Worlds
 
 				SkylightSubtracted = CalculateSkylightSubtracted(WorldTime);
 
+				// Save dirty chunks
+				if (TickTime%SaveInterval == 0)
+				{
+					WorldProvider.SaveChunks();
+				}
+
+				// Unload chunks not needed
 				if (TickTime%100 == 0)
 				{
 					var cacheProvider = WorldProvider as ICachingWorldProvider;

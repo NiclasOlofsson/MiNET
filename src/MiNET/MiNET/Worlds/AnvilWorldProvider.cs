@@ -289,7 +289,8 @@ namespace MiNET.Worlds
 
 			Parallel.ForEach(_chunkCache, (chunkColumn) =>
 			{
-				bool keep = coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxDistance);
+				bool keep = chunkColumn.Value.NeedSave;
+				keep = keep || coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxDistance);
 				if (!keep)
 				{
 					_chunkCache.TryRemove(chunkColumn.Key, out var waste);
@@ -348,6 +349,9 @@ namespace MiNET.Worlds
 							SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
 							new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
 						}
+
+						chunkColumn.isDirty = false;
+						chunkColumn.NeedSave = false;
 					}
 
 					return chunkColumn;
@@ -391,6 +395,10 @@ namespace MiNET.Worlds
 								SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
 								new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
 							}
+
+							chunkColumn.isDirty = false;
+							chunkColumn.NeedSave = false;
+
 						}
 
 						return chunkColumn;
@@ -546,15 +554,15 @@ namespace MiNET.Worlds
 
 					chunk.RecalcHeight();
 
-					chunk.isDirty = false;
-					chunk.NeedSave = false;
-
 					if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
 					{
 						SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunk);
 						new SkyLightCalculations().RecalcSkyLight(chunk, blockAccess);
 						//TODO: Block lights.
 					}
+
+					chunk.isDirty = false;
+					chunk.NeedSave = false;
 
 					return chunk;
 				}
@@ -719,10 +727,12 @@ namespace MiNET.Worlds
 
 		public void SaveLevelInfo(LevelInfo level)
 		{
+			if (Dimension != Dimension.Overworld) return;
+
 			if (!Directory.Exists(BasePath))
 				Directory.CreateDirectory(BasePath);
 			else
-				return;
+				return; // What if this is changed? Need a dirty flag on this
 
 			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 256;
 

@@ -52,6 +52,8 @@ namespace MiNET.Plotter
 				{
 					EnableBlockTicking = Config.GetProperty("EnableBlockTicking", false),
 					EnableChunkTicking = Config.GetProperty("EnableChunkTicking", false),
+					SaveInterval = Config.GetProperty("Save.Interval", 100),
+
 					DrowningDamage = Config.GetProperty("GameRule.DrowningDamage", true),
 					CommandblockOutput = Config.GetProperty("GameRule.CommandblockOutput", true),
 					DoTiledrops = Config.GetProperty("GameRule.DoTiledrops", true),
@@ -68,7 +70,7 @@ namespace MiNET.Plotter
 					Mobgriefing = Config.GetProperty("GameRule.Mobgriefing", true),
 					ShowCoordinates = Config.GetProperty("GameRule.ShowCoordinates", true),
 					NaturalRegeneration = Config.GetProperty("GameRule.NaturalRegeneration", true),
-					TntExplodes = Config.GetProperty("GameRule.TntExploads", true),
+					TntExplodes = Config.GetProperty("GameRule.TntExplodes", true),
 					SendCommandfeedback = Config.GetProperty("GameRule.SendCommandfeedback", true),
 					RandomTickSpeed = Config.GetProperty("GameRule.RandomTickSpeed", 3),
 				};

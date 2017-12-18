@@ -101,7 +101,8 @@ namespace MiNET.Worlds
 
 		public Random Random { get; private set; }
 
-		public int SaveInterval { get; set; }
+		public int SaveInterval { get; set; } = 300;
+		public int UnloadInterval { get; set; } = 100;
 
 		public Level(LevelManager levelManager, string levelId, IWorldProvider worldProvider, EntityManager entityManager, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
 		{
@@ -459,13 +460,13 @@ namespace MiNET.Worlds
 				SkylightSubtracted = CalculateSkylightSubtracted(WorldTime);
 
 				// Save dirty chunks
-				if (TickTime%SaveInterval == 0)
+				if (TickTime%(SaveInterval*20) == 0)
 				{
 					WorldProvider.SaveChunks();
 				}
 
 				// Unload chunks not needed
-				if (TickTime%100 == 0)
+				if (TickTime%(UnloadInterval*20) == 0)
 				{
 					var cacheProvider = WorldProvider as ICachingWorldProvider;
 					int removed = cacheProvider?.UnloadChunks(players) ?? 0;
@@ -1260,7 +1261,7 @@ namespace MiNET.Worlds
 
 		public event EventHandler<BlockPlaceEventArgs> BlockPlace;
 
-		protected virtual bool OnBlockPlace(BlockPlaceEventArgs e)
+		public virtual bool OnBlockPlace(BlockPlaceEventArgs e)
 		{
 			BlockPlace?.Invoke(this, e);
 

@@ -23,13 +23,13 @@
 
 #endregion
 
-using System;
+using MiNET.Net;
 
 namespace MiNET.Plotter
 {
 	public class Plot
 	{
 		public PlotCoordinates Coordinates { get; set; }
-		public Guid Owner { get; set; }
+		public UUID Owner { get; set; }
 	}
 }

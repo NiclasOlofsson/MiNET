@@ -148,8 +148,8 @@ namespace MiNET.Plotter
 					if (z%PlotAreaDepth == 0 && !IsXRoad(x)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, leaves.Id);
 					if ((z - RoadWidth + 1)%PlotAreaDepth == 0 && !IsXRoad(x)) chunk.SetBlock(x - xOffset, PlotHeight, z - zOffset, leaves.Id);
 
-					if (x%PlotAreaWidth == 0 && z%PlotAreaDepth == 0) chunk.SetBlock(x - xOffset, PlotHeight + 1, z - zOffset, new RedstoneBlock().Id);
-					if (x%PlotAreaWidth == PlotAreaWidth - 1 && z%PlotAreaDepth == PlotAreaDepth - 1) chunk.SetBlock(x - xOffset, PlotHeight + 1, z - zOffset, new LapisBlock().Id); // stone
+					//if (x%PlotAreaWidth == 0 && z%PlotAreaDepth == 0) chunk.SetBlock(x - xOffset, PlotHeight + 1, z - zOffset, new RedstoneBlock().Id);
+					//if (x%PlotAreaWidth == PlotAreaWidth - 1 && z%PlotAreaDepth == PlotAreaDepth - 1) chunk.SetBlock(x - xOffset, PlotHeight + 1, z - zOffset, new LapisBlock().Id); // stone
 				}
 			}
 

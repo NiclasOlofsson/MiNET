@@ -26,6 +26,7 @@
 using log4net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Worlds;
 
 namespace MiNET.Plotter
 {
@@ -33,18 +34,56 @@ namespace MiNET.Plotter
 	public class PlotterPlugin : Plugin, IStartup
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (PlotterPlugin));
+		private PlotManager _plotManager;
 
 		public void Configure(MiNetServer server)
 		{
 			server.LevelManager = new PlotterLevelManager();
+			server.LevelManager.LevelCreated += (sender, args) =>
+			{
+				Level level = args.Level;
+
+				level.BlockBreak += LevelOnBlockBreak;
+				level.BlockPlace += LevelOnBlockPlace;
+			};
 		}
 
 		protected override void OnEnable()
 		{
 			var server = Context.Server;
 
-			PlotManager plotManager = new PlotManager();
-			Context.PluginManager.LoadCommands(new PlotCommands(plotManager));
+			_plotManager = new PlotManager();
+			Context.PluginManager.LoadCommands(new PlotCommands(_plotManager));
+		}
+
+		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
+		{
+			PlotCoordinates coords = (PlotCoordinates) e.Block.Coordinates;
+			if (coords == null)
+			{
+				//e.Cancel = e.Player.GameMode != GameMode.Creative;
+				e.Cancel = true;
+			}
+			else
+			{
+				e.Cancel = !_plotManager.HasClaim(coords, e.Player);
+			}
+			Log.Debug($"Cancel build={e.Cancel}");
+		}
+
+		private void LevelOnBlockPlace(object sender, BlockPlaceEventArgs e)
+		{
+			PlotCoordinates coords = (PlotCoordinates) e.ExistingBlock.Coordinates;
+			if (coords == null)
+			{
+				//e.Cancel = e.Player.GameMode != GameMode.Creative;
+				e.Cancel = true;
+			}
+			else
+			{
+				e.Cancel = !_plotManager.HasClaim(coords, e.Player);
+			}
+			Log.Debug($"Cancel build={e.Cancel}");
 		}
 	}
 }

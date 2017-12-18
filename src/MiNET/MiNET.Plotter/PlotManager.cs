@@ -42,6 +42,22 @@ namespace MiNET.Plotter
 		{
 		}
 
+		public bool HasClaim(PlotCoordinates coords, Player player)
+		{
+			if (player == null) return false;
+
+			Plot plot = null;
+			if (_plots.ContainsKey(coords))
+			{
+				plot = _plots[coords];
+			}
+
+			if (plot != null && Equals(plot.Owner, player.ClientUuid)) return true;
+
+			return false;
+		}
+
+
 		public bool TryClaim(PlotCoordinates coords, Player player, out Plot plot)
 		{
 			plot = null;
@@ -52,7 +68,11 @@ namespace MiNET.Plotter
 
 			if (plot != null) return false;
 
-			plot = new Plot() {Coordinates = coords};
+			plot = new Plot
+			{
+				Coordinates = coords,
+				Owner = player.ClientUuid
+			};
 			_plots.Add(coords, plot);
 
 
@@ -60,11 +80,11 @@ namespace MiNET.Plotter
 			int xOffset = offset.X;
 			int zOffset = offset.Z;
 
-			player.Level.SetBlock(new GoldBlock {Coordinates = new BlockCoordinates(xOffset, PlotWorldGenerator.PlotHeight + 2, zOffset)});
-			player.Level.SetBlock(new EmeraldBlock
-			{
-				Coordinates = new BlockCoordinates(xOffset, PlotWorldGenerator.PlotHeight + 2, zOffset) + new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 1, PlotWorldGenerator.PlotDepth - 1)
-			});
+			//player.Level.SetBlock(new GoldBlock {Coordinates = new BlockCoordinates(xOffset, PlotWorldGenerator.PlotHeight + 2, zOffset)});
+			//player.Level.SetBlock(new EmeraldBlock
+			//{
+			//	Coordinates = new BlockCoordinates(xOffset, PlotWorldGenerator.PlotHeight + 2, zOffset) + new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 1, PlotWorldGenerator.PlotDepth - 1)
+			//});
 
 
 			Vector3 to = (Vector3) offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 256, PlotWorldGenerator.PlotDepth - 1);

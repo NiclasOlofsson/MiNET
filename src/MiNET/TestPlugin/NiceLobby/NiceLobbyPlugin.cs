@@ -84,8 +84,8 @@ namespace TestPlugin.NiceLobby
 				//level.AllowBuild = false;
 				//level.AllowBreak = false;
 
-				level.BlockBreak += LevelOnBlockBreak;
-				level.BlockPlace += LevelOnBlockPlace;
+				//level.BlockBreak += LevelOnBlockBreak;
+				//level.BlockPlace += LevelOnBlockPlace;
 			};
 
 			server.PlayerFactory.PlayerCreated += (sender, args) =>

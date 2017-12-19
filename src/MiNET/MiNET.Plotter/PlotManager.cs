@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using log4net;
-using MiNET.Blocks;
 using MiNET.Utils;
 
 namespace MiNET.Plotter
@@ -57,6 +56,18 @@ namespace MiNET.Plotter
 			return false;
 		}
 
+		public bool TryGetPlot(PlotCoordinates coords, Player player, out Plot plot)
+		{
+			plot = null;
+			if (!_plots.ContainsKey(coords))
+			{
+				return false;
+			}
+
+			plot = _plots[coords];
+
+			return true;
+		}
 
 		public bool TryClaim(PlotCoordinates coords, Player player, out Plot plot)
 		{
@@ -91,13 +102,15 @@ namespace MiNET.Plotter
 			BoundingBox bbox = new BoundingBox(offset, to).GetAdjustedBoundingBox();
 
 
-			Log.Error($"BBOX={bbox}, Min={bbox.Min}, Max={bbox.Max}");
 
 			for (int x = (int) bbox.Min.X; x <= (int) bbox.Max.X; x++)
 			{
 				for (int z = (int) bbox.Min.Z; z <= (int) bbox.Max.Z; z++)
 				{
-					player.Level.SetAir(x, PlotWorldGenerator.PlotHeight, z);
+					if (player.Level.IsTransparent(new BlockCoordinates(x, PlotWorldGenerator.PlotHeight, z)))
+					{
+						player.Level.SetAir(x, PlotWorldGenerator.PlotHeight, z);
+					}
 				}
 			}
 
@@ -107,7 +120,7 @@ namespace MiNET.Plotter
 		public static BoundingBox GetBoundingBoxForPlot(PlotCoordinates coords)
 		{
 			var offset = ConvertToBlockCoordinates(coords);
-			Vector3 to = (Vector3) offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 1, PlotWorldGenerator.PlotDepth - 1);
+			Vector3 to = (Vector3) offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 256, PlotWorldGenerator.PlotDepth - 1);
 			return new BoundingBox(offset, to).GetAdjustedBoundingBox();
 		}
 

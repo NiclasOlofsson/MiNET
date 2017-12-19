@@ -84,5 +84,21 @@ namespace MiNET.Plotter
 
 			return $"Teleported home to plot {plotX}:{plotZ} at {coords}";
 		}
+
+		[Command(Name = "plot reset")]
+		public string PlotReset(Player player)
+		{
+			PlotCoordinates coords = (PlotCoordinates)player.KnownPosition;
+			if (coords == null) return "Not able to reset plot at this position.";
+
+			if (!_plotManager.HasClaim(coords, player)) return "Not able to reset plot at this position.";
+
+			if (!_plotManager.TryGetPlot(coords, player, out Plot plot)) return "Not able to reset plot at this position.";
+
+			PlotWorldGenerator.ResetBlocks(player.Level, PlotManager.GetBoundingBoxForPlot(coords));
+
+			return $"Reset plot {plot.Coordinates.X}:{plot.Coordinates.Z} at {coords}";
+		}
+
 	}
 }

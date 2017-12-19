@@ -79,6 +79,25 @@ namespace MiNET.Plotter
 		{
 		}
 
+		public static void ResetBlocks(Level level, BoundingBox bbox)
+		{
+			bbox = bbox.GetAdjustedBoundingBox();
+			for (int x = (int) bbox.Min.X; x < (int)bbox.Max.X; x++)
+			{
+				for (int z = (int)bbox.Min.Z; z < (int)bbox.Max.Z; z++)
+				{
+					for (int y = 0; y < 256; y++)
+					{
+						if (y == 0) level.SetBlock(x, y, z, 7); // Bedrock
+						else if (y >= PlotHeight && !level.IsAir(new BlockCoordinates(x, y, z))) level.SetAir(x, y, z); // Air
+						else if (y == PlotHeight - 1) level.SetBlock(x, y, z, 2); // grass
+						else if (y > PlotHeight - 4) level.SetBlock(x, y, z, 3); // dirt
+						else level.SetBlock(x, y, z, 1); // stone
+					}
+				}
+			}
+		}
+
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
 			ChunkColumn chunk = new ChunkColumn();

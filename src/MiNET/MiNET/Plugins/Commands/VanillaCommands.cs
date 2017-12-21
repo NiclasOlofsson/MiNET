@@ -45,11 +45,8 @@ namespace MiNET.Plugins.Commands
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (VanillaCommands));
 
-		private readonly PluginManager _pluginManager;
-
-		public VanillaCommands(PluginManager pluginManager)
+		public VanillaCommands()
 		{
-			_pluginManager = pluginManager;
 		}
 
 		[Command(Name = "op", Description = "Make player an operator")]

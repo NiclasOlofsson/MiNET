@@ -24,6 +24,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 
@@ -43,12 +46,45 @@ namespace MiNET.Plotter
 		{
 			BlockCoordinates coords = (BlockCoordinates) player.KnownPosition;
 
-			if (PlotWorldGenerator.IsXRoad(coords.X, true) || PlotWorldGenerator.IsZRoad(coords.Z, true)) return "Not able to claim plot at this position.";
+			int x = 0, y = 0, d = 1, m = 1;
+			int i = 0;
+			while (i++ < 1000)
+			{
+				while (2*x*d < m)
+				{
+					var current = new PlotCoordinates(x, y);
+					if (_plotManager.TryClaim(current, player, out var plot))
+					{
+						return ClaimPlot(player, current);
+					}
+					x = x + d;
+				}
+				while (2*y*d < m)
+				{
+					var current = new PlotCoordinates(x, y);
+					if (_plotManager.TryClaim(current, player, out var plot))
+					{
+						return ClaimPlot(player, current);
+					}
+					y = y + d;
+				}
 
-			int plotX = coords.X/PlotWorldGenerator.PlotAreaWidth + Math.Sign(coords.X);
-			int plotZ = coords.Z/PlotWorldGenerator.PlotAreaDepth + Math.Sign(coords.Z);
+				d = -1*d;
+				m = m + 1;
+			}
 
-			return $"Claimed plot {plotX}:{plotZ} at {coords}";
+			return "Not able to claim plot at this position.";
+		}
+
+		private string ClaimPlot(Player player, PlotCoordinates coords)
+		{
+			var bbox = PlotManager.GetBoundingBoxForPlot(coords);
+			var center = bbox.Max - (bbox.Max - bbox.Min)/2;
+			int height = player.Level.GetHeight(center);
+
+			player.Teleport(new PlayerLocation(center.X, height + 3, center.Z));
+
+			return $"Claimed plot {coords.X}:{coords.Z}";
 		}
 
 		[Command(Name = "plot claim")]
@@ -63,42 +99,149 @@ namespace MiNET.Plotter
 			return $"Claimed plot {plot.Coordinates.X}:{plot.Coordinates.Z} at {coords}";
 		}
 
+		[Command(Name = "plot setowner")]
+		public string PlotSetOwner(Player player, string username)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (coords == null) return "Not able to set owner for this plot.";
+			if (!_plotManager.HasClaim(coords, player)) return "Not able to set owner for this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "Not able to set owner for this plot.";
+
+			var plotPlayer = _plotManager.GetPlotPlayer(username);
+			if (plotPlayer == null)
+			{
+				var newOwnerPlayer = player.Level.GetSpawnedPlayers().FirstOrDefault(p => p.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+				if (newOwnerPlayer == null)
+				{
+					return $"Found no player with the name {username}";
+				}
+
+				plotPlayer = _plotManager.GetOrAddPlotPlayer(newOwnerPlayer);
+			}
+
+			plot.Owner = plotPlayer.Xuid;
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to set owner for this plot.";
+			}
+
+			return $"Set new owner to {username}";
+		}
+
+		[Command(Name = "plot add")]
+		public string PlotAddPlayer(Player player, string username)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (coords == null) return "Not able to add player for this plot.";
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			var plotPlayer = _plotManager.GetPlotPlayer(username);
+			if (plotPlayer == null)
+			{
+				var newOwnerPlayer = player.Level.GetSpawnedPlayers().FirstOrDefault(p => p.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+				if (newOwnerPlayer == null)
+				{
+					return $"Found no player with the name {username}";
+				}
+
+				plotPlayer = _plotManager.GetOrAddPlotPlayer(newOwnerPlayer);
+			}
+
+			List<UUID> builders = new List<UUID>(plot.AllowedPlayers);
+			if (builders.Contains(plotPlayer.Xuid)) return "Player already added to this plot.";
+
+			builders.Add(plotPlayer.Xuid);
+			plot.AllowedPlayers = builders.ToArray();
+
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to update this plot.";
+			}
+
+			return $"Added player {username} to plot {plot.Coordinates}";
+		}
+
+		[Command(Name = "plot sethome")]
+		public string PlotSetHome(Player player)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (coords == null) return "Not able to set home plot at this position.";
+			if (!_plotManager.HasClaim(coords, player)) return "Not able to set home plot at this position.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "Not able to set home plot at this position.";
+
+			PlotPlayer plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
+			plotPlayer.Home = player.KnownPosition;
+			_plotManager.UpdatePlotPlayer(plotPlayer);
+
+			return $"Set home to plot {plot.Coordinates.X}:{plot.Coordinates.Z}";
+		}
+
 		[Command(Name = "plot home")]
 		public string PlotHome(Player player)
 		{
-			return "Not implemented";
+			PlotPlayer plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
+			if (plotPlayer == null) return "Sorry, you don't exist.";
+
+			PlotCoordinates coords = (PlotCoordinates) plotPlayer.Home;
+			if (coords == null) return "Sorry, you are homeless.";
+			if (!_plotManager.HasClaim(coords, player)) return "Sorry, you don't own your home. Did the bank claim it?";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "Sorry, we lost your home. Ask an admin to find it again!";
+
+			int height = player.Level.GetHeight((BlockCoordinates) plotPlayer.Home);
+			if (plotPlayer.Home.Y < height) plotPlayer.Home.Y = height + 2;
+			player.Teleport(plotPlayer.Home);
+
+			return $"Moved to your home plot {plot.Coordinates.X}:{plot.Coordinates.Z}";
 		}
 
-		[Command(Name = "plot tp")]
-		public string PlotTeleport(Player player, int plotX = -1, int plotZ = -1)
+
+		[Command(Name = "plot visit")]
+		public string PlotVisit(Player player, string username)
 		{
-			int x = (Math.Abs(plotX) - 1)*PlotWorldGenerator.PlotAreaWidth + PlotWorldGenerator.PlotWidth/2;
-			int z = (Math.Abs(plotZ) - 1)*PlotWorldGenerator.PlotAreaDepth + PlotWorldGenerator.PlotDepth/2;
+			PlotPlayer plotPlayer = _plotManager.GetPlotPlayer(username);
+			if (plotPlayer == null) return "Sorry, that user is homeless.";
 
-			x *= Math.Sign(plotX);
-			z *= Math.Sign(plotZ);
+			PlotCoordinates coords = (PlotCoordinates) plotPlayer.Home;
+			if (coords == null) return "Sorry, player is homeless.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "Sorry, we lost his home. Maybe ask an admin to find it again!";
 
-			BlockCoordinates coords = new BlockCoordinates(x, 0, z);
-			coords.Y = player.Level.GetHeight(coords);
-			player.Teleport(coords);
+			int height = player.Level.GetHeight((BlockCoordinates) plotPlayer.Home);
+			if (plotPlayer.Home.Y < height) plotPlayer.Home.Y = height + 2;
+			player.Teleport(plotPlayer.Home);
 
-			return $"Teleported home to plot {plotX}:{plotZ} at {coords}";
+			return $"Moved you to plot {plot.Coordinates.X}:{plot.Coordinates.Z}. Home of {username}";
+		}
+
+		[Command(Name = "plot visit")]
+		public string PlotVisit(Player player, int x, int z)
+		{
+			PlotCoordinates coords = new PlotCoordinates(x, z);
+
+			if (x == 0 || z == 0) return $"No plot at this location {coords.X}:{coords.Z}.";
+
+			var bbox = PlotManager.GetBoundingBoxForPlot(coords);
+			var center = bbox.Max - (bbox.Max - bbox.Min)/2;
+			int height = player.Level.GetHeight(center);
+
+			player.Teleport(new PlayerLocation(center.X, height + 3, center.Z));
+
+			return $"Moved you to plot {coords.X}:{coords.Z}.";
 		}
 
 		[Command(Name = "plot reset")]
 		public string PlotReset(Player player)
 		{
-			PlotCoordinates coords = (PlotCoordinates)player.KnownPosition;
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to reset plot at this position.";
 
 			if (!_plotManager.HasClaim(coords, player)) return "Not able to reset plot at this position.";
 
-			if (!_plotManager.TryGetPlot(coords, player, out Plot plot)) return "Not able to reset plot at this position.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "Not able to reset plot at this position.";
 
 			PlotWorldGenerator.ResetBlocks(player.Level, PlotManager.GetBoundingBoxForPlot(coords));
 
 			return $"Reset plot {plot.Coordinates.X}:{plot.Coordinates.Z} at {coords}";
 		}
-
 	}
 }

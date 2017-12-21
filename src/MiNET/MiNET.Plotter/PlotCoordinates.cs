@@ -44,6 +44,12 @@ namespace MiNET.Plotter
 			Z = z;
 		}
 
+
+		public static PlotCoordinates operator +(PlotCoordinates a, PlotCoordinates b)
+		{
+			return new PlotCoordinates(a.X + b.X, a.Z + b.Z);
+		}
+
 		public static explicit operator PlotCoordinates(PlayerLocation coords)
 		{
 			return (PlotCoordinates) (BlockCoordinates) coords;
@@ -82,7 +88,7 @@ namespace MiNET.Plotter
 
 		public override string ToString()
 		{
-			return $"{nameof(X)}: {X}, {nameof(Z)}: {Z}";
+			return $"{X},{Z}";
 		}
 	}
 }

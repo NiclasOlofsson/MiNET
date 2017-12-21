@@ -23,13 +23,51 @@
 
 #endregion
 
+using System;
 using MiNET.Net;
+using MiNET.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.Plotter
 {
+	public class PlotConfig
+	{
+		public PlotPlayer[] PlotPlayers { get; set; } = new PlotPlayer[0];
+		public Plot[] Plots { get; set; } = new Plot[0];
+	}
+
+	public class PlotPlayer
+	{
+		public UUID Xuid { get; set; }
+		public string Username { get; set; }
+		public PlayerLocation Home { get; set; }
+	}
+
 	public class Plot
 	{
 		public PlotCoordinates Coordinates { get; set; }
 		public UUID Owner { get; set; }
+		public UUID[] AllowedPlayers { get; set; } = new UUID[0];
+	}
+
+	public class UuidConverter : JsonConverter
+	{
+		public override bool CanConvert(Type objectType)
+		{
+			return (objectType == typeof (UUID));
+		}
+
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		{
+			JToken t = JToken.FromObject(((UUID) value).ToString());
+			t.WriteTo(writer);
+		}
+
+		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		{
+			JToken token = JToken.Load(reader);
+			return new UUID(token.Value<string>());
+		}
 	}
 }

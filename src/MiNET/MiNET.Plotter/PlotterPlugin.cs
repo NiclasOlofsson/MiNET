@@ -23,9 +23,13 @@
 
 #endregion
 
+using System.Collections.Generic;
+using System.Linq;
 using log4net;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
+using MiNET.Plugins.Commands;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Plotter
@@ -48,12 +52,81 @@ namespace MiNET.Plotter
 			};
 		}
 
+
 		protected override void OnEnable()
 		{
 			var server = Context.Server;
 
 			_plotManager = new PlotManager();
+			Context.PluginManager.LoadCommands(new VanillaCommands());
 			Context.PluginManager.LoadCommands(new PlotCommands(_plotManager));
+
+			server.PlayerFactory.PlayerCreated += (sender, args) =>
+			{
+				Player player = args.Player;
+				player.PlayerJoin += OnPlayerJoin;
+				player.PlayerLeave += OnPlayerLeave;
+				player.Ticking += OnTicking;
+			};
+		}
+
+		Dictionary<Player, Plot> _currentPlotPos = new Dictionary<Player, Plot>();
+
+		private void OnTicking(object sender, PlayerEventArgs e)
+		{
+			var player = e.Player;
+			var level = player.Level;
+			if (level.Dimension == Dimension.Overworld)
+			{
+				if (_plotManager.TryGetPlot((PlotCoordinates) player.KnownPosition, out Plot plot))
+				{
+					if (!_currentPlotPos.ContainsKey(player) || _currentPlotPos[player] != plot)
+					{
+						if (plot.Owner.Equals(player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid))
+						{
+							if (player.IsWorldImmutable)
+							{
+								player.IsWorldImmutable = false;
+								player.SendAdventureSettings();
+							}
+						}
+						else
+						{
+							if (!player.IsWorldImmutable)
+							{
+								player.IsWorldImmutable = true;
+								player.SendAdventureSettings();
+							}
+						}
+
+						player.SendTitle(null, TitleType.Clear);
+						player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 3*10);
+						player.SendTitle($"{ChatColors.White}Owner is {_plotManager.GetPlotPlayer(plot.Owner).Username}", TitleType.SubTitle);
+						player.SendTitle($"{ChatColors.Gold}This is plot {plot.Coordinates.X}:{plot.Coordinates.Z}", TitleType.Title);
+						_currentPlotPos[player] = plot;
+					}
+					else
+					{
+					}
+				}
+				else
+				{
+					_currentPlotPos[player] = null;
+					if (!player.IsWorldImmutable)
+					{
+						player.IsWorldImmutable = true;
+						player.SendAdventureSettings();
+					}
+				}
+			}
+		}
+
+		private void OnPlayerLeave(object sender, PlayerEventArgs e)
+		{
+		}
+
+		private void OnPlayerJoin(object sender, PlayerEventArgs e)
+		{
 		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
@@ -66,7 +139,7 @@ namespace MiNET.Plotter
 			}
 			else
 			{
-				if (e.Player != null) e.Cancel = !_plotManager.HasClaim(coords, e.Player);
+				if (e.Player != null) e.Cancel = !_plotManager.CanBuild(coords, e.Player);
 			}
 		}
 

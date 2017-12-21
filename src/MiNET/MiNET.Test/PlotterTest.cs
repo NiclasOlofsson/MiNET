@@ -25,8 +25,10 @@
 
 using System;
 using System.Numerics;
+using MiNET.Net;
 using MiNET.Plotter;
 using MiNET.Utils;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace MiNET
@@ -58,6 +60,31 @@ namespace MiNET
 			BoundingBox bbox = BoundingBox.CreateFromPoints(new[] {offset, to});
 			Assert.AreEqual(-PlotWorldGenerator.PlotWidth - 1, bbox.Min.X);
 			Assert.AreEqual(-1, bbox.Max.X);
+		}
+
+		[Test]
+		public void PlotJsonSerializeTest()
+		{
+			var plot = new Plot()
+			{
+				Coordinates = new PlotCoordinates(),
+				Owner = new UUID(Guid.NewGuid().ToByteArray()),
+			};
+
+			PlotConfig config = new PlotConfig() {Plots = new[] {plot}};
+
+			var settings = new JsonSerializerSettings
+			{
+				Formatting = Formatting.Indented,
+			};
+
+			settings.Converters.Add(new UuidConverter());
+
+			string s = JsonConvert.SerializeObject(config, settings);
+			Console.WriteLine(s);
+
+			var test = JsonConvert.DeserializeObject<PlotConfig>(s, settings);
+			Assert.AreEqual(plot.Owner, test.Plots[0].Owner);
 		}
 	}
 }

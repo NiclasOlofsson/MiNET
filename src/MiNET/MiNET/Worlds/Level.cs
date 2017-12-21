@@ -469,7 +469,7 @@ namespace MiNET.Worlds
 				if (TickTime%(UnloadInterval*20) == 0)
 				{
 					var cacheProvider = WorldProvider as ICachingWorldProvider;
-					int removed = cacheProvider?.UnloadChunks(players) ?? 0;
+					int removed = cacheProvider?.UnloadChunks(players, (ChunkCoordinates) (BlockCoordinates) SpawnPoint, ViewDistance) ?? 0;
 					if (removed > 0) Log.Warn($"Unloaded {removed} chunks, {cacheProvider?.GetCachedChunks().Length} chunks remain cached");
 				}
 

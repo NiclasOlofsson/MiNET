@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Numerics;
 using log4net;
 using MiNET.Items;
 using MiNET.Utils;
@@ -82,6 +83,18 @@ namespace MiNET.Blocks
 					}
 				}
 			}
+		}
+
+		public override bool Interact(Level level, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+		{
+			var itemInHand = player.Inventory.GetItemInHand();
+			if (itemInHand is ItemDye && itemInHand.Metadata == 15)
+			{
+				//TODO: Grow grass and flowers randomly
+				return true;
+			}
+
+			return false;
 		}
 
 		public override Item[] GetDrops(Item tool)

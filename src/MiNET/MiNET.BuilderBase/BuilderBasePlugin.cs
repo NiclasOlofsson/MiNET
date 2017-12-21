@@ -1,6 +1,9 @@
-﻿using fNbt;
+﻿using System.Collections.Generic;
+using fNbt;
 using log4net;
+using MiNET.Blocks;
 using MiNET.BuilderBase.Commands;
+using MiNET.BuilderBase.Masks;
 using MiNET.BuilderBase.Patterns;
 using MiNET.BuilderBase.Tools;
 using MiNET.Items;
@@ -76,13 +79,10 @@ namespace MiNET.BuilderBase
 		public void SetInventory(Player player)
 		{
 			int idx = 0;
-			//player.Inventory.Slots[idx++] = new ItemIronSword
-			//{
-			//	ExtraData = new NbtCompound { { new NbtCompound("display") { new NbtString("Name", "test") } } }
-			//};
+			player.Inventory.Slots[idx++] = new ItemAir();
 			player.Inventory.Slots[idx++] = new DistanceWand();
 			player.Inventory.Slots[idx++] = new TeleportTool();
-			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 0, Radius = 5};
+			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 0, Radius = 5, Mask = new Mask(player.Level, new List<Block> {new Air()}, true)};
 			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 2, Radius = 5};
 			player.Inventory.Slots[idx++] = new BrushTool {BrushType = 3, Radius = 5};
 			player.SendPlayerInventory();

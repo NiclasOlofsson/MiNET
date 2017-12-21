@@ -106,17 +106,17 @@ namespace TestPlugin.NiceLobby
 			var player = e.Player;
 			var level = player.Level;
 
-			if (e.Level.TickTime%2 == 0)
-			{
-				BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
-				player.AddPopup(new Popup()
-				{
-					Id = 11,
-					MessageType = MessageType.Popup,
-					Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
-					Duration = 20*5,
-				});
-			}
+			//if (e.Level.TickTime%2 == 0)
+			//{
+			//	BlockCoordinates pos = (BlockCoordinates) player.KnownPosition;
+			//	player.AddPopup(new Popup()
+			//	{
+			//		Id = 11,
+			//		MessageType = MessageType.Popup,
+			//		Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Biome={BiomeUtils.GetBiome(level.GetBlock(pos).BiomeId).Name}",
+			//		Duration = 20*5,
+			//	});
+			//}
 
 
 			//// Compass

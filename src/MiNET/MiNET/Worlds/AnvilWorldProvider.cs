@@ -274,29 +274,34 @@ namespace MiNET.Worlds
 			return _chunkCache.ContainsKey(chunkCoord);
 		}
 
-		public int UnloadChunks(Player[] players)
+		public int UnloadChunks(Player[] players, ChunkCoordinates spawn, double maxViewDistance)
 		{
-			if (players.Length == 0) return 0;
-
 			int removed = 0;
-			List<ChunkCoordinates> coords = new List<ChunkCoordinates>();
-			foreach (var player in players)
-			{
-				coords.Add(new ChunkCoordinates(player.KnownPosition));
-			}
 
-			double maxDistance = Config.GetProperty("MaxViewDistance", 16)*1.5;
-
-			Parallel.ForEach(_chunkCache, (chunkColumn) =>
+			lock (_chunkCache)
 			{
-				bool keep = chunkColumn.Value.NeedSave;
-				keep = keep || coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxDistance);
-				if (!keep)
+				List<ChunkCoordinates> coords = new List<ChunkCoordinates> {spawn};
+
+				foreach (var player in players)
 				{
-					_chunkCache.TryRemove(chunkColumn.Key, out var waste);
-					Interlocked.Increment(ref removed);
+					var chunkCoordinates = new ChunkCoordinates(player.KnownPosition);
+					if (!coords.Contains(chunkCoordinates)) coords.Add(chunkCoordinates);
 				}
-			});
+
+				Parallel.ForEach(_chunkCache, (chunkColumn) =>
+				{
+					bool keep = coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxViewDistance);
+					if (!keep)
+					{
+						_chunkCache.TryRemove(chunkColumn.Key, out var waste);
+						if (waste.NeedSave)
+						{
+							SaveChunk(waste, BasePath);
+						}
+						Interlocked.Increment(ref removed);
+					}
+				});
+			}
 
 			return removed;
 		}

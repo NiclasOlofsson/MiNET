@@ -24,10 +24,15 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using log4net;
+using MiNET.Net;
 using MiNET.Utils;
+using Newtonsoft.Json;
 
 namespace MiNET.Plotter
 {
@@ -35,10 +40,66 @@ namespace MiNET.Plotter
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (PlotManager));
 
-		Dictionary<PlotCoordinates, Plot> _plots = new Dictionary<PlotCoordinates, Plot>();
+		private PlotConfig _config = new PlotConfig();
+		private ConcurrentDictionary<PlotCoordinates, Plot> _plots = new ConcurrentDictionary<PlotCoordinates, Plot>();
+		private ConcurrentDictionary<UUID, PlotPlayer> _plotPlayers;
+
+		public static string GetExecutingDirectoryName()
+		{
+			var location = new Uri(Assembly.GetEntryAssembly().GetName().CodeBase);
+			return new FileInfo(location.AbsolutePath).Directory?.FullName;
+		}
 
 		public PlotManager()
 		{
+			LoadConfig();
+		}
+
+		private object _configSync = new object();
+
+		public void LoadConfig()
+		{
+			lock (_configSync)
+			{
+				string configFile = Path.Combine(GetExecutingDirectoryName(), "plots-config.json");
+				var jsonSerializerSettings = GetJsonSettings();
+
+				if (File.Exists(configFile))
+				{
+					var plots = JsonConvert.DeserializeObject<PlotConfig>(File.ReadAllText(configFile), jsonSerializerSettings);
+					_plotPlayers = new ConcurrentDictionary<UUID, PlotPlayer>(plots.PlotPlayers.ToDictionary(plot => plot.Xuid));
+					_plots = new ConcurrentDictionary<PlotCoordinates, Plot>(plots.Plots.ToDictionary(plot => plot.Coordinates));
+				}
+				else
+				{
+					Log.Warn($"Found no config file for plots at '{configFile}'");
+					_plotPlayers = new ConcurrentDictionary<UUID, PlotPlayer>();
+					_plots = new ConcurrentDictionary<PlotCoordinates, Plot>();
+				}
+			}
+		}
+
+		public void SaveConfig()
+		{
+			lock (_configSync)
+			{
+				_config.Plots = _plots.Values.ToArray();
+				_config.PlotPlayers = _plotPlayers.Values.ToArray();
+				string configFile = Path.Combine(GetExecutingDirectoryName(), "plots-config.json");
+				var jsonSerializerSettings = GetJsonSettings();
+				File.WriteAllText(configFile, JsonConvert.SerializeObject(_config, jsonSerializerSettings));
+			}
+		}
+
+		private static JsonSerializerSettings GetJsonSettings()
+		{
+			var jsonSerializerSettings = new JsonSerializerSettings
+			{
+				Formatting = Formatting.Indented,
+			};
+
+			jsonSerializerSettings.Converters.Add(new UuidConverter());
+			return jsonSerializerSettings;
 		}
 
 		public bool HasClaim(PlotCoordinates coords, Player player)
@@ -56,9 +117,71 @@ namespace MiNET.Plotter
 			return false;
 		}
 
-		public bool TryGetPlot(PlotCoordinates coords, Player player, out Plot plot)
+		public bool CanBuild(PlotCoordinates coords, Player player)
+		{
+			if (player == null) return false;
+
+			Plot plot = null;
+			if (_plots.ContainsKey(coords))
+			{
+				plot = _plots[coords];
+			}
+
+			if (plot == null) return false;
+
+			if (Equals(plot.Owner, player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid)) return true;
+
+			return false;
+		}
+
+		public PlotPlayer GetOrAddPlotPlayer(Player player)
+		{
+			if (!_plotPlayers.TryGetValue(player.ClientUuid, out var plotPlayer))
+			{
+				plotPlayer = new PlotPlayer
+				{
+					Xuid = player.ClientUuid,
+					Username = player.Username,
+				};
+
+				if (!_plotPlayers.TryAdd(player.ClientUuid, plotPlayer))
+				{
+					return null;
+				}
+
+				SaveConfig();
+			}
+
+
+			return plotPlayer;
+		}
+
+		public void UpdatePlotPlayer(PlotPlayer player)
+		{
+			_plotPlayers[player.Xuid] = player;
+
+			SaveConfig();
+		}
+
+		public PlotPlayer GetPlotPlayer(string username)
+		{
+			return _plotPlayers.FirstOrDefault(pair => pair.Value.Username == username).Value;
+		}
+
+		public PlotPlayer GetPlotPlayer(UUID uuid)
+		{
+			_plotPlayers.TryGetValue(uuid, out var value);
+
+			return value;
+		}
+
+		public bool TryGetPlot(PlotCoordinates coords, out Plot plot)
 		{
 			plot = null;
+
+			if (coords == null) return false;
+			if (coords.X == 0 || coords.Z == 0) return false;
+
 			if (!_plots.ContainsKey(coords))
 			{
 				return false;
@@ -72,6 +195,11 @@ namespace MiNET.Plotter
 		public bool TryClaim(PlotCoordinates coords, Player player, out Plot plot)
 		{
 			plot = null;
+
+			GetOrAddPlotPlayer(player);
+
+			if (coords.X == 0 || coords.Z == 0) return false;
+
 			if (_plots.ContainsKey(coords))
 			{
 				plot = _plots[coords];
@@ -82,15 +210,17 @@ namespace MiNET.Plotter
 			plot = new Plot
 			{
 				Coordinates = coords,
-				Owner = player.ClientUuid
+				Owner = player.ClientUuid,
 			};
-			_plots.Add(coords, plot);
 
+			if (!_plots.TryAdd(coords, plot)) return false;
+
+			SaveConfig();
 
 			var offset = ConvertToBlockCoordinates(coords);
-			int xOffset = offset.X;
-			int zOffset = offset.Z;
 
+			//int xOffset = offset.X;
+			//int zOffset = offset.Z;
 			//player.Level.SetBlock(new GoldBlock {Coordinates = new BlockCoordinates(xOffset, PlotWorldGenerator.PlotHeight + 2, zOffset)});
 			//player.Level.SetBlock(new EmeraldBlock
 			//{
@@ -100,8 +230,6 @@ namespace MiNET.Plotter
 
 			Vector3 to = (Vector3) offset + (Vector3) new BlockCoordinates(PlotWorldGenerator.PlotWidth - 1, 256, PlotWorldGenerator.PlotDepth - 1);
 			BoundingBox bbox = new BoundingBox(offset, to).GetAdjustedBoundingBox();
-
-
 
 			for (int x = (int) bbox.Min.X; x <= (int) bbox.Max.X; x++)
 			{
@@ -116,6 +244,21 @@ namespace MiNET.Plotter
 
 			return true;
 		}
+
+		public bool UpdatePlot(Plot plot)
+		{
+			if (!_plots.ContainsKey(plot.Coordinates))
+			{
+				return false;
+			}
+
+			_plots[plot.Coordinates] = plot;
+
+			SaveConfig();
+
+			return true;
+		}
+
 
 		public static BoundingBox GetBoundingBoxForPlot(PlotCoordinates coords)
 		{

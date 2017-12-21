@@ -128,6 +128,11 @@ namespace MiNET.Entities
 
 	public static class EntityHelpers
 	{
+		public static TStore Store<TStore>(this Entity entity) where TStore : new()
+		{
+			return (TStore) entity.PluginStore.GetOrAdd(typeof (TStore), type => new TStore());
+		}
+
 		public static Entity CreateEntity(this short entityTypeId, Level world)
 		{
 			EntityType entityType = (EntityType) entityTypeId;

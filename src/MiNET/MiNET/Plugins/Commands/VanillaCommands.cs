@@ -590,7 +590,7 @@ namespace MiNET.Plugins.Commands
 			message.time = (int) level.WorldTime;
 			level.RelayBroadcast(message);
 
-			return $"{player.Username} set {GameRulesEnum.DoDaylightcycle.ToString().ToLower()} to {value.ToString().ToLower()}.";
+			return $"{player.Username} set day to 5000 and locked time.";
 		}
 
 		[Command]

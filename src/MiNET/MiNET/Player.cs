@@ -101,6 +101,7 @@ namespace MiNET
 
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
 
+
 		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
 		{
 			Server = server;
@@ -3342,7 +3343,7 @@ namespace MiNET
 		}
 	}
 
-	public class PlayerEventArgs : CancelEventArgs
+	public class PlayerEventArgs : EventArgs
 	{
 		public Player Player { get; }
 		public Level Level { get; }

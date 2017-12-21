@@ -25,6 +25,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
@@ -85,6 +86,8 @@ namespace MiNET.Entities
 		public bool RiderRotationLocked { get; set; }
 		public double RiderMaxRotation { get; set; }
 		public double RiderMinRotation { get; set; }
+
+		public ConcurrentDictionary<Type, object> PluginStore { get; set; } = new ConcurrentDictionary<Type, object>();
 
 		public Entity(int entityTypeId, Level level)
 		{

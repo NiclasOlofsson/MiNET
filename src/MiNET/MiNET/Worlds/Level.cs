@@ -66,14 +66,19 @@ namespace MiNET.Worlds
 		public PlayerLocation SpawnPoint { get; set; } = null;
 
 		public ConcurrentDictionary<long, Player> Players { get; private set; } = new ConcurrentDictionary<long, Player>();
+
 //TODO: Need to protect this, not threadsafe
 		public ConcurrentDictionary<long, Entity> Entities { get; private set; } = new ConcurrentDictionary<long, Entity>();
+
 //TODO: Need to protect this, not threadsafe
 		public List<BlockEntity> BlockEntities { get; private set; } = new List<BlockEntity>();
+
 //TODO: Need to protect this, not threadsafe
 		public ConcurrentDictionary<BlockCoordinates, long> BlockWithTicks { get; private set; } = new ConcurrentDictionary<BlockCoordinates, long>();
+
 //TODO: Need to protect this, not threadsafe
 		public string LevelId { get; private set; }
+
 		public string LevelName { get; private set; }
 		public Dimension Dimension { get; set; } = Dimension.Overworld;
 
@@ -259,6 +264,22 @@ namespace MiNET.Worlds
 
 				newPlayer.IsSpawned = spawn;
 			}
+
+			OnPlayerAdded(new LevelEventArgs(newPlayer, this));
+		}
+
+		public event EventHandler<LevelEventArgs> PlayerAdded;
+
+		protected virtual void OnPlayerAdded(LevelEventArgs e)
+		{
+			PlayerAdded?.Invoke(this, e);
+		}
+
+		public event EventHandler<LevelEventArgs> PlayerRemoved;
+
+		protected virtual void OnPlayerRemoved(LevelEventArgs e)
+		{
+			PlayerRemoved?.Invoke(this, e);
 		}
 
 		public void SpawnToAll(Player newPlayer)
@@ -314,6 +335,8 @@ namespace MiNET.Worlds
 					}
 				}
 			}
+
+			OnPlayerAdded(new LevelEventArgs(player, this));
 		}
 
 		public void DespawnFromAll(Player player)
@@ -1667,8 +1690,6 @@ namespace MiNET.Worlds
 		public Player Player { get; set; }
 		public Level Level { get; set; }
 
-		public bool Cancel { get; set; }
-
 		public LevelEventArgs(Player player, Level level)
 		{
 			Player = player;
@@ -1676,7 +1697,16 @@ namespace MiNET.Worlds
 		}
 	}
 
-	public class BlockPlaceEventArgs : LevelEventArgs
+	public class LevelCancelEventArgs : LevelEventArgs
+	{
+		public bool Cancel { get; set; }
+
+		public LevelCancelEventArgs(Player player, Level level) : base(player, level)
+		{
+		}
+	}
+
+	public class BlockPlaceEventArgs : LevelCancelEventArgs
 	{
 		public Block TargetBlock { get; private set; }
 		public Block ExistingBlock { get; private set; }
@@ -1689,7 +1719,7 @@ namespace MiNET.Worlds
 	}
 
 
-	public class BlockBreakEventArgs : LevelEventArgs
+	public class BlockBreakEventArgs : LevelCancelEventArgs
 	{
 		public Block Block { get; private set; }
 		public List<Item> Drops { get; private set; }

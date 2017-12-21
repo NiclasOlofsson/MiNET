@@ -23,9 +23,9 @@
 
 #endregion
 
-using System.Collections.Generic;
 using System.Linq;
 using log4net;
+using MiNET.Entities;
 using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Plugins.Commands;
@@ -49,9 +49,27 @@ namespace MiNET.Plotter
 
 				level.BlockBreak += LevelOnBlockBreak;
 				level.BlockPlace += LevelOnBlockPlace;
+				level.PlayerAdded += LevelOnPlayerAdded;
+				level.PlayerRemoved += LevelOnPlayerRemoved;
 			};
 		}
 
+
+		private void LevelOnPlayerAdded(object sender, LevelEventArgs e)
+		{
+			PlotterPluginStore store = e.Player.Store<PlotterPluginStore>();
+			var plotPlayer = _plotManager.GetPlotPlayer(e.Player.ClientUuid);
+			if (plotPlayer.Home != null)
+			{
+				int height = e.Level.GetHeight((BlockCoordinates)plotPlayer.Home);
+				if (plotPlayer.Home.Y < height) plotPlayer.Home.Y = height + 2;
+				e.Player.SpawnPosition = plotPlayer.Home;
+			}
+		}
+
+		private void LevelOnPlayerRemoved(object sender, LevelEventArgs e)
+		{
+		}
 
 		protected override void OnEnable()
 		{
@@ -70,17 +88,17 @@ namespace MiNET.Plotter
 			};
 		}
 
-		Dictionary<Player, Plot> _currentPlotPos = new Dictionary<Player, Plot>();
-
 		private void OnTicking(object sender, PlayerEventArgs e)
 		{
 			var player = e.Player;
 			var level = player.Level;
 			if (level.Dimension == Dimension.Overworld)
 			{
+				PlotterPluginStore store = player.Store<PlotterPluginStore>();
+
 				if (_plotManager.TryGetPlot((PlotCoordinates) player.KnownPosition, out Plot plot))
 				{
-					if (!_currentPlotPos.ContainsKey(player) || _currentPlotPos[player] != plot)
+					if (store.CurrentPlot != plot)
 					{
 						if (plot.Owner.Equals(player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid))
 						{
@@ -103,15 +121,12 @@ namespace MiNET.Plotter
 						player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 3*10);
 						player.SendTitle($"{ChatColors.White}Owner is {_plotManager.GetPlotPlayer(plot.Owner).Username}", TitleType.SubTitle);
 						player.SendTitle($"{ChatColors.Gold}This is plot {plot.Coordinates.X}:{plot.Coordinates.Z}", TitleType.Title);
-						_currentPlotPos[player] = plot;
-					}
-					else
-					{
+						store.CurrentPlot = plot;
 					}
 				}
 				else
 				{
-					_currentPlotPos[player] = null;
+					store.CurrentPlot = null;
 					if (!player.IsWorldImmutable)
 					{
 						player.IsWorldImmutable = true;
@@ -134,7 +149,6 @@ namespace MiNET.Plotter
 			PlotCoordinates coords = (PlotCoordinates) e.Block.Coordinates;
 			if (coords == null)
 			{
-				//e.Cancel = e.Player.GameMode != GameMode.Creative;
 				e.Cancel = true;
 			}
 			else
@@ -148,13 +162,17 @@ namespace MiNET.Plotter
 			PlotCoordinates coords = (PlotCoordinates) e.TargetBlock.Coordinates;
 			if (coords == null)
 			{
-				//e.Cancel = e.Player.GameMode != GameMode.Creative;
 				e.Cancel = true;
 			}
 			else
 			{
-				if (e.Player != null) e.Cancel = !_plotManager.HasClaim(coords, e.Player);
+				if (e.Player != null) e.Cancel = !_plotManager.CanBuild(coords, e.Player);
 			}
 		}
+	}
+
+	public class PlotterPluginStore
+	{
+		public Plot CurrentPlot { get; set; }
 	}
 }

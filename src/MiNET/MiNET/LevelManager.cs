@@ -25,7 +25,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using log4net;
@@ -137,7 +136,7 @@ namespace MiNET
 
 				Levels.Add(level);
 
-				OnLevelCreated(new LevelEventArgs(null, level));
+				OnLevelCreated(new LevelCancelEventArgs(null, level));
 			}
 
 			return level;
@@ -279,14 +278,14 @@ namespace MiNET
 			var level = new Level(this, name, worldProvider, EntityManager, gameMode, difficulty, viewDistance);
 			level.Initialize();
 
-			OnLevelCreated(new LevelEventArgs(null, level));
+			OnLevelCreated(new LevelCancelEventArgs(null, level));
 
 			return level;
 		}
 
-		public event EventHandler<LevelEventArgs> LevelCreated;
+		public event EventHandler<LevelCancelEventArgs> LevelCreated;
 
-		protected virtual void OnLevelCreated(LevelEventArgs e)
+		protected virtual void OnLevelCreated(LevelCancelEventArgs e)
 		{
 			LevelCreated?.Invoke(this, e);
 		}

@@ -162,6 +162,40 @@ namespace MiNET.Plotter
 			return $"Added player {username} to plot {plot.Coordinates}";
 		}
 
+		[Command(Name = "plot remove")]
+		public string PlotRemovePlayer(Player player, string username)
+		{
+			PlotCoordinates coords = (PlotCoordinates)player.KnownPosition;
+			if (coords == null) return "No plot found.";
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			var plotPlayer = _plotManager.GetPlotPlayer(username);
+			if (plotPlayer == null)
+			{
+				var newOwnerPlayer = player.Level.GetSpawnedPlayers().FirstOrDefault(p => p.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
+				if (newOwnerPlayer == null)
+				{
+					return $"Found no player with the name {username}";
+				}
+
+				plotPlayer = _plotManager.GetOrAddPlotPlayer(newOwnerPlayer);
+			}
+
+			List<UUID> builders = new List<UUID>(plot.AllowedPlayers);
+			if (!builders.Contains(plotPlayer.Xuid)) return "Player does not exist on this plot.";
+
+			builders.Remove(plotPlayer.Xuid);
+			plot.AllowedPlayers = builders.ToArray();
+
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to update this plot.";
+			}
+
+			return $"Removed player {username} from plot {plot.Coordinates}";
+		}
+
 		[Command(Name = "plot sethome")]
 		public string PlotSetHome(Player player)
 		{

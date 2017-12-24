@@ -34,15 +34,15 @@ namespace MiNET.Plotter
 {
 	public class PlotWorldGenerator : IWorldGenerator
 	{
-		public const int PlotWidth = 42;
-		public const int PlotDepth = 42;
+		public const int PlotWidth = 130;
+		public const int PlotDepth = 130;
 		public const int PlotHeight = 64;
-		public const int RoadWidth = 7;
+		public const int RoadWidth = 9;
 		public const int PlotAreaWidth = PlotWidth + RoadWidth;
 		public const int PlotAreaDepth = PlotDepth + RoadWidth;
 
-		private Pattern RoadPattern { get; set; }
-		private Pattern PlotPattern { get; set; }
+		private static Pattern RoadPattern { get; set; }
+		private static Pattern PlotPattern { get; set; }
 
 		public PlotWorldGenerator()
 		{
@@ -79,16 +79,22 @@ namespace MiNET.Plotter
 		{
 		}
 
-		public static void ResetBlocks(Level level, BoundingBox bbox)
+		public static void ResetBlocks(Level level, BoundingBox bbox, bool repopulate = false)
 		{
 			bbox = bbox.GetAdjustedBoundingBox();
 			for (int x = (int) bbox.Min.X; x < (int) bbox.Max.X + 1; x++)
 			{
 				for (int z = (int) bbox.Min.Z; z < (int) bbox.Max.Z + 1; z++)
 				{
+					level.SetBiomeId(new BlockCoordinates(x, 0, z), 1);
 					for (int y = 0; y < 256; y++)
 					{
 						if (y == 0) level.SetBlock(x, y, z, 7); // Bedrock
+						else if (repopulate && y == PlotHeight)
+						{
+							var block = PlotPattern.Next(new BlockCoordinates(x, PlotHeight, z));
+							level.SetBlock(block); // grass
+						}
 						else if (y >= PlotHeight)
 						{
 							if (!level.IsAir(new BlockCoordinates(x, y, z)))
@@ -96,13 +102,29 @@ namespace MiNET.Plotter
 								level.SetAir(x, y, z); // Air
 							}
 						}
-						else if (y == PlotHeight - 1) level.SetBlock(x, y, z, 2); // grass
-						else if (y > PlotHeight - 4) level.SetBlock(x, y, z, 3); // dirt
-						else level.SetBlock(x, y, z, 1); // stone
+						else if (y == PlotHeight - 1)
+							level.SetBlock(x, y, z, 2); // grass
+						else if (y > PlotHeight - 4)
+							level.SetBlock(x, y, z, 3); // dirt
+						else
+							level.SetBlock(x, y, z, 1); // stone
 					}
 				}
 			}
 		}
+
+		public static void SetBiome(Level level, BoundingBox bbox, byte biomeId)
+		{
+			bbox = bbox.GetAdjustedBoundingBox();
+			for (int x = (int) bbox.Min.X; x < (int) bbox.Max.X + 1; x++)
+			{
+				for (int z = (int) bbox.Min.Z; z < (int) bbox.Max.Z + 1; z++)
+				{
+					level.SetBiomeId(new BlockCoordinates(x, 0, z), biomeId);
+				}
+			}
+		}
+
 
 		public ChunkColumn GenerateChunkColumn(ChunkCoordinates chunkCoordinates)
 		{
@@ -120,7 +142,8 @@ namespace MiNET.Plotter
 					for (int y = 0; y < PlotHeight + 1; y++)
 					{
 						if (y == 0) chunk.SetBlock(x, y, z, 7); // Bedrock
-						else if (y == PlotHeight - 1) chunk.SetBlock(x, y, z, 2); // grass
+						else if (y == PlotHeight - 1)
+							chunk.SetBlock(x, y, z, 2); // grass
 						else if (y == PlotHeight)
 						{
 							if (!IsZRoad(z + zOffset, true) && !IsXRoad(x + xOffset, true))
@@ -133,9 +156,12 @@ namespace MiNET.Plotter
 								}
 							}
 						}
-						else if (y > PlotHeight - 4) chunk.SetBlock(x, y, z, 3); // dirt
-						else chunk.SetBlock(x, y, z, 1); // stone
+						else if (y > PlotHeight - 4)
+							chunk.SetBlock(x, y, z, 3); // dirt
+						else
+							chunk.SetBlock(x, y, z, 1); // stone
 					}
+
 					chunk.SetHeight(x, z, PlotHeight);
 				}
 			}
@@ -159,6 +185,7 @@ namespace MiNET.Plotter
 							if (block.Metadata != 0)
 								chunk.SetMetadata(x - xOffset, PlotHeight - 1, z - zOffset, block.Metadata);
 						}
+
 						if ((z - i)%PlotAreaDepth == 0)
 						{
 							chunk.SetBlock(x - xOffset, PlotHeight - 1, z - zOffset, block.Id);

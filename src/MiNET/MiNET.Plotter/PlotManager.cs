@@ -83,8 +83,8 @@ namespace MiNET.Plotter
 		{
 			lock (_configSync)
 			{
-				_config.Plots = _plots.Values.ToArray();
-				_config.PlotPlayers = _plotPlayers.Values.ToArray();
+				_config.Plots = _plots.Values.OrderByDescending(p => p.UpdateDate).ToArray();
+				_config.PlotPlayers = _plotPlayers.Values.OrderByDescending(p => p.UpdateDate).ToArray();
 				string configFile = Path.Combine(GetExecutingDirectoryName(), "plots-config.json");
 				var jsonSerializerSettings = GetJsonSettings();
 				File.WriteAllText(configFile, JsonConvert.SerializeObject(_config, jsonSerializerSettings));
@@ -158,6 +158,7 @@ namespace MiNET.Plotter
 
 		public void UpdatePlotPlayer(PlotPlayer player)
 		{
+			player.UpdateDate = DateTime.UtcNow;
 			_plotPlayers[player.Xuid] = player;
 
 			SaveConfig();
@@ -245,6 +246,20 @@ namespace MiNET.Plotter
 			return true;
 		}
 
+		public bool Delete(Plot plot)
+		{
+			if (!_plots.ContainsKey(plot.Coordinates))
+			{
+				return false;
+			}
+
+			if (!_plots.TryRemove(plot.Coordinates, out Plot trash)) return false;
+
+			SaveConfig();
+
+			return true;
+		}
+
 		public bool UpdatePlot(Plot plot)
 		{
 			if (!_plots.ContainsKey(plot.Coordinates))
@@ -252,6 +267,7 @@ namespace MiNET.Plotter
 				return false;
 			}
 
+			plot.UpdateDate = DateTime.UtcNow;
 			_plots[plot.Coordinates] = plot;
 
 			SaveConfig();

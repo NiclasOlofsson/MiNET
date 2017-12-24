@@ -734,17 +734,19 @@ namespace MiNET.Worlds
 		{
 			if (Dimension != Dimension.Overworld) return;
 
+			var leveldat = Path.Combine(BasePath, "level.dat");
+
 			if (!Directory.Exists(BasePath))
 				Directory.CreateDirectory(BasePath);
-			else
-				return; // What if this is changed? Need a dirty flag on this
+			else if (File.Exists(leveldat)) return; // What if this is changed? Need a dirty flag on this
 
 			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 256;
 
 			NbtFile file = new NbtFile();
-			NbtTag dataTag = file.RootTag["Data"] = new NbtCompound("Data");
+			NbtTag dataTag = new NbtCompound("Data");
+			file.RootTag.Add(dataTag);
 			level.SaveToNbt(dataTag);
-			file.SaveToFile(Path.Combine(BasePath, "level.dat"), NbtCompression.ZLib);
+			file.SaveToFile(leveldat, NbtCompression.GZip);
 		}
 
 		public int SaveChunks()
@@ -915,7 +917,7 @@ namespace MiNET.Worlds
 
 				regionFile.Seek(offset, SeekOrigin.Begin);
 				regionFile.Write(lenghtBytes, 0, 4); // Lenght
-				regionFile.WriteByte(0x02); // Compression mode
+				regionFile.WriteByte(0x02); // Compression mode zlib
 
 				regionFile.Write(nbtBuf, 0, nbtBuf.Length);
 

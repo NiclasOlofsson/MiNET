@@ -26,6 +26,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -57,8 +58,10 @@ namespace MiNET.Plotter
 					{
 						return ClaimPlot(player, current);
 					}
+
 					x = x + d;
 				}
+
 				while (2*y*d < m)
 				{
 					var current = new PlotCoordinates(x, y);
@@ -66,6 +69,7 @@ namespace MiNET.Plotter
 					{
 						return ClaimPlot(player, current);
 					}
+
 					y = y + d;
 				}
 
@@ -84,7 +88,7 @@ namespace MiNET.Plotter
 
 			player.Teleport(new PlayerLocation(center.X, height + 3, center.Z));
 
-			return $"Claimed plot {coords.X}:{coords.Z}";
+			return $"Claimed plot {coords.X},{coords.Z}";
 		}
 
 		[Command(Name = "plot claim")]
@@ -96,7 +100,7 @@ namespace MiNET.Plotter
 			Plot plot;
 			if (!_plotManager.TryClaim(coords, player, out plot)) return "Not able to claim plot at this position.";
 
-			return $"Claimed plot {plot.Coordinates.X}:{plot.Coordinates.Z} at {coords}";
+			return $"Claimed plot {plot.Coordinates.X},{plot.Coordinates.Z} at {coords}";
 		}
 
 		[Command(Name = "plot setowner")]
@@ -165,7 +169,7 @@ namespace MiNET.Plotter
 		[Command(Name = "plot remove")]
 		public string PlotRemovePlayer(Player player, string username)
 		{
-			PlotCoordinates coords = (PlotCoordinates)player.KnownPosition;
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "No plot found.";
 			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
 			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
@@ -208,7 +212,7 @@ namespace MiNET.Plotter
 			plotPlayer.Home = player.KnownPosition;
 			_plotManager.UpdatePlotPlayer(plotPlayer);
 
-			return $"Set home to plot {plot.Coordinates.X}:{plot.Coordinates.Z}";
+			return $"Set home to plot {plot.Coordinates.X},{plot.Coordinates.Z}";
 		}
 
 		[Command(Name = "plot home")]
@@ -226,9 +230,100 @@ namespace MiNET.Plotter
 			if (plotPlayer.Home.Y < height) plotPlayer.Home.Y = height + 2;
 			player.Teleport(plotPlayer.Home);
 
-			return $"Moved to your home plot {plot.Coordinates.X}:{plot.Coordinates.Z}";
+			return $"Moved to your home plot {plot.Coordinates.X},{plot.Coordinates.Z}";
 		}
 
+		[Command(Name = "plot settitle")]
+		public string PlotSetTitle(Player player, string title = null)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			plot.Title = title;
+
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to update this plot.";
+			}
+
+			return $"Set title on plot {plot.Coordinates} to {title}";
+		}
+
+		[Command(Name = "plot setdescription")]
+		public string PlotSetDescription(Player player, string description = null)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			plot.Description = description;
+
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to update this plot.";
+			}
+
+			return $"Set description on plot {plot.Coordinates} to {description}";
+		}
+
+		[Command(Name = "plot settime")]
+		public string PlotSetTime(Player player, int time = 5000)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			plot.Time = time;
+
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to update this plot.";
+			}
+
+			player.SendSetTime(plot.Time);
+
+			return $"Set time on plot {plot.Coordinates} to {time}";
+		}
+
+		[Command(Name = "plot setdownfall")]
+		public string PlotSetDownfall(Player player, int downfall = 0)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			plot.Downfall = downfall;
+
+			if (!_plotManager.UpdatePlot(plot))
+			{
+				return "Not able to update this plot.";
+			}
+
+			player.SendSetDownfall(plot.Downfall);
+
+			return $"Set downfall on plot {plot.Coordinates} to {downfall}";
+		}
+
+		[Command(Name = "plot setbiome")]
+		public string PlotSetBiome(Player player, int biomeId = 1)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!_plotManager.HasClaim(coords, player)) return "You don't own this plot.";
+			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "No plot found.";
+
+			var bbox = PlotManager.GetBoundingBoxForPlot(plot.Coordinates);
+
+			PlotWorldGenerator.SetBiome(player.Level, bbox, (byte) biomeId);
+
+			Task.Run(() =>
+			{
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Resent chunks."); });
+			});
+
+			return $"Set biome on plot {plot.Coordinates} to {biomeId}";
+		}
 
 		[Command(Name = "plot visit")]
 		public string PlotVisit(Player player, string username)
@@ -244,7 +339,7 @@ namespace MiNET.Plotter
 			if (plotPlayer.Home.Y < height) plotPlayer.Home.Y = height + 2;
 			player.Teleport(plotPlayer.Home);
 
-			return $"Moved you to plot {plot.Coordinates.X}:{plot.Coordinates.Z}. Home of {username}";
+			return $"Moved you to plot {plot.Coordinates.X},{plot.Coordinates.Z}. Home of {username}";
 		}
 
 		[Command(Name = "plot visit")]
@@ -252,7 +347,7 @@ namespace MiNET.Plotter
 		{
 			PlotCoordinates coords = new PlotCoordinates(x, z);
 
-			if (x == 0 || z == 0) return $"No plot at this location {coords.X}:{coords.Z}.";
+			if (x == 0 || z == 0) return $"No plot at this location {coords.X},{coords.Z}.";
 
 			var bbox = PlotManager.GetBoundingBoxForPlot(coords);
 			var center = bbox.Max - (bbox.Max - bbox.Min)/2;
@@ -260,22 +355,34 @@ namespace MiNET.Plotter
 
 			player.Teleport(new PlayerLocation(center.X, height + 3, center.Z));
 
-			return $"Moved you to plot {coords.X}:{coords.Z}.";
+			return $"Moved you to plot {coords.X},{coords.Z}.";
 		}
 
-		[Command(Name = "plot reset")]
-		public string PlotReset(Player player)
+		[Command(Name = "plot clear")]
+		public string PlotClear(Player player)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
 			if (coords == null) return "Not able to reset plot at this position.";
 
 			if (!_plotManager.HasClaim(coords, player)) return "Not able to reset plot at this position.";
-
 			if (!_plotManager.TryGetPlot(coords, out Plot plot)) return "Not able to reset plot at this position.";
 
-			PlotWorldGenerator.ResetBlocks(player.Level, PlotManager.GetBoundingBoxForPlot(coords));
+			PlotWorldGenerator.ResetBlocks(player.Level, PlotManager.GetBoundingBoxForPlot(plot.Coordinates));
 
-			return $"Reset plot {plot.Coordinates.X}:{plot.Coordinates.Z} at {coords}";
+			return $"Reset plot {plot.Coordinates.X},{plot.Coordinates.Z}.";
+		}
+
+		[Command(Name = "plot delete")]
+		[Authorize(Permission = 4)]
+		public string PlotDelete(Player player, bool force = false)
+		{
+			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!_plotManager.TryGetPlot(coords, out Plot plot) && !force) return "Not able to delete plot at this position.";
+			if (plot != null && !_plotManager.Delete(plot)) return "Not able to delete plot at this position.";
+
+			PlotWorldGenerator.ResetBlocks(player.Level, PlotManager.GetBoundingBoxForPlot(coords), true);
+
+			return $"Deleted plot {coords.X},{coords.Z}.";
 		}
 	}
 }

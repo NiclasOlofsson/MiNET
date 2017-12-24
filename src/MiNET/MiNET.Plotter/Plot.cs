@@ -39,16 +39,29 @@ namespace MiNET.Plotter
 
 	public class PlotPlayer
 	{
+		public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+		public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
+
 		public UUID Xuid { get; set; }
 		public string Username { get; set; }
 		public PlayerLocation Home { get; set; }
+		public PlayerLocation LastPosition { get; set; }
 	}
 
 	public class Plot
 	{
+		public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+		public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
+
 		public PlotCoordinates Coordinates { get; set; }
+		public string Title { get; set; }
+		public string Description { get; set; }
+
 		public UUID Owner { get; set; }
 		public UUID[] AllowedPlayers { get; set; } = new UUID[0];
+
+		public int Time { get; set; } = 5000;
+		public int Downfall { get; set; }
 	}
 
 	public class UuidConverter : JsonConverter

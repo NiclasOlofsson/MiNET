@@ -26,7 +26,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -260,6 +259,7 @@ namespace MiNET
 					new ResourcePackInfo() {PackIdVersion = new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"}, Size = 359901},
 				};
 			}
+
 			SendPackage(packInfo);
 		}
 
@@ -274,6 +274,7 @@ namespace MiNET
 					new PackIdVersion() {Id = "5abdb963-4f3f-4d97-8482-88e2049ab149", Version = "0.0.1"},
 				};
 			}
+
 			SendPackage(packStack);
 		}
 
@@ -379,7 +380,7 @@ namespace MiNET
 			{
 				entity.KnownPosition = message.position;
 				entity.IsOnGround = message.onGround;
-				if(message.onGround) Log.Debug("Horse is on ground");
+				if (message.onGround) Log.Debug("Horse is on ground");
 			}
 		}
 
@@ -483,6 +484,7 @@ namespace MiNET
 					{
 						Log.Warn($"Did not find a bed at {SpawnPosition}");
 					}
+
 					break;
 				}
 				case PlayerAction.Respawn:
@@ -732,6 +734,7 @@ namespace MiNET
 
 					Level = Server.LevelManager.GetLevel(this, Dimension.Overworld.ToString());
 				}
+
 				if (Level == null)
 				{
 					Disconnect("No level assigned.");
@@ -1673,12 +1676,14 @@ namespace MiNET
 					{
 						return;
 					}
+
 					_lastPlayerMoveSequenceNUmber = message.DatagramSequenceNumber;
 
 					if (_lastOrderingIndex > message.OrderingIndex)
 					{
 						return;
 					}
+
 					_lastOrderingIndex = message.OrderingIndex;
 				}
 			}
@@ -2045,6 +2050,7 @@ namespace MiNET
 							potion.Count--;
 						}
 					}
+
 					break;
 				}
 				default:
@@ -2236,6 +2242,7 @@ namespace MiNET
 							{
 								rowOffset = row;
 							}
+
 							if (colOffset == -1 && item.Id != 0)
 							{
 								colOffset = col;
@@ -2367,6 +2374,7 @@ namespace MiNET
 					{
 						mob.Unmount(this);
 					}
+
 					break;
 				}
 				case 4:
@@ -2773,6 +2781,7 @@ namespace MiNET
 			{
 				xpToNextLevel = 9*ExperienceLevel - 158;
 			}
+
 			return xpToNextLevel;
 		}
 
@@ -2788,9 +2797,22 @@ namespace MiNET
 
 		public virtual void SendSetTime()
 		{
+			SendSetTime((int) Level.WorldTime);
+		}
+
+		public virtual void SendSetTime(int time)
+		{
 			McpeSetTime message = McpeSetTime.CreateObject();
-			message.time = (int) Level.WorldTime;
+			message.time = time;
 			SendPackage(message);
+		}
+
+		public virtual void SendSetDownfall(int downfall)
+		{
+			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
+			levelEvent.eventId = 3001;
+			levelEvent.data = downfall;
+			SendPackage(levelEvent);
 		}
 
 		public virtual void SendMovePlayer(bool teleport = false)
@@ -2827,7 +2849,8 @@ namespace MiNET
 
 						ChangeDimension(null, null, dimension, delegate
 						{
-							Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel : dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
+							Level nextLevel = dimension == Dimension.Overworld ? oldLevel.OverworldLevel :
+								dimension == Dimension.Nether ? oldLevel.NetherLevel : oldLevel.TheEndLevel;
 							return nextLevel;
 						});
 					});
@@ -2880,7 +2903,8 @@ namespace MiNET
 						if (popup.MessageType == MessageType.Tip && !hasDisplayedTip)
 						{
 							if (popup.CurrentTick <= popup.Duration + popup.DisplayDelay - 30)
-								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30) SendMessage(popup.Message, type: popup.MessageType);
+								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30)
+									SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedTip = true;
 						}
 
@@ -2888,7 +2912,8 @@ namespace MiNET
 						if (popup.MessageType == MessageType.Popup && !hasDisplayedPopup)
 						{
 							if (popup.CurrentTick <= popup.Duration + popup.DisplayDelay - 30)
-								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30) SendMessage(popup.Message, type: popup.MessageType);
+								if (popup.CurrentTick%20 == 0 || popup.CurrentTick == popup.Duration + popup.DisplayDelay - 30)
+									SendMessage(popup.Message, type: popup.MessageType);
 							hasDisplayedPopup = true;
 						}
 					}
@@ -3199,16 +3224,19 @@ namespace MiNET
 				Level.DropItem(coordinates, Inventory.Helmet);
 				Inventory.Helmet = new ItemAir();
 			}
+
 			if (Inventory.Chest.Id != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Chest);
 				Inventory.Chest = new ItemAir();
 			}
+
 			if (Inventory.Leggings.Id != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Leggings);
 				Inventory.Leggings = new ItemAir();
 			}
+
 			if (Inventory.Boots.Id != 0)
 			{
 				Level.DropItem(coordinates, Inventory.Boots);

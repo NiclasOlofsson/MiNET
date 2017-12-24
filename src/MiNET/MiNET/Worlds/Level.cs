@@ -336,7 +336,7 @@ namespace MiNET.Worlds
 				}
 			}
 
-			OnPlayerAdded(new LevelEventArgs(player, this));
+			OnPlayerRemoved(new LevelEventArgs(player, this));
 		}
 
 		public void DespawnFromAll(Player player)
@@ -1190,6 +1190,12 @@ namespace MiNET.Worlds
 		{
 			ChunkColumn chunk = GetChunk(coordinates);
 			chunk?.SetBlocklight(coordinates.X & 0x0f, coordinates.Y & 0xff, coordinates.Z & 0x0f, blockLight);
+		}
+
+		public void SetBiomeId(BlockCoordinates coordinates, byte biomeId)
+		{
+			ChunkColumn chunk = GetChunk(coordinates);
+			chunk?.SetBiome(coordinates.X & 0x0f, coordinates.Z & 0x0f, biomeId);
 		}
 
 		public void SetSkyLight(Block block)

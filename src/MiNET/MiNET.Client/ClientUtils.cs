@@ -255,7 +255,7 @@ namespace MiNET.Client
 			NbtFile file = new NbtFile();
 			NbtTag dataTag = file.RootTag["Data"] = new NbtCompound("Data");
 			level.SaveToNbt(dataTag);
-			file.SaveToFile(Path.Combine(_basePath, "level.dat"), NbtCompression.ZLib);
+			file.SaveToFile(Path.Combine(_basePath, "level.dat"), NbtCompression.GZip);
 		}
 
 		public static void SaveChunkToAnvil(ChunkColumn chunk)

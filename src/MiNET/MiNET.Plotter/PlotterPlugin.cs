@@ -57,18 +57,30 @@ namespace MiNET.Plotter
 
 		private void LevelOnPlayerAdded(object sender, LevelEventArgs e)
 		{
-			PlotterPluginStore store = e.Player.Store<PlotterPluginStore>();
-			var plotPlayer = _plotManager.GetPlotPlayer(e.Player.ClientUuid);
-			if (plotPlayer.Home != null)
+			var plotPlayer = _plotManager.GetOrAddPlotPlayer(e.Player);
+			var pos = plotPlayer.LastPosition ?? plotPlayer.Home;
+			if (pos != null)
 			{
-				int height = e.Level.GetHeight((BlockCoordinates)plotPlayer.Home);
-				if (plotPlayer.Home.Y < height) plotPlayer.Home.Y = height + 2;
-				e.Player.SpawnPosition = plotPlayer.Home;
+				int height = e.Level.GetHeight((BlockCoordinates) pos);
+				if (pos.Y < height)
+				{
+					pos.Y = height;
+				}
+				else
+				{
+					e.Player.IsFlying = true;
+					e.Player.SendAdventureSettings();
+				}
+
+				e.Player.SpawnPosition = pos;
 			}
 		}
 
 		private void LevelOnPlayerRemoved(object sender, LevelEventArgs e)
 		{
+			var plotPlayer = _plotManager.GetOrAddPlotPlayer(e.Player);
+			plotPlayer.LastPosition = e.Player.KnownPosition;
+			_plotManager.UpdatePlotPlayer(plotPlayer);
 		}
 
 		protected override void OnEnable()
@@ -100,6 +112,9 @@ namespace MiNET.Plotter
 				{
 					if (store.CurrentPlot != plot)
 					{
+						player.SendSetTime(plot.Time);
+						player.SendSetDownfall(plot.Downfall);
+
 						if (plot.Owner.Equals(player.ClientUuid) || plot.AllowedPlayers.Contains(player.ClientUuid))
 						{
 							if (player.IsWorldImmutable)
@@ -117,10 +132,12 @@ namespace MiNET.Plotter
 							}
 						}
 
+						string plotName = string.IsNullOrEmpty(plot.Title) ? $"{plot.Coordinates.X},{plot.Coordinates.Z}" : plot.Title;
+						string plotDescription = string.IsNullOrEmpty(plot.Description) ? "" : $"{ChatColors.Aqua}{plot.Description}\n";
 						player.SendTitle(null, TitleType.Clear);
 						player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 3*10);
-						player.SendTitle($"{ChatColors.White}Owner is {_plotManager.GetPlotPlayer(plot.Owner).Username}", TitleType.SubTitle);
-						player.SendTitle($"{ChatColors.Gold}This is plot {plot.Coordinates.X}:{plot.Coordinates.Z}", TitleType.Title);
+						player.SendTitle($"{plotDescription}{ChatColors.White}Owner is {_plotManager.GetPlotPlayer(plot.Owner).Username}", TitleType.SubTitle);
+						player.SendTitle($"{ChatColors.Gold}This is plot {plotName}", TitleType.Title);
 						store.CurrentPlot = plot;
 					}
 				}
@@ -130,7 +147,9 @@ namespace MiNET.Plotter
 					if (!player.IsWorldImmutable)
 					{
 						player.IsWorldImmutable = true;
+						player.SendSetDownfall(0);
 						player.SendAdventureSettings();
+						player.SendSetTime();
 					}
 				}
 			}

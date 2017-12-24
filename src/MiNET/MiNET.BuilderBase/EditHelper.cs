@@ -231,10 +231,10 @@ namespace MiNET.BuilderBase
 			_undoRecorder.RecordUndo(existing);
 			try
 			{
-				if (block.PlaceBlock(_level, null, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
-
 				if (_level.OnBlockPlace(new BlockPlaceEventArgs(_player, _level, block, existing)))
 				{
+					//if (block.PlaceBlock(_level, _player, block.Coordinates, BlockFace.Up, Vector3.Zero)) return true;
+
 					_level.SetBlock(block);
 				}
 			}

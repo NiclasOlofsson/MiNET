@@ -470,8 +470,9 @@ namespace MiNET.Worlds
 				if (DoDaylightcycle)
 				{
 					WorldTime++;
-					CurrentWorldCycleTime = WorldTime%_worldDayCycleTime;
 				}
+
+				CurrentWorldCycleTime = WorldTime%_worldDayCycleTime;
 
 				if (DoDaylightcycle && TickTime%100 == 0)
 				{

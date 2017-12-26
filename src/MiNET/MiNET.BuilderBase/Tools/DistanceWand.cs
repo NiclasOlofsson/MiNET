@@ -136,9 +136,9 @@ namespace MiNET.BuilderBase.Tools
 			}
 			selector.SelectPrimary(pos);
 
-			player.SendMessage($"First position set to {pos}");
-			UpdateExtraData(player);
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
+			player.SendMessage($"First position set to {pos}");
+			//UpdateExtraData(player);
 		}
 
 		public void SetPosition2(Player player, BlockCoordinates pos)
@@ -151,9 +151,9 @@ namespace MiNET.BuilderBase.Tools
 			}
 			selector.SelectSecondary(pos);
 
-			player.SendMessage($"Second position set to {pos}");
-			UpdateExtraData(player);
 			player.Inventory.SendSetSlot(player.Inventory.InHandSlot);
+			player.SendMessage($"Second position set to {pos}");
+			//UpdateExtraData(player);
 		}
 	}
 }

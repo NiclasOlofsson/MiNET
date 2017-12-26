@@ -73,6 +73,7 @@ namespace MiNET.Plotter
 				}
 
 				e.Player.SpawnPosition = pos;
+				e.Player.KnownPosition = pos;
 			}
 		}
 

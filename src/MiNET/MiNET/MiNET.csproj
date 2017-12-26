@@ -456,6 +456,7 @@
     <Compile Include="Entities\Vehicles\Minecart.cs" />
     <Compile Include="Items\ItemBanner.cs" />
     <Compile Include="Items\ItemBoat.cs" />
+    <Compile Include="Items\ItemHorseArmorDiamond.cs" />
     <Compile Include="Items\ItemFireworks.cs" />
     <Compile Include="Items\ItemGoldenCarrot.cs" />
     <Compile Include="Items\ItemGoldIngot.cs" />

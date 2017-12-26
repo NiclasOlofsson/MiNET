@@ -157,6 +157,25 @@ namespace MiNET
 			return false;
 		}
 
+		public bool AddItem(Item item, bool update)
+		{
+
+			for (int si = 0; si < Slots.Count; si++)
+			{
+				Item existingItem = Slots[si];
+
+				if (existingItem is ItemAir || existingItem.Id == 0 || existingItem.Id == -1)
+				{
+					Slots[si] = item;
+					if (update) SendSetSlot(si);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+
 		public virtual void SetHeldItemSlot(int selectedHotbarSlot, bool sendToPlayer = true)
 		{
 			InHandSlot = selectedHotbarSlot;

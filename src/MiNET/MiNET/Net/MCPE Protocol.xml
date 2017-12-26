@@ -801,6 +801,11 @@
 	</pdu>
 
 	<pdu id="0x51" online="false" client="false" server="true" name="MCPE_UPDATE_EQUIPMENT">
+		<field name="Window ID" type="byte" />
+		<field name="Window Type" type="byte" />
+		<field name="Unknown" type="byte" />
+		<field name="Entity ID" type="SignedVarLong" />
+		<field name="NamedTag" type="Nbt"/>
 	</pdu>
 
 	<pdu id="0x52" online="false" client="false" server="true" name="MCPE_RESOURCE_PACK_DATA_INFO">

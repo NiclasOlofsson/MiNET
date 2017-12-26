@@ -25,12 +25,42 @@
 
 namespace MiNET.Items
 {
-	public class ItemDiamondHelmet : Item
+	public class ItemHorseArmorLeather : Item
 	{
-		public ItemDiamondHelmet() : base(310)
+		public ItemHorseArmorLeather() : base(416)
 		{
 			MaxStackSize = 1;
-			ItemType = ItemType.Helmet;
+			ItemType = ItemType.Chestplate;
+			ItemMaterial = ItemMaterial.Leather;
+		}
+	}
+
+	public class ItemHorseArmorIron : Item
+	{
+		public ItemHorseArmorIron() : base(417)
+		{
+			MaxStackSize = 1;
+			ItemType = ItemType.Chestplate;
+			ItemMaterial = ItemMaterial.Iron;
+		}
+	}
+
+	public class ItemHorseArmorGold : Item
+	{
+		public ItemHorseArmorGold() : base(418)
+		{
+			MaxStackSize = 1;
+			ItemType = ItemType.Chestplate;
+			ItemMaterial = ItemMaterial.Gold;
+		}
+	}
+
+	public class ItemHorseArmorDiamond : Item
+	{
+		public ItemHorseArmorDiamond() : base(419)
+		{
+			MaxStackSize = 1;
+			ItemType = ItemType.Chestplate;
 			ItemMaterial = ItemMaterial.Diamond;
 		}
 	}

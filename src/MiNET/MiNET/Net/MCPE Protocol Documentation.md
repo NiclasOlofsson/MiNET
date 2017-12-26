@@ -1716,6 +1716,11 @@ Wiki: [Update Equipment](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Window ID | byte |  |
+|Window Type | byte |  |
+|Unknown | byte |  |
+|Entity ID | SignedVarLong |  |
+|NamedTag | Nbt |  |
 -----------------------------------------------------------------------
 ### Resource Pack Data Info (0x52)
 Wiki: [Resource Pack Data Info](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ResourcePackDataInfo)

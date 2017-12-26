@@ -25,6 +25,7 @@
 
 using System;
 using System.Numerics;
+using fNbt;
 using log4net;
 using MiNET.Entities.Behaviors;
 using MiNET.Items;
@@ -42,6 +43,7 @@ namespace MiNET.Entities.Passive
 		public double JumpStrength { get; set; }
 		public int Temper { get; set; }
 		public Entity Rider { get; set; }
+		public HorseInventory Inventory { get; set; }
 
 		public Horse(Level level, bool isDonkey = false, Random rnd = null) : base(isDonkey ? EntityType.Donkey : EntityType.Horse, level)
 		{
@@ -63,6 +65,8 @@ namespace MiNET.Entities.Passive
 			Behaviors.Add(new WanderBehavior(this, 0.7));
 			Behaviors.Add(new LookAtPlayerBehavior(this));
 			Behaviors.Add(new RandomLookaroundBehavior(this));
+
+			Inventory = new HorseInventory(this);
 		}
 
 		public override MetadataDictionary GetMetadata()
@@ -72,6 +76,14 @@ namespace MiNET.Entities.Passive
 			var metadata = base.GetMetadata();
 			metadata[(int) MetadataFlags.Variant] = new MetadataInt(Variant);
 			metadata[(int) MetadataFlags.EatingHaystack] = new MetadataInt(EatingHaystack);
+			if (IsTamed)
+			{
+				metadata[44] = new MetadataInt(2);
+				metadata[45] = new MetadataByte(12);
+				metadata[46] = new MetadataInt(2);
+			}
+
+			Log.Debug($"Horse: {metadata}");
 			return metadata;
 		}
 
@@ -91,6 +103,12 @@ namespace MiNET.Entities.Passive
 
 		public override void DoInteraction(byte actionId, Player player)
 		{
+			if (player.IsSneaking)
+			{
+				Inventory.Open(player);
+				return;
+			}
+
 			var inHand = player.Inventory.GetItemInHand();
 			if (inHand is ItemSugar || inHand is ItemWheat || inHand is ItemApple || inHand is ItemGoldenCarrot || inHand is ItemGoldenApple || inHand.Id == 170)
 			{
@@ -132,13 +150,11 @@ namespace MiNET.Entities.Passive
 			{
 				// Saddle horse
 
-				IsSaddled = true;
-				IsWasdControlled = true;
-				CanPowerJump = true;
-
-				BroadcastSetEntityData();
-
-				player.Inventory.RemoveItems(inHand.Id, 1);
+				if (!IsSaddled)
+				{
+					Inventory.SetSlot(0, inHand);
+					player.Inventory.RemoveItems(inHand.Id, 1); // Wrong. Should really be item in hand
+				}
 			}
 			else
 			{
@@ -147,7 +163,7 @@ namespace MiNET.Entities.Passive
 				if (!IsTamed)
 				{
 					Random random = new Random();
-					if (random.Next(100) < Temper)
+					if (random.Next(100) < Temper || player.GameMode == GameMode.Creative)
 					{
 						// Tamed
 						Temper = 100;
@@ -168,6 +184,15 @@ namespace MiNET.Entities.Passive
 
 				Mount(player);
 			}
+		}
+
+		public void SaddleHorse(bool saddle)
+		{
+			IsSaddled = saddle;
+			IsWasdControlled = saddle;
+			CanPowerJump = saddle;
+
+			BroadcastSetEntityData();
 		}
 
 		public override void Mount(Entity rider)
@@ -261,6 +286,7 @@ namespace MiNET.Entities.Passive
 					_horse.Level.RelayBroadcast(entityEvent);
 					_horse.Unmount(_horse.Rider);
 				}
+
 				_rideTime++;
 			}
 			else
@@ -282,6 +308,162 @@ namespace MiNET.Entities.Passive
 				_horse.IsRearing = false;
 				_horse.BroadcastSetEntityData();
 			}
+		}
+	}
+
+	public class HorseInventory : IInventory
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (HorseInventory));
+
+		private readonly Horse _horse;
+
+		public Item Slot0 { get; private set; } = new ItemAir();
+		public Item Slot1 { get; private set; } = new ItemAir();
+
+		public HorseInventory(Horse horse)
+		{
+			_horse = horse;
+		}
+
+		public void Open(Player player)
+		{
+			if (!_horse.IsTamed) return;
+
+			player.SetOpenInventory(this);
+
+			McpeUpdateEquipment equ = McpeUpdateEquipment.CreateObject();
+			equ.entityId = _horse.EntityId;
+			equ.windowId = 2;
+			equ.windowType = 12;
+
+			Nbt nbt = new Nbt
+			{
+				NbtFile = new NbtFile
+				{
+					BigEndian = false,
+					UseVarInt = true,
+					RootTag = GetNbt()
+				}
+			};
+			equ.namedtag = nbt;
+
+			player.SendPackage(equ);
+
+			McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
+			containerSetContent.inventoryId = 2;
+			containerSetContent.input = new ItemStacks() {Slot0, Slot1};
+			player.SendPackage(containerSetContent);
+		}
+
+		public Item GetSlot(int slot)
+		{
+			Item item = null;
+			if (slot == 0)
+				item = Slot0;
+			else if (slot == 1)
+				item = Slot1;
+
+			return item ?? new ItemAir();
+		}
+
+		public void SetSlot(int slot, Item item)
+		{
+			if (item == null) item = new ItemAir();
+
+			if (slot == 0)
+			{
+				Slot0 = item;
+
+				_horse.SaddleHorse(item is ItemSaddle);
+			}
+			else if (slot == 1)
+			{
+				Slot1 = item;
+				_horse.Chest = item;
+				_horse.BroadcastArmor();
+			}
+		}
+
+		public NbtCompound GetNbt()
+		{
+			NbtCompound root = new NbtCompound("");
+			root.Add(
+				new NbtList("slots")
+				{
+					new NbtCompound()
+					{
+						new NbtList("acceptedItems")
+						{
+							new NbtCompound()
+							{
+								new NbtCompound("slotItem")
+								{
+									new NbtByte("Count", 1),
+									new NbtShort("Damage", 0),
+									new NbtShort("id", 329),
+								},
+							}
+						},
+						new NbtCompound("item")
+						{
+							new NbtByte("Count", Slot0.Count),
+							new NbtShort("Damage", Slot0.Metadata),
+							new NbtShort("id", Slot0.Id),
+						},
+						new NbtInt("slotNumber", 0)
+					},
+					new NbtCompound()
+					{
+						new NbtList("acceptedItems")
+						{
+							new NbtCompound()
+							{
+								new NbtCompound("slotItem")
+								{
+									new NbtByte("Count", 1),
+									new NbtShort("Damage", 0),
+									new NbtShort("id", 416),
+								},
+							},
+							new NbtCompound()
+							{
+								new NbtCompound("slotItem")
+								{
+									new NbtByte("Count", 1),
+									new NbtShort("Damage", 0),
+									new NbtShort("id", 417),
+								},
+							},
+							new NbtCompound()
+							{
+								new NbtCompound("slotItem")
+								{
+									new NbtByte("Count", 1),
+									new NbtShort("Damage", 0),
+									new NbtShort("id", 418),
+								},
+							},
+							new NbtCompound()
+							{
+								new NbtCompound("slotItem")
+								{
+									new NbtByte("Count", 1),
+									new NbtShort("Damage", 0),
+									new NbtShort("id", 419),
+								},
+							},
+						},
+						new NbtCompound("item")
+						{
+							new NbtByte("Count", Slot1.Count),
+							new NbtShort("Damage", Slot1.Metadata),
+							new NbtShort("id", Slot1.Id),
+						},
+						new NbtInt("slotNumber", 1)
+					},
+				});
+
+			return root;
 		}
 	}
 }

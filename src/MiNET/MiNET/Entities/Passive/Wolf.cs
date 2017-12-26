@@ -126,11 +126,11 @@ namespace MiNET.Entities.Passive
 			MetadataDictionary metadata = base.GetMetadata();
 			metadata[1] = new MetadataInt(12);
 			metadata[2] = new MetadataInt(0);
-			metadata[3] = new MetadataByte(CollarColor);
+			metadata[(int) MetadataFlags.Color] = new MetadataByte(CollarColor);
 			//metadata[4] = new MetadataString("Testing");
 			if (Owner != null)
 			{
-				metadata[5] = new MetadataLong(Owner.EntityId);
+				metadata[(int) MetadataFlags.Owner] = new MetadataLong(Owner.EntityId);
 			}
 			metadata[7] = new MetadataShort(300);
 			metadata[8] = new MetadataInt(0);

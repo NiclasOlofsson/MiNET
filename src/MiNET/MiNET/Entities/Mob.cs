@@ -30,6 +30,8 @@ using System.Numerics;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Entities.Behaviors;
+using MiNET.Items;
+using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -53,6 +55,11 @@ namespace MiNET.Entities
 
 		public bool IsRidden { get; set; }
 
+		public Item Boots { get; set; }
+		public Item Leggings { get; set; }
+		public Item Chest { get; set; }
+		public Item Helmet { get; set; }
+
 		public Entity Target { get; private set; }
 
 		public Mob(int entityTypeId, Level level) : base(entityTypeId, level)
@@ -65,6 +72,18 @@ namespace MiNET.Entities
 		public Mob(EntityType mobTypes, Level level) : this((int) mobTypes, level)
 		{
 		}
+
+		public virtual void BroadcastArmor()
+		{
+			McpeMobArmorEquipment armorEquipment = McpeMobArmorEquipment.CreateObject();
+			armorEquipment.runtimeEntityId = EntityId;
+			armorEquipment.helmet = Helmet;
+			armorEquipment.chestplate = Chest;
+			armorEquipment.leggings = Leggings;
+			armorEquipment.boots = Boots;
+			Level.RelayBroadcast(armorEquipment);
+		}
+
 
 		public virtual void SetTarget(Entity target)
 		{

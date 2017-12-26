@@ -43,10 +43,19 @@ namespace MiNET.BuilderBase.Masks
 			public bool IgnoreMetadata { get; set; } = true;
 		}
 
-		private List<BlockDataEntry> _blockList = new List<BlockDataEntry>();
+		private class MaskEntry
+		{
+			public bool AboveOnly { get; set; }
+			public bool BelowOnly { get; set; }
+			public bool Inverted { get; set; }
+
+			public List<BlockDataEntry> BlockList = new List<BlockDataEntry>();
+		}
 
 		public Level Level { get; set; }
 		public string OriginalMask { get; set; }
+
+		MaskEntry[] _masks = new MaskEntry[0];
 
 		// Used by command handler
 		public Mask()
@@ -57,18 +66,49 @@ namespace MiNET.BuilderBase.Masks
 		{
 			Level = level;
 
+			MaskEntry entry = new MaskEntry();
+
 			foreach (var block in blocks)
 			{
-				_blockList.Add(new BlockDataEntry() {Id = block.Id, Metadata = block.Metadata, IgnoreMetadata = ignoreMetadata});
+				entry.BlockList.Add(new BlockDataEntry() {Id = block.Id, Metadata = block.Metadata, IgnoreMetadata = ignoreMetadata});
 			}
+
+			_masks = new[] {entry};
 		}
 
 		public virtual bool Test(BlockCoordinates coordinates)
 		{
+			foreach (var mask in _masks)
+			{
+				if (!Test(coordinates, mask)) return false;
+			}
+
+			return true;
+		}
+
+		private bool Test(BlockCoordinates coordinates, MaskEntry mask)
+		{
 			if (Level == null) return true;
 
+			if (mask.AboveOnly)
+			{
+				coordinates += BlockCoordinates.Down;
+			}
+			else if (mask.BelowOnly)
+			{
+				coordinates += BlockCoordinates.Up;
+			}
+
 			Block block = Level.GetBlock(coordinates);
-			return _blockList.Exists(entry => entry.Id == block.Id && (entry.IgnoreMetadata || block.Metadata == entry.Metadata));
+
+			var matches = mask.BlockList.Exists(entry => entry.Id == block.Id && (entry.IgnoreMetadata || block.Metadata == entry.Metadata));
+
+			if (mask.Inverted)
+			{
+				return !matches;
+			}
+
+			return matches;
 		}
 
 		public virtual void Deserialize(Player player, string input)
@@ -84,34 +124,61 @@ namespace MiNET.BuilderBase.Masks
 
 			OriginalMask = input;
 
-			var patterns = input.Split(',');
+			string[] inputs = input.Split(' ');
 
-			foreach (var pattern in patterns)
+			_masks = new MaskEntry[inputs.Length];
+			for (int i = 0; i < inputs.Length; i++)
 			{
-				var blockInfos = pattern.Split(':');
+				MaskEntry entry = new MaskEntry();
+				_masks[i] = entry;
 
-				var dataEntry = new BlockDataEntry();
+				string currentPattern = inputs[i];
 
-				byte id;
-
-				string binfo = blockInfos[0];
-				if (!byte.TryParse(binfo, out id))
+				if (currentPattern.StartsWith(">")) // Only place above certain blocks
 				{
-					id = BlockFactory.GetBlockIdByName(binfo);
+					entry.AboveOnly = true;
+					currentPattern = currentPattern.Remove(0, 1); // remove starting x
+				}
+				else if (currentPattern.StartsWith("<")) // Only place below certain blocks
+				{
+					entry.BelowOnly = true;
+					currentPattern = currentPattern.Remove(0, 1); // remove starting x
+				}
+				else if (currentPattern.StartsWith("!")) // Only place if NOT certain blocks
+				{
+					entry.Inverted = true;
+					currentPattern = currentPattern.Remove(0, 1); // remove starting x
 				}
 
-				dataEntry.Id = id;
+				var patterns = currentPattern.Split(',');
 
-				if (blockInfos.Length == 2)
+				foreach (var pattern in patterns)
 				{
-					byte metadata;
+					var blockInfos = pattern.Split(':');
 
-					byte.TryParse(blockInfos[1], out metadata);
-					dataEntry.Metadata = metadata;
-					dataEntry.IgnoreMetadata = false;
+					var dataEntry = new BlockDataEntry();
+
+					byte id;
+
+					string binfo = blockInfos[0];
+					if (!byte.TryParse(binfo, out id))
+					{
+						id = BlockFactory.GetBlockIdByName(binfo);
+					}
+
+					dataEntry.Id = id;
+
+					if (blockInfos.Length == 2)
+					{
+						byte metadata;
+
+						byte.TryParse(blockInfos[1], out metadata);
+						dataEntry.Metadata = metadata;
+						dataEntry.IgnoreMetadata = false;
+					}
+
+					entry.BlockList.Add(dataEntry);
 				}
-
-				_blockList.Add(dataEntry);
 			}
 		}
 	}

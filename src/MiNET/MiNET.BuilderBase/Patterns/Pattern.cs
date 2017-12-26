@@ -94,16 +94,16 @@ namespace MiNET.BuilderBase.Patterns
 			return block;
 		}
 
-		public virtual void Deserialize(Player player, string input)
+		public virtual void Deserialize(Player player, string currentPattern)
 		{
 			// x20%1:0
 			// x<weight>%<blockId>:<blockData>,<weight>%<blockId>:<blockData> .. <weight>%<blockId>:<blockData>
 
-			if (input.StartsWith("x")) input = input.Remove(0, 1); // remove starting x
+			if (currentPattern.StartsWith("x")) currentPattern = currentPattern.Remove(0, 1); // remove starting x
 
-			OriginalPattern = input;
+			OriginalPattern = currentPattern;
 
-			var patterns = input.Split(',');
+			var patterns = currentPattern.Split(',');
 
 			foreach (var pattern in patterns)
 			{

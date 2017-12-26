@@ -306,7 +306,7 @@ namespace MiNET.BuilderBase
 		{
 			Vector3 max = GetMax();
 			Vector3 min = GetMin();
-			return (max + min)/2;
+			return min + ((max - min)/2f);
 		}
 	}
 }

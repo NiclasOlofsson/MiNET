@@ -101,10 +101,11 @@ namespace MiNET.Entities
 		public enum MetadataFlags
 		{
 			EntityFlags = 0,
-			Variant = 3,
+			Variant = 2,
 			Color = 3,
 			HideNameTag = 3,
 			NameTag = 4,
+			Owner = 5,
 			AvailableAir = 7,
 			PotionColor = 8,
 			EatingHaystack = 16,

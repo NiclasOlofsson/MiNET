@@ -34,8 +34,8 @@ namespace MiNET.BuilderBase
 
 		public Block GetBlockInLineOfSight(Level level, PlayerLocation knownPosition, int range = 300, bool returnLastAir = false, bool limitHeight = true)
 		{
-			var origin = knownPosition;
-			origin.Y += 1.62f;
+			Vector3 origin = knownPosition + new Vector3(0, 1.62f, 0);
+
 			Vector3 velocity2 = knownPosition.GetHeadDirection();
 			double distance = range;
 			velocity2 = Vector3.Normalize(velocity2)/2;
@@ -43,12 +43,9 @@ namespace MiNET.BuilderBase
 			Block lastAir = null;
 			for (int i = 0; i < Math.Ceiling(distance)*2; i++)
 			{
-				PlayerLocation nextPos = (PlayerLocation) origin.Clone();
-				nextPos.X += (float) velocity2.X*i;
-				nextPos.Y += (float) velocity2.Y*i;
-				nextPos.Z += (float) velocity2.Z*i;
+				Vector3 nextPos = origin + velocity2*i;
 
-				BlockCoordinates coord = new BlockCoordinates(nextPos);
+				BlockCoordinates coord = nextPos;
 				Block block = level.GetBlock(coord);
 
 				if (!limitHeight && coord.Y >= 255) block = new Air {Coordinates = block.Coordinates};
@@ -56,8 +53,8 @@ namespace MiNET.BuilderBase
 				bool lookingDownFromHeaven = (origin.Y > coord.Y && coord.Y > 255);
 				bool lookingUpAtHeaven = (origin.Y < coord.Y);
 
-				bool collided = !lookingDownFromHeaven && block.IsSolid && (block.GetBoundingBox()).Contains(nextPos.ToVector3());
-				if (collided || (lookingUpAtHeaven && coord.Y > 150))
+				bool collided = !lookingDownFromHeaven && !(block is Air) && block.GetBoundingBox().Contains(nextPos);
+				if (collided || lookingUpAtHeaven && coord.Y > 150)
 				{
 					return limitHeight ? lastAir : block;
 				}
@@ -315,7 +312,7 @@ namespace MiNET.BuilderBase
 		public void Center(RegionSelector selector, Pattern pattern)
 		{
 			Vector3 centerVec = selector.GetCenter();
-			BlockCoordinates center = new BlockCoordinates((int) centerVec.X, (int) centerVec.Y, (int) centerVec.Z);
+			BlockCoordinates center = new Vector3((float) Math.Truncate(centerVec.X), (float) Math.Truncate(centerVec.Y), (float) Math.Truncate(centerVec.Z));
 
 			RegionSelector centerRegion = new RegionSelector(selector.Player);
 			centerRegion.SelectPrimary(center);

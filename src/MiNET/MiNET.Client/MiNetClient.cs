@@ -186,10 +186,11 @@ namespace MiNET.Client
 			//.ContinueWith(t => doMoveTo(t, client.CurrentLocation + new Vector3(10, 1.62f, 10)))
 
 			Task.Run(BotHelpers.DoWaitForSpawn(client))
-				.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
+				//.ContinueWith(t => BotHelpers.DoMobEquipment(client)(t, new ItemBlock(new Cobblestone(), 0) {Count = 64}, 0))
 				//.ContinueWith(t => BotHelpers.DoMoveTo(client)(t, new PlayerLocation(client.CurrentLocation.ToVector3() - new Vector3(0, 1, 0), 180, 180, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(40, 5.62f, -20, 180, 180, 180)))
-				.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
+				.ContinueWith(t => doMoveTo(t, new PlayerLocation(24, 5.62, -13, 180 + 45, 180 + 45, 180)))
+				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
 				.ContinueWith(t => doSendCommand(t, "/me says -> Hi guys! It is I!!"))
@@ -210,16 +211,14 @@ namespace MiNET.Client
 				//})
 				;
 
-			string fileName = Path.GetTempPath() + "MobSpawns_" + Guid.NewGuid() + ".txt";
-			FileStream file = File.OpenWrite(fileName);
-
-			Log.Info($"Writing mob spawns to file:\n{fileName}");
-			_mobWriter = new IndentedTextWriter(new StreamWriter(file));
-
+			//string fileName = Path.GetTempPath() + "MobSpawns_" + Guid.NewGuid() + ".txt";
+			//FileStream file = File.OpenWrite(fileName);
+			//Log.Info($"Writing mob spawns to file:\n{fileName}");
+			//_mobWriter = new IndentedTextWriter(new StreamWriter(file));
 			//Task.Run(BotHelpers.DoWaitForSpawn(client))
 			//	.ContinueWith(task =>
 			//	{
-			//		foreach (EntityType entityType in Enum.GetValues(typeof (EntityType)))
+			//		foreach (EntityType entityType in Enum.GetValues(typeof(EntityType)))
 			//		{
 			//			if (entityType == EntityType.Wither) continue;
 			//			if (entityType == EntityType.Dragon) continue;
@@ -1115,6 +1114,14 @@ namespace MiNET.Client
 				OnMcpeChangeDimension((McpeChangeDimension) message);
 			}
 
+			else if (typeof (McpeUpdateEquipment) == message.GetType())
+			{
+				OnMcpeUpdateEquipment((McpeUpdateEquipment) message);
+
+				return;
+			}
+
+
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
@@ -1549,7 +1556,8 @@ namespace MiNET.Client
 
 		private void OnMcpePlayerEquipment(McpeMobEquipment message)
 		{
-			if (Log.IsDebugEnabled) Log.Debug($"PlayerEquipment: Entity ID: {message.runtimeEntityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item ID: {message.item.Id}");
+			if (Log.IsDebugEnabled)
+				Log.Debug($"PlayerEquipment: Entity ID: {message.runtimeEntityId}, Selected Slot: {message.selectedSlot}, Slot: {message.slot}, Item: {message.item}");
 		}
 
 		private ShapedRecipe _recipeToSend = null;
@@ -2075,6 +2083,7 @@ namespace MiNET.Client
 					Log.Debug($"Bit-array datavalue: dec={dataValue} hex=0x{dataValue:x2}, bin={Convert.ToString(dataValue, 2)}b ");
 				}
 			}
+
 			if (Log.IsDebugEnabled)
 			{
 				foreach (var attribute in message.attributes)
@@ -2082,6 +2091,7 @@ namespace MiNET.Client
 					Log.Debug($"Entity attribute {attribute}");
 				}
 			}
+
 			Log.DebugFormat("Links count: {0}", message.links);
 
 			if (Log.IsDebugEnabled && _mobWriter != null)
@@ -2095,6 +2105,85 @@ namespace MiNET.Client
 				_mobWriter.WriteLine();
 				_mobWriter.Flush();
 			}
+
+			if (typeBytes[0] == (ulong) EntityType.Horse)
+			{
+				var id = message.runtimeEntityId;
+				Vector3 pos = new Vector3(message.x, message.y, message.z);
+				Task.Run(BotHelpers.DoWaitForSpawn(this))
+					.ContinueWith(t => Task.Delay(3000).Wait())
+					//.ContinueWith(task =>
+					//{
+					//	Log.Warn("Sending jump for player");
+
+					//	McpeInteract action = McpeInteract.CreateObject();
+					//	action.targetRuntimeEntityId = id;
+					//	action.actionId = (int) 3;
+					//	SendPackage(action);
+					//})
+					//.ContinueWith(t => Task.Delay(2000).Wait())
+					//.ContinueWith(task =>
+					//{
+					//	for (int i = 0; i < 10; i++)
+					//	{
+					//		Log.Warn("Mounting horse");
+
+					//		McpeInventoryTransaction transaction = McpeInventoryTransaction.CreateObject();
+					//		transaction.transaction = new Transaction()
+					//		{
+					//			TransactionType = McpeInventoryTransaction.TransactionType.ItemUseOnEntity,
+					//			Transactions = new List<TransactionRecord>(),
+					//			EntityId = id,
+					//			ActionType = 0,
+					//			Slot = 0,
+					//			Item = new ItemAir(),
+					//			//Item = new ItemBlock(new Cobblestone()) { Count = 64 },
+					//			Position = BlockCoordinates.Zero,
+					//			FromPosition = CurrentLocation,
+					//			ClickPosition = pos,
+					//		};
+
+					//		SendPackage(transaction);
+					//		Thread.Sleep(4000);
+					//	}
+
+					//})
+					.ContinueWith(task =>
+					{
+						Log.Warn("Sending sneak for player");
+
+						McpePlayerAction action = McpePlayerAction.CreateObject();
+						action.runtimeEntityId = EntityId;
+						action.actionId = (int) PlayerAction.StartSneak;
+						SendPackage(action);
+					})
+					.ContinueWith(t => Task.Delay(2000).Wait())
+					.ContinueWith(task =>
+					{
+						Log.Warn("Sending transaction for horse");
+
+						McpeInventoryTransaction transaction = McpeInventoryTransaction.CreateObject();
+						transaction.transaction = new Transaction()
+						{
+							TransactionType = McpeInventoryTransaction.TransactionType.ItemUseOnEntity,
+							Transactions = new List<TransactionRecord>(),
+							EntityId = id,
+							ActionType = 0,
+							Slot = 0,
+							Item = new ItemAir(),
+							Position = BlockCoordinates.Zero,
+							FromPosition = CurrentLocation,
+							ClickPosition = pos,
+						};
+
+						SendPackage(transaction);
+					});
+			}
+		}
+
+		private void OnMcpeUpdateEquipment(McpeUpdateEquipment message)
+		{
+			Log.Debug($"{message.namedtag.NbtFile}");
 		}
 
 		private void OnMcpeRemoveEntity(McpeRemoveEntity message)

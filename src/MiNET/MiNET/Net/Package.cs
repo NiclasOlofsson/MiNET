@@ -637,7 +637,7 @@ namespace MiNET.Net
 
 		public void Write(Nbt nbt)
 		{
-			Write(nbt, _writer.BaseStream, this is McpeBlockEntityData);
+			Write(nbt, _writer.BaseStream, this is McpeBlockEntityData || this is McpeUpdateEquipment);
 		}
 
 		public static void Write(Nbt nbt, Stream stream, bool useVarInt)
@@ -653,7 +653,7 @@ namespace MiNET.Net
 
 		public Nbt ReadNbt()
 		{
-			return ReadNbt(_reader.BaseStream, this is McpeBlockEntityData);
+			return ReadNbt(_reader.BaseStream, this is McpeBlockEntityData || this is McpeUpdateEquipment);
 		}
 
 		public static Nbt ReadNbt(Stream stream, bool useVarInt)
@@ -784,6 +784,7 @@ namespace MiNET.Net
 					WriteSignedVarInt(trans.Slot);
 					Write(trans.Item);
 					Write(trans.FromPosition);
+					Write(trans.ClickPosition);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemRelease:
 					WriteVarInt(trans.ActionType);

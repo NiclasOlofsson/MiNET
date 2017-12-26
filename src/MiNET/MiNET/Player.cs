@@ -32,11 +32,13 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
+using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
 using MiNET.Effects;
 using MiNET.Entities;
+using MiNET.Entities.Passive;
 using MiNET.Entities.World;
 using MiNET.Items;
 using MiNET.Net;
@@ -60,7 +62,7 @@ namespace MiNET
 		private Dictionary<Tuple<int, int>, McpeWrapper> _chunksUsed = new Dictionary<Tuple<int, int>, McpeWrapper>();
 		private ChunkCoordinates _currentChunkPosition;
 
-		private Inventory _openInventory;
+		private IInventory _openInventory;
 		public PlayerInventory Inventory { get; set; }
 
 		public PlayerLocation SpawnPosition { get; set; }
@@ -741,8 +743,8 @@ namespace MiNET
 					return;
 				}
 
-				SpawnPosition = SpawnPosition ?? Level.SpawnPoint;
-				KnownPosition = SpawnPosition;
+				SpawnPosition = (PlayerLocation) (SpawnPosition ?? Level.SpawnPoint).Clone();
+				KnownPosition = (PlayerLocation) SpawnPosition.Clone();
 
 				// Check if the user already exist, that case bumpt the old one
 				Level.RemoveDuplicatePlayers(Username, ClientId);
@@ -1820,13 +1822,18 @@ namespace MiNET
 
 		private object _inventorySync = new object();
 
+		public virtual void SetOpenInventory(IInventory inventory)
+		{
+			_openInventory = inventory;
+		}
+
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_inventorySync)
 			{
-				if (_openInventory != null)
+				if (_openInventory is Inventory openInventory)
 				{
-					if (_openInventory.Coordinates.Equals(inventoryCoord)) return;
+					if (openInventory.Coordinates.Equals(inventoryCoord)) return;
 					HandleMcpeContainerClose(null);
 				}
 
@@ -2138,12 +2145,17 @@ namespace MiNET
 					}
 					else if (_openInventory != null)
 					{
-						if (_openInventory.WindowsId == invId)
+						if (_openInventory is Inventory inventory && inventory.WindowsId == invId)
 						{
-							if (!oldItem.Equals(_openInventory.GetSlot((byte) slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {_openInventory.GetSlot((byte) slot)}");
+							if (!oldItem.Equals(inventory.GetSlot((byte) slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {inventory.GetSlot((byte) slot)}");
 
 							// block inventories of various kinds (chests, furnace, etc)
-							_openInventory.SetSlot(this, (byte) slot, newItem);
+							inventory.SetSlot(this, (byte) slot, newItem);
+						}
+						else if (_openInventory is HorseInventory horseInventory)
+						{
+							if (!oldItem.Equals(horseInventory.GetSlot((byte) slot))) Log.Warn($"Cursor mismatch. Client reported old item as {oldItem} and it did not match existing the item {horseInventory.GetSlot((byte) slot)}");
+							horseInventory.SetSlot(slot, newItem);
 						}
 					}
 				}
@@ -2320,25 +2332,31 @@ namespace MiNET
 
 			lock (_inventorySync)
 			{
-				var inventory = _openInventory;
-				_openInventory = null;
-
-				if (inventory == null) return;
-
-				// unsubscribe to inventory changes
-				inventory.InventoryChange -= OnInventoryChange;
-				inventory.RemoveObserver(this);
-
-				if (message != null && message.windowId != inventory.WindowsId) return;
-
-				// close container 
-				if (inventory.Type == 0 && !inventory.IsOpen())
+				if (_openInventory is Inventory inventory)
 				{
-					var tileEvent = McpeBlockEvent.CreateObject();
-					tileEvent.coordinates = inventory.Coordinates;
-					tileEvent.case1 = 1;
-					tileEvent.case2 = 0;
-					Level.RelayBroadcast(tileEvent);
+					_openInventory = null;
+
+					if (inventory == null) return;
+
+					// unsubscribe to inventory changes
+					inventory.InventoryChange -= OnInventoryChange;
+					inventory.RemoveObserver(this);
+
+					if (message != null && message.windowId != inventory.WindowsId) return;
+
+					// close container 
+					if (inventory.Type == 0 && !inventory.IsOpen())
+					{
+						var tileEvent = McpeBlockEvent.CreateObject();
+						tileEvent.coordinates = inventory.Coordinates;
+						tileEvent.case1 = 1;
+						tileEvent.case2 = 0;
+						Level.RelayBroadcast(tileEvent);
+					}
+				}
+				else if (_openInventory is HorseInventory horseInventory)
+				{
+					_openInventory = null;
 				}
 			}
 		}
@@ -2382,6 +2400,19 @@ namespace MiNET
 					// Mouse over
 					DoMouseOverInteraction(message.actionId, this);
 					target.DoMouseOverInteraction(message.actionId, this);
+					break;
+				}
+				case 6:
+				{
+					// Riding; Open inventory
+					if (IsRiding)
+					{
+						if (Level.TryGetEntity(Vehicle, out Mob mob) && mob is Horse horse)
+						{
+							horse.Inventory.Open(this);
+						}
+					}
+
 					break;
 				}
 			}

@@ -7,7 +7,11 @@ using MiNET.Utils;
 
 namespace MiNET
 {
-	public class Inventory
+	public interface IInventory
+	{
+	}
+
+	public class Inventory : IInventory
 	{
 		public event Action<Player, Inventory, byte, Item> InventoryChange;
 

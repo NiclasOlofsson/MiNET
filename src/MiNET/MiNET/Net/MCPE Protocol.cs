@@ -6158,6 +6158,11 @@ namespace MiNET.Net
 	public partial class McpeUpdateEquipment : Package<McpeUpdateEquipment>
 	{
 
+		public byte windowId; // = null;
+		public byte windowType; // = null;
+		public byte unknown; // = null;
+		public long entityId; // = null;
+		public Nbt namedtag; // = null;
 
 		public McpeUpdateEquipment()
 		{
@@ -6171,6 +6176,11 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(windowId);
+			Write(windowType);
+			Write(unknown);
+			WriteSignedVarLong(entityId);
+			Write(namedtag);
 
 			AfterEncode();
 		}
@@ -6184,6 +6194,11 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			windowId = ReadByte();
+			windowType = ReadByte();
+			unknown = ReadByte();
+			entityId = ReadSignedVarLong();
+			namedtag = ReadNbt();
 
 			AfterDecode();
 		}
@@ -6195,6 +6210,11 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
+			windowId=default(byte);
+			windowType=default(byte);
+			unknown=default(byte);
+			entityId=default(long);
+			namedtag=default(Nbt);
 		}
 
 	}

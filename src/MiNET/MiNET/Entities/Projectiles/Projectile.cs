@@ -1,5 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
+using System;
 using System.Linq;
 using System.Numerics;
 using log4net;
@@ -22,6 +46,8 @@ namespace MiNET.Entities.Projectiles
 		public int PowerLevel { get; set; } = 0;
 		public float HitBoxPrecision { get; set; } = 0.3f;
 		public Vector3 Force { get; set; } = new Vector3();
+
+		public bool BroadcastMovement { get; set; }
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
@@ -82,8 +108,13 @@ namespace MiNET.Entities.Projectiles
 				}
 				else
 				{
-					IsCritical = false;
+					if (IsCritical)
+					{
+						IsCritical = false;
+						BroadcastSetEntityData();
+					}
 				}
+
 				return;
 			}
 
@@ -187,28 +218,13 @@ namespace MiNET.Entities.Projectiles
 				d = Vector3.Normalize(direction)
 			};
 
-			var players = Level.GetSpawnedPlayers().OrderBy(player => Vector3.Distance(position, player.KnownPosition.ToVector3()));
-			foreach (var entity in players)
-			{
-				if (entity == Shooter) continue;
-				if (entity.GameMode == GameMode.Spectator) continue;
-
-				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
-				{
-					if (ray.tNear > direction.Length()) break;
-
-					Vector3 p = ray.x + new Vector3((float) ray.tNear)*ray.d;
-					KnownPosition = new PlayerLocation((float) p.X, (float) p.Y, (float) p.Z);
-					return entity;
-				}
-			}
-
-			var entities = Level.Entities.Values.OrderBy(entity => Vector3.Distance(position, entity.KnownPosition.ToVector3()));
+			var entities = Level.Entities.Values.Concat(Level.GetSpawnedPlayers()).OrderBy(entity => Vector3.Distance(position, entity.KnownPosition.ToVector3()));
 			foreach (Entity entity in entities)
 			{
 				if (entity == Shooter) continue;
 				if (entity == this) continue;
-				if (entity is Projectile) continue;
+				if (entity is Projectile) continue; // This should actually be handled for some projectiles
+				if (entity is Player player && player.GameMode == GameMode.Spectator) continue;
 
 				if (Intersect(entity.GetBoundingBox() + HitBoxPrecision, ray))
 				{
@@ -223,70 +239,7 @@ namespace MiNET.Entities.Projectiles
 			return null;
 		}
 
-		private bool CheckBlockCollide(PlayerLocation location)
-		{
-			var bbox = GetBoundingBox();
-			var pos = location.ToVector3();
-
-			var coords = new BlockCoordinates(
-				(int) Math.Floor(KnownPosition.X),
-				(int) Math.Floor((bbox.Max.Y + bbox.Min.Y)/2.0),
-				(int) Math.Floor(KnownPosition.Z));
-
-			Dictionary<double, Block> blocks = new Dictionary<double, Block>();
-
-			for (int x = -1; x < 2; x++)
-			{
-				for (int z = -1; z < 2; z++)
-				{
-					for (int y = -1; y < 2; y++)
-					{
-						Block block = Level.GetBlock(coords.X + x, coords.Y + y, coords.Z + z);
-						if (block is Air) continue;
-
-						BoundingBox blockbox = block.GetBoundingBox() + 0.3f;
-						if (blockbox.Intersects(GetBoundingBox()))
-						{
-							//if (!blockbox.Contains(KnownPosition.ToVector3())) continue;
-
-							if (block is FlowingLava || block is Lava)
-							{
-								HealthManager.Ignite(1200);
-								continue;
-							}
-
-							if (!block.IsSolid) continue;
-
-							blockbox = block.GetBoundingBox();
-
-							var midPoint = blockbox.Min + new Vector3(0.5f);
-							blocks.Add(Vector3.Distance((pos - Velocity), midPoint), block);
-						}
-					}
-				}
-			}
-
-			if (blocks.Count == 0) return false;
-
-			var firstBlock = blocks.OrderBy(pair => pair.Key).First().Value;
-
-			BoundingBox boundingBox = firstBlock.GetBoundingBox();
-			if (!SetIntersectLocation(boundingBox, KnownPosition.ToVector3()))
-			{
-				// No real hit
-				return false;
-			}
-
-			// Use to debug hits, makes visual impressions (can be used for paintball too)
-			var substBlock = new Stone {Coordinates = firstBlock.Coordinates};
-			Level.SetBlock(substBlock);
-			// End debug block
-
-			Velocity = Vector3.Zero;
-			return true;
-		}
-
-		public bool SetIntersectLocation(BoundingBox bbox, Vector3 location)
+		private bool SetIntersectLocation(BoundingBox bbox, Vector3 location)
 		{
 			Ray ray = new Ray(location - Velocity, Vector3.Normalize(Velocity));
 			double? distance = ray.Intersects(bbox);
@@ -330,22 +283,9 @@ namespace MiNET.Entities.Projectiles
 			}
 		}
 
-		public bool BroadcastMovement { get; set; }
-
-
-		public static Vector3 GetMinimum(BoundingBox bbox)
-		{
-			return bbox.Min;
-		}
-
-		public static Vector3 GetMaximum(BoundingBox bbox)
-		{
-			return bbox.Max;
-		}
-
 		public static bool Intersect(BoundingBox aabb, Ray2 ray)
 		{
-			Vector3 min = GetMinimum(aabb), max = GetMaximum(aabb);
+			Vector3 min = aabb.Min, max = aabb.Max;
 			double ix = ray.x.X;
 			double iy = ray.x.Y;
 			double iz = ray.x.Z;
@@ -371,6 +311,7 @@ namespace MiNET.Entities.Projectiles
 					ray.n.Z = 0;
 				}
 			}
+
 			t = (max.X - ix)/ray.d.X;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
@@ -388,6 +329,7 @@ namespace MiNET.Entities.Projectiles
 					ray.n.Z = 0;
 				}
 			}
+
 			t = (min.Y - iy)/ray.d.Y;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
@@ -405,6 +347,7 @@ namespace MiNET.Entities.Projectiles
 					ray.n.Z = 0;
 				}
 			}
+
 			t = (max.Y - iy)/ray.d.Y;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
@@ -422,6 +365,7 @@ namespace MiNET.Entities.Projectiles
 					ray.n.Z = 0;
 				}
 			}
+
 			t = (min.Z - iz)/ray.d.Z;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
@@ -439,6 +383,7 @@ namespace MiNET.Entities.Projectiles
 					ray.n.Z = -1;
 				}
 			}
+
 			t = (max.Z - iz)/ray.d.Z;
 			if (t < ray.tNear && t > -Ray2.EPSILON)
 			{
@@ -456,6 +401,7 @@ namespace MiNET.Entities.Projectiles
 					ray.n.Z = 1;
 				}
 			}
+
 			return hit;
 		}
 	}

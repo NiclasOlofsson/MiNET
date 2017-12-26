@@ -1037,6 +1037,11 @@ namespace MiNET.Worlds
 			return block;
 		}
 
+		public bool IsBlock(int x, int y, int z, int blockId)
+		{
+			return IsBlock(new BlockCoordinates(x, y, z), blockId);
+		}
+
 		public bool IsBlock(BlockCoordinates blockCoordinates, int blockId)
 		{
 			ChunkColumn chunk = GetChunk(blockCoordinates);
@@ -1110,20 +1115,22 @@ namespace MiNET.Worlds
 			return chunk;
 		}
 
-		public void SetBlock(int x, int y, int z, int blockId, int metadata = 0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		public void SetBlock(int x, int y, int z, int blockId, int metadata = 0, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
 			Block block = BlockFactory.GetBlockById((byte) blockId);
 			block.Coordinates = new BlockCoordinates(x, y, z);
 			block.Metadata = (byte) metadata;
-			SetBlock(block, broadcast, applyPhysics, calculateLight);
+			SetBlock(block, broadcast, applyPhysics, calculateLight, possibleChunk);
 		}
 
 
-		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
 			if (block.Coordinates.Y < 0) return;
 
-			ChunkColumn chunk = GetChunk(new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4));
+			ChunkColumn chunk;
+			var chunkCoordinates = new ChunkCoordinates(block.Coordinates.X >> 4, block.Coordinates.Z >> 4);
+			chunk = possibleChunk != null && possibleChunk.x == chunkCoordinates.X && possibleChunk.z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
 
 
 			if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(null, this, block, null)))

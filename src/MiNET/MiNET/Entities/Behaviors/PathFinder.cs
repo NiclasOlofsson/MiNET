@@ -720,10 +720,10 @@ namespace MiNET.Entities.Behaviors
 			return block;
 		}
 
-		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
 			_blockCache.Remove(block.Coordinates);
-			_level.SetBlock(block, broadcast, applyPhysics, calculateLight);
+			_level.SetBlock(block, broadcast, applyPhysics, calculateLight, possibleChunk);
 		}
 	}
 }

@@ -106,7 +106,7 @@ namespace MiNET.Worlds
 		{
 		}
 
-		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true)
+		public void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null)
 		{
 		}
 	}

@@ -35,6 +35,6 @@ namespace MiNET.Worlds
 		void SetSkyLight(BlockCoordinates coordinates, byte skyLight);
 		int GetHeight(BlockCoordinates coordinates);
 		Block GetBlock(BlockCoordinates coord, ChunkColumn tryChunk = null);
-		void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true);
+		void SetBlock(Block block, bool broadcast = true, bool applyPhysics = true, bool calculateLight = true, ChunkColumn possibleChunk = null);
 	}
 }

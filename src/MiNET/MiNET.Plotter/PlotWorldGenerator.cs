@@ -82,32 +82,60 @@ namespace MiNET.Plotter
 		public static void ResetBlocks(Level level, BoundingBox bbox, bool repopulate = false)
 		{
 			bbox = bbox.GetAdjustedBoundingBox();
+			ChunkColumn chunk = null;
+			Dictionary<ChunkCoordinates, ChunkColumn> chunks = new Dictionary<ChunkCoordinates, ChunkColumn>();
 			for (int x = (int) bbox.Min.X; x < (int) bbox.Max.X + 1; x++)
 			{
 				for (int z = (int) bbox.Min.Z; z < (int) bbox.Max.Z + 1; z++)
 				{
-					level.SetBiomeId(new BlockCoordinates(x, 0, z), 1);
+					var blockCoord = new BlockCoordinates(x, 0, z);
+					ChunkCoordinates chunkCoordinates = (ChunkCoordinates)blockCoord;
+					if (chunk == null || chunk.x != chunkCoordinates.X || chunk.z != chunkCoordinates.Z)
+					{
+						if(!chunks.TryGetValue(chunkCoordinates, out chunk))
+						{
+							chunk = level.GetChunk(chunkCoordinates, true);
+							chunks[chunkCoordinates] = chunk;
+						}
+					}
+
+					level.SetBiomeId(blockCoord, 1);
+					int height = 255;
+					if (chunk != null)
+					{
+						height = chunk.GetHeight(blockCoord.X & 0x0f, blockCoord.Z & 0x0f);
+					}
+
 					for (int y = 0; y < 256; y++)
 					{
-						if (y == 0) level.SetBlock(x, y, z, 7); // Bedrock
+						if (y == 0)
+						{
+							level.SetBlock(x, y, z, 7, applyPhysics: false, calculateLight: false, possibleChunk: chunk); // Bedrock
+						}
 						else if (repopulate && y == PlotHeight)
 						{
 							var block = PlotPattern.Next(new BlockCoordinates(x, PlotHeight, z));
-							level.SetBlock(block); // grass
+							level.SetBlock(block, applyPhysics: false, calculateLight: false, possibleChunk: chunk); // grass
 						}
 						else if (y >= PlotHeight)
 						{
-							if (!level.IsAir(new BlockCoordinates(x, y, z)))
+							if (y <= height || !level.IsAir(new BlockCoordinates(x, y, z)))
 							{
-								level.SetAir(x, y, z); // Air
+								level.SetBlock(x, y, z, 0, applyPhysics: false, calculateLight: false, possibleChunk: chunk); // grass
 							}
 						}
 						else if (y == PlotHeight - 1)
-							level.SetBlock(x, y, z, 2); // grass
+						{
+							level.SetBlock(x, y, z, 2, applyPhysics: false, calculateLight: false, possibleChunk: chunk); // grass
+						}
 						else if (y > PlotHeight - 4)
-							level.SetBlock(x, y, z, 3); // dirt
+						{
+							level.SetBlock(x, y, z, 3, applyPhysics: false, calculateLight: false, possibleChunk: chunk); // dirt
+						}
 						else
-							level.SetBlock(x, y, z, 1); // stone
+						{
+							level.SetBlock(x, y, z, 1, applyPhysics: false, calculateLight: false, possibleChunk: chunk); // stone
+						}
 					}
 				}
 			}

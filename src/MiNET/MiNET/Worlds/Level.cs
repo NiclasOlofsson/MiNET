@@ -1133,7 +1133,7 @@ namespace MiNET.Worlds
 			chunk = possibleChunk != null && possibleChunk.x == chunkCoordinates.X && possibleChunk.z == chunkCoordinates.Z ? possibleChunk : GetChunk(chunkCoordinates);
 
 
-			if (!AllowBuild || !OnBlockPlace(new BlockPlaceEventArgs(null, this, block, null)))
+			if (!OnBlockPlace(new BlockPlaceEventArgs(null, this, block, null)))
 			{
 				return;
 			}

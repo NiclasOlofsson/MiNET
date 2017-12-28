@@ -37,15 +37,6 @@ namespace MiNET
 	[TestFixture]
 	public class MinetAnvilTest
 	{
-		[Test, Ignore("")]
-		public void ChunkCoordTest()
-		{
-			int by = 30;
-			var a = 16*(by >> 4);
-			var b = by & 0xfffffff0;
-			Assert.AreEqual(a, b);
-		}
-
 		[Test]
 		public void NibbleTest()
 		{
@@ -306,42 +297,53 @@ namespace MiNET
 		}
 
 
-		//[Test, Ignore]
-		//public void LoadAnvilChunkLoadTest()
-		//{
-		//	int width = 32;
-		//	int depth = 32;
+		[Test, Ignore("")]
+		public void LoadAnvilChunkLoadTest()
+		{
+			int width = 32;
+			int depth = 32;
 
-		//	int cx = (width*4) + 3;
-		//	int cz = (depth*25) + 0;
+			string basePath = @"D:\Development\Worlds\KingsLanding";
+			int regionX = 4;
+			int regionZ = 25;
+			//string basePath = @"D:\Temp\TestSave130";
+			//int regionX = 0;
+			//int regionZ = 0;
 
-		//	ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
+			int cx = (width*regionX) + 3;
+			int cz = (depth*regionZ) + 0;
 
-		//	int rx = coordinates.X >> 5;
-		//	int rz = coordinates.Z >> 5;
+			ChunkCoordinates coordinates = new ChunkCoordinates(cx, cz);
 
-		//	Assert.AreEqual(4, rx);
-		//	Assert.AreEqual(25, rz);
+			int rx = coordinates.X >> 5;
+			int rz = coordinates.Z >> 5;
 
-		//	string basePath = @"D:\Downloads\KingsLanding1";
-		//	var generator = new FlatlandWorldProvider();
+			Assert.AreEqual(regionX, rx);
+			Assert.AreEqual(regionZ, rz);
 
-		//	Stopwatch sw = new Stopwatch();
-		//	sw.Start();
+			//IWorldGenerator generator = new AirWorldGenerator();
+			IWorldGenerator generator = null;
 
-		//	int iterations = 1024;
-		//	for (int i = 0; i < iterations; i++)
-		//	{
-		//		AnvilWorldProvider.GetChunk(coordinates, basePath, generator, 30);
-		//	}
+			Stopwatch sw = new Stopwatch();
+			sw.Start();
 
-		//	long ticks = sw.ElapsedTicks;
-		//	long ms = sw.ElapsedMilliseconds;
+			AnvilWorldProvider wp = new AnvilWorldProvider(basePath);
 
-		//	//Assert.Less(ticks/iterations, 100);
+			int iterations = 1000;
+			ChunkColumn chunk = null;
+			for (int i = 0; i < iterations; i++)
+			{
+				chunk = wp.GetChunk(coordinates, basePath, generator);
+			}
 
-		//	Console.WriteLine("Read {0} chunk-columns in {1}ns ({3}ms) at a rate of {2}ns/col", iterations, ticks, ticks/iterations, ms);
-		//}
+			long ticks = sw.ElapsedTicks;
+			long ms = sw.ElapsedMilliseconds;
+
+			Console.WriteLine($"Read {iterations} chunk-columns in {ticks}ns ({ms}ms) at a rate of {ticks/iterations}ticks/col. 1ms={TimeSpan.TicksPerMillisecond}");
+
+			Assert.NotNull(chunk);
+			Assert.Less(ticks/iterations, 100);
+		}
 
 
 		[Test, Ignore("")]

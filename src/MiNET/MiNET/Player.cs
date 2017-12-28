@@ -743,6 +743,8 @@ namespace MiNET
 					return;
 				}
 
+				OnPlayerJoining(new PlayerEventArgs(this));
+
 				SpawnPosition = (PlayerLocation) (SpawnPosition ?? Level.SpawnPoint).Clone();
 				KnownPosition = (PlayerLocation) SpawnPosition.Clone();
 
@@ -3372,6 +3374,13 @@ namespace MiNET
 
 
 		// Events
+
+		public event EventHandler<PlayerEventArgs> PlayerJoining;
+
+		protected virtual void OnPlayerJoining(PlayerEventArgs e)
+		{
+			PlayerJoining?.Invoke(this, e);
+		}
 
 		public event EventHandler<PlayerEventArgs> PlayerJoin;
 

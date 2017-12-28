@@ -377,6 +377,7 @@ namespace MiNET.Plotter
 		public string PlotDelete(Player player, bool force = false)
 		{
 			PlotCoordinates coords = (PlotCoordinates) player.KnownPosition;
+			if (!force && !_plotManager.HasClaim(coords, player)) return "Not able to reset plot at this position.";
 			if (!_plotManager.TryGetPlot(coords, out Plot plot) && !force) return "Not able to delete plot at this position.";
 			if (plot != null && !_plotManager.Delete(plot)) return "Not able to delete plot at this position.";
 
@@ -384,5 +385,17 @@ namespace MiNET.Plotter
 
 			return $"Deleted plot {coords.X},{coords.Z}.";
 		}
+
+		[Command(Name = "plot resend")]
+		[Authorize(Permission = 4)]
+		public void PlotResendChunks(Player player)
+		{
+			Task.Run(() =>
+			{
+				player.CleanCache();
+				player.ForcedSendChunks(() => { player.SendMessage($"Resent chunks."); });
+			});
+		}
+
 	}
 }

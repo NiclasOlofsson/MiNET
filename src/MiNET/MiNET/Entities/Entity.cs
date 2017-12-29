@@ -109,7 +109,7 @@ namespace MiNET.Entities
 			AvailableAir = 7,
 			PotionColor = 8,
 			EatingHaystack = 16,
-			FirworksType = 16,
+			FireworksType = 16,
 			MaybeAge = 25,
 			BedPosition = 29,
 			Scale = 39,

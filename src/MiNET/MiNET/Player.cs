@@ -250,7 +250,7 @@ namespace MiNET
 			}
 		}
 
-		private void SendResourcePacksInfo()
+		public virtual void SendResourcePacksInfo()
 		{
 			McpeResourcePacksInfo packInfo = McpeResourcePacksInfo.CreateObject();
 			if (_serverHaveResources)
@@ -265,7 +265,7 @@ namespace MiNET
 			SendPackage(packInfo);
 		}
 
-		private void SendResourcePackStack()
+		public virtual void SendResourcePackStack()
 		{
 			McpeResourcePackStack packStack = McpeResourcePackStack.CreateObject();
 			if (_serverHaveResources)

@@ -291,8 +291,8 @@ namespace MiNET
 			{
 				if (Level.TryGetEntity(Vehicle, out Entity entity))
 				{
-                    entity.IsRearing = true;
-                    entity.BroadcastSetEntityData();
+					entity.IsRearing = true;
+					entity.BroadcastSetEntityData();
 				}
 			}
 		}

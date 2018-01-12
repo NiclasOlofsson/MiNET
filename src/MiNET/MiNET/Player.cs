@@ -289,10 +289,10 @@ namespace MiNET
 		{
 			if (IsRiding && Vehicle > 0)
 			{
-				if (Level.TryGetEntity(Vehicle, out Mob mob))
+				if (Level.TryGetEntity(Vehicle, out Entity entity))
 				{
-					mob.IsRearing = true;
-					mob.BroadcastSetEntityData();
+                    entity.IsRearing = true;
+                    entity.BroadcastSetEntityData();
 				}
 			}
 		}
@@ -2388,9 +2388,9 @@ namespace MiNET
 			{
 				case 3:
 				{
-					if (Level.TryGetEntity(Vehicle, out Mob mob))
+					if (Level.TryGetEntity(Vehicle, out Entity entity))
 					{
-						mob.Unmount(this);
+						entity.Unmount(this);
 					}
 
 					break;

@@ -43,6 +43,11 @@ namespace MiNET.Utils.Skins
 		public string SkinGeometryName { get; set; }
 		public string SkinGeometry { get; set; }
 
+		public Skin()
+		{
+			CapeData = new byte[0];
+		}
+
 		public static byte[] GetTextureFromFile(string filename)
 		{
 			Bitmap bitmap = new Bitmap(filename);

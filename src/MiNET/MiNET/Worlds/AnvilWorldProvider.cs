@@ -403,7 +403,6 @@ namespace MiNET.Worlds
 
 							chunkColumn.isDirty = false;
 							chunkColumn.NeedSave = false;
-
 						}
 
 						return chunkColumn;
@@ -489,10 +488,10 @@ namespace MiNET.Worlds
 
 								if (blockEntity is Sign)
 								{
-								    if (Log.IsDebugEnabled) Log.Debug($"Loaded sign block entity\n{blockEntityTag}");
+									if (Log.IsDebugEnabled) Log.Debug($"Loaded sign block entity\n{blockEntityTag}");
 									// Remove the JSON stuff and get the text out of extra data.
-                                    // TAG_String("Text2"): "{"extra":["10c a loaf!"],"text":""}"
-                                    CleanSignText(blockEntityTag, "Text1");
+									// TAG_String("Text2"): "{"extra":["10c a loaf!"],"text":""}"
+									CleanSignText(blockEntityTag, "Text1");
 									CleanSignText(blockEntityTag, "Text2");
 									CleanSignText(blockEntityTag, "Text3");
 									CleanSignText(blockEntityTag, "Text4");
@@ -676,14 +675,14 @@ namespace MiNET.Worlds
 			}
 		}
 
-	    private static Regex _regex = new Regex(@"^((\{""extra"":\[)?)(\{""text"":"".*?""})(],)?(""text"":"".*?""})?$");
+		private static Regex _regex = new Regex(@"^((\{""extra"":\[)?)(\{""text"":"".*?""})(],)?(""text"":"".*?""})?$");
 
-	    private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
-	    {
-	        var text = blockEntityTag[tagName].StringValue;
-	        var replace = /*Regex.Unescape*/(_regex.Replace(text, "$3"));
-	        blockEntityTag[tagName] = new NbtString(tagName, replace);
-	    }
+		private static void CleanSignText(NbtCompound blockEntityTag, string tagName)
+		{
+			var text = blockEntityTag[tagName].StringValue;
+			var replace = /*Regex.Unescape*/(_regex.Replace(text, "$3"));
+			blockEntityTag[tagName] = new NbtString(tagName, replace);
+		}
 
 		private static byte Nibble4(byte[] arr, int index)
 		{
@@ -738,7 +737,8 @@ namespace MiNET.Worlds
 
 			if (!Directory.Exists(BasePath))
 				Directory.CreateDirectory(BasePath);
-			else if (File.Exists(leveldat)) return; // What if this is changed? Need a dirty flag on this
+			else if (File.Exists(leveldat))
+				return; // What if this is changed? Need a dirty flag on this
 
 			if (LevelInfo.SpawnY <= 0) LevelInfo.SpawnY = 256;
 
@@ -899,7 +899,9 @@ namespace MiNET.Worlds
 
 				if (offset == 0 || sectorCount == 0 || nbtSectorCount > sectorCount)
 				{
-					if (Log.IsDebugEnabled) if (sectorCount != 0) Log.Warn($"Creating new sectors for this chunk even tho it existed. Old sector count={sectorCount}, new sector count={nbtSectorCount} (lenght={nbtLength})");
+					if (Log.IsDebugEnabled)
+						if (sectorCount != 0)
+							Log.Warn($"Creating new sectors for this chunk even tho it existed. Old sector count={sectorCount}, new sector count={nbtSectorCount} (lenght={nbtLength})");
 
 					regionFile.Seek(0, SeekOrigin.End);
 					offset = (int) ((int) regionFile.Position & 0xfffffff0);

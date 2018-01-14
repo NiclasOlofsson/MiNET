@@ -250,7 +250,7 @@ namespace MiNET
 			}
 		}
 
-		private void SendResourcePacksInfo()
+		public virtual void SendResourcePacksInfo()
 		{
 			McpeResourcePacksInfo packInfo = McpeResourcePacksInfo.CreateObject();
 			if (_serverHaveResources)
@@ -265,7 +265,7 @@ namespace MiNET
 			SendPackage(packInfo);
 		}
 
-		private void SendResourcePackStack()
+		public virtual void SendResourcePackStack()
 		{
 			McpeResourcePackStack packStack = McpeResourcePackStack.CreateObject();
 			if (_serverHaveResources)
@@ -742,6 +742,8 @@ namespace MiNET
 					Disconnect("No level assigned.");
 					return;
 				}
+
+				OnPlayerJoining(new PlayerEventArgs(this));
 
 				SpawnPosition = (PlayerLocation) (SpawnPosition ?? Level.SpawnPoint).Clone();
 				KnownPosition = (PlayerLocation) SpawnPosition.Clone();
@@ -3372,6 +3374,13 @@ namespace MiNET
 
 
 		// Events
+
+		public event EventHandler<PlayerEventArgs> PlayerJoining;
+
+		protected virtual void OnPlayerJoining(PlayerEventArgs e)
+		{
+			PlayerJoining?.Invoke(this, e);
+		}
 
 		public event EventHandler<PlayerEventArgs> PlayerJoin;
 

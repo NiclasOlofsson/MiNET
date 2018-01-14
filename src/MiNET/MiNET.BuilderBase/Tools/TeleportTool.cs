@@ -102,7 +102,7 @@ namespace MiNET.BuilderBase.Tools
 			var pos = target.Coordinates;
 			var known = player.KnownPosition;
 			var newPosition = new PlayerLocation(pos.X, stayOnY ? known.Y - 1.62f : pos.Y + 1.62f, pos.Z, known.HeadYaw, known.Yaw, known.Pitch);
-			player.SendMessage($"Wrooom to {target.Id} {newPosition}");
+			player.SendMessage($"Wrooom to {(BlockCoordinates) newPosition}");
 			player.Teleport(newPosition);
 		}
 	}

@@ -67,18 +67,15 @@ namespace MiNET.Items
 
 			if (!Block.CanPlace(world, player, targetCoordinates, face))
 			{
-				Log.Debug("Could not place block");
 				return;
 			}
 
 			if (Block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
 			{
-				Log.Debug($"Handled placement of {Block}");
 				return; // Handled
 			}
 
 			world.SetBlock(Block);
-			Log.Debug($"Placed {Block}");
 		}
 	}
 }

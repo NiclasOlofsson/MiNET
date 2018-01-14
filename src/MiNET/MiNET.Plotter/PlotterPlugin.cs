@@ -57,24 +57,7 @@ namespace MiNET.Plotter
 
 		private void LevelOnPlayerAdded(object sender, LevelEventArgs e)
 		{
-			var plotPlayer = _plotManager.GetOrAddPlotPlayer(e.Player);
-			var pos = plotPlayer.LastPosition ?? plotPlayer.Home;
-			if (pos != null)
-			{
-				int height = e.Level.GetHeight((BlockCoordinates) pos);
-				if (pos.Y < height)
-				{
-					pos.Y = height;
-				}
-				else
-				{
-					e.Player.IsFlying = true;
-					e.Player.SendAdventureSettings();
-				}
-
-				e.Player.SpawnPosition = pos;
-				e.Player.KnownPosition = pos;
-			}
+			SetSpawnPosition(e.Player, e.Level);
 		}
 
 		private void LevelOnPlayerRemoved(object sender, LevelEventArgs e)
@@ -92,10 +75,10 @@ namespace MiNET.Plotter
 			Context.PluginManager.LoadCommands(new VanillaCommands());
 			Context.PluginManager.LoadCommands(new PlotCommands(_plotManager));
 
-			server.PlayerFactory.PlayerCreated += (sender, args) =>
+			server.PlayerFactory.PlayerCreated += (sender, e) =>
 			{
-				Player player = args.Player;
-				player.PlayerJoin += OnPlayerJoin;
+				Player player = e.Player;
+				player.PlayerJoining += OnPlayerJoin;
 				player.PlayerLeave += OnPlayerLeave;
 				player.Ticking += OnTicking;
 			};
@@ -156,13 +139,37 @@ namespace MiNET.Plotter
 			}
 		}
 
+		private void OnPlayerJoin(object sender, PlayerEventArgs e)
+		{
+			SetSpawnPosition(e.Player, e.Level);
+		}
+
+		private void SetSpawnPosition(Player player, Level level)
+		{
+			var plotPlayer = _plotManager.GetOrAddPlotPlayer(player);
+			var pos = plotPlayer.LastPosition ?? plotPlayer.Home;
+			if (pos != null)
+			{
+				int height = level.GetHeight((BlockCoordinates) pos);
+				if (pos.Y < height)
+				{
+					pos.Y = height;
+				}
+				else
+				{
+					player.IsFlying = true;
+					player.SendAdventureSettings();
+				}
+
+				player.SpawnPosition = pos;
+				player.KnownPosition = pos;
+			}
+		}
+
 		private void OnPlayerLeave(object sender, PlayerEventArgs e)
 		{
 		}
 
-		private void OnPlayerJoin(object sender, PlayerEventArgs e)
-		{
-		}
 
 		private void LevelOnBlockBreak(object sender, BlockBreakEventArgs e)
 		{

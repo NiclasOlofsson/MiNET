@@ -1,3 +1,28 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using log4net;
 using MiNET.Blocks;
@@ -96,35 +121,39 @@ namespace MiNET.BuilderBase.Commands
 		}
 
 		[Command(Description = "Generates a hollow sphere")]
-		public void Hsphere(Player player, int radius, BlockTypeEnum tileName = null, int tileData = 0)
+		public void Hsphere(Player player, Pattern pattern, int radius)
 		{
-			Sphere(player, radius, radius, radius, tileName, tileData, false);
+			Sphere(player, pattern, radius, radius, radius, false);
 		}
 
 		[Command(Description = "Generates a hollow sphere")]
-		public void Hsphere(Player player, int radiusX, int radiusY = 0, int radiusZ = 0, BlockTypeEnum tileName = null, int tileData = 0)
+		public void Hsphere(Player player, Pattern pattern, int radiusX, int radiusY = 0, int radiusZ = 0)
 		{
-			Sphere(player, radiusX, radiusY, radiusZ, tileName, tileData, false);
+			Sphere(player, pattern, radiusX, radiusY, radiusZ, false);
 		}
 
 		[Command(Description = "Generates a filled sphere")]
-		public void Sphere(Player player, int radius, BlockTypeEnum tileName = null, int tileData = 0, bool filled = true)
+		public void Sphere(Player player, Pattern pattern, int radius, bool filled = true)
 		{
-			Sphere(player, radius, radius, radius, tileName, tileData, filled);
+			Sphere(player, pattern, radius, radius, radius, filled);
 		}
 
 		[Command(Description = "Generates a filled sphere")]
-		public void Sphere(Player player, int radiusX, int radiusY = 0, int radiusZ = 0, BlockTypeEnum tileName = null, int tileData = 0, bool filled = true)
+		public void Sphere(Player player, Pattern pattern, int radiusX, int radiusY = 0, int radiusZ = 0, bool filled = true)
 		{
-			if (tileName == null) tileName = new BlockTypeEnum {Value = "stone"};
 			if (radiusY == 0) radiusY = radiusX;
 			if (radiusZ == 0) radiusZ = radiusX;
 
-			var id = BlockFactory.GetBlockIdByName(tileName.Value);
-
-			var pattern = new Pattern(id, tileData);
-
 			EditSession.MakeSphere((BlockCoordinates) player.KnownPosition, pattern, radiusX, radiusY, radiusZ, filled);
+		}
+
+		[Command(Description = "Generates a filled cylinder")]
+		public void Cylinder(Player player, Pattern pattern, int radiusX, int height = 0, int radiusZ = 0, bool filled = true)
+		{
+			if (height == 0) height = 1;
+			if (radiusZ == 0) radiusZ = radiusX;
+
+			EditSession.MakeCylinder((BlockCoordinates) player.KnownPosition, pattern, radiusX, radiusZ, height, filled);
 		}
 
 		[Command(Description = "Grass, 2 layers of dirt, then rock below")]

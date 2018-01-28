@@ -44,6 +44,8 @@ namespace MiNET.Blocks
 
 		public override void DoPhysics(Level level)
 		{
+			if (level.GameMode == GameMode.Creative) return;
+
 			if (level.GetSubtractedLight(Coordinates + BlockCoordinates.Up) < 4)
 			{
 				Block dirt = BlockFactory.GetBlockById(3);
@@ -54,6 +56,7 @@ namespace MiNET.Blocks
 
 		public override void OnTick(Level level, bool isRandom)
 		{
+			if (level.GameMode == GameMode.Creative) return;
 			if (!isRandom) return;
 
 			var lightLevel = level.GetSubtractedLight(Coordinates + BlockCoordinates.Up);

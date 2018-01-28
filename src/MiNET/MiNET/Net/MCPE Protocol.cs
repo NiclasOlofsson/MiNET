@@ -2051,6 +2051,10 @@ namespace MiNET.Net
 		public bool trustPlayers; // = null;
 		public int permissionLevel; // = null;
 		public int gamePublishSetting; // = null;
+		public int serverChunkTickRange; // = null;
+		public bool hasPlatformBroadcast; // = null;
+		public int platformBroadcastMode; // = null;
+		public bool xblBroadcastIntent; // = null;
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
@@ -2081,7 +2085,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(gamemode);
 			WriteSignedVarInt(difficulty);
 			WriteSignedVarInt(x);
-			WriteSignedVarInt(y);
+			WriteVarInt(y);
 			WriteSignedVarInt(z);
 			Write(hasAchievementsDisabled);
 			WriteSignedVarInt(dayCycleStopTime);
@@ -2099,6 +2103,10 @@ namespace MiNET.Net
 			Write(trustPlayers);
 			WriteSignedVarInt(permissionLevel);
 			WriteSignedVarInt(gamePublishSetting);
+			Write(serverChunkTickRange);
+			Write(hasPlatformBroadcast);
+			WriteSignedVarInt(platformBroadcastMode);
+			Write(xblBroadcastIntent);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
@@ -2129,7 +2137,7 @@ namespace MiNET.Net
 			gamemode = ReadSignedVarInt();
 			difficulty = ReadSignedVarInt();
 			x = ReadSignedVarInt();
-			y = ReadSignedVarInt();
+			y = ReadVarInt();
 			z = ReadSignedVarInt();
 			hasAchievementsDisabled = ReadBool();
 			dayCycleStopTime = ReadSignedVarInt();
@@ -2147,6 +2155,10 @@ namespace MiNET.Net
 			trustPlayers = ReadBool();
 			permissionLevel = ReadSignedVarInt();
 			gamePublishSetting = ReadSignedVarInt();
+			serverChunkTickRange = ReadInt();
+			hasPlatformBroadcast = ReadBool();
+			platformBroadcastMode = ReadSignedVarInt();
+			xblBroadcastIntent = ReadBool();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
@@ -2193,6 +2205,10 @@ namespace MiNET.Net
 			trustPlayers=default(bool);
 			permissionLevel=default(int);
 			gamePublishSetting=default(int);
+			serverChunkTickRange=default(int);
+			hasPlatformBroadcast=default(bool);
+			platformBroadcastMode=default(int);
+			xblBroadcastIntent=default(bool);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
@@ -2208,8 +2224,11 @@ namespace MiNET.Net
 
 		public UUID uuid; // = null;
 		public string username; // = null;
+		public string thirdpartyName; // = null;
+		public int platformId; // = null;
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
+		public string platformChatId; // = null;
 		public float x; // = null;
 		public float y; // = null;
 		public float z; // = null;
@@ -2243,8 +2262,11 @@ namespace MiNET.Net
 
 			Write(uuid);
 			Write(username);
+			Write(thirdpartyName);
+			WriteSignedVarInt(platformId);
 			WriteSignedVarLong(entityIdSelf);
 			WriteUnsignedVarLong(runtimeEntityId);
+			Write(platformChatId);
 			Write(x);
 			Write(y);
 			Write(z);
@@ -2278,8 +2300,11 @@ namespace MiNET.Net
 
 			uuid = ReadUUID();
 			username = ReadString();
+			thirdpartyName = ReadString();
+			platformId = ReadSignedVarInt();
 			entityIdSelf = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
+			platformChatId = ReadString();
 			x = ReadFloat();
 			y = ReadFloat();
 			z = ReadFloat();
@@ -2311,8 +2336,11 @@ namespace MiNET.Net
 
 			uuid=default(UUID);
 			username=default(string);
+			thirdpartyName=default(string);
+			platformId=default(int);
 			entityIdSelf=default(long);
 			runtimeEntityId=default(long);
+			platformChatId=default(string);
 			x=default(float);
 			y=default(float);
 			z=default(float);
@@ -4423,8 +4451,7 @@ namespace MiNET.Net
 
 		public uint selectedSlot; // = null;
 		public byte windowId; // = null;
-		public MetadataInts hotbarData; // = null;
-		public byte unknown; // = null;
+		public bool selectSlot; // = null;
 
 		public McpePlayerHotbar()
 		{
@@ -4440,8 +4467,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarInt(selectedSlot);
 			Write(windowId);
-			Write(hotbarData);
-			Write(unknown);
+			Write(selectSlot);
 
 			AfterEncode();
 		}
@@ -4457,8 +4483,7 @@ namespace MiNET.Net
 
 			selectedSlot = ReadUnsignedVarInt();
 			windowId = ReadByte();
-			hotbarData = ReadMetadataInts();
-			unknown = ReadByte();
+			selectSlot = ReadBool();
 
 			AfterDecode();
 		}
@@ -4472,8 +4497,7 @@ namespace MiNET.Net
 
 			selectedSlot=default(uint);
 			windowId=default(byte);
-			hotbarData=default(MetadataInts);
-			unknown=default(byte);
+			selectSlot=default(bool);
 		}
 
 	}

@@ -39,6 +39,7 @@ namespace MiNET.Entities.Passive
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Horse));
 
+		public int Markings { get; set; }
 		public bool IsEating { get; set; }
 		public double JumpStrength { get; set; }
 		public int Temper { get; set; }
@@ -52,6 +53,7 @@ namespace MiNET.Entities.Passive
 
 			var random = rnd ?? new Random((int) DateTime.UtcNow.Ticks);
 			Variant = random.Next(7);
+			Markings = random.Next(5);
 			Speed = (0.45 + random.NextDouble()*0.3D + random.NextDouble()*0.3D + random.NextDouble()*0.3)*0.25D;
 			JumpStrength = 0.4 + random.NextDouble()*0.2 + random.NextDouble()*0.2 + random.NextDouble()*0.2;
 
@@ -75,10 +77,10 @@ namespace MiNET.Entities.Passive
 			Scale = IsBaby ? 0.5582917f : 1.0;
 			var metadata = base.GetMetadata();
 			metadata[(int) MetadataFlags.Variant] = new MetadataInt(Variant);
+			metadata[(int) MetadataFlags.Markings] = new MetadataInt(Markings);
 			metadata[(int) MetadataFlags.EatingHaystack] = new MetadataInt(EatingHaystack);
 			if (IsTamed)
 			{
-				metadata[44] = new MetadataInt(2);
 				metadata[45] = new MetadataByte(12);
 				metadata[46] = new MetadataInt(2);
 			}

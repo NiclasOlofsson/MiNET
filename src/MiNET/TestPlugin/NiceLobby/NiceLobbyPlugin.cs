@@ -386,20 +386,11 @@ namespace TestPlugin.NiceLobby
 			}
 
 
-			int idx = 1;
-			player.Inventory.Slots[idx++] = new ItemBed() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new SnowLayer()) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Stone()) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			int idx = 8;
+			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBed() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Beacon(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new IronBlock(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemDiamond() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Lever(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Trapdoor(), 0) {Count = 64};
 
 			var fireworks = new ItemFireworks() {Count = 64};
 
@@ -452,21 +443,21 @@ namespace TestPlugin.NiceLobby
 			});
 
 			player.Inventory.Slots[idx++] = fireworks;
-			player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
-			player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemArrow() {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) {Count = 64};
-			player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
-			player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBread() {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemSnowball() {Count = 16};
+			//player.Inventory.Slots[idx++] = new ItemBow() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemArrow() {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Torch(), 0) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemBlock(new Stone(), 0) {Count = 64};
+			//player.Inventory.Slots[idx++] = new ItemWheat() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemCarrot() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
+			//player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
 
-			player.Inventory.Helmet = new ItemDiamondHelmet();
-			player.Inventory.Chest = new ItemElytra();
-			player.Inventory.Leggings = new ItemDiamondLeggings();
-			player.Inventory.Boots = new ItemDiamondBoots();
+			//player.Inventory.Helmet = new ItemDiamondHelmet();
+			//player.Inventory.Chest = new ItemElytra();
+			//player.Inventory.Leggings = new ItemDiamondLeggings();
+			//player.Inventory.Boots = new ItemDiamondBoots();
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();

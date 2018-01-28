@@ -114,6 +114,7 @@ namespace MiNET.Entities
 			BedPosition = 29,
 			Scale = 39,
 			MaxAir = 43,
+			Markings = 44,
 			CollisionBoxWidth = 54,
 			CollisionBoxHeight = 55,
 

@@ -33,45 +33,6 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class ChunkPool<T>
-	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkPool<T>));
-
-		private ConcurrentQueue<T> _objects;
-
-		private Func<T> _objectGenerator;
-
-		public void FillPool(int count)
-		{
-			for (int i = 0; i < count; i++)
-			{
-				var item = _objectGenerator();
-				_objects.Enqueue(item);
-			}
-		}
-
-		public ChunkPool(Func<T> objectGenerator)
-		{
-			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
-			_objects = new ConcurrentQueue<T>();
-			_objectGenerator = objectGenerator;
-		}
-
-		public T GetObject()
-		{
-			T item;
-			if (_objects.TryDequeue(out item)) return item;
-			return _objectGenerator();
-		}
-
-		const long MaxPoolSize = 10000000;
-
-		public void PutObject(T item)
-		{
-			_objects.Enqueue(item);
-		}
-	}
-
 	public class Chunk : ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
@@ -176,14 +137,19 @@ namespace MiNET.Worlds
 			return _cache;
 		}
 
+		//private bool _isAllAir = true;
+		//private bool _isDirty;
+
 		public object Clone()
 		{
-			Chunk cc = (Chunk) MemberwiseClone();
+			Chunk cc = Chunk.CreateObject();
+			cc._isAllAir = _isAllAir;
+			cc._isDirty = _isDirty;
 
-			cc.blocks = (byte[]) blocks.Clone();
-			cc.metadata = (NibbleArray) metadata.Clone();
-			cc.blocklight = (NibbleArray) blocklight.Clone();
-			cc.skylight = (NibbleArray) skylight.Clone();
+			blocks.CopyTo(cc.blocks, 0);
+			metadata.Data.CopyTo(cc.metadata.Data, 0);
+			blocklight.Data.CopyTo(cc.blocklight.Data, 0);
+			skylight.Data.CopyTo(cc.skylight.Data, 0);
 
 			if (_cache != null)
 			{
@@ -225,6 +191,45 @@ namespace MiNET.Worlds
 		{
 			Log.Error($"Unexpected dispose chunk");
 		}
-
 	}
+
+	public class ChunkPool<T>
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkPool<T>));
+
+		private ConcurrentQueue<T> _objects;
+
+		private Func<T> _objectGenerator;
+
+		public void FillPool(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				var item = _objectGenerator();
+				_objects.Enqueue(item);
+			}
+		}
+
+		public ChunkPool(Func<T> objectGenerator)
+		{
+			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
+			_objects = new ConcurrentQueue<T>();
+			_objectGenerator = objectGenerator;
+		}
+
+		public T GetObject()
+		{
+			T item;
+			if (_objects.TryDequeue(out item)) return item;
+			return _objectGenerator();
+		}
+
+		const long MaxPoolSize = 10000000;
+
+		public void PutObject(T item)
+		{
+			_objects.Enqueue(item);
+		}
+	}
+
 }

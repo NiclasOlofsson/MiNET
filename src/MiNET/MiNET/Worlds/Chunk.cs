@@ -13,17 +13,18 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using fNbt;
@@ -32,6 +33,45 @@ using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
+	public class ChunkPool<T>
+	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkPool<T>));
+
+		private ConcurrentQueue<T> _objects;
+
+		private Func<T> _objectGenerator;
+
+		public void FillPool(int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				var item = _objectGenerator();
+				_objects.Enqueue(item);
+			}
+		}
+
+		public ChunkPool(Func<T> objectGenerator)
+		{
+			if (objectGenerator == null) throw new ArgumentNullException("objectGenerator");
+			_objects = new ConcurrentQueue<T>();
+			_objectGenerator = objectGenerator;
+		}
+
+		public T GetObject()
+		{
+			T item;
+			if (_objects.TryDequeue(out item)) return item;
+			return _objectGenerator();
+		}
+
+		const long MaxPoolSize = 10000000;
+
+		public void PutObject(T item)
+		{
+			_objects.Enqueue(item);
+		}
+	}
+
 	public class Chunk : ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
@@ -154,5 +194,37 @@ namespace MiNET.Worlds
 
 			return cc;
 		}
+
+		private static readonly ChunkPool<Chunk> Pool = new ChunkPool<Chunk>(() => new Chunk());
+
+		public static Chunk CreateObject()
+		{
+			return Pool.GetObject();
+		}
+
+		public void PutPool()
+		{
+			Reset();
+			Pool.PutObject(this);
+		}
+
+		public virtual void Reset()
+		{
+			_isAllAir = true;
+			Array.Clear(blocks, 0, blocks.Length);
+			Array.Clear(metadata.Data, 0, metadata.Data.Length);
+			Array.Clear(blocklight.Data, 0, blocklight.Data.Length);
+			//Array.Clear(skylight.Data, 0, skylight.Data.Length);
+			ChunkColumn.Fill<byte>(skylight.Data, 0xff);
+
+			_cache = null;
+			_isDirty = false;
+		}
+
+		~Chunk()
+		{
+			Log.Error($"Unexpected dispose chunk");
+		}
+
 	}
 }

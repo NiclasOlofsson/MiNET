@@ -298,6 +298,12 @@ namespace MiNET.Worlds
 						{
 							SaveChunk(waste, BasePath);
 						}
+
+						foreach (var chunk in waste.chunks)
+						{
+							chunk.PutPool();
+						}
+
 						Interlocked.Increment(ref removed);
 					}
 				});

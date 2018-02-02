@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -47,7 +47,8 @@ namespace MiNET.Worlds
 		public int x;
 		public int z;
 
-		public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
+		//public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
+		public Chunk[] chunks = new Chunk[16];
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
 		public short[] height = new short[256];
@@ -65,9 +66,12 @@ namespace MiNET.Worlds
 
 		public ChunkColumn()
 		{
+			for (int i = 0; i < 16; i++)
+			{
+				chunks[i] = Chunk.CreateObject();
+			}
+
 			isDirty = false;
-			//BiomeUtils utils = new BiomeUtils();
-			//utils.PrecomputeBiomeColors();
 		}
 
 		private void SetDirty()

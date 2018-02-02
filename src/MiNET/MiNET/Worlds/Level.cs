@@ -223,6 +223,13 @@ namespace MiNET.Worlds
 				foreach (var chunk in provider._chunkCache)
 				{
 					chunk.Value?.ClearCache();
+					if (chunk.Value?.chunks != null)
+					{
+						foreach (var c in chunk.Value?.chunks)
+						{
+							c.PutPool();
+						}
+					}
 				}
 			}
 

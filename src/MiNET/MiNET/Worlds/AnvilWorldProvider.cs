@@ -1062,9 +1062,7 @@ namespace MiNET.Worlds
 
 							if (!surroundingChunkCoordinates.Equals(chunkCoordinates))
 							{
-								ChunkColumn surroundingChunkColumn;
-
-								_chunkCache.TryGetValue(surroundingChunkCoordinates, out surroundingChunkColumn);
+								_chunkCache.TryGetValue(surroundingChunkCoordinates, out var surroundingChunkColumn);
 
 								if (surroundingChunkColumn != null && !surroundingChunkColumn.isAllAir)
 								{
@@ -1077,7 +1075,15 @@ namespace MiNET.Worlds
 
 					if (surroundingIsAir)
 					{
+						_chunkCache.TryGetValue(chunkCoordinates, out var chunk);
 						_chunkCache[chunkCoordinates] = null;
+						if (chunk != null)
+						{
+							foreach (var c in chunk.chunks)
+							{
+								c.PutPool();
+							}
+						}
 						prunedChunks++;
 					}
 				}

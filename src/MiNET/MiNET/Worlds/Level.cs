@@ -217,19 +217,19 @@ namespace MiNET.Worlds
 			Players = null;
 			Entities = null;
 
-			AnvilWorldProvider provider = WorldProvider as AnvilWorldProvider;
-			if (provider != null)
+			if (WorldProvider is AnvilWorldProvider provider)
 			{
 				foreach (var chunk in provider._chunkCache)
 				{
-					chunk.Value?.ClearCache();
-					if (chunk.Value?.chunks != null)
+					provider._chunkCache.TryRemove(chunk.Key, out var waste);
+					if (waste == null) continue;
+
+					foreach (var c in waste.chunks)
 					{
-						foreach (var c in chunk.Value?.chunks)
-						{
-							c.PutPool();
-						}
+						c.PutPool();
 					}
+
+					waste.ClearCache();
 				}
 			}
 

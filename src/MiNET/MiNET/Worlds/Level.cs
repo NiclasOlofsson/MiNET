@@ -107,7 +107,7 @@ namespace MiNET.Worlds
 		public Random Random { get; private set; }
 
 		public int SaveInterval { get; set; } = 300;
-		public int UnloadInterval { get; set; } = 100;
+		public int UnloadInterval { get; set; } = -1;
 
 		public Level(LevelManager levelManager, string levelId, IWorldProvider worldProvider, EntityManager entityManager, GameMode gameMode = GameMode.Survival, Difficulty difficulty = Difficulty.Normal, int viewDistance = 11)
 		{
@@ -497,7 +497,7 @@ namespace MiNET.Worlds
 				}
 
 				// Unload chunks not needed
-				if (TickTime%(UnloadInterval*20) == 0)
+				if (UnloadInterval > 0 && TickTime%(UnloadInterval*20) == 0)
 				{
 					var cacheProvider = WorldProvider as ICachingWorldProvider;
 					int removed = cacheProvider?.UnloadChunks(players, (ChunkCoordinates) (BlockCoordinates) SpawnPoint, ViewDistance) ?? 0;

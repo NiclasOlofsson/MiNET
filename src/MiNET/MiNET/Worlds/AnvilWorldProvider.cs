@@ -288,13 +288,15 @@ namespace MiNET.Worlds
 					if (!coords.Contains(chunkCoordinates)) coords.Add(chunkCoordinates);
 				}
 
+				bool save = Config.GetProperty("Save.Enabled", false);
+
 				Parallel.ForEach(_chunkCache, (chunkColumn) =>
 				{
 					bool keep = coords.Exists(c => c.DistanceTo(chunkColumn.Key) < maxViewDistance);
 					if (!keep)
 					{
 						_chunkCache.TryRemove(chunkColumn.Key, out var waste);
-						if (waste.NeedSave)
+						if (save && waste.NeedSave)
 						{
 							SaveChunk(waste, BasePath);
 						}

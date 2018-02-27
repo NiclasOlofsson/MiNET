@@ -132,6 +132,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | long [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-long) |
 | MapInfo [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MapInfo) |
 | MetadataDictionary [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MetadataDictionary) |
+| MetadataInts [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-MetadataInts) |
 | Nbt [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Nbt) |
 | OFFLINE_MESSAGE_DATA_ID [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-OFFLINE_MESSAGE_DATA_ID) |
 | PlayerAttributes [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-PlayerAttributes) |
@@ -399,9 +400,6 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Permission Level | SignedVarInt |  |
 |Game Publish Setting | SignedVarInt |  |
 |Server Chunk Tick Range | int |  |
-|Has Platform Broadcast | bool |  |
-|Platform Broadcast Mode | SignedVarInt |  |
-|XBL Broadcast Intent | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -424,11 +422,8 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Thirdparty Name | string |  |
-|Platform ID | SignedVarInt |  |
 |Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
-|Platform Chat ID | string |  |
 |X | float |  |
 |Y | float |  |
 |Z | float |  |
@@ -1182,6 +1177,7 @@ Wiki: [Player Hotbar](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Pla
 |:-----|:-----|:-----|
 |Selected Slot | UnsignedVarInt |  |
 |Window ID | byte |  |
+|Hotbar Data | MetadataInts |  |
 |Select Slot  | bool |  |
 -----------------------------------------------------------------------
 ### Inventory Content (0x31)

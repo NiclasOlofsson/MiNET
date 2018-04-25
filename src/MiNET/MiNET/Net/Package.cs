@@ -450,7 +450,10 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
+					Write(""); //TODO: third party name
+					WriteSignedVarInt(0); //TODO: platform
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
+					Write(""); //TODO: platform chat ID
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -482,7 +485,10 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
+						ReadString(); //TODO: third party name
+						ReadSignedVarInt(); //TODO: platform
 						player.Skin = ReadSkin();
+						ReadString(); //TODO: platform chat ID
 						records.Add(player);
 						//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 					}

@@ -282,7 +282,7 @@ namespace MiNET
 
 		public virtual void HandleMcpePlayerInput(McpePlayerInput message)
 		{
-			Log.Debug($"Player input: x={message.motionX}, z={message.motionZ}, flag1={message.flag1}, flag2={message.flag2}");
+			Log.Debug($"Player input: x={message.motionX}, z={message.motionZ}, jumping={message.jumping}, sneaking={message.sneaking}");
 		}
 
 		public void HandleMcpeRiderJump(McpeRiderJump message)
@@ -1476,12 +1476,12 @@ namespace MiNET
 			}
 		}
 
-		protected virtual void SendChangeDimension(Dimension dimension, bool flag = false, Vector3 position = new Vector3())
+		protected virtual void SendChangeDimension(Dimension dimension, bool respawn = false, Vector3 position = new Vector3())
 		{
 			McpeChangeDimension changeDimension = McpeChangeDimension.CreateObject();
 			changeDimension.dimension = (int) dimension;
 			changeDimension.position = position;
-			changeDimension.unknown = flag;
+			changeDimension.respawn = respawn;
 			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
 			SendPackage(changeDimension);
 		}

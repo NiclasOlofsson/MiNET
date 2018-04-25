@@ -35,7 +35,7 @@ namespace MiNET.Entities.World
 			//MetadataDictionary metadata = new MetadataDictionary();
 			//metadata[0] = new MetadataLong(0); // 0
 			//metadata[1] = new MetadataInt(1);
-			metadata[2] = new MetadataInt(_original.Id | (_original.Metadata << 8));
+			metadata[2] = new MetadataInt((int)_original.GetRuntimeId());
 			//metadata[4] = new MetadataString("");
 			//metadata[5] = new MetadataLong(-1);
 			//metadata[7] = new MetadataShort(300);

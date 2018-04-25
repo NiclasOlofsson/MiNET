@@ -647,8 +647,8 @@ Wiki: [Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Coordinates | BlockCoordinates |  |
-|Block ID | UnsignedVarInt |  |
-|Block Meta And Priority | UnsignedVarInt |  |
+|Block Runtime ID | UnsignedVarInt |  |
+|Block Priority | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Add Painting (0x16)
 Wiki: [Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPainting)

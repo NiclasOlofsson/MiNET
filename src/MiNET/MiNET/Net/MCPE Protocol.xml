@@ -375,8 +375,8 @@
 			<enum id="All Priority" value="(All | Priority)" />
 		</enums>
 		<field name="Coordinates" type="BlockCoordinates" />
-		<field name="Block ID" type="UnsignedVarInt" />
-		<field name="Block Meta And Priority" type="UnsignedVarInt" />
+		<field name="Block Runtime ID" type="UnsignedVarInt" />
+		<field name="Block Priority" type="UnsignedVarInt" />
 	</pdu>
 
 	<pdu id="0x16" online="false" client="false" server="true" name="MCPE_ADD_PAINTING">

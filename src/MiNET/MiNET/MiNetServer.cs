@@ -166,7 +166,7 @@ namespace MiNET
 					PluginManager.LoadPlugins();
 					Log.Info("Plugins loaded!");
 
-					// Bootstrap server
+					// Bootstrap server~
 					PluginManager.ExecuteStartup(this);
 
 					GreylistManager = GreylistManager ?? new GreylistManager(this);

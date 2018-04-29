@@ -27,8 +27,12 @@ namespace MiNET.Net
 {
 	public partial class McpeText : Package<McpeText>
 	{
-		public string source; // = null;
-		public string message; // = null;
+		public string sourceName; // = null;
+        public string sourceThirdPartyName; // = null;
+        public int sourcePlatform; // = null;
+        public string platformChatId; // = null;
+        public string message; // = null;
+        public string xboxUserId; 
 
 		partial void AfterEncode()
 		{
@@ -39,8 +43,10 @@ namespace MiNET.Net
 				case ChatTypes.Chat:
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
-					Write(source);
-					Write(message);
+					Write(sourceName);
+                    Write(sourceThirdPartyName);
+                    WriteVarInt(sourcePlatform);
+                    Write(message);
 					break;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
@@ -54,13 +60,18 @@ namespace MiNET.Net
 					// More stuff
 					break;
 			}
+            Write(xboxUserId);
+            Write(platformChatId);
 		}
 
 		public override void Reset()
 		{
 			type = 0;
-			source = null;
-			message = null;
+			sourceName = null;
+            sourcePlatform = 0;
+            sourceThirdPartyName = null;
+            platformChatId = null;
+            message = null;
 
 			base.Reset();
 		}
@@ -75,7 +86,9 @@ namespace MiNET.Net
 				case ChatTypes.Chat:
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
-					source = ReadString();
+					sourceName = ReadString();
+                    sourcePlatform = ReadVarInt();
+                    sourceThirdPartyName = ReadString();
 					message = ReadString();
 					break;
 				case ChatTypes.Raw:
@@ -91,6 +104,8 @@ namespace MiNET.Net
 					// More stuff
 					break;
 			}
+            xboxUserId = ReadString();
+            platformChatId = ReadString();
 		}
 	}
 }

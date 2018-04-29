@@ -1390,7 +1390,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 200,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 260,
 				payload = data
 			};
 
@@ -2623,7 +2623,7 @@ namespace MiNET.Client
 		{
 			var packet = McpeText.CreateObject();
 			packet.type = (byte) MessageType.Chat;
-			packet.source = Username;
+			packet.sourceName = Username;
 			packet.message = text;
 
 			SendPackage(packet);

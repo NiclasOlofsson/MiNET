@@ -25,7 +25,7 @@ namespace MiNET.Service
 		/// </summary>
 		private void Start()
 		{
-			Log.Info("Starting MiNET as user " + Environment.UserName);
+			Log.Info("Starting NovaPlay as user " + Environment.UserName);
 			_server = new MiNetServer();
 			//_server.LevelManager = new SpreadLevelManager(Environment.ProcessorCount * 4);
 			_server.StartServer();
@@ -36,7 +36,7 @@ namespace MiNET.Service
 		/// </summary>
 		private void Stop()
 		{
-			Log.Info("Stopping MiNET");
+			Log.Info("Stopping NovaPlay");
 			_server.StopServer();
 		}
 
@@ -51,7 +51,8 @@ namespace MiNET.Service
 			{
 				var service = new MiNetService();
 				service.Start();
-				Console.WriteLine("MiNET running. Press <enter> to stop service.");
+				Console.WriteLine("NovaPlay PE server started.");
+                Console.WriteLine("To stop server just press <enter>, or CTRL+C");
 				Console.ReadLine();
 				service.Stop();
 			}
@@ -67,10 +68,10 @@ namespace MiNET.Service
 					});
 
 					host.RunAsLocalService();
-					host.SetDisplayName("MiNET Service");
-					host.SetDescription("MiNET Minecraft Pocket Edition server.");
-					host.SetServiceName("MiNET");
-				});
+                    host.SetDisplayName("MiNET Service");
+                    host.SetDescription("MiNET Minecraft Pocket Edition server.");
+                    host.SetServiceName("MiNET");
+                });
 			}
 		}
 

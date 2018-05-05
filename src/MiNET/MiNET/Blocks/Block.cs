@@ -68,7 +68,9 @@ namespace MiNET.Blocks
 			Id = id;
 		}
 
-		public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
+        public uint GetRuntimeId() => BlockFactory.GetRuntimeId(Id, Metadata);
+
+        public bool CanPlace(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face)
 		{
 			return CanPlace(world, player, Coordinates, targetCoordinates, face);
 		}

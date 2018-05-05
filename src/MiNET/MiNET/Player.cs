@@ -452,7 +452,7 @@ namespace MiNET
 				case PlayerAction.Breaking:
 				{
 					Block target = Level.GetBlock(message.coordinates);
-					int data = target.Id | (target.Metadata << 8) | message.face << 16;
+					int data = ((int)target.GetRuntimeId()) | ((byte)(message.face << 24));
 
 					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 					breakEvent.eventId = 2014;

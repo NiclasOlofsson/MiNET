@@ -1352,9 +1352,9 @@ namespace TestPlugin
 						}
 
 						var message = McpeUpdateBlock.CreateObject();
-						message.runtimeId = block.Id;
+						message.runtimeId = block.GetRuntimeId();
 						message.coordinates = block.Coordinates;
-						message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+						message.blockPriority = 0x0b;
 						level.RelayBroadcast(sendList.ToArray(), message);
 					}
 				}

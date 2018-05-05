@@ -1166,9 +1166,9 @@ namespace MiNET.Worlds
 			if (broadcast)
 			{
 				var message = McpeUpdateBlock.CreateObject();
-				message.runtimeId = block.Id;
+                message.runtimeId = block.GetRuntimeId();
 				message.coordinates = block.Coordinates;
-				message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+                message.blockPriority = 0x0b;
 				RelayBroadcast(message);
 			}
 
@@ -1339,9 +1339,9 @@ namespace MiNET.Worlds
 					player.SendPlayerInventory();
 
 					var message = McpeUpdateBlock.CreateObject();
-					message.runtimeId = block.Id;
+					message.runtimeId = block.GetRuntimeId();
 					message.coordinates = block.Coordinates;
-					message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+                    message.blockPriority = 0x0b;
 					player.SendPackage(message);
 
 					return;
@@ -1386,9 +1386,9 @@ namespace MiNET.Worlds
 		private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
 		{
 			var message = McpeUpdateBlock.CreateObject();
-			message.runtimeId = block.Id;
+			message.runtimeId = block.GetRuntimeId();
 			message.coordinates = block.Coordinates;
-			message.blockMetaAndPriority = (byte) (0xb << 4 | (block.Metadata & 0xf));
+			message.blockPriority = 0x0b;
 			player.SendPackage(message);
 
 			// Revert block entity if exists

@@ -260,22 +260,18 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
-	""NumCapeData"": 0,
-	""NumSkinData"": 1,
 	""CapeData"": """",
-	""CapeDataLength"": 0,
 	""ADRole"": 0,
 	""ClientRandomId"": {new Random().Next()},
 	""CurrentInputMode"": 1,
 	""DefaultInputMode"": 1,
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
-	""GameVersion"": ""1.2.10"",
+	""GameVersion"": ""1.5.0.1"",
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
-	""SkinDataLength"": {8192},
 	""SkinId"": ""{skin.SkinId}"",
 	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
 	""UIProfile"": 0

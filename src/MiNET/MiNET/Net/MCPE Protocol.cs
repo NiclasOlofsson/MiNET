@@ -2124,7 +2124,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(gamemode);
 			WriteSignedVarInt(difficulty);
 			WriteSignedVarInt(x);
-			WriteVarInt(y);
+			WriteSignedVarInt(y);
 			WriteSignedVarInt(z);
 			Write(hasAchievementsDisabled);
 			WriteSignedVarInt(dayCycleStopTime);
@@ -2181,7 +2181,7 @@ namespace MiNET.Net
 			gamemode = ReadSignedVarInt();
 			difficulty = ReadSignedVarInt();
 			x = ReadSignedVarInt();
-			y = ReadVarInt();
+			y = ReadSignedVarInt();
 			z = ReadSignedVarInt();
             yaw = ReadFloat();
             pitch = ReadFloat();
@@ -4513,7 +4513,8 @@ namespace MiNET.Net
 
 		public uint selectedSlot; // = null;
 		public byte windowId; // = null;
-		public bool selectSlot; // = null;
+        public MetadataInts hotbarData; // = null;
+        public bool selectSlot; // = null;
 
 		public McpePlayerHotbar()
 		{
@@ -4529,6 +4530,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarInt(selectedSlot);
 			Write(windowId);
+            Write(hotbarData);
 			Write(selectSlot);
 
 			AfterEncode();
@@ -4545,6 +4547,7 @@ namespace MiNET.Net
 
 			selectedSlot = ReadUnsignedVarInt();
 			windowId = ReadByte();
+            hotbarData = ReadMetadataInts();
 			selectSlot = ReadBool();
 
 			AfterDecode();
@@ -7638,7 +7641,7 @@ namespace MiNET.Net
             type = ReadByte();
             for (uint i = 0; i < ReadUnsignedVarInt(); i++)
             {
-                meta = new ScoreboardMetadataStore[] { new ScoreboardMetadataStore(ReadUUID(), ReadString(), ReadInt()) };
+                meta = ReadScoreboardMeta();
             }
             AfterDecode();
         }

@@ -402,10 +402,13 @@ namespace MiNET.Net
 			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
-			if (type == "target") return 0x04;
+            if (type == "wilcard") return 0x04;
+			if (type == "target") return 0x05;
+            if (type == "wilcard_target") return 0x06;
 
-			if (type == "string") return 0x0d;
-			if (type == "blockpos") return 0x0e;
+			if (type == "string") return 0x0f;
+			if (type == "blockpos") return 0x10;
+
 
 			return 0x0;
 		}

@@ -101,8 +101,12 @@ namespace MiNET.Net
 				case ChatTypes.Translation:
 				case ChatTypes.Jukeboxpopup:
 					message = ReadString();
-					// More stuff
-					break;
+                    uint parameterCount = ReadUnsignedVarInt();
+                    for (uint i = 0; i < parameterCount; ++i)
+                    {
+                        ReadString(); //TODO: translation parameters
+                    }
+                    break;
 			}
             xboxUserId = ReadString();
             platformChatId = ReadString();

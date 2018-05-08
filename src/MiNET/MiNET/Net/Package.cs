@@ -38,6 +38,7 @@ using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
+using MiNET.Scoreboards;
 using Newtonsoft.Json;
 
 namespace MiNET.Net
@@ -439,6 +440,22 @@ namespace MiNET.Net
 			return new BlockCoordinates(ReadSignedVarInt(), (int) ReadUnsignedVarInt(), ReadSignedVarInt());
 		}
 
+        public void Write(ScoreboardMetadataStore[] meta)
+        {
+            WriteUnsignedVarInt((uint)meta.Length);
+            foreach(ScoreboardMetadataStore st in meta)
+            {
+                Write(st.GetUuid());
+                Write(st.GetObjective());
+                Write(st.GetScore());
+            }
+        }
+
+        public ScoreboardMetadataStore[] ReadScoreboardMeta()
+        {
+            return new ScoreboardMetadataStore[] { new ScoreboardMetadataStore(ReadUUID(), ReadString(), ReadInt()) };
+        }
+
 		public void Write(PlayerRecords records)
 		{
 			if (records is PlayerAddRecords)
@@ -453,7 +470,10 @@ namespace MiNET.Net
 					Write(record.DisplayName ?? record.Username); // third party name?
 					WriteSignedVarInt(record.PlayerInfo.DeviceOS); // platform?
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
-				}
+                    Write(""); //TODO: third party name
+                    WriteSignedVarInt(0); //TODO: platform
+                    Write("");
+                }
 			}
 			else if (records is PlayerRemoveRecords)
 			{
@@ -487,6 +507,7 @@ namespace MiNET.Net
 						ReadString(); // third party name?
 						ReadSignedVarInt(); // platform?
 						player.Skin = ReadSkin();
+                        ReadString();
 						records.Add(player);
 						//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 					}
@@ -1193,6 +1214,7 @@ namespace MiNET.Net
 				Write(info.PackIdVersion.Version);
 				Write(info.Size);
 				Write("");
+                Write("");
 			}
 		}
 
@@ -1229,6 +1251,7 @@ namespace MiNET.Net
 			{
 				Write(info.Id);
 				Write(info.Version);
+                Write("");
 			}
 		}
 
@@ -1284,21 +1307,11 @@ namespace MiNET.Net
 			//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
 
 			Write(skin.SkinId);
-			Write((int)1);
 			WriteByteArray(skin.SkinData);
-			if(skin.CapeData != null)
-			{
-				Write((int)1);
-				WriteByteArray(skin.CapeData);
-			}
-			else
-			{
-				Write((int)0);
-			}
+			WriteByteArray(skin.CapeData);
 			Write(skin.SkinGeometryName);
 			Write(skin.SkinGeometry);
 			Write(xuid);
-			Write("");
 		}
 
 		public Skin ReadSkin()
@@ -1307,20 +1320,14 @@ namespace MiNET.Net
 
 			skin.SkinId = ReadString();
 			Log.Debug($"SkinId={skin.SkinId}");
-
-			var skinCount = ReadInt(); // num of skins
+            
 
 			skin.SkinData = ReadByteArray(false);
 			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
 
-			var capeCount = ReadInt(); // num of capes
-
-			if(capeCount > 0)
-			{
-				skin.CapeData = ReadByteArray(false);
-				Log.Debug($"CapeData lenght={skin.CapeData.Length}");
-				Log.Debug("\n" + HexDump(skin.CapeData));
-			}
+			skin.CapeData = ReadByteArray(false);
+			Log.Debug($"CapeData lenght={skin.CapeData.Length}");
+			Log.Debug("\n" + HexDump(skin.CapeData));
 
 			skin.SkinGeometryName = ReadString();
 			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
@@ -1329,8 +1336,7 @@ namespace MiNET.Net
 			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
 
 			Log.Debug("XUID=" + ReadString());
-
-			Log.Debug("Platform Chat ID=" + ReadString());
+            
 
 			return skin;
 		}
@@ -1526,15 +1532,15 @@ namespace MiNET.Net
 
 				var count = map.Decorators.Length;
 				WriteUnsignedVarInt((uint) count);
-				foreach (var decorator in map.Decorators)
-				{
-					Write((byte) decorator.Rotation);
-					Write((byte) decorator.Icon);
-					Write((byte) decorator.X);
-					Write((byte) decorator.Z);
-					Write(decorator.Label);
-					WriteUnsignedVarInt(decorator.Color);
-				}
+                Write(map.Type);
+                if(map.Type == 0)
+                {
+                    Write(new BlockCoordinates(map.X, map.Y, map.Z));
+                }
+                if (map.Type == 1)
+                {
+                    WriteEntityId(map.EntityId);
+                }
 			}
 
 			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE)
@@ -1600,18 +1606,15 @@ namespace MiNET.Net
 					}
 
 					var count = ReadUnsignedVarInt();
-					map.Decorators = new MapDecorator[count];
-					for (int i = 0; i < count; i++)
-					{
-						MapDecorator decorator = new MapDecorator();
-						decorator.Rotation = ReadByte();
-						decorator.Icon = ReadByte();
-						decorator.X = ReadByte();
-						decorator.Z = ReadByte();
-						decorator.Label = ReadString();
-						decorator.Color = ReadUnsignedVarInt();
-						map.Decorators[i] = decorator;
-					}
+                    map.Type = ReadLong();
+                    if(map.Type == 0)
+                    {
+                        ReadBlockCoordinates();
+                    }
+                    if(map.Type == 1)
+                    {
+                        ReadSignedVarLong();
+                    }
 				}
 				catch (Exception e)
 				{

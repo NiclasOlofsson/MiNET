@@ -180,12 +180,13 @@ namespace MiNET.Utils
 
 			string b64Key = Convert.ToBase64String(ecKey.PublicKey.ToDerEncoded());
 
-			long exp = DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeMilliseconds();
+			long iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+			long exp = DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
 			CertificateData certificateData = new CertificateData
 			{
 				Exp = exp,
-				Iat = exp,
+				Iat = iat,
 				ExtraData = new ExtraData
 				{
 					DisplayName = username,
@@ -194,7 +195,7 @@ namespace MiNET.Utils
 				Iss = "self",
 				IdentityPublicKey = b64Key,
 				CertificateAuthority = true,
-				Nbf = exp,
+				Nbf = iat,
 				RandomNonce = new Random().Next(),
 			};
 

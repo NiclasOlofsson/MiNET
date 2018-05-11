@@ -110,20 +110,20 @@ namespace MiNET.Entities
 			PotionColor = 8,
 			EatingHaystack = 16,
 			FireworksType = 16,
-			MaybeAge = 25,
-			BedPosition = 29,
-			Scale = 39,
-			MaxAir = 43,
-			Markings = 44,
-			CollisionBoxWidth = 54,
-			CollisionBoxHeight = 55,
+			MaybeAge = 24,
+			BedPosition = 28,
+			Scale = 38,
+			MaxAir = 42,
+			Markings = 43,
+			CollisionBoxWidth = 53,
+			CollisionBoxHeight = 54,
 
-			DataFuseLength = 56,
+			DataFuseLength = 55,
 
-			RiderSeatPosition = 57,
-			RiderRotationLocked = 58,
-			RiderMaxRotation = 59,
-			RiderMinRotation = 60,
+			RiderSeatPosition = 56,
+			RiderRotationLocked = 57,
+			RiderMaxRotation = 58,
+			RiderMinRotation = 59,
 		}
 
 		public virtual MetadataDictionary GetMetadata()
@@ -335,6 +335,7 @@ namespace MiNET.Entities
 			CanClimb,
 			CanSwim,
 			CanFly,
+			Walker,
 
 			Resting,
 			Sitting,
@@ -362,7 +363,10 @@ namespace MiNET.Entities
 			CanPowerJump,
 			Linger,
 			HasCollision,
-			AffectedByGravity
+			AffectedByGravity,
+			FireImmune,
+			Dancing,
+			Enchanted
 		}
 
 		protected virtual BitArray GetFlags()

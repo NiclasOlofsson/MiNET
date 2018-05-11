@@ -450,9 +450,10 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.DisplayName ?? record.Username); // third party name?
-					WriteSignedVarInt(record.PlayerInfo.DeviceOS); // platform?
+					Write(""); //TODO: third party name
+					WriteSignedVarInt(0); //TODO: platform
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
+					Write(""); //TODO: platform chat ID
 				}
 			}
 			else if (records is PlayerRemoveRecords)
@@ -484,9 +485,10 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
-						ReadString(); // third party name?
-						ReadSignedVarInt(); // platform?
+						ReadString(); //TODO: third party name
+						ReadSignedVarInt(); //TODO: platform
 						player.Skin = ReadSkin();
+						ReadString(); //TODO: platform chat ID
 						records.Add(player);
 						//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
 					}
@@ -1284,21 +1286,11 @@ namespace MiNET.Net
 			//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
 
 			Write(skin.SkinId);
-			Write((int)1);
 			WriteByteArray(skin.SkinData);
-			if(skin.CapeData != null)
-			{
-				Write((int)1);
-				WriteByteArray(skin.CapeData);
-			}
-			else
-			{
-				Write((int)0);
-			}
+			WriteByteArray(skin.CapeData);
 			Write(skin.SkinGeometryName);
 			Write(skin.SkinGeometry);
 			Write(xuid);
-			Write("");
 		}
 
 		public Skin ReadSkin()
@@ -1308,19 +1300,12 @@ namespace MiNET.Net
 			skin.SkinId = ReadString();
 			Log.Debug($"SkinId={skin.SkinId}");
 
-			var skinCount = ReadInt(); // num of skins
-
 			skin.SkinData = ReadByteArray(false);
 			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
 
-			var capeCount = ReadInt(); // num of capes
-
-			if(capeCount > 0)
-			{
-				skin.CapeData = ReadByteArray(false);
-				Log.Debug($"CapeData lenght={skin.CapeData.Length}");
-				Log.Debug("\n" + HexDump(skin.CapeData));
-			}
+			skin.CapeData = ReadByteArray(false);
+			Log.Debug($"CapeData lenght={skin.CapeData.Length}");
+			Log.Debug("\n" + HexDump(skin.CapeData));
 
 			skin.SkinGeometryName = ReadString();
 			Log.Debug($"SkinGeometryName={skin.SkinGeometryName}");
@@ -1329,8 +1314,6 @@ namespace MiNET.Net
 			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
 
 			Log.Debug("XUID=" + ReadString());
-
-			Log.Debug("Platform Chat ID=" + ReadString());
 
 			return skin;
 		}

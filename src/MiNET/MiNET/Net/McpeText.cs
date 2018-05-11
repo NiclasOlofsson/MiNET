@@ -40,8 +40,9 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					Write(source);
-					Write(message);
-					break;
+					Write(""); //TODO: third party name
+					WriteSignedVarInt(0); //TODO: platform
+					goto case ChatTypes.Raw;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
 				case ChatTypes.System:
@@ -51,9 +52,12 @@ namespace MiNET.Net
 				case ChatTypes.Translation:
 				case ChatTypes.Jukeboxpopup:
 					Write(message);
-					// More stuff
+					WriteUnsignedVarInt(0); //TODO: translation parameters (list of strings)
 					break;
 			}
+
+			Write(""); //TODO: XUID
+			Write(""); //TODO: platform chat ID
 		}
 
 		public override void Reset()
@@ -76,8 +80,9 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					source = ReadString();
-					message = ReadString();
-					break;
+					ReadString(); //TODO: third party name
+					ReadSignedVarInt(); //TODO: platform
+					goto case ChatTypes.Raw;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
 				case ChatTypes.System:
@@ -88,9 +93,17 @@ namespace MiNET.Net
 				case ChatTypes.Translation:
 				case ChatTypes.Jukeboxpopup:
 					message = ReadString();
+					uint parameterCount = ReadUnsignedVarInt();
+					for(uint i = 0; i < parameterCount; ++i)
+					{
+						ReadString(); //TODO: translation parameters
+					}
 					// More stuff
 					break;
 			}
+
+			ReadString(); //TODO: XUID
+			ReadString(); //TODO: platform chat ID
 		}
 	}
 }

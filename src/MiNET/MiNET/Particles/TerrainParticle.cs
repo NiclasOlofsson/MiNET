@@ -7,7 +7,7 @@ namespace MiNET.Particles
 	{
 		public TerrainParticle(Level level, Block block) : base(ParticleType.Terrain, level)
 		{
-			Data = (block.Metadata << 8) | block.Id;
+			Data = (int)block.GetRuntimeId();
 		}
 	}
 }

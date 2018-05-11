@@ -400,8 +400,8 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Game Publish Setting | SignedVarInt |  |
 |Server Chunk Tick Range | int |  |
 |Has Platform Broadcast | bool |  |
-|Platform Broadcast Mode | SignedVarInt |  |
-|XBL Broadcast Intent | bool |  |
+|Platform Broadcast Mode | UnsignedVarInt |  |
+|Xbox Live Broadcast Intent | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
@@ -424,8 +424,8 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |:-----|:-----|:-----|
 |UUID | UUID |  |
 |Username | string |  |
-|Thirdparty Name | string |  |
-|Platform ID | SignedVarInt |  |
+|Third Party Name | string |  |
+|Platform | SignedVarInt |  |
 |Entity ID Self | SignedVarLong |  |
 |Runtime Entity ID | UnsignedVarLong |  |
 |Platform Chat ID | string |  |
@@ -526,6 +526,7 @@ Wiki: [Add Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-A
 |Speed Y | float |  |
 |Speed Z | float |  |
 |Metadata | MetadataDictionary |  |
+|Is From Fishing | bool |  |
 -----------------------------------------------------------------------
 ### Take Item Entity (0x11)
 Wiki: [Take Item Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TakeItemEntity)
@@ -646,8 +647,8 @@ Wiki: [Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Coordinates | BlockCoordinates |  |
-|Block ID | UnsignedVarInt |  |
-|Block Meta And Priority | UnsignedVarInt |  |
+|Block Runtime ID | UnsignedVarInt |  |
+|Block Priority | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Add Painting (0x16)
 Wiki: [Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPainting)
@@ -994,7 +995,7 @@ Wiki: [Entity Fall](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Entit
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
 |Fall distance | float |  |
-|Unknown | bool |  |
+|Is In Void | bool |  |
 -----------------------------------------------------------------------
 ### Hurt Armor (0x26)
 Wiki: [Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-HurtArmor)
@@ -1344,8 +1345,8 @@ Wiki: [Player Input](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Play
 |:-----|:-----|:-----|
 |Motion X | float |  |
 |Motion Z | float |  |
-|Flag1 | bool |  |
-|Flag2 | bool |  |
+|Jumping | bool |  |
+|Sneaking | bool |  |
 -----------------------------------------------------------------------
 ### Full Chunk Data (0x3a)
 Wiki: [Full Chunk Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-FullChunkData)
@@ -1409,7 +1410,7 @@ Wiki: [Change Dimension](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-
 |:-----|:-----|:-----|
 |Dimension | SignedVarInt |  |
 |Position | Vector3 |  |
-|Unknown | bool |  |
+|Respawn | bool |  |
 -----------------------------------------------------------------------
 ### Set Player Game Type (0x3e)
 Wiki: [Set Player Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetPlayerGameType)
@@ -1454,6 +1455,7 @@ Wiki: [Simple Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Simp
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Event Type | ushort |  |
 -----------------------------------------------------------------------
 ### Telemetry Event (0x41)
 Wiki: [Telemetry Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-TelemetryEvent)

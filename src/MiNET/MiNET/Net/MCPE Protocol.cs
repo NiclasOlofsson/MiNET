@@ -2053,8 +2053,8 @@ namespace MiNET.Net
 		public int gamePublishSetting; // = null;
 		public int serverChunkTickRange; // = null;
 		public bool hasPlatformBroadcast; // = null;
-		public int platformBroadcastMode; // = null;
-		public bool xblBroadcastIntent; // = null;
+		public uint platformBroadcastMode; // = null;
+		public bool xboxLiveBroadcastIntent; // = null;
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
@@ -2105,8 +2105,8 @@ namespace MiNET.Net
 			WriteSignedVarInt(gamePublishSetting);
 			Write(serverChunkTickRange);
 			Write(hasPlatformBroadcast);
-			WriteSignedVarInt(platformBroadcastMode);
-			Write(xblBroadcastIntent);
+			WriteUnsignedVarInt(platformBroadcastMode);
+			Write(xboxLiveBroadcastIntent);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
@@ -2157,8 +2157,8 @@ namespace MiNET.Net
 			gamePublishSetting = ReadSignedVarInt();
 			serverChunkTickRange = ReadInt();
 			hasPlatformBroadcast = ReadBool();
-			platformBroadcastMode = ReadSignedVarInt();
-			xblBroadcastIntent = ReadBool();
+			platformBroadcastMode = ReadUnsignedVarInt();
+			xboxLiveBroadcastIntent = ReadBool();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
@@ -2207,8 +2207,8 @@ namespace MiNET.Net
 			gamePublishSetting=default(int);
 			serverChunkTickRange=default(int);
 			hasPlatformBroadcast=default(bool);
-			platformBroadcastMode=default(int);
-			xblBroadcastIntent=default(bool);
+			platformBroadcastMode=default(uint);
+			xboxLiveBroadcastIntent=default(bool);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
@@ -2224,8 +2224,8 @@ namespace MiNET.Net
 
 		public UUID uuid; // = null;
 		public string username; // = null;
-		public string thirdpartyName; // = null;
-		public int platformId; // = null;
+		public string thirdPartyName; // = null;
+		public int platform; // = null;
 		public long entityIdSelf; // = null;
 		public long runtimeEntityId; // = null;
 		public string platformChatId; // = null;
@@ -2262,8 +2262,8 @@ namespace MiNET.Net
 
 			Write(uuid);
 			Write(username);
-			Write(thirdpartyName);
-			WriteSignedVarInt(platformId);
+			Write(thirdPartyName);
+			WriteSignedVarInt(platform);
 			WriteSignedVarLong(entityIdSelf);
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(platformChatId);
@@ -2300,8 +2300,8 @@ namespace MiNET.Net
 
 			uuid = ReadUUID();
 			username = ReadString();
-			thirdpartyName = ReadString();
-			platformId = ReadSignedVarInt();
+			thirdPartyName = ReadString();
+			platform = ReadSignedVarInt();
 			entityIdSelf = ReadSignedVarLong();
 			runtimeEntityId = ReadUnsignedVarLong();
 			platformChatId = ReadString();
@@ -2336,8 +2336,8 @@ namespace MiNET.Net
 
 			uuid=default(UUID);
 			username=default(string);
-			thirdpartyName=default(string);
-			platformId=default(int);
+			thirdPartyName=default(string);
+			platform=default(int);
 			entityIdSelf=default(long);
 			runtimeEntityId=default(long);
 			platformChatId=default(string);
@@ -2524,6 +2524,7 @@ namespace MiNET.Net
 		public float speedY; // = null;
 		public float speedZ; // = null;
 		public MetadataDictionary metadata; // = null;
+		public bool isFromFishing; // = null;
 
 		public McpeAddItemEntity()
 		{
@@ -2547,6 +2548,7 @@ namespace MiNET.Net
 			Write(speedY);
 			Write(speedZ);
 			Write(metadata);
+			Write(isFromFishing);
 
 			AfterEncode();
 		}
@@ -2570,6 +2572,7 @@ namespace MiNET.Net
 			speedY = ReadFloat();
 			speedZ = ReadFloat();
 			metadata = ReadMetadataDictionary();
+			isFromFishing = ReadBool();
 
 			AfterDecode();
 		}
@@ -2591,6 +2594,7 @@ namespace MiNET.Net
 			speedY=default(float);
 			speedZ=default(float);
 			metadata=default(MetadataDictionary);
+			isFromFishing=default(bool);
 		}
 
 	}
@@ -2869,8 +2873,8 @@ namespace MiNET.Net
 		}
 
 		public BlockCoordinates coordinates; // = null;
-		public uint blockId; // = null;
-		public uint blockMetaAndPriority; // = null;
+		public uint blockRuntimeId; // = null;
+		public uint blockPriority; // = null;
 
 		public McpeUpdateBlock()
 		{
@@ -2885,8 +2889,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(coordinates);
-			WriteUnsignedVarInt(blockId);
-			WriteUnsignedVarInt(blockMetaAndPriority);
+			WriteUnsignedVarInt(blockRuntimeId);
+			WriteUnsignedVarInt(blockPriority);
 
 			AfterEncode();
 		}
@@ -2901,8 +2905,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			coordinates = ReadBlockCoordinates();
-			blockId = ReadUnsignedVarInt();
-			blockMetaAndPriority = ReadUnsignedVarInt();
+			blockRuntimeId = ReadUnsignedVarInt();
+			blockPriority = ReadUnsignedVarInt();
 
 			AfterDecode();
 		}
@@ -2915,8 +2919,8 @@ namespace MiNET.Net
 			base.ResetPackage();
 
 			coordinates=default(BlockCoordinates);
-			blockId=default(uint);
-			blockMetaAndPriority=default(uint);
+			blockRuntimeId=default(uint);
+			blockPriority=default(uint);
 		}
 
 	}
@@ -3857,7 +3861,7 @@ namespace MiNET.Net
 
 		public long runtimeEntityId; // = null;
 		public float fallDistance; // = null;
-		public bool unknown; // = null;
+		public bool isInVoid; // = null;
 
 		public McpeEntityFall()
 		{
@@ -3873,7 +3877,7 @@ namespace MiNET.Net
 
 			WriteUnsignedVarLong(runtimeEntityId);
 			Write(fallDistance);
-			Write(unknown);
+			Write(isInVoid);
 
 			AfterEncode();
 		}
@@ -3889,7 +3893,7 @@ namespace MiNET.Net
 
 			runtimeEntityId = ReadUnsignedVarLong();
 			fallDistance = ReadFloat();
-			unknown = ReadBool();
+			isInVoid = ReadBool();
 
 			AfterDecode();
 		}
@@ -3903,7 +3907,7 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			fallDistance=default(float);
-			unknown=default(bool);
+			isInVoid=default(bool);
 		}
 
 	}
@@ -4956,8 +4960,8 @@ namespace MiNET.Net
 
 		public float motionX; // = null;
 		public float motionZ; // = null;
-		public bool flag1; // = null;
-		public bool flag2; // = null;
+		public bool jumping; // = null;
+		public bool sneaking; // = null;
 
 		public McpePlayerInput()
 		{
@@ -4973,8 +4977,8 @@ namespace MiNET.Net
 
 			Write(motionX);
 			Write(motionZ);
-			Write(flag1);
-			Write(flag2);
+			Write(jumping);
+			Write(sneaking);
 
 			AfterEncode();
 		}
@@ -4990,8 +4994,8 @@ namespace MiNET.Net
 
 			motionX = ReadFloat();
 			motionZ = ReadFloat();
-			flag1 = ReadBool();
-			flag2 = ReadBool();
+			jumping = ReadBool();
+			sneaking = ReadBool();
 
 			AfterDecode();
 		}
@@ -5005,8 +5009,8 @@ namespace MiNET.Net
 
 			motionX=default(float);
 			motionZ=default(float);
-			flag1=default(bool);
-			flag2=default(bool);
+			jumping=default(bool);
+			sneaking=default(bool);
 		}
 
 	}
@@ -5168,7 +5172,7 @@ namespace MiNET.Net
 
 		public int dimension; // = null;
 		public Vector3 position; // = null;
-		public bool unknown; // = null;
+		public bool respawn; // = null;
 
 		public McpeChangeDimension()
 		{
@@ -5184,7 +5188,7 @@ namespace MiNET.Net
 
 			WriteSignedVarInt(dimension);
 			Write(position);
-			Write(unknown);
+			Write(respawn);
 
 			AfterEncode();
 		}
@@ -5200,7 +5204,7 @@ namespace MiNET.Net
 
 			dimension = ReadSignedVarInt();
 			position = ReadVector3();
-			unknown = ReadBool();
+			respawn = ReadBool();
 
 			AfterDecode();
 		}
@@ -5214,7 +5218,7 @@ namespace MiNET.Net
 
 			dimension=default(int);
 			position=default(Vector3);
-			unknown=default(bool);
+			respawn=default(bool);
 		}
 
 	}
@@ -5318,6 +5322,7 @@ namespace MiNET.Net
 	public partial class McpeSimpleEvent : Package<McpeSimpleEvent>
 	{
 
+		public ushort eventType; // = null;
 
 		public McpeSimpleEvent()
 		{
@@ -5331,6 +5336,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			Write(eventType);
 
 			AfterEncode();
 		}
@@ -5344,6 +5350,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			eventType = ReadUshort();
 
 			AfterDecode();
 		}
@@ -5355,6 +5362,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
+			eventType=default(ushort);
 		}
 
 	}

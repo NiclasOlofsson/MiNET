@@ -173,9 +173,13 @@ namespace MiNET.Net
 		{
 			try
 			{
-				if (CommandSet == null)
+				if (CommandSet == null || CommandSet.Count == 0)
 				{
-					Log.Warn("No commands");
+					Log.Warn("No commands to send");
+					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
 					return;
 				}
 
@@ -288,7 +292,7 @@ namespace MiNET.Net
 								Write((int)stringList.IndexOf(enumValue));
 							}
 
-							//Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {stringList.IndexOf(enumValue)} ");
+							//Log.Debug($"EnumType: {aliasEnum}, {enumValue}, {stringList.IndexOf(enumValue)} ");
 						}
 
 					}
@@ -402,10 +406,10 @@ namespace MiNET.Net
 			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
-			if (type == "target") return 0x04;
+			if (type == "target") return 0x05;
 
-			if (type == "string") return 0x0d;
-			if (type == "blockpos") return 0x0e;
+			if (type == "string") return 0xF;
+			if (type == "blockpos") return 0x10;
 
 			return 0x0;
 		}

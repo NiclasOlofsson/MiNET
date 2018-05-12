@@ -385,6 +385,7 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Has achievements disabled | bool |  |
 |Day cycle stop time | SignedVarInt |  |
 |EDU mode | bool |  |
+|Has EDU features enabled | bool |  |
 |Rain level | float |  |
 |Lightning level | float |  |
 |Is Multiplayer | bool |  |
@@ -400,12 +401,15 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Game Publish Setting | SignedVarInt |  |
 |Server Chunk Tick Range | int |  |
 |Has Platform Broadcast | bool |  |
-|Platform Broadcast Mode | UnsignedVarInt |  |
+|Platform Broadcast Mode | SignedVarInt |  |
 |Xbox Live Broadcast Intent | bool |  |
+|Has Locked Behavior Pack | bool |  |
+|Has Locked Resource Pack | bool |  |
+|Is From Locked World Template | bool |  |
 |Level ID | string |  |
 |World name | string |  |
 |Premium World Template Id | string |  |
-|Unknown0 | bool |  |
+|Is Trial | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
 -----------------------------------------------------------------------

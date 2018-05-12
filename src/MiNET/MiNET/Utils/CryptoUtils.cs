@@ -268,7 +268,7 @@ namespace MiNET.Utils
 	""DefaultInputMode"": 1,
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
-	""GameVersion"": ""1.2.10"",
+	""GameVersion"": ""1.5.0.1"",
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""ServerAddress"": ""yodamine.com:19132"",

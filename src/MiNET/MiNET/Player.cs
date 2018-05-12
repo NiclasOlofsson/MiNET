@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -32,7 +32,6 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading;
-using fNbt;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Crafting;
@@ -53,7 +52,7 @@ namespace MiNET
 {
 	public class Player : Entity, IMcpeMessageHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Player));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Player));
 
 		private MiNetServer Server { get; set; }
 		public IPEndPoint EndPoint { get; private set; }
@@ -452,7 +451,7 @@ namespace MiNET
 				case PlayerAction.Breaking:
 				{
 					Block target = Level.GetBlock(message.coordinates);
-					int data = ((int)target.GetRuntimeId()) | ((byte)(message.face << 24));
+					int data = ((int) target.GetRuntimeId()) | ((byte) (message.face << 24));
 
 					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 					breakEvent.eventId = 2014;
@@ -763,7 +762,6 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
-				SendAvailableCommands();
 
 				SendSetTime();
 
@@ -798,6 +796,8 @@ namespace MiNET
 				SendCreativeInventory();
 
 				SendCraftingRecipes();
+
+				SendAvailableCommands(); // Don't send this before StartGame!
 			}
 			catch (Exception e)
 			{
@@ -2525,7 +2525,7 @@ namespace MiNET
 			startGame.levelId = "1m0AAMIFIgA=";
 			startGame.worldName = Level.LevelName;
 			startGame.premiumWorldTemplateId = "";
-			startGame.unknown0 = false;
+			startGame.isTrial = false;
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
 

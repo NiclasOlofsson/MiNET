@@ -898,7 +898,7 @@ namespace MiNET.Net
 
 		public void Write(Item stack)
 		{
-			if (stack == null || stack.Id <= 0)
+			if (stack == null || stack.Id == 0)
 			{
 				WriteSignedVarInt(0);
 				return;
@@ -927,7 +927,7 @@ namespace MiNET.Net
 		public Item ReadItem()
 		{
 			int id = ReadSignedVarInt();
-			if (id <= 0)
+			if (id == 0)
 			{
 				return new ItemAir();
 			}
@@ -1324,6 +1324,8 @@ namespace MiNET.Net
 		const byte FurnaceData = 3;
 		const byte Multi = 4;
 		const byte ShulkerBox = 5;
+		const byte ShapelessChemistry = 6;
+		const byte ShapedChemistry = 7;
 
 		public void Write(Recipes recipes)
 		{
@@ -1471,6 +1473,42 @@ namespace MiNET.Net
 					MultiRecipe recipe = new MultiRecipe();
 					recipe.Id = ReadUUID();
 					recipes.Add(recipe);
+				}
+				else if (recipeType == ShapelessChemistry)
+				{
+					int ingrediensCount = ReadVarInt(); // 
+					for (int j = 0; j < ingrediensCount; j++)
+					{
+						ReadItem();
+					}
+					int resultCount = ReadVarInt(); // 
+					for (int j = 0; j < resultCount; j++)
+					{
+						ReadItem();
+					}
+
+					ReadUUID();
+				}
+				else if (recipeType == ShapedChemistry)
+				{
+					int width = ReadSignedVarInt(); // Width
+					int height = ReadSignedVarInt(); // Height
+					if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
+					for (int w = 0; w < width; w++)
+					{
+						for (int h = 0; h < height; h++)
+						{
+							ReadItem();
+						}
+					}
+
+					int resultCount = ReadVarInt(); // 1?
+					for (int j = 0; j < resultCount; j++)
+					{
+						ReadItem();
+					}
+
+					ReadUUID(); // Id
 				}
 				else
 				{

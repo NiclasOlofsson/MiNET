@@ -2038,6 +2038,7 @@ namespace MiNET.Net
 		public bool hasAchievementsDisabled; // = null;
 		public int dayCycleStopTime; // = null;
 		public bool eduMode; // = null;
+		public bool hasEduFeaturesEnabled; // = null;
 		public float rainLevel; // = null;
 		public float lightningLevel; // = null;
 		public bool isMultiplayer; // = null;
@@ -2053,12 +2054,15 @@ namespace MiNET.Net
 		public int gamePublishSetting; // = null;
 		public int serverChunkTickRange; // = null;
 		public bool hasPlatformBroadcast; // = null;
-		public uint platformBroadcastMode; // = null;
+		public int platformBroadcastMode; // = null;
 		public bool xboxLiveBroadcastIntent; // = null;
+		public bool hasLockedBehaviorPack; // = null;
+		public bool hasLockedResourcePack; // = null;
+		public bool isFromLockedWorldTemplate; // = null;
 		public string levelId; // = null;
 		public string worldName; // = null;
 		public string premiumWorldTemplateId; // = null;
-		public bool unknown0; // = null;
+		public bool isTrial; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
 
@@ -2090,6 +2094,7 @@ namespace MiNET.Net
 			Write(hasAchievementsDisabled);
 			WriteSignedVarInt(dayCycleStopTime);
 			Write(eduMode);
+			Write(hasEduFeaturesEnabled);
 			Write(rainLevel);
 			Write(lightningLevel);
 			Write(isMultiplayer);
@@ -2105,12 +2110,15 @@ namespace MiNET.Net
 			WriteSignedVarInt(gamePublishSetting);
 			Write(serverChunkTickRange);
 			Write(hasPlatformBroadcast);
-			WriteUnsignedVarInt(platformBroadcastMode);
+			WriteSignedVarInt(platformBroadcastMode);
 			Write(xboxLiveBroadcastIntent);
+			Write(hasLockedBehaviorPack);
+			Write(hasLockedResourcePack);
+			Write(isFromLockedWorldTemplate);
 			Write(levelId);
 			Write(worldName);
 			Write(premiumWorldTemplateId);
-			Write(unknown0);
+			Write(isTrial);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 
@@ -2142,6 +2150,7 @@ namespace MiNET.Net
 			hasAchievementsDisabled = ReadBool();
 			dayCycleStopTime = ReadSignedVarInt();
 			eduMode = ReadBool();
+			hasEduFeaturesEnabled = ReadBool();
 			rainLevel = ReadFloat();
 			lightningLevel = ReadFloat();
 			isMultiplayer = ReadBool();
@@ -2157,12 +2166,15 @@ namespace MiNET.Net
 			gamePublishSetting = ReadSignedVarInt();
 			serverChunkTickRange = ReadInt();
 			hasPlatformBroadcast = ReadBool();
-			platformBroadcastMode = ReadUnsignedVarInt();
+			platformBroadcastMode = ReadSignedVarInt();
 			xboxLiveBroadcastIntent = ReadBool();
+			hasLockedBehaviorPack = ReadBool();
+			hasLockedResourcePack = ReadBool();
+			isFromLockedWorldTemplate = ReadBool();
 			levelId = ReadString();
 			worldName = ReadString();
 			premiumWorldTemplateId = ReadString();
-			unknown0 = ReadBool();
+			isTrial = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 
@@ -2192,6 +2204,7 @@ namespace MiNET.Net
 			hasAchievementsDisabled=default(bool);
 			dayCycleStopTime=default(int);
 			eduMode=default(bool);
+			hasEduFeaturesEnabled=default(bool);
 			rainLevel=default(float);
 			lightningLevel=default(float);
 			isMultiplayer=default(bool);
@@ -2207,12 +2220,15 @@ namespace MiNET.Net
 			gamePublishSetting=default(int);
 			serverChunkTickRange=default(int);
 			hasPlatformBroadcast=default(bool);
-			platformBroadcastMode=default(uint);
+			platformBroadcastMode=default(int);
 			xboxLiveBroadcastIntent=default(bool);
+			hasLockedBehaviorPack=default(bool);
+			hasLockedResourcePack=default(bool);
+			isFromLockedWorldTemplate=default(bool);
 			levelId=default(string);
 			worldName=default(string);
 			premiumWorldTemplateId=default(string);
-			unknown0=default(bool);
+			isTrial=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
 		}

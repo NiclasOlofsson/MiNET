@@ -209,6 +209,7 @@
 		<field name="Has achievements disabled" type="bool" />
 		<field name="Day cycle stop time" type="SignedVarInt" />
 		<field name="EDU mode" type="bool" />
+	  <field name="Has EDU features enabled" type="bool" />
 		<field name="Rain level" type="float" />
 		<field name="Lightning level" type="float" />
 		<field name="Is Multiplayer" type="bool" />
@@ -222,16 +223,19 @@
 		<field name="Trust Players" type="bool" />
 		<field name="Permission Level" type="SignedVarInt" />
 		<field name="Game Publish Setting" type="SignedVarInt" />
-
 		<field name="Server Chunk Tick Range" type="int" />
 		<field name="Has Platform Broadcast" type="bool" />
-		<field name="Platform Broadcast Mode" type="UnsignedVarInt" />
+		<field name="Platform Broadcast Mode" type="SignedVarInt" />
 		<field name="Xbox Live Broadcast Intent" type="bool" />
 
-		<field name="Level ID" type="string" />
+    <field name="Has Locked Behavior Pack" type="bool" />
+    <field name="Has Locked Resource Pack" type="bool" />
+	  <field name="Is From Locked World Template" type="bool" />
+
+    <field name="Level ID" type="string" />
 		<field name="World name" type="string" />
 		<field name="Premium World Template Id" type="string" />
-		<field name="Unknown0" type="bool" />
+		<field name="Is Trial" type="bool" />
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
 	</pdu>

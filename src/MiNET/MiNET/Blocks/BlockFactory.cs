@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,7 +35,7 @@ namespace MiNET.Blocks
 
 	public static class BlockFactory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BlockFactory));
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
@@ -54,6 +54,7 @@ namespace MiNET.Blocks
 				{
 					TransparentBlocks[block.Id] = 1;
 				}
+
 				if (block != null && block.LightLevel > 0)
 				{
 					LuminousBlocks[block.Id] = (byte) block.LightLevel;
@@ -374,7 +375,7 @@ namespace MiNET.Blocks
 
 		private static void BuildRuntimeIdTable()
 		{
-			for(int i = 0; i < LegacyToRuntimeId.Length; ++i)
+			for (int i = 0; i < LegacyToRuntimeId.Length; ++i)
 			{
 				LegacyToRuntimeId[i] = -1;
 			}
@@ -2454,13 +2455,13 @@ namespace MiNET.Blocks
 		public static uint GetRuntimeId(byte blockId, byte metadata)
 		{
 			int idx = TryGetRuntimeId(blockId, metadata);
-			if (idx != -1) return (uint)idx;
+			if (idx != -1) return (uint) idx;
 
 			//block found with bad metadata, try getting with zero
 			idx = TryGetRuntimeId(blockId, 0);
-			if (idx != -1) return (uint)idx;
+			if (idx != -1) return (uint) idx;
 
-			return (uint)TryGetRuntimeId(248, 0); //legacy id for info_update block (for unknown block)
+			return (uint) TryGetRuntimeId(248, 0); //legacy id for info_update block (for unknown block)
 		}
 
 		private static int TryGetRuntimeId(byte blockId, byte metadata)

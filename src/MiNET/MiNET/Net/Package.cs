@@ -450,10 +450,10 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(""); //TODO: third party name
-					WriteSignedVarInt(0); //TODO: platform
+					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
+					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
-					Write(""); //TODO: platform chat ID
+					Write(record.PlayerInfo.PlatformChatId);
 				}
 			}
 			else if (records is PlayerRemoveRecords)

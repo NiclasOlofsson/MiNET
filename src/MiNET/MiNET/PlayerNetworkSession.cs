@@ -1064,5 +1064,7 @@ namespace MiNET
 		public int Edition { get; set; }
 		public int ProtocolVersion { get; set; }
 		public string LanguageCode { get; set; }
+		public string PlatformChatId { get; set; }
+		public string ThirdPartyName { get; set; }
 	}
 }

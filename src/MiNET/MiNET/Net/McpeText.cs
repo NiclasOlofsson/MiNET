@@ -45,9 +45,9 @@ namespace MiNET.Net
 				case ChatTypes.Announcement:
 					Write(sourceName);
                     Write(sourceThirdPartyName);
-                    WriteVarInt(sourcePlatform);
-                    Write(message);
-					break;
+                    WriteSignedVarInt(sourcePlatform);
+                    goto case ChatTypes.Raw;
+                    break;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
 				case ChatTypes.System:
@@ -57,7 +57,7 @@ namespace MiNET.Net
 				case ChatTypes.Translation:
 				case ChatTypes.Jukeboxpopup:
 					Write(message);
-					// More stuff
+                    WriteUnsignedVarInt(0);
 					break;
 			}
             Write(xboxUserId);
@@ -87,8 +87,8 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					sourceName = ReadString();
-                    sourcePlatform = ReadVarInt();
                     sourceThirdPartyName = ReadString();
+                    sourcePlatform = ReadSignedVarInt();
 					message = ReadString();
 					break;
 				case ChatTypes.Raw:

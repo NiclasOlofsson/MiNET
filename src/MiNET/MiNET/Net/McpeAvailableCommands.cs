@@ -173,13 +173,19 @@ namespace MiNET.Net
 		{
 			try
 			{
-				if (CommandSet == null)
-				{
-					Log.Warn("No commands");
-					return;
-				}
+                if (CommandSet == null || CommandSet.Count == 0)
+                {
+                    {
+                        Log.Warn("No commands to send");
+                        WriteUnsignedVarInt(0);
+                        WriteUnsignedVarInt(0);
+                        WriteUnsignedVarInt(0);
+                        WriteUnsignedVarInt(0);
+                        return; 
+                    }
+                }
 
-				var commands = CommandSet;
+                var commands = CommandSet;
 
 				List<string> stringList = new List<string>();
 				{
@@ -406,7 +412,7 @@ namespace MiNET.Net
 			if (type == "target") return 0x05;
             if (type == "wilcard_target") return 0x06;
 
-			if (type == "string") return 0x0f;
+            if (type == "string") return 0x0F;
 			if (type == "blockpos") return 0x10;
 
 

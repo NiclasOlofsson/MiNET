@@ -2115,8 +2115,8 @@ namespace MiNET.Net
 
 			Write(spawn);
 			Write(unknown1);
-            Write(yaw);
-            Write(pitch);
+            //Write(yaw);
+           // Write(pitch);
 
 			WriteSignedVarInt(seed);
 			WriteSignedVarInt(dimension);
@@ -2124,7 +2124,7 @@ namespace MiNET.Net
 			WriteSignedVarInt(gamemode);
 			WriteSignedVarInt(difficulty);
 			WriteSignedVarInt(x);
-			WriteSignedVarInt(y);
+			WriteVarInt(y);
 			WriteSignedVarInt(z);
 			Write(hasAchievementsDisabled);
 			WriteSignedVarInt(dayCycleStopTime);
@@ -2181,10 +2181,10 @@ namespace MiNET.Net
 			gamemode = ReadSignedVarInt();
 			difficulty = ReadSignedVarInt();
 			x = ReadSignedVarInt();
-			y = ReadSignedVarInt();
+			y = ReadVarInt();
 			z = ReadSignedVarInt();
-            yaw = ReadFloat();
-            pitch = ReadFloat();
+            //yaw = ReadFloat();
+            //pitch = ReadFloat();
 			hasAchievementsDisabled = ReadBool();
 			dayCycleStopTime = ReadSignedVarInt();
 			eduMode = ReadBool();

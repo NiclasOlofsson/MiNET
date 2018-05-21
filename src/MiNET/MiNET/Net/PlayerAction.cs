@@ -49,5 +49,9 @@ namespace MiNET.Net
 		Breaking = 18,
 		ChangeSkin = 19,
 		SetEnchantmentSeed = 20,
+        StartSwimming = 21,
+        StopSwimming = 22,
+        StartSpinAttack = 23, 
+        StopSpinAttack = 24,
 	}
 }

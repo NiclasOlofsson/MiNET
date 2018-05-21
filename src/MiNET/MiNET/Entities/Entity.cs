@@ -307,8 +307,9 @@ namespace MiNET.Entities
 		public bool IsAffectedByGravity { get; set; }
 		public bool IsWasdControlled { get; set; }
 		public bool CanPowerJump { get; set; }
+        public bool IsSwimming { get; set; }
 
-		public enum DataFlags
+        public enum DataFlags
 		{
 			OnFire = 0,
 			Sneaking,
@@ -366,7 +367,11 @@ namespace MiNET.Entities
 			AffectedByGravity,
             FireImmune,
             Dancing,
-            Enchanted
+            Enchanted,
+            ContainerPrivate,
+            SpinAttack,
+            Swimming,
+            Bribed
 		}
 
 		protected virtual BitArray GetFlags()
@@ -415,6 +420,7 @@ namespace MiNET.Entities
 
 			bits[(int) DataFlags.WasdControlled] = IsWasdControlled;
 			bits[(int) DataFlags.CanPowerJump] = CanPowerJump;
+            bits[(int) DataFlags.Swimming] = IsSwimming;
 
 			return bits;
 		}

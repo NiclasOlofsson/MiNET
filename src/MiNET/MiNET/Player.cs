@@ -561,6 +561,18 @@ namespace MiNET
 					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.coordinates}");
 					break;
 				}
+                case PlayerAction.StartSwimming:
+                {
+                        IsSwimming = true;
+                        Height = Width; //here is some crap
+                        break;
+                }
+                case PlayerAction.StopSwimming:
+                {
+                        IsSwimming = false;
+                        Height = 1.8;
+                        break;
+                }
 				default:
 				{
 					Log.Warn($"Unhandled action ID={message.actionId}");
@@ -763,8 +775,6 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
-				SendAvailableCommands();
-
 				SendSetTime();
 
 				SendStartGame();
@@ -798,6 +808,8 @@ namespace MiNET
 				SendCreativeInventory();
 
 				SendCraftingRecipes();
+
+                SendAvailableCommands();
 			}
 			catch (Exception e)
 			{

@@ -161,10 +161,12 @@ namespace MiNET
 						_playerInfo.GameVersion = payload.GameVersion;
 						_playerInfo.GuiScale = payload.GuiScale;
 						_playerInfo.LanguageCode = payload.LanguageCode;
+                        _playerInfo.PlatformChatId = payload.PlatformChatId;
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
+                        _playerInfo.ThirdPartyName = payload.ThirdPartyName;
 
-						_playerInfo.Skin = new Skin()
+                        _playerInfo.Skin = new Skin()
 						{
 							CapeData = Convert.FromBase64String((string) payload.CapeData),
 							SkinId = payload.SkinId,

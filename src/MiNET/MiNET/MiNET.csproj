@@ -471,6 +471,7 @@
     <Compile Include="Items\ItemSugar.cs" />
     <Compile Include="Net\McpeMovePlayer.cs" />
     <Compile Include="Utils\Diagnostics\Profiler.cs" />
+    <Compile Include="Utils\ScorePacketInfo.cs" />
     <Compile Include="Utils\Skins\Bone.cs" />
     <Compile Include="Utils\Skins\Cube.cs" />
     <Compile Include="Utils\Skins\Geometry.cs" />

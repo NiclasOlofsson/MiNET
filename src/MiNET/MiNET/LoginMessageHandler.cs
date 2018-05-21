@@ -385,7 +385,7 @@ namespace MiNET
 			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
 			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
 
-			if (_playerInfo.ProtocolVersion < 140 || _playerInfo.ProtocolVersion > 65535)
+			if (_playerInfo.ProtocolVersion < 261 || _playerInfo.ProtocolVersion > 65535)
 			{
 				Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
 				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
@@ -549,6 +549,11 @@ namespace MiNET
 
 		public void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
 		{
+		}
+
+		public void HandleMcpeLabTable(McpeLabTable messae)
+		{
+
 		}
 	}
 

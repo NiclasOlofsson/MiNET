@@ -211,6 +211,10 @@ namespace MiNET
 			SetGameMode((GameMode) message.gamemode);
 		}
 
+		public virtual void HandleMcpeLabTable(McpeLabTable message)
+		{
+		}
+
 		private bool _serverHaveResources = false;
 
 		public virtual void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
@@ -763,11 +767,11 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
+				SendStartGame();
+
 				SendAvailableCommands();
 
 				SendSetTime();
-
-				SendStartGame();
 
 				BroadcastSetEntityData();
 
@@ -776,8 +780,6 @@ namespace MiNET
 				SendChunkRadiusUpdate();
 
 				//SendSetSpawnPosition();
-
-				SendSetTime();
 
 				SendSetDificulty();
 

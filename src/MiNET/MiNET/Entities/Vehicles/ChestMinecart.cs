@@ -1,4 +1,5 @@
 ﻿using MiNET.Items;
+using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -10,7 +11,8 @@ namespace MiNET.Entities.Vehicles
 
         public ChestMinecart(Level level, PlayerLocation position) : base(EntityType.ChestMinecart, level, position)
         {
-            HealthManager.MaxHealth = 10;
+            HealthManager.MaxHealth = 20;
+            HealthManager.Health = 20;
         }
 
         public override MetadataDictionary GetMetadata()
@@ -24,16 +26,16 @@ namespace MiNET.Entities.Vehicles
             metadata[7] = new MetadataShort(300);
             metadata[11] = new MetadataInt(0);
             metadata[12] = new MetadataInt(1);
-            metadata[16] = new MetadataInt(0);
-            metadata[17] = new MetadataInt(6);
-            metadata[18] = new MetadataByte(0);
+            metadata[16] = new MetadataInt(0);//inside block id
+            metadata[17] = new MetadataInt(6);//inside block offset
+            metadata[18] = new MetadataByte(0);//toggle show block inside minecart 
             metadata[22] = new MetadataByte(0);
             metadata[37] = new MetadataLong(0L);
             metadata[38] = new MetadataFloat(1f);
             metadata[42] = new MetadataShort(300);
             metadata[43] = new MetadataInt(0);
-            metadata[44] = new MetadataByte(10);
-            metadata[45] = new MetadataInt(27);
+            metadata[44] = new MetadataByte(10);//container type
+            metadata[45] = new MetadataInt(27);//slots limit
             metadata[46] = new MetadataInt(0);
             metadata[53] = new MetadataFloat(0.98f);
             metadata[54] = new MetadataFloat(0.7f);
@@ -56,24 +58,38 @@ namespace MiNET.Entities.Vehicles
 
         public override void DoInteraction(byte actionId, Player player)
         {
-            player.SendMessage(actionId + "");
             if (actionId == 0)
                 player.OpenInventory(EntityId);
-            else if (actionId == 1)
+            else if(actionId == 1)
             {
                 if (player.GameMode == GameMode.Creative)
-                    DespawnEntity();
+                    HealthManager.Health = 0;
                 else
-                    HealthManager.TakeHit(null, 4);
+                    HealthManager.Health -= player.Inventory.GetItemInHand().GetDamage();
+
+                if (HealthManager.Health <= 0)
+                {
+                    Kill();
+                    return;
+                }
             }
+        }
+
+        public void Kill()
+        {
+            var inventory = Level.InventoryManager.GetInventoryByEntityId(EntityId);
+            Level.InventoryManager.RemoveInventory(inventory.Id);
+            Level.DropInventory(KnownPosition + new PlayerLocation(-0.5, 0, -0.5), inventory);
+            inventory.CloseInventory();
+            DespawnEntity();
         }
 
         public override Item[] GetDrops()
         {
             return new Item[2]
             {
-        ItemFactory.GetItem((short) 328, (short) 0, 1),
-        ItemFactory.GetItem((short) 54, (short) 0, 1)
+                ItemFactory.GetItem(328, 0, 1),
+                ItemFactory.GetItem(54, 0, 1)
             };
         }
     }

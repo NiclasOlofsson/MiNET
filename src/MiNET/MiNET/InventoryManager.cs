@@ -35,6 +35,21 @@ namespace MiNET
             }
 		}
 
+        public bool RemoveInventory(int inventoryId)
+        {
+            lock (_inventorySync)
+            {
+                var inv = _cacheByBlocks.Values.FirstOrDefault(inventory => inventory.Id == inventoryId);
+                if (inv != null)
+                    _cacheByBlocks.Remove(inv.Coordinates);
+                inv = _cacheByEntities.Values.FirstOrDefault(inventory => inventory.Id == inventoryId);
+                if (inv != null)
+                    _cacheByEntities.Remove(inv.Entity.EntityId);
+
+                return false;
+            }
+        }
+
         public Inventory GetInventoryByEntityId(long entityId)
         {
             lock (_inventorySync)
@@ -59,7 +74,7 @@ namespace MiNET
                     inventory = new Inventory(GetInventoryId(), entity, 27)
                     {
                         Type = 0,
-                        WindowsId = 10
+                        WindowsId = 20
                     };
                 }
                 else

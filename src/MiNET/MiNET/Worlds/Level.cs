@@ -1440,20 +1440,32 @@ namespace MiNET.Worlds
 
 			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;
 
-			Random random = new Random();
-			var itemEntity = new ItemEntity(this, drop)
-			{
-				KnownPosition =
-				{
-					X = (float) coordinates.X + 0.5f,
-					Y = (float) coordinates.Y + 0.5f,
-					Z = (float) coordinates.Z + 0.5f
-				},
-				Velocity = new Vector3((float) (random.NextDouble()*0.005), (float) (random.NextDouble()*0.20), (float) (random.NextDouble()*0.005))
+			Random random = MiNetServer.Random;
+            var itemEntity = new ItemEntity(this, drop)
+            {
+                KnownPosition =
+                {
+                    X = coordinates.X + 0.5f,
+                    Y = coordinates.Y + 0.5f,
+                    Z = coordinates.Z + 0.5f
+                },
+				Velocity = new Vector3((float) (random.NextDouble()*0.1*Math.Pow(-1, random.Next(0, 2))), (float) (random.NextDouble()*0.2), (float) (random.NextDouble()*0.1*Math.Pow(-1, random.Next(0, 2))))
 			};
 
 			itemEntity.SpawnEntity();
 		}
+
+        public virtual void DropInventory(Vector3 coordinates, Inventory inventory)
+        {
+            if (inventory == null) return;
+            if (inventory.Slots.Count == 0 || inventory.Size == 0) return;
+            
+            for(var i = 0; i < inventory.Size; i++)
+            {
+                DropItem(coordinates, inventory.Slots[i]);
+                inventory.Slots[i] = new ItemAir();
+            }
+        }
 
 		public void SetData(BlockCoordinates coordinates, byte meta)
 		{

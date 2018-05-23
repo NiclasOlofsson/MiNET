@@ -158,5 +158,11 @@ namespace MiNET
 			// from crash. It will leak players for sure.
 			Observers.TryTake(out player);
 		}
+
+        public void CloseInventory()
+        {
+            foreach (var observer in Observers.ToArray())
+                observer.CloseInventory();
+        }
 	}
 }

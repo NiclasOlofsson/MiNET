@@ -1924,6 +1924,18 @@ namespace MiNET
 			}
 		}
 
+        public void CloseInventory()
+        {
+            var inventory = (Inventory)_openInventory;
+
+            inventory.RemoveObserver(this);
+            _openInventory = null;
+
+            var containerClose = McpeContainerClose.CreateObject();
+            containerClose.windowId = inventory.WindowsId;
+            SendPackage(containerClose);
+        }
+
 		private void OnInventoryChange(Player player, Inventory inventory, byte slot, Item itemStack)
 		{
 			if (player == this)

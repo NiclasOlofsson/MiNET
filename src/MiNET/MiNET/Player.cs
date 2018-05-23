@@ -1831,7 +1831,44 @@ namespace MiNET
 			_openInventory = inventory;
 		}
 
-		public void OpenInventory(BlockCoordinates inventoryCoord)
+        public void OpenInventory(long entityId)
+        {
+            lock (_inventorySync)
+            {
+                Entity entity;
+                Level.TryGetEntity(entityId, out entity);
+                Inventory openInventory;
+                if ((openInventory = _openInventory as Inventory) != null)
+                {
+                    if (openInventory.Entity.Equals(entity))
+                        return;
+                    HandleMcpeContainerClose(null);
+                }
+                Inventory inventoryByEntityId = Level.InventoryManager.GetInventoryByEntityId(entityId);
+                if (inventoryByEntityId == null)
+                {
+                    Log.Warn($"No inventory found with {entity}; id={entityId}");
+                }
+                else
+                {
+                    _openInventory = inventoryByEntityId;
+                    inventoryByEntityId.InventoryChange += new Action<Player, Inventory, byte, Item>(OnInventoryChange);
+                    inventoryByEntityId.AddObserver(this);
+                    McpeContainerOpen mcpeContainerOpen = Package<McpeContainerOpen>.CreateObject(1L);
+                    mcpeContainerOpen.coordinates = BlockCoordinates.Zero;
+                    mcpeContainerOpen.windowId = inventoryByEntityId.WindowsId;
+                    mcpeContainerOpen.type = inventoryByEntityId.Type;
+                    mcpeContainerOpen.unknownRuntimeEntityId = entityId * 2L - 1L;
+                    SendPackage(mcpeContainerOpen);
+                    McpeInventoryContent inventoryContent = Package<McpeInventoryContent>.CreateObject(1L);
+                    inventoryContent.inventoryId = inventoryByEntityId.WindowsId;
+                    inventoryContent.input = inventoryByEntityId.Slots;
+                    SendPackage(inventoryContent);
+                }
+            }
+        }
+
+        public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_inventorySync)
 			{
@@ -1943,11 +1980,11 @@ namespace MiNET
 		}
 
 		protected virtual void HandleTransactionItemUseOnEntity(Transaction transaction)
-		{
-			switch ((McpeInventoryTransaction.ItemUseOnEntityAction) transaction.ActionType)
+        {
+            switch ((McpeInventoryTransaction.ItemUseOnEntityAction) transaction.ActionType)
 			{
 				case McpeInventoryTransaction.ItemUseOnEntityAction.Interact: // Right click
-					EntityInteract(transaction);
+					//EntityInteract(transaction);
 					break;
 				case McpeInventoryTransaction.ItemUseOnEntityAction.Attack: // Left click
 					EntityAttack(transaction);
@@ -1958,8 +1995,9 @@ namespace MiNET
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
-			}
-		}
+            }
+            EntityInteract(transaction);
+        }
 
 		private void EntityItemInteract(Transaction transaction)
 		{

@@ -428,6 +428,7 @@
     <Compile Include="Entities\ImageProviders\VideoImageProvider.cs" />
     <Compile Include="Entities\Projectiles\FireworksRocket.cs" />
     <Compile Include="Entities\Vehicles\Boat.cs" />
+    <Compile Include="Entities\Vehicles\ChestMinecart.cs" />
     <Compile Include="Entities\Vehicles\Vehicle.cs" />
     <Compile Include="Entities\World\FallingBlock.cs" />
     <Compile Include="Entities\World\Lightning.cs" />
@@ -465,6 +466,7 @@
     <Compile Include="Items\ItemIronNugget.cs" />
     <Compile Include="Blocks\StandingBanner.cs" />
     <Compile Include="Blocks\WallBanner.cs" />
+    <Compile Include="Items\ItemMinecartWithChest.cs" />
     <Compile Include="Items\ItemPainting.cs" />
     <Compile Include="Items\ItemSaddle.cs" />
     <Compile Include="Items\ItemShears.cs" />

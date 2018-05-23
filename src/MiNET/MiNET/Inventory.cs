@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using fNbt;
 using MiNET.BlockEntities;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Utils;
 
@@ -21,7 +22,8 @@ namespace MiNET
 		public short Size { get; set; }
 		public BlockCoordinates Coordinates { get; set; }
 		public BlockEntity BlockEntity { get; set; }
-		public byte WindowsId { get; set; }
+        public Entity Entity { get; set; }
+        public byte WindowsId { get; set; }
 
 		public Inventory(int id, BlockEntity blockEntity, short inventorySize, NbtList slots)
 		{
@@ -44,12 +46,28 @@ namespace MiNET
 			}
 		}
 
-		public void SetSlot(Player player, byte slot, Item itemStack)
+        public Inventory(int id, Entity entity, short inventorySize)
+        {
+            Id = id;
+            Entity = entity;
+            Size = inventorySize;
+
+            Slots = new ItemStacks();
+            for (byte i = 0; i < Size; i++)
+            {
+                Slots.Add(new ItemAir());
+            }
+        }
+
+        public void SetSlot(Player player, byte slot, Item itemStack)
 		{
 			Slots[slot] = itemStack;
 
-			NbtCompound compound = BlockEntity.GetCompound();
-			compound["Items"] = GetSlots();
+            if (BlockEntity != null)
+            {
+                NbtCompound compound = BlockEntity.GetCompound();
+                compound["Items"] = GetSlots();
+            }
 
 			OnInventoryChange(player, slot, itemStack);
 		}

@@ -3,6 +3,8 @@ using System.Linq;
 using fNbt;
 using log4net;
 using MiNET.BlockEntities;
+using MiNET.Entities;
+using MiNET.Entities.Vehicles;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -15,29 +17,69 @@ namespace MiNET
 		private static byte _inventoryId = 2;
 
 		private readonly Level _level;
-		private Dictionary<BlockCoordinates, Inventory> _cache = new Dictionary<BlockCoordinates, Inventory>();
+        private Dictionary<BlockCoordinates, Inventory> _cacheByBlocks = new Dictionary<BlockCoordinates, Inventory>();
+        private Dictionary<long, Inventory> _cacheByEntities = new Dictionary<long, Inventory>();
+        private object _inventorySync = new object();
 
-
-		public InventoryManager(Level level)
+        public InventoryManager(Level level)
 		{
 			_level = level;
 		}
 
 		public Inventory GetInventory(int inventoryId)
 		{
-			lock (_cache)
+			lock (_inventorySync)
 			{
-				return _cache.Values.FirstOrDefault(inventory => inventory.Id == inventoryId);
-			}
+				return _cacheByBlocks.Values.FirstOrDefault(inventory => inventory.Id == inventoryId) ?? 
+                    _cacheByEntities.Values.FirstOrDefault(inventory => inventory.Id == inventoryId);
+            }
 		}
 
-		public Inventory GetInventory(BlockCoordinates inventoryCoord)
+        public Inventory GetInventoryByEntityId(long entityId)
+        {
+            lock (_inventorySync)
+            {
+                if (_cacheByEntities.ContainsKey(entityId))
+                {
+                    Inventory cacheByEntity = _cacheByEntities[entityId];
+                    if (cacheByEntity != null)
+                        return cacheByEntity;
+                }
+
+                Entity entity;
+                if (!_level.TryGetEntity(entityId, out entity))
+                {
+                    if (Log.IsDebugEnabled) Log.Warn($"No entity found with id {entityId}");
+                    return null;
+                }
+
+                Inventory inventory;
+                if (entity is ChestMinecart)
+                {
+                    inventory = new Inventory(GetInventoryId(), entity, 27)
+                    {
+                        Type = 0,
+                        WindowsId = 10
+                    };
+                }
+                else
+                {
+                    if (Log.IsDebugEnabled) Log.Warn($"Entity did not have a matching inventory {entity}");
+                    return null;
+                }
+
+                _cacheByEntities[entityId] = inventory;
+                return inventory;
+            }
+        }
+
+        public Inventory GetInventory(BlockCoordinates inventoryCoord)
 		{
-			lock (_cache)
+			lock (_inventorySync)
 			{
-				if (_cache.ContainsKey(inventoryCoord))
+				if (_cacheByBlocks.ContainsKey(inventoryCoord))
 				{
-					Inventory cachedInventory = _cache[inventoryCoord];
+					Inventory cachedInventory = _cacheByBlocks[inventoryCoord];
 					if (cachedInventory != null) return cachedInventory;
 				}
 
@@ -85,7 +127,7 @@ namespace MiNET
 					return null;
 				}
 
-				_cache[inventoryCoord] = inventory;
+                _cacheByBlocks[inventoryCoord] = inventory;
 
 				return inventory;
 			}
@@ -93,7 +135,7 @@ namespace MiNET
 
 		private byte GetInventoryId()
 		{
-			lock (_cache)
+			lock (_inventorySync)
 			{
 				_inventoryId++;
 				if (_inventoryId == 0x78)

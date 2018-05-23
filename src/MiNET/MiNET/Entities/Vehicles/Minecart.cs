@@ -11,7 +11,12 @@ namespace MiNET.Entities.Vehicles
 			KnownPosition = position;
 		}
 
-		public override Item[] GetDrops()
+        protected Minecart(EntityType type, Level level, PlayerLocation position) : base(type, level)
+        {
+            KnownPosition = position;
+        }
+
+        public override Item[] GetDrops()
 		{
 			return new[]
 			{

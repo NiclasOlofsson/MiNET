@@ -5892,7 +5892,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			bossEntityId = ReadSignedVarLong();
+            bossEntityId = ReadSignedVarLong();
 			eventType = ReadUnsignedVarInt();
 
 			AfterDecode();
@@ -5905,7 +5905,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			bossEntityId=default(long);
+            bossEntityId=default(long);
 			eventType=default(uint);
 		}
 

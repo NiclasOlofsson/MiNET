@@ -70,7 +70,7 @@ namespace MiNET.Entities.World
 		public override void SpawnToPlayers(Player[] players)
 		{
 			McpeAddItemEntity mcpeAddItemEntity = McpeAddItemEntity.CreateObject();
-			mcpeAddItemEntity.entityIdSelf = EntityId;
+			mcpeAddItemEntity.entityIdSelf = -EntityId;
 			mcpeAddItemEntity.runtimeEntityId = EntityId;
 			mcpeAddItemEntity.item = GetItemStack();
 			mcpeAddItemEntity.x = KnownPosition.X;

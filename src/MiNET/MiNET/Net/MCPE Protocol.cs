@@ -5862,7 +5862,7 @@ namespace MiNET.Net
 	public partial class McpeBossEvent : Package<McpeBossEvent>
 	{
 
-		public long bossEntityId; // = null;
+		public long runtimeEntityId; // = null;
 		public uint eventType; // = null;
 
 		public McpeBossEvent()
@@ -5877,7 +5877,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
-			WriteSignedVarLong(bossEntityId);
+			WriteSignedVarLong(runtimeEntityId);
 			WriteUnsignedVarInt(eventType);
 
 			AfterEncode();
@@ -5892,7 +5892,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			bossEntityId = ReadSignedVarLong();
+            runtimeEntityId = ReadSignedVarLong();
 			eventType = ReadUnsignedVarInt();
 
 			AfterDecode();
@@ -5905,7 +5905,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			bossEntityId=default(long);
+            runtimeEntityId=default(long);
 			eventType=default(uint);
 		}
 

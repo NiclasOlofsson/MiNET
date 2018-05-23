@@ -452,7 +452,7 @@ namespace MiNET.Entities
 		{
 			var addEntity = McpeAddEntity.CreateObject();
 			addEntity.entityType = (byte) EntityTypeId;
-			addEntity.entityIdSelf = EntityId;
+			addEntity.entityIdSelf = -EntityId;
 			addEntity.runtimeEntityId = EntityId;
 			addEntity.x = KnownPosition.X;
 			addEntity.y = KnownPosition.Y;
@@ -534,7 +534,7 @@ namespace MiNET.Entities
 		public virtual void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
-			mcpeRemoveEntity.entityIdSelf = EntityId;
+			mcpeRemoveEntity.entityIdSelf = -EntityId;
 			Level.RelayBroadcast(players, mcpeRemoveEntity);
 		}
 

@@ -53,7 +53,7 @@ namespace MiNET.Entities
 			McpeAddPainting painting = McpeAddPainting.CreateObject();
 			painting.coordinates = (BlockCoordinates) KnownPosition;
 			painting.direction = Direction;
-			painting.entityIdSelf = EntityId;
+			painting.entityIdSelf = -EntityId;
 			painting.runtimeEntityId = EntityId;
 			painting.title = PaintingData.Title;
 

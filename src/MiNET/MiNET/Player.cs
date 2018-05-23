@@ -2496,7 +2496,7 @@ namespace MiNET
 		public void SendStartGame()
 		{
 			McpeStartGame startGame = McpeStartGame.CreateObject();
-			startGame.entityIdSelf = EntityId;
+			startGame.entityIdSelf = EntityId;//runtimeEntityId?
 			startGame.runtimeEntityId = EntityManager.EntityIdSelf;
 			startGame.playerGamemode = (int) GameMode;
 			startGame.spawn = SpawnPosition;
@@ -3286,7 +3286,7 @@ namespace MiNET
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = ClientUuid;
 			mcpeAddPlayer.username = Username;
-			mcpeAddPlayer.entityIdSelf = EntityId;
+			mcpeAddPlayer.entityIdSelf = -EntityId;
 			mcpeAddPlayer.runtimeEntityId = EntityId;
 			mcpeAddPlayer.x = KnownPosition.X;
 			mcpeAddPlayer.y = KnownPosition.Y;
@@ -3370,7 +3370,7 @@ namespace MiNET
 		public override void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
-			mcpeRemovePlayer.entityIdSelf = EntityId;
+			mcpeRemovePlayer.entityIdSelf = -EntityId;
 			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
 		}
 

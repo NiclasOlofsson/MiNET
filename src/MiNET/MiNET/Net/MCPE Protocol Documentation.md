@@ -108,6 +108,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Modal Form Response | 0x65 | 101 |   
 | Server Settings Request | 0x66 | 102 |   
 | Server Settings Response | 0x67 | 103 |   
+| Update Block Synced | 0x6e | 110 |   
 
 
 ## Data types
@@ -653,6 +654,7 @@ Wiki: [Update Block](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Upda
 |Coordinates | BlockCoordinates |  |
 |Block Runtime ID | UnsignedVarInt |  |
 |Block Priority | UnsignedVarInt |  |
+|Storage | UnsignedVarInt |  |
 -----------------------------------------------------------------------
 ### Add Painting (0x16)
 Wiki: [Add Painting](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPainting)
@@ -1155,7 +1157,7 @@ Wiki: [Container Open](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Co
 |Window ID | byte |  |
 |Type | byte |  |
 |Coordinates | BlockCoordinates |  |
-|Unknown Runtime Entity ID | UnsignedVarLong |  |
+|Runtime Entity ID | SignedVarLong |  |
 -----------------------------------------------------------------------
 ### Container Close (0x2f)
 Wiki: [Container Close](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ContainerClose)
@@ -2074,6 +2076,26 @@ Wiki: [Server Settings Response](https://github.com/NiclasOlofsson/MiNET/wiki//P
 |:-----|:-----|:-----|
 |Form Id | UnsignedVarLong |  |
 |Data | string |  |
+-----------------------------------------------------------------------
+### Update Block Synced (0x6e)
+Wiki: [Update Block Synced](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-UpdateBlockSynced)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Coordinates | BlockCoordinates |  |
+|Block Runtime ID | UnsignedVarInt |  |
+|Block Priority | UnsignedVarInt |  |
+|Data Layer ID | UnsignedVarInt |  |
+|Unknown0 | UnsignedVarLong |  |
+|Unknown1 | UnsignedVarLong |  |
 -----------------------------------------------------------------------
 
 

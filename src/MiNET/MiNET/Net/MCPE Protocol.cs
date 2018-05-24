@@ -580,6 +580,10 @@ namespace MiNET.Net
 						package = McpeServerSettingsResponse.CreateObject();
 						package.Decode(buffer);
 						return package;
+					case 0x6e:
+						package = McpeUpdateBlockSynced.CreateObject();
+						package.Decode(buffer);
+						return package;
 				}
 			}
 
@@ -2891,6 +2895,7 @@ namespace MiNET.Net
 		public BlockCoordinates coordinates; // = null;
 		public uint blockRuntimeId; // = null;
 		public uint blockPriority; // = null;
+		public uint storage; // = null;
 
 		public McpeUpdateBlock()
 		{
@@ -2907,6 +2912,7 @@ namespace MiNET.Net
 			Write(coordinates);
 			WriteUnsignedVarInt(blockRuntimeId);
 			WriteUnsignedVarInt(blockPriority);
+			WriteUnsignedVarInt(storage);
 
 			AfterEncode();
 		}
@@ -2923,6 +2929,7 @@ namespace MiNET.Net
 			coordinates = ReadBlockCoordinates();
 			blockRuntimeId = ReadUnsignedVarInt();
 			blockPriority = ReadUnsignedVarInt();
+			storage = ReadUnsignedVarInt();
 
 			AfterDecode();
 		}
@@ -2937,6 +2944,7 @@ namespace MiNET.Net
 			coordinates=default(BlockCoordinates);
 			blockRuntimeId=default(uint);
 			blockPriority=default(uint);
+			storage=default(uint);
 		}
 
 	}
@@ -4364,7 +4372,7 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public byte type; // = null;
 		public BlockCoordinates coordinates; // = null;
-		public long unknownRuntimeEntityId; // = null;
+		public long runtimeEntityId; // = null;
 
 		public McpeContainerOpen()
 		{
@@ -4381,7 +4389,7 @@ namespace MiNET.Net
 			Write(windowId);
 			Write(type);
 			Write(coordinates);
-			WriteUnsignedVarLong(unknownRuntimeEntityId);
+			WriteSignedVarLong(runtimeEntityId);
 
 			AfterEncode();
 		}
@@ -4398,7 +4406,7 @@ namespace MiNET.Net
 			windowId = ReadByte();
 			type = ReadByte();
 			coordinates = ReadBlockCoordinates();
-			unknownRuntimeEntityId = ReadUnsignedVarLong();
+			runtimeEntityId = ReadSignedVarLong();
 
 			AfterDecode();
 		}
@@ -4413,7 +4421,7 @@ namespace MiNET.Net
 			windowId=default(byte);
 			type=default(byte);
 			coordinates=default(BlockCoordinates);
-			unknownRuntimeEntityId=default(long);
+			runtimeEntityId=default(long);
 		}
 
 	}
@@ -7379,6 +7387,74 @@ namespace MiNET.Net
 
 			formId=default(long);
 			data=default(string);
+		}
+
+	}
+
+	public partial class McpeUpdateBlockSynced : Package<McpeUpdateBlockSynced>
+	{
+
+		public BlockCoordinates coordinates; // = null;
+		public uint blockRuntimeId; // = null;
+		public uint blockPriority; // = null;
+		public uint dataLayerId; // = null;
+		public long unknown0; // = null;
+		public long unknown1; // = null;
+
+		public McpeUpdateBlockSynced()
+		{
+			Id = 0x6e;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(coordinates);
+			WriteUnsignedVarInt(blockRuntimeId);
+			WriteUnsignedVarInt(blockPriority);
+			WriteUnsignedVarInt(dataLayerId);
+			WriteUnsignedVarLong(unknown0);
+			WriteUnsignedVarLong(unknown1);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			coordinates = ReadBlockCoordinates();
+			blockRuntimeId = ReadUnsignedVarInt();
+			blockPriority = ReadUnsignedVarInt();
+			dataLayerId = ReadUnsignedVarInt();
+			unknown0 = ReadUnsignedVarLong();
+			unknown1 = ReadUnsignedVarLong();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			coordinates=default(BlockCoordinates);
+			blockRuntimeId=default(uint);
+			blockPriority=default(uint);
+			dataLayerId=default(uint);
+			unknown0=default(long);
+			unknown1=default(long);
 		}
 
 	}

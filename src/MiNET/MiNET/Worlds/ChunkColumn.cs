@@ -414,9 +414,8 @@ namespace MiNET.Worlds
 		{
 			if (_cache != null) return _cache;
 
-			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream("chunk", 4096 * 4))
 			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
 
 				int topEmpty = 16;
 				for (int ci = 15; ci >= 0; ci--)
@@ -425,13 +424,15 @@ namespace MiNET.Worlds
 					else break;
 				}
 
-				writer.Write((byte) topEmpty);
+				stream.WriteByte((byte) topEmpty);
 
 				int sent = 0;
 				for (int ci = 0; ci < topEmpty; ci++)
 				{
-					writer.Write((byte) 0);
-					writer.Write(chunks[ci].GetBytes());
+					chunks[ci].GetBytes(stream);
+					//writer.Write(chunks[ci].GetBytes(stream));
+					//writer.Write(chunks[ci].GetBytesPalettizedStorage(stream));
+					//chunks[ci].GetBytesPalettizedStorage(stream);
 					sent++;
 				}
 
@@ -441,7 +442,7 @@ namespace MiNET.Worlds
 
 				byte[] ba = new byte[512];
 				Buffer.BlockCopy(height, 0, ba, 0, 512);
-				writer.Write(ba);
+				stream.Write(ba, 0, ba.Length);
 				//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
 
 				//BiomeUtils utils = new BiomeUtils();
@@ -449,7 +450,7 @@ namespace MiNET.Worlds
 
 				//InterpolateBiomes();
 
-				writer.Write(biomeId);
+				stream.Write(biomeId, 0, biomeId.Length);
 
 				//for (int i = 0; i < biomeId.Length; i++)
 				//{
@@ -466,7 +467,7 @@ namespace MiNET.Worlds
 				// - Hash SignedVarint x << 12, z << 8, y
 				// - Block data short
 
-				writer.Write((byte) 0); // Border blocks - nope
+				stream.WriteByte((byte) 0); // Border blocks - nope
 
 				VarInt.WriteSInt32(stream, 0); // Block extradata count
 				//VarInt.WriteSInt32(stream, 2);
@@ -484,7 +485,7 @@ namespace MiNET.Worlds
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
 						NbtFile file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
-						file.SaveToStream(writer.BaseStream, NbtCompression.None);
+						file.SaveToStream(stream, NbtCompression.None);
 					}
 				}
 

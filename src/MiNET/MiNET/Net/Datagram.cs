@@ -39,6 +39,7 @@ namespace MiNET.Net
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
 		public long RetransmissionTimeOut { get; set; }
+		public bool RetransmitImmediate { get; set; }
 		public int TransmissionCount { get; set; }
 
 		public DatagramHeader Header { get; private set; }
@@ -89,6 +90,7 @@ namespace MiNET.Net
 
 			Header.Reset();
 			RetransmissionTimeOut = 0;
+			RetransmitImmediate = false;
 			TransmissionCount = 0;
 			_currentSize = 4;
 			FirstMessageId = 0;

@@ -23,8 +23,12 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using log4net;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.Blocks
 {
@@ -45,6 +49,8 @@ namespace MiNET.Blocks
 
 		private static int[] LegacyToRuntimeId = new int[65536];
 
+		public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
+
 		static BlockFactory()
 		{
 			for (byte i = 0; i < byte.MaxValue; i++)
@@ -62,7 +68,28 @@ namespace MiNET.Blocks
 			}
 
 			NameToId = BuildNameToId();
-			BuildRuntimeIdTable();
+
+			for (int i = 0; i < LegacyToRuntimeId.Length; ++i)
+			{
+				LegacyToRuntimeId[i] = -1;
+			}
+
+
+			var assembly = Assembly.GetAssembly(typeof(Block));
+			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+			using (StreamReader reader = new StreamReader(stream))
+			{
+				dynamic result = JArray.Parse(reader.ReadToEnd());
+
+				foreach (var obj in result)
+				{
+					BlockStates.Add(((int)obj.id, (int)obj.data), (int)obj.runtimeID);
+					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int) obj.runtimeID;
+				}
+			}
+
+
+			//BuildRuntimeIdTable();
 		}
 
 		private static Dictionary<string, byte> BuildNameToId()
@@ -2469,4 +2496,27 @@ namespace MiNET.Blocks
 			return LegacyToRuntimeId[(blockId << 4) | metadata];
 		}
 	}
+
+	public class BlockStateUtils
+	{
+		public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
+
+		static BlockStateUtils()
+		{
+			var assembly = Assembly.GetAssembly(typeof(Block));
+			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+			using (StreamReader reader = new StreamReader(stream))
+			{
+				dynamic result = JArray.Parse(reader.ReadToEnd());
+
+				foreach (var obj in result)
+				{
+					BlockStates.Add(((int)obj.id, (int)obj.data), (int)obj.runtimeID);
+				}
+
+				Console.WriteLine(result);
+			}
+		}
+	}
+
 }

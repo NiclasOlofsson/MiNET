@@ -64,6 +64,9 @@ namespace MiNET
 		public int ErrorCount { get; set; }
 
 		public bool Evicted { get; set; }
+
+		public Random Random { get; } = new Random();
+
 		public ConnectionState State { get; set; }
 
 		public DateTime LastUpdatedTime { get; set; }
@@ -751,16 +754,14 @@ namespace MiNET
 			SendQueue();
 			if (i++ >= 5)
 			{
+				Update();
 				i = 0;
-				if (!_isRunning) Update();
 			}
 		}
 
 
 		private object _updateSync = new object();
 		private Stopwatch _forceQuitTimer = new Stopwatch();
-
-		private bool _isRunning = false;
 
 		private void Update()
 		{
@@ -771,11 +772,11 @@ namespace MiNET
 			if (MiNetServer.FastThreadPool == null) return;
 
 			if (!Monitor.TryEnter(_updateSync)) return;
-			_isRunning = true;
-			_forceQuitTimer.Restart();
 
 			try
 			{
+				_forceQuitTimer.Restart();
+
 				if (Evicted) return;
 
 				long now = DateTime.UtcNow.Ticks/TimeSpan.TicksPerMillisecond;
@@ -842,12 +843,8 @@ namespace MiNET
 					datagramTimout = Math.Min(datagramTimout, 3000);
 					datagramTimout = Math.Max(datagramTimout, 100);
 
-					if (elapsedTime >= datagramTimout)
+					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimout)
 					{
-						//if (session.WaitForAck) return;
-
-						//session.WaitForAck = session.ResendCount++ > 3;
-
 						Datagram deleted;
 						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
 						{
@@ -858,13 +855,9 @@ namespace MiNET
 							{
 								var dtgram = deleted;
 								if (Log.IsDebugEnabled)
-									Log.WarnFormat("TIMEOUT, Resent #{0} Type: {2} (0x{2:x2}) for {1} ({3} > {4}) RTO {5}",
-										deleted.Header.datagramSequenceNumber.IntValue(),
-										Username,
-										deleted.FirstMessageId,
-										elapsedTime,
-										datagramTimout,
-										Rto);
+								{
+									Log.Warn($"{(deleted.RetransmitImmediate ? "NAK RSND" : "TIMEOUT")}, Resent #{deleted.Header.datagramSequenceNumber.IntValue()} Type: {deleted.FirstMessageId} (0x{deleted.FirstMessageId:x2}) for {Username} ({elapsedTime} > {datagramTimout}) RTO {Rto}");
+								}
 								Server.SendDatagram(this, (Datagram) dtgram);
 								Interlocked.Increment(ref Server.ServerInfo.NumberOfResends);
 							});
@@ -879,7 +872,6 @@ namespace MiNET
 					Log.Warn($"Update took unexpected long time={_forceQuitTimer.ElapsedMilliseconds}, Count={WaitingForAcksQueue.Count}");
 				}
 
-				_isRunning = false;
 				Monitor.Exit(_updateSync);
 			}
 		}

@@ -768,6 +768,7 @@
     <Compile Include="Worlds\Structures\OakTree.cs" />
     <Compile Include="Worlds\Structures\SpruceTree.cs" />
     <Compile Include="Worlds\Structures\StructureClass.cs" />
+    <EmbeddedResource Include="Blocks\blockstates.json" />
     <None Include="Net\MCPE Protocol Documentation.md">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -866,34 +866,11 @@ namespace MiNET
 
 				for (int i = start; i <= end; i++)
 				{
-					session.ErrorCount++;
-
-					// HACK: Just to make sure we aren't getting unessecary load on the queue during heavy buffering.
-					//if (ServerInfo.AvailableBytes > 1000) continue;
-
-					Datagram datagram;
-					//if (queue.TryRemove(i, out datagram))
-					if (!session.Evicted && queue.TryRemove(i, out datagram))
+					if (queue.TryGetValue(i, out var datagram))
 					{
-						// RTT = RTT * 0.875 + rtt * 0.125
-						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
-						// RTO = RTT + 4 * RTTVar
-						long rtt = datagram.Timer.ElapsedMilliseconds;
-						long RTT = session.Rtt;
-						long RTTVar = session.RttVar;
+						CalculateRto(session, datagram);
 
-						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
-						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
-
-						FastThreadPool.QueueUserWorkItem(delegate
-						{
-							var dgram = (Datagram) datagram;
-							if (Log.IsDebugEnabled)
-								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, session.Username);
-							SendDatagram(session, dgram);
-							Interlocked.Increment(ref ServerInfo.NumberOfResends);
-						});
+						datagram.RetransmitImmediate = true;
 					}
 					else
 					{
@@ -925,22 +902,12 @@ namespace MiNET
 				int end = range.Item2;
 				for (int i = start; i <= end; i++)
 				{
-					Datagram datagram;
-					if (queue.TryRemove(i, out datagram))
+					if (queue.TryRemove(i, out var datagram))
 					{
 						//if (Log.IsDebugEnabled)
 						//	Log.DebugFormat("ACK, on datagram #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
 
-						// RTT = RTT * 0.875 + rtt * 0.125
-						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
-						// RTO = RTT + 4 * RTTVar
-						long rtt = datagram.Timer.ElapsedMilliseconds;
-						long RTT = session.Rtt;
-						long RTTVar = session.RttVar;
-
-						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
-						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
+						CalculateRto(session, datagram);
 
 						datagram.PutPool();
 					}
@@ -956,6 +923,20 @@ namespace MiNET
 
 			session.ResendCount = 0;
 			session.WaitForAck = false;
+		}
+
+		private static void CalculateRto(PlayerNetworkSession session, Datagram datagram)
+		{
+			// RTT = RTT * 0.875 + rtt * 0.125
+			// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
+			// RTO = RTT + 4 * RTTVar
+			long rtt = datagram.Timer.ElapsedMilliseconds;
+			long RTT = session.Rtt;
+			long RTTVar = session.RttVar;
+
+			session.Rtt = (long) (RTT*0.875 + rtt*0.125);
+			session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+			session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
 		}
 
 		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
@@ -1023,6 +1004,7 @@ namespace MiNET
 
 			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 			datagram.TransmissionCount++;
+			datagram.RetransmitImmediate = false;
 
 			//byte[] data = datagram.Encode();
 			byte[] data;
@@ -1038,6 +1020,10 @@ namespace MiNET
 			lock (session.SyncRoot)
 			{
 				SendData(data, lenght, session.EndPoint);
+				//if (session.Random.Next(100) >= 10)
+				//{
+				//	SendData(data, lenght, session.EndPoint);
+				//}
 			}
 		}
 

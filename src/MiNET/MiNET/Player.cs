@@ -1875,7 +1875,7 @@ namespace MiNET
 				containerOpen.windowId = inventory.WindowsId;
 				containerOpen.type = inventory.Type;
 				containerOpen.coordinates = inventoryCoord;
-				containerOpen.unknownRuntimeEntityId = 1;
+				containerOpen.runtimeEntityId = -1;
 				SendPackage(containerOpen);
 
 				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
@@ -2077,11 +2077,16 @@ namespace MiNET
 			{
 				case McpeInventoryTransaction.ItemUseAction.Place:
 					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
+					if (transaction.Item.Id != 0)
+					{
+						transaction.Item.Count--;
+						Inventory.SetInventorySlot(transaction.Slot, transaction.Item);
+					}
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Use:
 					_itemUseTimer = Level.TickTime;
 					itemInHand.UseItem(Level, this, transaction.Position);
-					Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
+					//Inventory.UpdateInventorySlot(transaction.Slot, transaction.Item);
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Destroy:
 					Level.BreakBlock(this, transaction.Position);

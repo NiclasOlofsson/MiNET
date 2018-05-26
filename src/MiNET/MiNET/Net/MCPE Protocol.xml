@@ -295,6 +295,7 @@
 		<field name="Speed Z" type="float" />
 		<field name="Pitch" type="float" />
 		<field name="Yaw" type="float" />
+		<field name="Head Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary" />
 		<field name="Links" type="Links" />
@@ -325,9 +326,10 @@
 
 	<pdu id="0x12" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
+		<field name="Flags" type="short" />
 		<field name="Position" type="PlayerLocation" />
-		<field name="On Ground" type="bool" />
-		<field name="Teleport" type="bool" />
+		<!--<field name="On Ground" type="bool" />
+		<field name="Teleport" type="bool" />-->
 	</pdu>
 
 	<pdu id="0x13" online="false" client="true" server="true" name="MCPE_MOVE_PLAYER">
@@ -949,6 +951,11 @@
 		<field name="Data Layer ID" type="UnsignedVarInt" />
 		<field name="Unknown0" type="UnsignedVarLong" />
 		<field name="Unknown1" type="UnsignedVarLong" />
+	</pdu>
+
+	<pdu id="0x6f" online="false" client="false" server="true" name="MCPE_MOVE_ENTITY_DELTA">
+		<field name="Runtime Entity ID" type="UnsignedVarLong" />
+		<field name="Flags" type="short" />
 	</pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">

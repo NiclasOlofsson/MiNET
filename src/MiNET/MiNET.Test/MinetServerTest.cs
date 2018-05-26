@@ -49,6 +49,18 @@ namespace MiNET
 	[TestFixture]
 	public class MinetServerTest
 	{
+		[Test]
+		public void TestIntFloatConversion()
+		{
+			//Assert.AreEqual(new byte[]{0,0,0,0}, BitConverter.GetBytes(2048f));
+
+			//Assert.AreEqual(1073741824, BitConverter.ToInt32(BitConverter.GetBytes(2f), 0));
+			//Assert.AreEqual(1065353216, BitConverter.ToInt32(BitConverter.GetBytes(1f), 0));
+			//Assert.AreEqual(-1082130432, BitConverter.ToInt32(BitConverter.GetBytes(-1f), 0));
+			//Assert.AreEqual(1, 1073741824- 1065353216);
+			Assert.AreEqual(0, McpeMoveEntityDelta.ToIntDelta(2049, 2048));
+		}
+
 		[Test , Ignore("")]
 		public void IntVsInt24PerformanceTest()
 		{

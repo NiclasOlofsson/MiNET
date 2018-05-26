@@ -1052,6 +1052,12 @@ namespace MiNET.Client
 				return;
 			}
 
+			else if (typeof(McpeMoveEntityDelta) == message.GetType())
+			{
+				OnMcpeMoveEntityDelta((McpeMoveEntityDelta)message);
+				return;
+			}
+
 			else if (typeof (McpeSetEntityMotion) == message.GetType())
 			{
 			}
@@ -1125,7 +1131,7 @@ namespace MiNET.Client
 			else if (typeof (UnknownPackage) == message.GetType())
 			{
 				UnknownPackage packet = (UnknownPackage) message;
-				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Bytes)}");
+				if (Log.IsDebugEnabled) Log.Warn($"Unknown package 0x{message.Id:X2}\n{Package.HexDump(packet.Message)}");
 			}
 
 			else
@@ -1173,6 +1179,15 @@ namespace MiNET.Client
 			//}
 		}
 
+		private void OnMcpeMoveEntityDelta(McpeMoveEntityDelta message)
+		{
+			//if (Entities.ContainsKey(message.entityId))
+			//{
+			//    Entity entity = Entities[message.entityId];
+
+			//    Log.Debug($"Entity move: Id={message.entityId}, Type={entity.EntityTypeId} - 0x{entity.EntityTypeId:x2}");
+			//}
+		}
 
 		private void OnMcpeRespawn(McpeRespawn message)
 		{
@@ -1390,7 +1405,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 271,
+				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 273,
 				payload = data
 			};
 

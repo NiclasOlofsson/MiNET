@@ -109,6 +109,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Server Settings Request | 0x66 | 102 |   
 | Server Settings Response | 0x67 | 103 |   
 | Update Block Synced | 0x6e | 110 |   
+| Move Entity Delta | 0x6f | 111 |   
 
 
 ## Data types
@@ -489,6 +490,7 @@ val2 float
 |Speed Z | float |  |
 |Pitch | float |  |
 |Yaw | float |  |
+|Head Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | Links |  |
@@ -563,9 +565,8 @@ Wiki: [Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveE
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
+|Flags | short |  |
 |Position | PlayerLocation |  |
-|On Ground | bool |  |
-|Teleport | bool |  |
 -----------------------------------------------------------------------
 ### Move Player (0x13)
 Wiki: [Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MovePlayer)
@@ -2096,6 +2097,22 @@ Wiki: [Update Block Synced](https://github.com/NiclasOlofsson/MiNET/wiki//Protoc
 |Data Layer ID | UnsignedVarInt |  |
 |Unknown0 | UnsignedVarLong |  |
 |Unknown1 | UnsignedVarLong |  |
+-----------------------------------------------------------------------
+### Move Entity Delta (0x6f)
+Wiki: [Move Entity Delta](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveEntityDelta)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|Runtime Entity ID | UnsignedVarLong |  |
+|Flags | short |  |
 -----------------------------------------------------------------------
 
 

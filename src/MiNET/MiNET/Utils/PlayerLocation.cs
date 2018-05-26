@@ -57,16 +57,26 @@ namespace MiNET.Utils
 			return new Vector3(X, Y, Z);
 		}
 
+		//public Vector3 GetDirection()
+		//{
+		//	double pitch = Pitch.ToRadians();
+		//	double yaw = Yaw.ToRadians();
+		//	double y = -Math.Sin(pitch);
+		//	double xz = Math.Cos(pitch);
+		//	double x = -xz * Math.Sin(yaw);
+		//	double z = xz * Math.Cos(yaw);
+
+		//	return new Vector3((float)x, (float)y, (float)z);
+		//}
+
 		public Vector3 GetDirection()
 		{
 			Vector3 vector = new Vector3();
-
 			double pitch = Pitch.ToRadians();
 			double yaw = Yaw.ToRadians();
-			vector.X = (float) (-Math.Sin(yaw)*Math.Cos(pitch));
-			vector.Y = (float) -Math.Sin(pitch);
-			vector.Z = (float) (Math.Cos(yaw)*Math.Cos(pitch));
-
+			vector.X = (float)(-Math.Sin(yaw) * Math.Cos(pitch));
+			vector.Y = (float)-Math.Sin(pitch);
+			vector.Z = (float)(Math.Cos(yaw) * Math.Cos(pitch));
 			return vector;
 		}
 

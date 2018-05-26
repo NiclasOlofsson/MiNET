@@ -89,8 +89,9 @@ namespace MiNET.Entities.World
 				addEntity.x = KnownPosition.X;
 				addEntity.y = KnownPosition.Y;
 				addEntity.z = KnownPosition.Z;
-				addEntity.yaw = KnownPosition.Yaw;
 				addEntity.pitch = KnownPosition.Pitch;
+				addEntity.yaw = KnownPosition.Yaw;
+				addEntity.headYaw = KnownPosition.HeadYaw;
 				addEntity.metadata = GetMetadata();
 				addEntity.speedX = Velocity.X;
 				addEntity.speedY = Velocity.Y;

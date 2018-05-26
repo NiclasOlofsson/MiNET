@@ -1118,22 +1118,75 @@ namespace MiNET
 			}
 		}
 
-		public static void TraceSend(Package message)
+		//public static void TraceSend(Package message)
+		//{
+		//	if (!Log.IsDebugEnabled) return;
+		//	if (message is McpeWrapper) return;
+		//	if (message is UnconnectedPong) return;
+		//	if (message is McpeMovePlayer) return;
+		//	//if (message is McpeSetEntityMotion) return;
+		//	//if (message is McpeMoveEntity) return;
+		//	if (message is McpeSetEntityData) return;
+		//	if (message is McpeUpdateBlock) return;
+		//	if (message is McpeText) return;
+		//	if (message is McpeLevelEvent) return;
+		//	//if (!Debugger.IsAttached) return;
+
+		//	Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+		//}
+
+		internal static void TraceSend(Package message)
 		{
 			if (!Log.IsDebugEnabled) return;
-			if (message is McpeWrapper) return;
-			if (message is UnconnectedPong) return;
-			if (message is McpeMovePlayer) return;
-			if (message is McpeSetEntityMotion) return;
-			if (message is McpeMoveEntity) return;
-			if (message is McpeSetEntityData) return;
-			if (message is McpeUpdateBlock) return;
-			if (message is McpeText) return;
-			if (message is McpeLevelEvent) return;
-			//if (!Debugger.IsAttached) return;
 
-			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			try
+			{
+				string typeName = message.GetType().Name;
+
+				string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+				string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
+				int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+				verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+
+				if (!Regex.IsMatch(typeName, includePattern))
+				{
+					return;
+				}
+
+				if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+				{
+					return;
+				}
+
+				if (verbosity == 0)
+				{
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+				}
+				else if (verbosity == 1 || verbosity == 3)
+				{
+					var jsonSerializerSettings = new JsonSerializerSettings
+					{
+						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+
+						Formatting = Formatting.Indented,
+					};
+					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
+					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+				}
+				else if (verbosity == 2 || verbosity == 3)
+				{
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Error("Error when printing trace", e);
+			}
 		}
+
 	}
 
 	public enum ServerRole

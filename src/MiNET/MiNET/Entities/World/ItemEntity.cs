@@ -58,8 +58,13 @@ namespace MiNET.Entities.World
 
 			HealthManager.IsInvulnerable = true;
 
-			NoAi = false;
-			HasCollision = true;
+			//NoAi = true;
+			//HasCollision = false;
+			//IsAffectedByGravity = false;
+
+			NoAi = true;
+			HasCollision = false;
+			IsAffectedByGravity = false;
 		}
 
 		public Item GetItemStack()
@@ -80,6 +85,7 @@ namespace MiNET.Entities.World
 			mcpeAddItemEntity.speedY = Velocity.Y;
 			mcpeAddItemEntity.speedZ = Velocity.Z;
 			mcpeAddItemEntity.metadata = GetMetadata();
+			LastSentPosition = (PlayerLocation) KnownPosition.Clone();
 			Level.RelayBroadcast(players, mcpeAddItemEntity);
 
 			BroadcastSetEntityData();

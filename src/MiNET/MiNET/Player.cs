@@ -380,8 +380,8 @@ namespace MiNET
 			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
 			{
 				entity.KnownPosition = message.position;
-				entity.IsOnGround = message.onGround;
-				if (message.onGround) Log.Debug("Horse is on ground");
+				entity.IsOnGround = (message.flags & 1) == 1;
+				if (entity.IsOnGround) Log.Debug("Horse is on ground");
 			}
 		}
 
@@ -2205,7 +2205,7 @@ namespace MiNET
 
 						ItemEntity itemEntity = new ItemEntity(Level, record.NewItem)
 						{
-							Velocity = KnownPosition.GetDirection().Normalize()*0.25f,
+							Velocity = KnownPosition.GetDirection().Normalize()*0.3f,
 							KnownPosition =
 							{
 								X = KnownPosition.X,

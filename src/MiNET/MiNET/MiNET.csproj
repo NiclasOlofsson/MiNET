@@ -469,6 +469,7 @@
     <Compile Include="Items\ItemSaddle.cs" />
     <Compile Include="Items\ItemShears.cs" />
     <Compile Include="Items\ItemSugar.cs" />
+    <Compile Include="Net\McpeMoveEntityDelta.cs" />
     <Compile Include="Net\McpeMovePlayer.cs" />
     <Compile Include="Utils\Diagnostics\Profiler.cs" />
     <Compile Include="Utils\Skins\Bone.cs" />

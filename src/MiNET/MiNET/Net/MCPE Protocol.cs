@@ -584,6 +584,10 @@ namespace MiNET.Net
 						package = McpeUpdateBlockSynced.CreateObject();
 						package.Decode(buffer);
 						return package;
+					case 0x6f:
+						package = McpeMoveEntityDelta.CreateObject();
+						package.Decode(buffer);
+						return package;
 				}
 			}
 
@@ -2397,6 +2401,7 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public float pitch; // = null;
 		public float yaw; // = null;
+		public float headYaw; // = null;
 		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
 		public Links links; // = null;
@@ -2424,6 +2429,7 @@ namespace MiNET.Net
 			Write(speedZ);
 			Write(pitch);
 			Write(yaw);
+			Write(headYaw);
 			Write(attributes);
 			Write(metadata);
 			Write(links);
@@ -2451,6 +2457,7 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			pitch = ReadFloat();
 			yaw = ReadFloat();
+			headYaw = ReadFloat();
 			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
 			links = ReadLinks();
@@ -2476,6 +2483,7 @@ namespace MiNET.Net
 			speedZ=default(float);
 			pitch=default(float);
 			yaw=default(float);
+			headYaw=default(float);
 			attributes=default(EntityAttributes);
 			metadata=default(MetadataDictionary);
 			links=default(Links);
@@ -2675,9 +2683,8 @@ namespace MiNET.Net
 	{
 
 		public long runtimeEntityId; // = null;
+		public short flags; // = null;
 		public PlayerLocation position; // = null;
-		public bool onGround; // = null;
-		public bool teleport; // = null;
 
 		public McpeMoveEntity()
 		{
@@ -2692,9 +2699,8 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteUnsignedVarLong(runtimeEntityId);
+			Write(flags);
 			Write(position);
-			Write(onGround);
-			Write(teleport);
 
 			AfterEncode();
 		}
@@ -2709,9 +2715,8 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			runtimeEntityId = ReadUnsignedVarLong();
+			flags = ReadShort();
 			position = ReadPlayerLocation();
-			onGround = ReadBool();
-			teleport = ReadBool();
 
 			AfterDecode();
 		}
@@ -2724,9 +2729,8 @@ namespace MiNET.Net
 			base.ResetPackage();
 
 			runtimeEntityId=default(long);
+			flags=default(short);
 			position=default(PlayerLocation);
-			onGround=default(bool);
-			teleport=default(bool);
 		}
 
 	}
@@ -7455,6 +7459,58 @@ namespace MiNET.Net
 			dataLayerId=default(uint);
 			unknown0=default(long);
 			unknown1=default(long);
+		}
+
+	}
+
+	public partial class McpeMoveEntityDelta : Package<McpeMoveEntityDelta>
+	{
+
+		public long runtimeEntityId; // = null;
+		public short flags; // = null;
+
+		public McpeMoveEntityDelta()
+		{
+			Id = 0x6f;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			WriteUnsignedVarLong(runtimeEntityId);
+			Write(flags);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			runtimeEntityId = ReadUnsignedVarLong();
+			flags = ReadShort();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			runtimeEntityId=default(long);
+			flags=default(short);
 		}
 
 	}

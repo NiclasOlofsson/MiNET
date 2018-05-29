@@ -29,6 +29,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using fNbt;
 using Jose;
 using log4net;
@@ -163,6 +164,7 @@ namespace MiNET
 						_playerInfo.LanguageCode = payload.LanguageCode;
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
+						_playerInfo.TenantId = payload.TenantId;
 
 						_playerInfo.Skin = new Skin()
 						{
@@ -343,7 +345,16 @@ namespace MiNET
 								_session.CryptoContext.CryptoStreamOut = cryptoStreamOut;
 
 								string b64Key = ecKey.PublicKey.ToDerEncoded().EncodeBase64();
-								var handshakeJson = new HandshakeData() {salt = ecKey.SecretPrepend.EncodeBase64()};
+
+								EduTokenManager tokenManager = _session.Server.EduTokenManager;
+
+								string signedToken = tokenManager.GetSignedToken(_playerInfo.TenantId);
+
+								var handshakeJson = new HandshakeData()
+								{
+									salt = ecKey.SecretPrepend.EncodeBase64(),
+									signedToken = signedToken
+								};
 
 								string val = JWT.Encode(handshakeJson, ecKey.Key, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
 								Log.Warn($"Headers: {string.Join(";", JWT.Headers(val))}");

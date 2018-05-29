@@ -4700,6 +4700,8 @@ namespace MiNET.Net
 			FurnaceData = 3,
 			Multi = 4,
 			ShulkerBox = 5,
+			ChemistryShapeless = 6,
+			ChemistryShaped = 7,
 		}
 
 		public byte windowId; // = null;

@@ -616,7 +616,9 @@
 			<enum id="Furnace data" value="3" />
 			<enum id="Multi" value="4" />
 			<enum id="Shulker box" value="5" />
-		</enums>
+		  <enum id="Chemistry Shapeless" value="6" />
+      <enum id="Chemistry Shaped" value="7" />
+    </enums>
 
 		<field name="Window ID" type="byte" />
 		<field name="Recipe Type" type="SignedVarInt" />

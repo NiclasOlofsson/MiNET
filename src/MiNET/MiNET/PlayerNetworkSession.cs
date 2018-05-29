@@ -1064,5 +1064,6 @@ namespace MiNET
 		public int Edition { get; set; }
 		public int ProtocolVersion { get; set; }
 		public string LanguageCode { get; set; }
+		public string TenantId { get; set; }
 	}
 }

@@ -188,6 +188,7 @@ namespace MiNET.Utils
 				Iat = exp,
 				ExtraData = new ExtraData
 				{
+					Xuid = "",
 					DisplayName = username,
 					Identity = isEmulator ? Guid.NewGuid().ToString() : "85e4febd-3d33-4008-b044-1ad9fb85b26c",
 				},
@@ -260,21 +261,30 @@ namespace MiNET.Utils
 
 			string skinData = $@"
 {{
+	""NumCapeData"": 0,
+	""NumSkinData"": 1,
+	""CapeData"": """",
+	""CapeDataLength"": 0,
 	""ADRole"": 0,
 	""ClientRandomId"": {new Random().Next()},
 	""CurrentInputMode"": 1,
 	""DefaultInputMode"": 1,
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
-	""GameVersion"": ""1.2.6"",
+	""GameVersion"": ""1.0.28"",
+	""IsEduMode"": {Config.GetProperty("EnableEdu", false).ToString().ToLower()},
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
+	""SkinDataLength"": {8192},
 	""SkinId"": ""{skin.SkinId}"",
-	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
+	""TenantId"": ""38dd6634-1031-4c50-a9b4-d16cd9d97d57"",
 	""UIProfile"": 0
 }}";
+
+			//EDU 	""TenantId"": ""38dd6634-1031-4c50-a9b4-d16cd9d97d57"",
+			//XBL 	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
 
 			string val = JWT.Encode(skinData, tk, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
 

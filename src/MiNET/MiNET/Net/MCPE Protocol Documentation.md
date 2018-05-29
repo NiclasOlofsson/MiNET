@@ -1262,6 +1262,8 @@ Wiki: [Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cr
 |Furnace Data | 3 |
 |Multi | 4 |
 |Shulker Box | 5 |
+|Chemistry Shapeless | 6 |
+|Chemistry Shaped | 7 |
 
 
 #### Fields

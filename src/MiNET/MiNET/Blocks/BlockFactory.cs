@@ -287,7 +287,6 @@ namespace MiNET.Blocks
 			else if (blockId == 162) block = new Log2();
 			else if (blockId == 163) block = new AcaciaStairs();
 			else if (blockId == 164) block = new DarkOakStairs();
-
 			else if (blockId == 165) block = new Slime();
 			else if (blockId == 167) block = new IronTrapdoor();
 			else if (blockId == 168) block = new Prismarine();
@@ -324,6 +323,9 @@ namespace MiNET.Blocks
 			else if (blockId == 207) block = new FrostedIce();
 			else if (blockId == 208) block = new EndRod();
 			else if (blockId == 209) block = new EndGateway();
+			else if (blockId == 210) block = new Allow();
+			else if (blockId == 211) block = new Deny();
+			else if (blockId == 212) block = new Border();
 			else if (blockId == 219) block = new PurpleGlazedTerracotta();
 			else if (blockId == 220) block = new WhiteGlazedTerracotta();
 			else if (blockId == 221) block = new OrangeGlazedTerracotta();

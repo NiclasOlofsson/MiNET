@@ -243,6 +243,7 @@ namespace MiNET.Items
 			else if (id == 446) item = new ItemBanner();
 			else if (id == 452) item = new ItemIronNugget();
 			else if (id == 458) item = new ItemBeetrootSeeds();
+			else if (id == 498) item = new ItemCamera(metadata);
 			else if (id <= 255)
 			{
 				Block block = BlockFactory.GetBlockById((byte) id);

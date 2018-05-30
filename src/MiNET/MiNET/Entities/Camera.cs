@@ -24,6 +24,8 @@
 #endregion
 
 using MiNET.Items;
+using MiNET.Net;
+using MiNET.Utils;
 using MiNET.Worlds;
 
 namespace MiNET.Entities
@@ -32,10 +34,11 @@ namespace MiNET.Entities
 	{
 		public Camera(Level level) : base((int)EntityType.Camera, level)
 		{
-			Width = Length = 0.6;
+			Width = Length = 0.75f;
 			Height = 1.8f;
 
-			IsStackable = true;
+			HasCollision = true;
+			IsAffectedByGravity = true;
 		}
 
 		public override Item[] GetDrops()

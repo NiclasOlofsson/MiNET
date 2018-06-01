@@ -114,7 +114,10 @@
     <Compile Include="BlockFace.cs" />
     <Compile Include="Blocks\AcaciaDoor.cs" />
     <Compile Include="Blocks\AcaciaFenceGate.cs" />
+    <Compile Include="Blocks\Allow.cs" />
+    <Compile Include="Blocks\Border.cs" />
     <Compile Include="Blocks\Chalkboard.cs" />
+    <Compile Include="Blocks\Deny.cs" />
     <Compile Include="Blocks\Jukebox.cs" />
     <Compile Include="Blocks\Leaves2.cs" />
     <Compile Include="Blocks\Log2.cs" />
@@ -392,6 +395,7 @@
     <Compile Include="Entities\Behaviors\TemptedBehavior.cs" />
     <Compile Include="Entities\Behaviors\WanderBehavior.cs" />
     <Compile Include="Entities\BossBar.cs" />
+    <Compile Include="Entities\Camera.cs" />
     <Compile Include="Entities\EntitySpawnManager.cs" />
     <Compile Include="Entities\Hologram.cs" />
     <Compile Include="Entities\Hostile\Dragon.cs" />
@@ -467,6 +471,7 @@
     <Compile Include="Entities\Vehicles\Minecart.cs" />
     <Compile Include="Items\ItemBanner.cs" />
     <Compile Include="Items\ItemBoat.cs" />
+    <Compile Include="Items\ItemCamera.cs" />
     <Compile Include="Items\ItemChalkboard.cs" />
     <Compile Include="Items\ItemHorseArmorDiamond.cs" />
     <Compile Include="Items\ItemFireworks.cs" />

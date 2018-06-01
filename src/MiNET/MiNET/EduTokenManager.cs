@@ -1,10 +1,36 @@
+#region LICENSE
+
+// The contents of this file are subject to the Common Public Attribution
+// License Version 1.0. (the "License"); you may not use this file except in
+// compliance with the License. You may obtain a copy of the License at
+// https://github.com/NiclasOlofsson/MiNET/blob/master/LICENSE. 
+// The License is based on the Mozilla Public License Version 1.1, but Sections 14 
+// and 15 have been added to cover use of software over a computer network and 
+// provide for limited attribution for the Original Developer. In addition, Exhibit A has 
+// been modified to be consistent with Exhibit B.
+// 
+// Software distributed under the License is distributed on an "AS IS" basis,
+// WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+// the specific language governing rights and limitations under the License.
+// 
+// The Original Code is MiNET.
+// 
+// The Original Developer is the Initial Developer.  The Initial Developer of
+// the Original Code is Niclas Olofsson.
+// 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
+// All Rights Reserved.
+
+#endregion
+
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
+using log4net;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.SqlServer.Server;
 using MiNET.Utils;
 using Newtonsoft.Json.Linq;
 
@@ -12,6 +38,8 @@ namespace MiNET
 {
 	public class EduTokenManager
 	{
+		private static readonly ILog Log = LogManager.GetLogger(typeof(EduTokenManager));
+
 		private string _username;
 		private string _password;
 
@@ -21,6 +49,21 @@ namespace MiNET
 		{
 			_username = Config.GetProperty("AAD.username", "");
 			_password = Config.GetProperty("AAD.password", "");
+
+			if (_username.StartsWith("secure:", StringComparison.InvariantCultureIgnoreCase) && _password.StartsWith("secure:", StringComparison.InvariantCultureIgnoreCase))
+			{
+				_username = Encoding.UTF8.GetString(ProtectedData.Unprotect(_username.Substring(7).DecodeBase64(), null, DataProtectionScope.LocalMachine));
+				_password = Encoding.UTF8.GetString(ProtectedData.Unprotect(_password.Substring(7).DecodeBase64(), null, DataProtectionScope.LocalMachine));
+			}
+			else
+			{
+				var protUsername = ProtectedData.Protect(Encoding.UTF8.GetBytes(_username), null, DataProtectionScope.LocalMachine).EncodeBase64();
+				var protPassword = ProtectedData.Protect(Encoding.UTF8.GetBytes(_password), null, DataProtectionScope.LocalMachine).EncodeBase64();
+				Log.Fatal($"Plaintext credentials in MiNET configuration files are not allowed. Please use the following encrypted configuration for safe usage of Microsoft Account credentials\n" +
+						$"AAD.username=secure:{protUsername}\n" +
+						$"AAD.password=secure:{protPassword}\n");
+				Environment.Exit(-1);
+			}
 		}
 
 		public string GetSignedToken(string tenantId)
@@ -67,7 +110,7 @@ namespace MiNET
 			client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			HttpContent content = new StringContent(data, Encoding.UTF8, "application/json");
-			HttpResponseMessage response = client.PostAsync("https://meeservices.azurewebsites.net/signin", content).Result;  // Blocking call!
+			HttpResponseMessage response = client.PostAsync("https://meeservices.azurewebsites.net/signin", content).Result; // Blocking call!
 			if (!response.IsSuccessStatusCode) throw new Exception("Failed to get signed token from Microsoft");
 
 			var json = response.Content.ReadAsStringAsync().Result;

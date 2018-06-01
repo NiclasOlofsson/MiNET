@@ -165,6 +165,7 @@ namespace MiNET
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
 						_playerInfo.TenantId = payload.TenantId;
+						_playerInfo.IsEduMode = payload.IsEduMode;
 
 						_playerInfo.Skin = new Skin()
 						{
@@ -610,7 +611,7 @@ namespace MiNET
 			Player player = _server.PlayerFactory.CreatePlayer(_server, session.GetClientEndPoint(), playerInfo);
 			player.NetworkHandler = session;
 			player.CertificateData = playerInfo.CertificateData;
-			player.Username = playerInfo.Username;
+			player.Username = "Steve"; //playerInfo.Username;
 			player.ClientUuid = playerInfo.ClientUuid;
 			player.ServerAddress = playerInfo.ServerAddress;
 			player.ClientId = playerInfo.ClientId;

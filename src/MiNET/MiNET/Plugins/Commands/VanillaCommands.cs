@@ -597,5 +597,13 @@ namespace MiNET.Plugins.Commands
 		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
 		{
 		}
+
+		[Command(Aliases = new string[] {"connect"}, Description = "commands.wsserver.description")]
+		public void Wsserver(Player player, string serverUri)
+		{
+			McpeInitiateWebSocketConnection ws = McpeInitiateWebSocketConnection.CreateObject();
+			ws.server = serverUri;
+			player.SendPackage(ws);
+		}
 	}
 }

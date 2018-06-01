@@ -194,6 +194,7 @@ namespace MiNET.Client
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
 				.ContinueWith(t => doSendCommand(t, "/me says -> Hi guys! It is I!!"))
+				//.ContinueWith(t => doSendCommand(t, "/connect 192.168.0.7:1381"))
 				//.ContinueWith(t => Task.Delay(500).Wait())
 				//.ContinueWith(t => doSendCommand(t, "/summon sheep"))
 				//.ContinueWith(t => Task.Delay(500).Wait())
@@ -490,6 +491,8 @@ namespace MiNET.Client
 					{
 						UnconnectedPong incoming = (UnconnectedPong) message;
 						Log.Warn($"MOTD: {incoming.serverName}");
+						Log.Warn($": {incoming.pingId}");
+						Log.Warn($": {incoming.serverId}");
 						if (!HaveServer)
 						{
 							_serverEndpoint = senderEndpoint;

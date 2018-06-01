@@ -755,6 +755,8 @@
 	</pdu>
 
 	<pdu id="0x49" online="false" client="false" server="true" name="MCPE_CAMERA">
+		<field name="Unknown1" type="SignedVarLong" />
+		<field name="Unknown2" type="SignedVarLong" />
 	</pdu>
 
 	<pdu id="0x4a" online="false" client="false" server="true" name="MCPE_BOSS_EVENT">

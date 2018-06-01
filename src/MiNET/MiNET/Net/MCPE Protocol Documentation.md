@@ -1588,6 +1588,8 @@ Wiki: [Camera](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Camera)
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Unknown1 | SignedVarLong |  |
+|Unknown2 | SignedVarLong |  |
 -----------------------------------------------------------------------
 ### Boss Event (0x4a)
 Wiki: [Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BossEvent)

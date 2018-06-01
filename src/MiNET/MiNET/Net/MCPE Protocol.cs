@@ -5736,6 +5736,8 @@ namespace MiNET.Net
 	public partial class McpeCamera : Package<McpeCamera>
 	{
 
+		public long unknown1; // = null;
+		public long unknown2; // = null;
 
 		public McpeCamera()
 		{
@@ -5749,6 +5751,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			WriteSignedVarLong(unknown1);
+			WriteSignedVarLong(unknown2);
 
 			AfterEncode();
 		}
@@ -5762,6 +5766,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			unknown1 = ReadSignedVarLong();
+			unknown2 = ReadSignedVarLong();
 
 			AfterDecode();
 		}
@@ -5773,6 +5779,8 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
+			unknown1=default(long);
+			unknown2=default(long);
 		}
 
 	}

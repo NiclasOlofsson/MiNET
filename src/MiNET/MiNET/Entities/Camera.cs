@@ -39,7 +39,19 @@ namespace MiNET.Entities
 
 			HasCollision = true;
 			IsAffectedByGravity = true;
+
+			HealthManager.IsInvulnerable = true;
 		}
+
+		public override void DoInteraction(byte actionId, Player player)
+		{
+			McpeCamera camera = McpeCamera.CreateObject();
+			camera.unknown1 = EntityId;
+			camera.unknown2 = player.EntityId;
+			player.Level.RelayBroadcast(camera);
+		}
+
+
 
 		public override Item[] GetDrops()
 		{

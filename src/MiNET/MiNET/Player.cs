@@ -2508,7 +2508,7 @@ namespace MiNET
 			startGame.z = (int) SpawnPosition.Z;
 			startGame.hasAchievementsDisabled = true;
 			startGame.dayCycleStopTime = (int) Level.WorldTime;
-			startGame.eduMode = PlayerInfo.Edition == 1;
+			startGame.eduMode = PlayerInfo.IsEduMode;
 			startGame.rainLevel = 0;
 			startGame.lightningLevel = 0;
 			startGame.isMultiplayer = true;

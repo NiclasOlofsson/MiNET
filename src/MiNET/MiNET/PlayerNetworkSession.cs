@@ -1061,7 +1061,7 @@ namespace MiNET
 		public int DeviceOS { get; set; }
 		public int GuiScale { get; set; }
 		public int UIProfile { get; set; }
-		public int Edition { get; set; }
+		public bool IsEduMode { get; set; }
 		public int ProtocolVersion { get; set; }
 		public string LanguageCode { get; set; }
 		public string TenantId { get; set; }

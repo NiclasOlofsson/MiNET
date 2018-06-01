@@ -377,11 +377,13 @@ namespace TestPlugin.NiceLobby
 			Player player = eventArgs.Player;
 			if (player == null) throw new ArgumentNullException(nameof(eventArgs.Player));
 
-			if(player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
+			//if(player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
+			if (player.Username.Equals("Steve") || player.CertificateData.ExtraData.Xuid != null && player.Username.Equals("gurunx"))
 			{
-				player.ActionPermissions = ActionPermissions.Operator;
+				player.ActionPermissions = ActionPermissions.All;
 				player.CommandPermission = 4;
 				player.PermissionLevel = PermissionLevel.Operator;
+				player.IsWorldBuilder = true;
 				player.SendAdventureSettings();
 			}
 

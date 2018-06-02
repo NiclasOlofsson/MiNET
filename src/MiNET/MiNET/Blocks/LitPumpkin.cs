@@ -7,6 +7,7 @@
 			LightLevel = 15;
 			BlastResistance = 5;
 			Hardness = 1;
-		}
+            IsConductive = true;
+        }
 	}
 }

@@ -33,8 +33,9 @@ namespace MiNET.Blocks
 	public class Furnace : Block
 	{
 		public Furnace() : base(61)
-		{
-		}
+        {
+            IsConductive = true;
+        }
 
 		protected Furnace(byte id) : base(id)
 		{

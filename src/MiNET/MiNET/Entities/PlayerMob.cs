@@ -120,7 +120,7 @@ namespace MiNET.Entities
 				McpeAddPlayer message = McpeAddPlayer.CreateObject();
 				message.uuid = ClientUuid;
 				message.username = NameTag;
-				message.entityIdSelf = -EntityId;
+				message.entityIdSelf = EntityId;
 				message.runtimeEntityId = EntityId;
 				message.x = KnownPosition.X;
 				message.y = KnownPosition.Y;
@@ -191,7 +191,7 @@ namespace MiNET.Entities
 			}
 
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
-			mcpeRemovePlayer.entityIdSelf = -EntityId;
+			mcpeRemovePlayer.entityIdSelf = EntityId;
 			Level.RelayBroadcast(players, mcpeRemovePlayer);
 		}
 

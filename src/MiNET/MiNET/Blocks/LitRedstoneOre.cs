@@ -5,6 +5,7 @@
 		public LitRedstoneOre() : base(74)
 		{
 			LightLevel = 9;
-		}
+            IsConductive = true;
+        }
 	}
 }

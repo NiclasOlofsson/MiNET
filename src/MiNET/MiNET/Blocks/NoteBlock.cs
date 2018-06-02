@@ -12,7 +12,8 @@ namespace MiNET.Blocks
 		{
 			BlastResistance = 4;
 			Hardness = 0.8f;
-			//IsFlammable = true; // It can catch fire from lava, but not other means.
-		}
+            IsConductive = true;
+            //IsFlammable = true; // It can catch fire from lava, but not other means.
+        }
 	}
 }

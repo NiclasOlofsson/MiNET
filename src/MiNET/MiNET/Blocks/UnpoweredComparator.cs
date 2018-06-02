@@ -6,12 +6,13 @@ namespace MiNET.Blocks
 	{
 		public UnpoweredComparator() : this(149)
 		{
-			
-		}
+            IsConductive = true;
+        }
 
 		public UnpoweredComparator(byte id) : base(id)
 		{
 			IsTransparent = true;
-		}
+            IsConductive = true;
+        }
 	}
 }

@@ -43,8 +43,9 @@ namespace MiNET.Worlds
 		public NibbleArray metadata = new NibbleArray(16*16*16);
 		public NibbleArray blocklight = new NibbleArray(16*16*16);
 		public NibbleArray skylight = new NibbleArray(16*16*16);
+        public NibbleArray power = new NibbleArray(16*16*16);
 
-		private byte[] _cache;
+        private byte[] _cache;
 		private bool _isDirty;
 		private object _cacheSync = new object();
 
@@ -107,7 +108,19 @@ namespace MiNET.Worlds
 			_isDirty = true;
 		}
 
-		public byte GetSkylight(int bx, int by, int bz)
+        public byte GetPower(int bx, int by, int bz)
+        {
+            return power[GetIndex(bx, by, bz)];
+        }
+
+        public void SetPower(int bx, int by, int bz, byte data)
+        {
+            power[GetIndex(bx, by, bz)] = data;
+            //_cache = null;
+            //_isDirty = true;
+        }
+
+        public byte GetSkylight(int bx, int by, int bz)
 		{
 			return skylight[GetIndex(bx, by, bz)];
 		}

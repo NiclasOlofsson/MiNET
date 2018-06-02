@@ -23,6 +23,10 @@
 
 #endregion
 
+using MiNET.Utils;
+using MiNET.Worlds;
+using MiNET.Blocks;
+
 namespace MiNET.Items
 {
 	public class ItemSaddle : Item
@@ -30,5 +34,12 @@ namespace MiNET.Items
 		protected internal ItemSaddle() : base(329)
 		{
 		}
-	}
+
+        public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)
+        {
+            for (var x = -14; x < 15; x++)
+                for (var z = -14; z < 15; z++)
+                    world.SetBlock(new RedstoneWire() { Coordinates = (BlockCoordinates)player.KnownPosition + new BlockCoordinates(x, 0, z) });
+        }
+    }
 }

@@ -5,6 +5,7 @@
 		public Tnt() : base(46)
 		{
 			IsFlammable = true;
-		}
+            IsConductive = true;
+        }
 	}
 }

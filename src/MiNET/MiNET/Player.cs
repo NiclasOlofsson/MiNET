@@ -1858,7 +1858,7 @@ namespace MiNET
                     mcpeContainerOpen.coordinates = BlockCoordinates.Zero;
                     mcpeContainerOpen.windowId = inventoryByEntityId.WindowsId;
                     mcpeContainerOpen.type = inventoryByEntityId.Type;
-                    mcpeContainerOpen.unknownRuntimeEntityId = entityId * 2L - 1L;
+                    mcpeContainerOpen.entityIdSelf = entityId;
                     SendPackage(mcpeContainerOpen);
                     McpeInventoryContent inventoryContent = Package<McpeInventoryContent>.CreateObject(1L);
                     inventoryContent.inventoryId = inventoryByEntityId.WindowsId;
@@ -1914,7 +1914,7 @@ namespace MiNET
 				containerOpen.windowId = inventory.WindowsId;
 				containerOpen.type = inventory.Type;
 				containerOpen.coordinates = inventoryCoord;
-				containerOpen.unknownRuntimeEntityId = 1;
+				containerOpen.entityIdSelf = -1;
 				SendPackage(containerOpen);
 
 				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
@@ -3336,7 +3336,7 @@ namespace MiNET
 			McpeAddPlayer mcpeAddPlayer = McpeAddPlayer.CreateObject();
 			mcpeAddPlayer.uuid = ClientUuid;
 			mcpeAddPlayer.username = Username;
-			mcpeAddPlayer.entityIdSelf = -EntityId;
+			mcpeAddPlayer.entityIdSelf = EntityId;
 			mcpeAddPlayer.runtimeEntityId = EntityId;
 			mcpeAddPlayer.x = KnownPosition.X;
 			mcpeAddPlayer.y = KnownPosition.Y;
@@ -3420,7 +3420,7 @@ namespace MiNET
 		public override void DespawnFromPlayers(Player[] players)
 		{
 			McpeRemoveEntity mcpeRemovePlayer = McpeRemoveEntity.CreateObject();
-			mcpeRemovePlayer.entityIdSelf = -EntityId;
+			mcpeRemovePlayer.entityIdSelf = EntityId;
 			Level.RelayBroadcast(this, players, mcpeRemovePlayer);
 		}
 

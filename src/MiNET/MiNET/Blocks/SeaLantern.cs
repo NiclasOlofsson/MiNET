@@ -10,7 +10,8 @@ namespace MiNET.Blocks
 			LightLevel = 15;
 			BlastResistance = 1.5f;
 			Hardness = 0.3f;
-		}
+            IsConductive = true;
+        }
 
 		public override Item[] GetDrops(Item tool)
 		{

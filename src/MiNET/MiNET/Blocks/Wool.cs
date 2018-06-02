@@ -13,6 +13,7 @@ namespace MiNET.Blocks
 			BlastResistance = 4;
 			Hardness = 0.8f;
 			IsFlammable = true;
-		}
+            IsConductive = true;
+        }
 	}
 }

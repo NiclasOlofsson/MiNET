@@ -144,7 +144,20 @@ namespace MiNET.Worlds
 			SetDirty();
 		}
 
-		public byte GetSkylight(int bx, int by, int bz)
+        public byte GetPower(int bx, int by, int bz)
+        {
+            Chunk chunk = chunks[by >> 4];
+            return chunk.GetPower(bx, by - 16 * (by >> 4), bz);
+        }
+
+        public void SetPower(int bx, int by, int bz, byte data)
+        {
+            Chunk chunk = chunks[by >> 4];
+            chunk.SetPower(bx, by - 16 * (by >> 4), bz, data);
+            //SetDirty();
+        }
+
+        public byte GetSkylight(int bx, int by, int bz)
 		{
 			Chunk chunk = chunks[by >> 4];
 			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);

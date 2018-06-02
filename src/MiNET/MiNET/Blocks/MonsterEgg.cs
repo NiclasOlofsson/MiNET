@@ -6,8 +6,9 @@
 		{
 			BlastResistance = 3.75f;
 			Hardness = 0.75f;
+            IsConductive = true;
 
-			// Spawns silverfish on break.	
-		}
+            // Spawns silverfish on break.	
+        }
 	}
 }

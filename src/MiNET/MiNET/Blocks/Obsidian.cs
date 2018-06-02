@@ -6,6 +6,7 @@ namespace MiNET.Blocks
 		{
 			BlastResistance = 6000;
 			Hardness = 50;
-		}
+            IsConductive = true;
+        }
 	}
 }

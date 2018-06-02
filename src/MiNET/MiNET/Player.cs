@@ -167,17 +167,23 @@ namespace MiNET
 			SendPackage(chunkData);
 		}
 
-		public void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
+		public virtual void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
 		{
 		}
 
-		public void HandleMcpePlayerSkin(McpePlayerSkin message)
+		public virtual void HandleMcpePlayerSkin(McpePlayerSkin message)
 		{
+		}
+
+		public virtual void HandleMcpePhotoTransfer(McpePhotoTransfer message)
+		{
+			// Handle photos from the camera. Override to provide your own implementaion because
+			// no sensible default for MiNET.
 		}
 
 		private Form _currentForm = null;
 
-		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
+		public virtual void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
 			if (_currentForm == null) Log.Warn("No current form set for player when processing response");
 

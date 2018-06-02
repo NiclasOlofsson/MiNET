@@ -914,6 +914,12 @@
 		<field name="Unknown2" type="byte" />
 	</pdu>
 
+	<pdu id="0x63" online="false" client="true" server="false" name="MCPE_PHOTO_TRANSFER">
+		<field name="File name" type="string" />
+		<field name="Image data" type="string" />
+		<field name="Unknown2" type="string" />
+	</pdu>
+
 	<pdu id="0x64" online="false" client="false" server="true" name="MCPE_MODAL_FORM_REQUEST">
 		<field name="Form Id" type="UnsignedVarInt" />
 		<field name="Data" type="string" />

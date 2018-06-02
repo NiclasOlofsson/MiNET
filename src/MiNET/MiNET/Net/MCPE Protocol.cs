@@ -81,6 +81,7 @@ namespace MiNET.Net
 		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 		void HandleMcpePurchaseReceipt(McpePurchaseReceipt message);
 		void HandleMcpePlayerSkin(McpePlayerSkin message);
+		void HandleMcpePhotoTransfer(McpePhotoTransfer message);
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
 	}
@@ -562,6 +563,10 @@ namespace MiNET.Net
 						return package;
 					case 0x62:
 						package = McpeNpcRequest.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x63:
+						package = McpePhotoTransfer.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x64:
@@ -7141,6 +7146,62 @@ namespace MiNET.Net
 			unknown0=default(byte);
 			unknown1=default(string);
 			unknown2=default(byte);
+		}
+
+	}
+
+	public partial class McpePhotoTransfer : Package<McpePhotoTransfer>
+	{
+
+		public string fileName; // = null;
+		public string imageData; // = null;
+		public string unknown2; // = null;
+
+		public McpePhotoTransfer()
+		{
+			Id = 0x63;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(fileName);
+			Write(imageData);
+			Write(unknown2);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			fileName = ReadString();
+			imageData = ReadString();
+			unknown2 = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			fileName=default(string);
+			imageData=default(string);
+			unknown2=default(string);
 		}
 
 	}

@@ -104,6 +104,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Last Hurt By | 0x60 | 96 |   
 | Book Edit | 0x61 | 97 |   
 | Npc Request | 0x62 | 98 |   
+| Photo Transfer | 0x63 | 99 |   
 | Modal Form Request | 0x64 | 100 |   
 | Modal Form Response | 0x65 | 101 |   
 | Server Settings Request | 0x66 | 102 |   
@@ -2005,6 +2006,23 @@ Wiki: [Npc Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRe
 |Unknown0 | byte |  |
 |Unknown1 | string |  |
 |Unknown2 | byte |  |
+-----------------------------------------------------------------------
+### Photo Transfer (0x63)
+Wiki: [Photo Transfer](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PhotoTransfer)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|File name | string |  |
+|Image data | string |  |
+|Unknown2 | string |  |
 -----------------------------------------------------------------------
 ### Modal Form Request (0x64)
 Wiki: [Modal Form Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ModalFormRequest)

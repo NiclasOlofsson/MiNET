@@ -32,6 +32,11 @@ namespace MiNET.Entities
 {
 	public class Camera : Entity
 	{
+		private long _countdown;
+
+		public string InteractionLabel { get; set; } = "action.interact.takepicture";
+
+
 		public Camera(Level level) : base((int)EntityType.Camera, level)
 		{
 			Width = Length = 0.75f;
@@ -43,14 +48,36 @@ namespace MiNET.Entities
 			HealthManager.IsInvulnerable = true;
 		}
 
+		public override MetadataDictionary GetMetadata()
+		{
+			var metadata = base.GetMetadata();
+			metadata[40] = new MetadataString(InteractionLabel);
+			return metadata;
+		}
+
 		public override void DoInteraction(byte actionId, Player player)
 		{
 			McpeCamera camera = McpeCamera.CreateObject();
 			camera.unknown1 = EntityId;
 			camera.unknown2 = player.EntityId;
 			player.Level.RelayBroadcast(camera);
+
+			_countdown = Age + 100;
+			InteractionLabel = "";
+			BroadcastSetEntityData();
 		}
 
+		public override void OnTick(Entity[] entities)
+		{
+			base.OnTick(entities);
+
+			if (!IsSpawned) return;
+
+			if (_countdown > 0 && Age > _countdown)
+			{
+				DespawnEntity();
+			}
+		}
 
 
 		public override Item[] GetDrops()

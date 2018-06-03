@@ -283,7 +283,14 @@ namespace MiNET.Plugins.Commands
 					mob = new Vex(world);
 					break;
 				case EntityType.Npc:
-					mob = new PlayerMob("test", world);
+					if(Config.GetProperty("EnableEdu", false))
+					{
+						mob = new Npc(world);
+					}
+					else
+					{
+						mob = new PlayerMob("test", world);
+					}
 					break;
 
 				case EntityType.Boat:
@@ -604,6 +611,13 @@ namespace MiNET.Plugins.Commands
 			McpeInitiateWebSocketConnection ws = McpeInitiateWebSocketConnection.CreateObject();
 			ws.server = serverUri;
 			player.SendPackage(ws);
+		}
+
+		[Command]
+		public void Worldbuilder(Player commander)
+		{
+			commander.IsWorldBuilder = !commander.IsWorldBuilder;
+			commander.SendAdventureSettings();
 		}
 	}
 }

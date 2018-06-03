@@ -60,7 +60,7 @@ namespace MiNET
 				edition = "MCEE";
 			}
 
-			return string.Format($"{edition};{Motd};{protocolVersion};{clientVersion};{NumberOfPlayers};{MaxNumberOfPlayers};{Motd.GetHashCode() + caller.Address.Address + caller.Port};{SecondLine};Survival;");
+			return string.Format($"{edition};{Motd};{protocolVersion};{clientVersion};{NumberOfPlayers};{MaxNumberOfPlayers};{(ulong)(Motd.GetHashCode() + caller.Address.Address + caller.Port)};{SecondLine};Survival;");
 		}
 	}
 }

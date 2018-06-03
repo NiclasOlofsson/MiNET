@@ -460,5 +460,6 @@
 
 		// For the user to use. Start your first enumeration at this value.
 		ID_USER_PACKET_ENUM,
+		ID_WS_CONNECTION_REQUEST = 0x89,
 	};
 }

@@ -533,6 +533,10 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(players, mcpeRemoveEntity);
 		}
 
+		public virtual void SetEntityData(MetadataDictionary message)
+		{
+		}
+
 		public virtual void BroadcastSetEntityData()
 		{
 			BroadcastSetEntityData(GetMetadata());

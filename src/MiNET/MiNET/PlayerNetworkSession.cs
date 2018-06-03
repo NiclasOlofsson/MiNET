@@ -577,6 +577,16 @@ namespace MiNET
 				handler.HandleMcpeMapInfoRequest((McpeMapInfoRequest) message);
 			}
 
+			else if (typeof(McpeSetEntityData) == message.GetType())
+			{
+				handler.HandleMcpeSetEntityData((McpeSetEntityData)message);
+			}
+
+			else if (typeof(McpeNpcRequest) == message.GetType())
+			{
+				handler.HandleMcpeNpcRequest((McpeNpcRequest)message);
+			}
+
 			else if (typeof (McpeItemFrameDropItem) == message.GetType())
 			{
 				handler.HandleMcpeItemFrameDropItem((McpeItemFrameDropItem) message);

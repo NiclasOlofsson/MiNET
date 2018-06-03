@@ -61,6 +61,7 @@ namespace MiNET.Net
 		void HandleMcpeEntityPickRequest(McpeEntityPickRequest message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
 		void HandleMcpeEntityFall(McpeEntityFall message);
+		void HandleMcpeSetEntityData(McpeSetEntityData message);
 		void HandleMcpeSetEntityMotion(McpeSetEntityMotion message);
 		void HandleMcpeAnimate(McpeAnimate message);
 		void HandleMcpeRespawn(McpeRespawn message);
@@ -81,6 +82,7 @@ namespace MiNET.Net
 		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 		void HandleMcpePurchaseReceipt(McpePurchaseReceipt message);
 		void HandleMcpePlayerSkin(McpePlayerSkin message);
+		void HandleMcpeNpcRequest(McpeNpcRequest message);
 		void HandleMcpePhotoTransfer(McpePhotoTransfer message);
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
@@ -157,6 +159,10 @@ namespace MiNET.Net
 						return package;
 					case 0x1A:
 						package = IpRecentlyConnected.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x89:
+						package = WsConnectionRequest.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0xfe:
@@ -1487,6 +1493,61 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
+		}
+
+	}
+
+	public partial class WsConnectionRequest : Package<WsConnectionRequest>
+	{
+
+		public readonly byte[] offlineMessageDataId = new byte[]{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }; // = { 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 };
+		public byte[] systemAddress; // = null;
+		public byte[] ascii; // = null;
+
+		public WsConnectionRequest()
+		{
+			Id = 0x89;
+			IsMcpe = false;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(offlineMessageDataId);
+			Write(systemAddress);
+			Write(ascii);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			ReadBytes(offlineMessageDataId.Length);
+			systemAddress = ReadBytes(45);
+			ascii = ReadBytes(0, true);
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			systemAddress=default(byte[]);
+			ascii=default(byte[]);
 		}
 
 	}

@@ -303,6 +303,35 @@ namespace MiNET
 			}
 		}
 
+		public virtual void HandleMcpeSetEntityData(McpeSetEntityData message)
+		{
+			// Only used by EDU NPC so far.
+			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
+			{
+				entity.SetEntityData(message.metadata);
+			}
+		}
+
+		public void HandleMcpeNpcRequest(McpeNpcRequest message)
+		{
+			// Only used by EDU NPC.
+
+			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
+			{
+				// 0 is edit
+				// 0 is exec command
+				// 2 is exec link
+
+				if (message.unknown0 == 0)
+				{
+					MetadataDictionary metadata = new MetadataDictionary();
+					metadata[42] = new MetadataString(message.unknown1);
+					entity.SetEntityData(metadata);
+				}
+			}
+
+		}
+
 		private object _mapInfoSync = new object();
 
 		private Timer _mapSender;

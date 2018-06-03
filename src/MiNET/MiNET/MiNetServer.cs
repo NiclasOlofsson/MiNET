@@ -347,6 +347,10 @@ namespace MiNET
 			{
 				HandleRakNetMessage(receiveBytes, senderEndpoint, msgId);
 			}
+			else if (msgId == (byte)DefaultMessageIdTypes.ID_WS_CONNECTION_REQUEST)
+			{
+				HandleRakNetMessage(receiveBytes, senderEndpoint, msgId);
+			}
 			else
 			{
 				PlayerNetworkSession playerSession;
@@ -498,6 +502,11 @@ namespace MiNET
 						HandleRakNetMessage(senderEndpoint, (OpenConnectionRequest2) message);
 						break;
 					}
+					case DefaultMessageIdTypes.ID_WS_CONNECTION_REQUEST:
+					{
+						HandleRakNetMessage(senderEndpoint, (WsConnectionRequest)message);
+						break;
+					}
 					default:
 						GreylistManager.Blacklist(senderEndpoint.Address);
 						if (Log.IsInfoEnabled)
@@ -640,6 +649,13 @@ namespace MiNET
 			TraceSend(reply);
 
 			SendData(data, senderEndpoint);
+		}
+
+		private void HandleRakNetMessage(IPEndPoint senderEndpoint, WsConnectionRequest incoming)
+		{
+			string systemAddress = Encoding.UTF8.GetString(incoming.systemAddress).Replace("\0", "");
+			string token = Encoding.UTF8.GetString(incoming.ascii).Replace("\0", "");
+			Log.Warn($"Got WS connection request to {systemAddress} with token \n{token}");
 		}
 
 		private void HandleConnectedPackage(PlayerNetworkSession playerSession, ConnectedPackage package)

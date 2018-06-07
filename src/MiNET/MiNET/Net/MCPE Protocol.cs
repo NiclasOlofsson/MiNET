@@ -40,6 +40,12 @@ using LongString = System.String;
 
 namespace MiNET.Net
 {
+	public class McpeProtocolInfo
+	{
+		public const int ProtocolVersion = 274;
+		public const string GameVersion = "1.5.0.10";
+	}
+
 	public interface IMcpeMessageHandler
 	{
 		void Disconnect(string reason, bool sendDisconnect = true);
@@ -7467,7 +7473,7 @@ namespace MiNET.Net
 	{
 
 		public long runtimeEntityId; // = null;
-		public short flags; // = null;
+		public byte flags; // = null;
 
 		public McpeMoveEntityDelta()
 		{
@@ -7497,7 +7503,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			runtimeEntityId = ReadUnsignedVarLong();
-			flags = ReadShort();
+			flags = ReadByte();
 
 			AfterDecode();
 		}
@@ -7510,7 +7516,7 @@ namespace MiNET.Net
 			base.ResetPackage();
 
 			runtimeEntityId=default(long);
-			flags=default(short);
+			flags=default(byte);
 		}
 
 	}

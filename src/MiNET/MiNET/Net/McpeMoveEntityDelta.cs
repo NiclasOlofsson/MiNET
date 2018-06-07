@@ -77,7 +77,7 @@ namespace MiNET.Net
 
 		partial void AfterEncode()
 		{
-			if (Log.IsDebugEnabled) Log.Debug($"Flags: 0x{flags:X2} {Convert.ToString((byte) flags, 2)}, {currentPosition.X} {currentPosition.Y} {currentPosition.Z}, {_dX} {_dY} {_dZ}");
+			//if (Log.IsDebugEnabled) Log.Debug($"Flags: 0x{flags:X2} {Convert.ToString((byte) flags, 2)}, {currentPosition.X} {currentPosition.Y} {currentPosition.Z}, {_dX} {_dY} {_dZ}");
 
 			// write the values
 			if ((flags & 0x1) != 0)
@@ -118,7 +118,7 @@ namespace MiNET.Net
 
 		partial void AfterDecode()
 		{
-			Log.Debug($"Flags: 0x{flags:X2} ({flags}) {Convert.ToString((byte) flags, 2)}");
+			//Log.Debug($"Flags: 0x{flags:X2} ({flags}) {Convert.ToString((byte) flags, 2)}");
 
 			if ((flags & 0x1) != 0)
 			{

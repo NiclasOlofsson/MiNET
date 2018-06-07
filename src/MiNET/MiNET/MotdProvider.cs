@@ -24,6 +24,7 @@
 #endregion
 
 using System.Net;
+using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET
@@ -49,8 +50,8 @@ namespace MiNET
 			NumberOfPlayers = serverInfo.NumberOfPlayers;
 			MaxNumberOfPlayers = serverInfo.MaxNumberOfPlayers;
 
-			var protocolVersion = "273";
-			var clientVersion = "1.5.0.1";
+			var protocolVersion = McpeProtocolInfo.ProtocolVersion.ToString();
+			var clientVersion = McpeProtocolInfo.GameVersion;
 			var edition = "MCPE";
 
 			if (eduMotd)

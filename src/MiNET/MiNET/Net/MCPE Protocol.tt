@@ -51,6 +51,12 @@ using LongString = System.String;
 
 namespace MiNET.Net
 {
+	public class McpeProtocolInfo
+	{
+		public const int ProtocolVersion = <#= doc.SelectNodes("/protocol")[0].Attributes["protocolVersion"].Value #>;
+		public const string GameVersion = "<#= doc.SelectNodes("/protocol")[0].Attributes["gameVersion"].Value #>";
+	}
+
 	public interface IMcpeMessageHandler
 	{
 		void Disconnect(string reason, bool sendDisconnect = true);

@@ -2112,7 +2112,7 @@ Wiki: [Move Entity Delta](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
-|Flags | short |  |
+|Flags | byte |  |
 -----------------------------------------------------------------------
 
 

@@ -1,8 +1,8 @@
 @startuml;
 
 actor User;
-participant "Client" as A;
-participant "MiNET" as B;
+participant "First Class" as A;
+participant "Second Class" as B;
 participant "Last Class" as C;
 
 User -> A: DoWork;

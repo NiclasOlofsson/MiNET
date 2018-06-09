@@ -181,6 +181,11 @@ namespace MiNET
 			if (_currentForm == null) Log.Warn("No current form set for player when processing response");
 
 			var form = _currentForm;
+			if (form == null || form.Id != message.formId)
+			{
+				Log.Warn("Receive data for form not currently active");
+				return;
+			}
 			_currentForm = null;
 			form?.FromJson(message.data, this);
 		}
@@ -2828,7 +2833,7 @@ namespace MiNET
 			_currentForm = form;
 
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
-			message.formId = 1234; // whatever
+			message.formId = form.Id; // whatever
 			message.data = form.ToJson();
 			SendPackage(message);
 		}

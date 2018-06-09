@@ -255,6 +255,10 @@ namespace MiNET.Client
 
 			Console.WriteLine("<Enter> to exit!");
 			Console.ReadLine();
+			client.SendDisconnectionNotification();
+			Thread.Sleep(2000);
+			Console.WriteLine("<Enter> to exit!");
+			Console.ReadLine();
 			client.StopClient();
 		}
 
@@ -1401,7 +1405,7 @@ namespace MiNET.Client
 			JWT.JsonMapper = new NewtonsoftMapper();
 
 			CngKey clientKey = CryptoUtils.GenerateClientKey();
-			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(Username, clientKey, IsEmulator), CryptoUtils.EncodeSkinJwt(clientKey), CompressionLevel.Fastest);
+			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(username, clientKey, IsEmulator), CryptoUtils.EncodeSkinJwt(clientKey, username), CompressionLevel.Fastest);
 
 			McpeLogin loginPacket = new McpeLogin
 			{
@@ -2484,7 +2488,7 @@ namespace MiNET.Client
 			{
 				var jsonSerializerSettings = new JsonSerializerSettings
 				{
-					PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+					PreserveReferencesHandling = PreserveReferencesHandling.All,
 
 					Formatting = Formatting.Indented,
 				};

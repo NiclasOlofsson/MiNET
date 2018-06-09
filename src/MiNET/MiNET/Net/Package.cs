@@ -473,7 +473,6 @@ namespace MiNET.Net
 			// the client to work.
 			byte recordType = ReadByte();
 			uint count = ReadUnsignedVarInt();
-			Log.Warn($"Reading {count} players");
 			PlayerRecords records = null;
 			switch (recordType)
 			{
@@ -485,12 +484,12 @@ namespace MiNET.Net
 						player.ClientUuid = ReadUUID();
 						player.EntityId = ReadSignedVarLong();
 						player.DisplayName = ReadString();
-						ReadString(); //TODO: third party name
-						ReadSignedVarInt(); //TODO: platform
+						var thirdPartyName = ReadString(); //TODO: third party name
+						var platform = ReadSignedVarInt(); //TODO: platform
 						player.Skin = ReadSkin();
-						ReadString(); //TODO: platform chat ID
+						var platformChatId = ReadString(); //TODO: platform chat ID
 						records.Add(player);
-						//Log.Error($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}'");
+						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', '{thirdPartyName}', {platform}, {platformChatId}");
 					}
 					break;
 				case 1:

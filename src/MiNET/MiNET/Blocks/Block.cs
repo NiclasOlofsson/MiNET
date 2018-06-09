@@ -25,6 +25,7 @@
 
 using System;
 using System.Numerics;
+using System.Linq;
 using log4net;
 using MiNET.Items;
 using MiNET.Particles;
@@ -50,6 +51,9 @@ namespace MiNET.Blocks
 		public short FuelEfficiency { get; protected set; } = 0;
 		public float FrictionFactor { get; protected set; } = 0.6f;
 		public int LightLevel { get; set; } = 0;
+
+        public byte Power { get; set; } = 0;
+        public bool IsConductive { get; set; } = false;
 
 		public bool IsReplacible { get; protected set; } = false;
 		public bool IsSolid { get; protected set; } = true;
@@ -92,8 +96,11 @@ namespace MiNET.Blocks
 		public virtual void BreakBlock(Level world, bool silent = false)
 		{
 			world.SetAir(Coordinates);
+            if (Power > 0)
+                OnPower(world, Coordinates, Power, PowerAction.UnPower);
+            Console.WriteLine(Id + "  " + Metadata);
 
-			if (!silent)
+            if (!silent)
 			{
 				DestroyBlockParticle particle = new DestroyBlockParticle(world, this);
 				particle.Spawn();
@@ -186,6 +193,149 @@ namespace MiNET.Blocks
 		public virtual void DoPhysics(Level level)
 		{
 		}
+
+        public enum PowerAction
+        {
+            Power = 0,
+            PowerBlock,
+            UnPower
+        }
+
+        public virtual void OnPower(Level level, BlockCoordinates sourceBlockCoordinates, byte power, PowerAction powerAction = PowerAction.Power)
+        {
+            //if (powerAction == PowerAction.Power) return;
+
+            //Block blockWithMaxPower = GetPoweredBlock(level, new BlockCoordinates[] { sourceBlockCoordinates });
+            //Block _blockWithMaxPower = blockWithMaxPower.GetPoweredBlock(level, new BlockCoordinates[] { Coordinates });
+
+            //if (powerAction == PowerAction.UnPower)
+            //{
+            //    if (Power == 0) return;
+            //    var oldPower = Power;
+
+            //    if (blockWithMaxPower is RedstoneWire || _blockWithMaxPower.Coordinates == Coordinates)
+            //        Power = 0;
+            //    else
+            //        Power = blockWithMaxPower.Power;
+                
+            //    for (var i = 0; i < 6; i++)
+            //    {
+            //        var coords = GetNewCoordinatesFromFace(Coordinates, (BlockFace)i);
+            //        if (coords == sourceBlockCoordinates || blockWithMaxPower.Coordinates == coords) continue;
+            //        var block = level.GetBlock(coords);
+            //        if (block.IsConductive && CanPower(level, block))
+            //        {
+            //            if (blockWithMaxPower.Coordinates == Coordinates)
+            //            {
+            //                if (block.Power > 0)
+            //                    block.OnPower(level, Coordinates, oldPower, PowerAction.UnPower);
+            //            }
+            //            else if (blockWithMaxPower.Coordinates != coords && block.Power != Power)
+            //                block.OnPower(level, Coordinates, Power, PowerAction.Power);
+            //        }
+            //    }
+            //    return;
+            //}
+
+            //if (power <= Power) return;
+
+            //Power = power;
+            //level.SetBlockPower(Coordinates, power);
+
+            //for (var i = 0; i < 6; i++)
+            //{
+            //    var coords = GetNewCoordinatesFromFace(Coordinates, (BlockFace)i);
+            //    if (coords == sourceBlockCoordinates) continue;
+            //    var block = level.GetBlock(coords);
+            //    if (block.IsConductive && CanPower(level, block))
+            //        block.OnPower(level, Coordinates, power, PowerAction.Power);
+            //}
+        }
+
+        //public virtual void OnPower(Level level, BlockCoordinates sourceBlockCoordinates, byte power, PowerAction powerAction = PowerAction.Power)
+        //{
+        //    if (powerAction == PowerAction.Power) return;
+
+        //    Block blockWithMaxPower = GetPoweredBlock(level, sourceBlockCoordinates);
+        //    Block _blockWithMaxPower = blockWithMaxPower.GetPoweredBlock(level, Coordinates);
+
+        //    if (powerAction == PowerAction.UnPower)
+        //    {
+        //        if (Power == 0) return;
+        //        var oldPower = Power;
+
+        //        if (blockWithMaxPower is RedstoneWire || _blockWithMaxPower.Coordinates == Coordinates)
+        //            Power = 0;
+        //        else
+        //            Power = blockWithMaxPower.Power;
+                
+
+        //        for (var i = 0; i < 6; i++)
+        //        {
+        //            var coords = GetNewCoordinatesFromFace(Coordinates, (BlockFace)i);
+        //            if (coords == sourceBlockCoordinates || blockWithMaxPower.Coordinates == coords) continue;
+        //            var block = level.GetBlock(coords);
+        //            if (block.IsConductive && CanPower(block))
+        //            {
+        //                if (blockWithMaxPower.Coordinates == Coordinates)
+        //                {
+        //                    if (block.Power > 0)
+        //                        block.OnPower(level, Coordinates, oldPower, PowerAction.UnPower);
+        //                }
+        //                else if (blockWithMaxPower.Coordinates != coords && block.Power != Power)
+        //                    block.OnPower(level, Coordinates, Power, PowerAction.Power);
+        //            }
+        //        }
+        //        return;
+        //    }
+
+        //    if (power <= Power) return;
+
+        //    Power = power;
+        //    level.SetBlockPower(Coordinates, power);
+
+        //    for (var i = 0; i < 6; i++)
+        //    {
+        //        var coords = GetNewCoordinatesFromFace(Coordinates, (BlockFace)i);
+        //        if (coords == sourceBlockCoordinates) continue;
+        //        var block = level.GetBlock(coords);
+        //        if (block.IsConductive && CanPower(block))
+        //            block.OnPower(level, Coordinates, power, PowerAction.Power);
+        //    }
+        //}
+
+        public enum PoweredPriorityMode
+        {
+            All = 0,
+            Blocks,
+            Redstone
+        }
+
+        public Block GetPoweredBlock(Level level, BlockCoordinates[] sourceBlocksCoordinates, PoweredPriorityMode priority = PoweredPriorityMode.All)
+        {
+            Block blockWithMaxPower = new Air() { Coordinates = Coordinates };
+
+            for (var y = -1; y <= 1; y++)
+                for (var i = 0; i < 6; i++)
+                {
+                    if (y != 0 && i < 2) continue;
+                    var coords = GetNewCoordinatesFromFace(Coordinates, (BlockFace)i);
+                    coords.Y += y;
+                    if (sourceBlocksCoordinates.Contains(coords)) continue;
+                    var block = level.GetBlock(coords);
+                    if (!block.CanPower(level, this) || !((block is RedstoneWire && this is RedstoneWire) || y == 0)) continue;
+                    if (priority != PoweredPriorityMode.All && block.Power < Power) continue;
+                    if (priority == PoweredPriorityMode.Redstone && block is RedstoneWire && block.Power == Power) continue;
+                    if (block.Power - (this is RedstoneWire && block is RedstoneWire ? 1 : 0) > blockWithMaxPower.Power - (this is RedstoneWire && blockWithMaxPower is RedstoneWire ? 1 : 0))
+                        blockWithMaxPower = block;
+                }
+            return blockWithMaxPower;
+        }
+
+        public virtual bool CanPower(Level level, Block targetBlock)
+        {
+            return true;
+        }
 
 		public virtual BoundingBox GetBoundingBox()
 		{

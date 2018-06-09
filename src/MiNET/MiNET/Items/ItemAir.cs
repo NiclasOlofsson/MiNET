@@ -23,6 +23,10 @@
 
 #endregion
 
+using System.Numerics;
+using MiNET.Utils;
+using MiNET.Worlds;
+
 namespace MiNET.Items
 {
 	public class ItemAir : Item
@@ -30,5 +34,11 @@ namespace MiNET.Items
 		public ItemAir() : base(0, 0, 0)
 		{
 		}
-	}
+
+        public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+        {
+            player.SendMessage(world.GetBlockPower(blockCoordinates).ToString());
+            base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+        }
+    }
 }

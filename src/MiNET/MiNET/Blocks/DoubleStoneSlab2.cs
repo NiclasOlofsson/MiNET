@@ -6,7 +6,8 @@ namespace MiNET.Blocks
 	public class DoubleStoneSlab2 : Block
 	{
 		public DoubleStoneSlab2() : base(181)
-		{
-		}
+        {
+            IsConductive = true;
+        }
 	}
 }

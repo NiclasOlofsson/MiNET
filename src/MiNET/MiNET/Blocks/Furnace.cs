@@ -33,8 +33,9 @@ namespace MiNET.Blocks
 	public class Furnace : Block
 	{
 		public Furnace() : base(61)
-		{
-		}
+        {
+            IsConductive = true;
+        }
 
 		protected Furnace(byte id) : base(id)
 		{
@@ -72,7 +73,16 @@ namespace MiNET.Blocks
 			return false;
 		}
 
-		public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
+        public override void BreakBlock(Level world, bool silent = false)
+        {
+            //var inventory = world.InventoryManager.GetInventory(Coordinates);
+            //world.InventoryManager.RemoveInventory(inventory.Id);
+            //world.DropInventory(Coordinates, inventory);
+            //inventory.CloseInventory();
+            base.BreakBlock(world, silent);
+        }
+
+        public override bool Interact(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoord)
 		{
 			player.OpenInventory(blockCoordinates);
 

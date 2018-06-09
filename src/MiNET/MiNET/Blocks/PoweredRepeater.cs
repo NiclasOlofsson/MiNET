@@ -4,7 +4,7 @@
 	{
 		public PoweredRepeater() : base(94)
 		{
-
-		}
+            IsConductive = true;
+        }
 	}
 }

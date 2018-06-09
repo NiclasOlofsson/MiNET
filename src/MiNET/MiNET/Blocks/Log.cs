@@ -10,7 +10,8 @@ namespace MiNET.Blocks
 			BlastResistance = 10;
 			Hardness = 2;
 			IsFlammable = true;
-		}
+            IsConductive = true;
+        }
 
 		public override Item[] GetDrops(Item tool)
 		{

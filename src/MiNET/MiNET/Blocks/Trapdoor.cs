@@ -32,15 +32,17 @@ namespace MiNET.Blocks
 	public class Trapdoor : Block
 	{
 		public Trapdoor() : this(96)
-		{
-		}
+        {
+            IsConductive = true;
+        }
 
 		public Trapdoor(byte id) : base(id)
 		{
 			IsTransparent = true;
 			BlastResistance = 15;
 			Hardness = 5;
-		}
+            IsConductive = true;
+        }
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{

@@ -32,8 +32,9 @@ namespace MiNET.Blocks
 	public abstract class GlazedTerracotta : Block
 	{
 		public GlazedTerracotta(byte id) : base(id)
-		{
-		}
+        {
+            IsConductive = true;
+        }
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

@@ -6,14 +6,16 @@ namespace MiNET.Blocks
 	public class RedstoneOre : Block
 	{
 		public RedstoneOre() : this(73)
-		{
-		}
+        {
+            IsConductive = true;
+        }
 
 		public RedstoneOre(byte id) : base(id)
 		{
 			BlastResistance = 15;
 			Hardness = 3;
-		}
+            IsConductive = true;
+        }
 
 		public override Item[] GetDrops(Item tool)
 		{

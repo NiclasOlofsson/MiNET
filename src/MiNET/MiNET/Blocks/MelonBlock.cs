@@ -9,7 +9,8 @@ namespace MiNET.Blocks
 		{
 			Hardness = 1;
 			IsTransparent = true;
-		}
+            IsConductive = true;
+        }
 
 		public override Item[] GetDrops(Item tool)
 		{

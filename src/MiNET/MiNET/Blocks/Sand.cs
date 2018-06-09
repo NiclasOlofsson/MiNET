@@ -17,7 +17,8 @@ namespace MiNET.Blocks
 		{
 			BlastResistance = 2.5f;
 			Hardness = 0.5f;
-		}
+            IsConductive = true;
+        }
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{

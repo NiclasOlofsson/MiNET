@@ -7,6 +7,7 @@
 			IsTransparent = true;
 			BlastResistance = 15;
 			Hardness = 3;
-		}
+            IsConductive = true;
+        }
 	}
 }

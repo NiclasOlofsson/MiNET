@@ -6,6 +6,7 @@
 		{
 			BlastResistance = 45;
 			Hardness = 3;
-		}
+            IsConductive = true;
+        }
 	}
 }

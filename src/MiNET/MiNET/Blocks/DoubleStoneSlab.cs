@@ -8,7 +8,8 @@ namespace MiNET.Blocks
 		{
 			BlastResistance = 30;
 			Hardness = 2;
-		}
+            IsConductive = true;
+        }
 
 		public override Item[] GetDrops(Item tool)
 		{

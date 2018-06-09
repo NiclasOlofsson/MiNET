@@ -40,7 +40,8 @@ namespace MiNET.Blocks
 		{
 			BlastResistance = 3;
 			Hardness = 0.6f;
-		}
+            IsConductive = true;
+        }
 
 		public override void DoPhysics(Level level)
 		{

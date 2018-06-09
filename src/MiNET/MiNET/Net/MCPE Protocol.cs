@@ -4398,7 +4398,7 @@ namespace MiNET.Net
 		public byte windowId; // = null;
 		public byte type; // = null;
 		public BlockCoordinates coordinates; // = null;
-		public long unknownRuntimeEntityId; // = null;
+		public long entityIdSelf; // = null;
 
 		public McpeContainerOpen()
 		{
@@ -4415,7 +4415,7 @@ namespace MiNET.Net
 			Write(windowId);
 			Write(type);
 			Write(coordinates);
-			WriteUnsignedVarLong(unknownRuntimeEntityId);
+			WriteSignedVarLong(entityIdSelf);
 
 			AfterEncode();
 		}
@@ -4432,7 +4432,7 @@ namespace MiNET.Net
 			windowId = ReadByte();
 			type = ReadByte();
 			coordinates = ReadBlockCoordinates();
-			unknownRuntimeEntityId = ReadUnsignedVarLong();
+            entityIdSelf = ReadSignedVarLong();
 
 			AfterDecode();
 		}
@@ -4447,7 +4447,7 @@ namespace MiNET.Net
 			windowId=default(byte);
 			type=default(byte);
 			coordinates=default(BlockCoordinates);
-			unknownRuntimeEntityId=default(long);
+            entityIdSelf=default(long);
 		}
 
 	}
@@ -5892,7 +5892,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
-			bossEntityId = ReadSignedVarLong();
+            bossEntityId = ReadSignedVarLong();
 			eventType = ReadUnsignedVarInt();
 
 			AfterDecode();
@@ -5905,7 +5905,7 @@ namespace MiNET.Net
 		{
 			base.ResetPackage();
 
-			bossEntityId=default(long);
+            bossEntityId=default(long);
 			eventType=default(uint);
 		}
 

@@ -1030,13 +1030,15 @@ namespace MiNET.Worlds
 
 			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
-			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+            byte power = chunk.GetPower(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+            byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte biomeId = chunk.GetBiome(blockCoordinates.X & 0x0f, blockCoordinates.Z & 0x0f);
 
 			Block block = BlockFactory.GetBlockById(bid);
 			block.Coordinates = blockCoordinates;
 			block.Metadata = metadata;
+            block.Power = power;
 			block.BlockLight = blockLight;
 			block.SkyLight = skyLight;
 			block.BiomeId = biomeId;
@@ -1111,7 +1113,24 @@ namespace MiNET.Worlds
 			return chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 		}
 
-		public ChunkColumn GetChunk(BlockCoordinates blockCoordinates, bool cacheOnly = false)
+        public byte GetBlockPower(BlockCoordinates blockCoordinates)
+        {
+            ChunkColumn chunk = GetChunk(blockCoordinates);
+
+            if (chunk == null) return 15;
+
+            return chunk.GetPower(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+        }
+
+        public void SetBlockPower(BlockCoordinates blockCoordinates, byte power)
+        {
+            ChunkColumn chunk = GetChunk(blockCoordinates);
+
+            if (chunk != null)
+            chunk.SetPower(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f, power);
+        }
+
+        public ChunkColumn GetChunk(BlockCoordinates blockCoordinates, bool cacheOnly = false)
 		{
 			return GetChunk((ChunkCoordinates) blockCoordinates, cacheOnly);
 		}
@@ -1147,7 +1166,8 @@ namespace MiNET.Worlds
 
 			chunk.SetBlock(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Id);
 			chunk.SetMetadata(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Metadata);
-			if (chunk.GetHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f) <= block.Coordinates.Y + 1)
+            chunk.SetPower(block.Coordinates.X & 0x0f, block.Coordinates.Y & 0xff, block.Coordinates.Z & 0x0f, block.Power);
+            if (chunk.GetHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f) <= block.Coordinates.Y + 1)
 			{
 				chunk.RecalcHeight(block.Coordinates.X & 0x0f, block.Coordinates.Z & 0x0f, Math.Min(255, block.Coordinates.Y + 1));
 			}
@@ -1364,7 +1384,7 @@ namespace MiNET.Worlds
 		{
 			Block block = GetBlock(blockCoordinates);
 			BlockEntity blockEntity = GetBlockEntity(blockCoordinates);
-
+            Console.WriteLine(block.Power);
 			Item inHand = player.Inventory.GetItemInHand();
 			bool canBreak = inHand.BreakBlock(this, player, block, blockEntity);
 
@@ -1432,7 +1452,7 @@ namespace MiNET.Worlds
 
 		public virtual void DropItem(Vector3 coordinates, Item drop)
 		{
-			if (GameMode == GameMode.Creative) return;
+			//if (GameMode == GameMode.Creative) return;
 
 			if (drop == null) return;
 			if (drop.Id == 0) return;
@@ -1440,20 +1460,32 @@ namespace MiNET.Worlds
 
 			if (AutoSmelt) drop = drop.GetSmelt() ?? drop;
 
-			Random random = new Random();
-			var itemEntity = new ItemEntity(this, drop)
-			{
-				KnownPosition =
-				{
-					X = (float) coordinates.X + 0.5f,
-					Y = (float) coordinates.Y + 0.5f,
-					Z = (float) coordinates.Z + 0.5f
-				},
-				Velocity = new Vector3((float) (random.NextDouble()*0.005), (float) (random.NextDouble()*0.20), (float) (random.NextDouble()*0.005))
+			Random random = MiNetServer.Random;
+            var itemEntity = new ItemEntity(this, drop)
+            {
+                KnownPosition =
+                {
+                    X = coordinates.X + 0.5f,
+                    Y = coordinates.Y + 0.5f,
+                    Z = coordinates.Z + 0.5f
+                },
+				Velocity = new Vector3((float) (random.NextDouble()*0.1*Math.Pow(-1, random.Next(0, 2))), (float) (random.NextDouble()*0.2), (float) (random.NextDouble()*0.1*Math.Pow(-1, random.Next(0, 2))))
 			};
 
 			itemEntity.SpawnEntity();
 		}
+
+        public virtual void DropInventory(Vector3 coordinates, Inventory inventory)
+        {
+            if (inventory == null) return;
+            if (inventory.Slots.Count == 0 || inventory.Size == 0) return;
+            
+            for(var i = 0; i < inventory.Size; i++)
+            {
+                DropItem(coordinates, inventory.Slots[i]);
+                inventory.Slots[i] = new ItemAir();
+            }
+        }
 
 		public void SetData(BlockCoordinates coordinates, byte meta)
 		{

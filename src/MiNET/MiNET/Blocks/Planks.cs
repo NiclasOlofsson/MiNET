@@ -8,6 +8,7 @@
 			BlastResistance = 15;
 			Hardness = 2;
 			IsFlammable = true;
-		}
+            IsConductive = true;
+        }
 	}
 }

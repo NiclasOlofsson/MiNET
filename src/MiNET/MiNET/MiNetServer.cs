@@ -58,6 +58,8 @@ namespace MiNET
 
 		public static RecyclableMemoryStreamManager MemoryStreamManager { get; set; } = new RecyclableMemoryStreamManager();
 
+        public static Random Random { get; set; }
+
 		public IServerManager ServerManager { get; set; }
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
@@ -94,15 +96,15 @@ namespace MiNET
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
+            Random = new Random();
+            //if (confMinWorkerThreads != -1) threads = confMinWorkerThreads;
+            //else threads *= 4;
 
-			//if (confMinWorkerThreads != -1) threads = confMinWorkerThreads;
-			//else threads *= 4;
+            //if (confMinCompletionPortThreads != -1) iothreads = confMinCompletionPortThreads;
+            //else iothreads *= 4;
 
-			//if (confMinCompletionPortThreads != -1) iothreads = confMinCompletionPortThreads;
-			//else iothreads *= 4;
-
-			//ThreadPool.SetMinThreads(threads, iothreads);
-			FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+            //ThreadPool.SetMinThreads(threads, iothreads);
+            FastThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
 			LevelThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
 			_receiveThreadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
 		}

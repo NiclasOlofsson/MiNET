@@ -38,7 +38,8 @@ namespace MiNET.Blocks
 			LightLevel = 15;
 			BlastResistance = 15;
 			Hardness = 3;
-		}
+            IsConductive = true;
+        }
 
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates targetCoordinates, BlockFace face, Vector3 faceCoords)
 		{
@@ -74,7 +75,7 @@ namespace MiNET.Blocks
 			containerOpen.windowId = 5 + 9;
 			containerOpen.type = 13;
 			containerOpen.coordinates = blockCoordinates;
-			containerOpen.unknownRuntimeEntityId = 1;
+			containerOpen.entityIdSelf = -1;
 			player.SendPackage(containerOpen);
 
 			return true;

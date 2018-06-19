@@ -46,6 +46,7 @@ namespace MiNET.Blocks
 		public static readonly byte[] TransparentBlocks = new byte[500];
 		public static readonly byte[] LuminousBlocks = new byte[500];
 		public static Dictionary<string, byte> NameToId { get; private set; }
+		public static Blockstates Blockstates { get; set; } = new Blockstates();
 
 		private static int[] LegacyToRuntimeId = new int[65536];
 
@@ -81,10 +82,14 @@ namespace MiNET.Blocks
 			{
 				dynamic result = JArray.Parse(reader.ReadToEnd());
 
+				int runtimeId = 0;
 				foreach (var obj in result)
 				{
-					BlockStates.Add(((int)obj.id, (int)obj.data), (int)obj.runtimeID);
-					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int) obj.runtimeID;
+					BlockStates.Add(((int)obj.id, (int)obj.data), (int)runtimeId);
+					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int)runtimeId;
+					Blockstates.Add(runtimeId, new Blockstate(){Id = (int)obj.id, Data = (short)obj.data, Name = (string)obj.name, RuntimeId = runtimeId});
+
+					runtimeId++;
 				}
 			}
 

@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -46,7 +46,7 @@ namespace MiNET
 {
 	public class MiNetServer
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
 
 		private const int DefaultPort = 19132;
 
@@ -233,10 +233,10 @@ namespace MiNET
 				// - Set to TRUE to enable reporting.
 				// - Set to FALSE to disable reporting.
 
-				uint IOC_IN = 0x80000000;
-				uint IOC_VENDOR = 0x18000000;
-				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-				listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+				//uint IOC_IN = 0x80000000;
+				//uint IOC_VENDOR = 0x18000000;
+				//uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+				//listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
 				//
 				//WARNING: We need to catch errors here to remove the code above.
@@ -727,7 +727,7 @@ namespace MiNET
 						newPackage._hasSplit = false;
 
 						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ??
-						                      new UnknownPackage(buffer[0], buffer);
+											new UnknownPackage(buffer[0], buffer);
 						fullMessage.DatagramSequenceNumber = sequenceNumber;
 						fullMessage.Reliability = reliability;
 						fullMessage.ReliableMessageNumber = reliableMessageNumber;
@@ -1186,7 +1186,6 @@ namespace MiNET
 				Log.Error("Error when printing trace", e);
 			}
 		}
-
 	}
 
 	public enum ServerRole

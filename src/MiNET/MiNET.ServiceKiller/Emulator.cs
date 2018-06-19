@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using log4net;
 using log4net.Config;
 using MiNET.Client;
 using MiNET.Utils;
-
-[assembly: XmlConfigurator(Watch = true)]
 
 namespace MiNET.ServiceKiller
 {
@@ -38,6 +38,9 @@ namespace MiNET.ServiceKiller
 
 		private static void Main(string[] args)
 		{
+			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
+
 			try
 			{
 				AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;

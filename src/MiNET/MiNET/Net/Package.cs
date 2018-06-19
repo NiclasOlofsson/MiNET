@@ -1118,6 +1118,36 @@ namespace MiNET.Net
 			return attributes;
 		}
 
+		public Blockstates ReadBlockstates()
+		{
+			var result = new Blockstates();
+			uint count = ReadUnsignedVarInt();
+			for (int runtimeId = 0; runtimeId < count; runtimeId++)
+			{
+				var name = ReadString();
+				var data = ReadShort();
+				result.Add(runtimeId, new Blockstate
+				{
+					Id = -1,
+					RuntimeId = runtimeId,
+					Name = name,
+					Data = data
+				});
+			}
+
+			return result;
+		}
+
+		public void Write(Blockstates blockstates)
+		{
+			WriteUnsignedVarInt((uint) blockstates.Count);
+			foreach (var blockstate in blockstates.OrderBy(kvp => kvp.Key))
+			{
+				Write(blockstate.Value.Name);
+				Write(blockstate.Value.Data);
+			}
+		}
+
 		public void Write(Links links)
 		{
 			if (links == null)
@@ -1722,7 +1752,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Write(Id);
-			if (IsMcpe) Write((short) 0);
+			//if (IsMcpe) Write((short) 0);
 		}
 
 		public virtual void Reset()
@@ -1781,7 +1811,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Id = ReadByte();
-			if (IsMcpe) ReadShort();
+			//if (IsMcpe) ReadShort();
 		}
 
 		public virtual void Decode(byte[] buffer)

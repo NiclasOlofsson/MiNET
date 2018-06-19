@@ -36,6 +36,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Numerics;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -54,6 +55,10 @@ using MiNET.Utils;
 using MiNET.Worlds;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 [assembly: XmlConfigurator(Watch = true)]
 // This will cause log4net to look for a configuration file
@@ -106,6 +111,9 @@ namespace MiNET.Client
 
 		private static void Main(string[] args)
 		{
+			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
+
 			Console.WriteLine("Starting client...");
 
 			int threads;
@@ -193,7 +201,7 @@ namespace MiNET.Client
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(0, 5.62, 0, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(22, 5.62, 40, 180 + 45, 180 + 45, 180)))
 				//.ContinueWith(t => doMoveTo(t, new PlayerLocation(50, 5.62f, 17, 180, 180, 180)))
-				.ContinueWith(t => doSendCommand(t, "/me says -> Hi guys! It is I!!"))
+				.ContinueWith(t => doSendCommand(t, "/me says \"Hi guys! It is I!!\""))
 				//.ContinueWith(t => Task.Delay(500).Wait())
 				//.ContinueWith(t => doSendCommand(t, "/summon sheep"))
 				//.ContinueWith(t => Task.Delay(500).Wait())
@@ -1404,7 +1412,7 @@ namespace MiNET.Client
 		{
 			JWT.JsonMapper = new NewtonsoftMapper();
 
-			CngKey clientKey = CryptoUtils.GenerateClientKey();
+			var clientKey = CryptoUtils.GenerateClientKey();
 			byte[] data = CryptoUtils.CompressJwtBytes(CryptoUtils.EncodeJwt(username, clientKey, IsEmulator), CryptoUtils.EncodeSkinJwt(clientKey, username), CompressionLevel.Fastest);
 
 			McpeLogin loginPacket = new McpeLogin
@@ -1420,7 +1428,6 @@ namespace MiNET.Client
 			};
 
 			SendPackage(loginPacket);
-			//SendPackage(batch);
 		}
 
 		private void OnMcpeServerToClientHandshake(McpeServerToClientHandshake message)
@@ -1440,9 +1447,12 @@ namespace MiNET.Client
 		{
 			try
 			{
-				ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(serverKey);
-				Log.Debug("ServerKey (b64):\n" + serverKey);
-				Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+				ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
+					PublicKeyFactory.CreateKey(serverKey);
+
+				//ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(serverKey);
+				//Log.Debug("ServerKey (b64):\n" + serverKey);
+				//Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
 
 				Log.Debug($"RANDOM TOKEN (raw):\n\n{Encoding.UTF8.GetString(randomKeyToken)}");
 
@@ -1451,55 +1461,33 @@ namespace MiNET.Client
 					Log.Error("Lenght of random bytes: " + randomKeyToken.Length);
 				}
 
-				// Create shared shared secret
-				ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(Session.CryptoContext.ClientKey);
-				ecKey.HashAlgorithm = CngAlgorithm.Sha256;
-				ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
-				ecKey.SecretPrepend = randomKeyToken; // Server token
-
-				byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
-
-				//Log.Debug($"SECRET KEY (b64):\n{Convert.ToBase64String(secret)}");
-				Log.Debug($"SECRET KEY (raw):\n{Encoding.UTF8.GetString(secret)}");
-
+				ECDHBasicAgreement agreement = new ECDHBasicAgreement();
+				agreement.Init(Session.CryptoContext.ClientKey.Private);
+				byte[] secret;
+				using (var sha = SHA256.Create())
 				{
-					RijndaelManaged rijAlg = new RijndaelManaged
-					{
-						BlockSize = 128,
-						Padding = PaddingMode.None,
-						Mode = CipherMode.CFB,
-						FeedbackSize = 8,
-						Key = secret,
-						IV = secret.Take(16).ToArray(),
-					};
-
-					// Create a decrytor to perform the stream transform.
-					ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
-					MemoryStream inputStream = new MemoryStream();
-					CryptoStream cryptoStreamIn = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
-
-					ICryptoTransform encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
-					MemoryStream outputStream = new MemoryStream();
-					CryptoStream cryptoStreamOut = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
-
-					Session.CryptoContext = new CryptoContext
-					{
-						Algorithm = rijAlg,
-						Decryptor = decryptor,
-						Encryptor = encryptor,
-						InputStream = inputStream,
-						OutputStream = outputStream,
-						CryptoStreamIn = cryptoStreamIn,
-						CryptoStreamOut = cryptoStreamOut,
-						UseEncryption = true,
-					};
+					secret = sha.ComputeHash(randomKeyToken.Concat(agreement.CalculateAgreement(remotePublicKey).ToByteArrayUnsigned()).ToArray());
 				}
+
+				Log.Debug($"SECRET KEY (raw):\n{Encoding.UTF8.GetString(secret)}");
+				
+				// Create a decrytor to perform the stream transform.
+				IBufferedCipher decryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
+				decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+
+				IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
+				encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+
+				Session.CryptoContext = new CryptoContext
+				{
+					Decryptor = decryptor,
+					Encryptor = encryptor,
+					UseEncryption = true,
+					Key = secret
+				};
 
 				Thread.Sleep(1250);
 				McpeClientToServerHandshake magic = new McpeClientToServerHandshake();
-				//byte[] encodedMagic = magic.Encode();
-				//McpeBatch batch = BatchUtils.CreateBatchPacket(encodedMagic, 0, encodedMagic.Length, CompressionLevel.Fastest, true);
-				//batch.Encode();
 				SendPackage(magic);
 			}
 			catch (Exception e)
@@ -2248,6 +2236,18 @@ namespace MiNET.Client
 			NetworkEntityId = message.entityIdSelf;
 			_spawn = new Vector3(message.x, message.y, message.z);
 			CurrentLocation = new PlayerLocation(_spawn);
+
+			foreach (var blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data))
+			{
+				var value = blockstate.Value;
+				Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
+				int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
+				if (id == 0 && !value.Name.Contains("air"))
+				{
+					Log.Warn($"Missing block: {value.Name}");
+				}
+			}
+
 //			Log.Debug($@"
 //StartGame:
 //	entityId: {message.entityIdSelf}	
@@ -2573,7 +2573,7 @@ namespace MiNET.Client
 		{
 			var packet = new OpenConnectionRequest1()
 			{
-				raknetProtocolVersion = 8,
+				raknetProtocolVersion = 9,
 				mtuSize = _mtuSize
 			};
 

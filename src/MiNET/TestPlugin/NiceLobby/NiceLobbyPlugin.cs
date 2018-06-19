@@ -50,17 +50,16 @@ using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
-using TestPlugin.Annotations;
 
 namespace TestPlugin.NiceLobby
 {
-	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team"), UsedImplicitly]
+	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class NiceLobbyPlugin : Plugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (NiceLobbyPlugin));
 
-		[UsedImplicitly] private Timer _popupTimer;
-		[UsedImplicitly] private Timer _tickTimer;
+		private Timer _popupTimer;
+		private Timer _tickTimer;
 
 		private long _tick = 0;
 
@@ -476,7 +475,7 @@ namespace TestPlugin.NiceLobby
 
 				player.SendTitle(null, TitleType.Clear);
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
-				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.White}This is gurun's MiNET\n.NET core test server", TitleType.SubTitle);
 				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
 			});
 		}
@@ -650,7 +649,7 @@ namespace TestPlugin.NiceLobby
 		//	return packet;
 		//}
 
-		[PacketHandler, Send, UsedImplicitly]
+		[PacketHandler, Send]
 		public Package RespawnHandler(McpeRespawn packet, Player player)
 		{
 			SendNameTag(player);
@@ -668,7 +667,7 @@ namespace TestPlugin.NiceLobby
 			return packet;
 		}
 
-		[PacketHandler, Send, UsedImplicitly]
+		[PacketHandler, Send]
 		public Package AddPlayerHandler(McpeAddPlayer packet, Player player)
 		{
 			if (_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityIdSelf) != null)

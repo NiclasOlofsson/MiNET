@@ -18,13 +18,14 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -36,12 +37,20 @@ using MiNET.Net;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Agreement;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Math;
+using Org.BouncyCastle.Security;
+using Org.BouncyCastle.X509;
+using ECPoint = Org.BouncyCastle.Math.EC.ECPoint;
 
 namespace MiNET
 {
 	public class LoginMessageHandler : IMcpeMessageHandler
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (LoginMessageHandler));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(LoginMessageHandler));
 
 		private readonly PlayerNetworkSession _session;
 
@@ -81,7 +90,7 @@ namespace MiNET
 			////Skin.SaveTextureToFile(fileName, Skin.Texture);
 		}
 
-		protected void DecodeCert(McpeLogin message)
+		public void DecodeCert(McpeLogin message)
 		{
 			byte[] buffer = message.payload;
 
@@ -243,10 +252,20 @@ namespace MiNET
 #if LINUX
 						CertificateData data = JWT.Payload<CertificateData>(token.ToString());
 #else
-						ECDiffieHellmanCngPublicKey newKey = (ECDiffieHellmanCngPublicKey) CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
-						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), newKey.Import());
-#endif
+						ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+						var signParam = new ECParameters
+						{
+							Curve = ECCurve.NamedCurves.nistP384,
+							Q =
+							{
+								X = x5KeyParam.Q.AffineXCoord.GetEncoded(),
+								Y = x5KeyParam.Q.AffineYCoord.GetEncoded()
+							},
+						};
+						signParam.Validate();
 
+						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), ECDsa.Create(signParam));
+#endif
 						// Validate
 
 						if (data != null)
@@ -304,62 +323,75 @@ namespace MiNET
 #else
 						if (_session.CryptoContext.UseEncryption)
 						{
-							ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(_playerInfo.CertificateData.IdentityPublicKey.DecodeBase64Url());
-							if (Log.IsDebugEnabled) Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
+							// Use bouncy to parse the DER key
+							ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
+								PublicKeyFactory.CreateKey(_playerInfo.CertificateData.IdentityPublicKey.DecodeBase64Url());
 
-							// Create shared shared secret
-							ECDiffieHellmanCng ecKey = new ECDiffieHellmanCng(384);
-							ecKey.HashAlgorithm = CngAlgorithm.Sha256;
-							ecKey.KeyDerivationFunction = ECDiffieHellmanKeyDerivationFunction.Hash;
-							ecKey.SecretPrepend = Encoding.UTF8.GetBytes("RANDOM SECRET"); // Server token
-							byte[] secret = ecKey.DeriveKeyMaterial(publicKey);
+							var b64RemotePublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(remotePublicKey).GetEncoded().EncodeBase64();
+							Debug.Assert(_playerInfo.CertificateData.IdentityPublicKey == b64RemotePublicKey);
+							Debug.Assert(remotePublicKey.PublicKeyParamSet.Id == "1.3.132.0.34");
+							Log.Debug($"{remotePublicKey.PublicKeyParamSet}");
+
+							var generator = new ECKeyPairGenerator("ECDH");
+							generator.Init(new ECKeyGenerationParameters(remotePublicKey.PublicKeyParamSet, SecureRandom.GetInstance("SHA256PRNG")));
+							var keyPair = generator.GenerateKeyPair();
+
+							ECPublicKeyParameters pubAsyKey = (ECPublicKeyParameters) keyPair.Public;
+							ECPrivateKeyParameters privAsyKey = (ECPrivateKeyParameters) keyPair.Private;
+
+							var secretPrepend = Encoding.UTF8.GetBytes("RANDOM SECRET");
+
+							ECDHBasicAgreement agreement = new ECDHBasicAgreement();
+							agreement.Init(keyPair.Private);
+							byte[] secret;
+							using (var sha = SHA256.Create())
+							{
+								secret = sha.ComputeHash(secretPrepend.Concat(agreement.CalculateAgreement(remotePublicKey).ToByteArrayUnsigned()).ToArray());
+							}
+
+							Debug.Assert(secret.Length == 32);
 
 							if (Log.IsDebugEnabled) Log.Debug($"SECRET KEY (b64):\n{secret.EncodeBase64()}");
 
+							IBufferedCipher decryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
+							decryptor.Init(false, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+
+							IBufferedCipher encryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
+							encryptor.Init(true, new ParametersWithIV(new KeyParameter(secret), secret.Take(16).ToArray()));
+
+							_session.CryptoContext.Key = secret;
+							_session.CryptoContext.Decryptor = decryptor;
+							_session.CryptoContext.Encryptor = encryptor;
+
+							var signParam = new ECParameters
 							{
-								RijndaelManaged rijAlg = new RijndaelManaged
+								Curve = ECCurve.NamedCurves.nistP384,
+								Q =
 								{
-									BlockSize = 128,
-									Padding = PaddingMode.None,
-									Mode = CipherMode.CFB,
-									FeedbackSize = 8,
-									Key = secret,
-									IV = secret.Take(16).ToArray(),
-								};
+									X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
+									Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
+								},
+								D = privAsyKey.D.ToByteArrayUnsigned()
+							};
+							signParam.Validate();
 
-								// Create a decrytor to perform the stream transform.
-								ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
-								MemoryStream inputStream = new MemoryStream();
-								CryptoStream cryptoStreamIn = new CryptoStream(inputStream, decryptor, CryptoStreamMode.Read);
+							var signKey = ECDsa.Create(signParam);
+							var b64PublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubAsyKey).GetEncoded().EncodeBase64();
+							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64()};
+							string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 
-								ICryptoTransform encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
-								MemoryStream outputStream = new MemoryStream();
-								CryptoStream cryptoStreamOut = new CryptoStream(outputStream, encryptor, CryptoStreamMode.Write);
+							Log.Warn($"Headers:\n{string.Join(";", JWT.Headers(val))}");
+							Log.Warn($"Return salt:\n{JWT.Payload(val)}");
+							Log.Warn($"JWT:\n{val}");
 
-								_session.CryptoContext.Algorithm = rijAlg;
-								_session.CryptoContext.Decryptor = decryptor;
-								_session.CryptoContext.Encryptor = encryptor;
-								_session.CryptoContext.InputStream = inputStream;
-								_session.CryptoContext.OutputStream = outputStream;
-								_session.CryptoContext.CryptoStreamIn = cryptoStreamIn;
-								_session.CryptoContext.CryptoStreamOut = cryptoStreamOut;
+							var response = McpeServerToClientHandshake.CreateObject();
+							response.NoBatch = true;
+							response.ForceClear = true;
+							response.token = val;
 
-								string b64Key = ecKey.PublicKey.ToDerEncoded().EncodeBase64();
-								var handshakeJson = new HandshakeData() {salt = ecKey.SecretPrepend.EncodeBase64()};
+							_session.SendPackage(response);
 
-								string val = JWT.Encode(handshakeJson, ecKey.Key, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64Key}});
-								Log.Warn($"Headers: {string.Join(";", JWT.Headers(val))}");
-								Log.Warn($"Return salt:\n{JWT.Payload(val)}");
-
-								var response = McpeServerToClientHandshake.CreateObject();
-								response.NoBatch = true;
-								response.ForceClear = true;
-								response.token = val;
-
-								_session.SendPackage(response);
-
-								if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
-							}
+							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 						}
 #endif
 					}

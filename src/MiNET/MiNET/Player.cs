@@ -2539,6 +2539,8 @@ namespace MiNET
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
 
+			startGame.blockstates = BlockFactory.Blockstates;
+
 			SendPackage(startGame);
 		}
 
@@ -2664,6 +2666,7 @@ namespace MiNET
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
 					if (chunk != null) SendPackage(chunk);
+					Thread.Sleep(5);
 
 					if (!IsSpawned)
 					{

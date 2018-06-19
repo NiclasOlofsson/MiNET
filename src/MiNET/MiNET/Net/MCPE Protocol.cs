@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 274;
-		public const string GameVersion = "1.5.0.10";
+		public const int ProtocolVersion = 280;
+		public const string GameVersion = "1.6.0.1";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2079,6 +2079,7 @@ namespace MiNET.Net
 		public bool isTrial; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
+		public Blockstates blockstates; // = null;
 
 		public McpeStartGame()
 		{
@@ -2135,6 +2136,7 @@ namespace MiNET.Net
 			Write(isTrial);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
+			Write(blockstates);
 
 			AfterEncode();
 		}
@@ -2191,6 +2193,7 @@ namespace MiNET.Net
 			isTrial = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
+			blockstates = ReadBlockstates();
 
 			AfterDecode();
 		}
@@ -2245,6 +2248,7 @@ namespace MiNET.Net
 			isTrial=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
+			blockstates=default(Blockstates);
 		}
 
 	}
@@ -5993,7 +5997,7 @@ namespace MiNET.Net
 	{
 
 		public string command; // = null;
-		public int commandType; // = null;
+		public uint commandType; // = null;
 		public UUID unknownUuid; // = null;
 		public string requestId; // = null;
 		public bool unknown; // = null;
@@ -6011,7 +6015,7 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			Write(command);
-			WriteSignedVarInt(commandType);
+			WriteUnsignedVarInt(commandType);
 			Write(unknownUuid);
 			Write(requestId);
 			Write(unknown);
@@ -6029,7 +6033,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			command = ReadString();
-			commandType = ReadSignedVarInt();
+			commandType = ReadUnsignedVarInt();
 			unknownUuid = ReadUUID();
 			requestId = ReadString();
 			unknown = ReadBool();
@@ -6045,7 +6049,7 @@ namespace MiNET.Net
 			base.ResetPackage();
 
 			command=default(string);
-			commandType=default(int);
+			commandType=default(uint);
 			unknownUuid=default(UUID);
 			requestId=default(string);
 			unknown=default(bool);

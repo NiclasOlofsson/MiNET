@@ -123,21 +123,21 @@ namespace MiNET
 			//	PerformanceCounterCategory.Delete("MiNET");
 			//}
 
-			if (!PerformanceCounterCategory.Exists("MiNET"))
-			{
-				CounterCreationDataCollection ccds = new CounterCreationDataCollection
-				{
-					new CounterCreationData(nameof(NumberOfPacketsOutPerSecond), "", PerformanceCounterType.RateOfCountsPerSecond32),
-					new CounterCreationData(nameof(NumberOfPacketsInPerSecond), "", PerformanceCounterType.RateOfCountsPerSecond32),
-					new CounterCreationData(nameof(NumberOfAckReceive), "", PerformanceCounterType.RateOfCountsPerSecond32),
-					new CounterCreationData(nameof(NumberOfAckSent), "", PerformanceCounterType.RateOfCountsPerSecond32),
-					new CounterCreationData(nameof(NumberOfNakReceive), "", PerformanceCounterType.RateOfCountsPerSecond32),
-					new CounterCreationData(nameof(NumberOfResends), "", PerformanceCounterType.RateOfCountsPerSecond32),
-					new CounterCreationData(nameof(NumberOfFails), "", PerformanceCounterType.RateOfCountsPerSecond32),
-				};
+			//if (!PerformanceCounterCategory.Exists("MiNET"))
+			//{
+			//	CounterCreationDataCollection ccds = new CounterCreationDataCollection
+			//	{
+			//		new CounterCreationData(nameof(NumberOfPacketsOutPerSecond), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//		new CounterCreationData(nameof(NumberOfPacketsInPerSecond), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//		new CounterCreationData(nameof(NumberOfAckReceive), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//		new CounterCreationData(nameof(NumberOfAckSent), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//		new CounterCreationData(nameof(NumberOfNakReceive), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//		new CounterCreationData(nameof(NumberOfResends), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//		new CounterCreationData(nameof(NumberOfFails), "", PerformanceCounterType.RateOfCountsPerSecond32),
+			//	};
 
-				PerformanceCounterCategory.Create("MiNET", "MiNET Performance Counters", PerformanceCounterCategoryType.MultiInstance, ccds);
-			}
+			//	PerformanceCounterCategory.Create("MiNET", "MiNET Performance Counters", PerformanceCounterCategoryType.MultiInstance, ccds);
+			//}
 		}
 	}
 }

@@ -317,6 +317,7 @@ namespace MiNET
 						payload = CryptoUtils.Decrypt(payload, playerSession.CryptoContext);
 					}
 
+
 					// Decompress bytes
 
 					MemoryStream stream = new MemoryStream(payload);
@@ -750,12 +751,20 @@ namespace MiNET
 
 		private void SendTick(object state)
 		{
-			SendAckQueue();
-			SendQueue();
-			if (i++ >= 5)
+			try
 			{
-				Update();
-				i = 0;
+				SendAckQueue();
+				SendQueue();
+				if (i++ >= 5)
+				{
+					Update();
+					i = 0;
+				}
+
+			}
+			catch (Exception e)
+			{
+				Log.Error(e);
 			}
 		}
 
@@ -897,11 +906,9 @@ namespace MiNET
 			if (lenght == 0) return;
 
 			Acks acks = Acks.CreateObject();
-			//Acks acks = new Acks();
 			for (int i = 0; i < lenght; i++)
 			{
-				int ack;
-				if (!session.PlayerAckQueue.TryDequeue(out ack)) break;
+				if (!queue.TryDequeue(out var ack)) break;
 
 				Interlocked.Increment(ref Server.ServerInfo.NumberOfAckSent);
 				acks.acks.Add(ack);
@@ -927,7 +934,7 @@ namespace MiNET
 
 			try
 			{
-				using (MemoryStream memStream = MiNetServer.MemoryStreamManager.GetStream())
+				using (MemoryStream memStream = new MemoryStream())
 				{
 					Queue<Package> queue = _sendQueueNotConcurrent;
 

@@ -122,7 +122,7 @@ namespace TestPlugin.SafePay
 					ExpirationMonth = 01,
 					ExpirationYear = 2025,
 					Cvc = "111",
-					Capture = true
+					//Capture = true
 				},
 			};
 

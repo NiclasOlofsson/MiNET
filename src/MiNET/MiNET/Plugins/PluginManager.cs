@@ -76,6 +76,8 @@ namespace MiNET.Plugins
 
 				string pluginDirectory = Path.GetFullPath(dirPath);
 
+				Log.Debug($"Looking for plugin assemblies in directory {pluginDirectory}");
+
 				if (!Directory.Exists(pluginDirectory)) continue;
 
 				_currentPath = pluginDirectory;
@@ -87,6 +89,7 @@ namespace MiNET.Plugins
 
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories));
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.exe", SearchOption.AllDirectories));
+				pluginPaths.ForEach(path => Log.Debug($"Looking for plugins in assembly {path}"));
 
 				foreach (string pluginPath in pluginPaths)
 				{
@@ -117,6 +120,7 @@ namespace MiNET.Plugins
 									LoadCommands(type);
 									Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
 									LoadPacketHandlers(type);
+									Log.Debug($"Loaded plugin {type}");
 								}
 							}
 							catch (Exception ex)

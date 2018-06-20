@@ -2,6 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>MiNET</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>Niclas</Authors>
+    <Company>Niclas Olofsson</Company>
+    <Description>MiNET - a Minecraft PocketEdition Server</Description>
+    <Copyright>Copyright Niclas Olofsson 2015-2018</Copyright>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/NiclasOlofsson/MiNET/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/NiclasOlofsson/MiNET</PackageProjectUrl>
+    <PackageIconUrl><![CDATA[https://secure.gravatar.com/avatar/2ba5d72bdad85108d14512c4d27ea550?s=128&r=g&d=retro]]></PackageIconUrl>
+    <PackageTags>MiNET Plugin API MCPE Minecraft PocketEdition bedrock</PackageTags>
+    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

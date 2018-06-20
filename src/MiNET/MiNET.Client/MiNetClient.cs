@@ -2370,19 +2370,22 @@ namespace MiNET.Client
 				{
 					defStream2.CopyTo(destination);
 					destination.Position = 0;
-					byte[] internalBuffer = null;
 					do
 					{
+						byte[] internalBuffer = null;
 						try
 						{
-							var len = VarInt.ReadUInt32(destination);
+							int len = (int)VarInt.ReadUInt32(destination);
+							long pos = destination.Position;
+							int id = (int)VarInt.ReadUInt32(destination);
+							len = (int)(len - (destination.Position - pos)); // calculate len of buffer after varint
 							internalBuffer = new byte[len];
-							destination.Read(internalBuffer, 0, (int) len);
+							destination.Read(internalBuffer, 0, len);
 
 							if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
 
-							var package = PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
-							              new UnknownPackage(internalBuffer[0], internalBuffer);
+							var package = PackageFactory.CreatePackage((byte) id, internalBuffer, "mcpe") ??
+							              new UnknownPackage((byte)id, internalBuffer);
 							messages.Add(package);
 
 							//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
@@ -2393,7 +2396,6 @@ namespace MiNET.Client
 							if (internalBuffer != null)
 								Log.Error($"Batch error while reading:\n{Package.HexDump(internalBuffer)}");
 							Log.Error("Batch processing", e);
-							//throw;
 						}
 					} while (destination.Position < destination.Length);
 				}

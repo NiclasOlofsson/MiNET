@@ -1810,7 +1810,7 @@ namespace MiNET.Net
 		protected virtual void DecodePackage()
 		{
 			_buffer.Position = 0;
-			Id = ReadByte();
+			if (!IsMcpe) Id = ReadByte();
 			//if (IsMcpe) ReadShort();
 		}
 

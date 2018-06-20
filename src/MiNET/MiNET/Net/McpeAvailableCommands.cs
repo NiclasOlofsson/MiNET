@@ -167,6 +167,16 @@ namespace MiNET.Net
 					}
 				}
 			}
+			{
+				// Soft enums?
+
+				uint count = ReadUnsignedVarInt();
+				Log.Debug($"Soft enums {count}");
+				for (int i = 0; i < count; i++)
+				{
+					Log.Debug($"Soft Enum: {ReadString()}={ReadBool()}");
+				}
+			}
 		}
 
 		partial void AfterEncode()

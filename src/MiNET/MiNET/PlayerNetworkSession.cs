@@ -328,29 +328,30 @@ namespace MiNET
 						throw new InvalidDataException("Incorrect ZLib header. Expected 0x78 0x9C");
 					}
 					stream.ReadByte();
-					using (var defStream2 = new DeflateStream(stream, CompressionMode.Decompress, false))
+					using (var deflateStream = new DeflateStream(stream, CompressionMode.Decompress, false))
 					{
 						// Get actual package out of bytes
 						using (MemoryStream destination = MiNetServer.MemoryStreamManager.GetStream())
 						{
-							defStream2.CopyTo(destination);
+							deflateStream.CopyTo(destination);
 							destination.Position = 0;
-							NbtBinaryReader reader = new NbtBinaryReader(destination, true);
 
 							while (destination.Position < destination.Length)
 							{
-								//int len = reader.ReadInt32();
-								int len = BatchUtils.ReadLength(destination);
-								byte[] internalBuffer = reader.ReadBytes(len);
+								int len = (int) VarInt.ReadUInt32(destination);
+								long pos = destination.Position;
+								int id = (int) VarInt.ReadUInt32(destination);
+								len = (int) (len - (destination.Position - pos)); // calculate len of buffer after varint
+								byte[] internalBuffer = new byte[len];
+								destination.Read(internalBuffer, 0, len);
 
 								//if (Log.IsDebugEnabled)
 								//	Log.Debug($"0x{internalBuffer[0]:x2}\n{Package.HexDump(internalBuffer)}");
 
 								try
 								{
-									messages.Add(PackageFactory.CreatePackage(internalBuffer[0], internalBuffer, "mcpe") ??
-									             new UnknownPackage(internalBuffer[0], internalBuffer));
-
+									messages.Add(PackageFactory.CreatePackage((byte) id, internalBuffer, "mcpe") ??
+												new UnknownPackage((byte)id, internalBuffer));
 								}
 								catch (Exception e)
 								{

@@ -1743,6 +1743,34 @@ namespace MiNET.Net
 			return map;
 		}
 
+		public void Write(ScorePacketInfos list)
+		{
+			WriteUnsignedVarInt((uint) list.Count);
+			foreach(var entry in list)
+			{
+				Write(entry.uuid);
+				Write(entry.objectiveName);
+				Write(entry.score);
+			}
+		}
+
+		public ScorePacketInfos ReadScorePacketInfos()
+		{
+			var list = new ScorePacketInfos();
+
+			var length = ReadUnsignedVarInt();
+			for(var i = 0; i < length; ++i)
+			{
+				var entry = new ScorePacketInfo();
+				entry.uuid = ReadUUID();
+				entry.objectiveName = ReadString();
+				entry.score = ReadUint();
+				list.Add(entry);
+			}
+
+			return list;
+		}
+
 		public bool CanRead()
 		{
 			return _reader.BaseStream.Position < _reader.BaseStream.Length;

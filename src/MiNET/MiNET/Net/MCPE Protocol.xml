@@ -130,6 +130,7 @@
 			<enum id="Login Failed Invalid Tenant" value="4" />
 			<enum id="Login Failed Vanilla Edu" value="5" />
 			<enum id="Login Failed Edu Vanilla" value="6" />
+			<enum id="Login Failed Server Full" value="7" />
 		</enums>
 
 		<field name="Status" type="int" endianess="BE" />
@@ -227,6 +228,9 @@
 		<field name="Has Platform Broadcast" type="bool" />
 		<field name="Platform Broadcast Mode" type="SignedVarInt" />
 		<field name="Xbox Live Broadcast Intent" type="bool" />
+		<field name="Has Locked Behavior Pack" type="bool" />
+		<field name="Has Locked Resource Pack" type="bool" />
+		<field name="Is From Locked World Template" type="bool" />
 
 		<field name="Has Locked Behavior Pack" type="bool" />
 		<field name="Has Locked Resource Pack" type="bool" />
@@ -633,6 +637,8 @@
 			<enum id="Furnace data" value="3" />
 			<enum id="Multi" value="4" />
 			<enum id="Shulker box" value="5" />
+			<enum id="Chemistry Shapeless" value="6" />
+			<enum id="Chemistry Shaped" value="7" />
 		</enums>
 
 		<field name="Window ID" type="byte" />
@@ -944,6 +950,44 @@
 	<pdu id="0x67" online="false" client="false" server="true" name="MCPE_SERVER_SETTINGS_RESPONSE">
 		<field name="Form Id" type="UnsignedVarLong" />
 		<field name="Data" type="string" />
+	</pdu>
+
+	<pdu id="0x68" online="false" client="false" server="true" name="MCPE_SHOW_PROFILE">
+		<field name="XUID" type="string" />
+	</pdu>
+
+	<pdu id="0x69" online="false" client="false" server="true" name="MCPE_SET_DEFAULT_GAME_TYPE">
+		<field name="Gamemode" type="VarInt" />
+	</pdu>
+
+	<pdu id="0x6a" online="false" client="false" server="true" name="MCPE_REMOVE_OBJECTIVE">
+		<field name="Objective Name" type="string" />
+	</pdu>
+
+	<pdu id="0x6b" online="false" client="false" server="true" name="MCPE_SET_DISPLAY_OBJECTIVE">
+		<field name="Display Slot" type="string" />
+		<field name="Objective Name" type="string" />
+		<field name="Display Name" type="string" />
+		<field name="Criteria Name" type="string" />
+		<field name="Sort Order" type="VarInt" />
+	</pdu>
+
+	<pdu id="0x6c" online="false" client="false" server="true" name="MCPE_SET_SCORE">
+		<enums id="Types">
+			<enum id="Modify Score" value="0" />
+			<enum id="Reset Score" value="1" />
+		</enums>
+		<field name="Type" type="byte" />
+		<field name="Score Packet Infos" type="ScorePacketInfos" />
+	</pdu>
+
+
+	<pdu id="0x6d" online="false" client="true" server="true" name="MCPE_LAB_TABLE">
+		<field name="Useless Byte" type="byte" />
+		<field name="Lab Table X" type="VarInt" />
+		<field name="Lab Table Y" type="VarInt" />
+		<field name="Lab Table Z" type="VarInt" />
+		<field name="Reaction Type" type="byte" />
 	</pdu>
 
 	<pdu id="0x6e" online="false" client="false" server="true" name="MCPE_UPDATE_BLOCK_SYNCED">

@@ -582,6 +582,11 @@ namespace MiNET
 		public void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
 		{
 		}
+
+		public void HandleMcpeLabTable(McpeLabTable messae)
+		{
+
+		}
 	}
 
 	public interface IServerManager

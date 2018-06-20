@@ -4,8 +4,8 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>MiNET</PackageId>
-    <Version>1.0.1</Version>
-    <Authors>Niclas</Authors>
+    <Version>0.0.0</Version>
+    <Authors>gurun</Authors>
     <Company>Niclas Olofsson</Company>
     <Description>MiNET - a Minecraft PocketEdition Server</Description>
     <Copyright>Copyright Niclas Olofsson 2015-2018</Copyright>

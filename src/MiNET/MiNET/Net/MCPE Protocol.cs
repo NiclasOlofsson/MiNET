@@ -89,6 +89,7 @@ namespace MiNET.Net
 		void HandleMcpePlayerSkin(McpePlayerSkin message);
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
+		void HandleMcpeLabTable(McpeLabTable message);
 	}
 
 	public class PackageFactory
@@ -584,6 +585,30 @@ namespace MiNET.Net
 						return package;
 					case 0x67:
 						package = McpeServerSettingsResponse.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x68:
+						package = McpeShowProfile.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x69:
+						package = McpeSetDefaultGameType.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x6a:
+						package = McpeRemoveObjective.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x6b:
+						package = McpeSetDisplayObjective.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x6c:
+						package = McpeSetScore.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x6d:
+						package = McpeLabTable.CreateObject();
 						package.Decode(buffer);
 						return package;
 					case 0x6e:
@@ -1563,6 +1588,7 @@ namespace MiNET.Net
 			LoginFailedInvalidTenant = 4,
 			LoginFailedVanillaEdu = 5,
 			LoginFailedEduVanilla = 6,
+			LoginFailedServerFull = 7,
 		}
 
 		public int status; // = null;
@@ -4766,6 +4792,8 @@ namespace MiNET.Net
 			FurnaceData = 3,
 			Multi = 4,
 			ShulkerBox = 5,
+			ChemistryShapeless = 6,
+			ChemistryShaped = 7,
 		}
 
 		public byte windowId; // = null;
@@ -7401,6 +7429,335 @@ namespace MiNET.Net
 
 			formId=default(long);
 			data=default(string);
+		}
+
+	}
+
+	public partial class McpeShowProfile : Package<McpeShowProfile>
+	{
+
+		public string xuid; // = null;
+
+		public McpeShowProfile()
+		{
+			Id = 0x68;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(xuid);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			xuid = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			xuid=default(string);
+		}
+
+	}
+
+	public partial class McpeSetDefaultGameType : Package<McpeSetDefaultGameType>
+	{
+
+		public int gamemode; // = null;
+
+		public McpeSetDefaultGameType()
+		{
+			Id = 0x69;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			WriteVarInt(gamemode);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			gamemode = ReadVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			gamemode=default(int);
+		}
+
+	}
+
+	public partial class McpeRemoveObjective : Package<McpeRemoveObjective>
+	{
+
+		public string objectiveName; // = null;
+
+		public McpeRemoveObjective()
+		{
+			Id = 0x6a;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(objectiveName);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			objectiveName = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			objectiveName=default(string);
+		}
+
+	}
+
+	public partial class McpeSetDisplayObjective : Package<McpeSetDisplayObjective>
+	{
+
+		public string displaySlot; // = null;
+		public string objectiveName; // = null;
+		public string displayName; // = null;
+		public string criteriaName; // = null;
+		public int sortOrder; // = null;
+
+		public McpeSetDisplayObjective()
+		{
+			Id = 0x6b;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(displaySlot);
+			Write(objectiveName);
+			Write(displayName);
+			Write(criteriaName);
+			WriteVarInt(sortOrder);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			displaySlot = ReadString();
+			objectiveName = ReadString();
+			displayName = ReadString();
+			criteriaName = ReadString();
+			sortOrder = ReadVarInt();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			displaySlot=default(string);
+			objectiveName=default(string);
+			displayName=default(string);
+			criteriaName=default(string);
+			sortOrder=default(int);
+		}
+
+	}
+
+	public partial class McpeSetScore : Package<McpeSetScore>
+	{
+		public enum Types
+		{
+			ModifyScore = 0,
+			ResetScore = 1,
+		}
+
+		public byte type; // = null;
+		public ScorePacketInfos scorePacketInfos; // = null;
+
+		public McpeSetScore()
+		{
+			Id = 0x6c;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(type);
+			Write(scorePacketInfos);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			type = ReadByte();
+			scorePacketInfos = ReadScorePacketInfos();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			type=default(byte);
+			scorePacketInfos=default(ScorePacketInfos);
+		}
+
+	}
+
+	public partial class McpeLabTable : Package<McpeLabTable>
+	{
+
+		public byte uselessByte; // = null;
+		public int labTableX; // = null;
+		public int labTableY; // = null;
+		public int labTableZ; // = null;
+		public byte reactionType; // = null;
+
+		public McpeLabTable()
+		{
+			Id = 0x6d;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+			Write(uselessByte);
+			WriteVarInt(labTableX);
+			WriteVarInt(labTableY);
+			WriteVarInt(labTableZ);
+			Write(reactionType);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+			uselessByte = ReadByte();
+			labTableX = ReadVarInt();
+			labTableY = ReadVarInt();
+			labTableZ = ReadVarInt();
+			reactionType = ReadByte();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+			uselessByte=default(byte);
+			labTableX=default(int);
+			labTableY=default(int);
+			labTableZ=default(int);
+			reactionType=default(byte);
 		}
 
 	}

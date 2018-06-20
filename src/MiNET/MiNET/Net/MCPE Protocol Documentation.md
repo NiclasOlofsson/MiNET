@@ -218,6 +218,18 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 
 | Server Settings Response | 0x67 | 103 |   
 
+| Show Profile | 0x68 | 104 |   
+
+| Set Default Game Type | 0x69 | 105 |   
+
+| Remove Objective | 0x6a | 106 |   
+
+| Set Display Objective | 0x6b | 107 |   
+
+| Set Score | 0x6c | 108 |   
+
+| Lab Table | 0x6d | 109 |   
+
 | Update Block Synced | 0x6e | 110 |   
 
 | Move Entity Delta | 0x6f | 111 |   
@@ -287,6 +299,8 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | ResourcePackIdVersions [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackIdVersions) |
 
 | ResourcePackInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ResourcePackInfos) |
+
+| ScorePacketInfos [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-ScorePacketInfos) |
 
 | short [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-short) |
 
@@ -373,6 +387,7 @@ Wiki: [Play Status](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PlayS
 |Login Failed Invalid Tenant | 4 |
 |Login Failed Vanilla Edu | 5 |
 |Login Failed Edu Vanilla | 6 |
+|Login Failed Server Full | 7 |
 
 
 
@@ -2266,6 +2281,8 @@ Wiki: [Crafting Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Cr
 |Furnace Data | 3 |
 |Multi | 4 |
 |Shulker Box | 5 |
+|Chemistry Shapeless | 6 |
+|Chemistry Shaped | 7 |
 
 
 
@@ -3546,6 +3563,175 @@ Wiki: [Server Settings Response](https://github.com/NiclasOlofsson/MiNET/wiki//P
 
 
 |Data | string |  |
+
+-----------------------------------------------------------------------
+
+### Show Profile (0x68)
+Wiki: [Show Profile](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ShowProfile)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+
+
+|XUID | string |  |
+
+-----------------------------------------------------------------------
+
+### Set Default Game Type (0x69)
+Wiki: [Set Default Game Type](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetDefaultGameType)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+
+
+|Gamemode | VarInt |  |
+
+-----------------------------------------------------------------------
+
+### Remove Objective (0x6a)
+Wiki: [Remove Objective](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-RemoveObjective)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+
+
+|Objective Name | string |  |
+
+-----------------------------------------------------------------------
+
+### Set Display Objective (0x6b)
+Wiki: [Set Display Objective](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetDisplayObjective)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+
+
+|Display Slot | string |  |
+
+
+
+|Objective Name | string |  |
+
+
+
+|Display Name | string |  |
+
+
+
+|Criteria Name | string |  |
+
+
+
+|Sort Order | VarInt |  |
+
+-----------------------------------------------------------------------
+
+### Set Score (0x6c)
+Wiki: [Set Score](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetScore)
+
+**Sent from server:** true  
+**Sent from client:** false
+
+
+
+#### Types constants
+
+| Name | Value |
+|:-----|:-----|
+|Modify Score | 0 |
+|Reset Score | 1 |
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+
+
+|Type | byte |  |
+
+
+
+|Score Packet Infos | ScorePacketInfos |  |
+
+-----------------------------------------------------------------------
+
+### Lab Table (0x6d)
+Wiki: [Lab Table](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-LabTable)
+
+**Sent from server:** true  
+**Sent from client:** true
+
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+
+
+
+|Useless Byte | byte |  |
+
+
+
+|Lab Table X | VarInt |  |
+
+
+
+|Lab Table Y | VarInt |  |
+
+
+
+|Lab Table Z | VarInt |  |
+
+
+
+|Reaction Type | byte |  |
 
 -----------------------------------------------------------------------
 

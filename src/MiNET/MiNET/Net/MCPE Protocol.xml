@@ -228,9 +228,6 @@
 		<field name="Has Platform Broadcast" type="bool" />
 		<field name="Platform Broadcast Mode" type="SignedVarInt" />
 		<field name="Xbox Live Broadcast Intent" type="bool" />
-		<field name="Has Locked Behavior Pack" type="bool" />
-		<field name="Has Locked Resource Pack" type="bool" />
-		<field name="Is From Locked World Template" type="bool" />
 
 		<field name="Has Locked Behavior Pack" type="bool" />
 		<field name="Has Locked Resource Pack" type="bool" />

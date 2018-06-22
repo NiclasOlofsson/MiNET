@@ -1437,8 +1437,25 @@ namespace MiNET.Client
 
 			IDictionary<string, dynamic> headers = JWT.Headers(token);
 			string x5u = headers["x5u"];
-			ECDiffieHellmanCngPublicKey newKey = (ECDiffieHellmanCngPublicKey)CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
-			var data = JWT.Decode<HandshakeData>(token, newKey.Import());
+
+			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
+				PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+
+
+			var signParam = new ECParameters
+			{
+				Curve = ECCurve.NamedCurves.nistP384,
+				Q =
+				{
+					X = remotePublicKey.Q.AffineXCoord.GetEncoded(),
+					Y = remotePublicKey.Q.AffineYCoord.GetEncoded()
+				},
+			};
+			signParam.Validate();
+
+			var signKey = ECDsa.Create(signParam);
+
+			var data = JWT.Decode<HandshakeData>(token, signKey);
 
 			InitiateEncryption(Base64Url.Decode(x5u), Base64Url.Decode(data.salt));
 		}

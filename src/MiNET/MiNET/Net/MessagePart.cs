@@ -5,7 +5,7 @@ namespace MiNET.Net
 	public class MessagePart : Package<MessagePart> // Replace this with stream
 	{
 		public MessagePartHeader Header { get; private set; }
-		public byte[] Buffer { get; set; }
+		public Memory<byte> Buffer { get; set; }
 		public byte ContainedMessageId { get; set; }
 
 		public MessagePart()
@@ -31,7 +31,7 @@ namespace MiNET.Net
 			// DO NOT CALL base.EncodePackage();
 			_buffer.Position = 0;
 
-			byte[] encodedMessage = Buffer;
+			Memory<byte> encodedMessage = Buffer;
 
 			byte flags = (byte) Header.Reliability;
 			Write((byte) ((flags << 5) | (Header.HasSplit ? Convert.ToByte("00010000", 2) : 0x00)));

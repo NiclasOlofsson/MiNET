@@ -1021,7 +1021,7 @@ namespace MiNET
 		{
 			if (messageCount == 0) return;
 
-			var batch = BatchUtils.CreateBatchPacket(memStream.GetBuffer(), 0, (int) memStream.Length, CompressionLevel.Fastest, false);
+			var batch = BatchUtils.CreateBatchPacket(new Memory<byte>(memStream.GetBuffer(), 0, (int) memStream.Length), CompressionLevel.Fastest, false);
 			batch.Encode();
 			memStream.Position = 0;
 			memStream.SetLength(0);

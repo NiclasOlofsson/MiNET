@@ -106,6 +106,17 @@ namespace MiNET.Net
 			return _reader.ReadByte() != 0;
 		}
 
+		public void Write(Memory<byte> value)
+		{
+			if (value.IsEmpty)
+			{
+				Log.Warn("Trying to write empty Memory<byte>");
+				return;
+			}
+
+			_writer.Write(value.Span);
+		}
+
 		public void Write(byte[] value)
 		{
 			if (value == null)
@@ -1858,7 +1869,7 @@ namespace MiNET.Net
 
 		public void CloneReset()
 		{
-			_buffer = MiNetServer.MemoryStreamManager.GetStream();
+			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
 			_writer = new BinaryWriter(_buffer);
 			Timer.Start();

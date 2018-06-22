@@ -240,7 +240,7 @@ namespace MiNET.Worlds
 
 		internal static McpeWrapper CreateMcpeBatch(byte[] bytes)
 		{
-			return BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
+			return BatchUtils.CreateBatchPacket(new Memory<byte>(bytes, 0, (int) bytes.Length), CompressionLevel.Optimal, true);
 		}
 
 		private object _playerWriteLock = new object();
@@ -772,7 +772,7 @@ namespace MiNET.Worlds
 			DateTime lastSendTime = _lastSendTime;
 			_lastSendTime = DateTime.UtcNow;
 
-			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+			using (MemoryStream stream = new MemoryStream())
 			{
 				int playerMoveCount = 0;
 				int entiyMoveCount = 0;
@@ -833,7 +833,7 @@ namespace MiNET.Worlds
 
 				if (players.Length == 1 && entiyMoveCount == 0) return;
 
-				McpeWrapper batch = BatchUtils.CreateBatchPacket(stream.GetBuffer(), 0, (int) stream.Length, CompressionLevel.Optimal, false);
+				McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length), CompressionLevel.Optimal, false);
 				batch.AddReferences(players.Length - 1);
 				batch.Encode();
 				foreach (var player in players)

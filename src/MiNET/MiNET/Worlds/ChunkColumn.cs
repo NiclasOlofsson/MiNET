@@ -397,7 +397,7 @@ namespace MiNET.Worlds
 				byte[] bytes = fullChunkData.Encode();
 				fullChunkData.PutPool();
 
-				var batch = BatchUtils.CreateBatchPacket(bytes, 0, bytes.Length, CompressionLevel.Optimal, true);
+				var batch = BatchUtils.CreateBatchPacket(new Memory<byte>(bytes, 0, bytes.Length), CompressionLevel.Optimal, true);
 				batch.MarkPermanent();
 				batch.Encode();
 

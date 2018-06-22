@@ -1171,7 +1171,7 @@ namespace TestPlugin.NiceLobby
 
 		internal static McpeWrapper CreateMcpeBatch(byte[] bytes)
 		{
-			McpeWrapper batch = BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
+			McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(bytes, 0, (int) bytes.Length), CompressionLevel.Optimal, true);
 			batch.MarkPermanent();
 			batch.Encode();
 			return batch;

@@ -1376,7 +1376,7 @@ namespace MiNET.Worlds
 			}
 			else
 			{
-				BreakBlock(block, blockEntity, inHand);
+				BreakBlock(player, block, blockEntity, inHand);
 
 				player.HungerManager.IncreaseExhaustion(0.025f);
 				player.AddExperience(block.GetExperiencePoints());
@@ -1411,7 +1411,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		public void BreakBlock(Block block, BlockEntity blockEntity = null, Item tool = null)
+		public void BreakBlock(Player player, Block block, BlockEntity blockEntity = null, Item tool = null)
 		{
 			block.BreakBlock(this);
 			List<Item> drops = new List<Item>();
@@ -1423,9 +1423,12 @@ namespace MiNET.Worlds
 				drops.AddRange(blockEntity.GetDrops());
 			}
 
-			foreach (Item drop in drops)
+			if ((player != null && player.GameMode == GameMode.Survival) || (player == null && GameMode == GameMode.Survival))
 			{
-				DropItem(block.Coordinates, drop);
+				foreach (Item drop in drops)
+				{
+					DropItem(block.Coordinates, drop);
+				}
 			}
 		}
 

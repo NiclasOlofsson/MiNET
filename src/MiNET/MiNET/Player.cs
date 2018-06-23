@@ -2086,7 +2086,7 @@ namespace MiNET
 			{
 				case McpeInventoryTransaction.ItemUseAction.Place:
 					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
-					if (transaction.Item.Id != 0)
+					if (GameMode == GameMode.Survival && transaction.Item.Id != 0)
 					{
 						transaction.Item.Count--;
 						Inventory.SetInventorySlot(transaction.Slot, transaction.Item);

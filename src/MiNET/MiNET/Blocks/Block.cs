@@ -18,12 +18,13 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 using System;
+using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Items;
@@ -39,7 +40,7 @@ namespace MiNET.Blocks
 	/// </summary>
 	public class Block : ICloneable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Block));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
 		public BlockCoordinates Coordinates { get; set; }
 		public byte Id { get; }
@@ -170,7 +171,14 @@ namespace MiNET.Blocks
 
 		public virtual Item[] GetDrops(Item tool)
 		{
-			return new Item[] {new ItemBlock(this, Metadata) {Count = 1}};
+			// Get a bitmask for drops that need metadata values for variant, but not for runtime data (rotation, etc)
+			int metadataMax = InventoryUtils.GetCreativeMetadataSlots().Where(item => item.Id == Id).Max(item => item.Metadata);
+			for (int i = metadataMax; i != 0; i = i >> 1)
+			{
+				metadataMax |= i;
+			}
+
+			return new Item[] {new ItemBlock(this, (short) (Metadata & metadataMax)) {Count = 1}};
 		}
 
 		public virtual Item GetSmelt()

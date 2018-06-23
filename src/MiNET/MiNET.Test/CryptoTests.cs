@@ -40,6 +40,18 @@ namespace MiNET.Test
 	public class CryptoTests
 	{
 		[TestMethod]
+		public void TestMethod0()
+		{
+			int metadataMax = 5;
+			for (int i = metadataMax; i != 0; i = i >> 1)
+			{
+				metadataMax |= i;
+			}
+
+			Assert.AreEqual(7, metadataMax);
+		}
+
+		[TestMethod]
 		public void TestMethod1()
 		{
 			string b64InputKey = "MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEVQxN/wFsMiYihwv1psUgKRIhgX02OPBQl0aKYNtKXoCk67hE/lsR8UC77Fqm1HPuMALWG8RcihSHoZwx2HfOz11QkwvlKEf8UuMrbp0yt/mQNJx6QQm6CiZ7e63sYqdV";

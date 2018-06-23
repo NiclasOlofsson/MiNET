@@ -136,8 +136,7 @@ namespace MiNET.Blocks
 		{
 			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
 			{
-				Log.Debug($"BlockUpdate {blockCoordinates}");
-				level.BreakBlock(this);
+				level.BreakBlock(null, this);
 			}
 		}
 	}

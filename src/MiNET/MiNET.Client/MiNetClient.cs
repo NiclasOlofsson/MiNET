@@ -2254,37 +2254,76 @@ namespace MiNET.Client
 			_spawn = new Vector3(message.x, message.y, message.z);
 			CurrentLocation = new PlayerLocation(_spawn);
 
-			foreach (var blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data))
+			string fileName = Path.GetTempPath() + "MissingBlocks_" + Guid.NewGuid() + ".txt";
+			using (FileStream file = File.OpenWrite(fileName))
 			{
-				var value = blockstate.Value;
-				Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
-				int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
-				if (id == 0 && !value.Name.Contains("air"))
+				Log.Warn($"Writing new blocks to filename:\n{fileName}");
+
+				IndentedTextWriter writer = new IndentedTextWriter(new StreamWriter(file));
+
+				writer.WriteLine($"namespace MiNET.Blocks");
+				writer.WriteLine($"{{");
+				writer.Indent++;
+
+				foreach (IGrouping<string, KeyValuePair<int, Blockstate>> blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data).GroupBy(kvp => kvp.Value.Name))
 				{
-					Log.Warn($"Missing block: {value.Name}");
+					var enumerator = blockstate.GetEnumerator();
+					enumerator.MoveNext();
+					var value = enumerator.Current.Value;
+					if(value == null) continue;
+					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
+					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
+
+					if (id == 0 && !value.Name.Contains("air"))
+					{
+						string blockName = CodeName(value.Name.Replace("minecraft:", ""), true);
+
+						writer.WriteLine($"public class {blockName}: Block");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+
+						writer.WriteLine($"public {blockName}() : base({value.Id}, {value.RuntimeId})");
+						writer.WriteLine($"{{");
+						writer.Indent++;
+						writer.WriteLine($"Name {{get; set;}} = {value.Name}");
+
+						do
+						{
+							writer.WriteLine($"// runtime id: {enumerator.Current.Value.RuntimeId} 0x{enumerator.Current.Value.RuntimeId:X}, data: {enumerator.Current.Value.Data}");
+						} while (enumerator.MoveNext());
+
+						writer.Indent--;
+						writer.WriteLine($"}}");
+
+						writer.Indent--;
+						writer.WriteLine($"}}");
+					}
 				}
+				writer.Indent--;
+				writer.WriteLine($"}}");
+				writer.Flush();
 			}
 
-//			Log.Debug($@"
-//StartGame:
-//	entityId: {message.entityIdSelf}	
-//	runtimeEntityId: {message.runtimeEntityId}	
-//	spawn: {message.spawn}	
-//	unknown1: {message.unknown1}	
-//	dimension: {message.dimension}	
-//	generator: {message.generator}	
-//	gamemode: {message.gamemode}	
-//	difficulty: {message.difficulty}	
-//	hasAchievementsDisabled: {message.hasAchievementsDisabled}	
-//	dayCycleStopTime: {message.dayCycleStopTime}	
-//	eduMode: {message.eduMode}	
-//	rainLevel: {message.rainLevel}	
-//	lightnigLevel: {message.lightnigLevel}	
-//	enableCommands: {message.enableCommands}	
-//	isTexturepacksRequired: {message.isTexturepacksRequired}	
-//	secret: {message.levelId}	
-//	worldName: {message.worldName}	
-//");
+			//			Log.Debug($@"
+			//StartGame:
+			//	entityId: {message.entityIdSelf}	
+			//	runtimeEntityId: {message.runtimeEntityId}	
+			//	spawn: {message.spawn}	
+			//	unknown1: {message.unknown1}	
+			//	dimension: {message.dimension}	
+			//	generator: {message.generator}	
+			//	gamemode: {message.gamemode}	
+			//	difficulty: {message.difficulty}	
+			//	hasAchievementsDisabled: {message.hasAchievementsDisabled}	
+			//	dayCycleStopTime: {message.dayCycleStopTime}	
+			//	eduMode: {message.eduMode}	
+			//	rainLevel: {message.rainLevel}	
+			//	lightnigLevel: {message.lightnigLevel}	
+			//	enableCommands: {message.enableCommands}	
+			//	isTexturepacksRequired: {message.isTexturepacksRequired}	
+			//	secret: {message.levelId}	
+			//	worldName: {message.worldName}	
+			//");
 
 			Level.LevelName = "Default";
 			Level.Version = 19133;
@@ -2299,6 +2338,37 @@ namespace MiNET.Client
 
 				SendPackage(packet);
 			}
+		}
+
+		private string CodeName(string name, bool firstUpper = false)
+		{
+			name = name.ToLowerInvariant();
+
+			bool upperCase = firstUpper;
+
+			var result = string.Empty;
+			for (int i = 0; i < name.Length; i++)
+			{
+				if (name[i] == ' ' || name[i] == '_')
+				{
+					upperCase = true;
+				}
+				else
+				{
+					if ((i == 0 && firstUpper) || upperCase)
+					{
+						result += name[i].ToString().ToUpperInvariant();
+						upperCase = false;
+					}
+					else
+					{
+						result += name[i];
+					}
+				}
+			}
+
+			result = result.Replace(@"[]", "s");
+			return result;
 		}
 
 		private void OnMcpeSetSpawnPosition(Package message)

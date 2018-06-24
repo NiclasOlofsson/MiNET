@@ -434,10 +434,10 @@ namespace MiNET.BuilderBase.Commands
 			var selector = RegionSelector.GetSelector(player);
 
 			var selection = selector.GetSelectedBlocks().Select(coord => player.Level.GetBlock(coord)).ToArray();
-			Dictionary<Tuple<byte, int>, int> dist = new Dictionary<Tuple<byte, int>, int>();
+			Dictionary<Tuple<int, int>, int> dist = new Dictionary<Tuple<int, int>, int>();
 			foreach (var block in selection)
 			{
-				Tuple<byte, int> tuple = Tuple.Create(block.Id, separateByData ? block.Metadata : 0);
+				Tuple<int, int> tuple = Tuple.Create(block.Id, separateByData ? block.Metadata : 0);
 				if (dist.ContainsKey(tuple)) dist[tuple] = dist[tuple] + 1;
 				else dist.Add(tuple, 1);
 			}

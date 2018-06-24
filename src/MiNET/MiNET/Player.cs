@@ -2455,7 +2455,7 @@ namespace MiNET
 
 			Block block = Level.GetBlock(message.x, message.y, message.z);
 
-			Item item = ItemFactory.GetItem(block.Id, block.Metadata);
+			Item item = ItemFactory.GetItem((short) block.Id, block.Metadata);
 
 			Inventory.SetInventorySlot(Inventory.InHandSlot, item);
 		}

@@ -355,7 +355,7 @@ namespace MiNET.BuilderBase.Tools
 		{
 			double brushSizeSquared = inbrushSize*inbrushSize;
 			int brushSize = inbrushSize + 1;
-			Dictionary<byte, int> frequency = new Dictionary<byte, int>();
+			Dictionary<int, int> frequency = new Dictionary<int, int>();
 
 			for (int x = -brushSize; x <= brushSize; x++)
 			{
@@ -377,7 +377,7 @@ namespace MiNET.BuilderBase.Tools
 						}
 						int total = 0;
 						int highest = 1;
-						byte highestState = state.Id;
+						int highestState = state.Id;
 						frequency.Clear();
 						foreach (var offs in FACES_TO_CHECK)
 						{

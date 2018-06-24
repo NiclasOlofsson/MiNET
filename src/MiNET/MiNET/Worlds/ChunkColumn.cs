@@ -48,7 +48,7 @@ namespace MiNET.Worlds
 		public int z;
 
 		//public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
-		public Chunk[] chunks = new Chunk[16];
+		public ChunkBase[] chunks = new ChunkBase[16];
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
 		public short[] height = new short[256];
@@ -68,7 +68,7 @@ namespace MiNET.Worlds
 		{
 			for (int i = 0; i < 16; i++)
 			{
-				chunks[i] = Chunk.CreateObject();
+				chunks[i] = PaletteChunk.CreateObject();
 			}
 
 			isDirty = false;
@@ -81,17 +81,15 @@ namespace MiNET.Worlds
 			NeedSave = true;
 		}
 
-		public byte GetBlock(int bx, int by, int bz)
+		public int GetBlock(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			return chunk.GetBlock(bx, by - 16*(by >> 4), bz);
 		}
 
-		public void SetBlock(int bx, int by, int bz, byte bid)
+		public void SetBlock(int bx, int by, int bz, int bid)
 		{
-			//int i = 30 - (16*(30 >> 4));
-
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			chunk.SetBlock(bx, by - 16*(by >> 4), bz, bid);
 			SetDirty();
 		}
@@ -120,39 +118,39 @@ namespace MiNET.Worlds
 
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			return chunk.GetBlocklight(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
 			//SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			return chunk.GetMetadata(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
 			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
+			ChunkBase chunk = chunks[by >> 4];
 			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
 			//SetDirty();
 		}
@@ -308,7 +306,7 @@ namespace MiNET.Worlds
 			{
 				if (isInLight)
 				{
-					Chunk chunk = chunks[y >> 4];
+					ChunkBase chunk = chunks[y >> 4];
 					if (isInAir && chunk.IsAllAir())
 					{
 						if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
@@ -318,7 +316,7 @@ namespace MiNET.Worlds
 
 					isInAir = false;
 
-					byte bid = GetBlock(x, y, z);
+					int bid = GetBlock(x, y, z);
 					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
 					{
 						SetSkyLight(x, y, z, 15);
@@ -344,7 +342,7 @@ namespace MiNET.Worlds
 			for (int y = 255; y >= 0; y--)
 			{
 				{
-					Chunk chunk = chunks[y >> 4];
+					ChunkBase chunk = chunks[y >> 4];
 					if (isInAir && chunk.IsAllAir())
 					{
 						if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
@@ -354,7 +352,7 @@ namespace MiNET.Worlds
 
 					isInAir = false;
 
-					byte bid = GetBlock(x, y, z);
+					int bid = GetBlock(x, y, z);
 					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30))
 					{
 						continue;
@@ -430,9 +428,6 @@ namespace MiNET.Worlds
 				for (int ci = 0; ci < topEmpty; ci++)
 				{
 					chunks[ci].GetBytes(stream);
-					//writer.Write(chunks[ci].GetBytes(stream));
-					//writer.Write(chunks[ci].GetBytesPalettizedStorage(stream));
-					//chunks[ci].GetBytesPalettizedStorage(stream);
 					sent++;
 				}
 

@@ -262,7 +262,7 @@ namespace MiNET.Plotter
 		{
 			public class BlockDataEntry
 			{
-				public byte Id { get; set; }
+				public int Id { get; set; }
 				public byte Metadata { get; set; }
 				public int Weight { get; set; } = 100;
 				public int Accumulated { get; set; } = 100;

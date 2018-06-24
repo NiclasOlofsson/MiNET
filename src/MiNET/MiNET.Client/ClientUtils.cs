@@ -68,13 +68,13 @@ namespace MiNET.Client
 						int idx = defStream.ReadByte();
 
 						Log.Debug($"New section {s}, index={idx}");
-						Chunk chunk = chunkColumn.chunks[s];
+						ChunkBase chunk = chunkColumn.chunks[s];
 
 						int chunkSize = 16*16*16;
-						defStream.Read(chunk.blocks, 0, chunkSize);
+						//defStream.Read(chunk.blocks, 0, chunkSize);
 						//Log.Debug($"Blocks1:\n{Package.HexDump(chunk.blocks)}");
 
-						if (defStream.Read(chunk.metadata.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: metadata");
+						//if (defStream.Read(chunk.metadata.Data, 0, chunkSize/2) != chunkSize/2) Log.Error($"Out of data: metadata");
 
 						//Log.Debug($"metadata:\n{Package.HexDump(chunk.metadata.Data)}");
 
@@ -302,7 +302,7 @@ namespace MiNET.Client
 							if (yi < 0 || yi >= 256) continue; // ?
 
 							int anvilIndex = (y + _waterOffsetY)*16*16 + z*16 + x;
-							byte blockId = chunk.GetBlock(x, yi, z);
+							int blockId = chunk.GetBlock(x, yi, z);
 
 							// PE to Anvil friendly converstion
 							if (blockId == 5) blockId = 125;
@@ -313,7 +313,7 @@ namespace MiNET.Client
 							else if (blockId == 89) blockId = 124;
 							else if (blockId == 73) blockId = 152;
 
-							blocks[anvilIndex] = blockId;
+							blocks[anvilIndex] = (byte) blockId;
 							SetNibble4(data, anvilIndex, chunk.GetMetadata(x, yi, z));
 							SetNibble4(blockLight, anvilIndex, chunk.GetBlocklight(x, yi, z));
 							SetNibble4(skyLight, anvilIndex, chunk.GetSkylight(x, yi, z));

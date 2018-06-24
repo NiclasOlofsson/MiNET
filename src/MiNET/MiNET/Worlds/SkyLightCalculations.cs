@@ -441,7 +441,7 @@ namespace MiNET.Worlds
 			byte currentSkyLight = GetSkyLight(coordinates, chunk);
 
 			int sectionIdx = coordinates.Y >> 4;
-			Chunk section = chunk.chunks[sectionIdx];
+			ChunkBase section = chunk.chunks[sectionIdx];
 
 			byte maxSkyLight = currentSkyLight;
 			if (coordinates.Y < 255)
@@ -488,7 +488,7 @@ namespace MiNET.Worlds
 			}
 		}
 
-		private byte SetLightLevel(IBlockAccess level, ChunkColumn chunk, Chunk section, int sectionIdx, Queue<BlockCoordinates> lightBfsQueue, HashSet<BlockCoordinates> lightBfSet, BlockCoordinates coordinates, byte lightLevel, bool down = false, bool up = false)
+		private byte SetLightLevel(IBlockAccess level, ChunkColumn chunk, ChunkBase section, int sectionIdx, Queue<BlockCoordinates> lightBfsQueue, HashSet<BlockCoordinates> lightBfSet, BlockCoordinates coordinates, byte lightLevel, bool down = false, bool up = false)
 		{
 			//Interlocked.Add(ref visits, 1);
 
@@ -579,11 +579,11 @@ namespace MiNET.Worlds
 		{
 			if (chunk == null) return true;
 
-			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			return bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9);
 		}
 
-		public static int GetDiffuseLevel(BlockCoordinates blockCoordinates, Chunk chunk)
+		public static int GetDiffuseLevel(BlockCoordinates blockCoordinates, ChunkBase chunk)
 		{
 			if (chunk == null) return 15;
 
@@ -591,11 +591,11 @@ namespace MiNET.Worlds
 			int by = blockCoordinates.Y & 0xff;
 			int bz = blockCoordinates.Z & 0x0f;
 
-			byte bid = chunk.GetBlock(bx, by - 16*(by >> 4), bz);
+			int bid = chunk.GetBlock(bx, by - 16*(by >> 4), bz);
 			return bid == 8 || bid == 9 ? 3 : bid == 18 && bid == 30 ? 2 : 1;
 		}
 
-		public static bool IsTransparent(BlockCoordinates blockCoordinates, Chunk chunk)
+		public static bool IsTransparent(BlockCoordinates blockCoordinates, ChunkBase chunk)
 		{
 			if (chunk == null) return true;
 
@@ -603,11 +603,11 @@ namespace MiNET.Worlds
 			int by = blockCoordinates.Y & 0xff;
 			int bz = blockCoordinates.Z & 0x0f;
 
-			byte bid = chunk.GetBlock(bx, by - 16*(by >> 4), bz);
+			int bid = chunk.GetBlock(bx, by - 16*(by >> 4), bz);
 			return bid == 0 || BlockFactory.TransparentBlocks[bid] == 1;
 		}
 
-		public static byte GetSkyLight(BlockCoordinates blockCoordinates, Chunk chunk)
+		public static byte GetSkyLight(BlockCoordinates blockCoordinates, ChunkBase chunk)
 		{
 			if (chunk == null) return 15;
 

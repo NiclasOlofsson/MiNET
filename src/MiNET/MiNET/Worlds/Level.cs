@@ -1028,7 +1028,7 @@ namespace MiNET.Worlds
 			}
 			if (chunk == null) return new Air {Coordinates = blockCoordinates, SkyLight = 15};
 
-			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte metadata = chunk.GetMetadata(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte blockLight = chunk.GetBlocklight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			byte skyLight = chunk.GetSkylight(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
@@ -1062,7 +1062,7 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(blockCoordinates);
 			if (chunk == null) return true;
 
-			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			return bid == 0;
 			//return bid == 0 || bid == 20 || bid == 241; // Need this for skylight calculations. Revise!
 		}
@@ -1072,7 +1072,7 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(blockCoordinates);
 			if (chunk == null) return true;
 
-			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			return bid == 0 || bid == 20 || bid == 241; // Need this for skylight calculations. Revise!
 		}
 
@@ -1081,7 +1081,7 @@ namespace MiNET.Worlds
 			ChunkColumn chunk = GetChunk(blockCoordinates);
 			if (chunk == null) return true;
 
-			byte bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
+			int bid = chunk.GetBlock(blockCoordinates.X & 0x0f, blockCoordinates.Y & 0xff, blockCoordinates.Z & 0x0f);
 			return BlockFactory.TransparentBlocks[bid] == 1;
 		}
 

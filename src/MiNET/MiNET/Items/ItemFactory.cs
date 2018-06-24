@@ -111,7 +111,7 @@ namespace MiNET.Items
 				return NameToId[itemName];
 			}
 
-			return BlockFactory.GetBlockIdByName(itemName);
+			return (short) BlockFactory.GetBlockIdByName(itemName);
 		}
 
 		public static Item GetItem(string name, short metadata = 0, int count = 1)

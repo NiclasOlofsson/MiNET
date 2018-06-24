@@ -981,7 +981,7 @@ namespace MiNET.Worlds
 							for (int y = 0; y < 16; y++)
 							{
 								int anvilIndex = y*16*16 + z*16 + x;
-								byte blockId = section.GetBlock(x, y, z);
+								byte blockId = (byte) section.GetBlock(x, y, z);
 								blocks[anvilIndex] = blockId;
 								SetNibble4(data, anvilIndex, section.GetMetadata(x, y, z));
 								SetNibble4(blockLight, anvilIndex, section.GetBlocklight(x, y, z));

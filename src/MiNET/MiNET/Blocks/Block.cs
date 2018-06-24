@@ -43,8 +43,10 @@ namespace MiNET.Blocks
 		private static readonly ILog Log = LogManager.GetLogger(typeof(Block));
 
 		public BlockCoordinates Coordinates { get; set; }
-		public byte Id { get; }
+		public int Id { get; }
 		public byte Metadata { get; set; }
+
+		public string Name { get; set; }
 
 		public float Hardness { get; protected set; } = 0;
 		public float BlastResistance { get; protected set; } = 0;
@@ -64,7 +66,7 @@ namespace MiNET.Blocks
 
 		public byte BiomeId { get; set; }
 
-		public Block(byte id)
+		public Block(int id)
 		{
 			Id = id;
 		}

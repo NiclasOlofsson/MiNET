@@ -587,6 +587,10 @@ namespace MiNET
 		{
 
 		}
+
+		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
+		{
+		}
 	}
 
 	public interface IServerManager

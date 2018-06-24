@@ -103,7 +103,7 @@ namespace MiNET.Entities.Passive
 			return attributes;
 		}
 
-		public override void DoInteraction(byte actionId, Player player)
+		public override void DoInteraction(int actionId, Player player)
 		{
 			if (player.IsSneaking)
 			{

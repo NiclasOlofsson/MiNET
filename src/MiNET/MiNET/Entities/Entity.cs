@@ -692,7 +692,7 @@ namespace MiNET.Entities
 			return new Item[] { };
 		}
 
-		public virtual void DoInteraction(byte actionId, Player player)
+		public virtual void DoInteraction(int actionId, Player player)
 		{
 		}
 

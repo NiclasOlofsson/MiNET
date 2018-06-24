@@ -90,6 +90,7 @@ namespace MiNET.Net
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
 		void HandleMcpeLabTable(McpeLabTable message);
+		void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message);
 	}
 
 	public class PackageFactory
@@ -617,6 +618,22 @@ namespace MiNET.Net
 						return package;
 					case 0x6f:
 						package = McpeMoveEntityDelta.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x70:
+						package = McpeSetScoreboardIdentityPacket.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x71:
+						package = McpeSetLocalPlayerAsInitializedPacket.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x72:
+						package = McpeUpdateSoftEnumPacket.CreateObject();
+						package.Decode(buffer);
+						return package;
+					case 0x73:
+						package = McpeNetworkStackLatencyPacket.CreateObject();
 						package.Decode(buffer);
 						return package;
 				}
@@ -7878,6 +7895,182 @@ namespace MiNET.Net
 
 			runtimeEntityId=default(long);
 			flags=default(byte);
+		}
+
+	}
+
+	public partial class McpeSetScoreboardIdentityPacket : Package<McpeSetScoreboardIdentityPacket>
+	{
+
+
+		public McpeSetScoreboardIdentityPacket()
+		{
+			Id = 0x70;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
+	}
+
+	public partial class McpeSetLocalPlayerAsInitializedPacket : Package<McpeSetLocalPlayerAsInitializedPacket>
+	{
+
+
+		public McpeSetLocalPlayerAsInitializedPacket()
+		{
+			Id = 0x71;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
+	}
+
+	public partial class McpeUpdateSoftEnumPacket : Package<McpeUpdateSoftEnumPacket>
+	{
+
+
+		public McpeUpdateSoftEnumPacket()
+		{
+			Id = 0x72;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
+		}
+
+	}
+
+	public partial class McpeNetworkStackLatencyPacket : Package<McpeNetworkStackLatencyPacket>
+	{
+
+
+		public McpeNetworkStackLatencyPacket()
+		{
+			Id = 0x73;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePackage()
+		{
+			base.EncodePackage();
+
+			BeforeEncode();
+
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePackage()
+		{
+			base.DecodePackage();
+
+			BeforeDecode();
+
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPackage()
+		{
+			base.ResetPackage();
+
 		}
 
 	}

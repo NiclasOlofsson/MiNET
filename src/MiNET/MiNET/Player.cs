@@ -219,6 +219,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
+		{
+		}
+
 		private bool _serverHaveResources = false;
 
 		public virtual void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
@@ -1931,25 +1935,26 @@ namespace MiNET
 			switch (message.transaction.TransactionType)
 			{
 				case McpeInventoryTransaction.TransactionType.Normal:
-					HandleTransactions(message.transaction);
+					HandleNormalTransactions(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.InventoryMismatch:
+					HandleInventoryMismatchTransactions(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUse:
-					HandleTransactionItemUse(message.transaction);
+					HandleItemUseTransactions(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemUseOnEntity:
-					HandleTransactionItemUseOnEntity(message.transaction);
+					HandleItemUseOnEntityTransactions(message.transaction);
 					break;
 				case McpeInventoryTransaction.TransactionType.ItemRelease:
-					HandleTransactionItemRelease(message.transaction);
+					HandleItemReleaseTransactions(message.transaction);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 		}
 
-		protected virtual void HandleTransactionItemUseOnEntity(Transaction transaction)
+		protected virtual void HandleItemUseOnEntityTransactions(Transaction transaction)
 		{
 			switch ((McpeInventoryTransaction.ItemUseOnEntityAction) transaction.ActionType)
 			{
@@ -1982,10 +1987,10 @@ namespace MiNET
 
 		protected virtual void EntityInteract(Transaction transaction)
 		{
-			DoInteraction((byte) transaction.ActionType, this);
+			DoInteraction(transaction.ActionType, this);
 
 			if (!Level.TryGetEntity(transaction.EntityId, out Entity target)) return;
-			target.DoInteraction((byte) transaction.ActionType, this);
+			target.DoInteraction(transaction.ActionType, this);
 		}
 
 		protected virtual void EntityAttack(Transaction transaction)
@@ -2033,9 +2038,14 @@ namespace MiNET
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
+		protected virtual void HandleInventoryMismatchTransactions(Transaction transaction)
+		{
+			Log.Warn($"Transaction mismatch");
+		}
+
 		private long _itemUseTimer;
 
-		protected virtual void HandleTransactionItemRelease(Transaction transaction)
+		protected virtual void HandleItemReleaseTransactions(Transaction transaction)
 		{
 			Item itemInHand = Inventory.GetItemInHand();
 
@@ -2075,10 +2085,10 @@ namespace MiNET
 					throw new ArgumentOutOfRangeException();
 			}
 
-			HandleTransactions(transaction);
+			HandleNormalTransactions(transaction);
 		}
 
-		protected virtual void HandleTransactionItemUse(Transaction transaction)
+		protected virtual void HandleItemUseTransactions(Transaction transaction)
 		{
 			var itemInHand = Inventory.GetItemInHand();
 
@@ -2102,13 +2112,13 @@ namespace MiNET
 					break;
 			}
 
-			HandleTransactions(transaction);
+			HandleNormalTransactions(transaction);
 		}
 
 		private List<Item> _craftingInput = new List<Item>(new Item[9]);
 		public bool UsingCraftingTable { get; set; }
 
-		protected virtual void HandleTransactions(Transaction transaction)
+		protected virtual void HandleNormalTransactions(Transaction transaction)
 		{
 			foreach (var record in transaction.Transactions)
 			{
@@ -2153,6 +2163,10 @@ namespace MiNET
 						mcpePlayerArmorEquipment.boots = Inventory.Boots;
 						Level.RelayBroadcast(this, mcpePlayerArmorEquipment);
 					}
+					else if (invId == 121)
+					{
+						if(GameMode != GameMode.Creative && Log.IsDebugEnabled) Log.Warn($"Player {Username} made transaction with creative inventory without being in creative gamemode.");
+					}
 					else if (invId == 124)
 					{
 						// Cursor
@@ -2189,13 +2203,9 @@ namespace MiNET
 					}
 					else if (invId == (int) McpeInventoryTransaction.NormalAction.GetResult)
 					{
-						if (VerifyRecipe(_craftingInput, oldItem))
+						if (!VerifyRecipe(_craftingInput, oldItem))
 						{
-							Log.Warn("Found matching recipe");
-						}
-						else
-						{
-							Log.Error("Found NO matching recipe");
+							if (Log.IsDebugEnabled) Log.Error($"Found NO matching recipe for player {Username}");
 						}
 
 						_craftingInput.Clear();

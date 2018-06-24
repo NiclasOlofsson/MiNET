@@ -1235,6 +1235,7 @@ namespace MiNET.Net
 				Write(info.PackIdVersion.Version);
 				Write(info.Size);
 				Write("");
+				Write("");
 			}
 		}
 
@@ -1263,21 +1264,21 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				Write((short) 0); // LE
+				WriteUnsignedVarInt(0);
 				return;
 			}
-			Write((short) packInfos.Count); // LE
+			WriteUnsignedVarInt((uint) packInfos.Count);
 			foreach (var info in packInfos)
 			{
 				Write(info.Id);
 				Write(info.Version);
+				Write("");
 			}
 		}
 
 		public ResourcePackIdVersions ReadResourcePackIdVersions()
 		{
-			//int count = _reader.ReadInt16(); // LE
-			int count = ReadShort(); // LE
+			uint count = ReadUnsignedVarInt();
 
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)
@@ -1327,7 +1328,7 @@ namespace MiNET.Net
 
 			Write(skin.SkinId);
 			WriteByteArray(skin.SkinData);
-			WriteByteArray(skin.CapeData);
+			Write(skin.CapeData);
 			Write(skin.SkinGeometryName);
 			Write(skin.SkinGeometry);
 			Write(xuid);

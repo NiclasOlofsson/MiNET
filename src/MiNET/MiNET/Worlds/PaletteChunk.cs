@@ -64,8 +64,7 @@ namespace MiNET.Worlds
 
 		private static int GetIndex(int bx, int by, int bz)
 		{
-			return (by * 256) + (bx * 16) + bz;
-			//return (bx * 256) + (bz * 16) + by;
+			return (bx * 256) + (bz * 16) + by;
 		}
 
 		public override int GetBlock(int bx, int by, int bz)

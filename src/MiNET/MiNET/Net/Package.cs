@@ -1271,20 +1271,22 @@ namespace MiNET.Net
 			{
 				Write(info.Id);
 				Write(info.Version);
+				Write(info.Unknown);
 			}
 		}
 
 		public ResourcePackIdVersions ReadResourcePackIdVersions()
 		{
 			//int count = _reader.ReadInt16(); // LE
-			int count = ReadShort(); // LE
+			uint count = ReadUnsignedVarInt(); // LE
 
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)
 			{
 				var id = ReadString();
 				var version = ReadString();
-				var info = new PackIdVersion {Id = id, Version = version};
+				var unknown = ReadString();
+				var info = new PackIdVersion {Id = id, Version = version, Unknown = unknown};
 				packInfos.Add(info);
 			}
 

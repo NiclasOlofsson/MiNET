@@ -65,9 +65,7 @@ namespace MiNET.ServiceKiller
 
 				long start = DateTime.UtcNow.Ticks;
 
-				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("80.49.148.56"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-				//IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
-				IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("80.49.148.56"), 19132);
+				IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
 
 				for (int j = 0; j < NumberOfBots; j++)
 				{

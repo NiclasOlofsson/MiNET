@@ -124,26 +124,8 @@ namespace MiNET.Client
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
 
-			//var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("pe.mineplex.com").AddressList[0], 19132), "TheGrey");
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.net").AddressList[0], 19132), "TheGrey");
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("147.75.192.106"), 19132), "TheGrey");
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey");
-
-			//var client = new MiNetClient(null, "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.5"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("173.208.195.250"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("true-games.org").AddressList[0], 2222), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-
-			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("54.229.52.56"), 27212), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("80.49.148.56"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-
-			// 157.7.202.57:29473
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("157.7.202.57"), 19132), "TheGrey");
 
 			client.StartClient();
 			Log.Warn("Client listening for connecting on: " + client._clientEndpoint);
@@ -1285,7 +1267,7 @@ namespace MiNET.Client
 
 		private void OnMcpeResourcePackStack(McpeResourcePackStack message)
 		{
-			Log.Debug($"HEX: \n{Package.HexDump(message.Bytes)}");
+			//Log.Debug($"HEX: \n{Package.HexDump(message.Bytes)}");
 
 			var sb = new StringBuilder();
 			sb.AppendLine();
@@ -1293,13 +1275,13 @@ namespace MiNET.Client
 			sb.AppendLine("Resource pack stacks:");
 			foreach (var info in message.resourcepackidversions)
 			{
-				sb.AppendLine($"ID={info.Id}, Version={info.Version}");
+				sb.AppendLine($"ID={info.Id}, Version={info.Version}, Unknown={info.Unknown}");
 			}
 
 			sb.AppendLine("Behavior pack stacks:");
 			foreach (var info in message.behaviorpackidversions)
 			{
-				sb.AppendLine($"ID={info.Id}, Version={info.Version}");
+				sb.AppendLine($"ID={info.Id}, Version={info.Version}, Unknown={info.Unknown}");
 			}
 
 			Log.Debug(sb.ToString());
@@ -2475,7 +2457,7 @@ namespace MiNET.Client
 							internalBuffer = new byte[len];
 							destination.Read(internalBuffer, 0, len);
 
-							if (internalBuffer[0] == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
+							if (id == 0x8e) throw new Exception("Wrong code, didn't expect a 0x8E in a batched packet");
 
 							var package = PackageFactory.CreatePackage((byte) id, internalBuffer, "mcpe") ??
 							              new UnknownPackage((byte)id, internalBuffer);

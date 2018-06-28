@@ -1,12 +1,14 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using log4net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MiNET.Blocks;
+using MiNET.Worlds;
 using Newtonsoft.Json.Linq;
 
 namespace MiNET.Test
@@ -16,6 +18,20 @@ namespace MiNET.Test
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(GeneralTests));
 
+		[TestMethod]
+		public void ArrayFillPerformanceTests()
+		{
+			byte[] array = new byte[1000000000];
+			byte b = array[array.Length - 1];
+
+			var sw = Stopwatch.StartNew();
+			ChunkColumn.Fill<byte>(array, 0xff);
+			Console.WriteLine($"My fill {sw.ElapsedMilliseconds}ms");
+
+			sw.Restart();
+			Array.Fill<byte>(array, 0xff);
+			Console.WriteLine($"Core fill {sw.ElapsedMilliseconds}ms");
+		}
 		[TestMethod]
 		public void GenerateClassesForBlocks()
 		{
@@ -79,13 +95,11 @@ namespace MiNET.Test
 						writer.WriteLine($"{{");
 						writer.Indent++;
 
-						writer.WriteLine($"");
-						writer.WriteLine($"public string Name {{ get; set; }} = \"{value.Name}\";");
-						writer.WriteLine($"");
-
 						writer.WriteLine($"public {blockName}() : base({value.Id})");
 						writer.WriteLine($"{{");
 						writer.Indent++;
+
+						writer.WriteLine($"Name = \"{value.Name}\";");
 
 						do
 						{

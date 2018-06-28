@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -60,7 +60,7 @@ namespace MiNET.Worlds
 
 	public class AnvilWorldProvider : IWorldProvider, ICachingWorldProvider, ICloneable
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (AnvilWorldProvider));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilWorldProvider));
 
 		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
@@ -301,9 +301,12 @@ namespace MiNET.Worlds
 							SaveChunk(waste, BasePath);
 						}
 
-						foreach (var chunk in waste.chunks)
+						if (waste != null)
 						{
-							chunk.PutPool();
+							foreach (var chunk in waste)
+							{
+								chunk.PutPool();
+							}
 						}
 
 						Interlocked.Increment(ref removed);
@@ -423,7 +426,7 @@ namespace MiNET.Worlds
 
 					if (compressionMode != 0x02)
 						throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode:X2}. " +
-						                    $"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
+											$"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
 
 					var nbt = new NbtFile();
 					nbt.LoadFromStream(regionFile, NbtCompression.ZLib);
@@ -603,7 +606,7 @@ namespace MiNET.Worlds
 			byte[] blockLight = sectionTag["BlockLight"].ByteArrayValue;
 			byte[] skyLight = sectionTag["SkyLight"].ByteArrayValue;
 
-			var chunk = chunkColumn.chunks[sectionIndex];
+			var chunk = chunkColumn[sectionIndex];
 
 			for (int x = 0; x < 16; x++)
 			{
@@ -961,7 +964,7 @@ namespace MiNET.Worlds
 
 			for (int i = 0; i < 16; i++)
 			{
-				var section = chunk.chunks[i];
+				var section = chunk[i];
 				if (section.IsAllAir()) continue;
 
 				NbtCompound sectionTag = new NbtCompound();
@@ -1079,7 +1082,7 @@ namespace MiNET.Worlds
 						_chunkCache[chunkCoordinates] = null;
 						if (chunk != null)
 						{
-							foreach (var c in chunk.chunks)
+							foreach (var c in chunk)
 							{
 								c.PutPool();
 							}

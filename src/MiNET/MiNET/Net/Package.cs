@@ -1790,7 +1790,7 @@ namespace MiNET.Net
 		protected virtual void EncodePackage()
 		{
 			_buffer.Position = 0;
-			Write(Id);
+			Write(Id); //TODO: If MCPE write varint
 			//if (IsMcpe) Write((short) 0);
 		}
 

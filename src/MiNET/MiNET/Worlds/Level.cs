@@ -161,14 +161,14 @@ namespace MiNET.Worlds
 					Log.Debug("Checking for safe spawn");
 				}
 
-				if (LevelManager != null && WorldProvider.HaveNether())
-				{
-					NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
-				}
-				if (LevelManager != null && WorldProvider.HaveTheEnd())
-				{
-					TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
-				}
+				//if (LevelManager != null && WorldProvider.HaveNether())
+				//{
+				//	NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
+				//}
+				//if (LevelManager != null && WorldProvider.HaveTheEnd())
+				//{
+				//	TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
+				//}
 			}
 
 			//SpawnPoint.Y = 20;
@@ -224,7 +224,7 @@ namespace MiNET.Worlds
 					provider._chunkCache.TryRemove(chunk.Key, out var waste);
 					if (waste == null) continue;
 
-					foreach (var c in waste.chunks)
+					foreach (var c in waste)
 					{
 						c.PutPool();
 					}

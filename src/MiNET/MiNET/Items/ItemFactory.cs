@@ -121,8 +121,6 @@ namespace MiNET.Items
 
 		public static Item GetItem(short id, short metadata = 0, int count = 1)
 		{
-			//if (id != 0 && count == 0) return null;
-
 			Item item = null;
 
 			if (CustomItemFactory != null)
@@ -245,7 +243,9 @@ namespace MiNET.Items
 			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{
-				Block block = BlockFactory.GetBlockById((byte) id);
+				int blockId = id;
+				if (blockId < 0) blockId = (short) (Math.Abs(id) + 255); // hehe
+				Block block = BlockFactory.GetBlockById(blockId);
 				if (CustomBlockItemFactory == null)
 				{
 					item = new ItemBlock(block, metadata);

@@ -441,7 +441,7 @@ namespace MiNET.Worlds
 			byte currentSkyLight = GetSkyLight(coordinates, chunk);
 
 			int sectionIdx = coordinates.Y >> 4;
-			ChunkBase section = chunk.chunks[sectionIdx];
+			ChunkBase section = chunk.GetChunk(coordinates.Y);
 
 			byte maxSkyLight = currentSkyLight;
 			if (coordinates.Y < 255)
@@ -507,7 +507,7 @@ namespace MiNET.Worlds
 				}
 			}
 
-			if (chunk?.chunks == null) return lightLevel;
+			if (chunk == null /* || chunk.chunks == null*/) return lightLevel;
 
 			if (!down && !up && coordinates.Y >= GetHeight(coordinates, chunk))
 			{
@@ -525,7 +525,7 @@ namespace MiNET.Worlds
 				return 15;
 			}
 
-			if (section == null) section = chunk.chunks[coordinates.Y >> 4];
+			if (section == null) section = chunk.GetChunk(coordinates.Y);
 
 			bool isTransparent = IsTransparent(coordinates, section);
 			byte skyLight = GetSkyLight(coordinates, section);
@@ -853,7 +853,8 @@ namespace MiNET.Worlds
 				if (!TrackResults) return;
 
 
-				Log.Debug($"Generated all images, now rendering movie.");
+				var moviePath = @"D:\Temp\Light\test.avi";
+				Log.Debug($"Generated all images, now rendering movie to {moviePath}");
 
 				//var files = Directory.EnumerateFiles(@"D:\Temp\Light\", "*.bmp");
 				//files = files.OrderBy(s => s);
@@ -861,7 +862,7 @@ namespace MiNET.Worlds
 				//int fps = (int) (RenderingTasks.Count()/10f); // Movie should last 5 seconds
 				int fps = 10;
 
-				var writer = new AviWriter(@"D:\Temp\Light\test.avi")
+				var writer = new AviWriter(moviePath)
 				{
 					FramesPerSecond = fps,
 					// Emitting AVI v1 index in addition to OpenDML index (AVI v2)

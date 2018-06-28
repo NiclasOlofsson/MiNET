@@ -21,12 +21,12 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 350;
+		private const int TimeBetweenSpawns = 1000;
 		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(60);
-		private const int NumberOfBots = 200;
+		private const int NumberOfBots = 30000;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
-		private const int RequestChunkRadius = 5;
+		private const int RequestChunkRadius = 6;
 
 		private static bool _running = true;
 
@@ -40,6 +40,7 @@ namespace MiNET.ServiceKiller
 		{
 			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
 			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
+
 
 			try
 			{
@@ -64,7 +65,9 @@ namespace MiNET.ServiceKiller
 
 				long start = DateTime.UtcNow.Ticks;
 
-				IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
+				//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("80.49.148.56"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+				//IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
+				IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse("80.49.148.56"), 19132);
 
 				for (int j = 0; j < NumberOfBots; j++)
 				{
@@ -181,7 +184,7 @@ namespace MiNET.ServiceKiller
 				{
 					if (client.UdpClient == null) break;
 
-					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 55;
+					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 75;
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;

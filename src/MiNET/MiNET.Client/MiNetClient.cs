@@ -87,7 +87,8 @@ namespace MiNET.Client
 		public LevelInfo Level { get; } = new LevelInfo();
 
 		//private long _clientGuid = new Random().Next();
-		private long _clientGuid = 1111111;
+		private long _clientGuid = 1111111 + new Random().Next();
+		//private long _clientGuid = 1111111 + DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
 		public bool HaveServer = false;
 		public PlayerLocation CurrentLocation { get; set; }
@@ -101,6 +102,9 @@ namespace MiNET.Client
 
 		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
+			Random random = new Random();
+			_clientGuid = 1111111 + random.Next() + random.Next();
+
 			Username = username;
 			ClientId = new Random().Next();
 			_serverEndpoint = endpoint;
@@ -131,10 +135,12 @@ namespace MiNET.Client
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("192.168.0.3"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("173.208.195.250"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("true-games.org").AddressList[0], 2222), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+
+			//var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("54.229.52.56"), 27212), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+			var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("80.49.148.56"), 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
 			// 157.7.202.57:29473
 			//var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("157.7.202.57"), 19132), "TheGrey");
@@ -339,7 +345,7 @@ namespace MiNET.Client
 			try
 			{
 				Session?.Close();
-				_mainProcessingThread?.Abort();
+				//_mainProcessingThread?.Abort();
 				_mainProcessingThread = null;
 
 				if (UdpClient == null) return true; // Already stopped. It's ok.
@@ -2718,8 +2724,8 @@ namespace MiNET.Client
 			Random rand = new Random();
 			var packet = NewIncomingConnection.CreateObject();
 			packet.clientendpoint = _serverEndpoint;
-			packet.systemAddresses = new IPEndPoint[20];
-			for (int i = 0; i < 20; i++)
+			packet.systemAddresses = new IPEndPoint[10];
+			for (int i = 0; i < 10; i++)
 			{
 				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
 			}

@@ -44,6 +44,9 @@ namespace MiNET.Client
 
 		public static ChunkColumn DecocedChunkColumn(byte[] buffer)
 		{
+
+			return null;
+
 			lock (_chunkRead)
 			{
 				MemoryStream stream = new MemoryStream(buffer);
@@ -68,7 +71,7 @@ namespace MiNET.Client
 						int idx = defStream.ReadByte();
 
 						Log.Debug($"New section {s}, index={idx}");
-						ChunkBase chunk = chunkColumn.chunks[s];
+						ChunkBase chunk = chunkColumn[s];
 
 						int chunkSize = 16*16*16;
 						//defStream.Read(chunk.blocks, 0, chunkSize);

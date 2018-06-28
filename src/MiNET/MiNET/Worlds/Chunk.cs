@@ -41,6 +41,7 @@ namespace MiNET.Worlds
 
 		public ChunkBase()
 		{
+			Array.Fill<byte>(skylight.Data, 0xff);
 		}
 
 		public abstract bool IsDirty { get; }
@@ -54,17 +55,29 @@ namespace MiNET.Worlds
 
 		public abstract void SetBlock(int bx, int by, int bz, int bid);
 
-		public abstract byte GetBlocklight(int bx, int by, int bz);
-
-		public abstract void SetBlocklight(int bx, int by, int bz, byte data);
-
 		public abstract byte GetMetadata(int bx, int by, int bz);
 
 		public abstract void SetMetadata(int bx, int by, int bz, byte data);
 
-		public abstract byte GetSkylight(int bx, int by, int bz);
+		public byte GetBlocklight(int bx, int by, int bz)
+		{
+			return blocklight[GetIndex(bx, by, bz)];
+		}
 
-		public abstract void SetSkylight(int bx, int by, int bz, byte data);
+		public void SetBlocklight(int bx, int by, int bz, byte data)
+		{
+			blocklight[GetIndex(bx, by, bz)] = data;
+		}
+
+		public virtual byte GetSkylight(int bx, int by, int bz)
+		{
+			return skylight[GetIndex(bx, by, bz)];
+		}
+
+		public virtual void SetSkylight(int bx, int by, int bz, byte data)
+		{
+			skylight[GetIndex(bx, by, bz)] = data;
+		}
 
 		public abstract byte[] GetBytes(Stream stream);
 
@@ -73,6 +86,12 @@ namespace MiNET.Worlds
 		public abstract void PutPool();
 
 		public abstract void Reset();
+
+		private static int GetIndex(int bx, int by, int bz)
+		{
+			return (bx * 256) + (bz * 16) + by;
+		}
+
 	}
 
 	public class Chunk : ChunkBase
@@ -81,19 +100,15 @@ namespace MiNET.Worlds
 
 		private bool _isAllAir = true;
 
-		public byte[] blocks = new byte[16*16*16];
-		public NibbleArray metadata = new NibbleArray(16*16*16);
-		//public NibbleArray blocklight = new NibbleArray(16*16*16);
-		//public NibbleArray skylight = new NibbleArray(16*16*16);
+		private byte[] _blocks = new byte[16*16*16];
+		private NibbleArray _metadata = new NibbleArray(16*16*16);
 
 		private byte[] _cache;
 		private bool _isDirty;
-		private object _cacheSync = new object();
 
 		public Chunk()
 		{
-			ChunkColumn.Fill<byte>(skylight.Data, 0xff);
-			//ChunkColumn.Fill<byte>(blocklight.Data, 0x88);
+			Array.Fill<byte>(skylight.Data, 0xff);
 		}
 
 		public override bool IsDirty => _isDirty;
@@ -102,7 +117,7 @@ namespace MiNET.Worlds
 		{
 			if (_isDirty)
 			{
-				_isAllAir = blocks.All(b => b == 0);
+				_isAllAir = _blocks.All(b => b == 0);
 				_isDirty = false;
 			}
 			return _isAllAir;
@@ -115,50 +130,26 @@ namespace MiNET.Worlds
 
 		public override int GetBlock(int bx, int by, int bz)
 		{
-			return blocks[GetIndex(bx, by, bz)];
+			return _blocks[GetIndex(bx, by, bz)];
 		}
 
 		public override void SetBlock(int bx, int by, int bz, int bid)
 		{
-			blocks[GetIndex(bx, by, bz)] = (byte) bid;
+			_blocks[GetIndex(bx, by, bz)] = (byte) bid;
 			_cache = null;
 			_isDirty = true;
-		}
-
-		public override byte GetBlocklight(int bx, int by, int bz)
-		{
-			return blocklight[GetIndex(bx, by, bz)];
-		}
-
-		public override void SetBlocklight(int bx, int by, int bz, byte data)
-		{
-			blocklight[GetIndex(bx, by, bz)] = data;
-			//_cache = null;
-			//_isDirty = true;
 		}
 
 		public override byte GetMetadata(int bx, int by, int bz)
 		{
-			return metadata[GetIndex(bx, by, bz)];
+			return _metadata[GetIndex(bx, by, bz)];
 		}
 
 		public override void SetMetadata(int bx, int by, int bz, byte data)
 		{
-			metadata[GetIndex(bx, by, bz)] = data;
+			_metadata[GetIndex(bx, by, bz)] = data;
 			_cache = null;
 			_isDirty = true;
-		}
-
-		public override byte GetSkylight(int bx, int by, int bz)
-		{
-			return skylight[GetIndex(bx, by, bz)];
-		}
-
-		public override void SetSkylight(int bx, int by, int bz, byte data)
-		{
-			skylight[GetIndex(bx, by, bz)] = data;
-			//_cache = null;
-			//_isDirty = true;
 		}
 
 		public override byte[] GetBytes(Stream stream)
@@ -168,8 +159,8 @@ namespace MiNET.Worlds
 			//using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 			{
 				stream.WriteByte((byte) 0); // version
-				stream.Write(blocks, 0, blocks.Length);
-				stream.Write(metadata.Data, 0, metadata.Data.Length);
+				stream.Write(_blocks, 0, _blocks.Length);
+				stream.Write(_metadata.Data, 0, _metadata.Data.Length);
 				//writer.Write(skylight.Data);
 				//writer.Write(blocklight.Data);
 				//_cache = stream.ToArray();
@@ -184,8 +175,8 @@ namespace MiNET.Worlds
 			cc._isAllAir = _isAllAir;
 			cc._isDirty = _isDirty;
 
-			blocks.CopyTo(cc.blocks, 0);
-			metadata.Data.CopyTo(cc.metadata.Data, 0);
+			_blocks.CopyTo(cc._blocks, 0);
+			_metadata.Data.CopyTo(cc._metadata.Data, 0);
 			blocklight.Data.CopyTo(cc.blocklight.Data, 0);
 			skylight.Data.CopyTo(cc.skylight.Data, 0);
 
@@ -193,8 +184,6 @@ namespace MiNET.Worlds
 			{
 				cc._cache = (byte[]) _cache.Clone();
 			}
-
-			cc._cacheSync = new object();
 
 			return cc;
 		}
@@ -215,11 +204,11 @@ namespace MiNET.Worlds
 		public override void Reset()
 		{
 			_isAllAir = true;
-			Array.Clear(blocks, 0, blocks.Length);
-			Array.Clear(metadata.Data, 0, metadata.Data.Length);
+			Array.Clear(_blocks, 0, _blocks.Length);
+			Array.Clear(_metadata.Data, 0, _metadata.Data.Length);
 			Array.Clear(blocklight.Data, 0, blocklight.Data.Length);
 			Array.Clear(skylight.Data, 0, skylight.Data.Length);
-			ChunkColumn.Fill<byte>(skylight.Data, 0xff);
+			Array.Fill<byte>(skylight.Data, 0xff);
 			_cache = null;
 			_isDirty = false;
 		}

@@ -169,13 +169,13 @@ namespace MiNET.BlockEntities
 				cookTimeSetData.windowId = Inventory.WindowsId;
 				cookTimeSetData.property = 0;
 				cookTimeSetData.value = CookTime;
-				observer.SendPackage(cookTimeSetData);
+				observer.SendPacket(cookTimeSetData);
 
 				var burnTimeSetData = McpeContainerSetData.CreateObject();
 				burnTimeSetData.windowId = Inventory.WindowsId;
 				burnTimeSetData.property = 1;
 				burnTimeSetData.value = BurnTick;
-				observer.SendPackage(burnTimeSetData);
+				observer.SendPacket(burnTimeSetData);
 			}
 		}
 

@@ -73,7 +73,7 @@ namespace MiNET.Utils
 			int nbtLen = reader.ReadInt16(); // NbtLen
 			if (nbtLen > 0)
 			{
-				stack.ExtraData = Package.ReadNbt(reader.BaseStream, false).NbtFile.RootTag;
+				stack.ExtraData = Packet.ReadNbt(reader.BaseStream, false).NbtFile.RootTag;
 			}
 
 			var canPlace = ReadSignedVarInt(reader.BaseStream);
@@ -113,7 +113,7 @@ namespace MiNET.Utils
 
 			if (stack.ExtraData != null)
 			{
-				byte[] bytes = Package.GetNbtData(stack.ExtraData);
+				byte[] bytes = Packet.GetNbtData(stack.ExtraData);
 				stream.Write((short) bytes.Length);
 				stream.Write(bytes);
 			}

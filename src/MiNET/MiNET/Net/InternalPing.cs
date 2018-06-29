@@ -1,17 +1,17 @@
 ﻿namespace MiNET.Net
 {
-	public class InternalPing : Package<InternalPing>
+	public class InternalPing : Packet<InternalPing>
 	{
 		public InternalPing()
 		{
 			Id = 0xff;
 		}
 
-		protected override void EncodePackage()
+		protected override void EncodePacket()
 		{
 		}
 
-		protected override void DecodePackage()
+		protected override void DecodePacket()
 		{
 		}
 	}

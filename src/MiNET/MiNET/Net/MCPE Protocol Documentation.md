@@ -3,7 +3,7 @@
 
 Read more about packets and this specification on the [Protocol Wiki](https://github.com/NiclasOlofsson/MiNET/wiki//ref-protocol)
 
-## ALL PACKAGES
+## ALL PACKETS
 
 | ID  | ID (hex) | ID (dec) | 
 |:--- |:---------|---------:| 
@@ -177,7 +177,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 	byte[]
 	{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }
 
-## Packages
+## Packets
 
 ### Login (0x01)
 Wiki: [Login](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Login)

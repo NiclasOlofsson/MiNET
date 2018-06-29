@@ -42,9 +42,9 @@ using Newtonsoft.Json;
 
 namespace MiNET.Net
 {
-	public abstract partial class Package
+	public abstract partial class Packet
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet));
 
 		private bool _isEncoded;
 		private byte[] _encodedMessage;
@@ -72,7 +72,7 @@ namespace MiNET.Net
 		[JsonIgnore]
 		public byte[] Bytes { get; private set; }
 
-		public Package()
+		public Packet()
 		{
 			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
@@ -1789,7 +1789,7 @@ namespace MiNET.Net
 			return _reader.BaseStream.Position < _reader.BaseStream.Length;
 		}
 
-		protected virtual void EncodePackage()
+		protected virtual void EncodePacket()
 		{
 			_buffer.Position = 0;
 			Write(Id); //TODO: If MCPE write varint
@@ -1798,7 +1798,7 @@ namespace MiNET.Net
 
 		public virtual void Reset()
 		{
-			ResetPackage();
+			ResetPacket();
 			DatagramSequenceNumber = -1;
 
 			Reliability = Reliability.Unreliable;
@@ -1817,7 +1817,7 @@ namespace MiNET.Net
 			_isEncoded = false;
 		}
 
-		protected virtual void ResetPackage()
+		protected virtual void ResetPacket()
 		{
 		}
 
@@ -1838,7 +1838,7 @@ namespace MiNET.Net
 
 				_isEncoded = false;
 
-				EncodePackage();
+				EncodePacket();
 
 				_writer.Flush();
 				_buffer.Position = 0;
@@ -1848,7 +1848,7 @@ namespace MiNET.Net
 			}
 		}
 
-		protected virtual void DecodePackage()
+		protected virtual void DecodePacket()
 		{
 			_buffer.Position = 0;
 			if (!IsMcpe) Id = ReadByte();
@@ -1862,7 +1862,7 @@ namespace MiNET.Net
 			_buffer.SetLength(buffer.Length);
 			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
-			DecodePackage();
+			DecodePacket();
 			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length))
 			{
 				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!\n{HexDump(buffer)}");
@@ -1879,12 +1879,12 @@ namespace MiNET.Net
 
 		public virtual object Clone()
 		{
-			Package clone = (Package) MemberwiseClone();
+			Packet clone = (Packet) MemberwiseClone();
 			clone.CloneReset();
 			return clone;
 		}
 
-		public virtual T Clone<T>() where T : Package
+		public virtual T Clone<T>() where T : Packet
 		{
 			return (T) Clone();
 		}
@@ -1909,7 +1909,7 @@ namespace MiNET.Net
 			return sb.ToString();
 		}
 
-		public static string ToJson(Package message)
+		public static string ToJson(Packet message)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
@@ -1925,9 +1925,9 @@ namespace MiNET.Net
 	}
 
 	/// Base package class
-	public abstract partial class Package<T> : Package, ICloneable where T : Package<T>, new()
+	public abstract partial class Packet<T> : Packet, ICloneable where T : Packet<T>, new()
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet<T>));
 
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 
@@ -1967,7 +1967,7 @@ namespace MiNET.Net
 			return (T) this;
 		}
 
-		public T AddReference(Package<T> item)
+		public T AddReference(Packet<T> item)
 		{
 			if (_isPermanent) return (T) this;
 
@@ -2003,7 +2003,7 @@ namespace MiNET.Net
 		//}
 
 
-		~Package()
+		~Packet()
 		{
 			if (_isPooled)
 			{

@@ -4,7 +4,7 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public partial class Nak : Package<Nak>
+	public partial class Nak : Packet<Nak>
 	{
 		public List<Tuple<int, int>> ranges = new List<Tuple<int, int>>();
 
@@ -16,9 +16,9 @@ namespace MiNET.Net
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		protected override void DecodePackage()
+		protected override void DecodePacket()
 		{
-			base.DecodePackage();
+			base.DecodePacket();
 
 			if (Id != 0xa0) throw new Exception("Not NAK");
 			ranges.Clear();

@@ -650,7 +650,7 @@ namespace TestPlugin.NiceLobby
 		//}
 
 		[PacketHandler, Send]
-		public Package RespawnHandler(McpeRespawn packet, Player player)
+		public Packet RespawnHandler(McpeRespawn packet, Player player)
 		{
 			SendNameTag(player);
 			player.RemoveAllEffects();
@@ -668,7 +668,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[PacketHandler, Send]
-		public Package AddPlayerHandler(McpeAddPlayer packet, Player player)
+		public Packet AddPlayerHandler(McpeAddPlayer packet, Player player)
 		{
 			if (_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityIdSelf) != null)
 			{
@@ -712,7 +712,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[PacketHandler, Receive]
-		public Package MessageHandler(McpeText message, Player player)
+		public Packet MessageHandler(McpeText message, Player player)
 		{
 			string text = TextUtils.RemoveFormatting(message.message);
 			player.Level.BroadcastMessage($"{GetNameTag(player)} says:{ChatColors.White} {text}", MessageType.Chat);
@@ -904,7 +904,7 @@ namespace TestPlugin.NiceLobby
 
 			var remove = McpeRemoveEntity.CreateObject();
 			remove.entityIdSelf = entity.EntityId;
-			player.SendPackage(remove);
+			player.SendPacket(remove);
 
 			_playerEntities[player] = entity;
 
@@ -912,7 +912,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[PacketHandler, Receive]
-		public Package HandleIncoming(McpeMovePlayer packet, Player player)
+		public Packet HandleIncoming(McpeMovePlayer packet, Player player)
 		{
 			if (_playerEntities.ContainsKey(player))
 			{

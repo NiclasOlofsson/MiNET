@@ -304,7 +304,7 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerAddRecords(spawnedPlayers);
-				newPlayer.SendPackage(CreateMcpeBatch(playerListMessage.Encode()));
+				newPlayer.SendPacket(CreateMcpeBatch(playerListMessage.Encode()));
 				playerListMessage.records = null;
 				playerListMessage.PutPool();
 
@@ -361,7 +361,7 @@ namespace MiNET.Worlds
 
 				McpePlayerList playerListMessage = McpePlayerList.CreateObject();
 				playerListMessage.records = new PlayerRemoveRecords(spawnedPlayers);
-				player.SendPackage(CreateMcpeBatch(playerListMessage.Encode()));
+				player.SendPacket(CreateMcpeBatch(playerListMessage.Encode()));
 				playerListMessage.records = null;
 				playerListMessage.PutPool();
 
@@ -838,28 +838,28 @@ namespace MiNET.Worlds
 				batch.Encode();
 				foreach (var player in players)
 				{
-					MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPackage(batch));
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() => player.SendPacket(batch));
 				}
 				_lastBroadcast = DateTime.UtcNow;
 			}
 		}
 
-		public void RelayBroadcast<T>(T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(T message) where T : Packet<T>, new()
 		{
 			RelayBroadcast(null, GetAllPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player source, T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player source, T message) where T : Packet<T>, new()
 		{
 			RelayBroadcast(source, GetAllPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player[] sendList, T message) where T : Packet<T>, new()
 		{
 			RelayBroadcast(null, sendList ?? GetAllPlayers(), message);
 		}
 
-		public void RelayBroadcast<T>(Player source, Player[] sendList, T message) where T : Package<T>, new()
+		public void RelayBroadcast<T>(Player source, Player[] sendList, T message) where T : Packet<T>, new()
 		{
 			if (message == null) return;
 
@@ -897,7 +897,7 @@ namespace MiNET.Worlds
 					return;
 				}
 
-				player.SendPackage(message);
+				player.SendPacket(message);
 			}
 			else
 			{
@@ -909,7 +909,7 @@ namespace MiNET.Worlds
 						return;
 					}
 
-					player.SendPackage(message);
+					player.SendPacket(message);
 				});
 			}
 		}
@@ -1342,7 +1342,7 @@ namespace MiNET.Worlds
 					message.blockRuntimeId = block.GetRuntimeId();
 					message.coordinates = block.Coordinates;
 					message.blockPriority = 0xb;
-					player.SendPackage(message);
+					player.SendPacket(message);
 
 					return;
 				}
@@ -1389,7 +1389,7 @@ namespace MiNET.Worlds
 			message.blockRuntimeId = block.GetRuntimeId();
 			message.coordinates = block.Coordinates;
 			message.blockPriority = 0xb;
-			player.SendPackage(message);
+			player.SendPacket(message);
 
 			// Revert block entity if exists
 			if (blockEntity != null)
@@ -1407,7 +1407,7 @@ namespace MiNET.Worlds
 				entityData.namedtag = nbt;
 				entityData.coordinates = blockEntity.Coordinates;
 
-				player.SendPackage(entityData);
+				player.SendPacket(entityData);
 			}
 		}
 

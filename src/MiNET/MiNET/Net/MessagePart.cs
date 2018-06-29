@@ -2,7 +2,7 @@ using System;
 
 namespace MiNET.Net
 {
-	public class MessagePart : Package<MessagePart> // Replace this with stream
+	public class MessagePart : Packet<MessagePart> // Replace this with stream
 	{
 		public MessagePartHeader Header { get; private set; }
 		public Memory<byte> Buffer { get; set; }
@@ -26,7 +26,7 @@ namespace MiNET.Net
 			Buffer = null;
 		}
 
-		protected override void EncodePackage()
+		protected override void EncodePacket()
 		{
 			// DO NOT CALL base.EncodePackage();
 			_buffer.Position = 0;

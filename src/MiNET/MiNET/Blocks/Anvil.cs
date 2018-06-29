@@ -61,7 +61,7 @@ namespace MiNET.Blocks
 			containerOpen.type = 5;
 			containerOpen.coordinates = blockCoordinates;
 			containerOpen.runtimeEntityId = -1;
-			player.SendPackage(containerOpen);
+			player.SendPacket(containerOpen);
 
 			return true;
 		}

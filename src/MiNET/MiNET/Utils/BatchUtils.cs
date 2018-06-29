@@ -8,16 +8,16 @@ namespace MiNET.Utils
 {
 	public class BatchUtils
 	{
-		public static McpeWrapper CreateBatchPacket(CompressionLevel compressionLevel, params Package[] packages)
+		public static McpeWrapper CreateBatchPacket(CompressionLevel compressionLevel, params Packet[] packets)
 		{
 			using (MemoryStream stream = new MemoryStream())
 			{
-				foreach (var package in packages)
+				foreach (var packet in packets)
 				{
-					byte[] bytes = package.Encode();
+					byte[] bytes = packet.Encode();
 					WriteLength(stream, bytes.Length);
 					stream.Write(bytes, 0, bytes.Length);
-					package.PutPool();
+					packet.PutPool();
 				}
 
 				Memory<byte> buffer = new Memory<byte>(stream.GetBuffer(), 0, (int) stream.Length);

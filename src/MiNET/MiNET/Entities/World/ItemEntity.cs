@@ -206,7 +206,7 @@ namespace MiNET.Entities.World
 							var takeItemEntity = McpeTakeItemEntity.CreateObject();
 							takeItemEntity.runtimeEntityId = EntityId;
 							takeItemEntity.target = EntityManager.EntityIdSelf;
-							player.SendPackage(takeItemEntity);
+							player.SendPacket(takeItemEntity);
 						}
 
 						DespawnEntity();

@@ -396,7 +396,7 @@ namespace MiNET.Worlds
 					Array.Reverse(bytes);
 					if (offset != 0 && offsetBuffer[0] != bytes[0] && offsetBuffer[1] != bytes[1] && offsetBuffer[2] != bytes[2])
 					{
-						throw new Exception($"Not the same buffer\n{Package.HexDump(offsetBuffer)}\n{Package.HexDump(bytes)}");
+						throw new Exception($"Not the same buffer\n{Packet.HexDump(offsetBuffer)}\n{Packet.HexDump(bytes)}");
 					}
 
 					int length = regionFile.ReadByte();
@@ -426,7 +426,7 @@ namespace MiNET.Worlds
 
 					if (compressionMode != 0x02)
 						throw new Exception($"CX={coordinates.X}, CZ={coordinates.Z}, NBT wrong compression. Expected 0x02, got 0x{compressionMode:X2}. " +
-											$"Offset={offset}, length={length}\n{Package.HexDump(waste)}");
+											$"Offset={offset}, length={length}\n{Packet.HexDump(waste)}");
 
 					var nbt = new NbtFile();
 					nbt.LoadFromStream(regionFile, NbtCompression.ZLib);

@@ -389,7 +389,7 @@ namespace MiNET
 							response.ForceClear = true;
 							response.token = val;
 
-							_session.SendPackage(response);
+							_session.SendPacket(response);
 
 							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 						}

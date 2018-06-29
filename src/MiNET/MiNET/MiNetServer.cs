@@ -380,16 +380,16 @@ namespace MiNET
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					ConnectedPackage package = ConnectedPackage.CreateObject();
+					ConnectedPacket packet = ConnectedPacket.CreateObject();
 					try
 					{
-						package.Decode(receiveBytes);
+						packet.Decode(receiveBytes);
 					}
 					catch (Exception e)
 					{
-						playerSession.Disconnect("Bad package received from client.");
+						playerSession.Disconnect("Bad packet received from client.");
 
-						Log.Warn($"Bad packet {receiveBytes[0]}\n{Package.HexDump(receiveBytes)}", e);
+						Log.Warn($"Bad packet {receiveBytes[0]}\n{Packet.HexDump(receiveBytes)}", e);
 
 						GreylistManager.Blacklist(senderEndpoint.Address);
 
@@ -400,18 +400,18 @@ namespace MiNET
 					// IF reliable code below is enabled, useItem start sending doubles
 					// for some unknown reason.
 
-					//Reliability reliability = package._reliability;
+					//Reliability reliability = packet._reliability;
 					//if (reliability == Reliability.Reliable
 					//	|| reliability == Reliability.ReliableSequenced
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
 					{
-						EnqueueAck(playerSession, package._datagramSequenceNumber);
-						//if (Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
+						EnqueueAck(playerSession, packet._datagramSequenceNumber);
+						//if (Log.IsDebugEnabled) Log.Debug("ACK on #" + packet._datagramSequenceNumber.IntValue());
 					}
 
-					HandleConnectedPackage(playerSession, package);
-					package.PutPool();
+					HandleConnectedPacket(playerSession, packet);
+					packet.PutPool();
 				}
 				else if (header.isACK && header.isValid)
 				{
@@ -455,12 +455,12 @@ namespace MiNET
 				}
 			}
 
-			Package message = null;
+			Packet message = null;
 			try
 			{
 				try
 				{
-					message = PackageFactory.CreatePackage(msgId, receiveBytes, "raknet");
+					message = PacketFactory.Create(msgId, receiveBytes, "raknet");
 				}
 				catch (Exception)
 				{
@@ -639,22 +639,22 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
-		private void HandleConnectedPackage(PlayerNetworkSession playerSession, ConnectedPackage package)
+		private void HandleConnectedPacket(PlayerNetworkSession playerSession, ConnectedPacket packet)
 		{
-			foreach (var message in package.Messages)
+			foreach (var message in packet.Messages)
 			{
-				if (message is SplitPartPackage)
+				if (message is SplitPartPacket)
 				{
-					HandleSplitMessage(playerSession, (SplitPartPackage) message);
+					HandleSplitMessage(playerSession, (SplitPartPacket) message);
 					continue;
 				}
 
 				message.Timer.Restart();
-				HandlePackage(message, playerSession);
+				HandlePacket(message, playerSession);
 			}
 		}
 
-		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPackage splitMessage)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
 		{
 			int spId = splitMessage.SplitId;
 			int spIdx = splitMessage.SplitIdx;
@@ -666,7 +666,7 @@ namespace MiNET
 			Int24 orderingIndex = splitMessage.OrderingIndex;
 			byte orderingChannel = splitMessage.OrderingChannel;
 
-			SplitPartPackage[] spPackets;
+			SplitPartPacket[] spPackets;
 			bool haveEmpty = false;
 
 			// Need sync for this part since they come very fast, and very close in time. 
@@ -675,7 +675,7 @@ namespace MiNET
 			{
 				if (!playerSession.Splits.ContainsKey(spId))
 				{
-					playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
+					playerSession.Splits.TryAdd(spId, new SplitPartPacket[spCount]);
 				}
 
 				spPackets = playerSession.Splits[spId];
@@ -694,17 +694,17 @@ namespace MiNET
 
 			if (!haveEmpty)
 			{
-				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+				Log.DebugFormat("Got all {0} split packets for split ID: {1}", spCount, spId);
 
-				SplitPartPackage[] waste;
+				SplitPartPacket[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
 				using (MemoryStream stream = MemoryStreamManager.GetStream())
 				{
 					for (int i = 0; i < spPackets.Length; i++)
 					{
-						SplitPartPackage splitPartPackage = spPackets[i];
-						byte[] buf = splitPartPackage.Message;
+						SplitPartPacket splitPartPacket = spPackets[i];
+						byte[] buf = splitPartPacket.Message;
 						if (buf == null)
 						{
 							Log.Error("Expected bytes in splitpart, but got none");
@@ -712,42 +712,42 @@ namespace MiNET
 						}
 
 						stream.Write(buf, 0, buf.Length);
-						splitPartPackage.PutPool();
+						splitPartPacket.PutPool();
 					}
 
 					byte[] buffer = stream.ToArray();
 					try
 					{
-						ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-						newPackage._datagramSequenceNumber = sequenceNumber;
-						newPackage._reliability = reliability;
-						newPackage._reliableMessageNumber = reliableMessageNumber;
-						newPackage._orderingIndex = orderingIndex;
-						newPackage._orderingChannel = (byte) orderingChannel;
-						newPackage._hasSplit = false;
+						ConnectedPacket newPacket = ConnectedPacket.CreateObject();
+						newPacket._datagramSequenceNumber = sequenceNumber;
+						newPacket._reliability = reliability;
+						newPacket._reliableMessageNumber = reliableMessageNumber;
+						newPacket._orderingIndex = orderingIndex;
+						newPacket._orderingChannel = (byte) orderingChannel;
+						newPacket._hasSplit = false;
 
-						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ??
-											new UnknownPackage(buffer[0], buffer);
+						Packet fullMessage = PacketFactory.Create(buffer[0], buffer, "raknet") ??
+											new UnknownPacket(buffer[0], buffer);
 						fullMessage.DatagramSequenceNumber = sequenceNumber;
 						fullMessage.Reliability = reliability;
 						fullMessage.ReliableMessageNumber = reliableMessageNumber;
 						fullMessage.OrderingIndex = orderingIndex;
 						fullMessage.OrderingChannel = orderingChannel;
 
-						newPackage.Messages = new List<Package>();
-						newPackage.Messages.Add(fullMessage);
+						newPacket.Messages = new List<Packet>();
+						newPacket.Messages.Add(fullMessage);
 
 						Log.Debug(
-							$"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
-						HandleConnectedPackage(playerSession, newPackage);
-						newPackage.PutPool();
+							$"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+						HandleConnectedPacket(playerSession, newPacket);
+						newPacket.PutPool();
 					}
 					catch (Exception e)
 					{
 						Log.Error("Error during split message parsing", e);
 						if (Log.IsDebugEnabled)
-							Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-						playerSession.Disconnect("Bad package received from client.", false);
+							Log.Debug($"0x{buffer[0]:x2}\n{Packet.HexDump(buffer)}");
+						playerSession.Disconnect("Bad packet received from client.", false);
 					}
 				}
 			}
@@ -939,7 +939,7 @@ namespace MiNET
 			session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
 		}
 
-		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
+		internal void HandlePacket(Packet message, PlayerNetworkSession playerSession)
 		{
 			if (message == null)
 			{
@@ -960,7 +960,7 @@ namespace MiNET
 				return;
 			}
 
-			playerSession.HandlePackage(message, playerSession);
+			playerSession.HandlePacket(message, playerSession);
 		}
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
@@ -969,7 +969,7 @@ namespace MiNET
 			session.SignalTick();
 		}
 
-		public void SendPackage(PlayerNetworkSession session, Package message)
+		public void SendPacket(PlayerNetworkSession session, Packet message)
 		{
 			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 			{
@@ -1066,7 +1066,7 @@ namespace MiNET
 			}
 		}
 
-		internal static void TraceReceive(Package message)
+		internal static void TraceReceive(Packet message)
 		{
 			if (!Log.IsDebugEnabled) return;
 
@@ -1109,7 +1109,7 @@ namespace MiNET
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{
-					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 				}
 			}
 			catch (Exception e)
@@ -1118,7 +1118,7 @@ namespace MiNET
 			}
 		}
 
-		//public static void TraceSend(Package message)
+		//public static void TraceSend(Packet message)
 		//{
 		//	if (!Log.IsDebugEnabled) return;
 		//	if (message is McpeWrapper) return;
@@ -1135,7 +1135,7 @@ namespace MiNET
 		//	Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
 		//}
 
-		internal static void TraceSend(Package message)
+		internal static void TraceSend(Packet message)
 		{
 			if (!Log.IsDebugEnabled) return;
 
@@ -1178,7 +1178,7 @@ namespace MiNET
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{
-					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 				}
 			}
 			catch (Exception e)

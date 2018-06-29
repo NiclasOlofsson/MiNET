@@ -4,7 +4,7 @@ using log4net;
 
 namespace MiNET.Net
 {
-	public class ObjectPool<T> where T : Package
+	public class ObjectPool<T> where T : Packet
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ObjectPool<T>));
 

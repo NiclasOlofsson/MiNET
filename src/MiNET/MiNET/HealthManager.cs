@@ -246,7 +246,7 @@ namespace MiNET
 				mcpeRespawn.x = player.SpawnPosition.X;
 				mcpeRespawn.y = player.SpawnPosition.Y;
 				mcpeRespawn.z = player.SpawnPosition.Z;
-				player.SendPackage(mcpeRespawn);
+				player.SendPacket(mcpeRespawn);
 			}
 			else
 			{

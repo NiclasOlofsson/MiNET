@@ -32,7 +32,7 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class Datagram : Package<Datagram>
+	public class Datagram : Packet<Datagram>
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Datagram));
 
@@ -162,7 +162,7 @@ namespace MiNET.Net
 		}
 
 
-		public static IEnumerable<Datagram> CreateDatagrams(Package message, int mtuSize, PlayerNetworkSession session)
+		public static IEnumerable<Datagram> CreateDatagrams(Packet message, int mtuSize, PlayerNetworkSession session)
 		{
 			if (message is InternalPing) yield break;
 
@@ -190,7 +190,7 @@ namespace MiNET.Net
 			yield return datagram;
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
+		private static List<MessagePart> GetMessageParts(Packet message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
 		{
 			var messageParts = new List<MessagePart>();
 

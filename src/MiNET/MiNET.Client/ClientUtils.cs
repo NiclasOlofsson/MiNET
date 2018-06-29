@@ -134,7 +134,7 @@ namespace MiNET.Client
 						byte[] buf = new byte[borderBlock];
 						int len = defStream.Read(buf, 0, borderBlock);
 						Log.Warn($"??? Got borderblock {borderBlock}. Read {len} bytes");
-						Log.Debug($"{Package.HexDump(buf)}");
+						Log.Debug($"{Packet.HexDump(buf)}");
 						for (int i = 0; i < borderBlock; i++)
 						{
 							int x = (buf[i] & 0xf0) >> 4;
@@ -170,7 +170,7 @@ namespace MiNET.Client
 					}
 					if (stream.Position < stream.Length - 1)
 					{
-						Log.Warn($"Still have data to read\n{Package.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
+						Log.Warn($"Still have data to read\n{Packet.HexDump(defStream.ReadBytes((int) (stream.Length - stream.Position)))}");
 					}
 
 					return chunkColumn;

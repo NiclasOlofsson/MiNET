@@ -25,7 +25,7 @@
 
 namespace MiNET.Net
 {
-	public partial class McpeText : Package<McpeText>
+	public partial class McpeText : Packet<McpeText>
 	{
 		public string source; // = null;
 		public string message; // = null;

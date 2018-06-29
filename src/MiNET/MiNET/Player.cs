@@ -163,7 +163,7 @@ namespace MiNET
 			chunkData.progress = 0; // Long, maybe timestamp?
 			chunkData.length = (uint) content.Length;
 			chunkData.payload = content;
-			SendPackage(chunkData);
+			SendPacket(chunkData);
 		}
 
 		public void HandleMcpePurchaseReceipt(McpePurchaseReceipt message)
@@ -207,7 +207,7 @@ namespace MiNET
 			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();
 			response.formId = 12345;
 			response.data = customForm.ToJson();
-			SendPackage(response);
+			SendPacket(response);
 		}
 
 		public virtual void HandleMcpeSetPlayerGameType(McpeSetPlayerGameType message)
@@ -227,7 +227,7 @@ namespace MiNET
 
 		public virtual void HandleMcpeResourcePackClientResponse(McpeResourcePackClientResponse message)
 		{
-			if (Log.IsDebugEnabled) Log.Debug($"Handled package 0x{message.Id:X2}\n{Package.HexDump(message.Bytes)}");
+			if (Log.IsDebugEnabled) Log.Debug($"Handled packet 0x{message.Id:X2}\n{Packet.HexDump(message.Bytes)}");
 
 			if (message.responseStatus == 2)
 			{
@@ -237,7 +237,7 @@ namespace MiNET
 				dataInfo.chunkCount = 1;
 				dataInfo.compressedPackageSize = 359901; // Lenght of data
 				dataInfo.hash = "9&\r2'ëX•;\u001bð—Ð‹\u0006´6\u0007TÞ/[Üx…x*\u0005h\u0002à\u0012"; //TODO: Fix encoding for this. Right now, must be Default :-(
-				SendPackage(dataInfo);
+				SendPacket(dataInfo);
 				return;
 			}
 			else if (message.responseStatus == 3)
@@ -274,7 +274,7 @@ namespace MiNET
 				};
 			}
 
-			SendPackage(packInfo);
+			SendPacket(packInfo);
 		}
 
 		public virtual void SendResourcePackStack()
@@ -289,7 +289,7 @@ namespace MiNET
 				};
 			}
 
-			SendPackage(packStack);
+			SendPacket(packStack);
 		}
 
 		public virtual void HandleMcpePlayerInput(McpePlayerInput message)
@@ -353,7 +353,7 @@ namespace MiNET
 		{
 			McpeClientboundMapItemData packet = McpeClientboundMapItemData.CreateObject();
 			packet.mapinfo = mapInfo;
-			SendPackage(packet);
+			SendPacket(packet);
 		}
 
 		public int ChunkRadius { get; private set; } = -1;
@@ -649,7 +649,7 @@ namespace MiNET
 		{
 			McpeGameRulesChanged gameRulesChanged = McpeGameRulesChanged.CreateObject();
 			gameRulesChanged.rules = Level.GetGameRules();
-			SendPackage(gameRulesChanged);
+			SendPacket(gameRulesChanged);
 		}
 
 		public virtual void SendAdventureSettings()
@@ -665,7 +665,7 @@ namespace MiNET
 			mcpeAdventureSettings.customStoredPermissions = (uint) 0;
 			mcpeAdventureSettings.userId = Endian.SwapInt64(EntityId);
 
-			SendPackage(mcpeAdventureSettings);
+			SendPacket(mcpeAdventureSettings);
 		}
 
 		private uint GetAdventureFlags()
@@ -831,7 +831,7 @@ namespace MiNET
 		{
 			McpeSetCommandsEnabled enabled = McpeSetCommandsEnabled.CreateObject();
 			enabled.enabled = EnableCommands;
-			SendPackage(enabled);
+			SendPacket(enabled);
 		}
 
 		protected virtual void SendAvailableCommands()
@@ -849,7 +849,7 @@ namespace MiNET
 			commands.CommandSet = Server.PluginManager.Commands;
 			//commands.commands = content;
 			//commands.unknown = "{}";
-			SendPackage(commands);
+			SendPacket(commands);
 		}
 
 		public virtual void HandleMcpeCommandRequest(McpeCommandRequest message)
@@ -976,17 +976,17 @@ namespace MiNET
 			KnownPosition = position;
 			LastUpdatedTime = DateTime.UtcNow;
 
-			var package = McpeMovePlayer.CreateObject();
-			package.runtimeEntityId = EntityManager.EntityIdSelf;
-			package.x = position.X;
-			package.y = position.Y + 1.62f;
-			package.z = position.Z;
-			package.yaw = position.Yaw;
-			package.headYaw = position.HeadYaw;
-			package.pitch = position.Pitch;
-			package.mode = (byte) (teleport ? 1 : 0);
+			var packet = McpeMovePlayer.CreateObject();
+			packet.runtimeEntityId = EntityManager.EntityIdSelf;
+			packet.x = position.X;
+			packet.y = position.Y + 1.62f;
+			packet.z = position.Z;
+			packet.yaw = position.Yaw;
+			packet.headYaw = position.HeadYaw;
+			packet.pitch = position.Pitch;
+			packet.mode = (byte) (teleport ? 1 : 0);
 
-			SendPackage(package);
+			SendPacket(packet);
 		}
 
 		private object _teleportSync = new object();
@@ -1496,7 +1496,7 @@ namespace MiNET
 			changeDimension.position = position;
 			changeDimension.respawn = respawn;
 			changeDimension.NoBatch = true; // This is here because the client crashes otherwise.
-			SendPackage(changeDimension);
+			SendPacket(changeDimension);
 		}
 
 		public override void BroadcastSetEntityData(MetadataDictionary metadata)
@@ -1505,7 +1505,7 @@ namespace MiNET
 			mcpeSetEntityData.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeSetEntityData.metadata = metadata;
 			mcpeSetEntityData.Encode();
-			SendPackage(mcpeSetEntityData);
+			SendPacket(mcpeSetEntityData);
 
 			base.BroadcastSetEntityData(metadata);
 		}
@@ -1516,14 +1516,14 @@ namespace MiNET
 			mcpeSetEntityData.runtimeEntityId = EntityManager.EntityIdSelf;
 			mcpeSetEntityData.metadata = GetMetadata();
 			mcpeSetEntityData.Encode();
-			SendPackage(mcpeSetEntityData);
+			SendPacket(mcpeSetEntityData);
 		}
 
 		public void SendSetDificulty()
 		{
 			McpeSetDifficulty mcpeSetDifficulty = McpeSetDifficulty.CreateObject();
 			mcpeSetDifficulty.difficulty = (uint) Level.Difficulty;
-			SendPackage(mcpeSetDifficulty);
+			SendPacket(mcpeSetDifficulty);
 		}
 
 		public virtual void SendPlayerInventory()
@@ -1531,30 +1531,30 @@ namespace MiNET
 			McpeInventoryContent strangeContent = McpeInventoryContent.CreateObject();
 			strangeContent.inventoryId = (byte) 0x7b;
 			strangeContent.input = new ItemStacks();
-			SendPackage(strangeContent);
+			SendPacket(strangeContent);
 
 			McpeInventoryContent inventoryContent = McpeInventoryContent.CreateObject();
 			inventoryContent.inventoryId = (byte) 0x00;
 			inventoryContent.input = Inventory.GetSlots();
-			SendPackage(inventoryContent);
+			SendPacket(inventoryContent);
 
 			McpeInventoryContent armorContent = McpeInventoryContent.CreateObject();
 			armorContent.inventoryId = 0x78;
 			armorContent.input = Inventory.GetArmor();
-			SendPackage(armorContent);
+			SendPacket(armorContent);
 
 			McpeMobEquipment mobEquipment = McpeMobEquipment.CreateObject();
 			mobEquipment.runtimeEntityId = EntityManager.EntityIdSelf;
 			mobEquipment.item = Inventory.GetItemInHand();
 			mobEquipment.slot = (byte) Inventory.InHandSlot;
-			SendPackage(mobEquipment);
+			SendPacket(mobEquipment);
 		}
 
 		public virtual void SendCraftingRecipes()
 		{
 			McpeCraftingData craftingData = McpeCraftingData.CreateObject();
 			craftingData.recipes = RecipeManager.Recipes;
-			SendPackage(craftingData);
+			SendPacket(craftingData);
 		}
 
 		public virtual void SendCreativeInventory()
@@ -1564,22 +1564,22 @@ namespace MiNET
 			McpeInventoryContent creativeContent = McpeInventoryContent.CreateObject();
 			creativeContent.inventoryId = (byte) 0x79;
 			creativeContent.input = InventoryUtils.GetCreativeMetadataSlots();
-			SendPackage(creativeContent);
+			SendPacket(creativeContent);
 		}
 
 		private void SendChunkRadiusUpdate()
 		{
-			McpeChunkRadiusUpdate package = McpeChunkRadiusUpdate.CreateObject();
-			package.chunkRadius = ChunkRadius;
+			McpeChunkRadiusUpdate packet = McpeChunkRadiusUpdate.CreateObject();
+			packet.chunkRadius = ChunkRadius;
 
-			SendPackage(package);
+			SendPacket(packet);
 		}
 
 		public void SendPlayerStatus(int status)
 		{
 			McpePlayStatus mcpePlayerStatus = McpePlayStatus.CreateObject();
 			mcpePlayerStatus.status = status;
-			SendPackage(mcpePlayerStatus);
+			SendPacket(mcpePlayerStatus);
 		}
 
 		[Wired]
@@ -1595,7 +1595,7 @@ namespace MiNET
 		{
 			McpeSetPlayerGameType gametype = McpeSetPlayerGameType.CreateObject();
 			gametype.gamemode = (int) GameMode;
-			SendPackage(gametype);
+			SendPacket(gametype);
 		}
 
 		[Wired]
@@ -1627,7 +1627,7 @@ namespace MiNET
 							McpeDisconnect disconnect = McpeDisconnect.CreateObject();
 							disconnect.NoBatch = true;
 							disconnect.message = reason;
-							NetworkHandler.SendDirectPackage(disconnect);
+							NetworkHandler.SendDirectPacket(disconnect);
 						}
 
 						NetworkHandler.Close();
@@ -1889,12 +1889,12 @@ namespace MiNET
 				containerOpen.type = inventory.Type;
 				containerOpen.coordinates = inventoryCoord;
 				containerOpen.runtimeEntityId = -1;
-				SendPackage(containerOpen);
+				SendPacket(containerOpen);
 
 				McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
 				containerSetContent.inventoryId = inventory.WindowsId;
 				containerSetContent.input = inventory.Slots;
-				SendPackage(containerSetContent);
+				SendPacket(containerSetContent);
 			}
 		}
 
@@ -1911,7 +1911,7 @@ namespace MiNET
 				sendSlot.inventoryId = inventory.WindowsId;
 				sendSlot.slot = slot;
 				sendSlot.item = itemStack;
-				SendPackage(sendSlot);
+				SendPacket(sendSlot);
 			}
 
 			//if(inventory.BlockEntity != null)
@@ -2512,7 +2512,7 @@ namespace MiNET
 			mcpeRespawn.x = SpawnPosition.X;
 			mcpeRespawn.y = SpawnPosition.Y;
 			mcpeRespawn.z = SpawnPosition.Z;
-			SendPackage(mcpeRespawn);
+			SendPacket(mcpeRespawn);
 		}
 
 		public void SendStartGame()
@@ -2555,7 +2555,7 @@ namespace MiNET
 
 			startGame.blockstates = BlockFactory.Blockstates;
 
-			SendPackage(startGame);
+			SendPacket(startGame);
 		}
 
 		/// <summary>
@@ -2566,7 +2566,7 @@ namespace MiNET
 			McpeSetSpawnPosition mcpeSetSpawnPosition = McpeSetSpawnPosition.CreateObject();
 			mcpeSetSpawnPosition.spawnType = 1;
 			mcpeSetSpawnPosition.coordinates = (BlockCoordinates) SpawnPosition;
-			SendPackage(mcpeSetSpawnPosition);
+			SendPacket(mcpeSetSpawnPosition);
 		}
 
 		private object _sendChunkSync = new object();
@@ -2586,7 +2586,7 @@ namespace MiNET
 
 				if (chunk != null)
 				{
-					SendPackage(chunk);
+					SendPacket(chunk);
 				}
 			}
 		}
@@ -2610,7 +2610,7 @@ namespace MiNET
 						chunk.chunkX = chunkPosition.X + x;
 						chunk.chunkZ = chunkPosition.Z + z;
 						chunk.chunkData = new byte[0];
-						SendPackage(chunk);
+						SendPacket(chunk);
 					}
 				}
 			}
@@ -2634,7 +2634,7 @@ namespace MiNET
 				int packetCount = 0;
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
-					if (chunk != null) SendPackage(chunk);
+					if (chunk != null) SendPacket(chunk);
 
 					//if (packetCount > 16) Thread.Sleep(12);
 
@@ -2679,7 +2679,7 @@ namespace MiNET
 
 				foreach (McpeWrapper chunk in Level.GenerateChunks(_currentChunkPosition, _chunksUsed, ChunkRadius))
 				{
-					if (chunk != null) SendPackage(chunk);
+					if (chunk != null) SendPacket(chunk);
 					Thread.Sleep(5);
 
 					if (!IsSpawned)
@@ -2791,7 +2791,7 @@ namespace MiNET
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
 			attributesPackate.attributes = attributes;
-			SendPackage(attributesPackate);
+			SendPacket(attributesPackate);
 		}
 
 		private float CalculateXp()
@@ -2852,7 +2852,7 @@ namespace MiNET
 			McpeModalFormRequest message = McpeModalFormRequest.CreateObject();
 			message.formId = form.Id; // whatever
 			message.data = form.ToJson();
-			SendPackage(message);
+			SendPacket(message);
 		}
 
 		public virtual void SendSetTime()
@@ -2864,7 +2864,7 @@ namespace MiNET
 		{
 			McpeSetTime message = McpeSetTime.CreateObject();
 			message.time = time;
-			SendPackage(message);
+			SendPacket(message);
 		}
 
 		public virtual void SendSetDownfall(int downfall)
@@ -2872,22 +2872,22 @@ namespace MiNET
 			McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 			levelEvent.eventId = 3001;
 			levelEvent.data = downfall;
-			SendPackage(levelEvent);
+			SendPacket(levelEvent);
 		}
 
 		public virtual void SendMovePlayer(bool teleport = false)
 		{
-			var package = McpeMovePlayer.CreateObject();
-			package.runtimeEntityId = EntityManager.EntityIdSelf;
-			package.x = KnownPosition.X;
-			package.y = KnownPosition.Y + 1.62f;
-			package.z = KnownPosition.Z;
-			package.yaw = KnownPosition.Yaw;
-			package.headYaw = KnownPosition.HeadYaw;
-			package.pitch = KnownPosition.Pitch;
-			package.mode = (byte) (teleport ? 1 : 0);
+			var packet = McpeMovePlayer.CreateObject();
+			packet.runtimeEntityId = EntityManager.EntityIdSelf;
+			packet.x = KnownPosition.X;
+			packet.y = KnownPosition.Y + 1.62f;
+			packet.z = KnownPosition.Z;
+			packet.yaw = KnownPosition.Yaw;
+			packet.headYaw = KnownPosition.HeadYaw;
+			packet.pitch = KnownPosition.Pitch;
+			packet.mode = (byte) (teleport ? 1 : 0);
 
-			SendPackage(package);
+			SendPacket(packet);
 		}
 
 		public override void OnTick(Entity[] entities)
@@ -3007,7 +3007,7 @@ namespace MiNET
 			McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 			motions.runtimeEntityId = EntityManager.EntityIdSelf;
 			motions.velocity = velocity;
-			SendPackage(motions);
+			SendPacket(motions);
 		}
 
 		public string ButtonText { get; set; }
@@ -3202,7 +3202,7 @@ namespace MiNET
 				entityEvent.runtimeEntityId = EntityManager.EntityIdSelf;
 				entityEvent.eventId = (byte) eventId;
 				entityEvent.data = data;
-				SendPackage(entityEvent);
+				SendPacket(entityEvent);
 			}
 			{
 				var entityEvent = McpeEntityEvent.CreateObject();
@@ -3221,18 +3221,18 @@ namespace MiNET
 		}
 
 		/// <summary>
-		///     Very important litle method. This does all the sending of packages for
+		///     Very important litle method. This does all the sending of packets for
 		///     the player class. Treat with respect!
 		/// </summary>
-		public void SendPackage(Package package)
+		public void SendPacket(Packet packet)
 		{
 			if (NetworkHandler == null)
 			{
-				package.PutPool();
+				packet.PutPool();
 			}
 			else
 			{
-				NetworkHandler?.SendPackage(package);
+				NetworkHandler?.SendPacket(packet);
 			}
 		}
 
@@ -3251,7 +3251,7 @@ namespace MiNET
 
 			try
 			{
-				SendPackage(batch);
+				SendPacket(batch);
 			}
 			finally
 			{

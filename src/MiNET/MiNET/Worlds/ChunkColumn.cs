@@ -463,7 +463,6 @@ namespace MiNET.Worlds
 
 		public byte[] GetBytes()
 		{
-			//using (MemoryStream stream = MemoryStreamManager.GetStream("chunk", 40000))
 			using (MemoryStream stream = new MemoryStream())
 			{
 				int topEmpty = 16;

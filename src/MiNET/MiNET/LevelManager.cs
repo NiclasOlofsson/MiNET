@@ -56,7 +56,7 @@ namespace MiNET
 
 				IWorldProvider worldProvider = null;
 
-				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
+				switch (Config.GetProperty("WorldProvider", "anvil").ToLower().Trim())
 				{
 					case "cool":
 						worldProvider = new CoolWorldProvider();

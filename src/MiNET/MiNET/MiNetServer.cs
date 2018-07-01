@@ -31,9 +31,11 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.IO;
 using MiNET.Net;
@@ -119,6 +121,8 @@ namespace MiNET
 
 		public static void DisplayTimerProperties()
 		{
+			Console.WriteLine($"Are you blessed with HW accelerated vectors? {(Vector.IsHardwareAccelerated ? "Yep!" : "Nope, sorry :-(")}"); 
+
 			// Display the timer frequency and resolution.
 			if (Stopwatch.IsHighResolution)
 			{
@@ -197,6 +201,8 @@ namespace MiNET
 				};
 				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
+				_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+
 				Log.Info("Server open for business on port " + Endpoint?.Port + " ...");
 
 				return true;
@@ -210,12 +216,21 @@ namespace MiNET
 			return false;
 		}
 
+		private void SendTick(object obj)
+		{
+			Parallel.ForEach(_playerSessions.Values, (session, state) =>
+			{
+				session.SendTick(null);
+			});
+		}
+
 		private UdpClient CreateListener()
 		{
 			var listener = new UdpClient(Endpoint);
 
 			if (IsRunningOnMono())
 			{
+				Log.Warn($"UDP listenter configured for linux setting");
 				listener.Client.ReceiveBufferSize = 1024*1024*3;
 				listener.Client.SendBufferSize = 4096;
 			}
@@ -430,6 +445,7 @@ namespace MiNET
 
 		private ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttemps = new ConcurrentDictionary<IPEndPoint, DateTime>();
 		private DedicatedThreadPool _receiveThreadPool;
+		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
@@ -991,7 +1007,7 @@ namespace MiNET
 			if (datagram.TransmissionCount > 10)
 			{
 				if (Log.IsDebugEnabled)
-					Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1}",
+					Log.WarnFormat("Retransmission count exceeded. No more resend of #{0} Type: {2} (0x{2:x2}) for {1}",
 						datagram.Header.datagramSequenceNumber.IntValue(),
 						session.Username,
 						datagram.FirstMessageId);
@@ -1020,10 +1036,6 @@ namespace MiNET
 			lock (session.SyncRoot)
 			{
 				SendData(data, lenght, session.EndPoint);
-				//if (session.Random.Next(100) >= 10)
-				//{
-				//	SendData(data, lenght, session.EndPoint);
-				//}
 			}
 		}
 

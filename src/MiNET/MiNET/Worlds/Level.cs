@@ -667,6 +667,13 @@ namespace MiNET.Worlds
 				// Send player movements
 				BroadCastMovement(players, entities);
 
+				Parallel.ForEach(Players.Values, (player, state) =>
+				{
+					var session = (PlayerNetworkSession) player.NetworkHandler;
+					session?.SendQueue();
+				});
+
+
 				if (Log.IsDebugEnabled && _tickTimer.ElapsedMilliseconds >= 50) Log.Error($"World tick too too long: {_tickTimer.ElapsedMilliseconds} ms");
 			}
 			catch (Exception e)

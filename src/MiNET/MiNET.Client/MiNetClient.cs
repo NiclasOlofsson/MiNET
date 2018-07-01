@@ -2703,11 +2703,10 @@ namespace MiNET.Client
 
 		public void SendNewIncomingConnection()
 		{
-			Random rand = new Random();
 			var packet = NewIncomingConnection.CreateObject();
 			packet.clientendpoint = _serverEndpoint;
-			packet.systemAddresses = new IPEndPoint[10];
-			for (int i = 0; i < 10; i++)
+			packet.systemAddresses = new IPEndPoint[20];
+			for (int i = 0; i < 20; i++)
 			{
 				packet.systemAddresses[i] = new IPEndPoint(IPAddress.Any, 0);
 			}

@@ -93,7 +93,7 @@ namespace MiNET
 			MtuSize = mtuSize;
 
 			_cancellationToken = new CancellationTokenSource();
-			_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+			//_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
 		}
 
 		public void Close()
@@ -386,7 +386,7 @@ namespace MiNET
 
 				if (CryptoContext != null && CryptoContext.UseEncryption)
 				{
-					MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
+					MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 					{
 						HandlePacket(MessageHandler, message as Packet);
 						message.PutPool();
@@ -750,7 +750,7 @@ namespace MiNET
 
 		private int i = 0;
 
-		private void SendTick(object state)
+		public void SendTick(object state)
 		{
 			try
 			{
@@ -855,13 +855,12 @@ namespace MiNET
 
 					if (datagram.RetransmitImmediate || elapsedTime >= datagramTimout)
 					{
-						Datagram deleted;
-						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out deleted))
+						if (!Evicted && WaitingForAcksQueue.TryRemove(datagram.Header.datagramSequenceNumber, out var deleted))
 						{
 							ErrorCount++;
 							ResendCount++;
 
-							MiNetServer.FastThreadPool.QueueUserWorkItem(delegate()
+							MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 							{
 								var dtgram = deleted;
 								if (Log.IsDebugEnabled)
@@ -890,7 +889,7 @@ namespace MiNET
 		{
 			try
 			{
-				_tickerHighPrecisionTimer.AutoReset?.Set();
+				_tickerHighPrecisionTimer?.AutoReset?.Set();
 			}
 			catch (ObjectDisposedException)
 			{
@@ -927,7 +926,7 @@ namespace MiNET
 		private object _syncHack = new object();
 		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
-		private void SendQueue()
+		public void SendQueue()
 		{
 			if (_sendQueueNotConcurrent.Count == 0) return;
 

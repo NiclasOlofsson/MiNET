@@ -630,6 +630,7 @@ namespace MiNET.Net
 
 		public IPEndPoint[] ReadIPEndPoints(int count)
 		{
+			if (count == 20 && _reader.BaseStream.Length < 120) count = 10;
 			var endPoints = new IPEndPoint[count];
 			for (int i = 0; i < endPoints.Length; i++)
 			{

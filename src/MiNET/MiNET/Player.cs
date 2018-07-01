@@ -1147,7 +1147,7 @@ namespace MiNET
 			// send teleport to spawn
 			SetPosition(SpawnPosition);
 
-			MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+			MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 			{
 				Level.AddPlayer(this, true);
 
@@ -1462,7 +1462,7 @@ namespace MiNET
 
 				SetNoAi(oldNoAi);
 
-				MiNetServer.FastThreadPool.QueueUserWorkItem(delegate
+				MiNetServer.FastThreadPool.QueueUserWorkItem(() =>
 				{
 					Level.AddPlayer(this, true);
 

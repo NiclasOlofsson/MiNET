@@ -39,12 +39,14 @@
 		<PackageReference Include="jose-jwt" Version="2.4.0" />
 		<PackageReference Include="LibNoise" Version="0.2.0" />
 		<PackageReference Include="log4net" Version="2.0.8" />
+		<PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.19.8" />
 		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
 		<PackageReference Include="MiNET.astar" Version="1.0.12" />
 		<PackageReference Include="MiNET.fnbt" Version="1.0.13" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
 		<PackageReference Include="SharpAvi" Version="2.1.1" />
+		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
 	</ItemGroup>
 
 	<ItemGroup>

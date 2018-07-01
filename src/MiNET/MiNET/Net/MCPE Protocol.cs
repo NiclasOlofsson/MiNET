@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 281;
-		public const string GameVersion = "1.6.0.5";
+		public const int ProtocolVersion = 261;
+		public const string GameVersion = "1.4.0.0";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2122,7 +2122,6 @@ namespace MiNET.Net
 		public bool isTrial; // = null;
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
-		public Blockstates blockstates; // = null;
 
 		public McpeStartGame()
 		{
@@ -2179,7 +2178,6 @@ namespace MiNET.Net
 			Write(isTrial);
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
-			Write(blockstates);
 
 			AfterEncode();
 		}
@@ -2236,7 +2234,6 @@ namespace MiNET.Net
 			isTrial = ReadBool();
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
-			blockstates = ReadBlockstates();
 
 			AfterDecode();
 		}
@@ -2291,7 +2288,6 @@ namespace MiNET.Net
 			isTrial=default(bool);
 			currentTick=default(long);
 			enchantmentSeed=default(int);
-			blockstates=default(Blockstates);
 		}
 
 	}
@@ -2454,7 +2450,6 @@ namespace MiNET.Net
 		public float speedZ; // = null;
 		public float pitch; // = null;
 		public float yaw; // = null;
-		public float headYaw; // = null;
 		public EntityAttributes attributes; // = null;
 		public MetadataDictionary metadata; // = null;
 		public Links links; // = null;
@@ -2482,7 +2477,6 @@ namespace MiNET.Net
 			Write(speedZ);
 			Write(pitch);
 			Write(yaw);
-			Write(headYaw);
 			Write(attributes);
 			Write(metadata);
 			Write(links);
@@ -2510,7 +2504,6 @@ namespace MiNET.Net
 			speedZ = ReadFloat();
 			pitch = ReadFloat();
 			yaw = ReadFloat();
-			headYaw = ReadFloat();
 			attributes = ReadEntityAttributes();
 			metadata = ReadMetadataDictionary();
 			links = ReadLinks();
@@ -2536,7 +2529,6 @@ namespace MiNET.Net
 			speedZ=default(float);
 			pitch=default(float);
 			yaw=default(float);
-			headYaw=default(float);
 			attributes=default(EntityAttributes);
 			metadata=default(MetadataDictionary);
 			links=default(Links);
@@ -2736,8 +2728,9 @@ namespace MiNET.Net
 	{
 
 		public long runtimeEntityId; // = null;
-		public short flags; // = null;
 		public PlayerLocation position; // = null;
+		public bool onGround; // = null;
+		public bool teleport; // = null;
 
 		public McpeMoveEntity()
 		{
@@ -2752,8 +2745,9 @@ namespace MiNET.Net
 			BeforeEncode();
 
 			WriteUnsignedVarLong(runtimeEntityId);
-			Write(flags);
 			Write(position);
+			Write(onGround);
+			Write(teleport);
 
 			AfterEncode();
 		}
@@ -2768,8 +2762,9 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			runtimeEntityId = ReadUnsignedVarLong();
-			flags = ReadShort();
 			position = ReadPlayerLocation();
+			onGround = ReadBool();
+			teleport = ReadBool();
 
 			AfterDecode();
 		}
@@ -2782,8 +2777,9 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			runtimeEntityId=default(long);
-			flags=default(short);
 			position=default(PlayerLocation);
+			onGround=default(bool);
+			teleport=default(bool);
 		}
 
 	}

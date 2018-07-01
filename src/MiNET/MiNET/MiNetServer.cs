@@ -64,6 +64,7 @@ namespace MiNET
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
+		public EduTokenManager EduTokenManager { get; set; }
 
 		public PluginManager PluginManager { get; set; }
 		public SessionManager SessionManager { get; set; }
@@ -85,6 +86,8 @@ namespace MiNET
 
 		public MiNetServer()
 		{
+			Packet.IsEdu = Config.GetProperty("EnableEdu", false);
+
 			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
 			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
 			ResendThreshold = Config.GetProperty("ResendThreshold", 10);
@@ -165,6 +168,8 @@ namespace MiNET
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Node)
 				{
+					EduTokenManager = new EduTokenManager();
+
 					Log.Info("Loading plugins...");
 					PluginManager = new PluginManager();
 					PluginManager.LoadPlugins();

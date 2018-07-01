@@ -56,8 +56,8 @@ namespace MiNET
 
 			if (eduMotd)
 			{
-				protocolVersion = "111";
-				clientVersion = "1.0.17";
+				protocolVersion = "261";
+				clientVersion = "1.4.";
 				edition = "MCEE";
 			}
 

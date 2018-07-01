@@ -393,7 +393,8 @@ namespace MiNET
 			if (Level.TryGetEntity(message.runtimeEntityId, out Entity entity))
 			{
 				entity.KnownPosition = message.position;
-				entity.IsOnGround = (message.flags & 1) == 1;
+				//entity.IsOnGround = (message.flags & 1) == 1;
+				entity.IsOnGround = message.onGround;
 				if (entity.IsOnGround) Log.Debug("Horse is on ground");
 			}
 		}
@@ -806,11 +807,11 @@ namespace MiNET
 
 				SendPlayerInventory();
 
-				SendCreativeInventory();
+				//SendCreativeInventory();
 
-				SendCraftingRecipes();
+				//SendCraftingRecipes();
 
-				SendAvailableCommands(); // Don't send this before StartGame!
+				//SendAvailableCommands(); // Don't send this before StartGame!
 			}
 			catch (Exception e)
 			{
@@ -2553,7 +2554,7 @@ namespace MiNET
 			startGame.currentTick = Level.TickTime;
 			startGame.enchantmentSeed = 123456;
 
-			startGame.blockstates = BlockFactory.Blockstates;
+			//startGame.blockstates = BlockFactory.Blockstates;
 
 			SendPacket(startGame);
 		}

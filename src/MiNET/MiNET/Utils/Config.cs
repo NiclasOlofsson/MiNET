@@ -87,7 +87,7 @@ namespace MiNET.Utils
 				string line = rawLine.Trim();
 				if (line.StartsWith("#") || !line.Contains("=")) continue; //It's a comment or not a key value pair.
 
-				string[] splitLine = line.Split('=');
+				string[] splitLine = line.Split('=', 2);
 
 				string key = splitLine[0].ToLower();
 				string value = splitLine[1];

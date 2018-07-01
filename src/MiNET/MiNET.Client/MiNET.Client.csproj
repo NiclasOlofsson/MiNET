@@ -21,4 +21,10 @@
     <ProjectReference Include="..\MiNET\MiNET.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="server.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

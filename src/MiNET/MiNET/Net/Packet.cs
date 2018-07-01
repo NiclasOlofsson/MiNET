@@ -63,6 +63,7 @@ namespace MiNET.Net
 
 		[JsonIgnore] public byte Id;
 		[JsonIgnore] public bool IsMcpe;
+		[JsonIgnore] public static bool IsEdu;
 
 		protected MemoryStream _buffer;
 		private BinaryWriter _writer;
@@ -1794,7 +1795,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			Write(Id); //TODO: If MCPE write varint
-			//if (IsMcpe) Write((short) 0);
+			if (IsMcpe && IsEdu) Write((short) 0);
 		}
 
 		public virtual void Reset()
@@ -1853,7 +1854,7 @@ namespace MiNET.Net
 		{
 			_buffer.Position = 0;
 			if (!IsMcpe) Id = ReadByte();
-			//if (IsMcpe) ReadShort();
+			else if(IsEdu) ReadShort();
 		}
 
 		public virtual void Decode(byte[] buffer)

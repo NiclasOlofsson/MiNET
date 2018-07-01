@@ -1065,5 +1065,7 @@ namespace MiNET
 		public string LanguageCode { get; set; }
 		public string PlatformChatId { get; set; }
 		public string ThirdPartyName { get; set; }
+
+		public string TenantId { get; set; }
 	}
 }

@@ -174,6 +174,7 @@ namespace MiNET
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
 						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
+						_playerInfo.TenantId = payload.TenantId;
 
 						_playerInfo.Skin = new Skin()
 						{
@@ -367,7 +368,15 @@ namespace MiNET
 
 							var signKey = ECDsa.Create(signParam);
 							var b64PublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubAsyKey).GetEncoded().EncodeBase64();
-							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64()};
+
+							EduTokenManager tokenManager = _session.Server.EduTokenManager;
+							string signedToken = tokenManager.GetSignedToken(_playerInfo.TenantId);
+
+							var handshakeJson = new HandshakeData
+							{
+								salt = secretPrepend.EncodeBase64(),
+								signedToken = signedToken
+							};
 							string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 
 							Log.Warn($"Headers:\n{string.Join(";", JWT.Headers(val))}");
@@ -407,12 +416,12 @@ namespace MiNET
 			IMcpeMessageHandler messageHandler = server.CreatePlayer(_session, _playerInfo);
 			_session.MessageHandler = messageHandler; // Replace current message handler with real one.
 
-			if (_playerInfo.ProtocolVersion < McpeProtocolInfo.ProtocolVersion || _playerInfo.ProtocolVersion > 65535)
-			{
-				Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
-				_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
-				return;
-			}
+			//if (_playerInfo.ProtocolVersion < McpeProtocolInfo.ProtocolVersion || _playerInfo.ProtocolVersion > 65535)
+			//{
+			//	Log.Warn($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+			//	_session.Disconnect($"Wrong version ({_playerInfo.ProtocolVersion}) of Minecraft. Upgrade to join this server.");
+			//	return;
+			//}
 
 			if (Config.GetProperty("ForceXBLAuthentication", false) && _playerInfo.CertificateData.ExtraData.Xuid == null)
 			{

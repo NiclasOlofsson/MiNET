@@ -86,6 +86,7 @@ namespace MiNET.Blocks
 				int runtimeId = 0;
 				foreach (var obj in result)
 				{
+					runtimeId = (int) obj.runtimeID;
 					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int)runtimeId;
 					Blockstates.Add(runtimeId, new Blockstate(){Id = (int)obj.id, Data = (short)obj.data, Name = (string)obj.name, RuntimeId = runtimeId});
 
@@ -130,6 +131,7 @@ namespace MiNET.Blocks
 
 		public static Block GetBlockByName(string blockName)
 		{
+			Log.Debug($"Find block: {blockName}");
 			if (string.IsNullOrEmpty(blockName)) return null;
 
 			if (blockName.StartsWith("minecraft:")) blockName = blockName.Substring(10);

@@ -463,7 +463,7 @@ namespace MiNET.Entities
 			addEntity.z = KnownPosition.Z;
 			addEntity.pitch = KnownPosition.Pitch;
 			addEntity.yaw = KnownPosition.Yaw;
-			addEntity.headYaw = KnownPosition.HeadYaw;
+			//addEntity.headYaw = KnownPosition.HeadYaw;
 			addEntity.metadata = GetMetadata();
 			addEntity.speedX = Velocity.X;
 			addEntity.speedY = Velocity.Y;

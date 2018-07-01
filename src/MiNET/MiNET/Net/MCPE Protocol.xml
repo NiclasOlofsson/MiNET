@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.6.0.5" protocolVersion="281">
-
+<protocol gameVersion="1.4.0.0" protocolVersion="261">
 	<constants>
-		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
+		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]"
+				value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
 	</constants>
 
 	<pdu namespace="raknet" id="0x00" online="false" client="true" server="true" name="ID_CONNECTED_PING">
@@ -239,8 +239,6 @@
 		<field name="Is Trial" type="bool" />
 		<field name="Current Tick" type="long" />
 		<field name="Enchantment Seed" type="SignedVarInt" />
-
-		<field name="Blockstates" type="Blockstates" />
 	</pdu>
 
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_ADD_PLAYER">
@@ -298,7 +296,6 @@
 		<field name="Speed Z" type="float" />
 		<field name="Pitch" type="float" />
 		<field name="Yaw" type="float" />
-		<field name="Head Yaw" type="float" />
 		<field name="Attributes" type="EntityAttributes" />
 		<field name="Metadata" type="MetadataDictionary" />
 		<field name="Links" type="Links" />
@@ -329,10 +326,9 @@
 
 	<pdu id="0x12" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Flags" type="short" />
 		<field name="Position" type="PlayerLocation" />
-		<!--<field name="On Ground" type="bool" />
-		<field name="Teleport" type="bool" />-->
+		<field name="On Ground" type="bool" />
+		<field name="Teleport" type="bool" />
 	</pdu>
 
 	<pdu id="0x13" online="false" client="true" server="true" name="MCPE_MOVE_PLAYER">
@@ -1024,5 +1020,4 @@
 		<field name="Client Id" type="long" />
 		<field name="Skin" type="Skin" />
 	</pdu>
-
 </protocol>

@@ -84,6 +84,8 @@ namespace MiNET.Client
 		private Thread _mainProcessingThread;
 		public int ChunkRadius { get; set; } = 5;
 
+		public bool EnableEdu { get; set; } = Config.GetProperty("EnableEdu", false);
+
 		public LevelInfo Level { get; } = new LevelInfo();
 
 		//private long _clientGuid = new Random().Next();
@@ -102,6 +104,10 @@ namespace MiNET.Client
 
 		public MiNetClient(IPEndPoint endpoint, string username, DedicatedThreadPool threadPool)
 		{
+			Packet.IsEdu = EnableEdu;
+
+			if(EnableEdu)Log.Warn("Running client as EDU edition");
+
 			Random random = new Random();
 			_clientGuid = 1111111 + random.Next() + random.Next();
 
@@ -1405,7 +1411,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : McpeProtocolInfo.ProtocolVersion,
+				protocolVersion = EnableEdu ? 261 : McpeProtocolInfo.ProtocolVersion,
 				payload = data
 			};
 
@@ -2253,40 +2259,40 @@ namespace MiNET.Client
 				writer.WriteLine($"{{");
 				writer.Indent++;
 
-				foreach (IGrouping<string, KeyValuePair<int, Blockstate>> blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data).GroupBy(kvp => kvp.Value.Name))
-				{
-					var enumerator = blockstate.GetEnumerator();
-					enumerator.MoveNext();
-					var value = enumerator.Current.Value;
-					if(value == null) continue;
-					Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
-					int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
+				//foreach (IGrouping<string, KeyValuePair<int, Blockstate>> blockstate in message.blockstates.OrderBy(kvp => kvp.Value.Name).ThenBy(kvp => kvp.Value.Data).GroupBy(kvp => kvp.Value.Name))
+				//{
+				//	var enumerator = blockstate.GetEnumerator();
+				//	enumerator.MoveNext();
+				//	var value = enumerator.Current.Value;
+				//	if(value == null) continue;
+				//	Log.Debug($"{value.RuntimeId}, {value.Name}, {value.Data}");
+				//	int id = BlockFactory.GetBlockIdByName(value.Name.Replace("minecraft:", ""));
 
-					if (id == 0 && !value.Name.Contains("air"))
-					{
-						string blockName = CodeName(value.Name.Replace("minecraft:", ""), true);
+				//	if (id == 0 && !value.Name.Contains("air"))
+				//	{
+				//		string blockName = CodeName(value.Name.Replace("minecraft:", ""), true);
 
-						writer.WriteLine($"public class {blockName}: Block");
-						writer.WriteLine($"{{");
-						writer.Indent++;
+				//		writer.WriteLine($"public class {blockName}: Block");
+				//		writer.WriteLine($"{{");
+				//		writer.Indent++;
 
-						writer.WriteLine($"public {blockName}() : base({value.Id}, {value.RuntimeId})");
-						writer.WriteLine($"{{");
-						writer.Indent++;
-						writer.WriteLine($"Name {{get; set;}} = {value.Name}");
+				//		writer.WriteLine($"public {blockName}() : base({value.Id}, {value.RuntimeId})");
+				//		writer.WriteLine($"{{");
+				//		writer.Indent++;
+				//		writer.WriteLine($"Name {{get; set;}} = {value.Name}");
 
-						do
-						{
-							writer.WriteLine($"// runtime id: {enumerator.Current.Value.RuntimeId} 0x{enumerator.Current.Value.RuntimeId:X}, data: {enumerator.Current.Value.Data}");
-						} while (enumerator.MoveNext());
+				//		do
+				//		{
+				//			writer.WriteLine($"// runtime id: {enumerator.Current.Value.RuntimeId} 0x{enumerator.Current.Value.RuntimeId:X}, data: {enumerator.Current.Value.Data}");
+				//		} while (enumerator.MoveNext());
 
-						writer.Indent--;
-						writer.WriteLine($"}}");
+				//		writer.Indent--;
+				//		writer.WriteLine($"}}");
 
-						writer.Indent--;
-						writer.WriteLine($"}}");
-					}
-				}
+				//		writer.Indent--;
+				//		writer.WriteLine($"}}");
+				//	}
+				//}
 				writer.Indent--;
 				writer.WriteLine($"}}");
 				writer.Flush();
@@ -2650,7 +2656,7 @@ namespace MiNET.Client
 		{
 			var packet = new OpenConnectionRequest1()
 			{
-				raknetProtocolVersion = 9,
+				raknetProtocolVersion = (byte) (EnableEdu? 8: 9),
 				mtuSize = _mtuSize
 			};
 

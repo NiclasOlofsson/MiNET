@@ -807,11 +807,11 @@ namespace MiNET
 
 				SendPlayerInventory();
 
-				//SendCreativeInventory();
+				SendCreativeInventory();
 
-				//SendCraftingRecipes();
+				SendCraftingRecipes();
 
-				//SendAvailableCommands(); // Don't send this before StartGame!
+				SendAvailableCommands(); // Don't send this before StartGame!
 			}
 			catch (Exception e)
 			{

@@ -149,7 +149,7 @@ namespace MiNET
 
 			try
 			{
-				Log.Info("Initializing an amazing server...");
+				Log.Info("Initializing...");
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{

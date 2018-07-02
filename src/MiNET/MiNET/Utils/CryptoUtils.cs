@@ -279,7 +279,7 @@ namespace MiNET.Utils
 	""SkinData"": ""{skin64}"",
 	""SkinDataLength"": {8192},
 	""SkinId"": ""{skin.SkinId}"",
-	""TenantId"": ""38dd6634-1031-4c50-a9b4-d16cd9d97d57"",
+	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
 	""UIProfile"": 0
 }}";
 

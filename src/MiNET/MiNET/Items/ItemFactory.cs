@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -42,7 +42,7 @@ namespace MiNET.Items
 
 	public class ItemFactory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFactory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFactory));
 
 		public static ICustomItemFactory CustomItemFactory { get; set; }
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
@@ -240,6 +240,9 @@ namespace MiNET.Items
 			else if (id == 444) item = new ItemElytra();
 			else if (id == 446) item = new ItemBanner();
 			else if (id == 452) item = new ItemIronNugget();
+			else if (id == 454 && metadata == 0) item = new ItemSlate();
+			else if (id == 454 && metadata == 1) item = new ItemPoster();
+			else if (id == 454 && metadata == 2) item = new ItemBoard();
 			else if (id == 458) item = new ItemBeetrootSeeds();
 			else if (id <= 255)
 			{

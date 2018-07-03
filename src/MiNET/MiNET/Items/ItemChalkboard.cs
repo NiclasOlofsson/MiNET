@@ -23,28 +23,51 @@
 
 #endregion
 
-namespace MiNET.BlockEntities
+using System.Numerics;
+using MiNET.Blocks;
+using MiNET.Utils;
+using MiNET.Worlds;
+
+namespace MiNET.Items
 {
-	public static class BlockEntityFactory
+	public class ItemSlate : ItemBlock
 	{
-		public static BlockEntity GetBlockEntityById(string blockEntityId)
+		public ItemSlate(short size = 0) : base(454, size)
 		{
-			BlockEntity blockEntity = null;
+			MaxStackSize = 16;
+		}
 
-			if (blockEntityId == "Sign") blockEntity = new Sign();
-			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
-			else if (blockEntityId == "EnchantTable") blockEntity = new EnchantingTableBlockEntity();
-			else if (blockEntityId == "Furnace") blockEntity = new FurnaceBlockEntity();
-			else if (blockEntityId == "Skull") blockEntity = new SkullBlockEntity();
-			else if (blockEntityId == "ItemFrame") blockEntity = new ItemFrameBlockEntity();
-			else if (blockEntityId == "Bed") blockEntity = new BedBlockEntity();
-			else if (blockEntityId == "Banner") blockEntity = new BannerBlockEntity();
-			else if (blockEntityId == "FlowerPot") blockEntity = new FlowerPotBlockEntity();
-			else if (blockEntityId == "Beacon") blockEntity = new BeaconBlockEntity();
-			else if (blockEntityId == "MobSpawner") blockEntity = new MobSpawnerBlockEntity();
-			else if (blockEntityId == "ChalkboardBlock") blockEntity = new ChalkboardBlockEntity();
+		public override void PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
+		{
+			// block 230, data 32-35 (rotations) Slate, Poster or Board
 
-			return blockEntity;
+			if (face == BlockFace.Down) // At the bottom of block
+			{
+				// Doesn't work, ignore if that happen. 
+				return;
+			}
+			else
+			{
+				Block = BlockFactory.GetBlockById(230);
+			}
+
+			Block.Metadata = (byte) Metadata;
+
+			base.PlaceBlock(world, player, blockCoordinates, face, faceCoords);
+		}
+	}
+
+	public class ItemPoster : ItemSlate
+	{
+		public ItemPoster() : base(1)
+		{
+		}
+	}
+
+	public class ItemBoard : ItemSlate
+	{
+		public ItemBoard() : base(2)
+		{
 		}
 	}
 }

@@ -545,7 +545,7 @@
 		<field name="Health" type="SignedVarInt" />
 	</pdu>
 
-	<pdu id="0x27" online="false" client="false" server="true" name="MCPE_SET_ENTITY_DATA">
+	<pdu id="0x27" online="false" client="true" server="true" name="MCPE_SET_ENTITY_DATA">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Metadata" type="MetadataDictionary" />
 	</pdu>
@@ -926,7 +926,7 @@
 	<pdu id="0x61" online="false" client="false" server="true" name="MCPE_BOOK_EDIT">
 	</pdu>
 
-	<pdu id="0x62" online="false" client="false" server="true" name="MCPE_NPC_REQUEST">
+	<pdu id="0x62" online="false" client="true" server="true" name="MCPE_NPC_REQUEST">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
 		<field name="Unknown0" type="byte" />
 		<field name="Unknown1" type="string" />

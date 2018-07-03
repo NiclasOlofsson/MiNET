@@ -82,6 +82,13 @@ namespace MiNET.Plugins.Commands
 		}
 
 		[Command]
+		public void Worldbuilder(Player commander)
+		{
+			commander.IsWorldBuilder = !commander.IsWorldBuilder;
+			commander.SendAdventureSettings();
+		}
+
+		[Command]
 		public string SetBlock(Player commander, BlockPos position, BlockTypeEnum tileName, int tileData = 0)
 		{
 			return $"Set block complete. {position.XRelative} {tileName.Value}";
@@ -283,9 +290,15 @@ namespace MiNET.Plugins.Commands
 					mob = new Vex(world);
 					break;
 				case EntityType.Npc:
-					mob = new PlayerMob("test", world);
+					if (Config.GetProperty("EnableEdu", false))
+					{
+						mob = new Npc(world);
+					}
+					else
+					{
+						mob = new PlayerMob("test", world);
+					}
 					break;
-
 				case EntityType.Boat:
 					entity = new Boat(world);
 					break;
@@ -597,5 +610,6 @@ namespace MiNET.Plugins.Commands
 		public void Fill(Player commander, BlockPos from, BlockPos to, BlockTypeEnum tileName, int tileData = 0)
 		{
 		}
+
 	}
 }

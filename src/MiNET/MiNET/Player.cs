@@ -174,6 +174,12 @@ namespace MiNET
 		{
 		}
 
+		public virtual void HandleMcpePhotoTransfer(McpePhotoTransfer message)
+		{
+			// Handle photos from the camera. Override to provide your own implementaion because
+			// no sensible default for MiNET.
+		}
+
 		private Form _currentForm = null;
 
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)

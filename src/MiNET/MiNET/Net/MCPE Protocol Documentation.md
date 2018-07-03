@@ -104,6 +104,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Set Last Hurt By | 0x60 | 96 |   
 | Book Edit | 0x61 | 97 |   
 | Npc Request | 0x62 | 98 |   
+| Photo Transfer | 0x63 | 99 |   
 | Modal Form Request | 0x64 | 100 |   
 | Modal Form Response | 0x65 | 101 |   
 | Server Settings Request | 0x66 | 102 |   
@@ -127,7 +128,6 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Data type | 
 |:--- |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
-| Blockstates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Blockstates) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
@@ -427,7 +427,6 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Is Trial | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
-|Blockstates | Blockstates |  |
 -----------------------------------------------------------------------
 ### Add Player (0x0c)
 Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)
@@ -504,7 +503,6 @@ val2 float
 |Speed Z | float |  |
 |Pitch | float |  |
 |Yaw | float |  |
-|Head Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | Links |  |
@@ -579,8 +577,9 @@ Wiki: [Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveE
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
-|Flags | short |  |
 |Position | PlayerLocation |  |
+|On Ground | bool |  |
+|Teleport | bool |  |
 -----------------------------------------------------------------------
 ### Move Player (0x13)
 Wiki: [Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MovePlayer)
@@ -1616,6 +1615,8 @@ Wiki: [Camera](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Camera)
 
 | Name | Type | Size |
 |:-----|:-----|:-----|
+|Unknown1 | SignedVarLong |  |
+|Unknown2 | SignedVarLong |  |
 -----------------------------------------------------------------------
 ### Boss Event (0x4a)
 Wiki: [Boss Event](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BossEvent)
@@ -2031,6 +2032,23 @@ Wiki: [Npc Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRe
 |Unknown0 | byte |  |
 |Unknown1 | string |  |
 |Unknown2 | byte |  |
+-----------------------------------------------------------------------
+### Photo Transfer (0x63)
+Wiki: [Photo Transfer](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-PhotoTransfer)
+
+**Sent from server:** false  
+**Sent from client:** true
+
+
+
+
+#### Fields
+
+| Name | Type | Size |
+|:-----|:-----|:-----|
+|File name | string |  |
+|Image data | string |  |
+|Unknown2 | string |  |
 -----------------------------------------------------------------------
 ### Modal Form Request (0x64)
 Wiki: [Modal Form Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-ModalFormRequest)

@@ -244,6 +244,7 @@ namespace MiNET.Items
 			else if (id == 454 && metadata == 1) item = new ItemPoster();
 			else if (id == 454 && metadata == 2) item = new ItemBoard();
 			else if (id == 458) item = new ItemBeetrootSeeds();
+			else if (id == 498) item = new ItemCamera(metadata);
 			else if (id <= 255)
 			{
 				int blockId = id;

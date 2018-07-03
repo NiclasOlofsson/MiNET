@@ -87,6 +87,7 @@ namespace MiNET.Net
 		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 		void HandleMcpePurchaseReceipt(McpePurchaseReceipt message);
 		void HandleMcpePlayerSkin(McpePlayerSkin message);
+		void HandleMcpePhotoTransfer(McpePhotoTransfer message);
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
 		void HandleMcpeLabTable(McpeLabTable message);
@@ -570,6 +571,10 @@ namespace MiNET.Net
 						return packet;
 					case 0x62:
 						packet = McpeNpcRequest.CreateObject();
+						packet.Decode(buffer);
+						return packet;
+					case 0x63:
+						packet = McpePhotoTransfer.CreateObject();
 						packet.Decode(buffer);
 						return packet;
 					case 0x64:
@@ -5845,6 +5850,8 @@ namespace MiNET.Net
 	public partial class McpeCamera : Packet<McpeCamera>
 	{
 
+		public long unknown1; // = null;
+		public long unknown2; // = null;
 
 		public McpeCamera()
 		{
@@ -5858,6 +5865,8 @@ namespace MiNET.Net
 
 			BeforeEncode();
 
+			WriteSignedVarLong(unknown1);
+			WriteSignedVarLong(unknown2);
 
 			AfterEncode();
 		}
@@ -5871,6 +5880,8 @@ namespace MiNET.Net
 
 			BeforeDecode();
 
+			unknown1 = ReadSignedVarLong();
+			unknown2 = ReadSignedVarLong();
 
 			AfterDecode();
 		}
@@ -5882,6 +5893,8 @@ namespace MiNET.Net
 		{
 			base.ResetPacket();
 
+			unknown1=default(long);
+			unknown2=default(long);
 		}
 
 	}
@@ -7242,6 +7255,62 @@ namespace MiNET.Net
 			unknown0=default(byte);
 			unknown1=default(string);
 			unknown2=default(byte);
+		}
+
+	}
+
+	public partial class McpePhotoTransfer : Packet<McpePhotoTransfer>
+	{
+
+		public string fileName; // = null;
+		public string imageData; // = null;
+		public string unknown2; // = null;
+
+		public McpePhotoTransfer()
+		{
+			Id = 0x63;
+			IsMcpe = true;
+		}
+
+		protected override void EncodePacket()
+		{
+			base.EncodePacket();
+
+			BeforeEncode();
+
+			Write(fileName);
+			Write(imageData);
+			Write(unknown2);
+
+			AfterEncode();
+		}
+
+		partial void BeforeEncode();
+		partial void AfterEncode();
+
+		protected override void DecodePacket()
+		{
+			base.DecodePacket();
+
+			BeforeDecode();
+
+			fileName = ReadString();
+			imageData = ReadString();
+			unknown2 = ReadString();
+
+			AfterDecode();
+		}
+
+		partial void BeforeDecode();
+		partial void AfterDecode();
+
+		protected override void ResetPacket()
+		{
+			base.ResetPacket();
+
+			fileName=default(string);
+			imageData=default(string);
+			unknown2=default(string);
 		}
 
 	}

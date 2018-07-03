@@ -494,6 +494,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeSetEntityData(McpeSetEntityData message)
+		{
+		}
+
 		public void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
 		}
@@ -571,6 +575,10 @@ namespace MiNET
 		}
 
 		public void HandleMcpePlayerSkin(McpePlayerSkin message)
+		{
+		}
+
+		public void HandleMcpeNpcRequest(McpeNpcRequest message)
 		{
 		}
 

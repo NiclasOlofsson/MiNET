@@ -1036,7 +1036,7 @@ Wiki: [Hurt Armor](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-HurtAr
 Wiki: [Set Entity Data](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-SetEntityData)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 
@@ -2019,7 +2019,7 @@ Wiki: [Book Edit](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-BookEdi
 Wiki: [Npc Request](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-NpcRequest)
 
 **Sent from server:** true  
-**Sent from client:** false
+**Sent from client:** true
 
 
 

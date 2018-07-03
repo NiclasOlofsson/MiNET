@@ -67,6 +67,7 @@ namespace MiNET.Net
 		void HandleMcpeEntityPickRequest(McpeEntityPickRequest message);
 		void HandleMcpePlayerAction(McpePlayerAction message);
 		void HandleMcpeEntityFall(McpeEntityFall message);
+		void HandleMcpeSetEntityData(McpeSetEntityData message);
 		void HandleMcpeSetEntityMotion(McpeSetEntityMotion message);
 		void HandleMcpeAnimate(McpeAnimate message);
 		void HandleMcpeRespawn(McpeRespawn message);
@@ -87,6 +88,7 @@ namespace MiNET.Net
 		void HandleMcpeResourcePackChunkRequest(McpeResourcePackChunkRequest message);
 		void HandleMcpePurchaseReceipt(McpePurchaseReceipt message);
 		void HandleMcpePlayerSkin(McpePlayerSkin message);
+		void HandleMcpeNpcRequest(McpeNpcRequest message);
 		void HandleMcpePhotoTransfer(McpePhotoTransfer message);
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);

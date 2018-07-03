@@ -246,6 +246,7 @@ namespace MiNET.Utils
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
 	""GameVersion"": ""{McpeProtocolInfo.GameVersion}"",
+	""IsEduMode"": {Config.GetProperty("EnableEdu", false).ToString().ToLower()},
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""PlatformOfflineId"": """",
@@ -254,7 +255,7 @@ namespace MiNET.Utils
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
 	""SkinId"": ""{skin.SkinId}"",
-	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
+	""TenantId"": ""38dd6634-1031-4c50-a9b4-d16cd9d97d57"",
 	""ThirdPartyName"": ""{username}"",
 	""UIProfile"": 0
 }}";

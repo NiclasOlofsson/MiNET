@@ -174,6 +174,7 @@ namespace MiNET
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
 						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
+						_playerInfo.TenantId = payload.TenantId;
 
 						_playerInfo.Skin = new Skin()
 						{

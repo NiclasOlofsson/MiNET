@@ -64,6 +64,7 @@ namespace MiNET
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
+		public EduTokenManager EduTokenManager { get; set; }
 
 		public PluginManager PluginManager { get; set; }
 		public SessionManager SessionManager { get; set; }
@@ -153,6 +154,8 @@ namespace MiNET
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
+					EduTokenManager = new EduTokenManager();
+
 					if (Endpoint == null)
 					{
 						var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));

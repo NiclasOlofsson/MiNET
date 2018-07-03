@@ -58,7 +58,7 @@
 
 	<root>
 		<level value="DEBUG"/>
-		<!--<appender-ref ref="Console"/>-->
+		<appender-ref ref="Console"/>
 		<appender-ref ref="RollingFile"/>
 		<!--<appender-ref ref="DebuggerAppender"/>-->
 	</root>

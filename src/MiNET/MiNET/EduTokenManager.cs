@@ -25,9 +25,6 @@ namespace MiNET
 			_username = Config.GetProperty("AAD.username", "");
 			_password = Config.GetProperty("AAD.password", "");
 
-			Console.WriteLine(_username);
-			Console.WriteLine(_password);
-
 			if (_username.StartsWith("secure:", StringComparison.InvariantCultureIgnoreCase) && _password.StartsWith("secure:", StringComparison.InvariantCultureIgnoreCase))
 			{
 				_username = Encoding.UTF8.GetString(ProtectedData.Unprotect(_username.Substring(7).DecodeBase64(), null, DataProtectionScope.LocalMachine));

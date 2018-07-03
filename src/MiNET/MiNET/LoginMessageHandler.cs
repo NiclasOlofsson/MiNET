@@ -366,14 +366,23 @@ namespace MiNET
 							};
 							signParam.Validate();
 
+							string signedToken = null;
+							if (_session.Server.IsEdu)
+							{
+								EduTokenManager tokenManager = _session.Server.EduTokenManager;
+								signedToken = tokenManager.GetSignedToken(_playerInfo.TenantId);
+							}
+
 							var signKey = ECDsa.Create(signParam);
 							var b64PublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubAsyKey).GetEncoded().EncodeBase64();
-							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64()};
+							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64(), signedToken = signedToken};
 							string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 
 							Log.Warn($"Headers:\n{string.Join(";", JWT.Headers(val))}");
 							Log.Warn($"Return salt:\n{JWT.Payload(val)}");
 							Log.Warn($"JWT:\n{val}");
+
+
 
 							var response = McpeServerToClientHandshake.CreateObject();
 							response.NoBatch = true;

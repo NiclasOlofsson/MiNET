@@ -64,6 +64,8 @@ namespace MiNET
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
+
+		public bool IsEdu { get; set; } = Config.GetProperty("EnableEdu", false);
 		public EduTokenManager EduTokenManager { get; set; }
 
 		public PluginManager PluginManager { get; set; }
@@ -154,7 +156,7 @@ namespace MiNET
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
-					EduTokenManager = new EduTokenManager();
+					if(IsEdu) EduTokenManager = new EduTokenManager();
 
 					if (Endpoint == null)
 					{
@@ -535,7 +537,7 @@ namespace MiNET
 			//response.sendpingtime = msg.sendpingtime;
 			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
 
-			if (Config.GetProperty("EnableEdu", false))
+			if (IsEdu)
 			{
 				var packet = UnconnectedPong.CreateObject();
 				packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;

@@ -774,6 +774,8 @@
 	</pdu>
 
 	<pdu id="0x49" online="false" client="false" server="true" name="MCPE_CAMERA">
+		<field name="Unknown1" type="SignedVarLong" />
+		<field name="Unknown2" type="SignedVarLong" />
 	</pdu>
 
 	<pdu id="0x4a" online="false" client="false" server="true" name="MCPE_BOSS_EVENT">
@@ -929,6 +931,12 @@
 		<field name="Unknown0" type="byte" />
 		<field name="Unknown1" type="string" />
 		<field name="Unknown2" type="byte" />
+	</pdu>
+
+	<pdu id="0x63" online="false" client="true" server="false" name="MCPE_PHOTO_TRANSFER">
+		<field name="File name" type="string" />
+		<field name="Image data" type="string" />
+		<field name="Unknown2" type="string" />
 	</pdu>
 
 	<pdu id="0x64" online="false" client="false" server="true" name="MCPE_MODAL_FORM_REQUEST">

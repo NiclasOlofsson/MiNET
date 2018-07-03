@@ -565,6 +565,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpePhotoTransfer(McpePhotoTransfer message)
+		{
+		}
+
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
 		}

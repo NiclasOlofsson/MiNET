@@ -636,6 +636,11 @@ namespace MiNET
 				handler.HandleMcpeSetEntityMotion((McpeSetEntityMotion) message);
 			}
 
+			else if (typeof(McpePhotoTransfer) == message.GetType())
+			{
+				handler.HandleMcpePhotoTransfer((McpePhotoTransfer)message);
+			}
+
 			else
 			{
 				Log.Error($"Unhandled packet: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");

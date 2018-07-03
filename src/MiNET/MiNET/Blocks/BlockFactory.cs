@@ -357,6 +357,9 @@ namespace MiNET.Blocks
 			else if (blockId == 207) block = new FrostedIce();
 			else if (blockId == 208) block = new EndRod();
 			else if (blockId == 209) block = new EndGateway();
+			else if (blockId == 210) block = new Allow();
+			else if (blockId == 211) block = new Deny();
+			else if (blockId == 212) block = new Border();
 			else if (blockId == 219) block = new PurpleGlazedTerracotta();
 			else if (blockId == 220) block = new WhiteGlazedTerracotta();
 			else if (blockId == 221) block = new OrangeGlazedTerracotta();
@@ -368,6 +371,7 @@ namespace MiNET.Blocks
 			else if (blockId == 227) block = new GrayGlazedTerracotta();
 			else if (blockId == 228) block = new SilverGlazedTerracotta();
 			else if (blockId == 229) block = new CyanGlazedTerracotta();
+			else if (blockId == 230) block = new Chalkboard();
 			else if (blockId == 231) block = new BlueGlazedTerracotta();
 			else if (blockId == 232) block = new BrownGlazedTerracotta();
 			else if (blockId == 233) block = new GreenGlazedTerracotta();

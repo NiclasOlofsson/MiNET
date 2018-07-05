@@ -20,7 +20,7 @@ namespace MiNET.Items
 			egg.KnownPosition = (PlayerLocation) player.KnownPosition.Clone();
 			egg.KnownPosition.Y += 1.62f;
 			egg.Velocity = egg.KnownPosition.GetDirection()*(force);
-			egg.BroadcastMovement = false;
+			egg.BroadcastMovement = true;
 			egg.DespawnOnImpact = true;
 			egg.SpawnEntity();
 		}

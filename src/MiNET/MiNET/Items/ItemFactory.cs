@@ -57,7 +57,7 @@ namespace MiNET.Items
 		private static Dictionary<string, short> BuildNameToId()
 		{
 			var nameToId = new Dictionary<string, short>();
-			for (short idx = 0; idx < 500; idx++)
+			for (short idx = -500; idx < 500; idx++)
 			{
 				Item item = GetItem(idx);
 				string name = item.GetType().Name.ToLowerInvariant();

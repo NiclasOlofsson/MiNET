@@ -97,7 +97,7 @@ namespace MiNET.Blocks
 		private static Dictionary<string, int> BuildNameToId()
 		{
 			var nameToId = new Dictionary<string, int>();
-			for (byte idx = 0; idx < byte.MaxValue; idx++)
+			for (int idx = 0; idx < 1000; idx++)
 			{
 				Block block = GetBlockById(idx);
 				string name = block.GetType().Name.ToLowerInvariant();

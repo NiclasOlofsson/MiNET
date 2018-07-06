@@ -416,7 +416,8 @@ namespace MiNET.Net
 			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
-			if (type == "target") return 0x05;
+			if (type == "operator") return 0x05;
+			if (type == "target") return 0x06;
 
 			if (type == "string") return 0xF;
 			if (type == "blockpos") return 0x10;

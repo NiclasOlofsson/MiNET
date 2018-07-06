@@ -529,10 +529,10 @@ namespace MiNET.Worlds
 		{
 			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
 
-			cc._chunks = new Chunk[16];
+			cc._chunks = new ChunkBase[16];
 			for (int i = 0; i < _chunks.Length; i++)
 			{
-				cc._chunks[i] = (Chunk) _chunks[i].Clone();
+				cc._chunks[i] = (PaletteChunk) _chunks[i].Clone();
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();

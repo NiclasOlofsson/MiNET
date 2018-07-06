@@ -66,7 +66,7 @@ namespace MiNET.Plugins
 			if (Config.GetProperty("PluginDisabled", false)) return;
 
 			// Default it is the directory we are executing, and below.
-			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
 			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
 			//HACK: Make it possible to define multiple PATH;PATH;PATH
 

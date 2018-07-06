@@ -479,7 +479,7 @@ namespace TestPlugin
 		[Command]
 		public void Version(Player player)
 		{
-			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(typeof(MiNetServer)).Location).ProductVersion;
 			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
 		}
 

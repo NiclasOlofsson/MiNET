@@ -47,7 +47,7 @@ namespace MiNET.Utils
 				string username = Environment.UserName;
 
 				string fileContents = string.Empty;
-				string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+				string path = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 				if (path != null)
 				{
 					var configFilePath = Path.Combine(path, $"server.{username}.conf");

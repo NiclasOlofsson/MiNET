@@ -186,3 +186,4 @@ FakesAssemblies/
 *.opendb
 .vs/
 
+/src/MiNET/MiNET.Console/dist

@@ -94,130 +94,130 @@ namespace MiNET.Worlds
 
 	}
 
-	public class Chunk : ChunkBase
-	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof(Chunk));
+	//public class Chunk : ChunkBase
+	//{
+	//	private static readonly ILog Log = LogManager.GetLogger(typeof(Chunk));
 
-		private bool _isAllAir = true;
+	//	private bool _isAllAir = true;
 
-		private byte[] _blocks = new byte[16*16*16];
-		private NibbleArray _metadata = new NibbleArray(16*16*16);
+	//	private byte[] _blocks = new byte[16*16*16];
+	//	private NibbleArray _metadata = new NibbleArray(16*16*16);
 
-		private byte[] _cache;
-		private bool _isDirty;
+	//	private byte[] _cache;
+	//	private bool _isDirty;
 
-		public Chunk()
-		{
-			Array.Fill<byte>(skylight.Data, 0xff);
-		}
+	//	public Chunk()
+	//	{
+	//		Array.Fill<byte>(skylight.Data, 0xff);
+	//	}
 
-		public override bool IsDirty => _isDirty;
+	//	public override bool IsDirty => _isDirty;
 
-		public override bool IsAllAir()
-		{
-			if (_isDirty)
-			{
-				_isAllAir = _blocks.All(b => b == 0);
-				_isDirty = false;
-			}
-			return _isAllAir;
-		}
+	//	public override bool IsAllAir()
+	//	{
+	//		if (_isDirty)
+	//		{
+	//			_isAllAir = _blocks.All(b => b == 0);
+	//			_isDirty = false;
+	//		}
+	//		return _isAllAir;
+	//	}
 
-		private static int GetIndex(int bx, int by, int bz)
-		{
-			return (bx*256) + (bz*16) + by;
-		}
+	//	private static int GetIndex(int bx, int by, int bz)
+	//	{
+	//		return (bx*256) + (bz*16) + by;
+	//	}
 
-		public override int GetBlock(int bx, int by, int bz)
-		{
-			return _blocks[GetIndex(bx, by, bz)];
-		}
+	//	public override int GetBlock(int bx, int by, int bz)
+	//	{
+	//		return _blocks[GetIndex(bx, by, bz)];
+	//	}
 
-		public override void SetBlock(int bx, int by, int bz, int bid)
-		{
-			_blocks[GetIndex(bx, by, bz)] = (byte) bid;
-			_cache = null;
-			_isDirty = true;
-		}
+	//	public override void SetBlock(int bx, int by, int bz, int bid)
+	//	{
+	//		_blocks[GetIndex(bx, by, bz)] = (byte) bid;
+	//		_cache = null;
+	//		_isDirty = true;
+	//	}
 
-		public override byte GetMetadata(int bx, int by, int bz)
-		{
-			return _metadata[GetIndex(bx, by, bz)];
-		}
+	//	public override byte GetMetadata(int bx, int by, int bz)
+	//	{
+	//		return _metadata[GetIndex(bx, by, bz)];
+	//	}
 
-		public override void SetMetadata(int bx, int by, int bz, byte data)
-		{
-			_metadata[GetIndex(bx, by, bz)] = data;
-			_cache = null;
-			_isDirty = true;
-		}
+	//	public override void SetMetadata(int bx, int by, int bz, byte data)
+	//	{
+	//		_metadata[GetIndex(bx, by, bz)] = data;
+	//		_cache = null;
+	//		_isDirty = true;
+	//	}
 
-		public override byte[] GetBytes(Stream stream)
-		{
-			if (_cache != null) return _cache;
+	//	public override byte[] GetBytes(Stream stream)
+	//	{
+	//		if (_cache != null) return _cache;
 
-			//using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
-			{
-				stream.WriteByte((byte) 0); // version
-				stream.Write(_blocks, 0, _blocks.Length);
-				stream.Write(_metadata.Data, 0, _metadata.Data.Length);
-				//writer.Write(skylight.Data);
-				//writer.Write(blocklight.Data);
-				//_cache = stream.ToArray();
-			}
+	//		//using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+	//		{
+	//			stream.WriteByte((byte) 0); // version
+	//			stream.Write(_blocks, 0, _blocks.Length);
+	//			stream.Write(_metadata.Data, 0, _metadata.Data.Length);
+	//			//writer.Write(skylight.Data);
+	//			//writer.Write(blocklight.Data);
+	//			//_cache = stream.ToArray();
+	//		}
 
-			return _cache;
-		}
+	//		return _cache;
+	//	}
 
-		public override object Clone()
-		{
-			Chunk cc = CreateObject();
-			cc._isAllAir = _isAllAir;
-			cc._isDirty = _isDirty;
+	//	public override object Clone()
+	//	{
+	//		Chunk cc = CreateObject();
+	//		cc._isAllAir = _isAllAir;
+	//		cc._isDirty = _isDirty;
 
-			_blocks.CopyTo(cc._blocks, 0);
-			_metadata.Data.CopyTo(cc._metadata.Data, 0);
-			blocklight.Data.CopyTo(cc.blocklight.Data, 0);
-			skylight.Data.CopyTo(cc.skylight.Data, 0);
+	//		_blocks.CopyTo(cc._blocks, 0);
+	//		_metadata.Data.CopyTo(cc._metadata.Data, 0);
+	//		blocklight.Data.CopyTo(cc.blocklight.Data, 0);
+	//		skylight.Data.CopyTo(cc.skylight.Data, 0);
 
-			if (_cache != null)
-			{
-				cc._cache = (byte[]) _cache.Clone();
-			}
+	//		if (_cache != null)
+	//		{
+	//			cc._cache = (byte[]) _cache.Clone();
+	//		}
 
-			return cc;
-		}
+	//		return cc;
+	//	}
 
-		private static readonly ChunkPool<Chunk> Pool = new ChunkPool<Chunk>(() => new Chunk());
+	//	private static readonly ChunkPool<Chunk> Pool = new ChunkPool<Chunk>(() => new Chunk());
 
-		public static Chunk CreateObject()
-		{
-			return Pool.GetObject();
-		}
+	//	public static Chunk CreateObject()
+	//	{
+	//		return Pool.GetObject();
+	//	}
 
-		public override void PutPool()
-		{
-			Reset();
-			Pool.PutObject(this);
-		}
+	//	public override void PutPool()
+	//	{
+	//		Reset();
+	//		Pool.PutObject(this);
+	//	}
 
-		public override void Reset()
-		{
-			_isAllAir = true;
-			Array.Clear(_blocks, 0, _blocks.Length);
-			Array.Clear(_metadata.Data, 0, _metadata.Data.Length);
-			Array.Clear(blocklight.Data, 0, blocklight.Data.Length);
-			Array.Clear(skylight.Data, 0, skylight.Data.Length);
-			Array.Fill<byte>(skylight.Data, 0xff);
-			_cache = null;
-			_isDirty = false;
-		}
+	//	public override void Reset()
+	//	{
+	//		_isAllAir = true;
+	//		Array.Clear(_blocks, 0, _blocks.Length);
+	//		Array.Clear(_metadata.Data, 0, _metadata.Data.Length);
+	//		Array.Clear(blocklight.Data, 0, blocklight.Data.Length);
+	//		Array.Clear(skylight.Data, 0, skylight.Data.Length);
+	//		Array.Fill<byte>(skylight.Data, 0xff);
+	//		_cache = null;
+	//		_isDirty = false;
+	//	}
 
-		~Chunk()
-		{
-			Log.Error($"Unexpected dispose chunk");
-		}
-	}
+	//	~Chunk()
+	//	{
+	//		Log.Error($"Unexpected dispose chunk");
+	//	}
+	//}
 
 	public class ChunkPool<T>
 	{

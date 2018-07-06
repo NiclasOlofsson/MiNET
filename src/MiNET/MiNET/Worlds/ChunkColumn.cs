@@ -449,7 +449,7 @@ namespace MiNET.Worlds
 				averageCompressedSize = ((averageCompressedSize * count) + wrapperSize) / (count + 1);
 
 
-				Log.Debug($"Serialized in {elapsted / (float)TimeSpan.TicksPerMillisecond:F4} ms, Average={average / (float)TimeSpan.TicksPerMillisecond:F4}, fcsize={averageSize:F0}, wsize={averageCompressedSize:F0}");
+				//Log.Debug($"Serialized in {elapsted / (float)TimeSpan.TicksPerMillisecond:F4} ms, Average={average / (float)TimeSpan.TicksPerMillisecond:F4}, fcsize={averageSize:F0}, wsize={averageCompressedSize:F0}");
 
 				_cachedBatch = batch;
 				isDirty = false;
@@ -532,7 +532,7 @@ namespace MiNET.Worlds
 			cc._chunks = new ChunkBase[16];
 			for (int i = 0; i < _chunks.Length; i++)
 			{
-				cc._chunks[i] = (PaletteChunk) _chunks[i].Clone();
+				cc._chunks[i] = (PaletteChunk) _chunks[i]?.Clone();
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();

@@ -40,20 +40,23 @@ namespace MiNET.Entities.Projectiles
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Projectile));
 
 		public Player Shooter { get; set; }
-		public int Ttl { get; set; } = 0;
-		public bool DespawnOnImpact { get; set; } = true;
+		public int Ttl { get; set; }
+		public bool DespawnOnImpact { get; set; }
 		public int Damage { get; set; }
 		public int PowerLevel { get; set; } = 0;
 		public float HitBoxPrecision { get; set; } = 0.3f;
 		public Vector3 Force { get; set; } = new Vector3();
 
-		public bool BroadcastMovement { get; set; } = false;
+		public bool BroadcastMovement { get; set; }
 
 		protected Projectile(Player shooter, int entityTypeId, Level level, int damage, bool isCritical = false) : base(entityTypeId, level)
 		{
 			Shooter = shooter;
 			Damage = damage;
 			IsCritical = isCritical;
+			Ttl = 0;
+			DespawnOnImpact = true;
+			BroadcastMovement = false;
 		}
 
 		private object _spawnSync = new object();
@@ -180,8 +183,6 @@ namespace MiNET.Entities.Projectiles
 				}
 			}
 
-			bool sendPosition = Velocity != Vector3.Zero;
-
 			if (collided)
 			{
 				Velocity = Vector3.Zero;
@@ -201,7 +202,7 @@ namespace MiNET.Entities.Projectiles
 			}
 
 			// For debugging of flight-path
-			if (sendPosition && BroadcastMovement)
+			if (BroadcastMovement)
 			{
 				//LastUpdatedTime = DateTime.UtcNow;
 
@@ -265,29 +266,20 @@ namespace MiNET.Entities.Projectiles
 				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
 				motions.runtimeEntityId = EntityId;
 				motions.velocity = Velocity;
+				//new Task(() => Level.RelayBroadcast(motions)).Start();
 				Level.RelayBroadcast(motions);
 			}
 
-			if (LastSentPosition != null)
-			{
-				McpeMoveEntityDelta move = McpeMoveEntityDelta.CreateObject();
-				move.runtimeEntityId = EntityId;
-				move.prevSentPosition = LastSentPosition;
-				move.currentPosition = (PlayerLocation)KnownPosition.Clone();
-				move.isOnGround = IsWalker && IsOnGround;
-				if (move.SetFlags())
-				{
-					Level.RelayBroadcast(move);
-				}
-			}
-
-			LastSentPosition = (PlayerLocation)KnownPosition.Clone(); // Used for delta
+			McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+			moveEntity.runtimeEntityId = EntityId;
+			moveEntity.position = KnownPosition;
+			Level.RelayBroadcast(moveEntity);
 
 			if (Shooter != null && IsCritical)
 			{
 				var particle = new CriticalParticle(Level);
 				particle.Position = KnownPosition.ToVector3();
-				particle.Spawn(new[] { Shooter });
+				particle.Spawn(new[] {Shooter});
 			}
 		}
 

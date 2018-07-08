@@ -353,6 +353,7 @@ namespace MiNET.Blocks
 			else if (blockId == 200) block = new ChorusFlower();
 			else if (blockId == 201) block = new PurpurBlock();
 			else if (blockId == 203) block = new PurpurStairs();
+			else if (blockId == 205) block = new UndyedShulkerBox();
 			else if (blockId == 206) block = new EndBricks();
 			else if (blockId == 207) block = new FrostedIce();
 			else if (blockId == 208) block = new EndRod();
@@ -360,6 +361,7 @@ namespace MiNET.Blocks
 			else if (blockId == 210) block = new Allow();
 			else if (blockId == 211) block = new Deny();
 			else if (blockId == 212) block = new Border();
+			else if (blockId == 218) block = new ShulkerBox();
 			else if (blockId == 219) block = new PurpleGlazedTerracotta();
 			else if (blockId == 220) block = new WhiteGlazedTerracotta();
 			else if (blockId == 221) block = new OrangeGlazedTerracotta();
@@ -399,12 +401,10 @@ namespace MiNET.Blocks
 			else if (blockId == 192) block = new ChemicalHeat();
 			else if (blockId == 202) block = new ColoredTorchRg();
 			else if (blockId == 204) block = new ColoredTorchBp();
-			else if (blockId == 205) block = new UndyedShulkerBox();
 			else if (blockId == 213) block = new Magma();
 			else if (blockId == 214) block = new NetherWartBlock();
 			else if (blockId == 215) block = new RedNetherBrick();
 			else if (blockId == 216) block = new BoneBlock();
-			else if (blockId == 218) block = new ShulkerBox();
 			else if (blockId == 238) block = new ChemistryTable();
 			else if (blockId == 239) block = new UnderwaterTorch();
 			else if (blockId == 247) block = new Netherreactor();

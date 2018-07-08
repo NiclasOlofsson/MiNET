@@ -101,13 +101,13 @@ namespace MiNET.Worlds
 							case 0:
 								return (byte) BlockFace.Down;
 							case 1:
-								return (byte) BlockFace.South;
-							case 2:
-								return (byte) BlockFace.North;
-							case 3:
-								return (byte) BlockFace.West;
-							case 4:
 								return (byte) BlockFace.East;
+							case 2:
+								return (byte) BlockFace.West;
+							case 3:
+								return (byte) BlockFace.South;
+							case 4:
+								return (byte) BlockFace.North;
 							case 5:
 								return (byte) BlockFace.Up;
 						}
@@ -129,13 +129,13 @@ namespace MiNET.Worlds
 							case 0:
 								return (byte) BlockFace.Down; // 0
 							case 1:
-								return (byte) BlockFace.South; // 5
+								return (byte) BlockFace.East; // 5
 							case 2:
-								return (byte) BlockFace.North; // 4
+								return (byte) BlockFace.West; // 4
 							case 3:
-								return (byte) BlockFace.West; // 3
+								return (byte) BlockFace.South; // 3
 							case 4:
-								return (byte) BlockFace.East; // 2
+								return (byte) BlockFace.North; // 2
 							case 5:
 								return (byte) BlockFace.Up; // 1
 						}

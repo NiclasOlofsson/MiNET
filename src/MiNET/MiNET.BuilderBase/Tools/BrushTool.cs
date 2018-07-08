@@ -214,7 +214,7 @@ namespace MiNET.BuilderBase.Tools
 		{
 		}
 
-		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.West, Level.East, Level.South, Level.North, Level.Up, Level.Down};
+		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.South, Level.North, Level.East, Level.West, Level.Up, Level.Down};
 
 		protected void Erosion(EditHelper editSession, int brushSize, int erodeFaces, int erodeRec, int fillFaces, int fillRec, Level level, BlockCoordinates targetBlock)
 		{

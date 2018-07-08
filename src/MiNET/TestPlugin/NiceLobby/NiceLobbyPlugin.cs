@@ -118,17 +118,17 @@ namespace TestPlugin.NiceLobby
 			//}
 
 
-			//// Compass
-			//if (e.Level.TickTime%2 == 0)
-			//{
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 10,
-			//		MessageType = MessageType.Tip,
-			//		Message = GetCompass(player.KnownPosition.HeadYaw),
-			//		Duration = 20*5,
-			//	});
-			//}
+			// Compass
+			if (e.Level.TickTime % 2 == 0)
+			{
+				player.AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = GetCompass(player.KnownPosition.HeadYaw),
+					Duration = 20 * 5,
+				});
+			}
 
 
 			// Glide extension
@@ -385,15 +385,20 @@ namespace TestPlugin.NiceLobby
 			}
 
 
-			int idx = 8;
+			int idx = 0;
 			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
+			idx = 8;
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
 
 			var fireworks = new ItemFireworks() {Count = 64};
 
 			fireworks.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
+
 			{
 				Explosions = new List<ItemFireworks.FireworksExplosion>()
 				{
@@ -453,10 +458,10 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
 
-			//player.Inventory.Helmet = new ItemDiamondHelmet();
-			//player.Inventory.Chest = new ItemElytra();
-			//player.Inventory.Leggings = new ItemDiamondLeggings();
-			//player.Inventory.Boots = new ItemDiamondBoots();
+			player.Inventory.Helmet = new ItemDiamondHelmet();
+			player.Inventory.Chest = new ItemElytra();
+			player.Inventory.Leggings = new ItemDiamondLeggings();
+			player.Inventory.Boots = new ItemDiamondBoots();
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();

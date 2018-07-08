@@ -124,7 +124,7 @@ namespace MiNET.Items
 			BoundingBox bbox;
 			switch (face)
 			{
-				case BlockFace.East:
+				case BlockFace.North:
 					painting.Direction = 2;
 					bbox = new BoundingBox(new Vector3(-(width - 1 - widthOffset), -heightOffset, 0), new Vector3(widthOffset, height - 1 - heightOffset, 0));
 					bbox = bbox.OffsetBy(emptyCoordinates);
@@ -132,7 +132,7 @@ namespace MiNET.Items
 					bbox = bbox.OffsetBy(BlockCoordinates.South);
 					PaintBbox(world, bbox);
 					break;
-				case BlockFace.South:
+				case BlockFace.East:
 					painting.Direction = 3;
 					bbox = new BoundingBox(new Vector3(0, -heightOffset, -(width - 1 - widthOffset)), new Vector3(0, height - 1 - heightOffset, widthOffset));
 					bbox = bbox.OffsetBy(emptyCoordinates);
@@ -140,7 +140,7 @@ namespace MiNET.Items
 					bbox = bbox.OffsetBy(BlockCoordinates.West);
 					PaintBbox(world, bbox);
 					break;
-				case BlockFace.West:
+				case BlockFace.South:
 					painting.Direction = 0;
 					bbox = new BoundingBox(new Vector3(-widthOffset, -heightOffset, 0), new Vector3(width - 1 - widthOffset, height - 1 - heightOffset, 0));
 					bbox = bbox.OffsetBy(emptyCoordinates);
@@ -148,7 +148,7 @@ namespace MiNET.Items
 					bbox = bbox.OffsetBy(BlockCoordinates.North);
 					PaintBbox(world, bbox);
 					break;
-				case BlockFace.North:
+				case BlockFace.West:
 					painting.Direction = 1;
 					bbox = new BoundingBox(new Vector3(0, -heightOffset, -widthOffset), new Vector3(0, height - 1 - heightOffset, width - 1 - widthOffset));
 					bbox = bbox.OffsetBy(emptyCoordinates);
@@ -180,28 +180,28 @@ namespace MiNET.Items
 				BoundingBox bbox = new BoundingBox();
 				switch (face)
 				{
-					case BlockFace.East:
+					case BlockFace.North:
 						bbox = new BoundingBox(new Vector3(-(width - 1 - widthOffset), -heightOffset, 0), new Vector3(widthOffset, height - 1 - heightOffset, 0));
 						bbox = bbox.OffsetBy(emptyCoordinates);
 						if (!IsSpawnAreaClear(world, bbox)) continue;
 						if (!IsSpawnAreaSolid(world, bbox.OffsetBy(BlockCoordinates.South))) continue;
 						if (CollidesWithPainting(world, bbox)) continue;
 						break;
-					case BlockFace.South:
+					case BlockFace.East:
 						bbox = new BoundingBox(new Vector3(0, -heightOffset, -(width - 1 - widthOffset)), new Vector3(0, height - 1 - heightOffset, widthOffset));
 						bbox = bbox.OffsetBy(emptyCoordinates);
 						if (!IsSpawnAreaClear(world, bbox)) continue;
 						if (!IsSpawnAreaSolid(world, bbox.OffsetBy(BlockCoordinates.West))) continue;
 						if (CollidesWithPainting(world, bbox)) continue;
 						break;
-					case BlockFace.West:
+					case BlockFace.South:
 						bbox = new BoundingBox(new Vector3(-widthOffset, -heightOffset, 0), new Vector3(width - 1 - widthOffset, height - 1 - heightOffset, 0));
 						bbox = bbox.OffsetBy(emptyCoordinates);
 						if (!IsSpawnAreaClear(world, bbox)) continue;
 						if (!IsSpawnAreaSolid(world, bbox.OffsetBy(BlockCoordinates.North))) continue;
 						if (CollidesWithPainting(world, bbox)) continue;
 						break;
-					case BlockFace.North:
+					case BlockFace.West:
 						bbox = new BoundingBox(new Vector3(0, -heightOffset, -widthOffset), new Vector3(0, height - 1 - heightOffset, width - 1 - widthOffset));
 						bbox = bbox.OffsetBy(emptyCoordinates);
 						if (!IsSpawnAreaClear(world, bbox)) continue;

@@ -69,10 +69,10 @@ namespace MiNET.Items
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, face));
 				if (affectedBlock.Id == 0)
 				{
-					var blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.North);
+					var blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.West);
 					if (blocks.Count == 0)
 					{
-						blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.East);
+						blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.North);
 					}
 
 					if (blocks.Count > 0)
@@ -132,15 +132,15 @@ namespace MiNET.Items
 				{
 					Visit(coordinates, blocks, direction);
 
-					if (direction == BlockFace.North)
-					{
-						visits.Enqueue(coordinates + Level.East);
-						visits.Enqueue(coordinates + Level.West);
-					}
-					else if (direction == BlockFace.East)
+					if (direction == BlockFace.West)
 					{
 						visits.Enqueue(coordinates + Level.North);
 						visits.Enqueue(coordinates + Level.South);
+					}
+					else if (direction == BlockFace.North)
+					{
+						visits.Enqueue(coordinates + Level.West);
+						visits.Enqueue(coordinates + Level.East);
 					}
 
 					visits.Enqueue(coordinates + Level.Up);

@@ -196,16 +196,16 @@ namespace MiNET.Blocks
 			switch (Metadata & 0x07)
 			{
 				case 0:
-					direction = Level.North;
+					direction = Level.West;
 					break; // West
 				case 1:
-					direction = Level.West;
+					direction = Level.South;
 					break; // South
 				case 2:
-					direction = Level.South;
+					direction = Level.East;
 					break; // East
 				case 3:
-					direction = Level.East;
+					direction = Level.North;
 					break; // North 
 			}
 

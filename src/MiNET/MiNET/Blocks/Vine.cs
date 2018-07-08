@@ -58,16 +58,16 @@ namespace MiNET.Blocks
 			byte direction;
 			switch (face)
 			{
-				case BlockFace.East:
+				case BlockFace.North:
 					direction = 0x01;
 					break;
-				case BlockFace.West:
+				case BlockFace.South:
 					direction = 0x04;
 					break;
-				case BlockFace.North:
+				case BlockFace.West:
 					direction = 0x08;
 					break;
-				case BlockFace.South:
+				case BlockFace.East:
 					direction = 0x02;
 					break;
 				default:

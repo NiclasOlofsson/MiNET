@@ -49,16 +49,16 @@ namespace MiNET.Blocks
 					if (direction == 1 || direction == 3) Metadata = 7;
 					else Metadata = 0;
 					break;
-				case BlockFace.East:
+				case BlockFace.North:
 					Metadata = 4;
 					break;
-				case BlockFace.West:
+				case BlockFace.South:
 					Metadata = 3;
 					break;
-				case BlockFace.North:
+				case BlockFace.West:
 					Metadata = 2;
 					break;
-				case BlockFace.South:
+				case BlockFace.East:
 					Metadata = 1;
 					break;
 				case BlockFace.Up:

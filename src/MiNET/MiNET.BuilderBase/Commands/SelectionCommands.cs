@@ -186,17 +186,29 @@ namespace MiNET.BuilderBase.Commands
 				case SelectionDirection.West:
 					if (position1.Z > position2.Z)
 					{
-						selector.SelectPrimary(position1 + (Level.West*amount));
-						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.East*reverseAmount));
+						selector.SelectPrimary(position1 + (Level.South*amount));
+						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.North*reverseAmount));
 					}
 					else
 					{
-						selector.SelectSecondary(position2 + (Level.West*amount));
-						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.East*reverseAmount));
+						selector.SelectSecondary(position2 + (Level.South*amount));
+						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.North*reverseAmount));
 					}
 					break;
 				case SelectionDirection.East:
 					if (position1.Z < position2.Z)
+					{
+						selector.SelectPrimary(position1 + (Level.North*amount));
+						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.South*reverseAmount));
+					}
+					else
+					{
+						selector.SelectSecondary(position2 + (Level.North*amount));
+						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.South*reverseAmount));
+					}
+					break;
+				case SelectionDirection.South:
+					if (position1.X > position2.X)
 					{
 						selector.SelectPrimary(position1 + (Level.East*amount));
 						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.West*reverseAmount));
@@ -207,28 +219,16 @@ namespace MiNET.BuilderBase.Commands
 						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.West*reverseAmount));
 					}
 					break;
-				case SelectionDirection.South:
-					if (position1.X > position2.X)
-					{
-						selector.SelectPrimary(position1 + (Level.South*amount));
-						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.North*reverseAmount));
-					}
-					else
-					{
-						selector.SelectSecondary(position2 + (Level.South*amount));
-						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.North*reverseAmount));
-					}
-					break;
 				case SelectionDirection.North:
 					if (position1.X < position2.X)
 					{
-						selector.SelectPrimary(position1 + (Level.North*amount));
-						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.South*reverseAmount));
+						selector.SelectPrimary(position1 + (Level.West*amount));
+						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.East*reverseAmount));
 					}
 					else
 					{
-						selector.SelectSecondary(position2 + (Level.North*amount));
-						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.South*reverseAmount));
+						selector.SelectSecondary(position2 + (Level.West*amount));
+						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.East*reverseAmount));
 					}
 					break;
 				case SelectionDirection.Vertical:
@@ -319,17 +319,29 @@ namespace MiNET.BuilderBase.Commands
 				case SelectionDirection.West:
 					if (position1.Z < position2.Z)
 					{
-						selector.SelectPrimary(position1 + (Level.West*amount));
-						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.East*amount));
+						selector.SelectPrimary(position1 + (Level.South*amount));
+						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.North*amount));
 					}
 					else
 					{
-						selector.SelectSecondary(position2 + (Level.West*amount));
-						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.East*amount));
+						selector.SelectSecondary(position2 + (Level.South*amount));
+						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.North*amount));
 					}
 					break;
 				case SelectionDirection.East:
 					if (position1.Z > position2.Z)
+					{
+						selector.SelectPrimary(position1 + (Level.North*amount));
+						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.South*amount));
+					}
+					else
+					{
+						selector.SelectSecondary(position2 + (Level.North*amount));
+						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.South*amount));
+					}
+					break;
+				case SelectionDirection.South:
+					if (position1.X < position2.X)
 					{
 						selector.SelectPrimary(position1 + (Level.East*amount));
 						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.West*amount));
@@ -340,28 +352,16 @@ namespace MiNET.BuilderBase.Commands
 						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.West*amount));
 					}
 					break;
-				case SelectionDirection.South:
-					if (position1.X < position2.X)
-					{
-						selector.SelectPrimary(position1 + (Level.South*amount));
-						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.North*amount));
-					}
-					else
-					{
-						selector.SelectSecondary(position2 + (Level.South*amount));
-						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.North*amount));
-					}
-					break;
 				case SelectionDirection.North:
 					if (position1.X > position2.X)
 					{
-						selector.SelectPrimary(position1 + (Level.North*amount));
-						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.South*amount));
+						selector.SelectPrimary(position1 + (Level.West*amount));
+						if (reverseAmount != 0) selector.SelectSecondary(position2 + (Level.East*amount));
 					}
 					else
 					{
-						selector.SelectSecondary(position2 + (Level.North*amount));
-						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.South*amount));
+						selector.SelectSecondary(position2 + (Level.West*amount));
+						if (reverseAmount != 0) selector.SelectPrimary(position1 + (Level.East*amount));
 					}
 					break;
 			}

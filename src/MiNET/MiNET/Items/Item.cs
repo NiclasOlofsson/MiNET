@@ -100,14 +100,14 @@ namespace MiNET.Items
 					return target + Level.Down;
 				case BlockFace.Up:
 					return target + Level.Up;
-				case BlockFace.East:
-					return target + Level.East;
-				case BlockFace.West:
-					return target + Level.West;
 				case BlockFace.North:
 					return target + Level.North;
 				case BlockFace.South:
 					return target + Level.South;
+				case BlockFace.West:
+					return target + Level.West;
+				case BlockFace.East:
+					return target + Level.East;
 				default:
 					return target;
 			}

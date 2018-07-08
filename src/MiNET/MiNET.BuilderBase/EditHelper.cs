@@ -105,16 +105,16 @@ namespace MiNET.BuilderBase
 					levelDir = Level.Down;
 					break;
 				case SelectionDirection.North:
-					levelDir = Level.North;
-					break;
-				case SelectionDirection.West:
 					levelDir = Level.West;
 					break;
-				case SelectionDirection.South:
+				case SelectionDirection.West:
 					levelDir = Level.South;
 					break;
-				case SelectionDirection.East:
+				case SelectionDirection.South:
 					levelDir = Level.East;
+					break;
+				case SelectionDirection.East:
+					levelDir = Level.North;
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
@@ -646,10 +646,10 @@ namespace MiNET.BuilderBase
 
 				Visit(coordinates, pattern);
 
-				visits.Enqueue(coordinates + Level.South);
-				visits.Enqueue(coordinates + Level.North);
 				visits.Enqueue(coordinates + Level.East);
 				visits.Enqueue(coordinates + Level.West);
+				visits.Enqueue(coordinates + Level.North);
+				visits.Enqueue(coordinates + Level.South);
 				visits.Enqueue(coordinates + Level.Down);
 				if (fillUp) visits.Enqueue(coordinates + Level.Up);
 			}

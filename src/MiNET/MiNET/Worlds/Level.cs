@@ -54,10 +54,10 @@ namespace MiNET.Worlds
 
 		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
-		public static readonly BlockCoordinates West = new BlockCoordinates(0, 0, 1);
-		public static readonly BlockCoordinates East = new BlockCoordinates(0, 0, -1);
-		public static readonly BlockCoordinates South = new BlockCoordinates(1, 0, 0);
-		public static readonly BlockCoordinates North = new BlockCoordinates(-1, 0, 0);
+		public static readonly BlockCoordinates South = new BlockCoordinates(0, 0, 1);
+		public static readonly BlockCoordinates North = new BlockCoordinates(0, 0, -1);
+		public static readonly BlockCoordinates East = new BlockCoordinates(1, 0, 0);
+		public static readonly BlockCoordinates West = new BlockCoordinates(-1, 0, 0);
 
 		public IWorldProvider WorldProvider { get; protected set; }
 

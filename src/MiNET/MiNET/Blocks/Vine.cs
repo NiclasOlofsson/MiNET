@@ -38,7 +38,7 @@ namespace MiNET.Blocks
 		public Vine() : base(106)
 		{
 			IsSolid = false;
-			IsTransparent = false;
+			IsTransparent = true;
 			BlastResistance = 1;
 			Hardness = 0.2f;
 			IsFlammable = true;

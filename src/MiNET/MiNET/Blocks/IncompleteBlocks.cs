@@ -3600,29 +3600,6 @@
 			// runtime id: 4091 0xFFB, data: 3
 		}
 	}
-	public class ShulkerBox : Block
-	{
-		public ShulkerBox() : base(218)
-		{
-			Name = "minecraft:shulker_box";
-			// runtime id: 1877 0x755, data: 0
-			// runtime id: 1878 0x756, data: 1
-			// runtime id: 1879 0x757, data: 2
-			// runtime id: 1880 0x758, data: 3
-			// runtime id: 1881 0x759, data: 4
-			// runtime id: 1882 0x75A, data: 5
-			// runtime id: 1883 0x75B, data: 6
-			// runtime id: 1884 0x75C, data: 7
-			// runtime id: 1885 0x75D, data: 8
-			// runtime id: 1886 0x75E, data: 9
-			// runtime id: 1887 0x75F, data: 10
-			// runtime id: 1888 0x760, data: 11
-			// runtime id: 1889 0x761, data: 12
-			// runtime id: 1890 0x762, data: 13
-			// runtime id: 1891 0x763, data: 14
-			// runtime id: 1892 0x764, data: 15
-		}
-	}
 	public class SpruceButton : Block
 	{
 		public SpruceButton() : base(399)
@@ -3809,14 +3786,6 @@
 			// runtime id: 2074 0x81A, data: 5
 			// runtime id: 2075 0x81B, data: 6
 			// runtime id: 2076 0x81C, data: 7
-		}
-	}
-	public class UndyedShulkerBox : Block
-	{
-		public UndyedShulkerBox() : base(205)
-		{
-			Name = "minecraft:undyed_shulker_box";
-			// runtime id: 1843 0x733, data: 0
 		}
 	}
 }

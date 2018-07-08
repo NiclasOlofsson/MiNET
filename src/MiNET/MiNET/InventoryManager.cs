@@ -52,7 +52,7 @@ namespace MiNET
 				NbtCompound comp = blockEntity.GetCompound();
 
 				Inventory inventory;
-				if (blockEntity is ChestBlockEntity)
+				if (blockEntity is ChestBlockEntity || blockEntity is ShulkerBoxBlockEntity)
 				{
 					inventory = new Inventory(GetInventoryId(), blockEntity, 27, (NbtList) comp["Items"])
 					{

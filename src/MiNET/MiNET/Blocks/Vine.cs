@@ -25,6 +25,7 @@
 
 using System.Numerics;
 using log4net;
+using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Worlds;
 
@@ -154,5 +155,13 @@ namespace MiNET.Blocks
 
 			level.BreakBlock(null, this);
 		}
+
+		public override Item[] GetDrops(Item tool)
+		{
+			if (tool.Id != 359) return new Item[0];
+
+			return base.GetDrops(tool);
+		}
+
 	}
 }

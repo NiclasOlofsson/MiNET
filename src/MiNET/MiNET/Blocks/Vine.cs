@@ -44,6 +44,22 @@ namespace MiNET.Blocks
 			IsReplacible = true;
 		}
 
+		private const byte North = 0x01;
+		private const byte East = 0x02;
+		private const byte South = 0x04;
+		private const byte West = 0x08;
+
+		protected override bool CanPlace(Level world, Player player, BlockCoordinates blockCoordinates, BlockCoordinates targetCoordinates, BlockFace face)
+		{
+			bool canPlace = base.CanPlace(world, player, blockCoordinates, targetCoordinates, face);
+			if (!canPlace) return false;
+
+			var block = world.GetBlock(Coordinates);
+			if (block is Vine) return false;
+
+			return true;
+		}
+
 		public override bool PlaceBlock(Level world, Player player, BlockCoordinates blockCoordinates, BlockFace face, Vector3 faceCoords)
 		{
 			Block block = world.GetBlock(Coordinates);
@@ -53,22 +69,20 @@ namespace MiNET.Blocks
 				Metadata = block.Metadata;
 			}
 
-			Log.Debug($"Face: {face}, CurrentBlock={block}");
-
 			byte direction;
 			switch (face)
 			{
 				case BlockFace.North:
-					direction = 0x01;
-					break;
-				case BlockFace.South:
-					direction = 0x04;
-					break;
-				case BlockFace.West:
-					direction = 0x08;
+					direction = North;
 					break;
 				case BlockFace.East:
-					direction = 0x02;
+					direction = East;
+					break;
+				case BlockFace.South:
+					direction = South;
+					break;
+				case BlockFace.West:
+					direction = West;
 					break;
 				default:
 					return true; // Do nothing
@@ -76,10 +90,69 @@ namespace MiNET.Blocks
 
 			if ((Metadata & direction) == direction) return true; // Already have this face covered
 
-			Metadata |= direction;
+			Metadata = direction;
 
 			world.SetBlock(this);
 			return true;
+		}
+
+		public override void BlockUpdate(Level level, BlockCoordinates blockCoordinates)
+		{
+			//Block block = level.GetBlock(blockCoordinates);
+			//if (!(block is Air)) return;
+
+			Block onTop = level.GetBlock(Coordinates + Level.Up);
+
+			bool hasNorth = (Metadata & North) == North;
+			bool hasEast = (Metadata & East) == East;
+			bool hasSouth = (Metadata & South) == South;
+			bool hasWest = (Metadata & West) == West;
+
+			bool hasNorthTop = (onTop.Metadata & North) == North;
+			bool hasEastTop = (onTop.Metadata & East) == East;
+			bool hasSouthTop = (onTop.Metadata & South) == South;
+			bool hasWestTop = (onTop.Metadata & West) == West;
+
+			bool haveFaceBlock = false;
+
+			if (hasNorth && level.GetBlock(Coordinates + Level.South).IsSolid)
+			{
+				haveFaceBlock = true;
+			}
+			else if (hasEast && level.GetBlock(Coordinates + Level.West).IsSolid)
+			{
+				haveFaceBlock = true;
+			}
+			else if (hasSouth && level.GetBlock(Coordinates + Level.North).IsSolid)
+			{
+				haveFaceBlock = true;
+			}
+			else if (hasWest && level.GetBlock(Coordinates + Level.East).IsSolid)
+			{
+				haveFaceBlock = true;
+			}
+
+			bool hasVineTop = false;
+			if (hasNorth && hasNorthTop)
+			{
+				hasVineTop = true;
+			}
+			else if (hasEast && hasEastTop)
+			{
+				hasVineTop = true;
+			}
+			else if (hasSouth && hasSouthTop)
+			{
+				hasVineTop = true;
+			}
+			else if (hasWest && hasWestTop)
+			{
+				hasVineTop = true;
+			}
+
+			if (haveFaceBlock || hasVineTop) return;
+
+			level.BreakBlock(null, this);
 		}
 	}
 }

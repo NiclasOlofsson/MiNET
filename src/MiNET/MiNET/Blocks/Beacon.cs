@@ -74,8 +74,8 @@ namespace MiNET.Blocks
 			containerOpen.windowId = 5 + 9;
 			containerOpen.type = 13;
 			containerOpen.coordinates = blockCoordinates;
-			containerOpen.unknownRuntimeEntityId = 1;
-			player.SendPackage(containerOpen);
+			containerOpen.runtimeEntityId = -1;
+			player.SendPacket(containerOpen);
 
 			return true;
 		}

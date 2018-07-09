@@ -11,7 +11,7 @@ namespace MiNET.Blocks
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Sand));
 
-		private int _tickRate = 1;
+		private int _tickRate = 10;
 
 		public Sand() : base(12)
 		{
@@ -41,14 +41,15 @@ namespace MiNET.Blocks
 
 			if (!level.GetBlock(Coordinates + Level.Down).IsSolid)
 			{
-				level.SetAir(Coordinates);
+				//level.SetAir(Coordinates, false);
+				level.SetBlock(new Air() {Coordinates = Coordinates}, false, false);
 
 				var bbox = GetBoundingBox();
 				var d = (bbox.Max - bbox.Min)/2;
 
 				new FallingBlock(level, this)
 				{
-					KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.01f, Coordinates.Z + d.Z)
+					KnownPosition = new PlayerLocation(Coordinates.X + d.X, Coordinates.Y - 0.03f, Coordinates.Z + d.Z)
 				}.SpawnEntity();
 			}
 		}

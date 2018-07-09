@@ -43,7 +43,11 @@ namespace MiNET.Entities.Passive
 			HealthManager.MaxHealth = 40;
 			HealthManager.ResetHealth();
 			Speed = 0.25f;
+
+			IsWalker = true;
 			CanClimb = true;
+			//IsInWater = true;
+			HasCollision = true;
 			IsAffectedByGravity = true;
 
 			var random = rnd ?? new Random((int) DateTime.UtcNow.Ticks);

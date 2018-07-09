@@ -79,7 +79,7 @@ namespace MiNET.Utils
 			//
 			// HERE BE DRAGONS!
 #if !LINUX
-			WinApi.TimeBeginPeriod(1);
+			//WinApi.TimeBeginPeriod(1);
 			// END IS HERE. SAFE AGAIN ...
 #endif
 			Avarage = interval;

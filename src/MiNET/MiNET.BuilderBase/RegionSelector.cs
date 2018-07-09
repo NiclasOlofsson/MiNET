@@ -275,7 +275,7 @@ namespace MiNET.BuilderBase
 					if (packets.Count > 0)
 					{
 						var packet = BatchUtils.CreateBatchPacket(CompressionLevel.Optimal, packets.ToArray());
-						Player.SendPackage(packet);
+						Player.SendPacket(packet);
 						//level.RelayBroadcast(new[] { Player }, packet);
 					}
 				}

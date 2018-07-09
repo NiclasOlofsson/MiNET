@@ -95,6 +95,9 @@
     <None Include="server.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="server.nicke.conf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="server.gurun.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

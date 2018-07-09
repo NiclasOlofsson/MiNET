@@ -187,7 +187,7 @@ namespace MiNET
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) InHandSlot;
 				order.slot = (byte) (InHandSlot + HotbarSize);
-				Player.SendPackage(order);
+				Player.SendPacket(order);
 			}
 
 			McpeMobEquipment broadcast = McpeMobEquipment.CreateObject();
@@ -248,7 +248,7 @@ namespace MiNET
 			sendSlot.inventoryId = 0;
 			sendSlot.slot = (uint) slot;
 			sendSlot.item = Slots[slot];
-			Player.SendPackage(sendSlot);
+			Player.SendPacket(sendSlot);
 		}
 
 		public void Clear()

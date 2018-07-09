@@ -167,12 +167,23 @@ namespace MiNET.Net
 					}
 				}
 			}
+			{
+				// Soft enums?
+
+				uint count = ReadUnsignedVarInt();
+				Log.Debug($"Soft enums {count}");
+				for (int i = 0; i < count; i++)
+				{
+					Log.Debug($"Soft Enum: {ReadString()}={ReadBool()}");
+				}
+			}
 		}
 
 		partial void AfterEncode()
 		{
 			try
 			{
+<<<<<<< HEAD
                 if (CommandSet == null || CommandSet.Count == 0)
                 {
                     {
@@ -186,6 +197,19 @@ namespace MiNET.Net
                 }
 
                 var commands = CommandSet;
+=======
+				if (CommandSet == null || CommandSet.Count == 0)
+				{
+					Log.Warn("No commands to send");
+					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
+					return;
+				}
+
+				var commands = CommandSet;
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 				List<string> stringList = new List<string>();
 				{
@@ -294,7 +318,7 @@ namespace MiNET.Net
 								Write((int)stringList.IndexOf(enumValue));
 							}
 
-							//Log.Debug($"EnumType: {parameter.EnumType}, {enumValue}, {stringList.IndexOf(enumValue)} ");
+							//Log.Debug($"EnumType: {aliasEnum}, {enumValue}, {stringList.IndexOf(enumValue)} ");
 						}
 
 					}
@@ -408,6 +432,7 @@ namespace MiNET.Net
 			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
+<<<<<<< HEAD
             if (type == "wilcard") return 0x04;
 			if (type == "target") return 0x05;
             if (type == "wilcard_target") return 0x06;
@@ -415,6 +440,13 @@ namespace MiNET.Net
             if (type == "string") return 0x0F;
 			if (type == "blockpos") return 0x10;
 
+=======
+			if (type == "operator") return 0x05;
+			if (type == "target") return 0x06;
+
+			if (type == "string") return 0xF;
+			if (type == "blockpos") return 0x10;
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 			return 0x0;
 		}

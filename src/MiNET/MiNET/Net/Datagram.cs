@@ -32,13 +32,14 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class Datagram : Package<Datagram>
+	public class Datagram : Packet<Datagram>
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Datagram));
 
 		private int _currentSize = 4; // header
 		private MemoryStream _buf;
 		public long RetransmissionTimeOut { get; set; }
+		public bool RetransmitImmediate { get; set; }
 		public int TransmissionCount { get; set; }
 
 		public DatagramHeader Header { get; private set; }
@@ -89,6 +90,7 @@ namespace MiNET.Net
 
 			Header.Reset();
 			RetransmissionTimeOut = 0;
+			RetransmitImmediate = false;
 			TransmissionCount = 0;
 			_currentSize = 4;
 			FirstMessageId = 0;
@@ -160,7 +162,7 @@ namespace MiNET.Net
 		}
 
 
-		public static IEnumerable<Datagram> CreateDatagrams(Package message, int mtuSize, PlayerNetworkSession session)
+		public static IEnumerable<Datagram> CreateDatagrams(Packet message, int mtuSize, PlayerNetworkSession session)
 		{
 			if (message is InternalPing) yield break;
 
@@ -188,11 +190,11 @@ namespace MiNET.Net
 			yield return datagram;
 		}
 
-		private static List<MessagePart> GetMessageParts(Package message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
+		private static List<MessagePart> GetMessageParts(Packet message, int mtuSize, Reliability reliability, PlayerNetworkSession session)
 		{
 			var messageParts = new List<MessagePart>();
 
-			byte[] encodedMessage = message.Encode();
+			Memory<byte> encodedMessage = message.Encode();
 			//if (Log.IsDebugEnabled && message is McpeBatch)
 			//	Log.Debug($"0x{encodedMessage[0]:x2}\n{Package.HexDump(encodedMessage)}");
 
@@ -214,18 +216,16 @@ namespace MiNET.Net
 
 					if (!message.ForceClear && session.CryptoContext.UseEncryption)
 					{
-						McpeWrapper wrapper = McpeWrapper.CreateObject();
 						if (isBatch)
 						{
-							byte[] tmp = new byte[encodedMessage.Length - 1];
-							Buffer.BlockCopy(encodedMessage, 1, tmp, 0, encodedMessage.Length - 1);
-							encodedMessage = tmp;
+							encodedMessage = encodedMessage.Slice(1);
 						}
 						else
 						{
-							encodedMessage = Compression.Compress(encodedMessage, 0, encodedMessage.Length, true);
+							encodedMessage = Compression.Compress(encodedMessage, true);
 						}
 
+						McpeWrapper wrapper = McpeWrapper.CreateObject();
 						wrapper.payload = CryptoUtils.Encrypt(encodedMessage, cryptoContext);
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
@@ -233,7 +233,7 @@ namespace MiNET.Net
 					else if (!isBatch)
 					{
 						McpeWrapper wrapper = McpeWrapper.CreateObject();
-						wrapper.payload = Compression.Compress(encodedMessage, 0, encodedMessage.Length, true);
+						wrapper.payload = Compression.Compress(encodedMessage, true);
 						encodedMessage = wrapper.Encode();
 						wrapper.PutPool();
 					}
@@ -249,7 +249,7 @@ namespace MiNET.Net
 				orderingIndex = Interlocked.Increment(ref session.OrderingIndex);
 			}
 
-			if (encodedMessage == null) return messageParts;
+			if (encodedMessage.IsEmpty) return messageParts;
 
 			int datagramHeaderSize = 100;
 			int count = (int) Math.Ceiling(encodedMessage.Length/((double) mtuSize - datagramHeaderSize));
@@ -273,13 +273,13 @@ namespace MiNET.Net
 				messagePart.Header.OrderingChannel = 0;
 				messagePart.Header.OrderingIndex = orderingIndex;
 				messagePart.ContainedMessageId = message.Id;
-				messagePart.Buffer = encodedMessage;
+				messagePart.Buffer = encodedMessage.ToArray();
 
 				messageParts.Add(messagePart);
 			}
 			else
 			{
-				foreach (var bytes in ArraySplit(encodedMessage, mtuSize - datagramHeaderSize))
+				foreach ((int from, int to) span in ArraySplit(encodedMessage.Length, mtuSize - datagramHeaderSize))
 				{
 					MessagePart messagePart = MessagePart.CreateObject();
 					messagePart.Header.Reliability = reliability;
@@ -291,13 +291,32 @@ namespace MiNET.Net
 					messagePart.Header.OrderingChannel = 0;
 					messagePart.Header.OrderingIndex = orderingIndex;
 					messagePart.ContainedMessageId = message.Id;
-					messagePart.Buffer = bytes;
+					messagePart.Buffer = encodedMessage.Slice(span.from, span.to);
 
 					messageParts.Add(messagePart);
 				}
 			}
 
 			return messageParts;
+		}
+
+		public static List<(int from, int to)> ArraySplit(int length, int intBufforLengt)
+		{
+			List<(int from, int to)> result = new List<(int, int)>();
+
+			int i = 0;
+			for (; (i + 1)*intBufforLengt < length; i++)
+			{
+				result.Add((i*intBufforLengt, intBufforLengt));
+			}
+
+			(int,int) reminer = (i*intBufforLengt, length - i*intBufforLengt);
+			if(reminer.Item2 > 0)
+			{
+				result.Add(reminer);
+			}
+
+			return result;
 		}
 
 		public static IEnumerable<byte[]> ArraySplit(byte[] bArray, int intBufforLengt)
@@ -323,5 +342,6 @@ namespace MiNET.Net
 				yield return bReturn;
 			}
 		}
+
 	}
 }

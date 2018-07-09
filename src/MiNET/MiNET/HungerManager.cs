@@ -207,7 +207,7 @@ namespace MiNET
 			McpeUpdateAttributes attributesPackate = McpeUpdateAttributes.CreateObject();
 			attributesPackate.runtimeEntityId = EntityManager.EntityIdSelf;
 			attributesPackate.attributes = attributes;
-			Player.SendPackage(attributesPackate);
+			Player.SendPacket(attributesPackate);
 		}
 
 		public virtual void ResetHunger()

@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -31,9 +31,11 @@ using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using Microsoft.IO;
 using MiNET.Net;
@@ -46,7 +48,7 @@ namespace MiNET
 {
 	public class MiNetServer
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
 
 		private const int DefaultPort = 19132;
 
@@ -62,6 +64,9 @@ namespace MiNET
 		public LevelManager LevelManager { get; set; }
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
+
+		public bool IsEdu { get; set; } = Config.GetProperty("EnableEdu", false);
+		public EduTokenManager EduTokenManager { get; set; }
 
 		public PluginManager PluginManager { get; set; }
 		public SessionManager SessionManager { get; set; }
@@ -119,6 +124,8 @@ namespace MiNET
 
 		public static void DisplayTimerProperties()
 		{
+			Console.WriteLine($"Are you blessed with HW accelerated vectors? {(Vector.IsHardwareAccelerated ? "Yep!" : "Nope, sorry :-(")}"); 
+
 			// Display the timer frequency and resolution.
 			if (Stopwatch.IsHighResolution)
 			{
@@ -149,6 +156,8 @@ namespace MiNET
 
 				if (ServerRole == ServerRole.Full || ServerRole == ServerRole.Proxy)
 				{
+					if(IsEdu) EduTokenManager = new EduTokenManager();
+
 					if (Endpoint == null)
 					{
 						var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
@@ -197,6 +206,8 @@ namespace MiNET
 				};
 				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
 
+				_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
+
 				Log.Info("Server open for business on port " + Endpoint?.Port + " ...");
 
 				return true;
@@ -210,12 +221,21 @@ namespace MiNET
 			return false;
 		}
 
+		private void SendTick(object obj)
+		{
+			Parallel.ForEach(_playerSessions.Values, (session, state) =>
+			{
+				session.SendTick(null);
+			});
+		}
+
 		private UdpClient CreateListener()
 		{
 			var listener = new UdpClient(Endpoint);
 
 			if (IsRunningOnMono())
 			{
+				Log.Warn($"UDP listenter configured for linux setting");
 				listener.Client.ReceiveBufferSize = 1024*1024*3;
 				listener.Client.SendBufferSize = 4096;
 			}
@@ -233,10 +253,10 @@ namespace MiNET
 				// - Set to TRUE to enable reporting.
 				// - Set to FALSE to disable reporting.
 
-				uint IOC_IN = 0x80000000;
-				uint IOC_VENDOR = 0x18000000;
-				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-				listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+				//uint IOC_IN = 0x80000000;
+				//uint IOC_VENDOR = 0x18000000;
+				//uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+				//listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
 				//
 				//WARNING: We need to catch errors here to remove the code above.
@@ -380,16 +400,16 @@ namespace MiNET
 						throw new Exception("Receive ERROR, NAK in wrong place");
 					}
 
-					ConnectedPackage package = ConnectedPackage.CreateObject();
+					ConnectedPacket packet = ConnectedPacket.CreateObject();
 					try
 					{
-						package.Decode(receiveBytes);
+						packet.Decode(receiveBytes);
 					}
 					catch (Exception e)
 					{
-						playerSession.Disconnect("Bad package received from client.");
+						playerSession.Disconnect("Bad packet received from client.");
 
-						Log.Warn($"Bad packet {receiveBytes[0]}\n{Package.HexDump(receiveBytes)}", e);
+						Log.Warn($"Bad packet {receiveBytes[0]}\n{Packet.HexDump(receiveBytes)}", e);
 
 						GreylistManager.Blacklist(senderEndpoint.Address);
 
@@ -400,18 +420,18 @@ namespace MiNET
 					// IF reliable code below is enabled, useItem start sending doubles
 					// for some unknown reason.
 
-					//Reliability reliability = package._reliability;
+					//Reliability reliability = packet._reliability;
 					//if (reliability == Reliability.Reliable
 					//	|| reliability == Reliability.ReliableSequenced
 					//	|| reliability == Reliability.ReliableOrdered
 					//	)
 					{
-						EnqueueAck(playerSession, package._datagramSequenceNumber);
-						//if (Log.IsDebugEnabled) Log.Debug("ACK on #" + package._datagramSequenceNumber.IntValue());
+						EnqueueAck(playerSession, packet._datagramSequenceNumber);
+						//if (Log.IsDebugEnabled) Log.Debug("ACK on #" + packet._datagramSequenceNumber.IntValue());
 					}
 
-					HandleConnectedPackage(playerSession, package);
-					package.PutPool();
+					HandleConnectedPacket(playerSession, packet);
+					packet.PutPool();
 				}
 				else if (header.isACK && header.isValid)
 				{
@@ -430,6 +450,7 @@ namespace MiNET
 
 		private ConcurrentDictionary<IPEndPoint, DateTime> _connectionAttemps = new ConcurrentDictionary<IPEndPoint, DateTime>();
 		private DedicatedThreadPool _receiveThreadPool;
+		private HighPrecisionTimer _tickerHighPrecisionTimer;
 
 		private void HandleRakNetMessage(byte[] receiveBytes, IPEndPoint senderEndpoint, byte msgId)
 		{
@@ -455,12 +476,12 @@ namespace MiNET
 				}
 			}
 
-			Package message = null;
+			Packet message = null;
 			try
 			{
 				try
 				{
-					message = PackageFactory.CreatePackage(msgId, receiveBytes, "raknet");
+					message = PacketFactory.Create(msgId, receiveBytes, "raknet");
 				}
 				catch (Exception)
 				{
@@ -516,7 +537,7 @@ namespace MiNET
 			//response.sendpingtime = msg.sendpingtime;
 			//response.sendpongtime = DateTimeOffset.UtcNow.Ticks / TimeSpan.TicksPerMillisecond;
 
-			if (Config.GetProperty("EnableEdu", false))
+			if (IsEdu)
 			{
 				var packet = UnconnectedPong.CreateObject();
 				packet.serverId = senderEndpoint.Address.Address + senderEndpoint.Port;
@@ -639,22 +660,22 @@ namespace MiNET
 			SendData(data, senderEndpoint);
 		}
 
-		private void HandleConnectedPackage(PlayerNetworkSession playerSession, ConnectedPackage package)
+		private void HandleConnectedPacket(PlayerNetworkSession playerSession, ConnectedPacket packet)
 		{
-			foreach (var message in package.Messages)
+			foreach (var message in packet.Messages)
 			{
-				if (message is SplitPartPackage)
+				if (message is SplitPartPacket)
 				{
-					HandleSplitMessage(playerSession, (SplitPartPackage) message);
+					HandleSplitMessage(playerSession, (SplitPartPacket) message);
 					continue;
 				}
 
 				message.Timer.Restart();
-				HandlePackage(message, playerSession);
+				HandlePacket(message, playerSession);
 			}
 		}
 
-		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPackage splitMessage)
+		private void HandleSplitMessage(PlayerNetworkSession playerSession, SplitPartPacket splitMessage)
 		{
 			int spId = splitMessage.SplitId;
 			int spIdx = splitMessage.SplitIdx;
@@ -666,7 +687,7 @@ namespace MiNET
 			Int24 orderingIndex = splitMessage.OrderingIndex;
 			byte orderingChannel = splitMessage.OrderingChannel;
 
-			SplitPartPackage[] spPackets;
+			SplitPartPacket[] spPackets;
 			bool haveEmpty = false;
 
 			// Need sync for this part since they come very fast, and very close in time. 
@@ -675,7 +696,7 @@ namespace MiNET
 			{
 				if (!playerSession.Splits.ContainsKey(spId))
 				{
-					playerSession.Splits.TryAdd(spId, new SplitPartPackage[spCount]);
+					playerSession.Splits.TryAdd(spId, new SplitPartPacket[spCount]);
 				}
 
 				spPackets = playerSession.Splits[spId];
@@ -694,17 +715,17 @@ namespace MiNET
 
 			if (!haveEmpty)
 			{
-				Log.DebugFormat("Got all {0} split packages for split ID: {1}", spCount, spId);
+				Log.DebugFormat("Got all {0} split packets for split ID: {1}", spCount, spId);
 
-				SplitPartPackage[] waste;
+				SplitPartPacket[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
 				using (MemoryStream stream = MemoryStreamManager.GetStream())
 				{
 					for (int i = 0; i < spPackets.Length; i++)
 					{
-						SplitPartPackage splitPartPackage = spPackets[i];
-						byte[] buf = splitPartPackage.Message;
+						SplitPartPacket splitPartPacket = spPackets[i];
+						byte[] buf = splitPartPacket.Message;
 						if (buf == null)
 						{
 							Log.Error("Expected bytes in splitpart, but got none");
@@ -712,42 +733,42 @@ namespace MiNET
 						}
 
 						stream.Write(buf, 0, buf.Length);
-						splitPartPackage.PutPool();
+						splitPartPacket.PutPool();
 					}
 
 					byte[] buffer = stream.ToArray();
 					try
 					{
-						ConnectedPackage newPackage = ConnectedPackage.CreateObject();
-						newPackage._datagramSequenceNumber = sequenceNumber;
-						newPackage._reliability = reliability;
-						newPackage._reliableMessageNumber = reliableMessageNumber;
-						newPackage._orderingIndex = orderingIndex;
-						newPackage._orderingChannel = (byte) orderingChannel;
-						newPackage._hasSplit = false;
+						ConnectedPacket newPacket = ConnectedPacket.CreateObject();
+						newPacket._datagramSequenceNumber = sequenceNumber;
+						newPacket._reliability = reliability;
+						newPacket._reliableMessageNumber = reliableMessageNumber;
+						newPacket._orderingIndex = orderingIndex;
+						newPacket._orderingChannel = (byte) orderingChannel;
+						newPacket._hasSplit = false;
 
-						Package fullMessage = PackageFactory.CreatePackage(buffer[0], buffer, "raknet") ??
-						                      new UnknownPackage(buffer[0], buffer);
+						Packet fullMessage = PacketFactory.Create(buffer[0], buffer, "raknet") ??
+											new UnknownPacket(buffer[0], buffer);
 						fullMessage.DatagramSequenceNumber = sequenceNumber;
 						fullMessage.Reliability = reliability;
 						fullMessage.ReliableMessageNumber = reliableMessageNumber;
 						fullMessage.OrderingIndex = orderingIndex;
 						fullMessage.OrderingChannel = orderingChannel;
 
-						newPackage.Messages = new List<Package>();
-						newPackage.Messages.Add(fullMessage);
+						newPacket.Messages = new List<Packet>();
+						newPacket.Messages.Add(fullMessage);
 
 						Log.Debug(
-							$"Assembled split package {newPackage._reliability} message #{newPackage._reliableMessageNumber}, Chan: #{newPackage._orderingChannel}, OrdIdx: #{newPackage._orderingIndex}");
-						HandleConnectedPackage(playerSession, newPackage);
-						newPackage.PutPool();
+							$"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+						HandleConnectedPacket(playerSession, newPacket);
+						newPacket.PutPool();
 					}
 					catch (Exception e)
 					{
 						Log.Error("Error during split message parsing", e);
 						if (Log.IsDebugEnabled)
-							Log.Debug($"0x{buffer[0]:x2}\n{Package.HexDump(buffer)}");
-						playerSession.Disconnect("Bad package received from client.", false);
+							Log.Debug($"0x{buffer[0]:x2}\n{Packet.HexDump(buffer)}");
+						playerSession.Disconnect("Bad packet received from client.", false);
 					}
 				}
 			}
@@ -866,34 +887,11 @@ namespace MiNET
 
 				for (int i = start; i <= end; i++)
 				{
-					session.ErrorCount++;
-
-					// HACK: Just to make sure we aren't getting unessecary load on the queue during heavy buffering.
-					//if (ServerInfo.AvailableBytes > 1000) continue;
-
-					Datagram datagram;
-					//if (queue.TryRemove(i, out datagram))
-					if (!session.Evicted && queue.TryRemove(i, out datagram))
+					if (queue.TryGetValue(i, out var datagram))
 					{
-						// RTT = RTT * 0.875 + rtt * 0.125
-						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
-						// RTO = RTT + 4 * RTTVar
-						long rtt = datagram.Timer.ElapsedMilliseconds;
-						long RTT = session.Rtt;
-						long RTTVar = session.RttVar;
+						CalculateRto(session, datagram);
 
-						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
-						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
-
-						FastThreadPool.QueueUserWorkItem(delegate
-						{
-							var dgram = (Datagram) datagram;
-							if (Log.IsDebugEnabled)
-								Log.WarnFormat("NAK, resent datagram #{0} for {1}", dgram.Header.datagramSequenceNumber, session.Username);
-							SendDatagram(session, dgram);
-							Interlocked.Increment(ref ServerInfo.NumberOfResends);
-						});
+						datagram.RetransmitImmediate = true;
 					}
 					else
 					{
@@ -925,22 +923,12 @@ namespace MiNET
 				int end = range.Item2;
 				for (int i = start; i <= end; i++)
 				{
-					Datagram datagram;
-					if (queue.TryRemove(i, out datagram))
+					if (queue.TryRemove(i, out var datagram))
 					{
 						//if (Log.IsDebugEnabled)
 						//	Log.DebugFormat("ACK, on datagram #{0} for {2}. Queue size={1}", i, queue.Count, player.Username);
 
-						// RTT = RTT * 0.875 + rtt * 0.125
-						// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
-						// RTO = RTT + 4 * RTTVar
-						long rtt = datagram.Timer.ElapsedMilliseconds;
-						long RTT = session.Rtt;
-						long RTTVar = session.RttVar;
-
-						session.Rtt = (long) (RTT*0.875 + rtt*0.125);
-						session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
-						session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
+						CalculateRto(session, datagram);
 
 						datagram.PutPool();
 					}
@@ -958,7 +946,21 @@ namespace MiNET
 			session.WaitForAck = false;
 		}
 
-		internal void HandlePackage(Package message, PlayerNetworkSession playerSession)
+		private static void CalculateRto(PlayerNetworkSession session, Datagram datagram)
+		{
+			// RTT = RTT * 0.875 + rtt * 0.125
+			// RTTVar = RTTVar * 0.875 + abs(RTT - rtt)) * 0.125
+			// RTO = RTT + 4 * RTTVar
+			long rtt = datagram.Timer.ElapsedMilliseconds;
+			long RTT = session.Rtt;
+			long RTTVar = session.RttVar;
+
+			session.Rtt = (long) (RTT*0.875 + rtt*0.125);
+			session.RttVar = (long) (RTTVar*0.875 + Math.Abs(RTT - rtt)*0.125);
+			session.Rto = session.Rtt + 4*session.RttVar + 100; // SYNC time in the end
+		}
+
+		internal void HandlePacket(Packet message, PlayerNetworkSession playerSession)
 		{
 			if (message == null)
 			{
@@ -979,7 +981,7 @@ namespace MiNET
 				return;
 			}
 
-			playerSession.HandlePackage(message, playerSession);
+			playerSession.HandlePacket(message, playerSession);
 		}
 
 		private void EnqueueAck(PlayerNetworkSession session, int sequenceNumber)
@@ -988,7 +990,7 @@ namespace MiNET
 			session.SignalTick();
 		}
 
-		public void SendPackage(PlayerNetworkSession session, Package message)
+		public void SendPacket(PlayerNetworkSession session, Packet message)
 		{
 			foreach (var datagram in Datagram.CreateDatagrams(message, session.MtuSize, session))
 			{
@@ -1010,7 +1012,7 @@ namespace MiNET
 			if (datagram.TransmissionCount > 10)
 			{
 				if (Log.IsDebugEnabled)
-					Log.WarnFormat("TIMEOUT, Retransmission count remove from ACK queue #{0} Type: {2} (0x{2:x2}) for {1}",
+					Log.WarnFormat("Retransmission count exceeded. No more resend of #{0} Type: {2} (0x{2:x2}) for {1}",
 						datagram.Header.datagramSequenceNumber.IntValue(),
 						session.Username,
 						datagram.FirstMessageId);
@@ -1023,6 +1025,7 @@ namespace MiNET
 
 			datagram.Header.datagramSequenceNumber = Interlocked.Increment(ref session.DatagramSequenceNumber);
 			datagram.TransmissionCount++;
+			datagram.RetransmitImmediate = false;
 
 			//byte[] data = datagram.Encode();
 			byte[] data;
@@ -1080,7 +1083,7 @@ namespace MiNET
 			}
 		}
 
-		internal static void TraceReceive(Package message)
+		internal static void TraceReceive(Packet message)
 		{
 			if (!Log.IsDebugEnabled) return;
 
@@ -1123,7 +1126,7 @@ namespace MiNET
 				}
 				else if (verbosity == 2 || verbosity == 3)
 				{
-					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Package.HexDump(message.Bytes)}");
+					Log.Debug($"> Receive: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 				}
 			}
 			catch (Exception e)
@@ -1132,21 +1135,73 @@ namespace MiNET
 			}
 		}
 
-		public static void TraceSend(Package message)
+		//public static void TraceSend(Packet message)
+		//{
+		//	if (!Log.IsDebugEnabled) return;
+		//	if (message is McpeWrapper) return;
+		//	if (message is UnconnectedPong) return;
+		//	if (message is McpeMovePlayer) return;
+		//	//if (message is McpeSetEntityMotion) return;
+		//	//if (message is McpeMoveEntity) return;
+		//	if (message is McpeSetEntityData) return;
+		//	if (message is McpeUpdateBlock) return;
+		//	if (message is McpeText) return;
+		//	if (message is McpeLevelEvent) return;
+		//	//if (!Debugger.IsAttached) return;
+
+		//	Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+		//}
+
+		internal static void TraceSend(Packet message)
 		{
 			if (!Log.IsDebugEnabled) return;
-			if (message is McpeWrapper) return;
-			if (message is UnconnectedPong) return;
-			if (message is McpeMovePlayer) return;
-			if (message is McpeSetEntityMotion) return;
-			if (message is McpeMoveEntity) return;
-			if (message is McpeSetEntityData) return;
-			if (message is McpeUpdateBlock) return;
-			if (message is McpeText) return;
-			if (message is McpeLevelEvent) return;
-			//if (!Debugger.IsAttached) return;
 
-			Log.DebugFormat("<    Send: {0}: {1} (0x{0:x2})", message.Id, message.GetType().Name);
+			try
+			{
+				string typeName = message.GetType().Name;
+
+				string includePattern = Config.GetProperty("TracePackets.Include", ".*");
+				string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
+				int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
+				verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+
+				if (!Regex.IsMatch(typeName, includePattern))
+				{
+					return;
+				}
+
+				if (!string.IsNullOrWhiteSpace(excludePattern) && Regex.IsMatch(typeName, excludePattern))
+				{
+					return;
+				}
+
+				if (verbosity == 0)
+				{
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}");
+				}
+				else if (verbosity == 1 || verbosity == 3)
+				{
+					var jsonSerializerSettings = new JsonSerializerSettings
+					{
+						PreserveReferencesHandling = PreserveReferencesHandling.Arrays,
+
+						Formatting = Formatting.Indented,
+					};
+					jsonSerializerSettings.Converters.Add(new NbtIntConverter());
+					jsonSerializerSettings.Converters.Add(new NbtStringConverter());
+
+					string result = JsonConvert.SerializeObject(message, jsonSerializerSettings);
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{result}");
+				}
+				else if (verbosity == 2 || verbosity == 3)
+				{
+					Log.Debug($"<    Send: {message.Id} (0x{message.Id:x2}): {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
+				}
+			}
+			catch (Exception e)
+			{
+				Log.Error("Error when printing trace", e);
+			}
 		}
 	}
 

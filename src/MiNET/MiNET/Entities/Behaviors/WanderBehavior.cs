@@ -98,7 +98,7 @@ namespace MiNET.Entities.Behaviors
 
 			BlockCoordinates coords = (BlockCoordinates) entity.KnownPosition;
 
-			double currentWeight = 0;
+			double currentWeight = double.MinValue;
 			Block currentBlock = null;
 			for (int i = 0; i < 10; i++)
 			{

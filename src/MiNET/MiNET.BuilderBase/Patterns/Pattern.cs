@@ -39,7 +39,7 @@ namespace MiNET.BuilderBase.Patterns
 
 		private class BlockDataEntry
 		{
-			public byte Id { get; set; }
+			public int Id { get; set; }
 			public byte Metadata { get; set; }
 			public int Weight { get; set; } = 100;
 			public int Accumulated { get; set; } = 100;
@@ -109,7 +109,7 @@ namespace MiNET.BuilderBase.Patterns
 			{
 				var blockInfos = pattern.Split(':');
 
-				byte id;
+				int id;
 				byte metadata = 0;
 				int weight = 100;
 
@@ -123,7 +123,7 @@ namespace MiNET.BuilderBase.Patterns
 				}
 
 				string binfo = weightedIn[weightedIn.Length - 1];
-				if (!byte.TryParse(binfo, out id))
+				if (!int.TryParse(binfo, out id))
 				{
 					id = BlockFactory.GetBlockIdByName(binfo);
 				}

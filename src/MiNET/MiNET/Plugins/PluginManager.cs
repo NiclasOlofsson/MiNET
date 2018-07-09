@@ -66,7 +66,7 @@ namespace MiNET.Plugins
 			if (Config.GetProperty("PluginDisabled", false)) return;
 
 			// Default it is the directory we are executing, and below.
-			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetExecutingAssembly().CodeBase).LocalPath);
+			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
 			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
 			//HACK: Make it possible to define multiple PATH;PATH;PATH
 
@@ -75,6 +75,8 @@ namespace MiNET.Plugins
 				if (dirPath == null) continue;
 
 				string pluginDirectory = Path.GetFullPath(dirPath);
+
+				Log.Debug($"Looking for plugin assemblies in directory {pluginDirectory}");
 
 				if (!Directory.Exists(pluginDirectory)) continue;
 
@@ -87,6 +89,7 @@ namespace MiNET.Plugins
 
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.dll", SearchOption.AllDirectories));
 				pluginPaths.AddRange(Directory.GetFiles(pluginDirectory, "*.exe", SearchOption.AllDirectories));
+				pluginPaths.ForEach(path => Log.Debug($"Looking for plugins in assembly {path}"));
 
 				foreach (string pluginPath in pluginPaths)
 				{
@@ -117,6 +120,7 @@ namespace MiNET.Plugins
 									LoadCommands(type);
 									Commands = GenerateCommandSet(_pluginCommands.Keys.ToArray());
 									LoadPacketHandlers(type);
+									Log.Debug($"Loaded plugin {type}");
 								}
 							}
 							catch (Exception ex)
@@ -493,7 +497,7 @@ namespace MiNET.Plugins
 					{
 						ParameterInfo[] parameters = method.GetParameters();
 						if (parameters.Length < 1) continue;
-						if (!typeof (Package).IsAssignableFrom(parameters[0].ParameterType)) continue;
+						if (!typeof (Packet).IsAssignableFrom(parameters[0].ParameterType)) continue;
 						if (packetHandlerAttribute.PacketType == null) packetHandlerAttribute.PacketType = parameters[0].ParameterType;
 
 						if (Attribute.GetCustomAttribute(method, typeof (SendAttribute), false) != null)
@@ -1030,12 +1034,12 @@ namespace MiNET.Plugins
 			return target;
 		}
 
-		internal Package PluginPacketHandler(Package message, bool isReceiveHandler, Player player)
+		internal Packet PluginPacketHandler(Packet message, bool isReceiveHandler, Player player)
 		{
 			if (message == null) return null;
 
-			Package currentPackage = message;
-			Package returnPacket = currentPackage;
+			Packet currentPacket = message;
+			Packet returnPacket = currentPacket;
 
 			try
 			{
@@ -1059,7 +1063,7 @@ namespace MiNET.Plugins
 					PacketHandlerAttribute atrib = handler.Value;
 					if (atrib.PacketType == null) continue;
 
-					if (!atrib.PacketType.IsInstanceOfType(currentPackage) && atrib.PacketType != currentPackage.GetType())
+					if (!atrib.PacketType.IsInstanceOfType(currentPacket) && atrib.PacketType != currentPacket.GetType())
 					{
 						//Log.Warn($"No assignable {atrib.PacketType.Name} from {currentPackage.GetType().Name}");
 						continue;
@@ -1072,7 +1076,7 @@ namespace MiNET.Plugins
 					if (method.IsStatic)
 					{
 						//TODO: Move below and set pluginInstance = null instead
-						method.Invoke(null, new object[] {currentPackage, player});
+						method.Invoke(null, new object[] {currentPacket, player});
 					}
 					else
 					{
@@ -1084,11 +1088,11 @@ namespace MiNET.Plugins
 							ParameterInfo[] parameters = method.GetParameters();
 							if (parameters.Length == 1)
 							{
-								method.Invoke(pluginInstance, new object[] {currentPackage});
+								method.Invoke(pluginInstance, new object[] {currentPacket});
 							}
 							else if (parameters.Length == 2 && typeof (Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
-								method.Invoke(pluginInstance, new object[] {currentPackage, player});
+								method.Invoke(pluginInstance, new object[] {currentPacket, player});
 							}
 						}
 						else
@@ -1096,11 +1100,11 @@ namespace MiNET.Plugins
 							ParameterInfo[] parameters = method.GetParameters();
 							if (parameters.Length == 1)
 							{
-								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage}) as Package;
+								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket}) as Packet;
 							}
 							else if (parameters.Length == 2 && typeof (Player).IsAssignableFrom(parameters[1].ParameterType))
 							{
-								returnPacket = method.Invoke(pluginInstance, new object[] {currentPackage, player}) as Package;
+								returnPacket = method.Invoke(pluginInstance, new object[] {currentPacket, player}) as Packet;
 							}
 						}
 					}

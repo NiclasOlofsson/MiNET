@@ -50,17 +50,16 @@ using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
-using TestPlugin.Annotations;
 
 namespace TestPlugin.NiceLobby
 {
-	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team"), UsedImplicitly]
+	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class NiceLobbyPlugin : Plugin
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (NiceLobbyPlugin));
 
-		[UsedImplicitly] private Timer _popupTimer;
-		[UsedImplicitly] private Timer _tickTimer;
+		private Timer _popupTimer;
+		private Timer _tickTimer;
 
 		private long _tick = 0;
 
@@ -119,17 +118,17 @@ namespace TestPlugin.NiceLobby
 			//}
 
 
-			//// Compass
-			//if (e.Level.TickTime%2 == 0)
-			//{
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 10,
-			//		MessageType = MessageType.Tip,
-			//		Message = GetCompass(player.KnownPosition.HeadYaw),
-			//		Duration = 20*5,
-			//	});
-			//}
+			// Compass
+			if (e.Level.TickTime % 2 == 0)
+			{
+				player.AddPopup(new Popup()
+				{
+					Id = 10,
+					MessageType = MessageType.Tip,
+					Message = GetCompass(player.KnownPosition.HeadYaw),
+					Duration = 20 * 5,
+				});
+			}
 
 
 			// Glide extension
@@ -386,15 +385,20 @@ namespace TestPlugin.NiceLobby
 			}
 
 
-			int idx = 8;
+			int idx = 0;
 			//player.Inventory.Slots[idx++] = new ItemDiamondAxe() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemDiamondShovel() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemDiamondPickaxe() {Count = 1};
+			player.Inventory.Slots[idx++] = new ItemBlock(new Vine(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new Dirt(), 0) { Count = 64 };
+			player.Inventory.Slots[idx++] = new ItemBlock(new WoodenButton(), 0) { Count = 64 };
+			idx = 8;
 			player.Inventory.Slots[idx++] = new ItemStick() {Count = 64};
 
 			var fireworks = new ItemFireworks() {Count = 64};
 
 			fireworks.ExtraData = ItemFireworks.ToNbt(new ItemFireworks.FireworksData()
+
 			{
 				Explosions = new List<ItemFireworks.FireworksExplosion>()
 				{
@@ -454,10 +458,10 @@ namespace TestPlugin.NiceLobby
 			//player.Inventory.Slots[idx++] = new ItemWheatSeeds() {Count = 1};
 			//player.Inventory.Slots[idx++] = new ItemBone() {Count = 64};
 
-			//player.Inventory.Helmet = new ItemDiamondHelmet();
-			//player.Inventory.Chest = new ItemElytra();
-			//player.Inventory.Leggings = new ItemDiamondLeggings();
-			//player.Inventory.Boots = new ItemDiamondBoots();
+			player.Inventory.Helmet = new ItemDiamondHelmet();
+			player.Inventory.Chest = new ItemElytra();
+			player.Inventory.Leggings = new ItemDiamondLeggings();
+			player.Inventory.Boots = new ItemDiamondBoots();
 			//while (player.Inventory.SetFirstEmptySlot(new ItemIronAxe(), false)) { }
 
 			player.SendPlayerInventory();
@@ -476,7 +480,7 @@ namespace TestPlugin.NiceLobby
 
 				player.SendTitle(null, TitleType.Clear);
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
-				player.SendTitle($"{ChatColors.White}This is gurun's MiNET test server", TitleType.SubTitle);
+				player.SendTitle($"{ChatColors.White}This is gurun's MiNET\n.NET core test server", TitleType.SubTitle);
 				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
 			});
 		}
@@ -650,8 +654,8 @@ namespace TestPlugin.NiceLobby
 		//	return packet;
 		//}
 
-		[PacketHandler, Send, UsedImplicitly]
-		public Package RespawnHandler(McpeRespawn packet, Player player)
+		[PacketHandler, Send]
+		public Packet RespawnHandler(McpeRespawn packet, Player player)
 		{
 			SendNameTag(player);
 			player.RemoveAllEffects();
@@ -668,8 +672,8 @@ namespace TestPlugin.NiceLobby
 			return packet;
 		}
 
-		[PacketHandler, Send, UsedImplicitly]
-		public Package AddPlayerHandler(McpeAddPlayer packet, Player player)
+		[PacketHandler, Send]
+		public Packet AddPlayerHandler(McpeAddPlayer packet, Player player)
 		{
 			if (_playerEntities.Keys.FirstOrDefault(p => p.EntityId == packet.entityIdSelf) != null)
 			{
@@ -713,7 +717,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[PacketHandler, Receive]
-		public Package MessageHandler(McpeText message, Player player)
+		public Packet MessageHandler(McpeText message, Player player)
 		{
 			string text = TextUtils.RemoveFormatting(message.message);
 			player.Level.BroadcastMessage($"{GetNameTag(player)} says:{ChatColors.White} {text}", MessageType.Chat);
@@ -905,7 +909,7 @@ namespace TestPlugin.NiceLobby
 
 			var remove = McpeRemoveEntity.CreateObject();
 			remove.entityIdSelf = entity.EntityId;
-			player.SendPackage(remove);
+			player.SendPacket(remove);
 
 			_playerEntities[player] = entity;
 
@@ -913,7 +917,7 @@ namespace TestPlugin.NiceLobby
 		}
 
 		[PacketHandler, Receive]
-		public Package HandleIncoming(McpeMovePlayer packet, Player player)
+		public Packet HandleIncoming(McpeMovePlayer packet, Player player)
 		{
 			if (_playerEntities.ContainsKey(player))
 			{
@@ -1172,7 +1176,7 @@ namespace TestPlugin.NiceLobby
 
 		internal static McpeWrapper CreateMcpeBatch(byte[] bytes)
 		{
-			McpeWrapper batch = BatchUtils.CreateBatchPacket(bytes, 0, (int) bytes.Length, CompressionLevel.Optimal, true);
+			McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(bytes, 0, (int) bytes.Length), CompressionLevel.Optimal, true);
 			batch.MarkPermanent();
 			batch.Encode();
 			return batch;

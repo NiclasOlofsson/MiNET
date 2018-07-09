@@ -225,7 +225,7 @@ namespace TestPlugin
 			}
 
 			var packet = BatchUtils.CreateBatchPacket(CompressionLevel.Fastest, packets.ToArray());
-			player.SendPackage(packet);
+			player.SendPacket(packet);
 		}
 
 		[Command]
@@ -412,7 +412,7 @@ namespace TestPlugin
 				McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 				levelEvent.eventId = 3001;
 				levelEvent.data = value;
-				player.SendPackage(levelEvent);
+				player.SendPacket(levelEvent);
 			}
 			player.SendMessage("Downfall " + value, type: MessageType.Raw);
 		}
@@ -429,7 +429,7 @@ namespace TestPlugin
 						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = data;
-						player.SendPackage(levelEvent);
+						player.SendPacket(levelEvent);
 					}
 					//{
 					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
@@ -446,7 +446,7 @@ namespace TestPlugin
 						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = i;
-						player.SendPackage(levelEvent);
+						player.SendPacket(levelEvent);
 					}
 					//{
 					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
@@ -479,7 +479,7 @@ namespace TestPlugin
 		[Command]
 		public void Version(Player player)
 		{
-			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(typeof(MiNetServer)).Location).ProductVersion;
 			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
 		}
 
@@ -1220,7 +1220,7 @@ namespace TestPlugin
 				McpeTransfer transfer = McpeTransfer.CreateObject();
 				transfer.serverAddress = "yodamine.com";
 				transfer.port = 19132;
-				player.SendPackage(transfer);
+				player.SendPacket(transfer);
 			}
 		}
 
@@ -1352,9 +1352,15 @@ namespace TestPlugin
 						}
 
 						var message = McpeUpdateBlock.CreateObject();
+<<<<<<< HEAD
 						message.runtimeId = block.GetRuntimeId();
 						message.coordinates = block.Coordinates;
 						message.blockPriority = 0x0b;
+=======
+						message.blockRuntimeId = block.GetRuntimeId();
+						message.coordinates = block.Coordinates;
+						message.blockPriority = 0xb;
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 						level.RelayBroadcast(sendList.ToArray(), message);
 					}
 				}

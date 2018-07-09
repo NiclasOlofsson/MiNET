@@ -66,7 +66,7 @@ namespace MiNET.Sounds
 
 			foreach (var player in players)
 			{
-				player.SendPackage(levelEvent);
+				player.SendPacket(levelEvent);
 			}
 		}
 	}

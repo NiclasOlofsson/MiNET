@@ -28,11 +28,10 @@ using MiNET.Plugins;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
 using MiNET.Worlds;
-using TestPlugin.Annotations;
 
 namespace TestPlugin.SurivalCraft
 {
-	[Plugin(PluginName = "SurvivalCraft", Description = "", PluginVersion = "1.0", Author = "MiNET Team"), UsedImplicitly]
+	[Plugin(PluginName = "SurvivalCraft", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
 	public class SurvivalCraftPlugin : Plugin
 	{
 		protected override void OnEnable()

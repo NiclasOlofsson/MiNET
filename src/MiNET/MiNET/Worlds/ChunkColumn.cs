@@ -24,20 +24,24 @@
 #endregion
 
 using System;
+using System.Buffers;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using fNbt;
 using log4net;
+using Microsoft.IO;
 using MiNET.Blocks;
 using MiNET.Net;
 using MiNET.Utils;
 
 namespace MiNET.Worlds
 {
-	public class ChunkColumn : ICloneable
+	public class ChunkColumn : ICloneable, IEnumerable<ChunkBase>
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (ChunkColumn));
 
@@ -47,8 +51,7 @@ namespace MiNET.Worlds
 		public int x;
 		public int z;
 
-		//public Chunk[] chunks = ArrayOf<Chunk>.Create(16);
-		public Chunk[] chunks = new Chunk[16];
+		private ChunkBase[] _chunks = new ChunkBase[16];
 
 		public byte[] biomeId = ArrayOf<byte>.Create(256, 1);
 		public short[] height = new short[256];
@@ -56,7 +59,6 @@ namespace MiNET.Worlds
 		//TODO: This dictionary need to be concurent. Investigate performance before changing.
 		public IDictionary<BlockCoordinates, NbtCompound> BlockEntities = new Dictionary<BlockCoordinates, NbtCompound>();
 
-		private byte[] _cache;
 		public bool isDirty;
 		public bool isGenerated;
 		public bool IsLoaded = false;
@@ -68,7 +70,7 @@ namespace MiNET.Worlds
 		{
 			for (int i = 0; i < 16; i++)
 			{
-				chunks[i] = Chunk.CreateObject();
+				_chunks[i] = PaletteChunk.CreateObject();
 			}
 
 			isDirty = false;
@@ -76,22 +78,45 @@ namespace MiNET.Worlds
 
 		private void SetDirty()
 		{
-			_cache = null;
 			isDirty = true;
 			NeedSave = true;
 		}
 
-		public byte GetBlock(int bx, int by, int bz)
+		public int GetBlock(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			return chunk.GetBlock(bx, by - 16*(by >> 4), bz);
 		}
 
-		public void SetBlock(int bx, int by, int bz, byte bid)
+		public ChunkBase this[int chunkIndex]
 		{
-			//int i = 30 - (16*(30 >> 4));
+			get
+			{
+				ChunkBase chunk = _chunks[chunkIndex];
+				if (chunk == null)
+				{
+					chunk = PaletteChunk.CreateObject();
+					_chunks[chunkIndex] = chunk;
+				}
+				return chunk;
+			}
+			set => _chunks[chunkIndex] = value;
+		}
 
-			Chunk chunk = chunks[by >> 4];
+		public ChunkBase GetChunk(int by)
+		{
+			ChunkBase chunk = _chunks[by >> 4];
+			if (chunk == null)
+			{
+				chunk = PaletteChunk.CreateObject();
+				_chunks[by >> 4] = chunk;
+			}
+			return chunk;
+		}
+
+		public void SetBlock(int bx, int by, int bz, int bid)
+		{
+			var chunk = GetChunk(by);
 			chunk.SetBlock(bx, by - 16*(by >> 4), bz, bid);
 			SetDirty();
 		}
@@ -120,39 +145,39 @@ namespace MiNET.Worlds
 
 		public byte GetBlocklight(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			return chunk.GetBlocklight(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetBlocklight(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			chunk.SetBlocklight(bx, by - 16*(by >> 4), bz, data);
 			//SetDirty();
 		}
 
 		public byte GetMetadata(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			return chunk.GetMetadata(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetMetadata(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			chunk.SetMetadata(bx, by - 16*(by >> 4), bz, data);
 			SetDirty();
 		}
 
 		public byte GetSkylight(int bx, int by, int bz)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			return chunk.GetSkylight(bx, by - 16*(by >> 4), bz);
 		}
 
 		public void SetSkyLight(int bx, int by, int bz, byte data)
 		{
-			Chunk chunk = chunks[by >> 4];
+			var chunk = GetChunk(by);
 			chunk.SetSkylight(bx, by - 16*(by >> 4), bz, data);
 			//SetDirty();
 		}
@@ -308,17 +333,17 @@ namespace MiNET.Worlds
 			{
 				if (isInLight)
 				{
-					Chunk chunk = chunks[y >> 4];
+					ChunkBase chunk = GetChunk(y);
 					if (isInAir && chunk.IsAllAir())
 					{
-						if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
+						if (chunk.IsDirty) Array.Fill<byte>(chunk.skylight.Data, 0xff);
 						y -= 15;
 						continue;
 					}
 
 					isInAir = false;
 
-					byte bid = GetBlock(x, y, z);
+					int bid = GetBlock(x, y, z);
 					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30 && bid != 8 && bid != 9))
 					{
 						SetSkyLight(x, y, z, 15);
@@ -344,17 +369,17 @@ namespace MiNET.Worlds
 			for (int y = 255; y >= 0; y--)
 			{
 				{
-					Chunk chunk = chunks[y >> 4];
+					ChunkBase chunk = GetChunk(y);
 					if (isInAir && chunk.IsAllAir())
 					{
-						if (chunk.IsDirty) Fill<byte>(chunk.skylight.Data, 0xff);
+						if (chunk.IsDirty) Array.Fill<byte>(chunk.skylight.Data, 0xff);
 						y -= 15;
 						continue;
 					}
 
 					isInAir = false;
 
-					byte bid = GetBlock(x, y, z);
+					int bid = GetBlock(x, y, z);
 					if (bid == 0 || (BlockFactory.TransparentBlocks[bid] == 1 && bid != 18 && bid != 30))
 					{
 						continue;
@@ -382,28 +407,54 @@ namespace MiNET.Worlds
 			}
 		}
 
+		private static long max = 0;
+		private static long count = 0;
+		private static double average = 0;
+		private static double averageSize = 0;
+		private static double averageCompressedSize = 0;
+
 		public McpeWrapper GetBatch()
 		{
 			lock (_cacheSync)
 			{
 				if (!isDirty && _cachedBatch != null) return _cachedBatch;
 
+				var sw = Stopwatch.StartNew();
+
 				ClearCache();
+
 
 				McpeFullChunkData fullChunkData = McpeFullChunkData.CreateObject();
 				fullChunkData.chunkX = x;
 				fullChunkData.chunkZ = z;
-				fullChunkData.chunkData = GetBytes();
+
+				var chunkData = GetBytes();
+
+				fullChunkData.chunkData = chunkData;
 				byte[] bytes = fullChunkData.Encode();
+
 				fullChunkData.PutPool();
 
-				var batch = BatchUtils.CreateBatchPacket(bytes, 0, bytes.Length, CompressionLevel.Optimal, true);
+				var fullChunkSize = bytes.Length;
+				averageSize = ((averageSize * count) + fullChunkSize) / (count + 1);
+
+				McpeWrapper batch = BatchUtils.CreateBatchPacket(new Memory<byte>(bytes, 0, bytes.Length), CompressionLevel.Fastest, true);
 				batch.MarkPermanent();
-				batch.Encode();
+				var wrapperData = batch.Encode();
+
+				long elapsted = sw.ElapsedTicks;
+				average = ((average * count) + elapsted) / (count + 1);
+
+				var wrapperSize = wrapperData.Length;
+				averageCompressedSize = ((averageCompressedSize * count) + wrapperSize) / (count + 1);
+
+
+				//Log.Debug($"Serialized in {elapsted / (float)TimeSpan.TicksPerMillisecond:F4} ms, Average={average / (float)TimeSpan.TicksPerMillisecond:F4}, fcsize={averageSize:F0}, wsize={averageCompressedSize:F0}");
 
 				_cachedBatch = batch;
-				_cache = null;
 				isDirty = false;
+
+				count++;
 
 				return _cachedBatch;
 			}
@@ -412,51 +463,38 @@ namespace MiNET.Worlds
 
 		public byte[] GetBytes()
 		{
-			if (_cache != null) return _cache;
-
-			using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
+			using (MemoryStream stream = new MemoryStream())
 			{
-				NbtBinaryWriter writer = new NbtBinaryWriter(stream, true);
-
 				int topEmpty = 16;
 				for (int ci = 15; ci >= 0; ci--)
 				{
-					if (chunks[ci].IsAllAir()) topEmpty = ci;
-					else break;
+					if (_chunks[ci].IsAllAir())
+					{
+						topEmpty = ci;
+						var chunk = _chunks[ci];
+						_chunks[ci] = null;
+						chunk.PutPool();
+					}
+					else
+					{
+						break;
+					}
 				}
 
-				writer.Write((byte) topEmpty);
+				stream.WriteByte((byte) topEmpty);
 
 				int sent = 0;
 				for (int ci = 0; ci < topEmpty; ci++)
 				{
-					writer.Write((byte) 0);
-					writer.Write(chunks[ci].GetBytes());
+					_chunks[ci].GetBytes(stream);
 					sent++;
 				}
 
-				//Log.Debug($"Saved sending {16 - sent} chunks");
-
-				//RecalcHeight();
-
 				byte[] ba = new byte[512];
 				Buffer.BlockCopy(height, 0, ba, 0, 512);
-				writer.Write(ba);
-				//Log.Debug($"Heights:\n{Package.HexDump(ba)}");
+				stream.Write(ba, 0, ba.Length);
 
-				//BiomeUtils utils = new BiomeUtils();
-				//utils.PrecomputeBiomeColors();
-
-				//InterpolateBiomes();
-
-				writer.Write(biomeId);
-
-				//for (int i = 0; i < biomeId.Length; i++)
-				//{
-				//	//var biome = biomeId[i];
-				//	int color = biomeColor[i];
-				//	writer.Write((int) (color & 0x00ffffff) /*| biome << 24*/);
-				//}
+				stream.Write(biomeId, 0, biomeId.Length);
 
 				//short extraSize = 0;
 				//writer.Write(extraSize); // No extra data
@@ -466,7 +504,7 @@ namespace MiNET.Worlds
 				// - Hash SignedVarint x << 12, z << 8, y
 				// - Block data short
 
-				writer.Write((byte) 0); // Border blocks - nope
+				stream.WriteByte((byte) 0); // Border blocks - nope
 
 				VarInt.WriteSInt32(stream, 0); // Block extradata count
 				//VarInt.WriteSInt32(stream, 2);
@@ -474,34 +512,27 @@ namespace MiNET.Worlds
 				//writer.Write((byte)31);
 				//writer.Write((byte)0);
 
-				if (BlockEntities.Count == 0)
-				{
-					//NbtFile file = new NbtFile(new NbtCompound(string.Empty)) {BigEndian = false, UseVarInt = true};
-					//file.SaveToStream(writer.BaseStream, NbtCompression.None);
-				}
-				else
+				if (BlockEntities.Count != 0)
 				{
 					foreach (NbtCompound blockEntity in BlockEntities.Values.ToArray())
 					{
 						NbtFile file = new NbtFile(blockEntity) {BigEndian = false, UseVarInt = true};
-						file.SaveToStream(writer.BaseStream, NbtCompression.None);
+						file.SaveToStream(stream, NbtCompression.None);
 					}
 				}
 
-				_cache = stream.ToArray();
+				return stream.ToArray();
 			}
-
-			return _cache;
 		}
 
 		public object Clone()
 		{
 			ChunkColumn cc = (ChunkColumn) MemberwiseClone();
 
-			cc.chunks = new Chunk[16];
-			for (int i = 0; i < chunks.Length; i++)
+			cc._chunks = new ChunkBase[16];
+			for (int i = 0; i < _chunks.Length; i++)
 			{
-				cc.chunks[i] = (Chunk) chunks[i].Clone();
+				cc._chunks[i] = (PaletteChunk) _chunks[i]?.Clone();
 			}
 
 			cc.biomeId = (byte[]) biomeId.Clone();
@@ -511,11 +542,6 @@ namespace MiNET.Worlds
 			foreach (KeyValuePair<BlockCoordinates, NbtCompound> blockEntityPair in BlockEntities)
 			{
 				cc.BlockEntities.Add(blockEntityPair.Key, (NbtCompound) blockEntityPair.Value.Clone());
-			}
-
-			if (_cache != null)
-			{
-				cc._cache = (byte[]) _cache.Clone();
 			}
 
 			McpeWrapper batch = McpeWrapper.CreateObject();
@@ -528,6 +554,16 @@ namespace MiNET.Worlds
 			cc._cacheSync = new object();
 
 			return cc;
+		}
+
+		public IEnumerator<ChunkBase> GetEnumerator()
+		{
+			return _chunks.Where(c => c != null).GetEnumerator();
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
 		}
 	}
 

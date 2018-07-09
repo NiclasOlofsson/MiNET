@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -35,7 +35,7 @@ namespace MiNET
 {
 	public class LevelManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (LevelManager));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(LevelManager));
 
 		public List<Level> Levels { get; set; } = new List<Level>();
 
@@ -56,7 +56,7 @@ namespace MiNET
 
 				IWorldProvider worldProvider = null;
 
-				switch (Config.GetProperty("WorldProvider", "flat").ToLower().Trim())
+				switch (Config.GetProperty("WorldProvider", "anvil").ToLower().Trim())
 				{
 					case "cool":
 						worldProvider = new CoolWorldProvider();
@@ -113,6 +113,8 @@ namespace MiNET
 				//		if (wp != null)
 				//		{
 				//			wp.Locked = true;
+				////			wp.PruneAir();
+				////			wp.MakeAirChunksAroundWorldToCompensateForBadRendering();
 				//			Stopwatch sw = new Stopwatch();
 
 				//			var chunkCount = 0;
@@ -120,14 +122,14 @@ namespace MiNET
 				//			SkyLightCalculations.Calculate(level);
 				//			sw.Stop();
 				//			chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-				//			Log.Debug($"Recalculated sky light for {chunkCount} chunks, {chunkCount*16*16*256} blocks. Time {sw.ElapsedMilliseconds}ms");
+				//			Log.Debug($"Recalculated sky light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks. Time {sw.ElapsedMilliseconds}ms");
 
 				//			int count = wp.LightSources.Count;
 				//			sw.Restart();
 				//			RecalculateBlockLight(level, wp);
 
 				//			chunkCount = wp._chunkCache.Where(chunk => chunk.Value != null).ToArray().Length;
-				//			Log.Debug($"Recalculated sky and block light for {chunkCount} chunks, {chunkCount*16*16*256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms. Touched {BlockLightCalculations.touches}");
+				//			Log.Debug($"Recalculated sky and block light for {chunkCount} chunks, {chunkCount * 16 * 16 * 256} blocks and {count} light sources. Time {sw.ElapsedMilliseconds}ms. Touched {BlockLightCalculations.touches}");
 
 				//			wp.Locked = false;
 				//		}
@@ -236,7 +238,7 @@ namespace MiNET
 
 	public class SpreadLevelManager : LevelManager
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (SpreadLevelManager));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(SpreadLevelManager));
 
 		private readonly int _numberOfLevels;
 

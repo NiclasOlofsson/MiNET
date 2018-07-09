@@ -18,24 +18,28 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using log4net;
+using Newtonsoft.Json.Linq;
 
 namespace MiNET.Blocks
 {
 	public interface ICustomBlockFactory
 	{
-		Block GetBlockById(byte blockId);
+		Block GetBlockById(int blockId);
 	}
 
 	public static class BlockFactory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (BlockFactory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(BlockFactory));
 
 		public static ICustomBlockFactory CustomBlockFactory { get; set; }
 
@@ -43,31 +47,63 @@ namespace MiNET.Blocks
 
         public static readonly byte[] TransparentBlocks = new byte[500];
 		public static readonly byte[] LuminousBlocks = new byte[500];
-		public static Dictionary<string, byte> NameToId { get; private set; }
+		public static Dictionary<string, int> NameToId { get; private set; }
+		public static Blockstates Blockstates { get; set; } = new Blockstates();
+
+		private static int[] LegacyToRuntimeId = new int[65536];
+
+		//public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
 
 		static BlockFactory()
 		{
-			for (byte i = 0; i < byte.MaxValue; i++)
+			for (int i = 0; i < byte.MaxValue*2; i++)
 			{
 				var block = GetBlockById(i);
-				if (block != null && block.IsTransparent)
+				if (block != null)
 				{
-					TransparentBlocks[block.Id] = 1;
-				}
-				if (block != null && block.LightLevel > 0)
-				{
-					LuminousBlocks[block.Id] = (byte) block.LightLevel;
+					if (block.IsTransparent)
+					{
+						TransparentBlocks[block.Id] = 1;
+					}
+					if (block.LightLevel > 0)
+					{
+						LuminousBlocks[block.Id] = (byte) block.LightLevel;
+					}
 				}
 			}
 
 			NameToId = BuildNameToId();
+<<<<<<< HEAD
             BuildRuntimeIdTable();
+=======
+
+			for (int i = 0; i < LegacyToRuntimeId.Length; ++i)
+			{
+				LegacyToRuntimeId[i] = -1;
+			}
+
+			var assembly = Assembly.GetAssembly(typeof(Block));
+			using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+			using (StreamReader reader = new StreamReader(stream))
+			{
+				dynamic result = JArray.Parse(reader.ReadToEnd());
+
+				int runtimeId = 0;
+				foreach (var obj in result)
+				{
+					LegacyToRuntimeId[((int) obj.id << 4) | (int) obj.data] = (int)runtimeId;
+					Blockstates.Add(runtimeId, new Blockstate(){Id = (int)obj.id, Data = (short)obj.data, Name = (string)obj.name, RuntimeId = runtimeId});
+
+					runtimeId++;
+				}
+			}
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 		}
 
-		private static Dictionary<string, byte> BuildNameToId()
+		private static Dictionary<string, int> BuildNameToId()
 		{
-			var nameToId = new Dictionary<string, byte>();
-			for (byte idx = 0; idx < byte.MaxValue; idx++)
+			var nameToId = new Dictionary<string, int>();
+			for (int idx = 0; idx < 1000; idx++)
 			{
 				Block block = GetBlockById(idx);
 				string name = block.GetType().Name.ToLowerInvariant();
@@ -85,7 +121,7 @@ namespace MiNET.Blocks
 			return nameToId;
 		}
 
-		public static byte GetBlockIdByName(string blockName)
+		public static int GetBlockIdByName(string blockName)
 		{
 			blockName = blockName.ToLowerInvariant();
 			blockName = blockName.Replace("_", "");
@@ -114,7 +150,7 @@ namespace MiNET.Blocks
 			return null;
 		}
 
-		public static Block GetBlockById(byte blockId)
+		public static Block GetBlockById(int blockId)
 		{
 			Block block = null;
 
@@ -209,7 +245,7 @@ namespace MiNET.Blocks
 			else if (blockId == 81) block = new Cactus();
 			else if (blockId == 82) block = new Clay();
 			else if (blockId == 83) block = new Reeds();
-			else if (blockId == 83) block = new Jukebox();
+			else if (blockId == 84) block = new Jukebox();
 			else if (blockId == 85) block = new Fence();
 			else if (blockId == 86) block = new Pumpkin();
 			else if (blockId == 87) block = new Netherrack();
@@ -323,10 +359,15 @@ namespace MiNET.Blocks
 			else if (blockId == 200) block = new ChorusFlower();
 			else if (blockId == 201) block = new PurpurBlock();
 			else if (blockId == 203) block = new PurpurStairs();
+			else if (blockId == 205) block = new UndyedShulkerBox();
 			else if (blockId == 206) block = new EndBricks();
 			else if (blockId == 207) block = new FrostedIce();
 			else if (blockId == 208) block = new EndRod();
 			else if (blockId == 209) block = new EndGateway();
+			else if (blockId == 210) block = new Allow();
+			else if (blockId == 211) block = new Deny();
+			else if (blockId == 212) block = new Border();
+			else if (blockId == 218) block = new ShulkerBox();
 			else if (blockId == 219) block = new PurpleGlazedTerracotta();
 			else if (blockId == 220) block = new WhiteGlazedTerracotta();
 			else if (blockId == 221) block = new OrangeGlazedTerracotta();
@@ -338,6 +379,7 @@ namespace MiNET.Blocks
 			else if (blockId == 227) block = new GrayGlazedTerracotta();
 			else if (blockId == 228) block = new SilverGlazedTerracotta();
 			else if (blockId == 229) block = new CyanGlazedTerracotta();
+			else if (blockId == 230) block = new Chalkboard();
 			else if (blockId == 231) block = new BlueGlazedTerracotta();
 			else if (blockId == 232) block = new BrownGlazedTerracotta();
 			else if (blockId == 233) block = new GreenGlazedTerracotta();
@@ -353,6 +395,189 @@ namespace MiNET.Blocks
 			else if (blockId == 246) block = new GlowingObsidian();
 			else if (blockId == 247) block = new NetherReactorCore();
 			else if (blockId == 251) block = new Observer();
+
+			else if (blockId == 34) block = new Pistonarmcollision();
+			else if (blockId == 36) block = new Element0();
+			else if (blockId == 137) block = new CommandBlock();
+			else if (blockId == 166) block = new GlowStick();
+			else if (blockId == 188) block = new RepeatingCommandBlock();
+			else if (blockId == 189) block = new ChainCommandBlock();
+			else if (blockId == 190) block = new HardGlassPane();
+			else if (blockId == 191) block = new HardStainedGlassPane();
+			else if (blockId == 192) block = new ChemicalHeat();
+			else if (blockId == 202) block = new ColoredTorchRg();
+			else if (blockId == 204) block = new ColoredTorchBp();
+			else if (blockId == 213) block = new Magma();
+			else if (blockId == 214) block = new NetherWartBlock();
+			else if (blockId == 215) block = new RedNetherBrick();
+			else if (blockId == 216) block = new BoneBlock();
+			else if (blockId == 238) block = new ChemistryTable();
+			else if (blockId == 239) block = new UnderwaterTorch();
+			else if (blockId == 247) block = new Netherreactor();
+			else if (blockId == 248) block = new InfoUpdate();
+			else if (blockId == 249) block = new InfoUpdate2();
+			else if (blockId == 250) block = new Movingblock();
+			else if (blockId == 252) block = new StructureBlock();
+			else if (blockId == 253) block = new HardGlass();
+			else if (blockId == 254) block = new HardStainedGlass();
+			else if (blockId == 255) block = new Reserved6();
+			else if (blockId == 260) block = new StrippedSpruceLog();
+			else if (blockId == 261) block = new StrippedBirchLog();
+			else if (blockId == 262) block = new StrippedJungleLog();
+			else if (blockId == 263) block = new StrippedAcaciaLog();
+			else if (blockId == 264) block = new StrippedDarkOakLog();
+			else if (blockId == 265) block = new StrippedOakLog();
+			else if (blockId == 266) block = new BlueIce();
+			else if (blockId == 267) block = new Element1();
+			else if (blockId == 268) block = new Element2();
+			else if (blockId == 269) block = new Element3();
+			else if (blockId == 270) block = new Element4();
+			else if (blockId == 271) block = new Element5();
+			else if (blockId == 272) block = new Element6();
+			else if (blockId == 273) block = new Element7();
+			else if (blockId == 274) block = new Element8();
+			else if (blockId == 275) block = new Element9();
+			else if (blockId == 276) block = new Element10();
+			else if (blockId == 277) block = new Element11();
+			else if (blockId == 278) block = new Element12();
+			else if (blockId == 279) block = new Element13();
+			else if (blockId == 280) block = new Element14();
+			else if (blockId == 281) block = new Element15();
+			else if (blockId == 282) block = new Element16();
+			else if (blockId == 283) block = new Element17();
+			else if (blockId == 284) block = new Element18();
+			else if (blockId == 285) block = new Element19();
+			else if (blockId == 286) block = new Element20();
+			else if (blockId == 287) block = new Element21();
+			else if (blockId == 288) block = new Element22();
+			else if (blockId == 289) block = new Element23();
+			else if (blockId == 290) block = new Element24();
+			else if (blockId == 291) block = new Element25();
+			else if (blockId == 292) block = new Element26();
+			else if (blockId == 293) block = new Element27();
+			else if (blockId == 294) block = new Element28();
+			else if (blockId == 295) block = new Element29();
+			else if (blockId == 296) block = new Element30();
+			else if (blockId == 297) block = new Element31();
+			else if (blockId == 298) block = new Element32();
+			else if (blockId == 299) block = new Element33();
+			else if (blockId == 300) block = new Element34();
+			else if (blockId == 301) block = new Element35();
+			else if (blockId == 302) block = new Element36();
+			else if (blockId == 303) block = new Element37();
+			else if (blockId == 304) block = new Element38();
+			else if (blockId == 305) block = new Element39();
+			else if (blockId == 306) block = new Element40();
+			else if (blockId == 307) block = new Element41();
+			else if (blockId == 308) block = new Element42();
+			else if (blockId == 309) block = new Element43();
+			else if (blockId == 310) block = new Element44();
+			else if (blockId == 311) block = new Element45();
+			else if (blockId == 312) block = new Element46();
+			else if (blockId == 313) block = new Element47();
+			else if (blockId == 314) block = new Element48();
+			else if (blockId == 315) block = new Element49();
+			else if (blockId == 316) block = new Element50();
+			else if (blockId == 317) block = new Element51();
+			else if (blockId == 318) block = new Element52();
+			else if (blockId == 319) block = new Element53();
+			else if (blockId == 320) block = new Element54();
+			else if (blockId == 321) block = new Element55();
+			else if (blockId == 322) block = new Element56();
+			else if (blockId == 323) block = new Element57();
+			else if (blockId == 324) block = new Element58();
+			else if (blockId == 325) block = new Element59();
+			else if (blockId == 326) block = new Element60();
+			else if (blockId == 327) block = new Element61();
+			else if (blockId == 328) block = new Element62();
+			else if (blockId == 329) block = new Element63();
+			else if (blockId == 330) block = new Element64();
+			else if (blockId == 331) block = new Element65();
+			else if (blockId == 332) block = new Element66();
+			else if (blockId == 333) block = new Element67();
+			else if (blockId == 334) block = new Element68();
+			else if (blockId == 335) block = new Element69();
+			else if (blockId == 336) block = new Element70();
+			else if (blockId == 337) block = new Element71();
+			else if (blockId == 338) block = new Element72();
+			else if (blockId == 339) block = new Element73();
+			else if (blockId == 340) block = new Element74();
+			else if (blockId == 341) block = new Element75();
+			else if (blockId == 342) block = new Element76();
+			else if (blockId == 343) block = new Element77();
+			else if (blockId == 344) block = new Element78();
+			else if (blockId == 345) block = new Element79();
+			else if (blockId == 346) block = new Element80();
+			else if (blockId == 347) block = new Element81();
+			else if (blockId == 348) block = new Element82();
+			else if (blockId == 349) block = new Element83();
+			else if (blockId == 350) block = new Element84();
+			else if (blockId == 351) block = new Element85();
+			else if (blockId == 352) block = new Element86();
+			else if (blockId == 353) block = new Element87();
+			else if (blockId == 354) block = new Element88();
+			else if (blockId == 355) block = new Element89();
+			else if (blockId == 356) block = new Element90();
+			else if (blockId == 357) block = new Element91();
+			else if (blockId == 358) block = new Element92();
+			else if (blockId == 359) block = new Element93();
+			else if (blockId == 360) block = new Element94();
+			else if (blockId == 361) block = new Element95();
+			else if (blockId == 362) block = new Element96();
+			else if (blockId == 363) block = new Element97();
+			else if (blockId == 364) block = new Element98();
+			else if (blockId == 365) block = new Element99();
+			else if (blockId == 366) block = new Element100();
+			else if (blockId == 367) block = new Element101();
+			else if (blockId == 368) block = new Element102();
+			else if (blockId == 369) block = new Element103();
+			else if (blockId == 370) block = new Element104();
+			else if (blockId == 371) block = new Element105();
+			else if (blockId == 372) block = new Element106();
+			else if (blockId == 373) block = new Element107();
+			else if (blockId == 374) block = new Element108();
+			else if (blockId == 375) block = new Element109();
+			else if (blockId == 376) block = new Element110();
+			else if (blockId == 377) block = new Element111();
+			else if (blockId == 378) block = new Element112();
+			else if (blockId == 379) block = new Element113();
+			else if (blockId == 380) block = new Element114();
+			else if (blockId == 381) block = new Element115();
+			else if (blockId == 382) block = new Element116();
+			else if (blockId == 383) block = new Element117();
+			else if (blockId == 384) block = new Element118();
+			else if (blockId == 385) block = new Seagrass();
+			else if (blockId == 386) block = new Coral();
+			else if (blockId == 387) block = new CoralBlock();
+			else if (blockId == 388) block = new CoralFan();
+			else if (blockId == 389) block = new CoralFanDead();
+			else if (blockId == 390) block = new CoralFanHang();
+			else if (blockId == 391) block = new CoralFanHang2();
+			else if (blockId == 392) block = new CoralFanHang3();
+			else if (blockId == 393) block = new Kelp();
+			else if (blockId == 394) block = new DriedKelpBlock();
+			else if (blockId == 395) block = new AcaciaButton();
+			else if (blockId == 396) block = new BirchButton();
+			else if (blockId == 397) block = new DarkOakButton();
+			else if (blockId == 398) block = new JungleButton();
+			else if (blockId == 399) block = new SpruceButton();
+			else if (blockId == 400) block = new AcaciaTrapdoor();
+			else if (blockId == 401) block = new BirchTrapdoor();
+			else if (blockId == 402) block = new DarkOakTrapdoor();
+			else if (blockId == 403) block = new JungleTrapdoor();
+			else if (blockId == 404) block = new SpruceTrapdoor();
+			else if (blockId == 405) block = new AcaciaPressurePlate();
+			else if (blockId == 406) block = new BirchPressurePlate();
+			else if (blockId == 407) block = new DarkOakPressurePlate();
+			else if (blockId == 408) block = new JunglePressurePlate();
+			else if (blockId == 409) block = new SprucePressurePlate();
+			else if (blockId == 410) block = new CarvedPumpkin();
+			else if (blockId == 411) block = new SeaPickle();
+			else if (blockId == 412) block = new Conduit();
+			else if (blockId == 414) block = new TurtleEgg();
+			else if (blockId == 415) block = new BubbleColumn();
+
+
 			else
 			{
 				//				Log.DebugFormat(@"
@@ -372,6 +597,7 @@ namespace MiNET.Blocks
 			return block;
 		}
 
+<<<<<<< HEAD
         private static void BuildRuntimeIdTable()
         {
             for (int i = 0; i < LegacyToRuntimeId.Length; ++i)
@@ -2469,4 +2695,54 @@ namespace MiNET.Blocks
         }
 
     }
+=======
+		public static uint GetRuntimeId(int blockId, byte metadata)
+		{
+			int idx = TryGetRuntimeId(blockId, metadata);
+			if (idx != -1)
+			{
+				return (uint) idx;
+			}
+
+			//block found with bad metadata, try getting with zero
+			idx = TryGetRuntimeId(blockId, 0);
+			if (idx != -1)
+			{
+				return (uint) idx;
+			}
+
+			Log.Warn($"Trying to get runtime ID failed for {blockId} and data {metadata}");
+			return (uint) TryGetRuntimeId(248, 0); //legacy id for info_update block (for unknown block)
+		}
+
+		private static int TryGetRuntimeId(int blockId, byte metadata)
+		{
+			return LegacyToRuntimeId[(blockId << 4) | metadata];
+		}
+	}
+
+	//public class BlockStateUtils
+	//{
+	//	public static Dictionary<(int, int), int> BlockStates = new Dictionary<(int, int), int>();
+
+	//	static BlockStateUtils()
+	//	{
+	//		var assembly = Assembly.GetAssembly(typeof(Block));
+	//		using (Stream stream = assembly.GetManifestResourceStream(typeof(Block).Namespace + ".blockstates.json"))
+	//		using (StreamReader reader = new StreamReader(stream))
+	//		{
+	//			dynamic result = JArray.Parse(reader.ReadToEnd());
+
+	//			foreach (var obj in result)
+	//			{
+	//				int bid = (int) obj.id;
+	//				int data = (int) obj.data;
+	//				short hash = (short)(bid << 4 | (data & 0x0f));
+	//				BlockStates.Add((bid, data), hash);
+	//			}
+	//		}
+	//	}
+	//}
+
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 }

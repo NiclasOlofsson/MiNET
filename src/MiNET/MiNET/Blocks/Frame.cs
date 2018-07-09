@@ -52,16 +52,16 @@ namespace MiNET.Blocks
 				case BlockFace.Down:
 				case BlockFace.Up:
 					return true; // Do nothing
-				case BlockFace.South: // ok
+				case BlockFace.East: // ok
 					Metadata = 0;
 					break;
-				case BlockFace.North:
+				case BlockFace.West:
 					Metadata = 1;
 					break;
-				case BlockFace.West:
+				case BlockFace.South:
 					Metadata = 2;
 					break;
-				case BlockFace.East: // ok
+				case BlockFace.North: // ok
 					Metadata = 3;
 					break;
 			}

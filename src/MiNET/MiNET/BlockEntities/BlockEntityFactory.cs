@@ -18,18 +18,29 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
 namespace MiNET.BlockEntities
 {
+	public interface ICustomBlockEntityFactory
+	{
+		BlockEntity GetBlockEntityById(string blockEntityId);
+	}
+
 	public static class BlockEntityFactory
 	{
+		public static ICustomBlockEntityFactory CustomBlockEntityFactory { get; set; }
+
 		public static BlockEntity GetBlockEntityById(string blockEntityId)
 		{
-			BlockEntity blockEntity = null;
+			BlockEntity blockEntity = CustomBlockEntityFactory?.GetBlockEntityById(blockEntityId);
+
+			if(blockEntity != null) {
+				return blockEntity;
+			}
 
 			if (blockEntityId == "Sign") blockEntity = new Sign();
 			else if (blockEntityId == "Chest") blockEntity = new ChestBlockEntity();
@@ -42,6 +53,8 @@ namespace MiNET.BlockEntities
 			else if (blockEntityId == "FlowerPot") blockEntity = new FlowerPotBlockEntity();
 			else if (blockEntityId == "Beacon") blockEntity = new BeaconBlockEntity();
 			else if (blockEntityId == "MobSpawner") blockEntity = new MobSpawnerBlockEntity();
+			else if (blockEntityId == "ChalkboardBlock") blockEntity = new ChalkboardBlockEntity();
+			else if (blockEntityId == "ShulkerBox") blockEntity = new ShulkerBoxBlockEntity();
 
 			return blockEntity;
 		}

@@ -21,7 +21,7 @@ exp.AddSort("@id", XmlSortOrder.Ascending, XmlCaseOrder.None, "", XmlDataType.Te
 
 Read more about packets and this specification on the [Protocol Wiki](https://github.com/NiclasOlofsson/MiNET/wiki//ref-protocol)
 
-## ALL PACKAGES
+## ALL PACKETS
 
 | ID  | ID (hex) | ID (dec) | 
 |:--- |:---------|---------:| 
@@ -33,7 +33,7 @@ foreach (XPathNavigator pdu in nav.Select(exp))
 	string typeIdName = CodeName(pdu.GetAttribute("name", ""), true);
 	string typeName = CodeTypeName(pdu.GetAttribute("name", ""));
 	string typeId = pdu.GetAttribute("id", "");
-	string baseType = "Package";
+	string baseType = "Packet";
 #>
 | <#= typeIdName #> | <#= typeId #> | <#= Int32.Parse(typeId.Substring(2, 2), NumberStyles.AllowHexSpecifier) #> |   
 <#	
@@ -87,7 +87,7 @@ foreach (XmlNode constant in doc.SelectNodes("//constant"))
 }
 #>
 
-## Packages
+## Packets
 
 <#	
 
@@ -98,7 +98,7 @@ foreach (XmlNode pdu in pdus)
 	string typeIdName = CodeName(pdu.Attributes["name"].Value, true);
 	string typeName = CodeTypeName(pdu.Attributes["name"].Value);
 	string typeId = pdu.Attributes["id"].Value;
-	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
+	string baseType = pdu.Attributes["online"] == null? "Packet": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPacket":"Packet";
 	string isClient = pdu.Attributes["client"].Value;
 	string isServer = pdu.Attributes["server"].Value;
 	string pduSize = pdu.Attributes["size"] == null? "": pdu.Attributes["size"].Value;

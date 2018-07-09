@@ -23,6 +23,7 @@
 
 #endregion
 
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -30,6 +31,8 @@ namespace MiNET.UI
 {
 	public abstract class Form
 	{
+		public uint Id { get; set; } = (uint) new Random().Next();
+
 		public string Type { get; protected set; }
 		public string Title { get; set; }
 

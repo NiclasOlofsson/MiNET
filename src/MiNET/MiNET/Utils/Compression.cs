@@ -13,12 +13,12 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -33,47 +33,14 @@ namespace MiNET.Utils
 {
 	public class Compression
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Compression));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(Compression));
 
-		//public static byte[] Compress(byte[] inputData)
-		//{
-		//	if (inputData == null)
-		//		throw new ArgumentNullException("inputData");
-
-		//	using (var compressIntoMs = MiNetServer.MemoryStreamManager.GetStream())
-		//	{
-		//		using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionMode.Compress), 2*4096))
-		//		{
-		//			gzs.Write(inputData, 0, inputData.Length);
-		//		}
-		//		return compressIntoMs.ToArray();
-		//	}
-		//}
-
-		//public static byte[] Decompress(byte[] inputData)
-		//{
-		//	if (inputData == null)
-		//		throw new ArgumentNullException("inputData");
-
-		//	using (var compressedMs = new MemoryStream(inputData))
-		//	{
-		//		using (var decompressedMs = MiNetServer.MemoryStreamManager.GetStream())
-		//		{
-		//			using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), 2*4096))
-		//			{
-		//				gzs.CopyTo(decompressedMs);
-		//			}
-		//			return decompressedMs.ToArray();
-		//		}
-		//	}
-		//}
-
-		public static byte[] Compress(byte[] input, int offset, int length, bool writeLen = false)
+		public static byte[] Compress(Memory<byte> input, bool writeLen = false, CompressionLevel compressionLevel = CompressionLevel.Fastest)
 		{
-			return CompressIntoStream(input, offset, length, CompressionLevel.Fastest, writeLen).ToArray();
+			return CompressIntoStream(input, compressionLevel, writeLen).ToArray();
 		}
 
-		public static MemoryStream CompressIntoStream(byte[] input, int offset, int length, CompressionLevel compressionLevel, bool writeLen = false)
+		public static MemoryStream CompressIntoStream(Memory<byte> input, CompressionLevel compressionLevel, bool writeLen = false)
 		{
 			var stream = MiNetServer.MemoryStreamManager.GetStream();
 
@@ -95,13 +62,10 @@ namespace MiNET.Utils
 			{
 				if (writeLen)
 				{
-					WriteLength(compressStream, length);
+					WriteLength(compressStream, input.Length);
 				}
 
-				//var lenBytes = BitConverter.GetBytes(length);
-				//Array.Reverse(lenBytes);
-				//if (writeLen) compressStream.Write(lenBytes, 0, lenBytes.Length); // ??
-				compressStream.Write(input, offset, length);
+				compressStream.Write(input.Span);
 				checksum = compressStream.Checksum;
 			}
 

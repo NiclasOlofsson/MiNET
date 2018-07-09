@@ -57,6 +57,8 @@ namespace MiNET.Entities
 		public float PositionOffset { get; set; }
 		public bool IsOnGround { get; set; } = true;
 
+		public PlayerLocation LastSentPosition { get; set; }
+
 		public HealthManager HealthManager { get; set; }
 
 		public string NameTag { get; set; }
@@ -112,7 +114,11 @@ namespace MiNET.Entities
 			FireworksType = 16,
 			MaybeAge = 24,
 			BedPosition = 28,
+<<<<<<< HEAD
 			Scale = 39,
+=======
+			Scale = 38,
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 			MaxAir = 42,
 			Markings = 43,
 			CollisionBoxWidth = 53,
@@ -286,6 +292,7 @@ namespace MiNET.Entities
 		public bool IsSilent { get; set; }
 		public bool IsWallClimbing { get; set; }
 		public bool CanClimb { get; set; }
+		public bool IsWalker { get; set; }
 		public bool IsResting { get; set; }
 		public bool IsSitting { get; set; }
 		public bool IsAngry { get; set; }
@@ -336,7 +343,11 @@ namespace MiNET.Entities
 			CanClimb,
 			CanSwim,
 			CanFly,
+<<<<<<< HEAD
             Walker,
+=======
+			Walker,
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 			Resting,
 			Sitting,
@@ -365,6 +376,7 @@ namespace MiNET.Entities
 			Linger,
 			HasCollision,
 			AffectedByGravity,
+<<<<<<< HEAD
             FireImmune,
             Dancing,
             Enchanted,
@@ -372,6 +384,11 @@ namespace MiNET.Entities
             SpinAttack,
             Swimming,
             Bribed
+=======
+			FireImmune,
+			Dancing,
+			Enchanted
+>>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 		}
 
 		protected virtual BitArray GetFlags()
@@ -397,6 +414,7 @@ namespace MiNET.Entities
 			bits[(int) DataFlags.Silent] = IsSilent;
 			bits[(int) DataFlags.WallClimbing] = IsWallClimbing;
 			bits[(int) DataFlags.CanClimb] = CanClimb;
+			bits[(int) DataFlags.Walker] = IsWalker;
 			bits[(int) DataFlags.Resting] = IsResting;
 			bits[(int) DataFlags.Sitting] = IsSitting;
 			bits[(int) DataFlags.Angry] = IsAngry;
@@ -463,8 +481,9 @@ namespace MiNET.Entities
 			addEntity.x = KnownPosition.X;
 			addEntity.y = KnownPosition.Y;
 			addEntity.z = KnownPosition.Z;
-			addEntity.yaw = KnownPosition.Yaw;
 			addEntity.pitch = KnownPosition.Pitch;
+			addEntity.yaw = KnownPosition.Yaw;
+			addEntity.headYaw = KnownPosition.HeadYaw;
 			addEntity.metadata = GetMetadata();
 			addEntity.speedX = Velocity.X;
 			addEntity.speedY = Velocity.Y;
@@ -542,6 +561,10 @@ namespace MiNET.Entities
 			McpeRemoveEntity mcpeRemoveEntity = McpeRemoveEntity.CreateObject();
 			mcpeRemoveEntity.entityIdSelf = EntityId;
 			Level.RelayBroadcast(players, mcpeRemoveEntity);
+		}
+
+		public virtual void SetEntityData(MetadataDictionary message)
+		{
 		}
 
 		public virtual void BroadcastSetEntityData()
@@ -648,26 +671,42 @@ namespace MiNET.Entities
 
 		public void BroadcastMotion(bool forceMove = false)
 		{
-			if (NoAi || forceMove)
-			{
-				McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
-				motions.runtimeEntityId = EntityId;
-				motions.velocity = Velocity;
-				motions.Encode();
-				Level.RelayBroadcast(motions);
-			}
+			//return;
+			//if (NoAi || forceMove)
+			//{
+			//	McpeSetEntityMotion motions = McpeSetEntityMotion.CreateObject();
+			//	motions.runtimeEntityId = EntityId;
+			//	motions.velocity = Velocity;
+			//	motions.Encode();
+			//	Level.RelayBroadcast(motions);
+			//}
 		}
 
 		public void BroadcastMove(bool forceMove = false)
 		{
-			if (NoAi || forceMove)
+			//if (NoAi || forceMove)
 			{
-				McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
-				moveEntity.runtimeEntityId = EntityId;
-				moveEntity.position = (PlayerLocation) KnownPosition.Clone();
-				moveEntity.onGround = IsOnGround;
-				moveEntity.Encode();
-				Level.RelayBroadcast(moveEntity);
+				//McpeMoveEntity moveEntity = McpeMoveEntity.CreateObject();
+				//moveEntity.runtimeEntityId = EntityId;
+				//moveEntity.position = LastSentPosition;
+				//moveEntity.flags = (short) (IsOnGround? 1: 0);
+				//moveEntity.Encode();
+				//Level.RelayBroadcast(moveEntity);
+
+				if (LastSentPosition != null)
+				{
+					McpeMoveEntityDelta move = McpeMoveEntityDelta.CreateObject();
+					move.runtimeEntityId = EntityId;
+					move.prevSentPosition = LastSentPosition;
+					move.currentPosition = (PlayerLocation) KnownPosition.Clone();
+					move.isOnGround = IsWalker && IsOnGround;
+					if (move.SetFlags())
+					{
+						Level.RelayBroadcast(move);
+					}
+				}
+
+				LastSentPosition = (PlayerLocation)KnownPosition.Clone(); // Used for delta
 			}
 		}
 
@@ -677,7 +716,7 @@ namespace MiNET.Entities
 			return new Item[] { };
 		}
 
-		public virtual void DoInteraction(byte actionId, Player player)
+		public virtual void DoInteraction(int actionId, Player player)
 		{
 		}
 

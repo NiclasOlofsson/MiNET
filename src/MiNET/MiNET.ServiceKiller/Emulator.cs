@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 using log4net;
 using log4net.Config;
 using MiNET.Client;
 using MiNET.Utils;
-
-[assembly: XmlConfigurator(Watch = true)]
 
 namespace MiNET.ServiceKiller
 {
@@ -21,12 +21,15 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 350;
-		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(60);
-		private const int NumberOfBots = 200;
+		private const int TimeBetweenSpawns = 150;
+		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(900);
+		private const int NumberOfBots = 100;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
-		private const int RequestChunkRadius = 5;
+		private const int RequestChunkRadius = 6;
+		private const bool ConcurrentSpawn = false;
+
+		public AutoResetEvent ConcurrentSpawnWaitHandle = new AutoResetEvent(false);
 
 		private static bool _running = true;
 
@@ -38,6 +41,9 @@ namespace MiNET.ServiceKiller
 
 		private static void Main(string[] args)
 		{
+			var logRepository = LogManager.GetRepository(Assembly.GetEntryAssembly());
+			XmlConfigurator.Configure(logRepository, new FileInfo("log4net.xml"));
+
 			try
 			{
 				AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
@@ -53,7 +59,8 @@ namespace MiNET.ServiceKiller
 				//ThreadPool.GetMinThreads(out threads, out iothreads);
 				//ThreadPool.SetMinThreads(4000, 4000);
 
-				DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+				//DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount));
+				DedicatedThreadPool threadPool = new DedicatedThreadPool(new DedicatedThreadPoolSettings(4000));
 
 				Emulator emulator = new Emulator {Running = true};
 				Stopwatch watch = new Stopwatch();
@@ -61,8 +68,10 @@ namespace MiNET.ServiceKiller
 
 				long start = DateTime.UtcNow.Ticks;
 
+				//IPEndPoint endPoint = new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132);
 				IPEndPoint endPoint = new IPEndPoint(IPAddress.Loopback, 19132);
 
+				var sw = Stopwatch.StartNew();
 				for (int j = 0; j < NumberOfBots; j++)
 				{
 					string playerName = $"TheGrey{j + 1:D3}";
@@ -73,7 +82,14 @@ namespace MiNET.ServiceKiller
 
 					new Thread(o => { client.EmulateClient(); }) {IsBackground = true}.Start();
 
-					Thread.Sleep(TimeBetweenSpawns);
+					if (ConcurrentSpawn) emulator.ConcurrentSpawnWaitHandle.Set();
+
+					emulator.ConcurrentSpawnWaitHandle.WaitOne();
+
+					long elapsed = sw.ElapsedMilliseconds;
+					if (elapsed < TimeBetweenSpawns) Thread.Sleep((int) (TimeBetweenSpawns - elapsed));
+
+					sw.Restart();
 				}
 
 				Console.WriteLine("Press <enter> to stop all clients.");
@@ -133,7 +149,7 @@ namespace MiNET.ServiceKiller
 				int iothreads;
 				ThreadPool.GetAvailableThreads(out threads, out iothreads);
 
-				Console.WriteLine("Client {0} connecting... Worker: {1}, IOC: {2}", Name, threads, iothreads);
+				Console.WriteLine($"Client {Name} connecting...");
 
 				var client = new MiNetClient(EndPoint, Name, _threadPool);
 				client.ChunkRadius = ChunkRadius;
@@ -149,8 +165,9 @@ namespace MiNET.ServiceKiller
 				//client.FirstPacketWaitHandle.WaitOne();
 				//client.FirstEncryptedPacketWaitHandle.WaitOne();
 				client.PlayerStatusChangedWaitHandle.WaitOne();
-
-				if (client.UdpClient != null) Console.WriteLine("\t\t\t\t\t\tClient {0} connected, emulating...", Name);
+				Emulator.ConcurrentSpawnWaitHandle.Set();
+				Console.CursorLeft = Console.CursorLeft = Console.BufferWidth - $"Client {Name} connected, emulating...".Length;
+				if (client.UdpClient != null) Console.WriteLine($"Client {Name} connected, emulating...");
 
 				Stopwatch watch = new Stopwatch();
 				watch.Start();
@@ -178,7 +195,7 @@ namespace MiNET.ServiceKiller
 				{
 					if (client.UdpClient == null) break;
 
-					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 55;
+					float y = client.Level.SpawnX + Random.Next(7, 10) + /*24*/ 75;
 					float length = Random.Next(5, 20);
 
 					double angle = 0.0;

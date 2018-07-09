@@ -238,8 +238,8 @@ namespace MiNET.Worlds
 					for (int y = bottomHeight + 1; y > bottomHeight && y < maxHeight && y < 255; y++)
 					{
 						//the overhang
-						byte thisblock = chunk.GetBlock(x, y, z);
-						byte blockabove = chunk.GetBlock(x, y + 1, z);
+						int thisblock = chunk.GetBlock(x, y, z);
+						int blockabove = chunk.GetBlock(x, y + 1, z);
 
 						if (thisblock != (decimal) Material.Air && blockabove == (decimal) Material.Air)
 						{
@@ -273,8 +273,8 @@ namespace MiNET.Worlds
 
 					for (int y = 0; y < 255; y++)
 					{
-						byte thisblock = chunk.GetBlock(x, y, z);
-						byte blockabove = chunk.GetBlock(x, y + 1, z);
+						int thisblock = chunk.GetBlock(x, y, z);
+						int blockabove = chunk.GetBlock(x, y + 1, z);
 						if (thisblock == (decimal) Material.Grass && blockabove == (decimal) Material.Air && y > WaterLevel)
 						{
 							//Grass

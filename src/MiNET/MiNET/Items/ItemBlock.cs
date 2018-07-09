@@ -46,7 +46,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public ItemBlock(Block block, short metadata = 0) : base(block.Id, metadata)
+		public ItemBlock(Block block, short metadata = 0) : base((short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
 		{
 			Block = block;
 			FuelEfficiency = Block.FuelEfficiency;

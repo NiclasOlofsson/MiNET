@@ -25,11 +25,11 @@
 
 namespace MiNET.Items
 {
-	public class ItemStoneSword : ItemSword
+	public class ItemGoldenSword : ItemSword
 	{
-		public ItemStoneSword() : base(272)
+		public ItemGoldenSword() : base(283)
 		{
-			ItemMaterial = ItemMaterial.Stone;
+			ItemMaterial = ItemMaterial.Gold;
 		}
 	}
 }

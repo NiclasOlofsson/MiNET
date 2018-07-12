@@ -89,6 +89,13 @@ namespace MiNET.Items
 
 			world.SetBlock(block);
 			world.SetBlock(blockUpper);
+
+			if (player.GameMode == GameMode.Survival)
+			{
+				var itemInHand = player.Inventory.GetItemInHand();
+				itemInHand.Count--;
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+			}
 		}
 	}
 

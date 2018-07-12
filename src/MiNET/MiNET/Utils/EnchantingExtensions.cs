@@ -23,7 +23,7 @@ namespace MiNET.Utils
 		Looting = 14,
 		Efficiency = 15,
 		SilkTouch = 16,
-		Durability = 17,
+		Unbreaking = 17,
 		Fortune = 18,
 		Power = 19,
 		Punch = 20,

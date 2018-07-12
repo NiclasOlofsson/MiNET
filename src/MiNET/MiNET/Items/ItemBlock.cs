@@ -70,12 +70,17 @@ namespace MiNET.Items
 				return;
 			}
 
-			if (Block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
+			if (!Block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
 			{
-				return; // Handled
+				world.SetBlock(Block);
 			}
 
-			world.SetBlock(Block);
+			if (player.GameMode == GameMode.Survival && Block.Id != 0)
+			{
+				var itemInHand = player.Inventory.GetItemInHand();
+				itemInHand.Count--;
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+			}
 		}
 	}
 }

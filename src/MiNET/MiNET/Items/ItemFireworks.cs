@@ -55,6 +55,13 @@ namespace MiNET.Items
 			rocket.BroadcastMovement = true;
 			rocket.DespawnOnImpact = true;
 			rocket.SpawnEntity();
+
+			if (player.GameMode == GameMode.Survival)
+			{
+				var itemInHand = player.Inventory.GetItemInHand();
+				itemInHand.Count--;
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+			}
 		}
 
 		//TODO: Enable this when we can figure out the difference between placing a block, and use item transactions :-(

@@ -46,6 +46,14 @@ namespace MiNET.Items
 			Boat entity = new Boat(world);
 			entity.KnownPosition = coordinates;
 			entity.SpawnEntity();
+
+			if (player.GameMode == GameMode.Survival)
+			{
+				var itemInHand = player.Inventory.GetItemInHand();
+				itemInHand.Count--;
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+			}
+
 		}
 
 		public override void UseItem(Level world, Player player, BlockCoordinates blockCoordinates)

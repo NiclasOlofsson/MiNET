@@ -18,10 +18,14 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
+
+using MiNET.Blocks;
+using MiNET.Entities;
+using MiNET.Entities.Passive;
 
 namespace MiNET.Items
 {
@@ -30,6 +34,38 @@ namespace MiNET.Items
 		public ItemShears() : base(359)
 		{
 			MaxStackSize = 1;
+		}
+
+		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			switch (reason)
+			{
+				case ItemDamageReason.BlockBreak:
+				{
+					if (block is Web || block is Leaves || block is Leaves2 || block is Wool || block is Vine)
+					{
+						Metadata++;
+						return Metadata >= GetMaxUses() - 1;
+					}
+					return false;
+				}
+				case ItemDamageReason.EntityInteract:
+				{
+					if (target is Sheep)
+					{
+						Metadata++;
+						return Metadata >= GetMaxUses() - 1;
+					}
+					return false;
+				}
+				default:
+					return false;
+			}
+		}
+
+		protected override int GetMaxUses()
+		{
+			return 238;
 		}
 	}
 }

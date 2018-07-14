@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using log4net;
+using LibNoise;
+using LibNoise.Filter;
+using LibNoise.Primitive;
 using MiNET.Utils;
 using MiNET.Utils.Noise;
-using MiNET.Utils.Noise.Filter;
 using MiNET.Worlds.Generators.Survival.Decorators;
 
 namespace MiNET.Worlds.Generators.Survival
@@ -15,6 +17,7 @@ namespace MiNET.Worlds.Generators.Survival
 		private IModule2D RainNoise { get; }
 		private IModule2D TempNoise { get; }
 
+		private IModule2D BiomeHeightModifier { get; }
 		private IModule2D BiomeModifierX { get; }
 		private IModule2D BiomeModifierZ { get; }
 
@@ -29,13 +32,21 @@ namespace MiNET.Worlds.Generators.Survival
 			int seed = (int)(CalculateHash(Config.GetProperty("seed", "YoHoMotherducker!")) % int.MaxValue);
 			Seed = seed;
 
-			BiomeModifierX = new SimplexPerlin(seed + 370);
-			BiomeModifierZ = new SimplexPerlin(seed + 5000);
-			_detailNoise = new SimplexPerlin(seed + 231);
+			BiomeModifierX = new SimplexPerlin(seed + 370, NoiseQuality.Fast);
+			BiomeModifierZ = new SimplexPerlin(seed + 5000, NoiseQuality.Fast);
+			_detailNoise = new SimplexPerlin(seed + 231, NoiseQuality.Fast);
 
-			var rainSimplex = new SimplexPerlin(seed);
+			var b = new SimplexPerlin(seed, NoiseQuality.Fast);
+			BiomeHeightModifier = new Pipe()
+			{
+				Primitive2D = b,
+				Frequency = 0.25f,
+				
+			};
 
-			var rainNoise = new Voronoi();
+			var rainSimplex = new OpenSimplexNoise(seed);
+
+			var rainNoise = new ImprovedVoronoi();
 			rainNoise.Primitive3D = rainSimplex;
 			rainNoise.Primitive2D = rainSimplex;
 			rainNoise.Distance = false;
@@ -45,18 +56,19 @@ namespace MiNET.Worlds.Generators.Survival
 			rainNoise.Displacement = 9;//.412f;
 			RainNoise = rainNoise;
 
-			var tempSimplex = new SimplexPerlin(seed + 100);
-			var tempNoise = new Voronoi();
+			var tempSimplex = new OpenSimplexNoise(seed + 100);
+			var tempNoise = new ImprovedVoronoi();
 			tempNoise.Primitive3D = tempSimplex;
 			tempNoise.Primitive2D = tempSimplex;
 			tempNoise.Distance = false;
 			tempNoise.Frequency = TemperatureFrequency;
-			tempNoise.OctaveCount = 2;
 			tempNoise.Gain = 0.256f;
+			tempNoise.OctaveCount = 2;
+			//tempNoise.SpectralExponent = -1.1f;
 			//	tempNoise.Gain = 2.5f;
 			TempNoise = tempNoise;
 
-			var mainLimitNoise = new SimplexPerlin(seed + 20);
+			var mainLimitNoise = new SimplexPerlin(seed + 20, NoiseQuality.Fast);
 
 			var mainLimitFractal = new SumFractal()
 			{
@@ -80,7 +92,7 @@ namespace MiNET.Worlds.Generators.Survival
 			//ModTurbulence turbulence = new ModTurbulence(mainLimitFractal, new ImprovedPerlin(seed - 350, NoiseQuality.Fast), new ImprovedPerlin(seed + 350, NoiseQuality.Fast), null, 0.0125F);
 			_mainNoise = mainScaler; //turbulence;
 
-			var mountainNoise = new SimplexPerlin(seed + 300);
+			var mountainNoise = new SimplexPerlin(seed + 300, NoiseQuality.Fast);
 			var mountainTerrain = new HybridMultiFractal()
 			{
 				Primitive3D = mountainNoise,
@@ -105,9 +117,9 @@ namespace MiNET.Worlds.Generators.Survival
 			BiomeUtils.FixMinMaxHeight();
 		}
 
-		private const float TemperatureFrequency = 0.268f;
+		private const float TemperatureFrequency = 0.1268f;
 
-		private const float RainFallFrequency = 0.268f;
+		private const float RainFallFrequency = 0.0368f;
 
 		private const float MainNoiseScaleX = 80F;
 		private const float MainNoiseScaleY = 160F;
@@ -211,9 +223,12 @@ namespace MiNET.Worlds.Generators.Survival
 
 			var temp = TempNoise.GetValue(mX, mZ) * 3.024F;
 			var rain = RainNoise.GetValue(mX, mZ);
+			var height = BiomeHeightModifier.GetValue(mX, mZ) * 3.1923489f;
 
 			if (temp < -2f) temp = -(temp % 1);
 			if (rain < 0) rain = -rain;
+
+			return BiomeUtils.GetBiomes(temp, rain).OrderBy(bx => Math.Abs((bx.Key.MaxHeight/bx.Key.MinHeight) - height)).FirstOrDefault().Key;
 
 			return BiomeUtils.GetBiome(temp, rain);
 		}

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using LibNoise;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace MiNET.Utils
 {
-	public class OpenSimplexNoise
+	public class OpenSimplexNoise : IModule4D, IModule3D, IModule2D
 	{
 		private const double STRETCH_2D = -0.211324865405187; //(1/Math.sqrt(2+1)-1)/2;
 		private const double STRETCH_3D = -1.0/6.0; //(1/Math.sqrt(3+1)-1)/3;
@@ -218,7 +219,7 @@ namespace MiNET.Utils
 			}
 		}
 
-		public double Evaluate(double x, double y)
+		public float GetValue(float x, float y)
 		{
 			var stretchOffset = (x + y)*STRETCH_2D;
 			var xs = x + stretchOffset;
@@ -263,10 +264,10 @@ namespace MiNET.Utils
 				}
 				c = c.Next;
 			}
-			return value*NORM_2D;
+			return (float)(value *NORM_2D);
 		}
 
-		public double Evaluate(double x, double y, double z)
+		public float GetValue(float x, float y, float z)
 		{
 			var stretchOffset = (x + y + z)*STRETCH_3D;
 			var xs = x + stretchOffset;
@@ -321,10 +322,10 @@ namespace MiNET.Utils
 
 				c = c.Next;
 			}
-			return value*NORM_3D;
+			return (float)(value *NORM_3D);
 		}
 
-		public double Evaluate(double x, double y, double z, double w)
+		public float GetValue(float x, float y, float z, float w)
 		{
 			var stretchOffset = (x + y + z + w)*STRETCH_4D;
 			var xs = x + stretchOffset;
@@ -388,7 +389,7 @@ namespace MiNET.Utils
 
 				c = c.Next;
 			}
-			return value*NORM_4D;
+			return (float)(value*NORM_4D);
 		}
 
 		private class Contribution2

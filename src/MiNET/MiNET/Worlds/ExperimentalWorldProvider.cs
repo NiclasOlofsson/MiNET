@@ -271,7 +271,7 @@ namespace MiNET.Worlds
 
 		public static int GetNoise(int x, int z, float scale, int max)
 		{
-			return (int) Math.Floor((OpenNoise.Evaluate(x*scale, z*scale) + 1f)*(max/2f));
+			return (int) Math.Floor((OpenNoise.GetValue(x*scale, z*scale) + 1f)*(max/2f));
 		}
 	}
 }

@@ -8,17 +8,17 @@ namespace MiNET.Utils.Noise
 	{
 		private readonly long _seed;
 		private readonly int _octaves;
-		private SimplexPerlin[] _generators;
+		private OpenSimplexNoise[] _generators;
 
 		public SimplexOctaveGenerator(int seed, int octaves)
 		{
 			_seed = seed;
 			_octaves = octaves;
 
-			_generators = new SimplexPerlin[octaves];
+			_generators = new OpenSimplexNoise[octaves];
 			for (int i = 0; i < _generators.Length; i++)
 			{
-				_generators[i] = new SimplexPerlin(seed);
+				_generators[i] = new OpenSimplexNoise(seed);
 			}
 		}
 

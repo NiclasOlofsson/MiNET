@@ -37,6 +37,7 @@
 	<ItemGroup>
 		<PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
 		<PackageReference Include="jose-jwt" Version="2.4.0" />
+		<PackageReference Include="LibNoise" Version="0.2.0" />
 		<PackageReference Include="log4net" Version="2.0.8" />
 		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
 		<PackageReference Include="MiNET.astar" Version="1.0.14" />

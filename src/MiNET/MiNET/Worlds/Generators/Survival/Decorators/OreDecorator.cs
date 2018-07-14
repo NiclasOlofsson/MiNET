@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LibNoise;
+using LibNoise.Filter;
+using LibNoise.Primitive;
+using MiNET.Utils;
 using MiNET.Utils.Noise;
-using MiNET.Utils.Noise.Filter;
 
 namespace MiNET.Worlds.Generators.Survival.Decorators
 {
@@ -50,7 +53,7 @@ namespace MiNET.Worlds.Generators.Survival.Decorators
 		{
 			_simplex = new SumFractal()
 			{
-				Primitive3D = new SimplexPerlin(seed + 666),
+				Primitive3D = new OpenSimplexNoise(seed + 666),
 				Frequency = 1f,
 				OctaveCount = 2,
 				Lacunarity = 0.65f

@@ -1,4 +1,6 @@
-﻿namespace MiNET.Utils.Noise
+﻿using LibNoise;
+
+namespace MiNET.Utils.Noise
 {
 	public sealed class ScaleableNoise : IModule, IModule2D, IModule3D
 	{

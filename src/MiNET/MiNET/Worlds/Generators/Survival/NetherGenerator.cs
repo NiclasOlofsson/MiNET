@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using LibNoise;
+using LibNoise.Filter;
+using LibNoise.Modifier;
+using LibNoise.Primitive;
 using MiNET.Utils;
 using MiNET.Utils.Noise;
-using MiNET.Utils.Noise.Filter;
 
 namespace MiNET.Worlds.Generators.Survival
 {
@@ -13,7 +16,7 @@ namespace MiNET.Worlds.Generators.Survival
 		public NetherGenerator()
 		{
 			int seed = (int)(OverworldGenerator.CalculateHash(Config.GetProperty("seed", "YoHoMotherducker!")) % int.MaxValue);
-			var noise1 = new SimplexPerlin(seed);
+			var noise1 = new OpenSimplexNoise(seed);
 			var noise2 = new SumFractal()
 			{
 				Primitive3D = noise1,
@@ -28,10 +31,14 @@ namespace MiNET.Worlds.Generators.Survival
 				OctaveCount = 4
 			};
 
-			var noise4 = new NoiseBlender(new RidgedMultiFractal()
+			var noise4 = new Blend(new RidgedMultiFractal()
 			{
-				Primitive3D = new SimplexPerlin(seed - 20)
+				Primitive3D = new OpenSimplexNoise(seed - 20)
 			}, noise2, noise3);
+				//var noise4 = new NoiseBlender(new RidgedMultiFractal()
+			//{
+			//	Primitive3D = new OpenSimplexNoise(seed - 20)
+			//}, noise2, noise3);
 
 			MainNoise = new ScaleableNoise()
 			{

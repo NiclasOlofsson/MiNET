@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Utils;
 using MiNET.Worlds;
+using MiNET.Worlds.Generators.Survival;
 
 namespace MiNET
 {
@@ -63,6 +64,15 @@ namespace MiNET
 						break;
 					case "experimental":
 						worldProvider = new ExperimentalWorldProvider();
+						break;
+					case "survival":
+						//OverworldGenerator
+						worldProvider = new AnvilWorldProvider()
+						{
+							MissingChunkProvider = new OverworldGenerator(),
+							ReadSkyLight = !Config.GetProperty("CalculateLights", false),
+							ReadBlockLight = !Config.GetProperty("CalculateLights", false),
+						};
 						break;
 					case "anvil":
 					case "flat":

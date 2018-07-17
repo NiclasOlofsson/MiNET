@@ -159,6 +159,13 @@ namespace MiNET.Items
 			}
 
 			painting.SpawnEntity();
+
+			if (player.GameMode == GameMode.Survival)
+			{
+				var itemInHand = player.Inventory.GetItemInHand();
+				itemInHand.Count--;
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+			}
 		}
 
 		private List<(PaintingData, BoundingBox)> FindPaintings(Level world, BlockCoordinates emptyCoordinates, BlockFace face)

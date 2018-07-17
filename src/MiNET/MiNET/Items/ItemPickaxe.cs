@@ -1,4 +1,4 @@
-﻿#region LICENSE
+#region LICENSE
 
 // The contents of this file are subject to the Common Public Attribution
 // License Version 1.0. (the "License"); you may not use this file except in
@@ -23,13 +23,36 @@
 
 #endregion
 
+using MiNET.Blocks;
+using MiNET.Entities;
+
 namespace MiNET.Items
 {
-	public class ItemStoneSword : ItemSword
+	public class ItemPickaxe : Item
 	{
-		public ItemStoneSword() : base(272)
+		internal ItemPickaxe(short id) : base(id)
 		{
-			ItemMaterial = ItemMaterial.Stone;
+			MaxStackSize = 1;
+			ItemType = ItemType.PickAxe;
+		}
+
+		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			switch (reason)
+			{
+				case ItemDamageReason.BlockBreak:
+				{
+					Metadata++;
+					return Metadata >= GetMaxUses() - 1;
+				}
+				case ItemDamageReason.EntityAttack:
+				{
+					Metadata += 2;
+					return Metadata >= GetMaxUses() - 1;
+				}
+				default:
+					return false;
+			}
 		}
 	}
 }

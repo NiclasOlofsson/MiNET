@@ -161,14 +161,14 @@ namespace MiNET.Worlds
 					Log.Debug("Checking for safe spawn");
 				}
 
-				//if (LevelManager != null && WorldProvider.HaveNether())
-				//{
-				//	NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
-				//}
-				//if (LevelManager != null && WorldProvider.HaveTheEnd())
-				//{
-				//	TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
-				//}
+				if (LevelManager != null && WorldProvider.HaveNether())
+				{
+					NetherLevel = LevelManager.GetDimension(this, Dimension.Nether);
+				}
+				if (LevelManager != null && WorldProvider.HaveTheEnd())
+				{
+					TheEndLevel = LevelManager.GetDimension(this, Dimension.TheEnd);
+				}
 			}
 
 			//SpawnPoint.Y = 20;
@@ -1398,6 +1398,7 @@ namespace MiNET.Worlds
 			{
 				BreakBlock(player, block, blockEntity, inHand);
 
+				player.Inventory.DamageItemInHand(ItemDamageReason.BlockBreak, null, block);
 				player.HungerManager.IncreaseExhaustion(0.025f);
 				player.AddExperience(block.GetExperiencePoints());
 			}

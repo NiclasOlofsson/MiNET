@@ -2093,6 +2093,7 @@ namespace MiNET
 				target.HealthManager.TakeHit(this, itemInHand, CalculateDamage(target), DamageCause.EntityAttack);
 			}
 
+			Inventory.DamageItemInHand(ItemDamageReason.EntityAttack, target, null);
 			HungerManager.IncreaseExhaustion(0.3f);
 		}
 
@@ -2154,11 +2155,6 @@ namespace MiNET
 			{
 				case McpeInventoryTransaction.ItemUseAction.Place:
 					Level.Interact(this, itemInHand, transaction.Position, (BlockFace) transaction.Face, transaction.ClickPosition);
-					if (GameMode == GameMode.Survival && transaction.Item.Id != 0)
-					{
-						transaction.Item.Count--;
-						Inventory.SetInventorySlot(transaction.Slot, transaction.Item);
-					}
 					break;
 				case McpeInventoryTransaction.ItemUseAction.Use:
 					_itemUseTimer = Level.TickTime;

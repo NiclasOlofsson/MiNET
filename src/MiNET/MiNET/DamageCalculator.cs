@@ -46,7 +46,7 @@ namespace MiNET
 						break;
 					case EnchantingType.SilkTouch:
 						break;
-					case EnchantingType.Durability:
+					case EnchantingType.Unbreaking:
 						break;
 					case EnchantingType.Fortune:
 						break;
@@ -304,7 +304,7 @@ namespace MiNET
 							break;
 						case EnchantingType.SilkTouch:
 							break;
-						case EnchantingType.Durability:
+						case EnchantingType.Unbreaking:
 							break;
 						case EnchantingType.Fortune:
 							break;

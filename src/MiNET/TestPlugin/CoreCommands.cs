@@ -913,7 +913,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
-			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
+			inventory.Slots[c++] = new ItemGoldenSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
 			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows

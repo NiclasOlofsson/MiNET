@@ -23,13 +23,36 @@
 
 #endregion
 
+using MiNET.Blocks;
+using MiNET.Entities;
+
 namespace MiNET.Items
 {
-	public class ItemStoneSword : ItemSword
+	public class ItemSword : Item
 	{
-		public ItemStoneSword() : base(272)
+		internal ItemSword(short id) : base(id)
 		{
-			ItemMaterial = ItemMaterial.Stone;
+			MaxStackSize = 1;
+			ItemType = ItemType.Sword;
+		}
+
+		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			switch (reason)
+			{
+				case ItemDamageReason.BlockBreak:
+				{
+					Metadata += 2;
+					return Metadata >= GetMaxUses() - 1;
+				}
+				case ItemDamageReason.EntityAttack:
+				{
+					Metadata++;
+					return Metadata >= GetMaxUses() - 1;
+				}
+				default:
+					return false;
+			}
 		}
 	}
 }

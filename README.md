@@ -47,4 +47,4 @@ No, but you can ask questions on [stack**overflow**](http://stackoverflow.com/qu
 
 ## Installation
 
-MiNET is now a .NET Core 2.1 project. But it's pretty new, and I haven't had time to prepare instructions for installation. Normally it's a matter of fetching the project and building it, but if you don't want to build from source or need instructions, jump on discord and ask for help until I've updated the installation intstructions.
+MiNET is now a .NET Core 2.1 project. But it's pretty new, and I haven't had time to prepare instructions for installation. Normally it's a matter of fetching the project and building it, but if you don't want to build from source or need instructions, jump on discord and ask for help until I've updated the installation instructions.

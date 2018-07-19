@@ -48,7 +48,7 @@ namespace MiNET.Blocks
 			var shulkerBoxBlockEntity = new ShulkerBoxBlockEntity
 			{
 				Coordinates = Coordinates,
-                Facing = (byte) face
+				Facing = (byte) face
 			};
 
 			world.SetBlockEntity(shulkerBoxBlockEntity);

@@ -539,6 +539,12 @@ namespace MiNET.Worlds
 										}
 									}
 								}
+								else if (blockEntity is BedBlockEntity)
+								{
+									var color = blockEntityTag["color"];
+									blockEntityTag.Remove("color");
+									blockEntityTag.Add(color is NbtByte ? color : new NbtByte("color", (byte) color.IntValue));
+								}
 								else if (blockEntity is FlowerPotBlockEntity)
 								{
 									string itemName = blockEntityTag["Item"].StringValue;

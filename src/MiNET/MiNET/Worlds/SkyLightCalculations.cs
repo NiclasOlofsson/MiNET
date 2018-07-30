@@ -36,8 +36,6 @@ using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
 using MiNET.Utils;
-using SharpAvi;
-using SharpAvi.Output;
 
 namespace MiNET.Worlds
 {
@@ -199,27 +197,6 @@ namespace MiNET.Worlds
 			Task.WaitAll(t0, t1, t2, t3, t4, t5);
 
 			Log.Debug($"Recalc skylight for {_chunkCount:N0} chunks, {_chunkCount*16*16*256:N0} blocks. Touches={calculator.visits:N0} Time {sw.ElapsedMilliseconds:N0}ms");
-
-			if (calculator.TrackResults)
-			{
-				Task.Run(() =>
-				{
-					tickerHighPrecisionTimer?.Dispose();
-					calculator.SnapshotVisits();
-					calculator.SnapshotVisits();
-
-					if (calculator.RenderingTasks.Count == 0) return;
-
-					// Start with an end-frame (twitter thumbs)
-					var last = calculator.RenderingTasks.Last();
-					calculator.RenderingTasks.Remove(last);
-					calculator.RenderingTasks.Insert(0, last);
-
-					calculator.RenderVideo();
-
-					Log.Debug($"Movie rendered.");
-				});
-			}
 
 			//foreach (var chunk in chunks)
 			//{
@@ -844,84 +821,6 @@ namespace MiNET.Worlds
 			int zd = Math.Abs(zMax - zMin);
 
 			return zd + 1;
-		}
-
-		private void RenderVideo()
-		{
-			try
-			{
-				if (!TrackResults) return;
-
-
-				var moviePath = @"D:\Temp\Light\test.avi";
-				Log.Debug($"Generated all images, now rendering movie to {moviePath}");
-
-				//var files = Directory.EnumerateFiles(@"D:\Temp\Light\", "*.bmp");
-				//files = files.OrderBy(s => s);
-
-				//int fps = (int) (RenderingTasks.Count()/10f); // Movie should last 5 seconds
-				int fps = 10;
-
-				var writer = new AviWriter(moviePath)
-				{
-					FramesPerSecond = fps,
-					// Emitting AVI v1 index in addition to OpenDML index (AVI v2)
-					// improves compatibility with some software, including 
-					// standard Windows programs like Media Player and File Explorer
-					EmitIndex1 = true
-				};
-
-				var stream = writer.AddVideoStream();
-				stream.Width = GetWidth();
-				stream.Height = GetHeight();
-				stream.Codec = KnownFourCCs.Codecs.Uncompressed;
-
-				stream.BitsPerPixel = BitsPerPixel.Bpp32;
-
-				Log.Debug($"Waiting for image rendering of {RenderingTasks.Count} images to complete");
-				foreach (var renderingTask in RenderingTasks)
-				{
-					renderingTask.RunSynchronously();
-					Bitmap image = renderingTask.Result;
-					//}
-
-					//foreach (var file in files)
-					//{
-					lock (_imageSync)
-					{
-						//Bitmap image = (Bitmap) Image.FromFile(file);
-						//image = new Bitmap(image, stream.Width, stream.Height);
-
-						byte[] imageData = (byte[]) ToByteArray(image, ImageFormat.Bmp);
-
-						if (imageData == null)
-						{
-							Log.Warn($"No image data for file.");
-							continue;
-						}
-
-						if (imageData.Length != stream.Height*stream.Width*4)
-						{
-							imageData = imageData.Skip(imageData.Length - (stream.Height*stream.Width*4)).ToArray();
-						}
-
-						// fill frameData with image
-
-						// write data to a frame
-						stream.WriteFrame(true, // is key frame? (many codecs use concept of key frames, for others - all frames are keys)
-							imageData, // array with frame data
-							0, // starting index in the array
-							imageData.Length // length of the data
-						);
-					}
-				}
-
-				writer.Close();
-			}
-			catch (Exception e)
-			{
-				Log.Error("Rendering movie", e);
-			}
 		}
 
 		public static byte[] ToByteArray(Image image, ImageFormat format)

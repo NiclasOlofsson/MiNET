@@ -42,8 +42,8 @@ namespace MiNET.Net
 {
 	public class McpeProtocolInfo
 	{
-		public const int ProtocolVersion = 281;
-		public const string GameVersion = "1.6.0.5";
+		public const int ProtocolVersion = 282;
+		public const string GameVersion = "1.6.0.8";
 	}
 
 	public interface IMcpeMessageHandler
@@ -2130,6 +2130,7 @@ namespace MiNET.Net
 		public long currentTick; // = null;
 		public int enchantmentSeed; // = null;
 		public Blockstates blockstates; // = null;
+		public string multiplayerCorrelationId; // = null;
 
 		public McpeStartGame()
 		{
@@ -2187,6 +2188,7 @@ namespace MiNET.Net
 			Write(currentTick);
 			WriteSignedVarInt(enchantmentSeed);
 			Write(blockstates);
+			Write(multiplayerCorrelationId);
 
 			AfterEncode();
 		}
@@ -2244,6 +2246,7 @@ namespace MiNET.Net
 			currentTick = ReadLong();
 			enchantmentSeed = ReadSignedVarInt();
 			blockstates = ReadBlockstates();
+			multiplayerCorrelationId = ReadString();
 
 			AfterDecode();
 		}
@@ -2299,6 +2302,7 @@ namespace MiNET.Net
 			currentTick=default(long);
 			enchantmentSeed=default(int);
 			blockstates=default(Blockstates);
+			multiplayerCorrelationId=default(string);
 		}
 
 	}
@@ -2331,6 +2335,7 @@ namespace MiNET.Net
 		public uint customStoredPermissions; // = null;
 		public long userId; // = null;
 		public Links links; // = null;
+		public string deviceId; // = null;
 
 		public McpeAddPlayer()
 		{
@@ -2369,6 +2374,7 @@ namespace MiNET.Net
 			WriteUnsignedVarInt(customStoredPermissions);
 			Write(userId);
 			Write(links);
+			Write(deviceId);
 
 			AfterEncode();
 		}
@@ -2407,6 +2413,7 @@ namespace MiNET.Net
 			customStoredPermissions = ReadUnsignedVarInt();
 			userId = ReadLong();
 			links = ReadLinks();
+			deviceId = ReadString();
 
 			AfterDecode();
 		}
@@ -2443,6 +2450,7 @@ namespace MiNET.Net
 			customStoredPermissions=default(uint);
 			userId=default(long);
 			links=default(Links);
+			deviceId=default(string);
 		}
 
 	}

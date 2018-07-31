@@ -128,6 +128,7 @@ Read more about packets and this specification on the [Protocol Wiki](https://gi
 | Data type | 
 |:--- |
 | BlockCoordinates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-BlockCoordinates) |
+| Blockstates [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-Blockstates) |
 | bool [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-bool) |
 | byte [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte) |
 | byte[] [(wiki)](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-Type-byte[]) |
@@ -427,6 +428,8 @@ Wiki: [Start Game](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-StartG
 |Is Trial | bool |  |
 |Current Tick | long |  |
 |Enchantment Seed | SignedVarInt |  |
+|Blockstates | Blockstates |  |
+|Multiplayer Correlation ID | string |  |
 -----------------------------------------------------------------------
 ### Add Player (0x0c)
 Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPlayer)
@@ -466,6 +469,7 @@ Wiki: [Add Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddPla
 |Custom stored permissions | UnsignedVarInt |  |
 |User Id | long |  |
 |Links | Links |  |
+|Device ID | string |  |
 -----------------------------------------------------------------------
 ### Add Entity (0x0d)
 Wiki: [Add Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-AddEntity)
@@ -503,6 +507,7 @@ val2 float
 |Speed Z | float |  |
 |Pitch | float |  |
 |Yaw | float |  |
+|Head Yaw | float |  |
 |Attributes | EntityAttributes |  |
 |Metadata | MetadataDictionary |  |
 |Links | Links |  |
@@ -577,9 +582,8 @@ Wiki: [Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveE
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
+|Flags | short |  |
 |Position | PlayerLocation |  |
-|On Ground | bool |  |
-|Teleport | bool |  |
 -----------------------------------------------------------------------
 ### Move Player (0x13)
 Wiki: [Move Player](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MovePlayer)

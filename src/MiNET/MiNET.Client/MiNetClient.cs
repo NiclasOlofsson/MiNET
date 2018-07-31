@@ -1427,7 +1427,7 @@ namespace MiNET.Client
 			string x5u = headers["x5u"];
 
 			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
-				PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+				PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 
 
 			var signParam = new ECParameters

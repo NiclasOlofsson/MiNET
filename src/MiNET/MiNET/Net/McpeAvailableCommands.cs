@@ -92,7 +92,19 @@ namespace MiNET.Net
 					Log.Debug($"{s}:{c}");
 					for (int j = 0; j < c; j++)
 					{
-						int idx = ReadShort();
+						int idx;
+						if (count <= byte.MaxValue)
+						{
+							idx = ReadByte();
+						}
+						else if (count <= short.MaxValue)
+						{
+							idx = ReadShort();
+						}
+						else
+						{
+							idx = ReadInt();
+						}
 
 						Log.Debug($"{s}:{c}:{idx}");
 						string enumValue = enumValues[idx];

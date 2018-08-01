@@ -280,12 +280,38 @@ namespace MiNET.Utils
 				{
 					X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
 					Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
-				},
-				D = privAsyKey.D.ToByteArrayUnsigned()
+				}
 			};
+			signParam.D = FixDSize(privAsyKey.D.ToByteArrayUnsigned(), signParam.Q.X.Length);
 			signParam.Validate();
 
 			return ECDsa.Create(signParam);
+		}
+
+		private static byte[] FixDSize(byte[] input, int expectedSize)
+		{
+			if (input.Length == expectedSize)
+			{
+				return input;
+			}
+
+			byte[] tmp;
+
+			if (input.Length < expectedSize)
+			{
+				tmp = new byte[expectedSize];
+				Buffer.BlockCopy(input, 0, tmp, expectedSize - input.Length, input.Length);
+				return tmp;
+			}
+
+			if (input.Length > expectedSize + 1 || input[0] != 0)
+			{
+				throw new InvalidOperationException();
+			}
+
+			tmp = new byte[expectedSize];
+			Buffer.BlockCopy(input, 1, tmp, 0, expectedSize);
+			return tmp;
 		}
 
 		public static byte[] CompressJwtBytes(byte[] certChain, byte[] skinData, CompressionLevel compressionLevel)

@@ -2751,7 +2751,7 @@ namespace MiNET.Net
 	{
 
 		public long runtimeEntityId; // = null;
-		public short flags; // = null;
+		public byte flags; // = null;
 		public PlayerLocation position; // = null;
 
 		public McpeMoveEntity()
@@ -2783,7 +2783,7 @@ namespace MiNET.Net
 			BeforeDecode();
 
 			runtimeEntityId = ReadUnsignedVarLong();
-			flags = ReadShort();
+			flags = ReadByte();
 			position = ReadPlayerLocation();
 
 			AfterDecode();
@@ -2797,7 +2797,7 @@ namespace MiNET.Net
 			base.ResetPacket();
 
 			runtimeEntityId=default(long);
-			flags=default(short);
+			flags=default(byte);
 			position=default(PlayerLocation);
 		}
 

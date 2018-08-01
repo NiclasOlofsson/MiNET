@@ -582,7 +582,7 @@ Wiki: [Move Entity](https://github.com/NiclasOlofsson/MiNET/wiki//Protocol-MoveE
 | Name | Type | Size |
 |:-----|:-----|:-----|
 |Runtime Entity ID | UnsignedVarLong |  |
-|Flags | short |  |
+|Flags | byte |  |
 |Position | PlayerLocation |  |
 -----------------------------------------------------------------------
 ### Move Player (0x13)

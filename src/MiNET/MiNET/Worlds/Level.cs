@@ -36,6 +36,8 @@ using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Entities;
 using MiNET.Entities.Hostile;
 using MiNET.Entities.Passive;
@@ -51,6 +53,7 @@ namespace MiNET.Worlds
 	public class Level : IBlockAccess
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (Level));
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
 
 		public static readonly BlockCoordinates Up = new BlockCoordinates(0, 1, 0);
 		public static readonly BlockCoordinates Down = new BlockCoordinates(0, -1, 0);
@@ -154,7 +157,7 @@ namespace MiNET.Worlds
 
 			if (Dimension == Dimension.Overworld)
 			{
-				if (Config.GetProperty("CheckForSafeSpawn", false))
+				if (WorldConfig.CheckForSafeSpawn)
 				{
 					var height = GetHeight((BlockCoordinates) SpawnPoint);
 					if (height > SpawnPoint.Y) SpawnPoint.Y = height;

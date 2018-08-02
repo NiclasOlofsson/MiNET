@@ -35,6 +35,8 @@ using System.Threading;
 using JetBrains.Annotations;
 using Jose;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Net;
 using MiNET.Utils.Skins;
 using Org.BouncyCastle.Asn1;
@@ -49,6 +51,7 @@ namespace MiNET.Utils
 	public static class CryptoUtils
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (CryptoUtils));
+		private static readonly ISecurityConfiguration SecurityConfig = ConfigurationProvider.Configuration.Security;
 
 		public static byte[] DecodeBase64Url(this string input)
 		{
@@ -246,7 +249,7 @@ namespace MiNET.Utils
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
 	""GameVersion"": ""{McpeProtocolInfo.GameVersion}"",
-	""IsEduMode"": {Config.GetProperty("EnableEdu", false).ToString().ToLower()},
+	""IsEduMode"": {SecurityConfig.EnableEdu.ToString().ToLower()},
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""PlatformOfflineId"": """",

@@ -31,16 +31,16 @@ using System.Reflection;
 using log4net;
 using MiNET.Worlds;
 
-namespace MiNET.Utils
+namespace MiNET.Console.Config
 {
-	public class Config
+	internal class ConfigParser
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Config));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ConfigParser));
 
 		public static string ConfigFileName = "server.conf";
 		private static IReadOnlyDictionary<string, string> KeyValues { get; set; }
 
-		static Config()
+		static ConfigParser()
 		{
 			try
 			{

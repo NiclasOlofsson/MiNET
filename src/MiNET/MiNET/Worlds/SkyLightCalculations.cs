@@ -35,6 +35,8 @@ using System.Numerics;
 using System.Threading.Tasks;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Utils;
 using SharpAvi;
 using SharpAvi.Output;
@@ -114,6 +116,7 @@ namespace MiNET.Worlds
 	public class SkyLightCalculations
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (SkyLightCalculations));
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
 
 		// Debug tracking, don't enable unless you really need to "see it".
 
@@ -148,7 +151,7 @@ namespace MiNET.Worlds
 
 			//Log.Debug($"Recalc height level {level.LevelName}({level.LevelId}) for {_chunkCount} chunks, {_chunkCount*16*16*256} blocks. Time {sw.ElapsedMilliseconds}ms");
 
-			SkyLightCalculations calculator = new SkyLightCalculations(Config.GetProperty("CalculateLights.MakeMovie", false));
+			SkyLightCalculations calculator = new SkyLightCalculations(WorldConfig.CalculateLightsMakeMovie);
 
 			int midX = calculator.GetMidX(chunks.ToArray());
 			//int width = calculator.GetWidth(chunks.ToArray());

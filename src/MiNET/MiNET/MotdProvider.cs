@@ -24,6 +24,8 @@
 #endregion
 
 using System.Net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Net;
 using MiNET.Utils;
 
@@ -31,6 +33,7 @@ namespace MiNET
 {
 	public class MotdProvider
 	{
+		private static readonly IServerConfiguration ServerConfig = ConfigurationProvider.Configuration.Server;
 		public string Motd { get; set; }
 
 		public string SecondLine { get; set; }
@@ -41,8 +44,8 @@ namespace MiNET
 
 		public MotdProvider()
 		{
-			Motd = Config.GetProperty("motd", "MiNET: MCPE Server");
-			SecondLine = Config.GetProperty("motd-2nd", "MiNET");
+			Motd = ServerConfig.Motd;
+			SecondLine = ServerConfig.MotdSecond;
 		}
 
 		public virtual string GetMotd(ServerInfo serverInfo, IPEndPoint caller, bool eduMotd = false)

@@ -38,6 +38,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using log4net;
 using Microsoft.IO;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Net;
 using MiNET.Plugins;
 using MiNET.Utils;
@@ -49,6 +51,7 @@ namespace MiNET
 	public class MiNetServer
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(MiNetServer));
+		private static readonly IConfiguration Config = ConfigurationProvider.Configuration;
 
 		private const int DefaultPort = 19132;
 
@@ -65,7 +68,7 @@ namespace MiNET
 		public PlayerFactory PlayerFactory { get; set; }
 		public GreylistManager GreylistManager { get; set; }
 
-		public bool IsEdu { get; set; } = Config.GetProperty("EnableEdu", false);
+		public bool IsEdu { get; set; }
 		public EduTokenManager EduTokenManager { get; set; }
 
 		public PluginManager PluginManager { get; set; }
@@ -86,15 +89,18 @@ namespace MiNET
 		internal static DedicatedThreadPool FastThreadPool { get; set; }
 		internal static DedicatedThreadPool LevelThreadPool { get; set; }
 
-		public MiNetServer()
+		public MiNetServer(IConfiguration config)
 		{
-			ServerRole = Config.GetProperty("ServerRole", ServerRole.Full);
-			InacvitityTimeout = Config.GetProperty("InactivityTimeout", 8500);
-			ResendThreshold = Config.GetProperty("ResendThreshold", 10);
-			ForceOrderingForAll = Config.GetProperty("ForceOrderingForAll", false);
+			ConfigurationProvider.Configuration = config;
 
-			int confMinWorkerThreads = Config.GetProperty("MinWorkerThreads", -1);
-			int confMinCompletionPortThreads = Config.GetProperty("MinCompletionPortThreads", -1);
+			IsEdu = Config.Security.EnableEdu;
+			ServerRole = Config.Server.ServerRole;
+			InacvitityTimeout = Config.Server.InactivityTimeout;
+			ResendThreshold = Config.Server.ResendThreshold;
+			ForceOrderingForAll = Config.Server.ForceOrderingForAll;
+
+			int confMinWorkerThreads = Config.Server.MinWorkerThreads;
+			int confMinCompletionPortThreads = Config.Server.MinCompletionPortThreads;
 
 			int threads;
 			int iothreads;
@@ -160,8 +166,8 @@ namespace MiNET
 
 					if (Endpoint == null)
 					{
-						var ip = IPAddress.Parse(Config.GetProperty("ip", "0.0.0.0"));
-						int port = Config.GetProperty("port", 19132);
+						var ip = IPAddress.Parse(Config.Server.Ip);
+						int port = Config.Server.Port;
 						Endpoint = new IPEndPoint(ip, port);
 					}
 				}
@@ -202,9 +208,9 @@ namespace MiNET
 
 				ServerInfo = new ServerInfo(LevelManager, _playerSessions)
 				{
-					MaxNumberOfPlayers = Config.GetProperty("MaxNumberOfPlayers", 1000)
+					MaxNumberOfPlayers = Config.Server.MaxNumberOfPlayers
 				};
-				ServerInfo.MaxNumberOfConcurrentConnects = Config.GetProperty("MaxNumberOfConcurrentConnects", ServerInfo.MaxNumberOfPlayers);
+				ServerInfo.MaxNumberOfConcurrentConnects = Config.Server.MaxNumberOfConcurrentConnects;
 
 				_tickerHighPrecisionTimer = new HighPrecisionTimer(10, SendTick, true);
 
@@ -776,7 +782,7 @@ namespace MiNET
 
 		private void HandleQuery(byte[] receiveBytes, IPEndPoint senderEndpoint)
 		{
-			if (!Config.GetProperty("EnableQuery", false)) return;
+			if (!Config.Server.EnableQuery) return;
 
 			if (receiveBytes[0] != 0xFE || receiveBytes[1] != 0xFD) return;
 
@@ -1091,10 +1097,10 @@ namespace MiNET
 			{
 				string typeName = message.GetType().Name;
 
-				string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-				string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
-				int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-				verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+				string includePattern = Config.Debug.TracePacketsInclude;
+				string excludePattern = Config.Debug.TracePacketsExclude;
+				int verbosity = Config.Debug.TracePacketsVerbosity;
+				verbosity = Config.Debug.TracePacketsVerbosityFor(typeName);
 
 				if (!Regex.IsMatch(typeName, includePattern))
 				{
@@ -1160,10 +1166,10 @@ namespace MiNET
 			{
 				string typeName = message.GetType().Name;
 
-				string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-				string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
-				int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-				verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+				string includePattern = Config.Debug.TracePacketsInclude;
+				string excludePattern = Config.Debug.TracePacketsExclude;
+				int verbosity = Config.Debug.TracePacketsVerbosity;
+				verbosity = Config.Debug.TracePacketsVerbosityFor(typeName);
 
 				if (!Regex.IsMatch(typeName, includePattern))
 				{

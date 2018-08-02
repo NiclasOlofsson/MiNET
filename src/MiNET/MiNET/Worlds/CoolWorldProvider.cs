@@ -28,6 +28,8 @@ using System.Collections.Concurrent;
 using System.Numerics;
 using LibNoise;
 using LibNoise.Primitive;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Utils;
 using MiNET.Worlds.Structures;
 
@@ -111,7 +113,8 @@ namespace MiNET.Worlds
 
 	public class CoolWorldProvider : IWorldProvider
 	{
-		private string _seed = Config.GetProperty("seed", "noise");
+		private static readonly  IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
+		private string _seed = WorldConfig.Seed;
 		private readonly ConcurrentDictionary<ChunkCoordinates, ChunkColumn> _chunkCache = new ConcurrentDictionary<ChunkCoordinates, ChunkColumn>();
 		public bool IsCaching { get; private set; }
 

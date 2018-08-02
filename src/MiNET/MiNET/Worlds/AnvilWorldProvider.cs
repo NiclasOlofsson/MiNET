@@ -37,6 +37,8 @@ using fNbt;
 using log4net;
 using MiNET.BlockEntities;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -61,6 +63,7 @@ namespace MiNET.Worlds
 	public class AnvilWorldProvider : IWorldProvider, ICachingWorldProvider, ICloneable
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(AnvilWorldProvider));
+		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
 
 		public static readonly Dictionary<int, Tuple<int, Func<int, byte, byte>>> Convert;
 
@@ -229,7 +232,7 @@ namespace MiNET.Worlds
 			{
 				if (_isInitialized) return;
 
-				BasePath = BasePath ?? Config.GetProperty("PCWorldFolder", "World").Trim();
+				BasePath = BasePath ?? WorldConfig.PCWorldFolder.Trim();
 
 				NbtFile file = new NbtFile();
 				var levelFileName = Path.Combine(BasePath, "level.dat");
@@ -287,7 +290,7 @@ namespace MiNET.Worlds
 					if (!coords.Contains(chunkCoordinates)) coords.Add(chunkCoordinates);
 				}
 
-				bool save = Config.GetProperty("Save.Enabled", false);
+				bool save = WorldConfig.SaveEnabled;
 
 				Parallel.ForEach(_chunkCache, (chunkColumn) =>
 				{
@@ -359,7 +362,7 @@ namespace MiNET.Worlds
 					var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 					if (chunkColumn != null)
 					{
-						if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
+						if (Dimension == Dimension.Overworld && WorldConfig.CalculateLights)
 						{
 							SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
 							new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
@@ -405,7 +408,7 @@ namespace MiNET.Worlds
 						var chunkColumn = generator?.GenerateChunkColumn(coordinates);
 						if (chunkColumn != null)
 						{
-							if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
+							if (Dimension == Dimension.Overworld && WorldConfig.CalculateLights)
 							{
 								SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunkColumn);
 								new SkyLightCalculations().RecalcSkyLight(chunkColumn, blockAccess);
@@ -583,7 +586,7 @@ namespace MiNET.Worlds
 
 					chunk.RecalcHeight();
 
-					if (Dimension == Dimension.Overworld && Config.GetProperty("CalculateLights", false))
+					if (Dimension == Dimension.Overworld && WorldConfig.CalculateLights)
 					{
 						SkyLightBlockAccess blockAccess = new SkyLightBlockAccess(this, chunk);
 						new SkyLightCalculations().RecalcSkyLight(chunk, blockAccess);
@@ -776,7 +779,7 @@ namespace MiNET.Worlds
 
 		public int SaveChunks()
 		{
-			if (!Config.GetProperty("Save.Enabled", false)) return 0;
+			if (!WorldConfig.SaveEnabled) return 0;
 
 			int count = 0;
 			try

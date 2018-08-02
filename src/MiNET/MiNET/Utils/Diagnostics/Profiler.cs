@@ -30,6 +30,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 
 namespace MiNET.Utils.Diagnostics
 {
@@ -43,13 +45,14 @@ namespace MiNET.Utils.Diagnostics
 	/// </summary>
 	public class Profiler
 	{
+		private static readonly IDebugConfiguration DebugConfig = ConfigurationProvider.Configuration.Debug;
 		public bool Enabled { get; set; }
 
 		ConcurrentBag<ProfilerResult> _results = new ConcurrentBag<ProfilerResult>();
 
 		public Profiler()
 		{
-			Enabled = Config.GetProperty("Profiler.Enabled", false);
+			Enabled = DebugConfig.ProfilerEnabled;
 		}
 
 		public Measurement Begin(string name)

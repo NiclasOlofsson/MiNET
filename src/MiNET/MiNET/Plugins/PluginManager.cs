@@ -33,6 +33,8 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using log4net;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Net;
 using MiNET.Plugins.Attributes;
 using MiNET.Utils;
@@ -46,12 +48,13 @@ namespace MiNET.Plugins
 	public class PluginManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetServer));
+		private static readonly IPluginConfiguration PluginConfig = ConfigurationProvider.Configuration.Plugin;
 
 		private readonly List<object> _plugins = new List<object>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, PacketHandlerAttribute> _packetSendHandlerDictionary = new Dictionary<MethodInfo, PacketHandlerAttribute>();
 		private readonly Dictionary<MethodInfo, CommandAttribute> _pluginCommands = new Dictionary<MethodInfo, CommandAttribute>();
-
+		
 		public List<object> Plugins
 		{
 			get { return _plugins; }
@@ -63,11 +66,9 @@ namespace MiNET.Plugins
 
 		internal void LoadPlugins()
 		{
-			if (Config.GetProperty("PluginDisabled", false)) return;
+			if (PluginConfig.PluginDisabled) return;
 
-			// Default it is the directory we are executing, and below.
-			string pluginDirectoryPaths = Path.GetDirectoryName(new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath);
-			pluginDirectoryPaths = Config.GetProperty("PluginDirectory", pluginDirectoryPaths);
+			string pluginDirectoryPaths = PluginConfig.PluginDirectoryPaths;
 			//HACK: Make it possible to define multiple PATH;PATH;PATH
 
 			foreach (string dirPath in pluginDirectoryPaths.Split(new char[] {';'}, StringSplitOptions.RemoveEmptyEntries))
@@ -109,7 +110,7 @@ namespace MiNET.Plugins
 									PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;
 									if (pluginAttribute != null)
 									{
-										if (!Config.GetProperty(pluginAttribute.PluginName + ".Enabled", true)) continue;
+										if (!PluginConfig.PluginEnabled(pluginAttribute.PluginName)) continue;
 									}
 								}
 								var ctor = type.GetConstructor(Type.EmptyTypes);

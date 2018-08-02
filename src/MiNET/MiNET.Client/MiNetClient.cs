@@ -47,6 +47,8 @@ using Jose;
 using log4net;
 using log4net.Config;
 using MiNET.Blocks;
+using MiNET.Config;
+using MiNET.Config.Contracts;
 using MiNET.Crafting;
 using MiNET.Entities;
 using MiNET.Items;
@@ -71,6 +73,7 @@ namespace MiNET.Client
 	public class MiNetClient
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof (MiNetClient));
+		private static readonly IConfiguration Config = ConfigurationProvider.Configuration;
 
 		private IPEndPoint _clientEndpoint;
 		private IPEndPoint _serverEndpoint;
@@ -1405,7 +1408,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : McpeProtocolInfo.ProtocolVersion,
+				protocolVersion = Config.Security.EnableEdu ? 111 : McpeProtocolInfo.ProtocolVersion,
 				payload = data
 			};
 
@@ -2542,10 +2545,10 @@ namespace MiNET.Client
 
 			string typeName = message.GetType().Name;
 
-			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-			string excludePattern = Config.GetProperty("TracePackets.Exclude", null);
-			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+			string includePattern = Config.Debug.TracePacketsInclude;
+			string excludePattern = Config.Debug.TracePacketsExclude;
+			int verbosity = Config.Debug.TracePacketsVerbosity;
+			verbosity = Config.Debug.TracePacketsVerbosityFor(typeName);
 
 			if (!Regex.IsMatch(typeName, includePattern))
 			{
@@ -2587,10 +2590,10 @@ namespace MiNET.Client
 
 			string typeName = message.GetType().Name;
 
-			string includePattern = Config.GetProperty("TracePackets.Include", ".*");
-			string excludePattern = Config.GetProperty("TracePackets.Exclude", "");
-			int verbosity = Config.GetProperty("TracePackets.Verbosity", 0);
-			verbosity = Config.GetProperty($"TracePackets.Verbosity.{typeName}", verbosity);
+			string includePattern = Config.Debug.TracePacketsInclude;
+			string excludePattern = Config.Debug.TracePacketsExclude;
+			int verbosity = Config.Debug.TracePacketsVerbosity;
+			verbosity = Config.Debug.TracePacketsVerbosityFor(typeName);
 
 
 			if (!Regex.IsMatch(typeName, includePattern))

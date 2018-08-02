@@ -361,9 +361,9 @@ namespace MiNET
 								{
 									X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
 									Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
-								},
-								D = privAsyKey.D.ToByteArrayUnsigned()
+								}
 							};
+							signParam.D = CryptoUtils.FixDSize(privAsyKey.D.ToByteArrayUnsigned(), signParam.Q.X.Length);
 							signParam.Validate();
 
 							string signedToken = null;

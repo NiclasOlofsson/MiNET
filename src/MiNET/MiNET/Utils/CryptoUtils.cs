@@ -288,7 +288,7 @@ namespace MiNET.Utils
 			return ECDsa.Create(signParam);
 		}
 
-		private static byte[] FixDSize(byte[] input, int expectedSize)
+		public static byte[] FixDSize(byte[] input, int expectedSize)
 		{
 			if (input.Length == expectedSize)
 			{

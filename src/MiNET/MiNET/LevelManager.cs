@@ -38,7 +38,7 @@ namespace MiNET
 	public class LevelManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(LevelManager));
-		private static readonly IConfiguration Config = ConfigurationProvider.Configuration;
+		protected static readonly IConfiguration Config = ConfigurationProvider.Configuration;
 
 		public List<Level> Levels { get; set; } = new List<Level>();
 
@@ -242,7 +242,6 @@ namespace MiNET
 	public class SpreadLevelManager : LevelManager
 	{
 		private static readonly ILog Log = LogManager.GetLogger(typeof(SpreadLevelManager));
-		private static readonly IWorldConfiguration WorldConfig = ConfigurationProvider.Configuration.World;
 
 		private readonly int _numberOfLevels;
 
@@ -274,9 +273,9 @@ namespace MiNET
 
 		public virtual Level CreateLevel(string name, IWorldProvider provider)
 		{
-			GameMode gameMode = WorldConfig.GameMode;
-			Difficulty difficulty = WorldConfig.Difficulty;
-			int viewDistance = WorldConfig.ViewDistance;
+			GameMode gameMode = Config.World.GameMode;
+			Difficulty difficulty = Config.World.Difficulty;
+			int viewDistance = Config.World.ViewDistance;
 
 			IWorldProvider worldProvider = null;
 			worldProvider = provider ?? new AnvilWorldProvider {MissingChunkProvider = new SuperflatGenerator(Dimension.Overworld)};

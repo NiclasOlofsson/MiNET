@@ -45,6 +45,6 @@ Also, make sure to join our discord chat for easy communication.
 
 No, but you can ask questions on [stack**overflow**](http://stackoverflow.com/questions/ask?tags=minet) using the tag *MiNET*. 
 
-## Installation
+## Getting started
 
-MiNET is now a .NET Core 2.1 project. But it's pretty new, and I haven't had time to prepare instructions for installation. Normally it's a matter of fetching the project and building it, but if you don't want to build from source or need instructions, jump on discord and ask for help until I've updated the installation instructions.
+See the [Getting Started](https://github.com/NiclasOlofsson/MiNET/wiki/Getting-Started) section on the wiki.

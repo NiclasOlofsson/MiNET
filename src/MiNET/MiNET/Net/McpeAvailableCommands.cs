@@ -53,6 +53,7 @@ namespace MiNET.Net
 					enumValues.Add(s);
 				}
 			}
+			int enumValuesCount = enumValues.Count();
 
 			{
 				uint count = ReadUnsignedVarInt();
@@ -93,11 +94,11 @@ namespace MiNET.Net
 					for (int j = 0; j < c; j++)
 					{
 						int idx;
-						if (count <= byte.MaxValue)
+						if (enumValuesCount <= byte.MaxValue)
 						{
 							idx = ReadByte();
 						}
-						else if (count <= short.MaxValue)
+						else if (enumValuesCount <= short.MaxValue)
 						{
 							idx = ReadShort();
 						}

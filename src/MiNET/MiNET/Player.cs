@@ -225,9 +225,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
-		{
-		}
+
 
 		private bool _serverHaveResources = false;
 
@@ -2569,7 +2567,7 @@ namespace MiNET
 			startGame.isMultiplayer = true;
 			startGame.broadcastToLan = true;
 			startGame.broadcastToXbl = true;
-			startGame.enableCommands = EnableCommands;
+            startGame.enableCommands = EnableCommands;
 			startGame.isTexturepacksRequired = false;
 			startGame.gamerules = Level.GetGameRules();
 			startGame.bonusChest = false;
@@ -3467,7 +3465,32 @@ namespace MiNET
 		{
 			Ticked?.Invoke(this, e);
 		}
-	}
+
+        public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitialized message)
+        {
+            
+        }
+
+        public void HandleSetScoreboardIdentity(McpeSetScoreboardIdentity message)
+        {
+            
+        }
+
+        public void HandleUpdateEnumSoft(McpeUpdateSoftEnum message)
+        {
+
+        }
+
+        public void HandleNetworkStackLatency(McpeNetworkStackLatency message)
+        {
+
+        }
+
+        public void HandleScriptCustomEvent(McpeScriptCustomEvent message)
+        {
+
+        }
+    }
 
 	public class PlayerEventArgs : EventArgs
 	{

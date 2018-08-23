@@ -123,7 +123,7 @@ namespace MiNET.Client
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
-            var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("10.0.0.4").AddressList[0], 19132), "RagnokBot", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+            var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("10.0.0.6"), 19132), "RagnokBot", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
             //var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
             //var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 

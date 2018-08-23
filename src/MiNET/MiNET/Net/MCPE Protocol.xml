@@ -1012,16 +1012,23 @@
 	</pdu>
 
 	<pdu id="0x70" online="false" client="false" server="true" name="MCPE_SET_SCOREBOARD_IDENTITY_PACKET">
+    <field name="Type" type="byte" />
+    <field name="Scoreboard IdentityPackets" type="ScoreboardIdentityPackets" />
 	</pdu>
 
 	<pdu id="0x71" online="false" client="true" server="false" name="MCPE_SET_LOCAL_PLAYER_AS_INITIALIZED_PACKET">
+    <field name="RuntimeEntityId" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x72" online="false" client="false" server="true" name="MCPE_UPDATE_SOFT_ENUM_PACKET">
+    <filed name="Enum Name" type="string" />
+    <field name ="Enum Values" type="EnumValues" />
+    <field name ="Type" type="byte"/>
 	</pdu>
 
 	<pdu id="0x73" online="false" client="false" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
-	</pdu>
+    <field name="Timestamp" type="ulong"/>	
+  </pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0, true" />

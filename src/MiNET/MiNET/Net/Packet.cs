@@ -461,7 +461,7 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
+					Write(record.DisplayName ?? record.Username);
 					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 					Write(record.PlayerInfo.PlatformChatId);
@@ -1784,6 +1784,55 @@ namespace MiNET.Net
 
 			return list;
 		}
+
+        public void Write(ScoreboardIdentityPackets sip)
+        {
+            WriteUnsignedVarInt((uint)sip.Count);
+            foreach(var list in sip)
+            {
+                Write(list.scoreboardId);
+                Write(list.uuid);
+            }
+        }
+
+        public ScoreboardIdentityPackets ReadScoreboardIdentityPackets()
+        {
+            var list = new ScoreboardIdentityPackets();
+
+            var length = ReadUnsignedVarInt();
+            for (var i = 0; i < length; ++i)
+            {
+                var entry = new ScoreboardIdentityPacket();
+                entry.scoreboardId = ReadVarLong();
+                if(ReadByte() == 0)
+                {
+                    entry.uuid = ReadUUID();
+                }
+                list.Add(entry);
+            }
+
+            return list;
+        }
+
+        public void Write(EnumValues values)
+        {
+            WriteUnsignedVarInt((uint)values.Count);
+            foreach(var value in values)
+            {
+                Write(value);
+            }
+        }
+
+        public EnumValues ReadEnumValues()
+        {
+            var list = new EnumValues();
+            var length = ReadUnsignedVarInt();
+            for(int i = 0; i <= length; i++)
+            {
+                list.Add(ReadString());
+            }
+            return list;
+        }
 
 		public bool CanRead()
 		{

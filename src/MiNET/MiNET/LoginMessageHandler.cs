@@ -173,7 +173,6 @@ namespace MiNET
 						_playerInfo.PlatformChatId = payload.PlatformChatId;
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
-						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
 						_playerInfo.TenantId = payload.TenantId;
 
 						_playerInfo.Skin = new Skin()
@@ -600,10 +599,31 @@ namespace MiNET
 
 		}
 
-		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
-		{
-		}
-	}
+        public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitialized message)
+        {
+            
+        }
+
+        public void HandleSetScoreboardIdentity(McpeSetScoreboardIdentity message)
+        {
+            
+        }
+
+        public void HandleUpdateEnumSoft(McpeUpdateSoftEnum message)
+        {
+            
+        }
+
+        public void HandleNetworkStackLatency(McpeNetworkStackLatency message)
+        {
+            
+        }
+
+        public void HandleScriptCustomEvent(McpeScriptCustomEvent message)
+        {
+
+        }
+    }
 
 	public interface IServerManager
 	{

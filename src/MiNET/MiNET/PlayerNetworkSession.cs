@@ -1078,14 +1078,8 @@ namespace MiNET
 		public int Edition { get; set; }
 		public int ProtocolVersion { get; set; }
 		public string LanguageCode { get; set; }
-<<<<<<< HEAD
-        public string PlatformChatId { get; set; }
-		public string ThirdPartyName { get; set; }
-    }
-=======
 		public string PlatformChatId { get; set; }
 		public string ThirdPartyName { get; set; }
 		public string TenantId { get; set; }
 	}
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 }

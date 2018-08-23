@@ -6,18 +6,15 @@ namespace MiNET.Utils
 	{
 		public long MapId;
 		public byte UpdateType;
-        public long Type;
-        public MapDecorator[] Decorators;
+		public MapDecorator[] Decorators;
 		public byte X;
-        public byte Y;
-        public byte Z;
+		public byte Z;
 		public int Scale;
 		public int Col;
 		public int Row;
 		public int XOffset;
 		public int ZOffset;
 		public byte[] Data;
-        public long EntityId;
 
 		public override string ToString()
 		{
@@ -29,7 +26,6 @@ namespace MiNET.Utils
 			return MemberwiseClone();
 		}
 	}
-    
 
 	public class MapDecorator
 	{

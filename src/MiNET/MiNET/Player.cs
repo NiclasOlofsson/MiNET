@@ -499,11 +499,7 @@ namespace MiNET
 				case PlayerAction.Breaking:
 				{
 					Block target = Level.GetBlock(message.coordinates);
-<<<<<<< HEAD
-					int data = ((int)target.GetRuntimeId()) | ((byte)(message.face << 24));
-=======
 					int data = ((int) target.GetRuntimeId()) | ((byte) (message.face << 24));
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 					McpeLevelEvent breakEvent = McpeLevelEvent.CreateObject();
 					breakEvent.eventId = 2014;
@@ -612,18 +608,6 @@ namespace MiNET
 					Log.Debug($"Got PlayerAction.SetEnchantmentSeed with data={message.face} at {message.coordinates}");
 					break;
 				}
-                case PlayerAction.StartSwimming:
-                {
-                        IsSwimming = true;
-                        Height = Width; //here is some crap
-                        break;
-                }
-                case PlayerAction.StopSwimming:
-                {
-                        IsSwimming = false;
-                        Height = 1.8;
-                        break;
-                }
 				default:
 				{
 					Log.Warn($"Unhandled action ID={message.actionId}");
@@ -826,10 +810,7 @@ namespace MiNET
 
 				//Level.AddPlayer(this, false);
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 				SendSetTime();
 
 				SendStartGame();
@@ -864,11 +845,7 @@ namespace MiNET
 
 				SendCraftingRecipes();
 
-<<<<<<< HEAD
-                SendAvailableCommands();
-=======
 				SendAvailableCommands(); // Don't send this before StartGame!
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 			}
 			catch (Exception e)
 			{

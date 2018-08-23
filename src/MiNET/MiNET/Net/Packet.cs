@@ -38,7 +38,6 @@ using MiNET.Crafting;
 using MiNET.Items;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
-using MiNET.Scoreboards;
 using Newtonsoft.Json;
 
 namespace MiNET.Net
@@ -451,22 +450,6 @@ namespace MiNET.Net
 			return new BlockCoordinates(ReadSignedVarInt(), (int) ReadUnsignedVarInt(), ReadSignedVarInt());
 		}
 
-        public void Write(ScoreboardMetadataStore[] meta)
-        {
-            WriteUnsignedVarInt((uint)meta.Length);
-            foreach(ScoreboardMetadataStore st in meta)
-            {
-                Write(st.GetUuid());
-                Write(st.GetObjective());
-                Write(st.GetScore());
-            }
-        }
-
-        public ScoreboardMetadataStore[] ReadScoreboardMeta()
-        {
-            return new ScoreboardMetadataStore[] { new ScoreboardMetadataStore(ReadUUID(), ReadString(), ReadInt()) };
-        }
-
 		public void Write(PlayerRecords records)
 		{
 			if (records is PlayerAddRecords)
@@ -481,15 +464,8 @@ namespace MiNET.Net
 					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
 					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-                    Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
-                    WriteSignedVarInt(record.PlayerInfo.DeviceOS);
-                    Write(record.PlayerInfo.PlatformChatId);
-                }
-=======
 					Write(record.PlayerInfo.PlatformChatId);
 				}
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 			}
 			else if (records is PlayerRemoveRecords)
 			{
@@ -522,11 +498,7 @@ namespace MiNET.Net
 						var thirdPartyName = ReadString(); //TODO: third party name
 						var platform = ReadSignedVarInt(); //TODO: platform
 						player.Skin = ReadSkin();
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-                        ReadString();
-=======
 						var platformChatId = ReadString(); //TODO: platform chat ID
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 						records.Add(player);
 						Log.Warn($"Reading {player.ClientUuid}, {player.EntityId}, '{player.DisplayName}', '{thirdPartyName}', {platform}, {platformChatId}");
 					}
@@ -1264,7 +1236,6 @@ namespace MiNET.Net
 				Write(info.PackIdVersion.Version);
 				Write(info.Size);
 				Write("");
-                Write("");
 			}
 		}
 
@@ -1301,11 +1272,7 @@ namespace MiNET.Net
 			{
 				Write(info.Id);
 				Write(info.Version);
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-                Write("");
-=======
 				Write(info.Unknown);
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 			}
 		}
 
@@ -1375,10 +1342,6 @@ namespace MiNET.Net
 
 			skin.SkinId = ReadString();
 			Log.Debug($"SkinId={skin.SkinId}");
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-            
-=======
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 
 			skin.SkinData = ReadByteArray(false);
 			Log.Debug($"SkinData lenght={skin.SkinData.Length}");
@@ -1394,10 +1357,6 @@ namespace MiNET.Net
 			Log.Debug($"SkinGeometry lenght={skin.SkinGeometry.Length}");
 
 			Log.Debug("XUID=" + ReadString());
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-            
-=======
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 
 			return skin;
 		}
@@ -1408,14 +1367,10 @@ namespace MiNET.Net
 		const byte FurnaceData = 3;
 		const byte Multi = 4;
 		const byte ShulkerBox = 5;
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-        const byte ShapelessChemistry = 6;
-=======
 		const byte ShapelessChemistry = 6;
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 		const byte ShapedChemistry = 7;
 
-        public void Write(Recipes recipes)
+		public void Write(Recipes recipes)
 		{
 			WriteUnsignedVarInt((uint) recipes.Count);
 
@@ -1492,119 +1447,6 @@ namespace MiNET.Net
 					break;
 				}
 
-<<<<<<< HEAD:src/MiNET/MiNET/Net/Package.cs
-                if (recipeType == Shapeless || recipeType == ShulkerBox)
-                {
-                    ShapelessRecipe recipe = new ShapelessRecipe();
-                    int ingrediensCount = ReadVarInt(); // 
-                    for (int j = 0; j < ingrediensCount; j++)
-                    {
-                        recipe.Input.Add(ReadItem());
-                    }
-                    ReadVarInt(); // 1?
-                    recipe.Result = ReadItem();
-                    recipe.Id = ReadUUID(); // Id
-                    recipes.Add(recipe);
-                    //Log.Error("Read shapeless recipe");
-                }
-                else if (recipeType == Shaped)
-                {
-                    int width = ReadSignedVarInt(); // Width
-                    int height = ReadSignedVarInt(); // Height
-                    ShapedRecipe recipe = new ShapedRecipe(width, height);
-                    if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
-                    for (int w = 0; w < width; w++)
-                    {
-                        for (int h = 0; h < height; h++)
-                        {
-                            recipe.Input[(h * width) + w] = ReadItem();
-                        }
-                    }
-
-                    int resultCount = ReadVarInt(); // 1?
-                    for (int j = 0; j < resultCount; j++)
-                    {
-                        recipe.Result = ReadItem();
-                    }
-                    recipe.Id = ReadUUID(); // Id
-                    recipes.Add(recipe);
-                    //Log.Error("Read shaped recipe");
-                }
-                else if (recipeType == Furnace)
-                {
-                    SmeltingRecipe recipe = new SmeltingRecipe();
-                    //short meta = (short) ReadVarInt(); // input (with metadata) 
-                    short id = (short)ReadSignedVarInt(); // input (with metadata) 
-                    Item result = ReadItem(); // Result
-                    recipe.Input = ItemFactory.GetItem(id, 0);
-                    recipe.Result = result;
-                    recipes.Add(recipe);
-                    //Log.Error("Read furnace recipe");
-                    //Log.Error($"Input={id}, meta={""} Item={result.Id}, Meta={result.Metadata}");
-                }
-                else if (recipeType == FurnaceData)
-                {
-                    //const ENTRY_FURNACE_DATA = 3;
-                    SmeltingRecipe recipe = new SmeltingRecipe();
-                    short id = (short)ReadSignedVarInt(); // input (with metadata) 
-                    short meta = (short)ReadSignedVarInt(); // input (with metadata) 
-                    Item result = ReadItem(); // Result
-                    recipe.Input = ItemFactory.GetItem(id, meta);
-                    recipe.Result = result;
-                    recipes.Add(recipe);
-                    //Log.Error("Read smelting recipe");
-                    //Log.Error($"Input={id}, meta={meta} Item={result.Id}, Meta={result.Metadata}");
-                }
-                else if (recipeType == Multi)
-                {
-                    //Log.Error("Reading MULTI");
-
-                    MultiRecipe recipe = new MultiRecipe();
-                    recipe.Id = ReadUUID();
-                    recipes.Add(recipe);
-                }
-                else if (recipeType == ShapelessChemistry)
-                {
-                    int ingrediensCount = ReadVarInt(); // 
-                    for (int j = 0; j < ingrediensCount; j++)
-                    {
-                        ReadItem();
-                    }
-                    int resultCount = ReadVarInt(); // 
-                    for (int j = 0; j < resultCount; j++)
-                    {
-                        ReadItem();
-                    }
-
-                    ReadUUID();
-                }
-                else if (recipeType == ShapedChemistry)
-                {
-                    int width = ReadSignedVarInt(); // Width
-                    int height = ReadSignedVarInt(); // Height
-                    if (width > 3 || height > 3) throw new Exception("Wrong number of ingredience. Width=" + width + ", height=" + height);
-                    for (int w = 0; w < width; w++)
-                    {
-                        for (int h = 0; h < height; h++)
-                        {
-                            ReadItem();
-                        }
-                    }
-
-                    int resultCount = ReadVarInt(); // 1?
-                    for (int j = 0; j < resultCount; j++)
-                    {
-                        ReadItem();
-                    }
-
-                    ReadUUID(); // Id
-                }
-                else
-                {
-                    Log.Error($"Read unknown recipe type: {recipeType}");
-                    //ReadBytes(len);
-                }
-=======
 				if (recipeType == Shapeless || recipeType == ShulkerBox)
 				{
 					ShapelessRecipe recipe = new ShapelessRecipe();
@@ -1716,7 +1558,6 @@ namespace MiNET.Net
 					Log.Error($"Read unknown recipe type: {recipeType}");
 					//ReadBytes(len);
 				}
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298:src/MiNET/MiNET/Net/Packet.cs
 			}
 
 			ReadByte(); // Clean (1) or update (0)
@@ -1749,15 +1590,15 @@ namespace MiNET.Net
 
 				var count = map.Decorators.Length;
 				WriteUnsignedVarInt((uint) count);
-                Write(map.Type);
-                if(map.Type == 0)
-                {
-                    Write(new BlockCoordinates(map.X, map.Y, map.Z));
-                }
-                if (map.Type == 1)
-                {
-                    WriteEntityId(map.EntityId);
-                }
+				foreach (var decorator in map.Decorators)
+				{
+					Write((byte) decorator.Rotation);
+					Write((byte) decorator.Icon);
+					Write((byte) decorator.X);
+					Write((byte) decorator.Z);
+					Write(decorator.Label);
+					WriteUnsignedVarInt(decorator.Color);
+				}
 			}
 
 			if ((map.UpdateType & BITFLAG_TEXTURE_UPDATE) == BITFLAG_TEXTURE_UPDATE)
@@ -1823,15 +1664,18 @@ namespace MiNET.Net
 					}
 
 					var count = ReadUnsignedVarInt();
-                    map.Type = ReadLong();
-                    if(map.Type == 0)
-                    {
-                        ReadBlockCoordinates();
-                    }
-                    if(map.Type == 1)
-                    {
-                        ReadSignedVarLong();
-                    }
+					map.Decorators = new MapDecorator[count];
+					for (int i = 0; i < count; i++)
+					{
+						MapDecorator decorator = new MapDecorator();
+						decorator.Rotation = ReadByte();
+						decorator.Icon = ReadByte();
+						decorator.X = ReadByte();
+						decorator.Z = ReadByte();
+						decorator.Label = ReadString();
+						decorator.Color = ReadUnsignedVarInt();
+						map.Decorators[i] = decorator;
+					}
 				}
 				catch (Exception e)
 				{

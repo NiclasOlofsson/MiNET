@@ -245,12 +245,8 @@ namespace MiNET.Utils
 	""DefaultInputMode"": 1,
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
-<<<<<<< HEAD
-	""GameVersion"": ""1.5.0.1"",
-=======
 	""GameVersion"": ""{McpeProtocolInfo.GameVersion}"",
 	""IsEduMode"": {Config.GetProperty("EnableEdu", false).ToString().ToLower()},
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""PlatformOfflineId"": """",
@@ -284,12 +280,38 @@ namespace MiNET.Utils
 				{
 					X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
 					Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
-				},
-				D = privAsyKey.D.ToByteArrayUnsigned()
+				}
 			};
+			signParam.D = FixDSize(privAsyKey.D.ToByteArrayUnsigned(), signParam.Q.X.Length);
 			signParam.Validate();
 
 			return ECDsa.Create(signParam);
+		}
+
+		public static byte[] FixDSize(byte[] input, int expectedSize)
+		{
+			if (input.Length == expectedSize)
+			{
+				return input;
+			}
+
+			byte[] tmp;
+
+			if (input.Length < expectedSize)
+			{
+				tmp = new byte[expectedSize];
+				Buffer.BlockCopy(input, 0, tmp, expectedSize - input.Length, input.Length);
+				return tmp;
+			}
+
+			if (input.Length > expectedSize + 1 || input[0] != 0)
+			{
+				throw new InvalidOperationException();
+			}
+
+			tmp = new byte[expectedSize];
+			Buffer.BlockCopy(input, 1, tmp, 0, expectedSize);
+			return tmp;
 		}
 
 		public static byte[] CompressJwtBytes(byte[] certChain, byte[] skinData, CompressionLevel compressionLevel)

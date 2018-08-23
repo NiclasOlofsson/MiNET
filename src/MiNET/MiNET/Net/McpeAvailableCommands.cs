@@ -53,6 +53,7 @@ namespace MiNET.Net
 					enumValues.Add(s);
 				}
 			}
+			int enumValuesCount = enumValues.Count();
 
 			{
 				uint count = ReadUnsignedVarInt();
@@ -92,7 +93,19 @@ namespace MiNET.Net
 					Log.Debug($"{s}:{c}");
 					for (int j = 0; j < c; j++)
 					{
-						int idx = ReadShort();
+						int idx;
+						if (enumValuesCount <= byte.MaxValue)
+						{
+							idx = ReadByte();
+						}
+						else if (enumValuesCount <= short.MaxValue)
+						{
+							idx = ReadShort();
+						}
+						else
+						{
+							idx = ReadInt();
+						}
 
 						Log.Debug($"{s}:{c}:{idx}");
 						string enumValue = enumValues[idx];
@@ -183,24 +196,10 @@ namespace MiNET.Net
 		{
 			try
 			{
-<<<<<<< HEAD
-                if (CommandSet == null || CommandSet.Count == 0)
-                {
-                    {
-                        Log.Warn("No commands to send");
-                        WriteUnsignedVarInt(0);
-                        WriteUnsignedVarInt(0);
-                        WriteUnsignedVarInt(0);
-                        WriteUnsignedVarInt(0);
-                        return; 
-                    }
-                }
-
-                var commands = CommandSet;
-=======
 				if (CommandSet == null || CommandSet.Count == 0)
 				{
 					Log.Warn("No commands to send");
+					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
@@ -209,7 +208,6 @@ namespace MiNET.Net
 				}
 
 				var commands = CommandSet;
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 				List<string> stringList = new List<string>();
 				{
@@ -419,6 +417,8 @@ namespace MiNET.Net
 						}
 					}
 				}
+
+				WriteUnsignedVarInt(0); //TODO: soft enums
 			}
 			catch (Exception e)
 			{
@@ -432,21 +432,11 @@ namespace MiNET.Net
 			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
-<<<<<<< HEAD
-            if (type == "wilcard") return 0x04;
-			if (type == "target") return 0x05;
-            if (type == "wilcard_target") return 0x06;
-
-            if (type == "string") return 0x0F;
-			if (type == "blockpos") return 0x10;
-
-=======
 			if (type == "operator") return 0x05;
 			if (type == "target") return 0x06;
 
 			if (type == "string") return 0xF;
 			if (type == "blockpos") return 0x10;
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 			return 0x0;
 		}

@@ -431,7 +431,7 @@ namespace MiNET.Worlds
 				{
 					McpeText message = McpeText.CreateObject();
 					message.type = (byte) type;
-					message.sourceName = sender == null ? "" : sender.Username;
+					message.source = sender == null ? "" : sender.Username;
 					message.message = line;
 					RelayBroadcast(sendList, message);
 				}
@@ -440,7 +440,7 @@ namespace MiNET.Worlds
 			{
 				McpeText message = McpeText.CreateObject();
 				message.type = (byte) type;
-				message.sourceName = sender == null ? "" : sender.Username;
+				message.source = sender == null ? "" : sender.Username;
 				message.message = text;
 				RelayBroadcast(sendList, message);
 			}
@@ -1173,15 +1173,9 @@ namespace MiNET.Worlds
 			if (broadcast)
 			{
 				var message = McpeUpdateBlock.CreateObject();
-<<<<<<< HEAD
-                message.runtimeId = block.GetRuntimeId();
-				message.coordinates = block.Coordinates;
-                message.blockPriority = 0x0b;
-=======
 				message.blockRuntimeId = block.GetRuntimeId();
 				message.coordinates = block.Coordinates;
 				message.blockPriority = 0xb;
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 				RelayBroadcast(message);
 			}
 
@@ -1352,17 +1346,10 @@ namespace MiNET.Worlds
 					player.SendPlayerInventory();
 
 					var message = McpeUpdateBlock.CreateObject();
-<<<<<<< HEAD
-					message.runtimeId = block.GetRuntimeId();
-					message.coordinates = block.Coordinates;
-                    message.blockPriority = 0x0b;
-					player.SendPackage(message);
-=======
 					message.blockRuntimeId = block.GetRuntimeId();
 					message.coordinates = block.Coordinates;
 					message.blockPriority = 0xb;
 					player.SendPacket(message);
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 					return;
 				}
@@ -1407,17 +1394,10 @@ namespace MiNET.Worlds
 		private static void RevertBlockAction(Player player, Block block, BlockEntity blockEntity)
 		{
 			var message = McpeUpdateBlock.CreateObject();
-<<<<<<< HEAD
-			message.runtimeId = block.GetRuntimeId();
-			message.coordinates = block.Coordinates;
-			message.blockPriority = 0x0b;
-			player.SendPackage(message);
-=======
 			message.blockRuntimeId = block.GetRuntimeId();
 			message.coordinates = block.Coordinates;
 			message.blockPriority = 0xb;
 			player.SendPacket(message);
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 			// Revert block entity if exists
 			if (blockEntity != null)

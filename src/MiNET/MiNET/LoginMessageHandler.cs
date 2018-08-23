@@ -170,20 +170,13 @@ namespace MiNET
 						_playerInfo.GameVersion = payload.GameVersion;
 						_playerInfo.GuiScale = payload.GuiScale;
 						_playerInfo.LanguageCode = payload.LanguageCode;
-<<<<<<< HEAD
-                        _playerInfo.PlatformChatId = payload.PlatformChatId;
-						_playerInfo.ServerAddress = payload.ServerAddress;
-						_playerInfo.UIProfile = payload.UIProfile;
-                        _playerInfo.ThirdPartyName = payload.ThirdPartyName;
-=======
 						_playerInfo.PlatformChatId = payload.PlatformChatId;
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
 						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
 						_playerInfo.TenantId = payload.TenantId;
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
-                        _playerInfo.Skin = new Skin()
+						_playerInfo.Skin = new Skin()
 						{
 							CapeData = Convert.FromBase64String((string) payload.CapeData ?? string.Empty),
 							SkinId = payload.SkinId,
@@ -368,9 +361,9 @@ namespace MiNET
 								{
 									X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
 									Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
-								},
-								D = privAsyKey.D.ToByteArrayUnsigned()
+								}
 							};
+							signParam.D = CryptoUtils.FixDSize(privAsyKey.D.ToByteArrayUnsigned(), signParam.Q.X.Length);
 							signParam.Validate();
 
 							string signedToken = null;

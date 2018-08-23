@@ -8,11 +8,7 @@ namespace MiNET.Particles
 	{
 		public DestroyBlockParticle(Level level, Block block) : base(0, level)
 		{
-<<<<<<< HEAD
-            Data = (int)block.GetRuntimeId();
-=======
 			Data = (int)block.GetRuntimeId();
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 			Position = block.Coordinates;
 		}
 

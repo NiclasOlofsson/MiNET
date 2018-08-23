@@ -67,10 +67,10 @@ namespace MiNET.Service
 					});
 
 					host.RunAsLocalService();
-                    host.SetDisplayName("MiNET Service");
-                    host.SetDescription("MiNET Minecraft Pocket Edition server.");
-                    host.SetServiceName("MiNET");
-                });
+					host.SetDisplayName("MiNET Service");
+					host.SetDescription("MiNET Minecraft Pocket Edition server.");
+					host.SetServiceName("MiNET");
+				});
 			}
 		}
 

@@ -184,10 +184,6 @@ FakesAssemblies/
 /src/MiNET/packages
 /src/MiNET/.vs/config
 *.opendb
-<<<<<<< HEAD
-.vs/
-=======
 .vs/
 
 /src/MiNET/MiNET.Console/dist
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298

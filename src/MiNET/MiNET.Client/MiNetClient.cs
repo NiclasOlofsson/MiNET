@@ -123,11 +123,11 @@ namespace MiNET.Client
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
+            var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("10.0.0.4").AddressList[0], 19132), "RagnokBot", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+            //var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+            //var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-
-			client.StartClient();
+            client.StartClient();
 			Log.Warn("Client listening for connecting on: " + client._clientEndpoint);
 			Console.WriteLine("Server started.");
 
@@ -613,19 +613,16 @@ namespace MiNET.Client
 
 		public void AddToProcessing(Packet message)
 		{
-			if (Session.CryptoContext == null || Session.CryptoContext.UseEncryption == false || message.Reliability != Reliability.ReliableOrdered)
+			if (message.Reliability != Reliability.ReliableOrdered)
 			{
 				HandlePacket(message);
 				return;
 			}
-
 			//Log.Error("DO NOT USE THIS");
 			//throw new Exception("DO NOT USE THIS");
 
 			lock (_eventSync)
 			{
-				if (_lastSequenceNumber < 0) _lastSequenceNumber = 1;
-
 				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 				{
 					_lastSequenceNumber = message.OrderingIndex;
@@ -1405,11 +1402,7 @@ namespace MiNET.Client
 
 			McpeLogin loginPacket = new McpeLogin
 			{
-<<<<<<< HEAD
-				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : 271,
-=======
 				protocolVersion = Config.GetProperty("EnableEdu", false) ? 111 : McpeProtocolInfo.ProtocolVersion,
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 				payload = data
 			};
 
@@ -1431,7 +1424,7 @@ namespace MiNET.Client
 			string x5u = headers["x5u"];
 
 			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
-				PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+				PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 
 
 			var signParam = new ECParameters
@@ -2722,7 +2715,7 @@ namespace MiNET.Client
 		{
 			var packet = McpeText.CreateObject();
 			packet.type = (byte) MessageType.Chat;
-			packet.sourceName = Username;
+			packet.source = Username;
 			packet.message = text;
 
 			SendPacket(packet);

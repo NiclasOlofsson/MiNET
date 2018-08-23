@@ -114,11 +114,7 @@ namespace MiNET.Entities
 			FireworksType = 16,
 			MaybeAge = 24,
 			BedPosition = 28,
-<<<<<<< HEAD
-			Scale = 39,
-=======
 			Scale = 38,
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 			MaxAir = 42,
 			Markings = 43,
 			CollisionBoxWidth = 53,
@@ -314,9 +310,8 @@ namespace MiNET.Entities
 		public bool IsAffectedByGravity { get; set; }
 		public bool IsWasdControlled { get; set; }
 		public bool CanPowerJump { get; set; }
-        public bool IsSwimming { get; set; }
 
-        public enum DataFlags
+		public enum DataFlags
 		{
 			OnFire = 0,
 			Sneaking,
@@ -343,11 +338,7 @@ namespace MiNET.Entities
 			CanClimb,
 			CanSwim,
 			CanFly,
-<<<<<<< HEAD
-            Walker,
-=======
 			Walker,
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 
 			Resting,
 			Sitting,
@@ -376,19 +367,9 @@ namespace MiNET.Entities
 			Linger,
 			HasCollision,
 			AffectedByGravity,
-<<<<<<< HEAD
-            FireImmune,
-            Dancing,
-            Enchanted,
-            ContainerPrivate,
-            SpinAttack,
-            Swimming,
-            Bribed
-=======
 			FireImmune,
 			Dancing,
 			Enchanted
->>>>>>> 86f35b43910890e118cedd4a207ba5d5e79c1298
 		}
 
 		protected virtual BitArray GetFlags()
@@ -438,7 +419,6 @@ namespace MiNET.Entities
 
 			bits[(int) DataFlags.WasdControlled] = IsWasdControlled;
 			bits[(int) DataFlags.CanPowerJump] = CanPowerJump;
-            bits[(int) DataFlags.Swimming] = IsSwimming;
 
 			return bits;
 		}

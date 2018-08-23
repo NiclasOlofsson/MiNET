@@ -93,6 +93,9 @@ namespace MiNET.Net
 		void HandleMcpePhotoTransfer(McpePhotoTransfer message);
 		void HandleMcpeModalFormResponse(McpeModalFormResponse message);
 		void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message);
+        void HandleMcpeRemoveObjective(McpeRemoveObjective mesage);
+        void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message);
+        void HandleMcpeSetScore(McpeSetScore message);
 		void HandleMcpeLabTable(McpeLabTable message);
 		void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitialized message);
         void HandleSetScoreboardIdentity(McpeSetScoreboardIdentity message);

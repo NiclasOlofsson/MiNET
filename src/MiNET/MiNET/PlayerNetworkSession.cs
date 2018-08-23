@@ -651,6 +651,11 @@ namespace MiNET
 				handler.HandleMcpeNpcRequest((McpeNpcRequest)message);
 			}
 
+            else if (typeof(McpeSetDisplayObjective) == message.GetType())
+            {
+                handler.HandleMcpeSetDisplayObjective((McpeSetDisplayObjective)message);
+            }
+
 			else
 			{
 				Log.Error($"Unhandled packet: {message.GetType().Name} 0x{message.Id:X2} for user: {Username}, IP {EndPoint.Address}");

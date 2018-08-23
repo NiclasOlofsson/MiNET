@@ -3490,6 +3490,21 @@ namespace MiNET
         {
 
         }
+
+        public void HandleMcpeRemoveObjective(McpeRemoveObjective mesage)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+        {
+            Log.Debug($"Criteria: {message.criteriaName} DisplayName: {message.displayName} DisplaySlot: {message.displaySlot}, Sort: {message.sortOrder}, ObjectiveName: {message.objectiveName}");
+        }
+
+        public void HandleMcpeSetScore(McpeSetScore message)
+        {
+
+        }
     }
 
 	public class PlayerEventArgs : EventArgs

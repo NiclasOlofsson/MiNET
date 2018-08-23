@@ -8,5 +8,18 @@ namespace MiNET.Scoreboards
 {
     public class Scoreboard
     {
+
+        public ScoreboardObjective objective;
+
+        public Scoreboard()
+        {
+        }
+
+        public void registerObjective(ScoreboardObjective objective)
+        {
+            this.objective = objective;
+        }
+
     }
+
 }

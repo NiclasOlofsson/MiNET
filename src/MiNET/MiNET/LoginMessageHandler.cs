@@ -623,6 +623,21 @@ namespace MiNET
         {
 
         }
+
+        public void HandleMcpeRemoveObjective(McpeRemoveObjective mesage)
+        {
+
+        }
+
+        public void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+        {
+
+        }
+
+        public void HandleMcpeSetScore(McpeSetScore message)
+        {
+
+        }
     }
 
 	public interface IServerManager

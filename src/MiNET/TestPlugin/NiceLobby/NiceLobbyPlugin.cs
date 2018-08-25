@@ -50,6 +50,7 @@ using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
+using MiNET.Scoreboards;
 
 namespace TestPlugin.NiceLobby
 {
@@ -345,6 +346,18 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
+        public void SendScoreboard(Player player)
+        {
+            var board = new Scoreboard();
+            var objective = board.registerObjective("minet", ScoreboardCriteria.Dummy);
+            objective.DisplayName = "§l§6MiNET dev server";
+            objective.DisplaySlot = ScoreboardDisplaySlot.Sidebar;
+            objective.GetScore("Score one").ScoreId = 1;
+            objective.GetScore("Score two").ScoreId = 2;
+            player.Scoreboard = board;
+            player.SendScoreboard();
+        }
+
 		public static byte[] GetTextureFromFile(string filename)
 		{
 			Bitmap bitmap = new Bitmap(filename);
@@ -484,6 +497,7 @@ namespace TestPlugin.NiceLobby
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
 				player.SendTitle($"{ChatColors.White}This is gurun's MiNET\n.NET core test server", TitleType.SubTitle);
 				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+                SendScoreboard(player);
 			});
 		}
 

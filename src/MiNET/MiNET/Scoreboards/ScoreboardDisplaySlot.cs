@@ -4,8 +4,12 @@ using System.Text;
 
 namespace MiNET.Scoreboards
 {
-    public enum ScoreboardCriteria
+
+    public enum ScoreboardDisplaySlot
     {
-        Dummy
+        List,
+        Sidebar,
+        BellowName
+
     }
 }

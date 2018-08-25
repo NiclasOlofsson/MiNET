@@ -12,8 +12,8 @@ namespace MiNET.Utils
 
     public class ScoreboardIdentityPacket
     {
-        public long scoreboardId { get; set; }
-        public UUID uuid { get; set; }
+        public long ScoreboardId { get; set; }
+        public UUID Uuid { get; set; }
 
         
     }

@@ -46,6 +46,7 @@ using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
+using MiNET.Scoreboards;
 using Newtonsoft.Json;
 
 namespace MiNET
@@ -100,6 +101,8 @@ namespace MiNET
 		public Session Session { get; set; }
 
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
+
+        public Scoreboard Scoreboard;
 
 
 		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
@@ -1875,6 +1878,56 @@ namespace MiNET
 			_openInventory = inventory;
 		}
 
+
+        public void SendScoreboard()
+        {
+            if (Scoreboard != null) {
+
+                var pk = McpeSetDisplayObjective.CreateObject();
+                pk.displaySlot = Scoreboard.objective.SlotToString();
+                pk.objectiveName = Scoreboard.objective.Name;
+                pk.displayName = Scoreboard.objective.DisplayName;
+                pk.criteriaName = Scoreboard.objective.CriteriaToString();
+                pk.sortOrder = Scoreboard.objective.Sort;
+                SendPacket(pk);
+
+
+                foreach (var score in Scoreboard.objective.Scores)
+                {
+                    var pk1 = McpeSetScore.CreateObject();
+                    pk1.type = 0;
+                    var spi = new ScorePacketInfos();
+                    var s = 0;
+                    var info = new ScorePacketInfo()
+                    {
+                        uuid = Scoreboard.id,
+                        objectiveName = Scoreboard.objective.Name,
+                        score = (uint)s
+                    };
+                    spi.Add(info);
+                    pk1.scorePacketInfos = spi;
+                    SendPacket(pk1);
+
+                    var pk2 = McpeSetScoreboardIdentity.CreateObject();
+                    pk2.type = 0;
+                    var sid = new ScoreboardIdentityPackets();
+                    var infonew = new ScoreboardIdentityPacket()
+                    {
+                        ScoreboardId = ClientId,
+                        Uuid = Scoreboard.id
+                    };
+                    sid.Add(infonew);
+                    pk2.scoreboardIdentityPackets = sid;
+                    SendPacket(pk2);
+                }
+            } else
+            {
+                Log.Error("Cannot send scoreboard while it's null");
+            }
+        }
+
+
+
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_inventorySync)
@@ -3498,7 +3551,7 @@ namespace MiNET
 
         public void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
         {
-            Log.Debug($"Criteria: {message.criteriaName} DisplayName: {message.displayName} DisplaySlot: {message.displaySlot}, Sort: {message.sortOrder}, ObjectiveName: {message.objectiveName}");
+
         }
 
         public void HandleMcpeSetScore(McpeSetScore message)

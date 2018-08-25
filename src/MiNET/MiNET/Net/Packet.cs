@@ -1790,8 +1790,11 @@ namespace MiNET.Net
             WriteUnsignedVarInt((uint)sip.Count);
             foreach(var list in sip)
             {
-                Write(list.scoreboardId);
-                Write(list.uuid);
+                Write(list.ScoreboardId);
+                if (ReadByte() == 0)
+                {
+                    Write(list.Uuid);
+                }
             }
         }
 
@@ -1803,11 +1806,11 @@ namespace MiNET.Net
             for (var i = 0; i < length; ++i)
             {
                 var entry = new ScoreboardIdentityPacket();
-                entry.scoreboardId = ReadVarLong();
+                entry.ScoreboardId = ReadVarLong();
                 if(ReadByte() == 0)
                 {
-                    entry.uuid = ReadUUID();
-                }
+                    entry.Uuid = ReadUUID();
+                } 
                 list.Add(entry);
             }
 

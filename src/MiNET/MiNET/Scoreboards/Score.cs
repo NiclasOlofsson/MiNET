@@ -8,8 +8,18 @@ namespace MiNET.Scoreboards
     public class Score
     {
         public string FakePlayer { get; set; }
-        public int ScoreId { get; set; }
+        public short ScoreId { get; set; }
         public UUID ScoreboardId { get; set; }
+
+        public Score()
+        {
+
+        }
+
+        public void SetScore(short score)
+        {
+            ScoreId = score;
+        }
 
     }
 }

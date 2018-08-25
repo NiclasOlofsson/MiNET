@@ -24,6 +24,15 @@ namespace MiNET.Scoreboards
             if (!Scores.Contains(score))
             {
                 Scores.Add(score);
+            } else
+            {
+                foreach(var scores in Scores)
+                {
+                    if (scores.FakePlayer.Equals(fakeplayer))
+                    {
+                        score = scores;
+                    }
+                }
             }
             return score;
         }

@@ -1892,33 +1892,20 @@ namespace MiNET
                 SendPacket(pk);
 
 
-                foreach (var score in Scoreboard.objective.Scores)
+                foreach (var scores in Scoreboard.objective.Scores)
                 {
                     var pk1 = McpeSetScore.CreateObject();
                     pk1.type = 0;
                     var spi = new ScorePacketInfos();
-                    var s = 0;
                     var info = new ScorePacketInfo()
                     {
-                        uuid = Scoreboard.id,
+                        uuid = scores.ScoreboardId,
                         objectiveName = Scoreboard.objective.Name,
-                        score = (uint)s
+                        score = scores.ScoreId
                     };
                     spi.Add(info);
                     pk1.scorePacketInfos = spi;
                     SendPacket(pk1);
-
-                    var pk2 = McpeSetScoreboardIdentity.CreateObject();
-                    pk2.type = 0;
-                    var sid = new ScoreboardIdentityPackets();
-                    var infonew = new ScoreboardIdentityPacket()
-                    {
-                        ScoreboardId = ClientId,
-                        Uuid = Scoreboard.id
-                    };
-                    sid.Add(infonew);
-                    pk2.scoreboardIdentityPackets = sid;
-                    SendPacket(pk2);
                 }
             } else
             {

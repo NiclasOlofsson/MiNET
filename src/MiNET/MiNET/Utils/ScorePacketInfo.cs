@@ -9,6 +9,6 @@ namespace MiNET.Utils
 	{
 		public UUID uuid { get; set; }
 		public string objectiveName { get; set; }
-		public uint score { get; set; }
+		public short score { get; set; }
 	}
 }

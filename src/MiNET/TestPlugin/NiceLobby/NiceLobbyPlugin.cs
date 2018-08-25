@@ -352,11 +352,13 @@ namespace TestPlugin.NiceLobby
             var objective = board.registerObjective("minet", ScoreboardCriteria.Dummy);
             objective.DisplayName = "§l§6MiNET dev server";
             objective.DisplaySlot = ScoreboardDisplaySlot.Sidebar;
-            objective.GetScore("Score one").ScoreId = 1;
-            objective.GetScore("Score two").ScoreId = 2;
+            var score = objective.GetScore("Score one");
+            score.ScoreboardId = player.ClientUuid;
+            score.SetScore(1);
             player.Scoreboard = board;
             player.SendScoreboard();
         }
+ 
 
 		public static byte[] GetTextureFromFile(string filename)
 		{
@@ -802,8 +804,7 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
-
-		[Command]
+        [Command]
 		public void Awk(Player player)
 		{
 			string awk = "[" + ChatColors.DarkRed + "AWK" + ChatFormatting.Reset + "]";

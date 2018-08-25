@@ -1778,7 +1778,7 @@ namespace MiNET.Net
 				var entry = new ScorePacketInfo();
 				entry.uuid = ReadUUID();
 				entry.objectiveName = ReadString();
-				entry.score = ReadUint();
+                entry.score = ReadShort();
 				list.Add(entry);
 			}
 

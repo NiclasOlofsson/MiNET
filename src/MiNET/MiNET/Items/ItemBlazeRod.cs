@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MiNET.Items
+﻿namespace MiNET.Items
 {
     public class ItemBlazeRod : Item
     {

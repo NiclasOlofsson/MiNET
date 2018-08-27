@@ -50,300 +50,330 @@ using MiNET.Sounds;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
+using MiNET.Scoreboards;
 
 namespace TestPlugin.NiceLobby
 {
-	[Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
-	public class NiceLobbyPlugin : Plugin
-	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (NiceLobbyPlugin));
+    [Plugin(PluginName = "NiceLobby", Description = "", PluginVersion = "1.0", Author = "MiNET Team")]
+    public class NiceLobbyPlugin : Plugin
+    {
+        private static readonly ILog Log = LogManager.GetLogger(typeof(NiceLobbyPlugin));
 
-		private Timer _popupTimer;
-		private Timer _tickTimer;
+        private Timer _popupTimer;
+        private Timer _tickTimer;
 
-		private long _tick = 0;
+        private long _tick = 0;
 
-		protected override void OnEnable()
-		{
-			var server = Context.Server;
+        protected override void OnEnable()
+        {
+            var server = Context.Server;
 
-			server.LevelManager.LevelCreated += (sender, args) =>
-			{
-				Level level = args.Level;
+            server.LevelManager.LevelCreated += (sender, args) =>
+            {
+                Level level = args.Level;
 
-				//BossBar bossBar = new BossBar(level)
-				//{
-				//	Animate = false,
-				//	MaxProgress = 10,
-				//	Progress = 10,
-				//	NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
-				//};
-				//bossBar.SpawnEntity();
+                //BossBar bossBar = new BossBar(level)
+                //{
+                //	Animate = false,
+                //	MaxProgress = 10,
+                //	Progress = 10,
+                //	NameTag = $"{ChatColors.Gold}You are playing on a {ChatColors.Gold}MiNET{ChatColors.Gold} server"
+                //};
+                //bossBar.SpawnEntity();
 
-				//level.AllowBuild = false;
-				//level.AllowBreak = false;
+                //level.AllowBuild = false;
+                //level.AllowBreak = false;
 
-				//level.BlockBreak += LevelOnBlockBreak;
-				//level.BlockPlace += LevelOnBlockPlace;
-			};
+                //level.BlockBreak += LevelOnBlockBreak;
+                //level.BlockPlace += LevelOnBlockPlace;
+            };
 
-			server.PlayerFactory.PlayerCreated += (sender, args) =>
-			{
-				Player player = args.Player;
-				player.PlayerJoin += OnPlayerJoin;
-				player.PlayerLeave += OnPlayerLeave;
-				player.Ticking += OnTicking;
-			};
+            server.PlayerFactory.PlayerCreated += (sender, args) =>
+            {
+                Player player = args.Player;
+                player.PlayerJoin += OnPlayerJoin;
+                player.PlayerLeave += OnPlayerLeave;
+                player.Ticking += OnTicking;
+            };
 
-			//_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
-			//_tickTimer = new Timer(LevelTick, null, 0, 50);
-			//_tickTimer = new Timer(SkinTick, null, 0, 50);
-		}
+            //_popupTimer = new Timer(DoDevelopmentPopups, null, 10000, 20000);
+            //_tickTimer = new Timer(LevelTick, null, 0, 50);
+            //_tickTimer = new Timer(SkinTick, null, 0, 50);
+        }
 
-		private void OnTicking(object sender, PlayerEventArgs e)
-		{
-			var player = e.Player;
-			var level = player.Level;
+        private void OnTicking(object sender, PlayerEventArgs e)
+        {
+            var player = e.Player;
+            var level = player.Level;
 
-			//if (e.Level.TickTime % 2 == 0)
-			//{
-			//	BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 11,
-			//		MessageType = MessageType.Popup,
-			//		Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Height={level.GetHeight(pos)}",
-			//		Duration = 20 * 5,
-			//	});
-			//}
-
-
-			// Compass
-			//if (e.Level.TickTime % 2 == 0)
-			//{
-			//	player.AddPopup(new Popup()
-			//	{
-			//		Id = 10,
-			//		MessageType = MessageType.Tip,
-			//		Message = GetCompass(player.KnownPosition.HeadYaw),
-			//		Duration = 20 * 5,
-			//	});
-			//}
+            //if (e.Level.TickTime % 2 == 0)
+            //{
+            //	BlockCoordinates pos = (BlockCoordinates)player.KnownPosition;
+            //	player.AddPopup(new Popup()
+            //	{
+            //		Id = 11,
+            //		MessageType = MessageType.Popup,
+            //		Message = $"SkyLight Subtracted={level.SkylightSubtracted}, Under={level.GetSkyLight(pos + BlockCoordinates.Down)}, Foot={level.GetSkyLight(pos)}, Head={level.GetSkyLight(pos + BlockCoordinates.Up)}, Height={level.GetHeight(pos)}",
+            //		Duration = 20 * 5,
+            //	});
+            //}
 
 
-			// Glide extension
-			//if (player.IsGliding)
-			//{
-			//	if (player.CurrentSpeed > 30)
-			//	{
-			//		var particle = new CriticalParticle(level);
-			//		particle.Position = player.KnownPosition.ToVector3();
-			//		particle.Spawn();
-			//	}
-
-			//	if (level.TickTime%10 == 0)
-			//	{
-			//		player.AddPopup(new Popup()
-			//		{
-			//			Id = 10,
-			//			MessageType = MessageType.Tip,
-			//			Message = $"Speed: {player.CurrentSpeed:F2}m/s",
-			//			Duration = 20*5,
-			//		});
-			//	}
-			//}
-		}
-
-		public static float Wrap(float angle)
-		{
-			return (float) (angle + Math.Ceiling(-angle/360)*360);
-		}
-
-		public static string GetCompass(float direction)
-		{
-			direction = Wrap(direction);
-			direction = direction*2/10;
-
-			direction += 72;
-
-			int width = 25;
-
-			var compass = new string('|', 72).ToCharArray();
-			compass[0] = 'S';
-
-			compass[9] = 'S';
-			compass[9 + 1] = 'W';
-
-			compass[(18)] = 'W';
-
-			compass[(18 + 9)] = 'N';
-			compass[(18 + 9 + 1)] = 'W';
-
-			compass[36] = 'N';
-
-			compass[36 + 9] = 'N';
-			compass[36 + 9 + 1] = 'E';
-
-			compass[54] = 'E';
-
-			compass[54 + 9] = 'S';
-			compass[54 + 9 + 1] = 'E';
-
-			compass = compass.Concat(compass).Concat(compass).ToArray();
-
-			return new String(compass.Skip((int) (direction - Math.Floor((double) width/2))).Take(width).ToArray())
-					.Replace("|", "| ")
-					.Replace("| N|", $"| {ChatFormatting.Bold}{ChatColors.Red}N{ChatFormatting.Reset} |")
-					.Replace("| NE|", $"| {ChatFormatting.Bold}{ChatColors.Yellow}NE{ChatFormatting.Reset} |").Trim('N', 'W', 'S', 'E').Trim('N', 'W', 'S', 'E')
-					.Replace("| E|", $"| {ChatFormatting.Bold}{ChatColors.Green}E{ChatFormatting.Reset} |")
-					.Replace("| SE|", $"| {ChatFormatting.Bold}{ChatColors.Green}SE{ChatFormatting.Reset} |")
-					.Replace("| S|", $"| {ChatFormatting.Bold}{ChatColors.Aqua}S{ChatFormatting.Reset} |")
-					.Replace("| SW|", $"| {ChatFormatting.Bold}{ChatColors.Blue}SW{ChatFormatting.Reset} |")
-					.Replace("| W|", $"| {ChatFormatting.Bold}{ChatColors.DarkPurple}W{ChatFormatting.Reset} |")
-					.Replace("| NW|", $"| {ChatFormatting.Bold}{ChatColors.LightPurple}NW{ChatFormatting.Reset} |")
-				;
-		}
+            // Compass
+            //if (e.Level.TickTime % 2 == 0)
+            //{
+            //	player.AddPopup(new Popup()
+            //	{
+            //		Id = 10,
+            //		MessageType = MessageType.Tip,
+            //		Message = GetCompass(player.KnownPosition.HeadYaw),
+            //		Duration = 20 * 5,
+            //	});
+            //}
 
 
-		private object _skinSynk = new object();
+            // Glide extension
+            //if (player.IsGliding)
+            //{
+            //	if (player.CurrentSpeed > 30)
+            //	{
+            //		var particle = new CriticalParticle(level);
+            //		particle.Position = player.KnownPosition.ToVector3();
+            //		particle.Spawn();
+            //	}
 
-		private int _image = 0;
-		private int _imageCape = 0;
+            //	if (level.TickTime%10 == 0)
+            //	{
+            //		player.AddPopup(new Popup()
+            //		{
+            //			Id = 10,
+            //			MessageType = MessageType.Tip,
+            //			Message = $"Speed: {player.CurrentSpeed:F2}m/s",
+            //			Duration = 20*5,
+            //		});
+            //	}
+            //}
+        }
 
-		private void SkinTick(object state)
-		{
-			if (!Monitor.TryEnter(_skinSynk)) return;
+        public static float Wrap(float angle)
+        {
+            return (float)(angle + Math.Ceiling(-angle / 360) * 360);
+        }
 
-			try
-			{
-				foreach (var player in _players.Values)
-				{
-					{
-						if (!player.Username.Equals("gurunx")) continue;
+        public static string GetCompass(float direction)
+        {
+            direction = Wrap(direction);
+            direction = direction * 2 / 10;
 
-						if (_image >= 9) _image = 0;
+            direction += 72;
 
-						_image++;
-						_imageCape++;
+            int width = 25;
 
-						Skin skin = player.Skin;
+            var compass = new string('|', 72).ToCharArray();
+            compass[0] = 'S';
 
+            compass[9] = 'S';
+            compass[9 + 1] = 'W';
 
-						//skin.SkinGeometryName = "";
-						//skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
+            compass[(18)] = 'W';
 
-						{
-							string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{_imageCape:D4}.bmp");
-							//string file = @"D:\Temp\Smiley\big_smile0" + _image + ".png";
-							if (!File.Exists(file))
-							{
-								_imageCape = 0;
-								continue;
-							}
+            compass[(18 + 9)] = 'N';
+            compass[(18 + 9 + 1)] = 'W';
 
-							//Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 12, 18);
-							Bitmap bitmap = new Bitmap((Bitmap) Image.FromFile(file), 64, 64);
-							int offsetx = 16, offsety = 16;
-							bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
-							byte[] bytes = new byte[32*64*4];
+            compass[36] = 'N';
 
-							int i = 0;
-							for (int y = 0; y < 32; y++)
-							{
-								for (int x = 0; x < 64; x++)
-								{
-									if (y >= bitmap.Height || x >= bitmap.Width)
-									{
-										Color color = Color.Yellow;
-										bytes[i++] = color.R;
-										bytes[i++] = color.G;
-										bytes[i++] = color.B;
-										bytes[i++] = color.A;
-										continue;
-									}
-									else
-									{
-										Color color = bitmap.GetPixel(x, y);
-										bytes[i++] = color.R;
-										bytes[i++] = color.G;
-										bytes[i++] = color.B;
-										bytes[i++] = color.A;
-									}
-								}
-							}
-							skin.CapeData = bytes;
-						}
+            compass[36 + 9] = 'N';
+            compass[36 + 9 + 1] = 'E';
+
+            compass[54] = 'E';
+
+            compass[54 + 9] = 'S';
+            compass[54 + 9 + 1] = 'E';
+
+            compass = compass.Concat(compass).Concat(compass).ToArray();
+
+            return new String(compass.Skip((int)(direction - Math.Floor((double)width / 2))).Take(width).ToArray())
+                    .Replace("|", "| ")
+                    .Replace("| N|", $"| {ChatFormatting.Bold}{ChatColors.Red}N{ChatFormatting.Reset} |")
+                    .Replace("| NE|", $"| {ChatFormatting.Bold}{ChatColors.Yellow}NE{ChatFormatting.Reset} |").Trim('N', 'W', 'S', 'E').Trim('N', 'W', 'S', 'E')
+                    .Replace("| E|", $"| {ChatFormatting.Bold}{ChatColors.Green}E{ChatFormatting.Reset} |")
+                    .Replace("| SE|", $"| {ChatFormatting.Bold}{ChatColors.Green}SE{ChatFormatting.Reset} |")
+                    .Replace("| S|", $"| {ChatFormatting.Bold}{ChatColors.Aqua}S{ChatFormatting.Reset} |")
+                    .Replace("| SW|", $"| {ChatFormatting.Bold}{ChatColors.Blue}SW{ChatFormatting.Reset} |")
+                    .Replace("| W|", $"| {ChatFormatting.Bold}{ChatColors.DarkPurple}W{ChatFormatting.Reset} |")
+                    .Replace("| NW|", $"| {ChatFormatting.Bold}{ChatColors.LightPurple}NW{ChatFormatting.Reset} |")
+                ;
+        }
 
 
-						Level level = player.Level;
-						//if (level.TickTime%3 != 0) return;
-						//player.SetNameTag(player.Username + " " + level.TickTime + " testing");
-						//player.SetDisplayName(player.Username + " " + level.TickTime + " testing");
+        private object _skinSynk = new object();
 
-						var texture = skin.SkinData;
-						byte[] smiley = GetTextureFromFile(@"D:\Temp\Smiley\big_smile0" + _image + ".png");
-						if (smiley.Length != 8*8*4) return;
-						int s = 0;
-						int br = 8;
-						int bc = 8;
-						for (int r = 0; r < 8; r++)
-						{
-							for (int c = 0; c < 8; c++)
-							{
-								int i = ((c + bc)*4) + ((r + br)*64*4);
-								int j = ((c)*4) + ((r)*8*4);
+        private int _image = 0;
+        private int _imageCape = 0;
 
-								texture[(i) + 0] = smiley[j + 0];
-								texture[(i) + 1] = smiley[j + 1];
-								texture[(i) + 2] = smiley[j + 2];
-								texture[(i) + 3] = smiley[j + 3];
-							}
-						}
+        private void SkinTick(object state)
+        {
+            if (!Monitor.TryEnter(_skinSynk)) return;
 
-						{
-							McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
-							updateSkin.uuid = player.ClientUuid;
-							updateSkin.skinId = skin.SkinId;
-							updateSkin.skinData = skin.SkinData;
-							updateSkin.capeData = skin.CapeData;
-							updateSkin.geometryModel = skin.SkinGeometryName;
-							updateSkin.geometryData = skin.SkinGeometry;
-							level.RelayBroadcast(updateSkin);
-						}
+            try
+            {
+                foreach (var player in _players.Values)
+                {
+                    {
+                        if (!player.Username.Equals("gurunx")) continue;
 
-						{
-							//player.SpawnPosition = player.KnownPosition;
+                        if (_image >= 9) _image = 0;
 
-							//level.DespawnFromAll(player);
-							//level.SpawnToAll(player);
+                        _image++;
+                        _imageCape++;
 
-							//var players = level.GetSpawnedPlayers();
+                        Skin skin = player.Skin;
 
-							//McpePlayerList playerList = McpePlayerList.CreateObject();
-							//playerList.records = new PlayerAddRecords {player};
-							//level.RelayBroadcast(player, players, CreateMcpeBatch(playerList.Encode()));
-							//playerList.records = null;
-							//playerList.PutPool();
 
-							//player.IsInvisible = true;
-							//player.HideNameTag = true;
-							//player.BroadcastSetEntityData();
+                        //skin.SkinGeometryName = "";
+                        //skin.SkinGeometry = Encoding.UTF8.GetBytes(File.ReadAllText(@"D:\Temp\humanoid.json"));
 
-							//player.SpawnToPlayers(players);
+                        {
+                            string file = Path.Combine(@"D:\Development\Other\Smash Heroes 3x6 (128)\Smash Heroes 3x6 (128)", $"Smash Heroes Trailer{_imageCape:D4}.bmp");
+                            //string file = @"D:\Temp\Smiley\big_smile0" + _image + ".png";
+                            if (!File.Exists(file))
+                            {
+                                _imageCape = 0;
+                                continue;
+                            }
 
-							//Thread.Sleep(100);
-							//player.HideNameTag = false;
-							//player.IsInvisible = false;
-							//player.BroadcastSetEntityData();
-						}
-					}
-				}
-			}
-			finally
-			{
-				Monitor.Exit(_skinSynk);
-			}
-		}
+                            //Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 12, 18);
+                            Bitmap bitmap = new Bitmap((Bitmap)Image.FromFile(file), 64, 64);
+                            int offsetx = 16, offsety = 16;
+                            bitmap = CropImage(bitmap, new Rectangle(offsetx, offsety, 12, 18));
+                            byte[] bytes = new byte[32 * 64 * 4];
+
+                            int i = 0;
+                            for (int y = 0; y < 32; y++)
+                            {
+                                for (int x = 0; x < 64; x++)
+                                {
+                                    if (y >= bitmap.Height || x >= bitmap.Width)
+                                    {
+                                        Color color = Color.Yellow;
+                                        bytes[i++] = color.R;
+                                        bytes[i++] = color.G;
+                                        bytes[i++] = color.B;
+                                        bytes[i++] = color.A;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        Color color = bitmap.GetPixel(x, y);
+                                        bytes[i++] = color.R;
+                                        bytes[i++] = color.G;
+                                        bytes[i++] = color.B;
+                                        bytes[i++] = color.A;
+                                    }
+                                }
+                            }
+                            skin.CapeData = bytes;
+                        }
+
+
+                        Level level = player.Level;
+                        //if (level.TickTime%3 != 0) return;
+                        //player.SetNameTag(player.Username + " " + level.TickTime + " testing");
+                        //player.SetDisplayName(player.Username + " " + level.TickTime + " testing");
+
+                        var texture = skin.SkinData;
+                        byte[] smiley = GetTextureFromFile(@"D:\Temp\Smiley\big_smile0" + _image + ".png");
+                        if (smiley.Length != 8 * 8 * 4) return;
+                        int s = 0;
+                        int br = 8;
+                        int bc = 8;
+                        for (int r = 0; r < 8; r++)
+                        {
+                            for (int c = 0; c < 8; c++)
+                            {
+                                int i = ((c + bc) * 4) + ((r + br) * 64 * 4);
+                                int j = ((c) * 4) + ((r) * 8 * 4);
+
+                                texture[(i) + 0] = smiley[j + 0];
+                                texture[(i) + 1] = smiley[j + 1];
+                                texture[(i) + 2] = smiley[j + 2];
+                                texture[(i) + 3] = smiley[j + 3];
+                            }
+                        }
+
+                        {
+                            McpePlayerSkin updateSkin = McpePlayerSkin.CreateObject();
+                            updateSkin.uuid = player.ClientUuid;
+                            updateSkin.skinId = skin.SkinId;
+                            updateSkin.skinData = skin.SkinData;
+                            updateSkin.capeData = skin.CapeData;
+                            updateSkin.geometryModel = skin.SkinGeometryName;
+                            updateSkin.geometryData = skin.SkinGeometry;
+                            level.RelayBroadcast(updateSkin);
+                        }
+
+                        {
+                            //player.SpawnPosition = player.KnownPosition;
+
+                            //level.DespawnFromAll(player);
+                            //level.SpawnToAll(player);
+
+                            //var players = level.GetSpawnedPlayers();
+
+                            //McpePlayerList playerList = McpePlayerList.CreateObject();
+                            //playerList.records = new PlayerAddRecords {player};
+                            //level.RelayBroadcast(player, players, CreateMcpeBatch(playerList.Encode()));
+                            //playerList.records = null;
+                            //playerList.PutPool();
+
+                            //player.IsInvisible = true;
+                            //player.HideNameTag = true;
+                            //player.BroadcastSetEntityData();
+
+                            //player.SpawnToPlayers(players);
+
+                            //Thread.Sleep(100);
+                            //player.HideNameTag = false;
+                            //player.IsInvisible = false;
+                            //player.BroadcastSetEntityData();
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                Monitor.Exit(_skinSynk);
+            }
+        }
+
+        public void SendScoreboard(Player player)
+        {
+            var board = new Scoreboard();
+            var objective = board.registerObjective("minet", ScoreboardCriteria.Dummy);
+            objective.DisplayName = "§l§6MiNET dev server";
+            objective.DisplaySlot = ScoreboardDisplaySlot.Sidebar;
+            objective.AddScore("Scores", 3);
+            objective.AddScore("Work's", 2);
+            objective.AddScore($"{player.Username}", 1);
+            player.Scoreboard = board;
+            player.SendScoreboard();
+            
+        }
+
+        public void ResendScoreboard(Player player)
+        {
+            player.RemoveScoreboard();
+            var board = new Scoreboard();
+            var objective = board.registerObjective("minet", ScoreboardCriteria.Dummy);
+            objective.DisplayName = "§l§eMiNET dev server";
+            objective.DisplaySlot = ScoreboardDisplaySlot.Sidebar;
+            objective.AddScore("This", 3);
+            objective.AddScore("Work's", 2);
+            objective.AddScore("Too", 1);
+            player.Scoreboard = board;
+            player.SendScoreboard();
+        }
+ 
 
 		public static byte[] GetTextureFromFile(string filename)
 		{
@@ -484,6 +514,7 @@ namespace TestPlugin.NiceLobby
 				player.SendTitle(null, TitleType.AnimationTimes, 6, 6, 20*10);
 				player.SendTitle($"{ChatColors.White}This is gurun's MiNET\n.NET core test server", TitleType.SubTitle);
 				player.SendTitle($"{ChatColors.Gold}Welcome {player.Username}!", TitleType.Title);
+                SendScoreboard(player);
 			});
 		}
 
@@ -788,8 +819,13 @@ namespace TestPlugin.NiceLobby
 			}
 		}
 
+        [Command(Name ="board")]
+        public void Board(Player player)
+        {
+            ResendScoreboard(player); 
+        }
 
-		[Command]
+        [Command]
 		public void Awk(Player player)
 		{
 			string awk = "[" + ChatColors.DarkRed + "AWK" + ChatFormatting.Reset + "]";

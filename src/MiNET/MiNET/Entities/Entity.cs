@@ -347,6 +347,7 @@ namespace MiNET.Entities
 			Charged,
 
 			Tamed,
+            Orphaned,
 			Leashed,
 			Sheared,
 			FlagAllFlying,
@@ -369,7 +370,15 @@ namespace MiNET.Entities
 			AffectedByGravity,
 			FireImmune,
 			Dancing,
-			Enchanted
+			Enchanted,
+
+            ShowTridentRope,
+            ContainerPrivate,
+            SpinAttack = 55,
+            Swimming = 56,
+            Bribed = 57,
+            Pregnant = 58,
+            LayingEgg = 59
 		}
 
 		protected virtual BitArray GetFlags()

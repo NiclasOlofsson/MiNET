@@ -9,7 +9,7 @@ namespace MiNET.Scoreboards
     {
         List,
         Sidebar,
-        BellowName
+        BelowName
 
     }
 }

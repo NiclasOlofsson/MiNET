@@ -78,8 +78,8 @@ namespace MiNET.Scoreboards
                 case ScoreboardDisplaySlot.List:
                     slot = "list";
                     break;
-                case ScoreboardDisplaySlot.BellowName:
-                    slot = "bellowname";
+                case ScoreboardDisplaySlot.BelowName:
+                    slot = "belowname";
                     break;
             }
             return slot;

@@ -40,8 +40,6 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					Write(source);
-					Write(""); //TODO: third party name
-					WriteSignedVarInt(0); //TODO: platform
 					goto case ChatTypes.Raw;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:
@@ -80,8 +78,6 @@ namespace MiNET.Net
 				case ChatTypes.Whisper:
 				case ChatTypes.Announcement:
 					source = ReadString();
-					ReadString(); //TODO: third party name
-					ReadSignedVarInt(); //TODO: platform
 					goto case ChatTypes.Raw;
 				case ChatTypes.Raw:
 				case ChatTypes.Tip:

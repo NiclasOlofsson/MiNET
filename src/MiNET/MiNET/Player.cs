@@ -46,6 +46,7 @@ using MiNET.UI;
 using MiNET.Utils;
 using MiNET.Utils.Skins;
 using MiNET.Worlds;
+using MiNET.Scoreboards;
 using Newtonsoft.Json;
 
 namespace MiNET
@@ -100,6 +101,8 @@ namespace MiNET
 		public Session Session { get; set; }
 
 		public DamageCalculator DamageCalculator { get; set; } = new DamageCalculator();
+
+        public Scoreboard Scoreboard;
 
 
 		public Player(MiNetServer server, IPEndPoint endPoint) : base(-1, null)
@@ -225,9 +228,7 @@ namespace MiNET
 		{
 		}
 
-		public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitializedPacket message)
-		{
-		}
+
 
 		private bool _serverHaveResources = false;
 
@@ -1877,6 +1878,70 @@ namespace MiNET
 			_openInventory = inventory;
 		}
 
+
+        public void SendScoreboard()
+        {
+            if (Scoreboard != null) {
+
+                var pk = McpeSetDisplayObjective.CreateObject();
+                pk.displaySlot = Scoreboard.objective.SlotToString();
+                pk.objectiveName = Scoreboard.objective.Name;
+                pk.displayName = Scoreboard.objective.DisplayName;
+                pk.criteriaName = Scoreboard.objective.CriteriaToString();
+                pk.sortOrder = Scoreboard.objective.Sort;
+                SendPacket(pk);
+                foreach (var scores in Scoreboard.objective.Scores)
+                {
+                    var pk2 = McpeSetScore.CreateObject();
+                    pk2.type = 0;
+                    var spi = new ScorePacketInfos();
+                    if (scores.IsFake)
+                    {
+                        var info = new ScorePacketInfo()
+                        {
+                            scoreboardId = scores.ScoreboardId,
+                            objectiveName = scores.Objective.Name,
+                            score = scores.ScoreId,
+                            fakePlayer = scores.FakePlayer,
+                            addType = 3
+                        };
+                        spi.Add(info);
+                    } else
+                    {
+                        var info = new ScorePacketInfo()
+                        {
+                            scoreboardId = scores.ScoreboardId,
+                            objectiveName = scores.Objective.Name,
+                            score = scores.ScoreId,
+                            entityId = scores.Id,
+                            addType = 1
+                        };
+                        spi.Add(info);
+                    }
+                    
+                    
+                    pk2.scorePacketInfos = spi;
+                    SendPacket(pk2);
+                }
+            } else
+            {
+                Log.Error("Cannot send scoreboard while it's null");
+            }
+        }
+
+        public void RemoveScoreboard()
+        {
+            if(Scoreboard != null)
+            {
+                var pk = McpeRemoveObjective.CreateObject();
+                pk.objectiveName = Scoreboard.objective.Name;
+                SendPacket(pk);
+                Scoreboard = null;
+            }
+        }
+
+
+
 		public void OpenInventory(BlockCoordinates inventoryCoord)
 		{
 			lock (_inventorySync)
@@ -2569,7 +2634,7 @@ namespace MiNET
 			startGame.isMultiplayer = true;
 			startGame.broadcastToLan = true;
 			startGame.broadcastToXbl = true;
-			startGame.enableCommands = EnableCommands;
+            startGame.enableCommands = EnableCommands;
 			startGame.isTexturepacksRequired = false;
 			startGame.gamerules = Level.GetGameRules();
 			startGame.bonusChest = false;
@@ -3467,7 +3532,47 @@ namespace MiNET
 		{
 			Ticked?.Invoke(this, e);
 		}
-	}
+
+        public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitialized message)
+        {
+            
+        }
+
+        public void HandleSetScoreboardIdentity(McpeSetScoreboardIdentity message)
+        {
+            
+        }
+
+        public void HandleUpdateEnumSoft(McpeUpdateSoftEnum message)
+        {
+
+        }
+
+        public void HandleNetworkStackLatency(McpeNetworkStackLatency message)
+        {
+
+        }
+
+        public void HandleScriptCustomEvent(McpeScriptCustomEvent message)
+        {
+
+        }
+
+        public void HandleMcpeRemoveObjective(McpeRemoveObjective mesage)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+        {
+
+        }
+
+        public void HandleMcpeSetScore(McpeSetScore message)
+        {
+
+        }
+    }
 
 	public class PlayerEventArgs : EventArgs
 	{

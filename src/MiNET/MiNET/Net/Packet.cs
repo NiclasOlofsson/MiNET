@@ -461,7 +461,7 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
+					Write(record.DisplayName ?? record.Username);
 					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 					Write(record.PlayerInfo.PlatformChatId);
@@ -1762,9 +1762,20 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) list.Count);
 			foreach(var entry in list)
 			{
-				Write(entry.uuid);
+				WriteVarLong(entry.scoreboardId);
 				Write(entry.objectiveName);
-				Write(entry.score);
+				Write((uint)entry.score);
+                Write(entry.addType);
+                switch (entry.addType)
+                {
+                    case 1:
+                    case 2:
+                        WriteVarLong(entry.entityId);
+                        break;
+                    case 3:
+                        Write(entry.fakePlayer);
+                        break;
+                }
 			}
 		}
 
@@ -1773,17 +1784,80 @@ namespace MiNET.Net
 			var list = new ScorePacketInfos();
 
 			var length = ReadUnsignedVarInt();
-			for(var i = 0; i < length; ++i)
-			{
-				var entry = new ScorePacketInfo();
-				entry.uuid = ReadUUID();
-				entry.objectiveName = ReadString();
-				entry.score = ReadUint();
+            for (var i = 0; i < length; ++i)
+            {
+                var entry = new ScorePacketInfo();
+                entry.scoreboardId = ReadVarLong();
+                entry.objectiveName = ReadString();
+                entry.score = (int) ReadUint();
+                entry.addType = ReadByte();
+                switch (entry.addType)
+                {
+                    case 1:
+                    case 2:
+                        entry.entityId = ReadVarLong();
+                        break;
+                    case 3:
+                        entry.fakePlayer = ReadString();
+                        break;
+                } 
 				list.Add(entry);
 			}
 
 			return list;
 		}
+
+        public void Write(ScoreboardIdentityPackets sip, byte type)
+        {
+            WriteUnsignedVarInt((uint)sip.Count);
+            foreach(var list in sip)
+            {
+                Write(list.ScoreboardId);
+                if (type == 0)
+                {
+                    WriteVarLong(list.EntityId);
+                }
+            }
+        }
+
+        public ScoreboardIdentityPackets ReadScoreboardIdentityPackets(byte type)
+        {
+            var list = new ScoreboardIdentityPackets();
+
+            var length = ReadUnsignedVarInt();
+            for (var i = 0; i < length; ++i)
+            {
+                var entry = new ScoreboardIdentityPacket();
+                entry.ScoreboardId = ReadVarLong();
+                if(type == 0)
+                {
+                    entry.EntityId = ReadVarLong();
+                } 
+                list.Add(entry);
+            }
+
+            return list;
+        }
+
+        public void Write(EnumValues values)
+        {
+            WriteUnsignedVarInt((uint)values.Count);
+            foreach(var value in values)
+            {
+                Write(value);
+            }
+        }
+
+        public EnumValues ReadEnumValues()
+        {
+            var list = new EnumValues();
+            var length = ReadUnsignedVarInt();
+            for(int i = 0; i <= length; i++)
+            {
+                list.Add(ReadString());
+            }
+            return list;
+        }
 
 		public bool CanRead()
 		{

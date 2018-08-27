@@ -7,8 +7,11 @@ namespace MiNET.Utils
 
 	public class ScorePacketInfo
 	{
-		public UUID uuid { get; set; }
+		public long scoreboardId { get; set; }
 		public string objectiveName { get; set; }
-		public uint score { get; set; }
+		public int score { get; set; }
+        public long entityId { get; set; }
+        public string fakePlayer { get; set; }
+        public byte addType;
 	}
 }

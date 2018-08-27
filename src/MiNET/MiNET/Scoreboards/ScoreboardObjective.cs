@@ -5,6 +5,13 @@ using MiNET.Entities;
 
 namespace MiNET.Scoreboards
 {
+    public enum ScoreboardSort
+    {
+        Ascending = 0,
+        None = 1,
+        Descending = 2
+    }
+
     public class ScoreboardObjective
     {
 
@@ -14,7 +21,7 @@ namespace MiNET.Scoreboards
         public String DisplayName { get; set; }
         public List<Score> Scores = new List<Score>();
 
-        public byte Sort = 2;
+        public byte Sort = (int)ScoreboardSort.Descending;
 
         public Score GetScore(String fakeplayer)
         {

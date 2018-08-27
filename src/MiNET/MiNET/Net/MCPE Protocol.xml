@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
-<protocol gameVersion="1.6.0.5" protocolVersion="281">
+<protocol gameVersion="1.6.0.8" protocolVersion="282">
 
 	<constants>
 		<constant id="OFFLINE_MESSAGE_DATA_ID" type="byte[]" value="{ 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56, 0x78 }" />
@@ -241,6 +241,7 @@
 		<field name="Enchantment Seed" type="SignedVarInt" />
 
 		<field name="Blockstates" type="Blockstates" />
+		<field name="Multiplayer Correlation ID" type="string" />
 	</pdu>
 
 	<pdu id="0x0c" online="false" client="false" server="true" name="MCPE_ADD_PLAYER">
@@ -270,6 +271,7 @@
 		<field name="Custom stored permissions" type="UnsignedVarInt" />
 		<field name="User Id" type="long" />
 		<field name="Links" type="Links" />
+		<field name="Device ID" type="string" />
 	</pdu>
 
 
@@ -329,7 +331,7 @@
 
 	<pdu id="0x12" online="false" client="true" server="true" name="MCPE_MOVE_ENTITY">
 		<field name="Runtime Entity ID" type="UnsignedVarLong" />
-		<field name="Flags" type="short" />
+		<field name="Flags" type="byte" />
 		<field name="Position" type="PlayerLocation" />
 		<!--<field name="On Ground" type="bool" />
 		<field name="Teleport" type="bool" />-->
@@ -1010,16 +1012,23 @@
 	</pdu>
 
 	<pdu id="0x70" online="false" client="false" server="true" name="MCPE_SET_SCOREBOARD_IDENTITY_PACKET">
+    <field name="Type" type="byte" />
+    <field name="Scoreboard IdentityPackets" type="ScoreboardIdentityPackets" />
 	</pdu>
 
 	<pdu id="0x71" online="false" client="true" server="false" name="MCPE_SET_LOCAL_PLAYER_AS_INITIALIZED_PACKET">
+    <field name="RuntimeEntityId" type="UnsignedVarLong" />
 	</pdu>
 
 	<pdu id="0x72" online="false" client="false" server="true" name="MCPE_UPDATE_SOFT_ENUM_PACKET">
+    <filed name="Enum Name" type="string" />
+    <field name ="Enum Values" type="EnumValues" />
+    <field name ="Type" type="byte"/>
 	</pdu>
 
 	<pdu id="0x73" online="false" client="false" server="true" name="MCPE_NETWORK_STACK_LATENCY_PACKET">
-	</pdu>
+    <field name="Timestamp" type="ulong"/>	
+  </pdu>
 
 	<pdu namespace="raknet" id="0xfe" online="false" client="false" server="true" name="MCPE_WRAPPER">
 		<field name="Payload" type="byte[]" size="0, true" />

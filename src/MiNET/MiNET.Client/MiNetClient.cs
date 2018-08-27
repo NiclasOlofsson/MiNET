@@ -123,11 +123,11 @@ namespace MiNET.Client
 			int threads;
 			int iothreads;
 			ThreadPool.GetMinThreads(out threads, out iothreads);
+            var client = new MiNetClient(new IPEndPoint(IPAddress.Parse("10.0.0.6"), 19132), "RagnokBot", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+            //var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
+            //var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
 
-			var client = new MiNetClient(new IPEndPoint(Dns.GetHostEntry("yodamine.com").AddressList[0], 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-			//var client = new MiNetClient(new IPEndPoint(IPAddress.Loopback, 19132), "TheGrey", new DedicatedThreadPool(new DedicatedThreadPoolSettings(Environment.ProcessorCount)));
-
-			client.StartClient();
+            client.StartClient();
 			Log.Warn("Client listening for connecting on: " + client._clientEndpoint);
 			Console.WriteLine("Server started.");
 
@@ -613,19 +613,16 @@ namespace MiNET.Client
 
 		public void AddToProcessing(Packet message)
 		{
-			if (Session.CryptoContext == null || Session.CryptoContext.UseEncryption == false || message.Reliability != Reliability.ReliableOrdered)
+			if (message.Reliability != Reliability.ReliableOrdered)
 			{
 				HandlePacket(message);
 				return;
 			}
-
 			//Log.Error("DO NOT USE THIS");
 			//throw new Exception("DO NOT USE THIS");
 
 			lock (_eventSync)
 			{
-				if (_lastSequenceNumber < 0) _lastSequenceNumber = 1;
-
 				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 				{
 					_lastSequenceNumber = message.OrderingIndex;
@@ -1123,9 +1120,26 @@ namespace MiNET.Client
 			else if (typeof (McpeUpdateEquipment) == message.GetType())
 			{
 				OnMcpeUpdateEquipment((McpeUpdateEquipment) message);
-
-				return;
+                
 			}
+
+            else if (typeof(McpeSetDisplayObjective) == message.GetType())
+            {
+                OnMcpeSetDisplayObjective((McpeSetDisplayObjective)message);
+                return;
+            }
+
+            else if (typeof(McpeSetScoreboardIdentity) == message.GetType())
+            {
+                OnMcpeSetScoreboardIdentity((McpeSetScoreboardIdentity)message);
+                return;
+            }
+
+            else if(typeof (McpeSetScore) == message.GetType())
+            {
+                OnMcpeSetScore((McpeSetScore)message);
+                return;
+            }
 
 
 			else if (typeof (UnknownPacket) == message.GetType())
@@ -1139,6 +1153,38 @@ namespace MiNET.Client
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled packet 0x{message.Id:X2} {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 			}
 		}
+
+        private void OnMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+        {
+            Log.Warn($"Criterium {message.criteriaName}");
+            Log.Warn($"DisplayName {message.displayName}");
+            Log.Warn($"Slot {message.displaySlot}");
+            Log.Warn($"Obj {message.objectiveName}");
+            Log.Warn($"Sort {message.sortOrder}");
+        }
+
+        private void OnMcpeSetScoreboardIdentity(McpeSetScoreboardIdentity message)
+        {
+            Log.Warn($"Type {message.type}");
+            foreach (var id in message.scoreboardIdentityPackets)
+            {
+                Log.Warn($"ScoreboardId {id.ScoreboardId}");
+                Log.Warn($"EntityId {id.EntityId}");
+            }
+        }
+
+        private void OnMcpeSetScore(McpeSetScore message)
+        {
+            Log.Warn($"Type {message.type}");
+            foreach(var scores in message.scorePacketInfos)
+            {
+                Log.Warn($"Id {scores.scoreboardId}");
+                Log.Warn($"Obj {scores.objectiveName}");
+                Log.Warn($"Score {scores.score}");
+                Log.Warn($"IdentityType {scores.addType}");
+                Log.Warn($"FakeName {scores.fakePlayer}");
+            }
+        }
 
 		private void OnMcpeInventoryTransaction(McpeInventoryTransaction message)
 		{
@@ -1427,7 +1473,7 @@ namespace MiNET.Client
 			string x5u = headers["x5u"];
 
 			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
-				PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+				PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 
 
 			var signParam = new ECParameters

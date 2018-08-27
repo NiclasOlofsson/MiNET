@@ -8,8 +8,7 @@ namespace MiNET.Scoreboards
     public enum ScoreboardSort
     {
         Ascending = 0,
-        None = 1,
-        Descending = 2
+        Descending = 1
     }
 
     public class ScoreboardObjective

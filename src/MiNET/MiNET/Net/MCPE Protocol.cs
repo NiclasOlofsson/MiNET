@@ -7713,7 +7713,7 @@ namespace MiNET.Net
 			Write(objectiveName);
 			Write(displayName);
 			Write(criteriaName);
-			WriteVarInt(sortOrder);
+			WriteSignedVarInt(sortOrder);
 
 			AfterEncode();
 		}
@@ -7731,7 +7731,7 @@ namespace MiNET.Net
 			objectiveName = ReadString();
 			displayName = ReadString();
 			criteriaName = ReadString();
-			sortOrder = ReadVarInt();
+			sortOrder = ReadSignedVarInt();
 
 			AfterDecode();
 		}

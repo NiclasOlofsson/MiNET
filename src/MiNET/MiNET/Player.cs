@@ -1890,26 +1890,53 @@ namespace MiNET
                 pk.criteriaName = Scoreboard.objective.CriteriaToString();
                 pk.sortOrder = Scoreboard.objective.Sort;
                 SendPacket(pk);
-
-
                 foreach (var scores in Scoreboard.objective.Scores)
                 {
-                    var pk1 = McpeSetScore.CreateObject();
-                    pk1.type = 0;
+                    var pk2 = McpeSetScore.CreateObject();
+                    pk2.type = 0;
                     var spi = new ScorePacketInfos();
-                    var info = new ScorePacketInfo()
+                    if (scores.IsFake)
                     {
-                        uuid = scores.ScoreboardId,
-                        objectiveName = Scoreboard.objective.Name,
-                        score = scores.ScoreId
-                    };
-                    spi.Add(info);
-                    pk1.scorePacketInfos = spi;
-                    SendPacket(pk1);
+                        var info = new ScorePacketInfo()
+                        {
+                            scoreboardId = scores.ScoreboardId,
+                            objectiveName = scores.Objective.Name,
+                            score = scores.ScoreId,
+                            fakePlayer = scores.FakePlayer,
+                            addType = 3
+                        };
+                        spi.Add(info);
+                    } else
+                    {
+                        var info = new ScorePacketInfo()
+                        {
+                            scoreboardId = scores.ScoreboardId,
+                            objectiveName = scores.Objective.Name,
+                            score = scores.ScoreId,
+                            entityId = scores.Id,
+                            addType = 1
+                        };
+                        spi.Add(info);
+                    }
+                    
+                    
+                    pk2.scorePacketInfos = spi;
+                    SendPacket(pk2);
                 }
             } else
             {
                 Log.Error("Cannot send scoreboard while it's null");
+            }
+        }
+
+        public void RemoveScoreboard()
+        {
+            if(Scoreboard != null)
+            {
+                var pk = McpeRemoveObjective.CreateObject();
+                pk.objectiveName = Scoreboard.objective.Name;
+                SendPacket(pk);
+                Scoreboard = null;
             }
         }
 

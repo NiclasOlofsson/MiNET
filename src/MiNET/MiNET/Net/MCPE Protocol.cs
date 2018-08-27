@@ -7757,7 +7757,7 @@ namespace MiNET.Net
 		public enum Types
 		{
 			ModifyScore = 0,
-			ResetScore = 1,
+			RemoveScore = 1,
 		}
 
 		public byte type; // = null;
@@ -8016,7 +8016,7 @@ namespace MiNET.Net
 
 			BeforeEncode();
             Write(type);
-            Write(scoreboardIdentityPackets);
+            Write(scoreboardIdentityPackets, type);
 			AfterEncode();
 		}
 
@@ -8029,7 +8029,7 @@ namespace MiNET.Net
 
 			BeforeDecode();
             type = ReadByte();
-            scoreboardIdentityPackets = ReadScoreboardIdentityPackets();
+            scoreboardIdentityPackets = ReadScoreboardIdentityPackets(type);
 			AfterDecode();
 		}
 

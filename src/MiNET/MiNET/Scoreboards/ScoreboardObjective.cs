@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MiNET.Entities;
 
 namespace MiNET.Scoreboards
 {
@@ -13,28 +14,39 @@ namespace MiNET.Scoreboards
         public String DisplayName { get; set; }
         public List<Score> Scores = new List<Score>();
 
-        public byte Sort = 1;
+        public byte Sort = 2;
 
         public Score GetScore(String fakeplayer)
         {
-            var score = new Score()
+            Score score = null;
+            foreach(var scores in Scores)
             {
-                FakePlayer = fakeplayer
-            };
-            if (!Scores.Contains(score))
-            {
-                Scores.Add(score);
-            } else
-            {
-                foreach(var scores in Scores)
+                if (scores.FakePlayer.Equals(fakeplayer))
                 {
-                    if (scores.FakePlayer.Equals(fakeplayer))
-                    {
-                        score = scores;
-                    }
+                    score = scores;
                 }
             }
             return score;
+        }
+
+        public void AddScore(Entity entity, int value)
+        {
+            var score = new Score(this, entity);
+            score.SetScore(value);
+            if (!Scores.Contains(score))
+            {
+                Scores.Add(score);
+            }
+        }
+
+        public void AddScore(string entry, int value)
+        {
+            var score = new Score(this, entry);
+            score.SetScore(value);
+            if (!Scores.Contains(score))
+            {
+                Scores.Add(score);
+            }
         }
 
         public string CriteriaToString()

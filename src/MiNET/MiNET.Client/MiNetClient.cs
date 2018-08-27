@@ -1120,9 +1120,26 @@ namespace MiNET.Client
 			else if (typeof (McpeUpdateEquipment) == message.GetType())
 			{
 				OnMcpeUpdateEquipment((McpeUpdateEquipment) message);
-
-				return;
+                
 			}
+
+            else if (typeof(McpeSetDisplayObjective) == message.GetType())
+            {
+                OnMcpeSetDisplayObjective((McpeSetDisplayObjective)message);
+                return;
+            }
+
+            else if (typeof(McpeSetScoreboardIdentity) == message.GetType())
+            {
+                OnMcpeSetScoreboardIdentity((McpeSetScoreboardIdentity)message);
+                return;
+            }
+
+            else if(typeof (McpeSetScore) == message.GetType())
+            {
+                OnMcpeSetScore((McpeSetScore)message);
+                return;
+            }
 
 
 			else if (typeof (UnknownPacket) == message.GetType())
@@ -1136,6 +1153,38 @@ namespace MiNET.Client
 				if (Log.IsDebugEnabled) Log.Warn($"Unhandled packet 0x{message.Id:X2} {message.GetType().Name}\n{Packet.HexDump(message.Bytes)}");
 			}
 		}
+
+        private void OnMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+        {
+            Log.Warn($"Criterium {message.criteriaName}");
+            Log.Warn($"DisplayName {message.displayName}");
+            Log.Warn($"Slot {message.displaySlot}");
+            Log.Warn($"Obj {message.objectiveName}");
+            Log.Warn($"Sort {message.sortOrder}");
+        }
+
+        private void OnMcpeSetScoreboardIdentity(McpeSetScoreboardIdentity message)
+        {
+            Log.Warn($"Type {message.type}");
+            foreach (var id in message.scoreboardIdentityPackets)
+            {
+                Log.Warn($"ScoreboardId {id.ScoreboardId}");
+                Log.Warn($"EntityId {id.EntityId}");
+            }
+        }
+
+        private void OnMcpeSetScore(McpeSetScore message)
+        {
+            Log.Warn($"Type {message.type}");
+            foreach(var scores in message.scorePacketInfos)
+            {
+                Log.Warn($"Id {scores.scoreboardId}");
+                Log.Warn($"Obj {scores.objectiveName}");
+                Log.Warn($"Score {scores.score}");
+                Log.Warn($"IdentityType {scores.addType}");
+                Log.Warn($"FakeName {scores.fakePlayer}");
+            }
+        }
 
 		private void OnMcpeInventoryTransaction(McpeInventoryTransaction message)
 		{

@@ -1762,9 +1762,20 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) list.Count);
 			foreach(var entry in list)
 			{
-				Write(entry.uuid);
+				WriteVarLong(entry.scoreboardId);
 				Write(entry.objectiveName);
-				Write(entry.score);
+				Write((uint)entry.score);
+                Write(entry.addType);
+                switch (entry.addType)
+                {
+                    case 1:
+                    case 2:
+                        WriteVarLong(entry.entityId);
+                        break;
+                    case 3:
+                        Write(entry.fakePlayer);
+                        break;
+                }
 			}
 		}
 
@@ -1773,32 +1784,43 @@ namespace MiNET.Net
 			var list = new ScorePacketInfos();
 
 			var length = ReadUnsignedVarInt();
-			for(var i = 0; i < length; ++i)
-			{
-				var entry = new ScorePacketInfo();
-				entry.uuid = ReadUUID();
-				entry.objectiveName = ReadString();
-                entry.score = ReadShort();
+            for (var i = 0; i < length; ++i)
+            {
+                var entry = new ScorePacketInfo();
+                entry.scoreboardId = ReadVarLong();
+                entry.objectiveName = ReadString();
+                entry.score = (int) ReadUint();
+                entry.addType = ReadByte();
+                switch (entry.addType)
+                {
+                    case 1:
+                    case 2:
+                        entry.entityId = ReadVarLong();
+                        break;
+                    case 3:
+                        entry.fakePlayer = ReadString();
+                        break;
+                } 
 				list.Add(entry);
 			}
 
 			return list;
 		}
 
-        public void Write(ScoreboardIdentityPackets sip)
+        public void Write(ScoreboardIdentityPackets sip, byte type)
         {
             WriteUnsignedVarInt((uint)sip.Count);
             foreach(var list in sip)
             {
                 Write(list.ScoreboardId);
-                if (ReadByte() == 0)
+                if (type == 0)
                 {
-                    Write(list.Uuid);
+                    WriteVarLong(list.EntityId);
                 }
             }
         }
 
-        public ScoreboardIdentityPackets ReadScoreboardIdentityPackets()
+        public ScoreboardIdentityPackets ReadScoreboardIdentityPackets(byte type)
         {
             var list = new ScoreboardIdentityPackets();
 
@@ -1807,9 +1829,9 @@ namespace MiNET.Net
             {
                 var entry = new ScoreboardIdentityPacket();
                 entry.ScoreboardId = ReadVarLong();
-                if(ReadByte() == 0)
+                if(type == 0)
                 {
-                    entry.Uuid = ReadUUID();
+                    entry.EntityId = ReadVarLong();
                 } 
                 list.Add(entry);
             }

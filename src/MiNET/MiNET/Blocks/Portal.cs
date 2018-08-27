@@ -97,13 +97,13 @@ namespace MiNET.Blocks
 
 				if (Metadata == 0)
 				{
-					visits.Enqueue(coordinates + Level.South);
-					visits.Enqueue(coordinates + Level.North);
+					visits.Enqueue(coordinates + Level.East);
+					visits.Enqueue(coordinates + Level.West);
 				}
 				else
 				{
-					visits.Enqueue(coordinates + Level.East);
-					visits.Enqueue(coordinates + Level.West);
+					visits.Enqueue(coordinates + Level.North);
+					visits.Enqueue(coordinates + Level.South);
 				}
 
 				visits.Enqueue(coordinates + Level.Down);

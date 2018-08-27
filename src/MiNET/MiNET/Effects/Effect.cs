@@ -57,7 +57,7 @@ namespace MiNET.Effects
 			message.duration = Duration;
 			message.amplifier = Level;
 			message.particles = Particles;
-			player.SendPackage(message);
+			player.SendPacket(message);
 
 			player.BroadcastSetEntityData();
 		}
@@ -71,7 +71,7 @@ namespace MiNET.Effects
 			message.duration = Duration;
 			message.amplifier = Level;
 			message.particles = Particles;
-			player.SendPackage(message);
+			player.SendPacket(message);
 		}
 
 		public virtual void SendRemove(Player player)
@@ -80,7 +80,7 @@ namespace MiNET.Effects
 			message.runtimeEntityId = EntityManager.EntityIdSelf;
 			message.eventId = 3;
 			message.effectId = (int) EffectId;
-			player.SendPackage(message);
+			player.SendPacket(message);
 		}
 
 		public virtual void OnTick(Player player)

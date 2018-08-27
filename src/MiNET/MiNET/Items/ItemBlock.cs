@@ -46,7 +46,7 @@ namespace MiNET.Items
 		{
 		}
 
-		public ItemBlock(Block block, short metadata = 0) : base(block.Id, metadata)
+		public ItemBlock(Block block, short metadata = 0) : base((short) (block.Id > 255 ? 255 - block.Id : block.Id), metadata)
 		{
 			Block = block;
 			FuelEfficiency = Block.FuelEfficiency;
@@ -70,12 +70,17 @@ namespace MiNET.Items
 				return;
 			}
 
-			if (Block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
+			if (!Block.PlaceBlock(world, player, targetCoordinates, face, faceCoords))
 			{
-				return; // Handled
+				world.SetBlock(Block);
 			}
 
-			world.SetBlock(Block);
+			if (player.GameMode == GameMode.Survival && Block.Id != 0)
+			{
+				var itemInHand = player.Inventory.GetItemInHand();
+				itemInHand.Count--;
+				player.Inventory.SetInventorySlot(player.Inventory.InHandSlot, itemInHand);
+			}
 		}
 	}
 }

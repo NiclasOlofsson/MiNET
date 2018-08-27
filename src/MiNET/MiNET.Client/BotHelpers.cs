@@ -66,7 +66,7 @@ namespace MiNET.Client
 				message.item = item;
 				message.selectedSlot = (byte) selectedSlot;
 				message.slot = (byte) (selectedSlot + 9);
-				client.SendPackage(message);
+				client.SendPacket(message);
 			};
 			return doMobEquipmentTask;
 		}
@@ -96,7 +96,7 @@ namespace MiNET.Client
 				McpeCommandRequest request = new McpeCommandRequest();
 				request.command = command;
 				request.unknownUuid = new UUID(Guid.NewGuid().ToString());
-				client.SendPackage(request);
+				client.SendPacket(request);
 			};
 			return doUseItem;
 		}
@@ -144,7 +144,7 @@ namespace MiNET.Client
 						movePlayerPacket.pitch = lookAtPos.Pitch;
 						movePlayerPacket.headYaw = lookAtPos.HeadYaw;
 
-						client.SendPackage(movePlayerPacket);
+						client.SendPacket(movePlayerPacket);
 
 						Thread.Sleep(50);
 						continue;
@@ -161,7 +161,7 @@ namespace MiNET.Client
 						movePlayerPacket.pitch = lookAtPos.Pitch;
 						movePlayerPacket.headYaw = lookAtPos.HeadYaw;
 
-						client.SendPackage(movePlayerPacket);
+						client.SendPacket(movePlayerPacket);
 					}
 					break;
 				}

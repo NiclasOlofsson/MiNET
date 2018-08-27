@@ -42,9 +42,9 @@ using Newtonsoft.Json;
 
 namespace MiNET.Net
 {
-	public abstract partial class Package
+	public abstract partial class Packet
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet));
 
 		private bool _isEncoded;
 		private byte[] _encodedMessage;
@@ -72,7 +72,7 @@ namespace MiNET.Net
 		[JsonIgnore]
 		public byte[] Bytes { get; private set; }
 
-		public Package()
+		public Packet()
 		{
 			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
@@ -104,6 +104,17 @@ namespace MiNET.Net
 		public bool ReadBool()
 		{
 			return _reader.ReadByte() != 0;
+		}
+
+		public void Write(Memory<byte> value)
+		{
+			if (value.IsEmpty)
+			{
+				Log.Warn("Trying to write empty Memory<byte>");
+				return;
+			}
+
+			_writer.Write(value.Span);
 		}
 
 		public void Write(byte[] value)
@@ -450,7 +461,7 @@ namespace MiNET.Net
 					Write(record.ClientUuid);
 					WriteSignedVarLong(record.EntityId);
 					Write(record.DisplayName ?? record.Username);
-					Write(record.PlayerInfo.ThirdPartyName ?? record.DisplayName ?? record.Username);
+					Write(record.DisplayName ?? record.Username);
 					WriteSignedVarInt(record.PlayerInfo.DeviceOS);
 					Write(record.Skin, record?.PlayerInfo?.CertificateData?.ExtraData?.Xuid);
 					Write(record.PlayerInfo.PlatformChatId);
@@ -619,6 +630,7 @@ namespace MiNET.Net
 
 		public IPEndPoint[] ReadIPEndPoints(int count)
 		{
+			if (count == 20 && _reader.BaseStream.Length < 120) count = 10;
 			var endPoints = new IPEndPoint[count];
 			for (int i = 0; i < endPoints.Length; i++)
 			{
@@ -1260,20 +1272,22 @@ namespace MiNET.Net
 			{
 				Write(info.Id);
 				Write(info.Version);
+				Write(info.Unknown);
 			}
 		}
 
 		public ResourcePackIdVersions ReadResourcePackIdVersions()
 		{
 			//int count = _reader.ReadInt16(); // LE
-			int count = ReadShort(); // LE
+			uint count = ReadUnsignedVarInt(); // LE
 
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)
 			{
 				var id = ReadString();
 				var version = ReadString();
-				var info = new PackIdVersion {Id = id, Version = version};
+				var unknown = ReadString();
+				var info = new PackIdVersion {Id = id, Version = version, Unknown = unknown};
 				packInfos.Add(info);
 			}
 
@@ -1748,9 +1762,20 @@ namespace MiNET.Net
 			WriteUnsignedVarInt((uint) list.Count);
 			foreach(var entry in list)
 			{
-				Write(entry.uuid);
+				WriteVarLong(entry.scoreboardId);
 				Write(entry.objectiveName);
-				Write(entry.score);
+				Write((uint)entry.score);
+                Write(entry.addType);
+                switch (entry.addType)
+                {
+                    case 1:
+                    case 2:
+                        WriteVarLong(entry.entityId);
+                        break;
+                    case 3:
+                        Write(entry.fakePlayer);
+                        break;
+                }
 			}
 		}
 
@@ -1759,33 +1784,96 @@ namespace MiNET.Net
 			var list = new ScorePacketInfos();
 
 			var length = ReadUnsignedVarInt();
-			for(var i = 0; i < length; ++i)
-			{
-				var entry = new ScorePacketInfo();
-				entry.uuid = ReadUUID();
-				entry.objectiveName = ReadString();
-				entry.score = ReadUint();
+            for (var i = 0; i < length; ++i)
+            {
+                var entry = new ScorePacketInfo();
+                entry.scoreboardId = ReadVarLong();
+                entry.objectiveName = ReadString();
+                entry.score = (int) ReadUint();
+                entry.addType = ReadByte();
+                switch (entry.addType)
+                {
+                    case 1:
+                    case 2:
+                        entry.entityId = ReadVarLong();
+                        break;
+                    case 3:
+                        entry.fakePlayer = ReadString();
+                        break;
+                } 
 				list.Add(entry);
 			}
 
 			return list;
 		}
 
+        public void Write(ScoreboardIdentityPackets sip, byte type)
+        {
+            WriteUnsignedVarInt((uint)sip.Count);
+            foreach(var list in sip)
+            {
+                Write(list.ScoreboardId);
+                if (type == 0)
+                {
+                    WriteVarLong(list.EntityId);
+                }
+            }
+        }
+
+        public ScoreboardIdentityPackets ReadScoreboardIdentityPackets(byte type)
+        {
+            var list = new ScoreboardIdentityPackets();
+
+            var length = ReadUnsignedVarInt();
+            for (var i = 0; i < length; ++i)
+            {
+                var entry = new ScoreboardIdentityPacket();
+                entry.ScoreboardId = ReadVarLong();
+                if(type == 0)
+                {
+                    entry.EntityId = ReadVarLong();
+                } 
+                list.Add(entry);
+            }
+
+            return list;
+        }
+
+        public void Write(EnumValues values)
+        {
+            WriteUnsignedVarInt((uint)values.Count);
+            foreach(var value in values)
+            {
+                Write(value);
+            }
+        }
+
+        public EnumValues ReadEnumValues()
+        {
+            var list = new EnumValues();
+            var length = ReadUnsignedVarInt();
+            for(int i = 0; i <= length; i++)
+            {
+                list.Add(ReadString());
+            }
+            return list;
+        }
+
 		public bool CanRead()
 		{
 			return _reader.BaseStream.Position < _reader.BaseStream.Length;
 		}
 
-		protected virtual void EncodePackage()
+		protected virtual void EncodePacket()
 		{
 			_buffer.Position = 0;
-			Write(Id);
+			Write(Id); //TODO: If MCPE write varint
 			//if (IsMcpe) Write((short) 0);
 		}
 
 		public virtual void Reset()
 		{
-			ResetPackage();
+			ResetPacket();
 			DatagramSequenceNumber = -1;
 
 			Reliability = Reliability.Unreliable;
@@ -1804,7 +1892,7 @@ namespace MiNET.Net
 			_isEncoded = false;
 		}
 
-		protected virtual void ResetPackage()
+		protected virtual void ResetPacket()
 		{
 		}
 
@@ -1825,7 +1913,7 @@ namespace MiNET.Net
 
 				_isEncoded = false;
 
-				EncodePackage();
+				EncodePacket();
 
 				_writer.Flush();
 				_buffer.Position = 0;
@@ -1835,7 +1923,7 @@ namespace MiNET.Net
 			}
 		}
 
-		protected virtual void DecodePackage()
+		protected virtual void DecodePacket()
 		{
 			_buffer.Position = 0;
 			if (!IsMcpe) Id = ReadByte();
@@ -1849,7 +1937,7 @@ namespace MiNET.Net
 			_buffer.SetLength(buffer.Length);
 			_buffer.Write(buffer, 0, buffer.Length);
 			_buffer.Position = 0;
-			DecodePackage();
+			DecodePacket();
 			if (Log.IsDebugEnabled && _buffer.Position != (buffer.Length))
 			{
 				Log.Warn($"{GetType().Name}: Still have {buffer.Length - _buffer.Position} bytes to read!!\n{HexDump(buffer)}");
@@ -1858,7 +1946,7 @@ namespace MiNET.Net
 
 		public void CloneReset()
 		{
-			_buffer = MiNetServer.MemoryStreamManager.GetStream();
+			_buffer = new MemoryStream();
 			_reader = new BinaryReader(_buffer);
 			_writer = new BinaryWriter(_buffer);
 			Timer.Start();
@@ -1866,12 +1954,12 @@ namespace MiNET.Net
 
 		public virtual object Clone()
 		{
-			Package clone = (Package) MemberwiseClone();
+			Packet clone = (Packet) MemberwiseClone();
 			clone.CloneReset();
 			return clone;
 		}
 
-		public virtual T Clone<T>() where T : Package
+		public virtual T Clone<T>() where T : Packet
 		{
 			return (T) Clone();
 		}
@@ -1896,7 +1984,7 @@ namespace MiNET.Net
 			return sb.ToString();
 		}
 
-		public static string ToJson(Package message)
+		public static string ToJson(Packet message)
 		{
 			var jsonSerializerSettings = new JsonSerializerSettings
 			{
@@ -1912,9 +2000,9 @@ namespace MiNET.Net
 	}
 
 	/// Base package class
-	public abstract partial class Package<T> : Package, ICloneable where T : Package<T>, new()
+	public abstract partial class Packet<T> : Packet, ICloneable where T : Packet<T>, new()
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (Package));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (Packet<T>));
 
 		private static readonly ObjectPool<T> Pool = new ObjectPool<T>(() => new T());
 
@@ -1954,7 +2042,7 @@ namespace MiNET.Net
 			return (T) this;
 		}
 
-		public T AddReference(Package<T> item)
+		public T AddReference(Packet<T> item)
 		{
 			if (_isPermanent) return (T) this;
 
@@ -1990,7 +2078,7 @@ namespace MiNET.Net
 		//}
 
 
-		~Package()
+		~Packet()
 		{
 			if (_isPooled)
 			{

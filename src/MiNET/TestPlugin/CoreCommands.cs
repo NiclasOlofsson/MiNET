@@ -225,7 +225,7 @@ namespace TestPlugin
 			}
 
 			var packet = BatchUtils.CreateBatchPacket(CompressionLevel.Fastest, packets.ToArray());
-			player.SendPackage(packet);
+			player.SendPacket(packet);
 		}
 
 		[Command]
@@ -412,7 +412,7 @@ namespace TestPlugin
 				McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 				levelEvent.eventId = 3001;
 				levelEvent.data = value;
-				player.SendPackage(levelEvent);
+				player.SendPacket(levelEvent);
 			}
 			player.SendMessage("Downfall " + value, type: MessageType.Raw);
 		}
@@ -429,7 +429,7 @@ namespace TestPlugin
 						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = data;
-						player.SendPackage(levelEvent);
+						player.SendPacket(levelEvent);
 					}
 					//{
 					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
@@ -446,7 +446,7 @@ namespace TestPlugin
 						McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
 						levelEvent.eventId = 3001;
 						levelEvent.data = i;
-						player.SendPackage(levelEvent);
+						player.SendPacket(levelEvent);
 					}
 					//{
 					//	McpeLevelEvent levelEvent = McpeLevelEvent.CreateObject();
@@ -479,7 +479,7 @@ namespace TestPlugin
 		[Command]
 		public void Version(Player player)
 		{
-			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
+			string productVersion = FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(typeof(MiNetServer)).Location).ProductVersion;
 			player.SendMessage($"MiNET v{productVersion}", type: MessageType.Raw);
 		}
 
@@ -913,7 +913,7 @@ namespace TestPlugin
 			inventory.Slots[c++] = new ItemCompass(); // Wooden Sword
 			inventory.Slots[c++] = new ItemWoodenSword(); // Wooden Sword
 			inventory.Slots[c++] = new ItemStoneSword(); // Stone Sword
-			inventory.Slots[c++] = new ItemGoldSword(); // Golden Sword
+			inventory.Slots[c++] = new ItemGoldenSword(); // Golden Sword
 			inventory.Slots[c++] = new ItemIronSword(); // Iron Sword
 			inventory.Slots[c++] = new ItemDiamondSword(); // Diamond Sword
 			inventory.Slots[c++] = new ItemArrow {Count = 64}; // Arrows
@@ -1220,7 +1220,7 @@ namespace TestPlugin
 				McpeTransfer transfer = McpeTransfer.CreateObject();
 				transfer.serverAddress = "yodamine.com";
 				transfer.port = 19132;
-				player.SendPackage(transfer);
+				player.SendPacket(transfer);
 			}
 		}
 

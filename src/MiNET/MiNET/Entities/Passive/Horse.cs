@@ -103,7 +103,7 @@ namespace MiNET.Entities.Passive
 			return attributes;
 		}
 
-		public override void DoInteraction(byte actionId, Player player)
+		public override void DoInteraction(int actionId, Player player)
 		{
 			if (player.IsSneaking)
 			{
@@ -349,12 +349,12 @@ namespace MiNET.Entities.Passive
 			};
 			equ.namedtag = nbt;
 
-			player.SendPackage(equ);
+			player.SendPacket(equ);
 
 			McpeInventoryContent containerSetContent = McpeInventoryContent.CreateObject();
 			containerSetContent.inventoryId = 2;
 			containerSetContent.input = new ItemStacks() {Slot0, Slot1};
-			player.SendPackage(containerSetContent);
+			player.SendPacket(containerSetContent);
 		}
 
 		public Item GetSlot(int slot)

@@ -13,22 +13,22 @@
 // WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
 // the specific language governing rights and limitations under the License.
 // 
-// The Original Code is Niclas Olofsson.
+// The Original Code is MiNET.
 // 
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using log4net;
 using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Entities.World;
 using MiNET.Utils;
 using MiNET.Worlds;
@@ -40,7 +40,7 @@ namespace MiNET.Items
 		public static int MaxPortalHeight = 30;
 		public static int MaxPortalWidth = 30;
 
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFlintAndSteel));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFlintAndSteel));
 
 		public ItemFlintAndSteel() : base(259)
 		{
@@ -63,16 +63,17 @@ namespace MiNET.Items
 					},
 					Fuse = 80
 				}.SpawnEntity();
+				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
 			}
 			else if (block is Obsidian)
 			{
 				var affectedBlock = world.GetBlock(GetNewCoordinatesFromFace(blockCoordinates, face));
 				if (affectedBlock.Id == 0)
 				{
-					var blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.North);
+					var blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.West);
 					if (blocks.Count == 0)
 					{
-						blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.East);
+						blocks = Fill(world, affectedBlock.Coordinates, 10, BlockFace.North);
 					}
 
 					if (blocks.Count > 0)
@@ -98,6 +99,7 @@ namespace MiNET.Items
 						}
 					}
 				}
+				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
 			}
 			else if (block.IsSolid)
 			{
@@ -110,6 +112,7 @@ namespace MiNET.Items
 					};
 					world.SetBlock(fire);
 				}
+				player.Inventory.DamageItemInHand(ItemDamageReason.BlockInteract, null, block);
 			}
 		}
 
@@ -132,15 +135,15 @@ namespace MiNET.Items
 				{
 					Visit(coordinates, blocks, direction);
 
-					if (direction == BlockFace.North)
-					{
-						visits.Enqueue(coordinates + Level.East);
-						visits.Enqueue(coordinates + Level.West);
-					}
-					else if (direction == BlockFace.East)
+					if (direction == BlockFace.West)
 					{
 						visits.Enqueue(coordinates + Level.North);
 						visits.Enqueue(coordinates + Level.South);
+					}
+					else if (direction == BlockFace.North)
+					{
+						visits.Enqueue(coordinates + Level.West);
+						visits.Enqueue(coordinates + Level.East);
 					}
 
 					visits.Enqueue(coordinates + Level.Up);
@@ -164,6 +167,25 @@ namespace MiNET.Items
 		private bool IsValid(Block block, List<Block> portals)
 		{
 			return block is Obsidian || portals.FirstOrDefault(b => b.Coordinates.Equals(block.Coordinates) && b is Portal) != null;
+		}
+
+		public override bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			switch (reason)
+			{
+				case ItemDamageReason.BlockInteract:
+				{
+					Metadata++;
+					return Metadata >= GetMaxUses() - 1;
+				}
+				default:
+					return false;
+			}
+		}
+
+		protected override int GetMaxUses()
+		{
+			return 65;
 		}
 	}
 }

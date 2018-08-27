@@ -9,9 +9,9 @@ using MiNET.Utils;
 
 namespace MiNET.Net
 {
-	public class ConnectedPackage : Package<ConnectedPackage>
+	public class ConnectedPacket : Packet<ConnectedPacket>
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ConnectedPackage));
+		private static readonly ILog Log = LogManager.GetLogger(typeof (ConnectedPacket));
 
 		public DatagramHeader _datagramHeader;
 		public Int24 _datagramSequenceNumber; // uint 24
@@ -30,15 +30,15 @@ namespace MiNET.Net
 
 
 		public int MessageLength { get; set; }
-		public List<Package> Messages { get; set; }
+		public List<Packet> Messages { get; set; }
 		public byte[] Buffer { get; set; }
 
-		public ConnectedPackage()
+		public ConnectedPacket()
 		{
-			Messages = new List<Package>();
+			Messages = new List<Packet>();
 		}
 
-		protected override void EncodePackage()
+		protected override void EncodePacket()
 		{
 			_buffer.Position = 0;
 
@@ -106,9 +106,9 @@ namespace MiNET.Net
 			Write(encodedMessage);
 		}
 
-		protected override void DecodePackage()
+		protected override void DecodePacket()
 		{
-			Messages = new List<Package>();
+			Messages = new List<Packet>();
 
 			_buffer.Position = 0;
 
@@ -185,34 +185,34 @@ namespace MiNET.Net
 
 				if (_hasSplit)
 				{
-					SplitPartPackage splitPartPackage = SplitPartPackage.CreateObject();
-					splitPartPackage.DatagramSequenceNumber = _datagramSequenceNumber;
-					splitPartPackage.Reliability = _reliability;
-					splitPartPackage.ReliableMessageNumber = _reliableMessageNumber;
-					splitPartPackage.OrderingChannel = _orderingChannel;
-					splitPartPackage.OrderingIndex = _orderingIndex;
-					splitPartPackage.SplitId = _splitPacketId;
-					splitPartPackage.SplitCount = _splitPacketCount;
-					splitPartPackage.SplitIdx = _splitPacketIndex;
-					splitPartPackage.Id = internalBuffer[0];
-					splitPartPackage.Message = internalBuffer;
-					Messages.Add(splitPartPackage);
+					SplitPartPacket splitPartPacket = SplitPartPacket.CreateObject();
+					splitPartPacket.DatagramSequenceNumber = _datagramSequenceNumber;
+					splitPartPacket.Reliability = _reliability;
+					splitPartPacket.ReliableMessageNumber = _reliableMessageNumber;
+					splitPartPacket.OrderingChannel = _orderingChannel;
+					splitPartPacket.OrderingIndex = _orderingIndex;
+					splitPartPacket.SplitId = _splitPacketId;
+					splitPartPacket.SplitCount = _splitPacketCount;
+					splitPartPacket.SplitIdx = _splitPacketIndex;
+					splitPartPacket.Id = internalBuffer[0];
+					splitPartPacket.Message = internalBuffer;
+					Messages.Add(splitPartPacket);
 
 					if (Log.IsDebugEnabled && _buffer.Position < _buffer.Length) Log.Debug($"Got split message, but more to read {_buffer.Length - _buffer.Position}");
 					continue;
 				}
 
 				byte id = internalBuffer[0];
-				Package package = PackageFactory.CreatePackage(id, internalBuffer, "raknet") ?? new UnknownPackage(id, internalBuffer);
-				package.DatagramSequenceNumber = _datagramSequenceNumber;
-				package.Reliability = _reliability;
-				package.ReliableMessageNumber = _reliableMessageNumber;
-				package.OrderingChannel = _orderingChannel;
-				package.OrderingIndex = _orderingIndex;
+				Packet packet = PacketFactory.Create(id, internalBuffer, "raknet") ?? new UnknownPacket(id, internalBuffer);
+				packet.DatagramSequenceNumber = _datagramSequenceNumber;
+				packet.Reliability = _reliability;
+				packet.ReliableMessageNumber = _reliableMessageNumber;
+				packet.OrderingChannel = _orderingChannel;
+				packet.OrderingIndex = _orderingIndex;
 
 				//if (!(package is McpeBatch)) Log.Debug($"Raw: {package.DatagramSequenceNumber} {package.ReliableMessageNumber} {package.OrderingIndex} {package.GetType().Name} 0x{package.Id:x2} \n{HexDump(internalBuffer)}");
 
-				Messages.Add(package);
+				Messages.Add(packet);
 				if (Log.IsDebugEnabled && MessageLength != internalBuffer.Length) Log.Debug("Missmatch of requested lenght, and actual read lenght");
 			}
 		}

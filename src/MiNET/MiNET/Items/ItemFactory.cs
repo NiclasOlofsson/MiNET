@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -42,7 +42,7 @@ namespace MiNET.Items
 
 	public class ItemFactory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (ItemFactory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(ItemFactory));
 
 		public static ICustomItemFactory CustomItemFactory { get; set; }
 		public static ICustomBlockItemFactory CustomBlockItemFactory { get; set; }
@@ -57,7 +57,7 @@ namespace MiNET.Items
 		private static Dictionary<string, short> BuildNameToId()
 		{
 			var nameToId = new Dictionary<string, short>();
-			for (short idx = 0; idx < 500; idx++)
+			for (short idx = -500; idx < 500; idx++)
 			{
 				Item item = GetItem(idx);
 				string name = item.GetType().Name.ToLowerInvariant();
@@ -111,7 +111,7 @@ namespace MiNET.Items
 				return NameToId[itemName];
 			}
 
-			return BlockFactory.GetBlockIdByName(itemName);
+			return (short) BlockFactory.GetBlockIdByName(itemName);
 		}
 
 		public static Item GetItem(string name, short metadata = 0, int count = 1)
@@ -121,8 +121,6 @@ namespace MiNET.Items
 
 		public static Item GetItem(short id, short metadata = 0, int count = 1)
 		{
-			//if (id != 0 && count == 0) return null;
-
 			Item item = null;
 
 			if (CustomItemFactory != null)
@@ -158,15 +156,15 @@ namespace MiNET.Items
 			else if (id == 278) item = new ItemDiamondPickaxe();
 			else if (id == 279) item = new ItemDiamondAxe();
 			else if (id == 280) item = new ItemStick();
-			else if (id == 283) item = new ItemGoldSword();
-			else if (id == 284) item = new ItemGoldShovel();
-			else if (id == 285) item = new ItemGoldPickaxe();
-			else if (id == 286) item = new ItemGoldAxe();
+			else if (id == 283) item = new ItemGoldenSword();
+			else if (id == 284) item = new ItemGoldenShovel();
+			else if (id == 285) item = new ItemGoldenPickaxe();
+			else if (id == 286) item = new ItemGoldenAxe();
 			else if (id == 290) item = new ItemWoodenHoe();
 			else if (id == 291) item = new ItemStoneHoe();
 			else if (id == 292) item = new ItemIronHoe();
 			else if (id == 293) item = new ItemDiamondHoe();
-			else if (id == 294) item = new ItemGoldHoe();
+			else if (id == 294) item = new ItemGoldenHoe();
 			else if (id == 295) item = new ItemWheatSeeds();
 			else if (id == 296) item = new ItemWheat();
 			else if (id == 297) item = new ItemBread();
@@ -242,10 +240,16 @@ namespace MiNET.Items
 			else if (id == 444) item = new ItemElytra();
 			else if (id == 446) item = new ItemBanner();
 			else if (id == 452) item = new ItemIronNugget();
+			else if (id == 454 && metadata == 0) item = new ItemSlate();
+			else if (id == 454 && metadata == 1) item = new ItemPoster();
+			else if (id == 454 && metadata == 2) item = new ItemBoard();
 			else if (id == 458) item = new ItemBeetrootSeeds();
+			else if (id == 498) item = new ItemCamera(metadata);
 			else if (id <= 255)
 			{
-				Block block = BlockFactory.GetBlockById((byte) id);
+				int blockId = id;
+				if (blockId < 0) blockId = (short) (Math.Abs(id) + 255); // hehe
+				Block block = BlockFactory.GetBlockById(blockId);
 				if (CustomBlockItemFactory == null)
 				{
 					item = new ItemBlock(block, metadata);

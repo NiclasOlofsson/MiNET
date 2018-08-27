@@ -41,7 +41,7 @@ namespace MiNET.Items
 				motions.runtimeEntityId = EntityManager.EntityIdSelf;
 				motions.velocity = velocity;
 
-				player.SendPackage(motions);
+				player.SendPacket(motions);
 			}
 			else if (player.Inventory.Chest is ItemElytra)
 			{
@@ -49,7 +49,7 @@ namespace MiNET.Items
 				motions.runtimeEntityId = EntityManager.EntityIdSelf;
 				Vector3 velocity = new Vector3(0, 2, 0);
 				motions.velocity = velocity;
-				player.SendPackage(motions);
+				player.SendPacket(motions);
 
 				SendWithDelay(200, () =>
 				{

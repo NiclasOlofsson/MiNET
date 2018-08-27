@@ -24,6 +24,7 @@
 #endregion
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -80,13 +81,13 @@ namespace MiNET.Utils
 			return asn.Concat(key.ToByteArray().Skip(8)).ToArray();
 		}
 
-		public static ECDiffieHellmanPublicKey FromDerEncoded(byte[] keyBytes)
-		{
-			var clientPublicKeyBlob = FixPublicKey(keyBytes.Skip(23).ToArray());
+		//public static ECDiffieHellmanPublicKey FromDerEncoded(byte[] keyBytes)
+		//{
+		//	var clientPublicKeyBlob = FixPublicKey(keyBytes.Skip(23).ToArray());
 
-			ECDiffieHellmanPublicKey clientKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
-			return clientKey;
-		}
+		//	ECDiffieHellmanPublicKey clientKey = ECDiffieHellmanCngPublicKey.FromByteArray(clientPublicKeyBlob, CngKeyBlobFormat.EccPublicBlob);
+		//	return clientKey;
+		//}
 
 		private static byte[] FixPublicKey(byte[] publicKeyBlob)
 		{
@@ -102,7 +103,7 @@ namespace MiNET.Utils
 			return inKey;
 		}
 
-		public static byte[] Encrypt(byte[] payload, CryptoContext cryptoContext)
+		public static byte[] Encrypt(Memory<byte> payload, CryptoContext cryptoContext)
 		{
 			using (MemoryStream hashStream = new MemoryStream())
 			{
@@ -111,18 +112,20 @@ namespace MiNET.Utils
 				SHA256Managed crypt = new SHA256Managed();
 
 				hashStream.Write(BitConverter.GetBytes(Interlocked.Increment(ref cryptoContext.SendCounter)), 0, 8);
-				hashStream.Write(payload, 0, payload.Length);
+				hashStream.Write(payload.Span);
 				hashStream.Write(cryptoContext.Key, 0, cryptoContext.Key.Length);
 				var hashBuffer = hashStream.ToArray();
 
-				byte[] validationCheckSum = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length);
+				Span<byte> validationCheckSum = crypt.ComputeHash(hashBuffer, 0, hashBuffer.Length);
 
-				byte[] clear = payload.Concat(validationCheckSum.Take(8)).ToArray();
+				Span<byte> clear = stackalloc byte[payload.Length + 8];
+				payload.Span.CopyTo(clear);
+				validationCheckSum.Slice(0, 8).CopyTo(clear.Slice(payload.Length));
 
 				var cipher = cryptoContext.Encryptor;
 
 				byte[] encrypted = new byte[clear.Length];
-				int length = cipher.ProcessBytes(clear, encrypted, 0);
+				int length = cipher.ProcessBytes(clear.ToArray(), encrypted, 0);
 				//cipher.DoFinal(outputBytes, length); //Do the final block
 
 				return encrypted;
@@ -243,6 +246,7 @@ namespace MiNET.Utils
 	""DeviceModel"": ""MINET CLIENT"",
 	""DeviceOS"": 7,
 	""GameVersion"": ""{McpeProtocolInfo.GameVersion}"",
+	""IsEduMode"": {Config.GetProperty("EnableEdu", false).ToString().ToLower()},
 	""GuiScale"": 0,
 	""LanguageCode"": ""en_US"",
 	""PlatformOfflineId"": """",
@@ -251,7 +255,7 @@ namespace MiNET.Utils
 	""ServerAddress"": ""yodamine.com:19132"",
 	""SkinData"": ""{skin64}"",
 	""SkinId"": ""{skin.SkinId}"",
-	""TenantId"": ""75a3f792-a259-4428-9a8d-4e832fb960e4"",
+	""TenantId"": ""38dd6634-1031-4c50-a9b4-d16cd9d97d57"",
 	""ThirdPartyName"": ""{username}"",
 	""UIProfile"": 0
 }}";
@@ -276,12 +280,38 @@ namespace MiNET.Utils
 				{
 					X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
 					Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
-				},
-				D = privAsyKey.D.ToByteArrayUnsigned()
+				}
 			};
+			signParam.D = FixDSize(privAsyKey.D.ToByteArrayUnsigned(), signParam.Q.X.Length);
 			signParam.Validate();
 
 			return ECDsa.Create(signParam);
+		}
+
+		public static byte[] FixDSize(byte[] input, int expectedSize)
+		{
+			if (input.Length == expectedSize)
+			{
+				return input;
+			}
+
+			byte[] tmp;
+
+			if (input.Length < expectedSize)
+			{
+				tmp = new byte[expectedSize];
+				Buffer.BlockCopy(input, 0, tmp, expectedSize - input.Length, input.Length);
+				return tmp;
+			}
+
+			if (input.Length > expectedSize + 1 || input[0] != 0)
+			{
+				throw new InvalidOperationException();
+			}
+
+			tmp = new byte[expectedSize];
+			Buffer.BlockCopy(input, 1, tmp, 0, expectedSize);
+			return tmp;
 		}
 
 		public static byte[] CompressJwtBytes(byte[] certChain, byte[] skinData, CompressionLevel compressionLevel)
@@ -291,14 +321,12 @@ namespace MiNET.Utils
 				{
 					{
 						byte[] lenBytes = BitConverter.GetBytes(certChain.Length);
-						//Array.Reverse(lenBytes);
-						stream.Write(lenBytes, 0, lenBytes.Length); // ??
+						stream.Write(lenBytes, 0, lenBytes.Length);
 						stream.Write(certChain, 0, certChain.Length);
 					}
 					{
 						byte[] lenBytes = BitConverter.GetBytes(skinData.Length);
-						//Array.Reverse(lenBytes);
-						stream.Write(lenBytes, 0, lenBytes.Length); // ??
+						stream.Write(lenBytes, 0, lenBytes.Length);
 						stream.Write(skinData, 0, skinData.Length);
 					}
 				}

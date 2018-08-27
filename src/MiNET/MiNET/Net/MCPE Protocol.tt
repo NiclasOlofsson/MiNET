@@ -73,11 +73,11 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and @cli
 #>
 	}
 
-	public class PackageFactory
+	public class PacketFactory
 	{
-		public static Package CreatePackage(byte messageId, byte[] buffer, string ns)
+		public static Packet Create(byte messageId, byte[] buffer, string ns)
 		{
-			Package package = null; 
+			Packet packet = null; 
 			if(ns == "raknet") 
 			{
 				switch (messageId)
@@ -88,9 +88,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='raknet']"))
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
-						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						package.Decode(buffer);
-						return package;
+						packet = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
+						packet.Decode(buffer);
+						return packet;
 <#	
 } // foreach
 #>
@@ -104,9 +104,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[@namespace='ftl']"))
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
-						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						package.Decode(buffer);
-						return package;
+						packet = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
+						packet.Decode(buffer);
+						return packet;
 <#	
 } // foreach
 #>
@@ -120,9 +120,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu[not(@namespace='raknet') and not(
 {
 #>
 					case <#= pdu.Attributes["id"].Value #>:
-						package = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
-						package.Decode(buffer);
-						return package;
+						packet = <#= CodeTypeName(pdu.Attributes["name"].Value) #>.CreateObject();
+						packet.Decode(buffer);
+						return packet;
 <#	
 } // foreach
 #>
@@ -148,7 +148,7 @@ WriteLine("");
 
 foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 {
-	string baseType = pdu.Attributes["online"] == null? "Package": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPackage":"Package";
+	string baseType = pdu.Attributes["online"] == null? "Packet": pdu.Attributes["online"].Value.Equals(Boolean.TrueString, StringComparison.InvariantCultureIgnoreCase)?"ConnectedPacket":"Packet";
 #>
 	public partial class <#= CodeTypeName(pdu.Attributes["name"].Value) #> : <#= baseType #><<#= CodeTypeName(pdu.Attributes["name"].Value) #>>
 	{
@@ -220,9 +220,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 			IsMcpe = <#= ("mcpe" == (pdu.Attributes["namespace"]?.Value??"mcpe")).ToString().ToLower() #>;
 		}
 
-		protected override void EncodePackage()
+		protected override void EncodePacket()
 		{
-			base.EncodePackage();
+			base.EncodePacket();
 
 			BeforeEncode();
 
@@ -288,9 +288,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		partial void BeforeEncode();
 		partial void AfterEncode();
 
-		protected override void DecodePackage()
+		protected override void DecodePacket()
 		{
-			base.DecodePackage();
+			base.DecodePacket();
 
 			BeforeDecode();
 
@@ -349,9 +349,9 @@ foreach (XmlNode pdu in doc.SelectNodes("//pdu"))
 		partial void BeforeDecode();
 		partial void AfterDecode();
 
-		protected override void ResetPackage()
+		protected override void ResetPacket()
 		{
-			base.ResetPackage();
+			base.ResetPacket();
 
 <#
 	foreach (XmlNode field in pdu.SelectNodes("field"))

@@ -98,8 +98,8 @@ namespace MiNET.Entities.World
 				addEntity.speedZ = Velocity.Z;
 				addEntity.attributes = GetEntityAttributes();
 
-				player.SendPackage(updateBlock);
-				player.SendPackage(addEntity);
+				player.SendPacket(updateBlock);
+				player.SendPacket(addEntity);
 			}
 		}
 

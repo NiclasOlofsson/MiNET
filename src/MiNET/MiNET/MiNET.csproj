@@ -1,71 +1,84 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>MiNET</PackageId>
-    <Version>1.0.1</Version>
-    <Authors>Niclas</Authors>
-    <Company>Niclas Olofsson</Company>
-    <Description>MiNET - a Minecraft PocketEdition Server</Description>
-    <Copyright>Copyright Niclas Olofsson 2015-2018</Copyright>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/NiclasOlofsson/MiNET/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/NiclasOlofsson/MiNET</PackageProjectUrl>
-    <PackageIconUrl><![CDATA[https://secure.gravatar.com/avatar/2ba5d72bdad85108d14512c4d27ea550?s=128&r=g&d=retro]]></PackageIconUrl>
-    <PackageTags>MiNET Plugin API MCPE Minecraft PocketEdition bedrock</PackageTags>
-    <FileVersion>1.0.0.0</FileVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netcoreapp2.1</TargetFramework>
 
-  <ItemGroup>
-    <None Remove="Blocks\blockstates.json" />
-  </ItemGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>MiNET</PackageId>
+		<Version>0.0.0</Version>
+		<Authors>gurun</Authors>
+		<Company>Niclas Olofsson</Company>
+		<Description>MiNET - a Minecraft PocketEdition Server</Description>
+		<Copyright>Copyright Niclas Olofsson 2015-2018</Copyright>
+		<PackageLicenseUrl>https://raw.githubusercontent.com/NiclasOlofsson/MiNET/master/LICENSE</PackageLicenseUrl>
+		<PackageProjectUrl>https://github.com/NiclasOlofsson/MiNET</PackageProjectUrl>
+		<PackageIconUrl><![CDATA[https://secure.gravatar.com/avatar/2ba5d72bdad85108d14512c4d27ea550?s=128&r=g&d=retro]]></PackageIconUrl>
+		<PackageTags>MiNET Plugin API MCPE Minecraft PocketEdition bedrock</PackageTags>
+		<FileVersion>10.0.0.0</FileVersion>
+		<AssemblyVersion>10.0.0.0</AssemblyVersion>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Blocks\blockstates.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
-    <PackageReference Include="jose-jwt" Version="2.4.0" />
-    <PackageReference Include="LibNoise" Version="0.2.0" />
-    <PackageReference Include="log4net" Version="2.0.8" />
-    <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
-    <PackageReference Include="MiNET.astar" Version="1.0.12" />
-    <PackageReference Include="MiNET.fnbt" Version="1.0.13" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
-    <PackageReference Include="SharpAvi" Version="2.1.1" />
-    <PackageReference Include="System.Security.Cryptography.Cng" Version="4.5.0" />
-  </ItemGroup>
+	<PropertyGroup>
+	  <LangVersion>latest</LangVersion>
+	  <NoWarn>1701;1702;1701</NoWarn>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Update="Net\MCPE Protocol Documentation.md">
-      <DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </None>
-    <None Update="Net\MCPE Protocol Documentation.tt">
-      <DependentUpon>MCPE Protocol.xml</DependentUpon>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
-    </None>
-    <None Update="Net\MCPE Protocol.tt">
-      <DependentUpon>MCPE Protocol.xml</DependentUpon>
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>MCPE Protocol.cs</LastGenOutput>
-    </None>
-    <Compile Update="Net\MCPE Protocol.cs">
-      <DependentUpon>MCPE Protocol.tt</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Blocks\blockstates.json" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Blocks\blockstates.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
+		<PackageReference Include="jose-jwt" Version="2.4.0" />
+		<PackageReference Include="LibNoise" Version="0.2.0" />
+		<PackageReference Include="log4net" Version="2.0.8" />
+		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="1.2.2" />
+		<PackageReference Include="MiNET.astar" Version="1.0.14" />
+		<PackageReference Include="MiNET.fnbt" Version="1.0.17" />
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="Portable.BouncyCastle" Version="1.8.2" />
+		<PackageReference Include="SharpAvi" Version="2.1.1" />
+		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="4.5.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="Net\MCPE Protocol.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Net\MCPE Protocol.xml" />
+
+		<None Update="Net\MCPE Protocol Documentation.tt">
+			<DependentUpon>MCPE Protocol.xml</DependentUpon>
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>MCPE Protocol Documentation.md</LastGenOutput>
+		</None>
+		<None Update="Net\MCPE Protocol Documentation.md">
+			<DependentUpon>MCPE Protocol Documentation.tt</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</None>
+		<None Update="Net\MCPE Protocol.tt">
+			<DependentUpon>MCPE Protocol.xml</DependentUpon>
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>MCPE Protocol.cs</LastGenOutput>
+		</None>
+		<Compile Update="Net\MCPE Protocol.cs">
+			<DependentUpon>MCPE Protocol.tt</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
 
 </Project>

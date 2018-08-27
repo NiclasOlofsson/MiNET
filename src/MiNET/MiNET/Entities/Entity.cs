@@ -347,6 +347,7 @@ namespace MiNET.Entities
 			Charged,
 
 			Tamed,
+            Orphaned,
 			Leashed,
 			Sheared,
 			FlagAllFlying,
@@ -369,7 +370,15 @@ namespace MiNET.Entities
 			AffectedByGravity,
 			FireImmune,
 			Dancing,
-			Enchanted
+			Enchanted,
+
+            ShowTridentRope,
+            ContainerPrivate,
+            SpinAttack = 55,
+            Swimming = 56,
+            Bribed = 57,
+            Pregnant = 58,
+            LayingEgg = 59
 		}
 
 		protected virtual BitArray GetFlags()
@@ -543,6 +552,10 @@ namespace MiNET.Entities
 			Level.RelayBroadcast(players, mcpeRemoveEntity);
 		}
 
+		public virtual void SetEntityData(MetadataDictionary message)
+		{
+		}
+
 		public virtual void BroadcastSetEntityData()
 		{
 			BroadcastSetEntityData(GetMetadata());
@@ -692,7 +705,7 @@ namespace MiNET.Entities
 			return new Item[] { };
 		}
 
-		public virtual void DoInteraction(byte actionId, Player player)
+		public virtual void DoInteraction(int actionId, Player player)
 		{
 		}
 

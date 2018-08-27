@@ -8,15 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{DFC6A100
 		..\..\README.md = ..\..\README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "External", "External", "{F6653226-F844-4287-B966-DB9FA32A81FD}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BC1E3C63-BA78-43B5-983A-F2FCF8664B0C}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET", "MiNET\MiNET.csproj", "{A40D7181-E216-4C45-AEF8-AB66B42B1D2D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.Console", "MiNET.Console\MiNET.Console.csproj", "{E86CFF0F-B037-470E-8B6D-8EA05831F83E}"
@@ -31,7 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPlugin", "TestPlugin\Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.Plotter", "MiNET.Plotter\MiNET.Plotter.csproj", "{74EFDA0E-627D-485E-87EE-45108D5AEB06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MiNET.BuilderBase", "MiNET.BuilderBase\MiNET.BuilderBase.csproj", "{69FEC583-68A6-4EE3-8B41-A47BBA5A94F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MiNET.BuilderBase", "MiNET.BuilderBase\MiNET.BuilderBase.csproj", "{69FEC583-68A6-4EE3-8B41-A47BBA5A94F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,6 +85,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7E96FB1B-DA00-40CE-8BFA-CFDB3A24B985}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = MiNET.Service\MiNET.Service.csproj

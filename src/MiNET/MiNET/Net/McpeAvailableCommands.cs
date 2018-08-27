@@ -53,6 +53,7 @@ namespace MiNET.Net
 					enumValues.Add(s);
 				}
 			}
+			int enumValuesCount = enumValues.Count();
 
 			{
 				uint count = ReadUnsignedVarInt();
@@ -92,7 +93,19 @@ namespace MiNET.Net
 					Log.Debug($"{s}:{c}");
 					for (int j = 0; j < c; j++)
 					{
-						int idx = ReadShort();
+						int idx;
+						if (enumValuesCount <= byte.MaxValue)
+						{
+							idx = ReadByte();
+						}
+						else if (enumValuesCount <= short.MaxValue)
+						{
+							idx = ReadShort();
+						}
+						else
+						{
+							idx = ReadInt();
+						}
 
 						Log.Debug($"{s}:{c}:{idx}");
 						string enumValue = enumValues[idx];
@@ -186,6 +199,7 @@ namespace MiNET.Net
 				if (CommandSet == null || CommandSet.Count == 0)
 				{
 					Log.Warn("No commands to send");
+					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
@@ -403,6 +417,8 @@ namespace MiNET.Net
 						}
 					}
 				}
+
+				WriteUnsignedVarInt(0); //TODO: soft enums
 			}
 			catch (Exception e)
 			{
@@ -416,7 +432,8 @@ namespace MiNET.Net
 			if (type == "int") return 0x01;
 			if (type == "float") return 0x02;
 			if (type == "value") return 0x03;
-			if (type == "target") return 0x05;
+			if (type == "operator") return 0x05;
+			if (type == "target") return 0x06;
 
 			if (type == "string") return 0xF;
 			if (type == "blockpos") return 0x10;

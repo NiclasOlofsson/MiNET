@@ -214,7 +214,7 @@ namespace MiNET.BuilderBase.Tools
 		{
 		}
 
-		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.West, Level.East, Level.South, Level.North, Level.Up, Level.Down};
+		List<BlockCoordinates> FACES_TO_CHECK = new List<BlockCoordinates> {Level.South, Level.North, Level.East, Level.West, Level.Up, Level.Down};
 
 		protected void Erosion(EditHelper editSession, int brushSize, int erodeFaces, int erodeRec, int fillFaces, int fillRec, Level level, BlockCoordinates targetBlock)
 		{
@@ -355,7 +355,7 @@ namespace MiNET.BuilderBase.Tools
 		{
 			double brushSizeSquared = inbrushSize*inbrushSize;
 			int brushSize = inbrushSize + 1;
-			Dictionary<byte, int> frequency = new Dictionary<byte, int>();
+			Dictionary<int, int> frequency = new Dictionary<int, int>();
 
 			for (int x = -brushSize; x <= brushSize; x++)
 			{
@@ -377,7 +377,7 @@ namespace MiNET.BuilderBase.Tools
 						}
 						int total = 0;
 						int highest = 1;
-						byte highestState = state.Id;
+						int highestState = state.Id;
 						frequency.Clear();
 						foreach (var offs in FACES_TO_CHECK)
 						{

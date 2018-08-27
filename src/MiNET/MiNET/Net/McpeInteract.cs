@@ -25,7 +25,7 @@
 
 namespace MiNET.Net
 {
-	public partial class McpeInteract : Package<McpeInteract>
+	public partial class McpeInteract : Packet<McpeInteract>
 	{
 		partial void AfterDecode()
 		{
@@ -37,7 +37,7 @@ namespace MiNET.Net
 		}
 	}
 
-	public partial class McpeAnimate : Package<McpeAnimate>
+	public partial class McpeAnimate : Packet<McpeAnimate>
 	{
 		public float unknownFloat;
 

@@ -27,6 +27,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using log4net;
+using MiNET.Blocks;
+using MiNET.Entities;
 using MiNET.Items;
 using MiNET.Net;
 using MiNET.Utils;
@@ -67,9 +69,39 @@ namespace MiNET
 			return Slots[InHandSlot] ?? new ItemAir();
 		}
 
+		public virtual void DamageItemInHand(ItemDamageReason reason, Entity target, Block block)
+		{
+			if (Player.GameMode != GameMode.Survival) return;
+
+			var itemInHand = GetItemInHand();
+
+			var unbreakingLevel = itemInHand.GetEnchantingLevel(EnchantingType.Unbreaking);
+			if (unbreakingLevel > 0)
+			{
+				if (new Random().Next(1 + unbreakingLevel) != 0) return;
+			}
+
+
+			if (itemInHand.DamageItem(Player, reason, target, block))
+			{
+				Slots[InHandSlot] = new ItemAir();
+
+				McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+				sound.soundId = 5;
+				sound.blockId = -1;
+				sound.entityType = 1;
+				sound.position = Player.KnownPosition;
+				Player.Level.RelayBroadcast(sound);
+			}
+
+			SendSetSlot(InHandSlot);
+		}
+
 		[Wired]
 		public virtual void SetInventorySlot(int slot, Item item)
 		{
+			if (item == null || item.Count <= 0) item = new ItemAir();
+
 			UpdateInventorySlot(slot, item);
 
 			SendSetSlot(slot);
@@ -187,7 +219,7 @@ namespace MiNET
 				order.item = GetItemInHand();
 				order.selectedSlot = (byte) InHandSlot;
 				order.slot = (byte) (InHandSlot + HotbarSize);
-				Player.SendPackage(order);
+				Player.SendPacket(order);
 			}
 
 			McpeMobEquipment broadcast = McpeMobEquipment.CreateObject();
@@ -248,7 +280,7 @@ namespace MiNET
 			sendSlot.inventoryId = 0;
 			sendSlot.slot = (uint) slot;
 			sendSlot.item = Slots[slot];
-			Player.SendPackage(sendSlot);
+			Player.SendPacket(sendSlot);
 		}
 
 		public void Clear()

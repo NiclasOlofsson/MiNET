@@ -173,15 +173,15 @@ namespace MiNET
 						_playerInfo.PlatformChatId = payload.PlatformChatId;
 						_playerInfo.ServerAddress = payload.ServerAddress;
 						_playerInfo.UIProfile = payload.UIProfile;
-						_playerInfo.ThirdPartyName = payload.ThirdPartyName;
+						_playerInfo.TenantId = payload.TenantId;
 
 						_playerInfo.Skin = new Skin()
 						{
-							CapeData = Convert.FromBase64String((string) payload.CapeData),
+							CapeData = Convert.FromBase64String((string) payload.CapeData ?? string.Empty),
 							SkinId = payload.SkinId,
-							SkinData = Convert.FromBase64String((string) payload.SkinData),
+							SkinData = Convert.FromBase64String((string) payload.SkinData ?? string.Empty),
 							SkinGeometryName = payload.SkinGeometryName,
-							SkinGeometry = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry)),
+							SkinGeometry = Encoding.UTF8.GetString(Convert.FromBase64String((string) payload.SkinGeometry??string.Empty)),
 						};
 						Log.Warn($"Cape data lenght={_playerInfo.Skin.CapeData.Length}");
 					}
@@ -242,17 +242,7 @@ namespace MiNET
 							Log.Debug("Derived Key is ok");
 						}
 
-						//if (Log.IsDebugEnabled)
-						//{
-						//	Log.Debug($"x5u cert (string): {x5u}");
-						//	ECDiffieHellmanPublicKey publicKey = CryptoUtils.FromDerEncoded(x5u.DecodeBase64Url());
-						//	Log.Debug($"Cert:\n{publicKey.ToXmlString()}");
-						//}
-
-#if LINUX
-						CertificateData data = JWT.Payload<CertificateData>(token.ToString());
-#else
-						ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters) PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+						ECPublicKeyParameters x5KeyParam = (ECPublicKeyParameters)PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 						var signParam = new ECParameters
 						{
 							Curve = ECCurve.NamedCurves.nistP384,
@@ -265,7 +255,7 @@ namespace MiNET
 						signParam.Validate();
 
 						CertificateData data = JWT.Decode<CertificateData>(token.ToString(), ECDsa.Create(signParam));
-#endif
+
 						// Validate
 
 						if (data != null)
@@ -325,7 +315,7 @@ namespace MiNET
 						{
 							// Use bouncy to parse the DER key
 							ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
-								PublicKeyFactory.CreateKey(_playerInfo.CertificateData.IdentityPublicKey.DecodeBase64Url());
+								PublicKeyFactory.CreateKey(_playerInfo.CertificateData.IdentityPublicKey.DecodeBase64());
 
 							var b64RemotePublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(remotePublicKey).GetEncoded().EncodeBase64();
 							Debug.Assert(_playerInfo.CertificateData.IdentityPublicKey == b64RemotePublicKey);
@@ -370,26 +360,35 @@ namespace MiNET
 								{
 									X = pubAsyKey.Q.AffineXCoord.GetEncoded(),
 									Y = pubAsyKey.Q.AffineYCoord.GetEncoded()
-								},
-								D = privAsyKey.D.ToByteArrayUnsigned()
+								}
 							};
+							signParam.D = CryptoUtils.FixDSize(privAsyKey.D.ToByteArrayUnsigned(), signParam.Q.X.Length);
 							signParam.Validate();
+
+							string signedToken = null;
+							if (_session.Server.IsEdu)
+							{
+								EduTokenManager tokenManager = _session.Server.EduTokenManager;
+								signedToken = tokenManager.GetSignedToken(_playerInfo.TenantId);
+							}
 
 							var signKey = ECDsa.Create(signParam);
 							var b64PublicKey = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pubAsyKey).GetEncoded().EncodeBase64();
-							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64()};
+							var handshakeJson = new HandshakeData {salt = secretPrepend.EncodeBase64(), signedToken = signedToken};
 							string val = JWT.Encode(handshakeJson, signKey, JwsAlgorithm.ES384, new Dictionary<string, object> {{"x5u", b64PublicKey}});
 
 							Log.Warn($"Headers:\n{string.Join(";", JWT.Headers(val))}");
 							Log.Warn($"Return salt:\n{JWT.Payload(val)}");
 							Log.Warn($"JWT:\n{val}");
 
+
+
 							var response = McpeServerToClientHandshake.CreateObject();
 							response.NoBatch = true;
 							response.ForceClear = true;
 							response.token = val;
 
-							_session.SendPackage(response);
+							_session.SendPacket(response);
 
 							if (Log.IsDebugEnabled) Log.Warn($"Encryption enabled for {_session.Username}");
 						}
@@ -495,6 +494,10 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeSetEntityData(McpeSetEntityData message)
+		{
+		}
+
 		public void HandleMcpeSetEntityMotion(McpeSetEntityMotion message)
 		{
 		}
@@ -575,6 +578,14 @@ namespace MiNET
 		{
 		}
 
+		public void HandleMcpeNpcRequest(McpeNpcRequest message)
+		{
+		}
+
+		public void HandleMcpePhotoTransfer(McpePhotoTransfer message)
+		{
+		}
+
 		public void HandleMcpeModalFormResponse(McpeModalFormResponse message)
 		{
 		}
@@ -587,7 +598,47 @@ namespace MiNET
 		{
 
 		}
-	}
+
+        public void HandleMcpeSetLocalPlayerAsInitializedPacket(McpeSetLocalPlayerAsInitialized message)
+        {
+            
+        }
+
+        public void HandleSetScoreboardIdentity(McpeSetScoreboardIdentity message)
+        {
+            
+        }
+
+        public void HandleUpdateEnumSoft(McpeUpdateSoftEnum message)
+        {
+            
+        }
+
+        public void HandleNetworkStackLatency(McpeNetworkStackLatency message)
+        {
+            
+        }
+
+        public void HandleScriptCustomEvent(McpeScriptCustomEvent message)
+        {
+
+        }
+
+        public void HandleMcpeRemoveObjective(McpeRemoveObjective mesage)
+        {
+
+        }
+
+        public void HandleMcpeSetDisplayObjective(McpeSetDisplayObjective message)
+        {
+
+        }
+
+        public void HandleMcpeSetScore(McpeSetScore message)
+        {
+
+        }
+    }
 
 	public interface IServerManager
 	{

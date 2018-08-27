@@ -50,7 +50,7 @@ namespace MiNET.Entities.Vehicles
 			};
 		}
 
-		public override void DoInteraction(byte actionId, Player player)
+		public override void DoInteraction(int actionId, Player player)
 		{
 			player.Vehicle = EntityId;
 

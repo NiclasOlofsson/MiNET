@@ -16,7 +16,7 @@ namespace MiNET.Blocks
 		{
 			if (Coordinates + BlockCoordinates.Down == blockCoordinates)
 			{
-				level.BreakBlock(this, null);
+				level.BreakBlock(null, this);
 			}
 		}
 

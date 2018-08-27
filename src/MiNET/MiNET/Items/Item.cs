@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -42,30 +42,24 @@ namespace MiNET.Items
 	///     frames, which turn into an entity when placed, and beds, which turn into a group of blocks when placed. When
 	///     equipped, items (and blocks) briefly display their names above the HUD.
 	/// </summary>
-	public class Item: ICloneable
+	public class Item : ICloneable
 	{
 		public short Id { get; protected set; }
 		public short Metadata { get; set; }
 		public byte Count { get; set; }
 		public virtual NbtCompound ExtraData { get; set; }
 
-		[JsonIgnore]
-		public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
+		[JsonIgnore] public ItemMaterial ItemMaterial { get; set; } = ItemMaterial.None;
 
-		[JsonIgnore]
-		public ItemType ItemType { get; set; } = ItemType.Item;
+		[JsonIgnore] public ItemType ItemType { get; set; } = ItemType.Item;
 
-		[JsonIgnore]
-		public int MaxStackSize { get; set; } = 64;
+		[JsonIgnore] public int MaxStackSize { get; set; } = 64;
 
-		[JsonIgnore]
-		public bool IsStackable => MaxStackSize > 1;
+		[JsonIgnore] public bool IsStackable => MaxStackSize > 1;
 
-		[JsonIgnore]
-		public int Durability { get; set; }
+		[JsonIgnore] public int Durability { get; set; }
 
-		[JsonIgnore]
-		public int FuelEfficiency { get; set; }
+		[JsonIgnore] public int FuelEfficiency { get; set; }
 
 		protected internal Item(short id, short metadata = 0, int count = 1)
 		{
@@ -87,6 +81,30 @@ namespace MiNET.Items
 			return true;
 		}
 
+		public virtual bool DamageItem(Player player, ItemDamageReason reason, Entity target, Block block)
+		{
+			return false;
+		}
+
+		protected virtual int GetMaxUses()
+		{
+			switch (ItemMaterial)
+			{
+				case ItemMaterial.Wood:
+					return 60;
+				case ItemMaterial.Gold:
+					return 33;
+				case ItemMaterial.Stone:
+					return 132;
+				case ItemMaterial.Iron:
+					return 251;
+				case ItemMaterial.Diamond:
+					return 1562;
+				default:
+					return 0;
+			}
+		}
+
 		public virtual bool Animate(Level world, Player player)
 		{
 			return false;
@@ -100,14 +118,14 @@ namespace MiNET.Items
 					return target + Level.Down;
 				case BlockFace.Up:
 					return target + Level.Up;
-				case BlockFace.East:
-					return target + Level.East;
-				case BlockFace.West:
-					return target + Level.West;
 				case BlockFace.North:
 					return target + Level.North;
 				case BlockFace.South:
 					return target + Level.South;
+				case BlockFace.West:
+					return target + Level.West;
+				case BlockFace.East:
+					return target + Level.East;
 				default:
 					return target;
 			}
@@ -241,5 +259,14 @@ namespace MiNET.Items
 		Chestplate,
 		Leggings,
 		Boots
+	}
+
+	public enum ItemDamageReason
+	{
+		BlockBreak,
+		BlockInteract,
+		EntityAttack,
+		EntityInteract,
+		ItemUse,
 	}
 }

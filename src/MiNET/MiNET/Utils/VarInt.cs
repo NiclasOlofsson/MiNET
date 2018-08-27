@@ -78,7 +78,7 @@ namespace MiNET.Utils
 
 			byte[] byteArray = bytes.ToArray();
 
-			if(printBytes) Log.Debug($"Long bytes: {Package.HexDump(byteArray)} ");
+			if(printBytes) Log.Debug($"Long bytes: {Packet.HexDump(byteArray)} ");
 
 			return result;
 		}

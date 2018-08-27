@@ -119,7 +119,7 @@ namespace MiNET.Entities.World
 
 					McpeClientboundMapItemData msg = McpeClientboundMapItemData.CreateObject();
 					msg.mapinfo = mapInfo;
-					player.SendPackage(msg);
+					player.SendPacket(msg);
 
 					return;
 				}
@@ -127,7 +127,7 @@ namespace MiNET.Entities.World
 				var packet = ImageProvider.GetClientboundMapItemData(MapInfo);
 				if (packet != null)
 				{
-					player.SendPackage(packet);
+					player.SendPacket(packet);
 
 					return;
 				}
@@ -135,7 +135,7 @@ namespace MiNET.Entities.World
 				var batchPacket = ImageProvider.GetBatch(MapInfo, true);
 				if (batchPacket != null)
 				{
-					player.SendPackage(batchPacket);
+					player.SendPacket(batchPacket);
 				}
 			}
 		}

@@ -25,7 +25,7 @@
 
 namespace MiNET.Net
 {
-	public partial class McpeMovePlayer : Package<McpeMovePlayer>
+	public partial class McpeMovePlayer : Packet<McpeMovePlayer>
 	{
 		partial void AfterDecode()
 		{

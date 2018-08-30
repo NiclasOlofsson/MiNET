@@ -7,21 +7,6 @@ MiNET
 [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master?svg=true)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master) 
 [![NuGet Version and Downloads count](https://buildstats.info/nuget/MiNET)](https://www.nuget.org/packages/MiNET) 
 
-## Can I test this before I download it?
-Yes, you can. Some of the below are professional networks, and at times there are dev servers running and you might be lucky enough to get in..<br>
-
-IP: **CRISTALIX.PE**    
-Port: **19132**  
-
-IP: **play.infinite.pe**    
-Port: **19132**    
-
-IP: **pepirates.ru**    
-Port: **19132** 
-
-IP: **yodamine.com (dev server)**    
-Port: **19132/19134**    
-
 ## What is this?
 
 A basic Minecraft Pocket Edition (MCPE) server written in C#. Current goal is to create a server that has enterprise performance for large Minecraft multi-user gaming providers. Current servers handle 10-100 users per instance, the aim with MiNET is to deal with thousands. Priority is also to create interfaces, and to some extend, ready-made implementations of the most basic enterprise game-management features (users, worlds, etc.). With all likelyhood, MiNET will emerge into a Microsoft Cloud ready product.
@@ -34,11 +19,7 @@ This is actually a pet-project - a true father-son project that I do together wi
 
 And as he really likes to tell his mother these days "Mom, don't disturb daddy. He is working for me now!". 6 years old, but I think you get the picture. I know he does.
 
-Lately I have also been joined by kennyvv as a full member of the team with me and Oliver. I still considering the impact of this in respect to the father-son project concept. Might be forced to adopt kennyvv at some point, we will see. I guess for now I will be the old grumpy guy and kennyvv the wise nice young guy (smartass kid, yeah).
-
 Follow me on <a href="https://twitter.com/NiclasOlofsson" class="twitter-follow-button" data-show-count="true" data-size="large" data-dnt="true">Twitter @NiclasOlofsson</a> for news about the project, or simply track the checkins which i tend to comment heavily.
-
-Also follow kennyvv on <a href="https://twitter.com/WuppDotNet" class="twitter-follow-button" data-show-count="true" data-size="large" data-dnt="true">Twitter @WuppDotNet</a> for even more news and updates.
  
 MiNET is running CI through the fantastic service of AppVeyor. Currently the build status of master is...    
 [![Build status](https://ci.appveyor.com/api/projects/status/gb8ukrnogknic26e/branch/master)](https://ci.appveyor.com/project/NiclasOlofsson/MiNET/branch/master)
@@ -47,7 +28,7 @@ MiNET is running CI through the fantastic service of AppVeyor. Currently the bui
 
 Yes you can! See the [Plugin documention in the wiki](https://github.com/NiclasOlofsson/MiNET/wiki/Plugin-API-Documentation)
 
-**Please note that the plugin system is work in progress and the example might be outdated.**
+**Please note that the plugin system is always going to be work in progress and the example might be a bit outdated at times.**
 
 ## Can I contribute?
 
@@ -66,13 +47,4 @@ No, but you can ask questions on [stack**overflow**](http://stackoverflow.com/qu
 
 ## Installation
 
-### Windows
-
-For a 30 seconds quick start check this video [MiNET quick windows tutorial](https://www.youtube.com/watch?v=AOgZx2vaIyw) by [Bamuel](https://github.com/Bamuel).
-
-For a windows installation you can choose to download the binary from the build server or fetch the code and compile from Visual Studio. Note that MiNET requires .NET 4.6.
-
-When downloading exe & dll files from the web they will often be sandboxed - You will need to right click and unblock within the properties window to allow these to be ran without errors.
-
-### Mono (Linux & Mac)
-MCPE 0.15 introduced a lot of crypto, which is not implemented on Mono. So until another solution comes along, full support on Mono is not possible. However, there is a build configuration for Linux that disables the security and allow it to run on Mono. Please look at the wiki for [instructions on running MiNET on Mono](https://github.com/NiclasOlofsson/MiNET/wiki/Running-MiNET-on-Linux)
+MiNET is now a .NET Core 2.1 project. But it's pretty new, and I haven't had time to prepare instructions for installation. Normally it's a matter of fetching the project and building it, but if you don't want to build from source or need instructions, jump on discord and ask for help until I've updated the installation instructions.

@@ -190,6 +190,7 @@ namespace MiNET.Net
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
 					WriteUnsignedVarInt(0);
+					WriteUnsignedVarInt(0);
 					return;
 				}
 
@@ -403,6 +404,8 @@ namespace MiNET.Net
 						}
 					}
 				}
+
+				WriteUnsignedVarInt(0); // soft enums
 			}
 			catch (Exception e)
 			{

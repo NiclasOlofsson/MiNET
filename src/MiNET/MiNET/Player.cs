@@ -2056,8 +2056,12 @@ namespace MiNET
 				if (damage < 0) damage = 0;
 
 				damage += DamageCalculator.CalculateDamageIncreaseFromEnchantments(this, itemInHand, player);
-
-				player.HealthManager.TakeHit(this, itemInHand, (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack), DamageCause.EntityAttack);
+				var reducedDamage = (int) DamageCalculator.CalculatePlayerDamage(this, player, itemInHand, damage, DamageCause.EntityAttack);
+				player.HealthManager.TakeHit(this, itemInHand, reducedDamage, DamageCause.EntityAttack);
+				if(reducedDamage < damage)
+				{
+					player.Inventory.DamageArmor();
+				}
 				var fireAspectLevel = itemInHand.GetEnchantingLevel(EnchantingType.FireAspect);
 				if (fireAspectLevel > 0)
 				{

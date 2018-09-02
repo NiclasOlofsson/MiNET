@@ -35,23 +35,56 @@ namespace MiNET.Scoreboards
             return score;
         }
 
-        public void AddScore(Entity entity, int value)
+        public Score GetScore(Entity fakeplayer)
+        {
+            Score score = null;
+            foreach (var scores in Scores)
+            {
+                if (scores.Entity.Equals(fakeplayer))
+                {
+                    score = scores;
+                }
+            }
+            return score;
+        }
+
+        public void SetScore(Entity entity, int value)
         {
             var score = new Score(this, entity);
             score.SetScore(value);
             if (!Scores.Contains(score))
             {
                 Scores.Add(score);
+            } else
+            {
+                foreach (var scores in Scores)
+                {
+                    if(scores.Entity.Equals(entity))
+                    {
+                        Scores.Remove(scores);
+                        Scores.Add(score);
+                    }
+                }
             }
         }
 
-        public void AddScore(string entry, int value)
+        public void SetScore(string entry, int value)
         {
             var score = new Score(this, entry);
             score.SetScore(value);
             if (!Scores.Contains(score))
             {
                 Scores.Add(score);
+            } else
+            {
+                foreach(var scores in Scores)
+                {
+                    if (scores.FakePlayer.Equals(entry))
+                    {
+                        Scores.Remove(scores);
+                        Scores.Add(score);
+                    }
+                }
             }
         }
 

@@ -1882,7 +1882,6 @@ namespace MiNET
         public void SendScoreboard()
         {
             if (Scoreboard != null) {
-
                 var pk = McpeSetDisplayObjective.CreateObject();
                 pk.displaySlot = Scoreboard.objective.SlotToString();
                 pk.objectiveName = Scoreboard.objective.Name;

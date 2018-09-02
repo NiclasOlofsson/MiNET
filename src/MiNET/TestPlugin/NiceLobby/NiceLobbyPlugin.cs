@@ -352,9 +352,9 @@ namespace TestPlugin.NiceLobby
             var objective = board.registerObjective("minet", ScoreboardCriteria.Dummy);
             objective.DisplayName = "§l§6MiNET dev server";
             objective.DisplaySlot = ScoreboardDisplaySlot.Sidebar;
-            objective.AddScore("Scores", 3);
-            objective.AddScore("Work's", 2);
-            objective.AddScore($"{player.Username}", 1);
+            objective.SetScore("Scores", 3);
+            objective.SetScore("Work's", 2);
+            objective.SetScore($"{player.Username}", 1);
             player.Scoreboard = board;
             player.SendScoreboard();
             
@@ -367,9 +367,9 @@ namespace TestPlugin.NiceLobby
             var objective = board.registerObjective("minet", ScoreboardCriteria.Dummy);
             objective.DisplayName = "§l§eMiNET dev server";
             objective.DisplaySlot = ScoreboardDisplaySlot.Sidebar;
-            objective.AddScore("This", 3);
-            objective.AddScore("Work's", 2);
-            objective.AddScore("Too", 1);
+            objective.SetScore("This", 3);
+            objective.SetScore("Work's", 2);
+            objective.SetScore("Too", 1);
             player.Scoreboard = board;
             player.SendScoreboard();
         }

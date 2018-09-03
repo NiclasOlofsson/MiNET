@@ -795,7 +795,9 @@ namespace MiNET.Plugins
 							val = val.Substring(1);
 							blockPos.XRelative = true;
 						}
-						blockPos.X = int.Parse(val);
+
+						int.TryParse(val, out var x);
+						blockPos.X = x;
 
 						val = args[i++];
 						if (val.StartsWith("~"))
@@ -803,7 +805,9 @@ namespace MiNET.Plugins
 							val = val.Substring(1);
 							blockPos.YRelative = true;
 						}
-						blockPos.Y = int.Parse(val);
+
+						int.TryParse(val, out var y);
+						blockPos.Y = y;
 
 						val = args[i++];
 						if (val.StartsWith("~"))
@@ -811,7 +815,9 @@ namespace MiNET.Plugins
 							val = val.Substring(1);
 							blockPos.ZRelative = true;
 						}
-						blockPos.Z = int.Parse(val);
+
+						int.TryParse(val, out var z);
+						blockPos.Z = z;
 
 						objectArgs[k] = blockPos;
 						continue;

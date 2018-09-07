@@ -196,7 +196,7 @@ namespace MiNET
 			form?.FromJson(message.data, this);
 		}
 
-		public virtual void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
+		public virtual Form GetServerSettingsForm()
 		{
 			CustomForm customForm = new CustomForm();
 			customForm.Title = "A title";
@@ -209,10 +209,20 @@ namespace MiNET
 				new StepSlider {Text = "A step slider", Steps = new List<string>() {"Step 1", "Step 2", "Step 3"}, Value = 1},
 				new Dropdown {Text = "A step slider", Options = new List<string>() {"Option 1", "Option 2", "Option 3"}, Value = 1},
 			};
+			
+			return customForm;
+		}
 
+		public void HandleMcpeServerSettingsRequest(McpeServerSettingsRequest message)
+		{
+			var form = GetServerSettingsForm();
+			if (form == null) return;
+
+			_currentForm = form;
+			
 			McpeServerSettingsResponse response = McpeServerSettingsResponse.CreateObject();
-			response.formId = 12345;
-			response.data = customForm.ToJson();
+			response.formId = form.Id;
+			response.data = form.ToJson();
 			SendPacket(response);
 		}
 

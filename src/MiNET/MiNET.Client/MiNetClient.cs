@@ -282,19 +282,22 @@ namespace MiNET.Client
 					DontFragment = false
 				};
 
-				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
-				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
-				// - Set to TRUE to enable reporting.
-				// - Set to FALSE to disable reporting.
+				if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
+				{
+					// SIO_UDP_CONNRESET (opcode setting: I, T==3)
+					// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
+					// - Set to TRUE to enable reporting.
+					// - Set to FALSE to disable reporting.
 
-				uint IOC_IN = 0x80000000;
-				uint IOC_VENDOR = 0x18000000;
-				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-				UdpClient.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+					uint IOC_IN = 0x80000000;
+					uint IOC_VENDOR = 0x18000000;
+					uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+					UdpClient.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
-				////
-				////WARNING: We need to catch errors here to remove the code above.
-				////
+					////
+					////WARNING: We need to catch errors here to remove the code above.
+					////
+				}
 
 				//Task.Run(ProcessQueue);
 

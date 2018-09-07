@@ -117,11 +117,6 @@ namespace MiNET
 			Endpoint = endpoint;
 		}
 
-		public static bool IsRunningOnMono()
-		{
-			return Type.GetType("Mono.Runtime") != null;
-		}
-
 		public static void DisplayTimerProperties()
 		{
 			Console.WriteLine($"Are you blessed with HW accelerated vectors? {(Vector.IsHardwareAccelerated ? "Yep!" : "Nope, sorry :-(")}"); 
@@ -232,31 +227,25 @@ namespace MiNET
 		private UdpClient CreateListener()
 		{
 			var listener = new UdpClient(Endpoint);
+			
+			//_listener.Client.ReceiveBufferSize = 1600*40000;
+			listener.Client.ReceiveBufferSize = int.MaxValue;
+			//_listener.Client.SendBufferSize = 1600*40000;
+			listener.Client.SendBufferSize = int.MaxValue;
+			listener.DontFragment = false;
+			listener.EnableBroadcast = false;
 
-			if (IsRunningOnMono())
+			if (Environment.OSVersion.Platform != PlatformID.Unix && Environment.OSVersion.Platform != PlatformID.MacOSX)
 			{
-				Log.Warn($"UDP listenter configured for linux setting");
-				listener.Client.ReceiveBufferSize = 1024*1024*3;
-				listener.Client.SendBufferSize = 4096;
-			}
-			else
-			{
-				//_listener.Client.ReceiveBufferSize = 1600*40000;
-				listener.Client.ReceiveBufferSize = int.MaxValue;
-				//_listener.Client.SendBufferSize = 1600*40000;
-				listener.Client.SendBufferSize = int.MaxValue;
-				listener.DontFragment = false;
-				listener.EnableBroadcast = false;
-
 				// SIO_UDP_CONNRESET (opcode setting: I, T==3)
 				// Windows:  Controls whether UDP PORT_UNREACHABLE messages are reported.
 				// - Set to TRUE to enable reporting.
 				// - Set to FALSE to disable reporting.
 
-				//uint IOC_IN = 0x80000000;
-				//uint IOC_VENDOR = 0x18000000;
-				//uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-				//listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
+				uint IOC_IN = 0x80000000;
+				uint IOC_VENDOR = 0x18000000;
+				uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+				listener.Client.IOControl((int) SIO_UDP_CONNRESET, new byte[] {Convert.ToByte(false)}, null);
 
 				//
 				//WARNING: We need to catch errors here to remove the code above.

@@ -59,7 +59,7 @@ namespace MiNET.UI
 				var element = Content[i];
 				if (element is Input) ((Input) element).Value = (string) parsedResult[i];
 				else if (element is Toggle) ((Toggle) element).Value = (bool) parsedResult[i];
-				else if (element is Slider) ((Slider) element).Value = (float) parsedResult[i];
+				else if (element is Slider) ((Slider) element).Value = (float) (double) parsedResult[i];
 				else if (element is StepSlider) ((StepSlider) element).Value = (int) (long) parsedResult[i];
 				else if (element is Dropdown) ((Dropdown) element).Value = (int) (long) parsedResult[i];
 			}

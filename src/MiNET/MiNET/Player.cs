@@ -2730,6 +2730,10 @@ namespace MiNET
 					}
 				}
 			}
+			catch (Exception e)
+			{
+				Log.Error($"Failed sending chunks for {KnownPosition}", e);
+			}
 			finally
 			{
 				Monitor.Exit(_sendChunkSync);

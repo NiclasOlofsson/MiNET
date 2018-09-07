@@ -197,7 +197,7 @@ namespace MiNET
 		}
 
 		public virtual Form GetServerSettingsForm()
-		{    
+		{
 			CustomForm customForm = new CustomForm();
 			customForm.Title = "A title";
 			customForm.Content = new List<CustomElement>()

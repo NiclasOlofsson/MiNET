@@ -613,19 +613,16 @@ namespace MiNET.Client
 
 		public void AddToProcessing(Packet message)
 		{
-			if (Session.CryptoContext == null || Session.CryptoContext.UseEncryption == false || message.Reliability != Reliability.ReliableOrdered)
+			if (message.Reliability != Reliability.ReliableOrdered)
 			{
 				HandlePacket(message);
 				return;
 			}
-
 			//Log.Error("DO NOT USE THIS");
 			//throw new Exception("DO NOT USE THIS");
 
 			lock (_eventSync)
 			{
-				if (_lastSequenceNumber < 0) _lastSequenceNumber = 1;
-
 				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 				{
 					HandlePacket(message);
@@ -1442,7 +1439,7 @@ namespace MiNET.Client
 			string x5u = headers["x5u"];
 
 			ECPublicKeyParameters remotePublicKey = (ECPublicKeyParameters)
-				PublicKeyFactory.CreateKey(x5u.DecodeBase64Url());
+				PublicKeyFactory.CreateKey(x5u.DecodeBase64());
 
 
 			var signParam = new ECParameters

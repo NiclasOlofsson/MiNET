@@ -53,6 +53,7 @@ namespace MiNET.Net
 					enumValues.Add(s);
 				}
 			}
+			int enumValuesCount = enumValues.Count();
 
 			{
 				uint count = ReadUnsignedVarInt();
@@ -92,7 +93,19 @@ namespace MiNET.Net
 					Log.Debug($"{s}:{c}");
 					for (int j = 0; j < c; j++)
 					{
-						int idx = ReadShort();
+						int idx;
+						if (enumValuesCount <= byte.MaxValue)
+						{
+							idx = ReadByte();
+						}
+						else if (enumValuesCount <= short.MaxValue)
+						{
+							idx = ReadShort();
+						}
+						else
+						{
+							idx = ReadInt();
+						}
 
 						Log.Debug($"{s}:{c}:{idx}");
 						string enumValue = enumValues[idx];
@@ -405,7 +418,7 @@ namespace MiNET.Net
 					}
 				}
 
-				WriteUnsignedVarInt(0); // soft enums
+				WriteUnsignedVarInt(0); //TODO: soft enums
 			}
 			catch (Exception e)
 			{

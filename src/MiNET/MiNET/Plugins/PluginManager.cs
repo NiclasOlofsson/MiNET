@@ -104,6 +104,13 @@ namespace MiNET.Plugins
 							{
 								// If no PluginAttribute and does not implement IPlugin interface, not a valid plugin
 								if (!type.IsDefined(typeof (PluginAttribute), true) && !typeof (IPlugin).IsAssignableFrom(type)) continue;
+
+								// If plugin is already loaded don't load it again
+								if(_plugins.Any(l => l.GetType().AssemblyQualifiedName == type.AssemblyQualifiedName)) {
+									Log.Error($"Tried to load duplicate plugin: {type}");
+									continue;
+								}
+
 								if (type.IsDefined(typeof (PluginAttribute), true))
 								{
 									PluginAttribute pluginAttribute = Attribute.GetCustomAttribute(type, typeof (PluginAttribute), true) as PluginAttribute;

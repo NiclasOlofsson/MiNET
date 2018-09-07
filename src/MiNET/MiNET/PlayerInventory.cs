@@ -18,7 +18,7 @@
 // The Original Developer is the Initial Developer.  The Initial Developer of
 // the Original Code is Niclas Olofsson.
 // 
-// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2017 Niclas Olofsson. 
+// All portions of the code written by Niclas Olofsson are Copyright (c) 2014-2018 Niclas Olofsson. 
 // All Rights Reserved.
 
 #endregion
@@ -38,7 +38,7 @@ namespace MiNET
 {
 	public class PlayerInventory
 	{
-		private static readonly ILog Log = LogManager.GetLogger(typeof (PlayerInventory));
+		private static readonly ILog Log = LogManager.GetLogger(typeof(PlayerInventory));
 
 		public const int HotbarSize = 9;
 		public const int InventorySize = HotbarSize + 36;
@@ -96,6 +96,45 @@ namespace MiNET
 
 			SendSetSlot(InHandSlot);
 		}
+
+		public virtual void DamageArmor()
+		{
+			if (Player.GameMode != GameMode.Survival) return;
+
+			Helmet = DamageArmorItem(Helmet);
+			Chest = DamageArmorItem(Chest);
+			Leggings = DamageArmorItem(Leggings);
+			Boots = DamageArmorItem(Boots);
+			Player.SendEquipmentForPlayer();
+		}
+
+		public virtual Item DamageArmorItem(Item item)
+		{
+			if (Player.GameMode != GameMode.Survival) return item;
+
+			var unbreakingLevel = item.GetEnchantingLevel(EnchantingType.Unbreaking);
+			if (unbreakingLevel > 0)
+			{
+				if (new Random().Next(1 + unbreakingLevel) != 0) return item;
+			}
+
+			item.Metadata++;
+
+			if (item.Metadata >= item.Durability)
+			{
+				item = new ItemAir();
+
+				McpeLevelSoundEvent sound = McpeLevelSoundEvent.CreateObject();
+				sound.soundId = 5;
+				sound.blockId = -1;
+				sound.entityType = 1;
+				sound.position = Player.KnownPosition;
+				Player.Level.RelayBroadcast(sound);
+			}
+
+			return item;
+		}
+
 
 		[Wired]
 		public virtual void SetInventorySlot(int slot, Item item)
@@ -191,7 +230,6 @@ namespace MiNET
 
 		public bool AddItem(Item item, bool update)
 		{
-
 			for (int si = 0; si < Slots.Count; si++)
 			{
 				Item existingItem = Slots[si];

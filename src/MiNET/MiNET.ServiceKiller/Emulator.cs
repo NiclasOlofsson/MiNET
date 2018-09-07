@@ -21,13 +21,13 @@ namespace MiNET.ServiceKiller
 		//private const int RequestChunkRadius = 8;
 
 
-		private const int TimeBetweenSpawns = 150;
+		private const int TimeBetweenSpawns = 0;
 		private static readonly TimeSpan DurationOfConnection = TimeSpan.FromSeconds(900);
-		private const int NumberOfBots = 100;
+		private const int NumberOfBots = 20;
 		private const int RanSleepMin = 150;
 		private const int RanSleepMax = 450;
 		private const int RequestChunkRadius = 6;
-		private const bool ConcurrentSpawn = false;
+		private const bool ConcurrentSpawn = true;
 
 		public AutoResetEvent ConcurrentSpawnWaitHandle = new AutoResetEvent(false);
 

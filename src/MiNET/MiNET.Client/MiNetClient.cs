@@ -625,8 +625,8 @@ namespace MiNET.Client
 			{
 				if (_queue.Count == 0 && message.OrderingIndex == _lastSequenceNumber + 1)
 				{
-					_lastSequenceNumber = message.OrderingIndex;
 					HandlePacket(message);
+					_lastSequenceNumber = message.OrderingIndex;
 					return;
 				}
 
@@ -659,9 +659,9 @@ namespace MiNET.Client
 					{
 						if (_queue.TryDequeue(out pair))
 						{
-							_lastSequenceNumber = pair.Key;
-
 							HandlePacket(pair.Value);
+
+							_lastSequenceNumber = pair.Key;
 
 							if (_queue.Count == 0)
 							{
@@ -732,18 +732,30 @@ namespace MiNET.Client
 			Int24 orderingIndex = splitMessage.OrderingIndex;
 			byte orderingChannel = splitMessage.OrderingChannel;
 
-			if (!playerSession.Splits.ContainsKey(spId))
-			{
-				playerSession.Splits.TryAdd(spId, new SplitPartPacket[spCount]);
-			}
-
-			SplitPartPacket[] spPackets = playerSession.Splits[spId];
-			spPackets[spIdx] = splitMessage;
-
+			SplitPartPacket[] spPackets;
 			bool haveEmpty = false;
-			for (int i = 0; i < spPackets.Length; i++)
+
+			// Need sync for this part since they come very fast, and very close in time. 
+			// If no synk, will often detect complete message two times (or more).
+			lock (playerSession.Splits)
 			{
-				haveEmpty = haveEmpty || spPackets[i] == null;
+				if (!playerSession.Splits.ContainsKey(spId))
+				{
+					playerSession.Splits.TryAdd(spId, new SplitPartPacket[spCount]);
+				}
+
+				spPackets = playerSession.Splits[spId];
+				if (spPackets[spIdx] != null)
+				{
+					Log.Debug("Already had splitpart (resent). Ignore this part.");
+					return;
+				}
+				spPackets[spIdx] = splitMessage;
+
+				for (int i = 0; i < spPackets.Length; i++)
+				{
+					haveEmpty = haveEmpty || spPackets[i] == null;
+				}
 			}
 
 			if (!haveEmpty)
@@ -753,51 +765,54 @@ namespace MiNET.Client
 				SplitPartPacket[] waste;
 				playerSession.Splits.TryRemove(spId, out waste);
 
-				MemoryStream stream = new MemoryStream();
-				for (int i = 0; i < spPackets.Length; i++)
+				using (MemoryStream stream = MiNetServer.MemoryStreamManager.GetStream())
 				{
-					SplitPartPacket splitPartPacket = spPackets[i];
-					byte[] buf = splitPartPacket.Message;
-					if (buf == null)
+					for (int i = 0; i < spPackets.Length; i++)
 					{
-						Log.Error("Expected bytes in splitpart, but got none");
-						continue;
+						SplitPartPacket splitPartPacket = spPackets[i];
+						byte[] buf = splitPartPacket.Message;
+						if (buf == null)
+						{
+							Log.Error("Expected bytes in splitpart, but got none");
+							continue;
+						}
+
+						stream.Write(buf, 0, buf.Length);
+						splitPartPacket.PutPool();
 					}
 
-					stream.Write(buf, 0, buf.Length);
-					splitPartPacket.PutPool();
-				}
+					byte[] buffer = stream.ToArray();
+					try
+					{
+						ConnectedPacket newPacket = ConnectedPacket.CreateObject();
+						newPacket._datagramSequenceNumber = sequenceNumber;
+						newPacket._reliability = reliability;
+						newPacket._reliableMessageNumber = reliableMessageNumber;
+						newPacket._orderingIndex = orderingIndex;
+						newPacket._orderingChannel = (byte)orderingChannel;
+						newPacket._hasSplit = false;
 
-				byte[] buffer = stream.ToArray();
-				try
-				{
-					ConnectedPacket newPacket = ConnectedPacket.CreateObject();
-					newPacket._datagramSequenceNumber = sequenceNumber;
-					newPacket._reliability = reliability;
-					newPacket._reliableMessageNumber = reliableMessageNumber;
-					newPacket._orderingIndex = orderingIndex;
-					newPacket._orderingChannel = (byte) orderingChannel;
-					newPacket._hasSplit = false;
+						Packet fullMessage = PacketFactory.Create(buffer[0], buffer, "raknet") ?? new UnknownPacket(buffer[0], buffer);
+						fullMessage.DatagramSequenceNumber = sequenceNumber;
+						fullMessage.Reliability = reliability;
+						fullMessage.ReliableMessageNumber = reliableMessageNumber;
+						fullMessage.OrderingIndex = orderingIndex;
+						fullMessage.OrderingChannel = orderingChannel;
 
-					Packet fullMessage = PacketFactory.Create(buffer[0], buffer, "raknet") ?? new UnknownPacket(buffer[0], buffer);
-					fullMessage.DatagramSequenceNumber = sequenceNumber;
-					fullMessage.Reliability = reliability;
-					fullMessage.ReliableMessageNumber = reliableMessageNumber;
-					fullMessage.OrderingIndex = orderingIndex;
-					fullMessage.OrderingChannel = orderingChannel;
+						newPacket.Messages = new List<Packet>();
+						newPacket.Messages.Add(fullMessage);
 
-					newPacket.Messages = new List<Packet>();
-					newPacket.Messages.Add(fullMessage);
-
-					Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
-					HandleConnectedPacket(newPacket);
-					newPacket.PutPool();
-				}
-				catch (Exception e)
-				{
-					Log.Error("Error during split message parsing", e);
-					if (Log.IsDebugEnabled)
-						Log.Debug($"0x{buffer[0]:x2}\n{Packet.HexDump(buffer)}");
+						Log.Debug($"Assembled split packet {newPacket._reliability} message #{newPacket._reliableMessageNumber}, Chan: #{newPacket._orderingChannel}, OrdIdx: #{newPacket._orderingIndex}");
+						HandleConnectedPacket(newPacket);
+						newPacket.PutPool();
+					}
+					catch (Exception e)
+					{
+						Log.Error("Error during split message parsing", e);
+						if (Log.IsDebugEnabled)
+							Log.Debug($"0x{buffer[0]:x2}\n{Packet.HexDump(buffer)}");
+						playerSession.Disconnect("Bad packet received from client.", false);
+					}
 				}
 			}
 		}
@@ -1440,9 +1455,18 @@ namespace MiNET.Client
 
 			var signKey = ECDsa.Create(signParam);
 
-			var data = JWT.Decode<HandshakeData>(token, signKey);
+			try
+			{
+				var data = JWT.Decode<HandshakeData>(token, signKey);
 
-			InitiateEncryption(Base64Url.Decode(x5u), Base64Url.Decode(data.salt));
+				InitiateEncryption(Base64Url.Decode(x5u), Base64Url.Decode(data.salt));
+
+			}
+			catch (Exception e)
+			{
+				Log.Error(token, e);
+				throw;
+			}
 		}
 
 		private void InitiateEncryption(byte[] serverKey, byte[] randomKeyToken)
@@ -1458,10 +1482,10 @@ namespace MiNET.Client
 
 				Log.Debug($"RANDOM TOKEN (raw):\n\n{Encoding.UTF8.GetString(randomKeyToken)}");
 
-				if (randomKeyToken.Length != 0)
-				{
-					Log.Error("Lenght of random bytes: " + randomKeyToken.Length);
-				}
+				//if (randomKeyToken.Length != 0)
+				//{
+				//	Log.Error("Lenght of random bytes: " + randomKeyToken.Length);
+				//}
 
 				ECDHBasicAgreement agreement = new ECDHBasicAgreement();
 				agreement.Init(Session.CryptoContext.ClientKey.Private);
@@ -2460,7 +2484,8 @@ namespace MiNET.Client
 							              new UnknownPacket((byte)id, internalBuffer);
 							messages.Add(packet);
 
-							//if (Log.IsDebugEnabled) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2}");
+							//if (Log.IsDebugEnabled) Log.Debug($"Batch: {packet.GetType().Name} 0x{packet.Id:x2}");
+							if (packet is UnknownPacket) Log.Error($"Batch: {packet.GetType().Name} 0x{packet.Id:x2}");
 							//if (!(package is McpeFullChunkData)) Log.Debug($"Batch: {package.GetType().Name} 0x{package.Id:x2} \n{Package.HexDump(internalBuffer)}");
 						}
 						catch (Exception e)

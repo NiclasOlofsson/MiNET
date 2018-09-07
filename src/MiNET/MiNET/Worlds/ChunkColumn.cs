@@ -468,12 +468,12 @@ namespace MiNET.Worlds
 				int topEmpty = 16;
 				for (int ci = 15; ci >= 0; ci--)
 				{
-					if (_chunks[ci].IsAllAir())
+					if (_chunks[ci] == null || _chunks[ci].IsAllAir())
 					{
 						topEmpty = ci;
 						var chunk = _chunks[ci];
 						_chunks[ci] = null;
-						chunk.PutPool();
+						chunk?.PutPool();
 					}
 					else
 					{

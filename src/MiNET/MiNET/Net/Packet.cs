@@ -1235,7 +1235,9 @@ namespace MiNET.Net
 				Write(info.PackIdVersion.Id);
 				Write(info.PackIdVersion.Version);
 				Write(info.Size);
-				Write("");
+				Write(""); //TODO: encryption key
+				Write(""); //TODO: subpack name
+				Write(""); //TODO: content identity
 			}
 		}
 
@@ -1251,7 +1253,9 @@ namespace MiNET.Net
 				var id = ReadString();
 				var version = ReadString();
 				var size = ReadUlong();
-				var unknown = ReadString();
+				var encryptionKey = ReadString();
+				var subpackName = ReadString();
+				var contentIdentity = ReadString();
 				info.PackIdVersion = new PackIdVersion {Id = id, Version = version};
 				info.Size = size;
 				packInfos.Add(info);
@@ -1264,10 +1268,10 @@ namespace MiNET.Net
 		{
 			if (packInfos == null)
 			{
-				Write((short) 0); // LE
+				WriteUnsignedVarInt(0);
 				return;
 			}
-			Write((short) packInfos.Count); // LE
+			WriteUnsignedVarInt((uint) packInfos.Count); // LE
 			foreach (var info in packInfos)
 			{
 				Write(info.Id);
@@ -1278,8 +1282,7 @@ namespace MiNET.Net
 
 		public ResourcePackIdVersions ReadResourcePackIdVersions()
 		{
-			//int count = _reader.ReadInt16(); // LE
-			uint count = ReadUnsignedVarInt(); // LE
+			uint count = ReadUnsignedVarInt();
 
 			var packInfos = new ResourcePackIdVersions();
 			for (int i = 0; i < count; i++)

@@ -52,6 +52,8 @@ namespace MiNET.Plotter
 
 		public static explicit operator PlotCoordinates(PlayerLocation coords)
 		{
+			if (coords == null) return null;
+
 			return (PlotCoordinates) (BlockCoordinates) coords;
 		}
 

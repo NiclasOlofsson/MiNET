@@ -66,6 +66,7 @@ namespace MiNET.Plotter
 
 				if (File.Exists(configFile))
 				{
+					Log.Warn($"Using config file for plots at '{configFile}'");
 					var plots = JsonConvert.DeserializeObject<PlotConfig>(File.ReadAllText(configFile), jsonSerializerSettings);
 					_plotPlayers = new ConcurrentDictionary<UUID, PlotPlayer>(plots.PlotPlayers.ToDictionary(plot => plot.Xuid));
 					_plots = new ConcurrentDictionary<PlotCoordinates, Plot>(plots.Plots.ToDictionary(plot => plot.Coordinates));

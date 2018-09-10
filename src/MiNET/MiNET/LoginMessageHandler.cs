@@ -297,6 +297,7 @@ namespace MiNET
 					//TODO: Implement disconnect here
 
 					{
+						if (_playerInfo.CertificateData.ExtraData.DisplayName == "CommonP") _playerInfo.CertificateData.ExtraData.DisplayName = "gurunx";
 						_playerInfo.Username = _playerInfo.CertificateData.ExtraData.DisplayName;
 						_session.Username = _playerInfo.Username;
 						string identity = _playerInfo.CertificateData.ExtraData.Identity;
